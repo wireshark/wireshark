@@ -3241,12 +3241,12 @@ static const value_string pn_io_pe_measurement_status[] = {
     { 0, NULL }
 };
 
-static const range_string pn_io_credential_id_credential_type[] = {
-    { 0x00, 0x00, "No credential exists" },
-    { 0x01, 0x01, "IDevID" },
-    { 0x02, 0x02, "LDevID-Generic" },
-    { 0x03, 0x03, "LDevID-PN" },
-    { 0, 0, NULL }
+static const value_string pn_io_credential_id_credential_type[] = {
+    { 0x00, "No credential exists" },
+    { 0x01, "IDevID" },
+    { 0x02, "LDevID-Generic" },
+    { 0x03, "LDevID-PN" },
+    { 0, NULL }
 };
 
 static const range_string pn_io_number_of_octets[] = {
@@ -3762,20 +3762,20 @@ static const value_string pn_io_security_information_protection_mode[] = {
     { 0, NULL }
 };
 
-static const range_string pn_io_security_mode[] = {
-    { 0x0000, 0x0000, "Preserve stored value" },
-    { 0x0001, 0x0001, "ANY Default Value" },
-    { 0x0002, 0x0002, "PROTECTED" },
-    { 0x0003, 0x0003, "Reserved" },
-    { 0, 0, NULL }
+static const val64_string pn_io_security_mode[] = {
+    { 0x00, "Preserve stored value" },
+    { 0x01, "ANY Default Value" },
+    { 0x02, "PROTECTED" },
+    { 0x03, "Reserved" },
+    { 0, NULL }
 };
 
-static const range_string pn_io_certificate_validity_period_check[] = {
-    { 0x00, 0x00, "Preserved stored value" },
-    { 0x01, 0x01, "OFF Default value" },
-    { 0x02, 0x02, "ON" },
-    { 0x03, 0x03, "Reserved" },
-    { 0, 0, NULL }
+static const val64_string pn_io_certificate_validity_period_check[] = {
+    { 0x00, "Preserved stored value" },
+    { 0x01, "OFF Default value" },
+    { 0x02, "ON" },
+    { 0x03, "Reserved" },
+    { 0, NULL }
 };
 
 static const range_string pn_io_sack_degradation_threshold[] = {
@@ -16159,8 +16159,7 @@ dissect_SXPDestinationEndpoint(tvbuff_t *tvb, int offset,
     proto_tree_add_item(endpoint_tree, hf_pn_io_sxp_endpoint_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    endpoint_reserved = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(endpoint_tree, hf_pn_io_sxp_endpoint_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(endpoint_tree, hf_pn_io_sxp_endpoint_reserved, tvb, offset, 1, ENC_BIG_ENDIAN, &endpoint_reserved);
     if (endpoint_reserved != 0) {
         expert_add_info_format(pinfo, endpoint_item, &ei_pn_io_block_version,
             "Endpoint reserved field non-zero: 0x%02x", endpoint_reserved);
@@ -22704,12 +22703,12 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_security_mode,
     { "SecurityConfigurationParameters.SecurityMode", "pn_io.security_configuration_parameters.security_mode",
-        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_security_mode), 0x0000000000000003,
+        FT_UINT64, BASE_HEX|BASE_VAL64_STRING, VALS64(pn_io_security_mode), 0x0000000000000003,
         NULL, HFILL }
     },
     { &hf_pn_io_certificate_validity_period_check,
     { "SecurityConfigurationParameters.CertificateValidityPeriodCheck", "pn_io.security_configuration_parameters.certificate_validity_period_check",
-        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_certificate_validity_period_check), 0x000000000000000C,
+        FT_UINT64, BASE_HEX|BASE_VAL64_STRING, VALS64(pn_io_certificate_validity_period_check), 0x000000000000000C,
         NULL, HFILL }
     },
     { &hf_pn_io_security_configuration_parameters_reserved1,
@@ -22740,7 +22739,7 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_credential_id_credential_type,
     { "CredentialID.CredentialType", "pn_io.credential_id.credential_type",
-        FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_credential_id_credential_type), 0x00000003,
+        FT_UINT32, BASE_HEX, VALS(pn_io_credential_id_credential_type), 0x00000003,
         NULL, HFILL }
     },
     { &hf_pn_io_credential_id_reserved,

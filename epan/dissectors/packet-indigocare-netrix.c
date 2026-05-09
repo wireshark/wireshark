@@ -461,7 +461,7 @@ proto_register_netrix(void)
 		NULL, HFILL }
 	},
 	{ &hf_netrix_header_search_conversiontables_none_type,
-		{ "Search converstiontables: no results", "netrix.searchconversiontables.noresult",
+		{ "Search conversiontables: no results", "netrix.searchconversiontables.noresult",
 		FT_NONE, BASE_NONE,
 		NULL, 0x0,
 		NULL, HFILL }

@@ -2109,7 +2109,7 @@ static void handle_feedback_format_4(proto_tree *tree, tvbuff_t *tvb, int offset
 
 	proto_tree_add_item_ret_uint(tree, hf_dect_nr_fbi4_harq_fb_bm, tvb, offset, 2, ENC_BIG_ENDIAN, &harq);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " (HARQ procs: ");
+	col_append_str(pinfo->cinfo, COL_INFO, " (HARQ procs: ");
 	/* Cycle from 0th to 8th HARQ bitmap */
 	for (uint16_t bitCycle = 0, i = 0; i <= 8; i++) {
 		bitCycle = (1 << i);
@@ -2165,7 +2165,7 @@ static void handle_feedback_format_7(proto_tree *tree, tvbuff_t *tvb, int offset
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (%s", val_to_str_const(bs, buffer_status_vals, "Unknown"));
 	if (cqi_sel)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", CQI: %s", val_to_str_const(cqi, cqi_vals, "Unknown"));
-	col_append_fstr(pinfo->cinfo, COL_INFO, ")");
+	col_append_str(pinfo->cinfo, COL_INFO, ")");
 }
 
 /* 6.2: Physical Header Field */
@@ -2245,7 +2245,7 @@ static int dissect_physical_header_field(tvbuff_t *tvb, int offset, packet_info 
 		proto_tree_add_item_ret_uint(tree, hf_dect_nr_fb_format, tvb, offset, 2, ENC_BIG_ENDIAN, &fb_format);
 
 		if (fb_format != 0) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Feedback");
+			col_set_str(pinfo->cinfo, COL_INFO, "Feedback");
 		}
 
 		switch (fb_format) {

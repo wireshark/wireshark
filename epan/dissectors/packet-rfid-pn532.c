@@ -730,8 +730,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if (command_data)
             command_data->data.test_number = test_number;
 
-        proto_tree_add_item(pn532_tree, hf_pn532_parameters_length, tvb, offset, 1, ENC_NA);
-        length = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(pn532_tree, hf_pn532_parameters_length, tvb, offset, 1, ENC_NA, &length);
         offset += 1;
 
         switch (test_number) {
@@ -1001,8 +1000,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
 
     case RF_CONFIGURATION_REQ:
-        proto_tree_add_item(pn532_tree, hf_pn532_config, tvb, offset, 1, ENC_BIG_ENDIAN);
-        config = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(pn532_tree, hf_pn532_config, tvb, offset, 1, ENC_BIG_ENDIAN, &config);
         offset += 1;
 
         switch(config) {
@@ -1278,16 +1276,14 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(sub_tree, hf_pn532_sel_res, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
 
-                proto_tree_add_item(sub_tree, hf_pn532_nfc_id_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-                length = tvb_get_uint8(tvb, offset);
+                proto_tree_add_item_ret_uint8(sub_tree, hf_pn532_nfc_id_length, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
                 offset += 1;
 
                 proto_tree_add_item(sub_tree, hf_pn532_nfc_id_1, tvb, offset, length, ENC_NA);
                 offset += length;
 
                 if (tvb_reported_length_remaining(tvb, offset)) {
-                    proto_tree_add_item(sub_tree, hf_pn532_ats_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    length = tvb_get_uint8(tvb, offset);
+                    proto_tree_add_item_ret_uint8(sub_tree, hf_pn532_ats_length, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
                     offset += 1;
 
                     proto_tree_add_item(sub_tree, hf_pn532_ats, tvb, offset, length - 1, ENC_NA);
@@ -1320,8 +1316,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(sub_tree, hf_pn532_atqb_response, tvb, offset, 12, ENC_NA);
                 offset += 12;
 
-                proto_tree_add_item(sub_tree, hf_pn532_attrib_res_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-                length = tvb_get_uint8(tvb, offset);
+                proto_tree_add_item_ret_uint8(sub_tree, hf_pn532_attrib_res_length, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
                 offset += 1;
 
                 proto_tree_add_item(sub_tree, hf_pn532_attrib_res, tvb, offset, length, ENC_NA);
@@ -1550,8 +1545,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             type = tvb_get_uint8(tvb, offset);
             offset += 1;
 
-            proto_tree_add_item(sub_tree, hf_pn532_target_data_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-            length = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(sub_tree, hf_pn532_target_data_length, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
             proto_item_set_len(sub_item, length + 4);
             offset += 1;
 

@@ -830,7 +830,7 @@ dissect_live_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
   proto_tree_add_uint(live_peer_list_set_tree, hf_mka_param_body_length, tvb, offset, 2, param_body_len);
   offset += 2;
 
-  unsigned index = 1; // SSCIs start at 1
+  unsigned idx = 1; // SSCIs start at 1
   while (param_body_len >= 16) {
     /* If this is MKA version 3 and a Live Peer List in a MKPDU that contains
      * a Distributed SAK, then the MIs are ordered in order of their SCI. This,
@@ -846,12 +846,12 @@ dissect_live_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
     proto_tree_add_item(live_peer_list_set_tree, hf_mka_peer_mi, tvb, offset, MKA_MI_LEN, ENC_NA);
     if (sci_map) {
       mi = tvb_memdup(pinfo->pool, tvb, offset, MKA_MI_LEN);
-      if (index >= server_ssci) {
+      if (idx >= server_ssci) {
         // This is the correct 1-indexed position if server_ssci is 0
         // Because the server SCI was put at the first position.
-        ssci = index + 1;
+        ssci = idx + 1;
       } else {
-        ssci = index;
+        ssci = idx;
       }
       // Do we know the SCI for this MI?
       sci = wmem_map_lookup(mka_mi_sci_map, mi);
@@ -882,7 +882,7 @@ dissect_live_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
     offset += 4;
 
     param_body_len -= 16;
-    index++;
+    idx++;
   }
 
   if (mi_array && know_all_sci && !server_ssci) {

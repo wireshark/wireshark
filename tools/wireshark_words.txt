@@ -1085,6 +1085,7 @@ fcfcs
 fcpflags
 fcslen
 fdata
+fdinfo
 featureful
 february
 fhandle
@@ -1470,6 +1471,7 @@ ioepoch
 ioerr
 ioflag
 iograph
+iomgr
 iommu
 ionospheric
 iotecha
@@ -1859,6 +1861,7 @@ mqsysp
 mrcpv
 mrdisc
 mrpic
+msauth
 msbuild
 mscldap
 msgasy
@@ -1866,6 +1869,7 @@ msgasync
 msgflag
 msgid
 msglen
+msgread
 msgreq
 msgsend
 msgtype
@@ -3109,6 +3113,7 @@ systemd
 t7entry
 tablemod
 tabular
+taglen
 taiwan
 tallinn
 tanzania
@@ -3300,7 +3305,9 @@ uganda
 uievent
 uimsbf
 uint16
+uint16t
 uint32
+uint32t
 uint8
 uinteger
 ulmap
@@ -3692,6 +3699,7 @@ xsltproc
 xtension
 xtest
 xtreme
+xtypes
 xxhash
 yyextra
 yyscanner

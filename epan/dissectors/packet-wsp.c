@@ -4100,7 +4100,7 @@ add_addresses(proto_tree *tree, tvbuff_t *tvb, int hf)
             bearer_type = 0x00; /* XXX */
         }
         if (address_flags_len & PORT_NUMBER_INCLUDED) {
-                proto_tree_add_uint (addr_tree, hf_address_port_num,
+                proto_tree_add_item (addr_tree, hf_address_port_num,
                         tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
         }
