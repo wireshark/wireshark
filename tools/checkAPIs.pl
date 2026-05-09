@@ -940,7 +940,7 @@ sub has_utf8_bom {
 
     # Open file in raw/binary mode
     open(my $fh, '<:raw', $filename) or die "Could not open '$filename': $!";
-    
+
     my $bytes;
     read($fh, $bytes, 3);
     close($fh);
@@ -1140,6 +1140,7 @@ if ("$filenamelist" ne "") {
 die "no files to process" unless (scalar @filelist);
 
 # Read through the files; do various checks
+@filelist = reverse sort @filelist;
 while ($_ = pop @filelist)
 {
         my $filename = $_;
@@ -1234,7 +1235,7 @@ while ($_ = pop @filelist)
 
         $errorCount += check_pref_var_dupes(\$fileContents, $filename);
 
-        # Remove all blank lines
+        # Remove all blank lines (this doesn't work?)
         $fileContents =~ s{ ^ \s* $ } []xog;
 
         # Remove all '#if 0'd' code
