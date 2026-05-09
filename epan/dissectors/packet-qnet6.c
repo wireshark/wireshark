@@ -4707,7 +4707,7 @@ proto_register_qnet6(void)
     },
     {&hf_qnet6_kif_vtid_info_coid,
      {"Coid", "qnet6.kif.msgsend.vtid_info.coid",
-      FT_INT32, BASE_DEC, NULL, 0,
+      FT_UINT32, BASE_DEC, NULL, 0,
       "Kernel Interface MsgSend Message virtual thread connection id", HFILL}
     },
     {&hf_qnet6_kif_vtid_info_priority,
@@ -5551,7 +5551,7 @@ proto_register_qnet6(void)
     },
     {&hf_qnet6_kif_msg_msginfo_chid,
      {"Chid", "qnet6.kif.msgsend.msg_info.chid",
-      FT_INT32, BASE_DEC, NULL, 0,
+      FT_UINT32, BASE_DEC, NULL, 0,
       "channel id", HFILL}
     },
     {&hf_qnet6_kif_msg_msginfo_scoid,
@@ -5561,7 +5561,7 @@ proto_register_qnet6(void)
     },
     {&hf_qnet6_kif_msg_msginfo_coid,
      {"Coid", "qnet6.kif.msgsend.msg_info.coid",
-      FT_INT32, BASE_DEC, NULL, 0,
+      FT_UINT32, BASE_DEC, NULL, 0,
       "connection id", HFILL}
     },
     {&hf_qnet6_kif_msg_msginfo_msglen,
