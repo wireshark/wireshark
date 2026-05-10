@@ -16,8 +16,8 @@ generates get_CDR_xxx calls to decode the CORBA traffic on the wire.
 It consists of 4 main files.
 
 README.idl2wrs     - This document
-wireshark_be.py    - The main compiler backend
-wireshark_gen.py   - A helper class that generates the C code.
+idl2wrs_be.py      - The main compiler backend
+idl2wrs_gen.py     - A helper class that generates the C code.
 idl2wrs            - A simple shell script wrapper that the end user should
                      use to generate the dissector from the IDL file(s).
 
@@ -79,14 +79,14 @@ steps 3 or 4 instead.
 
 3.  To write the C code to stdout.
 
-    Usage: omniidl  -p ./ -b wireshark_be <your_file.idl>
+    Usage: omniidl  -p ./ -b idl2wrs_be <your_file.idl>
 
-    eg: omniidl  -p ./ -b wireshark_be echo.idl
+    eg: omniidl  -p ./ -b idl2wrs_be echo.idl
 
 
 4. To write to a file, just redirect the output.
 
-    omniidl  -p ./ -b wireshark_be echo.idl > packet-test-idl.c
+    omniidl  -p ./ -b idl2wrs_be echo.idl > packet-test-idl.c
 
    You may wish to comment out the register_giop_user_module() code
    and that will leave you with heuristic dissection.
@@ -132,8 +132,8 @@ See TODO list inside packet-giop.c
 Notes
 =====
 
-1. The "-p ./" option passed to omniidl indicates that the wireshark_be.py
-   and wireshark_gen.py are residing in the current directory. This may need
+1. The "-p ./" option passed to omniidl indicates that the idl2wrs_be.py
+   and idl2wrs_gen.py are residing in the current directory. This may need
    tweaking if you place these files somewhere else.
 
 2. If it complains about being unable to find some modules (eg tempfile.py),

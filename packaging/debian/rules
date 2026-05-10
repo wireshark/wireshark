@@ -104,8 +104,8 @@ override_dh_install:
 override_dh_fixperms:
 	dh_fixperms
 	chmod 644 debian/wireshark-dev/usr/share/pyshared/make-plugin-reg.py \
-		debian/wireshark-dev/usr/share/pyshared/wireshark_be.py \
-		debian/wireshark-dev/usr/share/pyshared/wireshark_gen.py
+		debian/wireshark-dev/usr/share/pyshared/idl2wrs_be.py \
+		debian/wireshark-dev/usr/share/pyshared/idl2wrs_gen.py
 
 override_dh_auto_test:
 ifeq (,$(filter $(DEB_BUILD_OPTIONS),nocheck))

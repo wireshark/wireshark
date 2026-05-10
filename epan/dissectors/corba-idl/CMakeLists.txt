@@ -28,16 +28,16 @@ if(OMNIIDL_EXECUTABLE)
 			OUTPUT packet-${PROTOCOL_NAME}-stamp
 			COMMAND
 				omniidl
-				-p "${CMAKE_SOURCE_DIR}/tools"
-				-b wireshark_be
+				-p "${CMAKE_SOURCE_DIR}/tools/dissector_generators"
+				-b idl2wrs_be
 				"-Wbpath=${CMAKE_CURRENT_SOURCE_DIR}/.."
 				${PROTOCOL_NAME}.idl
 			COMMAND "${CMAKE_COMMAND}" -E touch
 				"${CMAKE_CURRENT_BINARY_DIR}/packet-${PROTOCOL_NAME}-stamp"
 			WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${PROTOCOL_NAME}"
 			DEPENDS
-				"${CMAKE_SOURCE_DIR}/tools/wireshark_be.py"
-				"${CMAKE_SOURCE_DIR}/tools/wireshark_gen.py"
+				"${CMAKE_SOURCE_DIR}/tools/dissector_generators/idl2wrs_be.py"
+				"${CMAKE_SOURCE_DIR}/tools/dissector_generators/idl2wrs_gen.py"
 				${PROTOCOL_NAME}/${PROTOCOL_NAME}.idl
 			VERBATIM
 		)

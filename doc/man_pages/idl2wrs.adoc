@@ -24,10 +24,10 @@ used to monitor *GIOP/IIOP* traffic that is using this IDL.
 *idl2wrs* is actually a shell script wrapper for two *Python* programs.
 These programs are:
 
-* *wireshark_be.py*
+* *idl2wrs_be.py*
 Contains the main IDL Visitor Class
 
-* *wireshark_gen.py*
+* *idl2wrs_gen.py*
 Contains the Source Code Generator Class
 
 *idl2wrs* supports heuristic dissection of GIOP/IIOP traffic,
@@ -53,12 +53,12 @@ Currently there are no options. *idl2wrs* can be invoked as follows.
 
 == ENVIRONMENT
 
-*idl2wrs* will look for *wireshark_be.py* and *wireshark_gen.py* in
+*idl2wrs* will look for *idl2wrs_be.py* and *idl2wrs_gen.py* in
 *$PYTHONPATH/site-packages/* and if not found, will try the current
 directory *./*
 
 The *-p* option passed to omniidl (inside *idl2wrs*) indicates where
-*wireshark_be.py* and *wireshark_gen.py* will be searched.  This may
+*idl2wrs_be.py* and *idl2wrs_gen.py* will be searched.  This may
 need tweaking if you place these files somewhere else.
 
 If it complains about being unable to find some modules (eg tempfile.py),
@@ -72,7 +72,7 @@ xref:wireshark.html[wireshark](1), xref:tshark.html[tshark](1)
 
 == NOTES
 
-*idl2wrs* (including *wireshark_be.py* and *wireshark_gen.py*) are part of
+*idl2wrs* (including *idl2wrs_be.py* and *idl2wrs_gen.py*) are part of
 the *Wireshark* distribution.  The latest version of *Wireshark* can
 be found at https://www.wireshark.org.
 

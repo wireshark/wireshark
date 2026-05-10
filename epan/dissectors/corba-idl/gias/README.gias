@@ -4,7 +4,7 @@ see https://web.archive.org/web/20101110013355/https://www.nato.int/structur/AC/
 
 To generate the gias dissector from the .idl documents run:
 
-omniidl -p ../../../../tools -b wireshark_be gias.idl
+omniidl -p ../../../../tools -b idl2wrs_be gias.idl
 
 (Note this is similar to the command that idl2wrs would run but explicitly identifies the backend is to be used.)
 

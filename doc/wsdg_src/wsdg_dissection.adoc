@@ -1547,10 +1547,10 @@ It consists of 4 main files.
 README.idl2wrs::
 This document
 
-wireshark_be.py::
+idl2wrs_be.py::
 The main compiler backend
 
-wireshark_gen.py::
+idl2wrs_gen.py::
 A helper class, that generates the C code.
 
 idl2wrs::
@@ -1615,13 +1615,13 @@ If you don't want to use the shell script wrapper, then try steps 3 or 4 instead
 +
 --
 ----
-$ omniidl  -p ./ -b wireshark_be <your file.idl>
+$ omniidl  -p ./ -b idl2wrs_be <your file.idl>
 ----
 
 e.g.:
 
 ----
-$ omniidl  -p ./ -b wireshark_be echo.idl
+$ omniidl  -p ./ -b idl2wrs_be echo.idl
 ----
 --
 
@@ -1629,7 +1629,7 @@ $ omniidl  -p ./ -b wireshark_be echo.idl
 +
 --
 ----
-$ omniidl  -p ./ -b wireshark_be echo.idl > packet-test-idl.c
+$ omniidl  -p ./ -b idl2wrs_be echo.idl > packet-test-idl.c
 ----
 
 You may wish to comment out the register_giop_user_module() code and that will
@@ -1710,8 +1710,8 @@ See the TODO list inside _packet-giop.c_
 
 ==== Notes
 
-The `-p ./` option passed to omniidl indicates that the wireshark_be.py and
-wireshark_gen.py are residing in the current directory. This may need tweaking
+The `-p ./` option passed to omniidl indicates that the idl2wrs_be.py and
+idl2wrs_gen.py are residing in the current directory. This may need tweaking
 if you place these files somewhere else.
 
 If it complains about being unable to find some modules (e.g. tempfile.py), you

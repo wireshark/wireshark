@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-#    File      : wireshark_be.py
+#    File      : idl2wrs_be.py
 #
 #    Author    : Frank Singleton (frank.singleton@ericsson.com)
 #
@@ -31,7 +31,7 @@
 # "Struct" and "Union" nodes.  Then store these nodes in lists.
 #
 # Pass these lists (via an object ref) to the src code
-# generator (wireshark_gen) class and let it do the hard work !
+# generator (idl2wrs_gen) class and let it do the hard work !
 #
 #
 # Don't forget structs can contain embedded structs etc .. so don't forget
@@ -48,13 +48,13 @@ import contextlib
 
 from omniidl import idlast, idltype, output
 
-from wireshark_gen import wireshark_gen_C
+from idl2wrs_gen import wireshark_gen_C
 
 
 class WiresharkVisitor:
     """This class finds the "Operation" nodes ,Enum Nodes, "Attribute" nodes, Struct Nodes
     and Union Nodes. Then it hands them off to an instance of the source code generator
-    class "wireshark_gen" """
+    class "idl2wrs_gen" """
 
     def __init__(self, st, debug=False):
         self.DEBUG = debug

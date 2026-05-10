@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# wireshark_gen.py (part of idl2wrs)
+# idl2wrs_gen.py (part of idl2wrs)
 #
 # Author : Frank Singleton (frank.singleton@ericsson.com)
 #
