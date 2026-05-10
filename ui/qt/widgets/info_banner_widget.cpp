@@ -73,7 +73,7 @@ static constexpr int kDescLineSpacing      = 3;
 
 /* Height of the body text area for normal and seasonal slides respectively. */
 static constexpr int kBodyHeight           = 48;
-static constexpr int kBodyHeightSeasonal   = 64;
+static constexpr int kBodyHeightSeasonal   = 108;
 
 /* Vertical gap below the body text area. */
 static constexpr int kBodyBottomSpacing    = 4;
@@ -122,7 +122,7 @@ void InfoBannerWidget::startRotation()
 
 BannerSlideType InfoBannerWidget::typeFromString(const QString &type_str)
 {
-    /* We could do this automatically using QMetaEnum if needed, but for just three fields
+    /* We could do this automatically using QMetaEnum if needed, but for just four fields
        that feels like overkill. */
 
     if (type_str == QLatin1String("events"))

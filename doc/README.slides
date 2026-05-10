@@ -41,6 +41,7 @@ Slide files use the following structure:
               }
           },
           "types": {
+              "seasonal": { "randomized": false, "maxdisplay": 0 },
               "events": { "randomized": false, "maxdisplay": 0, "only": false },
               "sponsorship": { "randomized": false, "maxdisplay": 0 },
               "tips": { "randomized": true, "maxdisplay": 3, "only": false }
@@ -135,12 +136,11 @@ Per-slide fields:
                   "seasonal" are reserved for the predefined slides.json
                   and cannot be used in custom slide files.
   title           Required. Main heading text.
-  description     Required. Primary text shown in the highlight box.
-  url             Required. Target URL opened when the slide or button
-                  is clicked.
+  description     Required(*). Primary text shown in the highlight box.
+  url             Required. Target URL opened when the button is clicked.
   tag             Optional. Short label shown as a pill/badge above the
                   title (e.g. "Conference", "Tip of the Day").
-  description_sub Optional. Secondary line in the highlight box.
+  description_sub Optional(*). Secondary line in the highlight box.
   body_text       Optional. Additional paragraph below the highlight box.
                   Only visible in non-compact mode.
   button_label    Optional. Text for the action button.
@@ -159,10 +159,13 @@ Per-slide fields:
   date_day        Optional. Integer (1-31). For seasonal slides: the
                   day of month when the slide should be shown.
 
-Slides missing any required field (type, title, description, url) are
+Slides missing any required field (type, title, description(*), url) are
 skipped with a warning. Omitted optional fields default to empty strings
 (or no date constraint for date_from/date_until). Slides without date
 fields are always visible.
+
+(*) Seasonal slides show no description or description_sub. The required
+description field can be assigned an empty string.
 
 Slide strings are intentionally not translatable. Content changes
 frequently and translation lag would be worse than untranslated text.
