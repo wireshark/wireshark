@@ -40,7 +40,7 @@ function(ASN2WRS)
 		COMMAND
 			"${CMAKE_COMMAND}" -E env PYTHONUTF8=1
 			"${Python3_EXECUTABLE}"
-			${CMAKE_SOURCE_DIR}/tools/asn2wrs.py
+			${CMAKE_SOURCE_DIR}/tools/dissector_generators/asn2wrs.py
 			${A2W_FLAGS}
 			${PROTO_OPT}
 			-c "${CMAKE_CURRENT_SOURCE_DIR}/${PROTOCOL_NAME}.cnf"
@@ -54,7 +54,7 @@ function(ASN2WRS)
 				"${A2W_OUTPUT_DIR}/packet-${PROTOCOL_NAME}.c"
 				packet-${PROTOCOL_NAME}-stamp
 		DEPENDS
-			${CMAKE_SOURCE_DIR}/tools/asn2wrs.py
+			${CMAKE_SOURCE_DIR}/tools/dissector_generators/asn2wrs.py
 			${SRC_FILES}
 			${EXTRA_CNF_targets}
 			${EXTRA_CNF}
@@ -69,7 +69,7 @@ function(ASN2WRS)
 		add_custom_command(
 			OUTPUT ${_asn2wrs_export_file}
 			COMMAND "${Python3_EXECUTABLE}"
-				${CMAKE_SOURCE_DIR}/tools/asn2wrs.py
+				${CMAKE_SOURCE_DIR}/tools/dissector_generators/asn2wrs.py
 				-E
 				${A2W_FLAGS}
 				${PROTO_OPT}
@@ -77,7 +77,7 @@ function(ASN2WRS)
 				-D "${CMAKE_CURRENT_SOURCE_DIR}"
 				${EXT_ASN_FILE_LIST} ${ASN_FILE_LIST} ${EXT_ASN_FILE_LIST_LATE}
 			DEPENDS
-				${CMAKE_SOURCE_DIR}/tools/asn2wrs.py
+				${CMAKE_SOURCE_DIR}/tools/dissector_generators/asn2wrs.py
 				${SRC_FILES}
 				${EXPORT_DEPENDS_targets}
 				${EXPORT_DEPENDS}
