@@ -339,53 +339,6 @@ win32_reset_library_path(void)
 }
 #endif
 
-#ifdef Q_OS_MAC
-// Try to work around
-//
-//     https://gitlab.com/wireshark/wireshark/-/issues/17075
-//
-// aka
-//
-//     https://bugreports.qt.io/browse/QTBUG-87014
-//
-// The fix at
-//
-//     https://codereview.qt-project.org/c/qt/qtbase/+/322228/3/src/plugins/platforms/cocoa/qnsview_drawing.mm
-//
-// enables layer backing if we're running on Big Sur OR we're running on
-// Catalina AND we were built with the Catalina SDK. Enable layer backing
-// here by setting QT_MAC_WANTS_LAYER=1, but only if we're running on Big
-// Sur and our version of Qt doesn't have a fix for QTBUG-87014.
-#include <QOperatingSystemVersion>
-static inline void
-macos_enable_layer_backing(void)
-{
-    // At the time of this writing, the QTBUG-87014 for layerEnabledByMacOS is...
-    //
-    // ...in https://github.com/qt/qtbase/blob/5.15/src/plugins/platforms/cocoa/qnsview_drawing.mm
-    // ...not in https://github.com/qt/qtbase/blob/5.15.2/src/plugins/platforms/cocoa/qnsview_drawing.mm
-    // ...not in https://github.com/qt/qtbase/blob/6.0/src/plugins/platforms/cocoa/qnsview_drawing.mm
-    // ...not in https://github.com/qt/qtbase/blob/6.0.0/src/plugins/platforms/cocoa/qnsview_drawing.mm
-    //
-    // We'll assume that it will be fixed in 5.15.3, 6.0.1, and >= 6.1
-    // Note that we only ship LTS versions of Qt with our macOS packages.
-    // Feel free to add other versions if needed.
-#if  \
-        ((QT_VERSION >= QT_VERSION_CHECK(5, 15, 0) &&  QT_VERSION < QT_VERSION_CHECK(5, 15, 3)) \
-        || (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0) &&  QT_VERSION < QT_VERSION_CHECK(6, 0, 1)) \
-    )
-    QOperatingSystemVersion os_ver = QOperatingSystemVersion::current();
-    int major_ver = os_ver.majorVersion();
-    int minor_ver = os_ver.minorVersion();
-    if ( (major_ver == 10 && minor_ver >= 16) || major_ver >= 11 ) {
-        if (qgetenv("QT_MAC_WANTS_LAYER").isEmpty()) {
-            qputenv("QT_MAC_WANTS_LAYER", "1");
-        }
-    }
-#endif
-}
-#endif
-
 #ifdef HAVE_LIBPCAP
 static GList *
 capture_opts_get_interface_list(int *err _U_, char **err_str _U_)
@@ -487,10 +440,6 @@ int main(int argc, char *qt_argv[])
      * see the Wireshark issue for why that value was chosen.
      */
     cf_set_max_records(53000000);
-#endif
-
-#ifdef Q_OS_MAC
-    macos_enable_layer_backing();
 #endif
 
     cmdarg_err_init(stratoshark_cmdarg_err, stratoshark_cmdarg_err_cont);
@@ -640,31 +589,6 @@ int main(int argc, char *qt_argv[])
 
 #ifdef _WIN32
     win32_reset_library_path();
-#endif
-
-    // Handle DPI scaling on Windows. This causes problems in at least
-    // one case on X11 and we don't yet support Android.
-    // We do the equivalent on macOS by setting NSHighResolutionCapable
-    // in Info.plist.
-    // Note that this enables Windows 8.1-style Per-monitor DPI
-    // awareness but not Windows 10-style Per-monitor v2 awareness.
-    // https://doc.qt.io/qt-5/scalability.html
-    // https://doc.qt.io/qt-5/highdpi.html
-    // https://bugreports.qt.io/browse/QTBUG-53022 - The device pixel ratio is pretty much bogus on Windows.
-    // https://bugreports.qt.io/browse/QTBUG-55510 - Windows have wrong size
-    //
-    // Deprecated in Qt6, which is Per-Monitor DPI Aware V2 by default.
-    //    warning: 'Qt::AA_EnableHighDpiScaling' is deprecated: High-DPI scaling is always enabled.
-    //    This attribute no longer has any effect.
-#if defined(Q_OS_WIN) && QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#endif
-
-    // This function must be called before creating the application object.
-    // Qt::HighDpiScaleFactorRoundingPolicy::PassThrough is the default in Qt6,
-    // so this doesn't have any effect (Round is the default in 5.14 & 5.15)
-#if defined(Q_OS_WIN)
-    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
 #endif
 
     /* Create The Stratoshark app */
