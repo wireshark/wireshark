@@ -1210,6 +1210,7 @@ col_finalize(column_info *cinfo)
     }
 
     cinfo->col_expr.col_expr[i] = "";
+    cinfo->col_expr.col_expr_val[i][0] = '\0';
   }
 
   cinfo->col_expr.col_expr[i] = NULL;
