@@ -8542,6 +8542,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Police et couleurs</translation>
     </message>
     <message>
+        <source>Welcome Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture</source>
         <translation>Capture</translation>
     </message>

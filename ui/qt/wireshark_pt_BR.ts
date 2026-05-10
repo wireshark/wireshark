@@ -8547,6 +8547,10 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
         <translation>Fonte e Cores</translation>
     </message>
     <message>
+        <source>Welcome Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture</source>
         <translation>Capturar</translation>
     </message>

@@ -8609,6 +8609,10 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Fonts i colors</translation>
     </message>
     <message>
+        <source>Welcome Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture</source>
         <translation>Captura</translation>
     </message>

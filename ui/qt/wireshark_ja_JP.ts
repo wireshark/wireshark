@@ -5303,11 +5303,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>%1: %2 (%3 of %4)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: %2 (%3 of %4)</translation>
     </message>
     <message>
         <source>Action: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>アクション: %1</translation>
     </message>
 </context>
 <context>
@@ -6424,15 +6424,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>LearnCardWidget</name>
     <message>
         <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h2&gt;学習&lt;/h2&gt;</translation>
     </message>
     <message>
         <source>Learn</source>
-        <translation type="unfinished">学習</translation>
+        <translation>学習</translation>
     </message>
     <message>
         <source>Opens the Wireshark documentation website</source>
-        <translation type="unfinished"></translation>
+        <translation>WiresharkドキュメントWebサイトを開く</translation>
     </message>
 </context>
 <context>
@@ -8583,6 +8583,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Font and Colors</source>
         <translation>フォントと色</translation>
+    </message>
+    <message>
+        <source>Welcome Page</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture</source>
@@ -13796,7 +13800,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>List of recently opened files. Files that can no longer be found on disk are shown in italics.</source>
-        <translation type="unfinished"></translation>
+        <translation>最近開いたファイルのリストです。ディスクに既に見つからないファイルは斜体で表示されます</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open a file on your file system&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -13816,11 +13820,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Capture</source>
-        <translation type="unfinished">キャプチャ</translation>
+        <translation>キャプチャ</translation>
     </message>
     <message>
         <source>Start a new capture session</source>
-        <translation type="unfinished"></translation>
+        <translation>新規キャプチャセッションを開始</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -13844,11 +13848,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Tips and announcements</source>
-        <translation type="unfinished">TIPSとお知らせ</translation>
+        <translation>TIPSとお知らせ</translation>
     </message>
     <message>
         <source>Rotating tips, sponsor acknowledgements, and announcements for Wireshark and Stratoshark conferences.</source>
-        <translation type="unfinished"></translation>
+        <translation>TIPS、スポンサーの通知、WiresharkおよびStratoshark会議のアナウンスを順番に表示します</translation>
     </message>
     <message>
         <source>Learn</source>
@@ -13856,7 +13860,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Links to documentation, wiki, and community resources.</source>
-        <translation type="unfinished"></translation>
+        <translation>ドキュメント、Wikiおよびコミュニティリソースへのリンク</translation>
     </message>
     <message>
         <source>Show in Finder</source>
@@ -13872,7 +13876,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>The %1 welcome page provides access to recent files, capture interfaces, and learning resources.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 welcomeページは最近のファイル、キャプチャインターフェースおよび学習リソースへのアクセスを提供します</translation>
     </message>
     <message>
         <source>Welcome to %1</source>
@@ -13917,23 +13921,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Tips Section</source>
-        <translation type="unfinished"></translation>
+        <translation>TIPSセクション</translation>
     </message>
     <message>
         <source>Show Tips section in sidebar</source>
-        <translation type="unfinished"></translation>
+        <translation>サイドバーにTIPSセクションを表示</translation>
     </message>
     <message>
         <source>Show slides</source>
-        <translation type="unfinished"></translation>
+        <translation>スライドを表示</translation>
     </message>
     <message>
         <source>Event Notifications (e.g. SharkFest)</source>
-        <translation type="unfinished"></translation>
+        <translation>イベント通知（Sharkfestなど）</translation>
     </message>
     <message>
         <source>Sponsorship and Donor information</source>
-        <translation type="unfinished"></translation>
+        <translation>スポンサーと寄付者情報</translation>
     </message>
     <message>
         <source>Tip of the Day</source>
@@ -13941,7 +13945,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Slide display interval</source>
-        <translation type="unfinished"></translation>
+        <translation>スライド表示間隔</translation>
     </message>
     <message>
         <source> s</source>
@@ -13949,11 +13953,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Learn Section</source>
-        <translation type="unfinished"></translation>
+        <translation>学習セクション</translation>
     </message>
     <message>
         <source>Show Learn section in sidebar</source>
-        <translation type="unfinished"></translation>
+        <translation>サイドバーに学習セクションを表示</translation>
     </message>
 </context>
 <context>
