@@ -579,7 +579,7 @@ bool TrafficDataFilterProxy::filterAcceptsColumn(int source_column, const QModel
                 (source_column == ConversationDataModel::CONV_COLUMN_SRC_PORT || source_column == ConversationDataModel::CONV_COLUMN_DST_PORT))
                 return false;
         }
-        if (! model->showTotalColumn()) {
+        if (! model->isFilterApplied()) {
             if (qobject_cast<EndpointDataModel *>(model) &&
                 (source_column == EndpointDataModel::ENDP_COLUMN_PACKETS_TOTAL || source_column == EndpointDataModel::ENDP_COLUMN_BYTES_TOTAL))
                 return false;

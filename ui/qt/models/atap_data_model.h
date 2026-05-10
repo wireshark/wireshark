@@ -175,12 +175,14 @@ public:
     bool portsAreHidden() const;
 
     /**
-     * @brief A total column is filled
+     * @brief Checks if a display filter has to be applied
      *
-     * @return true if the column is filled
-     * @return false the column is empty
+     * Controls which columns to display, and in some cases their content
+     *
+     * @return true a display filter has to be applied
+     * @return false no display filter has to be applied
      */
-    bool showTotalColumn() const;
+    bool isFilterApplied() const;
 
     /**
      * @brief Enable tapping in this model.
