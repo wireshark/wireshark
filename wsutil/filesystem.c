@@ -2522,13 +2522,11 @@ file_needs_reopen(int fd, const char* filename)
     HANDLE current_handle = CreateFile(utf_8to16(filename), FILE_READ_ATTRIBUTES,
                             FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
                             NULL, OPEN_EXISTING, 0, NULL);
-    BY_HANDLE_FILE_INFORMATION open_info, current_info;
 
     if (current_handle == INVALID_HANDLE_VALUE) {
         return true;
     }
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
     FILE_ID_INFO open_id, current_id;
     if (GetFileInformationByHandleEx(open_handle, FileIdInfo, &open_id, sizeof(open_id)) &&
         GetFileInformationByHandleEx(current_handle, FileIdInfo, &current_id, sizeof(current_id))) {
@@ -2536,18 +2534,6 @@ file_needs_reopen(int fd, const char* filename)
         CloseHandle(current_handle);
         return open_id.VolumeSerialNumber != current_id.VolumeSerialNumber ||
                memcmp(&open_id.FileId, &current_id.FileId, sizeof(open_id.FileId)) != 0;
-    }
-#endif /* _WIN32_WINNT >= _WIN32_WINNT_WIN8 */
-    if (GetFileInformationByHandle(open_handle, &open_info) &&
-        GetFileInformationByHandle(current_handle, &current_info)) {
-        /* Fallback to 64-bit identifier */
-        CloseHandle(current_handle);
-        uint64_t open_size = (((uint64_t)open_info.nFileSizeHigh) << 32) | open_info.nFileSizeLow;
-        uint64_t current_size = (((uint64_t)current_info.nFileSizeHigh) << 32) | current_info.nFileSizeLow;
-        return open_info.dwVolumeSerialNumber != current_info.dwVolumeSerialNumber ||
-               open_info.nFileIndexHigh != current_info.nFileIndexHigh ||
-               open_info.nFileIndexLow != current_info.nFileIndexLow ||
-               open_size > current_size;
     }
     CloseHandle(current_handle);
     return true;
