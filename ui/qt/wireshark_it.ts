@@ -731,51 +731,63 @@
     <name>BreakpointConditionDelegate</name>
     <message>
         <source>Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Espressione</translation>
     </message>
     <message>
         <source>Lua expression — pause when truthy</source>
-        <translation type="unfinished"></translation>
+        <translation>Espressione Lua — pausa se è vero</translation>
     </message>
     <message>
         <source>Evaluated each time control reaches this line; locals, upvalues, and globals are visible like Watch / Evaluate.
 Runtime errors are treated as false (silent) and surface as a warning icon on the row.</source>
-        <translation type="unfinished"></translation>
+        <translation>Valutato ogni volta che il controllo raggiunge questa riga; le variabili locali, i valori incrementali e le variabili globali sono visibili come in Monitora / Valuta.
+Gli errori di runtime vengono trattati come falsi (silenziosi) e visualizzati come un&apos;icona di avviso sulla riga.</translation>
     </message>
     <message>
         <source>Hit Count</source>
-        <translation type="unfinished"></translation>
+        <translation>Conteggio degli hit</translation>
     </message>
     <message>
         <source>Pause after N hits (0 disables)</source>
-        <translation type="unfinished"></translation>
+        <translation>Pausa dopo N hit (0 disabilita)</translation>
     </message>
     <message>
         <source>Gate the pause on a hit counter. The dropdown next to the integer picks the comparison mode: ≥ pauses every hit at or after N (default); = pauses once when the counter reaches N; every pauses on hits N, 2×N, 3×N, …; once pauses on the Nth hit and deactivates the breakpoint. Use 0 to disable the gate. The counter is preserved across edits to Expression / Hit Count / Log Message; lowering the target below the current count rolls the counter back to 0 so the breakpoint can wait for the next N hits. Right-click the row to reset it explicitly. Combined with an Expression on the same row, the hit-count gate runs first.</source>
+        <translation type="vanished">Imposta la pausa in base a un contatore di hit. Il menu a tendina accanto al numero intero seleziona la modalità di confronto: ≥ mette in pausa ogni hit a partire da N (impostazione predefinita); = mette in pausa una volta quando il contatore raggiunge N; ogni mette in pausa a N, 2×N, 3×N, …; una volta mette in pausa allo N-esimo hit e disattiva il breakpoint. Usa 0 per disabilitare il blocco. Il contatore viene mantenuto anche dopo le modifiche a Espressione / Conteggio hit / Messaggio di log; riducendo il valore di destinazione al di sotto del conteggio attuale, il contatore viene riportato a 0 in modo che il breakpoint possa attendere i successivi N hit. Fai clic con il pulsante destro del mouse sulla riga per reimpostarlo esplicitamente. In combinazione con una Espressione sulla stessa riga, il blocco del conteggio hit viene eseguito per primo.</translation>
+    </message>
+    <message>
+        <source>Gate the pause on a hit counter. The dropdown next to N picks the comparison mode: from pauses on every hit from N onwards (default); every pauses on hits N, 2N, 3N, …; once pauses on the N-th hit and deactivates the breakpoint. Use 0 to disable the gate. The counter is preserved across edits to Expression / Hit Count / Log Message; lowering the target below the current count rolls the counter back to 0 so the breakpoint can wait for the next N hits. Right-click the row to reset it explicitly. Combined with an Expression on the same row, the hit-count gate runs first.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Log Message</source>
-        <translation type="unfinished"></translation>
+        <translation>Messaggio di log</translation>
     </message>
     <message>
         <source>Log message — supports {expr} and tags such as {filename}, {basename}, {line}, {function}, {hits}, {timestamp}, {delta}…</source>
-        <translation type="unfinished"></translation>
+        <translation>Messaggio di log: supporta {expr} e tag come {filename}, {basename}, {line}, {function}, {hits}, {timestamp}, {delta}…</translation>
     </message>
     <message>
         <source>Logpoints write a message to the Evaluate output (and Wireshark&apos;s info log) each time the line is reached. By default execution continues without pausing; tick the Pause box on this editor to also pause after emitting (useful for log-then-inspect without duplicating the breakpoint). The line is emitted verbatim — there is no automatic file:line prefix. Inside {} the text is evaluated as a Lua expression in this frame and converted to text the same way tostring() does; reserved tags below shadow any same-named Lua local / upvalue / global. Origin: {filename}, {basename}, {line}, {function}, {what}. Counters and scope: {hits}, {depth}, {thread}. Time: {timestamp}, {datetime}, {epoch}, {epoch_ms}, {elapsed}, {delta}. Use {{ and }} for literal { and }. Per-placeholder errors substitute &apos;&lt;error: ...&gt;&apos; without aborting the line.</source>
-        <translation type="unfinished"></translation>
+        <translation>I logpoint scrivono un messaggio nell&apos;output di valutazione (e nel log informativo di Wireshark) ogni volta che viene raggiunta la riga. Per impostazione predefinita, l&apos;esecuzione continua senza pause; seleziona la casella Pausa in questo editor per mettere in pausa anche dopo l&apos;emissione (utile per registrare e poi ispezionare senza duplicare il breakpoint). La riga viene emessa letteralmente: non c&apos;è un prefisso automatico file:riga. All&apos;interno di {} il testo viene valutato come un&apos;espressione Lua in questo frame e convertito in testo nello stesso modo in cui lo fa tostring(); i tag riservati sottostanti nascondono qualsiasi variabile locale/upvalue/globale Lua con lo stesso nome. Origine: {filename}, {basename}, {line}, {function}, {what}. Contatori e ambito: {hits}, {depth}, {thread}. Tempo: {timestamp}, {datetime}, {epoch}, {epoch_ms}, {elapsed}, {delta}. Usa {{ e }} per { e } letterali. Gli errori per segnaposto sostituiscono &apos;&lt;error: ...&gt;&apos; senza interrompere la riga.</translation>
     </message>
     <message>
         <source>from</source>
-        <translation type="unfinished"></translation>
+        <translation>da</translation>
     </message>
     <message>
         <source>every</source>
-        <translation type="unfinished"></translation>
+        <translation>ogni</translation>
     </message>
     <message>
         <source>once</source>
+        <translation>una volta</translation>
+    </message>
+    <message>
+        <source>Comparison mode for the hit count:
+from — pause on every hit from N onwards.
+every — pause on hits N, 2N, 3N…
+once — pause once on the N-th hit and deactivate the breakpoint.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -783,16 +795,20 @@ Runtime errors are treated as false (silent) and surface as a warning icon on th
 from — pause on every hit from N onwards.
 every — pause on hits N, 2N, 3N…
 once — pause once on the Nth hit and deactivate the breakpoint.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Modalità di confronto per il conteggio di hit:
+da — pausa a ogni hit da N in poi.
+ogni — pausa agli hit N, 2N, 3N…
+una volta — pausa una volta allo N-esimo hit e disattiva il breakpoint.</translation>
     </message>
     <message>
         <source>Pause</source>
-        <translation type="unfinished">Pausa</translation>
+        <translation>Pausa</translation>
     </message>
     <message>
         <source>Pause: format and emit the log message AND pause execution.
 Off = logpoint only (matches the historical &quot;logpoints never pause&quot; convention).</source>
-        <translation type="unfinished"></translation>
+        <translation>Pausa: formatta ed emette il messaggio di log E sospende l&apos;esecuzione.
+Off = solo logpoint (corrisponde alla convenzione storica secondo cui &quot;i logpoint non vengono mai messi in pausa&quot;).</translation>
     </message>
 </context>
 <context>
@@ -2727,6 +2743,14 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     <message>
         <source>Pause</source>
         <translation>Pausa</translation>
+    </message>
+    <message>
+        <source>Double click on graph to set start of playback.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start: %1 s. Double click on graph to set start of playback.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>DIS Playback</source>
@@ -7516,12 +7540,170 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
 </context>
 <context>
+    <name>LuaDebuggerBreakpointsController</name>
+    <message>
+        <source>Location</source>
+        <translation type="unfinished">Posizione</translation>
+    </message>
+    <message>
+        <source>Edit...</source>
+        <translation type="unfinished">Modifica...</translation>
+    </message>
+    <message>
+        <source>Open Source</source>
+        <translation type="unfinished">Apri sorgente</translation>
+    </message>
+    <message>
+        <source>Reset Hit Count</source>
+        <translation type="unfinished">Ripristina il conteggio degli hit</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="unfinished">Rimuovi</translation>
+    </message>
+    <message>
+        <source>Reset All Hit Counts</source>
+        <translation type="unfinished">Ripristina tutti i conteggi degli hit</translation>
+    </message>
+    <message>
+        <source>Remove All Breakpoints</source>
+        <translation type="unfinished">Rimuovi tutti i breakpoint</translation>
+    </message>
+    <message>
+        <source>Clear All Breakpoints</source>
+        <translation type="unfinished">Cancella tutti i breakpoint</translation>
+    </message>
+    <message numerus="yes">
+        <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
+        <translation type="unfinished">
+            <numerusform>Sei sicuro di voler rimuovere %Ln breakpoint?</numerusform>
+            <numerusform>Sei sicuro di voler rimuovere %Ln breakpoint?</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Location: %1:%2</source>
+        <translation type="unfinished">Posizione: %1:%2</translation>
+    </message>
+    <message>
+        <source>Condition: %1</source>
+        <translation type="unfinished">Condizione: %1</translation>
+    </message>
+    <message>
+        <source>pauses on hits %1, 2×%1, 3×%1, …</source>
+        <translation type="unfinished">sospende agli hit %1, 2×%1, 3×%1, …</translation>
+    </message>
+    <message>
+        <source>pauses once on hit %1, then deactivates the breakpoint</source>
+        <translation type="unfinished">sospende una volta raggiunto l&apos;hit %1, quindi disattiva il breakpoint</translation>
+    </message>
+    <message>
+        <source>pauses on every hit from %1 onwards</source>
+        <translation type="unfinished">sospende a ogni hit da 1% in poi</translation>
+    </message>
+    <message>
+        <source>Hit Count: %1 / %2 (%3)</source>
+        <translation type="unfinished">Conteggio hit: %1 / %2 (%3)</translation>
+    </message>
+    <message>
+        <source>Hits: %1</source>
+        <translation type="unfinished">Hit: %1</translation>
+    </message>
+    <message>
+        <source>Log: %1</source>
+        <translation type="unfinished">Log: %1</translation>
+    </message>
+    <message>
+        <source>(logpoint — also pauses)</source>
+        <translation type="unfinished">(logpoint — sospende anche)</translation>
+    </message>
+    <message>
+        <source>(logpoint — does not pause)</source>
+        <translation type="unfinished">(logpoint — non sospende)</translation>
+    </message>
+    <message>
+        <source>Condition error on last evaluation — treated as false (silent). Edit or reset the breakpoint to clear.</source>
+        <translation type="unfinished">Errore di condizione nell&apos;ultima valutazione: trattato come falso (silenzioso). Modifica o ripristina il breakpoint per cancellarlo.</translation>
+    </message>
+    <message>
+        <source>Condition error: %1</source>
+        <translation type="unfinished">Errore di condizione: %1</translation>
+    </message>
+    <message>
+        <source>File not found: %1</source>
+        <translation type="unfinished">File non trovato: %1</translation>
+    </message>
+    <message>
+        <source>&amp;Edit...</source>
+        <translation type="unfinished">&amp;Modifica...</translation>
+    </message>
+    <message>
+        <source>&amp;Disable</source>
+        <translation type="unfinished">&amp;Disabilita</translation>
+    </message>
+    <message>
+        <source>&amp;Enable</source>
+        <translation type="unfinished">&amp;Abilita</translation>
+    </message>
+    <message>
+        <source>&amp;Remove</source>
+        <translation type="unfinished">&amp;Rimuovi</translation>
+    </message>
+    <message>
+        <source>No breakpoints
+%1: add or remove breakpoint on the current line in the editor</source>
+        <translation type="unfinished">Nessun punto di interruzione
+%1: aggiunge o rimuove un punto di interruzione sulla riga attuale nell&apos;editor</translation>
+    </message>
+    <message>
+        <source>All breakpoints are inactive — click to activate all
+%1: add or remove on the current line in the editor</source>
+        <translation type="unfinished">Tutti i breakpoint sono inattivi: fai clic per attivarli tutti.
+%1: aggiungi o rimuovi sulla riga attuale nell&apos;editor.</translation>
+    </message>
+    <message>
+        <source>Click to deactivate all breakpoints
+%1: add or remove on the current line in the editor</source>
+        <translation type="unfinished">Fai clic per disattivare tutti i breakpoint
+%1: aggiungi o rimuovi sulla riga attuale nell&apos;editor</translation>
+    </message>
+</context>
+<context>
+    <name>LuaDebuggerCodeTabsController</name>
+    <message numerus="yes">
+        <source>There are unsaved changes in %Ln open file(s).</source>
+        <translation type="unfinished">
+            <numerusform>Sono presenti modifiche non salvate in %Ln file aperto.</numerusform>
+            <numerusform>Sono presenti modifiche non salvate in %Ln file aperti.</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Save Lua Script</source>
+        <translation type="unfinished">Salva script Lua</translation>
+    </message>
+    <message>
+        <source>Could not write to %1:
+%2</source>
+        <translation type="unfinished">Impossibile scrivere su %1:
+%2</translation>
+    </message>
+    <message>
+        <source>Lua Debugger</source>
+        <translation type="unfinished">Debugger Lua</translation>
+    </message>
+    <message>
+        <source>Save changes to %1 before closing?</source>
+        <translation type="unfinished">Vuoi salvare le modifiche a %1 prima di chiudere?</translation>
+    </message>
+</context>
+<context>
     <name>LuaDebuggerCodeView</name>
     <message>
         <source>Click: add or remove breakpoint
 Shift+click: on an empty line, add a disabled breakpoint;
 on an existing breakpoint, toggle its active state</source>
-        <translation type="unfinished"></translation>
+        <translation>Clic: aggiungi o rimuovi un breakpoint
+Maiusc+clic: su una riga vuota, aggiungi un breakpoint disabilitato;
+su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     </message>
 </context>
 <context>
@@ -7552,7 +7734,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Run to line (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Esegui fino alla riga (%1)</translation>
     </message>
     <message>
         <source>Reload Lua Plugins (Ctrl+Shift+L)</source>
@@ -7593,10 +7775,6 @@ on an existing breakpoint, toggle its active state</source>
 … (troncato)</translation>
     </message>
     <message>
-        <source>%1 (%2)</source>
-        <translation type="vanished">%1 (%2)</translation>
-    </message>
-    <message>
         <source>&lt;p&gt;&lt;b&gt;Locals&lt;/b&gt;&lt;br/&gt;Parameters and local variables for the selected stack frame.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Upvalues&lt;/b&gt;&lt;br/&gt;Outer variables that this function actually uses from surrounding code. Anything the function does not reference does not appear here.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Globals&lt;/b&gt;&lt;br/&gt;Names from the global environment table.&lt;/p&gt;&lt;p&gt;Values that differ from the previous pause are drawn in a &lt;b&gt;bold accent color&lt;/b&gt;, and briefly flash on the pause that introduced the change.&lt;/p&gt;</source>
         <translation>&lt;p&gt;&lt;b&gt;Locali&lt;/b&gt;&lt;br/&gt;Parametri e variabili locali per il frame dello stack selezionato.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Upvalue&lt;/b&gt;&lt;br/&gt;Variabili esterne che questa funzione utilizza effettivamente dal codice circostante. Tutto ciò a cui la funzione non fa riferimento non compare qui.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Globali&lt;/b&gt;&lt;br/&gt;Nomi tratti dalla tabella dell&apos;ambiente globale.&lt;/p&gt;&lt;p&gt;I valori che differiscono dalla pausa precedente vengono disegnati con un &lt;b&gt;con un colore di accento marcato&lt;/b&gt;, e lampeggiano brevemente durante la pausa che ha introdotto la modifica.&lt;/p&gt;</translation>
     </message>
@@ -7617,10 +7795,6 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Monitora</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Each row is a &lt;b&gt;Variables-tree path&lt;/b&gt;, not a Lua expression. Accepted forms:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Section-qualified: &lt;code&gt;Locals.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;, &lt;code&gt;Upvalues.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;, &lt;code&gt;Globals.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;.&lt;/li&gt;&lt;li&gt;Section root alone: &lt;code&gt;Locals&lt;/code&gt;, &lt;code&gt;Upvalues&lt;/code&gt;, &lt;code&gt;Globals&lt;/code&gt; (&lt;code&gt;_G&lt;/code&gt; is an alias for &lt;code&gt;Globals&lt;/code&gt;).&lt;/li&gt;&lt;li&gt;Unqualified name: resolved in &lt;b&gt;Locals &amp;rarr; Upvalues &amp;rarr; Globals&lt;/b&gt; order; the row tooltip shows which section matched.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;After the first segment, chain &lt;code&gt;.field&lt;/code&gt; or bracket keys &amp;mdash; integer (&lt;code&gt;[1]&lt;/code&gt;, &lt;code&gt;[-1]&lt;/code&gt;, &lt;code&gt;[0x1F]&lt;/code&gt;), boolean (&lt;code&gt;[true]&lt;/code&gt;), or short-literal string (&lt;code&gt;[&quot;key&quot;]&lt;/code&gt;, &lt;code&gt;[&apos;k&apos;]&lt;/code&gt;). Depth is capped at 32 segments. Use the &lt;b&gt;Evaluate&lt;/b&gt; panel below for arbitrary Lua expressions.&lt;/p&gt;&lt;p&gt;Values are only read while the debugger is &lt;b&gt;paused&lt;/b&gt;; otherwise the Value column shows a muted em dash. Values that differ from the previous pause are drawn in a &lt;b&gt;bold accent color&lt;/b&gt;, and briefly flash on the pause that introduced the change.&lt;/p&gt;&lt;p&gt;Double-click or press &lt;b&gt;F2&lt;/b&gt; to edit a row; &lt;b&gt;Delete&lt;/b&gt; removes it; drag rows to reorder.&lt;/p&gt;</source>
-        <translation type="vanished">&lt;p&gt;Ogni riga è un &lt;b&gt;percorso dell&apos;albero delle variabili&lt;/b&gt;, non un&apos;espressione Lua. Forme accettate: &lt;/p&gt;&lt;ul&gt;&lt;li&gt;qualificato dalla sezione: &lt;code&gt;Locals.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;, &lt;code&gt;Upvalues.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;, &lt;code&gt;Globals.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;. &lt;li&gt;Radice della sezione da sola: &lt;code&gt;Locals&lt;/code&gt;, &lt;code&gt;Upvalues&lt;/code&gt;, &lt;code&gt;Globals&lt;/code&gt; (&lt;code&gt;_G&lt;/code&gt; è un alias per &lt;code&gt;Globals&lt;/code&gt;).&lt;/li&gt; &lt;li&gt;Nome non qualificato: risolto nell&apos;ordine &lt;b&gt;Locali &amp;rarr; Upvalue ​​&amp;rarr; Globali&lt;/b&gt;; il suggerimento della riga mostra quale sezione corrisponde.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Dopo il primo segmento, concatena &lt;code&gt;.field&lt;/code&gt; o chiavi tra parentesi quadre &amp;mdash; intero (&lt;code&gt;[1]&lt;/code&gt;, &lt;code&gt;[-1]&lt;/code&gt;, &lt;code&gt;[0x1F]&lt;/code&gt;), booleano (&lt;code&gt;[true]&lt;/code&gt;) o stringa letterale breve (&lt;code&gt;[&quot;key&quot;]&lt;/code&gt;, &lt;code&gt;[&apos;k&apos;]&lt;/code&gt;). La profondità è limitata a 32 segmenti. Utilizza il pannello &lt;b&gt;Valuta&lt;/b&gt; qui sotto per espressioni Lua arbitrarie.&lt;/p&gt; &lt;p&gt;I valori vengono letti solo quando il debugger è &lt;b&gt;in pausa&lt;/b&gt;; altrimenti la colonna Valore mostra un trattino lungo attenuato. I valori che differiscono dalla pausa precedente vengono visualizzati con un &lt;b&gt;colore marcato&lt;/b&gt; e lampeggiano brevemente durante la pausa che ha introdotto la modifica.&lt;/p&gt; &lt;p&gt;Fai doppio clic o premi &lt;b&gt;F2&lt;/b&gt; per modificare una riga; &lt;b&gt;Canc&lt;/b&gt; la elimina; trascina le righe per riordinarle.&lt;/p&gt;</translation>
-    </message>
-    <message>
         <source>Stack Trace</source>
         <translation>Stack Trace</translation>
     </message>
@@ -7635,6 +7809,10 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>Breakpoints</source>
         <translation>Breakpoint</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;&lt;b&gt;Expression&lt;/b&gt;&lt;br/&gt;Pause only when this Lua expression is truthy in the current frame. Runtime errors count as false and surface a warning icon on the row.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hit Count&lt;/b&gt;&lt;br/&gt;Gate the pause on a hit counter. The dropdown next to &lt;i&gt;N&lt;/i&gt; picks the comparison mode: &lt;code&gt;from&lt;/code&gt; pauses on every hit from &lt;i&gt;N&lt;/i&gt; onwards (default); &lt;code&gt;every&lt;/code&gt; pauses on hits &lt;i&gt;N&lt;/i&gt;, 2&amp;times;&lt;i&gt;N&lt;/i&gt;, 3&amp;times;&lt;i&gt;N&lt;/i&gt;, &amp;hellip;; &lt;code&gt;once&lt;/code&gt; pauses on the &lt;i&gt;N&lt;/i&gt;-th hit and deactivates the breakpoint. The counter is preserved across edits; right-click the row to reset it.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Log Message&lt;/b&gt;&lt;br/&gt;Write a line to the &lt;i&gt;Evaluate&lt;/i&gt; output (and Wireshark&apos;s debug log) each time the breakpoint fires &amp;mdash; after the &lt;i&gt;Hit Count&lt;/i&gt; gate and any &lt;i&gt;Expression&lt;/i&gt; allow it. By default execution continues; click the pause toggle on the editor row to also pause after emitting. Tags: &lt;code&gt;{expr}&lt;/code&gt; (any Lua value); &lt;code&gt;{filename}&lt;/code&gt;, &lt;code&gt;{basename}&lt;/code&gt;, &lt;code&gt;{line}&lt;/code&gt;, &lt;code&gt;{function}&lt;/code&gt;, &lt;code&gt;{what}&lt;/code&gt;; &lt;code&gt;{hits}&lt;/code&gt;, &lt;code&gt;{depth}&lt;/code&gt;, &lt;code&gt;{thread}&lt;/code&gt;; &lt;code&gt;{timestamp}&lt;/code&gt;, &lt;code&gt;{datetime}&lt;/code&gt;, &lt;code&gt;{epoch}&lt;/code&gt;, &lt;code&gt;{epoch_ms}&lt;/code&gt;, &lt;code&gt;{elapsed}&lt;/code&gt;, &lt;code&gt;{delta}&lt;/code&gt;; &lt;code&gt;{{&lt;/code&gt; / &lt;code&gt;}}&lt;/code&gt; for literal braces.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell (double-click, F2, or right-click &amp;rarr; Edit) to attach one of these. A white core inside the breakpoint dot &amp;mdash; in this list and in the gutter &amp;mdash; marks rows that carry extras.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Active</source>
@@ -7659,10 +7837,6 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>Enter Lua expression (prefix with = to return value)</source>
         <translation>Inserisci l&apos;espressione Lua (anteponi = per restituire il valore)</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Lua Expression Evaluation&lt;/b&gt;&lt;br&gt;&lt;br&gt;Code is executed using &lt;code&gt;lua_pcall()&lt;/code&gt; in a protected environment. Runtime errors are caught and displayed in the output.&lt;br&gt;&lt;br&gt;&lt;b&gt;Prefix with &lt;code&gt;=&lt;/code&gt;&lt;/b&gt; to return a value (e.g., &lt;code&gt;=my_var&lt;/code&gt;).&lt;br&gt;&lt;br&gt;&lt;b&gt;What works:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Read/modify global variables (&lt;code&gt;_G.x = 42&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Modify table contents (&lt;code&gt;my_table.field = 99&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Call functions and inspect return values&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Limitations:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Local variables cannot be modified directly (use &lt;code&gt;debug.setlocal()&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Long-running expressions are automatically aborted&lt;/li&gt;&lt;li&gt;&lt;b&gt;Warning:&lt;/b&gt; Changes to globals persist and can affect ongoing dissection&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation type="vanished">&lt;b&gt;Valutazione delle espressioni Lua&lt;/b&gt;&lt;br&gt;&lt;br&gt;Il codice è eseguito utilizzando &lt;code&gt;lua_pcall()&lt;/code&gt; in un ambiente protetto. Gli errori di runtime sono intercettati e visualizzati nel risultato.&lt;br&gt;&lt;br&gt;&lt;b&gt;Anteponi &lt;code&gt;=&lt;/code&gt;&lt;/b&gt; per restituire un valore (ad es., &lt;code&gt;=mia_var&lt;/code&gt;).&lt;br&gt;&lt;br&gt;&lt;b&gt;Cosa funziona:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Lettura/modifica delle variabili globali (&lt;code&gt;_G.x = 42&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Modifica dei contenuti della tabella (&lt;code&gt;mia_tabella.field = 99&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Invoca funzioni e ispezionai valori restituiti&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Limitazioni:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Le variabili locali non possono essere modificate direttamente (usa &lt;code&gt;debug.setlocal()&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Le espressioni con lunga durata vengono interrotte automaticamente&lt;/li&gt;&lt;li&gt;&lt;b&gt;Avviso:&lt;/b&gt; le modifiche alle variabili globali persistono e possono avere impatto sulla decodifica in corso&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <source>Output</source>
@@ -7706,79 +7880,91 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Clear All Breakpoints</source>
-        <translation>Cancella tutti i breakpoint</translation>
+        <translation type="vanished">Cancella tutti i breakpoint</translation>
     </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>Sei sicuro di voler rimuovere %Ln breakpoint?</numerusform>
             <numerusform>Sei sicuro di voler rimuovere %Ln breakpoint?</numerusform>
         </translation>
     </message>
     <message>
-        <source>Enable or disable this breakpoint</source>
-        <translation type="vanished">Abilita e disabilita questo breakpoint</translation>
+        <source>Copy Path</source>
+        <translation type="vanished">Copia percorso</translation>
+    </message>
+    <message>
+        <source>Reveal in File Manager</source>
+        <translation type="vanished">Mostra nel gestore file</translation>
+    </message>
+    <message>
+        <source>Copy Location</source>
+        <translation type="vanished">Copia posizione</translation>
+    </message>
+    <message>
+        <source>No breakpoints
+%1: add or remove breakpoint on the current line in the editor</source>
+        <translation type="vanished">Nessun punto di interruzione
+%1: aggiunge o rimuove un punto di interruzione sulla riga attuale nell&apos;editor</translation>
+    </message>
+    <message>
+        <source>All breakpoints are inactive — click to activate all
+%1: add or remove on the current line in the editor</source>
+        <translation type="vanished">Tutti i breakpoint sono inattivi: fai clic per attivarli tutti.
+%1: aggiungi o rimuovi sulla riga attuale nell&apos;editor.</translation>
+    </message>
+    <message>
+        <source>Click to deactivate all breakpoints
+%1: add or remove on the current line in the editor</source>
+        <translation type="vanished">Fai clic per disattivare tutti i breakpoint
+%1: aggiungi o rimuovi sulla riga attuale nell&apos;editor</translation>
+    </message>
+    <message>
+        <source>Enter a variable path (e.g. Locals.x, Globals.t.k) or a Lua expression in the Watch column to see a value here.</source>
+        <translation type="vanished">Inserisci un percorso variabile (ad es. Locals.x, Globals.t.k) o un&apos;espressione Lua nella colonna Monitora per visualizzarne il valore.</translation>
+    </message>
+    <message>
+        <source>Could not evaluate watch.</source>
+        <translation type="vanished">Impossibile valutare il monitoraggio.</translation>
+    </message>
+    <message>
+        <source>Expression — re-evaluated on every pause.</source>
+        <translation type="vanished">Espressione: rivalutata ad ogni pausa.</translation>
+    </message>
+    <message>
+        <source>Clear All Watches</source>
+        <translation type="vanished">Cancella tutti i monitoraggi</translation>
+    </message>
+    <message numerus="yes">
+        <source>Are you sure you want to remove %Ln watch(es)?</source>
+        <translation type="vanished">
+            <numerusform>Sei sicuro di voler rimuovere %Ln monitoraggio?</numerusform>
+            <numerusform>Sei sicuro di voler rimuovere %Ln monitoraggi?</numerusform>
+        </translation>
     </message>
     <message>
         <source>File not found: %1</source>
-        <translation>File non trovato: %1</translation>
-    </message>
-    <message>
-        <source>%1
-Line %2</source>
-        <translation type="vanished">%1
-Riga %2</translation>
-    </message>
-    <message>
-        <source>No watch path entered yet — enter a variable path in the Watch column to see a value here.</source>
-        <translation type="vanished">Nessun percorso da controllare inserito finora: inserisci un percorso variabile nella colonna Monitoraggio per visualizzarne il valore.</translation>
-    </message>
-    <message>
-        <source>Not a variable path</source>
-        <translation type="vanished">Non un percorso variabile</translation>
-    </message>
-    <message>
-        <source>Use a Variables-style path (e.g. Locals.x, Globals.t.k, t[1], t[&quot;k&quot;], or a single identifier).</source>
-        <translation type="vanished">Utilizza un percorso in stile Variabili (ad es. Locals.x, Globals.t.k, t[1], t[&quot;k&quot;] o un singolo identificatore).</translation>
-    </message>
-    <message>
-        <source>Only variable paths can be watched.</source>
-        <translation type="vanished">È possibile monitorare solo i percorsi variabili.</translation>
+        <translation type="vanished">File non trovato: %1</translation>
     </message>
     <message>
         <source>Value shown only while the debugger is paused.</source>
-        <translation>Valore mostrato solo quando il debugger è in pausa.</translation>
+        <translation type="vanished">Valore mostrato solo quando il debugger è in pausa.</translation>
     </message>
     <message>
         <source>Value shown only while the debugger is paused. The debugger is currently disabled.</source>
-        <translation>Valore mostrato solo quando il debugger è in pausa. Il debugger è attualmente disabilitato.</translation>
+        <translation type="vanished">Valore mostrato solo quando il debugger è in pausa. Il debugger è attualmente disabilitato.</translation>
     </message>
     <message>
         <source>error</source>
-        <translation>errore</translation>
-    </message>
-    <message>
-        <source>Invalid watch path.</source>
-        <translation type="vanished">Percorso di monitoraggio non valido.</translation>
+        <translation type="vanished">errore</translation>
     </message>
     <message>
         <source>Maximum watch depth reached</source>
-        <translation>Profondità di monitoraggio massima raggiunta</translation>
+        <translation type="vanished">Profondità di monitoraggio massima raggiunta</translation>
     </message>
     <message>
         <source>Maximum watch depth reached.</source>
-        <translation>Profondità di monitoraggio massima raggiunta.</translation>
-    </message>
-    <message>
-        <source>Only variable paths can be watched (e.g. Locals.name, Globals.x, or a single identifier for Locals.name).</source>
-        <translation type="vanished">È possibile monitorare solo i percorsi variabili (ad es. Locals.name, Globals.x o un singolo identificatore per Locals.name).</translation>
-    </message>
-    <message numerus="yes">
-        <source>Watch path is too long (maximum %Ln characters).</source>
-        <translation type="vanished">
-            <numerusform>Il percorso di visualizzazione è troppo lungo (massimo %Ln caratteri).</numerusform>
-            <numerusform>Il percorso di visualizzazione è troppo lungo (massimo %Ln caratteri).</numerusform>
-        </translation>
+        <translation type="vanished">Profondità di monitoraggio massima raggiunta.</translation>
     </message>
     <message>
         <source>Type: %1</source>
@@ -7786,28 +7972,28 @@ Riga %2</translation>
     </message>
     <message numerus="yes">
         <source>There are unsaved changes in %Ln open file(s).</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>Sono presenti modifiche non salvate in %Ln file aperto.</numerusform>
             <numerusform>Sono presenti modifiche non salvate in %Ln file aperti.</numerusform>
         </translation>
     </message>
     <message>
         <source>Save Lua Script</source>
-        <translation>Salva script Lua</translation>
+        <translation type="vanished">Salva script Lua</translation>
     </message>
     <message>
         <source>Could not write to %1:
 %2</source>
-        <translation>Impossibile scrivere su %1:
+        <translation type="vanished">Impossibile scrivere su %1:
 %2</translation>
     </message>
     <message>
         <source>Save changes to %1 before closing?</source>
-        <translation>Vuoi salvare le modifiche a %1 prima di chiudere?</translation>
+        <translation type="vanished">Vuoi salvare le modifiche a %1 prima di chiudere?</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation>Rimuovi</translation>
+        <translation type="vanished">Rimuovi</translation>
     </message>
     <message>
         <source>Remove All Breakpoints</source>
@@ -7815,123 +8001,123 @@ Riga %2</translation>
     </message>
     <message>
         <source>Add Watch (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi monitoraggio: (%1)</translation>
     </message>
     <message>
         <source>&lt;p&gt;Each row is either a &lt;b&gt;Variables-tree path&lt;/b&gt; or a &lt;b&gt;Lua expression&lt;/b&gt;; the panel auto-detects which based on the syntax you type.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Path watches&lt;/b&gt; &amp;mdash; resolved against the paused frame&apos;s locals, upvalues, and globals:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Section-qualified: &lt;code&gt;Locals.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;, &lt;code&gt;Upvalues.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;, &lt;code&gt;Globals.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;.&lt;/li&gt;&lt;li&gt;Section root alone: &lt;code&gt;Locals&lt;/code&gt;, &lt;code&gt;Upvalues&lt;/code&gt;, &lt;code&gt;Globals&lt;/code&gt; (&lt;code&gt;_G&lt;/code&gt; is an alias for &lt;code&gt;Globals&lt;/code&gt;).&lt;/li&gt;&lt;li&gt;Unqualified name: resolved in &lt;b&gt;Locals &amp;rarr; Upvalues &amp;rarr; Globals&lt;/b&gt; order; the row tooltip shows which section matched.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;After the first segment, chain &lt;code&gt;.field&lt;/code&gt; or bracket keys &amp;mdash; integer (&lt;code&gt;[1]&lt;/code&gt;, &lt;code&gt;[-1]&lt;/code&gt;, &lt;code&gt;[0x1F]&lt;/code&gt;), boolean (&lt;code&gt;[true]&lt;/code&gt;), or short-literal string (&lt;code&gt;[&quot;key&quot;]&lt;/code&gt;, &lt;code&gt;[&apos;k&apos;]&lt;/code&gt;). Depth is capped at 32 segments.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Expression watches&lt;/b&gt; &amp;mdash; anything that is not a plain path (operators, function/method calls, table constructors, length &lt;code&gt;#&lt;/code&gt;, comparisons, &amp;hellip;) is evaluated as Lua against the same locals/upvalues/globals. &lt;b&gt;You do not need a leading &lt;code&gt;=&lt;/code&gt; or &lt;code&gt;return&lt;/code&gt;&lt;/b&gt;; value-returning expressions auto-return their value. Examples: &lt;code&gt;#packets&lt;/code&gt;, &lt;code&gt;tbl[i + 1]&lt;/code&gt;, &lt;code&gt;obj:method()&lt;/code&gt;, &lt;code&gt;a == b&lt;/code&gt;, &lt;code&gt;{x, y}&lt;/code&gt;. Tables produced by an expression are expandable, and children re-resolve on every pause.&lt;/p&gt;&lt;p&gt;Values are only read while the debugger is &lt;b&gt;paused&lt;/b&gt;; otherwise the Value column shows a muted em dash. Values that differ from the previous pause are drawn in a &lt;b&gt;bold accent color&lt;/b&gt;, and briefly flash on the pause that introduced the change.&lt;/p&gt;&lt;p&gt;Double-click or press &lt;b&gt;F2&lt;/b&gt; to edit a row; &lt;b&gt;Delete&lt;/b&gt; removes it; drag rows to reorder. Use the &lt;b&gt;Evaluate&lt;/b&gt; panel below to run statements with side effects (assignments, blocks, loops).&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Ogni riga è un percorso dell&apos;&lt;b&gt;albero delle variabili&lt;/b&gt; o un&apos;&lt;b&gt;espressione Lua&lt;/b&gt;; il pannello rileva automaticamente quale in base alla sintassi digitata.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Monitoraggi dei percorsi&lt;/b&gt; &amp;mdash; risolti rispetto alle variabili locali, ai valori di upvalue e alle variabili globali del frame in pausa:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Qualificato per sezione: &lt;code&gt;Locals.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;, &lt;code&gt;Upvalues.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;, &lt;code&gt;Globals.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;.&lt;/li&gt;&lt;li&gt;Radice della sezione: &lt;code&gt;Locali&lt;/code&gt;, &lt;code&gt;Upvalue&lt;/code&gt;, &lt;code&gt;Globali&lt;/code&gt; (&lt;code&gt;_G&lt;/code&gt; è un alias per &lt;code&gt;Globali&lt;/code&gt;).&lt;/li&gt;&lt;li&gt; Nome non qualificato: risolto nell&apos;ordine &lt;b&gt;Locali &amp;rarr; Upvalue ​​&amp;rarr; Globali&lt;/b&gt;; il suggerimento della riga mostra quale sezione corrisponde.&lt;/li&gt; &lt;p&gt;Dopo il primo segmento, concatena chiavi &lt;code&gt;.field&lt;/code&gt; o parentesi quadre &amp;mdash; intero (&lt;code&gt;[1]&lt;/code&gt;, &lt;code&gt;[-1]&lt;/code&gt;, &lt;code&gt;[0x1F]&lt;/code&gt;), booleano (&lt;code&gt;[true]&lt;/code&gt;) o stringa letterale breve (&lt;code&gt;[&quot;key&quot;]&lt;/code&gt;, &lt;code&gt;[&apos;k&apos;]&lt;/code&gt;). La profondità è limitata a 32 segmenti.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Monitoraggi con espressioni&lt;/b&gt; &amp;mdash; tutto ciò che non è un percorso semplice (operatori, chiamate a funzioni/metodi, costruttori di tabelle, lunghezza &lt;code&gt;#&lt;/code&gt;, confronti, ecc.) viene valutato come Lua rispetto alle stesse variabili locali/upvalue/globali. &lt;b&gt;Non è necessario un &lt;code&gt;=&lt;/code&gt; iniziale o &lt;code&gt;return&lt;/code&gt;&lt;/b&gt;; le espressioni che restituiscono un valore restituiscono automaticamente il loro valore. Esempi: &lt;code&gt;#packets&lt;/code&gt;, &lt;code&gt;tbl[i + 1]&lt;/code&gt;, &lt;code&gt;obj:method()&lt;/code&gt;, &lt;code&gt;a == b&lt;/code&gt;, &lt;code&gt;{x, y}&lt;/code&gt;. Le tabelle prodotte da un&apos;espressione sono espandibili e i figli vengono risolti nuovamente ad ogni pausa.&lt;/p&gt;&lt;p&gt;I valori vengono letti solo quando il debugger è &lt;b&gt;in pausa&lt;/b&gt;; altrimenti la colonna Valore mostra un trattino lungo attenuato. I valori che differiscono dalla pausa precedente vengono visualizzati in con un &lt;b&gt;colore accentuato&lt;/b&gt; e lampeggiano brevemente alla pausa che ha introdotto la modifica.&lt;/p&gt;&lt;p&gt;Fai doppio clic o premi &lt;b&gt;F2&lt;/b&gt; per modificare una riga; &lt;b&gt;Canc&lt;/b&gt; la rimuove; trascina le righe per riordinarle. Utilizza il pannello &lt;b&gt;Valuta&lt;/b&gt; sottostante per eseguire istruzioni con effetti collaterali (assegnazioni, blocchi, cicli).&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Remove Watch (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimuovi monitoraggio (%1)</translation>
     </message>
     <message>
         <source>Remove All Watches (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimuovi tutti i monitoraggi (%1)</translation>
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Expression&lt;/b&gt;&lt;br/&gt;Pause only when this Lua expression is truthy in the current frame. Runtime errors count as false and surface a warning icon on the row.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hit Count&lt;/b&gt;&lt;br/&gt;Gate the pause on a hit counter (&lt;code&gt;0&lt;/code&gt; disables). The dropdown next to the integer picks the comparison mode: &lt;code&gt;&amp;ge;&lt;/code&gt; pauses every hit at or after &lt;i&gt;N&lt;/i&gt; (default); &lt;code&gt;=&lt;/code&gt; pauses once when the counter reaches &lt;i&gt;N&lt;/i&gt;; &lt;code&gt;every&lt;/code&gt; pauses on hits &lt;i&gt;N&lt;/i&gt;, 2&amp;times;&lt;i&gt;N&lt;/i&gt;, 3&amp;times;&lt;i&gt;N&lt;/i&gt;, &amp;hellip;; &lt;code&gt;once&lt;/code&gt; pauses on the &lt;i&gt;N&lt;/i&gt;th hit and deactivates the breakpoint. The counter is preserved across edits; right-click the row to reset it.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Log Message&lt;/b&gt;&lt;br/&gt;Write a line to the &lt;i&gt;Evaluate&lt;/i&gt; output (and Wireshark&apos;s debug log) each time the breakpoint fires &amp;mdash; after the &lt;i&gt;Hit Count&lt;/i&gt; gate and any &lt;i&gt;Expression&lt;/i&gt; allow it. By default execution continues; click the pause toggle on the editor row to also pause after emitting. Tags: &lt;code&gt;{expr}&lt;/code&gt; (any Lua value); &lt;code&gt;{filename}&lt;/code&gt;, &lt;code&gt;{basename}&lt;/code&gt;, &lt;code&gt;{line}&lt;/code&gt;, &lt;code&gt;{function}&lt;/code&gt;, &lt;code&gt;{what}&lt;/code&gt;; &lt;code&gt;{hits}&lt;/code&gt;, &lt;code&gt;{depth}&lt;/code&gt;, &lt;code&gt;{thread}&lt;/code&gt;; &lt;code&gt;{timestamp}&lt;/code&gt;, &lt;code&gt;{datetime}&lt;/code&gt;, &lt;code&gt;{epoch}&lt;/code&gt;, &lt;code&gt;{epoch_ms}&lt;/code&gt;, &lt;code&gt;{elapsed}&lt;/code&gt;, &lt;code&gt;{delta}&lt;/code&gt;; &lt;code&gt;{{&lt;/code&gt; / &lt;code&gt;}}&lt;/code&gt; for literal braces.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell (double-click, F2, or right-click &amp;rarr; Edit) to attach one of these. A white core inside the breakpoint dot &amp;mdash; in this list and in the gutter &amp;mdash; marks rows that carry extras. Switching the editor&apos;s mode dropdown mid-edit discards typed-but-uncommitted text on the other pages; press Enter on a page before switching if you want to keep what you typed.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">&lt;p&gt;&lt;b&gt;Espressione&lt;/b&gt;&lt;br/&gt;Sospendi solo quando questa espressione Lua è vera nel frame attuale. Gli errori di runtime vengono considerati falsi e mostrano un&apos;icona di avviso sulla riga.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Conteggio degli hit&lt;/b&gt;&lt;br/&gt;Imposta la pausa sul contatore degli hit (&lt;code&gt;0&lt;/code&gt; disabilita). Il menu a tendina accanto al numero intero seleziona la modalità di confronto:&lt;code&gt;&amp;ge;&lt;/code&gt; sospende a ogni hit a o dopo &lt;i&gt;N&lt;/i&gt; (predefinito); &lt;code&gt;=&lt;/code&gt; sospende una volta quando il contatore raggiunge &lt;i&gt;N&lt;/i&gt;; &lt;code&gt;ogni&lt;/code&gt; sospende agli hit &lt;i&gt;N&lt;/i&gt;, 2&amp;times;&lt;i&gt;N&lt;/i&gt;, 3&amp;times;&lt;i&gt;N&lt;/i&gt;, &amp;hellip;; &lt;code&gt;una volta&lt;/code&gt; sospende allo &lt;i&gt;N&lt;/i&gt;-esimo hit e disattiva il breakpoint. Il contatore viene mantenuto anche dopo le modifiche; fai clic con il pulsante destro del mouse sulla riga per reimpostarlo.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Messaggio di log&lt;/b&gt;&lt;br/&gt;Scrivi una riga nel risultato di &lt;i&gt;Valuta&lt;/i&gt; (e nel log di debug di Wireshark) ogni volta che il breakpoint si attiva &amp;mdash; dopo l&apos;impostazione del &lt;i&gt;Conteggio degli hit&lt;/i&gt; e qualsiasi &lt;i&gt;Espressione&lt;/i&gt; lo consenta. In modo predefinito, l&apos;esecuzione continua; fai clic sull&apos;interruttore di pausa nella riga dell&apos;editor per sospendere anche dopo l&apos;emissione. Tag: &lt;code&gt;{expr}&lt;/code&gt; (any Lua value); &lt;code&gt;{filename}&lt;/code&gt;, &lt;code&gt;{basename}&lt;/code&gt;, &lt;code&gt;{line}&lt;/code&gt;, &lt;code&gt;{function}&lt;/code&gt;, &lt;code&gt;{what}&lt;/code&gt;; &lt;code&gt;{hits}&lt;/code&gt;, &lt;code&gt;{depth}&lt;/code&gt;, &lt;code&gt;{thread}&lt;/code&gt;; &lt;code&gt;{timestamp}&lt;/code&gt;, &lt;code&gt;{datetime}&lt;/code&gt;, &lt;code&gt;{epoch}&lt;/code&gt;, &lt;code&gt;{epoch_ms}&lt;/code&gt;, &lt;code&gt;{elapsed}&lt;/code&gt;, &lt;code&gt;{delta}&lt;/code&gt;; &lt;code&gt;{{&lt;/code&gt; / &lt;code&gt;}}&lt;/code&gt; per le parentesi letterali.&lt;/p&gt;&lt;p&gt;Modifica la cella &lt;i&gt;Posizione&lt;/i&gt; (doppio clic, F2, o clic destro &amp;rarr; Modifica) per aggiungerne uno. Un nucleo bianco all&apos;interno del punto di interruzione — in questo elenco e nel margine — contrassegna le righe che contengono testo aggiuntivo. Il cambio della modalità dell&apos;editor durante la modifica scarta il testo digitato, ma non ancora confermato sulle altre pagine; premi Invio su una pagina prima di cambiare modalità se desideri conservare il testo digitato.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>No breakpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessun breakpoint</translation>
     </message>
     <message>
         <source>Edit Breakpoint</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifica breakpoint</translation>
     </message>
     <message>
         <source>Remove Breakpoint (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimuovi breakpoint (%1)</translation>
     </message>
     <message>
         <source>Remove All Breakpoints (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimuovi tutti i breakpoint (%1)</translation>
     </message>
     <message>
         <source>&lt;b&gt;Lua Expression Evaluation&lt;/b&gt;&lt;br&gt;&lt;br&gt;Code runs in a protected environment: runtime errors are caught and shown in the output instead of propagating.&lt;br&gt;&lt;br&gt;&lt;b&gt;Prefix with &lt;code&gt;=&lt;/code&gt;&lt;/b&gt; to return a value (e.g., &lt;code&gt;=my_var&lt;/code&gt;).&lt;br&gt;&lt;br&gt;&lt;b&gt;What works:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Read/modify global variables (&lt;code&gt;_G.x = 42&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Modify table contents (&lt;code&gt;my_table.field = 99&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Call functions and inspect return values&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Limitations:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Local variables cannot be modified directly (use &lt;code&gt;debug.setlocal()&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Long-running expressions are automatically aborted&lt;/li&gt;&lt;li&gt;&lt;b&gt;Warning:&lt;/b&gt; Changes to globals persist and can affect ongoing dissection&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Valutazione delle espressioni Lua&lt;/b&gt;&lt;br&gt;&lt;br&gt;Il codice è eseguito in un ambiente protetto: gli errori di runtime vengono rilevati e mostrati nel risultato invece di propagarsi.&lt;br&gt;&lt;br&gt;&lt;b&gt;Anteponi &lt;code&gt;=&lt;/code&gt;&lt;/b&gt; per restituire un valore (ad es., &lt;code&gt;=mia_var&lt;/code&gt;).&lt;br&gt;&lt;br&gt;&lt;b&gt;Cosa funziona:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Lettura/modifica delle variabili globali (&lt;code&gt;_G.x = 42&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Modifica dei contenuti della tabella (&lt;code&gt;mia_tabella.field = 99&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Invoca funzioni e ispezionai valori restituiti&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Limitazioni:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Le variabili locali non possono essere modificate direttamente (usa &lt;code&gt;debug.setlocal()&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Le espressioni con lunga durata vengono interrotte automaticamente&lt;/li&gt;&lt;li&gt;&lt;b&gt;Avviso:&lt;/b&gt; le modifiche alle variabili globali persistono e possono avere impatto sulla decodifica in corso&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <source>Location: %1:%2</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Posizione: %1:%2</translation>
     </message>
     <message>
         <source>Condition: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Condizione: %1</translation>
     </message>
     <message>
         <source>pauses on hits %1, 2×%1, 3×%1, …</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">sospende agli hit %1, 2×%1, 3×%1, …</translation>
     </message>
     <message>
         <source>pauses once on hit %1, then deactivates the breakpoint</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">sospende una volta raggiunto l&apos;hit %1, quindi disattiva il breakpoint</translation>
     </message>
     <message>
         <source>pauses on every hit from %1 onwards</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">sospende a ogni hit da 1% in poi</translation>
     </message>
     <message>
         <source>Hit Count: %1 / %2 (%3)</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Conteggio hit: %1 / %2 (%3)</translation>
     </message>
     <message>
         <source>Hits: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Hit: %1</translation>
     </message>
     <message>
         <source>Log: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Log: %1</translation>
     </message>
     <message>
         <source>(logpoint — also pauses)</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">(logpoint — sospende anche)</translation>
     </message>
     <message>
         <source>(logpoint — does not pause)</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">(logpoint — non sospende)</translation>
     </message>
     <message>
         <source>Condition error on last evaluation — treated as false (silent). Edit or reset the breakpoint to clear.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Errore di condizione nell&apos;ultima valutazione: trattato come falso (silenzioso). Modifica o ripristina il breakpoint per cancellarlo.</translation>
     </message>
     <message>
         <source>Condition error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Errore di condizione: %1</translation>
     </message>
     <message>
         <source>&amp;Edit...</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">&amp;Modifica...</translation>
     </message>
     <message>
         <source>&amp;Disable</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">&amp;Disabilita</translation>
     </message>
     <message>
         <source>&amp;Enable</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">&amp;Abilita</translation>
     </message>
     <message>
         <source>&amp;Remove</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">&amp;Rimuovi</translation>
     </message>
     <message>
         <source>Edit...</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Modifica...</translation>
     </message>
     <message>
         <source>Open Source</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Apri sorgente</translation>
     </message>
     <message>
         <source>Reset Hit Count</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Ripristina il conteggio degli hit</translation>
     </message>
     <message>
         <source>Reset All Hit Counts</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Ripristina tutti i conteggi degli hit</translation>
     </message>
     <message>
         <source>Undo</source>
@@ -7965,49 +8151,11 @@ Riga %2</translation>
         <source>Remove Breakpoint</source>
         <translation>Rimuovi breakpoint</translation>
     </message>
-    <message>
-        <source>No breakpoints
-%1: add or remove breakpoint on the current line in the editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All breakpoints are inactive — click to activate all
-%1: add or remove on the current line in the editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Click to deactivate all breakpoints
-%1: add or remove on the current line in the editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter a variable path (e.g. Locals.x, Globals.t.k) or a Lua expression in the Watch column to see a value here.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not evaluate watch.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Expression — re-evaluated on every pause.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Clear All Watches</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <source>Are you sure you want to remove %Ln watch(es)?</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
     <message numerus="yes">
         <source>Watch expression is too long (maximum %Ln characters).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation type="vanished">
+            <numerusform>L&apos;espressione di monitoraggio è troppo lunga (massimo %Ln caratteri).</numerusform>
+            <numerusform>L&apos;espressione di monitoraggio è troppo lunga (massimo %Ln caratteri).</numerusform>
         </translation>
     </message>
     <message>
@@ -8016,35 +8164,23 @@ Riga %2</translation>
     </message>
     <message>
         <source>%1 = %2</source>
-        <translation>%1 = %2</translation>
+        <translation type="vanished">%1 = %2</translation>
     </message>
     <message>
         <source>Copy Name</source>
-        <translation>Copia nome</translation>
+        <translation type="vanished">Copia nome</translation>
     </message>
     <message>
         <source>Copy Value</source>
-        <translation>Copia valore</translation>
+        <translation type="vanished">Copia valore</translation>
     </message>
     <message>
         <source>Copy Name &amp;&amp; Value</source>
-        <translation>Copia nome e valore</translation>
+        <translation type="vanished">Copia nome e valore</translation>
     </message>
     <message>
         <source>Add Watch: &quot;%1&quot;</source>
         <translation>Aggiungi monitoraggio: &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Copy Path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reveal in File Manager</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy Location</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Debugger is paused. Uncheck to disable.</source>
@@ -8086,21 +8222,21 @@ Riga %2</translation>
         <source>Are you sure you want to reload all Lua plugins?
 
 This will restart all Lua scripts and may affect capture analysis.</source>
-        <translation>Sei sicuro di voler ricaricare tutti i plugin Lua?
+        <translation type="vanished">Sei sicuro di voler ricaricare tutti i plugin Lua?
 
 Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi delle catture.</translation>
     </message>
     <message>
         <source>Evaluation available when debugger is paused</source>
-        <translation>Valutazione disponibile quando il debugger è in pausa</translation>
+        <translation type="vanished">Valutazione disponibile quando il debugger è in pausa</translation>
     </message>
     <message>
         <source>Error: %1</source>
-        <translation>Errore: %1</translation>
+        <translation type="vanished">Errore: %1</translation>
     </message>
     <message>
         <source>Error: Unknown error</source>
-        <translation>Errore: errore sconosciuto</translation>
+        <translation type="vanished">Errore: errore sconosciuto</translation>
     </message>
     <message>
         <source>Lua Debugger</source>
@@ -8184,6 +8320,44 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
 </context>
 <context>
+    <name>LuaDebuggerEvalController</name>
+    <message>
+        <source>Evaluation available when debugger is paused</source>
+        <translation type="unfinished">Valutazione disponibile quando il debugger è in pausa</translation>
+    </message>
+    <message>
+        <source>Enter Lua expression (prefix with = to return value)</source>
+        <translation type="unfinished">Inserisci l&apos;espressione Lua (anteponi = per restituire il valore)</translation>
+    </message>
+    <message>
+        <source>Error: %1</source>
+        <translation type="unfinished">Errore: %1</translation>
+    </message>
+    <message>
+        <source>Error: Unknown error</source>
+        <translation type="unfinished">Errore: errore sconosciuto</translation>
+    </message>
+</context>
+<context>
+    <name>LuaDebuggerFilesController</name>
+    <message>
+        <source>Open Source</source>
+        <translation type="unfinished">Apri sorgente</translation>
+    </message>
+    <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished">Mostra in Finder</translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy Path</source>
+        <translation type="unfinished">Copia percorso</translation>
+    </message>
+</context>
+<context>
     <name>LuaDebuggerFindFrame</name>
     <message>
         <source>Find:</source>
@@ -8230,6 +8404,21 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
 </context>
 <context>
+    <name>LuaDebuggerLuaReloadCoordinator</name>
+    <message>
+        <source>Reload Lua Plugins</source>
+        <translation type="unfinished">Ricarica plugin Lua</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to reload all Lua plugins?
+
+This will restart all Lua scripts and may affect capture analysis.</source>
+        <translation type="unfinished">Sei sicuro di voler ricaricare tutti i plugin Lua?
+
+Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi delle catture.</translation>
+    </message>
+</context>
+<context>
     <name>LuaDebuggerPauseOverlay</name>
     <message>
         <source>Lua debugger paused</source>
@@ -8238,6 +8427,112 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     <message>
         <source>Use the Lua Debugger window to step, continue, or evaluate. The main window resumes when execution is released.</source>
         <translation>Utilizza la finestra del debugger Lua per eseguire il codice passo dopo passo, continuare o valutare l&apos;esecuzione. La finestra principale riprende l&apos;esecuzione al rilascio del pulsante di esecuzione.</translation>
+    </message>
+</context>
+<context>
+    <name>LuaDebuggerStackController</name>
+    <message>
+        <source>Open Source</source>
+        <translation type="unfinished">Apri sorgente</translation>
+    </message>
+    <message>
+        <source>Copy Location</source>
+        <translation type="unfinished">Copia posizione</translation>
+    </message>
+</context>
+<context>
+    <name>LuaDebuggerVariablesController</name>
+    <message>
+        <source>Type: %1</source>
+        <translation type="unfinished">Tipo: %1</translation>
+    </message>
+    <message>
+        <source>%1 = %2</source>
+        <translation type="unfinished">%1 = %2</translation>
+    </message>
+    <message>
+        <source>Copy Name</source>
+        <translation type="unfinished">Copia nome</translation>
+    </message>
+    <message>
+        <source>Copy Value</source>
+        <translation type="unfinished">Copia valore</translation>
+    </message>
+    <message>
+        <source>Copy Path</source>
+        <translation type="unfinished">Copia percorso</translation>
+    </message>
+    <message>
+        <source>Copy Name &amp;&amp; Value</source>
+        <translation type="unfinished">Copia nome e valore</translation>
+    </message>
+    <message>
+        <source>Add Watch: &quot;%1&quot;</source>
+        <translation type="unfinished">Aggiungi monitoraggio: &quot;%1&quot;</translation>
+    </message>
+</context>
+<context>
+    <name>LuaDebuggerWatchController</name>
+    <message>
+        <source>Clear All Watches</source>
+        <translation type="unfinished">Cancella tutti i monitoraggi</translation>
+    </message>
+    <message numerus="yes">
+        <source>Are you sure you want to remove %Ln watch(es)?</source>
+        <translation type="unfinished">
+            <numerusform>Sei sicuro di voler rimuovere %Ln monitoraggio?</numerusform>
+            <numerusform>Sei sicuro di voler rimuovere %Ln monitoraggi?</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Lua Debugger</source>
+        <translation type="unfinished">Debugger Lua</translation>
+    </message>
+    <message numerus="yes">
+        <source>Watch expression is too long (maximum %Ln characters).</source>
+        <translation type="unfinished">
+            <numerusform>L&apos;espressione di monitoraggio è troppo lunga (massimo %Ln caratteri).</numerusform>
+            <numerusform>L&apos;espressione di monitoraggio è troppo lunga (massimo %Ln caratteri).</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Maximum watch depth reached</source>
+        <translation type="unfinished">Profondità di monitoraggio massima raggiunta</translation>
+    </message>
+    <message>
+        <source>Maximum watch depth reached.</source>
+        <translation type="unfinished">Profondità di monitoraggio massima raggiunta.</translation>
+    </message>
+</context>
+<context>
+    <name>LuaDebuggerWatchRowPresenter</name>
+    <message>
+        <source>Enter a variable path (e.g. Locals.x, Globals.t.k) or a Lua expression in the Watch column to see a value here.</source>
+        <translation type="unfinished">Inserisci un percorso variabile (ad es. Locals.x, Globals.t.k) o un&apos;espressione Lua nella colonna Monitora per visualizzarne il valore.</translation>
+    </message>
+    <message>
+        <source>Value shown only while the debugger is paused.</source>
+        <translation type="unfinished">Valore mostrato solo quando il debugger è in pausa.</translation>
+    </message>
+    <message>
+        <source>Value shown only while the debugger is paused. The debugger is currently disabled.</source>
+        <translation type="unfinished">Valore mostrato solo quando il debugger è in pausa. Il debugger è attualmente disabilitato.</translation>
+    </message>
+    <message>
+        <source>Type: %1</source>
+        <translation type="unfinished">Tipo: %1</translation>
+    </message>
+    <message>
+        <source>error</source>
+        <translation type="unfinished">errore</translation>
+    </message>
+    <message>
+        <source>Could not evaluate watch.</source>
+        <translation type="unfinished">Impossibile valutare il monitoraggio.</translation>
+    </message>
+    <message>
+        <source>Expression — re-evaluated on every pause.</source>
+        <translation type="unfinished">Espressione: rivalutata ad ogni pausa.</translation>
     </message>
 </context>
 <context>
@@ -11235,27 +11530,27 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>Add Watch</source>
-        <translation>Aggiungi monitoraggio</translation>
+        <translation type="vanished">Aggiungi monitoraggio</translation>
     </message>
     <message>
         <source>Remove All Watches</source>
-        <translation>Rimuovi tutti i monitoraggi</translation>
+        <translation type="vanished">Rimuovi tutti i monitoraggi</translation>
     </message>
     <message>
         <source>Duplicate Watch</source>
-        <translation>Duplica monitoraggio</translation>
+        <translation type="vanished">Duplica monitoraggio</translation>
     </message>
     <message>
         <source>Edit Watch</source>
-        <translation>Modifica monitoraggio</translation>
+        <translation type="vanished">Modifica monitoraggio</translation>
     </message>
     <message>
         <source>Copy Value</source>
-        <translation>Copia valore</translation>
+        <translation type="vanished">Copia valore</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation>Rimuovi</translation>
+        <translation type="vanished">Rimuovi</translation>
     </message>
 </context>
 <context>

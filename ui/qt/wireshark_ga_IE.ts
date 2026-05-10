@@ -752,7 +752,7 @@ Runtime errors are treated as false (silent) and surface as a warning icon on th
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Gate the pause on a hit counter. The dropdown next to the integer picks the comparison mode: ≥ pauses every hit at or after N (default); = pauses once when the counter reaches N; every pauses on hits N, 2×N, 3×N, …; once pauses on the Nth hit and deactivates the breakpoint. Use 0 to disable the gate. The counter is preserved across edits to Expression / Hit Count / Log Message; lowering the target below the current count rolls the counter back to 0 so the breakpoint can wait for the next N hits. Right-click the row to reset it explicitly. Combined with an Expression on the same row, the hit-count gate runs first.</source>
+        <source>Gate the pause on a hit counter. The dropdown next to N picks the comparison mode: from pauses on every hit from N onwards (default); every pauses on hits N, 2N, 3N, …; once pauses on the N-th hit and deactivates the breakpoint. Use 0 to disable the gate. The counter is preserved across edits to Expression / Hit Count / Log Message; lowering the target below the current count rolls the counter back to 0 so the breakpoint can wait for the next N hits. Right-click the row to reset it explicitly. Combined with an Expression on the same row, the hit-count gate runs first.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -783,7 +783,7 @@ Runtime errors are treated as false (silent) and surface as a warning icon on th
         <source>Comparison mode for the hit count:
 from — pause on every hit from N onwards.
 every — pause on hits N, 2N, 3N…
-once — pause once on the Nth hit and deactivate the breakpoint.</source>
+once — pause once on the N-th hit and deactivate the breakpoint.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2738,6 +2738,14 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     <message>
         <source>Pause</source>
         <translation>Sos</translation>
+    </message>
+    <message>
+        <source>Double click on graph to set start of playback.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start: %1 s. Double click on graph to set start of playback.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>DIS Playback</source>
@@ -7536,6 +7544,161 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     </message>
 </context>
 <context>
+    <name>LuaDebuggerBreakpointsController</name>
+    <message>
+        <source>Location</source>
+        <translation type="unfinished">Suíomh</translation>
+    </message>
+    <message>
+        <source>Edit...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset Hit Count</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="unfinished">Bain</translation>
+    </message>
+    <message>
+        <source>Reset All Hit Counts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove All Breakpoints</source>
+        <translation type="unfinished">Bain Gach Brisphointe</translation>
+    </message>
+    <message>
+        <source>Clear All Breakpoints</source>
+        <translation type="unfinished">Glan Gach Brisphointe</translation>
+    </message>
+    <message numerus="yes">
+        <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
+        <translation type="unfinished">
+            <numerusform>An bhfuil tú cinnte gur mian leat pointe briste %Ln a bhaint?</numerusform>
+            <numerusform>An bhfuil tú cinnte gur mian leat %Ln pointí briste a bhaint?</numerusform>
+            <numerusform>An bhfuil tú cinnte gur mian leat %Ln pointí briste a bhaint?</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Location: %1:%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Condition: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>pauses on hits %1, 2×%1, 3×%1, …</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>pauses once on hit %1, then deactivates the breakpoint</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>pauses on every hit from %1 onwards</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hit Count: %1 / %2 (%3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hits: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Log: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>(logpoint — also pauses)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>(logpoint — does not pause)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Condition error on last evaluation — treated as false (silent). Edit or reset the breakpoint to clear.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Condition error: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File not found: %1</source>
+        <translation type="unfinished">Comhad gan aimsiú: %1</translation>
+    </message>
+    <message>
+        <source>&amp;Edit...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Disable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Enable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Remove</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No breakpoints
+%1: add or remove breakpoint on the current line in the editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All breakpoints are inactive — click to activate all
+%1: add or remove on the current line in the editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click to deactivate all breakpoints
+%1: add or remove on the current line in the editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>LuaDebuggerCodeTabsController</name>
+    <message numerus="yes">
+        <source>There are unsaved changes in %Ln open file(s).</source>
+        <translation type="unfinished">
+            <numerusform>Tá athruithe gan sábháil i %Ln comhad oscailte.</numerusform>
+            <numerusform>Tá athruithe gan sábháil i %Ln comhaid oscailte.</numerusform>
+            <numerusform>Tá athruithe gan sábháil i %Ln comhaid oscailte.</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Save Lua Script</source>
+        <translation type="unfinished">Sábháil Script Lua</translation>
+    </message>
+    <message>
+        <source>Could not write to %1:
+%2</source>
+        <translation type="unfinished">Níorbh fhéidir scríobh chuig %1:
+%2</translation>
+    </message>
+    <message>
+        <source>Lua Debugger</source>
+        <translation type="unfinished">Dífhabhtóir Lua</translation>
+    </message>
+    <message>
+        <source>Save changes to %1 before closing?</source>
+        <translation type="unfinished">Sábháil athruithe ar %1 roimh dhúnadh?</translation>
+    </message>
+</context>
+<context>
     <name>LuaDebuggerCodeView</name>
     <message>
         <source>Click: add or remove breakpoint
@@ -7613,10 +7776,6 @@ on an existing breakpoint, toggle its active state</source>
 … (gearrtha)</translation>
     </message>
     <message>
-        <source>%1 (%2)</source>
-        <translation type="vanished">%1 (%2)</translation>
-    </message>
-    <message>
         <source>&lt;p&gt;&lt;b&gt;Locals&lt;/b&gt;&lt;br/&gt;Parameters and local variables for the selected stack frame.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Upvalues&lt;/b&gt;&lt;br/&gt;Outer variables that this function actually uses from surrounding code. Anything the function does not reference does not appear here.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Globals&lt;/b&gt;&lt;br/&gt;Names from the global environment table.&lt;/p&gt;&lt;p&gt;Values that differ from the previous pause are drawn in a &lt;b&gt;bold accent color&lt;/b&gt;, and briefly flash on the pause that introduced the change.&lt;/p&gt;</source>
         <translation>&lt;p&gt;&lt;b&gt;Locals&lt;/b&gt;&lt;br/&gt;Paraiméadair agus athróga áitiúla don fhráma cruachta roghnaithe.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Uasluachanna&lt;/b&gt;&lt;br/&gt;Athróga seachtracha a úsáideann an fheidhm seo i ndáiríre ón gcód máguaird. Ní fheictear aon rud nach dtagraíonn an fheidhm dó anseo.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Globals&lt;/b&gt;&lt;br/&gt;Ainmneacha ón tábla timpeallachta domhanda.&lt;/p&gt;&lt;p&gt;Tarraingítear luachanna atá difriúil ón sos roimhe seo i &lt;b&gt;dath béime trom&lt;/b&gt;, agus splancann siad go hachomair ar an sos a thug an t-athrú isteach.&lt;/p&gt;</translation>
     </message>
@@ -7637,10 +7796,6 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Faire</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Each row is a &lt;b&gt;Variables-tree path&lt;/b&gt;, not a Lua expression. Accepted forms:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Section-qualified: &lt;code&gt;Locals.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;, &lt;code&gt;Upvalues.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;, &lt;code&gt;Globals.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;.&lt;/li&gt;&lt;li&gt;Section root alone: &lt;code&gt;Locals&lt;/code&gt;, &lt;code&gt;Upvalues&lt;/code&gt;, &lt;code&gt;Globals&lt;/code&gt; (&lt;code&gt;_G&lt;/code&gt; is an alias for &lt;code&gt;Globals&lt;/code&gt;).&lt;/li&gt;&lt;li&gt;Unqualified name: resolved in &lt;b&gt;Locals &amp;rarr; Upvalues &amp;rarr; Globals&lt;/b&gt; order; the row tooltip shows which section matched.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;After the first segment, chain &lt;code&gt;.field&lt;/code&gt; or bracket keys &amp;mdash; integer (&lt;code&gt;[1]&lt;/code&gt;, &lt;code&gt;[-1]&lt;/code&gt;, &lt;code&gt;[0x1F]&lt;/code&gt;), boolean (&lt;code&gt;[true]&lt;/code&gt;), or short-literal string (&lt;code&gt;[&quot;key&quot;]&lt;/code&gt;, &lt;code&gt;[&apos;k&apos;]&lt;/code&gt;). Depth is capped at 32 segments. Use the &lt;b&gt;Evaluate&lt;/b&gt; panel below for arbitrary Lua expressions.&lt;/p&gt;&lt;p&gt;Values are only read while the debugger is &lt;b&gt;paused&lt;/b&gt;; otherwise the Value column shows a muted em dash. Values that differ from the previous pause are drawn in a &lt;b&gt;bold accent color&lt;/b&gt;, and briefly flash on the pause that introduced the change.&lt;/p&gt;&lt;p&gt;Double-click or press &lt;b&gt;F2&lt;/b&gt; to edit a row; &lt;b&gt;Delete&lt;/b&gt; removes it; drag rows to reorder.&lt;/p&gt;</source>
-        <translation type="vanished">&lt;p&gt;Is cosán &lt;b&gt;crann athróg&lt;/b&gt; é gach ró, ní léiriú Lua. Foirmeacha glactha:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Cáilithe de réir rannóige: &lt;code&gt;Locals.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;, &lt;code&gt;Upvalues.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;, &lt;code&gt;Globals.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;.&lt;/li&gt;&lt;li&gt;Fréamh na rannóige ina haonar: &lt;code&gt;Locals&lt;/code&gt;, &lt;code&gt;Upvalues&lt;/code&gt;, &lt;code&gt;Globals&lt;/code&gt; (is leasainm é &lt;code&gt;_G&lt;/code&gt; do &lt;code&gt;Globals&lt;/code&gt;).&lt;/li&gt;&lt;li&gt;Ainm neamhcháilithe: réitithe in ord &lt;b&gt;Locals &amp;rarr; Upvalues ​​&amp;rarr; Globals&lt;/b&gt;; taispeánann an leid uirlis ró cén rannóg a mheaitseálann.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Tar éis an chéad deighleog, slabhrú eochracha &lt;code&gt;.field&lt;/code&gt; nó lúibíní &amp;mdash; slánuimhir (&lt;code&gt;[1]&lt;/code&gt;, &lt;code&gt;[-1]&lt;/code&gt;, &lt;code&gt;[0x1F]&lt;/code&gt;), booléanach (&lt;code&gt;[true]&lt;/code&gt;), nó teaghrán gearr-litearálta (&lt;code&gt;[&quot;key&quot;]&lt;/code&gt;, &lt;code&gt;[&apos;k&apos;]&lt;/code&gt;). Tá an doimhneacht teoranta ag 32 deighleog. Bain úsáid as an bpainéal &lt;b&gt;Meastóireacht&lt;/b&gt; thíos le haghaidh léirithe Lua treallacha.&lt;/p&gt;&lt;p&gt;Ní léitear luachanna ach amháin nuair a bhíonn an dífhabhtóir &lt;b&gt;ar sos&lt;/b&gt;; ar shlí eile taispeánann an colún Luach fleasc em balbhaithe. Tarraingítear luachanna atá difriúil ón sos roimhe seo i &lt;b&gt;dath béime trom&lt;/b&gt;, agus splancann siad go hachomair ar an sos a thug an t-athrú isteach.&lt;/p&gt;&lt;p&gt;Cliceáil faoi dhó nó brúigh &lt;b&gt;F2&lt;/b&gt; chun ró a chur in eagar; baintear é le &lt;b&gt;Scrios&lt;/b&gt;; tarraing sraitheanna chun athordú.&lt;/p&gt;</translation>
-    </message>
-    <message>
         <source>Stack Trace</source>
         <translation>Rian Cruachta</translation>
     </message>
@@ -7655,6 +7810,10 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>Breakpoints</source>
         <translation>Brisphointí</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;&lt;b&gt;Expression&lt;/b&gt;&lt;br/&gt;Pause only when this Lua expression is truthy in the current frame. Runtime errors count as false and surface a warning icon on the row.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hit Count&lt;/b&gt;&lt;br/&gt;Gate the pause on a hit counter. The dropdown next to &lt;i&gt;N&lt;/i&gt; picks the comparison mode: &lt;code&gt;from&lt;/code&gt; pauses on every hit from &lt;i&gt;N&lt;/i&gt; onwards (default); &lt;code&gt;every&lt;/code&gt; pauses on hits &lt;i&gt;N&lt;/i&gt;, 2&amp;times;&lt;i&gt;N&lt;/i&gt;, 3&amp;times;&lt;i&gt;N&lt;/i&gt;, &amp;hellip;; &lt;code&gt;once&lt;/code&gt; pauses on the &lt;i&gt;N&lt;/i&gt;-th hit and deactivates the breakpoint. The counter is preserved across edits; right-click the row to reset it.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Log Message&lt;/b&gt;&lt;br/&gt;Write a line to the &lt;i&gt;Evaluate&lt;/i&gt; output (and Wireshark&apos;s debug log) each time the breakpoint fires &amp;mdash; after the &lt;i&gt;Hit Count&lt;/i&gt; gate and any &lt;i&gt;Expression&lt;/i&gt; allow it. By default execution continues; click the pause toggle on the editor row to also pause after emitting. Tags: &lt;code&gt;{expr}&lt;/code&gt; (any Lua value); &lt;code&gt;{filename}&lt;/code&gt;, &lt;code&gt;{basename}&lt;/code&gt;, &lt;code&gt;{line}&lt;/code&gt;, &lt;code&gt;{function}&lt;/code&gt;, &lt;code&gt;{what}&lt;/code&gt;; &lt;code&gt;{hits}&lt;/code&gt;, &lt;code&gt;{depth}&lt;/code&gt;, &lt;code&gt;{thread}&lt;/code&gt;; &lt;code&gt;{timestamp}&lt;/code&gt;, &lt;code&gt;{datetime}&lt;/code&gt;, &lt;code&gt;{epoch}&lt;/code&gt;, &lt;code&gt;{epoch_ms}&lt;/code&gt;, &lt;code&gt;{elapsed}&lt;/code&gt;, &lt;code&gt;{delta}&lt;/code&gt;; &lt;code&gt;{{&lt;/code&gt; / &lt;code&gt;}}&lt;/code&gt; for literal braces.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell (double-click, F2, or right-click &amp;rarr; Edit) to attach one of these. A white core inside the breakpoint dot &amp;mdash; in this list and in the gutter &amp;mdash; marks rows that carry extras.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Active</source>
@@ -7679,10 +7838,6 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>Enter Lua expression (prefix with = to return value)</source>
         <translation>Cuir isteach an abairt Lua (réimír le = chun luach a thabhairt ar ais)</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Lua Expression Evaluation&lt;/b&gt;&lt;br&gt;&lt;br&gt;Code is executed using &lt;code&gt;lua_pcall()&lt;/code&gt; in a protected environment. Runtime errors are caught and displayed in the output.&lt;br&gt;&lt;br&gt;&lt;b&gt;Prefix with &lt;code&gt;=&lt;/code&gt;&lt;/b&gt; to return a value (e.g., &lt;code&gt;=my_var&lt;/code&gt;).&lt;br&gt;&lt;br&gt;&lt;b&gt;What works:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Read/modify global variables (&lt;code&gt;_G.x = 42&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Modify table contents (&lt;code&gt;my_table.field = 99&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Call functions and inspect return values&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Limitations:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Local variables cannot be modified directly (use &lt;code&gt;debug.setlocal()&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Long-running expressions are automatically aborted&lt;/li&gt;&lt;li&gt;&lt;b&gt;Warning:&lt;/b&gt; Changes to globals persist and can affect ongoing dissection&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation type="vanished">&lt;b&gt;Meastóireacht ar Léiriú Lua&lt;/b&gt;&lt;br&gt;&lt;br&gt;Déantar cód a fhorghníomhú ag baint úsáide as &lt;code&gt;lua_pcall()&lt;/code&gt; i dtimpeallacht chosanta. Gabhtar earráidí rith-ama agus taispeántar iad san aschur.&lt;br&gt;&lt;br&gt;&lt;b&gt;Réimír &lt;code&gt;=&lt;/code&gt;&lt;/b&gt; chun luach a thabhairt ar ais (m.sh., &lt;code&gt;=my_var&lt;/code&gt;).&lt;br&gt;&lt;br&gt;&lt;b&gt;Cad a oibríonn:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Léigh/athraigh athróga domhanda (&lt;code&gt;_G.x = 42&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Athraigh ábhar an tábla (&lt;code&gt;my_table.field = 99&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Glaoigh ar fheidhmeanna agus déan iniúchadh ar luachanna fillte&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Teorainneacha:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Ní féidir athróga áitiúla a mhodhnú go díreach (bain úsáid as &lt;code&gt;debug.setlocal()&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Cuirtear deireadh go huathoibríoch le habairtí a ritheann le fada&lt;/li&gt;&lt;li&gt;&lt;b&gt;Rabhadh:&lt;/b&gt; Leanann athruithe ar athróga domhanda agus is féidir leo difear a dhéanamh do dhíscaoileadh leanúnach&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <source>Output</source>
@@ -7726,81 +7881,39 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Clear All Breakpoints</source>
-        <translation>Glan Gach Brisphointe</translation>
+        <translation type="vanished">Glan Gach Brisphointe</translation>
     </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>An bhfuil tú cinnte gur mian leat pointe briste %Ln a bhaint?</numerusform>
             <numerusform>An bhfuil tú cinnte gur mian leat %Ln pointí briste a bhaint?</numerusform>
             <numerusform>An bhfuil tú cinnte gur mian leat %Ln pointí briste a bhaint?</numerusform>
         </translation>
     </message>
     <message>
-        <source>Enable or disable this breakpoint</source>
-        <translation type="vanished">Cumasaigh nó díchumasaigh an pointe briste seo</translation>
-    </message>
-    <message>
         <source>File not found: %1</source>
-        <translation>Comhad gan aimsiú: %1</translation>
-    </message>
-    <message>
-        <source>%1
-Line %2</source>
-        <translation type="vanished">%1
-Líne %2</translation>
-    </message>
-    <message>
-        <source>No watch path entered yet — enter a variable path in the Watch column to see a value here.</source>
-        <translation type="vanished">Níl aon chonair faire curtha isteach fós — cuir isteach cosán athraitheach sa cholún Faire chun luach a fheiceáil anseo.</translation>
-    </message>
-    <message>
-        <source>Not a variable path</source>
-        <translation type="vanished">Ní cosán athraitheach é</translation>
-    </message>
-    <message>
-        <source>Use a Variables-style path (e.g. Locals.x, Globals.t.k, t[1], t[&quot;k&quot;], or a single identifier).</source>
-        <translation type="vanished">Bain úsáid as cosán i stíl Athróg (e.g. Locals.x, Globals.t.k, t[1], t[&quot;k&quot;], nó aitheantóir aonair).</translation>
-    </message>
-    <message>
-        <source>Only variable paths can be watched.</source>
-        <translation type="vanished">Ní féidir ach cosáin athraitheacha a fheiceáil.</translation>
+        <translation type="vanished">Comhad gan aimsiú: %1</translation>
     </message>
     <message>
         <source>Value shown only while the debugger is paused.</source>
-        <translation>Ní thaispeántar an luach ach amháin nuair a bhíonn an dífhabhtóir ar sos.</translation>
+        <translation type="vanished">Ní thaispeántar an luach ach amháin nuair a bhíonn an dífhabhtóir ar sos.</translation>
     </message>
     <message>
         <source>Value shown only while the debugger is paused. The debugger is currently disabled.</source>
-        <translation>Ní thaispeántar an luach ach amháin nuair a bhíonn an dífhabhtóir ar sos. Tá an dífhabhtóir díchumasaithe faoi láthair.</translation>
+        <translation type="vanished">Ní thaispeántar an luach ach amháin nuair a bhíonn an dífhabhtóir ar sos. Tá an dífhabhtóir díchumasaithe faoi láthair.</translation>
     </message>
     <message>
         <source>error</source>
-        <translation>earráid</translation>
-    </message>
-    <message>
-        <source>Invalid watch path.</source>
-        <translation type="vanished">Cosán faire neamhbhailí.</translation>
+        <translation type="vanished">earráid</translation>
     </message>
     <message>
         <source>Maximum watch depth reached</source>
-        <translation>Doimhneacht uasta faire bainte amach</translation>
+        <translation type="vanished">Doimhneacht uasta faire bainte amach</translation>
     </message>
     <message>
         <source>Maximum watch depth reached.</source>
-        <translation>Shroich an doimhneacht faire uasta.</translation>
-    </message>
-    <message>
-        <source>Only variable paths can be watched (e.g. Locals.name, Globals.x, or a single identifier for Locals.name).</source>
-        <translation type="vanished">Ní féidir ach cosáin athraitheacha a fheiceáil (e.g. Locals.name, Globals.x, nó aitheantóir aonair do Locals.name).</translation>
-    </message>
-    <message numerus="yes">
-        <source>Watch path is too long (maximum %Ln characters).</source>
-        <translation type="vanished">
-            <numerusform>Tá an cosán faire rófhada (uasmhéid %Ln carachtar).</numerusform>
-            <numerusform>Tá an cosán faire rófhada (uasmhéid %Ln carachtair).</numerusform>
-            <numerusform>Tá an cosán faire rófhada (uasmhéid %Ln carachtair).</numerusform>
-        </translation>
+        <translation type="vanished">Shroich an doimhneacht faire uasta.</translation>
     </message>
     <message>
         <source>Type: %1</source>
@@ -7808,7 +7921,7 @@ Líne %2</translation>
     </message>
     <message numerus="yes">
         <source>There are unsaved changes in %Ln open file(s).</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>Tá athruithe gan sábháil i %Ln comhad oscailte.</numerusform>
             <numerusform>Tá athruithe gan sábháil i %Ln comhaid oscailte.</numerusform>
             <numerusform>Tá athruithe gan sábháil i %Ln comhaid oscailte.</numerusform>
@@ -7816,21 +7929,21 @@ Líne %2</translation>
     </message>
     <message>
         <source>Save Lua Script</source>
-        <translation>Sábháil Script Lua</translation>
+        <translation type="vanished">Sábháil Script Lua</translation>
     </message>
     <message>
         <source>Could not write to %1:
 %2</source>
-        <translation>Níorbh fhéidir scríobh chuig %1:
+        <translation type="vanished">Níorbh fhéidir scríobh chuig %1:
 %2</translation>
     </message>
     <message>
         <source>Save changes to %1 before closing?</source>
-        <translation>Sábháil athruithe ar %1 roimh dhúnadh?</translation>
+        <translation type="vanished">Sábháil athruithe ar %1 roimh dhúnadh?</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation>Bain</translation>
+        <translation type="vanished">Bain</translation>
     </message>
     <message>
         <source>Remove All Breakpoints</source>
@@ -7853,10 +7966,6 @@ Líne %2</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;&lt;b&gt;Expression&lt;/b&gt;&lt;br/&gt;Pause only when this Lua expression is truthy in the current frame. Runtime errors count as false and surface a warning icon on the row.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hit Count&lt;/b&gt;&lt;br/&gt;Gate the pause on a hit counter (&lt;code&gt;0&lt;/code&gt; disables). The dropdown next to the integer picks the comparison mode: &lt;code&gt;&amp;ge;&lt;/code&gt; pauses every hit at or after &lt;i&gt;N&lt;/i&gt; (default); &lt;code&gt;=&lt;/code&gt; pauses once when the counter reaches &lt;i&gt;N&lt;/i&gt;; &lt;code&gt;every&lt;/code&gt; pauses on hits &lt;i&gt;N&lt;/i&gt;, 2&amp;times;&lt;i&gt;N&lt;/i&gt;, 3&amp;times;&lt;i&gt;N&lt;/i&gt;, &amp;hellip;; &lt;code&gt;once&lt;/code&gt; pauses on the &lt;i&gt;N&lt;/i&gt;th hit and deactivates the breakpoint. The counter is preserved across edits; right-click the row to reset it.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Log Message&lt;/b&gt;&lt;br/&gt;Write a line to the &lt;i&gt;Evaluate&lt;/i&gt; output (and Wireshark&apos;s debug log) each time the breakpoint fires &amp;mdash; after the &lt;i&gt;Hit Count&lt;/i&gt; gate and any &lt;i&gt;Expression&lt;/i&gt; allow it. By default execution continues; click the pause toggle on the editor row to also pause after emitting. Tags: &lt;code&gt;{expr}&lt;/code&gt; (any Lua value); &lt;code&gt;{filename}&lt;/code&gt;, &lt;code&gt;{basename}&lt;/code&gt;, &lt;code&gt;{line}&lt;/code&gt;, &lt;code&gt;{function}&lt;/code&gt;, &lt;code&gt;{what}&lt;/code&gt;; &lt;code&gt;{hits}&lt;/code&gt;, &lt;code&gt;{depth}&lt;/code&gt;, &lt;code&gt;{thread}&lt;/code&gt;; &lt;code&gt;{timestamp}&lt;/code&gt;, &lt;code&gt;{datetime}&lt;/code&gt;, &lt;code&gt;{epoch}&lt;/code&gt;, &lt;code&gt;{epoch_ms}&lt;/code&gt;, &lt;code&gt;{elapsed}&lt;/code&gt;, &lt;code&gt;{delta}&lt;/code&gt;; &lt;code&gt;{{&lt;/code&gt; / &lt;code&gt;}}&lt;/code&gt; for literal braces.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell (double-click, F2, or right-click &amp;rarr; Edit) to attach one of these. A white core inside the breakpoint dot &amp;mdash; in this list and in the gutter &amp;mdash; marks rows that carry extras. Switching the editor&apos;s mode dropdown mid-edit discards typed-but-uncommitted text on the other pages; press Enter on a page before switching if you want to keep what you typed.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>No breakpoints</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7874,86 +7983,6 @@ Líne %2</translation>
     </message>
     <message>
         <source>&lt;b&gt;Lua Expression Evaluation&lt;/b&gt;&lt;br&gt;&lt;br&gt;Code runs in a protected environment: runtime errors are caught and shown in the output instead of propagating.&lt;br&gt;&lt;br&gt;&lt;b&gt;Prefix with &lt;code&gt;=&lt;/code&gt;&lt;/b&gt; to return a value (e.g., &lt;code&gt;=my_var&lt;/code&gt;).&lt;br&gt;&lt;br&gt;&lt;b&gt;What works:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Read/modify global variables (&lt;code&gt;_G.x = 42&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Modify table contents (&lt;code&gt;my_table.field = 99&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Call functions and inspect return values&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Limitations:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Local variables cannot be modified directly (use &lt;code&gt;debug.setlocal()&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Long-running expressions are automatically aborted&lt;/li&gt;&lt;li&gt;&lt;b&gt;Warning:&lt;/b&gt; Changes to globals persist and can affect ongoing dissection&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Location: %1:%2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Condition: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>pauses on hits %1, 2×%1, 3×%1, …</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>pauses once on hit %1, then deactivates the breakpoint</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>pauses on every hit from %1 onwards</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hit Count: %1 / %2 (%3)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hits: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Log: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>(logpoint — also pauses)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>(logpoint — does not pause)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Condition error on last evaluation — treated as false (silent). Edit or reset the breakpoint to clear.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Condition error: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Edit...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Disable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Enable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Source</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset Hit Count</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset All Hit Counts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7989,87 +8018,28 @@ Líne %2</translation>
         <translation>Bain Brisphointe</translation>
     </message>
     <message>
-        <source>No breakpoints
-%1: add or remove breakpoint on the current line in the editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All breakpoints are inactive — click to activate all
-%1: add or remove on the current line in the editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Click to deactivate all breakpoints
-%1: add or remove on the current line in the editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter a variable path (e.g. Locals.x, Globals.t.k) or a Lua expression in the Watch column to see a value here.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not evaluate watch.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Expression — re-evaluated on every pause.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Clear All Watches</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <source>Are you sure you want to remove %Ln watch(es)?</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>Watch expression is too long (maximum %Ln characters).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message>
         <source>Run to this line</source>
         <translation>Rith go dtí an líne seo</translation>
     </message>
     <message>
         <source>%1 = %2</source>
-        <translation>%1 = %2</translation>
+        <translation type="vanished">%1 = %2</translation>
     </message>
     <message>
         <source>Copy Name</source>
-        <translation>Cóip Ainm</translation>
+        <translation type="vanished">Cóip Ainm</translation>
     </message>
     <message>
         <source>Copy Value</source>
-        <translation>Cóipeáil Luach</translation>
+        <translation type="vanished">Cóipeáil Luach</translation>
     </message>
     <message>
         <source>Copy Name &amp;&amp; Value</source>
-        <translation>Cóipeáil Ainm &amp;&amp; Luach</translation>
+        <translation type="vanished">Cóipeáil Ainm &amp;&amp; Luach</translation>
     </message>
     <message>
         <source>Add Watch: &quot;%1&quot;</source>
         <translation>Cuir Faire leis: &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Copy Path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reveal in File Manager</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy Location</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Debugger is paused. Uncheck to disable.</source>
@@ -8111,21 +8081,21 @@ Líne %2</translation>
         <source>Are you sure you want to reload all Lua plugins?
 
 This will restart all Lua scripts and may affect capture analysis.</source>
-        <translation>An bhfuil tú cinnte gur mian leat na breiseáin Lua go léir a athlódáil?
+        <translation type="vanished">An bhfuil tú cinnte gur mian leat na breiseáin Lua go léir a athlódáil?
 
 Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear a dhéanamh don anailís gabhála.</translation>
     </message>
     <message>
         <source>Evaluation available when debugger is paused</source>
-        <translation>Tá meastóireacht ar fáil nuair a bhíonn an dífhabhtóir ar sos</translation>
+        <translation type="vanished">Tá meastóireacht ar fáil nuair a bhíonn an dífhabhtóir ar sos</translation>
     </message>
     <message>
         <source>Error: %1</source>
-        <translation>Earráid: %1</translation>
+        <translation type="vanished">Earráid: %1</translation>
     </message>
     <message>
         <source>Error: Unknown error</source>
-        <translation>Earráid: Earráid anaithnid</translation>
+        <translation type="vanished">Earráid: Earráid anaithnid</translation>
     </message>
     <message>
         <source>Lua Debugger</source>
@@ -8209,6 +8179,44 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
 </context>
 <context>
+    <name>LuaDebuggerEvalController</name>
+    <message>
+        <source>Evaluation available when debugger is paused</source>
+        <translation type="unfinished">Tá meastóireacht ar fáil nuair a bhíonn an dífhabhtóir ar sos</translation>
+    </message>
+    <message>
+        <source>Enter Lua expression (prefix with = to return value)</source>
+        <translation type="unfinished">Cuir isteach an abairt Lua (réimír le = chun luach a thabhairt ar ais)</translation>
+    </message>
+    <message>
+        <source>Error: %1</source>
+        <translation type="unfinished">Earráid: %1</translation>
+    </message>
+    <message>
+        <source>Error: Unknown error</source>
+        <translation type="unfinished">Earráid: Earráid anaithnid</translation>
+    </message>
+</context>
+<context>
+    <name>LuaDebuggerFilesController</name>
+    <message>
+        <source>Open Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished">Taispeáin i bhFillteán</translation>
+    </message>
+    <message>
+        <source>Copy Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>LuaDebuggerFindFrame</name>
     <message>
         <source>Find:</source>
@@ -8255,6 +8263,21 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
 </context>
 <context>
+    <name>LuaDebuggerLuaReloadCoordinator</name>
+    <message>
+        <source>Reload Lua Plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to reload all Lua plugins?
+
+This will restart all Lua scripts and may affect capture analysis.</source>
+        <translation type="unfinished">An bhfuil tú cinnte gur mian leat na breiseáin Lua go léir a athlódáil?
+
+Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear a dhéanamh don anailís gabhála.</translation>
+    </message>
+</context>
+<context>
     <name>LuaDebuggerPauseOverlay</name>
     <message>
         <source>Lua debugger paused</source>
@@ -8263,6 +8286,114 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     <message>
         <source>Use the Lua Debugger window to step, continue, or evaluate. The main window resumes when execution is released.</source>
         <translation>Bain úsáid as an bhfuinneog Lua Debugger chun céim ar chéim a ghlacadh, leanúint ar aghaidh, nó meastóireacht a dhéanamh. Atosóidh an phríomhfhuinneog nuair a scaoiltear an forghníomhú.</translation>
+    </message>
+</context>
+<context>
+    <name>LuaDebuggerStackController</name>
+    <message>
+        <source>Open Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy Location</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>LuaDebuggerVariablesController</name>
+    <message>
+        <source>Type: %1</source>
+        <translation type="unfinished">Cineál: %1</translation>
+    </message>
+    <message>
+        <source>%1 = %2</source>
+        <translation type="unfinished">%1 = %2</translation>
+    </message>
+    <message>
+        <source>Copy Name</source>
+        <translation type="unfinished">Cóip Ainm</translation>
+    </message>
+    <message>
+        <source>Copy Value</source>
+        <translation type="unfinished">Cóipeáil Luach</translation>
+    </message>
+    <message>
+        <source>Copy Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy Name &amp;&amp; Value</source>
+        <translation type="unfinished">Cóipeáil Ainm &amp;&amp; Luach</translation>
+    </message>
+    <message>
+        <source>Add Watch: &quot;%1&quot;</source>
+        <translation type="unfinished">Cuir Faire leis: &quot;%1&quot;</translation>
+    </message>
+</context>
+<context>
+    <name>LuaDebuggerWatchController</name>
+    <message>
+        <source>Clear All Watches</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Are you sure you want to remove %Ln watch(es)?</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Lua Debugger</source>
+        <translation type="unfinished">Dífhabhtóir Lua</translation>
+    </message>
+    <message numerus="yes">
+        <source>Watch expression is too long (maximum %Ln characters).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Maximum watch depth reached</source>
+        <translation type="unfinished">Doimhneacht uasta faire bainte amach</translation>
+    </message>
+    <message>
+        <source>Maximum watch depth reached.</source>
+        <translation type="unfinished">Shroich an doimhneacht faire uasta.</translation>
+    </message>
+</context>
+<context>
+    <name>LuaDebuggerWatchRowPresenter</name>
+    <message>
+        <source>Enter a variable path (e.g. Locals.x, Globals.t.k) or a Lua expression in the Watch column to see a value here.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Value shown only while the debugger is paused.</source>
+        <translation type="unfinished">Ní thaispeántar an luach ach amháin nuair a bhíonn an dífhabhtóir ar sos.</translation>
+    </message>
+    <message>
+        <source>Value shown only while the debugger is paused. The debugger is currently disabled.</source>
+        <translation type="unfinished">Ní thaispeántar an luach ach amháin nuair a bhíonn an dífhabhtóir ar sos. Tá an dífhabhtóir díchumasaithe faoi láthair.</translation>
+    </message>
+    <message>
+        <source>Type: %1</source>
+        <translation type="unfinished">Cineál: %1</translation>
+    </message>
+    <message>
+        <source>error</source>
+        <translation type="unfinished">earráid</translation>
+    </message>
+    <message>
+        <source>Could not evaluate watch.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expression — re-evaluated on every pause.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -11272,27 +11403,27 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
     <message>
         <source>Add Watch</source>
-        <translation>Cuir Faire leis</translation>
+        <translation type="vanished">Cuir Faire leis</translation>
     </message>
     <message>
         <source>Remove All Watches</source>
-        <translation>Bain Gach Uaireadóir</translation>
+        <translation type="vanished">Bain Gach Uaireadóir</translation>
     </message>
     <message>
         <source>Duplicate Watch</source>
-        <translation>Faire Dhúblach</translation>
+        <translation type="vanished">Faire Dhúblach</translation>
     </message>
     <message>
         <source>Edit Watch</source>
-        <translation>Cuir Faire in Eagar</translation>
+        <translation type="vanished">Cuir Faire in Eagar</translation>
     </message>
     <message>
         <source>Copy Value</source>
-        <translation>Cóipeáil Luach</translation>
+        <translation type="vanished">Cóipeáil Luach</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation>Bain</translation>
+        <translation type="vanished">Bain</translation>
     </message>
 </context>
 <context>
