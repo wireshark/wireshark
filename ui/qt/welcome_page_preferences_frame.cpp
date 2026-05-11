@@ -25,6 +25,7 @@ WelcomePagePreferencesFrame::WelcomePagePreferencesFrame(QWidget *parent) :
     connect(ui->tipsEventsCheckBox, &QCheckBox::toggled, this, &WelcomePagePreferencesFrame::tipsEventsToggled);
     connect(ui->tipsSponsorshipCheckBox, &QCheckBox::toggled, this, &WelcomePagePreferencesFrame::tipsSponsorshipToggled);
     connect(ui->tipsTipsCheckBox, &QCheckBox::toggled, this, &WelcomePagePreferencesFrame::tipsTipsToggled);
+    connect(ui->tipsAutoAdvanceCheckBox, &QCheckBox::toggled, this, &WelcomePagePreferencesFrame::tipsAutoAdvanceToggled);
     connect(ui->tipsIntervalSpinBox, qOverload<int>(&QSpinBox::valueChanged), this, &WelcomePagePreferencesFrame::tipsIntervalValueChanged);
     connect(ui->restoreButtonBox, &QDialogButtonBox::clicked, this, &WelcomePagePreferencesFrame::restoreButtonBoxClicked);
 
@@ -33,6 +34,7 @@ WelcomePagePreferencesFrame::WelcomePagePreferencesFrame(QWidget *parent) :
     stashed_tips_events_ = recent.gui_welcome_page_sidebar_tips_events;
     stashed_tips_sponsorship_ = recent.gui_welcome_page_sidebar_tips_sponsorship;
     stashed_tips_tips_ = recent.gui_welcome_page_sidebar_tips_tips;
+    stashed_tips_auto_advance_ = recent.gui_welcome_page_sidebar_tips_auto_advance;
     stashed_tips_interval_ = recent.gui_welcome_page_sidebar_tips_interval;
 
     ui->learnVisibleCheckBox->setChecked(stashed_learn_visible_);
@@ -40,6 +42,7 @@ WelcomePagePreferencesFrame::WelcomePagePreferencesFrame(QWidget *parent) :
     ui->tipsEventsCheckBox->setChecked(stashed_tips_events_);
     ui->tipsSponsorshipCheckBox->setChecked(stashed_tips_sponsorship_);
     ui->tipsTipsCheckBox->setChecked(stashed_tips_tips_);
+    ui->tipsAutoAdvanceCheckBox->setChecked(stashed_tips_auto_advance_);
     ui->tipsIntervalSpinBox->setValue(static_cast<int>(stashed_tips_interval_));
 
     updateTipsSubCheckboxes();
@@ -57,6 +60,7 @@ void WelcomePagePreferencesFrame::unstash()
     recent.gui_welcome_page_sidebar_tips_events = stashed_tips_events_;
     recent.gui_welcome_page_sidebar_tips_sponsorship = stashed_tips_sponsorship_;
     recent.gui_welcome_page_sidebar_tips_tips = stashed_tips_tips_;
+    recent.gui_welcome_page_sidebar_tips_auto_advance = stashed_tips_auto_advance_;
     recent.gui_welcome_page_sidebar_tips_interval = stashed_tips_interval_;
 }
 
@@ -66,6 +70,10 @@ void WelcomePagePreferencesFrame::updateTipsSubCheckboxes()
     ui->tipsEventsCheckBox->setEnabled(tips_enabled);
     ui->tipsSponsorshipCheckBox->setEnabled(tips_enabled);
     ui->tipsTipsCheckBox->setEnabled(tips_enabled);
+
+    bool tips_auto_advance = ui->tipsAutoAdvanceCheckBox->isChecked();
+    ui->tipsIntervalLabel->setEnabled(tips_auto_advance);
+    ui->tipsIntervalSpinBox->setEnabled(tips_auto_advance);
 }
 
 void WelcomePagePreferencesFrame::learnVisibleToggled(bool checked)
@@ -95,6 +103,12 @@ void WelcomePagePreferencesFrame::tipsTipsToggled(bool checked)
     stashed_tips_tips_ = checked;
 }
 
+void WelcomePagePreferencesFrame::tipsAutoAdvanceToggled(bool checked)
+{
+    stashed_tips_auto_advance_ = checked;
+    updateTipsSubCheckboxes();
+}
+
 void WelcomePagePreferencesFrame::tipsIntervalValueChanged(int value)
 {
     stashed_tips_interval_ = static_cast<unsigned>(value);
@@ -107,6 +121,7 @@ void WelcomePagePreferencesFrame::restoreButtonBoxClicked(QAbstractButton *)
     stashed_tips_events_ = true;
     stashed_tips_sponsorship_ = true;
     stashed_tips_tips_ = true;
+    stashed_tips_auto_advance_ = true;
     stashed_tips_interval_ = 8;
 
     ui->learnVisibleCheckBox->setChecked(stashed_learn_visible_);
@@ -114,6 +129,7 @@ void WelcomePagePreferencesFrame::restoreButtonBoxClicked(QAbstractButton *)
     ui->tipsEventsCheckBox->setChecked(stashed_tips_events_);
     ui->tipsSponsorshipCheckBox->setChecked(stashed_tips_sponsorship_);
     ui->tipsTipsCheckBox->setChecked(stashed_tips_tips_);
+    ui->tipsAutoAdvanceCheckBox->setChecked(stashed_tips_auto_advance_);
     ui->tipsIntervalSpinBox->setValue(static_cast<int>(stashed_tips_interval_));
 
     updateTipsSubCheckboxes();

@@ -114,12 +114,6 @@ InfoBannerWidget::InfoBannerWidget(QWidget *parent) :
     auto_advance_timer_->stop();
 }
 
-void InfoBannerWidget::startRotation()
-{
-    if (!auto_advance_timer_->isActive())
-        auto_advance_timer_->start(auto_advance_ms_);
-}
-
 BannerSlideType InfoBannerWidget::typeFromString(const QString &type_str)
 {
     /* We could do this automatically using QMetaEnum if needed, but for just four fields
@@ -453,14 +447,27 @@ void InfoBannerWidget::setSlideTypeVisible(BannerSlideType type, bool visible)
     applySlideFilter();
 }
 
+void InfoBannerWidget::setAutoAdvance(bool advance)
+{
+    if (advance) {
+        auto_advance_timer_->start(auto_advance_ms_);
+    } else {
+        auto_advance_timer_->stop();
+        advanceRandomSlide();
+    }
+}
+
 void InfoBannerWidget::setAutoAdvanceInterval(unsigned seconds)
 {
     int ms = static_cast<int>(seconds) * 1000;
     if (ms < 1000)
         ms = 1000;
     auto_advance_ms_ = ms;
-    if (auto_advance_timer_->isActive())
+    if (auto_advance_timer_->isActive()) {
         auto_advance_timer_->start(auto_advance_ms_);
+    } else {
+        auto_advance_timer_->stop();
+    }
 }
 
 bool InfoBannerWidget::hasVisibleSlides() const
@@ -555,6 +562,18 @@ void InfoBannerWidget::advanceSlide()
     }
     updateAccessibility();
     update();
+}
+
+void InfoBannerWidget::advanceRandomSlide()
+{
+    if (slides_.isEmpty()) return;
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, static_cast<int>(slides_.size()));
+    current_slide_ = dis(gen);
+
+    advanceSlide();
 }
 
 bool InfoBannerWidget::event(QEvent *event)
@@ -965,7 +984,8 @@ void InfoBannerWidget::mousePressEvent(QMouseEvent *event)
     int dot_index = dotHitTest(event->pos());
     if (dot_index >= 0 && dot_index != current_slide_) {
         current_slide_ = dot_index;
-        auto_advance_timer_->start(auto_advance_ms_);
+        if (auto_advance_timer_->isActive())
+            auto_advance_timer_->start(auto_advance_ms_);
         updateAccessibility();
         update();
         return;

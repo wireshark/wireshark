@@ -35,6 +35,7 @@ private:
     bool stashed_tips_events_;
     bool stashed_tips_sponsorship_;
     bool stashed_tips_tips_;
+    bool stashed_tips_auto_advance_;
     unsigned stashed_tips_interval_;
 
     void updateTipsSubCheckboxes();
@@ -45,6 +46,7 @@ private slots:
     void tipsEventsToggled(bool checked);
     void tipsSponsorshipToggled(bool checked);
     void tipsTipsToggled(bool checked);
+    void tipsAutoAdvanceToggled(bool checked);
     void tipsIntervalValueChanged(int value);
     void restoreButtonBoxClicked(QAbstractButton *button);
 };

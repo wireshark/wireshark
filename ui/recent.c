@@ -94,6 +94,7 @@
 #define RECENT_KEY_SIDEBAR_TIPS_EVENTS          "gui.welcome_page.sidebar.tips_events"
 #define RECENT_KEY_SIDEBAR_TIPS_SPONSORSHIP     "gui.welcome_page.sidebar.tips_sponsorship"
 #define RECENT_KEY_SIDEBAR_TIPS_TIPS            "gui.welcome_page.sidebar.tips_tips"
+#define RECENT_KEY_SIDEBAR_TIPS_AUTO_ADVANCE    "gui.welcome_page.sidebar.tips_auto_advance"
 #define RECENT_KEY_SIDEBAR_TIPS_INTERVAL        "gui.welcome_page.sidebar.tips_interval"
 
 #define RECENT_GUI_GEOMETRY                   "gui.geom."
@@ -995,6 +996,10 @@ write_recent(void)
             RECENT_KEY_SIDEBAR_TIPS_TIPS,
             recent.gui_welcome_page_sidebar_tips_tips);
 
+    write_recent_boolean(rf, "Welcome page sidebar Tips auto advance slides",
+            RECENT_KEY_SIDEBAR_TIPS_AUTO_ADVANCE,
+            recent.gui_welcome_page_sidebar_tips_auto_advance);
+
     fprintf(rf, "\n# Welcome page sidebar Tips slide auto-advance interval in seconds.\n");
     fprintf(rf, RECENT_KEY_SIDEBAR_TIPS_INTERVAL ": %u\n",
             recent.gui_welcome_page_sidebar_tips_interval);
@@ -1380,6 +1385,8 @@ read_set_recent_common_pair_static(char *key, const char *value,
         parse_recent_boolean(value, &recent.gui_welcome_page_sidebar_tips_sponsorship);
     } else if (strcmp(key, RECENT_KEY_SIDEBAR_TIPS_TIPS) == 0) {
         parse_recent_boolean(value, &recent.gui_welcome_page_sidebar_tips_tips);
+    } else if (strcmp(key, RECENT_KEY_SIDEBAR_TIPS_AUTO_ADVANCE) == 0) {
+        parse_recent_boolean(value, &recent.gui_welcome_page_sidebar_tips_auto_advance);
     } else if (strcmp(key, RECENT_KEY_SIDEBAR_TIPS_INTERVAL) == 0) {
         num = strtol(value, &p, 0);
         if (p == value || *p != '\0')
@@ -1686,6 +1693,7 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
     recent.gui_welcome_page_sidebar_tips_events = true;
     recent.gui_welcome_page_sidebar_tips_sponsorship = true;
     recent.gui_welcome_page_sidebar_tips_tips = true;
+    recent.gui_welcome_page_sidebar_tips_auto_advance = true;
     recent.gui_welcome_page_sidebar_tips_interval = 8;
 
     /* Construct the pathname of the user's recent common file. */

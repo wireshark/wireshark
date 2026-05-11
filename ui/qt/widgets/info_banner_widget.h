@@ -65,14 +65,13 @@ public:
     void setCompactMode(bool compact);
     bool isCompactMode() const;
     void setSlideTypeVisible(BannerSlideType type, bool visible);
+    void setAutoAdvance(bool advance);
     void setAutoAdvanceInterval(unsigned seconds);
     void applySlideFilter();
     bool hasVisibleSlides() const;
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
-
-    void startRotation();
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -112,6 +111,7 @@ private:
     void buildSlideSequence();
 
     void advanceSlide();
+    void advanceRandomSlide();
     // Updates accessibleName/Description to reflect the current slide and
     // notifies the platform AT via QAccessible::NameChanged. Must be called
     // whenever current_slide_ changes, because this widget is fully
