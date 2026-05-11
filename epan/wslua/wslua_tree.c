@@ -1325,11 +1325,11 @@ WSLUA_METHOD TreeItem_get_child(lua_State *L) {
 /* Structure to hold iterator state with optional field name filters and recursion */
 typedef struct
 {
-    proto_node *current_node;  /* Current node being processed in iteration */
+    proto_node *next_node;     /* Next node to process in iteration */
     char **field_filters;      /* Array of field name strings to match (e.g., "tcp.port") */
     unsigned num_filters;      /* Number of filter strings in the array */
     bool recursive;            /* If true, iterate through entire subtree depth-first */
-    wmem_stack_t *stack;       /* Stack for recursive depth-first traversal */
+    wmem_stack_t *children;    /* For recursive depth-first traversal */
 } TreeItem_iterator_state;
 
 /* Helper function for the children iterator with optional filtering and recursion */
@@ -1339,29 +1339,21 @@ static int TreeItem_children_iterator(lua_State *L) {
 
     /* Continue iterating while we have nodes to process */
     /* Either from current sibling chain OR from recursive stack */
-    while (state->current_node || (state->recursive && wmem_stack_count(state->stack) > 0)) {
-        proto_node *node = NULL;
+    while (state->next_node || (state->recursive && wmem_stack_count(state->children) > 0)) {
+        proto_node *node = NULL;  /* Node currently being processed */
 
-        if (state->current_node) {
+        if (state->next_node) {
             /* Process next node in current sibling chain */
-            node = state->current_node;
-            state->current_node = node->next;  /* Advance to next sibling for next iteration */
-        } else if (state->recursive && wmem_stack_count(state->stack) > 0) {
-            /* No more siblings - pop from stack for recursive traversal */
-            node = (proto_node *)wmem_stack_pop(state->stack);
-
-            /* Set current_node to first child of popped node */
-            /* This allows iteration through all siblings before going deeper */
-            proto_tree *subtree = proto_item_get_subtree((proto_item *)node);
-            if (subtree) {
-                state->current_node = ((proto_node *)subtree)->first_child;
-            }
+            node = state->next_node;
+            state->next_node = node->next;  /* Advance to next sibling for next iteration */
         }
+        else if (state->recursive && wmem_stack_count(state->children) > 0) {
+            /* pop from children for recursive traversal */
+            node = (proto_node *)wmem_stack_pop(state->children);
+        }
+        ws_assert(node != NULL);
 
-        if (!node)
-            continue;  /* Safety check - should not happen */
-
-        /* IMPORTANT: For recursive mode, always add children to stack regardless of filter match
+        /* IMPORTANT: For recursive mode, always add children regardless of filter match
          * This ensures that even if the current node doesn't match the filter,
          * its children are still searched recursively (depth-first traversal)
          *
@@ -1384,7 +1376,7 @@ static int TreeItem_children_iterator(lua_State *L) {
                 /* This ensures depth-first left-to-right traversal */
                 /* (first child is on top of stack, gets popped first) */
                 while (wmem_stack_count(children) > 0) {
-                    wmem_stack_push(state->stack, wmem_stack_pop(children));
+                    wmem_stack_push(state->children, wmem_stack_pop(children));
                 }
 
                 wmem_destroy_stack(children);
@@ -1414,7 +1406,7 @@ static int TreeItem_children_iterator(lua_State *L) {
         }
 
         /* Only return matching nodes to Lua, but continue processing regardless
-         * (children were already added to stack above for recursive mode) */
+         * (children were already added above for recursive mode) */
         if (matches) {
             /* Get the subtree for this matching node (may be NULL) */
             proto_tree *child_tree = proto_item_get_subtree((proto_item *)node);
@@ -1439,7 +1431,7 @@ static int TreeItem_children_iterator(lua_State *L) {
 static int TreeItem_iterator_state_gc(lua_State *L _U_) {
     //TreeItem_iterator_state *state = (TreeItem_iterator_state *)lua_touserdata(L, 1);
 
-    /* The filter strings array and the recursion stack were allocated from
+    /* The filter strings array and the recursion structure were allocated from
      * lua_pinfo->pool and are freed automatically by Wireshark.
      * The state struct itself is freed by Lua's garbage collection.
      */
@@ -1570,11 +1562,11 @@ WSLUA_METHOD TreeItem_children(lua_State *L) {
     TreeItem_iterator_state *state = (TreeItem_iterator_state *)lua_newuserdata(L, sizeof(TreeItem_iterator_state));
 
     /* Initialize all state fields to safe defaults */
-    state->current_node = first_child;     /* Start with first child */
+    state->next_node = first_child;     /* Start with first child */
     state->num_filters = num_filters;
     state->field_filters = num_filters > 0 ? wmem_alloc_array(lua_pinfo->pool, char*, num_filters) : NULL;
     state->recursive = recursive;
-    state->stack = recursive ? wmem_stack_new(lua_pinfo->pool) : NULL;
+    state->children = recursive ? wmem_stack_new(lua_pinfo->pool) : NULL;
 
     /* Set up garbage collection metatable for the state userdata */
     /* This ensures proper cleanup when iterator is no longer referenced */
