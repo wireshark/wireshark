@@ -4401,19 +4401,6 @@ bool wslua_debugger_is_paused(void)
     return paused;
 }
 
-bool wslua_debugger_should_block_dissector_entry(void)
-{
-    bool should_block;
-
-    g_mutex_lock(&debugger.mutex);
-    should_block = debugger.reload_in_progress ||
-                   (debugger.state == WSLUA_DEBUGGER_PAUSED &&
-                    debugger.paused_L != NULL);
-    g_mutex_unlock(&debugger.mutex);
-
-    return should_block;
-}
-
 void wslua_debugger_forget_lua_thread(lua_State *L)
 {
     if (L == NULL)

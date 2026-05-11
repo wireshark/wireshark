@@ -337,20 +337,6 @@ static void lua_resetthread_cb(void *user_data) {
 
 int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
     int consumed_bytes = tvb_captured_length(tvb);
-
-    /*
-     * Block Lua entry while either:
-     * - a deferred reload is pending and the old state must not be re-entered,
-     * - or the debugger is paused in a nested UI loop and re-entry would
-     *   corrupt pause-thread state.
-     *
-     * Returning consumed length leaves the packet untouched for this pass; it
-     * will be re-dissected once execution resumes/reload completes.
-     */
-    if (wslua_debugger_should_block_dissector_entry()) {
-        return consumed_bytes;
-    }
-
     tvbuff_t *saved_lua_tvb = lua_tvb;
     packet_info *saved_lua_pinfo = lua_pinfo;
     struct _wslua_treeitem *saved_lua_tree = lua_tree;
@@ -461,14 +447,6 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
  * @return true if the packet was recognized by the sub-dissector (stop dissection here)
  */
 bool heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
-    /*
-     * Same combined guard as dissect_lua(): block while deferred reload is
-     * pending, or while paused-state re-entry into Lua would be unsafe.
-     */
-    if (wslua_debugger_should_block_dissector_entry()) {
-        return false;
-    }
-
     bool result = false;
     tvbuff_t *saved_lua_tvb = lua_tvb;
     packet_info *saved_lua_pinfo = lua_pinfo;

@@ -658,14 +658,6 @@ extern "C"
     WS_DLL_PUBLIC bool wslua_debugger_is_paused(void);
 
     /**
-     * @brief True when Lua dissector entry should be blocked.
-     *
-     * This is true while deferred reload is in progress, or while the debugger
-     * is paused in a nested UI loop and Lua re-entry would be unsafe.
-     */
-    WS_DLL_PUBLIC bool wslua_debugger_should_block_dissector_entry(void);
-
-    /**
      * @brief Drop references to a Lua coroutine that is about to be reset/freed.
      *
      * The Lua dissection path runs each call in a temporary coroutine. If one

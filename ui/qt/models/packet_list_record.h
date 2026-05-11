@@ -59,6 +59,7 @@ public:
     static void setMaxCache(int cost) { col_text_cache_.setMaxCost(cost); }
     static void resetColumns(column_info *cinfo);
     static void resetColorization() { rows_color_ver_++; }
+    static void setDissectionPaused(bool paused) { dissection_paused_ = paused; }
 
     inline int lineCount() { return lines_; }
     inline int lineCountChanged() { return line_count_changed_; }
@@ -69,6 +70,7 @@ public:
 private:
     /** The column text for some columns */
     static QCache<uint32_t, QStringList> col_text_cache_;
+    static bool dissection_paused_;
 
     frame_data *fdata_;
     int lines_;

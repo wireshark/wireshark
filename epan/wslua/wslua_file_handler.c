@@ -326,44 +326,9 @@ wslua_filehandler_seek_read_packet(wtap *wth, int64_t seek_off, wtap_rec *rec,
     File *fp = NULL;
     CaptureInfo *fc = NULL;
     FrameInfo *fi = NULL;
-    bool reentrant = in_routine;
-    int reentrant_ref = LUA_NOREF;
     int status;
 
-    if (reentrant) {
-        /*
-         * Re-entrant call while another file-handler callback is already
-         * active on the C call stack (e.g. dissectIdle's QTimer fired
-         * inside the Lua debugger's nested QEventLoop while paused in
-         * a seek_read callback).  Create a temporary Lua thread whose
-         * stack is independent from the paused pcall on fh->L.
-         */
-        if (!fh->L || fh->seek_read_ref == LUA_NOREF) {
-            return true;
-        }
-        L = lua_newthread(fh->L);
-        /*
-         * lua_newthread() inherits the debug hook from the parent
-         * state (all Lua versions).  We MUST disable it on this
-         * thread to prevent the debugger from re-entering
-         * handlePause() / wslua_debug_hook() while we are already
-         * paused in an outer seek_read.  Without this, stepping or
-         * breakpoint hits on the re-entrant thread corrupt
-         * debugger.paused_L and crash when the outer pause resumes.
-         */
-        lua_sethook(L, NULL, 0, 0);
-        reentrant_ref = luaL_ref(fh->L, LUA_REGISTRYINDEX);
-        lua_settop(L, 0);
-        push_error_handler(L, "seek_read routine");
-        lua_rawgeti(L, LUA_REGISTRYINDEX, fh->seek_read_ref);
-        if (!lua_isfunction(L, -1)) {
-            lua_settop(L, 0);
-            luaL_unref(fh->L, LUA_REGISTRYINDEX, reentrant_ref);
-            return true;
-        }
-    } else {
-        INIT_FILEHANDLER_ROUTINE(seek_read,false,err,err_info);
-    }
+    INIT_FILEHANDLER_ROUTINE(seek_read,false,err,err_info);
 
     /* Reset errno */
     if (err) {
@@ -392,19 +357,13 @@ wslua_filehandler_seek_read_packet(wtap *wth, int64_t seek_off, wtap_rec *rec,
          */
         retval = lua_toboolean(L, -1);
     } else {
-        if (!reentrant) {
-            wslua_debugger_after_pcall_failure(L);
-        }
+        wslua_debugger_after_pcall_failure(L);
         switch (status) {
             CASE_ERROR("seek_read", err, err_info)
         }
     }
 
-    if (reentrant) {
-        luaL_unref(fh->L, LUA_REGISTRYINDEX, reentrant_ref);
-    } else {
-        END_FILEHANDLER_ROUTINE();
-    }
+    END_FILEHANDLER_ROUTINE();
 
     (*fp)->expired = true;
     (*fc)->expired = true;

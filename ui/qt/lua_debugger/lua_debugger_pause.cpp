@@ -32,6 +32,7 @@
 #include "lua_debugger_dialog.h"
 #include "main_application.h"
 #include "main_window.h"
+#include <ui/qt/models/packet_list_record.h>
 #include <ui/qt/utils/color_utils.h>
 
 namespace
@@ -102,6 +103,7 @@ void LuaDebuggerPauseController::beginOuterFreeze()
      * on the first call (either from handlePause's post-loop or from
      * closeEvent during a main-window close while paused). */
     pauseUnfrozen_ = false;
+    PacketListRecord::setDissectionPaused(true);
 
     frozenTopLevels_.clear();
     QSet<QWidget *> ancestors;
@@ -193,6 +195,7 @@ void LuaDebuggerPauseController::endFreeze()
         return;
     }
     pauseUnfrozen_ = true;
+    PacketListRecord::setDissectionPaused(false);
 
     MainWindow *mw = mainApp ? mainApp->mainWindow() : nullptr;
 

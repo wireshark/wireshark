@@ -23,6 +23,7 @@
 #include <QStringList>
 
 QCache<uint32_t, QStringList> PacketListRecord::col_text_cache_(500);
+bool PacketListRecord::dissection_paused_ = false;
 QMap<int, int> PacketListRecord::cinfo_column_;
 unsigned PacketListRecord::rows_color_ver_ = 1;
 
@@ -120,6 +121,13 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_columns, boo
     wtap_rec rec; /* Record information */
 
     if (!cap_file) {
+        return;
+    }
+
+    // The dissection_paused_ is used by the Lua Debugger when paused in
+    // a nested UI loop and re-entry would corrupt pause-thread state.
+    // The main UI is frozen and will dissect again when unfrozen.
+    if (dissection_paused_) {
         return;
     }
 
