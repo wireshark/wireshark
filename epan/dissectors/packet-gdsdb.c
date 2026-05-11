@@ -17,6 +17,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+#include <wsutil/ws_roundup.h>
+
 void proto_register_gdsdb(void);
 void proto_reg_handoff_gdsdb(void);
 
@@ -468,7 +470,7 @@ static const value_string gdsdb_arg_types[] = {
 
 static int dword_align(int length)
 {
-	return (length + (4-(length&3)));
+	return WS_ROUNDUP_4(length);
 }
 
 static int add_uint_string(proto_tree *tree, int hf_string, tvbuff_t *tvb, int offset)
