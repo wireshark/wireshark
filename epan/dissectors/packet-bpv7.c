@@ -937,12 +937,12 @@ proto_item * proto_tree_add_cbor_eid(proto_tree *tree, int hfindex, int hfindex_
     const int eid_start = *offset;
 
     wscbor_chunk_t *chunk = wscbor_chunk_read(pinfo->pool, tvb, offset);
-    wscbor_require_array_size(chunk, 2, 2);
     if (!chunk) {
         proto_item_set_len(item_eid, *offset - eid_start);
         expert_add_info(pinfo, item_eid, &ei_eid_struct_invalid);
         return item_eid;
     }
+    wscbor_require_array_size(chunk, 2, 2);
 
     chunk = wscbor_chunk_read(pinfo->pool, tvb, offset);
     const uint64_t *scheme = wscbor_require_uint64(alloc_eid, chunk);
