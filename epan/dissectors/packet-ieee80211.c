@@ -14823,6 +14823,9 @@ wnm_sleep_mode_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
                                   tvb, offset, 1, ENC_LITTLE_ENDIAN, &len);
     offset += 1;
 
+    if (len == 0) {
+      break;
+    }
     s_end = offset + len;
     switch (id) {
     case WNM_SLEEP_MODE_SUBID_GTK:
@@ -14831,17 +14834,13 @@ wnm_sleep_mode_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_gtk_key_id,
                           tvb, offset, 2, ENC_LITTLE_ENDIAN);
       offset += 2;
-      if (offset > s_end)
-        break;
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_gtk_key_length,
                           tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;
-      if (offset > s_end)
-        break;
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_gtk_rsc,
                           tvb, offset, 8, ENC_NA);
       offset += 8;
-      if (offset > s_end)
+      if (offset >= s_end)
         break;
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_gtk_key,
                           tvb, offset, s_end - offset, ENC_NA);
@@ -14850,12 +14849,10 @@ wnm_sleep_mode_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_igtk_key_id,
                           tvb, offset, 2, ENC_LITTLE_ENDIAN);
       offset += 2;
-      if (offset > s_end)
-        break;
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_igtk_ipn,
                           tvb, offset, 6, ENC_LITTLE_ENDIAN);
       offset += 6;
-      if (offset > s_end)
+      if (offset >= s_end)
         break;
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_igtk_key,
                           tvb, offset, s_end - offset, ENC_NA);
@@ -14864,14 +14861,11 @@ wnm_sleep_mode_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_bigtk_key_id,
                           tvb, offset, 2, ENC_LITTLE_ENDIAN);
       offset += 2;
-      if (offset > s_end)
-        break;
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_bigtk_bipn,
                           tvb, offset, 6, ENC_LITTLE_ENDIAN);
       offset += 6;
-      if (offset > s_end)
+      if (offset >= s_end)
         break;
-
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_bigtk_key,
                           tvb, offset, s_end - offset, ENC_NA);
       break;
@@ -14879,12 +14873,10 @@ wnm_sleep_mode_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_cigtk_key_info,
                           tvb, offset, 1, ENC_NA);
       offset += 1;
-      if (offset > s_end)
-        break;
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_cigtk_cipn,
                           tvb, offset, 6, ENC_LITTLE_ENDIAN);
       offset += 6;
-      if (offset > s_end)
+      if (offset >= s_end)
         break;
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_cigtk_key,
                           tvb, offset, s_end - offset, ENC_NA);
@@ -14895,24 +14887,18 @@ wnm_sleep_mode_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_gtk_link_id,
                           tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;
-      if (offset > s_end)
-        break;
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_gtk_key_info,
                           tvb, offset, 2, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_gtk_key_id,
                           tvb, offset, 2, ENC_LITTLE_ENDIAN);
       offset += 2;
-      if (offset > s_end)
-        break;
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_gtk_key_length,
                           tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;
-      if (offset > s_end)
-        break;
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_gtk_rsc,
                           tvb, offset, 8, ENC_NA);
       offset += 8;
-      if (offset > s_end)
+      if (offset >= s_end)
         break;
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_gtk_key,
                           tvb, offset, s_end - offset, ENC_NA);
@@ -14923,17 +14909,13 @@ wnm_sleep_mode_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_igtk_link_id,
                           tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;
-      if (offset > s_end)
-        break;
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_igtk_key_id,
                           tvb, offset, 2, ENC_LITTLE_ENDIAN);
       offset += 2;
-      if (offset > s_end)
-        break;
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_igtk_ipn,
                           tvb, offset, 6, ENC_LITTLE_ENDIAN);
       offset += 6;
-      if (offset > s_end)
+      if (offset >= s_end)
         break;
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_igtk_key,
                           tvb, offset, s_end - offset, ENC_NA);
@@ -14944,17 +14926,13 @@ wnm_sleep_mode_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_bigtk_link_id,
                           tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;
-      if (offset > s_end)
-        break;
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_bigtk_key_id,
                           tvb, offset, 2, ENC_LITTLE_ENDIAN);
       offset += 2;
-      if (offset > s_end)
-        break;
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_bigtk_bipn,
                           tvb, offset, 6, ENC_LITTLE_ENDIAN);
       offset += 6;
-      if (offset > s_end)
+      if (offset >= s_end)
         break;
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_bigtk_key,
                           tvb, offset, s_end - offset, ENC_NA);
@@ -14965,17 +14943,13 @@ wnm_sleep_mode_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_cigtk_link_id,
                           tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;
-      if (offset > s_end)
-        break;
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_cigtk_key_id,
                           tvb, offset, 2, ENC_LITTLE_ENDIAN);
       offset += 2;
-      if (offset > s_end)
-        break;
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_cigtk_cipn,
                           tvb, offset, 6, ENC_LITTLE_ENDIAN);
       offset += 6;
-      if (offset > s_end)
+      if (offset >= s_end)
         break;
       proto_tree_add_item(tree, hf_ieee80211_wnm_sleep_subelem_mlo_cigtk_key,
                           tvb, offset, s_end - offset, ENC_NA);
