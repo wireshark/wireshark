@@ -1342,7 +1342,7 @@ void proto_register_rf4ce_nwk(void)
           NULL, HFILL}},
         {&hf_rf4ce_nwk_seed_seq_num,
          {"Seed Sequence Number", "rf4ce-nwk.key_seed.seed_seq_num",
-          FT_INT8, BASE_DEC,
+          FT_UINT8, BASE_DEC,
           NULL, 0x0,
           NULL, HFILL}},
         {&hf_rf4ce_nwk_seed_data,
