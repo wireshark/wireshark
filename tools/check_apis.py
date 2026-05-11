@@ -48,7 +48,7 @@ APIs = {
     # }
     #
     # APIs that MUST NOT be used in Wireshark
-    'prohibited': {'count_errors': True, 'functions': (
+    'prohibited': {'count_errors': True, 'functions': set((
         # Memory-unsafe APIs
         # Use something that won't overwrite the end of your buffer instead
         # of these.
@@ -163,16 +163,16 @@ APIs = {
         'tmpnam',    # use mkstemp
         '_snwprintf',  # use StringCchPrintf
         'system',
-    )},
+    ))},
 
     ### Soft-Deprecated functions that should not be used in new code but
     # have not been entirely removed from old code. These will become errors
     # once they've been removed from all existing code.
-    'soft-deprecated': {'count_errors': False, 'functions': (
-    )},
+    'soft-deprecated': {'count_errors': False, 'functions': set((
+    ))},
 
     # APIs that SHOULD NOT be used in Wireshark (any more)
-    'deprecated': {'count_errors': True, 'functions': (
+    'deprecated': {'count_errors': True, 'functions': set((
         'perror',                                         # Use g_strerror() and report messages in whatever
                                                           #  fashion is appropriate for the code in question.
         'ctime',                                          # Use abs_time_secs_to_str()
@@ -284,9 +284,9 @@ APIs = {
         'g_win32_get_package_installation_directory',
         'g_win32_get_package_installation_subdirectory',
         'qVariantFromValue',
-    )},
+    ))},
 
-    'dissectors-prohibited': {'count_errors': True, 'functions': (
+    'dissectors-prohibited': {'count_errors': True, 'functions': set((
         # APIs that make the program exit. Dissectors shouldn't call these.
         'abort',
         'assert',
@@ -294,14 +294,14 @@ APIs = {
         'exit',
         'g_assert',
         'g_error',
-    )},
+    ))},
 
-    'dissectors-restricted': {'count_errors': False, 'functions': (
+    'dissectors-restricted': {'count_errors': False, 'functions': set((
         # APIs that print to the terminal. Dissectors shouldn't call these.
         # FIXME: Explain what to use instead.
         'printf',
         'g_warning',
-    )},
+    ))},
 }
 
 # Default API groups to check
@@ -346,20 +346,27 @@ def red(text):
 
 def find_api_in_file(group_hash, file_contents, found_apis):
     """Find APIs from the group that appear in the file contents."""
-    for api in group_hash['functions']:
-        count = 0
-        # Match function calls, but ignore false positives from:
-        # C++ method definition: int MyClass::open(...)
-        # Method invocation: myClass->open(...);
-        # Function declaration: int open(...);
-        # Method invocation: QString().sprintf(...)
-        # The pattern below is very slow, so do a quick "in" check first.
-        if api in file_contents:
+    # Match function calls, but ignore false positives from:
+    # C++ method definition: int MyClass::open(...)
+    # Method invocation: myClass->open(...);
+    # Function declaration: int open(...);
+    # Method invocation: QString().sprintf(...)
+    #
+    # The re pattern below is very slow, so convert file_contents to a set
+    # and do a naive match first; this is faster than `api in file_contents`.
+    # https://stackoverflow.com/a/58238304/82195
+
+    # string.punctuation minus '_'; we could probably reduce this.
+    c_punctuation = '!"#$%&\'()*+,-./:;<=>?@[\\]^`{|}~'
+    file_contents_no_punctuation = file_contents.translate(str.maketrans(c_punctuation, ' ' * len(c_punctuation)))
+    found_set = group_hash['functions'] & set(file_contents_no_punctuation.split())
+    if found_set:
+        for api in found_set:
             pattern = pattern = re.compile(r'\W(?<!::)(?<!->)(?<!\w )(?<!\.)' + re.escape(api) + r'\W*\(')
             count = len(pattern.findall(file_contents))
-        if count > 0:
-            found_apis.append(api)
-            group_hash['function_counts'][api] = group_hash['function_counts'].get(api, 0) + 1
+            if count > 0:
+                found_apis.append(api)
+                group_hash['function_counts'][api] = group_hash['function_counts'].get(api, 0) + 1
 
 
 def check_apis_called_with_tvb_get_ptr(api_list, file_contents, found_apis):
