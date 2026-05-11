@@ -85,6 +85,8 @@ def isGeneratedFile(filename):
     return False
 
 
+# TODO: merge with remove_comments() in check_apis.py.  It has the nice property of preserving line numbers,
+# meaning that checks can report line numbers in more situations..
 def removeComments(code_string):
     # C-style comment
     code_string = re.sub(re.compile(r"(?<!/)/\*.*?\*/", re.DOTALL), "",

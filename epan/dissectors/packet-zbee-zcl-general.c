@@ -16866,7 +16866,9 @@ proto_register_zbee_zcl_touchlink(void)
         &ett_zbee_zcl_touchlink_info,
         &ett_zbee_zcl_touchlink_keybits,
         &ett_zbee_zcl_touchlink_groups,
+        &ett_zbee_zcl_touchlink_device_record,
         &ett_zbee_zcl_touchlink_device_records,
+        &ett_zbee_zcl_touchlink_endpoint,
         &ett_zbee_zcl_touchlink_endpoints,
     };
 

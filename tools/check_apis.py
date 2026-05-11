@@ -15,6 +15,7 @@
 #               [--nocheck-value-string-array]
 #               [--nocheck-shadow]
 #               [--debug]
+#               [--folder]
 #               file1 file2 ...
 #
 # Wireshark - Network traffic analyzer
@@ -24,10 +25,17 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
+# TODO:
+# - continue to check for overlap between this script and check_typed_item_calls.py and rationalize
+# - use more check_common.py functions for working out lists of files to check (--commit, --open)
+# - speedup using concurrent.futures.ProcessPoolExecutor() - one file per future
+
+
 import argparse
 import os
 import re
 import sys
+from check_common import findDissectorFilesInFolder
 
 
 APIs = {
@@ -398,6 +406,7 @@ def check_complex_snprintf(file_contents, filename):
     return error_count
 
 
+# N.B. more detailed value_string checks are done in check_typed_item_calls.py
 def check_value_string_arrays(file_contents, filename, debug_flag):
     """Check value_string and enum_val_t arrays for proper termination."""
     count = 0
@@ -562,7 +571,7 @@ def check_ett_registration(file_contents, filename):
 
     # Find all the ett_ variables declared in the file
     ett_declarations = re.findall(
-        r'^(?:static\s+)?g?int\s+(' + ett_var_re + r')\s*=\s*-1\s*;',
+        r'^(?:static\s+)int\s+(' + ett_var_re + r');',
         file_contents, re.MULTILINE | re.IGNORECASE)
 
     if not ett_declarations:
@@ -581,11 +590,11 @@ def check_ett_registration(file_contents, filename):
     # Convert to a set for fast lookup
     ett_uses = set(ett_address_uses)
 
-    # Find which declared etts are not used.
-    unused_etts = [ett for ett in ett_declarations if ett not in ett_uses]
+    # Find which declared etts appear not to have been registered.
+    unused_etts = [ett for ett in ett_declarations if ett not in ett_uses and '[' not in ett]
 
     if unused_etts:
-        print(red(f"Error: found these unused ett variables in {filename}: {' '.join(unused_etts)}"), file=sys.stderr)
+        print(red(f"Error: found these unregistered ett variables in {filename}: {' '.join(unused_etts)}"), file=sys.stderr)
         error_count += 1
 
     return error_count
@@ -936,6 +945,8 @@ def main():
     parser.add_argument('--debug', action='store_true', default=False, dest='debug_flag')
     parser.add_argument('-p', '--pre-commit', action='store_true', default=False, dest='pre_commit')
     parser.add_argument('--file', default='', dest='filenamelist')
+    parser.add_argument('--folder', action='store', default='',
+                        help='specify folder to test')
     parser.add_argument('-h', '--help', action='store_true', default=False, dest='help_flag')
     parser.add_argument('files', nargs='*')
 
@@ -971,6 +982,17 @@ def main():
         with open(args.filenamelist) as f:
             for line in f:
                 filelist.extend(line.strip().split(';'))
+
+    if args.folder:
+        # Add all files from a given folder.
+        folder = args.folder
+        if not os.path.isdir(folder):
+            print('Folder', folder, 'not found!')
+            exit(1)
+        # Find files from folder.
+        print('Looking for files in', folder)
+        filelist = findDissectorFilesInFolder(folder, recursive=True)
+
 
     if not filelist:
         print("no files to process", file=sys.stderr)

@@ -1001,14 +1001,14 @@ dissect_mmc4_readtrackinformation (tvbuff_t *tvb_a, packet_info *pinfo _U_, prot
         proto_tree_add_item (tree, hf_scsi_mmc_data_length, try_tvb, 0, 2, ENC_BIG_ENDIAN);
         /* track  try_offset+2 and try_offset+32, only use the high byte if we have it */
         if (tvb_reported_length(try_tvb) < 33) {
-            proto_tree_add_uint (tree, hf_scsi_mmc_track, try_tvb, 2, 1, tvb_get_uint8(try_tvb, try_offset + 2));
+            proto_tree_add_item (tree, hf_scsi_mmc_track, try_tvb, 2, 1, ENC_BIG_ENDIAN);
         } else {
             proto_tree_add_uint (tree, hf_scsi_mmc_track, try_tvb, 2, 1, (tvb_get_uint8(try_tvb, try_offset + 32) << 8) | tvb_get_uint8(try_tvb, try_offset + 2));
         }
 
         /* session  try_offset+3 and try_offset+33 */
         if (tvb_reported_length(try_tvb) < 34) {
-            proto_tree_add_uint (tree, hf_scsi_mmc_session, try_tvb, 3, 1, tvb_get_uint8(try_tvb, try_offset + 3));
+            proto_tree_add_item (tree, hf_scsi_mmc_session, try_tvb, 3, 1, ENC_BIG_ENDIAN);
         } else {
             proto_tree_add_uint (tree, hf_scsi_mmc_session, try_tvb, 3, 1, (tvb_get_uint8(try_tvb, try_offset + 33) << 8) | tvb_get_uint8(try_tvb, try_offset + 3));
         }

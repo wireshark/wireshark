@@ -1195,51 +1195,6 @@ def findExpertItems(filename, contents, macros, result):
     return expertEntries
 
 
-def findDeclaredTrees(filename, contents):
-    trees = []
-
-    definition_matches = re.finditer(r'static int\s*\s*(ett_[a-zA-Z0-9_]*)\s*;',
-                                     contents, re.MULTILINE | re.DOTALL)
-    for d in definition_matches:
-        trees.append(d.group(1))
-
-    return trees
-
-
-def findDefinedTrees(filename, contents, declared):
-    # Look for array of definitions. Looks something like this
-    # static int *ett[] = {
-    #    &ett_oran,
-    #    &ett_oran_ecpri_pcid,
-    #    &ett_oran_ecpri_rtcid,
-    #    &ett_oran_ecpri_seqid
-    # };
-
-    trees = set()
-
-    # Not insisting that this array is static..
-    definition_matches = re.finditer(r'int\s*\*\s*(?:const|)\s*[a-zA-Z0-9_]*?ett[a-zA-Z0-9_]*\s*\[\]\s*=\s*\{(.*?)\};',
-                                     contents, re.MULTILINE | re.DOTALL)
-    for d in definition_matches:
-        entries = d.group(1)
-
-        # Now separate out each entry
-        matches = re.finditer(r'\&(ett_[a-zA-Z0-9_]+)',
-                              entries, re.MULTILINE | re.DOTALL)
-        for match in matches:
-            ett = match.group(1)
-
-            if ett not in declared:
-                # N.B., this check will avoid matches with arrays (which won't match 'declared' re)
-                continue
-
-            # Don't think this can happen..
-            # if ett in trees:
-            #    print('Warning:', filename, ett, 'appears twice!!!')
-            trees.add(match.group(1))
-    return trees
-
-
 def checkExpertCalls(filename, expertEntries, result):
         with open(filename, 'r', encoding="utf8") as f:
             contents = f.read()
@@ -2308,7 +2263,7 @@ def check_double_fetches(filename, contents, items, result):
 # Run checks on the given dissector file.
 def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False,
               check_missing_items=False, check_bitmask_fields=False, label_vs_filter=False, extra_value_string_checks=False,
-              check_expert_items=False, check_subtrees=False, check_double_fetch=False):
+              check_expert_items=False, check_double_fetch=False):
 
     result = Result()
 
@@ -2357,14 +2312,6 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
     items_defined = find_items(filename, contents_no_comments, macros, result, value_strings, range_strings,
                                check_mask, mask_exact_width, check_label, check_consecutive)
     items_extern_declared = {}
-
-    # Check that ett_ variables are registered
-    if check_subtrees:
-        ett_declared = findDeclaredTrees(filename, contents_no_comments)
-        ett_defined = findDefinedTrees(filename, contents_no_comments, ett_declared)
-        for d in ett_declared:
-            if d not in ett_defined:
-                result.warn(filename, 'subtree identifier', d, 'is declared but not found in an array for registering')
 
     items_declared = {}
     if check_missing_items:
@@ -2452,8 +2399,6 @@ if __name__ == '__main__':
                         help='when set, do extra checks on parsed value_strings')
     parser.add_argument('--check-expert-items', action='store_true',
                         help='when set, do extra checks on expert items')
-    parser.add_argument('--check-subtrees', action='store_true',
-                        help='when set, do extra checks ett variables')
     parser.add_argument('--check-double-fetch', action='store_true',
                         help='when set, attempt to warn for values being double-fetched')
 
@@ -2473,7 +2418,6 @@ if __name__ == '__main__':
         args.label_vs_filter = True
         # args.extra_value_string_checks = True
         args.check_expert_items = True
-        # args.check_subtrees = True
         args.check_double_fetch = True
 
     if args.check_bitmask_fields:
@@ -2529,7 +2473,7 @@ if __name__ == '__main__':
                                                  check_consecutive=args.consecutive, check_missing_items=args.missing_items,
                                                  check_bitmask_fields=args.check_bitmask_fields, label_vs_filter=args.label_vs_filter,
                                                  extra_value_string_checks=args.extra_value_string_checks,
-                                                 check_expert_items=args.check_expert_items, check_subtrees=args.check_subtrees,
+                                                 check_expert_items=args.check_expert_items,
                                                  check_double_fetch=args.check_double_fetch): file for file in files}
         for future in concurrent.futures.as_completed(future_to_file_output):
             # File is done - show any output and update warning, error counts

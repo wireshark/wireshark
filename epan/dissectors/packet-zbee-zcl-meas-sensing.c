@@ -1657,7 +1657,7 @@ proto_reg_handoff_zbee_zcl_relhum_meas(void)
 /* Defines               */
 /*************************/
 
-#define ZBEE_ZCL_OCC_SEN_NUM_ETT                                2
+#define ZBEE_ZCL_OCC_SEN_NUM_ETT                                3
 
 /* Attributes */
 #define ZBEE_ZCL_ATTR_ID_OCC_SEN_OCCUPANCY                      0x0000  /* Occupancy */
@@ -1866,6 +1866,8 @@ proto_register_zbee_zcl_occ_sen(void)
     static int *ett[ZBEE_ZCL_OCC_SEN_NUM_ETT];
     ett[0] = &ett_zbee_zcl_occ_sen;
     ett[1] = &ett_zbee_zcl_occ_sen_occupancy;
+    ett[2] = &ett_zbee_zcl_occ_sen_sensor_type_bitmap;
+
 
     /* Register the ZigBee ZCL Occupancy Sensing cluster protocol name and description */
     proto_zbee_zcl_occ_sen = proto_register_protocol("ZigBee ZCL Occupancy Sensing", "ZCL Occupancy Sensing", ZBEE_PROTOABBREV_ZCL_OCCSEN);
