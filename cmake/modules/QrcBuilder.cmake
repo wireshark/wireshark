@@ -157,7 +157,9 @@ function(qrc_add_glob)
     _qrc_resolve_scope("${ARG_TARGET}" _scope)
     _qrc_require_registered("${_scope}" "${ARG_NAME}")
 
-    file(GLOB _matched LIST_DIRECTORIES false "${ARG_GLOB}")
+    # We could also add the "RELATIVE ${ARG_BASE_DIR}" flag here instead of
+    # doing it in qrc_add_files.
+    file(GLOB_RECURSE _matched LIST_DIRECTORIES false "${ARG_GLOB}")
     qrc_add_files(
         TARGET       "${_scope}"
         NAME         "${ARG_NAME}"

@@ -834,7 +834,7 @@ qrc_add_file(NAME json_resource FILE  "${CMAKE_SOURCE_DIR}/resources/json/learn_
 if(CUSTOM_SLIDES_JSON AND EXISTS "${CUSTOM_SLIDES_JSON}")
     qrc_add_file(NAME json_resource FILE  "${CUSTOM_SLIDES_JSON}" ALIAS "slides_custom.json")
 endif()
-qrc_add_glob(NAME json_resource GLOB "${CMAKE_SOURCE_DIR}/resources/json/banners/*" ALIAS_PREFIX "banners/")
+qrc_add_glob(NAME json_resource GLOB "${CMAKE_SOURCE_DIR}/resources/json/banners/*" BASE_DIR "${CMAKE_SOURCE_DIR}/resources/json/banners/" ALIAS_PREFIX "banners/")
 qrc_finalize(NAME json_resource OUTPUT_VAR JSON_QRC)
 
 # Drop the file modification time of source files from generated files
