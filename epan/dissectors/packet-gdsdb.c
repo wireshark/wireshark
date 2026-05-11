@@ -4,6 +4,7 @@
  *
  * Firebird home: http://www.firebirdsql.org
  * Source: http://sourceforge.net/projects/firebird/
+ * https://firebirdsql.org/file/documentation/html/en/firebirddocs/wireprotocol/firebird-wire-protocol.html
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -23,6 +24,7 @@ void proto_register_gdsdb(void);
 void proto_reg_handoff_gdsdb(void);
 
 static dissector_handle_t gdsdb_handle;
+/* IANA-registered port */
 #define TCP_PORT	3050
 
 static int proto_gdsdb;
@@ -167,10 +169,10 @@ static int hf_gdsdb_prepare_bufferlength;
 static int hf_gdsdb_fetch_statement;
 static int hf_gdsdb_fetch_message_number;
 static int hf_gdsdb_fetch_messages;
+#endif
 /* gdsdb_fetch_response */
 static int hf_gdsdb_fetchresponse_status;
 static int hf_gdsdb_fetchresponse_messages;
-#endif
 /* gdsdb_free_statement */
 static int hf_gdsdb_free_statement;
 static int hf_gdsdb_free_option;
@@ -468,6 +470,12 @@ static const value_string gdsdb_arg_types[] = {
 	{ 0, NULL }
 };
 
+static const value_string gdsdb_response_status_vals[] = {
+	{ 0, "success" },
+	{ 100, "end of cursor" },
+	{ 0, NULL }
+};
+
 static int dword_align(int length)
 {
 	return WS_ROUNDUP_4(length);
@@ -533,6 +541,13 @@ gdsdb_connect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		return -1;
 
 	count = tvb_get_ntohl(tvb, offset+total_length-4);
+	if (count < 0 || count > 255) {
+		/* This is a 32-bit integer on the wire but as a count of
+		 * the number of supported protocol versions to follow, it
+		 * should never have the high bytes set. */
+		expert_add_info(pinfo, NULL, &ei_gdsdb_invalid_length);
+		return tvb_reported_length(tvb);
+	}
 	total_length += (4+(count*20));
 	if (length < total_length)
 		return -1;
@@ -1211,10 +1226,12 @@ gdsdb_fetch_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
 		return -1;
 	}
 
-	if (tree) {
-/* hf_gdsdb_fetchresponse_status */
-/* hf_gdsdb_fetchresponse_messages */
-	}
+	proto_tree_add_item(tree, hf_gdsdb_fetchresponse_status, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(tree, hf_gdsdb_fetchresponse_messages, tvb,
+							offset, 4, ENC_BIG_ENDIAN);
+	//offset += 4;
 
 	return tvb_reported_length(tvb);
 }
@@ -1402,9 +1419,20 @@ dissect_gdsdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	while (tvb_reported_length_remaining(tvb, offset) >= 4)
 	{
 		opcode = tvb_get_ntohl(tvb, offset);
-		if(opcode >= op_max)
-			return 0;
+		if(opcode >= op_max) {
+			/* At least one opcode has been added to the tree, so
+			 * abort rather than rejecting the packet. */
+			return tvb_reported_length(tvb);
+		}
 
+		/* There is no length field for PDUs, so each opcode must be
+		 * scanned to determine the length.
+		 *
+		 * XXX - This should be done before adding anything to the tree
+		 * or columns for the opcode. Either there should be separate
+		 * functions that return the expected length, or the processing
+		 * functions should set pinfo->desegment_len themselves.
+		 */
 		col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
 				val_to_str_ext(pinfo->pool, opcode, &gdsdb_opcode_ext, "Unknown opcode %u"));
 
@@ -1968,10 +1996,11 @@ proto_register_gdsdb(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
+#endif
 		/* gdsdb_fetch_response */
 		{ &hf_gdsdb_fetchresponse_status,
 			{ "Status", "gdsdb.fetchresponse.status",
-			FT_UINT32, BASE_DEC, NULL, 0x0,
+			FT_UINT32, BASE_DEC, VALS(gdsdb_response_status_vals), 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_gdsdb_fetchresponse_messages,
@@ -1979,7 +2008,6 @@ proto_register_gdsdb(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-#endif
 		/* gdsdb_free_statement */
 		{ &hf_gdsdb_free_statement,
 			{ "Statement", "gdsdb.fetchresponse.statement",
