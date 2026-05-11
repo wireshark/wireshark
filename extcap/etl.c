@@ -59,6 +59,8 @@ const GUID smbclient_provider = { 0x988C59C5, 0x0A1C, 0x45B6, {0xA5, 0x55, 0x0C,
 const GUID smbserver_provider = { 0xD48CE617, 0x33A2, 0x4BC3, {0xA5, 0xC7, 0x11, 0xAA, 0x4F, 0x29, 0x61, 0x9E} };
 // Microsoft-Windows-WinINet-Capture
 const GUID wininet_capture_provider = { 0xa70ff94f, 0x570b, 0x4979, { 0xba, 0x5c, 0xe5, 0x9c, 0x9f, 0xea, 0xb6, 0x1b } };
+// Microsoft-Windows-WebIO
+const GUID webio_provider = { 0x50B3E73C, 0x9370, 0x461D, { 0xBB, 0x9F, 0x26, 0xF3, 0x2D, 0x68, 0x88, 0x7D} };
 // Microsoft-Windows-LDAP-Client
 const GUID ldap_client_provider = { 0x099614A5, 0x5DD7, 0x4788, { 0x8B, 0xC9, 0xE2, 0x9F, 0x43, 0xDB, 0x28, 0xFC } };
 
@@ -173,6 +175,7 @@ const struct _SCENARIO g_scenarios[] = {
     { SCENARIO_KEY L"NdisWanPacketCapture", { { 0xD84521F7, 0x2235, 0x4237, {0xA7, 0xC0, 0x14, 0xE3, 0xA9, 0x67, 0x62, 0x86 } }, 0xffffffffffffffff, 5 } },
     { SCENARIO_KEY L"Wbmclass-Opn", { { 0x2ed6006e, 0x4729, 0x4609, { 0xb4, 0x23, 0x3e, 0xe7, 0xbc, 0xd6, 0x78, 0xef } }, 0xffffffffffffffff, 5 } },
     { SCENARIO_KEY L"WinINet-Capture", { { 0xa70ff94f, 0x570b, 0x4979, { 0xba, 0x5c, 0xe5, 0x9c, 0x9f, 0xea, 0xb6, 0x1b } }, 0xffffffffffffffff, 5 } },
+    { SCENARIO_KEY L"WebIO-Capture", { { 0x50B3E73C, 0x9370, 0x461D, { 0xBB, 0x9F, 0x26, 0xF3, 0x2D, 0x68, 0x88, 0x7D} }, 0x0000020400000000, 5 } },
     { SCENARIO_KEY L"SASL-LDAP-Capture", { { 0x099614a5, 0x5dd7, 0x4788, { 0x8b, 0xc9, 0xe2, 0x9f, 0x43, 0xdb, 0x28, 0xfc } }, 0x0000000002010800, 5 } },
     { SCENARIO_KEY L"SMBClient-Capture", { { 0x988c59c5, 0x0a1c, 0x45b6, { 0xa5, 0x55, 0x0c, 0x62, 0x27, 0x6e, 0x32, 0x7d } }, 0x0800C40300000000, 5 } },
     { SCENARIO_KEY L"SMBServer-Capture", { { 0xd48ce617, 0x33a2, 0x4bc3, { 0xa5, 0xc7, 0x11, 0xaa, 0x4f, 0x29, 0x61, 0x9e } }, 0x0800040300000000, 5 } },
@@ -202,6 +205,7 @@ static void etw_dump_write_opn_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
 static void etw_dump_write_smb_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
 static void etw_dump_write_general_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
 static void etw_dump_write_wininet_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
+static void etw_dump_write_webio_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
 static void etw_dump_write_ldap_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
 static wtap_dumper* etw_dump_open(const char* pcapng_filename, int* err, char** err_info);
 
@@ -671,6 +675,14 @@ static void WINAPI event_callback(PEVENT_RECORD ev)
         ev->EventHeader.EventDescriptor.Id == 2004))
     {
         etw_dump_write_wininet_event(ev, timestamp);
+    }
+    else if (IsEqualGUID(&ev->EventHeader.ProviderId, &webio_provider) && (
+        ev->EventHeader.EventDescriptor.Id == 100 ||
+        ev->EventHeader.EventDescriptor.Id == 101 ||
+        ev->EventHeader.EventDescriptor.Id == 111 ||
+        ev->EventHeader.EventDescriptor.Id == 129))
+    {
+        etw_dump_write_webio_event(ev, timestamp);
     }
     else if (IsEqualGUID(&ev->EventHeader.ProviderId, &ldap_client_provider) && (
         ev->EventHeader.EventDescriptor.Id == 12 ||
@@ -1298,7 +1310,7 @@ static void etw_dump_write_wininet_event(PEVENT_RECORD ev, ULARGE_INTEGER timest
     BYTE* Buffer = NULL;
     PWTAP_ETL_RECORD_CONTEXT ctx = ctx_init();
 
-    // Get "SessionId" property
+    // Get "SessionId" property (same for request / response)
     DataDescriptor.PropertyName = (ULONGLONG)&L"SessionId";
     DataDescriptor.ArrayIndex = ULONG_MAX;
     status = TdhGetProperty(ev, 0, NULL, 1, &DataDescriptor, sizeof(SessionId), (PBYTE) &SessionId);
@@ -1311,6 +1323,60 @@ static void etw_dump_write_wininet_event(PEVENT_RECORD ev, ULARGE_INTEGER timest
     status = TdhGetPropertySize(ev, 0, NULL, 1, &DataDescriptor, &Length);
     if (status != NO_ERROR) goto end;
     Buffer = g_malloc(Length);
+    status = TdhGetProperty(ev, 0, NULL, 1, &DataDescriptor, Length, Buffer);
+    if (status != NO_ERROR) goto end;
+
+    ctx_add_tlv_user_data(ctx, Buffer, Length);
+
+    // Dump
+    total_packet_length = wtap_etl_rec_build(&etl_record, ev, ctx);
+    wtap_etl_rec_dump((char*)etl_record, total_packet_length, total_packet_length, 0, true, timestamp, WTAP_ENCAP_ETW, NULL, 0);
+
+    g_free(etl_record);
+
+end:
+    ctx_free(ctx);
+
+    if (Buffer)
+        g_free(Buffer);
+}
+
+static void etw_dump_write_webio_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
+{
+    WTAP_ETL_RECORD* etl_record = NULL;
+    ULONG total_packet_length = 0;
+    PROPERTY_DATA_DESCRIPTOR DataDescriptor = { 0 };
+    DWORD Length = 0;
+    ULONG status;
+    ULONGLONG SessionId = 0;
+    BYTE* Buffer = NULL;
+    PWTAP_ETL_RECORD_CONTEXT ctx = ctx_init();
+
+    // "SessionId" equivalent (same for request / response)
+    DataDescriptor.PropertyName = (ULONGLONG)&L"Request";
+    DataDescriptor.ArrayIndex = ULONG_MAX;
+    status = TdhGetProperty(ev, 0, NULL, 1, &DataDescriptor, sizeof(SessionId), (PBYTE)&SessionId);
+    if (status != NO_ERROR) goto end;
+    ctx_add_tlv(ctx, TLV_SESSION_ID, &SessionId, sizeof(SessionId));
+
+    // Get "Length" property
+    DataDescriptor.PropertyName = (ULONGLONG)&L"Length";
+    DataDescriptor.ArrayIndex = ULONG_MAX;
+    status = TdhGetProperty(ev, 0, NULL, 1, &DataDescriptor, sizeof(DWORD), &Length);
+    if (status != NO_ERROR) goto end;
+    Buffer = g_malloc(Length);
+
+    if (ev->EventHeader.EventDescriptor.Id == 100 || ev->EventHeader.EventDescriptor.Id == 101)
+    {
+        // Get "Headers" property
+        DataDescriptor.PropertyName = (ULONGLONG)&L"Headers";
+    }
+    else
+    {
+        // Get "Data" property
+        DataDescriptor.PropertyName = (ULONGLONG)&L"Data";
+    }
+    DataDescriptor.ArrayIndex = ULONG_MAX;
     status = TdhGetProperty(ev, 0, NULL, 1, &DataDescriptor, Length, Buffer);
     if (status != NO_ERROR) goto end;
 
@@ -1480,6 +1546,12 @@ static void etw_dump_write_general_event(PEVENT_RECORD ev, ULARGE_INTEGER timest
         if (NULL == pUserData)
         {
             /* Extraction of a property failed */
+            if (g_include_undecidable_event)
+            {
+                /* In that case, always include Raw User Data */
+                include_user_data = true;
+            }
+
             if (ev->EventHeader.Flags & EVENT_HEADER_FLAG_TRACE_MESSAGE)
             {
                 /* WPP: we cannot actually read ANY property */

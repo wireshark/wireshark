@@ -159,7 +159,8 @@ static DWORD list_providers(unsigned inc)
         printf("value {arg=%u}{value=Scenario-PacketCapture}{display=Local Packet Capture (Microsoft-Windows-NDIS-PacketCapture)}{parent=SCENARIO}\n", inc);
         // printf("value {arg=%u}{value=Scenario-NdisWanPacketCapture}{display=IPsec Packet Capture (Microsoft-Windows-Ras-NdisWanPacketCapture)}{parent=SCENARIO}\n", inc);
         printf("value {arg=%u}{value=Scenario-Wbmclass-Opn}{display=Mobile Broadband (Microsoft-Windows-Wmbclass-Opn)}{parent=SCENARIO}\n", inc);
-        printf("value {arg=%u}{value=Scenario-WinINet-Capture}{display=WinInet HTTPS pre-encryption (Microsoft-Windows-WinINet-Capture)}{parent=SCENARIO}\n", inc);
+        printf("value {arg=%u}{value=Scenario-WinINet-Capture}{display=WinInet pre-encryption (Microsoft-Windows-WinINet-Capture)}{parent=SCENARIO}\n", inc);
+        printf("value {arg=%u}{value=Scenario-WebIO-Capture}{display=WebIO (WinHTTP) pre-encryption (Microsoft-Windows-WebIO)}{parent=SCENARIO}\n", inc);
         printf("value {arg=%u}{value=Scenario-SASL-LDAP-Capture}{display=SASL LDAP pre-encryption (Microsoft-Windows-LDAP-Client)}{parent=SCENARIO}\n", inc);
         printf("value {arg=%u}{value=Scenario-SMBClient-Capture}{display=SMB Client Payloads (Microsoft-Windows-SMBClient)}{parent=SCENARIO}\n", inc);
         printf("value {arg=%u}{value=Scenario-SMBServer-Capture}{display=SMB Server Payloads (Microsoft-Windows-SMBServer)}{parent=SCENARIO}\n", inc);

@@ -136,6 +136,7 @@ static e_guid_t smbserver_providerid = { 0xD48CE617, 0x33A2, 0x4BC3, {0xA5, 0xC7
 
 static dissector_handle_t http_dissector;
 static e_guid_t wininet_providerid = { 0xA70FF94F, 0x570B, 0x4979, { 0xBA, 0x5C, 0xE5, 0x9C, 0x9F, 0xEA, 0xB6, 0x1B} };
+static e_guid_t webio_providerid = { 0x50B3E73C, 0x9370, 0x461D, { 0xBB, 0x9F, 0x26, 0xF3, 0x2D, 0x68, 0x88, 0x7D} };
 
 static dissector_handle_t ldap_dissector;
 static e_guid_t ldapclient_providerid = { 0x099614A5, 0x5DD7, 0x4788, { 0x8B, 0xC9, 0xE2, 0x9F, 0x43, 0xDB, 0x28, 0xFC } };
@@ -663,14 +664,14 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
 
         if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(pinfo->rec->block, OPT_PKT_FLAGS, &pack_flags)) {
             switch (PACK_FLAGS_DIRECTION(pack_flags)) {
-            case PACK_FLAGS_DIRECTION_INBOUND:
-                col_set_str(pinfo->cinfo, COL_DEF_SRC, "device");
-                col_set_str(pinfo->cinfo, COL_DEF_DST, "host");
-                break;
-            case PACK_FLAGS_DIRECTION_OUTBOUND:
-                col_set_str(pinfo->cinfo, COL_DEF_SRC, "host");
-                col_set_str(pinfo->cinfo, COL_DEF_DST, "device");
-                break;
+                case PACK_FLAGS_DIRECTION_INBOUND:
+                    col_set_str(pinfo->cinfo, COL_DEF_SRC, "device");
+                    col_set_str(pinfo->cinfo, COL_DEF_DST, "host");
+                    break;
+                case PACK_FLAGS_DIRECTION_OUTBOUND:
+                    col_set_str(pinfo->cinfo, COL_DEF_SRC, "host");
+                    col_set_str(pinfo->cinfo, COL_DEF_DST, "device");
+                    break;
             }
         }
         subproto_tvb = tvb_new_subset_length(tvb, user_data_offset, user_data_length);
@@ -703,6 +704,16 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
             pinfo->srcport = 80;
             pinfo->destport = 50000;
         }
+
+        // TODO: figure out how to make reassembly work :(
+        subproto_tvb = tvb_new_subset_length(tvb, user_data_offset, user_data_length);
+        call_dissector_only(http_dissector, subproto_tvb, pinfo, tree, NULL);
+    }
+    else if (user_data_length &&
+        memcmp(&webio_providerid, &provider_id, sizeof(e_guid_t)) == 0 &&
+        (event_id == 100 || event_id == 101 || event_id == 111 || event_id == 129))
+    {
+        // WebIO (WinHTTP) "HTTP" event
 
         // TODO: figure out how to make reassembly work :(
         subproto_tvb = tvb_new_subset_length(tvb, user_data_offset, user_data_length);
