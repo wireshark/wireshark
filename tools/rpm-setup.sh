@@ -19,7 +19,6 @@ function print_usage() {
 	printf "Usage: %s [--install-optional] [...other options...]\n" "$0"
 	printf "\t--install-optional: install optional software as well\n"
 	printf "\t--install-rpm-deps: install packages required to build the .rpm file\n"
-	printf "\\t--install-qt5-deps: force installation of packages required to use Qt5 (not recommended)\\n"
 	printf "\\t--install-qt6-deps: force installation of packages required to use Qt6\\n"
 	printf "\\t--install-all: install everything\\n"
 	printf "\t[other]: other options are passed as-is to the package manager\n"
@@ -27,7 +26,6 @@ function print_usage() {
 
 ADDITIONAL=0
 RPMDEPS=0
-ADD_QT5=0
 ADD_QT6=0
 HAVE_ADD_QT=0
 OPTIONS=
@@ -43,10 +41,6 @@ for arg; do
 		--install-rpm-deps)
 			RPMDEPS=1
 			;;
-		--install-qt5-deps)
-			ADD_QT5=1
-			HAVE_ADD_QT=1
-			;;
 		--install-qt6-deps)
 			ADD_QT6=1
 			HAVE_ADD_QT=1
@@ -54,7 +48,6 @@ for arg; do
 		--install-all)
 			ADDITIONAL=1
 			RPMDEPS=1
-			ADD_QT5=1
 			ADD_QT6=1
 			HAVE_ADD_QT=1
 			;;
@@ -179,47 +172,12 @@ echo "Required package speexdsp-devel|speex-devel is unavailable" >&2
 
 if [ $HAVE_ADD_QT -eq 0 ]
 then
-	# The user didn't select a Qt version. Select Qt 6 if it's available, otherwise Qt 5.
+	# The user didn't select a Qt version. Select Qt 6 if it's available.
 	# shellcheck disable=SC2086
 	if $PM $PM_SEARCH qt6-qtbase-devel 2&> /dev/null || $PM $PM_SEARCH qt6-base-devel 2&> /dev/null ; then
 		echo "Installing Qt6."
 		ADD_QT6=1
-	else
-		echo "Installing Qt5."
-		ADD_QT5=1
 	fi
-fi
-
-if [ $ADD_QT5 -ne 0 ]
-then
-	# qt5-linguist: CentOS, Fedora
-	# libqt5-linguist-devel: OpenSUSE
-	add_package BASIC_LIST qt5-linguist ||
-	add_package BASIC_LIST libqt5-linguist-devel ||
-	echo "Required package qt5-linguist|libqt5-linguist-devel is unavailable" >&2
-
-	# qt5-qtmultimedia: CentOS, Fedora, pulls in qt5-qtbase-devel (big dependency list!)
-	# libqt5-qtmultimedia-devel: OpenSUSE, pulls in Core, Gui, Multimedia, Network, Widgets
-	# OpenSUSE additionally has a separate Qt5PrintSupport package.
-	add_package BASIC_LIST qt5-qtmultimedia-devel ||
-	add_packages BASIC_LIST libqt5-qtmultimedia-devel libQt5PrintSupport-devel ||
-	echo "Required Qt5 Multimedia and/or Qt5 Print Support is unavailable" >&2
-
-	# This is only required on OpenSUSE
-	add_package BASIC_LIST libqt5-qtsvg-devel ||
-	echo "Required OpenSUSE package libqt5-qtsvg-devel is unavailable. Not required for other distributions." >&2
-
-	# This is only required on OpenSUSE
-	add_package BASIC_LIST libQt5Concurrent-devel ||
-	echo "Required OpenSUSE package libQt5Concurrent-devel is unavailable. Not required for other distributions." >&2
-
-	# This is only required on OpenSUSE
-	add_package ADDITIONAL_LIST libQt5DBus-devel ||
-	echo "Optional OpenSUSE package libQt5DBus-devel is unavailable. Not required for other distributions." >&2
-
-	add_package ADDITIONAL_LIST qt5-qtimageformats ||
-	add_package ADDITIONAL_LIST libqt5-qtimageformats ||
-	echo "Optional Qt5 Image Formats is unavailable" >&2
 fi
 
 if [ $ADD_QT6 -ne 0 ]

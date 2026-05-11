@@ -40,6 +40,8 @@ If you or your organization would like to contribute or become a sponsor, please
 * Name Resolution
   SMI paths are now recursed by Wireshark to provide subfolder to the SMI path.  MIBs provided by Wireshark now reflect the folder structure provided by libsmi.
 
+* Building with Qt 5 is no longer supported.
+
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 

@@ -422,11 +422,10 @@ the gnulib (GLib) implementation and on hot codepaths that can be a
 noticeable difference in execution speed.
 
 Wireshark requires minimum versions of each of the libraries it uses, in
-particular GLib 2.54.0 and Qt 5.15 or newer, although Qt 6 is recommended.
-If you require a mechanism that is available only in a newer version of
-a library then use its version detection macros, e.g.
-"#if GLIB_CHECK_VERSION(...)" and "#if QT_VERSION_CHECK(...)" to
-conditionally compile code using that mechanism.
+particular GLib 2.54.0 and Qt 6.2 or newer. If you require a mechanism
+that is available only in a newer version of a library then use its
+version detection macros, e.g. "#if GLIB_CHECK_VERSION(...)" and
+"#if QT_VERSION_CHECK(...)" to conditionally compile code using that mechanism.
 
 When different code must be used on UN*X and Win32, use a #if or #ifdef
 that tests _WIN32, not WIN32.  Try to write code portably whenever

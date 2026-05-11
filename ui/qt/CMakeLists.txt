@@ -7,11 +7,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-if(USE_qt6)
-	set(qtver "6")
-else()
-	set(qtver "5")
-endif()
+set(qtver "6")
 
 ADD_CUSTOM_CMAKE_INCLUDE()
 
@@ -946,13 +942,8 @@ qt_add_resources(WIRESHARK_QT_QRC
 )
 
 # qt[56]_add_translation is deprecated in Qt 6.2 and later for
-# qt[6]_add_translations, but until we drop Qt 5.15 support it
-# would be more complicated to have two different approaches.
-if (USE_qt6)
-	QT6_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS} OPTIONS -silent)
-else()
-	QT5_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS} OPTIONS -silent)
-endif()
+# qt[6]_add_translations, so we should switch as Qt 5 support is dropped.
+QT6_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS} OPTIONS -silent)
 
 add_custom_target(
 	translations
@@ -982,8 +973,6 @@ set_source_files_properties(
 	PROPERTIES
 	SKIP_AUTOGEN ON
 )
-
-add_definitions(${QT5_DEFINITIONS})
 
 register_tap_files(wireshark-tap-register.c
 	${WIRESHARK_QT_TAP_SRC}
@@ -1044,11 +1033,6 @@ endif()
 
 target_include_directories(qtui
 	SYSTEM PRIVATE
-		# Include Qt before anything else, see the comment about
-		# QT5_INCLUDE_DIRS in the top-level CMakeLists.txt
-		# Basically, qt@5 headers should be prioritized over qt@6 which
-		# would be found due to GCRYPT_INCLUDE_DIRS=/usr/local/include
-		${QT5_INCLUDE_DIRS}
 		${GCRYPT_INCLUDE_DIRS}
 		${MINIZIP_INCLUDE_DIRS}
 		${MINIZIPNG_INCLUDE_DIRS}
@@ -1061,11 +1045,6 @@ target_include_directories(qtui
 		${CMAKE_CURRENT_BINARY_DIR}
 		${CMAKE_CURRENT_SOURCE_DIR}
 		${CMAKE_CURRENT_SOURCE_DIR}/lua_debugger
-)
-
-target_compile_definitions(qtui
-	PUBLIC
-		${QT5_COMPILE_DEFINITIONS}
 )
 
 set_target_properties(qtui PROPERTIES

@@ -1450,55 +1450,7 @@ if(BUILD_wireshark OR BUILD_stratoshark)
 			message(WARNING "Qt 6.5.3 or later is required.")
 		endif()
 	else() # USE_qt6
-		set(qtver 5)
-		if(DEFINED ENV{WIRESHARK_QT5_PREFIX_PATH})
-			list(APPEND CMAKE_PREFIX_PATH $ENV{WIRESHARK_QT5_PREFIX_PATH})
-		endif()
-		message(DEPRECATION "Support for building with Qt 5 will be removed in the future.")
-		if(APPLE OR WIN32)
-			message(FATAL_ERROR "Qt 6 is required to build on ${CMAKE_SYSTEM_NAME}.")
-		endif()
-
-		set(QT5_PACKAGELIST
-			Qt5Core
-			Qt5Gui
-			Qt5LinguistTools
-			Qt5PrintSupport
-			Qt5Widgets
-			Qt5Concurrent
-			Qt5Svg
-		)
-		set(QT5_OPTIONAL_PACKAGELIST
-			# DBus is a core component of Qt6, but was an add-on in Qt5.
-			Qt5DBus
-			Qt5Multimedia
-		)
-		foreach(_qt5_package IN LISTS QT5_PACKAGELIST)
-			find_package(${_qt5_package} REQUIRED ${QT5_FIND_PACKAGE_OPTIONS})
-			list(APPEND QT5_LIBRARIES ${${_qt5_package}_LIBRARIES})
-			list(APPEND QT5_INCLUDE_DIRS ${${_qt5_package}_INCLUDE_DIRS})
-			list(APPEND QT5_COMPILE_DEFINITIONS ${${_qt5_package}_COMPILE_DEFINITIONS})
-		endforeach()
-		foreach(_qt5_package IN LISTS QT5_OPTIONAL_PACKAGELIST)
-			find_package(${_qt5_package} ${QT5_FIND_PACKAGE_OPTIONS})
-			list(APPEND QT5_LIBRARIES ${${_qt5_package}_LIBRARIES})
-			list(APPEND QT5_INCLUDE_DIRS ${${_qt5_package}_INCLUDE_DIRS})
-			list(APPEND QT5_COMPILE_DEFINITIONS ${${_qt5_package}_COMPILE_DEFINITIONS})
-		endforeach()
-
-		if (Qt5Widgets_VERSION VERSION_LESS 5.15)
-			message(FATAL_ERROR "Qt 5.15 or later is required. Qt 6 is recommended.")
-		endif()
-
-		if(APPLE AND "/usr/local/opt/qt5/lib/QtCore.framework" IN_LIST Qt5Core_INCLUDE_DIRS)
-			# When qt@6 and qt@5 are both installed via Homebrew,
-			# /usr/local/include/QtCore/qvariant.h points to Qt 6 headers.
-			# Normally the Headers from `-iframework /usr/local/opt/qt5/lib`
-			# should be used, but `-isystem /usr/local/include` (via
-			# Libgcrypt and others) seems to prioritized, resulting in use
-			# of the Qt6 headers. Resolve this by explicit including Qt5.
-			list(APPEND QT5_INCLUDE_DIRS /usr/local/opt/qt5/include)
-		endif()
+		message(FATAL_ERROR "Support for building with Qt 5 has been removed.")
 	endif() # USE_qt6
 
 	set(QT_FOUND ON)
@@ -1508,10 +1460,10 @@ if(BUILD_wireshark OR BUILD_stratoshark)
 	if(APPLE)
 		ws_find_package(Sparkle ENABLE_SPARKLE HAVE_SOFTWARE_UPDATE 2)
 	endif()
-	if(Qt6Multimedia_FOUND OR Qt5Multimedia_FOUND)
+	if(Qt6Multimedia_FOUND)
 		set(QT_MULTIMEDIA_LIB 1)
 	endif()
-	if(Qt6DBus_FOUND OR Qt5DBus_FOUND)
+	if(Qt6DBus_FOUND)
 		set(QT_DBUS_LIB 1)
 	endif()
 	if(NOT DEFINED MOC_OPTIONS)
@@ -1645,9 +1597,9 @@ endif()
 
 if (QT_FOUND)
 	# CMake uses qmake to find Qt4. It relies on Qt's CMake modules
-	# to find Qt5. This means that we can't assume that the qmake
+	# to find Qt >= 5. This means that we can't assume that the qmake
 	# in our PATH is the correct one. We can fetch qmake's location
-	# from Qt5::qmake, which is defined in Qt5CoreConfigExtras.cmake.
+	# from Qt6::qmake, which is defined in Qt6CoreConfigExtras.cmake.
 	get_target_property(QT_QMAKE_EXECUTABLE Qt${qtver}::qmake IMPORTED_LOCATION)
 	get_filename_component(_qt_bin_path "${QT_QMAKE_EXECUTABLE}" DIRECTORY)
 	set(QT_BIN_PATH "${_qt_bin_path}" CACHE INTERNAL
@@ -1907,7 +1859,7 @@ if(BUILD_wireshark AND QT_FOUND)
 	add_subdirectory( ui/qt )
 	add_subdirectory( ui/plugins )
 elseif(BUILD_wireshark AND USE_qt6)
-	message(VERBOSE "To use Qt5 instead of Qt6 use CMake option USE_qt6=OFF.")
+	message(WARNING "Building Wireshark requested but Qt 6.2 or later not found.")
 endif()
 
 if(BUILD_stratoshark AND QT_FOUND)
@@ -3125,7 +3077,6 @@ if(BUILD_wireshark AND QT_FOUND)
 		wiretap
 		epan
 		summary
-		${QT5_LIBRARIES}
 		${APPLE_APPLICATION_SERVICES_LIBRARY}
 		${APPLE_APPKIT_LIBRARY}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
@@ -3242,7 +3193,6 @@ if(BUILD_stratoshark AND QT_FOUND)
 		wiretap
 		epan
 		summary
-		${QT5_LIBRARIES}
 		${APPLE_APPLICATION_SERVICES_LIBRARY}
 		${APPLE_APPKIT_LIBRARY}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
@@ -4194,12 +4144,10 @@ if(RPMBUILD_EXECUTABLE)
 	if(CCACHE_EXECUTABLE)
 		list(APPEND _rpmbuild_with_args --with ccache)
 	endif()
-	if(NOT BUILD_wireshark)
-		list(APPEND _rpmbuild_with_args --without qt5 --without qt6)
-	elseif(USE_qt6)
-		list(APPEND _rpmbuild_with_args --without qt5 --with qt6)
+	if(QT_FOUND AND (BUILD_wireshark OR BUILD_stratoshark))
+		list(APPEND _rpmbuild_with_args --with qt6)
 	else()
-		list(APPEND _rpmbuild_with_args --with qt5 --without qt6)
+		list(APPEND _rpmbuild_with_args --without qt6)
 	endif()
 	if(SINSP_FOUND)
 		if(BUILD_stratoshark)
