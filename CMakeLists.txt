@@ -242,8 +242,8 @@ if(WIN32)
 	# Download Npcap required by the Windows installer.
 	# We do this here and not in FetchArtifacts.cmake because this
 	# is required by both the Visual Studio and MSYS2 builds.
-	set(NPCAP_VERSION "1.87")
-	set(NPCAP_SHA256 "142c234f09a9618d7cdc2c37f607d6fc06615fad5581f728b60d4ad659f906bd")
+	set(NPCAP_VERSION "1.88")
+	set(NPCAP_SHA256 "a2f4ec1e5ea353ff67efd24b2ebf081ba44532410fae8d5e146af0310aa4f56b")
 	set(NPCAP_FILENAME "npcap-${NPCAP_VERSION}.exe")
 	set(NPCAP_URL "${LIBS_URL}/Npcap/${NPCAP_FILENAME}")
 	FetchContent_Declare(Npcap

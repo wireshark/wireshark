@@ -49,7 +49,7 @@ See the “New and Updated Features” section below for more details.
 
 The following features are either new or have been significantly updated since version 4.6.0:
 
-* The Windows installers now ship with Npcap 1.87.
+* The Windows installers now ship with Npcap 1.88.
   They previously shipped with Npcap 1.83.
 
 * The Windows and macOS installers now ship with Qt 6.10.3.
