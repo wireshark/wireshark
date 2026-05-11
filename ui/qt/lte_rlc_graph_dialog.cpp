@@ -94,7 +94,6 @@ LteRlcGraphDialog::LteRlcGraphDialog(QWidget &parent, CaptureFile &cf, bool chan
     ctx_menu_->addAction(ui->actionCrosshairs);
     ctx_menu_->addSeparator();
     ctx_menu_->addAction(ui->actionSwitchDirection);
-    set_action_shortcuts_visible_in_context_menu(ctx_menu_->actions());
 
     rp->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(rp, &QCustomPlot::customContextMenuRequested, this, &LteRlcGraphDialog::showContextMenu);

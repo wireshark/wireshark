@@ -206,7 +206,6 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
     graph_ctx_menu_->addSeparator();
     graph_ctx_menu_->addAction(ui->actionGoToPacket);
     graph_ctx_menu_->addAction(ui->actionGoToSetupPacketPlot);
-    set_action_shortcuts_visible_in_context_menu(graph_ctx_menu_->actions());
 
     ui->audioPlot->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->audioPlot, &QCustomPlot::customContextMenuRequested, this, &RtpPlayerDialog::showGraphContextMenu);
@@ -345,7 +344,6 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
     list_ctx_menu_->addAction(ui->actionRemoveStream);
     graph_ctx_menu_->addAction(ui->actionRemoveStream);
     list_ctx_menu_->addAction(ui->actionGoToSetupPacketTree);
-    set_action_shortcuts_visible_in_context_menu(list_ctx_menu_->actions());
 
     connect(&cap_file_, &CaptureFile::captureEvent, this, &RtpPlayerDialog::captureEvent);
     connect(this, SIGNAL(updateFilter(QString, bool)),

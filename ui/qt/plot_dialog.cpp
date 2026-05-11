@@ -194,7 +194,6 @@ PlotDialog::PlotDialog(QWidget& parent, CaptureFile& cf) :
     markerMenu->addAction(ui->actionDeleteMarker);
     markerMenu->addAction(ui->actionDeleteAllMarkers);
     ctx_menu_.addMenu(markerMenu);
-    set_action_shortcuts_visible_in_context_menu(ctx_menu_.actions());
 
     // Let's try to explain the layout of this QCustomPlot.
     // First of all, we have two degenerate plots that are always kept at the

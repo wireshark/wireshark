@@ -316,13 +316,6 @@ bool rect_on_screen(const QRect &rect)
     return false;
 }
 
-void set_action_shortcuts_visible_in_context_menu(QList<QAction *> actions)
-{
-    // For QT_VERSION >= 5.13.0 we call styleHints()->setShowShortcutsInContextMenus(true)
-    // in WiresharkApplication.
-    Q_UNUSED(actions)
-}
-
 QVector<rtpstream_id_t *>qvector_rtpstream_ids_copy(QVector<rtpstream_id_t *> stream_ids)
 {
     QVector<rtpstream_id_t *>new_ids;

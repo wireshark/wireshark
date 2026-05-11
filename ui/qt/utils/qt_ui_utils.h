@@ -250,14 +250,6 @@ void desktop_show_in_folder(const QString file_path);
 bool rect_on_screen(const QRect &rect);
 
 /**
- * Set the "shortcutVisibleInContextMenu" property to true for
- * a list of qactions.
- *
- * @param actions The actions to make visible.
- */
-void set_action_shortcuts_visible_in_context_menu(QList<QAction *> actions);
-
-/**
  * Create copy of all rtpstream_ids to new QVector
  * => caller must release it with qvector_rtpstream_ids_free()
  *

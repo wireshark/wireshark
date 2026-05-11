@@ -250,7 +250,6 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, const CaptureFile& cf, tcp_gra
     ctx_menu_.addAction(ui->actionStevens);
     ctx_menu_.addAction(ui->actionTcptrace);
     ctx_menu_.addAction(ui->actionWindowScaling);
-    set_action_shortcuts_visible_in_context_menu(ctx_menu_.actions());
 
     QCustomPlot *sp = ui->streamPlot;
 

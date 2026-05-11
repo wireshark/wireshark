@@ -173,7 +173,6 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     ctx_menu_.addAction(action);
     action->setVisible(false);
     action->setEnabled(false);
-    set_action_shortcuts_visible_in_context_menu(ctx_menu_.actions());
 
     sp->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(sp, &QCustomPlot::customContextMenuRequested, this, &SequenceDialog::showContextMenu);
