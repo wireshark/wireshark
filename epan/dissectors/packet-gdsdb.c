@@ -779,7 +779,6 @@ gdsdb_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offs
 {
 	int total_length = 16;
 	int length = tvb_reported_length_remaining(tvb, offset);
-	uint32_t size_length;
 
 	/* Calculate if we need more data */
 	if (length < total_length) {
@@ -797,12 +796,7 @@ gdsdb_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offs
 	proto_tree_add_item(tree, hf_gdsdb_response_blobid, tvb,
 							offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
-	proto_tree_add_item_ret_uint(tree, hf_gdsdb_response_datasize, tvb,
-							offset, 4, ENC_BIG_ENDIAN, &size_length);
-	offset += 4;
-	if (size_length > 0)
-		proto_tree_add_item(tree, hf_gdsdb_response_data, tvb, offset, size_length, ENC_NA);
-	offset += size_length;
+	offset = add_byte_array(tree, hf_gdsdb_response_datasize, hf_gdsdb_response_data, tvb, offset);
 
 	return gdsdb_status_vector(tree, tvb, offset);
 }
