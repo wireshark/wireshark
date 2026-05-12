@@ -178,9 +178,9 @@ typedef enum {
 } order_t;
 
 typedef struct _pkt_cmt {
-  uint32_t recno;
-  char *cmt;
-  struct _pkt_cmt *next;
+    uint32_t recno;
+    char *cmt;
+    struct _pkt_cmt *next;
 } pkt_cmt;
 
 typedef struct _capture_info {
@@ -471,7 +471,7 @@ print_stats(const char *filename, capture_info *cf_info)
 {
     const char           *file_type_string, *file_encap_string;
     char                 *size_string;
-    pkt_cmt               *p, *prev;
+    pkt_cmt              *p, *prev;
 
     /* Build printable strings for various stats */
     if (machine_readable) {
@@ -634,14 +634,17 @@ print_stats(const char *filename, capture_info *cf_info)
     }
 
     if (pkt_comments && cf_info->pkt_cmts != NULL) {
-      for (p = cf_info->pkt_cmts; p != NULL; prev = p, p = p->next, g_free(prev)) {
-        if (machine_readable){
-          printf("Packet %u Comment:    %s\n", p->recno, g_strescape(p->cmt, NULL));
-        } else {
-          printf("Packet %u Comment:    %s\n", p->recno, p->cmt);
+        for (p = cf_info->pkt_cmts; p != NULL; prev = p, p = p->next, g_free(prev)) {
+            if (machine_readable){
+                char *escaped_cmt = g_strescape(p->cmt, NULL);
+                printf("Packet %u Comment:    %s\n", p->recno, escaped_cmt);
+                g_free(escaped_cmt);
+            } else {
+                printf("Packet %u Comment:    %s\n", p->recno, p->cmt);
+            }
+            g_free(p->cmt);
         }
-        g_free(p->cmt);
-      }
+        cf_info->pkt_cmts = NULL;
     }
 
     if (cap_file_idb && cf_info->num_interfaces != 0) {
@@ -968,9 +971,11 @@ print_stats_table(const char *filename, capture_info *cf_info)
                 putsep();
                 putquote();
                 if (machine_readable){
-                  printf("%s", g_strescape(opt_comment, NULL));
+                    opt_comment = g_strescape(opt_comment, NULL);
+                    printf("%s", opt_comment);
+                    g_free(opt_comment);
                 } else {
-                  printf("%s", opt_comment);
+                    printf("%s", opt_comment);
                 }
                 putquote();
             }
@@ -985,17 +990,20 @@ print_stats_table(const char *filename, capture_info *cf_info)
     }
 
     if (pkt_comments && cf_info->pkt_cmts != NULL) {
-      for(p = cf_info->pkt_cmts; p != NULL; prev = p, p = p->next, g_free(prev)) {
-        putsep();
-        putquote();
-        if (machine_readable) {
-          printf("%s", g_strescape(p->cmt, NULL));
-        } else {
-          printf("%s", p->cmt);
+        for(p = cf_info->pkt_cmts; p != NULL; prev = p, p = p->next, g_free(prev)) {
+            putsep();
+            putquote();
+            if (machine_readable) {
+                char *escaped_cmt = g_strescape(p->cmt, NULL);
+                printf("%s", escaped_cmt);
+                g_free(escaped_cmt);
+            } else {
+                printf("%s", p->cmt);
+            }
+            g_free(p->cmt);
+            putquote();
         }
-        g_free(p->cmt);
-        putquote();
-      }
+        cf_info->pkt_cmts = NULL;
     }
 
     printf("\n");
@@ -1004,6 +1012,7 @@ print_stats_table(const char *filename, capture_info *cf_info)
 static void
 cleanup_capture_info(capture_info *cf_info)
 {
+    pkt_cmt *p, *prev;
     unsigned int i;
     ws_assert(cf_info != NULL);
 
@@ -1021,6 +1030,11 @@ cleanup_capture_info(capture_info *cf_info)
         g_array_free(cf_info->idb_info_strings, true);
     }
     cf_info->idb_info_strings = NULL;
+
+    for(p = cf_info->pkt_cmts; p != NULL; prev = p, p = p->next, g_free(prev)) {
+        g_free(p->cmt);
+    }
+    cf_info->pkt_cmts = NULL;
 }
 
 static void
@@ -1191,21 +1205,21 @@ process_cap_file(const char *filename, bool need_separator)
             packet++;
             /* packet comments */
             if (pkt_comments && wtap_block_count_option(rec.block, OPT_COMMENT) > 0) {
-              char *cmt_buff;
-              for (i = 0; wtap_block_get_nth_string_option_value(rec.block, OPT_COMMENT, i, &cmt_buff) == WTAP_OPTTYPE_SUCCESS; i++) {
-                pc = g_new0(pkt_cmt, 1);
+                char *cmt_buff;
+                for (i = 0; wtap_block_get_nth_string_option_value(rec.block, OPT_COMMENT, i, &cmt_buff) == WTAP_OPTTYPE_SUCCESS; i++) {
+                    pc = g_new0(pkt_cmt, 1);
 
-                pc->recno = packet;
-                pc->cmt = g_strdup(cmt_buff);
-                pc->next = NULL;
+                    pc->recno = packet;
+                    pc->cmt = g_strdup(cmt_buff);
+                    pc->next = NULL;
 
-                if (prev == NULL)
-                  cf_info.pkt_cmts = pc;
-                else
-                  prev->next = pc;
+                    if (prev == NULL)
+                        cf_info.pkt_cmts = pc;
+                    else
+                        prev->next = pc;
 
-                prev = pc;
-              }
+                    prev = pc;
+                }
             }
 
             /* If caplen < len for a rcd, then presumably           */
