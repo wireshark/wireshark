@@ -326,8 +326,8 @@ static void text_win_close_cb(void* data) {
         lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->func_ref);
 
         status = lua_pcall(L, 0, 0, 1);
-        wslua_debugger_after_pcall_failure(L);
         if (status != LUA_OK) {
+            wslua_debugger_after_pcall_failure(L);
             switch (status) {
             case LUA_ERRRUN:
                 ws_warning("Runtime error during execution of TextWindow close callback");
