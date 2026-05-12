@@ -543,9 +543,11 @@ def check_proto_tree_add_XXX(file_contents, filename):
                 clean_args = re.sub(r'\s+', ' ', args)
                 print(f"\tArgs: {clean_args}", file=sys.stderr)
 
-        # Remove anything inside parentheses in the arguments so we
-        # don't get false positives
-        args_no_parens = re.sub(r'\(.*?\)', '', args, flags=re.DOTALL)
+        # Remove anything inside parenthesis in the arguments so we
+        # don't get false positives when someone calls
+        # proto_tree_add_XXX(..., tvb_YYY(..., ENC_ZZZ))
+        # and allow there to be newlines inside
+        args_no_parens = re.sub(r'\(.*\)', '', args, flags=re.DOTALL)
 
         # Check for accidental usage of ENC_ parameter
         if re.search(r',\s*ENC_', args_no_parens, re.DOTALL):
