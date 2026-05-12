@@ -75,14 +75,20 @@ set(STRATOSHARK_VERSION "${STRATOSHARK_MAJOR_VERSION}.${STRATOSHARK_MINOR_VERSIO
 
 include( CMakeOptions.txt )
 
-# We require minimum C11
-set(CMAKE_C_STANDARD 11)
+# We require minimum C17
+set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-# We require minimum C++14.
-set(CMAKE_CXX_STANDARD 14)
+# We require minimum C++17.
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+# Setting CMAKE_CXX_STANDARD is not sufficient with MSVC, see
+#   https://gitlab.kitware.com/cmake/cmake/-/issues/18837
+# Add it only to C++, to avoid confusing rc.exe
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND MSVC_VERSION GREATER_EQUAL 1913)
+	add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/Zc:__cplusplus>")
+endif()
 
 message(STATUS "Generating build using CMake ${CMAKE_VERSION}")
 
@@ -1400,16 +1406,6 @@ if(BUILD_wireshark OR BUILD_stratoshark)
 		set(qtver 6)
 		if(DEFINED ENV{WIRESHARK_QT6_PREFIX_PATH})
 			list(APPEND CMAKE_PREFIX_PATH $ENV{WIRESHARK_QT6_PREFIX_PATH})
-		endif()
-
-		set(CMAKE_CXX_STANDARD 17)
-		# Setting CMAKE_CXX_STANDARD is not sufficient with MSVC, see
-		#   https://gitlab.kitware.com/cmake/cmake/-/issues/18837
-		# The below test can be found in Qt6, lib/cmake/Qt6/QtFeature.cmake
-		if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND MSVC_VERSION GREATER_EQUAL 1913)
-			# Cannot use add_definitions() here because rc.exe does not understand this flag.
-			# https://cmake.org/pipermail/cmake/2009-August/031672.html
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Zc:__cplusplus")
 		endif()
 
 		find_package(Qt6 6.2 REQUIRED
