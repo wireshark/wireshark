@@ -61,14 +61,14 @@ The following bugs have been fixed:
 
 * Wireshark crashes when run under Visual Studio on Windows. https://gitlab.com/wireshark/wireshark/-/work_items/21251[Work item 24787].
 
-* Welcome page slide preferences are now available in the preferences window.
+* Welcome page slide preferences are now available in the preferences window. {notable}
 
 * vwr: Read of uninitialized memory in pntoh16. wsbuglink:16460[].
 * vwr: Read of uninitialized memory in find_signature. wsbuglink:16461[].
-* Upgrades on Windows do not retain existing optional features unless explicitly requested, resulting in accidental removal of features. wsbuglink:18925[].
+* Upgrades on Windows do not retain existing optional features unless explicitly requested, resulting in accidental removal of features. wsbuglink:18925[]. {notable}
 * Wireshark.exe version 4.6.5 is twice as large as version 4.6.4. wsbuglink:21233[].
 * MACsec dissector global-buffer-overflow. wsbuglink:21235[].
-* Wireshark 4.6.5 does not run on Windows 10 version 1809 (including Server 2019 and some LTSC versions) wsbuglink:21237[].
+* Wireshark 4.6.5 does not run on Windows 10 version 1809 (including Server 2019 and some LTSC versions) wsbuglink:21237[]. {notable}
 * Fuzz job issue: fuzz-2026-05-02-14184750352.pcap. wsbuglink:21240[].
 * packet-bacapp: rename aurth-request to auth-request. wsbuglink:21246[].
 * Fuzz job issue: randpkt-2026-05-10-14293434231.pcap. wsbuglink:21253[].
@@ -101,6 +101,7 @@ There are no new protocols in this release.
 BACapp
 BPv7
 DB/IB GDS DB
+Kafka
 MACsec
 PFCP
 RF4CE
