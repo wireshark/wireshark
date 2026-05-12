@@ -264,7 +264,7 @@ void LteRlcGraphDialog::fillGraph()
         if (!compareHeaders(seg)) {
             continue;
         }
-        double ts = seg->rel_secs + seg->rel_usecs / 1000000.0;
+        double ts = nstime_to_sec(&seg->rel_ts);
         time_stamp_map_.insert(ts, seg);
     }
 
@@ -284,7 +284,7 @@ void LteRlcGraphDialog::fillGraph()
 
     // Run through the segments to get data
     for (struct rlc_segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
-        double ts = seg->rel_secs + (seg->rel_usecs / 1000000.0);
+        double ts = nstime_to_sec(&seg->rel_ts);
         if (compareHeaders(seg)) {
             if (!seg->isControlPDU) {
                 // Data PDUs
@@ -639,7 +639,7 @@ void LteRlcGraphDialog::mouseMoved(QMouseEvent *event)
         hint += tr("%1 %2 (%3s seq %4 len %5)")
                 .arg(cap_file_.capFile() ? tr("Click to select packet") : tr("Packet"))
                 .arg(packet_num_)
-                .arg(QString::number(packet_seg->rel_secs + (packet_seg->rel_usecs / 1000000.0), 'g', 4))
+                .arg(QString::number(nstime_to_sec(&packet_seg->rel_ts), 'g', 4))
                 .arg(packet_seg->SN)
                 .arg(packet_seg->pduLength);
         tracer_->setGraphKey(ui->rlcPlot->xAxis->pixelToCoord(event->pos().x()));

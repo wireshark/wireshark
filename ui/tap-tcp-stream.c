@@ -82,11 +82,9 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
         struct segment *segment = g_new(struct segment, 1);
         segment->next      = NULL;
         segment->num       = pinfo->num;
-        segment->rel_secs  = (uint32_t)pinfo->rel_ts.secs;
-        segment->rel_usecs = pinfo->rel_ts.nsecs/1000;
+        nstime_copy(&segment->rel_ts, &pinfo->rel_ts);
         /* Currently unused
-        segment->abs_secs  = pinfo->abs_ts.secs;
-        segment->abs_usecs = pinfo->abs_ts.nsecs/1000;
+        nstime_copy(&segment->abs_ts, &pinfo->abs_ts.secs);
         */
         /* tcphdr->th_rawseq is always the absolute sequence number.
          * tcphdr->th_seq is either the relative or absolute sequence number

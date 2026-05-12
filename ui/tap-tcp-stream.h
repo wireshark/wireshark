@@ -43,11 +43,9 @@ typedef enum rtt_sampling_method_ {
 struct segment {
     struct segment *next;
     uint32_t num;
-    uint32_t rel_secs;
-    uint32_t rel_usecs;
+    nstime_t rel_ts;
     /* Currently unused.
-    time_t abs_secs;
-    uint32_t abs_usecs;
+    nstime_t abs_ts;
     */
 
     uint32_t th_seq;

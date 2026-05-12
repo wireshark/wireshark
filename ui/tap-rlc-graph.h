@@ -25,8 +25,7 @@ extern "C" {
 struct rlc_segment {
     struct rlc_segment *next;
     uint32_t        num;            /* framenum */
-    time_t          rel_secs;
-    uint32_t        rel_usecs;
+    nstime_t        rel_ts;
 
     bool            isControlPDU;
     uint32_t        SN;

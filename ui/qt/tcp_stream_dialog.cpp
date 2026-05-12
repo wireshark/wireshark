@@ -740,7 +740,7 @@ void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
             bytes_fwd += seg->th_seglen;
             pkts_fwd++;
         }
-        double ts = seg->rel_secs + seg->rel_usecs / 1000000.0;
+        double ts = nstime_to_sec(&seg->rel_ts);
         if (ts_unset) {
             ts_offset_ = ts;
             ts_unset = false;
@@ -1041,7 +1041,7 @@ void TCPStreamDialog::fillStevens()
             continue;
         }
 
-        double ts = seg->rel_secs + seg->rel_usecs / 1000000.0;
+        double ts = nstime_to_sec(&seg->rel_ts);
         rel_time.append(ts - ts_offset_);
         seq.append(seg->th_seq - seq_offset_);
     }
@@ -1082,7 +1082,7 @@ void TCPStreamDialog::fillTcptrace()
     QVector<double> zero_win_time, zero_win;
 
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
-        double ts = (seg->rel_secs + seg->rel_usecs / 1000000.0) - ts_offset_;
+        double ts = nstime_to_sec(&seg->rel_ts) - ts_offset_;
         if (compareHeaders(seg)) {
             double half = seg->th_seglen / 2.0;
             double center = seg->th_seq - seq_offset_ + half;
@@ -1502,7 +1502,7 @@ void TCPStreamDialog::fillThroughput()
         int& r_oldest = is_forward_seg ? oldest_seg : oldest_ack;
         uint64_t& r_sum = is_forward_seg ? seg_sum : ack_sum;
 
-        double ts = (seg->rel_secs + seg->rel_usecs / 1000000.0) - ts_offset_;
+        double ts = nstime_to_sec(&seg->rel_ts) - ts_offset_;
 
         if (is_forward_seg) {
             seglen = seg->th_seglen;
@@ -1728,7 +1728,7 @@ void TCPStreamDialog::fillRoundTripTime()
         if (compareHeaders(seg)) {
             uint32_t seqno = seg->th_seq - seq_base;
             if (seg->th_seglen && !rtt_is_retrans(unack_list, seqno)) {
-                double rt_val = seg->rel_secs + seg->rel_usecs / 1000000.0;
+                double rt_val = nstime_to_sec(&seg->rel_ts);
                 rt_val -= ts_offset_;
                 u = rtt_get_new_unack(rt_val, seqno, seg->th_seglen);
                 if (!u) {
@@ -1743,7 +1743,7 @@ void TCPStreamDialog::fillRoundTripTime()
         /* receiver traffic analysis */
         else {
             uint32_t ack_no = seg->th_ack - seq_base;
-            double rt_val = seg->rel_secs + seg->rel_usecs / 1000000.0;
+            double rt_val = nstime_to_sec(&seg->rel_ts);
             rt_val -= ts_offset_;
             struct rtt_unack *v;
 
@@ -1867,7 +1867,7 @@ void TCPStreamDialog::fillWindowScale()
 
     bool found_first_ack = false;
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
-        double ts = seg->rel_secs + seg->rel_usecs / 1000000.0;
+        double ts = nstime_to_sec(&seg->rel_ts);
 
         // The receive window that applies to this flow comes
         //   from packets in the opposite direction
@@ -2162,7 +2162,7 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
         hint += tr("%1 %2 (%3s len %4 seq %5 ack %6 win %7)")
                 .arg((!file_closed_ && cap_file_.isValid()) ? tr("Click to select packet") : tr("Packet"))
                 .arg(packet_num_)
-                .arg(QString::number(packet_seg->rel_secs + packet_seg->rel_usecs / 1000000.0, 'g', 4))
+                .arg(QString::number(nstime_to_sec(&packet_seg->rel_ts), 'g', 4))
                 .arg(packet_seg->th_seglen)
                 .arg(packet_seg->th_seq) // - seq_offset_)
                 .arg(packet_seg->th_ack)
