@@ -423,7 +423,7 @@ dissect_edata_tlvs(tvbuff_t* tvb, packet_info* pinfo, proto_tree* edata_tree, ui
             proto_tree_add_item_ret_uint16(edata_item_data_tree, hf_etw_edata_traits_traitssize, tvb, edata_off_int, 2, ENC_LITTLE_ENDIAN, &traits_size);
             edata_off_int += 2;
             proto_tree_add_item(edata_item_data_tree, hf_etw_edata_traits_providername, tvb, edata_off_int, traits_size - 2, ENC_NA | ENC_UTF_8);
-            edata_off_int += traits_size;
+            /* edata_off_int += traits_size; */
             break;
         }
 
@@ -735,7 +735,7 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
 
         etw_data = proto_tree_add_subtree(tree, tvb, offset, 0, ett_etw_data, NULL, "ETW Data");
         if (properties_count) {
-            offset = dissect_properties(tvb, pinfo, etw_data, properties_offset, properties_count, pinfo->pool, &propArray);
+            /* offset =*/ dissect_properties(tvb, pinfo, etw_data, properties_offset, properties_count, pinfo->pool, &propArray);
         }
         if (user_data_length) {
             proto_tree_add_item(etw_data, hf_etw_user_data, tvb, user_data_offset, user_data_length, ENC_NA);
