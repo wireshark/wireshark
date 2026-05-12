@@ -130,12 +130,16 @@ void LuaDebuggerStackController::updateFromEngine()
                 itemToSelect = nameItem;
             }
         }
-        wslua_debugger_free_stack(stack, frameCount);
     }
     else
     {
         selectionLevel_ = 0;
         wslua_debugger_set_variable_stack_level(0);
+    }
+
+    if (stack)
+    {
+        wslua_debugger_free_stack(stack, frameCount);
     }
 
     if (itemToSelect && model_)
