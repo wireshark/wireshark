@@ -2423,7 +2423,7 @@ void LuaDebuggerBreakpointsController::serializeTo(QVariantMap &settingsMap) con
         /* @c hitCountMode is persisted as a string ("from" / "every" /
          * "once") so the JSON file is self-describing and matches the
          * UI dropdown verbatim. */
-        const char *modeStr = "from";
+        const char *modeStr;
         switch (hit_mode)
         {
         case WSLUA_HIT_COUNT_MODE_EVERY:
