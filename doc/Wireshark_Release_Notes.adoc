@@ -28,7 +28,18 @@ https://www.wireshark.org/certifications[the Wireshark Foundation].
 
 === Bug Fixes
 
-// The following vulnerabilities have been fixed:
+The following vulnerabilities have been fixed:
+
+* wssalink:2026-51[] {notable}
+ROHC protocol dissector crash.
+wsbuglink:21243[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 6f0cf1551d
+// Fixed in release-4.6: 2685398d6a
+// Fixed in release-4.4: b9750e0096
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-476
+// * ROHC NULL Write / Heap Corruption with uncompressed profile and large CID. wsbuglink:21243[].
 
 // * wssalink:2026-51[] {notable}
 // Foo protocol dissector {crash,infinite loop,memory leak}.
@@ -48,41 +59,19 @@ The following bugs have been fixed:
 // Bugs with the {notable} attribute show up in the "What's Changed" box on the download page.
 //* Wireshark contains traces of nuts. What kind of nuts? The kind you're allergic to. wsbuglink:5000[] {notable}
 
-* WSUG: Enabled Protocols dialog needs an update. wsbuglink:20871[].
-* Build failure with Qt 6.11 beta. wsbuglink:20965[].
-* BLF: Missing 4 byte alignment makes BLF files incompatible with Vector's tools. wsbuglink:21017[].
-* SMB2 decryption keys in smb2_seskey_list are not loaded on restart. wsbuglink:21036[].
-* Fuzz job issue: fuzz-2026-03-01-13307044520.pcap. wsbuglink:21049[].
-* Window with a message for ssh_strict_fopen. wsbuglink:21051[].
-* IEEE 1722.1 Dissector for Stream Input Counters displays FRAMES_RX as "Stream Packets TX" wsbuglink:21055[].
-* Wireshark 4.6.4 crashes. wsbuglink:21058[].
-* Compilation error with Lua-5.5. wsbuglink:21060[].
-* BSOD issue affecting Npcap 1.86. wsbuglink:21062[].
-* Adding descriptions to BLF interfaces broke the Capture File Properties view. wsbuglink:21069[].
-* Assertion Failure in ws_buffer_remove_start via Malformed Packet Manipulation. wsbuglink:21078[].
-* Modbus/RTU fails to decode broadcast frames. wsbuglink:21091[].
-* Lua not included unless CMake version >= 3.25. wsbuglink:21093[].
-* sshdump: Regression in v4.6.4 – Failed to resolve hostname aliases from .ssh/config on Windows. wsbuglink:21114[].
-* Fuzz job crash: fuzz-2026-03-25-13637733472.pcap. wsbuglink:21117[].
-* dumpcap TCP@ section-header parsing remote heap corruption. wsbuglink:21132[].
-* Netflix BBLog EVENT parsing crash. wsbuglink:21133[].
-* On Windows, the Follow Stream feature output is shown in proportional font after zooming. wsbuglink:21137[].
-* RTP Streams dialog Time of Day inconsistent behavior. wsbuglink:21138[].
-* Sysdig Event Block Integer Underflow. wsbuglink:21140[].
-* RF4CE NWK Dissector Heap Buffer Overflow (crash/OOB) wsbuglink:21150[].
-* NetXray/Sniffer Padding Integer Underflow. wsbuglink:21152[].
-* HTTP/2 ALTSVC/PRIORITY_UPDATE Frame Length Truncation (24-bit to 16-bit) wsbuglink:21155[].
-* Snort config parser 2 buffer overflows. wsbuglink:21165[].
-* ESP NULL Encryption Integer Underflow triggers Heap Overflow. wsbuglink:21166[].
-* Heap buffer overflow in ISO 8583 dissector bin2hex() wsbuglink:21171[].
-* wslua: NULL pointer dereference in get_dissector when passing an invalid GUID string to an FT_GUID table. wsbuglink:21194[].
-* Fuzz job UTF-8 encoding issue: fuzz-2026-04-16-13947406035.pcap. wsbuglink:21199[].
-* Qt: Waterfall bars misisng in conversation overview when "limit to display filter" is active. wsbuglink:21204[].
-* text2pcap: heap-buffer-overflow in memmove when -P"dissector" payload exceeds reserved space. wsbuglink:21208[].
-* text2pcap : Stack overflow via unbounded "g_alloca" in regex "seqno" wsbuglink:21209[].
-* editcap: --novlan integer underflow in sll_remove_vlan_info causes denial of service on short SLL captures. wsbuglink:21210[].
-* NAS-5GS - Mapping issue between IEI 0x7B and "S-NSSAI location validity information" IE. wsbuglink:21218[].
-* RTP-MIDI dissector reports incorrect value for MTC Quarter Frame data. wsbuglink:21231[].
+* Wireshark crashes when run under Visual Studio on Windows. https://gitlab.com/wireshark/wireshark/-/work_items/21251[Work item 24787].
+
+* Welcome page slide preferences are now available in the preferences window.
+
+* vwr: Read of uninitialized memory in pntoh16. wsbuglink:16460[].
+* vwr: Read of uninitialized memory in find_signature. wsbuglink:16461[].
+* Upgrades on Windows do not retain existing optional features unless explicitly requested, resulting in accidental removal of features. wsbuglink:18925[].
+* Wireshark.exe version 4.6.5 is twice as large as version 4.6.4. wsbuglink:21233[].
+* MACsec dissector global-buffer-overflow. wsbuglink:21235[].
+* Wireshark 4.6.5 does not run on Windows 10 version 1809 (including Server 2019 and some LTSC versions) wsbuglink:21237[].
+* Fuzz job issue: fuzz-2026-05-02-14184750352.pcap. wsbuglink:21240[].
+* packet-bacapp: rename aurth-request to auth-request. wsbuglink:21246[].
+* Fuzz job issue: randpkt-2026-05-10-14293434231.pcap. wsbuglink:21253[].
 
 
 // == Known Bugs
@@ -109,15 +98,27 @@ There are no new protocols in this release.
 // rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.6.5.. | rg packet- | sort -u)
 [commaize]
 --
+BACapp
+BPv7
+DB/IB GDS DB
+MACsec
+PFCP
+RF4CE
+ROHC
+RTPS-VT
+SAPHDB
+SIP
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+JSON
+VeriWave
+--
 
 === New and Updated File Format Decoding Support
 
