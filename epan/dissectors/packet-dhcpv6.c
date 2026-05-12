@@ -90,6 +90,7 @@ static int hf_clientfqdn_client_s;
 static int hf_clientfqdn_server_n;
 static int hf_clientfqdn_server_o;
 static int hf_clientfqdn_server_s;
+static int hf_option;
 static int hf_option_type_str;
 static int hf_option_type_num;
 static int hf_option_length;
@@ -1285,7 +1286,7 @@ initialize_hopount_info(hopcount_info *hpi) {
 
 static void
 dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-               int off, int eoff, hopcount_info hpi);
+               int off, hopcount_info hpi);
 
 static int
 dissect_dhcpv6_s46_ipv6_prefix(tvbuff_t *tvb, int hf, int offset, int prefix_length, proto_tree *tree);
@@ -2062,20 +2063,22 @@ cablelabs_fmt_dpoe_server_version( char *result, uint32_t revision )
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
 dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
-              int off, int eoff, bool *at_end, int protocol, hopcount_info hpi, uint8_t msgtype)
+              int off, bool *at_end, int protocol, hopcount_info hpi, uint8_t msgtype)
 {
     uint16_t    opttype, hwtype, subopt_type;
-    int         temp_optlen, optlen, subopt_len; /* 16-bit values that need 16-bit rollover protection */
+    unsigned    temp_optlen, optlen, subopt_len; /* 16-bit values that need 16-bit rollover protection */
     proto_item *ti = NULL, *option_item;
     proto_tree *subtree;
     proto_tree *subtree_2;
-    int         i;
+    tvbuff_t   *opt_tvb;
+    const char *opt_type_str;
+    unsigned    i;
     uint16_t    duidtype;
     uint32_t    enterprise_no, temp_uint32;
     unsigned    algorithm;
 
     /* option type and length must be present */
-    if ((eoff - off) < 4) {
+    if (tvb_reported_length_remaining(tvb, off) < 4) {
         *at_end = true;
         return 0;
     }
@@ -2083,23 +2086,30 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     opttype = tvb_get_ntohs(tvb, off);
     optlen  = tvb_get_ntohs(tvb, off + 2);
 
-    /* all option data must be present */
-    if ((eoff - off) < (4 + optlen)) {
-        *at_end = true;
-        return 0;
-    }
-
-    /* Replace "Text item" option header with a filterable field which in turn eliminates the need
-     * for the "Value:" raw data field. */
-    option_item = proto_tree_add_string_format(bp_tree, hf_option_type_str, tvb, off, 4 + optlen,
-                    val_to_str_ext(pinfo->pool, opttype, &opttype_vals_ext, "DHCP option %u"),
-                    "%s", val_to_str_ext(pinfo->pool, opttype, &opttype_vals_ext, "DHCP option %u"));
+    opt_type_str = val_to_str_ext(pinfo->pool, opttype, &opttype_vals_ext, "DHCP option %u");
+    option_item = proto_tree_add_none_format(bp_tree, hf_option, tvb, off, 4 + optlen,
+                    "%s", opt_type_str);
 
     subtree = proto_item_add_subtree(option_item, ett_dhcpv6_option);
 
     proto_tree_add_item(subtree, hf_option_type_num, tvb, off, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_option_length, tvb, off + 2, 2, ENC_BIG_ENDIAN);
+    /* hf_option_type_num can be filtered via the value string; this is
+     * for backwards compatibility. Take the minimum for the length because
+     * FT_STRING, unlike FT_PROTOCOL, FT_NONE, & FT_BYTES, does not
+     * automatically truncate the length. */
+    ti = proto_tree_add_string_format(subtree, hf_option_type_str, tvb, off, MIN(4 + optlen, tvb_captured_length_remaining(tvb, off)), opt_type_str, "%s", opt_type_str);
+    proto_item_set_hidden(ti);
+    ti = proto_tree_add_item(subtree, hf_option_length, tvb, off + 2, 2, ENC_BIG_ENDIAN);
+    /* all option data must be present */
+    if (tvb_reported_length_remaining(tvb, off) < (4 + optlen)) {
+        expert_add_info(pinfo, ti, &ei_dhcpv6_bogus_length);
+        *at_end = true;
+        return 0;
+    }
+
     off += 4;
+
+    opt_tvb = tvb_new_subset_length(tvb, off, optlen);
 
     increment_dissection_depth(pinfo);
 
@@ -2267,8 +2277,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 
         temp_optlen = 8 + ipv6_pref_len_bytes;
         while ((optlen - temp_optlen) > 0) {
-            temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
-                                         off+temp_optlen, off + optlen, at_end, protocol, hpi, msgtype);
+            temp_optlen += dhcpv6_option(opt_tvb, pinfo, subtree,
+                                         temp_optlen, at_end, protocol, hpi, msgtype);
             if (*at_end) {
                 /* Bad option - just skip to the end */
                 temp_optlen = optlen;
@@ -2326,8 +2336,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 
         temp_optlen = 5 + ipv6_pref_len_bytes;
         while ((optlen - temp_optlen) > 0) {
-            temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
-                                         off+temp_optlen, off + optlen, at_end, protocol, hpi, msgtype);
+            temp_optlen += dhcpv6_option(opt_tvb, pinfo, subtree,
+                                         temp_optlen, at_end, protocol, hpi, msgtype);
             if (*at_end) {
                 /* Bad option - just skip to the end */
                 temp_optlen = optlen;
@@ -2382,8 +2392,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 
         temp_optlen = 12;
         while ((optlen - temp_optlen) > 0) {
-            temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
-                                         off+temp_optlen, off + optlen, at_end, protocol, hpi, msgtype);
+            temp_optlen += dhcpv6_option(opt_tvb, pinfo, subtree,
+                                         temp_optlen, at_end, protocol, hpi, msgtype);
             if (*at_end) {
                 /* Bad option - just skip to the end */
                 temp_optlen = optlen;
@@ -2400,8 +2410,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
                                     4, tvb_arphrdaddr_to_str(pinfo->pool, tvb, off, 4, opttype));  /* XXX: IAID is opaque ? review ... */
         temp_optlen = 4;
         while ((optlen - temp_optlen) > 0) {
-            temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
-                                         off+temp_optlen, off + optlen, at_end, protocol, hpi, msgtype);
+            temp_optlen += dhcpv6_option(opt_tvb, pinfo, subtree,
+                                         temp_optlen, at_end, protocol, hpi, msgtype);
             if (*at_end) {
                 /* Bad option - just skip to the end */
                 temp_optlen = optlen;
@@ -2422,8 +2432,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 
         temp_optlen = 24;
         while ((optlen - temp_optlen) > 0) {
-            temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
-                                         off+temp_optlen, off + optlen, at_end, protocol, hpi, msgtype);
+            temp_optlen += dhcpv6_option(opt_tvb, pinfo, subtree,
+                                         temp_optlen, at_end, protocol, hpi, msgtype);
             if (*at_end) {
                 /* Bad option - just skip to the end */
                 temp_optlen = optlen;
@@ -2441,7 +2451,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         proto_tree_add_item_ret_uint(subtree, hf_lladdr_linklayer_type, tvb, off, 2, ENC_BIG_ENDIAN, &ll_type);
         proto_tree_add_item_ret_uint(subtree, hf_lladdr_linklayer_len, tvb, off+2, 2, ENC_BIG_ENDIAN, &ll_len);
 
-        if (optlen < (int)(12 + ll_len)) {
+        if (optlen < (12 + ll_len)) {
             expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "LLA: malformed option");
             break;
         }
@@ -2457,8 +2467,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 
         temp_optlen = ll_len+12;
         while ((optlen - temp_optlen) > 0) {
-            temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
-                                         off+temp_optlen, off + optlen, at_end, protocol, hpi, msgtype);
+            temp_optlen += dhcpv6_option(opt_tvb, pinfo, subtree,
+                                         temp_optlen, at_end, protocol, hpi, msgtype);
             if (*at_end) {
                 /* Bad option - just skip to the end */
                 temp_optlen = optlen;
@@ -2493,7 +2503,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "RELAY-MSG: malformed option");
         } else {
             /* here, we should dissect a full DHCP message */
-            dissect_dhcpv6(tvb, pinfo, subtree, off, off + optlen, hpi);
+            dissect_dhcpv6(opt_tvb, pinfo, subtree, 0, hpi);
         }
         break;
     case OPTION_AUTH:
@@ -2547,10 +2557,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             break;
         }
 
-        tvbuff_t   *opt_tvb;
-
         enterprise_no = tvb_get_ntohl(tvb, off);
-        opt_tvb = tvb_new_subset_length(tvb, off, optlen);
 
         // Find a per-vendor dissector or fallback to the generic-enterprise-dissector.
         if (!dissector_try_uint_with_data(dhcpv6_enterprise_opts_dissector_table, enterprise_no, opt_tvb, pinfo, subtree, false, &msgtype)) {
@@ -2895,9 +2902,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         proto_tree_add_item(subtree, hf_lq_query_link_address, tvb, off+1, 16, ENC_NA);
         temp_optlen = 17;
         while ((optlen - temp_optlen) > 0) {
-            temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
-                                         off + temp_optlen,
-                                         off + optlen, at_end, protocol, hpi, msgtype);
+            temp_optlen += dhcpv6_option(opt_tvb, pinfo, subtree, temp_optlen,
+                                         at_end, protocol, hpi, msgtype);
             if (*at_end) {
                 /* Bad option - just skip to the end */
                 temp_optlen = optlen;
@@ -2916,9 +2922,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         /* Intended fall-through for options which can only carry further options */
         temp_optlen = 0;
         while ((optlen - temp_optlen) > 0) {
-            temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
-                                         off + temp_optlen,
-                                         off + optlen, at_end, protocol, hpi, msgtype);
+            temp_optlen += dhcpv6_option(opt_tvb, pinfo, subtree, temp_optlen,
+                                         at_end, protocol, hpi, msgtype);
             if (*at_end) {
                 /* Bad option - just skip to the end */
                 temp_optlen = optlen;
@@ -3137,8 +3142,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         proto_tree_add_item(subtree, hf_iaprefix_pref_addr, tvb, off+9, 16, ENC_NA);
         temp_optlen = 25;
         while ((optlen - temp_optlen) > 0) {
-            temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
-                                         off+temp_optlen, off + optlen, at_end, protocol, hpi, msgtype);
+            temp_optlen += dhcpv6_option(opt_tvb, pinfo, subtree, temp_optlen,
+                                         at_end, protocol, hpi, msgtype);
             if (*at_end) {
                 /* Bad option - just skip to the end */
                 temp_optlen = optlen;
@@ -3344,7 +3349,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         uint16_t adn_len = 0;
         uint16_t addrs_len = 0;
         // off is an offset from the beginning of a DHCPv6 packet. It is NOT zero when we start.
-        int offset = 0; // offset within the DNR option. This starts at zero.
+        unsigned offset = 0; // offset within the DNR option. This starts at zero.
         tvbuff_t *next_tvb;
 
         if (optlen < 6) {
@@ -3432,7 +3437,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-               int off, int eoff, hopcount_info hpi)
+               int off, hopcount_info hpi)
 {
     proto_tree        *bp_tree = NULL;
     proto_item        *ti;
@@ -3443,7 +3448,7 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_ext(pinfo->pool, msgtype, &msgtype_vals_ext, "Message Type %u"));
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_dhcpv6, tvb, off, eoff - off, ENC_NA);
+        ti = proto_tree_add_item(tree, proto_dhcpv6, tvb, off, tvb_reported_length_remaining(tvb, off), ENC_NA);
         bp_tree = proto_item_add_subtree(ti, ett_dhcpv6);
     }
 
@@ -3484,8 +3489,8 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     at_end = false;
-    while ((off < eoff) && !at_end)
-        off += dhcpv6_option(tvb, pinfo, bp_tree, off, eoff, &at_end, proto_dhcpv6, hpi, msgtype);
+    while (tvb_reported_length_remaining(tvb, off) && !at_end)
+        off += dhcpv6_option(tvb, pinfo, bp_tree, off, &at_end, proto_dhcpv6, hpi, msgtype);
 }
 
 static int
@@ -3495,7 +3500,7 @@ dissect_dhcpv6_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     initialize_hopount_info(&hpi);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCPv6");
     col_clear(pinfo->cinfo, COL_INFO);
-    dissect_dhcpv6(tvb, pinfo, tree, 0, tvb_reported_length(tvb), hpi);
+    dissect_dhcpv6(tvb, pinfo, tree, 0, hpi);
     return tvb_captured_length(tvb);
 }
 
@@ -3511,7 +3516,8 @@ dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 {
     proto_item *ti;
     proto_tree *bulk_tree, *option_tree;
-    int         offset = 0, end;
+    tvbuff_t   *next_tvb;
+    int         offset = 0;
     uint16_t    size, trans_id;
     uint8_t     msg_type;
     bool        at_end = false;
@@ -3525,6 +3531,7 @@ dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     bulk_tree = proto_item_add_subtree(ti, ett_dhcpv6_bulk_leasequery);
 
     proto_tree_add_item_ret_uint16(bulk_tree, hf_dhcpv6_bulk_leasequery_size, tvb, offset, 2, ENC_BIG_ENDIAN, &size);
+    next_tvb = tvb_new_subset_length(tvb, offset, size + 2);
     offset += 2;
 
     msg_type = tvb_get_uint8( tvb, offset );
@@ -3547,10 +3554,9 @@ dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                       val_to_str_ext_const(msg_type, &msgtype_vals_ext, "Unknown"), trans_id);
 
     option_tree = proto_tree_add_subtree(bulk_tree, tvb, offset, -1, ett_dhcpv6_bulk_leasequery_options, NULL, "DHCPv6 Options");
-    end = size + 2;
-    while ((offset < end) && !at_end)
-        offset += dhcpv6_option(tvb, pinfo, option_tree, offset,
-                                end, &at_end, proto_dhcpv6_bulk_leasequery, hpi, msg_type);
+    while (tvb_reported_length_remaining(next_tvb, offset) && !at_end)
+        offset += dhcpv6_option(next_tvb, pinfo, option_tree, offset,
+                                &at_end, proto_dhcpv6_bulk_leasequery, hpi, msg_type);
 
     return tvb_reported_length(tvb);
 }
@@ -3600,6 +3606,8 @@ proto_register_dhcpv6(void)
         { &hf_dhcpv6_peeraddr,
           { "Peer address", "dhcpv6.peeraddr", FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL}},
         /* Generic option stuff */
+        { &hf_option,
+          { "Option", "dhcpv6.option", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_option_type_num,
           { "Option", "dhcpv6.option.type", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &opttype_vals_ext, 0x0, NULL, HFILL}},
         { &hf_option_length,
