@@ -796,7 +796,6 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
         int *err, fifo_string_cache_t *frame_dup_cache, GChecksum *frame_cksum)
 {
     char             *err_info;
-    volatile int      newly_displayed_packets = 0;
     epan_dissect_t    edt;
     bool              create_proto_tree;
     unsigned          tap_flags;
@@ -876,9 +875,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
                    aren't any packets left to read) exit. */
                 break;
             }
-            if (read_record(cf, rec, cf->dfcode, &edt, cinfo, data_offset, frame_dup_cache, frame_cksum)) {
-                newly_displayed_packets++;
-            }
+            read_record(cf, rec, cf->dfcode, &edt, cinfo, data_offset, frame_dup_cache, frame_cksum);
             to_read--;
         }
         wtap_rec_reset(rec);
