@@ -1081,6 +1081,8 @@ my $filenamelist = "";
 my $help_flag = 0;
 my $pre_commit = 0;
 
+print STDERR "Warning: This script is deprecated. Use check_apis.py instead.\n\n";
+
 my $result = GetOptions(
                         'group=s' => \@apiGroups,
                         'summary-group=s' => \@apiSummaryGroups,

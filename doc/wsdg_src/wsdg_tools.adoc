@@ -923,7 +923,7 @@ https://git-scm.com/downloads/guis[] for details.
 === Perl (Optional)
 
 https://www.perl.org[Perl] is an interpreted programming language.
-It is used to convert various text files into usable source code and for various source code checks, but it it is not required for general Wireshark development.
+It is used to convert various text files into usable source code, but it it is not required for general Wireshark development.
 Perl version 5.6 and above should work fine.
 
 [#ChToolsUnixPerl]

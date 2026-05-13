@@ -1,5 +1,5 @@
 # Add a target to call checkAPIs.pl on the specified source files
-# The target is excluded from the ALL targte so must be manually
+# The target is excluded from the ALL target so must be manually
 # specified in a build command.
 # The target is added to the top-level checkAPIs target
 #
@@ -21,10 +21,11 @@ macro( CHECKAPI )
 		set (CHECKAPI_SWITCHES ${CHECKAPI_SWITCHES --debug)
 	endif()
 
+	# The "checkAPI" target/prefix should probably be "checkapi".
 	set(TARGET_NAME checkAPI_${CHECKAPI_NAME})
 	add_custom_target(${TARGET_NAME}
-		COMMAND ${PERL_EXECUTABLE}
-		  ${CMAKE_SOURCE_DIR}/tools/checkAPIs.pl
+		COMMAND ${Python3_EXECUTABLE}
+		  ${CMAKE_SOURCE_DIR}/tools/check_apis.py
 		  ${CHECKAPI_SWITCHES}
 		  ${CHECKAPI_SOURCES}
 		DEPENDS
