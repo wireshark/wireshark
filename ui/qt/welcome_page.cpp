@@ -183,7 +183,6 @@ void WelcomePage::appInitialized()
 
     delete splash_overlay_;
     splash_overlay_ = NULL;
-    welcome_ui_->tipsSectionCard->startRotation();
 }
 
 void WelcomePage::applySidebarPreferences()
@@ -195,6 +194,7 @@ void WelcomePage::applySidebarPreferences()
     welcome_ui_->tipsSectionCard->setSlideTypeVisible(BannerEvents, recent.gui_welcome_page_sidebar_tips_events);
     welcome_ui_->tipsSectionCard->setSlideTypeVisible(BannerSponsorship, recent.gui_welcome_page_sidebar_tips_sponsorship);
     welcome_ui_->tipsSectionCard->setSlideTypeVisible(BannerTips, recent.gui_welcome_page_sidebar_tips_tips);
+    welcome_ui_->tipsSectionCard->setAutoAdvance(recent.gui_welcome_page_sidebar_tips_auto_advance);
     welcome_ui_->tipsSectionCard->setAutoAdvanceInterval(recent.gui_welcome_page_sidebar_tips_interval);
     welcome_ui_->tipsSectionCard->setVisible(slidesAreVisible);
 

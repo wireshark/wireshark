@@ -111,6 +111,13 @@
         </spacer>
        </item>
        <item>
+        <widget class="QCheckBox" name="tipsAutoAdvanceCheckBox">
+         <property name="text">
+          <string>Auto advance slides</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <layout class="QHBoxLayout" name="tipsIntervalLayout">
          <item>
           <widget class="QLabel" name="tipsIntervalLabel">
