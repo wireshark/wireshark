@@ -1690,6 +1690,7 @@ cap_pipe_close(int pipe_fd _U_)
 #endif
 }
 
+#ifndef _WIN32
 /** Read bytes from a capture source, which is assumed to be a pipe or
  * socket.
  *
@@ -1701,11 +1702,7 @@ cap_pipe_read_data_bytes(capture_src *pcap_src, char *errmsg, size_t errmsgl)
 {
     int sel_ret;
     int fd = pcap_src->cap_pipe_fd;
-#ifdef _WIN32
-    DWORD sz, bytes_read = 0;
-#else /* _WIN32 */
     ssize_t sz, bytes_read = 0;
-#endif /* _WIN32 */
     ssize_t b;
 
 #ifdef LOG_CAPTURE_VERBOSE
@@ -1734,29 +1731,14 @@ cap_pipe_read_data_bytes(capture_src *pcap_src, char *errmsg, size_t errmsgl)
                                "End of file reading from pipe or socket.");
                     pcap_src->cap_pipe_err = PIPEOF;
                 } else {
-#ifdef _WIN32
-                    /*
-                     * On Windows, we only do this for sockets.
-                     */
-                    DWORD lastError = WSAGetLastError();
-                    errno = lastError;
-                    snprintf(errmsg, errmsgl,
-                               "Error reading from pipe or socket: %s.",
-                               win32strerror(lastError));
-#else
                     snprintf(errmsg, errmsgl,
                                "Error reading from pipe or socket: %s.",
                                g_strerror(errno));
-#endif
                     pcap_src->cap_pipe_err = PIPERR;
                 }
                 return -1;
             }
-#ifdef _WIN32
-            bytes_read += (DWORD)b;
-#else
             bytes_read += b;
-#endif
         }
     }
     pcap_src->cap_pipe_bytes_read += bytes_read;
@@ -1766,6 +1748,7 @@ cap_pipe_read_data_bytes(capture_src *pcap_src, char *errmsg, size_t errmsgl)
 #endif
     return bytes_read;
 }
+#endif /* _WIN32 */
 
 /* Some forward declarations for breaking up cap_pipe_open_live for pcap and pcapng formats */
 static void pcap_pipe_open_live(int fd, capture_src *pcap_src,
