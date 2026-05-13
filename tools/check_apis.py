@@ -607,7 +607,7 @@ def check_hf_entries(file_contents, filename):
     """Check all hf entries for various problems."""
     error_count = 0
 
-    hf_re = (
+    hf_re = re.compile(
         r'\{\s*&\s*([A-Z0-9_\[\]-]+)\s*,\s*'        # &hf
         r'\{\s*'
         r'("[A-Z0-9 \'./()_:-]+")\s*,\s*'           # name
@@ -620,7 +620,7 @@ def check_hf_entries(file_contents, filename):
         r'HFILL'
     )
 
-    for m in re.finditer(hf_re, file_contents, re.IGNORECASE | re.DOTALL):
+    for m in hf_re.finditer(file_contents, re.IGNORECASE | re.DOTALL):
         hf, name, abbrev, ft, display, convert, bitmask, blurb = m.groups()
 
         display = re.sub(r'\s+', '', display)
