@@ -1552,8 +1552,8 @@ static const true_false_string pfcp_id_predef_dynamic_tfs = {
 #define PFCP_MSG_ASSOCIATION_RELEASE_REQUEST                9
 #define PFCP_MSG_ASSOCIATION_RELEASE_RESPONSE               10
 #define PFCP_MSG_VERSION_NOT_SUPPORTED_RESPONSE             11
-#define PFCP_MSG_NODE_REPORT_REQEUST                        12
-#define PFCP_MSG_NODE_REPORT_RERESPONSE                     13
+#define PFCP_MSG_NODE_REPORT_REQUEST                        12
+#define PFCP_MSG_NODE_REPORT_RESPONSE                       13
 #define PFCP_MSG_SESSION_SET_DELETION_REQUEST               14
 #define PFCP_MSG_SESSION_SET_DELETION_RESPONSE              15
 #define PFCP_MSG_SESSION_SET_MODIFICATION_REQUEST           16
@@ -1582,8 +1582,8 @@ static const value_string pfcp_message_type[] = {
     { PFCP_MSG_ASSOCIATION_RELEASE_REQUEST, "PFCP Association Release Request"},
     { PFCP_MSG_ASSOCIATION_RELEASE_RESPONSE, "PFCP Association Release Response"},
     { PFCP_MSG_VERSION_NOT_SUPPORTED_RESPONSE, "PFCP Version Not Supported Response"},
-    { PFCP_MSG_NODE_REPORT_REQEUST, "PFCP Node Report Request"},
-    { PFCP_MSG_NODE_REPORT_RERESPONSE, "PFCP Node Report Response"},
+    { PFCP_MSG_NODE_REPORT_REQUEST, "PFCP Node Report Request"},
+    { PFCP_MSG_NODE_REPORT_RESPONSE, "PFCP Node Report Response"},
     { PFCP_MSG_SESSION_SET_DELETION_REQUEST, "PFCP Session Set Deletion Request"},
     { PFCP_MSG_SESSION_SET_DELETION_RESPONSE, "PFCP Session Set Deletion Response"},
     { PFCP_MSG_SESSION_SET_MODIFICATION_REQUEST, "PFCP Session Set Modification Request"},
@@ -10326,7 +10326,7 @@ pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, unsi
     case PFCP_MSG_ASSOCIATION_SETUP_REQUEST:
     case PFCP_MSG_ASSOCIATION_UPDATE_REQUEST:
     case PFCP_MSG_ASSOCIATION_RELEASE_REQUEST:
-    case PFCP_MSG_NODE_REPORT_REQEUST:
+    case PFCP_MSG_NODE_REPORT_REQUEST:
     case PFCP_MSG_SESSION_SET_DELETION_REQUEST:
     case PFCP_MSG_SESSION_SET_MODIFICATION_REQUEST:
     case PFCP_MSG_SESSION_ESTABLISHMENT_REQUEST:
@@ -10343,7 +10343,7 @@ pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, unsi
     case PFCP_MSG_ASSOCIATION_UPDATE_RESPONSE:
     case PFCP_MSG_ASSOCIATION_RELEASE_RESPONSE:
     case PFCP_MSG_VERSION_NOT_SUPPORTED_RESPONSE:
-    case PFCP_MSG_NODE_REPORT_RERESPONSE:
+    case PFCP_MSG_NODE_REPORT_RESPONSE:
     case PFCP_MSG_SESSION_SET_DELETION_RESPONSE:
     case PFCP_MSG_SESSION_SET_MODIFICATION_RESPONSE:
     case PFCP_MSG_SESSION_ESTABLISHMENT_RESPONSE:
@@ -10374,7 +10374,7 @@ pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, unsi
         case PFCP_MSG_ASSOCIATION_SETUP_REQUEST:
         case PFCP_MSG_ASSOCIATION_UPDATE_REQUEST:
         case PFCP_MSG_ASSOCIATION_RELEASE_REQUEST:
-        case PFCP_MSG_NODE_REPORT_REQEUST:
+        case PFCP_MSG_NODE_REPORT_REQUEST:
         case PFCP_MSG_SESSION_SET_DELETION_REQUEST:
         case PFCP_MSG_SESSION_SET_MODIFICATION_REQUEST:
         case PFCP_MSG_SESSION_ESTABLISHMENT_REQUEST:
@@ -10404,7 +10404,7 @@ pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, unsi
         case PFCP_MSG_ASSOCIATION_UPDATE_RESPONSE:
         case PFCP_MSG_ASSOCIATION_RELEASE_RESPONSE:
         case PFCP_MSG_VERSION_NOT_SUPPORTED_RESPONSE:
-        case PFCP_MSG_NODE_REPORT_RERESPONSE:
+        case PFCP_MSG_NODE_REPORT_RESPONSE:
         case PFCP_MSG_SESSION_SET_DELETION_RESPONSE:
         case PFCP_MSG_SESSION_SET_MODIFICATION_RESPONSE:
         case PFCP_MSG_SESSION_ESTABLISHMENT_RESPONSE:
