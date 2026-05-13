@@ -9,9 +9,8 @@ local testlib = require("testlib")
 local OTHER = "other"
 
 -- expected number of runs per type
--- # of fields test doesn't work on Lua 5.4
 local taptests = {
-    [OTHER]=47
+    [OTHER]=48
 }
 testlib.init(taptests)
 
@@ -157,10 +156,7 @@ local myfields = { pf_trasaction_id, pf_flags,
 --dns.fields = myfields
 testlib.test(OTHER,"Proto.fields-set", pcall(setValue,dns,"fields",myfields))
 testlib.test(OTHER,"Proto.fields-get", pcall(getValue,dns,"fields"))
--- This test doesn't work on Lua 5.4 because the # operator includes the
--- reference(s) that are the linked list of allocated and free keys,
--- starting with LUA_RIDX_LAST + 1 == 3.
--- testlib.test(OTHER,"Proto.fields-get", #dns.fields == #myfields)
+testlib.test(OTHER,"Proto.fields-get", #dns.fields == #myfields)
 
 local pf_foo = ProtoField.uint16("myfoo.com", "Fooishly", base.DEC, rcodes, 0x000F)
 
