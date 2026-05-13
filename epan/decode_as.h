@@ -120,8 +120,24 @@ WS_DLL_PUBLIC struct dissector_table* register_decode_as_next_proto(int proto, c
  */
 WS_DLL_PUBLIC void decode_as_default_populate_list(const char *table_name, decode_as_add_to_list_func add_to_list, void *ui_element);
 /* Clear a FT_UINT32 value from dissector table list */
+
+/**
+ * @brief Reset the decode-as settings for a given dissector.
+ *
+ * @param name The name of the dissector to reset.
+ * @param pattern The pattern to use for resetting.
+ * @return true if the reset was successful, false otherwise.
+ */
 WS_DLL_PUBLIC bool decode_as_default_reset(const char *name, const void *pattern);
-/* Add a FT_UINT32 value to dissector table list */
+
+/**
+ * @brief Add a FT_UINT32 value to dissector table list.
+ * @param name The name of the dissector.
+ * @param pattern The pattern to use for changing the value.
+ * @param handle The handle for the dissector.
+ * @param list_name The name of the list to add the value to.
+ * @return true if the change was successful, false otherwise.
+ */
 WS_DLL_PUBLIC bool decode_as_default_change(const char *name, const void *pattern, const void *handle, const char *list_name);
 
 /** List of registered decode_as_t structs.
@@ -131,25 +147,35 @@ WS_DLL_PUBLIC GList *decode_as_list;
 
 /* Some useful utilities for Decode As */
 
-/** Reset the "decode as" entries and reload ones of the current profile.
- * This is called by epan_load_settings(); programs should call that
- * rather than individually calling the routines it calls.
+/**
+ * @brief Load "decode as" entries from the current profile.
+ * @param app_env_var_prefix The environment variable prefix for the application.
  */
 extern void load_decode_as_entries(const char* app_env_var_prefix);
 
-/** Write out the "decode as" entries of the current profile.
+/**
+ * @brief Write out the "decode as" entries of the current profile.
+ * @param app_name The name of the application.
+ * @param app_env_var_prefix The environment variable prefix.
+ * @param err Pointer to a string where error messages will be stored.
+ * @return The number of entries written, or a negative value on error.
  */
 WS_DLL_PUBLIC int save_decode_as_entries(const char* app_name, const char* app_env_var_prefix, char** err);
 
 /** Clear all "decode as" settings.
+ * @brief Clear all "decode as" settings.
  */
 WS_DLL_PUBLIC void decode_clear_all(void);
 
 /** Frees memory used by "decode as" routines. Called at program shutdown.
+ * @brief Frees memory used by "decode as" routines.
  */
 WS_DLL_PUBLIC void decode_cleanup(void);
 
-/** This routine creates one entry in the list of protocol dissector
+/**
+ * @brief Build a list of dissectors to be reset.
+ *
+ * This routine creates one entry in the list of protocol dissector
  * that need to be reset. It is called by the g_hash_table_foreach
  * routine once for each changed entry in a dissector table.
  * Unfortunately it cannot delete the entry immediately as this screws

@@ -13,10 +13,15 @@
 #ifndef CAPTURE_WIN_IFNAMES_H
 #define CAPTURE_WIN_IFNAMES_H
 
-/*
+/**
+ * @brief Get the friendly name for a network interface using its GUID.
+ *
  * If a string is a GUID in {}, fill in a GUID structure with the GUID
  * value and return true; otherwise, if the string is not a valid GUID
  * in {}, return false.
+ *
+ * @param guid Pointer to the GUID structure representing the network interface.
+ * @return A dynamically allocated string containing the friendly name of the interface, or NULL if the operation fails.
  */
 extern bool parse_as_guid(const char *guid_text, GUID *guid);
 

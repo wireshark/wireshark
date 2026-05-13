@@ -45,6 +45,14 @@ typedef struct print_stream {
 /*
  * These return a print_stream_t * on success and NULL on failure.
  */
+
+/**
+ * @brief Create a new print stream for text output.
+ *
+ * @param to_file If true, output will be written to a file; otherwise, it will be written to standard output.
+ * @param dest The destination file name.
+ * @return Pointer to the newly created print stream, or NULL on failure.
+ */
 WS_DLL_PUBLIC print_stream_t *print_stream_text_new(bool to_file, const char *dest);
 
 /**
@@ -72,8 +80,13 @@ WS_DLL_PUBLIC print_stream_t *print_stream_ps_new(bool to_file, const char *dest
  */
 WS_DLL_PUBLIC print_stream_t *print_stream_ps_stdio_new(FILE *fh);
 
-/*
- * These return true if the print was successful, false otherwise.
+/**
+ * @brief Print the preamble to a print stream.
+ *
+ * @param self           The print stream.
+ * @param filename       The name of the capture file being printed.
+ * @param version_string The Wireshark version string.
+ * @return true if the print was successful, false otherwise.
  */
 WS_DLL_PUBLIC bool print_preamble(print_stream_t *self, char *filename, const char *version_string);
 
@@ -87,10 +100,19 @@ WS_DLL_PUBLIC bool print_preamble(print_stream_t *self, char *filename, const ch
  */
 WS_DLL_PUBLIC bool print_line(print_stream_t *self, int indent, const char *line);
 
-/*
- * equivalent to print_line(), but if the stream supports text coloring then
+/**
+ * @brief Print a colored line to a print stream.
+ *
+ * Equivalent to print_line(), but if the stream supports text coloring then
  * the output text will also be colored with the given foreground and
- * background
+ * background.
+ *
+ * @param self The print stream.
+ * @param indent The indentation level.
+ * @param line The line of text to print.
+ * @param fg The foreground color.
+ * @param bg The background color.
+ * @return true if the print was successful, false otherwise.
  */
 WS_DLL_PUBLIC bool print_line_color(print_stream_t *self, int indent, const char *line, const color_t *fg, const color_t *bg);
 

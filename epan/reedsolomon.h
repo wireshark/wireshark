@@ -74,20 +74,35 @@ typedef unsigned char dtype;
 typedef unsigned int dtype;
 #endif
 
-/* Reed-Solomon encoding
+/**
+ * @brief Encodes data using Reed-Solomon error correction.
+ *
+ * Reed-Solomon encoding
  * data[] is the input block, parity symbols are placed in bb[]
  * bb[] may lie past the end of the data, e.g., for (255,223):
  *	encode_rs(&data[0],&data[223]);
+ *
+ * @param data Input data array to be encoded.
+ * @param bb Output buffer for the encoded data.
+ * @return Number of corrected symbols if successful, -1 otherwise.
  */
 int encode_rs(dtype data[], dtype bb[]);
 
-/* Reed-Solomon erasures-and-errors decoding
+/**
+ * @brief Performs ERRORS+ERASURES decoding of Reed-Solomon codes.
+ *
+ * Reed-Solomon erasures-and-errors decoding
  * The received block goes into data[], and a list of zero-origin
  * erasure positions, if any, goes in eras_pos[] with a count in no_eras.
  *
  * The decoder corrects the symbols in place, if possible and returns
  * the number of corrected symbols. If the codeword is illegal or
  * uncorrectable, the data array is unchanged and -1 is returned
+ *
+ * @param data Pointer to the input and output data array.
+ * @param eras_pos Array containing the positions of known erased symbols.
+ * @param no_eras Number of known erased symbols.
+ * @return Number of symbols corrected, or -1 if codeword is illegal or uncorrectable.
  */
 int eras_dec_rs(dtype data[], int eras_pos[], int no_eras);
 

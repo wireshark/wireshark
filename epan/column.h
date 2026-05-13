@@ -43,12 +43,30 @@ typedef struct _fmt_data {
 WS_DLL_PUBLIC
 const char          *col_format_to_string(const int fmt);
 
+/**
+ * @brief Get the description of a column format.
+ *
+ * @param fmt_num The format number to get the description for.
+ * @return The description of the column format, or NULL if invalid.
+ */
 WS_DLL_PUBLIC
 const char          *col_format_desc(const int fmt_num);
 
+/**
+ * @brief Get the abbreviation of a column format.
+ *
+ * @param fmt_num The format number to get the abbreviation for.
+ * @return The abbreviation of the column format, or NULL if invalid.
+ */
 WS_DLL_PUBLIC
 const char          *col_format_abbrev(const int fmt_num);
 
+/**
+ * @brief Get the format of a column.
+ *
+ * @param col The index of the column.
+ * @return The format of the column, or -1 if the column is invalid.
+ */
 WS_DLL_PUBLIC
 int                  get_column_format(const int col);
 

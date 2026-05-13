@@ -104,6 +104,11 @@ typedef struct _oid_info_t {
  */
 WS_DLL_PUBLIC void oids_init(const char* app_env_var_prefix);
 
+/**
+ * @brief Initialize OID-related preferences.
+ *
+ * @param nameres The module structure for name resolution.
+ */
 extern void oid_pref_init(module_t *nameres);
 
 /** init function called from epan.h */
@@ -128,22 +133,85 @@ WS_DLL_PUBLIC void oids_cleanup(void);
  * subids: is an array of uint32_t
  */
 
-/* return length of encoded buffer */
+/**
+ * @brief Return length of encoded buffer.
+ *
+ * @param scope     The memory allocator scope.
+ * @param len       The number of sub-identifiers in subids.
+ * @param subids    The array of sub-identifiers to encode.
+ * @param encoded_p Output pointer to the encoded buffer.
+ * @return Length of the encoded buffer.
+ */
 WS_DLL_PUBLIC
 unsigned oid_subid2encoded(wmem_allocator_t *scope, unsigned len, uint32_t* subids, uint8_t** encoded_p);
+
+/**
+ * @brief Return length of encoded buffer.
+ *
+ * @param scope     The memory allocator scope.
+ * @param oid_str   The OID string to encode.
+ * @param encoded_p Output pointer to the encoded buffer.
+ * @return Length of the encoded buffer.
+ */
 WS_DLL_PUBLIC
 unsigned oid_string2encoded(wmem_allocator_t *scope, const char *oid_str, uint8_t** encoded_p);
 
-/* return length of subid array */
+/**
+ * @brief Return the number of sub-identifiers in a decoded OID.
+ *
+ * @param scope    The memory allocator scope.
+ * @param oid      The encoded OID buffer.
+ * @param len      The length of the encoded buffer.
+ * @param subids_p Output pointer to the array of sub-identifiers.
+ * @return The number of sub-identifiers in the decoded OID.
+ */
 WS_DLL_PUBLIC
 unsigned oid_encoded2subid(wmem_allocator_t *scope, const uint8_t *oid, int len, uint32_t** subids_p);
+
+/**
+ * @brief Return the number of sub-identifiers in a decoded OID, with support
+ * for partial (sub-) OID decoding.
+ *
+ * @param scope     The memory allocator scope.
+ * @param oid_bytes The encoded OID buffer.
+ * @param oid_len   The length of the encoded buffer.
+ * @param subids_pi Output pointer to the array of sub-identifiers.
+ * @param is_first  Whether this is the first component of the OID.
+ * @return The number of sub-identifiers in the decoded OID.
+ */
 WS_DLL_PUBLIC
 unsigned oid_encoded2subid_sub(wmem_allocator_t *scope, const uint8_t *oid_bytes, int oid_len, uint32_t** subids_pi,
                 bool is_first);
+
+/**
+ * @brief Return the number of sub-identifiers in a decoded OID string.
+ *
+ * @param scope    The memory allocator scope.
+ * @param oid_str  The OID string to decode.
+ * @param subids_p Output pointer to the array of sub-identifiers.
+ * @return The number of sub-identifiers in the decoded OID.
+ */
 WS_DLL_PUBLIC
 unsigned oid_string2subid(wmem_allocator_t *scope, const char *oid_str, uint32_t** subids_p);
 
+/**
+ * @brief Return the string representation of an encoded OID.
+ *
+ * @param scope   The memory allocator scope.
+ * @param encoded The encoded OID buffer.
+ * @param len     The length of the encoded buffer.
+ * @return The string representation of the OID.
+ */
 WS_DLL_PUBLIC char* oid_encoded2string(wmem_allocator_t *scope, const uint8_t* encoded, unsigned len);
+
+/**
+ * @brief Return the string representation of an encoded relative OID.
+ *
+ * @param scope   The memory allocator scope.
+ * @param encoded The encoded relative OID buffer.
+ * @param len     The length of the encoded buffer.
+ * @return The string representation of the relative OID.
+ */
 WS_DLL_PUBLIC char* rel_oid_encoded2string(wmem_allocator_t *scope, const uint8_t* encoded, unsigned len);
 
 /**
@@ -178,6 +246,14 @@ WS_DLL_PUBLIC char* rel_oid_subid2string(wmem_allocator_t *scope, uint32_t *subi
  */
 WS_DLL_PUBLIC char *oid_resolved(wmem_allocator_t *scope, unsigned len, uint32_t *subids);
 
+/**
+ * @brief Resolve an OID from its encoded form.
+ *
+ * @param scope Memory allocator for allocated memory.
+ * @param oid Encoded OID data.
+ * @param len Length of the encoded OID data.
+ * @return Resolved OID as a string, or NULL if resolution fails.
+ */
 WS_DLL_PUBLIC char *oid_resolved_from_encoded(wmem_allocator_t *scope, const uint8_t *oid, int len);
 
 /**
@@ -238,6 +314,16 @@ WS_DLL_PUBLIC void oid_both_from_string(wmem_allocator_t *scope, const char *oid
  *  *matched_p will be set to the number of nodes used by the returned oid
  *  *left_p will be set to the number of remaining unresolved subids
  */
+
+/**
+ * @brief Retrieves an OID information structure from its encoded form.
+ *
+ * @param oid_len Length of the encoded OID data.
+ * @param subids Pointer to store the decoded sub-identifiers.
+ * @param matched_p Pointer to store the number of nodes used by the returned OID.
+ * @param left_p Pointer to store the number of remaining unresolved sub-identifiers.
+ * @return oid_info_t* Pointer to the retrieved OID information structure or the root OID if no match is found.
+ */
 WS_DLL_PUBLIC oid_info_t* oid_get(unsigned oid_len, uint32_t *subids, unsigned* matched_p, unsigned* left_p);
 
 /**
@@ -266,8 +352,30 @@ WS_DLL_PUBLIC oid_info_t* oid_get_from_encoded(wmem_allocator_t *scope, const ui
 WS_DLL_PUBLIC oid_info_t* oid_get_from_string(wmem_allocator_t *scope, const char *oid_str, uint32_t **subids, unsigned* matched, unsigned* left);
 
 /* these are used to add oids to the collection */
+/**
+ * @brief Add an OID to the OID database.
+ *
+ * @param name    The name to associate with the OID.
+ * @param oid_len The number of sub-identifiers in @p subids.
+ * @param subids  The array of sub-identifiers.
+ */
 WS_DLL_PUBLIC void oid_add(const char* name, unsigned oid_len, uint32_t *subids);
+
+/**
+ * @brief Add an OID to the OID database from an encoded buffer.
+ *
+ * @param name    The name to associate with the OID.
+ * @param oid     The encoded OID buffer.
+ * @param oid_len The length of the encoded buffer.
+ */
 WS_DLL_PUBLIC void oid_add_from_encoded(const char* name, const uint8_t *oid, int oid_len);
+
+/**
+ * @brief Add an OID to the OID database from a string.
+ *
+ * @param name    The name to associate with the OID.
+ * @param oid_str The OID string.
+ */
 WS_DLL_PUBLIC void oid_add_from_string(const char* name, const char *oid_str);
 
 /**
@@ -285,7 +393,22 @@ WS_DLL_PUBLIC char *oid_get_default_mib_path(const char* app_env_var_prefix);
 
 
 #ifdef DEBUG_OIDS
+/**
+ * @brief Test function to convert an array of sub-identifiers to an encoded
+ * buffer and back, returning the result as a string.
+ *
+ * @param num_subids The number of sub-identifiers in @p subids.
+ * @param subids     The array of sub-identifiers.
+ * @return The string representation of the round-tripped OID.
+ */
 extern char* oid_test_a2b(uint32_t num_subids, uint32_t* subids);
+
+/**
+ * @brief Add a debug subtree for an OID info node to a protocol tree.
+ *
+ * @param oid_info The OID info node to debug.
+ * @param tree     The protocol tree to add the subtree to.
+ */
 extern void add_oid_debug_subtree(oid_info_t* oid_info, proto_tree *tree);
 #else
 #define add_oid_debug_subtree(a,b) ((void)0)

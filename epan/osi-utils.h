@@ -148,7 +148,16 @@ WS_DLL_PUBLIC char* tvb_print_system_id( wmem_allocator_t *scope, tvbuff_t *tvb,
  */
 void print_system_id_buf( const uint8_t *ad, int length, char *buf, int buf_len);
 
-WS_DLL_PUBLIC char* print_address_prefix( wmem_allocator_t *, tvbuff_t *, const int, int );
+/**
+ * @brief Prints an OSI address prefix.
+ *
+ * @param scope Memory allocation scope.
+ * @param tvb The TV buffer containing the address data.
+ * @param offset The starting offset of the address in the TV buffer.
+ * @param length The length of the address in bytes.
+ * @return A string representing the formatted address prefix.
+ */
+WS_DLL_PUBLIC char* print_address_prefix( wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, int length );
 
 /**
  * @brief Retrieves the current OSI address type.

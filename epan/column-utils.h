@@ -197,6 +197,13 @@ WS_DLL_PUBLIC void col_add_str(column_info *cinfo, const int col, const char *st
 /* terminator argument for col_add_lstr() function */
 #define COL_ADD_LSTR_TERMINATOR (const char *) -1
 
+/**
+ * @brief Add (replace) the text of a column element using a printf-like format string.
+ *
+ * @param cinfo Pointer to the column information structure.
+ * @param el Column element index.
+ * @param str Format string followed by variable arguments.
+ */
 WS_DLL_PUBLIC void col_add_lstr(column_info *cinfo, const int el, const char *str, ...);
 
 /**

@@ -20,21 +20,37 @@
 
 #include "ws_symbol_export.h"
 
-/* encodes a 12-bit word to a 24-bit codeword
+/**
+ * @brief Encodes a 12-bit word to a 24-bit codeword.
+ *
+ * @param w The 12-bit word to encode.
+ * @return The 24-bit Golay codeword.
  */
 WS_DLL_PUBLIC
 uint32_t golay_encode(unsigned w);
 
-/* return a mask showing the bits which are in error in a received
+/**
+ * @brief Returns a mask showing the bits which are in error in a received Golay codeword.
+ *
+ * Return a mask showing the bits which are in error in a received
  * 24-bit codeword, or -1 if 4 errors were detected.
+ *
+ * @param codeword The received 24-bit Golay codeword.
+ * @return A bitmask of errored bit positions, or -1 if 4 errors were detected.
  */
 WS_DLL_PUBLIC
 int32_t golay_errors(uint32_t codeword);
 
-/* decode a received codeword. Up to 3 errors are corrected for; 4
-   errors are detected as uncorrectable (return -1); 5 or more errors
-   cause an incorrect correction.
-*/
+/**
+ * @brief Decodes a Golay codeword.
+ *
+ * Decode a received codeword. Up to 3 errors are corrected for; 4
+ * errors are detected as uncorrectable (return -1); 5 or more errors
+ * cause an incorrect correction.
+ *
+ * @param w The 32-bit input word containing the Golay codeword.
+ * @return The decoded 12-bit data or -1 if decoding fails.
+ */
 WS_DLL_PUBLIC
 int golay_decode(uint32_t w);
 

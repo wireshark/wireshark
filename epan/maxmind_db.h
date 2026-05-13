@@ -31,19 +31,24 @@ typedef struct _mmdb_lookup_t {
 } mmdb_lookup_t;
 
 /**
- * Init / reset function called from prefs_reset
+ * @brief Init / reset function called from prefs_reset.
+ *
+ * @param nameres The name resolution preferences module.
  */
 WS_DLL_LOCAL void maxmind_db_pref_init(module_t *nameres);
 
 /**
- * Cleanup function called from prefs_cleanup
+ * @brief Cleanup function called from prefs_cleanup.
  */
 WS_DLL_LOCAL void maxmind_db_pref_cleanup(void);
 
+/**
+ * @brief Apply preferences for MaxMind database resolution.
+ */
 WS_DLL_LOCAL void maxmind_db_pref_apply(void);
 
 /**
- * Look up an IPv4 address in a database
+ * @brief Look up an IPv4 address in a database
  *
  * @param addr IPv4 address to look up
  *
@@ -52,7 +57,7 @@ WS_DLL_LOCAL void maxmind_db_pref_apply(void);
 WS_DLL_PUBLIC WS_RETNONNULL const mmdb_lookup_t *maxmind_db_lookup_ipv4(const ws_in4_addr *addr);
 
 /**
- * Look up an IPv6 address in a database
+ * @brief Look up an IPv6 address in a database
  *
  * @param addr IPv6 address to look up
  *
@@ -61,7 +66,7 @@ WS_DLL_PUBLIC WS_RETNONNULL const mmdb_lookup_t *maxmind_db_lookup_ipv4(const ws
 WS_DLL_PUBLIC WS_RETNONNULL const mmdb_lookup_t *maxmind_db_lookup_ipv6(const ws_in6_addr *addr);
 
 /**
- * Get all configured paths
+ * @brief Get all configured paths
  *
  * @return String with all paths separated by a path separator. The string
  * must be freed.
@@ -69,14 +74,17 @@ WS_DLL_PUBLIC WS_RETNONNULL const mmdb_lookup_t *maxmind_db_lookup_ipv6(const ws
 WS_DLL_PUBLIC char *maxmind_db_get_paths(void);
 
 /**
- * Process outstanding requests.
+ * @brief Process outstanding requests.
  *
  * @return True if any new addresses were resolved.
  */
 WS_DLL_LOCAL bool maxmind_db_lookup_process(void);
 
 /**
- * Checks whether the lookup result was successful and has valid coordinates.
+ * @brief Checks whether the lookup result was successful and has valid coordinates.
+ *
+ * @param result The lookup result to check.
+ * @return True if the lookup was successful and has valid coordinates, false otherwise.
  */
 static inline bool maxmind_db_has_coords(const mmdb_lookup_t *result)
 {
@@ -85,7 +93,8 @@ static inline bool maxmind_db_has_coords(const mmdb_lookup_t *result)
 }
 
 /**
- * Select whether lookups should be performed synchronously.
+ * @brief Select whether lookups should be performed synchronously.
+ *
  * Default is asynchronous lookups.
  *
  * @param synchronous Whether maxmind lookups should be synchronous.

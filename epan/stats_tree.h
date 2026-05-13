@@ -138,12 +138,15 @@ WS_DLL_PUBLIC void stats_tree_set_first_column_name(stats_tree_cfg *st_config, c
  */
 WS_DLL_PUBLIC int stats_tree_parent_id_by_name(stats_tree *st, const char *parent_name);
 
-/* Creates a node in the tree (to be used in the in init_cb)
- * st: the stats_tree in which to create it
- * name: the name of the new node
- * parent_name: the name of the parent_node (NULL for root)
- * datatype: datatype used for the value of the node
- * with_children: true if this node will have "dynamically created" children
+/**
+ * @brief Creates a node in the tree (to be used in the in init_cb)
+ *
+ * @param st Pointer to the statistics tree structure.
+ * @param name Name of the new node.
+ * @param parent_id ID of the parent node. (NULL for root)
+ * @param datatype Data type of the node.
+ * @param with_children true if this node will have "dynamically created" children.
+ * @return ID of the created node, or 0 on failure.
  */
 WS_DLL_PUBLIC int stats_tree_create_node(stats_tree *st,
                                          const char *name,
@@ -151,9 +154,8 @@ WS_DLL_PUBLIC int stats_tree_create_node(stats_tree *st,
                                          stat_node_datatype datatype,
                                          bool with_children);
 
-/* creates a node using its parent's tree name */
 /**
- * @brief Creates a node in the statistics tree.
+ * @brief Creates a node in the statistics tree using its parent's tree name.
  *
  * @param st Pointer to the statistics tree.
  * @param name Name of the node.

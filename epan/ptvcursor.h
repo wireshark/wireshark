@@ -221,10 +221,20 @@ WS_DLL_PUBLIC
 void
 ptvcursor_pop_subtree(ptvcursor_t* ptvc);
 
-/* Add an item to the tree and create a subtree
+/**
+ * @brief Adds text with a subtree to the cursor.
+ *
+ * Add an item to the tree and create a subtree
  * If the length is unknown, length may be defined as SUBTREE_UNDEFINED_LENGTH.
  * In this case, when the subtree will be closed, the parent item length will
  * be equal to the advancement of the cursor since the creation of the subtree.
+ *
+ * @param ptvc Pointer to the protocol tree cursor.
+ * @param hfindex The field index of the text node.
+ * @param length The length of the text node. Use SUBTREE_UNDEFINED_LENGTH if unknown.
+ * @param encoding The encoding of the text node.
+ * @param ett_subtree The subtree ID for the new subtree.
+ * @return A pointer to the created subtree.
  */
 WS_DLL_PUBLIC
 proto_tree*

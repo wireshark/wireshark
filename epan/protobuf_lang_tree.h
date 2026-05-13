@@ -179,8 +179,16 @@ pbl_store_string_token(protobuf_lang_state_t* parser_state, char* dupstr)
     return dupstr;
 }
 
-/* Store a protobuf_lang_token_t in protobuf_lang_state_t temporarily, and return back
-   the input pointer. It will be freed when protobuf_lang_state_t is released */
+/**
+ * @brief Stores a new token in the parser state's list of structure tokens.
+ *
+ * Store a protobuf_lang_token_t in protobuf_lang_state_t temporarily, and return back
+ * the input pointer. It will be freed when protobuf_lang_state_t is released
+ *
+ * @param parser_state Pointer to the parser state.
+ * @param newtoken Pointer to the new token to be stored.
+ * @return The newly added token.
+ */
 static inline protobuf_lang_token_t*
 pbl_store_struct_token(protobuf_lang_state_t* parser_state, protobuf_lang_token_t* newtoken)
 {
@@ -685,7 +693,7 @@ pbl_foreach_message(const pbl_descriptor_pool_t* pool, void (*cb)(const pbl_mess
  * @param lineno The line number where the node is defined.
  * @param nodetype The type of the node to create.
  * @param name The name of the node.
- * @return pbl_node_t* A pointer to the newly created node, or NULL if an invalid node type is provided.
+ * @return A pointer to the newly created node, or NULL if an invalid node type is provided.
  */
 pbl_node_t*
 pbl_create_node(pbl_file_descriptor_t* file, int lineno, pbl_node_type_t nodetype, const char* name);
@@ -697,7 +705,7 @@ pbl_create_node(pbl_file_descriptor_t* file, int lineno, pbl_node_type_t nodetyp
  * @param node Pointer to the node whose name is to be set.
  * @param lineno Line number where this function was called (for debugging purposes).
  * @param newname New name for the node.
- * @return pbl_node_t* Pointer to the modified node.
+ * @return Pointer to the modified node.
  */
 pbl_node_t*
 pbl_set_node_name(pbl_node_t* node, int lineno, const char* newname);
@@ -720,7 +728,7 @@ pbl_get_node_name(pbl_node_t* node)
  * @brief Get the full name of a node.
  *
  * @param node The node to get the full name for.
- * @return const char* The full name of the node, or NULL if not available.
+ * @return The full name of the node, or NULL if not available.
  */
 const char*
 pbl_get_node_full_name(pbl_node_t* node);
@@ -731,7 +739,7 @@ pbl_get_node_full_name(pbl_node_t* node);
  *
  * @param parent The parent node to which the child will be added.
  * @param child The child node to add.
- * @return pbl_node_t* The updated parent node with the child added, or NULL if an error occurred.
+ * @return The updated parent node with the child added, or NULL if an error occurred.
  */
 pbl_node_t*
 pbl_add_child(pbl_node_t* parent, pbl_node_t* child);
@@ -745,7 +753,7 @@ pbl_add_child(pbl_node_t* parent, pbl_node_t* child);
  * @param lineno The line number in the source code where this node is created.
  * @param name The name of the enum value.
  * @param number The numeric value of the enum.
- * @return pbl_node_t* A pointer to the newly created enum value node.
+ * @return A pointer to the newly created enum value node.
  */
 pbl_node_t*
 pbl_create_enum_value_node(pbl_file_descriptor_t* file, int lineno, const char* name, int number);
@@ -759,7 +767,7 @@ pbl_create_enum_value_node(pbl_file_descriptor_t* file, int lineno, const char* 
  *
  * @param to The target node to which children will be added.
  * @param from The source node from which children will be taken.
- * @return pbl_node_t* The target node after merging.
+ * @return The target node after merging.
  */
 pbl_node_t*
 pbl_merge_children(pbl_node_t* to, pbl_node_t* from);
@@ -775,7 +783,7 @@ pbl_merge_children(pbl_node_t* to, pbl_node_t* from);
  * @param name The name of the field.
  * @param number The unique identifier for the field within the message.
  * @param options A node containing additional options for the field.
- * @return pbl_node_t* A pointer to the created field node.
+ * @return A pointer to the created field node.
  */
 pbl_node_t*
 pbl_create_field_node(pbl_file_descriptor_t* file, int lineno, const char* label, const char* type_name, const char* name, int number, pbl_node_t* options);
@@ -789,7 +797,7 @@ pbl_create_field_node(pbl_file_descriptor_t* file, int lineno, const char* label
  * @param name Name of the map field.
  * @param number Field number.
  * @param options Options for the map field.
- * @return pbl_node_t* Pointer to the created map field node.
+ * @return Pointer to the created map field node.
  */
 pbl_node_t*
 pbl_create_map_field_node(pbl_file_descriptor_t* file, int lineno, const char* name, int number, pbl_node_t* options);
@@ -819,14 +827,13 @@ pbl_create_method_node(pbl_file_descriptor_t* file, int lineno, const char* name
  * @param lineno Line number where the node is created.
  * @param name Name of the option.
  * @param value Value of the option, can be NULL.
- * @return pbl_node_t* Pointer to the newly created option node.
+ * @return Pointer to the newly created option node.
  */
 pbl_node_t*
 pbl_create_option_node(pbl_file_descriptor_t* file, int lineno, const char* name, const char* value);
 
-/* free a pbl_node_t and its children. */
 /**
- * @brief Frees a protocol buffer language tree node.
+ * @brief Frees a protocol buffer language tree node and its children.
  *
  * This function releases all resources associated with a given protocol buffer
  * language tree node and sets it to NULL.

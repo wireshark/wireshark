@@ -113,6 +113,15 @@ WS_DLL_PUBLIC const char *port_type_to_str (port_type type);
  ************** TVB
  */
 
+/**
+ * @brief Converts a TVB address to a string with resolution.
+ *
+ * @param scope Memory allocator scope.
+ * @param tvb The TV buffer containing the address data.
+ * @param type The address type (e.g., AT_ETHER, AT_IPv4).
+ * @param offset The offset within the TV buffer where the address starts.
+ * @return char* A string representation of the address with resolution, or NULL if an error occurs.
+ */
 WS_DLL_PUBLIC char* tvb_address_with_resolution_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const unsigned offset);
 
 #define tvb_ether_to_str(scope, tvb, offset) tvb_address_to_str(scope, tvb, AT_ETHER, offset)

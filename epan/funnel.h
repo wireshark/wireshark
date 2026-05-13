@@ -99,6 +99,16 @@ WS_DLL_PUBLIC const funnel_ops_t* funnel_get_funnel_ops(void);
  */
 WS_DLL_PUBLIC bool funnel_menu_registered(void);
 
+/**
+ * @brief Registers a menu callback.
+ *
+ * @param name The name of the menu to register.
+ * @param group The group to which the menu belongs.
+ * @param callback The callback function to be called when the menu is invoked.
+ * @param callback_data User data to be passed to the callback function.
+ * @param callback_data_free Function to free the user data when it's no longer needed.
+ * @param retap Whether to retap packets after registering the menu.
+ */
 WS_DLL_PUBLIC void funnel_register_menu(const char *name,
                                  register_stat_group_t group,
                                  funnel_menu_callback callback,
@@ -153,7 +163,7 @@ typedef void (*funnel_registration_packet_cb_t)(const char *name,
                                          bool retap);
 
 /**
- * Entry point for Wireshark GUI to obtain all registered packet menus
+ * @brief Entry point for Wireshark GUI to obtain all registered packet menus
  *
  * @param r_cb function which will be called to register each packet menu entry
  */
@@ -175,7 +185,7 @@ WS_DLL_PUBLIC void funnel_register_packet_menu(const char *name,
                                  bool retap);
 
 /**
- * Returns whether the packet menus have been modified since they were last registered
+ * @brief Returns whether the packet menus have been modified since they were last registered
  *
  * @return true if the packet menus were modified since the last registration
  */
@@ -234,7 +244,7 @@ typedef void (*funnel_registration_console_cb_t)(const char *name,
                                 void *callback_data);
 
 /**
-* Initialize the funnel operations.  This is done outside of
+* @brief Initialize the funnel operations.  This is done outside of
 * epan_init() because the funnel operations depend on GUI code.
 *
 * @param r_cb function which will be called to register each console menu entry

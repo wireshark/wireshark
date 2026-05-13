@@ -136,15 +136,70 @@ WS_DLL_PUBLIC WS_NORETURN void except_rethrow(except_t * except);
  */
 WS_DLL_PUBLIC WS_NORETURN void except_throw(long group, long code, const char *msg);
 
-WS_DLL_PUBLIC WS_NORETURN void except_throwd(long, long, const char *, void *);
+/**
+ * @brief Throw an exception with a detailed message and data.
+ *
+ * @param group The exception group identifier.
+ * @param code The exception code.
+ * @param msg The exception message.
+ * @param data Additional data associated with the exception.
+ */
+WS_DLL_PUBLIC WS_NORETURN void except_throwd(long group, long code, const char *msg, void *data);
+
+/**
+ * @brief Throw an exception with a formatted message.
+ *
+ * @param group The exception group identifier.
+ * @param code The exception code identifier.
+ * @param fmt The format string for the exception message.
+ * @param vl The variable argument list for the format string.
+ */
 WS_DLL_PUBLIC WS_NORETURN void except_vthrowf(long group, long code, const char *fmt, va_list vl);
-WS_DLL_PUBLIC WS_NORETURN void except_throwf(long, long, const char *, ...)
+
+/**
+ * @brief Throws an exception with a formatted message.
+ *
+ * @param group The exception group.
+ * @param code The exception code.
+ * @param fmt The format string for the exception message.
+ */
+WS_DLL_PUBLIC WS_NORETURN void except_throwf(long group, long code, const char *fmt, ...)
     G_GNUC_PRINTF(3, 4);
-WS_DLL_PUBLIC void (*except_unhandled_catcher(void (*)(except_t *)))(except_t *);
-extern unsigned long except_code(except_t *);
-extern unsigned long except_group(except_t *);
-extern const char *except_message(except_t *);
-extern void *except_data(except_t *);
+
+/**
+ * @brief Sets the unhandled exception catcher.
+ * @param new_catcher The function to be called when an unhandled exception occurs.
+ * @return Pointer to the previous unhandled exception catcher.
+ */
+WS_DLL_PUBLIC void (*except_unhandled_catcher(void (*new_catcher)(except_t *)))(except_t *);
+
+/**
+ * @brief Retrieves exception code from an exception object.
+ * @param ex Pointer to the exception object.
+ * @return The exception code.
+ */
+extern unsigned long except_code(except_t *ex);
+
+/**
+ * @brief Retrieves exception group from an exception object.
+ * @param ex Pointer to the exception object.
+ * @return The exception group.
+ */
+extern unsigned long except_group(except_t *ex);
+
+/**
+ * @brief Retrieves exception message from an exception object.
+ * @param ex Pointer to the exception object.
+ * @return The exception message.
+ */
+extern const char *except_message(except_t *ex);
+
+/**
+ * @brief Retrieves exception data from an exception object.
+ * @param ex Pointer to the exception object.
+ * @return The exception data.
+ */
+extern void *except_data(except_t *ex);
 
 /**
  * @brief Take data from an exception object.
@@ -154,8 +209,21 @@ extern void *except_data(except_t *);
  */
 WS_DLL_PUBLIC void *except_take_data(except_t * ex);
 
-WS_DLL_PUBLIC void except_set_allocator(void *(*)(size_t), void (*)(void *));
-WS_DLL_PUBLIC void *except_alloc(size_t);
+/**
+ * @brief Sets custom memory allocation and deallocation functions for exception handling.
+ *
+ * @param alloc Pointer to a function that allocates memory.
+ * @param dealloc Pointer to a function that frees memory.
+ */
+WS_DLL_PUBLIC void except_set_allocator(void *(*alloc)(size_t), void (*dealloc)(void *));
+
+/**
+ * @brief Allocates memory for an exception object.
+ *
+ * @param size The size of the memory to allocate.
+ * @return Pointer to the allocated memory.
+ */
+WS_DLL_PUBLIC void *except_alloc(size_t size);
 
 /**
  * @brief Frees memory allocated for an exception node.

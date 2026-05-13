@@ -137,8 +137,21 @@ typedef struct _capture_file {
   */
 WS_DLL_PUBLIC void cap_file_init(capture_file *cf);
 
+/**
+ * @brief Get the timestamp of a frame.
+ *
+ * @param prov Pointer to the packet provider data structure.
+ * @param frame_num The number of the frame for which to retrieve the timestamp.
+ * @return Pointer to the end timestamp, or NULL if not available.
+ */
 WS_DLL_PUBLIC const nstime_t *cap_file_provider_get_frame_ts(struct packet_provider_data *prov, uint32_t frame_num);
 
+/**
+ * @brief Get the start timestamp of a capture file.
+ *
+ * @param prov Pointer to the packet provider data structure.
+ * @return Pointer to the start timestamp, or NULL if not available.
+ */
 WS_DLL_PUBLIC const nstime_t *cap_file_provider_get_start_ts(struct packet_provider_data *prov);
 
 /**
@@ -155,7 +168,7 @@ WS_DLL_PUBLIC const nstime_t *cap_file_provider_get_end_ts(struct packet_provide
  * @param prov Pointer to the packet provider data structure.
  * @param interface_id The ID of the interface to retrieve.
  * @param section_number The section number in the capture file.
- * @return const char* The name of the interface, or "unknown" if not found.
+ * @return The name of the interface, or "unknown" if not found.
  */
 WS_DLL_PUBLIC const char *cap_file_provider_get_interface_name(struct packet_provider_data *prov, uint32_t interface_id, unsigned section_number);
 
@@ -179,6 +192,14 @@ WS_DLL_PUBLIC const char *cap_file_provider_get_interface_description(struct pac
  */
 WS_DLL_PUBLIC int32_t cap_file_provider_get_process_id(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number);
 
+/**
+ * @brief Retrieves the name of a process from a capture file.
+ *
+ * @param prov Pointer to the packet provider data structure.
+ * @param process_info_id Identifier for the process information.
+ * @param section_number The section number (currently unused).
+ * @return The process's name, or NULL if not found.
+ */
 WS_DLL_PUBLIC const char *cap_file_provider_get_process_name(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number);
 
 /**
@@ -188,10 +209,17 @@ WS_DLL_PUBLIC const char *cap_file_provider_get_process_name(struct packet_provi
  * @param process_info_id Identifier for the process information.
  * @param section_number The section number (currently unused).
  * @param uuid_size Pointer to store the size of the UUID.
- * @return const uint8_t* Pointer to the UUID or NULL if not found.
+ * @return Pointer to the UUID or NULL if not found.
  */
 WS_DLL_PUBLIC const uint8_t *cap_file_provider_get_process_uuid(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number, size_t *uuid_size);
 
+/**
+ * @brief Get a modified block for a frame from the packet provider.
+ *
+ * @param prov Pointer to the packet_provider_data structure.
+ * @param fd Pointer to the frame_data structure representing the frame.
+ * @return The modified block if found, otherwise NULL.
+ */
 WS_DLL_PUBLIC wtap_block_t cap_file_provider_get_modified_block(struct packet_provider_data *prov, const frame_data *fd);
 
 /**

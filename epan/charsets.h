@@ -139,7 +139,9 @@ get_iso_646_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length, c
 WS_DLL_PUBLIC uint8_t *
 get_8859_1_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length);
 
-/*
+/**
+ * @brief Convert a string encoded in an extended ASCII character set to UTF‑8.
+ *
  * Given a wmem scope, a pointer, a length, and a translation table with
  * 128 entries, treat the string of bytes referred to by the pointer and
  * length as a string encoded using one octet per character, with octets
@@ -147,6 +149,12 @@ get_8859_1_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length);
  * bit set being mapped by the translation table to 2-byte Unicode Basic
  * Multilingual Plane characters (including REPLACEMENT CHARACTER), and
  * return a pointer to a UTF-8 string, allocated using the wmem scope.
+ *
+ * @param scope Memory allocation scope for the resulting string.
+ * @param ptr Pointer to the UCS-2 encoded string.
+ * @param length Length of the UCS-2 encoded string in bytes.
+ * @param table Conversion table from UCS-2 to UTF-8 characters.
+ * @return Pointer to a newly allocated UTF-8 string.
  */
 WS_DLL_PUBLIC uint8_t *
 get_unichar2_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length, const gunichar2 table[0x80]);

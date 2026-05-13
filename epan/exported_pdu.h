@@ -41,9 +41,29 @@ extern "C" {
 WS_DLL_PUBLIC int register_export_pdu_tap(const char *name);
 /* Same as above, but for export taps that use an encapsulation other
  * than WTAP_ENCAP_WIRESHARK_UPPER_PDU */
+
+/**
+ * @brief Register an export PDU tap with a specific encapsulation type.
+ *
+ * @param name The name of the tap to register.
+ * @param encap The encapsulation type for the tap.
+ * @return int 0 on success, -1 on failure.
+ */
 WS_DLL_PUBLIC int register_export_pdu_tap_with_encap(const char *name, int encap);
+
+/**
+ * @brief Get a list of all registered export PDU taps.
+ *
+ * @return List of all registered export PDU taps.
+ */
 WS_DLL_PUBLIC GSList *get_export_pdu_tap_list(void);
 
+/**
+ * @brief Get the encapsulation type for a given export PDU tap name.
+ *
+ * @param name The name of the export PDU tap.
+ * @return The encapsulation type associated with the tap, or WTAP_ENCAP_WIRESHARK_UPPER_PDU if not found.
+ */
 WS_DLL_PUBLIC int export_pdu_tap_get_encap(const char* name);
 
 /**
@@ -89,7 +109,7 @@ typedef struct _exp_pdu_data_t {
 } exp_pdu_data_t;
 
 /**
- Allocates and fills the exp_pdu_data_t struct according to the list of items
+ @brief Allocates and fills the exp_pdu_data_t struct according to the list of items
 
  The tags in the tag buffer SHOULD be added in numerical order.
 
@@ -102,7 +122,8 @@ typedef struct _exp_pdu_data_t {
 WS_DLL_PUBLIC exp_pdu_data_t *export_pdu_create_tags(packet_info *pinfo, const char* proto_name, uint16_t tag_type, const exp_pdu_data_item_t **items);
 
 /**
- Allocates and fills the exp_pdu_data_t struct with a common list of items
+ @brief Allocates and fills the exp_pdu_data_t struct with a common list of items
+
  The items that will be exported as the PDU are:
  1. Source IP
  2. Destination IP
@@ -118,7 +139,24 @@ WS_DLL_PUBLIC exp_pdu_data_t *export_pdu_create_tags(packet_info *pinfo, const c
 */
 WS_DLL_PUBLIC exp_pdu_data_t *export_pdu_create_common_tags(packet_info *pinfo, const char *proto_name, uint16_t tag_type);
 
+/**
+ * @brief Get the size of a value in the dissector table.
+ *
+ * @param pinfo The packet information structure.
+ * @param data A pointer to additional data.
+ * @return The size of the value.
+ */
 WS_DLL_PUBLIC int exp_pdu_data_dissector_table_num_value_size(packet_info *pinfo, void* data);
+
+/**
+ * @brief Populate data for an exported PDU using a dissector table.
+ *
+ * @param pinfo The packet information structure.
+ * @param data Pointer to the data structure to populate.
+ * @param tlv_buffer Buffer containing TLV data.
+ * @param buffer_size Size of the TLV buffer.
+ * @return 0 on success, -1 on failure.
+ */
 WS_DLL_PUBLIC int exp_pdu_data_dissector_table_num_value_populate_data(packet_info *pinfo, void* data, uint8_t *tlv_buffer, uint32_t buffer_size);
 
 WS_DLL_PUBLIC exp_pdu_data_item_t exp_pdu_data_src_ip;
