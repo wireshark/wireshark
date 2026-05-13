@@ -190,6 +190,10 @@ static void lua_tap_draw(void *tapdata) {
 
     if (tap->draw_ref == LUA_NOREF) return;
 
+    /* The lua_tap_draw is called asynchronous and must not be called when debugger is paused. */
+    if (wslua_debugger_is_paused())
+        return;
+
     lua_pushcfunction(tap->L,tap_draw_cb_error_handler);
     lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->draw_ref);
 
