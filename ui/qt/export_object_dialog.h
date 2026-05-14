@@ -51,6 +51,7 @@ private slots:
     void on_buttonBox_helpRequested();
     void on_buttonBox_clicked(QAbstractButton *button);
     void on_cmbContentType_currentIndexChanged(int index);
+    void uniqueToggled(bool checked);
 
     void modelDataChanged(const QModelIndex &topLeft, int from, int to);
     void modelRowsReset();

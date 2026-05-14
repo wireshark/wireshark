@@ -158,6 +158,22 @@ void eo_free_entry(export_object_entry_t *entry)
     g_free(entry);
 }
 
+unsigned eo_entry_hash(export_object_entry_t *entry)
+{
+    ws_return_val_if(!entry, 0U);
+    return wmem_strong_hash(entry->payload_data, entry->payload_len);
+}
+
+bool eo_entry_equal(export_object_entry_t *entry_a, export_object_entry_t *entry_b)
+{
+    ws_return_val_if(!(entry_a && entry_b), false);
+    return entry_a->payload_len == entry_b->payload_len &&
+        (memcmp(entry_a->payload_data, entry_b->payload_data, entry_a->payload_len) == 0) &&
+        (g_strcmp0(entry_a->hostname, entry_b->hostname) == 0) &&
+        (g_strcmp0(entry_a->content_type, entry_b->content_type) == 0) &&
+        (g_strcmp0(entry_a->filename, entry_b->filename) == 0);
+}
+
 /*
  * Editor modelines
  *

@@ -20,10 +20,32 @@
 #include <QAbstractTableModel>
 #include <QSortFilterProxyModel>
 #include <QList>
+#include <QSet>
 
 typedef struct export_object_list_gui_t {
     class ExportObjectModel *model;
 } export_object_list_gui_t;
+
+class ExportObjectEntry
+{
+public:
+    explicit ExportObjectEntry(export_object_entry_t *entry = nullptr) : entry(entry) {}
+
+    bool operator==(const ExportObjectEntry &other) const {
+        return eo_entry_equal(entry, other.entry);
+    }
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    QByteArray Data() const { return entry ? QByteArray::fromRawData(reinterpret_cast<const char*>(entry->payload_data), entry->payload_len) : QByteArray(); }
+#else
+    QByteArrayView Data() const { return entry ? QByteArrayView(entry->payload_data, entry->payload_len) : QByteArrayView(); }
+#endif
+    uint32_t PacketNum() const { return entry ? entry->pkt_num : 0; }
+
+private:
+    export_object_entry_t *entry;
+};
+
+size_t qHash(const ExportObjectEntry& entry, size_t seed = 0);
 
 class ExportObjectModel : public QAbstractTableModel
 {
@@ -64,6 +86,7 @@ public:
 
 private:
     QList<QVariant> objects_;
+    QSet<ExportObjectEntry> object_set_;
 
     export_object_list_t export_object_list_;
     export_object_list_gui_t eo_gui_data_;
@@ -78,6 +101,7 @@ public:
 
     void setContentFilterString(QString contentFilter);
     void setTextFilterString(QString textFilter);
+    void setUniqueFilter(bool unique);
 
 protected:
     bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
@@ -86,6 +110,7 @@ protected:
 private:
     QString contentFilter_;
     QString textFilter_;
+    bool uniqueFilter_;
 
 };
 

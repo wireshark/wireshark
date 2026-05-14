@@ -127,6 +127,24 @@ WS_DLL_PUBLIC const char *eo_ct2ext(const char *content_type);
  */
 WS_DLL_PUBLIC void eo_free_entry(export_object_entry_t *entry);
 
+/** Produce a hash for an export_object_entry_t, ignoring the
+ * packet number.
+ *
+ * @param entry The export_object_entry_t to hash
+ * @return A hash
+ */
+WS_DLL_PUBLIC unsigned eo_entry_hash(export_object_entry_t *entry);
+
+/** Compare two export_object_entry_t for equality. This ignores
+ * the packet number, as a primary use case is ignoring objects
+ * which are sent more than once in the same capture.
+ *
+ * @param entry_a The first export_object_entry_t to compare
+ * @param entry_b The second export_object_entry_t to compare
+ * @return Whether the two entries are equal (ignoring pkt_num).
+ */
+WS_DLL_PUBLIC bool eo_entry_equal(export_object_entry_t *entry_a, export_object_entry_t *entry_b);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

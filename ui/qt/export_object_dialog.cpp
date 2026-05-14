@@ -59,6 +59,7 @@ ExportObjectDialog::ExportObjectDialog(QWidget &parent, CaptureFile &cf, registe
             this, &ExportObjectDialog::modelDataChanged);
     connect(&model_, &ExportObjectModel::modelReset, this, &ExportObjectDialog::modelRowsReset);
     connect(eo_ui_->filterLine, &QLineEdit::textChanged, &proxyModel_, &ExportObjectProxyModel::setTextFilterString);
+    connect(eo_ui_->uniqueCheckBox, &QCheckBox::toggled, this, &ExportObjectDialog::uniqueToggled);
     connect(eo_ui_->objectTree, &ExportObjectsTreeView::currentIndexChanged, this, &ExportObjectDialog::currentHasChanged);
     connect(eo_ui_->objectTree, &ExportObjectsTreeView::selectedItemsChanged, this, &ExportObjectDialog::selectionHasChanged);
 
@@ -278,6 +279,11 @@ void ExportObjectDialog::on_cmbContentType_currentIndexChanged(int index)
     QString filterString = index <= 0 ? "" : eo_ui_->cmbContentType->currentText();
     proxyModel_.setContentFilterString(filterString);
 
+}
+
+void ExportObjectDialog::uniqueToggled(bool checked)
+{
+    proxyModel_.setUniqueFilter(checked);
 }
 
 void ExportObjectDialog::saveEntry(const QModelIndex &proxyIndex, QString *tempFile)

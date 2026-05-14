@@ -43,6 +43,16 @@
      <item>
       <widget class="QComboBox" name="cmbContentType"/>
      </item>
+     <item>
+      <widget class="QCheckBox" name="uniqueCheckBox">
+       <property name="text">
+        <string>Unique</string>
+       </property>
+       <property name="toolTip">
+        <string>Only display the first of identical entries</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
