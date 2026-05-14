@@ -194,11 +194,16 @@ void ExportObjectDialog::show()
 
     QDialog::show();
     cap_file_.retapPackets();
+}
+
+void ExportObjectDialog::endRetapPackets()
+{
     eo_ui_->progressFrame->hide();
     for (int i = 0; i < eo_ui_->objectTree->model()->columnCount(); i++)
         eo_ui_->objectTree->resizeColumnToContents(i);
 
     eo_ui_->objectTree->sortByColumn(ExportObjectModel::colPacket, Qt::AscendingOrder);
+    WiresharkDialog::endRetapPackets();
 }
 
 void ExportObjectDialog::keyPressEvent(QKeyEvent *evt)
@@ -211,6 +216,10 @@ void ExportObjectDialog::keyPressEvent(QKeyEvent *evt)
 void ExportObjectDialog::accept()
 {
     // Don't close the dialog.
+    // XXX - WiresharkDialog::accept() calls some cleanup.
+    // Is it really ok not to call it? Perhaps it would be
+    // better to use different buttons than the Standard ones
+    // that accept the dialog.
 }
 
 void ExportObjectDialog::captureEvent(CaptureEvent e)

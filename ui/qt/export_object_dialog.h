@@ -41,10 +41,11 @@ public slots:
     void show();
 
 protected:
-    virtual void keyPressEvent(QKeyEvent *evt);
+    void endRetapPackets() override;
+    virtual void keyPressEvent(QKeyEvent *evt) override;
 
 private slots:
-    void accept();
+    void accept() override;
     void captureEvent(CaptureEvent e);
     void on_buttonBox_helpRequested();
     void on_buttonBox_clicked(QAbstractButton *button);
