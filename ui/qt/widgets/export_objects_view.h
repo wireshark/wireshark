@@ -23,8 +23,10 @@ public:
 
 signals:
     void currentIndexChanged(const QModelIndex &current);
+    void selectedItemsChanged(const QItemSelection &selected);
 
 protected slots:
-    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous) override;
+    void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override;
 };
 #endif // EXPORT_OBJECTS_VIEW_H

@@ -46,7 +46,8 @@ public:
     export_object_entry_t *objectEntry(int row);
     void resetObjects();
 
-    bool saveEntry(QModelIndex &index, QString filename);
+    bool saveEntry(const QModelIndex &index, QString filename);
+    void saveEntries(const QModelIndexList &indices, QString path);
     void saveAllEntries(QString path);
 
     const char* getTapListenerName();

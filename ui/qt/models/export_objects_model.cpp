@@ -146,7 +146,7 @@ export_object_entry_t* ExportObjectModel::objectEntry(int row)
     return VariantPointer<export_object_entry_t>::asPtr(objects_.value(row));
 }
 
-bool ExportObjectModel::saveEntry(QModelIndex &index, QString filename)
+bool ExportObjectModel::saveEntry(const QModelIndex &index, QString filename)
 {
     if (!index.isValid() || filename.isEmpty())
         return false;
@@ -160,6 +160,47 @@ bool ExportObjectModel::saveEntry(QModelIndex &index, QString filename)
     }
 
     return true;
+}
+
+void ExportObjectModel::saveEntries(const QModelIndexList &indices, QString path)
+{
+    if (path.isEmpty())
+        return;
+
+    QDir save_dir(path);
+    export_object_entry_t *entry;
+
+    for (const QModelIndex &index : indices)
+    {
+        entry = VariantPointer<export_object_entry_t>::asPtr(index.data(Qt::UserRole));
+        if (entry == NULL)
+            continue;
+
+        unsigned count = 0;
+        QString filename;
+
+        do {
+            GString *safe_filename;
+
+            if (entry->filename)
+                safe_filename = eo_massage_str(entry->filename,
+                    EXPORT_OBJECT_MAXFILELEN, count);
+            else {
+                char generic_name[EXPORT_OBJECT_MAXFILELEN+1];
+                const char *ext;
+                ext = eo_ct2ext(entry->content_type);
+                snprintf(generic_name, sizeof(generic_name),
+                    "object%u%s%s", entry->pkt_num, ext ? "." : "",
+                    ext ? ext : "");
+                safe_filename = eo_massage_str(generic_name,
+                    EXPORT_OBJECT_MAXFILELEN, count);
+            }
+            filename = QString::fromUtf8(safe_filename->str);
+            g_string_free(safe_filename, TRUE);
+        } while (save_dir.exists(filename) && ++count < prefs.gui_max_export_objects);
+        write_file_binary_mode(qUtf8Printable(save_dir.filePath(filename)),
+                               entry->payload_data, entry->payload_len);
+    }
 }
 
 void ExportObjectModel::saveAllEntries(QString path)

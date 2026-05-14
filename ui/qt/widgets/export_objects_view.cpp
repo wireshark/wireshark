@@ -21,3 +21,10 @@ void ExportObjectsTreeView::currentChanged(const QModelIndex &current, const QMo
 
     QTreeView::currentChanged(current, previous);
 }
+
+void ExportObjectsTreeView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+{
+    emit selectedItemsChanged(selected);
+
+    QTreeView::selectionChanged(selected, deselected);
+}

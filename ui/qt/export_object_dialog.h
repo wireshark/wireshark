@@ -23,6 +23,7 @@
 
 class QTreeWidgetItem;
 class QAbstractButton;
+class QToolButton;
 
 namespace Ui {
 class ExportObjectDialog;
@@ -52,17 +53,22 @@ private slots:
     void modelDataChanged(const QModelIndex &topLeft, int from, int to);
     void modelRowsReset();
 
-    void currentHasChanged(QModelIndex current);
+    void currentHasChanged(const QModelIndex &current);
+    void selectionHasChanged(const QItemSelection&);
 
 private:
     bool mimeTypeIsPreviewable(QString mime_type);
+    void saveEntry(const QModelIndex &proxyIndex, QString *tempFile = nullptr);
+    void saveEntries(const QModelIndexList &proxyIndices);
     void saveCurrentEntry(QString *tempFile = Q_NULLPTR);
+    void saveSelectedEntries();
+    void saveDisplayedEntries();
     void saveAllEntries();
 
     Ui::ExportObjectDialog *eo_ui_;
 
     QPushButton *save_bt_;
-    QPushButton *save_all_bt_;
+    QToolButton *save_all_bt_;
     ExportObjectModel model_;
     ExportObjectProxyModel proxyModel_;
 

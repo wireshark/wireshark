@@ -62,6 +62,9 @@
      <property name="expandsOnDoubleClick">
       <bool>false</bool>
      </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::ExtendedSelection</enum>
+     </property>
     </widget>
    </item>
    <item>
@@ -130,7 +133,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Close|QDialogButtonBox::Help|QDialogButtonBox::Open|QDialogButtonBox::Save|QDialogButtonBox::SaveAll</set>
+      <set>QDialogButtonBox::Close|QDialogButtonBox::Help|QDialogButtonBox::Open|QDialogButtonBox::Save</set>
      </property>
     </widget>
    </item>

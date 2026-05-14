@@ -27,6 +27,8 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDesktopServices>
+#include <QMenu>
+#include <QToolButton>
 
 ExportObjectDialog::ExportObjectDialog(QWidget &parent, CaptureFile &cf, register_eo_t* eo) :
     WiresharkDialog(parent, cf),
@@ -58,9 +60,23 @@ ExportObjectDialog::ExportObjectDialog(QWidget &parent, CaptureFile &cf, registe
     connect(&model_, &ExportObjectModel::modelReset, this, &ExportObjectDialog::modelRowsReset);
     connect(eo_ui_->filterLine, &QLineEdit::textChanged, &proxyModel_, &ExportObjectProxyModel::setTextFilterString);
     connect(eo_ui_->objectTree, &ExportObjectsTreeView::currentIndexChanged, this, &ExportObjectDialog::currentHasChanged);
+    connect(eo_ui_->objectTree, &ExportObjectsTreeView::selectedItemsChanged, this, &ExportObjectDialog::selectionHasChanged);
 
+    QAction *sact;
     save_bt_ = eo_ui_->buttonBox->button(QDialogButtonBox::Save);
-    save_all_bt_ = eo_ui_->buttonBox->button(QDialogButtonBox::SaveAll);
+    save_all_bt_ = new QToolButton(eo_ui_->buttonBox);
+    sact = new QAction(tr("Save All"), this);
+    connect(sact, &QAction::triggered, this, &ExportObjectDialog::saveAllEntries);
+    save_all_bt_->setDefaultAction(sact);
+    save_all_bt_->setPopupMode(QToolButton::MenuButtonPopup);
+    save_all_bt_->setEnabled(false);
+    QMenu *save_all_menu = new QMenu(save_all_bt_);
+    sact = save_all_menu->addAction(tr("Save Displayed"));
+    connect(sact, &QAction::triggered, this, &ExportObjectDialog::saveDisplayedEntries);
+    save_all_bt_->setMenu(save_all_menu);
+    // ActionRole because we don't want to accept the dialog
+    eo_ui_->buttonBox->addButton(save_all_bt_, QDialogButtonBox::ActionRole);
+
     close_bt = eo_ui_->buttonBox->button(QDialogButtonBox::Close);
     if (eo_ui_->buttonBox->button(QDialogButtonBox::Open))
     {
@@ -75,7 +91,6 @@ ExportObjectDialog::ExportObjectDialog(QWidget &parent, CaptureFile &cf, registe
     setWindowTitle(mainApp->windowTitleString(QStringList() << tr("Export") << tr("%1 object list").arg(proto_get_protocol_short_name(find_protocol_by_id(get_eo_proto_id(eo))))));
 
     if (save_bt_) save_bt_->setEnabled(false);
-    if (save_all_bt_) save_all_bt_->setEnabled(false);
     if (close_bt) close_bt->setDefault(true);
 
     connect(&cap_file_, &CaptureFile::captureEvent,
@@ -89,7 +104,7 @@ ExportObjectDialog::~ExportObjectDialog()
     removeTapListeners();
 }
 
-void ExportObjectDialog::currentHasChanged(QModelIndex current)
+void ExportObjectDialog::currentHasChanged(const QModelIndex &current)
 {
     if (current.isValid())
     {
@@ -100,6 +115,16 @@ void ExportObjectDialog::currentHasChanged(QModelIndex current)
             eo_ui_->buttonBox->button(QDialogButtonBox::Open)->setEnabled(mimeTypeIsPreviewable(mime_type));
         }
         mainApp->gotoFrame(sibl.data().toInt());
+    }
+}
+
+void ExportObjectDialog::selectionHasChanged(const QItemSelection &)
+{
+    QModelIndexList selectedRows = eo_ui_->objectTree->selectionModel()->selectedRows(ExportObjectModel::colFilename);
+    if (selectedRows.size() > 0) {
+        if (save_bt_) save_bt_->setEnabled(true);
+    } else {
+        if (save_bt_) save_bt_->setEnabled(false);
     }
 }
 
@@ -121,7 +146,6 @@ void ExportObjectDialog::modelDataChanged(const QModelIndex&, int from, int to)
 {
     bool contentTypes_changed = false;
     bool enabled = (model_.rowCount() > 0);
-    if (save_bt_) save_bt_->setEnabled(enabled);
     if (save_all_bt_) save_all_bt_->setEnabled(enabled);
 
     for (int row = from; row <= to; row++)
@@ -207,7 +231,7 @@ void ExportObjectDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
     switch (eo_ui_->buttonBox->standardButton(button)) {
     case QDialogButtonBox::Save:
-        saveCurrentEntry();
+        saveSelectedEntries();
         break;
     case QDialogButtonBox::SaveAll:
         saveAllEntries();
@@ -241,19 +265,16 @@ void ExportObjectDialog::on_cmbContentType_currentIndexChanged(int index)
 
 }
 
-void ExportObjectDialog::saveCurrentEntry(QString *tempFile)
+void ExportObjectDialog::saveEntry(const QModelIndex &proxyIndex, QString *tempFile)
 {
-    QDir path(mainApp->openDialogInitialDir());
-
-    QModelIndex proxyIndex = eo_ui_->objectTree->currentIndex();
     if (!proxyIndex.isValid())
         return;
 
-    QModelIndex current = proxyModel_.mapToSource(proxyIndex);
-    if (!current.isValid())
+    QModelIndex index = proxyModel_.mapToSource(proxyIndex);
+    if (!index.isValid())
         return;
 
-    QString entry_filename = current.sibling(current.row(), ExportObjectModel::colFilename).data().toString();
+    QString entry_filename = index.sibling(index.row(), ExportObjectModel::colFilename).data().toString();
     if (entry_filename.isEmpty())
         return;
 
@@ -273,7 +294,37 @@ void ExportObjectDialog::saveCurrentEntry(QString *tempFile)
         *tempFile = path;
     }
 
-    model_.saveEntry(current, file_name);
+    model_.saveEntry(index, file_name);
+}
+
+void ExportObjectDialog::saveCurrentEntry(QString *tempFile)
+{
+    saveEntry(eo_ui_->objectTree->currentIndex(), tempFile);
+}
+
+void ExportObjectDialog::saveEntries(const QModelIndexList &proxyIndices)
+{
+    if (proxyIndices.count() < 1) {
+        return;
+    } else if (proxyIndices.count() == 1) {
+        return saveEntry(proxyIndices.at(0));
+    }
+
+    QModelIndexList sourceIndices;
+    for (const QModelIndex &proxyIndex : proxyIndices) {
+        sourceIndices.append(proxyModel_.mapToSource(proxyIndex));
+    }
+
+    QDir save_in_dir(mainApp->openDialogInitialDir());
+    QString save_in_path;
+
+    save_in_path = WiresharkFileDialog::getExistingDirectory(this, mainApp->windowTitleString(tr("Save Objects In…")),
+                                                     save_in_dir.canonicalPath(),
+                                                     QFileDialog::ShowDirsOnly);
+
+    if (save_in_path.length() < 1)
+        return;
+    model_.saveEntries(sourceIndices, save_in_path);
 }
 
 void ExportObjectDialog::saveAllEntries()
@@ -299,4 +350,27 @@ void ExportObjectDialog::saveAllEntries()
         return;
 
     model_.saveAllEntries(save_in_path);
+}
+
+void ExportObjectDialog::saveDisplayedEntries()
+{
+    int displayedRows = proxyModel_.rowCount();
+
+    if (displayedRows < 1) {
+        return;
+    }
+
+    QModelIndexList proxySelection;
+    for (int i = 0; i < displayedRows; ++i) {
+        proxySelection.append(proxyModel_.index(i, ExportObjectModel::colFilename));
+    }
+
+    saveEntries(std::move(proxySelection));
+}
+
+void ExportObjectDialog::saveSelectedEntries()
+{
+    QModelIndexList proxySelection = eo_ui_->objectTree->selectionModel()->selectedRows(ExportObjectModel::colFilename);
+
+    saveEntries(std::move(proxySelection));
 }
