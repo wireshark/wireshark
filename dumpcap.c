@@ -1530,19 +1530,6 @@ cap_pipe_adjust_pcap_header(bool byte_swapped, struct pcap_hdr *hdr, struct pcap
     }
 }
 
-/* Wrapper: distinguish between recv/read if we're reading on Windows,
- * or just read().
- */
-static ssize_t
-cap_pipe_read(int pipe_fd _U_, uint8_t *buf _U_, size_t sz _U_)
-{
-#ifdef _WIN32
-    return -1;
-#else
-    return ws_read(pipe_fd, buf, sz);
-#endif
-}
-
 #if defined(_WIN32)
 /*
  * Thread function that reads from a pipe and pushes the data
@@ -1563,12 +1550,8 @@ cap_pipe_read(int pipe_fd _U_, uint8_t *buf _U_, size_t sz _U_)
 static void *cap_thread_read(void *arg)
 {
     capture_src *pcap_src;
-#ifdef _WIN32
     BOOL res;
     DWORD last_err, bytes_read;
-#else /* _WIN32 */
-    size_t bytes_read;
-#endif /* _WIN32 */
 
     pcap_src = (capture_src *)arg;
     while (pcap_src->cap_pipe_err == PIPOK) {
@@ -1576,24 +1559,6 @@ static void *cap_thread_read(void *arg)
         g_mutex_lock(pcap_src->cap_pipe_read_mtx);
         bytes_read = 0;
         while (bytes_read < pcap_src->cap_pipe_bytes_to_read) {
-#ifndef _WIN32
-            ssize_t b;
-            b = cap_pipe_read(pcap_src->cap_pipe_fd, pcap_src->cap_pipe_buf+bytes_read,
-                    pcap_src->cap_pipe_bytes_to_read - bytes_read);
-            if (b <= 0) {
-                if (b == 0) {
-                    pcap_src->cap_pipe_err = PIPEOF;
-                    bytes_read = 0;
-                    break;
-                } else {
-                    pcap_src->cap_pipe_err = PIPERR;
-                    bytes_read = -1;
-                    break;
-                }
-            } else {
-                bytes_read += (DWORD)b;
-            }
-#else
             /* If we try to use read() on a named pipe on Windows with partial
             * data it appears to return EOF.
             */
@@ -1620,7 +1585,6 @@ static void *cap_thread_read(void *arg)
                 bytes_read = 0;
                 break;
             }
-#endif /* ifndef _WIN32 */
         }
         pcap_src->cap_pipe_bytes_read = bytes_read;
         if (pcap_src->cap_pipe_bytes_read >= pcap_src->cap_pipe_bytes_to_read) {
@@ -1657,10 +1621,16 @@ pipe_read_sync(capture_src *pcap_src, void *buf, DWORD nbytes)
     g_async_queue_push(pcap_src->cap_pipe_pending_q, pcap_src->cap_pipe_buf);
     g_async_queue_pop(pcap_src->cap_pipe_done_q);
 }
-#endif
+#else
+
+static ssize_t
+cap_pipe_read(int pipe_fd _U_, uint8_t *buf _U_, size_t sz _U_)
+{
+    return ws_read(pipe_fd, buf, sz);
+}
 
 /* Provide select() functionality for a single file descriptor
- * on UNIX/POSIX. Windows uses cap_pipe_read via a thread.
+ * on UNIX/POSIX. Windows uses ReadFile via cap_thread_read.
  *
  * Returns the same values as select.
  */
@@ -1679,18 +1649,6 @@ cap_pipe_select(int pipe_fd)
     return select(pipe_fd+1, &rfds, NULL, NULL, &timeout);
 }
 
-/* Wrapper: distinguish between closesocket on Windows; use ws_close
- * otherwise.
- */
-static void
-cap_pipe_close(int pipe_fd _U_)
-{
-#ifndef _WIN32
-    ws_close(pipe_fd);
-#endif
-}
-
-#ifndef _WIN32
 /** Read bytes from a capture source, which is assumed to be a pipe or
  * socket.
  *
@@ -1749,6 +1707,17 @@ cap_pipe_read_data_bytes(capture_src *pcap_src, char *errmsg, size_t errmsgl)
     return bytes_read;
 }
 #endif /* _WIN32 */
+
+/* Wrapper: distinguish between closesocket on Windows; use ws_close
+ * otherwise.
+ */
+static void
+cap_pipe_close(int pipe_fd _U_)
+{
+#ifndef _WIN32
+    ws_close(pipe_fd);
+#endif
+}
 
 /* Some forward declarations for breaking up cap_pipe_open_live for pcap and pcapng formats */
 static void pcap_pipe_open_live(int fd, capture_src *pcap_src,
