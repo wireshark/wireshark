@@ -369,6 +369,7 @@ QString PrefsModel::typeToHelp(PrefsModelType type)
             helpStr = QStringLiteral("ChCustPreferencesSection.html#_layout");
             break;
         case WelcomePage:
+            helpStr = QStringLiteral("ChCustPreferencesSection.html#_welcome_page");
             break;
         case Capture:
             helpStr = QStringLiteral("ChCustPreferencesSection.html#_capture");

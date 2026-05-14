@@ -855,6 +855,10 @@ Selecting _Show file load time_ adds the time it took to load the capture file t
 
 The button _Restore Defaults_ allows you to get back to a working basic configuration.
 
+==== Welcome Page
+
+These preferences allow you to define the layout of the GUI welcome page, before a capture file is loaded.
+
 ==== Capture
 
 These preferences allow you to set the default conditions for packet capture.
