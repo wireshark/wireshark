@@ -2329,7 +2329,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             dissect_dhcpv6_s46_ipv6_prefix(tvb, hf_option_s46_v4v6bind_ipv6_prefix, off + 5, ipv6_pref_len, subtree);
 
         temp_optlen = 5 + ipv6_pref_len_bytes;
-        while ((optlen - temp_optlen) > 0) {
+        while (tvb_reported_length_remaining(opt_tvb, temp_optlen)) {
             temp_optlen += dhcpv6_option(opt_tvb, pinfo, subtree,
                                          temp_optlen, protocol, hpi, msgtype);
         }
@@ -2381,7 +2381,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         proto_tree_add_item(subtree, hf_iaid_t2, tvb, off+8, 4, ENC_BIG_ENDIAN);
 
         temp_optlen = 12;
-        while ((optlen - temp_optlen) > 0) {
+        while (tvb_reported_length_remaining(opt_tvb, temp_optlen)) {
             temp_optlen += dhcpv6_option(opt_tvb, pinfo, subtree,
                                          temp_optlen, protocol, hpi, msgtype);
         }
@@ -2395,7 +2395,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         proto_tree_add_string(subtree, hf_iata, tvb, off,
                                     4, tvb_arphrdaddr_to_str(pinfo->pool, tvb, off, 4, opttype));  /* XXX: IAID is opaque ? review ... */
         temp_optlen = 4;
-        while ((optlen - temp_optlen) > 0) {
+        while (tvb_reported_length_remaining(opt_tvb, temp_optlen)) {
             temp_optlen += dhcpv6_option(opt_tvb, pinfo, subtree,
                                          temp_optlen, protocol, hpi, msgtype);
         }
@@ -2413,7 +2413,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         proto_tree_add_item(subtree, hf_iaaddr_valid_lifetime, tvb, off+20, 4, ENC_BIG_ENDIAN);
 
         temp_optlen = 24;
-        while ((optlen - temp_optlen) > 0) {
+        while (tvb_reported_length_remaining(opt_tvb, temp_optlen)) {
             temp_optlen += dhcpv6_option(opt_tvb, pinfo, subtree,
                                          temp_optlen, protocol, hpi, msgtype);
         }
@@ -2444,7 +2444,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         proto_tree_add_item(subtree, hf_lladdr_valid_lifetime, tvb, off+8+ll_len, 4, ENC_BIG_ENDIAN);
 
         temp_optlen = ll_len+12;
-        while ((optlen - temp_optlen) > 0) {
+        while (tvb_reported_length_remaining(opt_tvb, temp_optlen)) {
             temp_optlen += dhcpv6_option(opt_tvb, pinfo, subtree,
                                          temp_optlen, protocol, hpi, msgtype);
         }
@@ -2875,7 +2875,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 
         proto_tree_add_item(subtree, hf_lq_query_link_address, tvb, off+1, 16, ENC_NA);
         temp_optlen = 17;
-        while ((optlen - temp_optlen) > 0) {
+        while (tvb_reported_length_remaining(opt_tvb, temp_optlen)) {
             temp_optlen += dhcpv6_option(opt_tvb, pinfo, subtree, temp_optlen,
                                          protocol, hpi, msgtype);
         }
@@ -2891,7 +2891,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     case OPTION_CLIENT_DATA:
         /* Intended fall-through for options which can only carry further options */
         temp_optlen = 0;
-        while ((optlen - temp_optlen) > 0) {
+        while (tvb_reported_length_remaining(opt_tvb, temp_optlen)) {
             temp_optlen += dhcpv6_option(opt_tvb, pinfo, subtree, temp_optlen,
                                          protocol, hpi, msgtype);
         }
@@ -2971,14 +2971,14 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_BOOTFILE_PARAM:
         temp_optlen = 0;
-        while (optlen > temp_optlen) {
-            subopt_len = tvb_get_ntohs(tvb,  off + temp_optlen);
+        while (tvb_reported_length_remaining(opt_tvb, temp_optlen)) {
+            subopt_len = tvb_get_ntohs(opt_tvb, temp_optlen);
             if (subopt_len > optlen - temp_optlen) {
                 expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Boot file parameter: suboption too long");
                 break;
             }
-            proto_tree_add_item(subtree, hf_bootfile_param_len, tvb, off + temp_optlen, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(subtree, hf_bootfile_param_data, tvb, off + temp_optlen + 2, subopt_len, ENC_UTF_8);
+            proto_tree_add_item(subtree, hf_bootfile_param_len, opt_tvb, temp_optlen, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subtree, hf_bootfile_param_data, opt_tvb, temp_optlen + 2, subopt_len, ENC_UTF_8);
 
             temp_optlen += subopt_len + 2;
         }
@@ -3107,7 +3107,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         proto_tree_add_item(subtree, hf_iaprefix_pref_len, tvb, off+8, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_iaprefix_pref_addr, tvb, off+9, 16, ENC_NA);
         temp_optlen = 25;
-        while ((optlen - temp_optlen) > 0) {
+        while (tvb_reported_length_remaining(opt_tvb, temp_optlen)) {
             temp_optlen += dhcpv6_option(opt_tvb, pinfo, subtree, temp_optlen,
                                          protocol, hpi, msgtype);
         }
