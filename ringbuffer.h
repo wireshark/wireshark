@@ -50,6 +50,7 @@ bool ringbuf_is_initialized(void);
 
 /**
  * @brief Get the current filename used by the ringbuffer.
+ * @return The current filename used by the ringbuffer.
  */
 const char *ringbuf_current_filename(void);
 

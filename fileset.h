@@ -80,17 +80,28 @@ extern void fileset_delete(void);
 /**
  * @brief Get the current directory name.
  *
- * @return const char* - The current directory name, or NULL if not available.
+ * @return The current directory name, or NULL if not available.
  */
-/* get the current directory name */
 extern const char *fileset_get_dirname(void);
 
+/**
+ * @brief Get the next fileset entry.
+ *
+ * @return The next fileset entry, or NULL if there is no next entry.
+ */
 extern fileset_entry *fileset_get_next(void);
+
+/**
+ * @brief Get the previous fileset entry.
+ *
+ * @return The previous fileset entry, or NULL if there is no previous entry.
+ */
 extern fileset_entry *fileset_get_previous(void);
 
 /**
- * Add an entry to our dialog / window. Called by fileset_update_dlg.
- * Must be implemented in the UI.
+ * @brief Add an entry to our dialog / window.
+ *
+ * Called by fileset_update_dlg. Must be implemented in the UI.
  *
  * @param entry The new fileset entry.
  * @param window Window / dialog reference provided by the UI code.
@@ -106,8 +117,9 @@ extern void fileset_dlg_add_file(fileset_entry *entry, void *window);
 extern void fileset_dlg_begin_add_file(void *window);
 
 /**
- * Notify our dialog / window that we're done adding files. Called by fileset_update_dlg.
- * Must be implemented in the UI.
+ * @brief Notify our dialog / window that we're done adding files.
+ *
+ * Called by fileset_update_dlg. Must be implemented in the UI.
  *
  * @param window Window / dialog reference provided by the UI code.
  */

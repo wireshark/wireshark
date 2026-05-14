@@ -32,14 +32,14 @@ extern "C" {
 
 /**
  * The definition of the used algorithm.
- *****************************************************************************/
+ */
 #define CRC_ALGO_TABLE_DRIVEN 1
 
 /**
- * Calculate the initial crc value.
+ * @brief Calculate the initial crc value.
  *
- * \return     The initial crc value.
- *****************************************************************************/
+ * @return The initial crc value.
+ */
 static inline uint8_t crc7init(void)
 {
     return 0x00 << 1;
@@ -49,20 +49,20 @@ static inline uint8_t crc7init(void)
 /**
  * @brief Update the crc value with new data.
  *
- * \param crc      The current crc value.
- * \param data     Pointer to a buffer of \a data_len bytes.
- * \param data_len Number of bytes in the \a data buffer.
- * \return         The updated crc value.
- *****************************************************************************/
+ * @param crc      The current crc value.
+ * @param data     Pointer to a buffer of \a data_len bytes.
+ * @param data_len Number of bytes in the \a data buffer.
+ * @return         The updated crc value.
+ */
 WS_DLL_PUBLIC uint8_t crc7update(uint8_t crc, const unsigned char *data, int data_len);
 
 
 /**
  * @brief Calculate the final crc value.
  *
- * \param crc  The current crc value.
- * \return     The final crc value.
- *****************************************************************************/
+ * @param crc  The current crc value.
+ * @return     The final crc value.
+ */
 static inline uint8_t crc7finalize(uint8_t crc)
 {
     return (crc >> 1) ^ 0x00;

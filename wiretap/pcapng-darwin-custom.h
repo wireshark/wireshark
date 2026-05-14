@@ -18,6 +18,14 @@
 #include "wtap_opttypes.h"
 #include <stdbool.h>
 
+/**
+ * @brief Writes a legacy Darwin process event block to the dump file.
+ *
+ * @param wdh The wtap_dumper structure for the output file.
+ * @param sdata The wtap_block_t containing the data for the block.
+ * @param err Pointer to an integer that will be set to an error code if an error occurs.
+ * @return true if successful, false otherwise.
+ */
 extern bool
 pcapng_write_legacy_darwin_process_event_block(wtap_dumper *wdh, wtap_block_t sdata, int *err);
 

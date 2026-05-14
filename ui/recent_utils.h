@@ -29,9 +29,11 @@ extern void menu_recent_file_write_all(FILE *rf);
  */
 extern void cfilter_combo_recent_write_all(FILE *rf);
 
-/** Add a display filter coming from the user's recent file to the dfilter combo box.
+/**
+ * @brief Add a display filter coming from the user's recent file to the dfilter combo box.
  *
  * @param dftext the filter string
+ * @return true if the filter was added to the combo box, false otherwise
  */
 extern bool dfilter_combo_add_recent(const char *dftext);
 

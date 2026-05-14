@@ -16,23 +16,29 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/** Compute CRC16 CCITT checksum of a tv buffer.
- @param tvb The tv buffer containing the data.
- @param len The number of bytes to include in the computation.
- @return The CRC16 CCITT checksum. */
+/**
+ * @brief Compute CRC16 CCITT checksum of a tv buffer.
+ * @param tvb The tv buffer containing the data.
+ * @param len The number of bytes to include in the computation.
+ * @return The CRC16 CCITT checksum.
+ */
 WS_DLL_PUBLIC uint16_t crc16_ccitt_tvb(tvbuff_t *tvb, unsigned len);
 
-/** Compute CRC16 X.25 CCITT checksum of a tv buffer.
- @param tvb The tv buffer containing the data.
- @param len The number of bytes to include in the computation.
- @return The CRC16 X.25 CCITT checksum. */
+/**
+ * @brief Compute CRC16 X.25 CCITT checksum of a tv buffer.
+ * @param tvb The tv buffer containing the data.
+ * @param len The number of bytes to include in the computation.
+ * @return The CRC16 X.25 CCITT checksum.
+ */
 WS_DLL_PUBLIC uint16_t crc16_x25_ccitt_tvb(tvbuff_t *tvb, unsigned len);
 
-/** Compute CRC16 ASSA R3 CCITT checksum of a tv buffer.
- @param tvb The tv buffer containing the data.
- @param offset The offset into tv buffer containing the data.
- @param len The number of bytes to include in the computation.
- @return The CRC16 X.25 CCITT checksum. */
+/**
+ * @brief Compute CRC16 ASSA R3 CCITT checksum of a tv buffer.
+ * @param tvb The tv buffer containing the data.
+ * @param offset The offset into tv buffer containing the data.
+ * @param len The number of bytes to include in the computation.
+ * @return The CRC16 X.25 CCITT checksum.
+ */
 WS_DLL_PUBLIC uint16_t crc16_r3_ccitt_tvb(tvbuff_t *tvb, int offset, unsigned len);
 
 /** Compute CRC16 CCITT checksum of a tv buffer.

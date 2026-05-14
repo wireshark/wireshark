@@ -163,7 +163,16 @@ cf_read_status_t cf_read(capture_file *cf, bool reloading);
 bool cf_read_record(capture_file *cf, const frame_data *fdata,
                     wtap_rec *rec);
 
-/** Same as cf_read_record() but does not pop alert box on error */
+/**
+ * @brief Reads a record from the capture file without generating alerts.
+ *
+ * Same as cf_read_record() but does not pop alert box on error
+ *
+ * @param cf Pointer to the capture file structure.
+ * @param fdata Pointer to the frame data structure.
+ * @param rec Pointer to the wtap_rec structure where the record will be stored.
+ * @return true if the record was successfully read, false otherwise.
+ */
 bool cf_read_record_no_alert(capture_file *cf, const frame_data *fdata,
                              wtap_rec *rec);
 
@@ -179,12 +188,14 @@ bool cf_read_record_no_alert(capture_file *cf, const frame_data *fdata,
 bool cf_read_current_record(capture_file *cf);
 
 /**
- * Read packets from the "end" of a capture file.
+ * @brief Read packets from the "end" of a capture file.
  *
  * @param cf the capture file to be read from
  * @param to_read the number of packets to read
  * @param rec pointer to wtap_rec to use when reading
  * @param err the error code, if an error had occurred
+ * @param frame_dup_cache a cache to use for duplicate frames, or NULL if no cache should be used
+ * @param frame_cksum a checksum to use for validating frames, or NULL if no checksum should be used
  * @return one of cf_read_status_t
  */
 cf_read_status_t cf_continue_tail(capture_file *cf, volatile int to_read,
@@ -192,18 +203,20 @@ cf_read_status_t cf_continue_tail(capture_file *cf, volatile int to_read,
                                   fifo_string_cache_t *frame_dup_cache, GChecksum *frame_cksum);
 
 /**
- * Fake reading packets from the "end" of a capture file.
+ * @brief Fake reading packets from the "end" of a capture file.
  *
  * @param cf the capture file to be read from
  */
 void cf_fake_continue_tail(capture_file *cf);
 
 /**
- * Finish reading from "end" of a capture file.
+ * @brief Finish reading from "end" of a capture file.
  *
  * @param cf the capture file to be read from
  * @param rec pointer to wtap_rec to use when reading
  * @param err the error code, if an error had occurred
+ * @param frame_dup_cache a cache to use for duplicate frames, or NULL if no cache should be used
+ * @param frame_cksum a checksum to use for validating frames, or NULL if no checksum should be used
  * @return one of cf_read_status_t
  */
 cf_read_status_t cf_finish_tail(capture_file *cf, wtap_rec *rec,
@@ -289,7 +302,7 @@ cf_write_status_t cf_export_specified_packets(capture_file *cf,
                                               ws_compression_type compression_type);
 
 /**
- * Get a displayable name of the capture file.
+ * @brief Get a displayable name of the capture file.
  *
  * @param cf the capture file
  * @return the displayable name (must be g_free'd)
@@ -405,19 +418,21 @@ cf_status_t cf_filter_packets(capture_file *cf, char *dfilter, bool force);
 void cf_reftime_packets(capture_file *cf);
 
 /**
- * Return the time it took to load the file (in msec).
+ * @brief Return the time it took to load the file (in msec).
+ * @param cf the capture file
+ * @return the time it took to load the file (in msec)
  */
 unsigned long cf_get_computed_elapsed(capture_file *cf);
 
 /**
- * "Something" has changed, rescan all packets.
+ * @brief "Something" has changed, rescan all packets.
  *
  * @param cf the capture file
  */
 void cf_redissect_packets(capture_file *cf);
 
 /**
- * Rescan all packets and just run taps - don't reconstruct the display.
+ * @brief Rescan all packets and just run taps - don't reconstruct the display.
  *
  * @param cf the capture file
  * @return one of cf_read_status_t
@@ -690,6 +705,19 @@ void cf_unignore_frame(capture_file *cf, frame_data *frame);
  * @return one of cf_status_t
  */
 cf_status_t
+
+/**
+ * @brief Merges multiple files into a temporary file.
+ *
+ * @param pd_window Pointer to the parent window for callback purposes.
+ * @param temp_dir Directory where the temporary file will be created.
+ * @param out_filenamep Pointer to store the name of the output temporary file.
+ * @param in_file_count Number of input files to merge.
+ * @param in_filenames Array of input filenames to merge.
+ * @param file_type Type of files being merged.
+ * @param do_append Whether to append to an existing file or overwrite it.
+ * @return True if the merging was successful, false otherwise.
+ */
 cf_merge_files_to_tempfile(void *pd_window, const char *temp_dir, char **out_filenamep,
                            int in_file_count, const char *const *in_filenames,
                            int file_type, bool do_append);

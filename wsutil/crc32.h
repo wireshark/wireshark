@@ -42,8 +42,11 @@ extern "C" {
  */
 WS_DLL_PUBLIC uint32_t crc32_ccitt_table_lookup (unsigned char pos);
 
-/** Lookup the crc value in the crc32c_table
- @param pos Position in the table. */
+/**
+ * @brief Lookup the crc value in the crc32c_table
+ * @param pos Position in the table.
+ * @return The value at the specified position in the CRC32c table.
+ */
 WS_DLL_PUBLIC uint32_t crc32c_table_lookup (unsigned char pos);
 
 /**
@@ -51,7 +54,8 @@ WS_DLL_PUBLIC uint32_t crc32c_table_lookup (unsigned char pos);
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
  @param crc The preload value for the CRC32C computation.
- @return The CRC32C checksum. */
+ @return The CRC32C checksum.
+ */
 WS_DLL_PUBLIC uint32_t crc32c_calculate(const void *buf, int len, uint32_t crc);
 
 /**
@@ -60,14 +64,16 @@ WS_DLL_PUBLIC uint32_t crc32c_calculate(const void *buf, int len, uint32_t crc);
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
  @param crc The preload value for the CRC32C computation.
- @return The CRC32C checksum. */
+ @return The CRC32C checksum.
+ */
 WS_DLL_PUBLIC uint32_t crc32c_calculate_no_swap(const void *buf, int len, uint32_t crc);
 
 /**
  @brief Compute CRC32 CCITT checksum of a buffer of data.
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
- @return The CRC32 CCITT checksum. */
+ @return The CRC32 CCITT checksum.
+ */
 WS_DLL_PUBLIC uint32_t crc32_ccitt(const uint8_t *buf, unsigned len);
 
 /**
@@ -78,7 +84,8 @@ WS_DLL_PUBLIC uint32_t crc32_ccitt(const uint8_t *buf, unsigned len);
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
  @param seed The seed to use.
- @return The CRC32 CCITT checksum (using the given seed). */
+ @return The CRC32 CCITT checksum (using the given seed).
+ */
 WS_DLL_PUBLIC uint32_t crc32_ccitt_seed(const uint8_t *buf, unsigned len, uint32_t seed);
 
 /**
@@ -86,7 +93,8 @@ WS_DLL_PUBLIC uint32_t crc32_ccitt_seed(const uint8_t *buf, unsigned len, uint32
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
  @param seed The seed to use.
- @return The CRC32 MPEG-2 checksum (using the given seed). */
+ @return The CRC32 MPEG-2 checksum (using the given seed).
+ */
 WS_DLL_PUBLIC uint32_t crc32_mpeg2_seed(const uint8_t *buf, unsigned len, uint32_t seed);
 
 /**

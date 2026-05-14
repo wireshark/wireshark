@@ -69,7 +69,11 @@ struct LuaDebuggerEditorPalette
  *  Wireshark's current colour scheme when set to AUTO. */
 bool luaDebuggerThemeIsDark();
 
-/** @brief Return the editor palette for the requested theme. */
+/**
+ * @brief Return the editor palette for the requested theme.
+ * @param isDark Indicates whether the dark theme should be used.
+ * @return LuaDebuggerEditorPalette The editor palette for the specified theme.
+ */
 LuaDebuggerEditorPalette luaDebuggerEditorPaletteFor(bool isDark);
 
 /* ===== lua_highlighter ===== */

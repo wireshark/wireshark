@@ -324,37 +324,70 @@ WS_DLL_PUBLIC value_string_ext mibenum_vals_character_sets_ext;
  * it's more common to see the encoding as Little Endian, especially if
  * a BOM is expected.
  */
-
-/* select all records */
+/** @brief Select all records regardless of marker.
+ *  @param N   The marker value (0 or 1).
+ *  @param ... The record contents to pass through. */
 #define ICWE_SELECT_ALL(N, ...)   ICWE_SELECT_ALL_##N(__VA_ARGS__)
 #define ICWE_SELECT_ALL_0(...)    __VA_ARGS__
 #define ICWE_SELECT_ALL_1(...)    __VA_ARGS__
 
-/* ignore records marked 0 and only select records marked 1 */
+
+/** @brief Ignore records marked 0 and only select records marked 1.
+ *  @param N   The marker value (0 or 1).
+ *  @param ... The record contents to pass through if @p N is 1. */
 #define ICWE_SELECT_N1(N, ...)   ICWE_SELECT_N1_##N(__VA_ARGS__)
 #define ICWE_SELECT_N1_0(...)
 #define ICWE_SELECT_N1_1(...)    __VA_ARGS__
 
-/* convert iana charset and Wireshark encoding map to value_string macro record and passing to XXX macro */
+
+/** @brief Convert an IANA charset / Wireshark encoding map entry to a
+ *  value_string macro record and pass it to @p XXX.
+ *  @param XXX          The destination macro to invoke.
+ *  @param ic_enum_name The IANA charset enum name.
+ *  @param ic_enum_val  The IANA charset enum value.
+ *  @param ic_name      The IANA charset name string.
+ *  @param ws_enc       The Wireshark encoding value (unused here). */
 #define ICWE_MAP_TO_VS_RECORD(XXX, ic_enum_name, ic_enum_val, ic_name, ws_enc) XXX(ic_enum_name, ic_enum_val, ic_name)
 
-/* convert iana charset and Wireshark encoding map to enum_val_t macro record and passing to XXX macro */
+
+/** @brief Convert an IANA charset / Wireshark encoding map entry to an
+ *  enum_val_t macro record and pass it to @p XXX.
+ *  @param XXX          The destination macro to invoke.
+ *  @param ic_enum_name The IANA charset enum name.
+ *  @param ic_enum_val  The IANA charset enum value.
+ *  @param ic_name      The IANA charset name string.
+ *  @param ws_enc       The Wireshark encoding value (unused here). */
 #define ICWE_MAP_TO_EV_RECORD(XXX, ic_enum_name, ic_enum_val, ic_name, ws_enc) XXX(ic_enum_name, ic_enum_val, ic_name, ic_name)
 
-/* convert iana charset and Wireshark encoding map to enum value only map and passing to XXX macro */
+
+/** @brief Convert an IANA charset / Wireshark encoding map entry to an
+ *  enum value-only map entry and pass it to @p XXX.
+ *  @param XXX          The destination macro to invoke.
+ *  @param ic_enum_name The IANA charset enum name (unused here).
+ *  @param ic_enum_val  The IANA charset enum value.
+ *  @param ic_name      The IANA charset name string (unused here).
+ *  @param ws_enc       The Wireshark encoding value. */
 #define ICWE_MAP_TO_ENUM_MAP_ONLY(XXX, ic_enum_name, ic_enum_val, ic_name, ws_enc)  XXX(ic_enum_val, ws_enc)
 
-/* macro used for creating iana charset enumeration type, value_string array and enum_val_t array */
+
+/** @brief Macro for creating the IANA charset enumeration type,
+ *  value_string array, and enum_val_t array (all charsets). */
 #define mibenum_vals_character_sets_VALUE_STRING_LIST(XXX) IANA_CHARSETS_WS_ENCODING_MAP_LIST(XXX, ICWE_MAP_TO_VS_RECORD, ICWE_SELECT_ALL)
 
-/* macro used for creating Wireshark supported displaying iana charset enum_val_t array */
+
+/** @brief Macro for creating the Wireshark-supported IANA charset
+ *  enum_val_t array (supported charsets only). */
 #define ws_supported_mibenum_vals_character_sets_VALUE_STRING_LIST(XXX) IANA_CHARSETS_WS_ENCODING_MAP_LIST(XXX, ICWE_MAP_TO_VS_RECORD, ICWE_SELECT_N1)
 
-/* define iana charset enumeration type */
+
+/** @brief IANA charset enumeration type. */
 typedef VALUE_STRING_ENUM(mibenum_vals_character_sets) mibenum_vals_character_sets_type_t;
 
-/* declare an iana charset enum_val_t array named mibenum_vals_character_sets_ev_array */
+
+/** @brief Global declaration of the IANA charset enum_val_t array. */
 VS_LIST_TO_ENUM_VAL_T_ARRAY_GLOBAL_DCL(mibenum_vals_character_sets_ev_array);
 
-/* declare an short and Wireshark supported iana charset enum_val_t array */
+
+/** @brief Global declaration of the Wireshark-supported IANA charset
+ *  enum_val_t array. */
 VS_LIST_TO_ENUM_VAL_T_ARRAY_GLOBAL_DCL(ws_supported_mibenum_vals_character_sets_ev_array);

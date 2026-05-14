@@ -151,8 +151,29 @@ bool extcap_base_register_graceful_shutdown_cb(extcap_parameters * extcap, void 
  */
 bool extcap_base_register_cleanup_postkill_cb(extcap_parameters* extcap, void (*callback)(void));
 
+/**
+ * @brief Set the version and help page information for an extcap utility.
+ *
+ * @param extcap    The extcap parameter block to populate.
+ * @param exename   The full path or name of the extcap executable. Only the
+ *                  basename is stored (path components are stripped).
+ * @param major     The major version number string (must not be NULL).
+ * @param minor     The minor version number string, or NULL if not applicable.
+ * @param release   The release/patch version number string, or NULL if not
+ *                  applicable.
+ * @param helppage  URL of the online help page for this extcap utility, or
+ *                  NULL if no help page is available.
+ */
 void extcap_base_set_util_info(extcap_parameters * extcap, const char * exename, const char * major, const char * minor, const char * release, const char * helppage);
 
+/**
+ * @brief Set the "compiled with" information string for an extcap utility.
+ *
+ * @param extcap The extcap parameter block to populate.
+ * @param fmt    A printf-style format string describing compiled-with
+ *               dependencies.
+ * @param ...    Arguments for the format string.
+ */
 void extcap_base_set_compiled_with(extcap_parameters * extcap, const char *fmt, ...);
 
 /**

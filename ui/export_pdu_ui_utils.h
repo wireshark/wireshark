@@ -18,8 +18,11 @@ extern "C" {
 #endif /* __cplusplus */
 
 /**
-* Filters the current opened capture file into a temporary file. On success,
+* @brief Filters the current opened capture file into a temporary file. On success,
 * the filtered file is opened into the UI.
+* @param filter The display filter to apply to the current capture file.
+* @param temp_dir The directory where the temporary file should be created.
+* @param tap_name The name of the tap to use for exporting the PDU, or NULL to use the default tap.
 */
 void do_export_pdu(const char *filter, const char *temp_dir, const char *tap_name);
 

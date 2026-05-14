@@ -18,15 +18,41 @@
 
 /* Writing pcap files */
 
-/** Write the file header to a dump file.
-   Returns true on success, false on failure.
-   Sets "*err" to an error code, or 0 for a short write, on failure*/
+/**
+ * @brief Writes a pcap file header to the specified output stream.
+ *
+ * Write the file header to a dump file.
+ * Returns true on success, false on failure.
+ * Sets "*err" to an error code, or 0 for a short write, on failure
+ *
+ * @param pfile The output stream to which the header will be written.
+ * @param linktype The data link type of the packets that will be captured.
+ * @param snaplen The snapshot length for each packet.
+ * @param ts_nsecs Indicates whether the timestamp should have nanosecond resolution.
+ * @param bytes_written Pointer to a variable where the number of bytes written will be stored.
+ * @param err Pointer to an integer where any error code will be stored.
+ * @return true on success, false on failure.
+ */
 extern bool
 libpcap_write_file_header(ws_cwstream* pfile, int linktype, int snaplen,
                           bool ts_nsecs, uint64_t *bytes_written, int *err);
 
-/** Write a record for a packet to a dump file.
-   Returns true on success, false on failure. */
+/**
+ * @brief Writes a packet to a pcap file.
+ *
+ * Write a record for a packet to a dump file.
+ * Returns true on success, false on failure
+ *
+ * @param pfile The output stream for the pcap file.
+ * @param sec The timestamp seconds of the packet.
+ * @param usec The timestamp microseconds of the packet.
+ * @param caplen The captured length of the packet.
+ * @param len The original length of the packet.
+ * @param pd The data of the packet.
+ * @param bytes_written Pointer to store the number of bytes written.
+ * @param err Pointer to store any error code.
+ * @return true if the packet was successfully written, false otherwise.
+ */
 extern bool
 libpcap_write_packet(ws_cwstream* pfile,
                      time_t sec, uint32_t usec,
@@ -36,7 +62,18 @@ libpcap_write_packet(ws_cwstream* pfile,
 
 /* Writing pcapng files */
 
-/* Write a pre-formatted pcapng block */
+/**
+ * @brief Write a pre-formatted pcapng block to the output stream.
+ *
+ * Checks if the data and length are aligned to 4 bytes, and if the block_total_length field is consistent at both ends of the block.
+ *
+ * @param pfile The output stream to write the block to.
+ * @param data The data to be written as a pcapng block.
+ * @param block_total_length The length of the data.
+ * @param bytes_written Pointer to store the number of bytes written.
+ * @param err Pointer to store any error encountered during writing.
+ * @return true if the block was successfully written, false otherwise.
+ */
 extern bool
 pcapng_write_block(ws_cwstream* pfile,
                    const uint8_t *data,
@@ -44,8 +81,8 @@ pcapng_write_block(ws_cwstream* pfile,
                    uint64_t *bytes_written,
                    int *err);
 
-/** Write a section header block (SHB)
- *
+/**
+ * @brief Write a section header block (SHB)
  */
 extern bool
 pcapng_write_section_header_block(ws_cwstream* pfile,  /**< Write information */

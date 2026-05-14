@@ -53,23 +53,30 @@ struct conversation;
  */
 WS_DLL_PUBLIC stream_t *stream_new ( const struct conversation *conv, int p2p_dir );
 
-/* retrieve a previously-created stream.
- *
- * Returns null if no matching stream was found.
+/**
+ * @brief Retrieve a previously-created stream.
+ * @param conv Pointer to the conversation structure.
+ * @param p2p_dir The peer-to-peer direction.
+ * @return Pointer to the retrieved stream, or NULL if not found.
  */
 WS_DLL_PUBLIC stream_t *find_stream ( const struct conversation *conv, int p2p_dir );
 
 
 
-/* see if we've seen this fragment before.
-
-   The framenum and offset are just hash keys, so can be any values unique
-   to this frame, but the idea is that you use the number of the frame being
-   disassembled, and the byte-offset within that frame.
-*/
+/**
+ * @brief See if we've seen this fragment before.
+ * @param stream Pointer to the stream structure.
+ * @param framenum The frame number.
+ * @param offset The byte offset within the frame.
+ * @return Pointer to the found fragment, or NULL if not found.
+ */
 WS_DLL_PUBLIC stream_pdu_fragment_t *stream_find_frag( stream_t *stream, uint32_t framenum, uint32_t offset );
 
-/* add a new fragment to the fragment tables for the stream. The framenum and
+/**
+ *
+ * @brief Add a new fragment to the fragment tables for the stream.
+ *
+ *  The framenum and
  * offset are keys allowing future access with stream_find_frag(), tvb is the
  * fragment to be added, and pinfo is the information for the frame containing
  * this fragment. more_frags should be set if this is the final fragment in the
@@ -81,6 +88,13 @@ WS_DLL_PUBLIC stream_pdu_fragment_t *stream_find_frag( stream_t *stream, uint32_
  *
  * This essentially means that you can only add fragments on the first pass
  * through the stream.
+ * @param stream Pointer to the stream structure.
+ * @param framenum The frame number of the fragment.
+ * @param offset The byte offset within the frame.
+ * @param tvb The TVBuffer containing the fragment data.
+ * @param pinfo Pointer to the packet information structure for the frame containing this fragment.
+ * @param more_frags Set to true if this is the final fragment in the PDU, false otherwise.
+ * @return Pointer to the newly added fragment, or NULL on failure.
  */
 WS_DLL_PUBLIC stream_pdu_fragment_t *stream_add_frag( stream_t *stream, uint32_t framenum, uint32_t offset,
 					tvbuff_t *tvb, packet_info *pinfo, bool more_frags );
@@ -92,19 +106,34 @@ WS_DLL_PUBLIC stream_pdu_fragment_t *stream_add_frag( stream_t *stream, uint32_t
  */
 extern uint32_t stream_get_frag_length( const stream_pdu_fragment_t *frag);
 
-/* Get a handle on the top of the chain of fragment_datas underlying this PDU
+/**
+ * @brief Get a handle on the top of the chain of fragment_datas underlying this PDU
+ *
  * frag can be any fragment within a PDU, and it will always return the head of
  * the chain
  *
  * Returns NULL until the last fragment is added.
+ *
+ * @param frag A fragment within the PDU.
+ * @return A pointer to the fragment list for the PDU, or NULL if not complete
  */
 WS_DLL_PUBLIC fragment_head *stream_get_frag_data( const stream_pdu_fragment_t *frag);
 
-/*
- * Process reassembled data; if this is the last fragment, put the fragment
+/**
+ * @brief Process reassembled data; if this is the last fragment, put the fragment
  * information into the protocol tree, and construct a tvbuff with the
  * reassembled data, otherwise just put a "reassembled in" item into the
  * protocol tree.
+ *
+ * @param tvb The original TVBuffer containing the fragment data.
+ * @param offset The offset within the TVBuffer where the fragment starts.
+ * @param pinfo Packet information structure.
+ * @param name Name of the reassembled data source.
+ * @param frag A fragment within the PDU.
+ * @param fit Pointer to the fragment items structure.
+ * @param update_col_infop Pointer to a boolean indicating whether to update column info.
+ * @param tree Protocol tree for displaying fragment information.
+ * @return A new TVBuffer containing the reassembled data, or NULL if not applicable.
  */
 WS_DLL_PUBLIC tvbuff_t *stream_process_reassembled(
     tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -118,8 +147,6 @@ WS_DLL_PUBLIC tvbuff_t *stream_process_reassembled(
  * @return The PDU number.
  */
 extern uint32_t stream_get_pdu_no( const stream_pdu_fragment_t *frag);
-
-/* initialise the stream routines */
 
 /**
  * @brief Initializes stream-related data structures and reassembly tables.

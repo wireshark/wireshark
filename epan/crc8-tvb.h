@@ -19,17 +19,17 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#pragma once
 
 /**
- * Check the final crc value(Receiver code)
+ * @brief Check the final crc value(Receiver code)  of a message.
  *
- * \param p The tv buffer containing the data.
- * \param len Number of bytes in the message.
- * \param offset Offset in the message.
- * \param received_fcs The received FCS.
- * \return     Returns true if the checksum is correct, false if it is not correct
- *****************************************************************************/
-#pragma once
+ * @param p Pointer to the tvbuff_t structure containing the message data.
+ * @param len Length of the message in bytes.
+ * @param offset Offset in the message
+ * @param received_fcs The received FCS value to be compared with the calculated FCS.
+ * @return true if the FCS matches, false otherwise.
+ */
 extern bool check_fcs(tvbuff_t *p, uint8_t len, uint8_t offset, uint8_t received_fcs);
 
 /**

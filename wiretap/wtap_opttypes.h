@@ -1324,6 +1324,11 @@ wtap_packet_verdict_free(packet_verdict_opt_t* verdict);
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_add_packet_hash_option(wtap_block_t block, unsigned option_id, packet_hash_opt_t* value);
 
+/**
+ * @brief Frees memory allocated for a packet hash option.
+ *
+ * @param hash Pointer to the packet hash option to be freed.
+ */
 WS_DLL_PUBLIC void
 wtap_packet_hash_free(packet_hash_opt_t* hash);
 

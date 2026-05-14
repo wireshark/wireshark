@@ -87,7 +87,11 @@ typedef struct decode_as_s {
 
 } decode_as_t;
 
-/** register a "Decode As".  A copy of the decode_as_t will be maintained by the decode_as module */
+/**
+ * @brief Register a "Decode As".  A copy of the decode_as_t will be maintained by the decode_as module
+ *
+ * @param reg Pointer to the decode_as_t structure containing the protocol registration information.
+ */
 WS_DLL_PUBLIC void register_decode_as(decode_as_t* reg);
 
 /* Forward declaration to prevent requiring packet.h */

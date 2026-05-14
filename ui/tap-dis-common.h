@@ -112,24 +112,135 @@ typedef struct _disstream_tapinfo {
     bool is_registered;
 } disstream_tapinfo_t;
 
+/**
+ * @brief Copy a disstream ID from one structure to another.
+ *
+ * @param src The source disstream ID to copy from.
+ * @param dst The destination disstream ID to copy into.
+ */
 void disstream_id_copy(const disstream_id_t *src, disstream_id_t *dst);
+
+/**
+ * @brief Copy packet information into a disstream ID structure.
+ *
+ * @param pinfo The packet info containing source and destination addresses
+ *              and ports.
+ * @param dst   The disstream ID structure to copy the information into.
+ */
 void disstream_id_copy_pinfo(const packet_info *pinfo, disstream_id_t *dst);
+
+/**
+ * @brief Shallow-copy packet information into a disstream ID structure.
+ *
+ * Copies address and port fields by reference rather than duplicating them.
+ *
+ * @param pinfo The packet info containing source and destination addresses
+ *              and ports.
+ * @param dst   The disstream ID structure to copy the information into.
+ */
 void disstream_id_copy_pinfo_shallow(const packet_info *pinfo, disstream_id_t *dst);
+
+/**
+ * @brief Free the resources owned by a disstream ID.
+ *
+ * @param id The disstream ID to free.
+ */
 void disstream_id_free(disstream_id_t *id);
+
+/**
+ * @brief Compute a hash value for a disstream ID.
+ *
+ * @param id The disstream ID to hash.
+ * @return The hash value.
+ */
 unsigned disstream_id_to_hash(const disstream_id_t *id);
+
+/**
+ * @brief Check whether two disstream IDs are equal.
+ *
+ * @param id1 The first disstream ID.
+ * @param id2 The second disstream ID.
+ * @return true if the IDs are equal, false otherwise.
+ */
 bool disstream_id_equal(const disstream_id_t *id1, const disstream_id_t *id2);
 
+/**
+ * @brief Initialize a disstream info structure.
+ *
+ * @param info The disstream info structure to initialize.
+ */
 void disstream_info_init(disstream_info_t *info);
+
+/**
+ * @brief Allocate and initialize a new disstream info structure.
+ *
+ * @return Pointer to the newly allocated and initialized structure.
+ */
 disstream_info_t *disstream_info_malloc_and_init(void);
+
+/**
+ * @brief Free the data owned by a disstream info structure without
+ * freeing the structure itself.
+ *
+ * @param info The disstream info structure whose data to free.
+ */
 void disstream_info_free_data(disstream_info_t *info);
+
+/**
+ * @brief Free a disstream info structure and all its owned data.
+ *
+ * @param info The disstream info structure to free.
+ */
 void disstream_info_free_all(disstream_info_t *info);
+
+/**
+ * @brief Free a disstream packet and all its owned data.
+ *
+ * @param packet The disstream packet to free.
+ */
 void disstream_packet_free(disstream_packet_t *packet);
 
+/**
+ * @brief Register a tap listener for DIS stream analysis.
+ *
+ * @param tapinfo  The DIS stream tap info structure to populate.
+ * @param fstring  The display filter string to apply to the tap.
+ * @param tap_error Callback invoked when a tap error occurs.
+ */
 void register_tap_listener_disstream(disstream_tapinfo_t *tapinfo, const char *fstring,
     disstream_tap_error_cb tap_error);
+
+/**
+ * @brief Remove a previously registered DIS stream tap listener.
+ *
+ * @param tapinfo The DIS stream tap info structure to deregister.
+ */
 void remove_tap_listener_disstream(disstream_tapinfo_t *tapinfo);
+
+/**
+ * @brief Reset the DIS stream tap information.
+ *
+ * @param tapinfo The DIS stream tap info structure to reset.
+ */
 void disstream_reset(disstream_tapinfo_t *tapinfo);
+
+/**
+ * @brief Callback wrapper to reset the DIS stream tap information.
+ *
+ * @param arg Pointer to the @c disstream_tapinfo_t structure to reset.
+ */
 void disstream_reset_cb(void *arg);
+
+/**
+ * @brief Tap callback invoked for each DIS stream packet.
+ *
+ * @param arg   Pointer to the @c disstream_tapinfo_t structure.
+ * @param pinfo The packet info for the current packet.
+ * @param edt   The epan dissect structure for the current packet.
+ * @param arg2  Protocol-specific data passed by the tap.
+ * @param flags Tap flags for the current packet.
+ * @return The tap packet status indicating whether to continue tapping.
+ */
 tap_packet_status disstream_packet_cb(void *arg, packet_info *pinfo, epan_dissect_t *edt,
     const void *arg2, tap_flags_t flags);
 

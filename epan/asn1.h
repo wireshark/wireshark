@@ -165,30 +165,150 @@ typedef struct _rose_ctx_t {
   void *private_data;
 } rose_ctx_t;
 
+/**
+ * @brief Initialize an ASN.1 context.
+ *
+ * @param actx     The ASN.1 context to initialize.
+ * @param encoding The ASN.1 encoding type.
+ * @param aligned  Whether the encoding is aligned.
+ * @param pinfo    The packet info.
+ */
 WS_DLL_PUBLIC void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, bool aligned, packet_info *pinfo);
+
+/**
+ * @brief Check the signature of an ASN.1 context.
+ *
+ * @param actx The ASN.1 context.
+ * @return true if the signature is valid, false otherwise.
+ */
 WS_DLL_PUBLIC bool asn1_ctx_check_signature(asn1_ctx_t *actx);
+
+/**
+ * @brief Clean the external data of an ASN.1 context.
+ *
+ * @param actx The ASN.1 context.
+ */
 WS_DLL_PUBLIC void asn1_ctx_clean_external(asn1_ctx_t *actx);
+
+/**
+ * @brief Clean the EPDV data of an ASN.1 context.
+ *
+ * @param actx The ASN.1 context.
+ */
 extern void asn1_ctx_clean_epdv(asn1_ctx_t *actx);
 
+
+/**
+ * @brief Push a stack frame onto the ASN.1 context.
+ *
+ * @param actx The ASN.1 context.
+ * @param name The name of the stack frame.
+ */
 WS_DLL_PUBLIC void asn1_stack_frame_push(asn1_ctx_t *actx, const char *name);
+
+/**
+ * @brief Pop a stack frame from the ASN.1 context.
+ *
+ * @param actx The ASN.1 context.
+ * @param name The name of the stack frame.
+ */
 WS_DLL_PUBLIC void asn1_stack_frame_pop(asn1_ctx_t *actx, const char *name);
+
+/**
+ * @brief Check that the current stack frame matches the expected name and
+ * parameter definitions.
+ *
+ * @param actx    The ASN.1 context.
+ * @param name    The expected name of the stack frame.
+ * @param par_def The expected parameter definitions.
+ */
 WS_DLL_PUBLIC void asn1_stack_frame_check(asn1_ctx_t *actx, const char *name, const asn1_par_def_t *par_def);
 
+
+/**
+ * @brief Push a boolean parameter onto the ASN.1 context parameter stack.
+ *
+ * @param actx  The ASN.1 context.
+ * @param value The boolean value to push.
+ */
 WS_DLL_PUBLIC void asn1_param_push_boolean(asn1_ctx_t *actx, bool value);
+
+/**
+ * @brief Push an integer parameter onto the ASN.1 context parameter stack.
+ *
+ * @param actx  The ASN.1 context.
+ * @param value The integer value to push.
+ */
 WS_DLL_PUBLIC void asn1_param_push_integer(asn1_ctx_t *actx, int32_t value);
+
+/**
+ * @brief Get a named boolean parameter from the ASN.1 context.
+ *
+ * @param actx The ASN.1 context.
+ * @param name The name of the parameter.
+ * @return The boolean value of the parameter.
+ */
 extern bool asn1_param_get_boolean(asn1_ctx_t *actx, const char *name);
+
+/**
+ * @brief Get a named integer parameter from the ASN.1 context.
+ *
+ * @param actx The ASN.1 context.
+ * @param name The name of the parameter.
+ * @return The integer value of the parameter.
+ */
 WS_DLL_PUBLIC int32_t asn1_param_get_integer(asn1_ctx_t *actx, const char *name);
 
+/**
+ * @brief Initialize a ROSE context.
+ *
+ * @param rctx The ROSE context to initialize.
+ */
 WS_DLL_PUBLIC void rose_ctx_init(rose_ctx_t *rctx);
+
+/**
+ * @brief Check the signature of a ROSE context.
+ *
+ * @param rctx The ROSE context.
+ * @return true if the signature is valid, false otherwise.
+ */
 extern bool rose_ctx_check_signature(rose_ctx_t *rctx);
+
+/**
+ * @brief Clean the data of a ROSE context.
+ *
+ * @param rctx The ROSE context.
+ */
 WS_DLL_PUBLIC void rose_ctx_clean_data(rose_ctx_t *rctx);
 
+/**
+ * @brief Retrieve the ASN.1 context from an opaque pointer.
+ *
+ * @param ptr Opaque pointer to a structure containing an ASN.1 context.
+ * @return The ASN.1 context.
+ */
 WS_DLL_PUBLIC asn1_ctx_t *get_asn1_ctx(void *ptr);
+
+/**
+ * @brief Retrieve the ROSE context from an opaque pointer.
+ *
+ * @param ptr Opaque pointer to a structure containing a ROSE context.
+ * @return The ROSE context.
+ */
 WS_DLL_PUBLIC rose_ctx_t *get_rose_ctx(void *ptr);
 
-/* Sets err to EINVAL for an invalid encoding (returning 0) to ERANGE if
+/**
+ * @brief Convert an ASN.1 encoded real value to a double.
+ *
+ * Sets err to EINVAL for an invalid encoding (returning 0) to ERANGE if
  * overflow or underflow occurs (rounding, possibly to +/-HUGE_VAL, +/-0.0),
- * and 0 if conversion is successful. */
+ * and 0 if conversion is successful.
+ *
+ * @param real_ptr Pointer to the encoded real value.
+ * @param len The length of the encoded buffer.
+ * @param err Output error code.
+ * @return The decoded double value.
+ */
 WS_DLL_PUBLIC double asn1_get_real(const uint8_t *real_ptr, int len, int *err);
 
 /* flags */

@@ -148,10 +148,9 @@ extern bool packet_range_process_all(packet_range_t *range);
   * @brief Check if a packet should be processed based on the given range.
   *
   * @param range Pointer to the packet range structure.
+  * @param fdata Pointer to the frame data structure representing the packet to be checked.
   * @return convert_ret_t The result of the check, indicating whether the packet should be processed or not.
   */
-
-/* do we have to process this packet? */
 extern range_process_e packet_range_process_packet(packet_range_t *range, frame_data *fdata);
 
 /**

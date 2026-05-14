@@ -25,11 +25,20 @@
 WS_DLL_PUBLIC
 const ws_enum_t *wtap_inspect_enums(void);
 
-/** Returns size of enums array not including null terminator. */
+/**
+ * @brief Returns size of enums array not including null terminator.
+ *
+ * @return size_t The number of enums excluding the null terminator.
+ */
 WS_DLL_PUBLIC
 size_t wtap_inspect_enums_count(void);
 
-/** Performs a binary search for the magic constant "needle". */
+/**
+ * @brief Searches for an enum entry using binary search.
+ *
+ * @param needle The string to search for in the enum table.
+ * @return A pointer to the matching ws_enum_t structure, or NULL if not found.
+ */
 WS_DLL_PUBLIC
 const ws_enum_t *wtap_inspect_enums_bsearch(const char *needle);
 

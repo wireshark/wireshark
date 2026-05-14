@@ -839,7 +839,23 @@ typedef struct _wslua_class {
     const luaL_Reg *instance_meta;      /**< Metatable for class instances (optional) */
     const wslua_attribute_table *attrs; /**< Table of getters/setters for attributes on class instances (optional). */
 } wslua_class;
+
+/**
+ * @brief Registers a class instance meta table.
+ *
+ * This function registers a metatable for use by class instances in Lua. It sets up the metatable with methods and attributes defined in the provided class definition.
+ *
+ * @param L The Lua state.
+ * @param cls_def Pointer to the class definition containing the meta and method information.
+ */
 void wslua_register_classinstance_meta(lua_State *L, const wslua_class *cls_def);
+
+/**
+ * @brief Registers a new Lua class in the global table.
+ *
+ * @param L The Lua state.
+ * @param cls_def A pointer to the class definition structure.
+ */
 void wslua_register_class(lua_State *L, const wslua_class *cls_def);
 
 /**
@@ -933,12 +949,71 @@ extern const char* wslua_checkstring_only(lua_State* L, int n);
  * @param nup Number of upvalues to pass to each function.
  */
 extern void wslua_setfuncs(lua_State *L, const luaL_Reg *l, int nup);
+
 extern const char* wslua_typeof_unknown;
-extern const char* wslua_typeof(lua_State *L, int idx);
+
+/**
+ * @brief Return a human-readable type name for the Lua value at a stack index.
+ *
+ * @param L   The Lua state.
+ * @param idx Stack index of the value to inspect.
+ * @return A static or interned string naming the Lua type or wslua class
+ *         of the value. The pointer is valid for the lifetime of the
+ *         interpreter; do not free it.
+ */
+extern const char *wslua_typeof(lua_State *L, int idx);
+
+/**
+ * @brief Push a named field from a Lua table onto the stack.
+ *
+ * @param L    The Lua state.
+ * @param idx  Stack index of the table to query.
+ * @param name The string key to look up in the table.
+ * @return true if the field was found and a non-nil value was pushed;
+ *         false if the field is absent or nil (nothing is pushed in that
+ *         case).
+ */
 extern bool wslua_get_table(lua_State *L, int idx, const char *name);
+
+/**
+ * @brief Push a named field from a Lua value's metatable or environment.
+ *
+ * @param L    The Lua state.
+ * @param idx  Stack index of the object whose field should be fetched.
+ * @param name The field name to retrieve.
+ * @return true if a non-nil value was pushed onto the stack;
+ *         false if the field is absent or nil.
+ */
 extern bool wslua_get_field(lua_State *L, int idx, const char *name);
-extern int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data);
-extern bool heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data);
+
+/**
+ * @brief C-side entry point for all Lua-based protocol dissectors.
+ *
+ * @param tvb   The packet data buffer.
+ * @param pinfo Packet metadata and column information.
+ * @param tree  The protocol tree root for this packet.
+ * @param data  Optional opaque data passed from the parent dissector
+ *              (may be NULL).
+ * @return The number of bytes consumed, as returned by the Lua function,
+ *         or 0 if the dissector declined the packet.
+ */
+extern int dissect_lua(tvbuff_t *tvb, packet_info *pinfo,
+                       proto_tree *tree, void *data);
+
+/**
+ * @brief C-side entry point for all Lua-based heuristic dissectors.
+ *
+ * @param tvb   The packet data buffer.
+ * @param pinfo Packet metadata and column information.
+ * @param tree  The protocol tree root for this packet.
+ * @param data  Optional opaque data passed from the parent dissector
+ *              (may be NULL).
+ * @return true if the Lua heuristic claimed the packet; false if the
+ *         payload was not recognised and the framework should try the
+ *         next heuristic.
+ */
+extern bool heur_dissect_lua(tvbuff_t *tvb, packet_info *pinfo,
+                              proto_tree *tree, void *data);
 
 /**
  * @brief Retrieves an expert field based on group and severity.
@@ -1200,6 +1275,10 @@ extern void wslua_print_stack(char* s, lua_State* L);
  * @param app_env_var_prefix Prefix for application environment variables.
  */
 extern void wslua_init(register_cb cb, void *client_data, const char* app_env_var_prefix);
+
+/**
+ * @brief Performs early cleanup of Lua resources.
+ */
 extern void wslua_early_cleanup(void);
 
 /**

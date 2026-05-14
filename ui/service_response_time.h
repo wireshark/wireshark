@@ -37,7 +37,12 @@ enum
     NUM_SRT_COLUMNS
 };
 
-/** returns the column name for a given column index */
+/**
+ * @brief Get the column name for a service response time statistic.
+ *
+ * @param index The index of the column to retrieve.
+ * @return The name of the column, or "(Unknown)" if the index is out of range.
+ */
 extern const char* service_response_time_get_column_name(int index);
 
 #ifdef __cplusplus

@@ -146,6 +146,7 @@ WS_DLL_PUBLIC void report_cfile_close_failure(const char *filename,
 
 /**
  * @brief Return the "friendly" program name.
+ * @return The friendly program name registered with init_report_message(), or NULL if it has not been registered.
  */
 WS_DLL_PUBLIC const char *get_friendly_program_name(void);
 

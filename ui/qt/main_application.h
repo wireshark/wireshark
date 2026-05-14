@@ -231,7 +231,19 @@ private slots:
 extern MainApplication *mainApp;
 
 /** Global compile time version info */
+
+/**
+ * @brief Gather compiled information for Wireshark Qt components.
+ *
+ * @param l Feature list to store the gathered information.
+ */
 extern void gather_wireshark_qt_compiled_info(feature_list l);
 /** Global runtime version info */
+
+/**
+ * @brief Gather runtime information for Wireshark.
+ *
+ * @param l Feature list to store the gathered information.
+ */
 extern void gather_wireshark_runtime_info(feature_list l);
 #endif // MAIN_APPLICATION_H

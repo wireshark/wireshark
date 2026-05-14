@@ -191,25 +191,34 @@ typedef struct recent_settings_tag {
 /** Global recent settings. */
 extern recent_settings_t recent;
 
-/** Initialize recent settings module (done at startup) */
+/**
+ * @brief Initialize recent settings module (done at startup).
+ */
 extern void recent_init(void);
 
-/** Cleanup/Frees recent settings (done at shutdown) */
+/**
+ * @brief Cleans up recent settings and frees allocated memory.
+ *
+ * Cleanup/Frees recent settings (done at shutdown)
+ */
 extern void recent_cleanup(void);
 
-/** Write recent_common settings file.
+/**
+ * @brief Write recent_common settings file.
  *
  * @return true if succeeded, false if failed
  */
 extern bool write_recent(void);
 
-/** Write profile recent settings file.
+/**
+ * @brief Write profile recent settings file.
  *
  * @return true if succeeded, false if failed
  */
 extern bool write_profile_recent(void);
 
-/** Read recent settings file (static part).
+/**
+ * @brief Read recent settings file (static part).
  *
  * @param rf_path_return path to recent file if function failed
  * @param rf_errno_return if failed
@@ -236,7 +245,7 @@ extern bool recent_read_profile_static(char **rf_path_return, int *rf_errno_retu
 extern bool recent_read_dynamic(char **rf_path_return, int *rf_errno_return);
 
 /**
- * Given a -o command line string, parse it and set the recent value in
+ * @brief Given a -o command line string, parse it and set the recent value in
  * question.  Return an indication of whether it succeeded or failed
  * in some fashion.
  *
@@ -253,7 +262,8 @@ extern int recent_set_arg(char *prefarg);
  */
 extern void recent_free_column_width_info(recent_settings_t *rs);
 
-/** Insert an entry in the recent column width setting for
+/**
+ * @brief Insert an entry in the recent column width setting for
  * the given column, which should have been just added to
  * the column list preference. (This keeps them in sync.)
  *
@@ -261,7 +271,8 @@ extern void recent_free_column_width_info(recent_settings_t *rs);
  */
 extern void recent_insert_column(int col);
 
-/** Remove an entry in the recent column width setting for
+/**
+ * @brief Remove an entry in the recent column width setting for
  * the given column, which should have been just removed to
  * the column list preference. (This keeps them in sync.)
  *
@@ -299,10 +310,8 @@ extern char recent_get_column_xalign(int col);
  */
 extern void recent_set_column_xalign(int col, char xalign);
 
-/* save the window and its current geometry into the geometry hashtable */
-
 /**
- * @brief Save the geometry of a window.
+ * @brief save the window and its current geometry into the geometry hashtable.
  *
  * @param name The name of the window.
  * @param geom Pointer to the window_geometry_t structure containing the geometry data.

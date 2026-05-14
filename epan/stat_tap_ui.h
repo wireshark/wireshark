@@ -171,11 +171,54 @@ extern void stat_tap_init(void);
  */
 WS_DLL_PUBLIC void register_stat_tap_ui(stat_tap_ui *ui, void *userdata);
 
+/**
+ * @brief Register a table-based statistics tap UI descriptor.
+ * @param ui The @c stat_tap_table_ui descriptor to register. The caller
+ *           retains ownership; the descriptor must remain valid for the
+ *           lifetime of the session.
+ */
 WS_DLL_PUBLIC void register_stat_tap_table_ui(stat_tap_table_ui *ui);
+
+/**
+ * @brief Iterate over all registered table-based statistics tap UIs.
+ *
+ * @param func      The callback to invoke for each registered descriptor.
+ *                  Signature: @c bool func(const void *key, void *value, void *user_data)
+ * @param user_data Caller-supplied context pointer passed through to @p func.
+ */
 WS_DLL_PUBLIC void stat_tap_iterate_tables(wmem_foreach_func func, void *user_data);
-WS_DLL_PUBLIC void stat_tap_get_filter(stat_tap_table_ui* new_stat, const char *opt_arg, const char **filter, char** err);
-WS_DLL_PUBLIC stat_tap_table* stat_tap_init_table(const char *name, int num_fields, int num_elements,
-                const char *filter_string);
+
+/**
+ * @brief Parse the display filter from a statistics option argument string.
+ *
+ * @param new_stat The @c stat_tap_table_ui descriptor for the statistic being
+ *                 initialised.
+ * @param opt_arg  The raw option argument string (e.g. @c "http,tree,ip.src==1.2.3.4").
+ * @param filter   Receives a pointer to the filter substring within @p opt_arg,
+ *                 or NULL if no filter was supplied. The pointer aliases
+ *                 @p opt_arg and must not be freed separately.
+ * @param err      Receives a newly allocated error string if @p opt_arg cannot
+ *                 be parsed, or NULL on success. The caller must free any
+ *                 non-NULL value with @c g_free().
+ */
+WS_DLL_PUBLIC void stat_tap_get_filter(stat_tap_table_ui *new_stat, const char *opt_arg,
+                                       const char **filter, char **err);
+
+/**
+ * @brief Allocate and initialise a @c stat_tap_table.
+ *
+ * @param name          Human-readable title shown as the table heading.
+ * @param num_fields    Number of columns (field descriptors) in the table.
+ * @param num_elements  Initial number of rows to pre-allocate.
+ * @param filter_string Base display filter prefix to which a procedure
+ *                      number can be appended (e.g. @c "rpc.procedure=="),
+ *                      or NULL if per-row filters are not needed.
+ * @return A newly allocated and initialised @c stat_tap_table. Freed by
+ *         the statistics framework when the table is destroyed.
+ */
+WS_DLL_PUBLIC stat_tap_table *stat_tap_init_table(const char *name, int num_fields,
+                                                   int num_elements,
+                                                   const char *filter_string);
 
 /**
  * @brief Adds a new table to the statistics tap.
@@ -193,8 +236,39 @@ WS_DLL_PUBLIC void stat_tap_add_table(stat_tap_table_ui* new_stat, stat_tap_tabl
  * @return stat_tap_table* Pointer to the found table, or NULL if not found.
  */
 WS_DLL_PUBLIC stat_tap_table *stat_tap_find_table(stat_tap_table_ui *ui, const char *name);
-WS_DLL_PUBLIC void stat_tap_init_table_row(stat_tap_table *stat_table, unsigned table_index, unsigned num_fields, const stat_tap_table_item_type* fields);
-WS_DLL_PUBLIC stat_tap_table_item_type* stat_tap_get_field_data(const stat_tap_table *stat_table, unsigned table_index, unsigned field_index);
+
+/**
+ * @brief Initialise a row in a stat_tap_table with field values.
+ *
+ * @param stat_table  The table whose row is being initialised.
+ * @param table_index Zero-based row index within @p stat_table.
+ * @param num_fields  Number of column values provided in @p fields. Must
+ *                    not exceed the @p num_fields value passed to
+ *                    stat_tap_init_table().
+ * @param fields      Array of @p num_fields @c stat_tap_table_item_type
+ *                    values to copy into the row. The caller retains
+ *                    ownership of the array; values are copied into the
+ *                    table's internal storage.
+ */
+WS_DLL_PUBLIC void stat_tap_init_table_row(stat_tap_table *stat_table,
+                                           unsigned table_index,
+                                           unsigned num_fields,
+                                           const stat_tap_table_item_type *fields);
+
+/**
+ * @brief Return a pointer to the field value at a given row and column.
+ *
+ * @param stat_table  The table to query.
+ * @param table_index Zero-based row index within @p stat_table.
+ * @param field_index Zero-based column index within the row.
+ * @return A pointer to the live @c stat_tap_table_item_type for that cell,
+ *         or NULL if @p table_index or @p field_index is out of range.
+ *         The pointer is valid until the table is freed or reset.
+ */
+WS_DLL_PUBLIC stat_tap_table_item_type *stat_tap_get_field_data(
+                                           const stat_tap_table *stat_table,
+                                           unsigned table_index,
+                                           unsigned field_index);
 
 /**
  * @brief Set field data for a specific table and field index.
@@ -205,8 +279,20 @@ WS_DLL_PUBLIC stat_tap_table_item_type* stat_tap_get_field_data(const stat_tap_t
  * @param field_data Pointer to the new field data to be set.
  */
 WS_DLL_PUBLIC void stat_tap_set_field_data(stat_tap_table *stat_table, unsigned table_index, unsigned field_index, stat_tap_table_item_type* field_data);
-WS_DLL_PUBLIC void reset_stat_table(stat_tap_table_ui* new_stat);
 
+/**
+ * @brief Reset all tables belonging to a statistics tap UI to their initial state.
+ * @param new_stat The @c stat_tap_table_ui whose tables should be reset.
+ */
+WS_DLL_PUBLIC void reset_stat_table(stat_tap_table_ui *new_stat);
+
+
+/**
+ * @brief Look up a registered table-based statistics tap UI by its option name.
+ * @param name The @c -z option name to search for (e.g. @c "http,tree").
+ * @return The matching @c stat_tap_table_ui descriptor, or NULL if no
+ *         registered statistic has that name.
+ */
 WS_DLL_PUBLIC stat_tap_table_ui *stat_tap_by_name(const char *name);
 
 /**

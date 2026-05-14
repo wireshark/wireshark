@@ -161,19 +161,23 @@ void
 extcap_dump_all(void);
 
 /**
- * Returns the configuration for the given interface name, or an
+ * @brief Returns the configuration for the given interface name, or an
  * empty list, if no configuration has been found.
  * Initializes the extcap interface list if that hasn't already been done.
  * @param ifname The interface name.
+ * @return A list of configuration items on success, an empty list on failure.
  */
 GList *
 extcap_get_if_configuration(const char * ifname);
 
 /**
- * Returns the sub-configuration for a given argument name, or an
+ * @brief Returns the sub-configuration for a given argument name, or an
  * empty list, if no configuration has been found.
  * Initializes the extcap interface list if that hasn't already been done.
  * @param ifname The interface name.
+ * @param argname The name of the argument for which the sub-configuration should be retrieved.
+ * @param argvalue The value of the argument for which the sub-configuration should be retrieved
+ * @return A list of sub-configuration items on success, an empty list on failure.
  */
 GList*
 extcap_get_if_configuration_option(const char* ifname, const char* argname, const char* argvalue);
@@ -184,17 +188,19 @@ extcap_get_if_configuration_option(const char* ifname, const char* argname, cons
  * Initializes the extcap interface list if that hasn't already been done.
  * @param ifname The interface name.
  * @param argname The name of the argument for which the values should be retrieved.
+ * @param arguments A hash table of argument name and value pairs to be passed to the extcap plugin.
+ * @return A list of configuration values on success, an empty list on failure.
  */
 GList *
 extcap_get_if_configuration_values(const char * ifname, const char * argname, GHashTable * arguments);
 
 /**
- * Check if the capture filter for the given interface name is valid.
- * Initializes the extcap interface list if that hasn't already been done.
- * @param ifname Interface to check
- * @param filter Capture filter to check
- * @param err_str Error string returned if filter is invalid
- * @return Filter check status.
+ * @brief Verifies a capture filter for an interface using extcap.
+ *
+ * @param ifname The name of the network interface to verify the filter for.
+ * @param filter The capture filter to be verified.
+ * @param err_str A pointer to a string where any error message will be stored.
+ * @return The status of the filter verification.
  */
 extcap_filter_status
 extcap_verify_capture_filter(const char *ifname, const char *filter, char **err_str);
@@ -217,12 +223,16 @@ bool
 extcap_has_configuration(const char * ifname);
 
 /**
+ * @brief Checks if the specified interface requires configuration for extcap usage.
+ *
  * Checks if an interface has configurable options and if all are configured.
  * Returns true when the extcap interface has
  * configurable options that required modification. (For example, when an
  * argument is required but empty.)
  * Initializes the extcap interface list if that hasn't already been done.
+ *
  * @param ifname Interface to check.
+ * @return true If the interface requires configuration, false otherwise.
  */
 bool
 extcap_requires_configuration(const char * ifname);
@@ -246,8 +256,10 @@ bool
 extcap_session_stop(capture_session *cap_session);
 
 /**
- * Initializes each extcap interface with the supplied capture session.
+ * @brief Initializes each extcap interface with the supplied capture session.
+ *
  * Initializes the extcap interface list if that hasn't already been done.
+ *
  * @param cap_session Capture session.
  * @return true on success, false on failure.
  */
@@ -274,7 +286,7 @@ pref_t *
 extcap_pref_for_argument(const char *ifname, struct _extcap_arg * arg);
 
 /**
- * Clean up global extcap stuff on program exit.
+ * @brief Clean up global extcap stuff on program exit.
  */
 void extcap_cleanup(void);
 

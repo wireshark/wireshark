@@ -1233,14 +1233,27 @@ WS_DLL_PUBLIC void proto_item_set_bits_offset_len(proto_item *ti, int bits_offse
  @return the display representation */
 WS_DLL_PUBLIC char *proto_item_get_display_repr(wmem_allocator_t *scope, proto_item *pi);
 
-/** Creates a new proto_tree root.
- @return the new tree root */
-WS_DLL_PUBLIC proto_tree* proto_tree_create_root(packet_info* pinfo);
+/**
+ * @brief Allocate and initialise a new protocol tree root node.
+ *
+ * @param pinfo The packet_info for the packet being dissected.
+ * @return A newly allocated proto_tree root node, never NULL.
+ */
+WS_DLL_PUBLIC proto_tree *proto_tree_create_root(packet_info *pinfo);
 
+/**
+ * @brief Reset a protocol tree to its initial empty state, retaining
+ * the root node and its associated tree data.
+ *
+ * @param tree The protocol tree to reset. Must not be NULL.
+ */
 void proto_tree_reset(proto_tree *tree);
 
-/** Clear memory for entry proto_tree. Clears proto_tree struct also.
- @param tree the tree to free */
+/**
+ * @brief Free a protocol tree and all of its nodes.
+ *
+ * @param tree The protocol tree to free. Must not be NULL.
+ */
 WS_DLL_PUBLIC void proto_tree_free(proto_tree *tree);
 
 /** Set the tree visible or invisible.
@@ -1399,38 +1412,161 @@ WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_int(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const int start, int length, const unsigned encoding, int32_t *retval);
 
+/**
+ * @brief Add an FT_INT64 item to the protocol tree and return its value.
+ *
+ * @param tree     The protocol tree to add the item to.
+ * @param hfindex  The header field index (must be FT_INT64).
+ * @param tvb      The packet buffer containing the field data.
+ * @param start    Offset in @p tvb at which the field begins.
+ * @param length   Length of the field in bytes.
+ * @param encoding Byte-order encoding (e.g. ENC_BIG_ENDIAN).
+ * @param retval   Receives the decoded int64_t value on success.
+ * @return The newly created proto_item leaf node.
+ */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const int start, int length, const unsigned encoding, int64_t *retval);
 
+/**
+ * @brief Add an FT_UINT32 (or compatible uint) item to the protocol tree
+ * and return its value as a uint32_t.
+ *
+ * @param tree     The protocol tree to add the item to.
+ * @param hfindex  The header field index (must be an FT_UINT* type ≤ 32 bits).
+ * @param tvb      The packet buffer containing the field data.
+ * @param start    Offset in @p tvb at which the field begins.
+ * @param length   Length of the field in bytes.
+ * @param encoding Byte-order encoding (e.g. ENC_BIG_ENDIAN).
+ * @param retval   Receives the decoded uint32_t value on success.
+ * @return The newly created proto_item leaf node.
+ */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const int start, int length, const unsigned encoding, uint32_t *retval);
 
+/**
+ * @brief Add an FT_UINT32 item to the protocol tree and return its value.
+ *
+ * Equivalent to proto_tree_add_item_ret_uint() but restricted to fields
+ * declared as exactly FT_UINT32.
+ *
+ * @param tree     The protocol tree to add the item to.
+ * @param hfindex  The header field index (must be FT_UINT32).
+ * @param tvb      The packet buffer containing the field data.
+ * @param start    Offset in @p tvb at which the field begins.
+ * @param length   Length of the field in bytes.
+ * @param encoding Byte-order encoding (e.g. ENC_BIG_ENDIAN).
+ * @param retval   Receives the decoded uint32_t value on success.
+ * @return The newly created proto_item leaf node.
+ */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_uint32(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const int start, int length, const unsigned encoding, uint32_t *retval);
 
+/**
+ * @brief Add an FT_UINT8 item to the protocol tree and return its value.
+ *
+ * @param tree     The protocol tree to add the item to.
+ * @param hfindex  The header field index (must be FT_UINT8).
+ * @param tvb      The packet buffer containing the field data.
+ * @param start    Offset in @p tvb at which the field begins.
+ * @param length   Length of the field in bytes.
+ * @param encoding Byte-order encoding (e.g. ENC_BIG_ENDIAN).
+ * @param retval   Receives the decoded uint8_t value on success.
+ * @return The newly created proto_item leaf node.
+ */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_uint8(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const int start, int length, const unsigned encoding, uint8_t *retval);
 
+/**
+ * @brief Add an FT_UINT16 item to the protocol tree and return its value.
+ *
+ * @param tree     The protocol tree to add the item to.
+ * @param hfindex  The header field index (must be FT_UINT16).
+ * @param tvb      The packet buffer containing the field data.
+ * @param start    Offset in @p tvb at which the field begins.
+ * @param length   Length of the field in bytes.
+ * @param encoding Byte-order encoding (e.g. ENC_BIG_ENDIAN).
+ * @param retval   Receives the decoded uint16_t value on success.
+ * @return The newly created proto_item leaf node.
+ */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_uint16(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const int start, int length, const unsigned encoding, uint16_t *retval);
 
+/**
+ * @brief Add an FT_UINT64 item to the protocol tree and return its value.
+ *
+ * @param tree     The protocol tree to add the item to.
+ * @param hfindex  The header field index (must be FT_UINT64).
+ * @param tvb      The packet buffer containing the field data.
+ * @param start    Offset in @p tvb at which the field begins.
+ * @param length   Length of the field in bytes.
+ * @param encoding Byte-order encoding (e.g. ENC_BIG_ENDIAN).
+ * @param retval   Receives the decoded uint64_t value on success.
+ * @return The newly created proto_item leaf node.
+ */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const int start, int length, const unsigned encoding, uint64_t *retval);
 
+/**
+ * @brief Add a variable-length integer item to the protocol tree and return
+ * its value and consumed byte count.
+ *
+ * Decodes a varint (e.g. Protocol Buffers base-128 or QUIC variable-length
+ * integer) from @p tvb starting at @p start. Up to @p length bytes are
+ * consumed; the actual number of bytes read is stored in @p lenretval.
+ *
+ * @param tree      The protocol tree to add the item to.
+ * @param hfindex   The header field index (must be an FT_UINT* type).
+ * @param tvb       The packet buffer containing the field data.
+ * @param start     Offset in @p tvb at which the varint begins.
+ * @param length    Maximum number of bytes to read, or -1 to read to end of
+ *                  @p tvb.
+ * @param encoding  Varint encoding variant (e.g. ENC_VARINT_PROTOBUF,
+ *                  ENC_VARINT_QUIC).
+ * @param retval    Receives the decoded uint64_t value on success; NULL to
+ *                  ignore.
+ * @param lenretval Receives the number of bytes consumed on success; NULL to
+ *                  ignore.
+ * @return The newly created proto_item leaf node.
+ */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_varint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const int start, int length, const unsigned encoding, uint64_t *retval, int *lenretval);
 
+/**
+ * @brief Add an FT_BOOLEAN item to the protocol tree and return its value.
+ *
+ * @param tree     The protocol tree to add the item to.
+ * @param hfindex  The header field index (must be FT_BOOLEAN).
+ * @param tvb      The packet buffer containing the field data.
+ * @param start    Offset in @p tvb at which the field begins.
+ * @param length   Length of the field in bytes (typically 1).
+ * @param encoding Byte-order encoding (e.g. ENC_BIG_ENDIAN).
+ * @param retval   Receives true if the field is non-zero, false otherwise.
+ * @return The newly created proto_item leaf node.
+ */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const int start, int length, const unsigned encoding, bool *retval);
 
+/**
+ * @brief Add an FT_IPv4 item to the protocol tree and return its value.
+ *
+ * @param tree     The protocol tree to add the item to.
+ * @param hfindex  The header field index (must be FT_IPv4).
+ * @param tvb      The packet buffer containing the field data.
+ * @param start    Offset in @p tvb at which the 4-byte address begins.
+ * @param length   Length of the field in bytes (must be 4).
+ * @param encoding Byte-order encoding (e.g. ENC_BIG_ENDIAN).
+ * @param retval   Receives the decoded IPv4 address as a @c ws_in4_addr
+ *                 (network byte order) on success.
+ * @return The newly created proto_item leaf node.
+ */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const int start, int length, const unsigned encoding, ws_in4_addr *retval);
@@ -2810,10 +2946,58 @@ WS_DLL_PUBLIC size_t proto_registrar_get_count(struct proto_registrar_stats *sta
 /** Routines to use to iterate over the protocols and their fields;
  * they return the item number of the protocol in question or the
  * appropriate hfinfo pointer, and keep state in "*cookie". */
+/**
+ * @brief Begin iterating over all registered protocols.
+ * @param cookie Opaque iterator state. Must point to a void* variable
+ *               initialised to NULL before the first call; updated on
+ *               each call to track the current position.
+ * @return The protocol ID of the first registered protocol, or -1 if
+ *         no protocols are registered.
+ */
 WS_DLL_PUBLIC int proto_get_first_protocol(void **cookie);
+
+/**
+ * @brief Return the protocol ID stored in the current iterator position.
+ *
+ * @param cookie Opaque iterator state obtained from a prior
+ *               proto_get_first_protocol() or proto_get_next_protocol() call.
+ * @return The protocol ID at the current iterator position.
+ */
 WS_DLL_PUBLIC int proto_get_data_protocol(void *cookie);
+
+/**
+ * @brief Advance the protocol iterator and return the next protocol ID.
+ *
+ * @param cookie Opaque iterator state; updated in place to point to the
+ *               next protocol entry.
+ * @return The protocol ID of the next registered protocol, or -1 when
+ *         the end of the protocol table has been reached.
+ */
 WS_DLL_PUBLIC int proto_get_next_protocol(void **cookie);
+
+/**
+ * @brief Begin iterating over all header fields registered to a protocol.
+ *
+ * @param proto_id The protocol whose fields are to be iterated; obtained
+ *                 from proto_get_first_protocol() / proto_get_next_protocol().
+ * @param cookie   Opaque iterator state. Must point to a void* variable
+ *                 initialised to NULL before the first call; updated on
+ *                 each call to track the current position.
+ * @return Pointer to the first @c header_field_info for @p proto_id, or
+ *         NULL if the protocol has no registered fields.
+ */
 WS_DLL_PUBLIC header_field_info *proto_get_first_protocol_field(const int proto_id, void **cookie);
+
+/**
+ * @brief Advance the field iterator and return the next header field.
+ *
+ * @param proto_id The protocol whose fields are being iterated; must be
+ *                 the same value passed to proto_get_first_protocol_field().
+ * @param cookie   Opaque iterator state; updated in place to point to the
+ *                 next field entry.
+ * @return Pointer to the next @c header_field_info, or NULL when all
+ *         fields for @p proto_id have been visited.
+ */
 WS_DLL_PUBLIC header_field_info *proto_get_next_protocol_field(const int proto_id, void **cookie);
 
 /** Check if a protocol name is already registered.
@@ -3021,27 +3205,59 @@ WS_DLL_PUBLIC bool proto_registrar_dump_fieldcount(void);
 /** Dumps a glossary of the protocol and field registrations to STDOUT. */
 WS_DLL_PUBLIC void proto_registrar_dump_fields(void);
 
-/** Dumps protocol and field abbreviations to STDOUT which start with prefix. */
+/**
+ * @brief Dump all protocol and field abbreviations that start with a given
+ * prefix to standard output.
+ *
+ * @param prefix The prefix string to filter abbreviations by.
+ * @return true if at least one matching abbreviation was found and printed,
+ *         false if no matches were found.
+ */
 WS_DLL_PUBLIC bool proto_registrar_dump_field_completions(const char *prefix);
 
-/** Dumps a glossary field types and descriptive names to STDOUT */
+/**
+ * @brief Dump all registered field types and their descriptive names to
+ * standard output.
+ */
 WS_DLL_PUBLIC void proto_registrar_dump_ftypes(void);
 
-/** Get string representation of display field value
- @param field_display field display value (one of BASE_ values)
- @return string representation of display field value or "Unknown" if doesn't exist */
-WS_DLL_PUBLIC const char* proto_field_display_to_string(int field_display);
+/**
+ * @brief Convert a field display value to its string representation.
+ *
+ * @param field_display A @c BASE_* field display value.
+ * @return The string name of the display value (e.g. "BASE_DEC"), or
+ *         "Unknown" if @p field_display does not correspond to a known value.
+ */
+WS_DLL_PUBLIC const char *proto_field_display_to_string(int field_display);
 
-/** Number of elements in the tree_is_expanded array. With MSVC and a
- * libwireshark.dll, we need a special declaration. */
+/**
+ * @brief Total number of registered subtree types.
+ */
 WS_DLL_PUBLIC int num_tree_types;
 
-/** Returns true if subtrees of that type are to be expanded. */
+/**
+ * @brief Return whether subtrees of a given type are currently expanded.
+ * @param tree_type The subtree type index, in the range [0, num_tree_types).
+ * @return true if subtrees of @p tree_type are expanded, false if collapsed.
+ */
 WS_DLL_PUBLIC bool tree_expanded(int tree_type);
 
-/** Sets if subtrees of that type are to be expanded. */
+/**
+ * @brief Set the expansion state for subtrees of a given type.
+ *
+ * @param tree_type The subtree type index, in the range [0, num_tree_types).
+ * @param value     true to expand subtrees of this type, false to collapse them.
+ */
 WS_DLL_PUBLIC void tree_expanded_set(int tree_type, bool value);
 
+/**
+ * @brief Return the number of bits to right-shift a field's bitmask to obtain
+ * its least-significant bit position.
+ *
+ * @param hfinfo The header field descriptor whose bitmask is to be examined.
+ * @return The number of trailing zero bits in @p hfinfo->bitmask, i.e.
+ *         the position of the least-significant set bit.
+ */
 WS_DLL_PUBLIC int
 hfinfo_bitshift(const header_field_info *hfinfo);
 

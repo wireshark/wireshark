@@ -152,11 +152,15 @@ bool rtpstream_is_payload_used(const rtpstream_info_t *stream_info, const uint8_
 /* INTERFACE */
 
 /**
-* Registers the rtp_streams tap listener (if not already done).
+* @brief Registers the rtp_streams tap listener (if not already done).
+*
 * From that point on, the RTP streams list will be updated with every redissection.
 * This function is also the entry point for the initialization routine of the tap system.
 * So whenever rtp_stream.c is added to the list of WIRESHARK_TAP_SRCs, the tap will be registered on startup.
 * If not, it will be registered on demand by the rtp_streams and rtp_analysis functions that need it.
+* @param tapinfo Pointer to the RTP streams tap info structure.
+* @param fstring The filter string to apply to the tap listener.
+* @param tap_error Callback function to be called if an error occurs during tap registration.
 */
 void register_tap_listener_rtpstream(rtpstream_tapinfo_t *tapinfo, const char *fstring, rtpstream_tap_error_cb tap_error);
 

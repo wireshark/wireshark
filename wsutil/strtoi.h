@@ -275,7 +275,7 @@ WS_DLL_PUBLIC bool ws_basestrtou8 (const char* str, const char** endptr, uint8_t
  */
 WS_DLL_PUBLIC bool ws_basestrtou (const char* str, const char** endptr, unsigned*  cint, int base);
 
-/*
+/**
  * @brief Convert a counted string (not necessarily null terminated, of the
  * given length) in the specified base to an unsigned 64-bit integer, with
  * error checks.
@@ -303,7 +303,7 @@ WS_DLL_PUBLIC bool ws_basestrtou (const char* str, const char** endptr, unsigned
  */
 WS_DLL_PUBLIC bool ws_basebuftou64(const uint8_t* buf, size_t len, const uint8_t** endptr, uint64_t* cint, int base);
 
-/*
+/**
  * @brief Convert a counted decimal string (not necessarily null terminated,
  * of the given length) to an unsigned 64-bit integer, with error checks.
  *
@@ -324,7 +324,7 @@ WS_DLL_PUBLIC bool ws_basebuftou64(const uint8_t* buf, size_t len, const uint8_t
  */
 WS_DLL_PUBLIC bool ws_buftou64(const uint8_t* buf, size_t len, const uint8_t** endptr, uint64_t* cint);
 
-/*
+/**
  * @brief Convert a counted hexadecimal string (not necessarily null terminated,
  * of the given length) to an unsigned 64-bit integer, with error checks.
  *
@@ -345,25 +345,127 @@ WS_DLL_PUBLIC bool ws_buftou64(const uint8_t* buf, size_t len, const uint8_t** e
  */
 WS_DLL_PUBLIC bool ws_hexbuftou64(const uint8_t* buf, size_t len, const uint8_t** endptr, uint64_t* cint);
 
+/**
+ * @brief Parse a uint32_t from a byte buffer using a specified numeric base.
+ *
+ * Reads up to @p len bytes from @p buf, interpreting them as an unsigned
+ * integer in the given @p base. On success, stores the result in @p cint
+ * and sets @p endptr to one past the last consumed byte.
+ *
+ * @param buf     Pointer to the input byte buffer.
+ * @param len     Number of bytes available in @p buf.
+ * @param endptr  Set to one past the last byte consumed; NULL to ignore.
+ * @param cint    Receives the parsed uint32_t value on success.
+ * @param base    Numeric base to use for parsing (e.g. 10, 16).
+ * @return true on success, false if no valid digits were found, the
+ *         buffer was exhausted, or the value overflows uint32_t.
+ */
 WS_DLL_PUBLIC bool ws_basebuftou32(const uint8_t* buf, size_t len, const uint8_t** endptr, uint32_t* cint, int base);
 
+
+/**
+ * @brief Parse a uint32_t from a byte buffer in base 10.
+ *
+ * Convenience wrapper around ws_basebuftou32() using base 10.
+ *
+ * @param buf    Pointer to the input byte buffer.
+ * @param len    Number of bytes available in @p buf.
+ * @param endptr Set to one past the last byte consumed; NULL to ignore.
+ * @param cint   Receives the parsed uint32_t value on success.
+ * @return true on success, false on parse error or overflow.
+ */
 WS_DLL_PUBLIC bool ws_buftou32(const uint8_t* buf, size_t len, const uint8_t** endptr, uint32_t* cint);
 
+/**
+ * @brief Parse a uint32_t from a byte buffer in base 16 (hexadecimal).
+ *
+ * Convenience wrapper around ws_basebuftou32() using base 16.
+ *
+ * @param buf    Pointer to the input byte buffer.
+ * @param len    Number of bytes available in @p buf.
+ * @param endptr Set to one past the last byte consumed; NULL to ignore.
+ * @param cint   Receives the parsed uint32_t value on success.
+ * @return true on success, false on parse error or overflow.
+ */
 WS_DLL_PUBLIC bool ws_hexbuftou32(const uint8_t* buf, size_t len, const uint8_t** endptr, uint32_t* cint);
 
+/**
+ * @brief Parse a uint16_t from a byte buffer using a specified numeric base.
+ *
+ * @param buf    Pointer to the input byte buffer.
+ * @param len    Number of bytes available in @p buf.
+ * @param endptr Set to one past the last byte consumed; NULL to ignore.
+ * @param cint   Receives the parsed uint16_t value on success.
+ * @param base   Numeric base to use for parsing (e.g. 10, 16).
+ * @return true on success, false on parse error or overflow.
+ */
 WS_DLL_PUBLIC bool ws_basebuftou16(const uint8_t* buf, size_t len, const uint8_t** endptr, uint16_t* cint, int base);
 
+/**
+ * @brief Parse a uint16_t from a byte buffer in base 10.
+ *
+ * Convenience wrapper around ws_basebuftou16() using base 10.
+ *
+ * @param buf    Pointer to the input byte buffer.
+ * @param len    Number of bytes available in @p buf.
+ * @param endptr Set to one past the last byte consumed; NULL to ignore.
+ * @param cint   Receives the parsed uint16_t value on success.
+ * @return true on success, false on parse error or overflow.
+ */
 WS_DLL_PUBLIC bool ws_buftou16(const uint8_t* buf, size_t len, const uint8_t** endptr, uint16_t* cint);
 
+/**
+ * @brief Parse a uint16_t from a byte buffer in base 16 (hexadecimal).
+ *
+ * Convenience wrapper around ws_basebuftou16() using base 16.
+ *
+ * @param buf    Pointer to the input byte buffer.
+ * @param len    Number of bytes available in @p buf.
+ * @param endptr Set to one past the last byte consumed; NULL to ignore.
+ * @param cint   Receives the parsed uint16_t value on success.
+ * @return true on success, false on parse error or overflow.
+ */
 WS_DLL_PUBLIC bool ws_hexbuftou16(const uint8_t* buf, size_t len, const uint8_t** endptr, uint16_t* cint);
 
+/**
+ * @brief Parse a uint8_t from a byte buffer using a specified numeric base.
+ *
+ * @param buf    Pointer to the input byte buffer.
+ * @param len    Number of bytes available in @p buf.
+ * @param endptr Set to one past the last byte consumed; NULL to ignore.
+ * @param cint   Receives the parsed uint8_t value on success.
+ * @param base   Numeric base to use for parsing (e.g. 10, 16).
+ * @return true on success, false on parse error or overflow.
+ */
 WS_DLL_PUBLIC bool ws_basebuftou8(const uint8_t* buf, size_t len, const uint8_t** endptr, uint8_t* cint, int base);
 
+/**
+ * @brief Parse a uint8_t from a byte buffer in base 10.
+ *
+ * Convenience wrapper around ws_basebuftou8() using base 10.
+ *
+ * @param buf    Pointer to the input byte buffer.
+ * @param len    Number of bytes available in @p buf.
+ * @param endptr Set to one past the last byte consumed; NULL to ignore.
+ * @param cint   Receives the parsed uint8_t value on success.
+ * @return true on success, false on parse error or overflow.
+ */
 WS_DLL_PUBLIC bool ws_buftou8(const uint8_t* buf, size_t len, const uint8_t** endptr, uint8_t* cint);
 
+/**
+ * @brief Parse a uint8_t from a byte buffer in base 16 (hexadecimal).
+ *
+ * Convenience wrapper around ws_basebuftou8() using base 16.
+ *
+ * @param buf    Pointer to the input byte buffer.
+ * @param len    Number of bytes available in @p buf.
+ * @param endptr Set to one past the last byte consumed; NULL to ignore.
+ * @param cint   Receives the parsed uint8_t value on success.
+ * @return true on success, false on parse error or overflow.
+ */
 WS_DLL_PUBLIC bool ws_hexbuftou8(const uint8_t* buf, size_t len, const uint8_t** endptr, uint8_t* cint);
 
-/*
+/**
  * @brief Convert a counted string (not necessarily null terminated, of the
  * given length) in the specified base to a signed 64-bit integer, with
  * error checks.
@@ -389,7 +491,7 @@ WS_DLL_PUBLIC bool ws_hexbuftou8(const uint8_t* buf, size_t len, const uint8_t**
  */
 WS_DLL_PUBLIC bool ws_basebuftoi64(const uint8_t* buf, size_t len, const uint8_t** endptr, int64_t* cint, int base);
 
-/*
+/**
  * @brief Convert a counted decimal string (not necessarily null terminated,
  * of the given length) to a signed 64-bit integer, with error checks.
  *
@@ -411,7 +513,7 @@ WS_DLL_PUBLIC bool ws_basebuftoi64(const uint8_t* buf, size_t len, const uint8_t
  */
 WS_DLL_PUBLIC bool ws_buftoi64(const uint8_t* buf, size_t len, const uint8_t** endptr, int64_t* cint);
 
-/*
+/**
  * @brief Convert a counted hexadecimal string (not necessarily null terminated,
  * of the given length) to a signed 64-bit integer, with error checks.
  *
@@ -433,22 +535,107 @@ WS_DLL_PUBLIC bool ws_buftoi64(const uint8_t* buf, size_t len, const uint8_t** e
  */
 WS_DLL_PUBLIC bool ws_hexbuftoi64(const uint8_t* buf, size_t len, const uint8_t** endptr, int64_t* cint);
 
+/**
+ * @brief Parse an int32_t from a byte buffer using a specified numeric base.
+ *
+ * @param buf    Pointer to the input byte buffer.
+ * @param len    Number of bytes available in @p buf.
+ * @param endptr Set to one past the last byte consumed; NULL to ignore.
+ * @param cint   Receives the parsed int32_t value on success.
+ * @param base   Numeric base to use for parsing (e.g. 10, 16).
+ * @return true on success, false if no valid digits were found, the
+ *         buffer was exhausted, or the value overflows int32_t.
+ */
 WS_DLL_PUBLIC bool ws_basebuftoi32(const uint8_t* buf, size_t len, const uint8_t** endptr, int32_t* cint, int base);
 
+/**
+ * @brief Parse an int32_t from a byte buffer in base 10.
+ *
+ * @param buf    Pointer to the input byte buffer.
+ * @param len    Number of bytes available in @p buf.
+ * @param endptr Set to one past the last byte consumed; NULL to ignore.
+ * @param cint   Receives the parsed int32_t value on success.
+ * @return true on success, false on parse error or overflow.
+ */
 WS_DLL_PUBLIC bool ws_buftoi32(const uint8_t* buf, size_t len, const uint8_t** endptr, int32_t* cint);
 
+/**
+ * @brief Parse an int32_t from a byte buffer in base 16 (hexadecimal).
+ *
+ * @param buf    Pointer to the input byte buffer.
+ * @param len    Number of bytes available in @p buf.
+ * @param endptr Set to one past the last byte consumed; NULL to ignore.
+ * @param cint   Receives the parsed int32_t value on success.
+ * @return true on success, false on parse error or overflow.
+ */
 WS_DLL_PUBLIC bool ws_hexbuftoi32(const uint8_t* buf, size_t len, const uint8_t** endptr, int32_t* cint);
 
+/**
+ * @brief Parse an int16_t from a byte buffer using a specified numeric base.
+ *
+ * @param buf    Pointer to the input byte buffer.
+ * @param len    Number of bytes available in @p buf.
+ * @param endptr Set to one past the last byte consumed; NULL to ignore.
+ * @param cint   Receives the parsed int16_t value on success.
+ * @param base   Numeric base to use for parsing (e.g. 10, 16).
+ * @return true on success, false on parse error or overflow.
+ */
 WS_DLL_PUBLIC bool ws_basebuftoi16(const uint8_t* buf, size_t len, const uint8_t** endptr, int16_t* cint, int base);
 
+/**
+ * @brief Parse an int16_t from a byte buffer in base 10.
+ *
+ * @param buf    Pointer to the input byte buffer.
+ * @param len    Number of bytes available in @p buf.
+ * @param endptr Set to one past the last byte consumed; NULL to ignore.
+ * @param cint   Receives the parsed int16_t value on success.
+ * @return true on success, false on parse error or overflow.
+ */
 WS_DLL_PUBLIC bool ws_buftoi16(const uint8_t* buf, size_t len, const uint8_t** endptr, int16_t* cint);
 
+/**
+ * @brief Parse an int16_t from a byte buffer in base 16 (hexadecimal).
+ *
+ * @param buf    Pointer to the input byte buffer.
+ * @param len    Number of bytes available in @p buf.
+ * @param endptr Set to one past the last byte consumed; NULL to ignore.
+ * @param cint   Receives the parsed int16_t value on success.
+ * @return true on success, false on parse error or overflow.
+ */
 WS_DLL_PUBLIC bool ws_hexbuftoi16(const uint8_t* buf, size_t len, const uint8_t** endptr, int16_t* cint);
 
+/**
+ * @brief Parse an int8_t from a byte buffer using a specified numeric base.
+ *
+ * @param buf    Pointer to the input byte buffer.
+ * @param len    Number of bytes available in @p buf.
+ * @param endptr Set to one past the last byte consumed; NULL to ignore.
+ * @param cint   Receives the parsed int8_t value on success.
+ * @param base   Numeric base to use for parsing (e.g. 10, 16).
+ * @return true on success, false on parse error or overflow.
+ */
 WS_DLL_PUBLIC bool ws_basebuftoi8(const uint8_t* buf, size_t len, const uint8_t** endptr, int8_t* cint, int base);
 
+/**
+ * @brief Parse an int8_t from a byte buffer in base 10.
+ *
+ * @param buf    Pointer to the input byte buffer.
+ * @param len    Number of bytes available in @p buf.
+ * @param endptr Set to one past the last byte consumed; NULL to ignore.
+ * @param cint   Receives the parsed int8_t value on success.
+ * @return true on success, false on parse error or overflow.
+ */
 WS_DLL_PUBLIC bool ws_buftoi8(const uint8_t* buf, size_t len, const uint8_t** endptr, int8_t* cint);
 
+/**
+ * @brief Parse an int8_t from a byte buffer in base 16 (hexadecimal).
+ *
+ * @param buf    Pointer to the input byte buffer.
+ * @param len    Number of bytes available in @p buf.
+ * @param endptr Set to one past the last byte consumed; NULL to ignore.
+ * @param cint   Receives the parsed int8_t value on success.
+ * @return true on success, false on parse error or overflow.
+ */
 WS_DLL_PUBLIC bool ws_hexbuftoi8(const uint8_t* buf, size_t len, const uint8_t** endptr, int8_t* cint);
 
 #ifdef __cplusplus

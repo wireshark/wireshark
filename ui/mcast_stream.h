@@ -95,31 +95,52 @@ extern int32_t mcast_stream_cumulemptyspeed;
 /****************************************************************************/
 /* INTERFACE */
 
-/*
-* Registers the mcast_streams tap listener (if not already done).
-* From that point on, the Mcast streams list will be updated with every redissection.
-* This function is also the entry point for the initialization routine of the tap system.
-* So whenever mcast_stream.c is added to the list of WIRESHARK_TAP_SRCs, the tap will be registered on startup.
-* If not, it will be registered on demand by the mcast_streams and mcast_analysis functions that need it.
-*/
-GString * register_tap_listener_mcast_stream(mcaststream_tapinfo_t *tapinfo);
+/**
+ * @brief Registers the mcast_streams tap listener (if not already done).
+ *
+ * From that point on, the Mcast streams list will be updated with every redissection.
+ * This function is also the entry point for the initialization routine of the tap system.
+ * So whenever mcast_stream.c is added to the list of WIRESHARK_TAP_SRCs, the tap will be registered on startup.
+ * If not, it will be registered on demand by the mcast_streams and mcast_analysis functions that need it.
+ *
+ * @param tapinfo The mcast stream tap state structure to populate.
+ * @return NULL on success, or a GString describing the registration
+ *         error (the caller must free it with g_string_free()).
+ */
+GString *register_tap_listener_mcast_stream(mcaststream_tapinfo_t *tapinfo);
 
-/*
-* Removes the mcast_streams tap listener (if not already done)
-* From that point on, the Mcast streams list won't be updated any more.
-*/
+
+/**
+ * @brief Remove the mcast_streams tap listener.
+ *
+ * @param tapinfo The mcast stream tap state structure whose listener
+ *                should be removed.
+ */
 void remove_tap_listener_mcast_stream(mcaststream_tapinfo_t *tapinfo);
 
-/*
-* Cleans up memory of mcast streams tap.
-*/
+/**
+ * @brief Free all accumulated mcast stream tap data.
+ *
+ * @param tapinfo The mcast stream tap state structure to clear.
+ */
 void mcaststream_reset(mcaststream_tapinfo_t *tapinfo);
 
-/*
-* Tap callback (tap_packet_cb) for Mcast stream tap updates. Useful if for
-* some reason you can't register the default listener, but want to make use
-* of the existing Mcast calculations.
-*/
+/**
+ * @brief Tap packet callback for the mcast_streams tap.
+ *
+ * Tap callback (tap_packet_cb) for Mcast stream tap updates. Useful if for
+ * some reason you can't register the default listener, but want to make use
+ * of the existing Mcast calculations.
+ *
+ * @param tapdata Pointer to the @c mcaststream_tapinfo_t to update;
+ *                cast from void* inside the function.
+ * @param pinfo   Packet metadata for the current packet.
+ * @param edt     The epan dissect context for the current packet.
+ * @param data    Tap-specific data for the current packet.
+ * @param flags   Tap flags for the current packet.
+ * @return TAP_PACKET_REDRAW if the display should be refreshed after
+ *         this packet, TAP_PACKET_DONT_REDRAW otherwise.
+ */
 tap_packet_status mcaststream_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data, tap_flags_t flags);
 
 #ifdef __cplusplus

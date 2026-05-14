@@ -118,13 +118,44 @@ typedef enum {
 } stmatch_t;
 
 /* These are the sttype_t registration function prototypes. */
+/**
+ * @brief Register the field type in the syntax tree type system.
+ */
 void sttype_register_field(void);
+
+/**
+ * @brief Register the function type in the syntax tree type system.
+ */
 void sttype_register_function(void);
+
+/**
+ * @brief Register the number type in the syntax tree type system.
+ */
 void sttype_register_number(void);
+
+/**
+ * @brief Register the pointer type in the syntax tree type system.
+ */
 void sttype_register_pointer(void);
+
+/**
+ * @brief Register the set type in the syntax tree type system.
+ */
 void sttype_register_set(void);
+
+/**
+ * @brief Register the slice type in the syntax tree type system.
+ */
 void sttype_register_slice(void);
+
+/**
+ * @brief Register the string type in the syntax tree type system.
+ */
 void sttype_register_string(void);
+
+/**
+ * @brief Register the operator types in the syntax tree type system.
+ */
 void sttype_register_opers(void);
 
 /**

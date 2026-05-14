@@ -11,6 +11,14 @@
 
 #include "wtap.h"
 
+/**
+ * @brief Open a NetLog file for reading.
+ *
+ * @param wth Pointer to the wtap structure
+ * @param err Error code if an error occurs
+ * @param err_info Error information if an error occurs
+ * @return WTAP_OPEN_ERROR on failure, otherwise a value indicating success or not being the correct file type
+ */
 wtap_open_return_val netlog_open(wtap *wth, int *err, char **err_info);
 
 #endif

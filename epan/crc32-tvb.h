@@ -14,10 +14,12 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/** Compute CRC32 CCITT checksum of a tv buffer.
+/**
+ @brief Compute CRC32 CCITT checksum of a tv buffer.
  @param tvb The tv buffer containing the data.
  @param len The number of bytes to include in the computation.
- @return The CRC32 CCITT checksum. */
+ @return The CRC32 CCITT checksum.
+ */
 WS_DLL_PUBLIC uint32_t crc32_ccitt_tvb(tvbuff_t *tvb, unsigned len);
 
 /** Compute CRC32 CCITT checksum of a tv buffer.

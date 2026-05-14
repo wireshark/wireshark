@@ -187,87 +187,588 @@ extern int ett_opcua_array_TestStackExRequest;
 extern int ett_opcua_TestStackExResponse;
 extern int ett_opcua_array_TestStackExResponse;
 
+/** @brief Parse a ServiceFault message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseServiceFault(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a FindServersRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseFindServersRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a FindServersResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseFindServersResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a FindServersOnNetworkRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseFindServersOnNetworkRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a FindServersOnNetworkResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseFindServersOnNetworkResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a GetEndpointsRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseGetEndpointsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a GetEndpointsResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseGetEndpointsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a RegisterServerRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseRegisterServerRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a RegisterServerResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseRegisterServerResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a RegisterServer2Request message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseRegisterServer2Request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a RegisterServer2Response message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseRegisterServer2Response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse an OpenSecureChannelRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseOpenSecureChannelRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse an OpenSecureChannelResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseOpenSecureChannelResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a CloseSecureChannelRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseCloseSecureChannelRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a CloseSecureChannelResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseCloseSecureChannelResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a CreateSessionRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseCreateSessionRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a CreateSessionResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseCreateSessionResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse an ActivateSessionRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseActivateSessionRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse an ActivateSessionResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseActivateSessionResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a CloseSessionRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseCloseSessionRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a CloseSessionResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseCloseSessionResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a CancelRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseCancelRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a CancelResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseCancelResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse an AddNodesRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseAddNodesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse an AddNodesResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseAddNodesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse an AddReferencesRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseAddReferencesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse an AddReferencesResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseAddReferencesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a DeleteNodesRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseDeleteNodesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a DeleteNodesResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseDeleteNodesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a DeleteReferencesRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseDeleteReferencesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a DeleteReferencesResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseDeleteReferencesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a BrowseRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseBrowseRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a BrowseResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseBrowseResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a BrowseNextRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseBrowseNextRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a BrowseNextResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseBrowseNextResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a TranslateBrowsePathsToNodeIdsRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseTranslateBrowsePathsToNodeIdsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a TranslateBrowsePathsToNodeIdsResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseTranslateBrowsePathsToNodeIdsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a RegisterNodesRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseRegisterNodesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a RegisterNodesResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseRegisterNodesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse an UnregisterNodesRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseUnregisterNodesRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse an UnregisterNodesResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseUnregisterNodesResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a QueryFirstRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseQueryFirstRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a QueryFirstResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseQueryFirstResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a QueryNextRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseQueryNextRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a QueryNextResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseQueryNextResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a ReadRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseReadRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a ReadResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseReadResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a HistoryReadRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseHistoryReadRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a HistoryReadResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseHistoryReadResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a WriteRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseWriteRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a WriteResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseWriteResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a HistoryUpdateRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseHistoryUpdateRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a HistoryUpdateResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseHistoryUpdateResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a CallRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseCallRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a CallResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseCallResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a CreateMonitoredItemsRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseCreateMonitoredItemsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a CreateMonitoredItemsResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseCreateMonitoredItemsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a ModifyMonitoredItemsRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseModifyMonitoredItemsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a ModifyMonitoredItemsResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseModifyMonitoredItemsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a SetMonitoringModeRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseSetMonitoringModeRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a SetMonitoringModeResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseSetMonitoringModeResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a SetTriggeringRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseSetTriggeringRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a SetTriggeringResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseSetTriggeringResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a DeleteMonitoredItemsRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseDeleteMonitoredItemsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a DeleteMonitoredItemsResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseDeleteMonitoredItemsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a CreateSubscriptionRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseCreateSubscriptionRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a CreateSubscriptionResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseCreateSubscriptionResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a ModifySubscriptionRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseModifySubscriptionRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a ModifySubscriptionResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseModifySubscriptionResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a SetPublishingModeRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseSetPublishingModeRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a SetPublishingModeResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseSetPublishingModeResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a PublishRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parsePublishRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a PublishResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parsePublishResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a RepublishRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseRepublishRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a RepublishResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseRepublishResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a TransferSubscriptionsRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseTransferSubscriptionsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a TransferSubscriptionsResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseTransferSubscriptionsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a DeleteSubscriptionsRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseDeleteSubscriptionsRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a DeleteSubscriptionsResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseDeleteSubscriptionsResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a TestStackRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseTestStackRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a TestStackResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseTestStackResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a TestStackExRequest message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseTestStackExRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/** @brief Parse a TestStackExResponse message into the protocol tree.
+ *  @param tree    The protocol tree to add the subtree to.
+ *  @param tvb     The TVB buffer containing the data to parse.
+ *  @param pinfo   The packet information structure.
+ *  @param pOffset Pointer to the current offset in the TVB buffer. */
 void parseTestStackExResponse(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Register the OPC UA service types with the dissector.
+ */
 void registerServiceTypes(void);

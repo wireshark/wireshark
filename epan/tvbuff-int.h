@@ -93,10 +93,29 @@ struct tvbuff {
  */
 tvbuff_t *tvb_new(const struct tvb_ops *ops);
 
+/**
+ * @brief Creates a new TVBuffer that is a proxy for an existing TVBuffer.
+ *
+ * @param backing The existing TVBuffer to proxy.
+ * @return A new TVBuffer that proxies the given TVBuffer.
+ */
 tvbuff_t *tvb_new_proxy(tvbuff_t *backing);
 
+/**
+ * @brief Adds a child tvbuff to the parent tvbuff chain.
+ *
+ * @param parent The parent tvbuff to which the child will be added.
+ * @param child The child tvbuff to add to the parent.
+ */
 void tvb_add_to_chain(tvbuff_t *parent, tvbuff_t *child);
 
+/**
+ * @brief Calculates the offset from the real beginning of a TVBuffer using a counter.
+ *
+ * @param tvb The TVBuffer for which to calculate the offset.
+ * @param counter The counter value to use for calculation.
+ * @return The calculated offset from the real beginning of the TVBuffer.
+ */
 unsigned tvb_offset_from_real_beginning_counter(const tvbuff_t *tvb, const unsigned counter);
 
 /**
@@ -107,6 +126,14 @@ unsigned tvb_offset_from_real_beginning_counter(const tvbuff_t *tvb, const unsig
  * @param length The length to validate from the offset.
  */
 void tvb_validate_offset_length(const tvbuff_t *tvb, const unsigned offset, const unsigned length);
+
+/**
+ * @brief Validates that an offset and remaining length are within the bounds of a TVBuffer.
+ *
+ * @param tvb The TVBuffer to validate against.
+ * @param offset The starting offset for validation.
+ * @param rem_len Pointer to the remaining length to validate from the offset.
+ */
 void tvb_validate_offset_and_remaining(const tvbuff_t *tvb, const unsigned offset, unsigned *rem_len);
 
 /**

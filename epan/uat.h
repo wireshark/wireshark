@@ -302,18 +302,21 @@ uat_t* uat_new(const char* name,
                uat_reset_cb_t reset_cb,
                uat_field_t* flds_array);
 
-/** Free and deregister a single UAT.
- *
+/**
+ * @brief Free and deregister a single UAT.
+ * @param uat The UAT to be destroyed.
  */
 WS_DLL_PUBLIC
 void uat_destroy(uat_t *uat);
 
-/** Cleanup all UATs.
+/**
+ * @brief Cleanup all UATs.
  *
  */
 void uat_cleanup(void);
 
-/** Populate a UAT using its file.
+/**
+ * @brief Populate a UAT using its file.
  *
  * @param uat_in Pointer to a uat. Must not be NULL.
  * @param filename Filename to load, NULL to fetch from current profile.
@@ -325,7 +328,8 @@ void uat_cleanup(void);
 WS_DLL_PUBLIC
 bool uat_load(uat_t* uat_in, const char *filename, const char* app_env_var_prefix, char** err);
 
-/** Create or update a single UAT entry using a string.
+/**
+ * @brief Create or update a single UAT entry using a string.
  *
  * @param uat_in Pointer to a uat. Must not be NULL.
  * @param entry The string representation of the entry. Format must match
@@ -337,7 +341,8 @@ bool uat_load(uat_t* uat_in, const char *filename, const char* app_env_var_prefi
 WS_DLL_PUBLIC
 bool uat_load_str(uat_t* uat_in, const char* entry, char** err);
 
-/** Given a UAT name or filename, find its pointer.
+/**
+ * @brief Given a UAT name or filename, find its pointer.
  *
  * @param name The name or filename of the uat
  *
@@ -373,12 +378,61 @@ void uat_set_default_values(uat_t *uat_in, const char *default_values[]);
 /*
  * Some common uat_fld_chk_cbs
  */
+/**
+ * @brief UAT field validator for generic string values.
+ *
+ * @param record      Pointer to the UAT record being validated (unused).
+ * @param ptr         The NUL-terminated string value to validate.
+ * @param len         Length of @p ptr in bytes, not including the terminator.
+ * @param chk_data    Field-level checker data supplied at UAT field
+ *                    registration time (unused).
+ * @param fld_data    Record-level field data (unused).
+ * @param err         On failure, receives a newly allocated human-readable
+ *                    error string that the UAT framework will display and
+ *                    then @c g_free(). Set to NULL on success.
+ * @return true if the value is acceptable; false if validation failed and
+ *         @p *err has been set.
+ */
 WS_DLL_PUBLIC
-bool uat_fld_chk_str(void*, const char*, unsigned, const void*, const void*, char** err);
+bool uat_fld_chk_str(void *record, const char *ptr, unsigned len,
+                     const void *chk_data, const void *fld_data, char **err);
+
+/**
+ * @brief UAT field validator for ASN.1 Object Identifier strings.
+ *
+ * @param record      Pointer to the UAT record being validated (unused).
+ * @param ptr         The NUL-terminated OID string to validate.
+ * @param len         Length of @p ptr in bytes, not including the terminator.
+ * @param chk_data    Field-level checker data supplied at UAT field
+ *                    registration time (unused).
+ * @param fld_data    Record-level field data (unused).
+ * @param err         On failure, receives a newly allocated error string
+ *                    describing the OID syntax violation. Set to NULL on
+ *                    success.
+ * @return true if @p ptr is a valid dotted-decimal OID; false otherwise.
+ */
 WS_DLL_PUBLIC
-bool uat_fld_chk_oid(void*, const char*, unsigned, const void*, const void*, char** err);
+bool uat_fld_chk_oid(void *record, const char *ptr, unsigned len,
+                     const void *chk_data, const void *fld_data, char **err);
+
+/**
+ * @brief UAT field validator for Wireshark protocol name strings.
+ *
+ * @param record      Pointer to the UAT record being validated (unused).
+ * @param ptr         The NUL-terminated protocol short name to validate
+ *                    (e.g. @c "http", @c "tls").
+ * @param len         Length of @p ptr in bytes, not including the terminator.
+ * @param chk_data    Field-level checker data supplied at UAT field
+ *                    registration time (unused).
+ * @param fld_data    Record-level field data (unused).
+ * @param err         On failure, receives a newly allocated error string
+ *                    stating that the protocol is unknown. Set to NULL on
+ *                    success.
+ * @return true if @p ptr names a registered protocol; false otherwise.
+ */
 WS_DLL_PUBLIC
-bool uat_fld_chk_proto(void*, const char*, unsigned, const void*, const void*, char** err);
+bool uat_fld_chk_proto(void *record, const char *ptr, unsigned len,
+                       const void *chk_data, const void *fld_data, char **err);
 
 /**
  * @brief Checks if a field name is valid.

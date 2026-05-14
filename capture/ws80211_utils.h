@@ -117,6 +117,12 @@ int ws80211_init(void);
  */
 /* XXX Should we make this an array of structs instead of an array of struct pointers?
  * It'd save a bit of mallocing and freeing. */
+
+/**
+ * @brief Finds and returns a list of wireless network interfaces.
+ *
+ * @return A GArray containing pointers to struct ws80211_interface, each representing a wireless interface. The caller is responsible for freeing the returned array and its contents.
+ */
 GArray* ws80211_find_interfaces(void);
 
 /**

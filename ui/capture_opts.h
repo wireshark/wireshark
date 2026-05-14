@@ -393,6 +393,7 @@ enum caps_query {
  * @param caps Pointer to the interface capabilities structure.
  * @param interface_opts Pointer to the interface options structure.
  * @param queries Number of queries related to the interface.
+ * @return The number of capabilities printed.
  */
 extern int
 capture_opts_print_if_capabilities(if_capabilities_t *caps,
@@ -433,6 +434,7 @@ capture_opts_trim_ring_num_files(capture_options *capture_opts);
  *
  * @param capture_opts Pointer to the capture options structure.
  * @param capture_device The name of the capture device to use.
+ * @return 0 if the default interface was set successfully, non-zero otherwise.
  */
 extern int
 capture_opts_default_iface_if_necessary(capture_options *capture_opts,
@@ -459,6 +461,8 @@ interface_opts_free(interface_options *interface_opts);
  * @brief Collects network interfaces based on the provided capture options.
  *
  * @param capture_opts Pointer to the capture options structure.
+ * @param if_info Pointer to the interface information structure.
+ * @return A pointer to the interface options structure created from the provided interface information.
  */
 extern interface_options*
 interface_opts_from_if_info(capture_options *capture_opts, const if_info_t *if_info);

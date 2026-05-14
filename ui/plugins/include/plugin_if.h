@@ -137,7 +137,8 @@ typedef struct _ext_toolbar_update_t
     void *data_index;
 } ext_toolbar_update_t;
 
-/* Registers a new main menu.
+/**
+ * @brief Registers a new main menu.
  *
  * This will register a new main menu entry, underneath all other menu entries will
  * be sorted
@@ -149,7 +150,8 @@ typedef struct _ext_toolbar_update_t
 WS_DLL_PUBLIC ext_menu_t * ext_menubar_register_menu(
         int proto_id, const char * menulabel, bool is_plugin);
 
-/* Sets a parent menu for the user menu.
+/**
+ * @brief Sets a parent menu for the user menu.
  *
  * This will set a parent menu, which allows this menu to be filtered underneath
  * the given menu as a submenu. If the parent menu does not exist, the main menu
@@ -161,7 +163,8 @@ WS_DLL_PUBLIC ext_menu_t * ext_menubar_register_menu(
 WS_DLL_PUBLIC ext_menu_t * ext_menubar_set_parentmenu(
         ext_menu_t * menu, const char * parentmenu);
 
-/* Registers a new main menu.
+/**
+ * @brief Registers a new main menu.
  *
  * This will register a new sub menu entry, underneath the parent menu
  *
@@ -171,7 +174,9 @@ WS_DLL_PUBLIC ext_menu_t * ext_menubar_set_parentmenu(
 WS_DLL_PUBLIC ext_menu_t * ext_menubar_add_submenu(
         ext_menu_t * parent, const char *menulabel);
 
-/* Registers a new menubar entry.
+/**
+ * @brief Registers a new menubar entry.
+
  *
  * This registers a new menubar entry, which will have the given name, and
  * call the provided callback on activation
@@ -189,7 +194,8 @@ WS_DLL_PUBLIC void ext_menubar_add_entry(
         ext_menubar_action_cb callback,
         void *user_data);
 
-/* Registers a new separator entry.
+/**
+ * @brief Registers a new separator entry.
  *
  * @note This will not work using the legacy GTK interface, due to
  * restrictions on how separators are handled in the menu
@@ -198,12 +204,13 @@ WS_DLL_PUBLIC void ext_menubar_add_entry(
  */
 WS_DLL_PUBLIC void ext_menubar_add_separator(ext_menu_t *parent_menu);
 
-/* Registers a entry for a website call
+/**
+ * @brief Registers a entry for a website call
  *
  * This registers a new menubar entry, which will call the given website, using
  * the predefined webbrowser
  *
- * @param parent_menu the parent menu for this entry
+ * @param parent the parent menu for this entry
  * @param label the entry label (the displayed name) for the menu item
  * @param tooltip a tooltip to be displayed on mouse-over
  * @param url the url for the website
@@ -211,7 +218,8 @@ WS_DLL_PUBLIC void ext_menubar_add_separator(ext_menu_t *parent_menu);
 WS_DLL_PUBLIC void ext_menubar_add_website(ext_menu_t * parent, const char *label,
         const char *tooltip, const char *url);
 
-/* Registers a toolbar.
+/**
+ * @brief Registers a toolbar.
  *
  * This will register a new toolbar, which can contain various gui elements
  *
@@ -219,7 +227,8 @@ WS_DLL_PUBLIC void ext_menubar_add_website(ext_menu_t * parent, const char *labe
  */
 WS_DLL_PUBLIC ext_toolbar_t * ext_toolbar_register_toolbar(const char * toolbar_label);
 
-/* Removes a toolbar from the system.
+/**
+ * @brief Removes a toolbar from the system.
  *
  * This will remove the provided toolbar from the application
  *
@@ -227,7 +236,8 @@ WS_DLL_PUBLIC ext_toolbar_t * ext_toolbar_register_toolbar(const char * toolbar_
  */
 WS_DLL_PUBLIC void ext_toolbar_unregister_toolbar(ext_toolbar_t * toolbar);
 
-/* Removes a toolbar from the system by providing the name of the toolbar.
+/**
+ * @brief Removes a toolbar from the system by providing the name of the toolbar.
  *
  * This will remove the provided toolbar from the application
  *
@@ -235,7 +245,8 @@ WS_DLL_PUBLIC void ext_toolbar_unregister_toolbar(ext_toolbar_t * toolbar);
  */
 WS_DLL_PUBLIC void ext_toolbar_unregister_toolbar_by_name(const char * toolbar_name);
 
-/* Registers a new toolbar entry.
+/**
+ * @brief Registers a new toolbar entry.
  *
  * This registers a new toolbar entry, which will have the given name, and
  * call the provided callback on activation
@@ -256,7 +267,7 @@ WS_DLL_PUBLIC void ext_toolbar_unregister_toolbar_by_name(const char * toolbar_n
  * @param tooltip a tooltip to be displayed on mouse-over
  * @param capture_only entry is only active, if capture is active
  * @param value_list a non-null list of values, if the item type is EXT_TOOLBAR_SELECTOR
- * @param is_required
+ * @param is_required if the item is required to be shown in the toolbar, if false, the user can choose to hide the item
  * @param valid_regex a validation regular expression for EXT_TOOLBAR_STRING
  * @param callback the action which will be invoked after click on the item
  * @param user_data a user data pointer
@@ -297,7 +308,8 @@ WS_DLL_PUBLIC GList * ext_toolbar_add_val(GList * entries, char * value, char * 
  */
 WS_DLL_PUBLIC void ext_toolbar_register_update_cb(ext_toolbar_t * entry, ext_toolbar_action_cb callback, void *item_data);
 
-/* Updates the entry values
+/**
+ * @brief Updates the entry values
  *
  * Update the values for the entry, it is up to the implemented widget, to interpret the
  * given character values
@@ -308,7 +320,8 @@ WS_DLL_PUBLIC void ext_toolbar_register_update_cb(ext_toolbar_t * entry, ext_too
  */
 WS_DLL_PUBLIC void ext_toolbar_update_value(ext_toolbar_t * entry, void *data, bool silent);
 
-/* Updates the entry data
+/**
+ * @brief Updates the entry data
  *
  * Update the data for the entry, it is up to the implemented widget, to interpret the given character data
  *
@@ -318,7 +331,8 @@ WS_DLL_PUBLIC void ext_toolbar_update_value(ext_toolbar_t * entry, void *data, b
  */
 WS_DLL_PUBLIC void ext_toolbar_update_data(ext_toolbar_t * entry, void *data, bool silent);
 
-/* Updates the entry data by index
+/**
+ * @brief Updates the entry data by index
  *
  * This is used to update a single entry of a selector list, by giving it's value and a new display
  * entry
@@ -330,7 +344,8 @@ WS_DLL_PUBLIC void ext_toolbar_update_data(ext_toolbar_t * entry, void *data, bo
  */
 WS_DLL_PUBLIC void ext_toolbar_update_data_by_index(ext_toolbar_t * entry, void *data, void *idx, bool silent);
 
-/* Adds the entry data by index
+/**
+ * @brief Adds the entry data by index
  *
  * This is used to add a single entry to a selector list, by giving it's new value and a new display
  * entry. If the value already exists, the selector may choose to ignore the command
@@ -342,7 +357,8 @@ WS_DLL_PUBLIC void ext_toolbar_update_data_by_index(ext_toolbar_t * entry, void 
  */
 WS_DLL_PUBLIC void ext_toolbar_update_data_add_entry(ext_toolbar_t * entry, void *data, void *idx, bool silent);
 
-/* Removes an entry data by index
+/**
+ * @brief Removes an entry data by index
  *
  * This is used to remove a single entry to a selector list, by giving it's value and a display
  * entry. If the value already exists, the selector may choose to ignore the command. Both value
@@ -355,10 +371,19 @@ WS_DLL_PUBLIC void ext_toolbar_update_data_add_entry(ext_toolbar_t * entry, void
  */
 WS_DLL_PUBLIC void ext_toolbar_update_data_remove_entry(ext_toolbar_t * entry, void *data, void *idx, bool silent);
 
-/* Search for and return if found an entry from the toolbar with the given label */
+/**
+ * @brief Searches for and returns an entry from the toolbar with the given label
+ * @param toolbar The toolbar to search in
+ * @param label The label of the entry to search for
+ * @return The found entry or NULL if not found
+ */
 WS_DLL_PUBLIC ext_toolbar_t * ext_toolbar_entry_by_label(const ext_toolbar_t * toolbar, const char * label);
 
-/* Set the ui element for the given enry to the status */
+/**
+ * @brief Sets the UI element for the given entry to the specified status
+ * @param entry The toolbar entry to update
+ * @param status The status to set
+ */
 WS_DLL_PUBLIC void ext_toolbar_update_data_set_active(ext_toolbar_t * entry, bool status);
 
 /*
@@ -485,6 +510,7 @@ WS_DLL_PUBLIC GList * ext_menubar_get_entries(void);
  * @brief Private Method for retrieving the toolbar entries
  *
  * Is only to be used by the UI interfaces to retrieve the toolbar entries
+ * @return A list of toolbar entries.
  */
 WS_DLL_PUBLIC GList * ext_toolbar_get_entries(void);
 

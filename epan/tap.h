@@ -71,6 +71,14 @@ typedef struct {
 } tap_plugin;
 
 /** Register tap plugin with the plugin system. */
+
+/**
+ * @brief Registers a packet tap plugin.
+ *
+ * Registers a new packet tap plugin with Wireshark.
+ *
+ * @param plug Pointer to the tap_plugin structure containing plugin information.
+ */
 WS_DLL_PUBLIC void tap_register_plugin(const tap_plugin *plug);
 
 /*
@@ -81,10 +89,11 @@ typedef struct _tap_reg {
     void (*cb_func)(void);
 } tap_reg_t;
 
-/*
- * For all taps, call their register routines.
+/**
+ * @brief For all taps, call their register routines.
  * Must be called after plugins_init(), if plugins are supported,
  * and must be called only once in a program.
+ * @param tap_reg_listeners Array of tap_reg_t structures for built-in taps, terminated by an entry with cb_func == NULL.
  */
 extern void register_all_tap_listeners(tap_reg_t const *tap_reg_listeners);
 
@@ -95,7 +104,10 @@ extern void register_all_tap_listeners(tap_reg_t const *tap_reg_listeners);
  */
 extern void tap_init(void);
 
-/** This function registers that a dissector has the packet tap ability
+/**
+ * @brief Registers a tap with the given name.
+ *
+ * This function registers that a dissector has the packet tap ability
  *  available.  The name parameter is the name of this tap and extensions can
  *  use open_tap(char *name,... to specify that it wants to receive packets/
  *  events from this tap.
@@ -106,14 +118,28 @@ extern void tap_init(void);
  *  tap_packet(unsigned int *tap_id,...
  *  call so that the tap subsystem knows to which tap point this tapped
  *  packet is associated.
+ * @param name The name of the tap to register.
+ * @return The ID of the registered tap, or 0 on failure.
  */
 WS_DLL_PUBLIC int register_tap(const char *name);
 
-/* Gets a GList of the tap names */
+/**
+ * @brief Returns a list of tap names.
+ *
+ * This function returns a GList containing the names of all available taps.
+ *
+ * @return A GList of tap names, or NULL if no taps are available.
+ */
 WS_DLL_PUBLIC GList* get_tap_names(void);
 
-/** This function will return the tap_id for the specific protocol tap
+/**
+ * @brief Finds the ID of a tap by its name.
+ *
+ * This function will return the tap_id for the specific protocol tap
  *  or 0 if no such tap was found.
+ *
+ * @param name The name of the tap to find.
+ * @return The tap_id of the tap with the given name, or 0 if not found.
  */
 WS_DLL_PUBLIC int find_tap_id(const char *name);
 
@@ -136,36 +162,57 @@ WS_DLL_PUBLIC int find_tap_id(const char *name);
  *
  *  The tap reader is responsible to know how to parse any structure pointed
  *  to by the tap specific data pointer.
+ *
+ * @param tap_id The ID of the tap to which this packet belongs.
+ * @param pinfo Pointer to the packet information structure for the current packet.
+ * @param tap_specific_data Pointer to tap-specific data, or NULL if not applicable.
  */
 WS_DLL_PUBLIC void tap_queue_packet(int tap_id, packet_info *pinfo, const void *tap_specific_data);
 
 /** Functions used by file.c to drive the tap subsystem */
+
+/**
+ * @brief Build a list of all interesting hf_fields for tap listeners.
+ *
+ * Loop over all tap listeners and build the list of all interesting hf_fields.
+ *
+ * @param edt The epan_dissect_t structure containing the dissection data.
+ */
 WS_DLL_PUBLIC void tap_build_interesting(epan_dissect_t *edt);
 
 /** This function is used to delete/initialize the tap queue and prime an
  *  epan_dissect_t with all the filters for tap listeners.
  *  To free the tap queue, we just prepend the used queue to the free queue.
+ *
+ * @param edt The epan_dissect_t structure to prime with tap listener filters.
  */
 extern void tap_queue_init(epan_dissect_t *edt);
 
 /** this function is called after a packet has been fully dissected to push the tapped
  *  data to all extensions that has callbacks registered.
+ * @param edt The epan_dissect_t structure containing the dissection data for the current packet.
  */
-
 extern void tap_push_tapped_queue(epan_dissect_t *edt);
 
-/** This function is called after a packet has been fully dissected to push the tapped
+/**
+ * @brief Resets all tap listeners.
+ *
+ * This function is called after a packet has been fully dissected to push the tapped
  *  data to all extensions that has callbacks registered.
  */
-
 WS_DLL_PUBLIC void reset_tap_listeners(void);
 
-/** This function is called when we need to redraw all tap listeners, for example
+/**
+ * @brief Draws all tap listeners.
+ *
+ * This function is called when we need to redraw all tap listeners, for example
  * when we open/start a new capture or if we need to rescan the packet list.
  * It should be called from a low priority thread say once every 3 seconds
  *
  * If draw_all is true, redraw all applications regardless if they have
  * changed or not.
+ *
+ * @param draw_all If true, redraw all tap listeners regardless of their state; if false, only redraw those that need it.
  */
 WS_DLL_PUBLIC void draw_tap_listeners(bool draw_all);
 
@@ -244,55 +291,99 @@ WS_DLL_PUBLIC void draw_tap_listeners(bool draw_all);
  * @param tap_finish void (*finish)(void *tapdata)
  *                   This callback is called when your listener is removed.
  */
-
 WS_DLL_PUBLIC GString *register_tap_listener(const char *tapname, void *tapdata,
     const char *fstring, unsigned flags, tap_reset_cb tap_reset,
     tap_packet_cb tap_packet, tap_draw_cb tap_draw,
     tap_finish_cb tap_finish) G_GNUC_WARN_UNUSED_RESULT;
 
-/** This function sets a new dfilter to a tap listener */
+/**
+ * @brief Set a display filter for a tap listener.
+ *
+ * This function sets a display filter for a tap listener using the provided filter string.
+ *
+ * @param tapdata Pointer to the tap data structure.
+ * @param fstring The display filter string.
+ * @return A GString containing an error message if the filter is invalid, or NULL on success.
+ */
 WS_DLL_PUBLIC GString *set_tap_dfilter(void *tapdata, const char *fstring);
 
-/** This function recompiles dfilter for all registered tap listeners */
+/**
+ * @brief Recompiles dfilter for all registered tap listeners
+ *
+ * This function iterates through all registered tap listeners and recompiles their dfilters.
+ * If a listener's filter string is invalid, it sets up a dfilter that matches no packets.
+ */
 WS_DLL_PUBLIC void tap_listeners_dfilter_recompile(void);
 
-/** this function removes a tap listener */
+/**
+ * @brief Removes a tap listener from the queue.
+ *
+ * @param tapdata Pointer to the tap data associated with the listener to be removed.
+ */
 WS_DLL_PUBLIC void remove_tap_listener(void *tapdata);
 
-/** This function sets new flags to a tap listener */
+/**
+ * @brief Set flags for a tap listener.
+ *
+ * This function sets the flags for a tap listener identified by the provided tapdata pointer.
+ * It returns NULL if the operation is successful, or an error message if it fails.
+ *
+ * @param tapdata Pointer to the tap data structure.
+ * @param flags Flags to be set for the tap listener.
+ * @return NULL on success, error message on failure.
+ */
 WS_DLL_PUBLIC GString *set_tap_flags(void *tapdata, unsigned flags);
 
 /**
- * Return true if we have one or more tap listeners that require dissection,
- * false otherwise.
+ * @brief Check if any tap listeners require dissection.
+ *
+ * @return true if any tap listeners require dissection, false otherwise.
  */
 WS_DLL_PUBLIC bool tap_listeners_require_dissection(void);
 
 /**
- * Return true if we have one or more tap listeners that require the columns,
- * false otherwise.
+ * @brief Check if any tap listeners require column information.
+ *
+ * @return true if any tap listeners require column information, false otherwise.
  */
 WS_DLL_PUBLIC bool tap_listeners_require_columns(void);
 
-/** Returns true there is an active tap listener for the specified tap id. */
+/**
+ * @brief Check if there is a tap listener with the given ID.
+ *
+ * @param tap_id The ID of the tap listener to check for.
+ * @return true if a tap listener with the given ID exists, false otherwise.
+ */
 WS_DLL_PUBLIC bool have_tap_listener(int tap_id);
 
-/** Return true if we have any tap listeners with filters, false otherwise. */
+/**
+ * @brief Check if there are any tap listeners that require filtering.
+ *
+ * @return true if there is at least one tap listener with a filter, false otherwise.
+ */
 WS_DLL_PUBLIC bool have_filtering_tap_listeners(void);
 
-/** If any tap listeners have a filter with references to the currently
+/**
+ * @brief If any tap listeners have a filter with references to the currently
  * selected frame in the GUI (edt->tree), update them.
+ *
+ * @param edt The epan_dissect_t structure containing the dissection data for the current packet.
  */
 WS_DLL_PUBLIC void tap_listeners_load_field_references(epan_dissect_t *edt);
 
 /**
- * Get the union of all the flags for all the tap listeners; that gives
+ * @brief Get the union of all the flags for all the tap listeners; that gives
  * an indication of whether the protocol tree, or the columns, are
  * required by any taps.
+ *
+ * @return The union of all the flags for all the tap listeners.
  */
 WS_DLL_PUBLIC unsigned union_of_tap_listener_flags(void);
 
-/** This function can be used by a dissector to fetch any tapped data before
+/**
+ * @brief Fetch tapped data before returning.
+ *
+ * This function can be used by a dissector to fetch any tapped data before
  * returning.
  * This can be useful if one wants to extract the data inside dissector  BEFORE
  * it exists as an alternative to the callbacks that are all called AFTER the
@@ -305,16 +396,24 @@ WS_DLL_PUBLIC unsigned union_of_tap_listener_flags(void);
  * Beware: when using this mechanism to extract the tapped data you can not
  * use "filters" and should specify the "filter" as NULL when registering
  * the tap listener.
+ *
+ * @param tap_id The ID of the tap to fetch data from.
+ * @param idx The index of the tapped data to fetch.
+ * @return A pointer to the tapped data, or NULL if not found or if tapping is not active.
  */
 WS_DLL_PUBLIC const void *fetch_tapped_data(int tap_id, int idx);
 
-/** Clean internal structures
+/**
+ * @brief Clean internal structures
  */
 extern void tap_cleanup(void);
 
-/** Loads the main filter in the tapping system for taps that limit their
+/**
+ * @brief Loads the main filter in the tapping system for taps that limit their
  * results to the main display filter. Does not take ownership of the filter,
  * which must still be freed in the main program.
+ *
+ * @param dfcode The main display filter to load into the tapping system.
  */
 WS_DLL_PUBLIC void tap_load_main_filter(struct epan_dfilter *dfcode);
 

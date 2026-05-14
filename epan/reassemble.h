@@ -152,17 +152,39 @@ typedef struct {
 	GDestroyNotify free_temporary_key_func;		/* temporary key destruction function */
 } reassembly_table;
 
-/*
- * Table of functions for a reassembly table.
+/**
+ * @brief Table of functions for a reassembly table.
  */
 typedef struct {
-	/* Functions for fragment table */
-	GHashFunc hash_func;				/* hash function */
-	GEqualFunc equal_func;				/* comparison function */
-	fragment_temporary_key temporary_key_func;	/* temporary key creation function */
-	fragment_persistent_key persistent_key_func;	/* persistent key creation function */
-	GDestroyNotify free_temporary_key_func;		/* temporary key destruction function */
-	GDestroyNotify free_persistent_key_func;	/* persistent key destruction function */
+    /**
+     * @brief Hash function for fragment table keys.
+     */
+    GHashFunc hash_func;
+
+    /**
+     * @brief Equality function for fragment table keys.
+     */
+    GEqualFunc equal_func;
+
+    /**
+     * @brief Create a temporary (short-lived) fragment key.
+     */
+    fragment_temporary_key temporary_key_func;
+
+    /**
+     * @brief Create a persistent (long-lived) fragment key.
+     */
+    fragment_persistent_key persistent_key_func;
+
+    /**
+     * @brief Destroy a temporary fragment key.
+     */
+    GDestroyNotify free_temporary_key_func;
+
+    /**
+     * @brief Destroy a persistent fragment key.
+     */
+    GDestroyNotify free_persistent_key_func;
 } reassembly_table_functions;
 
 /*

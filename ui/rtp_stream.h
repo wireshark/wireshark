@@ -117,34 +117,53 @@ struct _rtpstream_tapinfo {
 /****************************************************************************/
 /* INTERFACE */
 
+/**
+ * @brief Shows an error message when tap registration fails
+ * @param error_string The error message to display
+ */
 void show_tap_registration_error(GString *error_string);
 
 /**
-* Scans all packets for RTP streams and updates the RTP streams list.
+* @brief Scans all packets for RTP streams and updates the RTP streams list.
 * (redissects all packets)
+* @param tapinfo The rtp stream tap state structure to populate.
+* @param cap_file The capture file to scan for RTP streams.
+* @param fstring A filter string to apply when scanning for RTP streams (empty = no filter).
 */
 void rtpstream_scan(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, const char *fstring);
 
 /**
-* Saves an RTP stream as raw data stream with timestamp information for later RTP playback.
+* @brief Saves an RTP stream as raw data stream with timestamp information for later RTP playback.
 * (redissects all packets)
+* @param tapinfo The rtp stream tap state structure containing the stream to save.
+* @param cap_file The capture file to scan for the RTP stream.
+* @param stream The RTP stream to save.
+* @param filename The name of the file to save the RTP stream to.
+* @return true on success, false on failure.
 */
 bool rtpstream_save(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtpstream_info_t* stream, const char *filename);
 
 /**
-* Marks all packets belonging to either of stream_fwd or stream_rev.
+* @brief Marks all packets belonging to either of stream_fwd or stream_rev.
 * (both can be NULL)
 * (redissects all packets)
+* @param tapinfo The rtp stream tap state structure containing the streams to mark.
+* @param cap_file The capture file to scan for the RTP streams.
+* @param stream_fwd The RTP stream in the forward direction to mark (NULL = ignore).
+* @param stream_rev The RTP stream in the reverse direction to mark (NULL = ignore).
 */
 void rtpstream_mark(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtpstream_info_t* stream_fwd, rtpstream_info_t* stream_rev);
 
 /**
-* Sets whether only packets that pass the current main display filter should
+* @brief Sets whether only packets that pass the current main display filter should
 * be scanned for RTP streams.
+* @param tapinfo The rtp stream tap state structure containing the streams to mark.
+* @param apply Whether to apply the display filter.
 */
 void rtpstream_set_apply_display_filter(rtpstream_tapinfo_t *tapinfo, bool apply);
 
-/* Constant based on fix for bug 4119/5902: don't insert too many silence
+/**
+ * @brief Constant based on fix for bug 4119/5902: don't insert too many silence
  * frames.
  */
 #define MAX_SILENCE_FRAMES 14400000

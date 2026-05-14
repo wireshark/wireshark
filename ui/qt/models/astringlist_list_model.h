@@ -19,35 +19,71 @@
 #include <QSortFilterProxyModel>
 #include <QIdentityProxyModel>
 
+/**
+ * @brief A table model backed by a list of string lists.
+ *
+ * Each row is represented as a @c QStringList.
+ */
 class AStringListListModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
+    /** @brief Construct an empty model.
+     *  @param parent The parent object. */
     explicit AStringListListModel(QObject * parent = Q_NULLPTR);
+
+    /** @brief Destroy the model. */
     virtual ~AStringListListModel();
 
+    /** @brief Return the number of rows in the model.
+     *  @param parent Unused; present for API compatibility.
+     *  @return The number of rows. */
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+
+    /** @brief Return the number of columns in the model.
+     *  @param parent Unused; present for API compatibility.
+     *  @return The number of columns. */
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+
+    /** @brief Return data for the given index and role.
+     *  @param index The model index to query.
+     *  @param role  The data role.
+     *  @return The data for the given index and role, or an invalid
+     *          @c QVariant if the index or role is unsupported. */
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+
+    /** @brief Return header data for the given section, orientation, and role.
+     *  @param section     The section index.
+     *  @param orientation The header orientation.
+     *  @param role        The data role.
+     *  @return The header data, or an invalid @c QVariant if unsupported. */
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
-    //
-    // This is not protected because we may need to invoke it from
-    // a wmem_map_foreach() callback implemented as an extern "C"
-    // static member function of a subclass.  wmem_map_foreach() is
-    // passed, as the user data, a pointer to the class instance to
-    // which we want to append rows.
-    //
-    virtual void appendRow(const QStringList &, const QString & row_tooltip = QString(), const QModelIndex &parent = QModelIndex());
+    /**
+     * @brief Append a row to the model.
+     *
+     * This method is public rather than protected because it may need to be
+     * invoked from a wmem_map_foreach() callback implemented as an
+     * @c extern @c "C" static member function of a subclass.
+     * wmem_map_foreach() is passed, as the user data, a pointer to the
+     * class instance to which rows should be appended.
+     *
+     * @param row         The string list representing the new row's data.
+     * @param row_tooltip The tooltip text for the new row.
+     * @param parent      Unused; present for API compatibility.
+     */
+    virtual void appendRow(const QStringList &row, const QString & row_tooltip = QString(), const QModelIndex &parent = QModelIndex());
+
 
 protected:
+    /** @brief Return the list of column header strings.
+     *  @return A @c QStringList of column header names. */
     virtual QStringList headerColumns() const = 0;
 
 private:
-    QList<QStringList> display_data_;
-    QStringList tooltip_data_;
+    QList<QStringList> display_data_;   /**< Row data for display. */
+    QStringList tooltip_data_;          /**< Per-row tooltip strings. */
 };
-
 class AStringListListSortFilterProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT

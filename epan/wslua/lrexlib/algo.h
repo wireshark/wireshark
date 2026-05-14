@@ -7,6 +7,12 @@
 #define REX_VERSION "Lrexlib " VERSION
 
 /* Forward declarations */
+/**
+ * @brief Pushes the subject string to the Lua stack.
+ *
+ * @param L The Lua state.
+ * @param argE Execution arguments containing the subject string.
+ */
 static void gmatch_pushsubject (lua_State *L, TArgExec *argE);
 
 /**
@@ -1025,10 +1031,24 @@ static int algm_find (lua_State *L) {
   return generic_find_method (L, METHOD_FIND);
 }
 
+/**
+ * @brief Executes a method based on the provided Lua state.
+ *
+ * This function is responsible for finding and executing a method using the generic_find_method function.
+ *
+ * @param L The Lua state to operate on.
+ * @return The result of the method execution.
+ */
 static int algm_match (lua_State *L) {
   return generic_find_method (L, METHOD_MATCH);
 }
 
+/**
+ * @brief Finds a method in the Lua state.
+ *
+ * @param L The Lua state to operate on.
+ * @return The result of the method execution.
+ */
 static int algm_tfind (lua_State *L) {
   return generic_find_method (L, METHOD_TFIND);
 }

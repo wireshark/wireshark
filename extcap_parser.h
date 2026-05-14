@@ -290,6 +290,13 @@ void extcap_free_arg_list(GList *a);
 /** Parser for extcap data */
 
 /* Parse all sentences for args and values */
+
+/**
+ * @brief Parses arguments from extcap output.
+ *
+ * @param output The output string to parse.
+ * @return A GList of parsed extcap_args.
+ */
 GList * extcap_parse_args(char *output);
 
 /**

@@ -46,6 +46,12 @@ typedef struct window_geometry_s {
 extern void main_window_update(void);
 
 /* Exit routine provided by UI-specific code. */
+
+/**
+ * @brief Exit the application with a given status.
+ *
+ * @param status The exit status code.
+ */
 WS_NORETURN extern void exit_application(int status);
 
 /* XXX - Yes this isn't the best place, but they are used by file_dlg_win32.c, which is supposed

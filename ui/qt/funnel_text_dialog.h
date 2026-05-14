@@ -24,37 +24,89 @@ struct _funnel_text_window_t {
     FunnelTextDialog* funnel_text_dialog;
 };
 
+/**
+ * @brief A dialog displaying text output from a Lua funnel script.
+ *
+ * Provides a scrollable, optionally editable text area along with
+ * script-defined buttons and a find bar.
+ */
 class FunnelTextDialog : public GeometryStateDialog
 {
     Q_OBJECT
 
 public:
+    /** @brief Construct a FunnelTextDialog.
+     *  @param parent The parent widget.
+     *  @param title  The dialog title. */
     explicit FunnelTextDialog(QWidget *parent, const QString &title = QString());
+
+    /** @brief Destroy the FunnelTextDialog. */
     ~FunnelTextDialog();
 
+    /**
+     * @brief Handle dialog rejection, invoking the close callback if set.
+     */
     void reject();
 
     // Funnel ops
+    /** @brief Create a new funnel text window.
+     *  @param parent The parent widget.
+     *  @param title  The window title.
+     *  @return Pointer to the new funnel text window handle. */
     static struct _funnel_text_window_t *textWindowNew(QWidget *parent, const QString title);
+
+    /** @brief Replace the dialog's text content.
+     *  @param text The new text to display. */
     void setText(const QString text);
+
+    /** @brief Append text to the end of the dialog's content.
+     *  @param text The text to append. */
     void appendText(const QString text);
+
+    /** @brief Prepend text to the beginning of the dialog's content.
+     *  @param text The text to prepend. */
     void prependText(const QString text);
+
+    /**
+     * @brief Clear all text from the dialog.
+     */
     void clearText();
+
+    /** @brief Return the current text content as a C string.
+     *  @return The current text content. */
     const char *getText();
+
+    /** @brief Set the callback to invoke when the dialog is closed.
+     *  @param close_cb      The close callback function.
+     *  @param close_cb_data User data to pass to the callback. */
     void setCloseCallback(text_win_close_cb_t close_cb, void* close_cb_data);
+
+    /** @brief Set whether the text area is editable by the user.
+     *  @param editable true to allow editing, false to make it read-only. */
     void setTextEditable(bool editable);
+
+    /** @brief Add a script-defined button to the dialog.
+     *  @param button_cb The funnel button callback descriptor.
+     *  @param label     The button label text. */
     void addButton(funnel_bt_t *button_cb, QString label);
 
 private slots:
+    /**
+     * @brief Handle clicks on any script-defined button.
+     */
     void buttonClicked();
+
+    /** @brief Handle changes to the find bar search pattern.
+     *  @param pattern The current search pattern. */
     void on_findLineEdit_textChanged(const QString &pattern);
+
 
 private:
     Ui::FunnelTextDialog *ui;
 
-    struct _funnel_text_window_t funnel_text_window_;
-    text_win_close_cb_t close_cb_;
-    void *close_cb_data_;
+    struct _funnel_text_window_t funnel_text_window_; /**< The funnel text window handle. */
+    text_win_close_cb_t close_cb_;                    /**< Callback invoked when the dialog closes. */
+    void *close_cb_data_;                             /**< User data for the close callback. */
 };
 
 extern "C" {

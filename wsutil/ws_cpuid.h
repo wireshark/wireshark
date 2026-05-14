@@ -84,6 +84,14 @@ ws_cpuid(uint32_t *CPUInfo _U_, int selector _U_)
 #elif defined(__GNUC__)  /* GCC/clang */
 
 #if defined(__x86_64__)
+
+/**
+ * @brief Execute a CPUID query on the current processor.
+ *
+ * @param CPUInfo  Output array of four 32-bit registers (EAX, EBX, ECX, EDX).
+ * @param selector The CPUID leaf (function ID) to query.
+ * @return true if the query was successful, false if unsupported.
+ */
 static inline bool
 ws_cpuid(uint32_t *CPUInfo, int selector)
 {
@@ -97,6 +105,14 @@ ws_cpuid(uint32_t *CPUInfo, int selector)
 	return true;
 }
 #elif defined(__i386__)
+
+/**
+ * @brief Execute a CPUID query on the current processor.
+ *
+ * @param CPUInfo  Output array of four 32-bit registers (EAX, EBX, ECX, EDX).
+ * @param selector The CPUID leaf (function ID) to query.
+ * @return true if the query was successful, false if unsupported.
+ */
 static bool
 ws_cpuid(uint32_t *CPUInfo _U_, int selector _U_)
 {
@@ -126,6 +142,14 @@ ws_cpuid(uint32_t *CPUInfo _U_, int selector _U_)
 	return false;
 }
 #else /* not x86 */
+
+/**
+ * @brief Execute a CPUID query on the current processor.
+ *
+ * @param CPUInfo  Output array of four 32-bit registers (EAX, EBX, ECX, EDX).
+ * @param selector The CPUID leaf (function ID) to query.
+ * @return true if the query was successful, false if unsupported.
+ */
 static bool
 ws_cpuid(uint32_t *CPUInfo _U_, int selector _U_)
 {
@@ -136,6 +160,13 @@ ws_cpuid(uint32_t *CPUInfo _U_, int selector _U_)
 
 #else /* Other compilers */
 
+/**
+ * @brief Execute a CPUID query on the current processor.
+ *
+ * @param CPUInfo  Output array of four 32-bit registers (EAX, EBX, ECX, EDX).
+ * @param selector The CPUID leaf (function ID) to query.
+ * @return true if the query was successful, false if unsupported.
+ */
 static bool
 ws_cpuid(uint32_t *CPUInfo _U_, int selector _U_)
 {

@@ -95,6 +95,10 @@ extern void packet_list_thaw(void);
  * @brief Recreates visible rows in the packet list.
  *
  * This function is called to recreate the visible rows in the packet list.
+ *
+ * @param cinfo The column information used to determine how to recreate the visible rows.
+ * @param fdata The frame data used to determine how to recreate the visible rows.
+ * @return true if the visible rows were successfully recreated, false otherwise.
  */
 extern unsigned packet_list_append(column_info *cinfo, frame_data *fdata);
 

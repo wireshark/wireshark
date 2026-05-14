@@ -189,143 +189,215 @@ struct _tvbparse_elem_t {
  */
 
 
-/*
- * a char element.
+/**
+ * @brief Create a single-character match element.
  *
- * When looked for it returns a simple element one character long if the char
- * at the current offset matches one of the needles.
+ * Matches exactly one byte at the current parser offset if that byte is
+ * present in @p needles. On success returns a simple element one byte long.
+ *
+ * @param id           Caller-assigned identifier stored in the returned element.
+ * @param needles      A string whose characters form the set of accepted bytes.
+ * @param private_data Opaque caller data passed to the callbacks.
+ * @param before_cb    Callback invoked before the match is consumed, or NULL.
+ * @param after_cb     Callback invoked after the match is consumed, or NULL.
+ * @return A newly allocated @c tvbparse_wanted_t describing this element.
  */
 WS_DLL_PUBLIC
-tvbparse_wanted_t* tvbparse_char(const int id,
-                                 const char* needles,
-                                 const void* private_data,
+tvbparse_wanted_t *tvbparse_char(const int id,
+                                 const char *needles,
+                                 const void *private_data,
                                  tvbparse_action_t before_cb,
                                  tvbparse_action_t after_cb);
 
-/*
- * a not_char element.
+
+/**
+ * @brief Create a single-character exclusion match element.
  *
  * When looked for it returns a simple element one character long if the char
  * at the current offset does not match one of the needles.
+ *
+ * @param id           Caller-assigned identifier stored in the returned element.
+ * @param needle       A string whose characters form the set of rejected bytes.
+ * @param private_data Opaque caller data passed to the callbacks.
+ * @param before_cb    Callback invoked before the match is consumed, or NULL.
+ * @param after_cb     Callback invoked after the match is consumed, or NULL.
+ * @return A newly allocated @c tvbparse_wanted_t describing this element.
  */
 WS_DLL_PUBLIC
-tvbparse_wanted_t* tvbparse_not_char(const int id,
-                                     const char* needle,
-                                     const void* private_data,
+tvbparse_wanted_t *tvbparse_not_char(const int id,
+                                     const char *needle,
+                                     const void *private_data,
                                      tvbparse_action_t before_cb,
                                      tvbparse_action_t after_cb);
 
-/*
- * a chars element
+/**
+ * @brief Create a multi-character span match element.
  *
  * When looked for it returns a simple element one or more characters long if
  * one or more char(s) starting from the current offset match one of the needles.
  * An element will be returned if at least min_len chars are given (1 if it's 0)
  * It will get at most max_len chars or as much as it can if max_len is 0.
+ *
+ * @param id           Caller-assigned identifier stored in the returned element.
+ * @param min_len      Minimum number of matching bytes required for success;
+ *                     treated as 1 if 0.
+ * @param max_len      Maximum number of bytes to consume; 0 means unlimited.
+ * @param needles      A string whose characters form the set of accepted bytes.
+ * @param private_data Opaque caller data passed to the callbacks.
+ * @param before_cb    Callback invoked before the match is consumed, or NULL.
+ * @param after_cb     Callback invoked after the match is consumed, or NULL.
+ * @return A newly allocated @c tvbparse_wanted_t describing this element.
  */
 WS_DLL_PUBLIC
-tvbparse_wanted_t* tvbparse_chars(const int id,
+tvbparse_wanted_t *tvbparse_chars(const int id,
                                   const unsigned min_len,
                                   const unsigned max_len,
-                                  const char* needles,
-                                  const void* private_data,
+                                  const char *needles,
+                                  const void *private_data,
                                   tvbparse_action_t before_cb,
                                   tvbparse_action_t after_cb);
 
-/*
- * a not_chars element
+/**
+ * @brief Create a multi-character exclusion span match element.
  *
  * When looked for it returns a simple element one or more characters long if
  * one or more char(s) starting from the current offset do not match one of the
  * needles.
  * An element will be returned if at least min_len chars are given (1 if it's 0)
  * It will get at most max_len chars or as much as it can if max_len is 0.
+ *
+ * @param id           Caller-assigned identifier stored in the returned element.
+ * @param min_len      Minimum number of non-matching bytes required for success;
+ *                     treated as 1 if 0.
+ * @param max_len      Maximum number of bytes to consume; 0 means unlimited.
+ * @param needles      A string whose characters form the set of rejected bytes.
+ * @param private_data Opaque caller data passed to the callbacks.
+ * @param before_cb    Callback invoked before the match is consumed, or NULL.
+ * @param after_cb     Callback invoked after the match is consumed, or NULL.
+ * @return A newly allocated @c tvbparse_wanted_t describing this element.
  */
 WS_DLL_PUBLIC
-tvbparse_wanted_t* tvbparse_not_chars(const int id,
+tvbparse_wanted_t *tvbparse_not_chars(const int id,
                                       const unsigned min_len,
                                       const unsigned max_len,
-                                      const char* needles,
-                                      const void* private_data,
+                                      const char *needles,
+                                      const void *private_data,
                                       tvbparse_action_t before_cb,
                                       tvbparse_action_t after_cb);
 
-/*
- * a string element
+/**
+ * @brief Create a case-sensitive literal string match element.
  *
  * When looked for it returns a simple element if we have the given string at
  * the current offset
+ *
+ * @param id           Caller-assigned identifier stored in the returned element.
+ * @param string       The literal byte sequence to match.
+ * @param private_data Opaque caller data passed to the callbacks.
+ * @param before_cb    Callback invoked before the match is consumed, or NULL.
+ * @param after_cb     Callback invoked after the match is consumed, or NULL.
+ * @return A newly allocated @c tvbparse_wanted_t describing this element.
  */
 WS_DLL_PUBLIC
-tvbparse_wanted_t* tvbparse_string(const int id,
-                                   const char* string,
-                                   const void* private_data,
+tvbparse_wanted_t *tvbparse_string(const int id,
+                                   const char *string,
+                                   const void *private_data,
                                    tvbparse_action_t before_cb,
                                    tvbparse_action_t after_cb);
 
-/*
- * casestring
+/**
+ * @brief Create a case-insensitive literal string match element.
  *
  * When looked for it returns a simple element if we have a matching string at
  * the current offset
+ *
+ * @param id        Caller-assigned identifier stored in the returned element.
+ * @param str       The literal string to match case-insensitively.
+ * @param data      Opaque caller data passed to the callbacks.
+ * @param before_cb Callback invoked before the match is consumed, or NULL.
+ * @param after_cb  Callback invoked after the match is consumed, or NULL.
+ * @return A newly allocated @c tvbparse_wanted_t describing this element.
  */
 WS_DLL_PUBLIC
-tvbparse_wanted_t* tvbparse_casestring(const int id,
-                                       const char* str,
-                                       const void* data,
+tvbparse_wanted_t *tvbparse_casestring(const int id,
+                                       const char *str,
+                                       const void *data,
                                        tvbparse_action_t before_cb,
                                        tvbparse_action_t after_cb);
 
-/*
- * until
+/**
+ * @brief Create an "until" match element that consumes bytes up to a terminator.
  *
- * When looked for it returns a simple element containing all the characters
+* When looked for it returns a simple element containing all the characters
  * found until the first match of the ending element if the ending element is
- * found.
  *
  * When looking for until elements it calls tvbparse_find so it can be very slow.
  *
  * It won't have a subelement, the ending's callbacks won't get called.
- */
-
-/*
  * op_mode values determine how the terminating element and the current offset
  * of the parser are handled
+ *
+ * @param id           Caller-assigned identifier stored in the returned element.
+ * @param private_data Opaque caller data passed to the callbacks.
+ * @param before_cb    Callback invoked before the match is consumed, or NULL.
+ * @param after_cb     Callback invoked after the match is consumed, or NULL.
+ * @param ending       The terminating element to search for.
+ * @param until_mode   Controls how the terminator affects the returned element
+ *                     and parser offset.
+ * @return A newly allocated @c tvbparse_wanted_t describing this element.
  */
 WS_DLL_PUBLIC
-tvbparse_wanted_t* tvbparse_until(const int id,
-                                  const void* private_data,
+tvbparse_wanted_t *tvbparse_until(const int id,
+                                  const void *private_data,
                                   tvbparse_action_t before_cb,
                                   tvbparse_action_t after_cb,
-                                  const tvbparse_wanted_t* ending,
+                                  const tvbparse_wanted_t *ending,
                                   until_mode_t until_mode);
 
-/*
- * one_of
+/**
+ * @brief Create a one-of alternation element.
  *
  * When looked for it will try to match to the given candidates and return a
  * composed element whose subelement is the first match.
  *
  * The list of candidates is terminated with a NULL
  *
+ * @param id           Caller-assigned identifier stored in the returned element.
+ * @param private_data Opaque caller data passed to the callbacks.
+ * @param before_cb    Callback invoked before the match is consumed, or NULL.
+ * @param after_cb     Callback invoked after the match is consumed, or NULL.
+ * @param ...          NULL-terminated list of @c tvbparse_wanted_t* candidates
+ *                     to try in order.
+ * @return A newly allocated @c tvbparse_wanted_t describing this alternation.
  */
 WS_DLL_PUBLIC
-tvbparse_wanted_t* tvbparse_set_oneof(const int id,
-                                      const void* private_data,
+tvbparse_wanted_t *tvbparse_set_oneof(const int id,
+                                      const void *private_data,
                                       tvbparse_action_t before_cb,
                                       tvbparse_action_t after_cb,
                                       ...);
 
-/*
- * hashed
+/**
+ * @brief Create a hash-dispatch element that selects a sub-element by key.
+ *
+ * @param id        Caller-assigned identifier stored in the returned element.
+ * @param data      Opaque caller data passed to the callbacks.
+ * @param before_cb Callback invoked before the match is consumed, or NULL.
+ * @param after_cb  Callback invoked after the match is consumed, or NULL.
+ * @param key       The element used to extract the dispatch key string.
+ * @param other     Fallback element used when the key has no hash entry;
+ *                  NULL to fail the match when no entry is found.
+ * @param ...       Optional additional NULL-terminated alternating pairs of
+ *                  @c char* key name and @c tvbparse_wanted_t* element.
+ * @return A newly allocated @c tvbparse_wanted_t describing this element.
  */
 WS_DLL_PUBLIC
-tvbparse_wanted_t* tvbparse_hashed(const int id,
-                                   const void* data,
+tvbparse_wanted_t *tvbparse_hashed(const int id,
+                                   const void *data,
                                    tvbparse_action_t before_cb,
                                    tvbparse_action_t after_cb,
-                                   tvbparse_wanted_t* key,
-                                   tvbparse_wanted_t* other,
+                                   tvbparse_wanted_t *key,
+                                   tvbparse_wanted_t *other,
                                    ...);
 
 /**
@@ -335,10 +407,10 @@ tvbparse_wanted_t* tvbparse_hashed(const int id,
  * @param ... Variable arguments, alternating between name (char*) and element (tvbparse_wanted_t*).
  */
 WS_DLL_PUBLIC
-void tvbparse_hashed_add(tvbparse_wanted_t* w, ...);
+void tvbparse_hashed_add(tvbparse_wanted_t *w, ...);
 
-/*
- * sequence
+/**
+ * @brief Create a sequential composition element.
  *
  * When looked for it will try to match in order all the given candidates. If
  * every candidate is found in the given order it will return a composed
@@ -346,10 +418,17 @@ void tvbparse_hashed_add(tvbparse_wanted_t* w, ...);
  *
  * The list of candidates is terminated with a NULL.
  *
+ * @param id           Caller-assigned identifier stored in the returned element.
+ * @param private_data Opaque caller data passed to the callbacks.
+ * @param before_cb    Callback invoked before the sequence is consumed, or NULL.
+ * @param after_cb     Callback invoked after the sequence is consumed, or NULL.
+ * @param ...          NULL-terminated list of @c tvbparse_wanted_t* candidates
+ *                     to match in order.
+ * @return A newly allocated @c tvbparse_wanted_t describing this sequence.
  */
 WS_DLL_PUBLIC
-tvbparse_wanted_t* tvbparse_set_seq(const int id,
-                                    const void* private_data,
+tvbparse_wanted_t *tvbparse_set_seq(const int id,
+                                    const void *private_data,
                                     tvbparse_action_t before_cb,
                                     tvbparse_action_t after_cb,
                                     ...);
@@ -368,6 +447,7 @@ tvbparse_wanted_t* tvbparse_set_seq(const int id,
  * @param before_cb Callback function to be called before parsing the element.
  * @param after_cb Callback function to be called after parsing the element.
  * @param wanted The candidate element to be matched repeatedly.
+ * @return A pointer to a tvbparse_wanted_t structure representing the parsing element.
  */
 WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_some(const int id,
@@ -383,10 +463,17 @@ tvbparse_wanted_t* tvbparse_some(const int id,
 
 
 /*
- * handle
+ * @brief Create an indirect reference element for recursive grammars.
  *
  * this is a pointer to a pointer to a wanted element (that might have not
  * been initialized yet) so that recursive structures
+ * @param handle Pointer to the @c tvbparse_wanted_t* that will be resolved
+ *               at match time. The pointed-to value must be non-NULL before
+ *               the first call to @c tvbparse_get() or @c tvbparse_find()
+ *               that may reach this element.
+ * @return A newly allocated @c tvbparse_wanted_t that indirects through
+ *         @p handle when matched.
+ *
  */
 WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_handle(tvbparse_wanted_t** handle);
@@ -482,10 +569,15 @@ bool tvbparse_reset(tvbparse_t* tt, const unsigned offset, unsigned len);
  * @return The current offset.
  */
 WS_DLL_PUBLIC
- unsigned tvbparse_curr_offset(tvbparse_t* tt);
+unsigned tvbparse_curr_offset(tvbparse_t* tt);
+
+/**
+ * @brief Get the number of bytes left to parse in the TVB parse structure.
+ *
+ * @param tt Pointer to the TVB parse structure.
+ * @return The number of bytes left to parse.
+ */
 unsigned tvbparse_len_left(tvbparse_t* tt);
-
-
 
 /**
  * @brief Peeks at the next token in the buffer without advancing the parser.

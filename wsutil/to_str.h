@@ -23,13 +23,17 @@ extern "C" {
 #endif /* __cplusplus */
 
 /**
- * uint8_to_hex()
+ * @brief Converts bytes to a hexadecimal string.
  *
  * Output uint8_t hex representation to 'out', and return pointer after last character (out + 2).
  * It will always output full representation (padded with 0).
  *
  * String is not NUL terminated by this routine.
  * There needs to be at least 2 bytes in the buffer.
+ *
+ * @param out Pointer to the output buffer where the hexadecimal string will be written.
+ * @param val The byte value to convert.
+ * @return A pointer to the position immediately after the last written character (out + 2)
  */
 WS_DLL_PUBLIC char *uint8_to_hex(char *out, uint8_t val);
 

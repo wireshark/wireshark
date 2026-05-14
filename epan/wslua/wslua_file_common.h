@@ -46,13 +46,35 @@ extern void create_wth_priv(lua_State* L, wtap *wth);
  */
 extern int get_wth_priv_table_ref(lua_State* L, wtap *wth);
 
-/* sets the private data to wtap - the table is presumed on top of stack */
+/**
+ * @brief Sets the private data table reference for a wtap structure.
+ *
+ * Sets the private data to wtap - the table is presumed on top of stack
+ *
+ * @param L The Lua state.
+ * @param wth The wtap structure.
+ * @return The number of values pushed onto the stack.
+ */
 extern int set_wth_priv_table_ref(lua_State* L, wtap *wth);
 
-/* remove, deref, and free the wtap->priv data */
+/**
+ * @brief Removes private data associated with a wtap structure.
+ *
+ * remove, deref, and free the wtap->priv data
+ *
+ * @param L The Lua state.
+ * @param wth Pointer to the wtap structure whose private data is to be removed.
+ */
 extern void remove_wth_priv(lua_State* L, wtap *wth);
 
-/* create and set the wtap_dumper->priv private data for the file instance */
+/**
+ * @brief Creates private data for a wtap_dumper structure.
+ *
+ * Create and set the wtap_dumper->priv private data for the file instance
+ *
+ * @param L Lua state.
+ * @param wdh Pointer to the wtap_dumper structure.
+ */
 extern void create_wdh_priv(lua_State* L, wtap_dumper *wdh);
 
 /**
@@ -63,10 +85,10 @@ extern void create_wdh_priv(lua_State* L, wtap_dumper *wdh);
  */
 extern int get_wdh_priv_table_ref(lua_State* L, wtap_dumper *wdh);
 
-/* sets the private data to wtap - the table is presumed on top of stack */
-
 /**
  * @brief Set or remove a Lua table reference in the wtap_dumper's private data.
+ *
+ * sets the private data to wtap - the table is presumed on top of stack
  *
  * @param L The Lua state.
  * @param wdh The wtap_dumper structure.
@@ -77,10 +99,11 @@ extern int set_wdh_priv_table_ref(lua_State* L, wtap_dumper *wdh);
 /**
  * @brief Removes private data associated with a wtap_dumper.
  *
+ * remove and deref the wtap_dumper->priv data
+ *
  * @param L Lua state.
  * @param wdh Pointer to the wtap_dumper whose private data is to be removed.
  */
-/* remove and deref the wtap_dumper->priv data */
 extern void remove_wdh_priv(lua_State* L, wtap_dumper *wdh);
 
 /* implemented in other c files than wslua_file_common.c */

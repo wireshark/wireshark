@@ -335,12 +335,31 @@ struct pref_custom_cbs;
 typedef struct pref_module module_t;
 
 /** Sets up memory used by proto routines. Called at program startup */
+
+/**
+ * @brief Initialize preferences system
+ *
+ * @param col_fmt Array of column format strings
+ * @param num_cols Number of columns in the display
+ */
 void prefs_init(const char** col_fmt, int num_cols);
 
 /** Reset preferences to default values.  Called at profile change */
+
+/**
+ * @brief Resets preferences to their default values.
+ *
+ * @param app_env_var_prefix Prefix for the application environment variables.
+ * @param col_fmt Array of column format strings.
+ * @param num_cols Number of columns in the format array.
+ */
 WS_DLL_PUBLIC void prefs_reset(const char* app_env_var_prefix, const char** col_fmt, int num_cols);
 
 /** Frees memory used by proto routines. Called at program shutdown */
+
+/**
+ * @brief Clean up preferences.
+ */
 void prefs_cleanup(void);
 
 /** Store whether the current UI theme is dark so that we can adjust colors
@@ -359,7 +378,7 @@ WS_DLL_PUBLIC void prefs_set_gui_theme_is_dark(bool is_dark);
 WS_DLL_PUBLIC module_t *prefs_register_protocol(int id, void (*apply_cb)(void));
 
 /**
- * Register an alias for a preference module.
+ * @brief Register an alias for a preference module.
  * @param name the preference module's alias. Only ASCII letters, numbers,
  *                  underscores, hyphens, and dots may appear in the name
  * @param module the module to create an alias for
@@ -422,8 +441,8 @@ WS_DLL_PUBLIC module_t *prefs_register_protocol_subtree(const char *subtree, int
  */
 WS_DLL_PUBLIC module_t *prefs_register_protocol_obsolete(int id);
 
-/*
- * Register a module that will have preferences.
+/**
+ * @brief Register a module that will have preferences.
  * Specify the module under which to register it, the name used for the
  * module in the preferences file, the title used in the tab for it
  * in a preferences dialog box, and a routine to call back when the
@@ -977,7 +996,7 @@ WS_DLL_PUBLIC void prefs_register_dissector_preference(module_t *module, const c
     const char *title, const char *description, const char **var);
 
 /**
- * Register a preference that used to be supported but no longer is.
+ * @brief Register a preference that used to be supported but no longer is.
  *
  * Note that a warning will pop up if you've saved such preference to the
  * preference file and you subsequently take the code out. The way to make
@@ -996,7 +1015,7 @@ WS_DLL_PUBLIC void prefs_register_obsolete_preference(module_t *module,
     const char *name);
 
 /**
- * Register a preference with an enumerated value.
+ * @brief Register a preference with an enumerated value.
  * @param module the preferences module returned by prefs_register_protocol() or
  *               prefs_register_protocol_subtree()
  * @param name the preference's identifier. This is appended to the name of the

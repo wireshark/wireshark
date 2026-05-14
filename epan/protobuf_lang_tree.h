@@ -213,7 +213,7 @@ pbl_printf(const char* fmt, ...)
 }
 
 /**
- Reinitialize the protocol buffers pool according to proto files directories.
+ @brief Reinitialize the protocol buffers pool according to proto files directories.
  @param ppool The output descriptor_pool will be created. If *pool is not NULL, it will free it first.
  @param directories  The root directories containing proto files. Must end with NULL element.
  @param error_cb The error reporter callback function. */

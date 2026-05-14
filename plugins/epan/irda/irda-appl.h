@@ -122,6 +122,12 @@ extern ias_attr_dissector_t ircomm_attr_dissector[];
 extern ias_attr_dissector_t irlpt_attr_dissector[];
 
 /* Serial Infrared (SIR) */
+
+/**
+ * @brief Registers the IR-SIR protocol dissector.
+ *
+ * This function registers the IR-SIR protocol dissector with Wireshark.
+ */
 extern void proto_register_irsir(void);
 
 

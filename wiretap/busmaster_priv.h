@@ -109,6 +109,7 @@ typedef struct {
  * @param state Pointer to the busmaster state structure.
  * @param err Pointer to an integer where any error code will be stored.
  * @param err_info Pointer to a char pointer where any error information will be stored.
+ * @return true if the parser ran successfully, false if an error occurred.
  */
 bool
 run_busmaster_parser(busmaster_state_t *state,

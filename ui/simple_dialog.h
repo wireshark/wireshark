@@ -83,6 +83,14 @@ extern void *simple_dialog(ESD_TYPE_E type, int btn_mask,
     const char *msg_format, ...)
     G_GNUC_PRINTF(3, 4);
 
+/**
+ * @brief Show a simple dialog asynchronously.
+ *
+ * @param type Type of the dialog to show.
+ * @param btn_mask Bitmask defining which buttons to display on the dialog.
+ * @param msg_format Format string for the message to be displayed.
+ * @return void* Always returns NULL.
+ */
 extern void *simple_dialog_async(ESD_TYPE_E type, int btn_mask,
     const char *msg_format, ...)
     G_GNUC_PRINTF(3, 4);
@@ -95,26 +103,43 @@ extern void *simple_dialog_async(ESD_TYPE_E type, int btn_mask,
  */
 extern char *simple_dialog_format_message(const char *msg);
 
-/*
- * Alert box, with optional "don't show this message again" variable
+/**
+ * @brief Show an Alert box, with optional "don't show this message again" variable
  * and checkbox, and optional secondary text.
+ *
+ * @param type Type of the alert box to show.
+ * @param notagain Pointer to a boolean variable that will be set to true if the user checks the "don't show this message again" checkbox, or false otherwise.
+ * @param secondary_msg Optional secondary message to display in the alert box, or NULL if no secondary message is needed.
+ * @param msg_format Format string for the primary message to be displayed in the alert box.
+ * @param ... Additional arguments for the format string of the primary message.
  */
 extern void simple_message_box(ESD_TYPE_E type, bool *notagain,
                                const char *secondary_msg,
                                const char *msg_format, ...) G_GNUC_PRINTF(4, 5);
 
-/*
- * Error alert box, taking a format and a va_list argument.
+/**
+ * @brief Display an error alert box, taking a format and a va_list argument.
+ *
+ * @param msg_format The format string for the message.
+ * @param ap         The va_list of arguments for the format string.
  */
 extern void vsimple_error_message_box(const char *msg_format, va_list ap);
 
-/*
- * Error alert box, taking a format and a list of arguments.
+
+/**
+ * @brief Display an error alert box, taking a format and a list of arguments.
+ *
+ * @param msg_format The format string for the message.
+ * @param ...        Arguments for the format string.
  */
 extern void simple_error_message_box(const char *msg_format, ...) G_GNUC_PRINTF(1, 2);
 
-/*
- * Warning alert box, taking a format and a va_list argument.
+
+/**
+ * @brief Display a warning alert box, taking a format and a va_list argument.
+ *
+ * @param msg_format The format string for the message.
+ * @param ap         The va_list of arguments for the format string.
  */
 extern void vsimple_warning_message_box(const char *msg_format, va_list ap);
 

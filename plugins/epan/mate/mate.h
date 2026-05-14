@@ -343,28 +343,116 @@ typedef union _mate_max_size {
 } mate_max_size;
 
 /* from mate_runtime.c */
+
+/**
+ * @brief Initializes the MATE runtime.
+ *
+ * @param mc The MATE configuration.
+ */
 extern void initialize_mate_runtime(mate_config* mc);
+
+/**
+ * @brief Retrieves PDUs for a given frame number.
+ *
+ * @param framenum The frame number to retrieve PDUs for.
+ * @return A GPtrArray containing the PDUs, or NULL if not found.
+ */
 extern GPtrArray* mate_get_pdus(uint32_t framenum);
+
+/**
+ * @brief Analyzes a frame for MATE.
+ *
+ * @param mc The MATE configuration.
+ * @param pinfo The packet information.
+ * @param tree The protocol tree.
+ */
 extern void mate_analyze_frame(mate_config *mc, packet_info *pinfo, proto_tree* tree);
 
 /* from mate_setup.c */
+/**
+ * @brief Create a configuration for MATE.
+ *
+ * @param filename The name of the file containing the MATE module's configuration.
+ * @param mate_hfid The header field identifier for MATE.
+ * @return A pointer to the newly created mate_config structure, or NULL on failure.
+ */
 extern mate_config* mate_make_config(const char* filename, int mate_hfid);
 
+/**
+ * @brief Create and register a new PDU configuration in the MATE config.
+ *
+ * @param mc   The MATE configuration.
+ * @param name The name of the new PDU configuration.
+ * @return Pointer to the new @c mate_cfg_pdu, or NULL on failure.
+ */
 extern mate_cfg_pdu* new_pducfg(mate_config* mc, char* name);
+
+/**
+ * @brief Create and register a new GoP configuration in the MATE config.
+ *
+ * @param mc   The MATE configuration.
+ * @param name The name of the new GoP configuration.
+ * @return Pointer to the new @c mate_cfg_gop, or NULL on failure.
+ */
 extern mate_cfg_gop* new_gopcfg(mate_config* mc, char* name);
+
+/**
+ * @brief Create and register a new GoG configuration in the MATE config.
+ *
+ * @param mc   The MATE configuration.
+ * @param name The name of the new GoG configuration.
+ * @return Pointer to the new @c mate_cfg_gog, or NULL on failure.
+ */
 extern mate_cfg_gog* new_gogcfg(mate_config* mc, char* name);
 
-extern bool add_hfid(mate_config* mc, header_field_info*  hfi, char* as, GHashTable* where);
+/**
+ * @brief Add a header field mapping to a MATE configuration hash table.
+ *
+ * @param mc    The MATE configuration.
+ * @param hfi   The header field info to add.
+ * @param as    The name to map the field to.
+ * @param where The hash table to insert the mapping into.
+ * @return true on success, false if the field is already mapped.
+ */
+extern bool add_hfid(mate_config* mc, header_field_info* hfi, char* as, GHashTable* where);
+
+/**
+ * @brief Append a range string to a range pointer array.
+ *
+ * @param range        The range string to add.
+ * @param range_ptr_arr The array to append the range to.
+ * @return The range string, or NULL on failure.
+ */
 extern char* add_ranges(char* range, GPtrArray* range_ptr_arr);
 
-
 /* from mate_parser.l */
+
+/**
+ * @brief Load and parse a MATE configuration file.
+ *
+ * @param filename The path to the MATE configuration file.
+ * @param mc       The MATE configuration to populate.
+ * @return true on success, false on failure.
+ */
 extern bool mate_load_config(const char* filename, mate_config* mc);
 
-/* Constructor/Destructor prototypes for Lemon Parser */
+/** @brief The argument type for the Lemon parser allocator function. */
 #define YYMALLOCARGTYPE size_t
+
+/**
+ * @brief Allocate and initialize a new MateParser instance.
+ */
 void *MateParserAlloc(void* (*)(YYMALLOCARGTYPE));
+
+/**
+ * @brief Free a MateParser instance and all its resources.
+ */
 void MateParserFree(void*, void (*)(void *));
-void MateParser(void*, int, char*,  mate_config*);
+
+
+/**
+ * @brief Pass a token to the MateParser for processing.
+ */
+void MateParser(void*, int, char*, mate_config*);
 
 #endif

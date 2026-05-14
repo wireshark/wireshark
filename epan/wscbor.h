@@ -126,12 +126,15 @@ typedef struct {
 WS_DLL_PUBLIC
 wscbor_chunk_t * wscbor_chunk_read(wmem_allocator_t *alloc, tvbuff_t *tvb, int *offset);
 
-/** Free a chunk and its lists.
+/**
+ * @brief Free a chunk and its lists.
+ * @param chunk The chunk to free.
  */
 WS_DLL_PUBLIC
 void wscbor_chunk_free(wscbor_chunk_t *chunk);
 
-/** After both reading and decoding a chunk, report on any errors found.
+/**
+ * @brief After both reading and decoding a chunk, report on any errors found.
  * @param pinfo The associated packet.
  * @param item The associated tree item.
  * @param chunk The chunk with possible errors.
@@ -140,22 +143,24 @@ void wscbor_chunk_free(wscbor_chunk_t *chunk);
 WS_DLL_PUBLIC
 uint64_t wscbor_chunk_mark_errors(packet_info *pinfo, proto_item *item, const wscbor_chunk_t *chunk);
 
-/** Determine if a chunk has errors.
+/**
+ * @brief Determine if a chunk has errors.
  * @param chunk The chunk with possible errors.
  * @return The error count.
  */
 WS_DLL_PUBLIC
 unsigned wscbor_has_errors(const wscbor_chunk_t *chunk);
 
-/** Determine if an indefinite break is present.
- *
+/**
+ * @brief Determine if an indefinite break is present.
  * @param chunk The chunk to check.
  * @return True if it's an indefinite break.
  */
 WS_DLL_PUBLIC
 bool wscbor_is_indefinite_break(const wscbor_chunk_t *chunk);
 
-/** Recursively skip items from a stream.
+/**
+ * @brief Recursively skip items from a stream.
  *
  * @param alloc The allocator to use.
  * @param tvb The data buffer.
@@ -275,14 +280,30 @@ char * wscbor_require_tstr(wmem_allocator_t *alloc, wscbor_chunk_t *chunk);
 WS_DLL_PUBLIC
 tvbuff_t * wscbor_require_bstr(wmem_allocator_t *alloc, wscbor_chunk_t *chunk);
 
-/** Add an item representing an array or map container.
+/**
+ * @brief Add an item representing an array or map container.
+ *
  * If the item is type FT_UINT* or FT_INT* the count of (array) items
  * or map (pairs) is used as the item value.
+ *
+ * @param tree The protocol tree to add the item to.
+ * @param hfindex The field ID for the item.
+ * @param pinfo Packet information structure.
+ * @param tvb The TVB containing the data.
+ * @param chunk The CBOR chunk containing the container.
+ * @return proto_item* The newly added protocol tree item.
  */
 WS_DLL_PUBLIC
 proto_item * proto_tree_add_cbor_container(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk);
 
-/** Add an item representing a non-boolean, non-float control value.
+/**
+ * @brief Add an item representing a non-boolean, non-float control value.
+ * @param tree The protocol tree to add the item to.
+ * @param hfindex The field ID for the item.
+ * @param pinfo Packet information structure.
+ * @param tvb The TVB containing the data.
+ * @param chunk The CBOR chunk containing the control value.
+ * @return proto_item* The newly added protocol tree item.
  */
 WS_DLL_PUBLIC
 proto_item * proto_tree_add_cbor_ctrl(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk);

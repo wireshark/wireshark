@@ -20,7 +20,9 @@ extern "C" {
 /** @file
  */
 
-/** Initialize internal structures */
+/**
+ * @brief Initialize internal structures for conversation filters.
+ */
 extern void conversation_filters_init(void);
 
 /**
@@ -56,7 +58,7 @@ WS_DLL_PUBLIC void register_conversation_filter(const char *proto_name, const ch
                                                       is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string, void *user_data);
 
 /**
- * Register a new log conversation filter.
+ * @brief Register a new log conversation filter.
  *
  * @param proto_name The protocol name.
  * @param display_name A friendly name for the filter.
@@ -67,12 +69,16 @@ WS_DLL_PUBLIC void register_conversation_filter(const char *proto_name, const ch
 WS_DLL_PUBLIC void register_log_conversation_filter(const char *proto_name, const char *display_name,
                                                       is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string, void *user_data);
 /**
- * Prepend a protocol to the list of filterable protocols.
+ * @brief Prepend a protocol to the list of filterable protocols.
  * @param proto_name A valid protocol name.
  */
 WS_DLL_PUBLIC void add_conversation_filter_protocol(const char *proto_name);
 
-/** Cleanup internal structures */
+/**
+ * @brief Cleans up conversation filters.
+ *
+ * Cleanup internal structures associated with conversation filters.
+ */
 extern void conversation_filters_cleanup(void);
 
 /**
