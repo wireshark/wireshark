@@ -1336,6 +1336,7 @@ parse_field_string_format(char *format) {
     while (pos < len) {
         if (format[pos] == '%') {
             if (pos >= (len-1)) { /* There should always be a following specifier character */
+                g_string_free(plain_s, TRUE);
                 return false;
             }
             pos++;
@@ -1357,6 +1358,7 @@ parse_field_string_format(char *format) {
                     g_string_append_c(plain_s, '%');
                     break;
                 default: /* Invalid format */
+                    g_string_free(plain_s, TRUE);
                     return false;
             }
         } else {
