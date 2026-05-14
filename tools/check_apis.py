@@ -29,6 +29,8 @@
 # - continue to check for overlap between this script and check_typed_item_calls.py and rationalize
 # - use more check_common.py functions for working out lists of files to check (--commit, --open)
 # - speedup using concurrent.futures.ProcessPoolExecutor() - one file per future
+# - see if we need to do anything special with respect to Python's regex cache. We create a *lot*
+#   of expressions.
 
 
 import argparse
@@ -408,6 +410,8 @@ def check_complex_snprintf(file_contents, filename):
 
 
 # N.B. more detailed value_string checks are done in check_typed_item_calls.py
+# XXX We might be able to speed this up by checking for *_string in file_words,
+# but file_words is created after we strip out our strings.
 def check_value_string_arrays(file_contents, filename, debug_flag):
     """Check value_string and enum_val_t arrays for proper termination."""
     count = 0
@@ -804,8 +808,11 @@ def check_pref_var_dupes(file_contents, filename):
     return error_count
 
 
-def check_try_catch(file_contents, filename):
+def check_try_catch(file_words, file_contents, filename):
     """Check for forbidden control flow changes in TRY/CATCH blocks."""
+    if not set(('TRY', 'ENDTRY')) & file_words:
+        return 0
+
     error_count = 0
 
     # Match TRY { ... } ENDTRY (with an optional '\' in case of a macro).
@@ -1105,7 +1112,7 @@ def main():
 
         error_count += check_proto_tree_add_XXX(file_contents, filename)
 
-        error_count += check_try_catch(file_contents, filename)
+        error_count += check_try_catch(file_words, file_contents, filename)
 
         # Check and count APIs
         for group_arg in api_groups:
