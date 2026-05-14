@@ -96,6 +96,7 @@
 #define RECENT_KEY_SIDEBAR_TIPS_TIPS            "gui.welcome_page.sidebar.tips_tips"
 #define RECENT_KEY_SIDEBAR_TIPS_AUTO_ADVANCE    "gui.welcome_page.sidebar.tips_auto_advance"
 #define RECENT_KEY_SIDEBAR_TIPS_INTERVAL        "gui.welcome_page.sidebar.tips_interval"
+#define RECENT_KEY_SIDEBAR_TIPS_SLIDES_TEST     "gui.welcome_page.sidebar.tips_slides_test"
 
 #define RECENT_GUI_GEOMETRY                   "gui.geom."
 
@@ -1004,6 +1005,10 @@ write_recent(void)
     fprintf(rf, RECENT_KEY_SIDEBAR_TIPS_INTERVAL ": %u\n",
             recent.gui_welcome_page_sidebar_tips_interval);
 
+    write_recent_boolean(rf, "Welcome page sidebar Tips slides test",
+            RECENT_KEY_SIDEBAR_TIPS_SLIDES_TEST,
+            recent.gui_welcome_page_sidebar_tips_slides_test);
+
     window_geom_recent_write_all(rf);
 
     fprintf(rf, "\n# Custom colors.\n");
@@ -1394,6 +1399,8 @@ read_set_recent_common_pair_static(char *key, const char *value,
         if (num < 1)
             num = 8; // Default value
         recent.gui_welcome_page_sidebar_tips_interval = (unsigned)num;
+    } else if (strcmp(key, RECENT_KEY_SIDEBAR_TIPS_SLIDES_TEST) == 0) {
+        parse_recent_boolean(value, &recent.gui_welcome_page_sidebar_tips_slides_test);
     }
 
     return PREFS_SET_OK;
@@ -1695,6 +1702,7 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
     recent.gui_welcome_page_sidebar_tips_tips = true;
     recent.gui_welcome_page_sidebar_tips_auto_advance = true;
     recent.gui_welcome_page_sidebar_tips_interval = 8;
+    recent.gui_welcome_page_sidebar_tips_slides_test = false;
 
     /* Construct the pathname of the user's recent common file. */
     rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, false, application_configuration_environment_prefix());

@@ -92,6 +92,14 @@ public:
     bool isCompactMode() const;
 
     /**
+     * @brief Freeze or unfreeze slide deck processing in case of changing
+     *        preference settings.
+     * @param freeze true to freeze slide deck processing; false to unfreeze
+     *               and trigger slide deck processing.
+     */
+    void setSlideDeckFreeze(bool freeze);
+
+    /**
      * @brief Show or hide all slides of a given type.
      *
      * @param type    The slide type to configure.
@@ -117,9 +125,10 @@ public:
     void setAutoAdvanceInterval(unsigned seconds);
 
     /**
-     * @brief Rebuild the active slide list from the current visibility map.
+     * @brief Enable or disable slide test mode.
+     * @param test true to enable test mode; false to restore normal operation.
      */
-    void applySlideFilter();
+    void setSlidesTest(bool test);
 
     /**
      * @brief Return whether any slides are currently visible.
@@ -193,9 +202,9 @@ private:
 
     /** Per-type visibility flags, consulted by @c applySlideFilter(). */
     QMap<BannerSlideType, bool> slide_type_visible_;
-
     QTimer *auto_advance_timer_;     /**< Timer driving automatic slide rotation; nullptr when disabled. */
     int auto_advance_ms_;            /**< Current auto-advance interval in milliseconds. */
+    bool slides_test_;               /**< true when slide test mode is active. */
 
     /** Merged per-type display configuration (predefined defaults + custom overrides). */
     QMap<BannerSlideType, SlideTypeConfig> type_config_;
@@ -241,6 +250,11 @@ private:
                                 bool is_custom,
                                 QMap<BannerSlideType, SlideTypeConfig> &file_config,
                                 QMap<BannerSlideType, QList<BannerSlide>> &file_slides);
+
+    /**
+     * @brief Rebuild the active slide list from the current visibility map.
+     */
+    void applySlideFilter();
 
     /**
      * @brief Merge per-type slide lists into the final @c slides_ sequence.

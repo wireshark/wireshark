@@ -271,3 +271,19 @@ Adding a New Default Slide
 
 4. Rebuild. The CMake glob picks up new images automatically.
    No other file changes are needed.
+
+
+Slide Testing
+-------------
+
+To assist in developing slides, by showing all eligable slides, the
+banner carousel has a 'hidden' test setting. This setting can be found
+in the "recent_common" file under the name:
+"gui.welcome_page.sidebar.tips_slides_test"
+
+When changing its value to 'true' and starting Wireshark afterwards,
+the banner carousel will be loaded with all eligable slides, according
+to the selected slide types. The dots can now be used to select among
+them. Auto advance is disabled in this case, so the selected slide will
+remain until another is chosen. This allows for careful evaluation of
+the slide designs.

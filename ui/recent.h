@@ -186,6 +186,7 @@ typedef struct recent_settings_tag {
     bool        gui_welcome_page_sidebar_tips_tips;
     bool        gui_welcome_page_sidebar_tips_auto_advance;
     unsigned    gui_welcome_page_sidebar_tips_interval;
+    bool        gui_welcome_page_sidebar_tips_slides_test;
 } recent_settings_t;
 
 /** Global recent settings. */

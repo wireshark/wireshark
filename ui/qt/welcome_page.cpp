@@ -60,7 +60,6 @@ WelcomePage::WelcomePage(QWidget *parent) :
     welcome_ui_->tipsSectionCard->setVisible(true);
 
     updateStyleSheets();
-    applySidebarPreferences();
 
     /* Handle Recent Capture Files List */
     // In welcome_page.cpp or wherever the list is created
@@ -165,9 +164,12 @@ void WelcomePage::applySidebarPreferences()
     // hasVisibleSlides() checks if there are any slides that should be shown, as well as the user's preferences.
     bool slidesAreVisible = welcome_ui_->tipsSectionCard->hasVisibleSlides();
 
+    welcome_ui_->tipsSectionCard->setSlideDeckFreeze(true);
     welcome_ui_->tipsSectionCard->setSlideTypeVisible(BannerEvents, recent.gui_welcome_page_sidebar_tips_events);
     welcome_ui_->tipsSectionCard->setSlideTypeVisible(BannerSponsorship, recent.gui_welcome_page_sidebar_tips_sponsorship);
     welcome_ui_->tipsSectionCard->setSlideTypeVisible(BannerTips, recent.gui_welcome_page_sidebar_tips_tips);
+    welcome_ui_->tipsSectionCard->setSlidesTest(recent.gui_welcome_page_sidebar_tips_slides_test);
+    welcome_ui_->tipsSectionCard->setSlideDeckFreeze(false);
     welcome_ui_->tipsSectionCard->setAutoAdvance(recent.gui_welcome_page_sidebar_tips_auto_advance);
     welcome_ui_->tipsSectionCard->setAutoAdvanceInterval(recent.gui_welcome_page_sidebar_tips_interval);
     welcome_ui_->tipsSectionCard->setVisible(slidesAreVisible);

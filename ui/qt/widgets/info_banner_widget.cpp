@@ -93,6 +93,7 @@ InfoBannerWidget::InfoBannerWidget(QWidget *parent) :
     , hovered_(false)
     , auto_advance_timer_(new QTimer(this))
     , auto_advance_ms_(kDefaultAutoAdvanceMs)
+    , slides_test_(false)
     , default_color_start_(QColor(0x33, 0x33, 0x33))
     , default_color_end_(QColor(0x22, 0x22, 0x22))
 {
@@ -102,7 +103,6 @@ InfoBannerWidget::InfoBannerWidget(QWidget *parent) :
     slide_type_visible_[BannerSponsorship] = true;
     slide_type_visible_[BannerTips] = true;
     setupSlides();
-    applySlideFilter();
 
     setMouseTracking(true);
     setFrameShape(QFrame::NoFrame);
@@ -372,9 +372,9 @@ void InfoBannerWidget::loadSlidesFromResource(const QString &resource_path,
         }
     }
 
-    QString flavor = application_flavor_is_wireshark() ? QStringLiteral("wireshark") : QStringLiteral("stratoshark");
+    QString flavor(application_flavor_name_lower());
 
-        // Parse slides
+    // Parse slides
     QJsonArray slides_array = root.value(QStringLiteral("slides")).toArray();
     for (const QJsonValue &val : slides_array) {
         QJsonObject obj = val.toObject();
@@ -439,21 +439,28 @@ void InfoBannerWidget::loadSlidesFromResource(const QString &resource_path,
     }
 }
 
+void InfoBannerWidget::setSlideDeckFreeze(bool freeze)
+{
+    if (!freeze)
+        applySlideFilter();
+}
+
 void InfoBannerWidget::setSlideTypeVisible(BannerSlideType type, bool visible)
 {
     if (type != BannerSeasonal) {
         slide_type_visible_[type] = visible;
     }
-    applySlideFilter();
 }
 
 void InfoBannerWidget::setAutoAdvance(bool advance)
 {
-    if (advance) {
-        auto_advance_timer_->start(auto_advance_ms_);
-    } else {
-        auto_advance_timer_->stop();
-        advanceRandomSlide();
+    if (!slides_test_) {
+        if (advance) {
+            auto_advance_timer_->start(auto_advance_ms_);
+        } else {
+            auto_advance_timer_->stop();
+            advanceRandomSlide();
+        }
     }
 }
 
@@ -468,6 +475,11 @@ void InfoBannerWidget::setAutoAdvanceInterval(unsigned seconds)
     } else {
         auto_advance_timer_->stop();
     }
+}
+
+void InfoBannerWidget::setSlidesTest(bool test)
+{
+    slides_test_ = test;
 }
 
 bool InfoBannerWidget::hasVisibleSlides() const
@@ -517,10 +529,12 @@ void InfoBannerWidget::buildSlideSequence()
         // Date-filter
         QList<BannerSlide> active;
         for (const BannerSlide &slide : type_slides) {
-            if (slide.date_from.isValid() && today < slide.date_from)
-                continue;
-            if (slide.date_until.isValid() && today > slide.date_until)
-                continue;
+            if (!slides_test_) {
+                if (slide.date_from.isValid() && today < slide.date_from)
+                    continue;
+                if (slide.date_until.isValid() && today > slide.date_until)
+                    continue;
+            }
             active.append(slide);
         }
 
@@ -528,7 +542,7 @@ void InfoBannerWidget::buildSlideSequence()
             continue;
 
         int maxdisplay = type_config_.value(type).maxdisplay;
-        if (maxdisplay <= 0 || maxdisplay >= active.size()) {
+        if ((maxdisplay <= 0 || maxdisplay >= active.size()) || (slides_test_)) {
             // Show all slides of this type
             slides_.append(active);
         } else {
