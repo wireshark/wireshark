@@ -560,3 +560,13 @@ extern void pn_find_dcp_station_info(stationInfo* station_info, conversation_t* 
  * @return True if the packet is dissected, false otherwise.
  */
 extern bool dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
+
+/**
+ * @brief Check if the Security MetaData in a PN-RT packet is valid.
+ *
+ * @param tvb The TVB containing the packet data.
+ * @param security_meta_data_offset The offset where the Security MetaData starts in the TVB.
+ * @param expected_security_data_length The expected length of the Security MetaData.
+ * @return True if the packet has valid security metadata, false otherwise.
+ */
+extern bool pn_is_valid_security_metadata(tvbuff_t *tvb, unsigned security_meta_data_offset, int expected_security_data_length);

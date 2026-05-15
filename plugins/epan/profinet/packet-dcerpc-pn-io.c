@@ -18684,7 +18684,7 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             else if (u8ProtectionMode == 0x00)
                 security_data = tvb_captured_length_remaining(tvb, 8) + 4; /* Include cyclic status fields */
 
-            if (u16SecurityLength == security_data)
+            if (pn_is_valid_security_metadata(tvb, 0, security_data))
                 dissect_RTC3_with_security(tvb, 0, pinfo, tree, drep, data);
             else
                 dissect_CSF_SDU_heur(tvb, pinfo, tree, data);
@@ -18725,7 +18725,7 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             security_data = tvb_captured_length_remaining(tvb, 8) + 4; /* Include cyclic status fields */
 
         extract_pnio_objects_withoutAR(pinfo);
-        if (u16SecurityLength == security_data)
+        if (pn_is_valid_security_metadata(tvb, 0, security_data))
             dissect_PNIO_RTC1_with_security(tvb, 0, pinfo, tree, drep, u16FrameID);
         else
             dissect_PNIO_C_SDU_RTC1(tvb, 0, pinfo, tree, drep, u16FrameID);
@@ -18748,7 +18748,7 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         else if (u8ProtectionMode == 0x00)
             security_data = tvb_captured_length_remaining(tvb, 8) + 4; /* Include cyclic status fields */
 
-        if (u16SecurityLength == security_data)
+        if (pn_is_valid_security_metadata(tvb, 0, security_data))
             dissect_PNIO_RTC1_with_security(tvb, 0, pinfo, tree, drep, u16FrameID);
         else
             dissect_PNIO_C_SDU_RTC1(tvb, 0, pinfo, tree, drep, u16FrameID);

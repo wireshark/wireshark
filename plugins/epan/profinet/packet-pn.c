@@ -1949,6 +1949,57 @@ init_pn (int proto)
     expert_register_field_array(expert_pn, ei, array_length(ei));
 }
 
+bool
+pn_is_valid_security_metadata(tvbuff_t *tvb, unsigned security_meta_data_offset, int expected_security_data_length)
+{
+    uint8_t  u8SecurityInformation;
+    uint8_t  u8SecurityControl;
+    uint32_t u32SecurityCounter;
+    uint16_t u16SecurityLengthRaw;
+    uint16_t u16SecurityLength;
+
+    /* Need at least 8 bytes for SecurityMetaData */
+    if (tvb_captured_length(tvb) < security_meta_data_offset + 8)
+        return false;
+
+    /* Byte 0: SecurityInformation - bits 1-7 must be reserved (0) */
+    u8SecurityInformation = tvb_get_uint8(tvb, security_meta_data_offset);
+    if ((u8SecurityInformation & 0xFE) != 0)
+        return false;
+
+    /* Byte 1: SecurityControl - bits 4-7 must be reserved (0) */
+    u8SecurityControl = tvb_get_uint8(tvb, security_meta_data_offset + 1);
+    if ((u8SecurityControl & 0xF0) != 0)
+        return false;
+
+    /* Bytes 2-5: SecurityCounter - value 0 is reserved per spec */
+    u32SecurityCounter = tvb_get_uint32(tvb, security_meta_data_offset + 2, ENC_BIG_ENDIAN);
+    if (u32SecurityCounter == 0)
+        return false;
+
+    /* Bytes 6-7: SecurityLength - bits 11-15 must be reserved (0) */
+    u16SecurityLengthRaw = tvb_get_uint16(tvb, security_meta_data_offset + 6, ENC_BIG_ENDIAN);
+    if ((u16SecurityLengthRaw & 0xF800) != 0)
+        return false;
+
+    /* SecurityLength value 0 is reserved per spec */
+    u16SecurityLength = u16SecurityLengthRaw & 0x07FF;
+    if (u16SecurityLength == 0)
+        return false;
+
+    /* Validate that SecurityLength matches expected data length */
+    if (u16SecurityLength != (uint16_t)expected_security_data_length)
+        return false;
+
+    /* Cross-validate: AE mode (ProtectionMode=1) requires SecurityChecksum (16 bytes) */
+    if ((u8SecurityInformation & 0x01) == 0x01) {
+        if (tvb_captured_length(tvb) < security_meta_data_offset + 8 + u16SecurityLength + 16)
+            return false;
+    }
+
+    return true;
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

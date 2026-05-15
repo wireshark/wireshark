@@ -387,7 +387,7 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     u16SecurityLength = tvb_get_uint16(tvb, 6, ENC_BIG_ENDIAN);
     security_data = tvb_captured_length_remaining(tvb, 8) + 4; /* Include cyclic status fields */
 
-    if (u16SecurityLength == security_data)
+    if (pn_is_valid_security_metadata(tvb, 0, security_data))
         offset = 8;
     else
         offset = 0;
@@ -756,7 +756,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     } else if (u16FrameID <= 0x06FF && !isTimeAware) {
         u16SecurityLength = tvb_get_uint16(tvb, 8, ENC_BIG_ENDIAN);
         security_data = tvb_captured_length_remaining(tvb, 10) - 16;
-        if (u16SecurityLength == security_data)
+        if (pn_is_valid_security_metadata(tvb, 2, security_data))
         {
             pszProtShort = "PN-RTC3sec";
             pszProtAddInfo = "RTC3sec, ";
@@ -774,7 +774,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     } else if (u16FrameID <= 0x0FFF && !isTimeAware) {
         u16SecurityLength = tvb_get_uint16(tvb, 8, ENC_BIG_ENDIAN);
         security_data = tvb_captured_length_remaining(tvb, 10) - 16;
-        if (u16SecurityLength == security_data)
+        if (pn_is_valid_security_metadata(tvb, 2, security_data))
         {
             pszProtShort = "PN-RTC3sec";
             pszProtAddInfo = "RTC3sec, ";
@@ -835,7 +835,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     else if (u16FrameID <= 0xBBFF) {
         u16SecurityLength = tvb_get_uint16(tvb, 8, ENC_BIG_ENDIAN);
         security_data = tvb_captured_length_remaining(tvb, 10) - 16;
-        if (u16SecurityLength == security_data)
+        if (pn_is_valid_security_metadata(tvb, 2, security_data))
         {
             pszProtShort = "PN-RTC1sec";
             pszProtAddInfo = "RTC1sec, ";
@@ -853,7 +853,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     } else if (u16FrameID <= 0xBFFF) {
         u16SecurityLength = tvb_get_uint16(tvb, 8, ENC_BIG_ENDIAN);
         security_data = tvb_captured_length_remaining(tvb, 10) - 16;
-        if (u16SecurityLength == security_data)
+        if (pn_is_valid_security_metadata(tvb, 2, security_data))
         {
             pszProtShort = "PN-RTC1sec";
             pszProtAddInfo = "RTC1sec, ";
@@ -1032,7 +1032,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     u16SecurityLength = tvb_get_uint16(tvb, 8, ENC_BIG_ENDIAN);
     security_data = tvb_captured_length_remaining(tvb, 10) - 16;
 
-    if ((u16SecurityLength == security_data) && bCyclic)
+    if (pn_is_valid_security_metadata(tvb, 2, security_data) && bCyclic)
     {
         u8ProtectionMode = tvb_get_uint8(tvb, 2);
         u8ProtectionMode &= 0x01;
@@ -1114,7 +1114,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                     0, 2, u16FrameID, "0x%04x (%s)", u16FrameID, pszProtComment);
 
         /* APDU_Status for RTA frames with security. If AE, APDU_Status Info will not show because it is encrypted. */
-        if ((u16SecurityLength == security_data) && bCyclic)
+        if (pn_is_valid_security_metadata(tvb, 2, security_data) && bCyclic)
         {
             if (u8ProtectionMode == 0x00)
             {
@@ -1168,7 +1168,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     col_set_str(pinfo->cinfo, COL_PROTOCOL, pszProtShort);
 
     /* get frame user data tvb (without header and footer) */
-    if ((u16SecurityLength == security_data) && bCyclic)
+    if (pn_is_valid_security_metadata(tvb, 2, security_data) && bCyclic)
     {
         next_tvb = tvb_new_subset_length(tvb, 2, data_len);
         if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, pn_rt_tree, &hdtbl_entry, GUINT_TO_POINTER((uint32_t)u16FrameID))) {
