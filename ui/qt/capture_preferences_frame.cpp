@@ -43,7 +43,6 @@ CapturePreferencesFrame::CapturePreferencesFrame(QWidget *parent) :
     pref_update_interval_ = prefFromPrefPtr(&prefs.capture_update_interval);
     pref_no_interface_load_ = prefFromPrefPtr(&prefs.capture_no_interface_load);
     pref_no_extcap_ = prefFromPrefPtr(&prefs.capture_no_extcap);
-    pref_enable_aggregation_ = prefFromPrefPtr(&prefs.enable_aggregation);
 
     // Setting the left margin via a style sheet clobbers its
     // appearance.
@@ -56,11 +55,6 @@ CapturePreferencesFrame::CapturePreferencesFrame(QWidget *parent) :
 CapturePreferencesFrame::~CapturePreferencesFrame()
 {
     delete ui;
-}
-
-void CapturePreferencesFrame::enableAggregationOptions(bool enable)
-{
-    ui->aggregationSetVisibilityCheckBox->setEnabled(enable);
 }
 
 void CapturePreferencesFrame::showEvent(QShowEvent *)
@@ -136,7 +130,6 @@ void CapturePreferencesFrame::updateWidgets()
     ui->captureUpdateIntervalLineEdit->setText(QString::number(prefs_get_uint_value(pref_update_interval_, pref_stashed)));
     ui->captureUpdateIntervalLineEdit->setPlaceholderText(QString::number(prefs_get_uint_value(pref_update_interval_, pref_default)));
     ui->captureUpdateIntervalLineEdit->setSyntaxState(SyntaxLineEdit::Empty);
-    ui->aggregationSetVisibilityCheckBox->setChecked(prefs_get_bool_value(pref_enable_aggregation_, pref_stashed));
 #endif // HAVE_LIBPCAP
     ui->captureNoInterfaceLoad->setChecked(prefs_get_bool_value(pref_no_interface_load_, pref_stashed));
     ui->captureNoExtcapCheckBox->setChecked(prefs_get_bool_value(pref_no_extcap_, pref_stashed));
@@ -165,11 +158,6 @@ void CapturePreferencesFrame::on_capturePcapNgCheckBox_toggled(bool checked)
 void CapturePreferencesFrame::on_captureRealTimeCheckBox_toggled(bool checked)
 {
     prefs_set_bool_value(pref_real_time_, checked, pref_stashed);
-}
-
-void CapturePreferencesFrame::on_aggregationSetVisibilityCheckBox_toggled(bool checked)
-{
-    prefs_set_bool_value(pref_enable_aggregation_, checked, pref_stashed);
 }
 
 void CapturePreferencesFrame::on_captureUpdateIntervalLineEdit_textChanged(const QString &new_str)
@@ -201,21 +189,4 @@ void CapturePreferencesFrame::on_captureNoInterfaceLoad_toggled(bool checked)
 void CapturePreferencesFrame::on_captureNoExtcapCheckBox_toggled(bool checked)
 {
     prefs_set_bool_value(pref_no_extcap_, checked, pref_stashed);
-}
-
-void CapturePreferencesFrame::on_aggreagationEditButton_clicked()
-{
-    QPushButton* uat_pb = qobject_cast<QPushButton*>(sender());
-    if (!uat_pb) return;
-    module_t* module = prefs_find_module("capture");
-    pref_t* pref = prefs_find_preference(module, "aggregation_fields");
-    if (!pref) {
-        ws_log(LOG_DOMAIN_QTUI, LOG_LEVEL_WARNING, "Can't find capture.aggregation_fields preference");
-        return;
-    }
-
-    UatDialog* uat_dlg = new UatDialog(this, prefs_get_uat_value(pref));
-    uat_dlg->setWindowModality(Qt::ApplicationModal);
-    uat_dlg->setAttribute(Qt::WA_DeleteOnClose);
-    uat_dlg->show();
 }

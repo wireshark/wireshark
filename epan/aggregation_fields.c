@@ -11,6 +11,7 @@
  */
 
 #include <epan/prefs.h>
+#include <epan/prefs-int.h>
 #include <epan/uat.h>
 #include <epan/uat-int.h>
 #include <epan/aggregation_fields.h>
@@ -19,6 +20,7 @@
 static uat_t                 *uat_aggregation;
 static aggregation_field_t   *uat_aggregation_fields;
 static unsigned               uat_aggregation_fields_num;
+static module_t              *aggregation_module;
 
 /* Field callbacks. */
 UAT_DISPLAY_FILTER_CB_DEF(uat_aggregation, field, aggregation_field_t)
@@ -27,13 +29,14 @@ static uat_field_t aggregation_uat_flds[] = {
         UAT_FLD_PROTO_FIELD(uat_aggregation,
             field,
             "Aggregation Field",
-            "Fields used to aggregate messages"),
+            "Fields used to aggregate messages. Only packets containing the aggregation fields are displayed."),
         UAT_END_FIELDS
 };
 
 static void aggregation_free_cb(void*r) {
 	aggregation_field_t* rec = (aggregation_field_t*)r;
 	g_free(rec->field);
+        rec->field = NULL;
 }
 
 static void* aggregation_copy_cb(void* n, const void* o, size_t siz _U_) {
@@ -45,6 +48,9 @@ static void* aggregation_copy_cb(void* n, const void* o, size_t siz _U_) {
 
 static void aggregation_post_cb(void) {
     uat_aggregation->changed = true;
+    if (aggregation_module) {
+        aggregation_module->prefs_changed_flags |= PREF_EFFECT_AGGREGATION;
+    }
 }
 
 void aggregation_field_register_uat(module_t* pref_module) {
@@ -69,6 +75,7 @@ void aggregation_field_register_uat(module_t* pref_module) {
             uat_aggregation);
 
         prefs_set_preference_effect(pref_module, "aggregation_fields", PREF_EFFECT_AGGREGATION);
+        aggregation_module = pref_module;
 }
 
 void apply_aggregation_prefs(void) {

@@ -388,6 +388,7 @@ void WiresharkMainWindow::updatePreferenceActions()
     main_ui_->actionViewPacketDetails->setEnabled(prefs_has_layout_pane_content(layout_pane_content_pdetails));
     main_ui_->actionViewPacketBytes->setEnabled(prefs_has_layout_pane_content(layout_pane_content_pbytes));
     main_ui_->actionViewPacketDiagram->setEnabled(prefs_has_layout_pane_content(layout_pane_content_pdiagram));
+    enableAggregationView(prefs.aggregation_fields_num > 0);
 
     main_ui_->actionViewNameResolutionPhysical->setChecked(gbl_resolv_flags.mac_name);
     main_ui_->actionViewNameResolutionNetwork->setChecked(gbl_resolv_flags.network_name);
@@ -407,6 +408,7 @@ void WiresharkMainWindow::updateRecentActions()
     main_ui_->actionViewPacketDetails->setChecked(recent.tree_view_show && prefs_has_layout_pane_content(layout_pane_content_pdetails));
     main_ui_->actionViewPacketBytes->setChecked(recent.byte_view_show && prefs_has_layout_pane_content(layout_pane_content_pbytes));
     main_ui_->actionViewPacketDiagram->setChecked(recent.packet_diagram_show && prefs_has_layout_pane_content(layout_pane_content_pdiagram));
+    main_ui_->actionAggregationView->setChecked(recent.aggregation_view);
 
     foreach(QAction *action, main_ui_->menuInterfaceToolbars->actions()) {
         if (g_list_find_custom(recent.interface_toolbars, action->text().toUtf8(), (GCompareFunc)strcmp)) {
@@ -441,6 +443,12 @@ void WiresharkMainWindow::updateRecentActions()
     main_ui_->actionViewColorizePacketList->setChecked(recent.packet_list_colorize);
 
     main_ui_->actionGoAutoScroll->setChecked(recent.capture_auto_scroll);
+}
+
+void WiresharkMainWindow::updateAggregationView() const {
+    if (main_ui_->actionAggregationView->isChecked() || recent.aggregation_view) {
+        aggregationViewChanged(recent.aggregation_view);
+    }
 }
 
 // Don't connect to this directly. Connect to or emit filterAction(...) instead.
@@ -1031,20 +1039,14 @@ void WiresharkMainWindow::stopCapture() {
 
 void WiresharkMainWindow::aggregationViewChanged(bool enable) const {
     recent.aggregation_view = enable;
-    main_ui_->actionAggregationView->setEnabled(false);
+    register_tap_listener_aggregation();
+    enableAggregationView(false);
     QTimer::singleShot(100,
         [this]() {
-            bool tap_registered = register_tap_listener_aggregation();
-            bool cf_ready = capture_file_.capFile() && !capture_file_.capFile()->read_lock;
-            if (recent.aggregation_view) {
-                if (cf_ready && tap_registered) {
-                    cf_retap_aggregation_packets(capture_file_.capFile(), recent.aggregation_view);
-                }
-            }
-            else if (cf_ready) {
+            if (capture_file_.capFile() && !capture_file_.capFile()->read_lock) {
                 cf_retap_aggregation_packets(capture_file_.capFile(), recent.aggregation_view);
             }
-            main_ui_->actionAggregationView->setEnabled(true);
+            enableAggregationView(prefs.aggregation_fields_num > 0);
         });
 }
 
@@ -2481,7 +2483,6 @@ void WiresharkMainWindow::showPreferencesDialog(QString module_name)
     pref_dialog->setWindowModality(Qt::ApplicationModal);
     pref_dialog->setAttribute(Qt::WA_DeleteOnClose);
     pref_dialog->show();
-    pref_dialog->enableAggregationOptions(!main_ui_->actionAggregationView->isChecked());
 }
 
 // View Menu

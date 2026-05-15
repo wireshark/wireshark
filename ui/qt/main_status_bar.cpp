@@ -28,6 +28,7 @@
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/capture_file.h>
 #include <ui/qt/widgets/clickable_label.h>
+#include <ui/recent.h>
 
 #include <QAction>
 #include <QActionGroup>
@@ -410,6 +411,11 @@ void MainStatusBar::showCaptureStatistics()
                                        .arg(UTF8_MIDDLE_DOT)
                                        .arg(cap_file_->displayed_count)
                                        .arg((100.0*cap_file_->displayed_count)/cs_count_, 0, 'f', 1));
+            }
+            if (recent.aggregation_view) {
+                packets_str.append(tr(" %1 Aggregated: %2")
+                    .arg(UTF8_MIDDLE_DOT)
+                    .arg(cap_file_->aggregation_count));
             }
             if (rows.count() > 1) {
                 packets_str.append(tr(" %1 Selected: %2 (%3%)")

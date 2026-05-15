@@ -260,7 +260,6 @@ typedef struct _e_prefs {
   bool         capture_pcap_ng;
   bool         capture_real_time;
   unsigned     capture_update_interval;
-  bool         enable_aggregation;
   GList*       aggregation_fields;
   int          aggregation_fields_num;
   bool         capture_no_interface_load;

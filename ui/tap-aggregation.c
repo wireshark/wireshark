@@ -27,82 +27,54 @@ tapPacket(void* ptr, packet_info* pinfo, epan_dissect_t* edt, const void* data _
     {
         gp = proto_get_finfo_ptr_array(edt->tree, agg_field->hf_id);
     }
-    if (!gp || gp->len < 1) {
+    if (!gp || gp->len < 1 || pinfo == NULL) {
         return TAP_PACKET_DONT_REDRAW;
     }
-
-    aggregation_key* key = g_new0(aggregation_key, 1);
-    key->field = g_strdup(agg_field->field);
-    key->values_num = 0;
-    const fvalue_t* value;
+    GString* key = g_string_new("");
     for (unsigned i = 0; i < gp->len; i++) {
-        char* value_str = NULL;
-        value = ((field_info*)gp->pdata[i])->value;
-        switch (proto_registrar_get_ftype(agg_field->hf_id)) {
-        case FT_PROTOCOL:
-            value_str = g_strdup(key->field);
-            break;
-        case FT_INT8:
-        case FT_INT16:
-        case FT_INT32:
-        case FT_INT40:
-        case FT_INT48:
-        case FT_INT56:
-        case FT_INT64:
-        case FT_UINT8:
-        case FT_UINT16:
-        case FT_UINT24:
-        case FT_UINT32:
-        case FT_UINT40:
-        case FT_UINT48:
-        case FT_UINT56:
-        case FT_UINT64:
-        case FT_IPv4:
-        case FT_IPv6:
-        case FT_FLOAT:
-        case FT_DOUBLE:
-        case FT_ETHER:
-        case FT_AX25:
-        case FT_IPXNET:
-        case FT_EUI64:
-        case FT_VINES:
-        case FT_SYSTEM_ID:
-        case FT_IEEE_11073_SFLOAT:
-        case FT_IEEE_11073_FLOAT:
-            value_str = fvalue_to_string_repr(NULL, value, FTREPR_DFILTER, BASE_NONE);
-            break;
-        default:
+        const field_info* fip = (field_info*)(gp->pdata[i]);
+        if (fip->hfinfo->type == FT_PROTOCOL) {
+            g_string_append(key, g_strdup(agg_field->field));
             break;
         }
-        if (value_str) {
-            key->values = g_slist_append(key->values, value_str);
-            key->values_num = key->values_num + 1;
+        char* string_repr = fvalue_to_string_repr(NULL, fip->value, FTREPR_DFILTER, 0);
+        if (string_repr) {
+            g_string_append(key, g_strdup(string_repr));
+            wmem_free(NULL, string_repr);
         }
     }
-    if (pinfo && key->values_num > 0) {
-        pinfo->fd->aggregation_keys = g_slist_append(pinfo->fd->aggregation_keys, key);
+    if (key->len > 0) {
+        if (pinfo->fd->aggregation_key == NULL) {
+            pinfo->fd->aggregation_key = g_strdup(key->str);
+        }
+        else {
+            size_t len = strlen(key->str) + 1;
+            len += strlen(pinfo->fd->aggregation_key);
+            gchar* new_key = g_malloc(len);
+            if (new_key) {
+                snprintf(new_key, len, "%s%s", pinfo->fd->aggregation_key, key->str);
+                g_free(pinfo->fd->aggregation_key);
+                pinfo->fd->aggregation_key = new_key;
+            }
+        }
     }
-    else {
-        free_aggregation_key(key);
-    }
+    g_string_free(key, true);
     return TAP_PACKET_DONT_REDRAW;
 }
 
-bool register_tap_listener_aggregation(void) {
+void register_tap_listener_aggregation(void) {
     for (int i = 0; i < taps_num; i++) {
         remove_tap_listener(&taps[i]);
     }
     g_free(taps);
     taps = NULL;
     taps_num = 0;
-
-    if (prefs.aggregation_fields_num > 0 && recent.aggregation_view) {
-        taps = g_new(aggregation_field_t, prefs.aggregation_fields_num);
+    if (!recent.aggregation_view) {
+        return;
     }
-    else {
-        return false;
-    }
+    bool one_valid = false;
 
+    taps = g_new(aggregation_field_t, prefs.aggregation_fields_num);
     char* filter = NULL;
     GList* node;
     char* field;
@@ -141,13 +113,15 @@ bool register_tap_listener_aggregation(void) {
             if (error_string) {
                 ws_warning("Unable to register tap aggregation for %s field, error: %s", field, error_string->str);
                 g_string_free(error_string, true);
+            } else if (!one_valid) {
+                one_valid = true;
             }
         } else {
             g_free(field);
         }
     }
     g_free(filter);
-    return true;
+    recent.aggregation_view = one_valid;
 }
 
 /*

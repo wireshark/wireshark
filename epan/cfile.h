@@ -83,6 +83,7 @@ typedef struct _capture_file {
     uint32_t                    count;                /* Total number of frames */
     uint64_t                    packet_comment_count; /* Number of comments in frames (could be >1 per frame... */
     uint32_t                    displayed_count;      /* Number of displayed frames */
+    uint32_t                    aggregation_count;    /* Number of frames shown in Aggregation View */
     uint32_t                    marked_count;         /* Number of marked frames */
     uint32_t                    ignored_count;        /* Number of ignored frames */
     uint32_t                    ref_time_count;       /* Number of time referenced frames */

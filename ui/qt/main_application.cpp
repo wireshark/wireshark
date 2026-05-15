@@ -614,7 +614,6 @@ MainApplication::MainApplication(int &argc,  char **argv) :
     tap_update_timer_.setParent(this);
     // tap_update_timer interval is set when preferences are set before init
     connect(this, &MainApplication::appInitialized, &tap_update_timer_, [&]() { tap_update_timer_.start(); });
-    connect(this, &MainApplication::appInitialized, [this] { emit aggregationVisiblity(); });
     connect(&tap_update_timer_, &QTimer::timeout, this, &MainApplication::updateTaps);
 
 
@@ -684,9 +683,6 @@ void MainApplication::emitAppSignal(AppSignal signal)
         break;
     case FreezePacketList:
         emit freezePacketList(false);
-        break;
-    case AggregationVisiblity:
-        emit aggregationVisiblity();
         break;
     case AggregationChanged:
         emit aggregationChanged();

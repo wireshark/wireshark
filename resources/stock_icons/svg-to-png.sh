@@ -36,12 +36,14 @@ set_source_svgs() {
 }
 
 ICONS="
+    aggregation
     edit-find.template
     go-first
     go-jump
     go-last
     go-next
     go-previous
+    x-aggregation
     x-capture-file-close
     x-capture-file-save
     x-capture-file-reload

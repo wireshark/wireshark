@@ -191,6 +191,8 @@ private:
     void exportSelectedPackets();
     void exportDissections(export_type_e export_type);
 
+    void enableAggregationView(bool enable) const;
+
 #ifdef Q_OS_WIN
     void fileAddExtension(QString &file_name, int file_type, ws_compression_type compression_type);
 #endif // Q_OS_WIN
@@ -263,6 +265,7 @@ public slots:
     void layoutToolbars();
     void updatePreferenceActions();
     void updateRecentActions();
+    void updateAggregationView() const;
 
     void setTitlebarForCaptureFile();
 

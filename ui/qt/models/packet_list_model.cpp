@@ -141,6 +141,7 @@ unsigned PacketListModel::recreateVisibleRows()
     visible_rows_.resize(0);
     number_to_row_.fill(0);
     endResetModel();
+    aggregation_key_row_.clear();
 
     foreach (PacketListRecord *record, physical_rows_) {
         updateVisibleRows(record);
@@ -162,6 +163,7 @@ void PacketListModel::clear() {
     visible_rows_.resize(0);
     new_visible_rows_.resize(0);
     number_to_row_.resize(0);
+    aggregation_key_row_.clear();
     endResetModel();
     idle_dissection_timer_->invalidate();
     idle_dissection_row_ = 0;
@@ -633,11 +635,18 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
     sort_column_is_numeric_ = isNumericColumn(sort_column_);
     QVector<PacketListRecord *> sorted_visible_rows_ = visible_rows_;
     try {
+        if (recent.aggregation_view && prefs.aggregation_fields_num > 0) {
+            for (QHash<QString, int>::const_iterator it = aggregation_key_row_.constBegin();
+                it != aggregation_key_row_.constEnd(); ++it) {
+                sorted_visible_rows_[it.value()]->frameData()->aggregation_key = g_strdup(it.key().toUtf8());
+            }
+        }
         std::sort(sorted_visible_rows_.begin(), sorted_visible_rows_.end(), recordLessThan);
 
         beginResetModel();
         visible_rows_.resize(0);
         number_to_row_.fill(0);
+        aggregation_key_row_.clear();
         foreach (PacketListRecord *record, sorted_visible_rows_) {
             updateVisibleRows(record);
         }
@@ -746,27 +755,38 @@ void PacketListModel::updateVisibleRows(PacketListRecord* record)
     if (!(fdata->passed_dfilter || fdata->ref_time)) {
         return;
     }
-    bool add_record = true;
-    if (recent.aggregation_view) {
-        for (qsizetype i = 0; i < visible_rows_.size(); i++) {
-            frame_data* prev_fdata = visible_rows_[i]->frameData();
-            if (frame_data_aggregation_compare(prev_fdata, fdata) == 0) {
-                record->setRow(visible_rows_[i]->row());
-                frame_data_aggregation_free(prev_fdata);
-                visible_rows_[i] = record;
-                add_record = false;
-                break;
-            }
-        }
-    }
-    if (add_record) {
-        record->setRow(static_cast<int>(visible_rows_.count()) + 1);
+    record->setRow(static_cast<int>(visible_rows_.count()) + 1);
+    if (!recent.aggregation_view || updateVisibleAggregationViewRows(record)) {
         visible_rows_ << record;
     }
     if (static_cast<uint32_t>(number_to_row_.size()) <= fdata->num) {
         number_to_row_.resize(fdata->num + buffer_size_);
     }
     number_to_row_[fdata->num] = record->row();
+    if (recent.aggregation_view) {
+        cap_file_->aggregation_count = static_cast<uint32_t>(visible_rows_.count());
+    }
+}
+
+bool PacketListModel::updateVisibleAggregationViewRows(PacketListRecord* record) {
+    if (prefs.aggregation_fields_num == 0) return true;
+
+    frame_data* fdata = record->frameData();
+    if (fdata->aggregation_key == nullptr) return false; // Only packets containing the aggregation fields are displayed
+
+    QString key = QString::fromUtf8(fdata->aggregation_key);
+    frame_data_aggregation_free(fdata);
+    if (!aggregation_key_row_.contains(key)) {
+        aggregation_key_row_[key] = record->row() - 1;
+        return true;
+    }
+    int row = aggregation_key_row_[key];
+    frame_data* prev_frame = visible_rows_[row]->frameData();
+    frame_data_aggregation_free(prev_frame);
+    prev_frame->aggregated = true;
+    record->setRow(row + 1);
+    visible_rows_[row] = record;
+    return false;
 }
 
 bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)

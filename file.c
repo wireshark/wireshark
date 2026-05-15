@@ -300,6 +300,7 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, bool is_tempfile
     cf->count     = 0;
     cf->packet_comment_count = 0;
     cf->displayed_count = 0;
+    cf->aggregation_count = 0;
     cf->marked_count = 0;
     cf->ignored_count = 0;
     cf->ref_time_count = 0;
@@ -2055,7 +2056,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, bo
            found the nearest displayed frame to that frame.  Select it, make
            it the focus row, and make it visible. */
         /* Set to invalid to force update of packet list and packet details */
-        if (selected_frame_num == 0) {
+        if (selected_frame_num == 0 || (selected_frame && selected_frame->aggregated)) {
             packet_list_select_row_from_data(NULL);
         }else{
             if (!packet_list_select_row_from_data(selected_frame)) {

@@ -3954,9 +3954,6 @@ prefs_register_modules(void)
                                    10,
                                    &prefs.capture_update_interval);
 
-    prefs_register_bool_preference(capture_module, "enable_aggregation_view", "Enable aggregation view",
-        "Enable Aggregation View for real-time capturing", &prefs.enable_aggregation);
-
     prefs_register_bool_preference(capture_module, "no_interface_load", "Don't load interfaces on startup",
         "Don't automatically load capture interfaces on startup", &prefs.capture_no_interface_load);
 
@@ -4544,7 +4541,6 @@ prefs_set_global_defaults(wmem_allocator_t* pref_scope, const char** col_fmt, in
     prefs.capture_update_interval       = DEFAULT_UPDATE_INTERVAL;
     prefs.capture_no_extcap             = false;
     prefs.capture_show_info             = false;
-    prefs.enable_aggregation            = false;
 
     if (!prefs.capture_columns) {
         /* First time through */

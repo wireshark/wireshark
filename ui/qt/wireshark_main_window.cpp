@@ -454,11 +454,8 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     connect(mainApp, &MainApplication::preferencesChanged, this, &WiresharkMainWindow::updatePreferenceActions);
     connect(mainApp, &MainApplication::preferencesChanged, this, &WiresharkMainWindow::zoomText);
     connect(mainApp, &MainApplication::preferencesChanged, this, &WiresharkMainWindow::updateTitlebar);
-    connect(mainApp, &MainApplication::aggregationVisiblity,
-        [this] {
-            main_ui_->actionAggregationView->setVisible(prefs.enable_aggregation);
-        });
-    connect(mainApp, &MainApplication::aggregationChanged, [this]() { if (recent.aggregation_view) { aggregationViewChanged(true); } });
+    connect(mainApp, &MainApplication::preferencesChanged, this, &WiresharkMainWindow::updateAggregationView);
+    connect(mainApp, &MainApplication::aggregationChanged, this, &WiresharkMainWindow::updateAggregationView);
 
     connect(WorkspaceState::instance(), &WorkspaceState::recentCaptureFilesChanged, this, &WiresharkMainWindow::updateRecentCaptures);
     connect(WorkspaceState::instance(), &WorkspaceState::recentFileStatusChanged, this, &WiresharkMainWindow::updateRecentCaptures);
@@ -1832,6 +1829,14 @@ void WiresharkMainWindow::exportDissections(export_type_e export_type) {
     ed_dlg->show();
 }
 
+void WiresharkMainWindow::enableAggregationView(bool enable) const {
+    main_ui_->actionAggregationView->setEnabled(enable);
+    QString tooltip = enable ?
+        tr("Aggregation View — displays frames grouped by your configured aggregation fields.") :
+        tr("Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.");
+    main_ui_->actionAggregationView->setToolTip(tooltip);
+}
+
 bool WiresharkMainWindow::tryClosingCaptureFile(QString before_what, FileCloseContext context) {
     bool capture_in_progress = false;
     bool do_close_file = false;
@@ -2451,9 +2456,6 @@ void WiresharkMainWindow::setMenusForCaptureFile(bool force_disable)
         can_save = cf_can_save(capture_file_.capFile());
         can_save_as = cf_can_save_as(capture_file_.capFile());
     }
-
-    main_ui_->actionAggregationView->setVisible(prefs.enable_aggregation);
-    main_ui_->actionAggregationView->setChecked(recent.aggregation_view);
 
     main_ui_->actionViewReload_as_File_Format_or_Capture->setEnabled(enable);
     main_ui_->actionFileMerge->setEnabled(can_write);

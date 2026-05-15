@@ -41,11 +41,6 @@ typedef enum {
   PACKET_CHAR_ENC_CHAR_EBCDIC    = 1  /* EBCDIC */
 } packet_char_enc;
 
-typedef struct _aggregation_key {
-  char*  field;
-  GSList* values;
-  int     values_num;
-} aggregation_key;
 
 /** The frame number is the ordinal number of the frame in the capture, so
    it's 1-origin.  In various contexts, 0 as a frame number means "frame
@@ -99,7 +94,9 @@ typedef struct _frame_data {
    * record that has_ts (or if somehow a record without a TS is a reference
    * time frame, the first frame after that with has_ts == true.) */
   uint32_t     prev_dis_num; /**< Previous displayed frame (0 if first one) */
-  GSList*      aggregation_keys; /**< Holds the aggregation_key values used for rendering the aggregation view. */
+  gchar*       aggregation_key; /**< Holds the aggregation_key values used for rendering the aggregation view. */
+  bool         aggregated; /**<  * True if this frame is not displayed individually because it is represented
+   * by another frame sharing the same aggregation_key. */
 } frame_data;
 DIAG_ON_PEDANTIC
 
@@ -111,14 +108,6 @@ DIAG_ON_PEDANTIC
  *  @return Negative if @p fdata1 < @p fdata2, 0 if equal, positive if
  *          @p fdata1 > @p fdata2. */
 WS_DLL_PUBLIC int frame_data_compare(const struct epan_session *epan, const frame_data *fdata1, const frame_data *fdata2, int field);
-
-
-/** @brief Compare two frame_data structs by their aggregation fields.
- *  @param fdata1 The first frame_data to compare.
- *  @param fdata2 The second frame_data to compare.
- *  @return Negative if @p fdata1 < @p fdata2, 0 if equal, positive if
- *          @p fdata1 > @p fdata2. */
-WS_DLL_PUBLIC int frame_data_aggregation_compare(const frame_data* fdata1, const frame_data* fdata2);
 
 /**
  * @brief Reset a frame_data struct to its initial state without freeing it.
@@ -133,13 +122,6 @@ WS_DLL_PUBLIC void frame_data_reset(frame_data *fdata);
  * @param fdata The frame_data to destroy.
  */
 WS_DLL_PUBLIC void frame_data_destroy(frame_data *fdata);
-
-/**
- * @brief Free an aggregation key.
- *
- * @param key Pointer to the aggregation key to free.
- */
-WS_DLL_PUBLIC void free_aggregation_key(void *key);
 
 /**
  * @brief Free the aggregation data associated with a frame_data struct.

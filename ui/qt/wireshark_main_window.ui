@@ -2869,9 +2869,6 @@
    <property name="text">
     <string>Aggregation in Live Capture</string>
    </property>
-   <property name="toolTip">
-    <string>Aggregation View.</string>
-   </property>
   </action>
   <action name="actionAnalyzeExpertInfo">
    <property name="text">

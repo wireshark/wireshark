@@ -114,7 +114,6 @@ public:
     QString createClosingTagForHtml();
 
     void resizeAllColumns(bool onlyTimeFormatted = false);
-    bool selectRow(const frame_data*, bool = true);
 
 protected:
 

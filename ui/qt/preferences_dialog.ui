@@ -50,6 +50,7 @@
       <widget class="WelcomePagePreferencesFrame" name="welcomePageFrame"/>
       <widget class="CapturePreferencesFrame" name="captureFrame"/>
       <widget class="UatFrame" name="expertFrame"/>
+      <widget class="UatFrame" name="aggregationFrame"/>
       <widget class="UatFrame" name="filterExpressonsFrame"/>
       <widget class="RsaKeysFrame" name="rsaKeysFrame"/>
       <widget class="QFrame" name="advancedFrame">

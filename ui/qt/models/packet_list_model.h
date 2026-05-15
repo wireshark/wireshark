@@ -99,6 +99,7 @@ private:
     QVector<PacketListRecord *> visible_rows_;
     QVector<PacketListRecord *> new_visible_rows_;
     QVector<int> number_to_row_;
+    QHash<QString, int> aggregation_key_row_;
     bool need_recreate_visible_rows_;
 
     static int sort_column_;
@@ -119,6 +120,7 @@ private:
 
     bool isNumericColumn(int column);
     void updateVisibleRows(PacketListRecord*);
+    bool updateVisibleAggregationViewRows(PacketListRecord*);
 };
 
 #endif // PACKET_LIST_MODEL_H

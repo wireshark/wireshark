@@ -53,7 +53,6 @@ public:
         ProfileChanging,
         RecentPreferencesRead,
         FreezePacketList,
-        AggregationVisiblity,
         AggregationChanged
     };
 
@@ -196,7 +195,6 @@ signals:
     void checkDisplayFilter();
     void fieldsChanged();
     void reloadLuaPlugins();
-    void aggregationVisiblity();
     void aggregationChanged();
 
     void openStatCommandDialog(const QString &menu_path, const char *arg, void *userdata);

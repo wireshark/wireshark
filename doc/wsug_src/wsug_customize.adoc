@@ -885,16 +885,37 @@ This does give an insight in the packets captured, although it takes processing 
 The preference _Interval between updates (ms)_ allows you to configure how often the packet list is updated during the packet capture process.
 A higher interval reduces processing, but causes more delay between capture and display in the packet list.
 
-The preference _Enable the Real-Time Aggregation View_ allows you to change the visibility of aggregation view button in main toolbar.
-
-The preference _Aggregation fields_ allows you to customized the frame key used for aggregation filter.
-
 Selecting _Don't load interfaces on startup_ prevents Wireshark from spawning dumpcap to populate the list of capture interfaces on the local system.
 This might be a time consuming operation delaying the start of the program, however on most systems this is not an issue.
 The interface list can always be populated after Wireshark is started via menu:Capture[Refresh Interfaces].
 
 Selecting _Disable external capture interfaces_ prevents Wireshark from spawning extcap programs to list off their capture interfaces.
 This might be a time consuming operation delaying the start of the program, however on most systems this is not an issue.
+
+[#ChCustPrefsAggregationSection]
+
+==== Aggregation Fields
+
+These preferences allow you to configure the aggreation fields.
+
+.Aggregation fields preferences
+image::images/ws-aggregation-view-example.gif[{screenshot-attrs}]
+
+The preference _Aggregation fields_ lets you choose which packet fields Wireshark uses to group packets in the Aggregation View. Packets with the same frame key appear in the same row. For example, on a CAN bus, you can use the CAN ID as the frame key. This way, all frames with the same CAN ID are grouped together, and the Aggregation View will show the most recently received frame for each CAN ID.
+
+btn:[+]:: Add new entry to the list.
+
+btn:[-]:: Remove the selected entry.
+
+btn:[Copy]:: Copy the selected entry.
+
+btn:[⌃]:: Move the selected entry up in the list.
+
+btn:[⌄]:: Move the selected entry down in the list.
+
+btn:[Clear]:: Clear the list of user specified aggregation fields.
+
+btn:[Copy from]:: Copy the list of user specified aggregation fields from another profile.
 
 [#ChCustPrefsExpertSection]
 

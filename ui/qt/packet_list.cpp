@@ -107,7 +107,33 @@ packet_list_select_row_from_data(frame_data *fdata_needle)
 {
     if (! gbl_cur_packet_list || ! gbl_cur_packet_list->model())
         return false;
-    return gbl_cur_packet_list->selectRow(fdata_needle);
+
+    PacketListModel* model = qobject_cast<PacketListModel*>(gbl_cur_packet_list->model());
+
+    if (!model)
+        return false;
+
+    model->flushVisibleRows();
+    int row = -1;
+    if (!fdata_needle)
+        row = 0;
+    else
+        row = model->visibleIndexOf(fdata_needle);
+
+    if (row >= 0) {
+        /* Calling ClearAndSelect with setCurrentIndex clears the "current"
+         * item, but doesn't clear the "selected" item. We want to clear
+         * the "selected" item as well so that selectionChanged() will be
+         * emitted in order to force an update of the packet details and
+         * packet bytes after a search.
+         */
+        gbl_cur_packet_list->selectionModel()->clearSelection();
+        gbl_cur_packet_list->selectionModel()->setCurrentIndex(model->index(row, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+        gbl_cur_packet_list->scrollTo(gbl_cur_packet_list->currentIndex(), PacketList::PositionAtCenter);
+        return true;
+    }
+
+    return false;
 }
 
 /*
@@ -2474,8 +2500,15 @@ void PacketList::drawFarOverlay()
 void PacketList::rowsInserted(const QModelIndex &parent, int start, int end)
 {
     QTreeView::rowsInserted(parent, start, end);
-    if (recent.aggregation_view && currentIndex().isValid() && currentIndex().row() >= 0) {
-        selectRow(getFDataForRow(currentIndex().row()), false);
+    const QModelIndex& cIndex = currentIndex();
+    bool aggregation_mode = recent.aggregation_view && prefs.aggregation_fields_num > 0;
+    if (aggregation_mode && cIndex.isValid() && cIndex.row() >= 0) {
+        int row = cIndex.row();
+        frame_data* fdata = getFDataForRow(row);
+        if (fdata && cap_file_->current_frame->num != fdata->num) {
+            cf_select_packet(cap_file_, fdata);
+            emit framesSelected(QList<int>() << row);
+        }
     }
     if (capture_in_progress_ && tail_at_end_) {
         scrollToBottom();
@@ -2492,36 +2525,4 @@ void PacketList::resizeAllColumns(bool onlyTimeFormatted)
             resizeColumnToContents(col);
         }
     }
-}
-
-bool PacketList::selectRow(const frame_data* fdata, bool flushRows)
-{
-    PacketListModel* pktListModel = qobject_cast<PacketListModel*>(model());
-
-    if (!pktListModel)
-        return false;
-
-    if (flushRows) {
-        pktListModel->flushVisibleRows();
-    }
-    int row = -1;
-    if (!fdata)
-        row = 0;
-    else
-        row = pktListModel->visibleIndexOf(fdata);
-
-    if (row >= 0) {
-        /* Calling ClearAndSelect with setCurrentIndex clears the "current"
-         * item, but doesn't clear the "selected" item. We want to clear
-         * the "selected" item as well so that selectionChanged() will be
-         * emitted in order to force an update of the packet details and
-         * packet bytes after a search.
-         */
-        selectionModel()->clearSelection();
-        selectionModel()->setCurrentIndex(pktListModel->index(row, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-        scrollTo(currentIndex(), PacketList::PositionAtCenter);
-        return true;
-    }
-
-    return false;
 }

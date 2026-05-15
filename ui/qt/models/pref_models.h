@@ -39,7 +39,8 @@ public:
         Capture,
         Expert,
         FilterButtons,
-        RSAKeys
+        RSAKeys,
+        Aggregation
     };
 
     enum PrefsModelColumn {

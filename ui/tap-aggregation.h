@@ -22,10 +22,8 @@ extern "C" {
  *
  * This function registers a tap listener for aggregation based on preferences and recent settings.
  * It first removes any existing taps, frees the allocated memory, and then initializes new taps if necessary.
- *
- * @return true if taps are successfully initialized, false otherwise.
  */
-bool register_tap_listener_aggregation(void);
+void register_tap_listener_aggregation(void);
 
 #ifdef __cplusplus
 }

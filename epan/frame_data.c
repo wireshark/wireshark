@@ -47,7 +47,7 @@
 static bool
 frame_delta_abs_time(const struct epan_session *epan, const frame_data *fdata, uint32_t prev_num, nstime_t *delta)
 {
-  const nstime_t *prev_abs_ts;
+  const nstime_t* prev_abs_ts;
 
   if (!fdata->has_ts) {
     /* We don't have a time stamp for this packet. Set the delta time
@@ -232,40 +232,6 @@ frame_compare_delta_times_prev_displayed(const struct epan_session *epan, const 
                                    fdata2, have_del_dis_ts2, &del_dis_ts2);
 }
 
-static int
-frame_data_aggregation_values_compare(GSList* list1, GSList* list2) {
-  GHashTable* set = g_hash_table_new(g_str_hash, g_str_equal);
-  for (GSList* node = list1; node; node = node->next)
-    g_hash_table_add(set, node->data);
-
-  for (GSList* node = list2; node; node = node->next) {
-    if (g_hash_table_contains(set, node->data)) {
-      g_hash_table_destroy(set);
-      return 0;
-    }
-  }
-  g_hash_table_destroy(set);
-  return 1;
-}
-
-void
-free_aggregation_key(void *data) {
-  aggregation_key* key = (aggregation_key*)data;
-  if (!key) return;
-
-  if (key->field) {
-    g_free(key->field);
-    key->field = NULL;
-  }
-
-  if (key->values) {
-    g_slist_free_full(key->values, g_free);
-    key->values = NULL;
-  }
-
-  g_free(key);
-}
-
 int
 frame_data_compare(const struct epan_session *epan, const frame_data *fdata1, const frame_data *fdata2, int field)
 {
@@ -329,26 +295,6 @@ frame_data_compare(const struct epan_session *epan, const frame_data *fdata1, co
 
   }
   g_return_val_if_reached(0);
-}
-
-int
-frame_data_aggregation_compare(const frame_data* fdata1, const frame_data* fdata2)
-{
-  unsigned length = g_slist_length(fdata1->aggregation_keys);
-  if (length != g_slist_length(fdata2->aggregation_keys)) {
-    return 1;
-  }
-  unsigned i = 0;
-  while (i < length) {
-    const aggregation_key* key1 = (aggregation_key*)g_slist_nth_data(fdata1->aggregation_keys, i);
-    const aggregation_key* key2 = (aggregation_key*)g_slist_nth_data(fdata2->aggregation_keys, i);
-    if (g_strcmp0(key1->field, key2->field) != 0 ||
-      frame_data_aggregation_values_compare(key1->values, key2->values) == 1) {
-      return 1;
-    }
-    i++;
-  }
-  return 0;
 }
 
 void
@@ -427,7 +373,8 @@ frame_data_init(frame_data *fdata, uint32_t num, const wtap_rec *rec,
   fdata->shift_offset.nsecs = 0;
   fdata->frame_ref_num = 0;
   fdata->prev_dis_num = 0;
-  fdata->aggregation_keys = NULL;
+  fdata->aggregation_key = NULL;
+  fdata->aggregated = false;
 }
 
 void
@@ -521,10 +468,11 @@ frame_data_destroy(frame_data *fdata)
 
 void frame_data_aggregation_free(frame_data* fdata)
 {
-  if (fdata->aggregation_keys) {
-    g_slist_free_full(fdata->aggregation_keys, free_aggregation_key);
-    fdata->aggregation_keys = NULL;
+  if (fdata->aggregation_key) {
+    g_free(fdata->aggregation_key);
+    fdata->aggregation_key = NULL;
   }
+  fdata->aggregated = false;
 }
 
 /*
