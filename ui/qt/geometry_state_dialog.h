@@ -13,6 +13,9 @@
 #include <QDialog>
 #include <QSplitter>
 
+/**
+ * @brief A dialog that remembers its geometry and splitter state.
+ */
 class GeometryStateDialog : public QDialog
 {
 public:
@@ -67,25 +70,66 @@ public:
 // So when setting the dialog modal, set the parent if we haven't yet.
 
 #ifdef Q_OS_MAC
+    /**
+     * @brief Constructs a new GeometryStateDialog with the specified parent and window flags.
+     * @param parent The parent widget for the dialog.
+     * @param f The window flags for the dialog, defaulting to Qt::Window.
+     * On macOS, the parent is set to ensure the dialog behaves as an independent window that un-maximizes correctly.
+     * On other platforms, the parent is set to NULL to allow for independent window behavior.
+     * The Qt::Window flag is used to provide minimize and maximize buttons, as this dialog is intended to remember user-set geometry.
+     */
     explicit GeometryStateDialog(QWidget *parent, Qt::WindowFlags f = Qt::Window) : QDialog(parent, f) {}
 #else
+    /**
+     * @brief Constructs a new GeometryStateDialog with the specified parent and window flags.
+     * @param parent The parent widget for the dialog.
+     * @param f The window flags for the dialog, defaulting to Qt::Window.
+     * On macOS, the parent is set to ensure the dialog behaves as an independent window that un-maximizes correctly.
+     * On other platforms, the parent is set to NULL to allow for independent window behavior.
+     * The Qt::Window flag is used to provide minimize and maximize buttons, as this dialog is intended to remember user-set geometry.
+     */
     explicit GeometryStateDialog(QWidget *parent, Qt::WindowFlags f = Qt::Window) : QDialog(NULL, f), parent_(parent) {}
 #endif
+    /**
+     * @brief Save the geometry and splitter state and then destroy the GeometryStateDialog.
+     */
     ~GeometryStateDialog();
 
 #ifndef Q_OS_MAC
 public:
+    /**
+     * @brief Sets the window modality for the dialog. On non-macOS platforms, this also sets the parent to ensure modal dialogs are always on top of their parent.
+     * @param windowModality The desired window modality (e.g., Qt::ApplicationModal, Qt::WindowModal, Qt::NonModal).
+     */
     void setWindowModality(Qt::WindowModality windowModality);
 #endif
 
 protected:
+    /**
+     * @brief Loads the geometry and splitter state for the dialog.
+     * @param width The initial width for the dialog.
+     * @param height The initial height for the dialog.
+     * @param dialog_name The name of the dialog for saving/loading geometry.
+     */
     void loadGeometry(int width = 0, int height = 0, const QString &dialog_name = QString());
+    /**
+     * @brief Loads the state of a splitter for the dialog.
+     * @param splitter The splitter for which to load the state.
+     */
     void loadSplitterState(QSplitter *splitter = nullptr);
 
 private:
+    /**
+     * @brief Saves the window geometry.
+     */
     void saveWindowGeometry();
+    /**
+     * @brief Saves the splitter state.
+     * @param splitter The splitter for which to save the state.
+     */
     void saveSplitterState(const QSplitter *splitter = nullptr);
 
+    /** The name of the dialog for saving/loading geometry. */
     QString dialog_name_;
 #ifndef Q_OS_MAC
     QWidget *parent_;

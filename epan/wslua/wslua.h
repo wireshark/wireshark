@@ -1388,6 +1388,15 @@ extern int wslua_deregister_protocols(lua_State* L);
  * @return 0 on success.
  */
 extern int wslua_deregister_dissector_tables(lua_State* L);
+
+/**
+ * @brief Deregisters all registered listeners.
+ *
+ * This function iterates through all registered listeners and deregisters them.
+ *
+ * @param L The Lua state.
+ * @return 0 on success.
+ */
 extern int wslua_deregister_listeners(lua_State* L);
 
 /**

@@ -33,17 +33,40 @@
 
 #include <QStyledItemDelegate>
 
+/**
+ * @brief Delegate for drawing a percentage bar in an item view.
+ */
 class PercentBarDelegate : public QStyledItemDelegate
 {
 public:
+    /**
+     * @brief Constructs a PercentBarDelegate.
+     * @param parent The parent widget.
+     */
     PercentBarDelegate(QWidget *parent = 0) : QStyledItemDelegate(parent) { }
 
-    // Make sure QStyledItemDelegate::paint doesn't draw any text.
+    /**
+     * @brief Return empty string to ensure QStyledItemDelegate::paint doesn't draw any text.
+     * @return An empty string.
+     */
     virtual QString displayText(const QVariant &, const QLocale &) const { return QString(); }
 
 protected:
+    /**
+     * @brief Renders the percentage bar using the given painter and style option.
+     * @param painter The painter to use.
+     * @param option The style options for the item.
+     * @param index The model index of the item to paint.
+     */
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const;
+
+    /**
+     * @brief Returns the size hint for the percentage bar item.
+     * @param option The style options for the item.
+     * @param index The model index of the item.
+     * @return The recommended size.
+     */
     QSize sizeHint(const QStyleOptionViewItem &option,
                    const QModelIndex &index) const;
 

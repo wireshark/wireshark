@@ -15,12 +15,24 @@
 #include <QMimeData>
 #include <QMouseEvent>
 
+/**
+ * @brief A specialized label widget designed to support drag-and-drop operations.
+ */
 class DragLabel: public QLabel
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Constructs a new DragLabel.
+     * @param text The text to be displayed on the label.
+     * @param parent The parent widget, defaults to 0.
+     */
     explicit DragLabel(QString text, QWidget * parent = 0);
+
+    /**
+     * @brief Destroys the DragLabel.
+     */
     virtual ~DragLabel();
 };
 

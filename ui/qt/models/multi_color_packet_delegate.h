@@ -18,25 +18,52 @@
 
 class QPainter;
 
+/**
+ * @brief A delegate for rendering multi-colored packet items in a view.
+ */
 class MultiColorPacketDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
+    /**
+     * @brief Constructs a new MultiColorPacketDelegate.
+     * @param parent The parent widget, defaults to 0.
+     */
     MultiColorPacketDelegate(QWidget *parent = 0);
 
 protected:
+    /**
+     * @brief Renders the item using the given painter and style option.
+     * @param painter The painter used to draw the item.
+     * @param option The style option specifying how the item should be drawn.
+     * @param index The model index of the item to be drawn.
+     */
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const override;
 
 private:
-    /** Calculate appropriate foreground color for readability */
+    /**
+     * @brief Calculate appropriate foreground color for readability.
+     * @param backgrounds The list of background colors to contrast against.
+     * @return The calculated foreground QColor.
+     */
     QColor calculateForeground(const QList<QColor> &backgrounds) const;
 
-    /** Draw multi-color striped background (full row) */
+    /**
+     * @brief Draw multi-color striped background (full row).
+     * @param painter The painter used to draw the background.
+     * @param option The style option defining the drawing area.
+     * @param colors The list of colors to use for the stripes.
+     */
     void drawStripedBackground(QPainter *painter, const QStyleOptionViewItem &option,
                                const QList<QColor> &colors) const;
 
-    /** Draw shift-right background (primary 85%, stripes 15%) */
+    /**
+     * @brief Draw shift-right background (primary 85%, stripes 15%).
+     * @param painter The painter used to draw the background.
+     * @param option The style option defining the drawing area.
+     * @param colors The list of colors to use for the background and stripes.
+     */
     void drawShiftRightBackground(QPainter *painter, const QStyleOptionViewItem &option,
                                   const QList<QColor> &colors) const;
 };

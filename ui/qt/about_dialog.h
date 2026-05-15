@@ -27,41 +27,71 @@ namespace Ui {
 class AboutDialog;
 }
 
+/**
+ * @brief List model for the Authors tab of the About dialog.
+ */
 class AuthorListModel : public AStringListListModel
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
-    explicit AuthorListModel(QObject * parent = Q_NULLPTR);
+    /**
+     * @brief Construct an AuthorListModel.
+     * @param parent The parent object.
+     */
+    explicit AuthorListModel(QObject *parent = Q_NULLPTR);
+    /**
+     * @brief Destructor.
+     */
     virtual ~AuthorListModel();
 
 protected:
+    /** @brief Return the column header labels for the authors table. */
     virtual QStringList headerColumns() const;
-
 };
 
+/**
+ * @brief List model for the Plugins tab of the About dialog.
+ */
 class PluginListModel : public AStringListListModel
 {
     Q_OBJECT
 public:
-    explicit PluginListModel(QObject * parent = Q_NULLPTR);
+    /**
+     * @brief Construct an PluginListModel.
+     * @param parent The parent object.
+     */
+    explicit PluginListModel(QObject *parent = Q_NULLPTR);
 
+    /**
+     * @brief Return the list of distinct plugin type name strings.
+     * @return An ordered list of unique type name strings.
+     */
     QStringList typeNames() const;
 
 protected:
+    /** @brief Return the column header labels for the plugins table. */
     virtual QStringList headerColumns() const;
 
 private:
-    QStringList typeNames_;
+    QStringList typeNames_; /**< Cached list of distinct plugin type names. */
 };
 
+/**
+ * @brief List model for the Folders tab of the About dialog.
+ */
 class FolderListModel : public AStringListListModel
 {
     Q_OBJECT
 public:
-    explicit FolderListModel(QObject * parent = Q_NULLPTR);
+    /**
+     * @brief Construct an FolderListModel.
+     * @param parent The parent object.
+     */
+    explicit FolderListModel(QObject *parent = Q_NULLPTR);
 
 protected:
+    /** @brief Return the column header labels for the folders table. */
     virtual QStringList headerColumns() const;
 };
 
@@ -79,6 +109,9 @@ public:
      */
     explicit AboutDialog(QWidget *parent = 0);
 
+    /**
+     * @brief Destructor.
+     */
     virtual ~AboutDialog();
 
 protected:

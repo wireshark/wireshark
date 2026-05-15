@@ -191,6 +191,10 @@ QString pauseToggleStyleSheet();
 class BreakpointInlineLineEdit : public QLineEdit
 {
   public:
+    /**
+     * @brief Construct the editor with no embedded widgets
+     * @param parent The parent widget; may be nullptr.
+     */
     explicit BreakpointInlineLineEdit(QWidget *parent = nullptr);
 
     /** Hand the editor its three embedded widgets (already parented to
@@ -212,8 +216,20 @@ class BreakpointInlineLineEdit : public QLineEdit
     void relayout();
 
   protected:
+    /**
+     * @brief Handle resize events.
+     * @param e The resize event.
+     */
     void resizeEvent(QResizeEvent *e) override;
+    /**
+     * @brief Handle show events.
+     * @param e The show event.
+     */
     void showEvent(QShowEvent *e) override;
+    /**
+     * @brief Handle paint events.
+     * @param e The paint event.
+     */
     void paintEvent(QPaintEvent *e) override;
 
   private:
@@ -236,23 +252,81 @@ class BreakpointInlineLineEdit : public QLineEdit
  */
 class LuaDbgBreakpointConditionDelegate : public QStyledItemDelegate
 {
-  public:
+public:
+    /**
+     * @brief Construct a LuaDbgBreakpointConditionDelegate.
+     * @param dialog The owning @c LuaDebuggerDialog, used to coordinate
+     *               commit and cancel actions with the breakpoint model.
+     */
     explicit LuaDbgBreakpointConditionDelegate(LuaDebuggerDialog *dialog);
 
+    /**
+     * @brief Create a @c QLineEdit editor for a breakpoint condition cell.
+     *
+     * @param parent  The parent widget for the editor (the view's viewport).
+     * @param option  Style options for the cell being edited.
+     * @param index   The model index of the condition cell being edited.
+     * @return A new @c QLineEdit widget; ownership passes to the view.
+     */
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                           const QModelIndex &index) const override;
+
+    /**
+     * @brief Populate the editor with the cell's current condition string.
+     *
+     * @param editor The @c QLineEdit created by @c createEditor().
+     * @param index  The model index whose data should be loaded.
+     */
     void setEditorData(QWidget *editor, const QModelIndex &index) const override;
+
+    /**
+     * @brief Write the edited condition expression back to the model.
+     *
+     * @param editor The @c QLineEdit created by @c createEditor().
+     * @param model  The breakpoint model to update.
+     * @param index  The model index of the condition cell being committed.
+     */
     void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
+
+    /**
+     * @brief Position and size the editor to fill the cell rectangle.
+     *
+     * @param editor The @c QLineEdit to reposition.
+     * @param option Style options supplying the cell's bounding rectangle.
+     * @param index  The model index of the cell being edited (unused here).
+     */
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
                               const QModelIndex &index) const override;
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
-  protected:
+    /**
+     * @brief Return the preferred size for a condition cell.
+     *
+     * @param option Style options for the cell.
+     * @param index  The model index of the cell.
+     * @return A @c QSize with the natural editor height and the base-class width.
+     */
+    QSize sizeHint(const QStyleOptionViewItem &option,
+                   const QModelIndex &index) const override;
+
+protected:
+    /**
+     * @brief Filter key events on the editor to control commit and cancel.
+     *
+     * @param watched The object that received the event (the editor widget).
+     * @param event   The event to inspect.
+     * @return true if the event was consumed; false to let it propagate.
+     */
     bool eventFilter(QObject *watched, QEvent *event) override;
 
-  private:
-    /** Lazily-cached preferred row height matching @c QLineEdit::sizeHint. */
+private:
+    /**
+     * @brief Return the preferred row height matching a @c QLineEdit's natural height.
+     *
+     * @return The height in pixels that rows should occupy to fit the editor.
+     */
     int preferredEditorHeight() const;
+
+    /** Lazily-cached preferred row height matching @c QLineEdit::sizeHint(). */
     mutable int cachedPreferredHeight_ = 0;
 };
 
@@ -275,14 +349,30 @@ class LuaDebuggerBreakpointsController : public QObject
   public:
     explicit LuaDebuggerBreakpointsController(LuaDebuggerDialog *host);
 
-    /** @brief Bind the tree + model and wire their signals. */
+    /**
+     * @brief Bind the tree + model and wire their signals
+     * @param tree The @c QTreeView to attach.
+     * @param model The @c QStandardItemModel to attach.
+     */
     void attach(QTreeView *tree, QStandardItemModel *model);
 
-    /** @brief Bind the section-header strip and its shortcut action.
-     *  Wires button clicks; safe to call before or after @ref attach. */
+    /**
+     * @brief Bind the section-header strip and its shortcut action.
+     *  Wires button clicks; safe to call before or after @ref attach.
+     * @param breakOnError The "break on error" toggle button.
+     * @param toggleAll The "toggle all active" button.
+     * @param remove The "remove selected" button.
+     * @param removeAll The "remove all" button.
+     * @param edit The "edit selected" button.
+     * @param removeAllAction The "remove all" QAction, used to synchronize
+     *                        the enabled state with the header button.
+     */
     void attachHeaderButtons(QToolButton *breakOnError, QToolButton *toggleAll, QToolButton *remove,
                              QToolButton *removeAll, QToolButton *edit, QAction *removeAllAction);
 
+    /**
+     * @brief Configure the columns in the breakpoints tree.
+     */
     void configureColumns() const;
 
     /** @brief Focus column 2 and open the delegate editor when editable. */
@@ -291,12 +381,21 @@ class LuaDebuggerBreakpointsController : public QObject
     /** @brief Snapshot the engine breakpoint list (file/line/active +
      *  condition / hit-count / log-message) into @p settingsMap under the
      *  @c Breakpoints key. Every per-breakpoint field is written so the JSON
-     *  is fully self-describing. */
+     *  is fully self-describing.
+     *
+     * @param settingsMap The map to write the @c Breakpoints array into. The caller
+     *                   is responsible for writing @p settingsMap into the main                   settings under the @c LuaDebugger key.
+     */
     void serializeTo(QVariantMap &settingsMap) const;
 
-    /** @brief Apply the @c Breakpoints array from @p settingsMap to the engine.
+    /**
+     * @brief Apply the @c Breakpoints array from @p settingsMap to the engine.
      *  Missing keys fall back to the engine's defaults; an unknown hit-count
-     *  mode collapses to the default @c FROM. */
+     *  mode collapses to the default @c FROM.
+     *
+     * @param settingsMap The map to read the @c Breakpoints array from. The caller                   is responsible for extracting @p settingsMap from the main
+     *                   settings under the @c LuaDebugger key.
+     */
     void restoreFrom(const QVariantMap &settingsMap);
 
     /** @brief Rebuild tree rows from the engine; refreshes header chrome. */
@@ -322,6 +421,9 @@ class LuaDebuggerBreakpointsController : public QObject
      *        @ref LuaDebuggerCodeView. Silently ignores null views or
      *        sub-1 line numbers; otherwise behaves exactly like
      *        @ref toggleAtLine.
+     *
+     * @param codeView The code view hosting the breakpoint line.
+     * @param line The line number to toggle the breakpoint on (1-based).
      */
     void toggleOnCodeViewLine(LuaDebuggerCodeView *codeView, qint32 line);
 
@@ -334,6 +436,9 @@ class LuaDebuggerBreakpointsController : public QObject
      *        active-add path; pre-arm should never silently turn debugging
      *        back on). Always rebuilds the breakpoint table and gutter
      *        markers.
+     *
+     * @param file The source file of the breakpoint to pre-arm or toggle.
+     * @param line The line number of the breakpoint to pre-arm or toggle.
      */
     void shiftToggleAtLine(const QString &file, qint32 line);
 
@@ -347,6 +452,10 @@ class LuaDebuggerBreakpointsController : public QObject
      *        enable state because that path is reachable during a live
      *        capture. Always rebuilds the breakpoint table and gutter
      *        markers.
+     *
+     * @param file The source file of the breakpoint to activate.
+     * @param line The line number of the breakpoint to activate.
+     * @param active The new active state to set on the breakpoint.
      */
     void setActiveFromUser(const QString &file, qint32 line, bool active);
 
@@ -354,6 +463,9 @@ class LuaDebuggerBreakpointsController : public QObject
      * @brief Remove the breakpoint at @p file:@p line and refresh chrome.
      *        Drives the gutter context menu's @c Remove action. Always
      *        rebuilds the breakpoint table and gutter markers.
+     *
+     * @param file The source file of the breakpoint to remove.
+     * @param line The line number of the breakpoint to remove.
      */
     void removeAtLine(const QString &file, qint32 line);
 
@@ -361,6 +473,10 @@ class LuaDebuggerBreakpointsController : public QObject
      * @brief Move a breakpoint in @p file from @p fromLine to @p toLine,
      *        preserving metadata. No-op if either line is invalid, unchanged,
      *        source is absent, or destination is occupied.
+     *
+     * @param file The source file of the breakpoint to move.
+     * @param fromLine The current line number of the breakpoint to move.
+     * @param toLine The new line number to move the breakpoint to.
      */
     void moveAtLine(const QString &file, qint32 fromLine, qint32 toLine);
 
@@ -377,19 +493,45 @@ class LuaDebuggerBreakpointsController : public QObject
     bool removeSelected();
 
   public slots:
+    /**
+     * @brief Double-click on a breakpoint row to edit its condition.
+     *
+     * @param index The model index of the double-clicked cell; only the row is used, and only if the column is the Location column.
+     */
     void onItemDoubleClicked(const QModelIndex &index);
+
+    /**
+     * @brief Show context menu for a right-click in the breakpoint tree.
+     * @param pos The position of the right-click, in viewport coordinates.
+    */
     void showContextMenu(const QPoint &pos);
-    /** @brief Active-checkbox toggle from the model. */
+    /**
+     * @brief Active-checkbox toggle from the model.
+     * @param item The item that changed; only triggers if the column is the Active column and the change is a user toggle of the checkbox.
+     */
     void onItemChanged(QStandardItem *item);
-    /** @brief Role-based dispatch for delegate-driven inline edits. */
+    /**
+     * @brief Role-based dispatch for delegate-driven inline edits.
+     * @param topLeft The top-left index of the changed data range; only triggers if the column is the Location column and the change is a user edit of the condition string.
+     * @param bottomRight The bottom-right index of the changed data range; only triggers if the column is the Location column and the change is a user edit of the condition string.
+     * @param roles The roles that changed; only triggers if the change includes the EditRole and excludes the BreakpointModelRole, to distinguish user edits from programmatic @c setData during
+     */
     void onModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);
-    /** @brief Show Edit/Disable/Remove popup for a click in an editor gutter. */
+    /**
+     * @brief Show Edit/Disable/Remove popup for a click in an editor gutter.
+     * @param filename The name of the file containing the gutter click.
+     * @param line The line number of the gutter click.
+     * @param globalPos The position of the click in global coordinates.
+     */
     void showGutterMenu(const QString &filename, qint32 line, const QPoint &globalPos);
 
   private:
     /** @brief Repaint the breakpoint gutter on every open code tab. */
     void refreshAllOpenTabMarkers() const;
-    /** @brief Repaint gutters only on tabs whose file is in @p files. */
+    /**
+     * @brief Repaint gutters only on tabs whose file is in @p files.
+     * @param files The set of files for which to repaint gutters.
+     */
     void refreshOpenTabMarkers(const QSet<QString> &files) const;
 
     LuaDebuggerDialog *host_ = nullptr;

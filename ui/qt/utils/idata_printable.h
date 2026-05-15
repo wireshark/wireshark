@@ -19,14 +19,27 @@
 #include <QByteArray>
 #include <QObject>
 
+/**
+ * @brief An interface for objects that can provide a printable data representation.
+ */
 class IDataPrintable
 {
 public:
+    /**
+     * @brief Destroys the IDataPrintable object.
+     */
     virtual ~IDataPrintable() {}
 
+    /**
+     * @brief Retrieves the printable data representation of the object.
+     * @return A QByteArray containing the printable data.
+     */
     virtual const QByteArray printableData() = 0;
 };
 
+/**
+ * @brief The interface identifier for IDataPrintable, used by Qt's meta-object system.
+ */
 #define IDataPrintable_iid "org.wireshark.Qt.UI.IDataPrintable"
 
 Q_DECLARE_INTERFACE(IDataPrintable, IDataPrintable_iid)

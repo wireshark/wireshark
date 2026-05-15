@@ -377,6 +377,18 @@ WS_DLL_PUBLIC int dissector_try_uint(dissector_table_t sub_dissectors,
 WS_DLL_PUBLIC int dissector_try_uint_with_data(dissector_table_t sub_dissectors,
     const uint32_t uint_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const bool add_proto_name, void *data);
 
+/**
+ * @brief Try to dissect using a uint-keyed dissector table entry, with additional options and caller data.
+ * @param sub_dissectors  The dissector table to search.
+ * @param uint_val        The uint selector value to look up.
+ * @param tvb             The packet buffer.
+ * @param pinfo           The packet info.
+ * @param tree            The protocol tree.
+ * @param add_proto_name  Whether to add the protocol name to the tree.
+ * @param data            Caller-supplied data passed to the dissector.
+ * @return The number of bytes consumed by the dissector, or 0 if no
+ *         matching entry was found.
+*/
 WS_DEPRECATED_X("Use dissector_try_uint_with_data instead")
 static inline int dissector_try_uint_new(dissector_table_t sub_dissectors,
 	const uint32_t uint_val, tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, const bool add_proto_name, void* data) \
@@ -516,7 +528,12 @@ WS_DLL_PUBLIC dissector_handle_t dissector_get_string_handle(
 WS_DLL_PUBLIC dissector_handle_t dissector_get_default_string_handle(
     const char *name, const char *string);
 
-/* Add an entry to a "custom" dissector table. */
+/**
+ * @brief Add an entry to a "custom" dissector table.
+ * @param name The name of the dissector table.
+ * @param pattern The pattern to match.
+ * @param handle The dissector handle to associate with the pattern.
+ */
 WS_DLL_PUBLIC void dissector_add_custom_table_handle(const char *name, void *pattern,
     dissector_handle_t handle);
 
@@ -622,9 +639,18 @@ static inline int dissector_try_payload_new(dissector_table_t sub_dissectors,
 	return dissector_try_payload_with_data(sub_dissectors, tvb, pinfo, tree, add_proto_name, data); \
 }
 
-/* Use the currently assigned payload dissector for the dissector table and,
-   if any, call the dissector with the arguments supplied, and return the
-   number of bytes consumed, otherwise return 0. */
+/**
+ * @brief Use the currently assigned payload dissector for the dissector table and,
+ * if any, call the dissector with the arguments supplied, and return the
+ * number of bytes consumed, otherwise return 0.
+ *
+ * @param sub_dissectors The dissector table whose payload dissector to invoke.
+ * @param tvb The TVBuffer containing the data to dissect.
+ * @param pinfo Packet information for the current packet.
+ * @param tree The protocol tree to add nodes to.
+ * @return The number of bytes consumed by the dissector, or 0 if no payload
+ *         dissector is assigned.
+ */
 WS_DEPRECATED_X("Use dissector_try_payload_with_data instead")
 static inline int dissector_try_payload(dissector_table_t sub_dissectors,
 	tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
@@ -778,7 +804,11 @@ WS_DLL_PUBLIC void heur_dissector_table_foreach(const char *table_name,
 WS_DLL_PUBLIC void dissector_all_heur_tables_foreach_table (DATFunc_heur_table func,
     void *user_data, GCompareFunc compare_key_func);
 
-/* true if a heur_dissector list of that name exists to be registered into */
+/**
+ * @brief Check if a heuristic dissector list of the given name exists.
+ * @param name The name of the heuristic dissector list to check for.
+ * @return true if a heur_dissector list of that name exists to be registered into, false otherwise.
+ */
 WS_DLL_PUBLIC bool has_heur_dissector_list(const char *name);
 
 /** Try all the dissectors in a given heuristic dissector list. This is done,
@@ -832,49 +862,149 @@ WS_DLL_PUBLIC void heur_dissector_add(const char *name, heur_dissector_t dissect
  */
 WS_DLL_PUBLIC void heur_dissector_delete(const char *name, heur_dissector_t dissector, const int proto);
 
-/** Register a new dissector. */
-WS_DLL_PUBLIC dissector_handle_t register_dissector(const char *name, dissector_t dissector, const int proto);
+/**
+ * @brief Register a new dissector with the global dissector registry.
+ *
+ * @param name      Short, unique machine-friendly name for this dissector
+ *                  (e.g. @c "http").
+ * @param dissector The dissector function to call.
+ * @param proto     Protocol index returned by @c proto_register_protocol().
+ * @return The newly created and registered @c dissector_handle_t.
+ */
+WS_DLL_PUBLIC dissector_handle_t register_dissector(const char *name,
+    dissector_t dissector, const int proto);
 
-/** Register a new dissector with a description. */
-WS_DLL_PUBLIC dissector_handle_t register_dissector_with_description(const char *name, const char *description, dissector_t dissector, const int proto);
+/**
+ * @brief Register a new dissector with a custom user-visible description.
+ *
+ * @param name        Short, unique machine-friendly name for this dissector.
+ * @param description Human-readable description shown in the UI.
+ * @param dissector   The dissector function to call.
+ * @param proto       Protocol index returned by @c proto_register_protocol().
+ * @return The newly created and registered @c dissector_handle_t.
+ */
+WS_DLL_PUBLIC dissector_handle_t register_dissector_with_description(const char *name,
+    const char *description, dissector_t dissector, const int proto);
 
-/** Register a new dissector with a callback pointer. */
-WS_DLL_PUBLIC dissector_handle_t register_dissector_with_data(const char *name, dissector_cb_t dissector, const int proto, void *cb_data);
+/**
+ * @brief Register a new dissector that carries an opaque callback pointer.
+ *
+ * @param name      Short, unique machine-friendly name for this dissector.
+ * @param dissector The callback-style dissector function to call.
+ * @param proto     Protocol index returned by @c proto_register_protocol().
+ * @param cb_data   Opaque pointer passed through to @p dissector on each
+ *                  invocation.
+ * @return The newly created and registered @c dissector_handle_t.
+ */
+WS_DLL_PUBLIC dissector_handle_t register_dissector_with_data(const char *name,
+    dissector_cb_t dissector, const int proto, void *cb_data);
 
-/** Deregister a dissector. */
+/**
+ * @brief Deregister a previously registered dissector.
+ * @param name The name passed to register_dissector() at registration time.
+ */
 void deregister_dissector(const char *name);
 
-/** Get the long name of the protocol for a dissector handle. */
-WS_DLL_PUBLIC const char *dissector_handle_get_protocol_long_name(const dissector_handle_t handle);
+/**
+ * @brief Return the long (full) protocol name for a dissector handle.
+ *
+ * @param handle A valid dissector handle.
+ * @return The long protocol name string (e.g. @c "Hypertext Transfer Protocol"),
+ *         or NULL if @p handle is invalid.
+ */
+WS_DLL_PUBLIC const char *dissector_handle_get_protocol_long_name(
+    const dissector_handle_t handle);
 
-/** Get the short name of the protocol for a dissector handle. */
-WS_DLL_PUBLIC const char *dissector_handle_get_protocol_short_name(const dissector_handle_t handle);
+/**
+ * @brief Return the short protocol name for a dissector handle.
+ *
+ * @param handle A valid dissector handle.
+ * @return The short protocol name string (e.g. @c "HTTP"), or NULL if
+ *         @p handle is invalid.
+ */
+WS_DLL_PUBLIC const char *dissector_handle_get_protocol_short_name(
+    const dissector_handle_t handle);
 
-/* For backwards source and binary compatibility */
+/**
+ * @brief Return the short protocol name for a dissector handle.
+ *
+ * For backwards source and binary compatibility.
+ *
+ * @param handle A valid dissector handle.
+ * @return The short protocol name string, or NULL if @p handle is invalid.
+ */
 G_DEPRECATED_FOR(dissector_handle_get_protocol_short_name)
-WS_DLL_PUBLIC const char *dissector_handle_get_short_name(const dissector_handle_t handle);
+WS_DLL_PUBLIC const char *dissector_handle_get_short_name(
+    const dissector_handle_t handle);
 
-/** Get the description for what the dissector for a dissector handle dissects. */
-WS_DLL_PUBLIC const char *dissector_handle_get_description(const dissector_handle_t handle);
 
-/** Get the index of the protocol for a dissector handle. */
-WS_DLL_PUBLIC int dissector_handle_get_protocol_index(const dissector_handle_t handle);
+/**
+ * @brief Return the user-visible description for a dissector handle.
+ *
+ * @param handle A valid dissector handle.
+ * @return The description string, or NULL if @p handle is invalid.
+ */
+WS_DLL_PUBLIC const char *dissector_handle_get_description(
+    const dissector_handle_t handle);
 
-/** Get a GList of all registered dissector names. */
-WS_DLL_PUBLIC GList* get_dissector_names(void);
+/**
+ * @brief Return the protocol index for a dissector handle.
+ *
+ * @param handle A valid dissector handle.
+ * @return The @c proto index (as returned by @c proto_register_protocol())
+ *         for the protocol associated with @p handle, or -1 if invalid.
+ */
+WS_DLL_PUBLIC int dissector_handle_get_protocol_index(
+    const dissector_handle_t handle);
 
-/** Find a dissector by name. */
+/**
+ * @brief Return a GList of all registered dissector name strings.
+ * @return A newly allocated @c GList of registered dissector name strings.
+ */
+WS_DLL_PUBLIC GList *get_dissector_names(void);
+
+/**
+ * @brief Find a registered dissector by name.
+ *
+ * @param name The short name used at register_dissector() time.
+ * @return The @c dissector_handle_t for @p name, or NULL if no dissector
+ *         with that name is registered.
+ */
 WS_DLL_PUBLIC dissector_handle_t find_dissector(const char *name);
 
-/** Find a dissector by name and add parent protocol as a dependency. */
-WS_DLL_PUBLIC dissector_handle_t find_dissector_add_dependency(const char *name, const int parent_proto);
+/**
+ * @brief Find a registered dissector by name and record a protocol dependency.
+ *
+ * @param name         The short name of the dissector to find.
+ * @param parent_proto The protocol index of the calling dissector's protocol.
+ * @return The @c dissector_handle_t for @p name, or NULL if not found.
+ */
+WS_DLL_PUBLIC dissector_handle_t find_dissector_add_dependency(const char *name,
+    const int parent_proto);
 
-/** Get a dissector name from handle. */
-WS_DLL_PUBLIC const char *dissector_handle_get_dissector_name(const dissector_handle_t handle);
+/**
+ * @brief Return the registered name of a dissector from its handle.
+ *
+ * @param handle A valid dissector handle.
+ * @return The name string passed to register_dissector() or
+ *         create_dissector_handle_with_name(), or NULL for anonymous handles.
+ */
+WS_DLL_PUBLIC const char *dissector_handle_get_dissector_name(
+    const dissector_handle_t handle);
 
-WS_DLL_PUBLIC const char *dissector_handle_get_pref_suffix(const dissector_handle_t handle);
+/**
+ * @brief Return the preferences suffix string for a dissector handle.
+ *
+ * @param handle A valid dissector handle.
+ * @return The preference key suffix string, or NULL if none is set.
+ */
+WS_DLL_PUBLIC const char *dissector_handle_get_pref_suffix(
+    const dissector_handle_t handle);
 
-/** Create an anonymous, unregistered dissector handle. Unregistered means that
+/**
+ * @brief Create an anonymous, unregistered dissector handle.
+ *
+ * Unregistered means that
  * other dissectors can't find the dissector through this API. The typical use
  * case is dissectors added to dissector tables that shouldn't be called by other
  * dissectors, perhaps if some data structure must be passed to the dissector.
@@ -887,8 +1017,13 @@ WS_DLL_PUBLIC const char *dissector_handle_get_pref_suffix(const dissector_handl
 WS_DLL_PUBLIC dissector_handle_t create_dissector_handle(dissector_t dissector,
     const int proto);
 
-/** Create an named, unregistered dissector handle.
+/**
+ * @brief Create a named, unregistered dissector handle.
+ *
+ * Create an named, unregistered dissector handle.
  * A non-NULL name is needed for dissector_add_for_decode_add_with_preference().
+ *
+ * @note The protocol short name will be used as the user-visible description.
  *
  * @param dissector The dissector the handle will call
  * @param proto The value obtained when registering the protocol
@@ -896,10 +1031,10 @@ WS_DLL_PUBLIC dissector_handle_t create_dissector_handle(dissector_t dissector,
  * to be globally unique, but should be unique for any table the handle will be
  * registered to. Can be NULL, which creates an anonymous dissector.
  *
- * @note The protocol short name will be used as the user-visible description.
+ * @return A newly created, unregistered @c dissector_handle_t.
  */
-WS_DLL_PUBLIC dissector_handle_t create_dissector_handle_with_name(dissector_t dissector,
-    const int proto, const char* name);
+WS_DLL_PUBLIC dissector_handle_t create_dissector_handle_with_name(
+    dissector_t dissector, const int proto, const char *name);
 
 /** Create an named, unregistered handle dissector handle with a description.
  * A non-NULL name is needed for dissector_add_for_decode_add_with_preference().
@@ -917,15 +1052,29 @@ WS_DLL_PUBLIC dissector_handle_t create_dissector_handle_with_name(dissector_t d
  */
 WS_DLL_PUBLIC dissector_handle_t create_dissector_handle_with_name_and_description(dissector_t dissector,
     const int proto, const char* name, const char* description);
-WS_DLL_PUBLIC dissector_handle_t create_dissector_handle_with_data(dissector_cb_t dissector,
-    const int proto, void* cb_data);
+
+/**
+ * @brief Create an anonymous, unregistered callback-style dissector handle.
+ *
+ * Like create_dissector_handle(), but uses the @c dissector_cb_t calling
+ * convention so that @p cb_data is forwarded to the dissector on every
+ * invocation. The handle is not added to the global registry.
+ *
+ * @param dissector The callback-style dissector function the handle will invoke.
+ * @param proto     Protocol index returned by @c proto_register_protocol().
+ * @param cb_data   Opaque pointer passed through to @p dissector on each call.
+ * @return A newly created, unregistered @c dissector_handle_t.
+ */
+WS_DLL_PUBLIC dissector_handle_t create_dissector_handle_with_data(
+    dissector_cb_t dissector, const int proto, void *cb_data);
 
 /**
  * @brief Dump all registered dissectors to the standard output
  */
 WS_DLL_PUBLIC void dissector_dump_dissectors(void);
 
-/** Call a dissector through a handle and if no dissector was found
+/**
+ * @brief Call a dissector through a handle and if no dissector was found
  * pass it over to the "data" dissector instead.
  *
  *   @param handle The dissector to call.
@@ -940,6 +1089,20 @@ WS_DLL_PUBLIC void dissector_dump_dissectors(void);
  */
 WS_DLL_PUBLIC int call_dissector_with_data(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree, void *data);
+
+/**
+ * @brief Call a dissector through its handle, falling back to the data dissector.
+ *
+ * @param handle The handle of the dissector to invoke.
+ * @param tvb    The buffer containing the payload to dissect.
+ * @param pinfo  Packet metadata and column information.
+ * @param tree   The protocol tree node under which the child dissector should
+ *               add its items.
+ * @return The number of bytes consumed by the dissector, or the number
+ *         consumed by the data dissector fallback if the primary dissector
+ *         declined. A return value equal to @c tvb_captured_length(tvb)
+ *         indicates the entire buffer was consumed.
+ */
 WS_DLL_PUBLIC int call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree);
 
@@ -1118,24 +1281,42 @@ WS_DLL_PUBLIC void set_data_source_name(packet_info *pinfo, struct data_source *
  */
 WS_DLL_PUBLIC void set_data_source_media_type(struct data_source *src, data_source_media_type_e media_type);
 
-/* Removes the last-added data source, if it turns out it wasn't needed */
+/**
+ * @brief Remove the most recently added data source from a packet.
+ *
+ * Removes the last-added data source, if it turns out it wasn't needed.
+ *
+ * @param pinfo The packet info structure whose last data source should
+ *              be removed.
+ */
 WS_DLL_PUBLIC void remove_last_data_source(packet_info *pinfo);
 
-/*
- * Return the data source name.
+/**
+ * @brief Return the display name of a data source.
+ *
+ * @param src The data source whose name should be returned.
+ * @return A newly allocated string of the form @c "Name (N bytes)".
  */
 WS_DLL_PUBLIC const char *get_data_source_name(const struct data_source *src);
 
-/*
- * Return the data source description.
+/**
+ * @brief Return the description of a data source.
+ *
+ * @param src The data source whose description should be returned.
+ * @return The description string. The pointer is valid for the lifetime
+ *         of the packet dissection pool; do not free it.
  */
 WS_DLL_PUBLIC char *get_data_source_description(const struct data_source *src);
 
-/*
- * Return the tvb for the data source.
+/**
+ * @brief Return the tvbuff associated with a data source.
+ *
+ * @param src The data source whose tvb should be returned.
+ * @return The @c tvbuff_t associated with @p src. The pointer is valid
+ *         for the lifetime of the packet dissection; do not free it
+ *         directly.
  */
 WS_DLL_PUBLIC tvbuff_t *get_data_source_tvb(const struct data_source *src);
-
 /**
  * Find and return data source with the given name.
  * @param pinfo packet_info for the packet whose data sources are to be searched
@@ -1159,12 +1340,14 @@ WS_DLL_PUBLIC struct data_source *get_data_source_by_tvb(const packet_info *pinf
  */
 WS_DLL_PUBLIC data_source_media_type_e get_data_source_media_type(const struct data_source *src);
 
-/*
- * Free up a frame's list of data sources.
+/**
+ * @brief Free up a frame's list of data sources.
+ * @param pinfo The packet info structure whose data sources should be freed.
  */
 extern void free_data_sources(packet_info *pinfo);
 
-/* Mark another frame as depended upon by the current frame.
+/**
+ * @brief Mark another frame as depended upon by the current frame.
  *
  * This information is used to ensure that when the current frame is exported
  * or saved that the depended upon frames necessary for correct dissection are
@@ -1177,6 +1360,9 @@ extern void free_data_sources(packet_info *pinfo);
  * Specified Packets dialog (enabled by default) controls whether depended
  * upon frames of selected frames are also exported. TShark also saves
  * any depended upon frames when saving filtered packets to a file.
+ *
+ * @param fd The frame data for the current frame.
+ * @param frame_num The frame number of the frame to mark as depended upon.
  */
 WS_DLL_PUBLIC void mark_frame_as_depended_upon(frame_data *fd, uint32_t frame_num);
 

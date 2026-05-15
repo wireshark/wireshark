@@ -17,20 +17,37 @@ namespace Ui {
 class DissectorTablesDialog;
 }
 
+/**
+ * @brief A dialog window for viewing and searching registered dissector tables.
+ */
 class DissectorTablesDialog : public GeometryStateDialog
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Constructs a new DissectorTablesDialog.
+     * @param parent The parent widget, defaults to 0.
+     */
     explicit DissectorTablesDialog(QWidget *parent = 0);
+
+    /**
+     * @brief Destroys the DissectorTablesDialog.
+     */
     ~DissectorTablesDialog();
 
 private slots:
+    /**
+     * @brief Slot triggered when the text in the search line edit changes.
+     * @param search_re The new search string or regular expression.
+     */
     void on_txtSearchLine_textChanged(const QString &search_re);
 
 private:
+    /** Pointer to the generated UI elements. */
     Ui::DissectorTablesDialog *ui;
 
+    /** Proxy model used for sorting and filtering the dissector tables. */
     DissectorTablesProxyModel* proxyModel_;
 };
 

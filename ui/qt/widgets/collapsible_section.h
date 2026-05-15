@@ -100,6 +100,10 @@ class CollapsibleSection : public QWidget
     void toggled(bool expanded);
 
   private slots:
+    /**
+     * @brief Toggle the content area visibility and emit the toggled signal.
+     * @param checked True if the toggle button is checked (expanded), false otherwise.
+     */
     void onToggle(bool checked);
 
   private:

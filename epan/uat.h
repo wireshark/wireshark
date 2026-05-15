@@ -620,33 +620,70 @@ void uat_foreach_table(uat_cb_t cb,void* user_data);
  */
 void uat_unload_all(void);
 
-/* Converts an ASCII string using C-style escapes (e.g., for unprintable
+/**
+ * @brief Converts an ASCII string using C-style escapes (e.g., for unprintable
+ *
+ * Converts an ASCII string using C-style escapes (e.g., for unprintable
  * characters) into a "stringlike" array of bytes that may include internal
  * NUL bytes and other unprintable characters. This is the PT_TEXTMOD_STRING
  * format.
+ *
+ * @param si     The escaped ASCII input string.
+ * @param in_len Length of @p si in bytes, not including any NUL terminator.
+ * @param len_p  Receives the length of the returned byte array in bytes.
+ * @return A newly allocated byte array of @p *len_p bytes. The caller must
+ *         free it with @c g_free().
  */
-uint8_t* uat_unesc(const char* si, unsigned in_len, unsigned* len_p);
+uint8_t *uat_unesc(const char *si, unsigned in_len, unsigned *len_p);
 
-/* The same as uat_unesc, but removing the first and last byte. The
+/**
+ * @brief Decode a quoted, C-style escaped ASCII string into a raw byte array.
+ *
+ * The same as uat_unesc, but removing the first and last byte. The
  * assumption is that the first and last byte are quote characters. When
  * writing the PT_TEXTMOD_STRING format to file, the escaped string is
  * enclosed in quotes; this function undoes that.
  *
  * TODO - This should probably return a uint8_t* as well, but requires
  * changing types (or casting pointers) in several other files to do so.
+ *
+ * @param si     The quoted, escaped ASCII input string (including surrounding
+ *               quote characters).
+ * @param in_len Length of @p si in bytes, including the quote characters.
+ * @param len_p  Receives the length of the decoded byte array in bytes.
+ * @return A newly allocated byte array of @p *len_p bytes. The caller must
+ *         free it with @c g_free().
  */
-char* uat_undquote(const char* si, unsigned in_len, unsigned* len_p);
+char *uat_undquote(const char *si, unsigned in_len, unsigned *len_p);
 
-/* Converts a "stringlike" array of bytes into a null-terminated ASCII string
+/**
+ * @brief Encode a raw byte array as a NUL-terminated C-style escaped ASCII string.
+ *
+ * Converts a "stringlike" array of bytes into a null-terminated ASCII string
  * using C-style escapes. The inverse of uat_unesc.
+ *
+ * @param buf The raw byte array to encode.
+ * @param len Number of bytes in @p buf.
+ * @return A newly allocated NUL-terminated escaped ASCII string. The caller
+ *         must free it with @c g_free().
  */
-char* uat_esc(const uint8_t* buf, unsigned len);
+char *uat_esc(const uint8_t *buf, unsigned len);
 
-/* Converts a ASCII hexstring into an array of bytes. Used to convert
+/**
+ * @brief Decode an ASCII hex-digit string into a raw byte array.
+ *
+ * Converts a ASCII hexstring into an array of bytes. Used to convert
  * the PT_TXTMOD_HEXBYTES format.
  * TODO - This should probably return a uint8_t* as well.
+ *
+ * @param si     The ASCII hex-digit input string.
+ * @param in_len Length of @p si in bytes.
+ * @param len_p  Receives the number of decoded bytes in the returned array.
+ * @return A newly allocated byte array of @p *len_p bytes, or NULL if
+ *         @p si contains non-hex characters or an odd number of digits.
+ *         The caller must free it with @c g_free().
  */
-char* uat_unbinstring(const char* si, unsigned in_len, unsigned* len_p);
+char *uat_unbinstring(const char *si, unsigned in_len, unsigned *len_p);
 
 /* Some strings entirely made of ... already declared */
 
@@ -664,8 +701,6 @@ char* uat_unbinstring(const char* si, unsigned in_len, unsigned* len_p);
 WS_DLL_PUBLIC
 bool uat_fld_chk_str_isprint(void* u1, const char* strptr, unsigned len, const void* u2, const void* u3, char** err);
 
-WS_DLL_PUBLIC
-
 /**
  * @brief Checks if a string contains only alphabetic characters.
  *
@@ -677,8 +712,8 @@ WS_DLL_PUBLIC
  * @param err Error message buffer if an error occurs.
  * @return true if the field value is valid, false otherwise.
  */
+WS_DLL_PUBLIC
 bool uat_fld_chk_str_isalpha(void* u1, const char* strptr, unsigned len, const void* u2, const void* u3, char** err);
-
 
 /**
  * @brief Checks if a string is alphanumeric.

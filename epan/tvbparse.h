@@ -462,7 +462,7 @@ tvbparse_wanted_t* tvbparse_some(const int id,
     tvbparse_some(id, 1, INT_MAX, private_data, before_cb, after_cb, wanted)
 
 
-/*
+/**
  * @brief Create an indirect reference element for recursive grammars.
  *
  * this is a pointer to a pointer to a wanted element (that might have not

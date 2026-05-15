@@ -11,27 +11,32 @@
 #ifndef __PACKET_DCERPC_DCOM_CBA_ACCO_H
 #define __PACKET_DCERPC_DCOM_CBA_ACCO_H
 
+/**
+ * @brief Represents a Component Based Automation (CBA) physical device.
+ */
 typedef struct cba_pdev_s {
-    GList           *ldevs;
-    dcom_object_t   *object;
-    int             first_packet;
+    GList           *ldevs;         /**< List of associated logical devices. */
+    dcom_object_t   *object;        /**< Pointer to the underlying DCOM object. */
+    int             first_packet;   /**< The frame number of the first packet seen for this device. */
 
-    uint8_t         ip[4];
+    uint8_t         ip[4];          /**< The IPv4 address of the physical device. */
 } cba_pdev_t;
 
+/**
+ * @brief Represents a Component Based Automation (CBA) logical device.
+ */
 typedef struct cba_ldev_s {
-    GList           *provframes;
-    GList           *consframes;
-    GList           *provconns;
-    GList           *consconns;
-    dcom_object_t   *ldev_object;
-    dcom_object_t   *acco_object;
-    cba_pdev_t      *parent;
-    int             first_packet;
+    GList           *provframes;    /**< List of provider frames. */
+    GList           *consframes;    /**< List of consumer frames. */
+    GList           *provconns;     /**< List of provider connections. */
+    GList           *consconns;     /**< List of consumer connections. */
+    dcom_object_t   *ldev_object;   /**< Pointer to the logical device's DCOM object. */
+    dcom_object_t   *acco_object;   /**< Pointer to the ACCO (Active Control Connection) DCOM object. */
+    cba_pdev_t      *parent;        /**< Pointer to the parent physical device. */
+    int             first_packet;   /**< The frame number of the first packet seen for this logical device. */
 
-    const char      *name;
+    const char      *name;          /**< The name of the logical device. */
 } cba_ldev_t;
-
 
 extern GList *cba_pdevs;
 
@@ -94,7 +99,7 @@ cba_ldev_link_acco(packet_info *pinfo, cba_ldev_t *ldev, dcom_interface_t *acco_
 * @param pinfo Packet information structure.
 * @param addr Address of the logical device.
 * @param ipid IP ID of the logical device.
-* @return cba_ldev_t* Pointer to the found logical device, or NULL if not found.
+* @return Pointer to the found logical device, or NULL if not found.
 */
 extern cba_ldev_t *
 cba_ldev_find(packet_info *pinfo, const address *addr, e_guid_t *ipid);

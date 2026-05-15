@@ -37,7 +37,9 @@ public:
      */
     explicit StatsTreeDialog(QWidget &parent, CaptureFile &cf, const char *cfg_abbr);
 
-    /* Destructor. */
+    /**
+     * @brief Destructor.
+     */
     ~StatsTreeDialog();
 
     /**

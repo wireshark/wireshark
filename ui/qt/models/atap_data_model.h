@@ -74,6 +74,8 @@ public:
      * @see enableTap
      */
     explicit ATapDataModel(dataModelType type, int protoId, QString filter, QObject *parent = nullptr);
+
+    /** @brief Destructor */
     virtual ~ATapDataModel();
 
     /**
@@ -86,8 +88,31 @@ public:
      */
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
+    /**
+     * @brief Return the number of columns in the model.
+     *
+     * @param parent index of parent, QModelIndex() for the root
+     * @return int the number of columns under the parent
+     */
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const = 0;
+
+    /**
+     * @brief Return the header data for the specified section and orientation.
+     *
+     * @param section The column or row index.
+     * @param orientation The orientation of the header.
+     * @param role The data role.
+     * @return QVariant The header data.
+     */
     virtual QVariant headerData(int section, Qt::Orientation orientation = Qt::Horizontal, int role = Qt::DisplayRole) const = 0;
+
+    /**
+     * @brief Return the data for the specified index and role.
+     *
+     * @param idx The model index.
+     * @param role The data role.
+     * @return QVariant The data for the specified index and role.
+     */
     virtual QVariant data(const QModelIndex &idx, int role = Qt::DisplayRole) const = 0;
 
     /**
@@ -262,97 +287,228 @@ private:
 
 };
 
+/**
+ * @brief Tap data model for the Endpoints statistics dialog.
+ */
 class EndpointDataModel : public ATapDataModel
 {
     Q_OBJECT
 public:
-
+    /**
+     * @brief Column indices for the endpoint statistics table.
+     */
     typedef enum
     {
-        ENDP_COLUMN_ADDR,
-        ENDP_COLUMN_PORT,
-        ENDP_COLUMN_PACKETS,
-        ENDP_COLUMN_BYTES,
-        ENDP_COLUMN_PACKETS_TOTAL,
-        ENDP_COLUMN_BYTES_TOTAL,
-        ENDP_COLUMN_PKT_AB,
-        ENDP_COLUMN_BYTES_AB,
-        ENDP_COLUMN_PKT_BA,
-        ENDP_COLUMN_BYTES_BA,
-        ENDP_NUM_COLUMNS,
-        ENDP_COLUMN_GEO_COUNTRY = ENDP_NUM_COLUMNS,
-        ENDP_COLUMN_GEO_CITY,
-        ENDP_COLUMN_GEO_LATITUDE,
-        ENDP_COLUMN_GEO_LONGITUDE,
-        ENDP_COLUMN_GEO_AS_NUM,
-        ENDP_COLUMN_GEO_AS_ORG,
-        ENDP_NUM_GEO_COLUMNS
+        ENDP_COLUMN_ADDR,           /**< Endpoint address. */
+        ENDP_COLUMN_PORT,           /**< Endpoint port (transport protocols only). */
+        ENDP_COLUMN_PACKETS,        /**< Total packets in the filtered set. */
+        ENDP_COLUMN_BYTES,          /**< Total bytes in the filtered set. */
+        ENDP_COLUMN_PACKETS_TOTAL,  /**< Total packets across all traffic. */
+        ENDP_COLUMN_BYTES_TOTAL,    /**< Total bytes across all traffic. */
+        ENDP_COLUMN_PKT_AB,         /**< Packets transmitted from this endpoint. */
+        ENDP_COLUMN_BYTES_AB,       /**< Bytes transmitted from this endpoint. */
+        ENDP_COLUMN_PKT_BA,         /**< Packets received by this endpoint. */
+        ENDP_COLUMN_BYTES_BA,       /**< Bytes received by this endpoint. */
+        ENDP_NUM_COLUMNS,           /**< Total number of standard columns. */
+        ENDP_COLUMN_GEO_COUNTRY  = ENDP_NUM_COLUMNS, /**< GeoIP country name. */
+        ENDP_COLUMN_GEO_CITY,       /**< GeoIP city name. */
+        ENDP_COLUMN_GEO_LATITUDE,   /**< GeoIP latitude coordinate. */
+        ENDP_COLUMN_GEO_LONGITUDE,  /**< GeoIP longitude coordinate. */
+        ENDP_COLUMN_GEO_AS_NUM,     /**< GeoIP autonomous system number. */
+        ENDP_COLUMN_GEO_AS_ORG,     /**< GeoIP autonomous system organisation name. */
+        ENDP_NUM_GEO_COLUMNS        /**< Total column count including GeoIP columns. */
     } endpoint_column_type_e;
 
+    /**
+     * @brief Construct an EndpointDataModel for a given protocol and filter.
+     * @param protoId The protocol ID whose endpoint tap should be registered.
+     * @param filter  Optional display filter string; empty means no filter.
+     * @param parent  The parent QObject.
+     */
     explicit EndpointDataModel(int protoId, QString filter, QObject *parent = nullptr);
 
+    /**
+     * @brief Return the number of columns, including GeoIP columns if available.
+     * @param parent Unused; present for API compatibility.
+     * @return @c ENDP_NUM_GEO_COLUMNS when GeoIP data is loaded, otherwise
+     *         @c ENDP_NUM_COLUMNS.
+     */
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant headerData(int section, Qt::Orientation orientation = Qt::Horizontal, int role = Qt::DisplayRole) const override;
+
+    /**
+     * @brief Return header data for the endpoint table.
+     * @param section     Column index.
+     * @param orientation Must be Qt::Horizontal.
+     * @param role        The data role; typically Qt::DisplayRole.
+     * @return The column header label, or an invalid QVariant if unavailable.
+     */
+    QVariant headerData(int section, Qt::Orientation orientation = Qt::Horizontal,
+                        int role = Qt::DisplayRole) const override;
+
+    /**
+     * @brief Return data for a cell in the endpoint table.
+     * @param idx  The model index of the cell to query.
+     * @param role The data role (Qt::DisplayRole, Qt::UserRole, etc.).
+     * @return The cell data, or an invalid QVariant if unavailable.
+     */
     QVariant data(const QModelIndex &idx, int role = Qt::DisplayRole) const override;
 
+    /**
+     * @brief Enable or disable address name resolution for all address cells.
+     * @param resolve true to resolve addresses to hostnames; false to show
+     *                raw addresses.
+     */
     void setResolveNames(bool resolve) override;
+
+    /**
+     * @brief Switch timestamp display between absolute and relative time.
+     * @param absolute true for absolute (wall-clock) timestamps; false for
+     *                 relative timestamps.
+     */
     void useAbsoluteTime(bool absolute) override;
+
+    /**
+     * @brief Enable or disable nanosecond precision in timestamp display.
+     * @param nanoseconds true to show nanosecond-resolution timestamps;
+     *                    false for microsecond resolution.
+     */
     void useNanosecondTimestamps(bool nanoseconds) override;
 };
 
+
+/**
+ * @brief Tap data model for the Conversations statistics dialog.
+ *
+ * Collects per-conversation traffic statistics via the ATapDataModel tap
+ * infrastructure and exposes them as a table with address, port, packet
+ * count, byte count, timing, and throughput columns. An optional extended
+ * TCP column block is appended when the selected protocol is TCP.
+ */
 class ConversationDataModel : public ATapDataModel
 {
     Q_OBJECT
-public:
 
+public:
+    /**
+     * @brief Column indices for the standard conversation statistics table.
+     *
+     * @c CONV_INDEX_COLUMN is a virtual column (equal to @c CONV_NUM_COLUMNS)
+     * used to store the internal conversation index and is never displayed.
+     */
     typedef enum {
-        CONV_COLUMN_SRC_ADDR,
-        CONV_COLUMN_SRC_PORT,
-        CONV_COLUMN_DST_ADDR,
-        CONV_COLUMN_DST_PORT,
-        CONV_COLUMN_PACKETS,
-        CONV_COLUMN_BYTES,
-        CONV_COLUMN_CONV_ID,
-        CONV_COLUMN_PACKETS_TOTAL,
-        CONV_COLUMN_BYTES_TOTAL,
-        CONV_COLUMN_PKT_AB,
-        CONV_COLUMN_BYTES_AB,
-        CONV_COLUMN_PKT_BA,
-        CONV_COLUMN_BYTES_BA,
-        CONV_COLUMN_START,
-        CONV_COLUMN_DURATION,
-        CONV_COLUMN_BPS_AB,
-        CONV_COLUMN_BPS_BA,
-        CONV_NUM_COLUMNS,
-        CONV_INDEX_COLUMN = CONV_NUM_COLUMNS
+        CONV_COLUMN_SRC_ADDR,       /**< Source address. */
+        CONV_COLUMN_SRC_PORT,       /**< Source port (transport protocols only). */
+        CONV_COLUMN_DST_ADDR,       /**< Destination address. */
+        CONV_COLUMN_DST_PORT,       /**< Destination port (transport protocols only). */
+        CONV_COLUMN_PACKETS,        /**< Total packets in the filtered set. */
+        CONV_COLUMN_BYTES,          /**< Total bytes in the filtered set. */
+        CONV_COLUMN_CONV_ID,        /**< Protocol-assigned conversation identifier. */
+        CONV_COLUMN_PACKETS_TOTAL,  /**< Total packets across all traffic. */
+        CONV_COLUMN_BYTES_TOTAL,    /**< Total bytes across all traffic. */
+        CONV_COLUMN_PKT_AB,         /**< Packets from source to destination. */
+        CONV_COLUMN_BYTES_AB,       /**< Bytes from source to destination. */
+        CONV_COLUMN_PKT_BA,         /**< Packets from destination to source. */
+        CONV_COLUMN_BYTES_BA,       /**< Bytes from destination to source. */
+        CONV_COLUMN_START,          /**< Timestamp of the first packet in the conversation. */
+        CONV_COLUMN_DURATION,       /**< Duration of the conversation. */
+        CONV_COLUMN_BPS_AB,         /**< Throughput (bits/s) from source to destination. */
+        CONV_COLUMN_BPS_BA,         /**< Throughput (bits/s) from destination to source. */
+        CONV_NUM_COLUMNS,           /**< Total number of standard columns. */
+        CONV_INDEX_COLUMN = CONV_NUM_COLUMNS /**< Virtual index column (not displayed). */
     } conversation_column_type_e;
 
+    /**
+     * @brief Additional column indices for the TCP extended column block.
+     *
+     * These columns are appended after @c CONV_INDEX_COLUMN when the
+     * selected protocol is TCP.
+     */
     typedef enum {
-        CONV_TCP_EXT_COLUMN_A = CONV_INDEX_COLUMN,
-        CONV_TCP_EXT_NUM_COLUMNS,
-        CONV_TCP_EXT_INDEX_COLUMN = CONV_TCP_EXT_NUM_COLUMNS
+        CONV_TCP_EXT_COLUMN_A = CONV_INDEX_COLUMN, /**< First TCP extended column. */
+        CONV_TCP_EXT_NUM_COLUMNS,                  /**< Total columns including TCP extensions. */
+        CONV_TCP_EXT_INDEX_COLUMN = CONV_TCP_EXT_NUM_COLUMNS /**< Virtual index for TCP ext block. */
     } conversation_tcp_ext_column_type_e;
 
+    /**
+     * @brief Construct a ConversationDataModel for a given protocol and filter.
+     * @param protoId The protocol ID whose conversation tap should be registered.
+     * @param filter  Optional display filter string; empty means no filter.
+     * @param parent  The parent QObject.
+     */
     explicit ConversationDataModel(int protoId, QString filter, QObject *parent = nullptr);
 
+    /**
+     * @brief Return the number of columns, including any TCP extended columns.
+     * @param parent Unused; present for API compatibility.
+     * @return The total column count for the active protocol.
+     */
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant headerData(int section, Qt::Orientation orientation = Qt::Horizontal, int role = Qt::DisplayRole) const override;
-    QVariant data(const QModelIndex &idx, int role = Qt::DisplayRole) const override;
-
-    void doDataUpdate();
-
-    conv_item_t * itemForRow(int row);
 
     /**
-     * @brief Show the conversation id if available
+     * @brief Return header data for the conversation table.
+     * @param section     Column index.
+     * @param orientation Must be Qt::Horizontal.
+     * @param role        The data role; typically Qt::DisplayRole.
+     * @return The column header label, or an invalid QVariant if unavailable.
+     */
+    QVariant headerData(int section, Qt::Orientation orientation = Qt::Horizontal,
+                        int role = Qt::DisplayRole) const override;
+
+    /**
+     * @brief Return data for a cell in the conversation table.
+     * @param idx  The model index of the cell to query.
+     * @param role The data role (Qt::DisplayRole, Qt::UserRole, etc.).
+     * @return The cell data, or an invalid QVariant if unavailable.
+     */
+    QVariant data(const QModelIndex &idx, int role = Qt::DisplayRole) const override;
+
+    /**
+     * @brief Recalculate derived values (throughput, duration) after a tap update.
      *
-     * @return true a conversation id exists
-     * @return false none available
+     * Called after the tap has finished processing a batch of packets to
+     * update computed columns such as @c CONV_COLUMN_BPS_AB and
+     * @c CONV_COLUMN_DURATION.
+     */
+    void doDataUpdate();
+
+    /**
+     * @brief Return the raw @c conv_item_t for a given table row.
+     * @param row Zero-based row index.
+     * @return A pointer to the @c conv_item_t for @p row, or nullptr if
+     *         @p row is out of range.
+     */
+    conv_item_t *itemForRow(int row);
+
+    /**
+     * @brief Return whether a conversation ID column should be shown.
+     *
+     * The conversation ID column is only meaningful for protocols that
+     * assign explicit conversation identifiers (e.g. stream index for TCP).
+     *
+     * @param row Zero-based row index used to probe the data; defaults to 0.
+     * @return true if a valid conversation ID is available for @p row.
      */
     bool showConversationId(int row = 0) const;
 
+    /**
+     * @brief Enable or disable address name resolution for all address cells.
+     * @param resolve true to resolve addresses to hostnames; false to show
+     *                raw addresses.
+     */
     void setResolveNames(bool resolve) override;
+
+    /**
+     * @brief Switch timestamp display between absolute and relative time.
+     * @param absolute true for absolute (wall-clock) timestamps; false for
+     *                 relative timestamps.
+     */
     void useAbsoluteTime(bool absolute) override;
+
+    /**
+     * @brief Enable or disable nanosecond precision in timestamp display.
+     * @param nanoseconds true to show nanosecond-resolution timestamps;
+     *                    false for microsecond resolution.
+     */
     void useNanosecondTimestamps(bool nanoseconds) override;
 };
 

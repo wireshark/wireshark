@@ -1082,32 +1082,99 @@ static inline void proto_item_set_url(proto_item *ti) {
 }
 #define PROTO_ITEM_SET_URL(ti) proto_item_set_url((ti))
 
-typedef void (*proto_tree_foreach_func)(proto_node *, void *);
-typedef bool (*proto_tree_traverse_func)(proto_node *, void *);
+/**
+ * @brief Callback type for proto_tree_children_foreach().
+ * @param node  The current child proto_node.
+ * @param data  Opaque caller-supplied context pointer.
+ */
+typedef void (*proto_tree_foreach_func)(proto_node *node, void *data);
 
+/**
+ * @brief Callback type for depth-first proto_tree traversal functions.
+ * @param node  The current proto_node being visited.
+ * @param data  Opaque caller-supplied context pointer.
+ * @return true to stop traversal; false to continue to the next node.
+ */
+typedef bool (*proto_tree_traverse_func)(proto_node *node, void *data);
+
+/**
+ * @brief Invoke a callback for each direct child of a proto_tree node.
+ *
+ * @param tree The parent tree node whose children are iterated.
+ * @param func The callback to invoke for each child node.
+ * @param data Opaque caller-supplied context pointer passed through to @p func.
+ */
 WS_DLL_PUBLIC void proto_tree_children_foreach(proto_tree *tree,
     proto_tree_foreach_func func, void *data);
 
+/**
+ * @brief Descriptor for a dissector plugin's registration entry points.
+ */
 typedef struct {
-    void (*register_protoinfo)(void);   /* routine to call to register protocol information */
-    void (*register_handoff)(void);     /* routine to call to register dissector handoff */
+    /**
+     * @brief Routine to call to register protocol information.
+     */
+    void (*register_protoinfo)(void);
+
+    /**
+     * @brief Routine to call to register dissector handoff.
+     */
+    void (*register_handoff)(void);
 } proto_plugin;
 
-/** Register dissector plugin with the plugin system. */
+/**
+ * @brief Register a dissector plugin with the plugin system.
+ *
+ * @param plugin Pointer to a statically allocated @c proto_plugin
+ *               descriptor. The descriptor must remain valid for the
+ *               lifetime of the process.
+ */
 WS_DLL_PUBLIC void proto_register_plugin(const proto_plugin *plugin);
 
-/** Pre-initializes memory used by proto routines. Called very early at program startup */
+/**
+ * @brief Pre-initialise the proto subsystem memory structures.
+ *
+ * Pre-initializes memory used by proto routines. Called very early at program startup.
+ */
 void proto_pre_init(void);
 
-/** Sets up memory used by proto routines. Called at program startup */
+/**
+ * @brief Initialise the proto subsystem and run all registration callbacks.
+ *
+ * Sets up memory used by proto routines. Called at program startup
+ *
+ * @param register_all_plugin_protocols_list  GSList of
+ *        @c proto_plugin::register_protoinfo function pointers from loaded
+ *        plugins.
+ * @param register_all_plugin_handoffs_list   GSList of
+ *        @c proto_plugin::register_handoff function pointers from loaded
+ *        plugins.
+ * @param register_func  Callback used to invoke each registration routine;
+ *                       receives the routine pointer and @p client_data.
+ * @param handoff_func   Callback used to invoke each handoff routine;
+ *                       receives the routine pointer and @p client_data.
+ * @param cb             Progress callback invoked after each routine, or
+ *                       NULL; used by the GUI to update a splash screen.
+ * @param client_data    Opaque pointer forwarded to @p register_func,
+ *                       @p handoff_func, and @p cb.
+ */
 void proto_init(GSList *register_all_plugin_protocols_list,
     GSList *register_all_plugin_handoffs_list,
     register_entity_func register_func, register_entity_func handoff_func,
     register_cb cb, void *client_data);
 
-/** Frees memory used by proto routines. Called at program shutdown */
+/**
+ * @brief Release all memory allocated by the proto subsystem.
+ *
+ * Frees memory used by proto routines. Called at program shutdown
+ */
 extern void proto_cleanup(void);
 
+/**
+ * @brief Callback type for a function executed within a specific directory context.
+ *
+ * @param param Opaque caller-supplied context pointer.
+ */
 typedef void (*proto_execute_in_directory_func)(void* param);
 
 /** Execute a function for a protocol in a specific directory.

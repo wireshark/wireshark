@@ -32,100 +32,455 @@ class LBMLBTRUTransportDialogInfo;
 class LBMLBTRUSourceTransportEntry;
 class LBMLBTRUReceiverTransportEntry;
 
+/**
+ * @brief Dialog for analyzing LBM LBTRU transport statistics and details.
+ */
 class LBMLBTRUTransportDialog : public QDialog
 {
         Q_OBJECT
 
     public:
+        /**
+         * @brief Constructs a new LBMLBTRUTransportDialog.
+         * @param parent The parent widget, defaults to 0.
+         * @param cfile The capture file, defaults to NULL.
+         */
         explicit LBMLBTRUTransportDialog(QWidget * parent = 0, capture_file * cfile = NULL);
+
+        /**
+         * @brief Retrieves the UI object.
+         * @return Pointer to the UI object.
+         */
         Ui::LBMLBTRUTransportDialog * getUI(void)
         {
             return (m_ui);
         }
+
     public slots:
+        /**
+         * @brief Sets the capture file.
+         * @param cfile The capture file to set.
+         */
         void setCaptureFile(capture_file * cfile);
 
     signals:
+        /**
+         * @brief Signal emitted to navigate to a specific packet.
+         * @param packet_num The packet number to navigate to.
+         */
         void goToPacket(int packet_num);
 
     private:
+        /** Pointer to the UI object. */
         Ui::LBMLBTRUTransportDialog * m_ui;
+
+        /** Pointer to the dialog information. */
         LBMLBTRUTransportDialogInfo * m_dialog_info;
+
+        /** Pointer to the capture file. */
         capture_file * m_capture_file;
+
+        /** Pointer to the current source transport entry. */
         LBMLBTRUSourceTransportEntry * m_current_source_transport;
+
+        /** Pointer to the current receiver transport entry. */
         LBMLBTRUReceiverTransportEntry * m_current_receiver_transport;
+
+        /** Pointer to the source context menu. */
         QMenu * m_source_context_menu;
+
+        /** Pointer to the source tree header view. */
         QHeaderView * m_source_header;
+
+        /** Pointer to the receiver context menu. */
         QMenu * m_receiver_context_menu;
+
+        /** Pointer to the receiver tree header view. */
         QHeaderView * m_receiver_header;
 
+        /**
+         * @brief Destroys the LBMLBTRUTransportDialog.
+         */
         virtual ~LBMLBTRUTransportDialog(void);
+
+        /**
+         * @brief Resets the sources tree.
+         */
         void resetSources(void);
+
+        /**
+         * @brief Resets the receivers tree.
+         */
         void resetReceivers(void);
+
+        /**
+         * @brief Resets the sources detail view.
+         */
         void resetSourcesDetail(void);
+
+        /**
+         * @brief Resets the receivers detail view.
+         */
         void resetReceiversDetail(void);
+
+        /**
+         * @brief Fills the tree with transport data.
+         */
         void fillTree(void);
+
+        /**
+         * @brief Callback to reset the tap data.
+         * @param tap_data Pointer to the tap data.
+         */
         static void resetTap(void * tap_data);
+
+        /**
+         * @brief Callback to process a tapped packet.
+         * @param tap_data Pointer to the tap data.
+         * @param pinfo Pointer to the packet info structure.
+         * @param edt Pointer to the epan dissection structure.
+         * @param stream_info Pointer to the stream information.
+         * @param flags Tap flags.
+         * @return The tap packet status.
+         */
         static tap_packet_status tapPacket(void * tap_data, packet_info * pinfo, epan_dissect_t * edt, const void * stream_info, tap_flags_t flags);
+
+        /**
+         * @brief Callback to draw the tree items.
+         * @param tap_data Pointer to the tap data.
+         */
         static void drawTreeItems(void * tap_data);
+
+        /**
+         * @brief Loads details for source data.
+         * @param transport Pointer to the source transport entry.
+         */
         void loadSourceDataDetails(LBMLBTRUSourceTransportEntry * transport);
+
+        /**
+         * @brief Loads details for source RX data.
+         * @param transport Pointer to the source transport entry.
+         */
         void loadSourceRXDataDetails(LBMLBTRUSourceTransportEntry * transport);
+
+        /**
+         * @brief Loads details for source NCF data.
+         * @param transport Pointer to the source transport entry.
+         */
         void loadSourceNCFDetails(LBMLBTRUSourceTransportEntry * transport);
+
+        /**
+         * @brief Loads details for source SM data.
+         * @param transport Pointer to the source transport entry.
+         */
         void loadSourceSMDetails(LBMLBTRUSourceTransportEntry * transport);
+
+        /**
+         * @brief Loads details for source RST data.
+         * @param transport Pointer to the source transport entry.
+         */
         void loadSourceRSTDetails(LBMLBTRUSourceTransportEntry * transport);
+
+        /**
+         * @brief Loads details for receiver NAK data.
+         * @param transport Pointer to the receiver transport entry.
+         */
         void loadReceiverNAKDetails(LBMLBTRUReceiverTransportEntry * transport);
+
+        /**
+         * @brief Loads details for receiver ACK data.
+         * @param transport Pointer to the receiver transport entry.
+         */
         void loadReceiverACKDetails(LBMLBTRUReceiverTransportEntry * transport);
+
+        /**
+         * @brief Loads details for receiver CREQ data.
+         * @param transport Pointer to the receiver transport entry.
+         */
         void loadReceiverCREQDetails(LBMLBTRUReceiverTransportEntry * transport);
 
     private slots:
+        /**
+         * @brief Slot triggered when the apply filter button is clicked.
+         */
         void on_applyFilterButton_clicked(void);
 
+        /**
+         * @brief Slot triggered when the current source detail index changes.
+         * @param index The new index.
+         */
         void sourcesDetailCurrentChanged(int index);
+
+        /**
+         * @brief Slot triggered when a source item is clicked.
+         * @param item The clicked tree widget item.
+         * @param column The clicked column index.
+         */
         void sourcesItemClicked(QTreeWidgetItem * item, int column);
+
+        /**
+         * @brief Slot triggered when a source detail item is double-clicked.
+         * @param item The double-clicked tree widget item.
+         * @param column The double-clicked column index.
+         */
         void sourcesDetailItemDoubleClicked(QTreeWidgetItem * item, int column);
+
+        /**
+         * @brief Slot triggered when the current receiver detail index changes.
+         * @param index The new index.
+         */
         void receiversDetailCurrentChanged(int index);
+
+        /**
+         * @brief Slot triggered when a receiver item is clicked.
+         * @param item The clicked tree widget item.
+         * @param column The clicked column index.
+         */
         void receiversItemClicked(QTreeWidgetItem * item, int column);
+
+        /**
+         * @brief Slot triggered when a receiver detail item is double-clicked.
+         * @param item The double-clicked tree widget item.
+         * @param column The double-clicked column index.
+         */
         void receiversDetailItemDoubleClicked(QTreeWidgetItem * item, int column);
 
+        /**
+         * @brief Slot triggered when the custom source context menu is requested.
+         * @param pos The position of the request.
+         */
         void custom_source_context_menuRequested(const QPoint & pos);
+
+        /**
+         * @brief Slot triggered when the source data frames action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionSourceDataFrames_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the source data bytes action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionSourceDataBytes_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the source data frames/bytes action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionSourceDataFramesBytes_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the source data rate action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionSourceDataRate_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the source RX data frames action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionSourceRXDataFrames_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the source RX data bytes action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionSourceRXDataBytes_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the source RX data frames/bytes action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionSourceRXDataFramesBytes_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the source RX data rate action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionSourceRXDataRate_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the source NCF frames action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionSourceNCFFrames_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the source NCF count action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionSourceNCFCount_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the source NCF bytes action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionSourceNCFBytes_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the source NCF frames/bytes action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionSourceNCFFramesBytes_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the source NCF count/bytes action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionSourceNCFCountBytes_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the source NCF frames/count action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionSourceNCFFramesCount_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the source NCF frames/count/bytes action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionSourceNCFFramesCountBytes_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the source NCF rate action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionSourceNCFRate_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the source SM frames action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionSourceSMFrames_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the source SM bytes action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionSourceSMBytes_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the source SM frames/bytes action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionSourceSMFramesBytes_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the source SM rate action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionSourceSMRate_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered to automatically resize source columns.
+         */
         void actionSourceAutoResizeColumns_triggered(void);
+
+        /**
+         * @brief Slot triggered when the custom receiver context menu is requested.
+         * @param pos The position of the request.
+         */
         void custom_receiver_context_menuRequested(const QPoint & pos);
+
+        /**
+         * @brief Slot triggered when the receiver NAK frames action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionReceiverNAKFrames_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the receiver NAK count action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionReceiverNAKCount_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the receiver NAK bytes action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionReceiverNAKBytes_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the receiver NAK frames/count action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionReceiverNAKFramesCount_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the receiver NAK count/bytes action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionReceiverNAKCountBytes_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the receiver NAK frames/bytes action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionReceiverNAKFramesBytes_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the receiver NAK frames/count/bytes action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionReceiverNAKFramesCountBytes_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the receiver NAK rate action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionReceiverNAKRate_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the receiver ACK frames action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionReceiverACKFrames_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the receiver ACK bytes action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionReceiverACKBytes_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the receiver ACK frames/bytes action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionReceiverACKFramesBytes_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the receiver ACK rate action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionReceiverACKRate_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the receiver CREQ frames action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionReceiverCREQFrames_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the receiver CREQ bytes action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionReceiverCREQBytes_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the receiver CREQ frames/bytes action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionReceiverCREQFramesBytes_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered when the receiver CREQ rate action is triggered.
+         * @param checked True if checked, false otherwise.
+         */
         void actionReceiverCREQRate_triggered(bool checked);
+
+        /**
+         * @brief Slot triggered to automatically resize receiver columns.
+         */
         void actionReceiverAutoResizeColumns_triggered(void);
 };
 
