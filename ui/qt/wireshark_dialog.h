@@ -59,7 +59,7 @@ protected:
      * accessed after tapping is finished.
      */
 
-    void beginRetapPackets();
+    virtual void beginRetapPackets();
     /**
      * @brief Mark the end of a code block that retaps packets. If the user
      * has closed the dialog it will be destroyed at this point.

@@ -196,6 +196,12 @@ void ExportObjectDialog::show()
     cap_file_.retapPackets();
 }
 
+void ExportObjectDialog::beginRetapPackets()
+{
+    eo_ui_->progressFrame->show();
+    WiresharkDialog::beginRetapPackets();
+}
+
 void ExportObjectDialog::endRetapPackets()
 {
     eo_ui_->progressFrame->hide();

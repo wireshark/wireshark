@@ -41,6 +41,7 @@ public slots:
     void show();
 
 protected:
+    void beginRetapPackets() override;
     void endRetapPackets() override;
     virtual void keyPressEvent(QKeyEvent *evt) override;
 
