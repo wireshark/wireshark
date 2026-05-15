@@ -376,7 +376,6 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     uint8_t     u8SFDataLength = 255;
     uint8_t     u8SFCycleCounter;
     uint8_t     u8SFDataStatus;
-    uint16_t    u16SecurityLength;
     int         offset         = 0;
     int        security_data;
     uint32_t    u32SubStart;
@@ -384,7 +383,6 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     proto_tree *sub_tree;
     uint16_t    crc;
 
-    u16SecurityLength = tvb_get_uint16(tvb, 6, ENC_BIG_ENDIAN);
     security_data = tvb_captured_length_remaining(tvb, 8) + 4; /* Include cyclic status fields */
 
     if (pn_is_valid_security_metadata(tvb, 0, security_data))
@@ -656,7 +654,6 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     uint8_t      u8DataStatus;
     uint8_t      u8TransferStatus;
     uint8_t      u8ProtectionMode;
-    uint16_t     u16SecurityLength;
     uint16_t     u16CycleCounter;
     const char *pszProtAddInfo;
     const char *pszProtShort;
@@ -754,7 +751,6 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         pszProtComment  = "0x0082-0x00FF: Reserved ID";
         bCyclic         = false;
     } else if (u16FrameID <= 0x06FF && !isTimeAware) {
-        u16SecurityLength = tvb_get_uint16(tvb, 8, ENC_BIG_ENDIAN);
         security_data = tvb_captured_length_remaining(tvb, 10) - 16;
         if (pn_is_valid_security_metadata(tvb, 2, security_data))
         {
@@ -772,7 +768,6 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         }
         bCyclic         = true;
     } else if (u16FrameID <= 0x0FFF && !isTimeAware) {
-        u16SecurityLength = tvb_get_uint16(tvb, 8, ENC_BIG_ENDIAN);
         security_data = tvb_captured_length_remaining(tvb, 10) - 16;
         if (pn_is_valid_security_metadata(tvb, 2, security_data))
         {
@@ -833,7 +828,6 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         bCyclic = false;
     }
     else if (u16FrameID <= 0xBBFF) {
-        u16SecurityLength = tvb_get_uint16(tvb, 8, ENC_BIG_ENDIAN);
         security_data = tvb_captured_length_remaining(tvb, 10) - 16;
         if (pn_is_valid_security_metadata(tvb, 2, security_data))
         {
@@ -851,7 +845,6 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         }
         bCyclic = true;
     } else if (u16FrameID <= 0xBFFF) {
-        u16SecurityLength = tvb_get_uint16(tvb, 8, ENC_BIG_ENDIAN);
         security_data = tvb_captured_length_remaining(tvb, 10) - 16;
         if (pn_is_valid_security_metadata(tvb, 2, security_data))
         {
@@ -1029,7 +1022,6 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     }
 
     /* Set APDU_Status for RTA frames with security. If AE, it is encrypted. */
-    u16SecurityLength = tvb_get_uint16(tvb, 8, ENC_BIG_ENDIAN);
     security_data = tvb_captured_length_remaining(tvb, 10) - 16;
 
     if (pn_is_valid_security_metadata(tvb, 2, security_data) && bCyclic)

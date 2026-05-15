@@ -476,7 +476,6 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, unsigned offset,
     uint16_t number_iocs_input_cr;
     uint16_t number_io_data_objects_output_cr;
     uint16_t number_iocs_output_cr;
-    uint16_t u16SecurityLength;
 
     int security_data;
 
@@ -504,7 +503,6 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, unsigned offset,
     uint32_t            current_aruuid = 0;
     uint32_t            current_fake_aruuid = 4126751477;
 
-    u16SecurityLength = tvb_get_uint16(tvb, 6, ENC_BIG_ENDIAN);
     security_data = tvb_captured_length_remaining(tvb, 8) + 4; /* Include cyclic status fields */
 
     if (pn_is_valid_security_metadata(tvb, 0, security_data))

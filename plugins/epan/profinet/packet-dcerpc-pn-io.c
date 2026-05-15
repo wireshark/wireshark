@@ -18652,7 +18652,6 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     conversation_t* conversation;
     uint8_t isTimeAware = false;
     uint8_t   u8ProtectionMode;
-    uint16_t  u16SecurityLength;
     int       security_data = 0;
 
     /*
@@ -18677,7 +18676,6 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         !isTimeAware) {
             u8ProtectionMode = tvb_get_uint8(tvb, 0);
             u8ProtectionMode &= 0x01;
-            u16SecurityLength = tvb_get_uint16(tvb, 6, ENC_BIG_ENDIAN);
 
             if (u8ProtectionMode == 0x01)
                 security_data = tvb_captured_length_remaining(tvb, 8) - 16; /* Exclude SecurityChecksum, which is encrypted */
@@ -18717,7 +18715,6 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (u16FrameID >= 0x8000 && u16FrameID < 0xbbff) {
         u8ProtectionMode = tvb_get_uint8(tvb, 0);
         u8ProtectionMode &= 0x01;
-        u16SecurityLength = tvb_get_uint16(tvb, 6, ENC_BIG_ENDIAN);
 
         if (u8ProtectionMode == 0x01)
             security_data = tvb_captured_length_remaining(tvb, 8) - 16; /* Exclude SecurityChecksum, which is encrypted */
@@ -18741,7 +18738,6 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (u16FrameID >= 0xbc00 && u16FrameID < 0xbfff) {
         u8ProtectionMode = tvb_get_uint8(tvb, 0);
         u8ProtectionMode &= 0x01;
-        u16SecurityLength = tvb_get_uint16(tvb, 6, ENC_BIG_ENDIAN);
 
         if (u8ProtectionMode == 0x01)
             security_data = tvb_captured_length_remaining(tvb, 8) - 16; /* Exclude SecurityChecksum, which is encrypted */
