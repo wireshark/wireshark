@@ -45,6 +45,7 @@
 #include <epan/tfs.h>
 #include <epan/wscbor.h>
 #include <epan/exceptions.h>
+#include <wsutil/epochs.h>
 #include "packet-bpv6.h"
 #include "packet-cfdp.h"
 
@@ -383,7 +384,7 @@ add_dtn_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_dtn_tim
         return 0;
     }
 
-    dtn_time.secs = (time_t)(sdnv_value + 946684800);
+    dtn_time.secs = (time_t)(sdnv_value + EPOCH_DELTA_2000_01_01_00_00_00_UTC);
     offset += sdnv_length;
 
     dtn_time.nsecs = evaluate_sdnv(tvb, offset, &sdnv2_length);
@@ -412,7 +413,7 @@ add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, unsigned offset, int hf_s
         return 0;
     }
 
-    dtn_time.secs = (time_t)(sdnv_value + 946684800);
+    dtn_time.secs = (time_t)(sdnv_value + EPOCH_DELTA_2000_01_01_00_00_00_UTC);
     dtn_time.nsecs = 0;
     proto_tree_add_time(tree, hf_sdnv_time, tvb, offset, sdnv_length, &dtn_time);
 

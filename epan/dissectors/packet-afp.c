@@ -23,6 +23,7 @@
 #include <epan/tap.h>
 #include <epan/srt_table.h>
 #include <epan/expert.h>
+#include <wsutil/epochs.h>
 
 #include "packet-afp.h"
 
@@ -1241,7 +1242,7 @@ decode_vol_attribute (proto_tree *tree, tvbuff_t *tvb, int offset)
 	from netatalk adouble.h
 */
 #define DATE_NOT_SET	     0x80000000
-#define AD_DATE_DELTA	      946684800
+#define AD_DATE_DELTA	      EPOCH_DELTA_2000_01_01_00_00_00_UTC
 #define AD_DATE_TO_UNIX(x)    (x + AD_DATE_DELTA)
 static void
 print_date(proto_tree *tree,int id, tvbuff_t *tvb, int offset)

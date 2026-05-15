@@ -72,7 +72,7 @@
 
 /*
  * 2000-01-01 00:00:00 UTC.
- * Used by the Zigbee Zigbee Cluster Library protocol.
+ * Used by the Zigbee Zigbee Cluster Library protocol, among others.
  *
  * This is *after* the UN*X epoch, so to convert from a time in seconds from
  * this epoch this delta needs to be *added*, unlike the other values.

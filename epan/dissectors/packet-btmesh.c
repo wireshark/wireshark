@@ -28,6 +28,7 @@
 #include <epan/to_str.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <wsutil/epochs.h>
 
 #define BTMESH_NOT_USED 0
 #define BTMESH_KEY_ENTRY_VALID 4
@@ -4047,7 +4048,7 @@ format_tai_to_utc_date(char *buf, uint64_t value) {
         }
         // 946684800 seconds between 1.1.1970 and 1.1.2000
         // 32 leap seconds difference between TAI and UTC on 1.1.2000
-        val = (time_t)(value + 946684800ll - 32ll - delta);
+        val = (time_t)(value + EPOCH_DELTA_2000_01_01_00_00_00_UTC - 32ll - delta);
         time_str = abs_time_secs_to_str(NULL, val, ABSOLUTE_TIME_UTC, true);
         snprintf(buf, ITEM_LABEL_LENGTH, "%s", time_str);
     }

@@ -37,6 +37,7 @@
 #include <wsutil/crc16.h>
 #include <wsutil/array.h>
 #include <wsutil/crc32.h>
+#include <wsutil/epochs.h>
 
 void proto_register_bpv7(void);
 void proto_reg_handoff_bpv7(void);
@@ -733,7 +734,7 @@ static nstime_t dtn_to_delta(const int64_t dtntime) {
  */
 static nstime_t dtn_to_utctime(const int64_t dtntime) {
     nstime_t utctime;
-    utctime.secs = 946684800 + dtntime / 1000;
+    utctime.secs = EPOCH_DELTA_2000_01_01_00_00_00_UTC + dtntime / 1000;
     utctime.nsecs = 1000000 * (dtntime % 1000);
     return utctime;
 }

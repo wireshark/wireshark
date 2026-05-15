@@ -67,6 +67,7 @@
 #include <epan/strutil.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <wsutil/epochs.h>
 #include "packet-tcp.h"
 #include "packet-arp.h"
 #include "packet-dns.h"
@@ -2139,7 +2140,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             proto_tree_add_item(subtree, hf_duidllt_hwtype, tvb, off + 2, 2, ENC_BIG_ENDIAN);
 
             /* Packet specifies seconds since Jan 1 2000, so add 946684800U (30 years) to get back to epoch */
-            llt_time.secs = tvb_get_ntohl(tvb, off + 4) + 946684800U;
+            llt_time.secs = tvb_get_ntohl(tvb, off + 4) + EPOCH_DELTA_2000_01_01_00_00_00_UTC;
             llt_time.nsecs = 0;
 
             proto_tree_add_time(subtree, hf_duidllt_time, tvb, off + 4, 4, &llt_time);
