@@ -37,7 +37,7 @@
  * Used in the classic Mac OS, and by formats, such as MPEG-4 Part 14 (MP4),
  * which is based on Apple's QuickTime format.
  */
-#define EPOCH_DELTA_1904_01_01_00_00_00_UTC  2082844800U
+#define EPOCH_DELTA_1904_01_01_00_00_00_UTC 2082844800U
 
 /*
  * 1601-01-01 (proleptic Gregorian) 00:00:00 (proleptic?) UTC.
@@ -72,7 +72,8 @@
 
 /*
  * 2000-01-01 00:00:00 UTC.
- * Used by the Zigbee Zigbee Cluster Library protocol, among others.
+ * Used by the Zigbee Zigbee Cluster Library protocol, among others,
+ * and by the Network Instruments Observer file format.
  *
  * This is *after* the UN*X epoch, so to convert from a time in seconds from
  * this epoch this delta needs to be *added*, unlike the other values.

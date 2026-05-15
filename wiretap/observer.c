@@ -19,6 +19,7 @@
 #include <string.h>
 #include "wtap_module.h"
 #include "file_wrappers.h"
+#include <wsutil/epochs.h>
 #include <wsutil/802_11-utils.h>
 
 static const char observer_magic[] = {"ObserverPktBufferVersion=15.00"};
@@ -43,52 +44,51 @@ typedef struct {
  * timestamps as they are read or written.
  *
  * The Wiretap API expects timestamps in nanoseconds relative to
- * January 1, 1970, 00:00:00 GMT (the Wiretap epoch).
+ * January 1, 1970, 00:00:00 UTC (the UNIX/POSIX epoch).
  *
  * Observer versions before 13.10 encode frame timestamps in nanoseconds
  * relative to January 1, 2000, 00:00:00 local time (the Observer epoch).
- * Versions 13.10 and later switch over to GMT encoding. Which encoding was used
+ * Versions 13.10 and later switch over to UTC encoding. Which encoding was used
  * when saving the file is identified via the time format TLV following
  * the file header.
  *
  * Unfortunately, even though Observer versions before 13.10 saved in local
  * time, they didn't include the timezone from which the frames were captured,
- * so converting to GMT correctly from all timezones is impossible. So an
+ * so converting to UTC correctly from all timezones is impossible. So an
  * assumption is made that the file is being read from within the same timezone
  * that it was written.
  *
  * All code herein is normalized to versions 13.10 and later, special casing for
  * versions earlier. In other words, timestamps are worked with as if
- * they are GMT-encoded, and adjustments from local time are made only if
+ * they are UTC-encoded, and adjustments from local time are made only if
  * the source file warrants it.
  *
- * All destination files are saved in GMT format.
+ * All destination files are saved in UTC format.
  */
-static const time_t ansi_to_observer_epoch_offset = 946684800;
 static time_t gmt_to_localtime_offset = (time_t) -1;
 
 static const char *init_gmt_to_localtime_offset(void)
 {
     if (gmt_to_localtime_offset == (time_t) -1) {
-        time_t ansi_epoch_plus_one_day = 86400;
+        time_t time_t_epoch_plus_one_day = 86400;
         struct tm *tm;
         struct tm gmt_tm;
         struct tm local_tm;
 
         /*
          * Compute the local time zone offset as the number of seconds west
-         * of GMT. There's no obvious cross-platform API for querying this
-         * directly. As a workaround, GMT and local tm structures are populated
-         * relative to the ANSI time_t epoch (plus one day to ensure that
+         * of UTC. There's no obvious cross-platform API for querying this
+         * directly. As a workaround, UTC and local tm structures are populated
+         * relative to the time_t epoch (plus one day to ensure that
          * local time stays after 1970/1/1 00:00:00). They are then converted
          * back to time_t as if they were both local times, resulting in the
          * time zone offset being the difference between them.
          */
-        tm = gmtime(&ansi_epoch_plus_one_day);
+        tm = gmtime(&time_t_epoch_plus_one_day);
         if (tm == NULL)
             return "gmtime(one day past the Epoch) fails (this \"shouldn't happen\")";
         gmt_tm = *tm;
-        tm = localtime(&ansi_epoch_plus_one_day);
+        tm = localtime(&time_t_epoch_plus_one_day);
         if (tm == NULL)
             return "localtime(one day past the Epoch) fails (this \"shouldn't happen\")";
         local_tm = *tm;
@@ -594,8 +594,8 @@ process_packet_header(wtap *wth, packet_entry_header *packet_header,
      * to check it.
      */
 
-    /* set the wiretap timestamp, assuming for the moment that Observer encoded it in GMT */
-    rec->ts.secs = (time_t) ((packet_header->nano_seconds_since_2000 / 1000000000) + ansi_to_observer_epoch_offset);
+    /* set the wiretap timestamp, assuming for the moment that Observer encoded it in UTC */
+    rec->ts.secs = (time_t) ((packet_header->nano_seconds_since_2000 / 1000000000) + EPOCH_DELTA_2000_01_01_00_00_00_UTC);
     rec->ts.nsecs = (int) (packet_header->nano_seconds_since_2000 % 1000000000);
 
     /* adjust to local time, if necessary, also accounting for DST if the frame
@@ -608,7 +608,7 @@ process_packet_header(wtap *wth, packet_entry_header *packet_header,
         time_t    dst_offset;
 
         /* the Observer timestamp was encoded as local time, so add a
-           correction from local time to GMT */
+           correction from local time to UTC */
         rec->ts.secs += gmt_to_localtime_offset;
 
         /* perform a DST adjustment if necessary */
@@ -838,16 +838,22 @@ static bool observer_dump(wtap_dumper *wdh, const wtap_rec *rec,
         return false;
     }
 
-    /* convert the number of seconds since epoch from ANSI-relative to
-       Observer-relative */
-    if (rec->ts.secs < ansi_to_observer_epoch_offset) {
-        if(rec->ts.secs > (time_t) 0) {
-            seconds_since_2000 = rec->ts.secs;
-        } else {
-            seconds_since_2000 = (time_t) 0;
-        }
+    /* Convert the number of seconds since epoch from the time_t epoch
+       to Observer's 2000-01-01 00:00:00 UTC epoch.
+
+       The number of seconds since the Observer epoch must be non-negative,
+       presumably because Observer treats it as such, and can't handle
+       dates/times before its epoch. If the time stamp precedes the Observer
+       epoch, just use the Observer epoch.
+
+       We first check for negative time_t values, and then cast the
+       known-to-be-nonnegative value to uint64_t and compare against
+       the epoch, to avoid signed vs. unsigned comparison warnings.
+       If we make the epoch offsets signed, we won't have to do this. */
+    if (rec->ts.secs < 0 || (uint64_t)rec->ts.secs < EPOCH_DELTA_2000_01_01_00_00_00_UTC) {
+        seconds_since_2000 = 0;
     } else {
-        seconds_since_2000 = rec->ts.secs - ansi_to_observer_epoch_offset;
+        seconds_since_2000 = rec->ts.secs - EPOCH_DELTA_2000_01_01_00_00_00_UTC;
     }
 
     /* populate the fields of the packet header */
