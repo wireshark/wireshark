@@ -2275,7 +2275,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             dissect_dhcpv6_s46_ipv6_prefix(tvb, hf_option_s46_rule_ipv6_prefix, off + 8, ipv6_pref_len, subtree);
 
         temp_optlen = 8 + ipv6_pref_len_bytes;
-        while ((optlen - temp_optlen) > 0) {
+        while (tvb_reported_length_remaining(opt_tvb, temp_optlen)) {
             temp_optlen += dhcpv6_option(opt_tvb, pinfo, subtree,
                                          temp_optlen, protocol, hpi, msgtype);
         }
