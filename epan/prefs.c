@@ -436,6 +436,11 @@ prefs_cleanup(void)
     /* Clean the uats */
     uat_cleanup();
 
+    /*
+     * Unload any loaded MIBs.
+     */
+    oids_cleanup();
+
     /* Shut down mmdbresolve */
     maxmind_db_pref_cleanup();
 
@@ -4704,7 +4709,8 @@ prefs_reset(const char* app_env_var_prefix, const char** col_fmt, int num_cols)
     /*
      * Unload any loaded MIBs.
      */
-    oids_cleanup();
+    /* XXX - oids_cleanup not tested/supported at non-shutdown yet */
+    //oids_cleanup();
 
     /*
      * Reload all UAT preferences.
@@ -4811,7 +4817,8 @@ read_prefs(const char* app_env_var_prefix)
     FILE        *pf;
 
     /* clean up libsmi structures before reading prefs */
-    oids_cleanup();
+    /* XXX - oids_cleanup not tested/supported at non-shutdown yet */
+    // oids_cleanup();
 
 #ifdef _WIN32
     read_registry();

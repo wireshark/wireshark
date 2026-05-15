@@ -427,11 +427,11 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 
 				typedata =  get_typedata(elType);
 
-				k = g_new(oid_key_t,1);
+				k = wmem_new(wmem_epan_scope(), oid_key_t);
 
 				oid1 = smiRenderOID(sN->oidlen, sN->oid, SMI_RENDER_QUALIFIED);
 				oid2 = smiRenderOID(elNode->oidlen, elNode->oid, SMI_RENDER_NAME);
-				k->name = g_strconcat(oid1, ".", oid2, NULL);
+				k->name = wmem_strconcat(wmem_epan_scope(), oid1, ".", oid2, NULL);
 				smi_free (oid1);
 				smi_free (oid2);
 
@@ -525,10 +525,11 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 						   || (ft == FT_UINT64) || (ft == FT_INT64) )
 
 static void unregister_mibs(void) {
-	/* TODO: Unregister "MIBs" proto and clean up field array and subtree array.
-	 * Wireshark does not support that yet. :-( */
-
-	/* smiExit(); */
+	if (oids_init_done) {
+		proto_deregister_protocol("MIBS");
+	}
+	smiExit();
+	oids_init_done = false;
 }
 
 static void restart_needed_warning(void) {
@@ -540,7 +541,7 @@ static void register_mibs(const char* app_env_var_prefix) {
 	SmiModule *smiModule;
 	SmiNode *smiNode;
 	unsigned i;
-	int proto_mibs = -1;
+	int proto_mibs = 0;
 	wmem_array_t* hfa;
 	GArray* etta;
 	char* path_str;
@@ -676,7 +677,7 @@ static void register_mibs(const char* app_env_var_prefix) {
 				/* HFILL */
 				HFILL_INIT(hf);
 
-				oid_data->value_hfid = -1;
+				oid_data->value_hfid = 0;
 
 				if ( IS_ENUMABLE(hf.hfinfo.type) && (smiEnum = smiGetFirstNamedNumber(smiType))) {
 					GArray* vals = g_array_sized_new(true,true,sizeof(value_string), 16);
@@ -738,7 +739,7 @@ static void register_mibs(const char* app_env_var_prefix) {
 						hf_register_info hf;
 
 						hf.p_id                     = &(key->hfid);
-						hf.hfinfo.name              = key->name;
+						hf.hfinfo.name              = g_strdup(key->name);
 						hf.hfinfo.abbrev            = alnumerize(key->name);
 						hf.hfinfo.type              = key->ft_type;
 						hf.hfinfo.display           = key->display;
@@ -749,14 +750,16 @@ static void register_mibs(const char* app_env_var_prefix) {
 						HFILL_INIT(hf);
 
 						wmem_array_append_one(hfa,hf);
-						key->hfid = -1;
+						key->hfid = 0;
 					}
 				}
 			}
 		}
 	}
 
-	proto_mibs = proto_register_protocol("MIBs", "MIBS", "mibs");
+	/* These are allocated on the heap so that proto_deregister_protocol
+	 * can free them. */
+	proto_mibs = proto_register_protocol(g_strdup("MIBs"), g_strdup("MIBS"), g_strdup("mibs"));
 
 	proto_register_field_array(proto_mibs, (hf_register_info*)wmem_array_get_raw(hfa), wmem_array_get_count(hfa));
 	proto_register_subtree_array((int**)(void*)etta->data, etta->len);
