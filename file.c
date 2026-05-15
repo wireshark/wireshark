@@ -2190,7 +2190,6 @@ process_specified_records(capture_file *cf, packet_range_t *range,
         void *callback_args,
         bool show_progress_bar)
 {
-    uint32_t         framenum;
     frame_data      *fdata;
     wtap_rec         rec;
     psp_return_t     ret     = PSP_FINISHED;
@@ -2200,7 +2199,8 @@ process_specified_records(capture_file *cf, packet_range_t *range,
     int              progbar_count;
     float            progbar_val;
     char             progbar_status_str[STATUS_LEN];
-    range_process_e  process_this;
+    packet_range_t   all_range;
+    packet_range_iter_t iter;
 
     wtap_rec_init(&rec, DEFAULT_INIT_BUFFER_SIZE_2048);
 
@@ -2226,13 +2226,15 @@ process_specified_records(capture_file *cf, packet_range_t *range,
 
     cf->stop_flag = false;
 
-    if (range != NULL)
-        packet_range_process_init(range);
+    if (range == NULL) {
+        packet_range_init(&all_range, cf);
+        range = &all_range;
+    }
 
-    /* Iterate through all the packets, printing the packets that
-       were selected by the current display filter.  */
-    for (framenum = 1; framenum <= cf->count; framenum++) {
-        fdata = frame_data_sequence_find(cf->provider.frames, framenum);
+    /* Iterate through all the packets, calling the callback (e.g., printing)
+       on all the packets specified by the range. */
+    packet_range_iter_init(&iter, range);
+    while ((fdata = packet_range_iter_next(&iter))) {
 
         /* Create the progress bar if necessary.
            We check on every iteration of the loop, so that it takes no
@@ -2274,18 +2276,6 @@ process_specified_records(capture_file *cf, packet_range_t *range,
         }
 
         progbar_count++;
-
-        if (range != NULL) {
-            /* do we have to process this packet? */
-            process_this = packet_range_process_packet(range, fdata);
-            if (process_this == range_process_next) {
-                /* this packet uninteresting, continue with next one */
-                continue;
-            } else if (process_this == range_processing_finished) {
-                /* all interesting packets processed, stop the loop */
-                break;
-            }
-        }
 
         /* Get the packet */
         if (!cf_read_record(cf, fdata, &rec)) {
@@ -2399,7 +2389,6 @@ cf_retap_packets(capture_file *cf)
     /* Iterate through the list of packets, dissecting all packets and
        re-running the taps. */
     packet_range_init(&range, cf);
-    packet_range_process_init(&range);
 
     if (cf->state == FILE_READ_IN_PROGRESS) {
         /* We're not done with the sequential read of the file and might
@@ -5912,7 +5901,6 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
     int                          encap;
 
     callback_args.export = true;
-    packet_range_process_init(range);
 
     /* We're writing out specified packets from the specified capture
        file to another file.  Even if all captured packets are to be
@@ -5956,12 +5944,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
     wtap_dump_set_addrinfo_list(pdh, get_addrinfo_list());
 
     /* Iterate through the list of packets, processing the packets we were
-       told to process.
-
-       XXX - we've already called "packet_range_process_init(range)", but
-       "process_specified_records()" will do it again.  Fortunately,
-       that's harmless in this case, as we haven't done anything to
-       "range" since we initialized it. */
+       told to process. */
     callback_args.pdh = pdh;
     callback_args.fname = fname;
     callback_args.file_type = save_format;

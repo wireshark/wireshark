@@ -18,6 +18,7 @@
 #include <glib.h>
 
 #include <epan/frame_data.h>
+#include <epan/frame_data_sequence.h>
 #include <epan/prefs.h>
 
 #include "packet_range.h"
@@ -653,4 +654,28 @@ uint32_t packet_range_count(const packet_range_t *range)
     }
 
     return count;
+}
+
+void packet_range_iter_init(struct packet_range_iter *iter, packet_range_t *range)
+{
+    ws_assert(range);
+    packet_range_process_init(range);
+    iter->range = range;
+    iter->current_frame = 1;
+}
+
+frame_data* packet_range_iter_next(struct packet_range_iter* iter)
+{
+    frame_data *fdata;
+    range_process_e process_current;
+
+    do {
+        fdata = frame_data_sequence_find(iter->range->cf->provider.frames, iter->current_frame);
+        if (!fdata)
+            return NULL;
+        iter->current_frame++;
+        process_current = packet_range_process_packet(iter->range, fdata);
+    } while (process_current == range_process_next);
+
+    return (process_current == range_processing_finished) ? NULL : fdata;
 }

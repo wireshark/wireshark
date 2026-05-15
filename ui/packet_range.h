@@ -123,6 +123,11 @@ typedef enum {
     range_processing_finished /**< Stop iteration; all required packets have been processed */
 } range_process_e;
 
+typedef struct packet_range_iter {
+    packet_range_t *range;
+    uint32_t current_frame;
+} packet_range_iter_t;
+
 /* init the range structure */
 
 /**
@@ -195,8 +200,32 @@ extern void packet_range_convert_selection_str(packet_range_t *range, const char
  *
  * @param range Pointer to the packet_range_t structure.
  * @return uint32_t The number of packets that will be processed.
+ *
+ * @note If live capture is occurring, the actual number of packets that will
+ * be processed may be greater; i.e., packets that are captured after this
+ * function is called may be included as well.
  */
 extern uint32_t packet_range_count(const packet_range_t *range);
+
+/**
+ * @brief Initialize an iterator over a packet range.
+ *
+ * This function will call packet_range_process_init on range, so that
+ * does not need to be called beforehand.
+ *
+ * @param iter Pointer to the packet_range_iter_t structure to initialize.
+ * @param range Pointer to the packet_range_t over which to iterate.
+ */
+extern void packet_range_iter_init(packet_range_iter_t *iter, packet_range_t *range);
+
+/**
+ * @brief Get the next frame data to process from a packet range.
+ *
+ * @param iter Pointer to the packet_range_iter_t iterator.
+ * @return frame_data* The frame data to process. NULL when iteration is done.
+ */
+extern frame_data* packet_range_iter_next(packet_range_iter_t *iter);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
