@@ -466,6 +466,7 @@ typedef struct {
     TlsHsFragment *hs_fragments;    /**< Handshake records that are part of a reassembly. */
     uint32_t srcport;        /**< Used for Decode As */
     uint32_t destport;
+    uint32_t stream;       /**< Used for Follow Stream */
     int cipher;            /**< Cipher at time of Key Exchange handshake message.
                                  Session cipher can change in renegotiation. */
 } SslPacketInfo;
@@ -645,9 +646,21 @@ SslDecryptSession *ssl_get_session_by_cid(tvbuff_t *tvb, uint32_t offset);
 /** Retrieve a SslSession, creating it if it did not already exist.
  * @param conversation The SSL conversation.
  * @param tls_handle The dissector handle for SSL or DTLS.
+ * @param curr_layer_num The current protocol layer number (for nested TLS support).
  */
 extern SslDecryptSession *
-ssl_get_session(conversation_t *conversation, dissector_handle_t tls_handle);
+ssl_get_session(conversation_t *conversation, dissector_handle_t tls_handle, uint8_t curr_layer_num);
+
+/** Look up an existing SslDecryptSession for a conversation without creating one.
+ * Used by functions that query session state (cipher info, ALPN, exporters, etc.)
+ * but must not create a new session as a side effect.
+ * @param conversation The SSL conversation (may be NULL, returns NULL in that case).
+ * @param proto_ssl The protocol index for TLS/DTLS.
+ * @param curr_layer_num [D]TLS layer nesting number.
+ * @return The existing SslDecryptSession, or NULL if none is found.
+ */
+extern SslDecryptSession *
+tls_get_session(conversation_t *conversation, int proto_ssl, uint8_t curr_layer_num);
 
 /** Resets the decryption parameters for the next decoder. */
 extern void

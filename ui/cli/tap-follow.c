@@ -435,6 +435,7 @@ follow_arg_filter(const char **opt_argp, follow_info_t *follow_info)
       ((*opt_argp)[len] == 0 || (*opt_argp)[len] == ','))
   {
     *opt_argp += len;
+    follow_info->stream_id = cli_follow_info->stream_index;
 
     /* if it's HTTP2 or QUIC protocol we should read substream id otherwise it's a range parameter from follow_arg_range */
     if (cli_follow_info->sub_stream_index == -1 && sscanf(*opt_argp, ",%d%n", &cli_follow_info->sub_stream_index, &len) == 1 &&

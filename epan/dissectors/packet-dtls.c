@@ -415,26 +415,27 @@ static int   looks_like_dtls(tvbuff_t *tvb, uint32_t offset);
 static char *
 dtls_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, unsigned *stream, unsigned *sub_stream _U_)
 {
-    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
-    if (!conv) {
-        return NULL;
-    }
-    void *conv_data = conversation_get_proto_data(conv, proto_dtls);
-    if (conv_data == NULL) {
-        return NULL;
-    }
+  char *filter = NULL;
+  const SslPacketInfo *pi = NULL;
+  uint8_t max_layer_num = proto_get_layer_num(pinfo, proto_dtls);
 
-    SslDecryptSession *ssl_session = (SslDecryptSession *)conv_data;
-    SslSession *session = &ssl_session->session;
+  for (uint8_t curr_layer_num = max_layer_num; curr_layer_num; --curr_layer_num) {
+    /* The (nesting) layer number in p_get_proto_data is 0-indexed. */
+    pi = p_get_proto_data(wmem_file_scope(), pinfo, proto_dtls, curr_layer_num - 1);
+    if (pi) {
+      *stream = pi->stream;
+      filter = ws_strdup_printf("dtls.stream eq %u", *stream);
+      break;
+    }
+  }
 
-    *stream = session->stream;
-    return ws_strdup_printf("dtls.stream eq %u", session->stream);
+  return filter;
 }
 
 static char *
 dtls_follow_index_filter(unsigned stream, unsigned sub_stream _U_)
 {
-    return ws_strdup_printf("dtls.stream eq %u", stream);
+  return ws_strdup_printf("dtls.stream eq %u", stream);
 }
 
 /*********************************************************************
@@ -456,7 +457,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   SslDecryptSession *ssl_session = NULL;
   SslSession        *session = NULL;
   int                is_from_server;
-  uint8_t            curr_layer_num_ssl = pinfo->curr_layer_num;
+  uint8_t            curr_layer_num_ssl = p_get_proto_depth(pinfo, proto_dtls);
 
   ti                    = NULL;
   dtls_tree             = NULL;
@@ -486,16 +487,25 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       ssl_session = ssl_get_session_by_cid(tvb, offset+11);
 
       if (ssl_session) {
-          // update conversation
-          conversation_add_proto_data(conversation,
-                                      dissector_handle_get_protocol_index(dtls_handle),
-                                      ssl_session);
+          /* Update conversation - get or create the wmem map.
+           * Using wmem_file_scope ensures the map is freed on capture reload. */
+          void *conv_data = conversation_get_proto_data(conversation, dissector_handle_get_protocol_index(dtls_handle));
+          wmem_map_t *session_map;
+
+          if (conv_data == NULL) {
+              session_map = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+              conversation_add_proto_data(conversation, dissector_handle_get_protocol_index(dtls_handle), session_map);
+          } else {
+              session_map = (wmem_map_t *)conv_data;
+          }
+
+          wmem_map_insert(session_map, GUINT_TO_POINTER((unsigned)curr_layer_num_ssl), ssl_session);
       }
   }
 
   /* if session cannot be retrieved from connection ID, get or create it from conversation */
   if (ssl_session == NULL) {
-      ssl_session = ssl_get_session(conversation, dtls_handle);
+      ssl_session = ssl_get_session(conversation, dtls_handle, curr_layer_num_ssl);
   }
 
   session = &ssl_session->session;
@@ -519,6 +529,11 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
    * (to keep cipher synchronized) */
   if (pinfo->fd->visited)
     ssl_session = NULL;
+
+  /* Increment the proto depth, so any nested DTLS gets the new depth.
+   * Make sure to decrement when leaving the function.
+   * (XXX - Do we need a TRY...FINALLY or CLEANUP_CB_PUSH?) */
+  p_set_proto_depth(pinfo, proto_dtls, curr_layer_num_ssl + 1);
 
   /* Initialize the protocol column; we'll set it later when we
    * figure out what flavor of DTLS it is */
@@ -567,6 +582,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   // XXX Is this tap needed?
   tap_queue_packet(dtls_tap, pinfo, NULL);
   tap_queue_packet(dtls_follow_tap, pinfo, p_get_proto_data(wmem_file_scope(), pinfo, proto_dtls, curr_layer_num_ssl));
+  p_set_proto_depth(pinfo, proto_dtls, curr_layer_num_ssl);
   return tvb_captured_length(tvb);
 }
 

@@ -68,6 +68,7 @@ typedef struct _follow_info {
     address         client_ip;
     address         server_ip;
     void*           gui_data;
+    uint64_t        stream_id;
     uint64_t        substream_id;  /**< Sub-stream; used only by HTTP2 and QUIC */
 } follow_info_t;
 

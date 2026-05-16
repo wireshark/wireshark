@@ -1063,6 +1063,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
         filter_out_filter_ = QStringLiteral("!(%1)").arg(follow_filter);
     }
 
+    follow_info_.stream_id = stream_num;
     follow_info_.substream_id = sub_stream_num;
 
     /* data will be passed via tap callback*/

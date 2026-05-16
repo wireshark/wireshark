@@ -6061,22 +6061,58 @@ proto_reg_handoff_tls_utils(void)
     dtls_handle = find_dissector("dtls");
 }
 
+/* Look up an existing SslDecryptSession without creating one. Returns NULL if
+ * no session exists. */
+SslDecryptSession *
+tls_get_session(conversation_t *conversation, int proto_ssl, uint8_t curr_layer_num)
+{
+    void       *conv_data;
+    wmem_map_t *session_map;
+
+    if (!conversation)
+        return NULL;
+
+    conv_data = conversation_get_proto_data(conversation, proto_ssl);
+    if (conv_data == NULL)
+        return NULL;
+
+    session_map = (wmem_map_t *)conv_data;
+
+    return (SslDecryptSession *)wmem_map_lookup(session_map,
+                GUINT_TO_POINTER((unsigned)curr_layer_num));
+
+}
+
 /* get ssl data for this session. if no ssl data is found allocate a new one*/
 SslDecryptSession *
-ssl_get_session(conversation_t *conversation, dissector_handle_t tls_handle)
+ssl_get_session(conversation_t *conversation, dissector_handle_t tls_handle, uint8_t curr_layer_num)
 {
     void               *conv_data;
     SslDecryptSession  *ssl_session;
     int                 proto_ssl;
+    wmem_map_t         *session_map;
 
     /* Note proto_ssl is tls for either the main tls_handle or the
      * tls13_handshake handle used by QUIC. */
     proto_ssl = dissector_handle_get_protocol_index(tls_handle);
     conv_data = conversation_get_proto_data(conversation, proto_ssl);
-    if (conv_data != NULL)
-        return (SslDecryptSession *)conv_data;
 
-    /* no previous SSL conversation info, initialize it. */
+    /* For nested TLS support, we store a wmem map of sessions indexed by layer number.
+     * Using wmem_file_scope ensures the map is freed when the capture file is closed,
+     * preventing memory leaks on capture reload. */
+    if (conv_data != NULL) {
+        session_map = (wmem_map_t *)conv_data;
+        ssl_session = (SslDecryptSession *)wmem_map_lookup(session_map, GUINT_TO_POINTER((unsigned)curr_layer_num));
+        if (ssl_session != NULL) {
+            return ssl_session;
+        }
+    } else {
+        /* Create a new wmem map to store sessions by layer number */
+        session_map = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+        conversation_add_proto_data(conversation, proto_ssl, session_map);
+    }
+
+    /* no previous SSL conversation info for this layer, initialize it. */
     ssl_session = wmem_new0(wmem_file_scope(), SslDecryptSession);
 
     /* data_len is the part that is meaningful, not the allocated length */
@@ -6128,7 +6164,9 @@ ssl_get_session(conversation_t *conversation, dissector_handle_t tls_handle)
         ssl_session->session.stream = dtls_increment_stream_count();
     }
 
-    conversation_add_proto_data(conversation, proto_ssl, ssl_session);
+    /* Store the session in the wmem map indexed by layer number */
+    wmem_map_insert(session_map, GUINT_TO_POINTER((unsigned)curr_layer_num), ssl_session);
+
     return ssl_session;
 }
 
@@ -6195,7 +6233,7 @@ tls_set_appdata_dissector(dissector_handle_t tls_handle, packet_info *pinfo,
         return;
 
     conversation = find_or_create_conversation(pinfo);
-    session = &ssl_get_session(conversation, tls_handle)->session;
+    session = &ssl_get_session(conversation, tls_handle, pinfo->curr_proto_layer_num)->session;
     session->app_handle = app_handle;
 }
 
@@ -6213,7 +6251,7 @@ ssl_starttls(dissector_handle_t tls_handle, packet_info *pinfo,
     DISSECTOR_ASSERT(app_handle);
 
     conversation = find_or_create_conversation(pinfo);
-    session = &ssl_get_session(conversation, tls_handle)->session;
+    session = &ssl_get_session(conversation, tls_handle, pinfo->curr_proto_layer_num)->session;
 
     ssl_debug_printf("%s: old frame %d, app_handle=%p (%s)\n", G_STRFUNC,
                      session->last_nontls_frame,
@@ -6377,6 +6415,14 @@ tls_add_packet_info(int proto, packet_info *pinfo, uint8_t curr_layer_num_ssl)
         pi = wmem_new0(wmem_file_scope(), SslPacketInfo);
         pi->srcport = pinfo->srcport;
         pi->destport = pinfo->destport;
+        conversation_t *conv = find_or_create_conversation_strat(pinfo);
+        SslDecryptSession *ssl_session = tls_get_session(conv, proto, curr_layer_num_ssl);
+        if (ssl_session) {
+            /* This can also be called by the QUIC TLS1.3 handshake only
+             * dissector. That is not associated with a session, or a stream,
+             * and doesn't need the information for Follow or Decode As. */
+            pi->stream = ssl_session->session.stream;
+        }
         p_add_proto_data(wmem_file_scope(), pinfo, proto, curr_layer_num_ssl, pi);
     }
 
