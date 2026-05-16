@@ -521,8 +521,7 @@ static bool statcmd_init(const char *opt_arg, void* userdata) {
     lua_pushstring(L,opt_arg);
 
     status = lua_pcall(L, 1, 0, 1);
-    if (status != LUA_OK) {
-        wslua_debugger_after_pcall_failure(L);
+    if (status != LUA_OK && !wslua_debugger_after_pcall_failure(L)) {
         switch (status) {
         case LUA_ERRRUN:
             ws_warning("Runtime error while calling statcmd callback");

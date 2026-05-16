@@ -74,20 +74,18 @@ typedef struct
     int32_t variable_stack_level; /**< lua_getstack index for Locals/Upvalues */
     /*
      * Set only in wslua_debugger_notify_reload() to copy debugger.enabled
-     * before the reload path forces enabled false and clears L. Used by
-     * wslua_debugger_restore_after_reload() to turn the debugger back on after
-     * cf_reload / redissect (not by wslua_debugger_init, which is suppressed
-     * while this sequence runs). Cleared on consume, on renounce, or when the
-     * user sets user_explicitly_disabled (uncheck) so a pending restore does
-     * not fight that intent.
+     * before the reload path forces enabled false and clears L. Consumed by
+     * wslua_debugger_init() when the replacement Lua state is created. Cleared
+     * on consume or when the user sets user_explicitly_disabled so a pending
+     * init-time restore does not fight that intent.
      */
     bool was_enabled_before_reload;
     /*
      * True between wslua_debugger_notify_reload() and
-     * wslua_debugger_notify_post_reload(). While set, wslua_debugger_init()
-     * returns without auto-enabling for active breakpoints, so the line hook
-     * does not run inside the reload / re-dissection stack and re-enter the
-     * event loop.
+     * wslua_debugger_prepare_for_reload_init(). While set,
+     * wslua_debugger_init() returns without auto-enabling for active
+     * breakpoints, so the old Lua state can be torn down cleanly before the new
+     * state exists.
      */
     bool reload_in_progress;
     /*
@@ -95,24 +93,12 @@ typedef struct
      * wslua_debugger_set_user_explicitly_disabled(). When true, the user has
      * left the core debugger "off" on purpose. Gates wslua_debugger_init
      * breakpoint auto-enable, wslua_debugger_may_auto_enable_for_breakpoints,
-     * wslua_debugger_run_to_line, and a secondary check in
-     * wslua_debugger_restore_after_reload. Not equivalent to !enabled — the
-     * core can be off for other reasons (e.g. live capture) without this bit
+     * and wslua_debugger_run_to_line. Not equivalent to !enabled - the core
+     * can be off for other reasons (e.g. live capture) without this bit
      * being set, and it persists across operations that do not touch
      * was_enabled_before_reload.
      */
     bool user_explicitly_disabled;
-    /*
-     * Set only in wslua_debugger_notify_reload() to copy
-     * debugger.error_break_enabled before the reload path forces it false.
-     * Used by wslua_debugger_restore_after_reload() to turn break-on-error
-     * back on after cf_reload / redissect, mirroring the
-     * was_enabled_before_reload snapshot for the main enabled flag. Cleared
-     * on consume, on renounce, when the user sets user_explicitly_disabled,
-     * or when the user manually toggles break-on-error during the reload window so a
-     * pending restore does not fight that intent.
-     */
-    bool error_break_was_enabled_before_reload;
 
     /* Break-on-error fields */
     bool error_break_enabled;        /**< User toggle for break-on-error */
@@ -145,7 +131,6 @@ static wslua_debugger_t debugger = {
     false,                /* was_enabled_before_reload */
     false,                /* reload_in_progress */
     false,                /* user_explicitly_disabled */
-    false,                /* error_break_was_enabled_before_reload */
     false,                /* error_break_enabled */
     NULL,                 /* last_error_text */
     0,                    /* last_error_line */
@@ -595,21 +580,17 @@ void wslua_debugger_init(lua_State *L)
         initialized = true;
     }
 
-    /*
-     * During a reload, do NOT auto-enable the debugger here.
-     * The hook would fire inside cf_reload → cf_read → dissectIdle,
-     * potentially entering a nested event loop while deep in the
-     * reload call stack.  The callers will call
-     * wslua_debugger_notify_post_reload() after cf_reload completes.
-     */
+    bool restore_enabled_from_reload = false;
+    bool user_wants_debugger_off = false;
     g_mutex_lock(&debugger.mutex);
-    const bool reload_in_progress = debugger.reload_in_progress;
+    restore_enabled_from_reload = debugger.was_enabled_before_reload;
+    debugger.was_enabled_before_reload = false;
+    user_wants_debugger_off = debugger.user_explicitly_disabled;
     g_mutex_unlock(&debugger.mutex);
-    if (reload_in_progress)
+
+    if (restore_enabled_from_reload && !user_wants_debugger_off)
     {
-        /* Don't auto-enable: the hook would fire during
-         * cf_reload / redissect and re-enter the event loop.
-         * wslua_debugger_restore_after_reload() handles this. */
+        wslua_debugger_set_enabled(true);
         return;
     }
 
@@ -618,10 +599,6 @@ void wslua_debugger_init(lua_State *L)
     ensure_breakpoints_initialized();
     g_mutex_lock(&debugger.mutex);
     has_auto_triggers = debugger_has_auto_break_triggers_locked();
-    g_mutex_unlock(&debugger.mutex);
-
-    bool user_wants_debugger_off = false;
-    g_mutex_lock(&debugger.mutex);
     user_wants_debugger_off = debugger.user_explicitly_disabled;
     g_mutex_unlock(&debugger.mutex);
 
@@ -1292,12 +1269,13 @@ static void wslua_debugger_enter_pause_event_loop(lua_State *pause_L,
  * wslua_debugger_capture_runtime_error() when available. Internal: callers
  * outside this translation unit should use
  * @ref wslua_debugger_after_pcall_failure instead.
+ * @return true if debugger and break-on-error enabled, false otherwise.
  */
-static void wslua_debugger_on_runtime_error(lua_State *L, const char *msg)
+static bool wslua_debugger_on_runtime_error(lua_State *L, const char *msg)
 {
     if (!wslua_debugger_should_break_on_error())
     {
-        return;
+        return false;
     }
 
     g_mutex_lock(&debugger.mutex);
@@ -1326,6 +1304,8 @@ static void wslua_debugger_on_runtime_error(lua_State *L, const char *msg)
     wslua_debugger_enter_pause_event_loop(pause_L, file_src_copy,
                                           current_line);
     g_free(file_src_copy);
+
+    return true;
 }
 
 /**
@@ -1578,7 +1558,6 @@ void wslua_debugger_set_user_explicitly_disabled(
     if (user_wants_debugger_stay_off)
     {
         debugger.was_enabled_before_reload = false;
-        debugger.error_break_was_enabled_before_reload = false;
     }
     g_mutex_unlock(&debugger.mutex);
 }
@@ -1588,6 +1567,7 @@ bool wslua_debugger_may_auto_enable_for_breakpoints(void)
     ensure_breakpoints_initialized();
     g_mutex_lock(&debugger.mutex);
     const bool may = !debugger.user_explicitly_disabled &&
+                     !debugger.reload_in_progress &&
                      debugger_has_auto_break_triggers_locked();
     g_mutex_unlock(&debugger.mutex);
     return may;
@@ -1599,14 +1579,6 @@ bool wslua_debugger_get_user_explicitly_disabled(void)
     const bool disabled = debugger.user_explicitly_disabled;
     g_mutex_unlock(&debugger.mutex);
     return disabled;
-}
-
-void wslua_debugger_renounce_restore_after_reload(void)
-{
-    g_mutex_lock(&debugger.mutex);
-    debugger.was_enabled_before_reload = false;
-    debugger.error_break_was_enabled_before_reload = false;
-    g_mutex_unlock(&debugger.mutex);
 }
 
 /**
@@ -4271,9 +4243,6 @@ bool wslua_debugger_notify_reload(void)
     {
         debugger.reload_in_progress = true;
         debugger.was_enabled_before_reload = debugger.enabled;
-        debugger.error_break_was_enabled_before_reload =
-            debugger.error_break_enabled;
-        debugger.error_break_enabled = false;
         is_first_notify = true;
     }
     /* Reload starts with a fresh Lua state; clear stale one-shot error markers
@@ -4327,77 +4296,25 @@ void wslua_debugger_register_post_reload_callback(
  * @brief Notify listeners that reload has completed.
  *
  * Called by wslua_reload_plugins() AFTER wslua_init() completes.
- * Clears the reload_in_progress flag and fires the post-reload UI
- * callback so the file tree is refreshed with newly loaded scripts.
+ * Fires the post-reload UI callback so the file tree is refreshed with
+ * newly loaded scripts.
  *
- * The debugger is NOT re-enabled here.  The UI must call
- * wslua_debugger_restore_after_reload() once cf_reload / redissect
- * has finished, to avoid the debug hook firing while packets are
- * still being re-read.
- *
- * Break-on-error IS restored here (before the post-reload UI callback)
- * because break-on-error state has no dissection-reentrancy concern: the line hook
- * stays uninstalled until restore_after_reload runs, and the error/assert
- * wrappers are not installed until enabled is flipped back on. Restoring
- * break-on-error early keeps the UI's break-on-error button in sync when the post-reload
- * callback chain refreshes it from the core state.
+ * Any saved debugger enabled-state restore has already happened before
+ * wslua_init() runs.
  */
-void wslua_debugger_notify_post_reload(void)
+void wslua_debugger_prepare_for_reload_init(void)
 {
-    bool restore_break_on_error = false;
-
     g_mutex_lock(&debugger.mutex);
     debugger.reload_in_progress = false;
-    /* Restore break-on-error if we snapshotted it in notify_reload, unless the user
-     * has since turned the whole debugger off on purpose. */
-    if (debugger.error_break_was_enabled_before_reload &&
-        !debugger.user_explicitly_disabled)
-    {
-        restore_break_on_error = true;
-    }
-    debugger.error_break_was_enabled_before_reload = false;
     g_mutex_unlock(&debugger.mutex);
+}
 
-    if (restore_break_on_error)
-    {
-        wslua_debugger_set_error_break_enabled(true);
-    }
+void wslua_debugger_notify_post_reload(void)
+{
 
     if (post_reload_callback)
     {
         post_reload_callback();
-    }
-}
-
-/**
- * @brief Re-enable the debugger after a reload + cf_reload cycle.
- *
- * If the debugger was enabled before the reload, re-enable it now
- * that the file has been fully re-read.  This must be called AFTER
- * cf_reload / redissectPackets completes.
- */
-void wslua_debugger_restore_after_reload(void)
-{
-    bool need_enable = false;
-
-    g_mutex_lock(&debugger.mutex);
-    if (!debugger.was_enabled_before_reload)
-    {
-        g_mutex_unlock(&debugger.mutex);
-        return;
-    }
-    debugger.was_enabled_before_reload = false;
-    if (debugger.user_explicitly_disabled)
-    {
-        g_mutex_unlock(&debugger.mutex);
-        return;
-    }
-    need_enable = !debugger.enabled && debugger.L != NULL;
-    g_mutex_unlock(&debugger.mutex);
-
-    if (need_enable)
-    {
-        wslua_debugger_set_enabled(true);
     }
 }
 
@@ -6671,13 +6588,14 @@ static bool wslua_debugger_consume_explicit_error_break(void)
     return occurred;
 }
 
-void wslua_debugger_after_pcall_failure(lua_State *L)
+bool wslua_debugger_after_pcall_failure(lua_State *L)
 {
     if (wslua_debugger_consume_explicit_error_break())
     {
-        return;
+        return false;
     }
-    wslua_debugger_on_runtime_error(L, lua_tostring(L, -1));
+
+    return wslua_debugger_on_runtime_error(L, lua_tostring(L, -1));
 }
 
 const char *wslua_debugger_consume_error_text(void)

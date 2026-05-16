@@ -942,7 +942,6 @@ void LuaDebuggerDialog::closeEvent(QCloseEvent *event)
 
     /* Disable the debugger so breakpoints won't fire and reopen the
      * dialog after it has been closed. */
-    wslua_debugger_renounce_restore_after_reload();
     /* Must stay true: if we clear user_explicitly_disabled, dissect will call
      * wslua_debugger_init() and re-enable whenever active breakpoints exist,
      * which pops this dialog again on the next hit. */

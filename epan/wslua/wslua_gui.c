@@ -50,8 +50,7 @@ static void lua_menu_callback(void *data) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, md->cb_ref);
 
     status = lua_pcall(L, 0, 0, 1);
-    if (status != LUA_OK) {
-        wslua_debugger_after_pcall_failure(L);
+    if (status != LUA_OK && !wslua_debugger_after_pcall_failure(L)) {
         switch (status) {
         case LUA_ERRRUN:
             ws_warning("Runtime error while calling menu callback");
@@ -191,8 +190,7 @@ static void lua_custom_packet_menu_callback(void *data, GPtrArray *finfo_array) 
     }
 
     status = lua_pcall(L, items_found, 0, 1);
-    if (status != LUA_OK) {
-        wslua_debugger_after_pcall_failure(L);
+    if (status != LUA_OK && !wslua_debugger_after_pcall_failure(L)) {
         switch (status) {
         case LUA_ERRRUN:
             g_warning("Runtime error while calling custom_packet_menu callback");
@@ -277,8 +275,7 @@ static void lua_dialog_cb(char** user_input, void* data) {
     g_free(user_input);
 
     status = lua_pcall(L, i, 0, 1);
-    if (status != LUA_OK) {
-        wslua_debugger_after_pcall_failure(L);
+    if (status != LUA_OK && !wslua_debugger_after_pcall_failure(L)) {
         switch (status) {
         case LUA_ERRRUN:
             ws_warning("Runtime error while calling dialog callback");
@@ -326,8 +323,7 @@ static void text_win_close_cb(void* data) {
         lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->func_ref);
 
         status = lua_pcall(L, 0, 0, 1);
-        if (status != LUA_OK) {
-            wslua_debugger_after_pcall_failure(L);
+        if (status != LUA_OK && !wslua_debugger_after_pcall_failure(L)) {
             switch (status) {
             case LUA_ERRRUN:
                 ws_warning("Runtime error during execution of TextWindow close callback");
@@ -965,8 +961,7 @@ static bool wslua_button_callback(funnel_text_window_t* ws_tw _U_, void* data) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->wslua_tw_ref);
 
     status = lua_pcall(L, 1, 0, 1);
-    if (status != LUA_OK) {
-        wslua_debugger_after_pcall_failure(L);
+    if (status != LUA_OK && !wslua_debugger_after_pcall_failure(L)) {
         switch (status) {
         case LUA_ERRRUN:
             ws_warning("Runtime error while calling button callback");

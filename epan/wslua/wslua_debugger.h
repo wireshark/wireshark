@@ -123,10 +123,10 @@ extern "C"
      * @brief Set whether the user asked to keep the debugger off.
      *
      * When @a user_wants_debugger_stay_off is true, also invalidates
-     * @c was_enabled_before_reload so a pending
-     * wslua_debugger_restore_after_reload() will not re-enable. When false,
-     * the user has explicitly enabled the debugger in the UI again; auto-enable
-     * and restore logic may then apply.
+     * @c was_enabled_before_reload so a pending reload-time restore on the next
+     * Lua state will not re-enable. When false, the user has explicitly
+     * enabled the debugger in the UI again; auto-enable and restore logic may
+     * then apply.
      */
     WS_DLL_PUBLIC void
     wslua_debugger_set_user_explicitly_disabled(bool user_wants_debugger_stay_off);
@@ -150,21 +150,14 @@ extern "C"
      *        triggers.
      *
      * Returns true only when the user has not explicitly disabled the
-     * debugger and at least one auto-break trigger exists (an active
-     * breakpoint or Break on Error).
+     * debugger, reload is not in progress, and at least one auto-break
+     * trigger exists (an active breakpoint or Break on Error).
      *
      * Does not consider capture; the UI may combine this with live-capture
      * gating.
      */
     WS_DLL_PUBLIC bool
     wslua_debugger_may_auto_enable_for_breakpoints(void);
-
-    /**
-     * @brief Clear state saved for wslua_debugger_restore_after_reload() so
-     *        a pending call will not re-enable. Call e.g. when the debugger
-     *        dialog is closed and no delayed restore is desired.
-     */
-    WS_DLL_PUBLIC void wslua_debugger_renounce_restore_after_reload(void);
 
     /**
      * @brief Callback type for UI update when paused.
@@ -659,21 +652,23 @@ extern "C"
         wslua_debugger_post_reload_callback_t callback);
 
     /**
+     * @brief End the reload suppression window before a new Lua state is initialized.
+     *
+     * Called by wslua_reload_plugins() after the old Lua state is destroyed and
+     * before wslua_init() creates the replacement state. This restores
+     * break-on-error if it was enabled before the reload, so the replacement
+     * Lua state starts with the expected debugger error behavior.
+     */
+    WS_DLL_PUBLIC void wslua_debugger_prepare_for_reload_init(void);
+
+    /**
      * @brief Notify registered listeners that a reload has completed.
      *
      * Called internally by wslua_reload_plugins() after reloading.
-     * Clears the reload_in_progress flag and invokes the registered
-     * post-reload callback.  Does NOT re-enable the debugger.
+     * Invokes the registered post-reload callback after the new Lua scripts
+     * have been loaded.
      */
     WS_DLL_PUBLIC void wslua_debugger_notify_post_reload(void);
-
-    /**
-     * @brief Re-enable the debugger after a reload + cf_reload cycle.
-     *
-     * If the debugger was enabled before the reload, re-enable it.
-     * Must be called AFTER cf_reload / redissectPackets completes.
-     */
-    WS_DLL_PUBLIC void wslua_debugger_restore_after_reload(void);
 
     /**
      * @brief Evaluate a Lua expression in the context of the paused debugger.
@@ -808,8 +803,9 @@ extern "C"
      * after a non-OK @c lua_pcall return.
      *
      * @param L The Lua state whose top-of-stack holds the error message.
+     * @return true if debugger and break-on-error enabled, false otherwise.
      */
-    WS_DLL_PUBLIC void wslua_debugger_after_pcall_failure(lua_State *L);
+    WS_DLL_PUBLIC bool wslua_debugger_after_pcall_failure(lua_State *L);
 
     /**
      * @brief Consume the most recent break-on-error message, if any.

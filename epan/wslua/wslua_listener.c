@@ -104,8 +104,7 @@ static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_
     if (status == LUA_OK) {
         /* XXX - treat 2 as TAP_PACKET_FAILED? */
         retval = luaL_optinteger(tap->L,-1,1) == 0 ? TAP_PACKET_DONT_REDRAW : TAP_PACKET_REDRAW;
-    } else {
-        wslua_debugger_after_pcall_failure(tap->L);
+    } else if (!wslua_debugger_after_pcall_failure(tap->L)) {
         switch (status) {
         case LUA_ERRRUN:
             /* XXX - TAP_PACKET_FAILED? */
@@ -154,8 +153,7 @@ static void lua_tap_reset(void *tapdata) {
     lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->reset_ref);
 
     status = lua_pcall(tap->L, 0, 0, lua_gettop(tap->L)-1);
-    if (status != LUA_OK) {
-        wslua_debugger_after_pcall_failure(tap->L);
+    if (status != LUA_OK && !wslua_debugger_after_pcall_failure(tap->L)) {
         switch (status) {
         case LUA_ERRRUN:
             ws_warning("Runtime error while calling a listener's init()");
@@ -198,8 +196,7 @@ static void lua_tap_draw(void *tapdata) {
     lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->draw_ref);
 
     status = lua_pcall(tap->L, 0, 0, lua_gettop(tap->L)-1);
-    if (status != LUA_OK) {
-        wslua_debugger_after_pcall_failure(tap->L);
+    if (status != LUA_OK && !wslua_debugger_after_pcall_failure(tap->L)) {
         switch (status) {
         case LUA_ERRRUN:
             error = lua_tostring(tap->L,-1);

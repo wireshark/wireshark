@@ -1441,11 +1441,6 @@ void StratosharkMainWindow::reloadLuaPlugins()
         redissectPackets();
     }
 
-    /* Notify the Lua subsystem that the reload is fully complete,
-     * including cf_reload/redissect.  This must happen AFTER the
-     * file has been fully re-read. */
-    wslua_reload_done();
-
     mainApp->setReloadingLua(false);
     SimpleDialog::displayQueuedMessages();
 #endif

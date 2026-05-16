@@ -841,8 +841,8 @@ static bool lua_load_plugin(const char* filename) {
      */
     status = lua_pcall(L, 1, 0, 1);
     if (status != LUA_OK) {
-        wslua_debugger_after_pcall_failure(L);
-        switch (status) {
+        if (!wslua_debugger_after_pcall_failure(L)) {
+            switch (status) {
             case LUA_ERRRUN:
                 report_failure("Lua: Error during loading:\n%s", lua_tostring(L, -1));
                 break;
@@ -855,6 +855,7 @@ static bool lua_load_plugin(const char* filename) {
             default:
                 report_failure("Lua: Error during loading: unknown error %d", status);
                 break;
+            }
         }
     }
     return status == LUA_OK;
@@ -892,8 +893,7 @@ static bool lua_load_script(const char* filename, const char* dirname, const int
                 numargs = lua_script_push_args(file_count);
             }
             error = lua_pcall(L, numargs, 0, 1);
-            if (error) {
-                wslua_debugger_after_pcall_failure(L);
+            if (error && !wslua_debugger_after_pcall_failure(L)) {
                 switch (error) {
                     case LUA_ERRRUN:
                         report_failure("Lua: Error during loading:\n%s", lua_tostring(L, -1));
@@ -2077,24 +2077,16 @@ bool wslua_reload_plugins (register_cb cb, void *client_data, const char* app_en
     wslua_clear_plugin_list();
 
     wslua_cleanup();
+    wslua_debugger_prepare_for_reload_init();
     wslua_init(cb, client_data, app_env_var_prefix);    /* reinitialize */
 
     /*
-     * Signal the debugger that reload is complete.  This clears the
-     * reload_in_progress flag and fires the post-reload UI callback
-     * so the file tree is refreshed with newly loaded scripts.
-     *
-     * The debugger is NOT re-enabled here — it is re-enabled later
-     * by the UI via wslua_reload_done() once
-     * cf_reload / redissect has finished.
+     * Signal the debugger that reload is complete so the post-reload UI
+     * callback can refresh the file tree with the newly loaded scripts.
      */
     wslua_debugger_notify_post_reload();
 
     return true;
-}
-
-void wslua_reload_done(void) {
-    wslua_debugger_restore_after_reload();
 }
 
 void wslua_cleanup(void) {

@@ -43,14 +43,6 @@ WS_DLL_PUBLIC int wslua_count_plugins(void);
  */
 WS_DLL_PUBLIC bool wslua_reload_plugins (register_cb cb, void *client_data, const char* app_env_var_prefix);
 
-/**
- * @brief Signal that a Lua plugin reload is complete.
- *
- * This function is called to notify that a Lua plugin reload has been completed,
- * allowing any necessary cleanup or restoration of state.
- */
-WS_DLL_PUBLIC void wslua_reload_done(void);
-
 typedef void (*wslua_plugin_description_callback)(const char *, const char *,
                                                   const char *, const char *,
                                                   void *);
