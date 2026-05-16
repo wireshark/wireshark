@@ -422,6 +422,7 @@ target_link_libraries(wsutil
 		${WIN_IPHLPAPI_LIBRARY}
 		${WIN_WS2_32_LIBRARY}
 		${WIN_PSAPI_LIBRARY}
+		$<$<BOOL:${CpuInfo_FOUND}>:CpuInfo::CpuInfo>
 )
 
 target_include_directories(wsutil SYSTEM
@@ -484,6 +485,7 @@ target_link_libraries(wsutil_static
 		${WIN_IPHLPAPI_LIBRARY}
 		${WIN_WS2_32_LIBRARY}
 		${WIN_PSAPI_LIBRARY}
+		$<$<BOOL:${CpuInfo_FOUND}>:CpuInfo::CpuInfo>
 )
 
 target_include_directories(wsutil_static SYSTEM

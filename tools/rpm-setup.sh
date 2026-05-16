@@ -344,6 +344,9 @@ echo "Optional package sbc-devel is unavailable"
 add_package ADDITIONAL_LIST libsmi-devel ||
 echo "Optional package libsmi-devel is unavailable"
 
+add_package ADDITIONAL_LIST cpuinfo-devel ||
+echo "Optional package cpuinfo-devel is unavailable"
+
 # opencore-amr-devel: RHEL/CentOS, Fedora
 # libopencore-amr-devel: OpenSUSE
 add_package ADDITIONAL_LIST opencore-amr-devel || add_package ADDITIONAL_LIST libopencore-amr-devel ||

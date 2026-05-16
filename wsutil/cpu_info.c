@@ -12,6 +12,7 @@
 #include <wsutil/cpu_info.h>
 
 #include <string.h>
+#include <stdlib.h>
 
 #include <wsutil/ws_cpuid.h>
 #include <wsutil/file_util.h>
@@ -29,6 +30,11 @@
   #include <sys/sysctl.h>
 #elif defined(HAVE_SYSINFO)
   #include <sys/systeminfo.h>
+#endif
+
+#ifdef HAVE_CPUINFO
+  #include <cpuinfo.h>
+  static bool cpuinfo_is_initialized;
 #endif
 
 /*
@@ -108,23 +114,49 @@ get_translator_name(void)
   #endif
 }
 
-/*
- * Get the CPU info, and append it to the GString
- *
- * On at least some OSes, there's a call that will return this information
- * for all CPU types for which the OS determines that information, not just
- * x86 processors with CPUID and the brand string.  On those OSes, we use
- * that.
- *
- * On other OSes, we use ws_cpuid(), which will fail unconditionally on
- * non-x86 CPUs.
- */
-void
-get_cpu_info(GString *str)
+#ifdef HAVE_CPUINFO
+static bool
+try_cpuinfo(GTree* model_names)
 {
-    GTree *model_names = g_tree_new_full(compare_model_names, NULL, g_free, NULL);
-    const char *translator_name;
+    static bool tried_cpuinfo_init = false;
+    if (!tried_cpuinfo_init) {
+        if ((cpuinfo_is_initialized = cpuinfo_initialize())) {
+            atexit(cpuinfo_deinitialize);
+        }
+        tried_cpuinfo_init = true;
+    }
+    if (cpuinfo_is_initialized) {
+        char* model_name;
+        for (uint32_t i = 0; i < cpuinfo_get_packages_count(); i++) {
+            model_name = g_strdup(cpuinfo_get_package(i)->name);
 
+            /*
+             * Add an entry to the tree with the model name as key and
+             * a null value.  There will only be one such entry in the
+             * tree; if there's already such an entry, it will be left
+             * alone, and model_name will be freed, otherwise a new
+             * node will be created using model_name as the key.
+             *
+             * Thus, we don't free model_name; either it will be freed
+             * for us, or it will be used in the tree and freed when we
+             * free the tree.
+             */
+            g_tree_insert(model_names, model_name, NULL);
+        }
+        return true;
+    }
+    return false;
+}
+#else
+static bool
+try_cpuinfo(GTree* model_names _U_)
+{
+    return false;
+}
+#endif
+
+static bool
+try_platform_cpuinfo(GTree *model_names) {
 #if defined(__linux__)
     /*
      * We scan /proc/cpuinfo looking for lines that begins with
@@ -148,8 +180,7 @@ get_cpu_info(GString *str)
     proc_cpuinfo = ws_fopen("/proc/cpuinfo", "r");
     if (proc_cpuinfo == NULL) {
         /* Just give up. */
-        g_tree_destroy(model_names);
-        return;
+        return false;
     }
 
     char *line = NULL;
@@ -206,8 +237,7 @@ get_cpu_info(GString *str)
                       L"HARDWARE\\DESCRIPTION\\System\\CentralProcessor",
                       0, KEY_READ, &processors_key) != ERROR_SUCCESS) {
         /* Just give up. */
-        g_tree_destroy(model_names);
-        return;
+        return false;
     }
 
     /*
@@ -229,8 +259,7 @@ get_cpu_info(GString *str)
                          &max_subkey_len, NULL, NULL, NULL, NULL, NULL,
                          NULL) != ERROR_SUCCESS) {
         /* Just give up. */
-        g_tree_destroy(model_names);
-        return;
+        return false;
     }
 
     /*
@@ -244,8 +273,7 @@ get_cpu_info(GString *str)
     subkey_buf = g_new(wchar_t, max_subkey_len);
     if (subkey_buf == NULL) {
         /* Just give up. */
-        g_tree_destroy(model_names);
-        return;
+        return false;
     }
 
     for (DWORD processor_index = 0; processor_index < num_subkeys;
@@ -368,8 +396,7 @@ get_cpu_info(GString *str)
          * Either there's no such string or something else went wrong.
          * Just give up.
          */
-        g_tree_destroy(model_names);
-        return;
+        return false;
     }
   #endif
     if (sysctl(mib, (u_int)miblen, NULL, &model_name_len, NULL, 0) == -1) {
@@ -377,8 +404,7 @@ get_cpu_info(GString *str)
          * Either there's no such string or something else went wrong.
          * Just give up.
          */
-        g_tree_destroy(model_names);
-        return;
+        return false;
     }
     model_name = g_malloc(model_name_len);
     if (sysctl(mib, (u_int)miblen, model_name, &model_name_len, NULL, 0) == -1) {
@@ -387,8 +413,7 @@ get_cpu_info(GString *str)
          * Just give up.
          */
         g_free(model_name);
-        g_tree_destroy(model_names);
-        return;
+        return false;
     }
     g_tree_insert(model_names, model_name, NULL);
 #elif defined(HAVE_SYSINFO) && defined(SI_CPUBRAND)
@@ -406,13 +431,11 @@ get_cpu_info(GString *str)
     /* How big is the model name? */
     model_name_len = sysinfo(SI_CPUBRAND, NULL, 0);
     if (model_name_len == -1) {
-        g_tree_destroy(model_names);
-        return;
+        return false;
     }
     model_name = g_malloc(model_name_len);
     if (sysinfo(SI_CPUBRAND, model_name, model_name_len) == -1) {
-        g_tree_destroy(model_names);
-        return;
+        return false;
     }
     g_tree_insert(model_names, model_name, NULL);
 #else
@@ -432,15 +455,13 @@ get_cpu_info(GString *str)
      * ECX equal to 0, gets the number of valid extended IDs.
      */
     if (!ws_cpuid(CPUInfo, 0x80000000)) {
-        g_tree_destroy(model_names);
-        return;
+        return false;
     }
 
     nExIds = CPUInfo[0];
 
     if (nExIds<0x80000005) {
-        g_tree_destroy(model_names);
-        return;
+        return false;
     }
 
     memset(CPUBrandString, 0, sizeof(CPUBrandString));
@@ -456,6 +477,31 @@ get_cpu_info(GString *str)
     model_name = g_strdup(g_strstrip(CPUBrandString));
     g_tree_insert(model_names, model_name, NULL);
 #endif
+
+    return true;
+}
+
+/*
+ * Get the CPU info, and append it to the GString
+ *
+ * On at least some OSes, there's a call that will return this information
+ * for all CPU types for which the OS determines that information, not just
+ * x86 processors with CPUID and the brand string.  On those OSes, we use
+ * that.
+ *
+ * On other OSes, we use ws_cpuid(), which will fail unconditionally on
+ * non-x86 CPUs.
+ */
+void
+get_cpu_info(GString *str)
+{
+    GTree *model_names = g_tree_new_full(compare_model_names, NULL, g_free, NULL);
+    const char *translator_name;
+
+    if (!try_cpuinfo(model_names) && !try_platform_cpuinfo(model_names)) {
+        g_tree_destroy(model_names);
+        return;
+    }
 
     int num_model_names = g_tree_nnodes(model_names);
 
@@ -520,6 +566,13 @@ get_cpu_info(GString *str)
      * worry about that case; constructing a CPU string is the *least*
      * of our worries in that case.
      */
+#ifdef HAVE_CPUINFO
+    if (cpuinfo_is_initialized) {
+        if (cpuinfo_has_x86_sse4_2()) {
+            g_string_append(str, " (with SSE4.2)");
+        }
+    } else
+#endif
     if (ws_cpuid_sse42())
         g_string_append(str, " (with SSE4.2)");
 }

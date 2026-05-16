@@ -33,6 +33,7 @@
 %bcond_with	ilbc
 %bcond_with	opus
 %bcond_with	libssh
+%bcond_with	cpuinfo
 
 # Fedora options to use clang as the compiler
 # https://docs.fedoraproject.org/en-US/packaging-guidelines/#compiler
@@ -192,6 +193,10 @@ BuildRequires:	(opus-devel or libopus-devel)
 
 %if %{with libssh}
 BuildRequires:	libssh-devel
+%endif
+
+%if %{with cpuinfo}
+BuildRequires:	cpuinfo-devel
 %endif
 
 # Uncomment these if you want to be sure you get them...
@@ -489,6 +494,11 @@ the strato text-mode variant, and necessary Stratoshark-related extcaps.
   -DENABLE_LIBSSH=ON \
 %else
   -DENABLE_LIBSSH=OFF \
+%endif
+%if %{with cpuinfo}
+  -DENABLE_CPUINFO=ON \
+%else
+  -DENABLE_CPUINFO=OFF \
 %endif
 
 # Fedora and SUSE 15 do out of source builds by default, but they store

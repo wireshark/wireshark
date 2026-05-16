@@ -256,6 +256,10 @@ echo "libilbc-dev is unavailable"
 add_package ADDITIONAL_LIST libbcg729-dev ||
     echo "libbcg729-dev is unavailable"
 
+# Debian >= bullseye, Ubuntu >= 22.04 (jammy)
+add_package ADDITIONAL_LIST libcpuinfo-dev ||
+    echo "libcpuinfo-dev is unavailable"
+
 ACTUAL_LIST=$BASIC_LIST
 
 # Now arrange for optional support libraries

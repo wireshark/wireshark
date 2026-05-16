@@ -1602,6 +1602,8 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	find_package(SETCAP)
 endif()
 
+ws_find_package(CpuInfo ENABLE_CPUINFO HAVE_CPUINFO)
+
 find_package( Asciidoctor 1.5 )
 find_package( XSLTPROC )
 
@@ -2130,6 +2132,11 @@ set_package_properties(Lua PROPERTIES
 	DESCRIPTION "Lua is a powerful, efficient, lightweight, embeddable scripting language"
 	URL "https://www.lua.org/"
 	PURPOSE "Lua allows writing dissectors and other extensions without a C/C++ compiler"
+)
+set_package_properties(CpuInfo PROPERTIES
+	DESCRIPTION "CPU INFOrmation library"
+	URL "https://https://github.com/pytorch/cpuinfo/"
+	PURPOSE "Detect information about host CPU, e.g., for performance optimization"
 )
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" _build_type)
@@ -4242,6 +4249,9 @@ if(RPMBUILD_EXECUTABLE)
 	endif()
 	if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
 		list(APPEND _rpmbuild_with_args --with guides)
+	endif()
+	if (CPUINFO_FOUND)
+		list(APPEND _rpmbuild_with_args --with cpuinfo)
 	endif()
 
 	execute_process(
