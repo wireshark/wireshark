@@ -11,7 +11,7 @@
  */
 
 /*
- * Reads an ETL file and writes out a pcap file with LINKTYPE_ETW.
+ * Reads an ETL file and writes out a pcapng file with LINKTYPE_ETW.
  *
  * https://docs.microsoft.com/en-us/windows/win32/etw/event-tracing-portal
  */
@@ -22,6 +22,7 @@
 #include "etl.h"
 #include "wsutil/ws_getopt.h"
 #include "wsutil/strtoi.h"
+#include "wsutil/epochs.h"
 #include "etw_message.h"
 #include "etw_ndiscap.h"
 
@@ -644,9 +645,13 @@ static void WINAPI event_callback(PEVENT_RECORD ev)
 
     /*
     * 100ns since 1/1/1601 -> usec since 1/1/1970.
-    * The offset of 11644473600 seconds can be calculated with a couple of calls to SystemTimeToFileTime.
+    * EPOCH_DELTA_1601_01_01_00_00_00_UTC is the offset in seconds, so
+    * we multiply it by 10^6 to convert it to usec.
+    *
+    * XXX - should we write this out as a 100-nanosecond-resolution pcapng,
+    * so we don't lose resolution?
     */
-    timestamp.QuadPart = (ev->EventHeader.TimeStamp.QuadPart / 10) - 11644473600000000ll;
+    timestamp.QuadPart = (ev->EventHeader.TimeStamp.QuadPart / 10) - (1000000*EPOCH_DELTA_1601_01_01_00_00_00_UTC);
 
     if (g_debug_parsers)
     {
