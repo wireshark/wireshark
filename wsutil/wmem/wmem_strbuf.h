@@ -269,11 +269,12 @@ void
 wmem_strbuf_append_unichar_validated(wmem_strbuf_t *strbuf, const gunichar c);
 
 /**
- * @brief Append a hexadecimal representation of a byte to a wmem string buffer.
+ * @brief Append an escape sequence representation of a byte to a wmem string buffer.
  *
- * Converts the given 8-bit unsigned integer into a two-character hexadecimal string
- * and appends it to the specified `wmem_strbuf_t`. For example, passing the value
- * `123` will append the string `"7B"` (in uppercase) to the buffer.
+ * Converts the given 8-bit unsigned integer into a four-character C hexadecimal
+ * escape sequence representation and appends it to the specified `wmem_strbuf_t`.
+ * For example, passing the value `123` will append the string `"\x7B"` (in uppercase)
+ * to the buffer.
  *
  * @param strbuf Pointer to the `wmem_strbuf_t` to append to.
  * @param ch The 8-bit unsigned integer to convert and append as hexadecimal.
@@ -283,14 +284,22 @@ void
 wmem_strbuf_append_hex(wmem_strbuf_t *strbuf, uint8_t ch);
 
 /**
- * @brief Append a hexadecimal representation of a Unicode character to a wmem string buffer.
+ * @brief Append an escape sequence representation of a Unicode character to a wmem string buffer.
  *
- * Converts the given Unicode character (`gunichar`) into its hexadecimal representation
- * and appends it to the specified `wmem_strbuf_t`.
+ * Converts the given Unicode character (`gunichar`) into an escape sequence and
+ * appends it to the specified `wmem_strbuf_t`. For characters with code points
+ * less than 0xFF, the `"\xnn"` numeric escape sequence is used. For characters
+ * with code points less than 0xFFFF, i.e., in the Basic Multilingual Plane,
+ * the `"\unnnn"` format is used. For character with larger codepoints, the
+ * `"\Unnnnnnnn"` format is used. Uppercase is used for hex digits.
  *
  * @param strbuf Pointer to the string buffer to append to.
  * @param ch Unicode character to convert and append.
  * @return Number of characters appended to the buffer (4, 6, or 10).
+ *
+ * @note If a surrogate code point (the range 0xD800-0xDFFF, inclusive) or a
+ * code point greater than 0x10FFFF (i.e., not a Unicode code point) is given,
+ * the resulting escape sequence is ill-formed for use in C and C++.
  */
 WS_DLL_PUBLIC
 size_t
