@@ -584,11 +584,12 @@ Windows x64 Package:
       region=us-east-2
       env_auth=true
       endpoint=$S3_ENDPOINT_WIRESHARK
+      no_check_bucket=true
       acl=private
       --non-interactive --obscure
     - $packages = Get-ChildItem "packaging\nsis\Wireshark-*-x64.exe", "packaging\nsis\Stratoshark-*-x64.exe", "packaging\wix\Wireshark-*-x64.msi", "packaging\portableapps\WiresharkPortable??_*.paf.exe", "Wireshark-pdb-*x64.zip"
     - foreach ($package in $packages) { Write-Host $package.name $(Get-Filehash -Algorithm SHA256 $package).Hash.ToLower() $package.length "bytes" }
-    - if (Test-Path env:S3_DESTINATION_WINDOWS_X64) { rclone copy . "wireshark:$env:S3_DESTINATION_WINDOWS_X64" --include "packaging/nsis/Wireshark-*-x64.exe" --include "packaging/nsis/Stratoshark-*-x64.exe" --include "packaging/wix/Wireshark-*-x64.msi" --include "packaging/portableapps/WiresharkPortable??_*.paf.exe" --include "Wireshark-pdb-*x64.zip" }
+    - if (Test-Path env:S3_DESTINATION_WINDOWS_X64) { foreach ($package in $packages) { rclone copyto $package "wireshark:$env:S3_DESTINATION_WINDOWS_X64/$($package.Name)" } }
     - $wiresharkVersion = Get-Content .\wireshark_version.txt
     - $wiresharkNsisSha256 = (Get-FileHash -Algorithm SHA256 .\packaging\nsis\Wireshark-*-x64.exe).Hash.ToLower()
     - Set-Content -Path wireshark-release-info-$($wiresharkVersion)-windows-x64.ini -Value ("[DEFAULT]`nnsis_sha256 = $wiresharkNsisSha256")
@@ -637,11 +638,12 @@ Windows Arm64 Package:
       region=us-east-2
       env_auth=true
       endpoint=$S3_ENDPOINT_WIRESHARK
+      no_check_bucket=true
       acl=private
       --non-interactive --obscure
     - $packages = Get-ChildItem "packaging\nsis\Wireshark-*-arm64.exe", "packaging\nsis\Stratoshark-*-arm64.exe", "Wireshark-pdb-*arm64.zip"
     - foreach ($package in $packages) { Write-Host $package.name $(Get-Filehash -Algorithm SHA256 $package).Hash.ToLower() $package.length "bytes" }
-    - if (Test-Path env:S3_DESTINATION_WINDOWS_ARM64) { rclone copy . "wireshark:$env:S3_DESTINATION_WINDOWS_ARM64" --include "packaging/nsis/Wireshark-*-arm64.exe" --include "packaging/nsis/Stratoshark-*-arm64.exe" --include "Wireshark-pdb-*arm64.zip" }
+    - if (Test-Path env:S3_DESTINATION_WINDOWS_ARM64) { foreach ($package in $packages) { rclone copyto $package "wireshark:$env:S3_DESTINATION_WINDOWS_ARM64/$($package.Name)" } }
     - $wiresharkVersion = Get-Content .\wireshark_version.txt
     - $wiresharkNsisSha256 = (Get-FileHash -Algorithm SHA256 .\packaging\nsis\Wireshark-*-arm64.exe).Hash.ToLower()
     - Set-Content -Path wireshark-release-info-$($wiresharkVersion)-windows-arm64.ini -Value ("[DEFAULT]`nnsis_sha256 = $wiresharkNsisSha256")
