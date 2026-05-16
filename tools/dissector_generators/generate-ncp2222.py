@@ -153,7 +153,7 @@ class NamedList:
         "Compare this NamedList to another"
 
         if isinstance(other, NamedList):
-            return cmp(self.list, other.list)
+            return self.list == other.list
         else:
             return 0
 
@@ -889,7 +889,7 @@ class struct(PTVC, Type):
         return x
 
     def __cmp__(self, other):
-        return cmp(self.HFName(), other.HFName())
+        return self.HFName() == other.HFName()
 
 
 class byte(Type):

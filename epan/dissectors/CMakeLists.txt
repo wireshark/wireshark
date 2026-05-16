@@ -17,11 +17,11 @@ add_subdirectory(corba-idl EXCLUDE_FROM_ALL)
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/packet-ncp2222.c
 	COMMAND ${Python3_EXECUTABLE}
-		${CMAKE_SOURCE_DIR}/tools/ncp2222.py
+		${CMAKE_SOURCE_DIR}/tools/dissector_generators/generate-ncp2222.py
 		-o ${CMAKE_CURRENT_BINARY_DIR}/packet-ncp2222.c
 	DEPENDS
 		packet-ncp2222.inc
-		${CMAKE_SOURCE_DIR}/tools/ncp2222.py
+		${CMAKE_SOURCE_DIR}/tools/dissector_generators/generate-ncp2222.py
 )
 
 add_custom_target(x11-dissector
