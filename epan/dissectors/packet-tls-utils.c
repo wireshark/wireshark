@@ -6227,13 +6227,15 @@ tls_set_appdata_dissector(dissector_handle_t tls_handle, packet_info *pinfo,
 {
     conversation_t  *conversation;
     SslSession      *session;
+    int             proto = dissector_handle_get_protocol_index(tls_handle);
+    uint8_t         curr_layer_num = p_get_proto_depth(pinfo, proto);
 
     /* Ignore if the TLS or other dissector is disabled. */
     if (!tls_handle || !app_handle)
         return;
 
     conversation = find_or_create_conversation(pinfo);
-    session = &ssl_get_session(conversation, tls_handle, pinfo->curr_proto_layer_num)->session;
+    session = &ssl_get_session(conversation, tls_handle, curr_layer_num)->session;
     session->app_handle = app_handle;
 }
 
@@ -6243,6 +6245,8 @@ ssl_starttls(dissector_handle_t tls_handle, packet_info *pinfo,
 {
     conversation_t  *conversation;
     SslSession      *session;
+    int             proto = dissector_handle_get_protocol_index(tls_handle);
+    uint8_t         curr_layer_num = p_get_proto_depth(pinfo, proto);
 
     /* Ignore if the TLS dissector is disabled. */
     if (!tls_handle)
@@ -6251,7 +6255,7 @@ ssl_starttls(dissector_handle_t tls_handle, packet_info *pinfo,
     DISSECTOR_ASSERT(app_handle);
 
     conversation = find_or_create_conversation(pinfo);
-    session = &ssl_get_session(conversation, tls_handle, pinfo->curr_proto_layer_num)->session;
+    session = &ssl_get_session(conversation, tls_handle, curr_layer_num)->session;
 
     ssl_debug_printf("%s: old frame %d, app_handle=%p (%s)\n", G_STRFUNC,
                      session->last_nontls_frame,
