@@ -19,6 +19,7 @@
 #include <epan/export_object.h>
 #include <epan/proto_data.h>
 #include <wsutil/array.h>
+#include <wsutil/wsgcrypt.h>
 
 #include "packet-ber.h"
 #include "packet-x509af.h"
@@ -64,7 +65,6 @@ x509af_export_publickey(tvbuff_t *tvb, asn1_ctx_t *actx, int offset, int len);
 
 typedef struct _x509af_eo_t {
   const char *subjectname;
-  char *serialnum;
   tvbuff_t *payload;
 } x509af_eo_t;
 
@@ -115,10 +115,12 @@ x509af_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, con
     }
     entry->content_type = g_strdup("application/pkix-cert");
 
-    entry->filename = g_strdup_printf("%s.cer", eo_info->serialnum);
-
     entry->payload_len = tvb_captured_length(eo_info->payload);
     entry->payload_data = (uint8_t *)tvb_memdup(NULL, eo_info->payload, 0, entry->payload_len);
+
+    uint8_t sha256sum[HASH_SHA2_256_LENGTH] = {0};
+    gcry_md_hash_buffer(GCRY_MD_SHA256, sha256sum, entry->payload_data, entry->payload_len);
+    entry->filename = g_strdup_printf("%s.cer", bytes_to_str(pinfo->pool, sha256sum, HASH_SHA2_256_LENGTH));
 
     object_list->add_entry(object_list->gui_data, entry);
 

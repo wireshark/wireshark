@@ -224,17 +224,6 @@ DSS-Params/q TYPE = FT_BYTES  DISPLAY = BASE_NONE
 DSS-Params/g TYPE = FT_BYTES  DISPLAY = BASE_NONE
 Time/utcTime TYPE = FT_ABSOLUTE_TIME DISPLAY = ABSOLUTE_TIME_UTC
 
-# This INTEGER can be up to 20 octets, so extract the bytes manually
-
-#.FN_BODY CertificateSerialNumber FN_VARIANT = 64
-  int start_offset = offset;
-%(DEFAULT_BODY)s
-  x509af_eo_t *eo_info = p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_x509af, X509AF_EO_INFO_KEY);
-  if (eo_info) {
-    uint32_t len;
-    start_offset = get_ber_identifier(tvb, start_offset, NULL, NULL, NULL);
-    start_offset = get_ber_length(tvb, start_offset, &len, NULL);
-    eo_info->serialnum = tvb_bytes_to_str(actx->pinfo->pool, tvb, start_offset, len);
-  }
+#.FN_PARS CertificateSerialNumber FN_VARIANT = 64
 
 #.END

@@ -24,6 +24,7 @@
 #include <epan/export_object.h>
 #include <epan/proto_data.h>
 #include <wsutil/array.h>
+#include <wsutil/wsgcrypt.h>
 
 #include "packet-ber.h"
 #include "packet-x509af.h"
@@ -175,7 +176,6 @@ x509af_export_publickey(tvbuff_t *tvb, asn1_ctx_t *actx, int offset, int len);
 
 typedef struct _x509af_eo_t {
   const char *subjectname;
-  char *serialnum;
   tvbuff_t *payload;
 } x509af_eo_t;
 
@@ -225,18 +225,8 @@ dissect_x509af_Version(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset
 
 unsigned
 dissect_x509af_CertificateSerialNumber(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  int start_offset = offset;
   offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
-
-  x509af_eo_t *eo_info = p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_x509af, X509AF_EO_INFO_KEY);
-  if (eo_info) {
-    uint32_t len;
-    start_offset = get_ber_identifier(tvb, start_offset, NULL, NULL, NULL);
-    start_offset = get_ber_length(tvb, start_offset, &len, NULL);
-    eo_info->serialnum = tvb_bytes_to_str(actx->pinfo->pool, tvb, start_offset, len);
-  }
-
 
   return offset;
 }
@@ -1081,10 +1071,12 @@ x509af_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, con
     }
     entry->content_type = g_strdup("application/pkix-cert");
 
-    entry->filename = g_strdup_printf("%s.cer", eo_info->serialnum);
-
     entry->payload_len = tvb_captured_length(eo_info->payload);
     entry->payload_data = (uint8_t *)tvb_memdup(NULL, eo_info->payload, 0, entry->payload_len);
+
+    uint8_t sha256sum[HASH_SHA2_256_LENGTH] = {0};
+    gcry_md_hash_buffer(GCRY_MD_SHA256, sha256sum, entry->payload_data, entry->payload_len);
+    entry->filename = g_strdup_printf("%s.cer", bytes_to_str(pinfo->pool, sha256sum, HASH_SHA2_256_LENGTH));
 
     object_list->add_entry(object_list->gui_data, entry);
 
