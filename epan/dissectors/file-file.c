@@ -46,7 +46,7 @@ static int ett_file;
 
 static int file_tap;
 
-dissector_table_t file_encap_dissector_table;
+static dissector_table_t file_encap_dissector_table;
 
 /*
  * Routine used to register record end routine.  The routine should only

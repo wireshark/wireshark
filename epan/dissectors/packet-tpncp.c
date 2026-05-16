@@ -76,11 +76,11 @@ static bool tpncp_desegment = true;
 
 /* Database for storing information about all TPNCP events. */
 static tpncp_data_field_info **tpncp_events_info_db;
-unsigned tpncp_events_info_len;
+static unsigned tpncp_events_info_len;
 
 /* Database for storing information about all TPNCP commands. */
 static tpncp_data_field_info **tpncp_commands_info_db;
-unsigned tpncp_commands_info_len;
+static unsigned tpncp_commands_info_len;
 
 /* Global variables for bitfields representation. */
 /* TPNCP packet header fields. */

@@ -47,6 +47,8 @@ typedef struct isis_data {
 
 extern int hf_isis_clv_key_id;
 
+extern const range_string isis_mtid_strings[];
+
 #endif /* _PACKET_ISIS_H */
 
 /*

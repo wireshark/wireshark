@@ -40,9 +40,9 @@
 void proto_register_rlc(void);
 void proto_reg_handoff_rlc(void);
 
-int proto_umts_rlc;
+static int proto_umts_rlc;
 
-extern int proto_fp;
+static int proto_fp;
 
 /* Preference to perform reassembly */
 static bool global_rlc_perform_reassemby = true;
@@ -3157,6 +3157,8 @@ proto_register_rlc(void)
 void
 proto_reg_handoff_rlc(void)
 {
+    proto_fp = proto_get_id_by_filter_name("fp");
+
     rrc_handle = find_dissector_add_dependency("rrc", proto_umts_rlc);
     ip_handle  = find_dissector_add_dependency("ip", proto_umts_rlc);
     bmc_handle = find_dissector_add_dependency("bmc", proto_umts_rlc);

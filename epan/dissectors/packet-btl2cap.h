@@ -60,6 +60,7 @@ typedef struct _btl2cap_data_t {
 } btl2cap_data_t;
 
 extern int proto_btl2cap;
+extern value_string_ext ext_psm_vals;
 
 #endif
 

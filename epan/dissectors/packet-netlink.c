@@ -20,6 +20,7 @@
 #include <wsutil/ws_roundup.h>
 
 #include "packet-netlink.h"
+#include "data-errno.h"
 
 void proto_register_netlink(void);
 void proto_reg_handoff_netlink(void);
@@ -70,8 +71,6 @@ static const value_string ha_types[] = {
 	{ ARPHRD_NETLINK,    "Netlink" },
 	{ 0, NULL }
 };
-
-extern value_string_ext linux_negative_errno_vals_ext;
 
 static dissector_handle_t netlink_handle;
 

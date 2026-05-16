@@ -20,8 +20,7 @@
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include "wimax_compact_dlmap_ie_decoder.h"
-
-extern int proto_wimax;
+#include "wimax-int.h"
 
 /* MASKs */
 #define MSB_NIBBLE_MASK      0xF0

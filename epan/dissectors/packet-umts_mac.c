@@ -24,9 +24,9 @@
 void proto_register_umts_mac(void);
 void proto_reg_handoff_umts_mac(void);
 
-int proto_umts_mac;
-extern int proto_fp;
-extern int proto_umts_rlc;
+static int proto_umts_mac;
+static int proto_fp;
+static int proto_umts_rlc;
 
 /* dissector fields */
 static int hf_mac_fach_fdd_tctf;
@@ -1574,6 +1574,9 @@ proto_register_umts_mac(void)
 void
 proto_reg_handoff_umts_mac(void)
 {
+    proto_fp = proto_get_id_by_filter_name("fp");
+    proto_umts_rlc = proto_get_id_by_filter_name("rlc");
+
     rlc_pcch_handle    = find_dissector_add_dependency("rlc.pcch", proto_umts_mac);
     rlc_ccch_handle    = find_dissector_add_dependency("rlc.ccch", proto_umts_mac);
     rlc_ctch_handle    = find_dissector_add_dependency("rlc.ctch", proto_umts_mac);

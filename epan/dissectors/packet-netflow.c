@@ -332,7 +332,7 @@ typedef struct _v9_v10_tmplt {
 
 /* Map from (conversation+obs-domain-id+flowset-id) -> v9_v10_tmplt_entry_t*    */
 /* Confusingly, for key, fill in only relevant parts of v9_v10_tmplt_entry_t... */
-wmem_map_t *v9_v10_tmplt_table;
+static wmem_map_t *v9_v10_tmplt_table;
 
 
 static const value_string v9_v10_template_types[] = {

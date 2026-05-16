@@ -847,8 +847,8 @@ static dissector_handle_t  camel_v4_handle;
 
 static uint8_t PDPTypeOrganization;
 static uint8_t PDPTypeNumber;
-const char *camel_obj_id;
-bool is_ExtensionField;
+static const char *camel_obj_id;
+static bool is_ExtensionField;
 
 /* Global hash tables*/
 static wmem_map_t *srt_calls;

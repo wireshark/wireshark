@@ -20,7 +20,7 @@ void proto_register_mac_lte_framed(void);
 /* Initialize the protocol and registered fields. */
 static int proto_mac_lte_framed;
 
-extern int proto_mac_lte;
+static int proto_mac_lte;
 
 /* Main dissection function. */
 static int dissect_mac_lte_framed(tvbuff_t *tvb, packet_info *pinfo,
@@ -84,6 +84,8 @@ void proto_register_mac_lte_framed(void)
 
     /* Allow other dissectors to find this one by name. */
     register_dissector("mac-lte-framed", dissect_mac_lte_framed, proto_mac_lte_framed);
+
+    proto_mac_lte = proto_get_id_by_filter_name("mac-lte");
 }
 
 /*

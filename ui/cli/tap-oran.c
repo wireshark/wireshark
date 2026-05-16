@@ -43,20 +43,20 @@ enum {
 };
 
 /* Global stats */
-uint32_t largest_ul_delay_in_us = 0;
-uint32_t ul_configured_max = 0;
-uint32_t ul_within_configured_max = 0;
-uint32_t ul_above_configured_max = 0;
+static uint32_t largest_ul_delay_in_us = 0;
+static uint32_t ul_configured_max = 0;
+static uint32_t ul_within_configured_max = 0;
+static uint32_t ul_above_configured_max = 0;
 
 #define MAX_BEAMS_IN_CAPTURE 256U
-uint16_t num_dl_beams;
-uint16_t dl_beams[MAX_BEAMS_IN_CAPTURE];
-uint16_t num_ul_beams;
-uint16_t ul_beams[MAX_BEAMS_IN_CAPTURE];
+static uint16_t num_dl_beams;
+static uint16_t dl_beams[MAX_BEAMS_IN_CAPTURE];
+static uint16_t num_ul_beams;
+static uint16_t ul_beams[MAX_BEAMS_IN_CAPTURE];
 
 /* Assuming that it is unlikely we have > 255 radio frames.. */
-int      first_radio_frame = -1;
-int      last_radio_frame = -1;
+static int      first_radio_frame = -1;
+static int      last_radio_frame = -1;
 
 static const char *flow_titles[] = { " Plane ",
                                      "eAxC ID ",

@@ -81,10 +81,10 @@ static wmem_tree_t *reassembly_start_table_stored;
 
 /**************************************************/
 /* Initialize the protocol and registered fields. */
-int proto_rlc_nr;
+static int proto_rlc_nr;
 
-extern int proto_mac_nr;
-extern int proto_pdcp_nr;
+static int proto_mac_nr;
+static int proto_pdcp_nr;
 
 static dissector_handle_t pdcp_nr_handle;
 static dissector_handle_t nr_rrc_bcch_bch;
@@ -1928,6 +1928,9 @@ void proto_reg_handoff_rlc_nr(void)
     nr_rrc_ul_ccch = find_dissector_add_dependency("nr-rrc.ul.ccch", proto_rlc_nr);
     nr_rrc_ul_ccch1 = find_dissector_add_dependency("nr-rrc.ul.ccch1", proto_rlc_nr);
     nr_rrc_dl_ccch = find_dissector_add_dependency("nr-rrc.dl.ccch", proto_rlc_nr);
+
+    proto_mac_nr = proto_get_id_by_filter_name("mac-nr");
+    proto_pdcp_nr = proto_get_id_by_filter_name("pdcp-nr");
 }
 
 /*

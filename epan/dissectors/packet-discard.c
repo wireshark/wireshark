@@ -38,8 +38,8 @@ static bool generate_md5_hash;
 
 static int ett_discard;
 
-dissector_handle_t discard_handle;
-dissector_handle_t wol_handle;
+static dissector_handle_t discard_handle;
+static dissector_handle_t wol_handle;
 
 /* dissect_discard - dissects discard packet data
  * tvb - tvbuff for packet data (IN)

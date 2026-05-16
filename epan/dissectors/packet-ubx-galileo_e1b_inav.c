@@ -25,6 +25,7 @@
 #include <wsutil/utf8_entities.h>
 
 #include "packet-ubx.h"
+#include "packet-ubx-galileo_e1b_inav.h"
 #include "wsutil/wmem/wmem_core.h"
 
 /*

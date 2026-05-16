@@ -102,12 +102,12 @@ wmem_test_compare_uint32(const void *a, const void *b)
 }
 
 /* Some helpers for properly testing callback functionality */
-wmem_allocator_t *expected_allocator;
-void             *expected_user_data;
-wmem_cb_event_t   expected_event;
-int               cb_called_count;
-int               cb_continue_count;
-bool              value_seen[CONTAINER_ITERS];
+static wmem_allocator_t *expected_allocator;
+static void             *expected_user_data;
+static wmem_cb_event_t   expected_event;
+static int               cb_called_count;
+static int               cb_continue_count;
+static bool              value_seen[CONTAINER_ITERS];
 
 static bool
 wmem_test_cb(wmem_allocator_t *allocator, wmem_cb_event_t event,

@@ -120,7 +120,7 @@
 #define RTP_PLAYER_WORKAROUND true
 
 #if RTP_PLAYER_WORKAROUND == true
-    wmem_tree_t *file_scope_stream_number = NULL;
+    static wmem_tree_t *file_scope_stream_number = NULL;
 #endif
 /* ========================================================== */
 

@@ -182,10 +182,10 @@ typedef struct _ftp_eo_t {
    table's row number, so we can append data from later FTP packets
    to the entries.
  */
-GHashTable *command_packet_to_eo_row;
+static GHashTable *command_packet_to_eo_row;
 
 /* Track which row number in the export object table we're up to */
-uint32_t eo_row_count;
+static uint32_t eo_row_count;
 
 /**
  * This is the callback passed to register_export_object()

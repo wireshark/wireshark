@@ -39,6 +39,8 @@ void wimax_mac_gen_crc32_table(void);
 void wimax_mac_gen_crc8_table(void);
 #endif
 
+extern uint16_t crc16_table[];
+
 /**
  * @brief Calculate the CRC32 checksum for a given data buffer.
  *

@@ -26,8 +26,10 @@
 #include <epan/iana_charsets.h>
 #include <epan/exceptions.h>
 
+#include "data-usb.h"
 #include "packet-btsdp.h"
 #include "packet-btl2cap.h"
+#include "packet-usb.h"
 
 static int proto_btsdp;
 
@@ -620,9 +622,6 @@ typedef struct _record_handle_service_t {
 
 #define MAX_SDP_LEN 1024
 
-extern value_string_ext ext_usb_vendors_vals;
-extern value_string_ext ext_usb_products_vals;
-
 static const value_string vs_pduid[] = {
     { 0x01,   "Error Response" },
     { 0x02,   "Service Search Request" },
@@ -1116,9 +1115,6 @@ static const value_string vs_data_element_type[] = {
     { 0x08,   "URL" },
     { 0, NULL }
 };
-
-extern value_string_ext ext_psm_vals;
-extern value_string_ext usb_langid_vals_ext;
 
 void proto_register_btsdp(void);
 void proto_reg_handoff_btsdp(void);

@@ -101,7 +101,7 @@ static filter_check_info g_args_fci;
 static filter_check_info g_lineage_fci;
 
 // These sinsp fields are not interesting in a wireshark-like use case, so we skip them.
-std::set<std::string> g_fields_to_skip = {
+static const std::set<std::string> g_fields_to_skip = {
     "evt.num",
     "evt.time",
     "evt.time.s",

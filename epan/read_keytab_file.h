@@ -28,6 +28,14 @@ void keytab_file_read(const char *filename);
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 
+/* Try to avoid having to include krb5.h especially when other files
+ * include this or packet-kerberos.h */
+struct _krb5_context;
+
+typedef struct _krb5_context *krb5_context;
+
+extern krb5_context keytab_krb5_ctx;
+
 typedef struct _enc_key_t {
     struct _enc_key_t* next;
     int keytype;

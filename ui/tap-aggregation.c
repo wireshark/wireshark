@@ -16,8 +16,8 @@
 #include <recent.h>
 #include <ui/tap-aggregation.h>
 
-aggregation_field_t* taps;
-int                  taps_num;
+static aggregation_field_t* taps;
+static int                  taps_num;
 
 static tap_packet_status
 tapPacket(void* ptr, packet_info* pinfo, epan_dissect_t* edt, const void* data _U_, tap_flags_t flags _U_) {

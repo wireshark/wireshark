@@ -37,7 +37,7 @@ void proto_reg_handoff_mac_lte(void);
  */
 
 /* Initialize the protocol and registered fields. */
-int proto_mac_lte;
+static int proto_mac_lte;
 
 static int mac_lte_tap;
 
@@ -1735,7 +1735,7 @@ typedef struct ue_dynamic_drb_mappings_t {
 static GHashTable *mac_lte_ue_channels_hash;
 
 
-extern int proto_rlc_lte;
+static int proto_rlc_lte;
 
 /***************************************************************/
 
@@ -11065,6 +11065,8 @@ void proto_reg_handoff_mac_lte(void)
     lte_rrc_dl_ccch_nb_handle = find_dissector_add_dependency("lte_rrc.dl_ccch.nb", proto_mac_lte);
     lte_rrc_sbcch_sl_bch_handle = find_dissector_add_dependency("lte_rrc.sbcch_sl_bch", proto_mac_lte);
     lte_rrc_sc_mcch_handle = find_dissector_add_dependency("lte_rrc.sc_mcch", proto_mac_lte);
+
+    proto_rlc_lte = proto_get_id_by_filter_name("rlc-lte");
 }
 
 /*

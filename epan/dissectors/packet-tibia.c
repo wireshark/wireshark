@@ -128,7 +128,7 @@ struct rsakey {
 
     gcry_sexp_t privkey;
 };
-GHashTable *rsakeys;
+static GHashTable *rsakeys;
 
 struct rsakeys_assoc {
     char *ipaddr;
@@ -157,7 +157,7 @@ struct xteakeys_assoc {
 
     char *key;
 };
-GHashTable *xteakeys;
+static GHashTable *xteakeys;
 
 static void *xteakeys_copy_cb(void *, const void *, size_t);
 static void xteakeys_free_cb(void *);

@@ -63,7 +63,7 @@ static proto_tree *cap_tree;
 #define HASH_SHA256 "2.16.840.1.101.3.4.2.1"
 #define SHA256_BUFFER_SIZE  32
 
-unsigned char digest_buf[MAX(HASH_SHA1_LENGTH, HASH_MD5_LENGTH)];
+static unsigned char digest_buf[MAX(HASH_SHA1_LENGTH, HASH_MD5_LENGTH)];
 
 /*
 * Dissect CMS PDUs inside a PPDU.

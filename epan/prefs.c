@@ -803,7 +803,7 @@ prefs_register_protocol_obsolete(int id)
  *
  * "description" is a longer human-readable description of the tap.
  */
-module_t *stats_module;
+static module_t *stats_module;
 
 module_t *
 prefs_register_stat(const char *name, const char *title,
@@ -823,7 +823,7 @@ prefs_register_stat(const char *name, const char *title,
  *
  * "description" is a longer human-readable description of the codec.
  */
-module_t *codecs_module;
+static module_t *codecs_module;
 
 module_t *
 prefs_register_codec(const char *name, const char *title,

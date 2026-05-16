@@ -40,9 +40,11 @@
 
 #include <wsutil/utf8_entities.h>
 
+#include "data-usb.h"
 #include "packet-bluetooth.h"
 #include "packet-bthci_cmd.h"
 #include "packet-bthci_evt.h"
+#include "packet-btsdp.h"
 #include "packet-btatt.h"
 
 static int proto_bthci_cmd;
@@ -1585,10 +1587,6 @@ static dissector_table_t  bluetooth_eir_ad_tds_organization_id;
 static dissector_table_t  bluetooth_eir_ad_service_uuid;
 
 wmem_tree_t *bthci_cmds;
-
-extern value_string_ext ext_usb_vendors_vals;
-extern value_string_ext ext_usb_products_vals;
-extern value_string_ext did_vendor_id_source_vals_ext;
 
 static const value_string bthci_cmd_ogf_vals[] = {
     { 0x01,  "Link Control Commands" },

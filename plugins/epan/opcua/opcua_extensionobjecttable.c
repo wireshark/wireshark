@@ -25,7 +25,7 @@
 #include "opcua_extensionobjectids.h"
 #include "opcua_hfindeces.h"
 
-ExtensionObjectParserEntry g_arExtensionObjectParserTable[] = {
+static ExtensionObjectParserEntry g_arExtensionObjectParserTable[] = {
     { OpcUaId_TrustListDataType_Encoding_DefaultBinary, parseTrustListDataType, "TrustListDataType" },
     { OpcUaId_Node_Encoding_DefaultBinary, parseNode, "Node" },
     { OpcUaId_InstanceNode_Encoding_DefaultBinary, parseInstanceNode, "InstanceNode" },

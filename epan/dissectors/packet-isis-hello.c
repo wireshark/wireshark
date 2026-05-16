@@ -184,8 +184,6 @@ static const value_string isis_hello_circuit_type_vals[] = {
     { ISIS_HELLO_TYPE_LEVEL_12,    "Level 1 and 2"},
     { 0,        NULL} };
 
-extern const range_string mtid_strings[];
-
 static void
 dissect_hello_mt_port_cap_spb_mcid_clv(tvbuff_t *tvb, packet_info* pinfo,
         proto_tree *tree, int offset, int subtype, int sublen)
@@ -1585,7 +1583,7 @@ proto_register_isis_hello(void)
       { &hf_isis_hello_clv_nlpid_nlpid, { "NLPID", "isis.hello.clv_nlpid.nlpid", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_clv_ip_authentication, { "NLPID", "isis.hello.clv_ip_authentication", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_authentication, { "Authentication", "isis.hello.clv_authentication", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isis_hello_mtid, { "Topology ID", "isis.hello.mtid", FT_UINT16, BASE_DEC|BASE_RANGE_STRING, RVALS(mtid_strings), 0x0fff, NULL, HFILL }},
+      { &hf_isis_hello_mtid, { "Topology ID", "isis.hello.mtid", FT_UINT16, BASE_DEC|BASE_RANGE_STRING, RVALS(isis_mtid_strings), 0x0fff, NULL, HFILL }},
       { &hf_isis_hello_trill_neighbor_sf, { "Smallest flag", "isis.hello.trill_neighbor.sf", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80, NULL, HFILL }},
       { &hf_isis_hello_trill_neighbor_lf, { "Largest flag", "isis.hello.trill_neighbor.lf", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40, NULL, HFILL }},
       { &hf_isis_hello_trill_neighbor_size, { "SNPA Size", "isis.hello.trill_neighbor.size", FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL }},

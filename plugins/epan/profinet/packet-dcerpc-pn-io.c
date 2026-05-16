@@ -1224,7 +1224,7 @@ static uint16_t ver_pn_io_implicitar = 1;
 bool           pnio_ps_selection = true;
 static const char *pnio_ps_networkpath = "";
 static const char* pnio_configpath = "";
-int extract_method;
+static int extract_method;
 static const enum_val_t pnio_method_enum[] = {
     { "heuristic",    "heuristic extraction",        0 },
     { "manual",      "manual extraction",       1 },
@@ -4435,14 +4435,14 @@ static const value_string pn_io_snmp_control[] = {
     { 0, NULL }
 };
 
-const value_string managing_role_vals[] = {
+static const value_string managing_role_vals[] = {
     { 0, "CredentialManager" },
     { 1, "securityConfigurationManager" },
     { 2, "networkManager" },
     { 0, NULL }
 };
 
-const value_string usage_role_vals[] = {
+static const value_string usage_role_vals[] = {
     { 0, "controller" },
     { 1, "diagnostics" },
     { 2, "operatorStation" },
@@ -4802,7 +4802,7 @@ typedef struct {
     uint16_t length;
 } DataTypeInfo;
 
-const DataTypeInfo data_types[] = {
+static const DataTypeInfo data_types[] = {
     {"Integer8", 1},
     {"Integer16", 2},
     {"Integer32", 4},

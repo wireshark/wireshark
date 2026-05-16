@@ -18,6 +18,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include "msg-int.h"
 #include "wimax_mac.h"
 #include "crc.h"
 #include "wimax_bits.h"
@@ -56,15 +57,15 @@ static dissector_handle_t dlmap_handle;
 	} while(0)
 
 int harq; /* 1 if HARQ enabled (TODO) */
-int fusc; /* 1 if current zone permutation is FUSC or optional FUSC (TODO) */
-int tusc; /* 1 if current zone permutation is AMC, TUSC1 or TUSC2 (TODO) */
+static int fusc; /* 1 if current zone permutation is FUSC or optional FUSC (TODO) */
+static int tusc; /* 1 if current zone permutation is AMC, TUSC1 or TUSC2 (TODO) */
 int ir_type; /* reduced AAS map (TODO) */
 int RCID_Type;
 int N_layer;
-int STC_Zone_Dedicated_Pilots;
-int STC_Zone_Matrix;
-int INC_CID;
-int sub_dl_ul_map;
+static int STC_Zone_Dedicated_Pilots;
+static int STC_Zone_Matrix;
+static int INC_CID;
+static int sub_dl_ul_map;
 
 static int proto_mac_mgmt_msg_dlmap_decoder;
 

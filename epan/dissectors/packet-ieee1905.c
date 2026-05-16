@@ -38,11 +38,6 @@
 static dissector_handle_t ieee1905_handle;
 static dissector_handle_t eapol_handle;
 
-extern value_string_ext ieee80211_reason_code_ext;
-extern value_string_ext ieee80211_status_code_ext;
-extern value_string_ext ff_pa_action_codes_ext;
-extern const value_string wfa_subtype_vals[];
-
 void proto_reg_handoff_ieee1905(void);
 void proto_register_ieee1905(void);
 

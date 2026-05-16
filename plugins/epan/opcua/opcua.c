@@ -37,13 +37,12 @@
 #include "opcua_security_layer.h"
 #include "opcua_serviceparser.h"
 #include "opcua_serviceids.h"
+#include "opcua_servicetable.h"
 #include "opcua_simpletypes.h"
 #include "opcua_transport_layer.h"
 
 void proto_register_opcua(void);
 
-extern const value_string g_requesttypes[];
-extern const int g_NumServices;
 static const char *g_opcua_debug_file_name;
 int g_opcua_default_sig_len;
 
@@ -66,10 +65,6 @@ static module_t *opcua_module;
 #define FRAME_HEADER_LEN 8
 /* AES block size: for both AES128 and AES256 the block size is 128 bits */
 #define AES_BLOCK_SIZE 16
-
-/** subtree types used in opcua_transport_layer.c */
-int ett_opcua_extensionobject;
-int ett_opcua_nodeid;
 
 /** subtree types used locally */
 static int ett_opcua_transport;
@@ -913,8 +908,6 @@ void proto_register_opcua(void)
     /** Setup protocol subtree array */
     static int *ett[] =
         {
-            &ett_opcua_extensionobject,
-            &ett_opcua_nodeid,
             &ett_opcua_transport,
             &ett_opcua_fragment,
             &ett_opcua_fragments

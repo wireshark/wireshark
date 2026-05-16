@@ -39,3 +39,5 @@ typedef struct _TSUM_PREFERENCES
     bool     summarisers_escape_quotes;
     bool     debug_enabled;
 } TSUM_PREFERENCES;
+
+extern TSUM_PREFERENCES preferences;

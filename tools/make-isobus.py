@@ -183,7 +183,7 @@ extern value_string_ext isobus_pgn_names_ext;
  */
 
 #include <wsutil/value_string.h>
-
+#include "data-isobus.h"
 
 ''')
 

@@ -13,6 +13,8 @@
 **
 ******************************************************************************/
 
+extern const value_string g_requesttypes[];
+
 /**
  * @brief Dispatches an OPC UA service based on the ServiceId.
  *

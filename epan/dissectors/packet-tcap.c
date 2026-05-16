@@ -46,11 +46,11 @@ static int hf_tcap_data;
 static int hf_tcap_tid;
 static int hf_tcap_constructor_eoc;
 
-int hf_tcapsrt_SessionId;
-int hf_tcapsrt_Duplicate;
-int hf_tcapsrt_BeginSession;
-int hf_tcapsrt_EndSession;
-int hf_tcapsrt_SessionTime;
+static int hf_tcapsrt_SessionId;
+static int hf_tcapsrt_Duplicate;
+static int hf_tcapsrt_BeginSession;
+static int hf_tcapsrt_EndSession;
+static int hf_tcapsrt_SessionTime;
 
 static int hf_tcap_UniDialoguePDU_PDU;            /* UniDialoguePDU */
 static int hf_tcap_DialoguePDU_PDU;               /* DialoguePDU */
@@ -126,7 +126,7 @@ static int ett_param;
 
 static int ett_otid;
 static int ett_dtid;
-int ett_tcap_stat;
+static int ett_tcap_stat;
 
 static struct tcapsrt_info_t * gp_tcapsrt_info;
 static bool tcap_subdissector_used=false;

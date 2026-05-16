@@ -135,11 +135,11 @@ typedef struct _chop_t {
 
 
 /* Table of user comments */
-GTree *frames_user_comments;
-GPtrArray *capture_comments;
+static GTree *frames_user_comments;
+static GPtrArray *capture_comments;
 
 /* Table of replacement timestamps */
-GTree *frames_replace_timestamp;
+static GTree *frames_replace_timestamp;
 
 #define MAX_SELECTIONS 512
 static struct select_item     selectfrm[MAX_SELECTIONS];

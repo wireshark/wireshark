@@ -78,7 +78,7 @@ DIAG_OFF_FLEX()
 #define protobuf_lang_realloc(ptr, size, yyscanner)    (void *)realloc((char *)(ptr), (size))
 #define protobuf_lang_free(ptr, yyscanner)        free((char *)ptr)
 
-int old_status;
+static int old_status;
 
 /* Extended error handling function defined in protobuf_lang_grammar.lemon */
 void pbl_parser_error(protobuf_lang_state_t *state, const char *fmt, ...);

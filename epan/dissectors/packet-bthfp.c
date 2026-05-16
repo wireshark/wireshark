@@ -27,6 +27,7 @@
 
 #include "packet-btrfcomm.h"
 #include "packet-btsdp.h"
+#include "packet-etsi_card_app_toolkit.h"
 
 static int proto_bthfp;
 
@@ -511,8 +512,6 @@ static const value_string iphoneaccev_key_vals[] = {
 
 
 static const unit_name_string units_slash15 = { "/15", NULL };
-
-extern value_string_ext csd_data_rate_vals_ext;
 
 void proto_register_bthfp(void);
 void proto_reg_handoff_bthfp(void);

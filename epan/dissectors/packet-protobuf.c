@@ -214,7 +214,7 @@ typedef struct {
 static protobuf_search_path_t* protobuf_search_paths;
 static unsigned num_protobuf_search_paths;
 
-int proto_http;
+static int proto_http;
 
 static void *
 protobuf_search_paths_copy_cb(void* n, const void* o, size_t siz _U_)

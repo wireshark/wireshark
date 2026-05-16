@@ -51,7 +51,7 @@ struct msh {                    // typical/default values
     char trigger_event[4];
 };
 
-dissector_handle_t hl7_handle;
+static dissector_handle_t hl7_handle;
 
 static int proto_hl7;
 

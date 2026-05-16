@@ -19,7 +19,9 @@
 #include <epan/packet.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
+#include "wimax_compact_dlmap_ie_decoder.h"
 #include "wimax_compact_ulmap_ie_decoder.h"
+#include "wimax-int.h"
 
 /* MASKs */
 #define MSB_NIBBLE_MASK      0xF0
@@ -29,16 +31,6 @@
 #define CID_TYPE_RCID11      1
 #define CID_TYPE_RCID7       2
 #define CID_TYPE_RCID3       3
-
-/* Global Variables */
-extern unsigned cid_type;
-extern unsigned band_amc_subchannel_type;
-extern unsigned max_logical_bands;
-extern unsigned num_of_broadcast_symbols;
-extern unsigned num_of_dl_band_amc_symbols;
-extern unsigned num_of_ul_band_amc_symbols;
-extern unsigned harq_mode;
-extern int   proto_wimax;
 
 /* forward reference */
 unsigned wimax_cdma_allocation_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset, unsigned nibble_offset);

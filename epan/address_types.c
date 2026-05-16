@@ -577,10 +577,10 @@ static int vines_len(void)
  * 18,446,744,073,709,551,615 as decimal, which has 20 characters. Adding 21
  * as for null-byte termination.
  * All values are derived from the counterparts defined in glib/basic-types */
-const size_t MAX_UINT64_WIDTH = 21;
-const size_t MAX_UINT32_WIDTH = 11;
-const size_t MAX_UINT16_WIDTH = 6;
-const size_t MAX_UINT8_WIDTH = 4;
+static const size_t MAX_UINT64_WIDTH = 21;
+static const size_t MAX_UINT32_WIDTH = 11;
+static const size_t MAX_UINT16_WIDTH = 6;
+static const size_t MAX_UINT8_WIDTH = 4;
 
 static int numeric_addr_str_len(const address* addr)
 {

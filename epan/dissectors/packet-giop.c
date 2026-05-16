@@ -947,7 +947,7 @@ struct complete_reply_hash_val {
   uint32_t mfn;                  /* matching frame number (request)  */
 };
 
-GHashTable *giop_complete_reply_hash; /* hash */
+static GHashTable *giop_complete_reply_hash; /* hash */
 
 /*
  * DATA - Module Hash stuff to store data from register_giop_user_module
@@ -970,7 +970,7 @@ struct giop_module_val {
   giop_sub_handle_t *subh;      /* handle to sub dissector */
 };
 
-GHashTable *giop_module_hash; /* hash */
+static GHashTable *giop_module_hash; /* hash */
 
 
 /*
@@ -1069,7 +1069,7 @@ struct giop_object_val {
   ior_src_t  src;               /* where did Iget this IOR from */
 };
 
-GHashTable *giop_objkey_hash; /* hash */
+static GHashTable *giop_objkey_hash; /* hash */
 
 /*
  * Data structure attached to a conversation.

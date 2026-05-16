@@ -327,11 +327,11 @@ static const value_string integrity_algorithm_vals[] = {
 
 #define MAX_OUTHDR_VALUES 32
 
-extern int proto_fp;
-extern int proto_umts_rlc;
+static int proto_fp;
+static int proto_umts_rlc;
 
-extern int proto_rlc_lte;
-extern int proto_pdcp_lte;
+static int proto_rlc_lte;
+static int proto_pdcp_lte;
 
 
 static dissector_handle_t mac_lte_handle;
@@ -3460,6 +3460,11 @@ void proto_reg_handoff_catapult_dct2000(void)
     nrup_handle = find_dissector("nrup");
     eth_handle = find_dissector("eth_withoutfcs");
     nrup_handle = find_dissector("nrup");
+
+    proto_fp = proto_get_id_by_filter_name("fp");
+    proto_umts_rlc = proto_get_id_by_filter_name("rlc");
+    proto_rlc_lte = proto_get_id_by_filter_name("rlc-lte");
+    proto_pdcp_lte = proto_get_id_by_filter_name("pdcp-lte");
 }
 
 /****************************************/

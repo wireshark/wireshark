@@ -428,7 +428,7 @@ static dissector_handle_t saprfc_handle;
 static dissector_handle_t saprfcinternal_handle;
 
 /* Keeps track of table content items */
-uint32_t global_saprfc_table_content_counter = 0;
+static uint32_t global_saprfc_table_content_counter = 0;
 
 
 void proto_register_saprfc(void);

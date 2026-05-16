@@ -58,8 +58,8 @@ static dissector_handle_t data_handle;
 static dissector_handle_t sscop_handle;
 static dissector_handle_t fp_handle;
 
-extern int proto_sscop;
-extern int proto_fp;
+static int proto_sscop;
+static int proto_fp;
 
 static wmem_tree_t* port_handles;
 static uat_t* k12_uat;
@@ -501,6 +501,9 @@ proto_register_k12(void)
 
 void proto_reg_handoff_k12(void)
 {
+	proto_sscop  = proto_get_id_by_filter_name("sscop");
+	proto_fp     = proto_get_id_by_filter_name("fp");
+
 	data_handle  = find_dissector("data");
 	sscop_handle = find_dissector("sscop");
 	fp_handle    = find_dissector("fp");

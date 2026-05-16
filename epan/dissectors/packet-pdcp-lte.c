@@ -57,9 +57,9 @@ void proto_reg_handoff_pdcp_lte(void);
 
 
 /* Initialize the protocol and registered fields. */
-int proto_pdcp_lte;
+static int proto_pdcp_lte;
 
-extern int proto_rlc_lte;
+static int proto_rlc_lte;
 
 /* Configuration (info known outside of PDU) */
 static int hf_pdcp_lte_configuration;
@@ -3305,6 +3305,8 @@ void proto_reg_handoff_pdcp_lte(void)
     lte_rrc_bcch_dl_sch_nb = find_dissector_add_dependency("lte_rrc.bcch_dl_sch.nb", proto_pdcp_lte);
     lte_rrc_ul_dcch_nb     = find_dissector_add_dependency("lte_rrc.ul_dcch.nb", proto_pdcp_lte);
     lte_rrc_dl_dcch_nb     = find_dissector_add_dependency("lte_rrc.dl_dcch.nb", proto_pdcp_lte);
+
+    proto_rlc_lte = proto_get_id_by_filter_name("rlc-lte");
 }
 
 /*

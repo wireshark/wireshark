@@ -19,6 +19,8 @@
 
 #include <wsutil/array.h>
 
+extern int seen_a_service_type;
+
 /**
  * @brief Dissects an extended TLV in a WiMAX registration request.
  *

@@ -347,7 +347,7 @@ static const value_string g_ResultMask[] = {
 /* trees */
 static int ett_opcua_diagnosticinfo;
 static int ett_opcua_diagnosticinfo_encodingmask;
-static int ett_opcua_nodeid;
+int ett_opcua_nodeid;
 static int ett_opcua_expandednodeid;
 static int ett_opcua_expandednodeid_encodingmask;
 static int ett_opcua_localizedtext;
@@ -357,7 +357,7 @@ static int ett_opcua_datavalue;
 static int ett_opcua_datavalue_encodingmask;
 static int ett_opcua_variant;
 static int ett_opcua_variant_arraydims;
-static int ett_opcua_extensionobject;
+int ett_opcua_extensionobject;
 static int ett_opcua_extensionobject_encodingmask;
 static int ett_opcua_statuscode;
 static int ett_opcua_statuscode_info;

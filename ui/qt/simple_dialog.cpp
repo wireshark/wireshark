@@ -44,8 +44,8 @@
 
 typedef QPair<QString,QString> MessagePair;
 
-QList<MessagePair> message_queue_;
-ESD_TYPE_E max_severity_ = ESD_TYPE_INFO;
+static QList<MessagePair> message_queue_;
+static ESD_TYPE_E max_severity_ = ESD_TYPE_INFO;
 
 struct VisibleAsyncMessage
 {

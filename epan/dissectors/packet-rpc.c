@@ -626,7 +626,7 @@ typedef struct _rpc_conv_info_t {
    a global tree for all contexts should still be unlikely to have collisions
    here.
 */
-wmem_tree_t *authgss_contexts;
+static wmem_tree_t *authgss_contexts;
 
 unsigned int
 rpc_roundup(unsigned int a)

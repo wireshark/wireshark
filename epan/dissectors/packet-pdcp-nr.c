@@ -50,9 +50,9 @@ void proto_reg_handoff_pdcp_nr(void);
 
 
 /* Initialize the protocol and registered fields. */
-int proto_pdcp_nr;
+static int proto_pdcp_nr;
 
-extern int proto_rlc_nr;
+static int proto_rlc_nr;
 
 /* Configuration (info known outside of PDU) */
 static int hf_pdcp_nr_configuration;
@@ -3217,6 +3217,8 @@ void proto_reg_handoff_pdcp_nr(void)
     nr_rrc_bcch_dl_sch     = find_dissector_add_dependency("nr-rrc.bcch.dl.sch", proto_pdcp_nr);
     nr_rrc_ul_dcch         = find_dissector_add_dependency("nr-rrc.ul.dcch", proto_pdcp_nr);
     nr_rrc_dl_dcch         = find_dissector_add_dependency("nr-rrc.dl.dcch", proto_pdcp_nr);
+
+    proto_rlc_nr = proto_get_id_by_filter_name("rlc-nr");
 }
 
 /*

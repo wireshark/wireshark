@@ -1325,7 +1325,7 @@ typedef enum
 rr_rest_octets_elem_idx_t;
 
 #define NUM_GSM_RR_REST_OCTETS_ELEM array_length(gsm_rr_rest_octets_elem_strings)
-int ett_gsm_rr_rest_octets_elem[NUM_GSM_RR_REST_OCTETS_ELEM];
+static int ett_gsm_rr_rest_octets_elem[NUM_GSM_RR_REST_OCTETS_ELEM];
 
 /* True/False flags specifically for gsm_rr_csn_flag */
 static const true_false_string tfs_tfi_multi_block_allocation_present = {"TFI Assignment Present", "Multi Block Allocation Present"};

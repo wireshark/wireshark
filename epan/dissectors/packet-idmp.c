@@ -50,7 +50,7 @@ static const char *saved_protocolID;
 static uint32_t    opcode           = -1;
 
 /* Initialize the protocol and registered fields */
-int proto_idmp;
+static int proto_idmp;
 
 static int hf_idmp_version;
 static int hf_idmp_final;

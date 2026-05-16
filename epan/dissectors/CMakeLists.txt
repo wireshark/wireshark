@@ -1928,6 +1928,7 @@ set(DISSECTOR_DATA_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/data-bacnet.c
 	${CMAKE_CURRENT_SOURCE_DIR}/data-bluetooth.c
 	${CMAKE_CURRENT_SOURCE_DIR}/data-dmx-manfid.c
+	${CMAKE_CURRENT_SOURCE_DIR}/data-errno.c
 	${CMAKE_CURRENT_SOURCE_DIR}/data-isobus.c
 	${CMAKE_CURRENT_SOURCE_DIR}/data-midi-sysex-id.c
 	${CMAKE_CURRENT_SOURCE_DIR}/data-ncsi.c
@@ -1954,7 +1955,6 @@ set(EVENT_DISSECTOR_SRC
 )
 
 set(DISSECTOR_SUPPORT_SRC
-	${CMAKE_CURRENT_SOURCE_DIR}/errno.c
 	${CMAKE_CURRENT_SOURCE_DIR}/json-dictionary.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-nt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-snort-config.c

@@ -1199,9 +1199,6 @@ bool krb_decrypt;
 /* keytab filename */
 static const char *keytab_filename = "";
 
-/* Retrieved from read_keytab_file.h */
-extern krb5_context keytab_krb5_ctx;
-
 void
 read_keytab_file_from_preferences(void)
 {

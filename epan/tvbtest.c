@@ -23,7 +23,7 @@
 
 #include <ws_diag_control.h>
 
-bool failed;
+static bool failed;
 
 typedef struct {
 	struct {
@@ -631,7 +631,7 @@ typedef struct
 } varint_test_s;
 
 DIAG_OFF_PEDANTIC
-varint_test_s varint[] = {
+static varint_test_s varint[] = {
 	{0, (const uint8_t *)"", 0, FT_VARINT_MAX_LEN, DissectorError, 0, 0}, // no encoding specified
 	// ENC_VARINT_PROTOBUF
 	{0, (const uint8_t *)"", ENC_VARINT_PROTOBUF, FT_VARINT_MAX_LEN, ReportedBoundsError, 0, 0},

@@ -23,9 +23,9 @@ void proto_register_fp_hint(void);
 void proto_reg_handoff_fp_hint(void);
 
 static int proto_fp_hint;
-extern int proto_fp;
-extern int proto_umts_mac;
-extern int proto_umts_rlc;
+static int proto_fp;
+static int proto_umts_mac;
+static int proto_umts_rlc;
 
 static int ett_fph;
 static int ett_fph_rb;
@@ -590,6 +590,10 @@ proto_register_fp_hint(void)
 void
 proto_reg_handoff_fp_hint(void)
 {
+    proto_fp = proto_get_id_by_filter_name("fp");
+    proto_umts_mac = proto_get_id_by_filter_name("mac");
+    proto_umts_rlc = proto_get_id_by_filter_name("rlc");
+
     atm_untrunc_handle = find_dissector_add_dependency("atm_untruncated", proto_fp_hint);
     data_handle = find_dissector("data");
     ethwithfcs_handle = find_dissector_add_dependency("eth_withfcs", proto_fp_hint);

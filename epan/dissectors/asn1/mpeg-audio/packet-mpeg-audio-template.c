@@ -25,7 +25,7 @@
 void proto_register_mpeg_audio(void);
 void proto_reg_handoff_mpeg_audio(void);
 
-dissector_handle_t mpeg_audio_handle;
+static dissector_handle_t mpeg_audio_handle;
 
 static int proto_mpeg_audio;
 static dissector_handle_t id3v2_handle;

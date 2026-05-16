@@ -24,8 +24,6 @@
 static uint8_t crc8_table[256];
 static uint32_t crc32_table[256];
 
-extern uint16_t crc16_table[256];
-
 /*
   void wimax_mac_gen_crc32_table(void)
 

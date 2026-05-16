@@ -39,7 +39,7 @@ typedef struct _gvcp_transaction_t {
 	uint32_t addr_count;
 } gvcp_transaction_t;
 
-wmem_array_t* gvcp_trans_array;
+static wmem_array_t* gvcp_trans_array;
 
 /*
    structure to hold persistent info for each conversation

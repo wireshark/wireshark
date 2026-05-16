@@ -78,6 +78,7 @@
 #include "packet-e212.h"
 #include "packet-sflow.h"
 #include "packet-gre.h"
+#include "packet-eap.h"
 
 #include <epan/crypt/dot11decrypt_ws.h>
 
@@ -92,8 +93,6 @@ typedef struct {
   unsigned keydata_len;
   uint8_t *keydata;
 } proto_keydata_t;
-
-extern value_string_ext eap_type_vals_ext; /* from packet-eap.c */
 
 /* TUs are used a lot in 802.11 ... */
 static const unit_name_string units_tu_tus = { "TU", "TUs" };

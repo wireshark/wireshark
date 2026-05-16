@@ -175,13 +175,6 @@ static dissector_table_t  ansi_tcap_national_opcode_table; /* National Operation
 
 #define MAX_SSN 254
 
-/* When several Tcap components are received in a single TCAP message,
-   we have to use several buffers for the stored parameters
-   because else this data are erased during TAP dissector call */
-#define MAX_TCAP_INSTANCE 10
-int tcapsrt_global_current=0;
-struct tcapsrt_info_t tcapsrt_global_info[MAX_TCAP_INSTANCE];
-
 static dissector_table_t ber_oid_dissector_table;
 static const char * cur_oid;
 static const char * tcapext_oid;
@@ -189,7 +182,7 @@ static const char * tcapext_oid;
 static dissector_handle_t ansi_map_handle;
 static dissector_handle_t ain_handle;
 
-struct ansi_tcap_private_t ansi_tcap_private;
+static struct ansi_tcap_private_t ansi_tcap_private;
 #define MAX_TID_STR_LEN 1024
 
 static void ansi_tcap_ctx_init(struct ansi_tcap_private_t *a_tcap_ctx) {

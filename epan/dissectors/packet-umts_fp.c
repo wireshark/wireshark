@@ -47,9 +47,9 @@ void proto_reg_handoff_fp(void);
 
 /* Initialize the protocol and registered fields. */
 
-int proto_fp;
-extern int proto_umts_mac;
-extern int proto_umts_rlc;
+static int proto_fp;
+static int proto_umts_mac;
+static int proto_umts_rlc;
 
 static int hf_fp_release;
 static int hf_fp_release_version;
@@ -7084,6 +7084,9 @@ void proto_register_fp(void)
 
 void proto_reg_handoff_fp(void)
 {
+    proto_umts_mac = proto_get_id_by_filter_name("mac");
+    proto_umts_rlc = proto_get_id_by_filter_name("rlc");
+
     rlc_bcch_handle           = find_dissector_add_dependency("rlc.bcch", proto_fp);
     mac_fdd_rach_handle       = find_dissector_add_dependency("mac.fdd.rach", proto_fp);
     mac_fdd_fach_handle       = find_dissector_add_dependency("mac.fdd.fach", proto_fp);

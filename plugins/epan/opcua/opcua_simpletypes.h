@@ -32,6 +32,7 @@ extern int hf_opcua_returnDiag_mask_ol_additionalinfo;
 extern int hf_opcua_returnDiag_mask_ol_innerstatuscode;
 extern int hf_opcua_returnDiag_mask_ol_innerdiagnostics;
 extern int hf_opcua_nodeClassMask;
+extern int hf_opcua_nodeClassMask_all;
 extern int hf_opcua_nodeClassMask_object;
 extern int hf_opcua_nodeClassMask_variable;
 extern int hf_opcua_nodeClassMask_method;
@@ -40,8 +41,18 @@ extern int hf_opcua_nodeClassMask_variabletype;
 extern int hf_opcua_nodeClassMask_referencetype;
 extern int hf_opcua_nodeClassMask_datatype;
 extern int hf_opcua_nodeClassMask_view;
+extern int hf_opcua_resultMask;
+extern int hf_opcua_resultMask_all;
+extern int hf_opcua_resultMask_referencetype;
+extern int hf_opcua_resultMask_isforward;
+extern int hf_opcua_resultMask_nodeclass;
+extern int hf_opcua_resultMask_browsename;
+extern int hf_opcua_resultMask_displayname;
+extern int hf_opcua_resultMask_typedefinition;
 
 /* simple types trees */
+extern int ett_opcua_nodeid;
+extern int ett_opcua_extensionobject;
 extern int ett_opcua_array_Boolean;
 extern int ett_opcua_array_SByte;
 extern int ett_opcua_array_Byte;
@@ -68,6 +79,8 @@ extern int ett_opcua_array_ExtensionObject;
 extern int ett_opcua_array_DataValue;
 extern int ett_opcua_array_Variant;
 extern int ett_opcua_returnDiagnostics;
+extern int ett_opcua_nodeClassMask;
+extern int ett_opcua_resultMask;
 
 enum ua_message_mode {
     UA_MessageMode_Unknown = 0,

@@ -24,6 +24,7 @@
 #include <wsutil/strtoi.h>
 
 #include "packet-e212.h"
+#include "packet-etsi_card_app_toolkit.h"
 
 void proto_register_at_command(void);
 void proto_reg_handoff_at_command(void);
@@ -519,8 +520,6 @@ static const value_string zusim_usim_card_vals[] = {
     { 1,   "USIM" },
     { 0, NULL }
 };
-
-extern value_string_ext csd_data_rate_vals_ext;
 
 struct _at_packet_info_t;
 

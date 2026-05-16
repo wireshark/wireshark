@@ -357,19 +357,18 @@ static bool resolve_synchronously;
  *  GUI code to change them.
  */
 
-char *g_ethers_path;     /* global ethers file     */
-char *g_pethers_path;     /* personal ethers file   */
-char *g_wka_path;     /* global well-known-addresses file */
-char *g_manuf_path;     /* global manuf file      */
-char *g_pmanuf_path;     /* personal manuf file      */
-char *g_ipxnets_path;     /* global ipxnets file    */
-char *g_pipxnets_path;     /* personal ipxnets file  */
-char *g_services_path;     /* global services file   */
-char *g_pservices_path;     /* personal services file */
-char *g_pvlan_path;     /* personal vlans file    */
-char *g_ss7pcs_path;     /* personal ss7pcs file   */
-char *g_enterprises_path;   /* global enterprises file   */
-char *g_penterprises_path;  /* personal enterprises file */
+static char *g_ethers_path;     /* global ethers file     */
+static char *g_pethers_path;     /* personal ethers file   */
+static char *g_wka_path;     /* global well-known-addresses file */
+static char *g_manuf_path;     /* global manuf file      */
+static char *g_pmanuf_path;     /* personal manuf file      */
+static char *g_ipxnets_path;     /* global ipxnets file    */
+static char *g_pipxnets_path;     /* personal ipxnets file  */
+static char *g_services_path;     /* global services file   */
+static char *g_pservices_path;     /* personal services file */
+static char *g_pvlan_path;     /* personal vlans file    */
+static char *g_enterprises_path;   /* global enterprises file   */
+static char *g_penterprises_path;  /* personal enterprises file */
                                     /* first resolving call   */
 
 /*
@@ -421,7 +420,7 @@ static  wmem_list_t *async_dns_queue_head;
 static  GMutex      async_dns_queue_mtx;
 
 //UAT for providing a list of DNS servers to C-ARES for name resolution
-bool use_custom_dns_server_list;
+static bool use_custom_dns_server_list;
 struct dns_server_data {
     char *ipaddr;
     uint32_t udp_port;

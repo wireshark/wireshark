@@ -9,6 +9,8 @@
 
 #include <wsutil/value_string.h>
 
+#include "data-bacnet.h"
+
 static const value_string
 BACnetVendorIdentifiers[] = {
     {    0, "ASHRAE" },

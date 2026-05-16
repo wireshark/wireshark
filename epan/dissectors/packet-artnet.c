@@ -2924,7 +2924,6 @@ static const range_string vals_artnet_poll_reply_bg_queue_policy[] = {
 
 /* Define the artnet proto */
 static int proto_artnet;
-expert_module_t* expert_artnet;
 
 /* general */
 static int hf_artnet_filler;
@@ -6094,6 +6093,9 @@ dissect_artnet_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
 void
 proto_register_artnet(void) {
+
+  expert_module_t* expert_artnet;
+
   static hf_register_info hf[] = {
 
     /* General */

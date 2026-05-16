@@ -192,6 +192,7 @@ typedef struct _service_info_t {
 } service_info_t;
 
 extern const value_string hid_country_code_vals[];
+extern value_string_ext did_vendor_id_source_vals_ext;
 
 extern service_info_t* btsdp_get_service_info(wmem_tree_key_t* key);
 

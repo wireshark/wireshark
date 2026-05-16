@@ -1510,13 +1510,13 @@ typedef struct _pfcp_hdr {
 } pfcp_hdr_t;
 
 /* Relation between frame -> session */
-wmem_map_t* pfcp_session_table;
+static wmem_map_t* pfcp_session_table;
 
 /* Relation between session -> IMSI */
-wmem_map_t* pfcp_session_imsi;
+static wmem_map_t* pfcp_session_imsi;
 
 /* Relation between <seid,ip> -> frame */
-wmem_map_t* pfcp_frame_map;
+static wmem_map_t* pfcp_frame_map;
 
 
 typedef struct pfcp_info {
@@ -11114,7 +11114,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 
 #define NUM_PFCP_IES array_length(pfcp_ies)
 /* Set up the array to hold "etts" for each IE*/
-int ett_pfcp_elem[NUM_PFCP_IES-1];
+static int ett_pfcp_elem[NUM_PFCP_IES-1];
 
 typedef struct pfcp_generic_ie {
     uint16_t    enterprise_id; // 0 for non-vendor-IE

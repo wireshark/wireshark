@@ -23,8 +23,6 @@
 #include "wimax_compact_dlmap_ie_decoder.h"
 #include "wimax_compact_ulmap_ie_decoder.h"
 
-extern int proto_wimax;
-
 static int proto_wimax_harq_map_decoder;
 static int ett_wimax_harq_map_decoder;
 

@@ -152,14 +152,12 @@ typedef struct string_fmt_s {
     string_fmt_e format;    /* Valid if plain is NULL */
 } string_fmt_t;
 
-int n_rfilters;
-int n_rfcodes;
-dfilter_t *rfcodes[64];
-int n_rfieldfilters;
-dfilter_t *rfieldfcodes[64];
-int fd;
-int encap;
-GPtrArray *string_fmts;
+static int n_rfilters;
+static int n_rfcodes;
+static dfilter_t *rfcodes[64];
+static int fd;
+static int encap;
+static GPtrArray *string_fmts;
 
 static void
 print_usage(FILE *output)
@@ -1294,7 +1292,7 @@ protocolinfo_packet(void *prs, packet_info *pinfo _U_, epan_dissect_t *edt, cons
     return TAP_PACKET_DONT_REDRAW;
 }
 
-int g_cmd_line_index;
+static int g_cmd_line_index;
 
 /*
  * field must be persistent - we don't g_strdup() it below

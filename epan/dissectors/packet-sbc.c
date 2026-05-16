@@ -63,8 +63,6 @@ static int ett_sbc_list;
 
 static expert_field ei_sbc_syncword;
 
-extern value_string_ext media_codec_audio_type_vals_ext;
-
 static const value_string sampling_frequency_vals[] = {
     { 0x00,  "16 kHz"},
     { 0x01,  "32 kHz"},

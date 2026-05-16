@@ -25,7 +25,7 @@
 void proto_register_msgpack(void);
 void proto_reg_handoff_msgpack(void);
 
-dissector_handle_t msgpack_handle;
+static dissector_handle_t msgpack_handle;
 
 static int proto_msgpack;
 

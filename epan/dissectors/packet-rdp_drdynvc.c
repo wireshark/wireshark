@@ -59,13 +59,13 @@ static int ett_rdp_drdynvc_softsync_channels;
 static int ett_rdp_drdynvc_softsync_channel;
 static int ett_rdp_drdynvc_softsync_dvc;
 
-dissector_handle_t egfx_handle;
-dissector_handle_t rail_handle;
-dissector_handle_t cliprdr_handle;
-dissector_handle_t rdpdr_handle;
-dissector_handle_t snd_handle;
-dissector_handle_t ear_handle;
-dissector_handle_t ecam_handle;
+static dissector_handle_t egfx_handle;
+static dissector_handle_t rail_handle;
+static dissector_handle_t cliprdr_handle;
+static dissector_handle_t rdpdr_handle;
+static dissector_handle_t snd_handle;
+static dissector_handle_t ear_handle;
+static dissector_handle_t ecam_handle;
 
 enum {
 	DRDYNVC_CREATE_REQUEST_PDU = 0x01,

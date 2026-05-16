@@ -32,7 +32,7 @@ void proto_reg_handoff_mac_nr(void);
  */
 
 /* Initialize the protocol and registered fields. */
-int proto_mac_nr;
+static int proto_mac_nr;
 
 static int mac_nr_tap = -1;
 
@@ -493,7 +493,7 @@ static GHashTable *mac_nr_ue_bearers_hash;
 static uint8_t  s_number_of_rlc_pdus_shown;
 
 
-extern int proto_rlc_nr;
+static int proto_rlc_nr;
 
 
 /* Constants and value strings */
@@ -5575,6 +5575,8 @@ void proto_reg_handoff_mac_nr(void)
     nr_rrc_dl_ccch_handle = find_dissector_add_dependency("nr-rrc.dl.ccch", proto_mac_nr);
     nr_rrc_ul_ccch_handle = find_dissector_add_dependency("nr-rrc.ul.ccch", proto_mac_nr);
     nr_rrc_ul_ccch1_handle = find_dissector_add_dependency("nr-rrc.ul.ccch1", proto_mac_nr);
+
+    proto_rlc_nr = proto_get_id_by_filter_name("rlc-nr");
 }
 
 

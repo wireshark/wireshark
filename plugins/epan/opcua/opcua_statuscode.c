@@ -20,6 +20,8 @@
 
 #include <wsutil/value_string.h>
 
+#include "opcua_statuscode.h"
+
 const value_string g_statusCodes[] = {
     {0x00000000, "Good"},
     {0x002D0000, "GoodSubscriptionTransferred"},

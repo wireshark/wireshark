@@ -104,13 +104,6 @@ typedef struct _resolved_name {
  */
 WS_DLL_PUBLIC e_addr_resolve gbl_resolv_flags;
 
-/* global variables */
-
-extern char *g_ethers_path;
-extern char *g_ipxnets_path;
-extern char *g_pethers_path;
-extern char *g_pipxnets_path;
-
 /* Functions in addr_resolv.c */
 
 /**

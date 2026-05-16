@@ -21,9 +21,6 @@
 #include "extractors.h"
 #include "decoders.h"
 
-extern TSUM_PREFERENCES preferences;
-
-
 /* Returns the number of sub-packets of interest */
 int decode_syn(packet_info *pinfo _U_, proto_tree *tree _U_, PKT_INFO* pkt_info)
 {

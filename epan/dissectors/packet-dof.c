@@ -4292,7 +4292,7 @@ struct parseCtx
     uint32_t currOidPos;
     uint32_t currBufferPos;
     unsigned depth;
-}parseCtx;
+};
 
 /* Operations on OID string */
 #define PARSECTX_PEEK_CHAR_OID(ctx) ( (ctx)->oid[(ctx)->currOidPos] )

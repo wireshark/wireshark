@@ -539,8 +539,8 @@ ProgressFrame *PacketListModel::progress_frame_;
 double PacketListModel::comps_;
 double PacketListModel::exp_comps_;
 
-QElapsedTimer busy_timer_;
-const int busy_timeout_ = 65; // ms, approximately 15 fps
+static QElapsedTimer busy_timer_;
+constexpr int busy_timeout_ = 65; // ms, approximately 15 fps
 void PacketListModel::sort(int column, Qt::SortOrder order)
 {
     if (!cap_file_ || visible_rows_.count() < 1) return;

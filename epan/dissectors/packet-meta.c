@@ -76,7 +76,7 @@ enum meta_direction {
 };
 
 static int proto_meta;
-extern int proto_sscop;
+static int proto_sscop;
 
 /* fields */
 static int hf_meta_schema;
@@ -792,6 +792,7 @@ proto_reg_handoff_meta(void)
     meta_handle          = find_dissector("meta");
     dissector_add_uint("wtap_encap", WTAP_ENCAP_META, meta_handle);
 #endif
+    proto_sscop          = proto_get_id_by_filter_name("sscop");
     data_handle          = find_dissector("data");
     alcap_handle         = find_dissector_add_dependency("alcap", proto_meta);
     atm_untrunc_handle   = find_dissector_add_dependency("atm_untruncated", proto_meta);

@@ -25,7 +25,7 @@
 
 
 /* Saved SLT Table to use it from another protocols (e.g. ALC/LCT) */
-wmem_map_t *lls_slt_table;
+static wmem_map_t *lls_slt_table;
 
 /* Hash functions */
 static int

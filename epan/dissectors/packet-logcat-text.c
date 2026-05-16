@@ -14,13 +14,13 @@
 
 #include <stdio.h>      /* for sscanf() */
 
-#include "epan/packet.h"
-#include "epan/expert.h"
-#include "epan/exported_pdu.h"
-#include "epan/tap.h"
-#include "wiretap/logcat_text.h"
+#include <epan/packet.h>
+#include <epan/expert.h>
+#include <epan/exported_pdu.h>
+#include <epan/tap.h>
+#include <wiretap/logcat_text.h>
 
-extern const value_string priority_vals[];
+#include "packet-logcat.h"
 
 static int proto_logcat_text;
 
@@ -337,7 +337,7 @@ void proto_register_logcat_text(void) {
             },
             { &hf_logcat_text_priority,
                 { "Priority",  "logcat_text.priority",
-                FT_UINT8, BASE_DEC, VALS(priority_vals), 0x00, NULL, HFILL
+                FT_UINT8, BASE_DEC, VALS(logcat_priority_vals), 0x00, NULL, HFILL
                 }
             },
             { &hf_logcat_text_pid,

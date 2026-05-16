@@ -27,8 +27,7 @@
 
 #include <epan/packet.h>
 #include "wimax-int.h"
-
-extern int proto_mac_header_generic_decoder;
+#include "mac_hd_generic_decoder.h"
 
 static int proto_mac_header_type_1_decoder;
 static int ett_mac_header_type_1_decoder;

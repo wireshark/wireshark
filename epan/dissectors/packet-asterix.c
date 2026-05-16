@@ -698,6 +698,9 @@ static void register_asterix_fields(const char* unused _U_)
 
 void proto_register_asterix (void)
 {
+    module_t* asterix_module;
+    expert_module_t* expert_asterix;
+
     static ei_register_info ei[] = {
         { &ei_asterix_overflow, { "asterix.overflow", PI_PROTOCOL, PI_ERROR, "Asterix overflow", EXPFILL }},
         { &hf_asterix_spare_error, { "asterix.spare_error", PI_PROTOCOL, PI_WARN, "Spare bit error", EXPFILL }},

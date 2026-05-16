@@ -64,8 +64,8 @@ static int hf_spnego_krb5_cfx_seq;
 
 /* Global variables */
 static const char *MechType_oid;
-gssapi_oid_value *next_level_value;
-bool saw_mechanism;
+static gssapi_oid_value *next_level_value;
+static bool saw_mechanism;
 
 
 /* Initialize the subtree pointers */

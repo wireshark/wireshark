@@ -40,24 +40,24 @@ typedef struct
 } example_s;
 
 DIAG_OFF_PEDANTIC
-example_s ex_uint = {1, (const uint8_t *)"\x01", 1, 1, CBOR_TYPE_UINT, 1};
-example_s ex_nint = {1, (const uint8_t *)"\x20", 1, 1, CBOR_TYPE_NEGINT, 0};
-example_s ex_bstr = {3, (const uint8_t *)"\x42\x68\x69", 1, 3, CBOR_TYPE_BYTESTRING, 2};
-example_s ex_bstr_indef = {6, (const uint8_t *)"\x5F\x41\x68\x41\x69\xFF", 1, 6, CBOR_TYPE_BYTESTRING, 0};
-example_s ex_bstr_indef_empty = {2, (const uint8_t *)"\x5F\xFF", 1, 2, CBOR_TYPE_BYTESTRING, 0};
-example_s ex_tstr = {3, (const uint8_t *)"\x62\x68\x69", 1, 3, CBOR_TYPE_STRING, 2};
-example_s ex_tstr_indef = {6, (const uint8_t *)"\x7F\x61\x68\x61\x69\xFF", 1, 6, CBOR_TYPE_STRING, 0};
-example_s ex_false = {1, (const uint8_t *)"\xF4", 1, 1, CBOR_TYPE_FLOAT_CTRL, CBOR_CTRL_FALSE};
-example_s ex_true = {1, (const uint8_t *)"\xF5", 1, 1, CBOR_TYPE_FLOAT_CTRL, CBOR_CTRL_TRUE};
-example_s ex_null = {1, (const uint8_t *)"\xF6", 1, 1, CBOR_TYPE_FLOAT_CTRL, CBOR_CTRL_NULL};
-example_s ex_undef = {1, (const uint8_t *)"\xF7", 1, 1, CBOR_TYPE_FLOAT_CTRL, CBOR_CTRL_UNDEF};
-example_s ex_break = {1, (const uint8_t *)"\xFF", 1, 1, CBOR_TYPE_FLOAT_CTRL, 0};
+static example_s ex_uint = {1, (const uint8_t *)"\x01", 1, 1, CBOR_TYPE_UINT, 1};
+static example_s ex_nint = {1, (const uint8_t *)"\x20", 1, 1, CBOR_TYPE_NEGINT, 0};
+static example_s ex_bstr = {3, (const uint8_t *)"\x42\x68\x69", 1, 3, CBOR_TYPE_BYTESTRING, 2};
+static example_s ex_bstr_indef = {6, (const uint8_t *)"\x5F\x41\x68\x41\x69\xFF", 1, 6, CBOR_TYPE_BYTESTRING, 0};
+static example_s ex_bstr_indef_empty = {2, (const uint8_t *)"\x5F\xFF", 1, 2, CBOR_TYPE_BYTESTRING, 0};
+static example_s ex_tstr = {3, (const uint8_t *)"\x62\x68\x69", 1, 3, CBOR_TYPE_STRING, 2};
+static example_s ex_tstr_indef = {6, (const uint8_t *)"\x7F\x61\x68\x61\x69\xFF", 1, 6, CBOR_TYPE_STRING, 0};
+static example_s ex_false = {1, (const uint8_t *)"\xF4", 1, 1, CBOR_TYPE_FLOAT_CTRL, CBOR_CTRL_FALSE};
+static example_s ex_true = {1, (const uint8_t *)"\xF5", 1, 1, CBOR_TYPE_FLOAT_CTRL, CBOR_CTRL_TRUE};
+static example_s ex_null = {1, (const uint8_t *)"\xF6", 1, 1, CBOR_TYPE_FLOAT_CTRL, CBOR_CTRL_NULL};
+static example_s ex_undef = {1, (const uint8_t *)"\xF7", 1, 1, CBOR_TYPE_FLOAT_CTRL, CBOR_CTRL_UNDEF};
+static example_s ex_break = {1, (const uint8_t *)"\xFF", 1, 1, CBOR_TYPE_FLOAT_CTRL, 0};
 
-example_s ex_uint_overflow = {9, (const uint8_t *)"\x1B\x80\x00\x00\x00\x00\x00\x00\x00", 1, 9, CBOR_TYPE_UINT, 0x8000000000000000};
-example_s ex_nint_overflow = {9, (const uint8_t *)"\x3B\x80\x00\x00\x00\x00\x00\x00\x00", 1, 9, CBOR_TYPE_NEGINT, 0x8000000000000000};
-example_s ex_bstr_overflow = {11, (const uint8_t *)"\x5B\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00", 1, 9, CBOR_TYPE_BYTESTRING, 0x8000000000000000};
-example_s ex_bstr_short = {2, (const uint8_t *)"\x42\x68", 1, 3, CBOR_TYPE_BYTESTRING, 2};
-example_s ex_tstr_short = {2, (const uint8_t *)"\x62\x68", 1, 3, CBOR_TYPE_STRING, 2};
+static example_s ex_uint_overflow = {9, (const uint8_t *)"\x1B\x80\x00\x00\x00\x00\x00\x00\x00", 1, 9, CBOR_TYPE_UINT, 0x8000000000000000};
+static example_s ex_nint_overflow = {9, (const uint8_t *)"\x3B\x80\x00\x00\x00\x00\x00\x00\x00", 1, 9, CBOR_TYPE_NEGINT, 0x8000000000000000};
+static example_s ex_bstr_overflow = {11, (const uint8_t *)"\x5B\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00", 1, 9, CBOR_TYPE_BYTESTRING, 0x8000000000000000};
+static example_s ex_bstr_short = {2, (const uint8_t *)"\x42\x68", 1, 3, CBOR_TYPE_BYTESTRING, 2};
+static example_s ex_tstr_short = {2, (const uint8_t *)"\x62\x68", 1, 3, CBOR_TYPE_STRING, 2};
 DIAG_ON_PEDANTIC
 
 static const example_s * all_examples[] = {

@@ -219,6 +219,8 @@ extern GHashTable *zbee_table_link_keyring;
 #define ZBEE_IP_BEACON_TLV_TYPE_MASK           0xf0
 #define ZBEE_IP_BEACON_TLV_TYPE_LFDI           0x0
 
+extern value_string_ext zbee_nwk_gp_cmd_names_ext;
+extern const value_string zbee_nwk_gp_device_ids_names[];
 
 #endif /* PACKET_ZBEE_NWK_H */
 

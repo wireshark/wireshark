@@ -1549,7 +1549,7 @@ static bool seskey_find_sid_key(uint64_t sesid, uint8_t *out_seskey,
 }
 
 /* ExportObject preferences variable */
-bool eosmb2_take_name_as_fid = false ;
+static bool eosmb2_take_name_as_fid = false;
 
 /* unmatched smb_saved_info structures.
    For unmatched smb_saved_info structures we store the smb_saved_info

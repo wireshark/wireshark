@@ -40,9 +40,8 @@ void proto_register_acse(void);
 void proto_reg_handoff_acse(void);
 
 /* Initialize the protocol and registered fields */
-int proto_acse;
-int proto_clacse;
-
+static int proto_acse;
+static int proto_clacse;
 
 
 #include "packet-acse-hf.c"

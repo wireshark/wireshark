@@ -6437,7 +6437,7 @@ static expert_field ei_nbap_no_find_port_info;
 static expert_field ei_nbap_no_set_comm_context_id;
 static expert_field ei_nbap_hsdsch_entity_not_specified;
 
-extern int proto_fp;
+static int proto_fp;
 
 static dissector_handle_t nbap_handle;
 
@@ -70637,6 +70637,7 @@ void proto_register_nbap(void)
 void
 proto_reg_handoff_nbap(void)
 {
+  proto_fp = proto_get_id_by_filter_name("fp");
   fp_handle = find_dissector("fp");
   dissector_add_uint("sctp.ppi", NBAP_PAYLOAD_PROTOCOL_ID, nbap_handle);
 #ifdef EXTRA_PPI

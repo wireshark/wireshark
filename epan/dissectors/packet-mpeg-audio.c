@@ -418,7 +418,7 @@ dissect_mpeg_audio_ID3v1(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *act
 void proto_register_mpeg_audio(void);
 void proto_reg_handoff_mpeg_audio(void);
 
-dissector_handle_t mpeg_audio_handle;
+static dissector_handle_t mpeg_audio_handle;
 
 static int proto_mpeg_audio;
 static dissector_handle_t id3v2_handle;

@@ -101,13 +101,13 @@ static expert_field ei_q932_asn1_encoded;
 /* ROSE context */
 static rose_ctx_t q932_rose_ctx;
 
-dissector_table_t qsig_arg_local_dissector_table;
-dissector_table_t qsig_res_local_dissector_table;
-dissector_table_t qsig_err_local_dissector_table;
+static dissector_table_t qsig_arg_local_dissector_table;
+static dissector_table_t qsig_res_local_dissector_table;
+static dissector_table_t qsig_err_local_dissector_table;
 
-dissector_table_t etsi_arg_local_dissector_table;
-dissector_table_t etsi_res_local_dissector_table;
-dissector_table_t etsi_err_local_dissector_table;
+static dissector_table_t etsi_arg_local_dissector_table;
+static dissector_table_t etsi_res_local_dissector_table;
+static dissector_table_t etsi_err_local_dissector_table;
 
 #define FACILITY_QSIG	0
 #define FACILITY_ETSI	1

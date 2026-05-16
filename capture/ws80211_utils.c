@@ -1157,7 +1157,7 @@ int ws80211_set_fcs_validation(const char *name _U_, enum ws80211_fcs_validation
 	return WS80211_ERROR_NOT_SUPPORTED;
 }
 
-const char *network_manager_path = "/usr/sbin/NetworkManager"; /* Is this correct? */
+static const char *network_manager_path = "/usr/sbin/NetworkManager"; /* Is this correct? */
 const char *ws80211_get_helper_path(void) {
 	if (g_file_test(network_manager_path, G_FILE_TEST_IS_EXECUTABLE)) {
 		return network_manager_path;

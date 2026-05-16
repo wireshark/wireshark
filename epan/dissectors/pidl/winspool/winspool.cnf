@@ -31,8 +31,6 @@ CODE START
 	#include "packet-smb.h"
 	#include "packet-smb-browse.h"
 
-extern struct access_mask_info spoolss_printer_access_mask_info;
-
 static unsigned
 iremotewinspool_dissect_sec_desc_buf(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {

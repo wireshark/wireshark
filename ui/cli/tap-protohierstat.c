@@ -24,7 +24,7 @@
 #include "tap-protohierstat.h"
 
 int pc_proto_id;
-int col_proto_id;
+static int col_proto_id;
 
 void register_tap_listener_protohierstat(void);
 

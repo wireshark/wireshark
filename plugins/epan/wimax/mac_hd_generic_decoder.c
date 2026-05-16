@@ -33,19 +33,10 @@
 #include "crc.h"
 #include "wimax-int.h"
 #include "wimax_utils.h"
+#include "wimax_prefs.h"
+#include "mac_hd_generic_decoder.h"
 
 void proto_reg_handoff_mac_header_generic(void);
-
-extern int proto_wimax;
-
-extern int seen_a_service_type;
-extern bool first_gmh;			/* defined in wimax_pdu_decoder.c */
-
-extern int8_t arq_enabled;                       /* declared in packet-wmx.c */
-extern int   scheduling_service_type;           /* declared in packet-wmx.c */
-
-extern address bs_address;			/* declared in packet-wmx.c */
-extern unsigned max_logical_bands;			/* declared in wimax_compact_dlmap_ie_decoder.c */
 
 static dissector_handle_t mac_mgmt_msg_decoder_handle;
 static dissector_handle_t mac_ip_handle;
@@ -53,17 +44,19 @@ static dissector_handle_t mac_ip_handle;
 /* global variables */
 bool include_cor2_changes;
 
-/* Well-known CIDs */
-unsigned cid_initial_ranging  = 0x0000;
 unsigned global_cid_max_basic = 320;
-unsigned cid_max_primary      = 640;
-unsigned cid_aas_ranging      = 0xFeFF;
-unsigned cid_normal_multicast = 0xFFFa;
-unsigned cid_sleep_multicast  = 0xFFFb;
-unsigned cid_idle_multicast   = 0xFFFc;
-unsigned cid_frag_broadcast   = 0xFFFd;
-unsigned cid_padding          = 0xFFFe;
-unsigned cid_broadcast        = 0xFFFF;
+/* Well-known CIDs */
+static unsigned cid_aas_ranging      = 0xFeFF;
+static unsigned cid_normal_multicast = 0xFFFa;
+static unsigned cid_padding          = 0xFFFe;
+#if 0
+static unsigned cid_initial_ranging  = 0x0000;
+static unsigned cid_max_primary      = 640;
+static unsigned cid_sleep_multicast  = 0xFFFb;
+static unsigned cid_idle_multicast   = 0xFFFc;
+static unsigned cid_frag_broadcast   = 0xFFFd;
+static unsigned cid_broadcast        = 0xFFFF;
+#endif
 
 /* Maximum number of CID's */
 #define MAX_CID 64

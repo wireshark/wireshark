@@ -184,9 +184,7 @@ static bool snmp_desegment = true;
 
 /* Global variables */
 
-uint32_t MsgSecurityModel;
-tvbuff_t *oid_tvb=NULL;
-tvbuff_t *value_tvb=NULL;
+static uint32_t MsgSecurityModel;
 
 static dissector_handle_t snmp_handle;
 static dissector_handle_t snmp_tcp_handle;
@@ -356,7 +354,7 @@ static const value_string snmp_procedure_names[] = {
 #define SERR_EOM    2
 
 
-dissector_table_t value_sub_dissectors_table;
+static dissector_table_t value_sub_dissectors_table;
 
 /*
  * Data structure attached to a conversation, request/response information

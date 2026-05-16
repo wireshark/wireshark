@@ -42,8 +42,8 @@ static int proto_pres;
 static int proto_clpres;
 
 /*      pointers for acse dissector  */
-proto_tree *global_tree;
-packet_info *global_pinfo;
+static proto_tree *global_tree;
+static packet_info *global_pinfo;
 
 static const char *abstract_syntax_name_oid;
 static uint32_t presentation_context_identifier;

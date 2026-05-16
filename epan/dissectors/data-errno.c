@@ -1,4 +1,4 @@
-/* errno.c
+/* data-errno.c
  * String descriptions for errno values.
  *
  * Wireshark - Network traffic analyzer
@@ -11,6 +11,7 @@
 #include "config.h"
 
 #include <wsutil/value_string.h>
+#include "data-errno.h"
 
 /* Note: sorted in (unsigned) ascending order with no gaps to enable direct,
  * array-indexed access. */

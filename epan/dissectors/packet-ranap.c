@@ -1686,7 +1686,7 @@ static dissector_handle_t ranap_handle;
 #define SOUT (2U<<16)
 #define SPECIAL (4U<<16)
 
-int pdu_type; /* 0 means wildcard */
+static int pdu_type; /* 0 means wildcard */
 
 /* Dissector tables */
 static dissector_table_t ranap_ies_dissector_table;

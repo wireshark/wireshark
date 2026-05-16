@@ -3433,6 +3433,7 @@ proto_register_eap(void)
     proto_eap, FT_UINT24,
     BASE_HEX);
 
+  register_external_value_string_ext("eap_type_vals_ext", &eap_type_vals_ext);
 }
 
 void

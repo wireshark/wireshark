@@ -29,7 +29,7 @@
 
 
 int hf_nt_cs_len;
-int hf_nt_error;
+static int hf_nt_error;
 int hf_nt_cs_size;
 static int hf_lsa_String_name_len;
 static int hf_lsa_String_name_size;

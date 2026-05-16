@@ -354,7 +354,7 @@ static void XMLCollectedPar_delete(XMLCollectedPar* self);
  * Though, this will also work
  */
 
-const ElementType ElBasics[] = {
+static const ElementType ElBasics[] = {
     { "", 0, 0 },
     { "BITSET8", TRDP_BITSET8, TRDP_BITSUBTYPE_BITSET8 },
     { "BOOL8", TRDP_BITSET8, TRDP_BITSUBTYPE_BOOL8 },

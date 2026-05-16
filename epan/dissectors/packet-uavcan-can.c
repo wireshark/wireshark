@@ -107,7 +107,7 @@ typedef struct _fragment_info_t
     uint32_t seq_id;
 } fragment_info_t;
 
-uint32_t uavcan_seq_id;
+static uint32_t uavcan_seq_id;
 
 static const fragment_items uavcan_frag_items = {
     /* Fragment subtrees */

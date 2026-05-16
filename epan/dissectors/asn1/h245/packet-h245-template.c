@@ -62,7 +62,7 @@ static int h245_tap;
 static int h245dg_tap;
 static int hf_h245_debug_dissector_try_string;
 
-h245_packet_info *h245_pi=NULL;
+static h245_packet_info *h245_pi=NULL;
 
 static bool h245_reassembly = true;
 static bool h245_shorttypes;
@@ -192,7 +192,7 @@ static const value_string h245_AudioCapability_short_vals[] = {
 
 /* To put the codec type only in COL_INFO when
    an OLC is read */
-const char* codec_type;
+static const char* codec_type;
 static uint32_t rfc_number;
 
 typedef struct _unicast_addr_t {
@@ -253,8 +253,8 @@ static const value_string h245_h239subMessageIdentifier_vals[] = {
 
 /* h223 multiplex codes */
 static h223_set_mc_handle_t h223_set_mc_handle;
-h223_mux_element *h223_me=NULL;
-uint8_t h223_mc=0;
+static h223_mux_element *h223_me;
+static int8_t h223_mc;
 void h245_set_h223_set_mc_handle( h223_set_mc_handle_t handle )
 {
 	h223_set_mc_handle = handle;

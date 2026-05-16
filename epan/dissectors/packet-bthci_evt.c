@@ -1079,10 +1079,6 @@ static int ett_cs_times;
 static int ett_spacing_types;
 static int ett_phys;
 
-extern value_string_ext ext_usb_vendors_vals;
-extern value_string_ext ext_usb_products_vals;
-extern value_string_ext did_vendor_id_source_vals_ext;
-
 enum command_status {
     COMMAND_STATUS_NORMAL,
     COMMAND_STATUS_PENDING,

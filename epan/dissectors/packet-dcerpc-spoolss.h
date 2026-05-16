@@ -576,6 +576,8 @@
 #define JOB_CONTROL_RESTART            4
 #define JOB_CONTROL_DELETE             5
 
+extern struct access_mask_info spoolss_printer_access_mask_info;
+
 unsigned dissect_USER_LEVEL_CTR(tvbuff_t *tvb, unsigned offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  dcerpc_info *di, uint8_t *drep);

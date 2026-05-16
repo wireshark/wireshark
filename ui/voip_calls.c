@@ -3218,7 +3218,7 @@ static const voip_protocol sccp_proto_map[] = {
     TEL_RANAP
 };
 #define SP2VP(ap) ((ap) < SCCP_PLOAD_NUM_PLOADS ? sccp_proto_map[(ap)] : TEL_SCCP)
-const value_string* sccp_payload_values;
+static const value_string* sccp_payload_values;
 
 static tap_packet_status
 sccp_calls(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info, uint32_t redraw_bit) {

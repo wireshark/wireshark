@@ -17,6 +17,7 @@
 #include <epan/expert.h>
 #include <wiretap/wtap.h>
 #include <wsutil/array.h>
+#include "packet-hci_mon.h"
 
 static dissector_handle_t btsnoop_handle;
 static dissector_handle_t hci_h1_handle;
@@ -55,8 +56,6 @@ static int ett_btsnoop_payload;
 static int ett_btsnoop_flags;
 
 static bool pref_dissect_next_layer;
-
-extern value_string_ext hci_mon_opcode_vals_ext;
 
 static const value_string datalink_vals[] = {
     { 1001,  "H1" },

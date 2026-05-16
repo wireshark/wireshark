@@ -44,9 +44,9 @@
 #pragma warning(disable:4049)
 #endif
 
-extern int proto_fp;       /*Handler to FP*/
-extern int proto_umts_mac; /*Handler to MAC*/
-extern int proto_umts_rlc; /*Handler to RLC*/
+static int proto_fp;       /*Handler to FP*/
+static int proto_umts_mac; /*Handler to MAC*/
+static int proto_umts_rlc; /*Handler to RLC*/
 
 GTree * hsdsch_muxed_flows;
 GTree * rrc_ciph_info_tree;
@@ -656,6 +656,10 @@ proto_reg_handoff_rrc(void)
   lte_rrc_dl_dcch_handle = find_dissector_add_dependency("lte-rrc.dl.dcch", proto_rrc);
   rrc_bcch_fach_handle = find_dissector("rrc.bcch.fach");
   gsm_rlcmac_dl_handle = find_dissector_add_dependency("gsm_rlcmac_dl", proto_rrc);
+
+  proto_fp = proto_get_id_by_filter_name("fp");
+  proto_umts_mac = proto_get_id_by_filter_name("mac");
+  proto_umts_rlc = proto_get_id_by_filter_name("rlc");
 }
 
 

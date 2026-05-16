@@ -19,10 +19,9 @@
 #include "packet-umts_mac.h"
 #include "packet-umts_rlc.h"
 
-/* Externals */
-extern int proto_fp;
-extern int proto_umts_mac;
-extern int proto_umts_rlc;
+static int proto_fp;
+static int proto_umts_mac;
+static int proto_umts_rlc;
 
 void proto_register_fp_mux(void);
 void proto_reg_handoff_fp_mux(void);
@@ -364,6 +363,10 @@ proto_register_fp_mux(void)
 void
 proto_reg_handoff_fp_mux(void)
 {
+    proto_fp = proto_get_id_by_filter_name("fp");
+    proto_umts_mac = proto_get_id_by_filter_name("mac");
+    proto_umts_rlc = proto_get_id_by_filter_name("rlc");
+
     dissector_add_uint_range_with_preference("udp.port", "", fp_mux_handle);
     heur_dissector_add("udp", heur_dissect_fp_mux, "FP Mux over UDP", "fp_mux_udp", proto_fp_mux, HEURISTIC_DISABLE);
 }

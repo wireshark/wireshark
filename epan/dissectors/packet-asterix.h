@@ -17,8 +17,6 @@
 
 #define MAX_UAP_NAME_LENGTH 255
 
-module_t *asterix_module;
-expert_module_t* expert_asterix;
 typedef struct {
     unsigned cat;
     int *edition_default_value;

@@ -146,7 +146,7 @@ extern int ett_nds;
 extern int ett_nds_segments;
 extern int ett_nds_segment;
 
-/*extern dissector_handle_t nds_data_handle;*/
+extern dissector_handle_t nds_data_handle;
 
 /*
  * NCP packet types.

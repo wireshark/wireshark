@@ -34,6 +34,8 @@ typedef struct commandline_usage_app_data
 
 } commandline_usage_app_data_t;
 
+extern capture_options global_capture_opts;
+
 /**
  * @brief Process early command-line options.
  *

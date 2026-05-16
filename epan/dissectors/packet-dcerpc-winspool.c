@@ -999,7 +999,6 @@ static unsigned iremotewinspool_dissect_element_winspool_AsyncLogJobInfoForBranc
 static unsigned iremotewinspool_dissect_element_winspool_AsyncLogJobInfoForBranchOffice_pBranchOfficeJobDataContainer_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 	#include "packet-smb.h"
 	#include "packet-smb-browse.h"
-extern struct access_mask_info spoolss_printer_access_mask_info;
 static unsigned
 iremotewinspool_dissect_sec_desc_buf(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {

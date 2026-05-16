@@ -19,11 +19,12 @@
 #include "packet-mac-nr.h"
 
 void proto_register_mac_nr_framed(void);
+void proto_reg_handoff_mac_nr_framed(void);
+
 
 /* Initialize the protocol and registered fields. */
 static int proto_mac_nr_framed;
-
-extern int proto_mac_nr;
+static int proto_mac_nr;
 
 /* Main dissection function. */
 static int dissect_mac_nr_framed(tvbuff_t *tvb, packet_info *pinfo,
@@ -88,6 +89,12 @@ void proto_register_mac_nr_framed(void) {
     register_dissector("mac-nr-framed", dissect_mac_nr_framed,
                        proto_mac_nr_framed);
 }
+
+void proto_reg_handoff_mac_nr_framed(void) {
+    proto_mac_nr = proto_get_id_by_filter_name("mac-nr");
+}
+
+
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

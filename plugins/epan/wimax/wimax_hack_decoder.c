@@ -19,8 +19,6 @@
 #include <epan/packet.h>
 #include "wimax-int.h"
 
-extern int proto_wimax;
-
 static int proto_wimax_hack_decoder;
 static int ett_wimax_hack_decoder;
 

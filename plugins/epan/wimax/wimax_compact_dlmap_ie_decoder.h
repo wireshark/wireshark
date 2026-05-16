@@ -15,6 +15,13 @@
 #ifndef _WIMAX_COMPACT_DLMAP_IE_DECODER_H_
 #define _WIMAX_COMPACT_DLMAP_IE_DECODER_H_
 
+extern unsigned harq_mode;
+extern unsigned cid_type;
+extern unsigned band_amc_subchannel_type;
+extern unsigned num_of_broadcast_symbols;
+extern unsigned num_of_dl_band_amc_symbols;
+extern unsigned num_of_ul_band_amc_symbols;
+
 /**
  * @brief Decodes WiMax Compact DL-MAP Information Elements.
  *

@@ -24,6 +24,7 @@
 #include <epan/tfs.h>
 #include <epan/stats_tree.h>
 #include "packet-bacapp.h"
+#include "data-bacnet.h"
 
 static int bacapp_tap;
 
@@ -5504,8 +5505,6 @@ BACnetAuthorizationConstraintAuthentication[] = {
     { 0, NULL }
 };
 
-extern value_string_ext BACnetVendorIdentifiers_ext;
-
 static int proto_bacapp;
 static int hf_bacapp_type;
 static int hf_bacapp_pduflags;
@@ -5607,7 +5606,8 @@ static dissector_table_t bacapp_dissector_table;
 
 
 /* Stat: BACnet Packets sorted by IP */
-bacapp_info_value_t bacinfo;
+/* XXX - Should probably be passed into functions and not be global */
+static bacapp_info_value_t bacinfo;
 
 static const char* st_str_packets_by_ip = "BACnet Packets by IP";
 static const char* st_str_packets_by_ip_dst = "By Destination";

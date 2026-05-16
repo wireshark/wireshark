@@ -15,6 +15,7 @@
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include "packet-mp2t.h"
+#include "packet-mpeg-pmt.h"
 #include "packet-mpeg-sect.h"
 #include "packet-mpeg-descriptor.h"
 

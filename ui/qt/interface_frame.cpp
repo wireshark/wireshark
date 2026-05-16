@@ -57,7 +57,7 @@
 #ifdef HAVE_LIBPCAP
 const int stat_update_interval_ = 1000; // ms
 #endif
-const char *no_capture_link = "#no_capture";
+static constexpr const char *no_capture_link = "#no_capture";
 
 static QMutex scan_mutex;
 

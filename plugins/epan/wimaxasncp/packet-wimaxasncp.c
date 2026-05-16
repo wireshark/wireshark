@@ -124,9 +124,9 @@ typedef struct _wimaxasncp_tlv_new_t {
     value_string* enum_vs;
 } wimaxasncp_tlv_new_t;
 
-wmem_list_t* wimaxasncp_tlvs = NULL;
+static wmem_list_t* wimaxasncp_tlvs = NULL;
 
-wimaxasncp_build_dict_t wimaxasncp_build_dict;
+static wimaxasncp_build_dict_t wimaxasncp_build_dict;
 
 static dissector_handle_t wimaxasncp_handle;
 static dissector_handle_t eap_handle;
@@ -1587,7 +1587,7 @@ static void wimaxasncp_dissect_tlv_value(
         {
             col_append_str(pinfo->cinfo, COL_INFO, ", ");
             col_append_str(pinfo->cinfo, COL_INFO,
-                            val_to_str_ext(pinfo->pool, eap_type, &eap_type_vals_ext, "Unknown type (0x%02X)"));
+                            val_to_str_ext(pinfo->pool, eap_type, get_external_value_string_ext("eap_type_vals_ext"), "Unknown type (0x%02X)"));
         }
 
         col_append_str(pinfo->cinfo, COL_INFO, "]");
@@ -1612,7 +1612,7 @@ static void wimaxasncp_dissect_tlv_value(
             if (eap_code == EAP_REQUEST || eap_code == EAP_RESPONSE)
             {
                 proto_item_append_text(item, ", %s",
-                                       val_to_str_ext(pinfo->pool, eap_type, &eap_type_vals_ext,
+                                       val_to_str_ext(pinfo->pool, eap_type, get_external_value_string_ext("eap_type_vals_ext"),
                                        "Unknown type (0x%02X)"));
             }
             proto_item_append_text(item, ")");

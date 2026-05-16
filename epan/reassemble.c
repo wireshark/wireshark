@@ -30,7 +30,7 @@ typedef struct _fragment_addresses_key {
 	uint32_t id;
 } fragment_addresses_key;
 
-GList* reassembly_table_list;
+static GList* reassembly_table_list;
 
 static unsigned
 fragment_addresses_hash(const void *k)

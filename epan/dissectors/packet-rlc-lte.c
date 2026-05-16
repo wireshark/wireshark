@@ -89,10 +89,10 @@ static wmem_tree_t *ue_parameters_tree;
 
 /**************************************************/
 /* Initialize the protocol and registered fields. */
-int proto_rlc_lte;
+static int proto_rlc_lte;
 
-extern int proto_mac_lte;
-extern int proto_pdcp_lte;
+static int proto_mac_lte;
+static int proto_pdcp_lte;
 
 static dissector_handle_t pdcp_lte_handle;
 static dissector_handle_t ip_handle;
@@ -3783,6 +3783,9 @@ void proto_reg_handoff_rlc_lte(void)
     lte_rrc_bcch_bch_nb    = find_dissector_add_dependency("lte_rrc.bcch_bch.nb", proto_rlc_lte);
     lte_rrc_bcch_dl_sch_nb = find_dissector_add_dependency("lte_rrc.bcch_dl_sch.nb", proto_rlc_lte);
     lte_rrc_pcch_nb        = find_dissector_add_dependency("lte_rrc.pcch.nb", proto_rlc_lte);
+
+    proto_mac_lte = proto_get_id_by_filter_name("mac-lte");
+    proto_pdcp_lte = proto_get_id_by_filter_name("pdcp-lte");
 }
 
 /*

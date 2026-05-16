@@ -23,6 +23,8 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 
+#include "packet-epmd.h"
+
 void proto_register_epmd(void);
 void proto_reg_handoff_epmd(void);
 

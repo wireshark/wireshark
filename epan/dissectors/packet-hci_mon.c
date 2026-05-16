@@ -18,6 +18,7 @@
 #include <wiretap/wtap.h>
 
 #include "packet-bluetooth.h"
+#include "packet-hci_mon.h"
 
 static int proto_hci_mon;
 

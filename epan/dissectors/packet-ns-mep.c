@@ -87,7 +87,7 @@ static int hf_nsmep_adv_ip;
 
 static int hf_nsmep_ldns_ip;
 static int hf_nsmep_site_persistence;
-dissector_handle_t nsrpc_handle;
+static dissector_handle_t nsrpc_handle;
 
 /*GSLB MEP message types */
 #define nslist_gslbmessage_VALUE_STRING_LIST(V) \

@@ -2256,9 +2256,6 @@ clean_exit:
     return exit_status;
 }
 
-bool loop_running;
-uint32_t packet_count;
-
 static epan_t *
 strato_epan_new(capture_file *cf)
 {

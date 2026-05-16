@@ -65,10 +65,15 @@
  * crash dumps; see
  *
  *	http://www.allocinit.net/blog/2008/01/04/application-specific-information-in-leopard-crash-reports/
+ *	http://alastairs-place.net/blog/2013/01/10/interesting-os-x-crash-report-tidbits/
  *
  * It still appears to work as of OS X 10.8 (Mountain Lion).
  */
-__private_extern__ char *__crashreporter_info__ = NULL;
+static char *__crashreporter_info__ = NULL;
+
+// Mark the __crashreporter_info__ field as "referenced dynamically";
+// This means it won’t get stripped and will be included in the resulting binary so the crash reporter can see it.
+asm(".desc ___crashreporter_info__, 0x10");
 
 #if 0
 /*

@@ -23,9 +23,9 @@
 
 #define HSFZ_HDR_LEN        6
 
-dissector_handle_t hsfz_handle_tcp;
-dissector_handle_t hsfz_handle_udp;
-dissector_handle_t uds_handle;
+static dissector_handle_t hsfz_handle_tcp;
+static dissector_handle_t hsfz_handle_udp;
+static dissector_handle_t uds_handle;
 
 void proto_register_hsfz(void);
 void proto_reg_handoff_hsfz(void);

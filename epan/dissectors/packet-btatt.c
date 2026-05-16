@@ -26,6 +26,7 @@
 #include <epan/reassemble.h>
 #include <epan/strutil.h>
 
+#include "data-usb.h"
 #include "packet-bluetooth.h"
 #include "packet-btatt.h"
 #include "packet-btl2cap.h"
@@ -2185,8 +2186,6 @@ static const fragment_items msg_frag_items = {
     &hf_btatt_reassembled_data,
     /* Tag */
     "Message fragments"};
-
-extern value_string_ext ext_usb_vendors_vals;
 
 /* Opcodes */
 static const value_string opcode_vals[] = {

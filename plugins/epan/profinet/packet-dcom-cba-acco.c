@@ -121,20 +121,20 @@ static int hf_cba_acco_diag_data;
 static int hf_cba_acco_dcom_call;
 static int hf_cba_acco_srt_call;
 
-int ett_cba_connectincr;
-int ett_cba_connectoutcr;
-int ett_cba_connectin;
-int ett_cba_connectout;
-int ett_cba_getprovconnout;
-int ett_cba_addconnectionin;
-int ett_cba_addconnectionout;
-int ett_cba_getidout;
-int ett_cba_getconnectionout;
-int ett_cba_readitemout;
-int ett_cba_writeitemin;
-int ett_cba_acco_serversrt_cr_flags;
-int ett_cba_frame_info;
-int ett_cba_conn_info;
+static int ett_cba_connectincr;
+static int ett_cba_connectoutcr;
+static int ett_cba_connectin;
+static int ett_cba_connectout;
+static int ett_cba_getprovconnout;
+static int ett_cba_addconnectionin;
+static int ett_cba_addconnectionout;
+static int ett_cba_getidout;
+static int ett_cba_getconnectionout;
+static int ett_cba_readitemout;
+static int ett_cba_writeitemin;
+static int ett_cba_acco_serversrt_cr_flags;
+static int ett_cba_frame_info;
+static int ett_cba_conn_info;
 
 static expert_field ei_cba_acco_pdev_find;
 static expert_field ei_cba_acco_prov_crid;
@@ -327,7 +327,7 @@ typedef struct server_disconnectme_call_s {
 GList *cba_pdevs;
 
 /* as we are a plugin, we cannot get this from libwireshark! */
-const true_false_string acco_flags_set_truth = { "Set", "Not set" };
+static const true_false_string acco_flags_set_truth = { "Set", "Not set" };
 
 static bool
 cba_filter_valid(packet_info *pinfo, void *user_data _U_)

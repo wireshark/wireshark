@@ -46,8 +46,6 @@ static int hf_opcua_transport_seq;
 static int hf_opcua_transport_rqid;
 
 /** subtree types */
-extern int ett_opcua_nodeid;
-extern int ett_opcua_extensionobject;
 extern int proto_opcua;
 
 /** Defined security policy URL from Part 7 OPC UA Specification. */

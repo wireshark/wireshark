@@ -19,6 +19,8 @@
 #include <epan/prefs.h>
 #include <wiretap/wtap.h>
 
+#include "packet-logcat.h"
+
 static int proto_logcat;
 
 static int hf_logcat_version;
@@ -48,7 +50,7 @@ static expert_field ei_invalid_payload_length;
 
 static bool  pref_one_line_info_column = true;
 
-const value_string priority_vals[] = {
+const value_string logcat_priority_vals[] = {
     { 0x00,  "Unknown" },
     { 0x01,  "Default" },
     { 0x02,  "Verbose" },
@@ -246,7 +248,7 @@ proto_register_logcat(void)
         },
         { &hf_logcat_priority,
             { "Priority",                        "logcat.priority",
-            FT_UINT8, BASE_DEC, VALS(priority_vals), 0x00,
+            FT_UINT8, BASE_DEC, VALS(logcat_priority_vals), 0x00,
             NULL, HFILL }
         },
         { &hf_logcat_tag,

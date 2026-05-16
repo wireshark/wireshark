@@ -27,6 +27,8 @@
 #include <epan/etypes.h>
 #include <epan/conversation.h>
 
+#include "data-usb.h"
+#include "data-errno.h"
 #include "packet-usbip.h"
 #include "packet-usb.h"
 #include "packet-tcp.h"
@@ -151,10 +153,6 @@ static const value_string usbip_speed_vals[] = {
 static value_string_ext usbip_speed_vals_ext = VALUE_STRING_EXT_INIT(usbip_speed_vals);
 static value_string_ext usbip_operation_vals_ext = VALUE_STRING_EXT_INIT(usbip_operation_vals);
 static value_string_ext usbip_urb_vals_ext = VALUE_STRING_EXT_INIT(usbip_urb_vals);
-
-extern value_string_ext ext_usb_vendors_vals;
-extern value_string_ext ext_usb_products_vals;
-extern value_string_ext linux_negative_errno_vals_ext;
 
 static const value_string usb_endpoint_direction_vals[] = {
     {USBIP_DIR_OUT, "OUT"                        },

@@ -184,13 +184,13 @@ const char* get_str_value(sinsp_field_extract_t *sinsp_fields, uint32_t sf_idx);
 /*
  * Array of plugin bridges
  */
-bridge_info* bridges;
-size_t nbridges;
+static bridge_info* bridges;
+static size_t nbridges;
 
 /*
  * sinsp extractor span
  */
-sinsp_span_t *sinsp_span;
+static sinsp_span_t *sinsp_span;
 
 /*
  * Fields
@@ -1792,7 +1792,7 @@ dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
     return payload_len;
 }
 
-const char *st_str_container_total_io = "Total";
+static const char *st_str_container_total_io = "Total";
 
 static void container_io_stats_tree_init(stats_tree* st _U_)
 {

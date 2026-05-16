@@ -42,12 +42,12 @@
 #include <epan/column.h>
 #include <epan/print.h>
 #include <epan/addr_resolv.h>
-#include "ui/util.h"
-#include "ui/ws_ui_util.h"
-#include "ui/decode_as_utils.h"
-#include "wsutil/filter_files.h"
-#include "ui/tap_export_pdu.h"
-#include "ui/failure_message.h"
+#include <ui/util.h>
+#include <ui/ws_ui_util.h>
+#include <ui/decode_as_utils.h>
+#include <wsutil/filter_files.h>
+#include <ui/tap_export_pdu.h>
+#include <ui/failure_message.h>
 #include <wiretap/wtap.h>
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
@@ -63,6 +63,7 @@
 #include <wsutil/plugins.h>
 #endif
 
+#include "globals.h"
 #include "sharkd.h"
 
 #define SHARKD_INIT_FAILED 1

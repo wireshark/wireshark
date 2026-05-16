@@ -21,10 +21,6 @@
 #include <epan/packet.h>
 #include "wimax-int.h"
 
-extern int proto_wimax;
-
-extern address bs_address;	/* declared in packet-wmx.c */
-
 static int proto_wimax_fch_decoder;
 static int ett_wimax_fch_decoder;
 

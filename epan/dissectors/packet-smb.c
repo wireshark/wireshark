@@ -1518,7 +1518,7 @@ bool sid_display_hex;
 bool sid_name_snooping;
 
 /* ExportObject preferences variable */
-bool eosmb_take_name_as_fid = false ;
+static bool eosmb_take_name_as_fid = false;
 /* Utility to get an str representing ipv4 or ipv6 address */
 const char *tree_ip_str(packet_info *pinfo, uint16_t cmd) {
 	const char	*buf;

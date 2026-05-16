@@ -22,8 +22,6 @@
 #include "packet-wifi-dpp.h"
 #include "packet-ieee80211.h"
 
-extern const value_string wfa_subtype_vals[];
-
 void proto_register_wifi_dpp(void);
 void proto_reg_handoff_wifi_dpp(void);
 

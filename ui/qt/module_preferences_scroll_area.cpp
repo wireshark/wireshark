@@ -37,7 +37,7 @@
 #include <QSpacerItem>
 #include <QRegularExpression>
 
-const char *pref_prop_ = "pref_ptr";
+static constexpr const char *pref_prop_ = "pref_ptr";
 
 // Escape our ampersands so that Qt won't try to interpret them as
 // mnemonics.

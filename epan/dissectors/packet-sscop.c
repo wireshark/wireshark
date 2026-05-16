@@ -22,7 +22,7 @@
 void proto_register_sscop(void);
 void proto_reg_handoff_sscop(void);
 
-int proto_sscop;
+static int proto_sscop;
 
 static int hf_sscop_type;
 static int hf_sscop_sq;

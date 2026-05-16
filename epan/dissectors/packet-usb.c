@@ -29,6 +29,8 @@
 #include <wsutil/pint.h>
 #include <wsutil/ws_roundup.h>
 
+#include "data-usb.h"
+#include "data-errno.h"
 #include "packet-usb.h"
 #include "packet-mausb.h"
 #include "packet-usbip.h"
@@ -1047,13 +1049,6 @@ static const range_string usb_data_flag_rvals[] = {
     {0, 0, NULL}
 };
 
-extern value_string_ext ext_usb_vendors_vals;
-extern value_string_ext ext_usb_products_vals;
-extern value_string_ext ext_usb_audio_subclass_vals;
-extern value_string_ext ext_usb_com_subclass_vals;
-extern value_string_ext ext_usb_massstorage_subclass_vals;
-extern value_string_ext linux_negative_errno_vals_ext;
-
 /*
  * Standard descriptor types.
  *
@@ -1373,8 +1368,6 @@ static const value_string usb_cdc_protocol_vals[] = {
     {0, NULL}
 };
 static value_string_ext usb_cdc_protocol_vals_ext = VALUE_STRING_EXT_INIT(usb_cdc_protocol_vals);
-
-extern value_string_ext usb_massstorage_protocol_vals_ext;
 
 static const value_string usb_cdc_data_protocol_vals[] = {
     {0x00, "No class specific protocol required"},

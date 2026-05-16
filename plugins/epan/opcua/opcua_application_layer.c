@@ -18,6 +18,7 @@
 
 #include <epan/packet.h>
 #include "opcua_application_layer.h"
+#include "opcua_servicetable.h"
 
 /** NodeId encoding mask table */
 static const value_string g_nodeidmasks[] = {
@@ -29,9 +30,6 @@ static const value_string g_nodeidmasks[] = {
     { 0x05, "Opaque" },
     { 0, NULL }
 };
-
-/** Service type table */
-extern const value_string g_requesttypes[];
 
 static int hf_opcua_nodeid_encodingmask;
 static int hf_opcua_app_nsid;

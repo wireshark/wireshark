@@ -21,8 +21,6 @@
 #include "wimax-int.h"
 #include "wimax_utils.h"
 
-extern int proto_wimax;
-
 void proto_reg_handoff_wimax_pdu(void);
 
 static dissector_handle_t mac_generic_decoder_handle;

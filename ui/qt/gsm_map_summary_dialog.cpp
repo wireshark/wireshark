@@ -41,7 +41,7 @@ typedef struct _gsm_map_stat_t {
     int                 size_rr[GSM_MAP_MAX_NUM_OPR_CODES];
 } gsm_map_stat_t;
 
-gsm_map_stat_t gsm_map_stat;
+static gsm_map_stat_t gsm_map_stat;
 
 GsmMapSummaryDialog::GsmMapSummaryDialog(QWidget &parent, CaptureFile &capture_file) :
     WiresharkDialog(parent, capture_file),

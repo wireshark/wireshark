@@ -1404,7 +1404,7 @@ typedef struct {
 } edhoc_secrets_uat_t;
 
 /// Registered UAT
-uat_t *edhoc_secrets_uat = NULL;
+static uat_t *edhoc_secrets_uat = NULL;
 /// UAT_managed secrets list
 static edhoc_secrets_uat_t *edhoc_secrets_uat_recs = NULL;
 /// Number of items in #edhoc_secrets_uat

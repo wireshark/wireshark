@@ -32,8 +32,8 @@ void proto_register_ieee1609dot2(void);
 void proto_reg_handoff_ieee1609dot2(void);
 
 /* Initialize the protocol and registered fields */
-int proto_ieee1609dot2;
-dissector_handle_t proto_ieee1609dot2_handle;
+static int proto_ieee1609dot2;
+static dissector_handle_t proto_ieee1609dot2_handle;
 
 /* WSMP PSID range to be passed to IEEE 1609.2 dissector */
 static range_t *global_wsmp_psid_range;

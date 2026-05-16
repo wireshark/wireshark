@@ -9,7 +9,7 @@
  */
 
 #include <wsutil/value_string.h>
-
+#include "data-isobus.h"
 
 static const value_string _isobus_industry_groups[] = {
     { 0, "Global, applies to all" },

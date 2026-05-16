@@ -18,6 +18,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include "msg-int.h"
 #include "wimax_mac.h"
 #include "wimax_bits.h"
 #include "wimax_utils.h"
@@ -48,15 +49,6 @@ void proto_reg_handoff_mac_mgmt_msg_ulmap(void);
 	proto_tree_add_uint(tree, hf, tvb, NIBHI(nib, nibs), var); \
 	nib += nibs; \
 	} while(0)
-
-/* from msg_ucd.c */
-extern unsigned cqich_id_size;		/* Set for CQICH_Alloc_IE */
-
-/* from msg_dlmap.c */
-extern int harq;
-extern int ir_type;
-extern int N_layer;
-extern int RCID_Type;
 
 static int proto_mac_mgmt_msg_ulmap_decoder;
 

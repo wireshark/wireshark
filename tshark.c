@@ -2963,8 +2963,10 @@ clean_exit:
     return exit_status;
 }
 
-bool loop_running;
-uint32_t packet_count;
+#ifdef HAVE_LIBPCAP
+static bool loop_running;
+static uint32_t packet_count;
+#endif
 
 static epan_t *
 tshark_epan_new(capture_file *cf)

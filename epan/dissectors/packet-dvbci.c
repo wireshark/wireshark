@@ -36,6 +36,7 @@
 #include "packet-x509af.h"
 #include "packet-x509ce.h"
 #include "packet-ber.h"
+#include "packet-mpeg-pmt.h"
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/pint.h>
 
@@ -1697,8 +1698,6 @@ static const value_string dvbci_sas_sess_state[] = {
     { SAS_SESS_STATE_DENIED, "denied, no more connections available" },
     { 0, NULL }
 };
-
-extern value_string_ext mpeg_pmt_stream_type_vals_ext;
 
 static uint16_t buf_size_cam;    /* buffer size proposal by the CAM */
 /* buffer size proposal by the host == negotiated buffer size */
