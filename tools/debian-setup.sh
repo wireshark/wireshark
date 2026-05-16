@@ -232,8 +232,10 @@ TESTDEPS_LIST="
 add_package ADDITIONAL_LIST libssh-dev 0.11.1-1 ||
 ADDITIONAL_LIST="$ADDITIONAL_LIST libssh-gcrypt-dev"
 
+# Lua 5.5: Debian >= forky, Ubuntu >= 26.04 (resolute)
 # Lua 5.4: Debian >= bullseye, Ubuntu >= 22.04 (jammy)
 # Lua 5.3: Debian >= buster, Ubuntu >= 20.04 (focal)
+add_package ADDITIONAL_LIST liblua5.5-dev ||
 add_package ADDITIONAL_LIST liblua5.4-dev ||
 ADDITIONAL_LIST="$ADDITIONAL_LIST liblua5.3-dev"
 
