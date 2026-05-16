@@ -1217,9 +1217,9 @@ WSLUA_ATTRIBUTE_GET(FileHandler,supported_comment_types,{ \
              */ \
             num_supported_options = obj->finfo.supported_blocks[i].num_supported_options; \
             supported_options = obj->finfo.supported_blocks[i].supported_options; \
-            for (size_t j = 0; j < num_supported_options; i++) { \
-                if (supported_options[i].opt == OPT_COMMENT) { \
-                    if (supported_options[i].support != OPTION_NOT_SUPPORTED) \
+            for (size_t j = 0; j < num_supported_options; j++) { \
+                if (supported_options[j].opt == OPT_COMMENT) { \
+                    if (supported_options[j].support != OPTION_NOT_SUPPORTED) \
                         supported_comment_types |= WTAP_COMMENT_PER_SECTION; \
                     break; \
                 } \
@@ -1232,9 +1232,9 @@ WSLUA_ATTRIBUTE_GET(FileHandler,supported_comment_types,{ \
              */ \
             num_supported_options = obj->finfo.supported_blocks[i].num_supported_options; \
             supported_options = obj->finfo.supported_blocks[i].supported_options; \
-            for (size_t j = 0; j < num_supported_options; i++) { \
-                if (supported_options[i].opt == OPT_COMMENT) { \
-                    if (supported_options[i].support != OPTION_NOT_SUPPORTED) \
+            for (size_t j = 0; j < num_supported_options; j++) { \
+                if (supported_options[j].opt == OPT_COMMENT) { \
+                    if (supported_options[j].support != OPTION_NOT_SUPPORTED) \
                         supported_comment_types |= WTAP_COMMENT_PER_INTERFACE; \
                     break; \
                 } \
@@ -1247,9 +1247,9 @@ WSLUA_ATTRIBUTE_GET(FileHandler,supported_comment_types,{ \
              */ \
             num_supported_options = obj->finfo.supported_blocks[i].num_supported_options; \
             supported_options = obj->finfo.supported_blocks[i].supported_options; \
-            for (size_t j = 0; j < num_supported_options; i++) { \
-                if (supported_options[i].opt == OPT_COMMENT) { \
-                    if (supported_options[i].support != OPTION_NOT_SUPPORTED) \
+            for (size_t j = 0; j < num_supported_options; j++) { \
+                if (supported_options[j].opt == OPT_COMMENT) { \
+                    if (supported_options[j].support != OPTION_NOT_SUPPORTED) \
                         supported_comment_types |= WTAP_COMMENT_PER_PACKET; \
                     break; \
                 } \
@@ -1296,10 +1296,10 @@ WSLUA_ATTRIBUTE_SET(FileHandler,supported_comment_types, { \
              */ \
             num_supported_options = obj->finfo.supported_blocks[i].num_supported_options; \
             supported_options = safe_cast_away_option_type_const(obj->finfo.supported_blocks[i].supported_options); \
-            for (size_t j = 0; j < num_supported_options; i++) { \
-                if (supported_options[i].opt == OPT_COMMENT) { \
-                    supported_options[i].support = \
-                        (supported_comment_types &= WTAP_COMMENT_PER_SECTION) ? \
+            for (size_t j = 0; j < num_supported_options; j++) { \
+                if (supported_options[j].opt == OPT_COMMENT) { \
+                    supported_options[j].support = \
+                        (supported_comment_types & WTAP_COMMENT_PER_SECTION) ? \
                             ONE_OPTION_SUPPORTED : OPTION_NOT_SUPPORTED ; \
                     break; \
                 } \
@@ -1312,10 +1312,10 @@ WSLUA_ATTRIBUTE_SET(FileHandler,supported_comment_types, { \
              */ \
             num_supported_options = obj->finfo.supported_blocks[i].num_supported_options; \
             supported_options = safe_cast_away_option_type_const(obj->finfo.supported_blocks[i].supported_options); \
-            for (size_t j = 0; j < num_supported_options; i++) { \
-                if (supported_options[i].opt == OPT_COMMENT) { \
-                    supported_options[i].support = \
-                        (supported_comment_types &= WTAP_COMMENT_PER_INTERFACE) ? \
+            for (size_t j = 0; j < num_supported_options; j++) { \
+                if (supported_options[j].opt == OPT_COMMENT) { \
+                    supported_options[j].support = \
+                        (supported_comment_types & WTAP_COMMENT_PER_INTERFACE) ? \
                             ONE_OPTION_SUPPORTED : OPTION_NOT_SUPPORTED ; \
                     break; \
                 } \
@@ -1328,10 +1328,10 @@ WSLUA_ATTRIBUTE_SET(FileHandler,supported_comment_types, { \
              */ \
             num_supported_options = obj->finfo.supported_blocks[i].num_supported_options; \
             supported_options = safe_cast_away_option_type_const(obj->finfo.supported_blocks[i].supported_options); \
-            for (size_t j = 0; j < num_supported_options; i++) { \
-                if (supported_options[i].opt == OPT_COMMENT) { \
-                    supported_options[i].support = \
-                        (supported_comment_types &= WTAP_COMMENT_PER_PACKET) ? \
+            for (size_t j = 0; j < num_supported_options; j++) { \
+                if (supported_options[j].opt == OPT_COMMENT) { \
+                    supported_options[j].support = \
+                        (supported_comment_types & WTAP_COMMENT_PER_PACKET) ? \
                             ONE_OPTION_SUPPORTED : OPTION_NOT_SUPPORTED ; \
                     break; \
                 } \
