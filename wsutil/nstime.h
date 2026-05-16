@@ -53,6 +53,25 @@ typedef struct {
 #define TIME_T_MAX ((time_t) (~ (time_t) 0 - TIME_T_MIN))
 #endif
 
+/*
+ * Macros for conversion between time units.
+ *
+ * These are #defined so that we can clearly see that we have the right number
+ * of zeros, rather than as a guard against the numbers changing. ;)
+ */
+#define WS_MSECS_PER_SEC	(1000)
+#define WS_USECS_PER_SEC	(1000*1000)
+#define WS_NSECS_PER_SEC	(1000*1000*1000)
+
+#define WS_NSECS_PER_MSEC	(WS_NSECS_PER_SEC/WS_MSECS_PER_SEC)
+#define WS_NSECS_PER_USEC	(WS_NSECS_PER_SEC/WS_USECS_PER_SEC)
+
+#define WS_MSECS_PER_NSEC	(WS_NSECS_PER_SEC/WS_MSECS_PER_SEC)
+#define WS_USECS_PER_NSEC	(WS_NSECS_PER_SEC/WS_USECS_PER_SEC)
+
+#define WS_NSECS_PER_100NSEC	(100)
+#define WS_100NSECS_PER_SEC	(WS_NSECS_PER_SEC/WS_NSECS_PER_100NSEC)
+
 /* Macros that expand to nstime_t initializers */
 
 /* Initialize to zero */
@@ -61,14 +80,23 @@ typedef struct {
 /* Initialize to unset */
 #define NSTIME_INIT_UNSET {0, INT_MAX}
 
-/* Initialize to a specified number of seconds and nanoseconds */
-#define NSTIME_INIT_SECS_NSECS(secs, nsecs)	{(secs) + ((nsecs) / 1000000000), (nsecs) % 1000000000}
+/*
+ * Initialize to a specified number of seconds and nanoseconds.
+ * This does not assume that the number of nanoseconds is < 1 second.
+ */
+#define NSTIME_INIT_SECS_NSECS(secs, nsecs)	{(secs) + ((nsecs) / WS_NSECS_PER_SEC), (nsecs) % WS_NSECS_PER_SEC}
 
-/* Initialize to a specified number of seconds and microseconds */
-#define NSTIME_INIT_SECS_USECS(secs, usecs)	{(secs) + ((usecs) / 1000000), ((usecs) % 1000000) * 1000}
+/*
+ * Initialize to a specified number of seconds and microseconds.
+ * This does not assume that the number of microseconds is < 1 second.
+ */
+#define NSTIME_INIT_SECS_USECS(secs, usecs)	{(secs) + ((usecs) / WS_USECS_PER_SEC), ((usecs) % WS_USECS_PER_SEC) * WS_USECS_PER_NSEC}
 
-/* Initialize to a specified number of seconds and milliseconds */
-#define NSTIME_INIT_SECS_MSECS(secs, msecs)	{(secs) + ((msecs) / 1000), ((msecs) % 1000) * 1000000}
+/*
+ * Initialize to a specified number of seconds and milliseconds.
+ * This does not assume that the number of milliseconds is < 1 second.
+ */
+#define NSTIME_INIT_SECS_MSECS(secs, msecs)	{(secs) + ((msecs) / WS_MSECS_PER_SEC), ((msecs) % WS_MSECS_PER_SEC) *WS_MSECS_PER_NSEC}
 
 /* Initialize to a specified number of seconds */
 #define NSTIME_INIT_SECS(secs)			{secs, 0}
@@ -225,7 +253,10 @@ WS_DLL_PUBLIC unsigned nstime_hash(const nstime_t *nstime);
  * @param nstime Pointer to the time value.
  * @return Time in milliseconds.
  */
-WS_DLL_PUBLIC double nstime_to_msec(const nstime_t *nstime);
+static inline double nstime_to_msec(const nstime_t *nstime)
+{
+    return ((double)nstime->secs*WS_MSECS_PER_SEC + (double)nstime->nsecs/WS_NSECS_PER_MSEC);
+}
 
 /**
  * @brief Converts a time value to seconds.
@@ -235,7 +266,10 @@ WS_DLL_PUBLIC double nstime_to_msec(const nstime_t *nstime);
  * @param nstime Pointer to the time value.
  * @return Time in seconds.
  */
-WS_DLL_PUBLIC double nstime_to_sec(const nstime_t *nstime);
+static inline double nstime_to_sec(const nstime_t *nstime)
+{
+    return ((double)nstime->secs + (double)nstime->nsecs/WS_NSECS_PER_SEC);
+}
 
 /**
  * @brief Converts a Windows FILETIME to nstime.

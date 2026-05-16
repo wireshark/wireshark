@@ -22,11 +22,6 @@
 #include "strtoi.h"
 #include "ws_assert.h"
 
-/* this is #defined so that we can clearly see that we have the right number of
-   zeros, rather than as a guard against the number of nanoseconds in a second
-   changing ;) */
-#define NS_PER_S 1000000000
-
 /* set the given nstime_t to zero */
 void nstime_set_zero(nstime_t *nstime)
 {
@@ -115,7 +110,7 @@ void nstime_delta(nstime_t *delta, const nstime_t *b, const nstime_t *a )
            from it, and add one to the seconds value. */
         delta->secs = b->secs;
         if(delta->nsecs > 0) {
-            delta->nsecs -= NS_PER_S;
+            delta->nsecs -= WS_NSECS_PER_SEC;
             /* This can never overflow, because b is less than a. */
             delta->secs++;
         }
@@ -123,13 +118,13 @@ void nstime_delta(nstime_t *delta, const nstime_t *b, const nstime_t *a )
             /* Because b is less than a, the correct answer is smaller than
              * representable. Clamp to the minimum valid value. */
             delta->secs = TIME_T_MIN;
-            delta->nsecs = 1 - NS_PER_S;
+            delta->nsecs = 1 - WS_NSECS_PER_SEC;
             errno = ERANGE;
         }
     } else {
         delta->secs = b->secs;
         if(delta->nsecs < 0) {
-            delta->nsecs += NS_PER_S;
+            delta->nsecs += WS_NSECS_PER_SEC;
             /* This can never overflow, because b is greater than a. */
             delta->secs--;
         }
@@ -137,7 +132,7 @@ void nstime_delta(nstime_t *delta, const nstime_t *b, const nstime_t *a )
             /* Because b is greater than a, the correct answer is greater
              * than representable. Clamp to the maximum valid value. */
             delta->secs = TIME_T_MAX;
-            delta->nsecs = NS_PER_S - 1;
+            delta->nsecs = WS_NSECS_PER_SEC - 1;
             errno = ERANGE;
         }
     }
@@ -162,27 +157,27 @@ void nstime_sum(nstime_t *sum, const nstime_t *a, const nstime_t *b)
     if (ckd_add(&sum->secs, a->secs, b->secs)) {
         if (a->secs > 0) {
             sum->secs = TIME_T_MAX;
-            sum->nsecs = NS_PER_S - 1;
+            sum->nsecs = WS_NSECS_PER_SEC - 1;
         } else {
             sum->secs = TIME_T_MIN;
-            sum->nsecs = 1 - NS_PER_S;
+            sum->nsecs = 1 - WS_NSECS_PER_SEC;
         }
         errno = ERANGE;
         return;
     }
-    if(sum->nsecs>=NS_PER_S || (sum->nsecs>0 && sum->secs<0)){
-        sum->nsecs-=NS_PER_S;
+    if(sum->nsecs>=WS_NSECS_PER_SEC || (sum->nsecs>0 && sum->secs<0)){
+        sum->nsecs-=WS_NSECS_PER_SEC;
         if (ckd_add(&sum->secs, sum->secs, 1)) {
             sum->secs = TIME_T_MAX;
-            sum->nsecs = NS_PER_S - 1;
+            sum->nsecs = WS_NSECS_PER_SEC - 1;
             errno = ERANGE;
             return;
         }
-    } else if(sum->nsecs<=-NS_PER_S || (sum->nsecs<0 && sum->secs>0)) {
-        sum->nsecs+=NS_PER_S;
+    } else if(sum->nsecs<=-WS_NSECS_PER_SEC || (sum->nsecs<0 && sum->secs>0)) {
+        sum->nsecs+=WS_NSECS_PER_SEC;
         if (ckd_sub(&sum->secs, sum->secs, 1)) {
             sum->secs = TIME_T_MIN;
-            sum->nsecs = 1 - NS_PER_S;
+            sum->nsecs = 1 - WS_NSECS_PER_SEC;
             errno = ERANGE;
             return;
         }
@@ -241,30 +236,10 @@ unsigned nstime_hash(const nstime_t *nstime)
     return g_int64_hash(&val1) ^ g_int_hash(&nstime->nsecs);
 }
 
-/*
- * function: nstime_to_msec
- * converts nstime to double, time base is milli seconds
- */
-
-double nstime_to_msec(const nstime_t *nstime)
-{
-    return ((double)nstime->secs*1000 + (double)nstime->nsecs/1000000);
-}
-
-/*
- * function: nstime_to_sec
- * converts nstime to double, time base is seconds
- */
-
-double nstime_to_sec(const nstime_t *nstime)
-{
-    return ((double)nstime->secs + (double)nstime->nsecs/NS_PER_S);
-}
-
 void nstime_rounded(nstime_t *a, const nstime_t *b, ws_tsprec_e prec)
 {
     nstime_t round = NSTIME_INIT_ZERO;
-    unsigned dv = NS_PER_S;
+    unsigned dv = WS_NSECS_PER_SEC;
     for (ws_tsprec_e i = WS_TSPREC_SEC; i < prec; i++) {
         dv /= 10;
     }
@@ -319,8 +294,8 @@ filetime_to_nstime(nstime_t *nstime, uint64_t filetime)
      * Split into seconds and tenths of microseconds, and
      * then convert tenths of microseconds to nanoseconds.
      */
-    ftsecs = filetime / 10000000;
-    nsecs = (int)((filetime % 10000000)*100);
+    ftsecs = filetime / WS_100NSECS_PER_SEC;
+    nsecs = (int)((filetime % WS_100NSECS_PER_SEC)*WS_NSECS_PER_100NSEC);
 
     return common_filetime_to_nstime(nstime, ftsecs, nsecs);
 }
@@ -340,8 +315,8 @@ filetime_ns_to_nstime(nstime_t *nstime, uint64_t nsfiletime)
     int nsecs;
 
     /* Split into seconds and nanoseconds. */
-    ftsecs = nsfiletime / NS_PER_S;
-    nsecs = (int)(nsfiletime % NS_PER_S);
+    ftsecs = nsfiletime / WS_NSECS_PER_SEC;
+    nsecs = (int)(nsfiletime % WS_NSECS_PER_SEC);
 
     return common_filetime_to_nstime(nstime, ftsecs, nsecs);
 }
