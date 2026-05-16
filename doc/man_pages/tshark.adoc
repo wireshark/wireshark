@@ -1510,6 +1510,7 @@ in *TShark*, only in *Wireshark*.
 __mode__ specifies the output mode.  It can be one of:
 
   ascii  ASCII output with dots for non-printable characters
+  carray C arrays of chars
   ebcdic EBCDIC output with dots for non-printable characters
   hex    Hexadecimal and ASCII data with offsets
   raw    Hexadecimal data

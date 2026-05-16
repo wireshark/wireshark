@@ -65,6 +65,7 @@ typedef struct _cli_follow_info {
 
 #define STR_HEX         ",hex"
 #define STR_ASCII       ",ascii"
+#define STR_CARRAY      ",carray"
 #define STR_EBCDIC      ",ebcdic"
 #define STR_RAW         ",raw"
 #define STR_CODEC       ",utf-8"
@@ -76,6 +77,7 @@ static const char * follow_str_type(cli_follow_info_t* cli_follow_info)
   {
   case SHOW_HEXDUMP:    return "hex";
   case SHOW_ASCII:      return "ascii";
+  case SHOW_CARRAY:     return "carray";
   case SHOW_EBCDIC:     return "ebcdic";
   case SHOW_RAW:        return "raw";
   case SHOW_CODEC:      return "utf-8";
@@ -183,6 +185,7 @@ static void follow_draw(void *contextp)
   unsigned          chunk;
   char              *b64encoded;
   const uint32_t    base64_raw_len = 57; /* Encodes to 76 bytes, common in RFCs */
+  unsigned          server_buffer_count = 0, client_buffer_count = 0;
 
   /* Print header */
   switch (cli_follow_info->show_type)
@@ -240,7 +243,6 @@ static void follow_draw(void *contextp)
     switch (cli_follow_info->show_type)
     {
     case SHOW_HEXDUMP:
-    case SHOW_YAML:
     case SHOW_CODEC: /* The transformation to UTF-8 can change the length */
       break;
 
@@ -254,6 +256,21 @@ static void follow_draw(void *contextp)
       {
         putchar('\t');
       }
+      break;
+
+    case SHOW_CARRAY:
+      printf("char peer%d_%d[] = { /* Packet %u */\n",
+        follow_record->is_server ? 1 : 0,
+        follow_record->is_server ? server_buffer_count++ : client_buffer_count++,
+        follow_record->packet_num);
+      break;
+
+    case SHOW_YAML:
+      printf("  - packet: %d\n", follow_record->packet_num);
+      printf("    peer: %d\n", follow_record->is_server ? 1 : 0);
+      printf("    index: %d\n", follow_record->is_server ? server_buffer_count++ : client_buffer_count++);
+      printf("    timestamp: %.9f\n", nstime_to_sec(&follow_record->abs_ts));
+      printf("    data: !!binary |\n");
       break;
 
     default:
@@ -331,10 +348,6 @@ static void follow_draw(void *contextp)
       break;
 
     case SHOW_YAML:
-      printf("  - packet: %d\n", follow_record->packet_num);
-      printf("    peer: %d\n", follow_record->is_server ? 1 : 0);
-      printf("    timestamp: %.9f\n", nstime_to_sec(&follow_record->abs_ts));
-      printf("    data: !!binary |\n");
       ii = 0;
       while (ii < follow_record->data->len) {
           uint32_t len = ii + base64_raw_len < follow_record->data->len
@@ -345,6 +358,22 @@ static void follow_draw(void *contextp)
           g_free(b64encoded);
           ii += len;
       }
+      break;
+
+    case SHOW_CARRAY:
+      strbuf = wmem_strbuf_new_sized(NULL, 2 + 6 * follow_record->data->len);
+      for (ii = 0; ii < follow_record->data->len; ii++)
+      {
+        wmem_strbuf_append_printf(strbuf, "0x%02x,", follow_record->data->data[ii]);
+        if ((ii % 8 == 7) && (ii + 1 < follow_record->data->len)) {
+          wmem_strbuf_append_c(strbuf, '\n');
+        } else {
+          wmem_strbuf_append_c(strbuf, ' ');
+        }
+      }
+      wmem_strbuf_append(strbuf, "};");
+      puts(wmem_strbuf_get_str(strbuf));
+      wmem_strbuf_destroy(strbuf);
       break;
 
     default:
@@ -404,6 +433,10 @@ follow_arg_mode(const char **opt_argp, follow_info_t *follow_info)
   else if (follow_arg_strncmp(opt_argp, STR_YAML))
   {
     cli_follow_info->show_type = SHOW_YAML;
+  }
+  else if (follow_arg_strncmp(opt_argp, STR_CARRAY))
+  {
+    cli_follow_info->show_type = SHOW_CARRAY;
   }
   else
   {
