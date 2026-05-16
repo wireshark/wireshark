@@ -660,6 +660,9 @@ static expert_field ei_dns_retransmit_request;
 static expert_field ei_dns_retransmit_response;
 static expert_field ei_dns_extraneous_data;
 static expert_field ei_dns_response_missing;
+static expert_field ei_dns_svcb_param_truncated;
+static expert_field ei_dns_svcb_param_bad_length;
+static expert_field ei_dns_svcb_param_bad_value;
 
 static dissector_table_t dns_tsig_dissector_table;
 
@@ -2190,6 +2193,18 @@ dissect_svc_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
   proto_tree    *svcb_param_tree;
 
   while (cur_offset < offset_end) {
+    int bytes_remaining = offset_end - cur_offset;
+    int param_start;
+    int param_end;
+    bool malformed = false;
+
+    if (bytes_remaining < 4) {
+      svcb_param_ti = proto_tree_add_item(tree, proto_svc_params, tvb, cur_offset, bytes_remaining, ENC_NA);
+      expert_add_info_format(pinfo, svcb_param_ti, &ei_dns_svcb_param_truncated,
+                             "Truncated SvcParam header: only %d byte(s) remain", bytes_remaining);
+      break;
+    }
+
     svcb_param_ti = proto_tree_add_item(tree, proto_svc_params, tvb, cur_offset, -1, ENC_NA);
     svcb_param_tree = proto_item_add_subtree(svcb_param_ti, ett_svc_param);
 
@@ -2200,10 +2215,26 @@ dissect_svc_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     cur_offset += 2;
 
     proto_item_append_text(svcb_param_ti, ": %s", val_to_str(pinfo->pool, svc_param_key, dns_svcb_param_key_vals, "key%u"));
+    param_start = cur_offset;
+    if (svc_param_length > (uint32_t)(offset_end - param_start)) {
+      proto_item_set_len(svcb_param_ti, offset_end - (param_start - 4));
+      expert_add_info_format(pinfo, svcb_param_ti, &ei_dns_svcb_param_truncated,
+                             "SvcParamValue length %u exceeds remaining bytes (%d)",
+                             svc_param_length, offset_end - param_start);
+      break;
+    }
+    param_end = param_start + (int)svc_param_length;
     proto_item_set_len(svcb_param_ti, svc_param_length + 4);
 
     switch(svc_param_key) {
       case DNS_SVCB_KEY_MANDATORY:
+        if ((svc_param_length % 2) != 0) {
+          malformed = true;
+          expert_add_info_format(pinfo, svcb_param_ti, &ei_dns_svcb_param_bad_length,
+                                 "mandatory SvcParamValue length must be a multiple of 2 bytes, got %u",
+                                 svc_param_length);
+          break;
+        }
         for (svc_param_offset = 0; svc_param_offset < svc_param_length; svc_param_offset += 2) {
           uint32_t key;
           proto_tree_add_item_ret_uint(svcb_param_tree, hf_svc_param_mandatory_key, tvb, cur_offset, 2, ENC_BIG_ENDIAN, &key);
@@ -2214,8 +2245,20 @@ dissect_svc_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
       case DNS_SVCB_KEY_ALPN:
         for (svc_param_offset = 0; svc_param_offset < svc_param_length; ) {
           const uint8_t *alpn;
+          if (cur_offset >= param_end) {
+            malformed = true;
+            expert_add_info_format(pinfo, svcb_param_ti, &ei_dns_svcb_param_bad_length,
+                                   "ALPN SvcParamValue ended unexpectedly");
+            break;
+          }
           proto_tree_add_item_ret_uint(svcb_param_tree, hf_svc_param_alpn_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN, &svc_param_alpn_length);
           cur_offset += 1;
+          if (svc_param_alpn_length == 0 || (int)svc_param_alpn_length > (param_end - cur_offset)) {
+            malformed = true;
+            expert_add_info_format(pinfo, svcb_param_ti, &ei_dns_svcb_param_bad_value,
+                                   "Invalid ALPN item length %u in SvcParamValue", svc_param_alpn_length);
+            break;
+          }
           proto_tree_add_item_ret_string(svcb_param_tree, hf_svc_param_alpn, tvb, cur_offset, svc_param_alpn_length, ENC_ASCII|ENC_NA, pinfo->pool, &alpn);
           cur_offset += svc_param_alpn_length;
           proto_item_append_text(svcb_param_ti, "%c%s", (svc_param_offset == 0 ? '=' : ','), alpn);
@@ -2223,13 +2266,32 @@ dissect_svc_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         }
         break;
       case DNS_SVCB_KEY_NOALPN:
+        if (svc_param_length != 0) {
+          malformed = true;
+          expert_add_info_format(pinfo, svcb_param_ti, &ei_dns_svcb_param_bad_length,
+                                 "no-default-alpn SvcParamValue length must be 0, got %u",
+                                 svc_param_length);
+        }
         break;
       case DNS_SVCB_KEY_PORT:
+        if (svc_param_length != 2) {
+          malformed = true;
+          expert_add_info_format(pinfo, svcb_param_ti, &ei_dns_svcb_param_bad_length,
+                                 "port SvcParamValue length must be 2, got %u", svc_param_length);
+          break;
+        }
         proto_tree_add_item_ret_uint(svcb_param_tree, hf_svc_param_port, tvb, cur_offset, 2, ENC_BIG_ENDIAN, &value);
         proto_item_append_text(svcb_param_ti, "=%u", value);
         cur_offset += 2;
         break;
       case DNS_SVCB_KEY_IPV4HINT:
+        if ((svc_param_length % 4) != 0) {
+          malformed = true;
+          expert_add_info_format(pinfo, svcb_param_ti, &ei_dns_svcb_param_bad_length,
+                                 "ipv4hint SvcParamValue length must be a multiple of 4, got %u",
+                                 svc_param_length);
+          break;
+        }
         for (svc_param_offset = 0; svc_param_offset < svc_param_length; svc_param_offset += 4) {
           proto_tree_add_item(svcb_param_tree, hf_svc_param_ipv4hint_ip, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
           proto_item_append_text(svcb_param_ti, "%c%s", (svc_param_offset == 0 ? '=' : ','), tvb_ip_to_str(pinfo->pool, tvb, cur_offset));
@@ -2243,6 +2305,13 @@ dissect_svc_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         break;
       }
       case DNS_SVCB_KEY_IPV6HINT:
+        if ((svc_param_length % 16) != 0) {
+          malformed = true;
+          expert_add_info_format(pinfo, svcb_param_ti, &ei_dns_svcb_param_bad_length,
+                                 "ipv6hint SvcParamValue length must be a multiple of 16, got %u",
+                                 svc_param_length);
+          break;
+        }
         for (svc_param_offset = 0; svc_param_offset < svc_param_length; svc_param_offset += 16) {
           proto_tree_add_item(svcb_param_tree, hf_svc_param_ipv6hint_ip, tvb, cur_offset, 16, ENC_NA);
           proto_item_append_text(svcb_param_ti, "%c%s", (svc_param_offset == 0 ? '=' : ','), tvb_ip6_to_str(pinfo->pool, tvb, cur_offset));
@@ -2255,6 +2324,12 @@ dissect_svc_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         proto_item_append_text(svcb_param_ti, "=%s", dohpath);
         break;
       case DNS_SVCB_KEY_OHTTP:
+        if (svc_param_length != 0) {
+          malformed = true;
+          expert_add_info_format(pinfo, svcb_param_ti, &ei_dns_svcb_param_bad_length,
+                                 "ohttp SvcParamValue length must be 0, got %u",
+                                 svc_param_length);
+        }
         break;
       case DNS_SVCB_KEY_ODOHCONFIG:
         dissect_dns_svcparam_base64(svcb_param_tree, pinfo, svcb_param_ti, hf_svc_param_odohconfig, tvb, cur_offset, svc_param_length);
@@ -2268,6 +2343,12 @@ dissect_svc_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         }
         break;
     }
+
+    if (malformed && cur_offset > param_end) {
+      expert_add_info_format(pinfo, svcb_param_ti, &ei_dns_svcb_param_bad_length,
+                             "SvcParam parser advanced beyond SvcParamValue boundary");
+    }
+    cur_offset = param_end;
   }
 
   return tvb_captured_length(tvb);
@@ -7973,6 +8054,9 @@ proto_register_dns(void)
     { &ei_dns_retransmit_response, { "dns.retransmit_response", PI_PROTOCOL, PI_WARN, "DNS response retransmission", EXPFILL }},
     { &ei_dns_extraneous_data, { "dns.extraneous", PI_UNDECODED, PI_NOTE, "Extraneous data", EXPFILL }},
     { &ei_dns_response_missing, { "dns.response_missing", PI_PROTOCOL, PI_WARN, "DNS response missing", EXPFILL }},
+    { &ei_dns_svcb_param_truncated, { "dns.svcb.param.truncated", PI_MALFORMED, PI_ERROR, "Truncated SvcParam", EXPFILL }},
+    { &ei_dns_svcb_param_bad_length, { "dns.svcb.param.bad_length", PI_MALFORMED, PI_ERROR, "Invalid SvcParam length", EXPFILL }},
+    { &ei_dns_svcb_param_bad_value, { "dns.svcb.param.bad_value", PI_MALFORMED, PI_ERROR, "Invalid SvcParam value", EXPFILL }},
   };
 
   static int *ett[] = {
