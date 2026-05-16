@@ -28,9 +28,9 @@ enum line_type {
     LINE_TYPE_OTHER,
 };
 
-const char PREEB_BEGIN[] = "-----BEGIN ";
+static const char PREEB_BEGIN[] = "-----BEGIN ";
 #define PREEB_BEGIN_LEN (sizeof PREEB_BEGIN - 1)
-const char POSTEB_BEGIN[] = "-----END ";
+static const char POSTEB_BEGIN[] = "-----END ";
 #define POSTEB_BEGIN_LEN (sizeof POSTEB_BEGIN - 1)
 
 static bool rfc7468_read_line(FILE_T fh, enum line_type *line_type,

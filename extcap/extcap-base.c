@@ -49,7 +49,7 @@ static FILE *custom_log;
 /* used to inform to extcap application that end of application is requested */
 bool extcap_end_application;
 /* graceful shutdown callback, can be null */
-void (*extcap_graceful_shutdown_cb)(void);
+static void (*extcap_graceful_shutdown_cb)(void);
 
 static void extcap_init_log_file(const char *filename);
 

@@ -14,7 +14,7 @@
 #include "file_wrappers.h"
 
 static int mmodule_file_type_subtype = -1;
-struct mmodule_phdr *mmodule;
+static struct mmodule_phdr *mmodule;
 
 void register_mmodule(void);
 

@@ -1344,8 +1344,7 @@ static const struct encap_type_info encap_table_base[] = {
 	{ "m_module", "Bachmann M-Module File" },
 };
 
-WS_DLL_LOCAL
-int wtap_num_encap_types = array_length(encap_table_base);
+static int wtap_num_encap_types = array_length(encap_table_base);
 static GArray* encap_table_arr;
 
 #define encap_table_entry(encap)	\

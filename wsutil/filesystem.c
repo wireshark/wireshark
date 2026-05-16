@@ -50,12 +50,12 @@
 
 #define _S G_DIR_SEPARATOR_S
 
-char *persconffile_dir;
-char *datafile_dir;
-char *persdatafile_dir;
-char *persconfprofile;
-char *doc_dir;
-char *current_working_dir;
+static char *persconffile_dir;
+static char *datafile_dir;
+static char *persdatafile_dir;
+static char *persconfprofile;
+static char *doc_dir;
+static char *current_working_dir;
 
 /* Directory from which the executable came. */
 static char *progfile_dir;

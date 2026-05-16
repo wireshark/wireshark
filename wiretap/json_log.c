@@ -51,8 +51,8 @@ static bool json_log_seek_read(wtap* wth, int64_t seek_off, wtap_rec* rec, int* 
 #define MAX_JSON_LOG_ENTRY_SIZE (100 * 1024)
 #define START_TOKENS 25
 
-jsmntok_t *tokens = NULL;
-unsigned num_tokens = 0;
+static jsmntok_t *tokens = NULL;
+static unsigned num_tokens = 0;
 
 // XXX We should return the precision as well.
 static nstime_t get_entry_timestamp(const char *log_data, size_t entry_size) {

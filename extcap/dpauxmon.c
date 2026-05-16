@@ -42,7 +42,7 @@
 #define DPAUXMON_VERSION_MINOR "1"
 #define DPAUXMON_VERSION_RELEASE "0"
 
-ws_cwstream* pcap_fp;
+static ws_cwstream* pcap_fp;
 
 enum {
 	EXTCAP_BASE_OPTIONS_ENUM,
@@ -399,7 +399,7 @@ static struct genl_ops ops = {
 	.o_ncmds = array_length(cmds),
 };
 
-struct nl_sock *sock;
+static struct nl_sock *sock;
 
 static void run_listener(const char* fifo, unsigned int interface_id)
 {

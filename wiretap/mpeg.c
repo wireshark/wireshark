@@ -277,7 +277,7 @@ mpeg_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 	return true;
 }
 
-const struct _mpeg_magic {
+static const struct _mpeg_magic {
 	size_t len;
 	const char* match;
 	bool is_audio;
