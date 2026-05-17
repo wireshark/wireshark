@@ -1891,90 +1891,13 @@ endif()
 
 # Location of our plugins. {WIRESHARK,STRATOSHARK}_PLUGIN_DIR should allow
 # running from the build directory similar to DATAFILE_DIR above.
-if(ENABLE_PLUGINS)
-	# Target platform locations
-	# UN*X in general, including macOS if not building an app bundle:
-	# $DESTDIR/lib/wireshark/plugins/$VERSION
-	# Windows: $DESTDIR/wireshark/plugins/$VERSION
-	# macOS app bundle: Wireshark.app/Contents/PlugIns/wireshark
-	set(HAVE_PLUGINS 1)
-	add_custom_target(plugins)
-	set_target_properties(plugins PROPERTIES FOLDER "Plugins")
-	set(WIRESHARK_PLUGIN_SRC_DIRS
-		plugins/epan/ethercat
-		plugins/epan/gryphon
-		plugins/epan/irda
-		plugins/epan/mate
-		plugins/epan/opcua
-		plugins/epan/profinet
-		plugins/epan/stats_tree
-		plugins/epan/transum
-		plugins/epan/unistim
-		plugins/epan/wimax
-		plugins/epan/wimaxasncp
-		plugins/epan/wimaxmacphy
-		plugins/epan/dfilter/ipaddr
-		plugins/wiretap/usbdump
-		plugins/codecs/G711
-		plugins/codecs/l16_mono
-		plugins/codecs/l24
-		${CUSTOM_PLUGIN_SRC_DIR}
-	)
-	set(STRATOSHARK_PLUGIN_SRC_DIRS)
-	if(SINSP_FOUND)
-		list(APPEND STRATOSHARK_PLUGIN_SRC_DIRS
-			plugins/epan/falco_events
-		)
-	endif()
-	if(SPANDSP_FOUND)
-		list(APPEND WIRESHARK_PLUGIN_SRC_DIRS
-			plugins/codecs/G722
-			plugins/codecs/G726
-		)
-	endif()
-	if(BCG729_FOUND)
-		list(APPEND WIRESHARK_PLUGIN_SRC_DIRS
-			plugins/codecs/G729
-		)
-	endif()
-	if(AMRNB_FOUND)
-		list(APPEND WIRESHARK_PLUGIN_SRC_DIRS
-			plugins/codecs/amrnb
-		)
-	endif()
-	if(AMRWB_FOUND)
-		list(APPEND WIRESHARK_PLUGIN_SRC_DIRS
-			plugins/codecs/amrwb
-		)
-	endif()
-	if(ILBC_FOUND)
-		list(APPEND WIRESHARK_PLUGIN_SRC_DIRS
-			plugins/codecs/iLBC
-		)
-	endif()
-	if(OPUS_FOUND)
-		list(APPEND WIRESHARK_PLUGIN_SRC_DIRS
-			plugins/codecs/opus_dec
-		)
-	endif()
-	if(SBC_FOUND)
-		list(APPEND WIRESHARK_PLUGIN_SRC_DIRS
-			plugins/codecs/sbc
-		)
-	endif()
+# XXX - Do we need to set this is ENABLE_PLUGINS is OFF?
 
-	# Build demo plugin, only if asked explicitly
-	if(ENABLE_PLUGIN_IFDEMO)
-		list(APPEND WIRESHARK_PLUGIN_SRC_DIRS
-			plugins/ui/pluginifdemo
-		)
-	endif()
-
-else()
-	set(WIRESHARK_PLUGIN_SRC_DIRS )
-	set(STRATOSHARK_PLUGIN_SRC_DIRS )
-endif()
-
+# Target platform locations
+# UN*X in general, including macOS if not building an app bundle:
+# $DESTDIR/lib/wireshark/plugins/$VERSION
+# Windows: $DESTDIR/wireshark/plugins/$VERSION
+# macOS app bundle: Wireshark.app/Contents/PlugIns/wireshark
 if(ENABLE_APPLICATION_BUNDLE)
 	if(CMAKE_CFG_INTDIR STREQUAL ".")
 		set(_wireshark_plugin_dir "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/PlugIns/wireshark/${PLUGIN_PATH_ID}")
@@ -1994,9 +1917,10 @@ endif()
 set (WIRESHARK_PLUGIN_DIR ${_wireshark_plugin_dir} CACHE INTERNAL "Build time plugin location.")
 set (STRATOSHARK_PLUGIN_DIR ${_stratoshark_plugin_dir} CACHE INTERNAL "Build time Stratoshark plugin location.")
 
-foreach(_plugin_src_dir ${WIRESHARK_PLUGIN_SRC_DIRS} ${STRATOSHARK_PLUGIN_SRC_DIRS})
-	add_subdirectory( ${_plugin_src_dir} )
-endforeach()
+if(ENABLE_PLUGINS)
+	set(HAVE_PLUGINS 1)
+	add_subdirectory(plugins)
+endif()
 
 if(VCSVERSION_OVERRIDE)
 	# Allow distributors to override detection of the Git tag and version.
