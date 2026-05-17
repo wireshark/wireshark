@@ -13980,6 +13980,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Dagens tips</translation>
     </message>
     <message>
+        <source>Auto advance slides</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Slide display interval</source>
         <translation type="unfinished"></translation>
     </message>

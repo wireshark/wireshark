@@ -8610,7 +8610,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Welcome Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Pàgina de benvinguda</translation>
     </message>
     <message>
         <source>Capture</source>
@@ -13980,6 +13980,10 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Tip of the Day</source>
         <translation>Consell del dia</translation>
+    </message>
+    <message>
+        <source>Auto advance slides</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Slide display interval</source>

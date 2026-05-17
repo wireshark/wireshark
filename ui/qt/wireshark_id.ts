@@ -13825,6 +13825,10 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Auto advance slides</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Slide display interval</source>
         <translation type="unfinished"></translation>
     </message>

@@ -8611,7 +8611,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Welcome Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Pagina di benvenuto</translation>
     </message>
     <message>
         <source>Capture</source>
@@ -13974,6 +13974,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Tip of the Day</source>
         <translation>Suggerimento del giorno</translation>
+    </message>
+    <message>
+        <source>Auto advance slides</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Slide display interval</source>

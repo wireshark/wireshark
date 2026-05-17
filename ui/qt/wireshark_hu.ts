@@ -13738,6 +13738,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Auto advance slides</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Slide display interval</source>
         <translation type="unfinished"></translation>
     </message>

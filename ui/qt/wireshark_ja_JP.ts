@@ -8586,7 +8586,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Welcome Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Welcomeページ</translation>
     </message>
     <message>
         <source>Capture</source>
@@ -13942,6 +13942,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Tip of the Day</source>
         <translation>本日のTIPS</translation>
+    </message>
+    <message>
+        <source>Auto advance slides</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Slide display interval</source>

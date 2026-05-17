@@ -13897,6 +13897,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Auto advance slides</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Slide display interval</source>
         <translation type="unfinished"></translation>
     </message>

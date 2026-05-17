@@ -13904,6 +13904,10 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Auto advance slides</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Slide display interval</source>
         <translation type="unfinished"></translation>
     </message>
