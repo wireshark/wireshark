@@ -751,12 +751,8 @@ Runtime errors are treated as false (silent) and surface as a warning icon on th
         <translation>N 回ヒット後に一時停止（0 で無効）</translation>
     </message>
     <message>
-        <source>Gate the pause on a hit counter. The dropdown next to the integer picks the comparison mode: ≥ pauses every hit at or after N (default); = pauses once when the counter reaches N; every pauses on hits N, 2×N, 3×N, …; once pauses on the Nth hit and deactivates the breakpoint. Use 0 to disable the gate. The counter is preserved across edits to Expression / Hit Count / Log Message; lowering the target below the current count rolls the counter back to 0 so the breakpoint can wait for the next N hits. Right-click the row to reset it explicitly. Combined with an Expression on the same row, the hit-count gate runs first.</source>
-        <translation type="vanished">ヒットカウンタで一時停止を制御します。整数の横にあるドロップダウンで比較モードを選択します: ≥ は N 回目以降のすべてのヒットで一時停止します（既定）; = はカウンタが N に達したときに一度だけ一時停止します; every は N、2×N、3×N、… 回目のヒットで一時停止します; once は N 回目のヒットで一度だけ一時停止し、ブレークポイントを無効化します。0 を指定するとこの条件を無効にします。カウンタは 書式 / ヒット回数 / ログメッセージ を編集しても保持されます。現在のカウントより小さい値に下げるとカウンタは 0 に戻され、次の N 回ヒットまで待機します。行を右クリックすると明示的にリセットできます。同じ行に 書式 がある場合、ヒット回数条件が先に実行されます。</translation>
-    </message>
-    <message>
         <source>Gate the pause on a hit counter. The dropdown next to N picks the comparison mode: from pauses on every hit from N onwards (default); every pauses on hits N, 2N, 3N, …; once pauses on the N-th hit and deactivates the breakpoint. Use 0 to disable the gate. The counter is preserved across edits to Expression / Hit Count / Log Message; lowering the target below the current count rolls the counter back to 0 so the breakpoint can wait for the next N hits. Right-click the row to reset it explicitly. Combined with an Expression on the same row, the hit-count gate runs first.</source>
-        <translation type="unfinished"></translation>
+        <translation>ヒットカウンタで一時停止を制御します。N の横にあるドロップダウンで比較モードを選択します: from は N 回目以降のすべてのヒットで一時停止します（既定）; every は N、2N、3N、… 回目のヒットで一時停止します; once は N 回目のヒットで一度だけ一時停止し、ブレークポイントを無効化します。0 を指定するとこの条件を無効にします。カウンタは 式 / ヒット回数 / ログメッセージ を編集しても保持されます。現在のカウントより小さい値に下げるとカウンタは 0 に戻され、ブレークポイントは次の N 回ヒットまで待機できます。行を右クリックすると明示的にリセットできます。同じ行に Expression がある場合、ヒット回数条件が先に実行されます。</translation>
     </message>
     <message>
         <source>Log Message</source>
@@ -787,17 +783,10 @@ Runtime errors are treated as false (silent) and surface as a warning icon on th
 from — pause on every hit from N onwards.
 every — pause on hits N, 2N, 3N…
 once — pause once on the N-th hit and deactivate the breakpoint.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Comparison mode for the hit count:
-from — pause on every hit from N onwards.
-every — pause on hits N, 2N, 3N…
-once — pause once on the Nth hit and deactivate the breakpoint.</source>
-        <translation type="vanished">ヒット回数の比較モード:
-…から — N 回目以降のすべてのヒットで一時停止します。
-すべて — N、2N、3N… 回目のヒットで一時停止します。
-一度だけ — N 回目のヒットで一度だけ一時停止し、ブレークポイントを無効化します。</translation>
+        <translation>ヒット回数の比較モード:
+from — N 回目以降のすべてのヒットで一時停止します。
+every — N、2N、3N… 回目のヒットで一時停止します。
+once — N 回目のヒットで一度だけ一時停止し、ブレークポイントを無効化します。</translation>
     </message>
     <message>
         <source>Pause</source>
@@ -1813,23 +1802,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Enable Aggregation View for real-time capturing</source>
-        <translation>リアルタイムキャプチャのために集約ビューを有効にします</translation>
+        <translation type="vanished">リアルタイムキャプチャのために集約ビューを有効にします</translation>
     </message>
     <message>
         <source>This option can only be changed when Aggregation Mode is not active.</source>
-        <translation>このオプションは集約モードがアクティブでない場合にのみ変更できます</translation>
+        <translation type="vanished">このオプションは集約モードがアクティブでない場合にのみ変更できます</translation>
     </message>
     <message>
         <source>Aggregation fields</source>
-        <translation>集約フィールド</translation>
+        <translation type="vanished">集約フィールド</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fiedls used for aggregation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;集約に用いるフィールド&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;集約に用いるフィールド&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Edit..</source>
-        <translation>編集..</translation>
+        <translation type="vanished">編集..</translation>
     </message>
     <message>
         <source>Don&apos;t load interfaces on startup</source>
@@ -2732,11 +2721,11 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Double click on graph to set start of playback.</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフをダブルクリックして再生開始位置を設定します。</translation>
     </message>
     <message>
         <source>Start: %1 s. Double click on graph to set start of playback.</source>
-        <translation type="unfinished"></translation>
+        <translation>開始: %1 秒。グラフをダブルクリックして再生開始位置を設定します。</translation>
     </message>
     <message>
         <source>DIS Playback</source>
@@ -3506,6 +3495,14 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>コンテントタイプ:</translation>
     </message>
     <message>
+        <source>Unique</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only display the first of identical entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Searching for objects</source>
         <translation>オブジェクトを探索中</translation>
     </message>
@@ -3516,6 +3513,14 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Only display entries containing this string</source>
         <translation>この文字列を含むエントリのみ表示します</translation>
+    </message>
+    <message>
+        <source>Save All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Displayed</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Preview</source>
@@ -3536,6 +3541,10 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Save Object As…</source>
         <translation>…としてオブジェクトを保存</translation>
+    </message>
+    <message>
+        <source>Save Objects In…</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save All Objects In…</source>
@@ -7516,126 +7525,130 @@ Relative to reference: n/a (outside reference range)</source>
     <name>LuaDebuggerBreakpointsController</name>
     <message>
         <source>Location</source>
-        <translation type="unfinished">場所</translation>
+        <translation>位置</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;&lt;b&gt;Hit-count summary&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;code&gt;≥N&lt;/code&gt; &amp;mdash; &lt;i&gt;from&lt;/i&gt; mode: pause from hit &lt;i&gt;N&lt;/i&gt; onwards.&lt;br/&gt;&lt;code&gt;×N&lt;/code&gt; &amp;mdash; &lt;i&gt;every&lt;/i&gt; mode: pause on hits &lt;i&gt;N&lt;/i&gt;, &lt;i&gt;2N&lt;/i&gt;, &lt;i&gt;3N&lt;/i&gt;, &amp;hellip;&lt;br/&gt;&lt;code&gt;@N&lt;/code&gt; &amp;mdash; &lt;i&gt;once&lt;/i&gt; mode: pause once on the &lt;i&gt;N&lt;/i&gt;th hit, then deactivate.&lt;/p&gt;&lt;p&gt;The cell starts with the running hit counter; if a gate is set it follows in parentheses, e.g. &lt;code&gt;3 (≥10)&lt;/code&gt;. With no hit gate the cell is just the counter.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell to set or change the gate (see the breakpoint-extras section).&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Edit...</source>
-        <translation type="unfinished">編集(&amp;E)...</translation>
+        <translation>編集...</translation>
     </message>
     <message>
         <source>Open Source</source>
-        <translation type="unfinished">ソースを開く</translation>
+        <translation>ソースを開く</translation>
     </message>
     <message>
         <source>Reset Hit Count</source>
-        <translation type="unfinished">ヒット回数をリセット</translation>
+        <translation>ヒット回数をリセット</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished">削除</translation>
+        <translation>削除</translation>
     </message>
     <message>
         <source>Reset All Hit Counts</source>
-        <translation type="unfinished">すべてのヒット回数をリセット</translation>
+        <translation>すべてのヒット回数をリセット</translation>
     </message>
     <message>
         <source>Remove All Breakpoints</source>
-        <translation type="unfinished">すべてのブレークポイントを削除</translation>
+        <translation>すべてのブレークポイントを削除</translation>
     </message>
     <message>
         <source>Clear All Breakpoints</source>
-        <translation type="unfinished">全てのブレークポイントをクリア</translation>
+        <translation>すべてのブレークポイントをクリア</translation>
     </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
-        <translation type="unfinished">
-            <numerusform>本当に %Ln 個のブレークポイントを削除してもよろしいですか？</numerusform>
+        <translation>
+            <numerusform>%Ln 個のブレークポイントを削除してもよろしいですか？</numerusform>
         </translation>
     </message>
     <message>
         <source>Location: %1:%2</source>
-        <translation type="unfinished">位置: %1:%2</translation>
+        <translation>位置: %1:%2</translation>
     </message>
     <message>
         <source>Condition: %1</source>
-        <translation type="unfinished">条件: %1</translation>
+        <translation>条件: %1</translation>
     </message>
     <message>
         <source>pauses on hits %1, 2×%1, 3×%1, …</source>
-        <translation type="unfinished">%1、2×%1、3×%1、… 回目のヒットで一時停止</translation>
+        <translation>%1、2×%1、3×%1、… 回目のヒットで一時停止</translation>
     </message>
     <message>
         <source>pauses once on hit %1, then deactivates the breakpoint</source>
-        <translation type="unfinished">%1 回目のヒットで一度だけ一時停止し、その後ブレークポイントを無効化</translation>
+        <translation>%1 回目のヒットで一度だけ一時停止し、その後ブレークポイントを無効化</translation>
     </message>
     <message>
         <source>pauses on every hit from %1 onwards</source>
-        <translation type="unfinished">%1 回目以降のすべてのヒットで一時停止</translation>
+        <translation>%1 回目以降のすべてのヒットで一時停止</translation>
     </message>
     <message>
         <source>Hit Count: %1 / %2 (%3)</source>
-        <translation type="unfinished">&gt;ヒット回数: %1 / %2 (%3)</translation>
+        <translation>ヒット回数: %1 / %2 (%3)</translation>
     </message>
     <message>
         <source>Hits: %1</source>
-        <translation type="unfinished">ヒット: %1</translation>
+        <translation>ヒット: %1</translation>
     </message>
     <message>
         <source>Log: %1</source>
-        <translation type="unfinished">ログ: %1</translation>
+        <translation>ログ: %1</translation>
     </message>
     <message>
         <source>(logpoint — also pauses)</source>
-        <translation type="unfinished">(ログポイント — 一時停止も行います)</translation>
+        <translation>(ログポイント — 一時停止も行います)</translation>
     </message>
     <message>
         <source>(logpoint — does not pause)</source>
-        <translation type="unfinished">(ログポイント — 一時停止しません)</translation>
+        <translation>(ログポイント — 一時停止しません)</translation>
     </message>
     <message>
         <source>Condition error on last evaluation — treated as false (silent). Edit or reset the breakpoint to clear.</source>
-        <translation type="unfinished">前回の評価で条件エラーが発生しました — 偽 として扱われます（サイレント）。解除するにはブレークポイントを編集またはリセットしてください。</translation>
+        <translation>前回の評価で条件エラーが発生しました — false として扱われます（サイレント）。解除するにはブレークポイントを編集またはリセットしてください</translation>
     </message>
     <message>
         <source>Condition error: %1</source>
-        <translation type="unfinished">条件エラー: %1</translation>
+        <translation>条件エラー: %1</translation>
     </message>
     <message>
         <source>File not found: %1</source>
-        <translation type="unfinished">ファイルが見つかりません: %1</translation>
+        <translation>ファイルが見つかりません: %1</translation>
     </message>
     <message>
         <source>&amp;Edit...</source>
-        <translation type="unfinished">編集(&amp;E)...</translation>
+        <translation>編集(&amp;E)...</translation>
     </message>
     <message>
         <source>&amp;Disable</source>
-        <translation type="unfinished">無効化(&amp;D)...</translation>
+        <translation>無効化(&amp;D)</translation>
     </message>
     <message>
         <source>&amp;Enable</source>
-        <translation type="unfinished">有効化(&amp;E)...</translation>
+        <translation>有効化(&amp;E)</translation>
     </message>
     <message>
         <source>&amp;Remove</source>
-        <translation type="unfinished">削除(&amp;R)...</translation>
+        <translation>削除(&amp;R)</translation>
     </message>
     <message>
         <source>No breakpoints
 %1: add or remove breakpoint on the current line in the editor</source>
-        <translation type="unfinished">ブレークポイントはありません
+        <translation>ブレークポイントはありません
 %1: エディタの現在の行にブレークポイントを追加または削除</translation>
     </message>
     <message>
         <source>All breakpoints are inactive — click to activate all
 %1: add or remove on the current line in the editor</source>
-        <translation type="unfinished">すべてのブレークポイントは無効です — クリックしてすべて有効化します
+        <translation>すべてのブレークポイントは無効です — クリックしてすべて有効化します
 %1: エディタの現在の行で追加または削除</translation>
     </message>
     <message>
         <source>Click to deactivate all breakpoints
 %1: add or remove on the current line in the editor</source>
-        <translation type="unfinished">クリックしてすべてのブレークポイントを無効化します
+        <translation>クリックしてすべてのブレークポイントを無効化します
 %1: エディタの現在の行で追加または削除</translation>
     </message>
 </context>
@@ -7643,27 +7656,27 @@ Relative to reference: n/a (outside reference range)</source>
     <name>LuaDebuggerCodeTabsController</name>
     <message numerus="yes">
         <source>There are unsaved changes in %Ln open file(s).</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>%Ln 個の開いているファイルに未保存の変更があります</numerusform>
         </translation>
     </message>
     <message>
         <source>Save Lua Script</source>
-        <translation type="unfinished">Luaスクリプトを保存</translation>
+        <translation>Luaスクリプトを保存</translation>
     </message>
     <message>
         <source>Could not write to %1:
 %2</source>
-        <translation type="unfinished">%1 に書き込めませんでした:
+        <translation>%1 に書き込めませんでした:
 %2</translation>
     </message>
     <message>
         <source>Lua Debugger</source>
-        <translation type="unfinished">Luaデバッガ</translation>
+        <translation>Luaデバッガ</translation>
     </message>
     <message>
         <source>Save changes to %1 before closing?</source>
-        <translation type="unfinished">閉じる前に %1 への変更を保存しますか？</translation>
+        <translation>閉じる前に %1 への変更を保存しますか？</translation>
     </message>
 </context>
 <context>
@@ -7672,9 +7685,16 @@ Relative to reference: n/a (outside reference range)</source>
         <source>Click: add or remove breakpoint
 Shift+click: on an empty line, add a disabled breakpoint;
 on an existing breakpoint, toggle its active state</source>
-        <translation>クリック: ブレークポイントを追加または削除
+        <translation type="vanished">クリック: ブレークポイントを追加または削除
 Shift+クリック: 空行では無効なブレークポイントを追加;
 既存のブレークポイントでは有効状態を切替</translation>
+    </message>
+    <message>
+        <source>Click: add or remove breakpoint
+Drag existing breakpoint: move to nearest free visible line
+Shift+click: on an empty line, add a disabled breakpoint;
+on an existing breakpoint, toggle its active state</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7782,7 +7802,7 @@ Shift+クリック: 空行では無効なブレークポイントを追加;
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Expression&lt;/b&gt;&lt;br/&gt;Pause only when this Lua expression is truthy in the current frame. Runtime errors count as false and surface a warning icon on the row.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hit Count&lt;/b&gt;&lt;br/&gt;Gate the pause on a hit counter. The dropdown next to &lt;i&gt;N&lt;/i&gt; picks the comparison mode: &lt;code&gt;from&lt;/code&gt; pauses on every hit from &lt;i&gt;N&lt;/i&gt; onwards (default); &lt;code&gt;every&lt;/code&gt; pauses on hits &lt;i&gt;N&lt;/i&gt;, 2&amp;times;&lt;i&gt;N&lt;/i&gt;, 3&amp;times;&lt;i&gt;N&lt;/i&gt;, &amp;hellip;; &lt;code&gt;once&lt;/code&gt; pauses on the &lt;i&gt;N&lt;/i&gt;-th hit and deactivates the breakpoint. The counter is preserved across edits; right-click the row to reset it.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Log Message&lt;/b&gt;&lt;br/&gt;Write a line to the &lt;i&gt;Evaluate&lt;/i&gt; output (and Wireshark&apos;s debug log) each time the breakpoint fires &amp;mdash; after the &lt;i&gt;Hit Count&lt;/i&gt; gate and any &lt;i&gt;Expression&lt;/i&gt; allow it. By default execution continues; click the pause toggle on the editor row to also pause after emitting. Tags: &lt;code&gt;{expr}&lt;/code&gt; (any Lua value); &lt;code&gt;{filename}&lt;/code&gt;, &lt;code&gt;{basename}&lt;/code&gt;, &lt;code&gt;{line}&lt;/code&gt;, &lt;code&gt;{function}&lt;/code&gt;, &lt;code&gt;{what}&lt;/code&gt;; &lt;code&gt;{hits}&lt;/code&gt;, &lt;code&gt;{depth}&lt;/code&gt;, &lt;code&gt;{thread}&lt;/code&gt;; &lt;code&gt;{timestamp}&lt;/code&gt;, &lt;code&gt;{datetime}&lt;/code&gt;, &lt;code&gt;{epoch}&lt;/code&gt;, &lt;code&gt;{epoch_ms}&lt;/code&gt;, &lt;code&gt;{elapsed}&lt;/code&gt;, &lt;code&gt;{delta}&lt;/code&gt;; &lt;code&gt;{{&lt;/code&gt; / &lt;code&gt;}}&lt;/code&gt; for literal braces.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell (double-click, F2, or right-click &amp;rarr; Edit) to attach one of these. A white core inside the breakpoint dot &amp;mdash; in this list and in the gutter &amp;mdash; marks rows that carry extras.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;&lt;b&gt;式&lt;/b&gt;&lt;br/&gt;現在のフレームでこの Lua 式が真と評価された場合のみ一時停止します。実行時エラーは false として扱われ、行に警告アイコンとして表示されます。&lt;/p&gt;&lt;p&gt;&lt;b&gt;ヒット回数&lt;/b&gt;&lt;br/&gt;ヒットカウンタで一時停止を制御します。 &lt;i&gt;N&lt;/i&gt; の横にあるドロップダウンで比較モードを選択します: &lt;code&gt;from&lt;/code&gt;は &lt;i&gt;N&lt;/i&gt; 回目以降のすべてのヒットで一時停止します(既定) &lt;code&gt;every&lt;/code&gt; は &lt;i&gt;N&lt;/i&gt; &#xa0;回、2x &lt;i&gt;N&lt;/i&gt;回、3x&lt;i&gt;N&lt;/i&gt;回目毎に毎回一時停止します。 &lt;code&gt;once&lt;/code&gt; は &lt;i&gt;N&lt;/i&gt; &#xa0;回目のヒットで一度だけ一時停止し、ブレークポイントを無効化します。カウンタは編集しても保持されます。行を右クリックするとリセットできます。&lt;/p&gt;&lt;p&gt;&lt;b&gt;ログメッセージ&lt;/b&gt;&lt;br/&gt;ブレークポイントが発火するたびに &lt;i&gt;Evaluate&lt;/i&gt; 出力 (およびWiresharkのデバッグログ出力)へ1行書き込みます。なお、&lt;i&gt;ヒット回数&lt;/i&gt; 条件と任意の &lt;i&gt;式&lt;/i&gt; が許可した後になります。既定では実行を継続します。エディタ行の一時停止トグルをクリックすると、出力後に一時停止することもできます。タグ: &lt;code&gt;{expr}&lt;/code&gt; (any Lua value); &lt;code&gt;{filename}&lt;/code&gt;, &lt;code&gt;{basename}&lt;/code&gt;, &lt;code&gt;{line}&lt;/code&gt;, &lt;code&gt;{function}&lt;/code&gt;, &lt;code&gt;{what}&lt;/code&gt;; &lt;code&gt;{hits}&lt;/code&gt;, &lt;code&gt;{depth}&lt;/code&gt;, &lt;code&gt;{thread}&lt;/code&gt;; &lt;code&gt;{timestamp}&lt;/code&gt;, &lt;code&gt;{datetime}&lt;/code&gt;, &lt;code&gt;{epoch}&lt;/code&gt;, &lt;code&gt;{epoch_ms}&lt;/code&gt;, &lt;code&gt;{elapsed}&lt;/code&gt;, &lt;code&gt;{delta}&lt;/code&gt;; &lt;code&gt;{{&lt;/code&gt; / &lt;code&gt;}}&lt;/code&gt; をリテラルの括弧に利用します。&lt;/p&gt;&lt;p&gt;（ダブルクリック、F2、または右クリック &amp;amp;rarr; 編集）。ブレークポイント点の内側の白い芯は、この一覧およびガター上で、追加設定を持つ行を示します。編集中にエディタのモードドロップダウンを切り替えると、他のページで入力した未確定のテキストは破棄されます。入力内容を保持するには、切り替える前にそのページで Enter を押してください。&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Active</source>
@@ -7793,8 +7813,20 @@ Shift+クリック: 空行では無効なブレークポイントを追加;
         <translation>行</translation>
     </message>
     <message>
+        <source>Hits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ON — Break on Lua errors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OFF — Break on Lua errors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>File</source>
-        <translation>ファイル</translation>
+        <translation type="vanished">ファイル</translation>
     </message>
     <message>
         <source>Files</source>
@@ -7848,91 +7880,17 @@ Shift+クリック: 空行では無効なブレークポイントを追加;
         <source>Code View Theme:</source>
         <translation>コード表示テーマ:</translation>
     </message>
-    <message>
-        <source>Clear All Breakpoints</source>
-        <translation type="vanished">全てのブレークポイントをクリア</translation>
-    </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
         <translation type="vanished">
             <numerusform>本当に %Ln 個のブレークポイントを削除してもよろしいですか？</numerusform>
         </translation>
     </message>
-    <message>
-        <source>Copy Path</source>
-        <translation type="vanished">パスをコピー</translation>
-    </message>
-    <message>
-        <source>Reveal in File Manager</source>
-        <translation type="vanished">ファイルマネージャーで表示</translation>
-    </message>
-    <message>
-        <source>Copy Location</source>
-        <translation type="vanished">位置をコピー</translation>
-    </message>
-    <message>
-        <source>No breakpoints
-%1: add or remove breakpoint on the current line in the editor</source>
-        <translation type="vanished">ブレークポイントはありません
-%1: エディタの現在の行にブレークポイントを追加または削除</translation>
-    </message>
-    <message>
-        <source>All breakpoints are inactive — click to activate all
-%1: add or remove on the current line in the editor</source>
-        <translation type="vanished">すべてのブレークポイントは無効です — クリックしてすべて有効化します
-%1: エディタの現在の行で追加または削除</translation>
-    </message>
-    <message>
-        <source>Click to deactivate all breakpoints
-%1: add or remove on the current line in the editor</source>
-        <translation type="vanished">クリックしてすべてのブレークポイントを無効化します
-%1: エディタの現在の行で追加または削除</translation>
-    </message>
-    <message>
-        <source>Enter a variable path (e.g. Locals.x, Globals.t.k) or a Lua expression in the Watch column to see a value here.</source>
-        <translation type="vanished">ここに値を表示するには、Watch 列に変数パス(例: Locals.x, Globals.t.k)または Lua式を入力してください</translation>
-    </message>
-    <message>
-        <source>Could not evaluate watch.</source>
-        <translation type="vanished">ウォッチを評価できませんでした</translation>
-    </message>
-    <message>
-        <source>Expression — re-evaluated on every pause.</source>
-        <translation type="vanished">式 — 一時停止のたびに再評価されます</translation>
-    </message>
-    <message>
-        <source>Clear All Watches</source>
-        <translation type="vanished">すべｔのウォッチをクリア</translation>
-    </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln watch(es)?</source>
         <translation type="vanished">
             <numerusform>本当に %Ln 個のウォッチを削除してもよろしいですか？</numerusform>
         </translation>
-    </message>
-    <message>
-        <source>File not found: %1</source>
-        <translation type="vanished">ファイルが見つかりません: %1</translation>
-    </message>
-    <message>
-        <source>Value shown only while the debugger is paused.</source>
-        <translation type="vanished">値はデバッガの一時停止中のみ表示されます</translation>
-    </message>
-    <message>
-        <source>Value shown only while the debugger is paused. The debugger is currently disabled.</source>
-        <translation type="vanished">値はデバッガの一時停止中のみ表示されます。デバッガは現在無効です</translation>
-    </message>
-    <message>
-        <source>error</source>
-        <translation type="vanished">エラー</translation>
-    </message>
-    <message>
-        <source>Maximum watch depth reached</source>
-        <translation type="vanished">ウォッチの最大深度に達しました</translation>
-    </message>
-    <message>
-        <source>Maximum watch depth reached.</source>
-        <translation type="vanished">ウォッチの最大深度に達しました</translation>
     </message>
     <message>
         <source>Type: %1</source>
@@ -7943,24 +7901,6 @@ Shift+クリック: 空行では無効なブレークポイントを追加;
         <translation type="vanished">
             <numerusform>%Ln 個の開いているファイルに未保存の変更があります</numerusform>
         </translation>
-    </message>
-    <message>
-        <source>Save Lua Script</source>
-        <translation type="vanished">Luaスクリプトを保存</translation>
-    </message>
-    <message>
-        <source>Could not write to %1:
-%2</source>
-        <translation type="vanished">%1 に書き込めませんでした:
-%2</translation>
-    </message>
-    <message>
-        <source>Save changes to %1 before closing?</source>
-        <translation type="vanished">閉じる前に %1 への変更を保存しますか？</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="vanished">削除</translation>
     </message>
     <message>
         <source>Remove All Breakpoints</source>
@@ -7983,10 +7923,6 @@ Shift+クリック: 空行では無効なブレークポイントを追加;
         <translation>すべてのウォッチを削除 (%1)</translation>
     </message>
     <message>
-        <source>&lt;p&gt;&lt;b&gt;Expression&lt;/b&gt;&lt;br/&gt;Pause only when this Lua expression is truthy in the current frame. Runtime errors count as false and surface a warning icon on the row.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hit Count&lt;/b&gt;&lt;br/&gt;Gate the pause on a hit counter (&lt;code&gt;0&lt;/code&gt; disables). The dropdown next to the integer picks the comparison mode: &lt;code&gt;&amp;ge;&lt;/code&gt; pauses every hit at or after &lt;i&gt;N&lt;/i&gt; (default); &lt;code&gt;=&lt;/code&gt; pauses once when the counter reaches &lt;i&gt;N&lt;/i&gt;; &lt;code&gt;every&lt;/code&gt; pauses on hits &lt;i&gt;N&lt;/i&gt;, 2&amp;times;&lt;i&gt;N&lt;/i&gt;, 3&amp;times;&lt;i&gt;N&lt;/i&gt;, &amp;hellip;; &lt;code&gt;once&lt;/code&gt; pauses on the &lt;i&gt;N&lt;/i&gt;th hit and deactivates the breakpoint. The counter is preserved across edits; right-click the row to reset it.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Log Message&lt;/b&gt;&lt;br/&gt;Write a line to the &lt;i&gt;Evaluate&lt;/i&gt; output (and Wireshark&apos;s debug log) each time the breakpoint fires &amp;mdash; after the &lt;i&gt;Hit Count&lt;/i&gt; gate and any &lt;i&gt;Expression&lt;/i&gt; allow it. By default execution continues; click the pause toggle on the editor row to also pause after emitting. Tags: &lt;code&gt;{expr}&lt;/code&gt; (any Lua value); &lt;code&gt;{filename}&lt;/code&gt;, &lt;code&gt;{basename}&lt;/code&gt;, &lt;code&gt;{line}&lt;/code&gt;, &lt;code&gt;{function}&lt;/code&gt;, &lt;code&gt;{what}&lt;/code&gt;; &lt;code&gt;{hits}&lt;/code&gt;, &lt;code&gt;{depth}&lt;/code&gt;, &lt;code&gt;{thread}&lt;/code&gt;; &lt;code&gt;{timestamp}&lt;/code&gt;, &lt;code&gt;{datetime}&lt;/code&gt;, &lt;code&gt;{epoch}&lt;/code&gt;, &lt;code&gt;{epoch_ms}&lt;/code&gt;, &lt;code&gt;{elapsed}&lt;/code&gt;, &lt;code&gt;{delta}&lt;/code&gt;; &lt;code&gt;{{&lt;/code&gt; / &lt;code&gt;}}&lt;/code&gt; for literal braces.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell (double-click, F2, or right-click &amp;rarr; Edit) to attach one of these. A white core inside the breakpoint dot &amp;mdash; in this list and in the gutter &amp;mdash; marks rows that carry extras. Switching the editor&apos;s mode dropdown mid-edit discards typed-but-uncommitted text on the other pages; press Enter on a page before switching if you want to keep what you typed.&lt;/p&gt;</source>
-        <translation type="vanished">&lt;p&gt;&lt;b&gt;式&lt;/b&gt;&lt;br/&gt;在のフレームでこの Lua 式が真と評価された場合のみ一時停止します。実行時エラーは false として扱われ、行に警告アイコンとして表示されます。&lt;/p&gt;&lt;p&gt;&lt;b&gt;ヒット回数&lt;/b&gt;&lt;br/&gt;ヒットカウンタで一時停止を制御します (&lt;code&gt;0&lt;/code&gt; で無効) 。整数の横にあるドロップダウンで比較モードを選択します:&lt;code&gt;&amp;ge;&lt;/code&gt; は&lt;i&gt;N&lt;/i&gt;回目以降のすべてのヒットで一時停止します(既定); &lt;code&gt;=&lt;/code&gt;はカウンタが&lt;i&gt;N&lt;/i&gt;に達したときに一度だけ一時停止します; &lt;code&gt;every&lt;/code&gt;は &lt;i&gt;N&lt;/i&gt;+2回、&lt;i&gt;N&lt;/i&gt;+1回&lt;i&gt;N&lt;/i&gt;回目のヒットで一時停止します。&lt;code&gt;once&lt;/code&gt;は、&lt;i&gt;N&lt;/i&gt;回目のヒットで一度だけ一時停止し、ブレークポイントを無効化します。カウンタは編集しても保持されます。行を右クリックするとリセットできます。&lt;/p&gt;&lt;p&gt;&lt;b&gt;ログメッセージ&lt;br/&gt;はブレークポイントが発火するたびに&lt;i&gt;評価&lt;/i&gt;出力（および Wireshark のデバッグログ）を行に出力します。&lt;i&gt;ヒット回数&lt;/i&gt;は、条件と任意の&lt;i&gt;式&lt;/i&gt;が許可した後、 出力（および Wireshark のデバッグログ）へ 1 行を書き込みます。既定では実行を継続します。エディタ行の一時停止トグルをクリックすると、出力後に一時停止することもできます。タグ:&lt;code&gt;{expr}&lt;/code&gt; (任意のLua値); &lt;code&gt;{filename}&lt;/code&gt;, &lt;code&gt;{basename}&lt;/code&gt;, &lt;code&gt;{line}&lt;/code&gt;, &lt;code&gt;{function}&lt;/code&gt;, &lt;code&gt;{what}&lt;/code&gt;; &lt;code&gt;{hits}&lt;/code&gt;, &lt;code&gt;{depth}&lt;/code&gt;, &lt;code&gt;{thread}&lt;/code&gt;; &lt;code&gt;{timestamp}&lt;/code&gt;, &lt;code&gt;{datetime}&lt;/code&gt;, &lt;code&gt;{epoch}&lt;/code&gt;, &lt;code&gt;{epoch_ms}&lt;/code&gt;, &lt;code&gt;{elapsed}&lt;/code&gt;, &lt;code&gt;{delta}&lt;/code&gt;; &lt;code&gt;{{&lt;/code&gt; / &lt;code&gt;}}&lt;/code&gt; をリテラルの括弧に利用します。&lt;/p&gt;&lt;p&gt;これらを設定するには  &lt;i&gt;Location&lt;/i&gt; セルを編集します(ダブルクリック、F2、または右クリックして編集)。ブレークポイント点の内側の白い芯は、この一覧およびガター上で、追加設定を持つ行を示します。編集中にエディタのモードドロップダウンを切り替えると、他のページで入力した未確定のテキストは破棄されます。入力内容を保持するには、切り替える前にそのページで Enter を押してください。&lt;/p&gt;</translation>
-    </message>
-    <message>
         <source>No breakpoints</source>
         <translation>ブレークポイントはありません</translation>
     </message>
@@ -8005,86 +7941,6 @@ Shift+クリック: 空行では無効なブレークポイントを追加;
     <message>
         <source>&lt;b&gt;Lua Expression Evaluation&lt;/b&gt;&lt;br&gt;&lt;br&gt;Code runs in a protected environment: runtime errors are caught and shown in the output instead of propagating.&lt;br&gt;&lt;br&gt;&lt;b&gt;Prefix with &lt;code&gt;=&lt;/code&gt;&lt;/b&gt; to return a value (e.g., &lt;code&gt;=my_var&lt;/code&gt;).&lt;br&gt;&lt;br&gt;&lt;b&gt;What works:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Read/modify global variables (&lt;code&gt;_G.x = 42&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Modify table contents (&lt;code&gt;my_table.field = 99&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Call functions and inspect return values&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Limitations:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Local variables cannot be modified directly (use &lt;code&gt;debug.setlocal()&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Long-running expressions are automatically aborted&lt;/li&gt;&lt;li&gt;&lt;b&gt;Warning:&lt;/b&gt; Changes to globals persist and can affect ongoing dissection&lt;/li&gt;&lt;/ul&gt;</source>
         <translation>&lt;b&gt;Lua式の評価&lt;/b&gt;&lt;br&gt;&lt;br&gt;コードは保護された環境で実行されます。実行時エラーは伝播せず、捕捉されて出力に表示されます。&lt;br&gt;&lt;br&gt;&lt;b&gt;値を返すには&lt;code&gt;=&lt;/code&gt;&lt;/b&gt;を先頭につけてください。(例&lt;code&gt;=my_var&lt;/code&gt;).&lt;br&gt;&lt;br&gt;&lt;b&gt;での動作:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;グローバル変数の読み取り/変更 (&lt;code&gt;_G.x = 42&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;テーブル内容の修正 (&lt;code&gt;my_table.field = 99&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;関数の呼び出しと戻り値の確認&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;制限:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;ローカル変数は直接変更できません ( &lt;code&gt;debug.setlocal()&lt;/code&gt;)を使用してください&lt;/li&gt;&lt;li&gt;長時間実行される式は自動的に中止されます&lt;/li&gt;&lt;li&gt;&lt;b&gt;警告:&lt;/b&gt; グローバル変数への変更は保持され、進行中の解析に影響する可能性があります&lt;/li&gt;&lt;/ul&gt;</translation>
-    </message>
-    <message>
-        <source>Location: %1:%2</source>
-        <translation type="vanished">位置: %1:%2</translation>
-    </message>
-    <message>
-        <source>Condition: %1</source>
-        <translation type="vanished">条件: %1</translation>
-    </message>
-    <message>
-        <source>pauses on hits %1, 2×%1, 3×%1, …</source>
-        <translation type="vanished">%1、2×%1、3×%1、… 回目のヒットで一時停止</translation>
-    </message>
-    <message>
-        <source>pauses once on hit %1, then deactivates the breakpoint</source>
-        <translation type="vanished">%1 回目のヒットで一度だけ一時停止し、その後ブレークポイントを無効化</translation>
-    </message>
-    <message>
-        <source>pauses on every hit from %1 onwards</source>
-        <translation type="vanished">%1 回目以降のすべてのヒットで一時停止</translation>
-    </message>
-    <message>
-        <source>Hit Count: %1 / %2 (%3)</source>
-        <translation type="vanished">&gt;ヒット回数: %1 / %2 (%3)</translation>
-    </message>
-    <message>
-        <source>Hits: %1</source>
-        <translation type="vanished">ヒット: %1</translation>
-    </message>
-    <message>
-        <source>Log: %1</source>
-        <translation type="vanished">ログ: %1</translation>
-    </message>
-    <message>
-        <source>(logpoint — also pauses)</source>
-        <translation type="vanished">(ログポイント — 一時停止も行います)</translation>
-    </message>
-    <message>
-        <source>(logpoint — does not pause)</source>
-        <translation type="vanished">(ログポイント — 一時停止しません)</translation>
-    </message>
-    <message>
-        <source>Condition error on last evaluation — treated as false (silent). Edit or reset the breakpoint to clear.</source>
-        <translation type="vanished">前回の評価で条件エラーが発生しました — 偽 として扱われます（サイレント）。解除するにはブレークポイントを編集またはリセットしてください。</translation>
-    </message>
-    <message>
-        <source>Condition error: %1</source>
-        <translation type="vanished">条件エラー: %1</translation>
-    </message>
-    <message>
-        <source>&amp;Edit...</source>
-        <translation type="vanished">編集(&amp;E)...</translation>
-    </message>
-    <message>
-        <source>&amp;Disable</source>
-        <translation type="vanished">無効化(&amp;D)...</translation>
-    </message>
-    <message>
-        <source>&amp;Enable</source>
-        <translation type="vanished">有効化(&amp;E)...</translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation type="vanished">削除(&amp;R)...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation type="vanished">編集(&amp;E)...</translation>
-    </message>
-    <message>
-        <source>Open Source</source>
-        <translation type="vanished">ソースを開く</translation>
-    </message>
-    <message>
-        <source>Reset Hit Count</source>
-        <translation type="vanished">ヒット回数をリセット</translation>
-    </message>
-    <message>
-        <source>Reset All Hit Counts</source>
-        <translation type="vanished">すべてのヒット回数をリセット</translation>
     </message>
     <message>
         <source>Undo</source>
@@ -8118,31 +7974,9 @@ Shift+クリック: 空行では無効なブレークポイントを追加;
         <source>Remove Breakpoint</source>
         <translation>ブレークポイントを削除</translation>
     </message>
-    <message numerus="yes">
-        <source>Watch expression is too long (maximum %Ln characters).</source>
-        <translation type="vanished">
-            <numerusform>ウォッチ式が長すぎます(最大 %Ln 文字)</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Run to this line</source>
         <translation>この行まで実行</translation>
-    </message>
-    <message>
-        <source>%1 = %2</source>
-        <translation type="vanished">%1 = %2</translation>
-    </message>
-    <message>
-        <source>Copy Name</source>
-        <translation type="vanished">名前をコピー</translation>
-    </message>
-    <message>
-        <source>Copy Value</source>
-        <translation type="vanished">値をコピー</translation>
-    </message>
-    <message>
-        <source>Copy Name &amp;&amp; Value</source>
-        <translation type="vanished">名前と値をコピー</translation>
     </message>
     <message>
         <source>Add Watch: &quot;%1&quot;</source>
@@ -8177,31 +8011,16 @@ Shift+クリック: 空行では無効なブレークポイントを追加;
         <translation>一時停止中</translation>
     </message>
     <message>
+        <source>(runtime error)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Running</source>
         <translation>実行中</translation>
     </message>
     <message>
         <source>Lua Scripts (*.lua);;All Files (*)</source>
         <translation>Lua スクリプト (*.lua);;すべてのファイル (*)</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to reload all Lua plugins?
-
-This will restart all Lua scripts and may affect capture analysis.</source>
-        <translation type="vanished">本当にすべてのLuaプラグインを再読み込みしてもよろしいですか？
-これによりすべての Lua スクリプトが再起動され、キャプチャ解析に影響する可能性があります</translation>
-    </message>
-    <message>
-        <source>Evaluation available when debugger is paused</source>
-        <translation type="vanished">評価はデバッガの一時停止中に利用できます</translation>
-    </message>
-    <message>
-        <source>Error: %1</source>
-        <translation type="vanished">エラー: %1</translation>
-    </message>
-    <message>
-        <source>Error: Unknown error</source>
-        <translation type="vanished">エラー:不明なエラー</translation>
     </message>
     <message>
         <source>Lua Debugger</source>
@@ -8288,38 +8107,38 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <name>LuaDebuggerEvalController</name>
     <message>
         <source>Evaluation available when debugger is paused</source>
-        <translation type="unfinished">評価はデバッガの一時停止中に利用できます</translation>
+        <translation>評価はデバッガの一時停止中に利用できます</translation>
     </message>
     <message>
         <source>Enter Lua expression (prefix with = to return value)</source>
-        <translation type="unfinished">Lua式を入力してください（戻り値を表示するには先頭に = を付けてください）</translation>
+        <translation>Lua式を入力してください（戻り値を表示するには先頭に = を付けてください）</translation>
     </message>
     <message>
         <source>Error: %1</source>
-        <translation type="unfinished">エラー: %1</translation>
+        <translation>エラー: %1</translation>
     </message>
     <message>
         <source>Error: Unknown error</source>
-        <translation type="unfinished">エラー:不明なエラー</translation>
+        <translation>エラー:不明なエラー</translation>
     </message>
 </context>
 <context>
     <name>LuaDebuggerFilesController</name>
     <message>
         <source>Open Source</source>
-        <translation type="unfinished">ソースを開く</translation>
+        <translation>ソースを開く</translation>
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished">ファインダーで表示</translation>
+        <translation>ファインダーで表示</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished">フォルダで表示</translation>
+        <translation>フォルダで表示</translation>
     </message>
     <message>
         <source>Copy Path</source>
-        <translation type="unfinished">パスをコピー</translation>
+        <translation>パスをコピー</translation>
     </message>
 </context>
 <context>
@@ -8372,13 +8191,13 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <name>LuaDebuggerLuaReloadCoordinator</name>
     <message>
         <source>Reload Lua Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Luaプラグインを再読込</translation>
     </message>
     <message>
         <source>Are you sure you want to reload all Lua plugins?
 
 This will restart all Lua scripts and may affect capture analysis.</source>
-        <translation type="unfinished">本当にすべてのLuaプラグインを再読み込みしてもよろしいですか？
+        <translation>本当にすべてのLuaプラグインを再読み込みしてもよろしいですか？
 これによりすべての Lua スクリプトが再起動され、キャプチャ解析に影響する可能性があります</translation>
     </message>
 </context>
@@ -8397,104 +8216,104 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <name>LuaDebuggerStackController</name>
     <message>
         <source>Open Source</source>
-        <translation type="unfinished">ソースを開く</translation>
+        <translation>ソースを開く</translation>
     </message>
     <message>
         <source>Copy Location</source>
-        <translation type="unfinished">位置をコピー</translation>
+        <translation>位置をコピー</translation>
     </message>
 </context>
 <context>
     <name>LuaDebuggerVariablesController</name>
     <message>
         <source>Type: %1</source>
-        <translation type="unfinished">種別: %1</translation>
+        <translation>種別: %1</translation>
     </message>
     <message>
         <source>%1 = %2</source>
-        <translation type="unfinished">%1 = %2</translation>
+        <translation>%1 = %2</translation>
     </message>
     <message>
         <source>Copy Name</source>
-        <translation type="unfinished">名前をコピー</translation>
+        <translation>名前をコピー</translation>
     </message>
     <message>
         <source>Copy Value</source>
-        <translation type="unfinished">値をコピー</translation>
+        <translation>値をコピー</translation>
     </message>
     <message>
         <source>Copy Path</source>
-        <translation type="unfinished">パスをコピー</translation>
+        <translation>パスをコピー</translation>
     </message>
     <message>
         <source>Copy Name &amp;&amp; Value</source>
-        <translation type="unfinished">名前と値をコピー</translation>
+        <translation>名前と値をコピー</translation>
     </message>
     <message>
         <source>Add Watch: &quot;%1&quot;</source>
-        <translation type="unfinished">ウォッチを追加: &quot;%1&quot;</translation>
+        <translation>ウォッチを追加: &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
     <name>LuaDebuggerWatchController</name>
     <message>
         <source>Clear All Watches</source>
-        <translation type="unfinished">すべｔのウォッチをクリア</translation>
+        <translation>すべてのウォッチをクリア</translation>
     </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln watch(es)?</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>本当に %Ln 個のウォッチを削除してもよろしいですか？</numerusform>
         </translation>
     </message>
     <message>
         <source>Lua Debugger</source>
-        <translation type="unfinished">Luaデバッガ</translation>
+        <translation>Luaデバッガ</translation>
     </message>
     <message numerus="yes">
         <source>Watch expression is too long (maximum %Ln characters).</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>ウォッチ式が長すぎます(最大 %Ln 文字)</numerusform>
         </translation>
     </message>
     <message>
         <source>Maximum watch depth reached</source>
-        <translation type="unfinished">ウォッチの最大深度に達しました</translation>
+        <translation>ウォッチの最大深度に達しました</translation>
     </message>
     <message>
         <source>Maximum watch depth reached.</source>
-        <translation type="unfinished">ウォッチの最大深度に達しました</translation>
+        <translation>ウォッチの最大深度に達しました</translation>
     </message>
 </context>
 <context>
     <name>LuaDebuggerWatchRowPresenter</name>
     <message>
         <source>Enter a variable path (e.g. Locals.x, Globals.t.k) or a Lua expression in the Watch column to see a value here.</source>
-        <translation type="unfinished">ここに値を表示するには、Watch 列に変数パス(例: Locals.x, Globals.t.k)または Lua式を入力してください</translation>
+        <translation>ここに値を表示するには、Watch 列に変数パス(例: Locals.x, Globals.t.k)または Lua式を入力してください</translation>
     </message>
     <message>
         <source>Value shown only while the debugger is paused.</source>
-        <translation type="unfinished">値はデバッガの一時停止中のみ表示されます</translation>
+        <translation>値はデバッガの一時停止中のみ表示されます</translation>
     </message>
     <message>
         <source>Value shown only while the debugger is paused. The debugger is currently disabled.</source>
-        <translation type="unfinished">値はデバッガの一時停止中のみ表示されます。デバッガは現在無効です</translation>
+        <translation>値はデバッガの一時停止中のみ表示されます。デバッガは現在無効です</translation>
     </message>
     <message>
         <source>Type: %1</source>
-        <translation type="unfinished">種別: %1</translation>
+        <translation>種別: %1</translation>
     </message>
     <message>
         <source>error</source>
-        <translation type="unfinished">エラー</translation>
+        <translation>エラー</translation>
     </message>
     <message>
         <source>Could not evaluate watch.</source>
-        <translation type="unfinished">ウォッチを評価できませんでした</translation>
+        <translation>ウォッチを評価できませんでした</translation>
     </message>
     <message>
         <source>Expression — re-evaluated on every pause.</source>
-        <translation type="unfinished">式 — 一時停止のたびに再評価されます</translation>
+        <translation>式 — 一時停止のたびに再評価されます</translation>
     </message>
 </context>
 <context>
@@ -8637,6 +8456,10 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Selected Packet: %1 %2 </source>
         <translation>選択されたパケット: %1 %2 </translation>
+    </message>
+    <message>
+        <source> %1 Aggregated: %2</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
@@ -10291,6 +10114,10 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <source>RSA Keys</source>
         <translation>RSA 鍵</translation>
     </message>
+    <message>
+        <source>Aggregation</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PrintDialog</name>
@@ -11475,30 +11302,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Personal</source>
         <translation>個人</translation>
-    </message>
-    <message>
-        <source>Add Watch</source>
-        <translation type="vanished">ウォッチを追加</translation>
-    </message>
-    <message>
-        <source>Remove All Watches</source>
-        <translation type="vanished">すべてのウォッチを削除</translation>
-    </message>
-    <message>
-        <source>Duplicate Watch</source>
-        <translation type="vanished">ウォッチを複製</translation>
-    </message>
-    <message>
-        <source>Edit Watch</source>
-        <translation type="vanished">ウォッチを編集</translation>
-    </message>
-    <message>
-        <source>Copy Value</source>
-        <translation type="vanished">値をコピー</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="vanished">削除</translation>
     </message>
 </context>
 <context>
@@ -15802,6 +15605,10 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>今日のTIP</translation>
     </message>
     <message>
+        <source>Auto advance slides</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Slide display interval</source>
         <translation>スライド表示間隔</translation>
     </message>
@@ -17644,7 +17451,7 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Aggregation View.</source>
-        <translation>集約ビュー</translation>
+        <translation type="vanished">集約ビュー</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
@@ -18015,6 +17822,14 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Unknown file type returned by export dialog.</source>
         <translation>エクスポート画面から返された不明なファイルタイプ</translation>
+    </message>
+    <message>
+        <source>Aggregation View — displays frames grouped by your configured aggregation fields.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unsaved packets…</source>

@@ -1804,26 +1804,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enable Aggregation View for real-time capturing</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>This option can only be changed when Aggregation Mode is not active.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Aggregation fields</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fiedls used for aggregation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Edit..</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Don&apos;t load interfaces on startup</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3492,6 +3472,14 @@ Relative to reference: n/a (outside reference range)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Unique</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only display the first of identical entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Searching for objects</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3501,6 +3489,14 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Only display entries containing this string</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Displayed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3521,6 +3517,10 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Save Object As…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Objects In…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7458,6 +7458,10 @@ Relative to reference: n/a (outside reference range)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>&lt;p&gt;&lt;b&gt;Hit-count summary&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;code&gt;≥N&lt;/code&gt; &amp;mdash; &lt;i&gt;from&lt;/i&gt; mode: pause from hit &lt;i&gt;N&lt;/i&gt; onwards.&lt;br/&gt;&lt;code&gt;×N&lt;/code&gt; &amp;mdash; &lt;i&gt;every&lt;/i&gt; mode: pause on hits &lt;i&gt;N&lt;/i&gt;, &lt;i&gt;2N&lt;/i&gt;, &lt;i&gt;3N&lt;/i&gt;, &amp;hellip;&lt;br/&gt;&lt;code&gt;@N&lt;/code&gt; &amp;mdash; &lt;i&gt;once&lt;/i&gt; mode: pause once on the &lt;i&gt;N&lt;/i&gt;th hit, then deactivate.&lt;/p&gt;&lt;p&gt;The cell starts with the running hit counter; if a gate is set it follows in parentheses, e.g. &lt;code&gt;3 (≥10)&lt;/code&gt;. With no hit gate the cell is just the counter.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell to set or change the gate (see the breakpoint-extras section).&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Edit...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7607,6 +7611,7 @@ Relative to reference: n/a (outside reference range)</source>
     <name>LuaDebuggerCodeView</name>
     <message>
         <source>Click: add or remove breakpoint
+Drag existing breakpoint: move to nearest free visible line
 Shift+click: on an empty line, add a disabled breakpoint;
 on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
@@ -7728,7 +7733,15 @@ on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File</source>
+        <source>Hits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ON — Break on Lua errors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OFF — Break on Lua errors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7914,6 +7927,10 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Paused</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>(runtime error)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8360,6 +8377,10 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Selected Packet: %1 %2 </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> %1 Aggregated: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -9982,6 +10003,10 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>RSA Keys</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Aggregation</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -15417,6 +15442,10 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Auto advance slides</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Slide display interval</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17268,10 +17297,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Aggregation View.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
         <translation type="unfinished"></translation>
@@ -17638,6 +17663,14 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Unknown file type returned by export dialog.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Aggregation View — displays frames grouped by your configured aggregation fields.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

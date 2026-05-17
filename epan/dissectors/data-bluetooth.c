@@ -892,6 +892,7 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2C39,   "HID SCI Mode" },
     { 0x2C3A,   "HID SCI Information" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xFC34,   "Mitsubishi Electric Corporation" },
     { 0xFC35,   "Metabowerke GmbH" },
     { 0xFC36,   "PharmaSens AG" },
     { 0xFC37,   "TANlock GmbH" },
@@ -5590,6 +5591,10 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x10BE,   "UNIVERSAL REMOTE CONTROL, INC." },
     { 0x10BF,   "All Inspire Health, Inc." },
     { 0x10C0,   "Minda Corporation Ltd" },
+    { 0x10C1,   "Shenzhen ECO-NEWLEAF CO., LTD" },
+    { 0x10C2,   "SainStore Technology Co., Ltd." },
+    { 0x10C3,   "TECH FASS s.r.o." },
+    { 0x10C4,   "OPICA GmbH" },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
@@ -6361,6 +6366,7 @@ const btatt_handle_strings_t btatt_handle_strings[] = {
     { 0x2c39,   "Bluetooth GATT Attribute HID SCI Mode (UUID 0x2c39)", "BT GATT HID SCI Mode (UUID 0x2c39)", "btgatt.uuid0x2c39" },
     { 0x2c3a,   "Bluetooth GATT Attribute HID SCI Information (UUID 0x2c3a)", "BT GATT HID SCI Information (UUID 0x2c3a)", "btgatt.uuid0x2c3a" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xfc34,   "Bluetooth GATT Attribute Mitsubishi Electric Corporation (UUID 0xfc34)", "BT GATT Mitsubishi Electric Corporation (UUID 0xfc34)", "btgatt.uuid0xfc34" },
     { 0xfc35,   "Bluetooth GATT Attribute Metabowerke GmbH (UUID 0xfc35)", "BT GATT Metabowerke GmbH (UUID 0xfc35)", "btgatt.uuid0xfc35" },
     { 0xfc36,   "Bluetooth GATT Attribute PharmaSens AG (UUID 0xfc36)", "BT GATT PharmaSens AG (UUID 0xfc36)", "btgatt.uuid0xfc36" },
     { 0xfc37,   "Bluetooth GATT Attribute TANlock GmbH (UUID 0xfc37)", "BT GATT TANlock GmbH (UUID 0xfc37)", "btgatt.uuid0xfc37" },

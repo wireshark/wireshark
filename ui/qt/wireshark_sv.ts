@@ -1808,23 +1808,23 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Enable Aggregation View for real-time capturing</source>
-        <translation>Aktivera samlingsvyn för realtidsfångst</translation>
+        <translation type="vanished">Aktivera samlingsvyn för realtidsfångst</translation>
     </message>
     <message>
         <source>This option can only be changed when Aggregation Mode is not active.</source>
-        <translation>Denna flagga kan bara ändras när samlingsläget inte är aktivt.</translation>
+        <translation type="vanished">Denna flagga kan bara ändras när samlingsläget inte är aktivt.</translation>
     </message>
     <message>
         <source>Aggregation fields</source>
-        <translation>Samlingsfält</translation>
+        <translation type="vanished">Samlingsfält</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fiedls used for aggregation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fält som används för samlande.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fält som används för samlande.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Edit..</source>
-        <translation>Redigera.</translation>
+        <translation type="vanished">Redigera.</translation>
     </message>
     <message>
         <source>Don&apos;t load interfaces on startup</source>
@@ -3497,6 +3497,14 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>Innehållstyp:</translation>
     </message>
     <message>
+        <source>Unique</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only display the first of identical entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Searching for objects</source>
         <translation>Sök efter objekt</translation>
     </message>
@@ -3507,6 +3515,14 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Only display entries containing this string</source>
         <translation>Visa endast poster som innehåller denna sträng</translation>
+    </message>
+    <message>
+        <source>Save All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Displayed</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Preview</source>
@@ -3527,6 +3543,10 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Save Object As…</source>
         <translation>Spara objekt som …</translation>
+    </message>
+    <message>
+        <source>Save Objects In…</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save All Objects In…</source>
@@ -7488,6 +7508,10 @@ Relative to reference: n/a (outside reference range)</source>
         <translation type="unfinished">Plats</translation>
     </message>
     <message>
+        <source>&lt;p&gt;&lt;b&gt;Hit-count summary&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;code&gt;≥N&lt;/code&gt; &amp;mdash; &lt;i&gt;from&lt;/i&gt; mode: pause from hit &lt;i&gt;N&lt;/i&gt; onwards.&lt;br/&gt;&lt;code&gt;×N&lt;/code&gt; &amp;mdash; &lt;i&gt;every&lt;/i&gt; mode: pause on hits &lt;i&gt;N&lt;/i&gt;, &lt;i&gt;2N&lt;/i&gt;, &lt;i&gt;3N&lt;/i&gt;, &amp;hellip;&lt;br/&gt;&lt;code&gt;@N&lt;/code&gt; &amp;mdash; &lt;i&gt;once&lt;/i&gt; mode: pause once on the &lt;i&gt;N&lt;/i&gt;th hit, then deactivate.&lt;/p&gt;&lt;p&gt;The cell starts with the running hit counter; if a gate is set it follows in parentheses, e.g. &lt;code&gt;3 (≥10)&lt;/code&gt;. With no hit gate the cell is just the counter.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell to set or change the gate (see the breakpoint-extras section).&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Edit...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7637,6 +7661,7 @@ Relative to reference: n/a (outside reference range)</source>
     <name>LuaDebuggerCodeView</name>
     <message>
         <source>Click: add or remove breakpoint
+Drag existing breakpoint: move to nearest free visible line
 Shift+click: on an empty line, add a disabled breakpoint;
 on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
@@ -7758,8 +7783,20 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Rad</translation>
     </message>
     <message>
+        <source>Hits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ON — Break on Lua errors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OFF — Break on Lua errors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>File</source>
-        <translation>Fil</translation>
+        <translation type="vanished">Fil</translation>
     </message>
     <message>
         <source>Files</source>
@@ -7814,16 +7851,8 @@ on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>error</source>
-        <translation type="vanished">fel</translation>
-    </message>
-    <message>
         <source>Type: %1</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="vanished">Ta bort</translation>
     </message>
     <message>
         <source>Remove All Breakpoints</source>
@@ -7902,18 +7931,6 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Kör till denna rad</translation>
     </message>
     <message>
-        <source>%1 = %2</source>
-        <translation type="vanished">%1 = %2</translation>
-    </message>
-    <message>
-        <source>Copy Name</source>
-        <translation type="vanished">Kopiera namn</translation>
-    </message>
-    <message>
-        <source>Copy Value</source>
-        <translation type="vanished">Kopiera värde</translation>
-    </message>
-    <message>
         <source>Add Watch: &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7946,20 +7963,16 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Pausad</translation>
     </message>
     <message>
+        <source>(runtime error)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Running</source>
         <translation>Kör</translation>
     </message>
     <message>
         <source>Lua Scripts (*.lua);;All Files (*)</source>
         <translation>Lua-skript (*.lua);;Alla filer (*)</translation>
-    </message>
-    <message>
-        <source>Error: %1</source>
-        <translation type="vanished">Fel: %1</translation>
-    </message>
-    <message>
-        <source>Error: Unknown error</source>
-        <translation type="vanished">Fel: Okänt fel</translation>
     </message>
     <message>
         <source>Lua Debugger</source>
@@ -8054,11 +8067,11 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Error: %1</source>
-        <translation type="unfinished">Fel: %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error: Unknown error</source>
-        <translation type="unfinished">Fel: Okänt fel</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8169,15 +8182,15 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>%1 = %2</source>
-        <translation type="unfinished">%1 = %2</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy Name</source>
-        <translation type="unfinished">Kopiera namn</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy Value</source>
-        <translation type="unfinished">Kopiera värde</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy Path</source>
@@ -8245,7 +8258,7 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>error</source>
-        <translation type="unfinished">fel</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Could not evaluate watch.</source>
@@ -8398,6 +8411,10 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Selected Packet: %1 %2 </source>
         <translation>Valt paket: %1 %2 </translation>
+    </message>
+    <message>
+        <source> %1 Aggregated: %2</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
@@ -10023,6 +10040,10 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <source>RSA Keys</source>
         <translation>RSA-nycklar</translation>
     </message>
+    <message>
+        <source>Aggregation</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PrintDialog</name>
@@ -11214,14 +11235,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Personal</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy Value</source>
-        <translation type="vanished">Kopiera värde</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="vanished">Ta bort</translation>
     </message>
 </context>
 <context>
@@ -15533,6 +15546,10 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>Dagens tips</translation>
     </message>
     <message>
+        <source>Auto advance slides</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Slide display interval</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17375,7 +17392,7 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Aggregation View.</source>
-        <translation>Samlingsvy.</translation>
+        <translation type="vanished">Samlingsvy.</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
@@ -17746,6 +17763,14 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Unknown file type returned by export dialog.</source>
         <translation>Okänd filtyp returnerad av exportdialogen.</translation>
+    </message>
+    <message>
+        <source>Aggregation View — displays frames grouped by your configured aggregation fields.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unsaved packets…</source>

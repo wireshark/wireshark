@@ -1818,23 +1818,23 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Enable Aggregation View for real-time capturing</source>
-        <translation>Cumasaigh Radharc Comhiomlánaithe le haghaidh gabháil fíor-ama</translation>
+        <translation type="vanished">Cumasaigh Radharc Comhiomlánaithe le haghaidh gabháil fíor-ama</translation>
     </message>
     <message>
         <source>This option can only be changed when Aggregation Mode is not active.</source>
-        <translation>Ní féidir an rogha seo a athrú ach amháin nuair nach bhfuil Mód Comhiomlánaithe gníomhach.</translation>
+        <translation type="vanished">Ní féidir an rogha seo a athrú ach amháin nuair nach bhfuil Mód Comhiomlánaithe gníomhach.</translation>
     </message>
     <message>
         <source>Aggregation fields</source>
-        <translation>Réimsí comhiomlánaithe</translation>
+        <translation type="vanished">Réimsí comhiomlánaithe</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fiedls used for aggregation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Réimsí a úsáidtear le haghaidh comhiomlánaithe.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Réimsí a úsáidtear le haghaidh comhiomlánaithe.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Edit..</source>
-        <translation>Cuir in eagar..</translation>
+        <translation type="vanished">Cuir in eagar..</translation>
     </message>
     <message>
         <source>Don&apos;t load interfaces on startup</source>
@@ -3515,6 +3515,14 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
         <translation>Cineál Ábhair:</translation>
     </message>
     <message>
+        <source>Unique</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only display the first of identical entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Searching for objects</source>
         <translation>Réada á gcuardach</translation>
     </message>
@@ -3525,6 +3533,14 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     <message>
         <source>Only display entries containing this string</source>
         <translation>Ná taispeáin ach iontrálacha ina bhfuil an teaghrán seo</translation>
+    </message>
+    <message>
+        <source>Save All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Displayed</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Preview</source>
@@ -3545,6 +3561,10 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     <message>
         <source>Save Object As…</source>
         <translation>Sábháil Réad Mar…</translation>
+    </message>
+    <message>
+        <source>Save Objects In…</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save All Objects In…</source>
@@ -7550,6 +7570,10 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
         <translation type="unfinished">Suíomh</translation>
     </message>
     <message>
+        <source>&lt;p&gt;&lt;b&gt;Hit-count summary&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;code&gt;≥N&lt;/code&gt; &amp;mdash; &lt;i&gt;from&lt;/i&gt; mode: pause from hit &lt;i&gt;N&lt;/i&gt; onwards.&lt;br/&gt;&lt;code&gt;×N&lt;/code&gt; &amp;mdash; &lt;i&gt;every&lt;/i&gt; mode: pause on hits &lt;i&gt;N&lt;/i&gt;, &lt;i&gt;2N&lt;/i&gt;, &lt;i&gt;3N&lt;/i&gt;, &amp;hellip;&lt;br/&gt;&lt;code&gt;@N&lt;/code&gt; &amp;mdash; &lt;i&gt;once&lt;/i&gt; mode: pause once on the &lt;i&gt;N&lt;/i&gt;th hit, then deactivate.&lt;/p&gt;&lt;p&gt;The cell starts with the running hit counter; if a gate is set it follows in parentheses, e.g. &lt;code&gt;3 (≥10)&lt;/code&gt;. With no hit gate the cell is just the counter.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell to set or change the gate (see the breakpoint-extras section).&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Edit...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7575,7 +7599,7 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     </message>
     <message>
         <source>Clear All Breakpoints</source>
-        <translation type="unfinished">Glan Gach Brisphointe</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
@@ -7635,7 +7659,7 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     </message>
     <message>
         <source>File not found: %1</source>
-        <translation type="unfinished">Comhad gan aimsiú: %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Edit...</source>
@@ -7681,13 +7705,12 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     </message>
     <message>
         <source>Save Lua Script</source>
-        <translation type="unfinished">Sábháil Script Lua</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Could not write to %1:
 %2</source>
-        <translation type="unfinished">Níorbh fhéidir scríobh chuig %1:
-%2</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Lua Debugger</source>
@@ -7695,13 +7718,14 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     </message>
     <message>
         <source>Save changes to %1 before closing?</source>
-        <translation type="unfinished">Sábháil athruithe ar %1 roimh dhúnadh?</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>LuaDebuggerCodeView</name>
     <message>
         <source>Click: add or remove breakpoint
+Drag existing breakpoint: move to nearest free visible line
 Shift+click: on an empty line, add a disabled breakpoint;
 on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
@@ -7824,8 +7848,20 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Líne</translation>
     </message>
     <message>
+        <source>Hits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ON — Break on Lua errors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OFF — Break on Lua errors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>File</source>
-        <translation>Comhad</translation>
+        <translation type="vanished">Comhad</translation>
     </message>
     <message>
         <source>Files</source>
@@ -7879,10 +7915,6 @@ on an existing breakpoint, toggle its active state</source>
         <source>Code View Theme:</source>
         <translation>Téama Radharc Cód:</translation>
     </message>
-    <message>
-        <source>Clear All Breakpoints</source>
-        <translation type="vanished">Glan Gach Brisphointe</translation>
-    </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
         <translation type="vanished">
@@ -7890,30 +7922,6 @@ on an existing breakpoint, toggle its active state</source>
             <numerusform>An bhfuil tú cinnte gur mian leat %Ln pointí briste a bhaint?</numerusform>
             <numerusform>An bhfuil tú cinnte gur mian leat %Ln pointí briste a bhaint?</numerusform>
         </translation>
-    </message>
-    <message>
-        <source>File not found: %1</source>
-        <translation type="vanished">Comhad gan aimsiú: %1</translation>
-    </message>
-    <message>
-        <source>Value shown only while the debugger is paused.</source>
-        <translation type="vanished">Ní thaispeántar an luach ach amháin nuair a bhíonn an dífhabhtóir ar sos.</translation>
-    </message>
-    <message>
-        <source>Value shown only while the debugger is paused. The debugger is currently disabled.</source>
-        <translation type="vanished">Ní thaispeántar an luach ach amháin nuair a bhíonn an dífhabhtóir ar sos. Tá an dífhabhtóir díchumasaithe faoi láthair.</translation>
-    </message>
-    <message>
-        <source>error</source>
-        <translation type="vanished">earráid</translation>
-    </message>
-    <message>
-        <source>Maximum watch depth reached</source>
-        <translation type="vanished">Doimhneacht uasta faire bainte amach</translation>
-    </message>
-    <message>
-        <source>Maximum watch depth reached.</source>
-        <translation type="vanished">Shroich an doimhneacht faire uasta.</translation>
     </message>
     <message>
         <source>Type: %1</source>
@@ -7926,24 +7934,6 @@ on an existing breakpoint, toggle its active state</source>
             <numerusform>Tá athruithe gan sábháil i %Ln comhaid oscailte.</numerusform>
             <numerusform>Tá athruithe gan sábháil i %Ln comhaid oscailte.</numerusform>
         </translation>
-    </message>
-    <message>
-        <source>Save Lua Script</source>
-        <translation type="vanished">Sábháil Script Lua</translation>
-    </message>
-    <message>
-        <source>Could not write to %1:
-%2</source>
-        <translation type="vanished">Níorbh fhéidir scríobh chuig %1:
-%2</translation>
-    </message>
-    <message>
-        <source>Save changes to %1 before closing?</source>
-        <translation type="vanished">Sábháil athruithe ar %1 roimh dhúnadh?</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="vanished">Bain</translation>
     </message>
     <message>
         <source>Remove All Breakpoints</source>
@@ -8022,22 +8012,6 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Rith go dtí an líne seo</translation>
     </message>
     <message>
-        <source>%1 = %2</source>
-        <translation type="vanished">%1 = %2</translation>
-    </message>
-    <message>
-        <source>Copy Name</source>
-        <translation type="vanished">Cóip Ainm</translation>
-    </message>
-    <message>
-        <source>Copy Value</source>
-        <translation type="vanished">Cóipeáil Luach</translation>
-    </message>
-    <message>
-        <source>Copy Name &amp;&amp; Value</source>
-        <translation type="vanished">Cóipeáil Ainm &amp;&amp; Luach</translation>
-    </message>
-    <message>
         <source>Add Watch: &quot;%1&quot;</source>
         <translation>Cuir Faire leis: &quot;%1&quot;</translation>
     </message>
@@ -8070,32 +8044,16 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Sosaithe</translation>
     </message>
     <message>
+        <source>(runtime error)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Running</source>
         <translation>Ag rith</translation>
     </message>
     <message>
         <source>Lua Scripts (*.lua);;All Files (*)</source>
         <translation>Scripteanna Lua (*.lua);;Gach Comhad (*)</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to reload all Lua plugins?
-
-This will restart all Lua scripts and may affect capture analysis.</source>
-        <translation type="vanished">An bhfuil tú cinnte gur mian leat na breiseáin Lua go léir a athlódáil?
-
-Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear a dhéanamh don anailís gabhála.</translation>
-    </message>
-    <message>
-        <source>Evaluation available when debugger is paused</source>
-        <translation type="vanished">Tá meastóireacht ar fáil nuair a bhíonn an dífhabhtóir ar sos</translation>
-    </message>
-    <message>
-        <source>Error: %1</source>
-        <translation type="vanished">Earráid: %1</translation>
-    </message>
-    <message>
-        <source>Error: Unknown error</source>
-        <translation type="vanished">Earráid: Earráid anaithnid</translation>
     </message>
     <message>
         <source>Lua Debugger</source>
@@ -8182,7 +8140,7 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     <name>LuaDebuggerEvalController</name>
     <message>
         <source>Evaluation available when debugger is paused</source>
-        <translation type="unfinished">Tá meastóireacht ar fáil nuair a bhíonn an dífhabhtóir ar sos</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter Lua expression (prefix with = to return value)</source>
@@ -8190,11 +8148,11 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
     <message>
         <source>Error: %1</source>
-        <translation type="unfinished">Earráid: %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error: Unknown error</source>
-        <translation type="unfinished">Earráid: Earráid anaithnid</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8272,9 +8230,7 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
         <source>Are you sure you want to reload all Lua plugins?
 
 This will restart all Lua scripts and may affect capture analysis.</source>
-        <translation type="unfinished">An bhfuil tú cinnte gur mian leat na breiseáin Lua go léir a athlódáil?
-
-Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear a dhéanamh don anailís gabhála.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8307,15 +8263,15 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
     <message>
         <source>%1 = %2</source>
-        <translation type="unfinished">%1 = %2</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy Name</source>
-        <translation type="unfinished">Cóip Ainm</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy Value</source>
-        <translation type="unfinished">Cóipeáil Luach</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy Path</source>
@@ -8323,7 +8279,7 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
     <message>
         <source>Copy Name &amp;&amp; Value</source>
-        <translation type="unfinished">Cóipeáil Ainm &amp;&amp; Luach</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add Watch: &quot;%1&quot;</source>
@@ -8358,11 +8314,11 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
     <message>
         <source>Maximum watch depth reached</source>
-        <translation type="unfinished">Doimhneacht uasta faire bainte amach</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Maximum watch depth reached.</source>
-        <translation type="unfinished">Shroich an doimhneacht faire uasta.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8373,11 +8329,11 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
     <message>
         <source>Value shown only while the debugger is paused.</source>
-        <translation type="unfinished">Ní thaispeántar an luach ach amháin nuair a bhíonn an dífhabhtóir ar sos.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Value shown only while the debugger is paused. The debugger is currently disabled.</source>
-        <translation type="unfinished">Ní thaispeántar an luach ach amháin nuair a bhíonn an dífhabhtóir ar sos. Tá an dífhabhtóir díchumasaithe faoi láthair.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Type: %1</source>
@@ -8385,7 +8341,7 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
     <message>
         <source>error</source>
-        <translation type="unfinished">earráid</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Could not evaluate watch.</source>
@@ -8540,6 +8496,10 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     <message>
         <source>Selected Packet: %1 %2 </source>
         <translation>Paicéad Roghnaithe: %1 %2 </translation>
+    </message>
+    <message>
+        <source> %1 Aggregated: %2</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
@@ -10202,6 +10162,10 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
         <source>RSA Keys</source>
         <translation>Eochracha RSA</translation>
     </message>
+    <message>
+        <source>Aggregation</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PrintDialog</name>
@@ -11400,30 +11364,6 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     <message>
         <source>Personal</source>
         <translation>Pearsanta</translation>
-    </message>
-    <message>
-        <source>Add Watch</source>
-        <translation type="vanished">Cuir Faire leis</translation>
-    </message>
-    <message>
-        <source>Remove All Watches</source>
-        <translation type="vanished">Bain Gach Uaireadóir</translation>
-    </message>
-    <message>
-        <source>Duplicate Watch</source>
-        <translation type="vanished">Faire Dhúblach</translation>
-    </message>
-    <message>
-        <source>Edit Watch</source>
-        <translation type="vanished">Cuir Faire in Eagar</translation>
-    </message>
-    <message>
-        <source>Copy Value</source>
-        <translation type="vanished">Cóipeáil Luach</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="vanished">Bain</translation>
     </message>
 </context>
 <context>
@@ -15745,6 +15685,10 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
         <translation>Leid an Lae</translation>
     </message>
     <message>
+        <source>Auto advance slides</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Slide display interval</source>
         <translation>Eatramh taispeántais sleamhnán</translation>
     </message>
@@ -17587,7 +17531,7 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
     <message>
         <source>Aggregation View.</source>
-        <translation>Radharc Comhiomlánaithe.</translation>
+        <translation type="vanished">Radharc Comhiomlánaithe.</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
@@ -17958,6 +17902,14 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     <message>
         <source>Unknown file type returned by export dialog.</source>
         <translation>Cineál anaithnid comhaid curtha ar ais ag dialóg easpórtála.</translation>
+    </message>
+    <message>
+        <source>Aggregation View — displays frames grouped by your configured aggregation fields.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unsaved packets…</source>

@@ -404,7 +404,7 @@ static const struct ws_iana_ip_special_block __ipv6_special_block[] = {
 };
 
 
-/* (last updated 2026-05-09) */
+/* (last updated 2026-05-13) */
 
 
 static const value_string enterprise_val[] = {
@@ -21216,7 +21216,7 @@ static const value_string enterprise_val[] = {
 	{ 20843,    "Philipp Strozyk" },
 	{ 20844,    "L'OREAL" },
 	{ 20845,    "Linux Information Systems AG" },
-	{ 20846,    "SURFsara" },
+	{ 20846,    "SURF B.V." },
 	{ 20847,    "Atlas Development Corporation" },
 	{ 20848,    "Zope Corporation" },
 	{ 20849,    "OMT Systems (Shenzhen) Limited" },
@@ -31486,7 +31486,7 @@ static const value_string enterprise_val[] = {
 	{ 31124,    "ABF Baltic AS" },
 	{ 31125,    "Ressources Informatiques" },
 	{ 31126,    "ASTELLIA" },
-	{ 31127,    "Emerson Process Management" },
+	{ 31127,    "Emerson" },
 	{ 31128,    "Lead Tech Design" },
 	{ 31129,    "Alaska Satellite Facility" },
 	{ 31130,    "Basho Technologies, Inc." },
@@ -66067,6 +66067,39 @@ static const value_string enterprise_val[] = {
 	{ 65770,    "Wireskop" },
 	{ 65771,    "LYNX VISION" },
 	{ 65772,    "Web Lite Solutions Corp." },
+	{ 65773,    "AGROWAY TECNOLOGIA" },
+	{ 65774,    "Kimber Mfg., Inc." },
+	{ 65775,    "SIRECOM S.A.R.L" },
+	{ 65776,    "Mapsted Corp" },
+	{ 65777,    "Nemzeti Üzleti Szolgáltató Zrt." },
+	{ 65778,    "Business Opportunity Management" },
+	{ 65779,    "TransWorld Scribes Limited" },
+	{ 65780,    "FGDConsulting AB" },
+	{ 65781,    "Sun Electronics Co., Ltd." },
+	{ 65782,    "Resonance Health" },
+	{ 65783,    "Taifun Tofu GmbH" },
+	{ 65784,    "ENFASYS INGENIERIA SL" },
+	{ 65785,    "Insightexus" },
+	{ 65786,    "Simple Sign" },
+	{ 65787,    "CANOPY" },
+	{ 65788,    "Airiam" },
+	{ 65789,    "Thessia s.r.o." },
+	{ 65790,    "SevenLayerTea" },
+	{ 65791,    "Hasil Technologies Inc." },
+	{ 65792,    "Lampyris Factory LLC" },
+	{ 65793,    "CELLCON BIOMEDICAL TECH. CO., LTD." },
+	{ 65794,    "Gospower" },
+	{ 65795,    "homelabsdx" },
+	{ 65796,    "Niklas Vlach" },
+	{ 65797,    "STORYBEL" },
+	{ 65798,    "Be-ys Health Solutions France" },
+	{ 65799,    "TLI" },
+	{ 65800,    "Keynua Peru S.A.C." },
+	{ 65801,    "CNS-LINK" },
+	{ 65802,    "Configura" },
+	{ 65803,    "John Michael Kane" },
+	{ 65804,    "Sintela, Inc." },
+	{ 65805,    "HIT Systempartner GmbH (PC-SPEZIALIST Hannover)" },
 	{ 0, NULL }
 };
 

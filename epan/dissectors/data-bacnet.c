@@ -1630,6 +1630,8 @@ BACnetVendorIdentifiers[] = {
     { 1619, "Qingping Technology Beijing Co., Ltd." },
     { 1620, "PSsystec GmbH" },
     { 1621, "3ES Otomasyon San. Tic. Ltd. Sti." },
+    { 1622, "Network Corporation" },
+    { 1623, "Veawe Info Dynamics Private Limited" },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);
