@@ -57,6 +57,7 @@
 			"type": "seasonal",
 			"tag": "Birthday",
 			"title": "Happy Birthday, Wireshark!",
+			"description": "",
 			"body_text": "On this day in 1998, the first version of Ethereal (later renamed Wireshark) was released. Thank you to the community that has kept the project thriving ever since!",
 			"url": "https://www.wireshark.org/docs/wsug_html_chunked/ChIntroHistory.html",
 			"button_label": "Our History",
@@ -134,6 +135,17 @@
 			"button_label": "Visit Website",
 			"url": "https://www.recall.ai",
 			"image": "sponsors/recallai-gold.svg"
+		},
+		{
+			"type": "tips",
+			"tag": "WCA",
+			"title": "Wireshark Certification",
+			"description": "Wireshark Certified Analyst Certification",
+			"description_sub": "",
+			"body_text": "Designed to formally recognize engineers who demonstrate professional-level proficiency in network protocol analysis and troubleshooting using Wireshark.",
+			"button_label": "More Info",
+			"url": "https://www.wireshark.org/certifications/",
+			"image": "wca.png"
 		},
 		{
 			"type": "tips",
