@@ -96,8 +96,8 @@ def parse_source(source_path):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--update", action="store_true",
-                    help="Update %s as needed instead of writing to stdout" % SOURCE_FILE)
+parser.add_argument("--dump", action="store_true",
+                    help=f"Dump {SOURCE_FILE} to stdout instead of updating")
 
 
 def main():
@@ -107,7 +107,9 @@ def main():
     j_metainfo, j_block = process_json(r.json(), lastmod=r.headers['Last-Modified'])
     source_path = os.path.join(this_dir, '..', SOURCE_FILE)
 
-    if args.update:
+    if args.dump:
+        print(j_metainfo, j_block)
+    else:
         s_begin, _, s_block, s_end = parse_source(source_path)
         if s_block == j_block:
             print("File is up-to-date")
@@ -118,8 +120,6 @@ def main():
                 f.write(j_block)
                 f.write(s_end)
             print("Updated %s" % source_path)
-    else:
-        print(j_metainfo, j_block)
 
 
 if __name__ == '__main__':

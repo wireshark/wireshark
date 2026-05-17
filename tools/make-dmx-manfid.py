@@ -13,6 +13,7 @@
 import urllib.request
 import re
 import datetime
+import sys
 
 BASE_URL = "https://tsp.esta.org/tsp/working_groups/CP/mfctrIDs.php"
 OUTPUT_SOURCE_FILE = "epan/dissectors/data-dmx-manfid.c"
@@ -102,11 +103,11 @@ def main():
     # note that it should be one less because of the header row
     if len(rows) != row_count - 1:
         print("ERROR: number of detected rows doesn't match number of row data elements")
-        exit()
+        sys.exit(1)
 
     if len(rows) < MIN_COUNT:
         print("ERROR: number of manufacturers is less than ths stored previous count")
-        exit()
+        sys.exit(1)
 
     output = HEADER
     output += "static const value_string dmx_esta_manfid_vals[] = {\n"

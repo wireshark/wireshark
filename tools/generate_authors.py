@@ -16,6 +16,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 import argparse
+import os
+import os.path
 import re
 import subprocess
 
@@ -119,7 +121,7 @@ def generate_git_contributors_text(contributors_emails, git_authors_emails):
 # Read authors file until we find gitlog entries, then stop
 def read_authors(parsed_args):
     lines = []
-    with open(parsed_args.authors[0], 'r', encoding='utf-8') as fh:
+    with open(parsed_args.authors, 'r', encoding='utf-8') as fh:
         for line in fh.readlines():
             if '= From git log =' in line:
                 break
@@ -128,8 +130,9 @@ def read_authors(parsed_args):
 
 
 def main():
+    authors_file = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'AUTHORS'))
     parser = argparse.ArgumentParser(description="Generate the AUTHORS file combining existing AUTHORS file with git commit log.")
-    parser.add_argument("authors", metavar='authors', nargs=1, help="path to AUTHORS file")
+    parser.add_argument("authors", metavar='authors', nargs='?', default=authors_file, help="path to AUTHORS file")
     parsed_args = parser.parse_args()
 
     author_content = read_authors(parsed_args)
@@ -145,7 +148,7 @@ def main():
     git_contributor_header = '= From git log =\n\n'
     output = author_content + git_contributor_header + git_contributors_text + '\n'
 
-    with open(parsed_args.authors[0], 'w', encoding='utf-8') as fh:
+    with open(parsed_args.authors, 'w', encoding='utf-8') as fh:
         fh.write(output)
 
 
