@@ -35,6 +35,7 @@
 
 #include <ws_exit_codes.h>
 #include <wsutil/ws_getopt.h>
+#include <wsutil/nstime.h>
 
 #include <wiretap/secrets-types.h>
 #include <wiretap/wtap.h>
@@ -74,8 +75,6 @@
 #define CANT_EXTRACT_PREFIX 2
 #define WRITE_ERROR         2
 #define DUMP_ERROR          2
-
-#define NANOSECS_PER_SEC 1000000000
 
 /*
  * Some globals so we can pass things to various routines
@@ -1816,7 +1815,7 @@ main(int argc, char *argv[])
             double spb_int, spb_frac;
             spb_frac = modf(spb, &spb_int);
             secs_per_block.secs = (time_t) spb_int;
-            secs_per_block.nsecs = (int) (NANOSECS_PER_SEC * spb_frac);
+            secs_per_block.nsecs = (int) (WS_NSECS_PER_SEC * spb_frac);
         }
             break;
 

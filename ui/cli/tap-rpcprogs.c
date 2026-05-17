@@ -27,9 +27,7 @@
 #include <epan/dissectors/packet-rpc.h>
 
 #include <wsutil/cmdarg_err.h>
-
-#define MICROSECS_PER_SEC   1000000
-#define NANOSECS_PER_SEC    1000000000
+#include <wsutil/nstime.h>
 
 void register_tap_listener_rpcprogs(void);
 
@@ -157,8 +155,8 @@ rpcprogs_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 
 	rp->tot.secs  += delta.secs;
 	rp->tot.nsecs += delta.nsecs;
-	if (rp->tot.nsecs > NANOSECS_PER_SEC) {
-		rp->tot.nsecs -= NANOSECS_PER_SEC;
+	if (rp->tot.nsecs > WS_NSECS_PER_SEC) {
+		rp->tot.nsecs -= WS_NSECS_PER_SEC;
 		rp->tot.secs++;
 	}
 	rp->num++;
@@ -184,18 +182,19 @@ rpcprogs_draw(void *tapdata)
 		if (rp->num == 0) {
 			continue;
 		}
-		/* Scale the average SRT in units of 1us and round to the nearest us. */
-		td = ((uint64_t)(rp->tot.secs)) * NANOSECS_PER_SEC + rp->tot.nsecs;
-		td = ((td / rp->num) + 500) / 1000;
+		/* Scale the average SRT in units of 1 ns */
+		td = ((uint64_t)(rp->tot.secs)) * WS_NSECS_PER_SEC + rp->tot.nsecs;
+		/* Convert to us, rounded to the nearest us. */
+		td = ((td / rp->num) + (WS_NSECS_PER_USEC/2)) / WS_NSECS_PER_USEC;
 
 		snprintf(str, sizeof(str), "%s(%d)", uuid_type_get_uuid_name("rpc", GUINT_TO_POINTER(rp->program), NULL), rp->program);
 		printf("%-15s %2u %6d %3d.%06d %3d.%06d %3" PRIu64 ".%06" PRIu64 "\n",
 		       str,
 		       rp->version,
 		       rp->num,
-		       (int)(rp->min.secs), (rp->min.nsecs+500)/1000,
-		       (int)(rp->max.secs), (rp->max.nsecs+500)/1000,
-		       td/MICROSECS_PER_SEC, td%MICROSECS_PER_SEC
+		       (int)(rp->min.secs), (rp->min.nsecs+(WS_NSECS_PER_USEC/2))/WS_NSECS_PER_USEC,
+		       (int)(rp->max.secs), (rp->max.nsecs+(WS_NSECS_PER_USEC/2))/WS_NSECS_PER_USEC,
+		       td/WS_USECS_PER_SEC, td%WS_USECS_PER_SEC
 		);
 	}
 	printf("===================================================================\n");

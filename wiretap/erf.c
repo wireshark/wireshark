@@ -42,6 +42,7 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/glib-compat.h>
 #include <wsutil/ws_padding_to.h>
+#include <wsutil/nstime.h>
 
 #include "wtap_module.h"
 #include "file_wrappers.h"
@@ -999,7 +1000,7 @@ static void erf_dump_priv_init_gen_time(erf_dump_t *dump_priv) {
 
   real_time = g_get_real_time();
   /* Convert TimeVal to ERF timestamp */
-  dump_priv->gen_time = ((real_time / G_USEC_PER_SEC) << 32) + ((real_time % G_USEC_PER_SEC) << 32) / 1000 / 1000;
+  dump_priv->gen_time = ((real_time / WS_USECS_PER_SEC) << 32) + ((real_time % WS_USECS_PER_SEC) << 32) / 1000 / 1000;
 }
 
 

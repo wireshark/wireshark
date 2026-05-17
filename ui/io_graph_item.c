@@ -17,10 +17,9 @@
 
 #include <app/application_flavor.h>
 
-#include "ui/io_graph_item.h"
+#include <wsutil/nstime.h>
 
-// XXX - constant defined elsewhere, any benefit to store it in a global .h ?
-#define MICROSECS_PER_SEC 1000000
+#include "ui/io_graph_item.h"
 
 int64_t get_io_graph_index(packet_info *pinfo, int interval) {
     nstime_t time_delta;
@@ -156,11 +155,11 @@ double get_io_graph_item(const io_graph_item_t *items_, io_graph_item_unit_t val
     // more meaningful and consistent.
     switch (val_units_) {
     case IOG_ITEM_UNIT_PACKETS:
-        return asAOT ? MICROSECS_PER_SEC*item->frames/interval_ : item->frames;
+        return asAOT ? WS_USECS_PER_SEC*item->frames/interval_ : item->frames;
     case IOG_ITEM_UNIT_BYTES:
-        return (double)(asAOT ? MICROSECS_PER_SEC*item->bytes/interval_ : item->bytes);
+        return (double)(asAOT ? WS_USECS_PER_SEC*item->bytes/interval_ : item->bytes);
     case IOG_ITEM_UNIT_BITS:
-        return (double)(asAOT ? MICROSECS_PER_SEC*item->bytes*8/interval_ : item->bytes*8);
+        return (double)(asAOT ? WS_USECS_PER_SEC*item->bytes*8/interval_ : item->bytes*8);
     case IOG_ITEM_UNIT_CALC_FRAMES:
         return item->frames;
     case IOG_ITEM_UNIT_CALC_FIELDS:
@@ -198,7 +197,7 @@ double get_io_graph_item(const io_graph_item_t *items_, io_graph_item_unit_t val
             value = (double)item->int_min;
             break;
         case IOG_ITEM_UNIT_CALC_THROUGHPUT:
-            value = item->double_tot*MICROSECS_PER_SEC/interval_;
+            value = item->double_tot*WS_USECS_PER_SEC/interval_;
             break;
         case IOG_ITEM_UNIT_CALC_AVERAGE:
             if (item->fields) {
@@ -231,7 +230,7 @@ double get_io_graph_item(const io_graph_item_t *items_, io_graph_item_unit_t val
             value = (double)item->uint_min;
             break;
         case IOG_ITEM_UNIT_CALC_THROUGHPUT:
-            value = item->double_tot*MICROSECS_PER_SEC/interval_;
+            value = item->double_tot*WS_USECS_PER_SEC/interval_;
             break;
         case IOG_ITEM_UNIT_CALC_AVERAGE:
             if (item->fields) {

@@ -19,6 +19,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #include <wsutil/please_report_bug.h>
+#include <wsutil/nstime.h>
 #include <app/application_flavor.h>
 #include <wsutil/wslog.h>
 #include <extcap/ssh-base.h>
@@ -1045,7 +1046,7 @@ static int process_buffer_response_ios_xe_16(ssh_channel channel, uint8_t* packe
 						ws_debug("Exporting packet %d\n", *processed_packets);
 						/*  dump the packet to the pcap file */
 						if (!libpcap_write_packet(fp,
-								(uint32_t)(cur_time / G_USEC_PER_SEC), (uint32_t)(cur_time % G_USEC_PER_SEC),
+								(uint32_t)(cur_time / WS_USECS_PER_SEC), (uint32_t)(cur_time % WS_USECS_PER_SEC),
 								packet_size, packet_size, packet, &bytes_written, &err)) {
 							ws_debug("Error in libpcap_write_packet(): %s", g_strerror(err));
 							break;
@@ -1119,7 +1120,7 @@ static int process_buffer_response_ios_xe_17(ssh_channel channel, uint8_t* packe
 						ws_debug("Exporting packet %d\n", *processed_packets);
 						/*  dump the packet to the pcap file */
 						if (!libpcap_write_packet(fp,
-								(uint32_t)(cur_time / G_USEC_PER_SEC), (uint32_t)(cur_time % G_USEC_PER_SEC),
+								(uint32_t)(cur_time / WS_USECS_PER_SEC), (uint32_t)(cur_time % WS_USECS_PER_SEC),
 								packet_size, packet_size, packet, &bytes_written, &err)) {
 							ws_debug("Error in libpcap_write_packet(): %s", g_strerror(err));
 							break;

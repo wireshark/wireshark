@@ -23,6 +23,7 @@
 #include "wsutil/ws_getopt.h"
 #include "wsutil/strtoi.h"
 #include "wsutil/epochs.h"
+#include "wsutil/nstime.h"
 #include "etw_message.h"
 #include "etw_ndiscap.h"
 
@@ -728,7 +729,7 @@ static wtap_dumper* etw_dump_open(const char* pcapng_filename, int* err, char** 
     descr_mand->tsprecision = WTAP_TSPREC_USEC;
     descr_mand->wtap_encap = WTAP_ENCAP_ETW;
     /* Timestamp for each pcapng packet is usec units, so time_units_per_second need be set to 10^6 */
-    descr_mand->time_units_per_second = G_USEC_PER_SEC;
+    descr_mand->time_units_per_second = WS_USECS_PER_SEC;
     g_array_append_val(idb_datas, idb_data);
     idb_info->interface_data = idb_datas;
 
@@ -996,7 +997,7 @@ void wtap_etl_add_interface(int pkt_encap, const char* interface_name, unsigned 
     descr_mand->wtap_encap = pkt_encap;
     descr_mand->tsprecision = WTAP_TSPREC_USEC;
     /* Timestamp for each pcapng packet is usec units, so time_units_per_second need be set to 10^6 */
-    descr_mand->time_units_per_second = G_USEC_PER_SEC;
+    descr_mand->time_units_per_second = WS_USECS_PER_SEC;
     if (interface_name_length) {
         wtap_block_add_string_option(idb_data, OPT_IDB_NAME, interface_name, interface_name_length);
     }
@@ -1028,8 +1029,8 @@ void wtap_etl_rec_dump(char* etl_record, ULONG total_packet_length, ULONG origin
         wtap_block_add_string_option(rec.block, OPT_COMMENT, comment, comment_length);
     }
     /* Convert usec of the timestamp into nstime_t */
-    rec.ts.secs = (time_t)(timestamp.QuadPart / G_USEC_PER_SEC);
-    rec.ts.nsecs = (int)(((timestamp.QuadPart % G_USEC_PER_SEC) * G_NSEC_PER_SEC) / G_USEC_PER_SEC);
+    rec.ts.secs = (time_t)(timestamp.QuadPart / WS_USECS_PER_SEC);
+    rec.ts.nsecs = (int)(((timestamp.QuadPart % WS_USECS_PER_SEC) * WS_NSECS_PER_SEC) / WS_USECS_PER_SEC);
 
     /* and save the packet */
     ws_buffer_append(&rec.data, (uint8_t*)etl_record, total_packet_length);

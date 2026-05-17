@@ -18,9 +18,8 @@
 #include <epan/timestamp.h>
 #include <epan/stat_tap_ui.h>
 #include <wsutil/cmdarg_err.h>
+#include <wsutil/nstime.h>
 #include <ui/cli/tshark-tap.h>
-
-#define NANOSECS_PER_SEC 1000000000
 
 typedef struct _srt_t {
 	const char *type;
@@ -51,22 +50,23 @@ draw_srt_table_data(srt_stat_table *rst, bool draw_footer, const char *subfilter
 		if(rst->procedures[i].stats.num==0){
 			continue;
 		}
-		/* Scale the average SRT in units of 1us and round to the nearest us.
-		   tot.secs is a time_t which may be 32 or 64 bits (or even floating)
+		/* tot.secs is a time_t which may be 32 or 64 bits (or even floating)
 		   depending uon the platform.  After casting tot.secs to 64 bits, it
 		   would take a capture with a duration of over 136 *years* to
 		   overflow the secs portion of td. */
-		td = ((uint64_t)(rst->procedures[i].stats.tot.secs))*NANOSECS_PER_SEC + rst->procedures[i].stats.tot.nsecs;
-		sum = (td + 500) / 1000;
-		td = ((td / rst->procedures[i].stats.num) + 500) / 1000;
+		/* Scale the average SRT in units of 1 ns */
+		td = ((uint64_t)(rst->procedures[i].stats.tot.secs))*WS_NSECS_PER_SEC + rst->procedures[i].stats.tot.nsecs;
+		/* Convert to us, rounded to the nearest us. */
+		sum = (td + (WS_NSECS_PER_USEC/2)) / WS_NSECS_PER_USEC;
+		td = ((td / rst->procedures[i].stats.num) + (WS_NSECS_PER_USEC/2)) / WS_NSECS_PER_USEC;
 
 		printf("%5d  %-22s %6u %3d.%06d %3d.%06d %3d.%06d %3d.%06d\n",
 		       i, rst->procedures[i].procedure,
 		       rst->procedures[i].stats.num,
-		       (int)rst->procedures[i].stats.min.secs, (rst->procedures[i].stats.min.nsecs+500)/1000,
-		       (int)rst->procedures[i].stats.max.secs, (rst->procedures[i].stats.max.nsecs+500)/1000,
-		       (int)(td/1000000), (int)(td%1000000),
-		       (int)(sum/1000000), (int)(sum%1000000)
+		       (int)rst->procedures[i].stats.min.secs, (rst->procedures[i].stats.min.nsecs+(WS_NSECS_PER_USEC/2))/WS_NSECS_PER_USEC,
+		       (int)rst->procedures[i].stats.max.secs, (rst->procedures[i].stats.max.nsecs+(WS_NSECS_PER_USEC/2))/WS_NSECS_PER_USEC,
+		       (int)(td/WS_USECS_PER_SEC), (int)(td%WS_USECS_PER_SEC),
+		       (int)(sum/WS_USECS_PER_SEC), (int)(sum%WS_USECS_PER_SEC)
 		);
 	}
 
