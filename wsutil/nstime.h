@@ -66,9 +66,6 @@ typedef struct {
 #define WS_NSECS_PER_MSEC	(WS_NSECS_PER_SEC/WS_MSECS_PER_SEC)
 #define WS_NSECS_PER_USEC	(WS_NSECS_PER_SEC/WS_USECS_PER_SEC)
 
-#define WS_MSECS_PER_NSEC	(WS_NSECS_PER_SEC/WS_MSECS_PER_SEC)
-#define WS_USECS_PER_NSEC	(WS_NSECS_PER_SEC/WS_USECS_PER_SEC)
-
 #define WS_NSECS_PER_100NSEC	(100)
 #define WS_100NSECS_PER_SEC	(WS_NSECS_PER_SEC/WS_NSECS_PER_100NSEC)
 
@@ -90,13 +87,13 @@ typedef struct {
  * Initialize to a specified number of seconds and microseconds.
  * This does not assume that the number of microseconds is < 1 second.
  */
-#define NSTIME_INIT_SECS_USECS(secs, usecs)	{(secs) + ((usecs) / WS_USECS_PER_SEC), ((usecs) % WS_USECS_PER_SEC) * WS_USECS_PER_NSEC}
+#define NSTIME_INIT_SECS_USECS(secs, usecs)	{(secs) + ((usecs) / WS_USECS_PER_SEC), ((usecs) % WS_USECS_PER_SEC) * WS_NSECS_PER_USEC}
 
 /*
  * Initialize to a specified number of seconds and milliseconds.
  * This does not assume that the number of milliseconds is < 1 second.
  */
-#define NSTIME_INIT_SECS_MSECS(secs, msecs)	{(secs) + ((msecs) / WS_MSECS_PER_SEC), ((msecs) % WS_MSECS_PER_SEC) *WS_MSECS_PER_NSEC}
+#define NSTIME_INIT_SECS_MSECS(secs, msecs)	{(secs) + ((msecs) / WS_MSECS_PER_SEC), ((msecs) % WS_MSECS_PER_SEC) * WS_NSECS_PER_MSEC}
 
 /* Initialize to a specified number of seconds */
 #define NSTIME_INIT_SECS(secs)			{secs, 0}
