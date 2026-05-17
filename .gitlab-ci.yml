@@ -581,7 +581,7 @@ Windows x64 Package:
     - msbuild /verbosity:minimal pdb_zip_package.vcxproj
     - C:\gitlab-builds\bin\mse-scan.ps1
     - run\RelWithDebInfo\tshark --version
-    - rclone config create wireshark $RCLONE_CONFIG --no-output
+    - rclone config create wireshark @($env:RCLONE_CONFIG.Split()) --no-output
     - $packages = Get-ChildItem "packaging\nsis\Wireshark-*-x64.exe", "packaging\nsis\Stratoshark-*-x64.exe", "packaging\wix\Wireshark-*-x64.msi", "packaging\portableapps\WiresharkPortable??_*.paf.exe", "Wireshark-pdb-*x64.zip"
     - foreach ($package in $packages) { Write-Host $package.name $(Get-Filehash -Algorithm SHA256 $package).Hash.ToLower() $package.length "bytes" }
     - if (Test-Path env:S3_DESTINATION_WINDOWS_X64) { foreach ($package in $packages) { rclone copyto $package "wireshark:$env:S3_DESTINATION_WINDOWS_X64/$($package.Name)" --missing-on-dst - } }
@@ -628,7 +628,7 @@ Windows Arm64 Package:
     - msbuild /verbosity:minimal pdb_zip_package.vcxproj
     - C:\gitlab-builds\bin\mse-scan.ps1
     - run\RelWithDebInfo\tshark --version
-    - rclone config create wireshark $RCLONE_CONFIG --no-output
+    - rclone config create wireshark @($env:RCLONE_CONFIG.Split()) --no-output
     - $packages = Get-ChildItem "packaging\nsis\Wireshark-*-arm64.exe", "packaging\nsis\Stratoshark-*-arm64.exe", "Wireshark-pdb-*arm64.zip"
     - foreach ($package in $packages) { Write-Host $package.name $(Get-Filehash -Algorithm SHA256 $package).Hash.ToLower() $package.length "bytes" }
     - if (Test-Path env:S3_DESTINATION_WINDOWS_ARM64) { foreach ($package in $packages) { rclone copyto $package "wireshark:$env:S3_DESTINATION_WINDOWS_ARM64/$($package.Name)" --missing-on-dst - } }
