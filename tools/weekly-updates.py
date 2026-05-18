@@ -40,12 +40,12 @@ UPDATE_TOOLS = (
         "path": "tools/make-iana-constants.py",
         "updated_files": ["epan/iana-info.c", "epan/iana-info.h"],
     },
-    # Need to add a retry before enabling this.
-    # {
-    #     'name': 'manuf',
-    #     'path': 'tools/make-manuf.py',
-    #     'updated_files': ['epan/manuf-data.c']
-    # }
+    {
+        'name': 'manuf',
+        'path': 'tools/make-manuf.py',
+        "python_modules": ["icu"],
+        'updated_files': ['epan/manuf-data.c']
+    },
     {
         "name": "USB",
         "path": "tools/make-usb.py",
@@ -90,7 +90,7 @@ UPDATE_TOOLS = (
             "epan/dissectors/data-dmx-manfid.h",
         ],
     },
-    # Asterix requires an argument and a compile.
+    # Asterix requires an argument and a compile, and should only be run from master.
     # {
     #     'name': 'Asterix',
     #     'path': 'tools/make-specs.py',

@@ -16,9 +16,9 @@ import html
 import os
 import re
 import sys
+import time
 import urllib.request
 import urllib.error
-import urllib.parse
 
 have_icu = False
 try:
@@ -31,7 +31,8 @@ except ImportError:
 def exit_msg(msg=None, status=1):
     if msg is not None:
         sys.stderr.write(msg + '\n\n')
-    sys.stderr.write(__doc__ + '\n')
+    else:
+        sys.stderr.write(__doc__ + '\n')
     sys.exit(status)
 
 def open_url(url):
@@ -48,18 +49,35 @@ def open_url(url):
         url_fd.close()
     else:
         url_path = '/'.join(url)
-
         req_headers = { 'User-Agent': 'Wireshark make-manuf' }
-        try:
-            req = urllib.request.Request(url_path, headers=req_headers)
-            response = urllib.request.urlopen(req)
-            body = response.read().decode('UTF-8', 'replace').replace(u'\u200e', '')
-        except urllib.error.HTTPError as e:
-            exit_msg(f'Error {e.code} opening {url_path}: {e.reason}')
-        except urllib.error.URLError as e:
-            exit_msg(f'Error opening {url_path}: {e.reason}')
-        except Exception as e:
-            exit_msg(f'Error opening {url_path}: {e}')
+        retry_count = 3
+        sleep_time = 10
+
+        while retry_count >= 0:
+            retry_count -= 1
+            last_err = None
+
+            try:
+                req = urllib.request.Request(url_path, headers=req_headers)
+                response = urllib.request.urlopen(req)
+                body = response.read().decode('UTF-8', 'replace').replace(u'\u200e', '')
+            except urllib.error.HTTPError as e:
+                last_err = f'Error {e.code} opening {url_path}: {e.reason}'
+            except urllib.error.URLError as e:
+                last_err = f'Error opening {url_path}: {e.reason}'
+            except Exception as e:
+                last_err = f'Error opening {url_path}: {e}'
+
+            if last_err is None:
+                break
+
+            if retry_count >= 0:
+                print(f'{last_err}. Retrying after {sleep_time}s.')
+                time.sleep(sleep_time)
+                sleep_time += 10
+                continue
+
+            exit_msg(last_err)
 
     return body
 
