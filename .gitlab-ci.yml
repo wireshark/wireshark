@@ -34,7 +34,7 @@ variables:
   HOMEBREW_COLOR: "1"
   # Skip irrelevant SAST scanners:
   SAST_EXCLUDED_ANALYZERS: "brakeman,eslint,security-code-scan,semgrep,spotbugs"
-  RCLONE_CONFIG: "s3
+  WS_RCLONE_REMOTE_OPTS: "s3
     provider=AWS
     region=us-east-2
     env_auth=true
@@ -333,7 +333,7 @@ Source Package:
     # - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
     - if [ "$CI_JOB_STATUS" != "success" ]; then exit 0 ; fi
     - if [ -n "$SCHEDULE_TYPE" ] ; then exit 0 ; fi
-    - rclone config create wireshark $RCLONE_CONFIG
+    - rclone config create wireshark $WS_RCLONE_REMOTE_OPTS
     - stat --format="%n %s bytes" wireshark-*.tar.*
     - for digest in sha512 sha256 sha1 ; do openssl $digest wireshark-*.tar.* ; done
     - if [ -n "$S3_DESTINATION_DIST" ] ; then rclone copy . "wireshark:$S3_DESTINATION_DIST" --include "wireshark-*.tar.*" ; fi
@@ -581,14 +581,7 @@ Windows x64 Package:
     - msbuild /verbosity:minimal pdb_zip_package.vcxproj
     - C:\gitlab-builds\bin\mse-scan.ps1
     - run\RelWithDebInfo\tshark --version
-    - rclone config create wireshark s3
-      provider=AWS
-      region=us-east-2
-      env_auth=true
-      endpoint=$S3_ENDPOINT_WIRESHARK
-      acl=private
-      --non-interactive --obscure
-    # --no-output
+    - rclone config create wireshark @(-split $env:WS_RCLONE_REMOTE_OPTS) --no-output
     - $packages = Get-ChildItem "packaging\nsis\Wireshark-*-x64.exe", "packaging\nsis\Stratoshark-*-x64.exe", "packaging\wix\Wireshark-*-x64.msi", "packaging\portableapps\WiresharkPortable??_*.paf.exe", "Wireshark-pdb-*x64.zip"
     - foreach ($package in $packages) { Write-Host $package.name $(Get-Filehash -Algorithm SHA256 $package).Hash.ToLower() $package.length "bytes" }
     - if (Test-Path env:S3_DESTINATION_WINDOWS_X64) { foreach ($package in $packages) { rclone copyto $package "wireshark:$env:S3_DESTINATION_WINDOWS_X64/$($package.Name)" --missing-on-dst - } }
@@ -635,14 +628,7 @@ Windows Arm64 Package:
     - msbuild /verbosity:minimal pdb_zip_package.vcxproj
     - C:\gitlab-builds\bin\mse-scan.ps1
     - run\RelWithDebInfo\tshark --version
-    - rclone config create wireshark s3
-      provider=AWS
-      region=us-east-2
-      env_auth=true
-      endpoint=$S3_ENDPOINT_WIRESHARK
-      acl=private
-      --non-interactive --obscure
-    # --no-output
+    - rclone config create wireshark @(-split $env:WS_RCLONE_REMOTE_OPTS) --no-output
     - $packages = Get-ChildItem "packaging\nsis\Wireshark-*-arm64.exe", "packaging\nsis\Stratoshark-*-arm64.exe", "Wireshark-pdb-*arm64.zip"
     - foreach ($package in $packages) { Write-Host $package.name $(Get-Filehash -Algorithm SHA256 $package).Hash.ToLower() $package.length "bytes" }
     - if (Test-Path env:S3_DESTINATION_WINDOWS_ARM64) { foreach ($package in $packages) { rclone copyto $package "wireshark:$env:S3_DESTINATION_WINDOWS_ARM64/$($package.Name)" --missing-on-dst - } }
