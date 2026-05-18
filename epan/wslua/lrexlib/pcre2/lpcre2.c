@@ -98,7 +98,7 @@ static void do_named_subpatterns (lua_State *L, TPcre2 *ud, const char *text);
 #define INDEX_CHARTABLES_META  1      /* chartables type's metatable */
 #define INDEX_CHARTABLES_LINK  2      /* link chartables to compiled regex */
 
-const char chartables_typename[] = "chartables";
+static const char chartables_typename[] = "chartables";
 
 /*  Functions
  ******************************************************************************

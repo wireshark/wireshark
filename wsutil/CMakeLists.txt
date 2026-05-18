@@ -125,6 +125,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	pint.h
 	please_report_bug.h
 	plugins.h
+	plugin_exports.h
 	pow2.h
 	privileges.h
 	processes.h

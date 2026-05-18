@@ -164,12 +164,11 @@ DESCRIPTION_FLAG = {
 }
 
 reg_code += """
+#include <wsutil/plugin_exports.h>
+
 WS_DLL_PUBLIC_DEF const char plugin_version[] = PLUGIN_VERSION;
 WS_DLL_PUBLIC_DEF const int plugin_want_major = VERSION_MAJOR;
 WS_DLL_PUBLIC_DEF const int plugin_want_minor = VERSION_MINOR;
-
-WS_DLL_PUBLIC void plugin_register(void);
-WS_DLL_PUBLIC uint32_t plugin_describe(void);
 
 uint32_t plugin_describe(void)
 {

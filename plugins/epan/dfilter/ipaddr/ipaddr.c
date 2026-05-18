@@ -9,8 +9,11 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+/* plugins are DLLs on Windows */
 #define WS_BUILD_DLL
 #include <wireshark.h>
+#include <wsutil/plugin_exports.h>
+
 #include <wsutil/plugins.h>
 #include <epan/dfilter/dfilter-plugin.h>
 #include <epan/iana-info.h>
@@ -23,9 +26,6 @@
 WS_DLL_PUBLIC_DEF const char plugin_version[] = PLUGIN_VERSION;
 WS_DLL_PUBLIC_DEF const int plugin_want_major = WIRESHARK_VERSION_MAJOR;
 WS_DLL_PUBLIC_DEF const int plugin_want_minor = WIRESHARK_VERSION_MINOR;
-
-WS_DLL_PUBLIC void plugin_register(void);
-WS_DLL_PUBLIC uint32_t plugin_describe(void);
 
 typedef bool (*ip_is_func_t)(fvalue_t *);
 

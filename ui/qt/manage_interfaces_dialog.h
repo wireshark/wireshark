@@ -71,9 +71,9 @@ private:
 #ifdef HAVE_PCAP_REMOTE
     /**
      * @brief Adds a remote interface using a variant map.
-     * @param unnamed The variant map containing remote configuration data.
+     * @param remoteHostMap The variant map containing remote configuration data.
      */
-    void addRemote(const QVariantMap&&);
+    void addRemote(const QVariantMap&& remoteHostMap);
 
     /**
      * @brief Populates the list with existing remote interfaces.
