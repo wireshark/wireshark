@@ -156,7 +156,7 @@ EXPORT_ENUMS = {
 # File to be patched
 SOURCE_FILE = "epan/dissectors/packet-netlink-nl80211.c"
 # URL where the latest version can be found
-URL = "https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/plain/include/uapi/linux/nl80211.h"
+URL = "https://raw.githubusercontent.com/torvalds/linux/refs/heads/master/include/uapi/linux/nl80211.h"
 
 def make_enum(name, values, expressions, indent):
     code = 'enum ws_%s {\n' % name
