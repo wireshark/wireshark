@@ -2450,8 +2450,8 @@ static void dissect_nvme_get_logpage_err_inf_resp(proto_item *ti, tvbuff_t *cmd_
 
 static void post_add_intval_from_16bytes(proto_item *ti, tvbuff_t *tvb, unsigned off)
 {
-    uint64_t lo = tvb_get_uint64(tvb, off, 0);
-    uint64_t hi = tvb_get_uint64(tvb, off, 8);
+    uint64_t lo = tvb_get_uint64(tvb, off, ENC_BIG_ENDIAN);
+    uint64_t hi = tvb_get_uint64(tvb, off+8, ENC_BIG_ENDIAN);
     double res;
 
     res = (double)hi;
