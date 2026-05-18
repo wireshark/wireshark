@@ -117,6 +117,11 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
             "  margin: 0px;"
             "}";
 
+    QString label_ss =
+            "QLabel {"
+            "  margin-left: 0.5em;"
+            "}";
+
     expert_button_ = new QToolButton(this);
     expert_button_->setIconSize(QSize(icon_size, icon_size));
     expert_button_->setStyleSheet(button_ss);
@@ -152,8 +157,10 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     info_progress_hb->addWidget(&progress_frame_);
     info_progress_hb->addStretch(10);
 
+    // LabelStack does setStyleSheet for QLabel but ClickableLabel does not
     packet_status_.setAccessibleName(tr("Packet statistics"));
     packet_status_.setAccessibleDescription(tr("Shows the number of captured, displayed, and selected packets."));
+    profile_status_.setStyleSheet(label_ss);
     profile_status_.setAccessibleName(tr("Configuration profile"));
     profile_status_.setAccessibleDescription(tr("Displays the current configuration profile and allows switching between profiles."));
 
