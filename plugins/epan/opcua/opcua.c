@@ -29,6 +29,7 @@
 #include <wiretap/secrets-types.h>
 #include <wsutil/file_util.h>
 
+#include "opcua.h"
 #include "opcua_application_layer.h"
 #include "opcua_complextypeparser.h"
 #include "opcua_enumparser.h"

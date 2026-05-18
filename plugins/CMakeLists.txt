@@ -82,16 +82,6 @@ if(ENABLE_PLUGIN_IFDEMO)
 	)
 endif()
 
-# Plugins are required to define some versioning variables, which blocks this.
-# XXX - Introduce a plugin header that declares them?
-# Clang has -Wmissing-variable-declarations for C and C++, gcc only for C
-if(C_Wmissing_variable_declarations_VALID)
-	add_compile_options("$<$<COMPILE_LANGUAGE:C>:-Wno-error=missing-variable-declarations>")
-endif()
-if(CXX_Wmissing_variable_declarations_VALID)
-	add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-Wno-error=missing-variable-declarations>")
-endif()
-
 foreach(_plugin_src_dir ${WIRESHARK_PLUGIN_SRC_DIRS} ${STRATOSHARK_PLUGIN_SRC_DIRS})
 	cmake_path(SET _plugins_dir "plugins")
 	cmake_path(IS_PREFIX _plugins_dir "${_plugin_src_dir}" _is_plugins_subdir)

@@ -20,6 +20,7 @@
 #include <epan/conversation.h>
 #include "epan/column-utils.h"
 
+#include "opcua.h"
 #include "opcua_security_layer.h"
 #include "opcua_application_layer.h"
 #include "opcua_simpletypes.h"
@@ -44,9 +45,6 @@ static int hf_opcua_transport_scert;
 static int hf_opcua_transport_rcthumb;
 static int hf_opcua_transport_seq;
 static int hf_opcua_transport_rqid;
-
-/** subtree types */
-extern int proto_opcua;
 
 /** Defined security policy URL from Part 7 OPC UA Specification. */
 #define UA_SECURITY_POLICY_NONE_STRING "http://opcfoundation.org/UA/SecurityPolicy#None"

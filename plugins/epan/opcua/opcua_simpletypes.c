@@ -24,6 +24,7 @@
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-windows-common.h>
 #include <epan/dissectors/packet-x509af.h>
+#include "opcua.h"
 #include "opcua_simpletypes.h"
 #include "opcua_hfindeces.h"
 #include "opcua_statuscode.h"
@@ -174,8 +175,6 @@ int hf_opcua_resultMask_typedefinition;
 
 static expert_field ei_array_length;
 static expert_field ei_nesting_depth;
-
-extern int proto_opcua;
 
 /** NodeId encoding mask table */
 static const value_string g_nodeidmasks[] = {
