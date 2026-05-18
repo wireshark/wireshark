@@ -9109,13 +9109,36 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
           conversation_completeness |= TCP_COMPLETENESS_SYNACK;
       }
 
-      /* ACKs */
-      if((tcph->th_flags&(TH_SYN|TH_ACK))==(TH_ACK)) {
+      /* ACKs
+       * if the segment length > 0, it's a DATA flag unless it matches SYN or RST (FIN allowed).
+       * Although RST may carry some data, but for diagnostic (or.. evasion), not for real transfer.
+       */
+      if((tcph->th_flags&(TH_SYN|TH_ACK|TH_RST))==(TH_ACK)) {
           if(tcph->th_seglen>0) { /* transporting some data */
               conversation_completeness |= TCP_COMPLETENESS_DATA;
           }
-          else { /* pure ACK */
-              conversation_completeness |= TCP_COMPLETENESS_ACK;
+
+          /* pure ACK belonging to the 3WHS, others are ignored */
+          else if( !(tcph->th_flags&TH_FIN) &&
+                   (
+                       ((conversation_completeness&(TCP_COMPLETENESS_SYNSENT |
+                                                    TCP_COMPLETENESS_SYNACK |
+                                                    TCP_COMPLETENESS_DATA )) == TCP_COMPLETENESS_SYNSENT
+                       && (tcph->th_rawseq==tcpd->fwd->base_seq+1))
+
+                       ||
+                       ((conversation_completeness&(TCP_COMPLETENESS_SYNSENT |
+                                                    TCP_COMPLETENESS_SYNACK |
+                                                    TCP_COMPLETENESS_DATA)) == TCP_COMPLETENESS_SYNACK
+                       && (tcph->th_rawack==tcpd->rev->base_seq+1))
+
+                       ||
+                       ((conversation_completeness&(TCP_COMPLETENESS_SYNSENT |
+                                                    TCP_COMPLETENESS_SYNACK |
+                                                    TCP_COMPLETENESS_DATA )) == (TCP_COMPLETENESS_SYNSENT|TCP_COMPLETENESS_SYNACK)
+                       && (tcph->th_rawseq==tcpd->fwd->base_seq+1)
+                       && (tcph->th_rawack==tcpd->rev->base_seq+1))) ) {
+               conversation_completeness |= TCP_COMPLETENESS_ACK;
           }
       }
 
