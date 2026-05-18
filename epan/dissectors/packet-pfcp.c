@@ -1509,6 +1509,8 @@ typedef struct _pfcp_hdr {
     uint64_t seid;    /* Session End-point ID */
 } pfcp_hdr_t;
 
+#define PFCP_SEID_INVALID UINT64_MAX
+
 /* Relation between frame -> session */
 static wmem_map_t* pfcp_session_table;
 
@@ -1604,6 +1606,35 @@ static const value_string pfcp_message_type[] = {
     {0, NULL}
 };
 static value_string_ext pfcp_message_type_ext = VALUE_STRING_EXT_INIT(pfcp_message_type);
+
+#define PFCP_MSG_IS_REQUEST(msg)                            \
+    ((msg) == PFCP_MSG_HEARTBEAT_REQUEST ||                 \
+     (msg) == PFCP_MSG_PFD_MANAGEMENT_REQUEST ||            \
+     (msg) == PFCP_MSG_ASSOCIATION_SETUP_REQUEST ||         \
+     (msg) == PFCP_MSG_ASSOCIATION_UPDATE_REQUEST ||        \
+     (msg) == PFCP_MSG_ASSOCIATION_RELEASE_REQUEST ||       \
+     (msg) == PFCP_MSG_NODE_REPORT_REQUEST ||               \
+     (msg) == PFCP_MSG_SESSION_SET_DELETION_REQUEST ||      \
+     (msg) == PFCP_MSG_SESSION_SET_MODIFICATION_REQUEST ||  \
+     (msg) == PFCP_MSG_SESSION_ESTABLISHMENT_REQUEST ||     \
+     (msg) == PFCP_MSG_SESSION_MODIFICATION_REQUEST ||      \
+     (msg) == PFCP_MSG_SESSION_DELETION_REQUEST ||          \
+     (msg) == PFCP_MSG_SESSION_REPORT_REQUEST)
+
+#define PFCP_MSG_IS_RESPONSE(msg)                           \
+    ((msg) == PFCP_MSG_HEARTBEAT_RESPONSE ||                \
+     (msg) == PFCP_MSG_PFD_MANAGEMENT_RESPONSE ||           \
+     (msg) == PFCP_MSG_ASSOCIATION_SETUP_RESPONSE ||        \
+     (msg) == PFCP_MSG_ASSOCIATION_UPDATE_RESPONSE ||       \
+     (msg) == PFCP_MSG_ASSOCIATION_RELEASE_RESPONSE ||      \
+     (msg) == PFCP_MSG_VERSION_NOT_SUPPORTED_RESPONSE ||    \
+     (msg) == PFCP_MSG_NODE_REPORT_RESPONSE ||              \
+     (msg) == PFCP_MSG_SESSION_SET_DELETION_RESPONSE ||     \
+     (msg) == PFCP_MSG_SESSION_SET_MODIFICATION_RESPONSE || \
+     (msg) == PFCP_MSG_SESSION_ESTABLISHMENT_RESPONSE ||    \
+     (msg) == PFCP_MSG_SESSION_MODIFICATION_RESPONSE ||     \
+     (msg) == PFCP_MSG_SESSION_DELETION_RESPONSE ||         \
+     (msg) == PFCP_MSG_SESSION_REPORT_RESPONSE)
 
 /* 8.1.2    Information Element Types */
 #define PFCP_IE_ID_CREATE_PDR                   1
@@ -10320,46 +10351,18 @@ pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, unsi
     pcr.seq_nr = seq_nr;
     pcr.req_time = pinfo->abs_ts;
 
-    switch (msgtype) {
-    case PFCP_MSG_HEARTBEAT_REQUEST:
-    case PFCP_MSG_PFD_MANAGEMENT_REQUEST:
-    case PFCP_MSG_ASSOCIATION_SETUP_REQUEST:
-    case PFCP_MSG_ASSOCIATION_UPDATE_REQUEST:
-    case PFCP_MSG_ASSOCIATION_RELEASE_REQUEST:
-    case PFCP_MSG_NODE_REPORT_REQUEST:
-    case PFCP_MSG_SESSION_SET_DELETION_REQUEST:
-    case PFCP_MSG_SESSION_SET_MODIFICATION_REQUEST:
-    case PFCP_MSG_SESSION_ESTABLISHMENT_REQUEST:
-    case PFCP_MSG_SESSION_MODIFICATION_REQUEST:
-    case PFCP_MSG_SESSION_DELETION_REQUEST:
-    case PFCP_MSG_SESSION_REPORT_REQUEST:
+    if (PFCP_MSG_IS_REQUEST(msgtype)) {
         pcr.is_request = true;
         pcr.req_frame = pinfo->num;
         pcr.rep_frame = 0;
-        break;
-    case PFCP_MSG_HEARTBEAT_RESPONSE:
-    case PFCP_MSG_PFD_MANAGEMENT_RESPONSE:
-    case PFCP_MSG_ASSOCIATION_SETUP_RESPONSE:
-    case PFCP_MSG_ASSOCIATION_UPDATE_RESPONSE:
-    case PFCP_MSG_ASSOCIATION_RELEASE_RESPONSE:
-    case PFCP_MSG_VERSION_NOT_SUPPORTED_RESPONSE:
-    case PFCP_MSG_NODE_REPORT_RESPONSE:
-    case PFCP_MSG_SESSION_SET_DELETION_RESPONSE:
-    case PFCP_MSG_SESSION_SET_MODIFICATION_RESPONSE:
-    case PFCP_MSG_SESSION_ESTABLISHMENT_RESPONSE:
-    case PFCP_MSG_SESSION_MODIFICATION_RESPONSE:
-    case PFCP_MSG_SESSION_DELETION_RESPONSE:
-    case PFCP_MSG_SESSION_REPORT_RESPONSE:
-
+    } else if (PFCP_MSG_IS_RESPONSE(msgtype)) {
         pcr.is_request = false;
         pcr.req_frame = 0;
         pcr.rep_frame = pinfo->num;
-        break;
-    default:
+    } else {
         pcr.is_request = false;
         pcr.req_frame = 0;
         pcr.rep_frame = 0;
-        break;
     }
 
     pcrp = (pfcp_msg_hash_t *)wmem_map_lookup(pfcp_info->matched, &pcr);
@@ -10368,20 +10371,7 @@ pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, unsi
         pcrp->is_request = pcr.is_request;
     } else {
         /* no match, let's try to make one */
-        switch (msgtype) {
-        case PFCP_MSG_HEARTBEAT_REQUEST:
-        case PFCP_MSG_PFD_MANAGEMENT_REQUEST:
-        case PFCP_MSG_ASSOCIATION_SETUP_REQUEST:
-        case PFCP_MSG_ASSOCIATION_UPDATE_REQUEST:
-        case PFCP_MSG_ASSOCIATION_RELEASE_REQUEST:
-        case PFCP_MSG_NODE_REPORT_REQUEST:
-        case PFCP_MSG_SESSION_SET_DELETION_REQUEST:
-        case PFCP_MSG_SESSION_SET_MODIFICATION_REQUEST:
-        case PFCP_MSG_SESSION_ESTABLISHMENT_REQUEST:
-        case PFCP_MSG_SESSION_MODIFICATION_REQUEST:
-        case PFCP_MSG_SESSION_DELETION_REQUEST:
-        case PFCP_MSG_SESSION_REPORT_REQUEST:
-
+        if (PFCP_MSG_IS_REQUEST(msgtype)) {
             pcr.seq_nr = seq_nr;
 
             pcrp = (pfcp_msg_hash_t *)wmem_map_remove(pfcp_info->unmatched, &pcr);
@@ -10398,20 +10388,7 @@ pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, unsi
             pcrp->is_request = true;
             wmem_map_insert(pfcp_info->unmatched, pcrp, pcrp);
             return NULL;
-        case PFCP_MSG_HEARTBEAT_RESPONSE:
-        case PFCP_MSG_PFD_MANAGEMENT_RESPONSE:
-        case PFCP_MSG_ASSOCIATION_SETUP_RESPONSE:
-        case PFCP_MSG_ASSOCIATION_UPDATE_RESPONSE:
-        case PFCP_MSG_ASSOCIATION_RELEASE_RESPONSE:
-        case PFCP_MSG_VERSION_NOT_SUPPORTED_RESPONSE:
-        case PFCP_MSG_NODE_REPORT_RESPONSE:
-        case PFCP_MSG_SESSION_SET_DELETION_RESPONSE:
-        case PFCP_MSG_SESSION_SET_MODIFICATION_RESPONSE:
-        case PFCP_MSG_SESSION_ESTABLISHMENT_RESPONSE:
-        case PFCP_MSG_SESSION_MODIFICATION_RESPONSE:
-        case PFCP_MSG_SESSION_DELETION_RESPONSE:
-        case PFCP_MSG_SESSION_REPORT_RESPONSE:
-
+        } else if (PFCP_MSG_IS_RESPONSE(msgtype)) {
             pcr.seq_nr = seq_nr;
             pcrp = (pfcp_msg_hash_t *)wmem_map_lookup(pfcp_info->unmatched, &pcr);
 
@@ -10423,9 +10400,6 @@ pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, unsi
                     wmem_map_insert(pfcp_info->matched, pcrp, pcrp);
                 }
             }
-            break;
-        default:
-            break;
         }
     }
 
@@ -11373,8 +11347,8 @@ dissect_pfcp_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
     pfcp_hdr = wmem_new0(pinfo->pool, pfcp_hdr_t);
 
-    /* Setting the SEID to -1 to say that the SEID is not valid for this packet */
-    pfcp_hdr->seid = -1;
+    /* Setting the SEID to invalid to indicate that the SEID is not present for this packet */
+    pfcp_hdr->seid = PFCP_SEID_INVALID;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PFCP");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -11510,7 +11484,7 @@ dissect_pfcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
         bool follow_on = (tvb_get_uint8(tvb, offset) & 0x04);
 
         /* length of the message in octets plus the excluded mandatory part of the PFCP header (the first 4 octets) */
-        uint16_t message_length = (tvb_get_uint16(tvb, (offset + 2), 0) + 4);
+        uint16_t message_length = (tvb_get_uint16(tvb, (offset + 2), ENC_BIG_ENDIAN) + 4);
 
         tvbuff_t *message_tvb = tvb_new_subset_length(tvb, offset, message_length);
         offset += dissect_pfcp_message(message_tvb, pinfo, tree);
