@@ -26,13 +26,10 @@ DIAG_OFF_CLANG(comma)
 
 #include "lua.h"
 #include "lauxlib.h"
+#include "lpcre2_f.h"
 #include "../common.h"
 
 #include <wslua/wslua.h>
-
-extern int Lpcre2_get_flags (lua_State *L);
-extern int Lpcre2_config (lua_State *L);
-extern flag_pair pcre2_error_flags[];
 
 /* These 2 settings may be redefined from the command-line or the makefile.
  * They should be kept in sync between themselves and with the target name.
