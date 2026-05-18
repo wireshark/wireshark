@@ -4071,7 +4071,7 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		if (!error_string) {
 			ntlmssp_tap_id = find_tap_id("ntlmssp");
 		} else {
-			g_string_free(error_string, true);
+			g_string_free(error_string, TRUE);
 		}
 	}
 
@@ -9210,7 +9210,7 @@ dissect_smb2_FSCTL_GET_NTFS_VOLUME_DATA(tvbuff_t *tvb, packet_info *pinfo _U_, p
 }
 
 static void
-dissect_smb2_FSCTL_DUPLICATE_EXTENTS_TO_FILE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean data_in, void *data)
+dissect_smb2_FSCTL_DUPLICATE_EXTENTS_TO_FILE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, bool data_in, void *data)
 {
 	/*
 	 * Note: si is NULL for some callers from packet-smb.c
@@ -9237,7 +9237,7 @@ dissect_smb2_FSCTL_DUPLICATE_EXTENTS_TO_FILE(tvbuff_t *tvb, packet_info *pinfo, 
 
 /* [MS-SMB2] - v20240129 2.2.31 and [MS-DFSC] - v20180912 2.2.3 */
 static void
-dissect_smb2_FSCTL_DFS_GET_REFERRALS_EX(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset _U_, gboolean data_in)
+dissect_smb2_FSCTL_DFS_GET_REFERRALS_EX(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset _U_, bool data_in)
 {
 	uint16_t bc;
 	int32_t name_len;
@@ -10991,7 +10991,7 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	bool continue_dissection;
 	uint32_t desired_access;
 	uint32_t granted_access;
-	gboolean is_dir;
+	bool is_dir;
 	proto_item *item = NULL;
 	proto_tree *tag_tree = NULL;
 	proto_tree *which_tree = tree;

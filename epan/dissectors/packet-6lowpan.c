@@ -636,7 +636,7 @@ static uint8_t      lowpan_parse_nhc_proto  (tvbuff_t *tvb, int offset);
 
 /* Context table helpers */
 static unsigned     lowpan_context_hash     (const void *key);
-static gboolean         lowpan_context_equal    (const void *a, const void *b);
+static gboolean             lowpan_context_equal    (const void *a, const void *b);
 static lowpan_context_data *lowpan_context_find(uint8_t cid, uint16_t pan);
 
 /*FUNCTION:------------------------------------------------------

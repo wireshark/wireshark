@@ -402,7 +402,7 @@ dissect_smartcard_req(tvbuff_t *in_tvb, int in_offset, packet_info *pinfo, proto
 		return in_offset + 4;
 
 	dcerpc_info di = { 0 };
-	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00};
+	uint8_t drep[4] = { 0x10, 0x00, 0x00, 0x00};
 
 	dcerpc_call_value call_data = { 0 };
 	di.conformant_run = 0;
@@ -487,7 +487,7 @@ dissect_smartcard_resp(tvbuff_t *in_tvb, int in_offset, packet_info *pinfo, prot
 	col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "%s resp", val_to_str_const(ioControlCode, rdpdr_dr_ioControlCode_vals, "<unknown>"));
 
 	dcerpc_info di = { 0 };
-	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00};
+	uint8_t drep[4] = { 0x10, 0x00, 0x00, 0x00};
 
 	dcerpc_call_value call_data = { 0 };
 	di.conformant_run = 0;

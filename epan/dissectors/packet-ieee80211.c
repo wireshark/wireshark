@@ -17682,7 +17682,7 @@ add_ff_action_protected_eht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
     if (tvb_captured_length_remaining(tvb, offset) >= 2) {
       offset += add_tagged_field_with_validation(pinfo, tree, tvb, offset, 0,
-                NULL, 0, FALSE, ext_ids, G_N_ELEMENTS(ext_ids), FALSE, NULL);
+                NULL, 0, false, ext_ids, G_N_ELEMENTS(ext_ids), false, NULL);
     }
     break;
   case EHT_EPCS_PRIO_ACCESS_RESP:
@@ -17690,7 +17690,7 @@ add_ff_action_protected_eht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     offset += add_ff_status_code(tree, tvb, pinfo, offset);
     if (tvb_captured_length_remaining(tvb, offset) >= 2) {
       offset += add_tagged_field_with_validation(pinfo, tree, tvb, offset, 0,
-                NULL, 0, FALSE, ext_ids, G_N_ELEMENTS(ext_ids), FALSE, NULL);
+                NULL, 0, false, ext_ids, G_N_ELEMENTS(ext_ids), false, NULL);
     }
     break;
   case EHT_EPCS_PRIO_ACCESS_TEAR_DOWN:
@@ -17753,7 +17753,7 @@ add_ff_action_protected_eht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     }
     if (!invalid && (len >= 1)) {
       offset += add_tagged_field_with_validation(pinfo, tree, tvb, offset, 0,
-                NULL, 0, FALSE, ext_ids, G_N_ELEMENTS(ext_ids), FALSE, NULL);
+                NULL, 0, false, ext_ids, G_N_ELEMENTS(ext_ids), false, NULL);
     } else {
       invalid = true;
     }
@@ -17774,13 +17774,13 @@ add_ff_action_protected_eht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     if (tvb_captured_length_remaining(tvb, offset) >= 2) {
       len = tvb_get_uint8(tvb, offset + 1);
     } else {
-      invalid = TRUE;
+      invalid = true;
     }
     if (!invalid && (len >= 1)) {
       offset += add_tagged_field_with_validation(pinfo, tree, tvb, offset, 0,
-                NULL, 0, FALSE, ext_ids, G_N_ELEMENTS(ext_ids), FALSE, NULL);
+                NULL, 0, false, ext_ids, G_N_ELEMENTS(ext_ids), false, NULL);
     } else {
-      invalid = TRUE;
+      invalid = true;
     }
     if (invalid) {
       expert_add_info_format(pinfo, item, &ei_ieee80211_eht_invalid_action,
@@ -17795,13 +17795,13 @@ add_ff_action_protected_eht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     if (tvb_captured_length_remaining(tvb, offset) >= 2) {
       len = tvb_get_uint8(tvb, offset + 1);
     } else {
-      invalid = TRUE;
+      invalid = true;
     }
     if (!invalid && (len >= 1)) {
       offset += add_tagged_field_with_validation(pinfo, tree, tvb, offset, 0,
-                NULL, 0, FALSE, ext_ids, G_N_ELEMENTS(ext_ids), FALSE, NULL);
+                NULL, 0, false, ext_ids, G_N_ELEMENTS(ext_ids), false, NULL);
     } else {
-      invalid = TRUE;
+      invalid = true;
     }
     if (invalid) {
       expert_add_info_format(pinfo, item, &ei_ieee80211_eht_invalid_action,
@@ -17819,10 +17819,10 @@ add_ff_action_protected_eht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     }
     if (!invalid && (len >= 1) &&
         (add_tagged_field_with_validation(pinfo, tree, tvb, offset, 0, NULL,
-         0, FALSE, ext_ids, G_N_ELEMENTS(ext_ids), FALSE, NULL) > 0)) {
+         0, false, ext_ids, G_N_ELEMENTS(ext_ids), false, NULL) > 0)) {
       offset += len + 2;
     } else {
-      invalid = TRUE;
+      invalid = true;
     }
     if (invalid) {
       expert_add_info_format(pinfo, item, &ei_ieee80211_eht_invalid_action,

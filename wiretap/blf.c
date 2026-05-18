@@ -1557,7 +1557,7 @@ blf_read_ethernetframe(blf_params_t *params, int *err, char **err_info, int64_t 
 
 static bool
 blf_read_ethernetframe_ext(blf_params_t *params, int *err, char **err_info, int64_t block_start,int64_t data_start,
-                            int64_t object_length, uint32_t flags, uint64_t object_timestamp, gboolean error) {
+                            int64_t object_length, uint32_t flags, uint64_t object_timestamp, bool error) {
     blf_ethernetframeheader_ex_t ethheader;
 
     if (object_length < (data_start - block_start) + (int) sizeof(blf_ethernetframeheader_ex_t)) {
@@ -3908,7 +3908,7 @@ blf_open(wtap *wth, int *err, char **err_info) {
 
     /* Prepare our private context. */
     blf = g_new(blf_t, 1);
-    blf->log_containers = g_array_new(false, false, sizeof(blf_log_container_t));
+    blf->log_containers = g_array_new(FALSE, FALSE, sizeof(blf_log_container_t));
     blf->current_real_seek_pos = 0;
     blf->start_offset_ns = blf_data_to_ns(&header.start_date);
     blf->end_offset_ns = blf_data_to_ns(&header.end_date);
@@ -5448,7 +5448,7 @@ blf_dump_open(wtap_dumper *wdh, int *err, char **err_info) {
     wdh->priv = writer_data;
 
     /* set up and init interface mappings */
-    writer_data->iface_to_channel_array = g_array_new(true, true, sizeof(blf_channel_to_iface_entry_t));
+    writer_data->iface_to_channel_array = g_array_new(TRUE, TRUE, sizeof(blf_channel_to_iface_entry_t));
     blf_dump_expand_interface_mapping(wdh, wdh->interface_data->len);
     writer_data->iface_to_channel_names_recovered = false;
 

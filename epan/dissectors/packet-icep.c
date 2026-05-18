@@ -1005,13 +1005,13 @@ static int dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 /* entry point */
-static gboolean dissect_icep_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+static int dissect_icep_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     ws_debug("triggered");
 
     if ( tvb_memeql(tvb, 0, icep_magic, 4) == -1 ) {
         /* Not a ICEP packet. */
-        return FALSE;
+        return 0;
     }
 
     /* start dissecting */
@@ -1019,16 +1019,16 @@ static gboolean dissect_icep_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     tcp_dissect_pdus(tvb, pinfo, tree, true, ICEP_HEADER_SIZE,
         get_icep_pdu_len, dissect_icep_pdu, data);
 
-    return TRUE;
+    return tvb_captured_length(tvb);
 }
 
 static bool
 dissect_icep_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return (bool)dissect_icep_tcp(tvb, pinfo, tree, data) > 0;
+    return dissect_icep_tcp(tvb, pinfo, tree, data);
 }
 
-static gboolean dissect_icep_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+static int dissect_icep_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     ws_debug("triggered");
 
@@ -1045,7 +1045,7 @@ static gboolean dissect_icep_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static bool
 dissect_icep_udp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return (bool)dissect_icep_udp(tvb, pinfo, tree, data) > 0;
+    return dissect_icep_udp(tvb, pinfo, tree, data);
 }
 
 /* Register the protocol with Wireshark */

@@ -436,7 +436,7 @@ unwrap_udp_v2(tvbuff_t *tvb, packet_info *pinfo)
 
 
 static uint64_t
-computeAndUpdateSeqContextEx(rdpudp_seq_context_t *context, uint16_t seq, gboolean doUpdate)
+computeAndUpdateSeqContextEx(rdpudp_seq_context_t *context, uint16_t seq, bool doUpdate)
 {
 	uint16_t diff = (context->last_received > seq) ? (context->last_received - seq) : (seq - context->last_received);
 

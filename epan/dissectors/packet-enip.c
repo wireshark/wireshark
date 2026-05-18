@@ -2720,8 +2720,8 @@ int dissect_cip_mac_address(packet_info* pinfo _U_, proto_tree* tree, proto_item
 
 static int dissect_lldp_mngmt_enable(packet_info* pinfo _U_, proto_tree* tree, proto_item* item _U_, tvbuff_t* tvb, int offset, int total_len _U_)
 {
-   guint16 bit_length;
-   guint16 byte_length;
+   uint16_t bit_length;
+   uint16_t byte_length;
 
    bit_length = tvb_get_letohs(tvb, offset);
    byte_length = (bit_length + 7) / 8;
@@ -2730,16 +2730,16 @@ static int dissect_lldp_mngmt_enable(packet_info* pinfo _U_, proto_tree* tree, p
    offset += 2;
 
    /* Loop over each byte in the "enable array" */
-   for (guint16 byte_idx = 0; byte_idx < byte_length; byte_idx++) {
-      guint8 byte = tvb_get_uint8(tvb, offset + byte_idx);
+   for (uint16_t byte_idx = 0; byte_idx < byte_length; byte_idx++) {
+      uint8_t byte = tvb_get_uint8(tvb, offset + byte_idx);
 
       proto_item* byte_item = proto_tree_add_uint_format(tree, hf_lldp_mngmt_enable_array, tvb, offset + byte_idx, 1, byte, "LLDP Enable Array %u", byte_idx + 1);
       proto_tree* byte_tree =  proto_item_add_subtree(byte_item, ett_lldp_mngmt_enable);
 
       /* Loop over the "enable bits" in this byte */
-      for (guint8 bit = 0; bit < 8; bit++) {
-         guint16 global_bit_index = byte_idx * 8 + bit;
-         gboolean bit_val = (byte >> bit) & 0x01;
+      for (uint8_t bit = 0; bit < 8; bit++) {
+         uint16_t global_bit_index = byte_idx * 8 + bit;
+         bool bit_val = (byte >> bit) & 0x01;
 
          if (global_bit_index >= bit_length) {
             proto_tree_add_boolean_format(byte_tree, hf_lldp_mngmt_enable_reserved, tvb, offset + byte_idx, 1, bit_val, "Reserved (bit %u): %s", global_bit_index, bit_val ? tfs_true_false.true_string : tfs_true_false.false_string);

@@ -109,7 +109,7 @@ static const char *sync_pipe_signame(int);
  */
 #define PIPE_BUF_SIZE (SP_MAX_MSG_LEN+4)
 
-static gboolean sync_pipe_input_cb(GIOChannel *pipe_io, capture_session *cap_session);
+static bool sync_pipe_input_cb(GIOChannel *pipe_io, capture_session *cap_session);
 static int sync_pipe_wait_for_child(ws_process_id fork_child, char **msgp);
 static void pipe_convert_header(const unsigned char *header, char *indicator, unsigned *block_len);
 static ssize_t pipe_read_block(GIOChannel *pipe_io, char *indicator, unsigned len, char *msg,
@@ -2006,7 +2006,7 @@ pipe_read_block(GIOChannel *pipe_io, char *indicator, unsigned len, char *msg,
 /* There's stuff to read from the sync pipe, meaning the child has sent
    us a message, or the sync pipe has closed, meaning the child has
    closed it (perhaps because it exited). */
-static gboolean
+static bool
 sync_pipe_input_cb(GIOChannel *pipe_io, capture_session *cap_session)
 {
     int  ret;

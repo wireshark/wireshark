@@ -1169,7 +1169,7 @@ sharkd_session_process_info(void)
     sharkd_json_result_epilogue();
 }
 
-static void sharkd_session_print_field(header_field_info* current_header_field_info, gboolean as_object)
+static void sharkd_session_print_field(header_field_info* current_header_field_info, bool as_object)
 {
     if (as_object)
     {
@@ -1205,7 +1205,7 @@ sharkd_session_print_fields(void)
 
         header_field_info* current_header_field_info = proto_registrar_get_nth(proto_get_id(protocol));
 
-        sharkd_session_print_field(current_header_field_info, TRUE);
+        sharkd_session_print_field(current_header_field_info, true);
 
         for (current_header_field_info = proto_get_first_protocol_field(protocol_id, &field_cookie); current_header_field_info != NULL; current_header_field_info = proto_get_next_protocol_field(protocol_id, &field_cookie))
         {
@@ -1214,7 +1214,7 @@ sharkd_session_print_fields(void)
                 continue;
             }
 
-            sharkd_session_print_field(current_header_field_info, TRUE);
+            sharkd_session_print_field(current_header_field_info, true);
         }
     }
 }
@@ -1273,7 +1273,7 @@ sharkd_session_process_field(const char* buf, const jsmntok_t* tokens, int count
             return;
         }
 
-        sharkd_session_print_field(current_header_field_info, FALSE);
+        sharkd_session_print_field(current_header_field_info, false);
     }
 
     sharkd_json_result_epilogue();

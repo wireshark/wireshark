@@ -2707,9 +2707,9 @@ find_conversation_by_index(void *key _U_, void *value, void *user_data)
     uint32_t convid = GPOINTER_TO_UINT(user_data);
     conversation_t *conv = (conversation_t*)value;
     if (conv->conv_index == convid) {
-        return true;
+        return TRUE;
     }
-    return false;
+    return FALSE;
 }
 
 conversation_t *

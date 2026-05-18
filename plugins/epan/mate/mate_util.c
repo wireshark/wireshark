@@ -751,7 +751,7 @@ char* avpl_to_str(AVPL* avpl) {
 		g_free(avp_s);
 	}
 
-	r = g_string_free(s,FALSE);
+	r = g_string_free(s, FALSE);
 
 	/* g_strchug(r); ? */
 	return r;
@@ -769,7 +769,7 @@ extern char* avpl_to_dotstr(AVPL* avpl) {
 		g_free(avp_s);
 	}
 
-	r = g_string_free(s,FALSE);
+	r = g_string_free(s, FALSE);
 
 	/* g_strchug(r); ? */
 	return r;
@@ -1668,7 +1668,7 @@ extern LoAL* loal_from_file(char* filename) {
 			delete_avpl(curr,true);
 		}
 
-		g_string_free(linenum_buf, true);
+		g_string_free(linenum_buf, TRUE);
 		g_free(name);
 		g_free(value);
 
@@ -1680,7 +1680,7 @@ extern LoAL* loal_from_file(char* filename) {
 	}
 
 error:
-	g_string_free(linenum_buf, true);
+	g_string_free(linenum_buf, TRUE);
 	g_free(name);
 	g_free(value);
 

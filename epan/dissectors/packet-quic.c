@@ -1098,7 +1098,7 @@ quic_connection_equal(const void *a, const void *b)
     return cid1->len == cid2->len && !memcmp(cid1->cid, cid2->cid, cid1->len);
 }
 
-static gboolean
+static bool
 quic_cids_has_match(const quic_cid_item_t *items, quic_cid_t *raw_cid)
 {
     while (items) {

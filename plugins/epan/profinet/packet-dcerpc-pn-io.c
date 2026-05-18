@@ -16907,7 +16907,7 @@ dissect_block(tvbuff_t *tvb, unsigned offset,
         dissect_NMEDomainTimeData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x0275):
-        dissect_CIMNetConfStreamPathDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, FALSE);
+        dissect_CIMNetConfStreamPathDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, false);
         break;
     case(0x0276):
         dissect_CIMNetConfSyncTreeData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
@@ -16922,7 +16922,7 @@ dissect_block(tvbuff_t *tvb, unsigned offset,
         dissect_CIMNetConfExpectedNetworkAttributes_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x027A):
-        dissect_CIMNetConfStreamPathDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, TRUE);
+        dissect_CIMNetConfStreamPathDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, true);
 	break;
     case(0x027B):
         dissect_CIMStationPortIngressRateLimiter_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
@@ -18602,40 +18602,40 @@ unsigned dissect_PnoNameOfStation(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsi
 static int dissect_PnoSecurity_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
     int offset = 0;
     asn1_ctx_t asn1_ctx;
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-    offset = dissect_PnoSecurity(FALSE, tvb, offset, &asn1_ctx, tree, hf_pn_io_security_pdu);
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+    offset = dissect_PnoSecurity(false, tvb, offset, &asn1_ctx, tree, hf_pn_io_security_pdu);
     return offset;
 }
 
 static int dissect_PnoManagingRoles_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
     int offset = 0;
     asn1_ctx_t asn1_ctx;
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-    offset = dissect_PnoManagingRoles(FALSE, tvb, offset, &asn1_ctx, tree, hf_pn_io_managing_roles_pdu);
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+    offset = dissect_PnoManagingRoles(false, tvb, offset, &asn1_ctx, tree, hf_pn_io_managing_roles_pdu);
     return offset;
 }
 
 static int dissect_PnoUsageRoles_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
     int offset = 0;
     asn1_ctx_t asn1_ctx;
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-    offset = dissect_PnoUsageRoles(FALSE, tvb, offset, &asn1_ctx, tree, hf_pn_io_usage_roles_pdu);
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+    offset = dissect_PnoUsageRoles(false, tvb, offset, &asn1_ctx, tree, hf_pn_io_usage_roles_pdu);
     return offset;
 }
 
 static int dissect_PnouniformComponentIdentifier_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
     int offset = 0;
     asn1_ctx_t asn1_ctx;
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-    offset = dissect_PnoUniformComponentIdentifier(FALSE, tvb, offset, &asn1_ctx, tree, hf_pn_io_uniform_component_identifier_pdu);
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+    offset = dissect_PnoUniformComponentIdentifier(false, tvb, offset, &asn1_ctx, tree, hf_pn_io_uniform_component_identifier_pdu);
     return offset;
 }
 
 static int dissect_PnonameOfStation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
     int offset = 0;
     asn1_ctx_t asn1_ctx;
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-    offset = dissect_PnoNameOfStation(FALSE, tvb, offset, &asn1_ctx, tree, hf_pn_io_nameofstation_pdu);
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+    offset = dissect_PnoNameOfStation(false, tvb, offset, &asn1_ctx, tree, hf_pn_io_nameofstation_pdu);
     return offset;
 }
 

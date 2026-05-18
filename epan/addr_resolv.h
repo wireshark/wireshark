@@ -981,7 +981,7 @@ unsigned ipv6_oat_hash(const void *key);
  *
  * @param v1 Pointer to the first IPv6 address.
  * @param v2 Pointer to the second IPv6 address.
- * @return TRUE if equal, FALSE otherwise.
+ * @return true if equal, false otherwise.
  */
 WS_DLL_LOCAL
 gboolean ipv6_equal(const void *v1, const void *v2);

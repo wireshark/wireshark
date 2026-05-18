@@ -93,7 +93,7 @@ static int
 dissect_rdpear_packagePayload(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, RcgPackageType package)
 {
 	int offset = 0;
-	gboolean isServerTarget = rdp_isServerAddressTarget(pinfo);
+	bool isServerTarget = rdp_isServerAddressTarget(pinfo);
 
 	proto_tree_add_item(tree, hf_rdpear_package_reservedHeader, tvb, offset, 16, ENC_NA);
 	offset += 16;

@@ -73,7 +73,7 @@ static int dissect_ems(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     proto_tree_add_item(ems_tree, hf_ems_hour,   tvb, 13, 2, ENC_ASCII);
     proto_tree_add_item(ems_tree, hf_ems_minute, tvb, 16, 2, ENC_ASCII);
 
-    gboolean is_l1 = tvb_get_uint8(tvb, 21) == ' ';
+    bool is_l1 = tvb_get_uint8(tvb, 21) == ' ';
     if (is_l1) {
 
         svc_flag = EMS_L1_SVC_FLAG;

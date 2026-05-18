@@ -1535,11 +1535,11 @@ iter_same(void *key, void *value, void *data) {
     /*If true we found the correct frame*/
     if ((uint32_t)GPOINTER_TO_INT(key) > *(uint32_t*)data){
         *((uint32_t*)data) = *((uint32_t*)value);
-        return true;
+        return TRUE;
     }
     *((uint32_t*)data) = (uint32_t)GPOINTER_TO_INT(key);
 
-    return true;
+    return TRUE;
 }
 
 /**

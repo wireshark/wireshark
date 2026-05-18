@@ -104,7 +104,7 @@ typedef struct {
 	uint16_t total_size;
 	uint8_t channel_id;
 	uint8_t chunk_type;
-	gboolean is_audio;
+	bool is_audio;
 } message_info;
 
 typedef struct {

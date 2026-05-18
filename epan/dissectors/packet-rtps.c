@@ -7940,7 +7940,7 @@ static int rtps_util_add_xcdr2_enhanced_mutable_header(proto_tree* tree,
  * @param pinfo Packet info
  * @param tvb The buffer containing the data
  * @param offset The current offset in the buffer
- * @param isBaseType TRUE if this is a base type identifier (for structures)
+ * @param isBaseType true if this is a base type identifier (for structures)
  * @return The new offset after the type identifier has been processed
  */
 // Recursion is required for parsing nested TypeIdentifiers in RTPS.

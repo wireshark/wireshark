@@ -1449,7 +1449,7 @@ static const enum_val_t tds_protocol_type_options[] = {
 /*   TODO: consider storing endian type with each conversation                           */
 /*         (using pref as the default)                                                   */
 
-static gboolean tds_little_endian = TRUE;
+static int tds_little_endian = true;
 
 static const enum_val_t tds_endian_type_options[] = {
     {"little_endian", "Little Endian", true},
