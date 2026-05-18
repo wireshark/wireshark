@@ -1164,6 +1164,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lisp-tcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lisp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lithionics.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-livewire.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-llc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lldp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-llrp.c
