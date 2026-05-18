@@ -20,7 +20,17 @@ If you or your organization would like to contribute or become a sponsor, please
 
 === Bug Fixes
 
-// The following vulnerabilities have been fixed:
+The following vulnerabilities have been fixed:
+
+// * wssalink:2026-51[] {notable}
+// Foo dissector {crash,infinite loop,memory leak}.
+// wsbuglink:xxx[].
+// cveidlink:2026-xxx[].
+// Fixed in master: xxx
+// Fixed in release-4.6: xxx
+// Fixed in release-4.4: xxx
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-824
 
 // * wssalink:2026-51[] {notable}
 // Foo dissector {crash,infinite loop,memory leak}.
@@ -39,6 +49,11 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark took a bite out of each of your freshly baked muffins until it found the perfect one. {notable}
 
+* vwr: Read of uninitialized memory in pntoh16. wsbuglink:16460[].
+* vwr: Read of uninitialized memory in find_signature. wsbuglink:16461[].
+* Fuzz job issue: fuzz-2026-05-02-14184750352.pcap. wsbuglink:21240[].
+* ROHC NULL Write / Heap Corruption with uncompressed profile and large CID. wsbuglink:21243[].
+* Fuzz job crash: fuzz-2026-05-18-14414274873.pcap. wsbuglink:21261[].
 
 
 // == Known Bugs
@@ -56,18 +71,24 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.14.. | rg packet- | sort -u)
+// rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.16.. | rg packet- | sort -u)
 [commaize]
 --
+FB/IB GDS DB
+MDB
+ROHC
+RTPS-VT
+SIP
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+VeriWave
+--
 
 === New and Updated File Format Decoding Support
 
