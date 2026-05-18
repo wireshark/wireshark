@@ -518,6 +518,72 @@ json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, const char* key_str, pac
 		DISSECTOR_ASSERT(tok->sub);
 		value_tok = tok->sub->last;
 	}
+
+	/*
+	 * Handle array values: iterate over each element and call the decoder
+	 * for each string in the array.
+	 * Array structure (from tvbparse_set_seq):
+	 *   tok->sub = '[' char
+	 *   tok->sub->next = optional(set_seq(first_value, some(separator, value)))
+	 *   tok->sub->next->next = ']' char
+	 */
+	if (!use_compact && (json_token_type_t)tok->id == JSON_ARRAY) {
+		const tvbparse_elem_t* optional_tok = tok->sub ? tok->sub->next : NULL;
+		const tvbparse_elem_t* inner_seq = optional_tok ? optional_tok->sub : NULL;
+
+		if (!inner_seq) {
+			/* Empty array */
+			return NULL;
+		}
+
+		ti = NULL;
+		/* First value in the array: inner_seq->sub is a want_value (set_oneof) result */
+		const tvbparse_elem_t* cur_value = inner_seq->sub;
+		if (cur_value && cur_value->sub) {
+			const tvbparse_elem_t* val = cur_value->sub;
+			json_token_type_t val_id = (json_token_type_t)val->id;
+			offset = val->offset;
+			len = val->len;
+			if (val_id == JSON_TOKEN_STRING && len >= 2) {
+				offset += 1;
+				len -= 2;
+			}
+			ti = proto_tree_add_item(tree, hf_id, tok->tvb, offset, len, ENC_ASCII);
+			if (json_data_decoder_rec->json_data_decoder) {
+				(*json_data_decoder_rec->json_data_decoder)(val->tvb, tree, pinfo, offset, len, key_str);
+			}
+		}
+
+		/* Remaining values: inner_seq->sub->next is a tvbparse_some result
+		 * whose children are (separator, value) pairs linked via ->sub/->next
+		 */
+		const tvbparse_elem_t* some_tok = inner_seq->sub ? inner_seq->sub->next : NULL;
+		if (some_tok) {
+			for (const tvbparse_elem_t* pair = some_tok->sub; pair != NULL; pair = pair->next) {
+				/* pair is a set_seq(separator, value)
+				 * pair->sub = separator, pair->sub->next = want_value result
+				 */
+				const tvbparse_elem_t* pair_value = pair->sub ? pair->sub->next : NULL;
+				if (pair_value && pair_value->sub) {
+					const tvbparse_elem_t* val = pair_value->sub;
+					json_token_type_t val_id = (json_token_type_t)val->id;
+					offset = val->offset;
+					len = val->len;
+					if (val_id == JSON_TOKEN_STRING && len >= 2) {
+						offset += 1;
+						len -= 2;
+					}
+					ti = proto_tree_add_item(tree, hf_id, tok->tvb, offset, len, ENC_ASCII);
+					if (json_data_decoder_rec->json_data_decoder) {
+						(*json_data_decoder_rec->json_data_decoder)(val->tvb, tree, pinfo, offset, len, key_str);
+					}
+				}
+			}
+		}
+
+		return ti;
+	}
+
 	/* tok is a set with one element
 	 * tok->sub is the value
 	 */
