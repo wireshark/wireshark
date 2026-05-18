@@ -187,8 +187,16 @@ public:
      */
     virtual void useNanosecondTimestamps(bool nanoseconds) = 0;
 
+    /**
+     * @brief Sets whether the data should be presented in a machine-readable format.
+     * @param machineReadable True to enable machine-readable format, false otherwise.
+     */
     void setMachineReadable(bool machineReadable);
 
+    /**
+     * @brief Limits the data model to the currently active display filter.
+     * @param limit True to apply the display filter limit, false otherwise.
+     */
     void limitToDisplayFilter(bool limit);
 
     /**
@@ -232,6 +240,11 @@ public:
      */
     dataModelType modelType() const;
 
+    /**
+     * @brief Return the conversation hash table for this model
+     *
+     * @return conv_hash_t * pointer to the hash table
+     */
     conv_hash_t * hash();
 
     /**
@@ -250,40 +263,69 @@ public:
 #endif
 
 signals:
+    /**
+     * @brief Signal emitted when the tap listener state changes.
+     * @param enable True to enable the listener, false to disable.
+     */
     void tapListenerChanged(bool enable);
 
 protected:
 
+    /**
+     * @brief Callback to reset the tap data.
+     * @param tapdata Pointer to the tap data to reset.
+     */
     static void tapReset(void *tapdata);
+
+    /**
+     * @brief Callback to draw or update the tap data.
+     * @param tap_data Pointer to the tap data to draw.
+     */
     static void tapDraw(void *tap_data);
 
+    /**
+     * @brief Retrieves the callback function used to handle conversation packets.
+     * @return The tap packet callback function.
+     */
     virtual tap_packet_cb conversationPacketHandler();
 
+    /**
+     * @brief Resets the internal model data.
+     */
     void resetData();
+
+    /**
+     * @brief Updates the model with new data.
+     * @param data Pointer to a GArray containing the new data.
+     */
     void updateData(GArray * data);
 
-    dataModelType _type;
-    GArray * storage_;
-    QString _filter;
+    dataModelType _type; /**< The specific type of the data model. */
+    GArray * storage_; /**< Internal storage for the tap data records. */
+    QString _filter; /**< The display filter applied to the tap. */
 
-    bool _absoluteTime;
+    bool _absoluteTime; /**< Flag indicating whether to use absolute time formats. */
     // XXX - There are other possible time precisions besides
     // microseconds and nanoseconds; e.g., Netmon 2.3 uses
     // 100 ns, and pcapng can have one of many values.
-    bool _nanoseconds;
-    bool _resolveNames;
-    bool _machineReadable;
-    bool _disableTap;
+    bool _nanoseconds; /**< Flag indicating whether to use nanosecond precision. */
+    bool _resolveNames; /**< Flag indicating whether name resolution is enabled. */
+    bool _machineReadable; /**< Flag indicating whether data is formatted for machine readability. */
+    bool _disableTap; /**< Flag indicating whether the underlying tap is disabled. */
 
-    double _minRelStartTime;
-    double _maxRelStopTime;
+    double _minRelStartTime; /**< The minimum relative start time of the processed packets. */
+    double _maxRelStopTime; /**< The maximum relative stop time of the processed packets. */
 
-    unsigned _tapFlags;
+    unsigned _tapFlags; /**< Bitmask of flags configuring the tap behavior. */
 
+    /**
+     * @brief Gets the conversation registration table for this tap.
+     * @return Pointer to the register_ct_t table.
+     */
     register_ct_t* registerTable() const;
 
 private:
-    int _protoId;
+    int _protoId; /**< The protocol identifier for the tap. */
 
 };
 

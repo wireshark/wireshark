@@ -14,6 +14,12 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Dump profile information to the console.
+ * @param app_env_var_prefix The prefix for application environment variables.
+ * @param filter The filter for selecting profiles to dump.
+ * @return True if the operation was successful, false otherwise.
+ */
 extern bool profiles_dump(const char* app_env_var_prefix, const char* filter);
 
 #ifdef __cplusplus

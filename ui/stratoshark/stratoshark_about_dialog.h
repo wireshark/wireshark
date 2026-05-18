@@ -14,12 +14,24 @@
 
 #include "about_dialog.h"
 
+/**
+ * @brief Stratoshark-specific About dialog, extending the shared AboutDialog
+ *        with Stratoshark branding and version information.
+ */
 class StratosharkAboutDialog : public AboutDialog
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Constructs the Stratoshark About dialog.
+     * @param parent Optional parent widget.
+     */
     explicit StratosharkAboutDialog(QWidget *parent = 0);
+
+    /**
+     * @brief Destroys the dialog.
+     */
     virtual ~StratosharkAboutDialog() {}
 };
 

@@ -92,6 +92,11 @@
 #define pint_bswap64(x) __builtin_bswap64(x)
 #endif
 
+/**
+ * @brief Reads a big-endian (network-order) uint16_t from an unaligned pointer.
+ * @param p Pointer to at least 2 bytes of data in network byte order.
+ * @return The value converted to host byte order.
+ */
 static inline uint16_t pntohu16(const void *p)
 {
     uint16_t ret;
@@ -102,6 +107,11 @@ static inline uint16_t pntohu16(const void *p)
     return ret;
 }
 
+/**
+ * @brief Reads a big-endian (network-order) uint32_t from an unaligned pointer.
+ * @param p Pointer to at least 4 bytes of data in network byte order.
+ * @return The value converted to host byte order.
+ */
 static inline uint32_t pntohu32(const void *p)
 {
     uint32_t ret;
@@ -112,6 +122,11 @@ static inline uint32_t pntohu32(const void *p)
     return ret;
 }
 
+/**
+ * @brief Reads a big-endian (network-order) uint64_t from an unaligned pointer.
+ * @param p Pointer to at least 8 bytes of data in network byte order.
+ * @return The value converted to host byte order.
+ */
 static inline uint64_t pntohu64(const void *p)
 {
     uint64_t ret;
@@ -122,6 +137,11 @@ static inline uint64_t pntohu64(const void *p)
     return ret;
 }
 
+/**
+ * @brief Reads a little-endian uint16_t from an unaligned pointer.
+ * @param p Pointer to at least 2 bytes of data in little-endian byte order.
+ * @return The value converted to host byte order.
+ */
 static inline uint16_t pletohu16(const void *p)
 {
     uint16_t ret;
@@ -132,6 +152,11 @@ static inline uint16_t pletohu16(const void *p)
     return ret;
 }
 
+/**
+ * @brief Reads a little-endian uint32_t from an unaligned pointer.
+ * @param p Pointer to at least 4 bytes of data in little-endian byte order.
+ * @return The value converted to host byte order.
+ */
 static inline uint32_t pletohu32(const void *p)
 {
     uint32_t ret;
@@ -142,6 +167,11 @@ static inline uint32_t pletohu32(const void *p)
     return ret;
 }
 
+/**
+ * @brief Reads a little-endian uint64_t from an unaligned pointer.
+ * @param p Pointer to at least 8 bytes of data in little-endian byte order.
+ * @return The value converted to host byte order.
+ */
 static inline uint64_t pletohu64(const void *p)
 {
     uint64_t ret;
@@ -152,6 +182,11 @@ static inline uint64_t pletohu64(const void *p)
     return ret;
 }
 
+/**
+ * @brief Writes a uint16_t to an unaligned pointer in big-endian (network) byte order.
+ * @param p Destination buffer; must have at least 2 bytes available.
+ * @param v Value in host byte order to write.
+ */
 static inline void phtonu16(uint8_t *p, uint16_t v)
 {
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
@@ -160,6 +195,11 @@ static inline void phtonu16(uint8_t *p, uint16_t v)
     memcpy(p, &v, sizeof(v));
 }
 
+/**
+ * @brief Writes a uint32_t to an unaligned pointer in big-endian (network) byte order.
+ * @param p Destination buffer; must have at least 4 bytes available.
+ * @param v Value in host byte order to write.
+ */
 static inline void phtonu32(uint8_t *p, uint32_t v)
 {
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
@@ -168,13 +208,24 @@ static inline void phtonu32(uint8_t *p, uint32_t v)
     memcpy(p, &v, sizeof(v));
 }
 
-static inline void phtonu64(uint8_t *p, uint64_t v) {
+/**
+ * @brief Writes a uint64_t to an unaligned pointer in big-endian (network) byte order.
+ * @param p Destination buffer; must have at least 8 bytes available.
+ * @param v Value in host byte order to write.
+ */
+static inline void phtonu64(uint8_t *p, uint64_t v)
+{
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
     v = pint_bswap64(v);
 #endif
     memcpy(p, &v, sizeof(v));
 }
 
+/**
+ * @brief Writes a uint16_t to an unaligned pointer in little-endian byte order.
+ * @param p Destination buffer; must have at least 2 bytes available.
+ * @param v Value in host byte order to write.
+ */
 static inline void phtoleu16(uint8_t *p, uint32_t v)
 {
 #if G_BYTE_ORDER == G_BIG_ENDIAN
@@ -183,6 +234,11 @@ static inline void phtoleu16(uint8_t *p, uint32_t v)
     memcpy(p, &v, sizeof(v));
 }
 
+/**
+ * @brief Writes a uint32_t to an unaligned pointer in little-endian byte order.
+ * @param p Destination buffer; must have at least 4 bytes available.
+ * @param v Value in host byte order to write.
+ */
 static inline void phtoleu32(uint8_t *p, uint32_t v)
 {
 #if G_BYTE_ORDER == G_BIG_ENDIAN
@@ -191,7 +247,13 @@ static inline void phtoleu32(uint8_t *p, uint32_t v)
     memcpy(p, &v, sizeof(v));
 }
 
-static inline void phtoleu64(uint8_t *p, uint64_t v) {
+/**
+ * @brief Writes a uint64_t to an unaligned pointer in little-endian byte order.
+ * @param p Destination buffer; must have at least 8 bytes available.
+ * @param v Value in host byte order to write.
+ */
+static inline void phtoleu64(uint8_t *p, uint64_t v)
+{
 #if G_BYTE_ORDER == G_BIG_ENDIAN
     v = pint_bswap64(v);
 #endif
@@ -290,10 +352,11 @@ static inline uint64_t pletohu64(const void *p)
            (uint64_t)*((const uint8_t *)(p)+0)<<0;
 }
 
-/* Pointer routines to put items out in a particular byte order.
- * These will work regardless of the byte alignment of the pointer.
+/**
+ * @brief Writes a uint16_t to an unaligned pointer in big-endian (network) byte order.
+ * @param p Destination buffer; must have at least 2 bytes available.
+ * @param v Value in host byte order to write.
  */
-
 static inline void phtonu16(uint8_t *p, uint16_t v)
 {
     p[0] = (uint8_t)(v >> 8);
@@ -422,10 +485,14 @@ static inline void phtoleu8(uint8_t *p, uint8_t v)
     p[0] = (uint8_t)((v) >> 0);
 }
 
-/*
- * Non-power-of-2 field sizes; do these a byte at a time, and let the
- * compiler optimize them to combinations of power-of-2 operations if
- * possible.
+/**
+ * @brief Convert a network-order 24-bit value to host order.
+ *
+ * This function takes a pointer to a buffer containing a 24-bit value in network
+ * byte order and converts it to host byte order as a uint32_t.
+ *
+ * @param p Pointer to the buffer containing the 24-bit value.
+ * @return The converted 24-bit value in host byte order.
  */
 static inline uint32_t pntohu24(const void *p)
 {

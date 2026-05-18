@@ -22,19 +22,34 @@ namespace Ui {
 class PluginIFDemo_About;
 }
 
+/**
+ * @brief "About" dialog for the Plugin Interface Demo.
+ */
 class PluginIFDemo_About : public QDialog
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Constructs the About dialog.
+     * @param parent Optional parent widget; the dialog is modal to this widget.
+     */
     explicit PluginIFDemo_About(QWidget *parent = 0);
+
+    /**
+     * @brief Destroys the About dialog and releases the associated UI resources.
+     */
     ~PluginIFDemo_About();
 
 private slots:
+    /**
+     * @brief Handles button clicks from the dialog's button box.
+     * @param button The abstract button that was clicked.
+     */
     void on_buttonBox_clicked(QAbstractButton *button);
 
 private:
-    Ui::PluginIFDemo_About *ui;
+    Ui::PluginIFDemo_About *ui; /**< Qt Designer-generated UI object for this dialog. */
 };
 
 #endif /* PLUGINIFDEMO_ABOUT_H_ */

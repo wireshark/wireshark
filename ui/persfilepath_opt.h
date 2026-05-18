@@ -18,9 +18,13 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/*
- * process command line option that affects the paths of the directories
+/**
+ * @brief Process command line option that affects the paths of the directories
  * used for personal files (configuration, saved captures)
+ *
+ * @param opt The option being processed.
+ * @param optstr The string associated with the option, which should be in the format "opt:directory".
+ * @return true if the option was successfully processed, false otherwise.
  */
 extern bool persfilepath_opt(int opt, const char *optstr);
 

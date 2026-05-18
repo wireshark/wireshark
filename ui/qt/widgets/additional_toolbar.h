@@ -163,6 +163,9 @@ public:
      */
     AdditionalToolBar(ext_toolbar_t *toolbar, QWidget *parent = 0);
 
+    /**
+     * @brief Destroy the AdditionalToolBar.
+     */
     virtual ~AdditionalToolBar();
 
     /**

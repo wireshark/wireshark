@@ -119,11 +119,67 @@ void io_graph_sma_period_set_cb(void* rec, const char* buf, unsigned len, const 
  * @return UAT_BOOL_ENABLE_CB_DEF Return type for boolean enable callbacks.
  */
 UAT_BOOL_ENABLE_CB_DEF(io_graph, enabled, io_graph_settings_t)
+
+/**
+ * @brief Callback function for setting the name of an I/O graph.
+ *
+ * @param rec Pointer to the record being processed.
+ * @param buf Buffer containing the new value.
+ * @param len Length of the buffer.
+ * @param vs Pointer to the variable settings.
+ * @param u2 Unused parameter.
+ */
 UAT_CSTRING_CB_DEF(io_graph, name, io_graph_settings_t)
+
+/**
+ * @brief Callback function for setting the display filter for an I/O graph.
+ *
+ * @param rec Pointer to the record being processed.
+ * @param buf Buffer containing the new value.
+ * @param len Length of the buffer.
+ * @param vs Pointer to the variable settings.
+ * @param u2 Unused parameter.
+ */
 UAT_DISPLAY_FILTER_CB_DEF(io_graph, dfilter, io_graph_settings_t)
+/**
+ * @brief Callback function for setting the color of an I/O graph.
+ *
+ * @param rec Pointer to the record being processed.
+ * @param buf Buffer containing the new value.
+ * @param len Length of the buffer.
+ * @param vs Pointer to the variable settings.
+ * @param u2 Unused parameter.
+ */
 UAT_COLOR_CB_DEF(io_graph, color, io_graph_settings_t)
+/**
+ * @brief Callback function for setting the style of an I/O graph.
+ *
+ * @param rec Pointer to the record being processed.
+ * @param buf Buffer containing the new value.
+ * @param len Length of the buffer.
+ * @param vs Pointer to the variable settings.
+ * @param u2 Unused parameter.
+ */
 UAT_VS_DEF(io_graph, style, io_graph_settings_t, uint32_t, 0, "Line")
+/**
+ * @brief Callback function for setting the Y-field for an I/O graph.
+ *
+ * @param rec Pointer to the record being processed.
+ * @param buf Buffer containing the new value.
+ * @param len Length of the buffer.
+ * @param vs Pointer to the variable settings.
+ * @param u2 Unused parameter.
+ */
 UAT_PROTO_FIELD_CB_DEF(io_graph, yfield, io_graph_settings_t)
+/**
+ * @brief Callback function for setting the Y-axis factor for an I/O graph.
+ *
+ * @param rec Pointer to the record being processed.
+ * @param buf Buffer containing the new value.
+ * @param len Length of the buffer.
+ * @param vs Pointer to the variable settings.
+ * @param u2 Unused parameter.
+ */
 UAT_DBL_CB_DEF(io_graph, y_axis_factor, io_graph_settings_t)
 
 /**

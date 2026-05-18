@@ -16,96 +16,128 @@
 #include <epan/proto.h>
 #include <stdio.h>
 
+/**
+ * @brief Reference to a display filter field.
+ */
 typedef struct {
-	const header_field_info *hfinfo;
-	fvalue_t *value;
-	int proto_layer_num;
+    const header_field_info *hfinfo; /**< Information about the header field. */
+    fvalue_t *value;                 /**< The parsed value. */
+    int proto_layer_num;             /**< The protocol layer number where the field was found. */
 } df_reference_t;
 
+/**
+ * @brief A container for a pointer array, typically holding field references.
+ */
 typedef struct {
-	GPtrArray *array;
+    GPtrArray *array; /**< Array of pointers. */
 } df_cell_t;
 
+/**
+ * @brief Iterator for navigating through a df_cell_t array.
+ */
 typedef struct {
-	GPtrArray *ptr;
-	unsigned idx;
+    GPtrArray *ptr; /**< Pointer to the array being iterated. */
+    unsigned idx;   /**< Current index in the array. */
 } df_cell_iter_t;
 
-/* Passed back to user */
+/**
+ * @brief The compiled display filter object passed back to the user.
+ */
 struct epan_dfilter {
-	GPtrArray	*insns;
-	unsigned	num_registers;
-	df_cell_t	*registers;
-	int		*interesting_fields;
-	int		num_interesting_fields;
-	GPtrArray	*deprecated;
-	GSList		*warnings;
-	char		*expanded_text;
-	GHashTable	*references;
-	GHashTable	*raw_references;
-	char		*syntax_tree_str;
-	/* Used to pass arguments to functions. List of Lists (list of registers). */
-	GSList		*function_stack;
-	GSList		*set_stack;
-	ftenum_t	 ret_type;
+    GPtrArray   *insns;                  /**< Array of compiled instructions. */
+    unsigned    num_registers;           /**< Number of registers used by the filter. */
+    df_cell_t   *registers;              /**< Array of registers storing cell data. */
+    int     *interesting_fields;         /**< Array of field IDs that are interesting to the filter. */
+    int     num_interesting_fields;      /**< Count of interesting fields. */
+    GPtrArray   *deprecated;             /**< Array of deprecated items used in the filter. */
+    GSList      *warnings;               /**< List of warnings generated during compilation. */
+    char        *expanded_text;          /**< The expanded filter text after macro expansion. */
+    GHashTable  *references;             /**< Hash table mapping references. */
+    GHashTable  *raw_references;         /**< Hash table mapping raw references. */
+    char        *syntax_tree_str;        /**< String representation of the syntax tree. */
+    /* Used to pass arguments to functions. List of Lists (list of registers). */
+    GSList      *function_stack;         /**< Stack for function arguments. */
+    GSList      *set_stack;              /**< Stack for set operations. */
+    ftenum_t     ret_type;               /**< The return type of the display filter evaluation. */
 };
 
+/**
+ * @brief State structure for display filter evaluation or processing.
+ */
 typedef struct {
-	df_error_t *error;
-	/* more fields. */
+    df_error_t *error; /**< Pointer to error information, if an error occurred. */
+    /* more fields. */
 } dfstate_t;
 
-/*
- * State for first stage of compilation (parsing).
+/**
+ * @brief State for the first stage of display filter compilation (parsing).
  */
 typedef struct {
-	df_error_t	*error;		/* Must be first struct field. */
-	unsigned	flags;
-	stnode_t	*st_root;
-	GPtrArray	*deprecated;
-	stnode_t	*lval;
-	GString		*quoted_string;
-	bool		raw_string;
-	df_loc_t	string_loc;
-	df_loc_t	location;
+    df_error_t  *error;     /**< Must be first struct field. Error state. */
+    unsigned    flags;      /**< Parsing flags. */
+    stnode_t    *st_root;   /**< The root node of the syntax tree. */
+    GPtrArray   *deprecated;/**< Array of deprecated items encountered. */
+    stnode_t    *lval;      /**< Left value in the current parsing context. */
+    GString     *quoted_string; /**< Currently parsed quoted string. */
+    bool        raw_string; /**< Flag indicating if the string is raw. */
+    df_loc_t    string_loc; /**< Location of the string in the source text. */
+    df_loc_t    location;   /**< Current parsing location. */
 } dfsyntax_t;
 
-/*
- * State for second stage of compilation (semantic check and code generation).
+/**
+ * @brief State for the second stage of display filter compilation (semantic check and code generation).
  */
 typedef struct {
-	df_error_t	*error;		/* Must be first struct field. */
-	unsigned	flags;
-	stnode_t	*st_root;
-	unsigned	field_count;
-	GPtrArray	*insns;
-	GHashTable	*loaded_fields;
-	GHashTable	*loaded_raw_fields;
-	GHashTable	*loaded_vs_fields;
-	GHashTable	*interesting_fields;
-	int		next_insn_id;
-	int		next_register;
-	GPtrArray	*deprecated;
-	GHashTable	*references; /* hfinfo -> pointer to array of references */
-	GHashTable	*raw_references; /* hfinfo -> pointer to array of references */
-	char		*expanded_text;
-	wmem_allocator_t *dfw_scope; /* Because we use exceptions for error handling sometimes
-	                                cleaning up memory allocations is inconvenient. Memory
-					allocated from this pool will be freed when the dfwork_t
-					context is destroyed. */
-	GSList		*warnings;
-	ftenum_t	 ret_type;
+    df_error_t  *error;     /**< Must be first struct field. Error state. */
+    unsigned    flags;      /**< Compilation flags. */
+    stnode_t    *st_root;   /**< The root node of the syntax tree. */
+    unsigned    field_count;/**< Counter for fields processed. */
+    GPtrArray   *insns;     /**< Array of generated instructions. */
+    GHashTable  *loaded_fields; /**< Hash table of loaded fields. */
+    GHashTable  *loaded_raw_fields; /**< Hash table of loaded raw fields. */
+    GHashTable  *loaded_vs_fields;  /**< Hash table of loaded value string fields. */
+    GHashTable  *interesting_fields;/**< Hash table of interesting fields. */
+    int     next_insn_id;   /**< ID for the next instruction. */
+    int     next_register;  /**< ID for the next register. */
+    GPtrArray   *deprecated;/**< Array of deprecated items encountered. */
+    GHashTable  *references; /**< hfinfo -> pointer to array of references. */
+    GHashTable  *raw_references; /**< hfinfo -> pointer to array of references. */
+    char        *expanded_text; /**< The expanded filter text. */
+    wmem_allocator_t *dfw_scope; /**< Memory pool allocator for the dfwork_t context.
+                                      Because we use exceptions for error handling sometimes
+                                      cleaning up memory allocations is inconvenient. Memory
+                                      allocated from this pool will be freed when the dfwork_t
+                                      context is destroyed. */
+    GSList      *warnings;   /**< List of warnings generated. */
+    ftenum_t     ret_type;   /**< The determined return type of the filter expression. */
 } dfwork_t;
 
 /* Constructor/Destructor prototypes for Lemon Parser */
+
+/**
+ * @brief Allocator for the display filter.
+ */
 void *DfilterAlloc(void *(*)(size_t));
 
+/**
+ * @brief Deallocator for the display filter.
+ */
 void DfilterFree(void *, void (*)(void *));
 
-void Dfilter(void *, int, stnode_t *, dfsyntax_t *);
+/**
+ * @brief Evaluates a token in the Lemon Parser.
+ * @param yyp The parser instance.
+ * @param yymajor The major token type.
+ * @param yyminor The minor token data.
+ */
+void Dfilter(void *yyp, int yymajor, stnode_t *yyminor, dfsyntax_t *);
 
 /* Return value for error in scanner. */
-#define SCAN_FAILED	-1	/* not 0, as that means end-of-input */
+/**
+ * @brief Indicates a scanning failure.
+ * Not 0, as 0 means end-of-input.
+ */
+#define SCAN_FAILED -1
 
 /**
  * @brief Report a failure in a display filter.

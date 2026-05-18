@@ -30,10 +30,11 @@
  * (size and accessibility) that is updated asynchronously.
  */
 struct RecentFileInfo {
-    QString filename;
-    qint64 size = 0;
-    bool accessible = false;
+    QString filename;   /**< Absolute path to the capture file. */
+    qint64  size = 0;   /**< Cached file size in bytes; 0 until the async status check completes. */
+    bool accessible = false; /**< @c true if the file exists and is readable at last status check. */
 };
+
 
 /**
  * @brief Manages workspace state that persists between sessions.
@@ -57,13 +58,22 @@ public:
      *
      * Thread-safe in C++11 and later (Meyer's Singleton).
      */
-    static WorkspaceState* instance();
+    static WorkspaceState *instance();
 
+    /**
+     * @brief Destroys the singleton and releases all owned resources.
+     */
     virtual ~WorkspaceState();
 
-    // Prevent copying
-    WorkspaceState(const WorkspaceState&) = delete;
-    WorkspaceState& operator=(const WorkspaceState&) = delete;
+    /**
+     * @brief Deleted copy constructor to enforce the singleton pattern.
+     */
+    WorkspaceState(const WorkspaceState &) = delete;
+
+    /**
+     * @brief Deleted assignment operator to enforce the singleton pattern.
+     */
+    WorkspaceState &operator=(const WorkspaceState &) = delete;
 
     /**
      * @brief Load state from the recent_common file.
@@ -72,7 +82,7 @@ public:
      *
      * @param[out] errorPath If loading fails, contains the path that failed.
      * @param[out] errorCode If loading fails, contains the errno.
-     * @return true on success, false on failure.
+     * @return @c true on success, @c false on failure.
      */
     bool loadCommonState(QString *errorPath = nullptr, int *errorCode = nullptr);
 
@@ -95,7 +105,7 @@ public:
      *
      * @return List of file info structs, most recent last.
      */
-    const QList<RecentFileInfo>& recentCaptureFiles() const;
+    const QList<RecentFileInfo> &recentCaptureFiles() const;
 
     /**
      * @brief Get just the filenames of recent capture files.
@@ -132,7 +142,7 @@ public:
      * "Development Build" set by CMake).  Release builds either leave
      * VERSION_FLAVOR empty or undefine it entirely.
      *
-     * @return true for development builds, false for releases.
+     * @return @c true for development builds, @c false for releases.
      */
     static bool isDevelopmentBuild();
 
@@ -142,7 +152,7 @@ public:
      * In portable mode, state files are stored in the application directory
      * instead of a user-specific location. For any other OS than Windows, this will return false.
      *
-     * @return true if running in portable mode, false otherwise.
+     * @return @c true if running in portable mode, @c false otherwise.
      */
     static bool isPortableApplication();
 
@@ -170,11 +180,18 @@ signals:
     void stateSaved();
 
 protected:
+    /**
+     * @brief Constructs the WorkspaceState; use instance() to obtain the singleton.
+     * @param parent Optional parent QObject.
+     */
     explicit WorkspaceState(QObject *parent = nullptr);
 
 private slots:
     /**
      * @brief Slot called when async file status check completes.
+     * @param filename   Path of the file whose status was checked.
+     * @param size       File size in bytes as reported by the async check.
+     * @param accessible @c true if the file exists and is readable.
      */
     void onFileStatusChecked(const QString &filename, qint64 size, bool accessible);
 
@@ -183,22 +200,24 @@ private:
      * @brief Parse a recent file and extract key-value pairs.
      *
      * @param filePath Path to the recent file.
-     * @param handler Callback for each key-value pair found.
-     * @return true on success, false on failure.
+     * @param handler  Callback invoked for each key-value pair found.
+     * @return @c true on success, @c false on failure.
      */
     bool parseRecentFile(const QString &filePath,
                          std::function<void(const QString &key, const QString &value)> handler);
 
     /**
-     * @brief Queue an async file status check for a file.
+     * @brief Enqueues an asynchronous file-status check for @p filename,
+     *        which will emit recentFileStatusChanged() on completion.
+     * @param filename Path of the file to check.
      */
     void queueFileStatusCheck(const QString &filename);
 
-    QList<RecentFileInfo> recent_capture_files_;
+    QList<RecentFileInfo> recent_capture_files_; /**< Ordered list of recent capture file records; most recent last. */
 
-    static constexpr const char* RECENT_COMMON_FILE_NAME = "recent_common";
-    static constexpr const char* RECENT_PROFILE_FILE_NAME = "recent";
-    static constexpr const char* KEY_CAPTURE_FILE = "recent.capture_file";
+    static constexpr const char *RECENT_COMMON_FILE_NAME  = "recent_common";  /**< Basename of the cross-profile recent file. */
+    static constexpr const char *RECENT_PROFILE_FILE_NAME = "recent";          /**< Basename of the per-profile recent file. */
+    static constexpr const char *KEY_CAPTURE_FILE         = "recent.capture_file"; /**< Key used to persist capture file paths in the recent file. */
 };
 
 #endif // WORKSPACE_STATE_H

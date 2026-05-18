@@ -47,9 +47,14 @@ typedef void (*sparkle_postpone_relaunch_callback_t)(void (*proceed)(void *ctx),
 // Last-chance notification — cannot be vetoed.
 typedef void (*sparkle_will_relaunch_callback_t)(void);
 
+/**
+ * @brief C++ wrapper for the Sparkle update framework.
+ */
 class SparkleBridge
 {
-
+    /**
+     * @brief Constructor for the SparkleBridge class.
+     */
     SparkleBridge() {}
 
 public:

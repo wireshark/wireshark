@@ -741,7 +741,7 @@ void cf_update_section_comment(capture_file *cf, char *comment);
  */
 void cf_update_section_comments(capture_file *cf, unsigned shb_idx, char **comments);
 
-/*
+/**
  * Get the packet block for a packet (record).
  * If the block has been edited, it returns the result of the edit,
  * otherwise it returns the block from the file.

@@ -18,12 +18,21 @@ namespace Ui {
 class StratosharkProfileDialog;
 }
 
+/**
+ * @brief Stratoshark-specific specialisation of the profile management dialog.
+ */
 class StratosharkProfileDialog : public ProfileDialog
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Constructs the dialog and initialises Stratoshark-specific profile UI.
+     * @param parent Optional parent widget.
+     */
     explicit StratosharkProfileDialog(QWidget *parent = 0);
+
+    /** @brief Destroys the dialog. */
     virtual ~StratosharkProfileDialog();
 };
 

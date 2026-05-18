@@ -59,7 +59,10 @@ WS_DLL_PUBLIC
 bool       hex_str_to_bytes(const char *hex_str, GByteArray *bytes,
     bool force_separators);
 
-/* Turn a string of hex digits with optional separators (defined by encoding)
+/**
+ * @brief Turn a string of hex digits with optional separators (defined by encoding)
+ *
+ * Turn a string of hex digits with optional separators (defined by encoding)
  * into a byte array. Unlike hex_str_to_bytes(), this will read as many hex-char
  * pairs as possible and not error if it hits a non-hex-char; instead it just ends
  * there. (i.e., like strtol()/atoi()/etc.) But it must see two hex chars at the

@@ -79,6 +79,21 @@ static inline void dot11decrypt_get_nonce_aad_addrs(
     }
 }
 
+/**
+ * @brief IEEE 802.11-2016 12.7.1.2 PRF (Pseudo Random Function)
+ *
+ * @param key Derivation input key.
+ * @param key_len Length of the key in bytes.
+ * @param label Unique label for each different purpose of the PRF (named 'A' in the standard).
+ * @param context Provides context to identify the derived key (named 'B' in the standard).
+ * @param context_len Length of context in bytes.
+ * @param hash_algo Hash algorithm to use for the PRF.
+ *        See gcrypt available hash algorithms:
+ *        https://gnupg.org/documentation/manuals/gcrypt/Available-hash-algorithms.html
+ * @param[out] output Derived key.
+ * @param output_len Length of derived key in bytes.
+ * @return false on error
+ */
 bool
 dot11decrypt_prf(const uint8_t *key, size_t key_len,
                  const char *label,

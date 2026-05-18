@@ -18,13 +18,26 @@
 #include <QTreeWidget>
 
 /**
- * Like QTreeWidget, but instead of changing to the next row (same column) when
+ * @brief QTreeWidget subclass that remaps the Tab and Backtab keys to the next row (same column) when
  * pressing Tab while editing, change to the next column (same row).
  */
 class TabnavTreeWidget : public QTreeWidget
 {
 public:
+    /**
+     * @brief Constructs the TabnavTreeWidget.
+     * @param parent Optional parent widget.
+     */
     TabnavTreeWidget(QWidget *parent = 0);
-    QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
+
+    /**
+     * @brief Overrides cursor movement so that Tab and Backtab transfer focus
+     *        out of the tree rather than selecting the next or previous item.
+     * @param cursorAction The requested cursor movement action.
+     * @param modifiers    Active keyboard modifiers at the time of the action.
+     * @return The model index the cursor should move to, or an invalid index
+     *         when focus is handed off to another widget.
+     */
+    QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers) override;
 };
 #endif // TABNAV_TREE_WIDGET_H

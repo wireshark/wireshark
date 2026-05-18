@@ -122,6 +122,14 @@ extern WS_RETNONNULL if_stat_cache_t * capture_interface_stat_start(capture_opti
  * Fetch capture statistics, similar to pcap_stats().
  */
 struct pcap_stat; /* Stub in case we don't or haven't yet included pcap.h */
+
+/**
+ * @brief Fetch capture statistics for the interfaces specified.
+ * @param sc A pointer to the statistics state data.
+ * @param ifname The name of the interface to fetch statistics for.
+ * @param ps A pointer to a pcap_stat structure to fill in with the statistics.
+ * @return true if the statistics were successfully fetched, false otherwise.
+ */
 extern bool capture_stats(if_stat_cache_t *sc, char *ifname, struct pcap_stat *ps);
 
 /**

@@ -22,15 +22,15 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/*
- * \brief Convert a decimal string to a signed/unsigned int, with error checks.
- * \param str The string to convert
- * \param endptr A pointer that will store a pointer to the first invalid
+/**
+ * @brief Convert a decimal string to a signed/unsigned int, with error checks.
+ * @param str The string to convert
+ * @param endptr A pointer that will store a pointer to the first invalid
  * character in str, allowing a number to be parsed even if there is trailing
  * whitespace. If NULL, then the string is assumed to contain only valid
  * characters (or it will error out).
- * \param cint The converted integer
- * \return true if the conversion succeeds, false otherwise.
+ * @param cint The converted integer
+ * @return true if the conversion succeeds, false otherwise.
  * On error, errno is set to EINVAL for unrecognized input and ERANGE
  * if the resulting number does not fit in the type.
  */

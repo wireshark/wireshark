@@ -484,6 +484,14 @@ QString watchSpecFromChangeKey(const QString &key);
  */
 QString stripWatchExpressionErrorPrefix(const QString &errStr);
 
+/**
+ * @brief Determine whether a variable has changed based on its current and baseline values.
+ * @param baseline The baseline map of variable values.
+ * @param key The key for the variable to check.
+ * @param newVal The new value for the variable.
+ * @param flashNew Whether to flash the new value.
+ * @return true if the variable has changed, false otherwise.
+ */
 template <class Key, class Map>
 bool shouldMarkChanged(const Map &baseline, const Key &key, const QString &newVal, bool flashNew = false)
 {
@@ -905,6 +913,10 @@ QIcon luaDbgErrorBreakHeaderIcon(bool checked, int side, qreal dpr,
 class LuaDebuggerKeyRouter
 {
 public:
+    /**
+     * @brief Constructs a LuaDebuggerKeyRouter with a pointer to the host dialog.
+     * @param host Pointer to the LuaDebuggerDialog that owns this key router.
+     */
     explicit LuaDebuggerKeyRouter(LuaDebuggerDialog *host);
 
     /** @brief Wire the router to the dialog's Ui struct and breakpoints
@@ -969,88 +981,187 @@ private:
 class LuaDebuggerChangeHighlightTracker
 {
   public:
+    /**
+     * @brief Constructs a default LuaDebuggerChangeHighlightTracker.
+     */
     LuaDebuggerChangeHighlightTracker() = default;
 
+    /**
+     * @brief Refreshes the brushes used for changed values based on the application palette.
+     * @param watchTree Pointer to the watch tree view to derive palette properties from.
+     * @param paletteFallback Pointer to a fallback widget to use if watchTree is unavailable.
+     */
     void refreshChangedValueBrushes(QTreeView *watchTree, QWidget *paletteFallback);
 
+    /**
+     * @brief Snapshots the current values to baseline on a new pause entry.
+     */
     void snapshotBaselinesOnPauseEntry();
 
+    /**
+     * @brief Updates the identity of the current frame on pause entry.
+     */
     void updatePauseEntryFrameIdentity();
 
+    /**
+     * @brief Sets the stack level for the pause entry.
+     * @param level The stack level to set.
+     */
     void setPauseEntryStackLevel(int level) { pauseEntryStackLevel_ = level; }
 
-    /** @brief Toggle the pause-entry refresh flag. The dialog turns it on
+    /**
+     * @brief Toggle the pause-entry refresh flag. The dialog turns it on
      *  for the duration of the pause-entry refresh sequence (so changed
      *  rows get the one-shot row flash on top of the persistent bold
-     *  accent) and off again afterwards.  */
+     *  accent) and off again afterwards.
+     * @param active True to enable the pause-entry refresh state, false to disable.
+     */
     void setPauseEntryRefresh(bool active) { isPauseEntryRefresh_ = active; }
 
-    /** @brief Stamp the @p anchor row with the change visuals; @ref
+    /**
+     * @brief Stamp the @p anchor row with the change visuals; @ref
      *  isPauseEntryRefresh_ is consulted internally so callers no longer
      *  have to thread it through.
      *  @param timerOwner Receives flash-clear timers.
      *  @param anchor     Any cell in the row to stamp; the helper walks
      *                    sibling cells in the same row.
      *  @param changed    True if the value differs from baseline (typically
-     *                    obtained from one of the @c observe* helpers). */
+     *                    obtained from one of the @c observe* helpers).
+     */
     void applyChangedVisuals(QObject *timerOwner, QStandardItem *anchor, bool changed);
 
+    /**
+     * @brief Clears all change baselines for watches and variables.
+     */
     void clearAllChangeBaselines();
 
-    /** @brief Wipe watch-side baselines (root + child value maps and
+    /**
+     * @brief Wipe watch-side baselines (root + child value maps and
      *  visited-parent sets). Variables-tree maps are kept; they are not
-     *  tied to watch specs and remain valid across watch list rebuilds. */
+     *  tied to watch specs and remain valid across watch list rebuilds.
+     */
     void clearWatchBaselines();
 
+    /**
+     * @brief Clears change baselines for a specific watch specification.
+     * @param spec The watch specification to clear baselines for.
+     */
     void clearChangeBaselinesForWatchSpec(const QString &spec);
 
+    /**
+     * @brief Prunes baselines to keep only those present in the live watch specs.
+     * @param watchModel Pointer to the current watch model containing live specs.
+     */
     void pruneChangeBaselinesToLiveWatchSpecs(QStandardItemModel *watchModel);
 
+    /**
+     * @brief Checks if change highlighting is allowed for a given stack level.
+     * @param stackSelectionLevel The stack level currently selected.
+     * @return True if highlights are allowed, false otherwise.
+     */
     bool changeHighlightAllowed(int stackSelectionLevel) const;
 
-    /** @brief Record the latest @p value for a watch root keyed by the
+    /**
+     * @brief Record the latest @p value for a watch root keyed by the
      *  composite @p rootKey. Returns @c true if the new value differs from
-     *  the previous baseline (a brand-new row never reads as changed). */
+     *  the previous baseline (a brand-new row never reads as changed).
+     * @param rootKey The composite key identifying the watch root.
+     * @param value The current string value.
+     * @return True if the value differs from baseline, false otherwise.
+     */
     bool observeWatchRootValue(const QString &rootKey, const QString &value);
 
-    /** @brief Record @p parentPath as a visited parent in the watch-child
+    /**
+     * @brief Record @p parentPath as a visited parent in the watch-child
      *  visited-parents set keyed by @p rootKey. Returns @c true if the same
      *  parent was visited at the previous pause; @c false on first-time
-     *  expansion. Used as the @c flashNew gate for child rows. */
+     *  expansion. Used as the @c flashNew gate for child rows.
+     * @param rootKey The composite key identifying the watch root.
+     * @param parentPath The path of the parent to observe.
+     * @return True if the parent was visited in the previous baseline, false otherwise.
+     */
     bool observeWatchChildParent(const QString &rootKey, const QString &parentPath);
 
-    /** @brief Record the latest @p value for a watch-child row at
+    /**
+     * @brief Record the latest @p value for a watch-child row at
      *  @p rootKey/@p childPath. @p parentVisited is the result of
      *  @ref observeWatchChildParent for the matching parent and gates the
-     *  "child appeared since last pause" branch. */
+     *  "child appeared since last pause" branch.
+     * @param rootKey The composite key identifying the watch root.
+     * @param childPath The path of the child value.
+     * @param value The current string value.
+     * @param parentVisited True if the parent was previously visited.
+     * @return True if the child value changed or newly appeared, false otherwise.
+     */
     bool observeWatchChildValue(const QString &rootKey, const QString &childPath, const QString &value,
                                 bool parentVisited);
 
-    /** @brief Variables-tree counterpart to @ref observeWatchChildParent. */
+    /**
+     * @brief Variables-tree counterpart to @ref observeWatchChildParent.
+     * @param parentKey The key of the variables tree parent.
+     * @return True if the parent was visited in the previous baseline, false otherwise.
+     */
     bool observeVariablesParent(const QString &parentKey);
 
-    /** @brief Variables-tree counterpart to @ref observeWatchChildValue. */
+    /**
+     * @brief Variables-tree counterpart to @ref observeWatchChildValue.
+     * @param variablesKey The key identifying the variable.
+     * @param value The current string value.
+     * @param parentVisited True if the parent was previously visited.
+     * @return True if the variable value changed or newly appeared, false otherwise.
+     */
     bool observeVariablesValue(const QString &variablesKey, const QString &value, bool parentVisited);
 
   private:
+    /** Baseline values for watch roots, keyed by rootKey. */
     QHash<QString /* rootKey */, QString> watchRootBaseline_;
+
+    /** Current values for watch roots, keyed by rootKey. */
     QHash<QString /* rootKey */, QString> watchRootCurrent_;
+
+    /** Baseline values for watch children, keyed by rootKey and childPath. */
     QHash<QString /* rootKey */, QHash<QString /* childPath */, QString>> watchChildBaseline_;
+
+    /** Current values for watch children, keyed by rootKey and childPath. */
     QHash<QString /* rootKey */, QHash<QString /* childPath */, QString>> watchChildCurrent_;
+
+    /** Baseline values for variables, keyed by variablesKey. */
     QHash<QString /* variablesKey */, QString> variablesBaseline_;
+
+    /** Current values for variables, keyed by variablesKey. */
     QHash<QString /* variablesKey */, QString> variablesCurrent_;
 
+    /** Visited parents in the variables tree baseline. */
     QSet<QString /* variablesKey of parent */> variablesBaselineParents_;
+
+    /** Visited parents in the variables tree currently. */
     QSet<QString /* variablesKey of parent */> variablesCurrentParents_;
+
+    /** Visited parents in the watch child tree baseline, keyed by rootKey. */
     QHash<QString /* rootKey */, QSet<QString /* parentPath */>> watchChildBaselineParents_;
+
+    /** Visited parents in the watch child tree currently, keyed by rootKey. */
     QHash<QString /* rootKey */, QSet<QString /* parentPath */>> watchChildCurrentParents_;
 
+    /** Brush used to accent changed values persistently. */
     QBrush changedValueBrush_;
+
+    /** Brush used for the momentary flash effect on changed values. */
     QBrush changedFlashBrush_;
+
+    /** Flag indicating if a pause-entry refresh sequence is active. */
     bool isPauseEntryRefresh_ = false;
+
+    /** Serial number for flash timers to prevent stale clear events. */
     qint32 flashSerial_ = 0;
+
+    /** The stack level recorded at the moment of pause entry. */
     int pauseEntryStackLevel_ = 0;
+
+    /** The identity of frame 0 at pause entry, used to detect frame changes. */
     QString pauseEntryFrame0Identity_;
+
+    /** True if the current frame 0 identity matches the previous pause. */
     bool pauseEntryFrame0MatchesPrev_ = false;
 };
 

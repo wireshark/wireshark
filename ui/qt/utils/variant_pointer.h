@@ -16,15 +16,28 @@
 
 #include <QVariant>
 
+/**
+ * @brief A template utility class for converting between pointers and QVariant objects.
+ */
 template <typename T> class VariantPointer
 {
 
 public:
+    /**
+     * @brief Converts a QVariant containing a void pointer back to a typed pointer.
+     * @param v The QVariant containing the pointer data.
+     * @return A pointer of type T.
+     */
     static T* asPtr(QVariant v)
     {
         return  (T *) v.value<void *>();
     }
 
+    /**
+     * @brief Converts a typed pointer into a QVariant.
+     * @param ptr The pointer to convert.
+     * @return A QVariant encapsulating the pointer.
+     */
     static QVariant asQVariant(T* ptr)
     {
         return QVariant::fromValue((void *) ptr);

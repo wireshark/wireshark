@@ -52,7 +52,10 @@ extern "C" {
 
 #define PROTOBUF_MAX_FIELD_TYPE 18
 
+/** @brief Value string array for protobuf field types */
 VALUE_STRING_ENUM(protobuf_field_type);
+
+/** @brief Value string array for protobuf field types */
 VALUE_STRING_ARRAY_GLOBAL_DCL(protobuf_field_type);
 
 /* like google::protobuf::DescriptorPool of protobuf cpp library */

@@ -1440,6 +1440,18 @@ WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_new_ret_length(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
     const int start, int length, const unsigned encoding, int *lenretval);
 
+/**
+ * @brief Add an item to a protocol tree and return the length of the parsed field.
+ *
+ * @param tree The protocol tree to add the item to.
+ * @param hfindex The header field index of the item to add.
+ * @param tvb The TVB containing the packet data.
+ * @param start The starting offset in the TVB.
+ * @param length The length of the item to parse, or -1 to parse to the end of the TVB.
+ * @param encoding The encoding of the value (e.g., `ENC_BIG_ENDIAN`, `ENC_LITTLE_ENDIAN`, `ENC_ASCII`).
+ * @param lenretval Pointer to an integer where the parsed length of the item will be stored.
+ * @return A pointer to the newly created protocol tree item (`proto_item *`).
+ */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_length(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const int start, int length, const unsigned encoding, int *lenretval);

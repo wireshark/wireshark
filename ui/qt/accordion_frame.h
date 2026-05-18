@@ -21,6 +21,10 @@ class AccordionFrame : public QFrame
 {
     Q_OBJECT
 public:
+    /**
+     * @brief Create an AccordionFrame with the given parent.
+     * @param parent The parent widget of the frame, or nullptr if it has no parent.
+     */
     explicit AccordionFrame(QWidget *parent = 0);
 
     /**

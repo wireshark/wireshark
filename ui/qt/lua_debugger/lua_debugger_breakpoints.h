@@ -347,6 +347,10 @@ class LuaDebuggerBreakpointsController : public QObject
     Q_OBJECT
 
   public:
+    /**
+     * @brief Construct the controller with a pointer to the host dialog for coordinating updates and engine access.
+     * @param host The owning @c LuaDebuggerDialog, used to coordinate updates and access the engine. Must not be null.
+     */
     explicit LuaDebuggerBreakpointsController(LuaDebuggerDialog *host);
 
     /**

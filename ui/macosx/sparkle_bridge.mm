@@ -92,8 +92,8 @@ static sparkle_update_attention_callback_t gentleAttentionCallback_ = NULL;
 static sparkle_postpone_relaunch_callback_t postponeRelaunchCallback_ = NULL;
 static sparkle_will_relaunch_callback_t     willRelaunchCallback_     = NULL;
 
-/*
- * AppUpdaterDelegate — implements the SPUUpdaterDelegate protocol.
+/**
+ * @brief AppUpdaterDelegate — implements the SPUUpdaterDelegate protocol.
  *
  * In C++ terms this is a small class that implements a single virtual
  * method from an interface.  Sparkle calls feedURLStringForUpdater:
@@ -154,8 +154,8 @@ static sparkle_will_relaunch_callback_t     willRelaunchCallback_     = NULL;
 
 @end
 
-/*
- * AppUserDriverDelegate — implements the SPUStandardUserDriverDelegate protocol
+/**
+ * @brief AppUserDriverDelegate — implements the SPUStandardUserDriverDelegate protocol
  * for gentle scheduled update reminders.
  *
  * Instead of immediately showing a modal update dialog for background checks,
@@ -202,21 +202,29 @@ static sparkle_will_relaunch_callback_t     willRelaunchCallback_     = NULL;
 
 @end
 
-/*
- * SparkleUpdateController — singleton wrapper around SPUStandardUpdaterController.
+/**
+ * @brief Singleton wrapper around SPUStandardUpdaterController for Sparkle 2.
  *
  * Sparkle 2 no longer provides a built-in shared instance (the Sparkle 1
- * [SUUpdater sharedUpdater] was deprecated).  This class fills that gap
+ * [SUUpdater sharedUpdater] was deprecated). This class fills that gap
  * by creating exactly one SPUStandardUpdaterController on first access
  * using dispatch_once (equivalent to std::call_once / Q_GLOBAL_STATIC).
  *
  * The "+" prefix means sharedStandardUpdaterController is a class method
  * (like a C++ static method), so callers write:
+ * @code
  *   [SparkleUpdateController sharedStandardUpdaterController]
+ * @endcode
  * rather than creating an instance first.
  */
-@interface SparkleUpdateController: NSObject
+@interface SparkleUpdateController : NSObject
+
+/**
+ * @brief Returns the shared SPUStandardUpdaterController instance, creating it on first call.
+ * @return The singleton SPUStandardUpdaterController used for all update operations.
+ */
 + (SPUStandardUpdaterController *)sharedStandardUpdaterController;
+
 @end
 
 @implementation SparkleUpdateController

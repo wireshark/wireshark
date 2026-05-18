@@ -19,17 +19,25 @@
 #include <ui/qt/widgets/tabnav_tree_view.h>
 
 /**
- * Like QTreeView, but instead of changing to the next row (same column) when
- * pressing Tab while editing, change to the next column (same row).
+ * @brief A tree view that moves to the next column (same row) on Tab while editing,
+ *        rather than the next row (same column) as QTreeView does by default.
  */
 class RowMoveTreeView : public TabnavTreeView
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Constructs the row-move tree view.
+     * @param parent The parent widget.
+     */
     RowMoveTreeView(QWidget *parent = nullptr);
 
 protected:
+    /**
+     * @brief Handles drop events for row reordering within the tree.
+     * @param event The drop event to process.
+     */
     void dropEvent(QDropEvent *event) override;
 };
 #endif // ROWMOVE_TREE_VIEW_H

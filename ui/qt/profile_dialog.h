@@ -24,18 +24,44 @@ namespace Ui {
 class ProfileDialog;
 }
 
+/**
+ * @brief Dialog for managing Wireshark configuration profiles.
+ */
 class ProfileDialog : public GeometryStateDialog
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Actions that can be performed on profiles.
+     */
     enum ProfileAction {
-        ShowProfiles, NewProfile, ImportZipProfile, ImportDirProfile,
-        ExportSingleProfile, ExportAllProfiles, EditCurrentProfile, DeleteCurrentProfile
+        ShowProfiles,         /**< Show the profiles dialog. */
+        NewProfile,           /**< Create a new profile. */
+        ImportZipProfile,     /**< Import a profile from a ZIP archive. */
+        ImportDirProfile,     /**< Import a profile from a directory. */
+        ExportSingleProfile,  /**< Export a single profile. */
+        ExportAllProfiles,    /**< Export all profiles. */
+        EditCurrentProfile,   /**< Edit the current profile. */
+        DeleteCurrentProfile  /**< Delete the current profile. */
     };
 
+    /**
+     * @brief Constructs a ProfileDialog.
+     * @param parent The parent widget.
+     */
     explicit ProfileDialog(QWidget *parent = Q_NULLPTR);
+
+    /**
+     * @brief Destroys the ProfileDialog.
+     */
     virtual ~ProfileDialog();
+
+    /**
+     * @brief Executes a specific profile action.
+     * @param profile_action The action to execute.
+     * @return The result code of the action.
+     */
     int execAction(ProfileAction profile_action);
 
     /**
@@ -49,43 +75,105 @@ public:
     void selectProfile(QString profile = QString());
 
 protected:
+    /**
+     * @brief Handles key press events within the dialog.
+     * @param event The key press event.
+     */
     virtual void keyPressEvent(QKeyEvent *event);
-    // UI getters
+
+    /**
+     * @brief Gets the auto switch limit label UI element.
+     * @return Pointer to the QLabel.
+     */
     QLabel* autoSwitchLimitLabel() const;
 
 private:
-    Ui::ProfileDialog *pd_ui_;
-    QPushButton *ok_button_;
-    QPushButton *import_button_;
+    Ui::ProfileDialog *pd_ui_; /**< Pointer to the user interface form elements. */
+    QPushButton *ok_button_; /**< The OK button. */
+    QPushButton *import_button_; /**< The import button. */
 #if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
-    QPushButton *export_button_;
-    QAction *export_selected_entry_;
+    QPushButton *export_button_; /**< The export button. */
+    QAction *export_selected_entry_; /**< The action for exporting a selected entry. */
 #endif
-    ProfileModel *model_;
-    ProfileSortModel *sort_model_;
+    ProfileModel *model_; /**< Pointer to the profile data model. */
+    ProfileSortModel *sort_model_; /**< Pointer to the profile sorting model. */
 
+    /**
+     * @brief Finishes the import process.
+     * @param fi The file info of the imported target.
+     * @param skipped The number of items skipped during import.
+     * @param importedProfiles List of successfully imported profile names.
+     */
     void finishImport(QFileInfo fi, int skipped, const QStringList& importedProfiles);
 
-    //Helper function remove filter before adding/copying profiles
+    /**
+     * @brief Helper function to remove filter before adding/copying profiles.
+     */
     void clearFilter();
 
 private slots:
 #if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
+    /**
+     * @brief Exports profiles to an archive.
+     * @param exportAllPersonalProfiles True to export all personal profiles, false otherwise.
+     */
     void exportProfiles(bool exportAllPersonalProfiles = false);
+
+    /**
+     * @brief Initiates import of profiles from a ZIP archive.
+     */
     void importFromZip();
 #endif
+    /**
+     * @brief Initiates import of profiles from a directory.
+     */
     void importFromDirectory();
 
+    /**
+     * @brief Handles clicks on the new tool button.
+     */
     void newToolButtonClicked();
+
+    /**
+     * @brief Handles clicks on the delete tool button.
+     */
     void deleteToolButtonClicked();
+
+    /**
+     * @brief Handles clicks on the copy tool button.
+     */
     void copyToolButtonClicked();
+
+    /**
+     * @brief Handles the acceptance (OK) of the dialog button box.
+     */
     void buttonBoxAccepted();
+
+    /**
+     * @brief Handles help requests from the dialog button box.
+     */
     void buttonBoxHelpRequested();
+
+    /**
+     * @brief Handles data changes within the profile model.
+     */
     void dataChanged(const QModelIndex &);
 
-    void filterChanged(const QString &);
+    /**
+     * @brief Handles changes to the profile search/filter text.
+     * @param text The new filter string.
+     */
+    void filterChanged(const QString &text);
 
+    /**
+     * @brief Handles changes to the selected profiles in the view.
+     */
     void selectionChanged();
+
+    /**
+     * @brief Retrieves a list of the currently selected profile indexes.
+     * @return The list of selected model indexes.
+     */
     QModelIndexList selectedProfiles();
 
     // QWidget interface

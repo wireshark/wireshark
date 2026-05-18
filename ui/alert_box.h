@@ -17,8 +17,9 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/*
- * Register these routines with the report_message mechanism.
+/**
+ * @brief Register these routines with the report_message mechanism.
+ * @param friendly_program_name The friendly name of the program.
  */
 extern void init_report_alert_box(const char *friendly_program_name);
 

@@ -17,15 +17,28 @@
 #include <config.h>
 #include <QHeaderView>
 
+/**
+ * @brief QHeaderView subclass that adds a context menu for interactively
+ *        resizing or resetting column (or row) widths.
+ */
 class ResizeHeaderView : public QHeaderView
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Constructs a ResizeHeaderView.
+     * @param orientation Whether this is a horizontal (column) or vertical (row) header.
+     * @param parent      Optional parent widget.
+     */
     ResizeHeaderView(Qt::Orientation orientation, QWidget *parent = nullptr);
 
 protected:
+    /**
+     * @brief Presents a context menu at the position of @p e, offering actions
+     *        to resize sections to their contents or reset them to default widths.
+     * @param e The context menu event carrying the cursor position.
+     */
     void contextMenuEvent(QContextMenuEvent *e) override;
-
 };
 #endif // RESIZE_HEADER_VIEW_H

@@ -120,6 +120,10 @@ class LuaSyntaxHighlighter : public QSyntaxHighlighter
     /** @brief Locate the closing delimiter for a Lua long bracket token. */
     qint32 findLongBlockEnd(const QString &text, qint32 from, qint32 eqCount) const;
 
+    /**
+     * @brief Build the syntax-highlighting rules for @p isDark and store them in @c rules_.
+     * @param isDark Indicates whether the dark theme should be used.
+     */
     void buildRules(bool isDark);
 };
 
@@ -150,8 +154,21 @@ class LuaDebuggerCodeView : public QPlainTextEdit
      */
     qint32 lineNumberAreaWidth();
 
+    /**
+     * @brief Set the file path this editor is currently hosting, for use in
+     *        breakpoint management and the "edited" tab marker. The path is
+     *        opaque to the editor and can be set to an empty string for
+     *        unsaved buffers or those not hosting files on disk.
+     * @param f The file path to associate with this editor.
+     */
     void setFilename(const QString &f) { filename = f; }
+
+    /**
+     * @brief Get the file path associated with this editor.
+     * @return The file path.
+     */
     QString getFilename() const { return filename; }
+
     /**
      * @brief Set the debugger "execution paused" line (amber bar) and move the
      *        caret to that line. Pass @<= 0 to clear only the paused-line bar.
@@ -164,12 +181,18 @@ class LuaDebuggerCodeView : public QPlainTextEdit
      *        line (e.g. go-to-line).
      */
     void moveCaretToLineStart(qint32 line);
-    /** @brief Apply a monospace font to both editor text and gutter. */
+    /**
+     * @brief Apply a monospace font to both editor text and gutter.
+     * @param font The font to apply.
+     */
     void setEditorFont(const QFont &font);
+
     /** @brief Refresh breakpoint markers in the gutter area. */
     void updateBreakpointMarkers();
+
     /** @brief Re-apply theme colors from the current preference. */
     void applyTheme();
+
     /**
      * @brief Return the Lua identifier under the given cursor position, or
      *        an empty string if the position is not on an identifier.
@@ -180,6 +203,7 @@ class LuaDebuggerCodeView : public QPlainTextEdit
      * "double-click to select word" affordance Qt's text editors offer.
      */
     QString luaIdentifierUnderCursor(const QTextCursor &cursor) const;
+
     /**
      * @brief Watch text for the editor context menu: trimmed selection if any,
      *        otherwise the Lua identifier at @a viewportPos (viewport coordinates).
@@ -248,6 +272,9 @@ class LuaDebuggerCodeView : public QPlainTextEdit
     void applyEditorPalette();
 };
 
+/**
+ * @brief A widget for displaying line numbers in the code editor.
+ */
 class LineNumberArea : public QWidget
 {
   public:
@@ -257,29 +284,45 @@ class LineNumberArea : public QWidget
      */
     LineNumberArea(LuaDebuggerCodeView *editor) : QWidget(editor), codeEditor(editor) {}
 
-    /** @brief Size the gutter according to the editor's width requirements. */
+    /** @brief Size the gutter according to the editor's width requirements.
+     *  @return The recommended size for the line number area.
+     */
     QSize sizeHint() const override { return QSize(codeEditor->lineNumberAreaWidth(), 0); }
 
-    /** @brief True if a breakpoint drag-and-drop is currently in progress. */
+    /** @brief True if a breakpoint drag-and-drop is currently in progress.
+     *  @return True if dragging a breakpoint, false otherwise.
+     */
     bool isDraggingBreakpoint() const { return draggingBreakpoint_; }
 
-    /** @brief Current drag target line, or -1 if not dragging. */
+    /** @brief Current drag target line, or -1 if not dragging.
+     *  @return The target line number, or -1.
+     */
     qint32 dragTargetLine() const { return dragTargetLine_; }
 
-    /** @brief Source line being dragged, or -1 if not dragging. */
+    /** @brief Source line being dragged, or -1 if not dragging.
+     *  @return The source line number, or -1.
+     */
     qint32 dragSourceLine() const { return pressedLine_; }
 
   protected:
-    /** @brief Delegate painting back to the code view. */
+    /** @brief Delegate painting back to the code view.
+     *  @param event The paint event.
+     */
     void paintEvent(QPaintEvent *event) override { codeEditor->lineNumberAreaPaintEvent(event); }
 
-    /** @brief Toggle breakpoints when the gutter is clicked. */
+    /** @brief Toggle breakpoints when the gutter is clicked.
+     *  @param event The mouse press event.
+     */
     void mousePressEvent(QMouseEvent *event) override;
 
-    /** @brief Track drag gestures in the breakpoint gutter. */
+    /** @brief Track drag gestures in the breakpoint gutter.
+     *  @param event The mouse move event.
+     */
     void mouseMoveEvent(QMouseEvent *event) override;
 
-    /** @brief Commit click vs drag-drop action on mouse release. */
+    /** @brief Commit click vs drag-drop action on mouse release.
+     *  @param event The mouse release event.
+     */
     void mouseReleaseEvent(QMouseEvent *event) override;
 
     /**
@@ -288,10 +331,12 @@ class LineNumberArea : public QWidget
      *        Edit / Disable / Remove menu when the click lands on an
      *        existing breakpoint, regardless of whether it carries
      *        extras. Clicks on bare lines are ignored.
+     * @param event The context menu event.
      */
     void contextMenuEvent(QContextMenuEvent *event) override;
 
   private:
+    /** @brief Pointer to the code editor. */
     LuaDebuggerCodeView *codeEditor;
 
     /**
@@ -303,17 +348,45 @@ class LineNumberArea : public QWidget
      * @c codeEditor into @c QPlainTextEdit's protected geometry
      * accessors (legal because @c LineNumberArea is a friend of
      * @ref LuaDebuggerCodeView).
+     * @param yPx The Y coordinate in pixels.
+     * @return The 1-based line number, or -1.
      */
     qint32 lineAtY(qint32 yPx) const;
+
+    /**
+     * @brief Checks if there is a breakpoint at the given line.
+     * @param line The line number to check.
+     * @return True if a breakpoint exists, false otherwise.
+     */
     bool hasBreakpointAtLine(qint32 line) const;
+
+    /**
+     * @brief Finds the nearest visible line for dropping a dragged breakpoint.
+     * @param yPx The Y coordinate in pixels.
+     * @param sourceLine The source line being dragged.
+     * @return The nearest valid drop line number.
+     */
     qint32 nearestVisibleDropLine(qint32 yPx, qint32 sourceLine) const;
 
+    /** @brief The initial position of the mouse press. */
     QPoint pressPos_;
+
+    /** @brief The line number where the mouse was pressed. */
     qint32 pressedLine_ = -1;
+
+    /** @brief The current target line during a drag operation. */
     qint32 dragTargetLine_ = -1;
+
+    /** @brief Flag indicating if a left mouse press is currently armed. */
     bool leftPressArmed_ = false;
+
+    /** @brief Flag indicating if a breakpoint is actively being dragged. */
     bool draggingBreakpoint_ = false;
+
+    /** @brief Flag indicating if the shift key was held during the press. */
     bool pressShiftToggle_ = false;
+
+    /** @brief Flag indicating if a breakpoint existed at the pressed line. */
     bool pressHadBreakpoint_ = false;
 };
 
@@ -335,47 +408,78 @@ class LineNumberArea : public QWidget
 class LuaDebuggerFontPolicy
 {
   public:
+    /** @brief Default constructor for the font policy. */
     LuaDebuggerFontPolicy() = default;
 
-    /** @brief Seed the policy with the dialog's panel widgets. Idempotent. */
+    /**
+     * @brief Seed the policy with the dialog's panel widgets. Idempotent.
+     * @param codeTabs The code tabs widget.
+     * @param variablesTree The variables tree view.
+     * @param watchTree The watch tree view.
+     * @param watchModel The watch standard item model.
+     * @param stackTree The stack trace tree view.
+     * @param fileTree The files tree view.
+     * @param breakpointsTree The breakpoints tree view.
+     * @param evalInputEdit The evaluation input plain text edit.
+     * @param evalOutputEdit The evaluation output plain text edit.
+     */
     void attach(QTabWidget *codeTabs, QTreeView *variablesTree, QTreeView *watchTree, QStandardItemModel *watchModel,
                 QTreeView *stackTree, QTreeView *fileTree, QTreeView *breakpointsTree,
                 QPlainTextEdit *evalInputEdit, QPlainTextEdit *evalOutputEdit);
 
     /** @brief Apply zoomed monospace to code editors and panel mono + regular header
-     *  fonts to the side panels. Single entry point for "font preference changed". */
+     *  fonts to the side panels. Single entry point for "font preference changed".
+     */
     void applyAll();
 
     /** @brief Apply the (optionally explicit) monospace to all open code-view tabs.
-     *  When @p font is empty, falls back to the current zoomed monospace. */
+     *  When @p font is empty, falls back to the current zoomed monospace.
+     *  @param font The specific font to apply, or default to current.
+     */
     void applyToCodeEditors(const QFont &font = QFont());
 
     /** @brief Apply panel-mono bodies + regular headers to all side panels and
      *  re-sync watch QStandardItem fonts. Public so layout-changing widgets
-     *  (e.g. the watch tree after a DnD reorder) can request a re-seat. */
+     *  (e.g. the watch tree after a DnD reorder) can request a re-seat.
+     */
     void applyToPanels();
 
     /** @brief Re-walk the watch model and seed each item's font to panel-mono,
-     *  preserving its current bold flag (used by change-highlight). */
+     *  preserving its current bold flag (used by change-highlight).
+     */
     void reapplyToWatchItemModel();
 
     /** @brief Effective monospace font; respects the main-app preference and the
      *  optional zoom step. Falls back to the system fixed font before main-app
-     *  init. */
+     *  init.
+     *  @param zoomed True to return the zoomed variant.
+     *  @return The evaluated monospace font.
+     */
     QFont monospaceFont(bool zoomed) const;
 
-    /** @brief Effective regular UI font for tree-column headers. */
+    /** @brief Effective regular UI font for tree-column headers.
+     *  @return The standard UI font.
+     */
     QFont regularFont() const;
 
   private:
+    /** @brief Pointer to the code tabs. */
     QTabWidget *codeTabs_ = nullptr;
+    /** @brief Pointer to the variables tree. */
     QTreeView *variablesTree_ = nullptr;
+    /** @brief Pointer to the watch tree. */
     QTreeView *watchTree_ = nullptr;
+    /** @brief Pointer to the watch model. */
     QStandardItemModel *watchModel_ = nullptr;
+    /** @brief Pointer to the stack trace tree. */
     QTreeView *stackTree_ = nullptr;
+    /** @brief Pointer to the files tree. */
     QTreeView *fileTree_ = nullptr;
+    /** @brief Pointer to the breakpoints tree. */
     QTreeView *breakpointsTree_ = nullptr;
+    /** @brief Pointer to the evaluation input editor. */
     QPlainTextEdit *evalInputEdit_ = nullptr;
+    /** @brief Pointer to the evaluation output editor. */
     QPlainTextEdit *evalOutputEdit_ = nullptr;
 };
 
@@ -407,27 +511,42 @@ class LuaDebuggerCodeTabsController : public QObject
     Q_OBJECT
 
   public:
+    /**
+     * @brief Constructs a new LuaDebuggerCodeTabsController object.
+     * @param host Pointer to the hosting Lua debugger dialog.
+     */
     explicit LuaDebuggerCodeTabsController(LuaDebuggerDialog *host);
 
+    /**
+     * @brief Attaches the controller to the given tab widget.
+     * @param tabs Pointer to the QTabWidget managing code views.
+     */
     void attach(QTabWidget *tabs);
 
     /** @brief Borrowed reference to the tab strip. Exposed so other
      *  controllers (breakpoints, reload coordinator) can iterate the open
      *  editors without friending the dialog. The pointer lives as long
-     *  as the dialog. */
+     *  as the dialog.
+     *  @return Pointer to the tab widget.
+     */
     QTabWidget *tabs() const { return tabs_; }
 
     /** @brief Directory to seed the next "Open Lua Script" dialog with.
      *  Lazily resolves to @c Documents (or @c $HOME) on first call so the
-     *  controller doesn't depend on construct-time path availability. */
+     *  controller doesn't depend on construct-time path availability.
+     *  @return The last open directory path string.
+     */
     QString lastOpenDirectory();
 
     /** @brief Remember the directory the user last opened a script from.
-     *  Persists for the lifetime of the controller. */
+     *  Persists for the lifetime of the controller.
+     *  @param dir The directory path.
+     */
     void setLastOpenDirectory(const QString &dir);
 
     /**
      * @brief Load @p file_path into a code tab, creating one if necessary.
+     * @param file_path The path to the file to open.
      * @return The view now hosting the file, or @c nullptr if the file does
      *         not exist on disk (no tab is created in that case).
      *
@@ -438,17 +557,24 @@ class LuaDebuggerCodeTabsController : public QObject
      */
     LuaDebuggerCodeView *loadFile(const QString &file_path);
 
-    /** @brief The code editor in the active tab, or @c nullptr. */
+    /** @brief The code editor in the active tab, or @c nullptr.
+     *  @return Pointer to the currently active code view.
+     */
     LuaDebuggerCodeView *currentCodeView() const;
 
-    /** @brief How many open code tabs currently have unsaved edits. */
+    /** @brief How many open code tabs currently have unsaved edits.
+     *  @return The number of unsaved open tabs.
+     */
     qint32 unsavedOpenScriptTabCount() const;
 
-    /** @brief True if any open tab has unsaved edits. */
+    /** @brief True if any open tab has unsaved edits.
+     *  @return True if unsaved changes exist, false otherwise.
+     */
     bool hasUnsavedChanges() const;
 
     /**
      * @brief If any tab is modified, prompt to save / discard / cancel.
+     * @param title The title for the prompt dialog.
      * @return @c false only if the user picked Cancel; @c true otherwise.
      */
     bool ensureUnsavedChangesHandled(const QString &title);
@@ -456,14 +582,20 @@ class LuaDebuggerCodeTabsController : public QObject
     /** @brief Mark every open document as unmodified without saving. */
     void clearAllDocumentModified();
 
-    /** @brief Persist one editor buffer to its file path. */
+    /** @brief Persist one editor buffer to its file path.
+     *  @param view Pointer to the code view to save.
+     *  @return True if saved successfully, false otherwise.
+     */
     bool saveCodeView(LuaDebuggerCodeView *view);
 
     /** @brief Save every tab that has unsaved edits.
-     *  @return @c false on the first failed write. */
+     *  @return @c false on the first failed write.
+     */
     bool saveAllModified();
 
-    /** @brief Update the tab label (e.g. trailing @c " *") for one editor. */
+    /** @brief Update the tab label (e.g. trailing @c " *") for one editor.
+     *  @param view Pointer to the code view to update.
+     */
     void updateTabTextForCodeView(LuaDebuggerCodeView *view);
 
     /** @brief Enable Save when the current tab has unsaved edits. */
@@ -472,7 +604,9 @@ class LuaDebuggerCodeTabsController : public QObject
     /** @brief Reflect unsaved scripts in the window title (e.g. close hint). */
     void updateWindowModifiedState();
 
-    /** @brief Open each initial breakpoint file once tabs are ready. */
+    /** @brief Open each initial breakpoint file once tabs are ready.
+     *  @param files List of file paths to open.
+     */
     void openInitialBreakpointFiles(const QVector<QString> &files);
 
     /** @brief Drop the current-line stripe on every open editor. */
@@ -482,7 +616,16 @@ class LuaDebuggerCodeTabsController : public QObject
     void applyThemeToAllTabs();
 
   public slots:
+    /**
+     * @brief Handles a request to close a specific tab.
+     * @param index The index of the tab to close.
+     */
     void onTabCloseRequested(int index);
+
+    /**
+     * @brief Handles a change in the active tab.
+     * @param index The new current tab index.
+     */
     void onCurrentTabChanged(int index);
 
     /** @brief Save the active script tab (toolbar action). */
@@ -491,11 +634,20 @@ class LuaDebuggerCodeTabsController : public QObject
   private:
     /** @brief Slot wired on every new code view: bridges the gutter
      *  click / Shift-click / middle-click into the breakpoints controller
-     *  and refreshes the breakpoint markers across all open tabs. */
+     *  and refreshes the breakpoint markers across all open tabs.
+     *  @param file_path The path to the file containing the breakpoint.
+     *  @param line The line number of the breakpoint.
+     *  @param toggleActive True to activate the breakpoint, false to deactivate.
+     */
     void onCodeViewBreakpointToggled(const QString &file_path, qint32 line, bool toggleActive);
 
+    /** @brief The host dialog that owns this code editor. */
     LuaDebuggerDialog *host_ = nullptr;
+
+    /** @brief The tab strip containing the code views. */
     QTabWidget *tabs_ = nullptr;
+
+    /** @brief The directory to seed the next "Open Lua Script" dialog with. */
     QString lastOpenDirectory_;
 };
 

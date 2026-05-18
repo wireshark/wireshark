@@ -12,16 +12,48 @@
 
 #include <QStyledItemDelegate>
 
+/**
+ * @brief Item delegate that renders a spark-line (miniature inline chart)
+ *        for cells whose model data contains a series of numeric values.
+ */
 class SparkLineDelegate : public QStyledItemDelegate
 {
 public:
+    /**
+     * @brief Constructs a SparkLineDelegate.
+     * @param parent Optional parent widget.
+     */
     SparkLineDelegate(QWidget *parent = 0) : QStyledItemDelegate(parent) {}
 
 protected:
+    /**
+     * @brief Renders the spark-line chart for the cell at @p index.
+     * @param painter Painter to draw with.
+     * @param option  Style option providing geometry, palette, and state.
+     * @param index   Model index of the cell being painted.
+     */
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const;
+
+    /**
+     * @brief Returns the preferred size for a spark-line cell.
+     * @param option Style option providing font metrics and state.
+     * @param index  Model index of the cell being measured.
+     * @return Recommended QSize for the cell.
+     */
     QSize sizeHint(const QStyleOptionViewItem &option,
                    const QModelIndex &index) const;
+
+    /**
+     * @brief Suppresses inline editing by returning @c nullptr.
+     *
+     * Spark-line cells are display-only; no editor widget is created.
+     *
+     * @param parent  Unused parent widget.
+     * @param option  Unused style option.
+     * @param index   Unused model index.
+     * @return Always @c nullptr.
+     */
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
 signals:

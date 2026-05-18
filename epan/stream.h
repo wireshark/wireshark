@@ -48,8 +48,12 @@ typedef struct stream_pdu_fragment stream_pdu_fragment_t;
 
 struct conversation;
 
-/* initialise a new stream. Call this when you first identify a distinct
+/**
+ * @brief Initialise a new stream. Call this when you first identify a distinct
  * stream. The conversation pointer is just used as a key to look up the stream.
+ * @param conv Pointer to the conversation structure.
+ * @param p2p_dir The peer-to-peer direction.
+ * @return Pointer to the newly created stream, or NULL on failure.
  */
 WS_DLL_PUBLIC stream_t *stream_new ( const struct conversation *conv, int p2p_dir );
 

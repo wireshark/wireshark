@@ -31,22 +31,43 @@
 #include "capture_file.h"
 #include "geometry_state_dialog.h"
 
+/**
+ * @brief Base class for Wireshark specific dialogs that require interaction with a CaptureFile.
+ */
 class WiresharkDialog : public GeometryStateDialog
 {
     Q_OBJECT
 
 public:
     // XXX Unlike the entire QWidget API, parent is mandatory here.
+    /**
+     * @brief Constructs a new WiresharkDialog object.
+     * @param parent The parent widget.
+     * @param capture_file The associated capture file.
+     */
     explicit WiresharkDialog(QWidget &parent, CaptureFile &capture_file);
 
     /**
-     * @brief true if the file has been closed, false otherwise.
+     * @brief Checks if the capture file has been closed.
+     * @return true if the file has been closed, false otherwise.
      */
     bool fileClosed() const { return file_closed_; }
 
 protected:
+    /**
+     * @brief Handles key press events.
+     * @param event The key press event.
+     */
     virtual void keyPressEvent(QKeyEvent *event) { QDialog::keyPressEvent(event); }
+
+    /**
+     * @brief Accepts the dialog.
+     */
     virtual void accept();
+
+    /**
+     * @brief Rejects the dialog.
+     */
     virtual void reject();
 
     /**
@@ -58,8 +79,8 @@ protected:
      * called explicitly if any member functions are called or variables are
      * accessed after tapping is finished.
      */
-
     virtual void beginRetapPackets();
+
     /**
      * @brief Mark the end of a code block that retaps packets. If the user
      * has closed the dialog it will be destroyed at this point.
@@ -77,11 +98,22 @@ protected:
      * descriptive.
      */
     void setWindowSubtitle(const QString &subtitle);
+
+    /**
+     * @brief Retrieves the current window subtitle.
+     * @return The window subtitle string.
+     */
     const QString &windowSubtitle() { return subtitle_; }
+
+    /**
+     * @brief Updates the state and contents of the dialog's widgets.
+     */
     virtual void updateWidgets();
 
     // Capture file and tapping
+    /** @brief Reference to the underlying capture file. */
     CaptureFile &cap_file_;
+
     /**
      * @brief Convenience wrapper for register_tap_listener. Tap
      * listeners registered via this function are automatically
@@ -96,6 +128,7 @@ protected:
      * @param tap_reset Reset callback.
      * @param tap_packet Per-packet callback.
      * @param tap_draw Draw callback.
+     * @return True if registration was successful, false otherwise.
      */
     bool registerTapListener(const char *tap_name, void *tap_data,
                         const char *filter, unsigned flags,
@@ -109,6 +142,7 @@ protected:
     virtual void removeTapListeners();
 
     // XXX - Move this to private, have subclasses use the getter?
+    /** @brief Flag indicating if the capture file has been closed. */
     bool file_closed_;
 
     /**
@@ -141,14 +175,29 @@ protected:
     virtual void captureFileClosed();
 
 protected slots:
-    void captureEvent(CaptureEvent);
+    /**
+     * @brief Handles capture events.
+     * @param e The capture event.
+     */
+    void captureEvent(CaptureEvent e);
 
 private:
+    /**
+     * @brief Cleans up dialog resources, optionally closing the dialog.
+     * @param closeDialog True to also close the dialog window.
+     */
     void dialogCleanup(bool closeDialog = false);
 
+    /** @brief The dialog's subtitle string. */
     QString subtitle_;
+
+    /** @brief List of registered tap listener data pointers. */
     QList<void *> tap_listeners_;
+
+    /** @brief The current depth of nested retap operations. */
     int retap_depth_;
+
+    /** @brief Flag indicating if the dialog has been closed by the user. */
     bool dialog_closed_;
 
 private slots:

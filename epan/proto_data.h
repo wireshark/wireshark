@@ -83,6 +83,15 @@ WS_DLL_PUBLIC void *p_get_proto_data(wmem_allocator_t *scope, struct _packet_inf
  */
 WS_DLL_PUBLIC void p_remove_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, uint32_t key);
 
+/**
+ * Fetch the protocol name and key for a protocol data entry.
+ *
+ * @param scope The memory scope, typically pinfo->pool or wmem_file_scope().
+ * @param pinfo This dissection's packet info.
+ * @param pfd_index The index of the protocol data entry to fetch.
+ * @return A string containing the protocol name and key for the specified
+ * protocol data entry, or NULL if the index is out of bounds.
+ */
 char *p_get_proto_name_and_key(wmem_allocator_t *scope, struct _packet_info* pinfo, unsigned pfd_index);
 
 /**

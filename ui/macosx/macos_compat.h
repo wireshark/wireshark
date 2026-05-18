@@ -28,7 +28,19 @@
 #endif
 
 #if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_12)
+/**
+ * @brief Category on NSWindow backporting the macOS 10.12 SDK's automatic
+ *        window-tabbing class method for use when building against older SDKs.
+ */
 @interface NSWindow (macOS10_12_SDK)
+
+/**
+ * @brief Controls whether AppKit may automatically organize windows of this
+ *        application into native Sierra-style tabs.
+ *
+ * @param allow @c YES to permit automatic tabbing (system default);
+ *              @c NO to suppress it globally for the application.
+ */
 + (void)setAllowsAutomaticWindowTabbing:(BOOL)allow;
 @end
 #endif

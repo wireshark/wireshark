@@ -31,14 +31,56 @@
  * Windows and resets it afterward. They also return the result with native
  * directory separators on Windows.
  */
-
 class WiresharkFileDialog : public QFileDialog
 {
 public:
+    /**
+     * @brief Constructs a Wireshark file dialog.
+     * @param parent    The parent widget.
+     * @param caption   The dialog window title.
+     * @param directory The initial directory shown in the dialog.
+     * @param filter    The file type filter string (e.g. "Captures (*.pcap *.pcapng)").
+     */
     WiresharkFileDialog(QWidget *parent = nullptr, const QString &caption = QString(), const QString &directory = QString(), const QString &filter = QString());
+
+    /**
+     * @brief Returns the selected file path in native OS format.
+     * @return The selected path with native directory separators.
+     */
     QString selectedNativePath() const;
+
+    /**
+     * @brief Presents a directory chooser dialog and returns the selected path.
+     * @param parent  The parent widget.
+     * @param caption The dialog window title.
+     * @param dir     The initial directory to display.
+     * @param options Dialog behavior options (default: ShowDirsOnly).
+     * @return The chosen directory path in native format, or an empty string if cancelled.
+     */
     static QString getExistingDirectory(QWidget *parent = Q_NULLPTR, const QString &caption = QString(), const QString &dir = QString(), Options options = ShowDirsOnly);
+
+    /**
+     * @brief Presents an open-file dialog and returns the selected file path.
+     * @param parent         The parent widget.
+     * @param caption        The dialog window title.
+     * @param dir            The initial directory to display.
+     * @param filter         The file type filter string.
+     * @param selectedFilter If non-null, receives the filter the user selected.
+     * @param options        Dialog behavior options.
+     * @return The chosen file path in native format, or an empty string if cancelled.
+     */
     static QString getOpenFileName(QWidget *parent = Q_NULLPTR, const QString &caption = QString(), const QString &dir = QString(), const QString &filter = QString(), QString *selectedFilter = Q_NULLPTR, Options options = Options());
+
+    /**
+     * @brief Presents a save-file dialog and returns the chosen file path.
+     * @param parent         The parent widget.
+     * @param caption        The dialog window title.
+     * @param dir            The initial directory to display.
+     * @param filter         The file type filter string.
+     * @param selectedFilter If non-null, receives the filter the user selected.
+     * @param options        Dialog behavior options.
+     * @return The chosen file path in native format, or an empty string if cancelled.
+     */
     static QString getSaveFileName(QWidget *parent = Q_NULLPTR, const QString &caption = QString(), const QString &dir = QString(), const QString &filter = QString(), QString *selectedFilter = Q_NULLPTR, Options options = Options());
 };
 

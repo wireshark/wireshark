@@ -22,29 +22,64 @@
 #include <QList>
 #include <QSet>
 
+/**
+ * @brief GUI context data for the export object list.
+ */
 typedef struct export_object_list_gui_t {
+    /** @brief Pointer to the export object model. */
     class ExportObjectModel *model;
 } export_object_list_gui_t;
 
+/**
+ * @brief A wrapper class for an export object entry.
+ */
 class ExportObjectEntry
 {
 public:
+    /**
+     * @brief Constructs a new ExportObjectEntry.
+     * @param entry Pointer to the raw export object entry.
+     */
     explicit ExportObjectEntry(export_object_entry_t *entry = nullptr) : entry(entry) {}
 
+    /**
+     * @brief Compares two ExportObjectEntry instances for equality.
+     * @param other The other entry to compare against.
+     * @return True if the entries are equal, false otherwise.
+     */
     bool operator==(const ExportObjectEntry &other) const {
         return eo_entry_equal(entry, other.entry);
     }
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    /**
+     * @brief Retrieves the payload data for the entry.
+     * @return A QByteArray containing the payload data.
+     */
     QByteArray Data() const { return entry ? QByteArray::fromRawData(reinterpret_cast<const char*>(entry->payload_data), entry->payload_len) : QByteArray(); }
 #else
+    /**
+     * @brief Retrieves the payload data view for the entry.
+     * @return A QByteArrayView containing the payload data.
+     */
     QByteArrayView Data() const { return entry ? QByteArrayView(entry->payload_data, entry->payload_len) : QByteArrayView(); }
 #endif
+    /**
+     * @brief Retrieves the packet number associated with the entry.
+     * @return The packet number.
+     */
     uint32_t PacketNum() const { return entry ? entry->pkt_num : 0; }
 
 private:
+    /** @brief Pointer to the underlying export object entry structure. */
     export_object_entry_t *entry;
 };
 
+/**
+ * @brief Computes the hash for an ExportObjectEntry.
+ * @param entry The entry to hash.
+ * @param seed The seed value for the hash.
+ * @return The computed hash value.
+ */
 size_t qHash(const ExportObjectEntry& entry, size_t seed = 0);
 
 /**
@@ -180,17 +215,19 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
 private:
-    /** List storing variants representing the export objects. */
+    /** @brief List storing variants representing the export objects. */
     QList<QVariant> objects_;
+
+    /** @brief Set of unique export object entries. */
     QSet<ExportObjectEntry> object_set_;
 
-    /** The core list structure holding the export objects. */
+    /** @brief The core list structure holding the export objects. */
     export_object_list_t export_object_list_;
 
-    /** GUI specific context data for the export object list. */
+    /** @brief GUI specific context data for the export object list. */
     export_object_list_gui_t eo_gui_data_;
 
-    /** Pointer to the registered export object type definition. */
+    /** @brief Pointer to the registered export object type definition. */
     register_eo_t* eo_;
 };
 
@@ -218,6 +255,11 @@ public:
      * @param textFilter The general text filter string.
      */
     void setTextFilterString(QString textFilter);
+
+    /**
+     * @brief Sets the filter to determine whether to show only unique items.
+     * @param unique True to filter out non-unique items, false otherwise.
+     */
     void setUniqueFilter(bool unique);
 
 protected:
@@ -238,11 +280,13 @@ protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
 
 private:
-    /** The active content type filter string. */
+    /** @brief The active content type filter string. */
     QString contentFilter_;
 
-    /** The active general text filter string. */
+    /** @brief The active general text filter string. */
     QString textFilter_;
+
+    /** @brief Flag indicating whether the unique filter is applied. */
     bool uniqueFilter_;
 
 };

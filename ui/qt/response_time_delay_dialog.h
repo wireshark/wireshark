@@ -14,16 +14,37 @@
 
 struct _rtd_stat_table;
 
+/**
+ * @brief Dialog for calculating and displaying response time delays.
+ */
 class ResponseTimeDelayDialog : public TapParameterDialog
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Constructs a new ResponseTimeDelayDialog.
+     * @param parent The parent widget.
+     * @param cf The capture file associated with the dialog.
+     * @param rtd Pointer to the registered RTD structure.
+     * @param filter The display filter to apply.
+     * @param help_topic The help topic identifier, defaults to 0.
+     */
     ResponseTimeDelayDialog(QWidget &parent, CaptureFile &cf, struct register_rtd *rtd, const QString filter, int help_topic = 0);
+
+    /**
+     * @brief Factory method to create an RTD dialog from a configuration string.
+     * @param parent The parent widget.
+     * @param cfg_str The configuration string defining the RTD parameters.
+     * @param filter The display filter to apply.
+     * @param cf The capture file.
+     * @return Pointer to the created TapParameterDialog instance.
+     */
     static TapParameterDialog *createRtdDialog(QWidget &parent, const QString cfg_str, const QString filter, CaptureFile &cf);
 
 protected:
-    /** Add a response time delay table.
+    /**
+     * @brief Add a response time delay table.
      *
      * @param rtd_table The table to add.
      */
@@ -31,15 +52,32 @@ protected:
     void addRtdTable(const struct _rtd_stat_table *rtd_table);
 
 private:
+    /** Pointer to the registered RTD structure. */
     struct register_rtd *rtd_;
 
-    // Callbacks for register_tap_listener
+    /**
+     * @brief Callback to reset the RTD tap data.
+     * @param rtdd_ptr Pointer to the dialog instance.
+     */
     static void tapReset(void *rtdd_ptr);
+
+    /**
+     * @brief Callback to draw the RTD tap results.
+     * @param rtdd_ptr Pointer to the dialog instance.
+     */
     static void tapDraw(void *rtdd_ptr);
 
+    /**
+     * @brief Retrieves the data associated with a tree item.
+     * @param ti The tree widget item to process.
+     * @return A list of variants containing the data for the item.
+     */
     virtual QList<QVariant> treeItemData(QTreeWidgetItem *ti) const;
 
 private slots:
+    /**
+     * @brief Fills the tree view with response time delay statistics.
+     */
     virtual void fillTree();
 };
 

@@ -21,6 +21,17 @@ extern "C" {
  * new "dmacros" configuration file. It should be removed eventually.
  */
 
+/**
+ * @brief One-shot migration helper for the legacy dfilter_macros UAT file.
+ *
+ * Reads the old UAT-based macro definitions and writes them to the new
+ * "dmacros" configuration file format. This translation unit exists solely
+ * for that migration path and should be removed once the transition period
+ * has ended.
+ *
+ * @param app_env_var_prefix Application environment-variable prefix used
+ *        to locate the legacy UAT file (e.g. "WIRESHARK" or "STRATOSHARK").
+ */
 void convert_old_uat_file(const char* app_env_var_prefix);
 
 #ifdef __cplusplus

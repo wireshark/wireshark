@@ -39,26 +39,73 @@ class QPaintEvent;
 class LuaDebuggerPauseController : public QObject
 {
   public:
+    /**
+     * @brief Constructs a new LuaDebuggerPauseController object.
+     * @param host Pointer to the hosting Lua debugger dialog.
+     */
     explicit LuaDebuggerPauseController(LuaDebuggerDialog *host);
 
+    /**
+     * @brief Checks if there is an active nested event loop.
+     * @return True if an active loop exists, false otherwise.
+     */
     bool hasActiveLoop() const { return activeLoop_ != nullptr; }
+
+    /**
+     * @brief Retrieves the currently active nested event loop.
+     * @return Pointer to the active QEventLoop.
+     */
     QEventLoop *activeLoop() const { return activeLoop_; }
+
+    /**
+     * @brief Sets the active nested event loop.
+     * @param loop Pointer to the QEventLoop to set as active.
+     */
     void setActiveLoop(QEventLoop *loop) { activeLoop_ = loop; }
+
+    /**
+     * @brief Clears the reference to the active nested event loop.
+     */
     void clearActiveLoop() { activeLoop_ = nullptr; }
+
+    /**
+     * @brief Quits the currently active nested event loop if one exists.
+     */
     void quitLoop();
 
+    /**
+     * @brief Begins the application-wide outer freeze during a pause.
+     */
     void beginOuterFreeze();
+
+    /**
+     * @brief Ends the application-wide outer freeze, restoring interactivity.
+     */
     void endFreeze();
 
   private:
+    /** @brief Pointer to the hosting Lua debugger dialog. */
     LuaDebuggerDialog *host_ = nullptr;
+
+    /** @brief Pointer to the currently active nested event loop. */
     QEventLoop *activeLoop_ = nullptr;
 
+    /** @brief List of top-level widgets that were frozen during the pause. */
     QList<QPointer<QWidget>> frozenTopLevels_;
+
+    /** @brief List of actions that were frozen during the pause. */
     QList<QPointer<QAction>> frozenActions_;
+
+    /** @brief Pointer to the central widget frozen during the pause. */
     QPointer<QWidget> frozenCentralWidget_;
+
+    /** @brief Pointer to the translucent pause overlay widget. */
     QPointer<LuaDebuggerPauseOverlay> pauseOverlay_;
+
+    /** @brief Pointer to the input filter applied during the pause. */
     QObject *pauseInputFilter_ = nullptr;
+
+    /** @brief State flag indicating if the pause state has been unfrozen. */
     bool pauseUnfrozen_ = true;
 };
 
@@ -101,35 +148,77 @@ class LuaDebuggerPauseOverlay : public QWidget
     Q_OBJECT
 
   public:
+    /**
+     * @brief Constructs a new LuaDebuggerPauseOverlay object.
+     * @param parent The parent widget to overlay.
+     */
     explicit LuaDebuggerPauseOverlay(QWidget *parent);
+
+    /**
+     * @brief Destroys the LuaDebuggerPauseOverlay object.
+     */
     ~LuaDebuggerPauseOverlay() override;
 
   protected:
+    /**
+     * @brief Handles paint events to draw the overlay.
+     * @param event The paint event.
+     */
     void paintEvent(QPaintEvent *event) override;
+
+    /**
+     * @brief Filters events on the parent widget to handle resizing.
+     * @param obj The watched object.
+     * @param event The event being filtered.
+     * @return True if the event is handled, false otherwise.
+     */
     bool eventFilter(QObject *obj, QEvent *event) override;
 
   private:
+    /** @brief The bold title text displayed on the overlay. */
     QString title_text_;
+
+    /** @brief The secondary subtext displayed on the overlay. */
     QString subtext_text_;
 };
 
 /* ===== pause_key_filter ===== */
 
 /**
- * Swallows input and selected events for non-debugger windows during pause,
- * and suppresses UpdateRequest/LayoutRequest on the main window.
+ * @brief Swallows input and selected events for non-debugger windows during pause,
+ *        and suppresses UpdateRequest/LayoutRequest on the main window.
  */
 class LuaDebuggerPauseInputFilter : public QObject
 {
   public:
+    /**
+     * @brief Constructs a new LuaDebuggerPauseInputFilter object.
+     * @param debugger_dialog Pointer to the active debugger dialog.
+     * @param main_window Pointer to the application's main window.
+     * @param parent The parent object.
+     */
     explicit LuaDebuggerPauseInputFilter(QWidget *debugger_dialog, QWidget *main_window, QObject *parent = nullptr);
 
+    /**
+     * @brief Filters input events globally during a debugger pause.
+     * @param watched The object receiving the event.
+     * @param event The event being dispatched.
+     * @return True to swallow the event, false to pass it through.
+     */
     bool eventFilter(QObject *watched, QEvent *event) override;
 
   private:
+    /**
+     * @brief Checks if a specific widget is allowed to receive events during a pause.
+     * @param w Pointer to the widget to check.
+     * @return True if the widget is allowed, false otherwise.
+     */
     bool isAllowedDuringPause(const QWidget *w) const;
 
+    /** @brief Pointer to the active debugger dialog. */
     QWidget *debugger_dialog_;
+
+    /** @brief Pointer to the application's main window. */
     QWidget *main_window_;
 };
 
