@@ -660,7 +660,7 @@ dissect_saphdb_part_options_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 				proto_tree_add_item(tree, hf_saphdb_part_option_length, tvb, offset + parsed_length, 2, ENC_LITTLE_ENDIAN);
 				parsed_length += 2;
 
-				if (tvb_reported_length_remaining(tvb, offset + parsed_length) >= option_length) {
+				if ((option_length > 0) && tvb_reported_length_remaining(tvb, offset + parsed_length) >= option_length) {
 					if (option_type == 29) {
 						/* TODO: This need to be CESU-8 decoded */
 						proto_tree_add_item(tree, hf_saphdb_part_option_value_string, tvb, offset + parsed_length, option_length, ENC_UTF_8);
