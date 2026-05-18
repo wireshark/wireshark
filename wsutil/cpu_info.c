@@ -327,7 +327,7 @@ get_cpu_info(GString *str)
   #if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
     /*
      * Thanks, OpenBSD guys, for not having APIs to map MIB names to
-     * MIB values!  Just consruct the MIB entry directly.
+     * MIB values!  Just construct the MIB entry directly.
      *
      * We also do that for FreeBSD and DragonFly BSD, because we can.
      *

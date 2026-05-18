@@ -31,7 +31,7 @@
 
 void register_tap_listener_rtspstat(void);
 
-/* used to keep track of the statictics for an entire program interface */
+/* used to keep track of the statistics for an entire program interface */
 typedef struct _rtsp_stats_t {
 	char 		*filter;
 	GHashTable	*hash_responses;

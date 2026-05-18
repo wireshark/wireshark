@@ -168,7 +168,7 @@ win32strerror(DWORD error)
  * Generate a string for a Win32 exception code.
  * It appears that:
  *
- *    1) Windoes exception codes are NT status codes;
+ *    1) Windows exception codes are NT status codes;
  *
  *    2) if you load ntdll.dll as a module, and then
  *       use FormatError() with FORMAT_MESSAGE_FROM_HMODULE and the

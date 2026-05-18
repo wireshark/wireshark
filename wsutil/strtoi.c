@@ -296,7 +296,7 @@ bool ws_hexstrtou(const char* str, const char** endptr, unsigned* cint)
 static int
 ws_parse_long_long(const uint8_t *buf, size_t len, const uint8_t **endptr, uint64_t *cint, int base)
 {
-	/* This code is dervied from the g_parse_long_long code from GLib
+	/* This code is derived from the g_parse_long_long code from GLib
 	 * which itself is derived from the strtol(3) code from GNU libc
 	 * (and, thus, GNUlib), both released under the GNU Lesser General
 	 * Public License v 2.1, opting to apply the terms of the ordinarly
@@ -397,7 +397,7 @@ ws_parse_long_long(const uint8_t *buf, size_t len, const uint8_t **endptr, uint6
 
 bool ws_basebuftou64(const uint8_t* buf, size_t len, const uint8_t** endptr, uint64_t* cint, int base)
 {
-	/* This code is dervied from the g_parse_long_long code from GLib
+	/* This code is derived from the g_parse_long_long code from GLib
 	 * which itself is derived from the strtol(3) code from GNU libc
 	 * (and, thus, GNUlib), both released under the GNU Lesser General
 	 * Public License v 2.1, opting to apply the terms of the ordinarly

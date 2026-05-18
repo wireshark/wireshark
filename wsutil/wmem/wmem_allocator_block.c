@@ -572,7 +572,7 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
     aligned_size = WMEM_ALIGN_SIZE(size) + WMEM_CHUNK_HEADER_SIZE;
 
     if (WMEM_CHUNK_DATA_LEN(chunk) < aligned_size + sizeof(wmem_block_free_t)) {
-        /* If the available space is not enought to store all of
+        /* If the available space is not enough to store all of
          * (hdr + requested size + alignment padding + hdr + free-header) then
          * just remove the current chunk from the free list and return, since we
          * can't usefully split it. */

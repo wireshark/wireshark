@@ -41,7 +41,7 @@ typedef struct _wsp_status_code_t {
 	const char	*name;
 	uint32_t		 packets;
 } wsp_status_code_t;
-/* used to keep track of the statictics for an entire program interface */
+/* used to keep track of the statistics for an entire program interface */
 typedef struct _wsp_stats_t {
 	char 		*filter;
 	wsp_pdu_t 	*pdu_stats;
@@ -154,7 +154,7 @@ wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
  * finished reading all packets and exists.
  * If used with wireshark this may be called any time, perhaps once every 3
  * seconds or so.
- * This function may even be called in parallell with (*reset) or (*draw)
+ * This function may even be called in parallel with (*reset) or (*draw)
  * so make sure there are no races. The data in the rpcstat_t can thus change
  * beneath us. Beware.
  */

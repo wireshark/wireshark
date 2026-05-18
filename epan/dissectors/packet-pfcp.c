@@ -4715,7 +4715,7 @@ dissect_pfcp_quota_holding_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     unsigned offset = 0;
     uint32_t value;
     /* Octet 5 to 8    Time Quota value
-    * TThe Time Quota value shall be encoded as an Unsigned32 binary integer value. It contains a duration in seconds
+    * The Time Quota value shall be encoded as an Unsigned32 binary integer value. It contains a duration in seconds
     */
     proto_tree_add_item_ret_uint(tree, hf_pfcp_quota_holding_time, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
     offset += 4;
@@ -4824,7 +4824,7 @@ dissect_pfcp_time_quota(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     unsigned offset = 0;
     uint32_t value;
     /* Octet 5 to 8    Time Quota value
-    * TThe Time Quota value shall be encoded as an Unsigned32 binary integer value. It contains a duration in seconds
+    * The Time Quota value shall be encoded as an Unsigned32 binary integer value. It contains a duration in seconds
     */
     proto_tree_add_item_ret_uint(tree, hf_pfcp_time_quota, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
     offset += 4;
@@ -6535,7 +6535,7 @@ static void dissect_pfcp_user_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         offset += 1;
 
         /* (b+1) to c    IMEI */
-        /* Fetch the BCD encoded digits from tvb low half byte, formating the digits according to
+        /* Fetch the BCD encoded digits from tvb low half byte, formatting the digits according to
         * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP
         * allocated string will be returned.
         */
@@ -10981,7 +10981,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    299 */    { dissect_pfcp_predefined_rules_name },                         /* Predefined Rules Name                           Variable Length / Clause 8.2.205 */
 /*    300 */    { dissect_pfcp_grouped_ie },                                    /* MBS Session N4mb Control Information            Extendable / Table 7.5.2.1-5 */
 /*    301 */    { dissect_pfcp_grouped_ie },                                    /* MBS Multicast Parameters                        Extendable / Table 7.5.2.3-5 */
-/*    302 */    { dissect_pfcp_grouped_ie },                                    /* Addd MBS Unicast Parameters IE in Create FAR    Extendable / Table 7.5.2.3-6 */
+/*    302 */    { dissect_pfcp_grouped_ie },                                    /* Added MBS Unicast Parameters IE in Create FAR    Extendable / Table 7.5.2.3-6 */
 /*    303 */    { dissect_pfcp_grouped_ie },                                    /* MBS Session N4mb Information                    Extendable / Table 7.5.3.1-4 */
 /*    304 */    { dissect_pfcp_grouped_ie },                                    /* Remove MBS Unicast Parameters IE in Update FAR  Extendable / Table 7.5.4.3-4 */
 /*    305 */    { dissect_pfcp_mbs_session_identifier },                        /* MBS Session Identifier                          Variable Length / Clause 8.2.206 */
@@ -11431,8 +11431,8 @@ dissect_pfcp_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
           3    |        Message Length (1st Octet)              |
           4    |        Message Length (2nd Octet)              |
           5    |        Sequence Number (1st Octet)             |
-          6    |        Sequence Number (2st Octet)             |
-          7    |        Sequence Number (3st Octet)             |
+          6    |        Sequence Number (2nd Octet)             |
+          7    |        Sequence Number (3rd Octet)             |
           8    |             Spare                              |
     */
     proto_tree_add_item_ret_uint(sub_tree, hf_pfcp_seqno, tvb, offset, 3, ENC_BIG_ENDIAN, &seq_no);
@@ -14296,7 +14296,7 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_apply_action_flags_o6_b2_ddpn,
-        { "DDPN (Discared Downlink Packet Notification)", "pfcp.apply_action.ddpn",
+        { "DDPN (Discarded Downlink Packet Notification)", "pfcp.apply_action.ddpn",
             FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
@@ -17176,7 +17176,7 @@ proto_register_pfcp(void)
         },
 
         { &hf_pfcp_data_status_flags_b0_drop,
-        { "DROP (First DL packet is discared by UP function)", "pfcp.data_status.flags.drop",
+        { "DROP (First DL packet is discarded by UP function)", "pfcp.data_status.flags.drop",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
             NULL, HFILL }
         },
@@ -19709,7 +19709,7 @@ proto_register_pfcp(void)
     expert_register_field_array(expert_pfcp, ei, array_length(ei));
 
     /* Register dissector table for enterprise IE dissectors */
-    pfcp_enterprise_ies_dissector_table = register_dissector_table("pfcp.enterprise_ies", "PFCP Enterprice IEs",
+    pfcp_enterprise_ies_dissector_table = register_dissector_table("pfcp.enterprise_ies", "PFCP Enterprise IEs",
         proto_pfcp, FT_UINT32, BASE_DEC);
 
     pfcp_register_generic_ie_dissector(VENDOR_TRAVELPING, "pfcp_travelping_ies", "pfcp.ie.travelping", "Travelping IE Type", pfcp_travelping_ies, G_N_ELEMENTS(pfcp_travelping_ies));

@@ -138,7 +138,7 @@ void except_deinit(void)
  * We don't make the unhandled-exception-catcher, the allocator, or the
  * deallocator thread-specific, as we don't need to.
  *
- * We don't protext the init level with a mutex, as we only initialize
+ * We don't protect the init level with a mutex, as we only initialize
  * it and de-initialize it once.
  */
 static int init_counter;

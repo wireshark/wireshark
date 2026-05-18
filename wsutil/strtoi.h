@@ -132,8 +132,8 @@ WS_DLL_PUBLIC bool ws_strtou8 (const char* str, const char** endptr, uint8_t*  c
 WS_DLL_PUBLIC bool ws_strtou (const char* str, const char** endptr, unsigned*  cint);
 
 /**
- * @brief Convert a hexdecimal string to an unsigned int, with error checks.
- * @param str The hexdecimal string to convert
+ * @brief Convert a hexadecimal string to an unsigned int, with error checks.
+ * @param str The hexadecimal string to convert
  * @param endptr A pointer that will store a pointer to the first invalid
  * character in str, allowing a number to be parsed even if there is trailing
  * whitespace. If NULL, then the string is assumed to contain only valid

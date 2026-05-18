@@ -441,7 +441,7 @@ get_compiler_info(GString *str)
 		 * COMPILER_BUILD_NUMBER, and _MSC_BUILD, the last of which is
 		 * "the revision number element of the compiler's version number",
 		 * which I guess is not to be confused with the build number,
-		 * the _BUILD in the name nonwithstanding.
+		 * the _BUILD in the name notwithstanding.
 		 */
 		g_string_append_printf(str, "Microsoft Visual Studio " VS_VERSION " (VC++ %d.%d, build %d)",
 			VCPP_MAJOR_VERSION, COMPILER_MINOR_VERSION, COMPILER_BUILD_NUMBER);

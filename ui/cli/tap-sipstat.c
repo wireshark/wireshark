@@ -30,7 +30,7 @@
 
 void register_tap_listener_sipstat(void);
 
-/* used to keep track of the statictics for an entire program interface */
+/* used to keep track of the statistics for an entire program interface */
 typedef struct _sip_stats_t {
 	char	    *filter;
 	uint32_t	     packets;	 /* number of sip packets, including continuations */

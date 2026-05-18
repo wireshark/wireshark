@@ -226,7 +226,7 @@ str_to_val_idx(const char *val, const value_string *vs)
  * from min to max, the value will be used as a direct index into the array.
  *
  * If the values in the array are not contiguous (ie: there are "gaps"),
- * but are in assending order a binary search will be used.
+ * but are in ascending order a binary search will be used.
  *
  * If direct access or binary search cannot be used, then a linear search
  * is used and a warning is emitted.
@@ -498,7 +498,7 @@ _try_val_to_str_ext_init(const uint32_t val, value_string_ext *vse)
  * from min to max, the value will be used as a direct index into the array.
  *
  * If the values in the array are not contiguous (ie: there are "gaps"),
- * but are in assending order a binary search will be used.
+ * but are in ascending order a binary search will be used.
  *
  * If direct access or binary search cannot be used, then a linear search
  * is used and a warning is emitted.

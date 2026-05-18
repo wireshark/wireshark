@@ -214,7 +214,7 @@ double asn1_get_real(const uint8_t *real_ptr, int len, int *err) {
   /* XXX - We don't check the asn1 context, and so allow any encoding which
    * is acceptable in BER, instead of setting EINVAL for overlong encodings
    * which are not allowed in CER and DER (11.3) nor PER, which uses the
-   * same encoding as CER & DER for the real type after octet alignement
+   * same encoding as CER & DER for the real type after octet alignment
    * (X.691 15.2). Many of those will set ERANGE instead of EINVAL.
    */
 

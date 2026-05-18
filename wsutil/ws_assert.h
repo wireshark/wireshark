@@ -31,7 +31,7 @@
  * being done, any variable tested in the expression may be warned
  * as "defined but not used" if WS_ASSERT_ENABLED is 0, causing
  * a pile of warnings if the variable isn't marked as unused
- * (especially true of parametre variables).
+ * (especially true of parameter variables).
  *
  * However, some compilers - Clang, in my tests, and probably GCC,
  * due to tests in builds not failing - treat "if (0 && (expression))"
@@ -142,7 +142,7 @@ extern "C" {
  * We don't want to disable ws_assert_not_reached() with (optional) assertions
  * disabled.
  * That would blast compiler warnings everywhere for no benefit, not
- * even a miniscule performance gain. Reaching this function is always
+ * even a minuscule performance gain. Reaching this function is always
  * a programming error and will unconditionally abort execution.
  *
  * Note: With g_assert_not_reached() if the compiler supports unreachable

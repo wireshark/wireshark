@@ -1112,7 +1112,7 @@ write_profile_recent(void)
             RECENT_KEY_CAPTURE_AUTO_SCROLL,
             recent.capture_auto_scroll);
 
-    write_recent_boolean(rf, "use as aggragation view",
+    write_recent_boolean(rf, "use as aggregation view",
         RECENT_KEY_AGGREGATION_VIEW,
         recent.aggregation_view);
 

@@ -28,7 +28,7 @@
 
 void register_tap_listener_httpstat(void);
 
-/* used to keep track of the statictics for an entire program interface */
+/* used to keep track of the statistics for an entire program interface */
 typedef struct _http_stats_t {
 	char 		*filter;
 	GHashTable	*hash_responses;

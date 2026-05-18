@@ -49,7 +49,7 @@ typedef struct {
 /*
  * List of disabled protocols
  */
-/* Use the same list for Global and personal dissabled protocols */
+/* Use the same list for Global and personal disabled protocols */
 static GList *disabled_protos;
 /*
  * List of enabled protocols (that are disabled by default)

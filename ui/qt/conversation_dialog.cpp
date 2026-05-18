@@ -214,7 +214,7 @@ void ConversationDialog::showGraphIO()
 
     /* Trigger the I/O Graph window opening by emitting the signal with the necessary information:
      *   whether the Filter Display is to be applied for a graph
-     *   the QVector containting the TCP selected conversations IDs
+     *   the QVector containing the TCP selected conversations IDs
      */
     emit openIOGraph(this->displayFilterCheckBox()->isChecked(), typed_conv_ids, agg_conv_filters);
 }

@@ -165,7 +165,7 @@ bool isprint_string(const char *str);
 
 /** Given a not-necessarily-null-terminated string, expected to be in
  *  UTF-8 but possibly containing invalid sequences (as it may have come
- *  from packet data), and the length of the string, deterimine if the
+ *  from packet data), and the length of the string, determine if the
  *  string is valid UTF-8 consisting entirely of printable characters.
  *
  *  This means that it:

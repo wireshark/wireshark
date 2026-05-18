@@ -188,7 +188,7 @@ typedef LONG (WINAPI * RtlGetVersionProc) (OSVERSIONINFOEX *);
  * Determine whether it's 32-bit or 64-bit Windows based on the
  * instruction set; this only tests for the instruction sets
  * that we currently support for Windows, it doesn't bother with MIPS,
- * PowerPC, Alpha, or IA-64, nor does it bother wieth 32-bit ARM.
+ * PowerPC, Alpha, or IA-64, nor does it bother with 32-bit ARM.
  */
 static void
 add_os_bitsize(GString *str, SYSTEM_INFO *system_info)
@@ -716,7 +716,7 @@ DIAG_ON(cast-function-type)
 		 *
 		 * My Fedora 9 system has /etc/fedora-release, with
 		 * /etc/redhat-release and /etc/system-release as symlinks
-		 * to it.  They all just contain a one-line relase
+		 * to it.  They all just contain a one-line release
 		 * description.  My Fedora 38 system has that, plus
 		 * /etc/os-release.
 		 *

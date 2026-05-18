@@ -109,7 +109,7 @@ typedef struct _et_dissector_info {
     endpoint_get_filter_type get_filter_type;
 } et_dissector_info_t;
 
-/* For backwards source compatibiity */
+/* For backwards source compatibility */
 G_DEPRECATED_FOR(et_dissector_info_t)
 typedef et_dissector_info_t hostlist_dissector_info_t;
 

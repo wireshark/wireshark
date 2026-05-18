@@ -2977,7 +2977,7 @@ static const value_string ana_state_tbl[] = {
     { 0x2,  "ANA Non-Optimized State" },
     { 0x3,  "ANA Inaccessible State" },
     { 0x4,  "ANA Persistent Loss State" },
-    { 0xF,  "ANA Change Sate" },
+    { 0xF,  "ANA Change State" },
     { 0, NULL}
 };
 
@@ -6559,7 +6559,7 @@ proto_register_nvme(void)
                FT_BOOLEAN, 8, NULL, 0x2, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_anacap[3],
-            { "Reports Innaccessible State", "nvme.cmd.identify.ctrl.anacap.isr",
+            { "Reports Inaccessible State", "nvme.cmd.identify.ctrl.anacap.isr",
                FT_BOOLEAN, 8, NULL, 0x4, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_anacap[4],
@@ -6567,7 +6567,7 @@ proto_register_nvme(void)
                FT_BOOLEAN, 8, NULL, 0x8, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_anacap[5],
-            { "Reports ANA Change Sate", "nvme.cmd.identify.ctrl.anacap.csr",
+            { "Reports ANA Change State", "nvme.cmd.identify.ctrl.anacap.csr",
                FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_anacap[6],
