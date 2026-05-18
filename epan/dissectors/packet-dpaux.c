@@ -396,29 +396,29 @@ proto_register_dpaux(void)
         { &hf_dpaux_data, { "Data", "dpaux.data", FT_BYTES, SEP_SPACE, NULL, 0, NULL, HFILL } },
         { &hf_dpaux_reg_addr, { "DPCD", "dpaux.reg", FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL } },
 
-        { &hf_00000, { "DPCD_REV", "dpaux." "00000", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
-        { &hf_00000_MINOR, { "MINOR", "dpaux." "00000" "_" "MINOR", FT_UINT8, BASE_HEX, NULL, 0x0f, NULL, HFILL } },
-        { &hf_00000_MAJOR, { "MAJOR", "dpaux." "00000" "_" "MAJOR", FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL } },
+        { &hf_00000, { "DPCD_REV", "dpaux.00000", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_00000_MINOR, { "MINOR", "dpaux.00000_MINOR", FT_UINT8, BASE_HEX, NULL, 0x0f, NULL, HFILL } },
+        { &hf_00000_MAJOR, { "MAJOR", "dpaux.00000_MAJOR", FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL } },
 
-        { &hf_00001, { "MAX_LINK_RATE", "dpaux." "00001", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
-        { &hf_00001_MAX_LINK_RATE, { "MAX_LINK_RATE", "dpaux." "00001" "_" "MAX_LINK_RATE", FT_UINT8, BASE_HEX, VALS(convert_link_rate), 0xff, NULL, HFILL } },
+        { &hf_00001, { "MAX_LINK_RATE", "dpaux.00001", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_00001_MAX_LINK_RATE, { "MAX_LINK_RATE", "dpaux.00001_MAX_LINK_RATE", FT_UINT8, BASE_HEX, VALS(convert_link_rate), 0xff, NULL, HFILL } },
 
-        { &hf_00002, { "MAX_LANE_COUNT", "dpaux." "00002", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
-        { &hf_00002_MAX_LANE_COUNT, { "MAX_LANE_COUNT", "dpaux." "00002" "_" "MAX_LANE_COUNT", FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL } },
-        { &hf_00002_POST_LT_ADJ_REQ_SUPPORTED, { "POST_LT_ADJ_REQ_SUPPORTED", "dpaux." "00002" "_" "POST_LT_ADJ_REQ_SUPPORTED", FT_BOOLEAN, 8, NULL, 1<<5, NULL, HFILL } },
-        { &hf_00002_TPS3_SUPPORTED, { "TPS3_SUPPORTED", "dpaux." "00002" "_" "TPS3_SUPPORTED", FT_BOOLEAN, 8, NULL, 1<<6, NULL, HFILL } },
-        { &hf_00002_ENHANCED_FRAME_CAP, { "ENHANCED_FRAME_CAP", "dpaux." "00002" "_" "ENHANCED_FRAME_CAP", FT_BOOLEAN, 8, NULL, 1<<7, NULL, HFILL } },
+        { &hf_00002, { "MAX_LANE_COUNT", "dpaux.00002", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_00002_MAX_LANE_COUNT, { "MAX_LANE_COUNT", "dpaux.00002_MAX_LANE_COUNT", FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL } },
+        { &hf_00002_POST_LT_ADJ_REQ_SUPPORTED, { "POST_LT_ADJ_REQ_SUPPORTED", "dpaux.00002_POST_LT_ADJ_REQ_SUPPORTED", FT_BOOLEAN, 8, NULL, 1<<5, NULL, HFILL } },
+        { &hf_00002_TPS3_SUPPORTED, { "TPS3_SUPPORTED", "dpaux.00002_TPS3_SUPPORTED", FT_BOOLEAN, 8, NULL, 1<<6, NULL, HFILL } },
+        { &hf_00002_ENHANCED_FRAME_CAP, { "ENHANCED_FRAME_CAP", "dpaux.00002_ENHANCED_FRAME_CAP", FT_BOOLEAN, 8, NULL, 1<<7, NULL, HFILL } },
 
-        { &hf_00003, { "MAX_DOWNSPREAD", "dpaux." "00003", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
-        { &hf_00003_MAX_DOWNSPREAD, { "MAX_DOWNSPREAD", "dpaux." "00003" "_" "MAX_DOWNSPREAD", FT_UINT8, BASE_DEC, VALS(convert_downspread), 0x01, NULL, HFILL } },
-        { &hf_00003_NO_AUX_TRANSACTION_LINK_TRAINING, { "NO_AUX_TRANSACTION_LINK_TRAINING", "dpaux." "00003" "_" "NO_AUX_TRANSACTION_LINK_TRAINING", FT_BOOLEAN, 8, NULL, 1<<6, NULL, HFILL } },
-        { &hf_00003_TPS4_SUPPORTED, { "TPS4_SUPPORTED", "dpaux." "00003" "_" "TPS4_SUPPORTED", FT_BOOLEAN, 8, NULL, 1<<7, NULL, HFILL } },
+        { &hf_00003, { "MAX_DOWNSPREAD", "dpaux.00003", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_00003_MAX_DOWNSPREAD, { "MAX_DOWNSPREAD", "dpaux.00003_MAX_DOWNSPREAD", FT_UINT8, BASE_DEC, VALS(convert_downspread), 0x01, NULL, HFILL } },
+        { &hf_00003_NO_AUX_TRANSACTION_LINK_TRAINING, { "NO_AUX_TRANSACTION_LINK_TRAINING", "dpaux.00003_NO_AUX_TRANSACTION_LINK_TRAINING", FT_BOOLEAN, 8, NULL, 1<<6, NULL, HFILL } },
+        { &hf_00003_TPS4_SUPPORTED, { "TPS4_SUPPORTED", "dpaux.00003_TPS4_SUPPORTED", FT_BOOLEAN, 8, NULL, 1<<7, NULL, HFILL } },
 
-        { &hf_00004, { "NORP & DP_PWR_VOLTAGE_CAP", "dpaux." "00004", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
-        { &hf_00004_NORP, { "NORP", "dpaux." "00004" "_" "NORP", FT_UINT8, BASE_DEC, convert_norp, 0x01, NULL, HFILL } },
-        { &hf_00004_5V_DP_PWR_CAP, { "5V_DP_PWR_CAP", "dpaux." "00004" "_" "5V_DP_PWR_CAP", FT_BOOLEAN, 8, NULL, 1<<5, NULL, HFILL } },
-        { &hf_00004_12V_DP_PWR_CAP, { "12V_DP_PWR_CAP", "dpaux." "00004" "_" "12V_DP_PWR_CAP", FT_BOOLEAN, 8, NULL, 1<<6, NULL, HFILL } },
-        { &hf_00004_18V_DP_PWR_CAP, { "18V_DP_PWR_CAP", "dpaux." "00004" "_" "18V_DP_PWR_CAP", FT_BOOLEAN, 8, NULL, 1<<7, NULL, HFILL } },
+        { &hf_00004, { "NORP & DP_PWR_VOLTAGE_CAP", "dpaux.00004", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_00004_NORP, { "NORP", "dpaux.00004_NORP", FT_UINT8, BASE_DEC, VALS(convert_norp), 0x01, NULL, HFILL } },
+        { &hf_00004_5V_DP_PWR_CAP, { "5V_DP_PWR_CAP", "dpaux.00004_5V_DP_PWR_CAP", FT_BOOLEAN, 8, NULL, 1<<5, NULL, HFILL } },
+        { &hf_00004_12V_DP_PWR_CAP, { "12V_DP_PWR_CAP", "dpaux.00004_12V_DP_PWR_CAP", FT_BOOLEAN, 8, NULL, 1<<6, NULL, HFILL } },
+        { &hf_00004_18V_DP_PWR_CAP, { "18V_DP_PWR_CAP", "dpaux.00004_18V_DP_PWR_CAP", FT_BOOLEAN, 8, NULL, 1<<7, NULL, HFILL } },
     };
 
     /* Register the protocol name and description */

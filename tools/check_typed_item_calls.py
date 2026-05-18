@@ -11,7 +11,7 @@ import argparse
 import signal
 from pathlib import Path
 import concurrent.futures
-from check_common import getFilesFromOpen, findDissectorFilesInFolder, getFilesFromCommits, removeComments, isGeneratedFile, Result
+from check_common import getFilesFromOpen, findDissectorFilesInFolder, getFilesFromCommits, removeComments, isGeneratedFile, Result, HFEntriesParser
 
 
 # This utility scans the dissector code for various issues.
@@ -300,8 +300,10 @@ def check_call_enc_matches_item(items_defined, call, api_check, result):
         if checker is not None:
             for enc in encs:
                 if enc.startswith('ENC_'):
-                    if type != 'FT_BOOLEAN' or item.get_field_width_in_bits() > 8:
-                        checker.check(enc, call, api_check, item, result)
+                    if type != 'FT_BOOLEAN':
+                        width = item.get_field_width_in_bits()
+                        if width is not None and width > 8:
+                            checker.check(enc, call, api_check, item, result)
 
 
 # A check for a particular API function.
@@ -1098,6 +1100,7 @@ class StringString:
                     terminated = True
 
         if not terminated:
+            # Would already be reported by check_apis.py
             result.error(self.file, ': string_string', self.name, "is not terminated with { NULL, NULL }")
 
     def extraChecks(self, result):
@@ -1688,14 +1691,14 @@ class Item:
                     # For FT_BOOLEAN, modifier is just numerical number of bits. Round up to next nibble.
                     return int((int(self.display) + 3)/4)*4
                 except Exception:
-                    return 8
+                    return None
         else:
             if self.item_type in field_widths:
                 # Lookup fixed width for this type
                 return field_widths[self.item_type]
             else:
                 # Unknown type..
-                return 0
+                return None
 
     def check_num_digits(self, mask):
         if mask.startswith('0x') and len(mask) > 3:
@@ -2045,25 +2048,17 @@ def find_items(filename, contents, macros, result, value_strings, range_strings,
     is_generated = isGeneratedFile(filename)
     items = {}
 
-    # N.B. re extends all the way to HFILL to avoid greedy matching
-    # TODO: fix a problem where re can't cope with mask that involve a macro with commas in it...
-    matches = re.finditer(r'.*\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"(.*?)\"\s*,\s*\"(.*?)\"\s*,\s*(.*?)\s*,\s*([0-9A-Z_\|\s]*?)\s*,\s*(.*?)\s*,\s*(.*?)\s*,\s*([a-zA-Z0-9\W\s_\u00f6\u00e4]*?)\s*,\s*HFILL', contents)
-    for m in matches:
-        # Store this item.
-        hf = m.group(1)
+    for i in HFEntriesParser(contents).items:
+        hf, name, filter, field_type, display, convert, bitmask, blurb = i
 
-        blurb = m.group(8)
-        if blurb.startswith('"'):
-            blurb = blurb[1:-1]
-
-        items[hf] = Item(filename, hf, filter=m.group(3), label=m.group(2), item_type=m.group(4),
-                         display=m.group(5),
-                         strings=m.group(6),
+        items[hf] = Item(filename, hf, filter=filter, label=name, item_type=field_type,
+                         display=display,
+                         strings=convert,
                          macros=macros,
                          result=result,
                          value_strings=value_strings,
                          range_strings=range_strings,
-                         mask=m.group(7),
+                         mask=bitmask,
                          blurb=blurb,
                          check_mask=check_mask,
                          mask_exact_width=mask_exact_width,

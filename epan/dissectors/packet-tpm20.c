@@ -30,13 +30,14 @@ static wmem_tree_t *cmd_tree;
 static unsigned last_command_pnum;
 static bool response_size = true;
 
-/* sub tree items */
 static int proto_tpm20;
-static int proto_tpm20_header;
-static int proto_tpm20_resp_header;
-static int proto_tpm20_hndl_area;
-static int proto_tpm20_auth_area;
-static int proto_tpm20_params_area;
+
+/* sub tree items */
+static int hf_tpm20_header;
+static int hf_tpm20_resp_header;
+static int hf_tpm20_hndl_area;
+static int hf_tpm20_auth_area;
+static int hf_tpm20_params_area;
 
 /* pdu fields */
 static int hf_tpm20_platform_cmd;
@@ -838,7 +839,7 @@ dissect_tpm20_tpm_command(tvbuff_t *tvb, packet_info *pinfo,
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Command %s", str_command);
 
-	proto_item *item = proto_tree_add_item(tree, proto_tpm20_header,
+	proto_item *item = proto_tree_add_item(tree, hf_tpm20_header,
 						tvb, 0, -1, ENC_NA);
 	proto_item_append_text(item, ", %s", str_command);
 	proto_tree *header = proto_item_add_subtree(item, ett_tpm_header);
@@ -859,7 +860,7 @@ dissect_tpm20_tpm_command(tvbuff_t *tvb, packet_info *pinfo,
 	get_num_hndl(&handl_map);
 
 	if (handl_map.num_req_handles) {
-		proto_item *hndls = proto_tree_add_item(tree, proto_tpm20_hndl_area,
+		proto_item *hndls = proto_tree_add_item(tree, hf_tpm20_hndl_area,
 							tvb, 0, -1, ENC_NA);
 		proto_tree *hndl_tree = proto_item_add_subtree(hndls, ett_tpm_handles);
 		for (i = 0; i < handl_map.num_req_handles; i++) {
@@ -869,7 +870,7 @@ dissect_tpm20_tpm_command(tvbuff_t *tvb, packet_info *pinfo,
 		}
 	}
 	if (tag == 0x8002) {
-		proto_item *auth = proto_tree_add_item(tree, proto_tpm20_auth_area,
+		proto_item *auth = proto_tree_add_item(tree, hf_tpm20_auth_area,
 							tvb, 0, -1, ENC_NA);
 		proto_tree *auth_tree = proto_item_add_subtree(auth, ett_tpm_auth);
 		dissect_auth_command(tvb, pinfo, auth_tree, tree, &offset);
@@ -1030,7 +1031,7 @@ dissect_tpm20_tpm_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Response Code %s", str_rc);
 
-	proto_item *item = proto_tree_add_item(tree, proto_tpm20_resp_header,
+	proto_item *item = proto_tree_add_item(tree, hf_tpm20_resp_header,
 						tvb, 0, -1, ENC_NA);
 	proto_item_append_text(item, ", %s", str_rc);
 	proto_tree *header = proto_item_add_subtree(item, ett_tpm_response_header);
@@ -1061,7 +1062,7 @@ dissect_tpm20_tpm_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Dissect response handles */
 	if (handl_map.num_resp_handles) {
-		proto_item *hndls = proto_tree_add_item(tree, proto_tpm20_hndl_area,
+		proto_item *hndls = proto_tree_add_item(tree, hf_tpm20_hndl_area,
 							tvb, 0, -1, ENC_NA);
 		proto_tree *hndl_tree = proto_item_add_subtree(hndls, ett_tpm_handles);
 		for (i = 0; i < handl_map.num_resp_handles; i++) {
@@ -1079,14 +1080,14 @@ dissect_tpm20_tpm_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 4;
 
 		if (param_size) {
-			proto_item *params = proto_tree_add_item(tree, proto_tpm20_params_area,
+			proto_item *params = proto_tree_add_item(tree, hf_tpm20_params_area,
 							 tvb, 0, -1, ENC_NA);
 			proto_tree *param_tree = proto_item_add_subtree(params, ett_tpm_params);
 			dissect_response(tvb, pinfo, param_tree, &offset, param_size);
 		}
 
 		/* Dissect response auth area */
-		proto_item *auth = proto_tree_add_item(tree, proto_tpm20_auth_area,
+		proto_item *auth = proto_tree_add_item(tree, hf_tpm20_auth_area,
 							tvb, 0, -1, ENC_NA);
 		proto_tree *auth_tree = proto_item_add_subtree(auth, ett_tpm_auth);
 		dissect_auth_resp(tvb, pinfo, auth_tree, tree, &offset);
@@ -1145,7 +1146,7 @@ dissect_tpm20(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static hf_register_info hf[] = {
-	{ &proto_tpm20_header,
+	{ &hf_tpm20_header,
 	{ "TPM2.0 Header", "tpm.req.header", FT_NONE, BASE_NONE, NULL,
 	   0x0, "Tpm header", HFILL }},
 	{ &hf_tpm20_tag,
@@ -1157,19 +1158,19 @@ static hf_register_info hf[] = {
 	{ &hf_tpm20_cc,
 	{ "Command Code", "tpm.req.cc", FT_UINT32, BASE_HEX, VALS(commands),
 	   0x0, NULL, HFILL }},
-	{ &proto_tpm20_auth_area,
+	{ &hf_tpm20_auth_area,
 	{ "Authorization Area", "tpm.req.auth", FT_NONE, BASE_NONE, NULL,
 	   0x0, NULL, HFILL }},
-	{ &proto_tpm20_hndl_area,
+	{ &hf_tpm20_hndl_area,
 	{ "Handle Area", "tpm.req.hndl", FT_NONE, BASE_NONE, NULL,
 	   0x0, NULL, HFILL }},
-	{ &proto_tpm20_params_area,
+	{ &hf_tpm20_params_area,
 	{ "Parameters Area", "tpm.resp.params", FT_NONE, BASE_NONE, NULL,
 	   0x0, NULL, HFILL }},
 	{ &hf_tpm20_platform_cmd,
 	{ "Platform Command", "tpm.platform_req.cc", FT_UINT32, BASE_HEX, VALS(platform_commands),
 	   0x0, NULL, HFILL }},
-	{ &proto_tpm20_resp_header,
+	{ &hf_tpm20_resp_header,
 	{ "TPM2.0 Header", "tpm.resp.header", FT_NONE, BASE_NONE, NULL,
 	   0x0, "Tpm header", HFILL }},
 	{ &hf_tpm20_platform_resp_code,

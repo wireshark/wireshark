@@ -153,6 +153,56 @@ def getFilesFromOpen(onlyDissectors=True):
     return files
 
 
+
+
+hf_re = re.compile(r'\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"'           # hf
+                   r'(.*?)\"\s*,\s*\"'                                 # name
+                   r'(.*?)\"\s*,\s*'                                   # filter
+                   r'(.*?)\s*,\s*'                                     # field_type
+                   r'([0-9A-Z_\|\s\*]*?)\s*,\s*'                       # display
+                   r'(.*?)\s*,\s*'                                     # convert
+                   r'(.*?)\s*,\s*'                                     # bitmask
+                   r'(NULL|"[a-zA-Z0-9µ\W\s_\u00f6\u00e4]*?")\s*,\s*HFILL'    # blurb
+                   )
+
+class HFEntriesParser:
+    def __init__(self, file_contents):
+        self.items = []
+        global hf_re
+        for m in hf_re.finditer(file_contents, re.IGNORECASE | re.DOTALL):
+            hf, name, abbrev, ft, display, convert, bitmask, blurb = m.groups()
+
+            # Name might have internal quotes with UTF8 macros inside
+            while name.count('"') >= 2:
+                # Find first 3 offsets
+                positions = []
+                start = 0
+                for _ in range(0, 2):
+                    found = name[start:].find('"')
+                    positions.append(found + start)
+                    start += found + 1
+
+                # Eliminate quotes and space/newlines between 1st and 2nd
+                name = name[0:positions[0]-1] + name[positions[1]+1:]
+
+
+            # Blurb might be extended across several lines, each with double quotes
+            if blurb.find('\\"') == -1:
+                while blurb.count('"') > 2:
+                    # Find first 3 offsets
+                    positions = []
+                    start = 0
+                    for _ in range(0, 3):
+                        found = blurb[start:].find('"')
+                        positions.append(found + start)
+                        start += found + 1
+
+                    # Eliminate quotes and space/newlines between 2nd and 3rd
+                    blurb = blurb[0:positions[1]-1] + blurb[positions[2]+1:]
+
+            self.items.append((hf, name, abbrev, ft, display, convert, bitmask, blurb))
+
+
 # A type to return from future executions.
 class Result:
     def __init__(self):

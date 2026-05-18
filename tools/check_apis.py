@@ -37,7 +37,7 @@ import argparse
 import os
 import re
 import sys
-from check_common import findDissectorFilesInFolder
+from check_common import findDissectorFilesInFolder, HFEntriesParser
 
 
 APIs = {
@@ -611,21 +611,8 @@ def check_hf_entries(file_contents, filename):
     """Check all hf entries for various problems."""
     error_count = 0
 
-    hf_re = re.compile(
-        r'\{\s*&\s*([A-Z0-9_\[\]-]+)\s*,\s*'        # &hf
-        r'\{\s*'
-        r'("[A-Z0-9 \'./()_:-]+")\s*,\s*'           # name
-        r'(NULL|"[A-Z0-9_.-]*")\s*,\s*'             # abbrev
-        r'(FT_[A-Z0-9_]+)\s*,\s*'                   # field type
-        r'([A-Z0-9x|_\s]+)\s*,\s*'                  # display
-        r'([^,]+?)\s*,\s*'                          # convert
-        r'([A-Z0-9_]+)\s*,\s*'                      # bitmask
-        r'(NULL|"[A-Z0-9 \'./()?\n_:-]+")\s*,\s*'   # blurb
-        r'HFILL'
-    )
-
-    for m in hf_re.finditer(file_contents, re.IGNORECASE | re.DOTALL):
-        hf, name, abbrev, ft, display, convert, bitmask, blurb = m.groups()
+    for i in HFEntriesParser(file_contents).items:
+        hf, name, abbrev, ft, display, convert, bitmask, blurb = i
 
         display = re.sub(r'\s+', '', display)
         convert = re.sub(r'\s+', '', convert)
@@ -641,7 +628,7 @@ def check_hf_entries(file_contents, filename):
         if name == abbrev:
             print(red(f"Error: the abbreviation for {hf} ({abbrev}) matches the field name ({name}) in {filename}"), file=sys.stderr)
             error_count += 1
-        if name.lower() == blurb.lower():
+        if blurb != 'NULL' and name.lower() == blurb.lower():
             print(red(f"Error: the blurb for {hf} ({blurb}) matches the field name ({name}) in {filename}"), file=sys.stderr)
             error_count += 1
         if re.match(r'"\s+', name):
