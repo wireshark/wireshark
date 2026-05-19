@@ -26,6 +26,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 def run_check(tool, dissectors, python):
     tool_name = tool[0].split()[0]
+    supports_file_arg = python and 'check_apis.py' not in tool_name
     print('\n', tool_name)
     print('=' * (len(tool_name)+2))
 
@@ -35,6 +36,7 @@ def run_check(tool, dissectors, python):
     # Don't trust shebang on windows.
     if sys.platform.startswith('win'):
         if python:
+            # TODO: would py.exe be better?
             command += 'python.exe '
         else:
             command += 'perl.exe '
@@ -45,7 +47,7 @@ def run_check(tool, dissectors, python):
 
     for d in dissectors:
         # Add this dissector file to command-line args
-        command += ((' --file' if python else '') + ' ' + d)
+        command += ((' --file' if python and supports_file_arg else '') + ' ' + d)
 
     # Run it
     print(bcolors.BOLD + command + bcolors.ENDC)
@@ -126,7 +128,7 @@ if __name__ == '__main__':
         ('tools/check_col_apis.py',                           False,  True),
         ('tools/cppcheck/cppcheck.sh',                        False,  True),
         ('tools/checkhf.pl',                                  False,  True),
-        ('tools/checkAPIs.pl',                                False,  True),
+        ('tools/check_apis.py',                               False,  True),
         ('tools/fix-encoding-args.pl',                        False,  True),
         ('tools/checkfiltername.pl',                          False,  True)
     ]
