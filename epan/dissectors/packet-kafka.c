@@ -1312,12 +1312,12 @@ dissect_kafka_regular_bytes(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet
     int32_t length;
     proto_item *pi;
 
-    length = (int32_t) tvb_get_ntohl(tvb, offset);
+    length = tvb_get_ntohil(tvb, offset);
     if (length < -1) {
         pi = proto_tree_add_item(tree, hf_item, tvb, offset, 0, ENC_NA);
         expert_add_info(pinfo, pi, &ei_kafka_bad_string_length);
         if (p_offset) {
-            *p_offset = 4;
+            *p_offset = offset + 4;
         }
         if (p_length) {
             *p_length = 0;
@@ -1328,8 +1328,12 @@ dissect_kafka_regular_bytes(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet
     if (length == -1) {
         proto_tree_add_bytes_with_length(tree, hf_item, tvb, offset, 4, NULL, 0);
     } else {
+        const uint8_t *buffer = tvb_get_ptr(tvb, offset + 4, length);
+        /* The above call will throw an exception if length + 4 would overflow.
+         * Do not eliminate the temporary variable. (We already know offset + 4
+         * does not overflow because of the tvb_get_ntohil call.) */
         proto_tree_add_bytes_with_length(tree, hf_item, tvb, offset, length + 4,
-                                         tvb_get_ptr(tvb, offset + 4, length), length);
+                                         buffer, length);
     }
 
     if (p_offset != NULL) *p_offset = offset + 4;
@@ -1350,15 +1354,17 @@ dissect_kafka_compact_bytes(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet
 {
     unsigned len;
     uint64_t length;
+    int signed_length;
     proto_item *pi;
 
-    len = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &length, ENC_VARINT_PROTOBUF);
+    /* KIP-482 says this can be up to 5 bytes, not FT_VARINT_MAX_LEN (10) */
+    len = tvb_get_varint(tvb, offset, 5, &length, ENC_VARINT_PROTOBUF);
 
-    if (len == 0) {
+    if (len == 0 || length > 1U + (unsigned)INT_MAX) {
         pi = proto_tree_add_item(tree, hf_item, tvb, offset, 0, ENC_NA);
         expert_add_info(pinfo, pi, &ei_kafka_bad_varint);
         if (p_offset) {
-            *p_offset = 0;
+            *p_offset = tvb_captured_length(tvb);
         }
         if (p_length) {
             *p_length = 0;
@@ -1366,21 +1372,21 @@ dissect_kafka_compact_bytes(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet
         return tvb_captured_length(tvb);
     }
 
-    if (length == 0) {
-        proto_tree_add_bytes_with_length(tree, hf_item, tvb, offset, len, NULL, 0);
-    } else {
-        proto_tree_add_bytes_with_length(tree, hf_item, tvb, offset, len + (int)length - 1,
-                                         tvb_get_ptr(tvb, offset + len, (int)length - 1),
-                                         (int)length - 1);
-    }
+    signed_length = length ? (int)(length - 1) : 0;
+    const uint8_t *buffer = tvb_get_ptr(tvb, offset + len, signed_length);
+    /* The above call will throw an exception if len + signed_length overflows.
+     * Do not eliminate the temporary variable. (We know offset + len does
+     * not overflow because of the tvb_get_varint call.) */
+    proto_tree_add_bytes_with_length(tree, hf_item, tvb, offset, len + signed_length,
+                                     buffer, signed_length);
 
     if (p_offset != NULL) *p_offset = offset + len;
-    if (p_length != NULL) *p_length = (int)length - 1;
+    if (p_length != NULL) *p_length = signed_length;
 
     if (length == 0) {
         offset += len;
     } else {
-        offset += len + (int)length - 1;
+        offset += len + signed_length;
     }
 
     return offset;
