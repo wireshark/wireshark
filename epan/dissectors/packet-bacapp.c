@@ -14150,20 +14150,43 @@ fYouAreRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned off
     uint8_t tag_no, tag_info;
     uint32_t lvt;
 
+    /* https://bacnet.org/wp-content/uploads/sites/4/2022/08/Add-135-2016bz.pdf
+     * Vendor ID            | M
+     * Model Name           | M
+     * Serial Number        | M
+     * Device Identifier    | C
+     * Device MAC Addresss  | C
+     *
+     * "Either the 'Device Identifier', or 'Device MAC Address', or both shall
+     * be present."
+     */
+
+    /* XXX - Does this really need to loop? */
     while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
         lastoffset = offset;
         offset = fApplicationTypes(tvb, pinfo, tree, offset, "Vendor ID: ");
         offset = fApplicationTypes(tvb, pinfo, tree, offset, "Model name: ");
         offset = fApplicationTypes(tvb, pinfo, tree, offset, "Serial number: ");
 
+        /* At least one of Device Identifier (12) or Device MAC Address (6)
+         * shall be present, so we should error if neither are. */
         fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
-        if(tvb_reported_length_remaining(tvb, offset) > 0 && tag_no == 12) {
+        switch (tag_no) {
+        case 12:
             offset = fApplicationTypes(tvb, pinfo, tree, offset, "Device Identifier: ");
-        }
-
-        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
-        if(tvb_reported_length_remaining(tvb, offset) > 0 && tag_no == 6) {
+            if (tvb_reported_length_remaining(tvb, offset) == 0) {
+                return offset;
+            }
+            fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+            if (tag_no != 6) {
+                expert_add_info(pinfo, tree, &ei_bacapp_bad_tag);
+            }
+            /* FALLTHROUGH */
+        case 6:
             offset = fApplicationTypes(tvb, pinfo, tree, offset, "Device MAC address: ");
+            break;
+        default:
+            expert_add_info(pinfo, tree, &ei_bacapp_bad_tag);
         }
         if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
