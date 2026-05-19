@@ -1755,6 +1755,28 @@ wtapng_process_dsb(wtap *wth, wtap_block_t dsb)
 		wth->add_new_secrets(dsb_mand->secrets_type, dsb_mand->secrets_data, dsb_mand->secrets_len);
 }
 
+void wtap_set_cb_pcapng_block(wtap *wth, wtap_pcapng_block_callback_t callback, void *user_data) {
+	if (!wth) {
+		return;
+	}
+
+	wth->pcapng_block_cb = callback;
+	wth->pcapng_block_cb_data = user_data;
+
+	/*
+	 * Replay all meta events that were read so far to the new callback.
+	 */
+	if (wth->meta_events) {
+		for (unsigned i = 0; i < wth->meta_events->len; i++) {
+			wtap_block_t block = g_array_index(wth->meta_events, wtap_block_t, i);
+			const wtapng_meta_event_mandatory_t *mev_mand =
+				(const wtapng_meta_event_mandatory_t*)wtap_block_get_mandatory_data(block);
+			callback(mev_mand->mev_block_type, mev_mand->mev_data,
+			         mev_mand->mev_data_len, user_data);
+		}
+	}
+}
+
 /*
  * Reset a wtap_rec to an initialized state, making it ready for a
  * new record.

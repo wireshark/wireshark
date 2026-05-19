@@ -41,8 +41,10 @@
 
 #define DUMPCALLS_PLUGIN_PLACEHOLDER "<modern_bpf or kmod>"
 
+#ifndef SINSP_CHECK_VERSION
 #define SINSP_CHECK_VERSION(major, minor, micro) \
     (((SINSP_VERSION_MAJOR << 16) + (SINSP_VERSION_MINOR << 8) + SINSP_VERSION_MICRO) >= ((major << 16) + (minor << 8) + micro))
+#endif
 
 enum {
     EXTCAP_BASE_OPTIONS_ENUM,

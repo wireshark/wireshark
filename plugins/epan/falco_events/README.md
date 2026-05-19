@@ -5,7 +5,8 @@ It requires [libsinsp and libscap](https://github.com/falcosecurity/libs/).
 
 ## Building the Falco Events plugin
 
-1. Download and compile [libsinsp and libscap](https://github.com/falcosecurity/libs/).
+1. Download and compile [Falco libs (libsinsp and libscap)](https://github.com/falcosecurity/libs/).
+   Falco libs 0.26.0 and later is strongly recommended, since it includes the raw block engine.
    You will probably want to pass `-DMINIMAL_BUILD=ON -DCREATE_TEST_TARGETS=OFF` to cmake.
 
 1. Configure Wireshark with

@@ -111,6 +111,8 @@ struct wtap {
     wtap_new_ipv4_callback_t    add_new_ipv4;    /**< Callback for new IPv4 addresses. */
     wtap_new_ipv6_callback_t    add_new_ipv6;    /**< Callback for new IPv6 addresses. */
     wtap_new_secrets_callback_t add_new_secrets; /**< Callback for new secrets. */
+    wtap_pcapng_block_callback_t pcapng_block_cb;     /**< Callback for pcapng blocks. */
+    void                        *pcapng_block_cb_data; /**< User data for pcapng_block_cb. */
     GPtrArray                   *fast_seek;      /**< Fast seek index. */
 };
 

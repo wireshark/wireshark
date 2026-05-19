@@ -1299,11 +1299,19 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
 
     if (!pinfo->fd->visited) {
         if (pinfo->fd->num == 1) {
-            // Open the capture file using libsinsp, which reads the meta events
-            // at the beginning of the file. We can't call this via register_init_routine
-            // because we don't have the file path at that point.
-            open_sinsp_capture(sinsp_span, pinfo->rec->rec_header.syscall_header.pathname);
+            // Open the sinsp inspector for this capture. With newer
+            // falcosecurity-libs, this opens the raw_block engine on
+            // the capture's section header + metadata blocks; with
+            // older versions, it falls back to opening the capture file
+            // separately in libsinsp/libscap via open_savefile.
+            open_sinsp_capture(sinsp_span, pinfo->rec->rec_header.syscall_header.wth,
+                               pinfo->rec);
         }
+        // Feed this frame's event block to the raw_block engine (in frame
+        // order). Does nothing if the savefile engine is being used.
+        feed_sinsp_event_block(sinsp_span, pinfo->rec,
+                               tvb_get_ptr(tvb, 0, tvb_captured_length(tvb)),
+                               tvb_captured_length(tvb));
     }
 
     sinsp_field_extract_t *sinsp_fields = NULL;

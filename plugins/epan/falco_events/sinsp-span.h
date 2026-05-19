@@ -17,6 +17,7 @@
 
 #include <epan/ftypes/ftypes.h>
 #include <wsutil/wmem/wmem.h>
+#include <wiretap/wtap.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -215,14 +216,37 @@ bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, size_t field_num, sin
 void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t **ssi_ptr);
 
 /**
- * @brief Opens a sinsp capture file.
+ * @brief Opens a sinsp capture.
  *
- * This function initializes and opens a sinsp span for capturing events from a specified file.
+ * This function initializes a sinsp span for capturing events. With newer
+ * falcosecurity-libs it uses the raw_block engine: it registers a wiretap
+ * callback that synthesizes a section header and replays the capture's
+ * metadata blocks, then opens the engine on that header/metadata. Event blocks
+ * are fed afterwards, one per frame, via feed_sinsp_event_block(). With older
+ * libs it falls back to opening the capture file directly via open_savefile.
  *
  * @param sinsp_span Pointer to the sinsp span structure that will be initialized.
- * @param filepath The path to the capture file to open.
+ * @param wth The wiretap file handle (for registering the block callback).
+ * @param first_event_rec The wtap_rec for the first event (frame 1); used for the
+ *        capture pathname in the open_savefile fallback.
  */
-void open_sinsp_capture(sinsp_span_t *sinsp_span, const char *filepath);
+void open_sinsp_capture(sinsp_span_t *sinsp_span, struct wtap *wth,
+                        const struct wtap_rec *first_event_rec);
+
+/**
+ * @brief Feed one event block to the raw_block engine.
+ *
+ * Called once per frame (in order) before extracting that frame's fields. With
+ * the raw_block engine the event block is handed to the inspector in replace
+ * mode; with the open_savefile fallback this is a no-op.
+ *
+ * @param sinsp_span Pointer to the sinsp span representing the capture session.
+ * @param rec The wtap_rec for this event.
+ * @param event_data Pointer to the event's data bytes.
+ * @param event_data_len Length of the event's data.
+ */
+void feed_sinsp_event_block(sinsp_span_t *sinsp_span, const struct wtap_rec *rec,
+                            const uint8_t *event_data, uint32_t event_data_len);
 
 //uint32_t process_syscall_capture(sinsp_span_t * sinsp_span, sinsp_source_info_t *ssi, uint32_t to_event);
 

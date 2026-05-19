@@ -41,6 +41,7 @@ add_stratoshark_plugin_library(falco-events epan)
 
 target_link_libraries(falco-events
 	epan
+	wiretap
 	sinsp::sinsp
 )
 

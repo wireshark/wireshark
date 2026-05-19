@@ -228,6 +228,7 @@ pcapng_read_sysdig_event_block(wtap* wth, FILE_T fh, uint32_t block_type,
     wblock->rec->ts.nsecs = (int)(ts % 1000000000);
     wblock->rec->tsprec = WTAP_TSPREC_NSEC;
     wblock->rec->rec_header.syscall_header.pathname = wth->pathname;
+    wblock->rec->rec_header.syscall_header.wth = wth;
 
     wblock->rec->rec_header.syscall_header.byte_order = byte_order;
     wblock->rec->rec_header.syscall_header.cpu_id = cpu_id;
@@ -343,19 +344,30 @@ pcapng_write_sysdig_event_block(wtap_dumper* wdh, const wtap_rec* rec,
     return pcapng_write_block_footer(wdh, block_content_length, err);
 }
 
-/* Process a Sysdig meta event block that we have just read. */
+/* Process a Falco libs meta event block that we have just read. */
 bool
 pcapng_process_meta_event(wtap* wth, section_info_t *section_info _U_,
                           wtapng_block_t* wblock)
 {
-    ws_debug("block type Sysdig meta event");
+    ws_debug("block type Falco libs meta event");
 
-    // XXX add wtapng_process_meta_event(wth, wblock->block);
+    /*
+     * Deliver the raw metadata block to a registered pcapng block callback.
+     * The Falco/Stratoshark dissector uses this to feed section header and
+     * metadata blocks (machine info, process/fd/interface/user lists) to
+     * libsinsp's raw_block engine; event blocks are delivered separately as
+     * records. Blocks read before a callback is registered are replayed from
+     * wth->meta_events by wtap_set_cb_pcapng_block().
+     */
+    if (wth->pcapng_block_cb) {
+        const wtapng_meta_event_mandatory_t *mev_mand =
+            (const wtapng_meta_event_mandatory_t *)wtap_block_get_mandatory_data(wblock->block);
+        wth->pcapng_block_cb(mev_mand->mev_block_type, mev_mand->mev_data,
+                             mev_mand->mev_data_len, wth->pcapng_block_cb_data);
+    }
 
     /* Store meta event such that it can be saved by the dumper. */
     g_array_append_val(wth->meta_events, wblock->block);
-
-    /* Do not free wblock->block, it is consumed by pcapng_process_sysdig_meb */
 
     return true;
 }

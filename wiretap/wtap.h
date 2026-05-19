@@ -1542,6 +1542,7 @@ typedef struct {
  */
 typedef struct {
     const char *pathname;      /**< Path name of the source capture file. */
+    struct wtap *wth;          /**< Wiretap file handle for callback registration. */
     unsigned    record_type;   /**< Record type; mirrors @c ft_specific_record_phdr for pcapng block chaining. */
     int         byte_order;    /**< Byte order of the record data (@c G_BIG_ENDIAN or @c G_LITTLE_ENDIAN). */
     uint64_t    timestamp;     /**< Event timestamp in nanoseconds since the Unix epoch. */
@@ -2214,6 +2215,43 @@ typedef void (*wtap_new_secrets_callback_t)(uint32_t secrets_type, const void *s
  */
 WS_DLL_PUBLIC
 void wtap_set_cb_new_secrets(wtap *wth, wtap_new_secrets_callback_t add_new_secrets);
+
+/**
+ * @brief Callback for Sysdig/Falco pcapng metadata blocks.
+ *
+ * Called when a Falco libs metadata (meta event) block (machine info, process,
+ * file descriptor, interface, or user list) is read from a pcapng file. The
+ * callback receives the raw block body (content between the block header and
+ * trailing block total length). Event blocks are not delivered here; they are
+ * returned to the caller as records.
+ *
+ * @param block_type The pcapng block type.
+ * @param block_body Pointer to the raw block body data.
+ * @param block_body_length Length of the block body in bytes.
+ * @param user_data User-supplied context pointer.
+ */
+typedef void (*wtap_pcapng_block_callback_t)(uint32_t block_type, const uint8_t *block_body,
+                                             uint32_t block_body_length, void *user_data);
+
+/**
+ * @brief Register a callback for pcapng metadata blocks.
+ *
+ * When registered, all previously-read metadata blocks are replayed to
+ * the callback immediately. Metadata blocks read afterwards fire the
+ * callback as they are encountered during sequential reading. This lets
+ * a consumer (e.g. the Falco Events plugin) reconstruct the capture's
+ * section header and metadata for libsinsp's raw_block engine while the
+ * event blocks are consumed separately as records.
+ *
+ * This is currently used only for the Falco Events plugin, but could be
+ * generalized if needed.
+ *
+ * @param wth Wiretap file handle.
+ * @param callback The callback function.
+ * @param user_data Context pointer passed to the callback.
+ */
+WS_DLL_PUBLIC
+void wtap_set_cb_pcapng_block(wtap *wth, wtap_pcapng_block_callback_t callback, void *user_data);
 
 /**
  * @brief Read the next record in the file, filling in *phdr and *buf.

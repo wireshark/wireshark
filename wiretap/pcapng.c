@@ -3309,6 +3309,7 @@ pcapng_read_block(wtap *wth, FILE_T fh,
          * Do we have a handler for this block type?
          */
         handler = g_hash_table_lookup(block_handlers, GUINT_TO_POINTER(bh.block_type));
+
         if (handler != NULL) {
             /* Yes - call it to read this block type. */
             if (!handler->reader(wth, fh, bh.block_type,

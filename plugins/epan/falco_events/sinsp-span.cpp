@@ -21,6 +21,8 @@
 #include <epan/dfilter/dfilter-translator.h>
 #include <epan/wmem_scopes.h>
 
+#include <wiretap/pcapng_module.h>
+
 #include <wsutil/array.h>
 #include <wsutil/unicode-utils.h>
 
@@ -35,8 +37,10 @@
 //   we spend a lot of time hashing strings.
 // - Handle list fields.
 
+#ifndef SINSP_CHECK_VERSION
 #define SINSP_CHECK_VERSION(major, minor, micro) \
     (((SINSP_VERSION_MAJOR << 16) + (SINSP_VERSION_MINOR << 8) + SINSP_VERSION_MICRO) >= ((major << 16) + (minor << 8) + micro))
+#endif
 
 // epan/address.h and driver/ppm_events_public.h both define PT_NONE, so
 // handle libsinsp calls here.
@@ -80,6 +84,14 @@ typedef struct sinsp_span_t {
     // Interned data. Copied from maxmind_db.c.
     wmem_map_t *str_chunk;
     wmem_map_t *proc_info_chunk;
+#if SINSP_CHECK_VERSION(0, 26, 0)
+    // Block buffer for the raw_block engine. Before the inspector is opened it
+    // accumulates the synthesized section header plus metadata blocks; once open
+    // it is reused to hand the engine one block at a time (replace mode).
+    uint8_t *block_buffer;
+    uint64_t block_buffer_size;      // Current data length
+    uint64_t block_buffer_capacity;  // Allocated capacity
+#endif
 } sinsp_span_t;
 
 // #define SS_MEMORY_STATISTICS 1
@@ -148,7 +160,7 @@ static const std::set<std::string> g_fields_to_skip = {
 
 sinsp_span_t *create_sinsp_span()
 {
-    sinsp_span_t *span = new(sinsp_span_t);
+    sinsp_span_t *span = new sinsp_span_t();
     span->inspector.set_internal_events_mode(true);
     span->inspector.set_buffer_format(sinsp_evt::PF_EOLS_COMPACT);
 
@@ -721,18 +733,211 @@ static void ensure_cache_size(sinsp_span_t *sinsp_span, uint64_t evt_num)
     sinsp_span->sfe_infos.resize(evt_num);
 }
 
-void open_sinsp_capture(sinsp_span_t *sinsp_span, const char *filepath)
+// Append a single empty cache entry, for events that don't map to a displayable
+// frame (internal events, syscall enter events, scap-converter drops, etc.).
+// Each such event still corresponds to one input block / frame, so it must
+// consume exactly one cache slot to keep frame numbers aligned with the event
+// stream (libsinsp's event numbering does not necessarily match the frame
+// numbering, e.g. when the scap converter drops or merges events).
+static void append_empty_cache_entry(sinsp_span_t *sinsp_span)
+{
+    ensure_cache_size(sinsp_span, sinsp_span->sfe_ptrs.size() + 1);
+}
+
+#if SINSP_CHECK_VERSION(0, 26, 0)
+// Helper: ensure the block buffer has at least `needed` additional bytes of capacity.
+static void block_buffer_ensure(sinsp_span_t *sinsp_span, uint64_t needed)
+{
+    uint64_t required = sinsp_span->block_buffer_size + needed;
+    if (required <= sinsp_span->block_buffer_capacity) {
+        return;
+    }
+    uint64_t new_cap = sinsp_span->block_buffer_capacity ? sinsp_span->block_buffer_capacity : 65536;
+    while (new_cap < required) {
+        new_cap *= 2;
+    }
+    sinsp_span->block_buffer = (uint8_t *)g_realloc(sinsp_span->block_buffer, (gsize)new_cap);
+    sinsp_span->block_buffer_capacity = new_cap;
+}
+
+// Helper: discard the current block buffer contents (retaining capacity) so the
+// buffer can be reused for the next block in the raw_block engine's replace mode.
+static void block_buffer_reset(sinsp_span_t *sinsp_span)
+{
+    sinsp_span->block_buffer_size = 0;
+}
+
+// Helper: append a complete scap/pcapng block (header + body + trailer) to the buffer.
+static void block_buffer_append_block(sinsp_span_t *sinsp_span, uint32_t block_type,
+                                      const uint8_t *body, uint32_t body_len)
+{
+    // Block format: block_type(4) + total_length(4) + body + pad + total_length(4)
+    uint32_t pad_len = (4 - (body_len % 4)) % 4;
+    uint32_t total_length = 4 + 4 + body_len + pad_len + 4;
+
+    block_buffer_ensure(sinsp_span, total_length);
+    uint8_t *p = sinsp_span->block_buffer + sinsp_span->block_buffer_size;
+
+    memcpy(p, &block_type, 4); p += 4;
+    memcpy(p, &total_length, 4); p += 4;
+    if (body_len > 0) {
+        memcpy(p, body, body_len); p += body_len;
+    }
+    if (pad_len > 0) {
+        memset(p, 0, pad_len); p += pad_len;
+    }
+    memcpy(p, &total_length, 4); p += 4;
+
+    sinsp_span->block_buffer_size = p - sinsp_span->block_buffer;
+}
+
+// Synthesize a minimal SHB as the first block in the buffer.
+static void block_buffer_write_shb(sinsp_span_t *sinsp_span)
+{
+    // SHB body: byte_order_magic(4) + version_major(2) + version_minor(2) + section_length(8)
+    uint8_t shb_body[16];
+    uint32_t bom = 0x1A2B3C4D;
+    uint16_t ver_major = 1;
+    uint16_t ver_minor = 0;
+    int64_t section_len = -1; // unspecified
+    memcpy(shb_body, &bom, 4);
+    memcpy(shb_body + 4, &ver_major, 2);
+    memcpy(shb_body + 6, &ver_minor, 2);
+    memcpy(shb_body + 8, &section_len, 8);
+    block_buffer_append_block(sinsp_span, 0x0A0D0D0A, shb_body, sizeof(shb_body));
+}
+
+// Append the event block described by a wtap record to the block buffer.
+static void block_buffer_append_event(sinsp_span_t *sinsp_span, const wtap_rec *rec,
+                                      const uint8_t *event_data, uint32_t event_data_len)
+{
+    const wtap_syscall_header *shdr = &rec->rec_header.syscall_header;
+    uint32_t block_type = shdr->record_type;
+
+    // Determine which optional fields are present based on block type.
+    bool has_flags = (block_type == BLOCK_TYPE_SYSDIG_EVF
+                   || block_type == BLOCK_TYPE_SYSDIG_EVF_V2
+                   || block_type == BLOCK_TYPE_SYSDIG_EVF_V2_LARGE);
+    bool has_nparams = (block_type == BLOCK_TYPE_SYSDIG_EVENT_V2
+                     || block_type == BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE
+                     || block_type == BLOCK_TYPE_SYSDIG_EVF_V2
+                     || block_type == BLOCK_TYPE_SYSDIG_EVF_V2_LARGE);
+
+    // Build the block body: cpu_id + [flags] + ts + tid + event_len + event_type + [nparams] + event_data
+    uint32_t body_len = 2 + (has_flags ? 4 : 0) + 8 + 8 + 4 + 2 + (has_nparams ? 4 : 0) + event_data_len;
+    block_buffer_ensure(sinsp_span, 12 + body_len + 4); // header(8) + body + pad + trailer(4)
+
+    // We build the body in a local buffer, then use block_buffer_append_block.
+    uint8_t *body = (uint8_t *)g_malloc(body_len);
+    unsigned off = 0;
+
+    uint16_t cpu_id = shdr->cpu_id;
+    memcpy(body + off, &cpu_id, 2); off += 2;
+    if (has_flags) {
+        uint32_t flags = shdr->flags;
+        memcpy(body + off, &flags, 4); off += 4;
+    }
+    // Reconstruct the 64-bit nanosecond timestamp
+    uint64_t ts = (uint64_t)rec->ts.secs * 1000000000ULL + (uint64_t)rec->ts.nsecs;
+    memcpy(body + off, &ts, 8); off += 8;
+    uint64_t thread_id = shdr->thread_id;
+    memcpy(body + off, &thread_id, 8); off += 8;
+    uint32_t event_len = shdr->event_len;
+    memcpy(body + off, &event_len, 4); off += 4;
+    uint16_t event_type = shdr->event_type;
+    memcpy(body + off, &event_type, 2); off += 2;
+    if (has_nparams) {
+        uint32_t nparams = shdr->nparams;
+        memcpy(body + off, &nparams, 4); off += 4;
+    }
+    if (event_data_len > 0) {
+        memcpy(body + off, event_data, event_data_len);
+    }
+
+    block_buffer_append_block(sinsp_span, block_type, body, body_len);
+    g_free(body);
+}
+
+// Callback invoked by wiretap for each Falco libs metadata block (SHB is synthesized
+// locally; event blocks are delivered separately, per frame, by the dissector).
+//
+// Before the inspector is opened we accumulate the section header + metadata
+// blocks so the engine can be opened with them. Metadata that arrives after the
+// inspector is open (interleaved with events, which is rare) is handed to the
+// engine on its own via replace mode and processed immediately.
+static void falco_event_block_callback(uint32_t block_type, const uint8_t *block_body,
+                                  uint32_t block_body_length, void *user_data)
+{
+    sinsp_span_t *sinsp_span = (sinsp_span_t *)user_data;
+
+    if (!sinsp_span->inspector.is_capture()) {
+        // The engine isn't open yet: accumulate the section header + metadata
+        // blocks so it can be opened on them.
+        // If this is the first block, synthesize the SHB first.
+        if (sinsp_span->block_buffer_size == 0) {
+            block_buffer_write_shb(sinsp_span);
+        }
+        block_buffer_append_block(sinsp_span, block_type, block_body, block_body_length);
+        return;
+    }
+
+    // Interleaved metadata: feed just this block and let the engine consume it.
+    block_buffer_reset(sinsp_span);
+    block_buffer_append_block(sinsp_span, block_type, block_body, block_body_length);
+    sinsp_span->inspector.fseek(0);
+    try {
+        sinsp_evt *evt = NULL;
+        for (int i = 0; i < 8; i++) {
+            if (sinsp_span->inspector.next(&evt) == SCAP_EOF) {
+                break;
+            }
+        }
+    } catch (sinsp_exception &e) {
+        ws_warning("%s", e.what());
+    }
+}
+#endif // SINSP_CHECK_VERSION(0, 26, 0)
+
+void open_sinsp_capture(sinsp_span_t *sinsp_span, struct wtap *wth,
+                        const wtap_rec *first_event_rec)
 {
     sinsp_span->sfe_slab = NULL;
     sinsp_span->sfe_slab_offset = 0;
     sinsp_span->sfe_ptrs.clear();
     sinsp_span->sfe_lengths.clear();
     sinsp_span->sfe_infos.clear();
+
+#if SINSP_CHECK_VERSION(0, 26, 0)
+    (void) first_event_rec;
+    // Initialize block buffer
+    sinsp_span->block_buffer = NULL;
+    sinsp_span->block_buffer_size = 0;
+    sinsp_span->block_buffer_capacity = 0;
+
+    // Register the pcapng block callback. This synthesizes a section header and
+    // replays all previously-read metadata blocks into our buffer, so that the
+    // engine can be opened with the capture's header/metadata section. The event
+    // blocks are fed one at a time afterwards via feed_sinsp_event_block().
+    wtap_set_cb_pcapng_block(wth, falco_event_block_callback, sinsp_span);
+
+    // Open the raw_block engine with our (metadata-only) buffer. The engine reads
+    // the section header and metadata blocks and stops at the end of the buffer.
     try {
-        sinsp_span->inspector.open_savefile(filepath);
+        sinsp_span->inspector.open_raw_block(&sinsp_span->block_buffer,
+                                             &sinsp_span->block_buffer_size);
     } catch (sinsp_exception &e) {
         ws_warning("%s", e.what());
     }
+#else
+    (void) wth;
+    // Open the capture file using libsinsp, which reads the meta events
+    // at the beginning of the file.
+    try {
+        sinsp_span->inspector.open_savefile(first_event_rec->rec_header.syscall_header.pathname);
+    } catch (sinsp_exception &e) {
+        ws_warning("%s", e.what());
+    }
+#endif
 
     sinsp_span->str_chunk = wmem_map_new(wmem_file_scope(), g_str_hash, g_str_equal);
     sinsp_span->proc_info_chunk = wmem_map_new(wmem_file_scope(), g_int64_hash, g_int64_equal);
@@ -749,10 +954,30 @@ void open_sinsp_capture(sinsp_span_t *sinsp_span, const char *filepath)
 #endif
 }
 
+void feed_sinsp_event_block(sinsp_span_t *sinsp_span, const wtap_rec *rec,
+                            const uint8_t *event_data, uint32_t event_data_len)
+{
+#if SINSP_CHECK_VERSION(0, 26, 0)
+    // Hand this single event block to the raw_block engine using replace mode:
+    // overwrite the buffer with the event and rewind the reader to its start.
+    // extract_syscall_source_fields() then drives sinsp::next() to consume it.
+    if (!sinsp_span->inspector.is_capture()) {
+        return;
+    }
+    block_buffer_reset(sinsp_span);
+    block_buffer_append_event(sinsp_span, rec, event_data, event_data_len);
+    sinsp_span->inspector.fseek(0);
+#else
+    // The savefile engine reads events from the file itself; nothing to feed.
+    (void) sinsp_span;
+    (void) rec;
+    (void) event_data;
+    (void) event_data_len;
+#endif
+}
+
 static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_info_t *ssi, sinsp_evt *evt)
 {
-    uint64_t evt_num = evt->get_num();
-
     // libsinsp requires that events be processed in order so we cache our extracted
     // data during the first pass. We don't know how many fields we're going to extract
     // during an event, so we preallocate slabs of `sfe_slab_prealloc` entries.
@@ -785,17 +1010,27 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
     // First check for internal events.
     // XXX We should skip this if "Show internal events" is enabled.
     auto sfc = ssi->syscall_event_filter_checks[ssi->evt_category_idx].get();
+#if SINSP_CHECK_VERSION(0, 26, 0)
+    if (!sfc->extract(evt, values) || values.size() < 1) {
+#else
     if (!sfc->extract(evt, values, false) || values.size() < 1) {
+#endif
+        append_empty_cache_entry(sinsp_span);
         return;
     }
     if (strcmp((const char *) values[0].ptr, "internal") == 0) {
+        append_empty_cache_entry(sinsp_span);
         return;
     }
 
     for (size_t fc_idx = 0; fc_idx < ssi->syscall_event_filter_checks.size(); fc_idx++) {
         sfc = ssi->syscall_event_filter_checks[fc_idx].get();
         values.clear();
+#if SINSP_CHECK_VERSION(0, 26, 0)
+        if (!sfc->extract(evt, values) || values.size() < 1) {
+#else
         if (!sfc->extract(evt, values, false) || values.size() < 1) {
+#endif
             continue;
         }
         auto ffi = ssi->syscall_filter_fields[fc_idx];
@@ -879,10 +1114,17 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
 
     sinsp_span->sfe_slab_offset += sfe_idx;
 
-    ensure_cache_size(sinsp_span, evt_num);
-    sinsp_span->sfe_ptrs[evt_num - 1] = sfe_block;
-    sinsp_span->sfe_lengths[evt_num - 1] = sfe_idx;
-    sinsp_span->sfe_infos[evt_num - 1] = evt->get_info();
+    // Cache this event in the next sequential slot. The cache is indexed by
+    // frame number, not by libsinsp's event number (evt->get_num()), because
+    // the two can diverge: libsinsp may consume more than one input block per
+    // emitted event (e.g. the scap converter merging syscall enter/exit pairs)
+    // so its event numbering lags the frame numbering. Each input block maps to
+    // exactly one frame and one cache slot, so we append in event order.
+    size_t cache_idx = sinsp_span->sfe_ptrs.size();
+    ensure_cache_size(sinsp_span, cache_idx + 1);
+    sinsp_span->sfe_ptrs[cache_idx] = sfe_block;
+    sinsp_span->sfe_lengths[cache_idx] = sfe_idx;
+    sinsp_span->sfe_infos[cache_idx] = evt->get_info();
 
     return;
 }
@@ -925,6 +1167,16 @@ void close_sinsp_capture(sinsp_span_t *sinsp_span)
     sinsp_span->sfe_infos.clear();
     sinsp_span->str_chunk = NULL;
     sinsp_span->proc_info_chunk = NULL;
+
+#if SINSP_CHECK_VERSION(0, 26, 0)
+    // Free the block buffer
+    if (sinsp_span->block_buffer) {
+        g_free(sinsp_span->block_buffer);
+        sinsp_span->block_buffer = NULL;
+        sinsp_span->block_buffer_size = 0;
+        sinsp_span->block_buffer_capacity = 0;
+    }
+#endif
 }
 
 sinsp_syscall_category_e get_syscall_parent_category(sinsp_source_info_t *ssi, size_t field_check_idx)
@@ -947,7 +1199,15 @@ bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t
             int32_t res = sinsp_span->inspector.next(&evt);
             switch (res) {
             case SCAP_TIMEOUT:
+                // No event currently available; retry without consuming a slot.
+                break;
             case SCAP_FILTERED_EVENT:
+                // libsinsp read and consumed an event but is not reporting it to
+                // us (e.g. a syscall enter event kept only for state, or an event
+                // dropped by the scap converter). It still corresponds to one
+                // input block / frame, so record an empty slot to keep the cache
+                // aligned with the frame numbering.
+                append_empty_cache_entry(sinsp_span);
                 break;
             case SCAP_UNEXPECTED_BLOCK:
                 ws_debug("Filling unexpected block gap from %d to %u", (int) sinsp_span->sfe_ptrs.size(), frame_num);
