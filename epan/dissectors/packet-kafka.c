@@ -1281,11 +1281,13 @@ dissect_kafka_compact_string(proto_tree *tree, int hf_item, tvbuff_t *tvb, packe
 {
     unsigned len;
     uint64_t length;
+    int signed_length;
     proto_item *pi;
 
-    len = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &length, ENC_VARINT_PROTOBUF);
+    /* This is also an unsigned varint (not varlong), so up to 5 bytes. */
+    len = tvb_get_varint(tvb, offset, 5, &length, ENC_VARINT_PROTOBUF);
 
-    if (len == 0) {
+    if (len == 0 || ckd_sub(&signed_length, length, 1)) {
         pi = proto_tree_add_item(tree, hf_item, tvb, offset, 0, ENC_NA);
         expert_add_info(pinfo, pi, &ei_kafka_bad_varint);
         if (p_offset) {
@@ -1300,16 +1302,17 @@ dissect_kafka_compact_string(proto_tree *tree, int hf_item, tvbuff_t *tvb, packe
     if (length == 0) {
         proto_tree_add_string(tree, hf_item, tvb, offset, len, NULL);
     } else {
-        proto_tree_add_string(tree, hf_item, tvb, offset, len + (int)length - 1,
-                              kafka_tvb_get_string(pinfo->pool, tvb, offset + len, (int)length - 1));
+        proto_tree_add_string(tree, hf_item, tvb, offset, len + signed_length,
+                              kafka_tvb_get_string(pinfo->pool, tvb, offset + len, signed_length));
     }
 
     if (p_offset != NULL) *p_offset = offset + len;
-    if (p_length != NULL) *p_length = (int)length - 1;
+    if (p_length != NULL) *p_length = signed_length;
 
     offset += len;
     if (length > 0) {
-        offset += (int)length - 1;
+        /* If this would overflow, the proto_tree_add_string call overflowed. */
+        offset += signed_length;
     }
 
     return offset;
