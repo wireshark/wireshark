@@ -569,6 +569,7 @@ macOS Arm Package:
   stage: build
   rules: !reference [.if-w-w-only-merged]
   variables:
+    CCACHE_DIR: "$CI_PROJECT_DIR/../ccache"
     CODE_SIGN_IDENTITY: "Wireshark Foundation"
     WIRESHARK_BASE_DIR: "$CI_PROJECT_DIR/../wireshark-third-party"
   tags:
@@ -629,6 +630,7 @@ macOS Intel Package:
   stage: build
   rules: !reference [.if-w-w-only-merged]
   variables:
+    CCACHE_DIR: "$CI_PROJECT_DIR/../ccache"
     CODE_SIGN_IDENTITY: "Wireshark Foundation"
   tags:
     - wireshark-macos-intel-package
