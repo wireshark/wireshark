@@ -28,20 +28,9 @@ https://www.wireshark.org/certifications[the Wireshark Foundation].
 
 === Bug Fixes
 
-The following vulnerabilities have been fixed:
+// The following vulnerabilities have been fixed:
 
-* wssalink:2026-51[] {notable}
-ROHC protocol dissector crash.
-wsbuglink:21243[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 6f0cf1551d
-// Fixed in release-4.6: 2685398d6a
-// Fixed in release-4.4: b9750e0096
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-476
-// * ROHC NULL Write / Heap Corruption with uncompressed profile and large CID. wsbuglink:21243[].
-
-// * wssalink:2026-51[] {notable}
+// * wssalink:2026-52[] {notable}
 // Foo protocol dissector {crash,infinite loop,memory leak}.
 // wsbuglink:xxx[].
 // cveidlink:2026-xxx[].
@@ -59,27 +48,13 @@ The following bugs have been fixed:
 // Bugs with the {notable} attribute show up in the "What's Changed" box on the download page.
 //* Wireshark contains traces of nuts. What kind of nuts? The kind you're allergic to. wsbuglink:5000[] {notable}
 
-* Wireshark crashes when run under Visual Studio on Windows. https://gitlab.com/wireshark/wireshark/-/work_items/21251[Work item 24787].
-
-* Welcome page slide preferences are now available in the preferences window. {notable}
-
-* vwr: Read of uninitialized memory in pntoh16. wsbuglink:16460[].
-* vwr: Read of uninitialized memory in find_signature. wsbuglink:16461[].
-* Upgrades on Windows do not retain existing optional features unless explicitly requested, resulting in accidental removal of features. wsbuglink:18925[]. {notable}
-* Wireshark.exe version 4.6.5 is twice as large as version 4.6.4. wsbuglink:21233[].
-* MACsec dissector global-buffer-overflow. wsbuglink:21235[].
-* Wireshark 4.6.5 does not run on Windows 10 version 1809 (including Server 2019 and some LTSC versions) wsbuglink:21237[]. {notable}
-* Fuzz job issue: fuzz-2026-05-02-14184750352.pcap. wsbuglink:21240[].
-* packet-bacapp: rename aurth-request to auth-request. wsbuglink:21246[].
-* Fuzz job issue: randpkt-2026-05-10-14293434231.pcap. wsbuglink:21253[].
-
 
 // == Known Bugs
 
 === New and Updated Features
 
- * The Windows installers now ship with Npcap 1.88.
-   They previously shipped with Npcap 1.87.
+//  * The Windows installers now ship with Npcap 1.88.
+//    They previously shipped with Npcap 1.87.
 
 // * The Windows installers now ship with Qt 6.10.3.
 //   They previously shipped with Qt 6.9.3.
@@ -95,20 +70,9 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.6.5.. | rg packet- | sort -u)
+// rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.6.6.. | rg packet- | sort -u)
 [commaize]
 --
-BACapp
-BPv7
-DB/IB GDS DB
-Kafka
-MACsec
-PFCP
-RF4CE
-ROHC
-RTPS-VT
-SAPHDB
-SIP
 --
 
 === New and Updated Capture File Support
@@ -159,7 +123,32 @@ location as before.
 
 == Prior Versions
 
-Wireshark 4.6.5 included the following changes.
+=== Wireshark 4.6.6 included the following changes.
+
+See the
+https://www.wireshark.org/docs/relnotes/wireshark-4.6.5.html[release notes]
+for details:
+
+* wssalink:2026-51[]
+ROHC protocol dissector crash.
+wsbuglink:21243[].
+
+* Wireshark crashes when run under Visual Studio on Windows. https://gitlab.com/wireshark/wireshark/-/work_items/21251[Work item 24787].
+
+* Welcome page slide preferences are now available in the preferences window.
+
+* vwr: Read of uninitialized memory in pntoh16. wsbuglink:16460[].
+* vwr: Read of uninitialized memory in find_signature. wsbuglink:16461[].
+* Upgrades on Windows do not retain existing optional features unless explicitly requested, resulting in accidental removal of features. wsbuglink:18925[].
+* Wireshark.exe version 4.6.5 is twice as large as version 4.6.4. wsbuglink:21233[].
+* MACsec dissector global-buffer-overflow. wsbuglink:21235[].
+* Wireshark 4.6.5 does not run on Windows 10 version 1809 (including Server 2019 and some LTSC versions) wsbuglink:21237[].
+* Fuzz job issue: fuzz-2026-05-02-14184750352.pcap. wsbuglink:21240[].
+* packet-bacapp: rename aurth-request to auth-request. wsbuglink:21246[].
+* Fuzz job issue: randpkt-2026-05-10-14293434231.pcap. wsbuglink:21253[].
+
+=== Wireshark 4.6.5 included the following changes.
+
 See the
 https://www.wireshark.org/docs/relnotes/wireshark-4.6.5.html[release notes]
 for details:
@@ -410,7 +399,8 @@ wsbuglink:21225[].
 * NAS-5GS - Mapping issue between IEI 0x7B and "S-NSSAI location validity information" IE. wsbuglink:21218[].
 * RTP-MIDI dissector reports incorrect value for MTC Quarter Frame data. wsbuglink:21231[].
 
-Wireshark 4.6.4 included the following changes.
+=== Wireshark 4.6.4 included the following changes.
+
 See the
 https://www.wireshark.org/docs/relnotes/wireshark-4.6.4.html[release notes]
 for details:
@@ -447,7 +437,8 @@ cveidlink:2026-3203[].
 * Malformed packet error on Trigger HE Basic frames. wsbuglink:21032[].
 
 
-Wireshark 4.6.3 included the following changes.
+=== Wireshark 4.6.3 included the following changes.
+
 See the
 https://www.wireshark.org/docs/relnotes/wireshark-4.6.3.html[release notes]
 for details:
@@ -478,7 +469,8 @@ wsbuglink:20944[].
 * OSS-Fuzz 473164101: Heap-buffer-overflow in dissect_idn_laser_data. wsbuglink:20936[].
 * Bug in decoding 5G NAS message - Extended CAG information list IE. wsbuglink:20946[].
 
-Wireshark 4.6.2 included the following changes.
+=== Wireshark 4.6.2 included the following changes.
+
 See the
 https://www.wireshark.org/docs/relnotes/wireshark-4.6.2.html[release notes]
 for details:
@@ -502,7 +494,8 @@ wsbuglink:20884[].
 * The Windows installers now ship with the Visual C++ Redistributable version 14.44.35112.
   They previously shipped with 14.40.33807.
 
-Wireshark 4.6.1 included the following changes.
+=== Wireshark 4.6.1 included the following changes.
+
 See the
 https://www.wireshark.org/docs/relnotes/wireshark-4.6.1.html[release notes]
 for details:
@@ -531,7 +524,8 @@ for details:
 * Fuzz job issue: fuzz-2025-11-12-12064814316.pcap. wsbuglink:20852[].
 * UDP Port 853 (DoQ) should be decoded as QUIC. wsbuglink:20856[].
 
-Wireshark 4.6.0 included the following changes.
+=== Wireshark 4.6.0 included the following changes.
+
 See the
 https://www.wireshark.org/docs/relnotes/wireshark-4.6.0.html[release notes]
 for details:
