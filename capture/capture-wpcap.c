@@ -28,7 +28,6 @@
 #include <wsutil/feature_list.h>
 
 bool has_npcap;
-bool use_utf8;
 
 #ifdef HAVE_LIBPCAP
 
@@ -45,6 +44,7 @@ bool use_utf8;
 #include <wsutil/ws_assert.h>
 
 #define MAX_WIN_IF_NAME_LEN 511
+static bool use_utf8;
 
 static void    (*p_pcap_close) (pcap_t *);
 static int     (*p_pcap_stats) (pcap_t *, struct pcap_stat *);
