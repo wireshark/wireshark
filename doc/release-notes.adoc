@@ -75,6 +75,7 @@ There are no new protocols in this release.
 [commaize]
 --
 FB/IB GDS DB
+Kafka
 MDB
 ROHC
 RTPS-VT
