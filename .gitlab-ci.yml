@@ -665,6 +665,7 @@ macOS Universal Package:
   stage: build
   rules: !reference [.if-w-w-only-merged]
   variables:
+    CCACHE_DIR: "$CI_PROJECT_DIR/../ccache"
     CODE_SIGN_IDENTITY: "Wireshark Foundation"
   tags:
     - wireshark-macos-universal-package
