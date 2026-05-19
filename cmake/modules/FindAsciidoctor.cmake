@@ -51,7 +51,8 @@ if(ASCIIDOCTOR_EXECUTABLE)
     set (_asciidoctor_common_args
         # AsciidoctorJ added --failure-level in version 2.5.6
         # --trace
-        --quiet
+        # Unfortunately --quiet suppresses warnings even at --failure-level WARN
+        #--quiet
         ${_ad_failure_level_args}
         --attribute build_dir=${CMAKE_BINARY_DIR}/doc
         --attribute css_dir=${CMAKE_SOURCE_DIR}/doc
