@@ -6984,7 +6984,20 @@ new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 	if (fi->start > 0) {
 		if (fi->ds_tvb == PTREE_DATA(tree)->idle_count_ds_tvb && fi->start <= PTREE_DATA(tree)->max_start) {
 			PTREE_DATA(tree)->start_idle_count++;
-			DISSECTOR_ASSERT_HINT(PTREE_DATA(tree)->start_idle_count < PROTO_TREE_MAX_IDLE, fi->hfinfo->abbrev);
+			if (PTREE_DATA(tree)->start_idle_count > PROTO_TREE_MAX_IDLE) {
+				if (wireshark_abort_on_too_many_items) {
+					ws_error("Adding %s would be the %dth consecutive item that doesn't advance the maximum start offset - possible infinite loop",
+					    hfinfo->abbrev, PROTO_TREE_MAX_IDLE);
+				}
+				/* PROTO_TREE_MAX_IDLE should be < pref.gui_max_tree_items,
+				 * but if not, we should hit the max item error earlier,
+				 * so we shouldn't need to reset the tree count to
+				 * ensure that the exception handler can add the item. */
+				THROW_MESSAGE(DissectorError,
+					wmem_strdup_printf(PNODE_POOL(tree),
+					    "Adding %s would be the %dth consecutive item that doesn't advance the maximum start offset - possible infinite loop",
+					    hfinfo->abbrev, PROTO_TREE_MAX_IDLE));
+			}
 		} else {
 			PTREE_DATA(tree)->idle_count_ds_tvb = fi->ds_tvb;
 			PTREE_DATA(tree)->max_start = fi->start;
