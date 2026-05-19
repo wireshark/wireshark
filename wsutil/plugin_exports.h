@@ -14,6 +14,9 @@
 #error "WS_BUILD_DLL isn't defined when building this plugin"
 #endif
 
+#include <ws_symbol_export.h>
+#include <stdint.h>
+
 WS_DLL_PUBLIC const char plugin_version[];
 WS_DLL_PUBLIC const int plugin_want_major;
 WS_DLL_PUBLIC const int plugin_want_minor;

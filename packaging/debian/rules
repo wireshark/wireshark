@@ -93,8 +93,11 @@ HEADER_CHECK_FLAGS = $(shell pkg-config --cflags glib-2.0) \
 override_dh_install:
 	dh_install
 	# check that all headers can be compiled
-	find debian/*-dev/usr/include -type f | sed 's|.*/include/wireshark/|#include <|;s|$$|>|' | $(CC) -x c -S - $(HEADER_CHECK_FLAGS) -o /dev/null
-	find debian/*-dev/usr/include -type f | sed 's|.*/include/wireshark/|#include <|;s|$$|>|' | $(CC) -x c++ -S - $(HEADER_CHECK_FLAGS) -o /dev/null
+	# plugin_exports.h is for building plugins, and requires setting WS_BUILD_DLL
+	find debian/*-dev/usr/include -type f -not -name "plugin_exports.h" | sed 's|.*/include/wireshark/|#include <|;s|$$|>|' | $(CC) -x c -S - $(HEADER_CHECK_FLAGS) -o /dev/null
+	find debian/*-dev/usr/include -type f -not -name "plugin_exports.h" | sed 's|.*/include/wireshark/|#include <|;s|$$|>|' | $(CC) -x c++ -S - $(HEADER_CHECK_FLAGS) -o /dev/null
+	find debian/*-dev/usr/include -name "plugin_exports.h" | sed 's|.*/include/wireshark/|#include <|;s|$$|>|' | $(CC) -x c -S - $(HEADER_CHECK_FLAGS) -DWS_BUILD_DLL -o /dev/null
+	find debian/*-dev/usr/include -name "plugin_exports.h" | sed 's|.*/include/wireshark/|#include <|;s|$$|>|' | $(CC) -x c++ -S - $(HEADER_CHECK_FLAGS) -DWS_BUILD_DLL -o /dev/null
 	# check than #include-ing the most widely used headers compiles
 	$(CC) -c debian/headers-check.c $(HEADER_CHECK_FLAGS) -o /dev/null
 
