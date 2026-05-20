@@ -665,7 +665,6 @@ macOS Universal Package:
   stage: build
   rules: !reference [.if-w-w-only-merged]
   variables:
-    CCACHE_DIR: "$CI_PROJECT_DIR/../ccache"
     CODE_SIGN_IDENTITY: "Wireshark Foundation"
   tags:
     - wireshark-macos-universal-package
@@ -673,6 +672,8 @@ macOS Universal Package:
     name: macos-package
   retry: 1
   before_script:
+    # Set this here so that "extends: .build-macos" doesn't pull in the global value.
+    - export CCACHE_DIR="$CI_PROJECT_DIR/../ccache"
     - brew --version
     - printf "\e[0Ksection_start:%s:brew_section[collapsed=true]\r\e[0KInstalling prerequisites" "$( date +%s)"
     - brew install awscli ccache cmake ninja python
