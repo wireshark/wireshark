@@ -1,7 +1,9 @@
 /* packet-hl7.c
- * Routines for Health Level 7 (HL7) dissection: HL7 messages wrapped in
- * MLLP session layer as specified in 'HL7 Implementation Guide for HL7
- * version 2.3.1, appendix C "Lower Layer Protocols", section C.4.3.
+ * Routines for Health Level 7 (HL7) dissection: HL7 messages wrapped in the
+ * Minimal Lower Layer Protocol (MLLP) as specified in 'HL7 Implementation
+ * Support Guide' version 2.3, 'Appendix C: Lower Layer Protocols',
+ * section C.4. See page 306-308:
+ * https://web.archive.org/web/20031005202343/http://www.hl7.org/Special/IG/final.pdf
  *
  * Copyright 2016 Francesco Fondelli <francesco dot fondelli, gmail dot com>
  *
