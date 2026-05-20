@@ -754,8 +754,12 @@ else() # ! MSVC
 		-fstack-protector-strong			# Stack smashing protector
 		-fno-delete-null-pointer-checks		# Force retention of null pointer checks
 		# The above used to fail on macOS El Capitan clang (see below in PEDANTIC) Does it work now?
-		-fno-strict-aliasing				# Do not assume strict aliasing
+		-fno-strict-aliasing			# Do not assume strict aliasing
 		-ftrivial-auto-var-init			# Perform trivial auto variable initialization
+		# XXX - The above does not perform trivial auto variable initialization.
+		# To do so, it would need to be -ftrivial-auto-var-init=zero (or =pattern)
+		# Are there any cases where we don't want to initialize stack vars?
+		# (The truly large buffers are mostly heap-allocated.)
 		-fexceptions					# Enable exception propagation to harden multi-threaded C code
 
 		#
@@ -793,10 +797,20 @@ else() # ! MSVC
 	# options, allowing users to override our options, check to see if
 	# -D_FORTIFY_SOURCE is already set to avoid a redefinition warning.
 	#
+	# _FORTIFY_SOURCE requires optimization to work; it also (still)
+	# conflicts with ASan, TSan, and MSan, in that it will prevent the
+	# sanitizers from finding errors:
+	# https://github.com/google/sanitizers/issues/247
+	# https://github.com/google/sanitizers/wiki/AddressSanitizer#faq
+	# https://sourceware.org/bugzilla/show_bug.cgi?id=20422
+	# (We don't support MSan because it requires compiling everything
+	# except for the C standard library with MSan, which includes
+	# the C++ standard library and Qt. Valgrind is easier, if slower.)
+	#
 	# Note the distribution might use a GCC spec file or Clang configuration
 	# file, which takes place before our options, so we have to undefine it
 	# first too.
-	if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT "${CMAKE_C_FLAGS}" MATCHES "-D_FORTIFY_SOURCE")
+	if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT "${CMAKE_C_FLAGS}" MATCHES "-D_FORTIFY_SOURCE" AND NOT ENABLE_ASAN AND NOT ENABLE_TSAN)
 		# _FORTIFY_SOURCE requires -O1 or higher, and the Debug
 		# build type has no optimization
 		if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "12.0") OR
