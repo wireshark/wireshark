@@ -261,12 +261,17 @@ class LuaDebuggerCodeView : public QPlainTextEdit
     void updateLineNumberArea(const QRect &rect, int dy);
 
   private:
+  /** @brief The widget displaying line numbers. */
     QWidget *lineNumberArea;
+    /** @brief The syntax highlighter for the code editor. */
     QSyntaxHighlighter *syntaxHighlighter;
     /** 1-based line where the debugger is paused, or -1 if none. */
     qint32 pausedExecutionLine_ = -1;
 
+    /** @brief Friend class allowing access to private members. */
     friend class LineNumberArea;
+
+    /** @brief The filename associated with the code editor. */
     QString filename;
     /** @brief Apply editor and gutter @c QPalette for the active light/dark theme. */
     void applyEditorPalette();

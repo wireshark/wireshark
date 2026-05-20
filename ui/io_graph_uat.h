@@ -12,9 +12,19 @@
 #ifndef __IO_GRAPH_UAT_H__
 #define __IO_GRAPH_UAT_H__
 
-//Allow the enable/disable field to be a checkbox, but for backwards
-//compatibility with pre-2.6 versions, the strings are "Enabled"/"Disabled",
-//not "true"/"false". (Pre-4.4 versions require "true" to be all-caps.)
+/**
+ * @brief Macro to define a boolean enable/disable callback for UAT fields.
+ * This macro generates two callback functions: one for setting the value based on a string input and another for converting the boolean value to a string representation.
+ * The set callback function checks if the input string is "Enabled" or "true" (case-insensitive) to set the field to 1 (enabled), otherwise it sets it to 0 (disabled). The to-string callback function returns "Enabled" if the field is true (non-zero) and "Disabled" if it is false (zero).
+
+ * Allow the enable/disable field to be a checkbox, but for backwards
+ * compatibility with pre-2.6 versions, the strings are "Enabled"/"Disabled",
+ * not "true"/"false". (Pre-4.4 versions require "true" to be all-caps.)
+ *
+ * @param basename The base name for the callback functions.
+ * @param field_name The name of the field being set or converted.
+ * @param rec_t The type of the record structure that contains the field being modified.
+ */
 #define UAT_BOOL_ENABLE_CB_DEF(basename,field_name,rec_t) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
     char* tmp_str = g_strndup(buf,len); \

@@ -14,11 +14,12 @@
 ** Author: Gerhard Gappmeier <gerhard.gappmeier@ascolab.com>
 ******************************************************************************/
 
-/* This struct is used to pass meta data down to decoding functions. */
+/** @brief This struct is used to pass meta data down to decoding functions. */
 struct ua_metadata {
-    bool encrypted; /* true if payload is encrypted, false if no encryption was used or it was successfully decrypted. */
+    bool encrypted;  /**< true if payload is encrypted, false if no encryption was used or it was successfully decrypted. */
 };
 
+/** @brief Default signature length for OPC UA messages. */
 extern int g_opcua_default_sig_len;
 
 /* Transport Layer: message parsers */

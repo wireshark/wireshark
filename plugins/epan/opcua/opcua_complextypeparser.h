@@ -20,426 +20,600 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-extern int ett_opcua_TrustListDataType;
-extern int ett_opcua_array_TrustListDataType;
-extern int ett_opcua_Node;
-extern int ett_opcua_array_Node;
-extern int ett_opcua_InstanceNode;
-extern int ett_opcua_array_InstanceNode;
-extern int ett_opcua_TypeNode;
-extern int ett_opcua_array_TypeNode;
-extern int ett_opcua_ObjectNode;
-extern int ett_opcua_array_ObjectNode;
-extern int ett_opcua_ObjectTypeNode;
-extern int ett_opcua_array_ObjectTypeNode;
-extern int ett_opcua_VariableNode;
-extern int ett_opcua_array_VariableNode;
-extern int ett_opcua_VariableTypeNode;
-extern int ett_opcua_array_VariableTypeNode;
-extern int ett_opcua_ReferenceTypeNode;
-extern int ett_opcua_array_ReferenceTypeNode;
-extern int ett_opcua_MethodNode;
-extern int ett_opcua_array_MethodNode;
-extern int ett_opcua_ViewNode;
-extern int ett_opcua_array_ViewNode;
-extern int ett_opcua_DataTypeNode;
-extern int ett_opcua_array_DataTypeNode;
-extern int ett_opcua_ReferenceNode;
-extern int ett_opcua_array_ReferenceNode;
-extern int ett_opcua_Argument;
-extern int ett_opcua_array_Argument;
-extern int ett_opcua_EnumValueType;
-extern int ett_opcua_array_EnumValueType;
-extern int ett_opcua_OptionSet;
-extern int ett_opcua_array_OptionSet;
-extern int ett_opcua_TimeZoneDataType;
-extern int ett_opcua_array_TimeZoneDataType;
-extern int ett_opcua_ApplicationDescription;
-extern int ett_opcua_array_ApplicationDescription;
-extern int ett_opcua_RequestHeader;
-extern int ett_opcua_array_RequestHeader;
-extern int ett_opcua_ResponseHeader;
-extern int ett_opcua_array_ResponseHeader;
-extern int ett_opcua_ServerOnNetwork;
-extern int ett_opcua_array_ServerOnNetwork;
-extern int ett_opcua_UserTokenPolicy;
-extern int ett_opcua_array_UserTokenPolicy;
-extern int ett_opcua_EndpointDescription;
-extern int ett_opcua_array_EndpointDescription;
-extern int ett_opcua_RegisteredServer;
-extern int ett_opcua_array_RegisteredServer;
-extern int ett_opcua_MdnsDiscoveryConfiguration;
-extern int ett_opcua_array_MdnsDiscoveryConfiguration;
-extern int ett_opcua_ChannelSecurityToken;
-extern int ett_opcua_array_ChannelSecurityToken;
-extern int ett_opcua_SignedSoftwareCertificate;
-extern int ett_opcua_array_SignedSoftwareCertificate;
-extern int ett_opcua_SignatureData;
-extern int ett_opcua_array_SignatureData;
-extern int ett_opcua_UserIdentityToken;
-extern int ett_opcua_array_UserIdentityToken;
-extern int ett_opcua_AnonymousIdentityToken;
-extern int ett_opcua_array_AnonymousIdentityToken;
-extern int ett_opcua_UserNameIdentityToken;
-extern int ett_opcua_array_UserNameIdentityToken;
-extern int ett_opcua_X509IdentityToken;
-extern int ett_opcua_array_X509IdentityToken;
-extern int ett_opcua_KerberosIdentityToken;
-extern int ett_opcua_array_KerberosIdentityToken;
-extern int ett_opcua_IssuedIdentityToken;
-extern int ett_opcua_array_IssuedIdentityToken;
-extern int ett_opcua_NodeAttributes;
-extern int ett_opcua_array_NodeAttributes;
-extern int ett_opcua_ObjectAttributes;
-extern int ett_opcua_array_ObjectAttributes;
-extern int ett_opcua_VariableAttributes;
-extern int ett_opcua_array_VariableAttributes;
-extern int ett_opcua_MethodAttributes;
-extern int ett_opcua_array_MethodAttributes;
-extern int ett_opcua_ObjectTypeAttributes;
-extern int ett_opcua_array_ObjectTypeAttributes;
-extern int ett_opcua_VariableTypeAttributes;
-extern int ett_opcua_array_VariableTypeAttributes;
-extern int ett_opcua_ReferenceTypeAttributes;
-extern int ett_opcua_array_ReferenceTypeAttributes;
-extern int ett_opcua_DataTypeAttributes;
-extern int ett_opcua_array_DataTypeAttributes;
-extern int ett_opcua_ViewAttributes;
-extern int ett_opcua_array_ViewAttributes;
-extern int ett_opcua_AddNodesItem;
-extern int ett_opcua_array_AddNodesItem;
-extern int ett_opcua_AddNodesResult;
-extern int ett_opcua_array_AddNodesResult;
-extern int ett_opcua_AddReferencesItem;
-extern int ett_opcua_array_AddReferencesItem;
-extern int ett_opcua_DeleteNodesItem;
-extern int ett_opcua_array_DeleteNodesItem;
-extern int ett_opcua_DeleteReferencesItem;
-extern int ett_opcua_array_DeleteReferencesItem;
-extern int ett_opcua_ViewDescription;
-extern int ett_opcua_array_ViewDescription;
-extern int ett_opcua_BrowseDescription;
-extern int ett_opcua_array_BrowseDescription;
-extern int ett_opcua_ReferenceDescription;
-extern int ett_opcua_array_ReferenceDescription;
-extern int ett_opcua_BrowseResult;
-extern int ett_opcua_array_BrowseResult;
-extern int ett_opcua_RelativePathElement;
-extern int ett_opcua_array_RelativePathElement;
-extern int ett_opcua_RelativePath;
-extern int ett_opcua_array_RelativePath;
-extern int ett_opcua_BrowsePath;
-extern int ett_opcua_array_BrowsePath;
-extern int ett_opcua_BrowsePathTarget;
-extern int ett_opcua_array_BrowsePathTarget;
-extern int ett_opcua_BrowsePathResult;
-extern int ett_opcua_array_BrowsePathResult;
-extern int ett_opcua_EndpointConfiguration;
-extern int ett_opcua_array_EndpointConfiguration;
-extern int ett_opcua_SupportedProfile;
-extern int ett_opcua_array_SupportedProfile;
-extern int ett_opcua_SoftwareCertificate;
-extern int ett_opcua_array_SoftwareCertificate;
-extern int ett_opcua_QueryDataDescription;
-extern int ett_opcua_array_QueryDataDescription;
-extern int ett_opcua_NodeTypeDescription;
-extern int ett_opcua_array_NodeTypeDescription;
-extern int ett_opcua_QueryDataSet;
-extern int ett_opcua_array_QueryDataSet;
-extern int ett_opcua_NodeReference;
-extern int ett_opcua_array_NodeReference;
-extern int ett_opcua_ContentFilterElement;
-extern int ett_opcua_array_ContentFilterElement;
-extern int ett_opcua_ContentFilter;
-extern int ett_opcua_array_ContentFilter;
-extern int ett_opcua_ElementOperand;
-extern int ett_opcua_array_ElementOperand;
-extern int ett_opcua_LiteralOperand;
-extern int ett_opcua_array_LiteralOperand;
-extern int ett_opcua_AttributeOperand;
-extern int ett_opcua_array_AttributeOperand;
-extern int ett_opcua_SimpleAttributeOperand;
-extern int ett_opcua_array_SimpleAttributeOperand;
-extern int ett_opcua_ContentFilterElementResult;
-extern int ett_opcua_array_ContentFilterElementResult;
-extern int ett_opcua_ContentFilterResult;
-extern int ett_opcua_array_ContentFilterResult;
-extern int ett_opcua_ParsingResult;
-extern int ett_opcua_array_ParsingResult;
-extern int ett_opcua_ReadValueId;
-extern int ett_opcua_array_ReadValueId;
-extern int ett_opcua_HistoryReadValueId;
-extern int ett_opcua_array_HistoryReadValueId;
-extern int ett_opcua_HistoryReadResult;
-extern int ett_opcua_array_HistoryReadResult;
-extern int ett_opcua_ReadEventDetails;
-extern int ett_opcua_array_ReadEventDetails;
-extern int ett_opcua_ReadRawModifiedDetails;
-extern int ett_opcua_array_ReadRawModifiedDetails;
-extern int ett_opcua_ReadProcessedDetails;
-extern int ett_opcua_array_ReadProcessedDetails;
-extern int ett_opcua_ReadAtTimeDetails;
-extern int ett_opcua_array_ReadAtTimeDetails;
-extern int ett_opcua_HistoryData;
-extern int ett_opcua_array_HistoryData;
-extern int ett_opcua_ModificationInfo;
-extern int ett_opcua_array_ModificationInfo;
-extern int ett_opcua_HistoryModifiedData;
-extern int ett_opcua_array_HistoryModifiedData;
-extern int ett_opcua_HistoryEvent;
-extern int ett_opcua_array_HistoryEvent;
-extern int ett_opcua_WriteValue;
-extern int ett_opcua_array_WriteValue;
-extern int ett_opcua_HistoryUpdateDetails;
-extern int ett_opcua_array_HistoryUpdateDetails;
-extern int ett_opcua_UpdateDataDetails;
-extern int ett_opcua_array_UpdateDataDetails;
-extern int ett_opcua_UpdateStructureDataDetails;
-extern int ett_opcua_array_UpdateStructureDataDetails;
-extern int ett_opcua_UpdateEventDetails;
-extern int ett_opcua_array_UpdateEventDetails;
-extern int ett_opcua_DeleteRawModifiedDetails;
-extern int ett_opcua_array_DeleteRawModifiedDetails;
-extern int ett_opcua_DeleteAtTimeDetails;
-extern int ett_opcua_array_DeleteAtTimeDetails;
-extern int ett_opcua_DeleteEventDetails;
-extern int ett_opcua_array_DeleteEventDetails;
-extern int ett_opcua_HistoryUpdateResult;
-extern int ett_opcua_array_HistoryUpdateResult;
-extern int ett_opcua_CallMethodRequest;
-extern int ett_opcua_array_CallMethodRequest;
-extern int ett_opcua_CallMethodResult;
-extern int ett_opcua_array_CallMethodResult;
-extern int ett_opcua_DataChangeFilter;
-extern int ett_opcua_array_DataChangeFilter;
-extern int ett_opcua_EventFilter;
-extern int ett_opcua_array_EventFilter;
-extern int ett_opcua_AggregateConfiguration;
-extern int ett_opcua_array_AggregateConfiguration;
-extern int ett_opcua_AggregateFilter;
-extern int ett_opcua_array_AggregateFilter;
-extern int ett_opcua_EventFilterResult;
-extern int ett_opcua_array_EventFilterResult;
-extern int ett_opcua_AggregateFilterResult;
-extern int ett_opcua_array_AggregateFilterResult;
-extern int ett_opcua_MonitoringParameters;
-extern int ett_opcua_array_MonitoringParameters;
-extern int ett_opcua_MonitoredItemCreateRequest;
-extern int ett_opcua_array_MonitoredItemCreateRequest;
-extern int ett_opcua_MonitoredItemCreateResult;
-extern int ett_opcua_array_MonitoredItemCreateResult;
-extern int ett_opcua_MonitoredItemModifyRequest;
-extern int ett_opcua_array_MonitoredItemModifyRequest;
-extern int ett_opcua_MonitoredItemModifyResult;
-extern int ett_opcua_array_MonitoredItemModifyResult;
-extern int ett_opcua_NotificationMessage;
-extern int ett_opcua_array_NotificationMessage;
-extern int ett_opcua_DataChangeNotification;
-extern int ett_opcua_array_DataChangeNotification;
-extern int ett_opcua_MonitoredItemNotification;
-extern int ett_opcua_array_MonitoredItemNotification;
-extern int ett_opcua_EventNotificationList;
-extern int ett_opcua_array_EventNotificationList;
-extern int ett_opcua_EventFieldList;
-extern int ett_opcua_array_EventFieldList;
-extern int ett_opcua_HistoryEventFieldList;
-extern int ett_opcua_array_HistoryEventFieldList;
-extern int ett_opcua_StatusChangeNotification;
-extern int ett_opcua_array_StatusChangeNotification;
-extern int ett_opcua_SubscriptionAcknowledgement;
-extern int ett_opcua_array_SubscriptionAcknowledgement;
-extern int ett_opcua_TransferResult;
-extern int ett_opcua_array_TransferResult;
-extern int ett_opcua_ScalarTestType;
-extern int ett_opcua_array_ScalarTestType;
-extern int ett_opcua_ArrayTestType;
-extern int ett_opcua_array_ArrayTestType;
-extern int ett_opcua_CompositeTestType;
-extern int ett_opcua_array_CompositeTestType;
-extern int ett_opcua_BuildInfo;
-extern int ett_opcua_array_BuildInfo;
-extern int ett_opcua_RedundantServerDataType;
-extern int ett_opcua_array_RedundantServerDataType;
-extern int ett_opcua_EndpointUrlListDataType;
-extern int ett_opcua_array_EndpointUrlListDataType;
-extern int ett_opcua_NetworkGroupDataType;
-extern int ett_opcua_array_NetworkGroupDataType;
-extern int ett_opcua_SamplingIntervalDiagnosticsDataType;
-extern int ett_opcua_array_SamplingIntervalDiagnosticsDataType;
-extern int ett_opcua_ServerDiagnosticsSummaryDataType;
-extern int ett_opcua_array_ServerDiagnosticsSummaryDataType;
-extern int ett_opcua_ServerStatusDataType;
-extern int ett_opcua_array_ServerStatusDataType;
-extern int ett_opcua_SessionDiagnosticsDataType;
-extern int ett_opcua_array_SessionDiagnosticsDataType;
-extern int ett_opcua_SessionSecurityDiagnosticsDataType;
-extern int ett_opcua_array_SessionSecurityDiagnosticsDataType;
-extern int ett_opcua_ServiceCounterDataType;
-extern int ett_opcua_array_ServiceCounterDataType;
-extern int ett_opcua_StatusResult;
-extern int ett_opcua_array_StatusResult;
-extern int ett_opcua_SubscriptionDiagnosticsDataType;
-extern int ett_opcua_array_SubscriptionDiagnosticsDataType;
-extern int ett_opcua_ModelChangeStructureDataType;
-extern int ett_opcua_array_ModelChangeStructureDataType;
-extern int ett_opcua_SemanticChangeStructureDataType;
-extern int ett_opcua_array_SemanticChangeStructureDataType;
-extern int ett_opcua_Range;
-extern int ett_opcua_array_Range;
-extern int ett_opcua_EUInformation;
-extern int ett_opcua_array_EUInformation;
-extern int ett_opcua_ComplexNumberType;
-extern int ett_opcua_array_ComplexNumberType;
-extern int ett_opcua_DoubleComplexNumberType;
-extern int ett_opcua_array_DoubleComplexNumberType;
-extern int ett_opcua_AxisInformation;
-extern int ett_opcua_array_AxisInformation;
-extern int ett_opcua_XVType;
-extern int ett_opcua_array_XVType;
-extern int ett_opcua_ProgramDiagnosticDataType;
-extern int ett_opcua_array_ProgramDiagnosticDataType;
-extern int ett_opcua_Annotation;
-extern int ett_opcua_array_Annotation;
+/**
+ * @defgroup opcua_ett OPC UA Protocol Subtree Indices
+ * @brief Wireshark ett (expand/collapse tree) indices for every OPC UA complex type and its array variant.
+ *
+ * Each pair of variables registers one structured type in the Wireshark
+ * protocol tree: the scalar form (@c ett_opcua_Foo) and its array wrapper
+ * (@c ett_opcua_array_Foo). All indices are registered via
+ * @c proto_register_subtree_array() during dissector initialisation.
+ * @{
+ */
+extern int ett_opcua_TrustListDataType;              /**< Subtree index for TrustListDataType. */
+extern int ett_opcua_array_TrustListDataType;        /**< Subtree index for arrays of TrustListDataType. */
+extern int ett_opcua_Node;                           /**< Subtree index for Node. */
+extern int ett_opcua_array_Node;                     /**< Subtree index for arrays of Node. */
+extern int ett_opcua_InstanceNode;                   /**< Subtree index for InstanceNode. */
+extern int ett_opcua_array_InstanceNode;             /**< Subtree index for arrays of InstanceNode. */
+extern int ett_opcua_TypeNode;                       /**< Subtree index for TypeNode. */
+extern int ett_opcua_array_TypeNode;                 /**< Subtree index for arrays of TypeNode. */
+extern int ett_opcua_ObjectNode;                     /**< Subtree index for ObjectNode. */
+extern int ett_opcua_array_ObjectNode;               /**< Subtree index for arrays of ObjectNode. */
+extern int ett_opcua_ObjectTypeNode;                 /**< Subtree index for ObjectTypeNode. */
+extern int ett_opcua_array_ObjectTypeNode;           /**< Subtree index for arrays of ObjectTypeNode. */
+extern int ett_opcua_VariableNode;                   /**< Subtree index for VariableNode. */
+extern int ett_opcua_array_VariableNode;             /**< Subtree index for arrays of VariableNode. */
+extern int ett_opcua_VariableTypeNode;               /**< Subtree index for VariableTypeNode. */
+extern int ett_opcua_array_VariableTypeNode;         /**< Subtree index for arrays of VariableTypeNode. */
+extern int ett_opcua_ReferenceTypeNode;              /**< Subtree index for ReferenceTypeNode. */
+extern int ett_opcua_array_ReferenceTypeNode;        /**< Subtree index for arrays of ReferenceTypeNode. */
+extern int ett_opcua_MethodNode;                     /**< Subtree index for MethodNode. */
+extern int ett_opcua_array_MethodNode;               /**< Subtree index for arrays of MethodNode. */
+extern int ett_opcua_ViewNode;                       /**< Subtree index for ViewNode. */
+extern int ett_opcua_array_ViewNode;                 /**< Subtree index for arrays of ViewNode. */
+extern int ett_opcua_DataTypeNode;                   /**< Subtree index for DataTypeNode. */
+extern int ett_opcua_array_DataTypeNode;             /**< Subtree index for arrays of DataTypeNode. */
+extern int ett_opcua_ReferenceNode;                  /**< Subtree index for ReferenceNode. */
+extern int ett_opcua_array_ReferenceNode;            /**< Subtree index for arrays of ReferenceNode. */
+extern int ett_opcua_Argument;                       /**< Subtree index for Argument. */
+extern int ett_opcua_array_Argument;                 /**< Subtree index for arrays of Argument. */
+extern int ett_opcua_EnumValueType;                  /**< Subtree index for EnumValueType. */
+extern int ett_opcua_array_EnumValueType;            /**< Subtree index for arrays of EnumValueType. */
+extern int ett_opcua_OptionSet;                      /**< Subtree index for OptionSet. */
+extern int ett_opcua_array_OptionSet;                /**< Subtree index for arrays of OptionSet. */
+extern int ett_opcua_TimeZoneDataType;               /**< Subtree index for TimeZoneDataType. */
+extern int ett_opcua_array_TimeZoneDataType;         /**< Subtree index for arrays of TimeZoneDataType. */
+extern int ett_opcua_ApplicationDescription;         /**< Subtree index for ApplicationDescription. */
+extern int ett_opcua_array_ApplicationDescription;   /**< Subtree index for arrays of ApplicationDescription. */
+extern int ett_opcua_RequestHeader;                  /**< Subtree index for RequestHeader. */
+extern int ett_opcua_array_RequestHeader;            /**< Subtree index for arrays of RequestHeader. */
+extern int ett_opcua_ResponseHeader;                 /**< Subtree index for ResponseHeader. */
+extern int ett_opcua_array_ResponseHeader;           /**< Subtree index for arrays of ResponseHeader. */
+extern int ett_opcua_ServerOnNetwork;                /**< Subtree index for ServerOnNetwork. */
+extern int ett_opcua_array_ServerOnNetwork;          /**< Subtree index for arrays of ServerOnNetwork. */
+extern int ett_opcua_UserTokenPolicy;                /**< Subtree index for UserTokenPolicy. */
+extern int ett_opcua_array_UserTokenPolicy;          /**< Subtree index for arrays of UserTokenPolicy. */
+extern int ett_opcua_EndpointDescription;            /**< Subtree index for EndpointDescription. */
+extern int ett_opcua_array_EndpointDescription;      /**< Subtree index for arrays of EndpointDescription. */
+extern int ett_opcua_RegisteredServer;               /**< Subtree index for RegisteredServer. */
+extern int ett_opcua_array_RegisteredServer;         /**< Subtree index for arrays of RegisteredServer. */
+extern int ett_opcua_MdnsDiscoveryConfiguration;     /**< Subtree index for MdnsDiscoveryConfiguration. */
+extern int ett_opcua_array_MdnsDiscoveryConfiguration; /**< Subtree index for arrays of MdnsDiscoveryConfiguration. */
+extern int ett_opcua_ChannelSecurityToken;           /**< Subtree index for ChannelSecurityToken. */
+extern int ett_opcua_array_ChannelSecurityToken;     /**< Subtree index for arrays of ChannelSecurityToken. */
+extern int ett_opcua_SignedSoftwareCertificate;      /**< Subtree index for SignedSoftwareCertificate. */
+extern int ett_opcua_array_SignedSoftwareCertificate; /**< Subtree index for arrays of SignedSoftwareCertificate. */
+extern int ett_opcua_SignatureData;                  /**< Subtree index for SignatureData. */
+extern int ett_opcua_array_SignatureData;            /**< Subtree index for arrays of SignatureData. */
+extern int ett_opcua_UserIdentityToken;              /**< Subtree index for UserIdentityToken. */
+extern int ett_opcua_array_UserIdentityToken;        /**< Subtree index for arrays of UserIdentityToken. */
+extern int ett_opcua_AnonymousIdentityToken;         /**< Subtree index for AnonymousIdentityToken. */
+extern int ett_opcua_array_AnonymousIdentityToken;   /**< Subtree index for arrays of AnonymousIdentityToken. */
+extern int ett_opcua_UserNameIdentityToken;          /**< Subtree index for UserNameIdentityToken. */
+extern int ett_opcua_array_UserNameIdentityToken;    /**< Subtree index for arrays of UserNameIdentityToken. */
+extern int ett_opcua_X509IdentityToken;              /**< Subtree index for X509IdentityToken. */
+extern int ett_opcua_array_X509IdentityToken;        /**< Subtree index for arrays of X509IdentityToken. */
+extern int ett_opcua_KerberosIdentityToken;          /**< Subtree index for KerberosIdentityToken. */
+extern int ett_opcua_array_KerberosIdentityToken;    /**< Subtree index for arrays of KerberosIdentityToken. */
+extern int ett_opcua_IssuedIdentityToken;            /**< Subtree index for IssuedIdentityToken. */
+extern int ett_opcua_array_IssuedIdentityToken;      /**< Subtree index for arrays of IssuedIdentityToken. */
+extern int ett_opcua_NodeAttributes;                 /**< Subtree index for NodeAttributes. */
+extern int ett_opcua_array_NodeAttributes;           /**< Subtree index for arrays of NodeAttributes. */
+extern int ett_opcua_ObjectAttributes;               /**< Subtree index for ObjectAttributes. */
+extern int ett_opcua_array_ObjectAttributes;         /**< Subtree index for arrays of ObjectAttributes. */
+extern int ett_opcua_VariableAttributes;             /**< Subtree index for VariableAttributes. */
+extern int ett_opcua_array_VariableAttributes;       /**< Subtree index for arrays of VariableAttributes. */
+extern int ett_opcua_MethodAttributes;               /**< Subtree index for MethodAttributes. */
+extern int ett_opcua_array_MethodAttributes;         /**< Subtree index for arrays of MethodAttributes. */
+extern int ett_opcua_ObjectTypeAttributes;           /**< Subtree index for ObjectTypeAttributes. */
+extern int ett_opcua_array_ObjectTypeAttributes;     /**< Subtree index for arrays of ObjectTypeAttributes. */
+extern int ett_opcua_VariableTypeAttributes;         /**< Subtree index for VariableTypeAttributes. */
+extern int ett_opcua_array_VariableTypeAttributes;   /**< Subtree index for arrays of VariableTypeAttributes. */
+extern int ett_opcua_ReferenceTypeAttributes;        /**< Subtree index for ReferenceTypeAttributes. */
+extern int ett_opcua_array_ReferenceTypeAttributes;  /**< Subtree index for arrays of ReferenceTypeAttributes. */
+extern int ett_opcua_DataTypeAttributes;             /**< Subtree index for DataTypeAttributes. */
+extern int ett_opcua_array_DataTypeAttributes;       /**< Subtree index for arrays of DataTypeAttributes. */
+extern int ett_opcua_ViewAttributes;                 /**< Subtree index for ViewAttributes. */
+extern int ett_opcua_array_ViewAttributes;           /**< Subtree index for arrays of ViewAttributes. */
+extern int ett_opcua_AddNodesItem;                   /**< Subtree index for AddNodesItem. */
+extern int ett_opcua_array_AddNodesItem;             /**< Subtree index for arrays of AddNodesItem. */
+extern int ett_opcua_AddNodesResult;                 /**< Subtree index for AddNodesResult. */
+extern int ett_opcua_array_AddNodesResult;           /**< Subtree index for arrays of AddNodesResult. */
+extern int ett_opcua_AddReferencesItem;              /**< Subtree index for AddReferencesItem. */
+extern int ett_opcua_array_AddReferencesItem;        /**< Subtree index for arrays of AddReferencesItem. */
+extern int ett_opcua_DeleteNodesItem;                /**< Subtree index for DeleteNodesItem. */
+extern int ett_opcua_array_DeleteNodesItem;          /**< Subtree index for arrays of DeleteNodesItem. */
+extern int ett_opcua_DeleteReferencesItem;           /**< Subtree index for DeleteReferencesItem. */
+extern int ett_opcua_array_DeleteReferencesItem;     /**< Subtree index for arrays of DeleteReferencesItem. */
+extern int ett_opcua_ViewDescription;                /**< Subtree index for ViewDescription. */
+extern int ett_opcua_array_ViewDescription;          /**< Subtree index for arrays of ViewDescription. */
+extern int ett_opcua_BrowseDescription;              /**< Subtree index for BrowseDescription. */
+extern int ett_opcua_array_BrowseDescription;        /**< Subtree index for arrays of BrowseDescription. */
+extern int ett_opcua_ReferenceDescription;           /**< Subtree index for ReferenceDescription. */
+extern int ett_opcua_array_ReferenceDescription;     /**< Subtree index for arrays of ReferenceDescription. */
+extern int ett_opcua_BrowseResult;                   /**< Subtree index for BrowseResult. */
+extern int ett_opcua_array_BrowseResult;             /**< Subtree index for arrays of BrowseResult. */
+extern int ett_opcua_RelativePathElement;            /**< Subtree index for RelativePathElement. */
+extern int ett_opcua_array_RelativePathElement;      /**< Subtree index for arrays of RelativePathElement. */
+extern int ett_opcua_RelativePath;                   /**< Subtree index for RelativePath. */
+extern int ett_opcua_array_RelativePath;             /**< Subtree index for arrays of RelativePath. */
+extern int ett_opcua_BrowsePath;                     /**< Subtree index for BrowsePath. */
+extern int ett_opcua_array_BrowsePath;               /**< Subtree index for arrays of BrowsePath. */
+extern int ett_opcua_BrowsePathTarget;               /**< Subtree index for BrowsePathTarget. */
+extern int ett_opcua_array_BrowsePathTarget;         /**< Subtree index for arrays of BrowsePathTarget. */
+extern int ett_opcua_BrowsePathResult;               /**< Subtree index for BrowsePathResult. */
+extern int ett_opcua_array_BrowsePathResult;         /**< Subtree index for arrays of BrowsePathResult. */
+extern int ett_opcua_EndpointConfiguration;          /**< Subtree index for EndpointConfiguration. */
+extern int ett_opcua_array_EndpointConfiguration;    /**< Subtree index for arrays of EndpointConfiguration. */
+extern int ett_opcua_SupportedProfile;               /**< Subtree index for SupportedProfile. */
+extern int ett_opcua_array_SupportedProfile;         /**< Subtree index for arrays of SupportedProfile. */
+extern int ett_opcua_SoftwareCertificate;            /**< Subtree index for SoftwareCertificate. */
+extern int ett_opcua_array_SoftwareCertificate;      /**< Subtree index for arrays of SoftwareCertificate. */
+extern int ett_opcua_QueryDataDescription;           /**< Subtree index for QueryDataDescription. */
+extern int ett_opcua_array_QueryDataDescription;     /**< Subtree index for arrays of QueryDataDescription. */
+extern int ett_opcua_NodeTypeDescription;            /**< Subtree index for NodeTypeDescription. */
+extern int ett_opcua_array_NodeTypeDescription;      /**< Subtree index for arrays of NodeTypeDescription. */
+extern int ett_opcua_QueryDataSet;                   /**< Subtree index for QueryDataSet. */
+extern int ett_opcua_array_QueryDataSet;             /**< Subtree index for arrays of QueryDataSet. */
+extern int ett_opcua_NodeReference;                  /**< Subtree index for NodeReference. */
+extern int ett_opcua_array_NodeReference;            /**< Subtree index for arrays of NodeReference. */
+extern int ett_opcua_ContentFilterElement;           /**< Subtree index for ContentFilterElement. */
+extern int ett_opcua_array_ContentFilterElement;     /**< Subtree index for arrays of ContentFilterElement. */
+extern int ett_opcua_ContentFilter;                  /**< Subtree index for ContentFilter. */
+extern int ett_opcua_array_ContentFilter;            /**< Subtree index for arrays of ContentFilter. */
+extern int ett_opcua_ElementOperand;                 /**< Subtree index for ElementOperand. */
+extern int ett_opcua_array_ElementOperand;           /**< Subtree index for arrays of ElementOperand. */
+extern int ett_opcua_LiteralOperand;                 /**< Subtree index for LiteralOperand. */
+extern int ett_opcua_array_LiteralOperand;           /**< Subtree index for arrays of LiteralOperand. */
+extern int ett_opcua_AttributeOperand;               /**< Subtree index for AttributeOperand. */
+extern int ett_opcua_array_AttributeOperand;         /**< Subtree index for arrays of AttributeOperand. */
+extern int ett_opcua_SimpleAttributeOperand;         /**< Subtree index for SimpleAttributeOperand. */
+extern int ett_opcua_array_SimpleAttributeOperand;   /**< Subtree index for arrays of SimpleAttributeOperand. */
+extern int ett_opcua_ContentFilterElementResult;     /**< Subtree index for ContentFilterElementResult. */
+extern int ett_opcua_array_ContentFilterElementResult; /**< Subtree index for arrays of ContentFilterElementResult. */
+extern int ett_opcua_ContentFilterResult;            /**< Subtree index for ContentFilterResult. */
+extern int ett_opcua_array_ContentFilterResult;      /**< Subtree index for arrays of ContentFilterResult. */
+extern int ett_opcua_ParsingResult;                  /**< Subtree index for ParsingResult. */
+extern int ett_opcua_array_ParsingResult;            /**< Subtree index for arrays of ParsingResult. */
+extern int ett_opcua_ReadValueId;                    /**< Subtree index for ReadValueId. */
+extern int ett_opcua_array_ReadValueId;              /**< Subtree index for arrays of ReadValueId. */
+extern int ett_opcua_HistoryReadValueId;             /**< Subtree index for HistoryReadValueId. */
+extern int ett_opcua_array_HistoryReadValueId;       /**< Subtree index for arrays of HistoryReadValueId. */
+extern int ett_opcua_HistoryReadResult;              /**< Subtree index for HistoryReadResult. */
+extern int ett_opcua_array_HistoryReadResult;        /**< Subtree index for arrays of HistoryReadResult. */
+extern int ett_opcua_ReadEventDetails;               /**< Subtree index for ReadEventDetails. */
+extern int ett_opcua_array_ReadEventDetails;         /**< Subtree index for arrays of ReadEventDetails. */
+extern int ett_opcua_ReadRawModifiedDetails;         /**< Subtree index for ReadRawModifiedDetails. */
+extern int ett_opcua_array_ReadRawModifiedDetails;   /**< Subtree index for arrays of ReadRawModifiedDetails. */
+extern int ett_opcua_ReadProcessedDetails;           /**< Subtree index for ReadProcessedDetails. */
+extern int ett_opcua_array_ReadProcessedDetails;     /**< Subtree index for arrays of ReadProcessedDetails. */
+extern int ett_opcua_ReadAtTimeDetails;              /**< Subtree index for ReadAtTimeDetails. */
+extern int ett_opcua_array_ReadAtTimeDetails;        /**< Subtree index for arrays of ReadAtTimeDetails. */
+extern int ett_opcua_HistoryData;                    /**< Subtree index for HistoryData. */
+extern int ett_opcua_array_HistoryData;              /**< Subtree index for arrays of HistoryData. */
+extern int ett_opcua_ModificationInfo;               /**< Subtree index for ModificationInfo. */
+extern int ett_opcua_array_ModificationInfo;         /**< Subtree index for arrays of ModificationInfo. */
+extern int ett_opcua_HistoryModifiedData;            /**< Subtree index for HistoryModifiedData. */
+extern int ett_opcua_array_HistoryModifiedData;      /**< Subtree index for arrays of HistoryModifiedData. */
+extern int ett_opcua_HistoryEvent;                   /**< Subtree index for HistoryEvent. */
+extern int ett_opcua_array_HistoryEvent;             /**< Subtree index for arrays of HistoryEvent. */
+extern int ett_opcua_WriteValue;                     /**< Subtree index for WriteValue. */
+extern int ett_opcua_array_WriteValue;               /**< Subtree index for arrays of WriteValue. */
+extern int ett_opcua_HistoryUpdateDetails;           /**< Subtree index for HistoryUpdateDetails. */
+extern int ett_opcua_array_HistoryUpdateDetails;     /**< Subtree index for arrays of HistoryUpdateDetails. */
+extern int ett_opcua_UpdateDataDetails;              /**< Subtree index for UpdateDataDetails. */
+extern int ett_opcua_array_UpdateDataDetails;        /**< Subtree index for arrays of UpdateDataDetails. */
+extern int ett_opcua_UpdateStructureDataDetails;     /**< Subtree index for UpdateStructureDataDetails. */
+extern int ett_opcua_array_UpdateStructureDataDetails; /**< Subtree index for arrays of UpdateStructureDataDetails. */
+extern int ett_opcua_UpdateEventDetails;             /**< Subtree index for UpdateEventDetails. */
+extern int ett_opcua_array_UpdateEventDetails;       /**< Subtree index for arrays of UpdateEventDetails. */
+extern int ett_opcua_DeleteRawModifiedDetails;       /**< Subtree index for DeleteRawModifiedDetails. */
+extern int ett_opcua_array_DeleteRawModifiedDetails; /**< Subtree index for arrays of DeleteRawModifiedDetails. */
+extern int ett_opcua_DeleteAtTimeDetails;            /**< Subtree index for DeleteAtTimeDetails. */
+extern int ett_opcua_array_DeleteAtTimeDetails;      /**< Subtree index for arrays of DeleteAtTimeDetails. */
+extern int ett_opcua_DeleteEventDetails;             /**< Subtree index for DeleteEventDetails. */
+extern int ett_opcua_array_DeleteEventDetails;       /**< Subtree index for arrays of DeleteEventDetails. */
+extern int ett_opcua_HistoryUpdateResult;            /**< Subtree index for HistoryUpdateResult. */
+extern int ett_opcua_array_HistoryUpdateResult;      /**< Subtree index for arrays of HistoryUpdateResult. */
+extern int ett_opcua_CallMethodRequest;              /**< Subtree index for CallMethodRequest. */
+extern int ett_opcua_array_CallMethodRequest;        /**< Subtree index for arrays of CallMethodRequest. */
+extern int ett_opcua_CallMethodResult;               /**< Subtree index for CallMethodResult. */
+extern int ett_opcua_array_CallMethodResult;         /**< Subtree index for arrays of CallMethodResult. */
+extern int ett_opcua_DataChangeFilter;               /**< Subtree index for DataChangeFilter. */
+extern int ett_opcua_array_DataChangeFilter;         /**< Subtree index for arrays of DataChangeFilter. */
+extern int ett_opcua_EventFilter;                    /**< Subtree index for EventFilter. */
+extern int ett_opcua_array_EventFilter;              /**< Subtree index for arrays of EventFilter. */
+extern int ett_opcua_AggregateConfiguration;         /**< Subtree index for AggregateConfiguration. */
+extern int ett_opcua_array_AggregateConfiguration;   /**< Subtree index for arrays of AggregateConfiguration. */
+extern int ett_opcua_AggregateFilter;                /**< Subtree index for AggregateFilter. */
+extern int ett_opcua_array_AggregateFilter;          /**< Subtree index for arrays of AggregateFilter. */
+extern int ett_opcua_EventFilterResult;              /**< Subtree index for EventFilterResult. */
+extern int ett_opcua_array_EventFilterResult;        /**< Subtree index for arrays of EventFilterResult. */
+extern int ett_opcua_AggregateFilterResult;          /**< Subtree index for AggregateFilterResult. */
+extern int ett_opcua_array_AggregateFilterResult;    /**< Subtree index for arrays of AggregateFilterResult. */
+extern int ett_opcua_MonitoringParameters;           /**< Subtree index for MonitoringParameters. */
+extern int ett_opcua_array_MonitoringParameters;     /**< Subtree index for arrays of MonitoringParameters. */
+extern int ett_opcua_MonitoredItemCreateRequest;     /**< Subtree index for MonitoredItemCreateRequest. */
+extern int ett_opcua_array_MonitoredItemCreateRequest; /**< Subtree index for arrays of MonitoredItemCreateRequest. */
+extern int ett_opcua_MonitoredItemCreateResult;      /**< Subtree index for MonitoredItemCreateResult. */
+extern int ett_opcua_array_MonitoredItemCreateResult; /**< Subtree index for arrays of MonitoredItemCreateResult. */
+extern int ett_opcua_MonitoredItemModifyRequest;     /**< Subtree index for MonitoredItemModifyRequest. */
+extern int ett_opcua_array_MonitoredItemModifyRequest; /**< Subtree index for arrays of MonitoredItemModifyRequest. */
+extern int ett_opcua_MonitoredItemModifyResult;      /**< Subtree index for MonitoredItemModifyResult. */
+extern int ett_opcua_array_MonitoredItemModifyResult; /**< Subtree index for arrays of MonitoredItemModifyResult. */
+extern int ett_opcua_NotificationMessage;            /**< Subtree index for NotificationMessage. */
+extern int ett_opcua_array_NotificationMessage;      /**< Subtree index for arrays of NotificationMessage. */
+extern int ett_opcua_DataChangeNotification;         /**< Subtree index for DataChangeNotification. */
+extern int ett_opcua_array_DataChangeNotification;   /**< Subtree index for arrays of DataChangeNotification. */
+extern int ett_opcua_MonitoredItemNotification;      /**< Subtree index for MonitoredItemNotification. */
+extern int ett_opcua_array_MonitoredItemNotification; /**< Subtree index for arrays of MonitoredItemNotification. */
+extern int ett_opcua_EventNotificationList;          /**< Subtree index for EventNotificationList. */
+extern int ett_opcua_array_EventNotificationList;    /**< Subtree index for arrays of EventNotificationList. */
+extern int ett_opcua_EventFieldList;                 /**< Subtree index for EventFieldList. */
+extern int ett_opcua_array_EventFieldList;           /**< Subtree index for arrays of EventFieldList. */
+extern int ett_opcua_HistoryEventFieldList;          /**< Subtree index for HistoryEventFieldList. */
+extern int ett_opcua_array_HistoryEventFieldList;    /**< Subtree index for arrays of HistoryEventFieldList. */
+extern int ett_opcua_StatusChangeNotification;       /**< Subtree index for StatusChangeNotification. */
+extern int ett_opcua_array_StatusChangeNotification; /**< Subtree index for arrays of StatusChangeNotification. */
+extern int ett_opcua_SubscriptionAcknowledgement;    /**< Subtree index for SubscriptionAcknowledgement. */
+extern int ett_opcua_array_SubscriptionAcknowledgement; /**< Subtree index for arrays of SubscriptionAcknowledgement. */
+extern int ett_opcua_TransferResult;                 /**< Subtree index for TransferResult. */
+extern int ett_opcua_array_TransferResult;           /**< Subtree index for arrays of TransferResult. */
+extern int ett_opcua_ScalarTestType;                 /**< Subtree index for ScalarTestType. */
+extern int ett_opcua_array_ScalarTestType;           /**< Subtree index for arrays of ScalarTestType. */
+extern int ett_opcua_ArrayTestType;                  /**< Subtree index for ArrayTestType. */
+extern int ett_opcua_array_ArrayTestType;            /**< Subtree index for arrays of ArrayTestType. */
+extern int ett_opcua_CompositeTestType;              /**< Subtree index for CompositeTestType. */
+extern int ett_opcua_array_CompositeTestType;        /**< Subtree index for arrays of CompositeTestType. */
+extern int ett_opcua_BuildInfo;                      /**< Subtree index for BuildInfo. */
+extern int ett_opcua_array_BuildInfo;                /**< Subtree index for arrays of BuildInfo. */
+extern int ett_opcua_RedundantServerDataType;        /**< Subtree index for RedundantServerDataType. */
+extern int ett_opcua_array_RedundantServerDataType;  /**< Subtree index for arrays of RedundantServerDataType. */
+extern int ett_opcua_EndpointUrlListDataType;        /**< Subtree index for EndpointUrlListDataType. */
+extern int ett_opcua_array_EndpointUrlListDataType;  /**< Subtree index for arrays of EndpointUrlListDataType. */
+extern int ett_opcua_NetworkGroupDataType;           /**< Subtree index for NetworkGroupDataType. */
+extern int ett_opcua_array_NetworkGroupDataType;     /**< Subtree index for arrays of NetworkGroupDataType. */
+extern int ett_opcua_SamplingIntervalDiagnosticsDataType;       /**< Subtree index for SamplingIntervalDiagnosticsDataType. */
+extern int ett_opcua_array_SamplingIntervalDiagnosticsDataType; /**< Subtree index for arrays of SamplingIntervalDiagnosticsDataType. */
+extern int ett_opcua_ServerDiagnosticsSummaryDataType;          /**< Subtree index for ServerDiagnosticsSummaryDataType. */
+extern int ett_opcua_array_ServerDiagnosticsSummaryDataType;    /**< Subtree index for arrays of ServerDiagnosticsSummaryDataType. */
+extern int ett_opcua_ServerStatusDataType;           /**< Subtree index for ServerStatusDataType. */
+extern int ett_opcua_array_ServerStatusDataType;     /**< Subtree index for arrays of ServerStatusDataType. */
+extern int ett_opcua_SessionDiagnosticsDataType;     /**< Subtree index for SessionDiagnosticsDataType. */
+extern int ett_opcua_array_SessionDiagnosticsDataType; /**< Subtree index for arrays of SessionDiagnosticsDataType. */
+extern int ett_opcua_SessionSecurityDiagnosticsDataType;        /**< Subtree index for SessionSecurityDiagnosticsDataType. */
+extern int ett_opcua_array_SessionSecurityDiagnosticsDataType;  /**< Subtree index for arrays of SessionSecurityDiagnosticsDataType. */
+extern int ett_opcua_ServiceCounterDataType;         /**< Subtree index for ServiceCounterDataType. */
+extern int ett_opcua_array_ServiceCounterDataType;   /**< Subtree index for arrays of ServiceCounterDataType. */
+extern int ett_opcua_StatusResult;                   /**< Subtree index for StatusResult. */
+extern int ett_opcua_array_StatusResult;             /**< Subtree index for arrays of StatusResult. */
+extern int ett_opcua_SubscriptionDiagnosticsDataType;           /**< Subtree index for SubscriptionDiagnosticsDataType. */
+extern int ett_opcua_array_SubscriptionDiagnosticsDataType;     /**< Subtree index for arrays of SubscriptionDiagnosticsDataType. */
+extern int ett_opcua_ModelChangeStructureDataType;   /**< Subtree index for ModelChangeStructureDataType. */
+extern int ett_opcua_array_ModelChangeStructureDataType; /**< Subtree index for arrays of ModelChangeStructureDataType. */
+extern int ett_opcua_SemanticChangeStructureDataType;    /**< Subtree index for SemanticChangeStructureDataType. */
+extern int ett_opcua_array_SemanticChangeStructureDataType; /**< Subtree index for arrays of SemanticChangeStructureDataType. */
+extern int ett_opcua_Range;                          /**< Subtree index for Range. */
+extern int ett_opcua_array_Range;                    /**< Subtree index for arrays of Range. */
+extern int ett_opcua_EUInformation;                  /**< Subtree index for EUInformation (Engineering Units). */
+extern int ett_opcua_array_EUInformation;            /**< Subtree index for arrays of EUInformation. */
+extern int ett_opcua_ComplexNumberType;              /**< Subtree index for ComplexNumberType. */
+extern int ett_opcua_array_ComplexNumberType;        /**< Subtree index for arrays of ComplexNumberType. */
+extern int ett_opcua_DoubleComplexNumberType;        /**< Subtree index for DoubleComplexNumberType. */
+extern int ett_opcua_array_DoubleComplexNumberType;  /**< Subtree index for arrays of DoubleComplexNumberType. */
+extern int ett_opcua_AxisInformation;                /**< Subtree index for AxisInformation. */
+extern int ett_opcua_array_AxisInformation;          /**< Subtree index for arrays of AxisInformation. */
+extern int ett_opcua_XVType;                         /**< Subtree index for XVType (X/Y value pair). */
+extern int ett_opcua_array_XVType;                   /**< Subtree index for arrays of XVType. */
+extern int ett_opcua_ProgramDiagnosticDataType;      /**< Subtree index for ProgramDiagnosticDataType. */
+extern int ett_opcua_array_ProgramDiagnosticDataType; /**< Subtree index for arrays of ProgramDiagnosticDataType. */
+extern int ett_opcua_Annotation;                     /**< Subtree index for Annotation. */
+extern int ett_opcua_array_Annotation;               /**< Subtree index for arrays of Annotation. */
+/** @} */
 
+
+/**
+ * @defgroup opcua_parse OPC UA Complex Type Parsers
+ * @brief Functions that dissect a single OPC UA complex type field into the Wireshark protocol tree.
+ *
+ * Every function follows the same calling convention:
+ * @param tree       Protocol tree node under which the decoded fields are added.
+ * @param tvb        Packet buffer containing the raw bytes to decode.
+ * @param pinfo      Wireshark packet metadata for the current frame.
+ * @param pOffset    Byte offset into @p tvb; advanced by the number of bytes consumed.
+ * @param szFieldName Display label used for the top-level subtree item in the protocol tree.
+ * @{
+ */
+
+/** @brief Dissect a TrustListDataType field. */
 void parseTrustListDataType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a Node field. */
 void parseNode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an InstanceNode field. */
 void parseInstanceNode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a TypeNode field. */
 void parseTypeNode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an ObjectNode field. */
 void parseObjectNode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an ObjectTypeNode field. */
 void parseObjectTypeNode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a VariableNode field. */
 void parseVariableNode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a VariableTypeNode field. */
 void parseVariableTypeNode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ReferenceTypeNode field. */
 void parseReferenceTypeNode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a MethodNode field. */
 void parseMethodNode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ViewNode field. */
 void parseViewNode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a DataTypeNode field. */
 void parseDataTypeNode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ReferenceNode field. */
 void parseReferenceNode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an Argument field. */
 void parseArgument(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an EnumValueType field. */
 void parseEnumValueType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an OptionSet field. */
 void parseOptionSet(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a TimeZoneDataType field. */
 void parseTimeZoneDataType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an ApplicationDescription field. */
 void parseApplicationDescription(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a RequestHeader field. */
 void parseRequestHeader(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ResponseHeader field. */
 void parseResponseHeader(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ServerOnNetwork field. */
 void parseServerOnNetwork(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a UserTokenPolicy field. */
 void parseUserTokenPolicy(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an EndpointDescription field. */
 void parseEndpointDescription(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a RegisteredServer field. */
 void parseRegisteredServer(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a MdnsDiscoveryConfiguration field. */
 void parseMdnsDiscoveryConfiguration(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ChannelSecurityToken field. */
 void parseChannelSecurityToken(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a SignedSoftwareCertificate field. */
 void parseSignedSoftwareCertificate(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a SignatureData field. */
 void parseSignatureData(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a UserIdentityToken field. */
 void parseUserIdentityToken(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an AnonymousIdentityToken field. */
 void parseAnonymousIdentityToken(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a UserNameIdentityToken field. */
 void parseUserNameIdentityToken(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an X509IdentityToken field. */
 void parseX509IdentityToken(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a KerberosIdentityToken field. */
 void parseKerberosIdentityToken(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an IssuedIdentityToken field. */
 void parseIssuedIdentityToken(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a NodeAttributes field. */
 void parseNodeAttributes(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an ObjectAttributes field. */
 void parseObjectAttributes(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a VariableAttributes field. */
 void parseVariableAttributes(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a MethodAttributes field. */
 void parseMethodAttributes(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an ObjectTypeAttributes field. */
 void parseObjectTypeAttributes(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a VariableTypeAttributes field. */
 void parseVariableTypeAttributes(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ReferenceTypeAttributes field. */
 void parseReferenceTypeAttributes(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a DataTypeAttributes field. */
 void parseDataTypeAttributes(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ViewAttributes field. */
 void parseViewAttributes(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an AddNodesItem field. */
 void parseAddNodesItem(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an AddNodesResult field. */
 void parseAddNodesResult(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an AddReferencesItem field. */
 void parseAddReferencesItem(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a DeleteNodesItem field. */
 void parseDeleteNodesItem(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a DeleteReferencesItem field. */
 void parseDeleteReferencesItem(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ViewDescription field. */
 void parseViewDescription(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a BrowseDescription field. */
 void parseBrowseDescription(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ReferenceDescription field. */
 void parseReferenceDescription(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a BrowseResult field. */
 void parseBrowseResult(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a RelativePathElement field. */
 void parseRelativePathElement(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a RelativePath field. */
 void parseRelativePath(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a BrowsePath field. */
 void parseBrowsePath(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a BrowsePathTarget field. */
 void parseBrowsePathTarget(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a BrowsePathResult field. */
 void parseBrowsePathResult(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an EndpointConfiguration field. */
 void parseEndpointConfiguration(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a SupportedProfile field. */
 void parseSupportedProfile(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a SoftwareCertificate field. */
 void parseSoftwareCertificate(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a QueryDataDescription field. */
 void parseQueryDataDescription(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a NodeTypeDescription field. */
 void parseNodeTypeDescription(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a QueryDataSet field. */
 void parseQueryDataSet(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a NodeReference field. */
 void parseNodeReference(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ContentFilterElement field. */
 void parseContentFilterElement(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ContentFilter field. */
 void parseContentFilter(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an ElementOperand field. */
 void parseElementOperand(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a LiteralOperand field. */
 void parseLiteralOperand(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an AttributeOperand field. */
 void parseAttributeOperand(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a SimpleAttributeOperand field. */
 void parseSimpleAttributeOperand(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ContentFilterElementResult field. */
 void parseContentFilterElementResult(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ContentFilterResult field. */
 void parseContentFilterResult(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ParsingResult field. */
 void parseParsingResult(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ReadValueId field. */
 void parseReadValueId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a HistoryReadValueId field. */
 void parseHistoryReadValueId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a HistoryReadResult field. */
 void parseHistoryReadResult(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ReadEventDetails field. */
 void parseReadEventDetails(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ReadRawModifiedDetails field. */
 void parseReadRawModifiedDetails(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ReadProcessedDetails field. */
 void parseReadProcessedDetails(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ReadAtTimeDetails field. */
 void parseReadAtTimeDetails(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a HistoryData field. */
 void parseHistoryData(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ModificationInfo field. */
 void parseModificationInfo(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a HistoryModifiedData field. */
 void parseHistoryModifiedData(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a HistoryEvent field. */
 void parseHistoryEvent(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a WriteValue field. */
 void parseWriteValue(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a HistoryUpdateDetails field. */
 void parseHistoryUpdateDetails(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an UpdateDataDetails field. */
 void parseUpdateDataDetails(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an UpdateStructureDataDetails field. */
 void parseUpdateStructureDataDetails(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an UpdateEventDetails field. */
 void parseUpdateEventDetails(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a DeleteRawModifiedDetails field. */
 void parseDeleteRawModifiedDetails(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a DeleteAtTimeDetails field. */
 void parseDeleteAtTimeDetails(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a DeleteEventDetails field. */
 void parseDeleteEventDetails(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a HistoryUpdateResult field. */
 void parseHistoryUpdateResult(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a CallMethodRequest field. */
 void parseCallMethodRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a CallMethodResult field. */
 void parseCallMethodResult(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a DataChangeFilter field. */
 void parseDataChangeFilter(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an EventFilter field. */
 void parseEventFilter(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an AggregateConfiguration field. */
 void parseAggregateConfiguration(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an AggregateFilter field. */
 void parseAggregateFilter(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an EventFilterResult field. */
 void parseEventFilterResult(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an AggregateFilterResult field. */
 void parseAggregateFilterResult(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a MonitoringParameters field. */
 void parseMonitoringParameters(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a MonitoredItemCreateRequest field. */
 void parseMonitoredItemCreateRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a MonitoredItemCreateResult field. */
 void parseMonitoredItemCreateResult(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a MonitoredItemModifyRequest field. */
 void parseMonitoredItemModifyRequest(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a MonitoredItemModifyResult field. */
 void parseMonitoredItemModifyResult(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a NotificationMessage field. */
 void parseNotificationMessage(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a DataChangeNotification field. */
 void parseDataChangeNotification(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a MonitoredItemNotification field. */
 void parseMonitoredItemNotification(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an EventNotificationList field. */
 void parseEventNotificationList(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an EventFieldList field. */
 void parseEventFieldList(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a HistoryEventFieldList field. */
 void parseHistoryEventFieldList(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a StatusChangeNotification field. */
 void parseStatusChangeNotification(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a SubscriptionAcknowledgement field. */
 void parseSubscriptionAcknowledgement(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a TransferResult field. */
 void parseTransferResult(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ScalarTestType field (conformance testing). */
 void parseScalarTestType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an ArrayTestType field (conformance testing). */
 void parseArrayTestType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a CompositeTestType field (conformance testing). */
 void parseCompositeTestType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a BuildInfo field. */
 void parseBuildInfo(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a RedundantServerDataType field. */
 void parseRedundantServerDataType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an EndpointUrlListDataType field. */
 void parseEndpointUrlListDataType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a NetworkGroupDataType field. */
 void parseNetworkGroupDataType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a SamplingIntervalDiagnosticsDataType field. */
 void parseSamplingIntervalDiagnosticsDataType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ServerDiagnosticsSummaryDataType field. */
 void parseServerDiagnosticsSummaryDataType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ServerStatusDataType field. */
 void parseServerStatusDataType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a SessionDiagnosticsDataType field. */
 void parseSessionDiagnosticsDataType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a SessionSecurityDiagnosticsDataType field. */
 void parseSessionSecurityDiagnosticsDataType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ServiceCounterDataType field. */
 void parseServiceCounterDataType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a StatusResult field. */
 void parseStatusResult(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a SubscriptionDiagnosticsDataType field. */
 void parseSubscriptionDiagnosticsDataType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ModelChangeStructureDataType field. */
 void parseModelChangeStructureDataType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a SemanticChangeStructureDataType field. */
 void parseSemanticChangeStructureDataType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a Range field. */
 void parseRange(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an EUInformation field (Engineering Units). */
 void parseEUInformation(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ComplexNumberType field. */
 void parseComplexNumberType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a DoubleComplexNumberType field. */
 void parseDoubleComplexNumberType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an AxisInformation field. */
 void parseAxisInformation(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an XVType field (X/Y value pair). */
 void parseXVType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect a ProgramDiagnosticDataType field. */
 void parseProgramDiagnosticDataType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @brief Dissect an Annotation field. */
 void parseAnnotation(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
+/** @} */
 
+
+/**
+ * @brief Register all OPC UA complex types with the Wireshark dissector framework.
+ *
+ * Allocates and initialises all @c ett_opcua_* subtree indices declared in the
+ * @ref opcua_ett group by calling @c proto_register_subtree_array(). Must be
+ * called once during dissector protocol registration.
+ */
 void registerComplexTypes(void);

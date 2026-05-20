@@ -20,62 +20,361 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+/**
+ * @brief Wireshark OPC UA dissector — enumeration type arrays and parsers.
+ *
+ * Declares the Wireshark subtree-index (ett) registrations for every
+ * OPC UA enumeration array type and the corresponding parse functions
+ * that consume each enum value from the packet buffer.
+ */
+
+/* ─── Subtree array registration handles ─────────────────────────────────── */
+
+/** @brief Subtree index for NodeIdType array fields. */
 extern int ett_opcua_array_NodeIdType;
+
+/** @brief Subtree index for NamingRuleType array fields. */
 extern int ett_opcua_array_NamingRuleType;
+
+/** @brief Subtree index for OpenFileMode array fields. */
 extern int ett_opcua_array_OpenFileMode;
+
+/** @brief Subtree index for TrustListMasks array fields. */
 extern int ett_opcua_array_TrustListMasks;
+
+/** @brief Subtree index for IdType array fields. */
 extern int ett_opcua_array_IdType;
+
+/** @brief Subtree index for NodeClass array fields. */
 extern int ett_opcua_array_NodeClass;
+
+/** @brief Subtree index for ApplicationType array fields. */
 extern int ett_opcua_array_ApplicationType;
+
+/** @brief Subtree index for MessageSecurityMode array fields. */
 extern int ett_opcua_array_MessageSecurityMode;
+
+/** @brief Subtree index for UserTokenType array fields. */
 extern int ett_opcua_array_UserTokenType;
+
+/** @brief Subtree index for SecurityTokenRequestType array fields. */
 extern int ett_opcua_array_SecurityTokenRequestType;
+
+/** @brief Subtree index for NodeAttributesMask array fields. */
 extern int ett_opcua_array_NodeAttributesMask;
+
+/** @brief Subtree index for AttributeWriteMask array fields. */
 extern int ett_opcua_array_AttributeWriteMask;
+
+/** @brief Subtree index for BrowseDirection array fields. */
 extern int ett_opcua_array_BrowseDirection;
+
+/** @brief Subtree index for BrowseResultMask array fields. */
 extern int ett_opcua_array_BrowseResultMask;
+
+/** @brief Subtree index for ComplianceLevel array fields. */
 extern int ett_opcua_array_ComplianceLevel;
+
+/** @brief Subtree index for FilterOperator array fields. */
 extern int ett_opcua_array_FilterOperator;
+
+/** @brief Subtree index for TimestampsToReturn array fields. */
 extern int ett_opcua_array_TimestampsToReturn;
+
+/** @brief Subtree index for HistoryUpdateType array fields. */
 extern int ett_opcua_array_HistoryUpdateType;
+
+/** @brief Subtree index for PerformUpdateType array fields. */
 extern int ett_opcua_array_PerformUpdateType;
+
+/** @brief Subtree index for MonitoringMode array fields. */
 extern int ett_opcua_array_MonitoringMode;
+
+/** @brief Subtree index for DataChangeTrigger array fields. */
 extern int ett_opcua_array_DataChangeTrigger;
+
+/** @brief Subtree index for DeadbandType array fields. */
 extern int ett_opcua_array_DeadbandType;
+
+/** @brief Subtree index for EnumeratedTestType array fields. */
 extern int ett_opcua_array_EnumeratedTestType;
+
+/** @brief Subtree index for RedundancySupport array fields. */
 extern int ett_opcua_array_RedundancySupport;
+
+/** @brief Subtree index for ServerState array fields. */
 extern int ett_opcua_array_ServerState;
+
+/** @brief Subtree index for ModelChangeStructureVerbMask array fields. */
 extern int ett_opcua_array_ModelChangeStructureVerbMask;
+
+/** @brief Subtree index for AxisScaleEnumeration array fields. */
 extern int ett_opcua_array_AxisScaleEnumeration;
+
+/** @brief Subtree index for ExceptionDeviationFormat array fields. */
 extern int ett_opcua_array_ExceptionDeviationFormat;
+
+/** @brief Subtree index for AttributeId array fields. */
 extern int ett_opcua_array_AttributeId;
 
+
+/* ─── Enumeration parse functions ────────────────────────────────────────── */
+
+/**
+ * @brief Parse a NodeIdType enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseNodeIdType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse a NamingRuleType enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseNamingRuleType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse an OpenFileMode enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseOpenFileMode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse a TrustListMasks enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseTrustListMasks(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse an IdType enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseIdType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse a NodeClass enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseNodeClass(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse an ApplicationType enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseApplicationType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse a MessageSecurityMode enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseMessageSecurityMode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse a UserTokenType enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseUserTokenType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse a SecurityTokenRequestType enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseSecurityTokenRequestType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse a NodeAttributesMask enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseNodeAttributesMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse an AttributeWriteMask enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseAttributeWriteMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse a BrowseDirection enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseBrowseDirection(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse a ComplianceLevel enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseComplianceLevel(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse a FilterOperator enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseFilterOperator(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse a TimestampsToReturn enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseTimestampsToReturn(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse a HistoryUpdateType enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseHistoryUpdateType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse a PerformUpdateType enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parsePerformUpdateType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse a MonitoringMode enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseMonitoringMode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse a DataChangeTrigger enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseDataChangeTrigger(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse a DeadbandType enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseDeadbandType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse an EnumeratedTestType enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseEnumeratedTestType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse a RedundancySupport enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseRedundancySupport(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse a ServerState enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseServerState(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse a ModelChangeStructureVerbMask enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseModelChangeStructureVerbMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse an AxisScaleEnumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseAxisScaleEnumeration(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse an ExceptionDeviationFormat enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseExceptionDeviationFormat(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Parse an AttributeId enumeration value from the packet buffer.
+ * @param tree   Wireshark protocol tree to append the decoded field to.
+ * @param tvb    Buffer containing the raw packet bytes.
+ * @param pinfo  Per-packet information supplied by the Wireshark core.
+ * @param pOffset Current byte offset into @p tvb; advanced past the consumed bytes on return.
+ */
 void parseAttributeId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
+
+/**
+ * @brief Register all OPC UA enumeration types with the Wireshark dissector framework.
+ * @param proto  Protocol handle returned by @c proto_register_protocol(), used to
+ *               associate the ett array entries with this dissector.
+ */
 void registerEnumTypes(int proto);

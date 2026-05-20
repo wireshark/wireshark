@@ -13,6 +13,7 @@
 **
 ******************************************************************************/
 
+/** @brief Array of strings representing the different request types. */
 extern const value_string g_requesttypes[];
 
 /**

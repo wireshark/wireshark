@@ -63,6 +63,7 @@ signals:
      */
     void polled(void);
 
+    /** @brief Friend class allowing access to private members. */
     friend class GLibMainloopOnQEventLoop;
 };
 

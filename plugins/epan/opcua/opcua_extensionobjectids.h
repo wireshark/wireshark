@@ -16,144 +16,422 @@
 **
 ******************************************************************************/
 
+/** @brief OPC UA Node ID for TrustListDataType default binary encoding. */
 #define OpcUaId_TrustListDataType_Encoding_DefaultBinary 12680
-#define OpcUaId_Node_Encoding_DefaultBinary 260
-#define OpcUaId_InstanceNode_Encoding_DefaultBinary 11889
-#define OpcUaId_TypeNode_Encoding_DefaultBinary 11890
-#define OpcUaId_ObjectNode_Encoding_DefaultBinary 263
-#define OpcUaId_ObjectTypeNode_Encoding_DefaultBinary 266
-#define OpcUaId_VariableNode_Encoding_DefaultBinary 269
-#define OpcUaId_VariableTypeNode_Encoding_DefaultBinary 272
-#define OpcUaId_ReferenceTypeNode_Encoding_DefaultBinary 275
-#define OpcUaId_MethodNode_Encoding_DefaultBinary 278
-#define OpcUaId_ViewNode_Encoding_DefaultBinary 281
-#define OpcUaId_DataTypeNode_Encoding_DefaultBinary 284
-#define OpcUaId_ReferenceNode_Encoding_DefaultBinary 287
-#define OpcUaId_Argument_Encoding_DefaultBinary 298
-#define OpcUaId_EnumValueType_Encoding_DefaultBinary 8251
-#define OpcUaId_OptionSet_Encoding_DefaultBinary 12765
-#define OpcUaId_TimeZoneDataType_Encoding_DefaultBinary 8917
-#define OpcUaId_ApplicationDescription_Encoding_DefaultBinary 310
-#define OpcUaId_RequestHeader_Encoding_DefaultBinary 391
-#define OpcUaId_ResponseHeader_Encoding_DefaultBinary 394
-#define OpcUaId_ServerOnNetwork_Encoding_DefaultBinary 12207
-#define OpcUaId_UserTokenPolicy_Encoding_DefaultBinary 306
-#define OpcUaId_EndpointDescription_Encoding_DefaultBinary 314
-#define OpcUaId_RegisteredServer_Encoding_DefaultBinary 434
-#define OpcUaId_MdnsDiscoveryConfiguration_Encoding_DefaultBinary 12901
-#define OpcUaId_ChannelSecurityToken_Encoding_DefaultBinary 443
-#define OpcUaId_SignedSoftwareCertificate_Encoding_DefaultBinary 346
-#define OpcUaId_SignatureData_Encoding_DefaultBinary 458
-#define OpcUaId_UserIdentityToken_Encoding_DefaultBinary 318
-#define OpcUaId_AnonymousIdentityToken_Encoding_DefaultBinary 321
-#define OpcUaId_UserNameIdentityToken_Encoding_DefaultBinary 324
-#define OpcUaId_X509IdentityToken_Encoding_DefaultBinary 327
-#define OpcUaId_KerberosIdentityToken_Encoding_DefaultBinary 12509
-#define OpcUaId_IssuedIdentityToken_Encoding_DefaultBinary 940
-#define OpcUaId_NodeAttributes_Encoding_DefaultBinary 351
-#define OpcUaId_ObjectAttributes_Encoding_DefaultBinary 354
-#define OpcUaId_VariableAttributes_Encoding_DefaultBinary 357
-#define OpcUaId_MethodAttributes_Encoding_DefaultBinary 360
-#define OpcUaId_ObjectTypeAttributes_Encoding_DefaultBinary 363
-#define OpcUaId_VariableTypeAttributes_Encoding_DefaultBinary 366
-#define OpcUaId_ReferenceTypeAttributes_Encoding_DefaultBinary 369
-#define OpcUaId_DataTypeAttributes_Encoding_DefaultBinary 372
-#define OpcUaId_ViewAttributes_Encoding_DefaultBinary 375
-#define OpcUaId_AddNodesItem_Encoding_DefaultBinary 378
-#define OpcUaId_AddNodesResult_Encoding_DefaultBinary 485
-#define OpcUaId_AddReferencesItem_Encoding_DefaultBinary 381
-#define OpcUaId_DeleteNodesItem_Encoding_DefaultBinary 384
-#define OpcUaId_DeleteReferencesItem_Encoding_DefaultBinary 387
-#define OpcUaId_ViewDescription_Encoding_DefaultBinary 513
-#define OpcUaId_BrowseDescription_Encoding_DefaultBinary 516
-#define OpcUaId_ReferenceDescription_Encoding_DefaultBinary 520
-#define OpcUaId_BrowseResult_Encoding_DefaultBinary 524
-#define OpcUaId_RelativePathElement_Encoding_DefaultBinary 539
-#define OpcUaId_RelativePath_Encoding_DefaultBinary 542
-#define OpcUaId_BrowsePath_Encoding_DefaultBinary 545
-#define OpcUaId_BrowsePathTarget_Encoding_DefaultBinary 548
-#define OpcUaId_BrowsePathResult_Encoding_DefaultBinary 551
-#define OpcUaId_EndpointConfiguration_Encoding_DefaultBinary 333
-#define OpcUaId_SupportedProfile_Encoding_DefaultBinary 337
-#define OpcUaId_SoftwareCertificate_Encoding_DefaultBinary 343
-#define OpcUaId_QueryDataDescription_Encoding_DefaultBinary 572
-#define OpcUaId_NodeTypeDescription_Encoding_DefaultBinary 575
-#define OpcUaId_QueryDataSet_Encoding_DefaultBinary 579
-#define OpcUaId_NodeReference_Encoding_DefaultBinary 582
-#define OpcUaId_ContentFilterElement_Encoding_DefaultBinary 585
-#define OpcUaId_ContentFilter_Encoding_DefaultBinary 588
-#define OpcUaId_ElementOperand_Encoding_DefaultBinary 594
-#define OpcUaId_LiteralOperand_Encoding_DefaultBinary 597
-#define OpcUaId_AttributeOperand_Encoding_DefaultBinary 600
-#define OpcUaId_SimpleAttributeOperand_Encoding_DefaultBinary 603
-#define OpcUaId_ContentFilterElementResult_Encoding_DefaultBinary 606
-#define OpcUaId_ContentFilterResult_Encoding_DefaultBinary 609
-#define OpcUaId_ParsingResult_Encoding_DefaultBinary 612
-#define OpcUaId_ReadValueId_Encoding_DefaultBinary 628
-#define OpcUaId_HistoryReadValueId_Encoding_DefaultBinary 637
-#define OpcUaId_HistoryReadResult_Encoding_DefaultBinary 640
-#define OpcUaId_ReadEventDetails_Encoding_DefaultBinary 646
-#define OpcUaId_ReadRawModifiedDetails_Encoding_DefaultBinary 649
-#define OpcUaId_ReadProcessedDetails_Encoding_DefaultBinary 652
-#define OpcUaId_ReadAtTimeDetails_Encoding_DefaultBinary 655
-#define OpcUaId_HistoryData_Encoding_DefaultBinary 658
-#define OpcUaId_ModificationInfo_Encoding_DefaultBinary 11226
-#define OpcUaId_HistoryModifiedData_Encoding_DefaultBinary 11227
-#define OpcUaId_HistoryEvent_Encoding_DefaultBinary 661
-#define OpcUaId_WriteValue_Encoding_DefaultBinary 670
-#define OpcUaId_HistoryUpdateDetails_Encoding_DefaultBinary 679
-#define OpcUaId_UpdateDataDetails_Encoding_DefaultBinary 682
-#define OpcUaId_UpdateStructureDataDetails_Encoding_DefaultBinary 11300
-#define OpcUaId_UpdateEventDetails_Encoding_DefaultBinary 685
-#define OpcUaId_DeleteRawModifiedDetails_Encoding_DefaultBinary 688
-#define OpcUaId_DeleteAtTimeDetails_Encoding_DefaultBinary 691
-#define OpcUaId_DeleteEventDetails_Encoding_DefaultBinary 694
-#define OpcUaId_HistoryUpdateResult_Encoding_DefaultBinary 697
-#define OpcUaId_CallMethodRequest_Encoding_DefaultBinary 706
-#define OpcUaId_CallMethodResult_Encoding_DefaultBinary 709
-#define OpcUaId_DataChangeFilter_Encoding_DefaultBinary 724
-#define OpcUaId_EventFilter_Encoding_DefaultBinary 727
-#define OpcUaId_AggregateConfiguration_Encoding_DefaultBinary 950
-#define OpcUaId_AggregateFilter_Encoding_DefaultBinary 730
-#define OpcUaId_EventFilterResult_Encoding_DefaultBinary 736
-#define OpcUaId_AggregateFilterResult_Encoding_DefaultBinary 739
-#define OpcUaId_MonitoringParameters_Encoding_DefaultBinary 742
-#define OpcUaId_MonitoredItemCreateRequest_Encoding_DefaultBinary 745
-#define OpcUaId_MonitoredItemCreateResult_Encoding_DefaultBinary 748
-#define OpcUaId_MonitoredItemModifyRequest_Encoding_DefaultBinary 757
-#define OpcUaId_MonitoredItemModifyResult_Encoding_DefaultBinary 760
-#define OpcUaId_NotificationMessage_Encoding_DefaultBinary 805
-#define OpcUaId_DataChangeNotification_Encoding_DefaultBinary 811
-#define OpcUaId_MonitoredItemNotification_Encoding_DefaultBinary 808
-#define OpcUaId_EventNotificationList_Encoding_DefaultBinary 916
-#define OpcUaId_EventFieldList_Encoding_DefaultBinary 919
-#define OpcUaId_HistoryEventFieldList_Encoding_DefaultBinary 922
-#define OpcUaId_StatusChangeNotification_Encoding_DefaultBinary 820
-#define OpcUaId_SubscriptionAcknowledgement_Encoding_DefaultBinary 823
-#define OpcUaId_TransferResult_Encoding_DefaultBinary 838
-#define OpcUaId_ScalarTestType_Encoding_DefaultBinary 401
-#define OpcUaId_ArrayTestType_Encoding_DefaultBinary 404
-#define OpcUaId_CompositeTestType_Encoding_DefaultBinary 407
-#define OpcUaId_BuildInfo_Encoding_DefaultBinary 340
-#define OpcUaId_RedundantServerDataType_Encoding_DefaultBinary 855
-#define OpcUaId_EndpointUrlListDataType_Encoding_DefaultBinary 11957
-#define OpcUaId_NetworkGroupDataType_Encoding_DefaultBinary 11958
-#define OpcUaId_SamplingIntervalDiagnosticsDataType_Encoding_DefaultBinary 858
-#define OpcUaId_ServerDiagnosticsSummaryDataType_Encoding_DefaultBinary 861
-#define OpcUaId_ServerStatusDataType_Encoding_DefaultBinary 864
-#define OpcUaId_SessionDiagnosticsDataType_Encoding_DefaultBinary 867
-#define OpcUaId_SessionSecurityDiagnosticsDataType_Encoding_DefaultBinary 870
-#define OpcUaId_ServiceCounterDataType_Encoding_DefaultBinary 873
-#define OpcUaId_StatusResult_Encoding_DefaultBinary 301
-#define OpcUaId_SubscriptionDiagnosticsDataType_Encoding_DefaultBinary 876
-#define OpcUaId_ModelChangeStructureDataType_Encoding_DefaultBinary 879
-#define OpcUaId_SemanticChangeStructureDataType_Encoding_DefaultBinary 899
-#define OpcUaId_Range_Encoding_DefaultBinary 886
-#define OpcUaId_EUInformation_Encoding_DefaultBinary 889
-#define OpcUaId_ComplexNumberType_Encoding_DefaultBinary 12181
-#define OpcUaId_DoubleComplexNumberType_Encoding_DefaultBinary 12182
-#define OpcUaId_AxisInformation_Encoding_DefaultBinary 12089
-#define OpcUaId_XVType_Encoding_DefaultBinary 12090
-#define OpcUaId_ProgramDiagnosticDataType_Encoding_DefaultBinary 896
-#define OpcUaId_Annotation_Encoding_DefaultBinary 893
 
+/** @brief OPC UA Node ID for Node default binary encoding. */
+#define OpcUaId_Node_Encoding_DefaultBinary 260
+
+/** @brief OPC UA Node ID for InstanceNode default binary encoding. */
+#define OpcUaId_InstanceNode_Encoding_DefaultBinary 11889
+
+/** @brief OPC UA Node ID for TypeNode default binary encoding. */
+#define OpcUaId_TypeNode_Encoding_DefaultBinary 11890
+
+/** @brief OPC UA Node ID for ObjectNode default binary encoding. */
+#define OpcUaId_ObjectNode_Encoding_DefaultBinary 263
+
+/** @brief OPC UA Node ID for ObjectTypeNode default binary encoding. */
+#define OpcUaId_ObjectTypeNode_Encoding_DefaultBinary 266
+
+/** @brief OPC UA Node ID for VariableNode default binary encoding. */
+#define OpcUaId_VariableNode_Encoding_DefaultBinary 269
+
+/** @brief OPC UA Node ID for VariableTypeNode default binary encoding. */
+#define OpcUaId_VariableTypeNode_Encoding_DefaultBinary 272
+
+/** @brief OPC UA Node ID for ReferenceTypeNode default binary encoding. */
+#define OpcUaId_ReferenceTypeNode_Encoding_DefaultBinary 275
+
+/** @brief OPC UA Node ID for MethodNode default binary encoding. */
+#define OpcUaId_MethodNode_Encoding_DefaultBinary 278
+
+/** @brief OPC UA Node ID for ViewNode default binary encoding. */
+#define OpcUaId_ViewNode_Encoding_DefaultBinary 281
+
+/** @brief OPC UA Node ID for DataTypeNode default binary encoding. */
+#define OpcUaId_DataTypeNode_Encoding_DefaultBinary 284
+
+/** @brief OPC UA Node ID for ReferenceNode default binary encoding. */
+#define OpcUaId_ReferenceNode_Encoding_DefaultBinary 287
+
+/** @brief OPC UA Node ID for Argument default binary encoding. */
+#define OpcUaId_Argument_Encoding_DefaultBinary 298
+
+/** @brief OPC UA Node ID for EnumValueType default binary encoding. */
+#define OpcUaId_EnumValueType_Encoding_DefaultBinary 8251
+
+/** @brief OPC UA Node ID for OptionSet default binary encoding. */
+#define OpcUaId_OptionSet_Encoding_DefaultBinary 12765
+
+/** @brief OPC UA Node ID for TimeZoneDataType default binary encoding. */
+#define OpcUaId_TimeZoneDataType_Encoding_DefaultBinary 8917
+
+/** @brief OPC UA Node ID for ApplicationDescription default binary encoding. */
+#define OpcUaId_ApplicationDescription_Encoding_DefaultBinary 310
+
+/** @brief OPC UA Node ID for RequestHeader default binary encoding. */
+#define OpcUaId_RequestHeader_Encoding_DefaultBinary 391
+
+/** @brief OPC UA Node ID for ResponseHeader default binary encoding. */
+#define OpcUaId_ResponseHeader_Encoding_DefaultBinary 394
+
+/** @brief OPC UA Node ID for ServerOnNetwork default binary encoding. */
+#define OpcUaId_ServerOnNetwork_Encoding_DefaultBinary 12207
+
+/** @brief OPC UA Node ID for UserTokenPolicy default binary encoding. */
+#define OpcUaId_UserTokenPolicy_Encoding_DefaultBinary 306
+
+/** @brief OPC UA Node ID for EndpointDescription default binary encoding. */
+#define OpcUaId_EndpointDescription_Encoding_DefaultBinary 314
+
+/** @brief OPC UA Node ID for RegisteredServer default binary encoding. */
+#define OpcUaId_RegisteredServer_Encoding_DefaultBinary 434
+
+/** @brief OPC UA Node ID for MdnsDiscoveryConfiguration default binary encoding. */
+#define OpcUaId_MdnsDiscoveryConfiguration_Encoding_DefaultBinary 12901
+
+/** @brief OPC UA Node ID for ChannelSecurityToken default binary encoding. */
+#define OpcUaId_ChannelSecurityToken_Encoding_DefaultBinary 443
+
+/** @brief OPC UA Node ID for SignedSoftwareCertificate default binary encoding. */
+#define OpcUaId_SignedSoftwareCertificate_Encoding_DefaultBinary 346
+
+/** @brief OPC UA Node ID for SignatureData default binary encoding. */
+#define OpcUaId_SignatureData_Encoding_DefaultBinary 458
+
+/** @brief OPC UA Node ID for UserIdentityToken default binary encoding. */
+#define OpcUaId_UserIdentityToken_Encoding_DefaultBinary 318
+
+/** @brief OPC UA Node ID for AnonymousIdentityToken default binary encoding. */
+#define OpcUaId_AnonymousIdentityToken_Encoding_DefaultBinary 321
+
+/** @brief OPC UA Node ID for UserNameIdentityToken default binary encoding. */
+#define OpcUaId_UserNameIdentityToken_Encoding_DefaultBinary 324
+
+/** @brief OPC UA Node ID for X509IdentityToken default binary encoding. */
+#define OpcUaId_X509IdentityToken_Encoding_DefaultBinary 327
+
+/** @brief OPC UA Node ID for KerberosIdentityToken default binary encoding. */
+#define OpcUaId_KerberosIdentityToken_Encoding_DefaultBinary 12509
+
+/** @brief OPC UA Node ID for IssuedIdentityToken default binary encoding. */
+#define OpcUaId_IssuedIdentityToken_Encoding_DefaultBinary 940
+
+/** @brief OPC UA Node ID for NodeAttributes default binary encoding. */
+#define OpcUaId_NodeAttributes_Encoding_DefaultBinary 351
+
+/** @brief OPC UA Node ID for ObjectAttributes default binary encoding. */
+#define OpcUaId_ObjectAttributes_Encoding_DefaultBinary 354
+
+/** @brief OPC UA Node ID for VariableAttributes default binary encoding. */
+#define OpcUaId_VariableAttributes_Encoding_DefaultBinary 357
+
+/** @brief OPC UA Node ID for MethodAttributes default binary encoding. */
+#define OpcUaId_MethodAttributes_Encoding_DefaultBinary 360
+
+/** @brief OPC UA Node ID for ObjectTypeAttributes default binary encoding. */
+#define OpcUaId_ObjectTypeAttributes_Encoding_DefaultBinary 363
+
+/** @brief OPC UA Node ID for VariableTypeAttributes default binary encoding. */
+#define OpcUaId_VariableTypeAttributes_Encoding_DefaultBinary 366
+
+/** @brief OPC UA Node ID for ReferenceTypeAttributes default binary encoding. */
+#define OpcUaId_ReferenceTypeAttributes_Encoding_DefaultBinary 369
+
+/** @brief OPC UA Node ID for DataTypeAttributes default binary encoding. */
+#define OpcUaId_DataTypeAttributes_Encoding_DefaultBinary 372
+
+/** @brief OPC UA Node ID for ViewAttributes default binary encoding. */
+#define OpcUaId_ViewAttributes_Encoding_DefaultBinary 375
+
+/** @brief OPC UA Node ID for AddNodesItem default binary encoding. */
+#define OpcUaId_AddNodesItem_Encoding_DefaultBinary 378
+
+/** @brief OPC UA Node ID for AddNodesResult default binary encoding. */
+#define OpcUaId_AddNodesResult_Encoding_DefaultBinary 485
+
+/** @brief OPC UA Node ID for AddReferencesItem default binary encoding. */
+#define OpcUaId_AddReferencesItem_Encoding_DefaultBinary 381
+
+/** @brief OPC UA Node ID for DeleteNodesItem default binary encoding. */
+#define OpcUaId_DeleteNodesItem_Encoding_DefaultBinary 384
+
+/** @brief OPC UA Node ID for DeleteReferencesItem default binary encoding. */
+#define OpcUaId_DeleteReferencesItem_Encoding_DefaultBinary 387
+
+/** @brief OPC UA Node ID for ViewDescription default binary encoding. */
+#define OpcUaId_ViewDescription_Encoding_DefaultBinary 513
+
+/** @brief OPC UA Node ID for BrowseDescription default binary encoding. */
+#define OpcUaId_BrowseDescription_Encoding_DefaultBinary 516
+
+/** @brief OPC UA Node ID for ReferenceDescription default binary encoding. */
+#define OpcUaId_ReferenceDescription_Encoding_DefaultBinary 520
+
+/** @brief OPC UA Node ID for BrowseResult default binary encoding. */
+#define OpcUaId_BrowseResult_Encoding_DefaultBinary 524
+
+/** @brief OPC UA Node ID for RelativePathElement default binary encoding. */
+#define OpcUaId_RelativePathElement_Encoding_DefaultBinary 539
+
+/** @brief OPC UA Node ID for RelativePath default binary encoding. */
+#define OpcUaId_RelativePath_Encoding_DefaultBinary 542
+
+/** @brief OPC UA Node ID for BrowsePath default binary encoding. */
+#define OpcUaId_BrowsePath_Encoding_DefaultBinary 545
+
+/** @brief OPC UA Node ID for BrowsePathTarget default binary encoding. */
+#define OpcUaId_BrowsePathTarget_Encoding_DefaultBinary 548
+
+/** @brief OPC UA Node ID for BrowsePathResult default binary encoding. */
+#define OpcUaId_BrowsePathResult_Encoding_DefaultBinary 551
+
+/** @brief OPC UA Node ID for EndpointConfiguration default binary encoding. */
+#define OpcUaId_EndpointConfiguration_Encoding_DefaultBinary 333
+
+/** @brief OPC UA Node ID for SupportedProfile default binary encoding. */
+#define OpcUaId_SupportedProfile_Encoding_DefaultBinary 337
+
+/** @brief OPC UA Node ID for SoftwareCertificate default binary encoding. */
+#define OpcUaId_SoftwareCertificate_Encoding_DefaultBinary 343
+
+/** @brief OPC UA Node ID for QueryDataDescription default binary encoding. */
+#define OpcUaId_QueryDataDescription_Encoding_DefaultBinary 572
+
+/** @brief OPC UA Node ID for NodeTypeDescription default binary encoding. */
+#define OpcUaId_NodeTypeDescription_Encoding_DefaultBinary 575
+
+/** @brief OPC UA Node ID for QueryDataSet default binary encoding. */
+#define OpcUaId_QueryDataSet_Encoding_DefaultBinary 579
+
+/** @brief OPC UA Node ID for NodeReference default binary encoding. */
+#define OpcUaId_NodeReference_Encoding_DefaultBinary 582
+
+/** @brief OPC UA Node ID for ContentFilterElement default binary encoding. */
+#define OpcUaId_ContentFilterElement_Encoding_DefaultBinary 585
+
+/** @brief OPC UA Node ID for ContentFilter default binary encoding. */
+#define OpcUaId_ContentFilter_Encoding_DefaultBinary 588
+
+/** @brief OPC UA Node ID for ElementOperand default binary encoding. */
+#define OpcUaId_ElementOperand_Encoding_DefaultBinary 594
+
+/** @brief OPC UA Node ID for LiteralOperand default binary encoding. */
+#define OpcUaId_LiteralOperand_Encoding_DefaultBinary 597
+
+/** @brief OPC UA Node ID for AttributeOperand default binary encoding. */
+#define OpcUaId_AttributeOperand_Encoding_DefaultBinary 600
+
+/** @brief OPC UA Node ID for SimpleAttributeOperand default binary encoding. */
+#define OpcUaId_SimpleAttributeOperand_Encoding_DefaultBinary 603
+
+/** @brief OPC UA Node ID for ContentFilterElementResult default binary encoding. */
+#define OpcUaId_ContentFilterElementResult_Encoding_DefaultBinary 606
+
+/** @brief OPC UA Node ID for ContentFilterResult default binary encoding. */
+#define OpcUaId_ContentFilterResult_Encoding_DefaultBinary 609
+
+/** @brief OPC UA Node ID for ParsingResult default binary encoding. */
+#define OpcUaId_ParsingResult_Encoding_DefaultBinary 612
+
+/** @brief OPC UA Node ID for ReadValueId default binary encoding. */
+#define OpcUaId_ReadValueId_Encoding_DefaultBinary 628
+
+/** @brief OPC UA Node ID for HistoryReadValueId default binary encoding. */
+#define OpcUaId_HistoryReadValueId_Encoding_DefaultBinary 637
+
+/** @brief OPC UA Node ID for HistoryReadResult default binary encoding. */
+#define OpcUaId_HistoryReadResult_Encoding_DefaultBinary 640
+
+/** @brief OPC UA Node ID for ReadEventDetails default binary encoding. */
+#define OpcUaId_ReadEventDetails_Encoding_DefaultBinary 646
+
+/** @brief OPC UA Node ID for ReadRawModifiedDetails default binary encoding. */
+#define OpcUaId_ReadRawModifiedDetails_Encoding_DefaultBinary 649
+
+/** @brief OPC UA Node ID for ReadProcessedDetails default binary encoding. */
+#define OpcUaId_ReadProcessedDetails_Encoding_DefaultBinary 652
+
+/** @brief OPC UA Node ID for ReadAtTimeDetails default binary encoding. */
+#define OpcUaId_ReadAtTimeDetails_Encoding_DefaultBinary 655
+
+/** @brief OPC UA Node ID for HistoryData default binary encoding. */
+#define OpcUaId_HistoryData_Encoding_DefaultBinary 658
+
+/** @brief OPC UA Node ID for ModificationInfo default binary encoding. */
+#define OpcUaId_ModificationInfo_Encoding_DefaultBinary 11226
+
+/** @brief OPC UA Node ID for HistoryModifiedData default binary encoding. */
+#define OpcUaId_HistoryModifiedData_Encoding_DefaultBinary 11227
+
+/** @brief OPC UA Node ID for HistoryEvent default binary encoding. */
+#define OpcUaId_HistoryEvent_Encoding_DefaultBinary 661
+
+/** @brief OPC UA Node ID for WriteValue default binary encoding. */
+#define OpcUaId_WriteValue_Encoding_DefaultBinary 670
+
+/** @brief OPC UA Node ID for HistoryUpdateDetails default binary encoding. */
+#define OpcUaId_HistoryUpdateDetails_Encoding_DefaultBinary 679
+
+/** @brief OPC UA Node ID for UpdateDataDetails default binary encoding. */
+#define OpcUaId_UpdateDataDetails_Encoding_DefaultBinary 682
+
+/** @brief OPC UA Node ID for UpdateStructureDataDetails default binary encoding. */
+#define OpcUaId_UpdateStructureDataDetails_Encoding_DefaultBinary 11300
+
+/** @brief OPC UA Node ID for UpdateEventDetails default binary encoding. */
+#define OpcUaId_UpdateEventDetails_Encoding_DefaultBinary 685
+
+/** @brief OPC UA Node ID for DeleteRawModifiedDetails default binary encoding. */
+#define OpcUaId_DeleteRawModifiedDetails_Encoding_DefaultBinary 688
+
+/** @brief OPC UA Node ID for DeleteAtTimeDetails default binary encoding. */
+#define OpcUaId_DeleteAtTimeDetails_Encoding_DefaultBinary 691
+
+/** @brief OPC UA Node ID for DeleteEventDetails default binary encoding. */
+#define OpcUaId_DeleteEventDetails_Encoding_DefaultBinary 694
+
+/** @brief OPC UA Node ID for HistoryUpdateResult default binary encoding. */
+#define OpcUaId_HistoryUpdateResult_Encoding_DefaultBinary 697
+
+/** @brief OPC UA Node ID for CallMethodRequest default binary encoding. */
+#define OpcUaId_CallMethodRequest_Encoding_DefaultBinary 706
+
+/** @brief OPC UA Node ID for CallMethodResult default binary encoding. */
+#define OpcUaId_CallMethodResult_Encoding_DefaultBinary 709
+
+/** @brief OPC UA Node ID for DataChangeFilter default binary encoding. */
+#define OpcUaId_DataChangeFilter_Encoding_DefaultBinary 724
+
+/** @brief OPC UA Node ID for EventFilter default binary encoding. */
+#define OpcUaId_EventFilter_Encoding_DefaultBinary 727
+
+/** @brief OPC UA Node ID for AggregateConfiguration default binary encoding. */
+#define OpcUaId_AggregateConfiguration_Encoding_DefaultBinary 950
+
+/** @brief OPC UA Node ID for AggregateFilter default binary encoding. */
+#define OpcUaId_AggregateFilter_Encoding_DefaultBinary 730
+
+/** @brief OPC UA Node ID for EventFilterResult default binary encoding. */
+#define OpcUaId_EventFilterResult_Encoding_DefaultBinary 736
+
+/** @brief OPC UA Node ID for AggregateFilterResult default binary encoding. */
+#define OpcUaId_AggregateFilterResult_Encoding_DefaultBinary 739
+
+/** @brief OPC UA Node ID for MonitoringParameters default binary encoding. */
+#define OpcUaId_MonitoringParameters_Encoding_DefaultBinary 742
+
+/** @brief OPC UA Node ID for MonitoredItemCreateRequest default binary encoding. */
+#define OpcUaId_MonitoredItemCreateRequest_Encoding_DefaultBinary 745
+
+/** @brief OPC UA Node ID for MonitoredItemCreateResult default binary encoding. */
+#define OpcUaId_MonitoredItemCreateResult_Encoding_DefaultBinary 748
+
+/** @brief OPC UA Node ID for MonitoredItemModifyRequest default binary encoding. */
+#define OpcUaId_MonitoredItemModifyRequest_Encoding_DefaultBinary 757
+
+/** @brief OPC UA Node ID for MonitoredItemModifyResult default binary encoding. */
+#define OpcUaId_MonitoredItemModifyResult_Encoding_DefaultBinary 760
+
+/** @brief OPC UA Node ID for NotificationMessage default binary encoding. */
+#define OpcUaId_NotificationMessage_Encoding_DefaultBinary 805
+
+/** @brief OPC UA Node ID for DataChangeNotification default binary encoding. */
+#define OpcUaId_DataChangeNotification_Encoding_DefaultBinary 811
+
+/** @brief OPC UA Node ID for MonitoredItemNotification default binary encoding. */
+#define OpcUaId_MonitoredItemNotification_Encoding_DefaultBinary 808
+
+/** @brief OPC UA Node ID for EventNotificationList default binary encoding. */
+#define OpcUaId_EventNotificationList_Encoding_DefaultBinary 916
+
+/** @brief OPC UA Node ID for EventFieldList default binary encoding. */
+#define OpcUaId_EventFieldList_Encoding_DefaultBinary 919
+
+/** @brief OPC UA Node ID for HistoryEventFieldList default binary encoding. */
+#define OpcUaId_HistoryEventFieldList_Encoding_DefaultBinary 922
+
+/** @brief OPC UA Node ID for StatusChangeNotification default binary encoding. */
+#define OpcUaId_StatusChangeNotification_Encoding_DefaultBinary 820
+
+/** @brief OPC UA Node ID for SubscriptionAcknowledgement default binary encoding. */
+#define OpcUaId_SubscriptionAcknowledgement_Encoding_DefaultBinary 823
+
+/** @brief OPC UA Node ID for TransferResult default binary encoding. */
+#define OpcUaId_TransferResult_Encoding_DefaultBinary 838
+
+/** @brief OPC UA Node ID for ScalarTestType default binary encoding. */
+#define OpcUaId_ScalarTestType_Encoding_DefaultBinary 401
+
+/** @brief OPC UA Node ID for ArrayTestType default binary encoding. */
+#define OpcUaId_ArrayTestType_Encoding_DefaultBinary 404
+
+/** @brief OPC UA Node ID for CompositeTestType default binary encoding. */
+#define OpcUaId_CompositeTestType_Encoding_DefaultBinary 407
+
+/** @brief OPC UA Node ID for BuildInfo default binary encoding. */
+#define OpcUaId_BuildInfo_Encoding_DefaultBinary 340
+
+/** @brief OPC UA Node ID for RedundantServerDataType default binary encoding. */
+#define OpcUaId_RedundantServerDataType_Encoding_DefaultBinary 855
+
+/** @brief OPC UA Node ID for EndpointUrlListDataType default binary encoding. */
+#define OpcUaId_EndpointUrlListDataType_Encoding_DefaultBinary 11957
+
+/** @brief OPC UA Node ID for NetworkGroupDataType default binary encoding. */
+#define OpcUaId_NetworkGroupDataType_Encoding_DefaultBinary 11958
+
+/** @brief OPC UA Node ID for SamplingIntervalDiagnosticsDataType default binary encoding. */
+#define OpcUaId_SamplingIntervalDiagnosticsDataType_Encoding_DefaultBinary 858
+
+/** @brief OPC UA Node ID for ServerDiagnosticsSummaryDataType default binary encoding. */
+#define OpcUaId_ServerDiagnosticsSummaryDataType_Encoding_DefaultBinary 861
+
+/** @brief OPC UA Node ID for ServerStatusDataType default binary encoding. */
+#define OpcUaId_ServerStatusDataType_Encoding_DefaultBinary 864
+
+/** @brief OPC UA Node ID for SessionDiagnosticsDataType default binary encoding. */
+#define OpcUaId_SessionDiagnosticsDataType_Encoding_DefaultBinary 867
+
+/** @brief OPC UA Node ID for SessionSecurityDiagnosticsDataType default binary encoding. */
+#define OpcUaId_SessionSecurityDiagnosticsDataType_Encoding_DefaultBinary 870
+
+/** @brief OPC UA Node ID for ServiceCounterDataType default binary encoding. */
+#define OpcUaId_ServiceCounterDataType_Encoding_DefaultBinary 873
+
+/** @brief OPC UA Node ID for StatusResult default binary encoding. */
+#define OpcUaId_StatusResult_Encoding_DefaultBinary 301
+
+/** @brief OPC UA Node ID for SubscriptionDiagnosticsDataType default binary encoding. */
+#define OpcUaId_SubscriptionDiagnosticsDataType_Encoding_DefaultBinary 876
+
+/** @brief OPC UA Node ID for ModelChangeStructureDataType default binary encoding. */
+#define OpcUaId_ModelChangeStructureDataType_Encoding_DefaultBinary 879
+
+/** @brief OPC UA Node ID for SemanticChangeStructureDataType default binary encoding. */
+#define OpcUaId_SemanticChangeStructureDataType_Encoding_DefaultBinary 899
+
+/** @brief OPC UA Node ID for Range default binary encoding. */
+#define OpcUaId_Range_Encoding_DefaultBinary 886
+
+/** @brief OPC UA Node ID for EUInformation default binary encoding. */
+#define OpcUaId_EUInformation_Encoding_DefaultBinary 889
+
+/** @brief OPC UA Node ID for ComplexNumberType default binary encoding. */
+#define OpcUaId_ComplexNumberType_Encoding_DefaultBinary 12181
+
+/** @brief OPC UA Node ID for DoubleComplexNumberType default binary encoding. */
+#define OpcUaId_DoubleComplexNumberType_Encoding_DefaultBinary 12182
+
+/** @brief OPC UA Node ID for AxisInformation default binary encoding. */
+#define OpcUaId_AxisInformation_Encoding_DefaultBinary 12089
+
+/** @brief OPC UA Node ID for XVType default binary encoding. */
+#define OpcUaId_XVType_Encoding_DefaultBinary 12090
+
+/** @brief OPC UA Node ID for ProgramDiagnosticDataType default binary encoding. */
+#define OpcUaId_ProgramDiagnosticDataType_Encoding_DefaultBinary 896
+
+/** @brief OPC UA Node ID for Annotation default binary encoding. */
+#define OpcUaId_Annotation_Encoding_DefaultBinary 893

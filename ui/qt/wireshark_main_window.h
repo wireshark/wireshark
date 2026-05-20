@@ -1314,6 +1314,7 @@ private slots:
     /** @brief Opens the TLS Keylog dialog, creating it if it does not already exist. */
     void openTLSKeylogDialog();
 
+    /** @brief Friend class allowing access to private members. */
     friend class MainApplication;
 };
 

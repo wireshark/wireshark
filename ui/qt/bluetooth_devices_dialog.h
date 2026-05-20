@@ -24,10 +24,16 @@ class QAbstractButton;
 class QPushButton;
 class QTreeWidgetItem;
 
+/**
+ * @brief Tap info block driving the Bluetooth Devices dialog's live packet feed.
+ *
+ * Registered with the Wireshark tap framework to receive reset and per-packet
+ * callbacks for all captured Bluetooth frames, populating the full device list.
+ */
 typedef struct _bluetooth_devices_tapinfo_t {
-    tap_reset_cb    tap_reset;
-    tap_packet_cb   tap_packet;
-    void           *ui;
+    tap_reset_cb   tap_reset;  /**< Callback invoked to clear the full device list between captures. */
+    tap_packet_cb  tap_packet; /**< Callback invoked once per Bluetooth packet to update the device list. */
+    void          *ui;         /**< Opaque pointer to the owning UI widget (typically a @c BluetoothDevicesDialog). */
 } bluetooth_devices_tapinfo_t;
 
 namespace Ui {

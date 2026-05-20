@@ -20,171 +20,429 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+/**
+ * @brief Wireshark ett (expert tree type) registration indices for OPC UA service message subtrees.
+ *
+ * Each pair of variables covers the singular struct dissection tree and its
+ * corresponding array-wrapper tree.  These are declared extern so that the
+ * registration arrays can live in the generated source file while the
+ * dissector entry-points reference them from other translation units.
+ */
+
+/* ── ServiceFault ─────────────────────────────────────────────────────────── */
+/** @brief ett index for the ServiceFault structure subtree. */
 extern int ett_opcua_ServiceFault;
+/** @brief ett index for an array-of-ServiceFault subtree. */
 extern int ett_opcua_array_ServiceFault;
+
+/* ── FindServers ──────────────────────────────────────────────────────────── */
+/** @brief ett index for the FindServersRequest structure subtree. */
 extern int ett_opcua_FindServersRequest;
+/** @brief ett index for an array-of-FindServersRequest subtree. */
 extern int ett_opcua_array_FindServersRequest;
+/** @brief ett index for the FindServersResponse structure subtree. */
 extern int ett_opcua_FindServersResponse;
+/** @brief ett index for an array-of-FindServersResponse subtree. */
 extern int ett_opcua_array_FindServersResponse;
+
+/* ── FindServersOnNetwork ─────────────────────────────────────────────────── */
+/** @brief ett index for the FindServersOnNetworkRequest structure subtree. */
 extern int ett_opcua_FindServersOnNetworkRequest;
+/** @brief ett index for an array-of-FindServersOnNetworkRequest subtree. */
 extern int ett_opcua_array_FindServersOnNetworkRequest;
+/** @brief ett index for the FindServersOnNetworkResponse structure subtree. */
 extern int ett_opcua_FindServersOnNetworkResponse;
+/** @brief ett index for an array-of-FindServersOnNetworkResponse subtree. */
 extern int ett_opcua_array_FindServersOnNetworkResponse;
+
+/* ── GetEndpoints ─────────────────────────────────────────────────────────── */
+/** @brief ett index for the GetEndpointsRequest structure subtree. */
 extern int ett_opcua_GetEndpointsRequest;
+/** @brief ett index for an array-of-GetEndpointsRequest subtree. */
 extern int ett_opcua_array_GetEndpointsRequest;
+/** @brief ett index for the GetEndpointsResponse structure subtree. */
 extern int ett_opcua_GetEndpointsResponse;
+/** @brief ett index for an array-of-GetEndpointsResponse subtree. */
 extern int ett_opcua_array_GetEndpointsResponse;
+
+/* ── RegisterServer ───────────────────────────────────────────────────────── */
+/** @brief ett index for the RegisterServerRequest structure subtree. */
 extern int ett_opcua_RegisterServerRequest;
+/** @brief ett index for an array-of-RegisterServerRequest subtree. */
 extern int ett_opcua_array_RegisterServerRequest;
+/** @brief ett index for the RegisterServerResponse structure subtree. */
 extern int ett_opcua_RegisterServerResponse;
+/** @brief ett index for an array-of-RegisterServerResponse subtree. */
 extern int ett_opcua_array_RegisterServerResponse;
+
+/* ── RegisterServer2 ──────────────────────────────────────────────────────── */
+/** @brief ett index for the RegisterServer2Request structure subtree. */
 extern int ett_opcua_RegisterServer2Request;
+/** @brief ett index for an array-of-RegisterServer2Request subtree. */
 extern int ett_opcua_array_RegisterServer2Request;
+/** @brief ett index for the RegisterServer2Response structure subtree. */
 extern int ett_opcua_RegisterServer2Response;
+/** @brief ett index for an array-of-RegisterServer2Response subtree. */
 extern int ett_opcua_array_RegisterServer2Response;
+
+/* ── OpenSecureChannel ────────────────────────────────────────────────────── */
+/** @brief ett index for the OpenSecureChannelRequest structure subtree. */
 extern int ett_opcua_OpenSecureChannelRequest;
+/** @brief ett index for an array-of-OpenSecureChannelRequest subtree. */
 extern int ett_opcua_array_OpenSecureChannelRequest;
+/** @brief ett index for the OpenSecureChannelResponse structure subtree. */
 extern int ett_opcua_OpenSecureChannelResponse;
+/** @brief ett index for an array-of-OpenSecureChannelResponse subtree. */
 extern int ett_opcua_array_OpenSecureChannelResponse;
+
+/* ── CloseSecureChannel ───────────────────────────────────────────────────── */
+/** @brief ett index for the CloseSecureChannelRequest structure subtree. */
 extern int ett_opcua_CloseSecureChannelRequest;
+/** @brief ett index for an array-of-CloseSecureChannelRequest subtree. */
 extern int ett_opcua_array_CloseSecureChannelRequest;
+/** @brief ett index for the CloseSecureChannelResponse structure subtree. */
 extern int ett_opcua_CloseSecureChannelResponse;
+/** @brief ett index for an array-of-CloseSecureChannelResponse subtree. */
 extern int ett_opcua_array_CloseSecureChannelResponse;
+
+/* ── CreateSession ────────────────────────────────────────────────────────── */
+/** @brief ett index for the CreateSessionRequest structure subtree. */
 extern int ett_opcua_CreateSessionRequest;
+/** @brief ett index for an array-of-CreateSessionRequest subtree. */
 extern int ett_opcua_array_CreateSessionRequest;
+/** @brief ett index for the CreateSessionResponse structure subtree. */
 extern int ett_opcua_CreateSessionResponse;
+/** @brief ett index for an array-of-CreateSessionResponse subtree. */
 extern int ett_opcua_array_CreateSessionResponse;
+
+/* ── ActivateSession ──────────────────────────────────────────────────────── */
+/** @brief ett index for the ActivateSessionRequest structure subtree. */
 extern int ett_opcua_ActivateSessionRequest;
+/** @brief ett index for an array-of-ActivateSessionRequest subtree. */
 extern int ett_opcua_array_ActivateSessionRequest;
+/** @brief ett index for the ActivateSessionResponse structure subtree. */
 extern int ett_opcua_ActivateSessionResponse;
+/** @brief ett index for an array-of-ActivateSessionResponse subtree. */
 extern int ett_opcua_array_ActivateSessionResponse;
+
+/* ── CloseSession ─────────────────────────────────────────────────────────── */
+/** @brief ett index for the CloseSessionRequest structure subtree. */
 extern int ett_opcua_CloseSessionRequest;
+/** @brief ett index for an array-of-CloseSessionRequest subtree. */
 extern int ett_opcua_array_CloseSessionRequest;
+/** @brief ett index for the CloseSessionResponse structure subtree. */
 extern int ett_opcua_CloseSessionResponse;
+/** @brief ett index for an array-of-CloseSessionResponse subtree. */
 extern int ett_opcua_array_CloseSessionResponse;
+
+/* ── Cancel ───────────────────────────────────────────────────────────────── */
+/** @brief ett index for the CancelRequest structure subtree. */
 extern int ett_opcua_CancelRequest;
+/** @brief ett index for an array-of-CancelRequest subtree. */
 extern int ett_opcua_array_CancelRequest;
+/** @brief ett index for the CancelResponse structure subtree. */
 extern int ett_opcua_CancelResponse;
+/** @brief ett index for an array-of-CancelResponse subtree. */
 extern int ett_opcua_array_CancelResponse;
+
+/* ── AddNodes ─────────────────────────────────────────────────────────────── */
+/** @brief ett index for the AddNodesRequest structure subtree. */
 extern int ett_opcua_AddNodesRequest;
+/** @brief ett index for an array-of-AddNodesRequest subtree. */
 extern int ett_opcua_array_AddNodesRequest;
+/** @brief ett index for the AddNodesResponse structure subtree. */
 extern int ett_opcua_AddNodesResponse;
+/** @brief ett index for an array-of-AddNodesResponse subtree. */
 extern int ett_opcua_array_AddNodesResponse;
+
+/* ── AddReferences ────────────────────────────────────────────────────────── */
+/** @brief ett index for the AddReferencesRequest structure subtree. */
 extern int ett_opcua_AddReferencesRequest;
+/** @brief ett index for an array-of-AddReferencesRequest subtree. */
 extern int ett_opcua_array_AddReferencesRequest;
+/** @brief ett index for the AddReferencesResponse structure subtree. */
 extern int ett_opcua_AddReferencesResponse;
+/** @brief ett index for an array-of-AddReferencesResponse subtree. */
 extern int ett_opcua_array_AddReferencesResponse;
+
+/* ── DeleteNodes ──────────────────────────────────────────────────────────── */
+/** @brief ett index for the DeleteNodesRequest structure subtree. */
 extern int ett_opcua_DeleteNodesRequest;
+/** @brief ett index for an array-of-DeleteNodesRequest subtree. */
 extern int ett_opcua_array_DeleteNodesRequest;
+/** @brief ett index for the DeleteNodesResponse structure subtree. */
 extern int ett_opcua_DeleteNodesResponse;
+/** @brief ett index for an array-of-DeleteNodesResponse subtree. */
 extern int ett_opcua_array_DeleteNodesResponse;
+
+/* ── DeleteReferences ────────────────────────────────────────────────────── */
+/** @brief ett index for the DeleteReferencesRequest structure subtree. */
 extern int ett_opcua_DeleteReferencesRequest;
+/** @brief ett index for an array-of-DeleteReferencesRequest subtree. */
 extern int ett_opcua_array_DeleteReferencesRequest;
+/** @brief ett index for the DeleteReferencesResponse structure subtree. */
 extern int ett_opcua_DeleteReferencesResponse;
+/** @brief ett index for an array-of-DeleteReferencesResponse subtree. */
 extern int ett_opcua_array_DeleteReferencesResponse;
+
+/* ── Browse ───────────────────────────────────────────────────────────────── */
+/** @brief ett index for the BrowseRequest structure subtree. */
 extern int ett_opcua_BrowseRequest;
+/** @brief ett index for an array-of-BrowseRequest subtree. */
 extern int ett_opcua_array_BrowseRequest;
+/** @brief ett index for the BrowseResponse structure subtree. */
 extern int ett_opcua_BrowseResponse;
+/** @brief ett index for an array-of-BrowseResponse subtree. */
 extern int ett_opcua_array_BrowseResponse;
+
+/* ── BrowseNext ───────────────────────────────────────────────────────────── */
+/** @brief ett index for the BrowseNextRequest structure subtree. */
 extern int ett_opcua_BrowseNextRequest;
+/** @brief ett index for an array-of-BrowseNextRequest subtree. */
 extern int ett_opcua_array_BrowseNextRequest;
+/** @brief ett index for the BrowseNextResponse structure subtree. */
 extern int ett_opcua_BrowseNextResponse;
+/** @brief ett index for an array-of-BrowseNextResponse subtree. */
 extern int ett_opcua_array_BrowseNextResponse;
+
+/* ── TranslateBrowsePathsToNodeIds ────────────────────────────────────────── */
+/** @brief ett index for the TranslateBrowsePathsToNodeIdsRequest structure subtree. */
 extern int ett_opcua_TranslateBrowsePathsToNodeIdsRequest;
+/** @brief ett index for an array-of-TranslateBrowsePathsToNodeIdsRequest subtree. */
 extern int ett_opcua_array_TranslateBrowsePathsToNodeIdsRequest;
+/** @brief ett index for the TranslateBrowsePathsToNodeIdsResponse structure subtree. */
 extern int ett_opcua_TranslateBrowsePathsToNodeIdsResponse;
+/** @brief ett index for an array-of-TranslateBrowsePathsToNodeIdsResponse subtree. */
 extern int ett_opcua_array_TranslateBrowsePathsToNodeIdsResponse;
+
+/* ── RegisterNodes ────────────────────────────────────────────────────────── */
+/** @brief ett index for the RegisterNodesRequest structure subtree. */
 extern int ett_opcua_RegisterNodesRequest;
+/** @brief ett index for an array-of-RegisterNodesRequest subtree. */
 extern int ett_opcua_array_RegisterNodesRequest;
+/** @brief ett index for the RegisterNodesResponse structure subtree. */
 extern int ett_opcua_RegisterNodesResponse;
+/** @brief ett index for an array-of-RegisterNodesResponse subtree. */
 extern int ett_opcua_array_RegisterNodesResponse;
+
+/* ── UnregisterNodes ──────────────────────────────────────────────────────── */
+/** @brief ett index for the UnregisterNodesRequest structure subtree. */
 extern int ett_opcua_UnregisterNodesRequest;
+/** @brief ett index for an array-of-UnregisterNodesRequest subtree. */
 extern int ett_opcua_array_UnregisterNodesRequest;
+/** @brief ett index for the UnregisterNodesResponse structure subtree. */
 extern int ett_opcua_UnregisterNodesResponse;
+/** @brief ett index for an array-of-UnregisterNodesResponse subtree. */
 extern int ett_opcua_array_UnregisterNodesResponse;
+
+/* ── QueryFirst ───────────────────────────────────────────────────────────── */
+/** @brief ett index for the QueryFirstRequest structure subtree. */
 extern int ett_opcua_QueryFirstRequest;
+/** @brief ett index for an array-of-QueryFirstRequest subtree. */
 extern int ett_opcua_array_QueryFirstRequest;
+/** @brief ett index for the QueryFirstResponse structure subtree. */
 extern int ett_opcua_QueryFirstResponse;
+/** @brief ett index for an array-of-QueryFirstResponse subtree. */
 extern int ett_opcua_array_QueryFirstResponse;
+
+/* ── QueryNext ────────────────────────────────────────────────────────────── */
+/** @brief ett index for the QueryNextRequest structure subtree. */
 extern int ett_opcua_QueryNextRequest;
+/** @brief ett index for an array-of-QueryNextRequest subtree. */
 extern int ett_opcua_array_QueryNextRequest;
+/** @brief ett index for the QueryNextResponse structure subtree. */
 extern int ett_opcua_QueryNextResponse;
+/** @brief ett index for an array-of-QueryNextResponse subtree. */
 extern int ett_opcua_array_QueryNextResponse;
+
+/* ── Read ─────────────────────────────────────────────────────────────────── */
+/** @brief ett index for the ReadRequest structure subtree. */
 extern int ett_opcua_ReadRequest;
+/** @brief ett index for an array-of-ReadRequest subtree. */
 extern int ett_opcua_array_ReadRequest;
+/** @brief ett index for the ReadResponse structure subtree. */
 extern int ett_opcua_ReadResponse;
+/** @brief ett index for an array-of-ReadResponse subtree. */
 extern int ett_opcua_array_ReadResponse;
+
+/* ── HistoryRead ──────────────────────────────────────────────────────────── */
+/** @brief ett index for the HistoryReadRequest structure subtree. */
 extern int ett_opcua_HistoryReadRequest;
+/** @brief ett index for an array-of-HistoryReadRequest subtree. */
 extern int ett_opcua_array_HistoryReadRequest;
+/** @brief ett index for the HistoryReadResponse structure subtree. */
 extern int ett_opcua_HistoryReadResponse;
+/** @brief ett index for an array-of-HistoryReadResponse subtree. */
 extern int ett_opcua_array_HistoryReadResponse;
+
+/* ── Write ────────────────────────────────────────────────────────────────── */
+/** @brief ett index for the WriteRequest structure subtree. */
 extern int ett_opcua_WriteRequest;
+/** @brief ett index for an array-of-WriteRequest subtree. */
 extern int ett_opcua_array_WriteRequest;
+/** @brief ett index for the WriteResponse structure subtree. */
 extern int ett_opcua_WriteResponse;
+/** @brief ett index for an array-of-WriteResponse subtree. */
 extern int ett_opcua_array_WriteResponse;
+
+/* ── HistoryUpdate ────────────────────────────────────────────────────────── */
+/** @brief ett index for the HistoryUpdateRequest structure subtree. */
 extern int ett_opcua_HistoryUpdateRequest;
+/** @brief ett index for an array-of-HistoryUpdateRequest subtree. */
 extern int ett_opcua_array_HistoryUpdateRequest;
+/** @brief ett index for the HistoryUpdateResponse structure subtree. */
 extern int ett_opcua_HistoryUpdateResponse;
+/** @brief ett index for an array-of-HistoryUpdateResponse subtree. */
 extern int ett_opcua_array_HistoryUpdateResponse;
+
+/* ── Call ─────────────────────────────────────────────────────────────────── */
+/** @brief ett index for the CallRequest structure subtree. */
 extern int ett_opcua_CallRequest;
+/** @brief ett index for an array-of-CallRequest subtree. */
 extern int ett_opcua_array_CallRequest;
+/** @brief ett index for the CallResponse structure subtree. */
 extern int ett_opcua_CallResponse;
+/** @brief ett index for an array-of-CallResponse subtree. */
 extern int ett_opcua_array_CallResponse;
+
+/* ── CreateMonitoredItems ─────────────────────────────────────────────────── */
+/** @brief ett index for the CreateMonitoredItemsRequest structure subtree. */
 extern int ett_opcua_CreateMonitoredItemsRequest;
+/** @brief ett index for an array-of-CreateMonitoredItemsRequest subtree. */
 extern int ett_opcua_array_CreateMonitoredItemsRequest;
+/** @brief ett index for the CreateMonitoredItemsResponse structure subtree. */
 extern int ett_opcua_CreateMonitoredItemsResponse;
+/** @brief ett index for an array-of-CreateMonitoredItemsResponse subtree. */
 extern int ett_opcua_array_CreateMonitoredItemsResponse;
+
+/* ── ModifyMonitoredItems ─────────────────────────────────────────────────── */
+/** @brief ett index for the ModifyMonitoredItemsRequest structure subtree. */
 extern int ett_opcua_ModifyMonitoredItemsRequest;
+/** @brief ett index for an array-of-ModifyMonitoredItemsRequest subtree. */
 extern int ett_opcua_array_ModifyMonitoredItemsRequest;
+/** @brief ett index for the ModifyMonitoredItemsResponse structure subtree. */
 extern int ett_opcua_ModifyMonitoredItemsResponse;
+/** @brief ett index for an array-of-ModifyMonitoredItemsResponse subtree. */
 extern int ett_opcua_array_ModifyMonitoredItemsResponse;
+
+/* ── SetMonitoringMode ────────────────────────────────────────────────────── */
+/** @brief ett index for the SetMonitoringModeRequest structure subtree. */
 extern int ett_opcua_SetMonitoringModeRequest;
+/** @brief ett index for an array-of-SetMonitoringModeRequest subtree. */
 extern int ett_opcua_array_SetMonitoringModeRequest;
+/** @brief ett index for the SetMonitoringModeResponse structure subtree. */
 extern int ett_opcua_SetMonitoringModeResponse;
+/** @brief ett index for an array-of-SetMonitoringModeResponse subtree. */
 extern int ett_opcua_array_SetMonitoringModeResponse;
+
+/* ── SetTriggering ────────────────────────────────────────────────────────── */
+/** @brief ett index for the SetTriggeringRequest structure subtree. */
 extern int ett_opcua_SetTriggeringRequest;
+/** @brief ett index for an array-of-SetTriggeringRequest subtree. */
 extern int ett_opcua_array_SetTriggeringRequest;
+/** @brief ett index for the SetTriggeringResponse structure subtree. */
 extern int ett_opcua_SetTriggeringResponse;
+/** @brief ett index for an array-of-SetTriggeringResponse subtree. */
 extern int ett_opcua_array_SetTriggeringResponse;
+
+/* ── DeleteMonitoredItems ─────────────────────────────────────────────────── */
+/** @brief ett index for the DeleteMonitoredItemsRequest structure subtree. */
 extern int ett_opcua_DeleteMonitoredItemsRequest;
+/** @brief ett index for an array-of-DeleteMonitoredItemsRequest subtree. */
 extern int ett_opcua_array_DeleteMonitoredItemsRequest;
+/** @brief ett index for the DeleteMonitoredItemsResponse structure subtree. */
 extern int ett_opcua_DeleteMonitoredItemsResponse;
+/** @brief ett index for an array-of-DeleteMonitoredItemsResponse subtree. */
 extern int ett_opcua_array_DeleteMonitoredItemsResponse;
+
+/* ── CreateSubscription ───────────────────────────────────────────────────── */
+/** @brief ett index for the CreateSubscriptionRequest structure subtree. */
 extern int ett_opcua_CreateSubscriptionRequest;
+/** @brief ett index for an array-of-CreateSubscriptionRequest subtree. */
 extern int ett_opcua_array_CreateSubscriptionRequest;
+/** @brief ett index for the CreateSubscriptionResponse structure subtree. */
 extern int ett_opcua_CreateSubscriptionResponse;
+/** @brief ett index for an array-of-CreateSubscriptionResponse subtree. */
 extern int ett_opcua_array_CreateSubscriptionResponse;
+
+/* ── ModifySubscription ───────────────────────────────────────────────────── */
+/** @brief ett index for the ModifySubscriptionRequest structure subtree. */
 extern int ett_opcua_ModifySubscriptionRequest;
+/** @brief ett index for an array-of-ModifySubscriptionRequest subtree. */
 extern int ett_opcua_array_ModifySubscriptionRequest;
+/** @brief ett index for the ModifySubscriptionResponse structure subtree. */
 extern int ett_opcua_ModifySubscriptionResponse;
+/** @brief ett index for an array-of-ModifySubscriptionResponse subtree. */
 extern int ett_opcua_array_ModifySubscriptionResponse;
+
+/* ── SetPublishingMode ────────────────────────────────────────────────────── */
+/** @brief ett index for the SetPublishingModeRequest structure subtree. */
 extern int ett_opcua_SetPublishingModeRequest;
+/** @brief ett index for an array-of-SetPublishingModeRequest subtree. */
 extern int ett_opcua_array_SetPublishingModeRequest;
+/** @brief ett index for the SetPublishingModeResponse structure subtree. */
 extern int ett_opcua_SetPublishingModeResponse;
+/** @brief ett index for an array-of-SetPublishingModeResponse subtree. */
 extern int ett_opcua_array_SetPublishingModeResponse;
+
+/* ── Publish ──────────────────────────────────────────────────────────────── */
+/** @brief ett index for the PublishRequest structure subtree. */
 extern int ett_opcua_PublishRequest;
+/** @brief ett index for an array-of-PublishRequest subtree. */
 extern int ett_opcua_array_PublishRequest;
+/** @brief ett index for the PublishResponse structure subtree. */
 extern int ett_opcua_PublishResponse;
+/** @brief ett index for an array-of-PublishResponse subtree. */
 extern int ett_opcua_array_PublishResponse;
+
+/* ── Republish ────────────────────────────────────────────────────────────── */
+/** @brief ett index for the RepublishRequest structure subtree. */
 extern int ett_opcua_RepublishRequest;
+/** @brief ett index for an array-of-RepublishRequest subtree. */
 extern int ett_opcua_array_RepublishRequest;
+/** @brief ett index for the RepublishResponse structure subtree. */
 extern int ett_opcua_RepublishResponse;
+/** @brief ett index for an array-of-RepublishResponse subtree. */
 extern int ett_opcua_array_RepublishResponse;
+
+/* ── TransferSubscriptions ────────────────────────────────────────────────── */
+/** @brief ett index for the TransferSubscriptionsRequest structure subtree. */
 extern int ett_opcua_TransferSubscriptionsRequest;
+/** @brief ett index for an array-of-TransferSubscriptionsRequest subtree. */
 extern int ett_opcua_array_TransferSubscriptionsRequest;
+/** @brief ett index for the TransferSubscriptionsResponse structure subtree. */
 extern int ett_opcua_TransferSubscriptionsResponse;
+/** @brief ett index for an array-of-TransferSubscriptionsResponse subtree. */
 extern int ett_opcua_array_TransferSubscriptionsResponse;
+
+/* ── DeleteSubscriptions ──────────────────────────────────────────────────── */
+/** @brief ett index for the DeleteSubscriptionsRequest structure subtree. */
 extern int ett_opcua_DeleteSubscriptionsRequest;
+/** @brief ett index for an array-of-DeleteSubscriptionsRequest subtree. */
 extern int ett_opcua_array_DeleteSubscriptionsRequest;
+/** @brief ett index for the DeleteSubscriptionsResponse structure subtree. */
 extern int ett_opcua_DeleteSubscriptionsResponse;
+/** @brief ett index for an array-of-DeleteSubscriptionsResponse subtree. */
 extern int ett_opcua_array_DeleteSubscriptionsResponse;
+
+/* ── TestStack ────────────────────────────────────────────────────────────── */
+/** @brief ett index for the TestStackRequest structure subtree. */
 extern int ett_opcua_TestStackRequest;
+/** @brief ett index for an array-of-TestStackRequest subtree. */
 extern int ett_opcua_array_TestStackRequest;
+/** @brief ett index for the TestStackResponse structure subtree. */
 extern int ett_opcua_TestStackResponse;
+/** @brief ett index for an array-of-TestStackResponse subtree. */
 extern int ett_opcua_array_TestStackResponse;
+
+/* ── TestStackEx ──────────────────────────────────────────────────────────── */
+/** @brief ett index for the TestStackExRequest structure subtree. */
 extern int ett_opcua_TestStackExRequest;
+/** @brief ett index for an array-of-TestStackExRequest subtree. */
 extern int ett_opcua_array_TestStackExRequest;
+/** @brief ett index for the TestStackExResponse structure subtree. */
 extern int ett_opcua_TestStackExResponse;
+/** @brief ett index for an array-of-TestStackExResponse subtree. */
 extern int ett_opcua_array_TestStackExResponse;
 
 /** @brief Parse a ServiceFault message into the protocol tree.

@@ -20,24 +20,66 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-/* declare service parser function prototype */
+/**
+ * @brief Callback type for parsing a top-level OPC UA service from a packet.
+ *
+ * @param tree   The protocol tree to which items are added.
+ * @param tvb    The buffer containing the packet data.
+ * @param pinfo  Packet metadata and context.
+ * @param pOffset Current byte offset into the buffer; updated as data is consumed.
+ */
 typedef void (*fctServiceParser)(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
-/* declare enum parser function prototype */
+
+/**
+ * @brief Callback type for parsing an enumeration value from a packet.
+ *
+ * @param tree   The protocol tree to which items are added.
+ * @param tvb    The buffer containing the packet data.
+ * @param pinfo  Packet metadata and context.
+ * @param pOffset Current byte offset into the buffer; updated as data is consumed.
+ */
 typedef void (*fctEnumParser)(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
-/* declare type parser function prototype */
+
+/**
+ * @brief Callback type for parsing a named complex type field from a packet.
+ *
+ * @param tree        The protocol tree to which items are added.
+ * @param tvb         The buffer containing the packet data.
+ * @param pinfo       Packet metadata and context.
+ * @param pOffset     Current byte offset into the buffer; updated as data is consumed.
+ * @param szFieldName Display name of the field being parsed.
+ */
 typedef void (*fctComplexTypeParser)(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const char *szFieldName);
-/* declare type parser function prototype */
+
+/**
+ * @brief Callback type for parsing a simple scalar type field from a packet.
+ *
+ * @param tree    The protocol tree to which items are added.
+ * @param tvb     The buffer containing the packet data.
+ * @param pinfo   Packet metadata and context.
+ * @param pOffset Current byte offset into the buffer; updated as data is consumed.
+ * @param hfIndex Header field index identifying the field to add to the tree.
+ * @return        The newly created proto_item added to the tree.
+ */
 typedef proto_item* (*fctSimpleTypeParser)(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, int hfIndex);
 
+
+/**
+ * @brief Maps a service request ID to its corresponding parser callback.
+ */
 typedef struct _ParserEntry
 {
-	int iRequestId;
-	fctServiceParser pParser;
+    int iRequestId;          /**< Numeric identifier of the service request. */
+    fctServiceParser pParser; /**< Parser function invoked for this request ID. */
 } ParserEntry;
 
+
+/**
+ * @brief Maps an extension object type ID to its complex-type parser and type name.
+ */
 typedef struct _ExtensionObjectParserEntry
 {
-	int iRequestId;
-	fctComplexTypeParser pParser;
-	const char *typeName;
+    int iRequestId;              /**< Numeric identifier of the extension object type. */
+    fctComplexTypeParser pParser; /**< Parser function invoked for this extension object. */
+    const char *typeName;         /**< Human-readable name of the extension object type. */
 } ExtensionObjectParserEntry;

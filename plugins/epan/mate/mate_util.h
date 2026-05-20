@@ -81,71 +81,105 @@ extern char* scs_subscribe_printf(SCS_collection* collection, char* fmt, ...)
 #define AVP_OP_TRANSF		'&'
 
 
-/* an avp is an object made of a name a value and an operator */
+/**
+ * @brief Attribute-Value Pair (AVP): a named value with an associated match operator.
+ */
 typedef struct _avp {
-	char* n;
-	char* v;
-	char o;
+    char *n; /**< Name of the attribute. */
+    char *v; /**< Value of the attribute. */
+    char  o; /**< Match operator (e.g. '=', '<', '>', '~'). */
 } AVP;
 
-/* avp nodes are used in avp lists */
+
+/**
+ * @brief Doubly-linked list node wrapping a single #AVP.
+ */
 typedef struct _avp_node {
-	AVP* avp;
-	struct _avp_node* next;
-	struct _avp_node* prev;
+    AVP            *avp;  /**< Pointer to the AVP held by this node. */
+    struct _avp_node *next; /**< Next node in the list, or NULL if this is the tail. */
+    struct _avp_node *prev; /**< Previous node in the list, or NULL if this is the head. */
 } AVPN;
 
-/* an avp list is a sorted set of avps */
+
+/**
+ * @brief Sorted, named list of AVPs (Attribute-Value Pair List).
+ *
+ * The @c null member serves as a sentinel head/tail node; the live
+ * list is bounded between @c null.next (first) and @c null.prev (last).
+ */
 typedef struct _avp_list {
-	char* name;
-	uint32_t len;
-	AVPN null;
+    char    *name; /**< Human-readable name identifying this AVP list. */
+    uint32_t len;  /**< Number of AVPs currently held in the list. */
+    AVPN     null; /**< Sentinel boundary node; never holds a real AVP. */
 } AVPL;
 
 
-
-/* an avpl transformation operation */
+/**
+ * @brief Controls how an #AVPL_Transf matches a source AVPL against its match template.
+ */
 typedef enum _avpl_match_mode {
-	AVPL_NO_MATCH,
-	AVPL_STRICT,
-	AVPL_LOOSE,
-	AVPL_EVERY
+    AVPL_NO_MATCH, /**< Matching is disabled; the transformation is never applied. */
+    AVPL_STRICT,   /**< All AVPs in the match template must be present and equal in the source. */
+    AVPL_LOOSE,    /**< At least one AVP in the match template must match. */
+    AVPL_EVERY     /**< Every AVP in the source must be matched by the template. */
 } avpl_match_mode;
 
+
+/**
+ * @brief Controls how an #AVPL_Transf modifies the target AVPL after a successful match.
+ */
 typedef enum _avpl_replace_mode {
-	AVPL_NO_REPLACE,
-	AVPL_INSERT,
-	AVPL_REPLACE
+    AVPL_NO_REPLACE, /**< No replacement; the target AVPL is left unchanged. */
+    AVPL_INSERT,     /**< AVPs from the replace template are inserted without removing existing ones. */
+    AVPL_REPLACE     /**< AVPs from the replace template overwrite matching AVPs in the target. */
 } avpl_replace_mode;
 
+
+/** @brief Forward declaration of the AVPL transformation structure. */
 typedef struct _avpl_transf AVPL_Transf;
 
+
+/**
+ * @brief AVPL transformation rule: a named match/replace operation applied to AVP lists.
+ *
+ * Transformations are chained into a singly-linked list and applied in order.
+ * When the source AVPL satisfies @c match_mode against @c match, the @c replace
+ * AVPL is merged into the target according to @c replace_mode.
+ */
 struct _avpl_transf {
-	char* name;
+    char *name;                    /**< Human-readable name identifying this transformation. */
 
-	AVPL* match;
-	AVPL* replace;
+    AVPL *match;                   /**< Template AVPL used to test whether this transformation applies. */
+    AVPL *replace;                 /**< AVPL containing AVPs to insert or replace in the target on a successful match. */
 
-	avpl_match_mode match_mode;
-	avpl_replace_mode replace_mode;
+    avpl_match_mode   match_mode;   /**< Strategy used to match @c match against the source AVPL. */
+    avpl_replace_mode replace_mode; /**< Strategy used to apply @c replace to the target AVPL. */
 
-	GHashTable* map;
-	AVPL_Transf* next;
+    GHashTable  *map;  /**< Hash table used internally to accelerate AVP lookup during transformation. */
+    AVPL_Transf *next; /**< Next transformation in the chain, or NULL if this is the last. */
 };
 
-/* loalnodes are used in LoALs */
+
+/**
+ * @brief Doubly-linked list node wrapping a single #AVPL, used in a #LoAL.
+ */
 typedef struct _loal_node {
-	AVPL* avpl;
-	struct _loal_node *next;
-	struct _loal_node *prev;
+    AVPL               *avpl; /**< Pointer to the AVPL held by this node. */
+    struct _loal_node  *next; /**< Next node in the list, or NULL if this is the tail. */
+    struct _loal_node  *prev; /**< Previous node in the list, or NULL if this is the head. */
 } LoALnode;
 
 
-/* a loal is a list of avp lists */
+/**
+ * @brief List of AVP Lists (LoAL): a named, doubly-linked collection of AVPLs.
+ *
+ * The @c null member serves as a sentinel head/tail node; the live
+ * list is bounded between @c null.next (first) and @c null.prev (last).
+ */
 typedef struct _loal {
-	char* name;
-	unsigned len;
-	LoALnode null;
+    char     *name; /**< Human-readable name identifying this list of AVPL lists. */
+    unsigned  len;  /**< Number of AVPLs currently held in the list. */
+    LoALnode  null; /**< Sentinel boundary node; never holds a real AVPL. */
 } LoAL;
 
 

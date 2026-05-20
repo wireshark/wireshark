@@ -336,10 +336,14 @@ struct _mate_gog {
 	GPtrArray* gog_keys; /* the keys under which this gog is stored in the gogs hash */
 };
 
+/**
+ * @brief Union sized to the largest of the three MATE item types, used for
+ *        generic allocation and type-punning across PDU, GOP, and GOG objects.
+ */
 typedef union _mate_max_size {
-	mate_pdu pdu;
-	mate_gop gop;
-	mate_gog gog;
+    mate_pdu pdu; /**< PDU (Protocol Data Unit) item; determines size if largest. */
+    mate_gop gop; /**< GOP (Group of PDUs) item; determines size if largest. */
+    mate_gog gog; /**< GOG (Group of GOPs) item; determines size if largest. */
 } mate_max_size;
 
 /* from mate_runtime.c */

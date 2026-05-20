@@ -325,25 +325,26 @@ extern "C" {
 #define WTAP_FILE_TYPE_SUBTYPE_UNKNOWN                        -1
 
 /* timestamp precision (currently only these values are supported) */
-#define WTAP_TSPREC_UNKNOWN    -2
-#define WTAP_TSPREC_PER_PACKET -1  /* as a per-file value, means per-packet */
+#define WTAP_TSPREC_UNKNOWN    -2 /**< Timestamp precision is unknown. */
+#define WTAP_TSPREC_PER_PACKET -1 /**< As a per-file value, means each packet carries its own precision. */
+
 /*
  * These values are the number of digits of precision after the integral part.
  * They're the same as WS_TSPREC values; we define them here so that
  * tools/make-enums.py sees them.
  */
-#define WTAP_TSPREC_SEC         0
-#define WTAP_TSPREC_100_MSEC    1
-#define WTAP_TSPREC_DSEC        1 /* Backwards compatibility */
-#define WTAP_TSPREC_10_MSEC     2
-#define WTAP_TSPREC_CSEC        2 /* Backwards compatibility */
-#define WTAP_TSPREC_MSEC        3
-#define WTAP_TSPREC_100_USEC    4
-#define WTAP_TSPREC_10_USEC     5
-#define WTAP_TSPREC_USEC        6
-#define WTAP_TSPREC_100_NSEC    7
-#define WTAP_TSPREC_10_NSEC     8
-#define WTAP_TSPREC_NSEC        9
+#define WTAP_TSPREC_SEC       0 /**< Precision: 1 second (0 fractional digits). */
+#define WTAP_TSPREC_100_MSEC  1 /**< Precision: 100 milliseconds (1 fractional digit). */
+#define WTAP_TSPREC_DSEC      1 /**< Precision: decisecond — alias for #WTAP_TSPREC_100_MSEC (backwards compatibility). */
+#define WTAP_TSPREC_10_MSEC   2 /**< Precision: 10 milliseconds (2 fractional digits). */
+#define WTAP_TSPREC_CSEC      2 /**< Precision: centisecond — alias for #WTAP_TSPREC_10_MSEC (backwards compatibility). */
+#define WTAP_TSPREC_MSEC      3 /**< Precision: 1 millisecond (3 fractional digits). */
+#define WTAP_TSPREC_100_USEC  4 /**< Precision: 100 microseconds (4 fractional digits). */
+#define WTAP_TSPREC_10_USEC   5 /**< Precision: 10 microseconds (5 fractional digits). */
+#define WTAP_TSPREC_USEC      6 /**< Precision: 1 microsecond (6 fractional digits). */
+#define WTAP_TSPREC_100_NSEC  7 /**< Precision: 100 nanoseconds (7 fractional digits). */
+#define WTAP_TSPREC_10_NSEC   8 /**< Precision: 10 nanoseconds (8 fractional digits). */
+#define WTAP_TSPREC_NSEC      9 /**< Precision: 1 nanosecond (9 fractional digits). */
 /* if you add to the above, update wtap_tsprec_string() */
 
 /*
@@ -1260,54 +1261,70 @@ struct netmon_phdr {
 /* Record "pseudo-header" information for header data from MS ProcMon files. */
 
 struct procmon_process_t;
+
+/**
+ * @brief Pseudo-header for Microsoft ProcMon (Process Monitor) captures.
+ */
 struct procmon_phdr {
-    uint32_t *process_index_map;                /* Map of process index to process array index */
-    size_t process_index_map_size;
-    struct procmon_process_t *process_array;    /* Array of processes */
-    size_t process_array_size;
-    bool system_bitness;                        /* System bitness: 1 if the system is 64 bit, 0 otherwise. */
+    uint32_t                 *process_index_map;      /**< Map from raw process index to @c process_array index. */
+    size_t                    process_index_map_size; /**< Number of entries in @c process_index_map. */
+    struct procmon_process_t *process_array;          /**< Array of captured process descriptors. */
+    size_t                    process_array_size;     /**< Number of entries in @c process_array. */
+    bool                      system_bitness;         /**< True if the captured system was 64-bit, false if 32-bit. */
 };
 
-/* File "pseudo-header" for BER data files. */
+
+/**
+ * @brief Pseudo-header for BER (Basic Encoding Rules) data files.
+ */
 struct ber_phdr {
-    const char *pathname;   /* Path name of file. */
+    const char *pathname; /**< Path name of the BER-encoded source file. */
 };
 
-/* File "pseudo-header" for M-Module files. */
+
+/**
+ * @brief Pseudo-header for M-Module binary files.
+ */
 struct mmodule_phdr {
-     uint8_t chunktype;
+    uint8_t chunktype; /**< M-Module chunk type identifier. */
 };
 
+/**
+ * @brief Top-level union of all Wiretap pseudo-headers.
+ *
+ * Exactly one member is valid per record, selected by the encapsulation
+ * type (@c wtap_packet_header.pkt_encap) or record type.
+ */
 union wtap_pseudo_header {
-    struct eth_phdr     eth;
-    struct dte_dce_phdr dte_dce;
-    struct isdn_phdr    isdn;
-    struct atm_phdr     atm;
-    struct ascend_phdr  ascend;
-    struct p2p_phdr     p2p;
-    struct ieee_802_11_phdr ieee_802_11;
-    struct cosine_phdr  cosine;
-    struct irda_phdr    irda;
-    struct nettl_phdr   nettl;
-    struct mtp2_phdr    mtp2;
-    struct k12_phdr     k12;
-    struct lapd_phdr    lapd;
-    struct catapult_dct2000_phdr dct2000;
-    struct erf_mc_phdr  erf;
-    struct sita_phdr    sita;
-    struct bthci_phdr   bthci;
-    struct btmon_phdr   btmon;
-    struct l1event_phdr l1event;
-    struct i2c_phdr     i2c;
-    struct gsm_um_phdr  gsm_um;
-    struct nstr_phdr    nstr;
-    struct nokia_phdr   nokia;
-    struct llcp_phdr    llcp;
-    struct logcat_phdr  logcat;
-    struct netmon_phdr  netmon;
-    struct procmon_phdr procmon;
-    struct ber_phdr     ber;
-    struct mmodule_phdr mmodule;
+    struct eth_phdr              eth;         /**< Ethernet pseudo-header. */
+    struct dte_dce_phdr          dte_dce;     /**< DTE/DCE serial pseudo-header. */
+    struct isdn_phdr             isdn;        /**< ISDN pseudo-header. */
+    struct atm_phdr              atm;         /**< ATM pseudo-header. */
+    struct ascend_phdr           ascend;      /**< Lucent/Ascend WAN pseudo-header. */
+    struct p2p_phdr              p2p;         /**< Point-to-point pseudo-header. */
+    struct ieee_802_11_phdr      ieee_802_11; /**< IEEE 802.11 wireless pseudo-header. */
+    struct cosine_phdr           cosine;      /**< CoSine IPNOS pseudo-header. */
+    struct irda_phdr             irda;        /**< IrDA pseudo-header. */
+    struct nettl_phdr            nettl;       /**< HP-UX nettl pseudo-header. */
+    struct mtp2_phdr             mtp2;        /**< MTP2 pseudo-header. */
+    struct k12_phdr              k12;         /**< Tektronix K12 pseudo-header. */
+    struct lapd_phdr             lapd;        /**< LAPD pseudo-header. */
+    struct catapult_dct2000_phdr dct2000;     /**< Catapult DCT2000 pseudo-header. */
+    struct erf_mc_phdr           erf;         /**< Endace ERF (multi-channel) pseudo-header. */
+    struct sita_phdr             sita;        /**< SITA WAN pseudo-header. */
+    struct bthci_phdr            bthci;       /**< Bluetooth HCI pseudo-header. */
+    struct btmon_phdr            btmon;       /**< Bluetooth Linux Monitor pseudo-header. */
+    struct l1event_phdr          l1event;     /**< Layer 1 event pseudo-header. */
+    struct i2c_phdr              i2c;         /**< I2C pseudo-header. */
+    struct gsm_um_phdr           gsm_um;      /**< GSM Um (air interface) pseudo-header. */
+    struct nstr_phdr             nstr;        /**< NetScaler nstrace pseudo-header. */
+    struct nokia_phdr            nokia;       /**< Nokia pseudo-header. */
+    struct llcp_phdr             llcp;        /**< NFC LLCP pseudo-header. */
+    struct logcat_phdr           logcat;      /**< Android logcat pseudo-header. */
+    struct netmon_phdr           netmon;      /**< Microsoft NetMon pseudo-header. */
+    struct procmon_phdr          procmon;     /**< Microsoft ProcMon pseudo-header. */
+    struct ber_phdr              ber;         /**< BER file pseudo-header. */
+    struct mmodule_phdr          mmodule;     /**< M-Module pseudo-header. */
 };
 
 /*
@@ -1369,15 +1386,16 @@ union wtap_pseudo_header {
 #define REC_TYPE_SYSTEMD_JOURNAL_EXPORT 4    /**< systemd journal entry */
 #define REC_TYPE_CUSTOM_BLOCK           5    /**< pcapng custom block */
 
+/**
+ * @brief Header metadata for a captured network packet.
+ */
 typedef struct {
-    uint32_t  caplen;           /* data length in the file */
-    uint32_t  len;              /* data length on the wire */
-    int       pkt_encap;        /* WTAP_ENCAP_ value for this packet */
-                                /* pcapng variables */
-    uint32_t  interface_id;     /* identifier of the interface. */
-                                /* options */
+    uint32_t caplen;      /**< Number of bytes stored in the capture file for this packet. */
+    uint32_t len;         /**< Original packet length as seen on the wire. */
+    int      pkt_encap;   /**< Encapsulation type (@c WTAP_ENCAP_*) identifying the link layer for this packet. */
+    uint32_t interface_id; /**< pcapng interface ID that captured this packet. */
 
-    union wtap_pseudo_header  pseudo_header;
+    union wtap_pseudo_header pseudo_header; /**< Encapsulation-specific metadata; active member selected by @c pkt_encap. */
 } wtap_packet_header;
 
 /*
@@ -1451,38 +1469,48 @@ typedef struct {
     ((fcs_length) << 23) | \
     (ll_dependent_errors))
 
+/**
+ * @brief Header metadata for a file-type-specific event or report record.
+ */
 typedef struct {
-    int      file_type_subtype; /* the type of file this is for */
-    unsigned record_type;       /* the type of record this is - file type-specific value */
-    uint32_t record_len;        /* length of the record */
-    union wtap_pseudo_header  pseudo_header;
+    int      file_type_subtype; /**< File type/subtype identifier for which this record is valid. */
+    unsigned record_type;       /**< File-type-specific record subtype value (e.g. pcapng block type). */
+    uint32_t record_len;        /**< Length of the record in bytes. */
 
+    union wtap_pseudo_header pseudo_header; /**< Encapsulation-specific metadata associated with this record. */
 } wtap_ft_specific_header;
 
+/**
+ * @brief Header metadata for a system call record (e.g. from Sysdig/Falco captures).
+ */
 typedef struct {
-    const char *pathname;       /* Path name of file. */
-    unsigned  record_type;      /* XXX match ft_specific_record_phdr so that we chain off of packet-pcapng_block for now. */
-    int       byte_order;
-    /* uint32_t sentinel; */
-    uint64_t  timestamp;        /* ns since epoch - XXX dup of ts */
-    uint64_t  thread_id;
-    uint32_t  event_len;        /* length of the event (ppm event len) */
-    uint32_t  event_data_len;   /* length of the event data (ppm event len - ppm event header len) */
-    uint32_t  nparams;          /* number of parameters of the event */
-    uint32_t  flags;
-    uint16_t  event_type;
-    uint16_t  cpu_id;
-    /* ... Event ... */
+    const char *pathname;      /**< Path name of the source capture file. */
+    unsigned    record_type;   /**< Record type; mirrors @c ft_specific_record_phdr for pcapng block chaining. */
+    int         byte_order;    /**< Byte order of the record data (@c G_BIG_ENDIAN or @c G_LITTLE_ENDIAN). */
+    uint64_t    timestamp;     /**< Event timestamp in nanoseconds since the Unix epoch. */
+    uint64_t    thread_id;     /**< ID of the thread that generated the system call. */
+    uint32_t    event_len;     /**< Total length of the ppm event in bytes. */
+    uint32_t    event_data_len; /**< Length of the event payload (event_len minus the ppm event header length). */
+    uint32_t    nparams;       /**< Number of parameters carried by this event. */
+    uint32_t    flags;         /**< Event flags (ppm event flags). */
+    uint16_t    event_type;    /**< ppm event type identifier. */
+    uint16_t    cpu_id;        /**< ID of the CPU on which the event was captured. */
 } wtap_syscall_header;
 
+/**
+ * @brief Header metadata for a systemd journal export record.
+ */
 typedef struct {
-    uint32_t  record_len;       /* length of the record */
+    uint32_t record_len; /**< Length of the journal export record in bytes. */
 } wtap_systemd_journal_export_header;
 
+/**
+ * @brief Header metadata for a pcapng Custom Block record.
+ */
 typedef struct {
-    uint32_t  pen;              /* private enterprise number */
-    uint32_t  length;           /* length of the Custom Data plus options */
-    bool      copy_allowed;     /* CB can be written */
+    uint32_t pen;          /**< IANA Private Enterprise Number identifying the block's owner. */
+    uint32_t length;       /**< Length in bytes of the Custom Data field plus any options. */
+    bool     copy_allowed; /**< True if this Custom Block may be copied to output files. */
 } wtap_custom_block_header;
 
 /*

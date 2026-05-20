@@ -20,303 +20,898 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+/** @brief Protocol field handle for AccessLevel attribute. */
 extern int hf_opcua_AccessLevel;
+
+/** @brief Protocol field handle for ActualSessionTimeout value. */
 extern int hf_opcua_ActualSessionTimeout;
+
+/** @brief Protocol field handle for AddResults array. */
 extern int hf_opcua_AddResults;
+
+/** @brief Protocol field handle for Algorithm identifier. */
 extern int hf_opcua_Algorithm;
+
+/** @brief Protocol field handle for Alias string. */
 extern int hf_opcua_Alias;
+
+/** @brief Protocol field handle for AnnotationTime timestamp. */
 extern int hf_opcua_AnnotationTime;
+
+/** @brief Protocol field handle for ApplicationUri string. */
 extern int hf_opcua_ApplicationUri;
+
+/** @brief Protocol field handle for ArrayDimensions array. */
 extern int hf_opcua_ArrayDimensions;
+
+/** @brief Protocol field handle for AuditEntryId string. */
 extern int hf_opcua_AuditEntryId;
+
+/** @brief Protocol field handle for AuthenticationMechanism string. */
 extern int hf_opcua_AuthenticationMechanism;
+
+/** @brief Protocol field handle for AvailableSequenceNumbers array. */
 extern int hf_opcua_AvailableSequenceNumbers;
+
+/** @brief Protocol field handle for AxisSteps array. */
 extern int hf_opcua_AxisSteps;
+
+/** @brief Protocol field handle for a Boolean scalar value. */
 extern int hf_opcua_Boolean;
+
+/** @brief Protocol field handle for a Boolean array. */
 extern int hf_opcua_Booleans;
+
+/** @brief Protocol field handle for BuildDate timestamp. */
 extern int hf_opcua_BuildDate;
+
+/** @brief Protocol field handle for BuildNumber string. */
 extern int hf_opcua_BuildNumber;
+
+/** @brief Protocol field handle for a Byte scalar value. */
 extern int hf_opcua_Byte;
+
+/** @brief Protocol field handle for a ByteString scalar value. */
 extern int hf_opcua_ByteString;
+
+/** @brief Protocol field handle for a ByteString array. */
 extern int hf_opcua_ByteStrings;
+
+/** @brief Protocol field handle for CancelCount value. */
 extern int hf_opcua_CancelCount;
+
+/** @brief Protocol field handle for CertificateData binary blob. */
 extern int hf_opcua_CertificateData;
+
+/** @brief Protocol field handle for ChannelId value. */
 extern int hf_opcua_ChannelId;
+
+/** @brief Protocol field handle for ChannelLifetime value. */
 extern int hf_opcua_ChannelLifetime;
+
+/** @brief Protocol field handle for ClientCertificate binary blob. */
 extern int hf_opcua_ClientCertificate;
+
+/** @brief Protocol field handle for ClientConnectionTime timestamp. */
 extern int hf_opcua_ClientConnectionTime;
+
+/** @brief Protocol field handle for ClientHandle value. */
 extern int hf_opcua_ClientHandle;
+
+/** @brief Protocol field handle for ClientLastContactTime timestamp. */
 extern int hf_opcua_ClientLastContactTime;
+
+/** @brief Protocol field handle for ClientNonce binary blob. */
 extern int hf_opcua_ClientNonce;
+
+/** @brief Protocol field handle for ClientProtocolVersion value. */
 extern int hf_opcua_ClientProtocolVersion;
+
+/** @brief Protocol field handle for ClientUserIdHistory array. */
 extern int hf_opcua_ClientUserIdHistory;
+
+/** @brief Protocol field handle for ClientUserIdOfSession string. */
 extern int hf_opcua_ClientUserIdOfSession;
+
+/** @brief Protocol field handle for ComplianceDate timestamp. */
 extern int hf_opcua_ComplianceDate;
+
+/** @brief Protocol field handle for ComplianceTool string. */
 extern int hf_opcua_ComplianceTool;
+
+/** @brief Protocol field handle for ConfigurationResults array. */
 extern int hf_opcua_ConfigurationResults;
+
+/** @brief Protocol field handle for ContainsNoLoops boolean flag. */
 extern int hf_opcua_ContainsNoLoops;
+
+/** @brief Protocol field handle for ContinuationPoint binary blob. */
 extern int hf_opcua_ContinuationPoint;
+
+/** @brief Protocol field handle for ContinuationPoints array. */
 extern int hf_opcua_ContinuationPoints;
+
+/** @brief Protocol field handle for CreateClientName string. */
 extern int hf_opcua_CreateClientName;
+
+/** @brief Protocol field handle for CreatedAt timestamp. */
 extern int hf_opcua_CreatedAt;
+
+/** @brief Protocol field handle for CumulatedSessionCount value. */
 extern int hf_opcua_CumulatedSessionCount;
+
+/** @brief Protocol field handle for CumulatedSubscriptionCount value. */
 extern int hf_opcua_CumulatedSubscriptionCount;
+
+/** @brief Protocol field handle for CurrentKeepAliveCount value. */
 extern int hf_opcua_CurrentKeepAliveCount;
+
+/** @brief Protocol field handle for CurrentLifetimeCount value. */
 extern int hf_opcua_CurrentLifetimeCount;
+
+/** @brief Protocol field handle for CurrentMonitoredItemsCount value. */
 extern int hf_opcua_CurrentMonitoredItemsCount;
+
+/** @brief Protocol field handle for CurrentPublishRequestsInQueue value. */
 extern int hf_opcua_CurrentPublishRequestsInQueue;
+
+/** @brief Protocol field handle for CurrentSessionCount value. */
 extern int hf_opcua_CurrentSessionCount;
+
+/** @brief Protocol field handle for CurrentSubscriptionCount value. */
 extern int hf_opcua_CurrentSubscriptionCount;
+
+/** @brief Protocol field handle for CurrentSubscriptionsCount value. */
 extern int hf_opcua_CurrentSubscriptionsCount;
+
+/** @brief Protocol field handle for CurrentTime timestamp. */
 extern int hf_opcua_CurrentTime;
+
+/** @brief Protocol field handle for DataChangeNotificationsCount value. */
 extern int hf_opcua_DataChangeNotificationsCount;
+
+/** @brief Protocol field handle for DataStatusCodes array. */
 extern int hf_opcua_DataStatusCodes;
+
+/** @brief Protocol field handle for a DateTime scalar value. */
 extern int hf_opcua_DateTime;
+
+/** @brief Protocol field handle for a DateTime array. */
 extern int hf_opcua_DateTimes;
+
+/** @brief Protocol field handle for DaylightSavingInOffset boolean flag. */
 extern int hf_opcua_DaylightSavingInOffset;
+
+/** @brief Protocol field handle for DeadbandType value. */
 extern int hf_opcua_DeadbandType;
+
+/** @brief Protocol field handle for DeadbandValue value. */
 extern int hf_opcua_DeadbandValue;
+
+/** @brief Protocol field handle for DeleteBidirectional boolean flag. */
 extern int hf_opcua_DeleteBidirectional;
+
+/** @brief Protocol field handle for DeleteSubscriptions boolean flag. */
 extern int hf_opcua_DeleteSubscriptions;
+
+/** @brief Protocol field handle for DeleteTargetReferences boolean flag. */
 extern int hf_opcua_DeleteTargetReferences;
+
+/** @brief Protocol field handle for DisableCount value. */
 extern int hf_opcua_DisableCount;
+
+/** @brief Protocol field handle for DisabledMonitoredItemCount value. */
 extern int hf_opcua_DisabledMonitoredItemCount;
+
+/** @brief Protocol field handle for DiscardOldest boolean flag. */
 extern int hf_opcua_DiscardOldest;
+
+/** @brief Protocol field handle for DiscardedMessageCount value. */
 extern int hf_opcua_DiscardedMessageCount;
+
+/** @brief Protocol field handle for DiscoveryProfileUri string. */
 extern int hf_opcua_DiscoveryProfileUri;
+
+/** @brief Protocol field handle for DiscoveryUrl string. */
 extern int hf_opcua_DiscoveryUrl;
+
+/** @brief Protocol field handle for DiscoveryUrls array. */
 extern int hf_opcua_DiscoveryUrls;
+
+/** @brief Protocol field handle for a Double scalar value. */
 extern int hf_opcua_Double;
+
+/** @brief Protocol field handle for a Double array. */
 extern int hf_opcua_Doubles;
+
+/** @brief Protocol field handle for EnableCount value. */
 extern int hf_opcua_EnableCount;
+
+/** @brief Protocol field handle for Encoding value. */
 extern int hf_opcua_Encoding;
+
+/** @brief Protocol field handle for EncryptionAlgorithm string. */
 extern int hf_opcua_EncryptionAlgorithm;
+
+/** @brief Protocol field handle for EndTime timestamp. */
 extern int hf_opcua_EndTime;
+
+/** @brief Protocol field handle for EndpointUrl string. */
 extern int hf_opcua_EndpointUrl;
+
+/** @brief Protocol field handle for EndpointUrlList array. */
 extern int hf_opcua_EndpointUrlList;
+
+/** @brief Protocol field handle for ErrorCount value. */
 extern int hf_opcua_ErrorCount;
+
+/** @brief Protocol field handle for EventIds array. */
 extern int hf_opcua_EventIds;
+
+/** @brief Protocol field handle for EventNotificationsCount value. */
 extern int hf_opcua_EventNotificationsCount;
+
+/** @brief Protocol field handle for EventNotifier attribute. */
 extern int hf_opcua_EventNotifier;
+
+/** @brief Protocol field handle for EventQueueOverFlowCount value. */
 extern int hf_opcua_EventQueueOverFlowCount;
+
+/** @brief Protocol field handle for Executable boolean flag. */
 extern int hf_opcua_Executable;
+
+/** @brief Protocol field handle for a Float scalar value. */
 extern int hf_opcua_Float;
+
+/** @brief Protocol field handle for a Float array. */
 extern int hf_opcua_Floats;
+
+/** @brief Protocol field handle for GatewayServerUri string. */
 extern int hf_opcua_GatewayServerUri;
+
+/** @brief Protocol field handle for a Guid scalar value. */
 extern int hf_opcua_Guid;
+
+/** @brief Protocol field handle for a Guid array. */
 extern int hf_opcua_Guids;
+
+/** @brief Protocol field handle for High limit value. */
 extern int hf_opcua_High;
+
+/** @brief Protocol field handle for Historizing boolean flag. */
 extern int hf_opcua_Historizing;
+
+/** @brief Protocol field handle for Imaginary component value. */
 extern int hf_opcua_Imaginary;
+
+/** @brief Protocol field handle for IncludeSubTypes boolean flag. */
 extern int hf_opcua_IncludeSubTypes;
+
+/** @brief Protocol field handle for IncludeSubtypes boolean flag. */
 extern int hf_opcua_IncludeSubtypes;
+
+/** @brief Protocol field handle for Index value. */
 extern int hf_opcua_Index;
+
+/** @brief Protocol field handle for IndexRange string. */
 extern int hf_opcua_IndexRange;
+
+/** @brief Protocol field handle for InputArgumentResults array. */
 extern int hf_opcua_InputArgumentResults;
+
+/** @brief Protocol field handle for an Int16 scalar value. */
 extern int hf_opcua_Int16;
+
+/** @brief Protocol field handle for an Int16 array. */
 extern int hf_opcua_Int16s;
+
+/** @brief Protocol field handle for an Int32 scalar value. */
 extern int hf_opcua_Int32;
+
+/** @brief Protocol field handle for an Int32 array. */
 extern int hf_opcua_Int32s;
+
+/** @brief Protocol field handle for an Int64 scalar value. */
 extern int hf_opcua_Int64;
+
+/** @brief Protocol field handle for an Int64 array. */
 extern int hf_opcua_Int64s;
+
+/** @brief Protocol field handle for InvocationCreationTime timestamp. */
 extern int hf_opcua_InvocationCreationTime;
+
+/** @brief Protocol field handle for IsAbstract boolean flag. */
 extern int hf_opcua_IsAbstract;
+
+/** @brief Protocol field handle for IsDeleteModified boolean flag. */
 extern int hf_opcua_IsDeleteModified;
+
+/** @brief Protocol field handle for IsForward boolean flag. */
 extern int hf_opcua_IsForward;
+
+/** @brief Protocol field handle for IsInverse boolean flag. */
 extern int hf_opcua_IsInverse;
+
+/** @brief Protocol field handle for IsOnline boolean flag. */
 extern int hf_opcua_IsOnline;
+
+/** @brief Protocol field handle for IsReadModified boolean flag. */
 extern int hf_opcua_IsReadModified;
+
+/** @brief Protocol field handle for IssueDate timestamp. */
 extern int hf_opcua_IssueDate;
+
+/** @brief Protocol field handle for IssuedBy string. */
 extern int hf_opcua_IssuedBy;
+
+/** @brief Protocol field handle for IssuedTokenType string. */
 extern int hf_opcua_IssuedTokenType;
+
+/** @brief Protocol field handle for IssuerCertificates array. */
 extern int hf_opcua_IssuerCertificates;
+
+/** @brief Protocol field handle for IssuerCrls array. */
 extern int hf_opcua_IssuerCrls;
+
+/** @brief Protocol field handle for IssuerEndpointUrl string. */
 extern int hf_opcua_IssuerEndpointUrl;
+
+/** @brief Protocol field handle for Iteration value. */
 extern int hf_opcua_Iteration;
+
+/** @brief Protocol field handle for LastCounterResetTime timestamp. */
 extern int hf_opcua_LastCounterResetTime;
+
+/** @brief Protocol field handle for LastMethodCall string. */
 extern int hf_opcua_LastMethodCall;
+
+/** @brief Protocol field handle for LastMethodCallTime timestamp. */
 extern int hf_opcua_LastMethodCallTime;
+
+/** @brief Protocol field handle for LastTransitionTime timestamp. */
 extern int hf_opcua_LastTransitionTime;
+
+/** @brief Protocol field handle for LatePublishRequestCount value. */
 extern int hf_opcua_LatePublishRequestCount;
+
+/** @brief Protocol field handle for LinksToAdd array. */
 extern int hf_opcua_LinksToAdd;
+
+/** @brief Protocol field handle for LinksToRemove array. */
 extern int hf_opcua_LinksToRemove;
+
+/** @brief Protocol field handle for LocaleIds array. */
 extern int hf_opcua_LocaleIds;
+
+/** @brief Protocol field handle for Low limit value. */
 extern int hf_opcua_Low;
+
+/** @brief Protocol field handle for ManufacturerName string. */
 extern int hf_opcua_ManufacturerName;
+
+/** @brief Protocol field handle for MaxAge value. */
 extern int hf_opcua_MaxAge;
+
+/** @brief Protocol field handle for MaxArrayLength value. */
 extern int hf_opcua_MaxArrayLength;
+
+/** @brief Protocol field handle for MaxBufferSize value. */
 extern int hf_opcua_MaxBufferSize;
+
+/** @brief Protocol field handle for MaxByteStringLength value. */
 extern int hf_opcua_MaxByteStringLength;
+
+/** @brief Protocol field handle for MaxDataSetsToReturn value. */
 extern int hf_opcua_MaxDataSetsToReturn;
+
+/** @brief Protocol field handle for MaxKeepAliveCount value. */
 extern int hf_opcua_MaxKeepAliveCount;
+
+/** @brief Protocol field handle for MaxLifetimeCount value. */
 extern int hf_opcua_MaxLifetimeCount;
+
+/** @brief Protocol field handle for MaxMessageSize value. */
 extern int hf_opcua_MaxMessageSize;
+
+/** @brief Protocol field handle for MaxMonitoredItemCount value. */
 extern int hf_opcua_MaxMonitoredItemCount;
+
+/** @brief Protocol field handle for MaxNotificationsPerPublish value. */
 extern int hf_opcua_MaxNotificationsPerPublish;
+
+/** @brief Protocol field handle for MaxRecordsToReturn value. */
 extern int hf_opcua_MaxRecordsToReturn;
+
+/** @brief Protocol field handle for MaxReferencesToReturn value. */
 extern int hf_opcua_MaxReferencesToReturn;
+
+/** @brief Protocol field handle for MaxRequestMessageSize value. */
 extern int hf_opcua_MaxRequestMessageSize;
+
+/** @brief Protocol field handle for MaxResponseMessageSize value. */
 extern int hf_opcua_MaxResponseMessageSize;
+
+/** @brief Protocol field handle for MaxStringLength value. */
 extern int hf_opcua_MaxStringLength;
+
+/** @brief Protocol field handle for MdnsServerName string. */
 extern int hf_opcua_MdnsServerName;
+
+/** @brief Protocol field handle for Message string. */
 extern int hf_opcua_Message;
+
+/** @brief Protocol field handle for MinimumSamplingInterval value. */
 extern int hf_opcua_MinimumSamplingInterval;
+
+/** @brief Protocol field handle for ModificationTime timestamp. */
 extern int hf_opcua_ModificationTime;
+
+/** @brief Protocol field handle for ModifyCount value. */
 extern int hf_opcua_ModifyCount;
+
+/** @brief Protocol field handle for MonitoredItemCount value. */
 extern int hf_opcua_MonitoredItemCount;
+
+/** @brief Protocol field handle for MonitoredItemId value. */
 extern int hf_opcua_MonitoredItemId;
+
+/** @brief Protocol field handle for MonitoredItemIds array. */
 extern int hf_opcua_MonitoredItemIds;
+
+/** @brief Protocol field handle for MonitoringQueueOverflowCount value. */
 extern int hf_opcua_MonitoringQueueOverflowCount;
+
+/** @brief Protocol field handle for MoreNotifications boolean flag. */
 extern int hf_opcua_MoreNotifications;
+
+/** @brief Protocol field handle for Name string. */
 extern int hf_opcua_Name;
+
+/** @brief Protocol field handle for NamespaceUri string. */
 extern int hf_opcua_NamespaceUri;
+
+/** @brief Protocol field handle for NextSequenceNumber value. */
 extern int hf_opcua_NextSequenceNumber;
+
+/** @brief Protocol field handle for NotificationsCount value. */
 extern int hf_opcua_NotificationsCount;
+
+/** @brief Protocol field handle for NumValuesPerNode value. */
 extern int hf_opcua_NumValuesPerNode;
+
+/** @brief Protocol field handle for Offset value. */
 extern int hf_opcua_Offset;
+
+/** @brief Protocol field handle for OperandStatusCodes array. */
 extern int hf_opcua_OperandStatusCodes;
+
+/** @brief Protocol field handle for OperationResults array. */
 extern int hf_opcua_OperationResults;
+
+/** @brief Protocol field handle for OperationTimeout value. */
 extern int hf_opcua_OperationTimeout;
+
+/** @brief Protocol field handle for OrganizationUri string. */
 extern int hf_opcua_OrganizationUri;
+
+/** @brief Protocol field handle for Password binary blob. */
 extern int hf_opcua_Password;
+
+/** @brief Protocol field handle for PercentDataBad value. */
 extern int hf_opcua_PercentDataBad;
+
+/** @brief Protocol field handle for PercentDataGood value. */
 extern int hf_opcua_PercentDataGood;
+
+/** @brief Protocol field handle for PolicyId string. */
 extern int hf_opcua_PolicyId;
+
+/** @brief Protocol field handle for Priority value. */
 extern int hf_opcua_Priority;
+
+/** @brief Protocol field handle for ProcessingInterval value. */
 extern int hf_opcua_ProcessingInterval;
+
+/** @brief Protocol field handle for ProductName string. */
 extern int hf_opcua_ProductName;
+
+/** @brief Protocol field handle for ProductUri string. */
 extern int hf_opcua_ProductUri;
+
+/** @brief Protocol field handle for ProfileId string. */
 extern int hf_opcua_ProfileId;
+
+/** @brief Protocol field handle for ProfileUris array. */
 extern int hf_opcua_ProfileUris;
+
+/** @brief Protocol field handle for PublishRequestCount value. */
 extern int hf_opcua_PublishRequestCount;
+
+/** @brief Protocol field handle for PublishTime timestamp. */
 extern int hf_opcua_PublishTime;
+
+/** @brief Protocol field handle for PublishingEnabled boolean flag. */
 extern int hf_opcua_PublishingEnabled;
+
+/** @brief Protocol field handle for PublishingInterval value. */
 extern int hf_opcua_PublishingInterval;
+
+/** @brief Protocol field handle for PublishingIntervalCount value. */
 extern int hf_opcua_PublishingIntervalCount;
+
+/** @brief Protocol field handle for QueueSize value. */
 extern int hf_opcua_QueueSize;
+
+/** @brief Protocol field handle for Real component value. */
 extern int hf_opcua_Real;
+
+/** @brief Protocol field handle for RecordId value. */
 extern int hf_opcua_RecordId;
+
+/** @brief Protocol field handle for RejectedRequestsCount value. */
 extern int hf_opcua_RejectedRequestsCount;
+
+/** @brief Protocol field handle for RejectedSessionCount value. */
 extern int hf_opcua_RejectedSessionCount;
+
+/** @brief Protocol field handle for ReleaseContinuationPoint boolean flag. */
 extern int hf_opcua_ReleaseContinuationPoint;
+
+/** @brief Protocol field handle for ReleaseContinuationPoints boolean flag. */
 extern int hf_opcua_ReleaseContinuationPoints;
+
+/** @brief Protocol field handle for RemainingPathIndex value. */
 extern int hf_opcua_RemainingPathIndex;
+
+/** @brief Protocol field handle for RemoveResults array. */
 extern int hf_opcua_RemoveResults;
+
+/** @brief Protocol field handle for RepublishMessageCount value. */
 extern int hf_opcua_RepublishMessageCount;
+
+/** @brief Protocol field handle for RepublishMessageRequestCount value. */
 extern int hf_opcua_RepublishMessageRequestCount;
+
+/** @brief Protocol field handle for RepublishRequestCount value. */
 extern int hf_opcua_RepublishRequestCount;
+
+/** @brief Protocol field handle for ReqTimes array. */
 extern int hf_opcua_ReqTimes;
+
+/** @brief Protocol field handle for RequestHandle value. */
 extern int hf_opcua_RequestHandle;
+
+/** @brief Protocol field handle for RequestedLifetime value. */
 extern int hf_opcua_RequestedLifetime;
+
+/** @brief Protocol field handle for RequestedLifetimeCount value. */
 extern int hf_opcua_RequestedLifetimeCount;
+
+/** @brief Protocol field handle for RequestedMaxKeepAliveCount value. */
 extern int hf_opcua_RequestedMaxKeepAliveCount;
+
+/** @brief Protocol field handle for RequestedMaxReferencesPerNode value. */
 extern int hf_opcua_RequestedMaxReferencesPerNode;
+
+/** @brief Protocol field handle for RequestedPublishingInterval value. */
 extern int hf_opcua_RequestedPublishingInterval;
+
+/** @brief Protocol field handle for RequestedSessionTimeout value. */
 extern int hf_opcua_RequestedSessionTimeout;
+
+/** @brief Protocol field handle for Results array. */
 extern int hf_opcua_Results;
+
+/** @brief Protocol field handle for RetransmitSequenceNumber value. */
 extern int hf_opcua_RetransmitSequenceNumber;
+
+/** @brief Protocol field handle for ReturnBounds boolean flag. */
 extern int hf_opcua_ReturnBounds;
+
+/** @brief Protocol field handle for ReturnDiagnostics bitmask. */
 extern int hf_opcua_ReturnDiagnostics;
+
+/** @brief Protocol field handle for RevisedContinuationPoint binary blob. */
 extern int hf_opcua_RevisedContinuationPoint;
+
+/** @brief Protocol field handle for RevisedLifetime value. */
 extern int hf_opcua_RevisedLifetime;
+
+/** @brief Protocol field handle for RevisedLifetimeCount value. */
 extern int hf_opcua_RevisedLifetimeCount;
+
+/** @brief Protocol field handle for RevisedMaxKeepAliveCount value. */
 extern int hf_opcua_RevisedMaxKeepAliveCount;
+
+/** @brief Protocol field handle for RevisedProcessingInterval value. */
 extern int hf_opcua_RevisedProcessingInterval;
+
+/** @brief Protocol field handle for RevisedPublishingInterval value. */
 extern int hf_opcua_RevisedPublishingInterval;
+
+/** @brief Protocol field handle for RevisedQueueSize value. */
 extern int hf_opcua_RevisedQueueSize;
+
+/** @brief Protocol field handle for RevisedSamplingInterval value. */
 extern int hf_opcua_RevisedSamplingInterval;
+
+/** @brief Protocol field handle for RevisedSessionTimeout value. */
 extern int hf_opcua_RevisedSessionTimeout;
+
+/** @brief Protocol field handle for RevisedStartTime timestamp. */
 extern int hf_opcua_RevisedStartTime;
+
+/** @brief Protocol field handle for an SByte scalar value. */
 extern int hf_opcua_SByte;
+
+/** @brief Protocol field handle for an SByte array. */
 extern int hf_opcua_SBytes;
+
+/** @brief Protocol field handle for SamplingInterval value. */
 extern int hf_opcua_SamplingInterval;
+
+/** @brief Protocol field handle for SecondsTillShutdown value. */
 extern int hf_opcua_SecondsTillShutdown;
+
+/** @brief Protocol field handle for SecurityLevel value. */
 extern int hf_opcua_SecurityLevel;
+
+/** @brief Protocol field handle for SecurityPolicyUri string. */
 extern int hf_opcua_SecurityPolicyUri;
+
+/** @brief Protocol field handle for SecurityRejectedRequestsCount value. */
 extern int hf_opcua_SecurityRejectedRequestsCount;
+
+/** @brief Protocol field handle for SecurityRejectedSessionCount value. */
 extern int hf_opcua_SecurityRejectedSessionCount;
+
+/** @brief Protocol field handle for SecurityTokenLifetime value. */
 extern int hf_opcua_SecurityTokenLifetime;
+
+/** @brief Protocol field handle for SelectClauseResults array. */
 extern int hf_opcua_SelectClauseResults;
+
+/** @brief Protocol field handle for SemaphoreFilePath string. */
 extern int hf_opcua_SemaphoreFilePath;
+
+/** @brief Protocol field handle for SendInitialValues boolean flag. */
 extern int hf_opcua_SendInitialValues;
+
+/** @brief Protocol field handle for SequenceNumber value. */
 extern int hf_opcua_SequenceNumber;
+
+/** @brief Protocol field handle for ServerCapabilities string. */
 extern int hf_opcua_ServerCapabilities;
+
+/** @brief Protocol field handle for ServerCapabilityFilter string. */
 extern int hf_opcua_ServerCapabilityFilter;
+
+/** @brief Protocol field handle for ServerCertificate binary blob. */
 extern int hf_opcua_ServerCertificate;
+
+/** @brief Protocol field handle for ServerId string. */
 extern int hf_opcua_ServerId;
+
+/** @brief Protocol field handle for ServerName string. */
 extern int hf_opcua_ServerName;
+
+/** @brief Protocol field handle for ServerNonce binary blob. */
 extern int hf_opcua_ServerNonce;
+
+/** @brief Protocol field handle for ServerProtocolVersion value. */
 extern int hf_opcua_ServerProtocolVersion;
+
+/** @brief Protocol field handle for ServerUri string. */
 extern int hf_opcua_ServerUri;
+
+/** @brief Protocol field handle for ServerUris array. */
 extern int hf_opcua_ServerUris;
+
+/** @brief Protocol field handle for ServerViewCount value. */
 extern int hf_opcua_ServerViewCount;
+
+/** @brief Protocol field handle for ServiceLevel value. */
 extern int hf_opcua_ServiceLevel;
+
+/** @brief Protocol field handle for ServiceResult status code. */
 extern int hf_opcua_ServiceResult;
+
+/** @brief Protocol field handle for SessionAbortCount value. */
 extern int hf_opcua_SessionAbortCount;
+
+/** @brief Protocol field handle for SessionName string. */
 extern int hf_opcua_SessionName;
+
+/** @brief Protocol field handle for SessionTimeoutCount value. */
 extern int hf_opcua_SessionTimeoutCount;
+
+/** @brief Protocol field handle for Signature binary blob. */
 extern int hf_opcua_Signature;
+
+/** @brief Protocol field handle for SoftwareVersion string. */
 extern int hf_opcua_SoftwareVersion;
+
+/** @brief Protocol field handle for SpecifiedAttributes bitmask. */
 extern int hf_opcua_SpecifiedAttributes;
+
+/** @brief Protocol field handle for SpecifiedLists bitmask. */
 extern int hf_opcua_SpecifiedLists;
+
+/** @brief Protocol field handle for StartTime timestamp. */
 extern int hf_opcua_StartTime;
+
+/** @brief Protocol field handle for StartingRecordId value. */
 extern int hf_opcua_StartingRecordId;
+
+/** @brief Protocol field handle for Status value. */
 extern int hf_opcua_Status;
+
+/** @brief Protocol field handle for StatusCode value. */
 extern int hf_opcua_StatusCode;
+
+/** @brief Protocol field handle for StatusCodes array. */
 extern int hf_opcua_StatusCodes;
+
+/** @brief Protocol field handle for a String scalar value. */
 extern int hf_opcua_String;
+
+/** @brief Protocol field handle for StringTable array. */
 extern int hf_opcua_StringTable;
+
+/** @brief Protocol field handle for a String array. */
 extern int hf_opcua_Strings;
+
+/** @brief Protocol field handle for SubscriptionId value. */
 extern int hf_opcua_SubscriptionId;
+
+/** @brief Protocol field handle for SubscriptionIds array. */
 extern int hf_opcua_SubscriptionIds;
+
+/** @brief Protocol field handle for Symmetric boolean flag. */
 extern int hf_opcua_Symmetric;
+
+/** @brief Protocol field handle for TargetServerUri string. */
 extern int hf_opcua_TargetServerUri;
+
+/** @brief Protocol field handle for TestId value. */
 extern int hf_opcua_TestId;
+
+/** @brief Protocol field handle for TicketData binary blob. */
 extern int hf_opcua_TicketData;
+
+/** @brief Protocol field handle for TimeoutHint value. */
 extern int hf_opcua_TimeoutHint;
+
+/** @brief Protocol field handle for Timestamp value. */
 extern int hf_opcua_Timestamp;
+
+/** @brief Protocol field handle for TokenData binary blob. */
 extern int hf_opcua_TokenData;
+
+/** @brief Protocol field handle for TokenId value. */
 extern int hf_opcua_TokenId;
+
+/** @brief Protocol field handle for TotalCount value. */
 extern int hf_opcua_TotalCount;
+
+/** @brief Protocol field handle for TransferRequestCount value. */
 extern int hf_opcua_TransferRequestCount;
+
+/** @brief Protocol field handle for TransferredToAltClientCount value. */
 extern int hf_opcua_TransferredToAltClientCount;
+
+/** @brief Protocol field handle for TransferredToSameClientCount value. */
 extern int hf_opcua_TransferredToSameClientCount;
+
+/** @brief Protocol field handle for TransportProfileUri string. */
 extern int hf_opcua_TransportProfileUri;
+
+/** @brief Protocol field handle for TransportProtocol string. */
 extern int hf_opcua_TransportProtocol;
+
+/** @brief Protocol field handle for TreatUncertainAsBad boolean flag. */
 extern int hf_opcua_TreatUncertainAsBad;
+
+/** @brief Protocol field handle for TriggeringItemId value. */
 extern int hf_opcua_TriggeringItemId;
+
+/** @brief Protocol field handle for TrustedCertificates array. */
 extern int hf_opcua_TrustedCertificates;
+
+/** @brief Protocol field handle for TrustedCrls array. */
 extern int hf_opcua_TrustedCrls;
+
+/** @brief Protocol field handle for a UInt16 scalar value. */
 extern int hf_opcua_UInt16;
+
+/** @brief Protocol field handle for a UInt16 array. */
 extern int hf_opcua_UInt16s;
+
+/** @brief Protocol field handle for a UInt32 scalar value. */
 extern int hf_opcua_UInt32;
+
+/** @brief Protocol field handle for a UInt32 array. */
 extern int hf_opcua_UInt32s;
+
+/** @brief Protocol field handle for a UInt64 scalar value. */
 extern int hf_opcua_UInt64;
+
+/** @brief Protocol field handle for a UInt64 array. */
 extern int hf_opcua_UInt64s;
+
+/** @brief Protocol field handle for UnacknowledgedMessageCount value. */
 extern int hf_opcua_UnacknowledgedMessageCount;
+
+/** @brief Protocol field handle for UnauthorizedRequestCount value. */
 extern int hf_opcua_UnauthorizedRequestCount;
+
+/** @brief Protocol field handle for UnitId value. */
 extern int hf_opcua_UnitId;
+
+/** @brief Protocol field handle for UnsupportedUnitIds array. */
 extern int hf_opcua_UnsupportedUnitIds;
+
+/** @brief Protocol field handle for UseBinaryEncoding boolean flag. */
 extern int hf_opcua_UseBinaryEncoding;
+
+/** @brief Protocol field handle for UseServerCapabilitiesDefaults boolean flag. */
 extern int hf_opcua_UseServerCapabilitiesDefaults;
+
+/** @brief Protocol field handle for UseSimpleBounds boolean flag. */
 extern int hf_opcua_UseSimpleBounds;
+
+/** @brief Protocol field handle for UseSlopedExtrapolation boolean flag. */
 extern int hf_opcua_UseSlopedExtrapolation;
+
+/** @brief Protocol field handle for UserAccessLevel attribute. */
 extern int hf_opcua_UserAccessLevel;
+
+/** @brief Protocol field handle for UserExecutable boolean flag. */
 extern int hf_opcua_UserExecutable;
+
+/** @brief Protocol field handle for UserName string. */
 extern int hf_opcua_UserName;
+
+/** @brief Protocol field handle for UserWriteMask bitmask. */
 extern int hf_opcua_UserWriteMask;
+
+/** @brief Protocol field handle for ValidBits bitmask. */
 extern int hf_opcua_ValidBits;
+
+/** @brief Protocol field handle for Value variant. */
 extern int hf_opcua_Value;
+
+/** @brief Protocol field handle for ValueRank value. */
 extern int hf_opcua_ValueRank;
+
+/** @brief Protocol field handle for VendorName string. */
 extern int hf_opcua_VendorName;
+
+/** @brief Protocol field handle for VendorProductCertificate binary blob. */
 extern int hf_opcua_VendorProductCertificate;
+
+/** @brief Protocol field handle for Verb value. */
 extern int hf_opcua_Verb;
+
+/** @brief Protocol field handle for ViewVersion value. */
 extern int hf_opcua_ViewVersion;
+
+/** @brief Protocol field handle for WriteMask bitmask. */
 extern int hf_opcua_WriteMask;
+
+/** @brief Protocol field handle for X coordinate value. */
 extern int hf_opcua_X;
+
+/** @brief Protocol field handle for an XmlElement scalar value. */
 extern int hf_opcua_XmlElement;
+
+/** @brief Protocol field handle for an XmlElement array. */
 extern int hf_opcua_XmlElements;
 
-/** Register field types. */
+/**
+ * @brief Registers all OpcUa protocol field handles with the Wireshark dissector engine.
+ *
+ * @param proto Protocol handle returned by proto_register_protocol().
+ */
 void registerFieldTypes(int proto);
 

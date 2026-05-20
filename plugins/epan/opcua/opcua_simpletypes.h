@@ -20,74 +20,194 @@
 #include "opcua_identifiers.h"
 
 /* simple header fields */
+/** @brief Wireshark header field index for the ReturnDiagnostics bitmask field. */
 extern int hf_opcua_returnDiag;
+
+/** @brief Wireshark header field index for the service-level SymbolicId diagnostics mask bit. */
 extern int hf_opcua_returnDiag_mask_sl_symbolicId;
+
+/** @brief Wireshark header field index for the service-level LocalizedText diagnostics mask bit. */
 extern int hf_opcua_returnDiag_mask_sl_localizedText;
+
+/** @brief Wireshark header field index for the service-level AdditionalInfo diagnostics mask bit. */
 extern int hf_opcua_returnDiag_mask_sl_additionalinfo;
+
+/** @brief Wireshark header field index for the service-level InnerStatusCode diagnostics mask bit. */
 extern int hf_opcua_returnDiag_mask_sl_innerstatuscode;
+
+/** @brief Wireshark header field index for the service-level InnerDiagnostics diagnostics mask bit. */
 extern int hf_opcua_returnDiag_mask_sl_innerdiagnostics;
+
+/** @brief Wireshark header field index for the operation-level SymbolicId diagnostics mask bit. */
 extern int hf_opcua_returnDiag_mask_ol_symbolicId;
+
+/** @brief Wireshark header field index for the operation-level LocalizedText diagnostics mask bit. */
 extern int hf_opcua_returnDiag_mask_ol_localizedText;
+
+/** @brief Wireshark header field index for the operation-level AdditionalInfo diagnostics mask bit. */
 extern int hf_opcua_returnDiag_mask_ol_additionalinfo;
+
+/** @brief Wireshark header field index for the operation-level InnerStatusCode diagnostics mask bit. */
 extern int hf_opcua_returnDiag_mask_ol_innerstatuscode;
+
+/** @brief Wireshark header field index for the operation-level InnerDiagnostics diagnostics mask bit. */
 extern int hf_opcua_returnDiag_mask_ol_innerdiagnostics;
+
+/** @brief Wireshark header field index for the NodeClassMask bitmask field. */
 extern int hf_opcua_nodeClassMask;
+
+/** @brief Wireshark header field index for the NodeClassMask "all node classes" bit. */
 extern int hf_opcua_nodeClassMask_all;
+
+/** @brief Wireshark header field index for the NodeClassMask Object bit. */
 extern int hf_opcua_nodeClassMask_object;
+
+/** @brief Wireshark header field index for the NodeClassMask Variable bit. */
 extern int hf_opcua_nodeClassMask_variable;
+
+/** @brief Wireshark header field index for the NodeClassMask Method bit. */
 extern int hf_opcua_nodeClassMask_method;
+
+/** @brief Wireshark header field index for the NodeClassMask ObjectType bit. */
 extern int hf_opcua_nodeClassMask_objecttype;
+
+/** @brief Wireshark header field index for the NodeClassMask VariableType bit. */
 extern int hf_opcua_nodeClassMask_variabletype;
+
+/** @brief Wireshark header field index for the NodeClassMask ReferenceType bit. */
 extern int hf_opcua_nodeClassMask_referencetype;
+
+/** @brief Wireshark header field index for the NodeClassMask DataType bit. */
 extern int hf_opcua_nodeClassMask_datatype;
+
+/** @brief Wireshark header field index for the NodeClassMask View bit. */
 extern int hf_opcua_nodeClassMask_view;
+
+/** @brief Wireshark header field index for the ResultMask bitmask field. */
 extern int hf_opcua_resultMask;
+
+/** @brief Wireshark header field index for the ResultMask "all results" bit. */
 extern int hf_opcua_resultMask_all;
+
+/** @brief Wireshark header field index for the ResultMask ReferenceType bit. */
 extern int hf_opcua_resultMask_referencetype;
+
+/** @brief Wireshark header field index for the ResultMask IsForward bit. */
 extern int hf_opcua_resultMask_isforward;
+
+/** @brief Wireshark header field index for the ResultMask NodeClass bit. */
 extern int hf_opcua_resultMask_nodeclass;
+
+/** @brief Wireshark header field index for the ResultMask BrowseName bit. */
 extern int hf_opcua_resultMask_browsename;
+
+/** @brief Wireshark header field index for the ResultMask DisplayName bit. */
 extern int hf_opcua_resultMask_displayname;
+
+/** @brief Wireshark header field index for the ResultMask TypeDefinition bit. */
 extern int hf_opcua_resultMask_typedefinition;
 
 /* simple types trees */
+/** @brief Subtree index for the NodeId subtree in the Wireshark protocol tree. */
 extern int ett_opcua_nodeid;
+
+/** @brief Subtree index for the ExtensionObject subtree. */
 extern int ett_opcua_extensionobject;
+
+/** @brief Subtree index for an array of Boolean values. */
 extern int ett_opcua_array_Boolean;
+
+/** @brief Subtree index for an array of SByte values. */
 extern int ett_opcua_array_SByte;
+
+/** @brief Subtree index for an array of Byte values. */
 extern int ett_opcua_array_Byte;
+
+/** @brief Subtree index for an array of Int16 values. */
 extern int ett_opcua_array_Int16;
+
+/** @brief Subtree index for an array of UInt16 values. */
 extern int ett_opcua_array_UInt16;
+
+/** @brief Subtree index for an array of Int32 values. */
 extern int ett_opcua_array_Int32;
+
+/** @brief Subtree index for an array of UInt32 values. */
 extern int ett_opcua_array_UInt32;
+
+/** @brief Subtree index for an array of Int64 values. */
 extern int ett_opcua_array_Int64;
+
+/** @brief Subtree index for an array of UInt64 values. */
 extern int ett_opcua_array_UInt64;
+
+/** @brief Subtree index for an array of Float values. */
 extern int ett_opcua_array_Float;
+
+/** @brief Subtree index for an array of Double values. */
 extern int ett_opcua_array_Double;
+
+/** @brief Subtree index for an array of String values. */
 extern int ett_opcua_array_String;
+
+/** @brief Subtree index for an array of DateTime values. */
 extern int ett_opcua_array_DateTime;
+
+/** @brief Subtree index for an array of Guid values. */
 extern int ett_opcua_array_Guid;
+
+/** @brief Subtree index for an array of ByteString values. */
 extern int ett_opcua_array_ByteString;
+
+/** @brief Subtree index for an array of XmlElement values. */
 extern int ett_opcua_array_XmlElement;
+
+/** @brief Subtree index for an array of NodeId values. */
 extern int ett_opcua_array_NodeId;
+
+/** @brief Subtree index for an array of ExpandedNodeId values. */
 extern int ett_opcua_array_ExpandedNodeId;
+
+/** @brief Subtree index for an array of StatusCode values. */
 extern int ett_opcua_array_StatusCode;
+
+/** @brief Subtree index for an array of DiagnosticInfo values. */
 extern int ett_opcua_array_DiagnosticInfo;
+
+/** @brief Subtree index for an array of QualifiedName values. */
 extern int ett_opcua_array_QualifiedName;
+
+/** @brief Subtree index for an array of LocalizedText values. */
 extern int ett_opcua_array_LocalizedText;
+
+/** @brief Subtree index for an array of ExtensionObject values. */
 extern int ett_opcua_array_ExtensionObject;
+
+/** @brief Subtree index for an array of DataValue values. */
 extern int ett_opcua_array_DataValue;
+
+/** @brief Subtree index for an array of Variant values. */
 extern int ett_opcua_array_Variant;
+
+/** @brief Subtree index for the ReturnDiagnostics bitmask subtree. */
 extern int ett_opcua_returnDiagnostics;
+
+/** @brief Subtree index for the NodeClassMask bitmask subtree. */
 extern int ett_opcua_nodeClassMask;
+
+/** @brief Subtree index for the ResultMask bitmask subtree. */
 extern int ett_opcua_resultMask;
 
+
+/**
+ * @brief OPC UA message security mode, indicating whether a message channel is unsecured, signed, or encrypted.
+ */
 enum ua_message_mode {
-    UA_MessageMode_Unknown = 0,
-    UA_MessageMode_None,
-    UA_MessageMode_Sign,
-    UA_MessageMode_SignAndEncrypt,
-    UA_MessageMode_MaybeEncrypted
+    UA_MessageMode_Unknown        = 0, /**< Security mode has not been determined. */
+    UA_MessageMode_None,               /**< No security applied; messages are neither signed nor encrypted. */
+    UA_MessageMode_Sign,               /**< Messages are signed but not encrypted. */
+    UA_MessageMode_SignAndEncrypt,     /**< Messages are both signed and encrypted. */
+    UA_MessageMode_MaybeEncrypted     /**< Encryption state is indeterminate (e.g., during initial decoding). */
 };
 
 /* simple types */

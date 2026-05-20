@@ -13,4 +13,5 @@
 **
 ******************************************************************************/
 
+/** @brief Array of strings representing the different status codes. */
 extern const value_string g_statusCodes[];

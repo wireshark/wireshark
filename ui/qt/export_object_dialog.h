@@ -101,6 +101,11 @@ private slots:
      * @param index The index of the newly selected content type.
      */
     void on_cmbContentType_currentIndexChanged(int index);
+
+    /**
+     * @brief Slot triggered when the unique toggle state changes.
+     * @param checked The new state of the toggle.
+     */
     void uniqueToggled(bool checked);
 
     /**

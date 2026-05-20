@@ -1047,5 +1047,6 @@ private slots:
      */
     void showExtcapOptionsDialog(QString device_name, bool startCaptureOnClose);
 
+    /** @brief Friend class allowing access to private members. */
     friend class MainApplication;
 };

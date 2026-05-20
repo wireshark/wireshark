@@ -44,173 +44,218 @@ extern "C" {
 #endif /* __cplusplus */
 
 /****************************************************************************/
+/** @brief Array of human-readable names for each VoIP call state, indexed by state value. */
 extern const char *voip_call_state_name[8];
 
+
+/**
+ * @brief Identifies the signalling protocol of a captured VoIP call.
+ */
 typedef enum _voip_protocol {
-    VOIP_SIP,
-    VOIP_ISUP,
-    VOIP_H323,
-    VOIP_MGCP,
-    VOIP_AC_ISDN,
-    VOIP_AC_CAS,
-    MEDIA_T38,
-    TEL_H248,
-    TEL_SCCP,
-    TEL_BSSMAP,
-    TEL_RANAP,
-    VOIP_UNISTIM,
-    VOIP_SKINNY,
-    VOIP_IAX2,
-    VOIP_COMMON
+    VOIP_SIP,      /**< Session Initiation Protocol. */
+    VOIP_ISUP,     /**< ISDN User Part (SS7). */
+    VOIP_H323,     /**< H.323 multimedia signalling. */
+    VOIP_MGCP,     /**< Media Gateway Control Protocol. */
+    VOIP_AC_ISDN,  /**< ACTrace ISDN signalling. */
+    VOIP_AC_CAS,   /**< ACTrace Channel Associated Signalling. */
+    MEDIA_T38,     /**< T.38 fax-over-IP. */
+    TEL_H248,      /**< H.248 / Megaco gateway control. */
+    TEL_SCCP,      /**< Signalling Connection Control Part (SS7). */
+    TEL_BSSMAP,    /**< Base Station System Management Application Part (GSM). */
+    TEL_RANAP,     /**< Radio Access Network Application Part (UMTS). */
+    VOIP_UNISTIM,  /**< Nortel UNISTIM IP phone protocol. */
+    VOIP_SKINNY,   /**< Cisco Skinny Client Control Protocol (SCCP). */
+    VOIP_IAX2,     /**< Inter-Asterisk eXchange protocol v2. */
+    VOIP_COMMON    /**< Generic / unclassified VoIP protocol. */
 } voip_protocol;
 
+
+/**
+ * @brief Indices into the per-protocol hash table array in #_voip_calls_tapinfo.
+ */
 typedef enum _hash_indexes {
-    SIP_HASH=0
+    SIP_HASH = 0 /**< Hash table index for SIP calls. */
 } hash_indexes;
 
+
+/** @brief Array of human-readable names for each #voip_protocol value. */
 extern const char *voip_protocol_name[];
 
+
+/**
+ * @brief Controls which calls are shown in the VoIP flow graph.
+ */
 typedef enum _flow_show_options
 {
-    FLOW_ALL,
-    FLOW_ONLY_INVITES
+    FLOW_ALL,          /**< Show all captured VoIP calls. */
+    FLOW_ONLY_INVITES  /**< Show only calls that contain a SIP INVITE. */
 } flow_show_options;
 
 /** defines specific SIP data */
 
+/**
+ * @brief Tracks the signalling state of an in-progress SIP call.
+ */
 typedef enum _sip_call_state {
-    SIP_INVITE_SENT,
-    SIP_200_REC,
-    SIP_CANCEL_SENT
+    SIP_INVITE_SENT, /**< INVITE request has been sent; awaiting response. */
+    SIP_200_REC,     /**< 200 OK response received; call is established. */
+    SIP_CANCEL_SENT  /**< CANCEL request has been sent; call is being torn down. */
 } sip_call_state;
 
-typedef struct _sip_calls_info {
-    char *call_identifier;
-    uint32_t invite_cseq;
-    sip_call_state sip_state;
-} sip_calls_info_t;
-
-/** defines specific ISUP data */
-typedef struct _isup_calls_info {
-    uint16_t cic;
-    uint32_t opc, dpc;
-    uint8_t ni;
-} isup_calls_info_t;
-
-/* defines specific H245 data */
-typedef struct _h245_address {
-    address h245_address;
-    uint16_t h245_port;
-} h245_address_t;
-
-/** defines specific H323 data */
-typedef struct _h323_calls_info {
-    e_guid_t *guid;               /* Call ID to identify a H225 */
-    GList*    h245_list;          /**< list of H245 Address and ports for tunneling off calls*/
-    address   h225SetupAddr;      /**< we use the SETUP H225 IP to determine if packets are forward or reverse */
-    bool      is_h245;
-    bool      is_faststart_Setup; /**< if faststart field is included in Setup*/
-    bool      is_faststart_Proc;  /**< if faststart field is included in Proce, Alerting, Progress or Connect*/
-    bool      is_h245Tunneling;
-    int32_t   q931_crv;
-    int32_t   q931_crv2;
-    unsigned  requestSeqNum;
-} h323_calls_info_t;
-
-/**< defines specific MGCP data */
-typedef struct _mgcp_calls_info {
-    char *endpointId;
-    bool fromEndpoint; /**< true if the call was originated from the Endpoint, false for calls from MGC */
-} mgcp_calls_info_t;
-
-/** defines specific ACTRACE ISDN data */
-typedef struct _actrace_isdn_calls_info {
-    int32_t crv;
-    int trunk;
-} actrace_isdn_calls_info_t;
-
-/** defines specific ACTRACE CAS data */
-typedef struct _actrace_cas_calls_info {
-    int32_t bchannel;
-    int trunk;
-} actrace_cas_calls_info_t;
-
-/** defines specific SKINNY data */
-typedef struct _skinny_calls_info {
-    uint32_t callId;
-} skinny_calls_info_t;
-
-/** defines a voip call */
-typedef struct _voip_calls_info {
-    voip_call_state         call_state;
-    voip_call_active_state  call_active_state;
-    char                   *call_id;
-    char                   *from_identity;
-    char                   *to_identity;
-    void *                  prot_info;
-    void (*free_prot_info)(void *);
-    address                 initial_speaker;
-    uint32_t                npackets;
-    voip_protocol           protocol;
-    char                   *protocol_name;
-    char                   *call_comment;
-    uint16_t                call_num;
-    /**> The frame_data struct holds the frame number and timing information needed. */
-    frame_data             *start_fd;
-    nstime_t                start_rel_ts;
-    frame_data             *stop_fd;
-    nstime_t                stop_rel_ts;
-} voip_calls_info_t;
 
 /**
- * structure that holds the information about all detected calls */
-/* struct holding all information of the tap */
-/*
- * XXX Most of these are private to voip_calls.c. We might want to
- * make them private.
+ * @brief Protocol-specific call metadata for SIP calls.
  */
-struct _h245_labels;
+typedef struct _sip_calls_info {
+    char         *call_identifier; /**< SIP Call-ID header value uniquely identifying this dialog. */
+    uint32_t      invite_cseq;     /**< CSeq number of the initial INVITE request. */
+    sip_call_state sip_state;      /**< Current signalling state of this SIP call. */
+} sip_calls_info_t;
+
+
+/**
+ * @brief Protocol-specific call metadata for ISUP calls.
+ */
+typedef struct _isup_calls_info {
+    uint16_t cic; /**< Circuit Identification Code assigned to this call. */
+    uint32_t opc; /**< Originating Point Code (SS7 network address of the source). */
+    uint32_t dpc; /**< Destination Point Code (SS7 network address of the destination). */
+    uint8_t  ni;  /**< Network Indicator identifying the SS7 network (national/international). */
+} isup_calls_info_t;
+
+
+/**
+ * @brief H.245 control channel address and port tuple.
+ */
+typedef struct _h245_address {
+    address  h245_address; /**< IP address of the H.245 control channel endpoint. */
+    uint16_t h245_port;    /**< UDP/TCP port of the H.245 control channel endpoint. */
+} h245_address_t;
+
+
+/**
+ * @brief Protocol-specific call metadata for H.323 calls.
+ */
+typedef struct _h323_calls_info {
+    e_guid_t *guid;                /**< H.225 Call ID GUID uniquely identifying this H.323 call. */
+    GList    *h245_list;           /**< List of #h245_address_t entries for tunnelled H.245 channels. */
+    address   h225SetupAddr;       /**< Source IP from the H.225 SETUP message, used to determine packet direction. */
+    bool      is_h245;             /**< True if a separate H.245 control channel has been detected. */
+    bool      is_faststart_Setup;  /**< True if a fastStart element was present in the H.225 SETUP message. */
+    bool      is_faststart_Proc;   /**< True if a fastStart element was present in Proceeding, Alerting, Progress, or Connect. */
+    bool      is_h245Tunneling;    /**< True if H.245 messages are tunnelled inside H.225 messages. */
+    int32_t   q931_crv;            /**< Q.931 Call Reference Value for the forward direction. */
+    int32_t   q931_crv2;           /**< Q.931 Call Reference Value for the reverse direction. */
+    unsigned  requestSeqNum;       /**< H.225 RAS request sequence number for matching responses. */
+} h323_calls_info_t;
+
+
+/**
+ * @brief Protocol-specific call metadata for MGCP calls.
+ */
+typedef struct _mgcp_calls_info {
+    char *endpointId;    /**< MGCP endpoint identifier string (e.g. "aaln/1@gateway.example.com"). */
+    bool  fromEndpoint;  /**< True if the call was originated by the endpoint; false if by the MGC. */
+} mgcp_calls_info_t;
+
+
+/**
+ * @brief Protocol-specific call metadata for ACTrace ISDN calls.
+ */
+typedef struct _actrace_isdn_calls_info {
+    int32_t crv;   /**< Q.931 Call Reference Value identifying this ISDN call. */
+    int     trunk; /**< Trunk number on which this call is active. */
+} actrace_isdn_calls_info_t;
+
+
+/**
+ * @brief Protocol-specific call metadata for ACTrace CAS calls.
+ */
+typedef struct _actrace_cas_calls_info {
+    int32_t bchannel; /**< B-channel number carrying this CAS call. */
+    int     trunk;    /**< Trunk number on which this call is active. */
+} actrace_cas_calls_info_t;
+
+
+/**
+ * @brief Protocol-specific call metadata for Cisco Skinny (SCCP) calls.
+ */
+typedef struct _skinny_calls_info {
+    uint32_t callId; /**< Skinny protocol call identifier. */
+} skinny_calls_info_t;
+
+
+/**
+ * @brief Unified record describing a single detected VoIP call across all supported protocols.
+ */
+typedef struct _voip_calls_info {
+    voip_call_state        call_state;        /**< High-level signalling state of the call (e.g. CALL_SETUP, IN_CALL, COMPLETED). */
+    voip_call_active_state call_active_state;  /**< Active/inactive classification of the call. */
+    char                  *call_id;           /**< Protocol-level call identifier string. */
+    char                  *from_identity;     /**< Calling party identity (e.g. SIP From URI, ISUP CgPN). */
+    char                  *to_identity;       /**< Called party identity (e.g. SIP To URI, ISUP CdPN). */
+    void                  *prot_info;         /**< Pointer to the protocol-specific info struct (e.g. #sip_calls_info_t). */
+    void (*free_prot_info)(void *);           /**< Destructor callback for @c prot_info; called when the record is freed. */
+    address                initial_speaker;   /**< Network address of the party that initiated the call. */
+    uint32_t               npackets;          /**< Total number of packets attributed to this call. */
+    voip_protocol          protocol;          /**< Signalling protocol of this call; selects the active @c prot_info type. */
+    char                  *protocol_name;     /**< Human-readable protocol name string. */
+    char                  *call_comment;      /**< Optional free-text comment annotating this call. */
+    uint16_t               call_num;          /**< Sequential call index assigned by the tap for display purposes. */
+    frame_data            *start_fd;          /**< Frame data of the first packet of this call. */
+    nstime_t               start_rel_ts;      /**< Relative timestamp of the first packet of this call. */
+    frame_data            *stop_fd;           /**< Frame data of the last packet of this call. */
+    nstime_t               stop_rel_ts;       /**< Relative timestamp of the last packet of this call. */
+} voip_calls_info_t;
+
+
+/**
+ * @brief Aggregated tap state for the VoIP calls analysis, covering all detected calls and streams.
+ *
+ * Holds all cross-protocol state accumulated by the VoIP tap during a capture
+ * session. Most fields are private to @c voip_calls.c.
+ */
 typedef struct _voip_calls_tapinfo {
-    tap_reset_cb          tap_reset; /**< tap reset callback */
-    tap_packet_cb         tap_packet; /**< tap per-packet callback */
-    tap_draw_cb           tap_draw; /**< tap draw callback */
-    void                 *tap_data; /**< data for tap callbacks */
-    int                   ncalls; /**< number of call */
-    GQueue*               callsinfos; /**< queue with all calls (voip_calls_info_t) */
-    GHashTable*           callsinfo_hashtable[1]; /**< array of hashes per voip protocol (voip_calls_info_t); currently only the one for SIP is used */
-    int                   npackets; /**< total number of packets of all calls */
-    voip_calls_info_t    *filter_calls_fwd; /**< used as filter in some tap modes */
-    int                   start_packets;
-    int                   completed_calls;
-    int                   rejected_calls;
-    seq_analysis_info_t  *graph_analysis;
-    epan_t               *session; /**< epan session */
-    int                   nrtpstreams; /**< number of rtp streams */
-    GList*                rtpstream_list; /**< list of rtpstream_info_t */
-    uint32_t              rtp_evt_frame_num;
-    uint8_t               rtp_evt;
-    bool                  rtp_evt_end;
-    char                 *sdp_summary;
-    uint32_t              sdp_frame_num;
-    uint32_t              mtp3_opc;
-    uint32_t              mtp3_dpc;
-    uint8_t               mtp3_ni;
-    uint32_t              mtp3_frame_num;
-    struct _h245_labels  *h245_labels; /**< H.245 labels */
-    uint8_t               q931_cause_value;
-    int32_t               q931_crv;
-    uint32_t              q931_frame_num;
-    uint32_t              h225_frame_num;
-    uint16_t              h225_call_num;
-    int                   h225_cstype; /* XXX actually an enum */
-    bool                  h225_is_faststart;
-    uint32_t              sip_frame_num;
-    uint32_t              actrace_frame_num;
-    int32_t               actrace_trunk;
-    int32_t               actrace_direction;
-    flow_show_options     fs_option;
-    uint32_t              redraw;
-    bool                  apply_display_filter;
+    tap_reset_cb         tap_reset;          /**< Callback invoked to reset all tap state between captures. */
+    tap_packet_cb        tap_packet;         /**< Callback invoked once per packet to update tap state. */
+    tap_draw_cb          tap_draw;           /**< Callback invoked to redraw the UI after processing. */
+    void                *tap_data;           /**< Opaque user data pointer passed to all tap callbacks. */
+    int                  ncalls;             /**< Total number of calls detected so far. */
+    GQueue              *callsinfos;         /**< Queue of all detected calls (#voip_calls_info_t). */
+    GHashTable          *callsinfo_hashtable[1]; /**< Per-protocol hash tables for fast call lookup; index by #hash_indexes (currently only SIP). */
+    int                  npackets;           /**< Total number of packets attributed to all calls. */
+    voip_calls_info_t   *filter_calls_fwd;   /**< Call record used as a directional filter in certain tap modes. */
+    int                  start_packets;      /**< Number of calls currently in the setup/ringing phase. */
+    int                  completed_calls;    /**< Number of calls that completed normally. */
+    int                  rejected_calls;     /**< Number of calls that were rejected or failed. */
+    seq_analysis_info_t *graph_analysis;     /**< Sequence-diagram analysis state for the flow graph. */
+    epan_t              *session;            /**< Wireshark dissection session owning this tap instance. */
+    int                  nrtpstreams;        /**< Number of RTP streams detected across all calls. */
+    GList               *rtpstream_list;     /**< List of #rtpstream_info_t entries for all RTP streams. */
+    uint32_t             rtp_evt_frame_num;  /**< Frame number of the most recently seen RTP event packet. */
+    uint8_t              rtp_evt;            /**< RTP event code from the most recently seen RFC 4733 packet. */
+    bool                 rtp_evt_end;        /**< True if the most recently seen RTP event packet has the End bit set. */
+    char                *sdp_summary;        /**< Summary string extracted from the most recently parsed SDP body. */
+    uint32_t             sdp_frame_num;      /**< Frame number in which the most recent SDP body was observed. */
+    uint32_t             mtp3_opc;           /**< MTP3 Originating Point Code from the most recent MTP3 packet. */
+    uint32_t             mtp3_dpc;           /**< MTP3 Destination Point Code from the most recent MTP3 packet. */
+    uint8_t              mtp3_ni;            /**< MTP3 Network Indicator from the most recent MTP3 packet. */
+    uint32_t             mtp3_frame_num;     /**< Frame number of the most recently seen MTP3 packet. */
+    struct _h245_labels *h245_labels;        /**< H.245 flow-graph label state for this session. */
+    uint8_t              q931_cause_value;   /**< Q.931 cause value from the most recently seen release message. */
+    int32_t              q931_crv;           /**< Q.931 Call Reference Value from the most recently seen Q.931 message. */
+    uint32_t             q931_frame_num;     /**< Frame number of the most recently seen Q.931 packet. */
+    uint32_t             h225_frame_num;     /**< Frame number of the most recently seen H.225 packet. */
+    uint16_t             h225_call_num;      /**< Call index of the call associated with the most recent H.225 packet. */
+    int                  h225_cstype;        /**< H.225 call signal type of the most recent H.225 message (enum value). */
+    bool                 h225_is_faststart;  /**< True if the most recently seen H.225 message contained a fastStart element. */
+    uint32_t             sip_frame_num;      /**< Frame number of the most recently seen SIP packet. */
+    uint32_t             actrace_frame_num;  /**< Frame number of the most recently seen ACTrace packet. */
+    int32_t              actrace_trunk;      /**< Trunk number from the most recently seen ACTrace packet. */
+    int32_t              actrace_direction;  /**< Direction flag from the most recently seen ACTrace packet. */
+    flow_show_options    fs_option;          /**< Current flow-graph display filter (all calls or INVITE-only). */
+    uint32_t             redraw;             /**< Non-zero if the UI needs to be redrawn. */
+    bool                 apply_display_filter; /**< True if the current Wireshark display filter should restrict shown calls. */
 } voip_calls_tapinfo_t;
 
 #if 0

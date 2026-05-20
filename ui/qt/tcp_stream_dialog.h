@@ -312,6 +312,7 @@ private:
         QTimer *graph_update_timer_;
         bool reset_axes_;
     };
+    /** @brief Friend class allowing access to private members. */
     friend class GraphUpdater;
 
     /** Instance managing delayed graph updates. */

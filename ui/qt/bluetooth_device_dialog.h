@@ -26,23 +26,38 @@ class QAbstractButton;
 class QPushButton;
 class QTreeWidgetItem;
 
+/**
+ * @brief Tap info block driving the Bluetooth Device dialog's live packet feed.
+ *
+ * Registered with the Wireshark tap framework; receives a reset and a
+ * per-packet callback for every Bluetooth frame that matches the
+ * configured device address and adapter.
+ */
 typedef struct _bluetooth_device_tapinfo_t {
-    tap_reset_cb    tap_reset;
-    tap_packet_cb   tap_packet;
-    QString         bdAddr;
-    uint32_t        interface_id;
-    uint32_t        adapter_id;
-    bool            is_local;
-    void           *ui;
-    unsigned       *changes;
+    tap_reset_cb   tap_reset;    /**< Callback invoked to clear all accumulated device state between captures. */
+    tap_packet_cb  tap_packet;   /**< Callback invoked once per matching Bluetooth packet to update device state. */
+    QString        bdAddr;       /**< Bluetooth device address (BD_ADDR) used to filter relevant packets. */
+    uint32_t       interface_id; /**< Capture interface identifier used to scope the filter. */
+    uint32_t       adapter_id;   /**< Bluetooth adapter identifier used to scope the filter. */
+    bool           is_local;     /**< True if the device is the local (host-side) adapter rather than a remote peer. */
+    void          *ui;           /**< Opaque pointer to the owning UI widget (typically a @c BluetoothDeviceDialog). */
+    unsigned      *changes;      /**< Pointer to a counter incremented each time device state changes are detected. */
 } bluetooth_device_tapinfo_t;
 
+
+/**
+ * @brief Per-item metadata attached to a row in the Bluetooth Device dialog's packet list.
+ *
+ * Stored as item data on each tree widget row so that the UI can map a
+ * row back to the originating capture frame and adapter.
+ */
 typedef struct _bluetooth_item_data_t {
-        uint32_t interface_id;
-        uint32_t adapter_id;
-        uint32_t frame_number;
-        int      changes;
+    uint32_t interface_id; /**< Capture interface identifier of the frame that populated this row. */
+    uint32_t adapter_id;   /**< Bluetooth adapter identifier of the frame that populated this row. */
+    uint32_t frame_number; /**< Wireshark frame number of the packet that populated this row. */
+    int      changes;      /**< Snapshot of the change counter at the time this row was created. */
 } bluetooth_item_data_t;
+
 
 namespace Ui {
 class BluetoothDeviceDialog;

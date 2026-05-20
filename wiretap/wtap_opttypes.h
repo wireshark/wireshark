@@ -496,48 +496,60 @@ typedef struct if_filter_opt_s {
 
 /* Packet - packet_verdict option structure */
 
-/*
- * Type of verdict.
+/**
+ * @brief Discriminator tag identifying the encoding of a packet verdict option.
  */
 typedef enum {
-    packet_verdict_hardware =       0, /* array of octets */
-    packet_verdict_linux_ebpf_tc  = 1, /* 64-bit unsigned integer TC_ACT_ value */
-    packet_verdict_linux_ebpf_xdp = 2  /* 64-bit unsigned integer xdp_action value */
+    packet_verdict_hardware       = 0, /**< Verdict encoded as a raw array of octets. */
+    packet_verdict_linux_ebpf_tc  = 1, /**< Verdict encoded as a 64-bit @c TC_ACT_* value (Linux eBPF TC). */
+    packet_verdict_linux_ebpf_xdp = 2  /**< Verdict encoded as a 64-bit @c xdp_action value (Linux eBPF XDP). */
 } packet_verdict_type_e;
 
+
+/**
+ * @brief Packet verdict option value, carrying a type-tagged verdict from the capture source.
+ */
 typedef struct packet_verdict_opt_s {
-    packet_verdict_type_e type;
+    packet_verdict_type_e type; /**< Encoding type of the verdict; selects the active @c data member. */
     union {
-        GByteArray *verdict_bytes;
-        uint64_t    verdict_linux_ebpf_tc;
-        uint64_t    verdict_linux_ebpf_xdp;
-    }               data;
+        GByteArray *verdict_bytes;        /**< Raw hardware verdict bytes (when @c type == @c packet_verdict_hardware). */
+        uint64_t    verdict_linux_ebpf_tc; /**< Linux eBPF TC action value (when @c type == @c packet_verdict_linux_ebpf_tc). */
+        uint64_t    verdict_linux_ebpf_xdp; /**< Linux eBPF XDP action value (when @c type == @c packet_verdict_linux_ebpf_xdp). */
+    }               data;       /**< Verdict payload; active member selected by @c type. */
 } packet_verdict_opt_t;
 
+
+/**
+ * @brief Packet hash option value, carrying a typed digest of the packet contents.
+ */
 typedef struct packet_hash_opt_s {
-    uint8_t type;
-    GByteArray *hash_bytes;
+    uint8_t     type;        /**< Hash algorithm identifier (e.g. 2 = MD5, 3 = SHA-1, 4 = SHA-256). */
+    GByteArray *hash_bytes;  /**< Raw digest bytes produced by the specified hash algorithm. */
 } packet_hash_opt_t;
 
-/*
- * Structure describing a value of an option.
+
+/**
+ * @brief Discriminated union holding the value of any Wiretap option type.
+ *
+ * Exactly one member is valid per option instance, determined by the
+ * accompanying option code and its registered value type.
  */
 typedef union {
-    uint8_t uint8val;
-    uint32_t uint32val;
-    uint64_t uint64val;
-    int8_t int8val;
-    int32_t int32val;
-    int64_t int64val;
-    ws_in4_addr ipv4val;    /* network byte order */
-    ws_in6_addr ipv6val;
-    char *stringval;
-    GBytes *byteval;
-    custom_string_opt_t custom_stringval;
-    custom_binary_opt_t custom_binaryval;
-    if_filter_opt_t if_filterval;
-    packet_verdict_opt_t packet_verdictval;
-    packet_hash_opt_t packet_hash;
+    uint8_t              uint8val;           /**< Unsigned 8-bit integer option value. */
+    uint32_t             uint32val;          /**< Unsigned 32-bit integer option value. */
+    uint64_t             uint64val;          /**< Unsigned 64-bit integer option value. */
+    int8_t               int8val;            /**< Signed 8-bit integer option value. */
+    int32_t              int32val;           /**< Signed 32-bit integer option value. */
+    int64_t              int64val;           /**< Signed 64-bit integer option value. */
+    ws_in4_addr          ipv4val;            /**< IPv4 address option value (network byte order). */
+    ws_in6_addr          ipv6val;            /**< IPv6 address option value. */
+    char                *stringval;          /**< Null-terminated UTF-8 string option value. */
+    GBytes              *byteval;            /**< Arbitrary binary blob option value. */
+    custom_string_opt_t  custom_stringval;   /**< Custom pen-specific string option value. */
+    custom_binary_opt_t  custom_binaryval;   /**< Custom pen-specific binary option value. */
+    if_filter_opt_t      if_filterval;       /**< Interface capture filter option value. */
+    packet_verdict_opt_t packet_verdictval;  /**< Packet verdict option value. */
+    packet_hash_opt_t    packet_hash;        /**< Packet hash/digest option value. */
 } wtap_optval_t;
 
 /*

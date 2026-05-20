@@ -657,45 +657,67 @@ typedef enum
 #define MACHINEIDENTRYDONTCARE 0xFF
 #define AMS_NETIDLEN           23
 
+/**
+ * @brief AMS (Automation Message Specification) network identifier (6-byte address).
+ */
 typedef struct AmsNetId_
 {
-   uint8_t b[6];
+    uint8_t b[6]; /**< Six octets of the AMS Net ID (e.g. 192.168.1.1.1.1). */
 } AmsNetId;
+
+/** @brief Wire-size of #AmsNetId in bytes. */
 #define AmsNetId_Len (int)sizeof(AmsNetId)
 
+
+/**
+ * @brief Full AMS address consisting of a Net ID and a port number.
+ */
 typedef struct AmsAddr_
 {
-   AmsNetId   netId;
-   uint16_t   port;
+    AmsNetId netId;  /**< AMS Net ID identifying the target device. */
+    uint16_t port;   /**< AMS port number identifying the service on the device. */
 } AmsAddr;
 
+
+/**
+ * @brief Union providing dual interpretation of an AMS error or receive code.
+ */
 typedef union ErrCodeUnion
 {
-   int32_t errCode;
-   int32_t hRcv;
+    int32_t errCode; /**< AMS error code returned in a response. */
+    int32_t hRcv;    /**< Receive handle used to correlate responses to requests. */
 } ErrCodeUnion;
 
+
+/**
+ * @brief Union providing dual interpretation of the AMS user/invoke ID field.
+ */
 typedef union tUserUnion
 {
-   int32_t hUser;
-   struct
-   {
-      uint16_t fragmentNo;
-      uint16_t packetNo;
-   } a;
+    int32_t hUser; /**< Opaque user handle for request/response correlation. */
+    struct
+    {
+        uint16_t fragmentNo; /**< Fragment sequence number within a multi-fragment transfer. */
+        uint16_t packetNo;   /**< Packet sequence number within the current session. */
+    } a;                     /**< Structured access to fragment and packet counters. */
 } UserUnion;
 
+
+/**
+ * @brief AMS protocol header, common to all AMS commands.
+ */
 typedef struct
 {
-   AmsAddr target;
-   AmsAddr sender;
-   uint16_t cmdId;
-   uint16_t stateFlags;
-   uint32_t cbData;
-
-   ErrCodeUnion anErrCodeUnion;
-   UserUnion aUserUnion;
+    AmsAddr      target;          /**< AMS address of the target (destination) device. */
+    AmsAddr      sender;          /**< AMS address of the sender (source) device. */
+    uint16_t     cmdId;           /**< AMS command identifier (e.g. Read, Write, ReadWrite). */
+    uint16_t     stateFlags;      /**< AMS state flags (request/response, ADS state bits). */
+    uint32_t     cbData;          /**< Length in bytes of the data payload following this header. */
+    ErrCodeUnion anErrCodeUnion;  /**< Error code or receive handle for this message. */
+    UserUnion    aUserUnion;      /**< User/invoke ID or fragment/packet counters. */
 } AmsHead;
+
+/** @brief Wire-size of #AmsHead in bytes. */
 #define AmsHead_Len (int)sizeof(AmsHead)
 
 
