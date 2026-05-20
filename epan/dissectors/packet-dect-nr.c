@@ -2864,6 +2864,7 @@ static void dissect_cvg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *paren
 bool dissect_cvg_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	uint8_t hdr, cvg_ext, mt, ie_type, f2c;
+	uint16_t len;
 
 	/*
 	 * CVG Header Format 1
@@ -2886,20 +2887,21 @@ bool dissect_cvg_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	}
 
 	hdr = tvb_get_uint8(tvb, 0);
-	cvg_ext = (hdr & 0xc0) >> 6;
-	if (cvg_ext != 0) {
-		uint16_t len = 0;
-		if (cvg_ext == 1) {
-			len = tvb_get_uint8(tvb, 1);
-		} else if (cvg_ext == 2) {
-			len = tvb_get_uint16(tvb, 1, ENC_BIG_ENDIAN);
-		} else if (cvg_ext == 3) {
-			return false;
-		}
-		/* Check that len is valid for an IE and that the data exists */
-		if (len > 0 && tvb_captured_length_remaining(tvb, 1 + cvg_ext) < len) {
-			return false;
-		}
+	cvg_ext = (hdr & 0xC0) >> 6;
+
+	if (cvg_ext == 0) {
+		len = 1; /* At least 1 byte */
+	} else if (cvg_ext == 1) {
+		len = tvb_get_uint8(tvb, 1);
+	} else if (cvg_ext == 2) {
+		len = tvb_get_uint16(tvb, 1, ENC_BIG_ENDIAN);
+	} else {
+		return false;
+	}
+
+	/* Check that len is valid for an IE and that the data exists */
+	if (len == 0 || tvb_reported_length_remaining(tvb, 1 + cvg_ext) < len) {
+		return false;
 	}
 
 	/* indicates the header format */
@@ -6757,8 +6759,6 @@ void proto_register_dect_nr(void)
 
 	heur_subdissector_list = register_heur_dissector_list("dect_nr.dlc", proto_dect_nr);
 
-	heur_dissector_add("dect_nr.dlc", dissect_cvg_heur, "CVG layer over DLC DECT NR+", "cvg_dect_nr", proto_dect_nr, HEURISTIC_ENABLE);
-
 	rd_id_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
 
@@ -6816,6 +6816,8 @@ void proto_reg_handoff_dect_nr(void)
 	dissector_add_uint("dect_nr.msg_ie_short", 3, create_dissector_handle(dissect_association_control_ie, proto_dect_nr));
 	/* 4 - 29: Reserved */
 	dissector_add_uint("dect_nr.msg_ie_short", 30, create_dissector_handle(dissect_escape, proto_dect_nr));
+
+	heur_dissector_add("dect_nr.dlc", dissect_cvg_heur, "CVG layer over DLC DECT NR+", "cvg_dect_nr", proto_dect_nr, HEURISTIC_ENABLE);
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_DECT_NR, dect_nr_handle);
 	dissector_add_for_decode_as_with_preference("udp.port", dect_nr_handle);
