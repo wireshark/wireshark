@@ -1430,28 +1430,13 @@ tcp_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_,
 
 char *tcp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, unsigned *stream, unsigned *sub_stream _U_)
 {
-    conversation_t *conv;
-    struct tcp_analysis *tcpd;
+    uint8_t max_layer_num = proto_get_layer_num(pinfo, proto_tcp);
 
-    /* XXX: Since TCP doesn't use the endpoint API, we can only look
-     * up using the current pinfo addresses and ports. We don't want
-     * to create a new conversation or new TCP stream.
-     * Eventually the endpoint API should support storing multiple
-     * endpoints and TCP should be changed to use the endpoint API.
-     */
-    conv = find_conversation_strat(pinfo, CONVERSATION_TCP, 0, false);
-    if (((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
-        (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))
-        && (pinfo->ptype == PT_TCP) &&
-        conv != NULL)
-    {
-        /* TCP over IPv4/6 */
-        tcpd=get_tcp_conversation_data(conv, pinfo);
-        if (tcpd == NULL)
-            return NULL;
-
-        *stream = tcpd->stream;
-        return ws_strdup_printf("tcp.stream eq %u", tcpd->stream);
+    for (uint8_t curr_layer_num = max_layer_num; curr_layer_num; --curr_layer_num) {
+        *stream = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_tcp_stream, curr_layer_num));
+        if (*stream) {
+            return ws_strdup_printf("tcp.stream eq %u", --*stream);
+        }
     }
 
     return NULL;
@@ -8814,6 +8799,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if (tcpd) {
         item = proto_tree_add_uint(tcp_tree, hf_tcp_stream, tvb, offset, 0, tcpd->stream);
         proto_item_set_generated(item);
+        p_add_proto_data(pinfo->pool, pinfo, hf_tcp_stream, pinfo->curr_proto_layer_num, GUINT_TO_POINTER(tcpd->stream + 1)); // Add 1 to distinguish stream 0 from NULL
         tcpinfo.stream = tcpd->stream;
 
         if (tcp_calculate_ts) {

@@ -366,28 +366,13 @@ udp_build_filter_by_id(packet_info *pinfo, void *user_data _U_)
 
 static char *udp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, unsigned *stream, unsigned *sub_stream _U_)
 {
-    conversation_t *conv;
-    struct udp_analysis *udpd;
+    uint8_t max_layer_num = proto_get_layer_num(pinfo, proto_udp);
 
-    /* XXX: Since UDP doesn't use the endpoint API, we can only look
-     * up using the current pinfo addresses and ports. We don't want
-     * to create a new conversation or new UDP stream.
-     * Eventually the endpoint API should support storing multiple
-     * endpoints and UDP should be changed to use the endpoint API.
-     */
-    conv = find_conversation_strat(pinfo, CONVERSATION_UDP, 0, false);
-    if (((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
-        (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))
-        && (pinfo->ptype == PT_UDP) &&
-        conv != NULL)
-    {
-        /* UDP over IPv4/6 */
-        udpd=get_udp_conversation_data(conv, pinfo);
-        if (udpd == NULL)
-            return NULL;
-
-        *stream = udpd->stream;
-        return ws_strdup_printf("udp.stream eq %u", udpd->stream);
+    for (uint8_t curr_layer_num = max_layer_num; curr_layer_num; --curr_layer_num) {
+        *stream = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_udp_stream, curr_layer_num));
+        if (*stream) {
+            return ws_strdup_printf("udp.stream eq %u", --*stream);
+        }
     }
 
     return NULL;
@@ -1245,6 +1230,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t ip_proto)
     if (udpd) {
         item = proto_tree_add_uint(udp_tree, hf_udp_stream, tvb, offset, 0, udpd->stream);
         proto_item_set_generated(item);
+        p_add_proto_data(pinfo->pool, pinfo, hf_udp_stream, pinfo->curr_proto_layer_num, GUINT_TO_POINTER(udpd->stream + 1)); // Add 1 to distinguish stream 0 from NULL
 
         /* Copy the stream index into the header as well to make it available
         * to tap listeners.

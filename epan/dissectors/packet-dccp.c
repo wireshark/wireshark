@@ -56,6 +56,7 @@
 #include <epan/conversation_filter.h>
 #include <epan/tap.h>
 #include <epan/unit_strings.h>
+#include <epan/proto_data.h>
 
 #include <wsutil/str_util.h>
 
@@ -597,25 +598,16 @@ dccp_build_filter(packet_info *pinfo, void *user_data _U_)
 
 static char *dccp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, unsigned *stream, unsigned *sub_stream _U_)
 {
-    conversation_t *conv;
-    struct dccp_analysis *dccpd;
+    uint8_t max_layer_num = proto_get_layer_num(pinfo, proto_dccp);
 
-    /* XXX: Since DCCP doesn't use the endpoint API, we can only look
-     * up using the current pinfo addresses and ports. We don't want
-     * to create a new conversation or stream.
-     * Eventually the endpoint API should support storing multiple
-     * endpoints and DCCP should be changed to use the endpoint API.
-     */
-    if (((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
-        (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))
-        && (pinfo->ptype == PT_DCCP) &&
-        (conv=find_conversation(pinfo->num, &pinfo->net_src, &pinfo->net_dst, CONVERSATION_DCCP, pinfo->srcport, pinfo->destport, 0)) != NULL)
-    {
-        /* DCCP over IPv4/6 */
-        dccpd = get_dccp_conversation_data(conv, pinfo);
-        *stream = dccpd->stream;
-        return ws_strdup_printf("dccp.stream eq %u", dccpd->stream);
-    }
+    for (uint8_t curr_layer_num = max_layer_num; curr_layer_num; --curr_layer_num) {
+        *stream = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_dccp_stream, curr_layer_num));
+        if (*stream) {
+            --*stream;
+            return ws_strdup_printf("dcp.stream eq %u", *stream);
+        }
+     }
+
 
     return NULL;
 }
@@ -1162,6 +1154,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     dccpd = get_dccp_conversation_data(conv, pinfo);
     item = proto_tree_add_uint(dccp_tree, hf_dccp_stream, tvb, offset, 0, dccpd->stream);
     proto_item_set_generated(item);
+    p_add_proto_data(pinfo->pool, pinfo, hf_dccp_stream, pinfo->curr_proto_layer_num, GUINT_TO_POINTER(dccpd->stream + 1));
 
     /* Copy the stream index into the header as well to make it available
     * to tap listeners.
