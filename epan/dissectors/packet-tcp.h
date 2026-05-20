@@ -395,6 +395,12 @@ typedef struct _tcp_flow_t {
 
 	/* A sorted list of pending out-of-order segments. */
 	wmem_list_t *ooo_segments;
+        /* A hash map of the same, used on subsequent passes. */
+	wmem_map_t  *ooo_segments_map;
+        /* NOTE - the same entries are place in the list and map, so this
+         * is not especially wasteful of memory, but memory could be saved
+         * (at the cost of some performance) with an implementation of a
+         * tree with a custom comparison function. */
 
 	/* Process info, currently discovered via IPFIX */
 	tcp_process_info_t* process_info;
