@@ -150,7 +150,7 @@ dissect_dmx_chan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 				if (global_disp_chan_val_type == 0) {
 					v = (v * 100) / 255;
 					if (v == 100) {
-						wmem_strbuf_append(chan_str, "FL ");
+						wmem_strbuf_append(chan_str, " FL ");
 					} else {
 						wmem_strbuf_append_printf(chan_str, chan_format[global_disp_chan_val_type], v);
 					}
