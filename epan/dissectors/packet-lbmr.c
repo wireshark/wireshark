@@ -1099,6 +1099,8 @@ typedef struct
 
 #define LBMR_LBMR_OPT_SRC_ID_TYPE 0x81
 #define LBMR_LBMR_OPT_SRC_ID_FLAG_IGNORE 0x8000
+#define LBMR_LBMR_OPT_SRC_ID_FLAG_SECURE 0x4000
+#define LBMR_LBMR_OPT_SRC_ID_FLAG_COMPRESSION 0x2000
 
 /* LBMR packet option source type header */
 typedef struct
@@ -1145,7 +1147,7 @@ typedef struct
 #define L_LBMR_LBMR_OPT_VERSION_T (int) sizeof(lbmr_lbmr_opt_version_t)
 
 #define LBMR_LBMR_OPT_VERSION_TYPE 0x83
-#define LBMR_LBMR_OPT_VERSIION_SZ 8
+#define LBMR_LBMR_OPT_VERSION_SZ 8
 #define LBMR_LBMR_OPT_VERSION_FLAG_IGNORE 0x8000
 #define LBMR_LBMR_OPT_VERSION_FLAG_UME    0x0001
 #define LBMR_LBMR_OPT_VERSION_FLAG_UMQ    0x0002
@@ -1171,6 +1173,7 @@ typedef struct
 #define LBMR_LBMR_OPT_LOCAL_DOMAIN_TYPE 0x84
 #define LBMR_LBMR_OPT_LOCAL_DOMAIN_SZ 8
 #define LBMR_LBMR_OPT_LOCAL_DOMAIN_FLAG_IGNORE 0x8000
+#define LBMR_LBMR_OPT_LOCAL_DOMAIN_FLAG_VIRAL 0x0001
 
 /* LBMR (extended) proxy source election record */
 typedef struct
@@ -2458,6 +2461,8 @@ static int hf_lbmr_opt_src_id_type;
 static int hf_lbmr_opt_src_id_len;
 static int hf_lbmr_opt_src_id_flags;
 static int hf_lbmr_opt_src_id_flags_ignore;
+static int hf_lbmr_opt_src_id_flags_secure;
+static int hf_lbmr_opt_src_id_flags_compression;
 static int hf_lbmr_opt_src_id_src_id;
 static int hf_lbmr_opt_src_type;
 static int hf_lbmr_opt_src_type_type;
@@ -4888,6 +4893,8 @@ static int dissect_lbmr_opt_src_id(tvbuff_t * tvb, int offset, packet_info * pin
     static int * const flags[] =
     {
         &hf_lbmr_opt_src_id_flags_ignore,
+        &hf_lbmr_opt_src_id_flags_secure,
+        &hf_lbmr_opt_src_id_flags_compression,
         NULL
     };
 
@@ -6001,6 +6008,10 @@ void proto_register_lbmr(void)
             { "Flags", "lbmr.opt.src_id.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmr_opt_src_id_flags_ignore,
             { "Ignore", "lbmr.opt.src_id.flags.ignore", FT_BOOLEAN, L_LBMR_LBMR_OPT_SRC_ID_T_FLAGS * 8, TFS(&lbm_ignore_flag), LBMR_LBMR_OPT_SRC_ID_FLAG_IGNORE, NULL, HFILL } },
+        { &hf_lbmr_opt_src_id_flags_secure,
+            { "Secure", "lbmr.opt.src_id.flags.secure", FT_BOOLEAN, L_LBMR_LBMR_OPT_SRC_ID_T_FLAGS * 8, TFS(&tfs_set_notset), LBMR_LBMR_OPT_SRC_ID_FLAG_SECURE, "Set if source uses secure transport", HFILL } },
+        { &hf_lbmr_opt_src_id_flags_compression,
+            { "Compression", "lbmr.opt.src_id.flags.compression", FT_BOOLEAN, L_LBMR_LBMR_OPT_SRC_ID_T_FLAGS * 8, TFS(&tfs_set_notset), LBMR_LBMR_OPT_SRC_ID_FLAG_COMPRESSION, "Set if source uses compression", HFILL } },
         { &hf_lbmr_opt_src_id_src_id,
             { "Source ID", "lbmr.opt.src_id.src_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmr_opt_src_type,
