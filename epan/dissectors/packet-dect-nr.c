@@ -611,7 +611,7 @@ static int ett_dect_nr_cvg_data_ep_ie;
 static int ett_dect_nr_cvg_data_ie;
 static int ett_dect_nr_cvg_data_transp_ie;
 static int ett_dect_nr_cvg_security_ie;
-static int ett_dect_nr_cvg_tx__services_conf_ie;
+static int ett_dect_nr_cvg_tx_services_conf_ie;
 static int ett_dect_nr_cvg_arq_fb_ie;
 static int ett_dect_nr_cvg_arq_poll_ie;
 static int ett_dect_nr_cvg_flow_status_ie;
@@ -2635,7 +2635,7 @@ static int dissect_dect_nr_cvg_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	case 0: /* EP Mux IE */
 		item = proto_tree_add_item(parent_tree, hf_dect_nr_cvg_ep_mux_ie, tvb, offset, ie_len, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_dect_nr_cvg_ep_mux_ie);
-		proto_tree_add_item_ret_uint16(tree, hf_dect_nr_cvg_ep_mux_ie_endpoint, tvb, offset, 2, ENC_NA, &ep_mux);
+		proto_tree_add_item_ret_uint16(tree, hf_dect_nr_cvg_ep_mux_ie_endpoint, tvb, offset, 2, ENC_BIG_ENDIAN, &ep_mux);
 		offset += 2;
 		break;
 
@@ -2667,7 +2667,7 @@ static int dissect_dect_nr_cvg_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	case 2: /* Data EP IE */
 		item = proto_tree_add_item(parent_tree, hf_dect_nr_cvg_data_ep_ie, tvb, offset, ie_len, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_dect_nr_cvg_data_ep_ie);
-		proto_tree_add_item_ret_uint16(tree, hf_dect_nr_cvg_data_ep_ie_endpoint, tvb, offset, 2, ENC_NA, &ep_mux);
+		proto_tree_add_item_ret_uint16(tree, hf_dect_nr_cvg_data_ep_ie_endpoint, tvb, offset, 2, ENC_BIG_ENDIAN, &ep_mux);
 		offset += 2;
 
 		proto_tree_add_item_ret_uint8(tree, hf_dect_nr_cvg_data_ie_si, tvb, offset, 1, ENC_BIG_ENDIAN, &si);
@@ -2740,7 +2740,7 @@ static int dissect_dect_nr_cvg_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	case 5: /* TX Services Config IE */
 		item = proto_tree_add_item(parent_tree, hf_dect_nr_cvg_tx_services_conf_ie, tvb, offset, ie_len, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_dect_nr_cvg_tx__services_conf_ie);
+		tree = proto_item_add_subtree(item, ett_dect_nr_cvg_tx_services_conf_ie);
 
 		/* TODO: Dissect TX Services Config IE */
 		call_dissector(data_handle, tvb, pinfo, tree);
@@ -6689,6 +6689,11 @@ void proto_register_dect_nr(void)
 		&ett_dect_nr_cvg_data_ep_ie,
 		&ett_dect_nr_cvg_data_ie,
 		&ett_dect_nr_cvg_data_transp_ie,
+		&ett_dect_nr_cvg_security_ie,
+		&ett_dect_nr_cvg_tx_services_conf_ie,
+		&ett_dect_nr_cvg_arq_fb_ie,
+		&ett_dect_nr_cvg_arq_poll_ie,
+		&ett_dect_nr_cvg_flow_status_ie,
 	};
 
 	static ei_register_info ei[] = {
