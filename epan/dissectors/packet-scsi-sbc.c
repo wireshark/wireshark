@@ -27,6 +27,7 @@
 #include <epan/packet.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
+#include <wsutil/str_util.h>
 #include "packet-scsi.h"
 #include "packet-scsi-sbc.h"
 
@@ -1198,16 +1199,14 @@ dissect_sbc_unmap (tvbuff_t *tvb, packet_info *pinfo _U_,
         while (tvb_reported_length_remaining(tvb, offset) >=16) {
             proto_tree *tr;
             proto_item *it;
-            int64_t lba;
-            int32_t num_blocks;
+            uint64_t lba;
+            uint32_t num_blocks;
 
             tr = proto_tree_add_subtree(tree, tvb, offset, 16, ett_scsi_unmap_block_descriptor, &it, "UNMAP Block Descriptor: LBA ");
 
-            proto_tree_add_item (tr, hf_scsi_sbc_unmap_lba, tvb, offset, 8, ENC_BIG_ENDIAN);
-            lba = tvb_get_ntoh64 (tvb, offset);
+            proto_tree_add_item_ret_uint64(tr, hf_scsi_sbc_unmap_lba, tvb, offset, 8, ENC_BIG_ENDIAN, &lba);
 
-            proto_tree_add_item (tr, hf_scsi_sbc_unmap_num_blocks, tvb, offset+8, 4, ENC_BIG_ENDIAN);
-            num_blocks = tvb_get_ntohl(tvb, offset+8);
+            proto_tree_add_item_ret_uint(tr, hf_scsi_sbc_unmap_num_blocks, tvb, offset+8, 4, ENC_BIG_ENDIAN, &num_blocks);
 
             if (num_blocks > 1) {
                 proto_item_append_text (it, "%" PRIu64 "-%" PRIu64 "  ", lba, lba+num_blocks-1);
@@ -1357,8 +1356,10 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb_a, packet_info *pinfo _U_,
 {
     uint8_t     service_action;
     uint32_t    block_len, alloc_len;
-    uint64_t    len, tot_len;
-    const char *un;
+    uint64_t    len;
+    int64_t     itot_len;
+    double      dtot_len;
+    bool        prot_en;
 
     proto_item      *it = NULL;
 
@@ -1476,27 +1477,30 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb_a, packet_info *pinfo _U_,
         if(cdata && cdata->itlq){
             TRY_SCSI_CDB_ALLOC_LEN(cdata->itlq->alloc_len);
 
+            char* size_str;
+
             switch(cdata->itlq->flags){
                 case SERVICE_READ_CAPACITY16:
 
-                    len = tvb_get_ntoh64 (try_tvb, try_offset);
-                    block_len = tvb_get_ntohl (try_tvb, try_offset+8);
-                    tot_len=((len/1024)*block_len)/1024; /*MB*/
-                    un="MB";
-                    if(tot_len>20000){
-                        tot_len/=1024;
-                        un="GB";
-                    }
 
-                    it = proto_tree_add_item (tree, hf_scsi_sbc_lba64_address, try_tvb, try_offset, 8, ENC_BIG_ENDIAN);
-                    proto_item_append_text (it, " (%" PRIu64 " %s)", tot_len, un);
+                    it = proto_tree_add_item_ret_uint64(tree, hf_scsi_sbc_lba64_address, try_tvb, try_offset, 8, ENC_BIG_ENDIAN, &len);
                     try_offset += 8;
 
-                    proto_tree_add_item (tree, hf_scsi_sbc_blocksize, try_tvb, try_offset, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item_ret_uint(tree, hf_scsi_sbc_blocksize, try_tvb, try_offset, 4, ENC_BIG_ENDIAN, &block_len);
+                    if (G_UNLIKELY(ckd_mul(&itot_len, len, block_len))) {
+                        // We could also do something with 96/128 byte integers
+                        // but this should be rare and we don't care about the
+                        // loss of precision here.
+                        dtot_len = (double)len * block_len;
+                        size_str = format_units(pinfo->pool, dtot_len, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_IEC, 0);
+                    } else {
+                        size_str = format_size_wmem(pinfo->pool, itot_len, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_IEC);
+                    }
+                    proto_item_append_text (it, " (%s)", size_str);
                     try_offset += 4;
 
-                    proto_tree_add_item (tree, hf_scsi_sbc_prot_en, try_tvb, try_offset, 1, ENC_BIG_ENDIAN);
-                    if (tvb_get_uint8(try_tvb, try_offset) & 0x01) {
+                    proto_tree_add_item_ret_boolean(tree, hf_scsi_sbc_prot_en, try_tvb, try_offset, 1, ENC_BIG_ENDIAN, &prot_en);
+                    if (prot_en) {
                         /* only decode the protection type if protection is enabled */
                         proto_tree_add_item (tree, hf_scsi_sbc_ptype, try_tvb, try_offset, 1, ENC_BIG_ENDIAN);
                     }
@@ -1526,16 +1530,13 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb_a, packet_info *pinfo _U_,
 
                         tr = proto_tree_add_subtree(tree, try_tvb, try_offset, 16, ett_scsi_lba_status_descriptor, &it, "LBA Status Descriptor:  ");
 
-                        proto_tree_add_item (tr, hf_scsi_sbc_get_lba_status_lba, try_tvb, try_offset, 8, ENC_BIG_ENDIAN);
-                        lba = tvb_get_ntoh64(try_tvb, try_offset);
+                        proto_tree_add_item_ret_uint64(tr, hf_scsi_sbc_get_lba_status_lba, try_tvb, try_offset, 8, ENC_BIG_ENDIAN, &lba);
                         try_offset += 8;
 
-                        proto_tree_add_item (tr, hf_scsi_sbc_get_lba_status_num_blocks, try_tvb, try_offset, 4, ENC_BIG_ENDIAN);
-                        num_blocks = tvb_get_ntohl(try_tvb, try_offset);
+                        proto_tree_add_item_ret_uint(tr, hf_scsi_sbc_get_lba_status_num_blocks, try_tvb, try_offset, 4, ENC_BIG_ENDIAN, &num_blocks);
                         try_offset += 4;
 
-                        proto_tree_add_item (tr, hf_scsi_sbc_get_lba_status_provisioning_status, try_tvb, try_offset, 1, ENC_BIG_ENDIAN);
-                        type = tvb_get_uint8(try_tvb, try_offset) & 0x07;
+                        proto_tree_add_item_ret_uint8(tr, hf_scsi_sbc_get_lba_status_provisioning_status, try_tvb, try_offset, 1, ENC_BIG_ENDIAN, &type);
                         try_offset++;
 
                         /* reserved */
