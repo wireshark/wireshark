@@ -1136,6 +1136,27 @@ typedef struct
 #define L_LBMC_CNTL_UME_RXREQ_HDR_T_RX_IP SIZEOF(lbmc_cntl_ume_rxreq_hdr_t, rx_ip)
 #define L_LBMC_CNTL_UME_RXREQ_HDR_T (int) sizeof(lbmc_cntl_ume_rxreq_hdr_t)
 
+/* LBMC control UME ranged retransmission request header */
+typedef struct
+{
+    lbm_uint8_t next_hdr;
+    lbm_uint8_t hdr_len;
+    lbm_uint16_t flags;
+    lbm_uint32_t first_seqnum;
+    lbm_uint32_t last_seqnum;
+} lbmc_cntl_ume_ranged_rxreq_hdr_t;
+#define O_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T_NEXT_HDR OFFSETOF(lbmc_cntl_ume_ranged_rxreq_hdr_t, next_hdr)
+#define L_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T_NEXT_HDR SIZEOF(lbmc_cntl_ume_ranged_rxreq_hdr_t, next_hdr)
+#define O_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T_HDR_LEN OFFSETOF(lbmc_cntl_ume_ranged_rxreq_hdr_t, hdr_len)
+#define L_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T_HDR_LEN SIZEOF(lbmc_cntl_ume_ranged_rxreq_hdr_t, hdr_len)
+#define O_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T_FLAGS OFFSETOF(lbmc_cntl_ume_ranged_rxreq_hdr_t, flags)
+#define L_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T_FLAGS SIZEOF(lbmc_cntl_ume_ranged_rxreq_hdr_t, flags)
+#define O_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T_FIRST_SEQNUM OFFSETOF(lbmc_cntl_ume_ranged_rxreq_hdr_t, first_seqnum)
+#define L_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T_FIRST_SEQNUM SIZEOF(lbmc_cntl_ume_ranged_rxreq_hdr_t, first_seqnum)
+#define O_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T_LAST_SEQNUM OFFSETOF(lbmc_cntl_ume_ranged_rxreq_hdr_t, last_seqnum)
+#define L_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T_LAST_SEQNUM SIZEOF(lbmc_cntl_ume_ranged_rxreq_hdr_t, last_seqnum)
+#define L_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T (int) sizeof(lbmc_cntl_ume_ranged_rxreq_hdr_t)
+
 /* LBMC control late join initiation request */
 typedef struct
 {
@@ -3765,6 +3786,7 @@ typedef struct
 #define LBMC_NHDR_UME_STORE_GROUP 0x1C
 #define LBMC_NHDR_UME_STORE_INFO 0x1D
 #define LBMC_NHDR_UME_LJ_INFO 0x1E
+#define LBMC_NHDR_UME_RANGED_RXREQ 0x1F
 #define LBMC_NHDR_TSNI 0x20
 #define LBMC_NHDR_UMQ_REG 0x30
 #define LBMC_NHDR_UMQ_REG_RESP 0x31
@@ -4771,6 +4793,13 @@ static int hf_lbmc_ume_rxreq_seqnum;
 static int hf_lbmc_ume_rxreq_rx_port;
 static int hf_lbmc_ume_rxreq_res;
 static int hf_lbmc_ume_rxreq_rx_ip;
+static int hf_lbmc_ume_ranged_rxreq;
+static int hf_lbmc_ume_ranged_rxreq_next_hdr;
+static int hf_lbmc_ume_ranged_rxreq_hdr_len;
+static int hf_lbmc_ume_ranged_rxreq_flags;
+static int hf_lbmc_ume_ranged_rxreq_flags_ignore;
+static int hf_lbmc_ume_ranged_rxreq_first_seqnum;
+static int hf_lbmc_ume_ranged_rxreq_last_seqnum;
 static int hf_lbmc_ume_keepalive;
 static int hf_lbmc_ume_keepalive_next_hdr;
 static int hf_lbmc_ume_keepalive_hdr_len;
@@ -5786,6 +5815,8 @@ static int ett_lbmc_ume_ack;
 static int ett_lbmc_ume_ack_flags;
 static int ett_lbmc_ume_rxreq;
 static int ett_lbmc_ume_rxreq_flags;
+static int ett_lbmc_ume_ranged_rxreq;
+static int ett_lbmc_ume_ranged_rxreq_flags;
 static int ett_lbmc_ume_keepalive;
 static int ett_lbmc_ume_keepalive_flags;
 static int ett_lbmc_ume_storeid;
@@ -7025,6 +7056,26 @@ static int dissect_nhdr_ume_rxreq(tvbuff_t * tvb, unsigned offset, packet_info *
     proto_tree_add_item(subtree, hf_lbmc_ume_rxreq_res, tvb, offset + O_LBMC_CNTL_UME_RXREQ_HDR_T_RES, L_LBMC_CNTL_UME_RXREQ_HDR_T_RES, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lbmc_ume_rxreq_rx_ip, tvb, offset + O_LBMC_CNTL_UME_RXREQ_HDR_T_RX_IP, L_LBMC_CNTL_UME_RXREQ_HDR_T_RX_IP, ENC_BIG_ENDIAN);
     return (L_LBMC_CNTL_UME_RXREQ_HDR_T);
+}
+
+static int dissect_nhdr_ume_ranged_rxreq(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+    proto_item * subtree_item = NULL;
+    proto_tree * subtree = NULL;
+    static int * const flags[] =
+    {
+        &hf_lbmc_ume_ranged_rxreq_flags_ignore,
+        NULL
+    };
+
+    subtree_item = proto_tree_add_item(tree, hf_lbmc_ume_ranged_rxreq, tvb, offset, L_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T, ENC_NA);
+    subtree = proto_item_add_subtree(subtree_item, ett_lbmc_ume_ranged_rxreq);
+    proto_tree_add_item(subtree, hf_lbmc_ume_ranged_rxreq_next_hdr, tvb, offset + O_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T_NEXT_HDR, L_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T_NEXT_HDR, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lbmc_ume_ranged_rxreq_hdr_len, tvb, offset + O_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T_HDR_LEN, L_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T_HDR_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(subtree, tvb, offset + O_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T_FLAGS, hf_lbmc_ume_ranged_rxreq_flags, ett_lbmc_ume_ranged_rxreq_flags, flags, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lbmc_ume_ranged_rxreq_first_seqnum, tvb, offset + O_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T_FIRST_SEQNUM, L_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T_FIRST_SEQNUM, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lbmc_ume_ranged_rxreq_last_seqnum, tvb, offset + O_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T_LAST_SEQNUM, L_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T_LAST_SEQNUM, ENC_BIG_ENDIAN);
+    return (L_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T);
 }
 
 static int dissect_nhdr_ume_keepalive(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree)
@@ -11017,6 +11068,9 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, unsigned offset, packet_info * pinf
                 case LBMC_NHDR_UME_LJ_INFO:
                     dissected_hdr_len = dissect_nhdr_ume_lj_info(hdr_tvb, 0, pinfo, subtree);
                     break;
+                case LBMC_NHDR_UME_RANGED_RXREQ:
+                    dissected_hdr_len = dissect_nhdr_ume_ranged_rxreq(hdr_tvb, 0, pinfo, subtree);
+                    break;
                 case LBMC_NHDR_TSNI:
                     dissected_hdr_len = dissect_nhdr_tsni(hdr_tvb, 0, pinfo, subtree);
                     break;
@@ -12101,6 +12155,20 @@ void proto_register_lbmc(void)
             { "Reserved", "lbmc.ume_rxreq.res", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmc_ume_rxreq_rx_ip,
             { "Retransmission IP Address", "lbmc.ume_rxreq.rx_ip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbmc_ume_ranged_rxreq,
+            { "UME Ranged RX Request", "lbmc.ume_ranged_rxreq", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbmc_ume_ranged_rxreq_next_hdr,
+            { "Next Header", "lbmc.ume_ranged_rxreq.next_hdr", FT_UINT8, BASE_DEC_HEX, VALS(lbmc_next_header), 0x0, NULL, HFILL } },
+        { &hf_lbmc_ume_ranged_rxreq_hdr_len,
+            { "Header Length", "lbmc.ume_ranged_rxreq.hdr_len", FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbmc_ume_ranged_rxreq_flags,
+            { "Flags", "lbmc.ume_ranged_rxreq.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbmc_ume_ranged_rxreq_flags_ignore,
+            { "Ignore", "lbmc.ume_ranged_rxreq.flags.ignore", FT_BOOLEAN, L_LBMC_CNTL_UME_RANGED_RXREQ_HDR_T_FLAGS * 8, TFS(&lbm_ignore_flag), LBMC_OPT_IGNORE, NULL, HFILL } },
+        { &hf_lbmc_ume_ranged_rxreq_first_seqnum,
+            { "First Sequence Number", "lbmc.ume_ranged_rxreq.first_seqnum", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbmc_ume_ranged_rxreq_last_seqnum,
+            { "Last Sequence Number", "lbmc.ume_ranged_rxreq.last_seqnum", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmc_ume_keepalive,
             { "UME Keepalive", "lbmc.ume_keepalive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmc_ume_keepalive_next_hdr,
@@ -14089,6 +14157,8 @@ void proto_register_lbmc(void)
         &ett_lbmc_ume_ack_flags,
         &ett_lbmc_ume_rxreq,
         &ett_lbmc_ume_rxreq_flags,
+        &ett_lbmc_ume_ranged_rxreq,
+        &ett_lbmc_ume_ranged_rxreq_flags,
         &ett_lbmc_ume_keepalive,
         &ett_lbmc_ume_keepalive_flags,
         &ett_lbmc_ume_storeid,
