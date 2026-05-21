@@ -28,6 +28,12 @@ WSLUA_FUNCTION wslua_get_version(lua_State* L) { /* Gets the Wireshark version a
     WSLUA_RETURN(1); /* The version string, e.g. "3.2.5". */
 }
 
+WSLUA_FUNCTION wslua_lua_release(lua_State* L) { /* Gets the Lua release as a string. */
+    const char* str = ABOUT_LUA_RELEASE;
+    lua_pushstring(L,str);
+    WSLUA_RETURN(1); /* The version string, e.g. "Lua 5.4.6 (UfW patched)". */
+}
+
 static char* current_plugin_version = NULL;
 
 const char* get_current_plugin_version(void) {

@@ -1631,6 +1631,7 @@ void wslua_add_useful_constants(void)
     char *path;
 
     WSLUA_REG_GLOBAL_BOOL(L,"GUI_ENABLED",ops && ops->new_dialog);
+    WSLUA_REG_GLOBAL_STRING(L,"_LUA_RELEASE",ABOUT_LUA_RELEASE);
 
     /* DATA_DIR has a trailing directory separator. */
     path = get_datafile_path("", lua_app_env_var_prefix);

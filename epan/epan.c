@@ -896,11 +896,7 @@ epan_gather_compile_info(feature_list l)
 
 	/* Lua */
 #ifdef HAVE_LUA
-#ifdef HAVE_LUA_UNICODE
-	with_feature(l, "%s", LUA_RELEASE" (UfW patched)");
-#else /* HAVE_LUA_UNICODE */
-	with_feature(l, "%s", LUA_RELEASE);
-#endif /* HAVE_LUA_UNICODE */
+	with_feature(l, "%s", ABOUT_LUA_RELEASE);
 #else /* HAVE_LUA */
 	without_feature(l, "Lua");
 #endif /* HAVE_LUA */

@@ -65,6 +65,12 @@
 #define WSLUA_INIT_ROUTINES "init_routines"
 #define WSLUA_PREFS_CHANGED "prefs_changed"
 
+#ifdef HAVE_LUA_UNICODE
+    #define ABOUT_LUA_RELEASE LUA_RELEASE" (UfW patched)"
+#else /* HAVE_LUA_UNICODE */
+    #define ABOUT_LUA_RELEASE LUA_RELEASE
+#endif /* HAVE_LUA_UNICODE */
+
 /* type conversion macros - lua_Number is a double, so casting isn't kosher; and
    using Lua's already-available lua_tointeger() and luaL_checkinteger() might be
    different on different machines; so use these instead please!
