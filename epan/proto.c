@@ -8067,7 +8067,12 @@ proto_item_set_end(proto_item *pi, tvbuff_t *tvb, unsigned end)
 	if (fi == NULL)
 		return;
 
-	end += tvb_raw_offset(tvb);
+	if (G_LIKELY(tvb)) {
+		DISSECTOR_ASSERT(tvb_get_ds_tvb(tvb) == fi->ds_tvb);
+		end += tvb_raw_offset(tvb);
+	} else {
+		DISSECTOR_ASSERT(NULL == fi->ds_tvb);
+	}
 	DISSECTOR_ASSERT(end >= fi->start);
 	length = end - fi->start;
 
@@ -8350,7 +8355,16 @@ proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, int start,
 	if (fi == NULL)
 		return;
 
-	start += tvb_raw_offset(tvb);
+	/* We don't store a separate data source tvb for the appendix, so
+	 * it must be from the same data source. (XXX - Are there any
+	 * situations where it makes sense to have an appendix from a
+	 * different data source?) */
+	if (G_LIKELY(tvb)) {
+		DISSECTOR_ASSERT(tvb_get_ds_tvb(tvb) == fi->ds_tvb);
+		start += tvb_raw_offset(tvb);
+	} else {
+		DISSECTOR_ASSERT(NULL == fi->ds_tvb);
+	}
 	DISSECTOR_ASSERT(start >= 0);
 	DISSECTOR_ASSERT(length >= 0);
 

@@ -1270,6 +1270,9 @@ WS_DLL_PUBLIC void proto_item_set_len(proto_item *pi, const int length);
  @param tvb end is relative to this tvbuff
  @param end this end offset is relative to the beginning of tvb
  @todo make usage clearer, I don't understand it!
+
+ @note The tvbuffer must be from the same data source as the proto_item's
+ original tvbuffer, though it can be a different subset.
  */
 WS_DLL_PUBLIC void proto_item_set_end(proto_item *pi, tvbuff_t *tvb, unsigned end);
 
@@ -1382,7 +1385,11 @@ WS_DLL_PUBLIC void proto_tree_move_item(proto_tree *tree, proto_item *fixed_item
  @param tree the tree to set the appendix start and length
  @param tvb the tv buffer of the current data
  @param start the start offset of the appendix
- @param length the length of the appendix */
+ @param length the length of the appendix
+
+ @note The appendix tvbuffer must be from the same data source as the
+ proto_tree's original tvbuffer, though it can be a different subset.
+*/
 WS_DLL_PUBLIC void proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, int start, const int length);
 
 
