@@ -22,7 +22,7 @@
 
 /*
  * Generated automatically Using (from wireshark base directory):
- *   cog.py -D xmlfile=tools/SkinnyProtocolOptimized.xml -d -c -o epan/dissectors/packet-skinny.h epan/dissectors/packet-skinny.h.in
+ *   cog.py -D xmlfile=tools/dissector_generators/SkinnyProtocolOptimized.xml -d -c -o epan/dissectors/packet-skinny.h epan/dissectors/packet-skinny.h.in
  */
 
 #include <epan/wmem_scopes.h>

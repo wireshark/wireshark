@@ -757,7 +757,7 @@ dcm_init(void)
 
     /* Create three hash tables for quick lookups */
     /* XXX - These are constant hashmaps based on constant structs,
-     * produced by tools/make-packet-dcm.py
+     * produced by tools/dissector_generators/generate-dcm.py
      * The two with integer keys could use binary search (alter the
      * Python script to sort). If a hash table is desired, GNU gperf
      * or some perfect hash function generator should be used instead

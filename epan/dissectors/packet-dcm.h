@@ -5,7 +5,7 @@
  *
  * DICOM communication protocol: https://www.dicomstandard.org/current/
  *
- * Generated automatically by make-packet-dcm.py from the following sources:
+ * Generated automatically by generate-dcm.py from the following sources:
  *
  * DICOM PS3.5 2024c - Data Structures and Encoding
  * DICOM PS3.6 2024c - Data Dictionary

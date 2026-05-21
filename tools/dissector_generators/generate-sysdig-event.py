@@ -57,8 +57,8 @@ def get_url_lines(url):
 
 ppm_ev_pub_lines = get_url_lines(sysdig_repo_pfx + 'driver/ppm_events_public.h')
 
-ppme_re = re.compile('^\s+PPME_([A-Z0-9_]+_[EX])\s*=\s*([0-9]+)\s*,')
-ppm_sc_x_re = re.compile('^\s+PPM_SC_X\s*\(\s*(\S+)\s*,\s*(\d+)\s*\)')
+ppme_re = re.compile(r'^\s+PPME_([A-Z0-9_]+_[EX])\s*=\s*([0-9]+)\s*,')
+ppm_sc_x_re = re.compile(r'^\s+PPM_SC_X\s*\(\s*(\S+)\s*,\s*(\d+)\s*\)')
 
 event_info_d = {}
 
@@ -82,8 +82,8 @@ ppm_ev_table_lines = get_url_lines(sysdig_repo_pfx + 'driver/event_table.c')
 
 hf_d = {}
 
-event_info_re = re.compile('^\s+\[\s*PPME_.*\]\s*=\s*{\s*"([A-Za-z0-9_]+)"\s*,[^,]+,[^,]+,\s*([0-9]+)\s*[,{}]')
-event_param_re = re.compile('{\s*"([A-Za-z0-9_ ]+)"\s*,\s*PT_([A-Z0-9_]+)\s*,\s*PF_([A-Z0-9_]+)\s*[,}]')
+event_info_re = re.compile(r'^\s+\[\s*PPME_.*\]\s*=\s*{\s*"([A-Za-z0-9_]+)"\s*,[^,]+,[^,]+,\s*([0-9]+)\s*[,{}]')
+event_param_re = re.compile(r'{\s*"([A-Za-z0-9_ ]+)"\s*,\s*PT_([A-Z0-9_]+)\s*,\s*PF_([A-Z0-9_]+)\s*[,}]')
 
 def get_event_names():
     '''Return a contiguous list of event names. Names are lower case.'''
@@ -257,29 +257,29 @@ def main():
         parameter_index_l.append(ei_str)
 
     dissector_path = os.path.join(os.path.dirname(__file__),
-        '..', 'epan', 'dissectors', 'packet-sysdig-event.c')
+        '..', 'packet-sysdig-event.c')
     dissector_f = open(dissector_path, 'r')
     dissector_lines = list(dissector_f)
     dissector_f = open(dissector_path, 'w+')
 
     # Strip out old content
     strip_re_l = []
-    strip_re_l.append(re.compile('^static\s+int\s+hf_param_.*;'))
-    strip_re_l.append(re.compile('^#define\s+EVT_STR_[A-Z0-9_]+\s+"[A-Za-z0-9_]+"'))
-    strip_re_l.append(re.compile('^#define\s+EVT_[A-Z0-9_]+\s+[0-9]+'))
-    strip_re_l.append(re.compile('^\s*{\s*EVT_[A-Z0-9_]+\s*,\s*EVT_STR_[A-Z0-9_]+\s*}'))
-    strip_re_l.append(re.compile('^static\s+const\s+int\s+\*\s*[a-z0-9_]+_[ex]_indexes\[\]\s*=\s*\{\s*&hf_param_.*NULL\s*\}\s*;'))
-    strip_re_l.append(re.compile('^static\s+int\s*\*\s+const\s+[a-z0-9_]+_[ex]_indexes\[\]\s*=\s*\{\s*&hf_param_.*NULL\s*\}\s*;'))
-    strip_re_l.append(re.compile('^\s*#define\s+[a-z0-9_]+_[ex]_indexes\s+[a-z0-9_]+_indexes'))
-    strip_re_l.append(re.compile('^\s*\{\s*EVT_[A-Z0-9_]+_[EX]\s*,\s*[a-z0-9_]+_[ex]_indexes\s*}\s*,'))
-    strip_re_l.append(re.compile('^\s*\{\s*\d+\s*,\s*"\S+"\s*}\s*,\s*//\s*PPM_SC_\S+'))
-    strip_re_l.append(re.compile('^\s*{\s*&hf_param_.*},')) # Must all be on one line
+    strip_re_l.append(re.compile(r'^static\s+int\s+hf_param_.*;'))
+    strip_re_l.append(re.compile(r'^#define\s+EVT_STR_[A-Z0-9_]+\s+"[A-Za-z0-9_]+"'))
+    strip_re_l.append(re.compile(r'^#define\s+EVT_[A-Z0-9_]+\s+[0-9]+'))
+    strip_re_l.append(re.compile(r'^\s*{\s*EVT_[A-Z0-9_]+\s*,\s*EVT_STR_[A-Z0-9_]+\s*}'))
+    strip_re_l.append(re.compile(r'^static\s+const\s+int\s+\*\s*[a-z0-9_]+_[ex]_indexes\[\]\s*=\s*\{\s*&hf_param_.*NULL\s*\}\s*;'))
+    strip_re_l.append(re.compile(r'^static\s+int\s*\*\s+const\s+[a-z0-9_]+_[ex]_indexes\[\]\s*=\s*\{\s*&hf_param_.*NULL\s*\}\s*;'))
+    strip_re_l.append(re.compile(r'^\s*#define\s+[a-z0-9_]+_[ex]_indexes\s+[a-z0-9_]+_indexes'))
+    strip_re_l.append(re.compile(r'^\s*\{\s*EVT_[A-Z0-9_]+_[EX]\s*,\s*[a-z0-9_]+_[ex]_indexes\s*}\s*,'))
+    strip_re_l.append(re.compile(r'^\s*\{\s*\d+\s*,\s*"\S+"\s*}\s*,\s*//\s*PPM_SC_\S+'))
+    strip_re_l.append(re.compile(r'^\s*{\s*&hf_param_.*},')) # Must all be on one line
 
     for strip_re in strip_re_l:
         dissector_lines = [line for line in dissector_lines if not strip_re.search(line)]
 
     # Find our value strings
-    value_string_re = re.compile('static\s+const\s+value_string\s+([A-Za-z0-9_]+_vals)')
+    value_string_re = re.compile(r'static\s+const\s+value_string\s+([A-Za-z0-9_]+_vals)')
     value_string_l = []
     for line in dissector_lines:
         vs = value_string_re.match(line)
@@ -289,13 +289,13 @@ def main():
     # Add in new content after comments.
 
     header_fields_c = 'Header fields'
-    header_fields_re = re.compile('/\*\s+' + header_fields_c, flags = re.IGNORECASE)
+    header_fields_re = re.compile(r'/\*\s+' + header_fields_c, flags = re.IGNORECASE)
     header_fields_l = []
     for hf_name in sorted(hf_d.keys()):
         header_fields_l.append('static int {};'.format(hf_name))
 
     event_names_c = 'Event names'
-    event_names_re = re.compile('/\*\s+' + event_names_c, flags = re.IGNORECASE)
+    event_names_re = re.compile(r'/\*\s+' + event_names_c, flags = re.IGNORECASE)
     event_names_l = []
     event_str_l = list(set(event_name_l))
     event_str_l.sort()
@@ -303,25 +303,25 @@ def main():
         event_names_l.append('#define EVT_STR_{0:24s} "{1:s}"'.format(evt_str.upper(), evt_str))
 
     event_definitions_c = 'Event definitions'
-    event_definitions_re = re.compile('/\*\s+' + event_definitions_c, flags = re.IGNORECASE)
+    event_definitions_re = re.compile(r'/\*\s+' + event_definitions_c, flags = re.IGNORECASE)
     event_definitions_l = []
     for evt in event_nums:
         event_definitions_l.append('#define EVT_{0:24s} {1:3d}'.format(event_d[evt], evt))
 
     value_strings_c = 'Value strings'
-    value_strings_re = re.compile('/\*\s+' + value_strings_c, flags = re.IGNORECASE)
+    value_strings_re = re.compile(r'/\*\s+' + value_strings_c, flags = re.IGNORECASE)
     value_strings_l = []
     for evt in event_nums:
         evt_num = 'EVT_{},'.format(event_d[evt])
-        evt_str = 'EVT_STR_' + event_name_l[evt].upper()
+        evt_str = 'EVT_STR_' + event_d[evt].upper()
         value_strings_l.append('    {{ {0:<32s} {1:s} }},'.format(evt_num, evt_str))
 
     parameter_index_c = 'Parameter indexes'
-    parameter_index_re = re.compile('/\*\s+' + parameter_index_c, flags = re.IGNORECASE)
+    parameter_index_re = re.compile(r'/\*\s+' + parameter_index_c, flags = re.IGNORECASE)
     # parameter_index_l defined above.
 
     event_tree_c = 'Event tree'
-    event_tree_re = re.compile('/\*\s+' + event_tree_c, flags = re.IGNORECASE)
+    event_tree_re = re.compile(r'/\*\s+' + event_tree_c, flags = re.IGNORECASE)
     event_tree_l = []
     for evt in event_nums:
         evt_num = 'EVT_{}'.format(event_d[evt])
@@ -331,13 +331,13 @@ def main():
     # Syscall codes
     syscall_code_d = get_syscall_code_defines()
     syscall_code_c = 'Syscall codes'
-    syscall_code_re = re.compile('/\*\s+' + syscall_code_c, flags = re.IGNORECASE)
+    syscall_code_re = re.compile(r'/\*\s+' + syscall_code_c, flags = re.IGNORECASE)
     syscall_code_l = []
     for sc_num in syscall_code_d:
         syscall_code_l.append(f'    {{ {sc_num:3}, "{syscall_code_d[sc_num].lower()}" }}, // PPM_SC_{syscall_code_d[sc_num]}')
 
     header_field_reg_c = 'Header field registration'
-    header_field_reg_re = re.compile('/\*\s+' + header_field_reg_c, flags = re.IGNORECASE)
+    header_field_reg_re = re.compile(r'/\*\s+' + header_field_reg_c, flags = re.IGNORECASE)
     header_field_reg_l = []
     for hf_name in sorted(hf_d.keys()):
         param = hf_d[hf_name]
@@ -392,7 +392,7 @@ def main():
         if fill_comment is not None:
             # Write our comment followed by the content
             print(('Generating {}, {:d} lines'.format(fill_comment, len(fill_l))))
-            dissector_f.write('/* {}. Automatically generated by tools/{} */\n'.format(
+            dissector_f.write('/* {}. Automatically generated by epan/dissectors/generators/{} */\n'.format(
                 fill_comment,
                 os.path.basename(__file__)
                 ))

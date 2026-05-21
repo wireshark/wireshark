@@ -48,35 +48,38 @@ UPDATE_TOOLS = (
     },
     {
         "name": "USB",
-        "path": "tools/make-usb.py",
-        "updated_files": ["epan/dissectors/data-usb.c"],
+        "path": "tools/dissector_generators/generate-usb-data.py",
+        "updated_files": [
+            "epan/dissectors/data-usb.c"
+            "epan/dissectors/data-usb.h"
+        ],
     },
     {
         "name": "Bluetooth",
         "python_modules": ["PyYAML"],
-        "path": "tools/make-bluetooth.py",
+        "path": "tools/dissector_generators/generate-bluetooth-data.py",
         "updated_files": ["epan/dissectors/data-bluetooth.c"],
     },
     {
         "name": "TLS CT Log IDs",
         "python_modules": ["requests"],
-        "path": "tools/make-tls-ct-logids.py",
+        "path": "tools/dissector_generators/generate-tls-ct-logids.py",
         "updated_files": ["epan/dissectors/packet-tls-utils.c"],
     },
     {
         "name": "Netlink NL80211 enums and fields",
         "python_modules": ["requests"],
-        "path": "tools/generate-nl80211-fields.py",
+        "path": "tools/dissector_generators/generate-nl80211.py",
         "updated_files": ["epan/dissectors/packet-netlink-nl80211.c"],
     },
     {
         "name": "PCI IDs",
-        "path": "tools/make-pci-ids.py",
+        "path": "tools/dissector_generators/generate-ncsi-data.py",
         "updated_files": ["epan/dissectors/data-ncsi.c", "epan/dissectors/data-ncsi.h"],
     },
     {
         "name": "ISOBUS parameters",
-        "path": "tools/make-isobus.py",
+        "path": "tools/dissector_generators/generate-isobus-data.py",
         "updated_files": [
             "epan/dissectors/data-isobus.c",
             "epan/dissectors/data-isobus.h",
@@ -85,12 +88,15 @@ UPDATE_TOOLS = (
     {
         "name": "BACNET",
         "python_modules": ["beautifulsoup4"],
-        "path": "tools/generate-bacnet-vendors.py",
-        "updated_files": ["epan/dissectors/data-bacnet.c"],
+        "path": "tools/dissector_generators/generate-bacnet-data.py",
+        "updated_files": [
+            "epan/dissectors/data-bacnet.c"
+            "epan/dissectors/data-bacnet.h"
+            ],
     },
     {
         "name": "DMX",
-        "path": "tools/make-dmx-manfid.py",
+        "path": "tools/dissector_generators/generate-dmx-manfid-data.py",
         "updated_files": [
             "epan/dissectors/data-dmx-manfid.c",
             "epan/dissectors/data-dmx-manfid.h",

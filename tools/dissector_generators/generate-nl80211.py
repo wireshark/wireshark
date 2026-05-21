@@ -14,7 +14,7 @@
 #
 # To update the dissector source file, run this from the source directory:
 #
-#   python tools/generate-nl80211-fields.py
+#   python tools/dissector_generators/generate-nl80211-data.py
 #
 
 import argparse
@@ -362,7 +362,7 @@ def main():
         for new_code in code:
             print(new_code)
     else:
-        source_path = Path(__file__).parent / '..' / SOURCE_FILE
+        source_path = Path(__file__).parent / '..' / '..' / SOURCE_FILE
         parts = parse_source(source_path)
 
         # Check if file needs update

@@ -32,7 +32,7 @@
 #
 cog.out('/*\n')
 cog.out(' * Generated automatically Using (from wireshark base directory):\n')
-cog.out(' *   cog.py -D xmlfile=tools/SkinnyProtocolOptimized.xml -d -c -o epan/dissectors/packet-skinny.c epan/dissectors/packet-skinny.c.in\n')
+cog.out(' *   cog.py -D xmlfile=tools/dissector_generators/SkinnyProtocolOptimized.xml -d -c -o epan/dissectors/packet-skinny.c epan/dissectors/packet-skinny.c.in\n')
 cog.out(' */\n')
 /*]]]*/
 /*[[[end]]]*/
@@ -99,9 +99,9 @@ static const value_string header_version[] = {
 /* Declare MessageId */
 /* [[[cog
 import sys
-sys.path.append('tools/')
+sys.path.append('tools/dissector_generators/')
 
-import parse_xml2skinny_dissector as xml2skinny
+import generate_skinny as xml2skinny
 global skinny
 global message_dissector_functions
 

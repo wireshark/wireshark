@@ -27,7 +27,7 @@ typedef struct  {
 static dissector_handle_t ieee80211_handle;
 static dissector_table_t ieee80211_tag_dissector_table;
 
-/* Extracted using tools/generate-nl80211-fields.py */
+/* Extracted using tools/dissector_generators/generate-nl80211-data.py */
 /* Definitions from linux/nl80211.h {{{ */
 enum ws_nl80211_commands {
     WS_NL80211_CMD_UNSPEC,
@@ -4835,7 +4835,7 @@ proto_register_netlink_nl80211(void)
               &ws_nl80211_attrs_vals_ext, 0x00,
               NULL, HFILL },
         },
-/* Extracted using tools/generate-nl80211-fields.py */
+/* Extracted using tools/dissector_generators/generate-nl80211-data.py */
 /* Definitions from linux/nl80211.h {{{ */
         { &hf_nl80211_commands,
             { "Command", "nl80211.cmd",
@@ -5604,7 +5604,7 @@ proto_register_netlink_nl80211(void)
         &ett_nl80211_bss_param,
         &ett_nl80211_supported_commands,
         &ett_nl80211_mlo_links,
-/* Extracted using tools/generate-nl80211-fields.py */
+/* Extracted using tools/dissector_generators/generate-nl80211-data.py */
 /* Definitions from linux/nl80211.h {{{ */
         &ett_nl80211_commands,
         &ett_nl80211_attrs,
