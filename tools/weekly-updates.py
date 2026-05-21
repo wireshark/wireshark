@@ -154,7 +154,7 @@ def main():
         # XXX Should we build after each update as well?
         for tool in UPDATE_TOOLS:
             print(f"Running {tool['path']}.\n")
-            res = subprocess.run([tool["path"]], capture_output=True, encoding="UTF-8")
+            res = subprocess.run([sys.executable, tool["path"]], capture_output=True, encoding="UTF-8")
             print(res.stdout, end="")
             print(res.stderr, end="")
             if res.returncode == 0:
