@@ -2046,17 +2046,14 @@ dissect_wccp2_alternate_mask_value_set_element(tvbuff_t *tvb, int offset, int le
   proto_item *tl, *header;
   proto_tree *element_tree, *value_tree;
   unsigned number_of_elements;
-  int new_length, total_length;
+  int new_length;
   unsigned i;
 
   element_tree = proto_tree_add_subtree_format(info_tree, tvb, offset, 0,
                                ett_alternate_mask_value_set_element, &header,
                                "Alternate Mask/Value Set Element(%d)", el_index);
 
-  total_length = 0;
-
   new_length=dissect_wccp2_mask_element(tvb,offset,length,pinfo,element_tree);
-  total_length += length - new_length;
   CHECK_LENGTH_ADVANCE_OFFSET(new_length);
 
   if (length < 4)
@@ -2065,16 +2062,14 @@ dissect_wccp2_alternate_mask_value_set_element(tvbuff_t *tvb, int offset, int le
   number_of_elements  = tvb_get_ntohl(tvb, offset);
   tl = proto_tree_add_uint(element_tree, hf_alt_assignment_mask_value_set_element_num_wc_value_elements, tvb, offset, 4, number_of_elements);
   value_tree = proto_item_add_subtree(tl, ett_alternate_mv_set_element_list);
-  total_length += 4;
   EAT(4);
 
   /* XXX Add a bounds check for number_of_elements? */
   for (i=0; i < number_of_elements; i++) {
     new_length=dissect_wccp2_web_cache_value_element(tvb, offset, length, pinfo, value_tree, addr_table);
-    total_length += length - new_length;
     CHECK_LENGTH_ADVANCE_OFFSET(new_length);
   }
-  proto_item_set_len(header, total_length);
+  proto_item_set_end(header, tvb, offset);
 
   return length;
 }
