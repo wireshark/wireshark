@@ -1473,6 +1473,7 @@ typedef struct tcp_follow_tap_data
     tvbuff_t *tvb;
     struct tcpheader* tcph;
     struct tcp_analysis *tcpd;
+    unsigned stream_id;
 
 } tcp_follow_tap_data_t;
 
@@ -1600,6 +1601,10 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
     follow_record_t *follow_record;
     follow_info_t *follow_info = (follow_info_t *)tapdata;
     const tcp_follow_tap_data_t *follow_data = (const tcp_follow_tap_data_t *)data;
+
+    if (follow_info->stream_id != follow_data->stream_id)
+        return TAP_PACKET_DONT_REDRAW;
+
     bool is_server;
     uint32_t sequence = follow_data->tcph->th_seq;
     uint32_t length = follow_data->tcph->th_have_seglen
@@ -9726,6 +9731,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             follow_data->tvb = tvb_new_subset_remaining(tvb, offset);
             follow_data->tcph = tcph;
             follow_data->tcpd = tcpd;
+            follow_data->stream_id = tcph->th_stream;
 
             tap_queue_packet(tcp_follow_tap, pinfo, follow_data);
         }
