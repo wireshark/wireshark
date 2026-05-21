@@ -652,6 +652,23 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) 
 
             proto_tree_add_item(tree, hf_isobus_transportprotocol_broadcastannouncemessage_pgn, tvb, data_offset, 3, ENC_LITTLE_ENDIAN);
 
+            if (identifier) {
+                seqnr = identifier->identifier;
+            } else {
+                struct reassemble_identifier *reassembleIdentifierTableEntry = wmem_new(wmem_file_scope(), struct reassemble_identifier);
+                seqnr = ++address_reassemble_table_item->identifierCounter;
+                reassembleIdentifierTableEntry->identifier = seqnr;
+                reassembleIdentifierTableEntry->startFrameId = pinfo->num;
+                reassembleIdentifierTableEntry->endFrameId = pinfo->num;
+
+                wmem_list_append(address_reassemble_table_item->reassembleIdentifierTable, reassembleIdentifierTableEntry);
+            }
+
+            fragment_add_seq(&isobus_reassembly_table, tvb, 5, pinfo, seqnr, NULL, 0, 3, true, 0);
+            fragment_set_tot_len(&isobus_reassembly_table, pinfo, seqnr, NULL, number_of_packets);
+            reassembly_current_size = 3;
+            reassembly_total_size = total_size + 3;
+
             col_append_fstr(pinfo->cinfo, COL_INFO, "Broadcast Announcement Message, %u bytes sent in %u packets", total_size, number_of_packets);
         }
     }
