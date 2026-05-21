@@ -510,19 +510,21 @@ image::images/ws-go-menu.png[{screenshot-attrs}]
 [options="header",cols="3,2,5"]
 |===
 |Menu Item                              |Accelerator        |Description
-|menu:Back[]                            |kbd:[Alt+←] |Jump to the recently visited packet in the packet history, much like the page history in a web browser.
-|menu:Forward[]                         |kbd:[Alt+→] |Jump to the next visited packet in the packet history, much like the page history in a web browser.
 |menu:Go to Packet...[]                 |kbd:[Ctrl+G]       |Bring up a window frame that allows you to specify a packet number, and then goes to that packet. See <<ChWorkGoToPacketSection>> for details.
-|menu:Go to Corresponding Packet[]      |                   |Go to the corresponding packet of the currently selected protocol field (e.g., the reply
+|menu:Go to Linked Packet[]             |                   |Go to the corresponding packet of the currently selected protocol field (e.g., the reply
 corresponding to a request packet, or vice versa). If the selected field doesn’t correspond to a packet, this item is greyed out.
-|menu:Previous Packet[]                 |kbd:[Ctrl+↑]|Move to the previous packet in the list.  This can be used to move to the previous packet even if the packet list doesn’t have keyboard focus.
-|menu:Next Packet[]                     |kbd:[Ctrl+↓]|Move to the next packet in the list.  This can be used to move to the next packet even if the packet list doesn’t have keyboard focus.
+|menu:Next Packet[]                     |kbd:[Ctrl+↓]       |Move to the next packet in the list.  This can be used to move to the next packet even if the packet list doesn’t have keyboard focus.
+|menu:Previous Packet[]                 |kbd:[Ctrl+↑]       |Move to the previous packet in the list.  This can be used to move to the previous packet even if the packet list doesn’t have keyboard focus.
 |menu:First Packet[]                    |kbd:[Ctrl+Home]    |Jump to the first packet of the capture file.
 |menu:Last Packet[]                     |kbd:[Ctrl+End]     |Jump to the last packet of the capture file.
-|menu:Previous Packet In Conversation[] |kbd:[Ctrl+&#44;]  |Move to the previous packet in the current conversation.  This can be used to move to the previous packet even if the packet list doesn’t have keyboard focus.
 |menu:Next Packet In Conversation[]     |kbd:[Ctrl+.]       |Move to the next packet in the current conversation.  This can be used to move to the next packet even if the packet list doesn’t have keyboard focus.
-|menu:Auto Scroll in Live Capture[] |                   |This item allows you to specify that Wireshark should scroll the packet list pane as new packets come in, so you are always looking at the last packet.  If you do not specify this, Wireshark simply adds new packets onto the end of the list, but does not scroll the packet list pane.
-|menu:Aggregation in Live Capture[] |                   |Activates a summarized display that groups frames by selected field values, showing only the latest frame for each unique combination.
+|menu:Previous Packet In Conversation[] |kbd:[Ctrl+&#44;]   |Move to the previous packet in the current conversation.  This can be used to move to the previous packet even if the packet list doesn’t have keyboard focus.
+|menu:First Packet In Conversation[]    |                   |Move to the first packet in the current conversation.  This can be used to move to the first packet even if the packet list doesn’t have keyboard focus.
+|menu:Last Packet In Conversation[]     |                   |Move to the last packet in the current conversation.  This can be used to move to the last packet even if the packet list doesn’t have keyboard focus.
+|menu:Next Packet in History[]          |kbd:[Alt+→]        |Jump to the next visited packet in the packet history, much like the page history in a web browser.
+|menu:Previous Packet in History[]      |kbd:[Alt+←]        |Jump to the recently visited packet in the packet history, much like the page history in a web browser.
+|menu:Auto Scroll in Live Capture[]     |                   |This item allows you to specify that Wireshark should scroll the packet list pane as new packets come in, so you are always looking at the last packet.  If you do not specify this, Wireshark simply adds new packets onto the end of the list, but does not scroll the packet list pane.
+|menu:Aggregation in Live Capture[]     |                   |Activates a summarized display that groups frames by selected field values, showing only the latest frame for each unique combination.
 |===
 
 [#ChUseCaptureMenuSection]
@@ -694,7 +696,10 @@ Each menu item brings up a new window showing specific statistics.
 |menu:TCP Stream Graphs[]||See <<ChStatTCPStreamGraphs>>
 |menu:UDP Multicast Streams[]||See <<ChStatUDPMulticastStreams>>
 |menu:Reliable Server Pooling (RSerPool)[]||See <<ChStatRSerPool>>
+|menu:SOME/IP[]||SOME/IP
+|menu:DTN[]||DTN
 |menu:F5[]||See <<ChStatF5>>
+|menu:ILNP Statistics[]||ILNP Statistics
 |menu:IPv4 Statistics[]||See <<ChStatIPv4>>
 |menu:IPv6 Statistics[]||See <<ChStatIPv6>>
 
@@ -734,6 +739,7 @@ Each menu item shows specific telephony related statistics.
 |menu:F1AP Messages[]||See <<ChTelF1APMessages>>
 |menu:NGAP Messages[]||See <<ChTelNGAPMessages>>
 |menu:E2AP Messages[]||See <<ChTelE2APMessages>>
+|menu:DIS Streams[]||DIS Streams
 |menu:H.225[]||See <<ChTelH225>>
 |menu:SIP Flows[]||See <<ChTelSIPFlows>>
 |menu:SIP Statistics[]||See <<ChTelSIPStatistics>>
@@ -789,6 +795,8 @@ Menu item is greyed out unless one (and only one) frame is selected in the packe
 |menu:Credentials[]|| This allows you to extract credentials from the current capture file. Some of the dissectors (ftp, http, imap, pop, smtp) have been instrumented to provide the module with usernames and passwords and more will be instrumented in the future. The window dialog provides you the packet number where the credentials have been found, the protocol that provided them, the username and protocol specific information.
 |menu:MAC Address Blocks[]|| This allows viewing the IEEE MAC address registry data that Wireshark uses to resolve MAC address blocks to vendor names. The table can be searched by address prefix or vendor name.
 |menu:TLS Keylog Launcher[]|| This can launch an application such as a web browser or a terminal window with the SSLKEYLOGFILE environment variable set to the same value as the TLS secret log file. Note that you will probably have to quit your existing web browser session in order to have it run under a fresh environment.
+|menu:Lua Debugger[]|| This option opens the built-in graphical debugger for Lua scripts.
+See “Lua Debugger” in the Wireshark Developer’s Guide.
 |menu:Lua Console[]|| This option allows you to work with the Lua interpreter optionally built into Wireshark, to inspect Lua internals and evaluate code.
 See “Lua Support in Wireshark” in the Wireshark Developer’s Guide.
 |===
@@ -815,8 +823,9 @@ image::images/ws-help-menu.png[{screenshot-attrs}]
 |menu:Downloads[]|| This menu item starts a Web browser showing the downloads from: link:{wireshark-download-url}[].
 |menu:Wiki[]|| This menu item starts a Web browser showing the front page from: link:{wireshark-wiki-url}[].
 |menu:Sample Captures[]|| This menu item starts a Web browser showing the sample captures from: link:{wireshark-wiki-url}SampleCaptures[].
+|menu:Release Notes[]|| This menu item starts a Web browser showing the Release Notes of the current version.
 |menu:About Wireshark[]|| This menu item brings up an information window that provides various detailed information items on Wireshark, such as how it’s built, the plugins loaded, the used folders, ...
-
+|menu:Check for Updates[...]|| This menu item starts the updater utility that checks whether there's an new version of Wireshark available. This item is only available on Windows and macOS.
 |===
 
 [NOTE]
