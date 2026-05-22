@@ -899,7 +899,7 @@ This might be a time consuming operation delaying the start of the program, howe
 These preferences allow you to configure the aggreation fields.
 
 .Aggregation fields preferences
-image::images/ws-aggregation-view-example.gif[{screenshot-attrs}]
+image::images/ws-aggregation-view-example.png[{screenshot-attrs}]
 
 The preference _Aggregation fields_ lets you choose which packet fields Wireshark uses to group packets in the Aggregation View. Packets with the same frame key appear in the same row. For example, on a CAN bus, you can use the CAN ID as the frame key. This way, all frames with the same CAN ID are grouped together, and the Aggregation View will show the most recently received frame for each CAN ID.
 
