@@ -19,11 +19,11 @@ import sys
 # A list of update tools to run
 # - name: The name of the tool; it will be printed in the commit message if it fails.
 # - path: Path to the tool relative to the repository root.
+# - args: List of arguments to pass to the tool (optional).
 # - python_modules: List of required Python modules (optional).
 # - updated_files: List of files that this tool updates.
 #
 # Each tool must
-# - Run without arguments, i.e. the script should perform the desired update by default.
 # - Exit with 0 on success and nonzero on failure.
 # - Print a short, informative message suitable for inclusion in a git commit on failure.
 # - Preferably be able to run from anywhere.
@@ -90,12 +90,12 @@ UPDATE_TOOLS = (
             "epan/dissectors/data-dmx-manfid.h",
         ],
     },
-    # Asterix requires an argument and a compile, and should only be run from master.
-    # {
-    #     'name': 'Asterix',
-    #     'path': 'tools/make-specs.py',
-    #     'updated_files': []
-    # },
+    {
+        "name": "Asterix",
+        "path": "tools/asterix/update-specs.py",
+        "args": ["--update", "epan/dissectors/packet-asterix-generated.h"],
+        "updated_files": [ "epan/dissectors/packet-asterix-generated.h"]
+    },
     {
         "name": "Introspection enumerations",
         "python_modules": ["pyclibrary"],
@@ -154,7 +154,7 @@ def main():
         # XXX Should we build after each update as well?
         for tool in UPDATE_TOOLS:
             print(f"Running {tool['path']}.\n")
-            res = subprocess.run([sys.executable, tool["path"]], capture_output=True, encoding="UTF-8")
+            res = subprocess.run([sys.executable, tool["path"]] + tool.get("args", []), capture_output=True, encoding="UTF-8")
             print(res.stdout, end="")
             print(res.stderr, end="")
             if res.returncode == 0:
