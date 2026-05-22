@@ -1491,6 +1491,10 @@ indent_size = tab
 indent_style = tab
 indent_size = tab
 
+[packet-netlink-generic.[ch]]
+indent_style = tab
+indent_size = tab
+
 [packet-netlink-netfilter.[ch]]
 indent_style = tab
 indent_size = tab
