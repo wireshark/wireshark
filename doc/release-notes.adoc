@@ -42,7 +42,12 @@ The following bugs have been fixed:
 
 // == Known Bugs
 
-// === New and Updated Features
+=== New and Updated Features
+
+* The Windows installers now ship with Qt 6.7.3.
+  They previously shipped with Qt 6.5.3.
+
+* The Windows installers are now built with Visual Studio 2026.
 
 // === Removed Features and Support
 
