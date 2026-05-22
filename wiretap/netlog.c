@@ -776,6 +776,13 @@ static bool netlog_parse_entirety(wtap *wth, FILE_T fh, int *err, char **err_inf
     */
     jsmntok_t* json_events = json_get_array((const char*)filebuf, root_json_token, "events");
 
+    if (json_events == NULL) {
+        ws_debug("NetLog file lacks 'events' array");
+        g_free(json_tokens);
+        g_free(filebuf);
+        return false;
+    }
+
     if (!parse_json_events((char*)filebuf, netlog_event_constants, json_events, json_packets_ht)){
         g_free(json_tokens);
         g_free(filebuf);
