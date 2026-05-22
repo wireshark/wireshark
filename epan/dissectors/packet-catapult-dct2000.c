@@ -1869,6 +1869,9 @@ static void attach_fp_info(packet_info *pinfo, bool received,
         int n;
 
         p_fp_info->no_ddi_entries = outhdr_values[i++];
+        if (p_fp_info->no_ddi_entries > MAX_EDCH_DDIS) {
+            p_fp_info->no_ddi_entries = MAX_EDCH_DDIS;
+        }
 
         /* DDI values */
         for (n=0; n < p_fp_info->no_ddi_entries; n++) {
