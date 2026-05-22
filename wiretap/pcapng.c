@@ -5503,8 +5503,8 @@ put_nrb_option(wtap_block_t block _U_, unsigned option_id, wtap_opttype_e option
 
         memcpy(*opt_ptrp, &optval->custom_stringval.pen, sizeof(uint32_t));
         *opt_ptrp += sizeof(uint32_t);
-        memcpy(*opt_ptrp, optval->custom_stringval.string, size);
-        *opt_ptrp += size;
+        memcpy(*opt_ptrp, optval->custom_stringval.string, stringlen);
+        *opt_ptrp += stringlen;
 
         /* put padding (if any) */
         pad = WS_PADDING_TO_4(size);
