@@ -208,7 +208,7 @@ workflow:
     - $env:Path += ";C:\Program Files\CMake\bin"
     - $env:CMAKE_PREFIX_PATH = "C:\Qt\$($env:WINDOWS_QT_VERSION)\$($env:AQT_ARCH)"
     # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
-    - cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars$($env:VCVARS_ARCH).bat`" && set " | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
+    - cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars$($env:VCVARS_ARCH).bat`" && set " | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
     # Testing / debugging only.
     # - cmd.exe /c "set CI_PIPELINE_SOURCE"
     # - cmd.exe /c "set CI_PROJECT_URL"
@@ -542,13 +542,13 @@ Windows x64 Package:
     name: windows-package
   script:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release --wireshark-version-file=wireshark_version.txt --stratoshark-version-file=stratoshark_version.txt ..
-    - cmake -G "Visual Studio 17 2022" -A x64
+    - cmake -G "Visual Studio 18 2026" -A x64
       -DENABLE_WERROR=ON
       -DENABLE_LTO=OFF
       -DBUILD_stratoshark=ON
       -DFALCO_PLUGINS="$FALCO_PLUGIN_DIR/cloudtrail.dll;$FALCO_PLUGIN_DIR/gcpaudit.dll;$FALCO_PLUGIN_DIR/k8saudit.dll"
       -DENABLE_SIGNED_NSIS=ON ..
-    - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
+    - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.slnx
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - msbuild /verbosity:minimal /maxcpucount wireshark_nsis_prep.vcxproj
     - msbuild /verbosity:minimal /maxcpucount stratoshark_nsis_prep.vcxproj
@@ -594,13 +594,13 @@ Windows Arm64 Package:
     name: windows-package
   script:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release --wireshark-version-file=wireshark_version.txt --stratoshark-version-file=stratoshark_version.txt ..
-    - cmake -G "Visual Studio 17 2022" -A arm64
+    - cmake -G "Visual Studio 18 2026" -A arm64
       -DENABLE_WERROR=ON
       -DENABLE_LTO=OFF
       -DBUILD_stratoshark=ON
       -DFALCO_PLUGINS="$FALCO_PLUGIN_DIR/cloudtrail.dll;$FALCO_PLUGIN_DIR/gcpaudit.dll;$FALCO_PLUGIN_DIR/k8saudit.dll"
       -DENABLE_SIGNED_NSIS=ON ..
-    - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
+    - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.slnx
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - msbuild /verbosity:minimal /maxcpucount wireshark_nsis_prep.vcxproj
     - msbuild /verbosity:minimal /maxcpucount stratoshark_nsis_prep.vcxproj
@@ -999,8 +999,8 @@ Windows Build:
   script:
     # lib{sinsp,scap} don't support Configuration=Debug, so we can't enable
     # BUILD_stratoshark or BUILD_falcodump here just yet.
-    - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_WERROR=ON -DENABLE_LTO=off -DBUILD_sshdig=on ..
-    - msbuild /verbosity:minimal /maxcpucount /property:Configuration=Debug Wireshark.sln
+    - cmake -G "Visual Studio 18 2026" -A x64 -DENABLE_WERROR=ON -DENABLE_LTO=off -DBUILD_sshdig=on ..
+    - msbuild /verbosity:minimal /maxcpucount /property:Configuration=Debug Wireshark.slnx
     - msbuild /verbosity:minimal /maxcpucount /property:Configuration=Debug test-programs.vcxproj
     - C:\Windows\py.exe -m pytest --disable-gui --build-type=Debug --junitxml=../windows_tests.xml
   artifacts:

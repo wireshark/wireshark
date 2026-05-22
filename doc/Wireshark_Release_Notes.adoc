@@ -53,6 +53,8 @@ The following bugs have been fixed:
 
 === New and Updated Features
 
+* The Windows installers are now built with Visual Studio 2026.
+
 //  * The Windows installers now ship with Npcap 1.88.
 //    They previously shipped with Npcap 1.87.
 
