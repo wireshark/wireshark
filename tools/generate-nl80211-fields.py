@@ -14,13 +14,14 @@
 #
 # To update the dissector source file, run this from the source directory:
 #
-#   python tools/generate-nl80211-fields.py --update
+#   python tools/generate-nl80211-fields.py
 #
 
 import argparse
 import re
 import requests
 import sys
+from pathlib import Path
 
 # Begin of comment, followed by the actual array definition
 HEADER = "/* Definitions from linux/nl80211.h {{{ */\n"
@@ -156,7 +157,7 @@ EXPORT_ENUMS = {
     'nl80211_nan_capabilities': (None, None, None),
 }
 # File to be patched
-SOURCE_FILE = "epan/dissectors/packet-netlink-nl80211.c"
+SOURCE_FILE = Path("epan/dissectors/packet-netlink-nl80211.c")
 # URL where the latest version can be found
 URL = "https://raw.githubusercontent.com/torvalds/linux/refs/heads/master/include/uapi/linux/nl80211.h"
 
@@ -277,12 +278,13 @@ def parse_header(content):
     for m in RE_ENUM.finditer(content):
         enum = m.group('enum')
         values = m.group('values')
+        # XXX - Should we warn about new unhandled enums?
         if enum in EXPORT_ENUMS:
             enums.append(EnumStore(enum, values).finish())
 
     return enums
 
-def parse_source():
+def parse_source(source_path):
     """
     Reads the source file and tries to split it in the parts before, inside and
     after the block.
@@ -291,7 +293,7 @@ def parse_source():
     parts = []
     # Stages: 1 (before block), 2 (in block, skip), 3 (after block)
     stage = 1
-    with open(SOURCE_FILE) as f:
+    with open(source_path) as f:
         for line in f:
             if line == FOOTER and stage == 2:
                 stage = 3   # End of block
@@ -314,8 +316,8 @@ def parse_source():
     return parts
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--update", action="store_true",
-        help="Update %s as needed instead of writing to stdout" % SOURCE_FILE)
+parser.add_argument("--dump", action="store_true",
+        help=f"Dump {SOURCE_FILE} to stdout instead of updating")
 parser.add_argument("--indent", default=" " * 4,
         help="indentation (use \\t for tabs, default 4 spaces)")
 parser.add_argument("header_file", nargs="?", default=URL,
@@ -356,8 +358,12 @@ def main():
     code = [code_top, code_hf, code_ett]
 
     update = False
-    if args.update:
-        parts = parse_source()
+    if args.dump:
+        for new_code in code:
+            print(new_code)
+    else:
+        source_path = Path(__file__).parent / '..' / SOURCE_FILE
+        parts = parse_source(source_path)
 
         # Check if file needs update
         for (begin, old_code, end), new_code in zip(parts, code):
@@ -368,15 +374,12 @@ def main():
             print("File is up-to-date")
             return
         # Update file
-        with open(SOURCE_FILE, "w") as f:
+        with open(source_path, "w") as f:
             for (begin, old_code, end), new_code in zip(parts, code):
                 f.write(begin)
                 f.write(new_code)
                 f.write(end)
-        print("Updated %s" % SOURCE_FILE)
-    else:
-        for new_code in code:
-            print(new_code)
+        print("Updated %s" % source_path)
 
 if __name__ == '__main__':
     main()
