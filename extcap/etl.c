@@ -328,7 +328,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
     g_err = ERROR_SUCCESS;
     g_num_events = 0;
     g_is_live_session = false;
-    g_etw_frags = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
+    g_etw_frags = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, etw_frag_free);
 
     if (params)
     {
@@ -601,7 +601,6 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
     }
     if (g_etw_frags)
     {
-        g_hash_table_foreach(g_etw_frags, etw_frag_free, NULL);
         g_hash_table_destroy(g_etw_frags);
     }
     return returnVal;
@@ -1072,18 +1071,8 @@ static etw_frag* etw_frag_get(PEVENT_RECORD ev, bool begin)
     if (begin)
     {
         /* We need a new buffer */
-
-        if (g_hash_table_contains(g_etw_frags, GINT_TO_POINTER(ev->EventHeader.ThreadId)))
-        {
-            /* Already exists : remove */
-            frag = g_hash_table_lookup(g_etw_frags, GINT_TO_POINTER(ev->EventHeader.ThreadId));
-            etw_frag_free(frag);
-            etw_frag_remove(ev);
-        }
-
-        /* New buffer */
         frag = etw_frag_new();
-        g_hash_table_insert(g_etw_frags, GINT_TO_POINTER(ev->EventHeader.ThreadId), frag);
+        g_hash_table_replace(g_etw_frags, GINT_TO_POINTER(ev->EventHeader.ThreadId), frag);
     }
     else
     {
@@ -1185,8 +1174,8 @@ static void etw_dump_write_smb_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
             }
 
             // Reserve 4 octets for the Netbios Header
-            uint32_t reserved = 0;
-            g_byte_array_append(frag->buf, &reserved, sizeof(reserved));
+            uint8_t reserved[4] = {0};
+            g_byte_array_append(frag->buf, reserved, sizeof(reserved));
         }
         else
         {
@@ -1220,7 +1209,6 @@ static void etw_dump_write_smb_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
                 g_free(etl_record);
             }
 
-            etw_frag_free(frag);
             etw_frag_remove(ev);
         }
     }
@@ -1368,7 +1356,9 @@ static void etw_dump_write_webio_event(PEVENT_RECORD ev, ULARGE_INTEGER timestam
     // Get "Length" property
     DataDescriptor.PropertyName = (ULONGLONG)&L"Length";
     DataDescriptor.ArrayIndex = ULONG_MAX;
-    status = TdhGetProperty(ev, 0, NULL, 1, &DataDescriptor, sizeof(DWORD), &Length);
+    // NOTE: TdhGetProperty always retrieves multi-byte values as Little Endian
+    // That is okay because Windows only runs on Little Endian currently
+    status = TdhGetProperty(ev, 0, NULL, 1, &DataDescriptor, sizeof(DWORD), (PBYTE)&Length);
     if (status != NO_ERROR) goto end;
     Buffer = g_malloc(Length);
 
@@ -1442,7 +1432,6 @@ static void etw_dump_write_ldap_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp
         total_packet_length = wtap_etl_rec_build(&etl_record, ev, frag->ctx);
         wtap_etl_rec_dump((char*)etl_record, total_packet_length, total_packet_length, 0, true, timestamp, WTAP_ENCAP_ETW, NULL, 0);
 
-        etw_frag_free(frag);
         etw_frag_remove(ev);
         g_free(etl_record);
     }
