@@ -65,7 +65,7 @@ void LuaDebuggerEvalController::updatePanelState() const
     }
     else
     {
-        input_->setPlaceholderText(host_->tr("Enter Lua expression (prefix with = to return value)"));
+        input_->setPlaceholderText(host_->tr("Enter Lua expression"));
     }
 }
 
@@ -132,10 +132,6 @@ void LuaDebuggerEvalController::onEvaluate()
 
 void LuaDebuggerEvalController::onEvalClear()
 {
-    if (input_)
-    {
-        input_->clear();
-    }
     if (output_)
     {
         output_->clear();
@@ -147,6 +143,22 @@ void LuaDebuggerEvalController::onEvalClear()
 CollapsibleSection *LuaDebuggerDialog::createEvaluateSection(QWidget *parent)
 {
     evalSection = new CollapsibleSection(tr("Evaluate"), parent);
+    evalSection->setToolTip(tr("<b>Lua Expression Evaluation</b><br><br>"
+                                 "Code runs in a protected environment: runtime errors are "
+                                 "caught and shown in the output instead of propagating.<br><br>"
+                                 "<b>What works:</b><ul>"
+                                 "<li>Read/modify global variables (<code>_G.x = 42</code>)</li>"
+                                 "<li>Modify table contents (<code>my_table.field = 99</code>)</li>"
+                                 "<li>Call functions and inspect return values</li>"
+                                 "</ul>"
+                                 "<b>Limitations:</b><ul>"
+                                 "<li>Local variables cannot be modified directly (use "
+                                 "<code>debug.setlocal()</code>) unless there is an associated "
+                                 "<i>assign</i> method (<code>pinfo.src_port</code>)</li>"
+                                 "<li>Long-running expressions are automatically aborted</li>"
+                                 "<li><b>Warning:</b> Changes to globals persist and can affect "
+                                 "ongoing dissection</li>"
+                                 "</ul>"));
     QWidget *evalWidget = new QWidget();
     QVBoxLayout *evalMainLayout = new QVBoxLayout(evalWidget);
     evalMainLayout->setContentsMargins(0, 0, 0, 0);
@@ -161,24 +173,7 @@ CollapsibleSection *LuaDebuggerDialog::createEvaluateSection(QWidget *parent)
      * the input buffer without bound either, and the document's
      * per-line layout cost climbs linearly with size. */
     evalInputEdit->setMaximumBlockCount(kLuaDbgEvalOutputMaxLines);
-    evalInputEdit->setPlaceholderText(tr("Enter Lua expression (prefix with = to return value)"));
-    evalInputEdit->setToolTip(tr("<b>Lua Expression Evaluation</b><br><br>"
-                                 "Code runs in a protected environment: runtime errors are "
-                                 "caught and shown in the output instead of propagating.<br><br>"
-                                 "<b>Prefix with <code>=</code></b> to return a value (e.g., "
-                                 "<code>=my_var</code>).<br><br>"
-                                 "<b>What works:</b><ul>"
-                                 "<li>Read/modify global variables (<code>_G.x = 42</code>)</li>"
-                                 "<li>Modify table contents (<code>my_table.field = 99</code>)</li>"
-                                 "<li>Call functions and inspect return values</li>"
-                                 "</ul>"
-                                 "<b>Limitations:</b><ul>"
-                                 "<li>Local variables cannot be modified directly (use "
-                                 "<code>debug.setlocal()</code>)</li>"
-                                 "<li>Long-running expressions are automatically aborted</li>"
-                                 "<li><b>Warning:</b> Changes to globals persist and can affect "
-                                 "ongoing dissection</li>"
-                                 "</ul>"));
+    evalInputEdit->setPlaceholderText(tr("Enter Lua expression"));
     evalOutputEdit = new QPlainTextEdit();
     evalOutputEdit->setReadOnly(true);
     evalOutputEdit->setPlaceholderText(tr("Output"));
@@ -197,7 +192,7 @@ CollapsibleSection *LuaDebuggerDialog::createEvaluateSection(QWidget *parent)
     evalButton->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return));
     evalButton->setToolTip(tr("Execute the Lua code (Ctrl+Return)"));
     evalClearButton = new QPushButton(tr("Clear"));
-    evalClearButton->setToolTip(tr("Clear input and output"));
+    evalClearButton->setToolTip(tr("Clear output"));
     evalButtonLayout->addWidget(evalButton);
     evalButtonLayout->addWidget(evalClearButton);
     evalButtonLayout->addStretch();

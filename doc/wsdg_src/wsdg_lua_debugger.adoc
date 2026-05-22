@@ -1359,7 +1359,8 @@ read-only log of previous expressions and their results.
   their value, the same way Watch rows do (see
   <<wslua_debugger_watch>>). The legacy `=expr` prefix from older
   Lua REPLs is still tolerated, just redundant.
-* *Clear* empties both the input and the output.
+* *Clear* empties the output. To clear input, Select All
+(`kbd:[Ctrl+A]`) then `kbd:[Delete]` or `kbd:[Backspace]`.
 
 The panel is enabled only while the debugger is paused. Typical
 uses:
@@ -1383,14 +1384,15 @@ resolve against locals, then upvalues, then globals (see
 *Limitations.*
 
 * *Locals cannot be mutated by assignment.* A statement like
-  `foo = 42` writes to `_G.foo`, not to a local `foo`. Use
+  `foo = 42` writes to `\_G.foo`, not to a local `foo`. Use
   `debug.setlocal()` if you really need to mutate a local.
+  Locals with a __assign__ method (`pinfo.src_port`) can be modified.
 * *Mutating globals is destructive.* Changes persist after
   *Continue* and will affect subsequent dissection.
 * *Long-running expressions are aborted (Lua 5.4+).* The
   evaluator caps execution time so a runaway `while true do end`
-  cannot hang the GUI. On Lua 5.3 builds the cap is inactive;
-  see the *Expression watches* section for details.
+  cannot hang the GUI. On Lua 5.3 builds the cap is inactive
+  (see  <<wslua_debugger_watch>> for details).
 
 After an evaluation the Stack Trace, Variables, and Watch panels
 are refreshed because the expression may have mutated state the
