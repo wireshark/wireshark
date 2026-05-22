@@ -91,6 +91,8 @@ macro(set_extlog_executable_properties _executable)
 	set_common_executable_properties(${_executable} Stratoshark)
 endmacro()
 
+add_compile_options("${WERROR_COMMON_FLAGS}")
+
 add_custom_target(extcaps)
 
 # XXX - Should this be a shared library, and the headers installed as public
