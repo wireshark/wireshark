@@ -166,7 +166,7 @@ static int ett_genl_nested_attr;
 /*
  * Maps family IDs (integers) to family names (strings) within a capture file.
  */
-static wmem_map_t *genl_family_map;
+static wmem_multimap_t *genl_family_map;
 
 static int * const genl_ctrl_op_flags_fields[] = {
 	&hf_genl_ctrl_op_flags_admin_perm,
@@ -330,7 +330,7 @@ dissect_genl_ctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void 
 	 * Do not allow overwriting our control protocol.
 	 */
 	if (info.family_id && info.family_id != WS_GENL_ID_CTRL && info.family_name) {
-		wmem_map_insert(genl_family_map, GUINT_TO_POINTER(info.family_id), wmem_strdup(wmem_file_scope(), (char*)info.family_name));
+		wmem_multimap_insert32(genl_family_map, GUINT_TO_POINTER(info.family_id), pinfo->num, wmem_strdup(wmem_file_scope(), (char*)info.family_name));
 	}
 
 	return tvb_captured_length(tvb);
@@ -361,6 +361,7 @@ dissect_netlink_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	proto_tree *nlmsg_tree;
 	proto_item *pi, *pi_type;
 	const char *family_name;
+	uint32_t newfamily_frame_num;
 	tvbuff_t *next_tvb;
 	int offset = 0;
 
@@ -374,7 +375,7 @@ dissect_netlink_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	/* Netlink message header (nlmsghdr) */
 	offset = dissect_netlink_header(tvb, pinfo, nlmsg_tree, offset, nl_data->encoding, hf_genl_family_id, &pi_type);
-	family_name = (const char *)wmem_map_lookup(genl_family_map, GUINT_TO_POINTER(nl_data->type));
+	family_name = (const char *)wmem_multimap_lookup32_le_full(genl_family_map, GUINT_TO_POINTER(nl_data->type), pinfo->num, &newfamily_frame_num);
 	proto_item_append_text(pi_type, " (%s)", family_name ? family_name : "Unknown");
 
 	/* Populate info from Generic Netlink message header (genlmsghdr) */
@@ -385,6 +386,12 @@ dissect_netlink_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	/* Optional user-specific message header and optional message payload. */
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	if (family_name) {
+		/* Mark the packet number of the NEWFAMILY message so that if
+		 * this packet is exported the mapping between the dynamic ID
+		 * and family name is preserved. */
+		if (newfamily_frame_num) {
+			mark_frame_as_depended_upon(pinfo->fd, newfamily_frame_num);
+		}
 		int ret;
 		/* Invoke subdissector with genlmsghdr present. */
 		ret = dissector_try_string_with_data(genl_dissector_table, family_name, next_tvb, pinfo, tree, true, &info);
@@ -407,7 +414,7 @@ static void
 genl_init(void)
 {
 	/* Add fixed family entry (0x10 maps to "nlctrl"). */
-	wmem_map_insert(genl_family_map, GUINT_TO_POINTER(WS_GENL_ID_CTRL), GENL_CTRL_NAME);
+	wmem_multimap_insert32(genl_family_map, GUINT_TO_POINTER(WS_GENL_ID_CTRL), 0, GENL_CTRL_NAME);
 }
 
 void
@@ -550,7 +557,7 @@ proto_register_netlink_generic(void)
 		STRING_CASE_SENSITIVE
 	);
 
-	genl_family_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
+	genl_family_map = wmem_multimap_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 
 	register_init_routine(genl_init);
 }
