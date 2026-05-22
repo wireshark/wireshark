@@ -177,8 +177,7 @@ wmem_multimap_lookup32(const wmem_multimap_t *map, const void *key, const uint32
  * @brief Lookup a value in the multimap with an exact match for the map key
  * and the largest value less than or equal to the tree key.
  *
- * This is
- * useful for request/response matching where IDs can be reused.
+ * This is useful for request/response matching where IDs can be reused.
  *
  * @param map The multimap to search in.
  * @param key The primary key to lookup in the map.
@@ -189,6 +188,26 @@ wmem_multimap_lookup32(const wmem_multimap_t *map, const void *key, const uint32
 WS_DLL_PUBLIC
 void *
 wmem_multimap_lookup32_le(const wmem_multimap_t *map, const void *key, const uint32_t frame_num);
+
+/**
+ * @brief Lookup a value in the multimap with an exact match for the map key
+ * and the largest value less than or equal to the tree key.
+ *
+ * Also returns the actual greatest lower bound key in the tree used to
+ * retrieve the value.
+ *
+ * This is useful for request/response matching where IDs can be reused.
+ *
+ * @param map The multimap to search in.
+ * @param key The primary key to lookup in the map.
+ * @param frame_num The secondary key to lookup in the tree.
+ * @param orig_frame_num Set to the greater lower bound of frame_num tree key
+ * @return The value stored at the primary key in the map and with the largest
+ * key in the tree that is less than or equal to the second key if any, or NULL.
+ */
+WS_DLL_PUBLIC
+void *
+wmem_multimap_lookup32_le_full(const wmem_multimap_t *map, const void *key, const uint32_t frame_num, uint32_t *orig_frame_num);
 
 /**
  * @brief Remove a value from the multimap.

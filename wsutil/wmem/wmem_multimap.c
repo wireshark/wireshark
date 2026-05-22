@@ -161,6 +161,17 @@ wmem_multimap_lookup32_le(const wmem_multimap_t *map, const void *key, uint32_t 
 }
 
 void *
+wmem_multimap_lookup32_le_full(const wmem_multimap_t *map, const void *key, uint32_t frame_num, uint32_t *orig_frame_num)
+{
+    wmem_tree_t *tree;
+
+    if ((tree = wmem_map_lookup(map->map, key)) == NULL) {
+        return NULL;
+    }
+    return wmem_tree_lookup32_le_full(tree, frame_num, orig_frame_num);
+}
+
+void *
 wmem_multimap_remove32(wmem_multimap_t *map, const void *key, const uint32_t frame_num)
 {
     wmem_tree_t *tree;
