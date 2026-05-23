@@ -65,7 +65,7 @@ UPDATE_TOOLS = (
     },
     {
         "name": "PCI IDs",
-        "path": "tools/make-usb.py",
+        "path": "tools/make-pci-ids.py",
         "updated_files": ["epan/dissectors/data-ncsi.c", "epan/dissectors/data-ncsi.h"],
     },
     {
