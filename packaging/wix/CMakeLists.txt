@@ -186,7 +186,7 @@ set(WIX_CANDLE_DEFINES
 	-dRadiusDictDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/radius
 	-dSnmpMibDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/snmp/mibs
 	-dUsersGuideDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/doc/wsug_html_chunked
-	-dVCRedistVersion=${MSVC_CRT_VERSION}
+	-dVCRedistVersion=VC${MSVC_TOOLSET_VERSION}
 	-dVCRedistDir=${MERGE_MODULE_DIR}
 	${d_smi_dir}
 	${d_mmdbresolve_exe}
