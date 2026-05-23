@@ -1283,19 +1283,21 @@ dissect_spare_poe_tlv(tvbuff_t *tvb, int offset, int length,
 }
 
 static void
-add_multi_line_string_to_tree(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb, unsigned start,
+add_multi_line_string_to_tree(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *parent_tvb, unsigned start,
   int len, int hf)
 {
     unsigned next;
     unsigned  line_len;
     unsigned  data_len;
+    tvbuff_t *tvb = tvb_new_subset_length(parent_tvb, start, len);
+    start = 0;
 
-    while (len > 0) {
-        tvb_find_line_end_length(tvb, start, len, &line_len , &next);
+    /* find only searches captured bytes */
+    while (tvb_bytes_exist(tvb, start, 1)) {
+        tvb_find_line_end_remaining(tvb, start, &line_len, &next);
         data_len = next - start;
         proto_tree_add_string(tree, hf, tvb, start, data_len, tvb_format_stringzpad(scope, tvb, start, line_len));
         start += data_len;
-        len   -= data_len;
     }
 }
 
