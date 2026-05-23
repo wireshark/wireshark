@@ -3286,42 +3286,10 @@ static const value_string gsm_a_egprs_windows_size_vals[] = {
     { 0, NULL }
 };
 
-static const value_string gsm_a_rr_gamma_vals[] = {
-    {  0, "0 dB"},
-    {  1, "2 dB"},
-    {  2, "4 dB"},
-    {  3, "6 dB"},
-    {  4, "8 dB"},
-    {  5, "10 dB"},
-    {  6, "12 dB"},
-    {  7, "14 dB"},
-    {  8, "16 dB"},
-    {  9, "18 dB"},
-    { 10, "20 dB"},
-    { 11, "22 dB"},
-    { 12, "24 dB"},
-    { 13, "26 dB"},
-    { 14, "28 dB"},
-    { 15, "30 dB"},
-    { 16, "32 dB"},
-    { 17, "34 dB"},
-    { 18, "36 dB"},
-    { 19, "38 dB"},
-    { 20, "40 dB"},
-    { 21, "42 dB"},
-    { 22, "44 dB"},
-    { 23, "46 dB"},
-    { 24, "48 dB"},
-    { 25, "50 dB"},
-    { 26, "52 dB"},
-    { 27, "54 dB"},
-    { 28, "56 dB"},
-    { 29, "58 dB"},
-    { 30, "60 dB"},
-    { 31, "62 dB"},
-    {  0, NULL }
-};
-
+static void fmt_2db_units(char *label, uint32_t val)
+{
+    snprintf(label, ITEM_LABEL_LENGTH, "%u dB (%u)", val * 2, val);
+}
 
 
 static const value_string gsm_a_link_quality_meas_mode_vals[] = {
@@ -14252,7 +14220,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_gamma,
               { "Gamma", "gsm_a.rr.gamma",
-                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gamma_vals), 0x00,
+                FT_UINT8, BASE_CUSTOM, CF_FUNC(&fmt_2db_units), 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_timing_adv_index,
