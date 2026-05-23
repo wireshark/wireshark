@@ -18,6 +18,7 @@
 #include <epan/conversation.h>
 #include <epan/crc32-tvb.h>
 #include <epan/packet.h>
+#include <epan/proto_data.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include "packet-mctp.h"
@@ -71,6 +72,7 @@ static int hf_nvme_mi_admin_cqe3;
 static int hf_nvme_mi_response_in;
 static int hf_nvme_mi_response_to;
 static int hf_nvme_mi_response_time;
+static int hf_nvme_mi_response_is_mpr;
 
 
 static int ett_nvme_mi;
@@ -86,13 +88,27 @@ enum nvme_mi_type {
     NVME_MI_TYPE_PCIE = 0x4,
 };
 
-struct nvme_mi_command {
-    bool                init;
-    enum nvme_mi_type   type;
-    unsigned            opcode;
+#define NVME_MI_STATUS_MORE_PROCESSING_REQUIRED  0x01  /* NVMe-MI 2.1 Figure 29 */
+
+/* Shared across all frames of one transaction so the request frame sees
+ * resp_frame written during the response's first dissection pass. */
+struct nvme_mi_transaction {
     uint32_t            req_frame;
-    uint32_t            resp_frame;
+    uint32_t            resp_frame;  /* 0 until a non-MPR response is seen */
     nstime_t            req_time;
+    unsigned            opcode;
+};
+
+/* Per-frame annotation; points into the shared transaction. */
+struct nvme_mi_frame_info {
+    struct nvme_mi_transaction *trans;
+    bool                        is_interim_mpr;
+};
+
+/* Per-slot mutable state; only written when !pinfo->fd->visited. */
+struct nvme_mi_command {
+    bool                        pending;
+    struct nvme_mi_transaction *current;
 };
 
 struct nvme_mi_conv_info {
@@ -142,7 +158,7 @@ static const value_string admin_opcode_vals[] = {
 static const true_false_string tfs_meb = { "data in MEB", "data in message" };
 
 static int
-dissect_nvme_mi_mi(tvbuff_t *tvb, bool resp, struct nvme_mi_command *cmd,
+dissect_nvme_mi_mi(tvbuff_t *tvb, bool resp, struct nvme_mi_transaction *trans,
                    proto_tree *tree)
 {
     proto_item *it, *it2;
@@ -152,8 +168,8 @@ dissect_nvme_mi_mi(tvbuff_t *tvb, bool resp, struct nvme_mi_command *cmd,
     mi_tree = proto_item_add_subtree(it, ett_nvme_mi_mi);
 
     if (!resp) {
-        proto_tree_add_item_ret_uint(mi_tree, hf_nvme_mi_mi_opcode,
-                                     tvb, 0, 1, ENC_NA, &cmd->opcode);
+        proto_tree_add_item(mi_tree, hf_nvme_mi_mi_opcode,
+                            tvb, 0, 1, ENC_NA);
 
         proto_tree_add_item(mi_tree, hf_nvme_mi_mi_cdw0,
                             tvb, 4, 4, ENC_LITTLE_ENDIAN);
@@ -165,7 +181,7 @@ dissect_nvme_mi_mi(tvbuff_t *tvb, bool resp, struct nvme_mi_command *cmd,
                                 tvb, 12, -1, ENC_NA);
     } else {
         it2 = proto_tree_add_uint(mi_tree, hf_nvme_mi_mi_opcode,
-                                  tvb, 0, 0, cmd->opcode);
+                                  tvb, 0, 0, trans ? trans->opcode : 0);
         proto_item_set_generated(it2);
 
         proto_tree_add_item(mi_tree, hf_nvme_mi_mi_status,
@@ -182,7 +198,7 @@ dissect_nvme_mi_mi(tvbuff_t *tvb, bool resp, struct nvme_mi_command *cmd,
 }
 
 static int
-dissect_nvme_mi_admin(tvbuff_t *tvb, bool resp, struct nvme_mi_command *cmd,
+dissect_nvme_mi_admin(tvbuff_t *tvb, bool resp, struct nvme_mi_transaction *trans,
                       proto_tree *tree)
 {
     proto_tree *admin_tree;
@@ -196,7 +212,7 @@ dissect_nvme_mi_admin(tvbuff_t *tvb, bool resp, struct nvme_mi_command *cmd,
 
     if (resp) {
         it2 = proto_tree_add_uint(admin_tree, hf_nvme_mi_admin_opcode,
-                                  tvb, 0, 0, cmd->opcode);
+                                  tvb, 0, 0, trans ? trans->opcode : 0);
         proto_item_set_generated(it2);
 
         proto_tree_add_item(admin_tree, hf_nvme_mi_admin_status,
@@ -221,8 +237,8 @@ dissect_nvme_mi_admin(tvbuff_t *tvb, bool resp, struct nvme_mi_command *cmd,
             NULL,
         };
 
-        proto_tree_add_item_ret_uint(admin_tree, hf_nvme_mi_admin_opcode,
-                                     tvb, 0, 1, ENC_NA, &cmd->opcode);
+        proto_tree_add_item(admin_tree, hf_nvme_mi_admin_opcode,
+                            tvb, 0, 1, ENC_NA);
 
         proto_tree_add_bitmask(admin_tree, tvb, 1, hf_nvme_mi_admin_flags,
                                ett_nvme_mi_admin_flags, nvme_mi_admin_flags,
@@ -338,45 +354,98 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     struct nvme_mi_command *cmd = &mi_conv->command_slots[csi];
+    struct nvme_mi_frame_info *fi = p_get_proto_data(wmem_file_scope(), pinfo,
+                                                     proto_nvme_mi, 0);
 
-    if (resp) {
-        if (cmd->req_frame) {
-            nstime_t ns;
+    if (!pinfo->fd->visited) {
+        if (resp) {
+            if (cmd->pending && cmd->current) {
+                bool is_mpr = false;
 
-            nstime_delta(&ns, &pinfo->fd->abs_ts, &cmd->req_time);
+                /*
+                 * Detect More Processing Required: the status byte is the
+                 * first byte of the payload (tvb offset 4) for both MI and
+                 * Admin response types.  Control primitives (type 0x0) do
+                 * not carry a status byte at this position and are excluded.
+                 */
+                if ((type == NVME_MI_TYPE_MI || type == NVME_MI_TYPE_ADMIN)
+                        && payload_len >= 1) {
+                    uint8_t status = tvb_get_uint8(tvb, 4);
+                    is_mpr = (status == NVME_MI_STATUS_MORE_PROCESSING_REQUIRED);
+                }
 
-            it2 = proto_tree_add_uint(nvme_mi_tree, hf_nvme_mi_response_to,
-                                      tvb, 0, 0, cmd->req_frame);
-            proto_item_set_generated(it2);
-            it2 = proto_tree_add_time(nvme_mi_tree, hf_nvme_mi_response_time,
-                                      tvb, 0, 0, &ns);
-            proto_item_set_generated(it2);
+                fi = wmem_new0(wmem_file_scope(), struct nvme_mi_frame_info);
+                fi->trans = cmd->current;
+                fi->is_interim_mpr = is_mpr;
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_nvme_mi,
+                                 0, fi);
+
+                if (!is_mpr) {
+                    cmd->current->resp_frame = pinfo->num;
+                    cmd->pending = false;
+                    cmd->current = NULL;
+                }
+                /* MPR: leave slot open so the next response links to the same transaction. */
+            }
         } else {
-            /* TODO: no request frame available? */
-        }
-        cmd->resp_frame = pinfo->num;
+            struct nvme_mi_transaction *trans =
+                wmem_new0(wmem_file_scope(), struct nvme_mi_transaction);
+            trans->req_frame = pinfo->num;
+            trans->req_time  = pinfo->fd->abs_ts;
+            if ((type == NVME_MI_TYPE_MI || type == NVME_MI_TYPE_ADMIN) && payload_len >= 1)
+                trans->opcode = tvb_get_uint8(tvb, 4);
 
-    } else {
-        if (cmd->resp_frame) {
-            it2 = proto_tree_add_uint(nvme_mi_tree, hf_nvme_mi_response_in,
-                                      tvb, 0, 0, cmd->resp_frame);
-            proto_item_set_generated(it2);
+            cmd->pending = true;
+            cmd->current = trans;
+
+            fi = wmem_new0(wmem_file_scope(), struct nvme_mi_frame_info);
+            fi->trans = trans;
+            fi->is_interim_mpr = false;
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_nvme_mi, 0, fi);
         }
-        cmd->type = type;
-        cmd->opcode = 0;
-        cmd->init = true;
-        cmd->req_frame = pinfo->num;
-        cmd->req_time = pinfo->fd->abs_ts;
+    }
+
+    /* fi->trans is shared, so resp_frame written on the response pass is
+     * visible here when re-dissecting the request. */
+    if (fi && fi->trans) {
+        if (resp) {
+            if (fi->trans->req_frame) {
+                nstime_t ns;
+
+                nstime_delta(&ns, &pinfo->fd->abs_ts, &fi->trans->req_time);
+
+                it2 = proto_tree_add_uint(nvme_mi_tree, hf_nvme_mi_response_to,
+                                          tvb, 0, 0, fi->trans->req_frame);
+                proto_item_set_generated(it2);
+                it2 = proto_tree_add_time(nvme_mi_tree, hf_nvme_mi_response_time,
+                                          tvb, 0, 0, &ns);
+                proto_item_set_generated(it2);
+            }
+            if (fi->is_interim_mpr) {
+                it2 = proto_tree_add_boolean(nvme_mi_tree,
+                                             hf_nvme_mi_response_is_mpr,
+                                             tvb, 0, 0, true);
+                proto_item_set_generated(it2);
+            }
+        } else {
+            if (fi->trans->resp_frame) {
+                it2 = proto_tree_add_uint(nvme_mi_tree, hf_nvme_mi_response_in,
+                                          tvb, 0, 0, fi->trans->resp_frame);
+                proto_item_set_generated(it2);
+            }
+        }
     }
 
     sub_tvb = tvb_new_subset_length(tvb, 4, payload_len);
 
+    struct nvme_mi_transaction *trans = fi ? fi->trans : NULL;
+
     switch (type) {
     case NVME_MI_TYPE_MI:
-        dissect_nvme_mi_mi(sub_tvb, resp, cmd, nvme_mi_tree);
+        dissect_nvme_mi_mi(sub_tvb, resp, trans, nvme_mi_tree);
         break;
     case NVME_MI_TYPE_ADMIN:
-        dissect_nvme_mi_admin(sub_tvb, resp, cmd, nvme_mi_tree);
+        dissect_nvme_mi_admin(sub_tvb, resp, trans, nvme_mi_tree);
         break;
     default:
         break;
@@ -448,6 +517,11 @@ proto_register_nvme_mi(void)
             { "Response Time", "nvme-mi.response_time",
                 FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
                 "The time between the request and the response", HFILL }
+        },
+        { &hf_nvme_mi_response_is_mpr,
+            { "More Processing Required", "nvme-mi.response_is_mpr",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "This response has More Processing Required status; a further response will follow on this command slot", HFILL }
         },
 
         /* MI commands */
