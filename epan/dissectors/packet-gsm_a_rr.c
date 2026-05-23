@@ -14185,7 +14185,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_p0,
               { "P0", "gsm_a.rr.p0",
-                FT_UINT8, BASE_DEC, NULL, 0x00,
+                FT_UINT8, BASE_CUSTOM, CF_FUNC(&fmt_2db_units), 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_pr_mode,
