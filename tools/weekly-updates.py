@@ -64,6 +64,12 @@ UPDATE_TOOLS = (
         "updated_files": ["epan/dissectors/packet-tls-utils.c"],
     },
     {
+        "name": "Netlink NL80211 enums and fields",
+        "python_modules": ["requests"],
+        "path": "tools/generate-nl80211-fields.py",
+        "updated_files": ["epan/dissectors/packet-netlink-nl80211.c"],
+    },
+    {
         "name": "PCI IDs",
         "path": "tools/make-pci-ids.py",
         "updated_files": ["epan/dissectors/data-ncsi.c", "epan/dissectors/data-ncsi.h"],
