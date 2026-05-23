@@ -71,21 +71,10 @@ file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/doc" DOC_DIR)
 set (VERSION "${PROJECT_VERSION}")
 set(PRODUCT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}.${PROJECT_BUILD_VERSION})
 
-# Use the merge module that comes with our version of Visual Studio
-if(MSVC_VERSION GREATER_EQUAL 1930)
-	set (MSVC_CRT_VERSION "VC143")
-elseif(MSVC_VERSION GREATER_EQUAL 1920)
-	set (MSVC_CRT_VERSION "VC142")
-elseif(MSVC_VERSION GREATER_EQUAL 1910)
-	set (MSVC_CRT_VERSION "VC141")
-elseif(MSVC_VERSION GREATER_EQUAL 1900)
-	set (MSVC_CRT_VERSION "VC140")
-endif()
-
 # Starting with Visual Studio 2019 merge modules are deprecated but
 # are available as an individual component.
 # https://docs.microsoft.com/en-us/visualstudio/releases/2019/release-notes#-deprecations
-set(MERGE_MODULE "Microsoft_${MSVC_CRT_VERSION}_CRT_${WIRESHARK_TARGET_PLATFORM}.msm")
+set(MERGE_MODULE "Microsoft_VC${MSVC_TOOLSET_VERSION}_CRT_${WIRESHARK_TARGET_PLATFORM}.msm")
 set (PF86_ENV "ProgramFiles(x86)")
 
 set(VC_TOOLS_MERGE_MODULES_DIR)
