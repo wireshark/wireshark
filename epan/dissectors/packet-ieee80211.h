@@ -585,6 +585,18 @@ unsigned
 add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                             int offset, uint8_t code);
 
+int
+dissect_mcs_set(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int offset, bool basic, bool vendorspecific);
+
+int
+dissect_vht_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset);
+
+int
+dissect_ht_capabilities(proto_tree *tree, tvbuff_t *tvb, int offset, bool vendorspecific);
+
+int
+dissect_vht_capabilities(proto_tree *tree, tvbuff_t *tvb, int offset);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -4345,6 +4345,7 @@ static int hf_nl80211_mac;
 static int hf_nl80211_alpha2;
 static int hf_nl80211_dbm;
 static int hf_nl80211_software_iftypes;
+static int hf_nl80211_band_iftypes;
 static int hf_nl80211_bss_param;
 static int hf_nl80211_supported_commands;
 static int hf_nl80211_mlo_links;
@@ -4353,6 +4354,7 @@ static int ett_nl80211;
 static int ett_nl80211_frame;
 static int ett_nl80211_tag;
 static int ett_nl80211_software_iftypes;
+static int ett_nl80211_band_iftypes;
 static int ett_nl80211_bss_param;
 static int ett_nl80211_supported_commands;
 static int ett_nl80211_mlo_links;
@@ -4484,12 +4486,35 @@ dissect_nl80211_frequency_attr(tvbuff_t *tvb, void *data, struct packet_netlink_
 }
 
 static int
+dissect_nl80211_band_iftype_attr(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len)
+{
+    static const struct attr_lookup nested[] = {
+        { WS_NL80211_BAND_IFTYPE_ATTR_IFTYPES, &hf_nl80211_band_iftypes, &ett_nl80211_band_iftypes, NULL },
+        { 0, NULL, NULL, NULL }
+    };
+    enum ws_nl80211_band_iftype_attr type = (enum ws_nl80211_band_iftype_attr) nla_type & NLA_TYPE_MASK;
+    int offset_end = offset + len;
+
+    if (offset < offset_end) {
+        offset = dissect_nested_attr(tvb, data, nl_data, tree, nla_type, offset, len, nested);
+    }
+    if (offset < offset_end) {
+        switch (type) {
+        default:
+            offset = dissect_nl80211_generic(tvb, data, nl_data, tree, nla_type, offset, len);
+            break;
+        }
+    }
+    return offset;
+}
+
+static int
 dissect_nl80211_band_attr(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len)
 {
     static const struct attr_lookup nested_arr[] = {
         { WS_NL80211_BAND_ATTR_FREQS, &hf_nl80211_frequency_attr, &ett_nl80211_frequency_attr, dissect_nl80211_frequency_attr },
         { WS_NL80211_BAND_ATTR_RATES, &hf_nl80211_bitrate_attr, &ett_nl80211_bitrate_attr, NULL },
-        { WS_NL80211_BAND_ATTR_IFTYPE_DATA, &hf_nl80211_band_iftype_attr, &ett_nl80211_band_iftype_attr, NULL },
+        { WS_NL80211_BAND_ATTR_IFTYPE_DATA, &hf_nl80211_band_iftype_attr, &ett_nl80211_band_iftype_attr, dissect_nl80211_band_iftype_attr },
         { 0, NULL, NULL, NULL }
     };
     enum ws_nl80211_band_attr type = (enum ws_nl80211_band_attr) nla_type & NLA_TYPE_MASK;
@@ -4499,8 +4524,21 @@ dissect_nl80211_band_attr(tvbuff_t *tvb, void *data, struct packet_netlink_data 
         offset = dissect_nested_attr_array(tvb, data, nl_data, tree, nla_type, offset, len, nested_arr);
     }
     if (offset < offset_end) {
+        netlink_nl80211_info_t *info = (netlink_nl80211_info_t *)data;
         switch (type) {
         /* TODO add more fields here? */
+        case WS_NL80211_BAND_ATTR_HT_MCS_SET:
+            offset = dissect_mcs_set(tree, info->pinfo, tvb, offset, false, false);
+            break;
+        case WS_NL80211_BAND_ATTR_HT_CAPA:
+            offset = dissect_ht_capabilities(tree, tvb, offset, false);
+            break;
+        case WS_NL80211_BAND_ATTR_VHT_MCS_SET:
+            offset = dissect_vht_mcs_set(tree, tvb, offset);
+            break;
+        case WS_NL80211_BAND_ATTR_VHT_CAPA:
+            offset = dissect_vht_capabilities(tree, tvb, offset);
+            break;
         default:
             offset = dissect_nl80211_generic(tvb, data, nl_data, tree, nla_type, offset, len);
             break;
@@ -4813,6 +4851,12 @@ proto_register_netlink_nl80211(void)
         },
         { &hf_nl80211_software_iftypes,
             { "Attribute Type", "nl80211.software_iftypes",
+              FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+              &ws_nl80211_iftype_vals_ext, 0x00,
+              NULL, HFILL },
+        },
+        { &hf_nl80211_band_iftypes,
+            { "Attribute Type", "nl80211.band_iftypes",
               FT_UINT16, BASE_DEC | BASE_EXT_STRING,
               &ws_nl80211_iftype_vals_ext, 0x00,
               NULL, HFILL },
@@ -5601,6 +5645,7 @@ proto_register_netlink_nl80211(void)
         &ett_nl80211_frame,
         &ett_nl80211_tag,
         &ett_nl80211_software_iftypes,
+        &ett_nl80211_band_iftypes,
         &ett_nl80211_bss_param,
         &ett_nl80211_supported_commands,
         &ett_nl80211_mlo_links,

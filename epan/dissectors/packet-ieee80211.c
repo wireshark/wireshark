@@ -23486,7 +23486,7 @@ dissect_extended_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   return offset;
 }
 
-static int
+int
 dissect_vht_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
   proto_item *ti;
@@ -23552,12 +23552,9 @@ dissect_vht_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset)
   return offset;
 }
 
-static int
-dissect_vht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+int
+dissect_vht_capabilities(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-  int tag_len = tvb_reported_length(tvb);
-  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
-  int offset = 0;
   static int * const ieee80211_vht_caps[] = {
     &hf_ieee80211_vht_max_mpdu_length,
     &hf_ieee80211_vht_supported_chan_width_set,
@@ -23584,6 +23581,21 @@ dissect_vht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     NULL
   };
 
+  /* 4 byte VHT Capabilities  Info*/
+  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_vht_cap,
+                                    ett_vht_cap_tree, ieee80211_vht_caps,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  offset += 4;
+  return offset;
+}
+
+static int
+dissect_vht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+  int tag_len = tvb_reported_length(tvb);
+  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
+  int offset = 0;
+
   if (tag_len != 12) {
     expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length,
                            "VHT Capabilities IE length %u wrong, must be = 12", tag_len);
@@ -23591,10 +23603,7 @@ dissect_vht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   }
 
   /* 4 byte VHT Capabilities  Info*/
-  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_vht_cap,
-                                    ett_vht_cap_tree, ieee80211_vht_caps,
-                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
-  offset += 4;
+  offset = dissect_vht_capabilities(tree, tvb, offset);
 
   /* 8 byte MCS set */
   offset = dissect_vht_mcs_set(tree, tvb, offset);
@@ -26355,7 +26364,7 @@ dissect_max_away_duration(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
   return offset;
 }
 
-static int
+int
 dissect_mcs_set(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int offset, bool basic, bool vendorspecific)
 {
   proto_item *ti;
@@ -27567,12 +27576,9 @@ dissect_20_40_bss_intolerant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   return offset;
 }
 
-static int
-dissect_ht_capability_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
-                         uint32_t tag_len, proto_item *ti_len, bool vendorspecific)
+int
+dissect_ht_capabilities(proto_tree *tree, tvbuff_t *tvb, int offset, bool vendorspecific)
 {
-  proto_item *cap_item, *ti;
-  proto_tree *cap_tree;
   static int * const ieee80211_ht[] = {
     &hf_ieee80211_ht_ldpc_coding,
     &hf_ieee80211_ht_chan_width,
@@ -27591,6 +27597,28 @@ dissect_ht_capability_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     NULL
   };
 
+  /* 2 byte HT Capabilities  Info*/
+  if (vendorspecific)
+  {
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_ht_vs_cap,
+                                    ett_ht_cap_tree, ieee80211_ht,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  }
+  else
+  {
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_ht_cap,
+                                    ett_ht_cap_tree, ieee80211_ht,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  }
+  return offset + 2;
+}
+
+static int
+dissect_ht_capability_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+                         uint32_t tag_len, proto_item *ti_len, bool vendorspecific)
+{
+  proto_item *cap_item, *ti;
+  proto_tree *cap_tree;
   static int * const ieee80211_htex[] = {
     &hf_ieee80211_htex_reserved_b0_b7,
     &hf_ieee80211_htex_mcs,
@@ -27646,19 +27674,7 @@ dissect_ht_capability_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     return (offset > 0) ? offset : 1;
 
   /* 2 byte HT Capabilities  Info*/
-  if (vendorspecific)
-  {
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_ht_vs_cap,
-                                    ett_ht_cap_tree, ieee80211_ht,
-                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
-  }
-  else
-  {
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_ht_cap,
-                                    ett_ht_cap_tree, ieee80211_ht,
-                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
-  }
-  offset += 2;
+  offset = dissect_ht_capabilities(tree, tvb, offset, vendorspecific);
 
   /* 1 byte A-MPDU Parameters */
   if (vendorspecific)
