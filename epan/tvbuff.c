@@ -645,16 +645,9 @@ _tvb_captured_length_remaining(const tvbuff_t *tvb, const unsigned offset)
 unsigned
 tvb_captured_length_remaining(const tvbuff_t *tvb, const unsigned offset)
 {
-	unsigned rem_length;
-	int   exception;
-
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	exception = validate_offset_and_remaining(tvb, offset, &rem_length);
-	if (exception)
-		return 0;
-
-	return rem_length;
+	return _tvb_captured_length_remaining(tvb, offset);
 }
 
 unsigned
