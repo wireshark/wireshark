@@ -114,7 +114,7 @@ EXPORT_ENUMS = {
     'nl80211_smps_mode': ('Attribute Value', 'FT_UINT8', None),
     'nl80211_radar_event': ('Attribute Value', 'FT_UINT32', None),
     'nl80211_dfs_state': (None, None, None),
-    'nl80211_protocol_features': (None, None, None),
+    'nl80211_protocol_features': ('Attribute Value', 'FT_UINT32', None),
     'nl80211_crit_proto_id': ('Attribute Value', 'FT_UINT16', None),
     'nl80211_rxmgmt_flags': (None, None, None),
     'nl80211_tdls_peer_capability': (None, None, None),

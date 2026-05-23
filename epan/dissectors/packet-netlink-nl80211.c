@@ -4626,6 +4626,7 @@ dissect_nl80211_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_
         { WS_NL80211_ATTR_STA_SUPPORT_P2P_PS, &hf_nl80211_sta_p2p_ps_status, NULL, NULL },
         { WS_NL80211_ATTR_TIMEOUT_REASON, &hf_nl80211_timeout_reason, NULL, NULL },
         { WS_NL80211_ATTR_EXTERNAL_AUTH_ACTION, &hf_nl80211_external_auth_action, NULL, NULL },
+        { WS_NL80211_ATTR_PROTOCOL_FEATURES, &hf_nl80211_protocol_features, NULL, NULL },
         { 0, NULL, NULL, NULL }
     };
     enum ws_nl80211_attrs type = (enum ws_nl80211_attrs) nla_type & NLA_TYPE_MASK;
@@ -5293,8 +5294,8 @@ proto_register_netlink_nl80211(void)
               NULL, HFILL },
         },
         { &hf_nl80211_protocol_features,
-            { "Attribute Type", "nl80211.protocol_features",
-              FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+            { "Attribute Value", "nl80211.protocol_features",
+              FT_UINT32, BASE_DEC | BASE_EXT_STRING,
               &ws_nl80211_protocol_features_vals_ext, 0x00,
               NULL, HFILL },
         },
