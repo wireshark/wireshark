@@ -1718,6 +1718,11 @@ static expert_field ei_gsm_rlcmac_unexpected_header_extension;
 static expert_field ei_gsm_rlcmac_unknown_pacch_access_burst;
 static expert_field ei_gsm_rlcmac_stream_not_supported;
 
+static void fmt_2db_units(char *label, uint32_t val)
+{
+  snprintf(label, ITEM_LABEL_LENGTH, "%u dB (%u)", val * 2, val);
+}
+
 /* Payload type as defined in TS 44.060 / 10.4.7 */
 #define PAYLOAD_TYPE_DATA              0
 #define PAYLOAD_TYPE_CTRL_NO_OPT_OCTET 1
@@ -10788,7 +10793,7 @@ proto_register_gsm_rlcmac(void)
     },
     { &hf_gamma,
       { "GAMMA",        "gsm_rlcmac.dl.gamma",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_CUSTOM, CF_FUNC(&fmt_2db_units), 0x0,
         NULL, HFILL
       }
     },
