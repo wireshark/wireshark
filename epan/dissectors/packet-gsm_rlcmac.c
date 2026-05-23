@@ -10781,7 +10781,7 @@ proto_register_gsm_rlcmac(void)
     },
     { &hf_p0,
       { "P0",        "gsm_rlcmac.dl.p0",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_CUSTOM, CF_FUNC(&fmt_2db_units), 0x0,
         NULL, HFILL
       }
     },
