@@ -93,6 +93,8 @@ try {
 "
     foreach ($entry in $wdqtList) {
         $dir = Split-Path -Parent $entry
+        $wix_name = $entry -ireplace "[^a-z0-9]", "_"
+
         if ($dir) {
             if ($dir -ne $currentDir) {
                 if ($currentDir -ne "") { # for everything but first directory found
@@ -108,7 +110,6 @@ try {
                 $currentDir = $dir
             }
 
-            $wix_name = $entry -replace "[\\|\.]", "_"
             $currentDirList += "           <Component Id=`"cmp$wix_name`" Guid=`"*`">
               <File Id=`"fil$wix_name`" KeyPath=`"yes`" Source=`"`$(var.Staging.Dir)\$entry`" />
            </Component>
@@ -116,12 +117,11 @@ try {
             $componentGroup += "         <ComponentRef Id=`"cmp$wix_name`" />
 "
         } else {
-
-            $dllList += "       <Component Id=`"cmp$entry`" Guid=`"*`">
-          <File Id=`"fil$entry`" KeyPath=`"yes`" Source=`"`$(var.Staging.Dir)\$entry`" />
+            $dllList += "       <Component Id=`"cmp$wix_name`" Guid=`"*`">
+          <File Id=`"fil$wix_name`" KeyPath=`"yes`" Source=`"`$(var.Staging.Dir)\$entry`" />
        </Component>
 "
-            $componentGroup += "         <ComponentRef Id=`"cmp$entry`" />
+            $componentGroup += "         <ComponentRef Id=`"cmp$wix_name`" />
 "
         }
     }
