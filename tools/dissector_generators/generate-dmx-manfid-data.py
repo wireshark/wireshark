@@ -14,15 +14,18 @@ import urllib.request
 import re
 import datetime
 import sys
+from pathlib import Path
 
 BASE_URL = "https://tsp.esta.org/tsp/working_groups/CP/mfctrIDs.php"
-OUTPUT_SOURCE_FILE = "epan/dissectors/data-dmx-manfid.c"
-OUTPUT_HEADER_FILE = "epan/dissectors/data-dmx-manfid.h"
+SOURCE_FILE = "epan/dissectors/data-dmx-manfid.c"
+HEADER_FILE = "epan/dissectors/data-dmx-manfid.h"
 
 MIN_COUNT = 1685 # 1685 on 2025-12-01
 
+# There are occasional entries that incorrectly omit the 'h' for hex
+# or have an extra space
 REGEX_DATA = (
-    '<td width="10%">([0-9a-fA-F]{4})h&nbsp;<\\/td>' +
+    '<td width="10%">([0-9a-fA-F]{4})h?\\s?&nbsp;<\\/td>' +
     '\\n *<td width="15%">(.*?)&nbsp;<\\/td>' +
     '\\n *<td width="55%">(.*?)&nbsp;<\\/td>' +
     '\\n *<td width="10%">(.*?)&nbsp;<\\/td>'
@@ -65,7 +68,7 @@ HEADER = f"""/*
  */
 """
 
-HEADER_FILE = """\
+HEADER_FILE_CONTENT = """\
 
 /* @file
  *
@@ -100,8 +103,8 @@ def main():
     row_count = len(re.findall(REGEX_ROW, dat))
     rows = re.findall(REGEX_DATA, dat)
 
-    # note that it should be one less because of the header row
-    if len(rows) != row_count - 1:
+    # the header row doesn't match the regexes because of the bgcolor now
+    if len(rows) != row_count:
         print("ERROR: number of detected rows doesn't match number of row data elements")
         sys.exit(1)
 
@@ -134,11 +137,12 @@ def main():
     output += "};\n"
     output += "value_string_ext dmx_esta_manfid_vals_ext = VALUE_STRING_EXT_INIT(dmx_esta_manfid_vals);\n"
 
-    with open(OUTPUT_SOURCE_FILE, "w", encoding="UTF-8") as h:
+    root_dir = Path(__file__).parent / '..' / '..'
+    with open(root_dir / SOURCE_FILE, "w", encoding="UTF-8") as h:
         h.write(output)
 
-    with open(OUTPUT_HEADER_FILE, "w", encoding="UTF-8") as h:
-        h.write(HEADER_FILE)
+    with open(root_dir / HEADER_FILE, "w", encoding="UTF-8") as h:
+        h.write(HEADER_FILE_CONTENT)
 
 if __name__ == "__main__":
     main()
