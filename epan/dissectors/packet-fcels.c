@@ -1536,6 +1536,7 @@ dissect_fcels_prlilo_payload (tvbuff_t *tvb, packet_info *pinfo _U_,
         else if (opcode == FC_ELS_TPRLO) {
             proto_tree_add_item(svcpg_tree, hf_fcels_prlilo_3rd_party_n_port_id, tvb, offset+13, 3, ENC_NA);
         }
+        offset += 16;
     }
 }
 
