@@ -415,6 +415,7 @@ set(WIRESHARK_MODEL_SRCS
 	models/export_objects_model.cpp
 	models/fileset_entry_model.cpp
 	models/filter_list_model.cpp
+	models/in_packet_find_delegate.cpp
 	models/info_proxy_model.cpp
 	models/interface_sort_filter_model.cpp
 	models/interface_tree_cache_model.cpp
@@ -496,6 +497,7 @@ set(WIRESHARK_QT_SRC
 	glib_mainloop_on_qeventloop.cpp
 	iax2_analysis_dialog.cpp
 	import_text_dialog.cpp
+	in_packet_find_bar.cpp
 	interface_frame.cpp
 	interface_toolbar_reader.cpp
 	interface_toolbar.cpp

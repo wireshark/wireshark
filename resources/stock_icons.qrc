@@ -134,6 +134,8 @@
         <file>stock_icons/24x14/x-filter-apply.selected@2x.png</file>
         <file>stock_icons/24x24/edit-find.template.png</file>
         <file>stock_icons/24x24/edit-find.template@2x.png</file>
+        <file>stock_icons/24x24/edit-find-in.template.png</file>
+        <file>stock_icons/24x24/edit-find-in.template.svg</file>
         <file>stock_icons/24x24/go-first.png</file>
         <file>stock_icons/24x24/go-first@2x.png</file>
         <file>stock_icons/24x24/go-jump.png</file>

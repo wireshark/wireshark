@@ -17,6 +17,7 @@
 
 #include "wireshark_main_window.h"
 #include <ui/qt/widgets/capture_card_widget.h>
+#include "in_packet_find_bar.h"
 
 /*
  * The generated Ui_WiresharkMainWindow::setupUi() can grow larger than our configured limit,
@@ -2283,6 +2284,20 @@ void WiresharkMainWindow::findPacket()
         main_ui_->searchFrame->animatedHide();
     }
     main_ui_->searchFrame->setFocus();
+}
+
+void WiresharkMainWindow::on_actionEditFindInPacket_triggered()
+{
+    if (in_packet_find_bar_) {
+        if (!in_packet_find_bar_->isVisible()) {
+            in_packet_find_bar_->showAnimated();
+        } else {
+            in_packet_find_bar_->hideAnimated();
+        }
+        if (main_ui_->searchFrame) {
+            main_ui_->searchFrame->refreshWidgets();
+        }
+    }
 }
 
 void WiresharkMainWindow::editTimeShift()

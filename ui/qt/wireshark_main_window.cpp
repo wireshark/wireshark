@@ -9,6 +9,7 @@
 
 #include "main_application.h"
 #include "wireshark_main_window.h"
+#include "in_packet_find_bar.h"
 #include <ui/qt/widgets/capture_card_widget.h>
 
 /*
@@ -354,6 +355,9 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
 #ifdef HAVE_LIBPCAP
     , capture_options_dialog_(NULL)
     , info_data_()
+    , in_packet_find_bar_(nullptr)
+#else
+    , in_packet_find_bar_(nullptr)
 #endif
 {
     if (!gbl_cur_main_window_) {
@@ -578,8 +582,25 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     action->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_C));
     connect(main_ui_->menuPacketComment, &QMenu::aboutToShow, this, &WiresharkMainWindow::setEditCommentsMenu);
 
-    proto_tree_ = new ProtoTree(&master_split_);
+    proto_container_ = new QWidget(&master_split_);
+    proto_container_->setObjectName(QStringLiteral("protoContainer"));
+    QVBoxLayout *proto_vbox = new QVBoxLayout(proto_container_);
+    proto_vbox->setContentsMargins(0, 0, 0, 0);
+    proto_vbox->setSpacing(0);
+
+    proto_tree_ = new ProtoTree(proto_container_);
     proto_tree_->installEventFilter(this);
+
+    // Wrap proto_tree_ + in-packet find bar in a container
+    in_packet_find_bar_ = new InPacketFindBar(proto_tree_, proto_container_);
+    proto_vbox->addWidget(in_packet_find_bar_);
+    proto_vbox->addWidget(proto_tree_);
+
+    if (main_ui_->searchFrame) {
+        connect(in_packet_find_bar_, &InPacketFindBar::matchesChanged,
+                main_ui_->searchFrame, &SearchFrame::refreshWidgets,
+                Qt::UniqueConnection);
+    }
 
     packet_list_->setProtoTree(proto_tree_);
     packet_list_->setProfileSwitcher(profile_switcher_);
@@ -2134,6 +2155,7 @@ void WiresharkMainWindow::initMainToolbarIcons()
     main_ui_->actionFileClose->setIcon(StockIcon("x-capture-file-close"));
 
     main_ui_->actionEditFindPacket->setIcon(StockIcon("edit-find"));
+    main_ui_->actionEditFindInPacket->setIcon(StockIcon("edit-find-in"));
     main_ui_->actionGoPreviousPacket->setIcon(StockIcon("go-previous"));
     main_ui_->actionGoNextPacket->setIcon(StockIcon("go-next"));
     main_ui_->actionGoGoToPacket->setIcon(StockIcon("go-jump"));
@@ -2562,6 +2584,9 @@ void WiresharkMainWindow::setForCapturedPackets(bool have_captured_packets)
 //                         have_captured_packets);
 
     main_ui_->actionEditFindPacket->setEnabled(have_captured_packets);
+    if (main_ui_->actionEditFindInPacket) {
+        main_ui_->actionEditFindInPacket->setEnabled(have_captured_packets);
+    }
     main_ui_->actionEditFindNext->setEnabled(have_captured_packets);
     main_ui_->actionEditFindPrevious->setEnabled(have_captured_packets);
 

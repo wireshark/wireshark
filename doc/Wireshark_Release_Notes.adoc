@@ -63,6 +63,9 @@ The following features are either new or have been significantly updated since v
 
 * The RTP Player now supports AMR-WB encoded audio.
 
+* A "Find in Packet" search bar has been added to the packet details pane.
+  It can be opened via the Edit menu, the toolbar, or the shortcut Ctrl+Shift+F, enabling filtering, highlighting, and navigation of protocol fields within the selected packet.
+
 * The protocol dissection API has been updated to more safely handle packet data offsets and lengths.
   See the <<Major API Changes>> section below for details.
 

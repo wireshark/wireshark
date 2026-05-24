@@ -71,6 +71,11 @@ public slots:
     void setCaptureFile(capture_file *cf);
 
     /**
+     * @brief Refreshes widget state when external in-packet-find bar visibility changes.
+     */
+    void refreshWidgets();
+
+    /**
      * @brief Populates the search field with @p filter, switches the search
      *        type to display filter, and immediately executes a forward search.
      * @param filter Display filter expression to search for.
@@ -167,6 +172,17 @@ private slots:
      * @param checked @c true to highlight all matches; @c false for single-match mode.
      */
     void on_multipleCheckBox_toggled(bool checked);
+
+    /**
+     * @brief Toggles the in-packet find bar in the currently active window.
+     * @param checked Checked state of the checkbox.
+     */
+    void on_inPacketCheckBox_toggled(bool checked);
+
+    /**
+     * @brief Called when application focus changes so the checkbox can update.
+     */
+    void onApplicationFocusChanged(QWidget *old, QWidget *now);
 
     /**
      * @brief Executes a search in the current direction using the current criteria.

@@ -259,9 +259,29 @@
      </property>
     </widget>
    </item>
-  </layout>
-  </item>
-  </layout>
+   <item>
+    <spacer name="horizontalSpacer_7">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>10</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="inPacketCheckBox">
+     <property name="text">
+      <string>Find in Packet</string>
+     </property>
+    </widget>
+     </item>
+    </layout>
+    </item>
+ </layout>
  </widget>
  <customwidgets>
   <customwidget>

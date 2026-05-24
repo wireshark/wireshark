@@ -737,6 +737,7 @@
     </widget>
     <addaction name="menuEditCopy"/>
     <addaction name="actionEditFindPacket"/>
+    <addaction name="actionEditFindInPacket"/>
     <addaction name="actionEditFindNext"/>
     <addaction name="actionEditFindPrevious"/>
     <addaction name="separator"/>
@@ -842,7 +843,7 @@
    <addaction name="actionFileClose"/>
    <addaction name="actionViewReload"/>
    <addaction name="separator"/>
-   <addaction name="actionEditFindPacket"/>
+  <addaction name="actionEditFindPacket"/>
    <addaction name="actionGoPreviousPacket"/>
    <addaction name="actionGoNextPacket"/>
    <addaction name="actionGoGoToPacket"/>
@@ -1371,9 +1372,9 @@
    <property name="text">
     <string>Reload as File Format/Capture</string>
    </property>
-   <property name="shortcut">
-    <string notr="true">Ctrl+Shift+F</string>
-   </property>
+    <property name="shortcut">
+     <string notr="true">Ctrl+Shift+F</string>
+    </property>
   </action>
   <action name="actionCaptureOptions">
    <property name="text">
@@ -1559,6 +1560,17 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionEditFindInPacket">
+   <property name="text">
+    <string>Find in Pac&amp;ket</string>
+   </property>
+   <property name="toolTip">
+    <string>Find in Packet</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Alt+F</string>
    </property>
   </action>
   <action name="actionEditFindNext">

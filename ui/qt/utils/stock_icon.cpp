@@ -124,6 +124,13 @@ StockIcon::StockIcon(const QString icon_name) :
             continue;
         }
 
+        // Fallback: check for SVG template icon
+        QString icon_path_svg_template = QStringLiteral("%1%2/%3.template.svg").arg(path_pfx_, type, icon_name);
+        if (QFile::exists(icon_path_svg_template)) {
+            addFile(icon_path_svg_template);
+            continue;
+        }
+
         // Regular full-color icons
         QString icon_path = QStringLiteral("%1%2/%3.png").arg(path_pfx_, type, icon_name);
         if (QFile::exists(icon_path)) {
