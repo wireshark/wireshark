@@ -393,10 +393,10 @@ dissect_status_type_identification_parameter(tvbuff_t *parameter_tvb, proto_tree
    proto_tree_add_item(parameter_tree, hf_status_type, parameter_tvb, NTFY_STATUS_TYPE_OFFSET, NTFY_STATUS_TYPE_LENGTH, ENC_BIG_ENDIAN);
    proto_tree_add_uint_format_value(parameter_tree, hf_status_id,  parameter_tvb, NTFY_STATUS_IDENT_OFFSET, NTFY_STATUS_IDENT_LENGTH,
          status_id, "%u (%s)", status_id,
-         val_to_str_const(status_type * 256 * 256 + status_id, status_type_id_values, "unknown"));
+         val_to_str_const((unsigned)status_type * 256 * 256 + status_id, status_type_id_values, "unknown"));
 
    proto_item_append_text(parameter_item, " (%s)",
-         val_to_str_const(status_type * 256 * 256 + status_id, status_type_id_values, "Unknown status information"));
+         val_to_str_const((unsigned)status_type * 256 * 256 + status_id, status_type_id_values, "Unknown status information"));
 }
 /*----------------------Notify (RFC)-------------------------------------------*/
 
