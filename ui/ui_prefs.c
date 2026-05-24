@@ -9,6 +9,8 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_EPAN
+
 #include "ui/ui_prefs.h"
 #include "ui/init.h"
 
