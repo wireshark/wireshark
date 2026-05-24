@@ -1797,26 +1797,6 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selang waktu antara pemberitahuan paket baru. Memengaruhi seberapa sering GUI dimutakhirkan dan granularitas dari pewaktu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Enable Aggregation View for real-time capturing</source>
-        <translation type="vanished">Fungsikan Tampilan Agregasi untuk penangkapan real-time</translation>
-    </message>
-    <message>
-        <source>This option can only be changed when Aggregation Mode is not active.</source>
-        <translation type="vanished">Opsi ini hanya dapat diubah saat Mode Agregasi tidak aktif.</translation>
-    </message>
-    <message>
-        <source>Aggregation fields</source>
-        <translation type="vanished">Bidang agregasi</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fiedls used for aggregation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bidang yang dipakai untuk agregasi.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Edit..</source>
-        <translation type="vanished">Edit..</translation>
-    </message>
-    <message>
         <source>Don&apos;t load interfaces on startup</source>
         <translation>Jangan muat antar muka saat awal mula</translation>
     </message>
@@ -17335,10 +17315,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Aggregation in Live Capture</source>
         <translation>Agregasi dalam Penangkapan Live</translation>
-    </message>
-    <message>
-        <source>Aggregation View.</source>
-        <translation type="vanished">Tampilan Agregasi.</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>

@@ -6,8 +6,8 @@
  *
  * List of PCI IDs
  *
- * Version: 2026.05.17
- * Date:    2026-05-17 03:15:01
+ * Version: 2026.05.24
+ * Date:    2026-05-24 03:15:02
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -4233,6 +4233,7 @@ static pci_id_t const pci_vid_1002[] = {
 {0x1002, 0x743F, 0x1DA2, 0xE457, "PULSE AMD Radeon RX 6500 XT(0x1DA2-0xE457)"},
 {0x1002, 0x7446, 0xFFFF, 0xFFFF, "Navi 31 USB(0x7446)"},
 {0x1002, 0x7448, 0xFFFF, 0xFFFF, "Navi 31 [Radeon Pro W7900](0x7448)"},
+{0x1002, 0x7449, 0xFFFF, 0xFFFF, "Navi 31 [Radeon Pro W7800 48GB](0x7449)"},
 {0x1002, 0x744A, 0xFFFF, 0xFFFF, "Navi 31 [Radeon Pro W7900 Dual Slot](0x744A)"},
 {0x1002, 0x744B, 0xFFFF, 0xFFFF, "Navi 31 [Radeon Pro W7900D](0x744B)"},
 {0x1002, 0x744C, 0xFFFF, 0xFFFF, "Navi 31 [Radeon RX 7900 XT/7900 XTX/7900 GRE/7900M](0x744C)"},
@@ -14256,6 +14257,7 @@ static pci_id_t const pci_vid_10DE[] = {
 {0x10DE, 0x2E12, 0xFFFF, 0xFFFF, "GB20B [GB10](0x2E12)"},
 {0x10DE, 0x2E2A, 0xFFFF, 0xFFFF, "GB20B [JMJWOA-Generic-GPU](0x2E2A)"},
 {0x10DE, 0x2F04, 0xFFFF, 0xFFFF, "GB205 [GeForce RTX 5070](0x2F04)"},
+{0x10DE, 0x2F06, 0xFFFF, 0xFFFF, "GB205 [GeForce RTX 5060](0x2F06)"},
 {0x10DE, 0x2F18, 0xFFFF, 0xFFFF, "GB205M [GeForce RTX 5070 Ti Mobile](0x2F18)"},
 {0x10DE, 0x2F38, 0xFFFF, 0xFFFF, "GB205GLM [RTX PRO 3000 Blackwell Generation Laptop GPU](0x2F38)"},
 {0x10DE, 0x2F58, 0xFFFF, 0xFFFF, "GB205M [GeForce RTX 5070 Ti Mobile](0x2F58)"},
@@ -28150,7 +28152,9 @@ static pci_id_t const pci_vid_168C[] = {
 {0x168C, 0x0023, 0x1976, 0x2008, "TEW-621PC 802.11bgn Wireless CardBus Adapter(0x1976-0x2008)"},
 {0x168C, 0x0024, 0xFFFF, 0xFFFF, "AR5418 Wireless Network Adapter [AR5008E 802.11(a)bgn] (PCI-Express)(0x0024)"},
 {0x168C, 0x0024, 0x106B, 0x0087, "AirPort Extreme(0x106B-0x0087)"},
+{0x168C, 0x0024, 0x1186, 0x3A6F, "DWA-643 Xtreme N Notebook ExpressCard(0x1186-0x3A6F)"},
 {0x168C, 0x0024, 0x1186, 0x3A70, "DWA-556 Xtreme N PCI Express Desktop Adapter(0x1186-0x3A70)"},
+{0x168C, 0x0024, 0x1799, 0x8071, "F5D8071 v1 N1 Wireless ExpressCard(0x1799-0x8071)"},
 {0x168C, 0x0027, 0xFFFF, 0xFFFF, "AR9160 Wireless Network Adapter [AR9001 802.11(a)bgn](0x0027)"},
 {0x168C, 0x0027, 0x0777, 0x4082, "SR71-A 802.11abgn Wireless Mini PCI Adapter(0x0777-0x4082)"},
 {0x168C, 0x0029, 0xFFFF, 0xFFFF, "AR922X Wireless Network Adapter(0x0029)"},
@@ -29390,10 +29394,13 @@ static pci_id_t const pci_vid_1814[] = {
 {0x1814, 0x0601, 0x187E, 0x3412, "NWD-310N 802.11n Wireless PCI Adapter(0x187E-0x3412)"},
 {0x1814, 0x0681, 0xFFFF, 0xFFFF, "RT2890 Wireless 802.11n PCIe(0x0681)"},
 {0x1814, 0x0681, 0x1458, 0xE939, "GN-WS30N-RH 802.11bgn Mini PCIe Card(0x1458-0xE939)"},
+{0x1814, 0x0681, 0x1799, 0x8073, "F5D8073 v1 N Wireless ExpressCard Adapter(0x1799-0x8073)"},
+{0x1814, 0x0681, 0x1799, 0x807C, "F5D8071 v3 N1 Wireless ExpressCard(0x1799-0x807C)"},
 {0x1814, 0x0701, 0xFFFF, 0xFFFF, "RT2760 Wireless 802.11n 1T/2R(0x0701)"},
 {0x1814, 0x0701, 0x1737, 0x0074, "WMP110 v2 802.11n RangePlus Wireless PCI Adapter(0x1737-0x0074)"},
 {0x1814, 0x0781, 0xFFFF, 0xFFFF, "RT2790 Wireless 802.11n 1T/2R PCIe(0x0781)"},
 {0x1814, 0x0781, 0x11AD, 0x7600, "HP WN7600R(0x11AD-0x7600)"},
+{0x1814, 0x0781, 0x1799, 0x817C, "F5D8073 v3 N Wireless ExpressCard Adapter(0x1799-0x817C)"},
 {0x1814, 0x0781, 0x1814, 0x2790, "RT2790 Wireless 802.11n 1T/2R PCIe(0x1814-0x2790)"},
 {0x1814, 0x3060, 0xFFFF, 0xFFFF, "RT3060 Wireless 802.11n 1T/1R(0x3060)"},
 {0x1814, 0x3060, 0x1186, 0x3C04, "DWA-525 Wireless N 150 Desktop Adapter (rev.A1)(0x1186-0x3C04)"},
@@ -32840,6 +32847,7 @@ static pci_id_t const pci_vid_1D6C[] = {
 {0x1D6C, 0x102D, 0xFFFF, 0xFFFF, "AR-TK242-FX2 [8x10GbE Gen5 Packet Capture-Replay Device](0x102D)"},
 {0x1D6C, 0x102E, 0xFFFF, 0xFFFF, "AR-TK242-FX2 [8x25GbE Gen5 Packet Capture-Replay Device](0x102E)"},
 {0x1D6C, 0x102F, 0xFFFF, 0xFFFF, "AR-TK242-FX2 [1x400GbE Gen5 Packet Capture-Replay Device](0x102F)"},
+{0x1D6C, 0x1030, 0xFFFF, 0xFFFF, "AR-ARKSTREAM [Arkville Streaming DMA](0x1030)"},
 {0x1D6C, 0x4200, 0xFFFF, 0xFFFF, "A5PL-E1-10GETI [10 GbE Ethernet Traffic Instrument](0x4200)"},
 }; /* pci_vid_1D6C[] */
 
@@ -35742,6 +35750,20 @@ static pci_id_t const pci_vid_203B[] = {
 
 static pci_id_t const pci_vid_2042[] = {
 {0x2042, 0xFFFF, 0xFFFF, 0xFFFF, "Xi'an UniIC Semiconductors Co., Ltd(0x2042)"},
+{0x2042, 0xDB00, 0xFFFF, 0xFFFF, "UWSC256DDQYACC-N(0xDB00)"},
+{0x2042, 0xDB01, 0xFFFF, 0xFFFF, "UWSC512DDQLBCC-N(0xDB01)"},
+{0x2042, 0xDB02, 0xFFFF, 0xFFFF, "UWSC512DDQLACC-N(0xDB02)"},
+{0x2042, 0xDB03, 0xFFFF, 0xFFFF, "UWSC1T0DDQLACC-N(0xDB03)"},
+{0x2042, 0xDC00, 0xFFFF, 0xFFFF, "UWSD512DDQYACA-N(0xDC00)"},
+{0x2042, 0xDC01, 0xFFFF, 0xFFFF, "UWSD1T0DDQYACA-N(0xDC01)"},
+{0x2042, 0xDC02, 0xFFFF, 0xFFFF, "UWSD2T0DDQYACA-N(0xDC02)"},
+{0x2042, 0xDC03, 0xFFFF, 0xFFFF, "UWSD1T0DDTYACA-N(0xDC03)"},
+{0x2042, 0xDC04, 0xFFFF, 0xFFFF, "UWSD2T0DDTYACA-N(0xDC04)"},
+{0x2042, 0xDC05, 0xFFFF, 0xFFFF, "UWSD4T0DDTYACA-N(0xDC05)"},
+{0x2042, 0xDC06, 0xFFFF, 0xFFFF, "UWSD512DDQYACB-N(0xDC06)"},
+{0x2042, 0xDC07, 0xFFFF, 0xFFFF, "UWSD1T0DDQYACB-N(0xDC07)"},
+{0x2042, 0xDC08, 0xFFFF, 0xFFFF, "UWSD512DDTMACA-N(0xDC08)"},
+{0x2042, 0xDC09, 0xFFFF, 0xFFFF, "UWSD1T0DDTMACA-N(0xDC09)"},
 }; /* pci_vid_2042[] */
 
 static pci_id_t const pci_vid_2044[] = {
@@ -35956,6 +35978,7 @@ static pci_id_t const pci_vid_20A9[] = {
 {0x20A9, 0xFFFF, 0xFFFF, 0xFFFF, "LDA Technologies Ltd.(0x20A9)"},
 {0x20A9, 0x1008, 0xFFFF, 0xFFFF, "NEOTAPX FPGA Accelerator Card(0x1008)"},
 {0x20A9, 0x1104, 0xFFFF, 0xFFFF, "NEOTAPX FPGA Timing Synchronization Card(0x1104)"},
+{0x20A9, 0x1200, 0xFFFF, 0xFFFF, "MUX Ultimate FPGA Accelerator Card(0x1200)"},
 }; /* pci_vid_20A9[] */
 
 static pci_id_t const pci_vid_20B5[] = {
@@ -36022,6 +36045,9 @@ static pci_id_t const pci_vid_20D8[] = {
 static pci_id_t const pci_vid_20DC[] = {
 {0x20DC, 0xFFFF, 0xFFFF, 0xFFFF, "Sharetronic Data Technology Co., Ltd.(0x20DC)"},
 {0x20DC, 0x1202, 0xFFFF, 0xFFFF, "M.2 2280 PCIe Gen3 x 4 Series.(0x1202)"},
+{0x20DC, 0x1202, 0x1202, 0x1256, "M.2 2280 256GB 1202+N38A(0x1202-0x1256)"},
+{0x20DC, 0x5000, 0xFFFF, 0xFFFF, "E5000 U.2 15mm 3.84TB NVMe SSD(0x5000)"},
+{0x20DC, 0x5101, 0xFFFF, 0xFFFF, "E5000 U.2 15mm 7.68TB NVMe SSD(0x5101)"},
 }; /* pci_vid_20DC[] */
 
 static pci_id_t const pci_vid_20E1[] = {
@@ -37221,7 +37247,7 @@ static pci_id_t const pci_vid_6666[] = {
 }; /* pci_vid_6666[] */
 
 static pci_id_t const pci_vid_6688[] = {
-{0x6688, 0xFFFF, 0xFFFF, 0xFFFF, "Zycoo Co., Ltd(0x6688)"},
+{0x6688, 0xFFFF, 0xFFFF, 0xFFFF, "GUANGZHOU MAXSUN INFORMATION TECHNOLOGY CO., LTD.(0x6688)"},
 {0x6688, 0x1200, 0xFFFF, 0xFFFF, "CooVox TDM Analog Module(0x1200)"},
 {0x6688, 0x1400, 0xFFFF, 0xFFFF, "CooVOX TDM GSM Module(0x1400)"},
 {0x6688, 0x1600, 0xFFFF, 0xFFFF, "CooVOX TDM E1/T1 Module(0x1600)"},
@@ -45026,7 +45052,7 @@ static pci_id_t const pci_vid_8086[] = {
 {0x8086, 0x57B0, 0x8086, 0x0002, "Ethernet Network Adapter E610-XT2(0x8086-0x0002)"},
 {0x8086, 0x57B0, 0x8086, 0x0003, "Ethernet Network Adapter E610-XT4 for OCP 3.0(0x8086-0x0003)"},
 {0x8086, 0x57B0, 0x8086, 0x0004, "Ethernet Network Adapter E610-XT2 for OCP 3.0(0x8086-0x0004)"},
-{0x8086, 0x57B1, 0xFFFF, 0xFFFF, "Ethernet Controller E610 2.5GBASE T(0x57B1)"},
+{0x8086, 0x57B1, 0xFFFF, 0xFFFF, "Ethernet Controller E610-AT2 1000BASE-T(0x57B1)"},
 {0x8086, 0x57B1, 0x8086, 0x0000, "Ethernet Converged Network Adapter E610(0x8086-0x0000)"},
 {0x8086, 0x57B1, 0x8086, 0x0002, "Ethernet Network Adapter E610-IT4(0x8086-0x0002)"},
 {0x8086, 0x57B1, 0x8086, 0x0003, "Ethernet Network Adapter E610-IT4 for OCP 3.0(0x8086-0x0003)"},
@@ -45147,6 +45173,10 @@ static pci_id_t const pci_vid_8086[] = {
 {0x8086, 0x65FA, 0xFFFF, 0xFFFF, "5100 Chipset PCI Express x16 Port 4-7(0x65FA)"},
 {0x8086, 0x65FF, 0xFFFF, 0xFFFF, "5100 Chipset DMA Engine(0x65FF)"},
 {0x8086, 0x674C, 0xFFFF, 0xFFFF, "CRI(0x674C)"},
+{0x8086, 0x674D, 0xFFFF, 0xFFFF, "CRI(0x674D)"},
+{0x8086, 0x674E, 0xFFFF, 0xFFFF, "CRI(0x674E)"},
+{0x8086, 0x674F, 0xFFFF, 0xFFFF, "CRI(0x674F)"},
+{0x8086, 0x6750, 0xFFFF, 0xFFFF, "CRI(0x6750)"},
 {0x8086, 0x6E23, 0xFFFF, 0xFFFF, "Nova Lake PCH-S SMbus Controller(0x6E23)"},
 {0x8086, 0x6E24, 0xFFFF, 0xFFFF, "Nova Lake PCH-S SPI Controller(0x6E24)"},
 {0x8086, 0x6E28, 0xFFFF, 0xFFFF, "Nova Lake PCH-S Serial IO UART Controller #0(0x6E28)"},
@@ -48832,7 +48862,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x0F62, 1, pci_vid_0F62 },
 {0x1000, 841, pci_vid_1000 },
 {0x1001, 10, pci_vid_1001 },
-{0x1002, 3303, pci_vid_1002 },
+{0x1002, 3304, pci_vid_1002 },
 {0x1003, 2, pci_vid_1003 },
 {0x1004, 34, pci_vid_1004 },
 {0x1005, 8, pci_vid_1005 },
@@ -49044,7 +49074,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x10DB, 1, pci_vid_10DB },
 {0x10DC, 6, pci_vid_10DC },
 {0x10DD, 3, pci_vid_10DD },
-{0x10DE, 3430, pci_vid_10DE },
+{0x10DE, 3431, pci_vid_10DE },
 {0x10DF, 133, pci_vid_10DF },
 {0x10E0, 7, pci_vid_10E0 },
 {0x10E1, 5, pci_vid_10E1 },
@@ -50366,7 +50396,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x1682, 1, pci_vid_1682 },
 {0x1688, 2, pci_vid_1688 },
 {0x168A, 7, pci_vid_168A },
-{0x168C, 251, pci_vid_168C },
+{0x168C, 253, pci_vid_168C },
 {0x1695, 1, pci_vid_1695 },
 {0x169C, 2, pci_vid_169C },
 {0x169D, 1, pci_vid_169D },
@@ -50462,7 +50492,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x1809, 1, pci_vid_1809 },
 {0x180C, 1, pci_vid_180C },
 {0x1813, 5, pci_vid_1813 },
-{0x1814, 84, pci_vid_1814 },
+{0x1814, 87, pci_vid_1814 },
 {0x1815, 1, pci_vid_1815 },
 {0x1820, 1, pci_vid_1820 },
 {0x1822, 2, pci_vid_1822 },
@@ -50756,7 +50786,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x1D65, 2, pci_vid_1D65 },
 {0x1D69, 5, pci_vid_1D69 },
 {0x1D6A, 29, pci_vid_1D6A },
-{0x1D6C, 51, pci_vid_1D6C },
+{0x1D6C, 52, pci_vid_1D6C },
 {0x1D72, 1, pci_vid_1D72 },
 {0x1D78, 71, pci_vid_1D78 },
 {0x1D79, 7, pci_vid_1D79 },
@@ -50941,7 +50971,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x202C, 2, pci_vid_202C },
 {0x2036, 19, pci_vid_2036 },
 {0x203B, 1, pci_vid_203B },
-{0x2042, 1, pci_vid_2042 },
+{0x2042, 15, pci_vid_2042 },
 {0x2044, 7, pci_vid_2044 },
 {0x2046, 1, pci_vid_2046 },
 {0x2048, 1, pci_vid_2048 },
@@ -50965,7 +50995,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x20A6, 1, pci_vid_20A6 },
 {0x20A7, 1, pci_vid_20A7 },
 {0x20A8, 1, pci_vid_20A8 },
-{0x20A9, 3, pci_vid_20A9 },
+{0x20A9, 4, pci_vid_20A9 },
 {0x20B5, 1, pci_vid_20B5 },
 {0x20BA, 3, pci_vid_20BA },
 {0x20BB, 2, pci_vid_20BB },
@@ -50975,7 +51005,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x20D0, 2, pci_vid_20D0 },
 {0x20D2, 2, pci_vid_20D2 },
 {0x20D8, 14, pci_vid_20D8 },
-{0x20DC, 2, pci_vid_20DC },
+{0x20DC, 5, pci_vid_20DC },
 {0x20E1, 8, pci_vid_20E1 },
 {0x20E3, 1, pci_vid_20E3 },
 {0x20E7, 1, pci_vid_20E7 },
@@ -51133,7 +51163,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x8008, 4, pci_vid_8008 },
 {0x807D, 1, pci_vid_807D },
 {0x8080, 2, pci_vid_8080 },
-{0x8086, 9809, pci_vid_8086 },
+{0x8086, 9813, pci_vid_8086 },
 {0x8088, 90, pci_vid_8088 },
 {0x80EE, 3, pci_vid_80EE },
 {0x8164, 2, pci_vid_8164 },

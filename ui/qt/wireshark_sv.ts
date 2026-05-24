@@ -1807,26 +1807,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Intervallet mellan nya paketuppdateringar. Påverkar hur ofta GUI:t uppdaterar sig och noggrannheten hos tidtagare.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Enable Aggregation View for real-time capturing</source>
-        <translation type="vanished">Aktivera samlingsvyn för realtidsfångst</translation>
-    </message>
-    <message>
-        <source>This option can only be changed when Aggregation Mode is not active.</source>
-        <translation type="vanished">Denna flagga kan bara ändras när samlingsläget inte är aktivt.</translation>
-    </message>
-    <message>
-        <source>Aggregation fields</source>
-        <translation type="vanished">Samlingsfält</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fiedls used for aggregation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fält som används för samlande.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Edit..</source>
-        <translation type="vanished">Redigera.</translation>
-    </message>
-    <message>
         <source>Don&apos;t load interfaces on startup</source>
         <translation>Läs inte in gränssnitt vid uppstart</translation>
     </message>
@@ -7793,10 +7773,6 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>OFF — Break on Lua errors</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation type="vanished">Fil</translation>
     </message>
     <message>
         <source>Files</source>
@@ -17389,10 +17365,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Aggregation in Live Capture</source>
         <translation>Samla i live-fångst</translation>
-    </message>
-    <message>
-        <source>Aggregation View.</source>
-        <translation type="vanished">Samlingsvy.</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>

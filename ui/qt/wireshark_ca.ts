@@ -1812,26 +1812,6 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;L&apos;interval entre actualitzacions dels paquets. Afecta la freqüència d&apos;actualització de la interfície i dels temporitzadors.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Enable Aggregation View for real-time capturing</source>
-        <translation type="vanished">Activa la vista d&apos;agregació per a captures en directe</translation>
-    </message>
-    <message>
-        <source>This option can only be changed when Aggregation Mode is not active.</source>
-        <translation type="vanished">Aquesta opció només es pot canviar quan el mode d&apos;agregació no està actiu.</translation>
-    </message>
-    <message>
-        <source>Aggregation fields</source>
-        <translation type="vanished">Camps d&apos;agregació</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fiedls used for aggregation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Camps que es fan servir per a l&apos;agregació.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Edit..</source>
-        <translation type="vanished">Edita...</translation>
-    </message>
-    <message>
         <source>Don&apos;t load interfaces on startup</source>
         <translation>No carreguis les interfícies a l&apos;inici</translation>
     </message>
@@ -7710,14 +7690,6 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <name>LuaDebuggerCodeView</name>
     <message>
         <source>Click: add or remove breakpoint
-Shift+click: on an empty line, add a disabled breakpoint;
-on an existing breakpoint, toggle its active state</source>
-        <translation type="vanished">Clic: afegeix o elimina el punt d&apos;interrupció
-Maj+clic: en una línia buida, afegeix un punt d&apos;interrupció desactivat;
-en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desactivat</translation>
-    </message>
-    <message>
-        <source>Click: add or remove breakpoint
 Drag existing breakpoint: move to nearest free visible line
 Shift+click: on an empty line, add a disabled breakpoint;
 on an existing breakpoint, toggle its active state</source>
@@ -7851,10 +7823,6 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>OFF — Break on Lua errors</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation type="vanished">Fitxer</translation>
     </message>
     <message>
         <source>Files</source>
@@ -17505,10 +17473,6 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     <message>
         <source>Aggregation in Live Capture</source>
         <translation>Agregació en captura en directe</translation>
-    </message>
-    <message>
-        <source>Aggregation View.</source>
-        <translation type="vanished">Vista d&apos;agregació</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>

@@ -1807,26 +1807,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Intervall zwischen Aktualisierung neuer Pakete. Beeinflusst wie oft die GUI aktualisiert wird sowie die Granularität der Timer.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Enable Aggregation View for real-time capturing</source>
-        <translation type="vanished">Aggregationsansicht für Echtzeitaufzeichnung aktivieren</translation>
-    </message>
-    <message>
-        <source>This option can only be changed when Aggregation Mode is not active.</source>
-        <translation type="vanished">Diese Option kann nur geändert werden, wenn der Aggregationsmodus nicht aktiv ist.</translation>
-    </message>
-    <message>
-        <source>Aggregation fields</source>
-        <translation type="vanished">Aggregationsfelder</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fiedls used for aggregation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Für Aggregation verwendete Felder.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Edit..</source>
-        <translation type="vanished">Bearbeiten...</translation>
-    </message>
-    <message>
         <source>Don&apos;t load interfaces on startup</source>
         <translation>Interfaces nicht beim Start laden</translation>
     </message>
@@ -17346,10 +17326,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Aggregation in Live Capture</source>
         <translation>Aggregation während der Aufzeichnung</translation>
-    </message>
-    <message>
-        <source>Aggregation View.</source>
-        <translation type="vanished">Aggregationsansicht</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>

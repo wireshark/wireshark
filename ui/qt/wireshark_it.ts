@@ -1812,26 +1812,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;L&apos;intervallo tra gli aggiornamenti dei nuovi pacchetti. Influisce sulla frequenza degli aggiornamenti dell&apos;interfaccia grafica e sulla granularità dei timer.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Enable Aggregation View for real-time capturing</source>
-        <translation type="vanished">Abilita la vista di aggregazione per la cattura in tempo reale</translation>
-    </message>
-    <message>
-        <source>This option can only be changed when Aggregation Mode is not active.</source>
-        <translation type="vanished">questa opzione può essere attivata solo quando la modalità di aggregazione non è attiva.</translation>
-    </message>
-    <message>
-        <source>Aggregation fields</source>
-        <translation type="vanished">Campi di aggregazione</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fiedls used for aggregation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Campi utilizzati per l&apos;aggregazione.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Edit..</source>
-        <translation type="vanished">Modifica...</translation>
-    </message>
-    <message>
         <source>Don&apos;t load interfaces on startup</source>
         <translation>Non caricare le interfacce all&apos;avvio</translation>
     </message>
@@ -7712,14 +7692,6 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     <name>LuaDebuggerCodeView</name>
     <message>
         <source>Click: add or remove breakpoint
-Shift+click: on an empty line, add a disabled breakpoint;
-on an existing breakpoint, toggle its active state</source>
-        <translation type="vanished">Clic: aggiungi o rimuovi un breakpoint
-Maiusc+clic: su una riga vuota, aggiungi un breakpoint disabilitato;
-su un breakpoint esistente, attiva o disattiva il suo stato</translation>
-    </message>
-    <message>
-        <source>Click: add or remove breakpoint
 Drag existing breakpoint: move to nearest free visible line
 Shift+click: on an empty line, add a disabled breakpoint;
 on an existing breakpoint, toggle its active state</source>
@@ -7853,10 +7825,6 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>OFF — Break on Lua errors</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation type="vanished">File</translation>
     </message>
     <message>
         <source>Files</source>
@@ -17507,10 +17475,6 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     <message>
         <source>Aggregation in Live Capture</source>
         <translation>Aggregazione durante la cattura</translation>
-    </message>
-    <message>
-        <source>Aggregation View.</source>
-        <translation type="vanished">Vista di aggregazione.</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>

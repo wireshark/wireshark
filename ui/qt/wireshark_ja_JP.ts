@@ -1801,26 +1801,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;新しいパケットが更新される間隔。どのくらいの頻度でGUIが更新されるのとタイマの精度に影響します。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Enable Aggregation View for real-time capturing</source>
-        <translation type="vanished">リアルタイムキャプチャのために集約ビューを有効にします</translation>
-    </message>
-    <message>
-        <source>This option can only be changed when Aggregation Mode is not active.</source>
-        <translation type="vanished">このオプションは集約モードがアクティブでない場合にのみ変更できます</translation>
-    </message>
-    <message>
-        <source>Aggregation fields</source>
-        <translation type="vanished">集約フィールド</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fiedls used for aggregation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;集約に用いるフィールド&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Edit..</source>
-        <translation type="vanished">編集..</translation>
-    </message>
-    <message>
         <source>Don&apos;t load interfaces on startup</source>
         <translation>起動時にインタフェースを読み込みません</translation>
     </message>
@@ -3496,11 +3476,11 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Unique</source>
-        <translation type="unfinished"></translation>
+        <translation>一意</translation>
     </message>
     <message>
         <source>Only display the first of identical entries</source>
-        <translation type="unfinished"></translation>
+        <translation>重複する項目は最初のみ表示</translation>
     </message>
     <message>
         <source>Searching for objects</source>
@@ -3516,11 +3496,11 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Save All</source>
-        <translation type="unfinished"></translation>
+        <translation>すべて保存</translation>
     </message>
     <message>
         <source>Save Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>表示されたものを保存</translation>
     </message>
     <message>
         <source>Preview</source>
@@ -3544,7 +3524,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Save Objects In…</source>
-        <translation type="unfinished"></translation>
+        <translation>…のオブジェクトを保存</translation>
     </message>
     <message>
         <source>Save All Objects In…</source>
@@ -7529,7 +7509,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Hit-count summary&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;code&gt;≥N&lt;/code&gt; &amp;mdash; &lt;i&gt;from&lt;/i&gt; mode: pause from hit &lt;i&gt;N&lt;/i&gt; onwards.&lt;br/&gt;&lt;code&gt;×N&lt;/code&gt; &amp;mdash; &lt;i&gt;every&lt;/i&gt; mode: pause on hits &lt;i&gt;N&lt;/i&gt;, &lt;i&gt;2N&lt;/i&gt;, &lt;i&gt;3N&lt;/i&gt;, &amp;hellip;&lt;br/&gt;&lt;code&gt;@N&lt;/code&gt; &amp;mdash; &lt;i&gt;once&lt;/i&gt; mode: pause once on the &lt;i&gt;N&lt;/i&gt;th hit, then deactivate.&lt;/p&gt;&lt;p&gt;The cell starts with the running hit counter; if a gate is set it follows in parentheses, e.g. &lt;code&gt;3 (≥10)&lt;/code&gt;. With no hit gate the cell is just the counter.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell to set or change the gate (see the breakpoint-extras section).&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;&lt;b&gt;ヒット回数サマリ&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;code&gt;≥N&lt;/code&gt; &amp;mdash; &lt;i&gt;from&lt;/i&gt; モード: &lt;i&gt;N&lt;/i&gt; 回目以降のすべてのヒットで一時停止します。&lt;br/&gt;&lt;code&gt;×N&lt;/code&gt; &amp;mdash; &lt;i&gt;every&lt;/i&gt; モード:  &lt;i&gt;N&lt;/i&gt;, &lt;i&gt;2N&lt;/i&gt;, &lt;i&gt;3N&lt;/i&gt;...回目のヒットで一時停止します。 &lt;br/&gt;&lt;code&gt;@N&lt;/code&gt; &amp;mdash; &lt;i&gt;once&lt;/i&gt; モード:  &lt;i&gt;N&lt;/i&gt;回目のヒットで一度だけ一時停止し、その後ブレークポイントを無効化します。&lt;/p&gt;&lt;p&gt;セルは実行中のヒットカウンタで始まり、条件が設定されている場合は括弧内に表示されます（例: &lt;code&gt;3 (≥10)&lt;/code&gt; ヒット条件がない場合、セルにはカウンタのみ表示されます。&lt;/p&gt;&lt;p&gt;条件を編集するには &lt;i&gt;Location&lt;/i&gt;セルを編集してください（ブレークポイント拡張セクションを参照） &lt;/p&gt;</translation>
     </message>
     <message>
         <source>Edit...</source>
@@ -7683,18 +7663,13 @@ Relative to reference: n/a (outside reference range)</source>
     <name>LuaDebuggerCodeView</name>
     <message>
         <source>Click: add or remove breakpoint
-Shift+click: on an empty line, add a disabled breakpoint;
-on an existing breakpoint, toggle its active state</source>
-        <translation type="vanished">クリック: ブレークポイントを追加または削除
-Shift+クリック: 空行では無効なブレークポイントを追加;
-既存のブレークポイントでは有効状態を切替</translation>
-    </message>
-    <message>
-        <source>Click: add or remove breakpoint
 Drag existing breakpoint: move to nearest free visible line
 Shift+click: on an empty line, add a disabled breakpoint;
 on an existing breakpoint, toggle its active state</source>
-        <translation type="unfinished"></translation>
+        <translation>クリック: ブレークポイントを追加または削除t
+既存のブレークポイントをドラッグ: 最も近い空いている表示行へ移動
+Shift+クリック: 空行では無効なブレークポイントを追加
+既存のブレークポイントでは有効/無効を切り替え</translation>
     </message>
 </context>
 <context>
@@ -7814,19 +7789,15 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Hits</source>
-        <translation type="unfinished"></translation>
+        <translation>ヒット</translation>
     </message>
     <message>
         <source>ON — Break on Lua errors</source>
-        <translation type="unfinished"></translation>
+        <translation>ON — Luaエラーでブレーク</translation>
     </message>
     <message>
         <source>OFF — Break on Lua errors</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation type="vanished">ファイル</translation>
+        <translation>OFF — Luaエラーでブレーク</translation>
     </message>
     <message>
         <source>Files</source>
@@ -8012,7 +7983,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>(runtime error)</source>
-        <translation type="unfinished"></translation>
+        <translation>(ランタイムエラー)</translation>
     </message>
     <message>
         <source>Running</source>
@@ -8459,7 +8430,7 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source> %1 Aggregated: %2</source>
-        <translation type="unfinished"></translation>
+        <translation> %1 集約: %2</translation>
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
@@ -10116,7 +10087,7 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Aggregation</source>
-        <translation type="unfinished"></translation>
+        <translation>集約</translation>
     </message>
 </context>
 <context>
@@ -15606,7 +15577,7 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Auto advance slides</source>
-        <translation type="unfinished"></translation>
+        <translation>スライドを自動送り</translation>
     </message>
     <message>
         <source>Slide display interval</source>
@@ -17450,10 +17421,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>キャプチャ中に集約</translation>
     </message>
     <message>
-        <source>Aggregation View.</source>
-        <translation type="vanished">集約ビュー</translation>
-    </message>
-    <message>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
         <translation>新規対話ルール…</translation>
@@ -17825,11 +17792,11 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Aggregation View — displays frames grouped by your configured aggregation fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>集約ビュー — 設定した集約フィールドごとにフレームをグループ化して表示</translation>
     </message>
     <message>
         <source>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <translation type="unfinished"></translation>
+        <translation>集約ビュー — 設定した集約フィールドごとにフレームをグループ化して表示します。有効にするには、［設定］→［集約］へ移動してください</translation>
     </message>
     <message>
         <source>Unsaved packets…</source>

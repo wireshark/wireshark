@@ -1634,6 +1634,8 @@ BACnetVendorIdentifiers[] = {
     { 1621, "3ES Otomasyon San. Tic. Ltd. Sti." },
     { 1622, "Network Corporation" },
     { 1623, "Veawe Info Dynamics Private Limited" },
+    { 1624, "Visual Solutions UK Ltd" },
+    { 1625, "NICOR Lighting" },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);

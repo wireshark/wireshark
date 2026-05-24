@@ -1817,26 +1817,6 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;An t-eatramh idir nuashonruithe paicéad nua. Bíonn tionchar aige ar cé chomh minic a nuashonraíonn an GUI agus gráinneacht na n-amadóirí.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Enable Aggregation View for real-time capturing</source>
-        <translation type="vanished">Cumasaigh Radharc Comhiomlánaithe le haghaidh gabháil fíor-ama</translation>
-    </message>
-    <message>
-        <source>This option can only be changed when Aggregation Mode is not active.</source>
-        <translation type="vanished">Ní féidir an rogha seo a athrú ach amháin nuair nach bhfuil Mód Comhiomlánaithe gníomhach.</translation>
-    </message>
-    <message>
-        <source>Aggregation fields</source>
-        <translation type="vanished">Réimsí comhiomlánaithe</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fiedls used for aggregation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Réimsí a úsáidtear le haghaidh comhiomlánaithe.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Edit..</source>
-        <translation type="vanished">Cuir in eagar..</translation>
-    </message>
-    <message>
         <source>Don&apos;t load interfaces on startup</source>
         <translation>Ná luchtaigh comhéadain ag am tosaithe</translation>
     </message>
@@ -7858,10 +7838,6 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>OFF — Break on Lua errors</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation type="vanished">Comhad</translation>
     </message>
     <message>
         <source>Files</source>
@@ -17528,10 +17504,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Aggregation in Live Capture</source>
         <translation>Comhiomlánú i nGabháil Bheo</translation>
-    </message>
-    <message>
-        <source>Aggregation View.</source>
-        <translation type="vanished">Radharc Comhiomlánaithe.</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
