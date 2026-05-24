@@ -8,6 +8,7 @@ import os
 import re
 import subprocess
 import io
+from enum import Enum
 
 
 # For text colouring/highlighting.
@@ -153,8 +154,6 @@ def getFilesFromOpen(onlyDissectors=True):
     return files
 
 
-
-
 hf_re = re.compile(r'\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"'           # hf
                    r'(.*?)\"\s*,\s*\"'                                 # name
                    r'(.*?)\"\s*,\s*'                                   # filter
@@ -164,6 +163,7 @@ hf_re = re.compile(r'\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"'           # hf
                    r'(.*?)\s*,\s*'                                     # bitmask
                    r'(NULL|"[a-zA-Z0-9µ\W\s_\u00f6\u00e4]*?")\s*,\s*HFILL'    # blurb
                    )
+
 
 class HFEntriesParser:
     def __init__(self, file_contents):
@@ -185,7 +185,6 @@ class HFEntriesParser:
                 # Eliminate quotes and space/newlines between 1st and 2nd
                 name = name[0:positions[0]-1] + name[positions[1]+1:]
 
-
             # Blurb might be extended across several lines, each with double quotes
             if blurb.find('\\"') == -1:
                 while blurb.count('"') > 2:
@@ -203,6 +202,12 @@ class HFEntriesParser:
             self.items.append((hf, name, abbrev, ft, display, convert, bitmask, blurb))
 
 
+class OutputType(Enum):
+    NOTE = 1
+    WARN = 2
+    ERR = 3
+
+
 # A type to return from future executions.
 class Result:
     def __init__(self):
@@ -215,13 +220,23 @@ class Result:
         self.custom_entries = set()
         self.local_missing_words = []
         self.should_exit = False
+        self.api_counts = {}
+
+    def output(self, level, *args):
+        if level == OutputType.NOTE:
+            self.note(*args)
+        elif level == OutputType.WARN:
+            self.warn(*args)
+        elif level == OutputType.ERR:
+            self.error(*args)
 
     def warn(self, *args):
-        print('Warning: ' + " ".join(map(str, args)), file=self.out)
+        print(bcolors.WARNING + 'Warning: ' + " ".join(map(str, args)) + bcolors.ENDC, file=self.out)
         self.warnings += 1
 
     def error(self, *args):
-        print('Error: ' + " ".join(map(str, args)), file=self.out)
+        # TODO: make red
+        print(bcolors.FAIL + 'Error: ' + " ".join(map(str, args)) + bcolors.ENDC, file=self.out)
         self.errors += 1
 
     def note(self, *args):
@@ -232,6 +247,9 @@ class Result:
         print(" ".join(map(str, args)), file=self.out)
         # Just use notes..
         self.notes += 1
+
+    # TODO: add an enum and function that lets severity level to be set at runtime
+    # See usage of pfx in check_apis.py
 
     def __str__(self):
         return f'warn={self.warnings}, errors={self.errors}'

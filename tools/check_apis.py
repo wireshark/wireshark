@@ -37,7 +37,8 @@ import argparse
 import os
 import re
 import sys
-from check_common import findDissectorFilesInFolder, HFEntriesParser
+import concurrent.futures
+from check_common import findDissectorFilesInFolder, HFEntriesParser, Result, OutputType, isDissectorFile
 
 
 APIs = {
@@ -340,13 +341,7 @@ EXCLUDE_PREFS_CHECK = [
 ]
 
 
-# XXX We should do this via a Result from check_common.py
-def red(text):
-    """ANSI color helper"""
-    return f"\033[31m{text}\033[0m"
-
-
-def find_api_in_file(group_hash, file_words, file_contents, found_apis):
+def find_api_in_file(group_hash, file_words, file_contents, found_apis, function_counts):
     """Find APIs from the group that appear in the file contents."""
     # Match function calls, but ignore false positives from:
     # C++ method definition: int MyClass::open(...)
@@ -360,7 +355,7 @@ def find_api_in_file(group_hash, file_words, file_contents, found_apis):
             count = len(pattern.findall(file_contents))
             if count > 0:
                 found_apis.append(api)
-                group_hash['function_counts'][api] = group_hash['function_counts'].get(api, 0) + 1
+                function_counts[api] = function_counts.get(api, 0) + 1
 
 
 def check_apis_called_with_tvb_get_ptr(api_list, file_contents, found_apis):
@@ -386,33 +381,27 @@ def check_shadow_variable(shadow_set, file_words, file_contents, found_apis):
                 found_apis.append(api)
 
 
-def check_snprintf_plus_strlen(file_contents, filename):
+def check_snprintf_plus_strlen(file_contents, filename, result):
     """Check for snprintf + strlen usage."""
-    error_count = 0
     items = re.findall(r'snprintf[^;]*;', file_contents, re.DOTALL)
     for item in items:
         if re.search(r'strlen\s*\(', item):
-            print(red(f"Error: {filename} uses snprintf + strlen to assemble strings."), file=sys.stderr)
-            error_count += 1
+            result.error(f"{filename} uses snprintf + strlen to assemble strings.")
             break
-    return error_count
 
 
-def check_complex_snprintf(file_contents, filename):
+def check_complex_snprintf(file_contents, filename, result):
     """Check for complex snprintf usage."""
-    error_count = 0
     items = re.findall(r'=\s*snprintf', file_contents)
     if items:
-        print(f"Warning: {filename} appears to use snprintf to assemble\n"
-              "strings. Consider using a wmem_strbuf or GString instead.", file=sys.stderr)
-        # error_count += 1
-    return error_count
+        result.warn(f"{filename} appears to use snprintf to assemble\n"
+                    "strings. Consider using a wmem_strbuf or GString instead.")
 
 
 # N.B. more detailed value_string checks are done in check_typed_item_calls.py
 # XXX We might be able to speed this up by checking for *_string in file_words,
 # but file_words is created after we strip out our strings.
-def check_value_string_arrays(file_contents, filename, debug_flag):
+def check_value_string_arrays(file_contents, filename, debug_flag, result):
     """Check value_string and enum_val_t arrays for proper termination."""
     count = 0
 
@@ -436,8 +425,8 @@ def check_value_string_arrays(file_contents, filename, debug_flag):
         if debug_flag:
             decl_m = re.search(rf'(.+{vs_varname_re}[^=]+)=', vsx)
             if decl_m:
-                print(f"==> {filename:<35.35s}: {decl_m.group(1)}", file=sys.stderr)
-            print(vs, file=sys.stderr)
+                result.note(f"==> {filename:<35.35s}: {decl_m.group(1)}")
+            result.note(vs)
         vs_nospace = re.sub(r'\s', '', vs)
 
         # Check for expected trailer
@@ -457,19 +446,19 @@ def check_value_string_arrays(file_contents, filename, debug_flag):
         if not re.search(expected_trailer + r',?\};$', vs_nospace):
             decl_m = re.search(rf'({vs_varname_re}[^=]+)=', vsx)
             decl = decl_m.group(1) if decl_m else "?"
-            print(f"Error: {filename:<35.35s}: {{{trailer_hint}}} is required as the last {type_name} array entry: {decl}", file=sys.stderr)
+            result.error(f"{filename:<35.35s}: {{{trailer_hint}}} is required as the last {type_name} array entry: {decl}")
             count += 1
 
         if not re.search(rf'(?:static)?const{vs_varname_re}', vs_nospace):
             decl_m = re.search(rf'({vs_varname_re}[^=]+)=', vsx)
             decl = decl_m.group(1) if decl_m else "?"
-            print(f"Error: {filename:<35.35s}: Missing 'const': {decl}", file=sys.stderr)
+            result.error(f"{filename:<35.35s}: Missing 'const': {decl}")
             count += 1
 
         if re.search(newline_string_re, vs) and type_name != "bytes_string":
             decl_m = re.search(rf'({vs_varname_re}[^=]+)=', vsx)
             decl = decl_m.group(1) if decl_m else "?"
-            print(f"Error: {filename:<35.35s}: XXX_string contains a newline: {decl}", file=sys.stderr)
+            result.error(f"{filename:<35.35s}: XXX_string contains a newline: {decl}")
             count += 1
 
     # Brute force check for enum_val_t arrays which are missing {NULL, NULL, ...}
@@ -485,8 +474,8 @@ def check_value_string_arrays(file_contents, filename, debug_flag):
         if debug_flag:
             decl_m = re.search(r'(.+enum_val_t[^=]+)=', vsx)
             if decl_m:
-                print(f"==> {filename:<35.35s}: {decl_m.group(1)}", file=sys.stderr)
-            print(vs, file=sys.stderr)
+                result.note(f"==> {filename:<35.35s}: {decl_m.group(1)}")
+            result.note(vs)
         vs_nospace = re.sub(r'\s', '', vs)
 
         # README.developer says
@@ -495,25 +484,25 @@ def check_value_string_arrays(file_contents, filename, debug_flag):
         if not re.search(r'NULL,NULL,-?[0-9]\},?\};$', vs_nospace):
             decl_m = re.search(r'(enum_val_t[^=]+)=', vsx)
             decl = decl_m.group(1) if decl_m else "?"
-            print(f"Error: {filename:<35.35s}: {{NULL, NULL, ...}} is required as the last enum_val_t array entry: {decl}", file=sys.stderr)
+            result.error(f"{filename:<35.35s}: {{NULL, NULL, ...}} is required as the last enum_val_t array entry: {decl}")
             count += 1
 
         if not re.search(r'(?:static)?constenum_val_t', vs_nospace):
             decl_m = re.search(r'(enum_val_t[^=]+)=', vsx)
             decl = decl_m.group(1) if decl_m else "?"
-            print(f"Error: {filename:<35.35s}: Missing 'const': {decl}", file=sys.stderr)
+            result.error(f"{filename:<35.35s}: Missing 'const': {decl}")
             count += 1
 
         if re.search(newline_string_re, vs):
             decl_m = re.search(r'((?:value|string|range)_string[^=]+)=', vsx)
             decl = decl_m.group(1) if decl_m else "?"
-            print(f"Error: {filename:<35.35s}: enum_val_t contains a newline: {decl}", file=sys.stderr)
+            result.error(f"{filename:<35.35s}: enum_val_t contains a newline: {decl}")
             count += 1
 
     return count
 
 
-def check_included_files(file_contents, filename):
+def check_included_files(file_contents, filename, result):
     """Check for files that should use #include <> instead of #include ""."""
     inc_files = re.findall(r'#include\s*([<"].+[>"])', file_contents)
 
@@ -525,12 +514,11 @@ def check_included_files(file_contents, filename):
         for inc in inc_files:
             if re.search(r'"ui_.*\.h"$', inc):
                 base = inc.strip('"')
-                print(f"{filename}: Please use #include <{base}> instead of #include \"{base}\".", file=sys.stderr)
+                result.note(f"{filename}: Please use #include <{base}> instead of #include \"{base}\".")
 
 
-def check_proto_tree_add_XXX(file_contents, filename):
+def check_proto_tree_add_XXX(file_contents, filename, result):
     """Check for incorrect proto_tree_add_XXX usage."""
-    error_count = 0
 
     items = re.findall(r'(proto_tree_add_[_a-z0-9]+)\s*\(\s*([^;]*)\)\s*;', file_contents, re.DOTALL)
 
@@ -539,13 +527,12 @@ def check_proto_tree_add_XXX(file_contents, filename):
         # proto_tree_add_<datatype>, when proto_tree_add_item could be used
         if re.search(r',\s*tvb_get_', args, re.DOTALL):
             if re.match(r'^proto_tree_add_(time|bytes|ipxnet|ipv4|ipv6|ether|guid|oid|string|boolean|float|double|uint|uint64|int|int64|eui64|bitmask_list_value)$', func):
-                print(red(f"Error: {filename} uses {func} with tvb_get_*. Use proto_tree_add_item instead"), file=sys.stderr)
-                error_count += 1
+                result.error(": {filename} uses {func} with tvb_get_*. Use proto_tree_add_item instead")
                 # Print out the function args to make it easier
                 # to find the offending code.  But first make
                 # it readable by eliminating extra white space.
                 clean_args = re.sub(r'\s+', ' ', args)
-                print(f"\tArgs: {clean_args}", file=sys.stderr)
+                result.note(f"\tArgs: {clean_args}")
 
         # Remove anything inside parenthesis in the arguments so we
         # don't get false positives when someone calls
@@ -556,21 +543,17 @@ def check_proto_tree_add_XXX(file_contents, filename):
         # Check for accidental usage of ENC_ parameter
         if re.search(r',\s*ENC_', args_no_parens, re.DOTALL):
             if not re.search(r'proto_tree_add_(time|item|bitmask|[a-z0-9]+_bits_format_value|bits_item|bits_ret_val|item_ret_int|item_ret_uint|bytes_item|checksum)', func):
-                print(red(f"Error: {filename} uses {func} with ENC_*."), file=sys.stderr)
-                error_count += 1
+                result.error(": {filename} uses {func} with ENC_*.")
                 # Print out the function args to make it easier
                 # to find the offending code.  But first make
                 # it readable by eliminating extra white space.
                 clean_args = re.sub(r'\s+', ' ', args)
-                print(f"\tArgs: {clean_args}", file=sys.stderr)
-
-    return error_count
+                result.note(f"\tArgs: {clean_args}")
 
 
-def check_ett_registration(file_contents, filename):
+def check_ett_registration(file_contents, filename, result):
     """Verify that all declared ett_ variables are registered."""
     # Don't bother trying to check usage (for now)...
-    error_count = 0
 
     # A pattern to match ett variable names.  Obviously this assumes that
     # they start with `ett_`
@@ -591,7 +574,7 @@ def check_ett_registration(file_contents, filename):
     ett_address_uses = re.findall(r'&\s*(' + ett_var_re + r')', file_contents, re.IGNORECASE | re.MULTILINE)
 
     if not ett_address_uses:
-        print(f"Found no ett address uses in {filename}", file=sys.stderr)
+        result.note(f"Found no ett address uses in {filename}")
         return 0
 
     # Convert to a set for fast lookup
@@ -601,15 +584,11 @@ def check_ett_registration(file_contents, filename):
     unused_etts = [ett for ett in ett_declarations if ett not in ett_uses and '[' not in ett]
 
     if unused_etts:
-        print(red(f"Error: found these unregistered ett variables in {filename}: {' '.join(unused_etts)}"), file=sys.stderr)
-        error_count += 1
-
-    return error_count
+        result.error(f"found these unregistered ett variables in {filename}: {' '.join(unused_etts)}")
 
 
-def check_hf_entries(file_contents, filename):
+def check_hf_entries(file_contents, filename, result):
     """Check all hf entries for various problems."""
-    error_count = 0
 
     for i in HFEntriesParser(file_contents).items:
         hf, name, abbrev, ft, display, convert, bitmask, blurb = i
@@ -620,78 +599,53 @@ def check_hf_entries(file_contents, filename):
         convert = re.sub(r'\bGET_VALS_EXTP\(', 'VALS_EXT_PTR(', convert)
 
         if abbrev in ('""', 'NULL'):
-            print(red(f"Error: {hf} does not have an abbreviation in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(f"{hf} does not have an abbreviation in {filename}")
         if re.search(r'\.\.+', abbrev):
-            print(red(f"Error: the abbreviation for {hf} ({abbrev}) contains two or more sequential periods in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(f"the abbreviation for {hf} ({abbrev}) contains two or more sequential periods in {filename}")
         if name == abbrev:
-            print(red(f"Error: the abbreviation for {hf} ({abbrev}) matches the field name ({name}) in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(f"the abbreviation for {hf} ({abbrev}) matches the field name ({name}) in {filename}")
         if blurb != 'NULL' and name.lower() == blurb.lower():
-            print(red(f"Error: the blurb for {hf} ({blurb}) matches the field name ({name}) in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(f"the blurb for {hf} ({blurb}) matches the field name ({name}) in {filename}")
         if re.match(r'"\s+', name):
-            print(red(f"Error: the name for {hf} ({name}) has leading space in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(f"the name for {hf} ({name}) has leading space in {filename}")
         if re.search(r'\s+"', name):
-            print(red(f"Error: the name for {hf} ({name}) has trailing space in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(f"the name for {hf} ({name}) has trailing space in {filename}")
         if re.match(r'"\s+', blurb):
-            print(red(f"Error: the blurb for {hf} ({blurb}) has leading space in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(f"the blurb for {hf} ({blurb}) has leading space in {filename}")
         if re.search(r'\s+"', blurb):
-            print(red(f"Error: the blurb for {hf} ({blurb}) has trailing space in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(": the blurb for {hf} ({blurb}) has trailing space in {filename}")
         if re.search(r'\s+', abbrev):
-            print(red(f"Error: the abbreviation for {hf} ({abbrev}) has white space in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(": the abbreviation for {hf} ({abbrev}) has white space in {filename}")
         if f'"{hf}"' == name:
-            print(red(f"Error: name is the hf_variable_name in field {name} ({abbrev}) in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(": name is the hf_variable_name in field {name} ({abbrev}) in {filename}")
         if f'"{hf}"' == abbrev:
-            print(red(f"Error: abbreviation is the hf_variable_name in field {name} ({abbrev}) in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(": abbreviation is the hf_variable_name in field {name} ({abbrev}) in {filename}")
         if ft != "FT_BOOLEAN" and re.match(r'^TFS\(.*\)', convert):
-            print(red(f"Error: {hf} uses a true/false string but is an {ft} instead of FT_BOOLEAN in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(": {hf} uses a true/false string but is an {ft} instead of FT_BOOLEAN in {filename}")
         if ft == "FT_BOOLEAN" and re.match(r'^VALS\(.*\)', convert):
-            print(red(f"Error: {hf} uses a value_string but is an FT_BOOLEAN in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(": {hf} uses a value_string but is an FT_BOOLEAN in {filename}")
         if ft == "FT_BOOLEAN" and not re.match(r'^(?:0x)?0+$', bitmask) and re.match(r'^BASE_', display):
-            print(red(f"Error: {hf}: FT_BOOLEAN with a bitmask must specify a 'parent field width' for 'display' in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(": {hf}: FT_BOOLEAN with a bitmask must specify a 'parent field width' for 'display' in {filename}")
         if ft == "FT_BOOLEAN" and not re.match(r'^(?:(?:0[xX]0?)?0$|NULL$|TFS)', convert):
-            print(red(f"Error: {hf}: FT_BOOLEAN with non-null 'convert' field missing TFS in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(": {hf}: FT_BOOLEAN with non-null 'convert' field missing TFS in {filename}")
         if re.search(r'RVALS', convert) and 'BASE_RANGE_STRING' not in display:
-            print(red(f"Error: {hf} uses RVALS but 'display' does not include BASE_RANGE_STRING in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(": {hf} uses RVALS but 'display' does not include BASE_RANGE_STRING in {filename}")
         if re.search(r'VALS64', convert) and 'BASE_VAL64_STRING' not in display:
-            print(red(f"Error: {hf} uses VALS64 but 'display' does not include BASE_VAL64_STRING in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(": {hf} uses VALS64 but 'display' does not include BASE_VAL64_STRING in {filename}")
         if 'BASE_EXT_STRING' in display and not re.match(r'^(?:VALS_EXT_PTR\(|&)', convert):
-            print(red(f"Error: {hf}: BASE_EXT_STRING should use VALS_EXT_PTR for 'strings' instead of '{convert}' in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(": {hf}: BASE_EXT_STRING should use VALS_EXT_PTR for 'strings' instead of '{convert}' in {filename}")
         if 'BASE_UNIT_STRING' in display and not re.match(r'^(?:(?:0[xX]0?)?0$|NULL$|UNS)', convert):
-            print(red(f"Error: {hf}: BASE_UNIT_STRING with non-null 'convert' field missing UNS in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(": {hf}: BASE_UNIT_STRING with non-null 'convert' field missing UNS in {filename}")
         if re.match(r'^FT_U?INT(?:8|16|24|32)$', ft) and re.match(r'^VALS64\(', convert):
-            print(red(f"Error: {hf}: 32-bit field must use VALS instead of VALS64 in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(": {hf}: 32-bit field must use VALS instead of VALS64 in {filename}")
         if re.match(r'^FT_U?INT(?:40|48|56|64)$', ft) and re.match(r'^VALS\(', convert):
-            print(red(f"Error: {hf}: 64-bit field must use VALS64 instead of VALS in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(": {hf}: 64-bit field must use VALS64 instead of VALS in {filename}")
         if re.match(r'^(?:VALS|VALS64|RVALS)\(&.*\)', convert):
             m2 = re.match(r'^(VALS|VALS64|RVALS)', convert)
-            print(red(f"Error: {hf} is passing the address of a pointer to {m2.group(1)} in {filename}"), file=sys.stderr)
-            error_count += 1
-        if (not re.match(r'^(?:(?:0[xX]0?)?0$|NULL$|VALS|VALS64|VALS_EXT_PTR|RVALS|TIME_VALS|TFS|UNS|CF_FUNC|FRAMENUM_TYPE|&|STRINGS_ENTERPRISES)', convert)
-                and 'BASE_CUSTOM' not in display):
-            print(red(f"Error: non-null {hf} 'convert' field missing 'VALS|VALS64|VALS_EXT_PTR|RVALS|TIME_VALS|TFS|UNS|CF_FUNC|FRAMENUM_TYPE|&|STRINGS_ENTERPRISES' in {filename} ?"), file=sys.stderr)
-            error_count += 1
-
-    return error_count
+            result.error(f": {hf} is passing the address of a pointer to {m2.group(1)} in {filename}")
+        if (not re.match(r'^(?:(?:0[xX]0?)?0$|NULL$|VALS|VALS64|VALS_EXT_PTR|RVALS|TIME_VALS|TFS|UNS|CF_FUNC|FRAMENUM_TYPE|&|STRINGS_ENTERPRISES)', convert) and
+                'BASE_CUSTOM' not in display):
+            result.error(": non-null {hf} 'convert' field missing 'VALS|VALS64|VALS_EXT_PTR|RVALS|TIME_VALS|TFS|UNS|CF_FUNC|FRAMENUM_TYPE|&|STRINGS_ENTERPRISES' in {filename} ?")
 
 
 def extract_balanced_parens(text):
@@ -712,9 +666,8 @@ def extract_balanced_parens(text):
     return None
 
 
-def check_pref_var_dupes(file_contents, filename):
+def check_pref_var_dupes(file_contents, filename, result):
     """Check for duplicate preference variable usage."""
-    error_count = 0
 
     # Avoid flagging the actual prototypes
     if re.search(r'prefs\.[ch]$', filename):
@@ -789,25 +742,19 @@ def check_pref_var_dupes(file_contents, filename):
                 count[var] = 1
 
     if dupes:
-        print(f"{filename}: error: found these preference variables used in more than one prefs_register_*_preference:\n\t{', '.join(dupes)}", file=sys.stderr)
-        error_count += 1
-
-    return error_count
+        result.error(f"{filename}: found these preference variables used in more than one prefs_register_*_preference:\n\t{', '.join(dupes)}")
 
 
-def check_try_catch(file_words, file_contents, filename):
+def check_try_catch(file_words, file_contents, filename, result):
     """Check for forbidden control flow changes in TRY/CATCH blocks."""
     if not set(('TRY', 'ENDTRY')) & file_words:
         return 0
-
-    error_count = 0
 
     # Match TRY { ... } ENDTRY (with an optional '\' in case of a macro).
     items = re.findall(r'\bTRY\s*\{(.+?)\}\s*\\?\s*ENDTRY\b', file_contents, re.DOTALL)
     for block in items:
         if re.search(r'\breturn\b', block):
-            print(red(f"Error: return is forbidden in TRY/CATCH in {filename}"), file=sys.stderr)
-            error_count += 1
+            result.error(": return is forbidden in TRY/CATCH in {filename}")
 
         goto_labels = re.findall(r'\bgoto\s+(\w+)', block)
         seen = set()
@@ -817,10 +764,7 @@ def check_try_catch(file_words, file_contents, filename):
             seen.add(goto_label)
 
             if not re.search(r'^\s*' + re.escape(goto_label) + r'\s*:', block, re.MULTILINE):
-                print(red(f"Error: goto to label '{goto_label}' outside TRY/CATCH is forbidden in {filename}"), file=sys.stderr)
-                error_count += 1
-
-    return error_count
+                result.error(": goto to label '{goto_label}' outside TRY/CATCH is forbidden in {filename}")
 
 
 def remove_if0_code(code, filename):
@@ -927,6 +871,141 @@ def print_usage():
     print(f"   Available Groups:   {', '.join(sorted(APIs.keys()))}")
 
 
+def checkFile(filename, source_dir, check_hf, check_value_string_array, debug_flag, check_shadow, machine_readable, api_groups):
+    result = Result()
+
+    file_contents = ''
+    found_apis = []
+
+    if source_dir and not os.path.exists(filename):
+        filename = os.path.join(source_dir, filename)
+    if not os.path.exists(filename):
+        result.error(f'Warning: No such file: "{filename}"')
+        return result
+
+    # delete leading './'
+    filename = re.sub(r'^\.\/', '', filename)
+    if not os.path.isfile(filename):
+        result.warn(f"{filename} is not of type file - skipping.")
+        return result
+
+    if has_utf8_bom(filename):
+        result.error(f"Found UTF-8 BOM at start of file {filename}")
+        return result
+
+    # Read in the file
+    line_num = 0
+    with open(filename, 'rb') as f:
+        raw = f.read()
+
+    for line_num, line_bytes in enumerate(raw.split(b'\n'), 1):
+        try:
+            line_bytes.decode('utf-8')
+        except UnicodeDecodeError:
+            result.error(f"Found an invalid UTF-8 sequence on line {line_num} of {filename}")
+
+    file_contents = raw.decode('utf-8', errors='replace')
+
+    if re.search(r'\$Id.*\$', file_contents):
+        result.warn(f"{filename} has an SVN Id tag. Please remove it!")
+
+    if re.search(r'tab-width:\s*[0-7|9]+|tabstop=[0-7|9]+|tabSize=[0-7|9]+', file_contents):
+        result.error("Found modelines with tabstops set to something other than 8 in {filename}")
+
+    # Remove C/C++ comments
+    file_contents = remove_comments(file_contents)
+
+    # Optionally check the hf entries (including those under #if 0)
+    if check_hf:
+        check_hf_entries(file_contents, filename, result)
+
+    if re.search(r'%\d*?ll', file_contents):
+        # use PRI[dux...]N instead of ll
+        result.error(f"Found %ll in {filename}")
+
+    # check for files that we should not include directly
+    check_included_files(file_contents, filename, result)
+
+    # Check for value_string and enum_val_t errors
+    if check_value_string_array:
+        check_value_string_arrays(file_contents, filename, debug_flag, result)
+
+    # Remove all the quoted strings, even across line continuations.
+    # (?s:.) matches a newline (well, any character) without re.DOTALL.
+    file_contents = re.sub(r'"(?:\\(?s:.)|[^\"\\])*\"|\'(?:\\(?s:.)|[^\'\\])*\'', '', file_contents)
+
+    check_pref_var_dupes(file_contents, filename, result)
+
+    # Remove all blank lines
+    file_contents = re.sub(r'^\s*$\n', '', file_contents, flags=re.MULTILINE)
+
+    # Remove all '#if 0'd' code
+    file_contents = remove_if0_code(file_contents, filename)
+
+    # The re patterns in find_api_in_file and check_shadow_variable
+    # are slow. Create a set of words so that we can do a quick,
+    # naive match first; this is faster than `api in file_contents`.
+    # https://stackoverflow.com/a/58238304/82195
+
+    # string.punctuation minus '_'; we could probably reduce this.
+    c_punctuation = '!"#$%&\'()*+,-./:;<=>?@[\\]^`{|}~'
+    file_words = set(file_contents.translate(str.maketrans(c_punctuation, ' ' * len(c_punctuation))).split())
+
+    check_ett_registration(file_contents, filename, result)
+
+    # check_apis_called_with_tvb_get_ptr(api_list, file_contents, found_apis);
+    # if (found_apis) {
+    #     print(f"Found APIs with embedded tvb_get_ptr() calls in {filename} : {','.join(found_apis)}")
+
+    if check_shadow:
+        found_apis = []
+        check_shadow_variable(ShadowVariables, file_words, file_contents, found_apis)
+        if found_apis:
+            result.warn(f"Found shadow variable(s) in {filename} : {','.join(found_apis)}")
+
+    check_snprintf_plus_strlen(file_contents, filename, result)
+
+    check_complex_snprintf(file_contents, filename, result)
+
+    check_proto_tree_add_XXX(file_contents, filename, result)
+
+    check_try_catch(file_words, file_contents, filename, result)
+
+    # Check and count APIs for this file
+    for group in api_groups:
+        pfx = OutputType.NOTE
+        found_apis = []
+
+        function_counts = {}
+        find_api_in_file(APIs[group], file_words, file_contents, found_apis, function_counts)
+        if function_counts:
+            result.api_counts[group] = function_counts
+
+        cur_func_count = sum(function_counts.values())
+
+        # If we have a max function count and we've exceeded it, treat it
+        # as an error.
+        if not APIs[group]['count_errors'] and APIs[group]['max_function_count'] >= 0:
+            if cur_func_count > APIs[group]['max_function_count']:
+                result.output(pfx, f"{group} exceeds maximum function count: {APIs[group]['max_function_count']}")
+                APIs[group]['count_errors'] = True
+
+        if cur_func_count <= APIs[group]['max_function_count']:
+            continue
+
+        # Do we care about the count of this type?
+        if APIs[group]['count_errors']:
+            pfx = OutputType.WARN
+
+        if found_apis and not machine_readable:
+            result.output(pfx, f"Found {group} APIs in {filename}: {','.join(found_apis)}")
+        if found_apis and machine_readable:
+            for api in found_apis:
+                result.output(pfx, f"{group:<20.20s} {filename:<30.30s} {api:<45.45s}")
+
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('-g', '--group', action='append', default=[], dest='groups')
@@ -955,12 +1034,25 @@ def main():
 
     # Build the API groups list
     api_groups = list(DEFAULT_API_GROUPS)
-    api_groups.extend(args.groups)
+
+    # Extra groups may have limits in them - split them up here
+    for extra_group in args.groups:
+        # Might be split into group:<max_count>
+        group_parts = extra_group.split(':')
+
+        if group_parts[0] not in APIs:
+            print(f"Unknown API group '{group_parts[0]}'")
+            continue
+
+        if len(group_parts) > 1:
+            APIs[group_parts[0]]['max_function_count'] = int(group_parts[1])
+
+        api_groups.append(group_parts[0])
 
     # the pre-commit hook only calls checkAPIs one file at a time
     if args.pre_commit and args.files:
         filename = args.files[0]
-        if re.search(r'\bpacket-[^/\\]+\.[ch]$', filename):
+        if isDissectorFile(filename):
             api_groups.append('abort')
             api_groups.append('termoutput')
 
@@ -990,154 +1082,42 @@ def main():
         print('Looking for files in', folder)
         filelist = findDissectorFilesInFolder(folder, recursive=True)
 
-
     if not filelist:
-        print("no files to process", file=sys.stderr)
+        print("no files to process")
         sys.exit(1)
 
-    error_count = 0
+    # Examine each chosen file.
+    warnings_found = 0
+    errors_found = 0
 
-    # Read through the files; do various checks
     filelist.sort()
-    for filename in filelist:
-        file_contents = ''
-        found_apis = []
 
-        if args.source_dir and not os.path.exists(filename):
-            filename = os.path.join(args.source_dir, filename)
-        if not os.path.exists(filename):
-            print(f'Warning: No such file: "{filename}"', file=sys.stderr)
-            continue
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        future_to_file_output = {executor.submit(checkFile, file, args.source_dir, args.check_hf,
+                                                 args.check_value_string_array, args.debug_flag, args.check_shadow,
+                                                 args.machine_readable, api_groups): file for file in filelist}
+        for future in concurrent.futures.as_completed(future_to_file_output):
+            # File is done - show any output and update warning, error counts
+            result = future.result()
+            output = result.out.getvalue()
+            if len(output):
+                print(output[:-1])
 
-        # delete leading './'
-        filename = re.sub(r'^\.\/', '', filename)
-        if not os.path.isfile(filename):
-            print(f"Warning: {filename} is not of type file - skipping.", file=sys.stderr)
-            continue
+            warnings_found += result.warnings
+            errors_found += result.errors
 
-        if has_utf8_bom(filename):
-            print(red(f"Error: Found UTF-8 BOM at start of file {filename}"), file=sys.stderr)
-            error_count += 1
-            continue
+            for api_group in result.api_counts:
+                for fun, num in result.api_counts[api_group].items():
+                    APIs[api_group]['function_counts'][fun] += num
 
-        # Read in the file
-        line_num = 0
-        with open(filename, 'rb') as f:
-            raw = f.read()
+            if result.should_exit:
+                exit(1)
 
-        for line_num, line_bytes in enumerate(raw.split(b'\n'), 1):
-            try:
-                line_bytes.decode('utf-8')
-            except UnicodeDecodeError:
-                print(red(f"Error: Found an invalid UTF-8 sequence on line {line_num} of {filename}"), file=sys.stderr)
-                error_count += 1
-
-        file_contents = raw.decode('utf-8', errors='replace')
-
-        if re.search(r'\$Id.*\$', file_contents):
-            print(f"Warning: {filename} has an SVN Id tag. Please remove it!", file=sys.stderr)
-
-        if re.search(r'tab-width:\s*[0-7|9]+|tabstop=[0-7|9]+|tabSize=[0-7|9]+', file_contents):
-            print(red(f"Error: Found modelines with tabstops set to something other than 8 in {filename}"), file=sys.stderr)
-            error_count += 1
-
-        # Remove C/C++ comments
-        file_contents = remove_comments(file_contents)
-
-        # Optionally check the hf entries (including those under #if 0)
-        if args.check_hf:
-            error_count += check_hf_entries(file_contents, filename)
-
-        if re.search(r'%\d*?ll', file_contents):
-            # use PRI[dux...]N instead of ll
-            print(red(f"Error: Found %ll in {filename}"), file=sys.stderr)
-            error_count += 1
-
-        # check for files that we should not include directly
-        check_included_files(file_contents, filename)
-
-        # Check for value_string and enum_val_t errors
-        if args.check_value_string_array:
-            error_count += check_value_string_arrays(file_contents, filename, args.debug_flag)
-
-        # Remove all the quoted strings, even across line continuations.
-        # (?s:.) matches a newline (well, any character) without re.DOTALL.
-        file_contents = re.sub(r'"(?:\\(?s:.)|[^\"\\])*\"|\'(?:\\(?s:.)|[^\'\\])*\'', '', file_contents)
-
-        error_count += check_pref_var_dupes(file_contents, filename)
-
-        # Remove all blank lines
-        file_contents = re.sub(r'^\s*$\n', '', file_contents, flags=re.MULTILINE)
-
-        # Remove all '#if 0'd' code
-        file_contents = remove_if0_code(file_contents, filename)
-
-        # The re patterns in find_api_in_file and check_shadow_variable
-        # are slow. Create a set of words so that we can do a quick,
-        # naive match first; this is faster than `api in file_contents`.
-        # https://stackoverflow.com/a/58238304/82195
-
-        # string.punctuation minus '_'; we could probably reduce this.
-        c_punctuation = '!"#$%&\'()*+,-./:;<=>?@[\\]^`{|}~'
-        file_words = set(file_contents.translate(str.maketrans(c_punctuation, ' ' * len(c_punctuation))).split())
-
-        error_count += check_ett_registration(file_contents, filename)
-
-        #check_apis_called_with_tvb_get_ptr(api_list, file_contents, found_apis);
-        #if (found_apis) {
-        #    print(f"Found APIs with embedded tvb_get_ptr() calls in {filename} : {','.join(found_apis)}", file=sys.stderr)
-
-        if args.check_shadow:
-            found_apis = []
-            check_shadow_variable(ShadowVariables, file_words, file_contents, found_apis)
-            if found_apis:
-                print(f"Warning: Found shadow variable(s) in {filename} : {','.join(found_apis)}", file=sys.stderr)
-
-        error_count += check_snprintf_plus_strlen(file_contents, filename)
-
-        error_count += check_complex_snprintf(file_contents, filename)
-
-        error_count += check_proto_tree_add_XXX(file_contents, filename)
-
-        error_count += check_try_catch(file_words, file_contents, filename)
-
-        # Check and count APIs
-        for group_arg in api_groups:
-            pfx = "Warning"
-            found_apis = []
-            group_parts = group_arg.split(':')
-            api_group = group_parts[0]
-
-            if api_group not in APIs:
-                print(f"Warning: Unknown API group '{api_group}'", file=sys.stderr)
-                continue
-
-            if len(group_parts) > 1:
-                APIs[api_group]['max_function_count'] = int(group_parts[1])
-
-            find_api_in_file(APIs[api_group], file_words, file_contents, found_apis)
-
-            cur_func_count = sum(APIs[api_group]['function_counts'].values())
-
-            # If we have a max function count and we've exceeded it, treat it
-            # as an error.
-            if not APIs[api_group]['count_errors'] and APIs[api_group]['max_function_count'] >= 0:
-                if cur_func_count > APIs[api_group]['max_function_count']:
-                    print(f"{pfx}: {api_group} exceeds maximum function count: {APIs[api_group]['max_function_count']}", file=sys.stderr)
-                    APIs[api_group]['count_errors'] = True
-
-            if cur_func_count <= APIs[api_group]['max_function_count']:
-                continue
-
-            if APIs[api_group]['count_errors']:
-                error_count += len(found_apis)
-                pfx = "Error"
-
-            if found_apis and not args.machine_readable:
-                print(f"{pfx}: Found {api_group} APIs in {filename}: {','.join(found_apis)}", file=sys.stderr)
-            if found_apis and args.machine_readable:
-                for api in found_apis:
-                    print(f"{pfx:<8.8s} {api_group:<20.20s} {filename:<30.30s} {api:<45.45s}", file=sys.stderr)
+        # Show summary
+        print()
+        print(warnings_found, 'warnings found')
+        if errors_found:
+            print(errors_found, 'errors found')
 
     # Summary: Print Use Counts of each API in each requested summary group
     if args.summary_groups:
@@ -1145,7 +1125,9 @@ def main():
         print(f"\nSummary for {fileline[:65]}\u2026")
 
         for api_group in args.summary_groups:
+            print(f'api_group is {api_group}')
             if api_group not in APIs:
+                print(api_group, 'not in APIs')
                 continue
             print(f"\nUse counts for {api_group} (maximum allowed total is {APIs[api_group]['max_function_count']})")
             for api in sorted(APIs[api_group]['function_counts'].keys(), key=str.lower):
@@ -1153,7 +1135,7 @@ def main():
                     continue
                 print(f"{APIs[api_group]['function_counts'][api]:5d}  {api:<40.40s}")
 
-    sys.exit(min(error_count, 120))
+    sys.exit(min(errors_found, 120))
 
 
 if __name__ == '__main__':
