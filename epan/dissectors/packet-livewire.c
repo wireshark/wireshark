@@ -44,11 +44,11 @@
 #define AXIA_INTERCOM_PORT 5000
 #define AXIA_RTP_PORT 5004
 
-static int proto_axia_adv = -1;
-static int proto_axia_gpio = -1;
-static int proto_axia_clock = -1;
-static int proto_axia_intercom = -1;
-static int proto_axia_lwcp = -1;
+static int proto_axia_adv;
+static int proto_axia_gpio;
+static int proto_axia_clock;
+static int proto_axia_intercom;
+static int proto_axia_lwcp;
 
 static int hf_axia_magic_num;
 static int hf_axia_seq;
@@ -1108,6 +1108,7 @@ void proto_register_lwadv(void)
         &ett_axia_adv,
         &ett_axia_gpio,
         &ett_axia_clock,
+        &ett_axia_lwcp,
     };
 
     uint32_t ip4_addr;
