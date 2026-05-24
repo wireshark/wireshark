@@ -1,7 +1,7 @@
 /* packet-dect-nr.c
  *
  * Routines for DECT NR+ MAC layer, and DLC and Convergence layers
- *  - ETSI TS 103 636-4 V2.1.1 (2024-10)
+ *  - ETSI TS 103 636-4 V2.2.1 (2026-05)
  *  - ETSI TS 103 636-5 V2.2.1 (2026-01)
  *
  * Copyright 2025, Stig Bjørlykke <stig@bjorlykke.org>
@@ -99,6 +99,7 @@ static int hf_dect_nr_bc_hdr_tx_addr;
 /* 6.3.3.3: Unicast Header */
 static int hf_dect_nr_uc_hdr;
 static int hf_dect_nr_uc_hdr_res1;
+static int hf_dect_nr_uc_hdr_dwa;
 static int hf_dect_nr_uc_hdr_rst;
 static int hf_dect_nr_uc_hdr_sn;
 static int hf_dect_nr_uc_hdr_rx_addr;
@@ -437,7 +438,7 @@ static int hf_dect_nr_rds_dur;
 
 /* 6.4.3.15 RD Capability short IE */
 static int hf_dect_nr_rdcs_ie;
-static int hf_dect_nr_rdcs_res1;
+static int hf_dect_nr_rdcs_max_mcs;
 static int hf_dect_nr_rdcs_cb_mc;
 static int hf_dect_nr_rdcs_harq_fb_delay;
 static int hf_dect_nr_rdcs_dwa;
@@ -446,6 +447,7 @@ static int hf_dect_nr_rdcs_dwa;
 static int hf_dect_nr_sr_ie;
 static int hf_dect_nr_sr_id;
 static int hf_dect_nr_sr_hop_limit;
+static int hf_dect_nr_sr_res1;
 static int hf_dect_nr_sr_hop_count;
 static int hf_dect_nr_sr_reg_validity_timer;
 
@@ -460,6 +462,14 @@ static int hf_dect_nr_ac_ie;
 static int hf_dect_nr_ac_cb_m;
 static int hf_dect_nr_ac_dl_data_reception;
 static int hf_dect_nr_ac_ul_period;
+
+/* 6.4.3.19 Access Token IE */
+static int hf_dect_nr_at_ie;
+static int hf_dect_nr_at_nonce;
+
+/* 6.4.3.20 Application Sequence Number IE */
+static int hf_dect_nr_asn_ie;
+static int hf_dect_nr_asn_sn;
 
 /* Escape */
 static int hf_dect_nr_escape;
@@ -647,6 +657,8 @@ static int ett_dect_nr_rdcs_ie;
 static int ett_dect_nr_sr_ie;
 static int ett_dect_nr_ji_ie;
 static int ett_dect_nr_ac_ie;
+static int ett_dect_nr_at_ie;
+static int ett_dect_nr_asn_ie;
 static int ett_dect_nr_dlc_pdu;
 static int ett_dect_nr_dlc_routing_hdr;
 static int ett_dect_nr_dlc_ext_hdr;
@@ -665,7 +677,6 @@ static int ett_dect_nr_cvg_arq_poll_ie;
 static int ett_dect_nr_cvg_flow_status_ie;
 
 static dissector_handle_t dect_nr_handle;
-static dissector_handle_t data_handle;
 static dissector_handle_t ipv6_handle;
 
 static dissector_table_t mac_hdr_dissector_table;
@@ -966,7 +977,8 @@ static const value_string mux_hdr_ie_type_mac_ext_012_vals[] = {
 	{ 26, "Source Routing IE" },
 	{ 27, "Joining Beacon message" },
 	{ 28, "Joining Information IE" },
-	/* 29 - 61 Reserved */
+	{ 29, "Access Token IE" },
+	/* 30 - 61 Reserved */
 	{ 62, "Escape" },
 	{ 63, "IE type extension" },
 	{ 0, NULL }
@@ -990,7 +1002,8 @@ static const value_string mux_hdr_ie_type_mac_ext_3_pl_1_vals[] = {
 	{ 1, "Radio Device Status IE" },
 	{ 2, "RD Capability Short IE" },
 	{ 3, "Association Control IE" },
-	/* 4 - 29 Reserved */
+	{ 4, "Application Sequence Number IE" },
+	/* 5 - 29 Reserved */
 	{ 30, "Escape" },
 	{ 0, NULL }
 };
@@ -1423,10 +1436,10 @@ static const value_string rdc_pwr_class_vals[] = {
 	{ 1, "Power class II" },
 	{ 2, "Power class III" },
 	{ 3, "Power class IV" },
-	{ 4, "Reserved" },
-	{ 5, "Reserved" },
-	{ 6, "Reserved" },
-	{ 7, "Reserved" },
+	{ 4, "Power class V" },
+	{ 5, "Power class VI" },
+	{ 6, "Power class VII" },
+	{ 7, "Power class VIII" },
 	{ 0, NULL }
 };
 
@@ -1663,6 +1676,15 @@ static const value_string rds_duration_vals[] = {
 	{ 13, "Reserved" },
 	{ 14, "Reserved" },
 	{ 15, "Reserved" },
+	{ 0, NULL }
+};
+
+/* Table 6.4.3.15-1: RD Capability Short IE field definitions: Max MCS */
+static const value_string rdcs_max_mcs_vals[] = {
+	{ 0, "Same MCS index as used to transmit beacon message containing this IE" },
+	{ 1, "One MCS index up from MCS used to transmit beacon message containing this IE" },
+	{ 2, "Two MCS indexes up from MCS used to transmit beacon message containing this IE" },
+	{ 3, "Three MCS indexes up from MCS used to transmit beacon message containing this IE" },
 	{ 0, NULL }
 };
 
@@ -2722,6 +2744,7 @@ static int dissect_mac_unicast_header(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_uc_hdr);
 
 	dect_tree_add_reserved_item(tree, hf_dect_nr_uc_hdr_res1, tvb, offset, 2, pinfo, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_dect_nr_uc_hdr_dwa, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_dect_nr_uc_hdr_rst, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item_ret_uint16(tree, hf_dect_nr_uc_hdr_sn, tvb, offset, 2, ENC_BIG_ENDIAN, &ctx->psn);
 	offset += 2;
@@ -2914,7 +2937,7 @@ static int dissect_cvg_data_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 
 	/* No COL_INFO updates from the data dissector */
 	col_set_writable(pinfo->cinfo, COL_INFO, false);
-	call_dissector(data_handle, subtvb, pinfo, proto_tree_get_root(parent_tree));
+	call_data_dissector(subtvb, pinfo, proto_tree_get_root(parent_tree));
 	col_set_writable(pinfo->cinfo, COL_INFO, true);
 	offset += length;
 
@@ -2970,7 +2993,7 @@ static int dissect_cvg_data_ep_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	col_set_writable(pinfo->cinfo, COL_INFO, false);
 
 	if (sublen <= 0) {
-		call_dissector(data_handle, subtvb, pinfo, proto_tree_get_root(parent_tree));
+		call_data_dissector(subtvb, pinfo, proto_tree_get_root(parent_tree));
 		col_set_writable(pinfo->cinfo, COL_INFO, true);
 		col_append_str(pinfo->cinfo, COL_PROTOCOL, "data");
 	}
@@ -2992,7 +3015,7 @@ static int dissect_cvg_data_transparent_ie(tvbuff_t *tvb, packet_info *pinfo, pr
 
 	/* No COL_INFO updates from the data dissector */
 	col_set_writable(pinfo->cinfo, COL_INFO, false);
-	call_dissector(data_handle, tvb, pinfo, proto_tree_get_root(parent_tree));
+	call_data_dissector(tvb, pinfo, proto_tree_get_root(parent_tree));
 	col_set_writable(pinfo->cinfo, COL_INFO, true);
 
 	col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "Data Transparent IE, Length: %u", length);
@@ -3365,7 +3388,7 @@ static void dissect_dlc_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pare
 	case DLC_DATA_TYPE_BINARY:
 		/* No COL_INFO updates from the data dissector */
 		col_set_writable(pinfo->cinfo, COL_INFO, false);
-		call_dissector(data_handle, tvb, pinfo, parent_tree);
+		call_data_dissector(tvb, pinfo, parent_tree);
 		col_set_writable(pinfo->cinfo, COL_INFO, true);
 		break;
 
@@ -4765,14 +4788,14 @@ static int dissect_radio_device_status_ie(tvbuff_t *tvb, packet_info *pinfo, pro
 }
 
 /* 6.4.3.15 RD Capability short IE */
-static int dissect_rd_capability_short_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
+static int dissect_rd_capability_short_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
 {
 	int offset = 0;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_rdcs_ie, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_rdcs_ie);
 
-	dect_tree_add_reserved_item(tree, hf_dect_nr_rdcs_res1, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_dect_nr_rdcs_max_mcs, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_dect_nr_rdcs_cb_mc, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_dect_nr_rdcs_harq_fb_delay, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_dect_nr_rdcs_dwa, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4795,6 +4818,9 @@ static int dissect_source_routing_ie(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 	offset += 4;
 
 	proto_tree_add_item(tree, hf_dect_nr_sr_hop_limit, tvb, offset, 1, ENC_BIG_ENDIAN);
+	dect_tree_add_reserved_item(tree, hf_dect_nr_sr_res1, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
+	offset++;
+
 	proto_tree_add_item(tree, hf_dect_nr_sr_hop_count, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
@@ -4840,6 +4866,38 @@ static int dissect_association_control_ie(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree_add_item(tree, hf_dect_nr_ac_cb_m, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_dect_nr_ac_dl_data_reception, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_dect_nr_ac_ul_period, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	proto_item_set_len(item, offset);
+
+	return offset;
+}
+
+/* 6.4.3.19 Access Token IE */
+static int dissect_access_token_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
+{
+	int offset = 0;
+
+	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_at_ie, tvb, offset, -1, ENC_NA);
+	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_at_ie);
+
+	proto_tree_add_item(tree, hf_dect_nr_at_nonce, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	proto_item_set_len(item, offset);
+
+	return offset;
+}
+
+/* 6.4.3.20 Application Sequence Number IE */
+static int dissect_application_sequence_number_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
+{
+	int offset = 0;
+
+	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_asn_ie, tvb, offset, -1, ENC_NA);
+	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_asn_ie);
+
+	proto_tree_add_item(tree, hf_dect_nr_asn_sn, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	proto_item_set_len(item, offset);
@@ -5462,7 +5520,11 @@ void proto_register_dect_nr(void)
 		},
 		{ &hf_dect_nr_uc_hdr_res1,
 			{ "Reserved", "dect_nr.mac.hdr.uc.res1", FT_UINT16, BASE_DEC,
-			  NULL, 0xE000, NULL, HFILL }
+			  NULL, 0xC000, NULL, HFILL }
+		},
+		{ &hf_dect_nr_uc_hdr_dwa,
+			{ "DWA", "dect_nr.mac.hdr.uc.dwa", FT_BOOLEAN, 16,
+			  NULL, 0x2000, NULL, HFILL }
 		},
 		{ &hf_dect_nr_uc_hdr_rst,
 			{ "Reset", "dect_nr.mac.hdr.uc.rst", FT_BOOLEAN, 16,
@@ -6676,9 +6738,9 @@ void proto_register_dect_nr(void)
 			{ "RD Capability short IE", "dect_nr.mac.rdcs", FT_NONE, BASE_NONE,
 			  NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_dect_nr_rdcs_res1,
-			{ "Reserved", "dect_nr.mac.rdcs.res1", FT_UINT8, BASE_DEC,
-			  NULL, 0xC0, NULL, HFILL }
+		{ &hf_dect_nr_rdcs_max_mcs,
+			{ "Max MCS", "dect_nr.mac.rdcs.max_mcs", FT_UINT8, BASE_DEC,
+			  VALS(rdcs_max_mcs_vals), 0xC0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rdcs_cb_mc,
 			{ "CB/MC capability", "dect_nr.mac.rdcs.cb_mc", FT_BOOLEAN, 8,
@@ -6706,12 +6768,16 @@ void proto_register_dect_nr(void)
 			{ "Hop-limit", "dect_nr.mac.sr.hop_limit", FT_UINT8, BASE_DEC,
 			  NULL, 0xF0, NULL, HFILL }
 		},
-		{ &hf_dect_nr_sr_hop_count,
-			{ "Hop-count", "dect_nr.mac.sr.hop_count", FT_UINT8, BASE_DEC,
+		{ &hf_dect_nr_sr_res1,
+			{ "Reserved", "dect_nr.mac.sr.res1", FT_UINT8, BASE_DEC,
 			  NULL, 0x0F, NULL, HFILL }
 		},
+		{ &hf_dect_nr_sr_hop_count,
+			{ "Hop-count", "dect_nr.mac.sr.hop_count", FT_UINT8, BASE_DEC,
+			  NULL, 0x0, NULL, HFILL }
+		},
 		{ &hf_dect_nr_sr_reg_validity_timer,
-			{ "Registration validity timer", "dect_nr.mac.sr.reg_validity_timer", FT_UINT8, BASE_DEC,
+			{ "Validity Timer", "dect_nr.mac.sr.reg_validity_timer", FT_UINT8, BASE_DEC,
 			  VALS(sr_reg_validity_timer_vals), 0x0, NULL, HFILL }
 		},
 
@@ -6749,6 +6815,26 @@ void proto_register_dect_nr(void)
 		{ &hf_dect_nr_ac_ul_period,
 			{ "UL period", "dect_nr.mac.ac.ul_period", FT_UINT8, BASE_DEC,
 			  VALS(ac_ul_period_vals), 0x0F, NULL, HFILL }
+		},
+
+		/* 6.4.3.19 Access Token IE */
+		{ &hf_dect_nr_at_ie,
+			{ "Access Token IE", "dect_nr.mac.at", FT_NONE, BASE_NONE,
+			  NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_at_nonce,
+			{ "Nonce", "dect_nr.mac.at.nonce", FT_UINT32, BASE_DEC,
+			  NULL, 0x0, NULL, HFILL }
+		},
+
+		/* 6.4.3.20 Application Sequence Number IE */
+		{ &hf_dect_nr_asn_ie,
+			{ "Application Sequence Number IE", "dect_nr.mac.asn", FT_NONE, BASE_NONE,
+			  NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_asn_sn,
+			{ "Application Sequence Number", "dect_nr.mac.asn.sn", FT_UINT8, BASE_DEC,
+			  NULL, 0x0, NULL, HFILL }
 		},
 
 		/* Escape */
@@ -7238,6 +7324,8 @@ void proto_register_dect_nr(void)
 		&ett_dect_nr_sr_ie,
 		&ett_dect_nr_ji_ie,
 		&ett_dect_nr_ac_ie,
+		&ett_dect_nr_at_ie,
+		&ett_dect_nr_asn_ie,
 		&ett_dect_nr_dlc_pdu,
 		&ett_dect_nr_dlc_routing_hdr,
 		&ett_dect_nr_dlc_ext_hdr,
@@ -7331,7 +7419,6 @@ void proto_register_dect_nr(void)
 
 void proto_reg_handoff_dect_nr(void)
 {
-	data_handle = find_dissector("data");
 	ipv6_handle = find_dissector("ipv6");
 
 	/* Table 6.3.2-2: MAC header type field */
@@ -7371,7 +7458,8 @@ void proto_reg_handoff_dect_nr(void)
 	dissector_add_uint("dect_nr.msg_ie", 26, create_dissector_handle(dissect_source_routing_ie, proto_dect_nr));
 	dissector_add_uint("dect_nr.msg_ie", 27, create_dissector_handle(dissect_joining_beacon_msg, proto_dect_nr));
 	dissector_add_uint("dect_nr.msg_ie", 28, create_dissector_handle(dissect_joining_information_ie, proto_dect_nr));
-	/* 29 - 61: Reserved */
+	dissector_add_uint("dect_nr.msg_ie", 29, create_dissector_handle(dissect_access_token_ie, proto_dect_nr));
+	/* 30 - 61: Reserved */
 	dissector_add_uint("dect_nr.msg_ie", 62, create_dissector_handle(dissect_escape, proto_dect_nr));
 	dissector_add_uint("dect_nr.msg_ie", 63, create_dissector_handle(dissect_ie_type_extension, proto_dect_nr));
 
@@ -7380,7 +7468,8 @@ void proto_reg_handoff_dect_nr(void)
 	dissector_add_uint("dect_nr.msg_ie_short", 1, create_dissector_handle(dissect_radio_device_status_ie, proto_dect_nr));
 	dissector_add_uint("dect_nr.msg_ie_short", 2, create_dissector_handle(dissect_rd_capability_short_ie, proto_dect_nr));
 	dissector_add_uint("dect_nr.msg_ie_short", 3, create_dissector_handle(dissect_association_control_ie, proto_dect_nr));
-	/* 4 - 29: Reserved */
+	dissector_add_uint("dect_nr.msg_ie_short", 4, create_dissector_handle(dissect_application_sequence_number_ie, proto_dect_nr));
+	/* 5 - 29: Reserved */
 	dissector_add_uint("dect_nr.msg_ie_short", 30, create_dissector_handle(dissect_escape, proto_dect_nr));
 
 	/* Table 6.3.2-2: CVG IE Type coding */
