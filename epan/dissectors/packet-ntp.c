@@ -21,6 +21,7 @@
 #include <epan/tvbparse.h>
 #include <epan/conversation.h>
 #include <epan/tfs.h>
+#include <epan/exceptions.h>
 #include <wsutil/array.h>
 #include <wsutil/epochs.h>
 
@@ -2018,13 +2019,818 @@ init_parser(void)
 }
 
 static void
-dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, ntp_conv_info_t *ntp_conv)
+dissect_xntpd_mode7_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, uint32_t reqcode, bool is_response)
 {
+	proto_item *mode7_item;
+	proto_tree *mode7_item_tree = NULL;
+	unsigned offset = 0;
+	uint32_t v6_flag = 0;
+
+	if ((reqcode != PRIV_RC_MON_GETLIST) && (reqcode != PRIV_RC_MON_GETLIST_1)) {
+		mode7_item = proto_tree_add_string_format(ntp_tree, hf_ntppriv_mode7_item, tvb, offset, tvb_reported_length(tvb),
+			"", "%s Item", val_to_str_ext_const(reqcode, &priv_rc_types_ext, "Unknown") );
+		mode7_item_tree = proto_item_add_subtree(mode7_item, ett_mode7_item);
+	}
+
+	switch (reqcode) {
+	case PRIV_RC_MON_GETLIST:
+	case PRIV_RC_MON_GETLIST_1:
+
+		mode7_item = proto_tree_add_string_format(ntp_tree, hf_ntppriv_mode7_item, tvb, offset,
+			tvb_reported_length(tvb), "Monlist Item", "Monlist item: address: %s:%u",
+			tvb_ip_to_str(pinfo->pool, tvb, offset + 16), tvb_get_ntohs(tvb, offset + ((reqcode == PRIV_RC_MON_GETLIST_1) ? 28 : 20)));
+		mode7_item_tree = proto_item_add_subtree(mode7_item, ett_mode7_item);
+
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_avgint, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_lsint, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_restr, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_count, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		if (reqcode == PRIV_RC_MON_GETLIST_1) {
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_daddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+		}
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item_ret_uint(mode7_item_tree, hf_ntppriv_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN, &v6_flag);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_unused, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		if (v6_flag != 0) {
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_addr6, tvb, offset, 16, ENC_NA);
+			offset += 16;
+			if (reqcode == PRIV_RC_MON_GETLIST_1)
+				proto_tree_add_item(mode7_item_tree, hf_ntppriv_daddr6, tvb, offset, 16, ENC_NA);
+		}
+		break;
+
+	case PRIV_RC_PEER_LIST:
+
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_hmode, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_peer_flags, ett_ntppriv_peer_list_flags, ntppriv_peer_list_flags, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
+		break;
+
+	case PRIV_RC_PEER_LIST_SUM:
+
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_dstaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_srcaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_srcport, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntp_stratum, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_hpoll, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item(mode7_item_tree, hf_ntp_ppoll, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_reach, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_peer_flags, ett_ntppriv_peer_list_flags, ntppriv_peer_list_flags, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_hmode, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_delay, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
+		offset += 8;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_dispersion, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_dstaddr6, tvb, offset, 16, ENC_NA);
+		offset += 16;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_srcaddr6, tvb, offset, 16, ENC_NA);
+		break;
+
+	case PRIV_RC_PEER_INFO:
+
+		if (is_response) {
+			/* response */
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_dstaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_srcaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_srcport, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+			proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_peer_flags, ett_ntppriv_peer_list_flags, ntppriv_peer_list_flags, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_leap, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_hmode, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_pmode, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntp_stratum, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntp_ppoll, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_hpoll, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntp_precision, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 1, ENC_NA);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_reach, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unreach, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_flash, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_flash2, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_associd, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+			proto_tree_add_item(mode7_item_tree, hf_ntp_keyid, tvb, offset, 4, ENC_NA);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_pkeyid, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntp_refid, tvb, offset, 4, ENC_NA);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timer, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntp_rootdelay, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntp_rootdispersion, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntp_reftime, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+			offset += 8;
+			proto_tree_add_item(mode7_item_tree, hf_ntp_org, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+			offset += 8;
+			proto_tree_add_item(mode7_item_tree, hf_ntp_rec, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+			offset += 8;
+			proto_tree_add_item(mode7_item_tree, hf_ntp_xmt, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+			offset += 8;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_filtdelay, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_filtoffset, tvb, offset, 8, ENC_BIG_ENDIAN);
+			offset += 8;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_order, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_delay, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_dispersion, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
+			offset += 8;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_selectdis, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_estbdelay, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_dstaddr6, tvb, offset, 16, ENC_NA);
+			offset += 16;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_srcaddr6, tvb, offset, 16, ENC_NA);
+		} else {
+			/* request */
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_hmode, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_peer_flags, ett_ntppriv_peer_list_flags, ntppriv_peer_list_flags, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
+		}
+		break;
+
+	case PRIV_RC_PEER_STATS:
+
+		if (is_response) {
+			/* response */
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_dstaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_srcaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_srcport, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+			proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_peer_flags, ett_ntppriv_peer_list_flags, ntppriv_peer_list_flags, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timereset, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timereceived, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timetosend, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timereachable, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_sent, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_processed, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_badauth, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_bogusorg, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_oldpkt, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_seldisp, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_selbroken, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_candidate, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 1, ENC_NA);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 1, ENC_NA);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 1, ENC_NA);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_dstaddr6, tvb, offset, 16, ENC_NA);
+			offset += 16;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_srcaddr6, tvb, offset, 16, ENC_NA);
+		} else {
+			/* request */
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_hmode, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_peer_flags, ett_ntppriv_peer_list_flags, ntppriv_peer_list_flags, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
+		}
+		break;
+
+	case PRIV_RC_SYS_INFO:
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_pmode, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_leap, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item(mode7_item_tree, hf_ntp_stratum, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item(mode7_item_tree, hf_ntp_precision, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item(mode7_item_tree, hf_ntp_rootdelay, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntp_rootdispersion, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntp_refid, tvb, offset, 4, ENC_NA);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntp_reftime, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+		offset += 8;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_poll32, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_sys_flags8, ett_ntppriv_sys_flag_flags, ntppriv_sys_flag_flags, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 3, ENC_NA);
+		offset += 3;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_bdelay, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_freq, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_authdelay, tvb, offset, 8, ENC_BIG_ENDIAN);
+		offset += 8;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_stability, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
+		break;
+
+	case PRIV_RC_SYS_STATS:
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timeup, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timereset, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_denied, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_oldversion, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_newversion, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_badversion, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_badlength, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_processed, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_badauth, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timereceived, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_limitrejected, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_lamport, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_tsrounding, tvb, offset, 4, ENC_BIG_ENDIAN);
+		break;
+
+	case PRIV_RC_IO_STATS:
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timereset, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_totalrecvbufs, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_freerecvbufs, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_fullrecvbufs, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_lowwater, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_dropped, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_ignored, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_received, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_sent, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_notsent, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_interrupts, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_int_received, tvb, offset, 4, ENC_BIG_ENDIAN);
+		break;
+
+	case PRIV_RC_MEM_STATS:
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timereset, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_totalmem, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_freemem, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_findpeer_calls, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_allocations, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_demobilizations, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_hashcount, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+		break;
+
+	case PRIV_RC_LOOP_INFO:
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_last_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
+		offset += 8;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_drift_comp, tvb, offset, 8, ENC_BIG_ENDIAN);
+		offset += 8;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_compliance, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_watchdog_timer, tvb, offset, 4, ENC_BIG_ENDIAN);
+		break;
+
+	case PRIV_RC_TIMER_STATS:
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timereset, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_alarms, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_overflows, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_xmtcalls, tvb, offset, 4, ENC_BIG_ENDIAN);
+		break;
+
+	case PRIV_RC_CONFIG:
+
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_hmode, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_minpoll, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_maxpoll, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_config_flags, ett_ntppriv_config_flags, ntppriv_config_flags, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 2, ENC_NA);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntp_keyid, tvb, offset, 4, ENC_NA);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_key_file, tvb, offset, 128, ENC_ASCII);
+		offset += 128;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
+		break;
+
+	case PRIV_RC_UNCONFIG:
+
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
+		break;
+
+	case PRIV_RC_SET_SYS_FLAG:
+	case PRIV_RC_CLR_SYS_FLAG:
+
+		proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_sys_flags, ett_ntppriv_sys_flag_flags, ntppriv_sys_flag_flags, ENC_BIG_ENDIAN);
+		break;
+
+	case PRIV_RC_GET_RESTRICT:
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_count, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_rflags, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_mflags, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
+		offset += 16;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_mask6, tvb, offset, 16, ENC_NA);
+		break;
+
+	case PRIV_RC_RESADDFLAGS:
+	case PRIV_RC_RESSUBFLAGS:
+	case PRIV_RC_UNRESTRICT:
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_ippeerlimit, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_restrict_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_mflags, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
+		offset += 16;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_mask6, tvb, offset, 16, ENC_NA);
+		break;
+
+	case PRIV_RC_RESET_STATS:
+
+		proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_reset_stats_flags, ett_ntppriv_reset_stats_flags, ntppriv_reset_stats_flags, ENC_BIG_ENDIAN);
+		break;
+
+	case PRIV_RC_RESET_PEER:
+
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
+		break;
+
+	case PRIV_RC_TRUSTKEY:
+	case PRIV_RC_UNTRUSTKEY:
+
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_key, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		break;
+
+	case PRIV_RC_AUTHINFO:
+
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timereset, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_numkeys, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_numfreekeys, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_keylookups, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_keynotfound, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_encryptions, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_decryptions, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_expired, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_keyuncached, tvb, offset, 4, ENC_BIG_ENDIAN);
+		break;
+
+	case PRIV_RC_TRAPS:
+
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_local_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_trap_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_trap_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_sequence, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_settime, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_origtime, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_resets, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_traps_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_local_addr6, tvb, offset, 16, ENC_NA);
+		offset += 16;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_trap_addr6, tvb, offset, 16, ENC_NA);
+		break;
+
+	case PRIV_RC_ADD_TRAP:
+	case PRIV_RC_CLR_TRAP:
+
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_local_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_trap_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_trap_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 2, ENC_NA);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_local_addr6, tvb, offset, 16, ENC_NA);
+		offset += 16;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_trap_addr6, tvb, offset, 16, ENC_NA);
+		break;
+
+	case PRIV_RC_REQUEST_KEY:
+	case PRIV_RC_CONTROL_KEY:
+
+		proto_tree_add_item(mode7_item_tree, hf_ntp_keyid, tvb, offset, 4, ENC_NA);
+		break;
+
+	case PRIV_RC_CTL_STATS:
+
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timereset, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_req, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_badpkts, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_responses, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_frags, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_errors, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_tooshort, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_inputresp, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_inputfrag, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_inputerr, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_badoffset, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_badversion, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_datatooshort, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_badop, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_asyncmsgs, tvb, offset, 4, ENC_BIG_ENDIAN);
+		break;
+
+	case PRIV_RC_GET_CLOCKINFO:
+
+		if (is_response) {
+			/* response */
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_clock_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_lastevent, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_currentstatus, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_polls, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_noresponse, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_badformat, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_baddata, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timestarted, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_fudgetime1, tvb, offset, 8, ENC_BIG_ENDIAN);
+			offset += 8;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_fudgetime2, tvb, offset, 8, ENC_BIG_ENDIAN);
+			offset += 8;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_fudgeval1, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_fudgeval2, tvb, offset, 4, ENC_BIG_ENDIAN);
+		} else {
+			/* request */
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+		}
+		break;
+
+	case PRIV_RC_SET_CLKFUDGE:
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_which, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_fudgetime, tvb, offset, 8, ENC_BIG_ENDIAN);
+		offset += 8;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_fudgeval_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+		break;
+
+	case PRIV_RC_GET_KERNEL:
+
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_kernel_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_freq, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_maxerror, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_esterror, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_shift, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_constant, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_precision, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_tolerance, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_ppsfreq, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_jitter, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_stabil, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_jitcnt, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_calcnt, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_errcnt, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_stbcnt, tvb, offset, 4, ENC_BIG_ENDIAN);
+		break;
+
+	case PRIV_RC_GET_CLKBUGINFO:
+		if (is_response) {
+			/* response */
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_nvalues, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_ntimes, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_svalues, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_stimes, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_values, tvb, offset, 64, ENC_NA);
+			offset += 64;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_times, tvb, offset, 256, ENC_NA);
+		} else {
+			/* request */
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+		}
+		break;
+
+	case PRIV_RC_IF_STATS:
+	case PRIV_RC_IF_RELOAD:
+		v6_flag = tvb_get_ntohl(tvb, offset + 48);
+		if (v6_flag == 0) {
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 16;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_bcast, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 16;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 16;
+		} else {
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
+			offset += 16;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_bcast6, tvb, offset, 16, ENC_NA);
+			offset += 16;
+			proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_mask6, tvb, offset, 16, ENC_NA);
+			offset += 16;
+		}
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_int_name, tvb, offset, 32, ENC_ASCII);
+		offset += 32;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_int_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_last_ttl, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_num_mcast, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_received, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_sent, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_notsent, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_uptime, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_scopeid, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_ifindex, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_ifnum, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_peercnt, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_family, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_ignore_pkt, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_action, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
+		break;
+	default:
+		if (tvb_reported_length(tvb) == 0) {
+			THROW(ReportedBoundsError);
+		}
+	}
+}
+
+static void
+dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_conv_info_t *ntp_conv)
+{
+	/* https://www.rfc-editor.org/rfc/rfc9327.html */
 	uint32_t impl, reqcode;
 	uint64_t flags, auth_seq;
 	ntp_trans_info_t *ntp_trans;
 	wmem_tree_key_t key[3];
 	uint32_t seq;
+	bool is_response;
 
 	static int * const priv_flags[] = {
 		&hf_ntppriv_flags_r,
@@ -2045,8 +2851,10 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 	proto_tree_add_item_ret_uint(ntp_tree, hf_ntppriv_impl, tvb, 2, 1, ENC_NA, &impl);
 	proto_tree_add_item_ret_uint(ntp_tree, hf_ntppriv_reqcode, tvb, 3, 1, ENC_NA, &reqcode);
 
+	is_response = flags & NTPPRIV_R_MASK;
+
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s, %s",
-		(flags & NTPPRIV_R_MASK) ? "Response" : "Request",
+		is_response ? "Response" : "Request",
 		val_to_str_ext_const(reqcode, &priv_rc_types_ext, "Unknown"));
 
 
@@ -2058,7 +2866,7 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 	key[2].length = 0;
 	key[2].key = NULL;
 
-	if (flags & NTPPRIV_R_MASK) {
+	if (is_response) {
 		/* response */
 		ntp_trans = (ntp_trans_info_t *)wmem_tree_lookup32_array_le(ntp_conv->trans, key);
 		if (ntp_trans && ntp_trans->seq == seq) {
@@ -2099,818 +2907,23 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 
 	if (impl == XNTPD) {
 
-		uint64_t numitems;
-		uint64_t itemsize;
+		uint16_t numitems;
+		uint16_t itemsize;
 		uint16_t offset;
 		unsigned i;
 
-		uint32_t v6_flag = 0;
+		proto_tree_add_item(ntp_tree, hf_ntppriv_errcode, tvb, 4, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint16(ntp_tree, hf_ntppriv_numitems, tvb, 4, 2, ENC_BIG_ENDIAN, &numitems);
+		proto_tree_add_item(ntp_tree, hf_ntppriv_mbz, tvb, 6, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint16(ntp_tree, hf_ntppriv_itemsize, tvb, 6, 2, ENC_BIG_ENDIAN, &itemsize);
 
-		proto_item *mode7_item;
-		proto_tree *mode7_item_tree = NULL;
-
-		proto_tree_add_bits_item(ntp_tree, hf_ntppriv_errcode, tvb, 32, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_bits_ret_val(ntp_tree, hf_ntppriv_numitems, tvb, 36, 12, &numitems, ENC_BIG_ENDIAN);
-		proto_tree_add_bits_item(ntp_tree, hf_ntppriv_mbz, tvb, 48, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_bits_ret_val(ntp_tree, hf_ntppriv_itemsize, tvb, 52, 12, &itemsize, ENC_BIG_ENDIAN);
-
-		for (i = 0; i < (uint16_t)numitems; i++) {
-
-			offset = 8 + (uint16_t)itemsize * i;
-
-			if ((reqcode != PRIV_RC_MON_GETLIST) && (reqcode != PRIV_RC_MON_GETLIST_1)) {
-				mode7_item = proto_tree_add_string_format(ntp_tree, hf_ntppriv_mode7_item, tvb, offset,(int)itemsize,
-					"", "%s Item", val_to_str_ext_const(reqcode, &priv_rc_types_ext, "Unknown") );
-				mode7_item_tree = proto_item_add_subtree(mode7_item, ett_mode7_item);
-			}
-
-			switch (reqcode) {
-			case PRIV_RC_MON_GETLIST:
-			case PRIV_RC_MON_GETLIST_1:
-
-				mode7_item = proto_tree_add_string_format(ntp_tree, hf_ntppriv_mode7_item, tvb, offset,
-					(int)itemsize, "Monlist Item", "Monlist item: address: %s:%u",
-					tvb_ip_to_str(pinfo->pool, tvb, offset + 16), tvb_get_ntohs(tvb, offset + ((reqcode == PRIV_RC_MON_GETLIST_1) ? 28 : 20)));
-				mode7_item_tree = proto_item_add_subtree(mode7_item, ett_mode7_item);
-
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_avgint, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_lsint, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_restr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_count, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				if (reqcode == PRIV_RC_MON_GETLIST_1) {
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_daddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-				}
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item_ret_uint(mode7_item_tree, hf_ntppriv_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN, &v6_flag);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_unused, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				if (v6_flag != 0) {
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_addr6, tvb, offset, 16, ENC_NA);
-					offset += 16;
-					if (reqcode == PRIV_RC_MON_GETLIST_1)
-						proto_tree_add_item(mode7_item_tree, hf_ntppriv_daddr6, tvb, offset, 16, ENC_NA);
-				}
-				break;
-
-			case PRIV_RC_PEER_LIST:
-
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_hmode, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_peer_flags, ett_ntppriv_peer_list_flags, ntppriv_peer_list_flags, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
-				break;
-
-			case PRIV_RC_PEER_LIST_SUM:
-
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_dstaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_srcaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_srcport, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntp_stratum, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_hpoll, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item(mode7_item_tree, hf_ntp_ppoll, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_reach, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_peer_flags, ett_ntppriv_peer_list_flags, ntppriv_peer_list_flags, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_hmode, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_delay, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
-				offset += 8;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_dispersion, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_dstaddr6, tvb, offset, 16, ENC_NA);
-				offset += 16;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_srcaddr6, tvb, offset, 16, ENC_NA);
-				break;
-
-			case PRIV_RC_PEER_INFO:
-
-				if (flags & NTPPRIV_R_MASK) {
-					/* response */
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_dstaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_srcaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_srcport, tvb, offset, 2, ENC_BIG_ENDIAN);
-					offset += 2;
-					proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_peer_flags, ett_ntppriv_peer_list_flags, ntppriv_peer_list_flags, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_leap, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_hmode, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_pmode, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntp_stratum, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntp_ppoll, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_hpoll, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntp_precision, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 1, ENC_NA);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_reach, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unreach, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_flash, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_flash2, tvb, offset, 2, ENC_BIG_ENDIAN);
-					offset += 2;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_associd, tvb, offset, 2, ENC_BIG_ENDIAN);
-					offset += 2;
-					proto_tree_add_item(mode7_item_tree, hf_ntp_keyid, tvb, offset, 4, ENC_NA);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_pkeyid, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntp_refid, tvb, offset, 4, ENC_NA);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timer, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntp_rootdelay, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntp_rootdispersion, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntp_reftime, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-					offset += 8;
-					proto_tree_add_item(mode7_item_tree, hf_ntp_org, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-					offset += 8;
-					proto_tree_add_item(mode7_item_tree, hf_ntp_rec, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-					offset += 8;
-					proto_tree_add_item(mode7_item_tree, hf_ntp_xmt, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-					offset += 8;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_filtdelay, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_filtoffset, tvb, offset, 8, ENC_BIG_ENDIAN);
-					offset += 8;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_order, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_delay, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_dispersion, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
-					offset += 8;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_selectdis, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_estbdelay, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_dstaddr6, tvb, offset, 16, ENC_NA);
-					offset += 16;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_srcaddr6, tvb, offset, 16, ENC_NA);
-				} else {
-					/* request */
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-					offset += 2;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_hmode, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_peer_flags, ett_ntppriv_peer_list_flags, ntppriv_peer_list_flags, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
-				}
-				break;
-
-			case PRIV_RC_PEER_STATS:
-
-				if (flags & NTPPRIV_R_MASK) {
-					/* response */
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_dstaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_srcaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_srcport, tvb, offset, 2, ENC_BIG_ENDIAN);
-					offset += 2;
-					proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_peer_flags, ett_ntppriv_peer_list_flags, ntppriv_peer_list_flags, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timereset, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timereceived, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timetosend, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timereachable, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_sent, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_processed, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_badauth, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_bogusorg, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_oldpkt, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_seldisp, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_selbroken, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_candidate, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 1, ENC_NA);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 1, ENC_NA);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 1, ENC_NA);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_dstaddr6, tvb, offset, 16, ENC_NA);
-					offset += 16;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_srcaddr6, tvb, offset, 16, ENC_NA);
-				} else {
-					/* request */
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-					offset += 2;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_hmode, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_peer_flags, ett_ntppriv_peer_list_flags, ntppriv_peer_list_flags, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
-				}
-				break;
-
-			case PRIV_RC_SYS_INFO:
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_pmode, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_leap, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item(mode7_item_tree, hf_ntp_stratum, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item(mode7_item_tree, hf_ntp_precision, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item(mode7_item_tree, hf_ntp_rootdelay, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntp_rootdispersion, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntp_refid, tvb, offset, 4, ENC_NA);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntp_reftime, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-				offset += 8;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_poll32, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_sys_flags8, ett_ntppriv_sys_flag_flags, ntppriv_sys_flag_flags, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 3, ENC_NA);
-				offset += 3;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_bdelay, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_freq, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_authdelay, tvb, offset, 8, ENC_BIG_ENDIAN);
-				offset += 8;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_stability, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
-				break;
-
-			case PRIV_RC_SYS_STATS:
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timeup, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timereset, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_denied, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_oldversion, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_newversion, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_badversion, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_badlength, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_processed, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_badauth, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timereceived, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_limitrejected, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_lamport, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_tsrounding, tvb, offset, 4, ENC_BIG_ENDIAN);
-				break;
-
-			case PRIV_RC_IO_STATS:
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timereset, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_totalrecvbufs, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_freerecvbufs, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_fullrecvbufs, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_lowwater, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_dropped, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_ignored, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_received, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_sent, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_notsent, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_interrupts, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_int_received, tvb, offset, 4, ENC_BIG_ENDIAN);
-				break;
-
-			case PRIV_RC_MEM_STATS:
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timereset, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_totalmem, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_freemem, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_findpeer_calls, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_allocations, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_demobilizations, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_hashcount, tvb, offset, (int)itemsize - 20, ENC_NA);
-				break;
-
-			case PRIV_RC_LOOP_INFO:
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_last_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
-				offset += 8;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_drift_comp, tvb, offset, 8, ENC_BIG_ENDIAN);
-				offset += 8;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_compliance, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_watchdog_timer, tvb, offset, 4, ENC_BIG_ENDIAN);
-				break;
-
-			case PRIV_RC_TIMER_STATS:
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timereset, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_alarms, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_overflows, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_xmtcalls, tvb, offset, 4, ENC_BIG_ENDIAN);
-				break;
-
-			case PRIV_RC_CONFIG:
-
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_hmode, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_minpoll, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_maxpoll, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_config_flags, ett_ntppriv_config_flags, ntppriv_config_flags, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 2, ENC_NA);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntp_keyid, tvb, offset, 4, ENC_NA);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_key_file, tvb, offset, 128, ENC_ASCII);
-				offset += 128;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
-				break;
-
-			case PRIV_RC_UNCONFIG:
-
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
-				break;
-
-			case PRIV_RC_SET_SYS_FLAG:
-			case PRIV_RC_CLR_SYS_FLAG:
-
-				proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_sys_flags, ett_ntppriv_sys_flag_flags, ntppriv_sys_flag_flags, ENC_BIG_ENDIAN);
-				break;
-
-			case PRIV_RC_GET_RESTRICT:
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_count, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_rflags, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_mflags, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
-				offset += 16;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_mask6, tvb, offset, 16, ENC_NA);
-				break;
-
-			case PRIV_RC_RESADDFLAGS:
-			case PRIV_RC_RESSUBFLAGS:
-			case PRIV_RC_UNRESTRICT:
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_ippeerlimit, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_restrict_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_mflags, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
-				offset += 16;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_mask6, tvb, offset, 16, ENC_NA);
-				break;
-
-			case PRIV_RC_RESET_STATS:
-
-				proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_reset_stats_flags, ett_ntppriv_reset_stats_flags, ntppriv_reset_stats_flags, ENC_BIG_ENDIAN);
-				break;
-
-			case PRIV_RC_RESET_PEER:
-
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
-				break;
-
-			case PRIV_RC_TRUSTKEY:
-			case PRIV_RC_UNTRUSTKEY:
-
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_key, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-				break;
-
-			case PRIV_RC_AUTHINFO:
-
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timereset, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_numkeys, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_numfreekeys, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_keylookups, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_keynotfound, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_encryptions, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_decryptions, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_expired, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_keyuncached, tvb, offset, 4, ENC_BIG_ENDIAN);
-				break;
-
-			case PRIV_RC_TRAPS:
-
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_local_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_trap_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_trap_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_sequence, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_settime, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_origtime, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_resets, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_traps_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_local_addr6, tvb, offset, 16, ENC_NA);
-				offset += 16;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_trap_addr6, tvb, offset, 16, ENC_NA);
-				break;
-
-			case PRIV_RC_ADD_TRAP:
-			case PRIV_RC_CLR_TRAP:
-
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_local_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_trap_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_trap_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 2, ENC_NA);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_local_addr6, tvb, offset, 16, ENC_NA);
-				offset += 16;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_trap_addr6, tvb, offset, 16, ENC_NA);
-				break;
-
-			case PRIV_RC_REQUEST_KEY:
-			case PRIV_RC_CONTROL_KEY:
-
-				proto_tree_add_item(mode7_item_tree, hf_ntp_keyid, tvb, offset, 4, ENC_NA);
-				break;
-
-			case PRIV_RC_CTL_STATS:
-
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timereset, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_req, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_badpkts, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_responses, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_frags, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_errors, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_tooshort, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_inputresp, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_inputfrag, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_inputerr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_badoffset, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_badversion, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_datatooshort, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_badop, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_asyncmsgs, tvb, offset, 4, ENC_BIG_ENDIAN);
-				break;
-
-			case PRIV_RC_GET_CLOCKINFO:
-
-				if (flags & NTPPRIV_R_MASK) {
-					/* response */
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_clock_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_lastevent, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_currentstatus, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_polls, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_noresponse, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_badformat, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_baddata, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_timestarted, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_fudgetime1, tvb, offset, 8, ENC_BIG_ENDIAN);
-					offset += 8;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_fudgetime2, tvb, offset, 8, ENC_BIG_ENDIAN);
-					offset += 8;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_fudgeval1, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_fudgeval2, tvb, offset, 4, ENC_BIG_ENDIAN);
-				} else {
-					/* request */
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				}
-				break;
-
-			case PRIV_RC_SET_CLKFUDGE:
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_which, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_fudgetime, tvb, offset, 8, ENC_BIG_ENDIAN);
-				offset += 8;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_fudgeval_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
-				break;
-
-			case PRIV_RC_GET_KERNEL:
-
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_kernel_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_freq, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_maxerror, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_esterror, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_status, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_shift, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_constant, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_precision, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_tolerance, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_ppsfreq, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_jitter, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_stabil, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_jitcnt, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_calcnt, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_errcnt, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_stbcnt, tvb, offset, 4, ENC_BIG_ENDIAN);
-				break;
-
-			case PRIV_RC_GET_CLKBUGINFO:
-				if (flags & NTPPRIV_R_MASK) {
-					/* response */
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_nvalues, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_ntimes, tvb, offset, 1, ENC_BIG_ENDIAN);
-					offset += 1;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_svalues, tvb, offset, 2, ENC_BIG_ENDIAN);
-					offset += 2;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_stimes, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_values, tvb, offset, 64, ENC_NA);
-					offset += 64;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_times, tvb, offset, 256, ENC_NA);
-				} else {
-					/* request */
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				}
-				break;
-
-			case PRIV_RC_IF_STATS:
-			case PRIV_RC_IF_RELOAD:
-				v6_flag = tvb_get_ntohl(tvb, offset + 48);
-				if (v6_flag == 0) {
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 16;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_bcast, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 16;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 16;
-				} else {
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
-					offset += 16;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_bcast6, tvb, offset, 16, ENC_NA);
-					offset += 16;
-					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_mask6, tvb, offset, 16, ENC_NA);
-					offset += 16;
-				}
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_int_name, tvb, offset, 32, ENC_ASCII);
-				offset += 32;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_int_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_last_ttl, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_num_mcast, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_received, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_sent, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_notsent, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_uptime, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_scopeid, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_ifindex, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_ifnum, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_peercnt, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_family, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_ignore_pkt, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_action, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-				break;
-
-			}
+		offset = 8;
+		for (i = 0; i < numitems; i++) {
+			dissect_xntpd_mode7_item(tvb_new_subset_length(tvb, offset, itemsize), pinfo, ntp_tree, reqcode, is_response);
+			offset += itemsize;
 		}
 	}
-	if ((flags & NTPPRIV_R_MASK) == 0 && (auth_seq & NTPPRIV_AUTH_MASK)) {
+	if ((!is_response) && (auth_seq & NTPPRIV_AUTH_MASK)) {
 		/* request message with authentication bit */
 		int len;
 		proto_tree_add_item(ntp_tree, hf_ntppriv_tstamp, tvb, 184, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
@@ -3220,19 +3233,19 @@ proto_register_ntp(void)
 			&priv_rc_types_ext, 0, NULL, HFILL }},
 		{ &hf_ntppriv_errcode, {
 			"Err", "ntp.priv.err", FT_UINT8, BASE_HEX,
-			VALS(err_values_types), 0, NULL, HFILL }},
+			VALS(err_values_types), 0xf0, NULL, HFILL }},
 		{ &hf_ntppriv_numitems, {
 			"Number of data items", "ntp.priv.numitems", FT_UINT16, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+			NULL, 0x0fff, NULL, HFILL }},
 		{ &hf_ntppriv_mbz, {
 			"Reserved", "ntp.priv.reserved", FT_UINT8, BASE_HEX,
-			NULL, 0, NULL, HFILL }},
+			NULL, 0xf0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_item, {
 			"Mode7 item", "ntp.priv.mode7.item",
 			FT_STRINGZ, BASE_NONE, NULL, 0x00, NULL, HFILL }},
 		{ &hf_ntppriv_itemsize, {
 			"Size of data item", "ntp.priv.itemsize", FT_UINT16, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+			NULL, 0x0fff, NULL, HFILL }},
 		{ &hf_ntppriv_avgint, {
 			"avgint", "ntp.priv.monlist.avgint", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
