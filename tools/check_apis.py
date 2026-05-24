@@ -985,13 +985,14 @@ def checkFile(filename, source_dir, check_hf, check_value_string_array, debug_fl
 
         # If we have a max function count and we've exceeded it, treat it
         # as an error.
-        if not APIs[group]['count_errors'] and APIs[group]['max_function_count'] >= 0:
-            if cur_func_count > APIs[group]['max_function_count']:
-                result.output(pfx, f"{group} exceeds maximum function count: {APIs[group]['max_function_count']}")
-                APIs[group]['count_errors'] = True
+        if 'max_function_count' in APIs[group]:
+            if not APIs[group]['count_errors'] and APIs[group]['max_function_count'] >= 0:
+                if cur_func_count > APIs[group]['max_function_count']:
+                    result.output(pfx, f"{group} exceeds maximum function count: {APIs[group]['max_function_count']}")
+                    APIs[group]['count_errors'] = True
 
-        if cur_func_count <= APIs[group]['max_function_count']:
-            continue
+            if cur_func_count <= APIs[group]['max_function_count']:
+                continue
 
         # Do we care about the count of this type?
         if APIs[group]['count_errors']:
