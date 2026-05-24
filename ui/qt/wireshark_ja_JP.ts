@@ -13945,7 +13945,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Auto advance slides</source>
-        <translation type="unfinished"></translation>
+        <translation>スライドを自動送り</translation>
     </message>
     <message>
         <source>Slide display interval</source>
