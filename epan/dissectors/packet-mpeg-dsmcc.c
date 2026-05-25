@@ -1379,6 +1379,7 @@ dissect_dsmcc_un_session_resources(
                 for (i=0; i<counter; i++)
                 {
                     proto_tree_add_item(sub_sub_sub_tree, hf_dsmcc_un_sess_rsrc_cfs_num, tvb, offset, 2, ENC_NA);
+                    offset += 2;
                 }
                 break;
             /* Table 4-75 ATM Connection */
