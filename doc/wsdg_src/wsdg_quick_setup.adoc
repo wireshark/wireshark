@@ -573,9 +573,18 @@ the environment variables `WIRESHARK_BASE_DIR` and `CMAKE_PREFIX_PATH`.
 
 Now it’s time to build Wireshark!
 
+[TIP]
+.Solution File Format
+====
+Microsoft Visual Studio introduced a new XML-based solution file format, SLNX,
+which became available in Visual Studio 2022 and is the default on Visual Studio
+2026. If you are using the older file format, which is the default in Visual
+Studio 2022 and earlier, replace `.slnx` with `.sln` in the instructions below.
+====
+
 . Navigate to `C:\Development\wsbuild64`
 
-. Open `Wireshark.sln`
+. Open `Wireshark.slnx`
 
 . Choose the `RelWithDebInfo` configuration
 +
@@ -596,11 +605,11 @@ You may also build Wireshark from Visual Studio command line, using :
 [source,cmd,subs="attributes+"]
 ----
 cd C:\Development\wsbuild64
-msbuild /m /p:Configuration=RelWithDebInfo Wireshark.sln
+msbuild /m /p:Configuration=RelWithDebInfo Wireshark.slnx
 ----
 
 TIP: If compilation fails for suspicious reasons after you changed some source
-files try to clean the build files by doing `Build > Clean solution` (or running `msbuild /m /p:Configuration=RelWithDebInfo Wireshark.sln /t:Clean`)
+files try to clean the build files by doing `Build > Clean solution` (or running `msbuild /m /p:Configuration=RelWithDebInfo Wireshark.slnx /t:Clean`)
 and then building the solution again.
 
 The build files produced by CMake will regenerate themselves if required by changes in the source tree.

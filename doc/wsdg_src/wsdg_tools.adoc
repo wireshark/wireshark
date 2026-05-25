@@ -398,6 +398,10 @@ _windows.h_, _WS2_32.lib_)
 
 Official releases are or were built with the following Visual {cpp} versions:
 
+* Wireshark 4.6.7-: Microsoft Visual {cpp} 2026.
+* Wireshark 4.6.0-4.6.6: Microsoft Visual {cpp} 2022.
+* Wireshark 4.4.17-: Microsoft Visual {cpp} 2026.
+* Wireshark 4.4.0-4.4.16: Microsoft Visual {cpp} 2022.
 * Wireshark 4.2.x: Microsoft Visual {cpp} 2022.
 * Wireshark 4.0.x: Microsoft Visual {cpp} 2022.
 * Wireshark 3.6.x: Microsoft Visual {cpp} 2019.
@@ -419,7 +423,7 @@ Official releases are or were built with the following Visual {cpp} versions:
 Using the release compilers is recommended for Wireshark development work.
 
 “Community” editions of Visual Studio such as “Visual Studio Community
-2022” can be used to compile Wireshark but any PortableApps packages you
+2026” can be used to compile Wireshark but any PortableApps packages you
 create with them might require the installation of a separate Visual
 {cpp} Redistributable package on any machine on which the PortableApps
 package is to be used. See <<msvc-runtime-redistributable>> below for
@@ -433,26 +437,26 @@ Essentials] account if you don't have a Visual Studio (MSDN)
 subscription.  The older versions can be downloaded from
 https://visualstudio.microsoft.com/vs/older-downloads/[].
 
-==== Visual {cpp} 2022 Community Edition
+==== Visual {cpp} 2026 Community Edition
 
 IDE + Debugger?:: Yes
 
 SDK required for 64-bit builds?:: No
 
-CMake Generator: *`Visual Studio 17`*
+CMake Generator: *`Visual Studio 18`*
 
 You can use Chocolatey to install Visual Studio, e.g:
 
 [source,cmd]
 ----
-PS:\> choco install visualstudiocommunity2022 visualstudio2022-workload-nativedesktop
+PS:\> choco install visualstudiocommunity2026 visualstudio2026-workload-nativedesktop
 ----
 
 If you wish to build Arm64 executables you must install the following components:
 
-Microsoft.VisualStudio.Component.VC.Tools.ARM64:: MSVC v143 - VS 2022 C++ ARM64/ARM64EC build tools (Latest)
+Microsoft.VisualStudio.Component.VC.Tools.ARM64:: MSVC v145 - VS 2026 C++ ARM64/ARM64EC build tools (Latest)
 
-Microsoft.VisualStudio.Component.VC.Runtimes.ARM64.Spectre:: MSVC v143 - VS 2022 C++ ARM64/ARM64EC Spectre-mitigated libs (Latest)
+Microsoft.VisualStudio.Component.VC.Runtimes.ARM64.Spectre:: MSVC v145 - VS 2026 C++ ARM64/ARM64EC Spectre-mitigated libs (Latest)
 
 ==== cl.exe (C Compiler)
 
@@ -462,7 +466,7 @@ versions ordered by release date.
 
 |===
 | Compiler Package   | V{cpp} | _MSC_VER
-| Visual Studio 2022 (17.4.2) | 14.34   | 1934
+| Visual Studio 2026 (18.6.1) | 14.51   | 1951
 |===
 
 A description of `_MSC_VER` and `_MSC_FULL_VER`, and their relation to Visual Studio and compiler versions,
@@ -1018,7 +1022,7 @@ You can download it from the link:https://wixtoolset.org/[WiX web site] or insta
 PS$> choco install wixtoolset
 ----
 
-This also requires the Visual C++ redistributable merge modules, which can be installed by selecting “Individual Components -> {cpp} 2022 Redistributable MSMs” or “...2019 Redistributable MSMs” as appropriate for your compiler in the Visual Studio installer.
+This also requires the Visual C++ redistributable merge modules, which can be installed by selecting “Individual Components -> {cpp} 2026 Redistributable MSMs” or “...2022 Redistributable MSMs” as appropriate for your compiler in the Visual Studio installer.
 
 Wireshark’s .msi packaging is currently experimental and the generated packages may be incomplete.
 
