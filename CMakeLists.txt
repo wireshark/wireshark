@@ -1040,6 +1040,7 @@ else() # ! MSVC
 		#
 		### Flags for C++ only ###
 		#
+		-Wsuggest-override  # Warn when an overriding virtual function is missing 'override'
 	)
 
 	#
