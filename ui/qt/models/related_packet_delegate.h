@@ -74,7 +74,7 @@ protected:
      * @param index  Model index of the item being rendered.
      */
     void initStyleOption(QStyleOptionViewItem *option,
-        const QModelIndex &index) const;
+        const QModelIndex &index) const override;
 
     /**
      * @brief Paints the relationship indicator for the packet at @p index.
@@ -83,7 +83,7 @@ protected:
      * @param index   Model index of the item being painted.
      */
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const;
+               const QModelIndex &index) const override;
 
     /**
      * @brief Returns the preferred size for the indicator cell.
@@ -92,7 +92,7 @@ protected:
      * @return Recommended QSize for the indicator column cell.
      */
     QSize sizeHint(const QStyleOptionViewItem &option,
-        const QModelIndex &index) const;
+        const QModelIndex &index) const override;
 
 private:
     QHash<int, ft_framenum_type_t> related_frames_; /**< Map from frame number to its relationship type. */

@@ -56,37 +56,37 @@ protected:
      * @brief Forward mouse press position and button via mousePressedAt().
      * @param event The mouse press event.
      */
-    void mousePressEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
 
     /**
      * @brief Handle mouse button release (reserved for subclass use).
      * @param event The mouse release event.
      */
-    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event) override;
 
     /**
      * @brief Handle double-click events (reserved for subclass use).
      * @param event The double-click event.
      */
-    void mouseDoubleClickEvent(QMouseEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
 
     /**
      * @brief Handle mouse move events (reserved for subclass use).
      * @param event The mouse move event.
      */
-    void mouseMoveEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event) override;
 
     /**
      * @brief Show a context menu for the label (reserved for subclass use).
      * @param event The context menu event.
      */
-    void contextMenuEvent(QContextMenuEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
     /**
      * @brief Paint the label, applying elision if shrinkable and space is tight.
      * @param event The paint event.
      */
-    void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent *event) override;
 
 private:
     /**

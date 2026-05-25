@@ -216,13 +216,13 @@ protected:
      * @brief Called when a new tab is inserted.
      * @param tab_index The index of the new tab.
      */
-    void tabInserted(int tab_index);
+    void tabInserted(int tab_index) override;
 
     /**
      * @brief Called when a tab is removed.
      * @param tab_index The index of the removed tab.
      */
-    void tabRemoved(int tab_index);
+    void tabRemoved(int tab_index) override;
 
 private slots:
     /**

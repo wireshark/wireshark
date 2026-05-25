@@ -46,7 +46,7 @@ public:
     /**
      * @brief Handle dialog rejection, invoking the close callback if set.
      */
-    void reject();
+    void reject() override;
 
     // Funnel ops
     /** @brief Create a new funnel text window.

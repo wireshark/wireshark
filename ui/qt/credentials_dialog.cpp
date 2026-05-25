@@ -34,7 +34,7 @@ public:
 
     CredentialsUrlDelegate(QObject * parent) : UrlLinkDelegate(parent) {}
 
-    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override
     {
         bool ok = false;
         int val = index.data(Qt::UserRole).toInt(&ok);

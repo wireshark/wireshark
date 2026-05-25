@@ -75,7 +75,7 @@ protected:
      * @brief Handles child events, such as when widgets are added or removed.
      * @param event The child event details.
      */
-    virtual void childEvent(QChildEvent * event);
+    virtual void childEvent(QChildEvent * event) override;
 
     /**
      * @brief Event filter used to intercept mouse events on toolbar child widgets for drag detection.
@@ -83,25 +83,25 @@ protected:
      * @param ev The event being intercepted.
      * @return True if the event was filtered out, false otherwise.
      */
-    virtual bool eventFilter(QObject * obj, QEvent * ev);
+    virtual bool eventFilter(QObject * obj, QEvent * ev) override;
 
     /**
      * @brief Handles drag enter events to accept valid drop targets.
      * @param event The drag enter event details.
      */
-    virtual void dragEnterEvent(QDragEnterEvent *event);
+    virtual void dragEnterEvent(QDragEnterEvent *event) override;
 
     /**
      * @brief Handles drag move events for visual feedback during drag operations.
      * @param event The drag move event details.
      */
-    virtual void dragMoveEvent(QDragMoveEvent *event);
+    virtual void dragMoveEvent(QDragMoveEvent *event) override;
 
     /**
      * @brief Handles drop events to finalize reordering or add new items.
      * @param event The drop event details.
      */
-    virtual void dropEvent(QDropEvent *event);
+    virtual void dropEvent(QDropEvent *event) override;
 
 private:
 

@@ -182,7 +182,7 @@ public:
         }
     }
 
-    ~FieldInformationGraphicsItem()
+    ~FieldInformationGraphicsItem() override
     {
         delete finfo_;
     }
@@ -206,7 +206,7 @@ public:
         return pt.y();
     }
 
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *) {
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *) override {
 
         painter->setPen(Qt::NoPen);
         painter->save();

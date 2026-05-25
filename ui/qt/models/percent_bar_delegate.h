@@ -49,7 +49,7 @@ public:
      * @brief Return empty string to ensure QStyledItemDelegate::paint doesn't draw any text.
      * @return An empty string.
      */
-    virtual QString displayText(const QVariant &, const QLocale &) const { return QString(); }
+    virtual QString displayText(const QVariant &, const QLocale &) const override { return QString(); }
 
 protected:
     /**
@@ -59,7 +59,7 @@ protected:
      * @param index The model index of the item to paint.
      */
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const;
+               const QModelIndex &index) const override;
 
     /**
      * @brief Returns the size hint for the percentage bar item.
@@ -68,7 +68,7 @@ protected:
      * @return The recommended size.
      */
     QSize sizeHint(const QStyleOptionViewItem &option,
-                   const QModelIndex &index) const;
+                   const QModelIndex &index) const override;
 
 };
 

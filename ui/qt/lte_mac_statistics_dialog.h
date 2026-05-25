@@ -81,7 +81,7 @@ protected:
     /**
      * @brief Handles the event when the capture file is closing.
      */
-    void captureFileClosing();
+    void captureFileClosing() override;
 
 private:
     /** Label to display the common statistics summary. */
@@ -129,7 +129,7 @@ private:
      * @brief Gets the current filter expression.
      * @return The filter expression as a string.
      */
-    virtual const QString filterExpression();
+    virtual const QString filterExpression() override;
 
     /** Structure holding the common statistics. */
     mac_3gpp_common_stats commonStats_;
@@ -164,13 +164,13 @@ private:
      * @param item The tree widget item to inspect.
      * @return A list of variants containing the item's data.
      */
-    QList<QVariant> treeItemData(QTreeWidgetItem *item) const;
+    QList<QVariant> treeItemData(QTreeWidgetItem *item) const override;
 
 private slots:
     /**
      * @brief Fills the tree with MAC statistics data.
      */
-    virtual void fillTree();
+    virtual void fillTree() override;
 
     /**
      * @brief Updates the labels in the header.

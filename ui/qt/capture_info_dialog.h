@@ -52,14 +52,14 @@ public:
      * @param parent The parent model index (defaults to an invalid QModelIndex).
      * @return The number of rows in the model.
      */
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Returns the number of columns under the given parent.
      * @param parent The parent model index (defaults to an invalid QModelIndex).
      * @return The number of columns in the model.
      */
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Retrieves data from the model for the given index and role.
@@ -67,7 +67,7 @@ public:
      * @param role The role for which the data is requested (defaults to Qt::DisplayRole).
      * @return The data associated with the index and role.
      */
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 //    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
 private:

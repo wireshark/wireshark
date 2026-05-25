@@ -32,7 +32,7 @@ public:
     virtual ~ProtocolTreeItem() {}
 
 protected:
-    virtual void applyValuePrivate(bool value)
+    virtual void applyValuePrivate(bool value) override
     {
         if (! proto_can_toggle_protocol(proto_get_id(proto_))) {
             return;
@@ -57,7 +57,7 @@ public:
     virtual ~HeuristicTreeItem() {}
 
 protected:
-    virtual void applyValuePrivate(bool value)
+    virtual void applyValuePrivate(bool value) override
     {
         heuristic_table_->enabled = value;
     }

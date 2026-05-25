@@ -73,13 +73,13 @@ protected:
      * @brief Handles the event when the dialog is shown.
      * @param event The show event to handle.
      */
-    void showEvent(QShowEvent *event);
+    void showEvent(QShowEvent *event) override;
 
     /**
      * @brief Handles key press events within the dialog.
      * @param event The key press event.
      */
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
     /** Pointer to the generated UI elements. */

@@ -275,7 +275,7 @@ protected:
      * Stops the stat timer and disables graph controls that require an
      * open capture file.
      */
-    void captureFileClosing();
+    void captureFileClosing() override;
 
     /**
      * @brief Handle key press events.
@@ -285,14 +285,14 @@ protected:
      *
      * @param event The key event.
      */
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
 
     /**
      * @brief Handle dialog rejection (Close button / Escape).
      *
      * Applies any pending UAT changes before closing.
      */
-    void reject();
+    void reject() override;
 
     /**
      * @brief Return the display-filter-qualified window/tab title suffix.
@@ -587,7 +587,7 @@ private slots:
     void copyFromProfile(QString filename);
 
     /** @brief Refresh enabled/disabled state of all toolbar and dialog widgets. */
-    void updateWidgets();
+    void updateWidgets() override;
 
     /**
      * @brief Display the plot context menu.

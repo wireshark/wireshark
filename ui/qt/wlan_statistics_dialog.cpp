@@ -182,7 +182,7 @@ public:
             setText(col_protection_, QObject::tr("Base station"));
         }
     }
-    bool operator< (const QTreeWidgetItem &other) const
+    bool operator< (const QTreeWidgetItem &other) const override
     {
         if (other.type() != wlan_station_row_type_) return QTreeWidgetItem::operator< (other);
         const WlanStationTreeWidgetItem *other_row = static_cast<const WlanStationTreeWidgetItem *>(&other);
@@ -391,7 +391,7 @@ public:
         stations_.clear();
     }
 
-    bool operator< (const QTreeWidgetItem &other) const
+    bool operator< (const QTreeWidgetItem &other) const override
     {
         if (other.type() != wlan_network_row_type_) return QTreeWidgetItem::operator< (other);
         const WlanNetworkTreeWidgetItem *other_row = static_cast<const WlanNetworkTreeWidgetItem *>(&other);

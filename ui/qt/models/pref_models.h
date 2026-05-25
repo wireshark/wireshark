@@ -74,7 +74,7 @@ public:
      * @return The model index for the requested item.
      */
     QModelIndex index(int row, int column,
-                      const QModelIndex &parent = QModelIndex()) const;
+                      const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Return the parent model index of @p index.
@@ -82,7 +82,7 @@ public:
      * @return The model index of @p index's parent, or an invalid index for
      *         top-level items.
      */
-    QModelIndex parent(const QModelIndex &index) const;
+    QModelIndex parent(const QModelIndex &index) const override;
 
     /**
      * @brief Return data for @p index under @p role.
@@ -90,21 +90,21 @@ public:
      * @param role  The data role (Qt::DisplayRole, Qt::UserRole, etc.).
      * @return The requested data, or an invalid QVariant if unavailable.
      */
-    QVariant data(const QModelIndex &index, int role) const;
+    QVariant data(const QModelIndex &index, int role) const override;
 
     /**
      * @brief Return the number of child rows under @p parent.
      * @param parent The parent model index; invalid index = root.
      * @return The number of direct children.
      */
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Return the number of columns.
      * @param parent Unused; present for API compatibility.
      * @return Always @c colLast.
      */
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Return the display name for a built-in preference page type.
@@ -265,7 +265,7 @@ public:
      * @param sourceParent The parent index in the source model.
      * @return true if the row should be shown; false to hide it.
      */
-    virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+    virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
 
     /**
      * @brief Set the text filter applied to preference names and values.
@@ -292,7 +292,7 @@ public:
      * @return The header label for @p section, or an invalid QVariant.
      */
     QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole) const;
+                        int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Return data for @p index under @p role.
@@ -301,7 +301,7 @@ public:
      * @param role  The data role.
      * @return The requested data, or an invalid QVariant if unavailable.
      */
-    QVariant data(const QModelIndex &index, int role) const;
+    QVariant data(const QModelIndex &index, int role) const override;
 
     /**
      * @brief Return the item flags for @p index.
@@ -311,7 +311,7 @@ public:
      * @param index The proxy model index to query.
      * @return The item flags for the preference at @p index.
      */
-    Qt::ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     /**
      * @brief Write @p value to the preference at @p index.
@@ -322,14 +322,14 @@ public:
      * @return true if the value was successfully applied; false otherwise.
      */
     bool setData(const QModelIndex &index, const QVariant &value,
-                 int role = Qt::EditRole);
+                 int role = Qt::EditRole) override;
 
     /**
      * @brief Return the number of columns in this model.
      * @param parent Unused; present for API compatibility.
      * @return Always @c colLast.
      */
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Mark module-level rows as spanning all columns in @p tree.
@@ -392,7 +392,7 @@ public:
      * @param role  The data role.
      * @return The requested data, or an invalid QVariant if unavailable.
      */
-    QVariant data(const QModelIndex &index, int role) const;
+    QVariant data(const QModelIndex &index, int role) const override;
 
     /**
      * @brief Return the item flags for @p index.
@@ -400,14 +400,14 @@ public:
      * @param index The proxy model index to query.
      * @return The item flags for the module at @p index.
      */
-    Qt::ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     /**
      * @brief Return the number of columns in this model.
      * @param parent Unused; present for API compatibility.
      * @return Always @c colLast.
      */
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Determine whether a source row should appear in the module pane.
@@ -416,7 +416,7 @@ public:
      * @param sourceParent The parent index in the source model.
      * @return true if the row is a module-level item; false otherwise.
      */
-    virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+    virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
 
 protected:
     /**
@@ -426,7 +426,7 @@ protected:
      * @param source_right Source index of the right-hand item to compare.
      * @return true if the left item should appear before the right item.
      */
-    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
+    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
 
 private:
     /** Cached translated display name of the "Advanced" preferences entry,

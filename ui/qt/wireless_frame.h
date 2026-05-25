@@ -58,7 +58,7 @@ protected:
      * @brief Polls for interface availability when the interface-detection timer fires.
      * @param event The timer event; checked against iface_timer_id_.
      */
-    void timerEvent(QTimerEvent *event);
+    void timerEvent(QTimerEvent *event) override;
 
 public slots:
     /**

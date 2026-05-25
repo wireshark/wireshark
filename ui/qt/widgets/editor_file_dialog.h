@@ -54,13 +54,13 @@ public:
      * @brief Handles focus in events.
      * @param event The focus event.
      */
-    virtual void focusInEvent(QFocusEvent *event);
+    virtual void focusInEvent(QFocusEvent *event) override;
 
     /**
      * @brief Handles focus out events.
      * @param event The focus event.
      */
-    virtual void focusOutEvent(QFocusEvent *event);
+    virtual void focusOutEvent(QFocusEvent *event) override;
 
     /**
      * @brief Event filter to monitor specific events on the widget or its children.
@@ -68,7 +68,7 @@ public:
      * @param event The event being filtered.
      * @return True if the event was filtered out, false otherwise.
      */
-    virtual bool eventFilter(QObject *obj, QEvent *event);
+    virtual bool eventFilter(QObject *obj, QEvent *event) override;
 
 signals:
     /**
@@ -87,7 +87,7 @@ protected:
     /**
      * @brief Handles resize events to adjust the layout of the line edit and button.
      */
-    void resizeEvent(QResizeEvent *);
+    void resizeEvent(QResizeEvent *) override;
 
     /** Pointer to the button that triggers the file dialog. */
     QPushButton* file_dialog_button_;

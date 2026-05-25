@@ -46,7 +46,7 @@ protected:
      * @param event The event to process.
      * @return True if the event was handled, false otherwise.
      */
-    virtual bool event(QEvent *event);
+    virtual bool event(QEvent *event) override;
 
 private:
     /** @brief Pointer to the UI object for this widget. */

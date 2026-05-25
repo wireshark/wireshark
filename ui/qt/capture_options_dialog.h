@@ -37,9 +37,9 @@ public:
     InterfaceTreeDelegate(QObject *parent = 0);
     ~InterfaceTreeDelegate();
 
-    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &idx) const;
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &idx) const override;
     void setTree(QTreeWidget* tree) { tree_ = tree; }
-    bool eventFilter(QObject *object, QEvent *event);
+    bool eventFilter(QObject *object, QEvent *event) override;
 
 signals:
     void filterChanged(const QString filter);
@@ -64,7 +64,7 @@ public slots:
     void interfaceSelected();
 
 protected:
-    virtual void showEvent(QShowEvent *);
+    virtual void showEvent(QShowEvent *) override;
 
 private slots:
     /** @brief Subscribes to the window's InterfaceListManager::interfaceListChanged. */
@@ -94,7 +94,7 @@ private slots:
     void interfaceItemChanged(QTreeWidgetItem *item, int column);
     void itemClicked(QTreeWidgetItem *item, int column);
     void itemDoubleClicked(QTreeWidgetItem *item, int column);
-    void changeEvent(QEvent* event);
+    void changeEvent(QEvent* event) override;
     void tempDirBrowseButtonClicked();
     void MBComboBoxIndexChanged(int index);
     void stopMBComboBoxIndexChanged(int index);

@@ -192,13 +192,13 @@ public:
     /** @brief Return the item flags for the given index.
      *  @param index The model index to query.
      *  @return The item flags. */
-    Qt::ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     /** @brief Return data for the given index and role.
      *  @param index The model index to query.
      *  @param role  The data role.
      *  @return The data, or an invalid @c QVariant if unsupported. */
-    QVariant data(const QModelIndex &index, int role) const;
+    QVariant data(const QModelIndex &index, int role) const override;
 
     /** @brief Return header data for the given section, orientation, and role.
      *  @param section     The section index.
@@ -206,17 +206,17 @@ public:
      *  @param role        The data role.
      *  @return The header data, or an invalid @c QVariant if unsupported. */
     QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole) const;
+                        int role = Qt::DisplayRole) const override;
 
     /** @brief Return the number of rows in the model.
      *  @param parent Unused; present for API compatibility.
      *  @return The number of decode-as entries. */
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /** @brief Return the number of columns in the model.
      *  @param parent Unused; present for API compatibility.
      *  @return The number of columns. */
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
 
     /** @brief Set data for the given index and role.
@@ -224,7 +224,7 @@ public:
      *  @param value The new value.
      *  @param role  The data role.
      *  @return true if the data was set successfully, false otherwise. */
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
     /**
      * @brief Populate the model from the current decode-as configuration.
@@ -243,14 +243,14 @@ public:
      *  @param count  The number of rows to insert.
      *  @param parent Unused; present for API compatibility.
      *  @return true if the rows were inserted successfully. */
-    bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
+    bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
     /** @brief Remove rows from the model.
      *  @param row    The first row to remove.
      *  @param count  The number of rows to remove.
      *  @param parent Unused; present for API compatibility.
      *  @return true if the rows were removed successfully. */
-    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
+    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
     /**
      * @brief Remove all decode-as entries from the model.

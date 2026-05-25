@@ -38,26 +38,26 @@ public:
     /** @brief Return the number of rows in the model.
      *  @param parent Unused; present for API compatibility.
      *  @return The number of rows. */
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /** @brief Return the number of columns in the model.
      *  @param parent Unused; present for API compatibility.
      *  @return The number of columns. */
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /** @brief Return data for the given index and role.
      *  @param index The model index to query.
      *  @param role  The data role.
      *  @return The data for the given index and role, or an invalid
      *          @c QVariant if the index or role is unsupported. */
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     /** @brief Return header data for the given section, orientation, and role.
      *  @param section     The section index.
      *  @param orientation The header orientation.
      *  @param role        The data role.
      *  @return The header data, or an invalid @c QVariant if unsupported. */
-    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Append a row to the model.
@@ -115,7 +115,7 @@ public:
      * @param right Source model index of the right-hand item.
      * @return true if @p left should sort before @p right.
      */
-    virtual bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
+    virtual bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 
     /**
      * @brief Determine whether a source row passes the current filter.
@@ -124,7 +124,7 @@ public:
      * @param sourceParent Parent index in the source model.
      * @return true if the row should be shown.
      */
-    virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+    virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
 
     /**
      * @brief Determine whether a source column should be visible.
@@ -133,7 +133,7 @@ public:
      * @param sourceParent Parent index in the source model (unused).
      * @return true if the column should be shown; false if it is hidden.
      */
-    virtual bool filterAcceptsColumn(int column, const QModelIndex &sourceParent) const;
+    virtual bool filterAcceptsColumn(int column, const QModelIndex &sourceParent) const override;
 
     /**
      * @brief Set the filter match mode for a column.
@@ -231,7 +231,7 @@ public:
      * @param role  The data role.
      * @return The requested data, or an invalid QVariant if unavailable.
      */
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
 private:
     QList<int> urls_; /**< Indices of columns whose values are treated as URLs. */

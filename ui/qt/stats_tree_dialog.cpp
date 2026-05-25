@@ -34,7 +34,7 @@ public:
             setTextAlignment(col, Qt::AlignRight);
         }
     }
-    bool operator< (const QTreeWidgetItem &other) const
+    bool operator< (const QTreeWidgetItem &other) const override
     {
         stat_node *thisnode = VariantPointer<stat_node>::asPtr(data(item_col_, Qt::UserRole));
         stat_node *othernode = VariantPointer<stat_node>::asPtr(other.data(item_col_, Qt::UserRole));

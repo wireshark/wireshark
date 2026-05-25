@@ -45,19 +45,19 @@ protected:
      * @brief Handles the mouse release event.
      * @param event The mouse event details.
      */
-    void mouseReleaseEvent(QMouseEvent* event);
+    void mouseReleaseEvent(QMouseEvent* event) override;
 
     /**
      * @brief Handles the mouse press event.
      * @param event The mouse event details.
      */
-    void mousePressEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
 
     /**
      * @brief Handles the context menu event.
      * @param event The context menu event details.
      */
-    void contextMenuEvent(QContextMenuEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event) override;
 };
 
 #endif /* CLICKABLE_LABEL_H_ */

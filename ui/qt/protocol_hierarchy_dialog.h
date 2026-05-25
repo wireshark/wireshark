@@ -114,7 +114,7 @@ private:
     /**
      * @brief Updates the dialog's widgets based on the current capture state.
      */
-    void updateWidgets();
+    void updateWidgets() override;
 
     /**
      * @brief Extracts data from a tree widget item into a generic variant list.

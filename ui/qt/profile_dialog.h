@@ -79,7 +79,7 @@ protected:
      * @brief Handles key press events within the dialog.
      * @param event The key press event.
      */
-    virtual void keyPressEvent(QKeyEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event) override;
 
     /**
      * @brief Gets the auto switch limit label UI element.

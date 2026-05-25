@@ -39,14 +39,14 @@ public:
      * @param role The role for which the data is requested (defaults to Qt::DisplayRole).
      * @return The data associated with the index and role, returning cached data if the source is invalid.
      */
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Retrieves the item flags for the given index.
      * @param index The model index to query.
      * @return The item flags for the specified index.
      */
-    Qt::ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     /**
      * @brief Retrieves the header data for a given section, orientation, and role.
@@ -56,27 +56,27 @@ public:
      * @return The header data for the specified parameters.
      */
     QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole) const;
+                        int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Returns the number of rows under the given parent.
      * @param parent The parent model index (defaults to an invalid QModelIndex).
      * @return The number of rows in the model or cache.
      */
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Returns the number of columns under the given parent.
      * @param parent The parent model index (defaults to an invalid QModelIndex).
      * @return The number of columns in the model or cache.
      */
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Sets a new source model to be cached and proxied.
      * @param newSourceModel A pointer to the new source model.
      */
-    void setSourceModel(QAbstractItemModel *newSourceModel);
+    void setSourceModel(QAbstractItemModel *newSourceModel) override;
 
 private:
     /** Internal cache used to store copies of the source model's data. */

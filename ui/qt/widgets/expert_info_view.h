@@ -42,6 +42,6 @@ protected slots:
      * @param current The newly selected model index.
      * @param previous The previously selected model index.
      */
-    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous) override;
 };
 #endif // EXPERT_INFO_VIEW_H

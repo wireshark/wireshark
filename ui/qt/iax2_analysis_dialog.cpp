@@ -145,7 +145,7 @@ public:
                 << status_str << pkt_len_;
     }
 
-    bool operator< (const QTreeWidgetItem &other) const
+    bool operator< (const QTreeWidgetItem &other) const override
     {
         if (other.type() != iax2_analysis_type_) return QTreeWidgetItem::operator< (other);
         const Iax2AnalysisTreeWidgetItem *other_row = static_cast<const Iax2AnalysisTreeWidgetItem *>(&other);

@@ -39,7 +39,7 @@ public:
      * @brief Return the minimum size hint for the view.
      * @return An empty @c QSize().
      */
-    virtual QSize minimumSizeHint() const { return QSize(); }
+    virtual QSize minimumSizeHint() const  override{ return QSize(); }
 
     /**
      * @brief Return whether the view contains no displayable data.

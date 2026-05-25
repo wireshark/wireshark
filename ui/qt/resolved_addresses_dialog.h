@@ -73,7 +73,7 @@ protected slots:
      * @brief Handles state change events.
      * @param event The event object.
      */
-    void changeEvent(QEvent* event);
+    void changeEvent(QEvent* event) override;
 
 private:
     /** @brief Pointer to the user interface object for this dialog. */

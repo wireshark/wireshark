@@ -180,7 +180,7 @@ public:
      * @param role The data role requested.
      * @return The data associated with the index and role.
      */
-    QVariant data(const QModelIndex &index, int role) const;
+    QVariant data(const QModelIndex &index, int role) const override;
 
     /**
      * @brief Retrieves the header data for a specific section and role.
@@ -190,21 +190,21 @@ public:
      * @return The header data.
      */
     QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole) const;
+                        int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Returns the number of rows under a given parent.
      * @param parent The parent model index (defaults to an invalid QModelIndex).
      * @return The number of rows.
      */
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Returns the number of columns under a given parent.
      * @param parent The parent model index (defaults to an invalid QModelIndex).
      * @return The number of columns.
      */
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
 private:
     /** @brief List storing variants representing the export objects. */
@@ -261,7 +261,7 @@ protected:
      * @param source_right The second source index.
      * @return True if the left item should appear before the right item.
      */
-    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
+    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
 
     /**
      * @brief Determines whether a row from the source model matches the active filters and should be displayed.
@@ -269,7 +269,7 @@ protected:
      * @param source_parent The parent index in the source model.
      * @return True if the row is accepted, false otherwise.
      */
-    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
 
 private:
     /** @brief The active content type filter string. */

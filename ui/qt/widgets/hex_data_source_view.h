@@ -238,7 +238,7 @@ public slots:
      * @brief Update the monospace font and recalculate layout metrics.
      * @param mono_font The new monospace font.
      */
-    void setMonospaceFont(const QFont &mono_font);
+    void setMonospaceFont(const QFont &mono_font) override;
 
     /**
      * @brief Reload byte-view display preferences and repaint.
@@ -251,7 +251,7 @@ public slots:
      * @param start  First byte offset of the protocol span.
      * @param length Number of bytes in the protocol span.
      */
-    void markProtocol(int start, int length);
+    void markProtocol(int start, int length) override;
 
     /**
      * @brief Highlight a specific dissected field byte range.
@@ -261,7 +261,7 @@ public slots:
      * @param scroll_to true (default) to scroll the range into view.
      * @param hover     true to apply hover coloring rather than selection.
      */
-    void markField(int start, int length, bool scroll_to = true, bool hover = false);
+    void markField(int start, int length, bool scroll_to = true, bool hover = false) override;
 
     /**
      * @brief Highlight the appendix (trailing) bytes of the selected field.
@@ -269,12 +269,12 @@ public slots:
      * @param start  First byte offset of the appendix.
      * @param length Number of bytes in the appendix.
      */
-    void markAppendix(int start, int length);
+    void markAppendix(int start, int length) override;
 
     /**
      * @brief Clear field, appendix, and hover highlights.
      */
-    void unmarkField();
+    void unmarkField() override;
 
 protected:
     /**
@@ -282,60 +282,60 @@ protected:
      *
      * @param event Provides the dirty rect used to limit painting.
      */
-    virtual void paintEvent(QPaintEvent *event);
+    virtual void paintEvent(QPaintEvent *event) override;
 
     /**
      * @brief Recalculate scrollbar ranges and repaint after a resize.
      * @param event The resize event (unused beyond triggering the update).
      */
-    virtual void resizeEvent(QResizeEvent *event);
+    virtual void resizeEvent(QResizeEvent *event) override;
 
     /**
      * @brief Ensure the layout is up to date when the widget first becomes visible.
      *
      * @param event The show event.
      */
-    virtual void showEvent(QShowEvent *event);
+    virtual void showEvent(QShowEvent *event) override;
 
     /**
      * @brief Begin a byte selection or move the cursor on mouse press.
      *
      * @param event The mouse press event.
      */
-    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mousePressEvent(QMouseEvent *event) override;
 
     /**
      * @brief Extend the selection during a mouse drag.
      *
      * @param event The mouse move event.
      */
-    virtual void mouseMoveEvent(QMouseEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event) override;
 
     /**
      * @brief Finalise a drag selection on mouse release.
      * @param event The mouse release event.
      */
-    virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event) override;
 
     /**
      * @brief Clear hover highlights when the pointer leaves the widget.
      * @param event The leave event.
      */
-    virtual void leaveEvent(QEvent *event);
+    virtual void leaveEvent(QEvent *event) override;
 
     /**
      * @brief Show the byte-view context menu.
      *
      * @param event The context menu event.
      */
-    virtual void contextMenuEvent(QContextMenuEvent *event);
+    virtual void contextMenuEvent(QContextMenuEvent *event) override;
 
     /**
      * @brief Handle keyboard navigation and copy commands.
      *
      * @param event The key press event.
      */
-    virtual void keyPressEvent(QKeyEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event) override;
 
 private:
     /**
@@ -544,7 +544,7 @@ private:
      * @brief Return the raw data buffer for printing (IDataPrintable).
      * @return A copy of @c data_.
      */
-    const QByteArray printableData() { return data_; }
+    const QByteArray printableData() override { return data_; }
 
     // ── Constants ─────────────────────────────────────────────────────────
 

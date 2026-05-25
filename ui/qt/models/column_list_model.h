@@ -183,7 +183,7 @@ public:
      * @param role The requested data role.
      * @return The header data.
      */
-    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Retrieves data from the model.
@@ -191,47 +191,47 @@ public:
      * @param role The requested data role.
      * @return The data associated with the index and role.
      */
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Retrieves the number of rows in the model.
      * @param parent The parent model index.
      * @return The number of rows.
      */
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Retrieves the number of columns in the model.
      * @param parent The parent model index.
      * @return The number of columns.
      */
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Retrieves the item flags for a given index.
      * @param index The model index.
      * @return The valid item flags for the index.
      */
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     /**
      * @brief Retrieves the supported MIME types for drag and drop operations.
      * @return A list of supported MIME type strings.
      */
-    virtual QStringList mimeTypes() const;
+    virtual QStringList mimeTypes() const override;
 
     /**
      * @brief Generates MIME data for the specified list of indexes.
      * @param indexes The list of indexes to generate data for.
      * @return A pointer to the generated QMimeData.
      */
-    virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
+    virtual QMimeData *mimeData(const QModelIndexList &indexes) const override;
 
     /**
      * @brief Specifies the supported drag and drop actions.
      * @return The supported drop actions.
      */
-    virtual Qt::DropActions supportedDropActions() const;
+    virtual Qt::DropActions supportedDropActions() const override;
 
     /**
      * @brief Checks if MIME data can be dropped at a specific location.
@@ -242,7 +242,7 @@ public:
      * @param parent The target parent model index.
      * @return True if the drop is allowed, false otherwise.
      */
-    virtual bool canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const;
+    virtual bool canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const override;
 
     /**
      * @brief Handles dropped MIME data to rearrange rows.
@@ -253,7 +253,7 @@ public:
      * @param parent The target parent index.
      * @return True if the drop was successfully processed, false otherwise.
      */
-    virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
+    virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
 
     /**
      * @brief Sets data in the model for the given index and role.
@@ -262,7 +262,7 @@ public:
      * @param role The data role being set.
      * @return True if the data was successfully updated, false otherwise.
      */
-    virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+    virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
 private:
     /**

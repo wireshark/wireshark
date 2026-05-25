@@ -71,14 +71,14 @@ public:
      * @param parent The parent model index, defaults to QModelIndex().
      * @return The number of rows.
      */
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const ;
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Retrieves the number of columns in the model.
      * @param parent The parent model index, defaults to QModelIndex().
      * @return The number of columns.
      */
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Retrieves the data stored under the given role for the item referred to by the index.
@@ -86,7 +86,7 @@ public:
      * @param role The display role.
      * @return The data as a QVariant.
      */
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Retrieves the header data for the given section, orientation, and role.
@@ -95,7 +95,7 @@ public:
      * @param role The display role.
      * @return The header data as a QVariant.
      */
-    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Adds a new manufacturer record to the model.
@@ -161,7 +161,7 @@ public:
      * @param source_parent The parent index in the source model.
      * @return True if the row is accepted, false otherwise.
      */
-    virtual bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const;
+    virtual bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const override;
 
 public slots:
     /**

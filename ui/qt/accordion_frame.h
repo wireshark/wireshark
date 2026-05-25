@@ -49,10 +49,10 @@ signals:
 
 protected:
     /** @brief Emit visibilityChanged(false) when the frame is hidden. */
-    virtual void hideEvent(QHideEvent *) { emit visibilityChanged(false); }
+    virtual void hideEvent(QHideEvent *) override { emit visibilityChanged(false); }
 
     /** @brief Emit visibilityChanged(true) when the frame is shown. */
-    virtual void showEvent(QShowEvent *) { emit visibilityChanged(true); }
+    virtual void showEvent(QShowEvent *) override { emit visibilityChanged(true); }
 
 private:
     int frame_height_;           /**< Natural height of the frame used as the animation target. */

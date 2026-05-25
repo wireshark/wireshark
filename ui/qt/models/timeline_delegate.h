@@ -83,7 +83,7 @@ protected:
      * @param index   Model index of the cell being painted.
      */
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const;
+               const QModelIndex &index) const override;
 
 private:
     int _dataRole; /**< Model role used to retrieve timeline_span data for each cell. */

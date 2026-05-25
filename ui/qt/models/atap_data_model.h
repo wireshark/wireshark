@@ -92,7 +92,7 @@ conv_hash_t hash_; /**< Hash table mapping address/port tuples to their conversa
      * @param parent index of parent, QModelIndex() for the root
      * @return int the number of rows under the parent
      */
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Return the number of columns in the model.
@@ -100,7 +100,7 @@ conv_hash_t hash_; /**< Hash table mapping address/port tuples to their conversa
      * @param parent index of parent, QModelIndex() for the root
      * @return int the number of columns under the parent
      */
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const = 0;
+    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const  override= 0;
 
     /**
      * @brief Return the header data for the specified section and orientation.
@@ -110,7 +110,7 @@ conv_hash_t hash_; /**< Hash table mapping address/port tuples to their conversa
      * @param role The data role.
      * @return QVariant The header data.
      */
-    virtual QVariant headerData(int section, Qt::Orientation orientation = Qt::Horizontal, int role = Qt::DisplayRole) const = 0;
+    virtual QVariant headerData(int section, Qt::Orientation orientation = Qt::Horizontal, int role = Qt::DisplayRole) const  override= 0;
 
     /**
      * @brief Return the data for the specified index and role.
@@ -119,7 +119,7 @@ conv_hash_t hash_; /**< Hash table mapping address/port tuples to their conversa
      * @param role The data role.
      * @return QVariant The data for the specified index and role.
      */
-    virtual QVariant data(const QModelIndex &idx, int role = Qt::DisplayRole) const = 0;
+    virtual QVariant data(const QModelIndex &idx, int role = Qt::DisplayRole) const  override= 0;
 
     /**
      * @brief Returns the name for the tap being used

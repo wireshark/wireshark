@@ -40,7 +40,7 @@ protected:
     /**
      * @brief Handles resize events to adjust the position and size of the embedded apply button.
      */
-    void resizeEvent(QResizeEvent *);
+    void resizeEvent(QResizeEvent *) override;
 
 signals:
     /**

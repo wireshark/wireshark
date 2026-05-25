@@ -207,7 +207,7 @@ protected slots:
     /**
      * @brief Updates the UI widgets.
      */
-    virtual void updateWidgets();
+    virtual void updateWidgets() override;
 
 protected:
     /**
@@ -414,7 +414,7 @@ private:
      * @param event The event being filtered.
      * @return True if the event was filtered out, false otherwise.
      */
-    bool eventFilter(QObject*, QEvent* event);
+    bool eventFilter(QObject*, QEvent* event) override;
 
     /**
      * @brief Retrieves the IDs of the currently selected RTP streams.

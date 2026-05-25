@@ -40,7 +40,7 @@ protected:
     /**
      * @brief Handles the event when the capture file is closing.
      */
-    void captureFileClosing();
+    void captureFileClosing() override;
 
 private:
     /** Pointer to the multicast stream tap information structure. */
@@ -86,19 +86,19 @@ private:
      * @param ti The tree widget item to process.
      * @return A list of variants containing the data for the item.
      */
-    virtual QList<QVariant> treeItemData(QTreeWidgetItem *ti) const;
+    virtual QList<QVariant> treeItemData(QTreeWidgetItem *ti) const override;
 
     /**
      * @brief Gets the current filter expression.
      * @return The filter expression string.
      */
-    virtual const QString filterExpression();
+    virtual const QString filterExpression() override;
 
 private slots:
     /**
      * @brief Updates the states of the UI widgets.
      */
-    void updateWidgets();
+    void updateWidgets() override;
 
     /**
      * @brief Updates the multicast processing parameters based on UI inputs.
@@ -108,7 +108,7 @@ private slots:
     /**
      * @brief Fills the tree view with multicast statistics data.
      */
-    virtual void fillTree();
+    virtual void fillTree() override;
 };
 
 #endif // MULTICASTSTATISTICSDIALOG_H

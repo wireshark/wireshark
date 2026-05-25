@@ -42,7 +42,7 @@ protected:
      * @brief Handles the event when the frame is shown.
      * @param evt The show event.
      */
-    void showEvent(QShowEvent *evt);
+    void showEvent(QShowEvent *evt) override;
 
 private:
     /** Pointer to the generated UI elements. */

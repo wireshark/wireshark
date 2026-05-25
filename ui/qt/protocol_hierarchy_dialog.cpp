@@ -130,7 +130,7 @@ public:
         return QVariant();
     }
 
-    bool operator< (const QTreeWidgetItem &other) const
+    bool operator< (const QTreeWidgetItem &other) const override
     {
         const ProtocolHierarchyTreeWidgetItem &other_phtwi = dynamic_cast<const ProtocolHierarchyTreeWidgetItem&>(other);
 

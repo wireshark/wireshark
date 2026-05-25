@@ -50,13 +50,13 @@ protected:
     /**
      * @brief Handles the show event.
      */
-    void showEvent(QShowEvent *);
+    void showEvent(QShowEvent *) override;
 
     /**
      * @brief Handles the resize event.
      * @param evt The resize event.
      */
-    void resizeEvent(QResizeEvent *evt);
+    void resizeEvent(QResizeEvent *evt) override;
 
 private:
     /** Pointer to the generated UI elements. */

@@ -44,7 +44,7 @@ public:
      * @param modifiers    Active keyboard modifiers at the time of the action.
      * @return The model index that should receive focus.
      */
-    QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
+    QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers) override;
 
 protected slots:
     /**
@@ -54,7 +54,7 @@ protected slots:
      * @param current  The newly current model index.
      * @param previous The previously current model index.
      */
-    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous) override;
 
 signals:
     /**

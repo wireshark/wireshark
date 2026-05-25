@@ -67,14 +67,14 @@ protected:
      * @brief Populate widgets with the latest address data when the frame becomes visible.
      * @param event The show event.
      */
-    virtual void showEvent(QShowEvent *event);
+    virtual void showEvent(QShowEvent *event) override;
 
     /**
      * @brief Handle key press events.
      *
      * @param event The key event.
      */
-    virtual void keyPressEvent(QKeyEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
     /**

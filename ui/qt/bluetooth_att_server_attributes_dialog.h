@@ -83,12 +83,12 @@ protected:
      * @brief Handle key press events.
      * @param event The key event.
      */
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
 
     /**
      * @brief Called when the associated capture file is closed.
      */
-    void captureFileClosed();
+    void captureFileClosed() override;
 
 
 protected slots:
@@ -96,7 +96,7 @@ protected slots:
      * @brief Handle change events such as language or palette changes.
      * @param event The change event.
      */
-    void changeEvent(QEvent *event);
+    void changeEvent(QEvent *event) override;
 
 private:
     Ui::BluetoothAttServerAttributesDialog *ui;

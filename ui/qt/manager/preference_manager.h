@@ -107,7 +107,7 @@ public:
         { \
             PreferenceManager::instance()->registerType(pref_id, this); \
         } \
-        virtual WiresharkPreference *create(QObject * parent) { \
+        virtual WiresharkPreference *create(QObject * parent) override { \
             WiresharkPreference * newPrefHandler = new preference_class(parent); \
             return newPrefHandler; \
         } \

@@ -47,7 +47,7 @@ public:
 
 protected:
     /** @brief Return the column header labels for the authors table. */
-    virtual QStringList headerColumns() const;
+    virtual QStringList headerColumns() const override;
 };
 
 /**
@@ -71,7 +71,7 @@ public:
 
 protected:
     /** @brief Return the column header labels for the plugins table. */
-    virtual QStringList headerColumns() const;
+    virtual QStringList headerColumns() const override;
 
 private:
     QStringList typeNames_; /**< Cached list of distinct plugin type names. */
@@ -92,7 +92,7 @@ public:
 
 protected:
     /** @brief Return the column header labels for the folders table. */
-    virtual QStringList headerColumns() const;
+    virtual QStringList headerColumns() const override;
 };
 
 /**
@@ -122,13 +122,13 @@ protected:
      * @return true if the event was recognised and consumed; false to
      *         propagate it to the base class.
      */
-    virtual bool event(QEvent *event);
+    virtual bool event(QEvent *event) override;
 
     /**
      * @brief Populate dynamic content the first time the dialog is shown.
      * @param event The show event.
      */
-    virtual void showEvent(QShowEvent *event);
+    virtual void showEvent(QShowEvent *event) override;
 
     /**
      * @brief Return the VCS (Git) revision string embedded at build time.

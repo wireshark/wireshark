@@ -205,7 +205,7 @@ public slots:
      * @brief Shows the dialog as a modal window, blocking until the user closes it.
      * @return The dialog result (e.g., QDialog::Accepted or QDialog::Rejected).
      */
-    int exec();
+    int exec() override;
 
 private slots:
     /**

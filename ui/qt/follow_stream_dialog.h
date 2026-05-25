@@ -84,6 +84,10 @@ protected:
      */
     void keyPressEvent(QKeyEvent *event) override;
 
+
+    /**
+     * @brief Called when retap is complete.
+     */
     void endRetapPackets() override;
 
     /**

@@ -47,7 +47,7 @@ protected slots:
      * @param current The new current model index.
      * @param previous The previous current model index.
      */
-    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous) override;
 
 private:
     /**

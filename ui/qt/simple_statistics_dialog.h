@@ -88,7 +88,7 @@ private:
      * @param item Tree widget item to extract data from.
      * @return List of QVariant values, one per column, in column order.
      */
-    virtual QList<QVariant> treeItemData(QTreeWidgetItem *item) const;
+    virtual QList<QVariant> treeItemData(QTreeWidgetItem *item) const override;
 
     /**
      * @brief Destroys the dialog, deregisters the tap listener, and frees resources.
@@ -102,7 +102,7 @@ private slots:
      * Called after the tap has been (re-)run, e.g. when the filter changes or
      * a new capture file is loaded.
      */
-    virtual void fillTree();
+    virtual void fillTree() override;
 };
 
 /**

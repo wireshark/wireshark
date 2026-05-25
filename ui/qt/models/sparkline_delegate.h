@@ -49,7 +49,7 @@ protected:
      * @param index   Model index of the cell being painted.
      */
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const;
+               const QModelIndex &index) const override;
 
     /**
      * @brief Returns the preferred size for a spark-line cell.
@@ -58,7 +58,7 @@ protected:
      * @return Recommended QSize for the cell.
      */
     QSize sizeHint(const QStyleOptionViewItem &option,
-                   const QModelIndex &index) const;
+                   const QModelIndex &index) const override;
 
     /**
      * @brief Suppresses inline editing by returning @c nullptr.
@@ -70,7 +70,7 @@ protected:
      * @param index   Unused model index.
      * @return Always @c nullptr.
      */
-    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
 signals:
 

@@ -115,7 +115,7 @@ protected:
     /**
      * @brief Provides parameter data required for the underlying SRT dialog.
      */
-    virtual void provideParameterData();
+    virtual void provideParameterData() override;
 
 public slots:
     /**

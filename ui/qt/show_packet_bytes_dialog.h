@@ -75,14 +75,14 @@ protected:
      * @param event The event to filter.
      * @return @c true to suppress the event; @c false to pass it on.
      */
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
     /**
      * @brief Handles key press events; maps Ctrl+F to the find field and
      *        Enter/Return to findText().
      * @param event The key event to process.
      */
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
     /**
@@ -179,7 +179,7 @@ private:
     /**
      * @brief Refreshes the enabled/disabled state of all UI controls.
      */
-    void updateWidgets();
+    void updateWidgets() override;
 
     /**
      * @brief Updates the hint label text to reflect the current byte range and
@@ -292,7 +292,7 @@ private slots:
      *        actions at the cursor position.
      * @param event The context menu event.
      */
-    void contextMenuEvent(QContextMenuEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
     /**
      * @brief Emits showSelected() with the current text-cursor selection bounds.

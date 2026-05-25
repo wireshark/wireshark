@@ -34,6 +34,6 @@ protected slots:
      * @param current The newly selected model index.
      * @param previous The previously selected model index.
      */
-    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous) override;
 };
 #endif // DISSECTOR_TABLES_VIEW_H

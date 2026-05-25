@@ -52,13 +52,13 @@ protected:
      * @brief Handles the show event for the frame.
      * @param event The show event details.
      */
-    virtual void showEvent(QShowEvent *event);
+    virtual void showEvent(QShowEvent *event) override;
 
     /**
      * @brief Handles key press events, typically for accepting/rejecting the dialog.
      * @param event The key press event details.
      */
-    virtual void keyPressEvent(QKeyEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
     /**

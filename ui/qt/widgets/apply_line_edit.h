@@ -75,7 +75,7 @@ protected:
      * @brief Reposition the embedded apply button when the widget is resized.
      * @param event The resize event.
      */
-    void resizeEvent(QResizeEvent *event);
+    void resizeEvent(QResizeEvent *event) override;
 
 private:
     QString regex_;              /**< Validation regex pattern; empty means no pattern check. */

@@ -58,13 +58,13 @@ private:
      * @brief Handles context menu events to provide custom options.
      * @param event The context menu event.
      */
-    void contextMenuEvent(QContextMenuEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
     /**
      * @brief Handles key press events within the line edit.
      * @param event The key event.
      */
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
 
     /**
      * @brief Validates the current input text, particularly for regex correctness.

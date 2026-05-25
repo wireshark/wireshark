@@ -155,7 +155,7 @@ public:
      * @param index The model index to query.
      * @return The item flags for the specified index.
      */
-    Qt::ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     /**
      * @brief Retrieves data from the model for the given index and role.
@@ -163,7 +163,7 @@ public:
      * @param role The role for which data is requested.
      * @return The data associated with the index and role.
      */
-    QVariant data(const QModelIndex &index, int role) const;
+    QVariant data(const QModelIndex &index, int role) const override;
 
     /**
      * @brief Sets data in the model for the given index and role.
@@ -172,7 +172,7 @@ public:
      * @param role The role for which data is being set (defaults to Qt::EditRole).
      * @return True if the data was successfully set, false otherwise.
      */
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
     /**
      * @brief Retrieves header data for the given section, orientation, and role.
@@ -182,7 +182,7 @@ public:
      * @return The header data for the specified parameters.
      */
     QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole) const;
+                        int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Generates an index for the specified row and column.
@@ -192,34 +192,34 @@ public:
      * @return The generated model index.
      */
     QModelIndex index(int row, int column,
-                      const QModelIndex &parent = QModelIndex()) const;
+                      const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Retrieves the parent index of the specified index.
      * @param indexItem The child model index.
      * @return The parent model index.
      */
-    QModelIndex parent(const QModelIndex &indexItem) const;
+    QModelIndex parent(const QModelIndex &indexItem) const override;
 
     //Drag & drop functionality
     /**
      * @brief Specifies the supported drag and drop actions.
      * @return The supported drop actions.
      */
-    Qt::DropActions supportedDropActions() const;
+    Qt::DropActions supportedDropActions() const override;
 
     /**
      * @brief Retrieves the list of supported MIME types for drag and drop operations.
      * @return A list of supported MIME type strings.
      */
-    QStringList mimeTypes() const;
+    QStringList mimeTypes() const override;
 
     /**
      * @brief Generates MIME data for the specified list of indexes.
      * @param indexes The list of indexes to generate data for.
      * @return A pointer to the generated QMimeData.
      */
-    QMimeData* mimeData(const QModelIndexList &indexes) const;
+    QMimeData* mimeData(const QModelIndexList &indexes) const override;
 
     /**
      * @brief Handles dropped MIME data.
@@ -230,21 +230,21 @@ public:
      * @param parent The target parent index.
      * @return True if the drop was successful, false otherwise.
      */
-    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
+    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
 
     /**
      * @brief Returns the number of rows under the given parent.
      * @param parent The parent model index (defaults to an invalid QModelIndex).
      * @return The number of rows in the model.
      */
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Returns the number of columns under the given parent.
      * @param parent The parent model index (defaults to an invalid QModelIndex).
      * @return The number of columns in the model.
      */
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Inserts rows into the model.
@@ -253,7 +253,7 @@ public:
      * @param parent The parent model index (defaults to an invalid QModelIndex).
      * @return True if the insertion was successful, false otherwise.
      */
-    bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
+    bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
     /**
      * @brief Removes rows from the model.
@@ -262,7 +262,7 @@ public:
      * @param parent The parent model index (defaults to an invalid QModelIndex).
      * @return True if the removal was successful, false otherwise.
      */
-    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
+    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
     /**
      * @brief Copies a row from one index to another.

@@ -86,14 +86,14 @@ public:
      * @param parent The parent model index (defaults to an invalid QModelIndex).
      * @return The number of rows.
      */
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Returns the number of columns in the table model.
      * @param parent The parent model index (defaults to an invalid QModelIndex).
      * @return The number of columns.
      */
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Retrieves data from the model for a given index and role.
@@ -101,7 +101,7 @@ public:
      * @param role The data role requested (defaults to Qt::DisplayRole).
      * @return The data associated with the index and role.
      */
-    QVariant data (const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QVariant data (const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Retrieves the header data for a specific section and role.
@@ -110,7 +110,7 @@ public:
      * @param role The data role requested.
      * @return The header data.
      */
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
     /**
      * @brief Sets the statistics provider supplying sparkline/activity data.

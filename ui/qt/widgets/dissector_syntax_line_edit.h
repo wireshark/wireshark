@@ -43,13 +43,13 @@ protected:
      * @brief Handles key press events, forwarding them to the auto-completion logic.
      * @param event The key press event.
      */
-    void keyPressEvent(QKeyEvent *event) { completionKeyPressEvent(event); }
+    void keyPressEvent(QKeyEvent *event) override { completionKeyPressEvent(event); }
 
     /**
      * @brief Handles focus in events, forwarding them to the auto-completion logic.
      * @param event The focus event.
      */
-    void focusInEvent(QFocusEvent *event) { completionFocusInEvent(event); }
+    void focusInEvent(QFocusEvent *event) override { completionFocusInEvent(event); }
 
 public slots:
     /**
@@ -63,7 +63,7 @@ private slots:
      * @brief Handles general state change events for the widget.
      * @param event The state change event.
      */
-    void changeEvent(QEvent* event);
+    void changeEvent(QEvent* event) override;
 
 private:
     /** The placeholder text displayed when the line edit is empty. */
@@ -74,7 +74,7 @@ private:
      * @param field_word The word currently being typed.
      * @param preamble The text preceding the current word.
      */
-    void buildCompletionList(const QString &field_word, const QString &preamble);
+    void buildCompletionList(const QString &field_word, const QString &preamble) override;
 };
 
 #endif // DISSECTOR_SYNTAX_LINEEDIT_H

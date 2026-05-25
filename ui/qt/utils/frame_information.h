@@ -69,7 +69,7 @@ public:
      * @brief Generates the printable data representation of the frame.
      * @return A QByteArray containing the printable frame data.
      */
-    const QByteArray printableData();
+    const QByteArray printableData() override;
 
 private:
 

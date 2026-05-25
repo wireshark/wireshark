@@ -7700,7 +7700,7 @@ public:
   bool removeFromLegend() const;
 
   // introduced virtual methods:
-  virtual double selectTest(const QPointF &pos, bool onlySelectable, QVariant *details=0) const; // actually introduced in QCPLayerable as non-pure, but we want to force reimplementation for plottables
+  virtual double selectTest(const QPointF &pos, bool onlySelectable, QVariant *details=0) const override; // actually introduced in QCPLayerable as non-pure, but we want to force reimplementation for plottables
   virtual QCPPlottableInterface1D *interface1D() { return 0; } // TODO: return this later, when QCPAbstractPolarPlottable is created
   virtual QCPRange getKeyRange(bool &foundRange, QCP::SignDomain inSignDomain=QCP::sdBoth) const;
   virtual QCPRange getValueRange(bool &foundRange, QCP::SignDomain inSignDomain=QCP::sdBoth, const QCPRange &inKeyRange=QCPRange()) const;
@@ -7727,13 +7727,13 @@ protected:
   //QCPSelectionDecorator *mSelectionDecorator;
 
   // introduced virtual methods (later reimplemented TODO from QCPAbstractPolarPlottable):
-  virtual QRect clipRect() const;
-  virtual void draw(QCPPainter *painter);
-  virtual QCP::Interaction selectionCategory() const;
-  void applyDefaultAntialiasingHint(QCPPainter *painter) const;
+  virtual QRect clipRect() const override;
+  virtual void draw(QCPPainter *painter) override;
+  virtual QCP::Interaction selectionCategory() const override;
+  void applyDefaultAntialiasingHint(QCPPainter *painter) const override;
   // events:
-  virtual void selectEvent(QMouseEvent *event, bool additive, const QVariant &details, bool *selectionStateChanged);
-  virtual void deselectEvent(bool *selectionStateChanged);
+  virtual void selectEvent(QMouseEvent *event, bool additive, const QVariant &details, bool *selectionStateChanged) override;
+  virtual void deselectEvent(bool *selectionStateChanged) override;
   // virtual drawing helpers:
   virtual void drawLinePlot(QCPPainter *painter, const QVector<QPointF> &lines) const;
   virtual void drawFill(QCPPainter *painter, QVector<QPointF> *lines) const;

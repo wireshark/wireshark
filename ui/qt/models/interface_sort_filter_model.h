@@ -159,14 +159,14 @@ public:
      * @param proxyIndex The proxy model index.
      * @return The source model index.
      */
-    QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
+    QModelIndex mapToSource(const QModelIndex &proxyIndex) const override;
 
     /**
      * @brief Maps a source model index to its corresponding proxy model index.
      * @param sourceIndex The source model index.
      * @return The proxy model index.
      */
-    QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
+    QModelIndex mapFromSource(const QModelIndex &sourceIndex) const override;
 
     /**
      * @brief Retrieves any current interface-related error messages.
@@ -181,7 +181,7 @@ protected:
      * @param source_parent The parent index in the source model.
      * @return True if the row should be displayed, false otherwise.
      */
-    bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const;
+    bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const override;
 
     /**
      * @brief Determines whether a column from the source model matches active column filters.
@@ -189,7 +189,7 @@ protected:
      * @param source_parent The parent index in the source model.
      * @return True if the column should be displayed, false otherwise.
      */
-    bool filterAcceptsColumn(int source_column, const QModelIndex & source_parent) const;
+    bool filterAcceptsColumn(int source_column, const QModelIndex & source_parent) const override;
 
     /**
      * @brief Compares two source indices to determine their sort order.
@@ -197,7 +197,7 @@ protected:
      * @param source_right The second source index.
      * @return True if the left item should appear before the right item.
      */
-    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
+    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
 
 private:
     /** Flag indicating if hidden interfaces should be filtered out. */

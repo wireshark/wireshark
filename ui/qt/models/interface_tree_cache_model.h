@@ -42,7 +42,7 @@ public:
      * @param parent The parent model index (defaults to an invalid QModelIndex).
      * @return The number of rows.
      */
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Retrieves data from the cache or source model for a given index and role.
@@ -50,7 +50,7 @@ public:
      * @param role The data role requested (defaults to Qt::DisplayRole).
      * @return The data associated with the index and role.
      */
-    QVariant data (const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QVariant data (const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Sets data in the cache for a given index and role.
@@ -59,14 +59,14 @@ public:
      * @param role The data role being edited (defaults to Qt::EditRole).
      * @return True if successful, false otherwise.
      */
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
     /**
      * @brief Retrieves the item flags for a given index, taking cache rules into account.
      * @param index The model index.
      * @return The item flags.
      */
-    Qt::ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     /**
      * @brief Gets the cached content for a specific column and row.
@@ -85,7 +85,7 @@ public:
      * @param parent The parent index (defaults to an invalid QModelIndex).
      * @return The corresponding model index.
      */
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Resets cached changes for a specific row.

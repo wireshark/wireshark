@@ -89,45 +89,45 @@ protected:
      * @brief Recalculates layout parameters when the widget is resized.
      * @param event The resize event containing old and new sizes.
      */
-    void resizeEvent(QResizeEvent *event);
+    void resizeEvent(QResizeEvent *event) override;
 
     /**
      * @brief Renders the wireless timeline, colouring each pixel column according
      *        to the radio properties of the frame occupying that time slot.
      * @param event The paint event describing the region to update.
      */
-    void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent *event) override;
 
     /**
      * @brief Begins a pan or selection drag operation on button press.
      * @param event The mouse press event.
      */
-    void mousePressEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
 
     /**
      * @brief Pans the visible time range while the mouse button is held and moved.
      * @param event The mouse move event.
      */
-    void mouseMoveEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event) override;
 
     /**
      * @brief Finalises a pan or selection drag on button release.
      * @param event The mouse release event.
      */
-    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event) override;
 
     /**
      * @brief Handles tooltip requests and other non-standard events.
      * @param event The event to process.
      * @return @c true if the event was handled; @c false otherwise.
      */
-    bool event(QEvent *event);
+    bool event(QEvent *event) override;
 
     /**
      * @brief Zooms the visible time range in or out in response to the scroll wheel.
      * @param event The wheel event.
      */
-    void wheelEvent(QWheelEvent *event);
+    void wheelEvent(QWheelEvent *event) override;
 
 public slots:
     /**

@@ -54,54 +54,54 @@ protected:
      * @brief Handles paint events for the widget.
      * @param evt The paint event details.
      */
-    void paintEvent(QPaintEvent *evt);
+    void paintEvent(QPaintEvent *evt) override;
 
     /**
      * @brief Handles resize events for the widget.
      */
-    void resizeEvent(QResizeEvent *);
+    void resizeEvent(QResizeEvent *) override;
 
     /**
      * @brief Handles key press events and forwards them to the completion logic.
      * @param event The key press event details.
      */
-    void keyPressEvent(QKeyEvent *event) { completionKeyPressEvent(event); }
+    void keyPressEvent(QKeyEvent *event) override { completionKeyPressEvent(event); }
 
     /**
      * @brief Handles focus in events and forwards them to the completion logic.
      * @param event The focus event details.
      */
-    void focusInEvent(QFocusEvent *event) { completionFocusInEvent(event); }
+    void focusInEvent(QFocusEvent *event) override { completionFocusInEvent(event); }
 
     /**
      * @brief Handles focus out events for the widget.
      * @param event The focus event details.
      */
-    void focusOutEvent(QFocusEvent *event);
+    void focusOutEvent(QFocusEvent *event) override;
 
     /**
      * @brief Handles drag enter events to accept valid drops.
      * @param event The drag enter event details.
      */
-    virtual void dragEnterEvent(QDragEnterEvent *event);
+    virtual void dragEnterEvent(QDragEnterEvent *event) override;
 
     /**
      * @brief Handles drag move events for visual feedback.
      * @param event The drag move event details.
      */
-    virtual void dragMoveEvent(QDragMoveEvent *event);
+    virtual void dragMoveEvent(QDragMoveEvent *event) override;
 
     /**
      * @brief Handles drop events containing filter data.
      * @param event The drop event details.
      */
-    virtual void dropEvent(QDropEvent *event);
+    virtual void dropEvent(QDropEvent *event) override;
 
     /**
      * @brief Handles context menu events to display appropriate actions.
      * @param menu The context menu event details.
      */
-    virtual void contextMenuEvent(QContextMenuEvent *menu);
+    virtual void contextMenuEvent(QContextMenuEvent *menu) override;
 
 public slots:
     /**
@@ -148,7 +148,7 @@ private slots:
      * @brief Handles generic state change events.
      * @param event The state change event details.
      */
-    void changeEvent(QEvent* event);
+    void changeEvent(QEvent* event) override;
 
     /**
      * @brief Opens the display filter expression dialog.
@@ -240,7 +240,7 @@ private:
      * @param field_word The word currently being typed.
      * @param preamble The preceding text before the field word.
      */
-    void buildCompletionList(const QString &field_word, const QString &preamble);
+    void buildCompletionList(const QString &field_word, const QString &preamble) override;
 
     /**
      * @brief Creates and displays a menu when a filter string is dropped on the widget.

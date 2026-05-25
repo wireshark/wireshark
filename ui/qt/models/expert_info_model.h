@@ -233,14 +233,14 @@ public:
      * @return The corresponding model index.
      */
     QModelIndex index(int row, int column,
-                      const QModelIndex &parent = QModelIndex()) const;
+                      const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Retrieves the parent of a given index.
      * @param index The child model index.
      * @return The parent model index.
      */
-    QModelIndex parent(const QModelIndex &index) const;
+    QModelIndex parent(const QModelIndex &index) const override;
 
 #if 0
     /**
@@ -257,21 +257,21 @@ public:
      * @param role The data role requested.
      * @return The data associated with the index and role.
      */
-    QVariant data(const QModelIndex &index, int role) const;
+    QVariant data(const QModelIndex &index, int role) const override;
 
     /**
      * @brief Returns the number of rows under a given parent.
      * @param parent The parent model index (defaults to an invalid QModelIndex).
      * @return The number of rows.
      */
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Returns the number of columns under a given parent.
      * @param parent The parent model index (defaults to an invalid QModelIndex).
      * @return The number of columns.
      */
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Gets the total number of events for a specific severity.

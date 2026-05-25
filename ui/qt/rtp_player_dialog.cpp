@@ -109,7 +109,7 @@ public:
     {
     }
 
-    bool operator< (const QTreeWidgetItem &other) const
+    bool operator< (const QTreeWidgetItem &other) const override
     {
         // Handle numeric sorting
         switch (treeWidget()->sortColumn()) {

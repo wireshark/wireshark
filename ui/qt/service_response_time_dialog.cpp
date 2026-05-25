@@ -103,7 +103,7 @@ public:
         setHidden(procedure_->stats.num < 1);
     }
 
-    bool operator< (const QTreeWidgetItem &other) const
+    bool operator< (const QTreeWidgetItem &other) const override
     {
         if (other.type() != srt_row_type_) return QTreeWidgetItem::operator< (other);
         const SrtRowTreeWidgetItem *other_row = static_cast<const SrtRowTreeWidgetItem *>(&other);

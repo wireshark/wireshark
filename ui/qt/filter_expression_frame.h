@@ -64,13 +64,13 @@ protected:
      * @brief Handles the event when the frame is shown.
      * @param event The show event.
      */
-    virtual void showEvent(QShowEvent *event);
+    virtual void showEvent(QShowEvent *event) override;
 
     /**
      * @brief Handles key press events within the frame.
      * @param event The key event.
      */
-    virtual void keyPressEvent(QKeyEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event) override;
 
 private:
     /** Pointer to the generated UI elements. */

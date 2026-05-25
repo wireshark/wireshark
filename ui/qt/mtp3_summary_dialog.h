@@ -54,7 +54,7 @@ private slots:
     /**
      * @brief Updates the UI widgets with the latest data.
      */
-    void updateWidgets();
+    void updateWidgets() override;
 };
 
 #endif // MTP3_SUMMARY_DIALOG_H

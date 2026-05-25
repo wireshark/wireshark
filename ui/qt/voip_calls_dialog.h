@@ -158,22 +158,22 @@ protected:
      * @brief Handles context menu events.
      * @param event The context menu event.
      */
-    void contextMenuEvent(QContextMenuEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
     /**
      * @brief Safely removes all tap listeners used by the dialog.
      */
-    virtual void removeTapListeners();
+    virtual void removeTapListeners() override;
 
     /**
      * @brief Handles operations required just before the capture file closes.
      */
-    void captureFileClosing();
+    void captureFileClosing() override;
 
     /**
      * @brief Handles cleanup after the capture file is fully closed.
      */
-    void captureFileClosed();
+    void captureFileClosed() override;
 
     /**
      * @brief Event filter for capturing specific events.
@@ -181,14 +181,14 @@ protected:
      * @param event The intercepted event.
      * @return True if the event was filtered, false otherwise.
      */
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 protected slots:
     /**
      * @brief Handles generic state change events.
      * @param event The change event.
      */
-    void changeEvent(QEvent* event);
+    void changeEvent(QEvent* event) override;
 
 private:
     // We have two singletones - one for all protocols, one for sip protocol
@@ -359,7 +359,7 @@ private slots:
     /**
      * @brief Updates the enabled state of the dialog widgets based on selection.
      */
-    void updateWidgets();
+    void updateWidgets() override;
 
     /**
      * @brief Handles events related to the capture process.

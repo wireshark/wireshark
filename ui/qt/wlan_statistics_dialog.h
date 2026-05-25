@@ -43,7 +43,7 @@ protected:
      * @brief Called when the associated capture file is being closed; stops
      *        the tap and disables any actions that require live data.
      */
-    void captureFileClosing();
+    void captureFileClosing() override;
 
 private:
     int               packet_count_;       /**< Total number of packets processed by the tap. */
@@ -85,7 +85,7 @@ private:
      * @brief Returns the current display filter expression for use by the tap framework.
      * @return Display filter string, or an empty string if none is set.
      */
-    virtual const QString filterExpression() ;
+    virtual const QString filterExpression()  override;
 
     /**
      * @brief Serialises one tree item's visible column data into a list of
@@ -93,14 +93,14 @@ private:
      * @param it Tree widget item to serialise.
      * @return Ordered list of column values for the given item.
      */
-    virtual QList<QVariant> treeItemData(QTreeWidgetItem *it) const;
+    virtual QList<QVariant> treeItemData(QTreeWidgetItem *it) const override;
 
 private slots:
     /**
      * @brief Clears and rebuilds the entire network/station tree from accumulated
      *        tap data; connected to the retap completion signal.
      */
-    virtual void fillTree();
+    virtual void fillTree() override;
 
     /**
      * @brief Incrementally inserts buffered station rows under their parent network

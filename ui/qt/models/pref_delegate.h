@@ -40,7 +40,7 @@ public:
      * @return The editor widget; ownership is transferred to the view.
      */
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
-                          const QModelIndex &index) const;
+                          const QModelIndex &index) const override;
 
     /**
      * @brief Populate the editor with the current preference value.
@@ -48,7 +48,7 @@ public:
      * @param editor The editor widget returned by createEditor().
      * @param index  The model index whose data should be loaded into the editor.
      */
-    void setEditorData(QWidget *editor, const QModelIndex &index) const;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const override;
 
     /**
      * @brief Write the editor's current value back to the model.
@@ -58,7 +58,7 @@ public:
      * @param index  The model index to write to.
      */
     void setModelData(QWidget *editor, QAbstractItemModel *model,
-                      const QModelIndex &index) const;
+                      const QModelIndex &index) const override;
 
 private:
     /**

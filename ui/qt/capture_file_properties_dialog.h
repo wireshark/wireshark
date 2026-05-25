@@ -129,7 +129,7 @@ protected slots:
      * @brief Handles state change events for the dialog.
      * @param event The event to handle.
      */
-    void changeEvent(QEvent* event);
+    void changeEvent(QEvent* event) override;
 
 private:
     /** Pointer to the generated UI elements. */
@@ -150,7 +150,7 @@ private slots:
     /**
      * @brief Slot triggered to update the state of the dialog's widgets.
      */
-    void updateWidgets();
+    void updateWidgets() override;
 
     /**
      * @brief Slot triggered to add a capture comment.

@@ -58,7 +58,7 @@ protected:
      * @brief Handles the show event for the dialog.
      * @param event The show event object.
      */
-    void showEvent(QShowEvent *event);
+    void showEvent(QShowEvent *event) override;
 
 private slots:
     /**

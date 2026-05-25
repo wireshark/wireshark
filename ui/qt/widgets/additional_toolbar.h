@@ -57,7 +57,7 @@ protected:
      * @return The newly created widget, or nullptr if the item type is
      *         unknown.
      */
-    virtual QWidget *createWidget(QWidget *parent);
+    virtual QWidget *createWidget(QWidget *parent) override;
 
     /** @brief QObject property name used to attach the ext_toolbar_t pointer to widgets. */
     static const char *propertyName;

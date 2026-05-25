@@ -72,13 +72,13 @@ private:
      * @param ti The tree widget item to process.
      * @return A list of variants containing the data for the item.
      */
-    virtual QList<QVariant> treeItemData(QTreeWidgetItem *ti) const;
+    virtual QList<QVariant> treeItemData(QTreeWidgetItem *ti) const override;
 
 private slots:
     /**
      * @brief Fills the tree view with response time delay statistics.
      */
-    virtual void fillTree();
+    virtual void fillTree() override;
 };
 
 /** Register function to register dissectors that support RTD for Qt.

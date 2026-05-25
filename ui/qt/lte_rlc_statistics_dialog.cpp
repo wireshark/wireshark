@@ -249,7 +249,7 @@ public:
         setText(col_dl_missing_, QString::number(stats_.DL_missing));
     }
 
-    bool operator< (const QTreeWidgetItem &other) const
+    bool operator< (const QTreeWidgetItem &other) const override
     {
         if (other.type() != rlc_channel_row_type_) return QTreeWidgetItem::operator< (other);
         const RlcChannelTreeWidgetItem *other_row = static_cast<const RlcChannelTreeWidgetItem *>(&other);
@@ -587,7 +587,7 @@ public:
         }
     }
 
-    bool operator< (const QTreeWidgetItem &other) const
+    bool operator< (const QTreeWidgetItem &other) const override
     {
         if (other.type() != rlc_ue_row_type_) return QTreeWidgetItem::operator< (other);
         const RlcUeTreeWidgetItem *other_row = static_cast<const RlcUeTreeWidgetItem *>(&other);

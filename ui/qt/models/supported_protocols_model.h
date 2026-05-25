@@ -129,14 +129,14 @@ public:
      * @return Model index for the requested item.
      */
     QModelIndex index(int row, int column,
-                      const QModelIndex &parent = QModelIndex()) const;
+                      const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Returns the parent index of the item at @p index.
      * @param index Child model index.
      * @return Parent model index, or an invalid index for top-level items.
      */
-    QModelIndex parent(const QModelIndex &index) const;
+    QModelIndex parent(const QModelIndex &index) const override;
 
     /**
      * @brief Returns data for the given model index and role.
@@ -144,7 +144,7 @@ public:
      * @param role  Qt item data role.
      * @return The requested data, or an invalid QVariant if not applicable.
      */
-    QVariant data(const QModelIndex &index, int role) const;
+    QVariant data(const QModelIndex &index, int role) const override;
 
     /**
      * @brief Returns column header labels for the supported-protocols table.
@@ -154,21 +154,21 @@ public:
      * @return Header label string, or an invalid QVariant if not applicable.
      */
     QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole) const;
+                        int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Returns the number of child rows under @p parent.
      * @param parent Parent model index; invalid index for the root.
      * @return Number of child items.
      */
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Returns the number of columns in the model.
      * @param parent Unused.
      * @return Number of columns (colLast).
      */
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Populates the model by iterating all registered protocols and their
@@ -202,7 +202,7 @@ public:
      * @param sourceParent Parent index in the source model.
      * @return @c true if the row or any of its descendants match the filter.
      */
-    virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+    virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
 
     /**
      * @brief Sets the text filter used to match protocols and fields.
@@ -218,7 +218,7 @@ protected:
      * @param source_right Index of the right-hand item in the source model.
      * @return @c true if @p source_left should sort before @p source_right.
      */
-    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
+    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
 
     /**
      * @brief Tests whether a single SupportedProtocolsItem matches the current filter.

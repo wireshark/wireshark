@@ -101,7 +101,7 @@ public:
 
         setHidden(timestat_->num < 1);
     }
-    bool operator< (const QTreeWidgetItem &other) const
+    bool operator< (const QTreeWidgetItem &other) const override
     {
         if (other.type() != rtd_time_stat_type_) return QTreeWidgetItem::operator< (other);
         const RtdTimeStatTreeWidgetItem *other_row = static_cast<const RtdTimeStatTreeWidgetItem *>(&other);

@@ -219,7 +219,7 @@ public:
         return ret;
     }
 
-    bool operator< (const QTreeWidgetItem &other) const
+    bool operator< (const QTreeWidgetItem &other) const override
     {
         rtpstream_info_calc_t calc1;
         rtpstream_info_calc_t calc2;

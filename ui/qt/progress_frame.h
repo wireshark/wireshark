@@ -146,7 +146,7 @@ protected:
      * @brief Handles timer events.
      * @param event Pointer to the timer event.
      */
-    void timerEvent(QTimerEvent *event);
+    void timerEvent(QTimerEvent *event) override;
 
 private:
     /** @brief Update the label for progress dialog. */

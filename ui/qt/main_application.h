@@ -440,7 +440,7 @@ protected:
      * @param event The event to process.
      * @return True if handled, false otherwise.
      */
-    bool event(QEvent *event);
+    bool event(QEvent *event) override;
 
     /**
      * @brief Pure virtual method for initializing application icons.

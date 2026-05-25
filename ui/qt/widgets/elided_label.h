@@ -43,12 +43,12 @@ protected:
      * @param event The event to handle.
      * @return True if the event was handled, false otherwise.
      */
-    virtual bool event(QEvent *event);
+    virtual bool event(QEvent *event) override;
 
     /**
      * @brief Handles resize events to recalculate the elided text.
      */
-    virtual void resizeEvent(QResizeEvent *);
+    virtual void resizeEvent(QResizeEvent *) override;
 
 private:
     /** Flag indicating whether the text should be displayed in a smaller font. */

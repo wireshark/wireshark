@@ -40,7 +40,7 @@ public:
      * @param role  Qt item data role.
      * @return The requested data, or an invalid QVariant if not applicable.
      */
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Returns column header labels for the VoIP calls table.
@@ -50,21 +50,21 @@ public:
      * @return Header label string, or an invalid QVariant if not applicable.
      */
     QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole) const;
+                        int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Returns the number of call records currently held by the model.
      * @param parent Unused; must be an invalid index for table models.
      * @return Number of rows.
      */
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Returns the number of columns in the model.
      * @param parent Unused.
      * @return Number of columns (Column::ColumnCount).
      */
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Controls whether timestamps are shown as time-of-day or relative times.
@@ -150,7 +150,7 @@ protected:
      * @param source_right Index of the right-hand item in the source model.
      * @return @c true if @p source_left should sort before @p source_right.
      */
-    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
+    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
 };
 
 #endif // VOIP_CALLS_INFO_MODEL_H

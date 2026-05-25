@@ -58,19 +58,19 @@ protected:
      * @brief Handles mouse move events to track packet selection.
      * @param event The mouse event.
      */
-    void mouseMoveEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event) override;
 
     /**
      * @brief Handles mouse press events to select specific packets.
      * @param event The mouse event.
      */
-    void mousePressEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
 
     /**
      * @brief Handles events when the mouse leaves the widget.
      * @param event The leave event.
      */
-    void leaveEvent(QEvent *event);
+    void leaveEvent(QEvent *event) override;
 
 signals:
     /**

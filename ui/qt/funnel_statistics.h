@@ -320,7 +320,7 @@ public:
     /**
      * @brief Triggers the console action, initializing and displaying the dialog.
      */
-    virtual void triggerCallback();
+    virtual void triggerCallback() override;
 
 private:
     /** The title of the console action. */

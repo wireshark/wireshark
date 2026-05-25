@@ -220,7 +220,7 @@ protected:
      * @param source_right Index of the right-hand item in the source model.
      * @return @c true if the left item should sort before the right item.
      */
-    virtual bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
+    virtual bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
 
     /**
      * @brief Determines whether a source row passes the active scope and text filters.
@@ -228,7 +228,7 @@ protected:
      * @param source_parent Parent index in the source model (unused for table models).
      * @return @c true if the row should be included in the filtered view.
      */
-    virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+    virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
 
 private:
     FilterType ft_;    /**< Active profile-scope filter. */
@@ -289,14 +289,14 @@ public:
      * @param parent Unused; pass a default QModelIndex for table models.
      * @return Number of ProfileItem entries in the model.
      */
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Returns the number of columns (always @c _LAST_ENTRY).
      * @param parent Unused.
      * @return Number of columns defined by the @c columns_ enum.
      */
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Returns data for the given index and role.
@@ -304,7 +304,7 @@ public:
      * @param role Qt item data role.
      * @return QVariant with the requested data, or an invalid QVariant if unavailable.
      */
-    virtual QVariant data(const QModelIndex &idx, int role = Qt::DisplayRole) const;
+    virtual QVariant data(const QModelIndex &idx, int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Sets data for an editable cell (profile name or auto-switch filter).
@@ -313,7 +313,7 @@ public:
      * @param role  Must be Qt::EditRole.
      * @return @c true if the value was successfully applied.
      */
-    virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
+    virtual bool setData(const QModelIndex &index, const QVariant &value, int role) override;
 
     /**
      * @brief Returns the header label for the given section.
@@ -322,7 +322,7 @@ public:
      * @param role        Qt item data role.
      * @return QVariant with the header text, or an invalid QVariant for unsupported roles.
      */
-    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Returns the item flags for the given index.
@@ -333,7 +333,7 @@ public:
      * @param index Model index to query.
      * @return Combination of Qt::ItemFlag values.
      */
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     // ── Mutation helpers ──────────────────────────────────────────────────
 

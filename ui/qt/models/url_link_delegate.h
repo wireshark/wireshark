@@ -50,7 +50,7 @@ protected:
      * @param option The style option for the item.
      * @param index The model index of the item.
      */
-    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
 private:
     /** @brief The column index designated for URL checking. */

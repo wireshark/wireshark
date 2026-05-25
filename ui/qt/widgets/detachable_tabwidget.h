@@ -98,13 +98,13 @@ protected:
      * @param event The event to process.
      * @return True if handled, false otherwise.
      */
-    virtual bool event(QEvent *event);
+    virtual bool event(QEvent *event) override;
 
     /**
      * @brief Handles the close event, emitting a signal to optionally reattach the content.
      * @param event The close event details.
      */
-    virtual void closeEvent(QCloseEvent *event);
+    virtual void closeEvent(QCloseEvent *event) override;
 
 signals:
     /**
@@ -152,31 +152,31 @@ protected:
      * @brief Handles mouse double-click events.
      * @param event The mouse event details.
      */
-    virtual void mouseDoubleClickEvent(QMouseEvent *event);
+    virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 
     /**
      * @brief Handles mouse press events to initiate drag tracking.
      * @param event The mouse event details.
      */
-    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mousePressEvent(QMouseEvent *event) override;
 
     /**
      * @brief Handles mouse move events to trigger the actual drag operation.
      * @param event The mouse event details.
      */
-    virtual void mouseMoveEvent(QMouseEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event) override;
 
     /**
      * @brief Handles drag enter events to accept drops.
      * @param event The drag enter event details.
      */
-    virtual void dragEnterEvent(QDragEnterEvent *event);
+    virtual void dragEnterEvent(QDragEnterEvent *event) override;
 
     /**
      * @brief Handles drop events to finalize reordering.
      * @param event The drop event details.
      */
-    virtual void dropEvent(QDropEvent *event);
+    virtual void dropEvent(QDropEvent *event) override;
 
 private:
     /** The starting point of the mouse drag operation. */

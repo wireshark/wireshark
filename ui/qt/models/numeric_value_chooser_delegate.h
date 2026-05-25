@@ -58,14 +58,14 @@ protected:
      * @param index The model index of the item being edited.
      * @return A pointer to the created editor widget.
      */
-    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
     /**
      * @brief Sets the data to be displayed in the editor widget.
      * @param editor The editor widget.
      * @param index The model index of the item being edited.
      */
-    void setEditorData(QWidget *editor, const QModelIndex &index) const;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const override;
 
     /**
      * @brief Saves the data from the editor widget back into the model.
@@ -73,7 +73,7 @@ protected:
      * @param model The data model.
      * @param index The model index of the item being edited.
      */
-    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
+    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
 
 private:
     /** @brief The minimum allowed value. */

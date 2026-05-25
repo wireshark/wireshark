@@ -112,7 +112,7 @@ public:
         return fieldName == field_name_;
     }
 
-    bool operator< (const QTreeWidgetItem &other) const
+    bool operator< (const QTreeWidgetItem &other) const override
     {
         const DistributionStatTreeWidgetItem *other_row = static_cast<const DistributionStatTreeWidgetItem *>(&other);
 
@@ -327,7 +327,7 @@ tap_packet_status DistributionDialog::tapPacket(void *tap_data, _packet_info *, 
     else {
 
         // ensure we really have a display filter - XXX manage this by storing a longer lasting value ?
-        // All unexpected cases (no display filter, nothing returned by finfo,.. are just ignored 
+        // All unexpected cases (no display filter, nothing returned by finfo,.. are just ignored
         if(!ws_dlg->displayFilter_.isEmpty()) {
 
             /* While tolerated technically, different fields with the same abbreviation can

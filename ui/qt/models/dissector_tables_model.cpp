@@ -26,7 +26,7 @@ public:
     IntegerTablesItem(unsigned int value, ftenum_t type, int display, QString dissectorDescription, DissectorTablesItem* parent);
     virtual ~IntegerTablesItem();
 
-    virtual bool lessThan(DissectorTablesItem &right) const;
+    virtual bool lessThan(DissectorTablesItem &right) const override;
 
 protected:
     unsigned int value_;

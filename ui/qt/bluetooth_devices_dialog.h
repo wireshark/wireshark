@@ -88,21 +88,21 @@ protected:
      * Processes shortcuts such as Ctrl+F for find and Escape to close.
      * @param event The key event.
      */
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
 
     /**
      * @brief Called when the associated capture file is closed.
      *
      * Clears the device table and disables controls that require an open file.
      */
-    void captureFileClosed();
+    void captureFileClosed() override;
 
 protected slots:
     /**
      * @brief Handle change events such as language or palette changes.
      * @param event The change event.
      */
-    void changeEvent(QEvent* event);
+    void changeEvent(QEvent* event) override;
 
 private:
     Ui::BluetoothDevicesDialog *ui;     /**< The UI for the dialog. */

@@ -43,14 +43,14 @@ public:
      * @param parent The parent model index (defaults to an invalid QModelIndex).
      * @return The number of credential records.
      */
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const ;
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const  override;
 
     /**
      * @brief Returns the number of columns (data fields) for a credential.
      * @param parent The parent model index (defaults to an invalid QModelIndex).
      * @return The number of columns.
      */
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Retrieves data from the model for the given index and role.
@@ -58,7 +58,7 @@ public:
      * @param role The requested data role (defaults to Qt::DisplayRole).
      * @return The data associated with the index and role.
      */
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Retrieves header data for the given section, orientation, and role.
@@ -67,7 +67,7 @@ public:
      * @param role The requested data role (defaults to Qt::DisplayRole).
      * @return The header data.
      */
-    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Adds a new credential record to the model.

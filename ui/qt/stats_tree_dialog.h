@@ -73,14 +73,14 @@ private:
      *               or @c ST_FORMAT_XML).
      * @return A @c QByteArray containing the formatted tree data.
      */
-    virtual QByteArray getTreeAsString(st_format_type format);
+    virtual QByteArray getTreeAsString(st_format_type format) override;
 
 
 private slots:
     /**
      * @brief (Re-)populate the QTreeWidget from the current stats_tree state.
      */
-    virtual void fillTree();
+    virtual void fillTree() override;
 };
 
 #endif // STATS_TREE_DIALOG_H

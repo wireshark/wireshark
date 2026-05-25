@@ -54,7 +54,7 @@ protected:
      * @param parent The parent widget.
      * @return A pointer to the created QWidget.
      */
-    virtual QWidget * createWidget(QWidget *parent);
+    virtual QWidget * createWidget(QWidget *parent) override;
 
 private:
     /** Placeholder hint text. */
@@ -204,7 +204,7 @@ protected:
      * @param source_parent The source parent index.
      * @return True if the row is accepted, false otherwise.
      */
-    virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+    virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
 
     /**
      * @brief Determines if a column from the source model should be included.
@@ -212,7 +212,7 @@ protected:
      * @param source_parent The source parent index.
      * @return True if the column is accepted, false otherwise.
      */
-    virtual bool filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const;
+    virtual bool filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const override;
 
     /**
      * @brief Compares two items for sorting.
@@ -220,7 +220,7 @@ protected:
      * @param source_right The right model index.
      * @return True if the left item is less than the right item, false otherwise.
      */
-    virtual bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
+    virtual bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
 
 private:
     /** List of column indices that are hidden. */

@@ -47,7 +47,7 @@ public:
      * @param index The model index.
      * @return The item flags (e.g., selectable, editable).
      */
-    Qt::ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     /**
      * @brief Retrieves data for a given index and role.
@@ -55,7 +55,7 @@ public:
      * @param role The requested data role.
      * @return The data as a QVariant.
      */
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Retrieves header data for the table.
@@ -65,21 +65,21 @@ public:
      * @return The header data as a QVariant.
      */
     QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole) const;
+                        int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Returns the number of rows under a given parent.
      * @param parent The parent model index.
      * @return The number of rows.
      */
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Returns the number of columns under a given parent.
      * @param parent The parent model index.
      * @return The number of columns.
      */
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Sets the data for a specific index.
@@ -88,7 +88,7 @@ public:
      * @param role The role for the data being set.
      * @return True if successful, false otherwise.
      */
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
     /**
      * @brief Inserts a specified number of rows into the model.
@@ -97,7 +97,7 @@ public:
      * @param parent The parent model index.
      * @return True if successful, false otherwise.
      */
-    bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
+    bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
     /**
      * @brief Removes a specified number of rows from the model.
@@ -106,7 +106,7 @@ public:
      * @param parent The parent model index.
      * @return True if successful, false otherwise.
      */
-    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
+    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
     /**
      * @brief Appends a new entry to the end of the table.
@@ -139,14 +139,14 @@ public:
      * @param destinationChild The destination row index.
      * @return True if the move was successful, false otherwise.
      */
-    bool moveRows(const QModelIndex &sourceParent, int sourceRow, int count, const QModelIndex &destinationParent, int destinationChild);
+    bool moveRows(const QModelIndex &sourceParent, int sourceRow, int count, const QModelIndex &destinationParent, int destinationChild) override;
 
     //Drag & drop functionality
     /**
      * @brief Returns the supported drag and drop actions for the model.
      * @return The supported drop actions.
      */
-    Qt::DropActions supportedDropActions() const;
+    Qt::DropActions supportedDropActions() const override;
 
     /**
      * @brief Handles dropped MIME data to perform drag and drop operations.
@@ -157,7 +157,7 @@ public:
      * @param parent The target parent index.
      * @return True if the drop was successfully handled, false otherwise.
      */
-    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
+    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
 
     /**
      * @brief Reloads the UAT data from the underlying structure.

@@ -43,7 +43,7 @@ public:
      * @return Qt::ItemIsEnabled | Qt::ItemIsSelectable for valid indices;
      *         Qt::NoItemFlags otherwise.
      */
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     /**
      * @brief Returns the model index for the child at @p row under @p parent.
@@ -51,27 +51,27 @@ public:
      * @param parent Parent index; an invalid index refers to the root.
      * @return Model index for the requested child, or an invalid index if out of range.
      */
-    QModelIndex index(int row, int, const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex index(int row, int, const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Returns the parent index of the item at @p index.
      * @param index Model index whose parent is requested.
      * @return Parent model index, or an invalid index if @p index is a top-level item.
      */
-    virtual QModelIndex parent(const QModelIndex &index) const;
+    virtual QModelIndex parent(const QModelIndex &index) const override;
 
     /**
      * @brief Returns the number of child rows under @p parent.
      * @param parent Parent index; an invalid index refers to the root.
      * @return Number of direct children, or 0 if @p parent has no children.
      */
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Returns the number of columns (always 1).
      * @return 1.
      */
-    virtual int columnCount(const QModelIndex &) const { return 1; }
+    virtual int columnCount(const QModelIndex &) const  override{ return 1; }
 
     /**
      * @brief Returns data for the given index and role.
@@ -79,7 +79,7 @@ public:
      * @param role  Qt item data role (e.g. Qt::DisplayRole).
      * @return QVariant with the requested data, or an invalid QVariant if unavailable.
      */
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Sets the root node of the proto_node tree exposed by this model.

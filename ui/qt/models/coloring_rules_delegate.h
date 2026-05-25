@@ -39,7 +39,7 @@ public:
      * @return A pointer to the created editor widget.
      */
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
-                          const QModelIndex &index) const;
+                          const QModelIndex &index) const override;
 
     /**
      * @brief Paints the coloring rule item.
@@ -48,14 +48,14 @@ public:
      * @param index The model index of the item to paint.
      */
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const;
+               const QModelIndex &index) const override;
 
     /**
      * @brief Sets the data for the editor from the model.
      * @param editor The editor widget.
      * @param index The model index containing the data.
      */
-    void setEditorData(QWidget *editor, const QModelIndex &index) const;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const override;
 
     /**
      * @brief Sets the data in the model from the editor.
@@ -64,7 +64,7 @@ public:
      * @param index The model index to update.
      */
     void setModelData(QWidget *editor, QAbstractItemModel *model,
-                      const QModelIndex &index) const;
+                      const QModelIndex &index) const override;
 
     /**
      * @brief Updates the geometry of the editor.
@@ -73,7 +73,7 @@ public:
      * @param index The model index being edited.
      */
     void updateEditorGeometry(QWidget *editor,
-            const QStyleOptionViewItem &option, const QModelIndex &index) const;
+            const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
 signals:
     /**

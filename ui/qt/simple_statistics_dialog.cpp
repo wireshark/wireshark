@@ -89,7 +89,7 @@ public:
             }
         }
     }
-    bool operator< (const QTreeWidgetItem &other) const
+    bool operator< (const QTreeWidgetItem &other) const override
     {
         int col = treeWidget()->sortColumn();
         if (other.type() != simple_row_type_ || col >= num_fields_) {

@@ -115,7 +115,7 @@ public:
         }
     }
 
-    bool operator< (const QTreeWidgetItem &other) const
+    bool operator< (const QTreeWidgetItem &other) const override
     {
         // We want rows with a UE to appear in the order they appear in the row_type enum.
         return type() < other.type();
@@ -384,7 +384,7 @@ public:
     }
 
     // < operator.  Compare this item with another item, using the column we are currently sorting on.
-    bool operator< (const QTreeWidgetItem &other) const
+    bool operator< (const QTreeWidgetItem &other) const override
     {
         if (other.type() != mac_whole_ue_row_type_) return QTreeWidgetItem::operator< (other);
         const MacUETreeWidgetItem *other_row = static_cast<const MacUETreeWidgetItem *>(&other);

@@ -38,7 +38,7 @@ public:
      * @brief Returns the recommended size for the scroll bar.
      * @return The size hint as a QSize.
      */
-    virtual QSize sizeHint() const;
+    virtual QSize sizeHint() const override;
 
     /**
      * @brief Retrieves the current slider position.
@@ -89,13 +89,13 @@ protected:
      * @brief Handles resize events.
      * @param event The resize event.
      */
-    virtual void resizeEvent(QResizeEvent * event);
+    virtual void resizeEvent(QResizeEvent * event) override;
 
     /**
      * @brief Handles paint events.
      * @param event The paint event.
      */
-    virtual void paintEvent(QPaintEvent * event);
+    virtual void paintEvent(QPaintEvent * event) override;
 
     /**
      * @brief Filters events for watched objects.
@@ -103,18 +103,18 @@ protected:
      * @param event The event to filter.
      * @return True if the event was filtered, false otherwise.
      */
-    virtual bool eventFilter(QObject *watched, QEvent *event);
+    virtual bool eventFilter(QObject *watched, QEvent *event) override;
 
     /**
      * @brief Handles mouse press events (no-op).
      */
-    virtual void mousePressEvent(QMouseEvent *) { /* No-op */ }
+    virtual void mousePressEvent(QMouseEvent *) override { /* No-op */ }
 
     /**
      * @brief Handles mouse release events.
      * @param event The mouse release event.
      */
-    virtual void mouseReleaseEvent(QMouseEvent * event);
+    virtual void mouseReleaseEvent(QMouseEvent * event) override;
 
 private:
     /** The main proxy style for the scrollbar. */

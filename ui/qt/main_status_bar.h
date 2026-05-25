@@ -102,7 +102,7 @@ protected:
      * @brief Handles state change events.
      * @param event The event to handle.
      */
-    virtual void changeEvent(QEvent* event);
+    virtual void changeEvent(QEvent* event) override;
 
     /**
      * @brief Displays the capture statistics.

@@ -116,7 +116,7 @@ private:
     /**
      * @brief Updates the dialog's widgets based on current rule selections.
      */
-    void updateWidgets();
+    void updateWidgets() override;
 
     /**
      * @brief Generates and adds a new rule to the dialog display.

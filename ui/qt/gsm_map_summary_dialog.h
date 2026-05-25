@@ -54,7 +54,7 @@ private slots:
     /**
      * @brief Slot triggered to update the dialog widgets based on the current data state.
      */
-    void updateWidgets();
+    void updateWidgets() override;
 
 };
 

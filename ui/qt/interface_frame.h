@@ -137,7 +137,7 @@ protected:
      *        the widget is re-polished (works around QTBUG-122109).
      * @param evt The change event.
      */
-    void changeEvent(QEvent *evt);
+    void changeEvent(QEvent *evt) override;
 
     /**
      * @brief Handles resize events; re-fits the interface tree columns so the
@@ -145,7 +145,7 @@ protected:
      *        available width.
      * @param evt The resize event.
      */
-    void resizeEvent(QResizeEvent *evt);
+    void resizeEvent(QResizeEvent *evt) override;
 
 private:
 

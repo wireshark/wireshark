@@ -52,7 +52,7 @@ public:
     // packet map child. This might make the packet list geometry a bit
     // wonky, however.
 
-    virtual int styleHint(StyleHint hint, const QStyleOption *option = NULL, const QWidget *widget = NULL, QStyleHintReturn *returnData = NULL) const {
+    virtual int styleHint(StyleHint hint, const QStyleOption *option = NULL, const QWidget *widget = NULL, QStyleHintReturn *returnData = NULL) const override {
         if (hint == SH_ScrollBar_Transient) return false;
 
         return QProxyStyle::styleHint(hint, option, widget, returnData);

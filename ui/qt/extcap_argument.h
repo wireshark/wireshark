@@ -352,31 +352,31 @@ public:
      * @param parent The parent widget for the editor.
      * @return A pointer to the created line edit widget.
      */
-    virtual QWidget * createEditor(QWidget * parent);
+    virtual QWidget * createEditor(QWidget * parent) override;
 
     /**
      * @brief Retrieves the current text value.
      * @return The text string.
      */
-    virtual QString value();
+    virtual QString value() override;
 
     /**
      * @brief Checks if the current text value is valid.
      * @return True if valid, false otherwise.
      */
-    virtual bool isValid();
+    virtual bool isValid() override;
 
     /**
      * @brief Checks if setting a default text value is supported.
      * @return True if supported, false otherwise.
      */
-    virtual bool isSetDefaultValueSupported();
+    virtual bool isSetDefaultValueSupported() override;
 
 public Q_SLOTS:
     /**
      * @brief Sets the text field to its default value.
      */
-    virtual void setDefaultValue();
+    virtual void setDefaultValue() override;
 
 protected:
 
@@ -405,13 +405,13 @@ public:
      * @param parent The parent widget for the editor.
      * @return A pointer to the created widget.
      */
-    virtual QWidget * createEditor(QWidget * parent);
+    virtual QWidget * createEditor(QWidget * parent) override;
 
     /**
      * @brief Retrieves the default numeric value.
      * @return The default value string.
      */
-    virtual QString defaultValue();
+    virtual QString defaultValue() override;
 };
 
 
@@ -435,31 +435,31 @@ public:
      * @param parent The parent widget for the editor.
      * @return A pointer to the created combobox widget.
      */
-    virtual QWidget * createEditor(QWidget * parent);
+    virtual QWidget * createEditor(QWidget * parent) override;
 
     /**
      * @brief Retrieves the currently selected value.
      * @return The selected value string.
      */
-    virtual QString value();
+    virtual QString value() override;
 
     /**
      * @brief Checks if the current selection is valid.
      * @return True if valid, false otherwise.
      */
-    virtual bool isValid();
+    virtual bool isValid() override;
 
     /**
      * @brief Checks if setting a default selection is supported.
      * @return True if supported, false otherwise.
      */
-    virtual bool isSetDefaultValueSupported();
+    virtual bool isSetDefaultValueSupported() override;
 
 public Q_SLOTS:
     /**
      * @brief Sets the dropdown to its default selection.
      */
-    virtual void setDefaultValue();
+    virtual void setDefaultValue() override;
 
 protected:
     /** The combobox widget used for selection. */
@@ -493,19 +493,19 @@ public:
      * @param parent The parent widget for the editor.
      * @return A pointer to the created editable combobox widget.
      */
-    virtual QWidget * createEditor(QWidget * parent);
+    virtual QWidget * createEditor(QWidget * parent) override;
 
     /**
      * @brief Retrieves the current text or selection value.
      * @return The value string.
      */
-    virtual QString value();
+    virtual QString value() override;
 
 public Q_SLOTS:
     /**
      * @brief Sets the editable selector to its default value.
      */
-    virtual void setDefaultValue();
+    virtual void setDefaultValue() override;
 };
 
 /**
@@ -533,31 +533,31 @@ public:
      * @param parent The parent widget for the editor.
      * @return A pointer to the created widget containing radio buttons.
      */
-    virtual QWidget * createEditor(QWidget * parent);
+    virtual QWidget * createEditor(QWidget * parent) override;
 
     /**
      * @brief Retrieves the value of the currently selected radio button.
      * @return The selected value string.
      */
-    virtual QString value();
+    virtual QString value() override;
 
     /**
      * @brief Checks if a valid radio button is selected.
      * @return True if valid, false otherwise.
      */
-    virtual bool isValid();
+    virtual bool isValid() override;
 
     /**
      * @brief Checks if setting a default radio button is supported.
      * @return True if supported, false otherwise.
      */
-    virtual bool isSetDefaultValueSupported();
+    virtual bool isSetDefaultValueSupported() override;
 
 public Q_SLOTS:
     /**
      * @brief Selects the default radio button.
      */
-    virtual void setDefaultValue();
+    virtual void setDefaultValue() override;
 
 private:
 
@@ -589,56 +589,56 @@ public:
      * @param parent The parent widget.
      * @return A pointer to the created label widget.
      */
-    virtual QWidget * createLabel(QWidget * parent);
+    virtual QWidget * createLabel(QWidget * parent) override;
 
     /**
      * @brief Creates the checkbox editor widget.
      * @param parent The parent widget for the editor.
      * @return A pointer to the created checkbox widget.
      */
-    virtual QWidget * createEditor(QWidget * parent);
+    virtual QWidget * createEditor(QWidget * parent) override;
 
     /**
      * @brief Retrieves the call string based on the boolean state.
      * @return The call string.
      */
-    virtual QString call();
+    virtual QString call() override;
 
     /**
      * @brief Retrieves the boolean state as a string.
      * @return "true" or "false" string representation.
      */
-    virtual QString value();
+    virtual QString value() override;
 
     /**
      * @brief Checks if the boolean state is valid.
      * @return True if valid, false otherwise.
      */
-    virtual bool isValid();
+    virtual bool isValid() override;
 
     /**
      * @brief Retrieves the default boolean value as a string.
      * @return The default boolean string representation.
      */
-    virtual QString defaultValue();
+    virtual QString defaultValue() override;
 
     /**
      * @brief Retrieves the preference value for the boolean argument.
      * @return The preference value string.
      */
-    virtual QString prefValue();
+    virtual QString prefValue() override;
 
     /**
      * @brief Checks if setting a default boolean value is supported.
      * @return True if supported, false otherwise.
      */
-    virtual bool isSetDefaultValueSupported();
+    virtual bool isSetDefaultValueSupported() override;
 
 public Q_SLOTS:
     /**
      * @brief Sets the checkbox to its default state.
      */
-    virtual void setDefaultValue();
+    virtual void setDefaultValue() override;
 
 private:
 
@@ -673,43 +673,43 @@ public:
      * @param parent The parent widget for the editor.
      * @return A pointer to the created datetime widget.
      */
-    virtual QWidget * createEditor(QWidget * parent);
+    virtual QWidget * createEditor(QWidget * parent) override;
 
     /**
      * @brief Checks if the timestamp input is valid.
      * @return True if valid, false otherwise.
      */
-    virtual bool isValid();
+    virtual bool isValid() override;
 
     /**
      * @brief Retrieves the default timestamp value.
      * @return The default timestamp string.
      */
-    virtual QString defaultValue();
+    virtual QString defaultValue() override;
 
     /**
      * @brief Retrieves the current timestamp value.
      * @return The current timestamp string.
      */
-    virtual QString value();
+    virtual QString value() override;
 
     /**
      * @brief Retrieves the preference value for the timestamp.
      * @return The preference value string.
      */
-    virtual QString prefValue();
+    virtual QString prefValue() override;
 
     /**
      * @brief Checks if setting a default timestamp is supported.
      * @return True if supported, false otherwise.
      */
-    virtual bool isSetDefaultValueSupported();
+    virtual bool isSetDefaultValueSupported() override;
 
 public Q_SLOTS:
     /**
      * @brief Sets the timestamp to its default value.
      */
-    virtual void setDefaultValue();
+    virtual void setDefaultValue() override;
 
 private Q_SLOTS:
     /**

@@ -76,7 +76,7 @@ protected slots:
     /**
      * @brief Updates the dialog's widgets based on the current data and selection state.
      */
-    virtual void updateWidgets();
+    virtual void updateWidgets() override;
 
 private slots:
     /**
@@ -329,7 +329,7 @@ private:
      * @param event The event to filter.
      * @return True if the event was handled and should be stopped, false otherwise.
      */
-    bool eventFilter(QObject*, QEvent* event);
+    bool eventFilter(QObject*, QEvent* event) override;
 };
 
 #endif // IAX2_ANALYSIS_DIALOG_H

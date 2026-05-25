@@ -37,7 +37,7 @@ protected:
     /**
      * @brief Slot triggered when the underlying capture file is closing.
      */
-    void captureFileClosing();
+    void captureFileClosing() override;
 
 private:
     /** Checkbox used to toggle the aggregation of certain endpoint data. */
@@ -70,7 +70,7 @@ private slots:
     /**
      * @brief Slot triggered when help is requested from the dialog's button box.
      */
-    void on_buttonBox_helpRequested();
+    void on_buttonBox_helpRequested() override;
 
     /**
      * @brief Slot triggered when the aggregation checkbox is toggled.

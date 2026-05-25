@@ -54,7 +54,7 @@ protected:
     /**
      * @brief Handles the event when the capture file is closing.
      */
-    void captureFileClosing();
+    void captureFileClosing() override;
 
 signals:
     /**
@@ -129,20 +129,20 @@ private:
      * @brief Gets the current filter expression.
      * @return The filter expression as a string.
      */
-    virtual const QString filterExpression();
+    virtual const QString filterExpression() override;
 
     /**
      * @brief Retrieves the data associated with a tree item.
      * @param item The tree widget item to inspect.
      * @return A list of variants containing the item's data.
      */
-    QList<QVariant> treeItemData(QTreeWidgetItem *item) const;
+    QList<QVariant> treeItemData(QTreeWidgetItem *item) const override;
 
 private slots:
     /**
      * @brief Fills the tree with RLC statistics data.
      */
-    virtual void fillTree();
+    virtual void fillTree() override;
 
     /**
      * @brief Slot triggered when the tree item selection changes.

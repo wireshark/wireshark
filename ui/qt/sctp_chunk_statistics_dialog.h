@@ -84,7 +84,7 @@ private slots:
      * @brief Handles context menu events for the dialog.
      * @param event The context menu event details.
      */
-    void contextMenuEvent(QContextMenuEvent * event);
+    void contextMenuEvent(QContextMenuEvent * event) override;
 
     /**
      * @brief Slot triggered to show all chunk types in the table.

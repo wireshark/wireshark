@@ -144,12 +144,12 @@ public:
     /**
      * @brief Accepts the dialog, generally closing it.
      */
-    void accept();
+    void accept() override;
 
     /**
      * @brief Rejects the dialog, generally closing it without taking action.
      */
-    void reject();
+    void reject() override;
 
     /**
      * @brief Sets playback markers on the graph.
@@ -221,17 +221,17 @@ public slots:
     /**
      * @brief Slot to handle replacing RTP streams for analysis.
      */
-    void rtpAnalysisReplace();
+    void rtpAnalysisReplace() override;
 
     /**
      * @brief Slot to handle adding RTP streams for analysis.
      */
-    void rtpAnalysisAdd();
+    void rtpAnalysisAdd() override;
 
     /**
      * @brief Slot to handle removing RTP streams from analysis.
      */
-    void rtpAnalysisRemove();
+    void rtpAnalysisRemove() override;
 
 #endif
 protected:
@@ -251,13 +251,13 @@ protected:
     /**
      * @brief Handles the show event for the dialog.
      */
-    virtual void showEvent(QShowEvent *);
+    virtual void showEvent(QShowEvent *) override;
 
     /**
      * @brief Handles the context menu event.
      * @param event The context menu event.
      */
-    void contextMenuEvent(QContextMenuEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
     /**
      * @brief Filters events for objects installed with this event filter.
@@ -265,7 +265,7 @@ protected:
      * @param event The intercepted event.
      * @return True if the event was handled, false otherwise.
      */
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private slots:
     /** Retap the capture file, reading RTP packets that match the
@@ -292,7 +292,7 @@ private slots:
     /**
      * @brief Updates widget states based on current data and selections.
      */
-    void updateWidgets();
+    void updateWidgets() override;
 
     /**
      * @brief Handles an item being entered (e.g. mouse hover).

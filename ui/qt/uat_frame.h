@@ -61,7 +61,7 @@ protected:
     /**
      * @brief Handles the show event for the frame.
      */
-    void showEvent(QShowEvent *);
+    void showEvent(QShowEvent *) override;
 
 private:
     /** @brief Pointer to the UI object for this frame. */

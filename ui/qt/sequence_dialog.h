@@ -97,25 +97,25 @@ protected:
      * @param event The event object.
      * @return True if handled, false otherwise.
      */
-    bool event(QEvent *event);
+    bool event(QEvent *event) override;
 
     /**
      * @brief Handles the show event for the dialog.
      * @param event The show event.
      */
-    void showEvent(QShowEvent *event);
+    void showEvent(QShowEvent *event) override;
 
     /**
      * @brief Handles resize events to adjust diagram layout.
      * @param event The resize event.
      */
-    void resizeEvent(QResizeEvent *event);
+    void resizeEvent(QResizeEvent *event) override;
 
     /**
      * @brief Handles key press events for navigation and zooming.
      * @param event The key press event.
      */
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
 
 signals:
     /**
@@ -152,7 +152,7 @@ private slots:
     /**
      * @brief Updates the state and data of the dialog's widgets.
      */
-    void updateWidgets();
+    void updateWidgets() override;
 
     /**
      * @brief Handles changes to the horizontal scrollbar value.

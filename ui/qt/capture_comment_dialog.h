@@ -51,7 +51,7 @@ private slots:
     /**
      * @brief Slot triggered to update the state of the dialog's widgets.
      */
-    void updateWidgets();
+    void updateWidgets() override;
 
     /**
      * @brief Slot triggered when the help button is requested from the button box.

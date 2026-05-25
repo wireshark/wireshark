@@ -33,19 +33,19 @@ protected:
      * @brief Handles key press events, routing them to completion logic.
      * @param event The key event.
      */
-    void keyPressEvent(QKeyEvent *event) { completionKeyPressEvent(event); }
+    void keyPressEvent(QKeyEvent *event) override { completionKeyPressEvent(event); }
 
     /**
      * @brief Handles focus in events, triggering completion logic if necessary.
      * @param event The focus event.
      */
-    void focusInEvent(QFocusEvent *event) { completionFocusInEvent(event); }
+    void focusInEvent(QFocusEvent *event) override { completionFocusInEvent(event); }
 
     /**
      * @brief Handles focus out events.
      * @param event The focus event.
      */
-    void focusOutEvent(QFocusEvent *event);
+    void focusOutEvent(QFocusEvent *event) override;
 
 public slots:
     /**
@@ -65,7 +65,7 @@ private slots:
      * @brief Handles widget state change events.
      * @param event The change event.
      */
-    void changeEvent(QEvent* event);
+    void changeEvent(QEvent* event) override;
 
 private:
     /** The default placeholder text displayed when the line edit is empty. */
@@ -81,7 +81,7 @@ private:
      * @param field_word The current word being typed.
      * @param preamble The text preceding the current word.
      */
-    void buildCompletionList(const QString &field_word, const QString &preamble);
+    void buildCompletionList(const QString &field_word, const QString &preamble) override;
 
 signals:
     /**

@@ -138,25 +138,25 @@ protected:
      * @brief Handles the show event for the dialog.
      * @param event The show event object.
      */
-    void showEvent(QShowEvent *event);
+    void showEvent(QShowEvent *event) override;
 
     /**
      * @brief Handles key press events within the dialog (e.g., zooming/panning shortcuts).
      * @param event The key press event object.
      */
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
 
     /**
      * @brief Handles mouse press events on the graph.
      * @param event The mouse press event object.
      */
-    void mousePressEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
 
     /**
      * @brief Handles mouse release events on the graph.
      * @param event The mouse release event object.
      */
-    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
     /** Pointer to the generated UI elements. */

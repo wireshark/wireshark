@@ -58,13 +58,13 @@ protected:
      * @brief Handles the show event for the frame.
      * @param event The show event.
      */
-    virtual void showEvent(QShowEvent *event);
+    virtual void showEvent(QShowEvent *event) override;
 
     /**
      * @brief Handles key press events within the frame.
      * @param event The key press event.
      */
-    virtual void keyPressEvent(QKeyEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
     /**

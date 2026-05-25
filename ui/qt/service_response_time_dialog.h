@@ -55,7 +55,7 @@ public slots:
     /**
      * @brief Slot called when the retap of packets finishes.
      */
-    void endRetapPackets();
+    void endRetapPackets() override;
 
 protected:
     /** @brief Pointer to the registered SRT data structure. */
@@ -80,7 +80,7 @@ protected slots:
     /**
      * @brief Fills the tree widget with the collected SRT statistics.
      */
-    void fillTree();
+    void fillTree() override;
 
 private:
     // Callbacks for register_tap_listener
@@ -101,13 +101,13 @@ private:
      * @param ti The tree widget item.
      * @return A list of QVariant representing the column data.
      */
-    virtual QList<QVariant> treeItemData(QTreeWidgetItem *ti) const;
+    virtual QList<QVariant> treeItemData(QTreeWidgetItem *ti) const override;
 
     /**
      * @brief Retrieves the filter expression constructed for the selected tree items.
      * @return The filter string.
      */
-    virtual const QString filterExpression();
+    virtual const QString filterExpression() override;
 
     /** @brief The internal SRT data state. */
     srt_data_t srt_data_;

@@ -53,7 +53,10 @@ public:
     void toggleFindInPacketBar();
 
 protected:
-    void captureFileClosing();
+    /**
+     * @brief Called when the capture file is closing.
+     */
+    void captureFileClosing() override;
 
 signals:
     /**

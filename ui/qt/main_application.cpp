@@ -127,7 +127,7 @@ QString MainApplication::window_title_separator_ = QString::fromUtf8(" " UTF8_MI
 class MimeDatabaseInitThread : public QRunnable
 {
 private:
-    void run()
+    void run() override
     {
         QMimeDatabase mime_db;
         mime_db.mimeTypeForData(QByteArray());

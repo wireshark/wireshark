@@ -43,7 +43,7 @@ protected:
      * @param event The event object.
      * @return True if the event was handled, false otherwise.
      */
-    virtual bool event(QEvent *event);
+    virtual bool event(QEvent *event) override;
 
 private:
     /** @brief The base icon object. */

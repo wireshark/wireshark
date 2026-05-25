@@ -114,9 +114,9 @@ class InterfaceTreeWidgetItem : public QTreeWidgetItem
 {
 public:
     InterfaceTreeWidgetItem(QTreeWidget *tree) : QTreeWidgetItem(tree) {}
-    bool operator< (const QTreeWidgetItem &other) const;
-    QVariant data(int column, int role) const;
-    void setData(int column, int role, const QVariant &value);
+    bool operator< (const QTreeWidgetItem &other) const override;
+    QVariant data(int column, int role) const override;
+    void setData(int column, int role, const QVariant &value) override;
 
     /* Identifies the interface whose history this row renders. Empty for rows
      * with no live stats (e.g. extcap), which then draw a blank sparkline. */

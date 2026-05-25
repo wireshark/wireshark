@@ -32,7 +32,7 @@ protected:
     /**
      * @brief Slot triggered when the underlying capture file is closing.
      */
-    void captureFileClosing();
+    void captureFileClosing() override;
 
 signals:
     /**
@@ -83,7 +83,7 @@ private slots:
     /**
      * @brief Slot triggered when help is requested from the dialog's button box.
      */
-    void on_buttonBox_helpRequested();
+    void on_buttonBox_helpRequested() override;
 
     /**
      * @brief Slot triggered to indicate whether a display filter was successfully applied.

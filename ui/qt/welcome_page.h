@@ -89,19 +89,19 @@ protected:
      * @param event The event to process.
      * @return True if the event was handled; otherwise false.
      */
-    virtual bool event(QEvent *event);
+    virtual bool event(QEvent *event) override;
 
     /**
      * @brief Handles widget resize events.
      * @param event The resize event containing the new size.
      */
-    virtual void resizeEvent(QResizeEvent *event);
+    virtual void resizeEvent(QResizeEvent *event) override;
 
     /**
      * @brief Handles widget show events, triggering any necessary initialization.
      * @param event The show event.
      */
-    virtual void showEvent(QShowEvent *event);
+    virtual void showEvent(QShowEvent *event) override;
 
 protected slots:
     /**

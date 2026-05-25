@@ -61,12 +61,12 @@ public:
     /**
      * @brief Handles the dialog acceptance, triggering the callback with user inputs.
      */
-    void accept();
+    void accept() override;
 
     /**
      * @brief Handles the dialog rejection, cleaning up associated callback data without execution.
      */
-    void reject();
+    void reject() override;
 
 private slots:
     /**

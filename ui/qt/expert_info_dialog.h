@@ -96,7 +96,7 @@ private slots:
     /**
      * @brief Slot triggered to update the dialog widgets based on the current data state.
      */
-    void updateWidgets();
+    void updateWidgets() override;
 
     /**
      * @brief Slot triggered when the "Show Error" action is toggled.

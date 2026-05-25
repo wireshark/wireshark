@@ -50,7 +50,7 @@ protected:
     /**
      * @brief Provides parameter data for the service response time dialog.
      */
-    virtual void provideParameterData();
+    virtual void provideParameterData() override;
 
 private:
     /** @brief Combo box for selecting the SCSI command. */

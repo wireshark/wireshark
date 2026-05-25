@@ -36,14 +36,14 @@ public:
      * @param index   Model index of the cell being edited.
      * @return Pointer to the newly created editor widget.
      */
-    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
     /**
      * @brief Populates the editor widget with the current value from the model.
      * @param editor Editor widget previously returned by createEditor().
      * @param index  Model index of the cell being edited.
      */
-    virtual void setEditorData(QWidget *editor, const QModelIndex &index) const;
+    virtual void setEditorData(QWidget *editor, const QModelIndex &index) const override;
 
 private:
     QWidget     *editor_; /**< Pointer to the currently active editor widget, or @c nullptr if none. */
@@ -92,14 +92,14 @@ protected:
     /**
      * @brief Restores the previously selected row when the view becomes visible.
      */
-    virtual void showEvent(QShowEvent *);
+    virtual void showEvent(QShowEvent *) override;
 
     /**
      * @brief Opens an inline editor for the double-clicked cell when the profile
      *        is editable; otherwise propagates the event.
      * @param event The mouse double-click event.
      */
-    virtual void mouseDoubleClickEvent(QMouseEvent *event);
+    virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 
 protected slots:
     /**
@@ -108,7 +108,7 @@ protected slots:
      * @param selected   Newly selected items.
      * @param deselected Previously selected items that are now deselected.
      */
-    virtual void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+    virtual void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override;
 
 private:
     ProfileTreeEditDelegate *delegate_; /**< Delegate providing inline editing for profile name cells. */

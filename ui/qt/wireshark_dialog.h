@@ -58,17 +58,17 @@ protected:
      * @brief Handles key press events.
      * @param event The key press event.
      */
-    virtual void keyPressEvent(QKeyEvent *event) { QDialog::keyPressEvent(event); }
+    virtual void keyPressEvent(QKeyEvent *event) override { QDialog::keyPressEvent(event); }
 
     /**
      * @brief Accepts the dialog.
      */
-    virtual void accept();
+    virtual void accept() override;
 
     /**
      * @brief Rejects the dialog.
      */
-    virtual void reject();
+    virtual void reject() override;
 
     /**
      * @brief Mark the start of a code block that retaps packets. If the user

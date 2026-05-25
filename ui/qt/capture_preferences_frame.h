@@ -42,7 +42,7 @@ protected:
      * @brief Handles the show event for the frame.
      * @param evt The show event object.
      */
-    void showEvent(QShowEvent *evt);
+    void showEvent(QShowEvent *evt) override;
 
 private slots:
     /**
