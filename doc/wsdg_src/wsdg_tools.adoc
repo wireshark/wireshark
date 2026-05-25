@@ -640,7 +640,7 @@ Studio from the same command prompt, e.g.
 [source,cmd]
 ----
 C:\Development\wsbuild64>set PATH="%PATH%;C:\Development\wsbuild64\run\RelwithDebInfo"
-C:\Development\wsbuild64>wireshark.sln
+C:\Development\wsbuild64>wireshark.slnx
 ----
 
 for PowerShell use
@@ -648,7 +648,7 @@ for PowerShell use
 [source,cmd]
 ----
 PS C:\Development\wsbuild64>$env:PATH += ";$(Convert-Path run\RelWithDebInfo)"
-PS C:\Development\wsbuild64>wireshark.sln
+PS C:\Development\wsbuild64>wireshark.slnx
 ----
 
 When Visual Studio has finished loading the solution, set the executable to
@@ -695,7 +695,7 @@ menu and then click on the required line and press F9.  To run the program,
 press F5.
 
 If you require a non-optimised version, then build using a debug configuration, e.g.
-*`msbuild /m /p:Configuration=Debug Wireshark.sln`*. The build products will be found
+*`msbuild /m /p:Configuration=Debug Wireshark.slnx`*. The build products will be found
 in C:\Development\wsbuild64\run\Debug\.
 
 [#ChToolsBash]

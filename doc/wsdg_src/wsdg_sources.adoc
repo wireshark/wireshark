@@ -283,7 +283,7 @@ or on Windows,
 
 [source,cmd]
 ----
-> msbuild /m /p:Configuration=Debug Wireshark.sln
+> msbuild /m /p:Configuration=Debug Wireshark.slnx
 ----
 
 [#ChSrcRunFirstTime]

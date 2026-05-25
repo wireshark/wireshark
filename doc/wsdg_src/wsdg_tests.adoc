@@ -27,7 +27,7 @@ Replace `ninja` by `make` as needed.
 If building with <<#ChWindowsBuild,Microsoft Visual Studio>> the analogous steps are:
 
 * Install pytest Python packages: `python -m pip install pytest pytest-xdist`
-* Build programs: `msbuild /m /p:Configuration=RelWithDebInfo Wireshark.sln`
+* Build programs: `msbuild /m /p:Configuration=RelWithDebInfo Wireshark.slnx`
 * Build test-programs: `msbuild /m /p:Configuration=RelWithDebInfo test-programs.vcxproj`
 * Run tests: `python -m pytest`
 
