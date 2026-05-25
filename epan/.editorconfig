@@ -56,9 +56,6 @@ indent_size = tab
 indent_style = tab
 indent_size = tab
 
-[follow.[ch]]
-indent_size = 2
-
 [frame_data.[ch]]
 indent_size = 2
 

@@ -44,93 +44,93 @@ void register_follow_stream(const int proto_id, const char* tap_listener,
                             follow_port_to_display_func port_to_display, tap_packet_cb tap_handler,
                             follow_stream_count_func stream_count, follow_sub_stream_id_func sub_stream_id)
 {
-  register_follow_t *follower;
-  DISSECTOR_ASSERT(tap_listener);
-  DISSECTOR_ASSERT(conv_filter);
-  DISSECTOR_ASSERT(index_filter);
-  DISSECTOR_ASSERT(address_filter);
-  DISSECTOR_ASSERT(port_to_display);
-  DISSECTOR_ASSERT(tap_handler);
+    register_follow_t *follower;
+    DISSECTOR_ASSERT(tap_listener);
+    DISSECTOR_ASSERT(conv_filter);
+    DISSECTOR_ASSERT(index_filter);
+    DISSECTOR_ASSERT(address_filter);
+    DISSECTOR_ASSERT(port_to_display);
+    DISSECTOR_ASSERT(tap_handler);
 
-  follower = wmem_new(wmem_epan_scope(), register_follow_t);
+    follower = wmem_new(wmem_epan_scope(), register_follow_t);
 
-  follower->proto_id       = proto_id;
-  follower->tap_listen_str = tap_listener;
-  follower->conv_filter    = conv_filter;
-  follower->index_filter   = index_filter;
-  follower->address_filter = address_filter;
-  follower->port_to_display = port_to_display;
-  follower->tap_handler    = tap_handler;
-  follower->stream_count   = stream_count;
-  follower->sub_stream_id  = sub_stream_id;
+    follower->proto_id       = proto_id;
+    follower->tap_listen_str = tap_listener;
+    follower->conv_filter    = conv_filter;
+    follower->index_filter   = index_filter;
+    follower->address_filter = address_filter;
+    follower->port_to_display = port_to_display;
+    follower->tap_handler    = tap_handler;
+    follower->stream_count   = stream_count;
+    follower->sub_stream_id  = sub_stream_id;
 
-  wmem_tree_insert_string(registered_followers, proto_get_protocol_short_name(find_protocol_by_id(proto_id)), follower, 0);
+    wmem_tree_insert_string(registered_followers, proto_get_protocol_short_name(find_protocol_by_id(proto_id)), follower, 0);
 }
 
 int get_follow_proto_id(register_follow_t* follower)
 {
-  if (follower == NULL)
-    return -1;
+    if (follower == NULL)
+        return -1;
 
-  return follower->proto_id;
+    return follower->proto_id;
 }
 
 const char* get_follow_tap_string(register_follow_t* follower)
 {
-  if (follower == NULL)
-    return "";
+    if (follower == NULL)
+        return "";
 
-  return follower->tap_listen_str;
+    return follower->tap_listen_str;
 }
 
 follow_conv_filter_func get_follow_conv_func(register_follow_t* follower)
 {
-  return follower->conv_filter;
+    return follower->conv_filter;
 }
 
 follow_index_filter_func get_follow_index_func(register_follow_t* follower)
 {
-  return follower->index_filter;
+    return follower->index_filter;
 }
 
 follow_address_filter_func get_follow_address_func(register_follow_t* follower)
 {
-  return follower->address_filter;
+    return follower->address_filter;
 }
 
 follow_port_to_display_func get_follow_port_to_display(register_follow_t* follower)
 {
-  return follower->port_to_display;
+    return follower->port_to_display;
 }
 
 tap_packet_cb get_follow_tap_handler(register_follow_t* follower)
 {
-  return follower->tap_handler;
+    return follower->tap_handler;
 }
 
 follow_stream_count_func get_follow_stream_count_func(register_follow_t* follower)
 {
-  return follower->stream_count;
+    return follower->stream_count;
 }
 
 follow_sub_stream_id_func get_follow_sub_stream_id_func(register_follow_t* follower)
 {
-  return follower->sub_stream_id;
+    return follower->sub_stream_id;
 }
 
 register_follow_t* get_follow_by_name(const char* proto_short_name)
 {
-  return (register_follow_t*)wmem_tree_lookup_string(registered_followers, proto_short_name, 0);
+    return (register_follow_t*)wmem_tree_lookup_string(registered_followers, proto_short_name, 0);
 }
 
 register_follow_t* get_follow_by_proto_id(const int proto_id)
 {
-  protocol_t *protocol = find_protocol_by_id(proto_id);
-  if (protocol == NULL) {
+    protocol_t *protocol = find_protocol_by_id(proto_id);
+    if (protocol == NULL) {
         return NULL;
-  }
+    }
 
-  return (register_follow_t*)wmem_tree_lookup_string(registered_followers, proto_get_protocol_short_name(protocol), 0);
+    return (register_follow_t*)wmem_tree_lookup_string(registered_followers, proto_get_protocol_short_name(protocol), 0);
 }
 
 void follow_iterate_followers(wmem_foreach_func func, void *user_data)
@@ -249,11 +249,11 @@ follow_tvb_tap_listener(void *tapdata, packet_info *pinfo,
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
- * c-basic-offset: 2
+ * c-basic-offset: 4
  * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=2 tabstop=8 expandtab:
- * :indentSize=2:tabSize=8:noTabs=true:
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
