@@ -408,7 +408,7 @@ typedef struct osnma_hkroot_mack_msg_part {
 } osnma_hkroot_mack_msg_part;
 
 #define OSNMA_DSM_BLK_LENGTH 13
-#define OSNMA_DSM_BLK_NUM 15
+#define OSNMA_DSM_BLK_NUM 16
 
 typedef struct osnma_dsm_blk {
     bool set;
