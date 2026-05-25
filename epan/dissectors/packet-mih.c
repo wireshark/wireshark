@@ -983,33 +983,40 @@ static int16_t dissect_link_addr(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_
         uint8_t len = 0;
 
         proto_tree_add_item(tlv_tree, hf_link_addr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
         switch (link_addr_choice)
         {
         case 0 : /*MAC_ADDR*/
-                proto_tree_add_item(tlv_tree, hf_link_transport_addr_type, tvb, offset+1, 2, ENC_BIG_ENDIAN);
-                if(tvb_get_ntohs(tvb, offset+1) == 0x06)
-                        proto_tree_add_item(tlv_tree, hf_mac_addr, tvb, offset+4, tvb_get_uint8(tvb, offset+3), ENC_NA);
-                return (offset + 10);
+                proto_tree_add_item(tlv_tree, hf_link_transport_addr_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+                if(tvb_get_ntohs(tvb, offset) == 0x06)
+                        proto_tree_add_item(tlv_tree, hf_mac_addr, tvb, offset+3, tvb_get_uint8(tvb, offset+2), ENC_NA);
+                return (offset + 9);
 
         case 1 :/*3GPP_3G_CELL_ID*/
-                proto_tree_add_item(tlv_tree, hf_plmn_id, tvb, offset+1, 3, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv_tree, hf_cell_id, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-                return (offset + 8);
+                proto_tree_add_item(tlv_tree, hf_plmn_id, tvb, offset, 3, ENC_BIG_ENDIAN);
+                offset += 3;
+                proto_tree_add_item(tlv_tree, hf_cell_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                return offset;
 
         case 2 :/*3GPP_2G_CELL_ID*/
-                proto_tree_add_item(tlv_tree, hf_plmn_id, tvb, offset+1, 3, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv_tree, hf_location_area_id, tvb, offset+4, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv_tree, hf_ci, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-                return (offset + 8);
+                proto_tree_add_item(tlv_tree, hf_plmn_id, tvb, offset, 3, ENC_BIG_ENDIAN);
+                offset += 3;
+                proto_tree_add_item(tlv_tree, hf_location_area_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(tlv_tree, hf_ci, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                return offset;
 
         case 3 :/*3GPP_ADDR*/
         case 4 :/*3GPP2_ADDR*/
         case 5 :/*OTHER_L2_ADDR*/
-                len = tvb_get_uint8(tvb, offset+1);
-                proto_tree_add_item(tlv_tree, hf_link_addr_string, tvb, offset+2, len, ENC_ASCII);
-                return (offset + 2 + len);
+                len = tvb_get_uint8(tvb, offset);
+                offset += 1;
+                proto_tree_add_item(tlv_tree, hf_link_addr_string, tvb, offset, len, ENC_ASCII);
+                return offset + len;
         }
-        return 0;
+        return offset;
 }
 
 static int16_t dissect_tsp_container(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
