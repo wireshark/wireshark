@@ -37,6 +37,7 @@ static int hf_i2c_addr;
 static int ett_i2c;
 
 static dissector_table_t subdissector_table;
+static heur_dissector_list_t i2c_heur_subdissector_list;
 
 static dissector_handle_t ipmb_handle;
 
@@ -160,6 +161,7 @@ dissect_i2c_linux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 {
 	proto_item *ti;
 	proto_tree *i2c_tree;
+	heur_dtbl_entry_t *hdtbl_entry;
 	uint8_t     is_event;
 	uint8_t     bus, addr;
 	uint32_t    flags;
@@ -205,7 +207,8 @@ dissect_i2c_linux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 				addr, "0x%02x%s", addr, addr ? "" : " (General Call)");
 		proto_tree_add_uint(i2c_tree, hf_i2c_flags, tvb, 0, 0, flags);
 
-		if (!dissector_try_payload_with_data(subdissector_table, tvb, pinfo, tree, true, NULL))
+		if (!dissector_try_payload_with_data(subdissector_table, tvb, pinfo, tree, true, NULL) &&
+		    !dissector_try_heuristic(i2c_heur_subdissector_list, tvb, pinfo, tree, &hdtbl_entry, NULL))
 		{
 			call_data_dissector(tvb, pinfo, tree);
 		}
@@ -281,6 +284,7 @@ proto_register_i2c(void)
 	prefs_register_obsolete_preference(m, "type");
 
 	subdissector_table = register_decode_as_next_proto(proto_i2c, "i2c.message", "I2C messages dissector", i2c_prompt);
+	i2c_heur_subdissector_list = register_heur_dissector_list_with_description("i2c.message", "I2C message", proto_i2c);
 
 	i2c_linux_handle = register_dissector("i2c_linux", dissect_i2c_linux, proto_i2c);
 	i2c_linux_cap_handle = register_capture_dissector("i2c_linux", capture_i2c_linux, proto_i2c);

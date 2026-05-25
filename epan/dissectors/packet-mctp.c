@@ -109,6 +109,7 @@ static const value_string type_vals[] = {
     { 0, NULL },
 };
 
+static dissector_handle_t mctp_handle;
 static dissector_table_t mctp_dissector_table;
 static dissector_table_t mctp_encap_dissector_table;
 static reassembly_table mctp_reassembly_table;
@@ -410,13 +411,13 @@ proto_register_mctp(void)
 
     reassembly_table_register(&mctp_reassembly_table,
                               &addresses_reassembly_table_functions);
+
+    mctp_handle = register_dissector("mctp", dissect_mctp, proto_mctp);
 }
 
 void
 proto_reg_handoff_mctp(void)
 {
-    dissector_handle_t mctp_handle;
-    mctp_handle = create_dissector_handle(dissect_mctp, proto_mctp);
     dissector_add_uint("sll.ltype", LINUX_SLL_P_MCTP, mctp_handle);
 }
 

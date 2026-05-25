@@ -1216,6 +1216,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mcpe.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mctp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mctp-control.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-mctp-smbus.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mdb.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mdp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mdshdr.c
