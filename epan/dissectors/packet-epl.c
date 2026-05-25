@@ -5228,14 +5228,20 @@ static struct profile *profile_load(wmem_allocator_t *allocator, const char *pat
 	{
 		profile = profile_new(allocator);
 		if (!epl_eds_load(profile, path))
+		{
 			profile_del(profile);
+			profile = NULL;
+		}
 	}
 
 	else if (g_str_has_suffix(path, ".xdd") || g_str_has_suffix(path, ".xdc"))
 	{
 		profile = profile_new(allocator);
 		if (!epl_xdd_load(profile, path))
+		{
 			profile_del(profile);
+			profile = NULL;
+		}
 	}
 
 	if (!profile)
