@@ -1,4 +1,4 @@
-tools/idl2wrs usr/bin
+tools/dissector_generators/idl2wrs usr/bin
 tools/idl2deb usr/bin
 tools/asn2deb usr/bin
 tools/make-plugin-reg.py usr/share/pyshared
