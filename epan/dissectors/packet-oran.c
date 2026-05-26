@@ -10367,7 +10367,7 @@ proto_register_oran(void)
         "configuration of the O-RU. This preference instructs the dissector to expect "
         "this field to be present in uplink messages",
         &pref_includeUdCompHeaderUplink, udcomphdr_present_options, false);
-    prefs_register_bool_preference(oran_module, "oran.ignore_cplane_ul_udcomphdr", "Ignore compression settings from C-plane",
+    prefs_register_bool_preference(oran_module, "oran.ignore_cplane_ul_udcomphdr", "Ignore UL compression settings from C-plane",
         "When set, override udCompHdr from UL C-Plane with compression method and width configured here", &pref_override_ul_compression);
     prefs_register_uint_preference(oran_module, "oran.ul_slot_us_limit", "Microseconds allowed for UL tx in symbol",
         "Maximum number of microseconds allowed for UL slot transmission before expert warning (zero to disable).  N.B. timing relative to first frame seen for same symbol",
