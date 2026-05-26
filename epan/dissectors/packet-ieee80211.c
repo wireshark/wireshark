@@ -21209,15 +21209,15 @@ dissect_vendor_ie_wfa(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, v
   uint8_t subtype;
   tvbuff_t *vendor_tvb;
 
-  if (tag_len < 4)
+  if (tag_len < 1)
     return 0;
 
-  subtype = tvb_get_uint8(tvb, 3);
+  subtype = tvb_get_uint8(tvb, offset);
   proto_item_append_text(field_data->item_tag, ": %s", val_to_str_const(subtype, wfa_subtype_vals, "Unknown"));
-  vendor_tvb = tvb_new_subset_length(tvb, offset + 4, tag_len - 4);
+  vendor_tvb = tvb_new_subset_length(tvb, offset + 1, tag_len - 1);
   dissect = dissector_try_uint_with_data(wifi_alliance_ie_table, subtype, vendor_tvb, pinfo, field_data->item_tag, false, NULL);
   if (dissect <= 0) {
-      proto_tree_add_item(field_data->item_tag, hf_ieee80211_tag_vendor_data, vendor_tvb, 0, tag_len - 4, ENC_NA);
+      proto_tree_add_item(field_data->item_tag, hf_ieee80211_tag_vendor_data, vendor_tvb, 0, tag_len - 1, ENC_NA);
   }
 
   return tvb_captured_length(tvb);
