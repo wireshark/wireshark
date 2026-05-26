@@ -22,9 +22,11 @@ void proto_reg_handoff_netlink_nl80211(void);
 
 typedef struct  {
     packet_info *pinfo;
+    uint8_t cmd;
 } netlink_nl80211_info_t;
 
 static dissector_handle_t ieee80211_handle;
+static dissector_handle_t eapol_handle;
 static dissector_table_t ieee80211_tag_dissector_table;
 
 /* Extracted using tools/dissector_generators/generate-nl80211-data.py */
@@ -4757,7 +4759,13 @@ dissect_nl80211_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_
             next_tvb = tvb_new_subset_length(tvb, offset, len);
             subtree = proto_tree_add_subtree(tree, next_tvb, 0, -1, ett_nl80211_frame,
                                              &item, "Attribute Value");
-            call_dissector(ieee80211_handle, next_tvb, info->pinfo, subtree);
+            switch(info->cmd) {
+            case WS_NL80211_CMD_CONTROL_PORT_FRAME:
+                call_dissector(eapol_handle, next_tvb, info->pinfo, subtree);
+                break;
+            default:
+                call_dissector(ieee80211_handle, next_tvb, info->pinfo, subtree);
+            }
             break;
         /* TODO add more fields here? */
         default:
@@ -4791,6 +4799,7 @@ dissect_netlink_nl80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     }
 
     info.pinfo = pinfo;
+    info.cmd = genl_info->cmd;
 
     pi = proto_tree_add_item(tree, proto_netlink_nl80211, tvb, offset, -1, ENC_NA);
     nlmsg_tree = proto_item_add_subtree(pi, ett_nl80211);
@@ -5786,6 +5795,7 @@ proto_register_netlink_nl80211(void)
 
     netlink_nl80211_handle = register_dissector("nl80211", dissect_netlink_nl80211, proto_netlink_nl80211);
     ieee80211_handle = find_dissector_add_dependency("wlan", proto_netlink_nl80211);
+    eapol_handle = find_dissector_add_dependency("eapol", proto_netlink_nl80211);
     ieee80211_tag_dissector_table = find_dissector_table("wlan.tag.number");
 }
 
