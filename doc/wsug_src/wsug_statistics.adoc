@@ -1013,9 +1013,24 @@ The UDP Multicast Streams window shows statistics for all UDP multicast streams.
 
 With these statistics you can:
 
-* Measure the burst size for a video stream. This uses the sliding window algorithm.
-* Measure of the output buffer size limit, that no packet drop will occur. This uses the Leaky bucket algorithm.
+* Measure the burst size for a video stream. The `Burst measurement interval` and `Burst alarm threshold`
+settings are used by the sliding window algorithm to compute how many times the threshold was hit,
+and is shown in `Burst Alarms`. The threshold may be hit several times during a same window.
+* Measure of the output buffer size limit, that no packet drop will occur. The
+`Stream empty speed` and `Buffer alarm threshold` settings are used by the Leaky bucket algorithm to
+compute how many times the buffer was filled while a client was at the same time emptying it at a given,
+constant speed. When filled, the maximum seen is stored in `Max Buffer` and `Buffer Alarms` is incremented
+(note that it won't be incremented again until the buffer value first goes below the threshold, hence a
+high value of alarms when the chosen threshold is near the minimum necessary one). The `Total empty speed`
+plays the same role when considering all the flows added.
 * Detect the packet loss inside the MPEG2 video stream.
+
+[NOTE]
+====
+While this dialog helps diagnosing bursts of traffic, or inappropriate small
+buffers, it doesn't bring information on traffic drops or buffer starvations.
+You can use the <<ChStatIOGraphs>> to seek such behaviors.
+====
 
 .UDP Multicast Streams window
 image::images/ws-udp-multicast-stream.png[{screenshot-attrs}]
