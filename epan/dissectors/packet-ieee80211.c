@@ -14445,19 +14445,27 @@ dissect_wrapped_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                                              PASN_DATA_KEY);
 
   if (pasn_data) {
-    proto_tree *auth_tree = NULL;
+    proto_tree *auth_tree = NULL, *tagged_tree;
     proto_item *ai = NULL;
     uint16_t frame_len = 0;
     tvbuff_t *new_tvb = NULL;
+    unsigned tagged_parameter_tree_len, auth_offset;
 
     switch (pasn_data->pasn_seq) {
     case 1:
-      auth_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+      auth_tree = proto_tree_add_subtree(tree, tvb, offset, ext_tag_len,
                                          ett_pasn_auth_frame, &ai,
                                          "Authentication Frame");
       new_tvb = tvb_new_subset_remaining(tvb, offset);
       offset = dissect_auth_frame(auth_tree, pinfo, new_tvb);
-      proto_item_set_len(ai, offset); /* This is correct */
+      tagged_parameter_tree_len =
+        tvb_reported_length_remaining(new_tvb, offset);
+      if (tagged_parameter_tree_len > 0) {
+        tagged_tree = get_tagged_parameter_tree(auth_tree, new_tvb, offset,
+          tagged_parameter_tree_len);
+        ieee_80211_add_tagged_parameters(new_tvb, offset, pinfo, tagged_tree,
+          tagged_parameter_tree_len, MGT_AUTHENTICATION, NULL);
+      }
       break;
 
     case 2:
@@ -14470,7 +14478,17 @@ dissect_wrapped_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                                          ett_pasn_auth_frame, NULL,
                                          "Authentication Frame 1");
       new_tvb = tvb_new_subset_length(tvb, offset, frame_len);
-      offset += dissect_auth_frame(auth_tree, pinfo, new_tvb);
+      auth_offset= dissect_auth_frame(auth_tree, pinfo, new_tvb);
+      offset += auth_offset;
+      tagged_parameter_tree_len =
+        tvb_reported_length_remaining(new_tvb, auth_offset);
+      if (tagged_parameter_tree_len > 0) {
+        tagged_tree = get_tagged_parameter_tree(auth_tree, new_tvb, auth_offset,
+          tagged_parameter_tree_len);
+        ieee_80211_add_tagged_parameters(new_tvb, auth_offset, pinfo, tagged_tree,
+          tagged_parameter_tree_len, MGT_AUTHENTICATION, NULL);
+        offset += tagged_parameter_tree_len;
+      }
 
       /* Second frame */
       frame_len = tvb_get_letohs(tvb, offset);
