@@ -563,11 +563,6 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     next_tvb = tvb_new_subset_length_caplen(tvb, offset, len, reported_len);
 
-    /* If the user has a "Follow UDP Stream" window loading, pass a pointer
-     * to the payload tvb through the tap system. */
-    if (have_tap_listener(udp_follow_tap))
-        tap_queue_packet(udp_follow_tap, pinfo, next_tvb);
-
     if (PINFO_FD_VISITED(pinfo)) {
         if (udp_p_info && udp_p_info->heur_dtbl_entry != NULL) {
             call_heur_dissector_direct(udp_p_info->heur_dtbl_entry, next_tvb, pinfo, tree, NULL);
@@ -1315,8 +1310,15 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t ip_proto)
      * We definitely don't want to do it for an error packet if there's
      * nothing left in the packet.
      */
-    if (!pinfo->flags.in_error_pkt || (tvb_captured_length_remaining(tvb, offset) > 0))
+    if (!pinfo->flags.in_error_pkt || (tvb_captured_length_remaining(tvb, offset) > 0)) {
+        /* If the user has a "Follow UDP Stream" window loading, pass a pointer
+         * to the payload tvb through the tap system. */
+        if (have_tap_listener(udp_follow_tap)) {
+            tap_queue_packet(udp_follow_tap, pinfo, tvb_new_subset_length(tvb, offset, udph->uh_ulen - 8));
+        }
+
         decode_udp_ports(tvb, offset, pinfo, udp_tree, udph->uh_sport, udph->uh_dport, udph->uh_ulen);
+    }
 }
 
 static int
