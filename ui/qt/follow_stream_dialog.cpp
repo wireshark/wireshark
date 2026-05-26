@@ -1114,6 +1114,8 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
         ui->subStreamNumberSpinBox->setVisible(true);
         ui->subStreamNumberLabel->setVisible(true);
     } else {
+        follow_info_.substream_id = SUBSTREAM_UNUSED;
+
         /* disable substream spin box for protocols without substreams */
         ui->subStreamNumberSpinBox->blockSignals(true);
         ui->subStreamNumberSpinBox->setEnabled(false);

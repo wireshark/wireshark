@@ -209,6 +209,23 @@ follow_info_free(follow_info_t* follow_info)
 }
 
 tap_packet_status
+follow_stream_tap_listener(void *tapdata, packet_info *pinfo,
+                      epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
+{
+    follow_info_t *follow_info = (follow_info_t *)tapdata;
+    follow_stream_tap_data_t *follow_data = (follow_stream_tap_data_t*)data;
+
+    if (follow_info->stream_id != follow_data->stream_id)
+        return TAP_PACKET_DONT_REDRAW;
+
+    if (follow_info->substream_id != SUBSTREAM_UNUSED &&
+        follow_info->substream_id != follow_data->substream_id)
+        return TAP_PACKET_DONT_REDRAW;
+
+    return follow_tvb_tap_listener(tapdata, pinfo, edt, follow_data->tvb, flags);
+}
+
+tap_packet_status
 follow_tvb_tap_listener(void *tapdata, packet_info *pinfo,
                       epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
 {

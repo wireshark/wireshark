@@ -208,6 +208,30 @@ WS_DLL_PUBLIC follow_stream_count_func get_follow_stream_count_func(register_fol
  */
 WS_DLL_PUBLIC follow_sub_stream_id_func get_follow_sub_stream_id_func(register_follow_t* follower);
 
+typedef struct _follow_stream_tap_data {
+  tvbuff_t *tvb;
+  uint64_t stream_id;
+  uint64_t substream_id;
+} follow_stream_tap_data_t;
+
+/**
+ * @brief Tap listener for dissectors that export follow data with a tvb
+ * and the stream id[s].
+ *
+ * If a frame can contain follow data from multiple streams for the same
+ * protocol, this allows follow taps to select only the data for the stream
+ * being followed.
+ *
+ * @param tapdata   Opaque follow‑tap context (typically a follow_info struct).
+ * @param pinfo     Packet metadata for the current frame.
+ * @param edt       Dissection tree (unused).
+ * @param data      Protocol‑specific follow data, expected to contain a follow_stream_tap_data_t
+ * @param flags     Tap flags describing packet‑level conditions.
+ * @return tap_packet_status indicating whether UI components should update.
+ */
+WS_DLL_PUBLIC tap_packet_status
+follow_stream_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags);
+
 /** Tap function handler when dissector's tap provides follow data as a tvb.
  * Used by TCP, UDP and HTTP followers
  */
