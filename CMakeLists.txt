@@ -1390,6 +1390,7 @@ if(BUILD_wireshark OR BUILD_stratoshark)
 			OPTIONAL_COMPONENTS
 				DBus
 				Multimedia
+				Svg
 		)
 
 		if (WIN32 AND Qt6Widgets_VERSION VERSION_LESS 6.5.3)

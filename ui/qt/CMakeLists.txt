@@ -901,6 +901,9 @@ if(USE_qt6)
 	if(Qt6DBus_FOUND)
 		target_link_libraries(qtui PUBLIC Qt6::DBus)
 	endif()
+	if(Qt6Svg_FOUND)
+		target_link_libraries(qtui PUBLIC Qt6::Svg)
+	endif()
 endif()
 
 target_include_directories(qtui

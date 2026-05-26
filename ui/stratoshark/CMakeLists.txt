@@ -802,6 +802,9 @@ if(USE_qt6)
 	if(Qt6DBus_FOUND)
 		target_link_libraries(ui_stratoshark PUBLIC Qt6::DBus)
 	endif()
+	if(Qt6Svg_FOUND)
+		target_link_libraries(ui_stratoshark PUBLIC Qt6::Svg)
+	endif()
 endif()
 
 target_compile_definitions(ui_stratoshark
