@@ -14,6 +14,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/oui.h>
 #include "packet-ieee80211.h"
 #include "packet-netlink.h"
 
@@ -4350,6 +4351,10 @@ static int hf_nl80211_software_iftypes;
 static int hf_nl80211_band_iftypes;
 static int hf_nl80211_bss_param;
 static int hf_nl80211_supported_commands;
+static int hf_nl80211_supported_cipher_suite;
+static int hf_nl80211_supported_cipher_suite_oui;
+static int hf_nl80211_supported_cipher_suite_80211_type;
+static int hf_nl80211_supported_cipher_suite_type;
 static int hf_nl80211_mlo_links;
 
 static int ett_nl80211;
@@ -4359,6 +4364,8 @@ static int ett_nl80211_software_iftypes;
 static int ett_nl80211_band_iftypes;
 static int ett_nl80211_bss_param;
 static int ett_nl80211_supported_commands;
+static int ett_nl80211_supported_cipher_suites;
+static int ett_nl80211_supported_cipher_suite;
 static int ett_nl80211_mlo_links;
 
 static int
@@ -4759,6 +4766,34 @@ dissect_nl80211_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_
                 call_dissector(ieee80211_handle, next_tvb, info->pinfo, subtree);
             }
             break;
+        case WS_NL80211_ATTR_CIPHER_SUITES:
+            /* IEEE 802.11 defines the Suite selector format as a 4-byte array
+             * (Figure 8-187 in 802.11-2012, Figure 9-288 in 802.11-2020), but
+             * nl80211 treats it as a u32 in the native encoding (i.e., the
+             * same if Big Endian but reversed if Little Endian.) */
+            subtree = proto_tree_add_subtree(tree, tvb, offset, len, ett_nl80211_supported_cipher_suites,
+                                        &item, "Supported Cipher Suites List");
+            static int * const cipher_suite_80211_fields[] = {
+                &hf_nl80211_supported_cipher_suite_oui,
+                &hf_nl80211_supported_cipher_suite_80211_type,
+                NULL
+            };
+            static int * const cipher_suite_non80211_fields[] = {
+                &hf_nl80211_supported_cipher_suite_oui,
+                &hf_nl80211_supported_cipher_suite_type,
+                NULL
+            };
+            uint32_t cipher_suite;
+            int * const *cipher_suite_fields;
+            while (offset < offset_end) {
+                cipher_suite = tvb_get_uint32(tvb, offset, nl_data->encoding);
+                cipher_suite_fields = ((cipher_suite >> 8) == OUI_RSN) ?
+                    cipher_suite_80211_fields : cipher_suite_non80211_fields;
+                proto_tree_add_bitmask(subtree, tvb, offset, hf_nl80211_supported_cipher_suite,
+                    ett_nl80211_supported_cipher_suite, cipher_suite_fields, nl_data->encoding);
+                offset += 4;
+            }
+            break;
         /* TODO add more fields here? */
         default:
             offset = dissect_nl80211_generic(tvb, data, nl_data, tree, nla_type, offset, len);
@@ -4872,6 +4907,30 @@ proto_register_netlink_nl80211(void)
             { "Attribute Type", "nl80211.supported_commands",
               FT_UINT16, BASE_DEC | BASE_EXT_STRING,
               &ws_nl80211_commands_vals_ext, 0x00,
+              NULL, HFILL },
+        },
+        { &hf_nl80211_supported_cipher_suite,
+            { "Cipher Suite", "nl80211.supported_cipher_suite",
+              FT_UINT32, BASE_HEX,
+              NULL, 0x00,
+              NULL, HFILL },
+        },
+        { &hf_nl80211_supported_cipher_suite_oui,
+            { "Cipher Suite OUI", "nl80211.supported_cipher_suite.oui",
+              FT_UINT32, BASE_OUI,
+              NULL, 0xffffff00,
+              NULL, HFILL },
+        },
+        { &hf_nl80211_supported_cipher_suite_80211_type,
+            { "Cipher Suite Type", "nl80211.supported_cipher_suite.type",
+              FT_UINT32, BASE_DEC,
+              VALS(ieee80211_rsn_cipher_vals), 0x000000ff,
+              NULL, HFILL },
+        },
+        { &hf_nl80211_supported_cipher_suite_type,
+            { "Cipher Suite Type", "nl80211.supported_cipher_suite.type",
+              FT_UINT32, BASE_DEC,
+              NULL, 0x000000ff,
               NULL, HFILL },
         },
         { &hf_nl80211_mlo_links,
@@ -5649,6 +5708,8 @@ proto_register_netlink_nl80211(void)
         &ett_nl80211_band_iftypes,
         &ett_nl80211_bss_param,
         &ett_nl80211_supported_commands,
+        &ett_nl80211_supported_cipher_suites,
+        &ett_nl80211_supported_cipher_suite,
         &ett_nl80211_mlo_links,
 /* Extracted using tools/dissector_generators/generate-nl80211-data.py */
 /* Definitions from linux/nl80211.h {{{ */

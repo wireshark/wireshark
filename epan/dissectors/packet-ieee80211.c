@@ -19419,7 +19419,7 @@ add_ff_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
   }
 }
 
-static const value_string ieee80211_rsn_cipher_vals[] = {
+const value_string ieee80211_rsn_cipher_vals[] = {
   {0, "NONE"},
   {1, "WEP (40-bit)"},
   {2, "TKIP"},

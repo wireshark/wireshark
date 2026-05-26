@@ -581,6 +581,7 @@ typedef struct anqp_info_dissector_data {
 
 extern const value_string ie_tag_num_vals[];
 extern value_string_ext ff_pa_action_codes_ext;
+extern const value_string ieee80211_rsn_cipher_vals[];
 
 unsigned
 add_ff_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,

@@ -9667,7 +9667,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 
 			if (hfinfo->display == BASE_OUI) {
 				tmp_str = val_to_str(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
-				if (hfinfo->type != FT_UINT24) {
+				if (!FT_IS_UINT(hfinfo->type) || ftype_wire_size(hfinfo->type) < 3) {
 					REPORT_DISSECTOR_BUG("Field '%s' (%s) has 'display' value %s but it can only be used with FT_UINT24, not %s",
 						hfinfo->name, hfinfo->abbrev,
 						tmp_str, ftype_name(hfinfo->type));
@@ -9677,7 +9677,9 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 						hfinfo->name, hfinfo->abbrev,
 						ftype_name(hfinfo->type), tmp_str);
 				}
-				if (hfinfo->bitmask != 0) {
+				/* It can be a FT_UINT24 with a 0 bitmask, or
+				 * larger with a bitmask with 24 bits set. */
+				if ((hfinfo->type != FT_UINT24 || hfinfo->bitmask != 0) && ws_count_ones(hfinfo->bitmask) != 24) {
 					REPORT_DISSECTOR_BUG("Field '%s' (%s) is an %s (%s) but has a bitmask",
 						hfinfo->name, hfinfo->abbrev,
 						ftype_name(hfinfo->type), tmp_str);
