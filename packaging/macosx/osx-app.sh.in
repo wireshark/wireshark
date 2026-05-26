@@ -359,16 +359,6 @@ rpathify_file () {
 				echo "Changing reference to $dep_lib to $to in $1"
 				/usr/bin/install_name_tool -change "$dep_lib" "$to" "$1"
 			done < <( otool -L "$1" | grep @executable_path/../Frameworks | awk '{print $1}' )
-
-			#
-			# Try to work around brotli's lack of a full path
-			# https://github.com/google/brotli/issues/934
-			#
-			while read -r base ; do
-				to="@rpath/$base"
-				echo "Changing reference to $base to $to in $1"
-				/usr/bin/install_name_tool -change "$base" "$to" "$1"
-			done < <( otool -L "$1" | grep '^	libbrotli' | awk '{print $1}' )
 		fi
 
 		#
