@@ -125,12 +125,12 @@ QT5_LIST="
 
 QT6_LIST="
 	freeglut3-dev
-	libqt6svg6-dev
 	libvulkan-dev
 	libxkbcommon-dev
 	qt6-base-dev
 	qt6-l10n-tools
 	qt6-multimedia-dev
+	qt6-svg-dev
 	qt6-tools-dev
 	qt6-tools-dev-tools
 	"

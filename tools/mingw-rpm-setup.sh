@@ -43,6 +43,7 @@ BASIC_LIST="mingw64-gcc \
 	mingw64-qt6-qtbase \
 	mingw64-qt6-qt5compat \
 	mingw64-qt6-qtmultimedia \
+	mingw64-qt6-qtsvg \
 	mingw64-qt6-qttools \
 	mingw64-speexdsp \
 	mingw32-nsis \

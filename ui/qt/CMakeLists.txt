@@ -948,11 +948,12 @@ add_library(qtui OBJECT
 
 if(USE_qt6)
 	target_link_libraries(qtui PUBLIC
-		Qt6::Widgets
-		Qt6::Core5Compat
 		Qt6::Concurrent
-		Qt6::PrintSupport
+		Qt6::Core5Compat
 		Qt6::Network
+		Qt6::PrintSupport
+		Qt6::Svg
+		Qt6::Widgets
 	)
 	if(Qt6Multimedia_FOUND)
 		target_link_libraries(qtui PUBLIC Qt6::Multimedia)

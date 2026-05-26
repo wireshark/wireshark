@@ -485,7 +485,7 @@ void PacketDiagram::contextMenuEvent(QContextMenuEvent *event)
     action = ctx_menu->addAction(tr("Copy as Raster Image"));
     connect(action, &QAction::triggered, this, &PacketDiagram::copyAsRasterTriggered);
 
-#if defined(QT_SVG_LIB) && !defined(Q_OS_MAC)
+#if defined(QT_SVG_LIB) && !defined(Q_OS_MAC) && 0
     action = ctx_menu->addAction(tr("…as SVG"));
     connect(action, &QAction::triggered, this, &PacketDiagram::copyAsSvgTriggered);
 #endif

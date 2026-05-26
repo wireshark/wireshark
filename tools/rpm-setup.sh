@@ -229,6 +229,7 @@ then
 	# Base and Multimedia pull in most of the other required modules
 	# RH/Fedora and SUSE use slightly different pkg names for modules
 	QT6_LIST=(base
+			svg
 			tools
 			multimedia)
 

@@ -1426,13 +1426,14 @@ if(BUILD_wireshark OR BUILD_stratoshark)
 		find_package(Qt6 6.2 REQUIRED
 			COMPONENTS
 				Core
+				Concurrent
+				Core5Compat
 				Gui
 				LinguistTools
-				PrintSupport
-				Widgets
-				Concurrent
 				Network
-				Core5Compat
+				PrintSupport
+				Svg
+				Widgets
 			OPTIONAL_COMPONENTS
 				DBus
 				Multimedia

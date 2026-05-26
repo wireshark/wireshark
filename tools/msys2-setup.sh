@@ -89,6 +89,7 @@ BASIC_LIST="base-devel \
 	${PACKAGE_PREFIX}-python \
 	${PACKAGE_PREFIX}-qt6-base \
 	${PACKAGE_PREFIX}-qt6-multimedia \
+	${PACKAGE_PREFIX}-qt6-svg \
 	${PACKAGE_PREFIX}-qt6-tools \
 	${PACKAGE_PREFIX}-qt6-translations \
 	${PACKAGE_PREFIX}-qt6-5compat \
