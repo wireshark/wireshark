@@ -130,7 +130,6 @@ QT6_LIST="
 	qt6-base-dev
 	qt6-l10n-tools
 	qt6-multimedia-dev
-	qt6-svg-dev
 	qt6-tools-dev
 	qt6-tools-dev-tools
 	"
@@ -143,6 +142,11 @@ apt-get update || exit 2
 # libqt6core5compat6-dev: Ubuntu 22.04
 add_package QT6_LIST qt6-5compat-dev ||
 QT6_LIST="$QT6_LIST libqt6core5compat6-dev"
+
+# qt6-svg-dev: Debian >= bookworm, Ubuntu >= 23.04
+# libqt6svg6-dev: Ubuntu 22.04
+add_package QT6_LIST qt6-svg-dev ||
+QT6_LIST="$QT6_LIST libqt6svg6-dev"
 
 if [ $ADD_QT5 -ne 0 ]
 then
