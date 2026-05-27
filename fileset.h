@@ -19,19 +19,25 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Describes a single file belonging to a capture file set.
+ */
 typedef struct _fileset_entry {
-    char     *fullname;      /* File name with path (g_strdup'ed) */
-    char     *name;          /* File name without path (g_strdup'ed) */
-    time_t   ctime;          /* create time */
-    time_t   mtime;          /* last modified time */
-    int64_t  size;           /* size of file in bytes */
-    bool     current;        /* is this the currently loaded file? */
+    char    *fullname; /**< File path including directory (heap-allocated via g_strdup) */
+    char    *name;     /**< File name without directory path (heap-allocated via g_strdup) */
+    time_t   ctime;    /**< File creation timestamp */
+    time_t   mtime;    /**< File last-modified timestamp */
+    int64_t  size;     /**< File size in bytes */
+    bool     current;  /**< True if this entry represents the currently loaded capture file */
 } fileset_entry;
 
+/**
+ * @brief Describes the naming pattern detected in a capture file set's filenames.
+ */
 typedef enum {
-    FILESET_NO_MATCH,
-    FILESET_TIME_NUM,
-    FILESET_NUM_TIME
+    FILESET_NO_MATCH,  /**< Filename does not match any recognized file set naming pattern */
+    FILESET_TIME_NUM,  /**< Filename follows the timestamp-then-sequence-number pattern */
+    FILESET_NUM_TIME   /**< Filename follows the sequence-number-then-timestamp pattern */
 } fileset_match_t;
 
 /* helper: is this a probable file of a file set (does the naming pattern match)?

@@ -161,8 +161,8 @@ void register_pcapng_option_handler(unsigned block_type, unsigned option_code,
                                     option_sizer sizer,
                                     option_writer writer);
 
-/*
- * Byte order of the options within a block.
+/**
+ * @brief Byte order of the options within a block.
  *
  * This is usually the byte order of the section, but, for options
  * within a Custom Block, it needs to be a specified byte order,
@@ -176,9 +176,9 @@ void register_pcapng_option_handler(unsigned block_type, unsigned option_code,
  * the file.
  */
 typedef enum {
-    OPT_SECTION_BYTE_ORDER, /* byte order of this section */
-    OPT_BIG_ENDIAN,         /* as it says */
-    OPT_LITTLE_ENDIAN       /* ditto */
+    OPT_SECTION_BYTE_ORDER, /**< byte order of this section */
+    OPT_BIG_ENDIAN,         /**< big-endian byte order */
+    OPT_LITTLE_ENDIAN       /**< little-endian byte order */
 } pcapng_opt_byte_order_e;
 
 /**

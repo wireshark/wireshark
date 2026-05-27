@@ -119,53 +119,58 @@ typedef struct _PKT_INFO
 
 } PKT_INFO;
 
+/**
+ * @brief Index constants for the table of protocol fields monitored by the
+ *        follow-stream and conversation tracking infrastructure.
+ */
 typedef enum {
-    HF_INTEREST_IP_PROTO = 0,
-    HF_INTEREST_IPV6_NXT,
+    HF_INTEREST_IP_PROTO = 0,    /**< IPv4 protocol number field (ip.proto) */
+    HF_INTEREST_IPV6_NXT,        /**< IPv6 next header field (ipv6.nxt) */
 
-    HF_INTEREST_TCP_RETRAN,
-    HF_INTEREST_TCP_KEEP_ALIVE,
-    HF_INTEREST_TCP_FLAGS_SYN,
-    HF_INTEREST_TCP_FLAGS_ACK,
-    HF_INTEREST_TCP_FLAGS_RESET,
-    HF_INTEREST_TCP_FLAGS_URG,
-    HF_INTEREST_TCP_SEQ,
-    HF_INTEREST_TCP_SRCPORT,
-    HF_INTEREST_TCP_DSTPORT,
-    HF_INTEREST_TCP_STREAM,
-    HF_INTEREST_TCP_LEN,
+    HF_INTEREST_TCP_RETRAN,      /**< TCP retransmission flag (tcp.analysis.retransmission) */
+    HF_INTEREST_TCP_KEEP_ALIVE,  /**< TCP keep-alive flag (tcp.analysis.keep_alive) */
+    HF_INTEREST_TCP_FLAGS_SYN,   /**< TCP SYN flag (tcp.flags.syn) */
+    HF_INTEREST_TCP_FLAGS_ACK,   /**< TCP ACK flag (tcp.flags.ack) */
+    HF_INTEREST_TCP_FLAGS_RESET, /**< TCP RST flag (tcp.flags.reset) */
+    HF_INTEREST_TCP_FLAGS_URG,   /**< TCP URG flag (tcp.flags.urg) */
+    HF_INTEREST_TCP_SEQ,         /**< TCP sequence number (tcp.seq) */
+    HF_INTEREST_TCP_SRCPORT,     /**< TCP source port (tcp.srcport) */
+    HF_INTEREST_TCP_DSTPORT,     /**< TCP destination port (tcp.dstport) */
+    HF_INTEREST_TCP_STREAM,      /**< TCP stream index (tcp.stream) */
+    HF_INTEREST_TCP_LEN,         /**< TCP segment length (tcp.len) */
 
-    HF_INTEREST_UDP_SRCPORT,
-    HF_INTEREST_UDP_DSTPORT,
-    HF_INTEREST_UDP_STREAM,
-    HF_INTEREST_UDP_LENGTH,
+    HF_INTEREST_UDP_SRCPORT,     /**< UDP source port (udp.srcport) */
+    HF_INTEREST_UDP_DSTPORT,     /**< UDP destination port (udp.dstport) */
+    HF_INTEREST_UDP_STREAM,      /**< UDP stream index (udp.stream) */
+    HF_INTEREST_UDP_LENGTH,      /**< UDP datagram length (udp.length) */
 
-    HF_INTEREST_SSL_CONTENT_TYPE,
+    HF_INTEREST_SSL_CONTENT_TYPE, /**< TLS/SSL content type field (ssl.record.content_type) */
 
-    HF_INTEREST_TDS_TYPE,
-    HF_INTEREST_TDS_LENGTH,
+    HF_INTEREST_TDS_TYPE,        /**< TDS packet type field (tds.type) */
+    HF_INTEREST_TDS_LENGTH,      /**< TDS packet length field (tds.length) */
 
-    HF_INTEREST_SMB_MID,
+    HF_INTEREST_SMB_MID,         /**< SMB multiplex ID field (smb.mid) */
 
-    HF_INTEREST_SMB2_SES_ID,
-    HF_INTEREST_SMB2_MSG_ID,
-    HF_INTEREST_SMB2_CMD,
+    HF_INTEREST_SMB2_SES_ID,     /**< SMB2 session ID field (smb2.sesid) */
+    HF_INTEREST_SMB2_MSG_ID,     /**< SMB2 message ID field (smb2.msg_id) */
+    HF_INTEREST_SMB2_CMD,        /**< SMB2 command code field (smb2.cmd) */
 
-    HF_INTEREST_DCERPC_VER,
-    HF_INTEREST_DCERPC_PKT_TYPE,
-    HF_INTEREST_DCERPC_CN_CALL_ID,
-    HF_INTEREST_DCERPC_CN_CTX_ID,
+    HF_INTEREST_DCERPC_VER,         /**< DCE/RPC version field (dcerpc.ver) */
+    HF_INTEREST_DCERPC_PKT_TYPE,    /**< DCE/RPC packet type field (dcerpc.pkt_type) */
+    HF_INTEREST_DCERPC_CN_CALL_ID,  /**< DCE/RPC connection-oriented call ID (dcerpc.cn_call_id) */
+    HF_INTEREST_DCERPC_CN_CTX_ID,   /**< DCE/RPC connection-oriented context ID (dcerpc.cn_ctx_id) */
 
-    HF_INTEREST_DNS_ID,
+    HF_INTEREST_DNS_ID,          /**< DNS transaction ID field (dns.id) */
 
-    HF_INTEREST_END_OF_LIST
+    HF_INTEREST_END_OF_LIST      /**< Sentinel: total number of fields of interest */
 } ehf_of_interest;
 
-typedef struct _HF_OF_INTEREST_INFO
-{
-    int hf;
-    const char* proto_name;
-
+/**
+ * @brief Associates an ehf_of_interest slot with its registered header field ID and protocol name.
+ */
+typedef struct _HF_OF_INTEREST_INFO {
+    int         hf;         /**< Registered header field ID (hfid) for this field of interest */
+    const char *proto_name; /**< Dotted protocol field name string (e.g., "tcp.flags.syn") */
 } HF_OF_INTEREST_INFO;
 
 extern HF_OF_INTEREST_INFO hf_of_interest[HF_INTEREST_END_OF_LIST];

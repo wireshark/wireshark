@@ -138,48 +138,56 @@
 #pragma pack(1)
 #endif
 
-/* Definition of IEEE 802.11 frame (without the address 4)			*/
+/**
+ * @brief IEEE 802.11 MAC frame header without Address 4 field.
+ */
 typedef struct _DOT11DECRYPT_MAC_FRAME {
-	unsigned char	fc[2];
-	unsigned char	dur[2];
-	unsigned char	addr1[DOT11DECRYPT_MAC_LEN];
-	unsigned char	addr2[DOT11DECRYPT_MAC_LEN];
-	unsigned char	addr3[DOT11DECRYPT_MAC_LEN];
-	unsigned char	seq[2];
+    unsigned char fc[2];                       /**< Frame Control field: protocol version, type, subtype, and flags */
+    unsigned char dur[2];                      /**< Duration/ID field: NAV value or association ID */
+    unsigned char addr1[DOT11DECRYPT_MAC_LEN]; /**< Destination address (DA) or BSSID depending on frame type */
+    unsigned char addr2[DOT11DECRYPT_MAC_LEN]; /**< Source address (SA) or transmitter address (TA) */
+    unsigned char addr3[DOT11DECRYPT_MAC_LEN]; /**< BSSID, SA, or DA depending on To DS / From DS bits */
+    unsigned char seq[2];                      /**< Sequence Control field: fragment number and sequence number */
 } DOT11DECRYPT_MAC_FRAME, *PDOT11DECRYPT_MAC_FRAME;
 
-/* Definition of IEEE 802.11 frame (with the address 4)			*/
+/**
+ * @brief IEEE 802.11 MAC frame header with Address 4 field (WDS / mesh, both To DS and From DS set).
+ */
 typedef struct _DOT11DECRYPT_MAC_FRAME_ADDR4 {
-	unsigned char	fc[2];
-	unsigned char	dur[2];
-	unsigned char	addr1[DOT11DECRYPT_MAC_LEN];
-	unsigned char	addr2[DOT11DECRYPT_MAC_LEN];
-	unsigned char	addr3[DOT11DECRYPT_MAC_LEN];
-	unsigned char	seq[2];
-	unsigned char	addr4[DOT11DECRYPT_MAC_LEN];
+    unsigned char fc[2];                       /**< Frame Control field: protocol version, type, subtype, and flags */
+    unsigned char dur[2];                      /**< Duration/ID field: NAV value or association ID */
+    unsigned char addr1[DOT11DECRYPT_MAC_LEN]; /**< Receiver address (RA) */
+    unsigned char addr2[DOT11DECRYPT_MAC_LEN]; /**< Transmitter address (TA) */
+    unsigned char addr3[DOT11DECRYPT_MAC_LEN]; /**< Destination address (DA) */
+    unsigned char seq[2];                      /**< Sequence Control field: fragment number and sequence number */
+    unsigned char addr4[DOT11DECRYPT_MAC_LEN]; /**< Source address (SA); present only when both To DS and From DS bits are set */
 } DOT11DECRYPT_MAC_FRAME_ADDR4, *PDOT11DECRYPT_MAC_FRAME_ADDR4;
 
-/* Definition of IEEE 802.11 frame (without the address 4, with QOS)		*/
+/**
+ * @brief IEEE 802.11 MAC frame header without Address 4 field, with QoS Control field (QoS data frames).
+ */
 typedef struct _DOT11DECRYPT_MAC_FRAME_QOS {
-	unsigned char	fc[2];
-	unsigned char	dur[2];
-	unsigned char	addr1[DOT11DECRYPT_MAC_LEN];
-	unsigned char	addr2[DOT11DECRYPT_MAC_LEN];
-	unsigned char	addr3[DOT11DECRYPT_MAC_LEN];
-	unsigned char	seq[2];
-	unsigned char	qos[2];
+    unsigned char fc[2];                       /**< Frame Control field: protocol version, type, subtype, and flags */
+    unsigned char dur[2];                      /**< Duration/ID field: NAV value or association ID */
+    unsigned char addr1[DOT11DECRYPT_MAC_LEN]; /**< Destination address (DA) or BSSID depending on frame type */
+    unsigned char addr2[DOT11DECRYPT_MAC_LEN]; /**< Source address (SA) or transmitter address (TA) */
+    unsigned char addr3[DOT11DECRYPT_MAC_LEN]; /**< BSSID, SA, or DA depending on To DS / From DS bits */
+    unsigned char seq[2];                      /**< Sequence Control field: fragment number and sequence number */
+    unsigned char qos[2];                      /**< QoS Control field: traffic identifier (TID), AMSDU flag, and AP/STA-specific subfields */
 } DOT11DECRYPT_MAC_FRAME_QOS, *PDOT11DECRYPT_MAC_FRAME_QOS;
 
-/* Definition of IEEE 802.11 frame (with the address 4 and QOS)		*/
+/**
+ * @brief IEEE 802.11 MAC frame header with both Address 4 and QoS Control fields (WDS QoS data frames).
+ */
 typedef struct _DOT11DECRYPT_MAC_FRAME_ADDR4_QOS {
-	unsigned char	fc[2];
-	unsigned char	dur[2];
-	unsigned char	addr1[DOT11DECRYPT_MAC_LEN];
-	unsigned char	addr2[DOT11DECRYPT_MAC_LEN];
-	unsigned char	addr3[DOT11DECRYPT_MAC_LEN];
-	unsigned char	seq[2];
-	unsigned char	addr4[DOT11DECRYPT_MAC_LEN];
-	unsigned char	qos[2];
+    unsigned char fc[2];                       /**< Frame Control field: protocol version, type, subtype, and flags */
+    unsigned char dur[2];                      /**< Duration/ID field: NAV value or association ID */
+    unsigned char addr1[DOT11DECRYPT_MAC_LEN]; /**< Receiver address (RA) */
+    unsigned char addr2[DOT11DECRYPT_MAC_LEN]; /**< Transmitter address (TA) */
+    unsigned char addr3[DOT11DECRYPT_MAC_LEN]; /**< Destination address (DA) */
+    unsigned char seq[2];                      /**< Sequence Control field: fragment number and sequence number */
+    unsigned char addr4[DOT11DECRYPT_MAC_LEN]; /**< Source address (SA); present only when both To DS and From DS bits are set */
+    unsigned char qos[2];                      /**< QoS Control field: traffic identifier (TID), AMSDU flag, and AP/STA-specific subfields */
 } DOT11DECRYPT_MAC_FRAME_ADDR4_QOS, *PDOT11DECRYPT_MAC_FRAME_ADDR4_QOS;
 
 #ifdef _MSC_VER		/* MS Visual C++ */

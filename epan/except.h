@@ -43,33 +43,57 @@
 extern "C" {
 #endif
 
-enum { except_no_call, except_call };
+/** @brief Discriminator indicating whether an exception context involves a call frame. */
+enum { except_no_call, /**< No active function call associated with this context */
+       except_call     /**< An active function call is associated with this context */
+};
 
+
+/**
+ * @brief Identifies an exception class by group and code.
+ */
 typedef struct {
-    unsigned long except_group;
-    unsigned long except_code;
+    unsigned long except_group; /**< Exception group identifier (broad category) */
+    unsigned long except_code;  /**< Exception code identifier (specific exception within the group) */
 } except_id_t;
 
+
+/**
+ * @brief Represents a thrown exception instance, including its identity, message, and dynamic data.
+ */
 typedef struct {
-    except_id_t volatile except_id;
-    const char *volatile except_message;
-    void *volatile except_dyndata;
+    except_id_t volatile  except_id;      /**< Identity of the thrown exception (group and code) */
+    const char *volatile  except_message; /**< Human-readable description of the exception; may be NULL */
+    void       *volatile  except_dyndata; /**< Pointer to heap-allocated exception payload; may be NULL */
 } except_t;
 
+
+/**
+ * @brief A cleanup handler registered to run when a scope is exited due to an exception.
+ */
 struct except_cleanup {
-    void (*except_func)(void *);
-    void *except_context;
+    void (*except_func)(void *); /**< Cleanup callback to invoke on scope exit */
+    void  *except_context;       /**< Opaque context pointer passed to @ref except_func */
 };
 
+
+/**
+ * @brief A catch block descriptor associating a set of exception IDs with a longjmp target.
+ */
 struct except_catch {
-    const except_id_t *except_id;
-    size_t except_size;
-    except_t except_obj;
-    jmp_buf except_jmp;
+    const except_id_t *except_id;   /**< Pointer to an array of exception IDs this block handles */
+    size_t             except_size;  /**< Number of entries in the @ref except_id array */
+    except_t           except_obj;   /**< Storage for the caught exception object */
+    jmp_buf            except_jmp;   /**< Jump buffer used to transfer control to this catch block */
 };
 
+
+/**
+ * @brief Discriminator tag for entries on the exception handler stack.
+ */
 enum except_stacktype {
-    XCEPT_CLEANUP, XCEPT_CATCHER
+    XCEPT_CLEANUP, /**< Stack entry is a cleanup handler (struct except_cleanup) */
+    XCEPT_CATCHER  /**< Stack entry is a catch block (struct except_catch) */
 };
 
 /**

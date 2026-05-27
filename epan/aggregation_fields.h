@@ -20,9 +20,12 @@ extern "C" {
  * Aggregation fields.
  */
 
+/**
+ * @brief Associates a display filter field name with its registered header field ID for aggregation.
+ */
 typedef struct aggregation_field {
-	char	*field;
-	int      hf_id;
+    char *field;  /**< Display filter field name string (e.g. "tcp.len") */
+    int   hf_id;  /**< Registered header field ID (hf_ index) corresponding to @p field */
 } aggregation_field_t;
 
 /* Keep the UAT structure local to the aggregation_fields */

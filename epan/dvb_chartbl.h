@@ -18,34 +18,37 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Character encoding types for DVB Service Information (DVB-SI) text fields.
+ */
 typedef enum {
-    DVB_ENCODING_INVALID   = -3, /* length invalid */
-    DVB_ENCODING_RESERVED  = -2, /* reserved by spec */
-    DVB_ENCODING_UNKNOWN   = -1,  /* not defined by spec */
+    DVB_ENCODING_INVALID  = -3, /**< Encoding could not be determined due to an invalid length */
+    DVB_ENCODING_RESERVED = -2, /**< Encoding byte is reserved by the DVB-SI specification */
+    DVB_ENCODING_UNKNOWN  = -1, /**< Encoding byte is not defined by the DVB-SI specification */
 
-    DVB_ENCODING_LATIN = 0,
-    /* these defines don't have to match with the values
-       from the DVB-SI specification */
-    DVB_ENCODING_ISO_8859_1,
-    DVB_ENCODING_ISO_8859_2,
-    DVB_ENCODING_ISO_8859_3,
-    DVB_ENCODING_ISO_8859_4,
-    DVB_ENCODING_ISO_8859_5,
-    DVB_ENCODING_ISO_8859_6,
-    DVB_ENCODING_ISO_8859_7,
-    DVB_ENCODING_ISO_8859_8,
-    DVB_ENCODING_ISO_8859_9,
-    DVB_ENCODING_ISO_8859_10,
-    DVB_ENCODING_ISO_8859_11,
-    DVB_ENCODING_ISO_8859_13,
-    DVB_ENCODING_ISO_8859_14,
-    DVB_ENCODING_ISO_8859_15,
+    DVB_ENCODING_LATIN        = 0,  /**< Default Latin character table (DVB default encoding) */
+    /* These enumerator values do not have to match the prefix byte values
+       from the DVB-SI specification. */
+    DVB_ENCODING_ISO_8859_1,        /**< ISO/IEC 8859-1: Latin-1 (Western European) */
+    DVB_ENCODING_ISO_8859_2,        /**< ISO/IEC 8859-2: Latin-2 (Central European) */
+    DVB_ENCODING_ISO_8859_3,        /**< ISO/IEC 8859-3: Latin-3 (South European) */
+    DVB_ENCODING_ISO_8859_4,        /**< ISO/IEC 8859-4: Latin-4 (North European) */
+    DVB_ENCODING_ISO_8859_5,        /**< ISO/IEC 8859-5: Latin/Cyrillic */
+    DVB_ENCODING_ISO_8859_6,        /**< ISO/IEC 8859-6: Latin/Arabic */
+    DVB_ENCODING_ISO_8859_7,        /**< ISO/IEC 8859-7: Latin/Greek */
+    DVB_ENCODING_ISO_8859_8,        /**< ISO/IEC 8859-8: Latin/Hebrew */
+    DVB_ENCODING_ISO_8859_9,        /**< ISO/IEC 8859-9: Latin-5 (Turkish) */
+    DVB_ENCODING_ISO_8859_10,       /**< ISO/IEC 8859-10: Latin-6 (Nordic) */
+    DVB_ENCODING_ISO_8859_11,       /**< ISO/IEC 8859-11: Latin/Thai */
+    DVB_ENCODING_ISO_8859_13,       /**< ISO/IEC 8859-13: Latin-7 (Baltic Rim) */
+    DVB_ENCODING_ISO_8859_14,       /**< ISO/IEC 8859-14: Latin-8 (Celtic) */
+    DVB_ENCODING_ISO_8859_15,       /**< ISO/IEC 8859-15: Latin-9 (Western European with Euro sign) */
 
-    DVB_ENCODING_ISO_10646_BMP,
-    DVB_ENCODING_KSX_1001,
-    DVB_ENCODING_GB_2312,
-    DVB_ENCODING_ISO_10646_BIG5,
-    DVB_ENCODING_ISO_10646_UTF8_BMP
+    DVB_ENCODING_ISO_10646_BMP,     /**< ISO/IEC 10646 Basic Multilingual Plane (UCS-2 / UTF-16 BMP) */
+    DVB_ENCODING_KSX_1001,          /**< KS X 1001: Korean national standard character set */
+    DVB_ENCODING_GB_2312,           /**< GB 2312: Simplified Chinese national standard character set */
+    DVB_ENCODING_ISO_10646_BIG5,    /**< ISO/IEC 10646 encoded via Big5 (Traditional Chinese) */
+    DVB_ENCODING_ISO_10646_UTF8_BMP /**< ISO/IEC 10646 BMP encoded as UTF-8 */
 } dvb_encoding_e;
 
 /**

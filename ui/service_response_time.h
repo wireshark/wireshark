@@ -25,16 +25,19 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Column indices for the Service Response Time (SRT) statistics table.
+ */
 enum
 {
-    SRT_COLUMN_INDEX,
-    SRT_COLUMN_PROCEDURE,
-    SRT_COLUMN_CALLS,
-    SRT_COLUMN_MIN,
-    SRT_COLUMN_MAX,
-    SRT_COLUMN_AVG,
-    SRT_COLUMN_SUM,
-    NUM_SRT_COLUMNS
+    SRT_COLUMN_INDEX,     /**< Row index number */
+    SRT_COLUMN_PROCEDURE, /**< Procedure or request name identifying the SRT entry */
+    SRT_COLUMN_CALLS,     /**< Total number of calls or requests observed */
+    SRT_COLUMN_MIN,       /**< Minimum response time recorded across all calls */
+    SRT_COLUMN_MAX,       /**< Maximum response time recorded across all calls */
+    SRT_COLUMN_AVG,       /**< Average response time across all calls */
+    SRT_COLUMN_SUM,       /**< Cumulative sum of all response times */
+    NUM_SRT_COLUMNS       /**< Sentinel: total number of SRT table columns */
 };
 
 /**

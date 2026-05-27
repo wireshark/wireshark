@@ -16,18 +16,20 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/* Rule types */
+/**
+ * @brief Classifies the address/port criterion used by a firewall rule entry.
+ */
 typedef enum {
-    RT_NONE,
-    RT_MAC_SRC,
-    RT_MAC_DST,
-    RT_IPv4_SRC,
-    RT_IPv4_DST,
-    RT_PORT_SRC,
-    RT_PORT_DST,
-    RT_IPv4_PORT_SRC,
-    RT_IPv4_PORT_DST,
-    NUM_RULE_TYPES
+    RT_NONE,             /**< No rule type; uninitialized or placeholder entry */
+    RT_MAC_SRC,          /**< Match on source MAC address */
+    RT_MAC_DST,          /**< Match on destination MAC address */
+    RT_IPv4_SRC,         /**< Match on source IPv4 address */
+    RT_IPv4_DST,         /**< Match on destination IPv4 address */
+    RT_PORT_SRC,         /**< Match on source transport port */
+    RT_PORT_DST,         /**< Match on destination transport port */
+    RT_IPv4_PORT_SRC,    /**< Match on source IPv4 address and source transport port */
+    RT_IPv4_PORT_DST,    /**< Match on destination IPv4 address and destination transport port */
+    NUM_RULE_TYPES       /**< Sentinel: total number of defined rule types */
 } rule_type_e;
 
 /** Fetch the number of firewall products.

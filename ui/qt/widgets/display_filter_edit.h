@@ -19,11 +19,14 @@
 class QEvent;
 class StockIconToolButton;
 
+/**
+ * @brief Specifies how a filter or column expression entered in the filter edit widget should be handled.
+ */
 typedef enum {
-    DisplayFilterToApply,
-    DisplayFilterToEnter,
-    ReadFilterToApply,
-    CustomColumnToEnter,
+    DisplayFilterToApply,  /**< Apply the entered display filter expression to the packet list immediately */
+    DisplayFilterToEnter,  /**< Stage the display filter expression in the filter bar without applying it */
+    ReadFilterToApply,     /**< Apply the entered expression as a read filter when (re)opening a capture file */
+    CustomColumnToEnter,   /**< Enter a field expression to be used as a custom column definition */
 } DisplayFilterEditType;
 
 /**

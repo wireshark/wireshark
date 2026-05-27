@@ -18,15 +18,15 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/*
- * Types of compression for a file, including "none".
+/**
+ * @brief Identifies the compression algorithm applied to a capture file, if any.
  */
 typedef enum {
-    WS_FILE_UNCOMPRESSED,
-    WS_FILE_GZIP_COMPRESSED,
-    WS_FILE_ZSTD_COMPRESSED,
-    WS_FILE_LZ4_COMPRESSED,
-    WS_FILE_UNKNOWN_COMPRESSION,
+    WS_FILE_UNCOMPRESSED,        /**< File is stored without compression */
+    WS_FILE_GZIP_COMPRESSED,     /**< File is compressed with gzip (DEFLATE) */
+    WS_FILE_ZSTD_COMPRESSED,     /**< File is compressed with Zstandard (zstd) */
+    WS_FILE_LZ4_COMPRESSED,      /**< File is compressed with LZ4 */
+    WS_FILE_UNKNOWN_COMPRESSION, /**< File appears compressed but the algorithm could not be identified */
 } ws_compression_type;
 
 /**

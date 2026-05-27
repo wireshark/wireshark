@@ -20,46 +20,62 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/*
- * Parameters for taps.
+/**
+ * @brief Parameter types for tap statistics dialogs and CLI argument parsing.
  */
-
 typedef enum {
-    PARAM_UINT,   /* Unused? */
-    PARAM_STRING, /* Unused? */
-    PARAM_ENUM,   /* SCSI SRT */
-    PARAM_UUID,   /* DCE-RPC. Unused? */
-    PARAM_FILTER
+    PARAM_UINT,   /**< Unsigned integer parameter (currently unused) */
+    PARAM_STRING, /**< String parameter (currently unused) */
+    PARAM_ENUM,   /**< Enumerated value parameter; used by SCSI SRT and similar taps */
+    PARAM_UUID,   /**< UUID parameter for DCE-RPC (currently unused) */
+    PARAM_FILTER  /**< Display filter string parameter */
 } param_type;
 
+
+/**
+ * @brief Describes a single configurable parameter accepted by a tap statistic.
+ */
 typedef struct _tap_param {
-    param_type        type;      /* type of parameter */
-    const char       *name;      /* name to use in error messages */
-    const char       *title;     /* title to use in GUI widgets */
-    const enum_val_t *enum_vals; /* values for PARAM_ENUM */
-    bool              optional;  /* true if the parameter is optional */
+    param_type        type;      /**< Data type and widget style for this parameter */
+    const char       *name;      /**< Short name used in error and diagnostic messages */
+    const char       *title;     /**< Human-readable label shown in GUI widgets */
+    const enum_val_t *enum_vals; /**< Array of valid enumeration values; only used when type == PARAM_ENUM */
+    bool              optional;  /**< True if this parameter may be omitted by the user */
 } tap_param;
 
-/*
- * UI information for a tap.
+
+/**
+ * @brief Callback invoked to initialize a tap statistic with its CLI argument string.
+ * @param opt_arg The full "-z" option argument string passed by the user.
+ * @param userdata Opaque user data pointer passed through from the registration.
+ * @return True if initialization succeeded; false on error.
  */
-typedef bool (* stat_tap_init_cb)(const char *, void*);
+typedef bool (*stat_tap_init_cb)(const char *opt_arg, void *userdata);
+
+
+/**
+ * @brief Registration descriptor for a tap-based statistics dialog or CLI report.
+ */
 typedef struct _stat_tap_ui {
-    register_stat_group_t  group;      /* group to which statistic belongs */
-    const char            *title;      /* title of statistic */
-    const char            *cli_string; /* initial part of the "-z" argument for statistic */
-    stat_tap_init_cb tap_init_cb;      /* callback to init function of the tap */
-    size_t                 nparams;    /* number of parameters */
-    tap_param             *params;     /* pointer to table of parameter info */
+    register_stat_group_t  group;       /**< Statistics menu group this tap belongs to */
+    const char            *title;       /**< Human-readable title of the statistic */
+    const char            *cli_string;  /**< Leading token of the "-z" CLI argument used to invoke this statistic */
+    stat_tap_init_cb       tap_init_cb; /**< Callback invoked to initialize the tap when its CLI argument is matched */
+    size_t                 nparams;     /**< Number of entries in @ref params */
+    tap_param             *params;      /**< Pointer to the array of parameter descriptors */
 } stat_tap_ui;
 
+
+/**
+ * @brief Value type for a cell within a statistics tap table.
+ */
 typedef enum {
-    TABLE_ITEM_NONE = 0,
-    TABLE_ITEM_UINT,
-    TABLE_ITEM_INT,
-    TABLE_ITEM_STRING,
-    TABLE_ITEM_FLOAT,
-    TABLE_ITEM_ENUM
+    TABLE_ITEM_NONE   = 0, /**< No value; uninitialized or empty cell */
+    TABLE_ITEM_UINT,       /**< Unsigned integer cell value */
+    TABLE_ITEM_INT,        /**< Signed integer cell value */
+    TABLE_ITEM_STRING,     /**< String cell value */
+    TABLE_ITEM_FLOAT,      /**< Floating-point cell value */
+    TABLE_ITEM_ENUM        /**< Enumerated cell value */
 } stat_tap_table_item_enum;
 
 /**
@@ -102,60 +118,93 @@ typedef struct _stat_tap_table_item_type
     } user_data;
 } stat_tap_table_item_type;
 
-/* Possible alignments */
+/**
+ * @brief Horizontal alignment for a statistics table column.
+ */
 typedef enum {
-    TAP_ALIGN_LEFT = 0,
-    TAP_ALIGN_RIGHT
+    TAP_ALIGN_LEFT  = 0, /**< Left-align column content */
+    TAP_ALIGN_RIGHT      /**< Right-align column content */
 } tap_alignment_type;
 
-typedef struct _stat_tap_table_item
-{
-    stat_tap_table_item_enum type;
-    tap_alignment_type align;
-    const char* column_name;
-    const char* field_format; /* printf style formatting of field. */
 
+/**
+ * @brief Schema descriptor for a single column in a statistics tap table.
+ */
+typedef struct _stat_tap_table_item {
+    stat_tap_table_item_enum  type;         /**< Data type of values stored in this column */
+    tap_alignment_type        align;        /**< Horizontal alignment of this column's content */
+    const char               *column_name;  /**< Column header label shown in the UI */
+    const char               *field_format; /**< printf-style format string used to render cell values */
 } stat_tap_table_item;
 
 
-/* Description of a UI table */
-typedef struct _stat_tap_table
-{
-    const char* title;
-    const char *filter_string;        /**< append procedure number (%d) to this string to create a display filter */
-    unsigned num_fields;
-    unsigned num_elements;
-    stat_tap_table_item_type **elements;
-
+/**
+ * @brief A single statistics table instance, holding rows of tap-collected data.
+ */
+typedef struct _stat_tap_table {
+    const char               *title;         /**< Human-readable title displayed above the table */
+    const char               *filter_string; /**< Display filter prefix; append a procedure number (%d) to form a complete filter expression */
+    unsigned                  num_fields;    /**< Number of columns (fields) per row */
+    unsigned                  num_elements;  /**< Number of rows currently stored in @ref elements */
+    stat_tap_table_item_type **elements;     /**< 2-D array of cell values, indexed by [row][column] */
 } stat_tap_table;
 
-/*
- * UI information for a tap with a table-based UI.
+
+/**
+ * @brief Registration descriptor and runtime state for a table-based tap statistics UI.
  */
 typedef struct _stat_tap_table_ui {
-    register_stat_group_t  group;      /* group to which statistic belongs */
-    const char            *title;      /* title of statistic */
-    const char            *tap_name;
-    const char            *cli_string; /* initial part of the "-z" argument for statistic */
-    void (* stat_tap_init_cb)(struct _stat_tap_table_ui* new_stat);
-    tap_packet_cb packet_func;
-    void (* stat_tap_reset_table_cb)(stat_tap_table* table);
-    void (* stat_tap_free_table_item_cb)(stat_tap_table* table, unsigned row, unsigned column, stat_tap_table_item_type* field_data);
-    void (* stat_filter_check_cb)(const char *opt_arg, const char **filter, char** err); /* Dissector chance to reject filter */
-    size_t                 nfields;    /* number of fields */
-    stat_tap_table_item*   fields;
-    size_t                 nparams;    /* number of parameters */
-    tap_param             *params;     /* pointer to table of parameter info */
-    GArray                *tables;     /* An array of stat_tap_table* */
-    unsigned               refcount;   /* a reference count for deallocation */
+    register_stat_group_t  group;      /**< Statistics menu group this tap belongs to */
+    const char            *title;      /**< Human-readable title of the statistic */
+    const char            *tap_name;   /**< Internal tap name used to register the tap listener */
+    const char            *cli_string; /**< Leading token of the "-z" CLI argument used to invoke this statistic */
+
+    /**
+     * @brief Callback invoked once to allocate and initialize the statistic's tables.
+     * @param new_stat Pointer to this stat_tap_table_ui being initialized.
+     */
+    void (*stat_tap_init_cb)(struct _stat_tap_table_ui *new_stat);
+
+    tap_packet_cb packet_func; /**< Callback invoked for each packet delivered to the tap */
+
+    /**
+     * @brief Callback invoked to reset (clear) all rows in a table without freeing its schema.
+     * @param table The table to reset.
+     */
+    void (*stat_tap_reset_table_cb)(stat_tap_table *table);
+
+    /**
+     * @brief Callback invoked to release resources held by a single table cell.
+     * @param table      The table containing the cell.
+     * @param row        Zero-based row index of the cell.
+     * @param column     Zero-based column index of the cell.
+     * @param field_data Pointer to the cell's stat_tap_table_item_type value to free.
+     */
+    void (*stat_tap_free_table_item_cb)(stat_tap_table *table, unsigned row, unsigned column, stat_tap_table_item_type *field_data);
+
+    /**
+     * @brief Callback giving the dissector a chance to validate or transform the filter string.
+     * @param opt_arg The raw "-z" option argument string.
+     * @param filter  Output: pointer to the accepted display filter string, or NULL.
+     * @param err     Output: pointer to an error message string if the filter is rejected, or NULL.
+     */
+    void (*stat_filter_check_cb)(const char *opt_arg, const char **filter, char **err);
+
+    size_t                nfields;  /**< Number of column schema entries in @ref fields */
+    stat_tap_table_item  *fields;   /**< Array of column schema descriptors */
+    size_t                nparams;  /**< Number of entries in @ref params */
+    tap_param            *params;   /**< Array of configurable parameter descriptors */
+    GArray               *tables;   /**< Dynamic array of stat_tap_table* instances created by this statistic */
+    unsigned              refcount; /**< Reference count used to manage deallocation of shared instances */
 } stat_tap_table_ui;
 
 
-/** tap data
+/**
+ * @brief Per-tap-instance data passed between the tap engine and the statistics UI.
  */
 typedef struct _stat_data_t {
-    stat_tap_table_ui *stat_tap_data;
-    void        *user_data;       /**< "GUI" specifics (if necessary) */
+    stat_tap_table_ui *stat_tap_data; /**< Pointer to the owning table UI descriptor and its tables */
+    void              *user_data;     /**< Optional GUI-specific context pointer; may be NULL */
 } stat_data_t;
 
 /** Initialize statistics tap system.

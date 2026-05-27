@@ -30,10 +30,13 @@
 #define MAX_IAP_ENTRIES     32
 
 
+/**
+ * @brief Protocol Data Unit (PDU) type for a connection-oriented protocol message.
+ */
 typedef enum {
-    CONNECT_PDU,
-    DISCONNECT_PDU,
-    DATA_PDU
+    CONNECT_PDU,    /**< Connection establishment PDU */
+    DISCONNECT_PDU, /**< Connection teardown PDU */
+    DATA_PDU        /**< Data transfer PDU */
 } pdu_type_t;
 
 typedef bool (*ias_value_dissector_t)(tvbuff_t* tvb, unsigned offset, packet_info* pinfo, proto_tree* tree,

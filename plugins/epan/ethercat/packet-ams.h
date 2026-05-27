@@ -80,18 +80,20 @@
 
 #define AMSPORT_NAMESIZE 31
 
-/* Port types */
+/**
+ * @brief AMS (Automation Message Specification) port type identifiers.
+ */
 typedef enum
 {
-   PORTTYPE_INVALID    = -1,
-   PORTTYPE_ROUTER     = 0x00,
-   PORTTYPE_R3PORT     = 0x01,
-   PORTTYPE_R0CTRLPORT = 0x02,
-   PORTTYPE_R0TASKPORT = 0x03,
-   PORTTYPE_R0IOPORT   = 0x04,
-   PORTTYPE_TPPORT     = 0x05,
-   PORTTYPE_MAXVAL     = 0xFF
-}AMSPORT_TYPE;
+    PORTTYPE_INVALID    = -1,   /**< Invalid or uninitialized port type */
+    PORTTYPE_ROUTER     = 0x00, /**< AMS router port */
+    PORTTYPE_R3PORT     = 0x01, /**< R3 port */
+    PORTTYPE_R0CTRLPORT = 0x02, /**< R0 control port */
+    PORTTYPE_R0TASKPORT = 0x03, /**< R0 task port */
+    PORTTYPE_R0IOPORT   = 0x04, /**< R0 I/O port */
+    PORTTYPE_TPPORT     = 0x05, /**< Transport protocol (TP) port */
+    PORTTYPE_MAXVAL     = 0xFF  /**< Maximum valid port type value; sentinel for range checks */
+} AMSPORT_TYPE;
 
 /* Command IDs */
 
@@ -847,38 +849,44 @@ typedef struct
 #define ADSIGRP_ECAT_VOE 0xF430
 
 
+/**
+ * @brief Operational states of an ADS (Automation Device Specification) device.
+ */
 typedef enum nAdsState
 {
-   ADSSTATE_INVALID      =0,
-   ADSSTATE_IDLE         =1,
-   ADSSTATE_RESET        =2,
-   ADSSTATE_INIT         =3,
-   ADSSTATE_START        =4,
-   ADSSTATE_RUN          =5,
-   ADSSTATE_STOP         =6,
-   ADSSTATE_SAVECFG      =7,
-   ADSSTATE_LOADCFG      =8,
-   ADSSTATE_POWERFAILURE =9,
-   ADSSTATE_POWERGOOD    =10,
-   ADSSTATE_ERROR        =11,
-   ADSSTATE_SHUTDOWN     =12,
-   ADSSTATE_SUSPEND      =13,
-   ADSSTATE_RESUME       =14,
-   ADSSTATE_CONFIG       =15,
-   ADSSTATE_RECONFIG     =16,
-   ADSSTATE_MAXSTATES
+    ADSSTATE_INVALID      =  0,  /**< Invalid or uninitialized state */
+    ADSSTATE_IDLE         =  1,  /**< Device is idle; no task is being executed */
+    ADSSTATE_RESET        =  2,  /**< Device is performing a reset */
+    ADSSTATE_INIT         =  3,  /**< Device is initializing */
+    ADSSTATE_START        =  4,  /**< Device is starting up */
+    ADSSTATE_RUN          =  5,  /**< Device is running normally */
+    ADSSTATE_STOP         =  6,  /**< Device has been stopped */
+    ADSSTATE_SAVECFG      =  7,  /**< Device is saving its configuration */
+    ADSSTATE_LOADCFG      =  8,  /**< Device is loading a configuration */
+    ADSSTATE_POWERFAILURE =  9,  /**< Device has detected a power failure */
+    ADSSTATE_POWERGOOD    = 10,  /**< Device has detected power restored to a good state */
+    ADSSTATE_ERROR        = 11,  /**< Device is in an error state */
+    ADSSTATE_SHUTDOWN     = 12,  /**< Device is shutting down */
+    ADSSTATE_SUSPEND      = 13,  /**< Device has been suspended */
+    ADSSTATE_RESUME       = 14,  /**< Device is resuming from a suspended state */
+    ADSSTATE_CONFIG       = 15,  /**< Device is in configuration mode */
+    ADSSTATE_RECONFIG     = 16,  /**< Device is performing a reconfiguration */
+    ADSSTATE_MAXSTATES          /**< Sentinel: total number of defined ADS states */
 } ADSSTATE;
 
+/**
+ * @brief Transmission modes controlling how ADS notifications are triggered and delivered.
+ */
 typedef enum nAdsTransMode
 {
-   ADSTRANS_NOTRANS     =0,
-   ADSTRANS_CLIENTCYCLE =1,
-   ADSTRANS_CLIENTONCHA =2,
-   ADSTRANS_SERVERCYCLE =3,
-   ADSTRANS_SERVERONCHA =4,
-   ADSTRANS_CLIENT1REQ  =10,
-   ADSTRANS_MAXMODES
-}ADSTRANSMODE;
+    ADSTRANS_NOTRANS     =  0,  /**< No transmission; notifications are disabled */
+    ADSTRANS_CLIENTCYCLE =  1,  /**< Client-driven cyclic transmission at a fixed interval */
+    ADSTRANS_CLIENTONCHA =  2,  /**< Client-driven transmission on value change */
+    ADSTRANS_SERVERCYCLE =  3,  /**< Server-driven cyclic transmission at a fixed interval */
+    ADSTRANS_SERVERONCHA =  4,  /**< Server-driven transmission on value change */
+    ADSTRANS_CLIENT1REQ  = 10,  /**< Client single-request transmission (one-shot) */
+    ADSTRANS_MAXMODES           /**< Sentinel: total number of defined transmission modes */
+} ADSTRANSMODE;
 
 
 /* ADS error codes */

@@ -816,11 +816,14 @@ extern const QString kLuaDbgHeaderToolButtonStyle;
 void luaDbgDrawBreakpointDot(QPainter &painter, qreal dotLeft, qreal dotTop, qreal radius, bool enabled,
                              bool hasExtras = false, int alpha = 255);
 
+/**
+ * @brief Controls the state of the header toggle icon in the Lua debugger breakpoint list.
+ */
 enum class LuaDbgBpHeaderIconMode
 {
-    NoBreakpoints,
-    ActivateAll,
-    DeactivateAll,
+    NoBreakpoints, /**< No breakpoints are defined; header icon reflects an empty list */
+    ActivateAll,   /**< At least one breakpoint is inactive; header icon offers to activate all */
+    DeactivateAll, /**< All breakpoints are active; header icon offers to deactivate all */
 };
 
 /**

@@ -28,7 +28,9 @@ struct epan_dissect;
  *  Color filters.
  */
 
-/* Data for a color filter. */
+/**
+ * @brief Data for a color filter.
+ */
 typedef struct _color_filter {
     char      *filter_name;         /* name of the filter */
     char      *filter_text;         /* text of the filter expression */

@@ -167,15 +167,53 @@ WS_DLL_PUBLIC uint32_t decode_synchsafe_int(uint32_t val);
 #define MPA_DURATION_NS(mpa) \
 	(1000000000 / mpa_frequency(mpa) * mpa_samples(mpa))
 
-enum { MPA_SYNC = 0x7ff };
+/** @brief Required sync word value in the MPEG Audio frame header (all 11 sync bits set). */
+enum {
+	MPA_SYNC = 0x7ff /**< sync word value */
+};
 
+/**
+ * @brief True if the sync field of an MPEG Audio frame header contains the required 0x7FF sync word.
+ * @param mpa Pointer to the MPEG Audio frame header struct.
+ */
 #define MPA_SYNC_VALID(mpa)      ((mpa)->sync == MPA_SYNC)
+
+/**
+ * @brief True if the MPEG Audio version field encodes a recognised version (i.e. mpa_version() >= 0).
+ * @param mpa Pointer to the MPEG Audio frame header struct.
+ */
 #define MPA_VERSION_VALID(mpa)   (mpa_version(mpa) >= 0)
+
+/**
+ * @brief True if the MPEG Audio layer field encodes a recognised layer (i.e. mpa_layer() >= 0).
+ * @param mpa Pointer to the MPEG Audio frame header struct.
+ */
 #define MPA_LAYER_VALID(mpa)     (mpa_layer(mpa) >= 0)
+
+/**
+ * @brief True if the bitrate index encodes a non-zero, valid bitrate (i.e. mpa_bitrate() > 0).
+ * @param mpa Pointer to the MPEG Audio frame header struct.
+ */
 #define MPA_BITRATE_VALID(mpa)   (mpa_bitrate(mpa) > 0)
+
+/**
+ * @brief True if the sampling frequency index encodes a valid, non-zero frequency (i.e. mpa_frequency() > 0).
+ * @param mpa Pointer to the MPEG Audio frame header struct.
+ */
 #define MPA_FREQUENCY_VALID(mpa) (mpa_frequency(mpa) > 0)
-#define MPA_VALID(mpa) (MPA_SYNC_VALID(mpa) \
-		&& MPA_VERSION_VALID(mpa) && MPA_LAYER_VALID(mpa) \
-		&& MPA_BITRATE_VALID(mpa) && MPA_FREQUENCY_VALID(mpa))
+
+/**
+ * @brief True if all fields of an MPEG Audio frame header are simultaneously valid.
+ *
+ * Evaluates to true only when the sync word, version, layer, bitrate, and
+ * sampling frequency fields all pass their individual validity checks.
+ *
+ * @param mpa Pointer to the MPEG Audio frame header struct.
+ */
+#define MPA_VALID(mpa) (MPA_SYNC_VALID(mpa)  \
+        && MPA_VERSION_VALID(mpa)            \
+        && MPA_LAYER_VALID(mpa)              \
+        && MPA_BITRATE_VALID(mpa)            \
+        && MPA_FREQUENCY_VALID(mpa))
 
 #endif

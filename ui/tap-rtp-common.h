@@ -25,53 +25,75 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/* type of error when saving voice in a file didn't succeed */
+/**
+ * @brief Error code indicating the outcome of an attempt to save RTP voice data to a file.
+ */
 typedef enum {
-    TAP_RTP_NO_ERROR,
-    TAP_RTP_WRONG_CODEC,
-    TAP_RTP_WRONG_LENGTH,
-    TAP_RTP_PADDING_ERROR,
-    TAP_RTP_SHORT_FRAME,
-    TAP_RTP_FILE_OPEN_ERROR,
-    TAP_RTP_FILE_WRITE_ERROR,
-    TAP_RTP_NO_DATA
+    TAP_RTP_NO_ERROR,          /**< Save operation completed successfully */
+    TAP_RTP_WRONG_CODEC,       /**< Codec is unsupported or incompatible with the output format */
+    TAP_RTP_WRONG_LENGTH,      /**< Payload length is invalid or inconsistent for the codec */
+    TAP_RTP_PADDING_ERROR,     /**< RTP padding byte specifies a length exceeding the payload */
+    TAP_RTP_SHORT_FRAME,       /**< Payload is too short to contain valid codec data */
+    TAP_RTP_FILE_OPEN_ERROR,   /**< Output file could not be opened */
+    TAP_RTP_FILE_WRITE_ERROR,  /**< A write operation to the output file failed */
+    TAP_RTP_NO_DATA            /**< No RTP payload data was available to save */
 } tap_rtp_error_type_t;
 
+
+/**
+ * @brief Tracks the state and outcome of an in-progress RTP stream save operation.
+ */
 typedef struct _tap_rtp_save_info_t {
-    FILE *fp;
-    uint32_t count;
-    tap_rtp_error_type_t error_type;
-    bool saved;
+    FILE                 *fp;         /**< Output file handle to which decoded audio is written */
+    uint32_t              count;      /**< Number of payload frames successfully written so far */
+    tap_rtp_error_type_t  error_type; /**< Error code set when the save operation fails (see ::tap_rtp_error_type_t) */
+    bool                  saved;      /**< True if the stream was saved to file without error */
 } tap_rtp_save_info_t;
 
+
+/**
+ * @brief Computed statistics and metadata for a single RTP stream, ready for display in the UI.
+ */
 typedef struct _rtpstream_info_calc {
-    char *src_addr_str;
-    uint16_t src_port;
-    char *dst_addr_str;
-    uint16_t dst_port;
-    uint32_t ssrc;
-    char *all_payload_type_names; /* Name of codec derived from fixed or dynamic codec names */
-    uint32_t packet_count;
-    uint32_t total_nr;
-    uint32_t packet_expected; /* Count of expected packets, derived from length of RTP stream */
-    int32_t lost_num;
-    double lost_perc;
-    double max_delta;
-    double min_delta;
-    double mean_delta;
-    double min_jitter;
-    double max_jitter;
-    double max_skew;
-    double mean_jitter;
-    bool problem; /* Indication that RTP stream contains something unusual -GUI should indicate it somehow */
-    double clock_drift_ms;
-    double freq_drift_hz;
-    double freq_drift_perc;
-    double duration_ms;
-    uint32_t sequence_err;
-    double start_time_ms; /**< Unit is ms */
-    uint32_t first_packet_num;
-    uint32_t last_packet_num;
+    char    *src_addr_str;            /**< Source IP address formatted as a string */
+    uint16_t src_port;                /**< Source UDP port number */
+    char    *dst_addr_str;            /**< Destination IP address formatted as a string */
+    uint16_t dst_port;                /**< Destination UDP port number */
+    uint32_t ssrc;                    /**< RTP Synchronisation Source (SSRC) identifier */
+    char    *all_payload_type_names;  /**< Comma-separated codec names derived from static or dynamic payload type mappings */
+
+    /* --- Packet counts --- */
+    uint32_t packet_count;    /**< Total number of RTP packets observed in the stream */
+    uint32_t total_nr;        /**< Total number of RTP sequence numbers spanned by the stream */
+    uint32_t packet_expected; /**< Expected packet count derived from the stream's sequence number range */
+    int32_t  lost_num;        /**< Number of packets estimated as lost (expected minus received) */
+    double   lost_perc;       /**< Packet loss as a percentage of expected packets */
+
+    /* --- Inter-packet timing --- */
+    double max_delta;   /**< Maximum inter-packet arrival gap observed, in milliseconds */
+    double min_delta;   /**< Minimum inter-packet arrival gap observed, in milliseconds */
+    double mean_delta;  /**< Mean inter-packet arrival gap across the stream, in milliseconds */
+
+    /* --- Jitter --- */
+    double min_jitter;  /**< Minimum instantaneous jitter value observed, in milliseconds */
+    double max_jitter;  /**< Maximum instantaneous jitter value observed, in milliseconds */
+    double mean_jitter; /**< Mean jitter across the stream, in milliseconds */
+    double max_skew;    /**< Maximum cumulative skew between sender and receiver clocks, in milliseconds */
+
+    /* --- Stream health --- */
+    bool problem; /**< True if the stream contains anomalies (e.g. sequence gaps, excessive jitter); the UI should highlight this */
+
+    /* --- Clock drift --- */
+    double clock_drift_ms;   /**< Total estimated clock drift between sender and receiver, in milliseconds */
+    double freq_drift_hz;    /**< Estimated sender clock frequency drift, in Hz */
+    double freq_drift_perc;  /**< Estimated sender clock frequency drift as a percentage */
+
+    /* --- Timing and frame extents --- */
+    double   duration_ms;      /**< Total stream duration from first to last packet, in milliseconds */
+    uint32_t sequence_err;     /**< Number of sequence number errors (out-of-order or duplicate packets) detected */
+    double   start_time_ms;    /**< Relative capture timestamp of the first packet, in milliseconds */
+    uint32_t first_packet_num; /**< Wireshark frame number of the first packet in the stream */
+    uint32_t last_packet_num;  /**< Wireshark frame number of the last packet in the stream */
 } rtpstream_info_calc_t;
 
 /**

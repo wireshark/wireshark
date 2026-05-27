@@ -419,22 +419,24 @@ add_address_to_hash64(uint64_t hash_val, const address *addr) {
  */
 WS_DLL_PUBLIC unsigned address_to_bytes(const address *addr, uint8_t *buf, unsigned buf_len);
 
-/* Types of port numbers Wireshark knows about. */
+/**
+ * @brief Transport-layer port number types recognized by Wireshark.
+ */
 typedef enum {
-    PT_NONE,            /* no port number */
-    PT_SCTP,            /* SCTP */
-    PT_TCP,             /* TCP */
-    PT_UDP,             /* UDP */
-    PT_DCCP,            /* DCCP */
-    PT_IPX,             /* IPX sockets */
-    PT_DDP,             /* DDP AppleTalk connection */
-    PT_IDP,             /* XNS IDP sockets */
-    PT_USB,             /* USB endpoint 0xffff means the host */
-    PT_I2C,
-    PT_IBQP,            /* Infiniband QP number */
-    PT_BLUETOOTH,
-    PT_IWARP_MPA,       /* iWarp MPA */
-    PT_MCTP
+    PT_NONE,       /**< No port number applicable */
+    PT_SCTP,       /**< Stream Control Transmission Protocol (SCTP) port */
+    PT_TCP,        /**< Transmission Control Protocol (TCP) port */
+    PT_UDP,        /**< User Datagram Protocol (UDP) port */
+    PT_DCCP,       /**< Datagram Congestion Control Protocol (DCCP) port */
+    PT_IPX,        /**< IPX socket number */
+    PT_DDP,        /**< AppleTalk Datagram Delivery Protocol (DDP) connection */
+    PT_IDP,        /**< XNS Internet Datagram Protocol (IDP) socket number */
+    PT_USB,        /**< USB endpoint number; 0xffff denotes the host */
+    PT_I2C,        /**< I2C bus endpoint */
+    PT_IBQP,       /**< InfiniBand Queue Pair (QP) number */
+    PT_BLUETOOTH,  /**< Bluetooth endpoint */
+    PT_IWARP_MPA,  /**< iWARP Marker PDU Aligned (MPA) framing endpoint */
+    PT_MCTP        /**< Management Component Transport Protocol (MCTP) endpoint */
 } port_type;
 
 #ifdef __cplusplus

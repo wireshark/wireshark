@@ -16,58 +16,57 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/*
- * Type of time-stamp shown in the summary display.
+/**
+ * @brief Format used to display packet timestamps in the summary packet list.
  */
 typedef enum {
-	TS_RELATIVE,            /* Since first captured frame */
-	TS_RELATIVE_CAP,        /* Since start of capture */
-	TS_ABSOLUTE,		/* Local absolute time, without date */
-	TS_ABSOLUTE_WITH_YMD,	/* Local absolute time, with date in YYYY-MM-DD form */
-	TS_ABSOLUTE_WITH_YDOY,	/* Local absolute time, with date in YYYY DOY form */
-	TS_DELTA,               /* Since previous captured packet */
-	TS_DELTA_DIS,           /* Since previous displayed packet */
-	TS_EPOCH,               /* Seconds (and fractions) since epoch */
-	TS_UTC,			/* UTC absolute time, without date */
-	TS_UTC_WITH_YMD,	/* UTC absolute time, with date in YYYY-MM-DD form */
-	TS_UTC_WITH_YDOY,	/* UTC absolute time, with date in YYYY DOY form */
+    TS_RELATIVE,          /**< Time elapsed since the first captured frame */
+    TS_RELATIVE_CAP,      /**< Time elapsed since the start of the capture session */
+    TS_ABSOLUTE,          /**< Local wall-clock time, without date */
+    TS_ABSOLUTE_WITH_YMD, /**< Local wall-clock time, with date in YYYY-MM-DD form */
+    TS_ABSOLUTE_WITH_YDOY,/**< Local wall-clock time, with date in YYYY DOY (day-of-year) form */
+    TS_DELTA,             /**< Time elapsed since the previous captured packet */
+    TS_DELTA_DIS,         /**< Time elapsed since the previous displayed packet */
+    TS_EPOCH,             /**< Seconds (and fractional seconds) since the Unix epoch */
+    TS_UTC,               /**< UTC absolute time, without date */
+    TS_UTC_WITH_YMD,      /**< UTC absolute time, with date in YYYY-MM-DD form */
+    TS_UTC_WITH_YDOY,     /**< UTC absolute time, with date in YYYY DOY (day-of-year) form */
 
-/*
- * Special value used for the command-line setting in Wireshark, to indicate
- * that no value has been set from the command line.
- */
-	TS_NOT_SET
+    /**< Sentinel indicating that no timestamp format has been set via the command line */
+    TS_NOT_SET
 } ts_type;
 
-typedef enum {
-	TS_PREC_AUTO           = -1,	/* Use what the capture file specifies */
-	TS_PREC_FIXED_SEC      = WS_TSPREC_SEC,
-	TS_PREC_FIXED_100_MSEC = WS_TSPREC_100_MSEC,
-	TS_PREC_FIXED_10_MSEC  = WS_TSPREC_10_MSEC,
-	TS_PREC_FIXED_MSEC     = WS_TSPREC_MSEC,
-	TS_PREC_FIXED_100_USEC = WS_TSPREC_100_USEC,
-	TS_PREC_FIXED_10_USEC  = WS_TSPREC_10_USEC,
-	TS_PREC_FIXED_USEC     = WS_TSPREC_USEC,
-	TS_PREC_FIXED_100_NSEC = WS_TSPREC_100_NSEC,
-	TS_PREC_FIXED_10_NSEC  = WS_TSPREC_10_NSEC,
-	TS_PREC_FIXED_NSEC     = WS_TSPREC_NSEC,
 
-/*
- * Special value used for the command-line setting in Wireshark, to indicate
- * that no value has been set from the command line.
+/**
+ * @brief Sub-second precision used when formatting packet timestamps.
  */
-	TS_PREC_NOT_SET    = -2
+typedef enum {
+    TS_PREC_AUTO           = -1,              /**< Use the precision specified by the capture file */
+    TS_PREC_FIXED_SEC      = WS_TSPREC_SEC,      /**< Display timestamps with whole-second precision */
+    TS_PREC_FIXED_100_MSEC = WS_TSPREC_100_MSEC, /**< Display timestamps with 100-millisecond precision */
+    TS_PREC_FIXED_10_MSEC  = WS_TSPREC_10_MSEC,  /**< Display timestamps with 10-millisecond precision */
+    TS_PREC_FIXED_MSEC     = WS_TSPREC_MSEC,     /**< Display timestamps with millisecond (1 ms) precision */
+    TS_PREC_FIXED_100_USEC = WS_TSPREC_100_USEC, /**< Display timestamps with 100-microsecond precision */
+    TS_PREC_FIXED_10_USEC  = WS_TSPREC_10_USEC,  /**< Display timestamps with 10-microsecond precision */
+    TS_PREC_FIXED_USEC     = WS_TSPREC_USEC,     /**< Display timestamps with microsecond (1 µs) precision */
+    TS_PREC_FIXED_100_NSEC = WS_TSPREC_100_NSEC, /**< Display timestamps with 100-nanosecond precision */
+    TS_PREC_FIXED_10_NSEC  = WS_TSPREC_10_NSEC,  /**< Display timestamps with 10-nanosecond precision */
+    TS_PREC_FIXED_NSEC     = WS_TSPREC_NSEC,     /**< Display timestamps with nanosecond (1 ns) precision */
+
+    /**< Sentinel indicating that no precision has been set via the command line */
+    TS_PREC_NOT_SET        = -2
 } ts_precision;
 
-typedef enum {
-	TS_SECONDS_DEFAULT,	/* recent */
-	TS_SECONDS_HOUR_MIN_SEC,/* recent */
 
-/*
- * Special value used for the command-line setting in Wireshark, to indicate
- * that no value has been set from the command line.
+/**
+ * @brief Controls how the seconds component of a timestamp is formatted for display.
  */
-	TS_SECONDS_NOT_SET
+typedef enum {
+    TS_SECONDS_DEFAULT,      /**< Display seconds as a plain decimal value (default/recent preference) */
+    TS_SECONDS_HOUR_MIN_SEC, /**< Display seconds in HH:MM:SS format (recent preference) */
+
+    /**< Sentinel indicating that no seconds format has been set via the command line */
+    TS_SECONDS_NOT_SET
 } ts_seconds_type;
 
 /**

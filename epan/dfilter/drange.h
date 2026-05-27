@@ -23,26 +23,37 @@
  * here.
  */
 
+/**
+ * @brief Discriminator tag describing how the end boundary of a drange_node is expressed.
+ */
 typedef enum {
-    DRANGE_NODE_END_T_UNINITIALIZED,
-    DRANGE_NODE_END_T_LENGTH,
-    DRANGE_NODE_END_T_OFFSET,
-    DRANGE_NODE_END_T_TO_THE_END
+    DRANGE_NODE_END_T_UNINITIALIZED, /**< End boundary has not been set */
+    DRANGE_NODE_END_T_LENGTH,        /**< End boundary is expressed as a length relative to start_offset */
+    DRANGE_NODE_END_T_OFFSET,        /**< End boundary is expressed as an absolute end offset */
+    DRANGE_NODE_END_T_TO_THE_END     /**< Range extends to the end of the field/buffer */
 } drange_node_end_t;
 
+
+/**
+ * @brief A single contiguous slice within a display filter range expression.
+ */
 typedef struct _drange_node {
-    int start_offset;
-    int length;
-    int end_offset;
-    drange_node_end_t ending;
+    int start_offset; /**< Byte offset at which the slice begins (inclusive) */
+    int length;       /**< Length of the slice in bytes; valid when ending == DRANGE_NODE_END_T_LENGTH */
+    int end_offset;   /**< Absolute end offset of the slice; valid when ending == DRANGE_NODE_END_T_OFFSET */
+    drange_node_end_t ending; /**< Indicates how the end boundary of this node is interpreted */
 } drange_node;
 
+
+/**
+ * @brief A display filter range composed of one or more drange_node slices.
+ */
 typedef struct _drange {
-    GSList* range_list;
-    bool has_total_length;
-    int total_length;
-    int min_start_offset;
-    int max_start_offset;
+    GSList *range_list;    /**< Linked list of drange_node entries making up the range */
+    bool has_total_length; /**< True if total_length has been computed and is valid */
+    int total_length;      /**< Sum of all slice lengths; valid only when has_total_length is true */
+    int min_start_offset;  /**< Smallest start_offset across all nodes in range_list */
+    int max_start_offset;  /**< Largest start_offset across all nodes in range_list */
 } drange_t;
 
 /* drange_node constructor */

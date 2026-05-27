@@ -30,91 +30,136 @@ extern "C" {
 #define ASSERT_STNODE_OP_NOT_REACHED(op) \
 	ws_error("Invalid stnode op '%s'.", stnode_op_name(op))
 
+/**
+ * @brief Type identifier tags for syntax tree nodes in the display filter compiler.
+ */
 typedef enum {
-	STTYPE_UNINITIALIZED,
-	STTYPE_TEST,
-	STTYPE_UNPARSED, /* Must be resolved into a literal or a field. */
-	STTYPE_LITERAL,
-	STTYPE_REFERENCE,
-	STTYPE_STRING,
-	STTYPE_CHARCONST,
-	STTYPE_NUMBER,
-	STTYPE_FIELD,
-	STTYPE_FVALUE,
-	STTYPE_SLICE,
-	STTYPE_FUNCTION,
-	STTYPE_SET,
-	STTYPE_PCRE,
-	STTYPE_ARITHMETIC,
-	STTYPE_NUM_TYPES
+    STTYPE_UNINITIALIZED, /**< Node has not been assigned a type yet */
+    STTYPE_TEST,          /**< Node represents a boolean test expression */
+    STTYPE_UNPARSED,      /**< Raw lexical token; must be resolved to a literal or field */
+    STTYPE_LITERAL,       /**< Node holds a resolved literal value */
+    STTYPE_REFERENCE,     /**< Node holds a field reference (e.g., ${field}) */
+    STTYPE_STRING,        /**< Node holds a quoted string constant */
+    STTYPE_CHARCONST,     /**< Node holds a character constant */
+    STTYPE_NUMBER,        /**< Node holds a numeric constant */
+    STTYPE_FIELD,         /**< Node refers to a protocol header field (hfinfo) */
+    STTYPE_FVALUE,        /**< Node holds a typed field value (fvalue_t) */
+    STTYPE_SLICE,         /**< Node represents a byte-range slice expression */
+    STTYPE_FUNCTION,      /**< Node represents a display filter function call */
+    STTYPE_SET,           /**< Node represents a set literal for use with 'in' operator */
+    STTYPE_PCRE,          /**< Node holds a compiled PCRE regular expression */
+    STTYPE_ARITHMETIC,    /**< Node represents an arithmetic sub-expression */
+    STTYPE_NUM_TYPES      /**< Sentinel value; total count of defined type IDs */
 } sttype_id_t;
 
-typedef void *          (*STTypeNewFunc)(void *);
-typedef void *          (*STTypeDupFunc)(const void *);
-typedef void            (*STTypeFreeFunc)(void *);
-typedef char*           (*STTypeToStrFunc)(const void *, bool pretty);
+
+/**
+ * @brief Allocates and initializes type-specific data for a syntax tree node.
+ * @param data Pointer to initialization data passed to the constructor.
+ * @return Pointer to the newly allocated type data, or NULL.
+ */
+typedef void *(*STTypeNewFunc)(void *data);
+
+/**
+ * @brief Performs a deep copy of type-specific node data.
+ * @param data Pointer to the source type data to duplicate.
+ * @return Pointer to the newly allocated duplicate, or NULL.
+ */
+typedef void *(*STTypeDupFunc)(const void *data);
+
+/**
+ * @brief Releases type-specific data associated with a syntax tree node.
+ * @param data Pointer to the type data to free.
+ */
+typedef void (*STTypeFreeFunc)(void *data);
+
+/**
+ * @brief Converts type-specific node data to a human-readable string.
+ * @param data   Pointer to the type data to render.
+ * @param pretty If true, produce a display-friendly representation; otherwise a debug form.
+ * @return Newly allocated string representation; caller is responsible for freeing it.
+ */
+typedef char *(*STTypeToStrFunc)(const void *data, bool pretty);
 
 
-/* Type information */
+/**
+ * @brief Describes a syntax tree node type, including its lifecycle and serialization callbacks.
+ */
 typedef struct {
-	sttype_id_t		id;
-	STTypeNewFunc		func_new;
-	STTypeFreeFunc		func_free;
-	STTypeDupFunc		func_dup;
-	STTypeToStrFunc		func_tostr;
+    sttype_id_t     id;          /**< Unique type identifier from sttype_id_t */
+    STTypeNewFunc   func_new;    /**< Constructor: allocates and initializes type data */
+    STTypeFreeFunc  func_free;   /**< Destructor: releases type data */
+    STTypeDupFunc   func_dup;    /**< Copy constructor: deep-duplicates type data */
+    STTypeToStrFunc func_tostr;  /**< Serializer: converts type data to a string */
 } sttype_t;
 
+
+/**
+ * @brief Numeric sub-type tag for STTYPE_NUMBER nodes.
+ */
 typedef enum {
-	STNUM_NONE = 0,
-	STNUM_INTEGER,
-	STNUM_UNSIGNED,
-	STNUM_FLOAT,
+    STNUM_NONE     = 0, /**< No numeric value; uninitialized */
+    STNUM_INTEGER,      /**< Signed integer constant */
+    STNUM_UNSIGNED,     /**< Unsigned integer constant */
+    STNUM_FLOAT,        /**< Floating-point constant */
 } stnumber_t;
 
-/* Lexical value is ambiguous (can be a protocol field or a literal). */
-#define STFLAG_UNPARSED		(1 << 0)
 
-/** Node (type instance) information */
+/** @brief Lexical value is ambiguous and may represent either a protocol field or a literal value. */
+#define STFLAG_UNPARSED (1 << 0)
+
+
+/**
+ * @brief A single node instance in the display filter syntax tree.
+ */
 typedef struct stnode {
-	sttype_t	*type;
-	void 		*data;
-	char 		*repr_token;
-	char 		*repr_display;
-	char 		*repr_debug;
-	df_loc_t	location;
-	uint16_t	flags;
+    sttype_t *type;         /**< Pointer to the type descriptor for this node */
+    void     *data;         /**< Type-specific payload managed by @ref sttype_t callbacks */
+    char     *repr_token;   /**< Raw source token string as it appeared in the filter expression */
+    char     *repr_display; /**< Human-readable display representation of this node */
+    char     *repr_debug;   /**< Internal debug representation of this node */
+    df_loc_t  location;     /**< Source location (offset/length) of this node in the filter string */
+    uint16_t  flags;        /**< Bitmask of STFLAG_* flags (e.g., STFLAG_UNPARSED) */
 } stnode_t;
 
+
+/**
+ * @brief Operator types for test and arithmetic syntax tree nodes.
+ */
 typedef enum {
-	STNODE_OP_UNINITIALIZED,
-	STNODE_OP_NOT,
-	STNODE_OP_AND,
-	STNODE_OP_OR,
-	STNODE_OP_ALL_EQ,
-	STNODE_OP_ANY_EQ,
-	STNODE_OP_ALL_NE,
-	STNODE_OP_ANY_NE,
-	STNODE_OP_GT,
-	STNODE_OP_GE,
-	STNODE_OP_LT,
-	STNODE_OP_LE,
-	STNODE_OP_CONTAINS,
-	STNODE_OP_MATCHES,
-	STNODE_OP_IN,
-	STNODE_OP_NOT_IN,
-	STNODE_OP_BITWISE_AND,
-	STNODE_OP_UNARY_MINUS,
-	STNODE_OP_ADD,
-	STNODE_OP_SUBTRACT,
-	STNODE_OP_MULTIPLY,
-	STNODE_OP_DIVIDE,
-	STNODE_OP_MODULO,
+    STNODE_OP_UNINITIALIZED, /**< Operator has not been set */
+    STNODE_OP_NOT,           /**< Logical NOT */
+    STNODE_OP_AND,           /**< Logical AND */
+    STNODE_OP_OR,            /**< Logical OR */
+    STNODE_OP_ALL_EQ,        /**< All-quantified equality (all values ==) */
+    STNODE_OP_ANY_EQ,        /**< Any-quantified equality (any value ==) */
+    STNODE_OP_ALL_NE,        /**< All-quantified inequality (all values !=) */
+    STNODE_OP_ANY_NE,        /**< Any-quantified inequality (any value !=) */
+    STNODE_OP_GT,            /**< Greater-than comparison */
+    STNODE_OP_GE,            /**< Greater-than-or-equal comparison */
+    STNODE_OP_LT,            /**< Less-than comparison */
+    STNODE_OP_LE,            /**< Less-than-or-equal comparison */
+    STNODE_OP_CONTAINS,      /**< Substring/value containment test */
+    STNODE_OP_MATCHES,       /**< PCRE regular expression match */
+    STNODE_OP_IN,            /**< Set membership test */
+    STNODE_OP_NOT_IN,        /**< Set non-membership test */
+    STNODE_OP_BITWISE_AND,   /**< Bitwise AND of two values */
+    STNODE_OP_UNARY_MINUS,   /**< Arithmetic unary negation */
+    STNODE_OP_ADD,           /**< Arithmetic addition */
+    STNODE_OP_SUBTRACT,      /**< Arithmetic subtraction */
+    STNODE_OP_MULTIPLY,      /**< Arithmetic multiplication */
+    STNODE_OP_DIVIDE,        /**< Arithmetic division */
+    STNODE_OP_MODULO,        /**< Arithmetic modulo */
 } stnode_op_t;
 
+
+/**
+ * @brief Quantifier controlling how many field values must satisfy a match condition.
+ */
 typedef enum {
-	STNODE_MATCH_DEF,
-	STNODE_MATCH_ANY,
-	STNODE_MATCH_ALL,
+    STNODE_MATCH_DEF, /**< Default quantifier; behavior determined by operator context */
+    STNODE_MATCH_ANY, /**< Match succeeds if any field value satisfies the condition */
+    STNODE_MATCH_ALL, /**< Match succeeds only if all field values satisfy the condition */
 } stmatch_t;
 
 /* These are the sttype_t registration function prototypes. */

@@ -50,11 +50,16 @@ typedef enum register_stat_group_e {
     REGISTER_LOG_STAT_GROUP_UNSORTED,           /*!< Unsorted log statistics */
 } register_stat_group_t;
 
-/** Format types for "Save As..." */
 /* XXX Is there a more appropriate place to define this? */
+/**
+ * @brief Output format used when saving statistics tree data via "Save As...".
+ */
 typedef enum _st_format_type {
-    ST_FORMAT_PLAIN, ST_FORMAT_CSV, ST_FORMAT_XML, ST_FORMAT_YAML
-    } st_format_type;
+    ST_FORMAT_PLAIN, /**< Plain text tabular output */
+    ST_FORMAT_CSV,   /**< Comma-separated values (CSV) output */
+    ST_FORMAT_XML,   /**< XML output */
+    ST_FORMAT_YAML   /**< YAML output */
+} st_format_type;
 
 #ifdef __cplusplus
 }

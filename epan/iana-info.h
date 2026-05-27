@@ -237,17 +237,23 @@ WS_DLL_PUBLIC value_string_ext enterprise_val_ext;
 /* <END GENERATED SOURCE> */
 
 
+/**
+ * @brief Transport protocol discriminator for service port table lookups.
+ */
 typedef enum {
-    ws_tcp,
-    ws_udp,
-    ws_sctp,
-    ws_dccp,
+    ws_tcp,  /**< Transmission Control Protocol (TCP) */
+    ws_udp,  /**< User Datagram Protocol (UDP) */
+    ws_sctp, /**< Stream Control Transmission Protocol (SCTP) */
+    ws_dccp, /**< Datagram Congestion Control Protocol (DCCP) */
 } ws_services_proto_t;
 
+/**
+ * @brief A single entry in the well-known services port registry.
+ */
 typedef struct {
-    uint16_t port;
-    const char* name;
-    const char* description;
+    uint16_t    port;        /**< Well-known port number */
+    const char *name;        /**< Short canonical service name (e.g., "http", "ftp") */
+    const char *description; /**< Human-readable description of the service */
 } ws_services_entry_t;
 
 /**
@@ -275,20 +281,30 @@ void global_services_dump(FILE* fp);
 WS_DLL_PUBLIC
 void global_enterprises_dump(FILE* fp);
 
+/**
+ * @brief IANA IP version discriminator.
+ */
 enum iana_ip {
-    WS_IANA_IPv4 = 4,
-    WS_IANA_IPv6 = 6,
+    WS_IANA_IPv4 = 4, /**< IPv4 (Internet Protocol version 4) */
+    WS_IANA_IPv6 = 6, /**< IPv6 (Internet Protocol version 6) */
 };
 
+/**
+ * @brief Describes an IANA-registered special-purpose IP address block.
+ */
 struct ws_iana_ip_special_block {
-    enum iana_ip type;
+    enum iana_ip type; /**< IP version of this address block */
     union {
-        ipv4_addr_and_mask ipv4;
-        ipv6_addr_and_prefix ipv6;
-    } u_ip;
-    const char* name;
-    /* true = 1; false = 0; n/a = -1 */
-    int source, destination, forwardable, global, reserved;
+        ipv4_addr_and_mask   ipv4; /**< IPv4 address and subnet mask; valid when type == WS_IANA_IPv4 */
+        ipv6_addr_and_prefix ipv6; /**< IPv6 address and prefix length; valid when type == WS_IANA_IPv6 */
+    } u_ip;                        /**< Address block data, discriminated by @ref type */
+    const char *name;              /**< Human-readable name of the special-purpose block (e.g., "Loopback") */
+    /* Attribute flags: 1 = true, 0 = false, -1 = not applicable */
+    int source;      /**< Whether addresses in this block are valid as a packet source */
+    int destination; /**< Whether addresses in this block are valid as a packet destination */
+    int forwardable; /**< Whether packets to/from this block may be forwarded by routers */
+    int global;      /**< Whether this block is globally routable */
+    int reserved;    /**< Whether this block is reserved and otherwise unspecified */
 };
 
 /**

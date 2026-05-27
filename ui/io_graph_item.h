@@ -23,53 +23,67 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Selects the Y-axis value unit or aggregate calculation mode for an I/O graph plot.
+ */
 typedef enum {
-    IOG_ITEM_UNIT_FIRST,
-    IOG_ITEM_UNIT_PACKETS = IOG_ITEM_UNIT_FIRST,
-    IOG_ITEM_UNIT_BYTES,
-    IOG_ITEM_UNIT_BITS,
-    IOG_ITEM_UNIT_CALC_SUM,
-    IOG_ITEM_UNIT_CALC_FRAMES,
-    IOG_ITEM_UNIT_CALC_FIELDS,
-    IOG_ITEM_UNIT_CALC_MAX,
-    IOG_ITEM_UNIT_CALC_MIN,
-    IOG_ITEM_UNIT_CALC_AVERAGE,
-    IOG_ITEM_UNIT_CALC_THROUGHPUT,
-    IOG_ITEM_UNIT_CALC_LOAD,
-    IOG_ITEM_UNIT_LAST = IOG_ITEM_UNIT_CALC_LOAD,
-    NUM_IOG_ITEM_UNITS
+    IOG_ITEM_UNIT_FIRST,                                    /**< Sentinel: first valid unit value */
+    IOG_ITEM_UNIT_PACKETS        = IOG_ITEM_UNIT_FIRST,     /**< Plot packet count per interval */
+    IOG_ITEM_UNIT_BYTES,                                    /**< Plot total byte count per interval */
+    IOG_ITEM_UNIT_BITS,                                     /**< Plot total bit count per interval */
+    IOG_ITEM_UNIT_CALC_SUM,                                 /**< Plot sum of a field's values per interval */
+    IOG_ITEM_UNIT_CALC_FRAMES,                              /**< Plot frame count matching the display filter per interval */
+    IOG_ITEM_UNIT_CALC_FIELDS,                              /**< Plot count of field occurrences per interval */
+    IOG_ITEM_UNIT_CALC_MAX,                                 /**< Plot maximum field value per interval */
+    IOG_ITEM_UNIT_CALC_MIN,                                 /**< Plot minimum field value per interval */
+    IOG_ITEM_UNIT_CALC_AVERAGE,                             /**< Plot average field value per interval */
+    IOG_ITEM_UNIT_CALC_THROUGHPUT,                          /**< Plot throughput (bits or bytes per second) per interval */
+    IOG_ITEM_UNIT_CALC_LOAD,                                /**< Plot load average (e.g. for response-time fields) per interval */
+    IOG_ITEM_UNIT_LAST           = IOG_ITEM_UNIT_CALC_LOAD, /**< Sentinel: last valid unit value */
+    NUM_IOG_ITEM_UNITS                                      /**< Sentinel: total number of unit values */
 } io_graph_item_unit_t;
 
+
+/**
+ * @brief Accumulated statistics for all frames falling within a single I/O graph time interval.
+ *
+ * @note @p frames and @p bytes are always computed regardless of the active
+ *       ::io_graph_item_unit_t.  The min/max union members use 64-bit integers
+ *       rather than doubles so that the originating frame number can be tracked
+ *       exactly; values are only converted to double at plot time.  Totals use
+ *       double to avoid overflow across large intervals.
+ */
 typedef struct _io_graph_item_t {
-    uint32_t frames;            /* always calculated, will hold number of frames*/
-    uint64_t bytes;             /* always calculated, will hold number of bytes*/
-    uint64_t fields;
-    /* We use a double for totals because of overflow. For min and max,
-     * unsigned 64 bit integers larger than 2^53 cannot all be represented
-     * in a double, and this is useful for determining the frame with the
-     * min or max value, even though for plotting it will be converted to a
-     * double.
-     */
+    uint32_t frames;  /**< Number of frames in this interval (always computed) */
+    uint64_t bytes;   /**< Total bytes across all frames in this interval (always computed) */
+    uint64_t fields;  /**< Number of field occurrences accumulated in this interval */
+
+    /** Maximum field value observed in this interval. */
     union {
-        nstime_t time_max;
-        double   double_max;
-        int64_t  int_max;
-        uint64_t uint_max;
+        nstime_t time_max;   /**< Maximum value for relative/absolute time fields */
+        double   double_max; /**< Maximum value for floating-point fields */
+        int64_t  int_max;    /**< Maximum value for signed integer fields */
+        uint64_t uint_max;   /**< Maximum value for unsigned integer fields */
     };
+
+    /** Minimum field value observed in this interval. */
     union {
-        nstime_t time_min;
-        double   double_min;
-        int64_t  int_min;
-        uint64_t uint_min;
+        nstime_t time_min;   /**< Minimum value for relative/absolute time fields */
+        double   double_min; /**< Minimum value for floating-point fields */
+        int64_t  int_min;    /**< Minimum value for signed integer fields */
+        uint64_t uint_min;   /**< Minimum value for unsigned integer fields */
     };
+
+    /** Running total of field values accumulated in this interval (used for average and sum). */
     union {
-        nstime_t time_tot;
-        double   double_tot;
+        nstime_t time_tot;   /**< Cumulative total for relative/absolute time fields */
+        double   double_tot; /**< Cumulative total for numeric fields */
     };
-    uint32_t  first_frame_in_invl;
-    uint32_t  min_frame_in_invl;
-    uint32_t  max_frame_in_invl;
-    uint32_t  last_frame_in_invl;
+
+    uint32_t first_frame_in_invl; /**< Frame number of the first frame in this interval */
+    uint32_t min_frame_in_invl;   /**< Frame number of the frame that produced the minimum value */
+    uint32_t max_frame_in_invl;   /**< Frame number of the frame that produced the maximum value */
+    uint32_t last_frame_in_invl;  /**< Frame number of the last frame in this interval */
 } io_graph_item_t;
 
 /** Reset (zero) an io_graph_item_t.

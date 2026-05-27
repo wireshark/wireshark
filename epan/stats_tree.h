@@ -68,9 +68,12 @@ typedef void  (*stat_tree_init_cb)(stats_tree *);
 /* stats_tree cleanup callback */
 typedef void  (*stat_tree_cleanup_cb)(stats_tree *);
 
+/**
+ * @brief Numeric data type stored in a statistics tree node's accumulator.
+ */
 typedef enum _stat_node_datatype {
-    STAT_DT_INT,
-    STAT_DT_FLOAT
+    STAT_DT_INT,  /**< Node accumulates a signed integer value */
+    STAT_DT_FLOAT /**< Node accumulates a floating-point value */
 } stat_node_datatype;
 
 typedef struct _stats_tree_cfg stats_tree_cfg;
@@ -278,19 +281,20 @@ WS_DLL_PUBLIC int stats_tree_tick_pivot(stats_tree *st,
 extern void stats_tree_cleanup(void);
 
 
-/*
- * manipulates the value of the node whose name is given
- * if the node does not exist yet it's created (with counter=1)
- * using parent_name as parent node (NULL for root).
- * with_children=true to indicate that the created node will be a parent
+/**
+ * @brief Operation applied to a statistics tree node's value when it is manipulated.
+ *
+ * If the target node does not exist it is created with a counter of 1.
+ * Pass the parent node name (or NULL for root) and with_children=true
+ * to indicate that the created node will itself serve as a parent.
  */
 typedef enum _manip_node_mode {
-    MN_INCREASE,
-    MN_SET,
-    MN_AVERAGE,
-    MN_AVERAGE_NOTICK,
-    MN_SET_FLAGS,
-    MN_CLEAR_FLAGS
+    MN_INCREASE,        /**< Increment the node's counter by the given value */
+    MN_SET,             /**< Set the node's value to an explicit value */
+    MN_AVERAGE,         /**< Update the node's running average and tick the sample count */
+    MN_AVERAGE_NOTICK,  /**< Update the node's running average without incrementing the sample count */
+    MN_SET_FLAGS,       /**< Bitwise OR the given flags into the node's flags field */
+    MN_CLEAR_FLAGS      /**< Bitwise AND-NOT the given flags from the node's flags field */
 } manip_node_mode;
 
 /**

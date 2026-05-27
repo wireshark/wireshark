@@ -92,10 +92,13 @@ int sharkd_filter(const char *dftext, uint8_t **result);
  */
 frame_data *sharkd_get_frame(uint32_t framenum);
 
+/**
+ * @brief Return status for a frame dissection request.
+ */
 enum dissect_request_status {
-  DISSECT_REQUEST_SUCCESS,
-  DISSECT_REQUEST_NO_SUCH_FRAME,
-  DISSECT_REQUEST_READ_ERROR
+    DISSECT_REQUEST_SUCCESS,       /**< The requested frame was found and successfully dissected */
+    DISSECT_REQUEST_NO_SUCH_FRAME, /**< The requested frame number does not exist in the capture */
+    DISSECT_REQUEST_READ_ERROR     /**< The frame data could not be read due to an I/O error */
 };
 enum dissect_request_status
 

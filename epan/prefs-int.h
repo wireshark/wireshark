@@ -63,37 +63,50 @@ typedef char * (*pref_custom_type_description_cb) (void);
 typedef bool (*pref_custom_is_default_cb) (pref_t* pref);
 typedef char * (*pref_custom_to_str_cb) (pref_t* pref, bool default_val);
 
-/** Structure to hold callbacks for PREF_CUSTOM type */
+/**
+ * @brief Callback table for a PREF_CUSTOM preference, providing lifecycle and serialization hooks.
+ */
 struct pref_custom_cbs {
-    pref_custom_free_cb free_cb;
-    pref_custom_reset_cb reset_cb;
-    pref_custom_set_cb set_cb;
+    pref_custom_free_cb             free_cb;             /**< Releases any resources owned by the custom preference value */
+    pref_custom_reset_cb            reset_cb;            /**< Resets the custom preference to its default value */
+    pref_custom_set_cb              set_cb;              /**< Parses and applies a new value to the custom preference */
     /* pref_custom_write_cb write_cb; Deprecated. */
-    pref_custom_type_name_cb type_name_cb;
-    pref_custom_type_description_cb type_description_cb;
-    pref_custom_is_default_cb is_default_cb;
-    pref_custom_to_str_cb to_str_cb;
+    pref_custom_type_name_cb        type_name_cb;        /**< Returns a short type name string for the custom preference */
+    pref_custom_type_description_cb type_description_cb; /**< Returns a human-readable description of the custom preference type */
+    pref_custom_is_default_cb       is_default_cb;       /**< Returns true if the custom preference currently holds its default value */
+    pref_custom_to_str_cb           to_str_cb;           /**< Serializes the current custom preference value to a string */
 };
 
+
+/**
+ * @brief Discriminator tag identifying the type and UI representation of a preference entry.
+ *
+ * Annotations:
+ * - (1) Not used in new code; retained for backward compatibility.
+ * - (2) Like PREF_RANGE but also registers the value as a Decode As handler.
+ * - (3) Value is stored but never written to the preferences file.
+ * - (4) TCP simultaneous-open ambiguity resolution enum.
+ * - (5) Selects a subdissector by name from a dissector table.
+ */
 typedef enum {
-    PREF_UINT,
-    PREF_BOOL,
-    PREF_ENUM,
-    PREF_STRING,
-    PREF_RANGE,
-    PREF_STATIC_TEXT,
-    PREF_UAT,
-    PREF_SAVE_FILENAME,
-    PREF_COLOR,                 // (1)
-    PREF_CUSTOM,                // (1)
-    PREF_DIRNAME,
-    PREF_DECODE_AS_RANGE,       // (2)
-    PREF_OPEN_FILENAME,
-    PREF_PASSWORD,              // (3)
-    PREF_PROTO_TCP_SNDAMB_ENUM, // (4)
-    PREF_DISSECTOR,             // (5)
-    PREF_INT,
-    PREF_FLOAT
+    PREF_UINT,               /**< Unsigned integer preference */
+    PREF_BOOL,               /**< Boolean (true/false) preference */
+    PREF_ENUM,               /**< Enumerated value preference, chosen from a fixed value_string list */
+    PREF_STRING,             /**< Free-form string preference */
+    PREF_RANGE,              /**< Port/value range preference (e.g., "80,443,8080-8090") */
+    PREF_STATIC_TEXT,        /**< Non-editable informational label displayed in the preferences UI */
+    PREF_UAT,                /**< User Accessible Table (UAT) preference */
+    PREF_SAVE_FILENAME,      /**< File path preference for a file to be written/saved */
+    PREF_COLOR,              /**< Color preference (1); not used in new code */
+    PREF_CUSTOM,             /**< Custom preference with user-supplied callbacks (1); not used in new code */
+    PREF_DIRNAME,            /**< Directory path preference */
+    PREF_DECODE_AS_RANGE,    /**< Range preference that also registers a Decode As mapping (2) */
+    PREF_OPEN_FILENAME,      /**< File path preference for a file to be read/opened */
+    PREF_PASSWORD,           /**< Sensitive string preference; stored in memory but never persisted to disk (3) */
+    PREF_PROTO_TCP_SNDAMB_ENUM, /**< Enum preference for resolving TCP simultaneous-open ambiguity (4) */
+    PREF_DISSECTOR,          /**< Subdissector selection preference; names a dissector within a table (5) */
+    PREF_INT,                /**< Signed integer preference */
+    PREF_FLOAT               /**< Floating-point preference */
 } pref_type_e;
 
 /*

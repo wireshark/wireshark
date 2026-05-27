@@ -55,64 +55,66 @@ extern "C" {
 /** Flags to handle endpoints */
 #define USE_LAST_ENDPOINT 0x08		/**< Use last endpoint created, regardless of type */
 
-/* Types of conversations Wireshark knows about. */
-/* XXX: There should be a way to register conversation types used only
+/**
+ * @brief Conversation key types recognized by Wireshark dissectors.
+ *
+ * XXX: There should be a way to register conversation types used only
  * within one dissector, similar to address types, instead of changing
  * the global typedef.
  */
 typedef enum {
-    CONVERSATION_NONE,		/* no conversation key */
-    CONVERSATION_SCTP,		/* SCTP */
-    CONVERSATION_TCP,		/* TCP address/port pairs */
-    CONVERSATION_UDP,		/* UDP address/port pairs */
-    CONVERSATION_DCCP,		/* DCCP */
-    CONVERSATION_IPX,		/* IPX sockets */
-    CONVERSATION_NCP,		/* NCP connection */
-    CONVERSATION_EXCHG,		/* Fibre Channel exchange */
-    CONVERSATION_DDP,		/* DDP AppleTalk address/port pair */
-    CONVERSATION_SBCCS,		/* FICON */
-    CONVERSATION_IDP,		/* XNS IDP sockets */
-    CONVERSATION_TIPC,		/* TIPC PORT */
-    CONVERSATION_USB,		/* USB endpoint 0xffff means the host */
-    CONVERSATION_I2C,
-    CONVERSATION_IBQP,		/* Infiniband QP number */
-    CONVERSATION_BLUETOOTH,
-    CONVERSATION_TDMOP,
-    CONVERSATION_DVBCI,
-    CONVERSATION_ISO14443,
-    CONVERSATION_ISDN,		/* ISDN channel number */
-    CONVERSATION_H223,		/* H.223 logical channel number */
-    CONVERSATION_X25,		/* X.25 logical channel number */
-    CONVERSATION_IAX2,		/* IAX2 call id */
-    CONVERSATION_DLCI,		/* Frame Relay DLCI */
-    CONVERSATION_ISUP,		/* ISDN User Part CIC */
-    CONVERSATION_BICC,		/* BICC Circuit identifier */
-    CONVERSATION_GSMTAP,
-    CONVERSATION_IUUP,
-    CONVERSATION_DVBBBF,	/* DVB Base Band Frame ISI/PLP_ID */
-    CONVERSATION_IWARP_MPA,	/* iWarp MPA */
-    CONVERSATION_BT_UTP,	/* BitTorrent uTP Connection ID */
-    CONVERSATION_LOG,		/* Logging source */
-    CONVERSATION_LTP,		/* LTP Engine ID and Session Number */
-    CONVERSATION_MCTP,
-    CONVERSATION_NVME_MI,       /* NVMe management interface */
-    CONVERSATION_BP,		/* Bundle Protocol endpoint IDs */
-    CONVERSATION_SNMP,		/* SNMP */
-    CONVERSATION_QUIC,		/* QUIC */
-    CONVERSATION_IDN,
-    CONVERSATION_IP,		/* IP */
-    CONVERSATION_IPV6,		/* IPv6 */
-    CONVERSATION_ETH,           /* ETHERNET classic */
-    CONVERSATION_ETH_NN,        /* ETHERNET deinterlaced Interface:N VLAN:N */
-    CONVERSATION_ETH_NV,        /* ETHERNET deinterlaced Interface:N VLAN:Y */
-    CONVERSATION_ETH_IN,        /* ETHERNET deinterlaced Interface:Y VLAN:N */
-    CONVERSATION_ETH_IV,        /* ETHERNET deinterlaced Interface:Y VLAN:Y */
-    CONVERSATION_VSPC_VMOTION,	/* VMware vSPC vMotion (Telnet) */
-    CONVERSATION_OPENVPN,
-    CONVERSATION_PROXY,
-    CONVERSATION_GNSS,
-    CONVERSATION_DNP3,
-    CONVERSATION_ILNP,          /* ILNP */
+    CONVERSATION_NONE,           /**< No conversation key */
+    CONVERSATION_SCTP,           /**< SCTP association */
+    CONVERSATION_TCP,            /**< TCP address/port pair */
+    CONVERSATION_UDP,            /**< UDP address/port pair */
+    CONVERSATION_DCCP,           /**< Datagram Congestion Control Protocol (DCCP) */
+    CONVERSATION_IPX,            /**< IPX socket number */
+    CONVERSATION_NCP,            /**< NetWare Core Protocol (NCP) connection */
+    CONVERSATION_EXCHG,          /**< Fibre Channel exchange */
+    CONVERSATION_DDP,            /**< AppleTalk Datagram Delivery Protocol (DDP) address/port pair */
+    CONVERSATION_SBCCS,          /**< FICON (SBCCS) channel connection */
+    CONVERSATION_IDP,            /**< XNS Internet Datagram Protocol (IDP) socket */
+    CONVERSATION_TIPC,           /**< TIPC port */
+    CONVERSATION_USB,            /**< USB endpoint; 0xffff denotes the host */
+    CONVERSATION_I2C,            /**< I2C bus conversation */
+    CONVERSATION_IBQP,           /**< InfiniBand Queue Pair (QP) number */
+    CONVERSATION_BLUETOOTH,      /**< Bluetooth connection */
+    CONVERSATION_TDMOP,          /**< TDMoP (TDM over Packet) circuit */
+    CONVERSATION_DVBCI,          /**< DVB Common Interface (DVB-CI) session */
+    CONVERSATION_ISO14443,       /**< ISO 14443 contactless smart card session */
+    CONVERSATION_ISDN,           /**< ISDN channel number */
+    CONVERSATION_H223,           /**< H.223 logical channel number */
+    CONVERSATION_X25,            /**< X.25 logical channel number */
+    CONVERSATION_IAX2,           /**< IAX2 call identifier */
+    CONVERSATION_DLCI,           /**< Frame Relay Data Link Connection Identifier (DLCI) */
+    CONVERSATION_ISUP,           /**< ISDN User Part (ISUP) Circuit Identification Code (CIC) */
+    CONVERSATION_BICC,           /**< Bearer Independent Call Control (BICC) circuit identifier */
+    CONVERSATION_GSMTAP,         /**< GSMTAP virtual radio conversation */
+    CONVERSATION_IUUP,           /**< Iu UP (UMTS Iu interface user plane) */
+    CONVERSATION_DVBBBF,         /**< DVB Base Band Frame ISI/PLP_ID */
+    CONVERSATION_IWARP_MPA,      /**< iWARP Marker PDU Aligned (MPA) framing conversation */
+    CONVERSATION_BT_UTP,         /**< BitTorrent uTP connection ID */
+    CONVERSATION_LOG,            /**< Logging source conversation */
+    CONVERSATION_LTP,            /**< LTP Engine ID and Session Number */
+    CONVERSATION_MCTP,           /**< Management Component Transport Protocol (MCTP) */
+    CONVERSATION_NVME_MI,        /**< NVMe Management Interface (NVMe-MI) conversation */
+    CONVERSATION_BP,             /**< Bundle Protocol endpoint IDs */
+    CONVERSATION_SNMP,           /**< SNMP community/context conversation */
+    CONVERSATION_QUIC,           /**< QUIC connection */
+    CONVERSATION_IDN,            /**< Internationalized Domain Name (IDN) conversation */
+    CONVERSATION_IP,             /**< IPv4 address pair */
+    CONVERSATION_IPV6,           /**< IPv6 address pair */
+    CONVERSATION_ETH,            /**< Classic Ethernet (no interface/VLAN deinterleaving) */
+    CONVERSATION_ETH_NN,         /**< Ethernet deinterleaved: Interface=No, VLAN=No */
+    CONVERSATION_ETH_NV,         /**< Ethernet deinterleaved: Interface=No, VLAN=Yes */
+    CONVERSATION_ETH_IN,         /**< Ethernet deinterleaved: Interface=Yes, VLAN=No */
+    CONVERSATION_ETH_IV,         /**< Ethernet deinterleaved: Interface=Yes, VLAN=Yes */
+    CONVERSATION_VSPC_VMOTION,   /**< VMware vSPC vMotion conversation (Telnet-based) */
+    CONVERSATION_OPENVPN,        /**< OpenVPN tunnel conversation */
+    CONVERSATION_PROXY,          /**< Proxy protocol conversation */
+    CONVERSATION_GNSS,           /**< Global Navigation Satellite System (GNSS) conversation */
+    CONVERSATION_DNP3,           /**< DNP3 (Distributed Network Protocol 3) conversation */
+    CONVERSATION_ILNP,           /**< Identifier-Locator Network Protocol (ILNP) conversation */
 } conversation_type;
 
 /*
@@ -171,15 +173,15 @@ typedef conversation_type endpoint_type;
  * Conversation element type.
  */
 typedef enum {
-    CE_CONVERSATION_TYPE,   /* CONVERSATION_ value */
-    CE_ADDRESS,             /* address */
-    CE_PORT,                /* unsigned integer representing a port */
-    CE_STRING,              /* string */
-    CE_UINT,                /* unsigned integer not representing a port */
-    CE_UINT64,              /* 64-bit unsigned integer */
-    CE_INT,                 /* signed integer */
-    CE_INT64,               /* signed integer */
-    CE_BLOB,                /* arbitrary binary data */
+    CE_CONVERSATION_TYPE,   /**< CONVERSATION_ value */
+    CE_ADDRESS,             /**< address */
+    CE_PORT,                /**< unsigned integer representing a port */
+    CE_STRING,              /**< string */
+    CE_UINT,                /**< unsigned integer not representing a port */
+    CE_UINT64,              /**< 64-bit unsigned integer */
+    CE_INT,                 /**< signed integer */
+    CE_INT64,               /**< 64-bit signed integer */
+    CE_BLOB,                /**< arbitrary binary data */
 } conversation_element_type;
 
 /**

@@ -24,47 +24,63 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/* Current state of file. */
+/**
+ * @brief Lifecycle state of a capture file.
+ */
 typedef enum {
-    FILE_CLOSED,                  /* No file open */
-    FILE_READ_PENDING,            /* A file to read, but haven't opened it yet */
-    FILE_READ_IN_PROGRESS,        /* Reading a file we've opened */
-    FILE_READ_ABORTED,            /* Read aborted by user */
-    FILE_READ_DONE                /* Read completed */
+    FILE_CLOSED,           /**< No file is currently open */
+    FILE_READ_PENDING,     /**< A file is queued to be read but has not been opened yet */
+    FILE_READ_IN_PROGRESS, /**< A file has been opened and is actively being read */
+    FILE_READ_ABORTED,     /**< File read was cancelled by the user */
+    FILE_READ_DONE         /**< File read completed successfully */
 } file_state;
 
-/* Requested packets rescan action. */
+
+/**
+ * @brief Requested packet rescan action to be performed on the current capture.
+ */
 typedef enum {
-    RESCAN_NONE = 0,              /* No rescan requested */
-    RESCAN_SCAN,                  /* Request rescan without full redissection. */
-    RESCAN_REDISSECT              /* Request full redissection. */
+    RESCAN_NONE     = 0, /**< No rescan requested */
+    RESCAN_SCAN,         /**< Rescan packets without performing full redissection */
+    RESCAN_REDISSECT     /**< Rescan packets with full redissection */
 } rescan_type;
 
-/* Character set for text search. */
+
+/**
+ * @brief Character width filter for text search operations.
+ */
 typedef enum {
-    SCS_NARROW_AND_WIDE,
-    SCS_NARROW,
-    SCS_WIDE
-        /* add EBCDIC when it's implemented */
+    SCS_NARROW_AND_WIDE, /**< Search both narrow (single-byte) and wide (multi-byte) character strings */
+    SCS_NARROW,          /**< Search narrow (single-byte) character strings only */
+    SCS_WIDE             /**< Search wide (multi-byte) character strings only */
+    /* add EBCDIC when it's implemented */
 } search_charset_t;
 
+
+/**
+ * @brief Direction of a packet search through the capture.
+ */
 typedef enum {
-    SD_FORWARD,
-    SD_BACKWARD
+    SD_FORWARD,  /**< Search forward (toward newer packets) */
+    SD_BACKWARD  /**< Search backward (toward older packets) */
 } search_direction;
 
-/*
- * Packet provider for programs using a capture file.
+
+/**
+ * @brief Packet provider context for programs operating on a capture file.
  */
 struct packet_provider_data {
-    wtap        *wth;                    /* Wiretap session */
-    const frame_data *ref;
-    frame_data  *prev_dis;
-    frame_data  *prev_cap;
-    frame_data_sequence *frames;         /* Sequence of frames, if we're keeping that information */
-    GTree       *frames_modified_blocks; /* BST with modified blocks for frames (key = frame_data) */
+    wtap                 *wth;                    /**< Wiretap session handle for the open capture file */
+    const frame_data     *ref;                    /**< Reference frame used for relative time calculations */
+    frame_data           *prev_dis;               /**< Most recently displayed frame */
+    frame_data           *prev_cap;               /**< Most recently captured frame */
+    frame_data_sequence  *frames;                 /**< Ordered sequence of all captured frames; may be NULL if not retained */
+    GTree                *frames_modified_blocks;  /**< BST mapping frame_data pointers to their modified block data */
 };
 
+/**
+ * @brief Represents a capture file and its associated metadata.
+ */
 typedef struct _capture_file {
     epan_t                     *epan;
     file_state                  state;                /* Current state of capture file */

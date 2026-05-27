@@ -15,20 +15,23 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Identifies the current registration or initialization phase during Wireshark startup.
+ */
 typedef enum {
-    RA_NONE,              /* For initialization */
-    RA_DISSECTORS,        /* Initializing dissectors */
-    RA_LISTENERS,         /* Tap listeners */
-    RA_EXTCAP,            /* extcap register preferences */
-    RA_REGISTER,          /* Built-in dissector registration */
-    RA_PLUGIN_REGISTER,   /* Plugin dissector registration */
-    RA_HANDOFF,           /* Built-in dissector handoff */
-    RA_PLUGIN_HANDOFF,    /* Plugin dissector handoff */
-    RA_LUA_PLUGINS,       /* Lua plugin register */
-    RA_LUA_DEREGISTER,    /* Lua plugin deregister */
-    RA_PREFERENCES,       /* Module preferences */
-    RA_INTERFACES,        /* Local interfaces */
-    RA_PREFERENCES_APPLY /* Apply changed preferences */
+    RA_NONE,             /**< No action in progress; used for initialization */
+    RA_DISSECTORS,       /**< Initializing the dissector framework */
+    RA_LISTENERS,        /**< Registering tap listeners */
+    RA_EXTCAP,           /**< Registering extcap plugin preferences */
+    RA_REGISTER,         /**< Running built-in dissector registration routines */
+    RA_PLUGIN_REGISTER,  /**< Running plugin dissector registration routines */
+    RA_HANDOFF,          /**< Running built-in dissector handoff routines */
+    RA_PLUGIN_HANDOFF,   /**< Running plugin dissector handoff routines */
+    RA_LUA_PLUGINS,      /**< Registering Lua plugins */
+    RA_LUA_DEREGISTER,   /**< Deregistering Lua plugins */
+    RA_PREFERENCES,      /**< Loading and registering module preferences */
+    RA_INTERFACES,       /**< Enumerating local capture interfaces */
+    RA_PREFERENCES_APPLY /**< Applying preferences that have been changed */
 } register_action_e;
 
 #define RA_BASE_COUNT (RA_INTERFACES - 3) // RA_EXTCAP, RA_LUA_PLUGINS, RA_LUA_DEREGISTER

@@ -21,72 +21,108 @@ extern "C" {
 /* For our (monitor mode tuning) purposes we shouldn't care about 20 MHz
  * non HT vs 20 MHz HT. We do care about HT40- vs HT40+ vs HE40 (whether
  * the center freq must be provided, */
+
+/**
+ * @brief IEEE 802.11 channel width/type for monitor mode configuration.
+ */
 enum ws80211_channel_type {
-	WS80211_CHAN_NO_HT,
-	WS80211_CHAN_HT20,
-	WS80211_CHAN_HT40MINUS,
-	WS80211_CHAN_HT40PLUS,
-	WS80211_CHAN_HE40,	/* 40 MHz with explicit center freq */
-	WS80211_CHAN_VHT80,
-	WS80211_CHAN_VHT80P80,
-	WS80211_CHAN_VHT160,
-	WS80211_CHAN_EHT320
+    WS80211_CHAN_NO_HT,     /**< Legacy 20 MHz, no High Throughput (non-HT) */
+    WS80211_CHAN_HT20,      /**< 20 MHz High Throughput (HT20) */
+    WS80211_CHAN_HT40MINUS, /**< 40 MHz HT, secondary channel below primary (HT40-) */
+    WS80211_CHAN_HT40PLUS,  /**< 40 MHz HT, secondary channel above primary (HT40+) */
+    WS80211_CHAN_HE40,      /**< 40 MHz High Efficiency (HE/Wi-Fi 6) with explicit center frequency */
+    WS80211_CHAN_VHT80,     /**< 80 MHz Very High Throughput (VHT/Wi-Fi 5) */
+    WS80211_CHAN_VHT80P80,  /**< 80+80 MHz VHT with two non-contiguous 80 MHz segments */
+    WS80211_CHAN_VHT160,    /**< 160 MHz VHT contiguous channel */
+    WS80211_CHAN_EHT320     /**< 320 MHz Extremely High Throughput (EHT/Wi-Fi 7) */
 };
 
-#define CHAN_NO_HT	"NOHT"
-#define CHAN_HT20	"HT20"
-#define CHAN_HT40MINUS	"HT40-"
-#define CHAN_HT40PLUS	"HT40+"
-#define CHAN_HE40 	"HE40"
-#define CHAN_VHT80	"VHT80"
-#define CHAN_VHT80P80	"VHT80+80"
-#define CHAN_VHT160	"VHT160"
-#define CHAN_EHT320	"EHT320"
+/** @brief String token for WS80211_CHAN_NO_HT; used in channel type serialization. */
+#define CHAN_NO_HT    "NOHT"
+/** @brief String token for WS80211_CHAN_HT20. */
+#define CHAN_HT20     "HT20"
+/** @brief String token for WS80211_CHAN_HT40MINUS. */
+#define CHAN_HT40MINUS "HT40-"
+/** @brief String token for WS80211_CHAN_HT40PLUS. */
+#define CHAN_HT40PLUS  "HT40+"
+/** @brief String token for WS80211_CHAN_HE40. */
+#define CHAN_HE40     "HE40"
+/** @brief String token for WS80211_CHAN_VHT80. */
+#define CHAN_VHT80    "VHT80"
+/** @brief String token for WS80211_CHAN_VHT80P80. */
+#define CHAN_VHT80P80  "VHT80+80"
+/** @brief String token for WS80211_CHAN_VHT160. */
+#define CHAN_VHT160   "VHT160"
+/** @brief String token for WS80211_CHAN_EHT320. */
+#define CHAN_EHT320   "EHT320"
 
 /* These are *not* the same values as the Linux NL80211_BAND_* enum,
  * because we don't support the 60 GHz or 900 MHz (S1G, HaLow) bands,
  * which have different channel widths. */
+
+/**
+ * @brief Supported RF band identifiers (not equivalent to Linux NL80211_BAND_*).
+ */
 enum ws80211_band_type {
-	WS80211_BAND_2GHZ,
-	WS80211_BAND_5GHZ,
-	WS80211_BAND_6GHZ
+    WS80211_BAND_2GHZ, /**< 2.4 GHz band */
+    WS80211_BAND_5GHZ, /**< 5 GHz band */
+    WS80211_BAND_6GHZ  /**< 6 GHz band (Wi-Fi 6E/7) */
 };
 
+/**
+ * @brief FCS (Frame Check Sequence) capture filter policy.
+ */
 enum ws80211_fcs_validation {
-	WS80211_FCS_ALL,
-	WS80211_FCS_VALID,
-	WS80211_FCS_INVALID
+    WS80211_FCS_ALL,     /**< Capture all frames regardless of FCS validity */
+    WS80211_FCS_VALID,   /**< Capture only frames with a valid FCS */
+    WS80211_FCS_INVALID  /**< Capture only frames with an invalid FCS */
 };
 
+/**
+ * @brief Describes a single frequency and its channel-type constraints.
+ */
 struct ws80211_frequency
 {
-	uint32_t freq; // MHz
-	int channel_mask; /* Bitmask of ws80211_channel_types *not* supported for this frequency (e.g., for regulatory reasons) even if supported by the PHY for this band */
+    uint32_t freq;   /**< Center frequency in MHz */
+    int channel_mask; /**< Bitmask of ws80211_channel_type values *not* supported
+                       *   for this frequency (e.g., due to regulatory restrictions),
+                       *   even if the PHY supports them for the band */
 };
 
+/**
+ * @brief Describes the channel capabilities of a single RF band on a PHY.
+ */
 struct ws80211_band
 {
-	GArray *frequencies; /* Array of uint32_t (MHz) (lazily created, can be NULL) */
-	int channel_types; /* Bitmask of ws80211_channel_types supported by the PHY on this band */
+    GArray *frequencies;  /**< Lazily-created array of ws80211_frequency entries
+                           *   for this band; may be NULL if not yet populated */
+    int channel_types;    /**< Bitmask of ws80211_channel_type values supported
+                           *   by the PHY on this band */
 };
 
+/**
+ * @brief Represents a wireless network interface and its capture capabilities.
+ */
 struct ws80211_interface
 {
-	char *ifname;
-	bool can_set_freq;
-	bool can_check_fcs;
-	GArray *bands; /* Array of struct ws80211_band, indexed by
-			  ws80211_band_type. (array always exists but might
-			  be shorter than the number of possible bands.) */
-	int cap_monitor;
+    char *ifname;        /**< Interface name (e.g., "wlan0") */
+    bool can_set_freq;   /**< True if the interface supports setting the operating frequency */
+    bool can_check_fcs;  /**< True if the interface supports FCS validation filtering */
+    GArray *bands;       /**< Array of ws80211_band structs indexed by ws80211_band_type;
+                          *   always non-NULL but may contain fewer entries than the total
+                          *   number of defined band types */
+    int cap_monitor;     /**< Non-zero if the interface supports monitor mode capture */
 };
 
+/**
+ * @brief Snapshot of the current configuration of a wireless interface.
+ */
 struct ws80211_iface_info {
-	int current_freq;
-	enum ws80211_channel_type current_chan_type;
-	int current_center_freq1;
-	int current_center_freq2;
-	enum ws80211_fcs_validation current_fcs_validation;
+    int current_freq;                            /**< Current operating frequency in MHz */
+    enum ws80211_channel_type current_chan_type; /**< Current channel width/type */
+    int current_center_freq1;                    /**< Primary center frequency in MHz (used for VHT/HE/EHT) */
+    int current_center_freq2;                    /**< Secondary center frequency in MHz (used for VHT 80+80) */
+    enum ws80211_fcs_validation current_fcs_validation; /**< Current FCS capture filter policy */
 };
 
 /*

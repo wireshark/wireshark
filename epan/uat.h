@@ -168,6 +168,10 @@ typedef void (*uat_fld_tostr_cb_t)(void *record, char **out_ptr, unsigned *out_l
  * (see definition bellow for description)
  ***********/
 
+/**
+ * @brief Controls how a UAT (User Accessible Table) field is rendered and parsed
+ *        in both the preferences file and the GUI editor dialog.
+ */
 typedef enum _uat_text_mode_t {
     PT_TXTMOD_NONE,
     /* not used */
@@ -224,32 +228,31 @@ typedef enum _uat_text_mode_t {
     /* Displays a checkbox for value */
 } uat_text_mode_t;
 
-/*
- * Fields
- *
- *
+/**
+ * @brief Describes a single editable field within a UAT (User Accessible Table).
  */
 typedef struct _uat_field_t {
-    const char* name;
-    const char* title;
-    uat_text_mode_t mode;
+    const char      *name;  /**< Internal name of the field, used as the key in the preferences file */
+    const char      *title; /**< Human-readable column header label shown in the UAT editor dialog */
+    uat_text_mode_t  mode;  /**< Controls how the field value is rendered, parsed, and edited */
 
+    /** @brief Callbacks for validating, applying, and serializing this field's value. */
     struct {
-        uat_fld_chk_cb_t chk;
-        uat_fld_set_cb_t set;
-        uat_fld_tostr_cb_t tostr;
+        uat_fld_chk_cb_t   chk;   /**< Validation callback; returns false and sets an error message if the value is invalid */
+        uat_fld_set_cb_t   set;   /**< Apply callback; writes a parsed value into the UAT record struct */
+        uat_fld_tostr_cb_t tostr; /**< Serialization callback; converts the field's current value to a string for display and file output */
     } cb;
 
+    /** @brief Opaque context pointers passed as auxiliary data to each corresponding callback. */
     struct {
-        const void* chk;
-        const void* set;
-        const void* tostr;
+        const void *chk;   /**< Auxiliary data pointer passed to @ref cb.chk */
+        const void *set;   /**< Auxiliary data pointer passed to @ref cb.set */
+        const void *tostr; /**< Auxiliary data pointer passed to @ref cb.tostr */
     } cbdata;
 
-    const void* fld_data;
-
-    const char* desc;
-    struct _fld_data_t* priv;
+    const void          *fld_data; /**< Pointer to static field-type metadata (e.g., an enum_val_t array for PT_TXTMOD_ENUM) */
+    const char          *desc;     /**< Tooltip or help text describing the field's purpose, shown in the UAT editor */
+    struct _fld_data_t  *priv;     /**< Internal private state managed by the UAT framework; not for use by dissectors */
 } uat_field_t;
 
 #define FLDFILL NULL

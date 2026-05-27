@@ -171,8 +171,8 @@ extern "C" {
 #define OPT_PKT_DARWIN_COMP_GENCNT          32778   /**< 32-bit current value of the compression generation count (epoch). */
 
 
-/*
- * Currently supported blocks; these are not the pcapng block type values
+/**
+ * @brief Currently supported blocks; these are not the pcapng block type values
  * for them, they're identifiers used internally, and more than one
  * pcapng block type may use a given block type.
  *
@@ -232,20 +232,20 @@ extern "C" {
  * information
  */
 typedef enum {
-    WTAP_BLOCK_SECTION = 0,
-    WTAP_BLOCK_IF_ID_AND_INFO,
-    WTAP_BLOCK_NAME_RESOLUTION,
-    WTAP_BLOCK_IF_STATISTICS,
-    WTAP_BLOCK_DECRYPTION_SECRETS,
-    WTAP_BLOCK_PACKET,
-    WTAP_BLOCK_FT_SPECIFIC_REPORT,
-    WTAP_BLOCK_FT_SPECIFIC_EVENT,
-    WTAP_BLOCK_SYSDIG_EVENT,
-    WTAP_BLOCK_META_EVENT,
-    WTAP_BLOCK_SYSTEMD_JOURNAL_EXPORT,
-    WTAP_BLOCK_CUSTOM,
-    WTAP_BLOCK_FT_SPECIFIC_INFORMATION,
-    MAX_WTAP_BLOCK_TYPE_VALUE
+    WTAP_BLOCK_SECTION             = 0, /**< Section block: groups a set of blocks and carries per-section metadata (pcapng SHB) */
+    WTAP_BLOCK_IF_ID_AND_INFO,          /**< Interface ID and description block: identifies a capture interface and assigns it an ID referenced by packets (pcapng IDB) */
+    WTAP_BLOCK_NAME_RESOLUTION,         /**< Name resolution block: maps addresses to host names (pcapng NRB) */
+    WTAP_BLOCK_IF_STATISTICS,           /**< Interface statistics block: per-interface capture counters (pcapng ISB) */
+    WTAP_BLOCK_DECRYPTION_SECRETS,      /**< Decryption secrets block: embeds key material for post-capture decryption (pcapng DSB) */
+    WTAP_BLOCK_PACKET,                  /**< Packet block: reserved for future use; covers EPB, SPB, and deprecated PB (not currently active) */
+    WTAP_BLOCK_FT_SPECIFIC_REPORT,      /**< File-type-specific report: a timestamped summary measurement, optionally with duration (e.g. "carrier lost N times") */
+    WTAP_BLOCK_FT_SPECIFIC_EVENT,       /**< File-type-specific event: a timestamped state-change occurrence (e.g. "carrier lost", "channel change") */
+    WTAP_BLOCK_SYSDIG_EVENT,            /**< Sysdig event block: a system-call or kernel event record from a Sysdig capture */
+    WTAP_BLOCK_META_EVENT,              /**< Meta-event block: capture-framework metadata event (e.g. Falco/Sysdig container lifecycle events) */
+    WTAP_BLOCK_SYSTEMD_JOURNAL_EXPORT,  /**< systemd journal export block: reserved for future use (not currently active) */
+    WTAP_BLOCK_CUSTOM,                  /**< Custom block: vendor- or application-defined block with a private PEN (pcapng CB) */
+    WTAP_BLOCK_FT_SPECIFIC_INFORMATION, /**< File-type-specific information: non-timestamped static metadata with no time coordinate */
+    MAX_WTAP_BLOCK_TYPE_VALUE           /**< Sentinel: total number of defined block type identifiers */
 } wtap_block_type_t;
 
 struct wtap_block;
@@ -392,40 +392,43 @@ typedef struct wtapng_ft_specific_mandatory_s {
     unsigned  record_type;      /* the type of record this is - file type-specific value */
 } wtapng_ft_specific_mandatory_t;
 
-/*
- * Currently supported option types.  These are not option types
- * in the sense that each one corresponds to a particular option,
- * they are data types for the data of an option, so, for example,
- * all options with a 32-bit unsigned integer value have the type
- * WTAP_OPTTYPE_UINT32.
+/**
+ * @brief Data types for option values stored within a wtap block.
+ *
+ * @note These are value data types, not per-option identifiers. All options
+ *       sharing the same storage type (e.g. every option holding a 32-bit
+ *       unsigned integer) share the same ::wtap_opttype_e value.
  */
 typedef enum {
-    WTAP_OPTTYPE_UINT8,
-    WTAP_OPTTYPE_UINT32,
-    WTAP_OPTTYPE_UINT64,
-    WTAP_OPTTYPE_STRING,
-    WTAP_OPTTYPE_BYTES,
-    WTAP_OPTTYPE_IPv4,
-    WTAP_OPTTYPE_IPv6,
-    WTAP_OPTTYPE_CUSTOM_STRING,
-    WTAP_OPTTYPE_CUSTOM_BINARY,
-    WTAP_OPTTYPE_IF_FILTER,
-    WTAP_OPTTYPE_PACKET_VERDICT,
-    WTAP_OPTTYPE_PACKET_HASH,
-    WTAP_OPTTYPE_INT8,
-    WTAP_OPTTYPE_INT32,
-    WTAP_OPTTYPE_INT64,
+    WTAP_OPTTYPE_UINT8,          /**< Option value is an 8-bit unsigned integer */
+    WTAP_OPTTYPE_UINT32,         /**< Option value is a 32-bit unsigned integer */
+    WTAP_OPTTYPE_UINT64,         /**< Option value is a 64-bit unsigned integer */
+    WTAP_OPTTYPE_STRING,         /**< Option value is a null-terminated UTF-8 string */
+    WTAP_OPTTYPE_BYTES,          /**< Option value is an arbitrary byte array */
+    WTAP_OPTTYPE_IPv4,           /**< Option value is an IPv4 address */
+    WTAP_OPTTYPE_IPv6,           /**< Option value is an IPv6 address */
+    WTAP_OPTTYPE_CUSTOM_STRING,  /**< Option value is a custom option with a UTF-8 string payload (pcapng CB with PEN) */
+    WTAP_OPTTYPE_CUSTOM_BINARY,  /**< Option value is a custom option with a binary payload (pcapng CB with PEN) */
+    WTAP_OPTTYPE_IF_FILTER,      /**< Option value is an interface capture filter (BPF or display filter string) */
+    WTAP_OPTTYPE_PACKET_VERDICT, /**< Option value is a packet verdict (e.g. XDP or TC eBPF verdict) */
+    WTAP_OPTTYPE_PACKET_HASH,    /**< Option value is a packet hash record (algorithm plus digest bytes) */
+    WTAP_OPTTYPE_INT8,           /**< Option value is an 8-bit signed integer */
+    WTAP_OPTTYPE_INT32,          /**< Option value is a 32-bit signed integer */
+    WTAP_OPTTYPE_INT64,          /**< Option value is a 64-bit signed integer */
 } wtap_opttype_e;
 
+/**
+ * @brief Return codes for wtap block option access and mutation operations.
+ */
 typedef enum {
-    WTAP_OPTTYPE_SUCCESS = 0,
-    WTAP_OPTTYPE_NO_SUCH_OPTION = -1,
-    WTAP_OPTTYPE_NOT_FOUND = -2,
-    WTAP_OPTTYPE_TYPE_MISMATCH = -3,
-    WTAP_OPTTYPE_NUMBER_MISMATCH = -4,
-    WTAP_OPTTYPE_ALREADY_EXISTS = -5,
-    WTAP_OPTTYPE_BAD_BLOCK = -6,
-    WTAP_OPTTYPE_PEN_MISMATCH = -7,
+    WTAP_OPTTYPE_SUCCESS         =  0, /**< Operation completed successfully */
+    WTAP_OPTTYPE_NO_SUCH_OPTION  = -1, /**< The specified option code does not exist for this block type */
+    WTAP_OPTTYPE_NOT_FOUND       = -2, /**< The option exists in the block type but no instance was found */
+    WTAP_OPTTYPE_TYPE_MISMATCH   = -3, /**< The requested value type does not match the option's declared type */
+    WTAP_OPTTYPE_NUMBER_MISMATCH = -4, /**< The option occurrence index is out of range */
+    WTAP_OPTTYPE_ALREADY_EXISTS  = -5, /**< An instance of a single-occurrence option already exists in the block */
+    WTAP_OPTTYPE_BAD_BLOCK       = -6, /**< The block reference is NULL or otherwise invalid */
+    WTAP_OPTTYPE_PEN_MISMATCH    = -7, /**< The Private Enterprise Number (PEN) of a custom option does not match */
 } wtap_opttype_return_val;
 
 /* https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers */

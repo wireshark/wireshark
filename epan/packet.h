@@ -103,9 +103,12 @@ typedef int (*dissector_cb_t)(tvbuff_t *, packet_info *, proto_tree *, void *, v
 typedef bool (*heur_dissector_t)(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, void *);
 
+/**
+ * @brief Controls whether a heuristic dissector is active.
+ */
 typedef enum {
-    HEURISTIC_DISABLE,
-    HEURISTIC_ENABLE
+    HEURISTIC_DISABLE, /**< Heuristic dissector is disabled and will not be invoked */
+    HEURISTIC_ENABLE   /**< Heuristic dissector is enabled and may be invoked for matching traffic */
 } heuristic_enable_e;
 
 typedef void (*DATFunc) (const char *table_name, ftenum_t selector_type,
@@ -1246,9 +1249,12 @@ extern void
 final_registration_all_protocols(void);
 
 // XXX Should we move frame_data.encoding here?
+/**
+ * @brief MIME media type descriptor for a packet data source buffer.
+ */
 typedef enum {
-    DS_MEDIA_TYPE_APPLICATION_OCTET_STREAM,
-    DS_MEDIA_TYPE_APPLICATION_JSON,
+    DS_MEDIA_TYPE_APPLICATION_OCTET_STREAM, /**< Raw binary data (application/octet-stream) */
+    DS_MEDIA_TYPE_APPLICATION_JSON,         /**< JSON-encoded data (application/json) */
 } data_source_media_type_e;
 
 struct data_source;

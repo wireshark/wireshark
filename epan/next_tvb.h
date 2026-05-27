@@ -18,32 +18,41 @@
 #include "ws_symbol_export.h"
 #include <epan/packet.h>
 
+/**
+ * @brief Discriminator indicating how a queued subdissector is to be invoked.
+ */
 typedef enum {
-  NTVB_HANDLE,
-  NTVB_UINT,
-  NTVB_STRING
+    NTVB_HANDLE, /**< Invoke a subdissector directly via a dissector_handle_t */
+    NTVB_UINT,   /**< Look up and invoke a subdissector from a table using an unsigned integer key */
+    NTVB_STRING  /**< Look up and invoke a subdissector from a table using a string key */
 } next_tvb_call_e;
 
-/* For old code that hasn't yet been changed. */
-#define NTVB_PORT	NTVB_UINT
+/** @brief Backward-compatibility alias; use NTVB_UINT for port-based table lookups. */
+#define NTVB_PORT NTVB_UINT
 
+/**
+ * @brief A single queued subdissector call, forming a node in a next_tvb_list_t.
+ */
 typedef struct next_tvb_item {
-  struct next_tvb_item *next;
-  struct next_tvb_item *previous;
-  next_tvb_call_e type;
-  dissector_handle_t handle;
-  dissector_table_t table;
-  uint32_t uint_val;
-  const char *string;
-  tvbuff_t *tvb;
-  proto_tree *tree;
+    struct next_tvb_item *next;     /**< Pointer to the next item in the list, or NULL if last */
+    struct next_tvb_item *previous; /**< Pointer to the previous item in the list, or NULL if first */
+    next_tvb_call_e       type;     /**< Dispatch type controlling which union field and lookup method to use */
+    dissector_handle_t    handle;   /**< Direct dissector handle; valid when type == NTVB_HANDLE */
+    dissector_table_t     table;    /**< Dissector table for key-based lookup; valid when type == NTVB_UINT or NTVB_STRING */
+    uint32_t              uint_val; /**< Unsigned integer lookup key (e.g., port number); valid when type == NTVB_UINT */
+    const char           *string;   /**< String lookup key; valid when type == NTVB_STRING */
+    tvbuff_t             *tvb;      /**< Buffer slice to pass to the subdissector */
+    proto_tree           *tree;     /**< Protocol tree node under which the subdissector should add its items */
 } next_tvb_item_t;
 
+/**
+ * @brief A doubly-linked list of queued subdissector calls with a shared memory pool.
+ */
 typedef struct {
-  next_tvb_item_t *first;
-  next_tvb_item_t *last;
-  wmem_allocator_t *pool;
-  int count;
+    next_tvb_item_t  *first; /**< Pointer to the first item in the list, or NULL if empty */
+    next_tvb_item_t  *last;  /**< Pointer to the last item in the list, or NULL if empty */
+    wmem_allocator_t *pool;  /**< Memory allocator used for all items in this list */
+    int               count; /**< Number of items currently in the list */
 } next_tvb_list_t;
 
 /**

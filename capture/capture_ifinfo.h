@@ -18,57 +18,54 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/*
- * Explicitly set the interface_type enum values as these values are exposed
- * in the preferences gui.interfaces_hidden_types string.
+/**
+ * @brief Represents the type of a capture interface, with explicit integer
+ *        values that are exposed in the preferences gui.interfaces_hidden_types string.
  */
 typedef enum {
-	IF_WIRED	= 0,
-	IF_AIRPCAP	= 1,
-	IF_PIPE		= 2,
-	IF_STDIN	= 3,
-	IF_BLUETOOTH	= 4,
-	IF_WIRELESS	= 5,
-	IF_DIALUP	= 6,
-	IF_USB		= 7,
-	IF_EXTCAP	= 8,
-	IF_VIRTUAL	= 9,
-        IF_LOOPBACK	= 10,
-        IF_TUNNEL	= 11,
+    IF_WIRED    = 0,  /**< Standard wired (Ethernet) interface */
+    IF_AIRPCAP  = 1,  /**< AirPcap wireless capture device */
+    IF_PIPE     = 2,  /**< Named pipe interface */
+    IF_STDIN    = 3,  /**< Standard input (stdin) interface */
+    IF_BLUETOOTH = 4, /**< Bluetooth interface */
+    IF_WIRELESS = 5,  /**< Generic wireless (Wi-Fi) interface */
+    IF_DIALUP   = 6,  /**< Dial-up (PPP/modem) interface */
+    IF_USB      = 7,  /**< USB capture interface */
+    IF_EXTCAP   = 8,  /**< External capture (extcap) interface */
+    IF_VIRTUAL  = 9,  /**< Virtual interface */
+    IF_LOOPBACK = 10, /**< Loopback interface */
+    IF_TUNNEL   = 11, /**< Tunnel interface */
 } interface_type;
 
-/*
- * "get_if_capabilities()" and "capture_if_capabilities()" return a pointer
- * to an allocated instance of this structure.  "free_if_capabilities()"
- * frees the returned instance.
+/**
+ * @brief Describes the capabilities of a single capture interface.
+ *
+ * Returned by get_if_capabilities() and capture_if_capabilities();
+ * must be released with free_if_capabilities().
  */
 typedef struct {
-	bool	can_set_rfmon;	/* true if can be put into monitor mode */
-	GList		*data_link_types;	/* GList of data_link_info_t's */
-	GList		*data_link_types_rfmon; /* GList of data_link_info_t's */
-	GList		*timestamp_types;   /* GList of timestamp_info_t's */
-	int status;
-	char *primary_msg;   /* If non-NULL, the query failed, and a message explaining why */
-	const char *secondary_msg; /* An optional supplementary message */
+    bool   can_set_rfmon;           /**< True if the interface can be placed into 802.11 monitor mode */
+    GList *data_link_types;         /**< Available data link types (::data_link_info_t) in normal mode */
+    GList *data_link_types_rfmon;   /**< Available data link types (::data_link_info_t) when in monitor mode */
+    GList *timestamp_types;         /**< Available timestamp sources (::timestamp_info_t) for this interface */
+    int    status;                  /**< Status code indicating the result of the capabilities query */
+    char       *primary_msg;        /**< If non-NULL, the capabilities query failed; this string describes why */
+    const char *secondary_msg;      /**< Optional supplementary detail message accompanying @p primary_msg */
 } if_capabilities_t;
 
-/*
- * The list of interfaces returned by "get_interface_list()" is
- * a list of these structures.
+
+/**
+ * @brief Describes a single network interface returned by get_interface_list().
  */
 typedef struct {
-	char	*name;          /* e.g. "eth0" */
-	char	*friendly_name; /* from OS, e.g. "Local Area Connection", or
-				   NULL if not available */
-	char	*vendor_description;
-				/* vendor description from pcap_findalldevs()
-				   on Windows, e.g. "Realtek PCIe GBE Family Controller",
-				   or NULL if not available */
-	GSList  *addrs;         /* containing address values of if_addr_t */
-	interface_type type;    /* type of interface */
-	bool loopback;      /* true if loopback, false otherwise */
-	char	*extcap;		/* extcap arguments, which present the data to call the extcap interface */
-	if_capabilities_t *caps;
+    char  *name;                 /**< System interface name (e.g. "eth0", "en0") */
+    char  *friendly_name;        /**< Human-readable OS-assigned name (e.g. "Local Area Connection"); NULL if unavailable */
+    char  *vendor_description;   /**< Vendor description from pcap_findalldevs() (e.g. "Realtek PCIe GBE Family Controller", Windows only); NULL if unavailable */
+    GSList           *addrs;     /**< List of ::if_addr_t address entries assigned to this interface */
+    interface_type    type;      /**< Interface type (wired, wireless, pipe, extcap, etc.) */
+    bool              loopback;  /**< True if this is a loopback interface */
+    char             *extcap;    /**< Extcap argument string used to invoke the extcap interface; NULL for native interfaces */
+    if_capabilities_t *caps;     /**< Cached interface capabilities, or NULL if not yet queried */
 } if_info_t;
 
 /**
@@ -167,28 +164,31 @@ if_info_t *if_info_copy(const if_info_t *if_info);
  */
 if_addr_t *if_addr_copy(const if_addr_t *if_addr);
 
+/**
+ * @brief Parameters passed to the interface capabilities query functions.
+ */
 typedef struct {
-        const char *name;
-        bool monitor_mode;
-        const char *auth_username;
-        const char *auth_password;
+    const char *name;             /**< System interface name to query (e.g. "eth0") */
+    bool        monitor_mode;     /**< True if capabilities should be queried for 802.11 monitor mode */
+    const char *auth_username;    /**< Username for remote capture authentication, or NULL if not required */
+    const char *auth_password;    /**< Password for remote capture authentication, or NULL if not required */
 } if_cap_query_t;
 
-/*
- * Information about data link types.
+/**
+ * @brief Describes a single data link type available on a capture interface.
  */
 typedef struct {
-	int	dlt;            /* e.g. DLT_EN10MB (which is 1) */
-	char	*name;          /* e.g. "EN10MB" or "DLT 1" */
-	char	*description;   /* descriptive name from wiretap e.g. "Ethernet", NULL if unknown */
+    int   dlt;         /**< libpcap DLT_ value identifying the link type (e.g. DLT_EN10MB = 1) */
+    char *name;        /**< Short DLT name string (e.g. "EN10MB" or "DLT 1") */
+    char *description; /**< Human-readable description from Wiretap (e.g. "Ethernet"); NULL if unknown */
 } data_link_info_t;
 
-/*
- * Information about timestamp types.
+/**
+ * @brief Describes a single timestamp source available on a capture interface.
  */
 typedef struct {
-	char	*name;          /* e.g. "adapter_unsynced" */
-	char	*description;   /* description from libpcap e.g. "Adapter, not synced with system time" */
+    char *name;        /**< Short internal timestamp type name from libpcap (e.g. "adapter_unsynced") */
+    char *description; /**< Human-readable description from libpcap (e.g. "Adapter, not synced with system time") */
 } timestamp_info_t;
 
 /**

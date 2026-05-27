@@ -24,31 +24,43 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/* print output format */
+/**
+ * @brief Output format for printed packet data.
+ */
 typedef enum {
-  PR_FMT_TEXT,    /* plain text */
-  PR_FMT_PS       /* postscript */
+    PR_FMT_TEXT, /**< Plain text output */
+    PR_FMT_PS    /**< PostScript output */
 } print_format_e;
 
-/* print_dissections, enum how the dissections should be printed */
+
+/**
+ * @brief Controls the level of protocol dissection detail included in printed output.
+ */
 typedef enum {
-  print_dissections_none,         /* no dissections at all */
-  print_dissections_collapsed,    /* no dissection details */
-  print_dissections_as_displayed, /* details as displayed */
-  print_dissections_expanded      /* all dissection details */
+    print_dissections_none,         /**< Omit all dissection output */
+    print_dissections_collapsed,    /**< Include dissection tree nodes but no expanded detail */
+    print_dissections_as_displayed, /**< Include dissection detail exactly as shown in the GUI */
+    print_dissections_expanded      /**< Include all dissection detail, fully expanded */
 } print_dissections_e;
 
 
+/**
+ * @brief Output serialization format for field export (e.g., via tshark -T).
+ */
 typedef enum {
-  FORMAT_CSV,     /* CSV */
-  FORMAT_JSON,    /* JSON */
-  FORMAT_EK,      /* JSON bulk insert to Elasticsearch */
-  FORMAT_XML      /* PDML output */
+    FORMAT_CSV,  /**< Comma-separated values (CSV) */
+    FORMAT_JSON, /**< JSON object output */
+    FORMAT_EK,   /**< Newline-delimited JSON formatted for Elasticsearch bulk insert */
+    FORMAT_XML   /**< PDML (Packet Details Markup Language) XML output */
 } fields_format;
 
+
+/**
+ * @brief Bitmask flags controlling protocol field printing behavior.
+ */
 typedef enum {
-  PF_NONE = 0x00,
-  PF_INCLUDE_CHILDREN = 0x01
+    PF_NONE             = 0x00, /**< No flags set; default behavior */
+    PF_INCLUDE_CHILDREN = 0x01  /**< Also print all child fields of a matched field */
 } pf_flags;
 
 /*

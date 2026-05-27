@@ -132,8 +132,16 @@ capture_session_init(capture_session *cap_session, capture_file *cf,
 void capture_process_finished(capture_session *cap_session);
 #else
 
-/* dummy is needed because clang throws the error: empty struct has size 0 in C, size 1 in C++ */
-typedef struct _capture_session {int dummy;} capture_session;
+/**
+ * @brief Opaque handle representing an active or pending capture session.
+ *
+ * @note The @p dummy member exists solely to satisfy C compilers (e.g. clang)
+ *       that reject empty structs; in C an empty struct has size 0 whereas in
+ *       C++ it has size 1.  The field carries no semantic meaning.
+ */
+typedef struct _capture_session {
+    int dummy; /**< Padding member to ensure a non-zero struct size in C */
+} capture_session;
 
 #endif /* HAVE_LIBPCAP */
 

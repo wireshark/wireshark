@@ -76,10 +76,13 @@ typedef int (*tvbparse_condition_t)
  tvbparse_elem_t**);
 
 
-typedef enum  {
-    TP_UNTIL_INCLUDE, /* last elem is included, its span is spent by the parser */
-    TP_UNTIL_SPEND, /* last elem is not included, but its span is spent by the parser */
-    TP_UNTIL_LEAVE /* last elem is not included, neither its span is spent by the parser */
+/**
+ * @brief Controls how a parser consumes the terminal element when scanning up to the last token.
+ */
+typedef enum {
+    TP_UNTIL_INCLUDE, /**< The last element is included in the result and its span is consumed by the parser */
+    TP_UNTIL_SPEND,   /**< The last element is excluded from the result but its span is still consumed by the parser */
+    TP_UNTIL_LEAVE    /**< The last element is excluded from the result and its span is left unconsumed for the next parse step */
 } until_mode_t;
 
 

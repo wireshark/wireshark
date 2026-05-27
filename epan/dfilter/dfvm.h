@@ -16,21 +16,29 @@
 #include "drange.h"
 #include "dfunctions.h"
 
+/**
+ * @brief Aborts with a fatal error when an unhandled DFVM opcode is encountered.
+ * @param op The invalid dfvm_opcode_t value that was reached.
+ */
 #define ASSERT_DFVM_OP_NOT_REACHED(op) \
-	ws_error("Invalid dfvm opcode '%s'.", dfvm_opcode_tostr(op))
+    ws_error("Invalid dfvm opcode '%s'.", dfvm_opcode_tostr(op))
 
+
+/**
+ * @brief Discriminator tag identifying the active payload in a dfvm_value_t union.
+ */
 typedef enum {
-	EMPTY,
-	FVALUE,
-	HFINFO,
-	RAW_HFINFO,
-	HFINFO_VS,
-	INSN_NUMBER,
-	REGISTER,
-	INTEGER,
-	DRANGE,
-	FUNCTION_DEF,
-	PCRE,
+    EMPTY,        /**< No value is set; slot is unused */
+    FVALUE,       /**< Payload is a field value (fvalue_t) */
+    HFINFO,       /**< Payload is a pointer to a header field descriptor (header_field_info) */
+    RAW_HFINFO,   /**< Payload is a pointer to a raw (undecoded) header field descriptor */
+    HFINFO_VS,    /**< Payload is a header field descriptor with an associated value string */
+    INSN_NUMBER,  /**< Payload is a DFVM instruction index (branch target) */
+    REGISTER,     /**< Payload is a DFVM virtual register number */
+    INTEGER,      /**< Payload is a bare integer constant */
+    DRANGE,       /**< Payload is a display filter range (drange_t) */
+    FUNCTION_DEF, /**< Payload is a display filter function definition (df_func_def_t) */
+    PCRE,         /**< Payload is a compiled Perl-Compatible Regular Expression (pcre2) */
 } dfvm_value_type_t;
 
 /**
@@ -55,58 +63,67 @@ typedef struct {
 	int ref_count; /**< Reference count for memory management. */
 } dfvm_value_t;
 
+/**
+ * @brief Extracts the first fvalue pointer from a DFVM register value's fvalue list.
+ * @param val Pointer to a dfvm_value_t with type FVALUE.
+ * @return The first fvalue_t pointer stored in the value's pdata array.
+ */
 #define dfvm_value_get_fvalue(val) ((val)->value.fvalue_p->pdata[0])
 
+
+/**
+ * @brief Opcodes for the Display Filter Virtual Machine (DFVM) instruction set.
+ */
 typedef enum {
-	DFVM_NULL,	/* Null/invalid opcode */
-	DFVM_IF_TRUE_GOTO,
-	DFVM_IF_FALSE_GOTO,
-	DFVM_CHECK_EXISTS,
-	DFVM_CHECK_EXISTS_R,
-	DFVM_NOT,
-	DFVM_RETURN,
-	DFVM_READ_TREE,
-	DFVM_READ_TREE_R,
-	DFVM_READ_REFERENCE,
-	DFVM_READ_REFERENCE_R,
-	DFVM_PUT_FVALUE,
-	DFVM_ALL_EQ,
-	DFVM_ANY_EQ,
-	DFVM_ALL_NE,
-	DFVM_ANY_NE,
-	DFVM_ALL_GT,
-	DFVM_ANY_GT,
-	DFVM_ALL_GE,
-	DFVM_ANY_GE,
-	DFVM_ALL_LT,
-	DFVM_ANY_LT,
-	DFVM_ALL_LE,
-	DFVM_ANY_LE,
-	DFVM_ALL_CONTAINS,
-	DFVM_ANY_CONTAINS,
-	DFVM_ALL_MATCHES,
-	DFVM_ANY_MATCHES,
-	DFVM_SET_ALL_IN,
-	DFVM_SET_ANY_IN,
-	DFVM_SET_ALL_NOT_IN,
-	DFVM_SET_ANY_NOT_IN,
-	DFVM_SET_ADD,
-	DFVM_SET_ADD_RANGE,
-	DFVM_SET_CLEAR,
-	DFVM_SLICE,
-	DFVM_LENGTH,
-	DFVM_BITWISE_AND,
-	DFVM_UNARY_MINUS,
-	DFVM_ADD,
-	DFVM_SUBTRACT,
-	DFVM_MULTIPLY,
-	DFVM_DIVIDE,
-	DFVM_MODULO,
-	DFVM_CALL_FUNCTION,
-	DFVM_STACK_PUSH,
-	DFVM_STACK_POP,
-	DFVM_NOT_ALL_ZERO,
-	DFVM_NO_OP,
+    DFVM_NULL,              /**< Null/invalid opcode; should never be executed */
+    DFVM_IF_TRUE_GOTO,      /**< Branch to target instruction if the top of stack is true */
+    DFVM_IF_FALSE_GOTO,     /**< Branch to target instruction if the top of stack is false */
+    DFVM_CHECK_EXISTS,      /**< Push true if a given field exists in the packet tree */
+    DFVM_CHECK_EXISTS_R,    /**< Push true if a given field exists, using a raw field reference */
+    DFVM_NOT,               /**< Logically negate the boolean at the top of the stack */
+    DFVM_RETURN,            /**< Halt execution and return the top-of-stack value as the filter result */
+    DFVM_READ_TREE,         /**< Read all values of a field from the protocol tree into a register */
+    DFVM_READ_TREE_R,       /**< Read all raw values of a field from the protocol tree into a register */
+    DFVM_READ_REFERENCE,    /**< Read a named field reference value into a register */
+    DFVM_READ_REFERENCE_R,  /**< Read a named raw field reference value into a register */
+    DFVM_PUT_FVALUE,        /**< Load a constant fvalue literal into a register */
+    DFVM_ALL_EQ,            /**< True if all values in register A equal any value in register B */
+    DFVM_ANY_EQ,            /**< True if any value in register A equals any value in register B */
+    DFVM_ALL_NE,            /**< True if all values in register A are not equal to all values in register B */
+    DFVM_ANY_NE,            /**< True if any value in register A is not equal to any value in register B */
+    DFVM_ALL_GT,            /**< True if all values in register A are greater than any value in register B */
+    DFVM_ANY_GT,            /**< True if any value in register A is greater than any value in register B */
+    DFVM_ALL_GE,            /**< True if all values in register A are greater than or equal to any value in register B */
+    DFVM_ANY_GE,            /**< True if any value in register A is greater than or equal to any value in register B */
+    DFVM_ALL_LT,            /**< True if all values in register A are less than any value in register B */
+    DFVM_ANY_LT,            /**< True if any value in register A is less than any value in register B */
+    DFVM_ALL_LE,            /**< True if all values in register A are less than or equal to any value in register B */
+    DFVM_ANY_LE,            /**< True if any value in register A is less than or equal to any value in register B */
+    DFVM_ALL_CONTAINS,      /**< True if all values in register A contain the value in register B */
+    DFVM_ANY_CONTAINS,      /**< True if any value in register A contains the value in register B */
+    DFVM_ALL_MATCHES,       /**< True if all values in register A match the PCRE in register B */
+    DFVM_ANY_MATCHES,       /**< True if any value in register A matches the PCRE in register B */
+    DFVM_SET_ALL_IN,        /**< True if all values in a register are members of the set */
+    DFVM_SET_ANY_IN,        /**< True if any value in a register is a member of the set */
+    DFVM_SET_ALL_NOT_IN,    /**< True if all values in a register are not members of the set */
+    DFVM_SET_ANY_NOT_IN,    /**< True if any value in a register is not a member of the set */
+    DFVM_SET_ADD,           /**< Add a single value to the current set under construction */
+    DFVM_SET_ADD_RANGE,     /**< Add a value range (inclusive) to the current set under construction */
+    DFVM_SET_CLEAR,         /**< Discard the current set and free its resources */
+    DFVM_SLICE,             /**< Extract a byte-range slice from the values in a register */
+    DFVM_LENGTH,            /**< Compute the length of field values and store as integer fvalues */
+    DFVM_BITWISE_AND,       /**< Perform bitwise AND between values in two registers */
+    DFVM_UNARY_MINUS,       /**< Negate (unary minus) each value in a register */
+    DFVM_ADD,               /**< Add corresponding values from two registers */
+    DFVM_SUBTRACT,          /**< Subtract corresponding values from two registers */
+    DFVM_MULTIPLY,          /**< Multiply corresponding values from two registers */
+    DFVM_DIVIDE,            /**< Divide corresponding values from two registers */
+    DFVM_MODULO,            /**< Compute modulo of corresponding values from two registers */
+    DFVM_CALL_FUNCTION,     /**< Invoke a display filter function with arguments from the stack */
+    DFVM_STACK_PUSH,        /**< Push a register's value list onto the function argument stack */
+    DFVM_STACK_POP,         /**< Pop N entries from the function argument stack */
+    DFVM_NOT_ALL_ZERO,      /**< True if not all bytes in the register's values are zero */
+    DFVM_NO_OP,             /**< No operation; placeholder or padding instruction */
 } dfvm_opcode_t;
 
 /**

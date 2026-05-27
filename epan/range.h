@@ -41,12 +41,12 @@ typedef struct epan_range {
 } range_t;
 
 /**
- * Return value from range_convert_str().
+ * @brief Return value from range_convert_str().
  */
 typedef enum {
-    CVT_NO_ERROR,
-    CVT_SYNTAX_ERROR,
-    CVT_NUMBER_TOO_BIG
+    CVT_NO_ERROR,       /**< The range string was parsed successfully without errors */
+    CVT_SYNTAX_ERROR,   /**< The range string contains invalid or unrecognised syntax */
+    CVT_NUMBER_TOO_BIG  /**< The range string contains a numeric value that exceeds the allowed maximum */
 } convert_ret_t;
 
 /**

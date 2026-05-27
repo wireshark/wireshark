@@ -103,12 +103,15 @@ typedef char* (*secret_export_func)(size_t* length);
 WS_DLL_PUBLIC void
 secrets_register_inject_type(const char* name, secret_inject_count_func count_func, secret_inject_export_func inject_func, secret_export_func export_func);
 
+/**
+ * @brief Return codes for a secrets (e.g., TLS key log) export operation.
+ */
 typedef enum {
-    SECRETS_EXPORT_SUCCESS = 0,
-    SECRETS_INVALID_CAPTURE_FILE,
-    SECRETS_UNKNOWN_PROTOCOL,
-    SECRETS_NO_SECRETS,
-    SECRETS_EXPORT_FAILED,
+    SECRETS_EXPORT_SUCCESS        = 0, /**< Secrets were exported successfully */
+    SECRETS_INVALID_CAPTURE_FILE,      /**< The provided capture file is invalid or could not be opened */
+    SECRETS_UNKNOWN_PROTOCOL,          /**< The requested protocol has no registered secrets exporter */
+    SECRETS_NO_SECRETS,                /**< No secrets were found in the capture file for the requested protocol */
+    SECRETS_EXPORT_FAILED,             /**< Export failed due to an I/O or serialization error */
 } secrets_export_values;
 
 /**

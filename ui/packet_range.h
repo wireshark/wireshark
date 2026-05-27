@@ -28,80 +28,99 @@ extern "C" {
 
 extern uint32_t curr_selected_frame;
 
+/**
+ * @brief Selects which subset of packets in a capture file should be processed.
+ */
 typedef enum {
-    range_process_all,
-    range_process_selected,
-    range_process_marked,
-    range_process_marked_range,
-    range_process_user_range
+    range_process_all,          /**< Process all packets in the capture file */
+    range_process_selected,     /**< Process only the currently selected packet(s) */
+    range_process_marked,       /**< Process only marked packets */
+    range_process_marked_range, /**< Process packets in the contiguous range between the first and last marked packet */
+    range_process_user_range    /**< Process packets within a user-specified range string */
 } packet_range_e;
 
+/**
+ * @brief Fully describes a packet range selection, including UI settings, derived counts,
+ *        and dependency sets used when iterating over a capture file.
+ */
 typedef struct packet_range_tag {
-    /* values coming from the UI */
-    packet_range_e  process;            /* which range to process */
-    bool            process_filtered;   /* captured or filtered packets */
-    bool            remove_ignored;     /* remove ignored packets */
-    bool            include_dependents;	/* True if packets which are dependents of others should be processed */
 
-    /* user specified range(s) and, if null, error status */
-    range_t         *user_range;
-    convert_ret_t   user_range_status;
+    /* --- UI-supplied settings --- */
 
-    /* calculated values */
-    range_t        *selection_range;       /* the currently selected packets */
-    convert_ret_t   selection_range_status;
+    packet_range_e process;           /**< Which packet subset to process (see ::packet_range_e) */
+    bool           process_filtered;  /**< If true, restrict processing to display-filtered packets; otherwise use captured packets */
+    bool           remove_ignored;    /**< If true, exclude ignored packets from processing */
+    bool           include_dependents;/**< If true, also process packets that others in the range depend on */
 
-    /* current packet counts (captured) */
-    capture_file *cf;                     /* Associated capture file. */
-    uint32_t      mark_range_cnt;         /* packets in marked range */
-    uint32_t      user_range_cnt;         /* packets in user specified range */
-    uint32_t      selection_range_cnt;    /* packets in the selected range */
-    uint32_t      marked_plus_depends_cnt;
-    uint32_t      mark_range_plus_depends_cnt;
-    uint32_t      user_range_plus_depends_cnt;
-    uint32_t      selected_plus_depends_cnt;
-    uint32_t      ignored_cnt;            /* packets ignored */
-    uint32_t      ignored_marked_cnt;     /* packets ignored and marked */
-    uint32_t      ignored_mark_range_cnt; /* packets ignored in marked range */
-    uint32_t      ignored_user_range_cnt; /* packets ignored in user specified range */
-    uint32_t      ignored_selection_range_cnt;    /* packets ignored in the selected range */
+    /* --- User-specified range --- */
 
-    /* current packet counts (displayed) */
-    uint32_t displayed_cnt;
-    uint32_t displayed_plus_dependents_cnt;
-    uint32_t displayed_marked_cnt;
-    uint32_t displayed_mark_range_cnt;
-    uint32_t displayed_user_range_cnt;
-    uint32_t displayed_marked_plus_depends_cnt;
-    uint32_t displayed_mark_range_plus_depends_cnt;
-    uint32_t displayed_user_range_plus_depends_cnt;
-    uint32_t displayed_selection_range_cnt;
-    uint32_t displayed_selected_plus_depends_cnt;
-    uint32_t displayed_ignored_cnt;
-    uint32_t displayed_ignored_marked_cnt;
-    uint32_t displayed_ignored_mark_range_cnt;
-    uint32_t displayed_ignored_user_range_cnt;
-    uint32_t displayed_ignored_selection_range_cnt;
+    range_t       *user_range;        /**< Parsed representation of the user-supplied range string; NULL if not set */
+    convert_ret_t  user_range_status; /**< Parse/conversion status of @p user_range; indicates any error if NULL */
 
-    /* Sets of the chosen frames plus any they depend on for each case */
-    GHashTable *marked_plus_depends;
-    GHashTable *displayed_marked_plus_depends;
-    GHashTable *mark_range_plus_depends;
-    GHashTable *displayed_mark_range_plus_depends;
-    GHashTable *user_range_plus_depends;
-    GHashTable *displayed_user_range_plus_depends;
-    GHashTable *selected_plus_depends;
-    GHashTable *displayed_selected_plus_depends;
+    /* --- Calculated selection range --- */
 
-    /* "enumeration" values */
-    bool marked_range_active;   /* marked range is currently processed */
-    uint32_t marked_range_left;     /* marked range packets left to do */
+    range_t       *selection_range;        /**< Range derived from the current packet selection in the UI */
+    convert_ret_t  selection_range_status; /**< Validity status of @p selection_range */
+
+    /* --- Captured packet counts --- */
+
+    capture_file *cf;                          /**< Capture file these counts apply to */
+    uint32_t      mark_range_cnt;              /**< Packets within the marked range */
+    uint32_t      user_range_cnt;              /**< Packets within the user-specified range */
+    uint32_t      selection_range_cnt;         /**< Packets within the current selection range */
+    uint32_t      marked_plus_depends_cnt;     /**< Marked packets plus their dependents */
+    uint32_t      mark_range_plus_depends_cnt; /**< Marked-range packets plus their dependents */
+    uint32_t      user_range_plus_depends_cnt; /**< User-range packets plus their dependents */
+    uint32_t      selected_plus_depends_cnt;   /**< Selected packets plus their dependents */
+    uint32_t      ignored_cnt;                 /**< Packets flagged as ignored */
+    uint32_t      ignored_marked_cnt;          /**< Packets that are both ignored and marked */
+    uint32_t      ignored_mark_range_cnt;      /**< Ignored packets within the marked range */
+    uint32_t      ignored_user_range_cnt;      /**< Ignored packets within the user-specified range */
+    uint32_t      ignored_selection_range_cnt; /**< Ignored packets within the current selection range */
+
+    /* --- Displayed (filtered) packet counts --- */
+
+    uint32_t displayed_cnt;                               /**< Total displayed packets */
+    uint32_t displayed_plus_dependents_cnt;               /**< Displayed packets plus their dependents */
+    uint32_t displayed_marked_cnt;                        /**< Displayed packets that are marked */
+    uint32_t displayed_mark_range_cnt;                    /**< Displayed packets within the marked range */
+    uint32_t displayed_user_range_cnt;                    /**< Displayed packets within the user-specified range */
+    uint32_t displayed_marked_plus_depends_cnt;           /**< Displayed marked packets plus their dependents */
+    uint32_t displayed_mark_range_plus_depends_cnt;       /**< Displayed marked-range packets plus their dependents */
+    uint32_t displayed_user_range_plus_depends_cnt;       /**< Displayed user-range packets plus their dependents */
+    uint32_t displayed_selection_range_cnt;               /**< Displayed packets within the current selection range */
+    uint32_t displayed_selected_plus_depends_cnt;         /**< Displayed selected packets plus their dependents */
+    uint32_t displayed_ignored_cnt;                       /**< Displayed packets that are ignored */
+    uint32_t displayed_ignored_marked_cnt;                /**< Displayed packets that are both ignored and marked */
+    uint32_t displayed_ignored_mark_range_cnt;            /**< Displayed ignored packets within the marked range */
+    uint32_t displayed_ignored_user_range_cnt;            /**< Displayed ignored packets within the user-specified range */
+    uint32_t displayed_ignored_selection_range_cnt;       /**< Displayed ignored packets within the current selection range */
+
+    /* --- Dependency hash sets --- */
+
+    GHashTable *marked_plus_depends;                  /**< Set of captured marked frames plus their dependents */
+    GHashTable *displayed_marked_plus_depends;        /**< Set of displayed marked frames plus their dependents */
+    GHashTable *mark_range_plus_depends;              /**< Set of captured marked-range frames plus their dependents */
+    GHashTable *displayed_mark_range_plus_depends;    /**< Set of displayed marked-range frames plus their dependents */
+    GHashTable *user_range_plus_depends;              /**< Set of captured user-range frames plus their dependents */
+    GHashTable *displayed_user_range_plus_depends;    /**< Set of displayed user-range frames plus their dependents */
+    GHashTable *selected_plus_depends;                /**< Set of captured selected frames plus their dependents */
+    GHashTable *displayed_selected_plus_depends;      /**< Set of displayed selected frames plus their dependents */
+
+    /* --- Enumeration state --- */
+
+    bool     marked_range_active; /**< True while an iteration over the marked range is in progress */
+    uint32_t marked_range_left;   /**< Number of marked-range packets still to be processed in the current iteration */
+
 } packet_range_t;
 
+/**
+ * @brief Disposition returned per-packet by the range enumeration callback to control iteration.
+ */
 typedef enum {
-    range_process_this,             /* process this packet */
-    range_process_next,             /* skip this packet, process next */
-    range_processing_finished       /* stop processing, required packets done */
+    range_process_this,       /**< Process the current packet and continue to the next */
+    range_process_next,       /**< Skip the current packet and continue to the next */
+    range_processing_finished /**< Stop iteration; all required packets have been processed */
 } range_process_e;
 
 /* init the range structure */

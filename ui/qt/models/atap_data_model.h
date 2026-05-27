@@ -34,31 +34,37 @@ class ATapDataModel : public QAbstractListModel
     Q_OBJECT
 public:
 
-    enum {
-        DISPLAY_FILTER = Qt::UserRole,
-        UNFORMATTED_DISPLAYDATA,
+/**
+ * @brief Qt model data roles for endpoint and conversation table items.
+ */
+enum {
+    DISPLAY_FILTER        = Qt::UserRole, /**< Display filter string constructed from this row's address/port data */
+    UNFORMATTED_DISPLAYDATA,              /**< Raw, unformatted cell value used for sorting and clipboard export */
 #ifdef HAVE_MAXMINDDB
-        GEODATA_AVAILABLE,
-        GEODATA_LOOKUPTABLE,
-        GEODATA_ADDRESS,
+    GEODATA_AVAILABLE,    /**< True if MaxMind DB geo-location data is available for this address */
+    GEODATA_LOOKUPTABLE,  /**< Pointer to the MaxMind DB lookup table used to resolve geo data */
+    GEODATA_ADDRESS,      /**< IP address string submitted to the MaxMind DB geo-location lookup */
 #endif
-        TIMELINE_DATA,
-        ENDPOINT_DATATYPE,
-        PROTO_ID,
-        CONVERSATION_ID,
-        ROW_IS_FILTERED,
-        DATA_ADDRESS_TYPE,
-        DATA_IPV4_INTEGER,
-        DATA_IPV6_LIST,
-    };
+    TIMELINE_DATA,        /**< Timing data used to render the traffic timeline bar in the row */
+    ENDPOINT_DATATYPE,    /**< Endpoint address type tag (e.g. IPv4, IPv6, Ethernet) */
+    PROTO_ID,             /**< Protocol ID (proto_id) associated with this endpoint or conversation */
+    CONVERSATION_ID,      /**< Unique conversation identifier for this row */
+    ROW_IS_FILTERED,      /**< True if this row is currently hidden by the active display filter */
+    DATA_ADDRESS_TYPE,    /**< Address type enum value (::address_type) for the primary address */
+    DATA_IPV4_INTEGER,    /**< IPv4 address as a packed 32-bit integer, used for numeric sorting */
+    DATA_IPV6_LIST,       /**< IPv6 address as a byte list, used for numeric sorting */
+};
 
-    typedef enum {
-        DATAMODEL_ENDPOINT,
-        DATAMODEL_CONVERSATION,
-        DATAMODEL_UNKNOWN
-    } dataModelType;
+/**
+ * @brief Identifies which statistical data model is active in the endpoint/conversation dialog.
+ */
+typedef enum {
+    DATAMODEL_ENDPOINT,     /**< Model is displaying per-endpoint traffic statistics */
+    DATAMODEL_CONVERSATION, /**< Model is displaying per-conversation traffic statistics */
+    DATAMODEL_UNKNOWN       /**< Model type has not been initialised or is unrecognised */
+} dataModelType;
 
-    conv_hash_t hash_;
+conv_hash_t hash_; /**< Hash table mapping address/port tuples to their conversation or endpoint entries */
 
     /**
      * @brief Construct a new ATapDataModel object

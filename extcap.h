@@ -51,25 +51,33 @@
 #define EXTCAP_ARGUMENT_CONTROL_IN              "--extcap-control-in"
 #define EXTCAP_ARGUMENT_CONTROL_OUT             "--extcap-control-out"
 
+/**
+ * @brief Metadata describing a registered extcap plugin binary.
+ */
 typedef struct _extcap_info {
-    char * basename;
-    char * full_path;
-    char * version;
-    char * help;
-
-    GList * interfaces;
+    char  *basename;    /**< Base filename of the extcap executable (without directory path) */
+    char  *full_path;   /**< Absolute path to the extcap executable */
+    char  *version;     /**< Version string reported by the extcap via --extcap-version */
+    char  *help;        /**< URL or text string pointing to the extcap's help resource */
+    GList *interfaces;  /**< List of extcap_interface entries exposed by this extcap binary */
 } extcap_info;
 
+/**
+ * @brief Result of validating a capture filter string against an extcap interface.
+ */
 typedef enum {
-    EXTCAP_FILTER_UNKNOWN,
-    EXTCAP_FILTER_VALID,
-    EXTCAP_FILTER_INVALID
+    EXTCAP_FILTER_UNKNOWN, /**< Filter validity could not be determined */
+    EXTCAP_FILTER_VALID,   /**< Filter was accepted as valid by the extcap */
+    EXTCAP_FILTER_INVALID  /**< Filter was rejected as invalid by the extcap */
 } extcap_filter_status;
 
+/**
+ * @brief Indicates whether all required extcap arguments have been provided.
+ */
 typedef enum {
-    EXTCAP_ARGUMENT_SUFFICIENT_NOTSET,
-    EXTCAP_ARGUMENT_SUFFICIENT_REQUIRED,
-    EXTCAP_ARGUMENT_SUFFICIENT_OK
+    EXTCAP_ARGUMENT_SUFFICIENT_NOTSET,   /**< Argument sufficiency has not yet been evaluated */
+    EXTCAP_ARGUMENT_SUFFICIENT_REQUIRED, /**< One or more required arguments have not been set */
+    EXTCAP_ARGUMENT_SUFFICIENT_OK        /**< All required arguments are set and capture may proceed */
 } extcap_argument_sufficient;
 
 typedef void (*extcap_plugin_description_callback)(const char *, const char *,

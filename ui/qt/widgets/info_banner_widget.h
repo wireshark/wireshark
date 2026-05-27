@@ -24,41 +24,52 @@
  */
 class QJsonObject;
 
-    enum BannerSlideType {
-            BannerEvents,
-            BannerSponsorship,
-            BannerTips,
-            BannerSeasonal,
-    };
-    Q_DECLARE_METATYPE(BannerSlideType)
+/**
+ * @brief Categorises the content type of a banner slide shown in the welcome or news panel.
+ */
+enum BannerSlideType {
+    BannerEvents,      /**< Slide advertising an upcoming event (conference, webinar, etc.) */
+    BannerSponsorship, /**< Slide displaying sponsor or partner acknowledgement */
+    BannerTips,        /**< Slide presenting a usage tip or keyboard shortcut */
+    BannerSeasonal,    /**< Slide tied to a specific calendar date or season */
+};
+Q_DECLARE_METATYPE(BannerSlideType)
 
-    struct BannerSlide {
-            BannerSlideType type;
-            QString tag;              // type label shown as subheader, e.g. "Tip of the Day"
-            QString title;            // main heading, e.g. "Quick Filter Shortcut"
-            QString description;      // primary text shown in highlight box
-            QString description_sub;  // secondary line in highlight box
-            QString body_text;        // additional text below the highlight box
-            QString button_label;     // action button text, e.g. "More Tips"
-            QString url;              // click/button target
-            QString image;            // banner image filename, resolved under :/json/banners/
-            int date_month;           // optional month for seasonal slides (1-12)
-            int date_day;             // optional day for seasonal slides (1-31)
-            QString application;      // optional application filter (e.g. "tshark"), empty = all
-            QDate date_from;          // slide visible from this date (inclusive), invalid = always
-            QDate date_until;         // slide visible until this date (inclusive), invalid = always
-    };
 
-    struct SlideTypeConfig {
-            bool randomized = false;
-            int maxdisplay = 0;       // 0 = show all (no limit)
-            bool only = false;        // only slides from this file for this type
-            bool hidden = false;      // suppress this type entirely (custom files only)
-            QColor color_start;       // gradient start color for this type, default if not specified in file
-            QColor color_end;         // gradient end color for this type, default if not specified in file
-            int color_gradient;       // optional gradient angle in degrees (0 = left-to-right, 90 = top-to-bottom, etc.)
-            QList<QColor> steps;      // optional discrete gradient steps (overrides color_start/color_end if specified)
-    };
+/**
+ * @brief Describes the full content and display metadata for a single banner slide.
+ */
+struct BannerSlide {
+    BannerSlideType type;            /**< Content category of this slide (see ::BannerSlideType) */
+    QString tag;                     /**< Short type label shown as the slide subheader (e.g. "Tip of the Day") */
+    QString title;                   /**< Main heading text displayed on the slide (e.g. "Quick Filter Shortcut") */
+    QString description;             /**< Primary body text shown inside the highlight box */
+    QString description_sub;         /**< Secondary line of text shown below @p description in the highlight box */
+    QString body_text;               /**< Additional explanatory text rendered below the highlight box */
+    QString button_label;            /**< Label for the action button (e.g. "More Tips"); empty hides the button */
+    QString url;                     /**< URL opened when the slide or action button is clicked */
+    QString image;                   /**< Banner image filename resolved under :/json/banners/ */
+    int     date_month;              /**< Month (1–12) restricting visibility for seasonal slides; 0 = any month */
+    int     date_day;                /**< Day (1–31) restricting visibility for seasonal slides; 0 = any day */
+    QString application;             /**< Application filter (e.g. "tshark"); empty string means show in all applications */
+    QDate   date_from;               /**< First date (inclusive) on which the slide should be shown; invalid = no lower bound */
+    QDate   date_until;              /**< Last date (inclusive) on which the slide should be shown; invalid = no upper bound */
+};
+
+
+/**
+ * @brief Per-type display configuration controlling selection, limits, and gradient styling of banner slides.
+ */
+struct SlideTypeConfig {
+    bool          randomized    = false; /**< If true, slides of this type are shown in random order */
+    int           maxdisplay    = 0;     /**< Maximum number of slides of this type to show per session; 0 = no limit */
+    bool          only          = false; /**< If true, only slides from this configuration file are used for this type */
+    bool          hidden        = false; /**< If true, suppress all slides of this type entirely (custom files only) */
+    QColor        color_start;           /**< Gradient start colour for slides of this type; uses default if not set */
+    QColor        color_end;             /**< Gradient end colour for slides of this type; uses default if not set */
+    int           color_gradient;        /**< Gradient angle in degrees (0 = left-to-right, 90 = top-to-bottom) */
+    QList<QColor> steps;                 /**< Optional discrete gradient colour steps; overrides @p color_start and @p color_end if non-empty */
+};
 
 /**
  * @brief A custom-painted rotating banner widget that cycles through

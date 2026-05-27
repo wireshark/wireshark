@@ -18,70 +18,83 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Selects the plot type displayed in the TCP Stream Graph dialog.
+ */
 typedef enum tcp_graph_type_ {
-    GRAPH_TSEQ_STEVENS,
-    GRAPH_TSEQ_TCPTRACE,
-    GRAPH_THROUGHPUT,
-    GRAPH_RTT,
-    GRAPH_WSCALE,
-    GRAPH_UNDEFINED
+    GRAPH_TSEQ_STEVENS,  /**< Time/sequence graph using Stevens-style dot plotting */
+    GRAPH_TSEQ_TCPTRACE, /**< Time/sequence graph using tcptrace-style segment bars with SACKs */
+    GRAPH_THROUGHPUT,    /**< Throughput over time graph */
+    GRAPH_RTT,           /**< Round-trip time (RTT) over sequence number graph */
+    GRAPH_WSCALE,        /**< Window scaling over time graph */
+    GRAPH_UNDEFINED      /**< Graph type has not been set */
 } tcp_graph_type;
 
-#define RTT_ALL             0x0001
-#define RTT_SAK             0x0002
-#define RTT_RTT             0x0004
-#define RTT_KRN             0x0008
+/** @brief RTT series flag: include all ACK samples in the RTT plot. */
+#define RTT_ALL  0x0001
+/** @brief RTT series flag: include selective ACK (SACK) samples in the RTT plot. */
+#define RTT_SAK  0x0002
+/** @brief RTT series flag: include standard RTT samples in the RTT plot. */
+#define RTT_RTT  0x0004
+/** @brief RTT series flag: apply Karn's algorithm to filter ambiguous retransmit samples. */
+#define RTT_KRN  0x0008
 
+/**
+ * @brief Selects which ACK events are used as RTT sample points in the RTT graph.
+ */
 typedef enum rtt_sampling_method_ {
-    SAMPLING_ALL,
-    SAMPLING_ALL_SACK,
-    SAMPLING_RTT,
-    SAMPLING_KARN,
-    SAMPLING_UNDEFINED
+    SAMPLING_ALL,       /**< Sample RTT from every ACK */
+    SAMPLING_ALL_SACK,  /**< Sample RTT from every ACK including selective ACKs */
+    SAMPLING_RTT,       /**< Sample RTT from standard (non-retransmit) ACKs only */
+    SAMPLING_KARN,      /**< Sample RTT using Karn's algorithm to exclude ambiguous retransmit ACKs */
+    SAMPLING_UNDEFINED  /**< Sampling method has not been set */
 } rtt_sampling_method;
 
+/**
+ * @brief Represents a single decoded TCP segment extracted from a captured frame for graph analysis.
+ */
 struct segment {
-    struct segment *next;
-    uint32_t num;
-    nstime_t rel_ts;
-    /* Currently unused.
-    nstime_t abs_ts;
-    */
+    struct segment *next;       /**< Pointer to the next segment in the singly-linked list */
+    uint32_t        num;        /**< Wireshark frame number of the packet containing this segment */
+    nstime_t        rel_ts;     /**< Capture timestamp relative to the first packet in the stream */
 
-    uint32_t th_seq;
-    uint32_t th_ack;
-    uint32_t th_rawseq;
-    uint32_t th_rawack;
-    uint16_t th_flags;
-    uint32_t th_win;   /* make it 32 bits so we can handle some scaling */
-    uint32_t th_seglen;
-    uint16_t th_sport;
-    uint16_t th_dport;
-    address ip_src;
-    address ip_dst;
+    uint32_t th_seq;            /**< Relative TCP sequence number (after base sequence subtraction) */
+    uint32_t th_ack;            /**< Relative TCP acknowledgement number (after base sequence subtraction) */
+    uint32_t th_rawseq;         /**< Raw (absolute) TCP sequence number as seen in the packet */
+    uint32_t th_rawack;         /**< Raw (absolute) TCP acknowledgement number as seen in the packet */
+    uint16_t th_flags;          /**< TCP header flags (SYN, ACK, FIN, RST, etc.) */
+    uint32_t th_win;            /**< TCP receive window size in bytes (32-bit to accommodate window scaling) */
+    uint32_t th_seglen;         /**< Length of the TCP payload data in bytes */
+    uint16_t th_sport;          /**< TCP source port */
+    uint16_t th_dport;          /**< TCP destination port */
+    address  ip_src;            /**< Source IP address */
+    address  ip_dst;            /**< Destination IP address */
 
-    bool     ack_karn; /* true when ambiguous according to Karn's algo */
+    bool    ack_karn;           /**< True if this ACK is ambiguous under Karn's algorithm (i.e. acknowledges a retransmit) */
 
-    uint8_t num_sack_ranges;
-    uint32_t sack_left_edge[MAX_TCP_SACK_RANGES];
-    uint32_t sack_right_edge[MAX_TCP_SACK_RANGES];
+    uint8_t  num_sack_ranges;                        /**< Number of valid SACK ranges present in this segment */
+    uint32_t sack_left_edge[MAX_TCP_SACK_RANGES];    /**< Left (start) sequence number of each SACK block */
+    uint32_t sack_right_edge[MAX_TCP_SACK_RANGES];   /**< Right (end) sequence number of each SACK block */
 };
 
+/**
+ * @brief Describes a TCP stream graph, including the stream identity, graph type, and collected segment list.
+ */
 struct tcp_graph {
-    tcp_graph_type   type;
+    tcp_graph_type  type;          /**< Plot type to render for this graph (see ::tcp_graph_type) */
 
-    /* RTT sampling method (for RTT graphs only) */
-    uint8_t          rtt_sampling;
+    uint8_t         rtt_sampling;  /**< Bitmask of RTT_* flags controlling which samples appear on RTT graphs */
 
-    /* The stream this graph will show */
-    address          src_address;
-    uint16_t         src_port;
-    address          dst_address;
-    uint16_t         dst_port;
-    uint32_t         stream;
-    /* Should this be a map or tree instead? */
-    struct segment  *segments;
-    struct segment  *last;
+    /* --- Stream identity --- */
+    address  src_address; /**< Source IP address of the TCP stream being graphed */
+    uint16_t src_port;    /**< Source TCP port of the stream */
+    address  dst_address; /**< Destination IP address of the TCP stream being graphed */
+    uint16_t dst_port;    /**< Destination TCP port of the stream */
+    uint32_t stream;      /**< Wireshark TCP stream index identifying this flow */
+
+    /* --- Segment list --- */
+    struct segment *segments; /**< Head of the singly-linked list of ::segment records for this stream */
+    struct segment *last;     /**< Tail pointer for O(1) append to the segment list */
 };
 
 /**

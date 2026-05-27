@@ -25,13 +25,16 @@ extern "C" {
 #define COLUMN_DISPLAY_STRINGS 'R'
 #define COLUMN_DISPLAY_DETAILS 'D'
 
+/**
+ * @brief Describes the configuration of a single column in the packet list.
+ */
 typedef struct _fmt_data {
-  char *title;            /* title of the column */
-  int fmt;                 /* format of column */
-  char *custom_fields;    /* fields names for COL_CUSTOM */
-  int custom_occurrence;  /* optional ordinal of occurrence of that field */
-  bool visible;            /* if false, hide this column */
-  char display;            /* how to display a custom field value */
+    char *title;            /**< User-visible column heading text */
+    int   fmt;              /**< Column format type (see COL_* constants), e.g. COL_NUMBER, COL_CUSTOM */
+    char *custom_fields;    /**< Semicolon-separated display filter field names used when @p fmt is COL_CUSTOM */
+    int   custom_occurrence;/**< Ordinal occurrence of the custom field to display (0 = all occurrences) */
+    bool  visible;          /**< True if the column is shown in the packet list; false if hidden */
+    char  display;          /**< Aggregation or display modifier for multi-occurrence custom field values */
 } fmt_data;
 
 /**

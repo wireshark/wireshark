@@ -17,28 +17,37 @@
 #define CAN_MAX_DLEN   8
 #define CANFD_MAX_DLEN 64
 
+/**
+ * @brief Identifies the frame type and addressing mode of a CAN or CAN FD message.
+ */
 typedef enum {
-    MSG_TYPE_STD,
-    MSG_TYPE_EXT,
-    MSG_TYPE_STD_RTR,
-    MSG_TYPE_EXT_RTR,
-    MSG_TYPE_STD_FD,
-    MSG_TYPE_EXT_FD,
-    MSG_TYPE_ERR,
+    MSG_TYPE_STD,     /**< Standard (11-bit ID) CAN data frame */
+    MSG_TYPE_EXT,     /**< Extended (29-bit ID) CAN data frame */
+    MSG_TYPE_STD_RTR, /**< Standard (11-bit ID) CAN Remote Transmission Request (RTR) frame */
+    MSG_TYPE_EXT_RTR, /**< Extended (29-bit ID) CAN Remote Transmission Request (RTR) frame */
+    MSG_TYPE_STD_FD,  /**< Standard (11-bit ID) CAN FD data frame */
+    MSG_TYPE_EXT_FD,  /**< Extended (29-bit ID) CAN FD data frame */
+    MSG_TYPE_ERR,     /**< CAN error frame */
 } wtap_can_msg_type_t;
 
+/**
+ * @brief Holds the raw payload of a CAN or CAN FD message.
+ */
 typedef struct {
-    uint8_t    length;
-    uint8_t    data[CANFD_MAX_DLEN];
+    uint8_t length;              /**< Number of valid bytes in @p data (up to CANFD_MAX_DLEN) */
+    uint8_t data[CANFD_MAX_DLEN]; /**< Raw payload bytes */
 } wtap_can_msg_data_t;
 
+/**
+ * @brief Represents a single captured CAN or CAN FD message with full metadata.
+ */
 typedef struct {
-    nstime_t   ts;
-    uint32_t   id;
-    wtap_can_msg_type_t type;
-    uint8_t    flags;
-    wtap_can_msg_data_t data;
-    unsigned int interface_id;
+    nstime_t            ts;           /**< Capture timestamp of the message */
+    uint32_t            id;           /**< CAN message identifier (11-bit or 29-bit depending on @p type) */
+    wtap_can_msg_type_t type;         /**< Frame type and addressing mode (see ::wtap_can_msg_type_t) */
+    uint8_t             flags;        /**< Protocol-specific flags (e.g. BRS, ESI for CAN FD) */
+    wtap_can_msg_data_t data;         /**< Message payload and its length */
+    unsigned int        interface_id; /**< Index of the capture interface this message was received on */
 } wtap_can_msg_t;
 
 #define WTAP_SOCKETCAN_INVALID_INTERFACE_ID     0xFFFFFFFF

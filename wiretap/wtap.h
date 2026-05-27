@@ -1936,24 +1936,23 @@ struct supported_option_type {
 #define NO_OPTIONS_SUPPORTED \
     0, NULL
 
-/*
- * For a given block type, does a file format not support it, support
- * only one such block, or support multiple such blocks?
+/**
+ * @brief Indicates how many instances of a given block type a file format supports.
  */
 typedef enum {
-    BLOCK_NOT_SUPPORTED,
-    ONE_BLOCK_SUPPORTED,
-    MULTIPLE_BLOCKS_SUPPORTED
+    BLOCK_NOT_SUPPORTED,       /**< The file format does not support this block type at all */
+    ONE_BLOCK_SUPPORTED,       /**< The file format supports exactly one instance of this block type */
+    MULTIPLE_BLOCKS_SUPPORTED  /**< The file format supports multiple instances of this block type */
 } block_support_t;
 
-/*
- * Entry in a table of supported block types.
+/**
+ * @brief Describes a single block type supported by a file format, including its option support.
  */
 struct supported_block_type {
-    wtap_block_type_t type;
-    block_support_t support; /* BLOCK_NOT_SUPPORTED allowed, equivalent to absence */
-    size_t num_supported_options;
-    const struct supported_option_type *supported_options;
+    wtap_block_type_t              type;                  /**< The block type this entry describes (see ::wtap_block_type_t) */
+    block_support_t                support;               /**< Number of instances the format allows; ::BLOCK_NOT_SUPPORTED is equivalent to omitting the entry */
+    size_t                         num_supported_options; /**< Number of entries in the @p supported_options array */
+    const struct supported_option_type *supported_options;/**< Array of option types supported within this block type, or NULL if none */
 };
 
 #define BLOCKS_SUPPORTED(block_type_array) \
@@ -2999,12 +2998,12 @@ void wtap_buffer_append_epdu_string(Buffer *buf, uint16_t epdu_tag, const char *
 WS_DLL_PUBLIC
 int wtap_buffer_append_epdu_end(Buffer *buf);
 
-/*
- * Sort the file types by name or by description?
+/**
+ * @brief Controls the sort key used when enumerating or presenting file type lists.
  */
 typedef enum {
-	FT_SORT_BY_NAME,
-	FT_SORT_BY_DESCRIPTION
+    FT_SORT_BY_NAME,        /**< Sort file types alphabetically by their short internal name */
+    FT_SORT_BY_DESCRIPTION  /**< Sort file types alphabetically by their human-readable description */
 } ft_sort_order;
 
 /**

@@ -27,7 +27,9 @@
 
 typedef QList<int> PointList;
 
-/*
+/**
+ * @brief Column indices for the interface tree model shared across interface-related views.
+ *
  * When sorting, QSortFilterProxyModel creates its own mapping instead
  * of using the QModelIndex mapping with mapToSource to determine which
  * column in the proxy model maps to which column in the source. Its own
@@ -38,24 +40,24 @@ typedef QList<int> PointList;
  */
 enum InterfaceTreeColumns
 {
-    IFTREE_COL_EXTCAP,         // InterfaceFrame interfaceTree
-    IFTREE_COL_EXTCAP_PATH,
-    IFTREE_COL_HIDDEN,         // ManageInterfaceDialog localView
-    IFTREE_COL_DISPLAY_NAME,   // InterfaceFrame interfaceTree
-    IFTREE_COL_DESCRIPTION,    // ManageInterfaceDialog localView
-    IFTREE_COL_NAME,           // ManageInterfaceDialog localView
-    IFTREE_COL_COMMENT,        // ManageInterfaceDialog localView
-    IFTREE_COL_STATS,          // InterfaceFrame interfaceTree
-    IFTREE_COL_DLT,
-    IFTREE_COL_PROMISCUOUSMODE,
-    IFTREE_COL_TYPE,
-    IFTREE_COL_ACTIVE,
-    IFTREE_COL_SNAPLEN,
-    IFTREE_COL_BUFFERLEN,
-    IFTREE_COL_MONITOR_MODE,
-    IFTREE_COL_CAPTURE_FILTER,
-    IFTREE_COL_PIPE_PATH,      // ManageInterfaceDialog pipeView
-    IFTREE_COL_MAX /* is not being displayed, it is the definition for the maximum numbers of columns */
+    IFTREE_COL_EXTCAP,          /**< Extcap plugin indicator icon — InterfaceFrame interfaceTree */
+    IFTREE_COL_EXTCAP_PATH,     /**< Filesystem path to the extcap executable */
+    IFTREE_COL_HIDDEN,          /**< Whether the interface is hidden from the capture list — ManageInterfaceDialog localView */
+    IFTREE_COL_DISPLAY_NAME,    /**< Human-readable display name for the interface — InterfaceFrame interfaceTree */
+    IFTREE_COL_DESCRIPTION,     /**< OS-supplied interface description string — ManageInterfaceDialog localView */
+    IFTREE_COL_NAME,            /**< System interface name (e.g. eth0, en0) — ManageInterfaceDialog localView */
+    IFTREE_COL_COMMENT,         /**< User-editable free-text comment for the interface — ManageInterfaceDialog localView */
+    IFTREE_COL_STATS,           /**< Live packet rate sparkline or traffic statistics — InterfaceFrame interfaceTree */
+    IFTREE_COL_DLT,             /**< Selected data link type (DLT) for the interface */
+    IFTREE_COL_PROMISCUOUSMODE, /**< Whether promiscuous mode capture is enabled */
+    IFTREE_COL_TYPE,            /**< Interface type (e.g. wired, wireless, pipe, extcap) */
+    IFTREE_COL_ACTIVE,          /**< Whether the interface is selected for the next capture */
+    IFTREE_COL_SNAPLEN,         /**< Snapshot length (in bytes) applied to each captured packet */
+    IFTREE_COL_BUFFERLEN,       /**< Kernel capture buffer size in megabytes */
+    IFTREE_COL_MONITOR_MODE,    /**< Whether 802.11 monitor mode is enabled (wireless interfaces only) */
+    IFTREE_COL_CAPTURE_FILTER,  /**< BPF capture filter string applied to this interface */
+    IFTREE_COL_PIPE_PATH,       /**< Filesystem path or URI for a pipe interface — ManageInterfaceDialog pipeView */
+    IFTREE_COL_MAX              /**< Sentinel: total number of columns; not displayed */
 };
 
 /**

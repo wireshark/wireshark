@@ -113,6 +113,9 @@ typedef struct _DOT11DECRYPT_KEY_ITEM {
 	 * defined in 802.11i (2004) and 802.1X (2004).
 	 */
 	union DOT11DECRYPT_KEY_ITEMDATA {
+		/**
+		 * @brief WEP key data structure.
+		 */
 		struct DOT11DECRYPT_KEY_ITEMDATA_WEP {
 			/**
 			 * The binary value of the WEP key.
@@ -150,17 +153,23 @@ typedef struct _DOT11DECRYPT_KEY_ITEM {
 
 	} KeyData;
 
+	/**
+	 * @brief Holds a Temporal Key (TK) and optional MLD MAC addresses for per-link decryption.
+	 */
 	struct DOT11DECRYPT_KEY_ITEMDATA_TK {
-		uint8_t Tk[DOT11DECRYPT_TK_MAX_LEN];
-		uint8_t Len;
-		bool mld;
-		uint8_t ap_mld_mac[6];
-		uint8_t sta_mld_mac[6];
+		uint8_t Tk[DOT11DECRYPT_TK_MAX_LEN]; /**< Raw temporal key bytes used for unicast frame decryption */
+		uint8_t Len;                          /**< Length in bytes of the valid portion of @p Tk */
+		bool    mld;                          /**< True if this TK is associated with an MLO connection and the MLD MAC fields are valid */
+		uint8_t ap_mld_mac[6];               /**< Multi-Link Device MAC address of the AP; valid only when @p mld is true */
+		uint8_t sta_mld_mac[6];              /**< Multi-Link Device MAC address of the station; valid only when @p mld is true */
 	} Tk;
 
+	/**
+	 * @brief Holds a Master Session Key (MSK) used as the basis for further key derivation.
+	 */
 	struct DOT11DECRYPT_KEY_ITEMDATA_MSK {
-		uint8_t Msk[DOT11DECRYPT_MSK_MAX_LEN];
-		uint8_t Len;
+		uint8_t Msk[DOT11DECRYPT_MSK_MAX_LEN]; /**< Raw master session key bytes */
+		uint8_t Len;                            /**< Length in bytes of the valid portion of @p Msk */
 	} Msk;
 
         struct DOT11DECRYPT_KEY_ITEMDATA_PWD {

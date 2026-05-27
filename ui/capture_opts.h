@@ -385,9 +385,12 @@ capture_opts_log(const char *domain, enum ws_log_level level, capture_options *c
 extern void
 capture_opts_list_file_types(void);
 
+/**
+ * @brief Bitmask flags selecting which interface capability sets to query from a capture device.
+ */
 enum caps_query {
-    CAPS_QUERY_LINK_TYPES      = 0x1,
-    CAPS_QUERY_TIMESTAMP_TYPES = 0x2
+    CAPS_QUERY_LINK_TYPES      = 0x1, /**< Query the set of supported data link types (DLTs) */
+    CAPS_QUERY_TIMESTAMP_TYPES = 0x2  /**< Query the set of supported timestamp types */
 };
 
 /* print interface capabilities, including link layer types */

@@ -35,10 +35,10 @@ struct epan_session;
    should we keep that stuff in the "packet_info" structure, instead, to
    save memory? */
 
-/* Types of character encodings */
+/** @brief Types of character encodings */
 typedef enum {
-  PACKET_CHAR_ENC_CHAR_ASCII     = 0, /* ASCII */
-  PACKET_CHAR_ENC_CHAR_EBCDIC    = 1  /* EBCDIC */
+  PACKET_CHAR_ENC_CHAR_ASCII     = 0, /**< ASCII */
+  PACKET_CHAR_ENC_CHAR_EBCDIC    = 1  /**< EBCDIC */
 } packet_char_enc;
 
 

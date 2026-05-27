@@ -49,37 +49,49 @@ typedef enum {
     CF_PRINT_WRITE_ERROR    /**< print operation failed while writing to the printer */
 } cf_print_status_t;
 
+/**
+ * @brief Event identifiers for capture file lifecycle callbacks.
+ */
 typedef enum {
-    cf_cb_file_opened,
-    cf_cb_file_closing,
-    cf_cb_file_closed,
-    cf_cb_file_read_started,
-    cf_cb_file_read_finished,
-    cf_cb_file_reload_started,
-    cf_cb_file_reload_finished,
-    cf_cb_file_rescan_started,
-    cf_cb_file_rescan_finished,
-    cf_cb_file_retap_started,
-    cf_cb_file_retap_finished,
-    cf_cb_file_merge_started, /* Qt only */
-    cf_cb_file_merge_finished, /* Qt only */
-    cf_cb_file_fast_save_finished,
-    cf_cb_file_save_started,
-    cf_cb_file_save_finished,
-    cf_cb_file_save_failed,
-    cf_cb_file_save_stopped
+    cf_cb_file_opened,           /**< A capture file has been successfully opened */
+    cf_cb_file_closing,          /**< A capture file is about to be closed */
+    cf_cb_file_closed,           /**< A capture file has been fully closed */
+    cf_cb_file_read_started,     /**< Reading of a capture file has begun */
+    cf_cb_file_read_finished,    /**< Reading of a capture file has completed */
+    cf_cb_file_reload_started,   /**< A capture file reload has begun */
+    cf_cb_file_reload_finished,  /**< A capture file reload has completed */
+    cf_cb_file_rescan_started,   /**< A packet rescan (without full redissection) has begun */
+    cf_cb_file_rescan_finished,  /**< A packet rescan has completed */
+    cf_cb_file_retap_started,    /**< A retap pass (re-running tap listeners) has begun */
+    cf_cb_file_retap_finished,   /**< A retap pass has completed */
+    cf_cb_file_merge_started,    /**< A file merge operation has begun (Qt only) */
+    cf_cb_file_merge_finished,   /**< A file merge operation has completed (Qt only) */
+    cf_cb_file_fast_save_finished, /**< A fast (append-mode) save operation has completed */
+    cf_cb_file_save_started,     /**< A full file save operation has begun */
+    cf_cb_file_save_finished,    /**< A full file save operation has completed successfully */
+    cf_cb_file_save_failed,      /**< A file save operation failed */
+    cf_cb_file_save_stopped      /**< A file save operation was cancelled by the user */
 } cf_cbs;
 
-typedef void (*cf_callback_t) (int event, void *data, void *user_data);
+/**
+ * @brief Callback function type invoked when a capture file lifecycle event occurs.
+ * @param event     The cf_cbs event identifier that triggered this callback.
+ * @param data      Event-specific data pointer; interpretation depends on the event type.
+ * @param user_data Opaque pointer supplied by the caller at callback registration time.
+ */
+typedef void (*cf_callback_t)(int event, void *data, void *user_data);
 
+/**
+ * @brief State and result data for an in-progress packet or field search operation.
+ */
 typedef struct {
-    const char    *string;
-    size_t         string_len;
-    capture_file  *cf;
-    field_info    *finfo;
-    field_info    *prev_finfo;
-    bool           frame_matched;
-    bool           halt;
+    const char   *string;        /**< Search string or pattern being matched against */
+    size_t        string_len;    /**< Length in bytes of @ref string */
+    capture_file *cf;            /**< The capture file being searched */
+    field_info   *finfo;         /**< The current field_info node being evaluated */
+    field_info   *prev_finfo;    /**< The previously evaluated field_info node; used for context */
+    bool          frame_matched; /**< Set to true when the current frame satisfies the search criteria */
+    bool          halt;          /**< Set to true to abort the search traversal early */
 } match_data;
 
 /**
@@ -447,33 +459,38 @@ cf_read_status_t cf_retap_packets(capture_file *cf);
  */
 void cf_retap_aggregation_packets(capture_file* cf, bool enable);
 
-/* print_range, enum which frames should be printed */
+/**
+ * @brief Selects which frames from a capture file should be included in a print or export operation.
+ */
 typedef enum {
-    print_range_selected_only,    /* selected frame(s) only (currently only one) */
-    print_range_marked_only,      /* marked frames only */
-    print_range_all_displayed,    /* all frames currently displayed */
-    print_range_all_captured      /* all frames in capture */
+    print_range_selected_only, /**< Print only the currently selected frame(s) */
+    print_range_marked_only,   /**< Print only frames that have been marked */
+    print_range_all_displayed, /**< Print all frames currently passing the active display filter */
+    print_range_all_captured   /**< Print every frame in the capture file regardless of display filter */
 } print_range_e;
 
+
+/**
+ * @brief Aggregates all options controlling a single print or export operation.
+ */
 typedef struct {
-    print_stream_t *stream;       /* the stream to which we're printing */
-    print_format_e format;        /* plain text or PostScript */
-    bool to_file;             /* true if we're printing to a file */
-    char *file;                   /* file output pathname */
-    char *cmd;                    /* print command string (not win32) */
-    packet_range_t range;
+    print_stream_t *stream;    /**< Output stream to which formatted output is written */
+    print_format_e  format;    /**< Output format: plain text or PostScript */
+    bool            to_file;   /**< True if output is directed to a file; false if sent to a print command */
+    char           *file;      /**< Pathname of the output file (used when @p to_file is true) */
+    char           *cmd;       /**< Shell print command string (non-Windows only; used when @p to_file is false) */
+    packet_range_t  range;     /**< Packet range descriptor controlling which frames are processed */
 
-    bool print_summary;       /* true if we should print summary line. */
-    bool print_col_headings;  /* true if we should print column headings */
-    print_dissections_e print_dissections;
-    bool print_hex;           /* true if we should print hex data;
-                                   * false if we should print only if not dissected. */
-    unsigned hexdump_options;        /* Hexdump options if print_hex is true. */
-    bool print_formfeed;      /* true if a formfeed should be printed before
-                                   * each new packet */
+    /* --- Packet list and detail options --- */
+    bool                print_summary;    /**< True if a one-line summary should be printed for each frame */
+    bool                print_col_headings; /**< True if column header labels should be printed above the summary lines */
+    print_dissections_e print_dissections; /**< Controls whether and how the protocol dissection tree is printed */
+    bool                print_hex;        /**< True if a hex dump of the frame data should be printed */
+    unsigned            hexdump_options;  /**< Bitmask of hex dump formatting options applied when @p print_hex is true */
+    bool                print_formfeed;   /**< True if a form-feed character should be emitted before each new frame */
 
-    /* JSON related option */
-    bool no_duplicate_keys;
+    /* --- JSON output options --- */
+    bool no_duplicate_keys; /**< True if duplicate JSON keys within an object should be suppressed (JSON export only) */
 } print_args_t;
 
 /**

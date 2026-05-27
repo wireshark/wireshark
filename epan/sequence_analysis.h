@@ -31,35 +31,48 @@ extern "C" {
 
 #define MAX_NUM_NODES 40
 
-/** defines info types for graph analysis additional information */
+/**
+ * @brief Identifies the type of protocol-specific supplementary data attached to a graph analysis item.
+ */
 typedef enum _ga_info_type {
-    GA_INFO_TYPE_NONE=0,
-    GA_INFO_TYPE_RTP
+    GA_INFO_TYPE_NONE = 0, /**< No supplementary data; @p info_ptr is NULL */
+    GA_INFO_TYPE_RTP        /**< Supplementary data is an RTP stream info structure */
 } ga_info_type;
 
-typedef void (*ga_info_ptr_free_cb)(void*);
+/**
+ * @brief Callback invoked to release the protocol-specific data pointed to by ::seq_analysis_item_t::info_ptr.
+ *
+ * @param info_ptr Pointer to the supplementary data block to be freed.
+ */
+typedef void (*ga_info_ptr_free_cb)(void *info_ptr);
 
-/** defines an entry for the graph analysis */
+/**
+ * @brief Represents a single event or message arrow in a sequence / flow graph analysis.
+ */
 typedef struct _seq_analysis_item {
-    uint32_t frame_number;
-    address src_addr;
-    uint16_t port_src;
-    address dst_addr;
-    uint16_t port_dst;
-    char *frame_label;              /**< the label on top of the arrow */
-    char *time_str;                 /**< timestamp */
-    char *comment;                  /**< a comment that appears at the right of the graph */
-    uint16_t conv_num;              /**< The conversation number. Used for coloring VoIP calls. */
-    unsigned fg_color;              /**< Foreground color, 0xRRGGBB. Qt only. */
-    unsigned bg_color;              /**< Background color, 0xRRGGBB. Qt only. */
-    bool has_color_filter;          /**< Set if packet has color filter. Qt only. */
-    bool display;                   /**< indicate if the packet is displayed or not in the graph */
-    unsigned src_node;              /**< this is used by graph_analysis.c to identify the node */
-    unsigned dst_node;              /**< a node is an IP address that will be displayed in columns */
-    uint16_t line_style;            /**< the arrow line width in pixels*/
-    ga_info_type info_type;         /**< type of info for item */
-    void *info_ptr;                 /**< ptr to info for item */
-    ga_info_ptr_free_cb free_info_ptr; /**< callback to free info_ptr for item */
+    uint32_t frame_number; /**< Wireshark frame number of the packet this item was derived from */
+    address  src_addr;     /**< Source address of the packet */
+    uint16_t port_src;     /**< Source transport port of the packet */
+    address  dst_addr;     /**< Destination address of the packet */
+    uint16_t port_dst;     /**< Destination transport port of the packet */
+
+    char *frame_label; /**< Text label rendered above the arrow in the graph */
+    char *time_str;    /**< Formatted timestamp string displayed alongside the arrow */
+    char *comment;     /**< Annotation text rendered to the right of the graph row */
+
+    uint16_t conv_num;      /**< Conversation number used to assign a consistent colour to VoIP calls */
+    unsigned fg_color;      /**< Arrow foreground colour as a packed 0xRRGGBB value (Qt only) */
+    unsigned bg_color;      /**< Row background colour as a packed 0xRRGGBB value (Qt only) */
+    bool     has_color_filter; /**< True if a coloring rule was applied to the underlying packet (Qt only) */
+    bool     display;          /**< True if this item should be rendered in the graph; false to suppress it */
+
+    unsigned src_node;   /**< Index of the source node column in the graph (assigned by graph_analysis.c) */
+    unsigned dst_node;   /**< Index of the destination node column in the graph (an IP address rendered as a column header) */
+    uint16_t line_style; /**< Arrow line width in pixels */
+
+    ga_info_type        info_type;     /**< Identifies the type of protocol-specific data in @p info_ptr */
+    void               *info_ptr;      /**< Pointer to protocol-specific supplementary data, or NULL */
+    ga_info_ptr_free_cb free_info_ptr; /**< Callback used to release @p info_ptr when the item is destroyed */
 } seq_analysis_item_t;
 
 /** defines the graph analysis structure */

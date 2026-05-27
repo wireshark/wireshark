@@ -22,11 +22,14 @@ typedef uint32_t (*plugin_describe_func)(void);
 
 typedef void plugins_t;
 
+/**
+ * @brief Identifies the subsystem a Wireshark plugin extends.
+ */
 typedef enum {
-    WS_PLUGIN_EPAN,
-    WS_PLUGIN_WIRETAP,
-    WS_PLUGIN_CODEC,
-    WS_PLUGIN_UI
+    WS_PLUGIN_EPAN,     /**< Dissector or tap plugin extending the EPAN (packet analysis) engine */
+    WS_PLUGIN_WIRETAP,  /**< File format plugin extending the Wiretap capture I/O library */
+    WS_PLUGIN_CODEC,    /**< Audio codec plugin used for decoding RTP or other media streams */
+    WS_PLUGIN_UI        /**< User interface plugin extending the GUI (Qt or GTK) layer */
 } plugin_type_e;
 
 #define WS_PLUGIN_DESC_DISSECTOR    (1UL << 0)

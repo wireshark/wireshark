@@ -16,149 +16,162 @@
 
 #include "ui/iface_toolbar.h"
 
+/**
+ * @brief Identifies the type of a parsed extcap output sentence.
+ */
 typedef enum {
-    EXTCAP_SENTENCE_UNKNOWN,
-    EXTCAP_SENTENCE_ARG,
-    EXTCAP_SENTENCE_VALUE,
-    EXTCAP_SENTENCE_EXTCAP,
-    EXTCAP_SENTENCE_INTERFACE,
-    EXTCAP_SENTENCE_DLT,
-    EXTCAP_SENTENCE_CONTROL
+    EXTCAP_SENTENCE_UNKNOWN,   /**< Unrecognized or malformed sentence */
+    EXTCAP_SENTENCE_ARG,       /**< Argument definition sentence */
+    EXTCAP_SENTENCE_VALUE,     /**< Value option sentence for a preceding argument */
+    EXTCAP_SENTENCE_EXTCAP,    /**< Top-level extcap metadata sentence (version, help) */
+    EXTCAP_SENTENCE_INTERFACE, /**< Interface advertisement sentence */
+    EXTCAP_SENTENCE_DLT,       /**< Data link type (DLT) advertisement sentence */
+    EXTCAP_SENTENCE_CONTROL    /**< Toolbar control definition sentence */
 } extcap_sentence_type;
 
+/**
+ * @brief Data type of an extcap argument, controlling its GUI widget and value parsing.
+ */
 typedef enum {
     /* Simple types */
-    EXTCAP_ARG_UNKNOWN,
-    EXTCAP_ARG_INTEGER,
-    EXTCAP_ARG_UNSIGNED,
-    EXTCAP_ARG_LONG,
-    EXTCAP_ARG_DOUBLE,
-    EXTCAP_ARG_BOOLEAN,
-    EXTCAP_ARG_BOOLFLAG,
-    EXTCAP_ARG_STRING,
-    EXTCAP_ARG_PASSWORD,
+    EXTCAP_ARG_UNKNOWN,       /**< Unrecognized argument type */
+    EXTCAP_ARG_INTEGER,       /**< Signed integer value */
+    EXTCAP_ARG_UNSIGNED,      /**< Unsigned integer value */
+    EXTCAP_ARG_LONG,          /**< Long signed integer value */
+    EXTCAP_ARG_DOUBLE,        /**< Double-precision floating-point value */
+    EXTCAP_ARG_BOOLEAN,       /**< Boolean value rendered as a checkbox with an explicit true/false argument */
+    EXTCAP_ARG_BOOLFLAG,      /**< Boolean flag; the argument is omitted entirely when false */
+    EXTCAP_ARG_STRING,        /**< Free-form string value */
+    EXTCAP_ARG_PASSWORD,      /**< Sensitive string value; masked in the GUI and never saved to disk */
     /* Complex GUI types which are populated with value sentences */
-    EXTCAP_ARG_SELECTOR,
-    EXTCAP_ARG_EDIT_SELECTOR,
-    EXTCAP_ARG_RADIO,
-    EXTCAP_ARG_MULTICHECK,
-    EXTCAP_ARG_TABLE,
-    EXTCAP_ARG_FILESELECT,
-    EXTCAP_ARG_TIMESTAMP
+    EXTCAP_ARG_SELECTOR,      /**< Drop-down selector populated from accompanying value sentences */
+    EXTCAP_ARG_EDIT_SELECTOR, /**< Editable drop-down selector populated from accompanying value sentences */
+    EXTCAP_ARG_RADIO,         /**< Radio-button group populated from accompanying value sentences */
+    EXTCAP_ARG_MULTICHECK,    /**< Multi-select checkbox group populated from accompanying value sentences */
+    EXTCAP_ARG_TABLE,         /**< Tabular multi-row input populated from accompanying value sentences */
+    EXTCAP_ARG_FILESELECT,    /**< File path selector with an optional extension filter and existence check */
+    EXTCAP_ARG_TIMESTAMP      /**< Date/time timestamp picker */
 } extcap_arg_type;
 
+/**
+ * @brief Token keys for key/value pairs within a parsed extcap sentence.
+ */
 typedef enum {
-    /* value types */
-    EXTCAP_PARAM_UNKNOWN,
-    EXTCAP_PARAM_ARGNUM,
-    EXTCAP_PARAM_CALL,
-    EXTCAP_PARAM_DISPLAY,
-    EXTCAP_PARAM_TYPE,
-    EXTCAP_PARAM_ARG,
-    EXTCAP_PARAM_DEFAULT,
-    EXTCAP_PARAM_VALUE,
-    EXTCAP_PARAM_RANGE,
-    EXTCAP_PARAM_TOOLTIP,
-    EXTCAP_PARAM_PLACEHOLDER,
-    EXTCAP_PARAM_NAME,
-    EXTCAP_PARAM_ENABLED,
-    EXTCAP_PARAM_FILE_MUSTEXIST,
-    EXTCAP_PARAM_FILE_EXTENSION,
-    EXTCAP_PARAM_GROUP,
-    EXTCAP_PARAM_PARENT,
-    EXTCAP_PARAM_REQUIRED,
-    EXTCAP_PARAM_RELOAD,
-    EXTCAP_PARAM_CONFIGURABLE,
-    EXTCAP_PARAM_PREFIX,
-    EXTCAP_PARAM_SAVE,
-    EXTCAP_PARAM_VALIDATION,
-    EXTCAP_PARAM_VERSION,
-    EXTCAP_PARAM_HELP,
-    EXTCAP_PARAM_CONTROL,
-    EXTCAP_PARAM_ROLE
+    EXTCAP_PARAM_UNKNOWN,         /**< Unrecognized parameter key */
+    EXTCAP_PARAM_ARGNUM,          /**< Argument number linking a value sentence to its parent arg sentence */
+    EXTCAP_PARAM_CALL,            /**< CLI flag name passed to the extcap binary */
+    EXTCAP_PARAM_DISPLAY,         /**< Human-readable label shown in the GUI */
+    EXTCAP_PARAM_TYPE,            /**< Argument type token (maps to extcap_arg_type) */
+    EXTCAP_PARAM_ARG,             /**< Argument number reference within a value or control sentence */
+    EXTCAP_PARAM_DEFAULT,         /**< Default value for the argument */
+    EXTCAP_PARAM_VALUE,           /**< Value payload for a value sentence */
+    EXTCAP_PARAM_RANGE,           /**< Valid numeric range for the argument (min,max) */
+    EXTCAP_PARAM_TOOLTIP,         /**< Tooltip text shown on hover in the GUI */
+    EXTCAP_PARAM_PLACEHOLDER,     /**< Placeholder text shown in an empty input widget */
+    EXTCAP_PARAM_NAME,            /**< Name of the extcap or interface */
+    EXTCAP_PARAM_ENABLED,         /**< Whether a value option is selectable in the GUI */
+    EXTCAP_PARAM_FILE_MUSTEXIST,  /**< If set, the selected file must already exist on disk */
+    EXTCAP_PARAM_FILE_EXTENSION,  /**< Comma-separated list of accepted file extensions for file selectors */
+    EXTCAP_PARAM_GROUP,           /**< GUI grouping label used to visually cluster related arguments */
+    EXTCAP_PARAM_PARENT,          /**< Parent argument call name for hierarchical value relationships */
+    EXTCAP_PARAM_REQUIRED,        /**< Whether the argument must be provided before capture can start */
+    EXTCAP_PARAM_RELOAD,          /**< If set, changing this argument triggers a reload of dependent arguments */
+    EXTCAP_PARAM_CONFIGURABLE,    /**< Whether the argument can be reconfigured during an active capture */
+    EXTCAP_PARAM_PREFIX,          /**< Optional prefix string prepended to the argument value on the CLI */
+    EXTCAP_PARAM_SAVE,            /**< Whether the argument value is persisted across capture sessions */
+    EXTCAP_PARAM_VALIDATION,      /**< Regular expression used to validate the argument's string value */
+    EXTCAP_PARAM_VERSION,         /**< Version string of the extcap binary */
+    EXTCAP_PARAM_HELP,            /**< URL or text pointing to help documentation for the extcap */
+    EXTCAP_PARAM_CONTROL,         /**< Control number linking a control sentence to toolbar actions */
+    EXTCAP_PARAM_ROLE             /**< Role of a toolbar control (e.g., logger, message) */
 } extcap_param_type;
 
+/** @brief Casts an extcap_sentence_type or extcap_param_type to a GHashTable-compatible pointer key. */
 #define ENUM_KEY(s) GUINT_TO_POINTER((unsigned)s)
 
-/* Values for a given sentence; values are all stored as a call
- * and a value string, or a valid range, so we only need to store
- * those and repeat them */
+/**
+ * @brief A single selectable value option associated with a selector, radio, or multicheck argument.
+ */
 typedef struct _extcap_value {
-    int arg_num;
-
-    char *call;
-    char *display;
-    bool enabled;
-    bool is_default;
-    char *parent;
+    int   arg_num;    /**< Argument number of the parent arg sentence this value belongs to */
+    char *call;       /**< CLI value string passed to the extcap when this option is selected */
+    char *display;    /**< Human-readable label shown for this option in the GUI */
+    bool  enabled;    /**< True if this option is currently selectable in the GUI */
+    bool  is_default; /**< True if this option is the pre-selected default */
+    char *parent;     /**< Call name of the parent value for hierarchical selectors; NULL if top-level */
 } extcap_value;
 
-/* Complex-ish struct for storing complex values */
+/**
+ * @brief A typed scalar value used to represent argument defaults and range bounds.
+ */
 typedef struct _extcap_complex {
-    extcap_arg_type complex_type;
-    char * _val;
+    extcap_arg_type  complex_type; /**< Type of the stored value, determining how @ref _val is parsed */
+    char            *_val;         /**< Raw string representation of the value */
 } extcap_complex;
 
-/* required=sufficient has a special meaning */
+/** @brief Special string for the required= parameter indicating the argument is sufficient (not strictly required). */
 #define EXTCAP_PARAM_REQUIRED_SUFFICIENT "sufficient"
 
-/* An argument sentence and accompanying options */
+/**
+ * @brief A fully parsed extcap argument sentence with all its associated options.
+ */
 typedef struct _extcap_arg {
-    int arg_num;
+    int   arg_num;      /**< Unique argument number used to associate value sentences with this argument */
+    char *call;         /**< CLI flag name passed to the extcap for this argument (e.g., "--port") */
+    char *display;      /**< Human-readable label shown in the capture options GUI */
+    char *tooltip;      /**< Tooltip text shown when hovering over the argument's widget */
+    char *placeholder;  /**< Placeholder text shown inside an empty string input widget */
 
-    char *call;
-    char *display;
-    char *tooltip;
-    char *placeholder;
+    char *fileextension; /**< Accepted file extension(s) for EXTCAP_ARG_FILESELECT arguments */
+    bool  fileexists;    /**< If true, the selected file must already exist on disk */
 
-    char * fileextension;
-    bool fileexists;
+    bool  is_required;  /**< If true, this argument must be set before capture can start */
+    bool  is_sufficient; /**< If true, providing this argument alone is sufficient to start capture */
+    bool  save;         /**< If true, the argument value is persisted between capture sessions */
+    bool  reload;       /**< If true, changing this argument triggers a reload of dependent argument values */
+    bool  configurable; /**< If true, this argument may be reconfigured during an active capture */
+    char *prefix;       /**< Optional string prepended to the value on the CLI */
+    char *regexp;       /**< Regular expression pattern used to validate the argument's string value */
+    char *group;        /**< GUI group label used to visually cluster related arguments together */
 
-    bool is_required;
-    bool is_sufficient;
-    bool save;
+    extcap_arg_type  arg_type;        /**< Data type and GUI widget type for this argument */
+    extcap_complex  *range_start;     /**< Minimum allowed value for numeric arguments; NULL if unbounded */
+    extcap_complex  *range_end;       /**< Maximum allowed value for numeric arguments; NULL if unbounded */
+    extcap_complex  *default_complex; /**< Default value; NULL if no default is specified */
 
-    bool reload;
-
-    bool configurable;
-    char * prefix;
-
-    char * regexp;
-
-    char * group;
-
-    extcap_arg_type arg_type;
-
-    extcap_complex *range_start;
-    extcap_complex *range_end;
-    extcap_complex *default_complex;
-
-    char ** pref_valptr; /**< A copy of the pointer containing the current preference value. */
-    char * device_name;
-
-    GList * values;
+    char **pref_valptr;  /**< Pointer to the preference storage location holding the current value */
+    char  *device_name;  /**< Name of the capture device this argument is associated with */
+    GList *values;       /**< List of extcap_value entries for selector, radio, and multicheck arguments */
 } extcap_arg;
 
+/**
+ * @brief Describes a single capture interface advertised by an extcap binary.
+ */
 typedef struct _extcap_interface {
-    char * call;
-    char * display;
-    char * version;
-    char * help;
-    char * extcap_path;
+    char *call;        /**< Interface identifier string passed to the extcap via --extcap-interface */
+    char *display;     /**< Human-readable interface name shown in the capture interfaces dialog */
+    char *version;     /**< Version string reported by the extcap for this interface */
+    char *help;        /**< URL or text pointing to help documentation for this interface */
+    char *extcap_path; /**< Absolute path to the extcap binary that provides this interface */
 
-    extcap_sentence_type if_type;
+    extcap_sentence_type if_type; /**< Sentence type discriminator (EXTCAP_SENTENCE_INTERFACE or EXTCAP_SENTENCE_DLT) */
 } extcap_interface;
 
+/**
+ * @brief Describes a data link type (DLT) supported by an extcap interface.
+ */
 typedef struct _extcap_dlt {
-    int number;
-    char *name;
-    char *display;
+    int   number;  /**< Numeric DLT value (e.g., 1 for DLT_EN10MB) */
+    char *name;    /**< Short canonical name of the DLT (e.g., "EN10MB") */
+    char *display; /**< Human-readable description of the DLT shown in the GUI */
 } extcap_dlt;
 
+/**
+ * @brief A single tokenized extcap output sentence with its key/value parameter map.
+ */
 typedef struct _extcap_token_sentence {
-    char *sentence;
-
-    GHashTable *param_list;
+    char       *sentence;    /**< The sentence type keyword (e.g., "arg", "value", "interface") */
+    GHashTable *param_list;  /**< Hash table of parameter key/value pairs parsed from the sentence */
 } extcap_token_sentence;
 
 #ifdef __cplusplus

@@ -29,112 +29,154 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Identifies the GUI toolkit hosting the menubar, passed to action callbacks.
+ */
 typedef enum
 {
-    EXT_MENUBAR_GTK_GUI,
-    EXT_MENUBAR_QT_GUI
+    EXT_MENUBAR_GTK_GUI, /**< Legacy GTK+ GUI host */
+    EXT_MENUBAR_QT_GUI   /**< Qt GUI host */
 } ext_menubar_gui_type;
 
-/* menubar callback */
+
+/**
+ * @brief Callback invoked when a menubar item is activated.
+ *
+ * @param gui_type   The GUI toolkit that triggered the action (see ::ext_menubar_gui_type).
+ * @param gui_object Toolkit-specific widget or window object associated with the event.
+ * @param user_data  Caller-supplied context pointer registered with the menu item.
+ */
 typedef void (*ext_menubar_action_cb)(ext_menubar_gui_type gui_type, void *gui_object, void *user_data);
 
+
+/**
+ * @brief Classifies a node within the menubar entry tree.
+ */
 typedef enum
 {
-    EXT_MENUBAR_MENU,
-    EXT_MENUBAR_ITEM,
-    EXT_MENUBAR_SEPARATOR,
-    EXT_MENUBAR_URL
+    EXT_MENUBAR_MENU,      /**< A submenu container that may hold child entries */
+    EXT_MENUBAR_ITEM,      /**< A clickable action item */
+    EXT_MENUBAR_SEPARATOR, /**< A visual separator between items */
+    EXT_MENUBAR_URL        /**< An item that opens a URL in a browser */
 } ext_menubar_entry_t;
 
-typedef struct _ext_menubar_t ext_menubar_t;
-typedef ext_menubar_t ext_menu_t;
 
+typedef struct _ext_menubar_t ext_menubar_t;
+typedef ext_menubar_t ext_menu_t; /**< Convenience alias — a menu is the root form of ::ext_menubar_t */
+
+
+/**
+ * @brief Represents a node in the plugin-registered menubar tree (menu, item, separator, or URL).
+ */
 struct _ext_menubar_t
 {
-    ext_menubar_entry_t type;
-    ext_menu_t * parent;
-    int proto;
-    GList * children;
-    unsigned submenu_cnt;
-    unsigned item_cnt;
+    ext_menubar_entry_t  type;         /**< Node type: menu, item, separator, or URL */
+    ext_menu_t          *parent;       /**< Parent menu node, or NULL if this is a top-level menu */
+    int                  proto;        /**< Protocol ID this menu entry is associated with */
+    GList               *children;     /**< Ordered list of child ::ext_menubar_t nodes (menus only) */
+    unsigned             submenu_cnt;  /**< Number of direct submenu children */
+    unsigned             item_cnt;     /**< Number of direct item/URL/separator children */
 
-    char * name;
-    char * label;
+    char *name;       /**< Internal identifier name for this entry */
+    char *label;      /**< Display label shown in the GUI menu */
 
-    char * tooltip;
-    bool is_plugin;
-    void *user_data;
+    char *tooltip;    /**< Tooltip text shown on hover, or NULL */
+    bool  is_plugin;  /**< True if this entry was registered by a plugin */
+    void *user_data;  /**< Caller-supplied context pointer forwarded to @p callback */
 
-    ext_menubar_action_cb callback;
+    ext_menubar_action_cb callback;  /**< Action callback invoked when the item is activated, or NULL */
 
-    char * parent_menu;
+    char *parent_menu; /**< Name of the top-level menu under which this entry should appear */
 };
 
+/**
+ * @brief Callback invoked when a toolbar item's value or button state changes.
+ *
+ * @param toolbar_item Handle to the toolbar widget that was activated.
+ * @param item_data    Current value or state data for the toolbar item.
+ * @param user_data    Caller-supplied context pointer registered with the item.
+ */
 typedef void (*ext_toolbar_action_cb)(void *toolbar_item, void *item_data, void *user_data);
 
+/**
+ * @brief Classifies a node within the toolbar entry tree.
+ */
 typedef enum
 {
-    EXT_TOOLBAR_BAR,
-    EXT_TOOLBAR_ITEM
+    EXT_TOOLBAR_BAR,  /**< A toolbar container that holds child items */
+    EXT_TOOLBAR_ITEM  /**< An individual control item within a toolbar */
 } ext_toolbar_entry_t;
 
+/**
+ * @brief Specifies the widget type for a toolbar control item.
+ */
 typedef enum
 {
-    EXT_TOOLBAR_BOOLEAN,
-    EXT_TOOLBAR_BUTTON,
-    EXT_TOOLBAR_STRING,
-    EXT_TOOLBAR_SELECTOR
+    EXT_TOOLBAR_BOOLEAN,  /**< A toggle / checkbox control */
+    EXT_TOOLBAR_BUTTON,   /**< A momentary push-button */
+    EXT_TOOLBAR_STRING,   /**< A free-form text-entry field */
+    EXT_TOOLBAR_SELECTOR  /**< A drop-down selector with a fixed list of values */
 } ext_toolbar_item_t;
 
+/**
+ * @brief A single selectable value entry for a selector-type toolbar item.
+ */
 typedef struct _ext_toolbar_value_t
 {
-    char * value;
-    char * display;
-
-    bool is_default;
-
+    char *value;      /**< Machine-readable value string sent to the callback */
+    char *display;    /**< Human-readable label shown in the selector widget */
+    bool  is_default; /**< True if this entry should be selected by default */
 } ext_toolbar_value_t;
 
+/**
+ * @brief Represents a node in the plugin-registered toolbar tree (bar or item).
+ */
 typedef struct _ext_toolbar_t
 {
-    ext_toolbar_entry_t type;
+    ext_toolbar_entry_t type;        /**< Node type: toolbar bar or item */
 
-    GList * children;
-    unsigned submenu_cnt;
-    unsigned item_cnt;
+    GList   *children;    /**< Ordered list of child ::ext_toolbar_t nodes (bar nodes only) */
+    unsigned submenu_cnt; /**< Number of direct toolbar-bar children */
+    unsigned item_cnt;    /**< Number of direct item children */
 
-    char * name;
-    char * defvalue;
-    char * tooltip;
-    void *user_data;
+    char *name;      /**< Internal identifier name for this toolbar or item */
+    char *defvalue;  /**< Default value string applied on initialisation */
+    char *tooltip;   /**< Tooltip text shown on hover, or NULL */
+    void *user_data; /**< Caller-supplied context pointer forwarded to @p callback */
 
-    bool is_required;
-    bool capture_only;
-    ext_toolbar_item_t item_type;
+    bool               is_required;   /**< True if a value must be provided before capture can start */
+    bool               capture_only;  /**< True if this item is enabled during capture only */
+    ext_toolbar_item_t item_type;     /**< Widget type for this item (see ::ext_toolbar_item_t) */
 
-    GList * values;
-    char * regex;
+    GList *values; /**< Ordered list of ::ext_toolbar_value_t entries (selector items only) */
+    char  *regex;  /**< Optional regular expression used to validate string input */
 
-    ext_toolbar_action_cb callback;
-
+    ext_toolbar_action_cb callback; /**< Callback invoked when the item value or button state changes */
 } ext_toolbar_t;
 
+/**
+ * @brief Specifies the kind of update operation to apply to a toolbar item.
+ */
 typedef enum
 {
-    EXT_TOOLBAR_UPDATE_VALUE,
-    EXT_TOOLBAR_UPDATE_DATA,
-    EXT_TOOLBAR_UPDATE_DATABYINDEX,
-    EXT_TOOLBAR_UPDATE_DATA_ADD,
-    EXT_TOOLBAR_UPDATE_DATA_REMOVE,
-    EXT_TOOLBAR_SET_ACTIVE
+    EXT_TOOLBAR_UPDATE_VALUE,       /**< Replace the item's current value */
+    EXT_TOOLBAR_UPDATE_DATA,        /**< Replace the item's full data set (e.g. selector list) */
+    EXT_TOOLBAR_UPDATE_DATABYINDEX, /**< Update a single entry in the data set identified by index */
+    EXT_TOOLBAR_UPDATE_DATA_ADD,    /**< Append a new entry to the item's data set */
+    EXT_TOOLBAR_UPDATE_DATA_REMOVE, /**< Remove an entry from the item's data set */
+    EXT_TOOLBAR_SET_ACTIVE          /**< Set the enabled/active state of the item */
 } ext_toolbar_update_type_t;
 
+
+/**
+ * @brief Carries the parameters for a single toolbar item update operation.
+ */
 typedef struct _ext_toolbar_update_t
 {
-    ext_toolbar_update_type_t type;
-    bool silent;
-    void *user_data;
-    void *data_index;
+    ext_toolbar_update_type_t type;       /**< The kind of update to perform (see ::ext_toolbar_update_type_t) */
+    bool                      silent;     /**< If true, suppress any UI notification or callback triggered by the update */
+    void                     *user_data;  /**< New value or payload for the update operation */
+    void                     *data_index; /**< Index identifying the target entry for index-based update operations */
 } ext_toolbar_update_t;
 
 /**
@@ -401,35 +443,19 @@ typedef struct _ws_info_t
 } ws_info_t;
 
 
-/*
- * Enumeration of possible actions, which are registered in GUI interfaces
+/**
+ * @brief Identifies a GUI action that a plugin can invoke through the plugin interface callback mechanism.
  */
 typedef enum
 {
-    /* Applies a given string as filter */
-    PLUGIN_IF_FILTER_ACTION_APPLY,
-
-    /* Prepares the given string as filter */
-    PLUGIN_IF_FILTER_ACTION_PREPARE,
-
-    /* Saves a preference entry */
-    PLUGIN_IF_PREFERENCE_SAVE,
-
-    /* Jumps to the provided frame number */
-    PLUGIN_IF_GOTO_FRAME,
-
-    /* Gets status information about the currently loaded capture file */
-    PLUGIN_IF_GET_WS_INFO,
-
-    /* Gets information from frame_data for current packet */
-    PLUGIN_IF_GET_FRAME_DATA,
-
-    /* Gets information from capture_file */
-    PLUGIN_IF_GET_CAPTURE_FILE,
-
-    /* Remove toolbar */
-    PLUGIN_IF_REMOVE_TOOLBAR
-
+    PLUGIN_IF_FILTER_ACTION_APPLY,   /**< Apply the provided display filter string immediately to the packet list */
+    PLUGIN_IF_FILTER_ACTION_PREPARE, /**< Stage the provided display filter string in the filter bar without applying it */
+    PLUGIN_IF_PREFERENCE_SAVE,       /**< Persist a preference key/value entry to the active profile */
+    PLUGIN_IF_GOTO_FRAME,            /**< Scroll the packet list to the specified frame number */
+    PLUGIN_IF_GET_WS_INFO,           /**< Retrieve status information about the currently loaded capture file */
+    PLUGIN_IF_GET_FRAME_DATA,        /**< Retrieve ::frame_data fields for the currently selected packet */
+    PLUGIN_IF_GET_CAPTURE_FILE,      /**< Retrieve the ::capture_file structure for the current capture */
+    PLUGIN_IF_REMOVE_TOOLBAR         /**< Unregister and remove a previously added plugin toolbar from the GUI */
 } plugin_if_callback_t;
 
 

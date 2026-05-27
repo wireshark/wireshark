@@ -51,142 +51,197 @@ typedef struct _col_width_data {
 #define COLUMN_XALIGN_CENTER  'C'
 #define COLUMN_XALIGN_RIGHT   'R'
 
+/**
+ * @brief Numeric base used to render byte values in the Packet Bytes pane.
+ */
 typedef enum {
-    BYTES_HEX,
-    BYTES_BITS,
-    BYTES_DEC,
-    BYTES_OCT
+    BYTES_HEX, /**< Display bytes as hexadecimal (base 16) */
+    BYTES_BITS, /**< Display bytes as binary (base 2) */
+    BYTES_DEC,  /**< Display bytes as decimal (base 10) */
+    BYTES_OCT   /**< Display bytes as octal (base 8) */
 } bytes_view_type;
 
+
+/**
+ * @brief Character encoding used to render the ASCII side-panel in the Packet Bytes pane.
+ */
 typedef enum {
-    BYTES_ENC_FROM_PACKET, // frame_data packet_char_enc
-    BYTES_ENC_ASCII,
-    BYTES_ENC_EBCDIC
+    BYTES_ENC_FROM_PACKET, /**< Use the encoding recorded in the frame's ::frame_data packet_char_enc field */
+    BYTES_ENC_ASCII,       /**< Always render characters using ASCII */
+    BYTES_ENC_EBCDIC       /**< Always render characters using EBCDIC */
 } bytes_encoding_type;
 
+
+/**
+ * @brief Selects which packet pane the Find Packet search operates on.
+ */
 typedef enum {
-    SEARCH_IN_PACKET_LIST,
-    SEARCH_IN_PACKET_DETAILS,
-    SEARCH_IN_PACKET_BYTES
+    SEARCH_IN_PACKET_LIST,    /**< Search within the summary strings visible in the packet list */
+    SEARCH_IN_PACKET_DETAILS, /**< Search within the decoded field tree in the packet details pane */
+    SEARCH_IN_PACKET_BYTES    /**< Search within the raw bytes in the packet bytes pane */
 } search_in_type;
 
+
+/**
+ * @brief Controls whether string searches match narrow (single-byte), wide (two-byte), or both character encodings.
+ */
 typedef enum {
-    SEARCH_CHAR_SET_NARROW_AND_WIDE,
-    SEARCH_CHAR_SET_NARROW,
-    SEARCH_CHAR_SET_WIDE
+    SEARCH_CHAR_SET_NARROW_AND_WIDE, /**< Match both narrow (ASCII/single-byte) and wide (UTF-16/two-byte) strings */
+    SEARCH_CHAR_SET_NARROW,          /**< Match narrow (ASCII/single-byte) strings only */
+    SEARCH_CHAR_SET_WIDE             /**< Match wide (UTF-16/two-byte) strings only */
 } search_char_set_type;
 
+
+/**
+ * @brief Specifies the matching method used by the Find Packet dialog.
+ */
 typedef enum {
-    SEARCH_TYPE_DISPLAY_FILTER,
-    SEARCH_TYPE_HEX_VALUE,
-    SEARCH_TYPE_STRING,
-    SEARCH_TYPE_REGEX
+    SEARCH_TYPE_DISPLAY_FILTER, /**< Match packets using a display filter expression */
+    SEARCH_TYPE_HEX_VALUE,      /**< Match packets containing a specific hex byte sequence */
+    SEARCH_TYPE_STRING,         /**< Match packets containing a plain text string */
+    SEARCH_TYPE_REGEX           /**< Match packets whose content matches a regular expression */
 } search_type_type;
 
+
+/**
+ * @brief Selects the presentation format for payload data in the Follow Stream and Show Packet Bytes dialogs.
+ */
 typedef enum {
-    SHOW_ASCII,
-    SHOW_ASCII_CONTROL,
-    SHOW_CARRAY,
-    SHOW_EBCDIC,
-    SHOW_HEXDUMP,
-    SHOW_HTML,
-    SHOW_IMAGE,
-    SHOW_JSON,
-    SHOW_RAW,
-    SHOW_RUSTARRAY,
-    SHOW_CODEC, // Will map to UTF-8 in the combobox (other codecs
-                // are generated at runtime).
-    SHOW_YAML
+    SHOW_ASCII,         /**< Render payload as printable ASCII text */
+    SHOW_ASCII_CONTROL, /**< Render payload as ASCII with visible representations of control characters */
+    SHOW_CARRAY,        /**< Render payload as a C-style byte array literal */
+    SHOW_EBCDIC,        /**< Render payload decoded from EBCDIC to ASCII */
+    SHOW_HEXDUMP,       /**< Render payload as an annotated hex dump */
+    SHOW_HTML,          /**< Render payload as HTML in an embedded web view */
+    SHOW_IMAGE,         /**< Render payload as an image */
+    SHOW_JSON,          /**< Render payload as pretty-printed JSON */
+    SHOW_RAW,           /**< Render payload as raw bytes with no interpretation */
+    SHOW_RUSTARRAY,     /**< Render payload as a Rust-style byte array literal */
+    SHOW_CODEC,         /**< Render payload decoded with a text codec; maps to UTF-8 in the combo box (other codecs generated at runtime) */
+    SHOW_YAML           /**< Render payload as YAML */
 } bytes_show_type;
 
+
+/**
+ * @brief Controls display of inter-segment timing deltas in the Follow Stream dialog.
+ */
 typedef enum {
-    FOLLOW_DELTA_NONE,
-    FOLLOW_DELTA_TURN,
-    FOLLOW_DELTA_ALL
+    FOLLOW_DELTA_NONE, /**< Do not show timing deltas */
+    FOLLOW_DELTA_TURN, /**< Show elapsed time at each direction change (turn) */
+    FOLLOW_DELTA_ALL   /**< Show elapsed time between every segment */
 } follow_delta_type;
 
+
+/**
+ * @brief Secondary decode transformation applied to raw bytes before display in the Show Packet Bytes dialog.
+ */
 typedef enum {
-    DecodeAsNone,
-    DecodeAsBASE64,
-    DecodeAsCompressed,
-    DecodeAsHexDigits,
-    DecodeAsPercentEncoding,
-    DecodeAsQuotedPrintable,
-    DecodeAsROT13
+    DecodeAsNone,             /**< No secondary decoding; display raw bytes */
+    DecodeAsBASE64,           /**< Decode bytes as Base64-encoded data */
+    DecodeAsCompressed,       /**< Decompress bytes using zlib/DEFLATE */
+    DecodeAsHexDigits,        /**< Interpret bytes as an ASCII hex-digit string and decode to binary */
+    DecodeAsPercentEncoding,  /**< Decode percent-encoded (URL-encoded) byte sequences */
+    DecodeAsQuotedPrintable,  /**< Decode Quoted-Printable encoded data */
+    DecodeAsROT13             /**< Apply ROT13 substitution cipher to the bytes */
 } bytes_decode_type;
 
-/** Recent settings. */
+
+/**
+ * @brief Persisted GUI state and preferences restored across Wireshark sessions.
+ */
 typedef struct recent_settings_tag {
-    bool        main_toolbar_show;
-    bool        filter_toolbar_show;
-    bool        wireless_toolbar_show;
-    bool        packet_list_show;
-    bool        tree_view_show;
-    bool        byte_view_show;
-    bool        packet_diagram_show;
-    bool        statusbar_show;
-    bool        packet_list_colorize;
-    bool        capture_auto_scroll;
-    bool        aggregation_view;
-    ts_type     gui_time_format;
-    int         gui_time_precision;
-    ts_seconds_type gui_seconds_format;
-    int         gui_zoom_level;
-    bytes_view_type gui_bytes_view;
-    bytes_encoding_type gui_bytes_encoding;
-    bool        gui_packet_diagram_field_values;
-    bool        gui_allow_hover_selection;
 
-    search_in_type  gui_search_in;
-    search_char_set_type gui_search_char_set;
-    bool        gui_search_case_sensitive;
-    bool        gui_search_reverse_dir;
-    bool        gui_search_multiple_occurs;
-    search_type_type gui_search_type;
-    bytes_show_type gui_follow_show;
-    follow_delta_type gui_follow_delta;
-    bytes_decode_type gui_show_bytes_decode;
-    bytes_show_type gui_show_bytes_show;
+    /* --- Toolbar and pane visibility --- */
+    bool main_toolbar_show;          /**< True if the main toolbar is visible */
+    bool filter_toolbar_show;        /**< True if the display filter toolbar is visible */
+    bool wireless_toolbar_show;      /**< True if the wireless toolbar is visible */
+    bool packet_list_show;           /**< True if the packet list pane is visible */
+    bool tree_view_show;             /**< True if the packet details tree pane is visible */
+    bool byte_view_show;             /**< True if the packet bytes pane is visible */
+    bool packet_diagram_show;        /**< True if the packet diagram pane is visible */
+    bool statusbar_show;             /**< True if the status bar is visible */
 
-    int         gui_geometry_main_x;
-    int         gui_geometry_main_y;
-    int         gui_geometry_main_width;
-    int         gui_geometry_main_height;
+    /* --- Packet list behaviour --- */
+    bool packet_list_colorize;       /**< True if coloring rules are applied to the packet list */
+    bool capture_auto_scroll;        /**< True if the packet list auto-scrolls during live capture */
+    bool aggregation_view;           /**< True if the aggregation (combined) view is active */
 
-    bool        gui_geometry_main_maximized;
-    bool        gui_geometry_leftalign_actions;
+    /* --- Time display --- */
+    ts_type         gui_time_format;    /**< Timestamp display format (see ::ts_type) */
+    int             gui_time_precision; /**< Number of fractional seconds digits shown in timestamps */
+    ts_seconds_type gui_seconds_format; /**< Format used for the seconds portion of timestamps (see ::ts_seconds_type) */
 
-    int         gui_geometry_main_upper_pane;
-    int         gui_geometry_main_lower_pane;
-    char       *gui_geometry_main;
-    char       *gui_geometry_main_master_split;
-    char       *gui_geometry_main_extra_split;
-    bool        privs_warn_if_elevated;
-    bool        sys_warn_if_no_capture;
-    GList      *col_width_list;                     /* column widths */
-    GList      *conversation_tabs;                  /* enabled conversation dialog tabs */
-    GList      *conversation_tabs_columns;          /* save the columns for conversation dialogs */
-    GList      *endpoint_tabs;                      /* enabled endpoint dialog tabs */
-    GList      *endpoint_tabs_columns;              /* save the columns for endpoint dialogs */
-    int         gui_profile_switch_check_count;     /* number of packets / events to check for automatic profile switching */
-    char       *gui_fileopen_remembered_dir;        /* folder of last capture loaded in File Open dialog */
-    bool        gui_rlc_use_pdus_from_mac;
-    GList      *custom_colors;
-    GList      *gui_additional_toolbars;
-    GList      *interface_toolbars;
+    /* --- Zoom and bytes display --- */
+    int                 gui_zoom_level;                    /**< Font zoom level applied to the packet list and details panes */
+    bytes_view_type     gui_bytes_view;                    /**< Numeric base used to render bytes in the bytes pane */
+    bytes_encoding_type gui_bytes_encoding;                /**< Character encoding used for the ASCII column of the bytes pane */
+    bool                gui_packet_diagram_field_values;   /**< True if field values are shown inside the packet diagram */
+    bool                gui_allow_hover_selection;         /**< True if hovering over the packet list selects the packet under the cursor */
 
-    bool        gui_tsgd_throughput_show;            /* tcp_stream_dialog throughput checkbox */
-    bool        gui_tsgd_goodput_show;               /* tcp_stream_dialog goodput checkbox */
-    double      gui_tsgd_ma_window_size;             /* tcp_stream_dialog ma_window_size */
+    /* --- Find Packet settings --- */
+    search_in_type       gui_search_in;              /**< Pane searched by the Find Packet dialog */
+    search_char_set_type gui_search_char_set;         /**< Character width(s) matched during string searches */
+    bool                 gui_search_case_sensitive;   /**< True if string/regex searches are case-sensitive */
+    bool                 gui_search_reverse_dir;      /**< True if searches proceed backwards through the packet list */
+    bool                 gui_search_multiple_occurs;  /**< True if all occurrences within a packet are highlighted */
+    search_type_type     gui_search_type;             /**< Matching method used by the Find Packet dialog */
 
-    bool        gui_welcome_page_sidebar_learn_visible;
-    bool        gui_welcome_page_sidebar_tips_visible;
-    bool        gui_welcome_page_sidebar_tips_events;
-    bool        gui_welcome_page_sidebar_tips_sponsorship;
-    bool        gui_welcome_page_sidebar_tips_tips;
-    bool        gui_welcome_page_sidebar_tips_auto_advance;
-    unsigned    gui_welcome_page_sidebar_tips_interval;
-    bool        gui_welcome_page_sidebar_tips_slides_test;
+    /* --- Follow Stream settings --- */
+    bytes_show_type   gui_follow_show;    /**< Presentation format used in the Follow Stream dialog */
+    follow_delta_type gui_follow_delta;   /**< Inter-segment timing delta mode for the Follow Stream dialog */
+
+    /* --- Show Packet Bytes settings --- */
+    bytes_decode_type gui_show_bytes_decode; /**< Secondary decode transformation applied in the Show Packet Bytes dialog */
+    bytes_show_type   gui_show_bytes_show;   /**< Presentation format used in the Show Packet Bytes dialog */
+
+    /* --- Main window geometry --- */
+    int  gui_geometry_main_x;          /**< Saved X position of the main window */
+    int  gui_geometry_main_y;          /**< Saved Y position of the main window */
+    int  gui_geometry_main_width;      /**< Saved width of the main window in pixels */
+    int  gui_geometry_main_height;     /**< Saved height of the main window in pixels */
+    bool gui_geometry_main_maximized;  /**< True if the main window was maximized when last closed */
+    bool gui_geometry_leftalign_actions; /**< True if toolbar actions are left-aligned */
+
+    /* --- Splitter positions --- */
+    int   gui_geometry_main_upper_pane;      /**< Saved pixel height of the upper splitter pane */
+    int   gui_geometry_main_lower_pane;      /**< Saved pixel height of the lower splitter pane */
+    char *gui_geometry_main;                 /**< Serialised main window geometry string */
+    char *gui_geometry_main_master_split;    /**< Serialised master splitter state */
+    char *gui_geometry_main_extra_split;     /**< Serialised extra splitter state */
+
+    /* --- Privilege and system warnings --- */
+    bool privs_warn_if_elevated;   /**< True if a warning is shown when running with elevated privileges */
+    bool sys_warn_if_no_capture;   /**< True if a warning is shown when capture support is unavailable */
+
+    /* --- Column and dialog tab state --- */
+    GList *col_width_list;              /**< Saved column widths for the packet list */
+    GList *conversation_tabs;           /**< Names of enabled tabs in the Conversations dialog */
+    GList *conversation_tabs_columns;   /**< Saved column configurations for Conversations dialog tabs */
+    GList *endpoint_tabs;               /**< Names of enabled tabs in the Endpoints dialog */
+    GList *endpoint_tabs_columns;       /**< Saved column configurations for Endpoints dialog tabs */
+
+    /* --- Miscellaneous --- */
+    int   gui_profile_switch_check_count;  /**< Number of packets or events checked per automatic profile switch evaluation */
+    char *gui_fileopen_remembered_dir;     /**< Last directory visited in the File Open dialog */
+    bool  gui_rlc_use_pdus_from_mac;       /**< True if the RLC dissector should source PDUs from the MAC layer */
+    GList *custom_colors;                  /**< User-defined custom colours for the colour picker */
+    GList *gui_additional_toolbars;        /**< Names of additional plugin toolbars that are shown */
+    GList *interface_toolbars;             /**< State of interface-specific extcap toolbars */
+
+    /* --- TCP Stream Graph dialog --- */
+    bool   gui_tsgd_throughput_show;   /**< True if the throughput series is shown in the TCP Stream Graph dialog */
+    bool   gui_tsgd_goodput_show;      /**< True if the goodput series is shown in the TCP Stream Graph dialog */
+    double gui_tsgd_ma_window_size;    /**< Moving average window size used in the TCP Stream Graph dialog */
+
+    /* --- Welcome page sidebar / banner slides --- */
+    bool     gui_welcome_page_sidebar_learn_visible;       /**< True if the Learn sidebar panel is expanded on the welcome page */
+    bool     gui_welcome_page_sidebar_tips_visible;        /**< True if the Tips/News sidebar panel is expanded on the welcome page */
+    bool     gui_welcome_page_sidebar_tips_events;         /**< True if event slides are shown in the banner */
+    bool     gui_welcome_page_sidebar_tips_sponsorship;    /**< True if sponsorship slides are shown in the banner */
+    bool     gui_welcome_page_sidebar_tips_tips;           /**< True if tip slides are shown in the banner */
+    bool     gui_welcome_page_sidebar_tips_auto_advance;   /**< True if the banner auto-advances through slides */
+    unsigned gui_welcome_page_sidebar_tips_interval;       /**< Auto-advance interval for banner slides in milliseconds */
+    bool     gui_welcome_page_sidebar_tips_slides_test;    /**< True if test/debug slides are included in the banner rotation */
 } recent_settings_t;
 
 /** Global recent settings. */

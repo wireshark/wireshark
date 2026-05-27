@@ -36,43 +36,54 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/** Defines an rtp stream */
+/**
+ * @brief Holds all state and statistics accumulated for a single RTP stream.
+ */
 typedef struct _rtpstream_info {
-    rtpstream_id_t  id;
+    rtpstream_id_t id; /**< Network 5-tuple and SSRC that uniquely identify this stream */
 
-    uint8_t         first_payload_type; /**< Numeric payload type */
-    const char     *first_payload_type_name; /**< Payload type name */
-    const char     *payload_type_names[256]; /**< Seen payload type names. Array index is payload type (byte), filled only during TAP_ANALYSE */
-    char           *all_payload_type_names; /**< All seen payload names for a stream in one string */
+    /* --- Payload type tracking --- */
+    uint8_t     first_payload_type;          /**< Numeric RTP payload type of the first observed packet */
+    const char *first_payload_type_name;     /**< Human-readable codec name for @p first_payload_type */
+    const char *payload_type_names[256];     /**< Codec name for each payload type byte value seen in this stream; populated during ::TAP_ANALYSE only */
+    char       *all_payload_type_names;      /**< Comma-separated string of all codec names observed across the stream's lifetime */
 
-    bool            is_srtp;
-    uint32_t        packet_count;
-    bool            end_stream; /**< Used to track streams across payload types */
-    int             rtp_event;
+    /* --- Stream status --- */
+    bool     is_srtp;      /**< True if the stream is SRTP (encrypted RTP) */
+    uint32_t packet_count; /**< Total number of RTP packets observed in this stream */
+    bool     end_stream;   /**< True when the stream has ended; used to track continuity across payload type changes */
+    int      rtp_event;    /**< RTP event code if this stream carries RFC 2833 telephone events; -1 if not an event stream */
 
-    int             call_num; /**< Used to match call_num in voip_calls_info_t */
-    uint32_t        setup_frame_number; /**< frame number of setup message */
-    /* Start and stop packets needed for .num and .abs_ts */
-    frame_data     *start_fd;
-    frame_data     *stop_fd;
-    nstime_t        start_rel_time;     /**< relative start time from pinfo */
-    nstime_t        stop_rel_time;      /**< relative stop time from pinfo */
-    nstime_t        start_abs_time;     /**< abs start time from pinfo */
-    uint16_t        vlan_id;
-    bool            tag_vlan_error;
-    bool            tag_diffserv_error;
+    /* --- Call association --- */
+    int      call_num;           /**< Call number matching the parent ::voip_calls_info_t entry; used to correlate streams with VoIP calls */
+    uint32_t setup_frame_number; /**< Frame number of the signalling message (e.g. SDP) that set up this stream */
 
-    tap_rtp_stat_t  rtp_stats;  /**< here goes the RTP statistics info */
-    bool            problem;    /**< if the streams had wrong sequence numbers or wrong timestamps */
-    const char     *ed137_info; /** pointer to static text, no freeing is required */
+    /* --- Timing extents --- */
+    frame_data *start_fd;       /**< Pointer to the ::frame_data of the first packet in the stream */
+    frame_data *stop_fd;        /**< Pointer to the ::frame_data of the last packet in the stream */
+    nstime_t    start_rel_time; /**< Relative capture timestamp of the first packet */
+    nstime_t    stop_rel_time;  /**< Relative capture timestamp of the last packet */
+    nstime_t    start_abs_time; /**< Absolute wall-clock timestamp of the first packet */
+
+    /* --- VLAN and QoS tagging --- */
+    uint16_t vlan_id;            /**< VLAN identifier associated with this stream; 0 if untagged */
+    bool     tag_vlan_error;     /**< True if an inconsistent or unexpected VLAN tag was detected */
+    bool     tag_diffserv_error; /**< True if an inconsistent or unexpected DSCP/DiffServ marking was detected */
+
+    /* --- Statistics and diagnostics --- */
+    tap_rtp_stat_t rtp_stats;  /**< Detailed RTP quality statistics (jitter, loss, etc.) accumulated by the tap */
+    bool           problem;    /**< True if sequence number or timestamp anomalies were detected in this stream */
+    const char    *ed137_info; /**< Pointer to a static string describing ED-137 radio metadata; no freeing required */
 } rtpstream_info_t;
 
-/** tapping modes */
+/**
+ * @brief Selects the operation performed by the RTP stream tap on the collected stream data.
+ */
 typedef enum
 {
-    TAP_ANALYSE,
-    TAP_SAVE,
-    TAP_MARK
+    TAP_ANALYSE, /**< Analyse all streams and populate statistics */
+    TAP_SAVE,    /**< Save the payload audio data of a stream to a file */
+    TAP_MARK     /**< Mark all frames belonging to selected streams in the packet list */
 } tap_mode_t;
 
 typedef struct _rtpstream_tapinfo rtpstream_tapinfo_t;

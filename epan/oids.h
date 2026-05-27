@@ -24,76 +24,97 @@ extern "C" {
  */
 #define BER_TAG_ANY -1
 
+/**
+ * @brief Maps a single bit offset within an OID value to a protocol tree field.
+ */
 struct _oid_bit_t {
-    unsigned offset;
-    int hfid;
+    unsigned offset; /**< Bit offset within the value where this field begins */
+    int      hfid;   /**< Header field ID (hfid) used to register this bit in the protocol tree */
 };
 
+/**
+ * @brief Describes the full set of named bit fields within a BITS-syntax OID value.
+ */
 typedef struct _oid_bits_info_t {
-    unsigned num;
-    int ett;
-    struct _oid_bit_t* data;
+    unsigned          num;  /**< Number of entries in @ref data */
+    int               ett;  /**< ett index for the subtree used to display the bit fields */
+    struct _oid_bit_t *data; /**< Array of @ref num bit-to-field mappings */
 } oid_bits_info_t;
 
+/**
+ * @brief Encoding type of a key sub-identifier in an OID index.
+ */
 typedef enum _oid_key_type_t {
-    OID_KEY_TYPE_WRONG,
-    OID_KEY_TYPE_INTEGER,
-    OID_KEY_TYPE_OID,
-    OID_KEY_TYPE_STRING,
-    OID_KEY_TYPE_BYTES,
-    OID_KEY_TYPE_NSAP,
-    OID_KEY_TYPE_IPADDR,
-    OID_KEY_TYPE_IMPLIED_OID,
-    OID_KEY_TYPE_IMPLIED_STRING,
-    OID_KEY_TYPE_IMPLIED_BYTES,
-    OID_KEY_TYPE_ETHER,
-    OID_KEY_TYPE_DATE_AND_TIME
+    OID_KEY_TYPE_WRONG,          /**< Invalid or unrecognized key type */
+    OID_KEY_TYPE_INTEGER,        /**< Key is encoded as a single integer sub-identifier */
+    OID_KEY_TYPE_OID,            /**< Key is a fixed-length OID sub-identifier sequence */
+    OID_KEY_TYPE_STRING,         /**< Key is a fixed-length octet string */
+    OID_KEY_TYPE_BYTES,          /**< Key is a fixed-length byte array */
+    OID_KEY_TYPE_NSAP,           /**< Key is an NSAP (Network Service Access Point) address */
+    OID_KEY_TYPE_IPADDR,         /**< Key is a 4-byte IPv4 address */
+    OID_KEY_TYPE_IMPLIED_OID,    /**< Key is an implied-length OID (no leading length sub-id) */
+    OID_KEY_TYPE_IMPLIED_STRING, /**< Key is an implied-length octet string */
+    OID_KEY_TYPE_IMPLIED_BYTES,  /**< Key is an implied-length byte array */
+    OID_KEY_TYPE_ETHER,          /**< Key is a 6-byte IEEE 802 MAC address */
+    OID_KEY_TYPE_DATE_AND_TIME   /**< Key is an SNMPv2 DateAndTime octet string */
 } oid_key_type_t;
 
+/**
+ * @brief Describes the value syntax and BER encoding of an OID leaf node.
+ */
 typedef struct _oid_value_type_t {
-    enum ftenum ft_type;
-    int display;
-    int8_t ber_class;
-    int32_t ber_tag;
-    int min_len;
-    int max_len;
-    oid_key_type_t keytype;
-    int keysize;
+    enum ftenum   ft_type;   /**< Wireshark field type used to store and display the value */
+    int           display;   /**< Display base/format hint (e.g., BASE_DEC, BASE_HEX) */
+    int8_t        ber_class; /**< BER tag class (e.g., UNIVERSAL, APPLICATION) */
+    int32_t       ber_tag;   /**< BER tag number within the class */
+    int           min_len;   /**< Minimum valid encoded length in bytes */
+    int           max_len;   /**< Maximum valid encoded length in bytes (-1 for unlimited) */
+    oid_key_type_t keytype;  /**< How this value is encoded when used as a table index key */
+    int           keysize;   /**< Fixed key length in sub-identifiers; 0 if implied or variable */
 } oid_value_type_t;
 
+/**
+ * @brief Semantic role of an OID node within a MIB or SMI object hierarchy.
+ */
 typedef enum _oid_kind_t {
-    OID_KIND_UNKNOWN = 0,
-    OID_KIND_NODE,
-    OID_KIND_SCALAR,
-    OID_KIND_TABLE,
-    OID_KIND_ROW,
-    OID_KIND_COLUMN,
-    OID_KIND_NOTIFICATION,
-    OID_KIND_GROUP,
-    OID_KIND_COMPLIANCE,
-    OID_KIND_CAPABILITIES
+    OID_KIND_UNKNOWN      = 0, /**< Kind has not been determined or is unrecognized */
+    OID_KIND_NODE,             /**< Interior node with no directly associated object */
+    OID_KIND_SCALAR,           /**< Scalar MIB object (single instance) */
+    OID_KIND_TABLE,            /**< SEQUENCE OF table object */
+    OID_KIND_ROW,              /**< Table row (SEQUENCE) object */
+    OID_KIND_COLUMN,           /**< Table column object */
+    OID_KIND_NOTIFICATION,     /**< NOTIFICATION-TYPE object */
+    OID_KIND_GROUP,            /**< OBJECT-GROUP or NOTIFICATION-GROUP */
+    OID_KIND_COMPLIANCE,       /**< MODULE-COMPLIANCE object */
+    OID_KIND_CAPABILITIES      /**< AGENT-CAPABILITIES object */
 } oid_kind_t;
 
+/**
+ * @brief Describes a single index key component used to identify rows in an OID-indexed table.
+ */
 typedef struct _oid_key_t {
-    char* name;
-    uint32_t num_subids;
-    oid_key_type_t key_type;
-    int hfid;
-    enum ftenum ft_type;
-    int display;
-    struct _oid_key_t* next;
+    char           *name;        /**< Name of the index object */
+    uint32_t        num_subids;  /**< Number of OID sub-identifiers consumed by this key */
+    oid_key_type_t  key_type;    /**< Encoding/type of this key component */
+    int             hfid;        /**< Header field ID for displaying this key in the protocol tree */
+    enum ftenum     ft_type;     /**< Wireshark field type for this key's value */
+    int             display;     /**< Display base/format hint for this key's value */
+    struct _oid_key_t *next;     /**< Pointer to the next key component, or NULL if last */
 } oid_key_t;
 
+/**
+ * @brief A node in the OID registry tree, representing one arc of an object identifier.
+ */
 typedef struct _oid_info_t {
-    uint32_t subid;
-    char* name;
-    oid_kind_t kind;
-    wmem_tree_t* children;
-    const oid_value_type_t* value_type;
-    int value_hfid;
-    oid_key_t* key;
-    oid_bits_info_t* bits;
-    struct _oid_info_t* parent;
+    uint32_t                subid;       /**< Sub-identifier value of this node within its parent */
+    char                   *name;        /**< Human-readable name of this OID arc */
+    oid_kind_t              kind;        /**< Semantic role of this node in the MIB hierarchy */
+    wmem_tree_t            *children;    /**< Sub-tree of child oid_info_t nodes, keyed by sub-identifier */
+    const oid_value_type_t *value_type;  /**< Value syntax descriptor; NULL for non-leaf nodes */
+    int                     value_hfid;  /**< Header field ID for the leaf value; -1 if not registered */
+    oid_key_t              *key;         /**< Linked list of index key descriptors for table row nodes */
+    oid_bits_info_t        *bits;        /**< Named bit field descriptors for BITS-syntax values; NULL if not applicable */
+    struct _oid_info_t     *parent;      /**< Pointer to the parent node in the OID tree, or NULL for root */
 } oid_info_t;
 
 /** init function called from prefs.c */

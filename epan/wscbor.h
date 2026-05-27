@@ -46,13 +46,15 @@ typedef enum cbor_type {
     CBOR_TYPE_FLOAT_CTRL = 7, ///< decimals and special values (true, false, nil, ...)
 } cbor_type;
 
-/// The same enumeration from libcbor-0.5
+/**
+ * @brief CBOR simple (control) values, mirroring the cbor_ctrl enumeration from libcbor 0.5.
+ */
 typedef enum {
-    CBOR_CTRL_NONE = 0,
-    CBOR_CTRL_FALSE = 20,
-    CBOR_CTRL_TRUE = 21,
-    CBOR_CTRL_NULL = 22,
-    CBOR_CTRL_UNDEF = 23
+    CBOR_CTRL_NONE  =  0, /**< No control value assigned; used as a sentinel or unset indicator */
+    CBOR_CTRL_FALSE = 20, /**< CBOR simple value 20: boolean false */
+    CBOR_CTRL_TRUE  = 21, /**< CBOR simple value 21: boolean true */
+    CBOR_CTRL_NULL  = 22, /**< CBOR simple value 22: null */
+    CBOR_CTRL_UNDEF = 23  /**< CBOR simple value 23: undefined */
 } _cbor_ctrl;
 
 /// Decoding or require_* error

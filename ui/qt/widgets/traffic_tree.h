@@ -157,6 +157,7 @@ class TrafficDataFilterProxy : public QSortFilterProxyModel
     Q_OBJECT
 public:
 
+    /** @brief Types of filtering operations available for traffic data. */
     enum {
         /** @brief Filter for values strictly less than the target. */
         TRAFFIC_DATA_LESS,

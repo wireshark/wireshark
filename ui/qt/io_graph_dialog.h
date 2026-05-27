@@ -43,25 +43,41 @@ class QCPItemTracer;
 class QCPAxisTicker;
 class QCPAxisTickerDateTime;
 
-// Saved graph settings
+/**
+ * @brief Persisted configuration for a single I/O Graph plot, corresponding to one UAT row.
+ */
 typedef struct _io_graph_settings_t {
-    bool enabled;
-    bool asAOT;
-    char* name;
-    char* dfilter;
-    unsigned color;
-    uint32_t style;
-    uint32_t yaxis;
-    char* yfield;
-    uint32_t sma_period;
-    double y_axis_factor;
+    bool     enabled;       /**< True if this graph is active and should be rendered */
+    bool     asAOT;         /**< True if this graph should be drawn always-on-top of others */
+    char    *name;          /**< User-visible display name for this graph */
+    char    *dfilter;       /**< Display filter string restricting which packets contribute to this graph */
+    unsigned color;         /**< Plot colour encoded as a packed RGB value */
+    uint32_t style;         /**< Plot style (e.g. line, impulse, bar, dot); maps to a ::io_graph_plot_style value */
+    uint32_t yaxis;         /**< Y-axis unit or aggregate mode (see ::io_graph_item_unit_t) */
+    char    *yfield;        /**< Display filter field whose value is used for Y-axis calculations */
+    uint32_t sma_period;    /**< Simple Moving Average period in number of intervals; 0 disables SMA */
+    double   y_axis_factor; /**< Multiplicative scaling factor applied to all Y-axis values before plotting */
 } io_graph_settings_t;
 
 
 extern const value_string moving_avg_vs[];
 
-/* define I/O Graph specific UAT columns */
-enum UatColumnsIOG {colEnabled = 0, colName, colDFilter, colColor, colStyle, colYAxis, colYField, colSMAPeriod, colYAxisFactor, colAOT, colMaxNum};
+/**
+ * @brief Column indices for the I/O Graph UAT (User Accessible Table) configuration table.
+ */
+enum UatColumnsIOG {
+    colEnabled     = 0, /**< Whether the graph is enabled/visible */
+    colName,            /**< Display name of the graph */
+    colDFilter,         /**< Display filter string restricting which packets contribute to the graph */
+    colColor,           /**< Plot line or bar colour */
+    colStyle,           /**< Plot style (e.g. line, bar, dot) */
+    colYAxis,           /**< Y-axis unit or aggregate calculation mode (see ::io_graph_item_unit_t) */
+    colYField,          /**< Display filter field used for Y-axis value calculations */
+    colSMAPeriod,       /**< Simple Moving Average period (number of intervals to average) */
+    colYAxisFactor,     /**< Scaling factor applied to Y-axis values */
+    colAOT,             /**< Always-on-top flag; keeps this graph drawn above others */
+    colMaxNum           /**< Sentinel: total number of UAT columns */
+};
 
 namespace Ui {
 class IOGraphDialog;

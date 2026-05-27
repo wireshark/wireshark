@@ -103,12 +103,15 @@ WS_DLL_PUBLIC char *conversation_filter_from_log(struct _packet_info *pinfo);
 
 /*** THE FOLLOWING SHOULD NOT BE USED BY ANY DISSECTORS!!! ***/
 
+/**
+ * @brief Describes a registered conversation filter that can build a display filter string from a packet.
+ */
 typedef struct conversation_filter_s {
-    const char *              proto_name;
-    const char *              display_name;
-    is_filter_valid_func      is_filter_valid;
-    build_filter_string_func  build_filter_string;
-    void *                    user_data;
+    const char              *proto_name;          /**< Internal protocol name used to identify this filter (e.g. "tcp") */
+    const char              *display_name;         /**< Human-readable name shown in the UI (e.g. "TCP Conversation") */
+    is_filter_valid_func     is_filter_valid;      /**< Callback that returns true if a valid filter can be built from the given packet */
+    build_filter_string_func build_filter_string;  /**< Callback that constructs the display filter string for the given packet */
+    void                    *user_data;            /**< Caller-supplied context pointer forwarded to both callbacks */
 } conversation_filter_t;
 
 WS_DLL_PUBLIC GList *packet_conv_filter_list;

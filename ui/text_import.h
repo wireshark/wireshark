@@ -29,92 +29,117 @@ extern "C" {
 
 /* The parameter interface */
 
+/**
+ * @brief Numeric base used to render byte offsets in a hex dump import.
+ */
 enum offset_type
 {
-    OFFSET_NONE = 0,
-    OFFSET_HEX,
-    OFFSET_OCT,
-    OFFSET_DEC
+    OFFSET_NONE = 0, /**< No offset column present in the input */
+    OFFSET_HEX,      /**< Offsets are written in hexadecimal */
+    OFFSET_OCT,      /**< Offsets are written in octal */
+    OFFSET_DEC       /**< Offsets are written in decimal */
 };
 
+
+/**
+ * @brief Encoding used to represent raw byte data in a regex-mode text import.
+ */
 enum data_encoding {
-  ENCODING_PLAIN_HEX,
-  ENCODING_PLAIN_OCT,
-  ENCODING_PLAIN_BIN,
-  ENCODING_BASE64
+    ENCODING_PLAIN_HEX, /**< Bytes encoded as plain hexadecimal digit pairs */
+    ENCODING_PLAIN_OCT, /**< Bytes encoded as plain octal digit groups */
+    ENCODING_PLAIN_BIN, /**< Bytes encoded as plain binary digit groups */
+    ENCODING_BASE64     /**< Bytes encoded as Base64 */
 };
 
+
+/**
+ * @brief Selects the synthetic protocol header prepended to each imported frame.
+ */
 enum dummy_header_type
 {
-    HEADER_NONE,
-    HEADER_ETH,
-    HEADER_IPV4,
-    HEADER_UDP,
-    HEADER_TCP,
-    HEADER_SCTP,
-    HEADER_SCTP_DATA,
-    HEADER_EXPORT_PDU
+    HEADER_NONE,        /**< No dummy header; raw payload only */
+    HEADER_ETH,         /**< Prepend a dummy Ethernet II header */
+    HEADER_IPV4,        /**< Prepend a dummy IPv4 header */
+    HEADER_UDP,         /**< Prepend dummy IPv4 and UDP headers */
+    HEADER_TCP,         /**< Prepend dummy IPv4 and TCP headers */
+    HEADER_SCTP,        /**< Prepend dummy IPv4 and SCTP headers */
+    HEADER_SCTP_DATA,   /**< Prepend dummy IPv4, SCTP, and SCTP DATA chunk headers */
+    HEADER_EXPORT_PDU   /**< Prepend a Wireshark Export PDU header */
 };
 
+
+/**
+ * @brief Selects the parsing mode used to extract packet data from the input text file.
+ */
 enum text_import_mode {
-    TEXT_IMPORT_HEXDUMP,
-    TEXT_IMPORT_REGEX
+    TEXT_IMPORT_HEXDUMP, /**< Parse input as a hex dump with optional offset and ASCII columns */
+    TEXT_IMPORT_REGEX    /**< Parse input by matching lines against a user-supplied regular expression */
 };
 
+
+/**
+ * @brief Complete configuration and runtime state for a text-to-pcap import operation.
+ */
 typedef struct
 {
-    /* Input info */
-    // TODO: add const, as this way string constants can't be used
-    // BUT: the other way clang-check complains when you free them
-    /* const */ char *import_text_filename;
-    char *output_filename;
-    enum text_import_mode mode;
+    /* --- Input / output paths --- */
+    char *import_text_filename; /**< Path to the input text file to be imported */
+    char *output_filename;      /**< Path to the output capture file to be written */
+    enum text_import_mode mode; /**< Parsing mode: hex dump or regex (see ::text_import_mode) */
 
+    /** @brief Parameters used when @p mode is ::TEXT_IMPORT_HEXDUMP. */
     struct {
-        FILE *import_text_FILE;
-        enum offset_type offset_type;
-        bool has_direction;
-        bool identify_ascii;
-        bool little_endian;
+        FILE               *import_text_FILE; /**< Open file handle for the hex dump input file */
+        enum offset_type    offset_type;      /**< Numeric base of the offset column in the hex dump */
+        bool                has_direction;    /**< True if the hex dump includes an inbound/outbound direction indicator */
+        bool                identify_ascii;   /**< True if printable ASCII runs should be detected and tagged */
+        bool                little_endian;    /**< True if multi-byte values in the hex dump are little-endian */
     } hexdump;
+
+    /** @brief Parameters used when @p mode is ::TEXT_IMPORT_REGEX. */
     struct {
-        GMappedFile* import_text_GMappedFile;
-        /* const */ GRegex* format;
-        enum data_encoding encoding;
-        /* const */ char* in_indication;
-        /* const */ char* out_indication;
+        GMappedFile        *import_text_GMappedFile; /**< Memory-mapped view of the regex input file */
+        GRegex             *format;                  /**< Compiled regular expression used to match packet records */
+        enum data_encoding  encoding;                /**< Encoding of the byte data captured by the regex */
+        char               *in_indication;           /**< String token in a match that marks the packet as inbound */
+        char               *out_indication;          /**< String token in a match that marks the packet as outbound */
     } regex;
-    const char* timestamp_format;
 
-    /* Import info */
-    /* Wiretap encapsulation type; see wiretap/wtap.h for details */
-    unsigned encapsulation;
-    wtap_dumper* wdh;
+    const char *timestamp_format; /**< strptime-compatible format string used to parse timestamps in the input */
 
-    /* Dummy header info (if encapsulation == 1) */
-    enum dummy_header_type dummy_header_type;
-    unsigned pid;
-    bool ipv6;
+    /* --- Wiretap output --- */
+    unsigned      encapsulation; /**< Wiretap encapsulation type for the output file (see wiretap/wtap.h) */
+    wtap_dumper  *wdh;           /**< Wiretap dumper handle used to write the output capture file */
+
+    /* --- Dummy header configuration (used when encapsulation == 1) --- */
+    enum dummy_header_type dummy_header_type; /**< Type of synthetic header prepended to each frame */
+    unsigned pid;    /**< Ethernet PID / EtherType inserted into the dummy Ethernet header */
+    bool     ipv6;   /**< True if IPv6 addresses are used in the dummy IP header; false for IPv4 */
+
+    /** @brief Source IP address inserted into the dummy IP header. */
     union {
-        ws_in4_addr ipv4;
-        ws_in6_addr ipv6;
+        ws_in4_addr ipv4; /**< IPv4 source address (used when @p ipv6 is false) */
+        ws_in6_addr ipv6; /**< IPv6 source address (used when @p ipv6 is true) */
     } ip_src_addr;
+
+    /** @brief Destination IP address inserted into the dummy IP header. */
     union {
-        ws_in4_addr ipv4;
-        ws_in6_addr ipv6;
+        ws_in4_addr ipv4; /**< IPv4 destination address (used when @p ipv6 is false) */
+        ws_in6_addr ipv6; /**< IPv6 destination address (used when @p ipv6 is true) */
     } ip_dest_addr;
-    unsigned protocol;
-    unsigned src_port;
-    unsigned dst_port;
-    unsigned tag;
-    unsigned ppi;
-    /* const */ char* payload;
 
-    unsigned max_frame_length;
+    unsigned protocol; /**< IP protocol number inserted into the dummy IP header */
+    unsigned src_port; /**< Source port inserted into the dummy TCP/UDP/SCTP header */
+    unsigned dst_port; /**< Destination port inserted into the dummy TCP/UDP/SCTP header */
+    unsigned tag;      /**< SCTP verification tag inserted into the dummy SCTP header */
+    unsigned ppi;      /**< Payload Protocol Identifier (PPI) inserted into the dummy SCTP DATA chunk */
+    char    *payload;  /**< Wireshark dissector name embedded in the Export PDU header */
 
-    /* Output info */
-    unsigned num_packets_read;
-    unsigned num_packets_written;
+    unsigned max_frame_length; /**< Maximum number of bytes per imported frame; longer frames are truncated */
+
+    /* --- Operation results --- */
+    unsigned num_packets_read;    /**< Number of packet records successfully parsed from the input */
+    unsigned num_packets_written; /**< Number of frames successfully written to the output capture file */
 } text_import_info_t;
 
 /**

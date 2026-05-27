@@ -41,26 +41,32 @@ typedef uint32_t conv_id_t;
  *  Conversation definitions.
  */
 
+/**
+ * @brief Field type selector for building a conversation display filter.
+ */
 typedef enum {
-    CONV_FT_SRC_ADDRESS,
-    CONV_FT_DST_ADDRESS,
-    CONV_FT_ANY_ADDRESS,
-    CONV_FT_SRC_PORT,
-    CONV_FT_DST_PORT,
-    CONV_FT_ANY_PORT
+    CONV_FT_SRC_ADDRESS, /**< Match on source address */
+    CONV_FT_DST_ADDRESS, /**< Match on destination address */
+    CONV_FT_ANY_ADDRESS, /**< Match on either source or destination address */
+    CONV_FT_SRC_PORT,    /**< Match on source port */
+    CONV_FT_DST_PORT,    /**< Match on destination port */
+    CONV_FT_ANY_PORT     /**< Match on either source or destination port */
 } conv_filter_type_e;
 
-/* Filter direction */
+
+/**
+ * @brief Directional filter scope for a conversation, relative to endpoints A and B.
+ */
 typedef enum {
-    CONV_DIR_A_TO_FROM_B,
-    CONV_DIR_A_TO_B,
-    CONV_DIR_A_FROM_B,
-    CONV_DIR_A_TO_FROM_ANY,
-    CONV_DIR_A_TO_ANY,
-    CONV_DIR_A_FROM_ANY,
-    CONV_DIR_ANY_TO_FROM_B,
-    CONV_DIR_ANY_TO_B,
-    CONV_DIR_ANY_FROM_B
+    CONV_DIR_A_TO_FROM_B,   /**< Traffic in both directions between A and B */
+    CONV_DIR_A_TO_B,        /**< Traffic from A to B only */
+    CONV_DIR_A_FROM_B,      /**< Traffic from B to A only */
+    CONV_DIR_A_TO_FROM_ANY, /**< All traffic to or from A (any remote endpoint) */
+    CONV_DIR_A_TO_ANY,      /**< Traffic sent from A to any endpoint */
+    CONV_DIR_A_FROM_ANY,    /**< Traffic received by A from any endpoint */
+    CONV_DIR_ANY_TO_FROM_B, /**< All traffic to or from B (any remote endpoint) */
+    CONV_DIR_ANY_TO_B,      /**< Traffic sent to B from any endpoint */
+    CONV_DIR_ANY_FROM_B     /**< Traffic sent from B to any endpoint */
 } conv_direction_e;
 
 /** Conversation hash + value storage
@@ -73,18 +79,23 @@ typedef struct _conversation_hash_t {
     unsigned    flags;            /**< flags given to the tap packet */
 } conv_hash_t;
 
-/** Key for hash lookups */
+/**
+ * @brief Composite hash table key identifying a conversation by its two endpoints and optional ID.
+ */
 typedef struct _conversation_key_t {
-    address     addr1;
-    address     addr2;
-    uint32_t    port1;
-    uint32_t    port2;
-    conv_id_t   conv_id;
+    address   addr1;    /**< Address of the first endpoint of the conversation */
+    address   addr2;    /**< Address of the second endpoint of the conversation */
+    uint32_t  port1;    /**< Transport port of the first endpoint */
+    uint32_t  port2;    /**< Transport port of the second endpoint */
+    conv_id_t conv_id;  /**< Optional conversation ID used to disambiguate conversations sharing the same address/port 4-tuple */
 } conv_key_t;
 
+/**
+ * @brief Composite hash table key identifying a single network endpoint by address and port.
+ */
 typedef struct {
-    address  myaddress;
-    uint32_t port;
+    address  myaddress; /**< Network address of the endpoint */
+    uint32_t port;      /**< Transport port of the endpoint */
 } endpoint_key_t;
 
 /*
@@ -98,15 +109,28 @@ typedef endpoint_key_t host_key_t;
 struct _conversation_item_t;
 typedef const char* (*conv_get_filter_type)(struct _conversation_item_t* item, conv_filter_type_e filter);
 
+/**
+ * @brief Dissector info block for a conversation table, providing filter-type resolution.
+ */
 typedef struct _ct_dissector_info {
-    conv_get_filter_type get_filter_type;
+    conv_get_filter_type get_filter_type; /**< Callback that returns the display filter field name for a given conversation filter type */
 } ct_dissector_info_t;
 
 struct _endpoint_item_t;
+
+/**
+ * @brief Callback that resolves a display filter field name for a given endpoint item and filter type.
+ * @param item        Pointer to the endpoint item being queried.
+ * @param filter_type The conversation filter type to resolve.
+ * @return The display filter field name string corresponding to @p filter_type, or NULL if unsupported.
+ */
 typedef const char* (*endpoint_get_filter_type)(struct _endpoint_item_t* item, conv_filter_type_e filter_type);
 
+/**
+ * @brief Dissector info block for an endpoint table, providing filter-type resolution.
+ */
 typedef struct _et_dissector_info {
-    endpoint_get_filter_type get_filter_type;
+    endpoint_get_filter_type get_filter_type; /**< Callback that returns the display filter field name for a given endpoint filter type */
 } et_dissector_info_t;
 
 /* For backwards source compatibility */

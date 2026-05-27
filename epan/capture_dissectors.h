@@ -25,8 +25,11 @@ typedef struct {
     uint64_t          total;       /* Cache of total packets */
 } packet_counts;
 
+/**
+ * @brief Accumulates per-protocol packet counts during a live capture session.
+ */
 typedef struct _capture_packet_info {
-    GHashTable *counts;
+    GHashTable *counts; /**< Hash table mapping protocol identifiers to their running packet count */
 } capture_packet_info_t;
 
 typedef struct capture_dissector_handle* capture_dissector_handle_t;

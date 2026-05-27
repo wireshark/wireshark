@@ -20,160 +20,230 @@ extern "C" {
 #define ASSERT_FTYPE_NOT_REACHED(ft) \
 	ws_error("Invalid field type '%s'.", ftype_name(ft))
 
-/* field types */
+/**
+ * @brief Fundamental field value types used throughout the Wireshark dissector framework.
+ */
 enum ftenum {
-	FT_NONE,	/* used for text labels with no value */
-	FT_PROTOCOL,
-	FT_BOOLEAN,	/* true and false come from <glib.h> */
-	FT_CHAR,	/* 1-octet character as 0-255 */
-	FT_UINT8,
-	FT_UINT16,
-	FT_UINT24,	/* really a UINT32, but displayed as 6 hex-digits if FD_HEX*/
-	FT_UINT32,
-	FT_UINT40,	/* really a UINT64, but displayed as 10 hex-digits if FD_HEX*/
-	FT_UINT48,	/* really a UINT64, but displayed as 12 hex-digits if FD_HEX*/
-	FT_UINT56,	/* really a UINT64, but displayed as 14 hex-digits if FD_HEX*/
-	FT_UINT64,
-	FT_INT8,
-	FT_INT16,
-	FT_INT24,	/* same as for UINT24 */
-	FT_INT32,
-	FT_INT40, /* same as for UINT40 */
-	FT_INT48, /* same as for UINT48 */
-	FT_INT56, /* same as for UINT56 */
-	FT_INT64,
-	FT_IEEE_11073_SFLOAT,
-	FT_IEEE_11073_FLOAT,
-	FT_FLOAT,
-	FT_DOUBLE,
-	FT_ABSOLUTE_TIME,
-	FT_RELATIVE_TIME,
-	FT_STRING,	/* counted string, with no null terminator */
-	FT_STRINGZ,	/* null-terminated string */
-	FT_UINT_STRING,	/* counted string, with count being the first part of the value */
-	FT_ETHER,
-	FT_BYTES,
-	FT_UINT_BYTES,
-	FT_IPv4,
-	FT_IPv6,
-	FT_IPXNET,
-	FT_FRAMENUM,	/* a UINT32, but if selected lets you go to frame with that number */
-	FT_GUID,	/* GUID, UUID */
-	FT_OID,		/* OBJECT IDENTIFIER */
-	FT_EUI64,
-	FT_AX25,
-	FT_VINES,
-	FT_REL_OID,	/* RELATIVE-OID */
-	FT_SYSTEM_ID,
-	FT_STRINGZPAD,	/* null-padded string */
-	FT_FCWWN,
-	FT_STRINGZTRUNC,	/* null-truncated string */
-	FT_NUM_TYPES, /* last item number plus one */
-	FT_SCALAR,		/* Pseudo-type used only internally for certain
-				 * arithmetic operations. */
-	FT_ENUM_SIZE = FT_SCALAR	/* Must be equal to last enumeration */
+    FT_NONE,             /**< Text label with no associated value */
+    FT_PROTOCOL,         /**< Protocol subtree node */
+    FT_BOOLEAN,          /**< Boolean value; true/false from <glib.h> */
+    FT_CHAR,             /**< Single-octet character, displayed as value 0–255 */
+    FT_UINT8,            /**< Unsigned 8-bit integer */
+    FT_UINT16,           /**< Unsigned 16-bit integer */
+    FT_UINT24,           /**< Unsigned 24-bit integer; stored as UINT32, displayed as 6 hex digits with FD_HEX */
+    FT_UINT32,           /**< Unsigned 32-bit integer */
+    FT_UINT40,           /**< Unsigned 40-bit integer; stored as UINT64, displayed as 10 hex digits with FD_HEX */
+    FT_UINT48,           /**< Unsigned 48-bit integer; stored as UINT64, displayed as 12 hex digits with FD_HEX */
+    FT_UINT56,           /**< Unsigned 56-bit integer; stored as UINT64, displayed as 14 hex digits with FD_HEX */
+    FT_UINT64,           /**< Unsigned 64-bit integer */
+    FT_INT8,             /**< Signed 8-bit integer */
+    FT_INT16,            /**< Signed 16-bit integer */
+    FT_INT24,            /**< Signed 24-bit integer; stored as INT32 (see FT_UINT24) */
+    FT_INT32,            /**< Signed 32-bit integer */
+    FT_INT40,            /**< Signed 40-bit integer; stored as INT64 (see FT_UINT40) */
+    FT_INT48,            /**< Signed 48-bit integer; stored as INT64 (see FT_UINT48) */
+    FT_INT56,            /**< Signed 56-bit integer; stored as INT64 (see FT_UINT56) */
+    FT_INT64,            /**< Signed 64-bit integer */
+    FT_IEEE_11073_SFLOAT, /**< IEEE 11073 16-bit SFLOAT (medical device float) */
+    FT_IEEE_11073_FLOAT,  /**< IEEE 11073 32-bit FLOAT (medical device float) */
+    FT_FLOAT,            /**< IEEE 754 single-precision (32-bit) floating point */
+    FT_DOUBLE,           /**< IEEE 754 double-precision (64-bit) floating point */
+    FT_ABSOLUTE_TIME,    /**< Absolute date/time timestamp */
+    FT_RELATIVE_TIME,    /**< Relative time delta */
+    FT_STRING,           /**< Counted byte string with no null terminator */
+    FT_STRINGZ,          /**< Null-terminated (C-style) string */
+    FT_UINT_STRING,      /**< Length-prefixed string; leading bytes encode the count */
+    FT_ETHER,            /**< IEEE 802 MAC address (6 bytes) */
+    FT_BYTES,            /**< Arbitrary byte array */
+    FT_UINT_BYTES,       /**< Length-prefixed byte array; leading bytes encode the count */
+    FT_IPv4,             /**< IPv4 address (4 bytes) */
+    FT_IPv6,             /**< IPv6 address (16 bytes) */
+    FT_IPXNET,           /**< IPX network address (4 bytes) */
+    FT_FRAMENUM,         /**< UINT32 frame number; clicking navigates to the referenced frame */
+    FT_GUID,             /**< Globally Unique Identifier / UUID (16 bytes) */
+    FT_OID,              /**< ASN.1 OBJECT IDENTIFIER */
+    FT_EUI64,            /**< IEEE EUI-64 identifier (8 bytes) */
+    FT_AX25,             /**< AX.25 amateur radio address (7 bytes) */
+    FT_VINES,            /**< Banyan VINES network address (6 bytes) */
+    FT_REL_OID,          /**< ASN.1 RELATIVE-OID */
+    FT_SYSTEM_ID,        /**< IS-IS System Identifier */
+    FT_STRINGZPAD,       /**< Fixed-length null-padded string */
+    FT_FCWWN,            /**< Fibre Channel World Wide Name (8 bytes) */
+    FT_STRINGZTRUNC,     /**< Fixed-length null-truncated string */
+    FT_NUM_TYPES,        /**< Sentinel: one past the last real field type */
+    FT_SCALAR,           /**< Pseudo-type used internally for arithmetic operations only; not a real field type */
+    FT_ENUM_SIZE = FT_SCALAR /**< Must equal the last enumerator to size arrays correctly */
 };
 
+
+/**
+ * @brief True if @p ft is a signed integer type backed by a 32-bit value.
+ * @param ft An ftenum value to test.
+ */
 #define FT_IS_INT32(ft) \
-	((ft) == FT_INT8 ||  \
-	 (ft) == FT_INT16 || \
-	 (ft) == FT_INT24 || \
-	 (ft) == FT_INT32)
+    ((ft) == FT_INT8  || \
+     (ft) == FT_INT16 || \
+     (ft) == FT_INT24 || \
+     (ft) == FT_INT32)
 
+/**
+ * @brief True if @p ft is a signed integer type backed by a 64-bit value.
+ * @param ft An ftenum value to test.
+ */
 #define FT_IS_INT64(ft) \
-	((ft) == FT_INT40 || \
-	 (ft) == FT_INT48 || \
-	 (ft) == FT_INT56 || \
-	 (ft) == FT_INT64)
+    ((ft) == FT_INT40 || \
+     (ft) == FT_INT48 || \
+     (ft) == FT_INT56 || \
+     (ft) == FT_INT64)
 
+/**
+ * @brief True if @p ft is any signed integer type (INT8 through INT64).
+ * @param ft An ftenum value to test.
+ */
 #define FT_IS_INT(ft) (FT_IS_INT32(ft) || FT_IS_INT64(ft))
 
+/**
+ * @brief True if @p ft is an unsigned integer type backed by a 32-bit value.
+ * @param ft An ftenum value to test.
+ */
 #define FT_IS_UINT32(ft) \
-	((ft) == FT_CHAR ||   \
-	 (ft) == FT_UINT8 ||  \
-	 (ft) == FT_UINT16 || \
-	 (ft) == FT_UINT24 || \
-	 (ft) == FT_UINT32 || \
-	 (ft) == FT_FRAMENUM)
+    ((ft) == FT_CHAR    || \
+     (ft) == FT_UINT8   || \
+     (ft) == FT_UINT16  || \
+     (ft) == FT_UINT24  || \
+     (ft) == FT_UINT32  || \
+     (ft) == FT_FRAMENUM)
 
+/**
+ * @brief True if @p ft is an unsigned integer type backed by a 64-bit value.
+ * @param ft An ftenum value to test.
+ */
 #define FT_IS_UINT64(ft) \
-	((ft) == FT_UINT40 || \
-	 (ft) == FT_UINT48 || \
-	 (ft) == FT_UINT56 || \
-	 (ft) == FT_UINT64)
+    ((ft) == FT_UINT40 || \
+     (ft) == FT_UINT48 || \
+     (ft) == FT_UINT56 || \
+     (ft) == FT_UINT64)
 
+/**
+ * @brief True if @p ft is any unsigned integer type (CHAR, UINT8 through UINT64, FRAMENUM).
+ * @param ft An ftenum value to test.
+ */
 #define FT_IS_UINT(ft) (FT_IS_UINT32(ft) || FT_IS_UINT64(ft))
 
+/**
+ * @brief True if @p ft is any signed or unsigned integer type.
+ * @param ft An ftenum value to test.
+ */
 #define FT_IS_INTEGER(ft) (FT_IS_INT(ft) || FT_IS_UINT(ft))
 
+/**
+ * @brief True if @p ft is a floating-point type (FT_FLOAT or FT_DOUBLE).
+ * @param ft An ftenum value to test.
+ */
 #define FT_IS_FLOATING(ft) ((ft) == FT_FLOAT || (ft) == FT_DOUBLE)
 
+/**
+ * @brief True if @p ft is a time type (FT_ABSOLUTE_TIME or FT_RELATIVE_TIME).
+ * @param ft An ftenum value to test.
+ */
 #define FT_IS_TIME(ft) \
-	((ft) == FT_ABSOLUTE_TIME || (ft) == FT_RELATIVE_TIME)
+    ((ft) == FT_ABSOLUTE_TIME || (ft) == FT_RELATIVE_TIME)
 
+/**
+ * @brief True if @p ft is any string-like type.
+ * @param ft An ftenum value to test.
+ */
 #define FT_IS_STRING(ft) \
-	((ft) == FT_STRING || (ft) == FT_STRINGZ || (ft) == FT_STRINGZPAD || \
-	 (ft) == FT_STRINGZTRUNC || (ft) == FT_UINT_STRING || (ft) == FT_AX25)
+    ((ft) == FT_STRING      || (ft) == FT_STRINGZ    || (ft) == FT_STRINGZPAD || \
+     (ft) == FT_STRINGZTRUNC || (ft) == FT_UINT_STRING || (ft) == FT_AX25)
 
+/**
+ * @brief True if @p ft is a scalar type suitable for internal arithmetic (FT_INT64 or FT_DOUBLE).
+ * @param ft An ftenum value to test.
+ */
 #define FT_IS_SCALAR(ft) ((ft) == FT_INT64 || (ft) == FT_DOUBLE)
 
-/* field types lengths */
-#define FT_ETHER_LEN		6
-#define FT_GUID_LEN		16
-#define FT_IPv4_LEN		4
-#define FT_IPv6_LEN		16
-#define FT_IPXNET_LEN		4
-#define FT_EUI64_LEN		8
-#define FT_AX25_ADDR_LEN	7
-#define FT_VINES_ADDR_LEN	6
-#define FT_FCWWN_LEN		8
-#define FT_VARINT_MAX_LEN	10	/* Because 64 / 7 = 9 and 64 % 7 = 1, get an uint64 varint need reads up to 10 bytes. */
 
+/** @brief Fixed byte length of an FT_ETHER (IEEE 802 MAC address) field. */
+#define FT_ETHER_LEN        6
+/** @brief Fixed byte length of an FT_GUID (UUID) field. */
+#define FT_GUID_LEN         16
+/** @brief Fixed byte length of an FT_IPv4 address field. */
+#define FT_IPv4_LEN         4
+/** @brief Fixed byte length of an FT_IPv6 address field. */
+#define FT_IPv6_LEN         16
+/** @brief Fixed byte length of an FT_IPXNET address field. */
+#define FT_IPXNET_LEN       4
+/** @brief Fixed byte length of an FT_EUI64 identifier field. */
+#define FT_EUI64_LEN        8
+/** @brief Fixed byte length of an FT_AX25 address field. */
+#define FT_AX25_ADDR_LEN    7
+/** @brief Fixed byte length of an FT_VINES address field. */
+#define FT_VINES_ADDR_LEN   6
+/** @brief Fixed byte length of an FT_FCWWN (Fibre Channel WWN) field. */
+#define FT_FCWWN_LEN        8
+/** @brief Maximum byte length of a variable-length base-128 (varint) encoded uint64; ceil(64/7) = 10. */
+#define FT_VARINT_MAX_LEN   10
+
+
+/** @brief Convenience typedef for ftenum. */
 typedef enum ftenum ftenum_t;
 
+
+/**
+ * @brief Semantic role of an FT_FRAMENUM field, describing the relationship it encodes.
+ */
 enum ft_framenum_type {
-	FT_FRAMENUM_NONE,
-	FT_FRAMENUM_REQUEST,
-	FT_FRAMENUM_RESPONSE,
-	FT_FRAMENUM_ACK,
-	FT_FRAMENUM_DUP_ACK,
-	FT_FRAMENUM_RETRANS_PREV,
-	FT_FRAMENUM_RETRANS_NEXT,
-	FT_FRAMENUM_NUM_TYPES /* last item number plus one */
+    FT_FRAMENUM_NONE,         /**< No specific semantic role */
+    FT_FRAMENUM_REQUEST,      /**< References the request frame for this response */
+    FT_FRAMENUM_RESPONSE,     /**< References the response frame for this request */
+    FT_FRAMENUM_ACK,          /**< References the frame being acknowledged */
+    FT_FRAMENUM_DUP_ACK,      /**< References a duplicate acknowledgement frame */
+    FT_FRAMENUM_RETRANS_PREV, /**< References the previous retransmission of this frame */
+    FT_FRAMENUM_RETRANS_NEXT, /**< References the next retransmission of this frame */
+    FT_FRAMENUM_NUM_TYPES     /**< Sentinel: one past the last valid framenum type */
 };
 
+/** @brief Convenience typedef for ft_framenum_type. */
 typedef enum ft_framenum_type ft_framenum_type_t;
 
 struct _ftype_t;
 typedef struct _ftype_t ftype_t;
 
+
+/**
+ * @brief Return codes for ftype operations such as conversion and comparison.
+ */
 enum ft_result {
-	FT_OK = 0,
-	FT_OVERFLOW,
-	FT_UNDERFLOW,
-	FT_BADARG,
-	FT_ERROR, /* Generic. */
+    FT_OK        = 0, /**< Operation completed successfully */
+    FT_OVERFLOW,      /**< Value exceeds the representable range (too large) */
+    FT_UNDERFLOW,     /**< Value is below the representable range (too small) */
+    FT_BADARG,        /**< One or more arguments are invalid */
+    FT_ERROR,         /**< Generic unspecified error */
 };
 
-/*
- * True, false or error if negative.
- * Note that
- *     ft_bool == FT_FALSE
- * and
- *     ft_bool != FT_TRUE
- * are different results (three-state logic).
+
+/**
+ * @brief Three-state boolean type for ftype comparison results.
+ *
+ * Note that `ft_bool == FT_FALSE` and `ft_bool != FT_TRUE` are semantically
+ * distinct results due to the three-state (true / false / error) logic.
+ * Negative values indicate an error condition.
  */
 typedef int ft_bool_t;
-#define FT_TRUE		1
-#define FT_FALSE	0
+#define FT_TRUE  1 /**< Comparison result: true */
+#define FT_FALSE 0 /**< Comparison result: false */
 
-/* String representation types. */
+
+/**
+ * @brief Output representation formats for field value serialization.
+ */
 enum ftrepr {
-	FTREPR_DISPLAY,
-	FTREPR_DFILTER,
-	FTREPR_JSON,
-	FTREPR_RAW,
-	FTREPR_EK, /* ElasticSearch/OpenSearch JSON */
+    FTREPR_DISPLAY, /**< Human-readable display string (as shown in the packet details pane) */
+    FTREPR_DFILTER, /**< Display filter syntax representation (suitable for use in filter expressions) */
+    FTREPR_JSON,    /**< Standard JSON value representation */
+    FTREPR_RAW,     /**< Raw unformatted byte/value representation */
+    FTREPR_EK,      /**< ElasticSearch/OpenSearch JSON representation */
 };
 
 typedef enum ftrepr ftrepr_t;

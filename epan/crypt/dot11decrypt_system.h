@@ -92,138 +92,162 @@
 /************************************************************************/
 /*	Type definitions						*/
 
+/**
+ * @brief Uniquely identifies a security association by the BSSID and station MAC address pair.
+ */
 typedef struct _DOT11DECRYPT_SEC_ASSOCIATION_ID {
-	unsigned char bssid[DOT11DECRYPT_MAC_LEN];
-	unsigned char sta[DOT11DECRYPT_MAC_LEN];
+    unsigned char bssid[DOT11DECRYPT_MAC_LEN]; /**< MAC address of the access point (BSSID) */
+    unsigned char sta[DOT11DECRYPT_MAC_LEN];   /**< MAC address of the associated station (STA) */
 } DOT11DECRYPT_SEC_ASSOCIATION_ID, *PDOT11DECRYPT_SEC_ASSOCIATION_ID;
 
+/**
+ * @brief Holds the full cryptographic state of a security association between a STA and an AP.
+ */
 typedef struct _DOT11DECRYPT_SEC_ASSOCIATION {
-    /* This is for reassociations. A linked list of old security
-     * associations is kept.  GCS
-     */
-    struct _DOT11DECRYPT_SEC_ASSOCIATION* next;
+    struct _DOT11DECRYPT_SEC_ASSOCIATION *next; /**< Pointer to the previous security association in the reassociation linked list; NULL if none */
 
-	DOT11DECRYPT_SEC_ASSOCIATION_ID saId;
-	DOT11DECRYPT_KEY_ITEM *key;
-	uint8_t handshake;
-	uint8_t validKey;
+    DOT11DECRYPT_SEC_ASSOCIATION_ID saId;       /**< Identity of this security association (BSSID + STA MAC) */
+    DOT11DECRYPT_KEY_ITEM          *key;        /**< Pointer to the key material used to derive session keys */
+    uint8_t                         handshake;  /**< Current 4-way handshake progress state (1–4) */
+    uint8_t                         validKey;   /**< Non-zero if a valid PTK has been derived and is ready for decryption */
 
-	struct {
-		uint8_t key_ver;		/* Key descriptor version	*/
-		unsigned char nonce[DOT11DECRYPT_WPA_NONCE_LEN];
-		/* used to derive PTK, ANonce stored, SNonce taken	*/
-		/* the 2nd packet of the 4W handshake			*/
-		int akm;
-		int cipher;
-		int tmp_group_cipher; /* Keep between HS msg 2 and 3 */
-		int pmk_len;
-		unsigned char ptk[DOT11DECRYPT_WPA_PTK_MAX_LEN]; /* session key used in decryption algorithm */
-		int ptk_len;
+    struct {
+        uint8_t       key_ver;                              /**< EAPOL-Key descriptor version negotiated during the handshake */
+        unsigned char nonce[DOT11DECRYPT_WPA_NONCE_LEN];   /**< ANonce captured from handshake message 1, used with SNonce to derive the PTK */
+        int           akm;                                  /**< AKM suite selector identifying the authentication and key management method */
+        int           cipher;                               /**< Pairwise cipher suite selector (e.g. CCMP, TKIP) */
+        int           tmp_group_cipher;                     /**< Group cipher suite, cached between handshake messages 2 and 3 */
+        int           pmk_len;                              /**< Length in bytes of the Pairwise Master Key (PMK) */
+        unsigned char ptk[DOT11DECRYPT_WPA_PTK_MAX_LEN];   /**< Derived Pairwise Transient Key (PTK) used as the session decryption key */
+        int           ptk_len;                              /**< Length in bytes of the derived PTK */
 
-		/* MLD info */
-		uint8_t mld : 1; /* 1 if both STA and AP MLD MAC set */
-		uint8_t ap_mld_mac_set : 1;
-		uint8_t sta_mld_mac_set : 1;
-		uint8_t ap_mld_mac[DOT11DECRYPT_MAC_LEN];
-		uint8_t sta_mld_mac[DOT11DECRYPT_MAC_LEN];
-		struct DOT11DECRYPT_MLO_LINK_INFO {
-		        uint8_t id_set : 1;
-		        uint8_t sta_mac_set : 1;
-		        uint8_t ap_mac_set : 1;
-			uint8_t id : 4;
-			uint8_t sta_mac[DOT11DECRYPT_MAC_LEN];
-			uint8_t ap_mac[DOT11DECRYPT_MAC_LEN];
-		} mlo_links[DOT11DECRYPT_MAX_MLO_LINKS];
-	} wpa;
+        /* MLD info */
+        uint8_t mld           : 1;                         /**< 1 if both the AP MLD MAC and STA MLD MAC have been set */
+        uint8_t ap_mld_mac_set : 1;                        /**< 1 if @p ap_mld_mac has been populated */
+        uint8_t sta_mld_mac_set : 1;                       /**< 1 if @p sta_mld_mac has been populated */
+        uint8_t ap_mld_mac[DOT11DECRYPT_MAC_LEN];          /**< Multi-Link Device MAC address of the AP */
+        uint8_t sta_mld_mac[DOT11DECRYPT_MAC_LEN];         /**< Multi-Link Device MAC address of the station */
 
+        /**
+         * @brief Per-link identity and address information for a single MLO affiliated link.
+         */
+        struct DOT11DECRYPT_MLO_LINK_INFO {
+            uint8_t id_set     : 1;                        /**< 1 if the link ID has been set */
+            uint8_t sta_mac_set : 1;                       /**< 1 if @p sta_mac has been populated for this link */
+            uint8_t ap_mac_set  : 1;                       /**< 1 if @p ap_mac has been populated for this link */
+            uint8_t id          : 4;                       /**< Link ID assigned by the AP for this affiliated link */
+            uint8_t sta_mac[DOT11DECRYPT_MAC_LEN];         /**< STA MAC address on this affiliated link */
+            uint8_t ap_mac[DOT11DECRYPT_MAC_LEN];          /**< AP MAC address on this affiliated link */
+        } mlo_links[DOT11DECRYPT_MAX_MLO_LINKS];           /**< Array of per-link info for all MLO affiliated links */
+    } wpa; /**< WPA/RSN-specific handshake and key derivation state */
 
 } DOT11DECRYPT_SEC_ASSOCIATION, *PDOT11DECRYPT_SEC_ASSOCIATION;
 
+/**
+ * @brief Global decryption context holding keys and session state for dot11decrypt.
+ */
 typedef struct _DOT11DECRYPT_CONTEXT {
-	GHashTable *sa_hash;
-	DOT11DECRYPT_KEY_ITEM keys[DOT11DECRYPT_MAX_KEYS_NR];
-	size_t keys_nr;
-	uint8_t pkt_ssid[DOT11DECRYPT_WPA_SSID_MAX_LEN];
-	size_t pkt_ssid_len;
+    GHashTable *sa_hash;                          /**< Hash table of active Security Associations (SA), keyed by address/session info */
+    DOT11DECRYPT_KEY_ITEM keys[DOT11DECRYPT_MAX_KEYS_NR]; /**< Array of configured decryption keys */
+    size_t keys_nr;                               /**< Number of valid entries in @ref keys */
+    uint8_t pkt_ssid[DOT11DECRYPT_WPA_SSID_MAX_LEN]; /**< SSID extracted from the current packet */
+    size_t pkt_ssid_len;                          /**< Length in bytes of @ref pkt_ssid */
 } DOT11DECRYPT_CONTEXT, *PDOT11DECRYPT_CONTEXT;
 
+
+/**
+ * @brief EAPOL handshake message type, identifying the step within a 4-Way or Group handshake.
+ */
 typedef enum _DOT11DECRYPT_HS_MSG_TYPE {
-	DOT11DECRYPT_HS_MSG_TYPE_INVALID = 0,
-	DOT11DECRYPT_HS_MSG_TYPE_4WHS_1,
-	DOT11DECRYPT_HS_MSG_TYPE_4WHS_2,
-	DOT11DECRYPT_HS_MSG_TYPE_4WHS_3,
-	DOT11DECRYPT_HS_MSG_TYPE_4WHS_4,
-	DOT11DECRYPT_HS_MSG_TYPE_GHS_1,
-	DOT11DECRYPT_HS_MSG_TYPE_GHS_2
+    DOT11DECRYPT_HS_MSG_TYPE_INVALID = 0, /**< Invalid or unrecognized handshake message */
+    DOT11DECRYPT_HS_MSG_TYPE_4WHS_1,      /**< 4-Way Handshake message 1 (ANonce from AP) */
+    DOT11DECRYPT_HS_MSG_TYPE_4WHS_2,      /**< 4-Way Handshake message 2 (SNonce from STA, MIC) */
+    DOT11DECRYPT_HS_MSG_TYPE_4WHS_3,      /**< 4-Way Handshake message 3 (GTK, MIC from AP) */
+    DOT11DECRYPT_HS_MSG_TYPE_4WHS_4,      /**< 4-Way Handshake message 4 (ACK from STA) */
+    DOT11DECRYPT_HS_MSG_TYPE_GHS_1,       /**< Group Handshake message 1 (new GTK from AP) */
+    DOT11DECRYPT_HS_MSG_TYPE_GHS_2        /**< Group Handshake message 2 (ACK from STA) */
 } DOT11DECRYPT_HS_MSG_TYPE;
 
+
+/**
+ * @brief Parsed fields from an IEEE 802.11r Fast Transition Element (FTE).
+ */
 typedef struct _DOT11DECRYPT_FTE {
-	uint8_t *mic;
-	uint8_t mic_len;
-	uint8_t *anonce;
-	uint8_t *snonce;
-	uint8_t *r0kh_id;
-	uint8_t r0kh_id_len;
-	uint8_t *r1kh_id;
-	uint8_t r1kh_id_len;
+    uint8_t *mic;         /**< Pointer to the Message Integrity Code (MIC) field */
+    uint8_t  mic_len;     /**< Length in bytes of @ref mic */
+    uint8_t *anonce;      /**< Pointer to the Authenticator Nonce (ANonce) */
+    uint8_t *snonce;      /**< Pointer to the Supplicant Nonce (SNonce) */
+    uint8_t *r0kh_id;     /**< Pointer to the R0 Key Holder Identifier */
+    uint8_t  r0kh_id_len; /**< Length in bytes of @ref r0kh_id */
+    uint8_t *r1kh_id;     /**< Pointer to the R1 Key Holder Identifier */
+    uint8_t  r1kh_id_len; /**< Length in bytes of @ref r1kh_id */
 } DOT11DECRYPT_FTE, *PDOT11DECRYPT_FTE;
 
+
+/**
+ * @brief Parsed representation of an EAPOL key frame for WPA/WPA2/WPA3 handshake processing.
+ */
 typedef struct _DOT11DECRYPT_EAPOL_PARSED {
-	DOT11DECRYPT_HS_MSG_TYPE msg_type;
-	uint16_t len;
-	uint8_t key_type;
-	uint8_t key_version;
-	uint16_t key_len;
-	uint8_t *key_iv;
-	uint8_t *key_data;
-	uint16_t key_data_len;
-	uint8_t group_cipher;
-	uint8_t cipher;
-	uint8_t akm;
-	uint8_t *nonce;
-	uint8_t *mic;
-	uint16_t mic_len;
-	uint8_t *gtk;
-	uint16_t gtk_len;
-	uint8_t *mld_mac;
+    DOT11DECRYPT_HS_MSG_TYPE msg_type; /**< Identified handshake step this EAPOL frame belongs to */
+    uint16_t len;                      /**< Total length of the EAPOL frame in bytes */
+    uint8_t  key_type;                 /**< Key descriptor type (e.g., RSN vs. WPA legacy) */
+    uint8_t  key_version;              /**< Key descriptor version field */
+    uint16_t key_len;                  /**< Length of the temporal key in bytes */
+    uint8_t *key_iv;                   /**< Pointer to the key IV field */
+    uint8_t *key_data;                 /**< Pointer to the Key Data payload */
+    uint16_t key_data_len;             /**< Length in bytes of @ref key_data */
+    uint8_t  group_cipher;             /**< Group cipher suite selector */
+    uint8_t  cipher;                   /**< Pairwise cipher suite selector */
+    uint8_t  akm;                      /**< Authentication and Key Management (AKM) suite selector */
+    uint8_t *nonce;                    /**< Pointer to the nonce field (ANonce or SNonce depending on direction) */
+    uint8_t *mic;                      /**< Pointer to the Message Integrity Code (MIC) */
+    uint16_t mic_len;                  /**< Length in bytes of @ref mic */
+    uint8_t *gtk;                      /**< Pointer to the Group Temporal Key (GTK), if present */
+    uint16_t gtk_len;                  /**< Length in bytes of @ref gtk */
+    uint8_t *mld_mac;                  /**< Pointer to the MLD (Multi-Link Device) MAC address, if present */
 
-	uint8_t mlo_link_count;
-	struct DOT11DECRYPT_EAPOL_PARSED_MLO_LINK {
-		uint8_t id;
-		uint8_t *mac;
-	} mlo_link[DOT11DECRYPT_MAX_MLO_LINKS];
+    uint8_t mlo_link_count;            /**< Number of valid entries in @ref mlo_link */
+    /** @brief Per-link identity record for an MLO (Multi-Link Operation) association. */
+    struct DOT11DECRYPT_EAPOL_PARSED_MLO_LINK {
+        uint8_t  id;  /**< Link ID */
+        uint8_t *mac; /**< Pointer to the MAC address for this link */
+    } mlo_link[DOT11DECRYPT_MAX_MLO_LINKS]; /**< Array of MLO link identifiers */
 
-	uint8_t mlo_gtk_count;
-	struct DOT11DECRYPT_EAPOL_PARSED_MLO_GTK {
-		uint8_t link_id;
-		uint8_t *key;
-		uint8_t len;
-	} mlo_gtk[DOT11DECRYPT_MAX_MLO_LINKS];
+    uint8_t mlo_gtk_count;             /**< Number of valid entries in @ref mlo_gtk */
+    /** @brief Per-link Group Temporal Key record for an MLO association. */
+    struct DOT11DECRYPT_EAPOL_PARSED_MLO_GTK {
+        uint8_t  link_id; /**< Link ID this GTK applies to */
+        uint8_t *key;     /**< Pointer to the GTK key material */
+        uint8_t  len;     /**< Length in bytes of @ref key */
+    } mlo_gtk[DOT11DECRYPT_MAX_MLO_LINKS]; /**< Array of per-link GTKs */
 
-	/* For fast bss transition akms */
-	uint8_t *mdid;
-	DOT11DECRYPT_FTE fte;
+    /* For fast BSS transition AKMs */
+    uint8_t        *mdid; /**< Pointer to the Mobility Domain Identifier (MDID), used for 802.11r FT AKMs */
+    DOT11DECRYPT_FTE fte; /**< Parsed Fast Transition Element (FTE) fields */
 } DOT11DECRYPT_EAPOL_PARSED, *PDOT11DECRYPT_EAPOL_PARSED;
 
-typedef struct _DOT11DECRYPT_ASSOC_PARSED
-{
-	uint8_t frame_subtype;
-	uint8_t group_cipher;
-	uint8_t cipher;
-	uint8_t akm;
-	uint8_t *mdid;
-	DOT11DECRYPT_FTE fte;
-	uint8_t* rsne_tag;
-	uint8_t* rsnxe_tag;
-	uint8_t* mde_tag;
-	uint8_t* fte_tag;
-	uint8_t* rde_tag;
-	uint8_t *gtk;
-	uint16_t gtk_len;
-	uint16_t gtk_subelem_key_len;
-	uint8_t bssid[DOT11DECRYPT_MAC_LEN];
-	uint8_t sa[DOT11DECRYPT_MAC_LEN];
-	uint8_t da[DOT11DECRYPT_MAC_LEN];
+
+/**
+ * @brief Parsed representation of an 802.11 association or reassociation frame.
+ */
+typedef struct _DOT11DECRYPT_ASSOC_PARSED {
+    uint8_t  frame_subtype;          /**< 802.11 frame subtype (e.g., association request/response) */
+    uint8_t  group_cipher;           /**< Group cipher suite selector from RSNE */
+    uint8_t  cipher;                 /**< Pairwise cipher suite selector from RSNE */
+    uint8_t  akm;                    /**< AKM suite selector from RSNE */
+    uint8_t *mdid;                   /**< Pointer to the Mobility Domain Identifier (MDID), for FT AKMs */
+    DOT11DECRYPT_FTE fte;            /**< Parsed Fast Transition Element (FTE) fields */
+    uint8_t *rsne_tag;               /**< Pointer to the raw RSN Element (RSNE) tag in the frame */
+    uint8_t *rsnxe_tag;              /**< Pointer to the raw RSN Extension Element (RSNXE) tag */
+    uint8_t *mde_tag;                /**< Pointer to the raw Mobility Domain Element (MDE) tag */
+    uint8_t *fte_tag;                /**< Pointer to the raw Fast Transition Element (FTE) tag */
+    uint8_t *rde_tag;                /**< Pointer to the raw Resource Request/Response Element (RDE) tag */
+    uint8_t *gtk;                    /**< Pointer to the Group Temporal Key (GTK), if present */
+    uint16_t gtk_len;                /**< Length in bytes of @ref gtk */
+    uint16_t gtk_subelem_key_len;    /**< Length in bytes of the GTK subelement key field */
+    uint8_t  bssid[DOT11DECRYPT_MAC_LEN]; /**< BSSID of the access point */
+    uint8_t  sa[DOT11DECRYPT_MAC_LEN];    /**< Source MAC address */
+    uint8_t  da[DOT11DECRYPT_MAC_LEN];    /**< Destination MAC address */
 } DOT11DECRYPT_ASSOC_PARSED, *PDOT11DECRYPT_ASSOC_PARSED;
 
 /************************************************************************/

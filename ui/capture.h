@@ -27,16 +27,19 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Event identifiers for live capture lifecycle callbacks.
+ */
 typedef enum {
-    capture_cb_capture_prepared,
-    capture_cb_capture_update_started,
-    capture_cb_capture_update_continue,
-    capture_cb_capture_update_finished,
-    capture_cb_capture_fixed_started,
-    capture_cb_capture_fixed_continue,
-    capture_cb_capture_fixed_finished,
-    capture_cb_capture_stopping,
-    capture_cb_capture_failed
+    capture_cb_capture_prepared,        /**< Capture interfaces have been opened and the capture is ready to start */
+    capture_cb_capture_update_started,  /**< An updatable (real-time) capture session has started */
+    capture_cb_capture_update_continue, /**< An updatable capture session has received new packets and the display should refresh */
+    capture_cb_capture_update_finished, /**< An updatable capture session has ended normally */
+    capture_cb_capture_fixed_started,   /**< A fixed (non-updating) capture session has started */
+    capture_cb_capture_fixed_continue,  /**< A fixed capture session is continuing; progress update without display refresh */
+    capture_cb_capture_fixed_finished,  /**< A fixed capture session has ended normally */
+    capture_cb_capture_stopping,        /**< The capture is in the process of stopping (user-initiated or limit reached) */
+    capture_cb_capture_failed           /**< The capture session failed to start or was terminated due to an error */
 } capture_cbs;
 
 typedef void (*capture_callback_t) (int event, capture_session *cap_session,

@@ -82,11 +82,14 @@ constexpr int Count = 4;
 namespace LuaDbgBreakpointModes
 {
 
+/**
+ * @brief Selects the operational mode of a conditional breakpoint or debug action.
+ */
 enum class Mode : int
 {
-    Expression = 0,
-    HitCount = 1,
-    LogMessage = 2,
+    Expression = 0, /**< Evaluate a boolean expression; break or act when the expression is true */
+    HitCount   = 1, /**< Break or act after the location has been reached a specified number of times */
+    LogMessage = 2, /**< Emit a log message instead of suspending execution when the location is reached */
 };
 
 /** Mode-table row. The @c label / @c placeholder / @c valueTooltip strings
