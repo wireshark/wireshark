@@ -157,7 +157,7 @@ def main():
                 modules.extend(tool["python_modules"])
             except KeyError:
                 pass
-        print(f"{' '.join(modules)}")
+        print(f"{' '.join(sorted(set(modules), key=str.lower))}")
         sys.exit(0)
 
     # Update everything by default
