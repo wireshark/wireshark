@@ -830,8 +830,9 @@ typedef struct field_info {
 } field_info;
 
 
-/*
- * This structure describes one segment of a split-bits item
+/**
+ * @brief This structure describes one segment of a split-bits item
+ *
  * crumb_bit_offset is the bit offset in the input tvb of the first (most significant) bit of this crumb
  * crumb_bit_length is the number of contiguous bits of this crumb.
  * The first element of an array of bits_specs describes the most significant crumb of the output value.
@@ -840,8 +841,8 @@ typedef struct field_info {
 */
 typedef struct
 {
-    unsigned  crumb_bit_offset;
-    uint8_t crumb_bit_length;
+    unsigned  crumb_bit_offset; /**< bit offset in the input tvb of the first (most significant) bit of this crumb */
+    uint8_t crumb_bit_length;   /**< number of contiguous bits of this crumb. */
 } crumb_spec_t;
 
 /*
@@ -3024,10 +3025,13 @@ WS_DLL_PUBLIC bool proto_registrar_is_protocol(const int n);
  @return 0 means undeterminable at registration time, -1 means unknown field */
 WS_DLL_PUBLIC int proto_registrar_get_length(const int n);
 
+/**
+ * @brief Holds aggregate statistics about the state of the protocol registrar.
+ */
 struct proto_registrar_stats {
-    size_t protocol_count;
-    size_t deregistered_count;
-    size_t same_name_count;
+    size_t protocol_count;      /**< Total number of protocols currently registered. */
+    size_t deregistered_count;  /**< Number of protocols that have been deregistered. */
+    size_t same_name_count;     /**< Number of protocols that share a name with at least one other registered protocol. */
 };
 
 /** Get protocol and field registration counts.

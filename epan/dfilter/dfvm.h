@@ -135,12 +135,15 @@ typedef enum {
 const char *
 dfvm_opcode_tostr(dfvm_opcode_t code);
 
+/**
+ * @brief Represents a single instruction in the display filter virtual machine (DFVM).
+ */
 typedef struct {
-	int		id;
-	dfvm_opcode_t	op;
-	dfvm_value_t	*arg1;
-	dfvm_value_t	*arg2;
-	dfvm_value_t	*arg3;
+    int            id;   /**< Unique identifier (index) of the instruction within the DFVM program. */
+    dfvm_opcode_t  op;   /**< Opcode specifying the operation this instruction performs. */
+    dfvm_value_t*  arg1; /**< First operand of the instruction, or NULL if unused. */
+    dfvm_value_t*  arg2; /**< Second operand of the instruction, or NULL if unused. */
+    dfvm_value_t*  arg3; /**< Third operand of the instruction, or NULL if unused. */
 } dfvm_insn_t;
 
 /**

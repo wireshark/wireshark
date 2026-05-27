@@ -21,6 +21,9 @@ extern "C" {
  *@file
  */
 
+/**
+ * @brief Represents a preference module grouping related preferences under a named, hierarchical entry in the preferences system.
+ */
 struct pref_module {
     const char *name;           /**< name of module */
     const char *title;          /**< title of module (displayed in preferences list) */
@@ -48,20 +51,64 @@ struct pref_module {
                                      to ensure saving to disk */
 };
 
+/**
+ * @brief Bundles a preference module with a file handle for use during preference serialization.
+ */
 typedef struct {
-    module_t *module;
-    FILE     *pf;
+    module_t* module; /**< The preference module whose preferences are being written. */
+    FILE*     pf;     /**< The output file handle to which preferences are being written. */
 } write_pref_arg_t;
 
-typedef void (*pref_custom_free_cb) (pref_t* pref);
-typedef void (*pref_custom_reset_cb) (pref_t* pref);
-typedef prefs_set_pref_e (*pref_custom_set_cb) (pref_t* pref, const char* value, unsigned int* changed_flags);
+
+/**
+ * @brief Callback invoked to free any resources allocated by a custom preference.
+ * @param pref The custom preference to free.
+ */
+typedef void (*pref_custom_free_cb)(pref_t* pref);
+
+/**
+ * @brief Callback invoked to reset a custom preference to its default value.
+ * @param pref The custom preference to reset.
+ */
+typedef void (*pref_custom_reset_cb)(pref_t* pref);
+
+/**
+ * @brief Callback invoked to set a custom preference from a string value, reporting which flags changed.
+ * @param pref          The custom preference to update.
+ * @param value         The new value as a string to parse and apply.
+ * @param changed_flags Bitmask updated to indicate which aspects of the preference changed.
+ * @return A prefs_set_pref_e result code indicating success or the nature of any error.
+ */
+typedef prefs_set_pref_e (*pref_custom_set_cb)(pref_t* pref, const char* value, unsigned int* changed_flags);
+
 /* typedef void (*pref_custom_write_cb) (pref_t* pref, write_pref_arg_t* arg); Deprecated. */
-/* pref_custom_type_name_cb should return NULL for internal / hidden preferences. */
-typedef const char * (*pref_custom_type_name_cb) (void);
-typedef char * (*pref_custom_type_description_cb) (void);
-typedef bool (*pref_custom_is_default_cb) (pref_t* pref);
-typedef char * (*pref_custom_to_str_cb) (pref_t* pref, bool default_val);
+
+/**
+ * @brief Callback that returns the type name string for a custom preference; returns NULL for internal or hidden preferences.
+ * @return A string identifying the preference type, or NULL if the preference should be hidden.
+ */
+typedef const char* (*pref_custom_type_name_cb)(void);
+
+/**
+ * @brief Callback that returns a newly allocated human-readable description of a custom preference type.
+ * @return A newly allocated string describing the preference type; caller is responsible for freeing it.
+ */
+typedef char* (*pref_custom_type_description_cb)(void);
+
+/**
+ * @brief Callback that reports whether a custom preference currently holds its default value.
+ * @param pref The custom preference to check.
+ * @return True if the preference is set to its default value, false otherwise.
+ */
+typedef bool (*pref_custom_is_default_cb)(pref_t* pref);
+
+/**
+ * @brief Callback that serializes a custom preference to a newly allocated string.
+ * @param pref        The custom preference to serialize.
+ * @param default_val True to serialize the default value, false to serialize the current value.
+ * @return A newly allocated string representation of the preference value; caller is responsible for freeing it.
+ */
+typedef char* (*pref_custom_to_str_cb)(pref_t* pref, bool default_val);
 
 /**
  * @brief Callback table for a PREF_CUSTOM preference, providing lifecycle and serialization hooks.
@@ -637,14 +684,15 @@ prefs_pref_is_default(pref_t *pref);
 WS_DLL_PUBLIC
 unsigned pref_stash(pref_t *pref, void *unused);
 
+/**
+ * @brief Carries context data used when unstashing preferences back to their live values.
+ */
 typedef struct pref_unstash_data
 {
-    /* Used to set prefs_changed member to true if the preference
-       differs from its stashed values. */
-    module_t *module;
-    /* Qt uses stashed values to then "applies" them
-      during unstash.  Use this flag for that behavior */
-    bool handle_decode_as;
+    module_t* module;          /**< The preference module being unstashed; used to detect and flag any changes
+                                    between the current and stashed preference values. */
+    bool      handle_decode_as; /**< When true, stashed values are applied as "decode as" overrides during
+                                     unstashing, matching the behavior required by the Qt preferences UI. */
 } pref_unstash_data_t;
 
 /**

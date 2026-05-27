@@ -26,97 +26,101 @@
 
 #define MAX_SUBPKTS_PER_PACKET 16
 
-/*
-    An RR pair is identified by a Fully Qualified Message ID (RRPD)
-*/
-
+/**
+ * @brief Fully Qualified Message ID representing a Request-Response Pair Descriptor (RRPD), used to correlate request and response frames across a conversation.
+ */
 typedef struct _RRPD
 {
     /*
-        When a c2s is set true it means that the associated packet is going from
-        client-to-service.  If this value is false the associated packet is going
-        from service-to-client.
-
-        This value is only valid for RRPDs imbedded in subpacket structures.
+     * When c2s is true the associated packet is travelling client-to-service.
+     * When false it is travelling service-to-client.
+     * Only valid for RRPDs embedded in subpacket structures.
      */
-    bool c2s;
+    bool c2s; /**< True if the associated packet is client-to-service; false if service-to-client. Only valid when this RRPD is embedded in a subpacket structure. */
 
-    uint8_t  ip_proto;
-    uint32_t stream_no;
-    uint64_t session_id;
-    uint64_t msg_id;
+    uint8_t  ip_proto;   /**< IP protocol number (e.g. IPPROTO_TCP, IPPROTO_UDP) for this request-response pair. */
+    uint32_t stream_no;  /**< Wireshark transport stream index identifying the TCP or UDP stream carrying this pair. */
+    uint64_t session_id; /**< Application-layer session identifier, used by protocols that multiplex sessions over a single stream. */
+    uint64_t msg_id;     /**< Application-layer message identifier uniquely distinguishing this request-response pair within the session. */
 
     /*
-        Some request-response pairs are demarked simple by a change in direction on a
-        TCP or UDP stream from s2c to c2s.  This is true for the GTCP and GUDP
-        calculations.  Other calculations (such as DCERPC) use application protocol
-        values to detect the start and end of APDUs.  In this latter case decode_based
-        is set to true.
+     * When decode_based is false, the RR boundary is detected by a direction
+     * change (s2c -> c2s) on the stream, as used by GTCP and GUDP calculations.
+     * When true, application-protocol values (e.g. DCERPC) are used to detect
+     * APDU boundaries.
      */
-    bool decode_based;
+    bool decode_based; /**< True if APDU boundaries are determined by application-protocol decoding (e.g. DCERPC); false if determined by a stream direction change. */
 
-    bool is_retrans;
+    bool is_retrans; /**< True if this RRPD was identified as a retransmission and should be excluded from response-time calculations. */
 
-    uint32_t req_first_frame;
-    nstime_t req_first_rtime;
-    uint32_t req_last_frame;
-    nstime_t req_last_rtime;
+    uint32_t req_first_frame;  /**< Wireshark frame number of the first frame of the request APDU. */
+    nstime_t req_first_rtime;  /**< Capture-relative timestamp of the first frame of the request APDU. */
+    uint32_t req_last_frame;   /**< Wireshark frame number of the last frame of the request APDU. */
+    nstime_t req_last_rtime;   /**< Capture-relative timestamp of the last frame of the request APDU. */
 
-    uint32_t rsp_first_frame;
-    nstime_t rsp_first_rtime;
-    uint32_t rsp_last_frame;
-    nstime_t rsp_last_rtime;
+    uint32_t rsp_first_frame;  /**< Wireshark frame number of the first frame of the response APDU. */
+    nstime_t rsp_first_rtime;  /**< Capture-relative timestamp of the first frame of the response APDU. */
+    uint32_t rsp_last_frame;   /**< Wireshark frame number of the last frame of the response APDU. */
+    nstime_t rsp_last_rtime;   /**< Capture-relative timestamp of the last frame of the response APDU. */
 
-    unsigned calculation;
+    unsigned calculation; /**< Identifier of the RR calculation method (e.g. GTCP, GUDP, DCERPC) used to detect this pair. */
 
-    /* The following numbers are for tuning purposes */
-    uint32_t req_search_total;  /* The total number of steps back through the rrpd_list when matching requests to this entry */
-    uint32_t rsp_search_total;  /* The total number of steps back through the rrpd_list when matching responses to this entry */
+    /* Tuning counters */
+    uint32_t req_search_total; /**< Cumulative number of steps taken backwards through the rrpd_list when matching requests to this entry; used for performance tuning. */
+    uint32_t rsp_search_total; /**< Cumulative number of steps taken backwards through the rrpd_list when matching responses to this entry; used for performance tuning. */
 } RRPD;
 
+/**
+ * @brief Aggregates all per-packet field values extracted by the RR dissector, including transport, application-layer, and computed state.
+ */
 typedef struct _PKT_INFO
 {
-    int frame_number;
-    nstime_t relative_time;
+    int      frame_number;  /**< Wireshark frame number of this packet. */
+    nstime_t relative_time; /**< Capture-relative timestamp of this packet. */
 
-    bool tcp_retran;  /* tcp.analysis.retransmission */
-    bool tcp_keep_alive;  /* tcp.analysis.keep_alive */
-    bool tcp_flags_syn;  /* tcp.flags.syn */
-    bool tcp_flags_ack;  /* tcp.flags.ack */
-    bool tcp_flags_reset;  /* tcp.flags.reset */
-    uint32_t tcp_flags_urg;  /* tcp.urgent_pointer */
-    uint32_t tcp_seq;  /* tcp.seq */
+    /* TCP analysis flags */
+    bool     tcp_retran;      /**< True if tcp.analysis.retransmission is set for this packet. */
+    bool     tcp_keep_alive;  /**< True if tcp.analysis.keep_alive is set for this packet. */
+    bool     tcp_flags_syn;   /**< True if the TCP SYN flag (tcp.flags.syn) is set. */
+    bool     tcp_flags_ack;   /**< True if the TCP ACK flag (tcp.flags.ack) is set. */
+    bool     tcp_flags_reset; /**< True if the TCP RST flag (tcp.flags.reset) is set. */
+    uint32_t tcp_flags_urg;   /**< Value of the TCP urgent pointer (tcp.urgent_pointer); non-zero indicates urgent data. */
+    uint32_t tcp_seq;         /**< TCP sequence number (tcp.seq) of this packet. */
 
     /* Generic transport values */
-    uint16_t srcport;  /* tcp.srcport or udp.srcport*/
-    uint16_t dstport;  /* tcp.dstport or udp.dstport*/
-    uint16_t len;  /* tcp.len or udp.len */
+    uint16_t srcport; /**< Source port number from tcp.srcport or udp.srcport. */
+    uint16_t dstport; /**< Destination port number from tcp.dstport or udp.dstport. */
+    uint16_t len;     /**< Payload length in bytes from tcp.len or udp.len. */
 
-    uint8_t ssl_content_type;  /*tls.record.content_type */
+    /* TLS */
+    uint8_t ssl_content_type; /**< TLS record content type (tls.record.content_type), e.g. handshake, application data, alert. */
 
-    uint8_t tds_type;  /*tds.type */
-    uint16_t tds_length;  /* tds.length */
+    /* TDS */
+    uint8_t  tds_type;   /**< TDS packet type (tds.type) identifying the category of this TDS message. */
+    uint16_t tds_length; /**< TDS packet length (tds.length) in bytes. */
 
-    uint16_t smb_mid;  /* smb.mid */
+    /* SMB */
+    uint16_t smb_mid; /**< SMB multiplex ID (smb.mid) used to match SMB requests to their responses. */
 
-    uint64_t smb2_sesid;  /* smb2.sesid */
-    uint64_t smb2_msg_id;  /* smb2.msg_id */
-    uint16_t smb2_cmd;  /* smb2.cmd */
+    /* SMB2 */
+    uint64_t smb2_sesid;  /**< SMB2 session ID (smb2.sesid) identifying the authenticated session. */
+    uint64_t smb2_msg_id; /**< SMB2 message ID (smb2.msg_id) used to correlate SMB2 requests and responses. */
+    uint16_t smb2_cmd;    /**< SMB2 command code (smb2.cmd) identifying the type of SMB2 operation. */
 
-    uint8_t dcerpc_ver;  /* dcerpc.ver */
-    uint8_t dcerpc_pkt_type;  /* dcerpc.pkt_type */
-    uint32_t dcerpc_cn_call_id;  /* dcerpc.cn_call_id */
-    uint16_t dcerpc_cn_ctx_id;  /* dcerpc.cn_ctx_id */
+    /* DCERPC */
+    uint8_t  dcerpc_ver;        /**< DCERPC major version number (dcerpc.ver). */
+    uint8_t  dcerpc_pkt_type;   /**< DCERPC packet type (dcerpc.pkt_type), e.g. request, response, bind. */
+    uint32_t dcerpc_cn_call_id; /**< DCERPC connection-oriented call ID (dcerpc.cn_call_id) matching requests to responses. */
+    uint16_t dcerpc_cn_ctx_id;  /**< DCERPC connection-oriented context ID (dcerpc.cn_ctx_id) identifying the interface binding. */
 
-    uint16_t dns_id;  /* dns.id */
+    /* DNS */
+    uint16_t dns_id; /**< DNS transaction ID (dns.id) used to match DNS queries to their answers. */
 
-    /* The following values are calculated */
-    bool pkt_of_interest;
+    /* Calculated values */
+    bool pkt_of_interest; /**< True if this packet has been determined to be relevant to an RR calculation and should be processed further. */
 
-    /* RRPD data for this packet */
-    /* Complete this based on the detected protocol */
-    RRPD rrpd;
-
+    /* RRPD data for this packet; populated based on the detected application protocol */
+    RRPD rrpd; /**< Request-response pair descriptor carrying the correlation state derived for this packet. */
 } PKT_INFO;
 
 /**

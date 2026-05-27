@@ -549,12 +549,15 @@ WS_DLL_PUBLIC void dissector_add_custom_table_handle(const char *name, void *pat
  */
 WS_DLL_PUBLIC dissector_handle_t dissector_get_custom_table_handle(
     dissector_table_t sub_dissectors, void *key);
-/* Key for GUID dissector tables.  This is based off of DCE/RPC needs
-   so some dissector tables may not need the ver portion of the hash
+
+/**
+ * @brief Lookup key for GUID-indexed dissector tables, combining a GUID with an optional version field.
+ *
+ * Based on DCE/RPC requirements; some dissector tables may not use the ver field.
  */
 typedef struct _guid_key {
-    e_guid_t guid;
-    uint16_t ver;
+    e_guid_t guid; /**< The GUID identifying the protocol or interface. */
+    uint16_t ver;  /**< Version of the interface identified by the GUID; may be unused by some dissector tables. */
 } guid_key;
 
 /**
@@ -743,14 +746,17 @@ struct heur_dissector_list;
 typedef struct heur_dissector_list *heur_dissector_list_t;
 
 
+/**
+ * @brief Represents a single entry in a heuristic dissector table, binding a heuristic dissector to its protocol and configuration.
+ */
 typedef struct heur_dtbl_entry {
-	heur_dissector_t dissector;
-	protocol_t *protocol; /* this entry's protocol */
-	char *list_name;     /* the list name this entry is in the list of */
-	const char *display_name;     /* the string used to present heuristic to user */
-	char *short_name;     /* string used for "internal" use to uniquely identify heuristic */
-	bool enabled;
-	bool enabled_by_default;
+    heur_dissector_t dissector;        /**< The heuristic dissector function to invoke when attempting to identify this protocol. */
+    protocol_t*      protocol;         /**< The protocol associated with this heuristic dissector entry. */
+    char*            list_name;        /**< Name of the heuristic dissector list this entry belongs to. */
+    const char*      display_name;     /**< Human-readable name presented to the user in the heuristics configuration UI. */
+    char*            short_name;       /**< Internal unique identifier string used to distinguish this heuristic from others. */
+    bool             enabled;          /**< Whether this heuristic dissector is currently enabled. */
+    bool             enabled_by_default; /**< Whether this heuristic dissector is enabled by default upon registration. */
 } heur_dtbl_entry_t;
 
 /** A protocol uses this function to register a heuristic sub-dissector list.
@@ -1372,26 +1378,24 @@ extern void free_data_sources(packet_info *pinfo);
  */
 WS_DLL_PUBLIC void mark_frame_as_depended_upon(frame_data *fd, uint32_t frame_num);
 
-/* Structure passed to the frame dissector */
+/**
+ * @brief Holds the data passed to the frame dissector for dissection of a single packet frame.
+ */
 typedef struct frame_data_s
 {
-    int file_type_subtype;
-    /*
-     * This might be the block from the packet's wtap_rec or it might
-     * be a modified copy of that, as, for example, the comments
-     * might have been edited but not yet saved to the file.
-     */
-    wtap_block_t pkt_block;         /**< NULL if not available */
-    struct epan_dissect *color_edt; /** Used strictly for "coloring rules" */
-
+    int          file_type_subtype; /**< File type and subtype of the capture file containing this frame. */
+    wtap_block_t pkt_block;         /**< Metadata block for the packet (e.g. comments); may be the original from
+                                         wtap_rec or a modified copy if edits have not yet been saved; NULL if unavailable. */
+    struct epan_dissect* color_edt; /**< Epan dissect structure used exclusively for evaluating coloring rules; not for general dissection. */
 } frame_data_t;
 
-/* Structure passed to the file dissector */
+/**
+ * @brief Holds the data passed to the file dissector for dissection of a capture file as a whole.
+ */
 typedef struct file_data_s
 {
-    wtap_block_t pkt_block;         /**< NULL if not available */
-    struct epan_dissect *color_edt; /** Used strictly for "coloring rules" */
-
+    wtap_block_t pkt_block;         /**< Metadata block associated with the file; NULL if unavailable. */
+    struct epan_dissect* color_edt; /**< Epan dissect structure used exclusively for evaluating coloring rules; not for general dissection. */
 } file_data_t;
 
 /**
@@ -1415,14 +1419,16 @@ extern void dissect_record(struct epan_dissect *edt, int file_type_subtype,
 extern void dissect_file(struct epan_dissect *edt,
     wtap_rec *rec, frame_data *fd, column_info *cinfo);
 
-/* Structure passed to the ethertype dissector */
+/**
+ * @brief Holds the parameters passed to the Ethertype dissector for dissecting an Ethernet payload.
+ */
 typedef struct ethertype_data_s
 {
-    uint16_t etype;
-    int payload_offset;
-    proto_tree *fh_tree;
-    int trailer_id;
-    int fcs_len;
+    uint16_t    etype;          /**< The Ethertype value identifying the encapsulated protocol. */
+    int         payload_offset; /**< Offset within the current tvbuff at which the Ethertype payload begins. */
+    proto_tree* fh_tree;        /**< Protocol tree node under which Ethertype fields should be added. */
+    int         trailer_id;     /**< Header field ID used to label any trailing padding bytes after the payload. */
+    int         fcs_len;        /**< Length in bytes of the frame check sequence (FCS) appended after the payload; 0 if absent. */
 } ethertype_data_t;
 
 /**

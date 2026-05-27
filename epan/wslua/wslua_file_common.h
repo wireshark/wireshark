@@ -21,8 +21,11 @@
 
 /* this is way overkill for this one member, but in case we need to add
    more in the future, the plumbing will be here */
+/**
+ * @brief Holds private Lua-managed state for a file handler instance; structured for extensibility should additional members be needed.
+ */
 typedef struct _file_priv_t {
-    int table_ref;
+    int table_ref; /**< Lua registry reference to the per-file private data table provided by the Lua file handler. */
 } file_priv_t;
 
 /* create and set the wtap->priv private data for the file instance */

@@ -27,10 +27,13 @@ struct epan_dissect;
 #define DF_ERROR_GENERIC		-1
 #define DF_ERROR_UNEXPECTED_END		-2
 
+/**
+ * @brief Represents a display filter error, including an error code, message, and source location.
+ */
 typedef struct {
-	int code;
-	char *msg;
-	df_loc_t loc;
+    int      code; /**< Numeric error code identifying the type of error. */
+    char*    msg;  /**< Human-readable error message describing the failure. */
+    df_loc_t loc;  /**< Location within the filter string where the error was detected. */
 } df_error_t;
 
 /**

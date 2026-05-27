@@ -9,18 +9,14 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 #pragma once
-/*
- * Definition of a value for an enumerated type.
- *
- * "name" is the name one would use on the command line for the value.
- * "description" is the description of the value, used in combo boxes/
- * option menus.
- * "value" is the value.
+
+/**
+ * @brief Defines a single named value within an enumerated preference or option type.
  */
 typedef struct {
-	const char	*name;
-	const char	*description;
-	int		value;
+    const char* name;        /**< Command-line name for this enumeration value (e.g. "none", "tcp"). */
+    const char* description; /**< Human-readable description displayed in combo boxes and option menus. */
+    int         value;       /**< The underlying integer value this entry represents. */
 } enum_val_t;
 
 /* -----  Public enum_val_t "Helper" macros ----- */

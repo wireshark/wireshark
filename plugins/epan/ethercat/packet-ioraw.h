@@ -11,11 +11,13 @@
 #ifndef _PACKET_IORAW_H_
 #define _PACKET_IORAW_H_
 
-/* headers are only used for size and offset calculation*/
+/**
+ * @brief Minimal header struct used exclusively for wire size and field offset calculations in the raw I/O parser; not overlaid onto packet data directly.
+ */
 typedef struct _IoRawParser
 {
-   uint32_t head;
+    uint32_t head; /**< First 32-bit word of the raw parser header, used as an anchor for size and offset derivation. */
 } IoRawParserHDR, *PIoRawParserHDR;
-#define IoRawParserHDR_Len (int)sizeof(IoRawParserHDR)
+#define IoRawParserHDR_Len (int)sizeof(IoRawParserHDR) /**< Wire size in bytes of IoRawParserHDR. */
 
 #endif /* _PACKET_IORAW_H_*/

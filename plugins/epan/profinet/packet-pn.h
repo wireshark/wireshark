@@ -30,91 +30,112 @@ extern int proto_pn_io_time_aware_status;
 
 extern bool pnio_ps_selection;  /* given by pnio preferences */
 
-/* Structure for general station information */
+/**
+ * @brief Holds all dissection state for a single PROFINET IO station, spanning identity, frame layout, GSD metadata, and object lists.
+ */
 typedef struct tagStationInfo {
     /* general information */
-    char     *typeofstation;
-    char     *nameofstation;
-    uint16_t  u16Vendor_id;
-    uint16_t  u16Device_id;
+    char     *typeofstation;        /**< Human-readable string describing the station type (e.g. "IO-Device"). */
+    char     *nameofstation;        /**< Station name as configured in the network, used for identification. */
+    uint16_t  u16Vendor_id;         /**< PROFINET vendor ID assigned by the PNO to the device manufacturer. */
+    uint16_t  u16Device_id;         /**< Vendor-assigned device ID identifying the specific product model. */
+
     /* frame structure */
-    uint16_t  ioDataObjectNr_in;
-    uint16_t  ioDataObjectNr_out;
-    uint16_t  iocsNr_in;
-    uint16_t  iocsNr_out;
-    /* GSDfile station information */
-    bool      gsdFound;
-    bool      gsdPathLength;
-    char     *gsdLocation;
+    uint16_t  ioDataObjectNr_in;    /**< Number of incoming IO data objects carried in the cyclic data frame. */
+    uint16_t  ioDataObjectNr_out;   /**< Number of outgoing IO data objects carried in the cyclic data frame. */
+    uint16_t  iocsNr_in;            /**< Number of incoming IOCS (IO Consumer Status) objects in the cyclic data frame. */
+    uint16_t  iocsNr_out;           /**< Number of outgoing IOCS objects in the cyclic data frame. */
+
+    /* GSD file station information */
+    bool      gsdFound;             /**< True if a matching GSD/GSDML file was located for this station. */
+    bool      gsdPathLength;        /**< True if the GSD file path length is within the permitted bounds. */
+    char     *gsdLocation;          /**< File system path or URI to the GSD/GSDML file for this station. */
+
     /* IOCS object data */
-    wmem_list_t *iocs_data_in;
-    wmem_list_t *iocs_data_out;
+    wmem_list_t *iocs_data_in;      /**< List of incoming iocsObject entries describing consumer status slots in the frame. */
+    wmem_list_t *iocs_data_out;     /**< List of outgoing iocsObject entries describing consumer status slots in the frame. */
+
     /* IOData object data */
-    wmem_list_t *ioobject_data_in;
-    wmem_list_t *ioobject_data_out;
+    wmem_list_t *ioobject_data_in;  /**< List of incoming ioDataObject entries describing IO data slots in the frame. */
+    wmem_list_t *ioobject_data_out; /**< List of outgoing ioDataObject entries describing IO data slots in the frame. */
+
     /* Different ModuleIdentnumber */
-    wmem_list_t *diff_module;
+    wmem_list_t *diff_module;       /**< List of moduleDiffInfo entries for modules whose ident number differs from the expected value. */
+
     /* Flag for the extraction of PNIO Objects without AR */
-    bool filled_with_objects;
+    bool filled_with_objects;       /**< True if this station's object lists have been populated from frames that arrived without an established AR. */
 } stationInfo;
 
+/**
+ * @brief Carries the link-layer addressing context needed to correlate APDU status frames in a redundant PROFINET topology.
+ */
 typedef struct tagApduStatusSwitch
 {
-    bool isRedundancyActive;
-    address dl_dst;
-    address dl_src;
-}apduStatusSwitch;
+    bool    isRedundancyActive; /**< True if PROFINET system redundancy is currently active for this station. */
+    address dl_dst;             /**< Data-link destination address of the APDU status frame. */
+    address dl_src;             /**< Data-link source address of the APDU status frame. */
+} apduStatusSwitch;
 
-/* Structure for IOCS Frames */
+/**
+ * @brief Describes a single IOCS (IO Consumer Status) object entry within a cyclic PROFINET frame.
+ */
 typedef struct tagIocsObject {
-    uint16_t   slotNr;
-    uint16_t   subSlotNr;
-    uint16_t   frameOffset;
+    uint16_t slotNr;      /**< Slot number of the module to which this IOCS entry belongs. */
+    uint16_t subSlotNr;   /**< Subslot number within the slot to which this IOCS entry belongs. */
+    uint16_t frameOffset; /**< Byte offset of this IOCS entry within the cyclic data frame. */
 } iocsObject;
 
-/* Structure for IO Data Objects  */
+/**
+ * @brief Describes a single IO data object within a cyclic PROFINET frame, including PROFIsafe parameters and dissection state.
+ */
 typedef struct tagIoDataObject {
-    uint16_t    slotNr;
-    uint16_t    subSlotNr;
-    uint32_t    api;
-    uint32_t    moduleIdentNr;
-    uint32_t    subModuleIdentNr;
-    uint16_t    frameOffset;
-    uint16_t    length;
-    uint16_t    amountInGSDML;
-    uint32_t    fParameterIndexNr;
-    uint16_t    f_par_crc1;
-    uint16_t    f_src_adr;
-    uint16_t    f_dest_adr;
-    bool        f_crc_seed;
-    uint8_t     f_crc_len;
-    address     srcAddr;
-    address     dstAddr;
-    bool        profisafeSupported;
-    bool        discardIOXS;
-    char       *moduleNameStr;
-    tvbuff_t   *tvb_slot;
-    tvbuff_t   *tvb_subslot;
-    /* Status- or Controlbyte data*/
-    uint8_t    last_sb_cb;
-    uint8_t    lastToggleBit;
+    uint16_t  slotNr;              /**< Slot number of the module that owns this IO data object. */
+    uint16_t  subSlotNr;           /**< Subslot number within the slot that owns this IO data object. */
+    uint32_t  api;                 /**< Application Process Identifier scoping the module and submodule ident numbers. */
+    uint32_t  moduleIdentNr;       /**< Module ident number as declared in the GSD/GSDML file. */
+    uint32_t  subModuleIdentNr;    /**< Submodule ident number as declared in the GSD/GSDML file. */
+    uint16_t  frameOffset;         /**< Byte offset of this IO data object within the cyclic data frame. */
+    uint16_t  length;              /**< Length in bytes of the IO data payload for this object. */
+    uint16_t  amountInGSDML;       /**< Number of times this submodule appears in the GSDML, used for validation. */
+    uint32_t  fParameterIndexNr;   /**< F-Parameter index number used to locate PROFIsafe parameters for this object. */
+    uint16_t  f_par_crc1;          /**< PROFIsafe F-Parameter CRC1 integrity check value. */
+    uint16_t  f_src_adr;           /**< PROFIsafe source F-Address assigned to the safety controller. */
+    uint16_t  f_dest_adr;          /**< PROFIsafe destination F-Address assigned to this safety device. */
+    bool      f_crc_seed;          /**< PROFIsafe CRC seed selection flag; false selects seed 0, true selects seed 1. */
+    uint8_t   f_crc_len;           /**< Length in bytes of the PROFIsafe CRC appended to the safety data. */
+    address   srcAddr;             /**< Network source address of the device supplying this IO data object. */
+    address   dstAddr;             /**< Network destination address of the consumer of this IO data object. */
+    bool      profisafeSupported;  /**< True if this submodule has been identified as PROFIsafe-capable. */
+    bool      discardIOXS;         /**< True if the IOXS (IO provider/consumer status) byte should be suppressed during dissection. */
+    char     *moduleNameStr;       /**< Human-readable module name string sourced from the GSD/GSDML file. */
+    tvbuff_t *tvb_slot;            /**< Tvbuff spanning the slot portion of the frame data, used for sub-dissection. */
+    tvbuff_t *tvb_subslot;         /**< Tvbuff spanning the subslot portion of the frame data, used for sub-dissection. */
+
+    /* Status- or Controlbyte data */
+    uint8_t   last_sb_cb;          /**< Most recently observed status or control byte value for this object, used for change detection. */
+    uint8_t   lastToggleBit;       /**< Last seen PROFIsafe toggle bit, used to detect retransmissions and sequence errors. */
 } ioDataObject;
 
-/* Structure for Modules with different ModuleIdentnumber */
+/**
+ * @brief Records a module whose actual ModuleIdentNumber differs from the value expected by the IO controller.
+ */
 typedef struct tagModuleDiffInfo {
-    uint16_t   slotNr;
-    uint32_t   modulID;
+    uint16_t slotNr;  /**< Slot number of the module reporting a differing ident number. */
+    uint32_t modulID; /**< Actual ModuleIdentNumber reported by the device in the slot. */
 } moduleDiffInfo;
 
+/**
+ * @brief Associates an AR UUID with the frame numbers of its setup, release, and cyclic data frames.
+ */
 typedef struct tagARUUIDFrame {
-    e_guid_t aruuid;
-    uint32_t setupframe;
-    uint32_t releaseframe;
-    uint16_t outputframe;
-    uint16_t inputframe;
+    e_guid_t aruuid;        /**< Application Relation UUID uniquely identifying this AR within the PROFINET network. */
+    uint32_t setupframe;    /**< Wireshark frame number of the AR establishment (Connect) frame. */
+    uint32_t releaseframe;  /**< Wireshark frame number of the AR release frame; 0 if the AR has not yet been released. */
+    uint16_t outputframe;   /**< Wireshark frame number of the first outgoing cyclic data frame for this AR. */
+    uint16_t inputframe;    /**< Wireshark frame number of the first incoming cyclic data frame for this AR. */
 } ARUUIDFrame;
 
-extern wmem_list_t *aruuid_frame_setup_list;
+extern wmem_list_t *aruuid_frame_setup_list; /**< Global list of ARUUIDFrame entries tracking all observed AR lifecycles across the capture. */
 
 /**
  * @brief Initialize PROFINET protocol dissector.

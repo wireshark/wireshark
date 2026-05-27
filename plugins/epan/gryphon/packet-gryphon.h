@@ -563,18 +563,23 @@
 #define GDGLIN08        0x01    /* DG HC08 SUBTYPE */
 #define GDGLIN_BEACON   0x03    /* DG BEACON LIN SUBTYPE */
 
+/**
+ * @brief Tracks per-packet command state for matching Gryphon request and response frames within a dissection.
+ */
 typedef struct {
-    uint32_t cmd;
-    uint32_t cmd_context;    //typically just uint8_t, but let's room for expansion/improvement
-    uint32_t ioctl_command;  //should be more generic, but IOCTL is currently the only user
-    uint32_t req_frame_num;
-    uint32_t rsp_frame_num;
-    nstime_t req_time;
+    uint32_t cmd;         /**< Gryphon command code identifying the type of operation for this packet. */
+    uint32_t cmd_context; /**< Context value associated with the command; stored as uint32_t to allow future expansion beyond a single byte. */
+    uint32_t ioctl_command; /**< IOCTL command code; currently the sole user of this field, intended to be generalised in future. */
+    uint32_t req_frame_num; /**< Wireshark frame number of the request packet associated with this transaction. */
+    uint32_t rsp_frame_num; /**< Wireshark frame number of the response packet associated with this transaction. */
+    nstime_t req_time;      /**< Timestamp of the request packet, used to calculate request/response latency. */
 } gryphon_pkt_info_t;
 
-/* List contains request data  */
+/**
+ * @brief Holds per-conversation state for a Gryphon session, storing outstanding request data across frames.
+ */
 typedef struct {
-    wmem_list_t *request_frame_data;
+    wmem_list_t *request_frame_data; /**< Linked list of outstanding request frame data entries, used to correlate requests with their responses. */
 } gryphon_conversation;
 
 

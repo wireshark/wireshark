@@ -13,9 +13,12 @@
 
 #include <stddef.h>
 
+/**
+ * @brief Represents a location (column start and length) within a display filter string.
+ */
 typedef struct _dfilter_loc {
-	long col_start;
-	size_t col_len;
+    long   col_start; /**< Starting column offset of the location (may be negative to indicate an unset/invalid position). */
+    size_t col_len;   /**< Number of columns (characters) spanned by the location. */
 } df_loc_t;
 
 extern df_loc_t loc_empty;

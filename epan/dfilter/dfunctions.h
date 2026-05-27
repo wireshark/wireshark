@@ -34,16 +34,16 @@ typedef bool (*DFFuncType)(GSList *stack, uint32_t arg_count, df_cell_t *retval)
 typedef ftenum_t (*DFSemCheckType)(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
                                 GSList *param_list, df_loc_t func_loc);
 
-/* This is a "function definition" record, holding everything
- * we need to know about a function */
+/**
+ * @brief Defines a display filter function, holding its name, implementation, arity, and type information.
+ */
 typedef struct {
-    const char      *name;
-    DFFuncType      function;
-    unsigned        min_nargs;
-    unsigned        max_nargs; /* 0 for no limit */
-    ftenum_t        return_ftype; /* Can be FT_NONE if the function returns the same type
-                                   * as its arguments. */
-    DFSemCheckType  semcheck_param_function;
+    const char*    name;                     /**< The function name as used in display filter expressions. */
+    DFFuncType     function;                 /**< Pointer to the function implementation. */
+    unsigned       min_nargs;                /**< Minimum number of arguments the function accepts. */
+    unsigned       max_nargs;                /**< Maximum number of arguments the function accepts; 0 means no upper limit. */
+    ftenum_t       return_ftype;             /**< Return type of the function; FT_NONE if the return type matches the argument type. */
+    DFSemCheckType semcheck_param_function;  /**< Semantic check callback used to validate the function's parameters at compile time. */
 } df_func_def_t;
 
 /** @brief Check semantic correctness of a parameter in a display filter function.

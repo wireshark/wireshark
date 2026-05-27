@@ -153,36 +153,45 @@ typedef struct {
     } default_value;
 } pbl_field_descriptor_t;
 
-/* like google::protobuf::EnumDescriptor of protobuf cpp library */
+/**
+ * @brief Describes a protobuf enum type, analogous to google::protobuf::EnumDescriptor in the C++ protobuf library.
+ */
 typedef struct {
-    pbl_node_t basic_info;
-    GQueue* values;
-    GHashTable* values_by_number;
+    pbl_node_t   basic_info;        /**< Base node info containing the enum's name and source location. */
+    GQueue*      values;            /**< Ordered list of pbl_enum_value_descriptor_t entries defined in this enum. */
+    GHashTable*  values_by_number;  /**< Hash table mapping integer enum values to their descriptor entries for fast lookup. */
 } pbl_enum_descriptor_t;
 
-/* Option node. The name of basic_info is optionName.
-   Now, we only care about fieldOption. */
+/**
+ * @brief Describes a single protobuf option; the name of the option is stored in basic_info.
+ *
+ * Currently only field options are handled; other option types are ignored.
+ */
 typedef struct {
-    pbl_node_t basic_info;
-    char* value;
+    pbl_node_t  basic_info; /**< Base node info containing the option name and source location. */
+    char*       value;      /**< The option's value as a raw string. */
 } pbl_option_descriptor_t;
 
-/* the struct of token used by the parser */
+/**
+ * @brief Represents a single lexer token produced while parsing a .proto file.
+ */
 typedef struct _protobuf_lang_token_t {
-    char* v; /* token string value */
-    int ln; /* line number of this token in the .proto file */
+    char* v;  /**< The string value of the token as it appears in the .proto source. */
+    int   ln; /**< Line number within the .proto file where this token was found. */
 } protobuf_lang_token_t;
 
-/* parser state */
+/**
+ * @brief Holds the full mutable state of the protobuf language parser across a single parse run.
+ */
 typedef struct _protobuf_lang_state_t {
-    pbl_descriptor_pool_t* pool; /* pool will keep the parsing result */
-    pbl_file_descriptor_t* file; /* info of current parsing file */
-    GSList* lex_string_tokens;
-    GSList* lex_struct_tokens;
-    void* scanner;
-    void* pParser;
-    bool grammar_error;
-    protobuf_lang_token_t* tmp_token; /* just for passing token value from protobuf_lang_lex() to ProtobufLangParser() */
+    pbl_descriptor_pool_t* pool;             /**< Descriptor pool that accumulates all results from the parse. */
+    pbl_file_descriptor_t* file;             /**< Descriptor for the .proto file currently being parsed. */
+    GSList*                lex_string_tokens; /**< List of string tokens allocated by the lexer, tracked for cleanup. */
+    GSList*                lex_struct_tokens; /**< List of struct tokens allocated by the lexer, tracked for cleanup. */
+    void*                  scanner;          /**< Opaque handle to the reentrant lexer (scanner) instance. */
+    void*                  pParser;          /**< Opaque handle to the Lemon parser instance. */
+    bool                   grammar_error;    /**< Set to true if a grammar error was encountered during parsing. */
+    protobuf_lang_token_t* tmp_token;        /**< Temporary token used to pass values from protobuf_lang_lex() to ProtobufLangParser(). */
 } protobuf_lang_state_t;
 
 /* Store chars created by strdup or g_strconcat into protobuf_lang_state_t temporarily,

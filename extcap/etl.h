@@ -26,24 +26,40 @@
 
 #define LOGGER_NAME L"wireshark etwdump"
 
+/**
+ * @brief Extends EVENT_TRACE_PROPERTIES with padding to accommodate the session and log file name strings that must follow it in memory.
+ */
 typedef struct
 {
-    EVENT_TRACE_PROPERTIES prop;
-    char padding[64];
+    EVENT_TRACE_PROPERTIES prop;    /**< The base ETW event trace properties structure describing the trace session configuration. */
+    char                   padding[64]; /**< Padding buffer appended after prop to hold the session name and log file name strings in place. */
 } SUPER_EVENT_TRACE_PROPERTIES;
 
+/**
+ * @brief Specifies the ETW provider filter criteria used to select which events are collected from a provider.
+ */
 typedef struct _PROVIDER_FILTER {
-    GUID ProviderId;
-    ULONG64 Keyword;
-    UCHAR Level;
+    GUID   ProviderId; /**< GUID uniquely identifying the ETW provider to enable. */
+    ULONG64 Keyword;   /**< Keyword bitmask restricting which event categories are collected from the provider; 0 means all keywords. */
+    UCHAR  Level;      /**< Maximum verbosity level of events to collect (e.g. TRACE_LEVEL_ERROR, TRACE_LEVEL_INFORMATION). */
 } PROVIDER_FILTER;
 
+/**
+ * @brief Pairs a named capture scenario with the ETW provider filter that defines what is collected for that scenario.
+ */
 typedef struct _SCENARIO {
-    const WCHAR* name;
-    const PROVIDER_FILTER ProviderFilter;
+    const WCHAR*          name;           /**< Human-readable name identifying the scenario, used for lookup and display. */
+    const PROVIDER_FILTER ProviderFilter; /**< The provider filter specifying which provider and events to enable for this scenario. */
 } SCENARIO;
 
+/**
+ * @brief Registry or lookup key prefix used to identify scenario entries by name.
+ */
 #define SCENARIO_KEY L"Scenario-"
+
+/**
+ * @brief Global array of all registered capture scenarios; terminated by a sentinel entry.
+ */
 extern const struct _SCENARIO g_scenarios[];
 
 /**

@@ -44,16 +44,19 @@
 	{ "remote-interface", ws_required_argument, NULL, OPT_REMOTE_INTERFACE}, \
 	{ "remote-filter", ws_required_argument, NULL, OPT_REMOTE_FILTER}
 
+/**
+ * @brief Holds the connection parameters required to establish an SSH session for an SSH-based extcap capture.
+ */
 typedef struct _ssh_params {
-	char* host;
-	uint16_t port;
-	char* username;
-	char* password;
-	char* sshkey_path;
-	char* sshkey_passphrase;
-	char* proxycommand;
-	bool ssh_sha1;
-	int debug;
+    char*    host;               /**< Hostname or IP address of the remote SSH server to connect to. */
+    uint16_t port;               /**< TCP port number of the remote SSH server; typically 22. */
+    char*    username;           /**< Username to authenticate with on the remote SSH server; NULL to use the current user. */
+    char*    password;           /**< Password for password-based SSH authentication; NULL if using key-based authentication. */
+    char*    sshkey_path;        /**< Filesystem path to the private key file used for key-based authentication; NULL if using password authentication. */
+    char*    sshkey_passphrase;  /**< Passphrase used to decrypt the private key at sshkey_path; NULL if the key is unencrypted. */
+    char*    proxycommand;       /**< Shell command used to establish the SSH connection via a proxy or jump host; NULL for a direct connection. */
+    bool     ssh_sha1;           /**< True to permit SHA-1 based host key algorithms, which may be required for older SSH servers. */
+    int      debug;              /**< Debug verbosity level for SSH session diagnostics; 0 disables debug output. */
 } ssh_params_t;
 
 /* Add libssh version information to an extcap_parameters structure */

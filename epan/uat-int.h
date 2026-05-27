@@ -29,37 +29,43 @@ typedef struct _uat_rep_t uat_rep_t;
 typedef void (*uat_rep_fld_free_cb_t)(uat_fld_rep_t*);
 typedef void (*uat_rep_free_cb_t)(uat_rep_t*);
 
+/**
+ * @brief Holds per-field display and cleanup state for a single column in a UAT record's GUI representation.
+ */
 typedef struct _fld_data_t {
-    unsigned colnum;
-    uat_fld_rep_t* rep;
-    uat_rep_fld_free_cb_t free_rep;
+    unsigned           colnum;   /**< Zero-based column index this field data corresponds to in the UAT table. */
+    uat_fld_rep_t*     rep;      /**< Opaque GUI representation handle for this field's current display state. */
+    uat_rep_fld_free_cb_t free_rep; /**< Callback used to release the GUI representation handle when no longer needed. */
 } fld_data_t;
 
+/**
+ * @brief Represents a User Accessible Table (UAT), managing a set of user-editable records exposed to a dissector.
+ */
 struct epan_uat {
-    char* name;
-    size_t record_size;
-    char* filename;
-    bool from_profile;
-    char* help;
-    unsigned flags;
-    void** user_ptr;    /**< Pointer to a dissector variable where an array of valid records are stored. */
-    unsigned* nrows_p;     /**< Pointer to a dissector variable where the number of valid records in user_ptr are written. */
-    uat_copy_cb_t copy_cb;
-    uat_update_cb_t update_cb;
-    uat_free_cb_t free_cb;
-    uat_post_update_cb_t post_update_cb;
-    uat_reset_cb_t reset_cb;
+    char*                name;             /**< Internal name identifying this UAT, used for registration and file naming. */
+    size_t               record_size;      /**< Size in bytes of a single UAT record struct. */
+    char*                filename;         /**< Name of the file (within the profile directory) used to persist this UAT. */
+    bool                 from_profile;     /**< True if this UAT is loaded from the current profile directory rather than the global config. */
+    char*                help;             /**< Help topic identifier passed to user_guide_url() to generate documentation link. */
+    unsigned             flags;            /**< Bitmask of UAT_* flags controlling behavior during load, save, and reset. */
+    void**               user_ptr;         /**< Pointer to the dissector's array variable that receives the validated record array. */
+    unsigned*            nrows_p;          /**< Pointer to the dissector's count variable that receives the number of valid records. */
+    uat_copy_cb_t        copy_cb;          /**< Callback invoked to deep-copy a record's variable-length fields. */
+    uat_update_cb_t      update_cb;        /**< Callback invoked to validate a record after editing; returns an error string on failure. */
+    uat_free_cb_t        free_cb;          /**< Callback invoked to release variable-length fields owned by a record. */
+    uat_post_update_cb_t post_update_cb;   /**< Callback invoked after the full UAT has been updated and validated. */
+    uat_reset_cb_t       reset_cb;         /**< Callback invoked to reset the UAT to its default state. */
 
-    uat_field_t* fields;
-    const char** default_values;
-    unsigned ncols;
-    GArray* user_data;  /**< An array of valid records that will be exposed to the dissector. */
-    GArray* raw_data;   /**< An array of records containing possibly invalid data. For internal use only. */
-    GArray* valid_data; /**< An array of booleans describing whether the records in 'raw_data' are valid or not. */
-    bool changed;
-    uat_rep_t* rep;
-    uat_rep_free_cb_t free_rep;
-    bool loaded;
+    uat_field_t*         fields;           /**< Array of field descriptors defining the columns of this UAT. */
+    const char**         default_values;   /**< Array of default value strings, one per column, used when creating new records. */
+    unsigned             ncols;            /**< Number of columns (fields) in each UAT record. */
+    GArray*              user_data;        /**< Array of fully validated records exposed to the dissector via user_ptr. */
+    GArray*              raw_data;         /**< Array of all records including potentially invalid ones; for internal UAT use only. */
+    GArray*              valid_data;       /**< Parallel boolean array indicating whether each record in raw_data passed validation. */
+    bool                 changed;          /**< True if the UAT has unsaved changes since it was last loaded or saved. */
+    uat_rep_t*           rep;              /**< Opaque GUI representation handle for the UAT table as a whole. */
+    uat_rep_free_cb_t    free_rep;         /**< Callback used to release the UAT-level GUI representation handle. */
+    bool                 loaded;           /**< True if the UAT has been successfully loaded from its backing file. */
 };
 
 /**

@@ -58,6 +58,8 @@ typedef enum {
    line? */
 struct _color_filter; /* Forward */
 DIAG_OFF_PEDANTIC
+
+/** @brief Frame data structure */
 typedef struct _frame_data {
   uint32_t     num;          /**< Frame number */
   uint32_t     dis_num;      /**< Displayed frame number */

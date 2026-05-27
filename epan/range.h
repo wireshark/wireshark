@@ -28,11 +28,15 @@ extern "C" {
 #define MAX_UDP_PORT 65535
 #define MAX_DCCP_PORT 65535
 
+/**
+ * @brief Represents a single contiguous range of unsigned integer values with an inclusive lower and upper bound.
+ */
 typedef struct range_admin_tag {
-    uint32_t low;
-    uint32_t high;
+    uint32_t low;  /**< Inclusive lower bound of the range. */
+    uint32_t high; /**< Inclusive upper bound of the range. */
 } range_admin_t;
-#define RANGE_ADMIN_T_INITIALIZER { 0, 0 }
+
+#define RANGE_ADMIN_T_INITIALIZER { 0, 0 } /**< Default initializer for a range_admin_t, setting both bounds to zero. */
 
 /** user specified range(s) */
 typedef struct epan_range {

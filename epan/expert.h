@@ -20,51 +20,63 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/** only for internal and display use. */
+/**
+ * @brief Holds expert info data for a single packet event; used internally and for display purposes only.
+ */
 typedef struct expert_info_s {
-	uint32_t     packet_num;
-	int          group;    /* from a bitfield, should probably be unsigned */
-	int          severity; /* from a bitfield, should probably be unsigned */
-	int          hf_index; /* hf_index of the expert item. Might be -1. */
-	const char *protocol;
-	char        *summary;
-	proto_item  *pitem;
+    uint32_t    packet_num; /**< Packet number to which this expert info item belongs. */
+    int         group;      /**< Expert group category (e.g. checksum, sequence, protocol); sourced from a bitfield, should ideally be unsigned. */
+    int         severity;   /**< Severity level of the expert item (e.g. chat, note, warn, error); sourced from a bitfield, should ideally be unsigned. */
+    int         hf_index;   /**< Header field index of the associated expert item; may be -1 if no field is associated. */
+    const char* protocol;   /**< Name of the protocol that generated this expert info item. */
+    char*       summary;    /**< Human-readable summary string describing the expert info event. */
+    proto_item* pitem;      /**< Pointer to the protocol tree item associated with this expert info entry. */
 } expert_info_t;
 
-/* Expert Info and Display hf data */
+
+/**
+ * @brief Pairs an expert info index with its associated header field index for registration and display.
+ */
 typedef struct expert_field
 {
-	int ei;
-	int hf;
+    int ei; /**< Expert info index, assigned during registration. */
+    int hf; /**< Header field index associated with this expert item. */
 } expert_field;
 
-#define EI_INIT_EI 0
-#define EI_INIT_HF 0
-#define EI_INIT {EI_INIT_EI, EI_INIT_HF}
+#define EI_INIT_EI 0 /**< Default initializer value for the expert info index field of an expert_field. */
+#define EI_INIT_HF 0 /**< Default initializer value for the header field index field of an expert_field. */
+#define EI_INIT {EI_INIT_EI, EI_INIT_HF} /**< Compound initializer for an expert_field, zeroing both ei and hf. */
 
+/**
+ * @brief Describes a registered expert info field, including dissector-supplied metadata and registration state.
+ */
 typedef struct expert_field_info {
-	/* ---------- set by dissector --------- */
-	const char       *name;
-	int               group;
-	int               severity;
-	const char       *summary;
+    /* ---------- set by dissector --------- */
+    const char*              name;             /**< Abbreviated name of the expert field (e.g. "proto.field_name"). */
+    int                      group;            /**< Expert group category assigned by the dissector. */
+    int                      severity;         /**< Severity level assigned by the dissector. */
+    const char*              summary;          /**< Default summary string describing the expert condition. */
 
-	/* ------- set by register routines (prefilled by EXPFILL macro, see below) ------ */
-	int               id;
-	const char       *protocol;
-	int               orig_severity; /* Matches severity when registered, used to restore original severity
-					  * if UAT severity entry is removed */
-	struct expert_field_info *same_name_next; /**< Link to next ei with the same abbrev */
-	hf_register_info  hf_info;
-
+    /* ------- set by register routines (prefilled by EXPFILL macro) ------ */
+    int                      id;               /**< Unique expert info ID assigned during registration. */
+    const char*              protocol;         /**< Name of the protocol this expert field belongs to, set at registration. */
+    int                      orig_severity;    /**< Original severity at registration time; used to restore severity if a UAT override is removed. */
+    struct expert_field_info* same_name_next;  /**< Link to the next expert_field_info sharing the same abbreviated name. */
+    hf_register_info         hf_info;          /**< Associated header field registration info used for display in the packet tree. */
 } expert_field_info;
 
+/**
+ * @brief Prefill macro for the registration-managed fields of an expert_field_info; use as a trailing initializer in static declarations.
+ */
 #define EXPFILL 0, NULL, 0, NULL, \
         {0, {NULL, NULL, FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL}}
 
+/**
+ * @brief Bundles an expert_field handle with its expert_field_info for use in bulk registration.
+ */
 typedef struct ei_register_info {
-	expert_field      *ids;         /**< written to by register() function */
-	expert_field_info  eiinfo;      /**< the field info to be registered */
+    expert_field*     ids;    /**< Pointer to the expert_field whose ei and hf indices are written during registration. */
+    expert_field_info eiinfo; /**< The expert field metadata to be registered with the expert info framework. */
 } ei_register_info;
 
 typedef struct expert_module expert_module_t;

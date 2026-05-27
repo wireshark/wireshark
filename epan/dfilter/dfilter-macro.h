@@ -17,14 +17,17 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Represents a display filter macro, including its name, template text, and parsed argument structure.
+ */
 typedef struct _dfilter_macro_t {
-	char* name; /* the macro id */
-	char* text; /* raw data from file */
-	bool usable; /* macro is usable */
-	char** parts; /* various segments of text between insertion targets */
-	int* args_pos; /* what's to be inserted */
-	int argc; /* the expected number of arguments */
-	void* priv; /* a copy of text that contains every c-string in parts */
+    char*  name;     /**< The macro identifier (name used to invoke the macro). */
+    char*  text;     /**< Raw macro template text as read from the macros file. */
+    bool   usable;   /**< Whether the macro has been successfully parsed and is ready for use. */
+    char** parts;    /**< Array of literal text segments between argument insertion points. */
+    int*   args_pos; /**< Array of argument indices indicating what is inserted between each pair of parts. */
+    int    argc;     /**< Expected number of arguments the macro accepts. */
+    void*  priv;     /**< Private copy of text backing the C-strings stored in parts; owns that memory. */
 } dfilter_macro_t;
 
 /**
@@ -75,8 +78,11 @@ void dfilter_macro_reload(const char* app_env_var_prefix);
  */
 void dfilter_macro_cleanup(void);
 
+/**
+ * @brief Iterator for traversing the display filter macro hash table.
+ */
 struct dfilter_macro_table_iter {
-	GHashTableIter iter;
+    GHashTableIter iter; /**< Underlying GLib hash table iterator used to walk macro table entries. */
 };
 
 /**

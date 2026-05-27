@@ -545,12 +545,15 @@ ftype_can_val_to_double(enum ftenum ftype);
 #include <wsutil/nstime.h>
 #include <epan/dfilter/drange.h>
 
+/**
+ * @brief Holds a protocol value's buffer and associated metadata for use in display filter evaluation.
+ */
 typedef struct _protocol_value_t
 {
-	tvbuff_t	*tvb;
-	int		length;
-	char		*proto_string;
-	bool	tvb_is_private;
+    tvbuff_t* tvb;            /**< Tvbuff containing the raw bytes of the protocol value. */
+    int       length;         /**< Length in bytes of the protocol data within the tvbuff. */
+    char*     proto_string;   /**< String representation of the protocol value, if applicable. */
+    bool      tvb_is_private; /**< True if this struct owns the tvbuff and is responsible for freeing it. */
 } protocol_value_t;
 
 typedef struct _fvalue_t fvalue_t;

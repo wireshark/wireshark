@@ -37,6 +37,9 @@ struct conversation_element;
  */
 #define PINFO_HAS_TS            0x00000001  /**< time stamp */
 
+/**
+ * @brief Represents the metadata and indexing information for a single captured frame.
+ */
 typedef struct _packet_info {
   const char *current_proto;                          /**< Name of protocol currently being dissected */
   struct epan_column_info *cinfo;                     /**< Column formatting information */

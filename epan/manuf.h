@@ -15,19 +15,28 @@ extern "C" {
 
 #define MANUF_BLOCK_SIZE 5
 
+/**
+ * @brief Represents a single manufacturer entry mapping an OUI or MA block to a vendor name.
+ */
 struct ws_manuf {
-    uint8_t block[MANUF_BLOCK_SIZE];
-    uint8_t mask;
-    const char *short_name;
-    const char *long_name;
+    uint8_t     block[MANUF_BLOCK_SIZE]; /**< The OUI or MAC address block bytes identifying the manufacturer. */
+    uint8_t     mask;                    /**< Prefix length mask indicating the number of significant bits in the block (24, 28, or 36). */
+    const char* short_name;              /**< Abbreviated manufacturer name (e.g. "Cisco"). */
+    const char* long_name;               /**< Full manufacturer name (e.g. "Cisco Systems, Inc"). */
 };
 
-/* Internal structure, not supposed to be accessed by users. */
+/**
+ * @brief Internal iterator state for traversing all manufacturer entries across the 24-, 28-, and 36-bit OUI tables.
+ *
+ * Not intended for direct access by users; use the provided iterator API instead.
+ */
 struct ws_manuf_iter {
-    size_t idx24, idx28, idx36;
-    struct ws_manuf buf24;
-    struct ws_manuf buf28;
-    struct ws_manuf buf36;
+    size_t          idx24;  /**< Current position within the 24-bit (MA-L) OUI table. */
+    size_t          idx28;  /**< Current position within the 28-bit (MA-M) OUI table. */
+    size_t          idx36;  /**< Current position within the 36-bit (MA-S) OUI table. */
+    struct ws_manuf buf24;  /**< Buffered current entry from the 24-bit OUI table. */
+    struct ws_manuf buf28;  /**< Buffered current entry from the 28-bit OUI table. */
+    struct ws_manuf buf36;  /**< Buffered current entry from the 36-bit OUI table. */
 };
 
 typedef struct ws_manuf_iter ws_manuf_iter_t;

@@ -35,18 +35,24 @@ typedef struct _tree_cfg_pres tree_cfg_pres;
 typedef struct _stat_node stat_node;
 typedef struct _stats_tree_cfg stats_tree_cfg;
 
+/**
+ * @brief Represents an inclusive integer range with a lower and upper bound.
+ */
 typedef struct _range_pair {
-	int floor;
-	int ceil;
+    int floor; /**< Inclusive lower bound of the range. */
+    int ceil;  /**< Inclusive upper bound of the range. */
 } range_pair_t;
 
+/**
+ * @brief Represents a single time bucket in a burst analysis sliding window, linked into a doubly-linked list.
+ */
 typedef struct _burst_bucket burst_bucket;
 struct _burst_bucket {
-	burst_bucket	*next;
-	burst_bucket	*prev;
-	int			count;
-	double			bucket_no;
-	double			start_time;
+    burst_bucket* next;        /**< Pointer to the next bucket in the list, or NULL if this is the last. */
+    burst_bucket* prev;        /**< Pointer to the previous bucket in the list, or NULL if this is the first. */
+    int           count;       /**< Number of packets or events that fall within this bucket's time interval. */
+    double        bucket_no;   /**< Sequential index identifying this bucket's position in the burst window. */
+    double        start_time;  /**< Start time of this bucket's interval in seconds. */
 };
 
 /**
@@ -105,76 +111,65 @@ struct _stat_node {
 	st_node_pres *pr;               /**< Presentation metadata for display formatting. */
 };
 
+/**
+ * @brief Represents a live statistics tree instance, holding runtime state for accumulating and displaying tap statistics.
+ */
 struct _stats_tree {
-	/** the "class" from which it's derived */
-	stats_tree_cfg		*cfg;
+    stats_tree_cfg* cfg;          /**< Pointer to the class configuration from which this tree instance was created. */
 
-	char			*filter;
+    char*           filter;       /**< Optional display filter string applied to limit which packets are counted. */
 
-	/* times */
-	double			start;
-	double			elapsed;
-	double			now;
+    /* times */
+    double          start;        /**< Timestamp (in seconds) at which statistics collection began. */
+    double          elapsed;      /**< Total elapsed time (in seconds) since collection started. */
+    double          now;          /**< Timestamp (in seconds) of the most recently processed packet. */
 
-	int				st_flags;
-	int			num_columns;
-	char			*display_name;
+    int             st_flags;     /**< Runtime flags controlling tree behavior (e.g. sorting options). */
+    int             num_columns;  /**< Number of columns in the statistics tree display. */
+    char*           display_name; /**< Human-readable name shown in the statistics tree window title. */
 
-   /** used to lookup named parents:
-	*    key: parent node name
-	*  value: parent node
-	*/
-	GHashTable		*names;
+    GHashTable*     names;        /**< Hash table mapping parent node name strings to their stat_node pointers for fast lookup. */
+    GPtrArray*      parents;      /**< Array of parent stat_node pointers for accelerated parent node resolution. */
 
-   /** used for quicker lookups of parent nodes */
-	GPtrArray		*parents;
+    tree_pres*      pr;           /**< Opaque presentation handle defined by the GUI implementation for rendering the tree. */
 
-	/**
-	 *  tree representation
-	 * 	to be defined (if needed) by the implementations
-	 */
-	tree_pres		*pr;
-
-	/** every tree in nature has one */
-	stat_node		root;
+    stat_node       root;         /**< The root node of the statistics tree from which all other nodes descend. */
 };
 
+/**
+ * @brief Defines the static configuration and callbacks for a statistics tree type, shared across all instances of that tree.
+ */
 struct _stats_tree_cfg {
-	char			*abbr;
-	char			*path;
-	char			*title;
-	char			*tapname;
-	char			*first_column_name;
-	register_stat_group_t	stat_group;
+    char*                   abbr;               /**< Short abbreviated identifier used internally to register and look up the tree. */
+    char*                   path;               /**< Menu path string determining where the tree appears in the Statistics menu. */
+    char*                   title;              /**< Human-readable title displayed in the statistics window. */
+    char*                   tapname;            /**< Name of the tap this statistics tree registers a listener on. */
+    char*                   first_column_name;  /**< Label for the first (name) column in the statistics tree display. */
+    register_stat_group_t   stat_group;         /**< Statistics menu group under which this tree is registered. */
 
-	bool plugin;
+    bool                    plugin;             /**< True if this statistics tree was registered by a plugin. */
 
-	/** dissector defined callbacks */
-	stat_tree_packet_cb packet;
-	stat_tree_init_cb init;
-	stat_tree_cleanup_cb cleanup;
+    /** dissector defined callbacks */
+    stat_tree_packet_cb     packet;             /**< Per-packet callback invoked by the tap for each matching packet. */
+    stat_tree_init_cb       init;               /**< Callback invoked to initialize the tree before a capture or retap. */
+    stat_tree_cleanup_cb    cleanup;            /**< Callback invoked to clean up tree resources after collection ends. */
 
-	/** tap listener flags for the per-packet callback */
-	unsigned flags;
+    unsigned                flags;              /**< Tap listener flags controlling delivery behavior of the per-packet callback. */
 
-	/*
-	 * node presentation callbacks
-	 */
+    /*
+     * node presentation callbacks
+     */
+    void (*setup_node_pr)(stat_node*);          /**< Callback invoked last during node creation to initialize node presentation state. */
 
-	/** last to be called at node creation */
-	void (*setup_node_pr)(stat_node*);
+    /*
+     * tree presentation callbacks
+     */
+    tree_cfg_pres*          pr;                 /**< Opaque presentation configuration handle used by the GUI implementation. */
 
-	/**
-	 * tree presentation callbacks
-	 */
-	tree_cfg_pres *pr;
+    tree_pres* (*new_tree_pr)(stats_tree*);     /**< Callback that allocates and returns a new presentation handle for a tree instance. */
+    void (*free_tree_pr)(stats_tree*);          /**< Callback that releases the presentation handle of a tree instance. */
 
-
-	tree_pres *(*new_tree_pr)(stats_tree*);
-	void (*free_tree_pr)(stats_tree*);
-
-	/** flags for the stats tree (sorting etc.) default values to new trees */
-	unsigned st_flags;
+    unsigned                st_flags;           /**< Default stats tree flags (e.g. sorting behavior) applied to newly created tree instances. */
 };
 
 /* guess what, this is it! */

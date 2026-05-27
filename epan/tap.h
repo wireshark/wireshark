@@ -66,8 +66,11 @@ typedef void (*tap_finish_cb)(void *tapdata);
 #define TL_IP_AGGREGATION_ORI       0x00000200      /**< replace with subnets when possible, and keep original data */
 #define TL_IP_AGGREGATION_RESERVED  0x00000400      /**< reserved */
 
+/**
+ * @brief Describes a tap plugin, providing a callback to register its tap listener with the tap framework.
+ */
 typedef struct {
-	void (*register_tap_listener)(void);   /* routine to call to register tap listener */
+    void (*register_tap_listener)(void); /**< Callback invoked during startup to register this plugin's tap listener. */
 } tap_plugin;
 
 /** Register tap plugin with the plugin system. */
@@ -81,12 +84,12 @@ typedef struct {
  */
 WS_DLL_PUBLIC void tap_register_plugin(const tap_plugin *plug);
 
-/*
- * Entry in the table of built-in taps to register.
+/**
+ * @brief Describes a single built-in tap registration entry, pairing a tap name with its registration callback.
  */
 typedef struct _tap_reg {
-    const char *cb_name;
-    void (*cb_func)(void);
+    const char* cb_name;    /**< Name identifying the tap registration entry, used for lookup and display. */
+    void (*cb_func)(void);  /**< Callback invoked during startup to register this built-in tap. */
 } tap_reg_t;
 
 /**

@@ -16,15 +16,17 @@
 extern "C" {
 #endif /* __cplusplus */
 
- /* Summary of time statistics*/
+/**
+ * @brief Accumulates time delay samples for computing min, max, total, and variance statistics over a set of measurements.
+ */
 typedef struct _timestat_t {
-	uint32_t num;	 /* number of samples */
-	uint32_t	min_num; /* frame number of minimum */
-	uint32_t	max_num; /* frame number of maximum */
-	nstime_t min;
-	nstime_t max;
-	nstime_t tot;
-	double variance;
+    uint32_t num;     /**< Total number of time samples collected. */
+    uint32_t min_num; /**< Frame number of the packet that produced the minimum time sample. */
+    uint32_t max_num; /**< Frame number of the packet that produced the maximum time sample. */
+    nstime_t min;     /**< Minimum time value observed across all samples. */
+    nstime_t max;     /**< Maximum time value observed across all samples. */
+    nstime_t tot;     /**< Sum of all time samples, used to compute the mean. */
+    double   variance; /**< Variance of the time samples, used to compute standard deviation. */
 } timestat_t;
 
 /* functions */

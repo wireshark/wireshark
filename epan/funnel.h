@@ -31,58 +31,233 @@ typedef bool (*funnel_bt_cb_t)(funnel_text_window_t* tw, void* data);
 typedef void (* funnel_menu_callback)(void *);
 typedef void (* funnel_menu_callback_data_free)(void *);
 
+/**
+ * @brief Represents a button attached to a funnel text window, bundling its callback, data, and cleanup functions.
+ */
 typedef struct _funnel_bt_t {
-	funnel_text_window_t* tw;
-	funnel_bt_cb_t func;
-	void* data;
-	void (*free_fcn)(void*);
-	void (*free_data_fcn)(void*);
+    funnel_text_window_t* tw;            /**< The text window this button is associated with. */
+    funnel_bt_cb_t        func;          /**< Callback invoked when the button is clicked. */
+    void*                 data;          /**< User-supplied data passed to the button callback. */
+    void (*free_fcn)(void*);             /**< Function used to free the button callback closure itself. */
+    void (*free_data_fcn)(void*);        /**< Function used to free the user-supplied data pointer. */
 } funnel_bt_t;
 
+
+/** @brief Opaque progress dialog handle. */
 struct progdlg;
 
+
+/**
+ * @brief Vtable of GUI operations provided to the Lua funnel API, abstracting all UI interactions behind function pointers.
+ */
 typedef struct _funnel_ops_t {
-    funnel_ops_id_t *ops_id;
+    funnel_ops_id_t* ops_id; /**< Opaque identifier for the GUI instance that owns these operations. */
+
+    /**
+     * @brief Creates and displays a new text window with the given label.
+     * @param ops_id The GUI instance identifier.
+     * @param label  Title label for the new text window.
+     * @return Pointer to the newly created funnel_text_window_t.
+     */
     funnel_text_window_t* (*new_text_window)(funnel_ops_id_t *ops_id, const char* label);
-    void (*set_text)(funnel_text_window_t*  win, const char* text);
-    void (*append_text)(funnel_text_window_t*  win, const char* text);
-    void (*prepend_text)(funnel_text_window_t*  win, const char* text);
-    void (*clear_text)(funnel_text_window_t*  win);
-    const char* (*get_text)(funnel_text_window_t*  win);
-    void (*set_close_cb)(funnel_text_window_t*  win, text_win_close_cb_t cb, void* data);
-    void (*set_editable)(funnel_text_window_t*  win, bool editable);
-    void (*destroy_text_window)(funnel_text_window_t*  win);
-    void (*add_button)(funnel_text_window_t*  win, funnel_bt_t* cb, const char* label);
 
+    /**
+     * @brief Replaces the entire contents of a text window with the given text.
+     * @param win  The target text window.
+     * @param text The replacement text.
+     */
+    void (*set_text)(funnel_text_window_t* win, const char* text);
+
+    /**
+     * @brief Appends text to the end of a text window's contents.
+     * @param win  The target text window.
+     * @param text The text to append.
+     */
+    void (*append_text)(funnel_text_window_t* win, const char* text);
+
+    /**
+     * @brief Prepends text to the beginning of a text window's contents.
+     * @param win  The target text window.
+     * @param text The text to prepend.
+     */
+    void (*prepend_text)(funnel_text_window_t* win, const char* text);
+
+    /**
+     * @brief Clears all text content from a text window.
+     * @param win The target text window.
+     */
+    void (*clear_text)(funnel_text_window_t* win);
+
+    /**
+     * @brief Retrieves the current text content of a text window.
+     * @param win The target text window.
+     * @return Pointer to the current text content string; caller must not free it.
+     */
+    const char* (*get_text)(funnel_text_window_t* win);
+
+    /**
+     * @brief Registers a callback to be invoked when a text window is closed.
+     * @param win  The target text window.
+     * @param cb   The close callback function.
+     * @param data User-supplied data passed to the callback.
+     */
+    void (*set_close_cb)(funnel_text_window_t* win, text_win_close_cb_t cb, void* data);
+
+    /**
+     * @brief Sets whether a text window's content is user-editable.
+     * @param win      The target text window.
+     * @param editable True to allow editing, false to make the window read-only.
+     */
+    void (*set_editable)(funnel_text_window_t* win, bool editable);
+
+    /**
+     * @brief Destroys a text window and releases its associated resources.
+     * @param win The text window to destroy.
+     */
+    void (*destroy_text_window)(funnel_text_window_t* win);
+
+    /**
+     * @brief Adds a button to a text window.
+     * @param win   The target text window.
+     * @param cb    The button descriptor containing callback and data.
+     * @param label The label displayed on the button.
+     */
+    void (*add_button)(funnel_text_window_t* win, funnel_bt_t* cb, const char* label);
+
+    /**
+     * @brief Opens a modal input dialog with a set of labeled fields.
+     * @param ops_id           The GUI instance identifier.
+     * @param title            Title of the dialog window.
+     * @param field_names      NULL-terminated array of field label strings.
+     * @param field_values     NULL-terminated array of default values for each field.
+     * @param dlg_cb           Callback invoked when the user confirms the dialog.
+     * @param data             User-supplied data passed to the dialog callback.
+     * @param dlg_cb_data_free Function used to free the user-supplied data when the dialog is dismissed.
+     */
     void (*new_dialog)(funnel_ops_id_t *ops_id,
-                    const char* title,
-                    const char** field_names,
-                    const char** field_values,
-                    funnel_dlg_cb_t dlg_cb,
-                    void* data,
-                    funnel_dlg_cb_data_free_t dlg_cb_data_free);
+                       const char* title,
+                       const char** field_names,
+                       const char** field_values,
+                       funnel_dlg_cb_t dlg_cb,
+                       void* data,
+                       funnel_dlg_cb_data_free_t dlg_cb_data_free);
 
+    /**
+     * @brief Closes all open funnel dialogs.
+     */
     void (*close_dialogs)(void);
 
+    /**
+     * @brief Triggers a retap of all packets, re-running tap listeners without full redissection.
+     * @param ops_id The GUI instance identifier.
+     */
     void (*retap_packets)(funnel_ops_id_t *ops_id);
+
+    /**
+     * @brief Copies the contents of a GString to the system clipboard.
+     * @param str The string to copy to the clipboard.
+     */
     void (*copy_to_clipboard)(GString *str);
 
-    const char * (*get_filter)(funnel_ops_id_t *ops_id);
+    /**
+     * @brief Retrieves the currently applied display filter string.
+     * @param ops_id The GUI instance identifier.
+     * @return The current display filter string; caller must not free it.
+     */
+    const char* (*get_filter)(funnel_ops_id_t *ops_id);
+
+    /**
+     * @brief Applies a new display filter string to the packet list.
+     * @param ops_id The GUI instance identifier.
+     * @param filter The display filter string to apply.
+     */
     void (*set_filter)(funnel_ops_id_t *ops_id, const char* filter);
-    char * (*get_color_filter_slot)(uint8_t filt_nr);
+
+    /**
+     * @brief Retrieves the display filter assigned to a color filter slot.
+     * @param filt_nr Zero-based index of the color filter slot.
+     * @return The filter string for the given slot; caller must free it.
+     */
+    char* (*get_color_filter_slot)(uint8_t filt_nr);
+
+    /**
+     * @brief Assigns a display filter string to a color filter slot.
+     * @param filt_nr Zero-based index of the color filter slot.
+     * @param filter  The display filter string to assign.
+     */
     void (*set_color_filter_slot)(uint8_t filt_nr, const char* filter);
+
+    /**
+     * @brief Opens a capture file, optionally applying a display filter.
+     * @param ops_id The GUI instance identifier.
+     * @param fname  Path to the capture file to open.
+     * @param filter Optional display filter to apply after opening, or NULL.
+     * @param error  On failure, set to a newly allocated error message string; caller must free it.
+     * @return True on success, false on failure.
+     */
     bool (*open_file)(funnel_ops_id_t *ops_id, const char* fname, const char* filter, char** error);
+
+    /**
+     * @brief Reloads the current capture file from disk.
+     * @param ops_id The GUI instance identifier.
+     */
     void (*reload_packets)(funnel_ops_id_t *ops_id);
+
+    /**
+     * @brief Forces a full redissection of all packets in the current capture.
+     * @param ops_id The GUI instance identifier.
+     */
     void (*redissect_packets)(funnel_ops_id_t *ops_id);
+
+    /**
+     * @brief Reloads all Lua plugins and redissects packets.
+     * @param ops_id The GUI instance identifier.
+     */
     void (*reload_lua_plugins)(funnel_ops_id_t *ops_id);
+
+    /**
+     * @brief Applies the currently set display filter to the packet list.
+     * @param ops_id The GUI instance identifier.
+     */
     void (*apply_filter)(funnel_ops_id_t *ops_id);
 
+    /**
+     * @brief Opens a URL in the system's default web browser.
+     * @param url The URL string to open.
+     * @return True if the browser was successfully launched, false otherwise.
+     */
     bool (*browser_open_url)(const char *url);
+
+    /**
+     * @brief Opens a local data file in the system's default application.
+     * @param filename Path to the file to open.
+     */
     void (*browser_open_data_file)(const char *filename);
 
+    /**
+     * @brief Creates and displays a progress dialog.
+     * @param ops_id           The GUI instance identifier.
+     * @param label            Title label for the progress dialog.
+     * @param task             Description of the current task shown in the dialog.
+     * @param terminate_is_stop True if termination should be labeled "Stop" rather than "Cancel".
+     * @param stop_flag        Pointer to a flag set to true when the user requests cancellation.
+     * @return Pointer to the newly created progress dialog handle.
+     */
     struct progdlg* (*new_progress_window)(funnel_ops_id_t *ops_id, const char* label, const char* task, bool terminate_is_stop, bool *stop_flag);
-    void (*update_progress)(struct progdlg*, float pr, const char* task);
-    void (*destroy_progress_window)(struct progdlg*);
+
+    /**
+     * @brief Updates the progress bar and task description of a progress dialog.
+     * @param dlg  The progress dialog to update.
+     * @param pr   Progress value in the range [0.0, 1.0].
+     * @param task Updated description of the current task.
+     */
+    void (*update_progress)(struct progdlg* dlg, float pr, const char* task);
+
+    /**
+     * @brief Destroys a progress dialog and releases its resources.
+     * @param dlg The progress dialog to destroy.
+     */
+    void (*destroy_progress_window)(struct progdlg* dlg);
 } funnel_ops_t;
 
 /**

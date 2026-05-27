@@ -86,14 +86,19 @@ typedef int (*exp_pdu_get_size)(packet_info *pinfo, void* data);
  */
 typedef int (*exp_pdu_populate_data)(packet_info *pinfo, void* data, uint8_t *tlv_buffer, uint32_t tlv_buffer_size);
 
+/**
+ * @brief Bundles the size and populate callbacks with their associated data for a single exported PDU metadata item.
+ */
 typedef struct exp_pdu_data_item
 {
-    exp_pdu_get_size size_func;
-    exp_pdu_populate_data populate_data;
-    void* data;
+    exp_pdu_get_size      size_func;      /**< Callback that returns the size in bytes required for this item's TLV data. */
+    exp_pdu_populate_data populate_data;  /**< Callback that writes this item's TLV data into the output buffer. */
+    void*                 data;           /**< Opaque pointer to item-specific state passed to both callbacks. */
 } exp_pdu_data_item_t;
 
-/*
+/**
+ * @brief Holds a protocol PDU and its associated metadata buffer for export via tap_queue_packet().
+ *
  * This struct is used as the data part of tap_queue_packet() and contains a
  * buffer with metadata of the protocol PDU included in the tvb in the struct.
  *
@@ -101,11 +106,11 @@ typedef struct exp_pdu_data_item
  * LINKTYPE_WIRESHARK_UPPER_PDU packets in pcap pcapng files.
  */
 typedef struct _exp_pdu_data_t {
-    unsigned     tlv_buffer_len;
-    uint8_t     *tlv_buffer;
-    unsigned     tvb_captured_length;
-    unsigned     tvb_reported_length;
-    tvbuff_t    *pdu_tvb;
+    unsigned   tlv_buffer_len;      /**< Length in bytes of the TLV metadata buffer. */
+    uint8_t*   tlv_buffer;          /**< Buffer containing the TLV-encoded protocol metadata. */
+    unsigned   tvb_captured_length; /**< Number of bytes actually captured from the PDU tvb. */
+    unsigned   tvb_reported_length; /**< Full reported length of the PDU tvb, which may exceed the captured length. */
+    tvbuff_t*  pdu_tvb;             /**< Tvbuff containing the raw PDU data to be exported. */
 } exp_pdu_data_t;
 
 /**

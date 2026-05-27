@@ -14,11 +14,15 @@
 
 #include <epan/dfilter/dfunctions.h>
 
+/**
+ * @brief Describes a display filter plugin, providing lifecycle callbacks for initialization and cleanup.
+ */
 typedef struct {
-	void (*init)(void);
-	void (*cleanup)(void);
+    void (*init)(void);    /**< Called to initialize the plugin and register its components. */
+    void (*cleanup)(void); /**< Called to clean up and release any resources registered by the plugin. */
 } dfilter_plugin;
 
+/** Global list of registered display filter plugins. */
 extern GSList *dfilter_plugins;
 
 /**

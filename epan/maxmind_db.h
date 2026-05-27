@@ -18,16 +18,19 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Holds the result of a MaxMind database (MMDB) geolocation and ASN lookup for a single IP address.
+ */
 typedef struct _mmdb_lookup_t {
-    bool found;
-    const char *country;
-    const char *country_iso;
-    const char *city;
-    uint32_t as_number;
-    const char *as_org;
-    double latitude;
-    double longitude;
-    uint16_t accuracy;   /** Accuracy radius in kilometers. */
+    bool        found;       /**< True if the lookup produced a result; false if the IP address was not found in the database. */
+    const char* country;     /**< Full name of the country associated with the IP address, or NULL if unavailable. */
+    const char* country_iso; /**< ISO 3166-1 alpha-2 country code (e.g. "US", "DE"), or NULL if unavailable. */
+    const char* city;        /**< City name associated with the IP address, or NULL if unavailable. */
+    uint32_t    as_number;   /**< Autonomous System (AS) number associated with the IP address, or 0 if unavailable. */
+    const char* as_org;      /**< Name of the organization owning the AS, or NULL if unavailable. */
+    double      latitude;    /**< Geographic latitude of the IP address location in decimal degrees. */
+    double      longitude;   /**< Geographic longitude of the IP address location in decimal degrees. */
+    uint16_t    accuracy;    /**< Estimated accuracy radius of the geolocation result, in kilometers. */
 } mmdb_lookup_t;
 
 /**

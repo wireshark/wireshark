@@ -25,21 +25,76 @@ extern "C" {
  */
 struct print_stream;
 
+/**
+ * @brief Vtable of operations implementing a print stream backend for rendering dissection output.
+ */
 typedef struct print_stream_ops {
-	bool (*print_preamble)(struct print_stream *self, char *filename, const char *version_string);
-	bool (*print_line)(struct print_stream *self, int indent,
-	    const char *line);
-	bool (*print_line_color)(struct print_stream *self, int indent, const char *line, const color_t *fg, const color_t *bg);
-	bool (*print_bookmark)(struct print_stream *self,
-	    const char *name, const char *title);
-	bool (*new_page)(struct print_stream *self);
-	bool (*print_finale)(struct print_stream *self);
-	bool (*destroy)(struct print_stream *self);
+    /**
+     * @brief Outputs any preamble required by the print format before the first line of content.
+     * @param self           The print stream instance.
+     * @param filename       Name of the capture file being printed.
+     * @param version_string Wireshark version string to include in the preamble.
+     * @return True on success, false on write failure.
+     */
+    bool (*print_preamble)(struct print_stream *self, char *filename, const char *version_string);
+
+    /**
+     * @brief Prints a single line of text at the specified indentation level.
+     * @param self   The print stream instance.
+     * @param indent Number of indentation levels to apply before the line.
+     * @param line   The text content to print.
+     * @return True on success, false on write failure.
+     */
+    bool (*print_line)(struct print_stream *self, int indent, const char *line);
+
+    /**
+     * @brief Prints a single line of text with explicit foreground and background colors.
+     * @param self   The print stream instance.
+     * @param indent Number of indentation levels to apply before the line.
+     * @param line   The text content to print.
+     * @param fg     Foreground color to apply to the line, or NULL for default.
+     * @param bg     Background color to apply to the line, or NULL for default.
+     * @return True on success, false on write failure.
+     */
+    bool (*print_line_color)(struct print_stream *self, int indent, const char *line, const color_t *fg, const color_t *bg);
+
+    /**
+     * @brief Inserts a named bookmark anchor at the current position in the output.
+     * @param self  The print stream instance.
+     * @param name  Internal identifier for the bookmark.
+     * @param title Human-readable title associated with the bookmark.
+     * @return True on success, false on write failure.
+     */
+    bool (*print_bookmark)(struct print_stream *self, const char *name, const char *title);
+
+    /**
+     * @brief Advances the output to a new page, if supported by the print format.
+     * @param self The print stream instance.
+     * @return True on success, false on write failure.
+     */
+    bool (*new_page)(struct print_stream *self);
+
+    /**
+     * @brief Outputs any finale or closing content required by the print format after all lines.
+     * @param self The print stream instance.
+     * @return True on success, false on write failure.
+     */
+    bool (*print_finale)(struct print_stream *self);
+
+    /**
+     * @brief Destroys the print stream and releases all associated resources.
+     * @param self The print stream instance to destroy.
+     * @return True on success, false if cleanup encountered an error.
+     */
+    bool (*destroy)(struct print_stream *self);
 } print_stream_ops_t;
 
+/**
+ * @brief Represents an abstract print stream, pairing a backend operations vtable with instance-specific state.
+ */
 typedef struct print_stream {
-	const print_stream_ops_t *ops;
-	void *data;
+    const print_stream_ops_t* ops;  /**< Pointer to the vtable of backend operations implementing this print stream. */
+    void*                     data; /**< Opaque pointer to backend-specific state for this print stream instance. */
 } print_stream_t;
 
 /*

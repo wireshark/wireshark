@@ -48,28 +48,34 @@ struct _follow_info;
 
 #define SUBSTREAM_UNUSED	UINT64_C(0xFFFFFFFFFFFFFFFF)
 
+/**
+ * @brief Represents a single chunk of data from one side of a followed stream.
+ */
 typedef struct {
-    bool is_server;
-    uint32_t packet_num;
-    uint32_t seq; /* TCP only */
-    nstime_t abs_ts; /**< Packet absolute time stamp */
-    GByteArray *data;
+    bool       is_server;   /**< True if this record originated from the server, false if from the client. */
+    uint32_t   packet_num;  /**< Packet number in the capture from which this record was extracted. */
+    uint32_t   seq;         /**< TCP sequence number of this record; meaningful for TCP streams only. */
+    nstime_t   abs_ts;      /**< Absolute timestamp of the packet that contained this record. */
+    GByteArray* data;       /**< Raw payload bytes contributed by this record. */
 } follow_record_t;
 
+/**
+ * @brief Aggregates all state for following and reassembling a single stream across both client and server directions.
+ */
 typedef struct _follow_info {
-    show_stream_t   show_stream;
-    char            *filter_out_filter;
-    GList           *payload;   /* "follow_record_t" entries, in reverse order. */
-    unsigned        bytes_written[2]; /* Index with FROM_CLIENT or FROM_SERVER for readability. */
-    uint32_t        seq[2]; /* TCP only */
-    GList           *fragments[2]; /* TCP only */
-    unsigned        client_port;
-    unsigned        server_port;
-    address         client_ip;
-    address         server_ip;
-    void*           gui_data;
-    uint64_t        stream_id;
-    uint64_t        substream_id;  /**< Sub-stream; used only by HTTP2 and QUIC */
+    show_stream_t show_stream;        /**< Which stream direction(s) to display (client, server, or both). */
+    char*         filter_out_filter;  /**< Display filter string used to exclude this stream's packets from the main packet list. */
+    GList*        payload;            /**< List of follow_record_t entries comprising the stream payload, stored in reverse order. */
+    unsigned      bytes_written[2];   /**< Number of bytes written per direction; index with FROM_CLIENT or FROM_SERVER. */
+    uint32_t      seq[2];             /**< Current TCP sequence number per direction; meaningful for TCP streams only. */
+    GList*        fragments[2];       /**< Pending out-of-order TCP fragments per direction; meaningful for TCP streams only. */
+    unsigned      client_port;        /**< Transport-layer port number of the client endpoint. */
+    unsigned      server_port;        /**< Transport-layer port number of the server endpoint. */
+    address       client_ip;          /**< Network-layer address of the client endpoint. */
+    address       server_ip;          /**< Network-layer address of the server endpoint. */
+    void*         gui_data;           /**< Opaque pointer to GUI-specific state for rendering the follow stream dialog. */
+    uint64_t      stream_id;          /**< Unique identifier for the followed stream. */
+    uint64_t      substream_id;       /**< Sub-stream identifier; used only by HTTP/2 and QUIC. */
 } follow_info_t;
 
 struct register_follow;

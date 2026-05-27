@@ -172,31 +172,34 @@ typedef struct _DOT11DECRYPT_KEY_ITEM {
 		uint8_t Len;                            /**< Length in bytes of the valid portion of @p Msk */
 	} Msk;
 
-        struct DOT11DECRYPT_KEY_ITEMDATA_PWD {
-                /**
-                 * The octet string value of the passphrase.
-                 * (The passphrase is technically an opaque octet string, even
-                 * if recommended to be ASCII printable. It could (unlikely)
-                 * even include internal NULs, which a Wireshark user could
-                 * enter into the UAT percent-encoded.)
-                 */
-                char Passphrase[DOT11DECRYPT_WPA_PASSPHRASE_MAX_LEN];
-                /**
-                 *The length of the passphrase
-                 */
-                size_t PassphraseLen;
-                /**
-                 * The value of the SSID (up to
-                 * DOT11DECRYPT_WPA_SSID_MAX_LEN octets).
-                 * @note
-                 * A zero-length SSID indicates broadcast.
-                 */
-                char Ssid[DOT11DECRYPT_WPA_SSID_MAX_LEN];
-                /**
-                 *The length of the SSID
-                 */
-                size_t SsidLen;
-        } UserPwd;
+	/**
+	 * @brief Holds a plaintext password and optional SSID for WPA/WPA2 decryption.
+	 */
+	struct DOT11DECRYPT_KEY_ITEMDATA_PWD {
+			/**
+			 * The octet string value of the passphrase.
+			 * (The passphrase is technically an opaque octet string, even
+			 * if recommended to be ASCII printable. It could (unlikely)
+			 * even include internal NULs, which a Wireshark user could
+			 * enter into the UAT percent-encoded.)
+			 */
+			char Passphrase[DOT11DECRYPT_WPA_PASSPHRASE_MAX_LEN];
+			/**
+			 *The length of the passphrase
+				*/
+			size_t PassphraseLen;
+			/**
+			 * The value of the SSID (up to
+			 * DOT11DECRYPT_WPA_SSID_MAX_LEN octets).
+			 * @note
+			 * A zero-length SSID indicates broadcast.
+			 */
+			char Ssid[DOT11DECRYPT_WPA_SSID_MAX_LEN];
+			/**
+			 *The length of the SSID
+				*/
+			size_t SsidLen;
+	} UserPwd;
 } DOT11DECRYPT_KEY_ITEM, *PDOT11DECRYPT_KEY_ITEM;
 
 /**

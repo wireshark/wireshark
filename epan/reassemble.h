@@ -58,52 +58,45 @@ extern "C" {
 
 struct dissector_handle;
 
+/**
+ * @brief Represents a single fragment contributing to a reassembled PDU.
+ */
 typedef struct _fragment_item {
-	struct _fragment_item *next;
-	uint32_t frame;			/**< frame number where the fragment is from */
-	uint32_t	offset;			/**< fragment number for FD_BLOCKSEQUENCE, byte
-					 * offset otherwise */
-	uint32_t	len;			/**< fragment length */
-	uint32_t flags;			/**< XXX - do some of these apply only to reassembly
-					 * heads and others only to fragments within
-					 * a reassembly? */
-	tvbuff_t *tvb_data;
+    struct _fragment_item* next;      /**< Pointer to the next fragment_item in the chain, or NULL if this is the last. */
+    uint32_t  frame;                  /**< Frame number in the capture from which this fragment originates. */
+    uint32_t  offset;                 /**< Fragment sequence number when FD_BLOCKSEQUENCE is set; byte offset within the datagram otherwise. */
+    uint32_t  len;                    /**< Length in bytes of this fragment's payload. */
+    uint32_t  flags;                  /**< Bitmask of FD_* flags describing the state and type of this fragment. */
+    tvbuff_t* tvb_data;               /**< Tvbuff containing the raw bytes of this fragment. */
 } fragment_item;
 
+
+/**
+ * @brief Represents the head of a fragment reassembly chain, tracking overall reassembly state across all contributing fragments.
+ */
 typedef struct _fragment_head {
-	struct _fragment_item *next;
-	struct _fragment_item *first_gap;	/**< pointer to last fragment before first gap.
-					 * NULL if there is no fragment starting at offset 0 */
-	unsigned ref_count; 		/**< reference count in reassembled_table */
-	uint32_t contiguous_len;	/**< contiguous length from head up to first gap */
-	uint32_t frame;			/**< maximum of all frame numbers added to reassembly */
-	uint32_t	len;			/**< When flags&FD_BLOCKSEQUENCE and FD_DEFRAGMENTED
-					 * are set, the number of bytes of the full datagram.
-					 * Otherwise not valid. */
-	uint32_t fragment_nr_offset;	/**< offset for frame numbering, for sequences, where the
-					 * provided fragment number of the first fragment does
-					 * not start with 0 */
-	uint32_t datalen;		/**< When flags&FD_BLOCKSEQUENCE is set, the
-					 * index of the last block (segments in
-					 * datagram + 1); otherwise the number of
-					 * bytes of the full datagram. Only valid in
-					 * the first item of the fragments list when
-					 * flags&FD_DATALEN is set.*/
-	uint32_t reassembled_in;		/**< frame where this PDU was reassembled,
-					 * only valid when FD_DEFRAGMENTED is set */
-	uint8_t reas_in_layer_num;	/**< The current "depth" or layer number in the current
-					 * frame where reassembly was completed.
-					 * Example: in SCTP there can be several data chunks and
-					 * we want the reassembled tvb for the final segment only. */
-	uint32_t flags;			/**< XXX - do some of these apply only to reassembly
-					 * heads and others only to fragments within
-					 * a reassembly? */
-	tvbuff_t *tvb_data;
-	/**
-	 * Null if the reassembly had no error; non-null if it had
-	 * an error, in which case it's the string for the error.
-	 */
-	const char *error;
+    struct _fragment_item* next;          /**< Pointer to the first fragment_item in the reassembly chain. */
+    struct _fragment_item* first_gap;     /**< Pointer to the last fragment before the first gap in the sequence;
+                                               NULL if no fragment starting at offset 0 has been received. */
+    unsigned  ref_count;                  /**< Reference count of this head entry in the reassembled_table. */
+    uint32_t  contiguous_len;             /**< Number of contiguous bytes received from offset 0 up to the first gap. */
+    uint32_t  frame;                      /**< Maximum frame number among all fragments added to this reassembly. */
+    uint32_t  len;                        /**< Total byte length of the fully reassembled datagram; valid only when
+                                               both FD_BLOCKSEQUENCE and FD_DEFRAGMENTED flags are set. */
+    uint32_t  fragment_nr_offset;         /**< Offset applied to fragment sequence numbers to normalize the first
+                                               fragment's number to zero when it does not start at 0. */
+    uint32_t  datalen;                    /**< For FD_BLOCKSEQUENCE: index of the last block (total segments + 1);
+                                               otherwise the total byte length of the full datagram.
+                                               Valid only in the first fragment_item when FD_DATALEN is set. */
+    uint32_t  reassembled_in;             /**< Frame number in which this PDU was fully reassembled;
+                                               valid only when FD_DEFRAGMENTED is set. */
+    uint8_t   reas_in_layer_num;          /**< Dissection layer depth at which reassembly completed within the
+                                               reassembled_in frame; used by protocols such as SCTP where multiple
+                                               data chunks may appear in one frame. */
+    uint32_t  flags;                      /**< Bitmask of FD_* flags describing the overall reassembly state. */
+    tvbuff_t* tvb_data;                   /**< Tvbuff containing the reassembled payload once reassembly is complete. */
+    const char* error;                    /**< NULL if reassembly completed without error; otherwise a string
+                                               describing the reassembly error that occurred. */
 } fragment_head;
 
 /*
@@ -141,15 +134,15 @@ typedef void * (*fragment_temporary_key)(const packet_info *pinfo,
 typedef void * (*fragment_persistent_key)(const packet_info *pinfo,
     const uint32_t id, const void *data);
 
-/*
- * Data structure to keep track of fragments and reassemblies.
+/**
+ * @brief Tracks all in-progress fragment chains and completed reassemblies for a single reassembly context.
  */
 typedef struct {
-	GHashTable *fragment_table;
-	GHashTable *reassembled_table;
-	fragment_temporary_key temporary_key_func;
-	fragment_persistent_key persistent_key_func;
-	GDestroyNotify free_temporary_key_func;		/* temporary key destruction function */
+    GHashTable*             fragment_table;          /**< Hash table mapping fragment keys to fragment_head entries for PDUs currently being reassembled. */
+    GHashTable*             reassembled_table;       /**< Hash table mapping reassembled keys to completed fragment_head entries for fully reassembled PDUs. */
+    fragment_temporary_key  temporary_key_func;      /**< Callback that constructs a short-lived lookup key from packet data for fragment_table queries. */
+    fragment_persistent_key persistent_key_func;     /**< Callback that constructs a long-lived key allocated for permanent storage in the fragment_table. */
+    GDestroyNotify          free_temporary_key_func; /**< GLib destroy callback used to release temporary keys after a lookup. */
 } reassembly_table;
 
 /**
@@ -803,29 +796,35 @@ WS_DLL_PUBLIC tvbuff_t *
 fragment_delete(reassembly_table *table, const packet_info *pinfo,
 		const uint32_t id, const void *data);
 
-/* This struct holds references to all the tree and field handles used when
+/**
+ * @brief Bundles all protocol tree and header field handles needed to display a reassembled fragment tree in the packet details view.
+ *
+ * A dissector populates this structure with its own registered handles and passes
+ * it to show_fragment_tree() to render fragment details into the packet tree.
+ *
+ * This struct holds references to all the tree and field handles used when
  * displaying the reassembled fragment tree in the packet details view. A
  * dissector will populate this structure with its own tree and field handles
  * and then invoke show_fragment_tree to have those items added to the packet
  * details tree.
  */
 typedef struct _fragment_items {
-    int        *ett_fragment;
-    int        *ett_fragments;
+    int* ett_fragment;                  /**< Ett index for the subtree of a single fragment. */
+    int* ett_fragments;                 /**< Ett index for the subtree containing all fragments. */
 
-    int        *hf_fragments;                  /* FT_NONE     */
-    int        *hf_fragment;                   /* FT_FRAMENUM */
-    int        *hf_fragment_overlap;           /* FT_BOOLEAN  */
-    int        *hf_fragment_overlap_conflict;  /* FT_BOOLEAN  */
-    int        *hf_fragment_multiple_tails;    /* FT_BOOLEAN  */
-    int        *hf_fragment_too_long_fragment; /* FT_BOOLEAN  */
-    int        *hf_fragment_error;             /* FT_FRAMENUM */
-    int        *hf_fragment_count;             /* FT_UINT32   */
-    int        *hf_reassembled_in;             /* FT_FRAMENUM */
-    int        *hf_reassembled_length;         /* FT_UINT32   */
-    int        *hf_reassembled_data;           /* FT_BYTES    */
+    int* hf_fragments;                  /**< HF index for the fragments container item (FT_NONE). */
+    int* hf_fragment;                   /**< HF index for an individual fragment frame reference (FT_FRAMENUM). */
+    int* hf_fragment_overlap;           /**< HF index for the flag indicating this fragment overlaps with another (FT_BOOLEAN). */
+    int* hf_fragment_overlap_conflict;  /**< HF index for the flag indicating overlapping fragments contain conflicting data (FT_BOOLEAN). */
+    int* hf_fragment_multiple_tails;    /**< HF index for the flag indicating more than one possible end fragment was found (FT_BOOLEAN). */
+    int* hf_fragment_too_long_fragment; /**< HF index for the flag indicating a fragment exceeded the maximum datagram length (FT_BOOLEAN). */
+    int* hf_fragment_error;             /**< HF index for a reassembly error frame reference (FT_FRAMENUM). */
+    int* hf_fragment_count;             /**< HF index for the total number of fragments in the reassembly (FT_UINT32). */
+    int* hf_reassembled_in;             /**< HF index for the frame number in which the PDU was fully reassembled (FT_FRAMENUM). */
+    int* hf_reassembled_length;         /**< HF index for the total byte length of the reassembled PDU (FT_UINT32). */
+    int* hf_reassembled_data;           /**< HF index for the raw bytes of the reassembled PDU payload (FT_BYTES). */
 
-    const char *tag;
+    const char* tag;                    /**< Short label string used to identify this protocol's fragments in the tree (e.g. "Message"). */
 } fragment_items;
 
 /**

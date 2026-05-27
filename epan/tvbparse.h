@@ -159,23 +159,25 @@ struct _tvbparse_t {
 };
 
 
-/* a matching token returned by either tvbparser_get or tvb_parser_find */
+/**
+ * @brief Represents a single token matched by the tvbuff parser, forming part of a linked tree of parse results.
+ */
 struct _tvbparse_elem_t {
-    int id;
+    int                       id;     /**< Identifier corresponding to the matched tvbparse_wanted_t rule that produced this token. */
 
-    tvbparse_t* parser;
-    tvbuff_t* tvb;
-    int offset;
-    int len;
+    tvbparse_t*               parser; /**< The parser instance that produced this token. */
+    tvbuff_t*                 tvb;    /**< The tvbuff in which this token was matched. */
+    int                       offset; /**< Byte offset within the tvbuff at which this token begins. */
+    int                       len;    /**< Length in bytes of the matched token within the tvbuff. */
 
-    void* data;
+    void*                     data;   /**< Opaque user-defined data associated with this token by a callback. */
 
-    struct _tvbparse_elem_t* sub;
+    struct _tvbparse_elem_t*  sub;    /**< Pointer to the first child token for composite matches, or NULL if this is a leaf token. */
 
-    struct _tvbparse_elem_t* next;
-    struct _tvbparse_elem_t* last;
+    struct _tvbparse_elem_t*  next;   /**< Pointer to the next sibling token at the same level, or NULL if this is the last sibling. */
+    struct _tvbparse_elem_t*  last;   /**< Pointer to the last sibling token in the sibling chain for efficient appending. */
 
-    const tvbparse_wanted_t* wanted;
+    const tvbparse_wanted_t*  wanted; /**< Pointer to the parse rule (wanted definition) that this token was matched against. */
 };
 
 

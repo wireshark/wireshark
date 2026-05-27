@@ -15,13 +15,14 @@
 
 #define GUID_LEN	16
 
-/* Note: this might be larger than GUID_LEN, so don't overlay data in packets
-   with this. */
+/**
+ * @brief Represents a GUID/UUID value; may be larger than GUID_LEN so must not be used to directly overlay packet data.
+ */
 typedef struct _e_guid_t {
-    uint32_t data1;
-    uint16_t data2;
-    uint16_t data3;
-    uint8_t data4[8];
+    uint32_t data1;    /**< First component of the GUID: the 32-bit time-low field. */
+    uint16_t data2;    /**< Second component of the GUID: the 16-bit time-mid field. */
+    uint16_t data3;    /**< Third component of the GUID: the 16-bit time-high-and-version field. */
+    uint8_t  data4[8]; /**< Fourth component of the GUID: the 8-byte clock sequence and node fields. */
 } e_guid_t;
 
 #ifdef __cplusplus

@@ -15,13 +15,16 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Represents a single object extracted from a packet capture for export.
+ */
 typedef struct _export_object_entry_t {
-    uint32_t pkt_num;
-    char *hostname;
-    char *content_type;
-    char *filename;
-    size_t payload_len;
-    uint8_t *payload_data;
+    uint32_t pkt_num;      /**< Packet number in the capture from which this object was extracted. */
+    char*    hostname;     /**< Hostname of the server that served the object, if available. */
+    char*    content_type; /**< MIME content type of the exported object (e.g. "image/png", "text/html"). */
+    char*    filename;     /**< Suggested filename for saving the exported object, if available. */
+    size_t   payload_len;  /**< Length in bytes of the exported object's payload data. */
+    uint8_t* payload_data; /**< Raw bytes of the exported object's payload. */
 } export_object_entry_t;
 
 /** Maximum file name size for the file to which we save an object.
@@ -30,19 +33,34 @@ typedef struct _export_object_entry_t {
     name, e.g. an HTTP object where the URL has a long query part. */
 #define EXPORT_OBJECT_MAXFILELEN      255
 
-typedef void (*export_object_object_list_add_entry_cb)(void* gui_data, struct _export_object_entry_t *entry);
+/**
+ * @brief Callback invoked by a dissector to add a newly extracted object entry into the GUI list.
+ * @param gui_data GUI-specific context data passed through from the export_object_list_t.
+ * @param entry    The export object entry to be added to the list.
+ */
+typedef void (*export_object_object_list_add_entry_cb)(void* gui_data, struct _export_object_entry_t* entry);
+
+/**
+ * @brief Callback invoked to retrieve an existing object entry from the GUI list by row index.
+ * @param gui_data GUI-specific context data passed through from the export_object_list_t.
+ * @param row      Zero-based row index of the entry to retrieve.
+ * @return Pointer to the export_object_entry_t at the specified row, or NULL if not found.
+ */
 typedef export_object_entry_t* (*export_object_object_list_get_entry_cb)(void* gui_data, int row);
 
+/**
+ * @brief Abstracts the GUI-specific operations needed to manage a list of exported objects during dissection.
+ */
 typedef struct _export_object_list_t {
-    export_object_object_list_add_entry_cb add_entry; //GUI specific handler for adding an object entry
-    export_object_object_list_get_entry_cb get_entry; //GUI specific handler for retrieving an object entry
-    void* gui_data;                                   //GUI specific data (for UI representation)
+    export_object_object_list_add_entry_cb add_entry; /**< GUI-specific callback for appending a new object entry to the list. */
+    export_object_object_list_get_entry_cb get_entry; /**< GUI-specific callback for retrieving an object entry by row index. */
+    void*                                  gui_data;  /**< Opaque pointer to GUI-specific state passed to each callback. */
 } export_object_list_t;
 
 /** Structure for information about a registered exported object */
 typedef struct register_eo register_eo_t;
 
-/* When a protocol needs intermediate data structures to construct the
+/** When a protocol needs intermediate data structures to construct the
 export objects, then it must specify a function that cleans up all
 those data structures. This function is passed to export_object_window
 and called when tap reset or windows closes occurs. If no function is needed

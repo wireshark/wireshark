@@ -62,38 +62,41 @@ extern "C" {
     { "log-level", ws_required_argument, NULL, EXTCAP_OPT_LOG_LEVEL}, \
     { "log-file", ws_required_argument, NULL, EXTCAP_OPT_LOG_FILE}
 
+/**
+ * @brief Holds all runtime parameters and state for an extcap plugin, parsed from command-line arguments and used to drive capture and configuration operations.
+ */
 typedef struct _extcap_parameters
 {
-    char * exename;
-    char * fifo;
-    char * interface;
-    char * capture_filter;
+    char*    exename;              /**< Path or name of the extcap executable. */
+    char*    fifo;                 /**< Path to the FIFO or pipe through which captured packets are written to Wireshark. */
+    char*    interface;            /**< Name of the extcap interface selected for this operation. */
+    char*    capture_filter;       /**< BPF or display filter string to apply during capture, or NULL if unfiltered. */
 
-    char * version;
-    char * compiled_with;
-    char * running_with;
-    char * helppage;
-    uint8_t capture;
-    uint8_t show_config;
-    uint8_t show_config_option;
-    char * config_option_name;
-    char * config_option_value;
+    char*    version;              /**< Version string of the extcap plugin itself. */
+    char*    compiled_with;        /**< Description of libraries and versions the extcap was compiled against. */
+    char*    running_with;         /**< Description of libraries and versions the extcap is running with at runtime. */
+    char*    helppage;             /**< URL or path to the extcap plugin's help documentation. */
+    uint8_t  capture;              /**< Non-zero if the extcap was invoked to perform a live capture. */
+    uint8_t  show_config;          /**< Non-zero if the extcap was invoked to display its configuration dialog. */
+    uint8_t  show_config_option;   /**< Non-zero if the extcap was invoked to display a specific configuration option. */
+    char*    config_option_name;   /**< Name of the specific configuration option to display when show_config_option is set. */
+    char*    config_option_value;  /**< Current value of the specific configuration option to display. */
 
-    char * ws_version;
+    char*    ws_version;           /**< Wireshark version string passed by the Wireshark process that launched this extcap. */
 
     /* private content */
-    GList * interfaces;
-    uint8_t do_version;
-    uint8_t do_list_dlts;
-    uint8_t do_list_interfaces;
-    uint8_t do_cleanup_postkill;
+    GList*   interfaces;           /**< List of extcap_interface entries describing the interfaces provided by this extcap. */
+    uint8_t  do_version;           /**< Non-zero if the extcap was invoked with --extcap-version to report its version. */
+    uint8_t  do_list_dlts;         /**< Non-zero if the extcap was invoked with --extcap-dlts to list supported link-layer types. */
+    uint8_t  do_list_interfaces;   /**< Non-zero if the extcap was invoked with --extcap-interfaces to enumerate available interfaces. */
+    uint8_t  do_cleanup_postkill;  /**< Non-zero if the extcap should invoke cleanup_postkill_cb after the capture process is terminated. */
 
-    char * help_header;
-    GList * help_options;
+    char*    help_header;          /**< Header text displayed at the top of the extcap's help output. */
+    GList*   help_options;         /**< List of help text entries describing the extcap's command-line options. */
 
-    enum ws_log_level debug;
+    enum ws_log_level debug;       /**< Log verbosity level controlling the detail of diagnostic messages emitted by the extcap. */
 
-    void (*cleanup_postkill_cb)(void);
+    void (*cleanup_postkill_cb)(void); /**< Optional callback invoked after the capture process is killed, for resource cleanup; NULL if unused. */
 } extcap_parameters;
 
 /**

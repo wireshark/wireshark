@@ -21,12 +21,14 @@ extern "C" {
  * Filter expressions.
  */
 
+/**
+ * @brief Represents a saved display filter expression entry with a label, filter string, and enabled state.
+ */
 typedef struct filter_expression {
-	char	*label;
-	char	*expression;
-	char	*comment;
-
-	bool enabled;	/* Can be set to false by Preferences Dialog */
+    char* label;      /**< Short human-readable label used to identify the filter expression in the UI. */
+    char* expression; /**< The display filter string to be applied when this expression is activated. */
+    char* comment;    /**< Optional description providing additional context about the filter expression. */
+    bool  enabled;    /**< Whether this filter expression is active; may be toggled via the Preferences Dialog. */
 } filter_expression_t;
 
 /**
