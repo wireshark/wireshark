@@ -14,6 +14,7 @@
  */
 
 #include <lua_debugger_code_editor.h>
+#include <ui_lua_debugger_dialog.h>
 
 #include <QAction>
 #include <QApplication>
@@ -56,7 +57,6 @@
 #include "lua_debugger_dialog.h"
 #include "lua_debugger_files.h"
 #include "main_application.h"
-#include "ui_lua_debugger_dialog.h"
 #include "utils/color_utils.h"
 
 /* ===== code_palette ===== */
