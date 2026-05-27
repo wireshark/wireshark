@@ -122,6 +122,13 @@ UPDATE_TOOLS = (
         "path": "tools/update-appdata.py",
         "updated_files": ["resources/freedesktop/org.wireshark.Wireshark.metainfo.xml"],
     },
+    {
+        "name": "Update VMware ESXi Releases",
+        "python_modules": ["requests"],
+        "path": "tools/dissector_generators/generate-vmware-hb.py",
+        "args": ["--quiet", "epan/dissectors/packet-vmware-hb.c"],
+        "updated_files": [ "epan/dissectors/packet-vmware-hb.c"]
+    },
 )
 
 
