@@ -1898,7 +1898,7 @@ static void set_tst_proto_item_info(tvbuff_t* tvb, int offset, proto_item* ti)
         char timestamp_str[TIMETAMP_STR_MAX_LEN] = {0};
         strftime(timestamp_str, sizeof(timestamp_str), "%Y-%m-%d %H:%M:%S", utc_time);
 
-        proto_item_append_text(ti, " - %s.%lu GMT", timestamp_str, (unsigned long)tst_msec);
+        proto_item_append_text(ti, " - %s.%03lu GMT", timestamp_str, (unsigned long)tst_msec);
     }
 }
 
@@ -2147,7 +2147,7 @@ static void gps_timestamp_format(char* string, uint64_t value)
 
         snprintf(string,
                  ITEM_LABEL_LENGTH,
-                 "%s.%lu GMT (%" PRIu64 ")",
+                 "%s.%03lu GMT (%" PRIu64 ")",
                  timestamp_str,
                  (unsigned long)tst_msec,
                  value);
