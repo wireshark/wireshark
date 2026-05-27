@@ -13,7 +13,7 @@
  */
 
 #include "lua_debugger_settings.h"
-#include "ui_lua_debugger_dialog.h"
+#include <ui_lua_debugger_dialog.h>
 
 #include <QByteArray>
 #include <QFile>

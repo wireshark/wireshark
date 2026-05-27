@@ -16,7 +16,7 @@
 #include <config.h>
 
 #include "lua_debugger_dialog.h"
-#include "ui_lua_debugger_dialog.h"
+#include <ui_lua_debugger_dialog.h>
 
 #include <QAbstractItemModel>
 #include <QAbstractItemView>

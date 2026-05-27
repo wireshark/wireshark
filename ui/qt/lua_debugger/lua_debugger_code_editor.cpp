@@ -13,7 +13,7 @@
  * palette, font policy and the script-tabs controller.
  */
 
-#include "lua_debugger_code_editor.h"
+#include <lua_debugger_code_editor.h>
 
 #include <QAction>
 #include <QApplication>
