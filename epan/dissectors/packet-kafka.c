@@ -1130,26 +1130,28 @@ dissect_kafka_compact_array(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                         int *p_count)
 {
     uint64_t count;
+    int signed_count;
     int32_t len;
 
-    len = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &count, ENC_VARINT_PROTOBUF);
+    len = tvb_get_varint(tvb, offset, 5, &count, ENC_VARINT_PROTOBUF);
     if (len == 0) {
         expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_kafka_bad_varint);
         return tvb_captured_length(tvb);
     }
-    if(count > (uint64_t)INT64_MAX) {
+    /*
+     * Compact arrays store count+1
+     * https://cwiki.apache.org/confluence/display/KAFKA/KIP-482%3A+The+Kafka+Protocol+should+Support+Optional+Tagged+Fields
+     * Callers know to treat -1 as a NULL array.
+     */
+    if(ckd_sub(&signed_count, count, 1)) {
         expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_kafka_bad_array_length);
         return offset + len;
     }
     offset += len;
 
-    /*
-     * Compact arrays store count+1
-     * https://cwiki.apache.org/confluence/display/KAFKA/KIP-482%3A+The+Kafka+Protocol+should+Support+Optional+Tagged+Fields
-     */
-    offset = dissect_kafka_array_elements(tree, tvb, pinfo, offset, api_version, func, (int)(count - 1));
+    offset = dissect_kafka_array_elements(tree, tvb, pinfo, offset, api_version, func, signed_count);
 
-    if (p_count != NULL) *p_count = (int)(count - 1);
+    if (p_count != NULL) *p_count = signed_count;
 
     return offset;
 }
