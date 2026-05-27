@@ -1209,20 +1209,26 @@ void ProfileModel::applyChanges()
 
     foreach(ProfileItem* profile, profile_items_)
     {
-        // Ignore any profiles slated for deletion
-        // They will be handled in the following for loop, so
-        // profiles potentially relying on this can do their actions
-        if (profile->isDeleted())
-        {
-            deletedProfiles.push_back(profile);
-            continue;
-        }
-
         // Cache the profile information for the (C-like) UI layer
         QByteArray qN = profile->getName().toUtf8();
         const char* profileName = qN.constData();
         QByteArray qR = profile->getReference().toUtf8();
         const char* profileReference = qR.constData();
+
+        // Ignore any profiles slated for deletion
+        // They will be handled in the following for loop, so
+        // profiles potentially relying on this can do their actions
+        if (profile->isDeleted())
+        {
+            // Only keep the profile if it's the default; we need to
+            // do this now to keep it at the front of the list.
+            if (profile->isDefault())
+                profile_add_profile(profileName, profileReference, false, "");
+
+            deletedProfiles.push_back(profile);
+            continue;
+        }
+
         QByteArray qA = profile->getAutoSwitchFilter().toUtf8();
         const char* profileAutoSwitchFilter = qA.constData();
         switch (profile->getStatus())
@@ -1333,10 +1339,6 @@ void ProfileModel::applyChanges()
         const char* profileName = qN.constData();
         QByteArray qR = profile->getReference().toUtf8();
         const char* profileReference = qR.constData();
-
-        // Only keep the profile if it's the default
-        if (profile->isDefault())
-            profile_add_profile(profileName, profileReference, false, "");
 
         // If it has been renamed, remove the original name
         if (profile->getStatus() == ProfileItem::StatusType::Changed)
