@@ -18,6 +18,7 @@ import sys
 
 # A list of update tools to run
 # - name: The name of the tool; it will be printed in the commit message if it fails.
+# - master_only: True if this should only be run from the master branch (optional).
 # - path: Path to the tool relative to the repository root.
 # - args: List of arguments to pass to the tool (optional).
 # - python_modules: List of required Python modules (optional).
@@ -104,6 +105,7 @@ UPDATE_TOOLS = (
     },
     {
         "name": "Asterix",
+        "master_only": True,
         "path": "tools/asterix/update-specs.py",
         "args": ["--update", "epan/dissectors/packet-asterix-generated.h"],
         "updated_files": [ "epan/dissectors/packet-asterix-generated.h"]
@@ -144,6 +146,11 @@ def main():
         action="store_true",
         help="Print required Python modules, suitable for passing to `pip install` and exit",
     )
+    # XXX Should we try to figure this out automatically?
+    parser.add_argument(
+        "--target-branch",
+        help="The target git branch, e.g. \"master\"",
+    )
     parser.add_argument(
         "--tool-output",
         default="tool_output.log",
@@ -172,6 +179,11 @@ def main():
     with open(args.tool_output, "w") as tool_output_f:
         # XXX Should we build after each update as well?
         for tool in UPDATE_TOOLS:
+            try:
+                if args.target_branch != "master" and tool["master_only"]:
+                    continue
+            except KeyError:
+                pass
             print(f"Running {tool['path']}.\n")
             res = subprocess.run([sys.executable, tool["path"]] + tool.get("args", []), capture_output=True, encoding="UTF-8")
             print(res.stdout, end="")
