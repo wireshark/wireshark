@@ -36,7 +36,7 @@ WS_DLL_PUBLIC const value_string camel_opr_code_strings[];
 /** @file
 */
 #define NB_CAMELSRT_CATEGORY 9+1 /**< Number of type of message */
-/* for example TC_BEGIN with InitalDP, and TC_CONT with RequestReportBCSMEvent
+/* for example TC_BEGIN with InitialDP, and TC_CONT with RequestReportBCSMEvent
    is a category, we want to measure the delay between the two messages */
 
 #define CAMELSRT_SESSION 1

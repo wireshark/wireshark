@@ -896,7 +896,7 @@ This might be a time consuming operation delaying the start of the program, howe
 
 ==== Aggregation Fields
 
-These preferences allow you to configure the aggreation fields.
+These preferences allow you to configure the aggregation fields.
 
 .Aggregation fields preferences
 image::images/ws-aggregation-view-example.png[{screenshot-attrs}]

@@ -913,6 +913,7 @@ econet
 ecpri
 ed137a
 ed137b
+edata
 edhoc
 editcap
 edonkey
@@ -922,6 +923,7 @@ effecter
 eg20t
 egprs
 egroup
+ehtsig
 eigrp
 einval
 elektronik
@@ -957,6 +959,7 @@ endforeach
 endian
 endianness
 endif
+endoff
 endpoint
 endpt
 endtry
@@ -1281,6 +1284,7 @@ hebrew
 heimdal
 hellman
 helsinki
+hesiga
 heuristic
 heuristicly
 heuristics
@@ -1647,6 +1651,7 @@ literals
 lithionics
 lithuanian
 llcgprs
+lldpdatatbl
 lldpdu
 llogd
 lnpdqp
@@ -1779,6 +1784,7 @@ miami
 michal
 microapp
 microbit
+microsec
 midamble
 middlebox
 migratable
@@ -1788,6 +1794,7 @@ milli
 millimeters
 millimetre
 millimetres
+millisec
 millisecs
 milliwatt
 mingw
@@ -2151,6 +2158,7 @@ opmode
 opnode
 opnum
 opreply
+optane
 optarg
 opterr
 optimisation
@@ -2190,6 +2198,7 @@ overridable
 p2pstar
 p4rpc
 p8118e
+p8118h
 p8118x
 p8118z
 p8128z
@@ -2283,11 +2292,13 @@ pinfo
 pixmap
 pkinit
 pktdata
+pktlen
 plaintext
 planar
 plano
 plcinterface
 plessey
+plink
 plixer
 plmnid
 plottable1d
@@ -2610,6 +2621,7 @@ reordercap
 reorigination
 reparse
 replot
+repoid
 representable
 reproducible
 reprogrammable
@@ -3007,6 +3019,7 @@ stringz
 stringzpad
 strix
 strlen
+strptr
 strtod
 strtoul
 struct
@@ -3271,6 +3284,7 @@ twopc
 txchannel
 txmcsmap
 txpwr
+txrate
 txsta
 txtmod
 type1
@@ -3302,6 +3316,7 @@ udphdr
 udrei
 ueids
 uganda
+uhrsig
 uievent
 uimsbf
 uint16

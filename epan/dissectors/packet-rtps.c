@@ -7125,7 +7125,7 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
         type_name_buf = wmem_strbuf_new(pinfo->pool, type_id_name);
         wmem_strbuf_append(type_name_buf, " '");
         /* value_name might be longer than value_name_len (due to substitution of
-         * replacment characters) but is not shorter. */
+         * replacement characters) but is not shorter. */
         wmem_strbuf_append_len(type_name_buf, value_name, MIN(value_name_len, 30U));
         wmem_strbuf_utf8_make_valid(type_name_buf);
         wmem_strbuf_append_c(type_name_buf, '\'');
@@ -17685,7 +17685,7 @@ static void dissect_SECURE_PREFIX(tvbuff_t *tvb, packet_info *pinfo _U_,
   sec_data_header_tree = proto_tree_add_subtree_format(tree, tvb, offset, octets_to_next_header,
           ett_rtps_secure_dataheader_tree, NULL, "Secure Data Header");
 
-  /* Transformation Kind field used to be 4 bytes. Now it is splitted:
+  /* Transformation Kind field used to be 4 bytes. Now it is split:
    * - 3 bytes: Transformation Key Revision
    * - 1 byte: Transformation Kind
    * A single byte is enough for Transformation Kind since it only has five possible values (0-4).

@@ -3255,7 +3255,7 @@ WS_DLL_PUBLIC bool proto_tracking_interesting_fields(const proto_tree *tree);
     proto_get_finfo_ptr_array because it has to search through the tree.
  @param tree tree of interest
  @param hfindex index of field info of interest
- @return GPtrArry pointer
+ @return GPtrArray pointer
 
     The caller does need to free the returned GPtrArray with
     g_ptr_array_free(<array>, true). */
@@ -3266,7 +3266,7 @@ tree. Works with any tree, primed or unprimed, and is slower than
 proto_get_finfo_ptr_array because it has to search through the tree.
 @param tree tree of interest
 @param hfindex index of field info of interest
-@return GPtrArry pointer
+@return GPtrArray pointer
 
     The caller does need to free the returned GPtrArray with
     g_ptr_array_free(<array>, true). */
@@ -3275,7 +3275,7 @@ WS_DLL_PUBLIC GPtrArray* proto_find_first_finfo(proto_tree *tree, const int hfin
 /** Return GPtrArray* of field_info pointers containing all hfindexes that appear
     in tree.
  @param tree tree of interest
- @return GPtrArry pointer
+ @return GPtrArray pointer
 
     The caller does need to free the returned GPtrArray with
     g_ptr_array_free(<array>, true). */

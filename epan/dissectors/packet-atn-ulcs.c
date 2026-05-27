@@ -56,7 +56,7 @@ why using conversations ?
     from "conversation.h" didn't work out.
 
 what is the use of AARQ/AARE data ?
-    Converstions should be maintained on the COTP layer in a standard way
+    Conversations should be maintained on the COTP layer in a standard way
     for there are usually more packets available than in the layers above.
     In the worst case my dissector is called from a DT packet which
     has destination references but no source reference.

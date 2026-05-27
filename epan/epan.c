@@ -888,10 +888,10 @@ epan_custom_set(epan_dissect_t *edt, GSList *field_ids,
 }
 
 void
-epan_dissect_fill_in_columns(epan_dissect_t *edt, const bool fill_col_exprs, const bool fill_fd_colums)
+epan_dissect_fill_in_columns(epan_dissect_t *edt, const bool fill_col_exprs, const bool fill_fd_columns)
 {
 	col_custom_set_edt(edt, edt->pi.cinfo);
-	col_fill_in(&edt->pi, fill_col_exprs, fill_fd_colums);
+	col_fill_in(&edt->pi, fill_col_exprs, fill_fd_columns);
 }
 
 bool
