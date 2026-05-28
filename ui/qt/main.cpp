@@ -137,6 +137,12 @@ void exit_application(int status) {
         // or similar, e.g. with a QTimer
         wsApp->quit();
     }
+
+#ifdef __HAIKU__
+    /* deregister log writer on exit */
+    qInstallMessageHandler(0);
+#endif
+
     // Calling stdlib exit here does not call the wsApp destructor.
     exit(status);
 }

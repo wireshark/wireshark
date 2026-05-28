@@ -24,17 +24,22 @@
 #include <shlobj.h>
 #include <wsutil/unicode-utils.h>
 #else /* _WIN32 */
+/* Unix-like enough for our purposes */
 #ifdef ENABLE_APPLICATION_BUNDLE
 #include <mach-o/dyld.h>
-#endif
+#endif /* ENABLE_APPLICATION_BUNDLE */
 #ifdef __FreeBSD__
 #include <sys/types.h>
 #include <sys/sysctl.h>
-#endif
+#endif /* __FreeBSD__ */
 #ifdef HAVE_DLGET
 #include <dlfcn.h>
-#endif
+#endif /* HAVE_DLGET */
 #include <pwd.h>
+#ifdef __HAIKU__
+#include <FindDirectory.h>
+#include <fs_info.h>
+#endif /* __HAIKU__ */
 #endif /* _WIN32 */
 
 #include <wsutil/file_util.h>
@@ -789,6 +794,15 @@ configuration_init_posix(const char* app_flavor, const char* arg0)
         }
     }
 
+#if defined(__HAIKU__)
+    char buffer[PATH_MAX + 1];
+
+    char *res = realpath(prog_pathname, buffer);
+    if (res != NULL) {
+        prog_pathname = g_strdup(buffer);
+    }
+#endif
+
     /*
      * OK, we have what we think is the pathname
      * of the program.
@@ -1230,7 +1244,7 @@ static void
 init_plugin_pers_dir(const char* app_env_var_prefix _U_)
 {
 #if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__HAIKU__)
     plugin_pers_dir = get_persconffile_path(PLUGINS_DIR_NAME, false, app_env_var_prefix);
 #else
     char* app_lower = g_ascii_strdown(app_env_var_prefix, -1);
@@ -1417,8 +1431,10 @@ running_in_build_directory(void)
 const char *
 get_systemfile_dir(const char* app_env_var_prefix _U_)
 {
-#ifdef _WIN32
+#if defined(_WIN32)
     return get_datafile_dir(app_env_var_prefix);
+#elif defined(__HAIKU__)
+    return "/boot/system/settings/etc";
 #else
     return "/etc";
 #endif
@@ -1555,7 +1571,7 @@ get_persconffile_dir_no_profile(const char* app_env_var_prefix)
         goto return_dir;
     }
 
-#ifdef _WIN32
+#if defined(_WIN32)
     /*
      * Use %APPDATA% or %USERPROFILE%, so that configuration
      * files are stored in the user profile, rather than in
@@ -1587,6 +1603,12 @@ get_persconffile_dir_no_profile(const char* app_env_var_prefix)
      */
     persconffile_dir = g_build_filename("C:", app_proper, NULL);
     goto return_dir;
+#elif defined(__HAIKU__)
+    char buffer[B_PATH_NAME_LENGTH+B_FILE_NAME_LENGTH];
+
+    find_directory(B_USER_SETTINGS_DIRECTORY, dev_for_path("/boot"), true, buffer, sizeof(buffer));
+    persconffile_dir = g_build_filename(buffer, app_lower, NULL);
+    return persconffile_dir;
 #else
     char *xdg_path, *path;
     struct passwd *pwd;

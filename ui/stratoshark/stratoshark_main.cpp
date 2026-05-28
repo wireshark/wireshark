@@ -121,6 +121,12 @@ void exit_application(int status) {
     if (ssApp) {
         ssApp->quit();
     }
+
+#ifdef __HAIKU__
+    /* deregister log writer on exit */
+    qInstallMessageHandler(0);
+#endif
+
     exit(status);
 }
 

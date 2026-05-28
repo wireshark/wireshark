@@ -9,6 +9,9 @@
 
 #include "config.h"
 
+#ifdef __HAIKU__
+#include <sys/time.h>
+#endif
 #include <sys/types.h>
 
 #ifdef HAVE_UNISTD_H

@@ -311,6 +311,12 @@ if(WIN32 AND NOT USE_MSYSTEM)
 	set(CMAKE_INSTALL_INCLUDEDIR "include")
 	set(CMAKE_INSTALL_DATADIR ".")
 	set(CMAKE_INSTALL_DOCDIR ".")
+elseif(CMAKE_SYSTEM_NAME MATCHES "Haiku")
+	# By default INSTALL_DATADIR is set to INSTALL_DATAROOTDIR, set the
+	# proper value here.
+	set(CMAKE_INSTALL_DATADIR "data/${PROJECT_NAME}"
+		CACHE PATH "Read-only architecture-independent data"
+	)
 endif()
 include(GNUInstallDirs)
 
