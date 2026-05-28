@@ -7112,6 +7112,8 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case 315: /* Data Link Frame Section */
             {
                 bool save_writable;
+                port_type save_ptype;
+                uint32_t save_srcport, save_destport;
                 address save_dl_src, save_dl_dst, save_net_src, save_net_dst, save_src, save_dst;
                 ti = proto_tree_add_item(pdutree, hf_cflow_data_link_frame_section,
                         tvb, offset, length, ENC_NA);
@@ -7133,13 +7135,16 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
                 /* Disable overwriting of the info column by the sub dissectors*/
                 col_set_writable (pinfo->cinfo, -1, false);
-                /* Save the source and destination addresses */
+                /* Save the source and destination addresses and ports */
                 copy_address_shallow(&save_dl_src, &pinfo->dl_src);
                 copy_address_shallow(&save_dl_dst, &pinfo->dl_dst);
                 copy_address_shallow(&save_net_src, &pinfo->net_src);
                 copy_address_shallow(&save_net_dst, &pinfo->net_dst);
                 copy_address_shallow(&save_src, &pinfo->src);
                 copy_address_shallow(&save_dst, &pinfo->dst);
+                save_ptype = pinfo->ptype;
+                save_srcport = pinfo->srcport;
+                save_destport = pinfo->destport;
 
                 /* Call the L2 dissector */
                 call_dissector(eth_handle, tvb_new, pinfo, dl_frame_sec_tree);
@@ -7153,6 +7158,9 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                 copy_address_shallow(&pinfo->net_dst, &save_net_dst);
                 copy_address_shallow(&pinfo->src, &save_src);
                 copy_address_shallow(&pinfo->dst, &save_dst);
+                pinfo->ptype = save_ptype;
+                pinfo->srcport = save_srcport;
+                pinfo->destport = save_destport;
             }
             break;
 
