@@ -5345,7 +5345,7 @@ static int dissect_freebsd_usb_frames(proto_tree *tree, tvbuff_t *tvb,
             tvbuff_t *frame_tvb = tvb_new_subset_length(tvb, offset, framelen);
             int dissected = try_dissect_next_protocol(
                 parent, frame_tvb, pinfo, urb, urb_type, frame_tree, NULL);
-            if (dissected < (int)framelen) {
+            if ((unsigned)dissected < framelen) {
                 proto_tree_add_item(frame_tree, hf_usb_frame_data, tvb,
                                     offset + dissected, framelen - dissected,
                                     ENC_NA);
