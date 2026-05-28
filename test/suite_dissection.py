@@ -1351,6 +1351,27 @@ class TestDissectTns:
         assert clients[0] == '2' and clients[-1] == '0', clients
         assert '91' in clients and '13' in clients, clients
 
+    def test_tns_oer(self, cmd_tshark, capture_file, test_env):
+        '''TTI_OER (Oracle Error Return) decodes call_status, rowcount,
+        err_code, cursor_id, and the trailing ORA-NNNNN message text.
+        Two frames: a successful DML (rowcount=3, err=0) and a failed
+        DML (err=1, with message body).'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oer.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_oer.call_status',
+            '-e', 'tns.data_oer.rowcount',
+            '-e', 'tns.data_oer.err_code',
+            '-e', 'tns.data_oer.cursor_id',
+            '-e', 'tns.data_oer.message',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert len(rows) == 2, rows
+        assert rows[0] == ['0', '3', '0', '42', ''], rows[0]
+        assert rows[1][0] == '0' and rows[1][2] == '1' and rows[1][3] == '42', rows[1]
+        assert 'ORA-00001' in rows[1][4], rows[1]
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

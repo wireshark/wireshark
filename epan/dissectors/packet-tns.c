@@ -215,6 +215,15 @@ static int hf_tns_data_setdt_override_client;
 static int hf_tns_data_setdt_override_repr;
 static int hf_tns_data_setdt_override_format;
 
+static int hf_tns_data_oer_call_status;
+static int hf_tns_data_oer_rowcount;
+static int hf_tns_data_oer_err_code;
+static int hf_tns_data_oer_cursor_id;
+static int hf_tns_data_oer_n_batch_errcodes;
+static int hf_tns_data_oer_n_batch_offsets;
+static int hf_tns_data_oer_n_batch_messages;
+static int hf_tns_data_oer_message;
+
 static int hf_tns_data_descriptor_row_count;
 static int hf_tns_data_descriptor_row_size;
 
@@ -239,6 +248,7 @@ static int ett_tns_rows;
 static int ett_tns_setdt_caphdr;
 static int ett_tns_setdt_overrides;
 static int ett_tns_setdt_override;
+static int ett_tns_oer;
 static int ett_sql;
 
 static expert_field ei_tns_connect_data_next_packet;
@@ -651,6 +661,45 @@ static int get_sb4_custom(tvbuff_t *tvb, int offset, int *result)
 	return first_byte + 1;
 }
 
+/* Decode a DALC (Data-Length-And-Content) blob: either a single
+ * length-prefixed run, an empty marker (0), or a multi-chunk form
+ * (0xFE / 254) where successive (len, bytes) pairs are concatenated
+ * and terminated by a 0-length chunk. Returns the number of bytes
+ * consumed from the tvb and, when content is non-empty, a UTF-8
+ * string allocated from pinfo->pool. */
+static int get_dalc_custom(tvbuff_t *tvb, packet_info *pinfo, int offset, const char **out_str)
+{
+	uint8_t first = tvb_get_uint8(tvb, offset);
+	if ( first == 0 )
+	{
+		if ( out_str )
+			*out_str = NULL;
+		return 1;
+	}
+	if ( first != 254 )
+	{
+		if ( out_str )
+			*out_str = (const char *)tvb_get_string_enc(pinfo->pool, tvb, offset + 1, first, ENC_UTF_8|ENC_NA);
+		return 1 + first;
+	}
+
+	/* Chunked form: walk (len, bytes)+ until a zero-length chunk. */
+	wmem_strbuf_t *strbuf = wmem_strbuf_new(pinfo->pool, "");
+	int o = offset + 1;
+	while ( tvb_reported_length_remaining(tvb, o) > 0 )
+	{
+		uint8_t chunk_len = tvb_get_uint8(tvb, o);
+		o += 1;
+		if ( chunk_len == 0 )
+			break;
+		wmem_strbuf_append(strbuf, (const char *)tvb_get_string_enc(pinfo->pool, tvb, o, chunk_len, ENC_UTF_8|ENC_NA));
+		o += chunk_len;
+	}
+	if ( out_str )
+		*out_str = wmem_strbuf_get_str(strbuf);
+	return o - offset;
+}
+
 static void vsnum_to_vstext_basecustom(char *result, uint32_t vsnum)
 {
 	/*
@@ -912,6 +961,116 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 				offset += entry_len;
 			}
 			proto_item_set_len(ov_item, offset - ov_start);
+			break;
+		}
+
+		case SQLNET_RETURN_STATUS:
+		{
+			/* TTI_OER: server-side end-of-call status block. Emitted at
+			 * the end of every response — success or failure. Layout
+			 * cross-referenced with python-oracledb's
+			 * _process_error_info, in the Oracle 11g shape (no extended
+			 * ub4 error number / ub8 rowcount that 12c+ adds).
+			 *
+			 * All multi-byte integers are stored in the ub4 variable-
+			 * length form (see get_sb4_custom): first byte holds the
+			 * value's width (0..4), followed by that many big-endian
+			 * data bytes. */
+			proto_tree *oer_tree;
+			proto_item *oer_item;
+			int oer_start = offset;
+			int v;
+
+			oer_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1, ett_tns_oer, &oer_item, "Oracle Error Return");
+
+			/* call_status */
+			offset += get_sb4_custom(tvb, offset, &v);
+			proto_tree_add_int(oer_tree, hf_tns_data_oer_call_status, tvb, oer_start, offset - oer_start, v);
+			/* end-to-end seq# (skipped) */
+			offset += get_sb4_custom(tvb, offset, &v);
+			/* rowcount (DML affected rows on 11g) */
+			int rc_start = offset;
+			offset += get_sb4_custom(tvb, offset, &v);
+			proto_tree_add_int(oer_tree, hf_tns_data_oer_rowcount, tvb, rc_start, offset - rc_start, v);
+			/* err_code (ORA-NNNNN, 0 on success) */
+			int ec_start = offset;
+			int err_code = 0;
+			offset += get_sb4_custom(tvb, offset, &err_code);
+			proto_tree_add_int(oer_tree, hf_tns_data_oer_err_code, tvb, ec_start, offset - ec_start, err_code);
+			/* array elem error #1, #2 (skipped) */
+			offset += get_sb4_custom(tvb, offset, &v);
+			offset += get_sb4_custom(tvb, offset, &v);
+			/* cursor_id */
+			int ci_start = offset;
+			offset += get_sb4_custom(tvb, offset, &v);
+			proto_tree_add_int(oer_tree, hf_tns_data_oer_cursor_id, tvb, ci_start, offset - ci_start, v);
+			/* error position (skipped) */
+			offset += get_sb4_custom(tvb, offset, &v);
+			/* 6 single-byte fields: sql_type, fatal, flags, user_cursor_opts, upi_param, warn_flags */
+			offset += 6;
+			/* rowid: ub4 rba, ub2 part_id, 1 byte reserved, ub4 block, ub2 slot */
+			offset += get_sb4_custom(tvb, offset, &v);
+			offset += get_sb4_custom(tvb, offset, &v);
+			offset += 1;
+			offset += get_sb4_custom(tvb, offset, &v);
+			offset += get_sb4_custom(tvb, offset, &v);
+			/* os error (skipped) */
+			offset += get_sb4_custom(tvb, offset, &v);
+			/* statement #, call # (1 byte each) */
+			offset += 2;
+			/* padding ub2 + successful iterations ub4 */
+			offset += get_sb4_custom(tvb, offset, &v);
+			offset += get_sb4_custom(tvb, offset, &v);
+			/* oerrdd (logical rowid) DALC — skipped */
+			offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+
+			int n_codes = 0, n_offs = 0, n_msgs = 0;
+			int nb_start = offset;
+			offset += get_sb4_custom(tvb, offset, &n_codes);
+			proto_tree_add_int(oer_tree, hf_tns_data_oer_n_batch_errcodes, tvb, nb_start, offset - nb_start, n_codes);
+			if ( n_codes > 0 )
+			{
+				offset += 1;
+				for ( int i = 0; i < n_codes; i++ )
+					offset += get_sb4_custom(tvb, offset, &v);
+			}
+			nb_start = offset;
+			offset += get_sb4_custom(tvb, offset, &n_offs);
+			proto_tree_add_int(oer_tree, hf_tns_data_oer_n_batch_offsets, tvb, nb_start, offset - nb_start, n_offs);
+			if ( n_offs > 0 )
+			{
+				offset += 1;
+				for ( int i = 0; i < n_offs; i++ )
+					offset += get_sb4_custom(tvb, offset, &v);
+			}
+			nb_start = offset;
+			offset += get_sb4_custom(tvb, offset, &n_msgs);
+			proto_tree_add_int(oer_tree, hf_tns_data_oer_n_batch_messages, tvb, nb_start, offset - nb_start, n_msgs);
+			if ( n_msgs > 0 )
+			{
+				offset += 1;
+				for ( int i = 0; i < n_msgs; i++ )
+				{
+					offset += get_sb4_custom(tvb, offset, &v);
+					offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+					offset += 2;
+				}
+			}
+
+			/* Trailing message DALC — present (and meaningful) only when
+			 * err_code is non-zero. */
+			if ( err_code != 0 && tvb_reported_length_remaining(tvb, offset) > 0 )
+			{
+				const char *msg = NULL;
+				int msg_start = offset;
+				offset += get_dalc_custom(tvb, pinfo, offset, &msg);
+				if ( msg )
+				{
+					proto_tree_add_string(oer_tree, hf_tns_data_oer_message, tvb, msg_start, offset - msg_start, msg);
+					col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", msg);
+				}
+			}
+			proto_item_set_len(oer_item, offset - oer_start);
 			break;
 		}
 
@@ -2025,6 +2184,31 @@ void proto_register_tns(void)
 			"Format", "tns.data_setdt.override.format", FT_UINT8, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
 
+		{ &hf_tns_data_oer_call_status, {
+			"Call Status", "tns.data_oer.call_status", FT_INT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_oer_rowcount, {
+			"Row Count", "tns.data_oer.rowcount", FT_INT32, BASE_DEC,
+			NULL, 0x0, "DML affected rows (11g)", HFILL }},
+		{ &hf_tns_data_oer_err_code, {
+			"Error Code", "tns.data_oer.err_code", FT_INT32, BASE_DEC,
+			NULL, 0x0, "ORA-NNNNN (0 = success)", HFILL }},
+		{ &hf_tns_data_oer_cursor_id, {
+			"Cursor Id", "tns.data_oer.cursor_id", FT_INT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_oer_n_batch_errcodes, {
+			"Batch Error Codes", "tns.data_oer.n_batch_errcodes", FT_INT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_oer_n_batch_offsets, {
+			"Batch Error Offsets", "tns.data_oer.n_batch_offsets", FT_INT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_oer_n_batch_messages, {
+			"Batch Error Messages", "tns.data_oer.n_batch_messages", FT_INT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_oer_message, {
+			"Message", "tns.data_oer.message", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+
 		{ &hf_tns_data_opi_version2_banner_len, {
 			"Banner Length", "tns.data_opi.vers2.banner_len", FT_UINT8, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
@@ -2086,6 +2270,7 @@ void proto_register_tns(void)
 		&ett_tns_setdt_caphdr,
 		&ett_tns_setdt_overrides,
 		&ett_tns_setdt_override,
+		&ett_tns_oer,
 		&ett_sql
 	};
 
