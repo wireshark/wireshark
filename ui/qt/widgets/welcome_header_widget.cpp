@@ -28,8 +28,6 @@
 #include <QGraphicsOpacityEffect>
 #include <QPropertyAnimation>
 
-#include "ui_welcome_header_widget.h"
-
 WelcomeHeaderWidget::WelcomeHeaderWidget(QWidget *parent) :
     QWidget(parent),
     header_ui_(new Ui::WelcomeHeaderWidget)
