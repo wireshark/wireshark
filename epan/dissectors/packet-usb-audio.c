@@ -1397,8 +1397,7 @@ dissect_ac_if_feature_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     offset += 1;
 
     if (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V1) {
-        proto_tree_add_item(tree, hf_ac_if_fu_controlsize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        controlsize = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(tree, hf_ac_if_fu_controlsize, tvb, offset, 1, ENC_LITTLE_ENDIAN, &controlsize);
         offset += 1;
 
         /* Descriptor size is 7+(ch+1)*n where n is controlsize, calculate and validate ch */
@@ -1530,8 +1529,7 @@ dissect_ac_if_mixed_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_ac_if_mu_unitid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_ac_if_mu_nrinpins, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    nrinpins = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(tree, hf_ac_if_mu_nrinpins, tvb, offset, 1, ENC_LITTLE_ENDIAN, &nrinpins);
     offset += 1;
 
     while(nrinpins){
@@ -2146,8 +2144,7 @@ dissect_ms_if_midi_out_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_ms_if_midi_out_bjackid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_ms_if_midi_out_bnrinputpins, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    nrinputpins = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(tree, hf_ms_if_midi_out_bnrinputpins, tvb, offset, 1, ENC_LITTLE_ENDIAN, &nrinputpins);
     offset += 1;
     while (nrinputpins)
     {
@@ -2197,8 +2194,7 @@ dissect_ms_if_midi_element_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U
     proto_tree_add_item(tree, hf_ms_if_midi_element_belementid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_ms_if_midi_element_bnrinputpins, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    nrinputpins = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(tree, hf_ms_if_midi_element_bnrinputpins, tvb, offset, 1, ENC_LITTLE_ENDIAN, &nrinputpins);
     offset += 1;
     while (nrinputpins)
     {
@@ -2254,8 +2250,7 @@ dissect_ms_ep_general_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     int      offset_start = offset;
     uint8_t  numjacks;
 
-    proto_tree_add_item(tree, hf_ms_ep_gen_numjacks, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    numjacks = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(tree, hf_ms_ep_gen_numjacks, tvb, offset, 1, ENC_LITTLE_ENDIAN, &numjacks);
     offset += 1;
     while (numjacks)
     {

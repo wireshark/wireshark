@@ -1216,15 +1216,13 @@ dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinf
 
     start_offset = offset;
 
-    proto_tree_add_item(sub_tree, hf_packet_type, tvb, offset, 1, ENC_NA);
-    packet_type = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(sub_tree, hf_packet_type, tvb, offset, 1, ENC_NA, &packet_type);
     offset += 1;
 
     if (packet_type == 0x05) { /* LE_PROMISC */
         uint8_t state;
 
-        proto_tree_add_item(sub_tree, hf_state, tvb, offset, 1, ENC_NA);
-        state = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(sub_tree, hf_state, tvb, offset, 1, ENC_NA, &state);
         col_append_fstr(pinfo->cinfo, COL_INFO, " LE Promiscuous - %s", val_to_str_const(state, usb_rx_packet_state_vals, "Unknown"));
         offset += 1;
 
@@ -1266,15 +1264,13 @@ dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinf
     proto_tree_add_item(sub_tree, hf_chip_status_dma_overflow, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    proto_tree_add_item(sub_tree, hf_usb_rx_packet_channel, tvb, offset, 1, ENC_NA);
-    channel = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(sub_tree, hf_usb_rx_packet_channel, tvb, offset, 1, ENC_NA, &channel);
     offset += 1;
 
     proto_tree_add_item(sub_tree, hf_clock_ns, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    proto_tree_add_item(sub_tree, hf_clock_100ns, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    clock_100ns = tvb_get_letohl(tvb, offset);
+    proto_tree_add_item_ret_uint(sub_tree, hf_clock_100ns, tvb, offset, 4, ENC_LITTLE_ENDIAN, &clock_100ns);
     offset += 4;
 
     proto_tree_add_item(sub_tree, hf_rssi_max, tvb, offset, 1, ENC_NA);
@@ -1422,8 +1418,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 
     if (urb->is_setup) {
-        proto_tree_add_item(main_tree, hf_command, tvb, offset, 1, ENC_NA);
-        command = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(main_tree, hf_command, tvb, offset, 1, ENC_NA, &command);
         offset += 1;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "Command: %s",
@@ -1824,8 +1819,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         break;
     case 14: /* Get Microcontroller Serial Number */
-        proto_tree_add_item(main_tree, hf_status, tvb, offset, 1, ENC_NA);
-        status = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(main_tree, hf_status, tvb, offset, 1, ENC_NA, &status);
         offset += 1;
 
         if (status) break;
@@ -1844,8 +1838,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         break;
     case 15: /* Get Microcontroller Part Number */
-        proto_tree_add_item(main_tree, hf_status, tvb, offset, 1, ENC_NA);
-        status = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(main_tree, hf_status, tvb, offset, 1, ENC_NA, &status);
         offset += 1;
 
         if (status) break;
@@ -1903,8 +1896,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         proto_tree_add_item(main_tree, hf_reserved, tvb, offset, 2, ENC_NA);
         offset += 2;
 
-        proto_tree_add_item(main_tree, hf_length, tvb, offset, 1, ENC_NA);
-        length = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(main_tree, hf_length, tvb, offset, 1, ENC_NA, &length);
         offset += 1;
 
         proto_tree_add_item_ret_string(main_tree, hf_firmware_revision, tvb, offset, length, ENC_NA | ENC_ASCII, pinfo->pool, &firmware);
@@ -1979,8 +1971,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     case 55: /* Get Compile Info */
         {
         const uint8_t* compile;
-        proto_tree_add_item(main_tree, hf_length, tvb, offset, 1, ENC_NA);
-        length = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(main_tree, hf_length, tvb, offset, 1, ENC_NA, &length);
         offset += 1;
 
         proto_tree_add_item_ret_string(main_tree, hf_firmware_compile_info, tvb, offset, length, ENC_NA | ENC_ASCII, pinfo->pool, &compile);

@@ -681,8 +681,7 @@ dissect_bmControl(proto_tree *tree, tvbuff_t *tvb, int offset,
 {
     uint8_t bm_size = 0;
 
-    bm_size = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_usb_vid_bControlSize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_usb_vid_bControlSize, tvb, offset, 1, ENC_LITTLE_ENDIAN, &bm_size);
     ++offset;
 
     if (bm_size > 0)
@@ -810,8 +809,7 @@ dissect_usb_video_selector_unit(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
     uint8_t num_inputs;
 
-    num_inputs = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_usb_vid_num_inputs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_usb_vid_num_inputs, tvb, offset, 1, ENC_LITTLE_ENDIAN, &num_inputs);
     ++offset;
 
     if (num_inputs > 0)
@@ -837,8 +835,7 @@ dissect_usb_video_extension_unit(proto_tree *tree, tvbuff_t *tvb, int offset)
     proto_tree_add_item(tree, hf_usb_vid_exten_num_controls, tvb, offset+16,  1, ENC_LITTLE_ENDIAN);
     offset += 17;
 
-    num_inputs = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_usb_vid_num_inputs,   tvb, offset,  1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_usb_vid_num_inputs,   tvb, offset,  1, ENC_LITTLE_ENDIAN, &num_inputs);
     ++offset;
 
     if (num_inputs > 0)
@@ -847,8 +844,7 @@ dissect_usb_video_extension_unit(proto_tree *tree, tvbuff_t *tvb, int offset)
         offset += num_inputs;
     }
 
-    control_size = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_usb_vid_bControlSize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_usb_vid_bControlSize, tvb, offset, 1, ENC_LITTLE_ENDIAN, &control_size);
     ++offset;
 
     if (control_size > 0)
@@ -1105,8 +1101,7 @@ dissect_usb_video_streaming_input_header(proto_tree *tree, tvbuff_t *tvb, int of
     /* NOTE: Can't use dissect_bmControl here because there's only one size
      *       field for (potentially) multiple bmControl fields
      */
-    bm_size = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_usb_vid_bControlSize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_usb_vid_bControlSize, tvb, offset, 1, ENC_LITTLE_ENDIAN, &bm_size);
     ++offset;
 
     if (bm_size > 0)
@@ -1239,8 +1234,7 @@ dissect_usb_video_frame(proto_tree *tree, tvbuff_t *tvb, int offset,
     uint16_t    frame_width;
     uint16_t    frame_height;
 
-    frame_index = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_usb_vid_frame_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_usb_vid_frame_index, tvb, offset, 1, ENC_LITTLE_ENDIAN, &frame_index);
     offset++;
 
     proto_tree_add_bitmask(tree, tvb, offset, hf_usb_vid_frame_capabilities,
