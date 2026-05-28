@@ -14,11 +14,27 @@
  * https://ultraethernet.org/wp-content/uploads/sites/20/2025/10/UE-Specification-1.0.1.pdf
  */
 
+#include "config.h"
+#define WS_LOG_DOMAIN "packet-uet"
+#include <wsutil/wslog.h>
+
 #include <epan/packet.h>
+#include <epan/epan_dissect.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
+#include <epan/proto_data.h>
 #include <epan/tfs.h>
+#include <epan/crc32-tvb.h>
+#include <wsutil/crc32.h>
+
+#include "packet-ip.h"
+#include "packet-ipv6.h"
 
 static int proto_uet;
+
+//Cached protocol handles
+static int proto_ip;
+static int proto_ipv6;
 
 //UET TSS
 static int hf_uet_tss_prlg;
@@ -189,6 +205,10 @@ static int hf_uet_ses_med_req_header_data;
 static int hf_uet_ses_med_req_initiator;
 static int hf_uet_ses_med_req_mem_key_match_bits;
 
+// CRC
+static int hf_uet_crc;
+static int hf_uet_crc_status;
+
 static int ett_all_layers;
 static int ett_uet_tss_auth_proto;
 static int ett_uet_pds_proto;
@@ -210,11 +230,24 @@ static expert_field ei_uet_pds_ack_ext_hdr_len_invalid;
 static expert_field ei_uet_ses_rsp_opcode_invalid;
 static expert_field ei_uet_ses_hdr_len_invalid;
 static expert_field ei_uet_tss_hdr_len_invalid;
+static expert_field ei_uet_crc_bad;
 
 static dissector_handle_t uet_handle;
 static dissector_handle_t uet_entropy_handle;
 
+// prefs
+static bool uet_has_crc = true;
+static bool uet_validate_crc = false;
+
 #define UDP_PORT_UET                4793
+
+#define UET_CRC_LEN		4
+#define IPV4_ADDR_OFFSET	12	// offsetof(struct iphdr, saddr)
+#define IPV6_ADDR_OFFSET	8	// offsetof(struct ipv6hdr, saddr)
+
+// p_{get,add}_proto_data keys
+#define UET_PROTO_DATA_CRC	1
+
 
 //UET Types
 #define UET_PDS_TYPE_RESERVED   0
@@ -895,8 +928,6 @@ dissect_ses_std_req(proto_tree* ses_tree, proto_item* ses_item, tvbuff_t* tvb, p
     proto_tree_add_item(ses_tree, hf_uet_ses_std_request_length, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    //TODO: decode crc header
-
     //decode ext header
     switch (opcode) {
     case UET_SES_OPCODE_ATOMIC:
@@ -969,8 +1000,6 @@ dissect_ses_small_req(proto_tree* ses_tree, proto_item* ses_item, tvbuff_t* tvb,
     offset += 2;
     proto_tree_add_item(ses_tree, hf_uet_ses_small_req_buffer_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
-
-    //+++TODO: crc header
 
     //decode ext header
     switch (opcode) {
@@ -1048,8 +1077,6 @@ dissect_ses_medium_req(proto_tree* ses_tree, proto_item* ses_item, tvbuff_t* tvb
     offset += 4;
     proto_tree_add_item(ses_tree, hf_uet_ses_med_req_mem_key_match_bits, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
-
-    //TODO: decode crc header
 
     //decode ext header
     switch (opcode) {
@@ -1675,6 +1702,72 @@ dissect_tss(tvbuff_t* tvb, packet_info* pinfo, proto_tree* uet_tree, proto_item*
     return tvb_captured_length(tvb);
 }
 
+struct ip_hdr_info {
+    int len;
+    int addr_offset;
+    bool has_udp;
+};
+
+/*
+ * Compute UET CRC over the packet
+ *
+ * spec says:
+ * 1. The CRC is calculated over the packet starting at the first byte of the source IP address for both
+ *    IPv4 and IPv6 packets, [...]
+ * 2. For UDP packets, the checksum is set to zero for calculation and verification.
+ * (i.e. it would include any IP options, if present)
+ *
+ * We need to find the offset of (source address into) the innermost IP header.
+ * We get the (innermost) total IP packet length from ip/ipv6 proto_data. We
+ * subtract the size of the UET layer and obtain the size of the preceding
+ * IP (and UDP) headers.  Starting at our UET header, we walk back that many
+ * bytes into the tvbuff datasource, and reach the start of our IP header.
+ * Then we jump forward to where source IP address is and begin computing
+ * the CRC.
+ *
+ * (this might be simplified if e.g. pinfo->layers could give us their TVBs)
+ *
+ * @param tvb UET layer, up to and including the trailing CRC
+ * @param crc_p computed CRC output
+ * @returns true if we computed a CRC, false if we couldn't
+ */
+static bool
+uet_compute_crc(packet_info *pinfo, tvbuff_t *tvb, uint32_t *crc_p, struct ip_hdr_info* ip_info)
+{
+    static const uint16_t zero_csum = 0;
+    tvbuff_t* parent_tvb = tvb_get_ds_tvb(tvb);
+    int uet_len = tvb_reported_length(tvb);
+    int uet_offset = tvb_raw_offset(tvb);
+
+    int ip_hdrlen = ip_info->len - uet_len;
+    int ip_offset = uet_offset - ip_hdrlen;
+    ws_noisy("IP has_udp=%d totlen=%d hdrlen=%d uet_offset=%d ip_offset=%d",
+        ip_info->has_udp, ip_info->len, ip_hdrlen, uet_offset, ip_offset);
+
+    ip_offset += ip_info->addr_offset;
+    ip_hdrlen -= ip_info->addr_offset;
+    if (ip_info->has_udp)
+        ip_hdrlen -= sizeof(zero_csum);
+    if (ip_offset < 0 || ip_hdrlen < 0) {
+        ws_noisy("CRC frame %u: computed IP offset @%d+%d out of range",
+            pinfo->num, ip_offset, ip_hdrlen);
+        return false;
+    }
+
+    const uint8_t *ip_addrs_ptr = tvb_get_ptr(parent_tvb, ip_offset, ip_hdrlen);
+    uint32_t crc = crc32c_calculate_no_swap(ip_addrs_ptr, ip_hdrlen, CRC32C_PRELOAD);
+    if (ip_info->has_udp)
+        crc = crc32c_calculate_no_swap(&zero_csum, sizeof(zero_csum), crc);
+    crc = crc32c_calculate_no_swap(
+        tvb_get_ptr(tvb, 0, tvb_reported_length(tvb) - UET_CRC_LEN),
+        tvb_reported_length(tvb) - UET_CRC_LEN, crc);
+    crc = ~CRC32C_SWAP(crc);
+    crc = g_htonl(crc);
+
+    *crc_p = crc;
+    return true;
+ }
+
 static int
 dissect_uet_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, bool has_entropy)
 {
@@ -1706,7 +1799,78 @@ dissect_uet_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, bool has
         offset += dissect_pds(tvb, pinfo, uet_tree, uet_item, offset);
     }
 
-    if (tvb_reported_length_remaining(tvb, offset) > 0) {
+    if (uet_has_crc) {
+        unsigned crc_flags = PROTO_CHECKSUM_NO_FLAGS;
+        uint32_t crc = 0;
+
+        if (uet_validate_crc && tvb_captured_length_remaining(tvb, offset) >= UET_CRC_LEN) {
+            // grab previously-computed CRC, if any.  if it was zero value, we'll be recalculating it.  that's Fine.
+            crc = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_uet, UET_PROTO_DATA_CRC));
+            ws_noisy("fetch CRC: 0x%08x", crc);
+            if (crc) {
+                crc_flags = PROTO_CHECKSUM_VERIFY;
+            } else {
+                struct ip_hdr_info ip_info = { 0 };
+                wmem_list_frame_t* cur;
+                int layer_proto = -1;
+                int layer_num = pinfo->curr_layer_num;
+
+                /* CRC depends on previous IPv4/IPv6 layers, so figure out where the last IP packet
+                   was, taking into account tunnels.
+                */
+                cur = wmem_list_tail(pinfo->layers);
+                while (cur != NULL) {
+                    layer_proto = (int)GPOINTER_TO_UINT(wmem_list_frame_data(cur));
+                    if (layer_proto == proto_ip) {
+                        const ws_ip4* iph = (const ws_ip4*)p_get_proto_data(pinfo->pool, pinfo, proto_ip, layer_num);
+                        if (iph) {
+                            ip_info.len = iph->ip_len;
+                            ip_info.addr_offset = IPV4_ADDR_OFFSET;
+                        } else {
+                            ws_noisy("CRC frame %u: could not find IP #%d header data", pinfo->num, layer_num);
+                        }
+                        break;
+                    } else if (layer_proto == proto_ipv6) {
+                        int ipv6_layer_count = 0;
+                        while (cur) {
+                            if ((int)GPOINTER_TO_UINT(wmem_list_frame_data(cur)) == proto_ipv6)
+                                ipv6_layer_count++;
+                            cur = wmem_list_frame_prev(cur);
+                        }
+                        ipv6_pinfo_t* ipv6_pinfo = (ipv6_pinfo_t*)p_get_proto_data(pinfo->pool, pinfo, proto_ipv6,
+                            (ipv6_layer_count << 8) | 2 /*IPV6_PROTO_PINFO*/);
+                        if (ipv6_pinfo) {
+                            ip_info.len = ipv6_pinfo->ip6_plen + IPv6_HDR_SIZE;
+                            ip_info.addr_offset = IPV6_ADDR_OFFSET;
+                        } else {
+                            ws_noisy("CRC frame %u: could not find IPv6 #%d header data", pinfo->num, ipv6_layer_count);
+                        }
+                        break;
+                    }
+
+                    layer_num--;
+                    cur = wmem_list_frame_prev(cur);
+                }
+
+                ip_info.has_udp = !has_entropy;
+                if ((ip_info.len > 0) && (uet_compute_crc(pinfo, tvb, &crc, &ip_info))) {
+                    ws_noisy("store CRC: 0x%08x", crc);
+                    crc_flags = PROTO_CHECKSUM_VERIFY;
+                    p_add_proto_data(wmem_file_scope(), pinfo, proto_uet, UET_PROTO_DATA_CRC, GUINT_TO_POINTER(crc));
+                }
+            }
+        }
+
+        proto_tree_add_checksum(uet_tree, tvb, tvb_reported_length(tvb) - UET_CRC_LEN,
+            hf_uet_crc, hf_uet_crc_status, &ei_uet_crc_bad,
+            pinfo, crc, ENC_BIG_ENDIAN, crc_flags);
+        tvb = tvb_new_subset_length_caplen(tvb, 0,
+          tvb_captured_length(tvb) - UET_CRC_LEN,
+          tvb_reported_length(tvb) - UET_CRC_LEN);
+
+    }
+
+    if (tvb_captured_length_remaining(tvb, offset) > 0) {
         //dump data
         call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, uet_tree);
     }
@@ -1725,6 +1889,7 @@ dissect_uet_entropy(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* d
 {
     return dissect_uet_common(tvb, pinfo, tree, true);
 }
+
 
 void
 proto_register_uet(void)
@@ -2046,6 +2211,15 @@ proto_register_uet(void)
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
+
+        // UET CRC
+        { &hf_uet_crc,
+          { "CRC", "uet.crc", FT_UINT32, BASE_HEX, NULL, 0x0,
+           NULL, HFILL }},
+        { &hf_uet_crc_status,
+         { "CRC Status", "uet.crc.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+          NULL, HFILL }},
+
 
         //UET SES
         { &hf_uet_ses_prlg,
@@ -2601,7 +2775,10 @@ proto_register_uet(void)
             { "uet.tss.invalid_header", PI_MALFORMED, PI_ERROR,
                 "Invalid TSS header length", EXPFILL }
         },
-
+        { &ei_uet_crc_bad,
+            { "uet.crc_bad", PI_CHECKSUM, PI_ERROR,
+                "Bad CRC", EXPFILL }
+        },
     };
 
     expert_module_t* expert_uet;
@@ -2615,6 +2792,16 @@ proto_register_uet(void)
 
     expert_uet = expert_register_protocol(proto_uet);
     expert_register_field_array(expert_uet, ei_uet, array_length(ei_uet));
+
+    module_t *uet_module = prefs_register_protocol(proto_uet, NULL);
+    prefs_register_bool_preference(uet_module, "has_crc",
+        "Packets have UET CRC",
+        "Whether UET packets include a trailing CRC",
+        &uet_has_crc);
+    prefs_register_bool_preference(uet_module, "validate_crc",
+        "Validate UET CRC if possible",
+        "If checked and the packet has enough information, compute the expected CRC and compare against the one in the packet",
+        &uet_validate_crc);
 }
 
 void
@@ -2623,6 +2810,9 @@ proto_reg_handoff_uet(void)
     dissector_add_for_decode_as_with_preference("ip.proto", uet_entropy_handle);
     dissector_add_for_decode_as_with_preference("udp.port", uet_handle);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_UET, uet_handle);
+
+    proto_ip = proto_get_id_by_filter_name("ip");
+    proto_ipv6 = proto_get_id_by_filter_name("ipv6");
 }
 
 /*
