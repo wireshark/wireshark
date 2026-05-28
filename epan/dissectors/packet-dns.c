@@ -663,6 +663,11 @@ static expert_field ei_dns_response_missing;
 static expert_field ei_dns_svcb_param_truncated;
 static expert_field ei_dns_svcb_param_bad_length;
 static expert_field ei_dns_svcb_param_bad_value;
+static expert_field ei_dns_svcb_param_duplicate_key;
+static expert_field ei_dns_svcb_param_key_order;
+static expert_field ei_dns_svcb_param_mandatory_duplicate;
+static expert_field ei_dns_svcb_param_mandatory_missing;
+static expert_field ei_dns_svcb_param_noalpn_missing_alpn;
 
 static dissector_table_t dns_tsig_dissector_table;
 
@@ -2182,15 +2187,24 @@ static int
 dissect_svc_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   uint32_t       value;
+  uint32_t       key;
   uint32_t       svc_param_key;
   uint32_t       svc_param_offset;
   uint32_t       svc_param_length;
   uint32_t       svc_param_alpn_length;
   const uint8_t *dohpath;
+  bool           has_prev_key = false;
+  uint32_t       prev_key = 0;
+  bool           has_alpn = false;
+  bool           has_noalpn = false;
   int            cur_offset = 0;
   int            offset_end = tvb_captured_length(tvb);
   proto_item    *svcb_param_ti;
+  proto_item    *mandatory_ti = NULL;
+  proto_item    *noalpn_ti = NULL;
   proto_tree    *svcb_param_tree;
+  wmem_map_t    *seen_keys = wmem_map_new(pinfo->pool, g_direct_hash, g_direct_equal);
+  wmem_map_t    *mandatory_keys = wmem_map_new(pinfo->pool, g_direct_hash, g_direct_equal);
 
   while (cur_offset < offset_end) {
     int bytes_remaining = offset_end - cur_offset;
@@ -2211,6 +2225,22 @@ dissect_svc_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     proto_tree_add_item_ret_uint(svcb_param_tree, hf_svc_param_key, tvb, cur_offset, 2, ENC_BIG_ENDIAN, &svc_param_key);
     cur_offset += 2;
 
+    if (wmem_map_contains(seen_keys, GUINT_TO_POINTER(svc_param_key))) {
+      expert_add_info_format(pinfo, svcb_param_ti, &ei_dns_svcb_param_duplicate_key,
+                             "Duplicate SvcParamKey %s (%u)",
+                             val_to_str(pinfo->pool, svc_param_key, dns_svcb_param_key_vals, "key%u"),
+                             svc_param_key);
+    }
+    if (has_prev_key && svc_param_key <= prev_key) {
+      expert_add_info_format(pinfo, svcb_param_ti, &ei_dns_svcb_param_key_order,
+                             "SvcParam keys not in strictly increasing order: previous %s (%u), current %s (%u)",
+                             val_to_str(pinfo->pool, prev_key, dns_svcb_param_key_vals, "key%u"), prev_key,
+                             val_to_str(pinfo->pool, svc_param_key, dns_svcb_param_key_vals, "key%u"), svc_param_key);
+    }
+    wmem_map_insert(seen_keys, GUINT_TO_POINTER(svc_param_key), NULL);
+    prev_key = svc_param_key;
+    has_prev_key = true;
+
     proto_tree_add_item_ret_uint(svcb_param_tree, hf_svc_param_length, tvb, cur_offset, 2, ENC_BIG_ENDIAN, &svc_param_length);
     cur_offset += 2;
 
@@ -2228,6 +2258,7 @@ dissect_svc_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
     switch(svc_param_key) {
       case DNS_SVCB_KEY_MANDATORY:
+        mandatory_ti = svcb_param_ti;
         if ((svc_param_length % 2) != 0) {
           malformed = true;
           expert_add_info_format(pinfo, svcb_param_ti, &ei_dns_svcb_param_bad_length,
@@ -2236,13 +2267,20 @@ dissect_svc_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
           break;
         }
         for (svc_param_offset = 0; svc_param_offset < svc_param_length; svc_param_offset += 2) {
-          uint32_t key;
           proto_tree_add_item_ret_uint(svcb_param_tree, hf_svc_param_mandatory_key, tvb, cur_offset, 2, ENC_BIG_ENDIAN, &key);
+          if (wmem_map_contains(mandatory_keys, GUINT_TO_POINTER(key))) {
+            expert_add_info_format(pinfo, svcb_param_ti, &ei_dns_svcb_param_mandatory_duplicate,
+                                   "mandatory contains duplicate key %s (%u)",
+                                   val_to_str(pinfo->pool, key, dns_svcb_param_key_vals, "key%u"),
+                                   key);
+          }
+          wmem_map_insert(mandatory_keys, GUINT_TO_POINTER(key), NULL);
           proto_item_append_text(svcb_param_ti, "%c%s", (svc_param_offset == 0 ? '=' : ','), val_to_str(pinfo->pool, key, dns_svcb_param_key_vals, "key%u"));
           cur_offset += 2;
         }
         break;
       case DNS_SVCB_KEY_ALPN:
+        has_alpn = true;
         for (svc_param_offset = 0; svc_param_offset < svc_param_length; ) {
           const uint8_t *alpn;
           if (cur_offset >= param_end) {
@@ -2266,6 +2304,8 @@ dissect_svc_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         }
         break;
       case DNS_SVCB_KEY_NOALPN:
+        has_noalpn = true;
+        noalpn_ti = svcb_param_ti;
         if (svc_param_length != 0) {
           malformed = true;
           expert_add_info_format(pinfo, svcb_param_ti, &ei_dns_svcb_param_bad_length,
@@ -2349,6 +2389,24 @@ dissect_svc_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                              "SvcParam parser advanced beyond SvcParamValue boundary");
     }
     cur_offset = param_end;
+  }
+
+  if (has_noalpn && !has_alpn && noalpn_ti != NULL) {
+    expert_add_info_format(pinfo, noalpn_ti, &ei_dns_svcb_param_noalpn_missing_alpn,
+                           "no-default-alpn present without alpn SvcParam");
+  }
+  if (mandatory_ti != NULL && wmem_map_size(mandatory_keys) > 0) {
+    wmem_list_t *mandatory_list = wmem_map_get_keys(NULL, mandatory_keys);
+    for (wmem_list_frame_t *frame = wmem_list_head(mandatory_list); frame; frame = wmem_list_frame_next(frame)) {
+      uint32_t mandatory_key = GPOINTER_TO_UINT(wmem_list_frame_data(frame));
+      if (!wmem_map_contains(seen_keys, GUINT_TO_POINTER(mandatory_key))) {
+        expert_add_info_format(pinfo, mandatory_ti, &ei_dns_svcb_param_mandatory_missing,
+                               "mandatory references missing key %s (%u)",
+                               val_to_str(pinfo->pool, mandatory_key, dns_svcb_param_key_vals, "key%u"),
+                               mandatory_key);
+      }
+    }
+    wmem_destroy_list(mandatory_list);
   }
 
   return tvb_captured_length(tvb);
@@ -8057,6 +8115,11 @@ proto_register_dns(void)
     { &ei_dns_svcb_param_truncated, { "dns.svcb.param.truncated", PI_MALFORMED, PI_ERROR, "Truncated SvcParam", EXPFILL }},
     { &ei_dns_svcb_param_bad_length, { "dns.svcb.param.bad_length", PI_MALFORMED, PI_ERROR, "Invalid SvcParam length", EXPFILL }},
     { &ei_dns_svcb_param_bad_value, { "dns.svcb.param.bad_value", PI_MALFORMED, PI_ERROR, "Invalid SvcParam value", EXPFILL }},
+    { &ei_dns_svcb_param_duplicate_key, { "dns.svcb.param.duplicate_key", PI_MALFORMED, PI_WARN, "Duplicate SvcParam key", EXPFILL }},
+    { &ei_dns_svcb_param_key_order, { "dns.svcb.param.key_order", PI_MALFORMED, PI_WARN, "SvcParam keys not in ascending order", EXPFILL }},
+    { &ei_dns_svcb_param_mandatory_duplicate, { "dns.svcb.param.mandatory.duplicate_key", PI_MALFORMED, PI_WARN, "Duplicate key in mandatory list", EXPFILL }},
+    { &ei_dns_svcb_param_mandatory_missing, { "dns.svcb.param.mandatory.missing_key", PI_MALFORMED, PI_WARN, "mandatory references missing SvcParam key", EXPFILL }},
+    { &ei_dns_svcb_param_noalpn_missing_alpn, { "dns.svcb.param.no_default_alpn_missing_alpn", PI_MALFORMED, PI_WARN, "no-default-alpn present without alpn", EXPFILL }},
   };
 
   static int *ett[] = {
