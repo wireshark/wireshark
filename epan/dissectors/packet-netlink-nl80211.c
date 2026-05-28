@@ -4452,15 +4452,7 @@ dissect_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int
 static int
 dissect_information_elements(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int len)
 {
-    int offset_end = offset + len;
-    while (offset < offset_end) {
-        int tlen = add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
-        if (tlen == 0) {
-            break;
-        }
-        offset += tlen;
-    }
-    return offset;
+    return ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tree, len, 0, NULL);
 }
 
 static int

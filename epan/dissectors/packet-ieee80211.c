@@ -284,12 +284,6 @@ UAT_CSTRING_CB_DEF(uat_wep_key_records, string, uat_wep_key_record_t)
 static bool enable_decryption = true;
 
 static void
-ieee_80211_add_tagged_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                                  proto_tree *tree, int tagged_parameters_len, int ftype,
-                                  association_sanity_check_t *association_sanity_check);
-
-
-static void
 save_proto_data(tvbuff_t *tvb, packet_info *pinfo, int offset, size_t size, int key);
 
 static void
@@ -37901,7 +37895,7 @@ ieee80211_tag_dms_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   return tvb_captured_length(tvb);
 }
 
-static void
+int
 ieee_80211_add_tagged_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                   proto_tree *tree, int tagged_parameters_len, int ftype,
                                   association_sanity_check_t *association_sanity_check)
@@ -37933,6 +37927,7 @@ ieee_80211_add_tagged_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
       break;
     }
   }
+  return offset;
 }
 
 static void

@@ -53,6 +53,11 @@ typedef struct ieee80211_tagged_field_data
   proto_item* item_tag_length;
 } ieee80211_tagged_field_data_t;
 
+int
+ieee_80211_add_tagged_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                                  proto_tree *tree, int tagged_parameters_len, int ftype,
+                                  association_sanity_check_t *association_sanity_check);
+
 int add_tagged_field(packet_info *pinfo, proto_tree *tree,
                             tvbuff_t *tvb, int offset, int ftype,
                             const uint8_t *valid_element_ids,
