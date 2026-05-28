@@ -10338,7 +10338,19 @@ static const range_string nas_5gs_ursp_traff_desc_conn_cap_values[] = {
     { 0x02, 0x02, "MMS" },
     { 0x04, 0x04, "SUPL" },
     { 0x08, 0x08, "Internet" },
+    { 0x10, 0x10, "LCS user plane positioning" },
     { 0x20, 0x3f, "Operator specific" },
+    { 0xA1, 0xA1, "IoT delay-tolerant" },
+    { 0xA2, 0xA2, "IoT non-delay-tolerant" },
+    { 0xA3, 0xA3, "Downlink streaming" },
+    { 0xA4, 0xA4, "Uplink streaming" },
+    { 0xA5, 0xA5, "Vehicular communications" },
+    { 0xA6, 0xA6, "Real time interactive" },
+    { 0xA7, 0xA7, "Unified communications" },
+    { 0xA8, 0xA8, "Background" },
+    { 0xA9, 0xA9, "Mission critical communications" },
+    { 0xAA, 0xAA, "Time critical communications" },
+    { 0xAB, 0xAB, "Low latency loss tolerant communications in un-acknowledged mode" },
     { 0, 0, NULL }
 };
 
