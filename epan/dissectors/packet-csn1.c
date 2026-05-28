@@ -419,8 +419,9 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             pui8 = pui8DATA(data, pDescr->offset);
             do
             {
-              *pui8++ = tvb_get_bits8(tvb, bit_offset, no_of_bits);
+              *pui8 = tvb_get_bits8(tvb, bit_offset, no_of_bits);
               proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, *pui8, ENC_BIG_ENDIAN, " (Count %d)", i++);
+              pui8++;
               bit_offset += no_of_bits;
             } while (--nCount > 0);
           }
