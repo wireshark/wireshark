@@ -202,6 +202,19 @@ static int hf_tns_data_sns_cli_vers;
 static int hf_tns_data_sns_srv_vers;
 static int hf_tns_data_sns_srvcnt;
 
+static int hf_tns_data_setdt_charset_in;
+static int hf_tns_data_setdt_charset_out;
+static int hf_tns_data_setdt_flag;
+static int hf_tns_data_setdt_caphdr;
+static int hf_tns_data_setdt_caphdr_version;
+static int hf_tns_data_setdt_caphdr_flags;
+static int hf_tns_data_setdt_tblhdr;
+static int hf_tns_data_setdt_idmap;
+static int hf_tns_data_setdt_overrides;
+static int hf_tns_data_setdt_override_client;
+static int hf_tns_data_setdt_override_repr;
+static int hf_tns_data_setdt_override_format;
+
 static int hf_tns_data_descriptor_row_count;
 static int hf_tns_data_descriptor_row_size;
 
@@ -223,6 +236,9 @@ static int ett_tns_sopt_flag;
 static int ett_tns_ntp_flag;
 static int ett_tns_conn_flag;
 static int ett_tns_rows;
+static int ett_tns_setdt_caphdr;
+static int ett_tns_setdt_overrides;
+static int ett_tns_setdt_override;
 static int ett_sql;
 
 static expert_field ei_tns_connect_data_next_packet;
@@ -295,6 +311,62 @@ static const value_string tns_data_funcs[] = {
 	{SQLNET_XTRN_PROCSERV_R1, "External Procedures and Services Registrations"},
 	{SQLNET_XTRN_PROCSERV_R2, "External Procedures and Services Registrations"},
 	{SQLNET_SNS,              "Secure Network Services"},
+	{0, NULL}
+};
+
+/* Oracle TNS native data-type ids. Used by the Set Datatypes
+ * negotiation to label override entries with human names. */
+static const value_string tns_data_types[] = {
+	{1,   "VARCHAR"},
+	{2,   "NUMBER"},
+	{3,   "INTEGER"},
+	{4,   "FLOAT"},
+	{5,   "STRING"},
+	{6,   "VARNUM"},
+	{7,   "DECIMAL"},
+	{8,   "LONG"},
+	{9,   "VCS"},
+	{11,  "RID"},
+	{12,  "DATE"},
+	{15,  "VBI"},
+	{23,  "RAW"},
+	{24,  "LONG RAW"},
+	{96,  "CHAR"},
+	{100, "BINARY_FLOAT"},
+	{101, "BINARY_DOUBLE"},
+	{102, "REFCURSOR"},
+	{104, "ROWID"},
+	{109, "ADT"},
+	{111, "REF"},
+	{112, "CLOB"},
+	{113, "BLOB"},
+	{114, "BFILE"},
+	{116, "RSET"},
+	{180, "TIMESTAMP"},
+	{181, "TIMESTAMP WITH TIME ZONE"},
+	{182, "INTERVAL YEAR TO MONTH"},
+	{183, "INTERVAL DAY TO SECOND"},
+	{208, "UROWID"},
+	{231, "TIMESTAMP WITH LOCAL TIME ZONE"},
+	{0, NULL}
+};
+
+/* Oracle NLS character-set ids - the well-known subset, enough to name
+ * the charsets seen in a Set Datatypes negotiation. */
+static const value_string tns_charsets[] = {
+	{31,   "WE8ISO8859P1"},
+	{32,   "EE8ISO8859P2"},
+	{35,   "CL8ISO8859P5"},
+	{170,  "EE8MSWIN1250"},
+	{171,  "CL8MSWIN1251"},
+	{178,  "WE8MSWIN1252"},
+	{830,  "JA16EUC"},
+	{852,  "ZHS16GBK"},
+	{865,  "ZHT16BIG5"},
+	{867,  "ZHT16MSWIN950"},
+	{871,  "US7ASCII"},
+	{873,  "AL32UTF8"},
+	{2000, "AL16UTF16"},
 	{0, NULL}
 };
 
@@ -766,6 +838,80 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 				proto_tree_add_item_ret_length(data_tree, hf_tns_data_setp_banner, tvb, offset, -1, ENC_ASCII|ENC_NA, &len);
 				offset += len;
 			}
+			break;
+		}
+
+		case SQLNET_SET_DATATYPES:
+		{
+			/* TTI_DTY: Data Type Negotiation, sent right after TTI_PRO
+			 * during the TTC handshake. The body is a fixed-shape blob
+			 * the client uses to tell the server which native Oracle
+			 * data types it understands and what wire representation it
+			 * wants for each. Layout cross-referenced with
+			 * python-oracledb.
+			 *
+			 *   charset_in        2 bytes LE   NLS_LANGUAGE charset id
+			 *   charset_out       2 bytes LE   NLS_NCHAR   charset id
+			 *   flag              1 byte       capability flag (1 = std)
+			 *   capability header 39 bytes     version triple + flag bytes
+			 *   table header      8 bytes      group/sub counts
+			 *   identity map     980 bytes     245 x (type, type, 1, 0)
+			 *   type overrides    var          entries, terminated by 0
+			 */
+			proto_tree *caphdr_tree, *ov_tree;
+			proto_item *caphdr_item, *ov_item;
+
+			if ( !is_request )
+				break;
+
+			proto_tree_add_item(data_tree, hf_tns_data_setdt_charset_in, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+			proto_tree_add_item(data_tree, hf_tns_data_setdt_charset_out, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+			proto_tree_add_item(data_tree, hf_tns_data_setdt_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+
+			caphdr_item = proto_tree_add_item(data_tree, hf_tns_data_setdt_caphdr, tvb, offset, 39, ENC_NA);
+			caphdr_tree = proto_item_add_subtree(caphdr_item, ett_tns_setdt_caphdr);
+			proto_tree_add_item(caphdr_tree, hf_tns_data_setdt_caphdr_version, tvb, offset, 3, ENC_BIG_ENDIAN);
+			proto_tree_add_item(caphdr_tree, hf_tns_data_setdt_caphdr_flags, tvb, offset + 3, 36, ENC_NA);
+			offset += 39;
+
+			proto_tree_add_item(data_tree, hf_tns_data_setdt_tblhdr, tvb, offset, 8, ENC_NA);
+			offset += 8;
+			proto_tree_add_item(data_tree, hf_tns_data_setdt_idmap, tvb, offset, 980, ENC_NA);
+			offset += 980;
+
+			/* Walk type-override entries until the 0 terminator. Each
+			 * entry is (client_type, server_repr[, format]); a 0 in the
+			 * server_repr slot marks a short "client knows the id but
+			 * has no override" entry. */
+			ov_item = proto_tree_add_item(data_tree, hf_tns_data_setdt_overrides, tvb, offset, -1, ENC_NA);
+			ov_tree = proto_item_add_subtree(ov_item, ett_tns_setdt_overrides);
+			int ov_start = offset;
+			while ( tvb_reported_length_remaining(tvb, offset) > 0 )
+			{
+				uint8_t client_type = tvb_get_uint8(tvb, offset);
+				if ( client_type == 0 )
+				{
+					proto_tree_add_item(ov_tree, hf_tns_data_setdt_override_client, tvb, offset, 1, ENC_BIG_ENDIAN);
+					offset += 1;
+					break;
+				}
+				uint8_t repr = tvb_get_uint8(tvb, offset + 1);
+				int entry_len = (repr == 0) ? 2 : 4;
+				proto_tree *e_tree = proto_tree_add_subtree_format(ov_tree, tvb, offset, entry_len,
+					ett_tns_setdt_override, NULL, "Type %u (%s)",
+					client_type, val_to_str_const(client_type, tns_data_types, "unknown"));
+				proto_tree_add_item(e_tree, hf_tns_data_setdt_override_client, tvb, offset, 1, ENC_BIG_ENDIAN);
+				if ( entry_len == 4 )
+				{
+					proto_tree_add_item(e_tree, hf_tns_data_setdt_override_repr, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(e_tree, hf_tns_data_setdt_override_format, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+				}
+				offset += entry_len;
+			}
+			proto_item_set_len(ov_item, offset - ov_start);
 			break;
 		}
 
@@ -1842,6 +1988,43 @@ void proto_register_tns(void)
 			"Services", "tns.data_sns.srvcnt", FT_UINT16, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
 
+		{ &hf_tns_data_setdt_charset_in, {
+			"Charset In", "tns.data_setdt.charset_in", FT_UINT16, BASE_DEC,
+			VALS(tns_charsets), 0x0, "NLS_LANGUAGE charset id", HFILL }},
+		{ &hf_tns_data_setdt_charset_out, {
+			"Charset Out", "tns.data_setdt.charset_out", FT_UINT16, BASE_DEC,
+			VALS(tns_charsets), 0x0, "NLS_NCHAR charset id", HFILL }},
+		{ &hf_tns_data_setdt_flag, {
+			"Flag", "tns.data_setdt.flag", FT_UINT8, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_setdt_caphdr, {
+			"Capability Header", "tns.data_setdt.caphdr", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_setdt_caphdr_version, {
+			"Version", "tns.data_setdt.caphdr.version", FT_UINT24, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_setdt_caphdr_flags, {
+			"Flags", "tns.data_setdt.caphdr.flags", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_setdt_tblhdr, {
+			"Table Header", "tns.data_setdt.tblhdr", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_setdt_idmap, {
+			"Identity Map", "tns.data_setdt.idmap", FT_BYTES, BASE_NONE,
+			NULL, 0x0, "245 entries: type N -> repr N (default mapping)", HFILL }},
+		{ &hf_tns_data_setdt_overrides, {
+			"Type Overrides", "tns.data_setdt.overrides", FT_NONE, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_setdt_override_client, {
+			"Client Type", "tns.data_setdt.override.client", FT_UINT8, BASE_DEC,
+			VALS(tns_data_types), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_setdt_override_repr, {
+			"Server Repr", "tns.data_setdt.override.repr", FT_UINT8, BASE_DEC,
+			VALS(tns_data_types), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_setdt_override_format, {
+			"Format", "tns.data_setdt.override.format", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+
 		{ &hf_tns_data_opi_version2_banner_len, {
 			"Banner Length", "tns.data_opi.vers2.banner_len", FT_UINT8, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
@@ -1900,6 +2083,9 @@ void proto_register_tns(void)
 		&ett_tns_ntp_flag,
 		&ett_tns_conn_flag,
 		&ett_tns_rows,
+		&ett_tns_setdt_caphdr,
+		&ett_tns_setdt_overrides,
+		&ett_tns_setdt_override,
 		&ett_sql
 	};
 

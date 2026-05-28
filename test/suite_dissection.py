@@ -1325,6 +1325,32 @@ class TestDissectTns:
         ), encoding='utf-8', env=test_env)
         assert 'Return OPI Parameter' in stdout
 
+    def test_tns_dty(self, cmd_tshark, capture_file, test_env):
+        '''TTI_DTY (Set Datatypes) request: charset fields, capability
+        header, table header, identity map, and ~50 type-override entries
+        must all decode without losing sync.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_dty.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_id',
+            '-e', 'tns.data_setdt.charset_in',
+            '-e', 'tns.data_setdt.charset_out',
+            '-e', 'tns.data_setdt.caphdr.version',
+            '-e', 'tns.data_setdt.override.client',
+        ), encoding='utf-8', env=test_env)
+        # data_id = 2 (Set Datatypes); charset = 871 (US7ASCII) both ways;
+        # version triple in capability header = 0x260601 (38, 6, 1);
+        # override client list ends with the 0 terminator and includes
+        # both long entries (e.g. 91) and short entries (e.g. 13).
+        fields = stdout.strip().split('\t')
+        assert fields[0] == '0x00000002', fields
+        assert fields[1] == '871' and fields[2] == '871', fields
+        assert fields[3] == '0x260601', fields
+        clients = fields[4].split(',')
+        assert clients[0] == '2' and clients[-1] == '0', clients
+        assert '91' in clients and '13' in clients, clients
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
