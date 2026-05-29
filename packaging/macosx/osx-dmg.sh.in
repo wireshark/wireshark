@@ -11,6 +11,7 @@ version="@PROJECT_VERSION@"
 app_settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/wireshark-app.dmgbuild"
 dsym_settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/wireshark-dsym.dmgbuild"
 architecture=""
+minimum_system_version="@MIN_MACOS_VERSION@"
 
 # Help message
 #----------------------------------------------------------
@@ -104,6 +105,18 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 		--timestamp \
 		--verbose \
 		"$app_img_name" "$dsym_img_name"
+
+	echo -e "Creating $relinfo_pfx ini"
+	relinfo_pfx="$( echo "$app_name" | tr '[:upper:]' '[:lower:]')-release-info-$version"
+	dmg_sha256=$( shasum --algorithm 256 "$app_img_name" | awk '{print $1}' )
+
+	cat > "${relinfo_pfx}-macos-arm64.ini" <<FIN
+[DEFAULT]
+minimum_system_version = "$minimum_system_version"
+dmg_sha256 = $dmg_sha256
+FIN
+
+	cp "${relinfo_pfx}-macos-arm64.ini" "${relinfo_pfx}-macos-intel64.ini"
 fi
 
 exit 0

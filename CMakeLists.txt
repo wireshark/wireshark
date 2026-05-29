@@ -655,6 +655,8 @@ set_property(DIRECTORY
 )
 
 if(WIN32)
+	# XXX Add MIN_WINDOWS_VERSION similar to MIN_MACOS_VERSION
+	# set(MIN_WINDOWS_VERSION ???)
 	#
 	# NOTE: Because of the way Qt moc is including "config.h" (not as the
 	# first header) this *MUST* be defined on the command line to precede
