@@ -212,6 +212,11 @@ typedef struct _follow_stream_tap_data {
   tvbuff_t *tvb;
   uint64_t stream_id;
   uint64_t substream_id;
+  address src;
+  address dst;
+  port_type ptype;
+  uint32_t srcport;
+  uint32_t destport;
 } follow_stream_tap_data_t;
 
 /**
@@ -220,7 +225,10 @@ typedef struct _follow_stream_tap_data {
  *
  * If a frame can contain follow data from multiple streams for the same
  * protocol, this allows follow taps to select only the data for the stream
- * being followed.
+ * being followed. This also allows the follow tap to assign data to the client
+ * or server side by using the source and destination addresses and ports as
+ * they were at the time of tapping, instead of using the values from pinfo,
+ * which may be different, e.g., when there is tunneling.
  *
  * @param tapdata   Opaque follow‑tap context (typically a follow_info struct).
  * @param pinfo     Packet metadata for the current frame.

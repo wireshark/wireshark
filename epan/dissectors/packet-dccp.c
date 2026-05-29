@@ -324,11 +324,6 @@ decode_dccp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-    /* If the user has a "Follow DCCP Stream" window loading, pass a pointer
-       to the payload tvb through the tap system. */
-    if (have_tap_listener(dccp_follow_tap))
-        tap_queue_packet(dccp_follow_tap, pinfo, next_tvb);
-
     /*
      * determine if this packet is part of a conversation and call dissector
      * for the conversation if available
@@ -1589,8 +1584,25 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     tap_queue_packet(dccp_tap, pinfo, dccph);
 
     /* call sub-dissectors */
-    if (!pinfo->flags.in_error_pkt || tvb_reported_length_remaining(tvb, offset) > 0)
+    if (!pinfo->flags.in_error_pkt || tvb_reported_length_remaining(tvb, offset) > 0) {
+        /* If the user has a "Follow DCCP Stream" window loading, pass a pointer
+           to the payload tvb through the tap system. */
+        if (have_tap_listener(dccp_follow_tap)) {
+            follow_stream_tap_data_t *follow_data = wmem_new(pinfo->pool, follow_stream_tap_data_t);
+            follow_data->tvb = tvb_new_subset_remaining(tvb, offset);
+            follow_data->stream_id = dccph->stream;
+            follow_data->substream_id = SUBSTREAM_UNUSED;
+            copy_address_shallow(&follow_data->src, &dccph->ip_src);
+            copy_address_shallow(&follow_data->dst, &dccph->ip_dst);
+            follow_data->ptype = PT_DCCP;
+            follow_data->srcport = dccph->sport;
+            follow_data->destport = dccph->dport;
+
+            tap_queue_packet(dccp_follow_tap, pinfo, follow_data);
+        }
+
         decode_dccp_ports(tvb, offset, pinfo, tree, dccph->sport, dccph->dport);
+    }
 
     return tvb_reported_length(tvb);
 }
@@ -1982,7 +1994,7 @@ proto_register_dccp(void)
     register_conversation_table(proto_dccp, false, dccpip_conversation_packet, dccpip_endpoint_packet);
     register_conversation_filter("dccp", "DCCP", dccp_filter_valid, dccp_build_filter, NULL);
     register_follow_stream(proto_dccp, "dccp_follow", dccp_follow_conv_filter, dccp_follow_index_filter, dccp_follow_address_filter,
-                           dccp_port_to_display, follow_tvb_tap_listener, get_dccp_stream_count, NULL);
+                           dccp_port_to_display, follow_stream_tap_listener, get_dccp_stream_count, NULL);
 
     register_init_routine(dccp_init);
 

@@ -208,6 +208,34 @@ follow_info_free(follow_info_t* follow_info)
     g_free(follow_info);
 }
 
+static tap_packet_status
+follow_tap_listener_common(follow_info_t *follow_info, packet_info *pinfo,
+    tvbuff_t *next_tvb, const address *src, uint32_t srcport)
+{
+    follow_record_t *follow_record;
+
+    follow_record = g_new(follow_record_t,1);
+
+    unsigned length = tvb_captured_length(next_tvb);
+    follow_record->data = g_byte_array_sized_new(length);
+    follow_record->data = g_byte_array_append(follow_record->data,
+                                              tvb_get_ptr(next_tvb, 0, length),
+                                              length);
+    follow_record->packet_num = pinfo->fd->num;
+    follow_record->abs_ts = pinfo->fd->abs_ts;
+
+    if (addresses_equal(&follow_info->client_ip, src) && follow_info->client_port == srcport)
+        follow_record->is_server = false;
+    else
+        follow_record->is_server = true;
+
+    /* update stream counter */
+    follow_info->bytes_written[follow_record->is_server] += follow_record->data->len;
+
+    follow_info->payload = g_list_prepend(follow_info->payload, follow_record);
+    return TAP_PACKET_DONT_REDRAW;
+}
+
 tap_packet_status
 follow_stream_tap_listener(void *tapdata, packet_info *pinfo,
                       epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
@@ -222,26 +250,23 @@ follow_stream_tap_listener(void *tapdata, packet_info *pinfo,
         follow_info->substream_id != follow_data->substream_id)
         return TAP_PACKET_DONT_REDRAW;
 
-    return follow_tvb_tap_listener(tapdata, pinfo, edt, follow_data->tvb, flags);
+    if (follow_info->client_port == 0) {
+        follow_info->client_port = follow_data->srcport;
+        copy_address(&follow_info->client_ip, &follow_data->src);
+        follow_info->server_port = follow_data->destport;
+        copy_address(&follow_info->server_ip, &follow_data->dst);
+    }
+
+    return follow_tap_listener_common(follow_info, pinfo, follow_data->tvb,
+                                      &follow_data->src, follow_data->srcport);
 }
 
 tap_packet_status
 follow_tvb_tap_listener(void *tapdata, packet_info *pinfo,
                       epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
 {
-    follow_record_t *follow_record;
     follow_info_t *follow_info = (follow_info_t *)tapdata;
     tvbuff_t *next_tvb = (tvbuff_t *)data;
-
-    follow_record = g_new(follow_record_t,1);
-
-    unsigned length = tvb_captured_length(next_tvb);
-    follow_record->data = g_byte_array_sized_new(length);
-    follow_record->data = g_byte_array_append(follow_record->data,
-                                              tvb_get_ptr(next_tvb, 0, length),
-                                              length);
-    follow_record->packet_num = pinfo->fd->num;
-    follow_record->abs_ts = pinfo->fd->abs_ts;
 
     if (follow_info->client_port == 0) {
         follow_info->client_port = pinfo->srcport;
@@ -250,16 +275,8 @@ follow_tvb_tap_listener(void *tapdata, packet_info *pinfo,
         copy_address(&follow_info->server_ip, &pinfo->dst);
     }
 
-    if (addresses_equal(&follow_info->client_ip, &pinfo->src) && follow_info->client_port == pinfo->srcport)
-        follow_record->is_server = false;
-    else
-        follow_record->is_server = true;
-
-    /* update stream counter */
-    follow_info->bytes_written[follow_record->is_server] += follow_record->data->len;
-
-    follow_info->payload = g_list_prepend(follow_info->payload, follow_record);
-    return TAP_PACKET_DONT_REDRAW;
+    return follow_tap_listener_common(follow_info, pinfo, next_tvb,
+                                      &pinfo->src, pinfo->srcport);
 }
 
 /*

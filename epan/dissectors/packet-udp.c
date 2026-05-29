@@ -1314,7 +1314,17 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t ip_proto)
         /* If the user has a "Follow UDP Stream" window loading, pass a pointer
          * to the payload tvb through the tap system. */
         if (have_tap_listener(udp_follow_tap)) {
-            tap_queue_packet(udp_follow_tap, pinfo, tvb_new_subset_length(tvb, offset, udph->uh_ulen - 8));
+            follow_stream_tap_data_t *follow_data = wmem_new0(pinfo->pool, follow_stream_tap_data_t);
+            follow_data->tvb = tvb_new_subset_length(tvb, offset, udph->uh_ulen - 8);
+            follow_data->stream_id = udph->uh_stream;
+            follow_data->substream_id = SUBSTREAM_UNUSED;
+            copy_address_shallow(&follow_data->src, &udph->ip_src);
+            copy_address_shallow(&follow_data->dst, &udph->ip_dst);
+            follow_data->ptype = PT_UDP;
+            follow_data->srcport = udph->uh_sport;
+            follow_data->destport = udph->uh_dport;
+
+            tap_queue_packet(udp_follow_tap, pinfo, follow_data);
         }
 
         decode_udp_ports(tvb, offset, pinfo, udp_tree, udph->uh_sport, udph->uh_dport, udph->uh_ulen);
@@ -1554,7 +1564,7 @@ proto_register_udp(void)
     register_conversation_table(proto_udp, false, udpip_conversation_packet, udpip_endpoint_packet);
     register_conversation_filter("udp", "UDP", udp_filter_valid, udp_build_filter_by_id, NULL);
     register_follow_stream(proto_udp, "udp_follow", udp_follow_conv_filter, udp_follow_index_filter, udp_follow_address_filter,
-                        udp_port_to_display, follow_tvb_tap_listener, get_udp_stream_count, NULL);
+                        udp_port_to_display, follow_stream_tap_listener, get_udp_stream_count, NULL);
 
     register_init_routine(udp_init);
 
