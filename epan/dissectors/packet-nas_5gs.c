@@ -851,6 +851,8 @@ static int hf_nas_5gs_ursp_traff_desc_conn_cap_len;
 static int hf_nas_5gs_ursp_traff_desc_conn_cap;
 static int hf_nas_5gs_ursp_traff_desc_dest_fqdn_len;
 static int hf_nas_5gs_ursp_traff_desc_dest_fqdn;
+static int hf_nas_5gs_ursp_traff_desc_regex_len;
+static int hf_nas_5gs_ursp_traff_desc_regex;
 static int hf_nas_5gs_ursp_traff_desc_dest_mac_addr_range_low;
 static int hf_nas_5gs_ursp_traff_desc_dest_mac_addr_range_high;
 static int hf_nas_5gs_ursp_traff_desc_len;
@@ -10595,6 +10597,12 @@ de_nas_5gs_ursp_traff_desc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                expression value of variable size. The regular expression value field shall take the form
                of Extended Regular Expressions (ERE) as defined in chapter 9 in IEEE 1003.1-
                2004 Part 1 [19]. */
+        case 0x92: /* Regular expression */
+            proto_tree_add_item_ret_uint(tree, hf_nas_5gs_ursp_traff_desc_regex_len, tvb, offset, 1, ENC_NA, &length);
+            offset += 1;
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_regex, tvb, offset, length, ENC_UTF_8);
+            offset += length;
+            break;
         case 0xa0:
             /* For "OS App Id type", the traffic descriptor component value field shall be encoded as
                a one octet OS App Id length field and an OS App Id field. */
@@ -16189,6 +16197,16 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_ursp_traff_desc_dest_fqdn,
         { "Destination FQDN", "nas-5gs.ursp.traff_desc.dest_fqdn",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_regex_len,
+        { "Regular expression length", "nas-5gs.ursp.traff_desc.regex_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_regex,
+        { "Regular expression", "nas-5gs.ursp.traff_desc.regex",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
