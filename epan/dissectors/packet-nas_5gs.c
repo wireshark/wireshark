@@ -868,6 +868,10 @@ static int hf_nas_5gs_ursp_r_sel_desc_loc_nr_cell_id;
 static int hf_nas_5gs_ursp_r_sel_desc_loc_eutra_cell_id;
 static int hf_nas_5gs_ursp_r_sel_desc_loc_gnb_id;
 static int hf_nas_5gs_ursp_r_sel_desc_loc_tai_len;
+static int hf_nas_5gs_ursp_r_sel_desc_time_win_start;
+static int hf_nas_5gs_ursp_r_sel_desc_time_win_stop;
+static int hf_nas_5gs_ursp_r_sel_desc_pdu_sess_pair_id;
+static int hf_nas_5gs_ursp_r_sel_desc_rsn;
 static int hf_nas_5gs_dnn_len;
 static int hf_nas_5gs_upsi_sublist_len;
 static int hf_nas_5gs_upsc;
@@ -10830,6 +10834,32 @@ de_nas_5gs_ursp_r_sel_desc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
             }
             break;
         }
+        case 0x80: /* Time window */
+            /* For "Time window type", the route selection descriptor component value field
+               shall be encoded as a sequence of a four octet start time field,
+               a four octet start time fraction field, a four octet stop time field,
+               and a four octet stop time fraction field.
+               The time values use UNIX epoch with 1/2^32 fractional seconds.
+               TS 24.526 Section 5.2 */
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_r_sel_desc_time_win_start, tvb, offset, 8, ENC_TIME_RTPS | ENC_BIG_ENDIAN);
+            offset += 8;
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_r_sel_desc_time_win_stop, tvb, offset, 8, ENC_TIME_RTPS | ENC_BIG_ENDIAN);
+            offset += 8;
+            break;
+        case 0x82: /* PDU session pair ID */
+            /* For "PDU session pair ID type", the route selection descriptor component
+               value field shall be encoded as one octet which specifies the PDU session
+               pair identifier value. TS 24.526 Section 5.2 */
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_r_sel_desc_pdu_sess_pair_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            break;
+        case 0x83: /* RSN */
+            /* For "RSN type", the route selection descriptor component value field
+               shall be encoded as one octet which specifies the RSN value.
+               TS 24.526 Section 5.2 */
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_r_sel_desc_rsn, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            break;
         default:
             proto_tree_add_expert_remaining(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset);
             return;
@@ -16367,6 +16397,26 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_ursp_r_sel_desc_loc_tai_len,
         { "Length", "nas-5gs.ursp.r_sel_desc.loc_tai_len",
             FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_r_sel_desc_time_win_start,
+        { "Start time", "nas-5gs.ursp.r_sel_desc.time_window.start",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_r_sel_desc_time_win_stop,
+        { "Stop time", "nas-5gs.ursp.r_sel_desc.time_window.stop",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_r_sel_desc_pdu_sess_pair_id,
+        { "PDU session pair ID", "nas-5gs.ursp.r_sel_desc.pdu_session_pair_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_r_sel_desc_rsn,
+        { "RSN", "nas-5gs.ursp.r_sel_desc.rsn",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_pdu_session_rsn_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_dnn_len,
