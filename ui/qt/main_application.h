@@ -75,8 +75,6 @@ public:
         PacketDissectionChanged,
         /** @brief General preferences changed. */
         PreferencesChanged,
-        /** @brief Application profile is currently changing. */
-        ProfileChanging,
         /** @brief Recent preferences have been read. */
         RecentPreferencesRead,
         /** @brief Freeze the packet list updates. */

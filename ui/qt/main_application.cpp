@@ -668,9 +668,6 @@ void MainApplication::emitAppSignal(AppSignal signal)
     case PacketDissectionChanged:
         emit packetDissectionChanged();
         break;
-    case ProfileChanging:
-        emit profileChanging();
-        break;
     case RecentPreferencesRead:
         emit recentPreferencesRead();
         break;
