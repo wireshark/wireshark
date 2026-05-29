@@ -423,7 +423,7 @@ static void truncate_numeric_strbuf(wmem_strbuf_t *strbuf, int n) {
         decimal_point = localeconv()->decimal_point;
     }
 
-    p = strchr(s, decimal_point[0]);
+    p = (const char *)strchr(s, decimal_point[0]);
     if (p != NULL) {
         count = n;
         while (count >= 0) {

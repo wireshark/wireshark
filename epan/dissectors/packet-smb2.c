@@ -88,11 +88,13 @@ static const char smb_bad_header_label[] = "Bad SMB2 Header";
 
 static int proto_smb2;
 static int hf_smb2_cmd;
-static int hf_smb2_nt_status;
+static int hf_smb2_request_in;
 static int hf_smb2_response_to;
 static int hf_smb2_response_in;
-static int hf_smb2_time_req;
-static int hf_smb2_time_resp;
+static int hf_smb2_cancel_request_in;
+static int hf_smb2_status_cancelled_in;
+static int hf_smb2_nt_status;
+static int hf_smb2_time;
 static int hf_smb2_preauth_hash;
 static int hf_smb2_header_len;
 static int hf_smb2_msg_id;
@@ -629,6 +631,7 @@ static int hf_smb2_reparse_data_buffer;
 static int hf_smb2_reparse_tag;
 static int hf_smb2_reparse_guid;
 static int hf_smb2_reparse_data_length;
+static int hf_smb2_resp_pending_in;
 static int hf_smb2_nfs_type;
 static int hf_smb2_nfs_symlink_target;
 static int hf_smb2_nfs_chr_major;
@@ -700,7 +703,6 @@ static int hf_smb2_dfs_filename_len;
 static int hf_smb2_dfs_request_data_site;
 static int hf_smb2_dfs_sitename_len;
 static int hf_smb2_dfs_sitename;
-
 static int ett_smb2;
 static int ett_smb2_olb;
 static int ett_smb2_ea;
@@ -1011,6 +1013,9 @@ static const value_string smb2_file_info_levels[] = {
 };
 static value_string_ext smb2_file_info_levels_ext = VALUE_STRING_EXT_INIT(smb2_file_info_levels);
 
+#define SMB2_CANCEL       12
+#define SMB2_NOTIFY       15
+#define STATUS_CANCELLED  0xc0000120
 
 
 #define SMB2_FS_INFO_01			0x01
@@ -1681,6 +1686,26 @@ smb2_fid_info_equal(const void *k1, const void *k2)
 	}
 
 	return 1;
+}
+
+/* Generate a hash of the aid in a request or response.
+*  The asyncs table consists of smb2_async_t structs keyed by the aid. */
+static unsigned
+smb2_aid_hash(const void *k)
+{
+	const smb2_async_t *key = (const smb2_async_t *)k;
+	uint32_t hash;
+
+	hash = (uint32_t) (key->aid&0xffffffff);
+	return hash;
+}
+static int
+smb2_aid_equal(const void *k1, const void *k2)
+{
+	const smb2_async_t *key1 = k1;
+	const smb2_async_t *key2 = k2;
+
+	return key1->aid == key2->aid;
 }
 
 static unsigned
@@ -7373,6 +7398,17 @@ dissect_smb2_lock_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static int
 dissect_smb2_cancel_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
+	if (pinfo->fd->visited) {
+		proto_item *item;
+		if (si->file && si->file->name) {
+			if (strcmp(si->file->name, "") == 0)
+				si->file->name = wmem_strdup(wmem_file_scope(),"<share>");
+			item = proto_tree_add_string(tree, hf_smb2_filename, tvb, 0, 0, si->file->name);
+			proto_item_set_generated(item);
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s", si->file->name);
+		}
+	}
+
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
@@ -10988,7 +11024,7 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		&hf_smb2_create_rep_flags_reparse_point,
 		NULL
 	};
-	bool continue_dissection;
+	bool continue_dissection = true;
 	uint32_t desired_access;
 	uint32_t granted_access;
 	bool is_dir;
@@ -11001,6 +11037,14 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* buffer code */
 	case 0x00000000: offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
 	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
+		if (si->saved && si->saved->file) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s", si->saved->file->name);
+
+			if (strcmp(si->saved->file->name, "") == 0)
+					si->saved->file->name = wmem_strdup(wmem_file_scope(),"<share>");
+			item = proto_tree_add_string(tree, hf_smb2_filename, tvb, 0, 0, si->saved->file->name);
+			proto_item_set_generated(item);
+		}
 		if (!continue_dissection) return offset;
 	}
 
@@ -12767,8 +12811,10 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 	proto_item        *item;
 
 
+	/* AsyncId (aid) */
 	if (si->flags&SMB2_FLAGS_ASYNC_CMD) {
 		proto_tree_add_item(tree, hf_smb2_aid, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		si->aid = tvb_get_letoh64(tvb, offset);
 		offset += 8;
 	} else {
 		/* Reserved */
@@ -12913,6 +12959,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 	smb2_eo_file_info_t *eo_file_info;
 	e_ctx_hnd	    *policy_hnd_hashtablekey;
 	const char	    *packet_title;
+	bool                is_request  = FALSE;
+	bool                is_response  = FALSE;
 
 	sti = wmem_new(pinfo->pool, smb2_transform_info_t);
 	scti = wmem_new(pinfo->pool, smb2_comp_transform_info_t);
@@ -12993,6 +13041,11 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 		/* we need the flags before we know how to parse the credits field */
 		si->flags = tvb_get_letohl(tvb, offset+12);
 
+		if (si->flags & SMB2_FLAGS_RESPONSE)
+			is_response = TRUE;
+		else
+			is_request = TRUE;
+
 		/* header length */
 		proto_tree_add_item(header_tree, hf_smb2_header_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
@@ -13002,7 +13055,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 		offset += 2;
 
 		/* Status Code */
-		if (si->flags & SMB2_FLAGS_RESPONSE) {
+		if (is_response) {
 			si->status = tvb_get_letohl(tvb, offset);
 			proto_tree_add_item(header_tree, hf_smb2_nt_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			if (si->status) {
@@ -13023,11 +13076,11 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 		proto_tree_add_item(header_tree, hf_smb2_cmd, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		proto_item_append_text(item, ", %s %s",
 			decode_smb2_name(si->opcode),
-			si->flags & SMB2_FLAGS_RESPONSE ? "Response" : "Request");
+			is_response ? "Response" : "Request");
 		offset += 2;
 
 		/* credits */
-		if (si->flags & SMB2_FLAGS_RESPONSE) {
+		if (is_response) {
 			proto_tree_add_item(header_tree, hf_smb2_credits_granted, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		} else {
 			proto_tree_add_item(header_tree, hf_smb2_credits_requested, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -13081,7 +13134,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 			/* Regular packets have standard title */
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 					decode_smb2_name(si->opcode),
-					(si->flags & SMB2_FLAGS_RESPONSE)?"Response":"Request");
+					(is_response)?"Response":"Request");
 		}
 		if (si->status) {
 			col_append_fstr(
@@ -13090,54 +13143,257 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 						       "Unknown (0x%08X)"));
 		}
 
-
 		if (!pinfo->fd->visited) {
+			bool create_req_ssi = FALSE;
+			bool create_resp_ssi = FALSE;
+
 			/* see if we can find this msg_id in the unmatched table */
 			ssi = (smb2_saved_info_t *)g_hash_table_lookup(si->conv->unmatched, &ssi_key);
 
-			if (!(si->flags & SMB2_FLAGS_RESPONSE)) {
-				/* This is a request */
-				if (ssi) {
-					/* this is a request and we already found
-					* an older ssi so just delete the previous
-					* one
-					*/
-					g_hash_table_remove(si->conv->unmatched, ssi);
-					ssi = NULL;
-				}
+			if (is_request) {
+				/*
+				* A REQUEST
+				*/
+				if(si->opcode != SMB2_CANCEL) {
+					if (ssi) {
+						/* This is a retransmitted or duplicated request.
+						 * Update req frame and time rather than remove this ssi. */
+						ssi->frame_req		= pinfo->num;
+						ssi->frame_res		= UINT32_MAX;
+						ssi->req_time		= pinfo->abs_ts;
+						ssi->extra_info_type	= SMB2_EI_NONE;
 
-				if (!ssi) {
-					/* no we couldn't find it, so just add it then
-					* if was a request we are decoding
+					} else {
+						ssi = g_hash_table_lookup(si->conv->matched, &ssi_key);
+						if (!ssi)
+							create_req_ssi = TRUE;
+					}
+				} else if (si->opcode == SMB2_CANCEL) {
+					/*
+					*  A Cancel request
 					*/
-					ssi                  = wmem_new0(wmem_file_scope(), smb2_saved_info_t);
-					ssi->msg_id          = ssi_key.msg_id;
-					ssi->frame_req       = pinfo->num;
-					ssi->frame_res       = UINT32_MAX;
-					ssi->req_time        = pinfo->abs_ts;
-					ssi->extra_info_type = SMB2_EI_NONE;
-					g_hash_table_insert(si->conv->unmatched, ssi, ssi);
+					if (si->msg_id > 0) {
+
+						if (ssi) {
+							if (si->aid==0) {
+								smb2_async_t *async;
+								/*
+								* Since aid is zero, this async can't be added to the asyncs table.
+								* If a STATUS_PENDING response arrives with msg_id > 0,	it will be
+								* used to lookup this ssi at which time ssi->frame_res and
+								* ssi->async->status_pending_in will be set to that frame#.
+								*/
+								async                    = wmem_new0(wmem_file_scope(), smb2_async_t);;
+								async->opcode            = si->opcode;
+								async->ssi_parent        = ssi;
+								async->cancel_req_in     = pinfo->fd->num;
+								async->cancel_req_time   = pinfo->fd->abs_ts;
+								ssi->async               = async;
+							}
+						} else {
+							create_req_ssi = TRUE;
+						}
+					} else {
+						/*
+						* This Cancel request has msg_id==0. If a STATUS_PENDING was
+						* processed, the async struct was added to the asyncs table indexed by
+						* this aid. Look for it and if found, set si->saved to async->ssi_parent.
+						*/
+						if (si->aid) {
+							smb2_async_t async_key, *async=NULL;
+
+							if (!si->conv->asyncs) {
+								si->conv->asyncs = g_hash_table_new(smb2_aid_hash, smb2_aid_equal);
+							} else {
+								async_key.aid = si->aid;
+								async = (smb2_async_t *) g_hash_table_lookup(si->conv->asyncs, &async_key);
+								if (async) {
+									async->cancel_req_in   = pinfo->fd->num;
+									async->cancel_req_time = pinfo->fd->abs_ts;
+									si->saved              = async->ssi_parent;
+								}
+							}
+
+							if (!async) {
+								/*
+								* Insert a new async in the asyncs table */
+								async                    = wmem_new0(wmem_file_scope(), smb2_async_t);
+								async->aid               = si->aid;
+								async->cancel_req_in     = pinfo->fd->num;
+								async->cancel_req_time   = pinfo->fd->abs_ts;
+								g_hash_table_insert(si->conv->asyncs, async, async);
+							}
+
+							if (!si->conv->asy_cancels) {
+							    si->conv->asy_cancels =
+								g_hash_table_new(g_int_hash, g_int_equal);
+							}
+
+							gint *key = wmem_new(wmem_file_scope(), gint);
+							*key = pinfo->fd->num;
+
+							g_hash_table_insert(si->conv->asy_cancels, key, async);
+						}
+					}
 				}
 			} else {
-				/* This is a response */
-				if (!((si->flags & SMB2_FLAGS_ASYNC_CMD)
-					&& si->status == NT_STATUS_PENDING)
-					&& ssi) {
-					/* just  set the response frame and move it to the matched table */
-					ssi->frame_res = pinfo->num;
-					ssi->resp_time = pinfo->abs_ts;
+				/*
+				*  A RESPONSE
+				*/
+				if (!ssi)
+					ssi = g_hash_table_lookup(si->conv->matched, &ssi_key);
+
+				if(si->status==STATUS_CANCELLED
+				&& ssi) {
+					ssi->cancelled_in = pinfo->fd->num;
+					/*
+					* If 'cancel_req_in' has been set, the msg_id in the Cancel request was non-zero
+					* allowing the async struct to be attached to the ssi OR the async from a
+					* STATUS_PENDING was added to the asyncs table and looked up when the Cancel request
+					* was processed. If not set, lookup the async in the asyncs table and if found, copy
+					* the cancel request info into ssi->async. In addition, set async->ssi_parent
+					* so that when the Cancel is displayed, it will be able to display the cancelled_in
+					* frame number.
+					*/
+					if (ssi->async
+					&& (!(ssi->async && ssi->async->cancel_req_in))) {
+						smb2_async_t async_key, *async=NULL;
+
+						/* Lookup the aid in the asyncs table */
+						async_key.aid = si->aid;
+						async = g_hash_table_lookup(si->conv->asyncs, &async_key);
+
+						if (async) {
+							guint tbl_size=0;
+
+							if (ssi->async) {
+								ssi->async->cancel_req_in   = async->cancel_req_in;
+								ssi->async->cancel_req_time = async->cancel_req_time;
+								ssi->async->ssi_parent = ssi;
+							} else {
+								async->ssi_parent = ssi;
+								ssi->async = async;
+							}
+							/* Aids can be reused after the final response so this async has to
+							* be removed from the asyncs table. After the first pass, the
+							* table won't have this async. That's why when the Cancel arrived it
+							* was added to the asy_cancels table indexed by its frame#.
+							*/
+							g_hash_table_remove(si->conv->asyncs, &async_key);
+							tbl_size = g_hash_table_size(si->conv->asyncs);
+							if (tbl_size==0) {
+								g_hash_table_destroy(si->conv->asyncs);
+								si->conv->asyncs = NULL;
+							}
+						}
+					}
+				}
+
+				if (ssi) {
+					/* Only set frame_res to this frame# if it has not already been set. If
+					* already set, this is a retransmission or has been duplicated by the network. */
+					if((!ssi->frame_res || ssi->frame_res == UINT32_MAX)
+					&& !ssi->cancelled_in) {
+						ssi->frame_res = pinfo->fd->num;
+						ssi->resp_time = pinfo->abs_ts;
+					}
+					/* Move ssi to the matched table. */
 					g_hash_table_remove(si->conv->unmatched, ssi);
 					g_hash_table_insert(si->conv->matched, ssi, ssi);
+
+				} else {
+					create_resp_ssi = TRUE;
 				}
 			}
-		} else {
-			/* see if we can find this msg_id in the matched table */
+
+			if (create_req_ssi || create_resp_ssi) {
+				/* Insert a new ssi struct in the unmatched hash table */
+				ssi                    = wmem_new0(wmem_file_scope(), smb2_saved_info_t);
+				ssi->msg_id            = ssi_key.msg_id;
+				if (create_req_ssi) {
+					ssi->frame_req = pinfo->num;
+					ssi->frame_res = UINT32_MAX;
+					ssi->req_time  = pinfo->abs_ts;
+				} else {
+					ssi->frame_req = 0;
+					ssi->frame_res = pinfo->num;
+				}
+
+				ssi->extra_info_type = SMB2_EI_NONE;
+
+				if (si->opcode==SMB2_CANCEL) {
+					ssi->async                    = wmem_new0(wmem_file_scope(), smb2_async_t);
+					ssi->async->aid               = si->aid;
+					ssi->async->opcode            = si->opcode;
+					ssi->async->cancel_req_in     = pinfo->fd->num;
+					ssi->async->cancel_req_time   = pinfo->fd->abs_ts;
+					ssi->async->ssi_parent        = ssi;
+				} else {
+					/*
+					*  Non-Cancel req/resp
+					*/
+					if (create_req_ssi) {
+						ssi->frame_req        = pinfo->fd->num;
+						ssi->req_time         = pinfo->fd->abs_ts;
+					} else {
+						if (si->status==STATUS_CANCELLED) {
+							ssi->cancelled_in = pinfo->fd->num;
+						} else {
+							ssi->frame_res    = pinfo->fd->num;
+						}
+					}
+				}
+				g_hash_table_insert(si->conv->unmatched, ssi, ssi);
+			}
+
+			if (ssi) {
+				si->saved = ssi;
+				si->file  = ssi->file;
+			}
+
+			if (si->status==NT_STATUS_PENDING) {
+				/*
+				* Lookup async and if not in asyncs table, insert a new one.
+				*/
+				if (si->saved && !si->saved->async) {
+					smb2_async_t async_key, *async=NULL;
+
+					if (!(si->conv->asyncs)) {
+						si->conv->asyncs = g_hash_table_new(smb2_aid_hash, smb2_aid_equal);
+					} else {
+						async_key.aid = si->aid;
+						async = g_hash_table_lookup(si->conv->asyncs, &async_key);
+					}
+					if (!async) {
+						async                = wmem_new0(wmem_file_scope(), smb2_async_t);
+						async->aid           = si->aid;
+						async->opcode        = si->opcode;
+						async->cancel_req_in = 0;
+						async->ssi_parent    = ssi;
+						g_hash_table_insert(si->conv->asyncs, async, async);
+					}
+					si->saved->async = async;
+				}
+				si->saved->async->status_pending_in = pinfo->fd->num;
+				si->saved->frame_res = 0;
+			} /* End of async (aid) processing */
+
+		} else {/* Pass > 1 */
+			/* Look for this msg_id in the matched table then if not found, in the
+			*  unmatched table. */
 			ssi = (smb2_saved_info_t *)g_hash_table_lookup(si->conv->matched, &ssi_key);
-			/* if we couldn't find it in the matched table, it might still
-			* be in the unmatched table
-			*/
 			if (!ssi) {
 				ssi = (smb2_saved_info_t *)g_hash_table_lookup(si->conv->unmatched, &ssi_key);
+			}
+
+			if(!ssi
+			&& si->opcode==SMB2_CANCEL
+			&& si->conv->asy_cancels) {
+				smb2_async_t *async =
+					(smb2_async_t *)g_hash_table_lookup(si->conv->asy_cancels, &pinfo->fd->num);
+				if (async) {
+					si->saved = async->ssi_parent;
+				}
 			}
 		}
 
@@ -13158,50 +13414,187 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 				}
 
 			}
+		}
 
-			if (!(si->flags & SMB2_FLAGS_RESPONSE)) {
-				if (ssi->frame_res != UINT32_MAX) {
-					proto_item *tmp_item;
-					nstime_t    deltat;
+		if (!si->saved
+		&&  ssi) {
+			si->saved = ssi;
+		} else {
+			if(!ssi
+			&& si->saved)
+				ssi = si->saved;
+		}
 
-					tmp_item = proto_tree_add_uint(header_tree, hf_smb2_response_in, tvb, 0, 0,
-						ssi->frame_res);
-					proto_item_set_generated(tmp_item);
+		/* ========================= DISPLAY ========================== */
 
-					nstime_delta(&deltat, &ssi->resp_time, &pinfo->abs_ts);
-					tmp_item = proto_tree_add_time(header_tree, hf_smb2_time_req, tvb,
-								       0, 0, &deltat);
-					proto_item_set_generated(tmp_item);
+		proto_item_set_len(header_item, offset);
+
+		if (header_tree && ssi) {
+			const gchar* command;
+			gchar* thisfr;
+
+			if(ssi->async
+			|| ssi->cancelled_in) {
+				command = smb2_cmd_vals[si->opcode].strptr;
+
+				if(si->opcode==SMB2_CANCEL
+				&& ssi->async
+				&& ssi->async->cancel_req_in) {
+					command = smb2_cmd_vals[ssi->async->opcode].strptr;
 				}
-			} else {
-				if (ssi->frame_req != UINT32_MAX) {
-					proto_item *tmp_item;
-					nstime_t    t, deltat;
 
-					tmp_item = proto_tree_add_uint(header_tree, hf_smb2_response_to, tvb, 0, 0,
-						ssi->frame_req);
-					proto_item_set_generated(tmp_item);
-					t = pinfo->abs_ts;
-					nstime_delta(&deltat, &t, &ssi->req_time);
-					tmp_item = proto_tree_add_time(header_tree, hf_smb2_time_resp, tvb,
-					0, 0, &deltat);
-					proto_item_set_generated(tmp_item);
+				/* Request in */
+				if(ssi
+				&& ssi->frame_req) {
+					if (ssi->frame_req==pinfo->fd->num)
+						thisfr = "  (this frame)";
+					else
+						thisfr = "";
+					item = proto_tree_add_uint_format(header_tree, hf_smb2_request_in, tvb, 0, 0,
+						ssi->frame_req,
+						"%s request in: %u%s", command, ssi->frame_req, thisfr);
+					PROTO_ITEM_SET_GENERATED(item);
 				}
-			}
-			if (si->file != NULL) {
-				ssi->file = si->file;
-			} else {
-				si->file = ssi->file;
+
+				/* STATUS_PENDING */
+				if(ssi->async
+				&& ssi->async->status_pending_in) {
+					if (ssi->async->status_pending_in==pinfo->fd->num)
+						thisfr = "  (this frame)";
+					else
+						thisfr = "";
+					item = proto_tree_add_uint_format(header_tree, hf_smb2_resp_pending_in, tvb, 0, 0,
+						ssi->async->status_pending_in,
+						"%s pended in: %u%s", command, ssi->async->status_pending_in, thisfr);
+					PROTO_ITEM_SET_GENERATED(item);
+
+					/* SRT from request to STATUS_PENDING response */
+					if(ssi->async->status_pending_in==pinfo->fd->num
+					&& ssi->frame_req) {
+						nstime_t t, deltat;
+						t = pinfo->fd->abs_ts;
+						nstime_delta(&deltat, &t, &ssi->req_time);
+						item = proto_tree_add_time_format(header_tree, hf_smb2_time, tvb, 0, 0,
+							&deltat, "Time from %s req to pended resp: %" PRId64 ".%09d secs",
+							command,  (int64_t)deltat.secs, deltat.nsecs);
+						PROTO_ITEM_SET_GENERATED(item);
+					}
+				}
+
+				/* Cancel request in */
+				if(ssi->async
+				&& ssi->async->cancel_req_in) {
+					const gchar* fmt_msg;
+
+					if (ssi->async->cancel_req_in==pinfo->fd->num)
+						thisfr = "  (this frame)";
+					else
+						thisfr = "";
+					if (ssi->async->status_pending_in)
+						fmt_msg = "Cancel of pended %s requested in: %u%s" ;
+					else
+						fmt_msg = "Cancel of %s requested in: %u%s";
+					item = proto_tree_add_uint_format(header_tree, hf_smb2_cancel_request_in, tvb, 0, 0,
+						ssi->async->cancel_req_in,
+						fmt_msg, command, ssi->async->cancel_req_in, thisfr);
+					PROTO_ITEM_SET_GENERATED(item);
+				}
+
+				/* Cancelled in */
+				if (ssi->cancelled_in) {
+					if (ssi->cancelled_in==pinfo->fd->num)
+						thisfr = "  (this frame)";
+					else
+						thisfr = "";
+					item = proto_tree_add_uint_format(header_tree,
+						hf_smb2_status_cancelled_in, tvb, 0, 0,	ssi->cancelled_in,
+						"%s cancelled in: %u%s", command, ssi->cancelled_in, thisfr);
+					PROTO_ITEM_SET_GENERATED(item);
+
+					/* Time from Cancel request to STATUS_CANCELLED response */
+					if(si->status==STATUS_CANCELLED) {
+						if(ssi->async
+						&& ssi->async->cancel_req_in) {
+							nstime_t t, deltat;
+							t = pinfo->fd->abs_ts;
+							nstime_delta(&deltat, &t, &ssi->async->cancel_req_time);
+							item = proto_tree_add_time_format(header_tree, hf_smb2_time, tvb, 0, 0,
+							&deltat, "Time from Cancel req to cancelled resp: %" PRId64 ".%09d secs",
+							(int64_t)deltat.secs, deltat.nsecs);
+							PROTO_ITEM_SET_GENERATED(item);
+						}
+					}
+				}
+
+				/* Response in */
+				if(ssi->frame_res
+				&& ssi->frame_res != UINT32_MAX) {
+					if (ssi->frame_res==pinfo->fd->num)
+						thisfr = "  (this frame)";
+					else
+						thisfr = "";
+					item = proto_tree_add_uint_format(header_tree, hf_smb2_response_in, tvb, 0, 0,
+						ssi->frame_res,
+						"%s response in: %u%s", command, ssi->frame_res, thisfr);
+					PROTO_ITEM_SET_GENERATED(item);
+
+					/* SRT from Request to Response */
+					if(ssi->frame_res==pinfo->fd->num
+					&& ssi->frame_req
+					&& si->opcode != SMB2_NOTIFY
+					&& si->status != STATUS_CANCELLED) {
+						nstime_t t, deltat;
+						t = pinfo->fd->abs_ts;
+						nstime_delta(&deltat, &t, &ssi->req_time);
+						item = proto_tree_add_time(header_tree, hf_smb2_time, tvb, 0, 0, &deltat);
+						PROTO_ITEM_SET_GENERATED(item);
+					}
+				}
+				/* End of ASYNC processing */
+
+			} else { /* Start of NON-async processing */
+				/* response to */
+				if (is_response) {
+					if(ssi->frame_req
+					&& ssi->frame_req != UINT32_MAX
+					&& ssi->frame_res==pinfo->fd->num) {
+						item = proto_tree_add_uint_format(header_tree, hf_smb2_response_to, tvb, 0, 0,
+							ssi->frame_req, "%s response to: %u", smb2_cmd_vals[si->opcode].strptr,
+							ssi->frame_req);
+						PROTO_ITEM_SET_GENERATED(item);
+
+						/* SRT from Request to Response unless it's a Notify or STATUS_CANCELLED */
+						if(si->opcode != SMB2_NOTIFY
+						&& si->status != STATUS_CANCELLED) {
+							nstime_t t, deltat;
+
+							t = pinfo->fd->abs_ts;
+							nstime_delta(&deltat, &t, &ssi->req_time);
+							item = proto_tree_add_time(header_tree, hf_smb2_time, tvb, 0, 0, &deltat);
+							PROTO_ITEM_SET_GENERATED(item);
+						}
+					}
+				} else {
+					/* response In */
+					if(ssi->frame_res
+					&& ssi->frame_res != UINT32_MAX
+					&& ssi->frame_req==pinfo->fd->num) {
+						item = proto_tree_add_uint_format(header_tree, hf_smb2_response_in, tvb, 0, 0,
+							ssi->frame_res, "%s response in: %u", smb2_cmd_vals[si->opcode].strptr,
+							ssi->frame_res);
+						PROTO_ITEM_SET_GENERATED(item);
+					}
+				}
+
 			}
 		}
-		/* if we don't have ssi yet we must fake it */
-		/*qqq*/
-		si->saved = ssi;
+		/*===================== END OF DISPLAY ======================*/
 
 		tap_queue_packet(smb2_tap, pinfo, si);
 
 		/* Decode the payload */
 		offset = dissect_smb2_command(pinfo, tree, tvb, offset, si);
+
 	} else if (msg_type == SMB2_ENCR_HEADER) {
 		proto_tree *enc_tree;
 		tvbuff_t   *enc_tvb   = NULL;
@@ -13309,25 +13702,32 @@ proto_register_smb2(void)
 			&smb2_cmd_vals_ext, 0, "SMB2 Command Opcode", HFILL }
 		},
 
+		{ &hf_smb2_request_in,
+			{ "Request in", "smb2.request_in", FT_FRAMENUM, BASE_NONE,
+			NULL, 0, "Frame in which the request was issued", HFILL }},
+
 		{ &hf_smb2_response_to,
 			{ "Response to", "smb2.response_to", FT_FRAMENUM, BASE_NONE,
-			FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0, "This packet is a response to the packet in this frame", HFILL }
+			FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0, "This packet is a response to the request in this frame", HFILL }
 		},
 
 		{ &hf_smb2_response_in,
 			{ "Response in", "smb2.response_in", FT_FRAMENUM, BASE_NONE,
-			FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0, "The response to this packet is in this packet", HFILL }
+			FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0, "The response to this request is in this frame", HFILL }
 		},
 
-		{ &hf_smb2_time_req,
-			{ "Time to response", "smb2.time", FT_RELATIVE_TIME, BASE_NONE,
-			NULL, 0, "Time between Request and Response for SMB2 cmds", HFILL }
-		},
-
-		{ &hf_smb2_time_resp,
+		{ &hf_smb2_time,
 			{ "Time from request", "smb2.time", FT_RELATIVE_TIME, BASE_NONE,
-			NULL, 0, "Time between Request and Response for SMB2 cmds", HFILL }
+			NULL, 0, "Time between the SMB2 Request and Response", HFILL }
 		},
+
+		{ &hf_smb2_cancel_request_in,
+			{ "Cancel request in", "smb2.cancel_req_in", FT_FRAMENUM, BASE_NONE,
+			NULL, 0, "Frame in which the client requested the request to be cancelled", HFILL }},
+
+		{ &hf_smb2_status_cancelled_in,
+			{ "Cancelled in", "smb2.cancelled_resp_in", FT_FRAMENUM, BASE_NONE,
+			NULL, 0, "Frame in which the server sent a STATUS_CANCELLED response", HFILL }},
 
 		{ &hf_smb2_preauth_hash,
 			{ "Preauth Hash", "smb2.preauth_hash", FT_BYTES, BASE_NONE,
@@ -13357,6 +13757,11 @@ proto_register_smb2(void)
 		{ &hf_smb2_aid,
 			{ "Async Id", "smb2.aid", FT_UINT64, BASE_HEX,
 			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_resp_pending_in,
+			{ "Pended in", "smb2.pended_in", FT_FRAMENUM, BASE_NONE,
+			NULL, 0, "Frame in which the response was pended", HFILL }
 		},
 
 		{ &hf_smb2_sesid,

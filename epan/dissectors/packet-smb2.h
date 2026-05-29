@@ -69,6 +69,8 @@ typedef struct _smb2_saved_info_t {
 	uint32_t  frame_req, frame_res;
 	nstime_t  req_time;
 	nstime_t  resp_time;
+	uint32_t  cancelled_in; /* non-async requests can also be cancelled, so this belongs here */
+	struct smb2_async_t *async; /* If an aid is associated with this ssi, async is stored here. */
 	uint8_t  *preauth_hash_req, *preauth_hash_res;
 	smb2_fid_info_t *file;
 	e_ctx_hnd policy_hnd; 	/* for eo_smb tracking */
@@ -85,6 +87,15 @@ typedef struct _smb2_saved_info_t {
 	uint32_t frame_end;  /* The close frame. */
 	const uint8_t *filename;
 } smb2_saved_info_t;
+
+typedef struct smb2_async_t {
+	uint64_t aid;
+	uint32_t opcode;           /* Command that has been pended or cancelled */
+	uint32_t status_pending_in;
+	uint32_t cancel_req_in;    /* Cancel requests can arrive without the async flag but they are... */
+	nstime_t cancel_req_time;  /* ...stored here nonetheless. */
+	smb2_saved_info_t *ssi_parent;
+} smb2_async_t;
 
 typedef struct _smb2_tid_info_t {
 	uint32_t tid;
@@ -128,6 +139,16 @@ typedef struct _smb2_conv_info_t {
 	/* these two tables are used to match requests with responses */
 	GHashTable *unmatched;
 	GHashTable *matched;
+	GHashTable *asyncs;      /* Table of smb2_async_t structs indexed by aid */
+	GHashTable *asy_cancels; /* When the msg_id of a request to Cancel a pended request is 0,
+				the ssi associated with it cannot be looked up. Instead a pointer
+				to the async is stored indexed by the aid in the asyncs table.
+				A response to a Cancel of a pended request contains both the msg_id, and
+				aid, so when it arrives, ssi is stored in async->ssi_parent. The aid key
+				must be removed from the asyncs table because the aid can be reused.
+				Unfortunately, with the aid removed there is no way to lookup the async
+				of Cancel requests, so it is stored in the this table indexed by its
+				frame#. */
 	uint16_t dialect;
 	uint16_t sign_alg;
 	uint16_t enc_alg;
@@ -211,6 +232,7 @@ typedef struct _smb2_info_t {
 	uint32_t tid;
 	uint64_t sesid;		/* *host* byte order - not necessarily little-endian! */
 	uint64_t msg_id;
+	uint64_t aid;		/* async Id */
 	uint32_t flags;
 	smb2_eo_file_info_t	*eo_file_info; /* eo_smb extra info */
 	smb2_conv_info_t	*conv;
