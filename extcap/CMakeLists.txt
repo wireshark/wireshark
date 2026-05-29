@@ -111,7 +111,7 @@ if(BUILD_androiddump)
 		if(HAVE_LIBPCAP)
 			set(androiddump_LIBS
 				wsutil
-				${WIN_WS2_32_LIBRARY}
+				${SOCKET_LIBRARY}
 				$<$<BOOL:${PCAP_FOUND}>:pcap::pcap>
 			)
 		else()
@@ -123,7 +123,7 @@ if(BUILD_androiddump)
 			wiretap
 			wsutil
 			${CMAKE_DL_LIBS}
-			${WIN_WS2_32_LIBRARY}
+			${SOCKET_LIBRARY}
 		)
 	endif()
 	set(androiddump_FILES
@@ -145,7 +145,7 @@ if(BUILD_sshdump AND LIBSSH_FOUND)
 	set(sshdump_LIBS
 		wsutil
 		${CMAKE_DL_LIBS}
-		${WIN_WS2_32_LIBRARY}
+		${SOCKET_LIBRARY}
 		${LIBSSH_LIBRARIES}
 	)
 	set(sshdump_FILES
@@ -172,7 +172,7 @@ if(BUILD_ciscodump AND LIBSSH_FOUND)
 		writecap
 		wsutil
 		${CMAKE_DL_LIBS}
-		${WIN_WS2_32_LIBRARY}
+		${SOCKET_LIBRARY}
 		${LIBSSH_LIBRARIES}
 	)
 	set(ciscodump_FILES
@@ -199,7 +199,7 @@ if(BUILD_wifidump AND LIBSSH_FOUND)
 		writecap
 		wsutil
 		${CMAKE_DL_LIBS}
-		${WIN_WS2_32_LIBRARY}
+		${SOCKET_LIBRARY}
 		${LIBSSH_LIBRARIES}
 	)
 	set(wifidump_FILES
@@ -249,7 +249,7 @@ if(BUILD_udpdump)
 	set(udpdump_LIBS
 		wsutil
 		${CMAKE_DL_LIBS}
-		${WIN_WS2_32_LIBRARY}
+		${SOCKET_LIBRARY}
 		writecap
 	)
 	set(udpdump_FILES
@@ -273,7 +273,7 @@ if(BUILD_randpktdump)
 		wiretap
 		wsutil
 		${CMAKE_DL_LIBS}
-		${WIN_WS2_32_LIBRARY}
+		${SOCKET_LIBRARY}
 	)
 	set(randpktdump_FILES
 		$<TARGET_OBJECTS:cli_main>
@@ -299,7 +299,7 @@ if(BUILD_etwdump AND WIN32)
 		wevtapi
 		rpcrt4
 		${CMAKE_DL_LIBS}
-		${WIN_WS2_32_LIBRARY}
+		${SOCKET_LIBRARY}
 	)
 	set(etwdump_FILES
 		$<TARGET_OBJECTS:cli_main>
@@ -399,7 +399,7 @@ if(BUILD_sshdig AND LIBSSH_FOUND)
 	set(sshdig_LIBS
 		wsutil
 		${CMAKE_DL_LIBS}
-		${WIN_WS2_32_LIBRARY}
+		${SOCKET_LIBRARY}
 		${LIBSSH_LIBRARIES}
 	)
 	set(sshdig_FILES

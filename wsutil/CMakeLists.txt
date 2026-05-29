@@ -420,7 +420,7 @@ target_link_libraries(wsutil
 		${XXHASH_LIBRARIES}
 		$<IF:$<CONFIG:Debug>,${PCRE2_DEBUG_LIBRARIES},${PCRE2_LIBRARIES}>
 		${WIN_IPHLPAPI_LIBRARY}
-		${WIN_WS2_32_LIBRARY}
+		${SOCKET_LIBRARY}
 		${WIN_PSAPI_LIBRARY}
 		$<$<BOOL:${CpuInfo_FOUND}>:CpuInfo::CpuInfo>
 )
@@ -483,7 +483,7 @@ target_link_libraries(wsutil_static
 		${LZ4_LIBRARIES}
 		$<IF:$<CONFIG:Debug>,${PCRE2_DEBUG_LIBRARIES},${PCRE2_LIBRARIES}>
 		${WIN_IPHLPAPI_LIBRARY}
-		${WIN_WS2_32_LIBRARY}
+		${SOCKET_LIBRARY}
 		${WIN_PSAPI_LIBRARY}
 		$<$<BOOL:${CpuInfo_FOUND}>:CpuInfo::CpuInfo>
 )
