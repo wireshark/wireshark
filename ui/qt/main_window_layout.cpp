@@ -56,7 +56,7 @@ QWidget* MainWindow::getLayoutWidget(layout_pane_content_e type) {
         case layout_pane_content_plist:
             return packet_list_;
         case layout_pane_content_pdetails:
-            return proto_container_;
+            return proto_tree_;
         case layout_pane_content_pbytes:
             return data_source_tab_;
         case layout_pane_content_pdiagram:
@@ -78,7 +78,7 @@ void MainWindow::cyclePane(bool reverse)
     QList<QWidget *> panes;
     if (df_combo_box_) panes << df_combo_box_;
     if (packet_list_) panes << packet_list_;
-    if (proto_tree_) panes << proto_container_;
+    if (proto_tree_) panes << proto_tree_;
     if (data_source_tab_) panes << data_source_tab_;
 
     if (panes.isEmpty()) return;
@@ -123,7 +123,7 @@ void MainWindow::layoutPanes()
     // This hides each widget as well.
     bool frozen = packet_list_->freeze(); // Clears tree, byte view tabs, and diagram.
     packet_list_->setParent(main_stack_);
-    proto_container_->setParent(main_stack_);
+    proto_tree_->setParent(main_stack_);
     data_source_tab_->setParent(main_stack_);
     if (packet_diagram_) {
         packet_diagram_->setParent(main_stack_);
@@ -200,7 +200,7 @@ void MainWindow::layoutPanes()
 
     extra_split_.setVisible(ms_children.contains(&extra_split_));
     packet_list_->setVisible(ms_children.contains(packet_list_) && recent.packet_list_show);
-    proto_container_->setVisible(ms_children.contains(proto_container_) && recent.tree_view_show);
+    proto_tree_->setVisible(ms_children.contains(proto_tree_) && recent.tree_view_show);
     data_source_tab_->setVisible(ms_children.contains(data_source_tab_) && recent.byte_view_show);
     if (packet_diagram_) {
         packet_diagram_->setVisible(ms_children.contains(packet_diagram_) && recent.packet_diagram_show);

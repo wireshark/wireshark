@@ -22,14 +22,10 @@
 
 #include "data_source_tab.h"
 #include "proto_tree.h"
-#include "in_packet_find_bar.h"
 #include "main_application.h"
 
 #include <ui/qt/utils/field_information.h>
 #include <QTreeWidgetItemIterator>
-#include <QShortcut>
-#include <QVBoxLayout>
-#include <QApplication>
 
 Q_DECLARE_METATYPE(splitter_layout_e)
 
@@ -42,7 +38,6 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     ui(new Ui::PacketDialog),
     pref_packet_dialog_layout_(nullptr),
     proto_tree_(NULL),
-    in_packet_find_bar_(nullptr),
     data_source_tab_(NULL)
 {
     ui->setupUi(this);
@@ -74,20 +69,10 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
                      fdata, &(cap_file_.capFile()->cinfo));
     epan_dissect_fill_in_columns(&edt_, true, true);
 
-    QWidget *proto_container = new QWidget(ui->packetSplitter);
-    QVBoxLayout *proto_vbox = new QVBoxLayout(proto_container);
-    proto_vbox->setContentsMargins(0, 0, 0, 0);
-    proto_vbox->setSpacing(0);
-
-    proto_tree_ = new ProtoTree(proto_container, &edt_);
+    proto_tree_ = new ProtoTree(ui->packetSplitter, &edt_);
     // Do not call proto_tree_->setCaptureFile, ProtoTree only needs the
     // dissection context.
     proto_tree_->setRootNode(edt_.tree);
-
-    // Wrap proto_tree_ + in-packet find bar in a container inside the splitter
-    in_packet_find_bar_ = new InPacketFindBar(proto_tree_, proto_container);
-    proto_vbox->addWidget(in_packet_find_bar_);
-    proto_vbox->addWidget(proto_tree_);
 
     data_source_tab_ = new DataSourceTab(ui->packetSplitter, &edt_);
     data_source_tab_->setCaptureFile(cap_file_.capFile());
@@ -178,19 +163,6 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
 #else
     connect(ui->chkShowByteView, &QCheckBox::stateChanged, this, &PacketDialog::viewVisibilityStateChanged);
 #endif
-
-    // Ctrl+Alt+F shortcut for in-packet find bar (only when this dialog has focus)
-    QShortcut *find_shortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_F), this);
-    connect(find_shortcut, &QShortcut::activated, this, [this]() {
-        if (QApplication::activeWindow() != this) return;
-        if (in_packet_find_bar_) {
-            if (!in_packet_find_bar_->isVisible()) {
-                in_packet_find_bar_->showAnimated();
-            } else {
-                in_packet_find_bar_->hideAnimated();
-            }
-        }
-    });
 }
 
 PacketDialog::~PacketDialog()

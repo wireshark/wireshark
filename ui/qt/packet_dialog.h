@@ -19,7 +19,6 @@
 #include <ui/qt/utils/field_information.h>
 
 class DataSourceTab;
-class InPacketFindBar;
 class ProtoTree;
 
 namespace Ui {
@@ -116,9 +115,6 @@ private:
 
     /** @brief Pointer to the protocol tree representation. */
     ProtoTree *proto_tree_;
-
-    /** @brief The in-packet find bar. */
-    InPacketFindBar *in_packet_find_bar_;
 
     /** @brief Pointer to the data source tab widget. */
     DataSourceTab *data_source_tab_;

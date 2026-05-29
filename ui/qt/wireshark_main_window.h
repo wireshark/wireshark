@@ -42,7 +42,6 @@
 
 #include "ui/ws_ui_util.h"
 #include "ui/iface_toolbar.h"
-
 #ifdef HAVE_LIBPCAP
 #include "ui/capture_opts.h"
 #endif
@@ -74,7 +73,6 @@ class AccordionFrame;
 class DataSourceTab;
 class CaptureOptionsDialog;
 class DisStreamDialog;
-class InPacketFindBar;
 class PrintDialog;
 class FileSetDialog;
 class FilterDialog;
@@ -288,7 +286,7 @@ private:
     CaptureOptionsDialog      *capture_options_dialog_;  /**< Modeless capture options dialog. */
     info_data_t                info_data_;               /**< Live capture statistics updated during capture. */
 #endif
-    InPacketFindBar *in_packet_find_bar_; /**< In-packet find bar. */
+
     QPoint dragStartPosition; /**< Mouse position recorded at the start of a drag operation. */
 
     QPointer<TLSKeylogDialog> tlskeylog_dialog_; /**< Modeless TLS keylog dialog; null when not open. */
@@ -968,9 +966,6 @@ private slots:
 
     /** @brief Opens the Find Packet dialog or focuses it if already open. */
     void findPacket();
-
-    /** @brief Handles the "Find in Packet" menu item. */
-    void on_actionEditFindInPacket_triggered();
 
     /** @brief Opens the Time Shift dialog for adjusting packet timestamps. */
     void editTimeShift();

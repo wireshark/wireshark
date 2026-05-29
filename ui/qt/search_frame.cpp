@@ -18,14 +18,12 @@
 
 #include <wsutil/utf8_entities.h>
 #include <wsutil/regex.h>
-#include "main_window.h"
+
 #include "main_application.h"
 #include "utils/qt_ui_utils.h"
 
 #include <QKeyEvent>
 #include <QCheckBox>
-#include <QApplication>
-#include "in_packet_find_bar.h"
 
 enum {
     in_packet_list_,
@@ -61,15 +59,6 @@ SearchFrame::SearchFrame(QWidget *parent) :
 #endif
 
     applyRecentSearchSettings();
-
-    connect(qApp, &QApplication::focusChanged, this, &SearchFrame::onApplicationFocusChanged);
-    connect(sf_ui_->inPacketCheckBox, &QCheckBox::toggled, this, &SearchFrame::on_inPacketCheckBox_toggled);
-    QWidget *main_win = mainApp->mainWindow();
-    if (main_win) {
-        for (InPacketFindBar *bar : main_win->findChildren<InPacketFindBar *>()) {
-            connect(bar, &InPacketFindBar::matchesChanged, this, &SearchFrame::updateWidgets, Qt::UniqueConnection);
-        }
-    }
 
     updateWidgets();
 }
@@ -130,11 +119,6 @@ void SearchFrame::setCaptureFile(capture_file *cf)
     if (!cf && isVisible()) {
         animatedHide();
     }
-    updateWidgets();
-}
-
-void SearchFrame::refreshWidgets()
-{
     updateWidgets();
 }
 
@@ -271,14 +255,6 @@ void SearchFrame::updateWidgets()
     // search in the Packet List, or a display filter search (since those
     // don't highlight what fields / offsets caused the match.)
     sf_ui_->multipleCheckBox->setEnabled((sf_ui_->searchInComboBox->isEnabled() && sf_ui_->searchInComboBox->currentIndex() != in_packet_list_) || search_type == hex_search_);
-
-    // The "Find in Packet" checkbox always enabled as a single packet is always available. 
-    sf_ui_->inPacketCheckBox->setEnabled(true);
-    // Show checked if any in-packet find bars are open; this makes the
-    // checkbox stay checked until all bars are closed.
-    sf_ui_->inPacketCheckBox->blockSignals(true);
-    sf_ui_->inPacketCheckBox->setChecked(InPacketFindBar::openInstances() > 0);
-    sf_ui_->inPacketCheckBox->blockSignals(false);
 
     switch (search_type) {
     case df_search_:
@@ -567,54 +543,6 @@ void SearchFrame::on_findButton_clicked()
     if (!err_string.isEmpty()) {
         mainApp->pushStatus(MainApplication::FilterSyntax, err_string);
     }
-}
-
-void SearchFrame::on_inPacketCheckBox_toggled(bool checked)
-{
-    auto hideAllBars = []() {
-        for (QWidget *widget : qApp->allWidgets()) {
-            if (InPacketFindBar *bar = qobject_cast<InPacketFindBar *>(widget)) {
-                if (bar->isVisible()) {
-                    bar->hideAnimated();
-                }
-            }
-        }
-    };
-
-    auto refreshCheckBox = [this]() {
-        sf_ui_->inPacketCheckBox->blockSignals(true);
-        sf_ui_->inPacketCheckBox->setChecked(InPacketFindBar::openInstances() > 0);
-        sf_ui_->inPacketCheckBox->blockSignals(false);
-    };
-
-    if (!checked) {
-        hideAllBars();
-        // Immediately reflect the user's action instead of waiting for
-        // hideAnimated() to finish (which can leave openInstances()>0
-        // until the animation completes and would require a second click).
-        sf_ui_->inPacketCheckBox->blockSignals(true);
-        sf_ui_->inPacketCheckBox->setChecked(false);
-        sf_ui_->inPacketCheckBox->blockSignals(false);
-        return;
-    }
-
-    if (mainApp->mainWindow()) {
-        if (InPacketFindBar *bar = mainApp->mainWindow()->findChild<InPacketFindBar *>()) {
-            if (!bar->isVisible()) {
-                bar->showAnimated();
-            }
-        }
-    }
-
-    refreshCheckBox();
-}
-
-void SearchFrame::onApplicationFocusChanged(QWidget *old, QWidget *now)
-{
-    Q_UNUSED(old)
-    Q_UNUSED(now)
-    // Re-evaluate checkbox state when focus changes
-    updateWidgets();
 }
 
 void SearchFrame::on_cancelButton_clicked()

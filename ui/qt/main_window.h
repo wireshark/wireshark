@@ -311,9 +311,6 @@ protected:
     /** Pointer to the protocol tree widget. */
     ProtoTree *proto_tree_;
 
-    /** Wraps proto_tree_ + in-packet find bar */
-    QWidget *proto_container_;
-
     /** Pointer to the data source tab widget. */
     DataSourceTab *data_source_tab_;
 
@@ -466,6 +463,7 @@ signals:
      * @param success True if the display filter was valid and applied.
      */
     void displayFilterSuccess(bool success);
+
 };
 
 #endif // MAINWINDOW_H
