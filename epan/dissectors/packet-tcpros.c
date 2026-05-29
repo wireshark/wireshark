@@ -156,13 +156,11 @@ dissect_ros_message_header_stamp(tvbuff_t *tvb, proto_tree *root_tree, packet_in
 	sub_tree = proto_item_add_subtree(ti, ett_tcpros);
 
 	/** Seconds */
-	proto_tree_add_item(sub_tree, hf_tcpros_message_header_stamp_sec, tvb, offset + consumed_len, SIZE_OF_LENGTH_FIELD, ENC_LITTLE_ENDIAN);
-	sec = tvb_get_letohl(tvb, offset + consumed_len);
+	proto_tree_add_item_ret_uint(sub_tree, hf_tcpros_message_header_stamp_sec, tvb, offset + consumed_len, SIZE_OF_LENGTH_FIELD, ENC_LITTLE_ENDIAN, &sec);
 	consumed_len += SIZE_OF_LENGTH_FIELD;
 
 	/** Nano seconds */
-	proto_tree_add_item(sub_tree, hf_tcpros_message_header_stamp_nsec, tvb, offset + consumed_len, SIZE_OF_LENGTH_FIELD, ENC_LITTLE_ENDIAN);
-	nsec = tvb_get_letohl(tvb, offset + consumed_len);
+	proto_tree_add_item_ret_uint(sub_tree, hf_tcpros_message_header_stamp_nsec, tvb, offset + consumed_len, SIZE_OF_LENGTH_FIELD, ENC_LITTLE_ENDIAN, &nsec);
 	consumed_len += SIZE_OF_LENGTH_FIELD;
 
 	/** Info */
@@ -205,7 +203,6 @@ dissect_ros_message_header(tvbuff_t *tvb, proto_tree *root_tree, packet_info *pi
 	unsigned header_len;
 	const uint8_t* frame_str;
 
-
 	frame_id_len = tvb_get_letohl(tvb, offset + consumed_len + SIZE_OF_LENGTH_FIELD + SIZE_OF_LENGTH_STAMP);
 	header_len = SIZE_OF_LENGTH_FIELD + SIZE_OF_LENGTH_STAMP + SIZE_OF_LENGTH_FIELD + frame_id_len;
 
@@ -214,8 +211,7 @@ dissect_ros_message_header(tvbuff_t *tvb, proto_tree *root_tree, packet_info *pi
 	sub_tree = proto_item_add_subtree(ti, ett_tcpros);
 
 	/** Sequence number */
-	proto_tree_add_item(sub_tree, hf_tcpros_message_header_seq, tvb, offset + consumed_len, SIZE_OF_LENGTH_FIELD, ENC_LITTLE_ENDIAN);
-	seq = tvb_get_letohl(tvb, offset + consumed_len);
+	proto_tree_add_item_ret_uint(sub_tree, hf_tcpros_message_header_seq, tvb, offset + consumed_len, SIZE_OF_LENGTH_FIELD, ENC_LITTLE_ENDIAN, &seq);
 	consumed_len += SIZE_OF_LENGTH_FIELD;
 	col_append_fstr(pinfo->cinfo, COL_INFO, "Seq: %d ", seq);
 

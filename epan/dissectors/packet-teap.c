@@ -467,8 +467,7 @@ dissect_teap_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
       offset += 1;
       proto_tree_add_item(tlv_tree, hf_teap_crypto_rcv_version, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
-      flags = (tvb_get_uint8(tvb, offset) & TEAP_CRYPTO_FLAGS) >> 4;
-      proto_tree_add_item(tlv_tree, hf_teap_crypto_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item_ret_uint8(tlv_tree, hf_teap_crypto_flags, tvb, offset, 1, ENC_BIG_ENDIAN, &flags);
       proto_tree_add_item(tlv_tree, hf_teap_crypto_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
       proto_tree_add_item(tlv_tree, hf_teap_crypto_nonce, tvb, offset, 32, ENC_NA);

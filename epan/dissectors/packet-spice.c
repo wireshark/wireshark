@@ -882,14 +882,11 @@ dissect_Pixmap(tvbuff_t *tvb, proto_tree *tree, uint32_t offset)
     offset += 1;
     proto_tree_add_item(Pixmap_tree, hf_pixmap_width, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    height = tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(Pixmap_tree, hf_pixmap_height, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(Pixmap_tree, hf_pixmap_height, tvb, offset, 4, ENC_LITTLE_ENDIAN, &height);
     offset += 4;
-    strides = tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(Pixmap_tree, hf_pixmap_stride, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(Pixmap_tree, hf_pixmap_stride, tvb, offset, 4, ENC_LITTLE_ENDIAN, &strides);
     offset += 4;
-    palette_ptr = tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(Pixmap_tree, hf_pixmap_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(Pixmap_tree, hf_pixmap_address, tvb, offset, 4, ENC_LITTLE_ENDIAN, &palette_ptr);
     offset += 4;
     PixmapSize = height * strides;
     proto_item_set_len(ti, 18 + PixmapSize);
@@ -1060,7 +1057,6 @@ dissect_ImageLZ_common_header(tvbuff_t *tvb, proto_tree *tree, const uint32_t of
 static uint32_t
 dissect_ImageLZ_common(tvbuff_t *tvb, proto_tree *tree, uint32_t offset, const bool IsLZ, const uint32_t size)
 {
-
     uint8_t type;
     uint32_t end_offset = offset + size;
 
@@ -1069,10 +1065,9 @@ dissect_ImageLZ_common(tvbuff_t *tvb, proto_tree *tree, uint32_t offset, const b
     if (IsLZ)
        offset +=3; /* alignment in LZ? Does not exist in GLZ?*/
 
-    proto_tree_add_item(tree, hf_LZ_RGB_type, tvb, offset, 1, ENC_NA);
-    type = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(tree, hf_LZ_RGB_type, tvb, offset, 1, ENC_NA, &type);
     offset += 1;
-    switch (type & 0xf) { /* 0xf is the MASK */
+    switch (type) {
         case LZ_IMAGE_TYPE_RGB16:
         case LZ_IMAGE_TYPE_RGB24:
         case LZ_IMAGE_TYPE_RGB32:
@@ -1754,8 +1749,7 @@ dissect_spice_common_server_messages(tvbuff_t *tvb, packet_info *pinfo, proto_tr
             /*TODO: based on severity, dissect the error code */
             proto_tree_add_item(tree, hf_notify_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
-            message_len = tvb_get_letohl(tvb, offset);
-            proto_tree_add_item(tree, hf_notify_message_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_notify_message_len, tvb, offset, 4, ENC_LITTLE_ENDIAN, &message_len);
             offset += 4;
             proto_tree_add_item(tree, hf_notify_message, tvb, offset, message_len + 1, ENC_ASCII);
             offset += (message_len + 1);
@@ -1836,8 +1830,7 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
             proto_tree_add_item(tree, hf_spice_display_reset_message, tvb, offset, 0, ENC_NA);
             break;
         case SPICE_MSG_DISPLAY_INVAL_LIST:
-            proto_tree_add_item(tree, hf_display_inval_list_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            count = tvb_get_letohs(tvb, offset);
+            proto_tree_add_item_ret_uint16(tree, hf_display_inval_list_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &count);
             offset += 2;
             for (i = 0; i < count; i++) {
                 offset += dissect_SpiceResourceId(tvb, tree, offset, i + 1);
@@ -2069,8 +2062,7 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
             offset += 4;
             break;
         case SPICE_MSG_DISPLAY_MONITORS_CONFIG:
-            proto_tree_add_item(tree, hf_display_monitor_config_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            count = tvb_get_letohs(tvb, offset);
+            proto_tree_add_item_ret_uint16(tree, hf_display_monitor_config_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &count);
             offset += 2;
             proto_tree_add_item(tree, hf_display_monitor_config_max_allowed, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
@@ -2391,8 +2383,7 @@ dissect_spice_main_server(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, c
             offset += 4;
             break;
         case SPICE_MSG_MAIN_CHANNELS_LIST:
-            num_channels = tvb_get_letohl(tvb, offset);
-            proto_tree_add_item(tree, hf_main_num_channels, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_main_num_channels, tvb, offset, 4, ENC_LITTLE_ENDIAN, &num_channels);
             offset += 4;
             subtree = proto_tree_add_subtree(tree, tvb, offset, 2 * num_channels, ett_main_client, NULL, "Channel Array");
             for (i = 0; i < num_channels; i++ ) {
@@ -2440,8 +2431,7 @@ dissect_spice_main_server(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, c
             offset += 4;
             break;
         case SPICE_MSG_MAIN_NAME:
-            name_len = tvb_get_letohl(tvb, offset);
-            proto_tree_add_item(tree, hf_main_name_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_main_name_len, tvb, offset, 4, ENC_LITTLE_ENDIAN, &name_len);
             offset += 4;
             proto_tree_add_item(tree, hf_main_name, tvb, offset, name_len, ENC_ASCII);
             offset += name_len;
@@ -3325,8 +3315,7 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             avail = tvb_reported_length_remaining(tvb, offset);
             if (avail >= 1) {
                 proto_item_set_len(ti, 1);
-                sasl_auth_result = tvb_get_uint8(tvb, offset);
-                proto_tree_add_item(spice_tree, hf_spice_sasl_auth_result, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item_ret_uint8(spice_tree, hf_spice_sasl_auth_result, tvb, offset, 1, ENC_NA, &sasl_auth_result);
 
                 if (per_packet_info->state == SPICE_SASL_START_FROM_SERVER_CONT) {
                     /* if we are in the sasl start, and can continue */

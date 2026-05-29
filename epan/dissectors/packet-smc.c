@@ -480,10 +480,8 @@ dissect_smc_proposal(tvbuff_t *tvb, proto_tree *tree, bool is_ipv6)
 	offset += LENGTH_BYTE_LEN;
 	proposal_flag_item = proto_tree_add_item(tree, hf_smc_proposal_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	proposal_flag_tree = proto_item_add_subtree(proposal_flag_item, ett_proposal_flag);
-	proto_tree_add_item(proposal_flag_tree, hf_proposal_smc_version, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
-	smc_version = tvb_get_uint8(tvb, offset);
+	proto_tree_add_item_ret_uint8(proposal_flag_tree, hf_proposal_smc_version, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN, &smc_version);
 	smc_type = tvb_get_uint8(tvb, offset);
-	smc_version = ((smc_version >> 4) & 0x0F);
 	is_smc_v2 = (smc_version >= SMC_V2);
 	smc_type_v2 = ((smc_type >> 2) & 0x03);
 	smc_type_v1 = (smc_type & 0x03);
@@ -1341,16 +1339,14 @@ dissect_smcr_delete_rkey(tvbuff_t *tvb, proto_tree *tree, bool is_smc_v2)
 	proto_tree_add_item(delete_rkey_flag_tree, hf_smcr_delete_rkey_negative_response,
 				tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	offset += FLAG_BYTE_LEN;
-	count = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(tree, hf_smcr_delete_rkey_count, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item_ret_uint8(tree, hf_smcr_delete_rkey_count, tvb, offset, 1, ENC_NA, &count);
 	offset += 1;
 	if (!is_smc_v2) {
 		proto_tree_add_item(tree, hf_smcr_delete_rkey_mask, tvb, offset, 1, ENC_BIG_ENDIAN);
 	} else {
 		bool is_response = tvb_get_uint8(tvb, LLC_CMD_RSP_OFFSET) & LLC_FLAG_RESP;
 		if (is_response) {
-			proto_tree_add_item(tree, hf_smcr_delete_rkey_invalid_count, tvb, offset, 1, ENC_NA);
-			count = tvb_get_uint8(tvb, offset);
+			proto_tree_add_item_ret_uint8(tree, hf_smcr_delete_rkey_invalid_count, tvb, offset, 1, ENC_NA, &count);
 			if (count > 8)
 				count = 8; /* show a maximum of 8 invalid rkeys in response */
 		}

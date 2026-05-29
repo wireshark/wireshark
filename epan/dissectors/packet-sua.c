@@ -1014,10 +1014,8 @@ dissect_sccp_cause_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree
   const char *cause_string;
 
   proto_tree_add_item(parameter_tree, hf_sua_cause_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_2_LENGTH,  ENC_NA);
-  proto_tree_add_item(parameter_tree, hf_sua_cause_type,     parameter_tvb, CAUSE_TYPE_OFFSET,      CAUSE_TYPE_LENGTH,  ENC_BIG_ENDIAN);
-  cause_type = tvb_get_uint8(parameter_tvb, CAUSE_TYPE_OFFSET);
-  pi = proto_tree_add_item(parameter_tree, hf_sua_cause_value, parameter_tvb, CAUSE_VALUE_OFFSET,   CAUSE_VALUE_LENGTH, ENC_BIG_ENDIAN);
-  cause = tvb_get_uint8(parameter_tvb, CAUSE_VALUE_OFFSET);
+  proto_tree_add_item_ret_uint8(parameter_tree, hf_sua_cause_type, parameter_tvb, CAUSE_TYPE_OFFSET, CAUSE_TYPE_LENGTH, ENC_BIG_ENDIAN, &cause_type);
+  pi = proto_tree_add_item_ret_uint8(parameter_tree, hf_sua_cause_value, parameter_tvb, CAUSE_VALUE_OFFSET, CAUSE_VALUE_LENGTH, ENC_BIG_ENDIAN, &cause);
 
   switch (cause_type) {
   case CAUSE_TYPE_RETURN:

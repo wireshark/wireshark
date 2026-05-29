@@ -2,7 +2,7 @@
  * Routines for Gadu-Gadu dissection
  * Copyright 2011,2012, Jakub Zawadzki <darkjames-ws@darkjames.pl>
  *
- * Protocol documentation available at http://toxygen.net/libgadu/protocol/
+ * Protocol documentation available at https://libgadu.github.io/index.en.html
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -140,7 +140,7 @@ static int ett_gadu_gadu_contact;
 
 #define GG_TYPE_VS(x) { x, #x }
 
-/* original (GG_*) names likes in documentation (http://toxygen.net/libgadu/protocol/#ch1.16) */
+/* original (GG_*) names likes in documentation (https://libgadu.github.io/protocol/#ch1.16) */
 static const value_string gadu_gadu_packets_type_recv[] = {
 	GG_TYPE_VS(GG_WELCOME),
 	GG_TYPE_VS(GG_STATUS),
@@ -500,7 +500,7 @@ _tvb_memcpy_reverse(tvbuff_t *tvb, void *target, unsigned offset, size_t length)
 
 	while (length > 0) {
 		length--;
-		t[length] = tvb_get_uint8(tvb, offset);
+		t[length]  = tvb_get_uint8(tvb, offset);
 		offset++;
 	}
 	return target;
@@ -513,6 +513,7 @@ dissect_gadu_gadu_login_protocol(tvbuff_t *tvb, packet_info* pinfo, proto_tree *
 
 	uint32_t protocol;
 
+	/* TODO: is a 1 or 4 bytes field? */
 	protocol = tvb_get_letohl(tvb, offset) & 0xff;
 	proto_tree_add_item(tree, hf_gadu_gadu_login_protocol, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	ti = proto_tree_add_string(tree, hf_gadu_gadu_login_version, tvb, offset, 4, val_to_str(pinfo->pool, protocol, gadu_gadu_version_vals, "Unknown (0x%x)"));

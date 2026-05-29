@@ -332,8 +332,7 @@ dissect_itu_ossp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t   *ossp_subtype_tvb;
 
     /* ITU-T OSSP Subtype */
-    subtype = tvb_get_ntohs(tvb, 0);
-    ti = proto_tree_add_item(tree, hf_itu_subtype, tvb, 0, 2, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item_ret_uint16(tree, hf_itu_subtype, tvb, 0, 2, ENC_BIG_ENDIAN, &subtype);
 
     itu_ossp_tree = proto_item_add_subtree(ti, ett_itu_ossp);
 
@@ -366,7 +365,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
     int      offset    = 0;
     bool event_flag;
     int      ssm       = 0;
-    int      essm      = 0;
+    unsigned essm      = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESMC");
 
@@ -506,8 +505,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                         offset += 2;
 
                         /* Enhanced SSM code */
-                        essm = tvb_get_uint8(tvb, offset);
-                        proto_tree_add_item(tree_b, hf_esmc_tlv_ext_ql_essm, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item_ret_uint(tree_b, hf_esmc_tlv_ext_ql_essm, tvb, offset, 1, ENC_BIG_ENDIAN, &essm);
                         offset += 1;
 
                         /* SyncE clockIdentity */
