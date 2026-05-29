@@ -123,9 +123,12 @@ typedef enum {
     range_processing_finished /**< Stop iteration; all required packets have been processed */
 } range_process_e;
 
+/**
+ * @brief Iterator state for stepping through a packet range one frame at a time.
+ */
 typedef struct packet_range_iter {
-    packet_range_t *range;
-    uint32_t current_frame;
+    packet_range_t *range;         /**< Pointer to the packet range being iterated over. */
+    uint32_t        current_frame; /**< Frame number of the current position within the range. */
 } packet_range_iter_t;
 
 /* init the range structure */

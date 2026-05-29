@@ -163,12 +163,14 @@ int get_num_acks(struct tcp_graph *tg, int *num_sack_ranges);
  */
 uint32_t select_tcpip_session(capture_file *cf);
 
-/* This is used by rtt module only */
+/**
+ * @brief Represents a single unacknowledged segment in the RTT tracking linked list.
+ */
 struct rtt_unack {
-    struct rtt_unack *next;
-    double        time;
-    unsigned int  seqno;
-    unsigned int  end_seqno;
+    struct rtt_unack *next;      /**< Pointer to the next unacknowledged segment in the list; NULL if this is the last entry. */
+    double            time;      /**< Timestamp in seconds at which this segment was sent, used to compute RTT upon acknowledgement. */
+    unsigned int      seqno;     /**< Starting sequence number of this unacknowledged segment. */
+    unsigned int      end_seqno; /**< Ending sequence number (exclusive) of this unacknowledged segment. */
 };
 
 /**

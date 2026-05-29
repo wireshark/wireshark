@@ -42,14 +42,20 @@ typedef enum {
 typedef bool (*ias_value_dissector_t)(tvbuff_t* tvb, unsigned offset, packet_info* pinfo, proto_tree* tree,
                                           unsigned list_index, uint8_t attr_type, uint8_t circuit_id);
 
+/**
+ * @brief Maps an IAS attribute name to its corresponding value dissector function.
+ */
 typedef const struct ias_attr_dissector {
-    const char*             attr_name;
-    ias_value_dissector_t   value_dissector;
+    const char*           attr_name;        /**< Name of the IAS attribute to match. */
+    ias_value_dissector_t value_dissector;  /**< Dissector function invoked to decode this attribute's value. */
 } ias_attr_dissector_t;
 
+/**
+ * @brief Maps an IAS class name to its array of attribute dissectors.
+ */
 typedef const struct ias_class_dissector {
-    const char*             class_name;
-    ias_attr_dissector_t*   pattr_dissector;
+    const char*          class_name;       /**< Name of the IAS class to match. */
+    ias_attr_dissector_t *pattr_dissector; /**< Pointer to the array of attribute dissectors for this class; terminated by a NULL entry. */
 } ias_class_dissector_t;
 
 

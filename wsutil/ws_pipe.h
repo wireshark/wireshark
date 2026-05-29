@@ -29,11 +29,14 @@
 #define ws_get_pipe_handle(pipe_fd)	(pipe_fd)
 #endif
 
+/**
+ * @brief Represents a spawned child process and its associated I/O channels for inter-process communication.
+ */
 typedef struct _ws_pipe_t {
-    GPid pid;
-    GIOChannel *stdin_io;
-    GIOChannel *stdout_io;
-    GIOChannel *stderr_io;
+    GPid        pid;        /**< Platform-specific handle or PID of the spawned child process. */
+    GIOChannel *stdin_io;   /**< GLib I/O channel connected to the child process's standard input stream. */
+    GIOChannel *stdout_io;  /**< GLib I/O channel connected to the child process's standard output stream. */
+    GIOChannel *stderr_io;  /**< GLib I/O channel connected to the child process's standard error stream. */
 } ws_pipe_t;
 
 /**

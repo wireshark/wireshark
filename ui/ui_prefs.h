@@ -73,8 +73,11 @@ ui_prefs_register_module(const char* name, const char* title,
 void
 ui_prefs_deregister_module(module_t* module);
 
+/**
+ * @brief Argument bundle passed to the preference writer callback when saving UI preferences to a file.
+ */
 typedef struct {
-    FILE* pf;
+    FILE *pf;  /**< Open file handle to which preference key-value pairs are written. */
 } ui_prefs_write_pref_arg_t;
 
 /**

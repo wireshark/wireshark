@@ -19,12 +19,15 @@
 
 #include <vector>
 
+/**
+ * @brief Represents a single data point sampled from a packet field for plotting.
+ */
 typedef struct _plot_item_t {
-    double      frame_ts;   /* Absolute timestamp of the packet */
-    double      rel_cap_ts; /* Time relative from capture start */
-    uint32_t    frame_num;  /* Packet number */
-    unsigned    idx;        /* Istance of the field in the packet */
-    double      value;      /* Value of the field (always converted to double) */
+    double   frame_ts;    /**< Absolute timestamp of the packet in seconds since the epoch. */
+    double   rel_cap_ts;  /**< Timestamp relative to the start of the capture, in seconds. */
+    uint32_t frame_num;   /**< Frame number of the packet within the capture file. */
+    unsigned idx;         /**< Instance index of the field within the packet (for repeated fields). */
+    double   value;       /**< Extracted field value, normalized to double for uniform plotting. */
 } plot_item_t;
 
 class QCPRange;

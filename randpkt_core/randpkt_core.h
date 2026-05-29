@@ -16,19 +16,21 @@
 #include <glib.h>
 #include "wiretap/wtap.h"
 
+/**
+ * @brief Defines a single random packet example type for the randpkt generator.
+ */
 typedef struct {
-	const char*  abbrev;
-	const char*  longname;
-	int          produceable_type;
-	int          sample_wtap_encap;
-	uint8_t*     sample_buffer;
-	int          sample_length;
-	uint8_t*     pseudo_buffer;
-	unsigned     pseudo_length;
-	wtap_dumper* dump;
-	const char*  filename;
-	unsigned     produce_max_bytes;
-
+    const char*  abbrev;            /**< Short abbreviation identifying this example type (e.g. "dns", "tcp"). */
+    const char*  longname;          /**< Human-readable full name of this example type. */
+    int          produceable_type;  /**< Encapsulation type used when producing packets for this example. */
+    int          sample_wtap_encap; /**< wtap encapsulation type associated with this example's sample data. */
+    uint8_t*     sample_buffer;     /**< Pointer to the raw bytes of the sample packet template. */
+    int          sample_length;     /**< Length in bytes of the sample packet template in @p sample_buffer. */
+    uint8_t*     pseudo_buffer;     /**< Pointer to the pseudo-header bytes prepended to the generated packet. */
+    unsigned     pseudo_length;     /**< Length in bytes of the pseudo-header in @p pseudo_buffer. */
+    wtap_dumper* dump;              /**< Handle to the wtap dumper used to write generated packets to file. */
+    const char*  filename;          /**< Path to the output file where generated packets are written. */
+    unsigned     produce_max_bytes; /**< Maximum number of bytes to produce per generated packet. */
 } randpkt_example;
 
 /* Return the number of active examples */

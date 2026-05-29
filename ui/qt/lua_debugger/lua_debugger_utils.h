@@ -429,10 +429,13 @@ inline void setExpanded(QTreeView *tree, QStandardItemModel *model, QStandardIte
 namespace LuaDebuggerPath
 {
 
+/**
+ * @brief Stores the foreground and background colors used to highlight invalid filter expressions in the Lua debugger UI.
+ */
 struct LuaDbgInvalidFilterColors
 {
-    QColor fg;
-    QColor bg;
+    QColor fg; /**< Foreground (text) color applied to an invalid filter expression. */
+    QColor bg; /**< Background color applied to an invalid filter expression. */
 };
 
 /**
@@ -549,13 +552,16 @@ QString expressionWatchChildSubpath(const QString &parentSubpath, const QString 
  */
 bool variableChildrenShouldSortByName(const QString &parentPath);
 
+/**
+ * @brief Holds the display fields for a single row in a variable inspection tree view.
+ */
 struct VariableRowFields
 {
-    QString name;
-    QString value;
-    QString type;
-    bool canExpand = false;
-    QString childPath;
+    QString name;               /**< Display name of the variable or member field. */
+    QString value;              /**< Current value of the variable as a formatted string. */
+    QString type;               /**< Type name of the variable (e.g., "int", "QString"). */
+    bool canExpand = false;     /**< True if this row has children and can be expanded in the tree. */
+    QString childPath;          /**< Path identifier used to fetch child rows when this row is expanded. */
 };
 
 /**

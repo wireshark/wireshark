@@ -100,16 +100,20 @@ class LuaSyntaxHighlighter : public QSyntaxHighlighter
     void highlightBlock(const QString &text) override;
 
   private:
+    /**
+     * @brief A single syntax highlighting rule pairing a regex pattern with a text format.
+     */
     struct Rule
     {
-        QRegularExpression pattern;
-        QTextCharFormat format;
+        QRegularExpression pattern;  /**< Regular expression used to match tokens in source text. */
+        QTextCharFormat format;      /**< Text character format applied to matched tokens. */
     };
 
-    QVector<Rule> rules_;
-    QTextCharFormat stringFormat_;
-    QTextCharFormat commentFormat_;
-    QRegularExpression singleLineComment_;
+
+    QVector<Rule> rules_;                    /**< Ordered list of syntax highlighting rules applied in sequence. */
+    QTextCharFormat stringFormat_;           /**< Text format applied to string literals. */
+    QTextCharFormat commentFormat_;          /**< Text format applied to comment text. */
+    QRegularExpression singleLineComment_;   /**< Regular expression used to detect single-line comments. */
 
     /** @brief Highlight multi-line strings or comments, preserving parser state. */
     bool highlightLongBlock(const QString &text, bool isComment, bool continuingPrevious, qint32 eqCountFromState,

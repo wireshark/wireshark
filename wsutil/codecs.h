@@ -22,8 +22,11 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Plugin descriptor for a codec module, providing the registration entry point.
+ */
 typedef struct {
-    void (*register_codec_module)(void);  /* routine to call to register a codec */
+    void (*register_codec_module)(void);  /**< Callback invoked at startup to register this plugin's codec with the codec subsystem. */
 } codecs_plugin;
 
 /**
@@ -68,18 +71,12 @@ typedef struct codec_handle *codec_handle_t;
  * Encapsulates codec-specific parameters and decoder state used during
  * media processing. This structure is typically initialized by the codec
  * registration or setup routines and passed to encoding/decoding functions.
- *
- * @struct codec_context_t
- * @var sample_rate Sample rate in Hz (e.g., 8000, 44100).
- * @var channels    Number of audio channels (e.g., 1 for mono, 2 for stereo).
- * @var fmtp_map    Optional format parameters (FMTP) as a key-value map.
- * @var priv        Pointer to codec-specific private state, set by the decoder.
  */
 typedef struct _codec_context_t {
-    unsigned sample_rate;
-    unsigned channels;
-    wmem_map_t *fmtp_map;
-    void *priv;
+    unsigned    sample_rate;  /**< Sample rate in Hz (e.g., 8000, 44100). */
+    unsigned    channels;     /**< Number of audio channels (e.g., 1 for mono, 2 for stereo). */
+    wmem_map_t *fmtp_map;     /**< Optional format parameters (FMTP) as a key-value map, or NULL if not provided. */
+    void       *priv;         /**< Pointer to codec-specific private state allocated and managed by the codec implementation. */
 } codec_context_t;
 
 /*****************************************************************************/

@@ -16,13 +16,16 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Holds the state and metadata required to export PDUs to a pcapng output file.
+ */
 typedef struct _exp_pdu_t {
-    char*        pathname;
-    int          pkt_encap;
-    wtap_dumper* wdh;
-    GArray* shb_hdrs;
-    wtapng_iface_descriptions_t* idb_inf;
-    uint32_t     framenum;
+    char                        *pathname;  /**< Path to the output file to which exported PDUs are written. */
+    int                          pkt_encap; /**< wtap encapsulation type applied to exported packets. */
+    wtap_dumper                 *wdh;       /**< Handle to the wtap dumper used to write packets to the output file. */
+    GArray                      *shb_hdrs;  /**< Array of Section Header Block (SHB) headers to write into the output file. */
+    wtapng_iface_descriptions_t *idb_inf;   /**< Interface Description Block (IDB) metadata written into the output file. */
+    uint32_t                     framenum;  /**< Frame number of the packet currently being exported. */
 } exp_pdu_t;
 
 /**

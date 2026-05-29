@@ -19,8 +19,11 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Defines the entry point interface for a Qt-based UI plugin.
+ */
 typedef struct {
-    void (*register_qtui_module)(void);  /* routine to call to register a Qt-based UI plugin */
+    void (*register_qtui_module)(void); /**< Callback invoked at startup to register this Qt UI plugin module with the application. */
 } qtui_plugin;
 
 /**

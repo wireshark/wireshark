@@ -21,23 +21,28 @@ extern "C" {
  * Protocol Hierarchy Statistics
  */
 
+/**
+ * @brief Accumulates per-protocol packet and byte statistics for a single node in the protocol hierarchy tree.
+ */
 typedef struct {
-    const header_field_info	*hfinfo;
-    unsigned		num_pkts_total;
-    unsigned		num_pdus_total;
-    unsigned		num_pkts_last;
-    unsigned		num_bytes_total;
-    unsigned		num_bytes_last;
-    unsigned		last_pkt;
+    const header_field_info *hfinfo;         /**< Pointer to the header field descriptor identifying this protocol or field. */
+    unsigned                 num_pkts_total; /**< Total number of packets containing this protocol across the entire capture. */
+    unsigned                 num_pdus_total; /**< Total number of PDUs attributed to this protocol across the entire capture. */
+    unsigned                 num_pkts_last;  /**< Number of packets containing this protocol in the most recent statistics interval. */
+    unsigned                 num_bytes_total;/**< Total number of bytes attributed to this protocol across the entire capture. */
+    unsigned                 num_bytes_last; /**< Number of bytes attributed to this protocol in the most recent statistics interval. */
+    unsigned                 last_pkt;       /**< Frame number of the most recent packet containing this protocol. */
 } ph_stats_node_t;
 
-
+/**
+ * @brief Holds aggregate protocol hierarchy statistics for a complete capture or filtered set of packets.
+ */
 typedef struct {
-    unsigned	tot_packets;
-    unsigned	tot_bytes;
-    GNode	*stats_tree;
-    double	first_time;	/* seconds (msec resolution) of first packet */
-    double	last_time;	/* seconds (msec resolution) of last packet  */
+    unsigned tot_packets; /**< Total number of packets included in these statistics. */
+    unsigned tot_bytes;   /**< Total number of bytes included in these statistics. */
+    GNode   *stats_tree;  /**< Root of the protocol hierarchy statistics tree; each node is a @ref ph_stats_node_t. */
+    double   first_time;  /**< Timestamp in seconds (millisecond resolution) of the first packet in the set. */
+    double   last_time;   /**< Timestamp in seconds (millisecond resolution) of the last packet in the set. */
 } ph_stats_t;
 
 /**

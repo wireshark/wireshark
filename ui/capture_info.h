@@ -37,9 +37,12 @@ typedef struct _capture_info {
     int             new_packets;    /**< packets since last update */
 } capture_info;
 
+/**
+ * @brief Aggregates packet count statistics and UI state for a live capture info display.
+ */
 typedef struct _info_data {
-    packet_counts     counts;     /* Packet counting */
-    capture_info      ui;         /* user interface data */
+    packet_counts counts; /**< Running tally of packets observed, broken down by type. */
+    capture_info  ui;     /**< User interface state and display data for the capture info dialog. */
 } info_data_t;
 
 /**

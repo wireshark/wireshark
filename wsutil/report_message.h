@@ -28,22 +28,77 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/*
- *  Initialize the report message routines
+/**
+ * @brief Dispatch table of error and warning reporting callbacks, allowing
+ *        different application frontends to handle diagnostic messages independently.
  */
 struct report_message_routines {
-	void (*vreport_failure)(const char *, va_list);
-	void (*vreport_warning)(const char *, va_list);
-	void (*report_open_failure)(const char *, int, bool);
-	void (*report_read_failure)(const char *, int);
-	void (*report_write_failure)(const char *, int);
-	void (*report_rename_failure)(const char *, const char *, int);
-	void (*report_cfile_open_failure)(const char *, int, char *);
-	void (*report_cfile_dump_open_failure)(const char *, int, char *, int);
-	void (*report_cfile_read_failure)(const char *, int, char *);
-	void (*report_cfile_write_failure)(const char *, const char *,
-	    int, char *, uint64_t, int);
-	void (*report_cfile_close_failure)(const char *, int, char *);
+    /** @brief Reports a formatted fatal failure message via a va_list argument list.
+     *  @param fmt  printf-style format string.
+     *  @param ap   Variable argument list for the format string. */
+    void (*vreport_failure)(const char *fmt, va_list ap);
+
+    /** @brief Reports a formatted non-fatal warning message via a va_list argument list.
+     *  @param fmt  printf-style format string.
+     *  @param ap   Variable argument list for the format string. */
+    void (*vreport_warning)(const char *fmt, va_list ap);
+
+    /** @brief Reports a failure to open a file.
+     *  @param filename  Path of the file that could not be opened.
+     *  @param err       errno value describing the failure.
+     *  @param for_writing  True if the file was being opened for writing; false for reading. */
+    void (*report_open_failure)(const char *filename, int err, bool for_writing);
+
+    /** @brief Reports a failure to read from a file.
+     *  @param filename  Path of the file that could not be read.
+     *  @param err       errno value describing the failure. */
+    void (*report_read_failure)(const char *filename, int err);
+
+    /** @brief Reports a failure to write to a file.
+     *  @param filename  Path of the file that could not be written.
+     *  @param err       errno value describing the failure. */
+    void (*report_write_failure)(const char *filename, int err);
+
+    /** @brief Reports a failure to rename a file.
+     *  @param old_filename  Original path of the file.
+     *  @param new_filename  Target path the file could not be renamed to.
+     *  @param err           errno value describing the failure. */
+    void (*report_rename_failure)(const char *old_filename, const char *new_filename, int err);
+
+    /** @brief Reports a failure to open a capture file.
+     *  @param filename  Path of the capture file that could not be opened.
+     *  @param err       errno or wtap error code describing the failure.
+     *  @param err_info  Additional error detail string, or NULL. */
+    void (*report_cfile_open_failure)(const char *filename, int err, char *err_info);
+
+    /** @brief Reports a failure to open a capture file for dumping (writing).
+     *  @param filename   Path of the capture file that could not be opened.
+     *  @param err        errno or wtap error code describing the failure.
+     *  @param err_info   Additional error detail string, or NULL.
+     *  @param file_type  wtap file type identifier of the intended output format. */
+    void (*report_cfile_dump_open_failure)(const char *filename, int err, char *err_info, int file_type);
+
+    /** @brief Reports a failure to read from a capture file.
+     *  @param filename  Path of the capture file that could not be read.
+     *  @param err       errno or wtap error code describing the failure.
+     *  @param err_info  Additional error detail string, or NULL. */
+    void (*report_cfile_read_failure)(const char *filename, int err, char *err_info);
+
+    /** @brief Reports a failure to write a frame to a capture file.
+     *  @param in_filename   Path of the source capture file being read.
+     *  @param out_filename  Path of the destination capture file being written.
+     *  @param err           errno or wtap error code describing the failure.
+     *  @param err_info      Additional error detail string, or NULL.
+     *  @param framenum      Frame number of the packet that could not be written.
+     *  @param file_type     wtap file type identifier of the output format. */
+    void (*report_cfile_write_failure)(const char *in_filename, const char *out_filename,
+        int err, char *err_info, uint64_t framenum, int file_type);
+
+    /** @brief Reports a failure to close a capture file.
+     *  @param filename  Path of the capture file that could not be closed cleanly.
+     *  @param err       errno or wtap error code describing the failure.
+     *  @param err_info  Additional error detail string, or NULL. */
+    void (*report_cfile_close_failure)(const char *filename, int err, char *err_info);
 };
 
 /**

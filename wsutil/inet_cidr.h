@@ -19,14 +19,20 @@
 #include <wireshark.h>
 #include <wsutil/inet_addr.h>
 
+/**
+ * @brief Holds an IPv4 address paired with its subnet mask, both in host byte order.
+ */
 typedef struct {
-	uint32_t	addr;	/* stored in host order */
-	uint32_t	nmask;	/* stored in host order */
+    uint32_t addr;  /**< IPv4 address in host byte order. */
+    uint32_t nmask; /**< IPv4 subnet mask in host byte order (e.g. 0xFFFFFF00 for /24). */
 } ipv4_addr_and_mask;
 
+/**
+ * @brief Holds an IPv6 address paired with its prefix length.
+ */
 typedef struct {
-	ws_in6_addr addr;
-	uint32_t prefix;
+    ws_in6_addr addr;   /**< 128-bit IPv6 address in network byte order. */
+    uint32_t    prefix; /**< Prefix length in bits defining the network portion of @ref addr (e.g. 64 for a /64 prefix). */
 } ipv6_addr_and_prefix;
 
 /*

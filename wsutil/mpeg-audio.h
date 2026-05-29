@@ -14,20 +14,23 @@
 #include <stdint.h>
 #include "ws_symbol_export.h"
 
+/**
+ * @brief Represents the decoded fields of an MPEG Audio (MP1/MP2/MP3) frame header, laid out as a packed bitfield.
+ */
 struct mpa {
-	unsigned int emphasis   :2;
-	unsigned int original   :1;
-	unsigned int copyright  :1;
-	unsigned int modeext    :2;
-	unsigned int mode       :2;
-	unsigned int priv       :1;
-	unsigned int padding    :1;
-	unsigned int frequency  :2;
-	unsigned int bitrate    :4;
-	unsigned int protection :1;
-	unsigned int layer      :2;
-	unsigned int version    :2;
-	unsigned int sync       :11;
+    unsigned int emphasis   :2;  /**< De-emphasis type applied during encoding (0=none, 1=50/15ms, 3=CCIT J.17). */
+    unsigned int original   :1;  /**< Set to 1 if this is an original media file; 0 if it is a copy. */
+    unsigned int copyright  :1;  /**< Set to 1 if the audio content is copyright-protected. */
+    unsigned int modeext    :2;  /**< Mode extension for Joint Stereo mode; defines which bands use intensity/MS stereo. */
+    unsigned int mode       :2;  /**< Channel mode (0=Stereo, 1=Joint Stereo, 2=Dual Channel, 3=Mono). */
+    unsigned int priv       :1;  /**< Private bit; application-defined, no standardized meaning. */
+    unsigned int padding    :1;  /**< Set to 1 if a padding slot is inserted to adjust the frame's bitrate alignment. */
+    unsigned int frequency  :2;  /**< Sampling frequency index; value interpretation depends on @ref version. */
+    unsigned int bitrate    :4;  /**< Bitrate index into the MPEG bitrate table; value interpretation depends on @ref version and @ref layer. */
+    unsigned int protection :1;  /**< Set to 0 if a 16-bit CRC checksum follows the header; 1 if no CRC is present. */
+    unsigned int layer      :2;  /**< MPEG audio layer (1=Layer III, 2=Layer II, 3=Layer I; 0=reserved). */
+    unsigned int version    :2;  /**< MPEG version (0=MPEG 2.5, 2=MPEG 2, 3=MPEG 1; 1=reserved). */
+    unsigned int sync       :11; /**< Frame sync word; all 11 bits must be set to 1 to identify a valid MPEG frame boundary. */
 };
 
 #define MPA_UNMARSHAL_SYNC(n)       ((n) >> 21 & 0x7ff)

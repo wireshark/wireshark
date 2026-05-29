@@ -73,27 +73,32 @@ extern "C" {
  * Event/Security Block
  */
 
-/* Block data to be passed between functions during reading */
+/**
+ * @brief Transient container used to pass a parsed pcapng block between internal read functions.
+ */
 typedef struct wtapng_block_s {
-    uint32_t     type;           /* block_type as defined by pcapng */
-    bool         internal;       /* true if this block type shouldn't be returned from pcapng_read() */
-    wtap_block_t block;
-    wtap_rec     *rec;
+    uint32_t     type;      /**< pcapng block type code as defined by the pcapng specification. */
+    bool         internal;  /**< True if this block type is for internal use only and should not be returned from pcapng_read(). */
+    wtap_block_t block;     /**< Generic wtap block handle carrying the block's parsed option data. */
+    wtap_rec    *rec;       /**< Pointer to the wtap record populated from this block, or NULL for non-packet blocks. */
 } wtapng_block_t;
 
-/* Section data in private struct */
+
 /*
  * XXX - there needs to be a more general way to implement the Netflix
  * BBLog blocks and options.
  */
+/**
+ * @brief Per-section state accumulated while reading a pcapng Section Header Block and its contents.
+ */
 typedef struct section_info_t {
-    bool byte_swapped;             /**< true if this section is not in the reading host's byte order */
-    uint16_t version_major;        /**< Major version number of this section */
-    uint16_t version_minor;        /**< Minor version number of this section */
-    GArray *interfaces;            /**< Interfaces found in this section */
-    int64_t shb_off;               /**< File offset of the SHB for this section */
-    GHashTable *custom_block_data; /**< Table, indexed by PEN, for custom block data */
-    GHashTable *local_block_data;  /**< Table, indexed by block type, for local block data */
+    bool       byte_swapped;          /**< True if this section's byte order differs from the host; triggers swapping during reads. */
+    uint16_t   version_major;         /**< Major version number of the pcapng format used in this section. */
+    uint16_t   version_minor;         /**< Minor version number of the pcapng format used in this section. */
+    GArray    *interfaces;            /**< Ordered array of interfaces declared by Interface Description Blocks in this section. */
+    int64_t    shb_off;               /**< File offset of the Section Header Block that opened this section. */
+    GHashTable *custom_block_data;    /**< Per-PEN table of private state for custom blocks, keyed by Private Enterprise Number. */
+    GHashTable *local_block_data;     /**< Per-block-type table of private state for locally defined blocks, keyed by block type. */
 } section_info_t;
 
 /*
@@ -110,13 +115,16 @@ typedef bool (*block_processor)(wtap* wth, section_info_t* section_info _U_,
                                 wtapng_block_t* wblock);
 
 
+/**
+ * @brief Dispatch table entry registering the reader, processor, and writer callbacks for a single pcapng block type.
+ */
 typedef struct pcapng_block_type_information_t {
-    unsigned     type;             /* block_type as defined by pcapng */
-    block_reader reader;
-    block_processor processor;
-    block_writer writer;
-    bool         internal;         /* true if this block type shouldn't be returned from pcapng_read() */
-    GHashTable   *option_handlers; /* Hash table of option handlers */
+    unsigned     type;              /**< pcapng block type code as defined by the pcapng specification. */
+    block_reader reader;            /**< Callback invoked to read and deserialize this block type from a file. */
+    block_processor processor;      /**< Callback invoked to process and validate a deserialized block of this type. */
+    block_writer writer;            /**< Callback invoked to serialize and write this block type to a file. */
+    bool         internal;          /**< True if this block type is for internal use only and should not be returned from pcapng_read(). */
+    GHashTable  *option_handlers;   /**< Hash table of option handler callbacks for this block type, keyed by option code. */
 } pcapng_block_type_information_t;
 
 /**
@@ -314,10 +322,12 @@ void pcapng_process_bytes_option(wtapng_block_t *wblock, uint16_t option_code,
 
 typedef uint32_t (*compute_option_size_func)(wtap_block_t, unsigned, wtap_opttype_e, wtap_optval_t*);
 
-typedef struct compute_options_size_t
-{
-    uint32_t size;
-    compute_option_size_func compute_option_size;
+/**
+ * @brief Accumulator and callback used to compute the total serialized size of a block's options.
+ */
+typedef struct compute_options_size_t {
+    uint32_t                  size;                 /**< Running total size in bytes accumulated across all options processed so far. */
+    compute_option_size_func  compute_option_size;  /**< Callback invoked per option to calculate and add that option's contribution to @ref size. */
 } compute_options_size_t;
 
 /**
@@ -362,11 +372,13 @@ typedef bool (*custom_option_processor)(wtapng_block_t* wblock,
     section_info_t* section_info, uint16_t option_code,
     const uint8_t* value, uint16_t length);
 
-typedef struct pcapng_custom_block_enterprise_handler_t
-{
-    custom_option_parser parser;
-    custom_option_processor processor;
-    block_writer writer;
+/**
+ * @brief Dispatch table for handling a vendor-specific pcapng custom block identified by a Private Enterprise Number.
+ */
+typedef struct pcapng_custom_block_enterprise_handler_t {
+    custom_option_parser    parser;     /**< Callback invoked to parse raw custom block data into an internal representation. */
+    custom_option_processor processor;  /**< Callback invoked to process and validate a parsed custom block. */
+    block_writer            writer;     /**< Callback invoked to serialize and write the custom block back to a file. */
 } pcapng_custom_block_enterprise_handler_t;
 
 /*
@@ -439,13 +451,13 @@ WS_DLL_PUBLIC
 bool pcapng_write_block_footer(wtap_dumper *wdh, uint32_t block_content_length,
                                int *err);
 
-/*
- * Structure holding allocation-and-initialization and free functions
- * for section_info_t-associated custom or local block information.
+/**
+ * @brief Holds the allocation and deallocation callbacks for custom or local block data
+ *        associated with a @ref section_info_t.
  */
 typedef struct {
-    void *(*provision)(void);
-    GDestroyNotify free;
+    void *(*provision)(void);  /**< Allocates and initializes a new private block data instance; returns a pointer to the new object. */
+    GDestroyNotify free;       /**< Callback invoked to release a private block data instance when the section is destroyed. */
 } section_info_funcs_t;
 
 /*

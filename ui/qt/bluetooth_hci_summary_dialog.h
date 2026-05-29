@@ -24,10 +24,13 @@ class QAbstractButton;
 class QPushButton;
 class QTreeWidgetItem;
 
+/**
+ * @brief Registers the tap callbacks and UI context for the Bluetooth HCI summary tap.
+ */
 typedef struct _bluetooth_hci_summary_tapinfo_t {
-    tap_reset_cb    tap_reset;
-    tap_packet_cb   tap_packet;
-    void           *ui;
+    tap_reset_cb    tap_reset;  /**< Callback invoked to reset the HCI summary tap state at the start of a new capture or retap. */
+    tap_packet_cb   tap_packet; /**< Callback invoked for each HCI packet delivered to the tap. */
+    void           *ui;         /**< Opaque pointer to the UI context or window associated with this tap instance. */
 } bluetooth_hci_summary_tapinfo_t;
 
 namespace Ui {

@@ -21,14 +21,17 @@
 
 #define MAX_TLV_LEN 64000
 
+/**
+ * @brief Describes the parsed layout of a single TLV (Type-Length-Value) field.
+ */
 typedef struct
 {
-	uint8_t  valid;          /* TLV info status: 0=invalid; 1=valid */
-	uint8_t  type;           /* TLV type */
-	uint8_t  length_type;    /* length type: 0=single byte; 1=multiple bytes */
-	uint8_t  size_of_length; /* size of the TLV length */
-	unsigned value_offset;   /* the offset of TLV value field */
-	int32_t  length;         /* length of TLV value field */
+    uint8_t  valid;          /**< Validity flag for this TLV entry: 0 = invalid, 1 = valid. */
+    uint8_t  type;           /**< TLV type identifier. */
+    uint8_t  length_type;    /**< Encoding of the length field: 0 = single byte, 1 = multi-byte. */
+    uint8_t  size_of_length; /**< Number of bytes used to encode the TLV length field. */
+    unsigned value_offset;   /**< Byte offset to the start of the TLV value field within the enclosing buffer. */
+    int32_t  length;         /**< Length in bytes of the TLV value field. */
 } tlv_info_t;
 
 /**

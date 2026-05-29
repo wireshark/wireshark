@@ -13,24 +13,27 @@
 #ifndef PACKET_UNISTIM_H
 #define PACKET_UNISTIM_H
 
+/**
+ * @brief Holds per-packet metadata captured by the UNISTIM dissector tap.
+ */
 typedef struct _unistim_info_t
 {
-	uint8_t       rudp_type;      /* NAK, ACK, Payload */
-	uint8_t       payload_type;   /* unistim payload type (aggregate, non-aggregate, encapsulated) */
-	uint32_t      sequence;       /* rudp sequence number */
-	uint32_t      termid;         /* termid if available */
-	address       it_ip;          /* IP addr of it, determined by who is sending termids */
-	uint32_t      it_port;        /* port of it (phone) */
-	address       ni_ip;          /* IP addr of ni (server) as determined by who's sending termids */
-	int           key_val;        /* actual key pressed (-1 if not used) */
-	int           key_state;      /* Key state 1=down 0=up */
-	int           hook_state;     /* Hook state 1=offhook 0=onhook */
-	int           stream_connect; /* Audio stream connect 1=connect 0=disconnect */
-	int           trans_connect;  /* Transducer connect? 1=connect 0=disconnect */
-	int	      set_termid;     /* Set the termid 1=set termid */
-	const uint8_t *string_data;   /* Any time a string is written to the display, this has the string */
-	int           call_state;     /* Not used? */
-	unsigned char *key_buffer;    /* Used in voip-calls.c tap, holds call keys pressed */
+    uint8_t        rudp_type;      /**< RUDP packet type: NAK, ACK, or Payload. */
+    uint8_t        payload_type;   /**< UNISTIM payload type: aggregate, non-aggregate, or encapsulated. */
+    uint32_t       sequence;       /**< RUDP sequence number. */
+    uint32_t       termid;         /**< Terminal ID, if available. */
+    address        it_ip;          /**< IP address of the IT (phone), determined by which side is sending terminal IDs. */
+    uint32_t       it_port;        /**< UDP port of the IT (phone). */
+    address        ni_ip;          /**< IP address of the NI (server), determined by which side is sending terminal IDs. */
+    int            key_val;        /**< Key pressed; -1 if no key event in this packet. */
+    int            key_state;      /**< Key state: 1 = down, 0 = up. */
+    int            hook_state;     /**< Hook state: 1 = off-hook, 0 = on-hook. */
+    int            stream_connect; /**< Audio stream state: 1 = connected, 0 = disconnected. */
+    int            trans_connect;  /**< Transducer connection state: 1 = connected, 0 = disconnected. */
+    int            set_termid;     /**< Whether to assign the terminal ID: 1 = set terminal ID. */
+    const uint8_t *string_data;    /**< Pointer to display string data whenever a string is written to the phone display; NULL if unused. */
+    int            call_state;     /**< Call state (currently unused). */
+    unsigned char *key_buffer;     /**< Buffer of call keys pressed; used by the VoIP calls tap in voip-calls.c. */
 } unistim_info_t;
 
 #endif

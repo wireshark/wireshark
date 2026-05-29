@@ -33,45 +33,50 @@ extern "C" {
 #endif /* __cplusplus */
 
 /****************************************************************************/
-/* structure that holds the information about the forward and reversed direction */
+/**
+ * @brief Records a single bandwidth history sample for an IAX2 stream at a point in time.
+ */
 typedef struct _iax2_bw_history_item {
-    double time;
-    uint32_t bytes;
+    double   time;  /**< Timestamp in seconds at which this bandwidth sample was recorded. */
+    uint32_t bytes; /**< Number of bytes observed in this bandwidth sample interval. */
 } iax2_bw_history_item;
 
-#define BUFF_BW 300
 
+#define BUFF_BW 300 /**< Number of bandwidth history entries retained in the rolling history buffer. */
+
+
+/**
+ * @brief Accumulates per-packet statistics for an IAX2 stream delivered via the tap interface.
+ */
 typedef struct _tap_iax2_stat_t {
-    bool first_packet;     /* do not use in code that is called after iax2_packet_analyse */
-    /* use (flags & STAT_FLAG_FIRST) instead */
-    /* all of the following fields will be initialized after
-       iax2_packet_analyse has been called */
-    uint32_t flags;             /* see STAT_FLAG-defines below */
-    uint16_t seq_num;
-    uint32_t timestamp;
-    uint32_t delta_timestamp;
-    double bandwidth;
-    iax2_bw_history_item bw_history[BUFF_BW];
-    uint16_t bw_start_index;
-    uint16_t bw_index;
-    uint32_t total_bytes;
-    double delta;
-    double jitter;
-    double diff;
-    double time;
-    double start_time;
-    double max_delta;
-    double max_jitter;
-    double mean_jitter;
-    uint32_t max_nr;
-    uint16_t start_seq_nr;
-    uint16_t stop_seq_nr;
-    uint32_t total_nr;
-    uint32_t sequence;
-    bool under; /* Unused? */
-    int cycles; /* Unused? */
-    uint16_t pt;
-    int reg_pt;
+    bool     first_packet;                    /**< True if this is the first packet seen; do not use after iax2_packet_analyse() — check (flags & STAT_FLAG_FIRST) instead. */
+    /* All fields below are valid only after iax2_packet_analyse() has been called. */
+    uint32_t flags;                           /**< Bitmask of STAT_FLAG_* values describing the state of this packet. */
+    uint16_t seq_num;                         /**< RTP-compatible sequence number of this IAX2 packet. */
+    uint32_t timestamp;                       /**< IAX2 timestamp of this packet in milliseconds. */
+    uint32_t delta_timestamp;                 /**< Difference in IAX2 timestamp from the previous packet in milliseconds. */
+    double   bandwidth;                       /**< Current estimated stream bandwidth in bytes per second. */
+    iax2_bw_history_item bw_history[BUFF_BW]; /**< Rolling circular buffer of recent bandwidth history samples. */
+    uint16_t bw_start_index;                  /**< Index into @p bw_history marking the start of the valid history window. */
+    uint16_t bw_index;                        /**< Index into @p bw_history at which the next sample will be written. */
+    uint32_t total_bytes;                     /**< Cumulative total bytes received for this stream. */
+    double   delta;                           /**< Arrival time delta from the previous packet in seconds. */
+    double   jitter;                          /**< Instantaneous jitter estimate for this packet in seconds. */
+    double   diff;                            /**< Difference between expected and actual arrival time in seconds. */
+    double   time;                            /**< Absolute arrival time of this packet in seconds. */
+    double   start_time;                      /**< Absolute arrival time of the first packet in this stream in seconds. */
+    double   max_delta;                       /**< Maximum inter-arrival delta observed over the lifetime of this stream in seconds. */
+    double   max_jitter;                      /**< Maximum instantaneous jitter observed over the lifetime of this stream in seconds. */
+    double   mean_jitter;                     /**< Running mean jitter over the lifetime of this stream in seconds. */
+    uint32_t max_nr;                          /**< Frame number of the packet at which the maximum delta was observed. */
+    uint16_t start_seq_nr;                    /**< Sequence number of the first packet in this stream. */
+    uint16_t stop_seq_nr;                     /**< Sequence number of the most recent packet in this stream. */
+    uint32_t total_nr;                        /**< Total number of packets received for this stream. */
+    uint32_t sequence;                        /**< Running sequence counter used for internal ordering. */
+    bool     under;                           /**< Underflow flag (currently unused). */
+    int      cycles;                          /**< Sequence number cycle counter (currently unused). */
+    uint16_t pt;                              /**< Payload type of the most recent packet. */
+    int      reg_pt;                          /**< Registered payload type for this stream. */
 } tap_iax2_stat_t;
 
 #define PT_UNDEFINED -1

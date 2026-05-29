@@ -255,27 +255,29 @@ typedef void (*wtap_block_create_func)(wtap_block_t block);
 typedef void (*wtap_mand_free_func)(wtap_block_t block);
 typedef void (*wtap_mand_copy_func)(wtap_block_t dest_block, wtap_block_t src_block);
 
-/*
- * Structure describing a type of block.
+/**
+ * @brief Describes a registered pcapng block type, including its identity, human-readable metadata, lifecycle callbacks, and known options.
  */
 typedef struct wtap_blocktype_t {
-    wtap_block_type_t block_type;    /**< internal type code for block */
-    const char* name;                /**< name of block */
-    const char* description;         /**< human-readable description of block */
-    wtap_block_create_func create;
-    wtap_mand_free_func free_mand;
-    wtap_mand_copy_func copy_mand;
-    GHashTable* options;             /**< hash table of known options */
+    wtap_block_type_t  block_type;  /**< Internal enumeration value identifying this block type. */
+    const char        *name;        /**< Short programmatic name for this block type. */
+    const char        *description; /**< Human-readable description of this block type, suitable for display. */
+    wtap_block_create_func create;  /**< Callback invoked to allocate and initialize the mandatory data for a new block of this type. */
+    wtap_mand_free_func    free_mand; /**< Callback invoked to release resources held by the mandatory data when a block is destroyed. */
+    wtap_mand_copy_func    copy_mand; /**< Callback invoked to deep-copy the mandatory data when a block is duplicated. */
+    GHashTable            *options;   /**< Hash table mapping option codes to their definitions for all options known to this block type. */
 } wtap_blocktype_t;
 
-struct wtap_block
-{
-    struct wtap_blocktype_t* info;
-    void* mandatory_data;
-    GArray* options;
-    int ref_count;
+/**
+ * @brief A single instance of a pcapng block, holding its type descriptor, mandatory data payload, options, and reference count.
+ */
+struct wtap_block {
+    struct wtap_blocktype_t *info;           /**< Pointer to the type descriptor that defines this block's structure and callbacks. */
+    void                    *mandatory_data; /**< Opaque pointer to the block's mandatory fields, allocated and managed by @ref wtap_blocktype_t::create and @ref wtap_blocktype_t::free_mand. */
+    GArray                  *options;        /**< Dynamic array of wtap_option_t entries representing the optional fields present in this block. */
+    int                      ref_count;      /**< Reference count governing the lifetime of this block; the block is freed when the count reaches zero. */
 #ifdef DEBUG_COUNT_REFS
-    unsigned id;
+    unsigned                 id;             /**< Unique numeric identifier assigned to this block instance for reference-count debugging. */
 #endif
 };
 
@@ -434,30 +436,29 @@ typedef enum {
 /* https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers */
 #define PEN_VCTR 46254
 
-/*
- * Structure giving the value of a custom string option; the value
- * includes both the Private Enterprise Number and the data following it.
+/**
+ * @brief Holds the value of a custom string option, combining a Private Enterprise Number with its associated string payload.
  */
 typedef struct custom_string_opt_s {
-    uint32_t pen;     /* Private Enterprise Number of this option */
-    char* string;
+    uint32_t pen;    /**< IANA Private Enterprise Number (PEN) identifying the organization that defined this custom option. */
+    char    *string; /**< Null-terminated string payload of this custom option, allocated by the option owner. */
 } custom_string_opt_t;
 
-/*
- * Structure giving the data of a custom binary option.
+
+/**
+ * @brief Holds the raw binary payload of a custom binary option.
  */
 typedef struct binary_optdata {
-    size_t custom_data_len;
-    void* custom_data;
+    size_t custom_data_len; /**< Length in bytes of the data pointed to by @ref custom_data. */
+    void  *custom_data;     /**< Opaque pointer to the raw binary payload of this custom option. */
 } binary_optdata_t;
 
-/*
- * Structure giving the value of a custom binary option; the value
- * includes both the Private Enterprise Number and the data following it.
+/**
+ * @brief Holds the value of a custom binary option, combining a Private Enterprise Number with its associated binary payload.
  */
 typedef struct custom_binary_opt_s {
-    uint32_t pen;     /* Private Enterprise Number of this option */
-    binary_optdata_t data;
+    uint32_t         pen;  /**< IANA Private Enterprise Number (PEN) identifying the organization that defined this custom option. */
+    binary_optdata_t data; /**< Binary payload of this custom option, including its length and a pointer to the raw bytes. */
 } custom_binary_opt_t;
 
 /* Interface description data - if_filter option structure */
@@ -486,15 +487,26 @@ typedef enum {
     if_filter_bpf  = 1  /* BPF program */
 } if_filter_type_e;
 
+/**
+ * @brief Holds the value of an interface filter option, expressed as either a pcap filter string or a compiled BPF program.
+ */
 typedef struct if_filter_opt_s {
-    if_filter_type_e type;
+    if_filter_type_e type; /**< Discriminator indicating which member of @ref data is active (filter string or BPF program). */
+
+    /**
+     * @brief The filter payload, interpreted according to @ref type.
+     */
     union {
-        char              *filter_str;   /**< pcap filter string */
+        char *filter_str; /**< Null-terminated pcap filter expression string (e.g. "tcp port 80"); active when @ref type indicates a string filter. */
+
+        /**
+         * @brief A compiled BPF filter program consisting of an array of BPF instructions.
+         */
         struct wtap_bpf_insns {
-            unsigned       bpf_prog_len; /**< number of BPF instructions */
-            wtap_bpf_insn_t *bpf_prog;   /**< BPF instructions */
-        }                  bpf_prog;     /**< BPF program */
-    }                      data;
+            unsigned         bpf_prog_len; /**< Number of BPF instructions in the @ref bpf_prog array. */
+            wtap_bpf_insn_t *bpf_prog;     /**< Pointer to the array of compiled BPF instructions. */
+        } bpf_prog; /**< Compiled BPF filter program; active when @ref type indicates a BPF program filter. */
+    } data;
 } if_filter_opt_t;
 
 /* Packet - packet_verdict option structure */
@@ -555,26 +567,41 @@ typedef union {
     packet_hash_opt_t    packet_hash;        /**< Packet hash/digest option value. */
 } wtap_optval_t;
 
-/*
- * Structure describing an option in a block.
+/**
+ * @brief Represents a single option instance within a pcapng block, pairing an option code with its value.
  */
 typedef struct {
-    unsigned option_id;     /**< option code for the option */
-    wtap_optval_t value; /**< value */
+    unsigned      option_id; /**< Option code identifying the type of this option within its enclosing block type. */
+    wtap_optval_t value;     /**< Union holding the typed value of this option, interpreted according to the option's registered data type. */
 } wtap_option_t;
 
+/**
+ * @brief Callback invoked to allocate and initialize the mandatory data for a newly created block.
+ * @param block The block instance whose mandatory data is to be initialized.
+ */
 typedef void (*wtap_block_create_func)(wtap_block_t block);
+
+/**
+ * @brief Callback invoked to release resources held by a block's mandatory data during destruction.
+ * @param block The block instance whose mandatory data is to be freed.
+ */
 typedef void (*wtap_mand_free_func)(wtap_block_t block);
+
+/**
+ * @brief Callback invoked to deep-copy mandatory data from one block into another.
+ * @param dest_block The destination block that receives the copied mandatory data.
+ * @param src_block  The source block whose mandatory data is to be copied.
+ */
 typedef void (*wtap_mand_copy_func)(wtap_block_t dest_block, wtap_block_t src_block);
 
-/*
- * Structure describing a type of option.
+/**
+ * @brief Describes a registered option type, including its identity, human-readable metadata, data type, and behavioral flags.
  */
 typedef struct {
-    const char* name;                            /**< name of option */
-    const char* description;                     /**< human-readable description of option */
-    wtap_opttype_e data_type;                    /**< data type of that option */
-    unsigned flags;                                 /**< flags for the option */
+    const char    *name;        /**< Short programmatic name for this option type, used for lookup and identification. */
+    const char    *description; /**< Human-readable description of this option type, suitable for display. */
+    wtap_opttype_e data_type;   /**< Enumerated data type of this option's value, used to select the correct @ref wtap_optval_t union member. */
+    unsigned       flags;       /**< Bitmask of option behavioral flags (e.g. whether multiple instances of this option are permitted). */
 } wtap_opttype_t;
 
 #define GET_OPTION_TYPE(options, option_id) \

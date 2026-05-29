@@ -21,17 +21,19 @@ extern "C" {
 
 typedef void (*commandline_usage_output_cb_t)(FILE* const output);
 
+/**
+ * @brief Holds application-specific strings and callbacks used to render command-line usage/help output.
+ */
 typedef struct commandline_usage_app_data
 {
-    const char* item_name;
-    const char* console_name;
-    const char* help_header;
+    const char                   *item_name;                /**< Short identifier name of the application (e.g. "wireshark", "tshark"). */
+    const char                   *console_name;             /**< Display name of the application shown in console usage output. */
+    const char                   *help_header;              /**< Header string printed at the top of the help/usage message. */
 #ifdef HAVE_LIBPCAP
-    commandline_usage_output_cb_t capture_interface_options;
-    commandline_usage_output_cb_t list_interface_options;
-    commandline_usage_output_cb_t capture_output_options;
+    commandline_usage_output_cb_t capture_interface_options; /**< Callback to print capture interface option help; only present when libpcap support is compiled in. */
+    commandline_usage_output_cb_t list_interface_options;    /**< Callback to print interface listing option help; only present when libpcap support is compiled in. */
+    commandline_usage_output_cb_t capture_output_options;    /**< Callback to print capture output option help; only present when libpcap support is compiled in. */
 #endif
-
 } commandline_usage_app_data_t;
 
 extern capture_options global_capture_opts;

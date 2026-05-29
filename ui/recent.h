@@ -40,9 +40,12 @@ extern "C" {
 
 #define RECENT_KEY_REMOTE_HOST          "recent.remote_host"
 
+/**
+ * @brief Stores the display width and alignment for a single column.
+ */
 typedef struct _col_width_data {
-    int    width;
-    char   xalign;
+    int  width;   /**< Column width in characters. */
+    char xalign;  /**< Horizontal alignment specifier (e.g., 'l' = left, 'r' = right, 'c' = center). */
 } col_width_data;
 
 /** Defines used in col_width_data.xalign */

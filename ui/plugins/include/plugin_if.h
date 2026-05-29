@@ -432,14 +432,17 @@ WS_DLL_PUBLIC void ext_toolbar_update_data_set_active(ext_toolbar_t * entry, boo
  * Structure definition for the plugin_if_get_ws_info function
  */
 
+/**
+ * @brief Snapshot of current Wireshark application state, passed to plugins via plugin_if_get_ws_info.
+ */
 typedef struct _ws_info_t
 {
-    bool ws_info_supported;                 /* false if no libpcap */
-    file_state cf_state;                        /* Current state of capture file */
-    char *cf_filename;                         /* Name of capture file */
-    uint32_t cf_count;                           /* Total number of frames */
-    uint32_t cf_framenr;                         /**< Currently displayed frame number */
-    bool frame_passed_dfilter;              /**< true = display, false = no display */
+    bool ws_info_supported;          /**< False if no libpcap support is available; structure fields are invalid when false. */
+    file_state cf_state;             /**< Current state of the open capture file (e.g., reading, ready, closed). */
+    char *cf_filename;               /**< Path and name of the currently open capture file, or NULL if none. */
+    uint32_t cf_count;               /**< Total number of frames in the capture file. */
+    uint32_t cf_framenr;             /**< Frame number of the currently displayed frame. */
+    bool frame_passed_dfilter;       /**< True if the current frame passes the active display filter; false if hidden. */
 } ws_info_t;
 
 

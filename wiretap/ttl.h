@@ -115,31 +115,35 @@ WS_DLL_PUBLIC bool ttl_init_names_from_pref_file(GHashTable* ht, const char* app
 
 #define TTL_LOGFILE_INFO_SIZE   4080
 
- /*
-  * The header of the file changed between versions. The real size is
-  * indicated by the header_size field, with the bare minimum being 16 bytes.
-  * The data after header_size (if any) is composed of two parts:
-  * 1. Log File information
-  * 2. XML describing the logger configuration used to create the log file
-  *
-  * The XML is assumed to be there only if the header size is bigger
-  * than 4096 bytes (i.e. Log File information is 4080 bytes in size).
-  */
+/*
+ * The header of the file changed between versions. The real size is
+ * indicated by the header_size field, with the bare minimum being 16 bytes.
+ * The data after header_size (if any) is composed of two parts:
+ * 1. Log File information
+ * 2. XML describing the logger configuration used to create the log file
+ *
+ * The XML is assumed to be there only if the header size is bigger
+ * than 4096 bytes (i.e. Log File information is 4080 bytes in size).
+ */
 
- /* TTL File Header */
+/**
+ * @brief Fixed-size file header present at the start of every TTL capture file.
+ */
 typedef struct ttl_fileheader {
-    uint8_t     magic[4];       /* Magic Number - "TTL " */
-    uint32_t    version;        /* File Format version */
-    uint32_t    block_size;     /* Size of the blocks */
-    uint32_t    header_size;    /* Size of the complete header */
+    uint8_t  magic[4];      /**< Magic number identifying the file as a TTL capture; must be "TTL ". */
+    uint32_t version;       /**< TTL file format version number. */
+    uint32_t block_size;    /**< Size in bytes of each data block in the file. */
+    uint32_t header_size;   /**< Total size of the complete file header in bytes; minimum 16; if > 4096, an XML logger configuration follows the log file information. */
 } ttl_fileheader_t;
 
-/* TTL Entry Header */
+/**
+ * @brief Per-entry header preceding each logged frame in a TTL capture file.
+ */
 typedef struct ttl_entryheader {
-    uint16_t    size_type;          /* Type (4 bits) | Size (12 bits) */
-    uint16_t    dest_addr;          /* Meta 1 (3 bits) | Destination Address (13 bits) */
-    uint16_t    src_addr;           /* Meta 2 (3 bits) | Source Address (13 bits) */
-    uint16_t    status_info;        /* Meaning changes between types */
+    uint16_t size_type;    /**< Packed field: entry type in the upper 4 bits, payload size in the lower 12 bits. */
+    uint16_t dest_addr;    /**< Packed field: meta flag bits in the upper 3 bits, destination address in the lower 13 bits. */
+    uint16_t src_addr;     /**< Packed field: meta flag bits in the upper 3 bits, source address in the lower 13 bits. */
+    uint16_t status_info;  /**< Status or auxiliary information whose meaning depends on the entry type in @ref size_type. */
 } ttl_entryheader_t;
 
 #define TTL_BUS_DATA_ENTRY          0

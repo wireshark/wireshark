@@ -123,10 +123,13 @@ private:
     dissector_handle_t dissector_handle_; /**< Handle of the currently selected dissector. */
 };
 
+/**
+ * @brief Bundles identifying metadata and a handle for a single registered dissector.
+ */
 typedef struct _dissector_info_t {
-    QString             proto_name;
-    guid_key            dcerpc_uuid;
-    dissector_handle_t  dissector_handle;
+    QString            proto_name;        /**< Display name of the protocol this dissector handles. */
+    guid_key           dcerpc_uuid;       /**< DCE/RPC UUID identifying this dissector, used for UUID-based dissector lookup. */
+    dissector_handle_t dissector_handle;  /**< Handle used to invoke or reference this dissector within the dissector table. */
 } dissector_info_t;
 
 Q_DECLARE_METATYPE(dissector_info_t*)

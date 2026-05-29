@@ -16,15 +16,19 @@ extern "C" {
 
 extern int pc_proto_id;
 
+/**
+ * @brief Node in a protocol hierarchy statistics tree, representing a single
+ *        protocol layer with links to related nodes and accumulated traffic counters.
+ */
 typedef struct _phs_t {
-	struct _phs_t *sibling;
-	struct _phs_t *child;
-	struct _phs_t *parent;
-	char *filter;
-	int protocol;
-	const char *proto_name;
-	uint32_t frames;
-	uint64_t bytes;
+    struct _phs_t *sibling;   /**< Next sibling node at the same level of the hierarchy tree. */
+    struct _phs_t *child;     /**< First child node representing a sub-protocol layer. */
+    struct _phs_t *parent;    /**< Parent node one level up in the hierarchy tree. */
+    char *filter;             /**< Display filter string used to isolate this protocol's traffic. */
+    int protocol;             /**< Wireshark protocol ID as registered in the dissector table. */
+    const char *proto_name;   /**< Human-readable protocol name string (e.g., "tcp", "http"). */
+    uint32_t frames;          /**< Total number of frames captured for this protocol node. */
+    uint64_t bytes;           /**< Total number of bytes captured for this protocol node. */
 } phs_t;
 
 /**

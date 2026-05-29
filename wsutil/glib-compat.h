@@ -88,17 +88,19 @@ queue_clear_full (GQueue * queue, GDestroyNotify free_func)
 
 typedef volatile gint   gatomicrefcount;
 
-typedef struct _GRealArray  GRealArray;
-struct _GRealArray
-{
-  guint8 *data;
-  guint   len;
-  guint   alloc;
-  guint   elt_size;
-  guint   zero_terminated ;
-  guint   clear;
-  gatomicrefcount ref_count;
-  GDestroyNotify clear_func;
+typedef struct _GRealArray GRealArray;
+/**
+ * @brief Internal implementation of GArray, holding the backing buffer and allocation metadata.
+ */
+struct _GRealArray {
+    guint8         *data;             /**< Pointer to the raw backing buffer storing array elements. */
+    guint           len;              /**< Current number of elements stored in the array. */
+    guint           alloc;            /**< Total number of elements the current backing buffer can hold before reallocation. */
+    guint           elt_size;         /**< Size in bytes of a single array element. */
+    guint           zero_terminated;  /**< Non-zero if a null element is maintained past the last valid element. */
+    guint           clear;            /**< Non-zero if newly allocated elements are zero-initialised before use. */
+    gatomicrefcount ref_count;        /**< Atomic reference count controlling the lifetime of this array. */
+    GDestroyNotify  clear_func;       /**< Optional callback invoked on each element before it is removed or the array is freed; NULL if not set. */
 };
 
 /**
@@ -160,16 +162,19 @@ g_array_binary_search (GArray        *array,
 #endif
 
 #if !GLIB_CHECK_VERSION(2, 64, 0)
-typedef struct _GRealPtrArray  GRealPtrArray;
+typedef struct _GRealPtrArray GRealPtrArray;
 
-struct _GRealPtrArray
-{
-  gpointer       *pdata;
-  guint           len;
-  guint           alloc;
-  gatomicrefcount ref_count;
-  guint8          null_terminated : 1; /* always either 0 or 1, so it can be added to array lengths */
-  GDestroyNotify  element_free_func;
+
+/**
+ * @brief Internal implementation of GPtrArray, holding the backing pointer buffer and allocation metadata.
+ */
+struct _GRealPtrArray {
+    gpointer       *pdata;              /**< Pointer to the raw backing buffer storing the array's element pointers. */
+    guint           len;                /**< Current number of pointers stored in the array. */
+    guint           alloc;              /**< Total number of pointer slots the current backing buffer can hold before reallocation. */
+    gatomicrefcount ref_count;          /**< Atomic reference count controlling the lifetime of this array. */
+    guint8          null_terminated:1;  /**< 1 if a NULL sentinel is maintained past the last valid pointer, allowing the buffer to be used as a NULL-terminated array; 0 otherwise. */
+    GDestroyNotify  element_free_func;  /**< Optional callback invoked on each element pointer before it is removed or the array is freed; NULL if not set. */
 };
 
 /**

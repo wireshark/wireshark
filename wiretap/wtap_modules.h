@@ -17,7 +17,6 @@ extern "C" {
 #endif /* __cplusplus */
 
 /**
- * @struct wtap_module_reg_t
  * @brief Entry in the table of built-in wiretap modules to register.
  *
  * Each entry maps a module name to its registration callback.

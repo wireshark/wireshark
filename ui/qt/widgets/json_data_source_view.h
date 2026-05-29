@@ -20,21 +20,27 @@
 
 class QTextLayout;
 
+/**
+ * @brief Represents a single line of text with associated formatting, highlight, and key-value span metadata.
+ */
 struct TextLine {
-    QString line;
+    QString line;             /**< The raw text content of this line. */
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
-    QList<QTextLayout::FormatRange> fmt_list;
+    QList<QTextLayout::FormatRange>   fmt_list; /**< List of format ranges applied to this line for syntax or style highlighting (Qt 6+). */
 #else
-    QVector<QTextLayout::FormatRange> fmt_list;
+    QVector<QTextLayout::FormatRange> fmt_list; /**< Vector of format ranges applied to this line for syntax or style highlighting (Qt 5). */
 #endif
-    int highlight_start;
-    int highlight_length;
-    int kv_start;
-    int kv_length;
+    int highlight_start;  /**< Start position (in characters) of the active search or selection highlight within this line. */
+    int highlight_length; /**< Length in characters of the active search or selection highlight; 0 if no highlight. */
+    int kv_start;         /**< Start position (in characters) of the key-value pair span within this line. */
+    int kv_length;        /**< Length in characters of the key-value pair span; 0 if no key-value span. */
 };
 
+/**
+ * @brief Represents a logical block of text composed of one or more formatted lines.
+ */
 struct TextBlock {
-    QList<TextLine> text_lines;
+    QList<TextLine> text_lines; /**< Ordered list of text lines that make up this block. */
 };
 
 /**

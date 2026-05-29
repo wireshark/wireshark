@@ -46,52 +46,58 @@
 #define	PCAP_NSEC_MAGIC			0xa1b23c4d
 #define	PCAP_SWAPPED_NSEC_MAGIC		0x4d3cb2a1
 
-/* "libpcap" file header (minus magic number). */
+/**
+ * @brief File header for a libpcap capture file, immediately following the magic number.
+ */
 struct pcap_hdr {
-	uint16_t version_major;	/* major version number */
-	uint16_t version_minor;	/* minor version number */
-	int32_t	 thiszone;	/* GMT to local correction */
-	uint32_t sigfigs;	/* accuracy of timestamps */
-	uint32_t snaplen;	/* max length of captured packets, in octets */
-	uint32_t network;	/* data link type */
+    uint16_t version_major; /**< Major version number of the libpcap file format. */
+    uint16_t version_minor; /**< Minor version number of the libpcap file format. */
+    int32_t  thiszone;      /**< Offset in seconds between GMT and the local timezone used for timestamps; typically 0. */
+    uint32_t sigfigs;       /**< Accuracy of the timestamps in the file; typically 0. */
+    uint32_t snaplen;       /**< Maximum number of octets captured per packet; packets longer than this are truncated. */
+    uint32_t network;       /**< Data link type of the captured packets, as a LINKTYPE_* value. */
 };
 
-/* "libpcap" record header. */
+/**
+ * @brief Per-packet record header in a standard libpcap capture file.
+ */
 struct pcaprec_hdr {
-	uint32_t ts_sec;	/* timestamp seconds */
-	uint32_t ts_usec;	/* timestamp microseconds (nsecs for PCAP_NSEC_MAGIC) */
-	uint32_t incl_len;	/* number of octets of packet saved in file */
-	uint32_t orig_len;	/* actual length of packet */
+    uint32_t ts_sec;   /**< Timestamp seconds component of the packet arrival time. */
+    uint32_t ts_usec;  /**< Timestamp sub-second component: microseconds for standard pcap, nanoseconds for PCAP_NSEC_MAGIC files. */
+    uint32_t incl_len; /**< Number of octets of the packet actually saved in the file. */
+    uint32_t orig_len; /**< Original on-wire length of the packet in octets before any truncation. */
 };
 
-/* "libpcap" record header for Alexey's patched version. */
+/**
+ * @brief Per-packet record header for Alexey Kuznetsov's modified libpcap format, extending the standard header with interface and protocol metadata.
+ */
 struct pcaprec_modified_hdr {
-	struct pcaprec_hdr hdr;	/* the regular header */
-	uint32_t ifindex;	/* index, in *capturing* machine's list of
-				   interfaces, of the interface on which this
-				   packet came in. */
-	uint16_t protocol;	/* Ethernet packet type */
-	uint8_t pkt_type;	/* broadcast/multicast/etc. indication */
-	uint8_t pad;		/* pad to a 4-byte boundary */
+    struct pcaprec_hdr hdr; /**< Standard libpcap record header with timestamps and lengths. */
+    uint32_t ifindex;       /**< Index of the capture interface in the capturing machine's interface list on which this packet arrived. */
+    uint16_t protocol;      /**< Ethernet protocol type (EtherType) of the captured packet. */
+    uint8_t  pkt_type;      /**< Packet type indicator (e.g. broadcast, multicast, unicast to host). */
+    uint8_t  pad;           /**< Padding byte to align the header to a 4-byte boundary. */
 };
 
-/* "libpcap" record header for Alexey's patched version in its ss990915
-   incarnation; this version shows up in SuSE Linux 6.3. */
+/**
+ * @brief Per-packet record header for the ss990915 incarnation of Alexey's modified libpcap format, as found in SuSE Linux 6.3.
+ */
 struct pcaprec_ss990915_hdr {
-	struct pcaprec_hdr hdr;	/* the regular header */
-	uint32_t ifindex;	/* index, in *capturing* machine's list of
-				   interfaces, of the interface on which this
-				   packet came in. */
-	uint16_t protocol;	/* Ethernet packet type */
-	uint8_t pkt_type;	/* broadcast/multicast/etc. indication */
-	uint8_t cpu1, cpu2;	/* SMP debugging gunk? */
-	uint8_t pad[3];		/* pad to a 4-byte boundary */
+    struct pcaprec_hdr hdr; /**< Standard libpcap record header with timestamps and lengths. */
+    uint32_t ifindex;       /**< Index of the capture interface in the capturing machine's interface list on which this packet arrived. */
+    uint16_t protocol;      /**< Ethernet protocol type (EtherType) of the captured packet. */
+    uint8_t  pkt_type;      /**< Packet type indicator (e.g. broadcast, multicast, unicast to host). */
+    uint8_t  cpu1;          /**< First SMP CPU identifier; possibly used for SMP debugging. */
+    uint8_t  cpu2;          /**< Second SMP CPU identifier; possibly used for SMP debugging. */
+    uint8_t  pad[3];        /**< Padding bytes to align the header to a 4-byte boundary. */
 };
 
-/* "libpcap" record header for version used on some Nokia boxes (firewalls?) */
+/**
+ * @brief Per-packet record header for the Nokia-variant libpcap format, as used on some Nokia firewall devices.
+ */
 struct pcaprec_nokia_hdr {
-	struct pcaprec_hdr hdr;	/* the regular header */
-	uint8_t stuff[4];	/* mysterious stuff */
+    struct pcaprec_hdr hdr; /**< Standard libpcap record header with timestamps and lengths. */
+    uint8_t stuff[4];       /**< Device-specific metadata of unknown purpose appended by Nokia firmware. */
 };
 
 /**

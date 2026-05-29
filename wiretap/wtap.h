@@ -390,24 +390,28 @@ extern "C" {
  */
 
 
-/* Packet "pseudo-header" information for Ethernet capture files. */
+/**
+ * @brief Pseudo-header for Ethernet capture files carrying FCS length metadata.
+ */
 struct eth_phdr {
-    int    fcs_len;  /* Number of bytes of FCS - -1 means "unknown" */
+    int fcs_len; /**< Number of bytes of FCS appended to the frame; -1 if unknown. */
 };
 
-/* Packet "pseudo-header" information for capture files for traffic
-   between DTE and DCE. */
-#define FROM_DCE 0x80
+#define FROM_DCE 0x80 /**< Flag bit indicating the packet was transmitted from the DCE toward the DTE. */
+
+/**
+ * @brief Pseudo-header for DTE/DCE capture files (LAPB, V.120, Frame Relay) carrying direction metadata.
+ */
 struct dte_dce_phdr {
-    uint8_t flags;   /* ENCAP_LAPB, ENCAP_V120, ENCAP_FRELAY: 1st bit means From DCE */
+    uint8_t flags; /**< Direction flags; FROM_DCE set means the packet originated from the DCE; clear means from the DTE. */
 };
 
-/* Packet "pseudo-header" information for ISDN capture files. */
-
-/* Direction */
+/**
+ * @brief Pseudo-header for ISDN capture files carrying direction and channel metadata.
+ */
 struct isdn_phdr {
-    bool uton;
-    uint8_t  channel;   /* 0 = D-channel; n = B-channel n */
+    bool    uton;    /**< Direction of the packet: true = user-to-network (UNI), false = network-to-user. */
+    uint8_t channel; /**< Logical channel number: 0 = D-channel (signalling), n = B-channel n (bearer). */
 };
 
 /* Packet "pseudo-header" for ATM capture files.
@@ -488,19 +492,22 @@ struct isdn_phdr {
 #define TRAF_ST_IPSILON_FT1      2  /* Ipsilon: Flow Type 1 */
 #define TRAF_ST_IPSILON_FT2      3  /* Ipsilon: Flow Type 2 */
 
+/**
+ * @brief Pseudo-header for ATM capture files carrying cell, circuit, and AAL-layer metadata.
+ */
 struct atm_phdr {
-    uint32_t flags;      /* status flags */
-    uint8_t aal;        /* AAL of the traffic */
-    uint8_t type;       /* traffic type */
-    uint8_t subtype;    /* traffic subtype */
-    uint16_t vpi;        /* virtual path identifier */
-    uint16_t vci;        /* virtual circuit identifier */
-    uint8_t aal2_cid;   /* channel id */
-    uint16_t channel;    /* link: 0 for DTE->DCE, 1 for DCE->DTE */
-    uint16_t cells;      /* number of cells */
-    uint16_t aal5t_u2u;  /* user-to-user indicator */
-    uint16_t aal5t_len;  /* length of the packet */
-    uint32_t aal5t_chksum;   /* checksum for AAL5 packet */
+    uint32_t flags;          /**< Bitmask of status flags describing capture conditions for this ATM packet. */
+    uint8_t  aal;            /**< ATM Adaptation Layer type in use (e.g. AAL1, AAL2, AAL5). */
+    uint8_t  type;           /**< Traffic type classification for this virtual circuit. */
+    uint8_t  subtype;        /**< Traffic subtype providing further classification within @p type. */
+    uint16_t vpi;            /**< Virtual Path Identifier of the ATM virtual circuit. */
+    uint16_t vci;            /**< Virtual Circuit Identifier of the ATM virtual circuit. */
+    uint8_t  aal2_cid;       /**< AAL2 channel identifier; only meaningful when @p aal is AAL2. */
+    uint16_t channel;        /**< Link direction: 0 = DTE→DCE, 1 = DCE→DTE. */
+    uint16_t cells;          /**< Number of ATM cells comprising this packet. */
+    uint16_t aal5t_u2u;      /**< AAL5 User-to-User (UU) indicator field from the AAL5 CPCS trailer. */
+    uint16_t aal5t_len;      /**< Length in bytes of the AAL5 CPCS-PDU payload. */
+    uint32_t aal5t_chksum;   /**< CRC-32 checksum from the AAL5 CPCS trailer covering the AAL5 packet. */
 };
 
 /* Packet "pseudo-header" for the output from "wandsession", "wannext",
@@ -515,18 +522,23 @@ struct atm_phdr {
 #define ASCEND_PFX_ISDN_R   5
 #define ASCEND_PFX_ETHER    6
 
+/**
+ * @brief Pseudo-header for Ascend WAN capture files carrying session, call, and task metadata.
+ */
 struct ascend_phdr {
-    uint16_t type;                         /* ASCEND_PFX_*, as defined above */
-    char    user[ASCEND_MAX_STR_LEN];     /* Username, from wandsession header */
-    uint32_t sess;                         /* Session number, from wandsession header */
-    char    call_num[ASCEND_MAX_STR_LEN]; /* Called number, from WDD header */
-    uint32_t chunk;                        /* Chunk number, from WDD header */
-    uint32_t task;                         /* Task number */
+    uint16_t type;                        /**< Packet type identifier; one of the ASCEND_PFX_* values. */
+    char     user[ASCEND_MAX_STR_LEN];    /**< Username extracted from the WAN session header; NUL-terminated. */
+    uint32_t sess;                        /**< Session number extracted from the WAN session header. */
+    char     call_num[ASCEND_MAX_STR_LEN];/**< Called phone number extracted from the WDD header; NUL-terminated. */
+    uint32_t chunk;                       /**< Chunk number extracted from the WDD header. */
+    uint32_t task;                        /**< Task number identifying the Ascend task that generated this packet. */
 };
 
-/* Packet "pseudo-header" for point-to-point links with direction flags. */
+/**
+ * @brief Pseudo-header for point-to-point link capture files carrying packet direction metadata.
+ */
 struct p2p_phdr {
-    bool sent;
+    bool sent; /**< True if the packet was sent (transmitted); false if it was received. */
 };
 
 /*
@@ -575,39 +587,39 @@ struct p2p_phdr {
  * PHY-specific information.
  */
 
-/*
- * 802.11 legacy FHSS.
+/**
+ * @brief PHY metadata for 802.11 legacy FHSS (Frequency Hopping Spread Spectrum) captures.
  */
 struct ieee_802_11_fhss {
-    unsigned has_hop_set:1;
-    unsigned has_hop_pattern:1;
-    unsigned has_hop_index:1;
+    unsigned has_hop_set     : 1; /**< Non-zero if @p hop_set contains a valid value. */
+    unsigned has_hop_pattern : 1; /**< Non-zero if @p hop_pattern contains a valid value. */
+    unsigned has_hop_index   : 1; /**< Non-zero if @p hop_index contains a valid value. */
 
-    uint8_t  hop_set;        /* Hop set */
-    uint8_t  hop_pattern;    /* Hop pattern */
-    uint8_t  hop_index;      /* Hop index */
+    uint8_t  hop_set;             /**< Hop set identifier used by the FHSS hopping sequence. */
+    uint8_t  hop_pattern;         /**< Hop pattern identifier used by the FHSS hopping sequence. */
+    uint8_t  hop_index;           /**< Hop index indicating the current position within the hopping sequence. */
 };
 
-/*
- * 802.11b.
+
+/**
+ * @brief PHY metadata for 802.11b captures.
  */
 struct ieee_802_11b {
-    /* Which of this information is present? */
-    unsigned has_short_preamble:1;
+    unsigned has_short_preamble : 1; /**< Non-zero if @p short_preamble contains a valid value. */
 
-    bool short_preamble; /* Short preamble */
+    bool short_preamble;             /**< True if the frame was transmitted with a short PLCP preamble. */
 };
 
-/*
- * 802.11a.
+
+/**
+ * @brief PHY metadata for 802.11a captures.
  */
 struct ieee_802_11a {
-    /* Which of this information is present? */
-    unsigned has_channel_type:1;
-    unsigned has_turbo_type:1;
+    unsigned has_channel_type : 1; /**< Non-zero if @p channel_type contains a valid value. */
+    unsigned has_turbo_type   : 1; /**< Non-zero if @p turbo_type contains a valid value. */
 
-    unsigned channel_type:2;
-    unsigned turbo_type:2;
+    unsigned channel_type     : 2; /**< Channel type identifier indicating the 802.11a channel classification. */
+    unsigned turbo_type       : 2; /**< Turbo mode type indicating whether and how proprietary turbo mode is in use. */
 };
 
 /*
@@ -630,18 +642,17 @@ struct ieee_802_11a {
 #define PHDR_802_11A_TURBO_TYPE_DYNAMIC_TURBO    2
 #define PHDR_802_11A_TURBO_TYPE_STATIC_TURBO     3
 
-/*
- * 802.11g.
+/**
+ * @brief PHY metadata for 802.11g OFDM captures.
  *
- * This should only be used for packets sent using OFDM; packets
- * sent on an 11g network using DSSS should have the PHY set to
- * 11b.
+ * This struct should only be used for packets transmitted using OFDM.
+ * Packets sent on an 802.11g network using DSSS should use @ref ieee_802_11b
+ * with the PHY type set to 802.11b instead.
  */
 struct ieee_802_11g {
-    /* Which of this information is present? */
-    unsigned has_mode:1;
+    unsigned has_mode : 1; /**< Non-zero if @p mode contains a valid value. */
 
-    uint32_t mode;           /* Various proprietary extensions */
+    uint32_t mode;         /**< Proprietary extension mode flags describing vendor-specific 802.11g transmission properties. */
 };
 
 /*
@@ -650,26 +661,25 @@ struct ieee_802_11g {
 #define PHDR_802_11G_MODE_NORMAL    0
 #define PHDR_802_11G_MODE_SUPER_G   1  /* Atheros Super G */
 
-/*
- * 802.11n.
+/**
+ * @brief PHY metadata for 802.11n (HT) captures.
  */
 struct ieee_802_11n {
-    /* Which of this information is present? */
-    unsigned has_mcs_index:1;
-    unsigned has_bandwidth:1;
-    unsigned has_short_gi:1;
-    unsigned has_greenfield:1;
-    unsigned has_fec:1;
-    unsigned has_stbc_streams:1;
-    unsigned has_ness:1;
+    unsigned has_mcs_index    : 1; /**< Non-zero if @p mcs_index contains a valid value. */
+    unsigned has_bandwidth    : 1; /**< Non-zero if @p bandwidth contains a valid value. */
+    unsigned has_short_gi     : 1; /**< Non-zero if @p short_gi contains a valid value. */
+    unsigned has_greenfield   : 1; /**< Non-zero if @p greenfield contains a valid value. */
+    unsigned has_fec          : 1; /**< Non-zero if @p fec contains a valid value. */
+    unsigned has_stbc_streams : 1; /**< Non-zero if @p stbc_streams contains a valid value. */
+    unsigned has_ness         : 1; /**< Non-zero if @p ness contains a valid value. */
 
-    uint16_t mcs_index;      /* MCS index */
-    unsigned bandwidth;      /* Bandwidth = 20 MHz, 40 MHz, etc. */
-    unsigned short_gi:1;     /* True for short guard interval */
-    unsigned greenfield:1;   /* True for greenfield, short for mixed */
-    unsigned fec:1;          /* FEC: 0 = BCC, 1 = LDPC */
-    unsigned stbc_streams:2; /* Number of STBC streams */
-    unsigned ness;           /* Number of extension spatial streams */
+    uint16_t mcs_index;            /**< Modulation and Coding Scheme (MCS) index specifying the 802.11n data rate. */
+    unsigned bandwidth;            /**< Channel bandwidth in MHz (e.g. 20, 40). */
+    unsigned short_gi     : 1;     /**< True if a short guard interval (400 ns) was used; false for long guard interval (800 ns). */
+    unsigned greenfield   : 1;     /**< True if the frame was transmitted in greenfield (HT-only) mode; false for mixed mode. */
+    unsigned fec          : 1;     /**< Forward error correction type: 0 = BCC (Binary Convolutional Coding), 1 = LDPC. */
+    unsigned stbc_streams : 2;     /**< Number of Space-Time Block Coding (STBC) spatial streams used for this transmission. */
+    unsigned ness;                 /**< Number of extension spatial streams (Ness) present in the HT PPDU. */
 };
 
 /*
@@ -702,34 +712,33 @@ struct ieee_802_11n {
 #define PHDR_802_11_BANDWIDTH_20UUL    24 /* ???, 160 MHz */
 #define PHDR_802_11_BANDWIDTH_20UUU    25 /* ???, 160 MHz */
 
-/*
- * 802.11ac.
+/**
+ * @brief PHY metadata for 802.11ac (VHT) captures.
  */
 struct ieee_802_11ac {
-    /* Which of this information is present? */
-    unsigned has_stbc:1;
-    unsigned has_txop_ps_not_allowed:1;
-    unsigned has_short_gi:1;
-    unsigned has_short_gi_nsym_disambig:1;
-    unsigned has_ldpc_extra_ofdm_symbol:1;
-    unsigned has_beamformed:1;
-    unsigned has_bandwidth:1;
-    unsigned has_fec:1;
-    unsigned has_group_id:1;
-    unsigned has_partial_aid:1;
+    unsigned has_stbc                  : 1; /**< Non-zero if @p stbc contains a valid value. */
+    unsigned has_txop_ps_not_allowed   : 1; /**< Non-zero if @p txop_ps_not_allowed contains a valid value. */
+    unsigned has_short_gi              : 1; /**< Non-zero if @p short_gi contains a valid value. */
+    unsigned has_short_gi_nsym_disambig: 1; /**< Non-zero if @p short_gi_nsym_disambig contains a valid value. */
+    unsigned has_ldpc_extra_ofdm_symbol: 1; /**< Non-zero if @p ldpc_extra_ofdm_symbol contains a valid value. */
+    unsigned has_beamformed            : 1; /**< Non-zero if @p beamformed contains a valid value. */
+    unsigned has_bandwidth             : 1; /**< Non-zero if @p bandwidth contains a valid value. */
+    unsigned has_fec                   : 1; /**< Non-zero if @p fec contains a valid value. */
+    unsigned has_group_id              : 1; /**< Non-zero if @p group_id contains a valid value. */
+    unsigned has_partial_aid           : 1; /**< Non-zero if @p partial_aid contains a valid value. */
 
-    unsigned stbc:1;         /* 1 if all spatial streams have STBC */
-    unsigned txop_ps_not_allowed:1;
-    unsigned short_gi:1;     /* True for short guard interval */
-    unsigned short_gi_nsym_disambig:1;
-    unsigned ldpc_extra_ofdm_symbol:1;
-    unsigned beamformed:1;
-    uint8_t  bandwidth;      /* Bandwidth = 20 MHz, 40 MHz, etc. */
-    uint8_t  mcs[4];         /* MCS index per user */
-    uint8_t  nss[4];         /* NSS per user */
-    uint8_t  fec;            /* Bit array of FEC per user: 0 = BCC, 1 = LDPC */
-    uint8_t  group_id;
-    uint16_t partial_aid;
+    unsigned stbc                  : 1; /**< True if all spatial streams were transmitted with Space-Time Block Coding (STBC). */
+    unsigned txop_ps_not_allowed   : 1; /**< True if the TXOP Power Save mode is not permitted for this transmission. */
+    unsigned short_gi              : 1; /**< True if a short guard interval (400 ns) was used; false for long guard interval (800 ns). */
+    unsigned short_gi_nsym_disambig: 1; /**< True if the short GI Nsym disambiguation bit is set, indicating an extra symbol was added. */
+    unsigned ldpc_extra_ofdm_symbol: 1; /**< True if an extra OFDM symbol was appended to support LDPC encoding. */
+    unsigned beamformed            : 1; /**< True if the frame was transmitted using beamforming. */
+    uint8_t  bandwidth;                 /**< Channel bandwidth in MHz (e.g. 20, 40, 80, 160). */
+    uint8_t  mcs[4];                    /**< MCS index per user for up to 4 MU-MIMO users. */
+    uint8_t  nss[4];                    /**< Number of spatial streams per user for up to 4 MU-MIMO users. */
+    uint8_t  fec;                       /**< Per-user FEC type bitmask: bit set = LDPC, bit clear = BCC, for up to 4 MU-MIMO users. */
+    uint8_t  group_id;                  /**< VHT group ID identifying the MU-MIMO group for this transmission. */
+    uint16_t partial_aid;               /**< Partial AID (Association ID) used to identify the recipient in MU-MIMO transmissions. */
 };
 
 /*
@@ -746,61 +755,67 @@ struct ieee_802_11ac {
 #define IS_80211AD(frequency) (((frequency) >= PHDR_802_11AD_MIN_FREQUENCY) &&\
                                ((frequency) <= PHDR_802_11AD_MAX_FREQUENCY))
 
+/**
+ * @brief PHY metadata for 802.11ad (WiGig/DMG) captures.
+ */
 struct ieee_802_11ad {
-    /* Which of this information is present? */
-    unsigned has_mcs_index:1;
+    unsigned has_mcs_index : 1; /**< Non-zero if @p mcs contains a valid value. */
 
-    uint8_t  mcs;            /* MCS index */
+    uint8_t mcs;                /**< Modulation and Coding Scheme (MCS) index specifying the 802.11ad data rate. */
 };
 
-/*
- * 802.11ax (HE).
+
+/**
+ * @brief PHY metadata for 802.11ax (HE — High Efficiency) captures.
  */
 struct ieee_802_11ax {
-    /* Which of this information is present? */
-    unsigned has_mcs_index:1;
-    unsigned has_bwru:1;
-    unsigned has_gi:1;
+    unsigned has_mcs_index : 1; /**< Non-zero if @p mcs contains a valid value. */
+    unsigned has_bwru      : 1; /**< Non-zero if @p bwru contains a valid value. */
+    unsigned has_gi        : 1; /**< Non-zero if @p gi contains a valid value. */
 
-    uint8_t  nsts:4;         /* Number of Space-time Streams */
-    uint8_t  mcs:4;          /* MCS index */
-    uint8_t  bwru:4;         /* Bandwidth/RU allocation */
-    uint8_t  gi:2;           /* Guard Interval */
+    uint8_t nsts : 4;           /**< Number of Space-Time Streams used for this HE transmission. */
+    uint8_t mcs  : 4;           /**< Modulation and Coding Scheme (MCS) index for this HE transmission. */
+    uint8_t bwru : 4;           /**< Bandwidth or Resource Unit (RU) allocation identifier. */
+    uint8_t gi   : 2;           /**< Guard interval: encodes 0.8 µs, 1.6 µs, or 3.2 µs GI. */
 };
 
-/*
- * 802.11be (EHT).
+
+/**
+ * @brief Per-user PHY metadata for a single user within an 802.11be (EHT) MU transmission.
  */
 struct ieee_802_11be_user_info {
-    unsigned sta_id_known:1;
-    unsigned mcs_known:1;
-    unsigned coding_known:1;
-    unsigned rsv_known:1;
-    unsigned nsts_known:1;
-    unsigned bf_known:1;
-    unsigned spatial_config_known:1;
-    unsigned data_for_this_user:1;
-    unsigned sta_id:11;
-    unsigned ldpc_coding:1;
-    unsigned mcs:4;
-    unsigned nsts:4;
-    unsigned rsv:1;
-    unsigned beamform:1;
-    unsigned rsv2:2;
+    unsigned sta_id_known         : 1;  /**< Non-zero if @p sta_id contains a valid value. */
+    unsigned mcs_known            : 1;  /**< Non-zero if @p mcs contains a valid value. */
+    unsigned coding_known         : 1;  /**< Non-zero if @p ldpc_coding contains a valid value. */
+    unsigned rsv_known            : 1;  /**< Non-zero if @p rsv contains a valid value. */
+    unsigned nsts_known           : 1;  /**< Non-zero if @p nsts contains a valid value. */
+    unsigned bf_known             : 1;  /**< Non-zero if @p beamform contains a valid value. */
+    unsigned spatial_config_known : 1;  /**< Non-zero if spatial configuration information is valid for this user. */
+    unsigned data_for_this_user   : 1;  /**< Non-zero if this EHT PPDU carries data intended for this user. */
+    unsigned sta_id               : 11; /**< Association ID (partial) identifying this MU-MIMO user. */
+    unsigned ldpc_coding          : 1;  /**< Forward error correction type: 0 = BCC, 1 = LDPC. */
+    unsigned mcs                  : 4;  /**< Modulation and Coding Scheme (MCS) index assigned to this user. */
+    unsigned nsts                 : 4;  /**< Number of Space-Time Streams assigned to this user. */
+    unsigned rsv                  : 1;  /**< Reserved bit. */
+    unsigned beamform             : 1;  /**< Non-zero if beamforming was applied for this user. */
+    unsigned rsv2                 : 2;  /**< Reserved bits. */
 };
 
-#define PHDR_802_11BE_MAX_USERS 4
-struct ieee_802_11be {
-    /* Which of this information is present? */
-    unsigned has_ru_mru_size:1;
-    unsigned has_gi:1;
-    unsigned has_bandwidth:1;
+#define PHDR_802_11BE_MAX_USERS 4 /**< Maximum number of MU-MIMO users described in an 802.11be PHY metadata record. */
 
-    uint8_t  bandwidth;
-    uint8_t  ru_mru_size:4;  /* RU/MRU allocation */
-    uint8_t  gi:2;           /* Guard Interval */
-    uint8_t  num_users;
-    struct ieee_802_11be_user_info user[PHDR_802_11BE_MAX_USERS]; /* Adding info for only upto 4 users */
+/**
+ * @brief PHY metadata for 802.11be (EHT — Extremely High Throughput) captures.
+ */
+struct ieee_802_11be {
+    unsigned has_ru_mru_size : 1; /**< Non-zero if @p ru_mru_size contains a valid value. */
+    unsigned has_gi          : 1; /**< Non-zero if @p gi contains a valid value. */
+    unsigned has_bandwidth   : 1; /**< Non-zero if @p bandwidth contains a valid value. */
+
+    uint8_t bandwidth;            /**< Channel bandwidth in MHz (e.g. 20, 40, 80, 160, 320). */
+    uint8_t ru_mru_size : 4;      /**< Resource Unit (RU) or Multi-RU (MRU) allocation size identifier. */
+    uint8_t gi          : 2;      /**< Guard interval: encodes 0.8 µs, 1.6 µs, or 3.2 µs GI. */
+    uint8_t num_users;            /**< Number of valid entries in the @p user array; at most PHDR_802_11BE_MAX_USERS. */
+    struct ieee_802_11be_user_info user[PHDR_802_11BE_MAX_USERS]; /**< Per-user PHY metadata for up to PHDR_802_11BE_MAX_USERS MU-MIMO users. */
 };
 
 
@@ -826,41 +841,43 @@ union ieee_802_11_phy_info {
     struct ieee_802_11be   info_11be;     /**< Extremely High Throughput PHY (802.11be). */
 };
 
+/**
+ * @brief Pseudo-header for 802.11 wireless capture files carrying full PHY, signal, and frame metadata.
+ */
 struct ieee_802_11_phdr {
-    int      fcs_len;          /* Number of bytes of FCS - -1 means "unknown" */
-    unsigned decrypted:1;      /* true if frame is decrypted even if "protected" bit is set */
-    unsigned datapad:1;        /* true if frame has padding between 802.11 header and payload */
-    unsigned no_a_msdus:1;     /* true if we should ignore the A-MSDU bit */
-    unsigned phy;              /* PHY type */
-    union ieee_802_11_phy_info phy_info;
+    int      fcs_len;                       /**< Number of bytes of FCS appended to the frame; -1 if unknown. */
+    unsigned decrypted                : 1;  /**< True if the frame has been decrypted despite the 802.11 "Protected" flag being set. */
+    unsigned datapad                  : 1;  /**< True if padding bytes are present between the 802.11 header and the payload. */
+    unsigned no_a_msdus               : 1;  /**< True if the A-MSDU subframe bit in the QoS Control field should be ignored. */
+    unsigned phy;                           /**< PHY type identifier indicating the 802.11 physical layer variant (e.g. 802.11a/b/g/n/ac/ax). */
+    union ieee_802_11_phy_info phy_info;    /**< PHY-specific metadata corresponding to the @p phy type. */
 
-    /* Which of this information is present? */
-    unsigned has_channel:1;
-    unsigned has_frequency:1;
-    unsigned has_data_rate:1;
-    unsigned has_signal_percent:1;
-    unsigned has_noise_percent:1;
-    unsigned has_signal_dbm:1;
-    unsigned has_noise_dbm:1;
-    unsigned has_signal_db:1;
-    unsigned has_noise_db:1;
-    unsigned has_tsf_timestamp:1;
-    unsigned has_aggregate_info:1;        /* aggregate flags and ID */
-    unsigned has_zero_length_psdu_type:1; /* zero-length PSDU type */
+    unsigned has_channel              : 1;  /**< Non-zero if @p channel contains a valid value. */
+    unsigned has_frequency            : 1;  /**< Non-zero if @p frequency contains a valid value. */
+    unsigned has_data_rate            : 1;  /**< Non-zero if @p data_rate contains a valid value. */
+    unsigned has_signal_percent       : 1;  /**< Non-zero if @p signal_percent contains a valid value. */
+    unsigned has_noise_percent        : 1;  /**< Non-zero if @p noise_percent contains a valid value. */
+    unsigned has_signal_dbm           : 1;  /**< Non-zero if @p signal_dbm contains a valid value. */
+    unsigned has_noise_dbm            : 1;  /**< Non-zero if @p noise_dbm contains a valid value. */
+    unsigned has_signal_db            : 1;  /**< Non-zero if @p signal_db contains a valid value. */
+    unsigned has_noise_db             : 1;  /**< Non-zero if @p noise_db contains a valid value. */
+    unsigned has_tsf_timestamp        : 1;  /**< Non-zero if @p tsf_timestamp contains a valid value. */
+    unsigned has_aggregate_info       : 1;  /**< Non-zero if @p aggregate_flags and @p aggregate_id contain valid values. */
+    unsigned has_zero_length_psdu_type: 1;  /**< Non-zero if @p zero_length_psdu_type contains a valid value. */
 
-    uint16_t channel;                     /* Channel number */
-    uint32_t frequency;                   /* Channel center frequency */
-    uint16_t data_rate;                   /* Data rate, in .5 Mb/s units */
-    uint8_t  signal_percent;              /* Signal level, as a percentage */
-    uint8_t  noise_percent;               /* Noise level, as a percentage */
-    int8_t   signal_dbm;                  /* Signal level, in dBm */
-    int8_t   noise_dbm;                   /* Noise level, in dBm */
-    uint8_t  signal_db;                   /* Signal level, in dB from an arbitrary point */
-    uint8_t  noise_db;                    /* Noise level, in dB from an arbitrary point */
-    uint64_t tsf_timestamp;
-    uint32_t aggregate_flags;             /* A-MPDU flags */
-    uint32_t aggregate_id;                /* ID for A-MPDU reassembly */
-    uint8_t  zero_length_psdu_type;       /* type of zero-length PSDU */
+    uint16_t channel;                       /**< 802.11 channel number on which this frame was captured. */
+    uint32_t frequency;                     /**< Center frequency in MHz of the channel on which this frame was captured. */
+    uint16_t data_rate;                     /**< Data rate at which this frame was transmitted, in units of 500 Kb/s. */
+    uint8_t  signal_percent;                /**< Received signal level expressed as a percentage of the maximum. */
+    uint8_t  noise_percent;                 /**< Noise level expressed as a percentage of the maximum. */
+    int8_t   signal_dbm;                    /**< Received signal level in dBm. */
+    int8_t   noise_dbm;                     /**< Noise level in dBm. */
+    uint8_t  signal_db;                     /**< Received signal level in dB relative to an arbitrary reference point. */
+    uint8_t  noise_db;                      /**< Noise level in dB relative to an arbitrary reference point. */
+    uint64_t tsf_timestamp;                 /**< 802.11 Timing Synchronization Function (TSF) timer value at the time of capture, in microseconds. */
+    uint32_t aggregate_flags;               /**< A-MPDU aggregation flags describing the role of this frame within the aggregate. */
+    uint32_t aggregate_id;                  /**< A-MPDU aggregate identifier used to group subframes for reassembly. */
+    uint8_t  zero_length_psdu_type;         /**< Type code of the zero-length PSDU, used for sounding and NDP frames. */
 };
 
 /*
@@ -893,15 +910,18 @@ struct ieee_802_11_phdr {
 #define COSINE_DIR_TX 1
 #define COSINE_DIR_RX 2
 
+/**
+ * @brief Pseudo-header for CoSine Systems capture files carrying encapsulation, direction, and QoS metadata.
+ */
 struct cosine_phdr {
-    uint8_t encap;      /* COSINE_ENCAP_* as defined above */
-    uint8_t direction;  /* COSINE_DIR_*, as defined above */
-    char    if_name[COSINE_MAX_IF_NAME_LEN];  /* Encap & Logical I/F name */
-    uint16_t pro;        /* Protocol */
-    uint16_t off;        /* Offset */
-    uint16_t pri;        /* Priority */
-    uint16_t rm;         /* Rate Marking */
-    uint16_t err;        /* Error Code */
+    uint8_t  encap;                           /**< Encapsulation type of this packet; one of the COSINE_ENCAP_* values. */
+    uint8_t  direction;                       /**< Packet direction; one of the COSINE_DIR_* values. */
+    char     if_name[COSINE_MAX_IF_NAME_LEN]; /**< NUL-terminated encapsulation and logical interface name string. */
+    uint16_t pro;                             /**< Protocol identifier associated with this packet. */
+    uint16_t off;                             /**< Offset value associated with this packet's encapsulation layer. */
+    uint16_t pri;                             /**< Priority level assigned to this packet for QoS processing. */
+    uint16_t rm;                              /**< Rate Marking value applied to this packet for traffic shaping. */
+    uint16_t err;                             /**< Error code reported by the CoSine device for this packet; 0 if no error. */
 };
 
 /* Packet "pseudo-header" for IrDA capture files. */
@@ -925,18 +945,22 @@ struct cosine_phdr {
 #define IRDA_CLASS_LOG      0x0100
 #define IRDA_CLASS_MASK     0xFF00
 
+/**
+ * @brief Pseudo-header carrying IrDA packet type metadata for captured IrDA frames.
+ */
 struct irda_phdr {
-    uint16_t pkttype;    /* packet type */
+    uint16_t pkttype;  /**< IrDA packet type identifier classifying the captured frame (e.g., log message, data frame). */
 };
 
-/* Packet "pseudo-header" for nettl (HP-UX) capture files. */
-
+/**
+ * @brief Pseudo-header for HP-UX nettl capture files carrying subsystem, device, and process metadata.
+ */
 struct nettl_phdr {
-    uint16_t subsys;
-    uint32_t devid;
-    uint32_t kind;
-    int32_t pid;
-    uint32_t uid;
+    uint16_t subsys; /**< Subsystem identifier indicating the HP-UX network layer or driver that captured this packet. */
+    uint32_t devid;  /**< Device identifier of the network interface that captured this packet. */
+    uint32_t kind;   /**< Kind flags describing the type and direction of this capture record. */
+    int32_t  pid;    /**< Process identifier (PID) of the process associated with this packet; -1 if not applicable. */
+    uint32_t uid;    /**< User identifier (UID) of the user associated with this packet. */
 };
 
 /* Packet "pseudo-header" for MTP2 files. */
@@ -945,10 +969,13 @@ struct nettl_phdr {
 #define MTP2_ANNEX_A_USED          1
 #define MTP2_ANNEX_A_USED_UNKNOWN  2
 
+/**
+ * @brief Pseudo-header carrying MTP2 link metadata for captured SS7 MTP2 frames.
+ */
 struct mtp2_phdr {
-    uint8_t sent;
-    uint8_t annex_a_used;
-    uint16_t link_number;
+    uint8_t  sent;           /**< Non-zero if this frame was transmitted (sent); zero if it was received. */
+    uint8_t  annex_a_used;   /**< Non-zero if MTP2 Annex A (FISU/LSSU extensions) was used on this link. */
+    uint16_t link_number;    /**< Identifies the MTP2 signalling link that carried this frame. */
 };
 
 /**
@@ -979,15 +1006,18 @@ typedef union {
     uint32_t ds0mask;
 } k12_input_info_t;
 
+/**
+ * @brief Pseudo-header for Tektronix K12 capture files carrying input port, stack, and protocol metadata.
+ */
 struct k12_phdr {
-    uint32_t          input;
-    const char       *input_name;
-    const char       *stack_file;
-    uint32_t          input_type;
-    k12_input_info_t  input_info;
-    uint8_t          *extra_info;
-    uint32_t          extra_length;
-    void*             stuff;
+    uint32_t         input;        /**< Numeric identifier of the K12 input port on which this packet was captured. */
+    const char      *input_name;   /**< Human-readable name of the input port; NULL if unavailable. */
+    const char      *stack_file;   /**< Path to the K12 stack configuration file associated with this input; NULL if unavailable. */
+    uint32_t         input_type;   /**< Type identifier describing the protocol stack or medium of the input port. */
+    k12_input_info_t input_info;   /**< Protocol-specific input configuration details corresponding to @p input_type. */
+    uint8_t         *extra_info;   /**< Pointer to additional raw metadata bytes associated with this packet; NULL if none. */
+    uint32_t         extra_length; /**< Length in bytes of the data pointed to by @p extra_info; 0 if none. */
+    void            *stuff;        /**< Opaque pointer to internal K12 reader state associated with this input port. */
 };
 
 #define K12_PORT_DS0S      0x00010008
@@ -1024,32 +1054,33 @@ struct catapult_dct2000_phdr {
     struct wtap *wth;     /**< Pointer to the capture context (Wiretap handle). */
 };
 
-/*
- * Endace Record Format pseudo header
+/**
+ * @brief Pseudo-header for Endace ERF (Extensible Record Format) capture files carrying timestamp and record metadata.
  */
 struct erf_phdr {
-    uint64_t ts;     /* Time stamp */
-    uint8_t type;
-    uint8_t flags;
-    uint16_t rlen;
-    uint16_t lctr;
-    uint16_t wlen;
+    uint64_t ts;    /**< ERF timestamp in Endace's 64-bit fixed-point format: upper 32 bits are seconds since 1970-01-01, lower 32 bits are fractional seconds. */
+    uint8_t  type;  /**< ERF record type identifying the physical medium and encapsulation of this record. */
+    uint8_t  flags; /**< Bitmask of ERF flags describing capture conditions such as RX/TX direction and loss indicators. */
+    uint16_t rlen;  /**< Record length in bytes including this header, extension headers, any subheader, and the payload. */
+    uint16_t lctr;  /**< Loss counter; incremented by the capture hardware each time one or more records are dropped. */
+    uint16_t wlen;  /**< Wire length in bytes of the original packet as observed on the network. */
 };
 
-struct erf_ehdr {
-  uint64_t ehdr;
-};
-
-/*
- * ERF pseudo header with optional subheader
- * (Multichannel or Ethernet)
+/**
+ * @brief Holds a single ERF extension header word appended after the main ERF header.
  */
+struct erf_ehdr {
+    uint64_t ehdr; /**< Raw 64-bit extension header value; the type and continuation bit are encoded in the most significant byte. */
+};
 
-#define MAX_ERF_EHDR 16
+#define MAX_ERF_EHDR 16 /**< Maximum number of ERF extension headers that may be present in a single ERF record. */
 
+/**
+ * @brief ERF Ethernet subheader providing the frame offset for Ethernet ERF records.
+ */
 struct wtap_erf_eth_hdr {
-    uint8_t offset;
-    uint8_t pad;
+    uint8_t offset; /**< Byte offset from the start of the captured data to the first byte of the Ethernet frame. */
+    uint8_t pad;    /**< Padding byte to align the subheader to a 2-byte boundary; must be zero. */
 };
 
 /**
@@ -1132,18 +1163,23 @@ struct erf_mc_phdr {
 #define SITA_PROTO_DPM_LINK            (0x11)
 #define SITA_PROTO_BOP_FRL             (0x12)
 
+/**
+ * @brief Pseudo-header for SITA WAN capture files carrying signal, error, and protocol metadata.
+ */
 struct sita_phdr {
-    uint8_t sita_flags;
-    uint8_t sita_signals;
-    uint8_t sita_errors1;
-    uint8_t sita_errors2;
-    uint8_t sita_proto;
+    uint8_t sita_flags;    /**< Bitmask of SITA capture flags describing the state and direction of this frame. */
+    uint8_t sita_signals;  /**< Bitmask of physical signal line states (e.g. RTS, CTS, DSR, DTR) at the time of capture. */
+    uint8_t sita_errors1;  /**< First bitmask of hardware-reported error conditions for this frame. */
+    uint8_t sita_errors2;  /**< Second bitmask of hardware-reported error conditions for this frame. */
+    uint8_t sita_proto;    /**< Protocol identifier indicating the WAN protocol encapsulated in this frame. */
 };
 
-/*pseudo header for Bluetooth HCI*/
+/**
+ * @brief Pseudo-header for Bluetooth HCI capture files carrying direction and channel metadata.
+ */
 struct bthci_phdr {
-    bool      sent;
-    uint32_t  channel;
+    bool     sent;    /**< True if the HCI frame was sent from the host to the controller; false if received from the controller. */
+    uint32_t channel; /**< HCI channel identifier indicating the logical transport on which this frame was exchanged. */
 };
 
 #define BTHCI_CHANNEL_COMMAND  1
@@ -1152,34 +1188,42 @@ struct bthci_phdr {
 #define BTHCI_CHANNEL_EVENT    4
 #define BTHCI_CHANNEL_ISO      5
 
-/* pseudo header for WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR */
+/**
+ * @brief Pseudo-header for Linux Bluetooth Monitor (WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR) capture files.
+ */
 struct btmon_phdr {
-    uint16_t  adapter_id;
-    uint16_t  opcode;
+    uint16_t adapter_id; /**< Index of the Bluetooth adapter associated with this HCI event or data frame. */
+    uint16_t opcode;     /**< Linux Bluetooth Monitor opcode identifying the type of this monitor record. */
 };
 
-/* pseudo header for WTAP_ENCAP_LAYER1_EVENT */
+/**
+ * @brief Pseudo-header for layer 1 event (WTAP_ENCAP_LAYER1_EVENT) capture files carrying signal direction metadata.
+ */
 struct l1event_phdr {
-    bool uton;
+    bool uton; /**< True if the layer 1 event was in the user-to-network direction; false for network-to-user. */
 };
 
-/* * I2C pseudo header */
+/**
+ * @brief Pseudo-header for I2C bus capture files carrying bus number, event type, and flag metadata.
+ */
 struct i2c_phdr {
-    uint8_t is_event;
-    uint8_t bus;
-    uint32_t flags;
+    uint8_t  is_event; /**< Non-zero if this record represents an I2C bus event rather than a data transfer. */
+    uint8_t  bus;      /**< I2C bus number on which this transfer or event was captured. */
+    uint32_t flags;    /**< Bitmask of I2C capture flags describing transfer properties and error conditions. */
 };
 
-/* pseudo header for WTAP_ENCAP_GSM_UM */
+/**
+ * @brief Pseudo-header for GSM Um air interface (WTAP_ENCAP_GSM_UM) capture files.
+ */
 struct gsm_um_phdr {
-    bool uplink;
-    uint8_t  channel;
+    bool     uplink;      /**< True if the frame was captured on the uplink (MS→BTS); false for downlink (BTS→MS). */
+    uint8_t  channel;     /**< Logical channel type on which this frame was captured (e.g. BCCH, SDCCH, TCH). */
     /* The following are only populated for downlink */
-    uint8_t  bsic;
-    uint16_t arfcn;
-    uint32_t tdma_frame;
-    uint8_t  error;
-    uint16_t timeshift;
+    uint8_t  bsic;        /**< Base Station Identity Code of the BTS; populated for downlink frames only. */
+    uint16_t arfcn;       /**< Absolute Radio Frequency Channel Number of the carrier; populated for downlink frames only. */
+    uint32_t tdma_frame;  /**< TDMA frame number at which this frame was captured; populated for downlink frames only. */
+    uint8_t  error;       /**< Error code reported by the capture device for this frame; 0 if no error. */
+    uint16_t timeshift;   /**< Timing offset in quarter-symbol units measured for this frame. */
 };
 
 #define GSM_UM_CHANNEL_UNKNOWN  0
@@ -1192,44 +1236,54 @@ struct gsm_um_phdr {
 #define GSM_UM_CHANNEL_AGCH     7
 #define GSM_UM_CHANNEL_PCH      8
 
-/* Pseudo-header for nstrace packets */
+/**
+ * @brief Pseudo-header for Citrix NetScaler nstrace capture files carrying field offset and record layout metadata.
+ */
 struct nstr_phdr {
-    int64_t rec_offset;
-    int32_t rec_len;
-    uint8_t nicno_offset;
-    uint8_t nicno_len;
-    uint8_t dir_offset;
-    uint8_t dir_len;
-    uint16_t eth_offset;
-    uint8_t pcb_offset;
-    uint8_t l_pcb_offset;
-    uint8_t rec_type;
-    uint8_t vlantag_offset;
-    uint8_t coreid_offset;
-    uint8_t srcnodeid_offset;
-    uint8_t destnodeid_offset;
-    uint8_t clflags_offset;
-    uint8_t src_vmname_len_offset;
-    uint8_t dst_vmname_len_offset;
-    uint8_t ns_activity_offset;
-    uint8_t data_offset;
+    int64_t  rec_offset;            /**< Byte offset of this record within the nstrace capture file. */
+    int32_t  rec_len;               /**< Total length in bytes of this capture record. */
+    uint8_t  nicno_offset;          /**< Byte offset within the record to the NIC number field. */
+    uint8_t  nicno_len;             /**< Length in bytes of the NIC number field. */
+    uint8_t  dir_offset;            /**< Byte offset within the record to the packet direction field. */
+    uint8_t  dir_len;               /**< Length in bytes of the packet direction field. */
+    uint16_t eth_offset;            /**< Byte offset within the record to the start of the Ethernet frame data. */
+    uint8_t  pcb_offset;            /**< Byte offset within the record to the primary Protocol Control Block (PCB) pointer field. */
+    uint8_t  l_pcb_offset;          /**< Byte offset within the record to the linked Protocol Control Block (PCB) pointer field. */
+    uint8_t  rec_type;              /**< Record type identifier indicating the format and content of this nstrace record. */
+    uint8_t  vlantag_offset;        /**< Byte offset within the record to the VLAN tag field. */
+    uint8_t  coreid_offset;         /**< Byte offset within the record to the CPU core ID field. */
+    uint8_t  srcnodeid_offset;      /**< Byte offset within the record to the source cluster node ID field. */
+    uint8_t  destnodeid_offset;     /**< Byte offset within the record to the destination cluster node ID field. */
+    uint8_t  clflags_offset;        /**< Byte offset within the record to the cluster flags field. */
+    uint8_t  src_vmname_len_offset; /**< Byte offset within the record to the source VM name length field. */
+    uint8_t  dst_vmname_len_offset; /**< Byte offset within the record to the destination VM name length field. */
+    uint8_t  ns_activity_offset;    /**< Byte offset within the record to the NetScaler activity flags field. */
+    uint8_t  data_offset;           /**< Byte offset within the record to the start of the packet payload data. */
 };
 
-/* Packet "pseudo-header" for Nokia output */
+/**
+ * @brief Pseudo-header for Nokia firewall capture files, extending the Ethernet pseudo-header with device-specific metadata.
+ */
 struct nokia_phdr {
-    struct eth_phdr eth;
-    uint8_t stuff[4];    /* mysterious stuff */
+    struct eth_phdr eth;   /**< Standard Ethernet pseudo-header carrying FCS length metadata. */
+    uint8_t stuff[4];      /**< Device-specific metadata of unknown purpose appended by Nokia firmware. */
 };
 
-#define LLCP_PHDR_FLAG_SENT 0
+#define LLCP_PHDR_FLAG_SENT 0 /**< Flag value indicating the LLCP frame was sent by the local device. */
+
+/**
+ * @brief Pseudo-header for NFC Logical Link Control Protocol (LLCP) capture files.
+ */
 struct llcp_phdr {
-    uint8_t adapter;
-    uint8_t flags;
+    uint8_t adapter; /**< Index of the NFC adapter on which this LLCP frame was captured. */
+    uint8_t flags;   /**< Bitmask of LLCP capture flags; LLCP_PHDR_FLAG_SENT indicates a sent frame. */
 };
 
-/* pseudo header for WTAP_ENCAP_LOGCAT */
+/**
+ * @brief Pseudo-header for Android Logcat (WTAP_ENCAP_LOGCAT) capture files.
+ */
 struct logcat_phdr {
-    int version;
+    int version; /**< Logcat binary format version identifying the record layout (e.g. 1, 2, 3, or 4). */
 };
 
 /**
@@ -1537,42 +1591,47 @@ typedef struct {
  */
 #define WTAP_NSTIME_32BIT_SECS_MAX ((time_t)(sizeof(time_t) > sizeof(int32_t) ? UINT32_MAX : INT32_MAX))
 
+/**
+ * @brief Represents a single capture record read from or written to a capture file, regardless of record type.
+ */
 typedef struct wtap_rec {
-    unsigned  rec_type;          /* what type of record is this? */
-    uint32_t  presence_flags;    /* what stuff do we have? */
-    unsigned  section_number;    /* section, within file, containing this record */
-    nstime_t  ts;                /* time stamp */
-    int       tsprec;            /* WTAP_TSPREC_ value for this record */
-    const char *rec_type_name;   /* name of this record type */
+    unsigned    rec_type;        /**< Record type identifier (e.g. REC_TYPE_PACKET, REC_TYPE_FT_SPECIFIC_EVENT). */
+    uint32_t    presence_flags;  /**< Bitmask of WTAP_HAS_ flags indicating which optional fields are populated in this record. */
+    unsigned    section_number;  /**< Zero-based index of the section within the capture file that contains this record. */
+    nstime_t    ts;              /**< Timestamp at which this record was captured. */
+    int         tsprec;          /**< Timestamp precision as a WTAP_TSPREC_ constant (e.g. WTAP_TSPREC_USEC, WTAP_TSPREC_NSEC). */
+    const char *rec_type_name;   /**< Human-readable name of this record type, suitable for display and logging. */
+
+    /**
+     * @brief Type-specific record header, interpreted according to @ref rec_type.
+     */
     union {
-        wtap_packet_header packet_header;
-        wtap_ft_specific_header ft_specific_header;
-        wtap_syscall_header syscall_header;
-        wtap_systemd_journal_export_header systemd_journal_export_header;
-        wtap_custom_block_header custom_block_header;
+        wtap_packet_header                    packet_header;                /**< Header for standard captured network packets (REC_TYPE_PACKET). */
+        wtap_ft_specific_header               ft_specific_header;           /**< Header for file-type-specific event records (REC_TYPE_FT_SPECIFIC_EVENT or REC_TYPE_FT_SPECIFIC_REPORT). */
+        wtap_syscall_header                   syscall_header;               /**< Header for system call event records (REC_TYPE_SYSCALL). */
+        wtap_systemd_journal_export_header    systemd_journal_export_header;/**< Header for systemd journal export records (REC_TYPE_SYSTEMD_JOURNAL_EXPORT). */
+        wtap_custom_block_header              custom_block_header;          /**< Header for custom block records (REC_TYPE_CUSTOM_BLOCK). */
     } rec_header;
 
-    /*
-     * XXX - some if not all of the rec_header information may belong
-     * here, or may already be here.  Eliminating rec_header in favor
-     * of this might simplify the process of adding new record/block
-     * types.  For example, some of it might belong in block->mandatory_data.
+    /**
+     * @brief Block-level metadata associated with this record.
      *
-     * It also has a type field that's somewhat equivalent to rec_type.
+     * Carries structured block information (options, etc.) that may overlap with or
+     * eventually supersede @ref rec_header. NULL for record types that do not
+     * correspond to a pcapng block or equivalent construct.
+     */
+    wtap_block_t block;
+
+    bool         block_was_modified; /**< True if any field or option within @ref block has been modified since it was read. */
+
+    /**
+     * @brief Reusable buffer holding serialized file-type-specific option data for this record.
      *
-     * It's null for some record types.
+     * Using a persistent Buffer avoids per-record allocation and deallocation overhead for option payloads.
      */
-    wtap_block_t block;          /* block information */
-    bool block_was_modified;     /* true if ANY aspect of the block has been modified */
+    Buffer       options_buf;
 
-    /*
-     * We use a Buffer so that we don't have to allocate and free
-     * a buffer for the options for each record.
-     */
-    Buffer    options_buf;       /* file-type specific data */
-
-    /* Buffer for the record data. */
-    Buffer    data;
+    Buffer       data; /**< Raw bytes of the record payload (e.g. the captured packet data). */
 } wtap_rec;
 
 /*
@@ -1615,28 +1674,36 @@ typedef struct wtap_rec {
 #define MAXDNSNAMELEN  	256	/* max total length of a domain name in DNS */
 #endif
 
+/**
+ * @brief Hash table entry for a resolved or unresolved IPv4 address.
+ */
 typedef struct hashipv4 {
-    unsigned          addr;
-    uint8_t           flags;          /* B0 dummy_entry, B1 resolve, B2 If the address is used in the trace */
-    char              ip[WS_INET_ADDRSTRLEN];
-    char              name[MAXDNSNAMELEN];
-    char              cidr_addr[WS_INET_CIDRADDRSTRLEN];
+    unsigned addr;                          /**< IPv4 address in host byte order used as the hash key. */
+    uint8_t  flags;                         /**< State flags: B0 = dummy entry, B1 = resolution attempted, B2 = address appears in the capture. */
+    char     ip[WS_INET_ADDRSTRLEN];        /**< Dotted-decimal string representation of the IPv4 address (e.g. "192.168.1.1"). */
+    char     name[MAXDNSNAMELEN];           /**< Resolved DNS hostname for this address, or an empty string if unresolved. */
+    char     cidr_addr[WS_INET_CIDRADDRSTRLEN]; /**< CIDR notation string representation of the IPv4 address/prefix (e.g. "192.168.1.0/24"). */
 } hashipv4_t;
 
+
+/**
+ * @brief Hash table entry for a resolved or unresolved IPv6 address.
+ */
 typedef struct hashipv6 {
-    uint8_t           addr[16];
-    uint8_t           flags;          /* B0 dummy_entry, B1 resolve, B2 If the address is used in the trace */
-    char              ip6[WS_INET6_ADDRSTRLEN];
-    char              name[MAXDNSNAMELEN];
-    char              cidr_addr[WS_INET6_CIDRADDRSTRLEN];
+    uint8_t addr[16];                           /**< IPv6 address in network byte order used as the hash key. */
+    uint8_t flags;                              /**< State flags: B0 = dummy entry, B1 = resolution attempted, B2 = address appears in the capture. */
+    char    ip6[WS_INET6_ADDRSTRLEN];           /**< Colon-separated string representation of the IPv6 address (e.g. "2001:db8::1"). */
+    char    name[MAXDNSNAMELEN];                /**< Resolved DNS hostname for this address, or an empty string if unresolved. */
+    char    cidr_addr[WS_INET6_CIDRADDRSTRLEN]; /**< CIDR notation string representation of the IPv6 address/prefix (e.g. "2001:db8::/32"). */
 } hashipv6_t;
 
-/** A struct with lists of resolved addresses.
- *  Used when writing name resolutions blocks (NRB)
+
+/**
+ * @brief Aggregates lists of resolved IPv4 and IPv6 addresses for writing into a pcapng Name Resolution Block (NRB).
  */
 typedef struct addrinfo_lists {
-    GList      *ipv4_addr_list; /**< A list of resolved hashipv4_t*/
-    GList      *ipv6_addr_list; /**< A list of resolved hashipv6_t*/
+    GList *ipv4_addr_list; /**< A list of resolved hashipv4_t entries to be written into the NRB. */
+    GList *ipv6_addr_list; /**< A list of resolved hashipv6_t entries to be written into the NRB. */
 } addrinfo_lists_t;
 
 /**
@@ -1690,7 +1757,10 @@ typedef struct wtap_dumper wtap_dumper;
 
 typedef struct wtap_reader *FILE_T;
 
-/* Similar to the wtap_open_routine_info for open routines, the following
+/**
+ * @brief Companion metadata block for Lua-based file writers registered via wslua, carrying the write-open callback reference and its associated state.
+ *
+ * Similar to the wtap_open_routine_info for open routines, the following
  * wtap_wslua_file_info struct is used by wslua code for Lua-based file writers.
  *
  * This concept is necessary because when wslua goes to invoke the
@@ -1702,8 +1772,8 @@ typedef struct wtap_reader *FILE_T;
  * 'data' member is not free'd in wtap_dump_close().
  */
 typedef struct wtap_wslua_file_info {
-    int (*wslua_can_write_encap)(int, void*);   /* a can_write_encap func for wslua uses */
-    void* wslua_data;                           /* holds the wslua data */
+    int (*wslua_can_write_encap)(int, void*); /**< Callback that returns non-zero if the Lua writer supports the given WTAP_ENCAP_ encapsulation type; the void* receives @ref wslua_data. */
+    void *wslua_data;                         /**< Opaque pointer to the Lua state or ref data needed by wslua when invoking the registered write-open and dump callbacks. */
 } wtap_wslua_file_info_t;
 
 /**
@@ -1958,6 +2028,9 @@ struct supported_block_type {
 #define BLOCKS_SUPPORTED(block_type_array) \
     array_length(block_type_array), block_type_array
 
+/**
+ * @brief Describes a single capture file type/subtype, including its metadata, capability flags, and I/O function pointers.
+*/
 struct file_type_subtype_info {
     /**
      * The file type description.

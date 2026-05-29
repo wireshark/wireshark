@@ -20,51 +20,64 @@
 #define PCAPNG_MAJOR_VERSION 1
 #define PCAPNG_MINOR_VERSION 0
 
-/* pcapng: common block header file encoding for every block type */
+/**
+ * @brief Common block header shared by every block type in a pcapng capture file.
+ */
 typedef struct pcapng_block_header_s {
-    uint32_t block_type;
-    uint32_t block_total_length;
-    /* x bytes block_body */
-    /* uint32_t block_total_length */
+    uint32_t block_type;         /**< Block type identifier indicating the format of the block body. */
+    uint32_t block_total_length; /**< Total length in bytes of this block, including this header and the trailing length field. */
+    /* x bytes of block body follow. */
+    /* uint32_t block_total_length repeated at the end of every block for reverse traversal. */
 } pcapng_block_header_t;
 
-/* pcapng: section header block file encoding */
+/**
+ * @brief Section Header Block (SHB) body encoding in a pcapng file, marking the start of a capture section.
+ */
 typedef struct pcapng_section_header_block_s {
-    /* pcapng_block_header_t */
-    uint32_t magic;
-    uint16_t version_major;
-    uint16_t version_minor;
-    uint64_t section_length; /* might be -1 for unknown */
+    /* Preceded by pcapng_block_header_t */
+    uint32_t magic;           /**< Byte-order magic number (0x1A2B3C4D); used to detect file endianness. */
+    uint16_t version_major;   /**< Major version of the pcapng format used in this section. */
+    uint16_t version_minor;   /**< Minor version of the pcapng format used in this section. */
+    uint64_t section_length;  /**< Length in bytes of this section excluding the SHB itself; -1 if unknown. */
     /* ... Options ... */
 } pcapng_section_header_block_t;
 
-/* pcapng: interface description block file encoding */
+/**
+ * @brief Interface Description Block (IDB) body encoding in a pcapng file, describing a capture interface.
+ */
 typedef struct pcapng_interface_description_block_s {
-    uint16_t linktype;
-    uint16_t reserved;
-    uint32_t snaplen;
+    uint16_t linktype; /**< Data link type of packets captured on this interface, as a LINKTYPE_* value. */
+    uint16_t reserved; /**< Reserved; must be zero. */
+    uint32_t snaplen;  /**< Maximum number of octets captured per packet on this interface; 0 means no limit. */
     /* ... Options ... */
 } pcapng_interface_description_block_t;
 
-/* pcapng: interface statistics block file encoding */
+/**
+ * @brief Interface Statistics Block (ISB) body encoding in a pcapng file, reporting per-interface capture statistics.
+ */
 typedef struct pcapng_interface_statistics_block_s {
-    uint32_t interface_id;
-    uint32_t timestamp_high;
-    uint32_t timestamp_low;
+    uint32_t interface_id;    /**< Zero-based index of the interface (referencing a prior IDB) to which these statistics apply. */
+    uint32_t timestamp_high;  /**< High 32 bits of the 64-bit timestamp of this statistics record. */
+    uint32_t timestamp_low;   /**< Low 32 bits of the 64-bit timestamp of this statistics record. */
     /* ... Options ... */
 } pcapng_interface_statistics_block_t;
 
-/* pcapng: Decryption Secrets Block file encoding */
+/**
+ * @brief Decryption Secrets Block (DSB) body encoding in a pcapng file, embedding key material for decrypting captured traffic.
+ */
 typedef struct pcapng_decryption_secrets_block_s {
-    uint32_t secrets_type;   /* Secrets Type, see secrets-types.h */
-    uint32_t secrets_len;    /* Size of variable-length secrets data. */
-    /* x bytes Secrets Data. */
+    uint32_t secrets_type; /**< Secrets type identifier indicating the format of the embedded key material; see secrets-types.h. */
+    uint32_t secrets_len;  /**< Length in bytes of the variable-length secrets data that follows this header. */
+    /* x bytes of Secrets Data follow. */
     /* ... Options ... */
 } pcapng_decryption_secrets_block_t;
 
+/**
+ * @brief Option header used to encode a single TLV option appended to a pcapng block.
+ */
 struct pcapng_option_header {
-    uint16_t type;
-    uint16_t value_length;
+    uint16_t type;         /**< Option type code identifying the meaning of this option's value. */
+    uint16_t value_length; /**< Length in bytes of the option value that follows this header; padded to a 4-byte boundary in the file. */
 };
 
 /**

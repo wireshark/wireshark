@@ -43,10 +43,10 @@ typedef struct _range_pair {
     int ceil;  /**< Inclusive upper bound of the range. */
 } range_pair_t;
 
+typedef struct _burst_bucket burst_bucket;
 /**
  * @brief Represents a single time bucket in a burst analysis sliding window, linked into a doubly-linked list.
  */
-typedef struct _burst_bucket burst_bucket;
 struct _burst_bucket {
     burst_bucket* next;        /**< Pointer to the next bucket in the list, or NULL if this is the last. */
     burst_bucket* prev;        /**< Pointer to the previous bucket in the list, or NULL if this is the first. */

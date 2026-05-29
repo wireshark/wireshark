@@ -21,15 +21,15 @@
 
 #define ERF_MAX_INTERFACES 8
 
-/*
- * Private data for ERF files and LINKTYPE_ERF packets in pcap and pcapng.
+/**
+ * @brief Private state maintained for ERF capture files and LINKTYPE_ERF packets in pcap/pcapng.
  */
 struct erf_private {
-  GHashTable* if_map;
-  GHashTable* anchor_map;
-  uint64_t implicit_host_id;
-  uint64_t capture_gentime;
-  uint64_t host_gentime;
+    GHashTable *if_map;            /**< Hash table mapping ERF interface IDs to wtap_interface_info records. */
+    GHashTable *anchor_map;        /**< Hash table mapping ERF anchor IDs to associated metadata records. */
+    uint64_t    implicit_host_id;  /**< Host ID inferred implicitly when no explicit Host ID extension header is present. */
+    uint64_t    capture_gentime;   /**< Generation timestamp of the capture-level metadata, in ERF time format. */
+    uint64_t    host_gentime;      /**< Generation timestamp of the host-level metadata, in ERF time format. */
 };
 
 #define MIN_RECORDS_FOR_ERF_CHECK 3

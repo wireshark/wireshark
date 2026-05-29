@@ -22,50 +22,55 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Represents a single RLC PDU or control segment captured from the air interface.
+ */
 struct rlc_segment {
-    struct rlc_segment *next;
-    uint32_t        num;            /* framenum */
-    nstime_t        rel_ts;
+    struct rlc_segment *next;                /**< Pointer to the next segment in the singly-linked list. */
+    uint32_t        num;                     /**< Wireshark frame number of the packet containing this segment. */
+    nstime_t        rel_ts;                  /**< Timestamp of the segment relative to the start of the capture. */
 
-    bool            isControlPDU;
-    uint32_t        SN;
-    uint16_t        isResegmented;
-    uint32_t        ACKNo;
-    uint16_t        noOfNACKs;
-    uint32_t        NACKs[MAX_NACKs];
-    uint16_t        pduLength;
+    bool            isControlPDU;            /**< True if this segment is a control PDU (STATUS); false for data PDUs. */
+    uint32_t        SN;                      /**< RLC Sequence Number of this data PDU. */
+    uint16_t        isResegmented;           /**< Non-zero if this PDU is a resegmented AMD PDU. */
+    uint32_t        ACKNo;                   /**< Acknowledgement sequence number carried in a STATUS PDU. */
+    uint16_t        noOfNACKs;               /**< Number of NACK entries present in a STATUS PDU. */
+    uint32_t        NACKs[MAX_NACKs];        /**< Array of sequence numbers negatively acknowledged in a STATUS PDU. */
+    uint16_t        pduLength;               /**< Length of the PDU in bytes. */
 
-    uint8_t         rat;
-    uint16_t        ueid;
-    uint16_t        channelType;
-    uint16_t        channelId;
-    uint8_t         rlcMode;
-    uint8_t         direction;
-    uint16_t        sequenceNumberLength;
+    uint8_t         rat;                     /**< Radio Access Technology (e.g., LTE, NR). */
+    uint16_t        ueid;                    /**< UE identifier that this segment belongs to. */
+    uint16_t        channelType;             /**< Logical channel type (e.g., DCCH, DTCH). */
+    uint16_t        channelId;               /**< Logical channel ID within the UE. */
+    uint8_t         rlcMode;                 /**< RLC mode: TM, UM, or AM. */
+    uint8_t         direction;               /**< Transmission direction: uplink or downlink. */
+    uint16_t        sequenceNumberLength;    /**< Configured sequence number field length in bits. */
 };
 
-/* A collection of channels that may be found in one frame.  Used when working out
-   which channel(s) are present in a frame. */
+/**
+ * @brief Accumulates all RLC channel headers found within a single captured frame.
+ */
 typedef struct _th_t {
-    int num_hdrs;
+    int num_hdrs;                                        /**< Number of valid entries in @ref rlchdrs. */
     #define MAX_SUPPORTED_CHANNELS 8
-    rlc_3gpp_tap_info *rlchdrs[MAX_SUPPORTED_CHANNELS];
+    rlc_3gpp_tap_info *rlchdrs[MAX_SUPPORTED_CHANNELS]; /**< Array of tap info pointers, one per distinct RLC channel in the frame. */
 } th_t;
 
+/**
+ * @brief Holds all state required to render an RLC sequence-number graph for one channel.
+ */
 struct rlc_graph {
-    /* List of segments to show */
-    struct rlc_segment *segments;
-    struct rlc_segment *last_segment;
+    struct rlc_segment *segments;      /**< Head of the linked list of segments to be plotted. */
+    struct rlc_segment *last_segment;  /**< Tail of the linked list, used for O(1) appends. */
 
-    /* These are filled in with the channel/direction this graph is showing */
-    bool            channelSet;
+    bool            channelSet;        /**< True if the channel identity fields below have been populated. */
 
-    uint8_t         rat;
-    uint16_t        ueid;
-    uint16_t        channelType;
-    uint16_t        channelId;
-    uint8_t         rlcMode;
-    uint8_t         direction;
+    uint8_t         rat;               /**< Radio Access Technology of the graphed channel. */
+    uint16_t        ueid;              /**< UE identifier of the graphed channel. */
+    uint16_t        channelType;       /**< Logical channel type of the graphed channel. */
+    uint16_t        channelId;         /**< Logical channel ID of the graphed channel. */
+    uint8_t         rlcMode;           /**< RLC mode of the graphed channel. */
+    uint8_t         direction;         /**< Direction (uplink or downlink) of the graphed channel. */
 };
 
 /**

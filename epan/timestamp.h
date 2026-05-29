@@ -31,9 +31,7 @@ typedef enum {
     TS_UTC,               /**< UTC absolute time, without date */
     TS_UTC_WITH_YMD,      /**< UTC absolute time, with date in YYYY-MM-DD form */
     TS_UTC_WITH_YDOY,     /**< UTC absolute time, with date in YYYY DOY (day-of-year) form */
-
-    /**< Sentinel indicating that no timestamp format has been set via the command line */
-    TS_NOT_SET
+    TS_NOT_SET            /**< Sentinel indicating that no timestamp format has been set via the command line */
 } ts_type;
 
 
@@ -52,9 +50,7 @@ typedef enum {
     TS_PREC_FIXED_100_NSEC = WS_TSPREC_100_NSEC, /**< Display timestamps with 100-nanosecond precision */
     TS_PREC_FIXED_10_NSEC  = WS_TSPREC_10_NSEC,  /**< Display timestamps with 10-nanosecond precision */
     TS_PREC_FIXED_NSEC     = WS_TSPREC_NSEC,     /**< Display timestamps with nanosecond (1 ns) precision */
-
-    /**< Sentinel indicating that no precision has been set via the command line */
-    TS_PREC_NOT_SET        = -2
+    TS_PREC_NOT_SET        = -2                  /**< Sentinel indicating that no precision has been set via the command line */
 } ts_precision;
 
 
@@ -64,9 +60,7 @@ typedef enum {
 typedef enum {
     TS_SECONDS_DEFAULT,      /**< Display seconds as a plain decimal value (default/recent preference) */
     TS_SECONDS_HOUR_MIN_SEC, /**< Display seconds in HH:MM:SS format (recent preference) */
-
-    /**< Sentinel indicating that no seconds format has been set via the command line */
-    TS_SECONDS_NOT_SET
+    TS_SECONDS_NOT_SET       /**< Sentinel indicating that no seconds format has been set via the command line */
 } ts_seconds_type;
 
 /**

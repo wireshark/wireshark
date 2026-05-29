@@ -11,11 +11,13 @@
 
 #include "ws_symbol_export.h"
 
+/**
+ * @brief Describes a named memory usage tracker, providing callbacks to query current consumption and release cached allocations.
+ */
 typedef struct {
-	const char *name;
-	size_t (*fetch)(void);
-	void (*gc)(void);
-
+    const char *name;        /**< Short human-readable name identifying this memory subsystem (e.g. "epan", "wmem"). */
+    size_t (*fetch)(void);   /**< Callback that returns the number of bytes currently consumed by this subsystem. */
+    void   (*gc)(void);      /**< Callback invoked to release non-essential cached memory held by this subsystem. */
 } ws_mem_usage_t;
 
 /**

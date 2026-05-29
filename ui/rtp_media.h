@@ -37,12 +37,14 @@ typedef int16_t SAMPLE;
 #define SAMPLE_NaN SAMPLE_MIN
 #define SAMPLE_BYTES (sizeof(SAMPLE) / sizeof(char))
 
-/* Defines an RTP packet */
+/**
+ * @brief Represents a single dissected RTP packet captured within an RTP stream.
+ */
 typedef struct _rtp_packet {
-    uint32_t frame_num;      /* Qt only */
-    struct _rtp_info *info;	/* the RTP dissected info */
-    double arrive_offset;	/* arrive offset time since the beginning of the stream as ms in GTK UI and s in Qt UI */
-    uint8_t* payload_data;
+    uint32_t         frame_num;     /**< Frame number of this packet in the capture file; used by the Qt UI only. */
+    struct _rtp_info *info;         /**< Pointer to the dissected RTP header and payload metadata for this packet. */
+    double           arrive_offset; /**< Arrival time offset from the start of the stream; expressed in milliseconds in the GTK UI and seconds in the Qt UI. */
+    uint8_t         *payload_data;  /**< Pointer to the raw RTP payload bytes for this packet. */
 } rtp_packet_t;
 
 /** Create a new hash table.

@@ -19,13 +19,16 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Describes a single Wireshark configuration profile and its associated settings.
+ */
 typedef struct {
-    char     *name;             /* profile name */
-    char     *reference;        /* profile reference */
-    bool      is_global;
+    char *name;                  /**< Display name of the profile. */
+    char *reference;             /**< Reference identifier or path for the profile. */
+    bool is_global;              /**< True if this is a global (read-only) profile; false if user-defined. */
 
-    // Settings
-    char     *auto_switch_filter;
+    /* Settings */
+    char *auto_switch_filter;    /**< Display filter expression that triggers automatic switching to this profile. */
 } profile_def;
 
 /**
