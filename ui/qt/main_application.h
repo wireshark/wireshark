@@ -57,8 +57,6 @@ public:
     enum AppSignal {
         /** @brief Capture filter list changed. */
         CaptureFilterListChanged,
-        /** @brief Colors configuration changed. */
-        ColorsChanged,
         /** @brief Packet list columns changed. */
         ColumnsChanged,
         /** @brief Display filter list changed. */
@@ -278,12 +276,6 @@ public:
     const QFont monospaceFont(bool zoomed = false) const;
 
     /**
-     * @brief Sets the application monospace font.
-     * @param font_string String representation of the font.
-     */
-    void setMonospaceFont(const char *font_string);
-
-    /**
      * @brief Calculates the horizontal pixel size of a string using the monospace font.
      * @param str The string to measure.
      * @return The size in pixels.
@@ -420,9 +412,6 @@ private:
     /** Indicates if Lua plugins are currently in the process of reloading. */
     bool is_reloading_lua_;
 
-    /** The base monospace font. */
-    QFont mono_font_;
-
     /** The actively zoomed monospace font. */
     QFont zoomed_font_;
 
@@ -519,8 +508,6 @@ signals:
     void filterExpressionsChanged();
     /** @brief Signal emitted when packet dissection settings are changed. */
     void packetDissectionChanged();
-    /** @brief Signal emitted when colors are changed. */
-    void colorsChanged();
     /** @brief Signal emitted when preferences are changed. */
     void preferencesChanged();
     /** @brief Signal emitted when address resolution settings change. */
@@ -590,12 +577,6 @@ private slots:
      */
     void refreshPacketData();
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0) && defined(Q_OS_WIN)
-    /**
-     * @brief Handles system color scheme changes (Windows specific).
-     */
-    void colorSchemeChanged();
-#endif
 };
 
 extern MainApplication *mainApp;

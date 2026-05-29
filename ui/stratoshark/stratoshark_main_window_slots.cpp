@@ -128,6 +128,7 @@ DIAG_ON(frame-larger-than=)
 #include <ui/qt/utils/stock_icon.h>
 #include "keyboard_shortcuts_dialog.h"
 #include "supported_protocols_dialog.h"
+#include "theme_debug_dialog.h"
 #include "tap_parameter_dialog.h"
 #include "time_shift_dialog.h"
 #include "uat_dialog.h"
@@ -2255,6 +2256,11 @@ void StratosharkMainWindow::connectViewMenuActions()
     connect(main_ui_->actionViewInternalsKeyboardShortcuts, &QAction::triggered, this, [this]() {
         KeyboardShortcutsDialog *keyboard_shortcuts_dlg = new KeyboardShortcutsDialog(this);
         keyboard_shortcuts_dlg->show();
+    });
+
+    connect(main_ui_->actionViewInternalsThemeDebug, &QAction::triggered, this, [this]() {
+        ThemeDebugDialog *theme_debug_dlg = new ThemeDebugDialog(this);
+        theme_debug_dlg->show();
     });
 
     connect(main_ui_->actionViewShowPacketInNewWindow, &QAction::triggered, this,

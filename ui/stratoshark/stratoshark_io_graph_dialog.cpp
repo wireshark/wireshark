@@ -14,6 +14,8 @@
 #include <ui/qt/io_graph.h>
 #include <ui/qt/utils/color_utils.h>
 
+#include <ui/qt/utils/theme_manager.h>
+
 UAT_VS_DEF(io_graph, yaxis, io_graph_settings_t, uint32_t, 0, "Events")
 
 static uat_field_t io_graph_event_fields[] = {
@@ -47,16 +49,12 @@ void StratosharkIOGraphDialog::initialize(QWidget& parent, QString displayFilter
 
 void StratosharkIOGraphDialog::addDefaultGraph(bool enabled, int idx)
 {
-    switch (idx % 2) {
-    case 0:
-        addGraph(enabled, false, tr("All Events"), QString(), ColorUtils::graphColor(idx),
-            IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
-        break;
-    default:
-        addGraph(enabled, false, tr("All Execs"), "evt.type == \"execve\"", ColorUtils::graphColor(4), // 4 = red
-            IOGraph::psDot, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
-        break;
-    }
+    QString filter = idx % 2 == 0 ? QString() : "evt.type == \"execve\"";
+    QColor color = idx % 2 == 0 ? ThemeManager::instance()->graphColor(idx) : ThemeManager::instance()->graphDefaultColor();
+    Graph::PlotStyles style = idx % 2 == 0 ? IOGraph::psLine : IOGraph::psDot;
+
+    addGraph(enabled, false, tr("All Events"), filter, color,
+            style, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
 }
 
 QString StratosharkIOGraphDialog::getFilteredName() const

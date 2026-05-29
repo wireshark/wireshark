@@ -341,7 +341,7 @@ QString PrefsModel::typeToString(PrefsModelType type)
         case Appearance: typeStr = tr("Appearance"); break;
         case Layout: typeStr = tr("Layout"); break;
         case Columns: typeStr = tr("Columns"); break;
-        case FontAndColors: typeStr = tr("Font and Colors"); break;
+        case FontAndColors: typeStr = tr("Theme and Font"); break;
         case WelcomePage: typeStr = tr("Welcome Page"); break;
         case Capture: typeStr = tr("Capture"); break;
         case Expert: typeStr = tr("Expert"); break;

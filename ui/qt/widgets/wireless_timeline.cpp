@@ -513,8 +513,8 @@ WirelessTimeline::paintEvent(QPaintEvent *qpe)
 
     zoom = ((double) width())/(end_tsf - start_tsf) * ratio;
 
-    /* background is light grey */
-    p.fillRect(0, 0, width(), TIMELINE_HEIGHT, QColor(240,240,240));
+    /* background uses the palette window color so it adapts to the theme */
+    p.fillRect(0, 0, width(), TIMELINE_HEIGHT, palette().color(QPalette::Window));
 
     /* background of packets visible in packet_list is white */
     int top = packet_list->indexAt(QPoint(0,0)).row();
@@ -527,15 +527,15 @@ WirelessTimeline::paintEvent(QPaintEvent *qpe)
 
     int x1 = top == -1 ? 0 : position(get_wlan_radio(topData->num)->start_tsf, ratio);
     int x2 = bottom == -1 ? width() : position(get_wlan_radio(botData->num)->end_tsf, ratio);
-    p.fillRect(QRectF(x1/ratio, 0, (x2-x1+1)/ratio, TIMELINE_HEIGHT), Qt::white);
+    p.fillRect(QRectF(x1/ratio, 0, (x2-x1+1)/ratio, TIMELINE_HEIGHT), palette().color(QPalette::Base));
 
-    /* background of current packet is blue */
+    /* background of current packet uses the palette highlight color */
     if (cfile.current_frame) {
         struct wlan_radio *wr = get_wlan_radio(cfile.current_frame->num);
         if (wr) {
             x1 = position(wr->start_tsf, ratio);
             x2 = position(wr->end_tsf, ratio);
-            p.fillRect(QRectF(x1/ratio, 0, (x2-x1+1)/ratio, TIMELINE_HEIGHT), Qt::blue);
+            p.fillRect(QRectF(x1/ratio, 0, (x2-x1+1)/ratio, TIMELINE_HEIGHT), palette().color(QPalette::Highlight));
         }
     }
 

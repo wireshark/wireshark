@@ -18,6 +18,7 @@
 
 #include <wsutil/utf8_entities.h>
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 #include <app/application_flavor.h>
 
 #ifdef HAVE_LUA
@@ -46,6 +47,17 @@ static const int kSubtextHeight = kTitleHeight - 4;
 static const qreal kSubtextFontScale = 1.0;
 static const int kSubtextAlpha = 160;
 static const int kBarHeight = 6;
+static const int kCardBgAlpha = 200;
+static const int kCardBgAlphaLight = 190;
+static const int kCardBorderAlpha = 30;
+static const int kCardBorderAlphaLight = 25;
+static const int kBarTrackAlpha = 25;
+static const int kBarTrackAlphaLight = 20;
+static const int kVignetteEdgeAlpha = 178;
+static const int kVignetteEdgeAlphaLight = 140;
+static const int kVignetteCenterAlpha = 30;
+static const int kVignetteCenterAlphaLight = 10;
+static const int kBarFillAlpha = 200;
 
 SplashOverlay *SplashOverlay::instance_ = nullptr;
 
@@ -98,11 +110,20 @@ void SplashOverlay::paintEvent(QPaintEvent *)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    bool dark = ColorUtils::themeIsDark();
+    bool dark = ThemeManager::isDark();
+    ThemeManager *theme = ThemeManager::instance();
+    // ThemePaletteBuilder has already pushed the mode-correct palette
+    // to qApp, so Base/Mid are the authoritative source here.  Don't
+    // use ThemeManager::color(PaletteBase/Mid) — those tokens are only
+    // populated when the theme defines an explicit override, and the
+    // default theme doesn't, so they resolve to an invalid QColor
+    // (rendered as opaque black).
+    const QPalette appPalette = QApplication::palette();
 
     // --- Radial vignette background ---
-    QColor edge_color = dark ? QColor(0, 0, 0, 178) : QColor(0, 0, 0, 140);
-    QColor center_color = dark ? QColor(0, 0, 0, 30) : QColor(0, 0, 0, 10);
+    // Scrim over the window-behind: mode-independent black, alpha-modulated.
+    QColor edge_color(0, 0, 0, dark ? kVignetteEdgeAlpha : kVignetteEdgeAlphaLight);
+    QColor center_color(0, 0, 0, dark ? kVignetteCenterAlpha : kVignetteCenterAlphaLight);
 
     QPointF center(width() / 2.0, height() / 2.0);
     qreal radius = qMax(width(), height()) * 0.75;
@@ -132,14 +153,16 @@ void SplashOverlay::paintEvent(QPaintEvent *)
     int card_y = static_cast<int>(height() * kCardVerticalPosition);
     QRectF card_rect(card_x, card_y, card_w, kCardHeight);
 
-    QColor card_bg = dark ? QColor(40, 40, 46, 200) : QColor(255, 255, 255, 190);
-    QColor card_border = dark ? QColor(255, 255, 255, 30) : QColor(0, 0, 0, 25);
+    QColor card_bg = appPalette.color(QPalette::Base);
+    card_bg.setAlpha(dark ? kCardBgAlpha : kCardBgAlphaLight);
+    QColor card_border = appPalette.color(QPalette::Mid);
+    card_border.setAlpha(dark ? kCardBorderAlpha : kCardBorderAlphaLight);
 
     painter.setPen(QPen(card_border, 1.0));
     painter.setBrush(card_bg);
     painter.drawRoundedRect(card_rect, kCardCornerRadius, kCardCornerRadius);
 
-    QColor text_color = dark ? QColor(220, 220, 225) : QColor(50, 50, 55);
+    QColor text_color = palette().color(QPalette::Text);
 
     // --- Action title (bold, slightly larger) ---
     QRectF title_rect(card_x + kCardPadding, card_y + kCardPadding,
@@ -178,7 +201,8 @@ void SplashOverlay::paintEvent(QPaintEvent *)
     const int bar_y = card_y + kCardHeight - kCardPadding - kBarHeight;
     QRectF bar_bg_rect(card_x + kCardPadding, bar_y, card_w - 2 * kCardPadding, kBarHeight);
 
-    QColor bar_bg = dark ? QColor(255, 255, 255, 25) : QColor(0, 0, 0, 20);
+    QColor bar_bg = appPalette.color(QPalette::Mid);
+    bar_bg.setAlpha(dark ? kBarTrackAlpha : kBarTrackAlphaLight);
     painter.setPen(Qt::NoPen);
     painter.setBrush(bar_bg);
     painter.drawRoundedRect(bar_bg_rect, kBarHeight / 2.0, kBarHeight / 2.0);
@@ -188,7 +212,8 @@ void SplashOverlay::paintEvent(QPaintEvent *)
         qreal fill_w = (card_w - 2 * kCardPadding) * fraction;
 
         QRectF bar_fill_rect(card_x + kCardPadding, bar_y, fill_w, kBarHeight);
-        QColor bar_fill = dark ? QColor(130, 170, 255, 200) : QColor(52, 101, 164, 200);
+        QColor bar_fill = theme->color(ThemeManager::BrandPrimary);
+        bar_fill.setAlpha(kBarFillAlpha);
 
         painter.setBrush(bar_fill);
         painter.drawRoundedRect(bar_fill_rect, kBarHeight / 2.0, kBarHeight / 2.0);

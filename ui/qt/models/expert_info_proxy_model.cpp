@@ -11,6 +11,7 @@
 #include <ui/qt/models/expert_info_model.h>
 #include <ui/qt/models/expert_info_proxy_model.h>
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 
 #include <QRegularExpression>
 
@@ -109,15 +110,15 @@ QVariant ExpertInfoProxyModel::data(const QModelIndex &proxy_index, int role) co
         // provide background color for groups
         switch(item->severity()) {
         case(PI_COMMENT):
-            return QBrush(ColorUtils::expert_color_comment);
+            return QBrush(ThemeManager::instance()->color(ThemeManager::ExpertComment));
         case(PI_CHAT):
-            return QBrush(ColorUtils::expert_color_chat);
+            return QBrush(ThemeManager::instance()->color(ThemeManager::ExpertChat));
         case(PI_NOTE):
-            return QBrush(ColorUtils::expert_color_note);
+            return QBrush(ThemeManager::instance()->color(ThemeManager::ExpertNote));
         case(PI_WARN):
-            return QBrush(ColorUtils::expert_color_warn);
+            return QBrush(ThemeManager::instance()->color(ThemeManager::ExpertWarn));
         case(PI_ERROR):
-            return QBrush(ColorUtils::expert_color_error);
+            return QBrush(ThemeManager::instance()->color(ThemeManager::ExpertError));
         }
         }
         break;
@@ -140,7 +141,7 @@ QVariant ExpertInfoProxyModel::data(const QModelIndex &proxy_index, int role) co
         case(PI_NOTE):
         case(PI_WARN):
         case(PI_ERROR):
-            return QBrush(ColorUtils::expert_color_foreground);
+            return QBrush(ThemeManager::instance()->color(ThemeManager::ExpertForeground));
         }
         }
         break;

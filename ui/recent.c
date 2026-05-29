@@ -91,6 +91,7 @@
 #define RECENT_GUI_TSD_GOODPUT_SHOW             "gui.tsd_goodput_show"
 #define RECENT_KEY_SIDEBAR_LEARN_VISIBLE        "gui.welcome_page.sidebar.learn_visible"
 #define RECENT_KEY_SIDEBAR_TIPS_VISIBLE         "gui.welcome_page.sidebar.tips_visible"
+#define RECENT_KEY_THEME_NAME                   "gui.theme_name"
 #define RECENT_KEY_SIDEBAR_TIPS_EVENTS          "gui.welcome_page.sidebar.tips_events"
 #define RECENT_KEY_SIDEBAR_TIPS_SPONSORSHIP     "gui.welcome_page.sidebar.tips_sponsorship"
 #define RECENT_KEY_SIDEBAR_TIPS_TIPS            "gui.welcome_page.sidebar.tips_tips"
@@ -1005,6 +1006,10 @@ write_recent(void)
     fprintf(rf, RECENT_KEY_SIDEBAR_TIPS_INTERVAL ": %u\n",
             recent.gui_welcome_page_sidebar_tips_interval);
 
+    fprintf(rf, "\n# Active theme (directory name under resources/themes).\n");
+    fprintf(rf, RECENT_KEY_THEME_NAME ": %s\n",
+            recent.gui_theme_name ? recent.gui_theme_name : "default");
+
     write_recent_boolean(rf, "Welcome page sidebar Tips slides test",
             RECENT_KEY_SIDEBAR_TIPS_SLIDES_TEST,
             recent.gui_welcome_page_sidebar_tips_slides_test);
@@ -1399,6 +1404,9 @@ read_set_recent_common_pair_static(char *key, const char *value,
         if (num < 1)
             num = 8; // Default value
         recent.gui_welcome_page_sidebar_tips_interval = (unsigned)num;
+    } else if (strcmp(key, RECENT_KEY_THEME_NAME) == 0) {
+        g_free(recent.gui_theme_name);
+        recent.gui_theme_name = (value && *value) ? g_strdup(value) : NULL;
     } else if (strcmp(key, RECENT_KEY_SIDEBAR_TIPS_SLIDES_TEST) == 0) {
         parse_recent_boolean(value, &recent.gui_welcome_page_sidebar_tips_slides_test);
     }
@@ -2015,6 +2023,7 @@ recent_cleanup(void)
     g_free(recent.gui_geometry_main_master_split);
     g_free(recent.gui_geometry_main_extra_split);
     g_free(recent.gui_fileopen_remembered_dir);
+    g_free(recent.gui_theme_name);
     g_list_free_full(recent.gui_additional_toolbars, g_free);
     g_list_free_full(recent.interface_toolbars, g_free);
     prefs_clear_string_list(recent.conversation_tabs);

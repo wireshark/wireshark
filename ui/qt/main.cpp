@@ -81,7 +81,7 @@
 #include "ui/plugins/include/uiqt_plugin.h"
 
 #include "ui/qt/conversation_dialog.h"
-#include "ui/qt/utils/color_utils.h"
+#include "ui/qt/utils/theme_manager.h"
 #include "ui/qt/coloring_rules_dialog.h"
 #include "ui/qt/endpoint_dialog.h"
 #include "ui/qt/glib_mainloop_on_qeventloop.h"
@@ -266,7 +266,7 @@ gather_wireshark_runtime_info(feature_list l)
 
     if (mainApp) {
         // Display information
-        const char *display_mode = ColorUtils::themeIsDark() ? "dark" : "light";
+        const char *display_mode = ThemeManager::isDark() ? "dark" : "light";
         with_feature(l, "%s display mode", display_mode);
 
         int hidpi_count = 0;
@@ -979,7 +979,6 @@ int main(int argc, char *qt_argv[])
 #endif
     splash_update(RA_PREFERENCES_APPLY, NULL, NULL);
     prefs_apply_all();
-    wsApp->emitAppSignal(WiresharkApplication::ColorsChanged);
     wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
 
 #ifdef HAVE_LIBPCAP

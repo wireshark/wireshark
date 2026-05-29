@@ -29,6 +29,9 @@ If you or your organization would like to contribute or become a sponsor, please
 * Lua Debugger
   A built-in Lua script debugger has been added. It supports breakpoints, single-stepping, variable inspection, expression evaluation, and stack traces. The debugger can be opened from the menu:Tools[Lua Debugger] menu.
 
+* Themes
+  Wireshark now drives the colors used throughout the GUI from a single theme instead of many individual color preferences. The renamed menu:Appearance[Theme and Font] preferences page lets you pick a theme, switch between Light, Dark, and System appearance, set the packet-pane font, and preview the result on a mockup of a capture window. A built-in default theme ships with Wireshark, and additional themes can be installed as JSONC files. The previous per-color settings (marked and ignored packets, "Follow Stream" client and server text, display filter validity, and the selected packet) are now provided by the active theme.
+
 * The Default profile now has additional column "Delta", showing the delta time from the previous displayed packet.
 
 * Name Resolution
@@ -71,9 +74,11 @@ The following features are either new or have been significantly updated since v
 * The protocol dissection API has been updated to more safely handle packet data offsets and lengths.
   See the <<Major API Changes>> section below for details.
 
-// === Removed Features and Support
+=== Removed Features and Support
 
 dumpcap's TCP@host:port interface has been removed
+
+The individual color preferences under menu:Appearance[] (marked and ignored packets, "Follow Stream" client and server text, display filter validity, and the selected packet) have been removed. These colors are now provided by the selected theme; see the "What's New" section above.
 
 // === Removed Dissectors
 

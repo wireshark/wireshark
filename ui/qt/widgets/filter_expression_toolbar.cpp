@@ -10,6 +10,7 @@
 #include <ui/qt/widgets/filter_expression_toolbar.h>
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/models/uat_model.h>
 #include <ui/qt/filter_action.h>
@@ -46,6 +47,8 @@ FilterExpressionToolBar::FilterExpressionToolBar(QWidget * parent) :
     DragDropToolBar(parent)
 {
     updateStyleSheet();
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged,
+            this, &FilterExpressionToolBar::updateStyleSheet);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     /* Give minimum space to the bar, so that drops on an empty bar will work */

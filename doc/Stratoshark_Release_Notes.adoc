@@ -30,6 +30,9 @@ If you or your organization would like to contribute or become a sponsor, please
 * Lua Debugger
   A built-in Lua script debugger has been added. It supports breakpoints, single-stepping, variable inspection, expression evaluation, and stack traces.
 
+* Themes
+  Stratoshark now uses the same theme system as Wireshark, driving the colors used throughout the GUI from a single theme instead of many individual color preferences. The renamed menu:Appearance[Theme and Font] preferences page lets you pick a theme, switch between Light, Dark, and System appearance, set the packet-pane font, and preview the result. A built-in default theme ships with Stratoshark, and additional themes can be installed as JSONC files. The previous per-color settings (marked and ignored packets, "Follow Stream" client and server text, display filter validity, and the selected packet) are now provided by the active theme.
+
 // Many other improvements have been made.
 // See the “New and Updated Features” section below for more details.
 

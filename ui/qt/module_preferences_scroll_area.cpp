@@ -285,7 +285,7 @@ pref_show(pref_t *pref, void *user_data)
     case PREF_COLOR:
     {
         // XXX - Not needed yet. When it is needed we can add a label + QFrame which pops up a
-        // color picker similar to the Font and Colors prefs.
+        // color picker (pattern: a clickable swatch invoking QColorDialog).
         break;
     }
     case PREF_PROTO_TCP_SNDAMB_ENUM:

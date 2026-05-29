@@ -83,15 +83,6 @@ char string_to_name_resolve(const char *string, struct _e_addr_resolve *name_res
 #define TB_STYLE_TEXT           1
 #define TB_STYLE_BOTH           2
 
-/*
- * Color styles.
- */
-#define COLOR_STYLE_DEFAULT     0
-#define COLOR_STYLE_FLAT        1
-#define COLOR_STYLE_GRADIENT    2
-
-#define COLOR_STYLE_ALPHA       0.25
-
 #define COLOR_SCHEME_DEFAULT    0
 #define COLOR_SCHEME_LIGHT      1
 #define COLOR_SCHEME_DARK       2
@@ -223,44 +214,12 @@ typedef struct _e_prefs {
     GList        *col_list;                  /**< Ordered list of packet list column definitions */
     unsigned      num_cols;                  /**< Number of entries in @ref col_list */
 
-    /* Statistics stream colors */
-    color_t       st_client_fg;              /**< Foreground color for client-side stream data in statistics */
-    color_t       st_client_bg;              /**< Background color for client-side stream data in statistics */
-    color_t       st_server_fg;              /**< Foreground color for server-side stream data in statistics */
-    color_t       st_server_bg;              /**< Background color for server-side stream data in statistics */
-
-    /* Display filter bar colors */
-    color_t       gui_filter_valid_fg;       /**< Foreground color for a syntactically valid filter expression */
-    color_t       gui_filter_invalid_fg;     /**< Foreground color for a syntactically invalid filter expression */
-    color_t       gui_filter_deprecated_fg;  /**< Foreground color for a deprecated filter expression */
-    color_t       gui_filter_valid_bg;       /**< Background color for a syntactically valid filter expression */
-    color_t       gui_filter_invalid_bg;     /**< Background color for a syntactically invalid filter expression */
-    color_t       gui_filter_deprecated_bg;  /**< Background color for a deprecated filter expression */
-
     bool          restore_filter_after_following_stream; /**< If true, restore the previous display filter after closing a stream follow dialog */
 
     /* GUI appearance */
     int           gui_toolbar_main_style;    /**< Style of the main toolbar (icon size/text) */
     char         *gui_font_name;             /**< Name and size of the font used in the packet list and details pane */
     int           gui_color_scheme;          /**< Active color scheme index */
-
-    /* Selected-row (active) colors */
-    color_t       gui_active_fg;             /**< Foreground color for the active/selected row in a focused widget */
-    color_t       gui_active_bg;             /**< Background color for the active/selected row in a focused widget */
-    int           gui_active_style;          /**< Style flags for the active row */
-
-    /* Inactive-selection colors */
-    color_t       gui_inactive_fg;           /**< Foreground color for a selected row in an unfocused widget */
-    color_t       gui_inactive_bg;           /**< Background color for a selected row in an unfocused widget */
-    int           gui_inactive_style;        /**< Style flags for an inactive selected row */
-
-    /* Marked-packet colors */
-    color_t       gui_marked_fg;             /**< Foreground color for manually marked packets */
-    color_t       gui_marked_bg;             /**< Background color for manually marked packets */
-
-    /* Ignored-packet colors */
-    color_t       gui_ignored_fg;            /**< Foreground color for ignored packets */
-    color_t       gui_ignored_bg;            /**< Background color for ignored packets */
 
     /* Colorized column colors */
     char         *gui_colorized_fg;          /**< Comma-separated list of foreground colors for the 10 colorized column slots */
@@ -472,11 +431,6 @@ WS_DLL_PUBLIC void prefs_reset(const char* app_env_var_prefix, const char** col_
  * @brief Clean up preferences.
  */
 void prefs_cleanup(void);
-
-/** Store whether the current UI theme is dark so that we can adjust colors
-* @param is_dark set to true if the UI's theme is dark
-*/
-WS_DLL_PUBLIC void prefs_set_gui_theme_is_dark(bool is_dark);
 
 /**
  * Register that a protocol has preferences.

@@ -22,7 +22,7 @@
 
 #include <ui/qt/widgets/display_filter_edit.h>
 #include <ui/qt/widgets/display_filter_combo.h>
-#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 #include "main_application.h"
 
 static QStandardItemModel *cur_model;
@@ -75,6 +75,8 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
     lineEdit()->setAttribute(Qt::WA_MacShowFocusRect, true);
 #endif
     updateStyleSheet();
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged,
+            this, &DisplayFilterCombo::updateStyleSheet);
     setToolTip(tr("Select from previously used filters."));
 
     // Setting the placeholderText keeps newly added items from being the
@@ -160,62 +162,7 @@ bool DisplayFilterCombo::event(QEvent *event)
 
 void DisplayFilterCombo::updateStyleSheet()
 {
-    const char *display_mode = ColorUtils::themeIsDark() ? "dark" : "light";
-
-#ifdef Q_OS_MAC
-    QString ss = QStringLiteral(
-                "QComboBox {"
-                "  border: 1px solid gray;"
-                "  border-radius: 3px;"
-                "  padding: 0px 0px 0px 0px;"
-                "  margin-left: 0px;"
-                "  min-width: 20em;"
-                " }"
-
-                "QComboBox::drop-down {"
-                "  subcontrol-origin: padding;"
-                "  subcontrol-position: top right;"
-                "  width: 14px;"
-                "  border-left-width: 0px;"
-                " }"
-
-                "QComboBox::down-arrow {"
-                "  image: url(:/stock_icons/14x14/x-filter-dropdown.%1.png);"
-                " }"
-
-                "QComboBox::down-arrow:on { /* shift the arrow when popup is open */"
-                "  top: 1px;"
-                "  left: 1px;"
-                "}"
-                ).arg(display_mode);
-#else
-    QString ss = QStringLiteral(
-                "QComboBox {"
-                "  border: 1px solid palette(shadow);"
-                "  border-radius: 3px;"
-                "  padding: 0px 0px 0px 0px;"
-                "  margin-left: 0px;"
-                "  min-width: 20em;"
-                " }"
-
-                "QComboBox::drop-down {"
-                "  subcontrol-origin: padding;"
-                "  subcontrol-position: top right;"
-                "  width: 14px;"
-                "  border-left-width: 0px;"
-                " }"
-
-                "QComboBox::down-arrow {"
-                "  image: url(:/stock_icons/14x14/x-filter-dropdown.%1.png);"
-                " }"
-
-                "QComboBox::down-arrow:on { /* shift the arrow when popup is open */"
-                "  top: 1px;"
-                "  left: 1px;"
-                "}"
-                ).arg(display_mode);
-#endif
-    setStyleSheet(ss);
+    setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/filter-combo")));
 }
 
 bool DisplayFilterCombo::checkDisplayFilter()

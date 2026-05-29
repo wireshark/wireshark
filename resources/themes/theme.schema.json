@@ -1,0 +1,185 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://www.wireshark.org/schemas/theme.schema.json",
+    "title": "Wireshark Theme",
+    "description": "Color theme definition for Wireshark and Stratoshark. The actual file format is JSONC (JSON with C-style comments); this schema validates the post-comment-stripped JSON. Sections sit at the top level of the document — `brand`, `accent`, `expert`, etc. — matching what `ThemeParser` consumes.",
+    "type": "object",
+    "required": ["meta", "brand", "accent"],
+    "additionalProperties": false,
+
+    "properties": {
+
+        "meta": {
+            "description": "Theme metadata displayed in the preferences dialog and used for identification.",
+            "type": "object",
+            "required": ["name", "version"],
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Display name of the theme, e.g. \"Wireshark Default\".",
+                    "minLength": 1
+                },
+                "version": {
+                    "type": "integer",
+                    "description": "Schema version. Must be 1 for the current format.",
+                    "const": 1
+                },
+                "description": {
+                    "type": "string",
+                    "description": "One-line description shown in the preferences dialog."
+                },
+                "author": {
+                    "type": "string",
+                    "description": "Theme author or organization."
+                }
+            }
+        },
+
+        "brand": {
+            "description": "Two colors that define the theme's visual identity. `primary` drives header gradient end, selection highlight, section header hover, link accents. `deep` drives header gradient start.",
+            "type": "object",
+            "required": ["primary", "deep"],
+            "additionalProperties": false,
+            "properties": {
+                "primary": { "$ref": "#/$defs/colorPair" },
+                "deep":    { "$ref": "#/$defs/colorPair" }
+            }
+        },
+
+        "accent": {
+            "description": "Four semantic accent colors. Drive the update bar, filter validation, status indicators, expert info fallbacks, and the Development Build badge.",
+            "type": "object",
+            "required": ["success", "warning", "error", "info"],
+            "additionalProperties": false,
+            "properties": {
+                "success": { "$ref": "#/$defs/colorPair" },
+                "warning": { "$ref": "#/$defs/colorPair" },
+                "error":   { "$ref": "#/$defs/colorPair" },
+                "info":    { "$ref": "#/$defs/colorPair" }
+            }
+        },
+
+        "expert": {
+            "description": "Optional expert-info severity colors. When omitted, derived from accent values at 40% alpha.",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "comment":    { "$ref": "#/$defs/colorPair" },
+                "chat":       { "$ref": "#/$defs/colorPair" },
+                "note":       { "$ref": "#/$defs/colorPair" },
+                "warn":       { "$ref": "#/$defs/colorPair" },
+                "error":      { "$ref": "#/$defs/colorPair" },
+                "foreground": { "$ref": "#/$defs/colorPair" }
+            }
+        },
+
+        "packets": {
+            "description": "Optional packet-display state colors. For each state the unsuffixed key is the row background tint; the matching *Text key is the foreground. `hidden` is text-only (no background) — it dims items rendered on the normal row bg. When a *Text key is omitted, the foreground is derived via contrastingText() against the bg. When `ignored` (bg) is omitted, the row's normal background is used unchanged.",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "selection":     { "$ref": "#/$defs/colorPair" },
+                "selectionText": { "$ref": "#/$defs/colorPair" },
+                "inactive":      { "$ref": "#/$defs/colorPair" },
+                "inactiveText":  { "$ref": "#/$defs/colorPair" },
+                "marked":        { "$ref": "#/$defs/colorPair" },
+                "markedText":    { "$ref": "#/$defs/colorPair" },
+                "ignored":       { "$ref": "#/$defs/colorPair" },
+                "ignoredText":   { "$ref": "#/$defs/colorPair" },
+                "hidden":        { "$ref": "#/$defs/colorPair" }
+            }
+        },
+
+        "conversation": {
+            "description": "Optional Follow Stream conversation colors. `client`/`server` are background tints, `clientText`/`serverText` are foregrounds. When the bg keys are omitted: client = accent.error tint on base; server = brand.primary tint on base. When the *Text keys are omitted: clientText is derived from accent.error (darken in light mode, lighten in dark); serverText is derived from brand.primary the same way.",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "client":     { "$ref": "#/$defs/colorPair" },
+                "clientText": { "$ref": "#/$defs/colorPair" },
+                "server":     { "$ref": "#/$defs/colorPair" },
+                "serverText": { "$ref": "#/$defs/colorPair" }
+            }
+        },
+
+        "palette": {
+            "description": "Optional QPalette role overrides. Selective merge: only specified roles replace the system default. `Highlight`, `HighlightedText`, `Link`, and (Qt 6.6+) `Accent` are always overridden from brand.primary regardless of this section.",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "window":        { "$ref": "#/$defs/colorPair" },
+                "windowText":    { "$ref": "#/$defs/colorPair" },
+                "base":          { "$ref": "#/$defs/colorPair" },
+                "text":          { "$ref": "#/$defs/colorPair" },
+                "alternateBase": { "$ref": "#/$defs/colorPair" },
+                "mid":           { "$ref": "#/$defs/colorPair" },
+                "midlight":      { "$ref": "#/$defs/colorPair" },
+                "accent":        { "$ref": "#/$defs/colorPair" }
+            }
+        },
+
+        "graphs": {
+            "description": "Optional rotating color cycle for I/O graphs, sequence/flow diagrams, TCP stream plots, RTP player, and IAX2 analysis. Custom themes may provide any number of colors; no backfill from the default theme.",
+            "type": "array",
+            "items": { "$ref": "#/$defs/colorPair" }
+        },
+
+        "fonts": {
+            "description": "Optional font hints. User's `gui.fonts.qt.font_name` preference overrides the theme's monospace setting when set.",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "regular":   { "$ref": "#/$defs/fontHint" },
+                "monospace": { "$ref": "#/$defs/fontHint" }
+            }
+        },
+
+        "images": {
+            "description": "Reserved for future use; not currently consumed by ThemeParser.",
+            "type": "object"
+        },
+
+        "syntax": {
+            "description": "Reserved for future use; not currently consumed by ThemeParser.",
+            "type": "object"
+        }
+    },
+
+    "$defs": {
+
+        "colorValue": {
+            "description": "A CSS color string: \"#rrggbb\", \"#rrggbbaa\", or \"rgba(r,g,b,a)\" with alpha 0-255 (QSS convention, NOT 0-1).",
+            "type": "string",
+            "pattern": "^(#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?|rgba\\(\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*\\))$"
+        },
+
+        "colorPair": {
+            "description": "A color token with light and dark variants. The parser tolerates a missing variant (warns and reuses the other), but valid themes specify both.",
+            "type": "object",
+            "required": ["light", "dark"],
+            "additionalProperties": false,
+            "properties": {
+                "light": { "$ref": "#/$defs/colorValue" },
+                "dark":  { "$ref": "#/$defs/colorValue" }
+            }
+        },
+
+        "fontHint": {
+            "description": "Optional font specification. Both fields are optional; when omitted, platform defaults apply.",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "family": {
+                    "type": "string",
+                    "description": "Font family name. When omitted, the system UI font (regular) or platform fixed-pitch chain (monospace) is used."
+                },
+                "size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Point size. When omitted (or <= 0), platform default applies."
+                }
+            }
+        }
+    }
+}

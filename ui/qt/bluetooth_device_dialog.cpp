@@ -10,13 +10,12 @@
 #include "bluetooth_device_dialog.h"
 #include <ui_bluetooth_device_dialog.h>
 
-#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 
 #include "epan/epan.h"
 #include "epan/addr_resolv.h"
 #include "epan/to_str.h"
 #include "epan/epan_dissect.h"
-#include "epan/prefs.h"
 #include "epan/dissectors/packet-bthci_cmd.h"
 #include "epan/dissectors/packet-bthci_evt.h"
 
@@ -113,7 +112,10 @@ BluetoothDeviceDialog::BluetoothDeviceDialog(QWidget &parent, CaptureFile &cf, Q
 
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
 
-    ui->tableWidget->setStyleSheet("QTableView::item:hover{background-color:lightyellow; color:black;}");
+    ui->tableWidget->setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/bluetooth-table")));
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged, this, [this]() {
+        ui->tableWidget->setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/bluetooth-table")));
+    });
 
     context_menu_.addActions(QList<QAction *>() << ui->actionMark_Unmark_Cell);
     context_menu_.addActions(QList<QAction *>() << ui->actionMark_Unmark_Row);
@@ -217,12 +219,12 @@ void BluetoothDeviceDialog::on_actionMark_Unmark_Cell_triggered()
     QBrush fg;
     QBrush bg;
 
-    if (current_item->background() == QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg))) {
+    if (current_item->background() == QBrush(ThemeManager::instance()->color(ThemeManager::PacketsMarked))) {
         fg = QBrush();
         bg = QBrush();
     } else {
-        fg = QBrush(ColorUtils::fromColorT(&prefs.gui_marked_fg));
-        bg = QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg));
+        fg = QBrush(ThemeManager::instance()->color(ThemeManager::PacketsMarkedText));
+        bg = QBrush(ThemeManager::instance()->color(ThemeManager::PacketsMarked));
     }
 
     current_item->setForeground(fg);
@@ -242,7 +244,7 @@ void BluetoothDeviceDialog::on_actionMark_Unmark_Row_triggered()
 
     for (int i = 0; i < ui->tableWidget->columnCount(); i += 1) {
         QTableWidgetItem *item = ui->tableWidget->item(current_item->row(), i);
-        if (item->background() != QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg)))
+        if (item->background() != QBrush(ThemeManager::instance()->color(ThemeManager::PacketsMarked)))
             is_marked = false;
     }
 
@@ -250,8 +252,8 @@ void BluetoothDeviceDialog::on_actionMark_Unmark_Row_triggered()
         fg = QBrush();
         bg = QBrush();
     } else {
-        fg = QBrush(ColorUtils::fromColorT(&prefs.gui_marked_fg));
-        bg = QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg));
+        fg = QBrush(ThemeManager::instance()->color(ThemeManager::PacketsMarkedText));
+        bg = QBrush(ThemeManager::instance()->color(ThemeManager::PacketsMarked));
     }
 
     for (int i = 0; i < ui->tableWidget->columnCount(); i += 1) {

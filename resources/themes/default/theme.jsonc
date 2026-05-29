@@ -1,0 +1,261 @@
+// =====================================================================
+// Wireshark Default Theme
+// =====================================================================
+//
+// The built-in theme shipped with Wireshark.  Every value here serves
+// as the fallback for custom themes — custom themes only need to
+// override what they want to change.
+//
+// Format: JSONC — standard JSON with C-style comments.
+//
+// Color value convention:
+//   Each color is { "light": "#hex", "dark": "#hex" }.
+//   "light" is used when the system/user selects light appearance,
+//   "dark" when dark appearance is active.
+//
+// Color formats accepted:
+//   "#rrggbb"              — opaque hex
+//   "#rrggbbaa"            — hex with alpha
+//   "rgba(r, g, b, a)"    — CSS-style, alpha 0–255 (QSS convention)
+//
+// To create a custom theme, copy this file, change "name", and adjust
+// any values you like.  Place it in your personal configuration
+// directory under themes/<name>/theme.jsonc and select it in
+// Edit → Preferences → Appearance.
+// =====================================================================
+
+{
+	// =================================================================
+	// REQUIRED SECTIONS
+	// =================================================================
+
+	"meta": {
+		"name": "Wireshark Default",
+		"version": 1,
+		"author": "Wireshark Foundation",
+		"description": "The built-in Wireshark theme, based on the Tango palette."
+	},
+
+	// -----------------------------------------------------------------
+	// Brand — the two colors that define the visual identity.
+	//
+	// "primary" is the main brand hue — drives header gradient end,
+	// selection highlight, section header hover, sparkline stroke,
+	// link accents, and the splash progress bar.
+	//
+	// "deep" is the darkest brand shade — drives header gradient start.
+	//
+	// For dark mode: "primary" is brighter for visibility on dark
+	// surfaces; "deep" is near-black with a hint of the brand hue.
+	// -----------------------------------------------------------------
+	"brand": {
+		"primary": { "light": "#2c6fb5", "dark": "#5b9ee6" },
+		"deep":    { "light": "#1e3a5f", "dark": "#0f1b30" }
+	},
+
+	// -----------------------------------------------------------------
+	// Accent — four semantic colors.  Required.
+	//
+	// These drive the update bar, filter validation, status indicators,
+	// expert info fallbacks, and the "Development Build" badge.
+	//
+	// Default sources:
+	//   success — Material Design green
+	//   warning — Wireshark orange
+	//   error   — Tango scarlet_4 (light) / scarlet_3 (dark)
+	//   info    — Tango sky_blue_4 (light) / sky_blue_3 (dark)
+	// -----------------------------------------------------------------
+	"accent": {
+		"success": { "light": "#4caf50", "dark": "#4caf50" },
+		"warning": { "light": "#e8652d", "dark": "#e8652d" },
+		"error":   { "light": "#cc0000", "dark": "#ef2929" },
+		"info":    { "light": "#3465a4", "dark": "#729fcf" }
+	},
+
+	// =================================================================
+	// OPTIONAL SECTIONS
+	// All of these fall back to derivation from brand/accent when
+	// omitted.  The default theme includes them for documentation
+	// and to serve as the explicit fallback values.
+	// =================================================================
+
+	// -----------------------------------------------------------------
+	// Expert info severity colors
+	//
+	// Background colors for expert info items in the protocol tree,
+	// expert info dialog, and analysis views.
+	//
+	// When this section is omitted from a custom theme, colors are
+	// derived from accent values at 40% alpha.
+	//
+	// Origin: inherited from the GTK+ era.  Dark variants are the
+	// same as light — a future iteration should provide proper
+	// dark-mode values.
+	// -----------------------------------------------------------------
+	"expert": {
+		"comment":    { "light": "#b7f774", "dark": "#b7f774" },
+		"chat":       { "light": "#80b7f7", "dark": "#80b7f7" },
+		"note":       { "light": "#a0ffff", "dark": "#a0ffff" },
+		"warn":       { "light": "#f7f253", "dark": "#f7f253" },
+		"error":      { "light": "#ff5c5c", "dark": "#ff5c5c" },
+		"foreground": { "light": "#000000", "dark": "#000000" }
+	},
+
+	// -----------------------------------------------------------------
+	// Packet display state colors
+	//
+	// For each state the unsuffixed key is the row BACKGROUND tint and
+	// the matching <state>Text key is the FOREGROUND.  Hidden is the
+	// exception — it's text-only (no bg) because it dims items that
+	// render on the normal row background.
+	//
+	// When a *Text key is omitted, ThemeManager derives a foreground
+	// from the bg via contrastingTextColor() (WCAG luminance pick).
+	// When `ignored` (bg) is omitted, the row's normal background is
+	// used unchanged.
+	//
+	// Light defaults: selection is a saturated brand blue so it stays
+	// distinct from the pale pastel color-filter rule backgrounds
+	// (active=#FFFFFF on #2C6FB5, marked=#FFFFFF on #002033, …).
+	// Dark defaults are tuned for contrast against the dark bg tints.
+	//
+	// Derivation when the section is omitted entirely:
+	//   selection      = brand.primary @ 30% on base
+	//   selectionText  = contrastingText(selection)
+	//   inactive       = gray @ 40% on base
+	//   inactiveText   = contrastingText(inactive)
+	//   marked         = darken(brand.primary, 65%)
+	//   markedText     = contrastingText(marked)
+	//   ignored        = (none) → row default bg
+	//   ignoredText    = text @ 50% alpha
+	//   hidden         = text @ 40% alpha
+	// -----------------------------------------------------------------
+	"packets": {
+		"selection":     { "light": "#2c6fb5", "dark": "#2a3a55" },
+		"selectionText": { "light": "#ffffff", "dark": "#e8e8e8" },
+		"inactive":      { "light": "#efefef", "dark": "#2a2c42" },
+		"inactiveText":  { "light": "#000000", "dark": "#e8e8e8" },
+		"marked":        { "light": "#002033", "dark": "#002033" },
+		"markedText":    { "light": "#ffffff", "dark": "#ffffff" },
+		"ignored":       { "light": "#ffffff", "dark": "#1a1a1a" },
+		"ignoredText":   { "light": "#808080", "dark": "#808080" },
+		"hidden":        { "light": "#444444", "dark": "#999999" }
+	},
+
+	// -----------------------------------------------------------------
+	// Follow Stream conversation colors
+	//
+	// Same bg/fg convention as packets: `client`/`server` are bg tints,
+	// `clientText`/`serverText` are foregrounds.  Light defaults
+	// preserve the historical st_client_fg=#800000 (warm maroon) and
+	// st_server_fg=#000080 (cool navy) prefs.
+	//
+	// Derivation when text keys are omitted:
+	//   clientText = darken(accent.error,   30%) | lighten(50%) for dark
+	//   serverText = darken(brand.primary,  30%) | lighten(50%) for dark
+	// -----------------------------------------------------------------
+	"conversation": {
+		"client":     { "light": "#fbedcd", "dark": "#3a2010" },
+		"clientText": { "light": "#800000", "dark": "#ffb088" },
+		"server":     { "light": "#edeefb", "dark": "#1a1a3a" },
+		"serverText": { "light": "#000080", "dark": "#a0b4ff" }
+	},
+
+	// -----------------------------------------------------------------
+	// Fonts
+	//
+	// Two base font classes.  All other font usage in the application
+	// is a derivation (different size or weight) from one of these.
+	//
+	// Both "family" and "size" are optional within each class.
+	// When "family" is omitted:
+	//   regular   — system UI font (platform-dependent)
+	//   monospace — platform fallback chain:
+	//              macOS:   SF Mono → Menlo → Monaco
+	//              Windows: Consolas → Lucida Console
+	//              Linux:   Liberation Mono → DejaVu Sans Mono
+	//
+	// When "size" is omitted: platform default + Qt version adjustment.
+	//
+	// The user's gui.fonts.qt.font_name preference overrides the
+	// theme's monospace setting.
+	// -----------------------------------------------------------------
+	"fonts": {
+		// "regular":   { "family": "...", "size": 13 },
+		// "monospace": { "family": "...", "size": 13 }
+	},
+
+	// -----------------------------------------------------------------
+	// QPalette overrides
+	//
+	// Override system palette roles for themes that need non-standard
+	// surface colors (e.g., Solarized, high-contrast).
+	//
+	// 7 supported roles — the only ones Wireshark uses from the
+	// system palette.  Selective merge: only specified roles are
+	// replaced, everything else stays at the system default.
+	//
+	// NOT in this section (auto-derived from brand.primary):
+	//   Highlight      = brand.primary
+	//   HighlightedText = contrastingTextColor(brand.primary)
+	//   Link           = brand.primary
+	//   Accent         = brand.primary (Qt 6.6+)
+	//
+	// The default theme intentionally leaves this empty — it uses
+	// the system palette as-is.  See the Solarized example for how
+	// to override.
+	// -----------------------------------------------------------------
+	"palette": {
+		// "window":        { "light": "#...", "dark": "#..." },
+		// "windowText":    { "light": "#...", "dark": "#..." },
+		// "base":          { "light": "#...", "dark": "#..." },
+		// "text":          { "light": "#...", "dark": "#..." },
+		// "alternateBase": { "light": "#...", "dark": "#..." },
+		// "mid":           { "light": "#...", "dark": "#..." },
+		// "midlight":      { "light": "#...", "dark": "#..." }
+	},
+
+	// -----------------------------------------------------------------
+	// Graph colors
+	//
+	// Unified rotating color cycle for ALL graph types: I/O graphs,
+	// sequence/flow diagrams, TCP stream plots, RTP player, and
+	// IAX2 analysis.  14 colors total.
+	//
+	// Slots 1–7 are "strong" (saturated), 8–14 are "soft" (pastel).
+	// The first color also doubles as the bar outline in I/O graphs.
+	//
+	// Custom themes can provide any number of colors (1 to N).
+	// No backfill: if a custom theme defines 5 colors, only those 5
+	// are used — the remaining 9 from the default are NOT appended.
+	//
+	// Origin: Tango palette.
+	//   Light mode uses darker shades (_5/_6) for readability on
+	//   white backgrounds.
+	//   Dark mode uses lighter shades (_3) for readability on
+	//   dark backgrounds.
+	// -----------------------------------------------------------------
+	"graphs": [
+		{ "light": "#2e3436", "dark": "#babdb6" },
+		{ "light": "#204a87", "dark": "#729fcf" },
+		{ "light": "#725000", "dark": "#fce94f" },
+		{ "light": "#4e9a06", "dark": "#8ae234" },
+		{ "light": "#a40000", "dark": "#ef2929" },
+		{ "light": "#5c3566", "dark": "#ad7fa8" },
+		{ "light": "#8c3700", "dark": "#fcaf3e" },
+		{ "light": "#babdb6", "dark": "#555753" },
+		{ "light": "#97c4f0", "dark": "#204a87" },
+		{ "light": "#fce94f", "dark": "#725000" },
+		{ "light": "#8ae234", "dark": "#4e9a06" },
+		{ "light": "#ef2929", "dark": "#a40000" },
+		{ "light": "#ad7fa8", "dark": "#5c3566" },
+		{ "light": "#fcaf3e", "dark": "#8c3700" }
+	]
+
+	// =================================================================
+	// FUTURE (reserved section names)
+	// =================================================================
+	//
+	// "images": {}   — Background images for header, cards, etc.
+	//
+}

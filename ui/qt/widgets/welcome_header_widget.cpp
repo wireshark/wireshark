@@ -14,8 +14,8 @@
 #include <epan/prefs.h>
 
 #include <ui/qt/main_application.h>
-#include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/software_update.h>
+#include <ui/qt/utils/theme_manager.h>
 
 #include <QWidget>
 #include <QLabel>
@@ -24,7 +24,6 @@
 #include <QHBoxLayout>
 #include <QDesktopServices>
 #include <QUrl>
-#include <QFile>
 #include <QGraphicsOpacityEffect>
 #include <QPropertyAnimation>
 
@@ -34,6 +33,18 @@ WelcomeHeaderWidget::WelcomeHeaderWidget(QWidget *parent) :
 {
     header_ui_->setupUi(this);
     updateStyleSheet();
+
+    // Rebuild the stylesheet whenever the theme (or its light/dark
+    // selection) changes.  QEvent::ApplicationPaletteChange alone isn't
+    // reliable here — it only fires when the QPalette actually differs,
+    // and a light/dark flip on a theme with no palette overrides may not
+    // change any palette roles this widget's gradient depends on.
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged,
+            this, &WelcomeHeaderWidget::updateStyleSheet);
+
+    // TODO REMOVE BEFORE COMITTING!!!
+    new_version_ = "5.0.0";
+    release_notes_ = "https://www.wireshark.org/docs/relnotes/";
 
     // Setting the application name in the header
     header_ui_->headerTitle->setText(mainApp->applicationName());
@@ -180,12 +191,5 @@ bool WelcomeHeaderWidget::event(QEvent *event)
 
 void WelcomeHeaderWidget::updateStyleSheet()
 {
-    QString path = ColorUtils::themeIsDark()
-        ? ":/stylesheets/widgets/welcome-header-dark.qss"
-        : ":/stylesheets/widgets/welcome-header-light.qss";
-
-    QFile f(path);
-    if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        setStyleSheet(f.readAll());
-    }
+    setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/welcome-header")));
 }

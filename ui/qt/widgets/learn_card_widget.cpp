@@ -10,7 +10,8 @@
 #include <ui/qt/widgets/learn_card_widget.h>
 #include <ui_learn_card_widget.h>
 
-#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/theme_styler.h>
 #include <ui/qt/utils/workspace_state.h>
 
 #include <QLabel>
@@ -37,7 +38,15 @@ LearnCardWidget::LearnCardWidget(QWidget *parent) :
     loadLinksFromRessource();
     setupLinks();
     setupActionButtons();
-    updateStyleSheet();
+    setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/learn-card")));
+
+    // Reload the stylesheet whenever the theme (or its light/dark
+    // selection) changes.  QEvent::ApplicationPaletteChange alone isn't
+    // reliable — a mode flip on a theme with no palette overrides may
+    // not produce a palette delta large enough for Qt to propagate.
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged, this, [this]() {
+        setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/learn-card")));
+    });
 
     connect(ui_->learnHeader, &ClickableLabel::clicked, this, []() {
         QDesktopServices::openUrl(QUrl(WS_DOCS_URL));
@@ -171,8 +180,7 @@ void LearnCardWidget::setupActionButtons()
 
     auto *button_layout = ui_->learnButtonLayout;
 
-    auto defColor = QColor(QStringLiteral("#5865F2"));
-    auto defHoverColor = QColor(QStringLiteral("#4752C4"));
+    auto defColor = QApplication::palette().color(QPalette::Button);
 
     for (const ButtonType &button : buttons_) {
         if (button.validity != LearnCardWidget::AllVersions) {
@@ -183,17 +191,13 @@ void LearnCardWidget::setupActionButtons()
         }
 
         QColor button_color = button.color.isValid() ? button.color : defColor;
-        QColor button_hover_color = button.hover_color.isValid() ? button.hover_color : defHoverColor;
 
         auto *action_button = new QPushButton(button.label, ui_->learnButtonContainer);
         action_button->setObjectName(QStringLiteral("learnButton"));
         action_button->setToolTip(button.tooltip);
         action_button->setAccessibleDescription(button.tooltip);
         action_button->setCursor(Qt::PointingHandCursor);
-        action_button->setStyleSheet(QStringLiteral(
-            "QPushButton#learnButton { background-color: %1; }"
-            "QPushButton#learnButton:hover { background-color: %2; }"
-            ).arg(button_color.name(), button_hover_color.name()));
+        action_button->setStyleSheet(ThemeStyler::buttonStyleSheet(QStringLiteral("learnButton"), button_color));
         connect(action_button, &QPushButton::clicked, this, [url = button.url]() {
             QDesktopServices::openUrl(QUrl(url));
         });
@@ -222,24 +226,11 @@ bool LearnCardWidget::isLinksCollapsed() const
     return links_collapsed_;
 }
 
-void LearnCardWidget::updateStyleSheet()
-{
-    QString path = ColorUtils::themeIsDark()
-        ? QStringLiteral(":/stylesheets/widgets/learn-card-dark.qss")
-        : QStringLiteral(":/stylesheets/widgets/learn-card-light.qss");
-
-    QFile f(path);
-    if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
-        return;
-
-    setStyleSheet(QString::fromUtf8(f.readAll()));
-}
-
 bool LearnCardWidget::event(QEvent *event)
 {
     switch (event->type()) {
     case QEvent::ApplicationPaletteChange:
-        updateStyleSheet();
+        setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/learn-card")));
         break;
     case QEvent::LanguageChange:
         ui_->retranslateUi(this);

@@ -112,11 +112,6 @@ private:
      * @brief Create and insert action button widgets from @c buttons_.
      */
     void setupActionButtons();
-
-    /**
-     * @brief Reapply dynamic stylesheets to all links and action buttons.
-     */
-    void updateStyleSheet();
 };
 
 #endif //LEARN_CARD_WIDGET_H

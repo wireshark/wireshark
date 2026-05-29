@@ -58,18 +58,9 @@
 #include "lua_debugger_files.h"
 #include "main_application.h"
 #include "utils/color_utils.h"
+#include <ui/qt/utils/theme_manager.h>
 
 /* ===== code_palette ===== */
-
-bool luaDebuggerThemeIsDark()
-{
-    const int32_t themePref = LuaDebuggerDialog::currentTheme();
-    if (themePref == WSLUA_DEBUGGER_THEME_AUTO)
-    {
-        return ColorUtils::themeIsDark();
-    }
-    return (themePref == WSLUA_DEBUGGER_THEME_DARK);
-}
 
 LuaDebuggerEditorPalette luaDebuggerEditorPaletteFor(bool isDark)
 {
@@ -375,7 +366,7 @@ LuaDebuggerCodeView::LuaDebuggerCodeView(QWidget *parent)
                                   "Drag existing breakpoint: move to nearest free visible line\n"
                                   "Shift+click: on an empty line, add a disabled breakpoint;\n"
                                   "on an existing breakpoint, toggle its active state"));
-    syntaxHighlighter = new LuaSyntaxHighlighter(document(), luaDebuggerThemeIsDark());
+    syntaxHighlighter = new LuaSyntaxHighlighter(document(), ThemeManager::isDark());
 
     connect(this, &LuaDebuggerCodeView::blockCountChanged, this, &LuaDebuggerCodeView::updateLineNumberAreaWidth);
     connect(this, &LuaDebuggerCodeView::updateRequest, this, &LuaDebuggerCodeView::updateLineNumberArea);
@@ -515,7 +506,7 @@ void LuaDebuggerCodeView::rebuildLineHighlights()
             QTextCursor pauseCursor(pauseBlock);
             pauseCursor.movePosition(QTextCursor::StartOfBlock);
             QTextEdit::ExtraSelection pauseSel;
-            const LuaDebuggerEditorPalette palette = luaDebuggerEditorPaletteFor(luaDebuggerThemeIsDark());
+            const LuaDebuggerEditorPalette palette = luaDebuggerEditorPaletteFor(ThemeManager::isDark());
             pauseSel.format.setBackground(palette.pausedLine);
             pauseSel.format.setProperty(QTextFormat::FullWidthSelection, true);
             pauseSel.cursor = pauseCursor;
@@ -634,7 +625,7 @@ void LuaDebuggerCodeView::updateBreakpointMarkers()
 
 void LuaDebuggerCodeView::applyTheme()
 {
-    const bool isDark = luaDebuggerThemeIsDark();
+    const bool isDark = ThemeManager::isDark();
     applyEditorPalette();
     if (syntaxHighlighter)
     {
@@ -647,7 +638,7 @@ void LuaDebuggerCodeView::applyTheme()
 
 void LuaDebuggerCodeView::applyEditorPalette()
 {
-    const LuaDebuggerEditorPalette colors = luaDebuggerEditorPaletteFor(luaDebuggerThemeIsDark());
+    const LuaDebuggerEditorPalette colors = luaDebuggerEditorPaletteFor(ThemeManager::isDark());
     QPalette pal = palette();
     QPalette gutterPal = lineNumberArea->palette();
 
@@ -676,7 +667,7 @@ void LuaDebuggerCodeView::applyEditorPalette()
 
 void LuaDebuggerCodeView::lineNumberAreaPaintEvent(QPaintEvent *event)
 {
-    const LuaDebuggerEditorPalette colors = luaDebuggerEditorPaletteFor(luaDebuggerThemeIsDark());
+    const LuaDebuggerEditorPalette colors = luaDebuggerEditorPaletteFor(ThemeManager::isDark());
     QPainter painter(lineNumberArea);
     painter.setRenderHint(QPainter::Antialiasing, true);
 

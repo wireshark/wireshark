@@ -816,14 +816,6 @@ The _Width_ is the width of the column.
 
 The _Alignment_ is the alignment of the text in the column.
 
-==== Font and Colors
-
-These preferences give you the option to select the font and colors used in the various packet panes.
-Most usable is to select a mono spaced font, which allows for a cleaner presentation, but using a proportional font is possible too.
-
-.Font and colors preferences
-image::images/ws-pref-appearance-fonts-and-colors.png[{screenshot-attrs}]
-
 ==== Layout
 
 These preferences allow you to define the layout of the GUI once a capture file is loaded.
@@ -854,6 +846,33 @@ Selecting _Show selected packet number_ adds the selected packet number to the c
 Selecting _Show file load time_ adds the time it took to load the capture file to the status bar, taking up some space in the status bar.
 
 The button _Restore Defaults_ allows you to get back to a working basic configuration.
+
+==== Theme and Font
+
+These preferences let you choose the application theme, the light or dark appearance mode, and the font used in the packet panes.
+
+.Theme and font preferences
+image::images/ws-pref-appearance-theme-and-font.png[{screenshot-attrs}]
+
+The _Main window font_ button opens a font chooser for the font used in the packet list, the packet details and the other packet panes.
+A mono spaced font usually gives the cleanest presentation, but a proportional font can be used as well.
+The sample text below the button previews the currently selected font.
+
+The _Appearance mode_ setting controls whether Wireshark uses a light or a dark color scheme.
+_System_ follows the operating system setting, while _Light_ and _Dark_ force the respective scheme regardless of the system setting.
+
+The _Theme_ setting selects the color theme applied to the application.
+Themes bundle the colors used throughout the GUI — including the packet list selection, marked and ignored packets, the “Follow Stream” client and server text, and valid and invalid display filter highlighting — so these colors are no longer configured individually.
+When the selected theme declares an author, it is shown below the preview.
+
+[NOTE]
+====
+The individual color settings from earlier versions of Wireshark (for example marked and ignored packets, the “Follow Stream” client and server text, display filter validity, and the selected packet) have been removed.
+These colors now come from the selected theme.
+====
+
+The preview shows a mockup of a capture window rendered with the selected theme and appearance mode, so you can see how the combination will look before applying it.
+Changes to the appearance mode and theme take effect once you accept the preferences dialog with btn:[OK]; the preview itself updates immediately as you try different combinations.
 
 ==== Welcome Page
 

@@ -190,7 +190,7 @@ protected:
      * @param y_axis_factor Multiplier applied to all Y values before plotting
      *                      (default: Graph::default_y_axis_factor_).
      */
-    void addPlot(bool checked, const QString &name, const QString &dfilter, QRgb color_idx,
+    void addPlot(bool checked, const QString& name, const QString& dfilter, QColor color_idx,
                  Graph::PlotStyles style, const QString &yfield,
                  double y_axis_factor = Graph::default_y_axis_factor_);
 
@@ -451,7 +451,28 @@ private:
     bool abs_time_;                      /**< true = absolute time X axis; false = elapsed time. */
     double last_right_clicked_pos_;      /**< X-axis position of the most recent right-click, in plot units. */
 
+    /**
+     * @brief Theme-default color last assigned to each UAT row.
+     *
+     * Indexed by UAT row position.  onThemeChanged() refreshes only rows
+     * whose current color still equals the recorded default — i.e. rows the
+     * user has not customized.  Best-effort: row delete or reorder leaves
+     * stale keys, in which case the affected rows are skipped on the next
+     * theme flip rather than wrongly overwritten.
+     */
+    QHash<int, QColor> themeDefaultColors_;
+
 private slots:
+    /**
+     * @brief Refresh theme-default plot colors after a theme change.
+     *
+     * For each UAT row whose current color still equals the previously
+     * recorded theme default, replace it with the new theme's
+     * graphColor(row) and resync the Plot.  User-customized rows are
+     * left untouched.
+     */
+    void onThemeChanged();
+
     /**
      * @brief Commit pending UAT edits to the registration tables.
      */

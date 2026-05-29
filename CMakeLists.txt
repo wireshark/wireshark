@@ -442,6 +442,7 @@ include(UseExecutableResources)
 include(UseAsn2Wrs)
 include(UseJsonTranslations)
 include(QrcBuilder)
+include(AddThemes)
 
 # The following snippet has been taken from
 # https://github.com/USESystemEngineeringBV/cmake-eclipse-helper/wiki/HowToWorkaroundIndexer

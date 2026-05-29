@@ -27,16 +27,19 @@
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 #include "main_application.h"
 #include <ui/qt/main_window.h>
 #include <ui/qt/main_status_bar.h>
 #include <ui/qt/widgets/wireless_timeline.h>
 
+#include <QApplication>
 #include <QColor>
 #include <QElapsedTimer>
 #include <QFontMetrics>
 #include <QModelIndex>
 #include <QElapsedTimer>
+#include <QPalette>
 
 // Print timing information
 //#define DEBUG_PACKET_LIST_MODEL 1
@@ -96,6 +99,10 @@ PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     number_to_row_.reserve(reserved_packets_);
 
     idle_dissection_timer_ = new QElapsedTimer();
+
+    refreshThemeColors();
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged,
+            this, &PacketListModel::onThemeChanged);
 }
 
 PacketListModel::~PacketListModel()
@@ -923,30 +930,25 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
         return Qt::AlignLeft;
 
     case Qt::BackgroundRole:
-        const color_t *color;
         if (fdata->ignored) {
-            color = &prefs.gui_ignored_bg;
+            return ignored_bg_;
         } else if (fdata->marked) {
-            color = &prefs.gui_marked_bg;
+            return marked_bg_;
         } else if (fdata->color_filter && recent.packet_list_colorize) {
             const color_filter_t *color_filter = (const color_filter_t *) fdata->color_filter;
-            color = &color_filter->bg_color;
-        } else {
-            return QVariant();
+            return ColorUtils::fromColorT(&color_filter->bg_color);
         }
-        return ColorUtils::fromColorT(color);
+        return QVariant();
     case Qt::ForegroundRole:
         if (fdata->ignored) {
-            color = &prefs.gui_ignored_fg;
+            return ignored_fg_;
         } else if (fdata->marked) {
-            color = &prefs.gui_marked_fg;
+            return marked_fg_;
         } else if (fdata->color_filter && recent.packet_list_colorize) {
             const color_filter_t *color_filter = (const color_filter_t *) fdata->color_filter;
-            color = &color_filter->fg_color;
-        } else {
-            return QVariant();
+            return ColorUtils::fromColorT(&color_filter->fg_color);
         }
-        return ColorUtils::fromColorT(color);
+        return QVariant();
     case Qt::AccessibleTextRole:
     {
         return record->columnString(cap_file_, d_index.column(), true);
@@ -1127,4 +1129,23 @@ int PacketListModel::visibleIndexOf(const frame_data *fdata) const
         return -1;
     }
     return packetNumberToRow(fdata->num);
+}
+
+void PacketListModel::refreshThemeColors()
+{
+    ThemeManager *tm = ThemeManager::instance();
+    marked_bg_  = tm->color(ThemeManager::PacketsMarked);
+    marked_fg_  = tm->color(ThemeManager::PacketsMarkedText);
+    ignored_bg_ = tm->color(ThemeManager::PacketsIgnored);
+    ignored_fg_ = tm->color(ThemeManager::PacketsIgnoredText);
+}
+
+void PacketListModel::onThemeChanged()
+{
+    refreshThemeColors();
+    if (rowCount() > 0) {
+        emit dataChanged(index(0, 0),
+                         index(rowCount() - 1, columnCount() - 1),
+                         QVector<int>() << Qt::BackgroundRole << Qt::ForegroundRole);
+    }
 }

@@ -15,6 +15,7 @@
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/widgets/qcp_axis_ticker_elided.h>
 #include "ui/recent.h"
 
@@ -284,7 +285,7 @@ void SequenceDiagram::draw(QCPPainter *painter)
             bg_color = QColor().fromRgb(sai->bg_color);
         } else {
             fg_pen.setColor(Qt::black);
-            bg_color = ColorUtils::sequenceColor(sai->conv_num);
+            bg_color = ThemeManager::instance()->graphColor(sai->conv_num);
         }
 
         // Highlighted background

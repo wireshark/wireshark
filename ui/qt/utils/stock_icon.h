@@ -11,6 +11,7 @@
 #define STOCK_ICON_H
 
 #include <QIcon>
+#include <QColor>
 
 /** @file
  *  Goal: Beautiful icons appropriate for each of our supported platforms.
@@ -52,7 +53,7 @@ public:
      * @return Generated QIcon.
      */
     static QIcon colorIcon(const QRgb bg_color, const QRgb fg_color, const QString glyph = QString());
-
+    static QIcon colorIcon(const QColor bg_color, const QRgb fg_color, const QString glyph = QString());
     /**
      * @brief Creates a square icon containing a filled triangle in @p fg_color
      *        on a @p bg_color background.

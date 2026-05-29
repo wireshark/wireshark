@@ -18,9 +18,8 @@
 
 #include "welcome_page.h"
 #include <ui_welcome_page.h>
-#include <ui/qt/utils/tango_colors.h>
-#include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/models/recentcapturefiles_list_model.h>
 #include <ui/qt/utils/workspace_state.h>
 #include <ui/qt/widgets/capture_card_widget.h>
@@ -377,54 +376,7 @@ void WelcomePage::showCaptureFilesContextMenu(QPoint pos)
 
 void WelcomePage::updateStyleSheets()
 {
-    QString welcome_ss = QStringLiteral(
-                "WelcomePage {"
-                "  padding: 0;"
-                " }"
-                "WelcomePage, QAbstractItemView {"
-                "  background-color: palette(base);"
-                "  color: palette(text);"
-                " }"
-                "QAbstractItemView {"
-                "  border: 0;"
-                "}"
-                );
-#if !defined(Q_OS_WIN)
-    welcome_ss += QStringLiteral(
-                "QAbstractItemView:item:hover {"
-                "  background-color: %1;"
-                "  color: palette(text);"
-                "}"
-                )
-            .arg(ColorUtils::hoverBackground().name(QColor::HexArgb));
-#endif
-    setStyleSheet(welcome_ss);
-
-    QString title_button_ss = QStringLiteral(
-            "QLabel {"
-            "  color: %1;"
-            "}"
-            "QLabel::hover {"
-            "  color: %2;"
-            "}"
-            )
-            .arg(QColor(tango_aluminium_4).name())   // Text color
-            .arg(QColor(tango_sky_blue_4).name());   // Hover color
-
-    welcome_ui_->openFileSectionLabel->setStyleSheet(title_button_ss);
-
-    welcome_ui_->openFileSectionRecentList->setStyleSheet(
-            "QListView::item {"
-            "  padding-top: 0.2em;"
-            "  padding-bottom: 0.2em;"
-            "}"
-            "QListView::item::first {"
-            "  padding-top: 0;"
-            "}"
-            "QListView::item::last {"
-            "  padding-bottom: 0;"
-            "}"
-            );
+    setStyleSheet(ThemeManager::styleSheet(QStringLiteral("welcome-page")));
 
     /* LearnCardWidget and CaptureCardWidget manage their own stylesheets */
 }

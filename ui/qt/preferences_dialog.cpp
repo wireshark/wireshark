@@ -398,6 +398,7 @@ void PreferencesDialog::apply()
     }
 
     pd_ui_->columnFrame->unstash();
+    pd_ui_->fontandcolorFrame->unstash();
     pd_ui_->welcomePageFrame->unstash();
     pd_ui_->filterExpressonsFrame->acceptChanges();
     pd_ui_->aggregationFrame->acceptChanges();
@@ -435,10 +436,6 @@ void PreferencesDialog::apply()
     prefs_to_capture_opts(&global_capture_opts);
     if (redissect_flags & PREF_EFFECT_AGGREGATION) {
         mainApp->emitAppSignal(MainApplication::AggregationChanged);
-    }
-
-    if (redissect_flags & (PREF_EFFECT_GUI_COLOR)) {
-        mainApp->emitAppSignal(MainApplication::ColorsChanged);
     }
 
     if (redissect_flags & PREF_EFFECT_FIELDS) {

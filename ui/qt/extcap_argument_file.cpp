@@ -24,8 +24,7 @@
 #include <QFileInfo>
 #include <QVariant>
 
-#include <epan/prefs.h>
-#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 
 #include <ui/all_files_wildcard.h>
 
@@ -154,9 +153,7 @@ bool ExtcapArgumentFileSelection::isValid()
     else if (isRequired())
         valid = false;
 
-    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_filter_invalid_bg).name();
-    QString txtStyle("QLineEdit { background-color: %1; } ");
-    textBox->setStyleSheet(txtStyle.arg(valid ? QString("") : lblInvalidColor));
+    ThemeManager::setValidationState(textBox, valid ? QString() : QStringLiteral("invalid"));
 
     return valid;
 }

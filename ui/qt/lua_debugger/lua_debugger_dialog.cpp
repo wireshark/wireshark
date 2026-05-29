@@ -107,6 +107,7 @@
 #include <ui/capture.h>
 #endif
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/widgets/wireshark_file_dialog.h>
 
@@ -571,11 +572,11 @@ LuaDebuggerDialog::LuaDebuggerDialog(QWidget *parent)
         connect(mainApp, &MainApplication::preferencesChanged, this, &LuaDebuggerDialog::onPreferencesChanged,
                 Qt::UniqueConnection);
         /*
-         * Connect to colorsChanged signal to update code view themes when
+         * Connect to themeChanged signal to update code view themes when
          * Wireshark's color scheme changes. This is important when the debugger
          * theme preference is set to "Auto (follow color scheme)".
          */
-        connect(mainApp, &MainApplication::colorsChanged, this, &LuaDebuggerDialog::onColorsChanged,
+        connect(ThemeManager::instance(), &ThemeManager::themeChanged, this, &LuaDebuggerDialog::onColorsChanged,
                 Qt::UniqueConnection);
         if (mainApp->isInitialized())
         {
@@ -1357,7 +1358,7 @@ void LuaDebuggerDialog::onColorsChanged()
      * When Wireshark's color scheme changes and the debugger theme is set to
      * "Auto (follow color scheme)", we need to re-apply themes to all code
      * views. The applyCodeViewThemes() function will query
-     * ColorUtils::themeIsDark() to determine the effective theme.
+     * ThemeManager::instance()->isDark() to determine the effective theme.
      */
     applyCodeViewThemes();
     watchController_.refreshDisplay();

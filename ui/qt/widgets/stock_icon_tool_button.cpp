@@ -10,6 +10,7 @@
 #include <ui/qt/widgets/stock_icon_tool_button.h>
 
 #include <ui/qt/utils/stock_icon.h>
+#include <ui/qt/utils/theme_manager.h>
 
 #include <QApplication>
 #include <QEvent>
@@ -29,6 +30,8 @@ StockIconToolButton::StockIconToolButton(QWidget * parent, QString stock_icon_na
 {
     setCursor(Qt::ArrowCursor);
     setStockIcon(stock_icon_name);
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged,
+            this, [this]() { setStockIcon(); });
 }
 
 void StockIconToolButton::setIconMode(QIcon::Mode mode)

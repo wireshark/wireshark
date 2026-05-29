@@ -329,9 +329,6 @@ protected:
 
     /** The argument number identifier. */
     int _number;
-
-    /** The CSS style applied to the label. */
-    const QString label_style;
 };
 
 

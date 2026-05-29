@@ -31,6 +31,7 @@
 #endif
 
 #include <ui/recent.h>
+#include <ui/qt/utils/theme_manager.h>
 #include <app/application_flavor.h>
 
 #include <algorithm>
@@ -111,6 +112,8 @@ InfoBannerWidget::InfoBannerWidget(QWidget *parent) :
     setMaximumHeight(kCardHeight);
 
     connect(auto_advance_timer_, &QTimer::timeout, this, &InfoBannerWidget::advanceSlide);
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged, this,
+            [this]() { update(); });
     auto_advance_timer_->stop();
 }
 

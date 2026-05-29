@@ -1,6 +1,5 @@
 /* ===================================================================
  * Wireshark Welcome Page — Learn Card Widget
- * Theme: Dark
  *
  * Widget hierarchy:
  *   LearnCardWidget (QFrame)        — rounded card container
@@ -11,12 +10,10 @@
  *     #learnButtonContainer         — QWidget, holds action buttons
  *       #learnButton (×N)           — QPushButton, colored action button
  *
- * All colors use palette() references so they automatically adapt
- * to the current platform palette without C++ token replacement.
- *
- * Note: header text/hover colors use hardcoded tango values for now.
- * See tango_color_cleanup.md for the follow-up to replace these
- * with palette-derived values.
+ * All colors are sourced from either the Qt palette() (so they
+ * adapt to the platform style) or from theme tokens resolved by
+ * ThemeManager::styleSheet("widgets/learn-card").  No literal color
+ * values are allowed in this file.
  * =================================================================== */
 
 
@@ -33,16 +30,16 @@ LearnCardWidget {
 /* -----------------------------------------------------------------
  * Header label — "Learn"
  *
- * Colors: tango_aluminium_4 (#888a85) / tango_sky_blue_4 (#3465a4)
- * These may need adjustment for dark mode contrast — see follow-up.
+ * Colors come from the shared section header tokens so the Open,
+ * Capture and Learn headers always look identical.
  * ----------------------------------------------------------------- */
 QLabel#learnHeader {
-    color: #888a85;
+    color: wstheme(SectionHeader);
     padding: 10px 12px;
 }
 
 QLabel#learnHeader:hover {
-    color: #3465a4;
+    color: wstheme(SectionHeaderHover);
 }
 
 
@@ -73,7 +70,7 @@ QLabel#learnLink:hover {
  * from the learn_card.json configuration.
  * ----------------------------------------------------------------- */
 QPushButton#learnButton {
-    color: white;
+    color: wstheme(TextOnDark);
     border: none;
     border-radius: 6px;
     padding: 10px 12px;

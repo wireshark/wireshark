@@ -1,0 +1,34 @@
+/* ===================================================================
+ * AccordionFrame — sliding collapsible search / navigation toolbar
+ *
+ * Used by "Go to packet", "Find packet", and similar toolbars docked
+ * at the top of the main window.  The frame itself animates via
+ * QPropertyAnimation on maximumHeight from C++; the colours and
+ * border here are purely the static appearance.
+ *
+ * This stylesheet is applied to an AccordionFrame instance via
+ * ThemeManager::styleSheet("widgets/accordion-frame"), so all
+ * selectors target the frame and its descendants.
+ *
+ * Colour sourcing: native `palette(mid)` — Qt resolves against the
+ * current QPalette at render time, so the border automatically
+ * follows light/dark mode via ThemePaletteBuilder's palette output.
+ * No wstheme(...) tokens are needed here; this is a pure-palette
+ * widget.
+ * =================================================================== */
+
+/* Cap the width of the "go to packet" line edit so the field doesn't
+ * stretch across the whole toolbar on wide main windows. */
+QLineEdit#goToLineEdit {
+    max-width: 5em;
+}
+
+/* Subtle rounded border on line-edits inside the frame.  Originally
+ * macOS-only, where QLineEdit rendered without a visible native
+ * border inside our custom QFrame; kept universally for a consistent
+ * look across platforms. */
+QLineEdit {
+    border: 1px solid palette(mid);
+    border-radius: 3px;
+    padding: 1px;
+}

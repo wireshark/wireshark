@@ -170,7 +170,7 @@ public:
      * @param yaxisfactor    Multiplier applied to all Y values before plotting.
      */
     void addGraph(bool checked, bool asAOT, QString name, QString dfilter,
-                  QRgb color_idx, IOGraph::PlotStyles style,
+                  QColor color_idx, IOGraph::PlotStyles style,
                   io_graph_item_unit_t value_units, QString yfield,
                   int moving_average, double yaxisfactor);
 
@@ -479,6 +479,17 @@ private:
     QSharedPointer<QCPAxisTicker>         number_ticker_;   /**< Numeric axis ticker for relative time display. */
     QSharedPointer<QCPAxisTickerDateTime> datetime_ticker_; /**< Date/time axis ticker for time-of-day display. */
 
+    /**
+     * @brief Theme-default color last assigned to each UAT row.
+     *
+     * Indexed by UAT row position.  onThemeChanged() refreshes only rows
+     * whose current color still equals the recorded default — i.e. rows the
+     * user has not customized via the color editor.  The map is best-effort:
+     * row delete or reorder leaves stale keys, in which case the affected
+     * rows are skipped on the next theme flip rather than wrongly overwritten.
+     */
+    QHash<int, QColor> themeDefaultColors_;
+
 
     /** @brief Zoom both axes in or out by a fixed factor. @param in true to zoom in. */
     void zoomAxes(bool in);
@@ -550,6 +561,17 @@ private:
 
 
 private slots:
+    /**
+     * @brief Refresh theme-default graph colors after a theme change.
+     *
+     * For each UAT row whose current color still equals the previously
+     * recorded theme default, replace it with the new theme's
+     * graphColor(row) and resync the IOGraph.  User-customized rows
+     * (where the current color no longer matches the recorded default)
+     * are left untouched.
+     */
+    void onThemeChanged();
+
     /**
      * @brief Apply pending UAT changes to the registration tables.
      *

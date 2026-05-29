@@ -17,6 +17,7 @@
 #include <epan/packet.h>
 
 #include <QAbstractItemModel>
+#include <QColor>
 #include <QFont>
 #include <QVector>
 
@@ -296,7 +297,28 @@ public slots:
      */
     void dissectIdle(bool reset = false);
 
+private slots:
+    /** Slot connected to ThemeManager::themeChanged. Refreshes the color
+     *  cache and asks the view to repaint every cell's bg/fg roles. */
+    void onThemeChanged();
+
 private:
+    /** Cached foreground color for manually marked packets. */
+    QColor marked_fg_;
+    /** Cached background color for manually marked packets. */
+    QColor marked_bg_;
+    /** Cached foreground color for ignored packets. */
+    QColor ignored_fg_;
+    /** Cached background color for ignored packets (invalid = use view default). */
+    QColor ignored_bg_;
+
+    /**
+     * Re-reads marked/ignored colors from ThemeManager into the cached
+     * QColor members. Called from the constructor (priming) and from
+     * onThemeChanged() (after a theme/mode flip).
+     */
+    void refreshThemeColors();
+
     /** Pointer to the associated capture file. */
     capture_file *cap_file_;
 

@@ -1,0 +1,73 @@
+/* ===================================================================
+ * Wireshark Welcome Page
+ *
+ * Widget hierarchy (styled here):
+ *   WelcomePage (QFrame)               — page background
+ *     QAbstractItemView                — recent file list base styling
+ *     #openFileSectionLabel            — ClickableLabel, "Open" title
+ *     #openFileSectionRecentList       — QListView, recent capture files
+ *
+ * Child widgets that manage their OWN stylesheets (not styled here):
+ *   WelcomeHeaderWidget   → widgets/welcome-header.qss
+ *   CaptureCardWidget     → widgets/capture-card.qss
+ *   LearnCardWidget       → widgets/learn-card.qss
+ *
+ * All colors are sourced from either the Qt palette() (so they
+ * adapt to the platform style) or from theme tokens resolved by
+ * ThemeManager::styleSheet("welcome-page").  No literal color
+ * values are allowed in this file.
+ * =================================================================== */
+
+
+/* -----------------------------------------------------------------
+ * Page background
+ * ----------------------------------------------------------------- */
+WelcomePage {
+    padding: 0;
+}
+
+WelcomePage, QAbstractItemView {
+    background-color: palette(base);
+    color: palette(text);
+}
+
+QAbstractItemView {
+    border: 0;
+}
+
+QAbstractItemView:item:hover {
+    background-color: palette(midlight);
+    color: palette(text);
+}
+
+
+/* -----------------------------------------------------------------
+ * "Open" section header
+ *
+ * Colors come from the shared section header tokens so the Open,
+ * Capture and Learn headers always look identical.
+ * ----------------------------------------------------------------- */
+QLabel#openFileSectionLabel {
+    color: wstheme(SectionHeader);
+}
+
+QLabel#openFileSectionLabel:hover {
+    color: wstheme(SectionHeaderHover);
+}
+
+
+/* -----------------------------------------------------------------
+ * Recent files list — item spacing
+ * ----------------------------------------------------------------- */
+QListView#openFileSectionRecentList::item {
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+}
+
+QListView#openFileSectionRecentList::item:first {
+    padding-top: 0;
+}
+
+QListView#openFileSectionRecentList::item:last {
+    padding-bottom: 0;
+}

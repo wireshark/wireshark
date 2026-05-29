@@ -66,10 +66,9 @@ The stream content is displayed in the same sequence as it appeared on the
 network. Non-printable characters are replaced by dots.
 Traffic from the client to the server is colored red, while traffic
 from the server to the client is
-colored blue. These colors can be changed by opening menu:Edit[Preferences] and
-under menu:Appearance[Font and Colors], selecting different colors for the
-btn:[Sample "Follow Stream" client text] and btn:[Sample "Follow Stream" server text]
-options.
+colored blue. These colors are defined by the active theme, which you can
+select by opening menu:Edit[Preferences] and choosing a theme under
+menu:Appearance[Theme and Font].
 
 
 

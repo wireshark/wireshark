@@ -9,9 +9,8 @@
 
 #include <ui/qt/widgets/follow_stream_text.h>
 
-#include "epan/prefs.h"
-
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 
 #include <main_application.h>
 
@@ -77,24 +76,20 @@ void FollowStreamText::addText(QString text, bool is_from_server, uint32_t packe
     if (!colorize) {
         tcf.setBackground(palette().base().color());
         tcf.setForeground(palette().text().color());
-    } else if (marked) {
-        // We could use the normal marking color
-        //tcf.setForeground(ColorUtils::fromColorT(prefs.gui_marked_fg));
-        //tcf.setBackground(ColorUtils::fromColorT(prefs.gui_marked_bg));
-        // But a reverse video effect also conveys the server/client info
-        if (is_from_server) {
-            tcf.setForeground(ColorUtils::fromColorT(prefs.st_server_bg));
-            tcf.setBackground(ColorUtils::fromColorT(prefs.st_server_fg));
-        } else {
-            tcf.setForeground(ColorUtils::fromColorT(prefs.st_client_bg));
-            tcf.setBackground(ColorUtils::fromColorT(prefs.st_client_fg));
-        }
-    } else if (is_from_server) {
-        tcf.setForeground(ColorUtils::fromColorT(prefs.st_server_fg));
-        tcf.setBackground(ColorUtils::fromColorT(prefs.st_server_bg));
     } else {
-        tcf.setForeground(ColorUtils::fromColorT(prefs.st_client_fg));
-        tcf.setBackground(ColorUtils::fromColorT(prefs.st_client_bg));
+        ThemeManager *tm = ThemeManager::instance();
+        const QColor bg = tm->color(is_from_server ? ThemeManager::ConversationServer
+                                                   : ThemeManager::ConversationClient);
+        const QColor fg = tm->color(is_from_server ? ThemeManager::ConversationServerText
+                                                   : ThemeManager::ConversationClientText);
+        if (marked) {
+            // Reverse-video the conversation tint to convey marked + side
+            tcf.setForeground(bg);
+            tcf.setBackground(fg);
+        } else {
+            tcf.setForeground(fg);
+            tcf.setBackground(bg);
+        }
     }
     setCurrentCharFormat(tcf);
 

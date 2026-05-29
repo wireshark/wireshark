@@ -44,6 +44,7 @@
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/variant_pointer.h>
 
 #include <ui/qt/models/astringlist_list_model.h>
@@ -265,6 +266,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
     /* Wireshark tab */
     updateWiresharkText();
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged,
+            this, &AboutDialog::updateWiresharkText);
 
     /* Authors */
     AuthorListModel * authorModel = new AuthorListModel(this);

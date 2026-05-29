@@ -69,63 +69,6 @@ public:
      */
     static QRgb alphaBlend(const QBrush &brush1, const QBrush &brush2, qreal alpha);
 
-    // ...because they don't really fit anywhere else?
-    /** Expert color for comments (green). */
-    static const QColor expert_color_comment;
-
-    /** Expert color for chat (light blue). */
-    static const QColor expert_color_chat;
-
-    /** Expert color for notes (bright turquoise). */
-    static const QColor expert_color_note;
-
-    /** Expert color for warnings (yellow). */
-    static const QColor expert_color_warn;
-
-    /** Expert color for errors (pale red). */
-    static const QColor expert_color_error;
-
-    /** Expert foreground color (black). */
-    static const QColor expert_color_foreground;
-
-    /** Color for hidden protocol items (gray). */
-    static const QColor hidden_proto_item;
-
-    /**
-     * @brief Retrieves the standard list of graph colors.
-     * @return A list of QRgb color values for graphing.
-     */
-    static const QList<QRgb> graphColors();
-
-    /**
-     * @brief Retrieves a specific graph color by item index.
-     * @param item The index of the item.
-     * @return The QRgb color assigned to the index.
-     */
-    static QRgb graphColor(int item);
-
-    /**
-     * @brief Retrieves a specific sequence color by item index.
-     * @param item The index of the item.
-     * @return The QRgb color assigned to the index.
-     */
-    static QRgb sequenceColor(int item);
-
-    /**
-     * @brief Checks if our application is in "dark mode".
-     *
-     * Dark mode is determined by comparing the application palette's window
-     * text color with the window color.
-     *
-     * @return true if we're running in dark mode, false otherwise.
-     */
-    static bool themeIsDark();
-
-    /**
-     * @brief Sets the overall color scheme for the application.
-     * @param scheme The identifier for the scheme to apply.
-     */
-    static void setScheme(int scheme);
 
     /**
      * @brief Returns an appropriate link color for the current mode.
@@ -139,14 +82,6 @@ public:
      */
     static QString themeLinkStyle();
 
-    /**
-     * @brief Returns either QPalette::Text or QPalette::Base as appropriate for the
-     * specified foreground color.
-     *
-     * @param color The background color.
-     * @return A contrasting foreground color for the current mode / theme.
-     */
-    static const QColor contrastingTextColor(const QColor color);
 
     /**
      * @brief Returns an appropriate background color for hovered abstract items.

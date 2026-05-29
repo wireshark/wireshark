@@ -439,6 +439,10 @@ struct LuaDbgInvalidFilterColors
  * @brief Return the foreground and background colors used to indicate an
  * invalid filter expression in the Lua debugger.
  *
+ * Background is read from @c ThemeManager::FilterInvalid; foreground is
+ * derived locally via @c ColorMath::contrastingText against that
+ * background (WCAG luminance pick — black on light tints, white on dark).
+ *
  * @return A struct containing the foreground and background colors.
  */
 LuaDbgInvalidFilterColors invalidFilterColors();

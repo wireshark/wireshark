@@ -17,9 +17,11 @@
 #include <app/application_flavor.h>
 #include <wsutil/utf8_entities.h>
 
-#include <ui/qt/utils/color_utils.h>
 #include "main_application.h"
 #include "ui/recent.h"
+
+#include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/themes/color_math.h>
 
 #include <QActionGroup>
 #include <QKeyEvent>
@@ -94,8 +96,10 @@ HexDataSourceView::HexDataSourceView(const QByteArray &data, packet_char_enc enc
 {
     layout_->setCacheEnabled(true);
 
-    offset_normal_fg_ = ColorUtils::alphaBlend(palette().windowText(), palette().window(), 0.35);
-    offset_field_fg_ = ColorUtils::alphaBlend(palette().windowText(), palette().window(), 0.65);
+    ThemeManager * theme = ThemeManager::instance();
+
+    offset_normal_fg_ = ColorMath::withAlphaF(theme->color(ThemeManager::PaletteWindowText), 0.35);
+    offset_field_fg_ = ColorMath::withAlphaF(theme->color(ThemeManager::PaletteWindowText), 0.65);
     ctx_menu_.setToolTipsVisible(true);
 
     window()->winId(); // Required for screenChanged? https://phabricator.kde.org/D20171
@@ -698,10 +702,10 @@ void HexDataSourceView::drawLine(QPainter *painter, const int offset, const int 
         sel_bg = palette().highlight().color();
         sel_overlay = sel_bg;
         sel_overlay.setAlphaF(qreal(0.35f));
-        sel_fg = ColorUtils::contrastingTextColor(sel_overlay);
+        sel_fg = ColorMath::contrastingText(sel_bg);
     }
-    QColor marker_start_bg = ColorUtils::expert_color_note;
-    QColor marker_end_bg = ColorUtils::expert_color_error;
+    QColor marker_start_bg = ThemeManager::instance()->color(ThemeManager::ExpertNote);
+    QColor marker_end_bg = ThemeManager::instance()->color(ThemeManager::ExpertError);
     marker_start_bg.setAlphaF(qreal(0.7f));
     marker_end_bg.setAlphaF(qreal(0.7f));
     auto intersects = [](int a_start, int a_len, int b_start, int b_len) -> bool {
@@ -819,7 +823,7 @@ void HexDataSourceView::drawLine(QPainter *painter, const int offset, const int 
                     intersects(ann.start, ann.length, field_hover_start_, field_hover_len_);
             QColor ann_bg = ann.color;
             if (overlaps_selection) {
-                QColor blended = QColor::fromRgb(ColorUtils::alphaBlend(ann_bg, sel_bg, 0.7));
+                QColor blended = ColorMath::withAlphaF(sel_bg, 0.7);
                 blended.setAlpha(ann_bg.alpha());
                 ann_bg = blended;
             }
@@ -828,15 +832,15 @@ void HexDataSourceView::drawLine(QPainter *painter, const int offset, const int 
                 ann_bg.setAlphaF(qMax(alpha * qreal(0.65f), qreal(0.35f)));
             }
             addHexCustomRange(fmt_list, ann.start, ann.length, offset, max_tvb_pos, ann_bg,
-                              ColorUtils::contrastingTextColor(ann_bg));
+                              ColorMath::contrastingText(ann_bg));
         }
         if (offset_start_byte_ >= 0) {
             addHexCustomRange(fmt_list, offset_start_byte_, 1, offset, max_tvb_pos,
-                              marker_start_bg, ColorUtils::contrastingTextColor(marker_start_bg));
+                              marker_start_bg, ColorMath::contrastingText(marker_start_bg));
         }
         if (offset_end_byte_ >= 0) {
             addHexCustomRange(fmt_list, offset_end_byte_, 1, offset, max_tvb_pos,
-                              marker_end_bg, ColorUtils::contrastingTextColor(marker_end_bg));
+                              marker_end_bg, ColorMath::contrastingText(marker_end_bg));
         }
     }
 
@@ -930,7 +934,7 @@ void HexDataSourceView::drawLine(QPainter *painter, const int offset, const int 
                     intersects(ann.start, ann.length, field_hover_start_, field_hover_len_);
             QColor ann_bg = ann.color;
             if (overlaps_selection) {
-                QColor blended = QColor::fromRgb(ColorUtils::alphaBlend(ann_bg, sel_bg, 0.7));
+                QColor blended = ColorMath::withAlphaF(sel_bg, 0.7);
                 blended.setAlpha(ann_bg.alpha());
                 ann_bg = blended;
             }
@@ -939,15 +943,15 @@ void HexDataSourceView::drawLine(QPainter *painter, const int offset, const int 
                 ann_bg.setAlphaF(qMax(alpha * qreal(0.65f), qreal(0.35f)));
             }
             addAsciiCustomRange(fmt_list, ann.start, ann.length, offset, max_tvb_pos, ann_bg,
-                                ColorUtils::contrastingTextColor(ann_bg));
+                                ColorMath::contrastingText(ann_bg));
         }
         if (offset_start_byte_ >= 0) {
             addAsciiCustomRange(fmt_list, offset_start_byte_, 1, offset, max_tvb_pos,
-                                marker_start_bg, ColorUtils::contrastingTextColor(marker_start_bg));
+                                marker_start_bg, ColorMath::contrastingText(marker_start_bg));
         }
         if (offset_end_byte_ >= 0) {
             addAsciiCustomRange(fmt_list, offset_end_byte_, 1, offset, max_tvb_pos,
-                                marker_end_bg, ColorUtils::contrastingTextColor(marker_end_bg));
+                                marker_end_bg, ColorMath::contrastingText(marker_end_bg));
         }
     }
 
@@ -1001,7 +1005,8 @@ bool HexDataSourceView::addFormatRange(QList<QTextLayout::FormatRange> &fmt_list
         format_range.format.setForeground(offset_normal_fg_);
         break;
     case ModeHover:
-        format_range.format.setBackground(ColorUtils::hoverBackground());
+        // TODO: FIX right color
+        //format_range.format.setBackground(ThemeManager::instance()->color(ThemeManager::HoverHighlight));
         format_range.format.setForeground(palette().text());
         break;
     }

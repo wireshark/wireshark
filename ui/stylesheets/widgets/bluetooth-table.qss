@@ -1,0 +1,32 @@
+/* ===================================================================
+ * Wireshark Bluetooth Dialog Tables — Hover Indicator
+ *
+ * Shared stylesheet for the four Bluetooth analysis dialogs that
+ * present a tree- or table-view of host/controller data:
+ *
+ *   BluetoothHciSummaryDialog            (QTreeWidget)
+ *   BluetoothDevicesDialog               (QTreeWidget)
+ *   BluetoothAttServerAttributesDialog   (QTreeWidget)
+ *   BluetoothDeviceDialog                (QTableWidget)
+ *
+ * Each dialog applies this stylesheet to its top-level view via
+ *
+ *   widget->setStyleSheet(ThemeManager::styleSheet(
+ *       QStringLiteral("widgets/bluetooth-table")));
+ *
+ * and re-applies it on ThemeManager::themeChanged.  The selectors
+ * scope to the widget the stylesheet is set on, so listing both
+ * QTreeView::item and QTableView::item here is harmless — only the
+ * matching one fires for any given dialog.
+ *
+ * Colors use palette() (not wstheme()) so the hover tint follows
+ * the Qt palette in both light and dark modes — matching the
+ * subtle hover convention already established by welcome-page.qss
+ * for QAbstractItemView items.
+ * =================================================================== */
+
+QTreeView::item:hover,
+QTableView::item:hover {
+    background-color: palette(midlight);
+    color: palette(text);
+}

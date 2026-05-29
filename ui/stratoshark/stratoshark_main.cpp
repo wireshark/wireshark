@@ -78,7 +78,7 @@
 #include "ui/plugins/include/uiqt_plugin.h"
 
 #include "ui/qt/conversation_dialog.h"
-#include "ui/qt/utils/color_utils.h"
+#include "ui/qt/utils/theme_manager.h"
 #include "ui/qt/coloring_rules_dialog.h"
 #include "ui/qt/endpoint_dialog.h"
 #include "ui/qt/glib_mainloop_on_qeventloop.h"
@@ -244,7 +244,7 @@ gather_wireshark_runtime_info(feature_list l)
 
     if (mainApp) {
         // Display information
-        const char *display_mode = ColorUtils::themeIsDark() ? "dark" : "light";
+        const char *display_mode = ThemeManager::isDark() ? "dark" : "light";
         with_feature(l, "%s display mode", display_mode);
 
         int hidpi_count = 0;
@@ -872,7 +872,6 @@ int main(int argc, char *qt_argv[])
     ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling prefs_apply_all, elapsed time %" PRIu64 " us \n", g_get_monotonic_time() - start_time);
 #endif
     prefs_apply_all();
-    ssApp->emitAppSignal(StratosharkApplication::ColorsChanged);
     ssApp->emitAppSignal(StratosharkApplication::PreferencesChanged);
 
 #ifdef HAVE_LIBPCAP

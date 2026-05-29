@@ -14,6 +14,7 @@
 #include <wsutil/wslog.h>
 
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 
 #include <QApplication>
 #include <QPalette>
@@ -133,15 +134,15 @@ QVariant ProtoTreeModel::data(const QModelIndex &index, int role) const
         case(0):
             break;
         case(PI_COMMENT):
-            return ColorUtils::expert_color_comment;
+            return ThemeManager::instance()->color(ThemeManager::ExpertComment);
         case(PI_CHAT):
-            return ColorUtils::expert_color_chat;
+            return ThemeManager::instance()->color(ThemeManager::ExpertChat);
         case(PI_NOTE):
-            return ColorUtils::expert_color_note;
+            return ThemeManager::instance()->color(ThemeManager::ExpertNote);
         case(PI_WARN):
-            return ColorUtils::expert_color_warn;
+            return ThemeManager::instance()->color(ThemeManager::ExpertWarn);
         case(PI_ERROR):
-            return ColorUtils::expert_color_error;
+            return ThemeManager::instance()->color(ThemeManager::ExpertError);
         default:
             ws_warning("Unhandled severity flag: %u", finfo.flag(PI_SEVERITY_MASK));
         }
@@ -156,7 +157,7 @@ QVariant ProtoTreeModel::data(const QModelIndex &index, int role) const
     case Qt::ForegroundRole:
     {
         if (finfo.flag(PI_SEVERITY_MASK)) {
-            return ColorUtils::expert_color_foreground;
+            return ThemeManager::instance()->color(ThemeManager::ExpertForeground);
         }
         if (finfo.isLink()) {
             return ColorUtils::themeLinkBrush();

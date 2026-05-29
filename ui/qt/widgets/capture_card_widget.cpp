@@ -17,6 +17,7 @@
 #include <ui/qt/interface_frame.h>
 #include <ui/qt/main_application.h>
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/widgets/capture_filter_combo.h>
 #include <ui/qt/widgets/capture_filter_edit.h>
@@ -32,7 +33,15 @@ CaptureCardWidget::CaptureCardWidget(QWidget *parent) :
 {
     ui_->setupUi(this);
 
-    updateStyleSheet();
+    setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/capture-card")));
+
+    // Reload the stylesheet whenever the theme (or its light/dark
+    // selection) changes.  QEvent::ApplicationPaletteChange alone isn't
+    // reliable — a mode flip on a theme with no palette overrides may
+    // not produce a palette delta large enough for Qt to propagate.
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged, this, [this]() {
+        setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/capture-card")));
+    });
 
     // Internal wiring: interface frame ↔ filter combo
     connect(ui_->captureInterfaceFrame, &InterfaceFrame::itemSelectionChanged,
@@ -174,19 +183,6 @@ void CaptureCardWidget::captureStarting()
     emit startCapture(QStringList());
 }
 
-void CaptureCardWidget::updateStyleSheet()
-{
-    QString path = ColorUtils::themeIsDark()
-        ? QStringLiteral(":/stylesheets/widgets/capture-card-dark.qss")
-        : QStringLiteral(":/stylesheets/widgets/capture-card-light.qss");
-
-    QFile f(path);
-    if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
-        return;
-
-    setStyleSheet(QString::fromUtf8(f.readAll()));
-}
-
 /*
  * Adapts the filter row visibility based on available width.
  *
@@ -207,7 +203,7 @@ bool CaptureCardWidget::event(QEvent *event)
 {
     switch (event->type()) {
     case QEvent::ApplicationPaletteChange:
-        updateStyleSheet();
+        setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/capture-card")));
         break;
     case QEvent::LanguageChange:
         ui_->retranslateUi(this);

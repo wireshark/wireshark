@@ -59,7 +59,7 @@ RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_id_t *id, bool stereo_
     , visual_sample_rate_(default_visual_sample_rate_)
     , max_sample_val_(1)
     , max_sample_val_used_(1)
-    , color_(0)
+    , color_(QColor())
     , jitter_buffer_size_(50)
     , timing_mode_(RtpAudioStream::JitterBuffer)
     , start_play_time_(0)

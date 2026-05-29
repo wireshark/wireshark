@@ -15,7 +15,6 @@
 #include "ui/recent.h"
 
 #include "wsutil/filesystem.h"
-#include "wsutil/utf8_entities.h"
 #include "app/application_flavor.h"
 
 #include <ui/simple_dialog.h>
@@ -23,8 +22,10 @@
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/wireshark_zip_helper.h>
 
+#include <QApplication>
 #include <QDir>
 #include <QFont>
 #include <QTemporaryDir>
@@ -387,18 +388,18 @@ QVariant ProfileModel::dataBackgroundRole(const QModelIndex &index) const
     ProfileItem* item = profile_items_[index.row()];
 
     if (item->isDeleted())
-        return ColorUtils::fromColorT(&prefs.gui_inactive_bg);
+        return ThemeManager::instance()->color(ThemeManager::PacketsInactive);
 
     if (!item->isDefault() && !item->isGlobal())
     {
         /* Highlights erroneous line */
         QString ignore;
         if (item->isDeleted() || checkDuplicate(index) || !checkNameValidity(item->getName(), ignore))
-            return ColorUtils::fromColorT(&prefs.gui_filter_invalid_bg);
+            return ThemeManager::instance()->color(ThemeManager::FilterInvalid);
 
         /* Highlights line, which has been duplicated by another index */
         if (checkDuplicate(index, true))
-            return ColorUtils::fromColorT(&prefs.gui_filter_valid_bg);
+            return ThemeManager::instance()->color(ThemeManager::FilterValid);
     }
 
     return QVariant();
@@ -409,7 +410,7 @@ QVariant ProfileModel::dataForegroundRole(const QModelIndex &index) const
     ProfileItem* item = profile_items_[index.row()];
 
     if (item->isDeleted())
-        return ColorUtils::fromColorT(&prefs.gui_inactive_fg);
+        return QApplication::palette().color(QPalette::Disabled, QPalette::Text);
 
     if (item->isGlobal() && index.column() == COL_AUTO_SWITCH_FILTER) {
         return ColorUtils::disabledForeground();
@@ -530,12 +531,11 @@ QVariant ProfileModel::dataPath(const QModelIndex &index, QString& profilePath) 
                 ProfileItem* refItem = Q_NULLPTR;
                 int row = findByNameAndVisibility(item->getReference(), false, true);
                 if (row >= 0)
-                {
                     refItem = profile_items_[row];
-                    /* The reference is itself a copy of the original, therefore it is not accepted */
-                    if ((refItem->getStatus() == ProfileItem::StatusType::Copy || refItem->getStatus() == ProfileItem::StatusType::New) && refItem->getName().compare(item->getReference()) != 0)
-                        refItem = Q_NULLPTR;
-                }
+
+                /* The reference is itself a copy of the original, therefore it is not accepted */
+                if ((refItem->getStatus() == ProfileItem::StatusType::Copy || refItem->getStatus() == ProfileItem::StatusType::New) && refItem->getName().compare(item->getReference()) != 0)
+                    refItem = Q_NULLPTR;
 
                 /* found no other profile, original one had to be deleted */
                 if (!refItem || row == index.row() || (refItem->isDeleted()))

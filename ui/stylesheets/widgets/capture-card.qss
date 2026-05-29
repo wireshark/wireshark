@@ -1,6 +1,5 @@
 /* ===================================================================
  * Wireshark Welcome Page — Capture Card Widget
- * Theme: Light
  *
  * Widget hierarchy:
  *   CaptureCardWidget (QFrame)      — capture section container
@@ -11,9 +10,10 @@
  *       #captureInterfaceTypeButton — QPushButton, interface type filter
  *     #captureInterfaceFrame        — InterfaceFrame, interface list
  *
- * Note: header text/hover colors use hardcoded tango values for now.
- * See tango_color_cleanup.md for the follow-up to replace these
- * with palette-derived values.
+ * All colors are sourced from either the Qt palette() (so they
+ * adapt to the platform style) or from theme tokens resolved by
+ * ThemeManager::styleSheet("widgets/capture-card").  No literal
+ * color values are allowed in this file.
  * =================================================================== */
 
 /* -----------------------------------------------------------------
@@ -30,12 +30,13 @@ QTreeView#captureInterfaceFrame  {
 /* -----------------------------------------------------------------
  * Header label — "Capture"
  *
- * Colors: tango_aluminium_4 (#888a85) / tango_sky_blue_4 (#3465a4)
+ * Colors come from the shared section header tokens so the Open,
+ * Capture and Learn headers always look identical.
  * ----------------------------------------------------------------- */
 QLabel#captureHeader {
-    color: #888a85;
+    color: wstheme(SectionHeader);
 }
 
 QLabel#captureHeader:hover {
-    color: #3465a4;
+    color: wstheme(SectionHeaderHover);
 }

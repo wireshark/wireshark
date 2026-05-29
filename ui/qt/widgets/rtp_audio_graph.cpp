@@ -14,7 +14,7 @@
 
 static const double wf_graph_normal_width_ = 0.5;
 
-RtpAudioGraph::RtpAudioGraph(QCustomPlot *audio_plot, QRgb color) : QObject(audio_plot)
+RtpAudioGraph::RtpAudioGraph(QCustomPlot *audio_plot, QColor color) : QObject(audio_plot)
 {
     QPen p;
     QPalette sel_pal;

@@ -1,0 +1,154 @@
+// =====================================================================
+// Wireshark Inverted Theme — Testing Only
+// =====================================================================
+//
+// A deliberately inverted/contrasting theme for testing purposes.
+// Every color is chosen to be visually distinct from the default theme,
+// making it easy to spot which UI elements respond to theme changes
+// and which are still hardcoded.
+//
+// This is NOT intended for daily use — it's a diagnostic tool.
+//
+// Strategy:
+//   - Brand: warm orange/amber instead of cool blue
+//   - Accents: rotated hues (purple success, teal warning, etc.)
+//   - Expert: inverted intensity (dark on light, light on dark)
+//   - Packets: high-contrast, unusual color choices
+//   - Conversation: swapped warm/cool assignments
+//   - Palette: distinctly tinted surfaces (warm cream light, deep indigo dark)
+//   - Graphs: reversed order + complementary hues
+//
+// If any UI element looks the same with this theme as with the default,
+// it means that element is NOT reading from the theme system yet.
+// =====================================================================
+
+{
+	"meta": {
+		"name": "Inverted (Testing)",
+		"version": 1,
+		"author": "Wireshark Foundation",
+		"description": "Diagnostic theme — inverted colors to identify unthemed UI elements."
+	},
+
+	// -----------------------------------------------------------------
+	// Brand — warm orange/amber instead of blue
+	// -----------------------------------------------------------------
+	"brand": {
+		"primary": { "light": "#e65100", "dark": "#ffab40" },
+		"deep":    { "light": "#4a1800", "dark": "#1a0800" }
+	},
+
+	// -----------------------------------------------------------------
+	// Accent — rotated/swapped hues
+	//
+	//   success: purple (instead of green)
+	//   warning: teal (instead of orange)
+	//   error:   hot pink (instead of red)
+	//   info:    amber/gold (instead of blue)
+	// -----------------------------------------------------------------
+	"accent": {
+		"success": { "light": "#7b1fa2", "dark": "#ce93d8" },
+		"warning": { "light": "#00838f", "dark": "#4dd0e1" },
+		"error":   { "light": "#c2185b", "dark": "#f48fb1" },
+		"info":    { "light": "#f9a825", "dark": "#fff176" }
+	},
+
+	// -----------------------------------------------------------------
+	// Expert — inverted intensity
+	//
+	// Light mode: dark/muted backgrounds (instead of bright pastels)
+	// Dark mode: bright/vivid backgrounds (instead of same-as-light)
+	// Foreground flipped to ensure contrast.
+	// -----------------------------------------------------------------
+	"expert": {
+		"comment":    { "light": "#2e7d32", "dark": "#c8e6c9" },
+		"chat":       { "light": "#1565c0", "dark": "#bbdefb" },
+		"note":       { "light": "#00695c", "dark": "#b2dfdb" },
+		"warn":       { "light": "#f57f17", "dark": "#fff9c4" },
+		"error":      { "light": "#b71c1c", "dark": "#ffcdd2" },
+		"foreground": { "light": "#ffffff", "dark": "#000000" }
+	},
+
+	// -----------------------------------------------------------------
+	// Packets — high contrast, unusual choices
+	//
+	// Selection: bright amber (instead of soft blue)
+	// Marked: deep magenta (instead of deep blue)
+	// Ignored bg: cream/dark distinct from row default
+	// Hidden: distinct brown tone (instead of gray)
+	//
+	// Text colors are deliberately picked to be obvious if a consumer
+	// isn't observing the *Text tokens yet.
+	// -----------------------------------------------------------------
+	"packets": {
+		"selection":     { "light": "#fff3e0", "dark": "#4a2800" },
+		"selectionText": { "light": "#5d1049", "dark": "#ffe082" },
+		"inactive":      { "light": "#f3e5f5", "dark": "#2a1a30" },
+		"inactiveText":  { "light": "#311b92", "dark": "#ffe57f" },
+		"marked":        { "light": "#4a0040", "dark": "#e040a0" },
+		"markedText":    { "light": "#ffe082", "dark": "#1a0033" },
+		"ignored":       { "light": "#fff8e1", "dark": "#1a0a00" },
+		"ignoredText":   { "light": "#8d6e63", "dark": "#a1887f" },
+		"hidden":        { "light": "#795548", "dark": "#bcaaa4" }
+	},
+
+	// -----------------------------------------------------------------
+	// Conversation — swapped warm/cool
+	//
+	// Client: cool blue tint (default uses warm red)
+	// Server: warm pink tint (default uses cool blue)
+	//
+	// Text colors mirror the swap — client text is cool, server text
+	// is warm — opposite of the default theme's warm/cool assignments
+	// so any consumer still using the bg-only colors stands out.
+	// -----------------------------------------------------------------
+	"conversation": {
+		"client":     { "light": "#e3f2fd", "dark": "#0d2744" },
+		"clientText": { "light": "#0d47a1", "dark": "#ffd180" },
+		"server":     { "light": "#fce4ec", "dark": "#3a0a18" },
+		"serverText": { "light": "#c2185b", "dark": "#80deea" }
+	},
+
+	// -----------------------------------------------------------------
+	// Palette — distinctly tinted surfaces
+	//
+	// Light mode: warm cream/sand tones (Solarized-esque)
+	// Dark mode: deep indigo/navy tones (clearly not system gray)
+	//
+	// These should make it immediately obvious whether a widget is
+	// reading from QPalette or has hardcoded surface colors.
+	// -----------------------------------------------------------------
+	"palette": {
+		"window":        { "light": "#f5f0e0", "dark": "#121228" },
+		"windowText":    { "light": "#3e2723", "dark": "#e8d5b5" },
+		"base":          { "light": "#faf5e8", "dark": "#0a0a20" },
+		"text":          { "light": "#33241a", "dark": "#e0d0b8" },
+		"alternateBase": { "light": "#efe8d5", "dark": "#181835" },
+		"mid":           { "light": "#c8b898", "dark": "#2a2a50" },
+		"midlight":      { "light": "#e8e0cc", "dark": "#1e1e40" }
+	},
+
+	// -----------------------------------------------------------------
+	// Graphs — reversed order + shifted hues
+	//
+	// Instead of the Tango palette, uses a completely different
+	// color set so any graph that still shows Tango colors is
+	// clearly not reading from the theme.
+	// -----------------------------------------------------------------
+	"graphs": [
+		{ "light": "#d81b60", "dark": "#f48fb1" },
+		{ "light": "#8e24aa", "dark": "#ce93d8" },
+		{ "light": "#5e35b1", "dark": "#b39ddb" },
+		{ "light": "#3949ab", "dark": "#9fa8da" },
+		{ "light": "#1e88e5", "dark": "#90caf9" },
+		{ "light": "#00acc1", "dark": "#80deea" },
+		{ "light": "#00897b", "dark": "#80cbc4" },
+		{ "light": "#43a047", "dark": "#a5d6a7" },
+		{ "light": "#7cb342", "dark": "#c5e1a5" },
+		{ "light": "#c0ca33", "dark": "#e6ee9c" },
+		{ "light": "#fdd835", "dark": "#fff59d" },
+		{ "light": "#ffb300", "dark": "#ffe082" },
+		{ "light": "#fb8c00", "dark": "#ffcc80" },
+		{ "light": "#f4511e", "dark": "#ffab91" }
+	]
+}

@@ -161,6 +161,11 @@ StockIcon::StockIcon(const QString icon_name) :
 // Create a square icon filled with the specified color.
 QIcon StockIcon::colorIcon(const QRgb bg_color, const QRgb fg_color, const QString glyph)
 {
+    return colorIcon(QColor(bg_color), fg_color, glyph);
+}
+
+QIcon StockIcon::colorIcon(const QColor bg_color, const QRgb fg_color, const QString glyph)
+{
     QList<int> sizes = QList<int>() << 48 << 32 << 24 << 16 << 12;
     QIcon color_icon;
 

@@ -24,7 +24,7 @@
 
 #include "ui/qt/main_window.h"
 #include "ui/qt/utils/color_utils.h"
-#include "ui/qt/utils/tango_colors.h"
+#include "ui/qt/utils/theme_manager.h"
 
 #include <QPainter>
 #include <QScrollBar>
@@ -397,9 +397,10 @@ bool JsonDataSourceView::addJsonObject()
     text_line.kv_start = 0;
     text_line.kv_length = 0;
 
-    QColor key_color = QColor(ColorUtils::themeIsDark() ? tango_aluminium_3 : tango_aluminium_5);
-    QColor str_val_color = QColor(ColorUtils::themeIsDark() ? tango_chameleon_3 : tango_chameleon_5);
-    QColor prim_val_color = QColor(ColorUtils::themeIsDark() ? tango_sky_blue_3 : tango_sky_blue_5);
+    ThemeManager *theme = ThemeManager::instance();
+    QColor key_color      = theme->color(ThemeManager::SyntaxKey);
+    QColor str_val_color  = theme->color(ThemeManager::SyntaxString);
+    QColor prim_val_color = theme->color(ThemeManager::SyntaxNumber);
 
     for (int idx = 0; idx < num_tokens; idx++) {
         jsmntok_t *tok = &tokens[idx];

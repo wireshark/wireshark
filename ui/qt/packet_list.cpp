@@ -9,8 +9,6 @@
 
 #include <ui/qt/packet_list.h>
 
-#include "config.h"
-
 #include "file.h"
 
 #include <epan/epan.h>
@@ -26,11 +24,8 @@
 #include "ui/packet_list_utils.h"
 #include "ui/preference_utils.h"
 #include "ui/recent.h"
-#include "ui/recent_utils.h"
-#include "ui/ws_ui_util.h"
 #include "ui/simple_dialog.h"
 #include <wsutil/utf8_entities.h>
-#include "ui/util.h"
 
 #include "wiretap/wtap_opttypes.h"
 #include "app/application_flavor.h"
@@ -40,6 +35,7 @@
 #include <epan/color_filters.h>
 
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/widgets/overlay_scroll_bar.h>
 #include "proto_tree.h"
 #include <ui/qt/utils/qt_ui_utils.h>
@@ -319,16 +315,10 @@ void PacketList::colorsChanged()
     const QString c_active   = "active";
     const QString c_inactive = "!active";
 
-    QString flat_style_format =
+    const QString flat_style_format =
         "QTreeView::item:selected:%1 {"
         "  color: %2;"
         "  background-color: %3;"
-        "}";
-
-    QString gradient_style_format =
-        "QTreeView::item:selected:%1 {"
-        "  color: %2;"
-        "  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1 stop: 0 %4, stop: 0.5 %3, stop: 1 %4);"
         "}";
 
     QString hover_style = QStringLiteral(
@@ -337,62 +327,34 @@ void PacketList::colorsChanged()
         "  color: palette(text);"
         "}").arg(ColorUtils::hoverBackground().name(QColor::HexArgb));
 
-    QString active_style   = QString();
-    QString inactive_style = QString();
+    // A selected row also matches the :selected rules below, which out-rank
+    // the plain hover rule by CSS specificity. Add an equal-specificity
+    // :selected:hover rule, emitted last, so hover wins on a selected row
+    // (matching the proto tree and the pre-ThemeManager behavior).
+    QString selected_hover_style = QStringLiteral(
+        "QTreeView::item:selected:hover {"
+        "  background-color: %1;"
+        "  color: palette(text);"
+        "}").arg(ColorUtils::hoverBackground().name(QColor::HexArgb));
 
-    if (prefs.gui_active_style == COLOR_STYLE_DEFAULT) {
-        // ACTIVE = Default
-    } else if (prefs.gui_active_style == COLOR_STYLE_FLAT) {
-        // ACTIVE = Flat
-        QColor foreground = ColorUtils::fromColorT(prefs.gui_active_fg);
-        QColor background = ColorUtils::fromColorT(prefs.gui_active_bg);
+    ThemeManager *tm = ThemeManager::instance();
+    QColor active_bg   = tm->color(ThemeManager::PacketsSelection);
+    QColor inactive_bg = tm->color(ThemeManager::PacketsInactive);
+    QColor active_fg   = tm->color(ThemeManager::PacketsSelectionText);
+    QColor inactive_fg = tm->color(ThemeManager::PacketsInactiveText);
 
-        active_style = flat_style_format.arg(
-                           c_active,
-                           foreground.name(),
-                           background.name());
-    } else if (prefs.gui_active_style == COLOR_STYLE_GRADIENT) {
-        // ACTIVE = Gradient
-        QColor foreground  = ColorUtils::fromColorT(prefs.gui_active_fg);
-        QColor background1 = ColorUtils::fromColorT(prefs.gui_active_bg);
-        QColor background2 = QColor::fromRgb(ColorUtils::alphaBlend(foreground, background1, COLOR_STYLE_ALPHA));
+    QString active_style = flat_style_format.arg(
+                               c_active,
+                               active_fg.name(),
+                               active_bg.name());
+    QString inactive_style = flat_style_format.arg(
+                                 c_inactive,
+                                 inactive_fg.name(),
+                                 inactive_bg.name());
 
-        active_style = gradient_style_format.arg(
-                           c_active,
-                           foreground.name(),
-                           background1.name(),
-                           background2.name());
-    }
-
-    // INACTIVE style sheet settings
-    if (prefs.gui_inactive_style == COLOR_STYLE_DEFAULT) {
-        // INACTIVE = Default
-    } else if (prefs.gui_inactive_style == COLOR_STYLE_FLAT) {
-        // INACTIVE = Flat
-        QColor foreground = ColorUtils::fromColorT(prefs.gui_inactive_fg);
-        QColor background = ColorUtils::fromColorT(prefs.gui_inactive_bg);
-
-        inactive_style = flat_style_format.arg(
-                             c_inactive,
-                             foreground.name(),
-                             background.name());
-    } else if (prefs.gui_inactive_style == COLOR_STYLE_GRADIENT) {
-        // INACTIVE = Gradient
-        QColor foreground  = ColorUtils::fromColorT(prefs.gui_inactive_fg);
-        QColor background1 = ColorUtils::fromColorT(prefs.gui_inactive_bg);
-        QColor background2 = QColor::fromRgb(ColorUtils::alphaBlend(foreground, background1, COLOR_STYLE_ALPHA));
-
-        inactive_style = gradient_style_format.arg(
-                             c_inactive,
-                             foreground.name(),
-                             background1.name(),
-                             background2.name());
-    }
-
-    // Set the style sheet
     set_style_sheet_ = true;
-    if(prefs.gui_packet_list_hover_style) {
-        setStyleSheet(active_style + inactive_style + hover_style);
+    if (prefs.gui_packet_list_hover_style) {
+        setStyleSheet(active_style + inactive_style + hover_style + selected_hover_style);
     } else {
         setStyleSheet(active_style + inactive_style);
     }
@@ -1284,6 +1246,13 @@ void PacketList::applyRecentColumnWidths()
 
 void PacketList::preferencesChanged()
 {
+    // Previously driven by the separate MainApplication::colorsChanged
+    // signal, which has been removed — every colorsChanged emit was
+    // paired with a preferencesChanged emit anyway.  Rebuilding the
+    // selection stylesheet on every pref change is cheap (single
+    // setStyleSheet call) and idempotent.
+    colorsChanged();
+
     // Intelligent scroll bar (minimap)
     if (prefs.gui_packet_list_show_minimap) {
         if (overlay_timer_id_ == 0) {

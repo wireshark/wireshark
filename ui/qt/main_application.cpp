@@ -46,6 +46,7 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/software_update.h>
+#include <ui/qt/utils/theme_manager.h>
 #include "coloring_rules_dialog.h"
 
 #include "epan/color_filters.h"
@@ -77,6 +78,7 @@
 #include <ui/qt/main_window.h>
 #include <ui/qt/main_status_bar.h>
 #include <ui/qt/utils/workspace_state.h>
+#include <ui/qt/utils/theme_styler.h>
 
 #include <QAction>
 #include <QApplication>
@@ -177,36 +179,6 @@ void MainApplication::refreshPacketData()
     }
 }
 
-// The Fusion style, and the Mac style, allow QMessageBox text to be
-// selectable by the mouse. The various Windows styles do not. On
-// Windows we switch between the Fusion style and Windows style depending
-// on dark mode, so to make things consistent on Windows (and between
-// Windows and other platforms) alllow it on all styles.
-class MsgBoxTextStyle : public QProxyStyle
-{
-public:
-    MsgBoxTextStyle(QStyle *style = nullptr) : QProxyStyle(style) {}
-    MsgBoxTextStyle(const QString &key) : QProxyStyle(key) {}
-    int styleHint(StyleHint hint, const QStyleOption *option = nullptr,
-        const QWidget *widget = nullptr, QStyleHintReturn *returnData = nullptr) const override
-    {
-        if (hint == QStyle::SH_MessageBox_TextInteractionFlags)
-            return QProxyStyle::styleHint(hint, option, widget, returnData) | Qt::TextSelectableByMouse;
-        return QProxyStyle::styleHint(hint, option, widget, returnData);
-    }
-};
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0) && defined(Q_OS_WIN)
-void MainApplication::colorSchemeChanged() {
-    // TODO - Supposedly the windows11 style handles dark mode better.
-    if (ColorUtils::themeIsDark()) {
-        setStyle(QStyleFactory::create("fusion"));
-    } else {
-        setStyle(new MsgBoxTextStyle("windowsvista"));
-    }
-}
-#endif
-
 void MainApplication::updateTaps()
 {
     draw_tap_listeners(false);
@@ -238,96 +210,15 @@ const QFont MainApplication::monospaceFont(bool zoomed) const
     if (zoomed) {
         return zoomed_font_;
     }
-    return mono_font_;
-}
-
-void MainApplication::setMonospaceFont(const char *font_string) {
-
-    if (font_string && strlen(font_string) > 0) {
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-        // Qt 6's QFont::toString returns a value with 16 or 17 fields, e.g.
-        // Consolas,11,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
-        // Corbel,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1,Regular
-        // Qt 5's QFont::fromString expects a value with 10 or 11 fields, e.g.
-        // Consolas,10,-1,5,50,0,0,0,0,0
-        // Corbel,10,-1,5,50,0,0,0,0,0,Regular
-        // It looks like Qt6's QFont::fromString can read both forms:
-        // https://github.com/qt/qtbase/blob/6.0/src/gui/text/qfont.cpp#L2146
-        // but Qt5's cannot:
-        // https://github.com/qt/qtbase/blob/5.15/src/gui/text/qfont.cpp#L2151
-        const char *fs_ptr = font_string;
-        int field_count = 1;
-        while ((fs_ptr = strchr(fs_ptr, ',')) != NULL) {
-            fs_ptr++;
-            field_count++;
-        }
-        if (field_count <= 11) {
-#endif
-            mono_font_.fromString(font_string);
-
-            // Only accept the font name if it actually exists.
-            if (mono_font_.family() == QFontInfo(mono_font_).family()) {
-                return;
-            } else {
-                ws_warning("Monospace font family %s differs from its fontinfo: %s",
-                    qUtf8Printable(mono_font_.family()), qUtf8Printable(QFontInfo(mono_font_).family()));
-            }
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-        } else {
-            ws_warning("Monospace font %s appears to be from Qt6 and we're running Qt5.", font_string);
-        }
-#endif
-    }
-
-    // https://en.wikipedia.org/wiki/Category:Monospaced_typefaces
-    const char *win_default_font = "Consolas";
-    const char *win_alt_font = "Lucida Console";
-    // SF Mono might be a system font someday. Right now (Oct 2016) it appears
-    // to be limited to Xcode and Terminal.
-    // http://www.openradar.me/26790072
-    // http://www.openradar.me/26862220
-    const char *osx_default_font = "SF Mono";
-    const QStringList osx_alt_fonts = QStringList() << "Menlo" << "Monaco";
-    // XXX Detect Ubuntu systems (e.g. via /etc/os-release and/or
-    // /etc/lsb_release) and add "Ubuntu Mono Regular" there.
-    // https://design.ubuntu.com/font/
-    const char *x11_default_font = "Liberation Mono";
-    const QStringList x11_alt_fonts = QStringList() << "DejaVu Sans Mono" << "Bitstream Vera Sans Mono";
-    const QStringList fallback_fonts = QStringList() << "Lucida Sans Typewriter" << "Inconsolata" << "Droid Sans Mono" << "Andale Mono" << "Courier New" << "monospace";
-    QStringList substitutes;
-    int font_size_adjust = 0;
-
-    // Try to pick the latest, shiniest fixed-width font for our OS.
-#if defined(Q_OS_WIN)
-    const char *default_font = win_default_font;
-    substitutes << win_alt_font << osx_default_font << osx_alt_fonts << x11_default_font << x11_alt_fonts << fallback_fonts;
-# if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
-    font_size_adjust = 1;
-# else // QT_VERSION
-    font_size_adjust = 2;
-# endif // QT_VERSION
-#elif defined(Q_OS_MAC)
-    const char *default_font = osx_default_font;
-    substitutes << osx_alt_fonts << win_default_font << win_alt_font << x11_default_font << x11_alt_fonts << fallback_fonts;
-#else // Q_OS
-    const char *default_font = x11_default_font;
-    substitutes << x11_alt_fonts << win_default_font << win_alt_font << osx_default_font << osx_alt_fonts << fallback_fonts;
-#endif // Q_OS
-
-    mono_font_ = QFont(default_font, mainApp->font().pointSize() + font_size_adjust);
-    mono_font_.insertSubstitutions(default_font, substitutes);
-    mono_font_.setBold(false);
-
-    // Retrieve the effective font and apply it.
-    mono_font_.setFamily(QFontInfo(mono_font_).family());
-
-    wmem_free(wmem_epan_scope(), prefs.gui_font_name);
-    prefs.gui_font_name = wmem_strdup(wmem_epan_scope(), mono_font_.toString().toUtf8().constData());
+    // The monospace font is owned by the ThemeManager, which guarantees a
+    // fixed-pitch family (from gui.font_name, the theme, or the system
+    // FixedFont).  Source it from there instead of caching a local copy.
+    return ThemeManager::instance()->monospaceFont();
 }
 
 int MainApplication::monospaceTextSize(const char *str)
 {
-    return QFontMetrics(mono_font_).horizontalAdvance(str);
+    return QFontMetrics(ThemeManager::instance()->monospaceFont()).horizontalAdvance(str);
 }
 
 void MainApplication::setConfigurationProfile(const char *profile_name, bool write_recent_file)
@@ -425,7 +316,6 @@ void MainApplication::setConfigurationProfile(const char *profile_name, bool wri
 #endif
 
     emit columnsChanged();
-    emit colorsChanged();
     emit preferencesChanged();
     emit recentPreferencesRead();
     emit filterExpressionsChanged();
@@ -585,6 +475,31 @@ MainApplication::MainApplication(int &argc,  char **argv) :
     Q_INIT_RESOURCE(stock_icons);
     Q_INIT_RESOURCE(languages);
 
+    // Initialize the ThemeManager as early as possible so that any
+    // widget constructed afterwards can resolve themed stylesheets and
+    // color tokens.  This must run after QApplication's base ctor (so
+    // that the palette is queryable for light/dark detection) but
+    // before any UI is built.  recent_common has already been read in
+    // main()/stratoshark_main() prior to constructing this application
+    // object, so we can read any configured themes as well.
+    // Theme selection is persisted in recent_common (recent.gui_theme_name),
+    // not in the preferences file — so it survives profile switches and
+    // stays global to the install.  Empty / missing value means "default".
+    QString initialTheme = QString::fromUtf8(recent.gui_theme_name);
+    if (initialTheme.isEmpty())
+        initialTheme = QStringLiteral("default");
+    ThemeManager::init(initialTheme);
+
+    // Re-derive the zoomed fonts whenever the ThemeManager's fonts change.
+    // Theme switches AND font-pref changes both funnel through
+    // ThemeManager::loadTheme() (re-parses the fonts section) and emit
+    // themeChanged, so this single hook keeps the byte view, packet list,
+    // and proto tree fonts in sync.  When a dedicated FontManager exists,
+    // this connection moves into it alongside the zoom state.
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged, this, [this]() {
+        zoomTextFont(recent.gui_zoom_level);
+    });
+
 #ifdef Q_OS_WIN
     /* RichEd20.DLL is needed for native file dialog filter entries. */
     ws_load_library("riched20.dll");
@@ -616,16 +531,7 @@ MainApplication::MainApplication(int &argc,  char **argv) :
     connect(this, &MainApplication::appInitialized, &tap_update_timer_, [&]() { tap_update_timer_.start(); });
     connect(&tap_update_timer_, &QTimer::timeout, this, &MainApplication::updateTaps);
 
-
-    // If our window text is lighter than the window background, assume the theme is dark.
-    prefs_set_gui_theme_is_dark(ColorUtils::themeIsDark());
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0) && defined(Q_OS_WIN)
-    colorSchemeChanged();
-    connect(styleHints(), &QStyleHints::colorSchemeChanged, this, &MainApplication::colorSchemeChanged);
-#else
-    setStyle(new MsgBoxTextStyle);
-#endif
+    setStyle(new ThemeStyler);
 
     connect(qApp, &QApplication::aboutToQuit, this, &MainApplication::cleanup);
 }
@@ -662,7 +568,6 @@ void MainApplication::emitAppSignal(AppSignal signal)
         break;
     case PreferencesChanged:
         tap_update_timer_.setInterval(prefs.tap_update_interval);
-        setMonospaceFont(prefs.gui_font_name);
         emit preferencesChanged();
         break;
     case PacketDissectionChanged:
@@ -673,10 +578,6 @@ void MainApplication::emitAppSignal(AppSignal signal)
         break;
     case FieldsChanged:
         emit fieldsChanged();
-        break;
-    case ColorsChanged:
-        ColorUtils::setScheme(prefs.gui_color_scheme);
-        emit colorsChanged();
         break;
     case FreezePacketList:
         emit freezePacketList(false);
@@ -1025,13 +926,16 @@ void MainApplication::doTriggerMenuItem(MainMenuItem menuItem)
 
 void MainApplication::zoomTextFont(int zoomLevel)
 {
+    // Base the zoom on the ThemeManager's monospace font (see monospaceFont()).
+    const QFont mono_font = ThemeManager::instance()->monospaceFont();
+
     // Scale by 10%, rounding to nearest half point, minimum 1 point.
     // XXX Small sizes repeat. It might just be easier to create a map of multipliers.
-    qreal zoom_size = mono_font_.pointSize() * 2 * qPow(qreal(1.1), zoomLevel);
+    qreal zoom_size = mono_font.pointSize() * 2 * qPow(qreal(1.1), zoomLevel);
     zoom_size = qRound(zoom_size) / qreal(2.0);
     zoom_size = qMax(zoom_size, qreal(1.0));
 
-    zoomed_font_ = mono_font_;
+    zoomed_font_ = mono_font;
     zoomed_font_.setPointSizeF(zoom_size);
     emit zoomMonospaceFont(zoomed_font_);
 

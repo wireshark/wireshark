@@ -26,6 +26,7 @@
 #include <QObject>
 #include <QSet>
 #include <QVector>
+#include <QColor>
 #include <QIODevice>
 #include <QAudioOutput>
 
@@ -280,13 +281,13 @@ public:
      * @brief Gets the color associated with this stream.
      * @return The assigned color.
      */
-    QRgb color() { return color_; }
+    QColor color() { return color_; }
 
     /**
      * @brief Sets the color for this stream.
      * @param color The new color to assign.
      */
-    void setColor(QRgb color) { color_ = color; }
+    void setColor(QColor color) { color_ = color; }
 
     /**
      * @brief Retrieves the current state of the audio output.
@@ -524,7 +525,7 @@ private:
     qint16 max_sample_val_used_;
 
     /** @brief Color for the visualization of this stream. */
-    QRgb color_;
+    QColor color_;
 
     /** @brief Size of the jitter buffer in milliseconds. */
     int jitter_buffer_size_;

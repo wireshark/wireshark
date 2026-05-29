@@ -29,6 +29,7 @@
 #include <wsutil/pint.h>
 
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/widgets/qcustomplot.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "rtp_audio_stream.h"
@@ -743,7 +744,7 @@ void RtpPlayerDialog::addSingleRtpStream(rtpstream_id_t *id)
         int tli_count = ui->streamTreeWidget->topLevelItemCount();
 
         RtpAudioStream *audio_stream = new RtpAudioStream(this, id, stereo_available_);
-        audio_stream->setColor(ColorUtils::graphColor(tli_count));
+        audio_stream->setColor(ThemeManager::instance()->graphColor(tli_count));
 
         QTreeWidgetItem *ti = new RtpPlayerTreeWidgetItem(ui->streamTreeWidget);
         stream_hash_.insert(rtpstream_id_to_hash(id), audio_stream);

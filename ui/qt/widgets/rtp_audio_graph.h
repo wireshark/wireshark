@@ -30,7 +30,7 @@ public:
      * @param audioPlot Pointer to the QCustomPlot widget where the graph will be drawn.
      * @param color The base color for the waveform graph.
      */
-    explicit RtpAudioGraph(QCustomPlot *audioPlot, QRgb color);
+    explicit RtpAudioGraph(QCustomPlot *audioPlot, QColor color);
 
     /**
      * @brief Sets the muted state of the graph, adjusting its opacity.
@@ -77,7 +77,7 @@ private:
     QCPGraph *wave_;
 
     /** @brief The base color of the waveform. */
-    QRgb color_;
+    QColor color_;
 
     /** @brief The color used when the graph is selected. */
     QColor selection_color_;

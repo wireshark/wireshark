@@ -325,8 +325,8 @@ set(WSUG_GRAPHICS
 	wsug_src/images/ws-packet-sep-win.png
 	wsug_src/images/ws-pref-advanced.png
 	wsug_src/images/ws-pref-appearance-columns.png
-	wsug_src/images/ws-pref-appearance-fonts-and-colors.png
 	wsug_src/images/ws-pref-appearance-layout.png
+	wsug_src/images/ws-pref-appearance-theme-and-font.png
 	wsug_src/images/ws-pref-appearance.png
 	wsug_src/images/ws-pref-capture.png
 	wsug_src/images/ws-pref-expert.png

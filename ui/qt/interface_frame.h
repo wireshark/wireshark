@@ -150,12 +150,24 @@ protected:
      */
     void showEvent(QShowEvent *evt);
 
+    /**
+     * @brief Handles change events; re-fits the interface tree columns when
+     *        the widget is re-polished (works around QTBUG-122109).
+     * @param evt The change event.
+     */
+    void changeEvent(QEvent *evt);
+
 private:
 
     /**
      * @brief Resets the display parameters of the interface tree.
      */
     void resetInterfaceTreeDisplay();
+
+    /**
+     * @brief Re-fits the interface tree columns to their contents.
+     */
+    void resizeInterfaceColumns();
 
     /**
      * @brief Checks if the application currently has permissions to capture on local interfaces.

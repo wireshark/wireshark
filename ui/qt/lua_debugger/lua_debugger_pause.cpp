@@ -33,7 +33,7 @@
 #include "main_application.h"
 #include "main_window.h"
 #include <ui/qt/models/packet_list_record.h>
-#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 
 namespace
 {
@@ -326,7 +326,7 @@ void LuaDebuggerPauseOverlay::paintEvent(QPaintEvent *)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    const bool dark = ColorUtils::themeIsDark();
+    const bool dark = ThemeManager::isDark();
 
     /* Radial vignette — more opaque than SplashOverlay so the main
      * window clearly reads as "stopped". */

@@ -409,6 +409,7 @@
      <addaction name="actionViewInternalsDissectorTables"/>
      <addaction name="actionViewInternalsSupportedProtocols"/>
      <addaction name="actionViewInternalsKeyboardShortcuts"/>
+     <addaction name="actionViewInternalsThemeDebug"/>
     </widget>
     <widget class="QMenu" name="menuAdditionalToolbars">
      <property name="title">
@@ -2761,6 +2762,14 @@
    </property>
    <property name="toolTip">
     <string>Show the current keyboard shortcuts</string>
+   </property>
+  </action>
+  <action name="actionViewInternalsThemeDebug">
+   <property name="text">
+    <string>&amp;Theme Debug</string>
+   </property>
+   <property name="toolTip">
+    <string>Show the active theme, main window geometry, and live widget info</string>
    </property>
   </action>
   <action name="actionTelephonyGsmMapSummary">

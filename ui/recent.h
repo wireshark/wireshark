@@ -241,7 +241,17 @@ typedef struct recent_settings_tag {
     bool     gui_welcome_page_sidebar_tips_tips;           /**< True if tip slides are shown in the banner */
     bool     gui_welcome_page_sidebar_tips_auto_advance;   /**< True if the banner auto-advances through slides */
     unsigned gui_welcome_page_sidebar_tips_interval;       /**< Auto-advance interval for banner slides in milliseconds */
+
+    /**
+     * Internal name of the active theme (directory name under
+     * `resources/themes/`, e.g. "default", "inverted").  NULL or empty
+     * is treated as "default".  Lives in recent_common so the choice is
+     * global and persists across profile switches, mirroring the
+     * welcome-page sidebar settings.
+     */
+    char       *gui_theme_name;
     bool     gui_welcome_page_sidebar_tips_slides_test;    /**< True if test/debug slides are included in the banner rotation */
+
 } recent_settings_t;
 
 /** Global recent settings. */

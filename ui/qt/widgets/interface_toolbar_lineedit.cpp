@@ -11,8 +11,7 @@
 
 #include <ui/qt/widgets/interface_toolbar_lineedit.h>
 #include <ui/qt/widgets/stock_icon_tool_button.h>
-#include "epan/prefs.h"
-#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 
 #include <QStyle>
 
@@ -30,13 +29,6 @@ InterfaceToolbarLineEdit::InterfaceToolbarLineEdit(QWidget *parent, QString vali
     apply_button_->setEnabled(false);
     apply_button_->setToolTip(tr("Apply changes"));
     apply_button_->setIconSize(QSize(24, 14));
-    apply_button_->setStyleSheet(
-            "QToolButton {"
-            "  border: none;"
-            "  background: transparent;" // Disables platform style on Windows.
-            "  padding: 0 0 0 0;"
-            "}"
-            );
 
     updateStyleSheet(isValid());
 
@@ -44,6 +36,9 @@ InterfaceToolbarLineEdit::InterfaceToolbarLineEdit(QWidget *parent, QString vali
     connect(this, &InterfaceToolbarLineEdit::textEdited, this, &InterfaceToolbarLineEdit::validateEditedText);
     connect(this, &InterfaceToolbarLineEdit::returnPressed, this, &InterfaceToolbarLineEdit::applyEditedText);
     connect(apply_button_, &StockIconToolButton::clicked, this, &InterfaceToolbarLineEdit::applyEditedText);
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged, this, [this]() {
+        updateStyleSheet(isValid());
+    });
 }
 
 void InterfaceToolbarLineEdit::validateText()
@@ -99,25 +94,28 @@ void InterfaceToolbarLineEdit::updateStyleSheet(bool is_valid)
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     QSize apsz = apply_button_->sizeHint();
 
-    QString style_sheet = QStringLiteral(
+    QString style_sheet =
+            ThemeManager::styleSheet(QStringLiteral("widgets/interface-toolbar-lineedit"));
+
+    style_sheet += QStringLiteral(
             "InterfaceToolbarLineEdit {"
             "  padding-right: %1px;"
-            "  background-color: %2;"
             "}"
             )
-            .arg(apsz.width() + frameWidth)
-            .arg(is_valid || !isEnabled() ? QString("") : ColorUtils::fromColorT(prefs.gui_filter_invalid_bg).name());
+            .arg(apsz.width() + frameWidth);
 
 #ifdef Q_OS_MAC
     style_sheet += QStringLiteral(
             "InterfaceToolbarLineEdit {"
-            "  border: 1px solid palette(%1);"
+            "  border: 1px solid palette(shadow);"
             "  border-radius: 3px;"
             "}"
-            ).arg(ColorUtils::themeIsDark() ? QStringLiteral("light") : QStringLiteral("dark"));
+            );
 #endif
 
     setStyleSheet(style_sheet);
+    ThemeManager::setValidationState(this,
+            is_valid || !isEnabled() ? QString() : QStringLiteral("invalid"));
 }
 
 void InterfaceToolbarLineEdit::resizeEvent(QResizeEvent *)

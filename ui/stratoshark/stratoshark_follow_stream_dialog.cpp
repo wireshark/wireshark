@@ -8,8 +8,8 @@
  */
 
 #include "stratoshark_follow_stream_dialog.h"
-#include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 
 
 StratosharkFollowStreamDialog::StratosharkFollowStreamDialog(QWidget &parent, CaptureFile &cf, int proto_id) :
@@ -29,12 +29,16 @@ QString StratosharkFollowStreamDialog::labelHint(int pkt)
         hint = tr("Event %1. ").arg(pkt);
     }
 
+    ThemeManager *tm = ThemeManager::instance();
+    QColor clientBg = tm->color(ThemeManager::ConversationClient);
+    QColor clientFg = tm->color(ThemeManager::ConversationClientText);
+    QColor serverBg = tm->color(ThemeManager::ConversationServer);
+    QColor serverFg = tm->color(ThemeManager::ConversationServerText);
+
     hint += tr("%Ln <span style=\"color: %1; background-color:%2\">reads</span>, ", "", client_packet_count())
-        .arg(ColorUtils::fromColorT(prefs.st_client_fg).name(),
-            ColorUtils::fromColorT(prefs.st_client_bg).name())
+            .arg(clientFg.name(), clientBg.name())
         + tr("%Ln <span style=\"color: %1; background-color:%2\">writes</span>, ", "", server_packet_count())
-        .arg(ColorUtils::fromColorT(prefs.st_server_fg).name(),
-            ColorUtils::fromColorT(prefs.st_server_bg).name())
+            .arg(serverFg.name(), serverBg.name())
         + tr("%Ln turn(s).", "", turns());
 
     return hint;

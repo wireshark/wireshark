@@ -32,7 +32,8 @@
 
 #include <ui/qt/main_window.h>
 #include <ui/qt/main_status_bar.h>
-#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/themes/color_math.h>
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/widgets/hex_data_source_view.h>
 #include <ui/qt/widgets/json_data_source_view.h>
@@ -45,10 +46,10 @@ public:
 
     explicit AnnotationEditDialog(QWidget *parent = nullptr) :
         QDialog(parent),
-        color_(ColorUtils::expert_color_comment),
         color_button_(new QPushButton(this)),
         comment_edit_(new QPlainTextEdit(this))
     {
+        color_ = ThemeManager::instance()->color(ThemeManager::ExpertComment);
         QFormLayout *form = new QFormLayout;
 
         color_button_->setAutoDefault(false);
@@ -119,7 +120,7 @@ private:
     void updateColorButton()
     {
         QString bg = color_.name(QColor::HexRgb);
-        QString fg = ColorUtils::contrastingTextColor(color_).name(QColor::HexRgb);
+        QString fg = ColorMath::contrastingText(color_).name(QColor::HexRgb);
         QString label = color_.alpha() < 255 ? color_.name(QColor::HexArgb) : bg;
         color_button_->setText(label);
         color_button_->setStyleSheet(QStringLiteral("QPushButton { background-color: %1; color: %2; }").arg(bg, fg));
@@ -173,9 +174,18 @@ DataSourceTab::DataSourceTab(QWidget *parent, epan_dissect_t *edt_fixed) :
     is_fixed_packet_(edt_fixed != NULL),
     edt_(edt_fixed),
     disable_hover_(false),
-    last_annotation_color_(ColorUtils::expert_color_comment),
     annotations_session_notice_shown_(false)
 {
+    last_annotation_color_ = ThemeManager::instance()->color(ThemeManager::ExpertComment);
+    last_themed_annotation_color_ = last_annotation_color_;
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged, this, [this]() {
+        QColor nextThemed = ThemeManager::instance()->color(ThemeManager::ExpertComment);
+        // Refresh the annotation default only if the user hasn't picked a
+        // custom color since the last theme update.
+        if (last_annotation_color_ == last_themed_annotation_color_)
+            last_annotation_color_ = nextThemed;
+        last_themed_annotation_color_ = nextThemed;
+    });
 #if QT_VERSION >= QT_VERSION_CHECK(6, 3, 0) && QT_VERSION < QT_VERSION_CHECK(6, 10, 1)
     setTabBar(new DataSourceTabBar(this));
 #endif

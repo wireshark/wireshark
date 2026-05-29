@@ -37,7 +37,7 @@
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include <wsutil/wslog.h>
-#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 
 #include <extcap_parser.h>
@@ -214,11 +214,7 @@ bool ExtArgSelector::isValid()
         valid = false;
 
     if (boxSelection)
-    {
-        QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_filter_invalid_bg).name();
-        QString cmbBoxStyle("QComboBox { background-color: %1; } ");
-        boxSelection->setStyleSheet(cmbBoxStyle.arg(valid ? QString("") : lblInvalidColor));
-    }
+        ThemeManager::setValidationState(boxSelection, valid ? QString() : QStringLiteral("invalid"));
 
     return valid;
 }
@@ -396,8 +392,7 @@ bool ExtArgRadio::isValid()
 
     /* If nothing is selected, but a selection is required, the only thing that
      * can be marked is the label */
-    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_filter_invalid_bg).name();
-    _label->setStyleSheet (label_style.arg(valid ? QString("") : lblInvalidColor));
+    ThemeManager::setValidationState(_label, valid ? QString() : QStringLiteral("invalid"));
 
     return valid;
 }
@@ -623,9 +618,7 @@ bool ExtArgText::isValid()
         }
     }
 
-    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_filter_invalid_bg).name();
-    QString txtStyle("QLineEdit { background-color: %1; } ");
-    textBox->setStyleSheet(txtStyle.arg(valid ? QString("") : lblInvalidColor));
+    ThemeManager::setValidationState(textBox, valid ? QString() : QStringLiteral("invalid"));
 
     return valid;
 }
@@ -764,14 +757,12 @@ void ExtcapValue::setChildren(ExtcapValueList children)
 }
 
 ExtcapArgument::ExtcapArgument(QObject *parent) :
-        QObject(parent), _argument(0), _label(0), _number(0),
-        label_style(QStringLiteral("QLabel { color: %1; }"))
+        QObject(parent), _argument(0), _label(0), _number(0)
 {
 }
 
 ExtcapArgument::ExtcapArgument(extcap_arg * argument, QObject *parent) :
-        QObject(parent), _argument(argument), _label(0),
-        label_style(QStringLiteral("QLabel { color: %1; }"))
+        QObject(parent), _argument(argument), _label(0)
 {
     _number = argument->arg_num;
 
@@ -784,8 +775,7 @@ ExtcapArgument::ExtcapArgument(extcap_arg * argument, QObject *parent) :
 }
 
 ExtcapArgument::ExtcapArgument(const ExtcapArgument &obj) :
-        QObject(obj.parent()), _argument(obj._argument), _label(0),
-        label_style(QStringLiteral("QLabel { color: %1; }"))
+        QObject(obj.parent()), _argument(obj._argument), _label(0)
 {
     _number = obj._argument->arg_num;
 
@@ -863,8 +853,6 @@ QWidget * ExtcapArgument::createLabel(QWidget * parent)
     if (_argument == 0 || _argument->display == 0)
         return 0;
 
-    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_filter_invalid_bg).name();
-
     QString text = QString().fromUtf8(_argument->display);
 
     if (_label == 0)
@@ -873,8 +861,6 @@ QWidget * ExtcapArgument::createLabel(QWidget * parent)
         _label->setText(text);
 
     _label->setProperty("isRequired", QString(isRequired() ? "true" : "false"));
-
-    _label->setStyleSheet (label_style.arg(QString("")));
 
     if (_argument->tooltip != 0)
         _label->setToolTip(QString().fromUtf8(_argument->tooltip));

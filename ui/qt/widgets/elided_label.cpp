@@ -10,6 +10,7 @@
 #include <ui/qt/widgets/elided_label.h>
 
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 
 #include <QFontMetrics>
 #include <QResizeEvent>
@@ -20,6 +21,8 @@ ElidedLabel::ElidedLabel(QWidget *parent) :
 {
     QFontMetrics fm(font());
     setMinimumWidth(fm.height() * 5); // em-widths
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged,
+            this, &ElidedLabel::updateText);
 }
 
 void ElidedLabel::setUrl(const QString &url)

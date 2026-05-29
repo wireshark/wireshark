@@ -21,9 +21,8 @@
 #include <QHeaderView>
 #include <QInputDialog>
 
-#include <epan/prefs.h>
 #include <ui/qt/widgets/stock_icon_tool_button.h>
-#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 
 #include <extcap.h>
 #include <extcap_parser.h>
@@ -224,10 +223,8 @@ bool ExtArgMultiSelect::isValid()
         }
     }
 
-    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_filter_invalid_bg).name();
-    QString txtStyle("QTreeView { background-color: %1; } ");
     if (viewModel != 0)
-        treeView->setStyleSheet(txtStyle.arg(valid ? QString("") : lblInvalidColor));
+        ThemeManager::setValidationState(treeView, valid ? QString() : QStringLiteral("invalid"));
 
     return valid;
 }

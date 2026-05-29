@@ -1,23 +1,27 @@
 /* ===================================================================
- * Wireshark Welcome Page Header — Concept A (Gradient Header Bar)
- * Theme: Light
+ * Wireshark Welcome Page Header — Gradient Header Bar
  *
  * Widget hierarchy:
- *   #welcomeHeader          — QWidget, the blue gradient header bar
- *     #headerTitle           — QLabel, "Wireshark"
- *     #headerVersion         — QLabel, full version string
- *     #headerBuildLabel          — QLabel, "Development Build" pill badge
+ *   #welcomeHeader            — QWidget, the blue gradient header bar
+ *     #headerTitle            — QLabel, "Wireshark"
+ *     #headerVersion          — QLabel, full version string
+ *     #headerBuildLabel       — QLabel, "Development Build" pill badge
  *
- *   #updateHeader            — QWidget, the green update notification bar
- *     #updateDot             — QLabel (6×6px), pulsing green circle
- *     #updateText            — QLabel, "Update available: Wireshark X.Y.Z"
+ *   #updateHeader             — QWidget, the green update notification bar
+ *     #updateDot              — QLabel (6×6px), pulsing green circle
+ *     #updateText             — QLabel, "Update available: Wireshark X.Y.Z"
  *     — stretch —
- *     #updateReleaseNotes    — QPushButton (flat), "Release Notes"
- *     #updateDownload        — QPushButton, "Download Update"
- *     #updateDismiss         — QToolButton (autoRaise), "×" close
+ *     #updateReleaseNotes     — QPushButton (flat), "Release Notes"
+ *     #updateDownload         — QPushButton, "Download Update"
+ *     #updateDismiss          — QToolButton (autoRaise), "×" close
  *
  * Layout (left → right):
  *   updateDot · updateText · <stretch> · updateReleaseNotes · updateDownload · updateDismiss
+ *
+ * All colors are sourced from theme tokens resolved by
+ * ThemeManager::styleSheet("widgets/welcome-header"); the same file
+ * therefore covers both light and dark appearance.  No literal color
+ * values are allowed in this file.
  *
  * Notes:
  *   - QWidget backgrounds with gradients use the `background` shorthand.
@@ -40,8 +44,8 @@
 #welcomeHeader {
     background: qlineargradient(
         spread:pad, x1:0, y1:0, x2:1, y2:1,
-        stop:0 #1e3a5f,
-        stop:1 #2c6fb5
+        stop:0 wstheme(HeaderGradientStart),
+        stop:1 wstheme(HeaderGradientEnd)
     );
     min-height: 64px;
 }
@@ -51,7 +55,7 @@
  * Title label — "Wireshark"
  * ----------------------------------------------------------------- */
 #headerTitle {
-    color: #ffffff;
+    color: wstheme(TextOnDark);
     font-size: 16px;
     font-weight: 600;
     /* No background — sits on the gradient */
@@ -64,7 +68,7 @@
  * Version label — "4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)"
  * ----------------------------------------------------------------- */
 #headerVersion {
-    color: rgba(255, 255, 255, 128);   /* ~50% white */
+    color: wstheme(TextOnDarkMuted);
     font-size: 11px;
     font-weight: 400;
     background: transparent;
@@ -80,12 +84,12 @@
  * setVisible(false) or simply don't add it to the layout.
  * ----------------------------------------------------------------- */
 #headerBuildLabel {
-    color: #ffffff;
+    color: wstheme(TextOnDark);
     font-size: 9px;
     font-weight: 600;
     text-transform: uppercase;
     /* letter-spacing is not supported in QSS — set via QFont if needed */
-    background-color: #e8652d;
+    background-color: wstheme(AccentWarning);
     border-radius: 4px;
     padding: 3px 9px;
     margin: 0;
@@ -100,10 +104,10 @@
 #updateHeader {
     background: qlineargradient(
         spread:pad, x1:0, y1:0.5, x2:1, y2:0.5,
-        stop:0 #1b4d3e,
-        stop:1 #1b5e45
+        stop:0 wstheme(UpdateGradientStart),
+        stop:1 wstheme(UpdateGradientEnd)
     );
-    border-bottom: 1px solid rgba(76, 175, 80, 51);   /* ~20% opacity */
+    border-bottom: 1px solid wstheme(UpdateBorder);
     min-height: 36px;
 }
 
@@ -126,7 +130,7 @@
  *       anim->start();
  * ----------------------------------------------------------------- */
 #updateDot {
-    background-color: #4caf50;
+    background-color: wstheme(AccentSuccess);
     border-radius: 3px;          /* half of 6px = circle */
     min-width: 6px;
     max-width: 6px;
@@ -145,11 +149,11 @@
  * portion, styled via the html <b> tag which inherits color from
  * the label but can be overridden with inline style or a separate
  * label.  If using a plain QLabel, set the full string here.
- * For the bold version name, use a second QLabel or rich text with:
- *   <span style="color:#c8f0d0; font-weight:600;">Wireshark 4.8.0</span>
+ * For the bold version name, use a second QLabel or rich text using
+ * the wstheme(UpdateTextHighlight) color.
  * ----------------------------------------------------------------- */
 #updateText {
-    color: #a8ddb5;
+    color: wstheme(UpdateText);
     font-size: 12px;
     font-weight: 400;
     background: transparent;
@@ -161,7 +165,7 @@
  * Release Notes — flat text button
  * ----------------------------------------------------------------- */
 #updateReleaseNotes {
-    color: #7ab888;
+    color: wstheme(UpdateLink);
     font-size: 11px;
     font-weight: 500;
     text-decoration: underline;
@@ -171,11 +175,11 @@
 }
 
 #updateReleaseNotes:hover {
-    color: #a8ddb5;
+    color: wstheme(UpdateLinkHover);
 }
 
 #updateReleaseNotes:pressed {
-    color: #5a9868;
+    color: wstheme(UpdateLinkPressed);
 }
 
 
@@ -183,26 +187,26 @@
  * Download button — solid green
  * ----------------------------------------------------------------- */
 #updateDownload {
-    color: #ffffff;
+    color: wstheme(TextOnDark);
     font-size: 11px;
     font-weight: 500;
-    background-color: #4caf50;
+    background-color: wstheme(UpdateButtonBg);
     border: none;
     border-radius: 4px;
     padding: 4px 12px;
 }
 
 #updateDownload:hover {
-    background-color: #43a047;
+    background-color: wstheme(UpdateButtonHover);
 }
 
 #updateDownload:pressed {
-    background-color: #388e3c;
+    background-color: wstheme(UpdateButtonPressed);
 }
 
 #updateDownload:disabled {
-    background-color: #2d6e30;
-    color: rgba(255, 255, 255, 128);
+    background-color: wstheme(UpdateButtonDisabledBg);
+    color: wstheme(UpdateButtonDisabledText);
 }
 
 
@@ -211,13 +215,13 @@
  *
  * QToolButton with autoRaise(true).  Borderless by default, subtle
  * highlight on hover.  Sits on the green gradient in both themes,
- * so these colors are shared between light and dark.
+ * so the colors come from the shared update.* tokens.
  *
  * Connect clicked() → updateHeader->setVisible(false).
  * Optionally persist dismissal per version via QSettings.
  * ----------------------------------------------------------------- */
 #updateDismiss {
-    color: #7ab888;
+    color: wstheme(UpdateText);
     font-size: 15px;
     font-weight: 500;
     background: transparent;
@@ -232,11 +236,11 @@
 }
 
 #updateDismiss:hover {
-    background-color: rgba(255, 255, 255, 25);   /* ~10% white */
-    color: #c8f0d0;
+    background-color: wstheme(UpdateDismissHoverBg);
+    color: wstheme(UpdateTextHighlight);
 }
 
 #updateDismiss:pressed {
-    background-color: rgba(255, 255, 255, 15);   /* ~6% white */
-    color: #a8ddb5;
+    background-color: wstheme(UpdateDismissPressedBg);
+    color: wstheme(UpdateText);
 }

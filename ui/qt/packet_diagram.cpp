@@ -21,6 +21,7 @@
 #include "ui/qt/main_window.h"
 #include "ui/qt/capture_file_dialog.h"
 #include "ui/qt/utils/proto_node.h"
+#include "ui/qt/utils/theme_manager.h"
 #include "ui/qt/utils/variant_pointer.h"
 #include "ui/recent.h"
 
@@ -358,6 +359,9 @@ PacketDiagram::PacketDiagram(QWidget *parent) :
 
     connect(mainApp, &MainApplication::appInitialized, this, &PacketDiagram::connectToMainWindow);
     connect(mainApp, &MainApplication::zoomRegularFont, this, &PacketDiagram::setFont);
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged, this, [this]() {
+        resetScene(false);
+    });
 
     resetScene();
 }

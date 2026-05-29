@@ -53,10 +53,11 @@
 #include "lua_debugger_dialog.h"
 #include "lua_debugger_pause.h"
 #include "wsutil/filesystem.h"
-#include <epan/prefs.h>
 #include <epan/wslua/wslua_debugger.h>
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/themes/color_math.h>
 
 /* ===== internal ===== */
 
@@ -162,8 +163,8 @@ namespace LuaDebuggerPath
 LuaDbgInvalidFilterColors invalidFilterColors()
 {
     LuaDbgInvalidFilterColors colors;
-    colors.fg = ColorUtils::fromColorT(&prefs.gui_filter_invalid_fg);
-    colors.bg = ColorUtils::fromColorT(&prefs.gui_filter_invalid_bg);
+    colors.bg = ThemeManager::instance()->color(ThemeManager::FilterInvalid);
+    colors.fg = ColorMath::contrastingText(colors.bg);
     return colors;
 }
 

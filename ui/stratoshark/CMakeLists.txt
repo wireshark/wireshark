@@ -63,6 +63,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/stock_icon_tool_button.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/syntax_line_edit.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/tabnav_tree_view.h
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/theme_preview_widget.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/traffic_tab.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/traffic_tree.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/traffic_types_list.h
@@ -98,6 +99,14 @@ set(WIRESHARK_UTILS_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/software_update.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/stock_icon.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/tango_colors.h
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/theme_manager.h
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/theme_styler.h
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/color_math.h
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/system_theme_detector.h
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/theme_palette_builder.h
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/theme_parser.h
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/theme_stylesheet_loader.h
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/theme_token_handler.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/variant_pointer.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/wireshark_mime_data.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/wireshark_zip_helper.h
@@ -243,6 +252,7 @@ set(WIRESHARK_QT_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/tabnav_tree_widget.h
 	${CMAKE_SOURCE_DIR}/ui/qt/tap_parameter_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/tcp_stream_dialog.h
+	${CMAKE_SOURCE_DIR}/ui/qt/theme_debug_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/time_shift_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/traffic_table_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/uat_dialog.h
@@ -337,6 +347,7 @@ set(WIRESHARK_WIDGET_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/stock_icon_tool_button.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/syntax_line_edit.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/tabnav_tree_view.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/theme_preview_widget.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/traffic_tab.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/traffic_tree.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/traffic_types_list.cpp
@@ -360,6 +371,16 @@ set(WIRESHARK_MANAGER_SRCS
 
 set (STRATOSHARK_MANAGER_SRCS ${WIRESHARK_MANAGER_SRCS})
 
+if(APPLE)
+	set(WIRESHARK_THEMES_PLATFORM_SRC ${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/system_theme_detector_mac.mm)
+elseif(WIN32)
+	set(WIRESHARK_THEMES_PLATFORM_SRC ${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/system_theme_detector_win.cpp)
+elseif(UNIX)
+	set(WIRESHARK_THEMES_PLATFORM_SRC ${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/system_theme_detector_unix.cpp)
+else()
+	set(WIRESHARK_THEMES_PLATFORM_SRC ${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/system_theme_detector_stub.cpp)
+endif()
+
 set(WIRESHARK_UTILS_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/color_utils.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/data_printer.cpp
@@ -370,6 +391,14 @@ set(WIRESHARK_UTILS_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/qt_ui_utils.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/software_update.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/stock_icon.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/theme_manager.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/theme_styler.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/color_math.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/theme_palette_builder.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/theme_parser.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/theme_stylesheet_loader.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/theme_token_handler.cpp
+	${WIRESHARK_THEMES_PLATFORM_SRC}
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/wireshark_mime_data.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/wireshark_zip_helper.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/workspace_state.cpp
@@ -503,6 +532,7 @@ set(WIRESHARK_QT_SRC
 	${CMAKE_SOURCE_DIR}/ui/qt/tabnav_tree_widget.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/tap_parameter_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/tcp_stream_dialog.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/theme_debug_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/time_shift_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/traffic_table_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/uat_dialog.cpp
@@ -736,12 +766,14 @@ qrc_add_files(
 	TARGET stratoshark
 	BASE_DIR "${CMAKE_SOURCE_DIR}/ui/stylesheets"
 	FILES
-		${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/capture-card-dark.qss
-		${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/capture-card-light.qss
-		${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/learn-card-dark.qss
-		${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/learn-card-light.qss
-		${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/welcome-header-dark.qss
-		${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/welcome-header-light.qss
+	${CMAKE_SOURCE_DIR}/ui/stylesheets/application.qss
+	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/accordion-frame.qss
+	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/bluetooth-table.qss
+	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/capture-card.qss
+	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/filter-combo.qss
+	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/interface-toolbar-lineedit.qss
+	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/learn-card.qss
+	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/welcome-header.qss
 )
 qrc_finalize(NAME stylesheets TARGET stratoshark OUTPUT_VAR STRATOSHARK_STYLESHEETS_QRC)
 
@@ -754,6 +786,12 @@ if(CUSTOM_SLIDES_JSON AND EXISTS "${CUSTOM_SLIDES_JSON}")
 endif()
 qrc_add_glob(NAME json_resource TARGET stratoshark GLOB "${CMAKE_SOURCE_DIR}/resources/json/banners/*" ALIAS_PREFIX "banners/")
 qrc_finalize(NAME json_resource TARGET stratoshark OUTPUT_VAR STRATOSHARK_JSON_QRC)
+
+# Theme resources
+qrc_register(NAME themes TARGET stratoshark PREFIX "/themes")
+add_theme(NAME "default" TARGET stratoshark )
+add_theme(NAME "inverted" TARGET stratoshark )
+qrc_finalize(NAME themes TARGET stratoshark OUTPUT_VAR STRATOSHARK_THEMES_QRC)
 
 # Drop the file modification time of source files from generated files
 # to help with reproducible builds. We do not use QFileInfo.lastModified
@@ -781,6 +819,7 @@ qt_add_resources(STRATOSHARK_QT_QRC
 	${STRATOSHARK_AUTHORS_QRC}
 	${STRATOSHARK_JSON_QRC}
 	${STRATOSHARK_STYLESHEETS_QRC}
+	${STRATOSHARK_THEMES_QRC}
 	OPTIONS ${CMAKE_AUTORCC_OPTIONS}
 )
 

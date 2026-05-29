@@ -9,9 +9,7 @@
 
 #include <ui/qt/widgets/apply_line_edit.h>
 
-#include <epan/prefs.h>
-
-#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
@@ -121,14 +119,14 @@ void ApplyLineEdit::handleValidation(QString newText)
             "ApplyLineEdit {"
             "  padding-left: %1px;"
             "  padding-right: %2px;"
-            "  background-color: %3;"
             "}"
             )
             .arg(frameWidth + 1)
-            .arg(apply_button_->sizeHint().width() + frameWidth)
-            .arg(isValidText(newText, true) ? QString("") : ColorUtils::fromColorT(prefs.gui_filter_invalid_bg).name());
+            .arg(apply_button_->sizeHint().width() + frameWidth);
 
     setStyleSheet(style_sheet);
+    ThemeManager::setValidationState(this,
+            isValidText(newText, true) ? QString() : QStringLiteral("invalid"));
 }
 
 void ApplyLineEdit::resizeEvent(QResizeEvent *)

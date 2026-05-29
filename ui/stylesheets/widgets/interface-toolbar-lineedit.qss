@@ -1,0 +1,33 @@
+/* ===================================================================
+ * InterfaceToolbarLineEdit — line edit embedded in the interface
+ * toolbar with an inline "apply" button on the right.
+ *
+ * Rules:
+ *   - The apply button is a flat StockIconToolButton with no border,
+ *     transparent background, and no padding; the explicit
+ *     `background: transparent` also disables the platform style on
+ *     Windows so the button blends into the line edit.
+ *
+ * Applied via ThemeManager::styleSheet("widgets/interface-toolbar-lineedit")
+ * from InterfaceToolbarLineEdit::updateStyleSheet(); the caller
+ * appends runtime-dependent rules on top:
+ *   - padding-right (derived from the apply-button sizeHint and the
+ *     style's frame width),
+ *   - on macOS, a 1px rounded palette(shadow) border around the line
+ *     edit — Qt's native macOS style does not draw a visible frame
+ *     for embedded QLineEdits, so we add one to match the other
+ *     platforms.
+ *
+ * Invalid-state background is NOT set here; it comes from the global
+ * `QLineEdit[wsValidation="invalid"]` rule in application.qss and is
+ * toggled via ThemeManager::setValidationState().
+ *
+ * No wstheme(...) colour tokens are needed here; all colours come
+ * from the current QPalette, so light/dark mode flips automatically.
+ * =================================================================== */
+
+QToolButton {
+    border: none;
+    background: transparent;
+    padding: 0 0 0 0;
+}

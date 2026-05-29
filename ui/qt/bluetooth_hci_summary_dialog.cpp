@@ -12,13 +12,12 @@
 
 #include "bluetooth_device_dialog.h"
 
-#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 
 #include "epan/epan.h"
 #include "epan/addr_resolv.h"
 #include "epan/to_str.h"
 #include "epan/epan_dissect.h"
-#include "epan/prefs.h"
 #include "epan/dissectors/packet-bluetooth.h"
 #include "epan/dissectors/packet-bthci_cmd.h"
 #include "epan/dissectors/packet-bthci_evt.h"
@@ -110,7 +109,10 @@ BluetoothHciSummaryDialog::BluetoothHciSummaryDialog(QWidget &parent, CaptureFil
         ui->tableTreeWidget->resizeColumnToContents(i);
     }
 
-    ui->tableTreeWidget->setStyleSheet("QTreeView::item:hover{background-color:lightyellow; color:black;}");
+    ui->tableTreeWidget->setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/bluetooth-table")));
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged, this, [this]() {
+        ui->tableTreeWidget->setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/bluetooth-table")));
+    });
 
     context_menu_.addActions(QList<QAction *>() << ui->actionMark_Unmark_Cell);
     context_menu_.addActions(QList<QAction *>() << ui->actionMark_Unmark_Row);
@@ -221,12 +223,12 @@ void BluetoothHciSummaryDialog::on_actionMark_Unmark_Cell_triggered()
     QBrush fg;
     QBrush bg;
 
-    if (ui->tableTreeWidget->currentItem()->background(ui->tableTreeWidget->currentColumn()) == QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg))) {
+    if (ui->tableTreeWidget->currentItem()->background(ui->tableTreeWidget->currentColumn()) == QBrush(ThemeManager::instance()->color(ThemeManager::PacketsMarked))) {
         fg = QBrush();
         bg = QBrush();
     } else {
-        fg = QBrush(ColorUtils::fromColorT(&prefs.gui_marked_fg));
-        bg = QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg));
+        fg = QBrush(ThemeManager::instance()->color(ThemeManager::PacketsMarkedText));
+        bg = QBrush(ThemeManager::instance()->color(ThemeManager::PacketsMarked));
     }
 
     ui->tableTreeWidget->currentItem()->setForeground(ui->tableTreeWidget->currentColumn(), fg);
@@ -240,7 +242,7 @@ void BluetoothHciSummaryDialog::on_actionMark_Unmark_Row_triggered()
     bool   is_marked = true;
 
     for (int i = 0; i < ui->tableTreeWidget->columnCount(); i += 1) {
-        if (ui->tableTreeWidget->currentItem()->background(i) != QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg)))
+        if (ui->tableTreeWidget->currentItem()->background(i) != QBrush(ThemeManager::instance()->color(ThemeManager::PacketsMarked)))
             is_marked = false;
     }
 
@@ -248,8 +250,8 @@ void BluetoothHciSummaryDialog::on_actionMark_Unmark_Row_triggered()
         fg = QBrush();
         bg = QBrush();
     } else {
-        fg = QBrush(ColorUtils::fromColorT(&prefs.gui_marked_fg));
-        bg = QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg));
+        fg = QBrush(ThemeManager::instance()->color(ThemeManager::PacketsMarkedText));
+        bg = QBrush(ThemeManager::instance()->color(ThemeManager::PacketsMarked));
     }
 
     for (int i = 0; i < ui->tableTreeWidget->columnCount(); i += 1) {

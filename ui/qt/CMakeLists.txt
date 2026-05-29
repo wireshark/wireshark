@@ -65,6 +65,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/stock_icon_tool_button.h
 	widgets/syntax_line_edit.h
 	widgets/tabnav_tree_view.h
+	widgets/theme_preview_widget.h
 	widgets/traffic_tab.h
 	widgets/traffic_tree.h
 	widgets/traffic_types_list.h
@@ -99,6 +100,14 @@ set(WIRESHARK_UTILS_HEADERS
 	utils/software_update.h
 	utils/stock_icon.h
 	utils/tango_colors.h
+	utils/theme_manager.h
+	utils/theme_styler.h
+	utils/themes/color_math.h
+	utils/themes/system_theme_detector.h
+	utils/themes/theme_palette_builder.h
+	utils/themes/theme_parser.h
+	utils/themes/theme_stylesheet_loader.h
+	utils/themes/theme_token_handler.h
 	utils/variant_pointer.h
 	utils/wireshark_mime_data.h
 	utils/wireshark_zip_helper.h
@@ -280,6 +289,7 @@ set(WIRESHARK_QT_HEADERS
 	tabnav_tree_widget.h
 	tap_parameter_dialog.h
 	tcp_stream_dialog.h
+	theme_debug_dialog.h
 	time_shift_dialog.h
 	traffic_table_dialog.h
 	uat_dialog.h
@@ -361,6 +371,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/stock_icon_tool_button.cpp
 	widgets/syntax_line_edit.cpp
 	widgets/tabnav_tree_view.cpp
+	widgets/theme_preview_widget.cpp
 	widgets/traffic_tab.cpp
 	widgets/traffic_tree.cpp
 	widgets/traffic_types_list.cpp
@@ -379,6 +390,16 @@ set(WIRESHARK_MANAGER_SRCS
 	manager/wireshark_preference.cpp
 )
 
+if(APPLE)
+	set(WIRESHARK_THEMES_PLATFORM_SRC utils/themes/system_theme_detector_mac.mm)
+elseif(WIN32)
+	set(WIRESHARK_THEMES_PLATFORM_SRC utils/themes/system_theme_detector_win.cpp)
+elseif(UNIX)
+	set(WIRESHARK_THEMES_PLATFORM_SRC utils/themes/system_theme_detector_unix.cpp)
+else()
+	set(WIRESHARK_THEMES_PLATFORM_SRC utils/themes/system_theme_detector_stub.cpp)
+endif()
+
 set(WIRESHARK_UTILS_SRCS
 	utils/color_utils.cpp
 	utils/data_printer.cpp
@@ -393,6 +414,14 @@ set(WIRESHARK_UTILS_SRCS
 	utils/rtp_audio_silence_generator.cpp
 	utils/software_update.cpp
 	utils/stock_icon.cpp
+	utils/theme_manager.cpp
+	utils/theme_styler.cpp
+	utils/themes/color_math.cpp
+	utils/themes/theme_palette_builder.cpp
+	utils/themes/theme_parser.cpp
+	utils/themes/theme_stylesheet_loader.cpp
+	utils/themes/theme_token_handler.cpp
+	${WIRESHARK_THEMES_PLATFORM_SRC}
 	utils/wireshark_mime_data.cpp
 	utils/wireshark_zip_helper.cpp
 	utils/workspace_state.cpp
@@ -565,6 +594,7 @@ set(WIRESHARK_QT_SRC
 	tabnav_tree_widget.cpp
 	tap_parameter_dialog.cpp
 	tcp_stream_dialog.cpp
+	theme_debug_dialog.cpp
 	time_shift_dialog.cpp
 	traffic_table_dialog.cpp
 	uat_dialog.cpp
@@ -820,12 +850,15 @@ qrc_add_files(
 	NAME stylesheets
 	BASE_DIR "${CMAKE_SOURCE_DIR}/ui/stylesheets"
 	FILES
-		${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/capture-card-dark.qss
-		${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/capture-card-light.qss
-		${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/learn-card-dark.qss
-		${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/learn-card-light.qss
-		${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/welcome-header-dark.qss
-		${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/welcome-header-light.qss
+	${CMAKE_SOURCE_DIR}/ui/stylesheets/application.qss
+	${CMAKE_SOURCE_DIR}/ui/stylesheets/welcome-page.qss
+	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/accordion-frame.qss
+	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/bluetooth-table.qss
+	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/capture-card.qss
+	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/filter-combo.qss
+	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/interface-toolbar-lineedit.qss
+	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/learn-card.qss
+	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/welcome-header.qss
 )
 qrc_finalize(NAME stylesheets OUTPUT_VAR STYLESHEETS_QRC)
 
@@ -838,6 +871,12 @@ if(CUSTOM_SLIDES_JSON AND EXISTS "${CUSTOM_SLIDES_JSON}")
 endif()
 qrc_add_glob(NAME json_resource GLOB "${CMAKE_SOURCE_DIR}/resources/json/banners/*" BASE_DIR "${CMAKE_SOURCE_DIR}/resources/json/banners/" ALIAS_PREFIX "banners/")
 qrc_finalize(NAME json_resource OUTPUT_VAR JSON_QRC)
+
+# Theme resources
+qrc_register(NAME themes PREFIX "/themes")
+add_theme(NAME "default")
+add_theme(NAME "inverted")
+qrc_finalize(NAME themes OUTPUT_VAR THEMES_QRC)
 
 # Drop the file modification time of source files from generated files
 # to help with reproducible builds. We do not use QFileInfo.lastModified
@@ -865,6 +904,7 @@ qt_add_resources(WIRESHARK_QT_QRC
 	${AUTHORS_QRC}
 	${JSON_QRC}
 	${STYLESHEETS_QRC}
+	${THEMES_QRC}
 	OPTIONS ${CMAKE_AUTORCC_OPTIONS}
 )
 

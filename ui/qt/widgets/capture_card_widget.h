@@ -109,11 +109,6 @@ private:
     Ui::CaptureCardWidget *ui_;
 
     /**
-     * @brief Updates the stylesheet for the widget components.
-     */
-    void updateStyleSheet();
-
-    /**
      * @brief Updates the visibility of the capture filter row based on current state.
      */
     void updateFilterRowVisibility();

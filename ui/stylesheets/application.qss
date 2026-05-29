@@ -1,0 +1,75 @@
+/* ===================================================================
+ * application.qss — global stylesheet applied to QApplication.
+ *
+ * Loaded by ThemeManager and pushed via qApp->setStyleSheet() at
+ * startup and on every theme flip.  Rules here apply to every widget
+ * in the app unless a more-specific per-widget stylesheet overrides
+ * them.
+ *
+ * Conventions:
+ *   - Use dynamic-property selectors, not object names, for state:
+ *         widget->setProperty("wsValidation", "invalid");
+ *         style()->unpolish(widget); style()->polish(widget);
+ *     Helper: ThemeManager::setValidationState(widget, "invalid").
+ *   - Colors go through wstheme(...) so the rules flip with the
+ *     current light/dark mode automatically.
+ *   - This file grows over time; group additions with a section
+ *     comment so it stays readable.
+ * =================================================================== */
+
+/* -------------------------------------------------------------------
+ * Validation state — for inputs that are bound to a validator
+ * (filter expressions, extcap fields, regex find, etc.).  The
+ * property `wsValidation` takes one of:
+ *   "valid"       — tinted green background
+ *   "invalid"     — tinted red background (or error-colored text on
+ *                   QLabel, which doesn't paint its own background)
+ *   "deprecated"  — tinted warning background
+ * Clearing the property (QVariant()) reverts to the default palette.
+ * ------------------------------------------------------------------- */
+
+QLineEdit[wsValidation="valid"],
+QComboBox[wsValidation="valid"],
+QAbstractItemView[wsValidation="valid"] {
+    background-color: wstheme(FilterValid);
+}
+
+QLineEdit[wsValidation="invalid"],
+QComboBox[wsValidation="invalid"],
+QAbstractItemView[wsValidation="invalid"] {
+    background-color: wstheme(FilterInvalid);
+}
+
+QLineEdit[wsValidation="deprecated"],
+QComboBox[wsValidation="deprecated"],
+QAbstractItemView[wsValidation="deprecated"] {
+    background-color: wstheme(FilterDeprecated);
+}
+
+/* Labels don't paint their own background reliably; for an invalid
+ * state we tint the foreground with the accent error color so the
+ * label stands out next to its (now-red) input. */
+QLabel[wsValidation="invalid"] {
+    color: wstheme(AccentError);
+}
+
+/* -------------------------------------------------------------------
+ * SyntaxLineEdit — dedicated tinted backgrounds matching the widget's
+ * own `syntaxState` Q_PROPERTY.  Kept as a separate pass from
+ * wsValidation because SyntaxLineEdit predates it.
+ *
+ * Integer values match SyntaxLineEdit::SyntaxState declaration order
+ * in syntax_line_edit.h:
+ *     Empty=0, Busy=1, Invalid=2, Deprecated=3, Valid=4
+ * If that enum is reordered, update these selectors in lock-step.
+ * ------------------------------------------------------------------- */
+
+SyntaxLineEdit[syntaxState="4"] {   /* Valid */
+    background-color: wstheme(FilterValid);
+}
+SyntaxLineEdit[syntaxState="2"] {   /* Invalid */
+    background-color: wstheme(FilterInvalid);
+}
+SyntaxLineEdit[syntaxState="3"] {   /* Deprecated */
+    background-color: wstheme(FilterDeprecated);
+}

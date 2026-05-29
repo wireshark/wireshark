@@ -49,6 +49,7 @@
 #include <QUrl>
 #include <QMutex>
 #include <QDebug>
+#include <QEvent>
 
 #include <epan/prefs.h>
 
@@ -398,14 +399,35 @@ void InterfaceFrame::resetInterfaceTreeDisplay()
     if (proxy_model_.rowCount() > 0)
     {
         ui->interfaceTree->show();
-        ui->interfaceTree->resizeColumnToContents(proxy_model_.mapSourceToColumn(IFTREE_COL_EXTCAP));
-        ui->interfaceTree->resizeColumnToContents(proxy_model_.mapSourceToColumn(IFTREE_COL_DISPLAY_NAME));
-        ui->interfaceTree->resizeColumnToContents(proxy_model_.mapSourceToColumn(IFTREE_COL_STATS));
+        resizeInterfaceColumns();
     }
     else
     {
         ui->interfaceTree->hide();
     }
+}
+
+void InterfaceFrame::resizeInterfaceColumns()
+{
+    if (proxy_model_.rowCount() <= 0)
+        return;
+
+    ui->interfaceTree->resizeColumnToContents(proxy_model_.mapSourceToColumn(IFTREE_COL_EXTCAP));
+    ui->interfaceTree->resizeColumnToContents(proxy_model_.mapSourceToColumn(IFTREE_COL_DISPLAY_NAME));
+    ui->interfaceTree->resizeColumnToContents(proxy_model_.mapSourceToColumn(IFTREE_COL_STATS));
+}
+
+void InterfaceFrame::changeEvent(QEvent *evt)
+{
+    QFrame::changeEvent(evt);
+
+    // QTBUG-122109: re-polishing a QTreeView (which happens whenever the
+    // application style sheet is reapplied — on a theme change or an OS
+    // dark/light switch) resets every visible section to the minimum width,
+    // eliding the interface-name column since it isn't the last column.
+    // Re-fit the columns once the style change has propagated to the tree.
+    if (evt->type() == QEvent::StyleChange)
+        QTimer::singleShot(0, this, &InterfaceFrame::resizeInterfaceColumns);
 }
 
 // XXX Should this be in capture/capture-pcap-util.[ch]?
