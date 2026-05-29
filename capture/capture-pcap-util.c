@@ -104,7 +104,7 @@
 #endif
 
 #ifndef _WIN32
-#if defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__)
+#if defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__HAIKU__)
 /*
  * Needed for the code to get a device description.
  */
