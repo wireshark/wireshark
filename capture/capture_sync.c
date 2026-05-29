@@ -1812,10 +1812,17 @@ pipe_read_bytes(GIOChannel *pipe_io, char *bytes, size_t required, char **msg)
     size_t newly;
     size_t offset = 0;
 
-    /* This should never happen, as "required" should be no greater than 2^24. */
+    /*
+     * This should never happen, as "required" should be no greater than 2^24.
+     *
+     * XXX - 64-bit Haiku defines ssize_t as an signed long int but defines
+     * SSIZE_MAX as a signed long long int; they're the same width, but
+     * gcc warns of a type mismatch between %zd and signed long long int.
+     * We cast SSIZE_MAX to (ssize_t) to squelch the warning.
+     */
     if (required > SSIZE_MAX) {
-        ws_debug("read from pipe %p: bytes to read %zu > %zu", pipe_io, required, SSIZE_MAX);
-        *msg = ws_strdup_printf("Error reading from sync pipe: bytes to read %zu > %zu", required, SSIZE_MAX);
+        ws_debug("read from pipe %p: bytes to read %zu > %zd", pipe_io, required, (ssize_t)SSIZE_MAX);
+        *msg = ws_strdup_printf("Error reading from sync pipe: bytes to read %zu > %zd", required, (ssize_t)SSIZE_MAX);
         return -1;
     }
     while(required) {
