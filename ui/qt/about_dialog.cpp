@@ -46,6 +46,7 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/variant_pointer.h>
+#include <ui/qt/utils/workspace_state.h>
 
 #include <ui/qt/models/astringlist_list_model.h>
 #include <ui/qt/models/url_link_delegate.h>
@@ -222,6 +223,9 @@ FolderListModel::FolderListModel(QObject * parent):
     /* Extcap */
     appendRow(QStringList() << tr("Personal Extcap path") << QString(get_extcap_pers_dir(env_prefix)) << tr("External capture (extcap) plugins"));
     appendRow(QStringList() << tr("Global Extcap path") << QString(get_extcap_dir(env_prefix, extcap_dir)) << tr("External capture (extcap) plugins"));
+
+    /* Personal themes */
+    appendRow(QStringList() << tr("Personal Themes") << WorkspaceState::instance()->personalThemesPath() << tr("User-installed theme files (*.jsonc)"));
 
 #ifdef HAVE_MAXMINDDB
     /* MaxMind DB */

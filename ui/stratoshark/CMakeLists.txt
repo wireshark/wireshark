@@ -102,6 +102,7 @@ set(WIRESHARK_UTILS_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/theme_manager.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/theme_styler.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/color_math.h
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/legacy_color_prefs_migration.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/system_theme_detector.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/theme_palette_builder.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/theme_parser.h
@@ -394,6 +395,7 @@ set(WIRESHARK_UTILS_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/theme_manager.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/theme_styler.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/color_math.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/legacy_color_prefs_migration.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/theme_palette_builder.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/theme_parser.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/theme_stylesheet_loader.cpp

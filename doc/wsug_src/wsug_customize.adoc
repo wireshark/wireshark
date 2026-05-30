@@ -874,6 +874,27 @@ These colors now come from the selected theme.
 The preview shows a mockup of a capture window rendered with the selected theme and appearance mode, so you can see how the combination will look before applying it.
 Changes to the appearance mode and theme take effect once you accept the preferences dialog with btn:[OK]; the preview itself updates immediately as you try different combinations.
 
+[#ChCustPersonalThemes]
+===== Personal themes
+
+In addition to the themes bundled with the application, Wireshark looks for user-supplied themes in a personal themes directory:
+
+* On Unix-like systems: _$HOME/.local/lib/wireshark/themes_
+* On Windows: _%APPDATA%\Wireshark\themes_
+
+(For Stratoshark, replace _wireshark_ / _Wireshark_ with _stratoshark_ / _Stratoshark_.)
+
+Personal themes are single _.jsonc_ files dropped directly into that directory — there is no per-theme subdirectory.
+The filename (without the _.jsonc_ extension) becomes the theme's internal name and is what appears in the _Theme_ dropdown.
+For example, _midnight.jsonc_ shows up as a selectable theme named _midnight_.
+
+The exact path can also be seen under menu:Help[About Wireshark] in the _Folders_ tab, labelled _Personal Themes_.
+
+The file format is identical to the bundled themes; see the _README.md_ next to the built-in _default_ theme in the source distribution for the schema and the list of supported color tokens.
+
+If a personal theme file shares a name with a built-in theme (for example _default.jsonc_), the built-in copy wins and the personal file is ignored with a warning on stderr.
+This guarantees that core themes the application falls back to can never be accidentally shadowed by a broken override.
+
 ==== Welcome Page
 
 These preferences allow you to define the layout of the GUI welcome page, before a capture file is loaded.

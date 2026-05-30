@@ -13,11 +13,13 @@
 
 #include <ui/qt/main_application.h>
 #include <ui/qt/utils/themes/color_math.h>
+#include <ui/qt/utils/themes/legacy_color_prefs_migration.h>
 #include <ui/qt/utils/themes/system_theme_detector.h>
 #include <ui/qt/utils/themes/theme_palette_builder.h>
 #include <ui/qt/utils/themes/theme_parser.h>
 #include <ui/qt/utils/themes/theme_stylesheet_loader.h>
 #include <ui/qt/utils/themes/theme_token_handler.h>
+#include <ui/qt/utils/workspace_state.h>
 
 #include <epan/prefs.h>
 
@@ -27,15 +29,57 @@
 #include <QColor>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QFont>
 #include <QMetaEnum>
 #include <QPalette>
+#include <QSet>
 #include <QStyle>
 #include <QStyleHints>
 #include <QWidget>
 
 ThemeManager* ThemeManager::instance_{nullptr};
 QMutex ThemeManager::mutex_;
+
+namespace {
+
+/**
+ * Resolves a theme's internal name to a JSONC path the parser can open.
+ *
+ * Built-in themes live at `:/themes/<name>/theme.jsonc` (each in its own
+ * directory).  Personal themes are bare `<name>.jsonc` files dropped into
+ * WorkspaceState::personalThemesPath().
+ *
+ * Lookup order matches the design decision documented in the .h: built-in
+ * resources are checked first, so the bundled "default" can never be shadowed
+ * by a broken or partial personal override — important because loadTheme()'s
+ * self-recovery path retries with "default" after a parse failure, and that
+ * fallback must always succeed.  Only when no built-in matches do we look in
+ * the personal directory.
+ *
+ * @return Resolved path on success (Qt resource URL or filesystem path), or
+ *         an empty string when neither location yields a readable file.
+ */
+QString resolveThemePath(const QString &internalName)
+{
+    const QString builtin = QStringLiteral(":/themes/") + internalName
+                          + QStringLiteral("/theme.jsonc");
+    if (QFile::exists(builtin))
+        return builtin;
+
+    const QString personalDir = WorkspaceState::instance()->personalThemesPath();
+    if (personalDir.isEmpty())
+        return QString();
+
+    const QString personal = QDir(personalDir).filePath(
+        internalName + QStringLiteral(".jsonc"));
+    if (QFile::exists(personal))
+        return personal;
+
+    return QString();
+}
+
+} // namespace
 
 ThemeManager::ThemeManager(QObject *parent)
     : QObject(parent),
@@ -173,7 +217,26 @@ ThemeManager* ThemeManager::instance()
 
 void ThemeManager::init(const QString &theme)
 {
-    instance()->loadTheme(theme);
+    // Construct the singleton first so the migration can query
+    // isDarkMode() (it relies on the ctor-initialized mode_, detector,
+    // and osBaseline_).  loadTheme() has not run yet at this point —
+    // the ThemeManager state is mode/palette only.
+    ThemeManager *self = instance();
+
+    // One-shot migration of legacy per-color preferences into a
+    // personal theme.  No-op once the personal themes directory has
+    // any *.jsonc file, so this is idempotent across launches.  On
+    // success it sets recent.gui_theme_name = "personal" so the
+    // freshly generated theme is loaded below instead of the value
+    // we were called with.
+    QString effectiveTheme = theme;
+    if (LegacyColorPrefsMigration::runIfNeeded()) {
+        const QString migrated = QString::fromUtf8(recent.gui_theme_name);
+        if (!migrated.isEmpty())
+            effectiveTheme = migrated;
+    }
+
+    self->loadTheme(effectiveTheme);
 }
 
 void ThemeManager::cleanup()
@@ -190,23 +253,32 @@ ThemeInfo ThemeManager::info() const
 
 QList<ThemeInfo> ThemeManager::availableThemes()
 {
-    // Themes live at :/themes/<name>/theme.jsonc.  Qt resources let us
-    // enumerate the directory via QDir and parse each entry with a
-    // temporary ThemeParser.  We reuse the live singleton's section
-    // definitions and role cache so the parser sees the same role
-    // vocabulary as a real theme load — that way parse warnings (if
-    // any) match what the user would see loading that theme.
+    // Built-in themes live at :/themes/<name>/theme.jsonc; personal
+    // themes are bare <name>.jsonc files under
+    // WorkspaceState::personalThemesPath().  We enumerate both sources
+    // here so a single picker can present them together.
+    //
+    // We reuse the live singleton's section definitions and role cache
+    // so the parser sees the same role vocabulary as a real theme load —
+    // parse warnings (if any) match what the user would see loading that
+    // theme.
     QList<ThemeInfo> list;
+    QSet<QString> seen;     // internalNames already emitted; gate for the
+                            // "built-in wins" rule below.
     ThemeManager *self = instance();
     if (!self)
         return list;
 
-    QDir themesDir(QStringLiteral(":/themes/"));
-    const QStringList entries = themesDir.entryList(
+    ThemeParser parser(self->sections_, self->colorRoleCache_);
+
+    // Pass 1 — built-in themes.  Iterating these first means a built-in
+    // entry always claims its internalName, so a later personal file with
+    // a colliding stem is silently skipped (see Pass 2 comment).
+    QDir builtinDir(QStringLiteral(":/themes/"));
+    const QStringList builtinEntries = builtinDir.entryList(
         QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
 
-    ThemeParser parser(self->sections_, self->colorRoleCache_);
-    for (const QString &name : entries) {
+    for (const QString &name : builtinEntries) {
         const QString resourcePath = QStringLiteral(":/themes/") + name
                                    + QStringLiteral("/theme.jsonc");
         if (!QFile::exists(resourcePath))
@@ -215,7 +287,41 @@ QList<ThemeInfo> ThemeManager::availableThemes()
         if (!parser.parse(name, resourcePath, result))
             continue;
         list.append(result.info);
+        seen.insert(name);
     }
+
+    // Pass 2 — personal themes from the user's themes directory.  Each
+    // *.jsonc file becomes a theme whose internal name is the filename
+    // stem.  Files whose stem collides with a built-in are skipped with
+    // a qWarning so the user can spot accidental shadowing; this matches
+    // the "Built-in wins" conflict policy.
+    const QString personalDir = WorkspaceState::instance()->personalThemesPath();
+    if (!personalDir.isEmpty()) {
+        QDir userDir(personalDir);
+        if (userDir.exists()) {
+            const QStringList userEntries = userDir.entryList(
+                QStringList() << QStringLiteral("*.jsonc"),
+                QDir::Files | QDir::Readable, QDir::Name);
+            for (const QString &fileName : userEntries) {
+                const QString internalName = QFileInfo(fileName).completeBaseName();
+                if (internalName.isEmpty())
+                    continue;
+                if (seen.contains(internalName)) {
+                    qWarning("ThemeManager: personal theme \"%s\" shadows a "
+                             "built-in of the same name; the personal copy is ignored.",
+                             qUtf8Printable(internalName));
+                    continue;
+                }
+                const QString fullPath = userDir.filePath(fileName);
+                ThemeParser::Result result;
+                if (!parser.parse(internalName, fullPath, result))
+                    continue;
+                list.append(result.info);
+                seen.insert(internalName);
+            }
+        }
+    }
+
     return list;
 }
 
@@ -437,9 +543,11 @@ ThemeManager::previewTheme(const QString &internalName, bool wantDark) const
     // header for the public contract.
     QHash<ThemeToken, QColor> empty;
 
-    const QString resourcePath = QStringLiteral(":/themes/") + internalName
-                               + QStringLiteral("/theme.jsonc");
-    if (!QFile::exists(resourcePath))
+    // resolveThemePath() applies the same built-in-then-personal lookup
+    // chain as loadTheme(), so a preview of a personal theme produces
+    // the same colors that an actual load would.
+    const QString resourcePath = resolveThemePath(internalName);
+    if (resourcePath.isEmpty())
         return empty;
 
     ThemeParser parser(sections_, colorRoleCache_);
@@ -489,6 +597,18 @@ ThemeManager::previewTheme(const QString &internalName, bool wantDark) const
     return out;
 }
 
+bool ThemeManager::validateThemeFile(const QString &filePath) const
+{
+    // Mirrors the parse step of loadTheme() / previewTheme() without
+    // applying any results to the live theme state.  ThemeParser emits
+    // qWarning() on any structural problem (missing required section,
+    // unknown token, malformed color value) so the caller sees the
+    // reason in the log alongside our own "validation failed" message.
+    ThemeParser parser(sections_, colorRoleCache_);
+    ThemeParser::Result throwaway;
+    return parser.parse(QStringLiteral("__validate__"), filePath, throwaway);
+}
+
 // --------------------------------------------------------------------
 // Theme loading — delegates all JSONC parsing to ThemeParser and then
 // applies the result (palette + derived tokens).
@@ -505,8 +625,12 @@ bool ThemeManager::loadTheme(const QString &theme)
     ThemeParser::Result result;
 
     auto tryParse = [&](const QString &name) {
-        const QString resourcePath = QStringLiteral(":/themes/") + name
-                                   + QStringLiteral("/theme.jsonc");
+        // resolveThemePath() returns the bundled :/themes/<name>/theme.jsonc
+        // when present, falling back to <personalDir>/<name>.jsonc.  Built-in
+        // takes precedence — see resolveThemePath() for why.
+        const QString resourcePath = resolveThemePath(name);
+        if (resourcePath.isEmpty())
+            return false;
         ThemeParser parser(sections_, colorRoleCache_);
         return parser.parse(name, resourcePath, result);
     };

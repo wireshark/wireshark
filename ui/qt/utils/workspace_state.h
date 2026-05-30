@@ -101,6 +101,26 @@ public:
     QString recentProfileFilePath() const;
 
     /**
+     * @brief Get the path to the personal themes directory.
+     *
+     * Mirrors get_extcap_pers_dir() but stays UI-only.  Layout:
+     *   Windows: %APPDATA%\Wireshark\themes
+     *   Unix:    ~/.local/lib/wireshark/themes
+     *
+     * Unlike built-in themes (which live under `:/themes/<name>/theme.jsonc`),
+     * personal themes are plain `*.jsonc` files dropped directly into this
+     * directory.  The filename stem (without `.jsonc`) becomes the theme's
+     * internal name; for example, `mytheme.jsonc` yields internalName
+     * `"mytheme"`.
+     *
+     * The directory is not created here.  Callers should treat a missing
+     * directory as "no personal themes" rather than an error.
+     *
+     * @return Full path to the personal themes directory (may not exist).
+     */
+    QString personalThemesPath() const;
+
+    /**
      * @brief Get the list of recently opened capture files.
      *
      * @return List of file info structs, most recent last.
@@ -218,6 +238,7 @@ private:
     static constexpr const char *RECENT_COMMON_FILE_NAME  = "recent_common";  /**< Basename of the cross-profile recent file. */
     static constexpr const char *RECENT_PROFILE_FILE_NAME = "recent";          /**< Basename of the per-profile recent file. */
     static constexpr const char *KEY_CAPTURE_FILE         = "recent.capture_file"; /**< Key used to persist capture file paths in the recent file. */
+    static constexpr const char *THEMES_DIR_NAME          = "themes";          /**< Basename of the personal themes directory. */
 };
 
 #endif // WORKSPACE_STATE_H

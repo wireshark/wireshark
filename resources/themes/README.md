@@ -19,9 +19,51 @@ resources/themes/
             logo.png
 ```
 
-Each theme directory **must** contain a `theme.jsonc` file.  It **may**
-contain an `images/` subdirectory for theme-specific assets such as
-background images or logos.
+Each built-in theme directory **must** contain a `theme.jsonc` file.  It
+**may** contain an `images/` subdirectory for theme-specific assets such
+as background images or logos.
+
+## Personal themes
+
+In addition to the themes bundled in this directory (compiled into the
+application as Qt resources), the application also loads user-supplied
+themes from a personal themes directory:
+
+| Platform | Path                                            |
+|----------|-------------------------------------------------|
+| Unix     | `$HOME/.local/lib/wireshark/themes/`            |
+| Windows  | `%APPDATA%\Wireshark\themes\`                   |
+
+For Stratoshark, substitute `stratoshark` / `Stratoshark` for `wireshark`
+/ `Wireshark`.  The exact path is shown in the **About → Folders** dialog
+as *Personal Themes*.
+
+Personal themes use a **flat layout**: a single `.jsonc` file is dropped
+directly into the directory — no per-theme subdirectory.  The filename
+stem (the part before `.jsonc`) becomes the theme's internal name and
+appears in the *Theme* dropdown under *Preferences → Appearance*.
+
+```
+$HOME/.local/lib/wireshark/themes/
+    midnight.jsonc      ← internal name "midnight"
+    high-contrast.jsonc ← internal name "high-contrast"
+```
+
+### Conflict resolution
+
+If a personal theme uses the same name as a built-in theme (for example
+`default.jsonc`), the built-in copy wins and the personal file is
+skipped with a warning on stderr.  This is intentional: the application
+falls back to the `default` theme if any other load fails, so allowing
+`default` to be shadowed by a broken user file would risk leaving the
+app with no valid color scheme.
+
+### File format
+
+Personal themes use exactly the same JSONC schema described below; the
+only difference is the on-disk layout (single file vs. per-theme
+directory).  Sidecar assets such as theme-local images are not supported
+in the personal directory.
 
 ## File format: JSONC
 

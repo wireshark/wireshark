@@ -72,6 +72,32 @@ QString WorkspaceState::recentProfileFilePath() const
     return path;
 }
 
+QString WorkspaceState::personalThemesPath() const
+{
+    // Mirrors init_extcap_pers_dir() in wsutil/filesystem.c.  Kept in
+    // the UI layer because themes are a Qt-only concern; the C analyzer
+    // libraries never need this path.
+    const char *env_prefix = application_configuration_environment_prefix();
+
+#ifdef _WIN32
+    // Personal config root: %APPDATA%\<App>\themes.  from_profile=false
+    // matches extcap behaviour — personal themes are cross-profile.
+    char *raw = get_persconffile_path(THEMES_DIR_NAME, false, env_prefix);
+    QString path = QString::fromUtf8(raw);
+    g_free(raw);
+    return path;
+#else
+    // Unix layout: ~/.local/lib/<app_lower>/themes (e.g. ~/.local/lib/wireshark/themes).
+    char *app_lower = g_ascii_strdown(env_prefix, -1);
+    char *raw = g_build_filename(g_get_home_dir(), ".local/lib",
+                                 app_lower, THEMES_DIR_NAME, (char *)NULL);
+    QString path = QString::fromUtf8(raw);
+    g_free(app_lower);
+    g_free(raw);
+    return path;
+#endif
+}
+
 bool WorkspaceState::parseRecentFile(const QString &filePath,
                                      std::function<void(const QString &key, const QString &value)> handler)
 {

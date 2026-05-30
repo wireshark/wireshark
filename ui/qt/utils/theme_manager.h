@@ -259,6 +259,22 @@ public:
                                            bool wantDark) const;
 
     /**
+     * Runs ThemeParser on @p filePath and returns true if it produces a
+     * usable result.  Reuses the live section / role caches so the
+     * validation criteria match what a real load would apply — required
+     * sections, required tokens, schema-typed values.
+     *
+     * Intended for callers that have just written a theme file and need
+     * to confirm it parses before persisting a reference to it (e.g. the
+     * legacy color prefs migration, which avoids stamping
+     * recent.gui_theme_name with a name that points at a broken file).
+     *
+     * @param filePath  Absolute filesystem path to the candidate JSONC.
+     * @return true if the file parses cleanly; false on any parse error.
+     */
+    bool validateThemeFile(const QString &filePath) const;
+
+    /**
      * Loads a QSS stylesheet from the built-in :/stylesheets/ resource
      * tree and replaces all `wstheme(TokenName)` references with their
      * resolved color values.  Thin delegator; see

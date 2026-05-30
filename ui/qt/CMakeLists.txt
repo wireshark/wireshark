@@ -103,6 +103,7 @@ set(WIRESHARK_UTILS_HEADERS
 	utils/theme_manager.h
 	utils/theme_styler.h
 	utils/themes/color_math.h
+	utils/themes/legacy_color_prefs_migration.h
 	utils/themes/system_theme_detector.h
 	utils/themes/theme_palette_builder.h
 	utils/themes/theme_parser.h
@@ -417,6 +418,7 @@ set(WIRESHARK_UTILS_SRCS
 	utils/theme_manager.cpp
 	utils/theme_styler.cpp
 	utils/themes/color_math.cpp
+	utils/themes/legacy_color_prefs_migration.cpp
 	utils/themes/theme_palette_builder.cpp
 	utils/themes/theme_parser.cpp
 	utils/themes/theme_stylesheet_loader.cpp

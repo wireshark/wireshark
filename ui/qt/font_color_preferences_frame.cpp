@@ -118,15 +118,19 @@ FontColorPreferencesFrame::FontColorPreferencesFrame(QWidget *parent) :
             child->setFont(bodyFont);
     }
 
-    // Theme author hint: muted + italic like the page's other hint labels.
-    // Styled after the body-font reset above so the italics survive it.
+    // Theme author and description hints: muted + italic like the page's
+    // other hint labels.  Styled after the body-font reset above so the
+    // italics survive it.  Description is shown verbatim from the theme's
+    // meta.description; author is shown as "Theme by <author>".
     QFont hintFont = bodyFont;
     hintFont.setItalic(true);
-    ui->themeAuthorLabel->setFont(hintFont);
     QPalette hintPalette = ui->themeAuthorLabel->palette();
     hintPalette.setColor(QPalette::WindowText,
                          hintPalette.color(QPalette::Disabled, QPalette::WindowText));
-    ui->themeAuthorLabel->setPalette(hintPalette);
+    for (QLabel *hint : { ui->themeAuthorLabel, ui->themeDescriptionLabel }) {
+        hint->setFont(hintFont);
+        hint->setPalette(hintPalette);
+    }
 }
 
 FontColorPreferencesFrame::~FontColorPreferencesFrame()
@@ -214,13 +218,19 @@ void FontColorPreferencesFrame::refreshPreview()
     if (!previewWidget_)
         return;
 
-    // Author hint below the preview, fed from the stashed author role on the
-    // selected theme item (the dropdown itself shows the name only).
+    // Author and description hints below the preview, fed from the
+    // stashed roles on the selected theme item (the dropdown itself
+    // shows the name only).  Description is also kept on ToolTipRole so
+    // it surfaces while browsing the dropdown.
     if (themeComboBox_) {
+        const int idx = themeComboBox_->currentIndex();
         const QString author = themeComboBox_->itemData(
-            themeComboBox_->currentIndex(), Qt::UserRole + 1).toString();
+            idx, Qt::UserRole + 1).toString();
         ui->themeAuthorLabel->setText(
             author.isEmpty() ? QString() : tr("Theme by %1").arg(author));
+        const QString description = themeComboBox_->itemData(
+            idx, Qt::ToolTipRole).toString();
+        ui->themeDescriptionLabel->setText(description);
     }
 
     // Resolve the stashed light/dark choice.  COLOR_SCHEME_LIGHT and
