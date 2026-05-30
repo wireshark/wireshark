@@ -423,6 +423,7 @@ set(WIRESHARK_UTILS_SRCS
 	utils/themes/theme_parser.cpp
 	utils/themes/theme_stylesheet_loader.cpp
 	utils/themes/theme_token_handler.cpp
+	utils/themes/system_theme_detector_common.cpp
 	${WIRESHARK_THEMES_PLATFORM_SRC}
 	utils/wireshark_mime_data.cpp
 	utils/wireshark_zip_helper.cpp

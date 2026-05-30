@@ -39,12 +39,14 @@ class SystemThemeDetector : public QObject
     Q_OBJECT
 public:
     enum class Scheme {
-        Unknown,    ///< The platform could not determine a preference (stub
-                    ///< back-end, or a native query that returned no value);
-                    ///< ThemeManager then classifies the OS palette luminance.
-                    ///< The Unix back-end resolves the desktop's "default"/
-                    ///< no-preference scheme to a concrete Light/Dark value
-                    ///< internally, so it does not surface Unknown for that.
+        Unknown,    ///< Internal sentinel for "native query returned no value
+                    ///< yet" — every back-end resolves this to a concrete
+                    ///< Light or Dark before caching, using the per-system
+                    ///< startup calibration of what the desktop's
+                    ///< "default"/no-preference scheme renders as.
+                    ///< currentScheme() therefore never returns Unknown
+                    ///< unless impl_ is null (a degenerate construction
+                    ///< failure).
         Light,
         Dark,
         Invalid     ///< A particular detection source could not be read, so
@@ -57,10 +59,38 @@ public:
     ~SystemThemeDetector();
 
     /**
-     * Current OS-level preference.  Cached value returned synchronously;
-     * safe to call from any thread that can touch the detector.
+     * Current OS-level preference, always resolved to Light or Dark.
+     * Cached value returned synchronously; safe to call from any thread
+     * that can touch the detector.
      */
     Scheme currentScheme() const;
+
+    /**
+     * Calibrates "what does this system render the desktop's
+     * default/no-preference scheme as?" from the pristine OS palette.
+     * Each back-end calls this from its Impl ctor (while the palette is
+     * still untouched by any theme override) and stores the result in a
+     * defaultIsDark field that resolveDefault() consults.
+     *
+     * Defined here so every back-end resolves "default" the same way
+     * without each one having to pull in QGuiApplication and ColorMath
+     * directly — the implementation lives in
+     * `system_theme_detector_common.cpp`.
+     */
+    static bool calibrateDefaultIsDark();
+
+    /**
+     * Maps a raw native reading onto a concrete scheme.  Unknown becomes
+     * Light or Dark according to @p defaultIsDark (the per-system
+     * calibration from calibrateDefaultIsDark()).  Light/Dark readings
+     * pass through unchanged so explicit OS preferences are honored
+     * verbatim.
+     *
+     * Used by every back-end so they all collapse the "no preference"
+     * case the same way; currentScheme() therefore never surfaces
+     * Unknown to callers.
+     */
+    static Scheme resolveDefault(Scheme s, bool defaultIsDark);
 
 signals:
     /**

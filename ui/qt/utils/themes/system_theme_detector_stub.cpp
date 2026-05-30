@@ -7,19 +7,27 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Placeholder SystemThemeDetector back-end used on platforms that do
- * not yet have a native implementation (Windows and Linux, as of this
- * commit).  It always reports Scheme::Unknown and never emits
- * schemeChanged, which causes ThemeManager to fall back to its
- * existing non-native detection path for mode == System.
+ * not yet have a native implementation.  No native read or observer is
+ * available, so the detector classifies the pristine OS palette once at
+ * startup (via the shared calibration helper) and returns that value
+ * for the lifetime of the process.  It never emits schemeChanged.
  *
- * Replaced by system_theme_detector_win.cpp / _unix.cpp once those
- * are implemented; see analysis/theme_mode_switching/.
+ * Matches the Light/Dark-only contract of the other back-ends so
+ * callers (notably ThemeManager::previewTheme()) can rely on
+ * currentScheme() never returning Unknown.
  */
 
 #include "ui/qt/utils/themes/system_theme_detector.h"
 
 struct SystemThemeDetector::Impl {
-    // Intentionally empty.
+    SystemThemeDetector::Scheme cached;
+
+    Impl()
+        : cached(SystemThemeDetector::calibrateDefaultIsDark()
+                     ? SystemThemeDetector::Scheme::Dark
+                     : SystemThemeDetector::Scheme::Light)
+    {
+    }
 };
 
 SystemThemeDetector::SystemThemeDetector(QObject *parent)
@@ -32,5 +40,5 @@ SystemThemeDetector::~SystemThemeDetector() = default;
 
 SystemThemeDetector::Scheme SystemThemeDetector::currentScheme() const
 {
-    return Scheme::Unknown;
+    return impl_ ? impl_->cached : Scheme::Unknown;
 }

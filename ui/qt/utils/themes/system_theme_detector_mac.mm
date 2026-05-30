@@ -62,10 +62,23 @@ SystemThemeDetector::Scheme readCurrent()
 struct SystemThemeDetector::Impl {
     id     observer = nil;
     Scheme cached   = Scheme::Unknown;
+    // What the desktop's "default"/no-preference scheme renders as on THIS
+    // system.  effectiveAppearance normally answers Light/Dark outright on
+    // 10.14+, but we still calibrate so the rare Unknown path (NSApp not
+    // yet ready, pre-Mojave) resolves the same way the Unix back-end does.
+    bool   defaultIsDark = false;
 
     explicit Impl(SystemThemeDetector *owner)
     {
-        cached = readCurrent();
+        const Scheme initial = readCurrent();
+        if (initial == Scheme::Dark)
+            defaultIsDark = true;
+        else if (initial == Scheme::Light)
+            defaultIsDark = false;
+        else
+            defaultIsDark = SystemThemeDetector::calibrateDefaultIsDark();
+
+        cached = SystemThemeDetector::resolveDefault(initial, defaultIsDark);
 
         if (@available(macOS 10.14, *)) {
             // The block captures `owner` and `this` by value.  Lifetime
@@ -81,7 +94,8 @@ struct SystemThemeDetector::Impl {
                             object:nil
                              queue:[NSOperationQueue mainQueue]
                         usingBlock:^(NSNotification * _Nonnull) {
-                    Scheme now = readCurrent();
+                    Scheme now = SystemThemeDetector::resolveDefault(
+                        readCurrent(), self->defaultIsDark);
                     if (now == self->cached)
                         return;
                     self->cached = now;
@@ -111,5 +125,8 @@ SystemThemeDetector::~SystemThemeDetector() = default;
 
 SystemThemeDetector::Scheme SystemThemeDetector::currentScheme() const
 {
+    // Impl always resolves cached_ to Light/Dark via the startup
+    // calibration; Scheme::Unknown is only ever returned if construction
+    // somehow failed to allocate impl_.
     return impl_ ? impl_->cached : Scheme::Unknown;
 }

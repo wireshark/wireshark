@@ -565,13 +565,36 @@ void ThemeManager::setValidationState(QWidget *w, const QString &state)
 }
 
 QHash<ThemeManager::ThemeToken, QColor>
-ThemeManager::previewTheme(const QString &internalName, bool wantDark) const
+ThemeManager::previewTheme(const QString &internalName, PreviewScheme scheme) const
 {
     // Mirrors the loadTheme() pipeline (parse → build palette → derive
     // tokens) but operates on stack-local data so the live theme state,
     // QApplication palette, and stylesheet are not touched.  See the
     // header for the public contract.
     QHash<ThemeToken, QColor> empty;
+
+    // Resolve the caller's PreviewScheme into a concrete light/dark
+    // bool here so the rest of the pipeline stays a pure function of
+    // wantDark.  PreferLight/PreferDark pin the side regardless of the
+    // live mode or OS preference — which is what makes the preview
+    // correct when the user changes the Appearance-mode dropdown
+    // without applying yet.  Default defers to the detector, which is
+    // guaranteed to be non-null (ThemeManager constructs it in its own
+    // ctor) and to return Light or Dark (every back-end resolves the
+    // "no preference" case via SystemThemeDetector::resolveDefault).
+    bool wantDark;
+    switch (scheme) {
+    case PreviewScheme::PreferLight:
+        wantDark = false;
+        break;
+    case PreviewScheme::PreferDark:
+        wantDark = true;
+        break;
+    case PreviewScheme::Default:
+    default:
+        wantDark = detector_->currentScheme() == SystemThemeDetector::Scheme::Dark;
+        break;
+    }
 
     // resolveThemePath() applies the same built-in-then-personal lookup
     // chain as loadTheme(), so a preview of a personal theme produces

@@ -91,6 +91,28 @@ public:
     };
     Q_ENUM(ThemeMode)
 
+    /**
+     * Caller-visible appearance preference for previewTheme().
+     *
+     * Mirrors the vocabulary of SystemThemeDetector::Scheme but is
+     * intentionally a separate type: previewTheme() is the only public
+     * surface that needs it, and reusing the detector enum would leak
+     * an otherwise-private dependency to the dialog.
+     *
+     *   Default     — "no preference, resolve against the OS now".
+     *                 previewTheme() asks the system detector, which
+     *                 every back-end resolves to Light or Dark via its
+     *                 startup calibration.
+     *   PreferLight — caller explicitly wants the light side.
+     *   PreferDark  — caller explicitly wants the dark side.
+     */
+    enum class PreviewScheme {
+        Default,
+        PreferLight,
+        PreferDark
+    };
+    Q_ENUM(PreviewScheme)
+
     enum ThemeToken {
         // Brand
         BrandPrimary,
@@ -311,11 +333,15 @@ public:
      * ThemeManager's colors".
      *
      * @param internalName  internal theme name (e.g. "default").
-     * @param wantDark      true for the dark side, false for light.
+     * @param scheme        which light/dark side to render.  Default
+     *                      defers to the OS detector so the preview
+     *                      tracks the live system preference; the
+     *                      Prefer* variants pin the side regardless of
+     *                      the live mode or OS.
      * @return token → resolved QColor for the requested mode.
      */
     QHash<ThemeToken, QColor> previewTheme(const QString &internalName,
-                                           bool wantDark) const;
+                                           PreviewScheme scheme) const;
 
     /**
      * Runs ThemeParser on @p filePath and returns true if it produces a

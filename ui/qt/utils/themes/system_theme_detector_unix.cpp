@@ -35,12 +35,8 @@
 
 #include "ui/qt/utils/themes/system_theme_detector.h"
 
-#include <ui/qt/utils/themes/color_math.h>
-
 #include <QByteArray>
 #include <QCoreApplication>
-#include <QGuiApplication>
-#include <QPalette>
 #include <QProcess>
 #include <QString>
 
@@ -102,19 +98,6 @@ bool portalAvailable()
     return iface && iface->isServiceRegistered(QLatin1String(kPortalService));
 }
 #endif // QT_DBUS_LIB
-
-// Map a raw reading onto a concrete scheme.  "No preference" (Unknown) becomes
-// Light or Dark according to defaultIsDark — the per-system calibration of what
-// the desktop's "default" scheme actually renders as, captured at startup.
-// Light/Dark readings pass through unchanged so explicit prefer-light/prefer-
-// dark preferences are always honored verbatim.
-SystemThemeDetector::Scheme resolveDefault(SystemThemeDetector::Scheme s, bool defaultIsDark)
-{
-    if (s == SystemThemeDetector::Scheme::Unknown)
-        return defaultIsDark ? SystemThemeDetector::Scheme::Dark
-                             : SystemThemeDetector::Scheme::Light;
-    return s;
-}
 
 SystemThemeDetector::Scheme readViaGSettings()
 {
@@ -283,8 +266,9 @@ private slots:
         // concrete Light/Dark using the startup calibration, so subscribers
         // always receive an unambiguous scheme.
         SystemThemeDetector::Scheme now =
-            resolveDefault(classifyPortalValue(value.variant().toUInt()),
-                           defaultIsDark_);
+            SystemThemeDetector::resolveDefault(
+                classifyPortalValue(value.variant().toUInt()),
+                defaultIsDark_);
         if (now != *cached_) {
             *cached_ = now;
             emit owner_->schemeChanged(now);
@@ -322,10 +306,9 @@ struct SystemThemeDetector::Impl {
         else if (initial == Scheme::Light)
             defaultIsDark = false;
         else
-            defaultIsDark = ColorMath::isDark(
-                QGuiApplication::palette().color(QPalette::Window));
+            defaultIsDark = SystemThemeDetector::calibrateDefaultIsDark();
 
-        cached = resolveDefault(initial, defaultIsDark);
+        cached = SystemThemeDetector::resolveDefault(initial, defaultIsDark);
 #ifdef QT_DBUS_LIB
         // Only install the portal watcher if the portal service is
         // actually on the bus.  Without a backend we get no live

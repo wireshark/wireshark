@@ -62,8 +62,9 @@ class WinThemeFilter : public QAbstractNativeEventFilter
 {
 public:
     WinThemeFilter(SystemThemeDetector *owner,
-                   SystemThemeDetector::Scheme *cached)
-        : owner_(owner), cached_(cached)
+                   SystemThemeDetector::Scheme *cached,
+                   bool defaultIsDark)
+        : owner_(owner), cached_(cached), defaultIsDark_(defaultIsDark)
     {
     }
 
@@ -87,7 +88,10 @@ public:
         if (!area || std::wcscmp(area, L"ImmersiveColorSet") != 0)
             return false;
 
-        const SystemThemeDetector::Scheme now = readCurrent();
+        // Resolve Unknown via the startup calibration so subscribers
+        // never see a non-concrete scheme; matches the Unix back-end.
+        const SystemThemeDetector::Scheme now =
+            SystemThemeDetector::resolveDefault(readCurrent(), defaultIsDark_);
         if (now != *cached_) {
             *cached_ = now;
             emit owner_->schemeChanged(now);
@@ -98,20 +102,33 @@ public:
     }
 
 private:
-    SystemThemeDetector        *owner_;
+    SystemThemeDetector         *owner_;
     SystemThemeDetector::Scheme *cached_;
+    bool                         defaultIsDark_;
 };
 
 } // namespace
 
 struct SystemThemeDetector::Impl {
     Scheme          cached = Scheme::Unknown;
+    // What the desktop's "default"/no-preference scheme renders as on THIS
+    // system.  Used to collapse the (rare) Unknown registry-read case into
+    // a concrete Light/Dark, matching the Unix back-end's contract.
+    bool            defaultIsDark = false;
     WinThemeFilter *filter = nullptr;
 
     explicit Impl(SystemThemeDetector *owner)
     {
-        cached = readCurrent();
-        filter = new WinThemeFilter(owner, &cached);
+        const Scheme initial = readCurrent();
+        if (initial == Scheme::Dark)
+            defaultIsDark = true;
+        else if (initial == Scheme::Light)
+            defaultIsDark = false;
+        else
+            defaultIsDark = SystemThemeDetector::calibrateDefaultIsDark();
+
+        cached = SystemThemeDetector::resolveDefault(initial, defaultIsDark);
+        filter = new WinThemeFilter(owner, &cached, defaultIsDark);
         if (QCoreApplication *app = QCoreApplication::instance())
             app->installNativeEventFilter(filter);
     }
@@ -137,5 +154,8 @@ SystemThemeDetector::~SystemThemeDetector() = default;
 
 SystemThemeDetector::Scheme SystemThemeDetector::currentScheme() const
 {
+    // Impl always resolves cached_ to Light/Dark via the startup
+    // calibration; Scheme::Unknown is only ever returned if construction
+    // somehow failed to allocate impl_.
     return impl_ ? impl_->cached : Scheme::Unknown;
 }
