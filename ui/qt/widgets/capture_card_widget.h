@@ -113,6 +113,17 @@ private:
      */
     void updateFilterRowVisibility();
 
+    /**
+     * @brief Picks the most verbose interface-type button label that fits the
+     *        available width, falling back to terser variants (and finally
+     *        eliding) on narrow windows so it can never overrun the capture
+     *        filter combo. The full text is kept as the button's tooltip.
+     */
+    void updateInterfaceTypeButton();
+
+    /** Interface-type button labels, ordered most verbose to most terse. */
+    QStringList interfaceTypeButtonTexts_;
+
 private slots:
     /**
      * @brief Slot triggered when the application has been fully initialized.

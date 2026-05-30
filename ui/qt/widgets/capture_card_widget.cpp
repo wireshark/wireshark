@@ -24,8 +24,12 @@
 
 #include <QEvent>
 #include <QFile>
+#include <QFontMetrics>
 #include <QLineEdit>
+#include <QPushButton>
 #include <QResizeEvent>
+#include <QStyle>
+#include <QStyleOption>
 
 CaptureCardWidget::CaptureCardWidget(QWidget *parent) :
     QFrame(parent),
@@ -117,14 +121,90 @@ void CaptureCardWidget::appInitialized()
 
 void CaptureCardWidget::interfaceListChanged()
 {
-    QString btnText = tr("All interfaces shown");
-    if (ui_->captureInterfaceFrame->interfacesHidden() > 0) {
-        btnText = tr("%n interface(s) shown, %1 hidden", "",
-                     ui_->captureInterfaceFrame->interfacesPresent())
-                .arg(ui_->captureInterfaceFrame->interfacesHidden());
+    int shown = ui_->captureInterfaceFrame->interfacesPresent();
+    int hidden = ui_->captureInterfaceFrame->interfacesHidden();
+
+    // Label variants, most verbose first. updateInterfaceTypeButton() picks
+    // the longest one that fits the available width, so the button stays
+    // informative when there's room and compact when there isn't.
+    interfaceTypeButtonTexts_.clear();
+    if (hidden > 0) {
+        int total = shown + hidden;
+        interfaceTypeButtonTexts_
+            << tr("%n interface(s) shown, %1 hidden", "", shown).arg(hidden)
+            << tr("%1 / %2 interfaces").arg(shown).arg(total)
+            << tr("%1 / %2").arg(shown).arg(total);
+    } else {
+        interfaceTypeButtonTexts_
+            << tr("All interfaces shown")
+            << tr("%n interface(s)", "", shown);
     }
-    ui_->captureInterfaceTypeButton->setText(btnText);
+
     ui_->captureInterfaceTypeButton->setMenu(ui_->captureInterfaceFrame->getSelectionMenu());
+
+    updateInterfaceTypeButton();
+}
+
+// Full rendered width (text + frame + padding + menu-indicator arrow) the
+// button would need for a given label. Uses the same style call Qt uses to
+// size the button, so the fit test below matches the real layout exactly.
+static int buttonWidthForText(QPushButton *btn, const QString &text)
+{
+    QStyleOptionButton opt;
+    opt.initFrom(btn);
+    opt.text = text;
+    QSize contents(btn->fontMetrics().horizontalAdvance(text),
+                   btn->fontMetrics().height());
+    int w = btn->style()->sizeFromContents(QStyle::CT_PushButton, &opt, contents, btn).width();
+    // QMacStyle (and some others) don't reserve space for the menu-indicator
+    // arrow in CT_PushButton, so add it explicitly: otherwise the arrow paints
+    // over the label and the variant never collapses early enough.
+    if (btn->menu())
+        w += btn->style()->pixelMetric(QStyle::PM_MenuButtonIndicator, &opt, btn);
+    return w;
+}
+
+// Keep the interface-type button from crowding out the capture filter combo
+// on narrow windows. The button (a QPushButton) won't shrink below its own
+// label, so we pick the most verbose label variant that still leaves the
+// combo a comfortable width, and pin the button to exactly that width. The
+// full text stays as the tooltip.
+void CaptureCardWidget::updateInterfaceTypeButton()
+{
+    if (interfaceTypeButtonTexts_.isEmpty())
+        return;
+
+    QPushButton *btn = ui_->captureInterfaceTypeButton;
+    btn->setToolTip(interfaceTypeButtonTexts_.constFirst());
+
+    // Width the button may use = the card width (authoritative and current in
+    // resizeEvent, unlike the not-yet-relaid-out child row) minus the label
+    // and a comfortable reserve for the capture filter combo. The label's
+    // footprint is subtracted unconditionally (even while it's hidden below
+    // 460px) so the chosen variant changes monotonically with width instead of
+    // jumping when the label shows/hides.
+    int spacing = ui_->captureFilterRow->layout()->spacing();
+    int labelW = ui_->captureFilterLabel->sizeHint().width() + spacing;
+    const int comboReserveW = 290; // keep the capture filter combo prominent
+    int avail = width() - labelW - comboReserveW - spacing;
+
+    // Most verbose variant that fits; the tersest one is the fallback. Pin the
+    // button to the chosen variant's width so it neither clips (it's never
+    // smaller than its label) nor lets the combo starve it (it grows back when
+    // there's room again).
+    QString chosen = interfaceTypeButtonTexts_.constLast();
+    int chosenW = buttonWidthForText(btn, chosen);
+    for (const QString &candidate : interfaceTypeButtonTexts_) {
+        int candidateW = buttonWidthForText(btn, candidate);
+        if (candidateW <= avail) {
+            chosen = candidate;
+            chosenW = candidateW;
+            break;
+        }
+    }
+
+    btn->setText(chosen);
+    btn->setFixedWidth(chosenW);
 }
 
 // Update each selected device cfilter when the user changes the contents
@@ -220,4 +300,5 @@ void CaptureCardWidget::resizeEvent(QResizeEvent *event)
     QFrame::resizeEvent(event);
 
     updateFilterRowVisibility();
+    updateInterfaceTypeButton();
 }

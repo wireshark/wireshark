@@ -30,6 +30,8 @@ namespace Ui {
 class InterfaceFrame;
 }
 
+class QResizeEvent;
+
 /**
  * @brief A frame containing the list of interfaces available for capture, along with status and controls.
  */
@@ -156,6 +158,14 @@ protected:
      * @param evt The change event.
      */
     void changeEvent(QEvent *evt);
+
+    /**
+     * @brief Handles resize events; re-fits the interface tree columns so the
+     *        name column cap (and the room left for the sparkline) tracks the
+     *        available width.
+     * @param evt The resize event.
+     */
+    void resizeEvent(QResizeEvent *evt);
 
 private:
 
