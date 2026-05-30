@@ -505,13 +505,14 @@ const value_string ip_version_vals[] = {
 
 static void ip_prompt(packet_info *pinfo, char* result)
 {
-    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP protocol %u as",
-        GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ip, pinfo->curr_layer_num)));
+    ws_ip4* iph = (ws_ip4*)p_get_proto_data(pinfo->pool, pinfo, proto_ip, pinfo->curr_layer_num);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP protocol %u as", iph->ip_proto);
 }
 
 static void *ip_value(packet_info *pinfo)
 {
-    return p_get_proto_data(pinfo->pool, pinfo, proto_ip, pinfo->curr_layer_num);
+    ws_ip4* iph = (ws_ip4*)p_get_proto_data(pinfo->pool, pinfo, proto_ip, pinfo->curr_layer_num);
+    return GUINT_TO_POINTER(iph->ip_proto);
 }
 
 static const char* ip_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
@@ -2363,7 +2364,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     dissect_ip_options(tvb, offset + 20, optlen, pinfo, field_tree, tf, iph);
   }
 
-  p_add_proto_data(pinfo->pool, pinfo, proto_ip, pinfo->curr_layer_num, GUINT_TO_POINTER((unsigned)iph->ip_proto));
+  p_add_proto_data(pinfo->pool, pinfo, proto_ip, pinfo->curr_layer_num, iph);
   tap_queue_packet(ip_tap, pinfo, iph);
 
   /* Skip over header + options */

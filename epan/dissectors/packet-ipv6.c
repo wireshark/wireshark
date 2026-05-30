@@ -617,7 +617,7 @@ extern const ws_in6_addr *tvb_get_ptr_ipv6(tvbuff_t tvb, int offset);
 
 ipv6_pinfo_t *p_get_ipv6_pinfo(packet_info *pinfo)
 {
-    return (ipv6_pinfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_PINFO);
+    return (ipv6_pinfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_proto_layer_num << 8) | IPV6_PROTO_PINFO);
 }
 
 /* Return tree pointer (for tree root preference) */
@@ -3825,7 +3825,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         ipv6_pinfo->ipv6_tree = ipv6_tree;
         ipv6_pinfo->ipv6_item_len = IPv6_HDR_SIZE;
     }
-    p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_PINFO, ipv6_pinfo);
+    p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, (pinfo->curr_proto_layer_num << 8) | IPV6_PROTO_PINFO, ipv6_pinfo);
 
     /* Adjust the length of this tvbuff to include only the IPv6 datagram. */
     set_actual_length(tvb, IPv6_HDR_SIZE + plen);

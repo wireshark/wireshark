@@ -34,6 +34,7 @@
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/array.h>
 
+#include "packet-ip.h"
 #include "packet-icmp.h"
 
 /* ---- Generic Community ID codebase, based on GLib & GCrypt ------------------
@@ -537,8 +538,9 @@ static int communityid_dissector(tvbuff_t *tvb, packet_info *pinfo,
                  * include values other than the defined CID_PROTO_*
                  * constants.
                  */
-                proto = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo,
-                                                          proto_ip_found, layer_num));
+                ws_ip4* iph = (ws_ip4*)p_get_proto_data(pinfo->pool, pinfo, proto_ip_found, layer_num);
+                if (iph != NULL)
+                    proto = iph->ip_proto;
                 break;
             }
 
