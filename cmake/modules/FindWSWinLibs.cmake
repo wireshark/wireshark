@@ -5,6 +5,10 @@
 #
 #  The function is passed the directory name to search for and the variable
 #  to set in the callers scope.
+#
+# To do:
+# pkgconf has a vcpkg port, and vcpkg ports ship with .pc files. We should
+# add pkgconf to dev-libs and use it instead of this where possible.
 
 function( FindWSWinLibs _WS_LIB_SEARCH_PATH _LIB_HINT_VAR )
   if(USE_REPOSITORY)
