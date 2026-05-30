@@ -1,0 +1,176 @@
+// =====================================================================
+// Stratoshark Default Theme — "Cloud teal"
+// =====================================================================
+//
+// The built-in theme for Stratoshark.  Color values are taken from the
+// "Cloud teal" palette defined in the stratoshark.org redesign spec:
+//
+//   /Users/rknall/Development/Wireshark/Websites/stratoshark-web/
+//     docs/design-spec.md, §3 "Design tokens"
+//
+// The web spec uses a CSS-custom-properties token system (one token per
+// surface).  Wireshark's theme system instead derives most tokens from
+// six required inputs (brand.primary, brand.deep, four accent.*) — see
+// resources/themes/README.md for the full token vocabulary.  This file
+// maps the web tokens to the Wireshark inputs as follows:
+//
+//   web --color-action          → brand.primary
+//   web hero-gradient end stop  → brand.deep
+//   web --color-bg              → palette.base
+//   web --color-bg-alt          → palette.window / palette.alternateBase
+//   web --color-text            → palette.text / palette.windowText
+//   web --color-text-muted      → palette.mid       (see "palette" note)
+//   web --color-border          → palette.midlight
+//
+// Format: JSONC — standard JSON with C-style comments.
+// =====================================================================
+
+{
+	// =================================================================
+	// REQUIRED SECTIONS
+	// =================================================================
+
+	"meta": {
+		"name": "Stratoshark",
+		"version": 1,
+		"author": "Stratoshark Project",
+		"description": "Default Stratoshark theme based on the Cloud teal palette from stratoshark.org."
+	},
+
+	// -----------------------------------------------------------------
+	// Brand
+	//
+	//   primary — web --color-action (link / CTA / selection / link-like).
+	//             Drives the welcome header gradient END stop, selection
+	//             highlight, section header hover, sparkline stroke, and
+	//             the splash progress bar.
+	//
+	//   deep    — web hero-gradient bottom stop (#0a2a32 light, #03161a
+	//             dark).  Drives the welcome header gradient START.
+	// -----------------------------------------------------------------
+	"brand": {
+		"primary": { "light": "#0e9aa7", "dark": "#2bc1cf" },
+		"deep":    { "light": "#0a2a32", "dark": "#03161a" }
+	},
+
+	// -----------------------------------------------------------------
+	// Accent — four semantic colors.
+	//
+	// Picked to coexist with the teal brand without color-clashing:
+	//   success — emerald (rotated slightly from Material green so it
+	//             reads as distinct from the brand teal)
+	//   warning — amber/orange (warm complement to teal)
+	//   error   — red (kept similar to default; universal danger signal)
+	//   info    — slate-blue (cool but clearly bluer than teal)
+	// -----------------------------------------------------------------
+	"accent": {
+		"success": { "light": "#10b981", "dark": "#34d399" },
+		"warning": { "light": "#e8732e", "dark": "#f59e0b" },
+		"error":   { "light": "#c0392b", "dark": "#ef4444" },
+		"info":    { "light": "#3b6ea5", "dark": "#6ba4d8" }
+	},
+
+	// =================================================================
+	// OPTIONAL SECTIONS
+	// =================================================================
+
+	// -----------------------------------------------------------------
+	// Packet display state colors
+	//
+	// Selection: brand-saturated teal — distinct from any pastel
+	// color-filter rule backgrounds and immediately legible as "active".
+	// Marked: deep brand — strong visual weight for flagged rows.
+	// Inactive: low-saturation surface tint matching --color-bg-alt.
+	// -----------------------------------------------------------------
+	"packets": {
+		"selection":     { "light": "#0e9aa7", "dark": "#1a3a40" },
+		"selectionText": { "light": "#ffffff", "dark": "#e8f3f5" },
+		"inactive":      { "light": "#eef6f7", "dark": "#1f3338" },
+		"inactiveText":  { "light": "#1a2a30", "dark": "#d9e7ea" },
+		"marked":        { "light": "#003540", "dark": "#003540" },
+		"markedText":    { "light": "#ffffff", "dark": "#ffffff" },
+		"ignored":       { "light": "#fbfcfd", "dark": "#0a1418" },
+		"ignoredText":   { "light": "#7a8b91", "dark": "#5a6d74" },
+		"hidden":        { "light": "#5a6d74", "dark": "#8aa1a6" }
+	},
+
+	// -----------------------------------------------------------------
+	// Follow Stream conversation colors
+	//
+	// Stratoshark cares less about client/server in the network sense
+	// (it's a syscall/log analyzer), but Follow Stream still applies
+	// to any network capture loaded in it.  Keep the conventional warm
+	// client / cool server split, both shifted toward the teal palette
+	// so they sit harmoniously in the rest of the UI.
+	// -----------------------------------------------------------------
+	"conversation": {
+		"client":     { "light": "#fdebd7", "dark": "#3a2010" },
+		"clientText": { "light": "#8a3b0e", "dark": "#ffc080" },
+		"server":     { "light": "#dbeff1", "dark": "#0a2a32" },
+		"serverText": { "light": "#0a4a55", "dark": "#7fd9e3" }
+	},
+
+	// -----------------------------------------------------------------
+	// QPalette overrides
+	//
+	// Light mode:  near-white background with the faintest teal tint,
+	//              slightly cooler alternate-row tint for table striping.
+	// Dark mode:   deep teal-tinged blacks so cards/panes don't feel like
+	//              they're floating on a generic dark-gray surface.
+	//
+	// IMPORTANT — palette.mid maps to the design spec's
+	// --color-text-muted, not --color-border.  Reason: Qt derives the
+	// welcome-page section header text colour (SectionHeader) directly
+	// from QPalette::Mid in theme_token_handler.cpp.  The web spec's
+	// border tokens (~#d6e3e6 light) hit a ~1.1:1 contrast ratio
+	// against base — section headers ("Open", "Capture", "Learn")
+	// disappear entirely.  Using --color-text-muted instead gives
+	// ~5.8:1 (light) / ~7.8:1 (dark), well past WCAG AA, while keeping
+	// the teal-tinted character.  --color-border goes to midlight,
+	// which is what hairline-style separators actually want.
+	// -----------------------------------------------------------------
+	"palette": {
+		"window":          { "light": "#eef6f7", "dark": "#0e1d22" },
+		"windowText":      { "light": "#1a2a30", "dark": "#d9e7ea" },
+		"base":            { "light": "#fbfcfd", "dark": "#0a1418" },
+		"text":            { "light": "#1a2a30", "dark": "#d9e7ea" },
+		"alternateBase":   { "light": "#e7f1f3", "dark": "#102228" },
+		"mid":             { "light": "#5a6d74", "dark": "#8aa1a6" },
+		"midlight":        { "light": "#d6e3e6", "dark": "#1f3338" },
+		// brand.primary #0e9aa7 sits just *above* the WCAG luminance
+		// threshold (L≈0.26), so the auto-derived HighlightedText flips
+		// to black — but white reads better against this teal in
+		// practice (contrast ~3.4:1 vs. black ~6.2:1, both AA-large;
+		// white feels right for a saturated brand colour).  Pin it.
+		"highlightedText": { "light": "#ffffff", "dark": "#ffffff" }
+	},
+
+	// -----------------------------------------------------------------
+	// Graph colors
+	//
+	// 14-slot rotating palette for I/O graphs, sequence diagrams, TCP
+	// stream plots, RTP scatter, IAX2 analysis.  Slots 1–7 saturated,
+	// 8–14 pastel.  Stratoshark's primary teal leads the cycle so the
+	// first graph series visually anchors to the app's identity.
+	//
+	// Light mode favors darker shades that hold contrast against
+	// near-white panes; dark mode flips to lighter shades for dark
+	// backgrounds, mirroring the default theme's pattern.
+	// -----------------------------------------------------------------
+	"graphs": [
+		{ "light": "#0e9aa7", "dark": "#2bc1cf" },
+		{ "light": "#1565c0", "dark": "#64b5f6" },
+		{ "light": "#7b1fa2", "dark": "#ba68c8" },
+		{ "light": "#388e3c", "dark": "#81c784" },
+		{ "light": "#d32f2f", "dark": "#e57373" },
+		{ "light": "#e8732e", "dark": "#ffb74d" },
+		{ "light": "#00838f", "dark": "#4dd0e1" },
+		{ "light": "#80cbc4", "dark": "#00695c" },
+		{ "light": "#90caf9", "dark": "#1565c0" },
+		{ "light": "#b39ddb", "dark": "#7b1fa2" },
+		{ "light": "#a5d6a7", "dark": "#388e3c" },
+		{ "light": "#ef9a9a", "dark": "#d32f2f" },
+		{ "light": "#ffcc80", "dark": "#e8732e" },
+		{ "light": "#cfd8dc", "dark": "#546e7a" }
+	]
+}

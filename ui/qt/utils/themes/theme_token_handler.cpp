@@ -174,10 +174,36 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     assign(tokens, ThemeManager::SectionHeaderHover, brandPrimary);
 
     // Text on dark surfaces (derived from brand)
+    //
+    // TextOnDarkMuted is the foreground for "secondary" labels sitting on
+    // the brand gradient (e.g. the version string under the title).  It
+    // is intentionally less prominent than TextOnDark, but it must stay
+    // readable across the whole gradient — including over portions that
+    // get close to brand.primary.  ColorMath::disabled() blends 40% of
+    // the bg into white, which collapses contrast for themes whose
+    // brand.deep approaches pure black (mid-gray text on bright primary
+    // ⇒ ~1.5:1).  Using a 0.25 mix instead keeps the muted text closer
+    // to white (~75% mix) so it survives the brighter half of the
+    // gradient without becoming as bold as the title.
     assign(tokens, ThemeManager::TextOnDark, ColorMath::contrastingText(brandDeep));
     assign(tokens, ThemeManager::TextOnDarkMuted,
-           ColorMath::disabled(ColorMath::contrastingText(brandDeep.light), brandDeep.light),
-           ColorMath::disabled(ColorMath::contrastingText(brandDeep.dark),  brandDeep.dark));
+           ColorMath::mix(ColorMath::contrastingText(brandDeep.light), brandDeep.light, 0.25),
+           ColorMath::mix(ColorMath::contrastingText(brandDeep.dark),  brandDeep.dark,  0.25));
+
+    // Foregrounds for solid accent surfaces — auto-pick black or white
+    // per contrastingText().  These give QSS rules a single token to
+    // paint text on accent backgrounds without each theme having to
+    // hand-tune the contrast (or rely on a fixed `wstheme(TextOnDark)`
+    // that may not fit a bright accent — see #headerBuildLabel and
+    // #updateDownload in welcome-header.qss).
+    assign(tokens, ThemeManager::TextOnSuccess,
+           ColorMath::contrastingText(successPair));
+    assign(tokens, ThemeManager::TextOnWarning,
+           ColorMath::contrastingText(tokens.value(ThemeManager::AccentWarning)));
+    assign(tokens, ThemeManager::TextOnError,
+           ColorMath::contrastingText(tokens.value(ThemeManager::AccentError)));
+    assign(tokens, ThemeManager::TextOnInfo,
+           ColorMath::contrastingText(tokens.value(ThemeManager::AccentInfo)));
 
     // Update bar — all from accent.success
     assign(tokens, ThemeManager::UpdateGradientStart,    ColorMath::darken(successPair, 65));

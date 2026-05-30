@@ -59,10 +59,11 @@ FontColorPreferencesFrame::FontColorPreferencesFrame(QWidget *parent) :
     // Persists its selection in recent_common.gui_theme_name via the
     // frame's stash/unstash flow, so the choice survives profile switches.
     themeComboBox_ = new QComboBox();
-    const QString currentTheme = QString::fromUtf8(recent.gui_theme_name);
-    stashed_theme_name_ = currentTheme.isEmpty()
-        ? QStringLiteral("default")
-        : currentTheme;
+    // Resolve empty/legacy "default" to the flavor's preferred default so
+    // the dropdown shows a real, currently-shipped theme selected on
+    // first run instead of an entry that no longer exists.
+    stashed_theme_name_ = ThemeManager::resolveThemeName(
+            QString::fromUtf8(recent.gui_theme_name));
     const QList<ThemeInfo> themes = ThemeManager::availableThemes();
     int selectedIdx = -1;
     for (int i = 0; i < themes.size(); ++i) {

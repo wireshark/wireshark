@@ -10,9 +10,13 @@ singleton at application startup.
 resources/themes/
     README.md               ← this file
     theme.schema.json       ← JSON Schema for theme.jsonc validation
-    default/                ← built-in theme, always present
+    wireshark/              ← built-in Wireshark theme (Tango-based)
         theme.jsonc         ← color definitions (required)
         images/             ← theme-specific images (optional, future)
+    stratoshark/            ← built-in Stratoshark theme (Cloud teal)
+        theme.jsonc
+    inverted/               ← diagnostic high-contrast theme
+        theme.jsonc
     my-custom-theme/
         theme.jsonc
         images/
@@ -64,6 +68,30 @@ Personal themes use exactly the same JSONC schema described below; the
 only difference is the on-disk layout (single file vs. per-theme
 directory).  Sidecar assets such as theme-local images are not supported
 in the personal directory.
+
+## Default theme per application flavor
+
+The same Qt code drives both Wireshark and Stratoshark.  Which theme is
+loaded out-of-the-box is decided at runtime by
+`ThemeManager::defaultThemeName()`:
+
+| Flavor                           | Default theme directory |
+|----------------------------------|-------------------------|
+| Stratoshark                      | `stratoshark/`          |
+| Wireshark (and any other flavor) | `wireshark/`            |
+
+The check is phrased as "wireshark unless stratoshark", so any future
+flavor that doesn't ship its own theme directory inherits the
+Wireshark theme automatically.  When the user's selected theme is
+missing or fails to parse, `loadTheme()` retries with the flavor
+default — so on a working build the application always ends up with a
+usable color scheme.  See `ui/qt/utils/theme_manager.{h,cpp}` for the
+exact resolution order.
+
+Older builds wrote the literal `"default"` into `recent_common` as the
+saved theme name; `ThemeManager::resolveThemeName()` silently migrates
+that sentinel to the current flavor's default so existing user state
+is preserved across the upgrade.
 
 ## File format: JSONC
 
@@ -264,9 +292,12 @@ from GTK+ `graph_analysis.c`.  Currently identical in light and dark.
 
 ## Creating a custom theme
 
-1. Copy the `default/` directory to a new directory name:
+1. Copy one of the built-in themes to a new directory name (the
+   Wireshark theme is the most complete starting point; copy
+   `stratoshark/` instead if your custom theme should keep the
+   Stratoshark surface tinting):
    ```
-   cp -r resources/themes/default resources/themes/my-theme
+   cp -r resources/themes/wireshark resources/themes/my-theme
    ```
 
 2. Edit `my-theme/theme.jsonc`:

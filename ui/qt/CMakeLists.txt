@@ -874,7 +874,8 @@ qrc_finalize(NAME json_resource OUTPUT_VAR JSON_QRC)
 
 # Theme resources
 qrc_register(NAME themes PREFIX "/themes")
-add_theme(NAME "default")
+add_theme(NAME "wireshark")
+add_theme(NAME "stratoshark")
 add_theme(NAME "inverted")
 qrc_finalize(NAME themes OUTPUT_VAR THEMES_QRC)
 

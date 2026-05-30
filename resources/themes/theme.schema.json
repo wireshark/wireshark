@@ -104,18 +104,19 @@
         },
 
         "palette": {
-            "description": "Optional QPalette role overrides. Selective merge: only specified roles replace the system default. `Highlight`, `HighlightedText`, `Link`, and (Qt 6.6+) `Accent` are always overridden from brand.primary regardless of this section.",
+            "description": "Optional QPalette role overrides. Selective merge: only specified roles replace the system default. `Highlight`, `Link`, and (Qt 6.6+) `Accent` are always overridden from brand.primary regardless of this section. `HighlightedText` is auto-derived via contrastingText(brand.primary) but can be pinned here for themes whose brand colour sits on the WCAG luminance threshold.",
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "window":        { "$ref": "#/$defs/colorPair" },
-                "windowText":    { "$ref": "#/$defs/colorPair" },
-                "base":          { "$ref": "#/$defs/colorPair" },
-                "text":          { "$ref": "#/$defs/colorPair" },
-                "alternateBase": { "$ref": "#/$defs/colorPair" },
-                "mid":           { "$ref": "#/$defs/colorPair" },
-                "midlight":      { "$ref": "#/$defs/colorPair" },
-                "accent":        { "$ref": "#/$defs/colorPair" }
+                "window":          { "$ref": "#/$defs/colorPair" },
+                "windowText":      { "$ref": "#/$defs/colorPair" },
+                "base":            { "$ref": "#/$defs/colorPair" },
+                "text":            { "$ref": "#/$defs/colorPair" },
+                "alternateBase":   { "$ref": "#/$defs/colorPair" },
+                "mid":             { "$ref": "#/$defs/colorPair" },
+                "midlight":        { "$ref": "#/$defs/colorPair" },
+                "highlightedText": { "$ref": "#/$defs/colorPair" },
+                "accent":          { "$ref": "#/$defs/colorPair" }
             }
         },
 

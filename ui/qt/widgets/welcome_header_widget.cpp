@@ -42,10 +42,6 @@ WelcomeHeaderWidget::WelcomeHeaderWidget(QWidget *parent) :
     connect(ThemeManager::instance(), &ThemeManager::themeChanged,
             this, &WelcomeHeaderWidget::updateStyleSheet);
 
-    // TODO REMOVE BEFORE COMITTING!!!
-    new_version_ = "5.0.0";
-    release_notes_ = "https://www.wireshark.org/docs/relnotes/";
-
     // Setting the application name in the header
     header_ui_->headerTitle->setText(mainApp->applicationName());
 

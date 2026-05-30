@@ -484,11 +484,11 @@ MainApplication::MainApplication(int &argc,  char **argv) :
     // object, so we can read any configured themes as well.
     // Theme selection is persisted in recent_common (recent.gui_theme_name),
     // not in the preferences file — so it survives profile switches and
-    // stays global to the install.  Empty / missing value means "default".
-    QString initialTheme = QString::fromUtf8(recent.gui_theme_name);
-    if (initialTheme.isEmpty())
-        initialTheme = QStringLiteral("default");
-    ThemeManager::init(initialTheme);
+    // stays global to the install.  Empty / missing value, or the legacy
+    // "default" sentinel, get resolved by ThemeManager itself to the
+    // current flavor's preferred default (wireshark / stratoshark).
+    ThemeManager::init(ThemeManager::resolveThemeName(
+            QString::fromUtf8(recent.gui_theme_name)));
 
     // Re-derive the zoomed fonts whenever the ThemeManager's fonts change.
     // Theme switches AND font-pref changes both funnel through

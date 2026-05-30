@@ -219,12 +219,25 @@ QPalette ThemePaletteBuilder::build(const TokenMap                              
     // Brand-driven overlay: Highlight, HighlightedText, Link (and
     // Accent on Qt 6.6+).  Themes get these for free from brand.primary;
     // no need to declare them in the palette section.
+    //
+    // HighlightedText is the one role here a theme can pre-empt: when
+    // `palette.highlightedText` is declared, the loops above already
+    // applied it, and the contrastingText() auto-derivation below
+    // would otherwise overwrite that choice.  Some saturated
+    // mid-tone brand colours sit on the WCAG luminance threshold where
+    // contrastingText flips to black even though white reads better
+    // (#0e9aa7 teal is one such case); themes can pin white here.
     const QColor brandPrimary = sideOf(tokens, ThemeManager::BrandPrimary, isDarkMode);
     if (brandPrimary.isValid()) {
-        pal.setColor(QPalette::HighlightedText,
-                     ColorMath::contrastingText(brandPrimary));
+        const QColor explicitHighlightedText =
+                sideOf(tokens, ThemeManager::PaletteHighlightedText, isDarkMode);
+        const QColor effectiveHighlightedText = explicitHighlightedText.isValid()
+                ? explicitHighlightedText
+                : ColorMath::contrastingText(brandPrimary);
+        if (!explicitHighlightedText.isValid())
+            pal.setColor(QPalette::HighlightedText, effectiveHighlightedText);
         pal.setColor(QPalette::Disabled, QPalette::HighlightedText,
-                     ColorMath::disabled(ColorMath::contrastingText(brandPrimary), baseColor));
+                     ColorMath::disabled(effectiveHighlightedText, baseColor));
 
         QList<QPalette::ColorRole> brandRoles = { QPalette::Highlight, QPalette::Link };
 #if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)

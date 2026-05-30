@@ -1008,7 +1008,8 @@ write_recent(void)
 
     fprintf(rf, "\n# Active theme (directory name under resources/themes).\n");
     fprintf(rf, RECENT_KEY_THEME_NAME ": %s\n",
-            recent.gui_theme_name ? recent.gui_theme_name : "default");
+            recent.gui_theme_name ? recent.gui_theme_name
+                                  : application_flavor_name_lower());
 
     write_recent_boolean(rf, "Welcome page sidebar Tips slides test",
             RECENT_KEY_SIDEBAR_TIPS_SLIDES_TEST,

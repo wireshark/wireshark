@@ -23,6 +23,8 @@
 
 #include <epan/prefs.h>
 
+#include <app/application_flavor.h>
+
 #include <ui/recent.h>
 
 #include <QApplication>
@@ -177,11 +179,11 @@ ThemeManager::ThemeManager(QObject *parent)
         // font-pref changes refresh (loadTheme re-parses the JSONC so it
         // re-evaluates the fonts section against the updated prefs).  If
         // the preferred theme is missing or fails to parse, loadTheme
-        // itself falls back to the bundled default theme.
-        QString activeTheme = QString::fromUtf8(recent.gui_theme_name);
-        if (activeTheme.isEmpty())
-            activeTheme = QStringLiteral("default");
-        loadTheme(activeTheme);
+        // itself falls back to the flavor default then the ultimate
+        // wireshark fallback.  resolveThemeName() also maps the legacy
+        // "default" sentinel (written by builds that pre-date the
+        // wireshark/stratoshark split) to the right flavor default.
+        loadTheme(resolveThemeName(QString::fromUtf8(recent.gui_theme_name)));
     });
 
     // Pick up the initial mode from prefs.  prefs_read() has already run
@@ -213,6 +215,34 @@ ThemeManager* ThemeManager::instance()
         instance_ = new ThemeManager();
     }
     return instance_;
+}
+
+QString ThemeManager::defaultThemeName()
+{
+    // Wireshark is the universal default; only Stratoshark overrides
+    // it.  Phrased as "wireshark unless stratoshark" so any future
+    // flavor that doesn't ship its own theme directory still inherits
+    // a working, fully-tested default — no separate "ultimate
+    // fallback" knob needed.
+    //
+    // Keep the literal names in sync with the directories added by
+    // add_theme(...) in ui/qt/CMakeLists.txt and the layout under
+    // resources/themes/.
+    if (!application_flavor_is_wireshark())
+        return QStringLiteral("stratoshark");
+    return QStringLiteral("wireshark");
+}
+
+QString ThemeManager::resolveThemeName(const QString &name)
+{
+    // Empty -> the flavor's default theme.
+    // "default" -> legacy sentinel from pre-split builds (the single
+    //              bundled theme used to live at resources/themes/default/).
+    //              Re-map silently so existing recent_common files
+    //              don't lose their selection across the upgrade.
+    if (name.isEmpty() || name == QStringLiteral("default"))
+        return defaultThemeName();
+    return name;
 }
 
 void ThemeManager::init(const QString &theme)
@@ -615,14 +645,21 @@ bool ThemeManager::validateThemeFile(const QString &filePath) const
 // --------------------------------------------------------------------
 bool ThemeManager::loadTheme(const QString &theme)
 {
-    // Try the requested theme; on failure retry once with the bundled
-    // default so the application always ends up with a usable color
-    // scheme — important at startup, where nothing is loaded yet.  If
-    // "default" itself is broken (a corrupt build) we give up and
-    // leave existing state, if any, intact.
-    static const QString defaultTheme = QStringLiteral("default");
-    QString loadedTheme = theme;
+    // Build the ordered list of candidate themes:
+    //   1. The caller's request (after legacy-name + empty resolution).
+    //   2. The flavor's preferred default — wireshark for everything
+    //      except Stratoshark, which makes it the natural ultimate
+    //      fallback for the common case without a separate knob.
+    // Duplicates are dropped so we don't re-attempt the same theme on
+    // a hard parse failure.
+    QStringList candidates;
+    candidates << resolveThemeName(theme);
+    const QString flavorDefault = defaultThemeName();
+    if (!candidates.contains(flavorDefault))
+        candidates << flavorDefault;
+
     ThemeParser::Result result;
+    bool parsed = false;
 
     auto tryParse = [&](const QString &name) {
         // resolveThemePath() returns the bundled :/themes/<name>/theme.jsonc
@@ -635,16 +672,19 @@ bool ThemeManager::loadTheme(const QString &theme)
         return parser.parse(name, resourcePath, result);
     };
 
-    if (!tryParse(loadedTheme)) {
-        // The parser already emitted a specific qWarning for the cause.
-        qWarning("ThemeManager: failed to load theme \"%s\"", qUtf8Printable(loadedTheme));
-        if (loadedTheme == defaultTheme)
-            return false;
-        loadedTheme = defaultTheme;
-        if (!tryParse(loadedTheme)) {
-            qWarning("ThemeManager: failed to load theme \"%s\"", qUtf8Printable(loadedTheme));
-            return false;
+    for (const QString &name : candidates) {
+        if (tryParse(name)) {
+            parsed = true;
+            break;
         }
+        // The parser already emitted a specific qWarning for the cause.
+        qWarning("ThemeManager: failed to load theme \"%s\"", qUtf8Printable(name));
+    }
+
+    if (!parsed) {
+        qWarning("ThemeManager: no usable theme found (tried %s); leaving existing state intact",
+                 qUtf8Printable(candidates.join(QStringLiteral(", "))));
+        return false;
     }
 
     // Adopt the parsed data.  The parser emits per-field warnings for

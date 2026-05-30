@@ -787,7 +787,8 @@ qrc_finalize(NAME json_resource TARGET stratoshark OUTPUT_VAR STRATOSHARK_JSON_Q
 
 # Theme resources
 qrc_register(NAME themes TARGET stratoshark PREFIX "/themes")
-add_theme(NAME "default" TARGET stratoshark )
+add_theme(NAME "wireshark" TARGET stratoshark )
+add_theme(NAME "stratoshark" TARGET stratoshark )
 add_theme(NAME "inverted" TARGET stratoshark )
 qrc_finalize(NAME themes TARGET stratoshark OUTPUT_VAR STRATOSHARK_THEMES_QRC)
 

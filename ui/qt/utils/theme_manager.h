@@ -153,6 +153,12 @@ public:
         PaletteAlternateBase,
         PaletteMid,
         PaletteMidLight,
+        // Selection foreground — when omitted, builder picks via
+        // contrastingText(brand.primary).  Themes whose brand colour
+        // sits on the WCAG luminance threshold (e.g. saturated mid-tone
+        // teals/blues where contrastingText flips to black even though
+        // white reads better) can pin this explicitly to white.
+        PaletteHighlightedText,
 #if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
         PaletteAccent,
 #endif
@@ -190,6 +196,26 @@ public:
         HighlightColorOrange,
         HighlightColorGreen,
 
+        // Foreground colors for solid accent backgrounds — derived via
+        // contrastingText() so they pick black or white depending on
+        // the accent's WCAG luminance.  Use these when a QSS rule
+        // paints text on top of an accent-coloured surface (the
+        // "Development Build" badge, the "Download Update" button,
+        // etc.) so the text stays readable across themes whose
+        // accents fall on different sides of the contrast threshold.
+        //
+        // NOTE: these are intentionally named `TextOn*` rather than
+        // `Accent*Text`.  ThemeManager's section auto-grouping treats
+        // any enum name starting with "accent" as a required input in
+        // the "accent" JSONC section (theme_manager.cpp section loop),
+        // so `Accent*Text` derived tokens would make the parser demand
+        // them from every theme file.  Following the existing
+        // `TextOnDark` precedent keeps them ungrouped.
+        TextOnSuccess,
+        TextOnWarning,
+        TextOnError,
+        TextOnInfo,
+
         // None
         NoRole
     };
@@ -198,11 +224,44 @@ public:
     static ThemeManager* instance();
 
     /**
+     * Internal name of the theme that ships as the out-of-the-box
+     * default for the current application flavor.  Returns
+     * `"stratoshark"` for Stratoshark builds and `"wireshark"` for
+     * everything else (Wireshark, future flavors without their own
+     * theme directory).
+     *
+     * Phrased as "wireshark unless stratoshark" so a custom build that
+     * strips one flavor's theme but keeps the other still has a
+     * working default — no separate ultimate-fallback knob needed.
+     * The flavor lookup goes through `application_flavor_is_wireshark()`
+     * (app/application_flavor.h) so the same shared Qt code picks the
+     * right default automatically without per-app `#ifdef` branches.
+     *
+     * Use this anywhere you used to write the literal `"default"` —
+     * `init()`, the recent_common fallback, the preferences picker's
+     * "currently selected" comparison, etc.
+     */
+    static QString defaultThemeName();
+
+    /**
+     * Normalises a saved-theme-name to a current resource name.
+     *
+     * Recognises the legacy sentinel `"default"` (written by older
+     * builds that knew only one theme directory) and empty strings as
+     * "use whatever this flavor considers default" — both get mapped
+     * to `defaultThemeName()`.  Any other input is returned unchanged
+     * and assumed to be a real theme directory name; the caller is
+     * responsible for handling the case where that directory has been
+     * removed from the build.
+     */
+    static QString resolveThemeName(const QString &name);
+
+    /**
      * Initializes the ThemeManager by loading the default theme from
      * the built-in resources.  Call once during application startup
      * after QApplication is constructed.
      */
-    static void init(const QString &theme = QStringLiteral("default"));
+    static void init(const QString &theme = QString());
 
     void cleanup();
 
@@ -487,10 +546,15 @@ private:
      * populates the light/dark color maps, applies the palette, and
      * derives tokens.
      *
-     * @param themeName  The name of the theme to load, defaults to "default".
+     * If `themeName` is empty, the flavor's default theme is loaded.
+     * If parsing fails the loader retries with the flavor's default,
+     * so on a working build the application always ends up with a
+     * usable color scheme.
+     *
+     * @param themeName  The name of the theme to load.
      * @return true if the theme was loaded successfully.
      */
-    bool loadTheme(const QString &themeName = QStringLiteral("default"));
+    bool loadTheme(const QString &themeName = QString());
 
 };
 

@@ -30,7 +30,7 @@
 	// =================================================================
 
 	"meta": {
-		"name": "Wireshark Default",
+		"name": "Wireshark",
 		"version": 1,
 		"author": "Wireshark Foundation",
 		"description": "The built-in Wireshark theme, based on the Tango palette."
