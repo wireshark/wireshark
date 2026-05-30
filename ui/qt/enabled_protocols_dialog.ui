@@ -37,6 +37,9 @@
       </widget>
      </item>
      <item>
+      <widget class="QComboBox" name="cmbEnabled"/>
+     </item>
+     <item>
       <widget class="QComboBox" name="cmbProtocolType"/>
      </item>
     </layout>

@@ -252,13 +252,14 @@ public:
      */
     enum SearchType
     {
-        EveryWhere,       /**< Search all text fields. */
-        OnlyProtocol,     /**< Search only protocol names. */
-        OnlyDescription,  /**< Search only protocol descriptions. */
-        EnabledItems,     /**< Show only enabled items. */
-        DisabledItems     /**< Show only disabled items. */
+        EveryWhere = 0x0,       /**< Search all text fields. */
+        OnlyProtocol = 0x1,     /**< Search only protocol names. */
+        OnlyDescription = 0x2,  /**< Search only protocol descriptions. */
+        EnabledItems = 0x4,     /**< Show only enabled items. */
+        DisabledItems = 0x8,    /**< Show only disabled items. */
     };
     Q_ENUM(SearchType)
+    Q_DECLARE_FLAGS(SearchTypes, SearchType)
 
     /**
      * @brief Defines the action type when batch enabling/disabling items.
@@ -297,7 +298,7 @@ public:
      * @param type The search scope for the text.
      * @param protocolType The specific protocol type (e.g., Any, Standard) to filter by.
      */
-    void setFilter(const QString& filter, EnabledProtocolsProxyModel::SearchType type,
+    void setFilter(const QString& filter, EnabledProtocolsProxyModel::SearchTypes type,
         EnabledProtocolItem::EnableProtocolType protocolType);
 
     /**
@@ -318,7 +319,7 @@ protected:
 
 private:
     /** The active search filtering scope. */
-    EnabledProtocolsProxyModel::SearchType type_;
+    EnabledProtocolsProxyModel::SearchTypes type_;
 
     /** The active protocol type filter. */
     EnabledProtocolItem::EnableProtocolType protocolType_;
@@ -342,5 +343,7 @@ private:
      */
     bool filterAcceptsChild(int sourceRow, const QModelIndex &sourceParent) const;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(EnabledProtocolsProxyModel::SearchTypes)
 
 #endif // ENABLED_PROTOCOLS_MODEL_H

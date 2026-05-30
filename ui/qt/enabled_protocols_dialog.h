@@ -64,6 +64,11 @@ private slots:
     void on_cmbSearchType_currentIndexChanged(int);
 
     /**
+     * @brief Slot triggered when the selected item in the protocol enabled combo box changes.
+     */
+    void on_cmbEnabled_currentIndexChanged(int);
+
+    /**
      * @brief Slot triggered when the selected item in the protocol type combo box changes.
      */
     void on_cmbProtocolType_currentIndexChanged(int);
