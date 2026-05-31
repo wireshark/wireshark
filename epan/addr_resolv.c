@@ -1221,10 +1221,21 @@ fill_dummy_ip4(const unsigned addr, hashipv4_t* volatile tp)
             }
         }
 
-        /* There are more efficient ways to do this, but this is safe if we
-         * trust snprintf and MAXDNSNAMELEN
+        /* XXX - the subnet entry name could be up to MAXDNSNAMELEN, and
+         * buffer is WS_INET_ADDRSTRLEN chars, so the total length of
+         * this string could be up to MAXDNSNAMELEN+WS_INET_ADDRSTRLEN,
+         * which won't fit in the name field of a hashipv4_t, which is only
+         * MAXDNSNAMELEN chars.
+         *
+         * For now, we do it this way, to suppress compiler warnings.
+         * g_strlcpy() returns the length of the string being copied, which
+         * should be < MAXDNSNAMELEN as it does not include the trailing NUL,
+         * but let's be cautious.
          */
-        snprintf(tp->name, MAXDNSNAMELEN, "%s%s", subnet_entry.name, paddr);
+        size_t subnet_entry_name_len;
+        subnet_entry_name_len = g_strlcpy(tp->name, subnet_entry.name, MAXDNSNAMELEN);
+        if (subnet_entry_name_len < MAXDNSNAMELEN)
+                g_strlcpy(tp->name + subnet_entry_name_len, paddr, MAXDNSNAMELEN - subnet_entry_name_len);
 
         /* Evaluate the subnet in CIDR notation
          * Reuse buffers built above
