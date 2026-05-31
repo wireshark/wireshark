@@ -201,7 +201,7 @@ static struct INTERFACE* AddInterface(PEVENT_RECORD ev, unsigned long LowerIfInd
     char IfDesc[IF_STRING_MAX_SIZE];
     size_t IfDescLength = 0;
     //etw pcagng interface will be 0 always, network pcagng interface will start with 1
-    static PcapNgIfIndex = 1;
+    static int PcapNgIfIndex = 1;
 
     if (NewIface == NULL) {
         g_err = ERROR_OUTOFMEMORY;
