@@ -159,7 +159,7 @@ typedef struct {
 
 typedef struct _h245_labels {
     uint32_t  frame_num;
-    int8_t    labels_count;
+    uint8_t   labels_count;
     graph_str labels[H245_MAX];
 } h245_labels_t;
 
@@ -2281,11 +2281,9 @@ remove_tap_listener_h225_calls(voip_calls_tapinfo_t *tap_id_base)
 void
 h245_add_to_graph(voip_calls_tapinfo_t *tapinfo, uint32_t new_frame_num)
 {
-    int8_t n;
-
     if (new_frame_num != tapinfo->h245_labels->frame_num) return;
 
-    for (n=0; n<tapinfo->h245_labels->labels_count; n++) {
+    for (uint8_t n=0; n<tapinfo->h245_labels->labels_count; n++) {
         append_to_frame_graph(tapinfo, new_frame_num, tapinfo->h245_labels->labels[n].frame_label, tapinfo->h245_labels->labels[n].comment);
         g_free(tapinfo->h245_labels->labels[n].frame_label);
         tapinfo->h245_labels->labels[n].frame_label = NULL;
@@ -2300,11 +2298,9 @@ h245_add_to_graph(voip_calls_tapinfo_t *tapinfo, uint32_t new_frame_num)
 static void
 h245_free_labels(voip_calls_tapinfo_t *tapinfo, uint32_t new_frame_num)
 {
-    int8_t n;
-
     if (new_frame_num == tapinfo->h245_labels->frame_num) return;
 
-    for (n=0; n<tapinfo->h245_labels->labels_count; n++) {
+    for (uint8_t n=0; n<tapinfo->h245_labels->labels_count; n++) {
         g_free(tapinfo->h245_labels->labels[n].frame_label);
         tapinfo->h245_labels->labels[n].frame_label = NULL;
         g_free(tapinfo->h245_labels->labels[n].comment);
