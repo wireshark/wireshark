@@ -3082,7 +3082,7 @@ static int dissect_cvg_arq_fb_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_item *uc_item;
 
 	/* No ie_length is one ARQ Feedback IE format 1 */
-	int length = (ctx && ctx->ie_length_present ? ctx->ie_length : 2);
+	int length = ((ctx && ctx->ie_length_present) ? ctx->ie_length : 2);
 
 	while (offset < length) {
 		proto_tree_add_item(tree, hf_dect_nr_cvg_arq_fb_a_n, tvb, offset, 1, ENC_BIG_ENDIAN);
