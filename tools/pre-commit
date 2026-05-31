@@ -114,7 +114,7 @@ for FILE in $CHECK_FILES; do
 
 done
 
-if [ "x$DIAMETER_FILES" != x ]
+if [ "$DIAMETER_FILES" != "" ]
 then
     ./tools/validate-diameter-xml.sh > /dev/null || exit_status=1
 fi
