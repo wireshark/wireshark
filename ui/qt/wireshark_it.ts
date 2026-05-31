@@ -847,8 +847,23 @@ Off = solo logpoint (corrisponde alla convenzione storica secondo cui &quot;i lo
         <translation>Elenca le sorgenti di cattura disponibili. Selezionane una o più da cui catturare.</translation>
     </message>
     <message>
+        <source>%1 / %2 interfaces</source>
+        <translation>%1 / %2 interfacce</translation>
+    </message>
+    <message>
+        <source>%1 / %2</source>
+        <translation>%1 / %2</translation>
+    </message>
+    <message>
         <source>All interfaces shown</source>
         <translation>Tutte le interfacce mostrate</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n interface(s)</source>
+        <translation>
+            <numerusform>%n interfaccia</numerusform>
+            <numerusform>%n interfacce</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>%n interface(s) shown, %1 hidden</source>
@@ -3099,16 +3114,32 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
         <translation>Solo descrizione</translation>
     </message>
     <message>
+        <source>all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>enabled</source>
+        <translation type="unfinished">abilitato</translation>
+    </message>
+    <message>
+        <source>disabled</source>
+        <translation type="unfinished">disabilitato</translation>
+    </message>
+    <message>
+        <source>protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Only enabled protocols</source>
-        <translation>Solo i protocolli abilitati</translation>
+        <translation type="vanished">Solo i protocolli abilitati</translation>
     </message>
     <message>
         <source>Only disabled protocols</source>
-        <translation>Solo i protocolli disabilitati</translation>
+        <translation type="vanished">Solo i protocolli disabilitati</translation>
     </message>
     <message>
         <source>any protocol</source>
-        <translation>qualsiasi protocollo</translation>
+        <translation type="vanished">qualsiasi protocollo</translation>
     </message>
     <message>
         <source>non-heuristic protocols</source>
@@ -3490,11 +3521,11 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>Unique</source>
-        <translation type="unfinished"></translation>
+        <translation>Univoco</translation>
     </message>
     <message>
         <source>Only display the first of identical entries</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizza solo la prima delle voci identiche</translation>
     </message>
     <message>
         <source>Searching for objects</source>
@@ -3510,11 +3541,11 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>Save All</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva tutto</translation>
     </message>
     <message>
         <source>Save Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva visualizzati</translation>
     </message>
     <message>
         <source>Preview</source>
@@ -3538,7 +3569,7 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>Save Objects In…</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva oggetti in...</translation>
     </message>
     <message>
         <source>Save All Objects In…</source>
@@ -4054,6 +4085,14 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
         <translation>Percorso Extcap globale</translation>
     </message>
     <message>
+        <source>Personal Themes</source>
+        <translation>Temi personali</translation>
+    </message>
+    <message>
+        <source>User-installed theme files (*.jsonc)</source>
+        <translation>File dei temi installati dall&apos;utente (*. jsonc)</translation>
+    </message>
+    <message>
         <source>MaxMind DB path</source>
         <translation>Percorso MaxMind DB</translation>
     </message>
@@ -4316,61 +4355,8 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
         <translation>Seleziona carattere</translation>
     </message>
     <message>
-        <source>Colors:</source>
-        <translation>Colori:</translation>
-    </message>
-    <message>
-        <source>System Default</source>
-        <translation>Predefinito di sistema</translation>
-    </message>
-    <message>
-        <source>Solid</source>
-        <translation>Solido</translation>
-    </message>
-    <message>
-        <source>Sample ignored packet text</source>
-        <translation>Esempio di testo per pacchetto ignorato</translation>
-    </message>
-    <message>
-        <source>Sample marked packet text</source>
-        <translation>Esempio di testo per pacchetto marcato</translation>
-    </message>
-    <message>
-        <source>Sample active selected item</source>
-        <translation>Esempio di elemento attivo selezionato</translation>
-    </message>
-    <message>
-        <source>Style:</source>
-        <translation>Stile</translation>
-    </message>
-    <message>
-        <source>Gradient</source>
-        <translation>Sfumatura</translation>
-    </message>
-    <message>
-        <source>Sample inactive selected item</source>
-        <translation>Esempio di elemento attivo selezionato</translation>
-    </message>
-    <message>
-        <source>Sample &quot;Follow Stream&quot; client text</source>
-        <translation>Esempio di testo per &quot;Segui flusso&quot;, lato client</translation>
-    </message>
-    <message>
-        <source>Sample &quot;Follow Stream&quot; server text</source>
-        <translation>Esempio di testo per &quot;Segui flusso&quot;, lato server</translation>
-    </message>
-    <message>
-        <source>Sample valid filter</source>
-        <translation>Esempio di filtro valido</translation>
-    </message>
-    <message>
-        <source>Sample invalid filter</source>
-        <translation>Esempio di filtro non valido</translation>
-    </message>
-    <message>
-        <source>Sample warning filter</source>
-        <oldsource>Sample deprecated filter</oldsource>
-        <translation>Esempio di filtro di avviso</translation>
+        <source>Theme</source>
+        <translation>Tema</translation>
     </message>
     <message>
         <source>Example GIF query packets have jumbo window sizes</source>
@@ -4382,16 +4368,28 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
         <translation>Quel vituperabile xenofobo zelante sposta pacchetti mentre assaggia il whisky ed esclama: alleluja!</translation>
     </message>
     <message>
-        <source>Color Scheme:</source>
-        <translation>Schema di colori:</translation>
+        <source>System</source>
+        <translation>Sistema</translation>
     </message>
     <message>
-        <source>Light Mode</source>
-        <translation>Modalità chiara</translation>
+        <source>Light</source>
+        <translation>Chiaro</translation>
     </message>
     <message>
-        <source>Dark Mode</source>
-        <translation>Modalità scura</translation>
+        <source>Dark</source>
+        <translation>Scuro</translation>
+    </message>
+    <message>
+        <source>Appearance mode:</source>
+        <translation>Modalità dell&apos;aspetto:</translation>
+    </message>
+    <message>
+        <source>Theme:</source>
+        <translation>Tema:</translation>
+    </message>
+    <message>
+        <source>Theme by %1</source>
+        <translation>Tema di %1</translation>
     </message>
     <message>
         <source>Font</source>
@@ -7835,8 +7833,12 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Valuta</translation>
     </message>
     <message>
-        <source>Enter Lua expression (prefix with = to return value)</source>
-        <translation>Inserisci l&apos;espressione Lua (anteponi = per restituire il valore)</translation>
+        <source>&lt;b&gt;Lua Expression Evaluation&lt;/b&gt;&lt;br&gt;&lt;br&gt;Code runs in a protected environment: runtime errors are caught and shown in the output instead of propagating.&lt;br&gt;&lt;br&gt;&lt;b&gt;What works:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Read/modify global variables (&lt;code&gt;_G.x = 42&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Modify table contents (&lt;code&gt;my_table.field = 99&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Call functions and inspect return values&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Limitations:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Local variables cannot be modified directly (use &lt;code&gt;debug.setlocal()&lt;/code&gt;) unless there is an associated &lt;i&gt;assign&lt;/i&gt; method (&lt;code&gt;pinfo.src_port&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Long-running expressions are automatically aborted&lt;/li&gt;&lt;li&gt;&lt;b&gt;Warning:&lt;/b&gt; Changes to globals persist and can affect ongoing dissection&lt;/li&gt;&lt;/ul&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter Lua expression</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Output</source>
@@ -7851,8 +7853,8 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Pulisci</translation>
     </message>
     <message>
-        <source>Clear input and output</source>
-        <translation>Cancella ingresso e risultato</translation>
+        <source>Clear output</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Settings</source>
@@ -7938,10 +7940,6 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>Remove All Breakpoints (%1)</source>
         <translation>Rimuovi tutti i breakpoint (%1)</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Lua Expression Evaluation&lt;/b&gt;&lt;br&gt;&lt;br&gt;Code runs in a protected environment: runtime errors are caught and shown in the output instead of propagating.&lt;br&gt;&lt;br&gt;&lt;b&gt;Prefix with &lt;code&gt;=&lt;/code&gt;&lt;/b&gt; to return a value (e.g., &lt;code&gt;=my_var&lt;/code&gt;).&lt;br&gt;&lt;br&gt;&lt;b&gt;What works:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Read/modify global variables (&lt;code&gt;_G.x = 42&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Modify table contents (&lt;code&gt;my_table.field = 99&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Call functions and inspect return values&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Limitations:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Local variables cannot be modified directly (use &lt;code&gt;debug.setlocal()&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Long-running expressions are automatically aborted&lt;/li&gt;&lt;li&gt;&lt;b&gt;Warning:&lt;/b&gt; Changes to globals persist and can affect ongoing dissection&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation>&lt;b&gt;Valutazione delle espressioni Lua&lt;/b&gt;&lt;br&gt;&lt;br&gt;Il codice è eseguito in un ambiente protetto: gli errori di runtime vengono rilevati e mostrati nel risultato invece di propagarsi.&lt;br&gt;&lt;br&gt;&lt;b&gt;Anteponi &lt;code&gt;=&lt;/code&gt;&lt;/b&gt; per restituire un valore (ad es., &lt;code&gt;=mia_var&lt;/code&gt;).&lt;br&gt;&lt;br&gt;&lt;b&gt;Cosa funziona:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Lettura/modifica delle variabili globali (&lt;code&gt;_G.x = 42&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Modifica dei contenuti della tabella (&lt;code&gt;mia_tabella.field = 99&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Invoca funzioni e ispezionai valori restituiti&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Limitazioni:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Le variabili locali non possono essere modificate direttamente (usa &lt;code&gt;debug.setlocal()&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Le espressioni con lunga durata vengono interrotte automaticamente&lt;/li&gt;&lt;li&gt;&lt;b&gt;Avviso:&lt;/b&gt; le modifiche alle variabili globali persistono e possono avere impatto sulla decodifica in corso&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <source>Undo</source>
@@ -8111,8 +8109,8 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Valutazione disponibile quando il debugger è in pausa</translation>
     </message>
     <message>
-        <source>Enter Lua expression (prefix with = to return value)</source>
-        <translation>Inserisci l&apos;espressione Lua (anteponi = per restituire il valore)</translation>
+        <source>Enter Lua expression</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error: %1</source>
@@ -10102,8 +10100,8 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
         <translation>Colonne</translation>
     </message>
     <message>
-        <source>Font and Colors</source>
-        <translation>Caratteri e colori</translation>
+        <source>Theme and Font</source>
+        <translation>Tema e carattere</translation>
     </message>
     <message>
         <source>Welcome Page</source>
@@ -14934,6 +14932,260 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
 </context>
 <context>
+    <name>ThemeDebugDialog</name>
+    <message>
+        <source>Theme Debug</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation>Nome:</translation>
+    </message>
+    <message>
+        <source>Internal:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Version:</source>
+        <translation>Versione:</translation>
+    </message>
+    <message>
+        <source>Author:</source>
+        <translation>Autore:</translation>
+    </message>
+    <message>
+        <source>Description:</source>
+        <translation>Descrizione:</translation>
+    </message>
+    <message>
+        <source>Mode:</source>
+        <translation>Modalità:</translation>
+    </message>
+    <message>
+        <source>Dark mode:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>Tema</translation>
+    </message>
+    <message>
+        <source>Geometry:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame geometry:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Screen:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>DPI / DPR:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Window state:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>These values refresh live while the dialog is open.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Main Window</source>
+        <translation>Finestra principale</translation>
+    </message>
+    <message>
+        <source>Track widget under mouse</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The inspector reports any widget in this application under the cursor — including child dialogs. Widgets that belong to this debug window are skipped so the last hovered target stays pinned. Hold Alt+Shift and click any widget to pin it: this turns off tracking and locks the readout onto that widget (re-check the box above to resume). Note: on macOS, tool windows are hidden whenever another application has focus, so tracking pauses until Wireshark is frontmost again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cursor (global):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Class:</source>
+        <translation>Classe:</translation>
+    </message>
+    <message>
+        <source>Object name:</source>
+        <translation>Nome oggetto:</translation>
+    </message>
+    <message>
+        <source>Font:</source>
+        <translation>Carattere:</translation>
+    </message>
+    <message>
+        <source>Global rect:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Parent chain:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Palette (Active group):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Role</source>
+        <translation>Ruolo</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>Colore</translation>
+    </message>
+    <message>
+        <source>ThemeManager token</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Swatch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stylesheet:</source>
+        <translation>Foglio di stile:</translation>
+    </message>
+    <message>
+        <source>(no stylesheet)</source>
+        <translation>(nessun foglio di stile)</translation>
+    </message>
+    <message>
+        <source>Widget Inspector</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Token</source>
+        <translation>Token</translation>
+    </message>
+    <message>
+        <source>Hex</source>
+        <translation>Esa</translation>
+    </message>
+    <message>
+        <source>Tokens</source>
+        <translation>Token</translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation>Aggiorna</translation>
+    </message>
+    <message>
+        <source>yes</source>
+        <translation>sì</translation>
+    </message>
+    <message>
+        <source>no</source>
+        <translation>no</translation>
+    </message>
+    <message>
+        <source>(no main window)</source>
+        <translation>(nessuna finestra principale)</translation>
+    </message>
+    <message>
+        <source>(unknown)</source>
+        <translation>(sconosciuto)</translation>
+    </message>
+    <message>
+        <source>maximized</source>
+        <translation>massimizzata</translation>
+    </message>
+    <message>
+        <source>minimized</source>
+        <translation>minimizzata</translation>
+    </message>
+    <message>
+        <source>fullscreen</source>
+        <translation>schermo intero</translation>
+    </message>
+    <message>
+        <source>active</source>
+        <translation>attivo</translation>
+    </message>
+    <message>
+        <source>normal</source>
+        <translation>normale</translation>
+    </message>
+    <message>
+        <source>(unset)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>(none)</source>
+        <translation>(nessuno)</translation>
+    </message>
+    <message>
+        <source>(unnamed)</source>
+        <translation>(senza nome)</translation>
+    </message>
+</context>
+<context>
+    <name>ThemePreviewWidget</name>
+    <message>
+        <source>No.</source>
+        <translation>Num.</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation>Tempo</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>Sorgente</translation>
+    </message>
+    <message>
+        <source>Destination</source>
+        <translation>Destinazione</translation>
+    </message>
+    <message>
+        <source>Proto</source>
+        <translation>Proto</translation>
+    </message>
+    <message>
+        <source>Len</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation>Info</translation>
+    </message>
+    <message>
+        <source>Selection</source>
+        <translation>Selezione</translation>
+    </message>
+    <message>
+        <source>Marked (theme)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ignored (theme)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ready</source>
+        <translation>Pronto</translation>
+    </message>
+    <message>
+        <source>Profile: Default</source>
+        <translation>Profilo predefinito</translation>
+    </message>
+    <message>
+        <source>Packets: %1</source>
+        <translation>Pacchetti: %1</translation>
+    </message>
+    <message>
+        <source>Displayed: %1 (100.0%)</source>
+        <translation>Visualizzati: %1 (100.0%)</translation>
+    </message>
+</context>
+<context>
     <name>TimeShiftDialog</name>
     <message>
         <source>Shift all packets by</source>
@@ -17451,6 +17703,14 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     <message>
         <source>Show the current keyboard shortcuts</source>
         <translation>Mostra le scorciatoie da tastiera attuali</translation>
+    </message>
+    <message>
+        <source>&amp;Theme Debug</source>
+        <translation>Debug &amp;tema</translation>
+    </message>
+    <message>
+        <source>Show the active theme, main window geometry, and live widget info</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>MAP Summary</source>

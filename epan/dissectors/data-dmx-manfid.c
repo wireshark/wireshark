@@ -11,7 +11,7 @@
 #include "data-dmx-manfid.h"
 
 /*
- * ESTA codes download date: 2026-05-24
+ * ESTA codes download date: 2026-05-31
  */
 static const value_string dmx_esta_manfid_vals[] = {
   { 0x0000, "ESTA / PLASA" },
@@ -580,10 +580,12 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0797, "ARCPROLED Limited" },
   { 0x079B, "Pro Church Lights" },
   { 0x079F, "VPS Group, LLC" },
+  { 0x07A1, "Interface-Z" },
   { 0x07A3, "Guangzhou GBR PROLIGHT GROUP CO.,LTD (GBR PROLIGHT)" },
   { 0x07A4, "Shenzhen DEFG Co., Ltd" },
   { 0x07A5, "X LED Systems" },
   { 0x07A9, "Tridonic GmbH & Co KG" },
+  { 0x07AB, "Elite Lighting Corp." },
   { 0x07AC, "ShowTex NV" },
   { 0x07AD, "CLS LED BV" },
   { 0x07AE, "A-LITE B.V." },
@@ -666,6 +668,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0827, "PIXREAL" },
   { 0x0829, "CR-TEC Photoelectric" },
   { 0x082B, "Changsha ZMIOT Co., Ltd." },
+  { 0x082C, "RIVA GmbH Engineering" },
   { 0x082E, "QubiCast GmbH" },
   { 0x0830, "PulseWorx" },
   { 0x0832, "Shenzhen EXC-LED Technology Co.,Ltd" },
@@ -857,6 +860,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x08FC, "Lights By Brian" },
   { 0x08FD, "Koto Electric Co., Ltd." },
   { 0x08FE, "Zhuhai Shengchang Electronics Co., Ltd." },
+  { 0x08FF, "nomos system AG" },
   { 0x0900, "nox multimedia GmbH" },
   { 0x0901, "GermTec GmbH & Co. KG" },
   { 0x0902, "DongGuan Betterway Lighting Co.,Ltd" },
@@ -1678,6 +1682,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x7000, "Nippon Ceramic Co., Ltd." },
   { 0x700A, "Guangzhou Leemc Lighting Tech., Co., Ltd." },
   { 0x700B, "Vice Lighting DWC LLC" },
+  { 0x7050, "Guangzhou Titu Technology Co.,Ltd" },
   { 0x7068, "Pharos Architectural Controls" },
   { 0x7070, "SBT GmbH" },
   { 0x7072, "Pr-Lighting Ltd." },
