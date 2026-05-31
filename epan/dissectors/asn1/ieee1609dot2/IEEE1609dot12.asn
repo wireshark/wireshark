@@ -48,7 +48,8 @@ psid-ca-basic-services                                              Psid ::= 36 
 psid-den-basic-services                                             Psid ::= 37            -- ETSI-EN-302-637_3
 psid-misbehavior-reporting-for-common-applications                  Psid ::= 38            -- CAMP
 psid-vulnerable-road-users-safety-applications                      Psid ::= 39            -- SAE-DSRC-TC
--- 0x28 to 0x7E 0p28 to 0p7E Not allocated
+psid-avm-service                                                    Psid ::= 71            -- ETSI-TS-103-882
+-- 0x28 to 0x46, 0x48 to 0x7E Not allocated
 psid-testings                                                       Psid ::= 127           -- IEEE-P1609-WG
 psid-differential-gps-corrections-uncompressed                      Psid ::= 128           -- SAE-J2735
 psid-differential-gps-corrections-compressed                        Psid ::= 129           -- SAE-J2735
@@ -70,7 +71,11 @@ psid-sensor-sharing-service                                         Psid ::= 144
 psid-maneuver-coordination-service                                  Psid ::= 145           -- SAE-J3268
 psid-certificate-revocation-list-application                        Psid ::= 256           -- IEEEE Std 1609.2 CAMP
 psid-traffic-light-control-status-service                           Psid ::= 637           -- ISO-19091-ETSI-TS-103-301
+psid-vru-awareness-basic-service                                    Psid ::= 638           -- ETSI-TS-103-300-3
 psid-collective-perception-service                                  Psid ::= 639           -- ETSI-TS-103-324
+psid-imz-basic-service                                              Psid ::= 640           -- ETSI-TS-103-724
+psid-mr-service                                                     Psid ::= 1618          -- ETSI-TS-103-759
+psid-poi-service                                                    Psid ::= 1619          -- ETSI-TS-103-916
 
 -- 0x8e to 0xFF 0p80-09 to 0p80-7F Not allocated
 
