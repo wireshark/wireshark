@@ -51,8 +51,8 @@ UPDATE_TOOLS = (
         "name": "USB",
         "path": "tools/dissector_generators/generate-usb-data.py",
         "updated_files": [
-            "epan/dissectors/data-usb.c"
-            "epan/dissectors/data-usb.h"
+            "epan/dissectors/data-usb.c",
+            "epan/dissectors/data-usb.h",
         ],
     },
     {
@@ -91,8 +91,8 @@ UPDATE_TOOLS = (
         "python_modules": ["beautifulsoup4"],
         "path": "tools/dissector_generators/generate-bacnet-data.py",
         "updated_files": [
-            "epan/dissectors/data-bacnet.c"
-            "epan/dissectors/data-bacnet.h"
+            "epan/dissectors/data-bacnet.c",
+            "epan/dissectors/data-bacnet.h",
             ],
     },
     {
