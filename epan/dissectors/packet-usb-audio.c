@@ -9,7 +9,9 @@
 /* the parsing of audio-specific descriptors is based on
    USB Audio Device Class Specification for Basic Audio Devices, Release 1.0,
    USB Device Class Definition for Audio Devices, Release 2.0 and
-   USB Device Class Definition for MIDI Devices, Release 1.0 */
+   USB Device Class Definition for MIDI Devices, Release 1.0
+   https://www.usb.org/sites/default/files/Audio2_with_Errata_and_ECN_through_Apr_2_2025.pdf
+  */
 
 #include "config.h"
 
@@ -372,6 +374,7 @@ static int hf_wvalue_channel_number;
 static int hf_wvalue_fu_cs_v1;
 static int hf_wvalue_clksrc_cs;
 static int hf_wvalue_clksel_cs;
+static int hf_wvalue_interface_cs;
 static int hf_windex;
 static int hf_windex_interface;
 static int hf_windex_entity_id;
@@ -393,6 +396,8 @@ static int hf_parameter_dcur;
 static int hf_parameter_dmin;
 static int hf_parameter_dmax;
 static int hf_parameter_dres;
+static int hf_parameter_bcontrolsize;
+static int hf_parameter_bmvalidaltsettings;
 
 static reassembly_table midi_data_reassembly_table;
 
@@ -545,6 +550,19 @@ static const value_string v2_clksrc_cs_vals[] = {
 static const value_string v2_clksel_cs_vals[] = {
     {V2_CX_CONTROL_UNDEFINED,      "CX_CONTROL_UNDEFINED"},
     {V2_CX_CLOCK_SELECTOR_CONTROL, "CX_CLOCK_SELECTOR_CONTROL"},
+    {0,NULL}
+};
+
+/* A.17.11 AudioStreaming Interface Control Selectors */
+#define V2_AS_CONTROL_UNDEFINED          0x00
+#define V2_AS_ACT_ALT_SETTING_CONTROL    0x01
+#define V2_AS_VAL_ALT_SETTINGS_CONTROL   0x02
+#define V2_AS_AUDIO_DATA_FORMAT_CONTROL  0x03
+static const value_string v2_interface_cs_vals[] = {
+    {V2_AS_CONTROL_UNDEFINED,         "AS_CONTROL_UNDEFINED"},
+    {V2_AS_ACT_ALT_SETTING_CONTROL,   "AS_ACT_ALT_SETTING_CONTROL"},
+    {V2_AS_VAL_ALT_SETTINGS_CONTROL,  "AS_ACT_ALT_SETTINGS_CONTROL"},
+    {V2_AS_AUDIO_DATA_FORMAT_CONTROL, "AS_AUDIO_DATA_FORMAT_CONTROL"},
     {0,NULL}
 };
 
@@ -852,6 +870,7 @@ typedef enum {
     PARAMETER_LAYOUT_1,
     PARAMETER_LAYOUT_2,
     PARAMETER_LAYOUT_3,
+    VAL_ALT_SETTINGS_LAYOUT,
 } parameter_layout_t;
 
 typedef struct _audio_conv_info_t {
@@ -1835,6 +1854,11 @@ dissect_as_if_general_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
     offset_start = offset;
 
+    if (!PINFO_FD_VISITED(pinfo)) {
+        // Just to ensure that urb->conv->class_data is set to a audio_conv_info_t
+        set_entity_type(urb, 0, USB_AUDIO_ENTITY_INTERFACE);
+    }
+
     if (urb->conv->interfaceProtocol == AUDIO_PROTOCOL_V1) {
         proto_tree_add_item(tree, hf_as_if_gen_term_link, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
@@ -2648,6 +2672,30 @@ dissect_v2_control_cur_range(tvbuff_t *tvb, int offset, packet_info *pinfo,
     channel_number = urb->usb_trans_info->setup.wValue & 0x00FF;
 
     switch (entity) {
+        case USB_AUDIO_ENTITY_INTERFACE:
+            wvalue_fields[1] = &hf_wvalue_interface_cs;
+            control_selector_vals = v2_interface_cs_vals;
+            /* 5.2.6.1 - Must have only the CUR attribute, CN 0 */
+            if (channel_number == 0 && urb->usb_trans_info->setup.request == V2_REQUEST_CUR) {
+                switch (control_selector) {
+                case V2_AS_ACT_ALT_SETTING_CONTROL:
+                    layout = PARAMETER_LAYOUT_1;
+                    parameter_str = "Active Alternate Setting";
+                    break;
+                case V2_AS_VAL_ALT_SETTINGS_CONTROL:
+                    layout = VAL_ALT_SETTINGS_LAYOUT;
+                    break;
+                case V2_AS_AUDIO_DATA_FORMAT_CONTROL:
+                    /* XXX - To properly dissect this, the bFormatType from the
+                     * Class-specific Audio Streaming Interface Descriptor
+                     * would need to be saved and then the bitmap dissected
+                     * appropriately. Also note only one bit should be set. */
+                    layout = PARAMETER_LAYOUT_3;
+                    parameter_str = "Audio Data Format";
+                    break;
+                }
+            }
+            break;
         case USB_AUDIO_ENTITY_CLOCK_SOURCE:
             wvalue_fields[1] = &hf_wvalue_clksrc_cs;
             control_selector_vals = v2_clksrc_cs_vals;
@@ -2720,6 +2768,12 @@ dissect_v2_control_cur_range(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 max_hf = hf_parameter_dmax;
                 res_hf = hf_parameter_dres;
                 break;
+            case VAL_ALT_SETTINGS_LAYOUT:
+                title = "Valid Alternate Settings Parameter Block";
+                attribute_size = 0;
+                cur_hf = hf_parameter_bcontrolsize;
+                min_hf = max_hf = res_hf = 0;
+                break;
             default:
                 title = "Unknown Layout Parameter Block";
                 attribute_size = 0;
@@ -2761,6 +2815,11 @@ dissect_v2_control_cur_range(tvbuff_t *tvb, int offset, packet_info *pinfo,
         } else if (attribute_size) {
             proto_tree_add_item(subtree, cur_hf, tvb, offset, attribute_size, ENC_LITTLE_ENDIAN);
             offset += attribute_size;
+        } else if (layout == VAL_ALT_SETTINGS_LAYOUT) {
+            proto_tree_add_item_ret_uint(subtree, cur_hf, tvb, offset, 1, ENC_NA, &n);
+            offset += 1;
+            proto_tree_add_item(subtree, hf_parameter_bmvalidaltsettings, tvb, offset, n, ENC_NA);
+            offset += n;
         } else {
             expert_add_info(pinfo, subtree_item, &ei_usb_audio_undecoded);
             offset += tvb_captured_length_remaining(tvb, offset);
@@ -2820,7 +2879,9 @@ dissect_usb_audio_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_
     offset = 0;
 
     if ((urb->conv->interfaceClass == IF_CLASS_AUDIO) &&
-        (urb->conv->interfaceSubclass == AUDIO_IF_SUBCLASS_AUDIOCONTROL)) {
+        (urb->conv->interfaceSubclass == AUDIO_IF_SUBCLASS_AUDIOCONTROL ||
+         urb->conv->interfaceSubclass == AUDIO_IF_SUBCLASS_AUDIOSTREAMING)) {
+
         switch (urb->conv->interfaceProtocol) {
             case AUDIO_PROTOCOL_V1:
                 offset += dissect_v1_control(tvb, offset, pinfo, parent_tree, urb);
@@ -3933,6 +3994,9 @@ proto_register_usb_audio(void)
         { &hf_wvalue_clksel_cs,
             { "Clock Selector Control Selector", "usbaudio.wValue.clksel_cs",
               FT_UINT16, BASE_HEX, VALS(v2_clksel_cs_vals), 0xFF00, NULL, HFILL }},
+        { &hf_wvalue_interface_cs,
+            { "Interface Control Selector", "usbaudio.wValue.interface_cs",
+              FT_UINT16, BASE_HEX, VALS(v2_interface_cs_vals), 0xFF00, NULL, HFILL }},
         { &hf_windex,
             { "wIndex", "usbaudio.wIndex",
               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -3996,6 +4060,12 @@ proto_register_usb_audio(void)
         { &hf_parameter_dres,
             { "dRES", "usbaudio.dRES",
               FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_parameter_bcontrolsize,
+            { "bControlSize", "usbaudio.bControlSize",
+              FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_parameter_bmvalidaltsettings,
+            { "bmValidAltSettings", "usbaudio.bmValidAltSettings",
+              FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_sysex_msg_fragments,
             { "Message fragments", "usbaudio.sysex.fragments",
