@@ -5186,6 +5186,7 @@ static const ws_services_entry_t global_tcp_udp_services_table[] = {
     { 30002, "pago-services2",  "Pago Services 2" },
     { 30003, "amicon-fpsu-ra",  "Amicon FPSU-IP Remote Administration" },
     { 30260, "kingdomsonline",  "Kingdoms Online (CraigAvenue)" },
+    { 30939, "dilithium3",      "Persistent peer-to-peer connections for block propagation, transaction relay, and BFT consensus message exchange." },
     { 30999, "ovobs",           "OpenView Service Desk Client" },
     { 31337, "eldim",           "eldim is a secure file upload proxy" },
     { 31416, "xqosd",           "XQoS network monitor" },
