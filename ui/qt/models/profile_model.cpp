@@ -856,7 +856,7 @@ void ProfileModel::deleteEntries(QModelIndexList idcs)
         }
     }
 
-    emit dataChanged(index(start, COL_NAME), index(end, COL_NAME));
+    emit dataChanged(index(start, COL_NAME), index(end, columnCount() - 1));
 }
 
 bool ProfileModel::restoreEntries(QModelIndexList idcs)
@@ -869,7 +869,7 @@ bool ProfileModel::restoreEntries(QModelIndexList idcs)
         {
             // Reset the profile status
             item->setName(item->getName());
-            emit dataChanged(index(idx.row(), ProfileModel::COL_NAME), index(idx.row(), columnCount()));
+            emit dataChanged(index(idx.row(), ProfileModel::COL_NAME), index(idx.row(), columnCount() - 1));
             restored = true;
         }
     }

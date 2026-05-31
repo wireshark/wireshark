@@ -429,7 +429,7 @@ void ProfileDialog::dataChanged(const QModelIndex&)
     ok_button_->setEnabled(enable_ok);
 
     pd_ui_->profileTreeView->dataChanged(sort_model_->mapFromSource(model_->index(0, ProfileModel::COL_NAME)),
-        sort_model_->mapFromSource(model_->index(model_->rowCount() - 1, model_->columnCount())));
+        sort_model_->mapFromSource(model_->index(model_->rowCount() - 1, model_->columnCount() - 1)));
 }
 
 void ProfileDialog::filterChanged(const QString &text)
