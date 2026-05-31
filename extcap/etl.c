@@ -667,9 +667,9 @@ static void WINAPI event_callback(PEVENT_RECORD ev)
         etw_dump_write_ndiscap_event(ev, timestamp);
     }
     else if ((IsEqualGUID(&ev->EventHeader.ProviderId, &smbclient_provider) ||
-        IsEqualGUID(&ev->EventHeader.ProviderId, &smbserver_provider)) &&
+        IsEqualGUID(&ev->EventHeader.ProviderId, &smbserver_provider)) && (
         ev->EventHeader.EventDescriptor.Id == 40000 ||
-        ev->EventHeader.EventDescriptor.Id == 2000)
+        ev->EventHeader.EventDescriptor.Id == 2000))
     {
         etw_dump_write_smb_event(ev, timestamp);
     }
