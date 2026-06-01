@@ -88,6 +88,7 @@
 #define OUI_WISUN           0x0C5A9E    /* Wi-SUN */
 #define OUI_IEEE_C37_238    0x1C129D    /* IEEE PES PSRC/SUB Working Group H7/Sub C7 (IEEE PC37.238) */
 #define OUI_HYTEC_GER       0x30B216    /* Hytec Geraetebau GmbH */
+#define OUI_BELDEN          0x3CB9A6    /* BELDEN */
 #define OUI_TELECOM         0x48D017    /* Telecom Infra Project */
 #define OUI_ZIGBEE          0x4A191B    /* ZigBee Alliance */
 #define OUI_WFA             0x506F9A    /* Wi-Fi Alliance */

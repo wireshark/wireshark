@@ -7019,6 +7019,10 @@ static int hf_ieee80211_vs_telecom_type;
 static int hf_ieee80211_vs_telecom_ap_name;
 static int hf_ieee80211_vs_telecom_data;
 
+static int hf_ieee80211_vs_belden_type;
+static int hf_ieee80211_vs_belden_ap_name;
+static int hf_ieee80211_vs_belden_data;
+
 static int hf_ieee80211_rsn_ie_ptk_keyid;
 
 static int hf_ieee80211_rsn_ie_gtk_kde_data_type;
@@ -22808,6 +22812,19 @@ dissect_vendor_ie_apple(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, voi
   }
 
   return tvb_captured_length(tvb);
+}
+
+#define BELDEN_APNAME 1
+static const value_string ieee80211_vs_belden_type_vals[] = {
+  { BELDEN_APNAME, "AP Name"},
+  { 0,           NULL }
+};
+
+static int
+dissect_vendor_ie_belden(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
+{
+  return dissect_vendor_ie_common(tvb, pinfo, tree, (ieee80211_tagged_field_data_t*)data,
+    BELDEN_APNAME, hf_ieee80211_vs_belden_type, ieee80211_vs_belden_type_vals, hf_ieee80211_vs_belden_ap_name, hf_ieee80211_vs_belden_data);
 }
 
 /* 802.11-2012 8.4.2.37 QoS Capability element */
@@ -56062,6 +56079,22 @@ proto_register_ieee80211(void)
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
+    /* Vendor Specific : Belden */
+    {&hf_ieee80211_vs_belden_type,
+     {"Type", "wlan.vs.belden.type",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_vs_belden_type_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_belden_ap_name,
+     {"AP Name", "wlan.vs.belden.ap_name",
+      FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_belden_data,
+     {"Data", "wlan.vs.belden.data",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_tsinfo,
      {"Traffic Stream (TS) Info", "wlan.ts_info",
       FT_UINT24, BASE_HEX, NULL, 0,
@@ -63740,6 +63773,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.vendor.oui", OUI_MOJO_ARISTA, create_dissector_handle(dissect_vendor_ie_arista, -1));
   dissector_add_uint("wlan.tag.vendor.oui", OUI_WISUN, create_dissector_handle(dissect_vendor_ie_wisun, -1));
   dissector_add_uint("wlan.tag.vendor.oui", OUI_APPLE, create_dissector_handle(dissect_vendor_ie_apple, -1));
+  dissector_add_uint("wlan.tag.vendor.oui", OUI_BELDEN, create_dissector_handle(dissect_vendor_ie_belden, -1));
 }
 
 /*
