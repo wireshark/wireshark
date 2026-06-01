@@ -77,6 +77,8 @@ typedef struct nettrace_3gpp_32_423_file_info {
 	int64_t start_offset;		// where in the file the start of the buffer points
 	nstime_t start_time;		// from <traceCollec beginTime=""> attribute
 	nstime_t session_time;		// from most recent <traceRecSession stime=""> attribute
+	char *session_ue_id_type;	// from most recent <ue idType="..."/>
+	char *session_ue_id_value;	// from most recent <ue idValue="..."/>
 } nettrace_3gpp_32_423_file_info_t;
 
 typedef struct exported_pdu_info {
@@ -515,6 +517,18 @@ nettrace_msg_to_packet(wtap* wth, wtap_rec* rec, xmlNodePtr root_element, int* e
 					wtap_buffer_append_epdu_uint(&rec->data, EXP_PDU_TAG_DST_PORT, proxy_exported_pdu_info.dst_port);
 				}
 
+				/* Add UE identity if available: tag value is "idType\0idValue\0" */
+				if (file_info->session_ue_id_type && file_info->session_ue_id_value) {
+					size_t type_len = strlen(file_info->session_ue_id_type) + 1;
+					size_t val_len = strlen(file_info->session_ue_id_value) + 1;
+					uint8_t ue_id_buf[128];
+					if (type_len + val_len <= sizeof(ue_id_buf)) {
+						memcpy(ue_id_buf, file_info->session_ue_id_type, type_len);
+						memcpy(ue_id_buf + type_len, file_info->session_ue_id_value, val_len);
+						wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_3GPP_UE_ID, ue_id_buf, (uint16_t)(type_len + val_len));
+					}
+				}
+
 				/* Add end of options */
 				size_t raw_data_len = strlen((const char*)raw_content);
 				int exp_pdu_tags_len = wtap_buffer_append_epdu_end(&rec->data);
@@ -594,15 +608,14 @@ read_until(GByteArray *buffer, const unsigned char *needle, FILE_T fh, int *err,
 }
 
 /* Parse a <traceRecSession stime="..."> tag and extract the stime attribute
- * into file_info->session_time.
+ * into file_info->session_time. Also look for <ue idValue="..."/> to extract IMSI.
  */
 static void
-nettrace_parse_session_stime(const char *session_tag, nettrace_3gpp_32_423_file_info_t *file_info)
+nettrace_parse_session_tag(const char *session_tag, nettrace_3gpp_32_423_file_info_t *file_info)
 {
 	const char *stime_attr = strstr(session_tag, "stime=\"");
 	if (stime_attr) {
 		stime_attr += 7; /* skip past stime=" */
-		/* Find the closing quote */
 		const char *end_quote = strchr(stime_attr, '"');
 		if (end_quote) {
 			char time_buf[64];
@@ -612,6 +625,22 @@ nettrace_parse_session_stime(const char *session_tag, nettrace_3gpp_32_423_file_
 				time_buf[len] = '\0';
 				iso8601_to_nstime(&file_info->session_time, time_buf, ISO8601_DATETIME);
 			}
+		}
+	}
+
+	/* Look for <ue idType="..." idValue="..."/> */
+	const char *id_type_attr = strstr(session_tag, "idType=\"");
+	const char *id_val_attr = strstr(session_tag, "idValue=\"");
+	if (id_type_attr && id_val_attr) {
+		id_type_attr += 8; /* skip past idType=" */
+		const char *end_type = strchr(id_type_attr, '"');
+		id_val_attr += 9; /* skip past idValue=" */
+		const char *end_val = strchr(id_val_attr, '"');
+		if (end_type && end_val && end_type > id_type_attr && end_val > id_val_attr) {
+			g_free(file_info->session_ue_id_type);
+			g_free(file_info->session_ue_id_value);
+			file_info->session_ue_id_type = g_strndup(id_type_attr, (size_t)(end_type - id_type_attr));
+			file_info->session_ue_id_value = g_strndup(id_val_attr, (size_t)(end_val - id_val_attr));
 		}
 	}
 }
@@ -666,7 +695,7 @@ nettrace_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_t *data
 	{
 		char *session_tag = g_strstr_len((const char*)buf_start, (unsigned)(msg_end - buf_start), (const char*)c_s_trace_rec_session);
 		if (session_tag) {
-			nettrace_parse_session_stime(session_tag, file_info);
+			nettrace_parse_session_tag(session_tag, file_info);
 		}
 	}
 
@@ -733,7 +762,7 @@ nettrace_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *err, char **
 	{
 		char *session_tag = g_strstr_len((const char*)file_info->buffer->data, msg_len, (const char*)c_s_trace_rec_session);
 		if (session_tag) {
-			nettrace_parse_session_stime(session_tag, file_info);
+			nettrace_parse_session_tag(session_tag, file_info);
 		}
 	}
 
@@ -760,9 +789,15 @@ nettrace_close(wtap *wth)
 {
 	nettrace_3gpp_32_423_file_info_t *file_info = (nettrace_3gpp_32_423_file_info_t *)wth->priv;
 
-	if (file_info != NULL && file_info->buffer != NULL) {
-		g_byte_array_free(file_info->buffer, true);
-		file_info->buffer = NULL;
+	if (file_info != NULL) {
+		if (file_info->buffer != NULL) {
+			g_byte_array_free(file_info->buffer, true);
+			file_info->buffer = NULL;
+		}
+		g_free(file_info->session_ue_id_type);
+		g_free(file_info->session_ue_id_value);
+		file_info->session_ue_id_type = NULL;
+		file_info->session_ue_id_value = NULL;
 	}
 }
 

@@ -193,6 +193,8 @@
 
 #define EXP_PDU_TAG_LINK_DIRECTION 39 /**< The packet's link direction (P2P_DIR_UL, P2P_DIR_DL). */
 
+#define EXP_PDU_TAG_3GPP_UE_ID   40 /**< 3GPP UE identity from trace. Value: 1-byte idType string length, idType string, idValue string (all UTF-8, null-terminated). */
+
 #define EXP_PDU_TAG_IPV4_LEN            4
 #define EXP_PDU_TAG_IPV6_LEN            16
 

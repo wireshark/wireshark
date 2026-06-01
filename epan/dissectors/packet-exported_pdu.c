@@ -64,6 +64,8 @@ static int hf_exported_pdu_exported_pdu;
 static int hf_exported_pdu_dis_table_val;
 static int hf_exported_pdu_col_proto_str;
 static int hf_exported_pdu_col_info_str;
+static int hf_exported_pdu_3gpp_ue_id_type;
+static int hf_exported_pdu_3gpp_ue_id_value;
 static int hf_exported_pdu_3gpp_id_type;
 static int hf_exported_pdu_3gpp_lac;
 static int hf_exported_pdu_3gpp_ci;
@@ -126,6 +128,7 @@ static const value_string exported_pdu_tag_vals[] = {
    { EXP_PDU_TAG_USER_DATA_PDU,         "User Data PDU" },
    { EXP_PDU_TAG_3GPP_ID,               "3GPP Identity" },
    { EXP_PDU_TAG_LINK_DIRECTION,        "Link direction" },
+   { EXP_PDU_TAG_3GPP_UE_ID,             "3GPP UE ID" },
 
    { 0,        NULL   }
 };
@@ -450,6 +453,16 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 proto_tree_add_item_ret_int(tag_tree, hf_exported_pdu_link_dir, tvb, offset, 4, ENC_BIG_ENDIAN, &link_dir);
                 pinfo->link_dir = link_dir;
                 break;
+            case EXP_PDU_TAG_3GPP_UE_ID:
+            {
+                const uint8_t *id_type, *id_value;
+                int type_sz = (int)tvb_strsize(tvb, offset);
+                proto_tree_add_item_ret_string(tag_tree, hf_exported_pdu_3gpp_ue_id_type, tvb, offset, type_sz, ENC_UTF_8 | ENC_NA, pinfo->pool, &id_type);
+                proto_tree_add_item_ret_string(tag_tree, hf_exported_pdu_3gpp_ue_id_value, tvb, offset + type_sz, tag_len - type_sz, ENC_UTF_8 | ENC_NA, pinfo->pool, &id_value);
+                if (strcmp((const char*)id_type, "IMSI") == 0)
+                    add_assoc_imsi_item(tvb, tag_tree, (const char*)id_value);
+                break;
+            }
             case EXP_PDU_TAG_END_OF_OPT:
                 break;
             default:
@@ -671,6 +684,16 @@ proto_register_exported_pdu(void)
         },
         { &hf_exported_pdu_col_info_str,
             { "Column information string", "exported_pdu.col_info_str",
+               FT_STRINGZPAD, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_exported_pdu_3gpp_ue_id_type,
+            { "3GPP UE ID Type", "exported_pdu.3gpp_ue_id_type",
+               FT_STRINGZPAD, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_exported_pdu_3gpp_ue_id_value,
+            { "3GPP UE ID Value", "exported_pdu.3gpp_ue_id_value",
                FT_STRINGZPAD, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
