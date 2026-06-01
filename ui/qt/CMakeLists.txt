@@ -908,6 +908,7 @@ qrc_register(NAME themes PREFIX "/themes")
 add_theme(NAME "wireshark")
 add_theme(NAME "stratoshark")
 add_theme(NAME "inverted")
+add_theme(NAME "midnight-blue")
 qrc_finalize(NAME themes OUTPUT_VAR THEMES_QRC)
 
 # Drop the file modification time of source files from generated files

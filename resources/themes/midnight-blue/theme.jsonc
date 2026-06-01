@@ -1,0 +1,117 @@
+// =====================================================================
+// Wireshark Midnight Blue Theme
+// =====================================================================
+//
+// Deep navy surfaces with cool blue accents, tuned for dark mode.
+// Light mode is a cool "daybreak" companion with pale blue-gray surfaces.
+//
+// Format: JSONC — standard JSON with C-style comments.
+//
+// Color value convention:
+//   Each color is { "light": "#hex", "dark": "#hex" }.
+//
+// To use as a personal theme, copy this file to your personal themes
+// directory and select it in Edit → Preferences → Appearance.
+// =====================================================================
+
+{
+	// =================================================================
+	// REQUIRED SECTIONS
+	// =================================================================
+
+	"meta": {
+		"name": "Midnight Blue",
+		"version": 1,
+		"author": "Stig Bjørlykke <stig@bjorlykke.org>",
+		"description": "Deep navy surfaces with cool blue accents."
+	},
+
+	// -----------------------------------------------------------------
+	// Brand — midnight navy identity
+	// -----------------------------------------------------------------
+	"brand": {
+		"primary": { "light": "#1e4a8a", "dark": "#6b9fff" },
+		"deep":    { "light": "#0f1b30", "dark": "#060a14" }
+	},
+
+	// -----------------------------------------------------------------
+	// Accent — semantic colors legible on navy surfaces
+	// -----------------------------------------------------------------
+	"accent": {
+		"success": { "light": "#afffaf", "dark": "#006600" },
+		"warning": { "light": "#ffffaf", "dark": "#666600" },
+		"error":   { "light": "#ffafaf", "dark": "#660000" },
+		"info":    { "light": "#2563eb", "dark": "#93c5fd" }
+	},
+
+	// -----------------------------------------------------------------
+	// Expert info severity colors
+	// -----------------------------------------------------------------
+	"expert": {
+		"comment":    { "light": "#86efac", "dark": "#4ade80" },
+		"chat":       { "light": "#93c5fd", "dark": "#60a5fa" },
+		"note":       { "light": "#67e8f9", "dark": "#22d3ee" },
+		"warn":       { "light": "#fde047", "dark": "#facc15" },
+		"error":      { "light": "#fca5a5", "dark": "#f87171" },
+		"foreground": { "light": "#0c1220", "dark": "#0c1220" }
+	},
+
+	// -----------------------------------------------------------------
+	// Packet display state colors
+	// -----------------------------------------------------------------
+	"packets": {
+		"selection":     { "light": "#1e4a8a", "dark": "#243a5c" },
+		"selectionText": { "light": "#ffffff", "dark": "#eef2f8" },
+		"inactive":      { "light": "#e8ecf5", "dark": "#161f32" },
+		"inactiveText":  { "light": "#141c2e", "dark": "#d4dce8" },
+		"marked":        { "light": "#001a33", "dark": "#001a33" },
+		"markedText":    { "light": "#ffffff", "dark": "#ffffff" },
+		"ignored":       { "light": "#f4f6fc", "dark": "#0a0e18" },
+		"ignoredText":   { "light": "#6b7280", "dark": "#6b7a94" },
+		"hidden":        { "light": "#4a5568", "dark": "#8b9bb5" }
+	},
+
+	// -----------------------------------------------------------------
+	// Follow Stream conversation colors
+	// -----------------------------------------------------------------
+	"conversation": {
+		"client":     { "light": "#f5e6d8", "dark": "#2a1810" },
+		"clientText": { "light": "#7c2d12", "dark": "#ffb88a" },
+		"server":     { "light": "#dce8f8", "dark": "#0f1e35" },
+		"serverText": { "light": "#1e3a6e", "dark": "#9ec5ff" }
+	},
+
+	// -----------------------------------------------------------------
+	// QPalette overrides — navy-tinted surfaces
+	// -----------------------------------------------------------------
+	"palette": {
+		"window":          { "light": "#e8ecf5", "dark": "#10182a" },
+		"windowText":      { "light": "#141c2e", "dark": "#d4dce8" },
+		"base":            { "light": "#f4f6fc", "dark": "#0c1220" },
+		"text":            { "light": "#141c2e", "dark": "#d4dce8" },
+		"alternateBase":   { "light": "#dde3f0", "dark": "#141e32" },
+		"mid":             { "light": "#5a6478", "dark": "#7a8aa3" },
+		"midlight":        { "light": "#c5cee0", "dark": "#1e2a42" },
+		"highlightedText": { "light": "#ffffff", "dark": "#ffffff" }
+	},
+
+	// -----------------------------------------------------------------
+	// Graph colors — blue-first 14-slot cycle
+	// -----------------------------------------------------------------
+	"graphs": [
+		{ "light": "#1e4a8a", "dark": "#6b9fff" },
+		{ "light": "#0e7490", "dark": "#22d3ee" },
+		{ "light": "#5b21b6", "dark": "#a78bfa" },
+		{ "light": "#166534", "dark": "#4ade80" },
+		{ "light": "#991b1b", "dark": "#f87171" },
+		{ "light": "#92400e", "dark": "#fbbf24" },
+		{ "light": "#0369a1", "dark": "#38bdf8" },
+		{ "light": "#3d5a80", "dark": "#3d5a80" },
+		{ "light": "#155e75", "dark": "#0e7490" },
+		{ "light": "#6d28d9", "dark": "#5b21b6" },
+		{ "light": "#14532d", "dark": "#166534" },
+		{ "light": "#7f1d1d", "dark": "#991b1b" },
+		{ "light": "#78350f", "dark": "#92400e" },
+		{ "light": "#334155", "dark": "#475569" }
+	]
+}
