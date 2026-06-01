@@ -37,7 +37,19 @@ public:
 
     /** WCAG contrast ratio between two opaque colors.  Higher values
      *  are more contrasty; 4.5 is the AA threshold for body text. */
-    static qreal constrastRatio(const QColor &color1, const QColor &color2);
+    static qreal contrastRatio(const QColor &color1, const QColor &color2);
+
+    /** Mix `c` toward contrastingText(bg) until contrastRatio(result, bg)
+     *  >= minRatio.  Binary-searches the mix ratio (24 iterations →
+     *  < 0.001 precision).  Used to enforce WCAG contrast on derived
+     *  tokens (section headers against the base, header-gradient end
+     *  against the title text) without forcing every theme author to
+     *  hand-pick the values.  When `c` already meets the target it is
+     *  returned unchanged.  If the math can't reach the target (rare;
+     *  only when `c` is already on the same luminance side as
+     *  contrastingText(bg) and saturated), returns contrastingText(bg)
+     *  directly — favoring readability over hue. */
+    static QColor ensureContrast(const QColor &c, const QColor &bg, qreal minRatio);
 
     /** Returns true if the given color's relative luminance is below
      *  the WCAG equal-contrast threshold (≈0.179).  Purely a color-

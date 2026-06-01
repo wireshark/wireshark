@@ -154,10 +154,17 @@ public:
         ConversationServerText,
 
         // Filter state (single color per state — use as bg tint; pair
-        // with QPalette::Text for foreground).  Derived from accent.
+        // with QPalette::Text for foreground).  Derived from accent
+        // when no explicit theme.filter override is set; the JSONC
+        // "filter" section lets a theme pin saturated/historical values
+        // that alpha-tinting the accent can't reach.  FilterBusy and
+        // FilterBusyText carry the "I'm working" look used while a
+        // capture filter compiles off-thread.
         FilterValid,
         FilterInvalid,
         FilterDeprecated,
+        FilterBusy,
+        FilterBusyText,
 
         // Syntax highlighting — foreground text colours for code- and
         // data-viewers (JSON, hex, Lua debugger, etc.).  Derived so
@@ -192,6 +199,21 @@ public:
         // Section headers (derived from brand + QPalette)
         SectionHeader,
         SectionHeaderHover,
+
+        // Structural form chrome — borders, dividers, muted text.
+        // FieldBorder is the WCAG-enforced derivation of palette.mid
+        // against palette.base (≥ 3.0:1 ratio), used to frame
+        // interactive controls without overshooting like palette.shadow
+        // does in light mode.  Separator is a softer mix of base + mid
+        // for hairlines between cards / sections; themes can override
+        // it via the JSONC "separator" top-level key when the derived
+        // value is too pronounced (Stratoshark uses an explicit value
+        // matching its midlight).  MutedText is reserved for future
+        // use — no consumer in tree today, but kept in the enum so
+        // themes can grow into it without a binary-compat break.
+        FieldBorder,
+        Separator,
+        MutedText,
 
         // Text on dark surfaces (derived from brand)
         TextOnDark,

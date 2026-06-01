@@ -39,13 +39,33 @@ double ColorMath::relativeLuminance(const QColor &color)
     return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
-qreal ColorMath::constrastRatio(const QColor &color1, const QColor &color2)
+qreal ColorMath::contrastRatio(const QColor &color1, const QColor &color2)
 {
     const qreal la = relativeLuminance(color1);
     const qreal lb = relativeLuminance(color2);
     const qreal lighter = qMax(la, lb);
     const qreal darker  = qMin(la, lb);
     return (lighter + 0.05) / (darker + 0.05);
+}
+
+QColor ColorMath::ensureContrast(const QColor &c, const QColor &bg, qreal minRatio)
+{
+    if (contrastRatio(c, bg) >= minRatio) {
+        return c;
+    }
+    const QColor target = contrastingText(bg);
+    qreal lo = 0.0, hi = 1.0;
+    for (int i = 0; i < 24; ++i) {
+        const qreal m = (lo + hi) / 2.0;
+        const QColor test = mix(c, target, m);
+        if (contrastRatio(test, bg) >= minRatio) {
+            hi = m;
+        } else {
+            lo = m;
+        }
+    }
+    const QColor out = mix(c, target, hi);
+    return contrastRatio(out, bg) >= minRatio ? out : target;
 }
 
 bool ColorMath::isDark(const QColor &color)

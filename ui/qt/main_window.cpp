@@ -37,7 +37,7 @@
 #include "utils/profile_switcher.h"
 #include "utils/qt_ui_utils.h"
 #include "utils/workspace_state.h"
-#include "widgets/display_filter_combo.h"
+#include "widgets/display_filter_entry.h"
 
 #ifdef Q_OS_MAC
 #include <ui/macosx/cocoa_bridge.h>
@@ -195,7 +195,7 @@ void MainWindow::gotoFrame(int packet_num)
 
 QString MainWindow::getFilter()
 {
-    return df_combo_box_->currentText();
+    return df_combo_box_->text();
 }
 
 MainStatusBar *MainWindow::statusBar()

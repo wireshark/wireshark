@@ -12,7 +12,9 @@
 #include <wireshark.h>
 
 #include "capture_options_dialog.h"
-#include <ui/qt/widgets/capture_filter_combo.h>
+#include <ui/qt/widgets/capture_filter_entry.h>
+#include <ui/qt/widgets/filter_edit.h>
+#include <ui/qt/models/capture_filter_validator.h>
 #include <ui_capture_options_dialog.h>
 #include "compiled_filter_output.h"
 #include "manage_interfaces_dialog.h"
@@ -55,12 +57,11 @@
 // - Set a size hint for item delegates.
 // - Make promiscuous and monitor mode checkboxes.
 // - Fix InterfaceTreeDelegate method names.
-// - You can edit filters via the main CaptureFilterCombo and via each
+// - You can edit filters via the main capture-filter field and via each
 //   individual interface row. We should probably do one or the other.
-// - There might be a point in having the separate combo boxes in the
-//   individual interface row, if their CaptureFilterCombos actually
-//   called recent_get_cfilter_list with the interface name to get the
-//   separate list of recent capture filters for that interface, but
+// - There might be a point in having the separate per-interface row editors,
+//   if they actually called recent_get_cfilter_list with the interface name to
+//   get the separate list of recent capture filters for that interface, but
 //   they don't.
 
 const int stat_update_interval_ = 1000; // ms
@@ -232,11 +233,11 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     // Changes in interface selections or capture filters should be propagated
     // to the main welcome screen where they will be applied to the global
     // capture options.
-    connect(this, &CaptureOptionsDialog::interfacesChanged, ui->captureFilterComboBox, &CaptureFilterCombo::interfacesChanged);
-    connect(ui->captureFilterComboBox, &CaptureFilterCombo::captureFilterSyntaxChanged, this, &CaptureOptionsDialog::updateWidgets);
-    connect(ui->captureFilterComboBox->lineEdit(), &QLineEdit::textEdited, this, &CaptureOptionsDialog::filterEdited);
-    connect(ui->captureFilterComboBox->lineEdit(), &QLineEdit::textEdited, this, &CaptureOptionsDialog::captureFilterTextEdited);
-    connect(&interface_item_delegate_, &InterfaceTreeDelegate::filterChanged, ui->captureFilterComboBox->lineEdit(), &QLineEdit::setText);
+    connect(this, &CaptureOptionsDialog::interfacesChanged, ui->captureFilterComboBox, &CaptureFilterEntry::recheck);
+    connect(ui->captureFilterComboBox, &CaptureFilterEntry::captureFilterSyntaxChanged, this, &CaptureOptionsDialog::updateWidgets);
+    connect(ui->captureFilterComboBox, &QLineEdit::textEdited, this, &CaptureOptionsDialog::filterEdited);
+    connect(ui->captureFilterComboBox, &QLineEdit::textEdited, this, &CaptureOptionsDialog::captureFilterTextEdited);
+    connect(&interface_item_delegate_, &InterfaceTreeDelegate::filterChanged, ui->captureFilterComboBox, &QLineEdit::setText);
     connect(&interface_item_delegate_, &InterfaceTreeDelegate::filterChanged, this, &CaptureOptionsDialog::captureFilterTextEdited);
     connect(this, &CaptureOptionsDialog::ifsChanged, this, &CaptureOptionsDialog::refreshInterfaceList);
     connect(mainApp, &MainApplication::localInterfaceListChanged, this, &CaptureOptionsDialog::updateLocalInterfaces);
@@ -355,7 +356,7 @@ void CaptureOptionsDialog::filterEdited()
     QList<QTreeWidgetItem*> si = ui->interfaceTree->selectedItems();
 
     foreach (QTreeWidgetItem *ti, si) {
-        ti->setText(col_filter_, ui->captureFilterComboBox->lineEdit()->text());
+        ti->setText(col_filter_, ui->captureFilterComboBox->text());
     }
 
     if (si.count() > 0) {
@@ -366,14 +367,10 @@ void CaptureOptionsDialog::filterEdited()
 
 void CaptureOptionsDialog::updateWidgets()
 {
-    SyntaxLineEdit *sle = qobject_cast<SyntaxLineEdit *>(ui->captureFilterComboBox->lineEdit());
-    if (!sle) {
-        return;
-    }
-
     bool can_capture = false;
 
-    if (ui->interfaceTree->selectedItems().count() > 0 && sle->syntaxState() != SyntaxLineEdit::Invalid) {
+    if (ui->interfaceTree->selectedItems().count() > 0 &&
+        ui->captureFilterComboBox->state() != FilterEdit::SyntaxState::Invalid) {
         can_capture = true;
     }
 
@@ -693,7 +690,7 @@ void CaptureOptionsDialog::on_buttonBox_accepted()
         }
 #endif /* HAVE_LIBPCAP */
 
-        emit setFilterValid(true, ui->captureFilterComboBox->lineEdit()->text());
+        emit setFilterValid(true, ui->captureFilterComboBox->text());
         accept();
     }
 }
@@ -1328,15 +1325,15 @@ bool CaptureOptionsDialog::saveOptionsToPreferences(capture_options* capture_opt
 void CaptureOptionsDialog::updateSelectedFilter()
 {
     // Should match MainWelcome::interfaceSelected.
-    QPair <const QString, bool> sf_pair = CaptureFilterEdit::getSelectedFilter();
+    QPair <const QString, bool> sf_pair = CaptureFilterEntry::getSelectedFilter();
     const QString user_filter = sf_pair.first;
     bool conflict = sf_pair.second;
 
     if (conflict) {
-        ui->captureFilterComboBox->lineEdit()->clear();
+        ui->captureFilterComboBox->clear();
         ui->captureFilterComboBox->setConflict(true);
     } else {
-        ui->captureFilterComboBox->lineEdit()->setText(user_filter);
+        ui->captureFilterComboBox->setText(user_filter);
     }
 }
 
@@ -1523,10 +1520,12 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
         }
         case col_filter_:
         {
-            // XXX: Should this take the interface name, so that the history
-            // list is taken from the interface-specific recent cfilter list?
-            CaptureFilterCombo *cf = new CaptureFilterCombo(parent, true);
-            connect(cf->lineEdit(), &QLineEdit::textEdited, this, &InterfaceTreeDelegate::filterChanged);
+            // A plain (chrome-less) capture-filter edit: validity tinting via the
+            // capture validator, but none of the bookmark/history in-line actions
+            // the main field has, since this is an inline table-cell editor.
+            FilterEdit *cf = new FilterEdit(parent);
+            cf->setValidator(new CaptureFilterValidator(cf));
+            connect(cf, &QLineEdit::textEdited, this, &InterfaceTreeDelegate::filterChanged);
             w = (QWidget*) cf;
         }
         default:

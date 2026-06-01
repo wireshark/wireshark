@@ -20,14 +20,13 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/apply_line_edit.h
 	widgets/base_data_source_view.h
 	widgets/capture_card_widget.h
-	widgets/capture_filter_combo.h
-	widgets/capture_filter_edit.h
+	widgets/capture_filter_entry.h
+	widgets/display_filter_entry.h
 	widgets/clickable_label.h
 	widgets/collapsible_section.h
 	widgets/compression_group_box.h
 	widgets/copy_from_profile_button.h
 	widgets/detachable_tabwidget.h
-	widgets/display_filter_combo.h
 	widgets/display_filter_edit.h
 	widgets/dissector_syntax_line_edit.h
 	widgets/dissector_tables_view.h
@@ -38,6 +37,8 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/expert_info_view.h
 	widgets/export_objects_view.h
 	widgets/field_filter_edit.h
+	widgets/filter_edit.h
+	widgets/filter_expression_edit.h
 	widgets/filter_expression_toolbar.h
 	widgets/find_line_edit.h
 	widgets/follow_stream_text.h
@@ -109,6 +110,7 @@ set(WIRESHARK_UTILS_HEADERS
 	utils/themes/theme_parser.h
 	utils/themes/theme_stylesheet_loader.h
 	utils/themes/theme_token_handler.h
+	utils/themes/themed_icon.h
 	utils/variant_pointer.h
 	utils/wireshark_mime_data.h
 	utils/wireshark_zip_helper.h
@@ -118,7 +120,16 @@ set(WIRESHARK_UTILS_HEADERS
 set(WIRESHARK_MODEL_HEADERS
 	models/astringlist_list_model.h
 	models/atap_data_model.h
+	models/bookmark_model.h
 	models/cache_proxy_model.h
+	models/capture_filter_bookmark_model.h
+	models/display_filter_bookmark_model.h
+	models/capture_filter_completer.h
+	models/display_filter_completer.h
+	models/capture_filter_history_model.h
+	models/display_filter_history_model.h
+	models/capture_filter_validator.h
+	models/display_filter_validator.h
 	models/coloring_rules_delegate.h
 	models/coloring_rules_model.h
 	models/column_list_model.h
@@ -131,7 +142,10 @@ set(WIRESHARK_MODEL_HEADERS
 	models/expert_info_proxy_model.h
 	models/export_objects_model.h
 	models/fileset_entry_model.h
+	models/filter_completer.h
+	models/filter_history_model.h
 	models/filter_list_model.h
+	models/filter_validator.h
 	models/info_proxy_model.h
 	models/interface_sort_filter_model.h
 	models/interface_tree_cache_model.h
@@ -327,14 +341,13 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/additional_toolbar.cpp
 	widgets/apply_line_edit.cpp
 	widgets/capture_card_widget.cpp
-	widgets/capture_filter_combo.cpp
-	widgets/capture_filter_edit.cpp
+	widgets/capture_filter_entry.cpp
+	widgets/display_filter_entry.cpp
 	widgets/clickable_label.cpp
 	widgets/collapsible_section.cpp
 	widgets/compression_group_box.cpp
 	widgets/copy_from_profile_button.cpp
 	widgets/detachable_tabwidget.cpp
-	widgets/display_filter_combo.cpp
 	widgets/display_filter_edit.cpp
 	widgets/dissector_syntax_line_edit.cpp
 	widgets/dissector_tables_view.cpp
@@ -345,6 +358,8 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/expert_info_view.cpp
 	widgets/export_objects_view.cpp
 	widgets/field_filter_edit.cpp
+	widgets/filter_edit.cpp
+	widgets/filter_expression_edit.cpp
 	widgets/filter_expression_toolbar.cpp
 	widgets/find_line_edit.cpp
 	widgets/follow_stream_text.cpp
@@ -423,6 +438,7 @@ set(WIRESHARK_UTILS_SRCS
 	utils/themes/theme_parser.cpp
 	utils/themes/theme_stylesheet_loader.cpp
 	utils/themes/theme_token_handler.cpp
+	utils/themes/themed_icon.cpp
 	utils/themes/system_theme_detector_common.cpp
 	${WIRESHARK_THEMES_PLATFORM_SRC}
 	utils/wireshark_mime_data.cpp
@@ -433,7 +449,16 @@ set(WIRESHARK_UTILS_SRCS
 set(WIRESHARK_MODEL_SRCS
 	models/astringlist_list_model.cpp
 	models/atap_data_model.cpp
+	models/bookmark_model.cpp
 	models/cache_proxy_model.cpp
+	models/capture_filter_bookmark_model.cpp
+	models/display_filter_bookmark_model.cpp
+	models/capture_filter_completer.cpp
+	models/display_filter_completer.cpp
+	models/capture_filter_history_model.cpp
+	models/display_filter_history_model.cpp
+	models/capture_filter_validator.cpp
+	models/display_filter_validator.cpp
 	models/coloring_rules_delegate.cpp
 	models/coloring_rules_model.cpp
 	models/column_list_model.cpp
@@ -446,7 +471,10 @@ set(WIRESHARK_MODEL_SRCS
 	models/expert_info_proxy_model.cpp
 	models/export_objects_model.cpp
 	models/fileset_entry_model.cpp
+	models/filter_completer.cpp
+	models/filter_history_model.cpp
 	models/filter_list_model.cpp
+	models/filter_validator.cpp
 	models/info_proxy_model.cpp
 	models/interface_sort_filter_model.cpp
 	models/interface_tree_cache_model.cpp
@@ -901,6 +929,7 @@ qt_add_resources(WIRESHARK_QT_QRC
 	../../resources/languages/languages.qrc
 	../../resources/layout.qrc
 	../../resources/stock_icons.qrc
+	../../resources/theme_icons.qrc
 	${WSICON_QRC}
 	${I18N_QRC}
 	${AUTHORS_QRC}

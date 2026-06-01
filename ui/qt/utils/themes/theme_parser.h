@@ -73,7 +73,7 @@ private:
                                          const ThemeInfo          &info,
                                          QHash<ThemeManager::ThemeToken, ThemeColorPair> &out);
     static QFont            parseFontFamily(const QJsonObject &obj, QFont defaultFont);
-    void                    parseFonts(const QJsonObject &fontsObj, Result &out);
+    static void             parseFonts(const QJsonObject &fontsObj, Result &out);
 
     ThemeManager::ThemeToken stringToToken(const QString &token) const;
 

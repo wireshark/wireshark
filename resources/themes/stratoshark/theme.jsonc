@@ -111,6 +111,23 @@
 	},
 
 	// -----------------------------------------------------------------
+	// Filter validity tints
+	//
+	// Saturated teal-leaning green for "valid" and warm dark red for
+	// "invalid", picked to sit harmoniously alongside the rest of the
+	// teal palette.  Dark values sit under the WCAG luminance
+	// threshold so ColorMath::contrastingText() picks white text
+	// automatically, mirroring the Wireshark theme's approach.
+	//
+	// "deprecated" / "busy" / "busyText" intentionally omitted: they
+	// derive from accent.warning / palette.base / palette.text.
+	// -----------------------------------------------------------------
+	"filter": {
+		"valid":   { "light": "#0a5b3b", "dark": "#16734f" },
+		"invalid": { "light": "#6a1a14", "dark": "#7a2218" }
+	},
+
+	// -----------------------------------------------------------------
 	// QPalette overrides
 	//
 	// Light mode:  near-white background with the faintest teal tint,
@@ -118,16 +135,17 @@
 	// Dark mode:   deep teal-tinged blacks so cards/panes don't feel like
 	//              they're floating on a generic dark-gray surface.
 	//
-	// IMPORTANT — palette.mid maps to the design spec's
-	// --color-text-muted, not --color-border.  Reason: Qt derives the
-	// welcome-page section header text colour (SectionHeader) directly
-	// from QPalette::Mid in theme_token_handler.cpp.  The web spec's
-	// border tokens (~#d6e3e6 light) hit a ~1.1:1 contrast ratio
-	// against base — section headers ("Open", "Capture", "Learn")
-	// disappear entirely.  Using --color-text-muted instead gives
-	// ~5.8:1 (light) / ~7.8:1 (dark), well past WCAG AA, while keeping
-	// the teal-tinted character.  --color-border goes to midlight,
-	// which is what hairline-style separators actually want.
+	// palette.mid maps to the design spec's --color-text-muted (not
+	// --color-border).  Structural roles that previously misused it —
+	// SectionHeader, FieldBorder, hairline borders — now go through
+	// ensureContrast-derived theme tokens or the explicit separator
+	// override below.  The override is kept because palette.mid is
+	// still consumed directly by Qt and by a few QSS rules as a
+	// muted-text colour, and the teal-tinted values keep that text
+	// aligned with the rest of the theme; reverting to the platform-
+	// default mid grey loses that character.  --color-border goes to
+	// midlight, which is what hairline-style separators actually
+	// want (and matches the separator override below).
 	// -----------------------------------------------------------------
 	"palette": {
 		"window":          { "light": "#eef6f7", "dark": "#0e1d22" },
@@ -143,6 +161,21 @@
 		// practice (contrast ~3.4:1 vs. black ~6.2:1, both AA-large;
 		// white feels right for a saturated brand colour).  Pin it.
 		"highlightedText": { "light": "#ffffff", "dark": "#ffffff" }
+	},
+
+	// -----------------------------------------------------------------
+	// Separator (hairline / divider between cards & sections)
+	//
+	// Pinned to palette.midlight — semantically the right role for
+	// hairlines in this theme.  Without this override the derived
+	// separator would use mix(palette.base, palette.mid, 53%) and
+	// inherit Stratoshark's intentionally-dark mid (which doubles
+	// as muted text), producing borders at ~2:1 contrast — too
+	// pronounced for what should read as a quiet divider.
+	// -----------------------------------------------------------------
+	"separator": {
+		"light": "#d6e3e6",
+		"dark":  "#1f3338"
 	},
 
 	// -----------------------------------------------------------------

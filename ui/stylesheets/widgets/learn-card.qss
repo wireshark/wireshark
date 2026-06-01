@@ -22,7 +22,7 @@
  * ----------------------------------------------------------------- */
 LearnCardWidget {
     background-color: palette(alternateBase);
-    border: 1px solid palette(mid);
+    border: 1px solid wstheme(Separator);
     border-radius: 6px;
 }
 
@@ -82,5 +82,5 @@ QPushButton#learnButton {
  * Button container — separator line above action buttons
  * ----------------------------------------------------------------- */
 QWidget#learnButtonContainer {
-    border-top: 1px solid palette(mid);
+    border-top: 1px solid wstheme(Separator);
 }

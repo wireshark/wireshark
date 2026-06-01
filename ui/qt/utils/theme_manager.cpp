@@ -140,7 +140,13 @@ ThemeManager::ThemeManager(QObject *parent)
         { "expert", { false, { } } },
         { "packets", { false, { } } },
         { "conversation", { false, { } } },
-        { "palette", { false, { } } }
+        { "palette", { false, { } } },
+        // Filter validity tints — every subkey optional.  When a
+        // theme omits the section ThemeTokenHandler derives all five
+        // tokens from accent + palette.base.  An explicit theme.filter
+        // entry wins per-token (auto-grouping picks up FilterValid →
+        // "valid", FilterBusyText → "busytext", etc).
+        { "filter", { false, { } } }
     };
 
     // convenience mapping from string to QPalette::ColorRole

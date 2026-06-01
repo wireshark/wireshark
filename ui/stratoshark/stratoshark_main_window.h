@@ -62,7 +62,7 @@
 #include "capture_file_dialog.h"
 #include "capture_file_properties_dialog.h"
 #include <ui/qt/utils/field_information.h>
-#include <ui/qt/widgets/display_filter_combo.h>
+#include <ui/qt/widgets/display_filter_entry.h>
 #include "main_window.h"
 
 class AccordionFrame;

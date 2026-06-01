@@ -121,6 +121,18 @@ bool ThemeParser::parse(const QString &internalName,
         parseSection(root, sectionName, sectionInfo, out.info, out.colors);
     }
 
+    // Step 2b - separator (single top-level ColorPair, not a section-
+    // with-subkeys).  Kept outside sections_ because the JSON shape is
+    // { "separator": { "light": "...", "dark": "..." } } rather than
+    // the section-with-subkeys form parseSection() expects.  When
+    // absent ThemeTokenHandler derives Separator from palette.base +
+    // palette.mid.
+    if (root.contains(QStringLiteral("separator"))) {
+        const QJsonObject sepObj = root.value(QStringLiteral("separator")).toObject();
+        if (!sepObj.isEmpty())
+            out.colors[ThemeManager::Separator] = parseColorPair(sepObj);
+    }
+
     // Step 3 - graphs
     out.graphColors.clear();
     const QJsonArray graphs = root.value(QStringLiteral("graphs")).toArray();

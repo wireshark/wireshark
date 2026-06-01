@@ -1,0 +1,16 @@
+<!-- Scalable icon sources tinted at runtime by ThemedIcon (ui/qt/utils/themes).
+     Unlike stock_icons.qrc — which ships pre-rendered, per-mode raster icons —
+     these are single SVG silhouettes recoloured to a ThemeManager token, so one
+     asset follows the active theme.  Exposed under a size-agnostic /svg_icons
+     prefix; the tooling-generated SVG sources keep their on-disk home under
+     stock_icons/<size>/ via aliases, while hand-authored ones live in
+     svg_icons/. -->
+<RCC>
+    <qresource prefix="/svg_icons">
+        <file alias="x-filter-clear.svg">stock_icons/14x14/x-filter-clear.svg</file>
+        <file alias="x-filter-apply.svg">stock_icons/24x14/x-filter-apply.svg</file>
+        <file alias="x-display-filter-bookmark.svg">stock_icons/14x14/x-display-filter-bookmark.svg</file>
+        <file alias="x-capture-filter-bookmark.svg">stock_icons/14x14/x-capture-filter-bookmark.svg</file>
+        <file alias="x-filter-history.svg">svg_icons/x-filter-history.svg</file>
+    </qresource>
+</RCC>

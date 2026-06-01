@@ -30,7 +30,7 @@
 #include <ui/qt/packet_list.h>
 #include <ui/qt/packet_diagram.h>
 #include <ui/qt/proto_tree.h>
-#include <ui/qt/widgets/display_filter_combo.h>
+#include <ui/qt/widgets/display_filter_entry.h>
 #include "main_application.h"
 #include <ui/qt/welcome_page.h>
 
@@ -217,9 +217,9 @@ void MainWindow::layoutPanes()
     if (df_combo_box_) {
         QWidget *main_toolbar = findChild<QWidget *>("mainToolBar");
         if (main_toolbar) {
-            setTabOrder(main_toolbar, df_combo_box_->lineEdit());
+            setTabOrder(main_toolbar, df_combo_box_);
         }
-        setTabOrder(df_combo_box_->lineEdit(), packet_list_);
+        setTabOrder(df_combo_box_, packet_list_);
     }
     setTabOrder(packet_list_, proto_tree_);
     setTabOrder(proto_tree_, data_source_tab_);

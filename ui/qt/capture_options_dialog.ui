@@ -150,7 +150,7 @@
           </widget>
          </item>
          <item>
-          <widget class="CaptureFilterCombo" name="captureFilterComboBox">
+          <widget class="CaptureFilterEntry" name="captureFilterComboBox">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -1023,9 +1023,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</stri
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CaptureFilterCombo</class>
-   <extends>QComboBox</extends>
-   <header>widgets/capture_filter_combo.h</header>
+   <class>CaptureFilterEntry</class>
+   <extends>QLineEdit</extends>
+   <header>widgets/capture_filter_entry.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

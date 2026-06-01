@@ -19,8 +19,7 @@
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/qt_ui_utils.h>
-#include <ui/qt/widgets/capture_filter_combo.h>
-#include <ui/qt/widgets/capture_filter_edit.h>
+#include <ui/qt/widgets/capture_filter_entry.h>
 
 #include <QEvent>
 #include <QFile>
@@ -47,20 +46,20 @@ CaptureCardWidget::CaptureCardWidget(QWidget *parent) :
         setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/capture-card")));
     });
 
-    // Internal wiring: interface frame ↔ filter combo
+    // Internal wiring: interface frame ↔ filter entry
     connect(ui_->captureInterfaceFrame, &InterfaceFrame::itemSelectionChanged,
-            ui_->captureFilterCombo, &CaptureFilterCombo::interfacesChanged);
+            ui_->captureFilterEntry, &CaptureFilterEntry::recheck);
     connect(ui_->captureInterfaceFrame, &InterfaceFrame::typeSelectionChanged,
             this, &CaptureCardWidget::interfaceListChanged);
     connect(ui_->captureInterfaceFrame, &InterfaceFrame::itemSelectionChanged,
             this, &CaptureCardWidget::interfaceSelected);
 
-    // Internal wiring: filter combo → this
-    connect(ui_->captureFilterCombo->lineEdit(), &QLineEdit::textEdited,
+    // Internal wiring: filter entry → this
+    connect(ui_->captureFilterEntry, &QLineEdit::textEdited,
             this, &CaptureCardWidget::captureFilterTextEdited);
-    connect(ui_->captureFilterCombo, &CaptureFilterCombo::captureFilterSyntaxChanged,
+    connect(ui_->captureFilterEntry, &CaptureFilterEntry::captureFilterSyntaxChanged,
             this, &CaptureCardWidget::captureFilterSyntaxChanged);
-    connect(ui_->captureFilterCombo, &CaptureFilterCombo::startCapture,
+    connect(ui_->captureFilterEntry, &CaptureFilterEntry::startCapture,
             this, &CaptureCardWidget::captureStarting);
 
     // Signal relay: interface frame → this (forwarded to WelcomePage)
@@ -92,27 +91,27 @@ InterfaceFrame *CaptureCardWidget::interfaceFrame()
 
 const QString CaptureCardWidget::captureFilter()
 {
-    return ui_->captureFilterCombo->currentText();
+    return ui_->captureFilterEntry->text();
 }
 
 void CaptureCardWidget::setCaptureFilter(const QString &filter)
 {
-    ui_->captureFilterCombo->lineEdit()->setText(filter);
+    ui_->captureFilterEntry->setText(filter);
 }
 
 void CaptureCardWidget::setCaptureFilterText(const QString &filter)
 {
-    ui_->captureFilterCombo->lineEdit()->setText(filter);
+    ui_->captureFilterEntry->setText(filter);
     captureFilterTextEdited(filter);
 }
 
 void CaptureCardWidget::appInitialized()
 {
 #ifdef HAVE_LIBPCAP
-    ui_->captureFilterCombo->lineEdit()->setText(global_capture_opts.default_options.cfilter);
+    ui_->captureFilterEntry->setText(global_capture_opts.default_options.cfilter);
 #endif
 
-    ui_->captureFilterCombo->setEnabled(true);
+    ui_->captureFilterEntry->setEnabled(true);
 
     interfaceListChanged();
 
@@ -242,15 +241,15 @@ void CaptureCardWidget::captureFilterTextEdited(const QString &filter)
 // Must not change any interface data.
 void CaptureCardWidget::interfaceSelected()
 {
-    QPair<const QString, bool> sf_pair = CaptureFilterEdit::getSelectedFilter();
+    QPair<const QString, bool> sf_pair = CaptureFilterEntry::getSelectedFilter();
     const QString user_filter = sf_pair.first;
     bool conflict = sf_pair.second;
 
     if (conflict) {
-        ui_->captureFilterCombo->lineEdit()->clear();
-        ui_->captureFilterCombo->setConflict(true);
+        ui_->captureFilterEntry->clear();
+        ui_->captureFilterEntry->setConflict(true);
     } else {
-        ui_->captureFilterCombo->lineEdit()->setText(user_filter);
+        ui_->captureFilterEntry->setText(user_filter);
     }
 
     // Notify others (capture options dialog) that the selection has changed.

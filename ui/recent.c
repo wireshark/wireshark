@@ -911,7 +911,7 @@ write_recent(void)
             "######## Recent display filters (latest last), cannot be altered through command line ########\n"
             "\n", rf);
 
-    dfilter_recent_combo_write_all(rf);
+    dfilter_recent_write_all(rf);
 
 #ifdef HAVE_PCAP_REMOTE
     fputs("\n"
@@ -1619,7 +1619,7 @@ read_set_recent_pair_dynamic(char *key, const char *value,
         return PREFS_SET_SYNTAX_ERR;
     }
     if (strcmp(key, RECENT_KEY_DISPLAY_FILTER) == 0) {
-        dfilter_combo_add_recent(value);
+        dfilter_recent_add(value);
     } else if (strcmp(key, RECENT_KEY_CAPTURE_FILTER) == 0) {
         recent_add_cfilter(NULL, value);
     } else if (g_str_has_prefix(key, RECENT_KEY_CAPTURE_FILTER ".")) {

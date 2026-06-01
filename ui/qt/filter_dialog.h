@@ -151,9 +151,13 @@ private:
 };
 
 /**
- * @brief A validator for filter strings.
+ * @brief A validator for filter strings used by the FilterDialog fields.
+ *
+ * Distinct from the FilterValidator base in ui/qt/models/: this one is local to
+ * the saved-filters dialog. (When the dialog migrates onto FilterEdit in a later
+ * stage, this can be retired in favour of the injected validators.)
  */
-class FilterValidator : public QValidator
+class DialogFilterValidator : public QValidator
 {
 public:
     /**

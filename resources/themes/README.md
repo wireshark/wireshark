@@ -124,6 +124,31 @@ Editors that support JSON Schema (VS Code, IntelliJ, etc.) can use it
 for autocompletion and error checking by adding a `$schema` reference
 or configuring the schema association in editor settings.
 
+#### `filter` (optional) — filter-validity tint overrides
+
+Five optional subkeys, each a `{light, dark}` pair:
+
+| Key          | Purpose |
+|--------------|---------|
+| `valid`      | Background tint when the filter expression is valid |
+| `invalid`    | Background tint when the filter expression is rejected |
+| `deprecated` | Background tint when the filter uses a deprecated field |
+| `busy`       | Background while a capture filter is being compiled off-thread |
+| `busyText`   | Foreground for the busy state (mirrors QLineEdit placeholder fade) |
+
+Omitted keys derive from `accent.success` / `accent.error` /
+`accent.warning` / `palette.base` / `palette.text`.  Explicit values let
+themes ship the historical GTK-era saturated dark green / dark red
+look that alpha-tinting an accent can never reach.
+
+#### `separator` (optional) — hairline divider colour
+
+Single `{light, dark}` pair used for dividers between cards and
+sections (Learn card border, Learn-buttons separator, capture/learn
+card frames).  When omitted, derived as a 53 % mix of `palette.base`
+toward `palette.mid`.  Themes whose `palette.mid` doubles as muted
+text (e.g. Stratoshark) should set this explicitly to a softer value.
+
 ### Top-level fields
 
 | Field   | Type   | Required | Description |

@@ -32,7 +32,7 @@ class QStackedWidget;
 class QTextCodec;
 
 class DataSourceTab;
-class DisplayFilterCombo;
+class DisplayFilterEntry;
 class FieldInformation;
 class FunnelAction;
 class MainStatusBar;
@@ -318,7 +318,7 @@ protected:
     PacketDiagram *packet_diagram_;
 
     /** Pointer to the display filter combo box. */
-    DisplayFilterCombo *df_combo_box_;
+    DisplayFilterEntry *df_combo_box_;
 
     /** Pointer to the main status bar. */
     MainStatusBar *main_status_bar_;

@@ -71,7 +71,7 @@
        </widget>
       </item>
       <item>
-       <widget class="CaptureFilterCombo" name="captureFilterCombo">
+       <widget class="CaptureFilterEntry" name="captureFilterEntry">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -80,9 +80,6 @@
         </property>
         <property name="accessibleDescription">
          <string>Enter a capture filter expression to limit which data is recorded during live capture.</string>
-        </property>
-        <property name="editable">
-         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -139,9 +136,9 @@
    <header>widgets/clickable_label.h</header>
   </customwidget>
   <customwidget>
-   <class>CaptureFilterCombo</class>
-   <extends>QComboBox</extends>
-   <header>widgets/capture_filter_combo.h</header>
+   <class>CaptureFilterEntry</class>
+   <extends>QLineEdit</extends>
+   <header>widgets/capture_filter_entry.h</header>
   </customwidget>
   <customwidget>
    <class>InterfaceFrame</class>

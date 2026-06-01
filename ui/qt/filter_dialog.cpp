@@ -22,7 +22,8 @@
 #include <QSortFilterProxyModel>
 
 #include <ui/qt/utils/qt_ui_utils.h>
-#include <ui/qt/widgets/capture_filter_edit.h>
+#include <ui/qt/widgets/filter_edit.h>
+#include <ui/qt/models/capture_filter_validator.h>
 #include <ui/qt/widgets/display_filter_edit.h>
 #include "main_application.h"
 
@@ -252,7 +253,11 @@ QWidget *FilterTreeDelegate::createEditor(QWidget *parent, const QStyleOptionVie
         w = QStyledItemDelegate::createEditor(parent, option, index);
     }
     else if (filter_type_ == FilterDialog::CaptureFilter) {
-        w = new CaptureFilterEdit(parent, true);
+        // Plain capture-filter edit for the inline cell: validity tinting only,
+        // no bookmark/history chrome (this is the saved-filter manager itself).
+        FilterEdit *fe = new FilterEdit(parent);
+        fe->setValidator(new CaptureFilterValidator(fe));
+        w = fe;
     }
     else if (filter_type_ == FilterDialog::DisplayFilter) {
         w = new DisplayFilterEdit(parent, DisplayFilterToEnter);
@@ -267,7 +272,7 @@ QWidget *FilterTreeDelegate::createEditor(QWidget *parent, const QStyleOptionVie
                 qobject_cast<QLineEdit *>(w)->setValidator(new MacroNameValidator());
             }
             else {
-                qobject_cast<QLineEdit *>(w)->setValidator(new FilterValidator());
+                qobject_cast<QLineEdit *>(w)->setValidator(new DialogFilterValidator());
             }
         }
     }
@@ -286,7 +291,7 @@ void FilterTreeDelegate::setEditorData(QWidget *editor, const QModelIndex &index
         qobject_cast<QLineEdit *>(editor)->setText(index.data().toString());
 }
 
-QValidator::State FilterValidator::validate(QString & input, int & /*pos*/) const
+QValidator::State DialogFilterValidator::validate(QString & input, int & /*pos*/) const
 {
     /* Making this a list to be able to easily add additional values in the future */
     QStringList invalidKeys = QStringList() << "\"";

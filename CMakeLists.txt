@@ -1469,6 +1469,7 @@ if(BUILD_wireshark OR BUILD_stratoshark)
 			Qt5PrintSupport
 			Qt5Widgets
 			Qt5Concurrent
+			Qt5Svg
 		)
 		set(QT5_OPTIONAL_PACKAGELIST
 			# DBus is a core component of Qt6, but was an add-on in Qt5.

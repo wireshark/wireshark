@@ -39,35 +39,38 @@
 	// -----------------------------------------------------------------
 	// Brand — the two colors that define the visual identity.
 	//
-	// "primary" is the main brand hue — drives header gradient end,
-	// selection highlight, section header hover, sparkline stroke,
-	// link accents, and the splash progress bar.
+	// "primary" is the main brand hue — drives header gradient end
+	// (after WCAG clamp), selection highlight, section header hover,
+	// sparkline stroke, link accents, and the splash progress bar.
 	//
 	// "deep" is the darkest brand shade — drives header gradient start.
 	//
-	// For dark mode: "primary" is brighter for visibility on dark
-	// surfaces; "deep" is near-black with a hint of the brand hue.
+	// Light primary is Tango sky_blue_4 (the classic Wireshark blue);
+	// deep is a darker derivative for the gradient start.  Dark mode
+	// uses a brighter primary so it reads against dark surfaces and a
+	// near-black deep with a hint of blue for the gradient.
 	// -----------------------------------------------------------------
 	"brand": {
-		"primary": { "light": "#2c6fb5", "dark": "#5b9ee6" },
-		"deep":    { "light": "#1e3a5f", "dark": "#0f1b30" }
+		"primary": { "light": "#204a87", "dark": "#5b9ee6" },
+		"deep":    { "light": "#112347", "dark": "#0a1828" }
 	},
 
 	// -----------------------------------------------------------------
 	// Accent — four semantic colors.  Required.
 	//
-	// These drive the update bar, filter validation, status indicators,
+	// These drive the update bar, filter validation tints (when no
+	// explicit theme.filter override is present), status indicators,
 	// expert info fallbacks, and the "Development Build" badge.
 	//
-	// Default sources:
-	//   success — Material Design green
-	//   warning — Wireshark orange
-	//   error   — Tango scarlet_4 (light) / scarlet_3 (dark)
-	//   info    — Tango sky_blue_4 (light) / sky_blue_3 (dark)
+	// Default sources (Tango classic palette):
+	//   success — chameleon_3 (light) / _2 (dark)
+	//   warning — orange_3   (light) / _2 (dark)
+	//   error   — scarlet_4  (light) / _3 (dark)
+	//   info    — sky_blue_4 (light) / _3 (dark)
 	// -----------------------------------------------------------------
 	"accent": {
-		"success": { "light": "#4caf50", "dark": "#4caf50" },
-		"warning": { "light": "#e8652d", "dark": "#e8652d" },
+		"success": { "light": "#73d216", "dark": "#8ae234" },
+		"warning": { "light": "#f57900", "dark": "#fcaf3e" },
 		"error":   { "light": "#cc0000", "dark": "#ef2929" },
 		"info":    { "light": "#3465a4", "dark": "#729fcf" }
 	},
@@ -131,15 +134,41 @@
 	//   hidden         = text @ 40% alpha
 	// -----------------------------------------------------------------
 	"packets": {
-		"selection":     { "light": "#2c6fb5", "dark": "#2a3a55" },
-		"selectionText": { "light": "#ffffff", "dark": "#e8e8e8" },
-		"inactive":      { "light": "#efefef", "dark": "#2a2c42" },
-		"inactiveText":  { "light": "#000000", "dark": "#e8e8e8" },
+		// Selection light is #3072cc (not the macOS-system #3a7ad2);
+		// the macOS value lands at 4.29:1 against white, just short of
+		// AA.  #3072cc is the smallest nudge that clears 4.5:1 while
+		// reading as the same blue.
+		"selection":     { "light": "#3072cc", "dark": "#2a4068" },
+		"selectionText": { "light": "#ffffff", "dark": "#ffffff" },
+		"inactive":      { "light": "#dcdcdc", "dark": "#2e3436" },
+		"inactiveText":  { "light": "#000000", "dark": "#eeeeec" },
 		"marked":        { "light": "#002033", "dark": "#002033" },
 		"markedText":    { "light": "#ffffff", "dark": "#ffffff" },
 		"ignored":       { "light": "#ffffff", "dark": "#1a1a1a" },
 		"ignoredText":   { "light": "#808080", "dark": "#808080" },
 		"hidden":        { "light": "#444444", "dark": "#999999" }
+	},
+
+	// -----------------------------------------------------------------
+	// Filter validity tints
+	//
+	// Explicit values preserving the historical GTK Wireshark look:
+	// saturated dark green for "valid", saturated dark red for
+	// "invalid".  Cannot be reached by alpha-tinting palette.base
+	// toward accent.success/accent.error (the math caps at the
+	// accent's own colour), so they ship as hex.
+	//
+	// Dark values sit under the WCAG luminance threshold (0.179) so
+	// ColorMath::contrastingText() picks white automatically — avoids
+	// the black-on-saturated-green look brighter chameleon shades
+	// would cause in dark mode, and dims the red so it doesn't pop.
+	//
+	// "deprecated", "busy", and "busyText" are intentionally omitted;
+	// they derive from accent.warning / palette.base / palette.text.
+	// -----------------------------------------------------------------
+	"filter": {
+		"valid":   { "light": "#296700", "dark": "#3a7a06" },
+		"invalid": { "light": "#5e0000", "dark": "#7a1818" }
 	},
 
 	// -----------------------------------------------------------------

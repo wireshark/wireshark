@@ -30,19 +30,20 @@ extern void menu_recent_file_write_all(FILE *rf);
 extern void cfilter_combo_recent_write_all(FILE *rf);
 
 /**
- * @brief Add a display filter coming from the user's recent file to the dfilter combo box.
+ * @brief Add a display filter coming from the user's recent file to the
+ * recent display-filter list.
  *
  * @param dftext the filter string
- * @return true if the filter was added to the combo box, false otherwise
+ * @return true if the filter was added to the recent list, false otherwise
  */
-extern bool dfilter_combo_add_recent(const char *dftext);
+extern bool dfilter_recent_add(const char *dftext);
 
 /** Write all non-empty display filters (until maximum count)
- *  of the combo box GList to the user's recent file.
+ *  from the recent display-filter list to the user's recent file.
  *
  * @param rf the recent file
  */
-extern void dfilter_recent_combo_write_all(FILE *rf);
+extern void dfilter_recent_write_all(FILE *rf);
 
 #ifdef __cplusplus
 }

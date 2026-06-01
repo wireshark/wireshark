@@ -6,7 +6,7 @@
  *     #captureHeader                — ClickableLabel, "Capture" title
  *     #captureFilterRow             — QWidget, filter row container
  *       #captureFilterLabel         — QLabel, "…using this filter:"
- *       #captureFilterCombo         — CaptureFilterCombo
+ *       #captureFilterCombo         — CaptureFilterEntry
  *       #captureInterfaceTypeButton — QPushButton, interface type filter
  *     #captureInterfaceFrame        — InterfaceFrame, interface list
  *

@@ -19,7 +19,6 @@
 #include <ui/qt/widgets/syntax_line_edit.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
-#include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/stock_icon.h>
 #include <ui/qt/utils/theme_manager.h>
 
@@ -78,11 +77,16 @@ void SyntaxLineEdit::setSyntaxState(SyntaxState state) {
     syntax_state_ = state;
 
     // Valid / Invalid / Deprecated backgrounds live in application.qss
-    // (global rules on SyntaxLineEdit[syntaxState="..."]).  Only Busy
-    // is handled here because its foreground is a runtime alpha-blend
-    // of QPalette::Text over QPalette::Base — matching QLineEdit's
-    // placeholder text color, which QSS can't express directly.
-    QColor busy_fg = ColorUtils::alphaBlend(QApplication::palette().text(), QApplication::palette().base(), 0.5);
+    // (global rules on SyntaxLineEdit[syntaxState="..."]).  Busy is
+    // handled here because the runtime stylesheet stops the QSS loader
+    // from doing wstheme(...) substitution — we resolve the tokens via
+    // the ThemeManager directly.  FilterBusy / FilterBusyText carry the
+    // historical "I'm working" look (placeholder-text fade over base)
+    // by default, but themes that ship explicit overrides in
+    // theme.filter take precedence.
+    ThemeManager *theme = ThemeManager::instance();
+    const QColor busy_bg = theme->color(ThemeManager::FilterBusy);
+    const QColor busy_fg = theme->color(ThemeManager::FilterBusyText);
 
     state_style_sheet_ = QStringLiteral(
             "SyntaxLineEdit[syntaxState=\"%1\"] {"
@@ -92,7 +96,7 @@ void SyntaxLineEdit::setSyntaxState(SyntaxState state) {
             )
             .arg(Busy)
             .arg(busy_fg.name())
-            .arg(palette().base().color().name())
+            .arg(busy_bg.name())
             ;
     setStyleSheet(style_sheet_);
 }
@@ -418,7 +422,7 @@ void SyntaxLineEdit::paintEvent(QPaintEvent *event)
     // It's not clear if this is a bug or just how things work under Qt6.
     // Either way, it's easy to work around.
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 3)
-    // Must match CaptureFilterEdit and DisplayFilterEdit stylesheets.
+    // Must match the DisplayFilterEdit stylesheet.
     int pad = style()->pixelMetric(QStyle::PM_DefaultFrameWidth) + 1;
     QRect full_cr = cr.adjusted(-pad, 0, -1, 0);
     QBrush bg;

@@ -120,6 +120,24 @@
             }
         },
 
+        "filter": {
+            "description": "Optional filter-validity tint overrides. Every key is independently optional; omitted ones derive from accent + palette.base. `valid`, `invalid`, `deprecated` are bg tints for the filter-edit field. `busy` and `busyText` are the bg + fg used while a capture filter is being compiled off-thread (the legacy GTK behavior, exposed here so themes can pin a more distinct visual than the default placeholder fade). Explicit values let themes ship the historical Tango saturated-dark-green/dark-red look that alpha-tinting an accent can never reach.",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "valid":      { "$ref": "#/$defs/colorPair" },
+                "invalid":    { "$ref": "#/$defs/colorPair" },
+                "deprecated": { "$ref": "#/$defs/colorPair" },
+                "busy":       { "$ref": "#/$defs/colorPair" },
+                "busyText":   { "$ref": "#/$defs/colorPair" }
+            }
+        },
+
+        "separator": {
+            "description": "Optional hairline/divider color used between cards and sections. When omitted, derived as a 53% mix of palette.base toward palette.mid. Themes whose palette.mid doubles as muted text (e.g. Stratoshark) should set this explicitly to a softer value so dividers stay subtle.",
+            "$ref": "#/$defs/colorPair"
+        },
+
         "graphs": {
             "description": "Optional rotating color cycle for I/O graphs, sequence/flow diagrams, TCP stream plots, RTP player, and IAX2 analysis. Custom themes may provide any number of colors; no backfill from the default theme.",
             "type": "array",

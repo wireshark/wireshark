@@ -1,9 +1,8 @@
 /* ===================================================================
- * filter-combo.qss — shared stylesheet for the filter combo-boxes
- * (CaptureFilterCombo and DisplayFilterCombo).  Both widgets present
- * the same visual shape — subtle rounded border, fixed-width custom
- * drop-down indicator, min-width — so they share this one file
- * rather than duplicating the rules per subclass.
+ * filter-combo.qss — stylesheet for DisplayFilterCombo: a subtle rounded
+ * border, fixed-width custom drop-down indicator and min-width.  (The capture
+ * side moved to CaptureFilterEntry, a QLineEdit with its own in-line history
+ * dropdown, so it no longer uses this combo-box stylesheet.)
  *
  * Loaded via ThemeManager::styleSheet("widgets/filter-combo") from
  * each widget's updateStyleSheet() slot, which is also wired to
@@ -12,8 +11,10 @@
  * load time).
  *
  * Rules:
- *   - A 1px rounded border in the palette's shadow colour, so it
- *     reads as a subtle frame on both light and dark palettes.
+ *   - A 1px rounded border in the FieldBorder theme token — derived
+ *     as ensureContrast(palette.mid, palette.base, 3.0) so it stays
+ *     readable without the near-black overshoot palette(shadow)
+ *     produced in light mode.
  *   - A fixed-width custom drop-down indicator sourced from the
  *     stock icon set; the icon has light and dark variants picked
  *     at load time via the `%wsmode%` placeholder (expands to
@@ -23,13 +24,10 @@
  *
  * The QComboBox selector matches the host widget, and the
  * ::drop-down / ::down-arrow sub-controls style the arrow area.
- * No wstheme(...) colour tokens are needed here; the widget
- * inherits all its colours from the current QPalette (pushed by
- * ThemePaletteBuilder), so light/dark mode flips automatically.
  * =================================================================== */
 
 QComboBox {
-    border: 1px solid palette(shadow);
+    border: 1px solid wstheme(FieldBorder);
     border-radius: 3px;
     padding: 0px 0px 0px 0px;
     margin-left: 0px;

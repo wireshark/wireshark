@@ -73,3 +73,39 @@ SyntaxLineEdit[syntaxState="2"] {   /* Invalid */
 SyntaxLineEdit[syntaxState="3"] {   /* Deprecated */
     background-color: wstheme(FilterDeprecated);
 }
+
+/* -------------------------------------------------------------------
+ * FilterEdit — string-valued `syntaxState` property.  The selector
+ * matches FilterEdit and, via the QMetaObject chain, its subclasses
+ * (FilterExpressionEdit and its leaves), so the tints live in this one
+ * global block.
+ *
+ * The base rule gives the field the 1px rounded FieldBorder frame.  The
+ * state background-color fills the whole rounded rect; FilterExpressionEdit
+ * then repaints its leading (bookmark) and trailing (clear/history/apply)
+ * icon strips with the neutral field background in paintEvent(), so the
+ * tint is confined to the text area and the icons sit on the neutral field.
+ * Plain FilterEdit sites have no icons, so the tint simply fills the field.
+ *
+ * Empty / Busy / Intermediate intentionally have no background rule:
+ * they stay on the base palette (neutral), so Intermediate never reads
+ * as an error.  Only the three decisive states tint.
+ * ------------------------------------------------------------------- */
+
+FilterEdit {
+    border: 1px solid wstheme(FieldBorder);
+    border-radius: 3px;
+    padding: 1px;
+}
+
+/* The contrasting foreground is computed per-tint from the background
+ * luminance in FilterEdit::setState() and applied via the widget palette. */
+FilterEdit[syntaxState="valid"] {
+    background-color: wstheme(FilterValid);
+}
+FilterEdit[syntaxState="invalid"] {
+    background-color: wstheme(FilterInvalid);
+}
+FilterEdit[syntaxState="deprecated"] {
+    background-color: wstheme(FilterDeprecated);
+}
