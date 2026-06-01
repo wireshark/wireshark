@@ -5245,12 +5245,10 @@ static int dissect_freebsd_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo,
 
     proto_tree_add_item(tree, hf_usb_mode, tvb, 9, 1, ENC_LITTLE_ENDIAN);
 
-    freebsd_urb_type = tvb_get_uint8(tvb, 10);
-    proto_tree_add_item(tree, hf_usb_freebsd_urb_type, tvb, 10, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_usb_freebsd_urb_type, tvb, 10, 1, ENC_LITTLE_ENDIAN, &freebsd_urb_type);
     urb->is_request = (freebsd_urb_type == FREEBSD_URB_SUBMIT);
 
-    freebsd_transfer_type = tvb_get_uint8(tvb, 11);
-    proto_tree_add_item(tree, hf_usb_freebsd_transfer_type, tvb, 11, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_usb_freebsd_transfer_type, tvb, 11, 1, ENC_LITTLE_ENDIAN, &freebsd_transfer_type);
     switch (freebsd_transfer_type) {
     case FREEBSD_URB_ISOCHRONOUS:
         urb->transfer_type = URB_ISOCHRONOUS;

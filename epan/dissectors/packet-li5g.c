@@ -138,7 +138,7 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree_add_item(li5g_tree, hf_li5g_payloadFormat, tvb, 12, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(li5g_tree, hf_li5g_payloadDirection, tvb, 14, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(li5g_tree, hf_li5g_xid, tvb, 16, 16, ENC_NA);
-    proto_tree_add_item(li5g_tree, hf_li5g_cid, tvb, 32, 8, ENC_NA);
+    proto_tree_add_item(li5g_tree, hf_li5g_cid, tvb, 32, 8, ENC_BIG_ENDIAN);
 
     /* Get the Conditional Attribute */
     GRegex *regex_imsi = NULL;

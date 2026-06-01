@@ -149,8 +149,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         case 2:
         default:
             /* 1 byte auth type + 1 byte interval */
-            auth_type = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(vrrp_tree, hf_vrrp_auth_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8(vrrp_tree, hf_vrrp_auth_type, tvb, offset, 1, ENC_BIG_ENDIAN, &auth_type);
             offset += 1;
 
             proto_tree_add_item(vrrp_tree, hf_vrrp_adver_int, tvb, offset, 1, ENC_BIG_ENDIAN);

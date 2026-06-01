@@ -150,8 +150,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	proto_tree_add_item(vtp_tree, hf_vtp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	code = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(vtp_tree, hf_vtp_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint8(vtp_tree, hf_vtp_code, tvb, offset, 1, ENC_BIG_ENDIAN, &code);
 	offset += 1;
 
 	switch (code) {
@@ -338,8 +337,7 @@ dissect_vlan_info(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tre
 	offset += 1;
 	vlan_info_left -= 1;
 
-	vlan_name_len = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(vlan_info_tree, hf_vtp_vlan_name_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint8(vlan_info_tree, hf_vtp_vlan_name_len, tvb, offset, 1, ENC_BIG_ENDIAN, &vlan_name_len);
 	offset += 1;
 	vlan_info_left -= 1;
 

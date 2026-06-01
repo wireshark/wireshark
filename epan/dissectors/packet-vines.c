@@ -1200,8 +1200,7 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	ti = proto_tree_add_item(tree, proto_vines_arp, tvb, 0, -1, ENC_NA);
 	vines_arp_tree = proto_item_add_subtree(ti, ett_vines_arp);
 
-	version = tvb_get_uint8(tvb, 0);
-	proto_tree_add_item(vines_arp_tree, hf_vines_arp_version, tvb, 0, 1, ENC_NA);
+	proto_tree_add_item_ret_uint8(vines_arp_tree, hf_vines_arp_version, tvb, 0, 1, ENC_NA, &version);
 
 	if (version == VINES_VERS_5_5) {
 		/*
@@ -1452,11 +1451,9 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 			case VRTP_OP_REDIRECT2:
 				proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 				offset += 2;
-				link_addr_length = tvb_get_uint8(tvb, offset);
-				proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_link_address_length, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item_ret_uint8(vines_rtp_tree, hf_vines_rtp_link_address_length, tvb, offset, 1, ENC_NA, &link_addr_length);
 				offset += 1;
-				source_route_length = tvb_get_uint8(tvb, offset);
-				proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_source_route_length, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item_ret_uint8(vines_rtp_tree, hf_vines_rtp_source_route_length, tvb, offset, 1, ENC_NA, &source_route_length);
 				offset += 1;
 				offset = srtp_show_machine_info(vines_rtp_tree, tvb, offset, hf_vines_rtp_destination,
 							hf_vines_rtp_metric_to_destination, hf_vines_rtp_destination_node_type,
@@ -1560,11 +1557,9 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 				break;
 
 			case VRTP_OP_REDIRECT:
-				link_addr_length = tvb_get_uint8(tvb, offset);
-				proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_link_address_length, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item_ret_uint8(vines_rtp_tree, hf_vines_rtp_link_address_length, tvb, offset, 1, ENC_NA, &link_addr_length);
 				offset += 1;
-				source_route_length = tvb_get_uint8(tvb, offset);
-				proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_source_route_length, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item_ret_uint8(vines_rtp_tree, hf_vines_rtp_source_route_length, tvb, offset, 1, ENC_NA, &source_route_length);
 				offset += 1;
 				proto_tree_add_item(vines_rtp_tree, hf_vines_rtp_destination, tvb, offset, VINES_ADDR_LEN, ENC_NA);
 				offset += VINES_ADDR_LEN;

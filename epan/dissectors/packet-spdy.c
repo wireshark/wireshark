@@ -1420,9 +1420,7 @@ static int dissect_spdy_settings_payload(
     offset += 3;
 
     /* Set Value. */
-    setting_value = tvb_get_ntohl(tvb, offset);
-
-    proto_tree_add_item(setting_tree, hf_spdy_setting_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(setting_tree, hf_spdy_setting_value, tvb, offset, 4, ENC_BIG_ENDIAN, &setting_value);
     proto_item_append_text(ti_setting, ", %s: %u", setting_id_str, setting_value);
     proto_item_append_text(frame_tree, ", %s: %u", setting_id_str, setting_value);
     offset += 4;
@@ -1437,11 +1435,9 @@ static int dissect_spdy_settings_payload(
 static int dissect_spdy_ping_payload(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                                      proto_tree *frame_tree, const spdy_control_frame_info_t *frame)
 {
-  /* Get ping ID. */
-  uint32_t ping_id = tvb_get_ntohl(tvb, offset);
-
-  /* Add proto item for ping ID. */
-  proto_tree_add_item(frame_tree, hf_spdy_ping_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+  /* Ping ID. */
+  uint32_t ping_id ;
+  proto_tree_add_item_ret_uint(frame_tree, hf_spdy_ping_id, tvb, offset, 4, ENC_BIG_ENDIAN, &ping_id);
   proto_item_append_text(frame_tree, ", ID: %u", ping_id);
 
   return frame->length;
@@ -1460,8 +1456,7 @@ static int dissect_spdy_goaway_payload(tvbuff_t *tvb,
   offset += 4;
 
   /* Add proto item for goaway_status. */
-  ti = proto_tree_add_item(frame_tree, hf_spdy_goaway_status, tvb, offset, 4, ENC_BIG_ENDIAN);
-  goaway_status = tvb_get_ntohl(tvb, offset);
+  ti = proto_tree_add_item_ret_uint(frame_tree, hf_spdy_goaway_status, tvb, offset, 4, ENC_BIG_ENDIAN, &goaway_status);
 
   if (try_val_to_str(goaway_status, goaway_status_names) == NULL) {
     /* Handle boundary conditions. */
@@ -1489,11 +1484,8 @@ static int dissect_spdy_window_update_payload(
   dissect_spdy_stream_id_field(tvb, offset, pinfo, frame_tree, hf_spdy_streamid);
   offset += 4;
 
-  /* Get window update delta. */
-  window_update_delta = tvb_get_ntohl(tvb, offset) & 0x7FFFFFFF;
-
   /* Add proto item for window update delta. */
-  proto_tree_add_item(frame_tree, hf_spdy_window_update_delta, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(frame_tree, hf_spdy_window_update_delta, tvb, offset, 4, ENC_BIG_ENDIAN, &window_update_delta);
   proto_item_append_text(frame_tree, ", Delta: %u", window_update_delta);
 
   return frame->length;

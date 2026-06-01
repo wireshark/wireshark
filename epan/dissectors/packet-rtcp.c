@@ -1542,13 +1542,11 @@ dissect_rtcp_asfb_ms( tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_i
             offset += 2;
             proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_max_height,  tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_min_bitrate,  tvb, offset, 4, ENC_BIG_ENDIAN);
-            min_bitrate = tvb_get_ntohl (tvb, offset);
+            proto_tree_add_item_ret_uint (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_min_bitrate,  tvb, offset, 4, ENC_BIG_ENDIAN, &min_bitrate);
             offset += 4;
             /* 4 Reserved bytes */
             offset += 4;
-            proto_tree_add_item (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_bitrate_per_level,  tvb, offset, 4, ENC_BIG_ENDIAN);
-            bitrate_per_level = tvb_get_ntohl (tvb, offset);
+            proto_tree_add_item_ret_uint (rtcp_ms_vsr_entry_tree, hf_rtcp_psfb_ms_vsre_bitrate_per_level,  tvb, offset, 4, ENC_BIG_ENDIAN, &bitrate_per_level);
             offset += 4;
             for (i = 0 ; i < 10 ; i++)
             {
@@ -1944,12 +1942,10 @@ dissect_rtcp_rtpfb_nack_fci( tvbuff_t *tvb, unsigned offset, proto_tree *rtcp_tr
     unsigned int  rtcp_rtpfb_nack_blp;
     proto_item   *ti;
 
-    proto_tree_add_item(rtcp_tree, hf_rtcp_rtpfb_nack_pid, tvb, offset, 2, ENC_BIG_ENDIAN);
-    rtcp_rtpfb_nack_pid = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item_ret_uint(rtcp_tree, hf_rtcp_rtpfb_nack_pid, tvb, offset, 2, ENC_BIG_ENDIAN, &rtcp_rtpfb_nack_pid);
     offset += 2;
 
-    ti = proto_tree_add_item(rtcp_tree, hf_rtcp_rtpfb_nack_blp, tvb, offset, 2, ENC_BIG_ENDIAN);
-    rtcp_rtpfb_nack_blp = tvb_get_ntohs(tvb, offset);
+    ti = proto_tree_add_item_ret_uint(rtcp_tree, hf_rtcp_rtpfb_nack_blp, tvb, offset, 2, ENC_BIG_ENDIAN, &rtcp_rtpfb_nack_blp);
     bitfield_tree = proto_item_add_subtree(ti, ett_rtcp_nack_blp);
     nack_num_frames_lost = 1;
     if (rtcp_rtpfb_nack_blp) {
@@ -2268,8 +2264,7 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, unsigned offset, proto_
             if (item_len != 2) /* SHALL be 2 */
                 return offset;
 
-            priority = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint16(PoC1_tree, hf_rtcp_app_poc1_priority, tvb, offset, 2, ENC_BIG_ENDIAN, &priority);
             offset += 2;
 
             col_append_fstr(pinfo->cinfo, COL_INFO,
@@ -2394,8 +2389,7 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, unsigned offset, proto_
         packet_len -= 4;
 
         /* SDES type (must be CNAME) */
-        sdes_type = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(PoC1_tree, hf_rtcp_sdes_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(PoC1_tree, hf_rtcp_sdes_type, tvb, offset, 1, ENC_BIG_ENDIAN, &sdes_type);
         offset++;
         packet_len--;
         if (sdes_type != RTCP_SDES_CNAME)
@@ -2580,8 +2574,7 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, unsigned offset, proto_
         uint8_t subtype;
 
         /* Code of message being acknowledged */
-        subtype = (tvb_get_uint8(tvb, offset) & 0xf8) >> 3;
-        proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_ack_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(PoC1_tree, hf_rtcp_app_poc1_ack_subtype, tvb, offset, 1, ENC_BIG_ENDIAN, &subtype);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " (for %s)",
             val_to_str_const(subtype,
@@ -2611,8 +2604,7 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, unsigned offset, proto_
         proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_qsresp_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* Queue position. 65535 indicates 'position not available' */
-        position = tvb_get_ntohs(tvb, offset + 1);
-        ti = proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_qsresp_position, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item_ret_uint16(PoC1_tree, hf_rtcp_app_poc1_qsresp_position, tvb, offset + 1, 2, ENC_BIG_ENDIAN, &position);
         if (position == 0)
         {
             proto_item_append_text(ti, " (client is un-queued)");

@@ -1267,8 +1267,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned off
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_service_zone_icon_ind, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		ie_offset++;
 		/* Length of UMA Service Zone string */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_service_zone_str_len, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
-		str_len = tvb_get_uint8(tvb,ie_offset);
+		proto_tree_add_item_ret_uint8(urr_ie_tree, hf_uma_urr_uma_service_zone_str_len, tvb, ie_offset, 1, ENC_BIG_ENDIAN, &str_len);
 		ie_offset++;
 		/* UMA Service Zone string, 1st character */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_service_zone_str, tvb, ie_offset, str_len, ENC_ASCII);
