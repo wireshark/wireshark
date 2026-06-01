@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 29.244 V19.4.0 (2025-12)
+ * Ref 3GPP TS 29.244 V19.5.0 (2026-03)
  */
 #include "config.h"
 
@@ -1916,6 +1916,11 @@ static const value_string pfcp_ie_type[] = {
     { 167, "Access Forwarding Action Information 2"},               /* Extendable / Table 7.5.2.8-3 */
     { 168, "Remove MAR"},                                           /* Extendable / Table 7.5.2.15-1 */
     { 169, "Update MAR"},                                           /* Extendable / Table 7.5.2.16-1 */
+    { 170, "MAR ID"},                                              /* Extendable / Clause 8.2.123 */
+    { 171, "Steering Functionality"},                              /* Extendable / Clause 8.2.124 */
+    { 172, "Steering Mode"},                                       /* Extendable / Clause 8.2.125 */
+    { 173, "Weight"},                                              /* Fixed / Clause 8.2.126 */
+    { 174, "Priority"},                                            /* Extendable / Clause 8.2.127 */
     { 175, "Update Access Forwarding Action Information 1"},        /* Fixed / Clause 8.2.126 */
     { 176, "Update Access Forwarding Action Information 2"},        /* Extendable / Clause 8.2.127 */
     { 177, "UE IP address Pool Identity"},                          /* Variable Length / Clause 8.2.128 */
@@ -1995,6 +2000,7 @@ static const value_string pfcp_ie_type[] = {
     { 251, "QER Control Indications"},                              /* Extendable / Clause 8.2.174 */
     { 252, "Packet Rate Status Report IE within PFCP Session Deletion Response"}, /* Extendable / Table 7.5.7.1-2 */
     { 253, "NF Instance ID"},                                       /* Extendable / Clause 8.2.175 */
+    { 254, "Ethernet Context Information"},                         /* Extendable / Table 7.5.4.21-1 */
     { 255, "Redundant Transmission Detection Parameters IE in PDI"}, /* Extendable / Table 7.5.2.2-5 */
     { 256, "Updated PDR"},                                          /* Extendable / Table 7.5.9.3-1 */
     { 257, "S-NSSAI"},                                              /* Fixed Length / Clause 8.2.176 */
@@ -2142,7 +2148,8 @@ static const value_string pfcp_ie_type[] = {
     { 399, "Redundant N3/N9 Transmission Information"},             /* 	Extendable / Table 7.5.8.6-5	Not Applicable */
     { 400, "Local N3/N9 Tunnel Information"},                       /* 	Extendable / Table 7.5.8.6-6	Not Applicable */
     { 401, "Remote N3/N9 Tunnel Information"},                      /* 	Extendable / Table 7.5.8.6-7	Not Applicable */
-    //402 to 32767 Spare. For future use.
+    { 402, "Binding Indication"},                                   /* 	Variable / Clause 8.2.281 */
+    //403 to 32767 Spare. For future use.
     //32768 to 65535 Vendor-specific IEs.
     {0, NULL}
 };
@@ -11081,7 +11088,8 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    399 */    { dissect_pfcp_ie_not_decoded },                                /* Redundant N3/N9 Transmission Information	Extendable / Table 7.5.8.6-5	Not Applicable */
 /*    400 */    { dissect_pfcp_ie_not_decoded },                                /* Local N3/N9 Tunnel Information 	                Extendable / Table 7.5.8.6-6	Not Applicable */
 /*    401 */    { dissect_pfcp_ie_not_decoded },                                /* Remote N3/N9 Tunnel Information 	                Extendable / Table 7.5.8.6-7	Not Applicable */
-//402 to 32767 Spare. For future use.
+/*    402 */    { dissect_pfcp_ie_not_decoded },                                /* Binding Indication                               Variable / Clause 8.2.281 */
+//403 to 32767 Spare. For future use.
 //32768 to 65535 Vendor-specific IEs.
     { NULL },                                                        /* End of List */
 };
