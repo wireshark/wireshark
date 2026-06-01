@@ -97,6 +97,7 @@
 #include "lua_debugger_goto_line_frame.h"
 #include "lua_debugger_utils.h"
 #include "main_application.h"
+#include <ui/qt/utils/font_manager.h>
 #include "main_window.h"
 #include "utils/stock_icon.h"
 #include "widgets/collapsible_section.h"
@@ -565,7 +566,7 @@ LuaDebuggerDialog::LuaDebuggerDialog(QWidget *parent)
 
     if (mainApp)
     {
-        connect(mainApp, &MainApplication::zoomMonospaceFont, this, &LuaDebuggerDialog::onMonospaceFontUpdated,
+        connect(FontManager::instance(), &FontManager::monospaceFontChanged, this, &LuaDebuggerDialog::onMonospaceFontUpdated,
                 Qt::UniqueConnection);
         connect(mainApp, &MainApplication::appInitialized, this, &LuaDebuggerDialog::onMainAppInitialized,
                 Qt::UniqueConnection);

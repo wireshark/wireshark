@@ -9,6 +9,7 @@
 #include <config.h>
 
 #include "theme_preview_widget.h"
+#include <ui/qt/utils/font_manager.h>
 
 #include <QApplication>
 #include <QFontMetricsF>
@@ -153,8 +154,8 @@ void ThemePreviewWidget::paintEvent(QPaintEvent *)
     // (filter, column header, protocol tree, status bar, token tags).  Both
     // come from ThemeManager so a font-preference change live-updates the
     // mockup.  Fall back to the painter's font if a family is unset.
-    QFont labelFont = ThemeManager::instance()->regularFont();
-    QFont monoFont  = ThemeManager::instance()->monospaceFont();
+    QFont labelFont = FontManager::font();
+    QFont monoFont  = FontManager::monospaceFont();
     if (labelFont.family().isEmpty()) labelFont = p.font();
     if (monoFont.family().isEmpty())  monoFont  = p.font();
 

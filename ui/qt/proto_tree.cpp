@@ -22,6 +22,7 @@
 #include <epan/cfile.h>
 
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/font_manager.h>
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/widgets/drag_label.h>
@@ -91,6 +92,10 @@ ProtoTree::ProtoTree(QWidget *parent, epan_dissect_t *edt_fixed) :
     connect(this, &ProtoTree::collapsed, this, &ProtoTree::syncCollapsed);
     connect(this, &ProtoTree::clicked, this, &ProtoTree::itemClicked);
     connect(this, &ProtoTree::doubleClicked, this, &ProtoTree::itemDoubleClicked);
+
+    // Own the font: seed it now and follow the FontManager for later changes.
+    connect(FontManager::instance(), &FontManager::monospaceFontChanged, this, &ProtoTree::setMonospaceFont);
+    setMonospaceFont(FontManager::zoomedMonospaceFont());
 
     // resizeColumnToContents checks 1000 items by default. The user might
     // have scrolled to an area with a different width at this point.

@@ -14,6 +14,7 @@
 #include <ui_io_console_dialog.h>
 
 #include "main_application.h"
+#include <ui/qt/utils/font_manager.h>
 
 extern "C" {
     static void print_function(const char *str, void *ptr);
@@ -55,12 +56,12 @@ IOConsoleDialog::IOConsoleDialog(QWidget &parent,
     QPushButton *clear_button = ui->buttonBox->addButton(tr("Clear"), QDialogButtonBox::ActionRole);
     connect(clear_button, &QPushButton::clicked, this, &IOConsoleDialog::on_clearActivated);
 
-    ui->inputTextEdit->setFont(mainApp->monospaceFont());
+    ui->inputTextEdit->setFont(FontManager::monospaceFont());
     ui->inputTextEdit->setPlaceholderText(tr("Use %1 to evaluate.")
                                           .arg(eval_button->shortcut().toString(QKeySequence::NativeText)));
     ui->inputTextEdit->setAcceptRichText(false);
 
-    ui->outputTextEdit->setFont(mainApp->monospaceFont());
+    ui->outputTextEdit->setFont(FontManager::monospaceFont());
     ui->outputTextEdit->setReadOnly(true);
 
     // Shrink down to a small but nonzero size.

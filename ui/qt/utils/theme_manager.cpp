@@ -12,6 +12,7 @@
 #include "ui/qt/utils/theme_manager.h"
 
 #include <ui/qt/main_application.h>
+#include <ui/qt/utils/font_manager.h>
 #include <ui/qt/utils/themes/color_math.h>
 #include <ui/qt/utils/themes/legacy_color_prefs_migration.h>
 #include <ui/qt/utils/themes/system_theme_detector.h>
@@ -35,6 +36,7 @@
 #include <QFont>
 #include <QMetaEnum>
 #include <QPalette>
+#include <QRegularExpression>
 #include <QSet>
 #include <QStyle>
 #include <QStyleHints>
@@ -84,9 +86,7 @@ QString resolveThemePath(const QString &internalName)
 } // namespace
 
 ThemeManager::ThemeManager(QObject *parent)
-    : QObject(parent),
-    regular_font_(QFont()),
-    monospace_font_(QFont())
+    : QObject(parent)
 {
     // Snapshot the pristine OS palette BEFORE anything else in this
     // constructor runs.  applyToStyleHints() (Qt ≥ 6.8) and loadTheme()
@@ -198,15 +198,17 @@ ThemeManager::ThemeManager(QObject *parent)
     mode_ = modeFromPrefs(prefs.gui_color_scheme);
     applyToStyleHints();
 
-    connect(mainApp, &MainApplication::appInitialized, this, [this]() {
-        /** At this point we have a valid monospace font from the system, BUT it was NOT read from
-         * the user preferences, therefore we are going to store it in the prefs just in case, but
-         * ONLY if it was not. This WILL store the font name everytime the theme changes as well,
-         * but that is acceptable for now. The reason why is, that this way we can change the default
-         * font of the application via the default theme. This needs to be done AFTER the app is initialized. */
-        wmem_free(wmem_epan_scope(), prefs.gui_font_name);
-        prefs.gui_font_name = wmem_strdup(wmem_epan_scope(), monospaceFont().toString().toUtf8().constData());
-    });
+    // Initiate the FontManager singleton.  It owns all font state and policy
+    // (resolution, the systemwide regular-font push, zoom, OS-change
+    // handling, and the prefs.gui_font_name write-back).  ThemeManager only
+    // feeds it the configured font names during loadTheme().
+    FontManager::instance();
+
+    // Zoom changes the stylesheet output (loadStyleSheet scales font sizes by
+    // the zoom factor), so a zoom is a "themed stylesheets changed" event for
+    // stylesheet consumers.  Re-emit it as themeChanged so they reload.
+    connect(FontManager::instance(), &FontManager::zoomChanged,
+            this, &ThemeManager::themeChanged);
 }
 
 ThemeManager::~ThemeManager()
@@ -540,19 +542,63 @@ QColor ThemeManager::color(ThemeToken role) const
     }
 }
 
-QFont ThemeManager::regularFont() const
+namespace {
+// Qt stylesheets express font size both as "font-size: Npx" and inside the
+// "font:" shorthand (e.g. "font: bold 14px ..."), and only support absolute
+// px/pt units (no relative em/%).  Scale the size component of either form by
+// the current zoom factor so themed text zooms with the rest of the UI.
+// No-op at zoom level 0 (factor 1.0).
+QString scaleStyleSheetFontSizes(const QString &qss, qreal factor)
 {
-    return regular_font_;
-}
+    if (qFuzzyCompare(factor, qreal(1.0)))
+        return qss;
 
-QFont ThemeManager::monospaceFont() const
-{
-    return monospace_font_;
+    // "font:" or "font-size:" with the value up to ';' or '}'.  The optional
+    // "-size" is anchored to ':' so this never matches font-weight/-family/etc.
+    static const QRegularExpression propRe(
+        QStringLiteral("\\bfont(?:-size)?\\s*:\\s*([^;}]*)"));
+    // A size token (the only px/pt token inside a font value).
+    static const QRegularExpression sizeRe(
+        QStringLiteral("([0-9]+(?:\\.[0-9]+)?)(px|pt)"));
+
+    QString out;
+    out.reserve(qss.size());
+    qsizetype last = 0;
+    auto it = propRe.globalMatch(qss);
+    while (it.hasNext()) {
+        const QRegularExpressionMatch m = it.next();
+        out += qss.mid(last, m.capturedStart(1) - last);
+
+        const QString value = m.captured(1);
+        QString scaledValue;
+        scaledValue.reserve(value.size());
+        qsizetype vlast = 0;
+        auto vit = sizeRe.globalMatch(value);
+        while (vit.hasNext()) {
+            const QRegularExpressionMatch vm = vit.next();
+            scaledValue += value.mid(vlast, vm.capturedStart() - vlast);
+            const double scaled = vm.captured(1).toDouble() * factor;
+            scaledValue += QStringLiteral("%1%2")
+                               .arg(qMax(1, qRound(scaled)))
+                               .arg(vm.captured(2));
+            vlast = vm.capturedEnd();
+        }
+        scaledValue += value.mid(vlast);
+
+        out += scaledValue;
+        last = m.capturedEnd(1);
+    }
+    out += qss.mid(last);
+    return out;
 }
+} // namespace
 
 QString ThemeManager::loadStyleSheet(const QString &name) const
 {
-    return ThemeStyleSheetLoader::load(name, themeColors_, isDarkMode());
+    const QString qss = ThemeStyleSheetLoader::load(name, themeColors_, isDarkMode());
+    // The FontManager owns text zoom; apply it to the resolved stylesheet here
+    // so callers just re-fetch the stylesheet to pick up a new zoom level.
+    return scaleStyleSheetFontSizes(qss, FontManager::zoomFactor());
 }
 
 QString ThemeManager::styleSheet(const QString &name)
@@ -723,8 +769,6 @@ bool ThemeManager::loadTheme(const QString &theme)
     info_           = result.info;
     themeColors_    = result.colors;
     graphColors_    = result.graphColors;
-    regular_font_   = result.regularFont;
-    monospace_font_ = result.monospaceFont;
 
     // Build the palette, derive tokens against it, then push it to
     // QApplication.  Order matters: on Qt 5, setPalette() dispatches
@@ -746,6 +790,12 @@ bool ThemeManager::loadTheme(const QString &theme)
     // widgets that cached resolved wstheme(...) output need to re-run
     // loadStyleSheet() against the fresh token table.
     emit themeChanged();
+
+    // Apply fonts after the theme is fully in place, so the font change is
+    // sequenced after themeChanged rather than racing it.  The FontManager
+    // resolves, pushes the app font, and emits on a real change.
+    FontManager::instance()->setRegularFont(result.regularFontName);
+    FontManager::instance()->setMonospaceFont(result.monospaceFontName);
 
     return true;
 }

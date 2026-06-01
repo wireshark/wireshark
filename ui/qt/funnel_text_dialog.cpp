@@ -17,6 +17,7 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "main_application.h"
+#include <ui/qt/utils/font_manager.h>
 
 // To do:
 // - Add "Find next" to highlighting.
@@ -39,7 +40,7 @@ FunnelTextDialog::FunnelTextDialog(QWidget *parent, const QString &title) :
 
     funnel_text_window_.funnel_text_dialog = this;
 
-    ui->textEdit->setFont(mainApp->monospaceFont());
+    ui->textEdit->setFont(FontManager::monospaceFont());
     ui->textEdit->setReadOnly(true);
     ui->textEdit->setAcceptRichText(false);
 }

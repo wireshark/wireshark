@@ -133,9 +133,6 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     ui->chkShowByteView->setCheckState(state);
     ui->layoutComboBox->setEnabled(state);
 
-    connect(mainApp, SIGNAL(zoomMonospaceFont(QFont)),
-            proto_tree_, SLOT(setMonospaceFont(QFont)));
-
     connect(data_source_tab_, SIGNAL(fieldSelected(FieldInformation *)),
             proto_tree_, SLOT(selectedFieldChanged(FieldInformation *)));
     connect(proto_tree_, SIGNAL(fieldSelected(FieldInformation *)),

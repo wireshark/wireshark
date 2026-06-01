@@ -393,7 +393,6 @@ StratosharkMainWindow::StratosharkMainWindow(QWidget *parent) :
     setFeaturesEnabled(false);
     connect(mainApp, &MainApplication::appInitialized, this, [this]() { setFeaturesEnabled(); });
     connect(mainApp, &MainApplication::appInitialized, this, &StratosharkMainWindow::applyGlobalCommandLineOptions);
-    connect(mainApp, &MainApplication::appInitialized, this, &StratosharkMainWindow::zoomText);
     connect(mainApp, &MainApplication::appInitialized, this, &StratosharkMainWindow::initViewColorizeMenu);
     connect(mainApp, &MainApplication::appInitialized, this, &StratosharkMainWindow::addStatsPluginsToMenu);
     connect(mainApp, &MainApplication::appInitialized, this, &StratosharkMainWindow::addDynamicMenus);
@@ -407,7 +406,6 @@ StratosharkMainWindow::StratosharkMainWindow(QWidget *parent) :
     connect(mainApp, &MainApplication::preferencesChanged, this, &StratosharkMainWindow::layoutPanes);
     connect(mainApp, &MainApplication::preferencesChanged, this, &StratosharkMainWindow::layoutToolbars);
     connect(mainApp, &MainApplication::preferencesChanged, this, &StratosharkMainWindow::updatePreferenceActions);
-    connect(mainApp, &MainApplication::preferencesChanged, this, &StratosharkMainWindow::zoomText);
     connect(mainApp, &MainApplication::preferencesChanged, this, &StratosharkMainWindow::updateTitlebar);
 
     connect(WorkspaceState::instance(), &WorkspaceState::recentCaptureFilesChanged, this, &StratosharkMainWindow::updateRecentCaptures);
@@ -609,9 +607,6 @@ StratosharkMainWindow::StratosharkMainWindow(QWidget *parent) :
             packet_list_, &PacketList::setCaptureFile);
     connect(this, &StratosharkMainWindow::setCaptureFile,
             proto_tree_, &ProtoTree::setCaptureFile);
-
-    connect(mainApp, &MainApplication::zoomMonospaceFont, packet_list_, &PacketList::setMonospaceFont);
-    connect(mainApp, &MainApplication::zoomMonospaceFont, proto_tree_, &ProtoTree::setMonospaceFont);
 
     connectFileMenuActions();
     connectEditMenuActions();
@@ -2404,9 +2399,6 @@ void StratosharkMainWindow::setForCapturedPackets(bool have_captured_packets)
     main_ui_->actionGoNextConversationPacket->setEnabled(have_captured_packets);
     main_ui_->actionGoPreviousConversationPacket->setEnabled(have_captured_packets);
 
-    main_ui_->actionViewZoomIn->setEnabled(have_captured_packets);
-    main_ui_->actionViewZoomOut->setEnabled(have_captured_packets);
-    main_ui_->actionViewNormalSize->setEnabled(have_captured_packets);
     main_ui_->actionViewResizeColumns->setEnabled(have_captured_packets);
     main_ui_->actionViewRedissect->setEnabled(have_captured_packets);
 

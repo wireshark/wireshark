@@ -89,6 +89,7 @@ set(WIRESHARK_UTILS_HEADERS
 	utils/color_utils.h
 	utils/data_printer.h
 	utils/field_information.h
+	utils/font_manager.h
 	utils/frame_information.h
 	utils/idata_printable.h
 	utils/profile_switcher.h
@@ -420,6 +421,7 @@ set(WIRESHARK_UTILS_SRCS
 	utils/color_utils.cpp
 	utils/data_printer.cpp
 	utils/field_information.cpp
+	utils/font_manager.cpp
 	utils/frame_information.cpp
 	utils/profile_switcher.cpp
 	utils/proto_node.cpp

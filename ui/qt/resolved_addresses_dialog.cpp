@@ -24,6 +24,7 @@
 
 #include "capture_file.h"
 #include "main_application.h"
+#include <ui/qt/utils/font_manager.h>
 
 #include <ui/qt/models/astringlist_list_model.h>
 #include <ui/qt/models/resolved_addresses_models.h>
@@ -52,7 +53,7 @@ ResolvedAddressesDialog::ResolvedAddressesDialog(QWidget *parent, QString captur
     }
     setWindowTitle(mainApp->windowTitleString(title_parts));
 
-    ui->plainTextEdit->setFont(mainApp->monospaceFont());
+    ui->plainTextEdit->setFont(FontManager::monospaceFont());
     ui->plainTextEdit->setReadOnly(true);
     ui->plainTextEdit->setWordWrapMode(QTextOption::NoWrap);
 

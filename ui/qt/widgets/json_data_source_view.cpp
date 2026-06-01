@@ -20,7 +20,7 @@
 
 #include <wsutil/wsjson.h>
 
-#include "main_application.h"
+#include <ui/qt/utils/font_manager.h>
 
 #include "ui/qt/main_window.h"
 #include "ui/qt/utils/color_utils.h"
@@ -47,7 +47,9 @@ JsonDataSourceView::JsonDataSourceView(const QByteArray &data, proto_node *root_
 
     layout_->setCacheEnabled(true);
 
-    connect(mainApp, &MainApplication::zoomMonospaceFont, this, &JsonDataSourceView::setMonospaceFont);
+    // Own the font: seed it now and follow the FontManager for later changes.
+    connect(FontManager::instance(), &FontManager::monospaceFontChanged, this, &JsonDataSourceView::setMonospaceFont);
+    setMonospaceFont(FontManager::zoomedMonospaceFont());
 
     setMouseTracking(true);
 

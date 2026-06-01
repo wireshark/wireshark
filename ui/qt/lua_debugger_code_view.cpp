@@ -25,6 +25,7 @@
 
 #include "epan/wslua/wslua_debugger.h"
 #include "main_application.h"
+#include <ui/qt/utils/font_manager.h>
 #include "utils/theme_manager.h"
 
 namespace
@@ -414,7 +415,7 @@ LuaDebuggerCodeView::LuaDebuggerCodeView(QWidget *parent)
     QFont initialFont;
     if (mainApp && mainApp->isInitialized())
     {
-        initialFont = mainApp->monospaceFont();
+        initialFont = FontManager::monospaceFont();
     }
     setEditorFont(initialFont);
     applyEditorPalette();

@@ -133,6 +133,7 @@ DIAG_ON(frame-larger-than=)
 #include "lte_rlc_statistics_dialog.h"
 #include "lte_rlc_graph_dialog.h"
 #include "main_application.h"
+#include <ui/qt/utils/font_manager.h>
 #include "manuf_dialog.h"
 #include "mtp3_summary_dialog.h"
 #include "multicast_statistics_dialog.h"
@@ -2510,19 +2511,16 @@ void WiresharkMainWindow::connectViewMenuActions()
     connect(main_ui_->actionViewNameResolutionTransport, &QAction::triggered, this,
             [this]() { setNameResolution(); });
 
-    connect(main_ui_->actionViewZoomIn, &QAction::triggered, this, [this]() {
-        recent.gui_zoom_level++;
-        zoomText();
+    connect(main_ui_->actionViewZoomIn, &QAction::triggered, this, []() {
+        FontManager::instance()->zoomIn();
     });
 
-    connect(main_ui_->actionViewZoomOut, &QAction::triggered, this, [this]() {
-        recent.gui_zoom_level--;
-        zoomText();
+    connect(main_ui_->actionViewZoomOut, &QAction::triggered, this, []() {
+        FontManager::instance()->zoomOut();
     });
 
-    connect(main_ui_->actionViewNormalSize, &QAction::triggered, this, [this]() {
-        recent.gui_zoom_level = 0;
-        zoomText();
+    connect(main_ui_->actionViewNormalSize, &QAction::triggered, this, []() {
+        FontManager::instance()->resetZoom();
     });
 
     connect(main_ui_->actionViewExpandSubtrees, &QAction::triggered,
@@ -2771,11 +2769,6 @@ void WiresharkMainWindow::setNameResolution()
     prefs_main_write();
 }
 
-void WiresharkMainWindow::zoomText()
-{
-    mainApp->zoomTextFont(recent.gui_zoom_level);
-}
-
 void WiresharkMainWindow::showColoringRulesDialog()
 {
     ColoringRulesDialog *coloring_rules_dialog = new ColoringRulesDialog(this);
@@ -2897,7 +2890,6 @@ void WiresharkMainWindow::openPacketDialog(bool from_reference)
                 main_ui_->preferenceEditorFrame, SLOT(editPreference(pref_t*,module_t*)));
 
         connect(this, &WiresharkMainWindow::closePacketDialogs, packet_dialog, &PacketDialog::close);
-        zoomText(); // Emits mainApp->zoomMonospaceFont(QFont)
 
         packet_dialog->show();
     }

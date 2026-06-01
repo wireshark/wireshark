@@ -17,6 +17,7 @@
 #include "wsutil/utf8_entities.h"
 
 #include "main_application.h"
+#include <ui/qt/utils/font_manager.h>
 
 #include "ui/qt/main_window.h"
 #include "ui/qt/capture_file_dialog.h"
@@ -358,7 +359,7 @@ PacketDiagram::PacketDiagram(QWidget *parent) :
     layout_->setFont(font());
 
     connect(mainApp, &MainApplication::appInitialized, this, &PacketDiagram::connectToMainWindow);
-    connect(mainApp, &MainApplication::zoomRegularFont, this, &PacketDiagram::setFont);
+    connect(FontManager::instance(), &FontManager::applicationFontChanged, this, &PacketDiagram::setFont);
     connect(ThemeManager::instance(), &ThemeManager::themeChanged, this, [this]() {
         resetScene(false);
     });

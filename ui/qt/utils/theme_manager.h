@@ -495,9 +495,6 @@ public:
      */
     qsizetype graphColorCount() const;
 
-    QFont regularFont() const;
-    QFont monospaceFont() const;
-
 signals:
     void themeChanged();
 
@@ -514,9 +511,6 @@ private:
     // Flattened token -> color value, one map per mode
     QHash<ThemeManager::ThemeToken, ThemeColorPair> themeColors_;
     QList<ThemeColorPair> graphColors_;
-
-    QFont regular_font_;
-    QFont monospace_font_;
 
     QHash<QString, ThemeSectionInfo> sections_;
 

@@ -43,8 +43,8 @@ public:
         ThemeInfo                                       info;
         QHash<ThemeManager::ThemeToken, ThemeColorPair>  colors;
         QList<ThemeColorPair>                           graphColors;
-        QFont                                           regularFont;    ///< empty QFont if not set
-        QFont                                           monospaceFont;  ///< empty QFont if not set
+        QString                                         regularFontName;   ///< theme's declared regular font descriptor; empty if unset
+        QString                                         monospaceFontName; ///< theme's declared monospace font descriptor; empty if unset
     };
 
     ThemeParser(const QHash<QString, ThemeSectionInfo>       &sections,
@@ -72,7 +72,7 @@ private:
                                          const ThemeSectionInfo   &sectionInfo,
                                          const ThemeInfo          &info,
                                          QHash<ThemeManager::ThemeToken, ThemeColorPair> &out);
-    static QFont            parseFontFamily(const QJsonObject &obj, QFont defaultFont);
+    static QString          fontDescriptor(const QJsonObject &obj);
     static void             parseFonts(const QJsonObject &fontsObj, Result &out);
 
     ThemeManager::ThemeToken stringToToken(const QString &token) const;

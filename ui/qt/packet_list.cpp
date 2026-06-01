@@ -36,6 +36,7 @@
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/font_manager.h>
 #include <ui/qt/widgets/overlay_scroll_bar.h>
 #include "proto_tree.h"
 #include <ui/qt/utils/qt_ui_utils.h>
@@ -287,6 +288,12 @@ PacketList::PacketList(QWidget *parent) :
     connect(header(), &QHeaderView::sectionMoved, this, &PacketList::sectionMoved);
 
     connect(verticalScrollBar(), &QScrollBar::actionTriggered, this, &PacketList::vScrollBarActionTriggered);
+
+    // Own the font: seed it now and follow the FontManager for later changes.
+    connect(FontManager::instance(), &FontManager::monospaceFontChanged, this, &PacketList::setMonospaceFont);
+    connect(FontManager::instance(), &FontManager::applicationFontChanged, this, &PacketList::setRegularFont);
+    setMonospaceFont(FontManager::zoomedMonospaceFont());
+    setRegularFont(FontManager::zoomedFont());
 }
 
 PacketList::~PacketList()
@@ -1076,7 +1083,10 @@ void PacketList::setRecentColumnWidth(int col)
         int fmt = get_column_format(col);
         const char *long_str = get_column_width_string(fmt, col);
 
-        QFontMetrics fm = QFontMetrics(mainApp->monospaceFont());
+        // TODO: a column's natural width is model data, not a view concern.
+        // PacketListModel should hint it instead of the view measuring against
+        // the font here.
+        QFontMetrics fm = QFontMetrics(FontManager::monospaceFont());
         if (long_str) {
             col_width = fm.horizontalAdvance(long_str);
         } else {

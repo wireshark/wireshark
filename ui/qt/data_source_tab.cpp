@@ -285,7 +285,6 @@ void DataSourceTab::addTab(const char *name, const struct data_source *source)
     }
 
     data_source_view->setAccessibleName(name);
-    data_source_view->setMonospaceFont(mainApp->monospaceFont(true));
 
     if (tvb)
     {
@@ -315,7 +314,6 @@ void DataSourceTab::addTab(const char *name, const struct data_source *source)
         // would be a pain to change the pointers for every field_info.
         data_source_view->setTvb(tvb);
 
-        connect(mainApp, &MainApplication::zoomMonospaceFont, data_source_view, &BaseDataSourceView::setMonospaceFont);
         connect(data_source_view, &HexDataSourceView::byteSelected, this, &DataSourceTab::byteViewTextMarked);
 
         if (HexDataSourceView *hex_data_source_view = qobject_cast<HexDataSourceView *>(data_source_view)) {

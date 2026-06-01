@@ -114,6 +114,7 @@ DIAG_ON(frame-larger-than=)
 #include "stratoshark_plot_dialog.h"
 #include <ui/qt/widgets/additional_toolbar.h>
 #include "main_application.h"
+#include <ui/qt/utils/font_manager.h>
 #include "packet_comment_dialog.h"
 #include "packet_dialog.h"
 #include "packet_list.h"
@@ -2166,19 +2167,16 @@ void StratosharkMainWindow::connectViewMenuActions()
     connect(main_ui_->actionViewNameResolutionTransport, &QAction::triggered, this,
             [this]() { setNameResolution(); });
 
-    connect(main_ui_->actionViewZoomIn, &QAction::triggered, this, [this]() {
-        recent.gui_zoom_level++;
-        zoomText();
+    connect(main_ui_->actionViewZoomIn, &QAction::triggered, this, []() {
+        FontManager::instance()->zoomIn();
     });
 
-    connect(main_ui_->actionViewZoomOut, &QAction::triggered, this, [this]() {
-        recent.gui_zoom_level--;
-        zoomText();
+    connect(main_ui_->actionViewZoomOut, &QAction::triggered, this, []() {
+        FontManager::instance()->zoomOut();
     });
 
-    connect(main_ui_->actionViewNormalSize, &QAction::triggered, this, [this]() {
-        recent.gui_zoom_level = 0;
-        zoomText();
+    connect(main_ui_->actionViewNormalSize, &QAction::triggered, this, []() {
+        FontManager::instance()->resetZoom();
     });
 
     connect(main_ui_->actionViewExpandSubtrees, &QAction::triggered,
@@ -2418,11 +2416,6 @@ void StratosharkMainWindow::setNameResolution()
     mainApp->emitAppSignal(WiresharkApplication::NameResolutionChanged);
 }
 
-void StratosharkMainWindow::zoomText()
-{
-    mainApp->zoomTextFont(recent.gui_zoom_level);
-}
-
 void StratosharkMainWindow::showColoringRulesDialog()
 {
     ColoringRulesDialog *coloring_rules_dialog = new ColoringRulesDialog(this);
@@ -2540,7 +2533,6 @@ void StratosharkMainWindow::openPacketDialog(bool from_reference)
                 main_ui_->preferenceEditorFrame, SLOT(editPreference(pref_t*,module_t*)));
 
         connect(this, &StratosharkMainWindow::closePacketDialogs, packet_dialog, &PacketDialog::close);
-        zoomText(); // Emits mainApp->zoomMonospaceFont(QFont)
 
         packet_dialog->show();
     }

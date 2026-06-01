@@ -154,7 +154,6 @@ void FontColorPreferencesFrame::showEvent(QShowEvent *)
     QString pangram = QStringLiteral("%1 0123456789").arg(font_pangrams_[g_rand_int_range(rand_state, 0, num_font_pangrams_)]);
     ui->fontSampleLineEdit->setText(pangram);
     ui->fontSampleLineEdit->setCursorPosition(0);
-    ui->fontSampleLineEdit->setMinimumWidth(mainApp->monospaceTextSize(pangram.toUtf8().constData()) + mainApp->monospaceTextSize(" "));
     g_rand_free(rand_state);
 
     updateWidgets();

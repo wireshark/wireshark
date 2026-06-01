@@ -20,6 +20,7 @@
 #include "main_application.h"
 #include "ui/recent.h"
 
+#include <ui/qt/utils/font_manager.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/themes/color_math.h>
 
@@ -107,6 +108,10 @@ HexDataSourceView::HexDataSourceView(const QByteArray &data, packet_char_enc enc
 
     verticalScrollBar()->setFocusPolicy(Qt::NoFocus);
     horizontalScrollBar()->setFocusPolicy(Qt::NoFocus);
+
+    // Own the font: seed it now and follow the FontManager for later changes.
+    connect(FontManager::instance(), &FontManager::monospaceFontChanged, this, &HexDataSourceView::setMonospaceFont);
+    setMonospaceFont(FontManager::zoomedMonospaceFont());
 
     setMouseTracking(true);
 

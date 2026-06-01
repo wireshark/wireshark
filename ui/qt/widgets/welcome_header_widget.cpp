@@ -39,10 +39,15 @@ WelcomeHeaderWidget::WelcomeHeaderWidget(QWidget *parent) :
     // reliable here — it only fires when the QPalette actually differs,
     // and a light/dark flip on a theme with no palette overrides may not
     // change any palette roles this widget's gradient depends on.
+    // Rebuilt on themeChanged, which the ThemeManager also emits on a zoom
+    // change — so the header (whose text sizes live in the stylesheet) reloads
+    // its zoom-scaled stylesheet automatically, no font handling needed here.
     connect(ThemeManager::instance(), &ThemeManager::themeChanged,
             this, &WelcomeHeaderWidget::updateStyleSheet);
 
-    // Setting the application name in the header
+    // Setting the application name in the header.  The labels inherit the
+    // application (regular) font for their family; their sizes come from the
+    // stylesheet applied in updateStyleSheet().
     header_ui_->headerTitle->setText(mainApp->applicationName());
 
     // Setting the version information
@@ -187,5 +192,7 @@ bool WelcomeHeaderWidget::event(QEvent *event)
 
 void WelcomeHeaderWidget::updateStyleSheet()
 {
+    // ThemeManager::styleSheet() already resolves theme tokens and scales font
+    // sizes for the current zoom level, so just apply it.
     setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/welcome-header")));
 }

@@ -11,56 +11,15 @@
 
 #include "ui/qt/utils/themes/theme_parser.h"
 
-#include <epan/prefs.h>
-
 #include <QColor>
 #include <QDebug>
 #include <QFile>
-#include <QFontDatabase>
-#include <QFontInfo>
+#include <QFont>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
 #include <QStringList>
-
-// --------------------------------------------------------------------
-// File-local helpers for font handling (previously in theme_manager.cpp)
-// --------------------------------------------------------------------
-
-static QStringList monospaceFallbacks()
-{
-#if defined(Q_OS_MACOS)
-    return QStringList() << "SF Mono" << "Menlo" << "Monaco" << "Courier New";
-#elif defined(Q_OS_WIN)
-    return QStringList() << "Cascadia Mono" << "Cascadia Code" << "Consolas" << "Lucida Console" << "Courier New";
-#else // Linux / X11 / other Unix
-    return QStringList() << "DejaVu Sans Mono" << "Liberation Mono" << "Noto Sans Mono" << "Ubuntu Mono"
-                         << "Bitstream Vera Sans Mono" << "FreeMono";
-#endif
-}
-
-static QFont guaranteeMonospaceFont(const QFont &font)
-{
-    QFont cleanFont = font;
-
-    // On some systems (Linux in particular) Qt may hand back a non-
-    // fixed-pitch font when asked for the monospace face.  Force a
-    // known-good fallback in that case.
-    if (!QFontInfo(cleanFont).fixedPitch()) {
-        cleanFont.setFamilies(monospaceFallbacks());
-        cleanFont.setStyleHint(QFont::Monospace);
-    }
-
-    cleanFont.setStyle(QFont::StyleNormal);
-
-#if defined(Q_OS_WIN) && QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    // On Windows with Qt 5 the system font sizes render smaller than ideal.
-    cleanFont.setPixelSize(cleanFont.pointSize() + 2);
-#endif
-
-    return cleanFont;
-}
 
 // --------------------------------------------------------------------
 // ThemeParser
@@ -287,65 +246,32 @@ void ThemeParser::parseSection(const QJsonObject                               &
     }
 }
 
-QFont ThemeParser::parseFontFamily(const QJsonObject &obj, QFont defaultFont)
+QString ThemeParser::fontDescriptor(const QJsonObject &obj)
 {
+    // Returns a QFont::toString() descriptor for the theme's declared font, or
+    // an empty string when the theme specifies nothing.  No resolution,
+    // validation, or fallback happens here — FontManager owns all of that.
     if (obj.isEmpty())
-        return defaultFont;
+        return QString();
 
-    QFont newFont = defaultFont;
+    QFont f;
     const QString family = obj.value(QStringLiteral("family")).toString();
     const int     size   = obj.value(QStringLiteral("size")).toInt(0);
 
     if (!family.isEmpty())
-        newFont.setFamily(family);
+        f.setFamily(family);
     if (size > 0)
-        newFont.setPointSize(size);
+        f.setPointSize(size);
 
-    return newFont;
+    return f.toString();
 }
 
 void ThemeParser::parseFonts(const QJsonObject &fontsObj, Result &out)
 {
-    const QFont systemMonospace = guaranteeMonospaceFont(
-        QFontDatabase::systemFont(QFontDatabase::FixedFont));
-    out.regularFont = QFontDatabase::systemFont(QFontDatabase::GeneralFont);
-
-    // User preference (gui.fonts.qt.font_name) always wins if it parses
-    // to a fixed-pitch font.
-    const QString fontString = QString(prefs.gui_font_name);
-    if (!fontString.isEmpty()) {
-        QFont userFont;
-        if (!userFont.fromString(fontString)) {
-            // Qt 5 couldn't parse a Qt 6-format string (or it was malformed).
-            // Fall back: strip the extra trailing fields to the 10/11 Qt 5 expects.
-            const QStringList parts = fontString.split(QLatin1Char(','));
-            if (parts.size() >= 11) {
-                QStringList trimmed = parts.mid(0, 10);
-                // Preserve the optional style name if present (last field in both formats)
-                if (!parts.last().isEmpty() && !parts.last().at(0).isDigit())
-                    trimmed << parts.last();
-                userFont.fromString(trimmed.join(QLatin1Char(',')));
-            }
-        }
-        if (QFontInfo(userFont).fixedPitch()) {
-            out.monospaceFont = guaranteeMonospaceFont(userFont);
-            return;
-        }
-    }
-
-    // No valid user font specified, try to load fonts from the theme.
-    if (!fontsObj.isEmpty()) {
-        const QFont systemRegular = guaranteeMonospaceFont(
-            QFontDatabase::systemFont(QFontDatabase::GeneralFont));
-        out.regularFont =
-            parseFontFamily(fontsObj.value(QStringLiteral("regular")).toObject(), systemRegular);
-
-        const QFont parsedMonospace =
-            parseFontFamily(fontsObj.value(QStringLiteral("monospace")).toObject(), systemMonospace);
-        out.monospaceFont = guaranteeMonospaceFont(parsedMonospace);
-        return;
-    }
-
-    // No theme fonts specified, fall back to system defaults.
-    out.monospaceFont = systemMonospace;
+    // Extract only what the theme declares.  All resolution policy — the
+    // gui.font_name precedence, the fixed-pitch guarantee, and the system
+    // fallback — now lives in FontManager.  An empty descriptor means the
+    // theme specifies nothing for that font.
+    out.regularFontName   = fontDescriptor(fontsObj.value(QStringLiteral("regular")).toObject());
+    out.monospaceFontName = fontDescriptor(fontsObj.value(QStringLiteral("monospace")).toObject());
 }

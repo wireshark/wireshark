@@ -57,6 +57,7 @@
 #include "lua_debugger_dialog.h"
 #include "lua_debugger_files.h"
 #include "main_application.h"
+#include <ui/qt/utils/font_manager.h>
 #include "utils/color_utils.h"
 #include <ui/qt/utils/theme_manager.h>
 
@@ -382,7 +383,7 @@ LuaDebuggerCodeView::LuaDebuggerCodeView(QWidget *parent)
     QFont initialFont;
     if (mainApp && mainApp->isInitialized())
     {
-        initialFont = mainApp->monospaceFont();
+        initialFont = FontManager::monospaceFont();
     }
     setEditorFont(initialFont);
     applyEditorPalette();
@@ -1214,12 +1215,14 @@ void LuaDebuggerFontPolicy::reapplyToWatchItemModel()
     }
 }
 
+// TODO: LuaDebuggerFontPolicy duplicates FontManager (font resolution + the
+// app-ready fallback).  Drop it and have callers use the FontManager directly.
 QFont LuaDebuggerFontPolicy::monospaceFont(bool zoomed) const
 {
     /* Monospace font for panels and the script editor. */
     if (mainApp && mainApp->isInitialized())
     {
-        return mainApp->monospaceFont(zoomed);
+        return (zoomed ? FontManager::zoomedMonospaceFont() : FontManager::monospaceFont());
     }
 
     /* Fall back to system fixed font */

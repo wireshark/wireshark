@@ -11,6 +11,7 @@
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/font_manager.h>
 
 #include <main_application.h>
 
@@ -35,8 +36,8 @@ FollowStreamText::FollowStreamText(QWidget *parent) :
      * the document's default font. Set both. (#21137)
      * XXX - Should we pass true to monospaceFont so as to default
      * to the zoomed size? (Cf. #13992) */
-    text_doc->setDefaultFont(mainApp->monospaceFont());
-    setFont(mainApp->monospaceFont());
+    text_doc->setDefaultFont(FontManager::monospaceFont());
+    setFont(FontManager::monospaceFont());
 
     metainfo_fg_ = ColorUtils::alphaBlend(palette().windowText(), palette().window(), 0.35);
 }

@@ -268,19 +268,6 @@ public:
      */
     void helpTopicAction(topic_action_e action);
 
-    /**
-     * @brief Retrieves the monospace font used by the application.
-     * @param zoomed True if the zoomed font is requested.
-     * @return The requested QFont.
-     */
-    const QFont monospaceFont(bool zoomed = false) const;
-
-    /**
-     * @brief Calculates the horizontal pixel size of a string using the monospace font.
-     * @param str The string to measure.
-     * @return The size in pixels.
-     */
-    int monospaceTextSize(const char *str);
 
     /**
      * @brief Sets the active configuration profile.
@@ -374,12 +361,6 @@ public:
     void doTriggerMenuItem(MainMenuItem menuItem);
 
     /**
-     * @brief Applies text zooming to application fonts.
-     * @param zoomLevel The level to zoom by.
-     */
-    void zoomTextFont(int zoomLevel);
-
-    /**
      * @brief Pushes a message to the specified status bar section.
      * @param sinfo The StatusInfo type.
      * @param message The text message to display.
@@ -411,9 +392,6 @@ private:
 
     /** Indicates if Lua plugins are currently in the process of reloading. */
     bool is_reloading_lua_;
-
-    /** The actively zoomed monospace font. */
-    QFont zoomed_font_;
 
     /** Timer for throttling packet data updates. */
     QTimer packet_data_timer_;
@@ -530,11 +508,6 @@ signals:
 
     /** @brief Signals activation and stop of a capture. The value provides the number of active captures. */
     void captureActive(int);
-
-    /** @brief Signal emitted to apply a new zoomed regular font. */
-    void zoomRegularFont(const QFont & font);
-    /** @brief Signal emitted to apply a new zoomed monospace font. */
-    void zoomMonospaceFont(const QFont & font);
 
 public slots:
     /**

@@ -92,6 +92,7 @@ set(WIRESHARK_UTILS_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/color_utils.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/data_printer.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/field_information.h
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/font_manager.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/frame_information.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/idata_printable.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/profile_switcher.h
@@ -399,6 +400,7 @@ set(WIRESHARK_UTILS_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/color_utils.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/data_printer.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/field_information.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/font_manager.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/frame_information.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/profile_switcher.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/proto_node.cpp

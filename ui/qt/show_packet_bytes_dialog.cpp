@@ -12,6 +12,7 @@
 
 #include "main_window.h"
 #include "main_application.h"
+#include <ui/qt/utils/font_manager.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 #include "ui/recent.h"
 
@@ -930,7 +931,7 @@ ShowPacketBytesTextEdit::ShowPacketBytesTextEdit(QWidget *parent) :
     menus_enabled_(true)
 {
     /* Should this pass true to use the current zoom level? */
-    setFont(mainApp->monospaceFont());
+    setFont(FontManager::monospaceFont());
 }
 
 void ShowPacketBytesTextEdit::contextMenuEvent(QContextMenuEvent *event)

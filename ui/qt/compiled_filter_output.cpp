@@ -24,6 +24,7 @@
 #include <ui/qt/utils/stock_icon.h>
 
 #include "main_application.h"
+#include <ui/qt/utils/font_manager.h>
 
 #include <QClipboard>
 #include <QMutexLocker>
@@ -47,7 +48,7 @@ CompiledFilterOutput::CompiledFilterOutput(QWidget *parent, InterfaceList &intLi
 
     loadGeometry();
     setAttribute(Qt::WA_DeleteOnClose, true);
-    ui->filterList->setCurrentFont(mainApp->monospaceFont());
+    ui->filterList->setCurrentFont(FontManager::monospaceFont());
 
     copy_bt_ = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
     copy_bt_->setToolTip(tr("Copy filter text to the clipboard."));

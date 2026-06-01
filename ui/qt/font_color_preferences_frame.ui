@@ -28,42 +28,43 @@
      <property name="title">
       <string>Font</string>
      </property>
-     <layout class="QFormLayout" name="fontGroupLayout">
-      <property name="labelAlignment">
-       <set>Qt::AlignRight|Qt::AlignVCenter</set>
-      </property>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Main window font:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <layout class="QHBoxLayout" name="fontRowLayout">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QPushButton" name="fontPushButton">
+         <widget class="QLabel" name="label">
           <property name="text">
-           <string>Select Font</string>
+           <string>Main window font:</string>
           </property>
          </widget>
         </item>
         <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
+         <layout class="QHBoxLayout" name="fontRowLayout">
+          <item>
+           <widget class="QPushButton" name="fontPushButton">
+            <property name="text">
+             <string>Select Font</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>
-      <item row="1" column="0" colspan="2">
+      <item>
        <widget class="QLineEdit" name="fontSampleLineEdit">
         <property name="text">
          <string/>
@@ -91,7 +92,7 @@
       <item>
        <layout class="QFormLayout" name="themeGroupLayout">
         <property name="labelAlignment">
-         <set>Qt::AlignRight|Qt::AlignVCenter</set>
+         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
         </property>
        </layout>
       </item>

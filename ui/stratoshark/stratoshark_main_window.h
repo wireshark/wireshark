@@ -888,10 +888,6 @@ private slots:
     /** @brief Applies current name-resolution preference changes to the packet list. */
     void setNameResolution();
 
-    /**
-     * @brief Adjusts the text zoom level in the packet details and bytes panes.
-     */
-    void zoomText();
 
     /** @brief Opens the Coloring Rules management dialog. */
     void showColoringRulesDialog();

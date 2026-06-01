@@ -205,22 +205,6 @@ void MainApplication::helpTopicAction(topic_action_e action)
     }
 }
 
-const QFont MainApplication::monospaceFont(bool zoomed) const
-{
-    if (zoomed) {
-        return zoomed_font_;
-    }
-    // The monospace font is owned by the ThemeManager, which guarantees a
-    // fixed-pitch family (from gui.font_name, the theme, or the system
-    // FixedFont).  Source it from there instead of caching a local copy.
-    return ThemeManager::instance()->monospaceFont();
-}
-
-int MainApplication::monospaceTextSize(const char *str)
-{
-    return QFontMetrics(ThemeManager::instance()->monospaceFont()).horizontalAdvance(str);
-}
-
 void MainApplication::setConfigurationProfile(const char *profile_name, bool write_recent_file)
 {
     char  *rf_path;
@@ -489,16 +473,6 @@ MainApplication::MainApplication(int &argc,  char **argv) :
     // current flavor's preferred default (wireshark / stratoshark).
     ThemeManager::init(ThemeManager::resolveThemeName(
             QString::fromUtf8(recent.gui_theme_name)));
-
-    // Re-derive the zoomed fonts whenever the ThemeManager's fonts change.
-    // Theme switches AND font-pref changes both funnel through
-    // ThemeManager::loadTheme() (re-parses the fonts section) and emit
-    // themeChanged, so this single hook keeps the byte view, packet list,
-    // and proto tree fonts in sync.  When a dedicated FontManager exists,
-    // this connection moves into it alongside the zoom state.
-    connect(ThemeManager::instance(), &ThemeManager::themeChanged, this, [this]() {
-        zoomTextFont(recent.gui_zoom_level);
-    });
 
 #ifdef Q_OS_WIN
     /* RichEd20.DLL is needed for native file dialog filter entries. */
@@ -922,26 +896,6 @@ void MainApplication::doTriggerMenuItem(MainMenuItem menuItem)
         emit openCaptureOptions();
         break;
     }
-}
-
-void MainApplication::zoomTextFont(int zoomLevel)
-{
-    // Base the zoom on the ThemeManager's monospace font (see monospaceFont()).
-    const QFont mono_font = ThemeManager::instance()->monospaceFont();
-
-    // Scale by 10%, rounding to nearest half point, minimum 1 point.
-    // XXX Small sizes repeat. It might just be easier to create a map of multipliers.
-    qreal zoom_size = mono_font.pointSize() * 2 * qPow(qreal(1.1), zoomLevel);
-    zoom_size = qRound(zoom_size) / qreal(2.0);
-    zoom_size = qMax(zoom_size, qreal(1.0));
-
-    zoomed_font_ = mono_font;
-    zoomed_font_.setPointSizeF(zoom_size);
-    emit zoomMonospaceFont(zoomed_font_);
-
-    QFont zoomed_application_font = font();
-    zoomed_application_font.setPointSizeF(zoom_size);
-    emit zoomRegularFont(zoomed_application_font);
 }
 
 void MainApplication::captureEventHandler(CaptureEvent ev)

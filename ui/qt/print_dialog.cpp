@@ -26,6 +26,7 @@
 #include <QMessageBox>
 
 #include "main_application.h"
+#include <ui/qt/utils/font_manager.h>
 
 extern "C" {
 
@@ -88,7 +89,7 @@ PrintDialog::PrintDialog(QWidget *parent, capture_file *cf, QString selRange) :
     // XXX Make these configurable
     header_font_.setFamily("Times");
     header_font_.setPointSizeF(header_font_.pointSizeF() * 0.8);
-    packet_font_ = mainApp->monospaceFont();
+    packet_font_ = FontManager::monospaceFont();
     packet_font_.setPointSizeF(packet_font_.pointSizeF() * 0.8);
 
     memset(&print_args_, 0, sizeof(print_args_));
