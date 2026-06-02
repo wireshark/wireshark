@@ -456,7 +456,11 @@ dissect_nts_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_item *ti, *ti_record, *rt;
     proto_tree *nts_ke_tree, *record_tree;
     bool critical_bool, end_record = false;
-    bool request, direction_determined = false;
+    enum {
+        DIRECTION_UNKNOWN,
+        DIRECTION_REQUEST,
+        DIRECTION_RESPONSE
+    } direction = DIRECTION_UNKNOWN;
     wmem_list_t *next_protos = wmem_list_new(pinfo->pool);
     conversation_t *conv;
     nts_ke_req_resp_t *conv_data;
@@ -488,23 +492,23 @@ dissect_nts_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
      * to identify the direction.
      */
     tcp_conv = get_tcp_conversation_data_idempotent(conv);
-    if(tcp_conv && pinfo->destport == tcp_conv->server_port) {
-        direction_determined = true;
-        request = true;
-    } else if (tcp_conv && pinfo->srcport == tcp_conv->server_port) {
-        direction_determined = true;
-        request = false;
+    if(tcp_conv) {
+        if(pinfo->destport == tcp_conv->server_port) {
+            direction = DIRECTION_REQUEST;
+        } else if (pinfo->srcport == tcp_conv->server_port) {
+            direction = DIRECTION_RESPONSE;
+        }
     }
 
-    if (direction_determined) {
+    if (direction != DIRECTION_UNKNOWN) {
         if (!conv_data) {
             conv_data = wmem_new(wmem_file_scope(), nts_ke_req_resp_t);
-            conv_data->req_frame = request ? pinfo->num : 0;
-            conv_data->resp_frame = !request ? pinfo->num : 0;
+            conv_data->req_frame = (direction == DIRECTION_REQUEST) ? pinfo->num : 0;
+            conv_data->resp_frame = (direction == DIRECTION_RESPONSE) ? pinfo->num : 0;
             conversation_add_proto_data(conv, proto_nts_ke, conv_data);
         } else {
-            conv_data->req_frame = request ? pinfo->num : conv_data->req_frame;
-            conv_data->resp_frame = !request ? pinfo->num : conv_data->resp_frame;
+            conv_data->req_frame = (direction == DIRECTION_REQUEST) ? pinfo->num : conv_data->req_frame;
+            conv_data->resp_frame = (direction == DIRECTION_RESPONSE) ? pinfo->num : conv_data->resp_frame;
         }
     }
 
@@ -681,13 +685,25 @@ dissect_nts_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     }
 
     /* Request/Response */
-    if(conv_data && direction_determined) {
-        if(request && conv_data->resp_frame > 0) {
-            rt = proto_tree_add_uint(nts_ke_tree, hf_nts_ke_response_in, tvb, 0, 0, conv_data->resp_frame);
-            proto_item_set_generated(rt);
-        } else if (!request && conv_data->req_frame > 0) {
-            rt = proto_tree_add_uint(nts_ke_tree, hf_nts_ke_response_to, tvb, 0, 0, conv_data->req_frame);
-            proto_item_set_generated(rt);
+    if(conv_data) {
+        switch (direction) {
+        case DIRECTION_REQUEST:
+            if(conv_data->resp_frame > 0) {
+                rt = proto_tree_add_uint(nts_ke_tree, hf_nts_ke_response_in, tvb, 0, 0, conv_data->resp_frame);
+                proto_item_set_generated(rt);
+            }
+            break;
+
+        case DIRECTION_RESPONSE:
+            if (conv_data->req_frame > 0) {
+                rt = proto_tree_add_uint(nts_ke_tree, hf_nts_ke_response_to, tvb, 0, 0, conv_data->req_frame);
+                proto_item_set_generated(rt);
+            }
+            break;
+
+        case DIRECTION_UNKNOWN:
+        default:
+            break;
         }
     }
 
