@@ -290,8 +290,21 @@ static int hf_pfcp_report_type_b0_dldr;
 static int hf_pfcp_offending_ie;
 static int hf_pfcp_offending_ie_value;
 
-static int hf_pfcp_up_function_features_o14_b1_ulmn4;
+static int hf_pfcp_up_function_features_o14_b7_muxmf;
+static int hf_pfcp_up_function_features_o14_b6_dyntr;
+static int hf_pfcp_up_function_features_o14_b5_mpquic_e;
+static int hf_pfcp_up_function_features_o14_b4_mpquic_ip;
+static int hf_pfcp_up_function_features_o14_b3_ushph;
+static int hf_pfcp_up_function_features_o14_b2_natpub;
+static int hf_pfcp_up_function_features_o14_b1_un6dm;
 static int hf_pfcp_up_function_features_o14_b0_mbsch;
+static int hf_pfcp_up_function_features_o15_b6_papfd;
+static int hf_pfcp_up_function_features_o15_b5_qmabr;
+static int hf_pfcp_up_function_features_o15_b4_udpopt;
+static int hf_pfcp_up_function_features_o15_b3_psitlm;
+static int hf_pfcp_up_function_features_o15_b2_ulm;
+static int hf_pfcp_up_function_features_o15_b1_moq;
+static int hf_pfcp_up_function_features_o15_b0_conudp;
 static int hf_pfcp_up_function_features_o13_b7_un6tu;
 static int hf_pfcp_up_function_features_o13_b6_umn6ip;
 static int hf_pfcp_up_function_features_o13_b5_upsbies;
@@ -406,6 +419,7 @@ static int hf_pfcp_vol_meas_tonop;
 static int hf_pfcp_vol_meas_ulnop;
 static int hf_pfcp_vol_meas_dlnop;
 
+static int hf_pfcp_cp_function_features_o6_b2_papfd;
 static int hf_pfcp_cp_function_features_o6_b1_rpgur;
 static int hf_pfcp_cp_function_features_o6_b0_psucc;
 static int hf_pfcp_cp_function_features_o5_b7_uiaur;
@@ -811,6 +825,8 @@ static int hf_pfcp_packet_delay_thresholds_roundtrip;
 
 static int hf_pfcp_minimum_wait_time_seconds;
 
+static int hf_pfcp_qos_monitoring_measurement_flags_b7_uldr;
+static int hf_pfcp_qos_monitoring_measurement_flags_b6_dldr;
 static int hf_pfcp_qos_monitoring_measurement_flags_b5_ulci;
 static int hf_pfcp_qos_monitoring_measurement_flags_b4_dlci;
 static int hf_pfcp_qos_monitoring_measurement_flags_b3_plmf;
@@ -969,6 +985,8 @@ static int hf_pfcp_dscp_to_ppi_mapping_info_dscp_value;
 
 static int hf_pfcp_pfcpsdrsp_flags_b0_puru;
 
+static int hf_pfcp_qer_indications_flags_b5_tnbmi;
+static int hf_pfcp_qer_indications_flags_b4_dbsmi;
 static int hf_pfcp_qer_indications_flags_b3_pdusm;
 static int hf_pfcp_qer_indications_flags_b2_eml4s;
 static int hf_pfcp_qer_indications_flags_b1_edbmi;
@@ -997,6 +1015,8 @@ static int hf_pfcp_traffic_parameter_measurement_indication_flags_b0_ulpmi;
 static int hf_pfcp_ul_periodicity_value;
 
 static int hf_pfcp_mpquic_control_information_flags_b0_cupd;
+static int hf_pfcp_mpquic_control_information_flags_b1_cip;
+static int hf_pfcp_mpquic_control_information_flags_b2_ceth;
 
 static int hf_pfcp_mpquic_address_information_flags_b1_v6;
 static int hf_pfcp_mpquic_address_information_flags_b0_v4;
@@ -1044,6 +1064,7 @@ static int hf_pfcp_reporting_thresholds_ul_congestion_information_threshold;
 static int hf_pfcp_reporting_thresholds_dl_data_rate_threshold;
 static int hf_pfcp_reporting_thresholds_ul_data_rate_threshold;
 
+static int hf_pfcp_rtp_header_extension_additional_information_flags_b2_npdsi;
 static int hf_pfcp_rtp_header_extension_additional_information_flags_b1_pssai;
 static int hf_pfcp_rtp_header_extension_additional_information_flags_b0_fi;
 static int hf_pfcp_rtp_header_extension_additional_information_pssa;
@@ -2016,8 +2037,8 @@ static const value_string pfcp_ie_type[] = {
     { 163, "Activation Time"},                                      /* Extendable Clause 8.2.121 */
     { 164, "Deactivation Time"},                                    /* Extendable Clause 8.2.122 */
     { 165, "Create MAR"},                                           /* Extendable / Table 7.5.2.8-1 */
-    { 166, "Access Forwarding Action Information 1"},               /* Extendable / Table 7.5.2.8-2 */
-    { 167, "Access Forwarding Action Information 2"},               /* Extendable / Table 7.5.2.8-3 */
+    { 166, "3GPP Access Forwarding Action Information"},               /* Extendable / Table 7.5.2.8-2 */
+    { 167, "Non-3GPP Access Forwarding Action Information"},               /* Extendable / Table 7.5.2.8-3 */
     { 168, "Remove MAR"},                                           /* Extendable / Table 7.5.2.15-1 */
     { 169, "Update MAR"},                                           /* Extendable / Table 7.5.2.16-1 */
     { 170, "MAR ID"},                                              /* Extendable / Clause 8.2.123 */
@@ -2025,8 +2046,8 @@ static const value_string pfcp_ie_type[] = {
     { 172, "Steering Mode"},                                       /* Extendable / Clause 8.2.125 */
     { 173, "Weight"},                                              /* Fixed / Clause 8.2.126 */
     { 174, "Priority"},                                            /* Extendable / Clause 8.2.127 */
-    { 175, "Update Access Forwarding Action Information 1"},        /* Fixed / Clause 8.2.126 */
-    { 176, "Update Access Forwarding Action Information 2"},        /* Extendable / Clause 8.2.127 */
+    { 175, "Update 3GPP Access Forwarding Action Information"},        /* Fixed / Clause 8.2.126 */
+    { 176, "Update Non 3GPP Access Forwarding Action Information"},        /* Extendable / Clause 8.2.127 */
     { 177, "UE IP address Pool Identity"},                          /* Variable Length / Clause 8.2.128 */
     { 178, "Alternative SMF IP Address"},                           /* Extendable / Clause 8.2.129 */
     { 179, "Packet Replication and Detection Carry-On Information"},/* Extendable / Clause 8.2.130 */
@@ -2048,10 +2069,10 @@ static const value_string pfcp_ie_type[] = {
     { 195, "Created Bridge/Router Info"},                           /* Extendable / Table 7.5.3.6-1 */
     { 196, "Port Number"},                                          /* Fixed Length / Clause 8.2.141 */
     { 197, "NW-TT Port Number"},                                    /* Fixed Length / Clause 8.2.142 */
-    { 198, "5GS User Plane Node"},                                  /* Extendable / Clause 8.2.143 */
+    { 198, "5GS User Plane Node ID"},                                  /* Extendable / Clause 8.2.143 */
     { 199, "TSC Management Information IE within PFCP Session Modification Request"}, /* Extendable / Table 7.5.4.18-1 */
-    { 200, "Port Management Information for TSC IE within PFCP Session Modification Response"}, /* Extendable / Table 7.5.5.3-1 */
-    { 201, "Port Management Information for TSC IE within PFCP Session Report Request"}, /* Extendable / Table 7.5.8.5-1 */
+    { 200, "TSC Management Information IE within PFCP Session Modification Response"}, /* Extendable / Table 7.5.5.3-1 */
+    { 201, "TSC Management Information IE within PFCP Session Report Request"}, /* Extendable / Table 7.5.8.5-1 */
     { 202, "Port Management Information Container"},                /* Variable Length / Clause 8.2.144 */
     { 203, "Clock Drift Control Information"},                      /* Extendable / Table 7.4.4.1.2-1 */
     { 204, "Requested Clock Drift Information"},                    /* Extendable / Clause 8.2.145 */
@@ -2736,7 +2757,10 @@ static const value_string pfcp_cause_vals[] = {
     { 87, "L2TP tunnel Establishment failure - Tunnel Auth Failure"},
     { 88, "L2TP Session Establishment failure - Session Auth Failure"},
     { 89, "L2TP tunnel Establishment failure - LNS not reachable"},
-    /* 90 to 255 Spare for future use in a response message. */
+    { 90, "PFD Contents Syntax Error"},
+    { 91, "PFD Contents Semantics Error"},
+    { 92, "PFD Application Id Unknown"},
+    /* 93 to 255 Spare for future use in a response message. */
     {0, NULL}
 };
 
@@ -3771,13 +3795,37 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 
     static int * const pfcp_up_function_features_o14_flags[] = {
-        &hf_pfcp_spare_b7_b2,
-        &hf_pfcp_up_function_features_o14_b1_ulmn4,
+        &hf_pfcp_up_function_features_o14_b7_muxmf,
+        &hf_pfcp_up_function_features_o14_b6_dyntr,
+        &hf_pfcp_up_function_features_o14_b5_mpquic_e,
+        &hf_pfcp_up_function_features_o14_b4_mpquic_ip,
+        &hf_pfcp_up_function_features_o14_b3_ushph,
+        &hf_pfcp_up_function_features_o14_b2_natpub,
+        &hf_pfcp_up_function_features_o14_b1_un6dm,
         &hf_pfcp_up_function_features_o14_b0_mbsch,
         NULL
     };
-    /* Octet 13  Spare  MBSCH  */
+    /* Octet 14  MUXMF  DYNTR  MPQUIC-E  MPQUIC-IP  USHPH  NATPUB  UN6DM  MBSCH */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_up_function_features_o14_flags, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (offset == length) {
+        return;
+    }
+
+    static int * const pfcp_up_function_features_o15_flags[] = {
+        &hf_pfcp_spare_b7,
+        &hf_pfcp_up_function_features_o15_b6_papfd,
+        &hf_pfcp_up_function_features_o15_b5_qmabr,
+        &hf_pfcp_up_function_features_o15_b4_udpopt,
+        &hf_pfcp_up_function_features_o15_b3_psitlm,
+        &hf_pfcp_up_function_features_o15_b2_ulm,
+        &hf_pfcp_up_function_features_o15_b1_moq,
+        &hf_pfcp_up_function_features_o15_b0_conudp,
+        NULL
+    };
+    /* Octet 15  Spare  PAPFD  QMABR  UDPOPT  PSITLM  ULM  MOQ  CONUDP */
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_up_function_features_o15_flags, ENC_BIG_ENDIAN);
     offset += 1;
 
     if (offset == length) {
@@ -5197,7 +5245,8 @@ dissect_pfcp_cp_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 
     static int * const pfcp_cp_function_features_o6_flags[] = {
-        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_cp_function_features_o6_b2_papfd,
         &hf_pfcp_cp_function_features_o6_b1_rpgur,
         &hf_pfcp_cp_function_features_o6_b0_psucc,
         NULL
@@ -8528,7 +8577,8 @@ dissect_pfcp_qos_monitoring_measurement(tvbuff_t *tvb, packet_info *pinfo, proto
     uint64_t qos_monitoring_measurement_flags;
 
     static int * const pfcp_qos_monitoring_measurement_flags[] = {
-        &hf_pfcp_spare_b7_b5,
+        &hf_pfcp_qos_monitoring_measurement_flags_b7_uldr,
+        &hf_pfcp_qos_monitoring_measurement_flags_b6_dldr,
         &hf_pfcp_qos_monitoring_measurement_flags_b5_ulci,
         &hf_pfcp_qos_monitoring_measurement_flags_b4_dlci,
         &hf_pfcp_qos_monitoring_measurement_flags_b3_plmf,
@@ -8537,7 +8587,7 @@ dissect_pfcp_qos_monitoring_measurement(tvbuff_t *tvb, packet_info *pinfo, proto
         &hf_pfcp_qos_monitoring_measurement_flags_b0_dlpd,
         NULL
     };
-    /* Octet 5  Spare   CI  PLMF  RP  Ul  DL */
+    /* Octet 5  ULDR  DLDR  ULCI  DLCI  PLMF  RPPD  ULPD  DLPD */
     proto_tree_add_bitmask_list_ret_uint64(tree, tvb, offset, 1, pfcp_qos_monitoring_measurement_flags, ENC_BIG_ENDIAN, &qos_monitoring_measurement_flags);
     offset += 1;
 
@@ -9676,14 +9726,16 @@ dissect_pfcp_qer_indications(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     unsigned offset = 0;
 
     static int * const pfcp_qer_indications_flags[] = {
-        &hf_pfcp_spare_b7_b4,
+        &hf_pfcp_spare_b7_b6,
+        &hf_pfcp_qer_indications_flags_b5_tnbmi,
+        &hf_pfcp_qer_indications_flags_b4_dbsmi,
         &hf_pfcp_qer_indications_flags_b3_pdusm,
         &hf_pfcp_qer_indications_flags_b2_eml4s,
         &hf_pfcp_qer_indications_flags_b1_edbmi,
         &hf_pfcp_qer_indications_flags_b0_iqfis,
         NULL
     };
-    /* Octet 5  Spare   PDUSM   EML4s   EDBMI   PURU */
+    /* Octet 5  Spare   TNBMI   DBSMI   PDUSM   EML4S   EDBMI   IQFISN */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_qer_indications_flags, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -9906,11 +9958,13 @@ dissect_pfcp_mpquic_control_information(tvbuff_t *tvb, packet_info *pinfo, proto
     unsigned offset = 0;
 
     static int * const pfcp_mpquic_control_information_flags[] = {
-        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_mpquic_control_information_flags_b2_ceth,
+        &hf_pfcp_mpquic_control_information_flags_b1_cip,
         &hf_pfcp_mpquic_control_information_flags_b0_cupd,
         NULL
     };
-    /* Octet 5  Spare   CUDP */
+    /* Octet 5  Spare   CETH   CIP   CUDP */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_mpquic_control_information_flags, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -10283,12 +10337,13 @@ dissect_pfcp_rtp_header_extension_additional_information(tvbuff_t *tvb, packet_i
     uint64_t rtp_header_extension_additional_information_flags;
 
     static int * const pfcp_rtp_header_extension_additional_information_flags[] = {
-        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_rtp_header_extension_additional_information_flags_b2_npdsi,
         &hf_pfcp_rtp_header_extension_additional_information_flags_b1_pssai,
         &hf_pfcp_rtp_header_extension_additional_information_flags_b0_fi,
         NULL
     };
-    /* Octet 5  Spare   PSSAI   FI */
+    /* Octet 5  Spare   NPDSI   PSSAI   FI */
     proto_tree_add_bitmask_list_ret_uint64(tree, tvb, offset, 1, pfcp_rtp_header_extension_additional_information_flags, ENC_BIG_ENDIAN, &rtp_header_extension_additional_information_flags);
     offset += 1;
 
@@ -16120,10 +16175,76 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
             "MB-UPF support of MBS charging", HFILL }
         },
-        { &hf_pfcp_up_function_features_o14_b1_ulmn4,
-        { "ULM N4", "pfcp.up_function_features.ulmn4",
+        { &hf_pfcp_up_function_features_o14_b1_un6dm,
+        { "UN6DM", "pfcp.up_function_features.un6dm",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+            "UPF support of N6 delay measurement", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o14_b2_natpub,
+        { "NATPUB", "pfcp.up_function_features.natpub",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+            "UPF supports the NAT information exposure", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o14_b3_ushph,
+        { "USHPH", "pfcp.up_function_features.ushph",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+            "UPF support of handling of headers", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o14_b4_mpquic_ip,
+        { "MPQUIC-IP", "pfcp.up_function_features.mpquic_ip",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+            "UPF support of MPQUIC-IP steering functionality", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o14_b5_mpquic_e,
+        { "MPQUIC-E", "pfcp.up_function_features.mpquic_e",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+            "UPF support of MPQUIC-E steering functionality", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o14_b6_dyntr,
+        { "DYNTR", "pfcp.up_function_features.dyntr",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+            "UPF support of dynamically changing traffic characteristics", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o14_b7_muxmf,
+        { "MUXMF", "pfcp.up_function_features.muxmf",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+            "UPF support of differentiated QoS handling for multiplexed media flows", HFILL }
+        },
+
+        { &hf_pfcp_up_function_features_o15_b0_conudp,
+        { "CONUDP", "pfcp.up_function_features.conudp",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            "UPF support of connect-UDP", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o15_b1_moq,
+        { "MOQ", "pfcp.up_function_features.moq",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+            "UP function support of MoQ", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o15_b2_ulm,
+        { "ULM", "pfcp.up_function_features.ulm",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
             "UE Level measurement", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o15_b3_psitlm,
+        { "PSITLM", "pfcp.up_function_features.psitlm",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+            "UP function support of PDU Set Importance based Transport Level Marking", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o15_b4_udpopt,
+        { "UDPOPT", "pfcp.up_function_features.udpopt",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+            "UPF support of UDP Option", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o15_b5_qmabr,
+        { "QMABR", "pfcp.up_function_features.qmabr",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+            "UPF support of available bitrate monitoring", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o15_b6_papfd,
+        { "PAPFD", "pfcp.up_function_features.papfd",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+            "UP function support of partial PFD provisioning failure", HFILL }
         },
 
         { &hf_pfcp_sequence_number,
@@ -16255,6 +16376,11 @@ proto_register_pfcp(void)
         { "RPGUR", "pfcp.cp_function_features.rpgur",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
             "CP function supports the Peer GTP-U Entity Restart Reporting", HFILL }
+        },
+        { &hf_pfcp_cp_function_features_o6_b2_papfd,
+        { "PAPFD", "pfcp.cp_function_features.papfd",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+            "CP function supports partial PFD provisioning failure", HFILL }
         },
 
         { &hf_pfcp_usage_information_b0_bef,
@@ -17893,6 +18019,16 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
             NULL, HFILL }
         },
+        { &hf_pfcp_qos_monitoring_measurement_flags_b6_dldr,
+        { "DLDR (Downlink Data Rate)", "pfcp.qos_monitoring_measurement.flags.dldr",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_qos_monitoring_measurement_flags_b7_uldr,
+        { "ULDR (Uplink Data Rate)", "pfcp.qos_monitoring_measurement.flags.uldr",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80,
+            NULL, HFILL }
+        },
 
         { &hf_pfcp_qos_monitoring_measurement_downlink_packet_delay,
         { "Downlink packet delay (milliseconds)", "pfcp.qos_monitoring_measurement.downlink_packet_delay",
@@ -18513,7 +18649,17 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_qer_indications_flags_b3_pdusm,
         { "PDUSM (PDU Set Marking)", "pfcp.qer_indications_flags.pdusm",
-            FT_BOOLEAN, 8, NULL, 0x04,
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_qer_indications_flags_b4_dbsmi,
+        { "DBSMI (Data Burst Size Marking Indication)", "pfcp.qer_indications_flags.dbsmi",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_qer_indications_flags_b5_tnbmi,
+        { "TNBMI (Time to Next Burst Marking Indication)", "pfcp.qer_indications_flags.tnbmi",
+            FT_BOOLEAN, 8, NULL, 0x20,
             NULL, HFILL }
         },
 
@@ -18595,8 +18741,18 @@ proto_register_pfcp(void)
         },
 
         { &hf_pfcp_mpquic_control_information_flags_b0_cupd,
-        { "CUPD", "pfcp.quic_control_information.cupd",
+        { "CUDP (CONNECT-UDP)", "pfcp.mpquic_control_information.flags.cudp",
             FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_mpquic_control_information_flags_b1_cip,
+        { "CIP (CONNECT-IP)", "pfcp.mpquic_control_information.flags.cip",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_mpquic_control_information_flags_b2_ceth,
+        { "CETH (CONNECT-Ethernet)", "pfcp.mpquic_control_information.flags.ceth",
+            FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
 
@@ -18778,6 +18934,11 @@ proto_register_pfcp(void)
         { &hf_pfcp_rtp_header_extension_additional_information_flags_b1_pssai,
         { "PSSAI (PDU Set Size Activation Indication)", "pfcp.rtp_header_extension_additional_information.flags.pssai",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_rtp_header_extension_additional_information_flags_b2_npdsi,
+        { "NPDSI (Number of PDUs in the PDU Set)", "pfcp.rtp_header_extension_additional_information.flags.npdsi",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
             NULL, HFILL }
         },
         { &hf_pfcp_rtp_header_extension_additional_information_pssa,
