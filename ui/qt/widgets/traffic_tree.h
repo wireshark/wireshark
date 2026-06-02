@@ -16,6 +16,7 @@
 
 #include <ui/qt/models/atap_data_model.h>
 #include <ui/qt/filter_action.h>
+#include <ui/qt/widgets/adaptive_header_view.h>
 
 #include <QTreeView>
 #include <QMenu>
@@ -76,7 +77,7 @@ private slots:
 /**
  * @brief Header view for the traffic tree providing column customization and filtering.
  */
-class TrafficTreeHeaderView : public QHeaderView
+class TrafficTreeHeaderView : public AdaptiveHeaderView
 {
     Q_OBJECT
 public:

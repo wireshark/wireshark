@@ -48,6 +48,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/info_banner_widget.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/learn_card_widget.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/overlay_scroll_bar.h
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/adaptive_header_view.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/packet_list_header.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/path_selection_edit.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/pref_module_view.h
@@ -346,6 +347,7 @@ set(WIRESHARK_WIDGET_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/info_banner_widget.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/learn_card_widget.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/overlay_scroll_bar.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/adaptive_header_view.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/packet_list_header.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/path_selection_edit.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/pref_module_view.cpp

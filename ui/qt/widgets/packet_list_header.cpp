@@ -28,9 +28,10 @@
 #include <models/pref_models.h>
 #include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/widgets/packet_list_header.h>
+#include <ui/qt/utils/font_manager.h>
 
 PacketListHeader::PacketListHeader(Qt::Orientation orientation, QWidget *parent) :
-    QHeaderView(orientation, parent),
+    AdaptiveHeaderView(orientation, parent),
     sectionIdx(-1)
 {
     setAcceptDrops(true);

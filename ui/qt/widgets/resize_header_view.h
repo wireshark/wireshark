@@ -15,13 +15,14 @@
 #define RESIZE_HEADER_VIEW_H
 
 #include <config.h>
-#include <QHeaderView>
+
+#include <ui/qt/widgets/adaptive_header_view.h>
 
 /**
  * @brief QHeaderView subclass that adds a context menu for interactively
  *        resizing or resetting column (or row) widths.
  */
-class ResizeHeaderView : public QHeaderView
+class ResizeHeaderView : public AdaptiveHeaderView
 {
     Q_OBJECT
 

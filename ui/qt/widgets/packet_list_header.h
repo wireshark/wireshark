@@ -12,16 +12,17 @@
 
 #include <epan/cfile.h>
 
-#include <QHeaderView>
 #include <QDrag>
 #include <QMenu>
+
+#include <ui/qt/widgets/adaptive_header_view.h>
 
 class QEvent;
 
 /**
  * @brief Custom header view for the packet list.
  */
-class PacketListHeader : public QHeaderView
+class PacketListHeader : public AdaptiveHeaderView
 {
     Q_OBJECT
 

@@ -76,7 +76,7 @@ QString MenuEditAction::text() const {
 
 
 TrafficTreeHeaderView::TrafficTreeHeaderView(GList ** recentColumnList, QWidget * parent):
-    QHeaderView(Qt::Horizontal, parent)
+    AdaptiveHeaderView(Qt::Horizontal, parent)
 {
     _recentColumnList = recentColumnList;
 

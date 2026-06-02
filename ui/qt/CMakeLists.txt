@@ -49,6 +49,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/info_banner_widget.h
 	widgets/learn_card_widget.h
 	widgets/overlay_scroll_bar.h
+	widgets/adaptive_header_view.h
 	widgets/packet_list_header.h
 	widgets/path_selection_edit.h
 	widgets/pref_module_view.h
@@ -371,6 +372,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/info_banner_widget.cpp
 	widgets/learn_card_widget.cpp
 	widgets/overlay_scroll_bar.cpp
+	widgets/adaptive_header_view.cpp
 	widgets/packet_list_header.cpp
 	widgets/path_selection_edit.cpp
 	widgets/pref_module_view.cpp

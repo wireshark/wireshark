@@ -16,7 +16,7 @@
 #include <QMenu>
 #include <QContextMenuEvent>
 
-ResizeHeaderView::ResizeHeaderView(Qt::Orientation orientation, QWidget *parent) : QHeaderView(orientation, parent)
+ResizeHeaderView::ResizeHeaderView(Qt::Orientation orientation, QWidget *parent) : AdaptiveHeaderView(orientation, parent)
 {
     setStretchLastSection(true);
     setSectionsMovable(true);
