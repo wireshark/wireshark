@@ -16,10 +16,7 @@ if(DEFINED ENV{FORCE_CMAKE_NINJA_NON_VERBOSE})
 endif()
 
 # https://doc.qt.io/qt-6/cmake-supported-cmake-versions.html
-cmake_minimum_required(VERSION 3.20)
-if(POLICY CMP0127)
-	cmake_policy(SET CMP0127 NEW)
-endif()
+cmake_minimum_required(VERSION 3.22)
 if(POLICY CMP0135)
 	cmake_policy(SET CMP0135 NEW)
 endif()
