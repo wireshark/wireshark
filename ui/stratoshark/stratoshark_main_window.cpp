@@ -69,9 +69,11 @@ DIAG_ON(frame-larger-than=)
 #include <ui/qt/widgets/filter_expression_toolbar.h>
 
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/font_manager.h>
 #include <ui/qt/utils/profile_switcher.h>
 #include <ui/qt/utils/qt_ui_utils.h>
-#include <ui/qt/utils/stock_icon.h>
+#include <ui/qt/utils/themes/contrast_adapt_icon.h>
+#include <ui/qt/utils/themes/themed_icon.h>
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/utils/workspace_state.h>
 #include <ui/qt/utils/software_update.h>
@@ -1981,7 +1983,10 @@ void StratosharkMainWindow::captureStop() {
     }
 }
 
-void StratosharkMainWindow::initMainToolbarIcons()
+// Toolbar icons scale with the application zoom level (see the matching comment
+// in WiresharkMainWindow): the toolbar, as consumer, re-sizes on zoomChanged
+// rather than the icon scaling itself.
+void StratosharkMainWindow::updateMainToolbarIconSize()
 {
     // Normally 16 px. Reflects current GTK+ behavior and other Windows apps.
     int icon_size = style()->pixelMetric(QStyle::PM_SmallIconSize);
@@ -1991,54 +1996,68 @@ void StratosharkMainWindow::initMainToolbarIcons()
     // large IMHO.
     icon_size = icon_size * 3 / 2;
 #endif
+    icon_size = qRound(icon_size * FontManager::zoomFactor());
     main_ui_->mainToolBar->setIconSize(QSize(icon_size, icon_size));
+}
+
+void StratosharkMainWindow::initMainToolbarIcons()
+{
+    updateMainToolbarIconSize();
+    // UniqueConnection: initMainToolbarIcons() can run more than once.
+    connect(FontManager::instance(), &FontManager::zoomChanged,
+            this, &StratosharkMainWindow::updateMainToolbarIconSize, Qt::UniqueConnection);
 
     // Toolbar actions. The GNOME HIG says that we should have a menu icon for each
     // toolbar item but that clutters up our menu. Set menu icons sparingly.
 
-    main_ui_->actionCaptureStart->setIcon(StockIcon("x-capture-start"));
-    main_ui_->actionCaptureStop->setIcon(StockIcon("x-capture-stop"));
-    main_ui_->actionCaptureRestart->setIcon(StockIcon("x-capture-restart"));
-    main_ui_->actionCaptureOptions->setIcon(StockIcon("x-capture-options"));
+    // ThemedIcon renders an SVG's silhouette as a ThemeManager token color.
+
+    // ContrastAdaptIcon keeps each SVG's own colours and adapts them for contrast
+    // against the toolbar surface; one helper for every converted icon.
+
+    main_ui_->actionCaptureStart->setIcon(ContrastAdaptIcon("capture-start"));
+    main_ui_->actionCaptureStop->setIcon(ContrastAdaptIcon("capture-stop"));
+    main_ui_->actionCaptureRestart->setIcon(ContrastAdaptIcon("capture-restart"));
+    main_ui_->actionCaptureOptions->setIcon(ThemedIcon("capture-options"));
 
     // Menu icons are disabled in stratoshark_main_window.ui for these File-> items.
-    main_ui_->actionFileOpen->setIcon(StockIcon("document-open"));
-    main_ui_->actionFileSave->setIcon(StockIcon("x-capture-file-save"));
-    main_ui_->actionFileClose->setIcon(StockIcon("x-capture-file-close"));
+    main_ui_->actionFileOpen->setIcon(ThemedIcon("document-open"));
+    main_ui_->actionFileSave->setIcon(ThemedIcon("file-save"));
+    main_ui_->actionFileClose->setIcon(ThemedIcon("file-close"));
 
-    main_ui_->actionEditFindPacket->setIcon(StockIcon("edit-find"));
-    main_ui_->actionGoPreviousPacket->setIcon(StockIcon("go-previous"));
-    main_ui_->actionGoNextPacket->setIcon(StockIcon("go-next"));
-    main_ui_->actionGoGoToPacket->setIcon(StockIcon("go-jump"));
-    main_ui_->actionGoFirstPacket->setIcon(StockIcon("go-first"));
-    main_ui_->actionGoLastPacket->setIcon(StockIcon("go-last"));
-    main_ui_->actionGoPreviousConversationPacket->setIcon(StockIcon("go-previous"));
-    main_ui_->actionGoNextConversationPacket->setIcon(StockIcon("go-next"));
+    main_ui_->actionEditFindPacket->setIcon(ThemedIcon("find"));
+    main_ui_->actionGoPreviousPacket->setIcon(ThemedIcon("nav-previous"));
+    main_ui_->actionGoNextPacket->setIcon(ThemedIcon("nav-next"));
+    main_ui_->actionGoGoToPacket->setIcon(ThemedIcon("nav-goto"));
+    main_ui_->actionGoFirstPacket->setIcon(ThemedIcon("nav-first"));
+    main_ui_->actionGoLastPacket->setIcon(ThemedIcon("nav-last"));
+    main_ui_->actionGoPreviousConversationPacket->setIcon(ThemedIcon("nav-previous"));
+    main_ui_->actionGoNextConversationPacket->setIcon(ThemedIcon("nav-next"));
 #if defined(Q_OS_MAC)
     main_ui_->actionGoPreviousConversationPacket->setShortcut(QKeySequence(Qt::META | Qt::Key_Comma));
     main_ui_->actionGoNextConversationPacket->setShortcut(QKeySequence(Qt::META | Qt::Key_Period));
 #endif
-    main_ui_->actionGoFirstConversationPacket->setIcon(StockIcon("go-first"));
-    main_ui_->actionGoLastConversationPacket->setIcon(StockIcon("go-last"));
-    main_ui_->actionGoPreviousHistoryPacket->setIcon(StockIcon("go-previous"));
-    main_ui_->actionGoNextHistoryPacket->setIcon(StockIcon("go-next"));
-    main_ui_->actionGoAutoScroll->setIcon(StockIcon("x-stay-last"));
+    main_ui_->actionGoFirstConversationPacket->setIcon(ThemedIcon("nav-first"));
+    main_ui_->actionGoLastConversationPacket->setIcon(ThemedIcon("nav-last"));
+    main_ui_->actionGoPreviousHistoryPacket->setIcon(ThemedIcon("nav-previous"));
+    main_ui_->actionGoNextHistoryPacket->setIcon(ThemedIcon("nav-next"));
+    main_ui_->actionGoAutoScroll->setIcon(ThemedIcon("view-autoscroll"));
 
-    main_ui_->actionViewColorizePacketList->setIcon(StockIcon("x-colorize-packets"));
+    main_ui_->actionViewColorizePacketList->setIcon(ContrastAdaptIcon("view-colorize"));
 
     QList<QKeySequence> zi_seq = main_ui_->actionViewZoomIn->shortcuts();
     zi_seq << QKeySequence(Qt::CTRL | Qt::Key_Equal);
-    main_ui_->actionViewZoomIn->setIcon(StockIcon("zoom-in"));
+    main_ui_->actionViewZoomIn->setIcon(ThemedIcon("zoom-in"));
     main_ui_->actionViewZoomIn->setShortcuts(zi_seq);
-    main_ui_->actionViewZoomOut->setIcon(StockIcon("zoom-out"));
-    main_ui_->actionViewNormalSize->setIcon(StockIcon("zoom-original"));
-    main_ui_->actionViewResizeColumns->setIcon(StockIcon("x-resize-columns"));
-    main_ui_->actionViewResetLayout->setIcon(StockIcon("x-reset-layout_2"));
-    main_ui_->actionViewReload->setIcon(StockIcon("x-capture-file-reload"));
+    main_ui_->actionViewZoomOut->setIcon(ThemedIcon("zoom-out"));
+    main_ui_->actionViewNormalSize->setIcon(ThemedIcon("zoom-reset"));
+    main_ui_->actionViewResizeColumns->setIcon(ThemedIcon("view-resize-columns"));
+    main_ui_->actionViewResetLayout->setIcon(ThemedIcon("layout-reset-2"));
+    main_ui_->actionViewReload->setIcon(ThemedIcon("file-reload"));
     // XXX - What icon to use?
-    //main_ui_->actionViewRedissect->setIcon(StockIcon("x-capture-file-reload"));
+    // main_ui_->actionViewRedissect->setIcon(ContrastAdaptIcon("file-reload"));
 
-    main_ui_->actionNewDisplayFilterExpression->setIcon(StockIcon("list-add"));
+    main_ui_->actionNewDisplayFilterExpression->setIcon(ThemedIcon("list-add"));
 }
 
 void StratosharkMainWindow::initShowHideMainWidgets()

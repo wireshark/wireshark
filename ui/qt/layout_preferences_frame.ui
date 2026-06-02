@@ -36,10 +36,6 @@
        <property name="text">
         <string/>
        </property>
-       <property name="icon">
-        <iconset resource="../../resources/layout.qrc">
-         <normaloff>:/layout/layout_5.png</normaloff>:/layout/layout_5.png</iconset>
-       </property>
        <property name="iconSize">
         <size>
          <width>48</width>
@@ -58,10 +54,6 @@
       <widget class="QToolButton" name="layout2ToolButton">
        <property name="text">
         <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="../../resources/layout.qrc">
-         <normaloff>:/layout/layout_2.png</normaloff>:/layout/layout_2.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -82,10 +74,6 @@
        <property name="text">
         <string/>
        </property>
-       <property name="icon">
-        <iconset resource="../../resources/layout.qrc">
-         <normaloff>:/layout/layout_1.png</normaloff>:/layout/layout_1.png</iconset>
-       </property>
        <property name="iconSize">
         <size>
          <width>48</width>
@@ -104,10 +92,6 @@
       <widget class="QToolButton" name="layout4ToolButton">
        <property name="text">
         <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="../../resources/layout.qrc">
-         <normaloff>:/layout/layout_4.png</normaloff>:/layout/layout_4.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -128,10 +112,6 @@
        <property name="text">
         <string/>
        </property>
-       <property name="icon">
-        <iconset resource="../../resources/layout.qrc">
-         <normaloff>:/layout/layout_3.png</normaloff>:/layout/layout_3.png</iconset>
-       </property>
        <property name="iconSize">
         <size>
          <width>48</width>
@@ -150,10 +130,6 @@
       <widget class="QToolButton" name="layout6ToolButton">
        <property name="text">
         <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="../../resources/layout.qrc">
-         <normaloff>:/layout/layout_6.png</normaloff>:/layout/layout_6.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -673,9 +649,6 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../../resources/layout.qrc"/>
- </resources>
  <connections/>
  <buttongroups>
   <buttongroup name="layoutButtonGroup"/>

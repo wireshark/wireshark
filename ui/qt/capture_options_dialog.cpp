@@ -33,6 +33,8 @@
 #include <QLineEdit>
 #include <QSpinBox>
 #include <QMessageBox>
+#include <QStyle>
+#include <QTimer>
 
 #include "ringbuffer.h"
 #include "ui/capture_opts.h"
@@ -55,8 +57,10 @@
 
 #include <wiretap/wtap.h>
 
+#include <ui/qt/utils/font_manager.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/stock_icon.h>
+#include <ui/qt/utils/themes/contrast_adapt_icon.h>
 #include <ui/qt/models/sparkline_delegate.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 #include <ui/qt/models/pref_models.h>
@@ -161,13 +165,22 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     ui->interfaceTree->setItemDelegateForColumn(col_snaplen_, interface_item_delegate_);
     ui->interfaceTree->setItemDelegateForColumn(col_buffer_, interface_item_delegate_);
     ui->interfaceTree->setItemDelegateForColumn(col_filter_, interface_item_delegate_);
+
+    // The extcap-config decoration is a ContrastAdaptIcon; scale the tree's
+    // icons with the application zoom level (consumer-side).
+    auto applyIconSize = [this]() {
+        const int s = qRound(style()->pixelMetric(QStyle::PM_SmallIconSize) * FontManager::zoomFactor());
+        ui->interfaceTree->setIconSize(QSize(s, s));
+    };
+    applyIconSize();
+    connect(FontManager::instance(), &FontManager::zoomChanged, this, applyIconSize);
     ui->interfaceTree->setItemDelegateForColumn(col_traffic_, new SparkLineDelegate(this));
 
     // Allow renaming bookmarks here, but not in other views like the welcome screen.
     cache_model_->setBookmarkRenameEnabled(true);
 
-    ui->newToolButton->setStockIcon("list-add");
-    ui->deleteToolButton->setStockIcon("list-remove");
+    ui->newToolButton->setIconByName("list-add");
+    ui->deleteToolButton->setIconByName("list-remove");
 
     ui->filenameLineEdit->setPlaceholderText(tr("Leave blank to use a temporary file"));
 

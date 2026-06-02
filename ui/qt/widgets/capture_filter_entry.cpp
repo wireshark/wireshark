@@ -18,7 +18,7 @@
 
 #include <ui/qt/filter_dialog.h>
 #include <ui/qt/main_application.h>
-#include <ui/qt/utils/themes/themed_icon.h>
+#include <ui/qt/utils/themes/contrast_adapt_icon.h>
 
 #include <ui/capture_globals.h>
 #include <wsutil/utf8_entities.h>
@@ -47,10 +47,13 @@ CaptureFilterEntry::CaptureFilterEntry(QWidget *parent) :
 
     // Capture chrome and mode. Green bookmark (distinct from display's blue);
     // yellow when the filter is saved.
-    setBookmarkIcon(ThemedIcon(":/svg_icons/x-capture-filter-bookmark.svg",
-                               ThemeManager::FilterBookmarkCapture),
-                    ThemedIcon(":/svg_icons/x-capture-filter-bookmark.svg",
-                               ThemeManager::FilterBookmarkMatch));
+    setBookmarkIcon(ContrastAdaptIcon(QStringLiteral(":/svg_icons/bookmark-capture.svg"), QPalette::Base),
+                    ContrastAdaptIcon(QStringLiteral(":/svg_icons/bookmark-match.svg"), QPalette::Base));
+    setBookmarkMenuLabels(tr("Saved Capture Filters"),
+                          tr("Save this filter"),
+                          tr("Remove this filter"),
+                          tr("Manage Capture Filters"),
+                          QString());
     setApplyActionVisible(false);       // implicit apply
     setPreferencesActionVisible(false); // capture has no filter-button prefs pane
 

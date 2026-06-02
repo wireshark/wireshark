@@ -7,8 +7,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef THEME_MANAGER_H
-#define THEME_MANAGER_H
+#pragma once
 
 #include <QColor>
 #include <QFont>
@@ -125,6 +124,7 @@ public:
         AccentInfo,
 
         // Expert
+        ExpertNone,
         ExpertComment,
         ExpertChat,
         ExpertNote,
@@ -614,5 +614,3 @@ private:
     bool loadTheme(const QString &themeName = QString());
 
 };
-
-#endif /* THEME_MANAGER_H */

@@ -7,8 +7,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef STOCKICONTOOLBUTTON_H
-#define STOCKICONTOOLBUTTON_H
+#pragma once
 
 #include <QToolButton>
 
@@ -21,21 +20,16 @@ public:
     /**
      * @brief Constructs a new StockIconToolButton object.
      * @param parent The parent widget.
-     * @param stock_icon_name The name of the stock icon to display.
+     * @param icon_name The name of the themed icon to display.
      */
-    explicit StockIconToolButton(QWidget * parent = 0, QString stock_icon_name = QString());
+    explicit StockIconToolButton(QWidget * parent = 0, QString icon_name = QString());
 
     /**
-     * @brief Sets the icon mode.
-     * @param mode The QIcon mode to set.
+     * @brief Sets the themed icon by name. The base resource
+     * name must exist in the ":/svg_icons/" resource path.
+     * @param icon_name The name of the themed icon.
      */
-    void setIconMode(QIcon::Mode mode = QIcon::Normal);
-
-    /**
-     * @brief Sets the stock icon by name.
-     * @param icon_name The name of the stock icon.
-     */
-    void setStockIcon(QString icon_name = QString());
+    void setIconByName(QString icon_name = QString());
 
 protected:
     /**
@@ -52,5 +46,3 @@ private:
     /** @brief The name of the currently set icon. */
     QString icon_name_;
 };
-
-#endif // STOCKICONTOOLBUTTON_H

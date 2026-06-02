@@ -10,6 +10,7 @@
 #include <ui/qt/widgets/apply_line_edit.h>
 
 #include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/themes/contrast_adapt_icon.h>
 
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
@@ -22,7 +23,8 @@ ApplyLineEdit::ApplyLineEdit(QString linePlaceholderText, QWidget * parent)
     emptyAllowed_ = false;
     regex_ = QString();
 
-    apply_button_ = new StockIconToolButton(parent, "x-filter-apply");
+    apply_button_ = new StockIconToolButton(parent);
+    apply_button_->setIcon(ContrastAdaptIcon("filter-apply"));
     apply_button_->setCursor(Qt::ArrowCursor);
     apply_button_->setEnabled(false);
     apply_button_->setToolTip(tr("Apply changes"));

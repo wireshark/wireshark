@@ -78,6 +78,8 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     const ThemeColorPair disabledBg = ColorMath::darken(successPair, 40);
 
     // Expert — alpha-blended accent variants.
+    assign(tokens, ThemeManager::ExpertNone,
+           ColorMath::withAlpha(tokens.value(ThemeManager::AccentInfo), 102));
     assign(tokens, ThemeManager::ExpertComment,
            ColorMath::withAlpha(tokens.value(ThemeManager::AccentSuccess), 102));
     assign(tokens, ThemeManager::ExpertChat,

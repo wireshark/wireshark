@@ -38,9 +38,9 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
     if (parent) loadGeometry(parent->width() * 2 / 3, parent->height() * 2 / 3);
     setWindowIcon(mainApp->normalIcon());
 
-    ui->newToolButton->setStockIcon("list-add");
-    ui->deleteToolButton->setStockIcon("list-remove");
-    ui->copyToolButton->setStockIcon("list-copy");
+    ui->newToolButton->setIconByName("list-add");
+    ui->deleteToolButton->setIconByName("list-remove");
+    ui->copyToolButton->setIconByName("list-copy");
 
 #ifdef Q_OS_MAC
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);

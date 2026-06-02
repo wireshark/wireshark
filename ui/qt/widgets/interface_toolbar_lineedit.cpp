@@ -12,6 +12,7 @@
 #include <ui/qt/widgets/interface_toolbar_lineedit.h>
 #include <ui/qt/widgets/stock_icon_tool_button.h>
 #include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/themes/contrast_adapt_icon.h>
 
 #include <QStyle>
 
@@ -24,7 +25,8 @@ InterfaceToolbarLineEdit::InterfaceToolbarLineEdit(QWidget *parent, QString vali
     is_required_(is_required),
     text_edited_(false)
 {
-    apply_button_ = new StockIconToolButton(this, "x-filter-apply");
+    apply_button_ = new StockIconToolButton(this);
+    apply_button_->setIcon(ContrastAdaptIcon("filter-apply"));
     apply_button_->setCursor(Qt::ArrowCursor);
     apply_button_->setEnabled(false);
     apply_button_->setToolTip(tr("Apply changes"));

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="24"
+   height="24"
+   viewBox="0 0 24 24"
+   fill="none"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="filter-clear.svg"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <ws:states xmlns:ws="urn:x-wireshark-icon">
+    <ws:swap base="#888a85" selected="#a40000" active="#cc0000"/>
+  </ws:states>
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="true"
+     inkscape:zoom="35.719582"
+     inkscape:cx="12.27618"
+     inkscape:cy="11.912233"
+     inkscape:window-width="1024"
+     inkscape:window-height="1186"
+     inkscape:window-x="2240"
+     inkscape:window-y="30"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg1">
+    <inkscape:grid
+       id="grid1"
+       units="px"
+       originx="0"
+       originy="0"
+       spacingx="1"
+       spacingy="1"
+       empcolor="#0099e5"
+       empopacity="0.30196078"
+       color="#0099e5"
+       opacity="0.14901961"
+       empspacing="5"
+       enabled="true"
+       visible="true" />
+  </sodipodi:namedview>
+  <path
+     d="M 5.611111,2 C 3.6167444,2 2,3.6167555 2,5.611111 V 18.388889 C 2,20.383222 3.6167555,22 5.611111,22 H 18.388889 C 20.383222,22 22,20.383222 22,18.388889 V 5.611111 C 22,3.6167444 20.383222,2 18.388889,2 Z m 2.1885222,5.7996332 c 0.3254334,-0.3254333 0.8530778,-0.3254333 1.1785111,0 L 12,10.821444 15.021889,7.7996332 c 0.325444,-0.3254333 0.853,-0.3254333 1.178444,0 0.325445,0.3254334 0.325445,0.8530778 0,1.1785111 L 13.178555,12 l 3.021778,3.021889 c 0.325445,0.325444 0.325445,0.853 0,1.178444 -0.325444,0.325445 -0.853,0.325445 -1.178444,0 L 12,13.178555 8.9781443,16.200333 c -0.3254333,0.325445 -0.8530777,0.325445 -1.1785111,0 -0.3254333,-0.325444 -0.3254333,-0.853 0,-1.178444 L 10.821444,12 7.7996332,8.9781443 c -0.3254333,-0.3254333 -0.3254333,-0.8530777 0,-1.1785111 z"
+     fill="#888a85"
+     id="path1"
+     style="stroke-width:1" />
+</svg>

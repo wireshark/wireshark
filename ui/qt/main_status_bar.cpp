@@ -25,8 +25,9 @@
 #include "capture_file.h"
 #include "main_status_bar.h"
 #include "profile_dialog.h"
-#include <ui/qt/utils/stock_icon.h>
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/themes/contrast_adapt_icon.h>
+#include <ui/qt/utils/themes/themed_icon.h>
 #include <ui/qt/capture_file.h>
 #include <ui/qt/widgets/clickable_label.h>
 #include <ui/recent.h>
@@ -127,7 +128,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
 
     // We just want a clickable image. Using a QPushButton or QToolButton would require
     // a lot of adjustment.
-    StockIcon comment_icon("x-capture-comment-update");
+    ThemedIcon comment_icon(QStringLiteral(":/svg_icons/capture-comment.svg"), ThemeManager::PaletteText);
     comment_button_ = new QToolButton(this);
     comment_button_->setIcon(comment_icon);
     comment_button_->setIconSize(QSize(icon_size, icon_size));
@@ -212,7 +213,7 @@ void MainStatusBar::expertUpdate() {
     // <img> won't load @2x versions in Qt versions earlier than 5.4.
     // https://bugreports.qt.io/browse/QTBUG-36383
     // We might have to switch to a QPushButton.
-    QString stock_name = "x-expert-";
+    QString stock_name = "expert-";
     QString tt_text = tr(" is the highest expert information level");
 
     switch(expert_get_highest_severity()) {
@@ -241,7 +242,8 @@ void MainStatusBar::expertUpdate() {
         break;
     }
 
-    StockIcon expert_icon(stock_name);
+    ContrastAdaptIcon expert_icon(QStringLiteral(":/svg_icons/") + stock_name.toLatin1() + QStringLiteral(".svg"),
+                                  QPalette::Window);
     expert_button_->setIcon(expert_icon);
     expert_button_->setToolTip(tt_text);
     expert_button_->show();

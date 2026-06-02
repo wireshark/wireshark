@@ -21,7 +21,7 @@
 #include <QStyle>
 #include <QStyleOptionFrame>
 #include <QTimer>
-#include <ui/qt/utils/stock_icon.h>
+#include <ui/qt/utils/themes/themed_icon.h>
 #include <cmath>
 #include <limits>
 #include <utility>
@@ -215,13 +215,13 @@ void FilterEdit::paintEvent(QPaintEvent *event)
 {
     QLineEdit::paintEvent(event);
 
-    QString si_name;
+    const char *si_name;
     switch (state_) {
     case SyntaxState::Invalid:
-        si_name = QStringLiteral("x-filter-invalid");
+        si_name = "filter-invalid";
         break;
     case SyntaxState::Deprecated:
-        si_name = QStringLiteral("x-filter-deprecated");
+        si_name = "filter-deprecated";
         break;
     default:
         return;
@@ -240,7 +240,7 @@ void FilterEdit::paintEvent(QPaintEvent *event)
         return;
     }
 
-    const QIcon state_icon = StockIcon(si_name);
+    const QIcon state_icon = ThemedIcon(si_name);
     if (state_icon.isNull()) {
         return;
     }

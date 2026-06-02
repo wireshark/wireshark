@@ -57,7 +57,7 @@
 #include <QPushButton>
 #include <QToolButton>
 
-#include <ui/qt/utils/stock_icon.h>
+#include <ui/qt/utils/themes/themed_icon.h>
 #include "main_application.h"
 
 // To do:
@@ -237,14 +237,14 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
     ui->audioPlot->xAxis->setTicker(datetime_ticker_);
     ui->audioPlot->yAxis->setVisible(false);
 
-    ui->playButton->setIcon(StockIcon("media-playback-start"));
+    ui->playButton->setIcon(ThemedIcon("media-playback-start"));
     ui->playButton->setEnabled(false);
-    ui->pauseButton->setIcon(StockIcon("media-playback-pause"));
+    ui->pauseButton->setIcon(ThemedIcon("media-playback-pause"));
     ui->pauseButton->setCheckable(true);
     ui->pauseButton->setVisible(false);
-    ui->stopButton->setIcon(StockIcon("media-playback-stop"));
+    ui->stopButton->setIcon(ThemedIcon("media-playback-stop"));
     ui->stopButton->setEnabled(false);
-    ui->skipSilenceButton->setIcon(StockIcon("media-seek-forward"));
+    ui->skipSilenceButton->setIcon(ThemedIcon("media-seek-forward"));
     ui->skipSilenceButton->setCheckable(true);
     ui->skipSilenceButton->setEnabled(false);
 
@@ -354,7 +354,7 @@ QToolButton *RtpPlayerDialog::addPlayerButton(QDialogButtonBox *button_box, QDia
 
     ca = new QAction(tr("&Play Streams"), player_button);
     ca->setToolTip(tr("Open RTP player dialog"));
-    ca->setIcon(StockIcon("media-playback-start"));
+    ca->setIcon(ThemedIcon("media-playback-start"));
     connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpPlayerReplace()));
     player_button->setDefaultAction(ca);
     // Overrides text striping of shortcut undercode in QAction

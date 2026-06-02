@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="24"
+   height="24"
+   viewBox="0 0 24 24"
+   fill="none"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="capture-stop.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:ws="urn:x-wireshark-icon">
+  <ws:states>
+    <ws:map-token color="#212121" token="PaletteText" />
+    <ws:swap base="#dc0000" active="#da0000" selected="#b90000" />
+  </ws:states>
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="18.541667"
+     inkscape:cx="11.973034"
+     inkscape:cy="12"
+     inkscape:window-width="1083"
+     inkscape:window-height="664"
+     inkscape:window-x="40"
+     inkscape:window-y="48"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg1" />
+  <path
+     d="M 5.0722224,3.4 C 4.1486776,3.4 3.4,4.1486776 3.4,5.0722224 V 18.927776 C 3.4,19.851324 4.1486776,20.6 5.0722224,20.6 H 18.927776 C 19.851324,20.6 20.6,19.851324 20.6,18.927776 V 5.0722224 C 20.6,4.1486776 19.851324,3.4 18.927776,3.4 Z"
+     fill="#212121"
+     id="path2"
+     style="stroke-width:0.955556;fill:#dc0000;fill-opacity:1"
+     sodipodi:nodetypes="sssssssss" />
+  <path
+     d="M19.25 4.5C19.3881 4.5 19.5 4.61193 19.5 4.75V19.25C19.5 19.3881 19.3881 19.5 19.25 19.5H4.75C4.61193 19.5 4.5 19.3881 4.5 19.25V4.75C4.5 4.61193 4.61193 4.5 4.75 4.5H19.25ZM4.75 3C3.7835 3 3 3.7835 3 4.75V19.25C3 20.2165 3.7835 21 4.75 21H19.25C20.2165 21 21 20.2165 21 19.25V4.75C21 3.7835 20.2165 3 19.25 3H4.75Z"
+     fill="#212121"
+     id="path1" />
+</svg>

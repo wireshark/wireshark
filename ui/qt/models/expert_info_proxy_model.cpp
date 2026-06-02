@@ -119,6 +119,8 @@ QVariant ExpertInfoProxyModel::data(const QModelIndex &proxy_index, int role) co
             return QBrush(ThemeManager::instance()->color(ThemeManager::ExpertWarn));
         case(PI_ERROR):
             return QBrush(ThemeManager::instance()->color(ThemeManager::ExpertError));
+        default:
+            return QBrush(ThemeManager::instance()->color(ThemeManager::ExpertNone));
         }
         }
         break;

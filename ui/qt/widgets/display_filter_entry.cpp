@@ -22,7 +22,7 @@
 #include <ui/qt/main_application.h>
 #include <ui/qt/main_window.h>
 #include <ui/qt/models/pref_models.h>
-#include <ui/qt/utils/themes/themed_icon.h>
+#include <ui/qt/utils/themes/contrast_adapt_icon.h>
 #include <ui/qt/utils/wireshark_mime_data.h>
 
 #include <wsutil/utf8_entities.h>
@@ -66,10 +66,13 @@ DisplayFilterEntry::DisplayFilterEntry(QWidget *parent) :
     completer->setModel(completionModel());
 
     // Display chrome and mode. Blue bookmark; yellow when the filter is saved.
-    setBookmarkIcon(ThemedIcon(":/svg_icons/x-display-filter-bookmark.svg",
-                               ThemeManager::FilterBookmark),
-                    ThemedIcon(":/svg_icons/x-display-filter-bookmark.svg",
-                               ThemeManager::FilterBookmarkMatch));
+    setBookmarkIcon(ContrastAdaptIcon(QStringLiteral(":/svg_icons/bookmark-display.svg"), QPalette::Base),
+                    ContrastAdaptIcon(QStringLiteral(":/svg_icons/bookmark-match.svg"), QPalette::Base));
+    setBookmarkMenuLabels(tr("Saved Display Filters"),
+                          tr("Save this filter"),
+                          tr("Remove this filter"),
+                          tr("Manage Display Filters"),
+                          tr("Filter Button Preferences…"));
     setApplyActionVisible(true);        // explicit apply
     setPreferencesActionVisible(true);  // display has a filter-button prefs pane
 

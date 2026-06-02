@@ -20,7 +20,7 @@
 #include <capture/capture_sync.h>
 #include <ui/capture_globals.h>
 #include <ui/qt/utils/qt_ui_utils.h>
-#include <ui/qt/utils/stock_icon.h>
+#include <ui/qt/utils/themes/themed_icon.h>
 
 #include "main_application.h"
 #include <ui/qt/utils/font_manager.h>
@@ -168,7 +168,7 @@ void CompiledFilterOutput::compileFilters()
         if (success) {
             newitem = new QListWidgetItem(QString(current->display_name));
         } else {
-            newitem = new QListWidgetItem(StockIcon("x-expert-error"), QString(current->display_name));
+            newitem = new QListWidgetItem(ThemedIcon("expert-error"), QString(current->display_name));
         }
         newitem->setData(Qt::UserRole, QString(current->cfilter));
         ui->interfaceList->addItem(newitem);

@@ -18,7 +18,7 @@
 #include <ui/qt/utils/stock_icon.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/themes/themed_icon.h>
-#include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/themes/contrast_adapt_icon.h>
 
 #include <ui/recent.h>
 
@@ -172,7 +172,8 @@ FilterExpressionEdit::FilterExpressionEdit(QWidget *parent) :
     bookmark_button_ = new AdaptiveToolButton(this);
     bookmark_button_->setIconPadding(1);
     bookmark_button_->setBaseIconSize(QSize(14, 14));
-    bookmark_button_->setIcon(StockIcon("x-capture-filter-bookmark"));
+    bookmark_button_->setIcon(ContrastAdaptIcon(QStringLiteral(":/svg_icons/bookmark-capture.svg"),
+                                                QPalette::Base));
     bookmark_button_->setToolTip(tr("Manage saved filters"));
     bookmark_button_->setVisible(false);
     connect(bookmark_button_, &QAbstractButton::clicked, this, [this]() {
@@ -183,10 +184,10 @@ FilterExpressionEdit::FilterExpressionEdit(QWidget *parent) :
     clear_button_ = new AdaptiveToolButton(this);
     clear_button_->setIconPadding(1);
     clear_button_->setBaseIconSize(QSize(14, 14));
-    // Neutral at rest, red on hover (QIcon::Active) — the old "x-filter-clear"
-    // gray→scarlet behaviour, now theme-token driven.
-    clear_button_->setIcon(ThemedIcon(":/svg_icons/x-filter-clear.svg",
-                                      ThemeManager::PaletteText, ThemeManager::FilterClear));
+    // Neutral grey at rest, red on hover/press — carried by the icon's own
+    // <ws:swap> state contract in filter-clear.svg, contrast-adapted to the field.
+    clear_button_->setIcon(ContrastAdaptIcon(QStringLiteral(":/svg_icons/filter-clear.svg"),
+                                             QPalette::Base));
     clear_button_->setToolTip(tr("Clear the filter"));
     clear_button_->setVisible(false);
     connect(clear_button_, &QAbstractButton::clicked, this, [this]() {
@@ -202,7 +203,8 @@ FilterExpressionEdit::FilterExpressionEdit(QWidget *parent) :
     // engine's Disabled mode.
     apply_button_ = new AdaptiveToolButton(this);
     apply_button_->setIconPadding(1);
-    apply_button_->setIcon(ThemedIcon(":/svg_icons/x-filter-apply.svg", ThemeManager::FilterApply));
+    apply_button_->setIcon(ContrastAdaptIcon(QStringLiteral(":/svg_icons/filter-apply.svg"),
+                                             QPalette::Base));
     apply_button_->setToolTip(tr("Apply this filter"));
     // The apply glyph is a wide 24x14 chevron (its native SVG size); set that
     // fixed so a square box doesn't squeeze it short. AdaptiveToolButton scales
@@ -213,14 +215,8 @@ FilterExpressionEdit::FilterExpressionEdit(QWidget *parent) :
 
     history_button_ = new AdaptiveToolButton(this);
     history_button_->setIconPadding(1);
-    // Dimmed disclosure caret at rest (FilterHistory ≈ the classic combo-arrow
-    // gray), brightening to the brand colour on hover and press so the arrow
-    // reads as a button. The stateful ThemedIcon supplies the per-mode glyph
-    // colours QToolButton requests on hover/press; QSS cannot recolour an SVG
-    // fill, so the feedback has to live on the icon, as it does for clear.
-    history_button_->setIcon(ThemedIcon(":/svg_icons/x-filter-history.svg",
-                                        ThemeManager::FilterHistory,
-                                        ThemeManager::BrandPrimary));
+    history_button_->setIcon(ContrastAdaptIcon(QStringLiteral(":/svg_icons/filter-history.svg"),
+                                               QPalette::Base));
     history_button_->setToolTip(tr("Recent filters"));
     // Size the recent-filters dropdown like a disclosure arrow rather than a full
     // action glyph. QStyle exposes no tree-arrow metric; PM_MenuButtonIndicator

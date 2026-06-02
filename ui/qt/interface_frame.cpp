@@ -28,6 +28,7 @@
 #include <ui/qt/models/sparkline_delegate.h>
 
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/font_manager.h>
 
 
 #include "extcap.h"
@@ -54,6 +55,7 @@
 #include <QEvent>
 #include <QHeaderView>
 #include <QResizeEvent>
+#include <QStyle>
 
 #include <epan/prefs.h>
 #include <epan/wmem_scopes.h>
@@ -155,6 +157,15 @@ InterfaceFrame::InterfaceFrame(QWidget * parent)
 
     connect(ui->interfaceTree->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &InterfaceFrame::interfaceTreeSelectionChanged);
+
+    // The extcap-config decoration is a ContrastAdaptIcon; as the consuming view
+    // the tree scales its icons with the application zoom level.
+    auto applyIconSize = [this]() {
+        const int s = qRound(style()->pixelMetric(QStyle::PM_SmallIconSize) * FontManager::zoomFactor());
+        ui->interfaceTree->setIconSize(QSize(s, s));
+    };
+    applyIconSize();
+    connect(FontManager::instance(), &FontManager::zoomChanged, this, applyIconSize);
 }
 
 InterfaceFrame::~InterfaceFrame()

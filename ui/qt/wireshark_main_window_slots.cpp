@@ -165,6 +165,7 @@ DIAG_ON(frame-larger-than=)
 #include "stats_tree_dialog.h"
 #include "strip_headers_dialog.h"
 #include <ui/qt/utils/stock_icon.h>
+#include <ui/qt/utils/themes/themed_icon.h>
 #include "keyboard_shortcuts_dialog.h"
 #include "supported_protocols_dialog.h"
 #include "theme_debug_dialog.h"
@@ -370,12 +371,12 @@ void WiresharkMainWindow::layoutToolbars()
 
 static const char* layout_icons[] = {
     NULL,
-    "x-reset-layout_5",
-    "x-reset-layout_2",
-    "x-reset-layout_1",
-    "x-reset-layout_4",
-    "x-reset-layout_3",
-    "x-reset-layout_6"
+    "layout-reset-5",
+    "layout-reset-2",
+    "layout-reset-1",
+    "layout-reset-4",
+    "layout-reset-3",
+    "layout-reset-6"
 };
 
 void WiresharkMainWindow::updatePreferenceActions()
@@ -391,7 +392,7 @@ void WiresharkMainWindow::updatePreferenceActions()
     main_ui_->actionViewNameResolutionTransport->setChecked(gbl_resolv_flags.transport_name);
 
     if (prefs.gui_layout_type > 0)
-        main_ui_->actionViewResetLayout->setIcon(StockIcon(layout_icons[prefs.gui_layout_type]));
+        main_ui_->actionViewResetLayout->setIcon(ThemedIcon(layout_icons[prefs.gui_layout_type]));
 }
 
 void WiresharkMainWindow::updateRecentActions()

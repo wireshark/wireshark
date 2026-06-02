@@ -1,0 +1,111 @@
+= SVG Icon Set
+
+The following list tracks the sources of each of our SVG icons.
+We have standardized on the Fluent System Icons collection.
+New or modified icons should either come directly from the Fluent icon collection or follow the Fluent style guidelines.
+
+The Fluent System Icons repository is at https://github.com/microsoft/fluentui-system-icons/.
+Icons can be found in */assets/<icon name>/SVG*.
+
+== Adding an icon
+
+If the icons listed below don't suit your needs, you can add a new one by doing the following:
+
+. First, find an icon or create one.
++
+--
+You can browse and search the Fluent System Icons collection at https://fluenticons.co/.
+If none of those suit your needs, you can create a new one, but it should follow the Fluent
+https://fluent2.microsoft.design/iconography[Iconography]
+and
+https://fluent2.microsoft.design/shapes[Shapes]
+guidelines.
+Use #212121 as a base icon color to match the existing icons.
+--
+
+. Once you have your new icon, add it as an asset.
+Add it to this directory, to the list below, and to *resources/theme_icons.qrc*.
+
+. Finally, use it in your code.
+For simple, monochrome icons, use ThemedIcon.
+For color icons use ContrastAdaptIcon.
+
+ContrastAdaptIcon lets you control how colors are rendered via custom SVG elements.
+
+The `ws:swap` element lets you replace the base theme / normal icon mode color with other colors for the active, selected, and "on" (toggled) icon states.
+The `ws:map-token` element lets you replace the specified color
+The following snippet shows examples of each element:
+
+[source,xml]
+----
+<ws:states xmlns:ws="urn:x-wireshark-icon">
+  <ws:map-token color="#212121" token="PaletteText"/>
+  <ws:swap base="#2960f6" active="#2050f5" selected="#1c47f5" normal-on="#73d216"/>
+</ws:states>
+----
+
+== Icons
+
+:raw-assets-url-prefix: https://raw.githubusercontent.com/microsoft/fluentui-system-icons/refs/heads/main/assets/
+:designed-by-aaron: Designed by Aaaron Null
+
+If you add, modify, or remove an icon please update this list to match.
+
+[unstyled]
+* bookmark-capture.svg: Modified {raw-assets-url-prefix}Bookmark/SVG/ic_fluent_bookmark_24_filled.svg[Bookmark]
+* bookmark-display.svg: Modified {raw-assets-url-prefix}Bookmark/SVG/ic_fluent_bookmark_24_filled.svg[Bookmark]
+* bookmark-match.svg: Modified {raw-assets-url-prefix}Bookmark/SVG/ic_fluent_bookmark_24_filled.svg[Bookmark]
+* capture-comment.svg: {raw-assets-url-prefix}Document%20Edit/SVG/ic_fluent_document_edit_24_regular.svg[Document Edit]
+* capture-options.svg: {raw-assets-url-prefix}Settings/SVG/ic_fluent_settings_24_regular.svg[Settings]
+* capture-restart.svg: {designed-by-aaron}
+* capture-start.svg: {designed-by-aaron}
+* capture-stop.svg: Modified {raw-assets-url-prefix}Stop/SVG/ic_fluent_stop_24_filled.svg[Stop]
+* document-open.svg: // To do
+* expert-chat.svg Modified {raw-assets-url-prefix}Circle/SVG/ic_fluent_circle_24_regular.svg[Circle]
+* expert-comment.svg Modified {raw-assets-url-prefix}Circle/SVG/ic_fluent_circle_24_regular.svg[Circle]
+* expert-error.svg Modified {raw-assets-url-prefix}Circle/SVG/ic_fluent_circle_24_regular.svg[Circle]
+* expert-none.svg Modified {raw-assets-url-prefix}Circle/SVG/ic_fluent_circle_24_regular.svg[Circle]
+* expert-note.svg Modified {raw-assets-url-prefix}Circle/SVG/ic_fluent_circle_24_regular.svg[Circle]
+* expert-warn.svg Modified {raw-assets-url-prefix}Circle/SVG/ic_fluent_circle_24_regular.svg[Circle]
+* file-close.svg: {designed-by-aaron}
+* file-reload.svg: {designed-by-aaron}
+* file-save.svg: {raw-assets-url-prefix}Document/SVG/ic_fluent_document_24_regular.svg[Document]
+* filter-apply.svg: Modified {raw-assets-url-prefix}Arrow%20Square%20Down/SVG/ic_fluent_arrow_square_down_24_filled.svgp[Arrow Square Down]
+* filter-clear.svg: Modified {raw-assets-url-prefix}Dismiss%20Square/SVG/ic_fluent_dismiss_square_24_filled.svg[Dismiss Square]
+* filter-deprecated.svg: {raw-assets-url-prefix}Warning/SVG/ic_fluent_warning_24_regular.svg[Warning]
+* filter-dropdown.svg: // To do
+* filter-history.svg: // To do
+* filter-invalid.svg: {raw-assets-url-prefix}Prohibited/SVG/ic_fluent_prohibited_24_regular.svg[Prohibited]
+* find.svg: {raw-assets-url-prefix}Search/SVG/ic_fluent_search_24_regular.svg
+* folder.svg {raw-assets-url-prefix}Folder/SVG/ic_fluent_folder_24_regular.svg[Folder]
+* layout-reset-\*.svg: {designed-by-aaron}
+* list-add.svg {raw-assets-url-prefix}Add/SVG/ic_fluent_add_24_regular.svg[Add]
+* list-clear.svg {raw-assets-url-prefix}Text%20Grammar%20Dismiss/SVG/ic_fluent_text_grammar_dismiss_24_regular.svg[Text Grammar Dismiss]
+* list-copy.svg {raw-assets-url-prefix}Copy/SVG/ic_fluent_copy_24_regular.svg[Copy]
+* list-move-down.svg {raw-assets-url-prefix}Chevron%20Down/SVG/ic_fluent_chevron_down_24_regular.svg[Chevron Down]
+* list-move-up.svg {raw-assets-url-prefix}Chevron%20Up/SVG/ic_fluent_chevron_up_24_regular.svg[Chevron Up]
+* list-remove.svg {raw-assets-url-prefix}Subtract/SVG/ic_fluent_subtract_24_regular.svg[Subtract]
+* lua-debug-continue.svg {raw-assets-url-prefix}Play/SVG/ic_fluent_play_24_filled.svg[Play]
+* lua-debug-run-to-line.svg {raw-assets-url-prefix}Text%20First%20Line/SVG/ic_fluent_text_first_line_20_regular.svg[Text First Line]
+* lua-debug-step-in.svg {raw-assets-url-prefix}Arrow%20Step%20In/SVG/ic_fluent_arrow_step_in_20_filled.svg[Arrow Step In]
+* lua-debug-step-out.svg {raw-assets-url-prefix}Arrow%20Step%20Out/SVG/ic_fluent_arrow_step_out_20_filled.svg[Arrow Step Out]
+* lua-debug-step-over.svg {raw-assets-url-prefix}Arrow%20Step%20over/SVG/ic_fluent_arrow_step_over_20_filled.svg[Arrow Step Over]
+* media-playback-pause.svg {raw-assets-url-prefix}Pause/SVG/ic_fluent_pause_24_filled.svg[Pause]
+* media-playback-start.svg {raw-assets-url-prefix}Play/SVG/ic_fluent_play_24_filled.svg[Play]
+* media-playback-stop.svg {raw-assets-url-prefix}Stop/SVG/ic_fluent_stop_24_filled.svg[Stop]
+* media-seek-forward.svg {raw-assets-url-prefix}Next/SVG/ic_fluent_next_24_filled.svg[Next]
+* nav-first.svg: {raw-assets-url-prefix}Arrow%20Upload/SVG/ic_fluent_arrow_upload_24_regular.svg[Arrow Upload]
+* nav-goto.svg: {designed-by-aaron}
+* nav-last.svg: {raw-assets-url-prefix}Arrow Download/SVG/ic_fluent_arrow_download_24_regular.svg[Arrow Download]
+* nav-next.svg: {raw-assets-url-prefix}Arrow%20Right/SVG/ic_fluent_arrow_right_24_regular.svg[Arrow Right]
+* nav-previous.svg: {raw-assets-url-prefix}Arrow%20Left/SVG/ic_fluent_arrow_left_24_regular.svg[Arrow Left]
+* reset.svg {raw-assets-url-prefix}Arrow%20Reset/SVG/ic_fluent_arrow_reset_24_regular.svg[Arrow Reset]
+* text-x-generic.svg {raw-assets-url-prefix}Document%20Text/SVG/ic_fluent_document_text_24_regular.svg[Document Text]
+* view-aggregation.svg: {raw-assets-url-prefix}Group%20List/SVG/ic_fluent_group_list_24_regular.svg[Group List]
+* view-autoscroll.svg: {designed-by-aaron}
+* view-colorize.svg: Custom
+* view-refresh.svg {raw-assets-url-prefix}Arrow%20Clockwise/SVG/ic_fluent_arrow_clockwise_24_regular.svg[Arrow Clockwise]
+* view-resize-columns.svg: {designed-by-aaron}
+* zoom-in.svg: {raw-assets-url-prefix}Zoom%20In/SVG/ic_fluent_zoom_in_24_regular.svg
+* zoom-out.svg: {raw-assets-url-prefix}Zoom%20Out/SVG/ic_fluent_zoom_out_24_regular.svg
+* zoom-reset.svg: {designed-by-aaron}

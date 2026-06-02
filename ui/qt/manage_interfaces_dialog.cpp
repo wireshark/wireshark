@@ -173,10 +173,10 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     loadGeometry();
     setAttribute(Qt::WA_DeleteOnClose, true);
 
-    ui->addPipe->setStockIcon("list-add");
-    ui->delPipe->setStockIcon("list-remove");
-    ui->addRemote->setStockIcon("list-add");
-    ui->delRemote->setStockIcon("list-remove");
+    ui->addPipe->setIconByName("list-add");
+    ui->delPipe->setIconByName("list-remove");
+    ui->addRemote->setIconByName("list-add");
+    ui->delRemote->setIconByName("list-remove");
 
 #ifdef Q_OS_MAC
     ui->addPipe->setAttribute(Qt::WA_MacSmallSize, true);

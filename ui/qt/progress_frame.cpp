@@ -20,6 +20,7 @@
 #include <QPropertyAnimation>
 
 #include <ui/qt/widgets/stock_icon_tool_button.h>
+#include <ui/qt/utils/themes/contrast_adapt_icon.h>
 #include "main_application.h"
 
 // To do:
@@ -163,7 +164,7 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
 #endif
     );
 
-    ui->stopButton->setStockIcon("x-filter-clear");
+    ui->stopButton->setIcon(ContrastAdaptIcon("filter-clear"));
     ui->stopButton->setIconSize(QSize(14, 14));
     ui->stopButton->setStyleSheet(
             "QToolButton {"

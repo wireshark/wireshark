@@ -119,6 +119,7 @@ set(WIRESHARK_UTILS_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/theme_stylesheet_loader.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/theme_token_handler.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/themed_icon.h
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/contrast_adapt_icon.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/variant_pointer.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/wireshark_mime_data.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/wireshark_zip_helper.h
@@ -443,6 +444,7 @@ set(WIRESHARK_UTILS_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/theme_stylesheet_loader.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/theme_token_handler.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/themed_icon.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/contrast_adapt_icon.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/system_theme_detector_common.cpp
 	${WIRESHARK_THEMES_PLATFORM_SRC}
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/wireshark_mime_data.cpp

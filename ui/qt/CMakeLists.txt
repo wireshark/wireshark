@@ -120,6 +120,7 @@ set(WIRESHARK_UTILS_HEADERS
 	utils/themes/theme_stylesheet_loader.h
 	utils/themes/theme_token_handler.h
 	utils/themes/themed_icon.h
+	utils/themes/contrast_adapt_icon.h
 	utils/variant_pointer.h
 	utils/wireshark_mime_data.h
 	utils/wireshark_zip_helper.h
@@ -468,6 +469,7 @@ set(WIRESHARK_UTILS_SRCS
 	utils/themes/theme_stylesheet_loader.cpp
 	utils/themes/theme_token_handler.cpp
 	utils/themes/themed_icon.cpp
+	utils/themes/contrast_adapt_icon.cpp
 	utils/themes/system_theme_detector_common.cpp
 	${WIRESHARK_THEMES_PLATFORM_SRC}
 	utils/wireshark_mime_data.cpp

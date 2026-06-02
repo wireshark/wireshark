@@ -19,7 +19,7 @@
 #include <ui/qt/widgets/syntax_line_edit.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
-#include <ui/qt/utils/stock_icon.h>
+#include <ui/qt/utils/themes/themed_icon.h>
 #include <ui/qt/utils/theme_manager.h>
 
 #include <QAbstractItemView>
@@ -450,14 +450,14 @@ void SyntaxLineEdit::paintEvent(QPaintEvent *event)
 
     QLineEdit::paintEvent(event);
 
-    QString si_name;
+    const char * si_name;
 
     switch (syntax_state_) {
     case Invalid:
-        si_name = "x-filter-invalid";
+        si_name = "filter-invalid";
         break;
     case Deprecated:
-        si_name = "x-filter-deprecated";
+        si_name = "filter-deprecated";
         break;
     default:
         return;
@@ -475,7 +475,7 @@ void SyntaxLineEdit::paintEvent(QPaintEvent *event)
         return;
     }
 
-    QIcon state_icon = StockIcon(si_name);
+    QIcon state_icon = ThemedIcon(si_name);
     if (state_icon.isNull()) {
         return;
     }

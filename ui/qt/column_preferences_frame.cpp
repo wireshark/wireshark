@@ -54,8 +54,8 @@ ColumnPreferencesFrame::ColumnPreferencesFrame(QWidget *parent) :
     ui->columnTreeView->setDragDropMode(QAbstractItemView::InternalMove);
     ui->columnTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    ui->newToolButton->setStockIcon("list-add");
-    ui->deleteToolButton->setStockIcon("list-remove");
+    ui->newToolButton->setIconByName("list-add");
+    ui->deleteToolButton->setIconByName("list-remove");
 
     ui->columnTreeView->setModel(proxyModel_);
     delegate_ = new ColumnTypeDelegate();

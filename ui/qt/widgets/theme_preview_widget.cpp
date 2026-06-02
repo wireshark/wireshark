@@ -10,7 +10,7 @@
 
 #include "theme_preview_widget.h"
 #include <ui/qt/utils/font_manager.h>
-#include <ui/qt/utils/stock_icon.h>
+#include <ui/qt/utils/themes/themed_icon.h>
 #include <ui/qt/utils/themes/color_math.h>
 
 #include <epan/color_filters.h>
@@ -333,13 +333,13 @@ void ThemePreviewWidget::drawToolbar(QPainter &p, const Layout &layout)
     p.drawLine(layout.toolbarRect.bottomLeft(), layout.toolbarRect.bottomRight());
 
     // The real, colour application toolbar icons.  The toolbar reflects the
-    // *icon* theme, not the colour theme, so these are the app's own StockIcons
+    // *icon* theme, not the colour theme, so these are the app's own ThemedIcons
     // (capture/file icons are full-colour rasters; zoom falls back to a
     // WindowText-tinted template mask) rather than ThemeManager tokens.  A
     // nullptr entry is a separator.
     static const char *const icons[] = {
-        "x-capture-start", "x-capture-stop", "x-capture-restart", nullptr,
-        "x-capture-file-save", "x-capture-file-close", "x-capture-file-reload", nullptr,
+        "capture-start", "capture-stop", "capture-restart", nullptr,
+        "file-save", "file-close", "file-reload", nullptr,
         "zoom-in", "zoom-out"
     };
     const int count = static_cast<int>(sizeof(icons) / sizeof(icons[0]));
@@ -354,7 +354,7 @@ void ThemePreviewWidget::drawToolbar(QPainter &p, const Layout &layout)
             x += 9;
             continue;
         }
-        StockIcon(QString::fromLatin1(icons[i])).paint(&p, QRect(x, y, btn, btn), Qt::AlignCenter);
+        ThemedIcon(icons[i]).paint(&p, QRect(x, y, btn, btn), Qt::AlignCenter);
         x += btn + 2;
     }
 }

@@ -11,6 +11,7 @@
 
 #include <ui/qt/utils/stock_icon.h>
 #include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/themes/themed_icon.h>
 
 #include <QApplication>
 #include <QEvent>
@@ -25,28 +26,16 @@
 // retina displays: https://bugreports.qt.io/browse/QTBUG-36825
 // Subclass QToolButton, which lets us catch events and set icons as needed.
 
-StockIconToolButton::StockIconToolButton(QWidget * parent, QString stock_icon_name) :
+StockIconToolButton::StockIconToolButton(QWidget * parent, QString icon_name) :
     QToolButton(parent)
 {
     setCursor(Qt::ArrowCursor);
-    setStockIcon(stock_icon_name);
+    setIconByName(icon_name);
     connect(ThemeManager::instance(), &ThemeManager::themeChanged,
-            this, [this]() { setStockIcon(); });
+            this, [this]() { setIconByName(); });
 }
 
-void StockIconToolButton::setIconMode(QIcon::Mode mode)
-{
-    QIcon mode_icon;
-    QList<QIcon::State> states = QList<QIcon::State>() << QIcon::Off << QIcon::On;
-    foreach (QIcon::State state, states) {
-        foreach (QSize size, base_icon_.availableSizes(mode, state)) {
-            mode_icon.addPixmap(base_icon_.pixmap(size, mode, state), mode, state);
-        }
-    }
-    setIcon(mode_icon);
-}
-
-void StockIconToolButton::setStockIcon(QString icon_name)
+void StockIconToolButton::setIconByName(QString icon_name)
 {
     if (!icon_name.isEmpty()) {
         icon_name_ = icon_name;
@@ -54,33 +43,15 @@ void StockIconToolButton::setStockIcon(QString icon_name)
     if (icon_name_.isEmpty()) {
         return;
     }
-    base_icon_ = StockIcon(icon_name_);
-    setIconMode();
+    base_icon_ = ThemedIcon(icon_name_.toUtf8().constData());
+    setIcon(base_icon_);
 }
 
 bool StockIconToolButton::event(QEvent *event)
 {
     switch (event->type()) {
-    case QEvent::Enter:
-        if (isEnabled()) {
-            setIconMode(QIcon::Active);
-        }
-        break;
-    case QEvent::Leave:
-        if (isEnabled()) {
-            setIconMode();
-        }
-        break;
-    case QEvent::MouseButtonPress:
-        if (isEnabled()) {
-            setIconMode(QIcon::Selected);
-        }
-        break;
-    case QEvent::MouseButtonRelease:
-        setIconMode();
-        break;
     case QEvent::ApplicationPaletteChange:
-        setStockIcon();
+        setIconByName();
         break;
     default:
         break;

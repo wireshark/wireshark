@@ -108,6 +108,7 @@ bool ThemeParser::parse(const QString &internalName,
 // Helpers — moved verbatim from the former ThemeManager implementation.
 // --------------------------------------------------------------------
 
+// XXX Should we use json_strip_jsonc_comments?
 QByteArray ThemeParser::stripJsoncComments(const QByteArray &jsonc)
 {
     QByteArray result;

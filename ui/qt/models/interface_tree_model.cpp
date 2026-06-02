@@ -26,6 +26,7 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/stock_icon.h>
+#include <ui/qt/utils/themes/contrast_adapt_icon.h>
 #include "main_application.h"
 #include <ui/qt/main_window.h>
 #include <ui/qt/manager/interface_list_manager.h>
@@ -246,7 +247,11 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
             if (col == IFTREE_COL_EXTCAP)
             {
                 if (device->if_info.type == IF_EXTCAP)
-                    return QIcon(StockIcon("x-capture-options"));
+                    // Pilot: contrast-adapting SVG engine in an item view, so the
+                    // Selected-row (highlight) background path gets exercised.
+                    // QPalette::Base since the surface here is the tree, not chrome.
+                    return QIcon(ContrastAdaptIcon(QStringLiteral(":/svg_icons/capture-options.svg"),
+                                                   QPalette::Base, QSize(16, 16)));
             }
         }
         else if (role == Qt::TextAlignmentRole)

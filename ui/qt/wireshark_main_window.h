@@ -366,6 +366,9 @@ private:
     /** @brief Loads and assigns icons to the main toolbar actions. */
     void initMainToolbarIcons();
 
+    /** @brief Sizes the main toolbar icons for the current zoom level. */
+    void updateMainToolbarIconSize();
+
     /** @brief Connects show/hide actions for main UI panels (packet list, tree, bytes). */
     void initShowHideMainWidgets();
 

@@ -1,16 +1,71 @@
-<!-- Scalable icon sources tinted at runtime by ThemedIcon (ui/qt/utils/themes).
+<!-- Scalable SVG icon sources tinted at runtime by ThemedIcon (ui/qt/utils/themes).
      Unlike stock_icons.qrc — which ships pre-rendered, per-mode raster icons —
-     these are single SVG silhouettes recoloured to a ThemeManager token, so one
+     these are single SVG sources recoloured to a ThemeManager token, so one
      asset follows the active theme.  Exposed under a size-agnostic /svg_icons
-     prefix; the tooling-generated SVG sources keep their on-disk home under
-     stock_icons/<size>/ via aliases, while hand-authored ones live in
-     svg_icons/. -->
+     prefix; all sources live in resources/svg_icons/. -->
 <RCC>
     <qresource prefix="/svg_icons">
-        <file alias="x-filter-clear.svg">stock_icons/14x14/x-filter-clear.svg</file>
-        <file alias="x-filter-apply.svg">stock_icons/24x14/x-filter-apply.svg</file>
-        <file alias="x-display-filter-bookmark.svg">stock_icons/14x14/x-display-filter-bookmark.svg</file>
-        <file alias="x-capture-filter-bookmark.svg">stock_icons/14x14/x-capture-filter-bookmark.svg</file>
-        <file alias="x-filter-history.svg">svg_icons/x-filter-history.svg</file>
+        <file alias="bookmark-capture.svg">svg_icons/bookmark-capture.svg</file>
+        <file alias="bookmark-display.svg">svg_icons/bookmark-display.svg</file>
+        <file alias="bookmark-match.svg">svg_icons/bookmark-match.svg</file>
+        <file alias="capture-comment.svg">svg_icons/capture-comment.svg</file>
+        <file alias="capture-options.svg">svg_icons/capture-options.svg</file>
+        <file alias="capture-restart.svg">svg_icons/capture-restart.svg</file>
+        <file alias="capture-start.svg">svg_icons/capture-start.svg</file>
+        <file alias="capture-stop.svg">svg_icons/capture-stop.svg</file>
+        <file alias="document-open.svg">svg_icons/document-open.svg</file>
+        <file alias="expert-chat.svg">svg_icons/expert-chat.svg</file>
+        <file alias="expert-comment.svg">svg_icons/expert-comment.svg</file>
+        <file alias="expert-none.svg">svg_icons/expert-none.svg</file>
+        <file alias="expert-note.svg">svg_icons/expert-note.svg</file>
+        <file alias="expert-warn.svg">svg_icons/expert-warn.svg</file>
+        <file alias="expert-error.svg">svg_icons/expert-error.svg</file>
+        <file alias="file-close.svg">svg_icons/file-close.svg</file>
+        <file alias="file-reload.svg">svg_icons/file-reload.svg</file>
+        <file alias="file-save.svg">svg_icons/file-save.svg</file>
+        <file alias="filter-apply.svg">svg_icons/filter-apply.svg</file>
+        <file alias="filter-clear.svg">svg_icons/filter-clear.svg</file>
+        <file alias="filter-deprecated.svg">svg_icons/filter-deprecated.svg</file>
+        <file alias="filter-dropdown.svg">svg_icons/filter-dropdown.svg</file>
+        <file alias="filter-history.svg">svg_icons/filter-history.svg</file>
+        <file alias="filter-invalid.svg">svg_icons/filter-invalid.svg</file>
+        <file alias="find.svg">svg_icons/find.svg</file>
+        <file alias="folder.svg">svg_icons/folder.svg</file>
+        <file alias="layout-reset-1.svg">svg_icons/layout-reset-1.svg</file>
+        <file alias="layout-reset-2.svg">svg_icons/layout-reset-2.svg</file>
+        <file alias="layout-reset-3.svg">svg_icons/layout-reset-3.svg</file>
+        <file alias="layout-reset-4.svg">svg_icons/layout-reset-4.svg</file>
+        <file alias="layout-reset-5.svg">svg_icons/layout-reset-5.svg</file>
+        <file alias="layout-reset-6.svg">svg_icons/layout-reset-6.svg</file>
+        <file alias="list-add.svg">svg_icons/list-add.svg</file>
+        <file alias="list-clear.svg">svg_icons/list-clear.svg</file>
+        <file alias="list-copy.svg">svg_icons/list-copy.svg</file>
+        <file alias="list-move-down.svg">svg_icons/list-move-down.svg</file>
+        <file alias="list-move-up.svg">svg_icons/list-move-up.svg</file>
+        <file alias="list-remove.svg">svg_icons/list-remove.svg</file>
+        <file alias="lua-debug-continue.svg">svg_icons/lua-debug-continue.svg</file>
+        <file alias="lua-debug-run-to-line.svg">svg_icons/lua-debug-run-to-line.svg</file>
+        <file alias="lua-debug-step-in.svg">svg_icons/lua-debug-step-in.svg</file>
+        <file alias="lua-debug-step-out.svg">svg_icons/lua-debug-step-out.svg</file>
+        <file alias="lua-debug-step-over.svg">svg_icons/lua-debug-step-over.svg</file>
+        <file alias="media-playback-pause.svg">svg_icons/media-playback-pause.svg</file>
+        <file alias="media-playback-start.svg">svg_icons/media-playback-start.svg</file>
+        <file alias="media-playback-stop.svg">svg_icons/media-playback-stop.svg</file>
+        <file alias="media-seek-forward.svg">svg_icons/media-seek-forward.svg</file>
+        <file alias="nav-first.svg">svg_icons/nav-first.svg</file>
+        <file alias="nav-goto.svg">svg_icons/nav-goto.svg</file>
+        <file alias="nav-last.svg">svg_icons/nav-last.svg</file>
+        <file alias="nav-next.svg">svg_icons/nav-next.svg</file>
+        <file alias="nav-previous.svg">svg_icons/nav-previous.svg</file>
+        <file alias="reset.svg">svg_icons/reset.svg</file>
+        <file alias="text-x-generic.svg">svg_icons/text-x-generic.svg</file>
+        <file alias="view-aggregation.svg">svg_icons/view-aggregation.svg</file>
+        <file alias="view-autoscroll.svg">svg_icons/view-autoscroll.svg</file>
+        <file alias="view-colorize.svg">svg_icons/view-colorize.svg</file>
+        <file alias="view-refresh.svg">svg_icons/view-refresh.svg</file>
+        <file alias="view-resize-columns.svg">svg_icons/view-resize-columns.svg</file>
+        <file alias="zoom-in.svg">svg_icons/zoom-in.svg</file>
+        <file alias="zoom-out.svg">svg_icons/zoom-out.svg</file>
+        <file alias="zoom-reset.svg">svg_icons/zoom-reset.svg</file>
     </qresource>
 </RCC>

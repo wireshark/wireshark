@@ -242,12 +242,12 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, const char* type_
     setAttribute(Qt::WA_DeleteOnClose, true);
     QCustomPlot *iop = ui->ioPlot;
 
-    ui->newToolButton->setStockIcon("list-add");
-    ui->deleteToolButton->setStockIcon("list-remove");
-    ui->copyToolButton->setStockIcon("list-copy");
-    ui->clearToolButton->setStockIcon("list-clear");
-    ui->moveUpwardsToolButton->setStockIcon("list-move-up");
-    ui->moveDownwardsToolButton->setStockIcon("list-move-down");
+    ui->newToolButton->setIconByName("list-add");
+    ui->deleteToolButton->setIconByName("list-remove");
+    ui->copyToolButton->setIconByName("list-copy");
+    ui->clearToolButton->setIconByName("list-clear");
+    ui->moveUpwardsToolButton->setIconByName("list-move-up");
+    ui->moveDownwardsToolButton->setIconByName("list-move-down");
 
 #ifdef Q_OS_MAC
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);

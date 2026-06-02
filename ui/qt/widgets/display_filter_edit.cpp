@@ -24,6 +24,7 @@
 #include <ui/qt/widgets/syntax_line_edit.h>
 #include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/themes/contrast_adapt_icon.h>
 #include <ui/qt/models/pref_models.h>
 #include <ui/qt/filter_action.h>
 #include <ui/qt/display_filter_expression_dialog.h>
@@ -115,7 +116,7 @@ void DisplayFilterEdit::setType(DisplayFilterEditType type)
             "}"
         );
 
-        bookmark_button_ = new StockIconToolButton(this, "x-display-filter-bookmark");
+        bookmark_button_ = new StockIconToolButton(this, "bookmark-display");
         bookmark_button_->setMenu(new QMenu(bookmark_button_));
         bookmark_button_->setPopupMode(QToolButton::InstantPopup);
         bookmark_button_->setToolTip(tr("Manage saved bookmarks."));
@@ -123,14 +124,15 @@ void DisplayFilterEdit::setType(DisplayFilterEditType type)
         bookmark_button_->setStyleSheet(buttonStyle);
         bookmark_button_->setVisible(false);
 
-        clear_button_ = new StockIconToolButton(this, "x-filter-clear");
+        clear_button_ = new StockIconToolButton(this);
+        clear_button_->setIcon(ContrastAdaptIcon("filter-clear"));
         clear_button_->setToolTip(tr("Clear display filter"));
         clear_button_->setIconSize(QSize(14, 14));
         clear_button_->setStyleSheet(buttonStyle);
         clear_button_->setVisible(false);
 
-        apply_button_ = new StockIconToolButton(this, "x-filter-apply");
-        apply_button_->setEnabled(false);
+        apply_button_ = new StockIconToolButton(this);
+        apply_button_->setIcon(ContrastAdaptIcon("filter-apply"));
         apply_button_->setToolTip(tr("Apply display filter"));
         apply_button_->setIconSize(QSize(24, 14));
         apply_button_->setStyleSheet(buttonStyle);
@@ -412,7 +414,7 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
 
     if (bookmark_button_) {
 
-        bookmark_button_->setStockIcon("x-display-filter-bookmark");
+        bookmark_button_->setIconByName("bookmark-match");
         if (remove_action_ && save_action_)
         {
             remove_action_->setEnabled(false);
@@ -429,13 +431,13 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
             if (idx.isValid()) {
                 match = true;
 
-                bookmark_button_->setStockIcon("x-filter-matching-bookmark");
+                bookmark_button_->setIconByName("bookmark-match");
                 if (remove_action_) {
                     remove_action_->setData(text());
                     remove_action_->setEnabled(true);
                 }
             } else {
-                bookmark_button_->setStockIcon("x-display-filter-bookmark");
+                bookmark_button_->setIconByName("bookmark-display");
                 if (remove_action_) {
                     remove_action_->setEnabled(false);
                 }

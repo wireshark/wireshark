@@ -396,7 +396,7 @@ void ExtArgTable::addChecked(QStringList checked, QStringList options)
             tableViewModel->appendRow({ item, btnItem });
 
             // Add button
-            StockIconToolButton* settingsButton = new StockIconToolButton(tableView, "x-capture-options");
+            StockIconToolButton* settingsButton = new StockIconToolButton(tableView, "capture-options");
             settingsButton->setFixedWidth(30);
             tableView->setIndexWidget(tableViewModel->indexFromItem(btnItem), settingsButton);
 

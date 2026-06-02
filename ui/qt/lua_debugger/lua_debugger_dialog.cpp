@@ -97,7 +97,7 @@
 #include "main_application.h"
 #include <ui/qt/utils/font_manager.h>
 #include "main_window.h"
-#include "utils/stock_icon.h"
+#include "utils/themes/themed_icon.h"
 #include "widgets/collapsible_section.h"
 #include "wsutil/filesystem.h"
 #include <epan/prefs.h>
@@ -491,15 +491,15 @@ LuaDebuggerDialog::LuaDebuggerDialog(QWidget *parent)
 
     ui->actionRunToLine->setToolTip(tr("Run to line (%1)").arg(kLuaDbgCtxRunToLine.toString(QKeySequence::NativeText)));
 
-    ui->actionOpenFile->setIcon(StockIcon("document-open"));
+    ui->actionOpenFile->setIcon(ThemedIcon("document-open"));
     ui->actionOpenFile->setToolTip(tr("Open Lua Script"));
 
-    ui->actionSaveFile->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
+    ui->actionSaveFile->setIcon(ThemedIcon("file-save"));
     ui->actionSaveFile->setToolTip(tr("Save (%1)").arg(QKeySequence(QKeySequence::Save).toString(QKeySequence::NativeText)));
     ui->actionSaveFile->setShortcut(QKeySequence::Save);
     ui->actionSaveFile->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 
-    ui->actionReloadLuaPlugins->setIcon(StockIcon("view-refresh"));
+    ui->actionReloadLuaPlugins->setIcon(ThemedIcon("view-refresh"));
     ui->actionReloadLuaPlugins->setToolTip(tr("Reload Lua Plugins (Ctrl+Shift+L)"));
     ui->actionReloadLuaPlugins->setShortcut(kLuaDbgCtxReloadLuaPlugins);
     ui->actionReloadLuaPlugins->setShortcutContext(Qt::WidgetWithChildrenShortcut);
@@ -1376,13 +1376,12 @@ void LuaDebuggerDialog::updateStyleSheets()
     ui->luaDebuggerFindFrame->updateStyleSheet();
     ui->luaDebuggerGoToLineFrame->updateStyleSheet();
 
-    /* StockIcon template glyphs use qApp->palette(); re-resolve when the
-     * scheme changes (same idea as StockIconToolButton). */
-    ui->actionContinue->setIcon(StockIcon(QStringLiteral("x-lua-debug-continue")));
-    ui->actionStepOver->setIcon(StockIcon(QStringLiteral("x-lua-debug-step-over")));
-    ui->actionStepIn->setIcon(StockIcon(QStringLiteral("x-lua-debug-step-in")));
-    ui->actionStepOut->setIcon(StockIcon(QStringLiteral("x-lua-debug-step-out")));
-    ui->actionRunToLine->setIcon(StockIcon(QStringLiteral("x-lua-debug-run-to-line")));
+    /* ThemedIcon handles palette changes */
+    ui->actionContinue->setIcon(ThemedIcon("lua-debug-continue"));
+    ui->actionStepOver->setIcon(ThemedIcon("lua-debug-step-over"));
+    ui->actionStepIn->setIcon(ThemedIcon("lua-debug-step-in"));
+    ui->actionStepOut->setIcon(ThemedIcon("lua-debug-step-out"));
+    ui->actionRunToLine->setIcon(ThemedIcon("lua-debug-run-to-line"));
 }
 
 void LuaDebuggerDialog::applyCodeViewThemes()

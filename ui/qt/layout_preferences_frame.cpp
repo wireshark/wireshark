@@ -19,6 +19,7 @@
 #include <QDebug>
 #include <epan/prefs-int.h>
 #include <ui/qt/models/pref_models.h>
+#include <ui/qt/utils/themes/themed_icon.h>
 
 LayoutPreferencesFrame::LayoutPreferencesFrame(QWidget *parent) :
     QFrame(parent),
@@ -30,6 +31,13 @@ LayoutPreferencesFrame::LayoutPreferencesFrame(QWidget *parent) :
     pref_layout_content_1_ = prefFromPrefPtr(&prefs.gui_layout_content_1);
     pref_layout_content_2_ = prefFromPrefPtr(&prefs.gui_layout_content_2);
     pref_layout_content_3_ = prefFromPrefPtr(&prefs.gui_layout_content_3);
+
+    ui->layout1ToolButton->setIcon(ThemedIcon("layout-reset-1"));
+    ui->layout2ToolButton->setIcon(ThemedIcon("layout-reset-2"));
+    ui->layout3ToolButton->setIcon(ThemedIcon("layout-reset-3"));
+    ui->layout4ToolButton->setIcon(ThemedIcon("layout-reset-4"));
+    ui->layout5ToolButton->setIcon(ThemedIcon("layout-reset-5"));
+    ui->layout6ToolButton->setIcon(ThemedIcon("layout-reset-6"));
 
     QString image_pad_ss = "QToolButton { padding: 0.3em; }";
     ui->layout1ToolButton->setStyleSheet(image_pad_ss);
