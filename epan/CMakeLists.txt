@@ -83,6 +83,7 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	introspection.h
 	iana-info.h
 	ip_opts.h
+	keytab_krb5_ctx.h
 	maxmind_db.h
 	media_params.h
 	next_tvb.h

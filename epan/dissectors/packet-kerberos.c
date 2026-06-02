@@ -69,6 +69,7 @@
 #include <epan/srt_table.h>
 #include <epan/tfs.h>
 #include <epan/read_keytab_file.h>
+#include <epan/keytab_krb5_ctx.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>

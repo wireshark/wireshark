@@ -12,6 +12,7 @@
 #include <wireshark.h>
 
 #include "read_keytab_file.h"
+#include "keytab_krb5_ctx.h"
 #include "wmem_scopes.h"
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
