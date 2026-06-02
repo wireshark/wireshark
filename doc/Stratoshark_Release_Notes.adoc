@@ -31,10 +31,10 @@ If you or your organization would like to contribute or become a sponsor, please
   A built-in Lua script debugger has been added. It supports breakpoints, single-stepping, variable inspection, expression evaluation, and stack traces.
 
 * Themes
-  Stratoshark now uses the same theme system as Wireshark, driving the colors used throughout the GUI from a single theme instead of many individual color preferences. The renamed menu:Appearance[Theme and Font] preferences page lets you pick a theme, switch between Light, Dark, and System appearance, set the packet-pane font, and preview the result. A built-in default theme ships with Stratoshark, and additional themes can be installed as JSONC files. The previous per-color settings (marked and ignored packets, "Follow Stream" client and server text, display filter validity, and the selected packet) are now provided by the active theme.
+  Stratoshark now uses the same theme system as Wireshark, driving the colors used throughout the GUI from a single theme instead of many individual color preferences. The renamed menu:Appearance[Theme and Font] preferences page lets you pick a theme, switch between Light, Dark, and System appearance, set the packet pane font, and preview the result. A built-in default theme ships with Stratoshark, and additional themes can be installed as JSONC (JSON with Comments) files. The previous per-color settings (marked and ignored packets, "Follow Stream" client and server text, display filter validity, and the selected packet) are now provided by the active theme.
   Personal themes can now be dropped as single `.jsonc` files into _$HOME/.local/lib/stratoshark/themes_ (Unix) or _%APPDATA%\Stratoshark\themes_ (Windows); the filename becomes the theme's name in the dropdown. The exact path is shown in the About dialog's _Folders_ tab.
   On first launch after the upgrade, Stratoshark checks the Default profile's preferences for customized values of the removed per-color settings. If any are found, a personal theme named _Personal (Migrated)_ is created automatically in the personal themes directory, the legacy keys are removed from the Default profile's preferences file, and the theme is activated so the original visual customizations are preserved. The migration runs once: the generated _personal.jsonc_ can be edited, renamed, or deleted by hand at any time.
-  The welcome-page section headers and header gradient now derive contrast against the surface they sit on, so they remain readable across every shipped theme without each theme having to hand-tune the values. The theme schema gains two optional sections — `filter` for per-state filter validity tints and `separator` for hairline divider color — and the Stratoshark theme ships with both populated to keep dividers subtle and the validity tints aligned with the teal palette.
+  The welcome page section headers and header gradient now derive contrast against the surface they sit on, so they remain readable across every shipped theme without each theme having to hand-tune the values. The theme schema gains two optional sections — `filter` for per-state filter validity tints and `separator` for hairline divider color — and the Stratoshark theme ships with both populated to keep dividers subtle and the validity tints aligned with the teal palette.
 
 // Many other improvements have been made.
 // See the “New and Updated Features” section below for more details.
@@ -140,9 +140,11 @@ Stratoshark can capture system calls locally on Linux and a variety of log sourc
 //* The Windows installers now ship with Qt 6.5.2.
 //  They previously shipped with Qt 6.2.3.
 
-// === Removed Features and Support
+=== Removed Features and Support
 
-dumpcap's TCP@host:port interface has been removed
+Dumpcap's TCP@host:port interface has been removed
+
+Building with Qt 5 is no longer supported.
 
 // === Removed Dissectors
 

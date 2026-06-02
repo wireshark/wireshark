@@ -30,17 +30,15 @@ If you or your organization would like to contribute or become a sponsor, please
   A built-in Lua script debugger has been added. It supports breakpoints, single-stepping, variable inspection, expression evaluation, and stack traces. The debugger can be opened from the menu:Tools[Lua Debugger] menu.
 
 * Themes
-  Wireshark now drives the colors used throughout the GUI from a single theme instead of many individual color preferences. The renamed menu:Appearance[Theme and Font] preferences page lets you pick a theme, switch between Light, Dark, and System appearance, set the packet-pane font, and preview the result on a mockup of a capture window. A built-in default theme ships with Wireshark, and additional themes can be installed as JSONC files. The previous per-color settings (marked and ignored packets, "Follow Stream" client and server text, display filter validity, and the selected packet) are now provided by the active theme.
+  Wireshark now drives the colors used throughout the GUI from a single theme instead of many individual color preferences. The renamed menu:Appearance[Theme and Font] preferences page lets you pick a theme, switch between Light, Dark, and System appearance, set the packet pane font, and preview the result on a mockup of a capture window. A built-in default theme ships with Wireshark, and additional themes can be installed as JSONC (JSON with Comments) files. The previous per-color settings (marked and ignored packets, "Follow Stream" client and server text, display filter validity, and the selected packet) are now provided by the active theme.
   Personal themes can now be dropped as single `.jsonc` files into _$HOME/.local/lib/wireshark/themes_ (Unix) or _%APPDATA%\Wireshark\themes_ (Windows); the filename becomes the theme's name in the dropdown. The exact path is shown in the About dialog's _Folders_ tab.
   On first launch after the upgrade, Wireshark checks the Default profile's preferences for customized values of the removed per-color settings. If any are found, a personal theme named _Personal (Migrated)_ is created automatically in the personal themes directory, the legacy keys are removed from the Default profile's preferences file, and the theme is activated so the original visual customizations are preserved. The migration runs once: the generated _personal.jsonc_ can be edited, renamed, or deleted by hand at any time.
-  The welcome-page section headers ("Open", "Capture", "Learn") and the filter validity tints have been restored to the historical Classic look (Tango sky_blue brand, saturated GTK-era dark green / dark red filter backgrounds), and the theme schema gains two optional sections — `filter` for per-state validity tints and `separator` for hairline divider color — so custom themes can pin values that derived defaults cannot reach.
+  The welcome page section headers ("Open", "Capture", "Learn") and the filter validity tints have been restored to the historical Classic look (Tango sky_blue brand, saturated GTK-era dark green / dark red filter backgrounds), and the theme schema gains two optional sections — `filter` for per-state validity tints and `separator` for hairline divider color — so custom themes can pin values that derived defaults cannot reach.
 
 * The Default profile now has additional column "Delta", showing the delta time from the previous displayed packet.
 
 * Name Resolution
-  SMI paths are now recursed by Wireshark to provide subfolder to the SMI path.  MIBs provided by Wireshark now reflect the folder structure provided by libsmi.
-
-* Building with Qt 5 is no longer supported.
+  SMI paths are now searched recursively. This makes it easier to use MIBs provided by libsmi.
 
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
@@ -88,16 +86,18 @@ The following features are either new or have been significantly updated since v
   The macOS icon now supports Liquid Glass and is sized according to Apple's specifications on older macOS versions.
   wsbuglink:18131[]
 
-* The RTP Player now supports AMR-WB encoded audio.
+* The RTP Player now supports AMR-WB and 24-bit linear encoded audio.
 
 * The protocol dissection API has been updated to more safely handle packet data offsets and lengths.
   See the <<Major API Changes>> section below for details.
 
 === Removed Features and Support
 
-dumpcap's TCP@host:port interface has been removed
+Dumpcap's TCP@host:port interface has been removed
 
 The individual color preferences under menu:Appearance[] (marked and ignored packets, "Follow Stream" client and server text, display filter validity, and the selected packet) have been removed. These colors are now provided by the selected theme; see the "What's New" section above.
+
+Building with Qt 5 is no longer supported.
 
 // === Removed Dissectors
 
@@ -106,7 +106,7 @@ The individual color preferences under menu:Appearance[] (marked and ignored pac
 
 [commaize]
 --
-M-Module
+Bachmann M-Module
 --
 
 === New Protocol Support
@@ -116,26 +116,35 @@ M-Module
 // git log --oneline --diff-filter=A --stat v4.7.0rc0.. epan/dissectors plugins
 [commaize]
 --
+Apple Darwin Metadata
 Axia Livewire
+Controller Interface Transport Protocol (CITP)
 DCERPC SCARD_PACK
+DECT NR+
 ESUN
+JSON Dictionary
 Linux mac80211_hwsim Netlink
+Linux Open vSwitch Netlink (OVS)
 MCData
+MIDI System Exclusive DigiTech
 Mikrotik RoMON
 Multicast Router Discovery (MRD)
+MySQL X Protocol (MySQLX)
 NATS
 NMEA 2000
 Object Transform Protocol (OTP)
 Perforce P4RPC
 PosiStageNet (PSN)
+PROFINET SXP (PN-SXP)
+Qualcomm Diagnostic (QCDIAG)
 TrueConf Protocol (TrueConf)
 RDP Conctrl virtual channel Protocol (CONCTRL)
 RDP Video Capture Virtual Channel Extension (RDPECAM)
 Real-Time Tracking Protocol (RTTrP)
 TrueConf
 Ultra Ethernet Transport (UET)
+XGT
 ZigBee ZCL Generic Tunnel
-Qualcomm Diagnostic (QCDIAG)
 --
 
 === Updated Protocol Support

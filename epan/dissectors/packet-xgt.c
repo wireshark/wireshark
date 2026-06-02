@@ -1067,11 +1067,7 @@ proto_register_xgt(void)
     expert_module_t *expert_xgt;
 
     /* Register protocol */
-    proto_xgt = proto_register_protocol(
-        "XGT FEnet Protocol",    /* name */
-        "XGT",                 /* short name */
-        "xgt"                  /* filter name */
-    );
+    proto_xgt = proto_register_protocol("XGT FEnet Protocol", "XGT", "xgt");
 
     proto_register_field_array(proto_xgt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
