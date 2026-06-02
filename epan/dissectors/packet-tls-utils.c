@@ -13121,7 +13121,7 @@ ssl_common_register_options(module_t *module, ssl_common_options_t *options, boo
 }
 
 void
-ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, uint32_t offset, uint32_t length, uint8_t msg_type)
+ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, uint32_t offset, uint32_t length, uint8_t msg_type, bool is_from_server)
 {
     /* The handshake transcript can be used in [D]TLS 1.2 for the extended
      * master secret of RFC 7627, and in [D]TLS 1.3 for computing the secrets,
@@ -13145,18 +13145,27 @@ ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, uint
     case TLSV1DOT3_VERSION:
     case DTLSV1DOT3_VERSION:
         /* In [D]TLS 1.3 only the following handshake messages are used in the
-         * handshake transcript. */
+         * handshake transcript. EndOfEarlyData and the Client Certificate,
+         * Certificate Verify, and Finished are used in deriving the
+         * resumption_master_secret but not the other secrets derived from
+         * the master secret (client or server app traffic secret, exporter
+         * secret). We don't yet support calculating a PSK to resume via
+         * the resumption_master_secret, so we simply stop the transcript
+         * with the server Finished. See RFC 8446 4.4.1 & 7.1 */
         switch (msg_type) {
         case SSL_HND_CLIENT_HELLO:
         case SSL_HND_SERVER_HELLO:
-        case SSL_HND_END_OF_EARLY_DATA:
         case SSL_HND_HELLO_RETRY_REQUEST:
         case SSL_HND_ENCRYPTED_EXTENSIONS:
-        case SSL_HND_CERTIFICATE:
         case SSL_HND_CERT_REQUEST:
+            break;
+        case SSL_HND_CERTIFICATE:
         case SSL_HND_CERT_VERIFY:
         case SSL_HND_FINISHED:
+            if (!is_from_server)
+                return;
             break;
+        case SSL_HND_END_OF_EARLY_DATA:
         default:
             return;
         }

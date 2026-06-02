@@ -3171,7 +3171,7 @@ dissect_tls_handshake_full(tvbuff_t *tvb, packet_info *pinfo,
          * Add handshake message (including type, length, etc.) to hash (for
          * Extended Master Secret or TLS 1.3 secrets when using psk_ke).
          */
-        ssl_calculate_handshake_hash(ssl, tvb, hs_offset, 4 + length, msg_type);
+        ssl_calculate_handshake_hash(ssl, tvb, hs_offset, 4 + length, msg_type, is_from_server);
 
         /* now dissect the handshake message, if necessary */
         switch ((HandshakeType) msg_type) {

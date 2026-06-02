@@ -2170,20 +2170,20 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
          */
         if (fragment_offset == 0) {
           /* Unfragmented packet. */
-          ssl_calculate_handshake_hash(ssl, tvb, hs_offset, 12 + fragment_length, msg_type);
+          ssl_calculate_handshake_hash(ssl, tvb, hs_offset, 12 + fragment_length, msg_type, is_from_server);
         } else {
           /*
            * Handshake message was fragmented over multiple messages, fake a
            * single fragment and add reassembled data.
            */
           /* msg_type (1), length (3), message_seq (2) */
-          ssl_calculate_handshake_hash(ssl, tvb, hs_offset, 6, msg_type);
+          ssl_calculate_handshake_hash(ssl, tvb, hs_offset, 6, msg_type, is_from_server);
           /* fragment_offset (3) equals to zero. */
-          ssl_calculate_handshake_hash(ssl, NULL, 0, 3, msg_type);
+          ssl_calculate_handshake_hash(ssl, NULL, 0, 3, msg_type, is_from_server);
           /* fragment_length (3) equals to length. */
-          ssl_calculate_handshake_hash(ssl, tvb, hs_offset + 1, 3, msg_type);
+          ssl_calculate_handshake_hash(ssl, tvb, hs_offset + 1, 3, msg_type, is_from_server);
           /* actual handshake data */
-          ssl_calculate_handshake_hash(ssl, sub_tvb, 0, length, msg_type);
+          ssl_calculate_handshake_hash(ssl, sub_tvb, 0, length, msg_type, is_from_server);
         }
 
         /* now dissect the handshake message, if necessary */
