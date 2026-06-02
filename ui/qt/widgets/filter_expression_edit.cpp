@@ -18,6 +18,7 @@
 #include <ui/qt/utils/stock_icon.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/themes/themed_icon.h>
+#include <ui/qt/utils/theme_manager.h>
 
 #include <ui/recent.h>
 
@@ -36,6 +37,7 @@
 #include <QStyle>
 #include <QToolButton>
 #include <QWidgetAction>
+#include <QMargins>
 
 #include <functional>
 
@@ -506,8 +508,7 @@ void FilterExpressionEdit::setButtonsLeftAligned(bool left)
     rebuildInlineLayout();
 }
 
-void FilterExpressionEdit::updateInlineMargins()
-{
+QMargins FilterExpressionEdit::inlineMargins() {
     // Reserve text margins matching the shown buttons so the text never runs
     // under one, and so QLineEdit's sizeHint accounts for them (keeping the
     // toolbar from compressing the field under its neighbours). The dividers in
@@ -536,7 +537,12 @@ void FilterExpressionEdit::updateInlineMargins()
             right = edge + trailingW;
     }
 
-    setTextMargins(left, 0, right, 0);
+    return QMargins(left, 0, right, 0);
+}
+
+void FilterExpressionEdit::updateInlineMargins()
+{
+    setTextMargins(inlineMargins());
 }
 
 void FilterExpressionEdit::updateRemoveEnabled()
@@ -568,6 +574,12 @@ void FilterExpressionEdit::paintEvent(QPaintEvent *event)
     // Tune kGapInset if it drifts toward either side.
     const int kGapInset = 2;
 
+    ThemeManager * tm = ThemeManager::instance();
+
+    QMargins margins = inlineMargins();
+    const QColor field = tm->color(ThemeManager::PaletteBase);
+    const QColor tint_divider = tm->color(ThemeManager::FieldBorder);
+
     QPainter painter(this);
 
     // Stay inside the 1px rounded frame the QSS draws (border-radius 3px → ~2px
@@ -576,66 +588,19 @@ void FilterExpressionEdit::paintEvent(QPaintEvent *event)
     QPainterPath clip;
     clip.addRoundedRect(inner, 2, 2);
     painter.setClipPath(clip);
+    painter.setPen(QPen(tint_divider, 1));
 
-    // The QSS background-color tints the whole field, including behind the
-    // in-line icons; repaint the leading (bookmark) and trailing
-    // (clear/history/apply) icon strips with the neutral field background so the
-    // tint stays in the text area. The glyphs are child widgets painted after
-    // us, so they stay visible over this fill.
-    //
-    // Source the neutral from the application palette, not this widget's: under
-    // the QSS state tint the widget's own QPalette::Base reads off-colour (a
-    // dark box even in light mode), while qApp's base is the true field colour
-    // — the same source the in-line glyphs use, so the strips match.
-    const QColor field = qApp->palette().color(QPalette::Base);
-
-    if (bookmark_button_ && bookmark_button_->isVisible()) {
-        const int edge = bookmark_button_->geometry().right() + kGapInset;
+    // clear the background for the buttons on the left and right
+    if (margins.left() > 0) {
         painter.fillRect(QRect(QPoint(inner.left(), inner.top()),
-                               QPoint(edge - 1, inner.bottom())), field);
+                QPoint(inner.left() + margins.left(), inner.bottom())), field);
+        auto x = inner.left() + margins.left() - kGapInset;
+        painter.drawLine(x, inner.top() + 2, x, inner.bottom() - 2);
     }
-
-    int trailing_edge = inner.right();
-    for (const QToolButton *button : {clear_button_, history_button_, apply_button_}) {
-        if (button && button->isVisible())
-            trailing_edge = qMin(trailing_edge, button->geometry().left());
-    }
-    if (trailing_edge <= inner.right())
-        painter.fillRect(QRect(QPoint(trailing_edge, inner.top()),
-                               QPoint(inner.right(), inner.bottom())), field);
-
-    // Thin vertical hairlines mark the icon-zone boundaries — the separation the
-    // mockup draws with its `vsep` dividers. At a low alpha so each reads as a
-    // hairline rather than a second border. The two sit on different
-    // backgrounds, so they take their colour from different places: the bookmark
-    // hairline borders the tinted text area, so use the widget foreground that
-    // setState() keeps contrast-correct against the active tint; the history
-    // hairline sits on the neutral trailing strip, so use the application text
-    // colour (a tinted state overrides the widget's QPalette::Text).
-    QColor tint_divider = palette().color(QPalette::Text);
-    tint_divider.setAlpha(150);
-    QColor base_divider = qApp->palette().color(QPalette::Text);
-    base_divider.setAlpha(150);
-
-    auto drawDivider = [&](const QRect &geometry, int x, const QColor &color) {
-        painter.setPen(QPen(color, 1));
-        painter.drawLine(x, geometry.top() + 2, x, geometry.bottom() - 2);
-    };
-
-    if (bookmark_button_ && bookmark_button_->isVisible())
-        drawDivider(bookmark_button_->geometry(), bookmark_button_->geometry().right() + kGapInset,
-                    tint_divider);
-
-    AdaptiveToolButton * firstButton = nullptr;
-    if (clear_button_ && clear_button_->isVisible())
-        firstButton = clear_button_;
-    else if (apply_button_ && apply_button_->isVisible())
-        firstButton = apply_button_;
-    else if (history_button_ && history_button_->isVisible())
-        firstButton = history_button_;
-
-    if (firstButton != nullptr) {
-        auto leftPos = firstButton->geometry().left();
-        drawDivider(bookmark_button_->geometry(), leftPos - kGapInset, base_divider);
+    if (margins.right() > 0) {
+        painter.fillRect(QRect(QPoint(inner.right() - margins.right(), inner.top()),
+                QPoint(inner.right(), inner.bottom())), field);
+        auto x = inner.right() - margins.right() + kGapInset;
+        painter.drawLine(x, inner.top() + 2, x, inner.bottom() - 2);
     }
 }

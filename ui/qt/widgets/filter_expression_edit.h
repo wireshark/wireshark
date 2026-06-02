@@ -23,6 +23,7 @@ class QAction;
 class QConcatenateTablesProxyModel;
 class QHBoxLayout;
 class QMenu;
+class QMargins;
 
 /**
  * @brief FilterEdit plus the in-line action set, menus and history/bookmark
@@ -166,6 +167,8 @@ private:
     void updateBookmarkState();    /**< Swap to the matching glyph when text is saved. */
     void updateInlineMargins();    /**< Reserve text margins for the shown inline buttons. */
     void rebuildInlineLayout();    /**< (Re)place the buttons for the current alignment. */
+
+    QMargins inlineMargins(); /**< Returns the left and right text margins needed to clear the buttons. */
 
     // Inline affordance buttons, placed by a QHBoxLayout inside the field and
     // sized by AdaptiveToolButton (tight box, zoom-aware glyph). paintEvent()
