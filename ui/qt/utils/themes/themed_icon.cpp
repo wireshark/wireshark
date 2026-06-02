@@ -46,8 +46,11 @@ QRectF aspectFit(QSizeF src, const QRectF &box)
 class ThemedIconEngine : public QIconEngine
 {
 public:
-    ThemedIconEngine(const QString &path, ThemeManager::ThemeToken token, QSize size) :
-        path_(path), token_(token), size_(size) {}
+    ThemedIconEngine(const QString &path, ThemeManager::ThemeToken token,
+                     ThemeManager::ThemeToken active_token,
+                     ThemeManager::ThemeToken selected_token, QSize size) :
+        path_(path), token_(token), active_token_(active_token),
+        selected_token_(selected_token), size_(size) {}
 
     void paint(QPainter *painter, const QRect &rect,
                QIcon::Mode mode, QIcon::State state) override
@@ -96,25 +99,36 @@ public:
 
     QIconEngine *clone() const override
     {
-        return new ThemedIconEngine(path_, token_, size_);
+        return new ThemedIconEngine(path_, token_, active_token_, selected_token_, size_);
     }
 
 private:
     QColor modeColor(QIcon::Mode mode) const
     {
-        QColor c = ThemeManager::instance()->color(token_);
-        if (!c.isValid())
-            c = qApp->palette().color(QPalette::Text);
+        auto resolve = [](ThemeManager::ThemeToken t) {
+            QColor c = ThemeManager::instance()->color(t);
+            if (!c.isValid())
+                c = qApp->palette().color(QPalette::Text);
+            return c;
+        };
+
         switch (mode) {
-        case QIcon::Disabled:
+        case QIcon::Disabled: {
+            QColor c = resolve(token_);
             c.setAlphaF(c.alphaF() * 0.4);
             return c;
+        }
         case QIcon::Active:
+            // Explicit hover colour when given, else a slight emphasis of normal.
+            return active_token_ != ThemeManager::NoRole ? resolve(active_token_)
+                                                         : resolve(token_).lighter(115);
         case QIcon::Selected:
-            return c.lighter(115);
+            return selected_token_ != ThemeManager::NoRole ? resolve(selected_token_)
+                 : active_token_   != ThemeManager::NoRole ? resolve(active_token_)
+                                                           : resolve(token_).lighter(115);
         case QIcon::Normal:
         default:
-            return c;
+            return resolve(token_);
         }
     }
 
@@ -138,6 +152,8 @@ private:
 
     QString path_;
     ThemeManager::ThemeToken token_;
+    ThemeManager::ThemeToken active_token_;
+    ThemeManager::ThemeToken selected_token_;
     QSize size_;
 };
 
@@ -145,6 +161,16 @@ private:
 
 ThemedIcon::ThemedIcon(const QString &svg_resource_path,
                        ThemeManager::ThemeToken token, QSize size) :
-    QIcon(new ThemedIconEngine(svg_resource_path, token, size))
+    QIcon(new ThemedIconEngine(svg_resource_path, token,
+                               ThemeManager::NoRole, ThemeManager::NoRole, size))
+{
+}
+
+ThemedIcon::ThemedIcon(const QString &svg_resource_path,
+                       ThemeManager::ThemeToken token,
+                       ThemeManager::ThemeToken active_token,
+                       ThemeManager::ThemeToken selected_token, QSize size) :
+    QIcon(new ThemedIconEngine(svg_resource_path, token,
+                               active_token, selected_token, size))
 {
 }

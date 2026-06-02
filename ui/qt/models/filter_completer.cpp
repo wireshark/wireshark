@@ -12,6 +12,9 @@
 #include <ui/qt/models/filter_completer.h>
 
 #include <QAbstractItemModel>
+#include <QAbstractItemView>
+#include <QEvent>
+#include <QScrollBar>
 
 FilterCompleter::FilterCompleter(QObject *parent) :
     QCompleter(parent)
@@ -21,6 +24,26 @@ FilterCompleter::FilterCompleter(QObject *parent) :
     // History + field completions arrive in their own (recency / registration)
     // order, so do not assume the model is sorted.
     setModelSorting(QCompleter::UnsortedModel);
+
+    // popup() lazily builds the default view; watch it so we can size it to its
+    // content rather than the (full-width) host field.
+    popup()->installEventFilter(this);
+}
+
+bool FilterCompleter::eventFilter(QObject *watched, QEvent *event)
+{
+    QAbstractItemView *view = popup();
+    if (watched == view &&
+        (event->type() == QEvent::Show || event->type() == QEvent::Resize)) {
+        int content = view->sizeHintForColumn(0) + 2 * view->frameWidth();
+        if (view->verticalScrollBar() && view->verticalScrollBar()->isVisible())
+            content += view->verticalScrollBar()->sizeHint().width();
+        // setFixedWidth pins min == max, so QCompleter's geometry call is clamped
+        // to the content width. Guard re-entrancy from the resize we trigger.
+        if (content > 0 && view->maximumWidth() != content)
+            view->setFixedWidth(content);
+    }
+    return QCompleter::eventFilter(watched, event);
 }
 
 QStringList FilterCompleter::splitPath(const QString &path) const

@@ -49,6 +49,23 @@ public:
     explicit ThemedIcon(const QString &svg_resource_path,
                         ThemeManager::ThemeToken token,
                         QSize size = QSize(14, 14));
+
+    /**
+     * @brief Stateful variant: distinct colours per interaction mode.
+     *
+     * @p token colours the resting glyph (QIcon::Normal); @p active_token the
+     * hovered glyph (QIcon::Active); @p selected_token the pressed/selected
+     * glyph (QIcon::Selected, falling back to @p active_token). A QToolButton
+     * requests these modes itself on hover/press, so state recolouring needs no
+     * QSS — which matters because QSS cannot recolour an SVG glyph's fill. Pass
+     * NoRole for a mode to keep the single-token behaviour (a slight emphasis of
+     * @p token).
+     */
+    explicit ThemedIcon(const QString &svg_resource_path,
+                        ThemeManager::ThemeToken token,
+                        ThemeManager::ThemeToken active_token,
+                        ThemeManager::ThemeToken selected_token = ThemeManager::NoRole,
+                        QSize size = QSize(14, 14));
 };
 
 #endif // THEMED_ICON_H

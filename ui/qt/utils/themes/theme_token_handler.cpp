@@ -166,6 +166,18 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
                           ThemeColorPair { baseColor, baseColor },
                           0.5));
 
+    // Inline filter-affordance glyph colours (bookmark / clear / apply icon
+    // fills).  These are full-strength glyph tints, not the alpha bg tints
+    // above, so they default to the matching accent verbatim (no mix-with-base).
+    // assign()'s only-if-missing semantics let a theme pin explicit values via
+    // theme.filter.bookmark / .bookmarkcapture / .bookmarkmatch / .clear /
+    // .apply while still guaranteeing every theme has the tokens defined.
+    assign(tokens, ThemeManager::FilterBookmark,        tokens.value(ThemeManager::AccentInfo));
+    assign(tokens, ThemeManager::FilterBookmarkCapture, tokens.value(ThemeManager::AccentSuccess));
+    assign(tokens, ThemeManager::FilterBookmarkMatch,   tokens.value(ThemeManager::AccentWarning));
+    assign(tokens, ThemeManager::FilterClear,           tokens.value(ThemeManager::AccentError));
+    assign(tokens, ThemeManager::FilterApply,           tokens.value(ThemeManager::AccentInfo));
+
     // Syntax highlighting — readable foreground text on PaletteBase.
     // Keys reuse the palette's Mid role (naturally a mode-aware gray).
     // String / number colours shift the accent away from the

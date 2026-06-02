@@ -16,6 +16,7 @@ endif()
 ADD_CUSTOM_CMAKE_INCLUDE()
 
 set(WIRESHARK_WIDGET_HEADERS
+	widgets/adaptive_tool_button.h
 	widgets/additional_toolbar.h
 	widgets/apply_line_edit.h
 	widgets/base_data_source_view.h
@@ -340,6 +341,7 @@ if(LUA_FOUND)
 endif()
 
 set(WIRESHARK_WIDGET_SRCS
+	widgets/adaptive_tool_button.cpp
 	widgets/additional_toolbar.cpp
 	widgets/apply_line_edit.cpp
 	widgets/capture_card_widget.cpp
@@ -888,7 +890,6 @@ qrc_add_files(
 	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/accordion-frame.qss
 	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/bluetooth-table.qss
 	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/capture-card.qss
-	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/filter-combo.qss
 	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/interface-toolbar-lineedit.qss
 	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/learn-card.qss
 	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/welcome-header.qss

@@ -14,6 +14,7 @@
 #include <ui/qt/models/filter_validator.h>
 #include <ui/qt/models/filter_completer.h>
 #include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/themes/color_math.h>
 
 #include <QApplication>
 #include <QStyle>
@@ -95,38 +96,27 @@ QString FilterEdit::deprecatedToken() const
 
 void FilterEdit::insertFilter(const QString &filter)
 {
-    QString padded_filter = filter;
-
     if (hasSelectedText()) {
         backspace();
     }
 
-    int pos = cursorPosition();
-    if (pos > 0 && !text().at(pos - 1).isSpace()) {
-        padded_filter.prepend(" ");
+    if (filter.isEmpty()) {
+        return;
     }
-    if (pos < text().length() - 1 && !text().at(pos + 1).isSpace()) {
-        padded_filter.append(" ");
+
+    QStringList newText = { text() };
+    if ( cursorPosition() > 0) {
+        newText.prepend(filter);
+    } else {
+        newText.append(filter);
     }
-    insert(padded_filter);
+
+    setText(newText.join(' '));
 }
 
 void FilterEdit::onTextChanged()
 {
     debounce_->start();
-}
-
-// Best black/white text for a background, by WCAG relative luminance.
-static QColor contrastingText(const QColor &bg)
-{
-    auto channel = [](int v) {
-        const double c = v / 255.0;
-        return c <= 0.03928 ? c / 12.92 : std::pow((c + 0.055) / 1.055, 2.4);
-    };
-    const double luminance = 0.2126 * channel(bg.red())
-                           + 0.7152 * channel(bg.green())
-                           + 0.0722 * channel(bg.blue());
-    return luminance > 0.35 ? QColor(Qt::black) : QColor(Qt::white);
 }
 
 void FilterEdit::setState(SyntaxState state)
@@ -145,13 +135,13 @@ void FilterEdit::setState(SyntaxState state)
     QColor fg;
     switch (state_) {
     case SyntaxState::Valid:
-        fg = contrastingText(theme->color(ThemeManager::FilterValid));
+        fg = ColorMath::contrastingText(theme->color(ThemeManager::FilterValid));
         break;
     case SyntaxState::Invalid:
-        fg = contrastingText(theme->color(ThemeManager::FilterInvalid));
+        fg = ColorMath::contrastingText(theme->color(ThemeManager::FilterInvalid));
         break;
     case SyntaxState::Deprecated:
-        fg = contrastingText(theme->color(ThemeManager::FilterDeprecated));
+        fg = ColorMath::contrastingText(theme->color(ThemeManager::FilterDeprecated));
         break;
     default:
         fg = qApp->palette().color(QPalette::Text); // inherited/base text

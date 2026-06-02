@@ -58,6 +58,16 @@ public:
     QString pathFromIndex(const QModelIndex &index) const override;
 
 protected:
+    /**
+     * @brief Constrains the popup to its content width on show/resize.
+     *
+     * QCompleter sizes the popup to the host widget's width (the filter field
+     * spans the whole toolbar), so the list would otherwise be far wider than
+     * the entries. Forcing a fixed width equal to the content makes QCompleter's
+     * own geometry call land at the needed width.
+     */
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
     QString token_chars_; /**< Characters valid within a completion token. */
 };
 

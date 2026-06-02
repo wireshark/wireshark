@@ -66,9 +66,11 @@ DisplayFilterEntry::DisplayFilterEntry(QWidget *parent) :
     completionModel()->addSourceModel(completer->fieldsModel());
     completer->setModel(completionModel());
 
-    // Display chrome and mode.
+    // Display chrome and mode. Blue bookmark; yellow when the filter is saved.
     setBookmarkIcon(ThemedIcon(":/svg_icons/x-display-filter-bookmark.svg",
-                               ThemeManager::AccentInfo));
+                               ThemeManager::FilterBookmark),
+                    ThemedIcon(":/svg_icons/x-display-filter-bookmark.svg",
+                               ThemeManager::FilterBookmarkMatch));
     setBookmarkMenuLabels(tr("Saved Display Filters"),
                           tr("Save this filter"),
                           tr("Remove this filter"),
@@ -296,6 +298,13 @@ void DisplayFilterEntry::contextMenuEvent(QContextMenuEvent *event)
     } else {
         menu->addAction(na);
     }
+
+    QAction *la = new QAction(tr("Left align buttons"), this);
+    la->setCheckable(true);
+    la->setChecked(buttonsLeftAligned());
+    connect(la, &QAction::triggered, this, &DisplayFilterEntry::setButtonsLeftAligned);
+    menu->addSeparator();
+    menu->addAction(la);
 
     menu->popup(event->globalPos());
 }

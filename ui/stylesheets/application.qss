@@ -95,7 +95,7 @@ SyntaxLineEdit[syntaxState="3"] {   /* Deprecated */
 FilterEdit {
     border: 1px solid wstheme(FieldBorder);
     border-radius: 3px;
-    padding: 1px;
+    padding: 0px 1px;
 }
 
 /* The contrasting foreground is computed per-tint from the background
@@ -108,4 +108,22 @@ FilterEdit[syntaxState="invalid"] {
 }
 FilterEdit[syntaxState="deprecated"] {
     background-color: wstheme(FilterDeprecated);
+}
+
+/* -------------------------------------------------------------------
+ * AdaptiveToolButton — the flat inline affordances (bookmark / clear /
+ * apply / history) inside FilterExpressionEdit. No frame or fill, so the
+ * glyph sits directly on the field and the state background tint (plus the
+ * neutral strips painted in paintEvent) show through. Size and zoom are
+ * handled by the widget; only the flat appearance lives here.
+ * ------------------------------------------------------------------- */
+
+AdaptiveToolButton {
+    border: none;
+    background: transparent;
+    padding: 0px;
+}
+
+AdaptiveToolButton::menu-indicator {
+    image: none;
 }

@@ -16,6 +16,7 @@ endif()
 ADD_CUSTOM_CMAKE_INCLUDE()
 
 set(WIRESHARK_WIDGET_HEADERS
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/adaptive_tool_button.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/additional_toolbar.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/apply_line_edit.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/base_data_source_view.h
@@ -316,6 +317,7 @@ set (STRATOSHARK_QT_HEADERS
 )
 
 set(WIRESHARK_WIDGET_SRCS
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/adaptive_tool_button.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/additional_toolbar.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/apply_line_edit.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/capture_card_widget.cpp
@@ -801,7 +803,6 @@ qrc_add_files(
 	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/accordion-frame.qss
 	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/bluetooth-table.qss
 	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/capture-card.qss
-	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/filter-combo.qss
 	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/interface-toolbar-lineedit.qss
 	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/learn-card.qss
 	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/welcome-header.qss

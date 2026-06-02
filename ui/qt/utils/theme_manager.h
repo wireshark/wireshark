@@ -166,6 +166,18 @@ public:
         FilterBusy,
         FilterBusyText,
 
+        // Inline filter-affordance glyph colours (icon fills, not bg tints):
+        // the bookmark / clear / apply buttons inside the filter line.  Each
+        // derives from the matching accent when a theme omits it (so every
+        // theme has them defined), and theme.filter.<name> overrides per-token.
+        // Display and capture bookmarks differ on purpose (blue vs green); the
+        // match colour marks a filter already saved.
+        FilterBookmark,         // display-filter bookmark   (← AccentInfo, blue)
+        FilterBookmarkCapture,  // capture-filter bookmark   (← AccentSuccess, green)
+        FilterBookmarkMatch,    // current filter is saved   (← AccentWarning, yellow)
+        FilterClear,            // clear affordance (active) (← AccentError, red)
+        FilterApply,            // apply affordance          (← AccentInfo, blue)
+
         // Syntax highlighting — foreground text colours for code- and
         // data-viewers (JSON, hex, Lua debugger, etc.).  Derived so
         // the variant is darker in light mode and lighter in dark

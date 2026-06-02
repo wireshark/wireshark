@@ -12,28 +12,33 @@
 
 #include <ui/qt/widgets/filter_edit.h>
 
+#include <QIcon>
 #include <QList>
 
 class FilterHistoryModel;
 class BookmarkModel;
+class AdaptiveToolButton;
 
 class QAction;
 class QConcatenateTablesProxyModel;
+class QHBoxLayout;
 class QMenu;
-class QToolButton;
 
 /**
  * @brief FilterEdit plus the in-line action set, menus and history/bookmark
  *        wiring shared by the display- and capture-filter entries.
  *
- * Sub-controls are added with QLineEdit::addAction(), which positions icons
- * inside the field with native spacing, height, RTL and focus handling. There is
- * no hand-managed button geometry: showing or hiding an action reflows the
- * layout natively. The only painting we add is a pair of thin vertical dividers
- * (paintEvent) that fence the leading bookmark and trailing apply zones off from
- * the text, matching the design mockup.
+ * Sub-controls are AdaptiveToolButton children placed by a QHBoxLayout inside
+ * the field (bookmark | text | clear apply history). Each button hugs its glyph
+ * and tracks the application zoom; the layout reflows them on resize, and
+ * updateInlineMargins() reserves matching text margins so the text never runs
+ * under a button. Reserving via text margins also feeds QLineEdit's sizeHint, so
+ * the toolbar cannot compress the field under its neighbours. The only painting
+ * we add is a pair of thin vertical dividers (paintEvent) that fence the leading
+ * bookmark and trailing apply zones off from the text, matching the design
+ * mockup.
  *
- * Actions, in layout order:
+ * Buttons, in layout order:
  *  - Bookmark (leading): opens the bookmark menu. Present only with a bookmark
  *    model set.
  *  - Clear (trailing): visible only when the text is non-empty.
@@ -87,10 +92,12 @@ public:
     void setPreferencesActionVisible(bool visible);
 
     /**
-     * @brief Sets the bookmark glyph used for the leading action.
-     *        The base is filter-type-neutral; leaves supply their own icon.
+     * @brief Sets the leading bookmark glyphs: @p normal in the per-filter
+     *        colour and @p matching shown when the current text is already a
+     *        saved bookmark. Leaves supply both (same SVG, different theme
+     *        token); the base swaps between them as the text matches a bookmark.
      */
-    void setBookmarkIcon(const QIcon &icon);
+    void setBookmarkIcon(const QIcon &normal, const QIcon &matching);
 
     /**
      * @brief Supplies the bookmark-menu label strings. Menu structure, behaviour
@@ -109,6 +116,17 @@ public:
      *        point their FilterCompleter at this.
      */
     QConcatenateTablesProxyModel *completionModel() const { return completion_source_; }
+
+    /**
+     * @brief Left-aligns the inline buttons (all clustered after the bookmark,
+     *        with the text to their right) instead of right-anchoring the
+     *        trailing trio. Persisted in recent.gui_geometry_leftalign_actions,
+     *        so display and capture both honour the saved preference.
+     */
+    void setButtonsLeftAligned(bool left);
+
+    /** @brief True when the inline buttons are left-aligned. */
+    bool buttonsLeftAligned() const { return buttons_left_aligned_; }
 
 signals:
     /** @brief The current expression was applied (action, or Enter). */
@@ -142,24 +160,25 @@ protected:
 private:
     void rebuildBookmarkEntries(); /**< Refresh the dynamic bookmark section. */
     void populateHistoryMenu();    /**< (Re)fill the recent-list popup on show. */
-    void updateClearVisible();     /**< Clear action visible iff text non-empty. */
+    void updateClearVisible();     /**< Clear button visible iff text non-empty. */
     void updateApplyEnabled();     /**< Apply enabled iff non-empty and not Invalid. */
     void updateRemoveEnabled();    /**< "Remove current" enabled on exact match. */
+    void updateBookmarkState();    /**< Swap to the matching glyph when text is saved. */
+    void updateInlineMargins();    /**< Reserve text margins for the shown inline buttons. */
+    void rebuildInlineLayout();    /**< (Re)place the buttons for the current alignment. */
 
-    QAction *bookmark_action_; /**< Leading; opens bookmark menu. */
-    QAction *clear_action_;    /**< Trailing; clears the field. */
-    QAction *history_action_;  /**< Trailing; opens recent-list popup. */
-    QAction *apply_action_;    /**< Trailing; applies (explicit mode only). */
+    // Inline affordance buttons, placed by a QHBoxLayout inside the field and
+    // sized by AdaptiveToolButton (tight box, zoom-aware glyph). paintEvent()
+    // uses their geometry to fence the icon zones off from the tint and to
+    // anchor the dividers. Parented to this line edit via the layout.
+    AdaptiveToolButton *bookmark_button_; /**< Leading; right edge ends the tinted area. */
+    AdaptiveToolButton *clear_button_;    /**< Trailing; left edge starts the icon zone. */
+    AdaptiveToolButton *history_button_;  /**< Trailing; left edge starts the icon zone. */
+    AdaptiveToolButton *apply_button_;    /**< Trailing; left edge anchors its divider. */
+    QHBoxLayout        *inline_layout_;   /**< Places the buttons + text-area stretch. */
 
-    // The internal icon buttons QLineEdit builds for the leading/trailing
-    // actions. QLineEdit exposes no action-to-button accessor, so we capture
-    // them as their addAction() calls create them. paintEvent() uses their
-    // geometry to fence the icon zones off from the tint and to anchor the
-    // dividers. Non-owning (parented to this line edit).
-    QToolButton *bookmark_button_; /**< Leading; right edge ends the tinted area. */
-    QToolButton *clear_button_;    /**< Trailing; left edge starts the icon zone. */
-    QToolButton *history_button_;  /**< Trailing; left edge starts the icon zone. */
-    QToolButton *apply_button_;    /**< Trailing; left edge anchors its divider. */
+    QIcon normal_bookmark_icon_;   /**< Leading glyph in the per-filter colour. */
+    QIcon matching_bookmark_icon_; /**< Leading glyph when the text is already saved. */
 
     QMenu *bookmark_menu_;     /**< Built once; dynamic section synced to model. */
     QMenu *history_menu_;      /**< Recent-list popup, filled on show. */
@@ -177,7 +196,8 @@ private:
     BookmarkModel      *bookmarkModel_; /**< Widget-owned. */
     QConcatenateTablesProxyModel *completion_source_; /**< Widget-owned merge. */
 
-    bool apply_visible_; /**< Explicit-apply mode flag. */
+    bool apply_visible_;         /**< Explicit-apply mode flag. */
+    bool buttons_left_aligned_;  /**< Inline buttons clustered left vs right-anchored. */
 };
 
 #endif // FILTER_EXPRESSION_EDIT_H
