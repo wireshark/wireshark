@@ -99,6 +99,7 @@ static int hf_nas_5gs_rfu_b0;
 static int hf_nas_5gs_security_header_type;
 static int hf_nas_5gs_msg_auth_code;
 static int hf_nas_5gs_seq_no;
+static int hf_nas_5gs_ciphered_msg;
 static int hf_nas_5gs_mm_msg_type;
 static int hf_nas_5gs_sm_msg_type;
 static int hf_nas_5gs_updp_msg_type;
@@ -610,7 +611,6 @@ static int ett_nas_5gs_mm_part_sal;
 static int ett_nas_5gs_mm_part_tal;
 static int ett_nas_5gs_sm_mapd_eps_b_cont;
 static int ett_nas_5gs_sm_mapd_eps_b_cont_params_list;
-static int ett_nas_5gs_enc;
 static int ett_nas_5gs_mm_ladn_indic;
 static int ett_nas_5gs_mm_sor;
 static int ett_nas_5gs_sm_pkt_filter_components;
@@ -3099,7 +3099,7 @@ de_nas_5gs_mm_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     if (nas5gs_data->sec_hdr_type == NAS_5GS_PLAIN_NAS_MSG || g_nas_5gs_null_decipher) {
         dissect_nas_5gs(tvb_new_subset_length(tvb, offset, len), pinfo, tree, NULL);
     } else {
-        proto_tree_add_subtree(tree, tvb, offset, len, ett_nas_5gs_enc, NULL, "Encrypted data");
+        proto_tree_add_item(tree, hf_nas_5gs_ciphered_msg, tvb, offset, len, ENC_NA);
     }
 
     return len;
@@ -12641,7 +12641,7 @@ dissect_nas_5gs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         g_nas_5gs_null_decipher) {
         return dissect_nas_5gs_common(tvb, pinfo, nas_5gs_tree, offset, data);
     } else {
-        proto_tree_add_subtree(nas_5gs_tree, tvb, offset, -1, ett_nas_5gs_enc, NULL, "Encrypted data");
+        proto_tree_add_item(sub_tree, hf_nas_5gs_ciphered_msg, tvb, offset, -1, ENC_NA);
     }
 
     return tvb_reported_length(tvb);
@@ -12937,6 +12937,11 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_seq_no,
         { "Sequence number",   "nas-5gs.seq_no",
             FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ciphered_msg,
+        { "Ciphered message",   "nas-5gs.ciphered_msg",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_msg_type,
@@ -17309,7 +17314,7 @@ proto_register_nas_5gs(void)
     unsigned  last_offset;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    66
+#define NUM_INDIVIDUAL_ELEMS    65
     int *ett[NUM_INDIVIDUAL_ELEMS +
         NUM_NAS_5GS_COMMON_ELEM +
         NUM_NAS_5GS_MM_MSG + NUM_NAS_5GS_MM_ELEM +
@@ -17328,61 +17333,60 @@ proto_register_nas_5gs(void)
     ett[8] = &ett_nas_5gs_mm_part_tal;
     ett[9] = &ett_nas_5gs_sm_mapd_eps_b_cont;
     ett[10] = &ett_nas_5gs_sm_mapd_eps_b_cont_params_list;
-    ett[11] = &ett_nas_5gs_enc;
-    ett[12] = &ett_nas_5gs_mm_ladn_indic;
-    ett[13] = &ett_nas_5gs_mm_sor;
-    ett[14] = &ett_nas_5gs_sm_pkt_filter_components;
-    ett[15] = &ett_nas_5gs_updp_ue_policy_section_mgm_lst;
-    ett[16] = &ett_nas_5gs_updp_ue_policy_section_mgm_sublst;
-    ett[17] = &ett_nas_5gs_ue_policies_ursp;
-    ett[18] = &ett_nas_5gs_ursp_traff_desc;
-    ett[19] = &ett_nas_5gs_usrp_r_sel_list;
-    ett[20] = &ett_nas_5gs_usrp_r_sel;
-    ett[21] = &ett_nas_5gs_ursp_r_sel_desc_cont;
-    ett[22] = &ett_nas_5gs_updp_upsi_list;
-    ett[23] = &ett_nas_5gs_mm_rej_nssai;
-    ett[24] = &ett_nas_5gs_mm_scheme_output;
-    ett[25] = &ett_nas_5gs_mm_pld_cont_pld_entry;
-    ett[26] = &ett_nas_5gs_mm_pld_cont_opt_ie;
-    ett[27] = &ett_nas_5gs_mm_cag_info_entry;
-    ett[28] = &ett_nas_5gs_ciot_small_data_cont_data_contents;
-    ett[29] = &ett_nas_5gs_user_data_cont;
-    ett[30] = &ett_nas_5gs_ciph_data_set;
-    ett[31] = &ett_nas_5gs_mm_mapped_nssai;
-    ett[32] = &ett_nas_5gs_mm_partial_extended_rejected_nssai_list;
-    ett[33] = &ett_nas_5gs_mm_ext_rej_nssai_back_off_timer;
-    ett[34] = &ett_nas_5gs_mm_ext_rej_nssai;
-    ett[35] = &ett_nas_5gs_mm_op_def_acc_cat_def;
-    ett[36] = &ett_nas_5gs_mm_op_def_acc_cat_criteria_component;
-    ett[37] = &ett_nas_5gs_mm_op_def_acc_cat_criteria;
-    ett[38] = &ett_nas_5gs_cmn_service_level_aa_cont_param;
-    ett[39] = &ett_nas_5gs_mm_pld_cont_event_notif_ind;
-    ett[40] = &ett_nas_5gs_mm_peips_assist_info;
-    ett[41] = &ett_nas_5gs_mm_nssrg_info;
-    ett[42] = &ett_nas_5gs_mm_plmns_list_disaster_cond;
-    ett[43] = &ett_nas_5gs_mm_reg_wait_range;
-    ett[44] = &ett_nas_5gs_mm_nsag_info;
-    ett[45] = &ett_nas_5gs_mm_snpn_list;
-    ett[46] = &ett_nas_5gs_mm_ext_ladn_info;
-    ett[47] = &ett_nas_5gs_mm_alt_nssai;
-    ett[48] = &ett_nas_5gs_mm_alt_nssai_replaced;
-    ett[49] = &ett_nas_5gs_mm_alt_nssai_alternative;
-    ett[50] = &ett_nas_5gs_mm_s_nssai_loc_valid_info;
-    ett[51] = &ett_nas_5gs_mm_s_nssai_time_valid_info;
-    ett[52] = &ett_nas_5gs_mm_on_demand_nssai;
-    ett[53] = &ett_nas_5gs_ue_policies_andp;
-    ett[54] = &ett_nas_5gs_wlansp_rule;
-    ett[55] = &ett_nas_5gs_wlansp_sel_crit;
-    ett[56] = &ett_nas_5gs_wlansp_sel_crit_ent;
-    ett[57] = &ett_nas_5gs_wlansp_val_area;
-    ett[58] = &ett_nas_5gs_wlansp_tod;
-    ett[59] = &ett_nas_5gs_loc_3gpp_sub_ent;
-    ett[60] = &ett_nas_5gs_n3nan_sel_len;
-    ett[61] = &ett_nas_5gs_n3nan_sel_info_entry;
-    ett[62] = &ett_nas_5gs_n3nan_conf_inf;
-    ett[63] = &ett_nas_5gs_n3iwf_identifier_entry;
-    ett[64] = &ett_nas_5gs_epdg_identifier_entry;
-    ett[65] = &ett_nas_5gs_sm_srtp_mult_media_id_info;
+    ett[11] = &ett_nas_5gs_mm_ladn_indic;
+    ett[12] = &ett_nas_5gs_mm_sor;
+    ett[13] = &ett_nas_5gs_sm_pkt_filter_components;
+    ett[14] = &ett_nas_5gs_updp_ue_policy_section_mgm_lst;
+    ett[15] = &ett_nas_5gs_updp_ue_policy_section_mgm_sublst;
+    ett[16] = &ett_nas_5gs_ue_policies_ursp;
+    ett[17] = &ett_nas_5gs_ursp_traff_desc;
+    ett[18] = &ett_nas_5gs_usrp_r_sel_list;
+    ett[19] = &ett_nas_5gs_usrp_r_sel;
+    ett[20] = &ett_nas_5gs_ursp_r_sel_desc_cont;
+    ett[21] = &ett_nas_5gs_updp_upsi_list;
+    ett[22] = &ett_nas_5gs_mm_rej_nssai;
+    ett[23] = &ett_nas_5gs_mm_scheme_output;
+    ett[24] = &ett_nas_5gs_mm_pld_cont_pld_entry;
+    ett[25] = &ett_nas_5gs_mm_pld_cont_opt_ie;
+    ett[26] = &ett_nas_5gs_mm_cag_info_entry;
+    ett[27] = &ett_nas_5gs_ciot_small_data_cont_data_contents;
+    ett[28] = &ett_nas_5gs_user_data_cont;
+    ett[29] = &ett_nas_5gs_ciph_data_set;
+    ett[30] = &ett_nas_5gs_mm_mapped_nssai;
+    ett[31] = &ett_nas_5gs_mm_partial_extended_rejected_nssai_list;
+    ett[32] = &ett_nas_5gs_mm_ext_rej_nssai_back_off_timer;
+    ett[33] = &ett_nas_5gs_mm_ext_rej_nssai;
+    ett[34] = &ett_nas_5gs_mm_op_def_acc_cat_def;
+    ett[35] = &ett_nas_5gs_mm_op_def_acc_cat_criteria_component;
+    ett[36] = &ett_nas_5gs_mm_op_def_acc_cat_criteria;
+    ett[37] = &ett_nas_5gs_cmn_service_level_aa_cont_param;
+    ett[38] = &ett_nas_5gs_mm_pld_cont_event_notif_ind;
+    ett[39] = &ett_nas_5gs_mm_peips_assist_info;
+    ett[40] = &ett_nas_5gs_mm_nssrg_info;
+    ett[41] = &ett_nas_5gs_mm_plmns_list_disaster_cond;
+    ett[42] = &ett_nas_5gs_mm_reg_wait_range;
+    ett[43] = &ett_nas_5gs_mm_nsag_info;
+    ett[44] = &ett_nas_5gs_mm_snpn_list;
+    ett[45] = &ett_nas_5gs_mm_ext_ladn_info;
+    ett[46] = &ett_nas_5gs_mm_alt_nssai;
+    ett[47] = &ett_nas_5gs_mm_alt_nssai_replaced;
+    ett[48] = &ett_nas_5gs_mm_alt_nssai_alternative;
+    ett[49] = &ett_nas_5gs_mm_s_nssai_loc_valid_info;
+    ett[50] = &ett_nas_5gs_mm_s_nssai_time_valid_info;
+    ett[51] = &ett_nas_5gs_mm_on_demand_nssai;
+    ett[52] = &ett_nas_5gs_ue_policies_andp;
+    ett[53] = &ett_nas_5gs_wlansp_rule;
+    ett[54] = &ett_nas_5gs_wlansp_sel_crit;
+    ett[55] = &ett_nas_5gs_wlansp_sel_crit_ent;
+    ett[56] = &ett_nas_5gs_wlansp_val_area;
+    ett[57] = &ett_nas_5gs_wlansp_tod;
+    ett[58] = &ett_nas_5gs_loc_3gpp_sub_ent;
+    ett[59] = &ett_nas_5gs_n3nan_sel_len;
+    ett[60] = &ett_nas_5gs_n3nan_sel_info_entry;
+    ett[61] = &ett_nas_5gs_n3nan_conf_inf;
+    ett[62] = &ett_nas_5gs_n3iwf_identifier_entry;
+    ett[63] = &ett_nas_5gs_epdg_identifier_entry;
+    ett[64] = &ett_nas_5gs_sm_srtp_mult_media_id_info;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
