@@ -1237,7 +1237,7 @@ static void dissect_mdb_per_mst_bv( tvbuff_t *tvb, int offset,
             dissect_mdb_bv_setup_fields(tvb, offset, pinfo, bv_tree);
             break;
         case MDB_BV_CMD_SECURITY:
-            bv_tree = proto_tree_add_subtree(tree, tvb, offset, len, ett_mdb_bv, NULL, "Security Response");
+            /* bv_tree = */ proto_tree_add_subtree(tree, tvb, offset, len, ett_mdb_bv, NULL, "Security Response");
             break;
         case MDB_BV_CMD_POLL:
             bv_tree = proto_tree_add_subtree(tree, tvb, offset, len, ett_mdb_bv, NULL, "Poll Response");
