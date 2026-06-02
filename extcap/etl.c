@@ -841,7 +841,7 @@ static ULONG wtap_etl_rec_build(
     if (ctx->tlv_count != 0)
     {
         tlvs = g_malloc(sizeof(WTAP_ETL_TLV) * ctx->tlv_count);
-        SecureZeroMemory(tlvs, sizeof(tlvs));
+        SecureZeroMemory(tlvs, sizeof(WTAP_ETL_TLV) * ctx->tlv_count);
     }
 
     // Used while building
