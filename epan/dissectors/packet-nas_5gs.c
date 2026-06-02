@@ -859,6 +859,15 @@ static int hf_nas_5gs_ursp_traff_desc_len;
 static int hf_nas_5gs_ursp_r_sel_des_prec;
 static int hf_nas_5gs_ursp_r_sel_des_cont_len;
 static int hf_nas_5gs_ursp_ursp_r_sel_desc_comp_type;
+static int hf_nas_5gs_ursp_r_sel_desc_loc_crit_len;
+static int hf_nas_5gs_ursp_r_sel_desc_loc_area_type;
+static int hf_nas_5gs_ursp_r_sel_desc_loc_num_eutra_cells;
+static int hf_nas_5gs_ursp_r_sel_desc_loc_num_nr_cells;
+static int hf_nas_5gs_ursp_r_sel_desc_loc_num_gnb_ids;
+static int hf_nas_5gs_ursp_r_sel_desc_loc_nr_cell_id;
+static int hf_nas_5gs_ursp_r_sel_desc_loc_eutra_cell_id;
+static int hf_nas_5gs_ursp_r_sel_desc_loc_gnb_id;
+static int hf_nas_5gs_ursp_r_sel_desc_loc_tai_len;
 static int hf_nas_5gs_dnn_len;
 static int hf_nas_5gs_upsi_sublist_len;
 static int hf_nas_5gs_upsc;
@@ -10655,6 +10664,14 @@ Bits
 All other values are spare. If received they shall be interpreted as unknown.
 
 */
+static const value_string nas_5gs_ursp_r_sel_desc_loc_area_type_values[] = {
+    { 0x01, "E-UTRA cell identities list" },
+    { 0x02, "NR cell identities list" },
+    { 0x03, "Global RAN node identities list" },
+    { 0x04, "TAI list" },
+    { 0, NULL }
+};
+
 static const value_string nas_5gs_ursp_r_sel_desc_comp_type_values[] = {
     { 0x01, "SSC mode" },
     { 0x02, "S-NSSAI" },
@@ -10751,6 +10768,68 @@ de_nas_5gs_ursp_r_sel_desc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                in a route selection descriptor, there shall be no route selection descriptor component with a type other than
                "non-seamless non-3GPP offload indication type" in the route selection descriptor.*/
             break;
+        case 0x40: /* Location criteria */
+            /* For "Location criteria type", the route selection descriptor component value field
+               shall be encoded as a sequence of a one octet length field and a location criteria
+               value field. TS 24.526 Section 5.2 */
+        {
+            uint32_t loc_len;
+            proto_tree_add_item_ret_uint(tree, hf_nas_5gs_ursp_r_sel_desc_loc_crit_len, tvb, offset, 1, ENC_BIG_ENDIAN, &loc_len);
+            offset++;
+            int loc_end = offset + loc_len;
+            while (offset < loc_end) {
+                uint32_t loc_area_type;
+                proto_tree_add_item_ret_uint(tree, hf_nas_5gs_ursp_r_sel_desc_loc_area_type, tvb, offset, 1, ENC_BIG_ENDIAN, &loc_area_type);
+                offset++;
+                switch (loc_area_type) {
+                case 0x01: /* E-UTRA cell identities */
+                case 0x02: /* NR cell identities */
+                case 0x03: /* Global RAN node identities */
+                {
+                    uint32_t num_cells;
+                    int cell_id_len = (loc_area_type == 0x02) ? 5 : 4;
+                    int hf_num = (loc_area_type == 0x02) ? hf_nas_5gs_ursp_r_sel_desc_loc_num_nr_cells :
+                                 (loc_area_type == 0x01) ? hf_nas_5gs_ursp_r_sel_desc_loc_num_eutra_cells :
+                                 hf_nas_5gs_ursp_r_sel_desc_loc_num_gnb_ids;
+                    proto_tree_add_item_ret_uint(tree, hf_num, tvb, offset, 1, ENC_BIG_ENDIAN, &num_cells);
+                    offset++;
+                    for (uint32_t i = 0; i < num_cells; i++) {
+                        proto_tree *cell_tree;
+                        proto_item *cell_item;
+                        const char *cell_label = (loc_area_type == 0x02) ? "NR cell id" :
+                                                 (loc_area_type == 0x01) ? "E-UTRA cell id" :
+                                                 "Global gNB id";
+                        cell_tree = proto_tree_add_subtree_format(tree, tvb, offset, 3 + cell_id_len,
+                            ett_nas_5gs_ursp_r_sel_desc_cont, &cell_item, "%s %u", cell_label, i + 1);
+                        dissect_e212_mcc_mnc(tvb, pinfo, cell_tree, offset, E212_5GSTAI, true);
+                        offset += 3;
+                        if (loc_area_type == 0x02) {
+                            proto_tree_add_item(cell_tree, hf_nas_5gs_ursp_r_sel_desc_loc_nr_cell_id, tvb, offset, 5, ENC_BIG_ENDIAN);
+                        } else if (loc_area_type == 0x01) {
+                            proto_tree_add_item(cell_tree, hf_nas_5gs_ursp_r_sel_desc_loc_eutra_cell_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+                        } else {
+                            proto_tree_add_item(cell_tree, hf_nas_5gs_ursp_r_sel_desc_loc_gnb_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+                        }
+                        offset += cell_id_len;
+                    }
+                    break;
+                }
+                case 0x04: /* TAI list */
+                {
+                    uint32_t tai_len;
+                    proto_tree_add_item_ret_uint(tree, hf_nas_5gs_ursp_r_sel_desc_loc_tai_len, tvb, offset, 1, ENC_BIG_ENDIAN, &tai_len);
+                    offset++;
+                    de_nas_5gs_mm_5gs_ta_id_list(tvb, tree, pinfo, offset, tai_len, NULL, 0);
+                    offset += tai_len;
+                    break;
+                }
+                default:
+                    offset = loc_end;
+                    break;
+                }
+            }
+            break;
+        }
         default:
             proto_tree_add_expert_remaining(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset);
             return;
@@ -16238,6 +16317,51 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_ursp_ursp_r_sel_desc_comp_type,
         { "Route selection descriptor component type identifier", "nas-5gs.ursp.r_sel_desc_comp_type",
             FT_UINT8, BASE_DEC, VALS(nas_5gs_ursp_r_sel_desc_comp_type_values), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_r_sel_desc_loc_crit_len,
+        { "Length of location criteria", "nas-5gs.ursp.r_sel_desc.loc_crit_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_r_sel_desc_loc_area_type,
+        { "Type of location area", "nas-5gs.ursp.r_sel_desc.loc_area_type",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_ursp_r_sel_desc_loc_area_type_values), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_r_sel_desc_loc_num_eutra_cells,
+        { "Number of E-UTRA cell identities", "nas-5gs.ursp.r_sel_desc.loc_num_eutra_cells",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_r_sel_desc_loc_num_nr_cells,
+        { "Number of NR cell identities", "nas-5gs.ursp.r_sel_desc.loc_num_nr_cells",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_r_sel_desc_loc_num_gnb_ids,
+        { "Number of Global gNB identities", "nas-5gs.ursp.r_sel_desc.loc_num_gnb_ids",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_r_sel_desc_loc_nr_cell_id,
+        { "NR Cell ID", "nas-5gs.ursp.r_sel_desc.nr_cell_id",
+            FT_UINT40, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_r_sel_desc_loc_eutra_cell_id,
+        { "E-UTRA Cell ID", "nas-5gs.ursp.r_sel_desc.eutra_cell_id",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_r_sel_desc_loc_gnb_id,
+        { "gNB ID", "nas-5gs.ursp.r_sel_desc.gnb_id",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_r_sel_desc_loc_tai_len,
+        { "Length", "nas-5gs.ursp.r_sel_desc.loc_tai_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_dnn_len,
