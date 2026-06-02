@@ -3447,7 +3447,7 @@ ssl_md_init(SSL_MD* md, int algo)
     return 0;
 }
 static inline void
-ssl_md_update(SSL_MD* md, const unsigned char* data, int len)
+ssl_md_update(SSL_MD* md, const unsigned char* data, unsigned len)
 {
     gcry_md_write(*(md), data, len);
 }
@@ -4384,6 +4384,34 @@ static int tls12_handshake_hash(SslDecryptSession* ssl, int md, StringInfo* out)
     return 0;
 }
 
+bool
+tls_load_psk(SslDecryptSession* tls_session, const char *tls_psk)
+{
+    if (!tls_psk || (tls_psk[0] == 0)) {
+        ssl_debug_printf("%s: can't find pre-shared key\n", G_STRFUNC);
+        return false;
+    }
+
+    wmem_free(wmem_file_scope(), tls_session->psk.data);
+    /* convert hex string into char*/
+    if (!from_hex(&tls_session->psk, tls_psk, strlen(tls_psk))) {
+        ssl_debug_printf("%s: ssl.psk/dtls.psk contains invalid hex\n",
+                         G_STRFUNC);
+        return false;
+    }
+
+    if (tls_session->psk.data_len >= (2 << 15)) {
+        ssl_debug_printf("%s: ssl.psk/dtls.psk must not be larger than 2^15 - 1\n",
+                         G_STRFUNC);
+        wmem_free(wmem_file_scope(), tls_session->psk.data);
+        tls_session->psk.data = NULL;
+        tls_session->psk.data_len = 0;
+        return false;
+    }
+
+    return true;
+}
+
 /**
  * Obtains the label prefix used in HKDF-Expand-Label.  This function can be
  * inlined and removed once support for draft 19 and before is dropped.
@@ -4466,6 +4494,26 @@ tls13_hkdf_expand_label(int md, const StringInfo *secret,
 {
     return tls13_hkdf_expand_label_context(md, secret, label_prefix, label, NULL, 0, out_len, out);
 }
+
+static bool
+tls13_derive_secret(int md, const StringInfo *secret,
+                    const char *label_prefix, const char *label,
+                    const uint8_t *context, unsigned context_length,
+                    uint16_t out_len, unsigned char **out)
+{
+    SSL_MD  mc;
+    uint8_t context_hash[DIGEST_MAX_SIZE];
+    unsigned hash_len;
+
+    if (ssl_md_init(&mc, md) != 0)
+        return false;
+    ssl_md_update(&mc, context, context_length);
+    ssl_md_final(&mc, context_hash, &hash_len);
+    ssl_md_cleanup(&mc);
+
+    return tls13_hkdf_expand_label_context(md, secret, label_prefix, label, context_hash, hash_len, out_len, out);
+}
+
 /* HMAC and the Pseudorandom function }}} */
 
 /* Record Decompression (after decryption) {{{ */
@@ -4725,25 +4773,10 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
         StringInfo pre_master_secret;
         unsigned psk_len, pre_master_len;
 
-        if (!ssl_psk || (ssl_psk[0] == 0)) {
-            ssl_debug_printf("%s: can't find pre-shared key\n", G_STRFUNC);
+        if (!tls_load_psk(ssl_session, ssl_psk)) {
             return false;
         }
-
-        /* convert hex string into char*/
-        if (!from_hex(&ssl_session->psk, ssl_psk, strlen(ssl_psk))) {
-            ssl_debug_printf("%s: ssl.psk/dtls.psk contains invalid hex\n",
-                             G_STRFUNC);
-            return false;
-        }
-
         psk_len = ssl_session->psk.data_len;
-        if (psk_len >= (2 << 15)) {
-            ssl_debug_printf("%s: ssl.psk/dtls.psk must not be larger than 2^15 - 1\n",
-                             G_STRFUNC);
-            return false;
-        }
-
 
         pre_master_len = psk_len * 2 + 4;
 
@@ -6198,7 +6231,11 @@ void ssl_reset_session(SslSession *session, SslDecryptSession *ssl, bool is_clie
 #ifdef HAVE_LIBGNUTLS
             ssl->cert_key_id = NULL;
 #endif
-            ssl->psk.data_len = 0;
+            ssl->has_psk = false;
+            ssl->has_key_share = false;
+            // There is no point in clearing the PSK when resetting the session,
+            // we only store one global PSK in the prefs.
+            //ssl->psk.data_len = 0;
         }
 
         if (ssl->state & clear_flags) {
@@ -6795,6 +6832,78 @@ ssl_finalize_decryption(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map)
     }
 } /* }}} */
 
+static StringInfo*
+tls13_load_secret_from_psk(SslDecryptSession *tls, bool is_from_server,
+                           TLSRecordType type)
+{
+    /* XXX - In addition to an out-of-bound PSK, we could also save the
+     * PSK from a NewSessionTicket; we would also need to compute the
+     * resumption_master_secret.  */
+    if (tls->psk.data_len == 0)
+        return NULL;
+
+    const SslDigestAlgo *dig = ssl_cipher_suite_dig(tls->cipher_suite);
+
+    int hash_algo = ssl_get_digest_by_name(dig->name);
+    if (!hash_algo) {
+        ssl_debug_printf("%s can't find hash function %s\n", G_STRFUNC, dig->name);
+        return NULL;
+    }
+
+    /* We can re-use this to store the Pseudo Random Key for each epoch. */
+    uint8_t prk[DIGEST_MAX_SIZE];
+    StringInfo prk_string = { prk, dig->len };
+    uint8_t *derived_secret;
+
+    uint8_t zeroes[DIGEST_MAX_SIZE];
+    memset(zeroes, 0, dig->len);
+
+    StringInfo *secret = NULL;
+    const char *label;
+
+    /* PRK = Early Secret */
+    hkdf_extract(hash_algo, zeroes, dig->len, tls->psk.data, tls->psk.data_len, prk);
+
+    if (type == TLS_SECRET_0RTT_APP) {
+        DISSECTOR_ASSERT(!is_from_server);
+        label = "c e traffic";
+    } else {
+        if (!tls13_derive_secret(hash_algo, &prk_string, tls13_hkdf_label_prefix(tls),
+                            "derived", NULL, 0, dig->len, &derived_secret))
+            return NULL;
+
+        /* PRK = Handshake Secret [assume no (EC)DHE.] */
+        hkdf_extract(hash_algo, derived_secret, dig->len, zeroes, dig->len, prk);
+        wmem_free(NULL, derived_secret);
+
+        if (type == TLS_SECRET_HANDSHAKE) {
+            label = is_from_server ? "s hs traffic" : "c hs traffic";
+        } else {
+            if (!tls13_derive_secret(hash_algo, &prk_string, tls13_hkdf_label_prefix(tls),
+                                "derived", NULL, 0, dig->len, &derived_secret))
+                return NULL;
+
+            /* PRK = Master Secret */
+            hkdf_extract(hash_algo, derived_secret, dig->len, zeroes, dig->len, prk);
+            wmem_free(NULL, derived_secret);
+
+            label = is_from_server ? "s ap traffic" : "c ap traffic";
+        }
+    }
+
+    if (!tls13_derive_secret(hash_algo, &prk_string,
+                        tls13_hkdf_label_prefix(tls), label,
+                        tls->handshake_data.data, tls->handshake_data.data_len,
+                        dig->len, &derived_secret))
+        return NULL;
+
+    secret = wmem_new(wmem_file_scope(), StringInfo);
+    secret->data = wmem_memdup(wmem_file_scope(), derived_secret, dig->len);
+    secret->data_len = dig->len;
+    wmem_free(NULL, derived_secret);
+    return secret;
+}
+
 /* Load the traffic key secret from the keylog file. */
 StringInfo *
 tls13_load_secret(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
@@ -6847,6 +6956,14 @@ tls13_load_secret(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
     ssl->state &= ~(SSL_MASTER_SECRET | SSL_PRE_MASTER_SECRET | SSL_HAVE_SESSION_KEY);
 
     StringInfo *secret = (StringInfo *)g_hash_table_lookup(key_map, &ssl->client_random);
+    if (!secret) {
+        secret = tls13_load_secret_from_psk(ssl, is_from_server, type);
+        if (secret) {
+            ssl_debug_printf("%s Calculated TLS 1.3 traffic secret from PSK.\n", G_STRFUNC);
+            /* Doing this allows us to save the secret as a DSB in a pcapng. */
+            g_hash_table_insert(key_map, ssl_data_clone(&ssl->client_random), secret);
+        }
+    }
     if (!secret) {
         ssl_debug_printf("%s Cannot find %s, decryption impossible\n", G_STRFUNC, label);
         /* Disable decryption, the keys are invalid. */
@@ -8089,7 +8206,7 @@ ssl_dissect_hnd_hello_ext_key_share_entry(ssl_common_dissect_t *hf, tvbuff_t *tv
 static int
 ssl_dissect_hnd_hello_ext_key_share(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
                                     proto_tree *tree, uint32_t offset, uint32_t offset_end,
-                                    uint8_t hnd_type)
+                                    uint8_t hnd_type, SslDecryptSession *ssl)
 {
     proto_tree *key_share_tree;
     uint32_t next_offset;
@@ -8125,6 +8242,9 @@ ssl_dissect_hnd_hello_ext_key_share(ssl_common_dissect_t *hf, tvbuff_t *tvb, pac
             }
         break;
         case SSL_HND_SERVER_HELLO:
+            if (ssl) {
+                ssl->has_key_share = true;
+            }
             offset = ssl_dissect_hnd_hello_ext_key_share_entry(hf, tvb, pinfo, key_share_tree, offset, offset_end, &group_name);
             if (group_name) {
                 proto_item_append_text(tree, " %s", group_name);
@@ -8146,7 +8266,7 @@ ssl_dissect_hnd_hello_ext_key_share(ssl_common_dissect_t *hf, tvbuff_t *tvb, pac
 static int
 ssl_dissect_hnd_hello_ext_pre_shared_key(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
                                          proto_tree *tree, uint32_t offset, uint32_t offset_end,
-                                         uint8_t hnd_type)
+                                         uint8_t hnd_type, SslDecryptSession *ssl)
 {
     /* RFC 8446 Section 4.2.11
      *  struct {
@@ -8243,6 +8363,10 @@ ssl_dissect_hnd_hello_ext_pre_shared_key(ssl_common_dissect_t *hf, tvbuff_t *tvb
         }
         break;
         case SSL_HND_SERVER_HELLO: {
+            if (ssl) {
+                ssl_debug_printf("%s found pre_shared_key extension\n", G_STRFUNC);
+                ssl->has_psk = true;
+            }
             proto_tree_add_item(psk_tree, hf->hf.hs_ext_psk_identity_selected, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
         }
@@ -12084,10 +12208,10 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             break;
         case SSL_HND_HELLO_EXT_KEY_SHARE_OLD: /* used before TLS 1.3 draft -23 */
         case SSL_HND_HELLO_EXT_KEY_SHARE:
-            offset = ssl_dissect_hnd_hello_ext_key_share(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type);
+            offset = ssl_dissect_hnd_hello_ext_key_share(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type, ssl);
             break;
         case SSL_HND_HELLO_EXT_PRE_SHARED_KEY:
-            offset = ssl_dissect_hnd_hello_ext_pre_shared_key(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type);
+            offset = ssl_dissect_hnd_hello_ext_pre_shared_key(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type, ssl);
             break;
         case SSL_HND_HELLO_EXT_EARLY_DATA:
         case SSL_HND_HELLO_EXT_TICKET_EARLY_DATA_INFO:
@@ -12997,27 +13121,77 @@ ssl_common_register_options(module_t *module, ssl_common_options_t *options, boo
 }
 
 void
-ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, uint32_t offset, uint32_t length)
+ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, uint32_t offset, uint32_t length, uint8_t msg_type)
 {
-    if (ssl_session && ssl_session->session.version != TLSV1DOT3_VERSION && !(ssl_session->state & SSL_MASTER_SECRET)) {
-        uint32_t old_length = ssl_session->handshake_data.data_len;
-        ssl_debug_printf("Calculating hash with offset %d %d\n", offset, length);
-        if (tvb) {
-            if (tvb_bytes_exist(tvb, offset, length)) {
-                ssl_session->handshake_data.data = (unsigned char *)wmem_realloc(wmem_file_scope(), ssl_session->handshake_data.data, old_length + length);
-                tvb_memcpy(tvb, ssl_session->handshake_data.data + old_length, offset, length);
-                ssl_session->handshake_data.data_len += length;
-            }
-        } else {
-            /* DTLS calculates the hash as if each handshake message had been
-             * sent as a single fragment (RFC 6347, section 4.2.6) and passes
-             * in a null tvbuff to add 3 bytes for a zero fragment offset.
-             */
-            DISSECTOR_ASSERT_CMPINT(length, <, 4);
+    /* The handshake transcript can be used in [D]TLS 1.2 for the extended
+     * master secret of RFC 7627, and in [D]TLS 1.3 for computing the secrets,
+     * though the latter is only useful when pke_ke (PSK-only key exchange) is
+     * negotiatied. */
+    if (!ssl_session)
+        return;
+
+    switch (ssl_session->session.version) {
+    /* The handshake message types used in the handshake hash are different
+     * in different versions. [D]TLS 1.3 tracks the messages up to the
+     * Finished, whereas 1.2 stops at the ClientKeyExchange. However, all start
+     * at the ClientHello and include the messages up to the ServerHello, at
+     * which point we know the version.
+     *
+     * XXX - However, DTLS 1.2 includes the DTLS-specific fragment info fields
+     * in its handshake transcript, whereas DTLS 1.3 does not (using the same
+     * format as TLS 1.3). We don't know at the point of the ClientHello which
+     * version will be used, so PSK only likely doesn't work for DTLS 1.3 yet.
+     */
+    case TLSV1DOT3_VERSION:
+    case DTLSV1DOT3_VERSION:
+        /* In [D]TLS 1.3 only the following handshake messages are used in the
+         * handshake transcript. */
+        switch (msg_type) {
+        case SSL_HND_CLIENT_HELLO:
+        case SSL_HND_SERVER_HELLO:
+        case SSL_HND_END_OF_EARLY_DATA:
+        case SSL_HND_HELLO_RETRY_REQUEST:
+        case SSL_HND_ENCRYPTED_EXTENSIONS:
+        case SSL_HND_CERTIFICATE:
+        case SSL_HND_CERT_REQUEST:
+        case SSL_HND_CERT_VERIFY:
+        case SSL_HND_FINISHED:
+            break;
+        default:
+            return;
+        }
+        break;
+    default:
+        /* In [D]TLS 1.2, the handshake hash for the Extended Master Secret
+         * (RFC 7627) is calculated up to and including ClientKeyExchange,
+         * but the keys are not retrieved until ChangeCipherSpec later. If
+         * mutual authentication is requested by the server, an intervening
+         * CertificateVerify message can be sent but is not to be included
+         * in the hash. */
+        if (msg_type == SSL_HND_CERT_VERIFY)
+            return;
+        if (ssl_session->state & SSL_MASTER_SECRET)
+            return;
+        break;
+    }
+
+    uint32_t old_length = ssl_session->handshake_data.data_len;
+    ssl_debug_printf("Calculating hash with offset %d %d\n", offset, length);
+    if (tvb) {
+        if (tvb_bytes_exist(tvb, offset, length)) {
             ssl_session->handshake_data.data = (unsigned char *)wmem_realloc(wmem_file_scope(), ssl_session->handshake_data.data, old_length + length);
-            memset(ssl_session->handshake_data.data + old_length, 0, length);
+            tvb_memcpy(tvb, ssl_session->handshake_data.data + old_length, offset, length);
             ssl_session->handshake_data.data_len += length;
         }
+    } else {
+        /* DTLS calculates the hash as if each handshake message had been
+         * sent as a single fragment (RFC 6347, section 4.2.6) and passes
+         * in a null tvbuff to add 3 bytes for a zero fragment offset.
+         */
+        DISSECTOR_ASSERT_CMPINT(length, <, 4);
+        ssl_session->handshake_data.data = (unsigned char *)wmem_realloc(wmem_file_scope(), ssl_session->handshake_data.data, old_length + length);
+        memset(ssl_session->handshake_data.data + old_length, 0, length);
+        ssl_session->handshake_data.data_len += length;
     }
 }
 

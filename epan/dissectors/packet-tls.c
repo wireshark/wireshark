@@ -1519,6 +1519,9 @@ decrypt_tls13_early_data(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset,
     ssl->state |= SSL_SEEN_0RTT_APPDATA;
 
     ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
+    // Early data can only be used with a PSK. (The early secret is computed w/o
+    // input from the (EC)DHE even if psk_dhe_ke is used.)
+    tls_load_psk(ssl, ssl_options.psk);
     StringInfo *secret = tls13_load_secret(ssl, &ssl_master_key_map, false, TLS_SECRET_0RTT_APP);
     if (!secret) {
         ssl_debug_printf("Missing secrets, early data decryption not possible!\n");
@@ -3166,15 +3169,9 @@ dissect_tls_handshake_full(tvbuff_t *tvb, packet_info *pinfo,
 
         /*
          * Add handshake message (including type, length, etc.) to hash (for
-         * Extended Master Secret).
-         * Hash ClientHello up to and including ClientKeyExchange. As the
-         * premaster secret is looked up during ChangeCipherSpec processing (an
-         * implementation detail), we must skip the CertificateVerify message
-         * which can appear between CKE and CCS when mutual auth is enabled.
+         * Extended Master Secret or TLS 1.3 secrets when using psk_ke).
          */
-        if (msg_type != SSL_HND_CERT_VERIFY) {
-            ssl_calculate_handshake_hash(ssl, tvb, hs_offset, 4 + length);
-        }
+        ssl_calculate_handshake_hash(ssl, tvb, hs_offset, 4 + length, msg_type);
 
         /* now dissect the handshake message, if necessary */
         switch ((HandshakeType) msg_type) {
@@ -3195,6 +3192,11 @@ dissect_tls_handshake_full(tvbuff_t *tvb, packet_info *pinfo,
                  * Cannot call tls13_change_key here with TLS_SECRET_HANDSHAKE
                  * since the server may not agree on using TLS 1.3. If
                  * early_data is advertised, it must be TLS 1.3 though.
+                 *
+                 * XXX - If we want to calculate the key from a PSK, it might
+                 * be better to do it now. There's a rare possibility that the
+                 * Server Hello could be received before the first 0RTT-APPDATA,
+                 * which would throw off the handshake transcript hash.
                  */
                 if (ssl) {
                     tls_save_crandom(ssl, &ssl_master_key_map);
@@ -3211,6 +3213,10 @@ dissect_tls_handshake_full(tvbuff_t *tvb, packet_info *pinfo,
                         offset, offset + length, session, ssl, false, is_hrr);
                 if (ssl) {
                     ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
+                    if (ssl->has_psk && !ssl->has_key_share) {
+                        // Server negotiated psk_ke; load the PSK if have one.
+                        tls_load_psk(ssl, ssl_options.psk);
+                    }
                     /* Create client and server decoders for TLS 1.3.
                      * Create client decoder based on HS secret only if there is
                      * no early data, or if there is no decryptable early data. */

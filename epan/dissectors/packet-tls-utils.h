@@ -564,6 +564,8 @@ typedef struct _SslDecryptSession {
     StringInfo app_data_segment;
     SslSession session;
     bool       has_early_data;
+    bool       has_psk;
+    bool       has_key_share;
     StringInfo ech_transcript;
 
 } SslDecryptSession;
@@ -828,6 +830,9 @@ ssl_common_cleanup(ssl_master_key_map_t *master_key_map, FILE **ssl_keylog_file,
 WS_DLL_PUBLIC ssl_master_key_map_t *
 tls_get_master_key_map(bool load_secrets);
 
+extern bool
+tls_load_psk(SslDecryptSession *tls_session, const char *tls_psk);
+
 /* Process lines from the TLS key log and populate the secrets map. */
 extern void
 tls_keylog_process_lines(const ssl_master_key_map_t *mk_map, const uint8_t *data, unsigned len);
@@ -883,7 +888,7 @@ ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
                     bool is_dtls, uint16_t version);
 
 extern void
-ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, uint32_t offset, uint32_t length);
+ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, uint32_t offset, uint32_t length, uint8_t msg_type);
 
 /* common header fields, subtrees and expert info for SSL and DTLS dissectors */
 typedef struct ssl_common_dissect {

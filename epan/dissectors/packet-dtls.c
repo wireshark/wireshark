@@ -1483,7 +1483,9 @@ dtls13_decrypt_early_data(tvbuff_t *tvb, packet_info *pinfo, uint32_t hdr_off, u
   ssl_debug_printf("Trying early data encryption, first record / trial decryption: %s\n",
                   !(ssl->state & SSL_SEEN_0RTT_APPDATA) ? "true" : "false");
 
-
+  // Early data is used with a PSK. (The early secret is computed w/o
+  // input from the (EC)DHE even if psk_dhe_ke is used.)
+  tls_load_psk(ssl, dtls_options.psk);
   secret = tls13_load_secret(ssl, tls_get_master_key_map(true), false, TLS_SECRET_0RTT_APP);
   if (!secret) {
       ssl_debug_printf("Missing secrets, early data decryption not possible!\n");
@@ -2158,29 +2160,30 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
          * Add handshake message (including type, length, etc.) to hash (for
          * Extended Master Secret). The computation must however happen as if
          * the message was sent in a single fragment (RFC 6347, section 4.2.6).
-         *
-         * Skip CertificateVerify since the handshake hash covers just
-         * ClientHello up to and including ClientKeyExchange, but the keys are
-         * actually retrieved in ChangeCipherSpec (which comes after that).
          */
-        if (msg_type != SSL_HND_CERT_VERIFY) {
-          if (fragment_offset == 0) {
-            /* Unfragmented packet. */
-            ssl_calculate_handshake_hash(ssl, tvb, hs_offset, 12 + fragment_length);
-          } else {
-            /*
-             * Handshake message was fragmented over multiple messages, fake a
-             * single fragment and add reassembled data.
-             */
-            /* msg_type (1), length (3), message_seq (2) */
-            ssl_calculate_handshake_hash(ssl, tvb, hs_offset, 6);
-            /* fragment_offset (3) equals to zero. */
-            ssl_calculate_handshake_hash(ssl, NULL, 0, 3);
-            /* fragment_length (3) equals to length. */
-            ssl_calculate_handshake_hash(ssl, tvb, hs_offset + 1, 3);
-            /* actual handshake data */
-            ssl_calculate_handshake_hash(ssl, sub_tvb, 0, length);
-          }
+        /* XXX - DTLS 1.3's handshake transcript has the same format as TLS 1.3
+         * and lacks the DTLS specific fields (fragment info), unlike DTLS 1.2.
+         * However, at the point of the ClientHello we don't know the version
+         * the server will accept, which poses a problem. We might need to save
+         * the transcript in the 1.2 format and then fix it up when 1.3 is
+         * negotiated.
+         */
+        if (fragment_offset == 0) {
+          /* Unfragmented packet. */
+          ssl_calculate_handshake_hash(ssl, tvb, hs_offset, 12 + fragment_length, msg_type);
+        } else {
+          /*
+           * Handshake message was fragmented over multiple messages, fake a
+           * single fragment and add reassembled data.
+           */
+          /* msg_type (1), length (3), message_seq (2) */
+          ssl_calculate_handshake_hash(ssl, tvb, hs_offset, 6, msg_type);
+          /* fragment_offset (3) equals to zero. */
+          ssl_calculate_handshake_hash(ssl, NULL, 0, 3, msg_type);
+          /* fragment_length (3) equals to length. */
+          ssl_calculate_handshake_hash(ssl, tvb, hs_offset + 1, 3, msg_type);
+          /* actual handshake data */
+          ssl_calculate_handshake_hash(ssl, sub_tvb, 0, length, msg_type);
         }
 
         /* now dissect the handshake message, if necessary */
@@ -2214,6 +2217,12 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
             ssl_dissect_hnd_srv_hello(&dissect_dtls_hf, sub_tvb, pinfo, ssl_hand_tree,
                                       0, length, session, ssl, true, is_hrr);
+            if (ssl) {
+              if (ssl->has_psk && !ssl->has_key_share) {
+                // Server negotiated psk_ke; load the PSK if we have one.
+                tls_load_psk(ssl, dtls_options.psk);
+              }
+            }
             break;
 
           case SSL_HND_HELLO_VERIFY_REQUEST:
