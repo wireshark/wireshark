@@ -829,15 +829,7 @@ QColor ThemeManager::graphDefaultColor() const
 
 qsizetype ThemeManager::graphColorCount() const
 {
-    auto size = graphColors_.size();
-    // Qt 5 and Qt 6 have different return types for QList::size(), so we need to cast it to
-    // the appropriate type based on the Qt version we're using. Using qsizetype as return
-    // type in any case to avoid future changes when we eventually drop Qt 5 support.
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-        return static_cast<qsizetype>(size);
-#else
-        return size;
-#endif
+    return graphColors_.size();
 }
 
 bool ThemeManager::colorIsAvailable(const ThemeManager::ThemeToken role) const

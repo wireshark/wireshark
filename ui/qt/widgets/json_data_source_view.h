@@ -25,11 +25,7 @@ class QTextLayout;
  */
 struct TextLine {
     QString line;             /**< The raw text content of this line. */
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
-    QList<QTextLayout::FormatRange>   fmt_list; /**< List of format ranges applied to this line for syntax or style highlighting (Qt 6+). */
-#else
-    QVector<QTextLayout::FormatRange> fmt_list; /**< Vector of format ranges applied to this line for syntax or style highlighting (Qt 5). */
-#endif
+    QList<QTextLayout::FormatRange>   fmt_list; /**< List of format ranges applied to this line for syntax or style highlighting. */
     int highlight_start;  /**< Start position (in characters) of the active search or selection highlight within this line. */
     int highlight_length; /**< Length in characters of the active search or selection highlight; 0 if no highlight. */
     int kv_start;         /**< Start position (in characters) of the key-value pair span within this line. */

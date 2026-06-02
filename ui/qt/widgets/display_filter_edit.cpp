@@ -895,11 +895,7 @@ void DisplayFilterEdit::createFilterTextDropMenu(QDropEvent *event, bool prepare
     QMenu * applyMenu = FilterAction::createFilterMenu(filterAct, filterText, true, this);
     applyMenu->setAttribute(Qt::WA_DeleteOnClose);
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
     applyMenu->popup(this->mapToGlobal(event->position().toPoint()));
-#else
-    applyMenu->popup(this->mapToGlobal(event->pos()));
-#endif
 }
 
 void DisplayFilterEdit::displayFilterExpression()

@@ -47,9 +47,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QKeyCombination>
-#endif
 #include <QKeyEvent>
 #include <QKeySequence>
 #include <QList>

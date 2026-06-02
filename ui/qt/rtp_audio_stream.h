@@ -31,11 +31,7 @@
 #include <QAudioOutput>
 
 class QAudioFormat;
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
 class QAudioSink;
-#else
-class QAudioOutput;
-#endif
 class QIODevice;
 
 
@@ -113,19 +109,11 @@ public:
      */
     void setAudioRouting(AudioRouting audio_routing);
 
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     /**
      * @brief Decodes the audio stream using the specified output device.
      * @param out_device The audio output device.
      */
     void decode(QAudioDevice out_device);
-#else
-    /**
-     * @brief Decodes the audio stream using the specified output device info.
-     * @param out_device The audio output device info.
-     */
-    void decode(QAudioDeviceInfo out_device);
-#endif
 
     /**
      * @brief Decodes the stream data for visualization.
@@ -313,21 +301,12 @@ public:
      */
     void setStartPlayTime(double start_play_time) { start_play_time_ = start_play_time; }
 
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     /**
      * @brief Prepares the stream for playback on the specified device.
      * @param out_device The audio device to use.
      * @return True if preparation succeeds, false otherwise.
      */
     bool prepareForPlay(QAudioDevice out_device);
-#else
-    /**
-     * @brief Prepares the stream for playback on the specified device info.
-     * @param out_device The audio device info to use.
-     * @return True if preparation succeeds, false otherwise.
-     */
-    bool prepareForPlay(QAudioDeviceInfo out_device);
-#endif
 
     /**
      * @brief Starts playing the audio stream.
@@ -549,7 +528,6 @@ private:
      */
     QString currentOutputDevice();
 
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     /** @brief Pointer to the audio sink for output. */
     QAudioSink *audio_output_;
 
@@ -567,25 +545,6 @@ private:
      * @return The chosen output rate.
      */
     quint32 calculateAudioOutRate(QAudioDevice out_device, unsigned int sample_rate, unsigned int requested_out_rate);
-#else
-    /** @brief Pointer to the audio output for playback. */
-    QAudioOutput *audio_output_;
-
-    /**
-     * @brief Inner method to decode audio for the specified device info.
-     * @param out_device The target audio device info.
-     */
-    void decodeAudio(QAudioDeviceInfo out_device);
-
-    /**
-     * @brief Calculates the actual output rate based on device capabilities.
-     * @param out_device The target audio device info.
-     * @param sample_rate The original sample rate.
-     * @param requested_out_rate The requested sample rate.
-     * @return The chosen output rate.
-     */
-    quint32 calculateAudioOutRate(QAudioDeviceInfo out_device, unsigned int sample_rate, unsigned int requested_out_rate);
-#endif
 
     /**
      * @brief Resizes a sample buffer if needed.

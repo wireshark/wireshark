@@ -675,11 +675,7 @@ void FollowStreamDialog::keyPressEvent(QKeyEvent *event)
 // Causes buffer to detach/deep copy *only* if a character has to be
 // replaced.
 static inline void sanitize_buffer(QByteArray &buffer, size_t nchars) {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    for (int i = 0; i < (int)nchars; i++) {
-#else
     for (qsizetype i = 0; i < (qsizetype)nchars; i++) {
-#endif
         if (buffer.at(i) == '\n' || buffer.at(i) == '\r' || buffer.at(i) == '\t')
             continue;
         if (! g_ascii_isprint((unsigned char)buffer.at(i))) {

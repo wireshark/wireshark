@@ -54,11 +54,7 @@ Q_DECLARE_METATYPE(DataPrinter::DumpType)
 namespace {
 QPoint mouseGlobalPos(const QMouseEvent *event)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     return event->globalPosition().toPoint();
-#else
-    return event->globalPos();
-#endif
 }
 } // namespace
 

@@ -728,20 +728,12 @@ void DecodeAsModel::gatherChangedEntries(const char *table_name,
     case FT_UINT16:
     case FT_UINT24:
     case FT_UINT32:
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         model->changed_uint_entries_.emplaceBack(table_name, GPOINTER_TO_UINT(key), dissector_handle_get_pref_suffix(current));
-#else
-        model->changed_uint_entries_ << UIntEntry(table_name, GPOINTER_TO_UINT(key), dissector_handle_get_pref_suffix(current));
-#endif
         break;
     case FT_NONE:
         //need to reset dissector table, so this needs to be in a changed list,
         //might as well be the uint one.
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         model->changed_uint_entries_.emplaceBack(table_name, 0, "");
-#else
-        model->changed_uint_entries_ << UIntEntry(table_name, 0, "");
-#endif
         break;
 
     case FT_STRING:

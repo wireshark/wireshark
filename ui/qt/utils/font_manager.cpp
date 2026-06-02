@@ -295,11 +295,6 @@ QFont FontManager::guaranteeMonospace(const QFont &font)
 
     cleanFont.setStyle(QFont::StyleNormal);
 
-#if defined(Q_OS_WIN) && QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    // On Windows with Qt 5 the system font sizes render smaller than ideal.
-    cleanFont.setPixelSize(cleanFont.pointSize() + 2);
-#endif
-
     return cleanFont;
 }
 

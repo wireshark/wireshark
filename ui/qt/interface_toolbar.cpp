@@ -278,11 +278,7 @@ QWidget *InterfaceToolbar::createSelector(iface_toolbar_control *control)
         default_list_[control->num].append(interface_value);
     }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     connect(combobox, &QComboBox::currentIndexChanged, this, &InterfaceToolbar::onComboBoxChanged);
-#else
-    connect(combobox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &InterfaceToolbar::onComboBoxChanged);
-#endif
 
     ui->leftLayout->addWidget(label);
     ui->leftLayout->addWidget(combobox);

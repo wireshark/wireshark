@@ -58,7 +58,7 @@ void DetachableTabWidget::detachTab(int tabIdx, QPoint pos)
     QString name = tabText(tabIdx);
 
     QWidget * contentWidget = widget(tabIdx);
-    
+
     /* For the widget to properly show in the dialog, it has to be
      * removed properly and unhidden. QTabWidget uses a QStackedWidget for
      * all parents of widgets. So we remove it from it's own parent and then
@@ -203,10 +203,6 @@ void DragDropTabBar::dragEnterEvent(QDragEnterEvent *event)
 
 void DragDropTabBar::dropEvent(QDropEvent *event)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     _dragDropPos = event->position().toPoint();
-#else
-    _dragDropPos = event->pos();
-#endif
     QTabBar::dropEvent(event);
 }

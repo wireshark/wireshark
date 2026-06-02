@@ -95,13 +95,8 @@ BluetoothHciSummaryDialog::BluetoothHciSummaryDialog(QWidget &parent, CaptureFil
     connect(ui->tableTreeWidget, &QTreeWidget::itemExpanded, this, &BluetoothHciSummaryDialog::tableItemExpanded);
     connect(ui->tableTreeWidget, &QTreeWidget::itemCollapsed, this, &BluetoothHciSummaryDialog::tableItemCollapsed);
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     connect(ui->interfaceComboBox, &QComboBox::currentIndexChanged, this, &BluetoothHciSummaryDialog::interfaceCurrentIndexChanged);
     connect(ui->adapterComboBox, &QComboBox::currentIndexChanged, this, &BluetoothHciSummaryDialog::adapterCurrentIndexChanged);
-#else
-    connect(ui->interfaceComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &BluetoothHciSummaryDialog::interfaceCurrentIndexChanged);
-    connect(ui->adapterComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &BluetoothHciSummaryDialog::adapterCurrentIndexChanged);
-#endif
     connect(ui->displayFilterLineEdit, &DisplayFilterEdit::returnPressed, this, &BluetoothHciSummaryDialog::displayFilterLineEditAccepted);
     connect(ui->resultsFilterLineEdit, &QLineEdit::textChanged, this, &BluetoothHciSummaryDialog::resultsFilterLineEditChanged);
 

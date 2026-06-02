@@ -152,11 +152,7 @@ void JsonDataSourceView::paintEvent(QPaintEvent *)
             layout_->clearLayout();
             layout_->clearFormats();
             layout_->setText(text_line.line);
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
             QList<QTextLayout::FormatRange> fmt_list(text_line.fmt_list);
-#else
-            QVector<QTextLayout::FormatRange> fmt_list(text_line.fmt_list);
-#endif
             if (selected_line_ == &text_line || hovered_line_ == &text_line) {
                 QTextLayout::FormatRange format_range;
                 format_range.start = text_line.highlight_start;
@@ -313,11 +309,7 @@ void JsonDataSourceView::updateLayoutMetrics()
 
 int JsonDataSourceView::stringWidth(const QString &line)
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
     return viewport()->fontMetrics().horizontalAdvance(line);
-#else
-    return viewport()->fontMetrics().boundingRect(line).width();
-#endif
 }
 
 void JsonDataSourceView::updateScrollbars()
@@ -378,11 +370,7 @@ bool JsonDataSourceView::addJsonObject()
         break;
     }
 
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     QList<jsmntok_t> tokens;
-#else
-    QVector<jsmntok_t> tokens;
-#endif
     QList<jsmntok_t *> parents;
     bool new_line = false;
     QString indent;

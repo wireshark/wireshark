@@ -77,11 +77,7 @@ AStringListListModel(parent)
         return;
     }
     QTextStream ReadFile_authors(&f_authors);
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     ReadFile_authors.setEncoding(QStringConverter::Utf8);
-#else
-    ReadFile_authors.setCodec("UTF-8");
-#endif
 
     while (!ReadFile_authors.atEnd()) {
         QString line = ReadFile_authors.readLine();

@@ -65,13 +65,8 @@ ManufDialog::ManufDialog(QWidget &parent, CaptureFile &cf) :
     QPushButton *copy_button = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ApplyRole);
     connect(copy_button, &QPushButton::clicked, this, &ManufDialog::copyToClipboard);
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     connect(ui->radioButtonGroup, &QButtonGroup::buttonClicked, this, &ManufDialog::on_searchToggled);
     connect(ui->radioButtonGroup, &QButtonGroup::buttonClicked, this, &ManufDialog::on_editingFinished);
-#else
-    connect(ui->radioButtonGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &ManufDialog::on_searchToggled);
-    connect(ui->radioButtonGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &ManufDialog::on_editingFinished);
-#endif
 #if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
     connect(ui->checkShortNameButton, &QCheckBox::checkStateChanged, this, &ManufDialog::shortNameStateChanged);
 #else

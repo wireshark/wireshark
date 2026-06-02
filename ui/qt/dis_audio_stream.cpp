@@ -24,16 +24,10 @@
 
 #include "ui/rtp_media.h"
 
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
 #include <QAudioDevice>
 #include <QAudioFormat>
 #include <QAudioSink>
 #include <QMediaDevices>
-#else
-#include <QAudioDeviceInfo>
-#include <QAudioFormat>
-#include <QAudioOutput>
-#endif
 
 static bool
 map_dis_payload_to_rtp_codec(uint8_t dis_payload_type, unsigned *rtp_payload_type,
@@ -63,7 +57,6 @@ map_dis_payload_to_rtp_codec(uint8_t dis_payload_type, unsigned *rtp_payload_typ
     }
 }
 
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
 static QByteArray
 resample_int16_mono(const QByteArray &src_pcm, unsigned in_rate, unsigned out_rate, unsigned out_channels)
 {
@@ -146,7 +139,6 @@ convert_int16_pcm_to_format(const QByteArray &src_pcm, QAudioFormat::SampleForma
         return QByteArray();
     }
 }
-#endif
 
 DisAudioStream::DisAudioStream(QObject *parent) :
     QObject(parent),
@@ -381,7 +373,6 @@ DisAudioStream::playDisStream(const disstream_info_t *stream_info, QString &erro
     total_playback_secs_ = (sample_rate_ > 0 && channels_ > 0)
         ? (double)playback_pcm.size() / (SAMPLE_BYTES * channels_ * sample_rate_)
         : 0.0;
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     format.setSampleFormat(QAudioFormat::Int16);
     QAudioDevice output_device = QMediaDevices::defaultAudioOutput();
 
@@ -411,19 +402,6 @@ DisAudioStream::playDisStream(const disstream_info_t *stream_info, QString &erro
 
     audio_sink_ = new QAudioSink(output_device, format, this);
     connect(audio_sink_, &QAudioSink::stateChanged, this, &DisAudioStream::onPlaybackStateChanged);
-#else
-    format.setSampleSize(SAMPLE_BYTES * 8);
-    format.setSampleType(QAudioFormat::SignedInt);
-    format.setCodec("audio/pcm");
-    QAudioDeviceInfo output_device = QAudioDeviceInfo::defaultOutputDevice();
-
-    if (!output_device.isFormatSupported(format)) {
-        format = output_device.nearestFormat(format);
-    }
-
-    audio_sink_ = new QAudioOutput(output_device, format, this);
-    connect(audio_sink_, &QAudioOutput::stateChanged, this, &DisAudioStream::onPlaybackStateChanged);
-#endif
 
     playback_buffer_ = new QBuffer(this);
     playback_buffer_->setData(playback_pcm);
@@ -455,11 +433,7 @@ DisAudioStream::stopPlayback(bool call_stop)
     }
 
     if (audio_sink_) {
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
         disconnect(audio_sink_, &QAudioSink::stateChanged, this, &DisAudioStream::onPlaybackStateChanged);
-#else
-        disconnect(audio_sink_, &QAudioOutput::stateChanged, this, &DisAudioStream::onPlaybackStateChanged);
-#endif
         if (call_stop && (audio_sink_->state() == QAudio::ActiveState || audio_sink_->state() == QAudio::SuspendedState)) {
             audio_sink_->stop();
         }

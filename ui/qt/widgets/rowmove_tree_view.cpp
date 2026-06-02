@@ -48,11 +48,7 @@ void RowMoveTreeView::dropEvent(QDropEvent *event)
             return;
         }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         QModelIndex destIndex = indexAt(event->position().toPoint());
-#else
-        QModelIndex destIndex = indexAt(event->pos());
-#endif
         if (!destIndex.isValid() || destIndex.row() == -1) {
             destIndex = model()->index(model()->rowCount() - 1, 0);
         }

@@ -206,13 +206,12 @@ void PacketListModel::invalidateAllColumnStrings()
     // of what roles changed and the other signals do not; in practice,
     // neither QTreeView::dataChanged nor QAbstractItemView::dataChanged
     // actually use the roles parameter, and just reset everything.
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     emit layoutAboutToBeChanged();
-#endif
     PacketListRecord::invalidateAllRecords();
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     emit layoutChanged();
-#else
+#if 0
+    // TODO: Check to see if Qt 6.9.0 is faster with the old approach now that
+    // QTBUG-124173 is fixed, here and in the other functions.
     emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1),
             QVector<int>() << Qt::DisplayRole);
 #endif
@@ -220,16 +219,13 @@ void PacketListModel::invalidateAllColumnStrings()
 
 void PacketListModel::resetColumns()
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     emit layoutAboutToBeChanged();
-#endif
     if (cap_file_) {
         PacketListRecord::resetColumns(&cap_file_->cinfo);
     }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     emit layoutChanged();
-#else
+#if 0
     emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 #endif
     emit headerDataChanged(Qt::Horizontal, 0, columnCount() - 1);
@@ -237,13 +233,10 @@ void PacketListModel::resetColumns()
 
 void PacketListModel::resetColorized()
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     emit layoutAboutToBeChanged();
-#endif
     PacketListRecord::resetColorization();
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     emit layoutChanged();
-#else
+#if 0
     emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1),
             QVector<int>() << Qt::BackgroundRole << Qt::ForegroundRole);
 #endif
@@ -280,9 +273,7 @@ void PacketListModel::toggleFrameMark(const QModelIndexList &indeces)
 
 void PacketListModel::setDisplayedFrameMark(bool set)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     emit layoutAboutToBeChanged();
-#endif
     foreach (PacketListRecord *record, visible_rows_) {
         if (set) {
             cf_mark_frame(cap_file_, record->frameData());
@@ -290,9 +281,8 @@ void PacketListModel::setDisplayedFrameMark(bool set)
             cf_unmark_frame(cap_file_, record->frameData());
         }
     }
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     emit layoutChanged();
-#else
+#if 0
     emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1),
             QVector<int>() << Qt::BackgroundRole << Qt::ForegroundRole);
 #endif
@@ -329,9 +319,7 @@ void PacketListModel::toggleFrameIgnore(const QModelIndexList &indeces)
 
 void PacketListModel::setDisplayedFrameIgnore(bool set)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     emit layoutAboutToBeChanged();
-#endif
     foreach (PacketListRecord *record, visible_rows_) {
         if (set) {
             cf_ignore_frame(cap_file_, record->frameData());
@@ -339,9 +327,8 @@ void PacketListModel::setDisplayedFrameIgnore(bool set)
             cf_unignore_frame(cap_file_, record->frameData());
         }
     }
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     emit layoutChanged();
-#else
+#if 0
     emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1),
             QVector<int>() << Qt::BackgroundRole << Qt::ForegroundRole << Qt::DisplayRole);
 #endif
@@ -357,9 +344,7 @@ void PacketListModel::toggleFrameRefTime(const QModelIndex &rt_index)
     frame_data *fdata = record->frameData();
     if (!fdata) return;
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     emit layoutAboutToBeChanged();
-#endif
     if (fdata->ref_time) {
         fdata->ref_time=0;
         cap_file_->ref_time_count--;
@@ -372,7 +357,10 @@ void PacketListModel::toggleFrameRefTime(const QModelIndex &rt_index)
         cap_file_->displayed_count--;
     }
     record->resetColumns(&cap_file_->cinfo);
+    emit layoutChanged();
+#if 0
     emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+#endif
 }
 
 void PacketListModel::unsetAllFrameRefTime()
@@ -381,6 +369,7 @@ void PacketListModel::unsetAllFrameRefTime()
 
     /* XXX: we might need a progressbar here */
 
+    emit layoutAboutToBeChanged();
     foreach (PacketListRecord *record, physical_rows_) {
         frame_data *fdata = record->frameData();
         if (fdata->ref_time) {
@@ -390,9 +379,8 @@ void PacketListModel::unsetAllFrameRefTime()
     cap_file_->ref_time_count = 0;
     cf_reftime_packets(cap_file_);
     PacketListRecord::resetColumns(&cap_file_->cinfo);
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     emit layoutChanged();
-#else
+#if 0
     emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 #endif
 }

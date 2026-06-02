@@ -18,13 +18,6 @@
 
 #include <QFutureWatcher>
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-/* Qt6 introduces QPromise interface that makes it possible to add tree entries
- * protocol by protocol instead of all at once.
- */
-#define DISPLAY_FILTER_EXPRESSION_DIALOG_USE_QPROMISE
-#endif
-
 class QTreeWidgetItem;
 struct true_false_string;
 struct _value_string;
@@ -61,13 +54,11 @@ signals:
     void insertDisplayFilter(const QString &filter);
 
 private slots:
-#ifdef DISPLAY_FILTER_EXPRESSION_DIALOG_USE_QPROMISE
     /**
      * @brief Slot to handle adding a tree item asynchronously (if QPromise is used).
      * @param result The result identifier or payload.
      */
     void addTreeItem(int result);
-#endif
 
     /**
      * @brief Slot to populate the field tree widget with available protocols and fields.
@@ -111,13 +102,8 @@ private slots:
     void on_buttonBox_helpRequested();
 
 private:
-#ifdef DISPLAY_FILTER_EXPRESSION_DIALOG_USE_QPROMISE
     /** Watcher for asynchronous operations returning a single tree widget item. */
     QFutureWatcher<QTreeWidgetItem *> *watcher;
-#else
-    /** Watcher for asynchronous operations returning a list of tree widget items. */
-    QFutureWatcher<QList<QTreeWidgetItem *> *> *watcher;
-#endif
 
     /** Pointer to the generated UI elements. */
     Ui::DisplayFilterExpressionDialog *ui;

@@ -146,11 +146,7 @@ const QKeySequence kLuaDbgCtxRemoveAllBreakpoints(QKeySequence(Qt::CTRL | Qt::SH
 
 QKeySequence luaDbgSeqFromKeyEvent(const QKeyEvent *ke)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     return QKeySequence(QKeyCombination(ke->modifiers(), static_cast<Qt::Key>(ke->key())));
-#else
-    return QKeySequence(ke->key() | ke->modifiers());
-#endif
 }
 
 /* ===== path_utils ===== */

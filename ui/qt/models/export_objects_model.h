@@ -50,19 +50,11 @@ public:
     bool operator==(const ExportObjectEntry &other) const {
         return eo_entry_equal(entry, other.entry);
     }
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    /**
-     * @brief Retrieves the payload data for the entry.
-     * @return A QByteArray containing the payload data.
-     */
-    QByteArray Data() const { return entry ? QByteArray::fromRawData(reinterpret_cast<const char*>(entry->payload_data), entry->payload_len) : QByteArray(); }
-#else
     /**
      * @brief Retrieves the payload data view for the entry.
      * @return A QByteArrayView containing the payload data.
      */
     QByteArrayView Data() const { return entry ? QByteArrayView(entry->payload_data, entry->payload_len) : QByteArrayView(); }
-#endif
     /**
      * @brief Retrieves the packet number associated with the entry.
      * @return The packet number.

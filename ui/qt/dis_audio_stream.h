@@ -24,11 +24,7 @@
 
 class QBuffer;
 class QTimer;
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
 class QAudioSink;
-#else
-class QAudioOutput;
-#endif
 
 class DisAudioStream : public QObject
 {
@@ -73,11 +69,7 @@ private slots:
 private:
     QByteArray pcm_buffer_;
     QBuffer *playback_buffer_;
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     QAudioSink *audio_sink_;
-#else
-    QAudioOutput *audio_sink_;
-#endif
     QTimer *progress_timer_;
     unsigned sample_rate_;
     unsigned channels_;

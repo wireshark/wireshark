@@ -39,14 +39,10 @@
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QAudio>
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
 #include <algorithm>
 #include <QAudioDevice>
 #include <QAudioSink>
 #include <QMediaDevices>
-#else
-#include <QAudioDeviceInfo>
-#endif
 #include <QFrame>
 #include <QMenu>
 #include <QVBoxLayout>
@@ -169,9 +165,7 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
     , datetime_ticker_(new QCPAxisTickerDateTime)
     , stereo_available_(false)
     , marker_stream_(0)
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     , notify_timer_start_diff_(0)
-#endif
     , marker_stream_requested_out_rate_(0)
     , last_ti_(0)
     , listener_removed_(true)
@@ -233,10 +227,8 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
     drawStartPlayMarker();
     start_marker_pos_->setVisible(true);
 
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     notify_timer_.setInterval(100); // ~15 fps
     connect(&notify_timer_, &QTimer::timeout, this, &RtpPlayerDialog::outputNotify);
-#endif
 
     datetime_ticker_->setDateTimeFormat("yyyy-MM-dd\nhh:mm:ss.zzz");
 
@@ -286,21 +278,12 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
 
     // Ordered, unique device names starting with the system default
     QMap<QString, bool> out_device_map; // true == default device
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     out_device_map.insert(QMediaDevices::defaultAudioOutput().description(), true);
     foreach (QAudioDevice out_device, QMediaDevices::audioOutputs()) {
         if (!out_device_map.contains(out_device.description())) {
             out_device_map.insert(out_device.description(), false);
         }
     }
-#else
-    out_device_map.insert(QAudioDeviceInfo::defaultOutputDevice().deviceName(), true);
-    foreach (QAudioDeviceInfo out_device, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
-        if (!out_device_map.contains(out_device.deviceName())) {
-            out_device_map.insert(out_device.deviceName(), false);
-        }
-    }
-#endif
 
     ui->outputDeviceComboBox->blockSignals(true);
     foreach (QString out_name, out_device_map.keys()) {
@@ -491,11 +474,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
     ui->hintLabel->setText("<i><small>" + tr("Decoding streams…") + "</i></small>");
     mainApp->processEvents();
 
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     QAudioDevice cur_out_device = getCurrentDeviceInfo();
-#else
-    QAudioDeviceInfo cur_out_device = getCurrentDeviceInfo();
-#endif
     int row_count = ui->streamTreeWidget->topLevelItemCount();
 
     // Reset stream values
@@ -1433,11 +1412,7 @@ void RtpPlayerDialog::on_playButton_clicked()
         start_time = start_marker_time_play_ - first_stream_rel_start_time_;
     }
 
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     QAudioDevice cur_out_device = getCurrentDeviceInfo();
-#else
-    QAudioDeviceInfo cur_out_device = getCurrentDeviceInfo();
-#endif
     playing_streams_.clear();
     int row_count = ui->streamTreeWidget->topLevelItemCount();
     for (int row = 0; row < row_count; row++) {
@@ -1458,9 +1433,7 @@ void RtpPlayerDialog::on_playButton_clicked()
     }
 
     // Start progress marker and then audio streams
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     notify_timer_start_diff_ = -1;
-#endif
     marker_stream_->start(new AudioSilenceGenerator(marker_stream_));
     // It may happen that stream play is finished before all others are started
     // therefore we do not use playing_streams_ there, but separate temporarily
@@ -1473,7 +1446,6 @@ void RtpPlayerDialog::on_playButton_clicked()
     updateWidgets();
 }
 
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
 QAudioDevice RtpPlayerDialog::getCurrentDeviceInfo()
 {
     QAudioDevice cur_out_device = QMediaDevices::defaultAudioOutput();
@@ -1495,22 +1467,7 @@ void RtpPlayerDialog::sinkStateChanged()
         notify_timer_.stop();
     }
 }
-#else
-QAudioDeviceInfo RtpPlayerDialog::getCurrentDeviceInfo()
-{
-    QAudioDeviceInfo cur_out_device = QAudioDeviceInfo::defaultOutputDevice();
-    QString cur_out_name = currentOutputDeviceName();
-    foreach (QAudioDeviceInfo out_device, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
-        if (cur_out_name == out_device.deviceName()) {
-            cur_out_device = out_device;
-        }
-    }
 
-    return cur_out_device;
-}
-#endif
-
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
 QAudioSink *RtpPlayerDialog::getSilenceAudioOutput()
 {
     QAudioDevice cur_out_device = getCurrentDeviceInfo();
@@ -1532,33 +1489,6 @@ QAudioSink *RtpPlayerDialog::getSilenceAudioOutput()
     connect(sink, &QAudioSink::stateChanged, this, &RtpPlayerDialog::sinkStateChanged);
     return sink;
 }
-#else
-QAudioOutput *RtpPlayerDialog::getSilenceAudioOutput()
-{
-    QAudioOutput *o;
-    QAudioDeviceInfo cur_out_device = getCurrentDeviceInfo();
-
-    QAudioFormat format;
-    if (marker_stream_requested_out_rate_ > 0) {
-        format.setSampleRate(marker_stream_requested_out_rate_);
-    } else {
-        format.setSampleRate(8000);
-    }
-    format.setSampleSize(SAMPLE_BYTES * 8); // bits
-    format.setSampleType(QAudioFormat::SignedInt);
-    format.setChannelCount(1);
-    format.setCodec("audio/pcm");
-    if (!cur_out_device.isFormatSupported(format)) {
-        format = cur_out_device.nearestFormat(format);
-    }
-
-    o = new QAudioOutput(cur_out_device, format, this);
-    o->setNotifyInterval(100); // ~15 fps
-    connect(o, &QAudioOutput::notify, this, &RtpPlayerDialog::outputNotify);
-
-    return o;
-}
-#endif
 
 void RtpPlayerDialog::outputNotify()
 {
@@ -1566,14 +1496,12 @@ void RtpPlayerDialog::outputNotify()
     double current_pos = 0.0;
     qint64 usecs = marker_stream_->processedUSecs();
 
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     // First notify can show end of buffer, not play point so we have
     // remember the shift
     if ( -1 == notify_timer_start_diff_ || 0 == notify_timer_start_diff_) {
       notify_timer_start_diff_ = usecs;
     }
     usecs -= notify_timer_start_diff_;
-#endif
     double secs = usecs / 1000000.0;
 
     if (ui->skipSilenceButton->isChecked() && !playing_streams_.isEmpty()) {
@@ -1992,7 +1920,6 @@ void RtpPlayerDialog::fillAudioRateMenu()
     ui->outputAudioRate->blockSignals(true);
     ui->outputAudioRate->clear();
     ui->outputAudioRate->addItem(tr("Automatic"));
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     // XXX QAudioDevice doesn't provide supportedSampleRates(). Fake it with
     // what's available.
     QAudioDevice cur_out_device = getCurrentDeviceInfo();
@@ -2027,15 +1954,6 @@ void RtpPlayerDialog::fillAudioRateMenu()
     for (auto rate : sorter) {
         ui->outputAudioRate->addItem(QString::number(rate));
     }
-#else
-    QAudioDeviceInfo cur_out_device = getCurrentDeviceInfo();
-
-    if (!cur_out_device.isNull()) {
-        foreach (int rate, cur_out_device.supportedSampleRates()) {
-            ui->outputAudioRate->addItem(QString::number(rate));
-        }
-    }
-#endif
     ui->outputAudioRate->blockSignals(false);
 }
 
@@ -2220,19 +2138,10 @@ void RtpPlayerDialog::formatAudioRouting(QTreeWidgetItem *ti, AudioRouting audio
 
 bool RtpPlayerDialog::isStereoAvailable()
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     QAudioDevice cur_out_device = getCurrentDeviceInfo();
     if (cur_out_device.maximumChannelCount() > 1) {
         return true;
     }
-#else
-    QAudioDeviceInfo cur_out_device = getCurrentDeviceInfo();
-    foreach(int count, cur_out_device.supportedChannelCounts()) {
-        if (count > 1) {
-            return true;
-        }
-    }
-#endif
 
     return false;
 }

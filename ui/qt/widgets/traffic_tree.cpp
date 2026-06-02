@@ -339,7 +339,6 @@ bool TrafficDataFilterProxy::filterAcceptsRow(int source_row, const QModelIndex 
             /* QVariant comparisons coerce to the first parameter type, so
              * putting data first and converting the string to it is important.
              */
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
             /* QVariant::compare coerces strings to numeric types, but does
              * not try to automatically convert them to datetime related types.
              */
@@ -368,79 +367,6 @@ bool TrafficDataFilterProxy::filterAcceptsRow(int source_row, const QModelIndex 
                 filtered = result > 0;
             else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL)
                 filtered = result == 0;
-#else
-            /* The comparisons are deprecated in 5.15. This is most of the
-             * implementation of QAbstractItemModelPrivate::isVariantLessThan
-             * from the Qt source.
-             */
-            if (_filterText.isEmpty())
-                filtered = true;
-            else if (data.isNull())
-                filtered = false;
-            else {
-                switch (data.userType()) {
-                case QMetaType::Int:
-                case QMetaType::UInt:
-                case QMetaType::LongLong:
-                    if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_LESS)
-                        filtered = data.toLongLong() < _filterText.toLongLong();
-                    else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_GREATER)
-                        filtered = data.toLongLong() > _filterText.toLongLong();
-                    else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL)
-                        filtered = data.toLongLong() == _filterText.toLongLong();
-                    break;
-                case QMetaType::Float:
-                case QMetaType::Double:
-                    if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_LESS)
-                        filtered = data.toDouble() < _filterText.toDouble();
-                    else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_GREATER)
-                        filtered = data.toDouble() > _filterText.toDouble();
-                    else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL)
-                        filtered = data.toDouble() == _filterText.toDouble();
-                    break;
-                case QMetaType::QDateTime:
-                {
-                    /* Try to parse with a date included, and fall back to time
-                     * only if that fails.
-                     */
-                    QDateTime filter_dt = QDateTime::fromString(_filterText, Qt::ISODateWithMs);
-                    if (filter_dt.isValid()) {
-                        if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_LESS)
-                            filtered = data.toDateTime() < filter_dt;
-                        else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_GREATER)
-                            filtered = data.toDateTime() > filter_dt;
-                        else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL)
-                            filtered = data.toDateTime() == filter_dt;
-                        break;
-                    }
-                }
-                /* FALLTHROUGH */
-                case QMetaType::QTime:
-                {
-                    QTime filter_t = QTime::fromString(_filterText, Qt::ISODateWithMs);
-                    if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_LESS)
-                        filtered = data.toTime() < filter_t;
-                    else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_GREATER)
-                        filtered = data.toTime() > filter_t;
-                    else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL)
-                        filtered = data.toTime() == filter_t;
-                    break;
-                }
-                case QMetaType::QString:
-                default:
-                    /* XXX: We don't do UTF-8 aware coallating in Packet List
-                     * (because it's slow), but possibly could here.
-                     */
-                    if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_LESS)
-                        filtered = data.toString() < _filterText;
-                    else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_GREATER)
-                        filtered = data.toString() > _filterText;
-                    else if (_filterOn == TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL)
-                        filtered = data.toString() == _filterText;
-                    break;
-                }
-            }
-#endif
 
             if (!filtered)
                 return false;
@@ -864,11 +790,7 @@ void TrafficTree::widenColumnToContents(int col)
 
 
 void TrafficTree::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    const QVector<int>
-#else
     const QList<int>
-#endif
     )
 {
     for (int col = topLeft.column(); col <= bottomRight.column(); ++col) {

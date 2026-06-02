@@ -150,11 +150,7 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     connect(proto_tree_, SIGNAL(editProtocolPreference(pref_t*,module_t*)),
             this, SIGNAL(editProtocolPreference(pref_t*,module_t*)));
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    connect(ui->layoutComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &PacketDialog::layoutChanged);
-#else
     connect(ui->layoutComboBox, &QComboBox::currentIndexChanged, this, &PacketDialog::layoutChanged, Qt::AutoConnection);
-#endif
 #if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
     connect(ui->chkShowByteView, &QCheckBox::checkStateChanged, this, &PacketDialog::viewVisibilityStateChanged);
 #else

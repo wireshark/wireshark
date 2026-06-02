@@ -207,12 +207,7 @@ QString join_lines(const QString multiline_string) {
 }
 
 void smooth_font_size(QFont &font) {
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     QList<int> size_list = QFontDatabase::smoothSizes(font.family(), font.styleName());
-#else
-    QFontDatabase fdb;
-    QList<int> size_list = fdb.smoothSizes(font.family(), font.styleName());
-#endif
 
     if (size_list.size() < 2) return;
 

@@ -64,15 +64,8 @@ public:
         return scaledPixmap(size, mode, state, 1.0);
     }
 
-    // QIconEngine::scaledPixmap() became a virtual in Qt 6; on Qt 5 it is a
-    // plain helper that paint()/pixmap() below still call directly.
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QPixmap scaledPixmap(const QSize &size, QIcon::Mode mode, QIcon::State /*state*/,
                          qreal scale) override
-#else
-    QPixmap scaledPixmap(const QSize &size, QIcon::Mode mode, QIcon::State /*state*/,
-                         qreal scale)
-#endif
     {
         const QColor color = modeColor(mode);
         const QSize logical = (size.isValid() && !size.isEmpty()) ? size : size_;

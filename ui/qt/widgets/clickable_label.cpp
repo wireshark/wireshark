@@ -36,11 +36,7 @@ void ClickableLabel::mouseReleaseEvent(QMouseEvent * event)
 void ClickableLabel::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)
         emit clickedAt(event->globalPosition().toPoint(), Qt::LeftButton);
-#else
-        emit clickedAt(event->globalPos(), Qt::LeftButton);
-#endif
 }
 
 void ClickableLabel::contextMenuEvent(QContextMenuEvent *event)

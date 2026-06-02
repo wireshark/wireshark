@@ -1031,11 +1031,7 @@ void LineNumberArea::mouseReleaseEvent(QMouseEvent *event)
     if (richBp)
     {
         QPoint globalPos =
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
             event->globalPosition().toPoint();
-#else
-            event->globalPos();
-#endif
         emit codeEditor->breakpointGutterMenuRequested(codeEditor->filename, lineNo, globalPos);
     }
     else

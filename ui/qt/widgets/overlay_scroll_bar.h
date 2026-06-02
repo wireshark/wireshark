@@ -153,12 +153,10 @@ private:
     /** Height of a single row. */
     int row_height_;
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 1, 0)
     /**
      * @brief Updates the style of the child scrollbar.
      */
     void updateChildStyle();
-#endif
 };
 
 #endif // __OVERLAY_SCROLL_BAR_H__

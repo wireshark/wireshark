@@ -160,11 +160,7 @@ QWidget * ExtArgSelector::createEditor(QWidget * parent)
         connect(reloadButton, &QPushButton::clicked, this, &ExtArgSelector::onReloadTriggered);
     }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     connect (boxSelection, &QComboBox::currentIndexChanged, this, &ExtArgSelector::onIntChanged);
-#else
-    connect (boxSelection, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ExtArgSelector::onIntChanged);
-#endif
 
     editor->setLayout(layout);
 

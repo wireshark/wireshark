@@ -29,11 +29,7 @@ ManufTableItem::ManufTableItem(struct ws_manuf *ptr) :
             ws_assert_not_reached();
     }
     // Note: since 'ptr' is not stable, a deep copy is needed.
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     block_bytes_ = QByteArray(reinterpret_cast<const char *>(ptr->block), size);
-#else
-    block_bytes_ = QByteArray(reinterpret_cast<const char *>(ptr->block), static_cast<int>(size));
-#endif
 
     char buf[64];
     block_name_ = QString::fromUtf8(ws_manuf_block_str(buf, sizeof(buf), ptr));
@@ -202,11 +198,7 @@ static bool match_filter(const QByteArray &bytes, const QByteArray &mac_block)
     if (bytes.size() < mac_block.size())
         return mac_block.startsWith(bytes);
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QByteArray prefix = bytes.first(mac_block.size());
-#else
-    QByteArray prefix = bytes.left(mac_block.size());
-#endif
     // Blocks are 3, 4 or 5 bytes wide
     if (mac_block.size() > 3) {
         // Mask out the last nibble of the bytes for 28 and 36 bit block lengths

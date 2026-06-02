@@ -1024,7 +1024,7 @@ void PacketList::focusInEvent(QFocusEvent *event)
                     setCurrentIndex(first);
                 }
             }
-            
+
             // ALWAYS scroll to the current index if we have one
             if (currentIndex().isValid()) {
                 scrollTo(currentIndex());
@@ -1095,11 +1095,7 @@ void PacketList::setRecentColumnWidth(int col)
         // Custom delegate padding
         if (itemDelegateForColumn(col)) {
             QStyleOptionViewItem option;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
             initViewItemOption(&option);
-#else
-            option = viewOptions();
-#endif
             // This is adding "how much width hinted for an empty index, plus
             // the decoration, plus any padding between the decoration and
             // normal display?" Many styles however have a non zero hint for

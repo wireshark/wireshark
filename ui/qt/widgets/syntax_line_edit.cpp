@@ -530,11 +530,7 @@ QStringList SyntaxLineEdit::splitLineUnderCursor()
     QPoint token_coords(getTokenUnderCursor());
 
     // Split line into preamble and word under cursor.
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     QString preamble = text().first(token_coords.x()).trimmed();
-#else
-    QString preamble = text().mid(0, token_coords.x()).trimmed();
-#endif
     // This should be trimmed already
     QString token_word = text().mid(token_coords.x(), token_coords.y());
 

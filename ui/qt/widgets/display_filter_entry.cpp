@@ -276,11 +276,7 @@ void DisplayFilterEntry::createFilterTextDropMenu(QDropEvent *event, bool prepar
     FilterAction::Action filterAct = prepare ? FilterAction::ActionPrepare : FilterAction::ActionApply;
     QMenu *applyMenu = FilterAction::createFilterMenu(filterAct, filterText, true, this);
     applyMenu->setAttribute(Qt::WA_DeleteOnClose);
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     applyMenu->popup(mapToGlobal(event->position().toPoint()));
-#else
-    applyMenu->popup(mapToGlobal(event->pos()));
-#endif
 }
 
 void DisplayFilterEntry::contextMenuEvent(QContextMenuEvent *event)

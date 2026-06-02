@@ -181,11 +181,7 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     ui->addressComboBox->addItem(tr("Network"), QVariant(false));
     ui->addressComboBox->setCurrentIndex(ui->addressComboBox->findData(QVariant(true)));
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    connect(ui->addressComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SequenceDialog::addressChanged);
-#else
     connect(ui->addressComboBox, &QComboBox::currentIndexChanged, this, &SequenceDialog::addressChanged);
-#endif
 
     sequence_items_t item_data;
 

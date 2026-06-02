@@ -207,11 +207,7 @@ QModelIndex FilterListModel::addFilter(QString name, QString expression)
         return QModelIndex();
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     storage.emplace_back(name, expression);
-#else
-    storage << FilterListValue(name, expression);
-#endif
     endInsertRows();
 
     return index(rowCount() - 1, 0);

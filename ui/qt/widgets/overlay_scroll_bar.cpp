@@ -17,10 +17,8 @@
 #include <QResizeEvent>
 #include <QStyleOptionSlider>
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 1, 0)
 #include <QApplication>
 #include <QStyleFactory>
-#endif
 
 // To do:
 // - We could graph something useful (e.g. delay times) in packet_map_img_.
@@ -77,11 +75,7 @@ OverlayScrollBar::OverlayScrollBar(Qt::Orientation orientation, QWidget *parent)
     setStyle(style_);
 
     child_style_ = new OsbProxyStyle();
-#if QT_VERSION >= QT_VERSION_CHECK(6, 1, 0)
     updateChildStyle();
-#else
-    child_sb_.setStyle(child_style_);
-#endif
     child_sb_.raise();
     child_sb_.installEventFilter(this);
 
@@ -241,11 +235,9 @@ bool OverlayScrollBar::eventFilter(QObject *watched, QEvent *event)
             painter.drawImage(groove_rect.left(), groove_rect.top(), marked_map);
         }
     }
-#if QT_VERSION >= QT_VERSION_CHECK(6, 1, 0)
     else if (event->type() == QEvent::ApplicationPaletteChange) {
         updateChildStyle();
     }
-#endif
 
     return ret;
 }
@@ -269,10 +261,8 @@ void OverlayScrollBar::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 1, 0)
 void OverlayScrollBar::updateChildStyle()
 {
     child_style_->setBaseStyle(QStyleFactory::create(qApp->style()->name()));
     child_sb_.setStyle(child_style_);
 }
-#endif

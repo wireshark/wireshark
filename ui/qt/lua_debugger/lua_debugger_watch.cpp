@@ -120,11 +120,7 @@ void LuaDbgWatchTreeWidget::dragMoveEvent(QDragMoveEvent *event)
     {
         return;
     }
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     const QPoint pos = event->position().toPoint();
-#else
-    const QPoint pos = event->pos();
-#endif
     const QModelIndex idx = indexAt(pos);
     if (idx.isValid() && idx.parent().isValid())
     {
@@ -139,11 +135,7 @@ void LuaDbgWatchTreeWidget::dropEvent(QDropEvent *event)
     {
         return;
     }
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     const QPoint pos = event->position().toPoint();
-#else
-    const QPoint pos = event->pos();
-#endif
     const QModelIndex raw = indexAt(pos);
     if (raw.isValid() && raw.parent().isValid())
     {
@@ -194,11 +186,7 @@ void LuaDbgWatchTreeWidget::mouseDoubleClickEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
     {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         const QPoint pos = event->position().toPoint();
-#else
-        const QPoint pos = event->pos();
-#endif
         if (!indexAt(pos).isValid())
         {
             emit requestNewRow();

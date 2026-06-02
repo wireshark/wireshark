@@ -59,16 +59,10 @@ static inline bool compareTreeWidgetItems(const QTreeWidgetItem *it1, const QTre
     return *it1 < *it2;
 }
 
-#ifdef DISPLAY_FILTER_EXPRESSION_DIALOG_USE_QPROMISE
 static void generateProtocolTreeItems(QPromise<QTreeWidgetItem *> &promise)
 {
     QList<QTreeWidgetItem *> proto_list;
     QList<QTreeWidgetItem *> *ptr_proto_list = &proto_list;
-#else
-static QList<QTreeWidgetItem *> *generateProtocolTreeItems()
-{
-    QList<QTreeWidgetItem *> *ptr_proto_list = new QList<QTreeWidgetItem *>();
-#endif
 
     void *proto_cookie;
     for (int proto_id = proto_get_first_protocol(&proto_cookie); proto_id != -1;
@@ -86,13 +80,11 @@ static QList<QTreeWidgetItem *> *generateProtocolTreeItems()
     std::stable_sort(ptr_proto_list->begin(), ptr_proto_list->end(), compareTreeWidgetItems);
 
     foreach (QTreeWidgetItem *proto_ti, *ptr_proto_list) {
-#ifdef DISPLAY_FILTER_EXPRESSION_DIALOG_USE_QPROMISE
         if (promise.isCanceled()) {
             delete proto_ti;
             continue;
         }
         promise.suspendIfRequested();
-#endif
         void *field_cookie;
         int proto_id = proto_ti->data(0, Qt::UserRole).toInt();
 
@@ -109,23 +101,14 @@ static QList<QTreeWidgetItem *> *generateProtocolTreeItems()
         }
         std::stable_sort(field_list.begin(), field_list.end(), compareTreeWidgetItems);
         proto_ti->addChildren(field_list);
-#ifdef DISPLAY_FILTER_EXPRESSION_DIALOG_USE_QPROMISE
         if (!promise.addResult(proto_ti))
             delete proto_ti;
     }
-#else
-    }
-    return ptr_proto_list;
-#endif
 }
 
 DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
     GeometryStateDialog(parent),
-#ifdef DISPLAY_FILTER_EXPRESSION_DIALOG_USE_QPROMISE
     watcher(new QFutureWatcher<QTreeWidgetItem *>(nullptr)),
-#else
-    watcher(new QFutureWatcher<QList<QTreeWidgetItem *> *>(nullptr)),
-#endif
     ui(new Ui::DisplayFilterExpressionDialog),
     ftype_(FT_NONE),
     field_(NULL)
@@ -172,20 +155,8 @@ DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
     updateWidgets();
     ui->searchLineEdit->setReadOnly(true);
 
-#ifdef DISPLAY_FILTER_EXPRESSION_DIALOG_USE_QPROMISE
     connect(watcher, &QFutureWatcher<QTreeWidgetItem *>::resultReadyAt, this, &DisplayFilterExpressionDialog::addTreeItem);
     connect(watcher, &QFutureWatcher<QTreeWidgetItem *>::finished, this, &DisplayFilterExpressionDialog::fillTree);
-#else
-    connect(watcher, &QFutureWatcher<QList<QTreeWidgetItem *> *>::finished, this, &DisplayFilterExpressionDialog::fillTree);
-    // If window is closed before future finishes, DisplayFilterExpressionDialog fillTree slot won't run
-    // Register lambda to free up the list container and tree entries (if not consumed by fillTree())
-    auto captured_watcher = this->watcher;
-    connect(watcher, &QFutureWatcher<QList<QTreeWidgetItem *> *>::finished, [captured_watcher]() {
-        QList<QTreeWidgetItem *> *items = captured_watcher->future().result();
-        qDeleteAll(*items);
-        delete items;
-    });
-#endif
     watcher->setFuture(future);
 }
 
@@ -193,32 +164,22 @@ DisplayFilterExpressionDialog::~DisplayFilterExpressionDialog()
 {
     if (watcher)
     {
-#ifdef DISPLAY_FILTER_EXPRESSION_DIALOG_USE_QPROMISE
         watcher->future().cancel();
         qDeleteAll(watcher->future().results());
-#endif
         watcher->waitForFinished();
         watcher->deleteLater();
     }
     delete ui;
 }
 
-#ifdef DISPLAY_FILTER_EXPRESSION_DIALOG_USE_QPROMISE
 void DisplayFilterExpressionDialog::addTreeItem(int result)
 {
     QTreeWidgetItem *item = watcher->future().resultAt(result);
     ui->fieldTreeWidget->invisibleRootItem()->addChild(item);
 }
-#endif
 
 void DisplayFilterExpressionDialog::fillTree()
 {
-#ifndef DISPLAY_FILTER_EXPRESSION_DIALOG_USE_QPROMISE
-    QList<QTreeWidgetItem *> *items = watcher->future().result();
-    ui->fieldTreeWidget->invisibleRootItem()->addChildren(*items);
-    // fieldTreeWidget now owns all items
-    items->clear();
-#endif
     watcher->deleteLater();
     watcher = nullptr;
 

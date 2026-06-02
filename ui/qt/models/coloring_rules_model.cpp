@@ -349,21 +349,13 @@ bool ColoringRulesModel::setData(const QModelIndex &dataIndex, const QVariant &v
         }
         break;
     case Qt::BackgroundRole:
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
         if (!value.canConvert<QColor>())
-#else
-        if (!value.canConvert(QVariant::Color))
-#endif
             return false;
 
         rule->background_ = QColor(value.toString());
         break;
     case Qt::ForegroundRole:
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
         if (!value.canConvert<QColor>())
-#else
-        if (!value.canConvert(QVariant::Color))
-#endif
             return false;
 
         rule->foreground_ = QColor(value.toString());
