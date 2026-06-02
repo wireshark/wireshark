@@ -2584,8 +2584,10 @@ dissect_ipv6_type(tvbuff_t *tvb, packet_info *pinfo _U_,
                             tvb, offset, 1, ENC_NA);
         offset++;
 
-        if (addr_count == 0)
+        if (addr_count == 0) {
+            entry_index++;
             continue;
+        }
 
         addr_list = proto_tree_add_subtree(ipv6_tree, tvb, offset,
                                         addr_count * 9,
