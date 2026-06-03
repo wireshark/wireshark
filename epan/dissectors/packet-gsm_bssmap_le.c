@@ -19,6 +19,8 @@
 #include <epan/tap.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
+#include <wsutil/str_util.h>
+#include <wsutil/utf8_entities.h>
 #include "packet-bssap.h"
 #include "packet-gsm_a_common.h"
 
@@ -27,11 +29,13 @@ void proto_reg_handoff_gsm_bssmap_le(void);
 
 /* PROTOTYPES/FORWARDS */
 
-/* Message Type definitions */
+/* Table 10.1 Message Type definitions */
 #define BSSMAP_LE_PERFORM_LOCATION_REQUEST              43
 #define BSSMAP_LE_PERFORM_LOCATION_RESPONSE             45
 #define BSSMAP_LE_PERFORM_LOCATION_ABORT                46
 #define BSSMAP_LE_PERFORM_LOCATION_INFORMATION          47
+#define BSSMAP_LE_ASSISTANCE_INFORMATION_REQUEST        32
+#define BSSMAP_LE_ASSISTANCE_INFORMATION_RESPONSE       33
 #define BSSMAP_LE_CONNECTION_ORIENTED_INFORMATION       42
 #define BSSMAP_LE_CONNECTIONLESS_INFORMATION            58
 #define BSSMAP_LE_RESET                                 48
@@ -47,6 +51,8 @@ static const value_string gsm_bssmap_le_msg_strings[] = {
 	{ BSSMAP_LE_PERFORM_LOCATION_RESPONSE,	     "Perform Location Response" },
 	{ BSSMAP_LE_PERFORM_LOCATION_ABORT,	     "Perform Location Abort" },
 	{ BSSMAP_LE_PERFORM_LOCATION_INFORMATION,    "Perform Location Information" },
+	{ BSSMAP_LE_ASSISTANCE_INFORMATION_REQUEST,  "Assistance Information Request" },
+	{ BSSMAP_LE_ASSISTANCE_INFORMATION_RESPONSE, "Assistance Information Response" },
 	{ BSSMAP_LE_CONNECTION_ORIENTED_INFORMATION, "Connection Oriented Information" },
 	{ BSSMAP_LE_CONNECTIONLESS_INFORMATION,	     "Connectionless Information" },
 	{ BSSMAP_LE_RESET,			     "Reset" },
@@ -54,7 +60,7 @@ static const value_string gsm_bssmap_le_msg_strings[] = {
 	{ 0, NULL }
 };
 
-/* Information Element definitions */
+/* Table 10.2 Information Element definitions */
 #define BSSMAP_LE_LCS_QOS                                    62
 #define BSSMAP_LE_LCS_PRIORITY                               67
 #define BSSMAP_LE_LOCATION_TYPE                              68
@@ -85,6 +91,19 @@ static const value_string gsm_bssmap_le_msg_strings[] = {
 #define BSSMAP_LE_PACKET_MEASUREMENT_REPORT                  81
 #define BSSMAP_LE_CELL_IDENTITY_LIST                         82
 #define BSSMAP_LE_IMEI                                       128
+#define BSSMAP_LE_BSS_MULTILATERATION_CAPABILITY             132
+#define BSSMAP_LE_CELL_INFORMATION_LIST                      133
+#define BSSMAP_LE_BTS_RECEPTION_ACCURACY_LEVEL               134
+#define BSSMAP_LE_MULTILATERATION_POSITIONING_METHOD         135
+#define BSSMAP_LE_MULTILATERATION_TIMING_ADVANCE             136
+#define BSSMAP_LE_MS_SYNC_ACCURACY                           137
+#define BSSMAP_LE_SHORT_ID_SET                               138
+#define BSSMAP_LE_RANDOM_ID_SET                              139
+#define BSSMAP_LE_SHORT_BSS_ID                               140
+#define BSSMAP_LE_RANDOM_ID                                  141
+#define BSSMAP_LE_SHORT_ID                                   142
+#define BSSMAP_LE_COVERAGE_CLASS                             143
+#define BSSMAP_LE_MTA_ACCESS_SECURITY_REQUIRED               144
 
 static const value_string gsm_bssmap_le_elem_strings[] = {
 	{ DE_BMAPLE_LCSQOS,		"LCS QoS" },
@@ -117,8 +136,23 @@ static const value_string gsm_bssmap_le_elem_strings[] = {
 	{ DE_BMAPLE_PACKET_MEAS_REP,	"Packet Measurement Report" },
 	{ DE_BMAPLE_MEAS_CELL_ID,	"Cell Identity List" },
 	{ DE_BMAPLE_IMEI,		"IMEI" },
+	{ DE_BMAPLE_BSS_MLAT_CAP,	"BSS Multilateration Capability" },
+	{ DE_BMAPLE_CELL_INFO_LIST,	"Cell Information List" },
+	{ DE_BMAPLE_BTS_REC_ACC,	"BTS Reception Accuracy Level" },
+	{ DE_BMAPLE_MLAT_POS_METHOD,	"Multilateration Positioning Method" },
+	{ DE_BMAPLE_MLAT_TIMING_ADV,	"Multilateration Timing Advance" },
+	{ DE_BMAPLE_MS_SYNC_ACC,	"MS Sync Accuracy" },
+	{ DE_BMAPLE_SHORT_ID_SET,	"Short ID Set" },
+	{ DE_BMAPLE_RANDOM_ID_SET,	"Random ID Set" },
+	{ DE_BMAPLE_SHORT_BSS_ID,	"Short BSS ID" },
+	{ DE_BMAPLE_RANDOM_ID,		"Random ID" },
+	{ DE_BMAPLE_SHORT_ID,		"Short ID" },
+	{ DE_BMAPLE_COVERAGE_CLASS,	"Coverage Class" },
+	{ DE_BMAPLE_MTA_ACC_SEC_REQ,	"MTA Access Security Required" },
 	{ 0, NULL }
 };
+/* Using the DE_ values from the enum for the value string ensures that these
+ * are sorted in numerical order, unlike the values from Table 10.2 */
 value_string_ext gsm_bssmap_le_elem_strings_ext = VALUE_STRING_EXT_INIT(gsm_bssmap_le_elem_strings);
 
 static const value_string gsm_apdu_protocol_id_strings[] = {
@@ -252,7 +286,17 @@ static int hf_gsm_bssmap_le_pos_method;
 static int hf_gsm_bssmap_le_pos_data_disc;
 static int hf_gsm_bssmap_le_pos_data_pos_method;
 static int hf_gsm_bssmap_le_pos_data_usage;
-
+static int hf_gsm_bssmap_le_bts_rec_acc;
+static int hf_gsm_bssmap_le_tar;
+static int hf_gsm_bssmap_le_mpm_timer;
+static int hf_gsm_bssmap_le_mpm;
+static int hf_gsm_bssmap_le_fmi;
+static int hf_gsm_bssmap_le_mta;
+static int hf_gsm_bssmap_le_ms_sync_acc;
+static int hf_gsm_bssmap_le_random_id;
+static int hf_gsm_bssmap_le_short_id;
+static int hf_gsm_bssmap_le_coverage_class_dl;
+static int hf_gsm_bssmap_le_coverage_class_ul;
 
 /* Initialize the subtree pointers */
 static int ett_bssmap_le_msg;
@@ -728,6 +772,293 @@ be_measured_cell_identity(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, u
  * 10.33 GANSS Location Type
  */
 
+/*
+ * 10.34 BSS Multilateration Capability
+ */
+/* Dissector for the BSS Multilateration Capability element */
+static uint16_t
+de_bmaple_bss_mlat_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_le_not_decoded_yet, tvb, offset, len);
+	return len;
+}
+
+/*
+ * 10.35 Cell Information List
+ */
+/* Dissector for the Cell Information List element */
+static uint16_t
+de_bmaple_cell_info_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_le_not_decoded_yet, tvb, offset, len);
+	return len;
+}
+
+/*
+ * 10.36 BTS Reception Accuracy Level
+ */
+
+static const value_string bssmap_le_bts_rec_acc_vals[] = {
+	{ 0, "BTS Rec. Acc < 1/32 of a symbol period" },
+	{ 1, "1/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 1/16 of a symbol period" },
+	{ 2, "1/16 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 3/32 of a symbol period" },
+	{ 3, "3/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 1/8 of a symbol period" },
+	{ 4, "1/8 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 5/32 of a symbol period" },
+	{ 5, "5/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 3/16 of a symbol period" },
+	{ 6, "3/16 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 7/32 of a symbol period" },
+	{ 7, "7/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 1/4 of a symbol period" },
+	{ 8, "1/4 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 9/32 of a symbol period" },
+	{ 9, "9/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 5/16 of a symbol period" },
+	{ 10, "5/16 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 11/32 of a symbol period" },
+	{ 11, "11/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 3/8 of a symbol period" },
+	{ 12, "3/8 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 13/32 of a symbol period" },
+	{ 13, "13/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 7/16 of a symbol period" },
+	{ 14, "7/16 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 15/32 of a symbol period" },
+	{ 15, "15/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 1/2 of a symbol period" },
+	{ 16, "1/2 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 17/32 of a symbol period" },
+	{ 17, "17/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 9/16 of a symbol period" },
+	{ 18, "9/16 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 19/32 of a symbol period" },
+	{ 19, "19/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 5/8 of a symbol period" },
+	{ 20, "5/8 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 21/32 of a symbol period" },
+	{ 21, "21/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 11/16 of a symbol period" },
+	{ 22, "11/16 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 23/32 of a symbol period" },
+	{ 23, "23/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 3/4 of a symbol period" },
+	{ 24, "3/4 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 25/32 of a symbol period" },
+	{ 25, "25/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 13/16 of a symbol period" },
+	{ 26, "13/16 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 27/32 of a symbol period" },
+	{ 27, "27/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 7/8 of a symbol period" },
+	{ 28, "7/8 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 29/32 of a symbol period" },
+	{ 29, "29/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 15/16 of a symbol period" },
+	{ 30, "15/16 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 31/32 of a symbol period" },
+	{ 31, "31/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " BTS Rec. Acc < 1 symbol period" },
+	{ 0, NULL}
+};
+
+/* Dissector for the BTS Reception Accuracy Level element */
+static uint16_t
+de_bmaple_bts_rec_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_spare, tvb, offset << 3, 3, ENC_NA);
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_bts_rec_acc, tvb, offset, 1, ENC_NA);
+
+	return 1;
+}
+
+/*
+ * 10.37 Multilateration Positioning Method
+ */
+static const value_string bssmap_le_mpm_vals[] = {
+	{ 0, "RLC Data Block method trigger" },
+	{ 1, "Access Burst method triggered" },
+	{ 2, "Extended Access Burst method triggered"},
+	{ 3, "reserved"},
+	{ 0, NULL}
+};
+
+static const value_string bssmap_le_mpm_timer_vals[] = {
+	{ 0, "2 seconds" },
+	{ 1, "4 seconds" },
+	{ 2, "6 seconds" },
+	{ 3, "8 seconds" },
+	{ 4, "10 seconds" },
+	{ 5, "15 seconds" },
+	{ 6, "20 seconds" },
+	{ 7, "25 seconds" },
+	{ 0, NULL}
+};
+
+/* Dissector for the Multilateration Positioning Method element */
+static uint16_t
+de_bmaple_mlat_pos_method(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_spare, tvb, offset << 3, 2, ENC_NA);
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_tar, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_mpm_timer, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_mpm, tvb, offset, 1, ENC_NA);
+
+	return 1;
+}
+
+/*
+ * 10.38 Multilateration Timing Advance
+ */
+static const value_string bssmap_le_fmi_vals[] = {
+	{ 0, "MTA information valid - additional MTA information pending" },
+	{ 1, "MTA information valid - SMLC shall terminate MTA procedure" },
+	{ 2, "MTA information not valid - SMLC shall terminate MTA procedure" },
+	{ 3, "Reserved"},
+	{ 0, NULL}
+};
+
+static const crumb_spec_t bssmap_le_mta_crumbs[] = {
+	{ 4, 8 },
+	{ 0, 4 },
+	{ 0, 0 }
+};
+
+static void format_mta(char *label, uint32_t val)
+{
+	float symbols = (float)val / 64;
+	snprintf(label, ITEM_LABEL_LENGTH, "%u (%g symbol period%s)", val, symbols, plurality(symbols, "", "s"));
+
+}
+
+/* Dissector for the Multilateration Timing Advance element */
+static uint16_t
+de_bmaple_mlat_timing_adv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
+{
+	uint32_t	bit_offset;
+
+	bit_offset = offset << 3;
+
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_fmi, tvb, offset, 1, ENC_NA);
+	bit_offset += 2;
+	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_spare, tvb, bit_offset, 2, ENC_NA);
+	bit_offset += 2;
+	/* The bitmap looks a bit odd because the low bits are in the earlier
+	 * octet. */
+	proto_tree_add_split_bits_item_ret_val(tree, hf_gsm_bssmap_le_mta, tvb, bit_offset, bssmap_le_mta_crumbs, NULL);
+
+	return 2;
+}
+
+/*
+ * 10.39 MS Sync Accuracy
+ */
+
+static const value_string bssmap_le_ms_sync_acc_vals[] = {
+	{ 0, "MS Sync. Acc < 1/32 of a symbol period" },
+	{ 1, "1/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " MS Sync. Acc < 1/16 of a symbol period" },
+	{ 2, "1/16 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " MS Sync. Acc < 3/32 of a symbol period" },
+	{ 3, "3/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " MS Sync. Acc < 1/8 of a symbol period" },
+	{ 4, "1/8 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " MS Sync. Acc < 5/32 of a symbol period" },
+	{ 5, "5/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " MS Sync. Acc < 3/16 of a symbol period" },
+	{ 6, "3/16 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " MS Sync. Acc < 7/32 of a symbol period" },
+	{ 7, "7/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " MS Sync. Acc < 1/4 of a symbol period" },
+	{ 8, "1/4 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " MS Sync. Acc < 9/32 of a symbol period" },
+	{ 9, "9/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " MS Sync. Acc < 5/16 of a symbol period" },
+	{ 10, "5/16 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " MS Sync. Acc < 11/32 of a symbol period" },
+	{ 11, "11/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " MS Sync. Acc < 3/8 of a symbol period" },
+	{ 12, "3/8 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " MS Sync. Acc < 13/32 of a symbol period" },
+	{ 13, "13/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " MS Sync. Acc < 7/16 of a symbol period" },
+	{ 14, "7/16 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " MS Sync. Acc < 15/32 of a symbol period" },
+	{ 15, "15/32 of a symbol period " UTF8_LESS_THAN_OR_EQUAL_TO " MS Sync. Acc < 1/2 of a symbol period" },
+	{ 0, NULL}
+};
+
+/* Dissector for the MS Sync Accuracy element */
+static uint16_t
+de_bmaple_ms_sync_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_spare, tvb, offset << 3, 4, ENC_NA);
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_ms_sync_acc, tvb, offset, 1, ENC_NA);
+
+	return 1;
+}
+
+/*
+ * 10.40 Short ID Set
+ */
+/* Dissector for the Short ID Set element */
+static uint16_t
+de_bmaple_short_id_set(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_le_not_decoded_yet, tvb, offset, len);
+	return len;
+}
+
+/*
+ * 10.41 Random ID Set
+ */
+/* Dissector for the Random ID Set element */
+static uint16_t
+de_bmaple_random_id_set(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_le_not_decoded_yet, tvb, offset, len);
+	return len;
+}
+
+/*
+ * 10.42 Short BSS ID
+ */
+/* Dissector for the Short BSS ID element */
+static uint16_t
+de_bmaple_short_bss_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_le_not_decoded_yet, tvb, offset, len);
+	return len;
+}
+
+/*
+ * 10.43 Random ID
+ */
+/* Dissector for the Random ID element */
+static uint16_t
+de_bmaple_random_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_random_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	return 2;
+}
+
+/*
+ * 10.44 Short ID
+ */
+/* Dissector for the Short ID element */
+static uint16_t
+de_bmaple_short_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_short_id, tvb, offset, 1, ENC_NA);
+	return 1;
+}
+
+/*
+ * 10.45 Coverage Class
+ */
+static const value_string bssmap_le_coverage_class_dl_vals[] = {
+	{ 0, "reserved" },
+	{ 1, "DL Coverage Class 1" },
+	{ 2, "DL Coverage Class 2" },
+	{ 3, "DL Coverage Class 3" },
+	{ 4, "DL Coverage Class 4" },
+	{ 5, "reserved" },
+	{ 6, "reserved" },
+	{ 7, "reserved" },
+	{ 0, NULL },
+};
+
+static const value_string bssmap_le_coverage_class_ul_vals[] = {
+	{ 0, "reserved" },
+	{ 1, "UL Coverage Class 1" },
+	{ 2, "UL Coverage Class 2" },
+	{ 3, "UL Coverage Class 3" },
+	{ 4, "UL Coverage Class 4" },
+	{ 5, "UL Coverage Class 5" },
+	{ 6, "reserved" },
+	{ 7, "reserved" },
+	{ 0, NULL },
+};
+
+/* Dissector for the Coverage Class element */
+static uint16_t
+de_bmaple_coverage_class(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_spare, tvb, offset << 3, 2, ENC_NA);
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_coverage_class_dl, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_coverage_class_ul, tvb, offset, 1, ENC_NA);
+
+	return 1;
+}
+
+/*
+ * 10.46 MTA Access Security Required
+ */
+/* Dissector for the MTA Access Security Required element */
+static uint16_t
+de_bmaple_mta_acc_sec_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_le_not_decoded_yet, tvb, offset, len);
+	return len;
+}
 
 #define	NUM_GSM_BSSMAP_LE_MSG array_length(gsm_bssmap_le_msg_strings)
 static int ett_gsm_bssmap_le_msg[NUM_GSM_BSSMAP_LE_MSG];
@@ -773,6 +1104,19 @@ typedef enum
 	DE_BMAPLE_PACKET_MEAS_REP,	/ Packet Measurement Report /
 	DE_BMAPLE_MEAS_CELL_ID,		/ Measured Cell Identity /
 	DE_BMAPLE_IMEI,				/ IMEI /
+	DE_BMAPLE_BSS_MLAT_CAP,         / 10.34 BSS Multilateration Capability /
+	DE_BMAPLE_CELL_INFO_LIST,       / 10.35 Cell Information List /
+	DE_BMAPLE_BTS_REC_ACC,          / 10.36 BTS Reception Accuracy Level /
+	DE_BMAPLE_MLAT_POS_METHOD,	/ 10.37 Multilateration Positioning Method /
+	DE_BMAPLE_MLAT_TIMING_ADV,	/ 10.38 Multilateration Timing Advance /
+	DE_BMAPLE_MS_SYNC_ACC,		/ 10.39 MS Sync Accuracy /
+	DE_BMAPLE_SHORT_ID_SET,		/ 10.40 Short ID Set /
+	DE_BMAPLE_RANDOM_ID_SET,	/ 10.41 Random ID Set /
+	DE_BMAPLE_SHORT_BSS_ID,		/ 10.42 Short BSS ID /
+	DE_BMAPLE_RANDOM_ID,		/ 10.43 Random ID /
+	DE_BMAPLE_SHORT_ID,		/ 10.44 Random ID /
+	DE_BMAPLE_COVERAGE_CLASS,	/ 10.45 Coverage Class /
+	DE_BMAPLE_MTA_ACC_SEC_REQ,	/ 10.46 MTA Access Security Required /
 	BMAPLE_NONE					/ NONE /
 }
 bssmap_le_elem_idx_t;
@@ -811,6 +1155,19 @@ uint16_t (* const bssmap_le_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_
 	be_packet_meas_rep,				/* Packet Measurement Report */
 	be_measured_cell_identity,		/* Measured Cell Identity List */
 	de_mid,							/* IMEI (use same dissector as IMSI) */
+	de_bmaple_bss_mlat_cap,			/* 10.34 BSS Multilateration Capability */
+	de_bmaple_cell_info_list,		/* 10.35 Cell Information List */
+	de_bmaple_bts_rec_acc,			/* 10.36 BTS Reception Accuracy Level */
+	de_bmaple_mlat_pos_method,		/* 10.37 Multilateration Positioning Method */
+	de_bmaple_mlat_timing_adv,		/* 10.38 Multilateration Timing Advance */
+	de_bmaple_ms_sync_acc,			/* 10.39 MS Sync Accuracy */
+	de_bmaple_short_id_set,			/* 10.40 Short ID Set */
+	de_bmaple_random_id_set,		/* 10.41 Random ID Set */
+	de_bmaple_short_bss_id,			/* 10.42 Short BSS ID */
+	de_bmaple_random_id,			/* 10.43 Random ID */
+	de_bmaple_short_id,			/* 10.44 Short ID */
+	de_bmaple_coverage_class,		/* 10.45 Coverage Class */
+	de_bmaple_mta_acc_sec_req,		/* 10.46 MTA Access Security Required */
 
 	NULL,	/* NONE */
 
@@ -861,6 +1218,19 @@ bssmap_le_perf_loc_request(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	ELEM_OPT_TLV(BSSMAP_LE_GANSS_LOCATION_TYPE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_GANSS_LOC_TYPE, NULL);
 	/* GANSS Assistance Data	9.1.15	C (note 5)	3-n */
 	ELEM_OPT_TLV(BSSMAP_LE_REQUESTED_GANSS_ASSISTANCE_DATA, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_REQ_GNSS_ASSIST_D, NULL);
+	/* Table 9.1 claims the next two IEs are TLV, but they are clearly
+	 * TV in the coding in section 10. Also MTA is TV in the connection
+	 * oriented message. */
+	/* BSS Multilateration Capability 9.1.16 C (note 3) 2 */
+	ELEM_OPT_TV(BSSMAP_LE_BSS_MULTILATERATION_CAPABILITY, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_BSS_MLAT_CAP, NULL);
+	/* Multilateration Timing Advance 9.1.17 C (note 2) 3 */
+	ELEM_OPT_TV(BSSMAP_LE_MULTILATERATION_TIMING_ADVANCE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_MLAT_TIMING_ADV, NULL);
+	/* MS Sync Accuracy 9.1.18 C (note 2) 2 */
+	ELEM_OPT_TV(BSSMAP_LE_MS_SYNC_ACCURACY, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_MS_SYNC_ACC, NULL);
+	/* BTS Reception Accuracy Level 9.1.19 C (note 3) 2 */
+	ELEM_OPT_TV(BSSMAP_LE_BTS_RECEPTION_ACCURACY_LEVEL, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_BTS_REC_ACC, NULL);
+	/* Coverage Class 9.1.20 C (note 2) 2 */
+	ELEM_OPT_TV(BSSMAP_LE_COVERAGE_CLASS, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_COVERAGE_CLASS, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_le_extraneous_data);
 
@@ -910,8 +1280,22 @@ bssmap_le_connection_oriented(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 
 	/* APDU 9.8.1 M 3-n */
 	ELEM_MAND_TLV_E(BSSMAP_LE_APDU, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL, ei_gsm_a_bssmap_le_missing_mandatory_element);
-	/* Segmentation 9.8.2 */
+	/* Segmentation 9.8.2 C 3 */
 	ELEM_OPT_TLV(BSSMAP_LE_SEGMENTATION, BSSAP_PDU_TYPE_BSSMAP, BE_SEG, NULL);
+	/* Multilateration Positioning Method 9.8.3 C (note 2) 2 */
+	ELEM_OPT_TV(BSSMAP_LE_MULTILATERATION_POSITIONING_METHOD, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_MLAT_POS_METHOD, NULL);
+	/* Cell Identifier 9.8.4 C (note 3) 7 */
+	ELEM_OPT_TLV(BSSMAP_LE_CELL_IDENTIFIER, BSSAP_PDU_TYPE_BSSMAP, BE_CELL_ID, NULL);
+	/* Multilateration Timing Advance 9.8.5 C (note 3) 3 */
+	ELEM_OPT_TV(BSSMAP_LE_MULTILATERATION_TIMING_ADVANCE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_MLAT_TIMING_ADV, NULL);
+	/* MS Sync Accuracy 9.8.6 C (note 4) 2 */
+	ELEM_OPT_TV(BSSMAP_LE_MS_SYNC_ACCURACY, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_MS_SYNC_ACC, NULL);
+	/* BTS Reception Accuracy Level 9.8.7 C (note 3) 2 */
+	ELEM_OPT_TV(BSSMAP_LE_BTS_RECEPTION_ACCURACY_LEVEL, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_BTS_REC_ACC, NULL);
+	/* Short ID 9.8.8 C (note 5) 2 */
+	ELEM_OPT_TV(BSSMAP_LE_SHORT_ID, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_SHORT_ID, NULL);
+	/* Random ID 9.8.9 C (note 4) 3 */
+	ELEM_OPT_TV(BSSMAP_LE_RANDOM_ID, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_RANDOM_ID, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_le_extraneous_data);
 }
@@ -953,6 +1337,23 @@ bssmap_le_perf_loc_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_le_extraneous_data);
 }
 
+/*
+ * 9.13 ASSISTANCE INFORMATION REQUEST
+ *
+Serving Cell Identifier	10.5	M	7
+Cell Identity List	10.28	M	2-n
+Short ID Set		10.40	O	2-n
+Random ID Set		10.41	O	19
+*/
+
+/*
+ * 9.13 ASSISTANCE INFORMATION RESPONSE
+ *
+Cell Information List		10.35	M	2-n
+Short BSS ID			10.42	C	2
+MTA Access Security Required	10.46	O	3
+*/
+
 static void (* const bssmap_le_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len) = {
 	NULL,
 	NULL,
@@ -963,6 +1364,8 @@ static void (* const bssmap_le_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packe
 	bssmap_le_perf_loc_resp,	/* Perform Location Response */
 	bssmap_perf_loc_abort,		/* Abort */
 	bssmap_le_perf_loc_info,	/* Perform Location Information */
+	NULL,				/* Assistance Information Request */
+	NULL,				/* Assistance Information Response */
 	bssmap_le_connection_oriented,	/* Connection Oriented Information */
 	NULL,						/* Connectionless Information */
 	bssmap_reset,				/* Reset */
@@ -1262,6 +1665,61 @@ proto_register_gsm_bssmap_le(void)
 		{ &hf_gsm_bssmap_le_pos_data_usage,
 		{ "Usage", "gsm_bssmap_le.pos_data.usage",
 			FT_UINT8, BASE_HEX, VALS(bssmap_le_pos_data_usage_vals), 0x03,
+			NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_bts_rec_acc,
+		{ "BTS Reception Accuracy", "gsm_bssmap_le.bts_rec_acc",
+			FT_UINT8, BASE_HEX, VALS(bssmap_le_bts_rec_acc_vals), 0x1F,
+			NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_tar,
+		{ "Timing Advance Information", "gsm_bssmap_le.tar",
+			FT_BOOLEAN, 8, TFS(&tfs_needed_not_needed), 0x20,
+			NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_mpm_timer,
+		{ "MPM Timer", "gsm_bssmap_le.mpm_timer",
+			FT_UINT8, BASE_HEX, VALS(bssmap_le_mpm_timer_vals), 0x1C,
+			NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_mpm,
+		{ "Multilateration Positioning Method", "gsm_bssmap_le.mpm",
+			FT_UINT8, BASE_HEX, VALS(bssmap_le_mpm_vals), 0x03,
+			NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_fmi,
+		{ "Final MTA Information", "gsm_bssmap_le.fmi",
+			FT_UINT8, BASE_HEX, VALS(bssmap_le_fmi_vals), 0xC0,
+			NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_mta,
+		{ "Multilateration Timing Advance", "gsm_bssmap_le.mta",
+			FT_UINT16, BASE_CUSTOM, CF_FUNC(format_mta), 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_ms_sync_acc,
+		{ "MS Sync Accuracy", "gsm_bssmap_le.ms_sync_acc",
+			FT_UINT8, BASE_HEX, VALS(bssmap_le_ms_sync_acc_vals), 0x0F,
+			NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_random_id,
+		{ "Random ID", "gsm_bssmap_le.random_id",
+			FT_UINT16, BASE_HEX, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_short_id,
+		{ "Short ID", "gsm_bssmap_le.short_id",
+			FT_UINT8, BASE_HEX, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_coverage_class_dl,
+		{ "DL Coverage Class", "gsm_bssmap_le.coverage_class.dl",
+			FT_UINT8, BASE_HEX, VALS(bssmap_le_coverage_class_dl_vals), 0x07,
+			NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_coverage_class_ul,
+		{ "UL Coverage Class", "gsm_bssmap_le.coverage_class.ul",
+			FT_UINT8, BASE_HEX, VALS(bssmap_le_coverage_class_ul_vals), 0x38,
 			NULL, HFILL }
 		},
 	};

@@ -1184,6 +1184,19 @@ typedef enum
     DE_BMAPLE_PACKET_MEAS_REP,  /* Packet Measurement Report */
     DE_BMAPLE_MEAS_CELL_ID,     /* Measured Cell Identity */
     DE_BMAPLE_IMEI,             /* IMEI */
+    DE_BMAPLE_BSS_MLAT_CAP,     /* 10.34 BSS Multilateration Capability */
+    DE_BMAPLE_CELL_INFO_LIST,   /* 10.35 Cell Information List */
+    DE_BMAPLE_BTS_REC_ACC,      /* 10.36 BTS Reception Accuracy Level */
+    DE_BMAPLE_MLAT_POS_METHOD,  /* 10.37 Multilateration Positioning Method */
+    DE_BMAPLE_MLAT_TIMING_ADV,  /* 10.38 Multilateration Timing Advance */
+    DE_BMAPLE_MS_SYNC_ACC,      /* 10.39 MS Sync Accuracy */
+    DE_BMAPLE_SHORT_ID_SET,     /* 10.40 Short ID Set */
+    DE_BMAPLE_RANDOM_ID_SET,    /* 10.41 Random ID Set */
+    DE_BMAPLE_SHORT_BSS_ID,     /* 10.42 Short BSS ID */
+    DE_BMAPLE_RANDOM_ID,        /* 10.43 Random ID */
+    DE_BMAPLE_SHORT_ID,         /* 10.44 Random ID */
+    DE_BMAPLE_COVERAGE_CLASS,   /* 10.45 Coverage Class */
+    DE_BMAPLE_MTA_ACC_SEC_REQ,  /* 10.46 MTA Access Security Required */
     BMAPLE_NONE                 /* NONE */
 }
 bssmap_le_elem_idx_t;

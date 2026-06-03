@@ -54,6 +54,7 @@
 #define UTF8_LEFT_RIGHT_ARROW           "\u2194"      /*  8596 / 0x2194 */
 
 #define UTF8_SQUARE_ROOT                "\u221a"      /*  8730 / 0x221a */
+#define UTF8_LESS_THAN_OR_EQUAL_TO      "\u2264"      /*  8808 / 0x2264 */
 
 /* macOS command key */
 #define UTF8_PLACE_OF_INTEREST_SIGN     "\u2318"      /*  8984 / 0x2318 */
