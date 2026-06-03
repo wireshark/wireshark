@@ -31,6 +31,54 @@ endif()
 
 project(${_project_name} C CXX)
 
+#
+# SunOS 5.x (the SVR4-based version, i.e. the one people usually call
+# "Solaris")) is annoying. (We don't support previous versions.)
+#
+# The Sun/Oracle compilers default to building 32-bit *even when running
+# on 64-bit platforms*; you have to provide an explicit flag to force a
+# 64-bit build. (This might be a backwards-compatibility thing.)
+#
+# Fortunately for us, 1) we require C17 support and 2) the Sun/Oracle
+# compilers don't offer C17 support, so we can't use them, and don't
+# have to worry about them.
+#
+# CMake, however, doesn't seem to understand Solaris's multi-architecture
+# file pathname structure. It's different from the structures used on
+# Linux distributions; it appears that the /usr/lib directory contains
+# stuff for 32-bit targets, and that there's a /usr/lib/${isa} directory
+# for the equivalent stuff for 64-bit targets.
+#
+# This means that, if you're doing a 64-bit build, find_package() will
+# look in /usr/lib/cmake rather than /usr/lib/${isa}/cmake, and the
+# FindPkgConfig functions/macros will look in /usr/lib/pkgconfig rather
+# than /usr/lib/${isa}/pkgconfig. This means that, if you don't have
+# 32-bit versions of various packages installed, those packages won't
+# be found, and if you *do* have 32-bit version installed, they will be
+# found and used for a 64-bit build.
+#
+# Both of those will produce hard-to-diagnose failures.
+#
+# So, if we're doing a 64-bit build on SunOS 5.x, we use "isainfo -n" to
+# get the ${isa} value, and set CMAKE_LIBRARY_ARCHITECTURE to that value
+# to force CMake to look in the right places.
+#
+if(CMAKE_SYSTEM_NAME STREQUAL "SunOS" AND CMAKE_SYSTEM_VERSION MATCHES "5[.][0-9.]*")
+	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+		execute_process(
+		    COMMAND "isainfo" "-n"
+		    OUTPUT_VARIABLE CMAKE_LIBRARY_ARCHITECTURE
+		    RESULT_VARIABLE status
+		    OUTPUT_STRIP_TRAILING_WHITESPACE)
+		if(status)
+			#
+			# isainfo -n failed; give up.
+			#
+			message(FATAL_ERROR "isainfo -n failed, so we can't determine the target architecture")
+		endif()
+	endif()
+endif()
+
 if(WIN32)
 	set(_msystem False)
 	set(_repository False)
