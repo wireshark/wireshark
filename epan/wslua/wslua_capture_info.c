@@ -374,19 +374,19 @@ WSLUA_ATTRIBUTE_NAMED_INTEGER_GETTER(CaptureInfoConst,encap,wdh->file_encap);
 
 /* WSLUA_ATTRIBUTE CaptureInfoConst_comment RW A comment for the whole capture file, if the
     `wtap_presence_flags.COMMENTS` was set in the presence flags; nil if there is no comment. */
-WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_GETTER(CaptureInfoConst,comment,wth->shb_hdrs,OPT_COMMENT);
+WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_GETTER(CaptureInfoConst,comment,wdh->shb_hdrs,OPT_COMMENT);
 
 /* WSLUA_ATTRIBUTE CaptureInfoConst_hardware RO A string containing the description of
     the hardware used to create the capture, or nil if there is no hardware string. */
-WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_GETTER(CaptureInfoConst,hardware,wth->shb_hdrs,OPT_SHB_HARDWARE);
+WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_GETTER(CaptureInfoConst,hardware,wdh->shb_hdrs,OPT_SHB_HARDWARE);
 
 /* WSLUA_ATTRIBUTE CaptureInfoConst_os RO A string containing the name of
     the operating system used to create the capture, or nil if there is no os string. */
-WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_GETTER(CaptureInfoConst,os,wth->shb_hdrs,OPT_SHB_OS);
+WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_GETTER(CaptureInfoConst,os,wdh->shb_hdrs,OPT_SHB_OS);
 
 /* WSLUA_ATTRIBUTE CaptureInfoConst_user_app RO A string containing the name of
     the application used to create the capture, or nil if there is no user_app string. */
-WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_GETTER(CaptureInfoConst,user_app,wth->shb_hdrs,OPT_SHB_USERAPPL);
+WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_GETTER(CaptureInfoConst,user_app,wdh->shb_hdrs,OPT_SHB_USERAPPL);
 
 /* WSLUA_ATTRIBUTE CaptureInfoConst_hosts RO A ip-to-hostname Lua table of two key-ed names: `ipv4_addresses` and `ipv6_addresses`.
     The value of each of these names are themselves array tables, of key-ed tables, such that the inner table has a key

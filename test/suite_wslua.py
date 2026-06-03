@@ -205,6 +205,13 @@ class TestWslua:
         )
         assert filecmp.cmp(cap_file_1, cap_file_2), cap_file_1 + ' differs from ' + cap_file_2
 
+    def test_wslua_filehandler_write(self, check_lua_script, result_file):
+        '''wslua FileHandler write: CaptureInfoConst attributes'''
+        check_lua_script('filehandler_write.lua', dhcp_pcap, True,
+            '-w', result_file('fh_write_test.out'),
+            '-F', 'fh_write_test',
+        )
+
     def test_wslua_file_acme_reader(self, check_lua_script, cmd_tshark, capture_file, result_file, test_env):
         '''wslua acme file reader'''
 
