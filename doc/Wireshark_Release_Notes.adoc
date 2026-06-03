@@ -33,7 +33,7 @@ If you or your organization would like to contribute or become a sponsor, please
   Wireshark now drives the colors used throughout the GUI from a single theme instead of many individual color preferences. The renamed menu:Appearance[Theme and Font] preferences page lets you pick a theme, switch between Light, Dark, and System appearance, set the packet pane font, and preview the result on a mockup of a capture window. A built-in default theme ships with Wireshark, and additional themes can be installed as JSONC (JSON with Comments) files. The previous per-color settings (marked and ignored packets, "Follow Stream" client and server text, display filter validity, and the selected packet) are now provided by the active theme.
   Personal themes can now be dropped as single `.jsonc` files into _$HOME/.local/lib/wireshark/themes_ (Unix) or _%APPDATA%\Wireshark\themes_ (Windows); the filename becomes the theme's name in the dropdown. The exact path is shown in the About dialog's _Folders_ tab.
   On first launch after the upgrade, Wireshark checks the Default profile's preferences for customized values of the removed per-color settings. If any are found, a personal theme named _Personal (Migrated)_ is created automatically in the personal themes directory, the legacy keys are removed from the Default profile's preferences file, and the theme is activated so the original visual customizations are preserved. The migration runs once: the generated _personal.jsonc_ can be edited, renamed, or deleted by hand at any time.
-  The welcome page section headers ("Open", "Capture", "Learn") and the filter validity tints have been restored to the historical Classic look (Tango sky_blue brand, saturated GTK-era dark green / dark red filter backgrounds), and the theme schema gains two optional sections — `filter` for per-state validity tints and `separator` for hairline divider color — so custom themes can pin values that derived defaults cannot reach.
+  The welcome page section headers ("Open", "Capture", "Learn") and the filter validity tints have been restored to the historical Classic look (Tango sky_blue brand, saturated GTK-era dark green / dark red filter backgrounds).
 
 * The Default profile now has additional column "Delta", showing the delta time from the previous displayed packet.
 
@@ -63,22 +63,22 @@ The following features are either new or have been significantly updated since v
 * The Windows and macOS installers now ship with Qt 6.10.3.
   They previously shipped with Qt 6.9.3.
 
-* The capture and display filter fields have a refreshed, consistent look and
-  feel. As you type, the field colors itself to show at a glance whether the
-  filter is valid, invalid, or uses deprecated syntax, and that feedback now
-  appears immediately in place. Each field carries the same set of in-line
-  buttons — a bookmark to save and manage your filters, a clear button, an
-  apply button, and a drop-down listing your recently used filters — and as you
-  type it suggests completions drawn from field names together with your recent
-  and saved filters. Recent display filters are now reached from that drop-down
-  rather than from a combo box. The colors follow the active theme and adapt to
-  the Light and Dark appearances. (When a capture filter names a host, the field
-  may pause briefly while the name is resolved.)
+// XXX This should just describe what changed.
+// * The capture and display filter fields have a refreshed, consistent look and
+//   feel. As you type, the field colors itself to show at a glance whether the
+//   filter is valid, invalid, or uses deprecated syntax, and that feedback now
+//   appears immediately in place. Each field carries the same set of in-line
+//   buttons — a bookmark to save and manage your filters, a clear button, an
+//   apply button, and a drop-down listing your recently used filters — and as you
+//   type it suggests completions drawn from field names together with your recent
+//   and saved filters. Recent display filters are now reached from that drop-down
+//   rather than from a combo box. The colors follow the active theme and adapt to
+//   the Light and Dark appearances. (When a capture filter names a host, the field
+//   may pause briefly while the name is resolved.)
 
-* Zooming the view (menu:View[Zoom In] / menu:View[Zoom Out]) now scales the
-  whole window, including the capture and display filter fields. Previously only
-  the packet list and details panes zoomed, so the display filter text is now
-  much easier to read when you zoom in — handy for demos and presentations.
+* Zooming (menu:View[Zoom In] / menu:View[Zoom Out]) now scales the whole window, including the capture and display filter fields and other window elements.
+  Previously only the text size in the three main window panes (packet list, details, and bytes) changed.
+  The new behavior should be much more useful for demos and presentations.
 
 * The keyboard shortcuts dialog (menu:About Wireshark[Keyboard Shortcuts]) has been moved out of of the About dialog to the menu:View[Internals,Keyboard Shortcuts] menu and now has a button to print the list of keyboard shortcuts to an HTML file.
 
@@ -93,7 +93,7 @@ The following features are either new or have been significantly updated since v
 
 === Removed Features and Support
 
-Dumpcap's TCP@host:port interface has been removed
+Dumpcap's TCP@host:port interface has been removed.
 
 The individual color preferences under menu:Appearance[] (marked and ignored packets, "Follow Stream" client and server text, display filter validity, and the selected packet) have been removed. These colors are now provided by the selected theme; see the "What's New" section above.
 
