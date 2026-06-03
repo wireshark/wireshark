@@ -199,6 +199,7 @@ DEBDEPS_LIST="
 
 TESTDEPS_LIST="
 	gdb
+	python3-jsonschema
 	python3-pytest
 	python3-pytest-xdist
 	softhsm2
