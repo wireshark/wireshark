@@ -244,6 +244,11 @@ private slots:
     void triggeredIfTypeButton();
 
     /**
+     * @brief Slot triggered to hide all interfaces of the same type as the selected interface.
+     */
+    void hideInterfacesOfType();
+
+    /**
      * @brief Slot triggered when a hyperlink within the warning label is activated.
      * @param link The URL of the activated link.
      */

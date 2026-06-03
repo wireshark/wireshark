@@ -641,7 +641,26 @@ void InterfaceFrame::showContextMenu(QPoint pos)
     hideAction->setCheckable(true);
     hideAction->setChecked(isHidden);
 
+    int iftype = source_model_.getColumnContent(realIndex.row(), IFTREE_COL_TYPE).toInt();
+    QString ifTypeStr = ifTypeDescription.value(iftype, tr("Unknown"));
+
+    QAction * hideAllInterfacesForTypeAction = ctx_menu->addAction(tr("Hide all '%1' interfaces").arg(ifTypeStr));
+    connect(hideAllInterfacesForTypeAction, &QAction::triggered, this, &InterfaceFrame::hideInterfacesOfType);
+    hideAllInterfacesForTypeAction->setProperty(BTN_IFTYPE_PROPERTY, iftype);
+    hideAllInterfacesForTypeAction->setEnabled(realIndex.isValid());
+
     ctx_menu->popup(ui->interfaceTree->mapToGlobal(pos));
+}
+
+void InterfaceFrame::hideInterfacesOfType()
+{
+    QAction *sender = qobject_cast<QAction *>(QObject::sender());
+    if (sender && sender->property(BTN_IFTYPE_PROPERTY).isValid()) {
+        int iftype = sender->property(BTN_IFTYPE_PROPERTY).toInt();
+        proxy_model_.setInterfaceTypeVisible(iftype, false);
+        resetInterfaceTreeDisplay();
+        emit typeSelectionChanged();
+    }
 }
 
 void InterfaceFrame::on_warningLabel_linkActivated(const QString &link)
