@@ -32,6 +32,17 @@ endif()
 project(${_project_name} C CXX)
 
 #
+# Make sure the C and C++ compilers support C17 and C++17, and recommend
+# using GCC or Clang if they don't.
+#
+if(NOT "c_std_17" IN_LIST CMAKE_C_COMPILE_FEATURES)
+	message(FATAL_ERROR "The C compiler you're using does not support C17, but Wireshark and Stratoshark require it; use GCC or Clang.")
+endif()
+if(NOT "cxx_std_17" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
+	message(FATAL_ERROR "The C++ compiler you're using does not support C17, but Wireshark and Stratoshark require it; use GCC or Clang.")
+endif()
+
+#
 # SunOS 5.x (the SVR4-based version, i.e. the one people usually call
 # "Solaris")) is annoying. (We don't support previous versions.)
 #
@@ -63,8 +74,20 @@ project(${_project_name} C CXX)
 # get the ${isa} value, and set CMAKE_LIBRARY_ARCHITECTURE to that value
 # to force CMake to look in the right places.
 #
+# Furthermore, for at least for some packages (D-Bus an GLib), there are
+# separate include files for 32-bit and 64-bit builds (I guess using
+# "unsigned long long" as a 64-bit integer type on a 64-bit build is
+# like crossing the beams or something), and there are two separate
+# .pc files, so if we're doing a 32-bit build we should make sure we look
+# in /usr/lib/pkgconfig for .pc files and if we're doing a 64-bit build
+# we should make sure we look in# /usr/lib/amd64/pkgconfig for .pc files.
+#
 if(CMAKE_SYSTEM_NAME STREQUAL "SunOS" AND CMAKE_SYSTEM_VERSION MATCHES "5[.][0-9.]*")
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+		#
+		# 64-bit build. Get the ISA, and set
+		# CMAKE_LIBRARY_ARCHITECTURE to it.
+		#
 		execute_process(
 		    COMMAND "isainfo" "-n"
 		    OUTPUT_VARIABLE CMAKE_LIBRARY_ARCHITECTURE
@@ -76,6 +99,41 @@ if(CMAKE_SYSTEM_NAME STREQUAL "SunOS" AND CMAKE_SYSTEM_VERSION MATCHES "5[.][0-9
 			#
 			message(FATAL_ERROR "isainfo -n failed, so we can't determine the target architecture")
 		endif()
+
+		#
+		# If /usr/lib/pkgconfig appears in the path, prepend
+		# /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}/pkgconfig to it;
+		# otherwise, put /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}
+		# at the end.
+		#
+		# Note: string(REPLACE) does not appear to support using
+		# ENV{...} as an argument, so we set a variable and then
+		# use set() to set the environment variable.
+		#
+		if((NOT DEFINED ENV{PKG_CONFIG_PATH}) OR "$ENV{PKG_CONFIG_PATH}" EQUAL "")
+			#
+			# Not set, or empty.  Set it to
+			# /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}/pkgconfig.
+			#
+			set(fixed_path "/usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}/pkgconfig")
+		elseif("$ENV{PKG_CONFIG_PATH}" MATCHES "/usr/lib/pkgconfig")
+			#
+			# It contains /usr/lib/pkgconfig.  Prepend
+			# /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}/pkgconfig
+			# to /usr/lib/pkgconfig.
+			#
+			string(REPLACE "/usr/lib/pkgconfig"
+			    "/usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}/pkgconfig:/usr/lib/pkgconfig"
+			    fixed_path "$ENV{PKG_CONFIG_PATH}")
+		else()
+			#
+			# Not empty, but doesn't contain /usr/lib/pkgconfig.
+			# Append /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}/pkgconfig
+			# to it.
+			#
+			set(fixed_path "$ENV{PKG_CONFIG_PATH}:/usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}/pkgconfig")
+		endif()
+		set(ENV{PKG_CONFIG_PATH} "${fixed_path}")
 	endif()
 endif()
 
