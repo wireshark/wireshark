@@ -309,7 +309,7 @@ void ThemePreviewWidget::paintEvent(QPaintEvent *)
     p.fillRect(detailsRect, base);
     p.setPen(mid);
     p.drawRect(detailsRect.adjusted(0, 0, -1, -1));
-    p.setFont(labelFont);
+    p.setFont(monoFont);
     p.setPen(text);
 
     enum { TriNone = 0, TriCollapsed = 1, TriExpanded = 2 };
