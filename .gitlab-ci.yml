@@ -334,7 +334,7 @@ Source Package:
     # - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
     - if [ "$CI_JOB_STATUS" != "success" ]; then exit 0 ; fi
     - if [ -n "$SCHEDULE_TYPE" ] ; then exit 0 ; fi
-    - rclone config create wireshark $WS_RCLONE_REMOTE_OPTS
+    - rclone config create wireshark $WS_RCLONE_REMOTE_OPTS > /dev/null
     - stat --format="%n %s bytes" wireshark-*.tar.*
     - for digest in sha512 sha256 sha1 ; do openssl $digest wireshark-*.tar.* ; done
     - if [ -n "$S3_DESTINATION_DIST" ] ; then rclone copy . "wireshark:$S3_DESTINATION_DIST" --include "wireshark-*.tar.*" ; fi
@@ -383,7 +383,8 @@ Debian Stable APT Test:
     # Used for https://www.wireshark.org/docs/dfref/
     - TSHARK_VERSION=$( tshark --version | head -n 1 | sed -e 's/.*(v//' -e 's/)\.*$//' -e 's/-0-g.*//' )
     - tshark -G fields > dfilter-list-${TSHARK_VERSION}.txt
-    - if [[ -n "$MC_DESTINATION_RELEASE" ]] ; then mc --quiet cp dfilter-list-${TSHARK_VERSION}.txt "$MC_DESTINATION_RELEASE/" ; fi
+    - rclone config create wireshark $WS_RCLONE_REMOTE_OPTS > /dev/null
+    - if [ -n "$S3_DESTINATION_RELEASE" ] ; then rclone copyto dfilter-list-${TSHARK_VERSION}.txt "wireshark:$S3_DESTINATION_RELEASE/dfilter-list-${TSHARK_VERSION}.txt" ; fi
   variables:
     GIT_STRATEGY: none
   needs: [ 'Debian Stable APT Package' ]
@@ -786,7 +787,8 @@ macOS Universal Package:
     - ninja all_guides
     - cd doc
     - for HTML_DIR in ws[ud]g_html{,_chunked} ; do zip -9 -r "$HTML_DIR.zip" "$HTML_DIR" ; done
-    - if [ -n "$MC_DESTINATION_DOCS" ] ; then mc --quiet cp ws[ud]g_html{,_chunked}.zip Wireshark*Guide.{epub,pdf} "$MC_DESTINATION_DOCS/" ; fi
+    - rclone config create wireshark $WS_RCLONE_REMOTE_OPTS > /dev/null
+    - if [ -n "$S3_DESTINATION_DOCS" ] ; then rclone copy . "wireshark:$S3_DESTINATION_DOCS" --include "ws[ud]g_html{,_chunked}.zip" --include "Wireshark*Guide.{epub,pdf}" ; fi
     - mv -v ws[ud]g_html{,_chunked}.zip Wireshark*Guide.{epub,pdf} ../..
   after_script:
     - if [ "$CI_JOB_STATUS" != "success" ]; then exit 0 ; fi
@@ -1045,7 +1047,8 @@ macOS Build:
     - ninja wsar_html_zip 2>&1 > doxygen_output.txt | tee doxygen_errors.txt
     - mv wsar_html.zip doxygen_{output,errors}.txt ..
     - cd ..
-    - if [ -n "$MC_DESTINATION_DOCS" ] ; then mc --quiet cp wsar_html.zip "$MC_DESTINATION_DOCS/" ; fi
+    - rclone config create wireshark $WS_RCLONE_REMOTE_OPTS > /dev/null
+    - if [ -n "$S3_DESTINATION_DOCS" ] ; then rclone copyto wsar_html.zip "wireshark:$S3_DESTINATION_DOCS/wsar_html.zip" ; fi
   after_script:
     - if [ "$CI_JOB_STATUS" != "success" ]; then exit 0 ; fi
   artifacts:
@@ -1091,7 +1094,8 @@ macOS Build:
     - FUZZ_ERRORS="/tmp/fuzz/$( basename "$FUZZ_CAPTURE" .pcap ).err"
     - printf "\nfuzz-test.sh stderr:\n" >> "$FUZZ_ERRORS"
     - cat fuzz-test.err >> "$FUZZ_ERRORS"
-    - if [ -n "$MC_DESTINATION_FUZZ" ] ; then mc --quiet cp "$FUZZ_CAPTURE" "$FUZZ_ERRORS" "$MC_DESTINATION_FUZZ/" ; fi
+    - rclone config create wireshark $WS_RCLONE_REMOTE_OPTS > /dev/null
+    - if [ -n "$S3_DESTINATION_FUZZ" ] ; then rclone copy . "wireshark:$S3_DESTINATION_FUZZ" --include "$FUZZ_CAPTURE" --include "$FUZZ_ERRORS" ; fi
 
 ASan Menagerie Fuzz:
   extends: .fuzz-ubuntu
