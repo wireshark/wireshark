@@ -32,16 +32,19 @@ FilterCompleter::FilterCompleter(QObject *parent) :
 
 bool FilterCompleter::eventFilter(QObject *watched, QEvent *event)
 {
-    QAbstractItemView *view = popup();
-    if (watched == view &&
-        (event->type() == QEvent::Show || event->type() == QEvent::Resize)) {
-        int content = view->sizeHintForColumn(0) + 2 * view->frameWidth();
-        if (view->verticalScrollBar() && view->verticalScrollBar()->isVisible())
-            content += view->verticalScrollBar()->sizeHint().width();
-        // setFixedWidth pins min == max, so QCompleter's geometry call is clamped
-        // to the content width. Guard re-entrancy from the resize we trigger.
-        if (content > 0 && view->maximumWidth() != content)
-            view->setFixedWidth(content);
+    // Do NOT call popup() here. During the popup's own lazy construction Qt
+    // dispatches events through this filter before QCompleter has stored the
+    // view, so popup() would build a fresh view and re-enter unbounded
+    // (stack overflow). The filter is installed only on the popup, so the
+    // watched object is the view we want to size.
+    if (event->type() == QEvent::Show || event->type() == QEvent::Resize) {
+        if (auto *view = qobject_cast<QAbstractItemView *>(watched)) {
+            int content = view->sizeHintForColumn(0) + 2 * view->frameWidth();
+            if (view->verticalScrollBar() && view->verticalScrollBar()->isVisible())
+                content += view->verticalScrollBar()->sizeHint().width();
+            if (content > 0 && view->maximumWidth() != content)
+                view->setFixedWidth(content);
+        }
     }
     return QCompleter::eventFilter(watched, event);
 }
