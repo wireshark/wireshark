@@ -9,6 +9,8 @@
 
 #include <ui/qt/widgets/adaptive_header_view.h>
 
+#include <ui/qt/utils/font_manager.h>
+
 #include <QEvent>
 #include <QFontMetrics>
 #include <QSize>
@@ -22,9 +24,19 @@ AdaptiveHeaderView::AdaptiveHeaderView(Qt::Orientation orientation, QWidget *par
 QSize AdaptiveHeaderView::sizeHint() const
 {
     QSize size = QHeaderView::sizeHint();
-    int margin = style()->pixelMetric(QStyle::PM_HeaderMargin, nullptr, this);
-    // fontMetrics is a shortcut for QFontMetrics(font())
-    size.setHeight(fontMetrics().height() + 2 * margin);
+    // The platform style pins the header height to the base font — on macOS it
+    // is a hard constant that ignores the current font, so it never tracks the
+    // application zoom. Take the native height as the baseline and add only the
+    // extra room the zoomed font needs: native look at default zoom, growing
+    // when the user zooms in.
+    QStyleOptionHeader opt;
+    opt.initFrom(this);
+    QFont baseFont = FontManager::font();          // unzoomed baseline
+    opt.fontMetrics = QFontMetrics(baseFont);
+    int nativeHeight = style()->sizeFromContents(QStyle::CT_HeaderSection, &opt, QSize(), this).height();
+    int zoomDelta = qMax(0, fontMetrics().height() - QFontMetrics(baseFont).height());
+
+    size.setHeight(nativeHeight + zoomDelta);
     return size;
 }
 
