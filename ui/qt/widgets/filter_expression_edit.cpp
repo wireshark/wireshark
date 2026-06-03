@@ -43,20 +43,6 @@
 
 namespace {
 
-// An opaque "muted" foreground: the text color blended `toward_bg` of the way
-// to the window background. Using a solid blend (not an alpha) keeps it legible
-// in both light and dark mode and under macOS menu vibrancy, where alpha text
-// washes out.
-QColor mutedColor(const QPalette &pal, qreal toward_bg)
-{
-    const QColor fg = pal.color(QPalette::WindowText);
-    const QColor bg = pal.color(QPalette::Window);
-    return QColor::fromRgbF(
-        fg.redF()   + (bg.redF()   - fg.redF())   * toward_bg,
-        fg.greenF() + (bg.greenF() - fg.greenF()) * toward_bg,
-        fg.blueF()  + (bg.blueF()  - fg.blueF())  * toward_bg);
-}
-
 // A bookmark-menu row: monospace expression on the left, muted name on the
 // right (per the design mockup). No Q_OBJECT — it only overrides event
 // handlers and invokes a callback, so it needs no moc.
@@ -73,8 +59,8 @@ public:
 
         // Monospace expression, sized to match the surrounding menu text.
         QLabel *expr_label = new QLabel(expr, this);
-        QFont mono = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-        mono.setPointSizeF(base.pointSizeF());
+        QFont mono = FontManager::monospaceFont();
+        mono.setPointSizeF(base.pointSizeF() - 1.0); // match the header's relative sizing
         expr_label->setFont(mono);
         expr_label->setAttribute(Qt::WA_TransparentForMouseEvents);
         layout->addWidget(expr_label);
@@ -87,9 +73,6 @@ public:
             nf.setPointSizeF(base.pointSizeF() - 1.0);
             name_label->setFont(nf);
             name_label->setAttribute(Qt::WA_TransparentForMouseEvents);
-            QPalette pal = name_label->palette();
-            pal.setColor(QPalette::WindowText, mutedColor(pal, 0.40));
-            name_label->setPalette(pal);
             layout->addWidget(name_label);
         }
     }
@@ -407,14 +390,10 @@ void FilterExpressionEdit::rebuildBookmarkEntries()
     // QMenu::addSection() drops the title text.
     QLabel *header = new QLabel(saved_section_label_.toUpper());
     QFont header_font = base;
-    header_font.setPointSizeF(qMax(1.0, base.pointSizeF() - 2.0));
+    header_font.setPointSizeF(qMax(1.0, base.pointSizeF() - 1.0));
     header->setFont(header_font);
     header->setContentsMargins(12, 5, 12, 2);
-    {
-        QPalette pal = header->palette();
-        pal.setColor(QPalette::WindowText, mutedColor(pal, 0.45));
-        header->setPalette(pal);
-    }
+
     QWidgetAction *header_action = new QWidgetAction(this);
     header_action->setDefaultWidget(header);
     header_action->setEnabled(false); // non-interactive label
@@ -491,9 +470,9 @@ void FilterExpressionEdit::rebuildInlineLayout()
         inline_layout_->addStretch(1);
     inline_layout_->addWidget(clear_button_, 0, Qt::AlignVCenter);
     inline_layout_->addWidget(apply_button_, 0, Qt::AlignVCenter);
-    inline_layout_->addWidget(history_button_, 0, Qt::AlignVCenter);
     if (buttons_left_aligned_)
         inline_layout_->addStretch(1);
+    inline_layout_->addWidget(history_button_, 0, Qt::AlignVCenter);
 
     updateInlineMargins();
 }
@@ -520,24 +499,15 @@ QMargins FilterExpressionEdit::inlineMargins() {
     auto zone = [](const AdaptiveToolButton *b) {
         return b->isHidden() ? 0 : b->sizeHint().width() + inline_button_spacing_;
     };
-    const int bookmarkW = zone(bookmark_button_);
-    const int trailingW = zone(clear_button_) + zone(apply_button_) + zone(history_button_);
 
-    int left = 0;
-    int right = 0;
-    if (buttons_left_aligned_) {
-        // All buttons cluster on the left; the text fills the remainder.
-        const int total = bookmarkW + trailingW;
-        if (total > 0)
-            left = edge + total;
-    } else {
-        if (bookmarkW > 0)
-            left = edge + bookmarkW;
-        if (trailingW > 0)
-            right = edge + trailingW;
-    }
+    auto leftTrail = edge + zone(bookmark_button_);
+    auto rightTrail = edge + zone(history_button_);
+    if (buttons_left_aligned_ )
+        leftTrail += zone(clear_button_) + zone(apply_button_);
+    else
+        rightTrail += zone(clear_button_) + zone(apply_button_);
 
-    return QMargins(left, 0, right, 0);
+    return QMargins(leftTrail, 0, rightTrail, 0);
 }
 
 void FilterExpressionEdit::updateInlineMargins()
