@@ -162,6 +162,7 @@ static expert_field ei_pn_sxp_malformed;
 static expert_field ei_pn_sxp_priority_range;
 
 static reassembly_table pn_sxp_reassembly_table;
+static wmem_map_t *pn_sxp_fragment_service_map;
 
 static const value_string pn_sxp_fragment_type[] = {
     { SXP_BLOCK_TYPE_INITIATOR, "AR Initiator Fragment" },
@@ -187,6 +188,8 @@ static const value_string pn_sxp_services[] = {
     { 0x072D, "IO Data REQ" },
     { 0x0740, "Real-Time Cyclic Input Data" },
     { 0x0741, "Real-Time Cyclic Output Data" },
+    { 0x0780, "SAM Connect REQ" },
+    { 0x0781, "SAM Service REQ" },
     { 0x0815, "Record Service SXP EPI Read" },
     { 0x0816, "Record Service CIM Cap Read" },
     { 0x8720, "Connect RSP" },
@@ -202,8 +205,10 @@ static const value_string pn_sxp_services[] = {
     { 0x872A, "Alarm High Ack" },
     { 0x872B, "Alarm Low Ack" },
     { 0x872C, "Notification Ack" },
-    { 0x872D, "Reserved RSP" },
-    { 0x8740, "SXP EndPoint Information" },
+    { 0x872D, "Reserved" },
+    { 0x8740, "Reserved for SXP blocks" },
+    { 0x8780, "SAM Connect RSP" },
+    { 0x8781, "SAM Service RSP" },
     { 0, NULL }
 };
 
@@ -272,6 +277,68 @@ static void
 pn_sxp_reassemble_init(void)
 {
     reassembly_table_register(&pn_sxp_reassembly_table, &addresses_reassembly_table_functions);
+    /* Outer map: conversation_t* -> inner map(stream_key -> service_type). */
+    pn_sxp_fragment_service_map = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+}
+
+static wmem_map_t *
+pn_sxp_get_conversation_service_map(packet_info *pinfo, bool create)
+{
+    conversation_t *conv = find_or_create_conversation(pinfo);
+    wmem_map_t *conv_map = NULL;
+
+    if (pn_sxp_fragment_service_map == NULL || conv == NULL) {
+        return NULL;
+    }
+
+    conv_map = (wmem_map_t *)wmem_map_lookup(pn_sxp_fragment_service_map, conv);
+    if (conv_map == NULL && create) {
+        conv_map = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+        wmem_map_insert(pn_sxp_fragment_service_map, conv, conv_map);
+    }
+
+    return conv_map;
+}
+
+static uint32_t
+pn_sxp_stream_key(uint16_t packet_block_type, uint16_t arid, uint8_t priority, uint8_t call_seq)
+{
+    return ((uint32_t)(packet_block_type & 0x0001) << 31)
+        | ((uint32_t)priority << 24)
+        | ((uint32_t)arid << 8)
+        | call_seq;
+}
+
+static const char *
+pn_sxp_fragment_kind(uint8_t flags)
+{
+    const bool is_first = (flags & 0x02) != 0;
+    const bool is_last = (flags & 0x04) != 0;
+
+    if (is_first && is_last) {
+        return "single fragment";
+    }
+    if (is_first) {
+        return "first fragment";
+    }
+    if (is_last) {
+        return "last fragment";
+    }
+    return "middle fragment";
+}
+
+static void
+pn_sxp_append_fragment_col_info(packet_info *pinfo, uint8_t flags,
+    bool have_service_type, uint16_t service_type)
+{
+    const char *kind = pn_sxp_fragment_kind(flags);
+
+    if (have_service_type) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s - %s",
+            val_to_str_const(service_type, pn_sxp_services, "Unknown service"), kind);
+    } else {
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", SXP %s", kind);
+    }
 }
 
 /* Validate the SXP fragment header to avoid false positives. */
@@ -372,21 +439,27 @@ dissect_sxp_header_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 {
     proto_item *header_req_item;
     proto_tree *header_req_tree;
-    uint16_t reserved16;
-    proto_item *reserved_item;
 
     header_req_item = proto_tree_add_item(tree, hf_pn_sxp_header_req, tvb, offset, 12, ENC_NA);
     header_req_tree = proto_item_add_subtree(header_req_item, ett_pn_sxp_header_req);
 
     offset = dissect_sxp_block_header(tvb, offset, pinfo, header_req_tree, block_type, block_length);
 
-    reserved_item = proto_tree_add_item_ret_uint16(header_req_tree, hf_pn_sxp_service_reserved, tvb, offset, 2,
-        ENC_BIG_ENDIAN, &reserved16);
-    if (reserved16 != 0) {
-        expert_add_info_format(pinfo, reserved_item, &ei_pn_sxp_malformed,
-            "Service reserved field non-zero: 0x%04x", reserved16);
+    /* Reserved (2 × U8, Table 310 / Table 1234) */
+    {
+        uint8_t r;
+        proto_item *ri;
+        r = tvb_get_uint8(tvb, offset);
+        ri = proto_tree_add_item(header_req_tree, hf_pn_sxp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+        if (r != 0)
+            expert_add_info_format(pinfo, ri, &ei_pn_sxp_malformed, "Service reserved field non-zero: 0x%02x", r);
+        offset++;
+        r = tvb_get_uint8(tvb, offset);
+        ri = proto_tree_add_item(header_req_tree, hf_pn_sxp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+        if (r != 0)
+            expert_add_info_format(pinfo, ri, &ei_pn_sxp_malformed, "Service reserved field non-zero: 0x%02x", r);
+        offset++;
     }
-    offset += 2;
 
     proto_tree_add_item_ret_uint(header_req_tree, hf_pn_sxp_service_max_rsp_len, tvb, offset, 4,
         ENC_BIG_ENDIAN, max_rsp_len);
@@ -402,8 +475,6 @@ dissect_sxp_header_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 {
     proto_item *header_rsp_item;
     proto_tree *header_rsp_tree;
-    uint16_t reserved16;
-    proto_item *reserved_item;
     uint8_t drep[4] = { 0, 0, 0, 0 };
 
     header_rsp_item = proto_tree_add_item(tree, hf_pn_sxp_header_rsp, tvb, offset, 12, ENC_NA);
@@ -411,15 +482,23 @@ dissect_sxp_header_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
     offset = dissect_sxp_block_header(tvb, offset, pinfo, header_rsp_tree, block_type, block_length);
 
-    reserved_item = proto_tree_add_item_ret_uint16(header_rsp_tree, hf_pn_sxp_service_reserved, tvb, offset, 2,
-        ENC_BIG_ENDIAN, &reserved16);
-    if (reserved16 != 0) {
-        expert_add_info_format(pinfo, reserved_item, &ei_pn_sxp_malformed,
-            "Service reserved field non-zero: 0x%04x", reserved16);
+    /* Reserved (2 × U8, Table 310 / Table 1235) */
+    {
+        uint8_t r;
+        proto_item *ri;
+        r = tvb_get_uint8(tvb, offset);
+        ri = proto_tree_add_item(header_rsp_tree, hf_pn_sxp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+        if (r != 0)
+            expert_add_info_format(pinfo, ri, &ei_pn_sxp_malformed, "Service reserved field non-zero: 0x%02x", r);
+        offset++;
+        r = tvb_get_uint8(tvb, offset);
+        ri = proto_tree_add_item(header_rsp_tree, hf_pn_sxp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+        if (r != 0)
+            expert_add_info_format(pinfo, ri, &ei_pn_sxp_malformed, "Service reserved field non-zero: 0x%02x", r);
+        offset++;
     }
-    offset += 2;
 
-    proto_tree_add_item(header_rsp_tree, hf_pn_sxp_service_pnio_status, tvb, offset, 4, ENC_BIG_ENDIAN);
+    /* PNIOStatus — fully expanded by dissect_PNIO_status */
     dissect_PNIO_status(tvb, offset, pinfo, header_rsp_tree, drep);
     offset += 4;
 
@@ -515,6 +594,32 @@ dissect_sxp_connect_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
     return offset;
 }
 
+/* Dissect SXP-SAMConnect-REQ: SXP-Header-REQ + SXP-Endpoint-Responder + ARMetadataBlock + SAMConnectReq */
+static int
+dissect_sxp_samconnect_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+    uint16_t block_type, block_length;
+    uint32_t max_rsp_len;
+    uint8_t  drep[4] = { 0, 0, 0, 0 }; /* Big-Endian, no DCE/RPC */
+    proto_item *pdu_item;
+    proto_tree *pdu_tree;
+    int start_offset;
+
+    offset = dissect_sxp_header_req(tvb, offset, pinfo, tree, &block_type, &block_length, &max_rsp_len);
+    offset = dissect_sxp_destination_endpoint(tvb, offset, pinfo, tree);
+
+    if (tvb_captured_length_remaining(tvb, offset) > 0) {
+        start_offset = offset;
+        pdu_item = proto_tree_add_item(tree, hf_pn_sxp_pnservice_req_pdu, tvb, offset,
+            tvb_captured_length_remaining(tvb, offset), ENC_NA);
+        pdu_tree = proto_item_add_subtree(pdu_item, ett_pn_sxp_pnservice_req_pdu);
+        offset = dissect_blocks(tvb, offset, pinfo, pdu_tree, drep);
+        proto_item_set_len(pdu_item, offset - start_offset);
+    }
+
+    return offset;
+}
+
 /* Dissect SXP-PNService-REQ: SXP-Header-REQ + PROFINETIOServiceReqPDU */
 static int
 dissect_sxp_pnservice_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
@@ -562,6 +667,13 @@ dissect_sxp_pnservice_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
     }
 
     return offset;
+}
+
+/* Dissect SXP-SAMConnect-RSP: SXP-Header-RSP + SAMConnectRsp */
+static int
+dissect_sxp_samconnect_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+    return dissect_sxp_pnservice_rsp(tvb, offset, pinfo, tree);
 }
 
 /* Dissect SXP-Alarm-REQ: SXP-Header-REQ + AlarmNotification-PDU */
@@ -613,7 +725,7 @@ dissect_sxp_alarm_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
     return offset;
 }
 
-/* Dissect SXP-Notification-PDU: BlockHeader + BlockHeader + Data* */
+/* Dissect SXP-Notification-PDU: BlockHeader + Data* */
 static int
 dissect_sxp_notification_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree)
 {
@@ -623,8 +735,8 @@ dissect_sxp_notification_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
     int remaining;
 
     remaining = tvb_captured_length_remaining(tvb, offset);
-    if (remaining < 12) {
-        /* Not enough data for two BlockHeaders */
+    if (remaining < 6) {
+        /* Not enough data for one BlockHeader */
         if (remaining > 0) {
             offset = dissect_pn_user_data(tvb, offset, pinfo, parent_tree, remaining, "NotificationData");
         }
@@ -634,18 +746,11 @@ dissect_sxp_notification_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
     pdu_item = proto_tree_add_item(parent_tree, hf_pn_sxp_notification_pdu, tvb, offset, remaining, ENC_NA);
     pdu_tree = proto_item_add_subtree(pdu_item, ett_pn_sxp_notification_pdu);
 
-    /* First BlockHeader */
+    /* BlockHeader */
     proto_tree_add_item(pdu_tree, hf_pn_sxp_notification_block1_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(pdu_tree, hf_pn_sxp_notification_block1_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(pdu_tree, hf_pn_sxp_notification_block1_version_high, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(pdu_tree, hf_pn_sxp_notification_block1_version_low, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
-    offset += 6;
-
-    /* Second BlockHeader */
-    proto_tree_add_item(pdu_tree, hf_pn_sxp_notification_block2_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pdu_tree, hf_pn_sxp_notification_block2_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pdu_tree, hf_pn_sxp_notification_block2_version_high, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pdu_tree, hf_pn_sxp_notification_block2_version_low, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
     offset += 6;
 
     /* Data* */
@@ -659,7 +764,7 @@ dissect_sxp_notification_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
     return offset;
 }
 
-/* Dissect SXP-NotificationAck-PDU: BlockHeader + BlockHeader + Data* */
+/* Dissect SXP-NotificationAck-PDU: BlockHeader + Data* */
 static int
 dissect_sxp_notification_ack_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree)
 {
@@ -669,8 +774,8 @@ dissect_sxp_notification_ack_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, 
     int remaining;
 
     remaining = tvb_captured_length_remaining(tvb, offset);
-    if (remaining < 12) {
-        /* Not enough data for two BlockHeaders */
+    if (remaining < 6) {
+        /* Not enough data for one BlockHeader */
         if (remaining > 0) {
             offset = dissect_pn_user_data(tvb, offset, pinfo, parent_tree, remaining, "NotificationAckData");
         }
@@ -680,18 +785,11 @@ dissect_sxp_notification_ack_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, 
     pdu_item = proto_tree_add_item(parent_tree, hf_pn_sxp_notification_ack_pdu, tvb, offset, remaining, ENC_NA);
     pdu_tree = proto_item_add_subtree(pdu_item, ett_pn_sxp_notification_ack_pdu);
 
-    /* First BlockHeader */
+    /* BlockHeader */
     proto_tree_add_item(pdu_tree, hf_pn_sxp_notification_block1_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(pdu_tree, hf_pn_sxp_notification_block1_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(pdu_tree, hf_pn_sxp_notification_block1_version_high, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(pdu_tree, hf_pn_sxp_notification_block1_version_low, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
-    offset += 6;
-
-    /* Second BlockHeader */
-    proto_tree_add_item(pdu_tree, hf_pn_sxp_notification_block2_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pdu_tree, hf_pn_sxp_notification_block2_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pdu_tree, hf_pn_sxp_notification_block2_version_high, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pdu_tree, hf_pn_sxp_notification_block2_version_low, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
     offset += 6;
 
     /* Data* */
@@ -764,7 +862,8 @@ dissect_sxp_iodata_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
     return offset;
 }
 
-/* Dissect SXP-Abort-REQ: SXP-Header-REQ + Reserved(1) + Reserved(1) + PNIOStatus + [VendorDeviceErrorInfo] */
+/* Dissect SXP-Abort-REQ: SXP-Header-REQ + PNIOStatus + [VendorDeviceErrorInfo]
+ * Spec: IEC 61158-6-10 Table 310 */
 static int
 dissect_sxp_abort_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
@@ -774,21 +873,8 @@ dissect_sxp_abort_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
     offset = dissect_sxp_header_req(tvb, offset, pinfo, tree, &block_type, &block_length, &max_rsp_len);
 
-    /* Reserved(1) */
-    if (tvb_captured_length_remaining(tvb, offset) >= 1) {
-        proto_tree_add_item(tree, hf_pn_sxp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-    }
-
-    /* Reserved(1) */
-    if (tvb_captured_length_remaining(tvb, offset) >= 1) {
-        proto_tree_add_item(tree, hf_pn_sxp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-    }
-
-    /* PNIOStatus */
+    /* PNIOStatus — fully expanded by dissect_PNIO_status */
     if (tvb_captured_length_remaining(tvb, offset) >= 4) {
-        proto_tree_add_item(tree, hf_pn_sxp_service_pnio_status, tvb, offset, 4, ENC_BIG_ENDIAN);
         dissect_PNIO_status(tvb, offset, pinfo, tree, drep);
         offset += 4;
     }
@@ -849,6 +935,10 @@ get_sxp_service_name(uint16_t block_type)
         return "SXP-Real-Time-Cyclic-Input-Data";
     case 0x0741:
         return "SXP-Real-Time-Cyclic-Output-Data";
+    case 0x0780:
+        return "SXP-SAMConnect-REQ";
+    case 0x0781:
+        return "SXP-SAMService-REQ";
     case 0x0815:
         return "SXP-Record-Service-EPI-Read";
     case 0x0816:
@@ -871,9 +961,13 @@ get_sxp_service_name(uint16_t block_type)
     case 0x872C:
         return "SXP-Notification-Ack";
     case 0x872D:
-        return "SXP-Reserved-RSP";
+        return "SXP-Reserved";
     case 0x8740:
-        return "SXP-EndPoint-Information";
+        return "SXP-Reserved-SXPBlock";
+    case 0x8780:
+        return "SXP-SAMConnect-RSP";
+    case 0x8781:
+        return "SXP-SAMService-RSP";
     default:
         return "SXP-Unknown-Service";
     }
@@ -946,9 +1040,22 @@ dissect_sxp_service_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
         offset = dissect_sxp_iodata_req(tvb, offset, pinfo, service_tree);
         break;
 
+    case 0x0815: /* Record Service SXP EPI Read */
+    case 0x0816: /* Record Service CIM Cap Read */
+        offset = dissect_sxp_pnservice_req(tvb, offset, pinfo, service_tree);
+        break;
+
     case 0x0740: /* Real-Time Cyclic Input Data */
     case 0x0741: /* Real-Time Cyclic Output Data */
         offset = dissect_sxp_iodata_req(tvb, offset, pinfo, service_tree);
+        break;
+
+    case 0x0780: /* SAM Connect REQ */
+        offset = dissect_sxp_samconnect_req(tvb, offset, pinfo, service_tree);
+        break;
+
+    case 0x0781: /* SAM Service REQ */
+        offset = dissect_sxp_pnservice_req(tvb, offset, pinfo, service_tree);
         break;
 
     /* ===== RESPONSE Services (0x87xx) ===== */
@@ -977,8 +1084,11 @@ dissect_sxp_service_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
         offset = dissect_sxp_notification_rsp(tvb, offset, pinfo, service_tree);
         break;
 
-    case 0x872D: /* Reserved RSP */
-    case 0x8740: /* SXP EndPoint Information */
+    case 0x8780: /* SAM Connect RSP */
+        offset = dissect_sxp_samconnect_rsp(tvb, offset, pinfo, service_tree);
+        break;
+
+    case 0x8781: /* SAM Service RSP */
         offset = dissect_sxp_pnservice_rsp(tvb, offset, pinfo, service_tree);
         break;
 
@@ -1019,6 +1129,7 @@ dissect_sxp_packet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 {
     uint16_t block_length;
     uint16_t arid;
+    uint8_t priority;
     uint8_t call_seq;
     uint8_t flags;
     bool is_last;
@@ -1049,7 +1160,8 @@ dissect_sxp_packet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
     proto_tree_add_item(sxp_tree, hf_pn_sxp_block_version_low, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item_ret_uint16(sxp_tree, hf_pn_sxp_arid, tvb, offset + 6, 2,
         ENC_BIG_ENDIAN, &arid);
-    proto_tree_add_item(sxp_tree, hf_pn_sxp_priority, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(sxp_tree, hf_pn_sxp_priority, tvb, offset + 8, 1,
+        ENC_BIG_ENDIAN, &priority);
 
     {
         proto_item *flags_item = proto_tree_add_item_ret_uint8(sxp_tree, hf_pn_sxp_fragment_flags,
@@ -1094,6 +1206,35 @@ dissect_sxp_packet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
     payload_tvb = tvb_new_subset_length(tvb, payload_offset, total_len - 12);
 
     is_last = (flags & 0x04) != 0;
+    {
+        // Handle service type caching for fragmented packets for info column display
+        const bool is_first = (flags & 0x02) != 0;
+        const bool is_single = is_first && is_last;
+        const uint16_t packet_block_type = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
+        const uint32_t stream_key = pn_sxp_stream_key(packet_block_type, arid, priority, call_seq);
+        wmem_map_t *conv_service_map = pn_sxp_get_conversation_service_map(pinfo, true);
+        bool have_service_type = false;
+        uint16_t service_type = 0;
+
+        if (is_first && tvb_captured_length(payload_tvb) >= 2) {
+            service_type = tvb_get_uint16(payload_tvb, 0, ENC_BIG_ENDIAN);
+            have_service_type = true;
+            if (conv_service_map != NULL) {
+                wmem_map_insert(conv_service_map, GUINT_TO_POINTER(stream_key),
+                    GUINT_TO_POINTER((unsigned int)service_type));
+            }
+        } else if (!is_single && conv_service_map != NULL) {
+            void *cached = wmem_map_lookup(conv_service_map, GUINT_TO_POINTER(stream_key));
+            if (cached != NULL) {
+                service_type = (uint16_t)GPOINTER_TO_UINT(cached);
+                have_service_type = true;
+            }
+        }
+
+        if (!is_single && !is_last) {
+            pn_sxp_append_fragment_col_info(pinfo, flags, have_service_type, service_type);
+        }
+    }
 
     if ((flags & 0x02) && is_last) {
         dissect_sxp_reassembled_payload(payload_tvb, pinfo, sxp_tree);
@@ -1101,14 +1242,15 @@ dissect_sxp_packet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
     }
 
     if (!pinfo->fd->visited) {
-        uint32_t reassembly_id = ((uint32_t)arid << 16) | call_seq;
+        /* Keep priority in the key: SXPD maintains call sequence per priority stream. */
+        uint32_t reassembly_id = pn_sxp_stream_key(tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN), arid, priority, call_seq);
 
         fragment_add_seq_next(&pn_sxp_reassembly_table, payload_tvb, 0, pinfo,
             reassembly_id, NULL, tvb_captured_length(payload_tvb), !is_last);
     }
 
     fd_reass = fragment_get_reassembled_id(&pn_sxp_reassembly_table, pinfo,
-        ((uint32_t)arid << 16) | call_seq);
+        pn_sxp_stream_key(tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN), arid, priority, call_seq));
 
     if (fd_reass != NULL && pinfo->fd->num == fd_reass->reassembled_in) {
         tvbuff_t *reass_tvb = process_reassembled_data(tvb, offset, pinfo,
@@ -1116,14 +1258,25 @@ dissect_sxp_packet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
         if (reass_tvb) {
             dissect_sxp_reassembled_payload(reass_tvb, pinfo, sxp_tree);
         }
+        {
+            wmem_map_t *conv_service_map = pn_sxp_get_conversation_service_map(pinfo, false);
+            if (conv_service_map != NULL) {
+                wmem_map_remove(conv_service_map,
+                GUINT_TO_POINTER(pn_sxp_stream_key(tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN), arid, priority, call_seq)));
+            }
+        }
     } else {
         if (fd_reass != NULL) {
             proto_item *pi = proto_tree_add_uint(sxp_tree, hf_pn_sxp_reassembled_in,
                 tvb, 0, 0, fd_reass->reassembled_in);
             proto_item_set_generated(pi);
         }
-        if ((flags & 0x02) && tvb_captured_length(payload_tvb) >= 12) {
-            dissect_sxp_reassembled_payload(payload_tvb, pinfo, sxp_tree);
+        if (is_last) {
+            wmem_map_t *conv_service_map = pn_sxp_get_conversation_service_map(pinfo, false);
+            if (conv_service_map != NULL) {
+                wmem_map_remove(conv_service_map,
+                GUINT_TO_POINTER(pn_sxp_stream_key(tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN), arid, priority, call_seq)));
+            }
         }
     }
 
