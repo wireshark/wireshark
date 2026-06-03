@@ -28,7 +28,7 @@ files are processed in ASCIIbetical order (compared byte-by-byte, as `strcmp`),
 descending into each subdirectory depth-first in order. A subdirectory in the
 global or personal plugin directories containing a `init.lua` is loaded as a
 package, where the `init.lua` file is the entry-point of the module and
-reponsible for loading any additional submodules within its directory tree.
+responsible for loading any additional submodules within its directory tree.
 
 Whether or not Lua scripts are enabled can be controlled via the
 _$$enable_lua$$_ variable. Lua scripts are enabled by

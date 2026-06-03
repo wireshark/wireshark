@@ -149,7 +149,7 @@ typedef struct
     uint32_t nums;                  // Number of sources on this node
 } axia_term_info_t;
 
-//  Source information as received from advertisments
+//  Source information as received from advertisements
 typedef struct
 {
     uint32_t psid;                  // Primary source ID (Livewire channel number)
@@ -161,7 +161,7 @@ typedef struct
     uint32_t setup_frame;           // The frame number where this RTP source was originally setup
 } axia_src_info_t;
 
-// Struct to hold Node and Source information as we go through an advertisment
+// Struct to hold Node and Source information as we go through an advertisement
 typedef struct
 {
     axia_term_info_t *term_info;

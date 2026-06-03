@@ -13126,7 +13126,7 @@ ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, uint
     /* The handshake transcript can be used in [D]TLS 1.2 for the extended
      * master secret of RFC 7627, and in [D]TLS 1.3 for computing the secrets,
      * though the latter is only useful when pke_ke (PSK-only key exchange) is
-     * negotiatied. */
+     * negotiated. */
     if (!ssl_session)
         return;
 

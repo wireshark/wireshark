@@ -640,7 +640,7 @@ ACTION                  int     always             type of the packet
 TRANSACTION_ID          int     always             unique number used through the communication; it is randomly generated
                                                    at the start of the application and increased by 1 with each sent packet
 PROTOCOL_VERSION        byte    always             version of protocol used in this packet
-VENDOR_ID               byte    >=VENDOR_ID         ID of the DHT implementator; 0 = Azureus, 1 = ShareNet, 255 = unknown
+VENDOR_ID               byte    >=VENDOR_ID         ID of the DHT implementor; 0 = Azureus, 1 = ShareNet, 255 = unknown
 NETWORK_ID              int     >=NETWORKS          ID of the network; 0 = stable version; 1 = CVS version
 LOCAL_PROTOCOL_VERSION  byte    >=FIX_ORIGINATOR    maximum protocol version this node supports; if this packet's protocol
                                                    version is <FIX_ORIGINATOR then the value is stored at the end of the packet
@@ -786,7 +786,7 @@ dissect_vuze_dht_reply_ping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 /* --- Request Store -----------------
 
 Name             | Type       | Protocol version | Note
-SPOOF_ID           int          >=ANTI_SPOOF        Spoof ID of the target node; it must be the same number as previously retrived through FIND_NODE reply.
+SPOOF_ID           int          >=ANTI_SPOOF       Spoof ID of the target node; it must be the same number as previously retrieved through FIND_NODE reply.
 KEYS_COUNT         byte         always             Number of keys that follow.
 KEYS               keys         always             Keys that the target node should store.
 VALUE_GROUPS_COUNT byte         always             Number of groups of values this packet contains.

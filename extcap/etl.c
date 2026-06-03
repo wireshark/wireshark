@@ -1137,7 +1137,7 @@ static void etw_dump_write_smb_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
 
         if (ev->EventHeader.EventDescriptor.Keyword & 0x40000000) /* PacketStart */
         {
-            // Beggining of the buffer
+            // Beginning of the buffer
             frag = etw_frag_get(ev, true);
             if (frag == NULL) goto end;
 
@@ -1415,7 +1415,7 @@ static void etw_dump_write_ldap_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp
 
     if (strncmp(Message, "Data", 4) == 0 || strncmp(Message, "Unencrypted", 11) == 0)
     {
-        // Beggining of the buffer
+        // Beginning of the buffer
 
         frag = etw_frag_get(ev, true);
     }

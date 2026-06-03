@@ -1342,7 +1342,7 @@ sharkd_session_process_load(const char *buf, const jsmntok_t *tokens, int count)
         return;
     }
 
-    /* The open succeded, and any previous file was closed. Remove any filter
+    /* The open succeeded, and any previous file was closed. Remove any filter
      * results that refer to the previous file. */
     g_hash_table_remove_all(filter_table);
 

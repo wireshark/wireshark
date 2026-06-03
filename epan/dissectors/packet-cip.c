@@ -5344,7 +5344,7 @@ static int dissect_pdd_get_attributes_all_class(packet_info *pinfo _U_, proto_tr
       proto_tree_add_item_ret_uint16(tree, hf_pdd_size_of_vendor_diagnostics, tvb, offset+parsed_len, 2, ENC_LITTLE_ENDIAN, &size_of_vendor_diagnostics);
       parsed_len += 2;
 
-      // remaining attributes may be ommitted if not implemented, as per GetAttributesAll rules
+      // remaining attributes may be omitted if not implemented, as per GetAttributesAll rules
       int remaining = tvb_reported_length_remaining(tvb, offset+parsed_len);
       if (remaining >= (int)size_of_vendor_diagnostics)
       {
@@ -5391,7 +5391,7 @@ static int dissect_pdd_get_attributes_all_instance(packet_info *pinfo _U_, proto
       parsed_len += 4;
 
       // attributes after Sequence Number are optional and as per definition of Get_Attributes_All,
-      // these may be ommitted from the response
+      // these may be omitted from the response
       int remaining = tvb_reported_length_remaining(tvb, offset+parsed_len);
       if (remaining >= 8)
       {

@@ -190,6 +190,7 @@ asynchronously
 asyncio
 asyncmap
 atapi
+atest
 athens
 atheros
 atime
@@ -1066,6 +1067,7 @@ extopt
 extpfx
 extractors
 extrainformation
+extunit
 eyesdn
 f1removal
 f1setup
@@ -1404,6 +1406,8 @@ infiniband
 infix
 infocomm
 infolist
+informatica
+informatik
 informationitem
 informationlist
 informations
@@ -2195,6 +2199,7 @@ overlay1mask
 overlay2mask
 overnet
 overridable
+owamp
 p2pstar
 p4rpc
 p8118e
@@ -2272,6 +2277,7 @@ peristency
 persian
 persistency
 persresv
+pfcpsr
 pfname
 pfsync
 pgpool
@@ -3206,6 +3212,7 @@ titlebar
 tlvlen
 tlvtype
 tmflags
+tmpdir
 tname
 tobago
 toggled
@@ -3505,6 +3512,7 @@ uploaded
 uploading
 uploads
 uptime
+upvalue
 upvalues
 uring
 urlencoded
@@ -3672,6 +3680,8 @@ wscbor
 wslog
 wslua
 wsluarm
+wsrepodir
+wsrepofile
 wstring
 wsutil
 wusps

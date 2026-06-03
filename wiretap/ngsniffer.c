@@ -2398,9 +2398,9 @@ SnifferDecompress(unsigned char *inbuf, size_t inlen, unsigned char *outbuf,
 		}
 		else
 		{
-			/* bit set - next item is encoded.  Peel off high nybble
+			/* bit set - next item is encoded.  Peel off high nibble
 			   of next byte to see the encoding type.  Set aside low
-			   nybble while we are at it */
+			   nibble while we are at it */
 			code_type = (unsigned int) ((*pin) >> 4 ) & 0xF;
 			code_low  = (unsigned int) ((*pin) & 0xF );
 			pin++;   /* increment over the code byte we just retrieved */
@@ -2410,7 +2410,7 @@ SnifferDecompress(unsigned char *inbuf, size_t inlen, unsigned char *outbuf,
 			{
 			case 0  :   /* RLE short runs */
 				/*
-				  Run length is the low nybble of the first code byte.
+				  Run length is the low nibble of the first code byte.
 				  Byte to repeat immediately follows.
 				  Total code size: 2 bytes.
 				*/
@@ -2422,7 +2422,7 @@ SnifferDecompress(unsigned char *inbuf, size_t inlen, unsigned char *outbuf,
 				break;
 			case 1  :   /* RLE long runs */
 				/*
-				  Low 4 bits of run length is the low nybble of the
+				  Low 4 bits of run length is the low nibble of the
 				  first code byte, upper 8 bits of run length is in
 				  the next byte.
 				  Byte to repeat immediately follows.
@@ -2437,7 +2437,7 @@ SnifferDecompress(unsigned char *inbuf, size_t inlen, unsigned char *outbuf,
 				break;
 			case 2  :   /* LZ77 long strings */
 				/*
-				  Low 4 bits of offset to string is the low nybble of the
+				  Low 4 bits of offset to string is the low nibble of the
 				  first code byte, upper 8 bits of offset is in
 				  the next byte.
 				  Length of string immediately follows.
@@ -2455,7 +2455,7 @@ SnifferDecompress(unsigned char *inbuf, size_t inlen, unsigned char *outbuf,
 				break;
 			default :   /* (3 to 15): LZ77 short strings */
 				/*
-				  Low 4 bits of offset to string is the low nybble of the
+				  Low 4 bits of offset to string is the low nibble of the
 				  first code byte, upper 8 bits of offset is in
 				  the next byte.
 				  Length of string to repeat is overloaded into code_type.
