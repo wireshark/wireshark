@@ -212,7 +212,9 @@ void FontColorPreferencesFrame::unstash()
 void FontColorPreferencesFrame::on_fontPushButton_clicked()
 {
     bool ok;
-    QFont new_font = QFontDialog::getFont(&ok, cur_font_, this, mainApp->windowTitleString(tr("Font")));
+    // QFontDialog::MonospacedFonts might not be supported on Mac by the native
+    // dialog (or Linux GTK3 prior to Qt 6.12). Use DontUseNativeDialog option?
+    QFont new_font = QFontDialog::getFont(&ok, cur_font_, this, mainApp->windowTitleString(tr("Font")), QFontDialog::MonospacedFonts);
     if (ok) {
         prefs_set_string_value(pref_qt_gui_font_name_, new_font.toString().toStdString().c_str(), pref_stashed);
         cur_font_ = new_font;
