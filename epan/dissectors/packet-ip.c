@@ -276,6 +276,7 @@ static expert_field ei_ip_opt_ptr_middle_address;
 static expert_field ei_ip_subopt_too_long;
 static expert_field ei_ip_nop;
 static expert_field ei_ip_bogus_ip_length;
+static expert_field ei_ip_zero_data_length;
 static expert_field ei_ip_evil_packet;
 static expert_field ei_ip_checksum_bad;
 static expert_field ei_ip_ttl_lncb;
@@ -2110,6 +2111,11 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
                                tvb_reported_length(tvb));
       }
     } else {
+      if (iph->ip_len == hlen) {
+        /* IP header with no data.  Let the user know */
+        expert_add_info(pinfo, tf, &ei_ip_zero_data_length);
+      }
+
       /*
        * Now that we know that the total length of this IP datagram isn't
        * obviously bogus, adjust the length of this tvbuff to include only
@@ -2376,7 +2382,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
    */
   save_fragmented = pinfo->fragmented;
   if (ip_defragment && (iph->ip_off & (IP_MF|IP_OFFSET)) &&
-      iph->ip_len > hlen &&
+      iph->ip_len >= hlen &&
       tvb_bytes_exist(tvb, offset, iph->ip_len - hlen) &&
       ipsum == 0) {
     uint32_t frag_id;
@@ -3101,6 +3107,7 @@ proto_register_ip(void)
      { &ei_ip_subopt_too_long, { "ip.subopt_too_long", PI_PROTOCOL, PI_WARN, "Suboption would go past end of option", EXPFILL }},
      { &ei_ip_nop, { "ip.nop", PI_PROTOCOL, PI_WARN, "4 NOP in a row - a router may have removed some options", EXPFILL }},
      { &ei_ip_bogus_ip_length, { "ip.bogus_ip_length", PI_PROTOCOL, PI_ERROR, "Bogus IP length", EXPFILL }},
+     { &ei_ip_zero_data_length, { "ip.zero_data_length", PI_PROTOCOL, PI_NOTE, "Empty data packet", EXPFILL }},
      { &ei_ip_evil_packet, { "ip.evil_packet", PI_PROTOCOL, PI_WARN, "Packet has evil intent", EXPFILL }},
      { &ei_ip_checksum_bad, { "ip.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
      { &ei_ip_ttl_lncb, { "ip.ttl.lncb", PI_SEQUENCE, PI_NOTE, "Time To Live", EXPFILL }},
