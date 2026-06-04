@@ -1523,6 +1523,16 @@ ws_find_package(LIBSSH ENABLE_LIBSSH HAVE_LIBSSH "0.8.5")
 ws_find_package(PCAP ENABLE_PCAP HAVE_LIBPCAP)
 ws_find_package(Systemd BUILD_sdjournal HAVE_SYSTEMD)
 
+# The SpeexDSP resampler is required iff building sharkd, or building
+# Wireshark or Stratoshark with Qt Multimedia
+if(BUILD_sharkd)
+	reset_find_package(SPEEXDSP)
+	find_package(SpeexDSP REQUIRED)
+elseif(BUILD_wireshark OR BUILD_stratoshark)
+	reset_find_package(SPEEXDSP)
+	find_package(SpeexDSP)
+endif()
+
 # Build one of the Qt GUIs?
 if(BUILD_wireshark OR BUILD_stratoshark)
 	# We don't use any QVulkan* classes, so tell Qt's CMake modules not to look for Vulkan.
@@ -1545,8 +1555,11 @@ if(BUILD_wireshark OR BUILD_stratoshark)
 			Widgets
 		OPTIONAL_COMPONENTS
 			DBus
-			Multimedia
 	)
+
+	if (SPEEXDSP_FOUND)
+		find_package(Qt6 ${Qt6_VERSION} REQUIRED OPTIONAL_COMPONENTS Multimedia)
+	endif()
 
 	if (WIN32 AND Qt6Widgets_VERSION VERSION_LESS 6.5.3)
 		message(WARNING "Qt 6.5.3 or later is required.")
@@ -1661,11 +1674,6 @@ find_package( Asciidoctor 1.5 )
 find_package( XSLTPROC )
 
 find_package(DOXYGEN)
-
-# The SpeexDSP resampler is required iff building wireshark or sharkd.
-if(BUILD_wireshark OR BUILD_stratoshark OR BUILD_sharkd)
-	find_package(SpeexDSP REQUIRED)
-endif()
 
 # Generate the distribution tarball.
 add_custom_target(dist
