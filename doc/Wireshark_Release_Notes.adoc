@@ -90,7 +90,7 @@ The following features are either new or have been significantly updated since v
 * The Windows installers now ship with Npcap 1.88.
   They previously shipped with Npcap 1.83.
 
-* The Windows and macOS installers now ship with Qt 6.10.3.
+* The Windows and macOS installers now ship with Qt 6.11.1.
   They previously shipped with Qt 6.9.3.
 
 // XXX This should just describe what changed.
