@@ -1241,3 +1241,15 @@ class TestDissectUsbHid:
                 '-Tfields', '-eusbhid.data.padding',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '03,ff07\n01,b907\n00,0000'
+
+class TestDissectUltraEthernet:
+    def test_uet_crc(self, cmd_tshark, capture_file, test_env):
+        '''Verify we compute a good CRC for various IP and UDP encapsulations.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('uet-generated-crc-encaps.pcap'),
+                '-ouet.has_crc:TRUE',
+                '-ouet.validate_crc:TRUE',
+                '-dip.proto==253,uet',
+                '-Tfields', '-euet.crc.status',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip().split() == (['1'] * 48)
