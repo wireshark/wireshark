@@ -13,8 +13,6 @@
 #include "config.h"
 #include <ui/rtp_media.h>
 
-#include <speex/speex_resampler.h>
-
 #include <QIODevice>
 #include <QDir>
 #include <QTemporaryFile>
@@ -98,7 +96,7 @@ public:
      * @param type Pointer to store the type of the frame.
      * @return True if successful, false otherwise.
      */
-    bool readFrameSamples(int32_t *read_buff_bytes, SAMPLE **read_buff, spx_uint32_t *read_len, uint32_t *frame_num, rtp_frame_type *type);
+    bool readFrameSamples(int32_t *read_buff_bytes, SAMPLE **read_buff, uint32_t *read_len, uint32_t *frame_num, rtp_frame_type *type);
 
     // Functions for reading data during play
     /**

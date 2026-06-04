@@ -175,7 +175,7 @@ void RtpAudioFile::setFrameReadStage(qint64 prepend_samples)
     }
 }
 
-bool RtpAudioFile::readFrameSamples(int32_t *read_buff_bytes, SAMPLE **read_buff, spx_uint32_t *read_len, uint32_t *frame_num, rtp_frame_type *type)
+bool RtpAudioFile::readFrameSamples(int32_t *read_buff_bytes, SAMPLE **read_buff, uint32_t *read_len, uint32_t *frame_num, rtp_frame_type *type)
 {
     rtp_frame_info frame_info;
     uint64_t read_bytes = 0;
@@ -204,7 +204,7 @@ bool RtpAudioFile::readFrameSamples(int32_t *read_buff_bytes, SAMPLE **read_buff
         read_bytes = frame_info.len;
     }
 
-    *read_len = (spx_uint32_t)(read_bytes / SAMPLE_BYTES);
+    *read_len = (uint32_t)(read_bytes / SAMPLE_BYTES);
 
     return true;
 }
