@@ -2299,7 +2299,7 @@ static const char *
 sync_pipe_signame(int sig)
 {
     const char *sigmsg;
-    static char sigmsg_buf[6+1+3+1];
+    static WS_THREAD_LOCAL char sigmsg_buf[6+1+1+10+1];
 
     switch (sig) {
 
