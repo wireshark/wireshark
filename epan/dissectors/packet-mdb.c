@@ -122,11 +122,13 @@ static int hf_mdb_bv_exp_dispenser_payout_activity;
 static int hf_mdb_ack;
 static int hf_mdb_data;
 static int hf_mdb_chk;
+static int hf_mdb_chk_status;
 static int hf_mdb_response_in;
 static int hf_mdb_response_to;
 static int hf_mdb_time;
 
 static expert_field ei_mdb_short_packet;
+static expert_field ei_mdb_bad_checksum;
 
 static dissector_handle_t mdb_handle;
 
@@ -161,6 +163,12 @@ static mdb_conv_info_t* get_mdb_conv_info(packet_info* pinfo)
 #define MDB_EVT_DATA_MST_PER 0xFF
 #define MDB_EVT_DATA_PER_MST 0xFE
 #define MDB_EVT_BUS_RESET    0xFD
+
+#define MDB_PSEUDO_HDR_LEN   2
+
+static bool is_mdb_reply(uint8_t byte) {
+    return (byte == 0x00 || byte == 0xAA || byte == 0xFF);
+}
 
 static const value_string mdb_event[] = {
     { MDB_EVT_DATA_MST_PER, "Data transfer Master -> Peripheral" },
@@ -458,6 +466,22 @@ static void mdb_set_addrs(uint8_t event, uint8_t addr, packet_info *pinfo)
         set_address(&pinfo->dst, AT_STRINGZ, (int)strlen(ADDR_VMC)+1, ADDR_VMC);
         pinfo->p2p_dir = P2P_DIR_RECV;
     }
+}
+
+static void mdb_add_checksum(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int total_len)
+{
+    if (total_len <= 1) return;
+    uint8_t calculated_checksum = 0;
+
+    for (int i = 0; i < total_len - 1; i++) {
+        uint8_t val = tvb_get_uint8(tvb, offset + i);
+        /* The MDB checksum is a simple sum modulo 256. Using uint8_t
+         * causes an intentional wrap-around that perfectly matches the modulo.
+         */
+        calculated_checksum += val;
+    }
+
+    proto_tree_add_checksum(tree, tvb, offset + total_len - 1, hf_mdb_chk, hf_mdb_chk_status, &ei_mdb_bad_checksum, pinfo, calculated_checksum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 }
 
 static void dissect_mdb_cl_setup(tvbuff_t *tvb, int offset,
@@ -1147,6 +1171,7 @@ static void dissect_mdb_mst_per(tvbuff_t *tvb, int offset, packet_info *pinfo,
      */
 
     data_len = mst_per_len - 2;
+    int start_offset = offset;
 
     /*
      * The address byte is 5-bit address | 3-bit command.
@@ -1195,8 +1220,8 @@ static void dissect_mdb_mst_per(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
     offset += data_len;
 
-    /* XXX - verify the checksum */
-    proto_tree_add_item(tree, hf_mdb_chk, tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* Verify the checksum */
+    mdb_add_checksum(tvb, pinfo, tree, start_offset, data_len + 2);
 }
 
 static void dissect_mdb_per_mst_bv( tvbuff_t *tvb, int offset,
@@ -1273,6 +1298,12 @@ static void dissect_mdb_per_mst_bv( tvbuff_t *tvb, int offset,
 
 }
 
+/*
+ * Peripheral-to-Master messages can be simple control replies (ACK, NAK, RET)
+ * that do not include a checksum. Master-to-Peripheral commands always
+ * require a checksum, which is why this check is only needed for
+ * Peripheral-to-Master events.
+ */
 static void dissect_mdb_per_mst(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree *tree, uint8_t addr)
 {
@@ -1301,6 +1332,18 @@ static void dissect_mdb_per_mst(tvbuff_t *tvb, int offset, packet_info *pinfo,
     mdb_conv_info_t* conv_info = get_mdb_conv_info(pinfo);
 
     data_len = per_mst_len - 1;
+    int start_offset = offset;
+
+    /*
+     * Peripheral-to-Master messages can be simple control replies (ACK, NAK, RET)
+     * that do not include a checksum.
+     */
+    bool checksum_needed = true;
+    if (data_len == 1 && is_mdb_reply(tvb_get_uint8(tvb, offset))) {
+        checksum_needed = false;
+    }
+
+
     switch (addr) {
         case ADDR_CASHLESS1:
             dissect_mdb_per_mst_cl(tvb, offset, data_len, pinfo, tree, conv_info);
@@ -1317,8 +1360,9 @@ static void dissect_mdb_per_mst(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
     offset += data_len;
 
-    /* XXX - verify the checksum */
-    proto_tree_add_item(tree, hf_mdb_chk, tvb, offset, 1, ENC_BIG_ENDIAN);
+    if (checksum_needed) {
+        mdb_add_checksum(tvb, pinfo, tree, start_offset, data_len + 1);
+    }
 }
 
 static int dissect_mdb(tvbuff_t *tvb,
@@ -1707,6 +1751,11 @@ void proto_register_mdb(void)
             { "Checksum", "mdb.chk",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
         },
+        { &hf_mdb_chk_status,
+            { "Checksum Status", "mdb.chk.status",
+                FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+                NULL, HFILL }
+        },
         { &hf_mdb_response_in,
             { "Response In", "mdb.response_in",
                 FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
@@ -1727,7 +1776,10 @@ void proto_register_mdb(void)
     static ei_register_info ei[] = {
         { &ei_mdb_short_packet,
             { "mdb.short_packet", PI_PROTOCOL, PI_ERROR,
-                "MDB packet without payload", EXPFILL }}
+                "MDB packet without payload", EXPFILL }},
+        { &ei_mdb_bad_checksum,
+            { "mdb.bad_checksum", PI_CHECKSUM, PI_ERROR,
+                "Bad checksum", EXPFILL }}
     };
 
     proto_mdb = proto_register_protocol("Multi-Drop Bus", "MDB", "mdb");
