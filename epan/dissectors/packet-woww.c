@@ -12302,7 +12302,7 @@ add_packed_guid(ptvcursor_t* ptv, packet_info* pinfo) {
     uint8_t byte_mask = tvb_get_uint8(tvb, ptvcursor_current_offset(ptv));
     ptvcursor_advance(ptv, 1);
 
-    uint8_t* guid = (uint8_t*)wmem_alloc(pinfo->pool, 8);
+    uint8_t* guid = (uint8_t*)wmem_alloc0(pinfo->pool, 8);
 
     for (int i = 0; i < 8; ++i) {
         if (byte_mask & (1 << i)) {
