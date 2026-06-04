@@ -304,6 +304,12 @@ typedef struct _stun_conv_info_t {
 #define CONNECTION_ATTEMPT      0x000c /* RFC6062 */
 #define GOOG_PING               0x0080 /* Google undocumented */
 
+/* MS-TURN message types use raw 16-bit values, not the RFC 5389 class/method
+ * bit layout used by the values above.
+ */
+#define MS_TURN_SEND    0x0004
+#define MS_TURN_DATA_IND 0x0115
+
 /* 0x080-0x0FF Expert Review */
 /* 0x100-0xFFF Reserved (for DTLS-SRTP multiplexing collision avoidance,
  * see RFC7983.  Cannot be made available for assignment without IETF Review.)
@@ -1174,18 +1180,23 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool i
         stun_trans->req_time=pinfo->abs_ts;
     }
 
-    /*
-     * MS-TURN uses a type value 0x0115 for DATA-INDICATION, which does not fit
-     * the RFC5389 bit layout and would otherwise look like an "Unknown Error Response".
-     * If it looks like MS-TURN based on the first attribute being MS MAGIC-COOKIE,
-     * remap 0x0115 to Data Indication with class INDICATION.
+    /* According to [MS-TURN] section 2.2.2.8, the MAGIC_COOKIE attribute is
+     * the first attribute in all MS-TURN messages.
      */
     unsigned int first_attr_off = tcp_framing_offset + STUN_HDR_LEN;
-    if (reported_length >= (first_attr_off + 2)) {
-        uint16_t first_attr = tvb_get_ntohs(tvb, first_attr_off);
-        if ((first_attr == MAGIC_COOKIE) && (msg_type == 0x0115)) {
+    if (tvb_get_ntohs(tvb, first_attr_off) == MAGIC_COOKIE &&
+        tvb_get_ntohl(tvb, first_attr_off + ATTR_HDR_LEN) == TURN_MAGIC_COOKIE) {
+        switch (msg_type) {
+        case MS_TURN_SEND:
+            msg_type_class = REQUEST;
+            msg_type_method = SEND;
+            break;
+        case MS_TURN_DATA_IND:
             msg_type_class = INDICATION;
             msg_type_method = DATA_IND;
+            break;
+        default:
+            break;
         }
     }
 
