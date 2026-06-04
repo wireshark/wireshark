@@ -6842,7 +6842,18 @@ tls13_load_secret_from_psk(SslDecryptSession *tls, bool is_from_server,
     if (tls->psk.data_len == 0)
         return NULL;
 
+    /* We SHOULD associate each PSK with a hash algorithm (e.g., use
+     * a UAT instead of a single global PSK string preference, preferably
+     * following RFC 9258.) Failing that, RFC 8864 4.2.1 and 9258 say SHA-256
+     * SHOULD be used. We will try the negotiated hash algorithm regardless
+     * with the PSK, but fall back to SHA-256 for the Early Secret, since
+     * that's before the Server Hello completes negotiation.
+     */
     const SslDigestAlgo *dig = ssl_cipher_suite_dig(tls->cipher_suite);
+    if (type == TLS_SECRET_0RTT_APP && dig == &digests[DIG_NA - DIG_MD5]) {
+        dig = &digests[DIG_SHA256 - DIG_MD5];
+        ssl_debug_printf("%s assuming PSK hash function is %s\n", G_STRFUNC, dig->name);
+    }
 
     int hash_algo = ssl_get_digest_by_name(dig->name);
     if (!hash_algo) {
@@ -6891,6 +6902,12 @@ tls13_load_secret_from_psk(SslDecryptSession *tls, bool is_from_server,
         }
     }
 
+    /* XXX - If Encrypted Client Hello was accepted (do client/server pairs
+     * support ECHO with psk_ke?) then we should use ech_transcript instead
+     * of handshake_data. Perhaps we should consolidate some of that handling,
+     * though note that we would have to keep both transcripts around after
+     * the ClientHello until the ServerHello indicated whether ECHO was
+     * accepted or not. */
     if (!tls13_derive_secret(hash_algo, &prk_string,
                         tls13_hkdf_label_prefix(tls), label,
                         tls->handshake_data.data, tls->handshake_data.data_len,
@@ -13141,6 +13158,16 @@ ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, uint
      * in its handshake transcript, whereas DTLS 1.3 does not (using the same
      * format as TLS 1.3). We don't know at the point of the ClientHello which
      * version will be used, so PSK only likely doesn't work for DTLS 1.3 yet.
+     *
+     * XXX - When the server responds with a HelloRetryRequest, for subsequent
+     * hashes (other than the first PSK Binder, see 4.2.11.2) ClientHello1 is
+     * replaced with a synthentic handhsake message of type "message_hash",
+     * per RFC 8446 4.4.1. We aren't concerned with that now, as a HRR generally
+     * rules out PSK-only key exchange, which is what we calculate the hash for
+     * here. (The possible exception is when a server sends a HRR to reject
+     * early data but the server and client otherwise agree on psk_ke, if
+     * any client/server pairs support that.) We do support that in the context
+     * of computing the hash for Encrypted Client Hello; see elsewhere.
      */
     case TLSV1DOT3_VERSION:
     case DTLSV1DOT3_VERSION:
