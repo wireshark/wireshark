@@ -2248,8 +2248,7 @@ static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         proto_item_append_text(item_tcpcl, " Version %d", ctx->tx_peer->version);
     }
     else {
-        const int item_len = proto_item_get_len(item_tcpcl);
-        proto_item_set_len(item_tcpcl, item_len + offset);
+        proto_item_set_len(item_tcpcl, proto_item_get_len(item_tcpcl) + offset);
     }
 
     if (ctx->xferload) {

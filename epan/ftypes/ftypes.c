@@ -1043,18 +1043,20 @@ fvalue_set_strbuf(fvalue_t *fv, wmem_strbuf_t *value)
 }
 
 void
-fvalue_set_protocol(fvalue_t *fv, tvbuff_t *value, const char *name, int length)
+fvalue_set_protocol(fvalue_t *fv, tvbuff_t *value, const char *name, unsigned length)
 {
 	ws_assert(fv->ftype->ftype == FT_PROTOCOL);
 	ws_assert(fv->ftype->set_value.set_value_protocol);
+	ws_assert(value == NULL || tvb_captured_length(value) >= length);
 	fv->ftype->set_value.set_value_protocol(fv, value, name, length);
 }
 
 void
-fvalue_set_protocol_length(fvalue_t *fv, int length)
+fvalue_set_protocol_length(fvalue_t *fv, unsigned length)
 {
 	ws_assert(fv->ftype->ftype == FT_PROTOCOL);
 	protocol_value_t *proto = &fv->value.protocol;
+	ws_assert(proto->tvb == NULL || tvb_captured_length(proto->tvb) >= length);
 	proto->length = length;
 }
 

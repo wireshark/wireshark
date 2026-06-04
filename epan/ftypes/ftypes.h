@@ -551,7 +551,7 @@ ftype_can_val_to_double(enum ftenum ftype);
 typedef struct _protocol_value_t
 {
     tvbuff_t* tvb;            /**< Tvbuff containing the raw bytes of the protocol value. */
-    int       length;         /**< Length in bytes of the protocol data within the tvbuff. */
+    unsigned  length;         /**< Length in bytes of the protocol data within the tvbuff. */
     char*     proto_string;   /**< String representation of the protocol value, if applicable. */
     bool      tvb_is_private; /**< True if this struct owns the tvbuff and is responsible for freeing it. */
 } protocol_value_t;
@@ -902,7 +902,7 @@ fvalue_set_strbuf(fvalue_t *fv, wmem_strbuf_t *value);
  */
 WS_DLL_PUBLIC
 void
-fvalue_set_protocol(fvalue_t *fv, tvbuff_t *value, const char *name, int length);
+fvalue_set_protocol(fvalue_t *fv, tvbuff_t *value, const char *name, unsigned length);
 
 /**
  * @brief Set the protocol length for a fvalue_t structure.
@@ -912,7 +912,7 @@ fvalue_set_protocol(fvalue_t *fv, tvbuff_t *value, const char *name, int length)
  */
 WS_DLL_PUBLIC
 void
-fvalue_set_protocol_length(fvalue_t *fv, int length);
+fvalue_set_protocol_length(fvalue_t *fv, unsigned length);
 
 
 /**

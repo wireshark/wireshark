@@ -1258,7 +1258,7 @@ WS_DLL_PUBLIC void proto_item_prepend_text(proto_item *pi, const char *format, .
 /** Set proto_item's length inside tvb, after it has already been created.
  @param pi the item to set the length
  @param length the new length of the item */
-WS_DLL_PUBLIC void proto_item_set_len(proto_item *pi, const int length);
+WS_DLL_PUBLIC void proto_item_set_len(proto_item *pi, const unsigned length);
 
 /**
  * Sets the length of the item based on its start and on the specified
@@ -1286,8 +1286,19 @@ WS_DLL_PUBLIC void proto_item_set_end(proto_item *pi, tvbuff_t *tvb, unsigned en
 /** Get length of a proto_item. Useful after using proto_tree_add_item()
  * to add a variable-length field (e.g., FT_UINT_STRING).
  @param pi the item to get the length from
- @return the current length */
-WS_DLL_PUBLIC int proto_item_get_len(const proto_item *pi);
+ @return the current length
+
+ @note This is not guaranteed to be accurate; it may be 0 for faked items.
+ Creating an item with proto_tree_add_item_ret_length() always returns the
+ correct length, even for faked items, and must be used when getting a
+ length to advance an offset, extract protocol data, etc. It is ok to use
+ this in combination with proto_item_set_len to increase the length of an item,
+ since proto_item_set_len is a no-op when an item is faked, e.g.:
+ @code
+ proto_item_set_len(pi, proto_item_get_len(pi) + delta);
+ @endcode
+ */
+WS_DLL_PUBLIC unsigned proto_item_get_len(const proto_item *pi);
 
 /** Set the bit offset and length for the specified proto_item.
  * @param ti The item to set.

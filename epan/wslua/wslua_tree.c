@@ -1107,12 +1107,12 @@ WSLUA_METHOD TreeItem_set_hidden(lua_State *L) {
 /* WSLUA_ATTRIBUTE TreeItem_len RW Set/get <<lua_class_TreeItem,`TreeItem`>>'s length inside tvb, after it has already been created. */
 static int TreeItem_get_len(lua_State* L) {
     TreeItem ti = checkTreeItem(L,1);
-    int len = 0;
+    unsigned len = 0;
 
     /* XXX - this is *NOT* guaranteed to return a correct value! */
     len = proto_item_get_len(ti->item);
 
-    lua_pushinteger(L, len > 0 ? len : 0);
+    lua_pushinteger(L, (lua_Integer)len > 0 ? (lua_Integer)len : 0);
 
     return 1;
 }

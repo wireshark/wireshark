@@ -4808,7 +4808,8 @@ ptvcursor_advance(ptvcursor_t* ptvc, unsigned length)
 static void
 proto_tree_set_protocol_tvb(field_info *fi, tvbuff_t *tvb, const char* field_data, int length)
 {
-	fvalue_set_protocol(fi->value, tvb, field_data, length);
+	ws_assert(length >= 0);
+	fvalue_set_protocol(fi->value, tvb, field_data, (unsigned)length);
 }
 
 /* Add a FT_PROTOCOL to a proto_tree */
@@ -8013,12 +8014,11 @@ proto_item_prepend_text(proto_item *pi, const char *format, ...)
 }
 
 static void
-finfo_set_len(field_info *fi, const int length)
+finfo_set_len(field_info *fi, const unsigned length)
 {
-	int length_remaining;
+	unsigned length_remaining;
 
-	DISSECTOR_ASSERT_HINT(length >= 0, fi->hfinfo->abbrev);
-	length_remaining = tvb_captured_length_remaining(fi->ds_tvb, fi->start);
+	length_remaining = G_LIKELY(fi->ds_tvb) ? tvb_captured_length_remaining(fi->ds_tvb, fi->start) : 0;
 	if (length > length_remaining)
 		fi->length = length_remaining;
 	else
@@ -8046,7 +8046,7 @@ finfo_set_len(field_info *fi, const int length)
 }
 
 void
-proto_item_set_len(proto_item *pi, const int length)
+proto_item_set_len(proto_item *pi, const unsigned length)
 {
 	field_info *fi;
 
@@ -8071,7 +8071,7 @@ void
 proto_item_set_end(proto_item *pi, tvbuff_t *tvb, unsigned end)
 {
 	field_info *fi;
-	int length;
+	unsigned length;
 
 	if (pi == NULL)
 		return;
@@ -8092,18 +8092,27 @@ proto_item_set_end(proto_item *pi, tvbuff_t *tvb, unsigned end)
 	finfo_set_len(fi, length);
 }
 
-int
+unsigned
 proto_item_get_len(const proto_item *pi)
 {
+	/* XXX - The only use case where this is really guaranteed to work is
+	 * increasing the length of an item (which has no effect if the item
+	 * is faked, so it doesn't matter that this returns 0 in that case), e.g.
+	 *
+	 * proto_item_set_len(pi, proto_item_get_len(pi) + delta);
+	 *
+	 * Should there be a macro or function to do that, and possibly this
+	 * be deprecated? As a bonus, we could handle overflow.
+	 */
 	field_info *fi;
 
 	if (!pi)
-		return -1;
+		return 0;
 	fi = PITEM_FINFO(pi);
 	if (fi) {
 		return fi->length;
 	}
-	return -1;
+	return 0;
 }
 
 void
