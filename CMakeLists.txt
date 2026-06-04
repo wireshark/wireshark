@@ -1294,6 +1294,16 @@ ws_find_package(PCAP ENABLE_PCAP HAVE_LIBPCAP)
 ws_find_package(AIRPCAP ENABLE_AIRPCAP HAVE_AIRPCAP)
 ws_find_package(Systemd BUILD_sdjournal HAVE_SYSTEMD)
 
+# The SpeexDSP resampler is required iff building sharkd, or building
+# Wireshark or Logray with Qt Multimedia
+if(BUILD_sharkd)
+	reset_find_package(SPEEXDSP)
+	find_package(SpeexDSP REQUIRED)
+elseif(BUILD_wireshark OR BUILD_logray)
+	reset_find_package(SPEEXDSP)
+	find_package(SpeexDSP)
+endif()
+
 # Build one of the Qt GUIs?
 if(BUILD_wireshark OR BUILD_logray)
 	if(USE_qt6)
@@ -1323,8 +1333,11 @@ if(BUILD_wireshark OR BUILD_logray)
 				Core5Compat
 			OPTIONAL_COMPONENTS
 				DBus
-				Multimedia
 		)
+
+		if (SPEEXDSP_FOUND)
+			find_package(Qt6 ${Qt6_VERSION} REQUIRED OPTIONAL_COMPONENTS Multimedia)
+		endif()
 	else(USE_qt6)
 		set(qtver 5)
 		if(DEFINED ENV{WIRESHARK_QT5_PREFIX_PATH})
@@ -1349,9 +1362,13 @@ if(BUILD_wireshark OR BUILD_logray)
 			Qt5Widgets
 			Qt5Concurrent
 		)
-		set(QT5_OPTIONAL_PACKAGELIST
-			Qt5Multimedia
-		)
+
+		if (SPEEXDSP_FOUND)
+			set(QT5_OPTIONAL_PACKAGELIST
+				Qt5Multimedia
+			)
+		endif()
+
 		if(WIN32)
 			list(APPEND QT5_PACKAGELIST Qt5WinExtras)
 		endif()
@@ -1514,11 +1531,6 @@ find_package( Asciidoctor 1.5 )
 find_package( XSLTPROC )
 
 find_package(DOXYGEN)
-
-# The SpeexDSP resampler is required iff building wireshark or sharkd.
-if(BUILD_wireshark OR BUILD_logray OR BUILD_sharkd)
-	find_package(SpeexDSP REQUIRED)
-endif()
 
 # Generate the distribution tarball.
 add_custom_target(dist
