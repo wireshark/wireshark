@@ -19,6 +19,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/expert.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
@@ -38,6 +39,10 @@ void proto_reg_handoff_HI2Operations(void);
 /* Initialize the protocol and registered fields */
 static int proto_HI2Operations;
 static int hf_HI2Operations_apn_str;
+
+static expert_field ei_HI2Operations_non_compliant_apn;
+static expert_field ei_HI2Operations_non_compliant_uli;
+
 static int hf_HI2Operations_IRIsContent_PDU;      /* IRIsContent */
 static int hf_HI2Operations_UUS1_Content_PDU;     /* UUS1_Content */
 static int hf_HI2Operations_communication_Identity_Number;  /* OCTET_STRING_SIZE_1_8 */
@@ -279,13 +284,14 @@ static int hf_HI2Operations_cc;                   /* T_cc */
 static int hf_HI2Operations_cc_item;              /* OCTET_STRING */
 static int hf_HI2Operations_iri;                  /* OCTET_STRING */
 static int hf_HI2Operations_pDP_address_allocated_to_the_target;  /* DataNodeAddress */
-static int hf_HI2Operations_aPN;                  /* OCTET_STRING_SIZE_1_100 */
+static int hf_HI2Operations_aPN;                  /* T_aPN */
 static int hf_HI2Operations_pDP_type;             /* OCTET_STRING_SIZE_2 */
 static int hf_HI2Operations_nSAPI;                /* OCTET_STRING_SIZE_1 */
 static int hf_HI2Operations_additionalIPaddress;  /* DataNodeAddress */
 static int hf_HI2Operations_qosMobileRadio;       /* OCTET_STRING */
 static int hf_HI2Operations_qosGn;                /* OCTET_STRING */
 static int hf_HI2Operations_pDNAddressAllocation;  /* T_pDNAddressAllocation */
+static int hf_HI2Operations_aPN_01;               /* T_aPN_01 */
 static int hf_HI2Operations_protConfigOptions;    /* ProtConfigOptions */
 static int hf_HI2Operations_attachType;           /* OCTET_STRING_SIZE_1 */
 static int hf_HI2Operations_ePSBearerIdentity;    /* OCTET_STRING */
@@ -331,7 +337,7 @@ static int hf_HI2Operations_remoteUserID;         /* RemoteUserID */
 static int hf_HI2Operations_remoteUEIPInformation;  /* RemoteUEIPInformation */
 static int hf_HI2Operations_lifetime;             /* INTEGER_0_65535 */
 static int hf_HI2Operations_accessTechnologyType;  /* OCTET_STRING_SIZE_4 */
-static int hf_HI2Operations_aPN_01;               /* APN */
+static int hf_HI2Operations_aPN_02;               /* APN */
 static int hf_HI2Operations_iPv6HomeNetworkPrefix;  /* OCTET_STRING_SIZE_20 */
 static int hf_HI2Operations_protConfigurationOption;  /* OCTET_STRING */
 static int hf_HI2Operations_handoverIndication_01;  /* OCTET_STRING_SIZE_4 */
@@ -1881,9 +1887,18 @@ dissect_HI2Operations_DataNodeAddress(bool implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 static unsigned
-dissect_HI2Operations_OCTET_STRING_SIZE_1_100(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_HI2Operations_T_aPN(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb=NULL;
+
   offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
-                                                   1, 100, hf_index, NULL);
+                                                   1, 100, hf_index, &parameter_tvb);
+
+  if (!parameter_tvb)
+    return offset;
+
+  /* Coded in accordance with 3GPP TS 23.003 (label-encoded) */
+  proto_tree_add_item(tree, hf_HI2Operations_apn_str, parameter_tvb, 0, tvb_captured_length(parameter_tvb), ENC_APN_STR);
+
 
   return offset;
 }
@@ -1911,7 +1926,7 @@ dissect_HI2Operations_OCTET_STRING_SIZE_1(bool implicit_tag _U_, tvbuff_t *tvb _
 
 static const ber_sequence_t GPRS_parameters_sequence[] = {
   { &hf_HI2Operations_pDP_address_allocated_to_the_target, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_DataNodeAddress },
-  { &hf_HI2Operations_aPN   , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_100 },
+  { &hf_HI2Operations_aPN   , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_aPN },
   { &hf_HI2Operations_pDP_type, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_2 },
   { &hf_HI2Operations_nSAPI , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1 },
   { &hf_HI2Operations_additionalIPaddress, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_DataNodeAddress },
@@ -2506,6 +2521,33 @@ dissect_HI2Operations_T_pDNAddressAllocation(bool implicit_tag _U_, tvbuff_t *tv
 
 
 static unsigned
+dissect_HI2Operations_T_aPN_01(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb=NULL;
+
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 100, hf_index, &parameter_tvb);
+
+  if (!parameter_tvb)
+    return offset;
+
+  /* The APN should be label-encoded per TS 23.003, but some implementations
+   * encode it as a plain UTF-8 string. Try label decoding first: if the first
+   * byte (label length) exceeds the remaining data, fall back to UTF-8. */
+  if (tvb_captured_length(parameter_tvb) > 0 &&
+      tvb_get_uint8(parameter_tvb, 0) < tvb_captured_length(parameter_tvb)) {
+    proto_tree_add_item(tree, hf_HI2Operations_apn_str, parameter_tvb, 0, tvb_captured_length(parameter_tvb), ENC_APN_STR);
+  } else {
+    proto_tree_add_item(tree, hf_HI2Operations_apn_str, parameter_tvb, 0, tvb_captured_length(parameter_tvb), ENC_UTF_8);
+    expert_add_info(actx->pinfo, actx->created_item, &ei_HI2Operations_non_compliant_apn);
+  }
+
+
+  return offset;
+}
+
+
+
+static unsigned
 dissect_HI2Operations_OCTET_STRING_SIZE_1_251(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
                                                    1, 251, hf_index, NULL);
@@ -2633,7 +2675,13 @@ dissect_HI2Operations_T_userLocationInfo(bool implicit_tag _U_, tvbuff_t *tvb _U
   tvb_len = tvb_reported_length(tvb);
   eps_uli_tree = proto_tree_add_subtree(tree, tvb, 0, tvb_len, ett_HI2Operations_eps_uli, NULL, "userLocationInfo");
 
-  dissect_gtpv2_uli(tvb, actx->pinfo, eps_uli_tree, NULL, tvb_len, 0, 0, NULL);
+  if (tvb_len > 1) {
+    dissect_gtpv2_uli(tvb, actx->pinfo, eps_uli_tree, NULL, tvb_len, 0, 0, NULL);
+  } else {
+    /* ULI too short to contain location identifiers after the flags byte */
+    proto_tree_add_item(eps_uli_tree, hf_HI2Operations_userLocationInfo, tvb, 0, tvb_len, ENC_NA);
+    expert_add_info(actx->pinfo, actx->created_item, &ei_HI2Operations_non_compliant_uli);
+  }
 
   offset = tvb_len;
 
@@ -2796,7 +2844,7 @@ dissect_HI2Operations_RemoteUeContextDisconnected(bool implicit_tag _U_, tvbuff_
 
 static const ber_sequence_t EPS_GTPV2_SpecificParameters_sequence[] = {
   { &hf_HI2Operations_pDNAddressAllocation, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_pDNAddressAllocation },
-  { &hf_HI2Operations_aPN   , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_100 },
+  { &hf_HI2Operations_aPN_01, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_aPN_01 },
   { &hf_HI2Operations_protConfigOptions, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_ProtConfigOptions },
   { &hf_HI2Operations_attachType, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1 },
   { &hf_HI2Operations_ePSBearerIdentity, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING },
@@ -2903,7 +2951,7 @@ dissect_HI2Operations_OCTET_STRING_SIZE_3(bool implicit_tag _U_, tvbuff_t *tvb _
 static const ber_sequence_t EPS_PMIP_SpecificParameters_sequence[] = {
   { &hf_HI2Operations_lifetime, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_0_65535 },
   { &hf_HI2Operations_accessTechnologyType, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_4 },
-  { &hf_HI2Operations_aPN_01, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_APN },
+  { &hf_HI2Operations_aPN_02, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_APN },
   { &hf_HI2Operations_iPv6HomeNetworkPrefix, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_20 },
   { &hf_HI2Operations_protConfigurationOption, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING },
   { &hf_HI2Operations_handoverIndication_01, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_4 },
@@ -2953,7 +3001,7 @@ static const ber_sequence_t EPS_DSMIP_SpecificParameters_sequence[] = {
   { &hf_HI2Operations_homeAddress, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_8 },
   { &hf_HI2Operations_iPv4careOfAddress_01, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_8 },
   { &hf_HI2Operations_iPv6careOfAddress_01, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_16 },
-  { &hf_HI2Operations_aPN_01, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_APN },
+  { &hf_HI2Operations_aPN_02, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_APN },
   { &hf_HI2Operations_status, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_0_255 },
   { &hf_HI2Operations_hSS_AAA_address, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING },
   { &hf_HI2Operations_targetPDN_GW_Address, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING },
@@ -5642,7 +5690,7 @@ void proto_register_HI2Operations(void) {
     { &hf_HI2Operations_aPN,
       { "aPN", "HI2Operations.aPN",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_1_100", HFILL }},
+        NULL, HFILL }},
     { &hf_HI2Operations_pDP_type,
       { "pDP-type", "HI2Operations.pDP_type",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -5667,6 +5715,10 @@ void proto_register_HI2Operations(void) {
       { "pDNAddressAllocation", "HI2Operations.pDNAddressAllocation",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_HI2Operations_aPN_01,
+      { "aPN", "HI2Operations.aPN",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "T_aPN_01", HFILL }},
     { &hf_HI2Operations_protConfigOptions,
       { "protConfigOptions", "HI2Operations.protConfigOptions_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5847,7 +5899,7 @@ void proto_register_HI2Operations(void) {
       { "accessTechnologyType", "HI2Operations.accessTechnologyType",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_4", HFILL }},
-    { &hf_HI2Operations_aPN_01,
+    { &hf_HI2Operations_aPN_02,
       { "aPN", "HI2Operations.aPN",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -6826,6 +6878,15 @@ void proto_register_HI2Operations(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_HI2Operations, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  {
+    static ei_register_info ei[] = {
+      { &ei_HI2Operations_non_compliant_apn, { "HI2Operations.non_compliant_apn", PI_PROTOCOL, PI_WARN, "APN not label-encoded per TS 23.003", EXPFILL }},
+      { &ei_HI2Operations_non_compliant_uli, { "HI2Operations.non_compliant_uli", PI_PROTOCOL, PI_WARN, "ULI too short to decode", EXPFILL }},
+    };
+    expert_module_t *expert_HI2Operations = expert_register_protocol(proto_HI2Operations);
+    expert_register_field_array(expert_HI2Operations, ei, array_length(ei));
+  }
 
   register_dissector("HI2Operations", dissect_IRIsContent_PDU, proto_HI2Operations);
 

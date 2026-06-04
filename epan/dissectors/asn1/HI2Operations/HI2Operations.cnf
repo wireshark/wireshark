@@ -135,6 +135,34 @@ GSMLocation/geoCoordinates/longitude geoCoordinates_longitude
 
   offset = tvb_len;
 
+#.FN_BODY GPRS-parameters/aPN VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb=NULL;
+
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+
+  /* Coded in accordance with 3GPP TS 23.003 (label-encoded) */
+  proto_tree_add_item(tree, hf_HI2Operations_apn_str, parameter_tvb, 0, tvb_captured_length(parameter_tvb), ENC_APN_STR);
+
+#.FN_BODY EPS-GTPV2-SpecificParameters/aPN VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb=NULL;
+
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+
+  /* The APN should be label-encoded per TS 23.003, but some implementations
+   * encode it as a plain UTF-8 string. Try label decoding first: if the first
+   * byte (label length) exceeds the remaining data, fall back to UTF-8. */
+  if (tvb_captured_length(parameter_tvb) > 0 &&
+      tvb_get_uint8(parameter_tvb, 0) < tvb_captured_length(parameter_tvb)) {
+    proto_tree_add_item(tree, hf_HI2Operations_apn_str, parameter_tvb, 0, tvb_captured_length(parameter_tvb), ENC_APN_STR);
+  } else {
+    proto_tree_add_item(tree, hf_HI2Operations_apn_str, parameter_tvb, 0, tvb_captured_length(parameter_tvb), ENC_UTF_8);
+    expert_add_info(actx->pinfo, actx->created_item, &ei_HI2Operations_non_compliant_apn);
+  }
+
 #.FN_BODY EPS-GTPV2-SpecificParameters/aPN-AMBR
   proto_tree *eps_apn_ambr_tree;
   unsigned tvb_len;
@@ -163,7 +191,13 @@ GSMLocation/geoCoordinates/longitude geoCoordinates_longitude
   tvb_len = tvb_reported_length(tvb);
   eps_uli_tree = proto_tree_add_subtree(tree, tvb, 0, tvb_len, ett_HI2Operations_eps_uli, NULL, "userLocationInfo");
 
-  dissect_gtpv2_uli(tvb, actx->pinfo, eps_uli_tree, NULL, tvb_len, 0, 0, NULL);
+  if (tvb_len > 1) {
+    dissect_gtpv2_uli(tvb, actx->pinfo, eps_uli_tree, NULL, tvb_len, 0, 0, NULL);
+  } else {
+    /* ULI too short to contain location identifiers after the flags byte */
+    proto_tree_add_item(eps_uli_tree, hf_HI2Operations_userLocationInfo, tvb, 0, tvb_len, ENC_NA);
+    expert_add_info(actx->pinfo, actx->created_item, &ei_HI2Operations_non_compliant_uli);
+  }
 
   offset = tvb_len;
 
