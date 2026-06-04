@@ -437,8 +437,11 @@ Sometimes it can be helpful to abort the program right after a log message of a 
 
 The following environment variables are used to configure a trap by the logging system:
 
-WIRESHARK_LOG_FATAL, or --log_fatal::
+WIRESHARK_LOG_FATAL, or --log-fatal::
 This is the level for which log messages are fatal. This can either be "critical" or "warning" level.
+
+WIRESHARK_LOG_FATAL_COUNT, or --log-fatal-count::
+This is the amount of fatal log messages which may pass before the program is trapped.
 
 WIRESHARK_LOG_FATAL_DOMAIN, WIRESHARK_LOG_FATAL_DOMAINS, or --log-fatal-domain, --log-fatal-domains::
 These are the domain(s) where output of a log message is fatal. This is less commonly used than the fatal log level setting above.

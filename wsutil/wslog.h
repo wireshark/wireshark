@@ -284,6 +284,30 @@ enum ws_log_level ws_log_set_fatal_level_str(const char *str_level);
 
 
 /**
+ * @brief Set the fatal log count.
+ *
+ * Sets the fatal log count at which calls to ws_log() of the configured level
+ * will abort the program. Must be 1 or higher.
+ *
+ * @param count  Fatal log count before program is trapped.
+ */
+WS_DLL_PUBLIC
+void ws_log_set_fatal_count(uint32_t count);
+
+
+/**
+ * @brief Set the fatal log count from a string.
+ *
+ * Same as ws_log_set_fatal_count(), but accepts the count as a string.
+ *
+ * @param str_count  String representation of the fatal log count.
+ * @return           true if the string was a valid count, false otherwise.
+ */
+WS_DLL_PUBLIC
+bool ws_log_set_fatal_count_str(const char *str_count);
+
+
+/**
  * @brief Set the active log writer.
  *
  * The parameter 'writer' can be NULL to use the default writer.
@@ -317,9 +341,10 @@ void ws_log_set_writer_with_data(ws_log_writer_cb *writer,
 #define LONGOPT_WSLOG_LOG_DOMAIN           LONGOPT_BASE_WSLOG+2
 #define LONGOPT_WSLOG_LOG_FILE             LONGOPT_BASE_WSLOG+3
 #define LONGOPT_WSLOG_LOG_FATAL            LONGOPT_BASE_WSLOG+4
-#define LONGOPT_WSLOG_LOG_FATAL_DOMAIN     LONGOPT_BASE_WSLOG+5
-#define LONGOPT_WSLOG_LOG_DEBUG            LONGOPT_BASE_WSLOG+6
-#define LONGOPT_WSLOG_LOG_NOISY            LONGOPT_BASE_WSLOG+7
+#define LONGOPT_WSLOG_LOG_FATAL_COUNT      LONGOPT_BASE_WSLOG+5
+#define LONGOPT_WSLOG_LOG_FATAL_DOMAIN     LONGOPT_BASE_WSLOG+6
+#define LONGOPT_WSLOG_LOG_DEBUG            LONGOPT_BASE_WSLOG+7
+#define LONGOPT_WSLOG_LOG_NOISY            LONGOPT_BASE_WSLOG+8
 
 /** Logging options for command line
 */
@@ -330,6 +355,7 @@ void ws_log_set_writer_with_data(ws_log_writer_cb *writer,
     {"log-domains",           ws_required_argument, NULL, LONGOPT_WSLOG_LOG_DOMAIN}, \
     {"log-file",              ws_required_argument, NULL, LONGOPT_WSLOG_LOG_FILE},   \
     {"log-fatal",             ws_required_argument, NULL, LONGOPT_WSLOG_LOG_FATAL},  \
+    {"log-fatal-count",       ws_required_argument, NULL, LONGOPT_WSLOG_LOG_FATAL_COUNT},  \
     /* Alias "domain" and "domains". */                                                    \
     {"log-fatal-domain",      ws_required_argument, NULL, LONGOPT_WSLOG_LOG_FATAL_DOMAIN}, \
     {"log-fatal-domains",     ws_required_argument, NULL, LONGOPT_WSLOG_LOG_FATAL_DOMAIN}, \
