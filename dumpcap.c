@@ -675,6 +675,39 @@ get_capture_device_open_failure_messages(cap_device_open_status open_status,
                get_pcap_failure_secondary_error_message(open_status, open_status_str));
 }
 
+static void
+get_capture_device_open_warning_messages(cap_device_open_status open_status,
+                                         const char *open_status_str,
+                                         const char *iface,
+                                         char *errmsg, size_t errmsg_len,
+                                         char *secondary_errmsg,
+                                         size_t secondary_errmsg_len)
+{
+    switch (open_status) {
+
+    case CAP_DEVICE_OPEN_WARNING_PROMISC_NOTSUP:
+        snprintf(errmsg, errmsg_len,
+                 "Capturing in promiscuous mode is not supported on device \"%s\".\n(%s)",
+                 iface, open_status_str);
+        break;
+
+    case CAP_DEVICE_OPEN_WARNING_TSTAMP_TYPE_NOTSUP:
+        snprintf(errmsg, errmsg_len,
+                 "That timestamp type is not supported on device \"%s\".\n(%s)",
+                 iface, open_status_str);
+        break;
+
+    case CAP_DEVICE_OPEN_WARNING_OTHER:
+    default:
+        snprintf(errmsg, errmsg_len,
+                 "Capturing was initiated on capture device \"%s\", but with an issue.\n(%s)",
+                 iface, open_status_str);
+        break;
+    }
+    snprintf(secondary_errmsg, secondary_errmsg_len, "%s",
+               get_pcap_failure_secondary_error_message(open_status, open_status_str));
+}
+
 static bool
 compile_capture_filter(const char *iface, pcap_t *pcap_h,
                        struct bpf_program *fcode, const char *cfilter,
@@ -2954,7 +2987,9 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 {
     cap_device_open_status open_status;
     char                open_status_str[PCAP_ERRBUF_SIZE];
+#if defined(HAVE_PCAP_SETSAMPLING)
     char               *sync_msg_str;
+#endif
     interface_options  *interface_opts;
     capture_src        *pcap_src;
     unsigned            i;
@@ -3113,9 +3148,14 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
            If so, "open_capture_device()" returned a warning; print it,
            but keep capturing. */
         if (open_status != CAP_DEVICE_OPEN_NO_ERR) {
-            sync_msg_str = ws_strdup_printf("%s.", open_status_str);
-            report_capture_error(sync_msg_str, "");
-            g_free(sync_msg_str);
+            get_capture_device_open_warning_messages(open_status,
+                                                     open_status_str,
+                                                     interface_opts->name,
+                                                     errmsg,
+                                                     errmsg_len,
+                                                     secondary_errmsg,
+                                                     secondary_errmsg_len);
+            report_capture_error(errmsg, secondary_errmsg);
         }
         if (pcap_src->from_pcapng) {
             /*
