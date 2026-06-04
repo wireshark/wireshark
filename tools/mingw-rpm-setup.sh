@@ -45,7 +45,6 @@ BASIC_LIST="mingw64-gcc \
 	mingw64-qt6-qtmultimedia \
 	mingw64-qt6-qtsvg \
 	mingw64-qt6-qttools \
-	mingw64-speexdsp \
 	mingw32-nsis \
 	mingw64-nsis \
 	mingw64-gnutls \
@@ -65,6 +64,21 @@ BASIC_LIST="mingw64-gcc \
 	patch \
 	cmake
 	cmake-rpm-macros"
+
+# Adds package $2 to list variable $1 if the package is found
+add_package() {
+	local list="$1" pkgname="$2"
+
+	# fail if the package is not known
+	# shellcheck disable=SC2086
+	dnf info "$pkgname" &> /dev/null || return 1
+
+	# package is found, append it to list
+	eval "${list}=\"\${${list}} \${pkgname}\""
+}
+
+add_package BASIC_LIST mingw64-speexdsp ||
+echo "Basic package mingw64-speexdsp is unavailable" >&2
 
 ACTUAL_LIST=$BASIC_LIST
 
