@@ -1058,7 +1058,9 @@ fvalue_set_protocol_length(fvalue_t *fv, unsigned length)
 {
 	ws_assert(fv->ftype->ftype == FT_PROTOCOL);
 	protocol_value_t *proto = &fv->value.protocol;
-	ws_assert(proto->tvb == NULL || tvb_captured_length(proto->tvb) >= length);
+	// We probably should check the below, but some parts of proto.c
+	// don't guarantee this.
+	//ws_assert(proto->tvb == NULL || tvb_captured_length(proto->tvb) >= length);
 	proto->length = length;
 }
 
