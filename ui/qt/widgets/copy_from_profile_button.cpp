@@ -53,7 +53,7 @@ void CopyFromProfileButton::setFilename(QString filename)
         global << pa;
 
     if (! buttonMenu_)
-        buttonMenu_ = new QMenu();
+        buttonMenu_ = new QMenu(this);
 
     if (buttonMenu_->actions().count() > 0)
         buttonMenu_->clear();
