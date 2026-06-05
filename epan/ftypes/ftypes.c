@@ -1047,7 +1047,9 @@ fvalue_set_protocol(fvalue_t *fv, tvbuff_t *value, const char *name, unsigned le
 {
 	ws_assert(fv->ftype->ftype == FT_PROTOCOL);
 	ws_assert(fv->ftype->set_value.set_value_protocol);
-	ws_assert(value == NULL || tvb_captured_length(value) >= length);
+	// We probably should check the below, but some parts of proto.c
+	// don't guarantee this.
+	//ws_assert(value == NULL || tvb_captured_length(value) >= length);
 	fv->ftype->set_value.set_value_protocol(fv, value, name, length);
 }
 

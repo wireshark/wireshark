@@ -2838,6 +2838,11 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_PROTOCOL:
+			/* XXX - Why does this not create a subset tvb or otherwise take
+			 * start into account? Compare proto_tree_add_protocol_format,
+			 * which can throw an exception but this never throws an
+			 * exception. (But we perhaps don't want to throw an exception
+			 * here or there, see the IPv4 dissector.) */
 			proto_tree_set_protocol_tvb(new_fi, tvb, new_fi->hfinfo->name, length);
 			break;
 
@@ -4809,6 +4814,9 @@ static void
 proto_tree_set_protocol_tvb(field_info *fi, tvbuff_t *tvb, const char* field_data, int length)
 {
 	ws_assert(length >= 0);
+	/* proto_tree_set_bytes_tvb calls tvb_ensure_bytes_exist(tvb, offset, length);
+	 * Does it cause problems if fvalue_set_protocol is called with a length
+	 * greater than what's in the TVB? */
 	fvalue_set_protocol(fi->value, tvb, field_data, (unsigned)length);
 }
 
@@ -6781,6 +6789,8 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const int start, int *l
 			 * the end of the data.
 			 */
 			/* XXX - what to do, if we don't have a tvb? */
+			/* XXX - Should *length be shortened to the remaining
+			 * length too, as in the -1 case? */
 			if (tvb) {
 				length_remaining = tvb_captured_length_remaining(tvb, start);
 				if (*item_length < 0 ||
