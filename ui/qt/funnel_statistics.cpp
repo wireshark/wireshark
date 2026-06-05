@@ -290,6 +290,8 @@ FunnelStatistics::FunnelStatistics(QObject *parent, CaptureFile &cf) :
     funnel_ops_->new_progress_window = progress_window_new;
     funnel_ops_->update_progress = progress_window_update;
     funnel_ops_->destroy_progress_window = progress_window_destroy;
+
+    funnel_set_funnel_ops(funnel_ops_);
 }
 
 FunnelStatistics::~FunnelStatistics()
@@ -597,5 +599,5 @@ static void register_console_menu_cb(const char *name,
 
 void FunnelStatistics::loadInitFunnelMenus()
 {
-    funnel_ops_init(funnel_ops_, register_menu_cb, register_console_menu_cb);
+    funnel_ops_init(register_menu_cb, register_console_menu_cb);
 }

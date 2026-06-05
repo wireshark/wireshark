@@ -268,6 +268,12 @@ typedef struct _funnel_ops_t {
 WS_DLL_PUBLIC const funnel_ops_t* funnel_get_funnel_ops(void);
 
 /**
+ * @brief Set the funnel operations.
+ * @param o Pointer to the opaque funnel operations structure.
+ */
+WS_DLL_PUBLIC void funnel_set_funnel_ops(const funnel_ops_t *o);
+
+/**
  * @brief Checks if a menu is registered.
  *
  * @return true if the menu is registered, false otherwise.
@@ -419,12 +425,13 @@ typedef void (*funnel_registration_console_cb_t)(const char *name,
                                 void *callback_data);
 
 /**
-* @brief Initialize the funnel operations.  This is done outside of
+* @brief Register the funnel menus.  This is done outside of
 * epan_init() because the funnel operations depend on GUI code.
 *
-* @param r_cb function which will be called to register each console menu entry
+* @param r_cb function which will be called to register each menu entry
+* @param rconsole_cb function which will be called to register each console menu entry
 */
-WS_DLL_PUBLIC void funnel_ops_init(const funnel_ops_t* ops, funnel_registration_cb_t r_cb, funnel_registration_console_cb_t rconsole_cb);
+WS_DLL_PUBLIC void funnel_ops_init(funnel_registration_cb_t r_cb, funnel_registration_console_cb_t rconsole_cb);
 
 #ifdef __cplusplus
 }

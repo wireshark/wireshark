@@ -77,6 +77,11 @@ const funnel_ops_t* funnel_get_funnel_ops(void)
     return ops;
 }
 
+void funnel_set_funnel_ops(const funnel_ops_t *o)
+{
+    ops = o;
+}
+
 static void free_funnel_menu(gpointer data, gpointer user_data _U_)
 {
     funnel_menu_t* m = (funnel_menu_t*)data;
@@ -292,9 +297,8 @@ static void free_funnel_console_menu(gpointer data, gpointer user_data _U_)
     g_free(m);
 }
 
-void funnel_ops_init(const funnel_ops_t* o, funnel_registration_cb_t r_cb, funnel_registration_console_cb_t rconsole_cb)
+void funnel_ops_init(funnel_registration_cb_t r_cb, funnel_registration_console_cb_t rconsole_cb)
 {
-    ops = o;
     funnel_register_all_menus(r_cb);
     funnel_register_all_console_menus(rconsole_cb);
     menus_registered = true;
