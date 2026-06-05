@@ -2065,7 +2065,7 @@ bool wslua_reload_plugins (register_cb cb, void *client_data, const char* app_en
     if (cb)
         (*cb)(RA_LUA_DEREGISTER, NULL, client_data);
 
-    if (ops->close_dialogs)
+    if (ops && ops->close_dialogs)
         ops->close_dialogs();
 
     wslua_deregister_heur_dissectors(L);

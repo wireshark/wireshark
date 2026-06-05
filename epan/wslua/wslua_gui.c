@@ -392,7 +392,7 @@ Instead of a string it is possible to provide tables with fields 'name' and 'val
     struct _dlg_cb_data* dcbd;
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (! ops) {
+    if (!ops) {
         luaL_error(L,"the GUI facility has to be enabled");
         return 0;
     }
@@ -566,7 +566,7 @@ WSLUA_CONSTRUCTOR ProgDlg_new(lua_State* L) { /*
     pd->stopped = false;
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (ops->new_progress_window) {
+    if (ops && ops->new_progress_window) {
         pd->pw = ops->new_progress_window(ops->ops_id, pd->title, pd->task, true, &(pd->stopped));
     } else {
         g_free (pd);
@@ -587,7 +587,7 @@ WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Sets the progress dialog's progre
     const char* task = luaL_optstring(L,WSLUA_OPTARG_ProgDlg_update_TASK,"");
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (!ops->update_progress) {
+    if (!ops || !ops->update_progress) {
         WSLUA_ERROR(ProgDlg_update,"GUI not available");
         return 0;
     }
@@ -624,7 +624,7 @@ WSLUA_METHOD ProgDlg_close(lua_State* L) { /* Hides the progress bar. */
     ProgDlg pd = checkProgDlg(L,1);
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (!ops->destroy_progress_window) {
+    if (!ops || !ops->destroy_progress_window) {
         WSLUA_ERROR(ProgDlg_close,"GUI not available");
         return 0;
     }
@@ -660,7 +660,7 @@ static int ProgDlg__gc(lua_State* L) {
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
     if (pd) {
-        if (pd->pw && ops->destroy_progress_window) {
+        if (pd->pw && ops && ops->destroy_progress_window) {
             ops->destroy_progress_window(pd->pw);
         }
 
@@ -748,7 +748,7 @@ WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /*
     struct _close_cb_data* default_cbd;
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (!ops->new_text_window || !ops->set_close_cb) {
+    if (!ops || !ops->new_text_window || !ops->set_close_cb) {
         WSLUA_ERROR(TextWindow_new,"GUI not available");
         return 0;
     }
@@ -781,7 +781,7 @@ WSLUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that wil
     struct _close_cb_data* cbd;
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (!ops->set_close_cb) {
+    if (!ops || !ops->set_close_cb) {
         WSLUA_ERROR(TextWindow_set_atclose,"GUI not available");
         return 0;
     }
@@ -815,7 +815,7 @@ WSLUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text to be displayed. */
     const char* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_set_TEXT);
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (!ops->set_text) {
+    if (!ops || !ops->set_text) {
         WSLUA_ERROR(TextWindow_set,"GUI not available");
         return 0;
     }
@@ -832,7 +832,7 @@ WSLUA_METHOD TextWindow_append(lua_State* L) { /* Appends text to the current wi
     const char* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_append_TEXT);
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (!ops->append_text) {
+    if (!ops || !ops->append_text) {
         WSLUA_ERROR(TextWindow_append,"GUI not available");
         return 0;
     }
@@ -849,7 +849,7 @@ WSLUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text to the current 
     const char* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_prepend_TEXT);
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (!ops->prepend_text) {
+    if (!ops || !ops->prepend_text) {
         WSLUA_ERROR(TextWindow_prepend,"GUI not available");
         return 0;
     }
@@ -864,7 +864,7 @@ WSLUA_METHOD TextWindow_clear(lua_State* L) { /* Erases all of the text in the w
     TextWindow tw = checkTextWindow(L,1);
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (!ops->clear_text) {
+    if (!ops || !ops->clear_text) {
         WSLUA_ERROR(TextWindow_clear,"GUI not available");
         return 0;
     }
@@ -880,7 +880,7 @@ WSLUA_METHOD TextWindow_get_text(lua_State* L) { /* Get the text of the window. 
     const char* text;
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (!ops->get_text) {
+    if (!ops || !ops->get_text) {
         WSLUA_ERROR(TextWindow_get_text,"GUI not available");
         return 0;
     }
@@ -895,7 +895,7 @@ WSLUA_METHOD TextWindow_close(lua_State* L) { /* Close the window. */
     TextWindow tw = checkTextWindow(L,1);
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (!ops->destroy_text_window) {
+    if (!ops || !ops->destroy_text_window) {
         WSLUA_ERROR(TextWindow_get_text,"GUI not available");
         return 0;
     }
@@ -916,11 +916,12 @@ static int TextWindow__gc(lua_State* L) {
 
     if (!tw->expired) {
         tw->expired = true;
-        if (ops->destroy_text_window) {
+        if (ops && ops->destroy_text_window) {
             ops->destroy_text_window(tw->ws_tw);
         }
     } else {
         g_free(tw->close_cb_data);
+        g_free(tw->title);
         g_free(tw);
     }
 
@@ -934,7 +935,7 @@ WSLUA_METHOD TextWindow_set_editable(lua_State* L) { /* Make this text window ed
     bool editable = wslua_optbool(L,WSLUA_OPTARG_TextWindow_set_editable_EDITABLE,true);
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (!ops->set_editable) {
+    if (!ops || !ops->set_editable) {
         WSLUA_ERROR(TextWindow_set_editable,"GUI not available");
         return 0;
     }
@@ -992,7 +993,7 @@ WSLUA_METHOD TextWindow_add_button(lua_State* L) {
     funnel_bt_t* fbt;
     wslua_bt_cb_t* cbd;
 
-    if (!ops->add_button) {
+    if (!ops || !ops->add_button) {
         WSLUA_ERROR(TextWindow_add_button,"GUI not available");
         return 0;
     }
@@ -1079,7 +1080,7 @@ WSLUA_FUNCTION wslua_retap_packets(lua_State* L) {
      Rescans all packets and runs each <<lua_class_Listener, tap listener>> without reconstructing the display.
      */
     const funnel_ops_t* ops = funnel_get_funnel_ops();
-    if ( ops->retap_packets ) {
+    if (ops && ops->retap_packets) {
         ops->retap_packets(ops->ops_id);
     } else {
         WSLUA_ERROR(wslua_retap_packets, "GUI not available");
@@ -1094,7 +1095,7 @@ WSLUA_FUNCTION wslua_copy_to_clipboard(lua_State* L) { /* Copy a string into the
     const char* copied_str = luaL_checkstring(L,WSLUA_ARG_copy_to_clipboard_TEXT);
     const funnel_ops_t* ops = funnel_get_funnel_ops();
     GString* gstr;
-    if (!ops->copy_to_clipboard) {
+    if (!ops || !ops->copy_to_clipboard) {
         WSLUA_ERROR(copy_to_clipboard, "GUI not available");
         return 0;
     }
@@ -1117,7 +1118,7 @@ WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* Open and display a cap
     char* error = NULL;
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (!ops->open_file) {
+    if (!ops || !ops->open_file) {
         WSLUA_ERROR(open_capture_file, "GUI not available");
         return 0;
     }
@@ -1145,7 +1146,7 @@ WSLUA_FUNCTION wslua_get_filter(lua_State* L) { /*
     const char *filter_str = NULL;
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (!ops->get_filter) {
+    if (!ops || !ops->get_filter) {
         WSLUA_ERROR(wslua_get_filter,"GUI not available");
         return 0;
     }
@@ -1161,7 +1162,7 @@ WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* Set (Prepare) the display fil
     const char* filter_str = luaL_checkstring(L,WSLUA_ARG_set_filter_TEXT);
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (!ops->set_filter) {
+    if (!ops || !ops->set_filter) {
         WSLUA_ERROR(wslua_set_filter,"GUI not available");
         return 0;
     }
@@ -1182,7 +1183,7 @@ WSLUA_FUNCTION wslua_apply_filter(lua_State* L) { /*
     ====
     */
     const funnel_ops_t* ops = funnel_get_funnel_ops();
-    if (!ops->apply_filter) {
+    if (!ops || !ops->apply_filter) {
         WSLUA_ERROR(wslua_apply_filter,"GUI not available");
         return 0;
     }
@@ -1219,7 +1220,7 @@ WSLUA_FUNCTION wslua_get_color_filter_slot(lua_State* L) { /*
     char* filter_str = NULL;
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (!ops->get_color_filter_slot) {
+    if (!ops || !ops->get_color_filter_slot) {
         WSLUA_ERROR(get_color_filter_slot, "GUI not available");
         return 0;
     }
@@ -1277,7 +1278,7 @@ WSLUA_FUNCTION wslua_set_color_filter_slot(lua_State* L) { /*
     const char* filter_str = luaL_checkstring(L,WSLUA_ARG_set_color_filter_slot_TEXT);
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (!ops->set_color_filter_slot) {
+    if (!ops || !ops->set_color_filter_slot) {
         WSLUA_ERROR(set_color_filter_slot, "GUI not available");
         return 0;
     }
@@ -1291,7 +1292,7 @@ WSLUA_FUNCTION wslua_set_color_filter_slot(lua_State* L) { /*
 WSLUA_FUNCTION wslua_reload(lua_State* L) { /* Reload the current capture file.  Deprecated. Use reload_packets() instead. */
 
     const funnel_ops_t* ops = funnel_get_funnel_ops();
-    if (!ops->reload_packets) {
+    if (!ops || !ops->reload_packets) {
         WSLUA_ERROR(reload, "GUI not available");
         return 0;
     }
@@ -1314,7 +1315,7 @@ WSLUA_FUNCTION wslua_reload_packets(lua_State* L) { /*
     */
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (!ops->reload_packets) {
+    if (!ops || !ops->reload_packets) {
         WSLUA_ERROR(reload, "GUI not available");
         return 0;
     }
@@ -1337,7 +1338,7 @@ WSLUA_FUNCTION wslua_redissect_packets(lua_State* L) { /*
     */
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (!ops->redissect_packets) {
+    if (!ops || !ops->redissect_packets) {
         WSLUA_ERROR(reload, "GUI not available");
         return 0;
     }
@@ -1351,7 +1352,7 @@ WSLUA_FUNCTION wslua_redissect_packets(lua_State* L) { /*
 WSLUA_FUNCTION wslua_reload_lua_plugins(lua_State* L) { /* Reload all Lua plugins. */
 
     const funnel_ops_t* ops = funnel_get_funnel_ops();
-    if (!ops->reload_lua_plugins) {
+    if (!ops || !ops->reload_lua_plugins) {
         WSLUA_ERROR(reload_lua_plugins, "GUI not available");
         return 0;
     }
@@ -1376,7 +1377,7 @@ WSLUA_FUNCTION wslua_browser_open_url(lua_State* L) { /*
     const char* url = luaL_checkstring(L,WSLUA_ARG_browser_open_url_URL);
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (!ops->browser_open_url) {
+    if (!ops || !ops->browser_open_url) {
         WSLUA_ERROR(browser_open_url, "GUI not available");
         return 0;
     }
@@ -1402,7 +1403,7 @@ WSLUA_FUNCTION wslua_browser_open_data_file(lua_State* L) { /*
     const char* file = luaL_checkstring(L,WSLUA_ARG_browser_open_data_file_FILENAME);
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
-    if (!ops->browser_open_data_file) {
+    if (!ops || !ops->browser_open_data_file) {
         WSLUA_ERROR(browser_open_data_file, "GUI not available");
         return 0;
     }

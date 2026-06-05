@@ -68,9 +68,9 @@ void FunnelTextDialog::reject()
                 funnel_button->free_fcn(funnel_button);
             }
         }
+        disconnect(button, &QPushButton::clicked, this, &FunnelTextDialog::buttonClicked);
     }
 
-    disconnect();
     deleteLater();
 }
 
