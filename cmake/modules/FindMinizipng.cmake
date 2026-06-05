@@ -76,10 +76,7 @@ if(MINIZIPNG_FOUND)
   list(APPEND MINIZIPNG_LIBRARIES ${ZSTD_LIBRARY})
 
   if(WIN32)
-    find_library(Bcrypt_LIBRARY
-      NAMES
-        Bcrypt
-    )
+    set(Bcrypt_LIBRARY bcrypt)
 
     list(APPEND MINIZIPNG_LIBRARIES ${Bcrypt_LIBRARY})
   endif()
