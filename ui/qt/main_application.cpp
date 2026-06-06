@@ -1196,13 +1196,16 @@ void MainApplication::removeRecentItem(const QString &filename)
     emit updateRecentCaptureStatus(NULL, 0, false);
 }
 
-static void switchTranslator(QTranslator& myTranslator, const QString& filename,
-    const QString& searchPath)
+static void switchTranslator(QTranslator& myTranslator, const QLocale &locale, const QString& filename, const QStringList &searchPath)
 {
     mainApp->removeTranslator(&myTranslator);
-
-    if (myTranslator.load(filename, searchPath))
-        mainApp->installTranslator(&myTranslator);
+    for (const QString &path : searchPath) {
+        if (myTranslator.load(locale, filename, QStringLiteral("_"), path)) {
+            mainApp->installTranslator(&myTranslator);
+            return;
+        }
+    }
+    qWarning() << "Couldn't load translations!";
 }
 
 void MainApplication::loadLanguage(const QString newLanguage)
@@ -1219,32 +1222,35 @@ void MainApplication::loadLanguage(const QString newLanguage)
     }
 
     QLocale::setDefault(locale);
-    switchTranslator(mainApp->translator,
-            QStringLiteral("wireshark_%1.qm").arg(localeLanguage), QStringLiteral(":/i18n/"));
-    if (QFile::exists(QStringLiteral("%1/%2/wireshark_%3.qm")
-            .arg(get_datafile_dir()).arg("languages").arg(localeLanguage)))
-        switchTranslator(mainApp->translator,
-                QStringLiteral("wireshark_%1.qm").arg(localeLanguage), QStringLiteral("%1/languages").arg(get_datafile_dir()));
-    if (QFile::exists(QStringLiteral("%1/wireshark_%3.qm")
-            .arg(gchar_free_to_qstring(get_persconffile_path("languages", false))).arg(localeLanguage)))
-        switchTranslator(mainApp->translator,
-                QStringLiteral("wireshark_%1.qm").arg(localeLanguage), gchar_free_to_qstring(get_persconffile_path("languages", false)));
-    if (QFile::exists(QStringLiteral("%1/qt_%2.qm")
-            .arg(get_datafile_dir()).arg(localeLanguage))) {
-        switchTranslator(mainApp->translatorQt,
-                QStringLiteral("qt_%1.qm").arg(localeLanguage), QString(get_datafile_dir()));
-    } else if (QFile::exists(QStringLiteral("%1/qt_%2.qm")
-            .arg(get_datafile_dir()).arg(localeLanguage.left(localeLanguage.lastIndexOf('_'))))) {
-        switchTranslator(mainApp->translatorQt,
-                QStringLiteral("qt_%1.qm").arg(localeLanguage.left(localeLanguage.lastIndexOf('_'))), QString(get_datafile_dir()));
-    } else {
+
+    // Search path list ordered by priority. Prefer personal configuration
+    // to global datadir to embedded resources to Qt global directory.
+    QStringList searchPath;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        QString translationPath = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
+    searchPath.emplaceBack(gchar_free_to_qstring(get_persconffile_path("languages", false)));
+    searchPath.emplaceBack(QStringLiteral("%1/languages").arg(get_datafile_dir()));
+    searchPath.emplaceBack(QStringLiteral(":/i18n/"));
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    searchPath.append(QLibraryInfo::path(QLibraryInfo::TranslationsPath));
 #else
-        QString translationPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+    searchPath.emplaceBack(QLibraryInfo::path(QLibraryInfo::TranslationsPath));
 #endif
-        switchTranslator(mainApp->translatorQt, QStringLiteral("qt_%1.qm").arg(localeLanguage), translationPath);
-    }
+#else
+    searchPath << gchar_free_to_qstring(get_persconffile_path("languages", false));
+    searchPath << QStringLiteral("%1/languages").arg(get_datafile_dir());
+    searchPath << QStringLiteral(":/i18n/");
+    searchPath << QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+#endif // QT_VERSION_CHECK(6, 0, 0)
+
+    // Translations are searched for in the reverse order in which they were
+    // installed, so install the Qt generic translator first and ours last.
+    switchTranslator(mainApp->translatorQt, locale, QStringLiteral("qt"), searchPath);
+
+    // XXX - Yes, the translation files are also wireshark_%1.qm for Stratoshark.
+    // There is a stratoshark_en.[ts|qm] file too (for plurals?) though I'm
+    // not sure if it's used properly.
+    switchTranslator(mainApp->translator, locale, QStringLiteral("wireshark"), searchPath);
 }
 
 void MainApplication::doTriggerMenuItem(MainMenuItem menuItem)
