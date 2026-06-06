@@ -860,10 +860,10 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err _U_, char **err_info _U_)
 				for (xmlNodePtr fileHeader_node = cur->children; fileHeader_node != NULL; fileHeader_node = fileHeader_node->next) {
 					if (fileHeader_node->type == XML_ELEMENT_NODE) {
 						if (xmlStrcmp(fileHeader_node->name, (const xmlChar*)"traceCollec") == 0) {
-							/* Walk the attributes of the fileHeader */
-							for (xmlAttrPtr attr = cur->properties; attr; attr = attr->next) {
+							/* Walk the attributes of the traceCollec element */
+							for (xmlAttrPtr attr = fileHeader_node->properties; attr; attr = attr->next) {
 								if (xmlStrcmp(attr->name, (const xmlChar*)"beginTime") == 0) {
-									xmlChar* str_begintime = xmlNodeListGetString(cur->doc, attr->children, 1);
+									xmlChar* str_begintime = xmlNodeListGetString(fileHeader_node->doc, attr->children, 1);
 									if (str_begintime != NULL) {
 										iso8601_to_nstime(&start_time, (const char*)str_begintime, ISO8601_DATETIME);
 										xmlFree(str_begintime);
