@@ -170,7 +170,7 @@ ThemeManager::ThemeManager(QObject *parent)
     }
 
     connect(mainApp, &MainApplication::preferencesChanged, this, [this]() {
-        // Mode may have changed via the gui.color_scheme preference.  Sync
+        // Mode may have changed via the appearance-mode setting.  Sync
         // first so downstream subscribers of preferencesChanged that read
         // isDarkMode() (Lua debugger, PacketList selection stylesheet, …) see
         // the new value.  ThemeManager is constructed during
@@ -178,7 +178,7 @@ ThemeManager::ThemeManager(QObject *parent)
         // its connect lands first in the slot queue — downstream slots
         // fire after setMode() has run.  setMode() is a no-op if
         // unchanged.
-        setMode(modeFromPrefs(prefs.gui_color_scheme));
+        setMode(modeFromPrefs(recent.gui_color_scheme));
 
         // The active theme name lives in recent_common (recent.gui_theme_name).
         // Re-load on every preferencesChanged so both theme switches AND
@@ -192,10 +192,10 @@ ThemeManager::ThemeManager(QObject *parent)
         loadTheme(resolveThemeName(QString::fromUtf8(recent.gui_theme_name)));
     });
 
-    // Pick up the initial mode from prefs.  prefs_read() has already run
-    // by the time ThemeManager is constructed (ThemeManager::init() is
-    // invoked from the MainApplication constructor, after prefs load).
-    mode_ = modeFromPrefs(prefs.gui_color_scheme);
+    // Pick up the initial mode from recent_common.  recent_read() has
+    // already run by the time ThemeManager is constructed (ThemeManager::init()
+    // is invoked from the MainApplication constructor, after recent load).
+    mode_ = modeFromPrefs(recent.gui_color_scheme);
     applyToStyleHints();
 
     // Initiate the FontManager singleton.  It owns all font state and policy

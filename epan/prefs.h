@@ -219,7 +219,6 @@ typedef struct _e_prefs {
     /* GUI appearance */
     int           gui_toolbar_main_style;    /**< Style of the main toolbar (icon size/text) */
     char         *gui_font_name;             /**< Name and size of the font used in the packet list and details pane */
-    int           gui_color_scheme;          /**< Active color scheme index */
 
     /* Colorized column colors */
     char         *gui_colorized_fg;          /**< Comma-separated list of foreground colors for the 10 colorized column slots */

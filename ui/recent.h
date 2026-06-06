@@ -253,6 +253,14 @@ typedef struct recent_settings_tag {
      * welcome-page sidebar settings.
      */
     char       *gui_theme_name;
+
+    /**
+     * Active appearance mode (COLOR_SCHEME_DEFAULT / _LIGHT / _DARK).
+     * Lives in recent_common so the choice is global and persists across
+     * profile switches, mirroring gui_theme_name.  Was formerly the
+     * per-profile preference gui.color_scheme.
+     */
+    int      gui_color_scheme;
     bool     gui_welcome_page_sidebar_tips_slides_test;    /**< True if test/debug slides are included in the banner rotation */
 
 } recent_settings_t;

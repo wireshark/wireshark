@@ -142,13 +142,6 @@ static const enum_val_t gui_packet_list_multi_color_separators[] = {
     {NULL, NULL, -1}
 };
 
-static const enum_val_t gui_color_scheme[] = {
-    {"system",  "System Default",   COLOR_SCHEME_DEFAULT},
-    {"light",   "Light Mode",       COLOR_SCHEME_LIGHT},
-    {"dark",    "Dark Mode",        COLOR_SCHEME_DARK},
-    {NULL, NULL, -1}
-};
-
 static const enum_val_t gui_packet_list_copy_format_options_for_keyboard_shortcut[] = {
     {"TEXT", "Text", COPY_FORMAT_TEXT},
     {"CSV",  "CSV",  COPY_FORMAT_CSV},
@@ -3378,8 +3371,12 @@ prefs_register_modules(void)
     unsigned gui_color_effect_flags = gui_effect_flags | PREF_EFFECT_GUI_COLOR;
     prefs_set_module_effect_flags(gui_color_module, gui_color_effect_flags);
 
-    prefs_register_enum_preference(gui_color_module, "color_scheme", "Color scheme", "Color scheme",
-        &prefs.gui_color_scheme, gui_color_scheme, false);
+    /* The appearance mode moved to global recent_common storage
+       (recent.gui_color_scheme) so it no longer flips when switching
+       profiles.  Keep the old per-profile key registered as obsolete so
+       existing preferences files load without an "unknown preference"
+       warning. */
+    prefs_register_obsolete_preference(gui_color_module, "color_scheme");
 
     custom_cbs.free_cb = free_string_like_preference;
     custom_cbs.reset_cb = reset_string_like_preference;

@@ -45,9 +45,11 @@ FontColorPreferencesFrame::FontColorPreferencesFrame(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    // Appearance mode — System / Dark / Light.  Wired to prefs.gui_color_scheme
-    // via the existing pref_stashed machinery.  Drives ThemeManager's light/
-    // dark selection independently of which theme is active.
+    // Appearance mode — System / Dark / Light.  Stashed in
+    // stashed_color_scheme_ and committed to recent.gui_color_scheme (global
+    // recent_common storage) on Apply.  Drives ThemeManager's light/dark
+    // selection independently of which theme is active.
+    stashed_color_scheme_ = recent.gui_color_scheme;
     colorSchemeComboBox_ = new QComboBox();
     colorSchemeComboBox_->addItem(tr("System"), COLOR_SCHEME_DEFAULT);
     colorSchemeComboBox_->addItem(tr("Light"),  COLOR_SCHEME_LIGHT);
@@ -88,7 +90,6 @@ FontColorPreferencesFrame::FontColorPreferencesFrame(QWidget *parent) :
     ui->themeGroupLayout->addRow(tr("Appearance mode:"), colorSchemeComboBox_);
     ui->themeGroupLayout->addRow(tr("Theme:"),           themeComboBox_);
 
-    pref_color_scheme_ = prefFromPrefPtr(&prefs.gui_color_scheme);
     pref_qt_gui_font_name_ = prefFromPrefPtr(&prefs.gui_font_name);
 
     cur_font_.fromString(prefs_get_string_value(pref_qt_gui_font_name_, pref_stashed));
@@ -174,8 +175,7 @@ void FontColorPreferencesFrame::updateWidgets()
 
     if (colorSchemeComboBox_) {
         colorSchemeComboBox_->setCurrentIndex(
-            colorSchemeComboBox_->findData(
-                prefs_get_enum_value(pref_color_scheme_, pref_stashed)));
+            colorSchemeComboBox_->findData(stashed_color_scheme_));
     }
 
     refreshPreview();
@@ -184,8 +184,7 @@ void FontColorPreferencesFrame::updateWidgets()
 void FontColorPreferencesFrame::colorSchemeIndexChanged(int)
 {
     if (colorSchemeComboBox_) {
-        prefs_set_enum_value(pref_color_scheme_, colorSchemeComboBox_->currentData().toInt(), pref_stashed);
-        // COLOR_SCHEME_DEFAULT is 0 so we don't need to check failure
+        stashed_color_scheme_ = colorSchemeComboBox_->currentData().toInt();
         updateWidgets();
     }
 }
@@ -207,6 +206,8 @@ void FontColorPreferencesFrame::unstash()
     recent.gui_theme_name = stashed_theme_name_.isEmpty()
         ? nullptr
         : g_strdup(stashed_theme_name_.toUtf8().constData());
+
+    recent.gui_color_scheme = stashed_color_scheme_;
 }
 
 void FontColorPreferencesFrame::on_fontPushButton_clicked()
@@ -252,7 +253,7 @@ void FontColorPreferencesFrame::refreshPreview()
     // value (not isDarkMode()) is what fixes the bug where the live mode_
     // short-circuited the answer before the user pressed Apply.
     ThemeManager::PreviewScheme previewScheme;
-    switch (prefs_get_enum_value(pref_color_scheme_, pref_stashed)) {
+    switch (stashed_color_scheme_) {
     case COLOR_SCHEME_LIGHT:
         previewScheme = ThemeManager::PreviewScheme::PreferLight;
         break;

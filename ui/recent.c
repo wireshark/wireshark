@@ -92,6 +92,7 @@
 #define RECENT_KEY_SIDEBAR_LEARN_VISIBLE        "gui.welcome_page.sidebar.learn_visible"
 #define RECENT_KEY_SIDEBAR_TIPS_VISIBLE         "gui.welcome_page.sidebar.tips_visible"
 #define RECENT_KEY_THEME_NAME                   "gui.theme_name"
+#define RECENT_KEY_COLOR_SCHEME                 "gui.color_scheme"
 #define RECENT_KEY_SIDEBAR_TIPS_EVENTS          "gui.welcome_page.sidebar.tips_events"
 #define RECENT_KEY_SIDEBAR_TIPS_SPONSORSHIP     "gui.welcome_page.sidebar.tips_sponsorship"
 #define RECENT_KEY_SIDEBAR_TIPS_TIPS            "gui.welcome_page.sidebar.tips_tips"
@@ -185,6 +186,15 @@ static const value_string search_type_values[] = {
     { SEARCH_TYPE_HEX_VALUE,      "HEX_VALUE" },
     { SEARCH_TYPE_STRING,         "STRING" },
     { SEARCH_TYPE_REGEX,          "REGEX" },
+    { 0, NULL }
+};
+
+/* Token names match the former gui.color_scheme preference values so the
+   appearance mode survives the relocation into recent_common unchanged. */
+static const value_string gui_color_scheme_values[] = {
+    { COLOR_SCHEME_DEFAULT, "system" },
+    { COLOR_SCHEME_LIGHT,   "light" },
+    { COLOR_SCHEME_DARK,    "dark" },
     { 0, NULL }
 };
 
@@ -1011,6 +1021,9 @@ write_recent(void)
             recent.gui_theme_name ? recent.gui_theme_name
                                   : application_flavor_name_lower());
 
+    write_recent_enum(rf, "Appearance mode", RECENT_KEY_COLOR_SCHEME,
+                      gui_color_scheme_values, recent.gui_color_scheme);
+
     write_recent_boolean(rf, "Welcome page sidebar Tips slides test",
             RECENT_KEY_SIDEBAR_TIPS_SLIDES_TEST,
             recent.gui_welcome_page_sidebar_tips_slides_test);
@@ -1408,6 +1421,8 @@ read_set_recent_common_pair_static(char *key, const char *value,
     } else if (strcmp(key, RECENT_KEY_THEME_NAME) == 0) {
         g_free(recent.gui_theme_name);
         recent.gui_theme_name = (value && *value) ? g_strdup(value) : NULL;
+    } else if (strcmp(key, RECENT_KEY_COLOR_SCHEME) == 0) {
+        recent.gui_color_scheme = (int)str_to_val(value, gui_color_scheme_values, COLOR_SCHEME_DEFAULT);
     } else if (strcmp(key, RECENT_KEY_SIDEBAR_TIPS_SLIDES_TEST) == 0) {
         parse_recent_boolean(value, &recent.gui_welcome_page_sidebar_tips_slides_test);
     }
@@ -1712,6 +1727,8 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
     recent.gui_welcome_page_sidebar_tips_auto_advance = true;
     recent.gui_welcome_page_sidebar_tips_interval = 8;
     recent.gui_welcome_page_sidebar_tips_slides_test = false;
+
+    recent.gui_color_scheme = COLOR_SCHEME_DEFAULT;
 
     /* Construct the pathname of the user's recent common file. */
     rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, false, application_configuration_environment_prefix());

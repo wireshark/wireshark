@@ -573,7 +573,7 @@ private:
     void reapplyForSchemeChange();
 
     /**
-     * Maps prefs.gui_color_scheme (COLOR_SCHEME_DEFAULT / _LIGHT /
+     * Maps recent.gui_color_scheme (COLOR_SCHEME_DEFAULT / _LIGHT /
      * _DARK) to ThemeMode.  Defined in the .cpp to keep prefs.h out
      * of this header.
      */
