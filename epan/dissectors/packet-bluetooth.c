@@ -359,6 +359,11 @@ const value_string bluetooth_not_used_0xff_special[] = {
     {0, NULL}
 };
 
+const true_false_string tfs_rtt_accuracy = {
+    "10 ns",
+    "150 ns"
+};
+
 void
 save_local_device_name_from_eir_ad(tvbuff_t *tvb, int offset, packet_info *pinfo,
         uint8_t size, bluetooth_data_t *bluetooth_data)
