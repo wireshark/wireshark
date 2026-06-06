@@ -86,6 +86,9 @@ static void free_funnel_menu(gpointer data, gpointer user_data _U_)
 {
     funnel_menu_t* m = (funnel_menu_t*)data;
 
+    if (m->callback_data_free) {
+        m->callback_data_free(m->callback_data);
+    }
     g_free(m->name);
     g_free(m);
 }
@@ -98,9 +101,6 @@ static void funnel_remove_menu(GSList** menu_list, funnel_menu_t *menu)
         GSList* next = current->next; // Store the next pointer BEFORE potentially removing current
         funnel_menu_t* m = (funnel_menu_t*)current->data;
         if (m->callback == menu->callback) {
-            if (m->callback_data_free) {
-                m->callback_data_free(m->callback_data);
-            }
             *menu_list = g_slist_remove(*menu_list, m);
             free_funnel_menu(m, NULL);
         }
@@ -138,6 +138,8 @@ void funnel_register_menu(const char *name,
     if (menus_registered) {
         funnel_menu_t* m_r = (funnel_menu_t *)g_memdup2(m, sizeof *m);
         m_r->name = g_strdup(name);
+        /* This temporary copy shares the callback data; do not free it. */
+        m_r->callback_data_free = NULL;
         added_menus = g_slist_append(added_menus, m_r);
     }
 }
