@@ -63,9 +63,14 @@ CaptureFilterEntry::CaptureFilterEntry(QWidget *parent) :
 
     setConflict(false);
 
-    // Generic base signals → capture vocabulary.
-    connect(this, &FilterExpressionEdit::validityChanged,
-            this, &CaptureFilterEntry::captureFilterSyntaxChanged);
+    // Generic base signals → capture vocabulary. An empty capture filter is
+    // valid — it means "capture everything, discard nothing" — but the base
+    // validityChanged only reports Valid/Deprecated as true. Fold the Empty
+    // state in here, where the capture-specific meaning lives, so clearing the
+    // box re-enables capture.
+    connect(this, &FilterExpressionEdit::validityChanged, this, [this](bool valid) {
+        emit captureFilterSyntaxChanged(valid || state() == FilterEdit::SyntaxState::Empty);
+    });
     connect(this, &FilterExpressionEdit::textChangedExpr,
             this, &CaptureFilterEntry::captureFilterChanged);
     connect(this, &FilterExpressionEdit::applied, this, [this](const QString &) {

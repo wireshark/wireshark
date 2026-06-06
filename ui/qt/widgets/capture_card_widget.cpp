@@ -57,6 +57,12 @@ CaptureCardWidget::CaptureCardWidget(QWidget *parent) :
     // Internal wiring: filter entry → this
     connect(ui_->captureFilterEntry, &QLineEdit::textEdited,
             this, &CaptureCardWidget::captureFilterTextEdited);
+    // The clear button empties the field via QLineEdit::clear(), which does not
+    // emit textEdited, so propagate the cleared filter to the selected devices
+    // explicitly — otherwise the previous filter stays on the interface.
+    connect(ui_->captureFilterEntry, &FilterExpressionEdit::cleared, this, [this]() {
+        captureFilterTextEdited(QString());
+    });
     connect(ui_->captureFilterEntry, &CaptureFilterEntry::captureFilterSyntaxChanged,
             this, &CaptureCardWidget::captureFilterSyntaxChanged);
     connect(ui_->captureFilterEntry, &CaptureFilterEntry::startCapture,
