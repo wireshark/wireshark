@@ -362,7 +362,11 @@ void FilterExpressionEdit::applyExpression()
     validateNow();
 
     const QString expr = text();
-    if (expr.isEmpty() || state() == FilterEdit::SyntaxState::Invalid)
+    if (expr.isEmpty()) {
+        emit cleared();
+        return;
+    }
+    if (state() == FilterEdit::SyntaxState::Invalid)
         return;
 
     emit applied(expr);
