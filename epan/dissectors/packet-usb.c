@@ -4933,7 +4933,7 @@ dissect_usbpcap_iso_packets(packet_info *pinfo _U_, proto_tree *urb_tree, uint8_
 
         if (iso_len && data_start_offset + this_offset + iso_len <= tvb_captured_length(tvb)) {
             proto_tree_add_item(iso_packet_tree, hf_usb_iso_data, tvb, (int)(data_start_offset + this_offset), (int)iso_len, ENC_NA);
-            proto_tree_set_appendix(iso_packet_tree, tvb, (int)(data_start_offset + this_offset), (int)iso_len);
+            proto_tree_set_appendix(iso_packet_tree, tvb, data_start_offset + this_offset, iso_len);
         }
     }
 
@@ -5014,7 +5014,7 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
         if ((pinfo->p2p_dir==P2P_DIR_SENT || !iso_status) &&
                 iso_len && data_base + iso_off + iso_len <= tvb_captured_length(tvb)) {
             proto_tree_add_item(iso_desc_tree, hf_usb_iso_data, tvb, data_base + iso_off, iso_len, ENC_NA);
-            proto_tree_set_appendix(iso_desc_tree, tvb, (int)(data_base+iso_off), (int)iso_len);
+            proto_tree_set_appendix(iso_desc_tree, tvb, data_base+iso_off, iso_len);
         }
 
         proto_tree_add_item(iso_desc_tree, hf_usb_iso_pad, tvb, offset, 4, ENC_HOST_ENDIAN);
@@ -5085,7 +5085,7 @@ dissect_usbip_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
         if ((pinfo->p2p_dir==P2P_DIR_SENT || !iso_status) &&
                 iso_len && data_base + iso_off + iso_len <= tvb_reported_length(tvb)) {
             proto_tree_add_item(iso_desc_tree, hf_usb_iso_data, tvb, (unsigned) data_base + iso_off, iso_len, ENC_NA);
-            proto_tree_set_appendix(iso_desc_tree, tvb, (unsigned) data_base + iso_off, (int)iso_len);
+            proto_tree_set_appendix(iso_desc_tree, tvb, data_base + iso_off, iso_len);
         }
     }
     return desc_offset;
@@ -5147,7 +5147,7 @@ dissect_darwin_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *tree, usb_he
             }
 
             proto_tree_add_item(iso_desc_tree, hf_usb_iso_data, tvb, offset + frame_header_length, frame_length, ENC_NA);
-            proto_tree_set_appendix(iso_desc_tree, tvb, (int)iso_tree_start, (int)(offset - iso_tree_start));
+            proto_tree_set_appendix(iso_desc_tree, tvb, iso_tree_start, offset - iso_tree_start);
 
             len    -= frame_length;
             offset += frame_length;

@@ -161,17 +161,17 @@ QString FieldInformation::url()
 
 FieldInformation::Position FieldInformation::position() const
 {
-    Position pos = {-1, -1};
+    Position pos = {0, 0};
     if (fi_ && fi_->ds_tvb)
     {
-        int len = (int) tvb_captured_length(fi_->ds_tvb);
+        unsigned len = tvb_captured_length(fi_->ds_tvb);
 
         pos.start = fi_->start;
         pos.length = fi_->length;
 
-        if (pos.start < 0 || pos.length < 0 || pos.start >= len)
+        if (pos.start >= len)
         {
-            if (fi_->appendix_start >= 0 && fi_->appendix_length > 0 && fi_->appendix_start < len)
+            if (fi_->appendix_length > 0 && fi_->appendix_start < len)
             {
                 pos.start = fi_->appendix_start;
                 pos.length = fi_->appendix_length;
@@ -184,7 +184,7 @@ FieldInformation::Position FieldInformation::position() const
 
 FieldInformation::Position FieldInformation::appendix() const
 {
-    Position pos = {-1, -1};
+    Position pos = {0, 0};
     if (fi_ && fi_->ds_tvb)
     {
         pos.start = fi_->appendix_start;

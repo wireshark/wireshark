@@ -48,8 +48,8 @@ public:
      */
     struct Position
     {
-        int start;  /**< The starting byte offset. */
-        int length; /**< The length in bytes. */
+        unsigned start;  /**< The starting byte offset. */
+        unsigned length; /**< The length in bytes. */
     };
 
     /**

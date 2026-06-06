@@ -818,8 +818,8 @@ typedef struct field_info {
     const header_field_info *hfinfo;      /**< pointer to registered field information */
     unsigned             start;           /**< current start of data in field_info.ds_tvb */
     unsigned             length;          /**< current data length of item in field_info.ds_tvb */
-    int                  appendix_start;  /**< start of appendix data */
-    int                  appendix_length; /**< length of appendix data */
+    unsigned             appendix_start;  /**< start of appendix data */
+    unsigned             appendix_length; /**< length of appendix data */
     int                  tree_type;       /**< one of ETT_ or -1 */
     uint32_t             flags;           /**< bitfield like FI_GENERATED, ... */
     item_label_t        *rep;             /**< string for GUI tree */
@@ -1408,7 +1408,7 @@ WS_DLL_PUBLIC void proto_tree_move_item(proto_tree *tree, proto_item *fixed_item
  @note The appendix tvbuffer must be from the same data source as the
  proto_tree's original tvbuffer, though it can be a different subset.
 */
-WS_DLL_PUBLIC void proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, int start, const int length);
+WS_DLL_PUBLIC void proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, unsigned start, const unsigned length);
 
 
 /** Add an item to a proto_tree, using the text label registered to that item.

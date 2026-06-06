@@ -8391,8 +8391,8 @@ proto_tree_move_item(proto_tree *tree, proto_item *fixed_item,
 }
 
 void
-proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, int start,
-			const int length)
+proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, unsigned start,
+			const unsigned length)
 {
 	field_info *fi;
 
@@ -8413,8 +8413,9 @@ proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, int start,
 	} else {
 		DISSECTOR_ASSERT(NULL == fi->ds_tvb);
 	}
-	DISSECTOR_ASSERT(start >= 0);
-	DISSECTOR_ASSERT(length >= 0);
+
+	/* XXX - DISSECTOR_ASSERT that the appendix doesn't overlap the
+	 * main body? */
 
 	fi->appendix_start = start;
 	fi->appendix_length = length;
