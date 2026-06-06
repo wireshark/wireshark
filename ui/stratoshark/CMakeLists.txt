@@ -744,16 +744,6 @@ set(STRATOSHARK_QT_TS
 	${WIRESHARK_QT_TS}
 )
 
-# Translation files (i18n)
-qrc_register(NAME i18n TARGET stratoshark PREFIX "/i18n")
-foreach(_file ${STRATOSHARK_QT_TS})
-    get_filename_component(_qresource ${_file} NAME_WE)
-    set(_qresource_qm "${CMAKE_CURRENT_BINARY_DIR}/${_qresource}.qm")
-
-    qrc_add_file(NAME i18n TARGET stratoshark FILE "${_qresource_qm}" ALIAS "${_qresource}.qm" GENERATED ON)
-endforeach()
-qrc_finalize(NAME i18n TARGET stratoshark OUTPUT_FILE_NAME "i18n.qrc" OUTPUT_VAR STRATOSHARK_I18N_QRC)
-
 # Authors file
 add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/authors.csv
@@ -856,14 +846,11 @@ qt_add_resources(STRATOSHARK_QT_QRC
 	OPTIONS ${CMAKE_AUTORCC_OPTIONS}
 )
 
-QT6_ADD_TRANSLATION(STRATOSHARK_QT_QM ${STRATOSHARK_QT_TS} OPTIONS -silent)
-
-add_custom_target(
-	stratoshark_translations
-	DEPENDS
-		${STRATOSHARK_QT_QM}
+qt_add_lrelease(
+	TS_FILES ${STRATOSHARK_QT_TS}
+	QM_FILES_OUTPUT_VARIABLE STRATOSHARK_QT_QM
+	OPTIONS -silent
 )
-set_target_properties(stratoshark_translations PROPERTIES FOLDER "UI")
 
 set_source_files_properties(
 	${STRATOSHARK_QT_FILES}
@@ -956,13 +943,17 @@ endif()
 
 set_target_properties(ui_stratoshark PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
-	FOLDER "UI"
 	AUTOMOC ON
 	AUTOUIC ON
 	# AUTORCC not needed with qt_add_resources
 	#AUTORCC ON
-	# Ensure .qm files are generated before autogenerating i18n.qrc
-	AUTOGEN_TARGET_DEPENDS "${STRATOSHARK_QT_QM};stratoshark_translations"
+)
+
+# Translation resource (i18n)
+qt_add_resources(ui_stratoshark "i18n"
+	PREFIX "/i18n"
+	BASE "${CMAKE_CURRENT_BINARY_DIR}"
+	FILES "${STRATOSHARK_QT_QM}"
 )
 
 if(MSVC)
