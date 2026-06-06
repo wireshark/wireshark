@@ -2838,12 +2838,10 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_PROTOCOL:
-			/* XXX - Why does this not create a subset tvb or otherwise take
-			 * start into account? Compare proto_tree_add_protocol_format,
-			 * which can throw an exception but this never throws an
-			 * exception. (But we perhaps don't want to throw an exception
-			 * here or there, see the IPv4 dissector.) */
-			proto_tree_set_protocol_tvb(new_fi, tvb, new_fi->hfinfo->name, length);
+			/* Set the protocol_tvb via the start offset, but include
+			 * rest of the ds_tvb so that if finfo_set_len is called
+			 * later it can be lengthened as much as possible. */
+			proto_tree_set_protocol_tvb(new_fi, new_fi->ds_tvb ? tvb_new_subset_remaining(new_fi->ds_tvb, new_fi->start) : NULL, new_fi->hfinfo->name, length);
 			break;
 
 		case FT_BYTES:
@@ -4814,9 +4812,6 @@ static void
 proto_tree_set_protocol_tvb(field_info *fi, tvbuff_t *tvb, const char* field_data, int length)
 {
 	ws_assert(length >= 0);
-	/* proto_tree_set_bytes_tvb calls tvb_ensure_bytes_exist(tvb, offset, length);
-	 * Does it cause problems if fvalue_set_protocol is called with a length
-	 * greater than what's in the TVB? */
 	fvalue_set_protocol(fi->value, tvb, field_data, (unsigned)length);
 }
 
@@ -4826,6 +4821,7 @@ proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			       int start, int length, const char *format, ...)
 {
 	proto_item	  *pi;
+	field_info	  *new_fi;
 	tvbuff_t	  *protocol_tvb;
 	va_list		   ap;
 	header_field_info *hfinfo;
@@ -4838,15 +4834,20 @@ proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, FT_PROTOCOL);
 
 	/*
-	 * This can throw an exception, so do it before we allocate anything.
+	 * This can throw an exception when it calls get_hfi_length before
+	 * it allocates anything, if length is nonzero and start is past
+	 * the end of the tvb. Afterwards it can't throw an exception,
+	 * as length is clamped to the captured length remaining.
 	 */
-	protocol_tvb = (start == 0 ? tvb : tvb_new_subset_length(tvb, start, length));
-
 	pi = proto_tree_add_pi(tree, hfinfo, tvb, start, &length);
+	new_fi = PNODE_FINFO(pi);
+	/* Start the protocol_tvb at the correct start offset, but allow it
+	 * to be lengthened later via finfo_set_len. */
+	protocol_tvb = new_fi->ds_tvb ? tvb_new_subset_remaining(new_fi->ds_tvb, new_fi->start) : NULL;
 
 	va_start(ap, format);
 	protocol_rep = ws_strdup_vprintf(format, ap);
-	proto_tree_set_protocol_tvb(PNODE_FINFO(pi), protocol_tvb, protocol_rep, length);
+	proto_tree_set_protocol_tvb(new_fi, protocol_tvb, protocol_rep, length);
 	g_free(protocol_rep);
 	va_end(ap);
 
@@ -6776,7 +6777,6 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const int start, int *l
 		}
 		*item_length = *length;
 	} else {
-		*item_length = *length;
 		if (hfinfo->type == FT_PROTOCOL || hfinfo->type == FT_NONE) {
 			/*
 			 * These types are for interior nodes of the
@@ -6787,18 +6787,24 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const int start, int *l
 			 * That way, if this field is selected in
 			 * Wireshark, we don't highlight stuff past
 			 * the end of the data.
+			 *
+			 * If we don't have a tvb, then length must be zero,
+			 * per the DISSECTOR_ASSERT() above.
+			 *
+			 * If we do have a tvb, and the length requested is
+			 * nonzero, we want to ensure that the start offset
+			 * is not *past* the byte past the end of the tvbuff
+			 * data: we throw an exception in that case as above.
 			 */
-			/* XXX - what to do, if we don't have a tvb? */
-			/* XXX - Should *length be shortened to the remaining
-			 * length too, as in the -1 case? */
-			if (tvb) {
-				length_remaining = tvb_captured_length_remaining(tvb, start);
-				if (*item_length < 0 ||
-					(*item_length > 0 &&
-					  (length_remaining < *item_length)))
-					*item_length = length_remaining;
+			if (tvb && *length) {
+				length_remaining = tvb_ensure_captured_length_remaining(tvb, start);
+				if (*length < 0 ||
+					(*length > 0 &&
+					  (length_remaining < *length)))
+					*length = length_remaining;
 			}
 		}
+		*item_length = *length;
 		if (*item_length < 0) {
 			THROW(ReportedBoundsError);
 		}
@@ -6818,26 +6824,36 @@ get_hfi_length_unsigned(header_field_info* hfinfo, tvbuff_t* tvb, const unsigned
 	DISSECTOR_ASSERT(tvb != NULL || *length == 0);
 
 
-	*item_length = *length;
 	if (hfinfo->type == FT_PROTOCOL || hfinfo->type == FT_NONE) {
 		/*
-			* These types are for interior nodes of the
-			* tree, and don't have data associated with
-			* them; if the length is negative (XXX - see
-			* above) or goes past the end of the tvbuff,
-			* cut it short at the end of the tvbuff.
-			* That way, if this field is selected in
-			* Wireshark, we don't highlight stuff past
-			* the end of the data.
-			*/
-			/* XXX - what to do, if we don't have a tvb? */
-		if (tvb) {
-			length_remaining = tvb_captured_length_remaining(tvb, start);
-			if (*item_length > 0 && (length_remaining < *item_length)) {
-				*item_length = length_remaining;
+		 * These types are for interior nodes of the
+		 * tree, and don't have data associated with
+		 * them; if the length is negative (XXX - see
+		 * above) or goes past the end of the tvbuff,
+		 * cut it short at the end of the tvbuff.
+		 * That way, if this field is selected in
+		 * Wireshark, we don't highlight stuff past
+		 * the end of the data.
+		 *
+		 * If we don't have a tvb, then length must be zero,
+		 * per the DISSECTOR_ASSERT() above.
+		 *
+		 * If we do have a tvb, and the length requested is
+		 * nonzero, we want to ensure that the start offset
+		 * is not *past* the byte past the end of the tvbuff
+		 * data: we throw an exception in that case as above.
+		 * (If the length requested is zero, then it's quite
+		 * likely that the start offset is the byte past the
+		 * end, but that's ok.)
+		 */
+		if (tvb && *length) {
+			length_remaining = tvb_ensure_captured_length_remaining(tvb, start);
+			if (length_remaining < *length) {
+				*length = length_remaining;
 			}
 		}
 	}
+	*item_length = *length;
 }
 
 static int

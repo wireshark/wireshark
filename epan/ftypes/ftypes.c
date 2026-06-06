@@ -1049,7 +1049,7 @@ fvalue_set_protocol(fvalue_t *fv, tvbuff_t *value, const char *name, unsigned le
 	ws_assert(fv->ftype->set_value.set_value_protocol);
 	// We probably should check the below, but some parts of proto.c
 	// don't guarantee this.
-	//ws_assert(value == NULL || tvb_captured_length(value) >= length);
+	ws_assert(value == NULL || tvb_captured_length(value) >= length);
 	fv->ftype->set_value.set_value_protocol(fv, value, name, length);
 }
 
@@ -1060,7 +1060,7 @@ fvalue_set_protocol_length(fvalue_t *fv, unsigned length)
 	protocol_value_t *proto = &fv->value.protocol;
 	// We probably should check the below, but some parts of proto.c
 	// don't guarantee this.
-	//ws_assert(proto->tvb == NULL || tvb_captured_length(proto->tvb) >= length);
+	ws_assert(proto->tvb == NULL || tvb_captured_length(proto->tvb) >= length);
 	proto->length = length;
 }
 
