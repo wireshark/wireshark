@@ -886,6 +886,7 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err _U_, char **err_info _U_)
 	wth->file_type_subtype = nettrace_3gpp_32_423_file_type_subtype;
 	wth->file_encap = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
 	wth->file_tsprec = WTAP_TSPREC_MSEC;
+	wth->file_start_ts = start_time;
 	wth->subtype_read = nettrace_read;
 	wth->subtype_seek_read = nettrace_seek_read;
 	wth->subtype_close = nettrace_close;
