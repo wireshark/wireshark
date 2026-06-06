@@ -910,6 +910,7 @@ dissect_dwell(tvbuff_t *tvb, proto_tree *seg_tree, int offset)
 	/* Optional or conditional fields, in accordance to presence mask */
 	if (SET(mask, D28)) {
 		proto_tree_add_item(seg_tree, hf_4607_dwell_sensor_heading, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
 	}
 	if (SET(mask, D29)) {
 		proto_tree_add_item(seg_tree, hf_4607_dwell_sensor_pitch, tvb, offset, 2, ENC_BIG_ENDIAN);
