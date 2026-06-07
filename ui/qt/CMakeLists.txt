@@ -834,8 +834,6 @@ set(WIRESHARK_QT_TS
 	wireshark_zh_CN.ts
 )
 
-cmake_path(SET TRANSLATION_INSTALL_DIR NORMALIZE "${CMAKE_INSTALL_BINDIR}/translations")
-
 # Translation files (i18n)
 qrc_register(NAME i18n PREFIX "/i18n")
 foreach(_file ${WIRESHARK_QT_TS})
@@ -843,8 +841,6 @@ foreach(_file ${WIRESHARK_QT_TS})
     set(_qresource_qm "${CMAKE_CURRENT_BINARY_DIR}/${_qresource}.qm")
 
     qrc_add_file(NAME i18n FILE "${_qresource_qm}" ALIAS "${_qresource}.qm" GENERATED ON)
-
-    install(FILES "${_qresource_qm}" DESTINATION "${TRANSLATION_INSTALL_DIR}")
 endforeach()
 qrc_finalize(NAME i18n OUTPUT_FILE_NAME "i18n.qrc" OUTPUT_VAR I18N_QRC)
 
@@ -951,6 +947,28 @@ qt_add_resources(WIRESHARK_QT_QRC
 
 # qt[56]_add_translation is deprecated in Qt 6.2 and later for
 # qt[6]_add_translations, so we should switch as Qt 5 support is dropped.
+#
+# Qt also provides translation catalogs for strings used in Qt modules
+# https://doc.qt.io/qt-6/localization.html#available-catalogs
+# main_application.cpp loads these too via QLibraryInfo::TranslationPath
+# On UN*X systems these will tend to be located in a common directory, e.g.
+# /usr/share/qt6/translations
+# On Windows that path will map to a relative path translations within the
+# app installation directory, but windeployqt will handle merging the
+# translations catalogs for all modules we find (we need the qtbase catalog
+# and optionally qtmultimedia) and then deploying them to the application
+# subdirectory.
+# However, on MinGW QLibraryInfo::TranslationPath resolves to the common
+# directory both when cross-compiling or for MSYS2 (and sometimes apparently
+# as the common directory but relative to the application directory), which
+# doesn't work for building a NSIS package and windeployqt does not fix this.
+# So to make this work properly we would need to manually do those merging
+# and deploying steps.
+#
+# In Qt 6.9 and later, it seems that the Qt CMake functions can merge the
+# Qt catalogs into our translations and embed them as resources directly,
+# which might both work for normal Windows builds and be significantly
+# easier on MinGW: https://doc.qt.io/qt-6/qtlinguist-cmake-qt-add-lrelease.html
 QT6_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS} OPTIONS -silent)
 
 add_custom_target(
@@ -959,16 +977,6 @@ add_custom_target(
 		${WIRESHARK_QT_QM}
 )
 set_target_properties(translations PROPERTIES FOLDER "UI")
-
-if (WIN32)
-	add_custom_target(copy_qt_translations ALL)
-	add_custom_command(TARGET copy_qt_translations
-		POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:wireshark>/translations
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${WIRESHARK_QT_QM} $<TARGET_FILE_DIR:wireshark>/translations
-	)
-	add_dependencies(copy_qt_translations translations)
-endif()
 
 set_source_files_properties(
 	${WIRESHARK_QT_NONGENERATED_SRC}
