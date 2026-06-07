@@ -896,6 +896,16 @@ class ValueString:
                 if value < self.min_value:
                     self.min_value = value
 
+    def __eq__(self, other):
+        if not isinstance(other, ValueString):
+            # don't attempt to compare against unrelated types
+            return NotImplemented
+        else:
+            if self.parsed_vals == other.parsed_vals:
+                return True
+            else:
+                return False
+
     def extraChecks(self, result):
         # Look for one value missing in range (quite common...)
         num_items = len(self.parsed_vals)
@@ -2261,6 +2271,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
               check_expert_items=False, check_double_fetch=False):
 
     result = Result()
+    is_generated = None
 
     # Check file exists - e.g. may have been deleted in a recent commit.
     if not os.path.exists(filename):
@@ -2285,6 +2296,18 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
     if extra_value_string_checks:
         for name in value_strings:
             value_strings[name].extraChecks(result)
+
+        # Also check whether any pair of value_strings is identical!
+        reported_pairs = set()
+        if is_generated is None:
+            is_generated = isGeneratedFile(filename)
+        if not is_generated:
+            for name in value_strings:
+                for name2 in value_strings:
+                    if name != name2 and (name2, name) not in reported_pairs and len(value_strings[name].parsed_vals) > 0:
+                        if value_strings[name] == value_strings[name2]:
+                            result.note(f'{filename} value_strings {name} and {name2} appear to be identical ({len(value_strings[name].parsed_vals)} entries)')
+                            reported_pairs.add((name, name2))
 
     # Find (and sanity-check) range_strings
     range_strings = findRangeStrings(filename, contents_no_comments, macros, result, do_extra_checks=extra_value_string_checks)
