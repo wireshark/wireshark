@@ -892,6 +892,7 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2C39,   "HID SCI Mode" },
     { 0x2C3A,   "HID SCI Information" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xFC31,   "Ford Motor Company" },
     { 0xFC32,   "InPlay, Inc." },
     { 0xFC34,   "Mitsubishi Electric Corporation" },
     { 0xFC35,   "Metabowerke GmbH" },
@@ -2044,7 +2045,7 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x01B7,   "General Electric Company" },
     { 0x01B8,   "i+D3 S.L." },
     { 0x01B9,   "HANA Micron" },
-    { 0x01BA,   "Stages Cycling LLC" },
+    { 0x01BA,   "SPIA Cycling Inc." },
     { 0x01BB,   "Cochlear Bone Anchored Solutions AB" },
     { 0x01BC,   "SenionLab AB" },
     { 0x01BD,   "Syszone Co., Ltd" },
@@ -5604,6 +5605,9 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x10CA,   "FairPhone B.V" },
     { 0x10CB,   "The90, Inc." },
     { 0x10CC,   "Linde GmbH" },
+    { 0x10CD,   "Kumho Tire" },
+    { 0x10CE,   "Inito Health Inc." },
+    { 0x10CF,   "Tempur World, LLC" },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
@@ -6375,6 +6379,7 @@ const btatt_handle_strings_t btatt_handle_strings[] = {
     { 0x2c39,   "Bluetooth GATT Attribute HID SCI Mode (UUID 0x2c39)", "BT GATT HID SCI Mode (UUID 0x2c39)", "btgatt.uuid0x2c39" },
     { 0x2c3a,   "Bluetooth GATT Attribute HID SCI Information (UUID 0x2c3a)", "BT GATT HID SCI Information (UUID 0x2c3a)", "btgatt.uuid0x2c3a" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xfc31,   "Bluetooth GATT Attribute Ford Motor Company (UUID 0xfc31)", "BT GATT Ford Motor Company (UUID 0xfc31)", "btgatt.uuid0xfc31" },
     { 0xfc32,   "Bluetooth GATT Attribute InPlay, Inc. (UUID 0xfc32)", "BT GATT InPlay, Inc. (UUID 0xfc32)", "btgatt.uuid0xfc32" },
     { 0xfc34,   "Bluetooth GATT Attribute Mitsubishi Electric Corporation (UUID 0xfc34)", "BT GATT Mitsubishi Electric Corporation (UUID 0xfc34)", "btgatt.uuid0xfc34" },
     { 0xfc35,   "Bluetooth GATT Attribute Metabowerke GmbH (UUID 0xfc35)", "BT GATT Metabowerke GmbH (UUID 0xfc35)", "btgatt.uuid0xfc35" },

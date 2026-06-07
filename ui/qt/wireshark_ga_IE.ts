@@ -8638,7 +8638,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Welcome Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Leathanach Fáilte</translation>
     </message>
     <message>
         <source>Capture</source>
@@ -14021,7 +14021,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Auto advance slides</source>
-        <translation type="unfinished"></translation>
+        <translation>Sleamhnáin uathoibríocha chun cinn</translation>
     </message>
     <message>
         <source>Slide display interval</source>
