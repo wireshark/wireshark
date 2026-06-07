@@ -45,6 +45,7 @@ BASIC_LIST="mingw64-gcc \
 	mingw64-qt6-qtmultimedia \
 	mingw64-qt6-qtsvg \
 	mingw64-qt6-qttools \
+	mingw64-qt6-qttranslations \
 	mingw32-nsis \
 	mingw64-nsis \
 	mingw64-gnutls \
