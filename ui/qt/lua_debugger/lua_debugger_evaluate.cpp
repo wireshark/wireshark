@@ -61,11 +61,11 @@ void LuaDebuggerEvalController::updatePanelState() const
     }
     if (!canEvaluate)
     {
-        input_->setPlaceholderText(host_->tr("Evaluation available when debugger is paused"));
+        input_->setPlaceholderText(QObject::tr("Evaluation available when debugger is paused"));
     }
     else
     {
-        input_->setPlaceholderText(host_->tr("Enter Lua expression"));
+        input_->setPlaceholderText(QObject::tr("Enter Lua expression"));
     }
 }
 
@@ -109,12 +109,12 @@ void LuaDebuggerEvalController::onEvaluate()
     }
     else if (error_msg)
     {
-        output = host_->tr("Error: %1").arg(QString::fromUtf8(error_msg));
+        output = QObject::tr("Error: %1").arg(QString::fromUtf8(error_msg));
         g_free(error_msg);
     }
     else
     {
-        output = host_->tr("Error: Unknown error");
+        output = QObject::tr("Error: Unknown error");
     }
 
     output_->appendPlainText(QStringLiteral("> %1").arg(expression));

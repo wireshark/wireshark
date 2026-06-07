@@ -1317,13 +1317,13 @@ void LuaDebuggerBreakpointsController::configureColumns() const
     breakpointHeader->setSectionResizeMode(BreakpointColumn::Hits, QHeaderView::ResizeToContents);
     breakpointHeader->setSectionResizeMode(BreakpointColumn::Line, QHeaderView::Interactive);
     breakpointHeader->setSectionResizeMode(BreakpointColumn::Location, QHeaderView::Interactive);
-    model_->setHeaderData(BreakpointColumn::Location, Qt::Horizontal, host_->tr("Location"));
+    model_->setHeaderData(BreakpointColumn::Location, Qt::Horizontal, QObject::tr("Location"));
     /* Hits column header tooltip — spells out the cell grammar so users
      * don't have to memorise the glyphs. The mode words match the
      * inline-editor combo labels so the column reads as a compact
      * mirror of what the user picked in the dropdown. */
     model_->setHeaderData(BreakpointColumn::Hits, Qt::Horizontal,
-                          host_->tr("<p><b>Hit-count summary</b></p>"
+                          QObject::tr("<p><b>Hit-count summary</b></p>"
                                     "<p><code>\xe2\x89\xa5N</code> &mdash; <i>from</i> mode: pause from hit <i>N</i> "
                                     "onwards.<br/>"
                                     "<code>\xc3\x97N</code> &mdash; <i>every</i> mode: pause on hits <i>N</i>, "
@@ -1452,23 +1452,23 @@ void LuaDebuggerBreakpointsController::showContextMenu(const QPoint &pos)
 
     if (ix.isValid())
     {
-        editAct = menu.addAction(host_->tr("Edit..."));
+        editAct = menu.addAction(QObject::tr("Edit..."));
         editAct->setEnabled(ix.flags() & Qt::ItemIsEditable);
-        openAct = menu.addAction(host_->tr("Open Source"));
+        openAct = menu.addAction(QObject::tr("Open Source"));
         menu.addSeparator();
-        resetHitsAct = menu.addAction(host_->tr("Reset Hit Count"));
+        resetHitsAct = menu.addAction(QObject::tr("Reset Hit Count"));
         resetHitsAct->setEnabled(anyResettable);
         menu.addSeparator();
-        removeAct = menu.addAction(host_->tr("Remove"));
+        removeAct = menu.addAction(QObject::tr("Remove"));
         removeAct->setShortcut(QKeySequence::Delete);
     }
     QAction *resetAllHitsAct = nullptr;
     QAction *removeAllAct = nullptr;
     if (model_->rowCount() > 0)
     {
-        resetAllHitsAct = menu.addAction(host_->tr("Reset All Hit Counts"));
+        resetAllHitsAct = menu.addAction(QObject::tr("Reset All Hit Counts"));
         resetAllHitsAct->setEnabled(anyResettableInModel);
-        removeAllAct = menu.addAction(host_->tr("Remove All Breakpoints"));
+        removeAllAct = menu.addAction(QObject::tr("Remove All Breakpoints"));
         removeAllAct->setShortcut(kLuaDbgCtxRemoveAllBreakpoints);
     }
     if (menu.isEmpty())
@@ -1539,8 +1539,8 @@ void LuaDebuggerBreakpointsController::clearAll()
     }
 
     QMessageBox::StandardButton reply =
-        QMessageBox::question(host_, host_->tr("Clear All Breakpoints"),
-                              host_->tr("Are you sure you want to remove %Ln breakpoint(s)?", "", count),
+        QMessageBox::question(host_, QObject::tr("Clear All Breakpoints"),
+                              QObject::tr("Are you sure you want to remove %Ln breakpoint(s)?", "", count),
                               QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
 
     if (reply != QMessageBox::Yes)
@@ -1567,7 +1567,7 @@ void LuaDebuggerBreakpointsController::refreshFromEngine()
     const bool prevSuppress = suppressItemChanged_;
     suppressItemChanged_ = true;
     model_->removeRows(0, model_->rowCount());
-    model_->setHeaderData(BreakpointColumn::Location, Qt::Horizontal, host_->tr("Location"));
+    model_->setHeaderData(BreakpointColumn::Location, Qt::Horizontal, QObject::tr("Location"));
     unsigned count = wslua_debugger_get_breakpoint_count();
     const bool collectInitialFiles = !tabsPrimed_;
     QVector<QString> initialBreakpointFiles;
@@ -1644,10 +1644,10 @@ void LuaDebuggerBreakpointsController::refreshFromEngine()
          * hovering anywhere on the row reveals the full condition / hit
          * count / log details that no longer have a dedicated column. */
         QStringList tooltipLines;
-        tooltipLines.append(host_->tr("Location: %1:%2").arg(normalizedPath).arg(line));
+        tooltipLines.append(QObject::tr("Location: %1:%2").arg(normalizedPath).arg(line));
         if (hasCondition)
         {
-            tooltipLines.append(host_->tr("Condition: %1").arg(condition));
+            tooltipLines.append(QObject::tr("Condition: %1").arg(condition));
         }
         if (hasHitTarget)
         {
@@ -1655,36 +1655,36 @@ void LuaDebuggerBreakpointsController::refreshFromEngine()
             switch (hit_count_mode)
             {
             case WSLUA_HIT_COUNT_MODE_EVERY:
-                modeDesc = host_->tr("pauses on hits %1, 2\xc3\x97%1, "
+                modeDesc = QObject::tr("pauses on hits %1, 2\xc3\x97%1, "
                                      "3\xc3\x97%1, \xe2\x80\xa6")
                                .arg(hit_count_target);
                 break;
             case WSLUA_HIT_COUNT_MODE_ONCE:
-                modeDesc = host_->tr("pauses once on hit %1, then deactivates the "
+                modeDesc = QObject::tr("pauses once on hit %1, then deactivates the "
                                      "breakpoint")
                                .arg(hit_count_target);
                 break;
             case WSLUA_HIT_COUNT_MODE_FROM:
             default:
-                modeDesc = host_->tr("pauses on every hit from %1 onwards").arg(hit_count_target);
+                modeDesc = QObject::tr("pauses on every hit from %1 onwards").arg(hit_count_target);
                 break;
             }
             tooltipLines.append(
-                host_->tr("Hit Count: %1 / %2 (%3)").arg(hit_count).arg(hit_count_target).arg(modeDesc));
+                QObject::tr("Hit Count: %1 / %2 (%3)").arg(hit_count).arg(hit_count_target).arg(modeDesc));
         }
         else if (hit_count > 0)
         {
-            tooltipLines.append(host_->tr("Hits: %1").arg(hit_count));
+            tooltipLines.append(QObject::tr("Hits: %1").arg(hit_count));
         }
         if (hasLog)
         {
-            tooltipLines.append(host_->tr("Log: %1").arg(logMessage));
-            tooltipLines.append(log_also_pause ? host_->tr("(logpoint — also pauses)")
-                                               : host_->tr("(logpoint — does not pause)"));
+            tooltipLines.append(QObject::tr("Log: %1").arg(logMessage));
+            tooltipLines.append(log_also_pause ? QObject::tr("(logpoint — also pauses)")
+                                               : QObject::tr("(logpoint — does not pause)"));
         }
         if (condition_error)
         {
-            tooltipLines.append(host_->tr("Condition error on last evaluation — treated as "
+            tooltipLines.append(QObject::tr("Condition error on last evaluation — treated as "
                                           "false (silent). Edit or reset the breakpoint to "
                                           "clear."));
             /* Surface the actual Lua error string so users don't have
@@ -1695,7 +1695,7 @@ void LuaDebuggerBreakpointsController::refreshFromEngine()
             char *err_msg = wslua_debugger_get_breakpoint_condition_error_message(i);
             if (err_msg && err_msg[0])
             {
-                tooltipLines.append(host_->tr("Condition error: %1").arg(QString::fromUtf8(err_msg)));
+                tooltipLines.append(QObject::tr("Condition error: %1").arg(QString::fromUtf8(err_msg)));
             }
             g_free(err_msg);
         }
@@ -1716,7 +1716,7 @@ void LuaDebuggerBreakpointsController::refreshFromEngine()
              * because it describes the *file*, not the breakpoint's
              * extras (condition / hit count / log message). */
             locationItem->setIcon(luaDbgMakeSelectionAwareIcon(QIcon::fromTheme("dialog-warning"), bpPalette));
-            tooltipLines.prepend(host_->tr("File not found: %1").arg(normalizedPath));
+            tooltipLines.prepend(QObject::tr("File not found: %1").arg(normalizedPath));
             activeItem->setForeground(QBrush(Qt::gray));
             hitsItem->setForeground(QBrush(Qt::gray));
             lineItem->setForeground(QBrush(Qt::gray));
@@ -1985,10 +1985,10 @@ void LuaDebuggerBreakpointsController::showGutterMenu(const QString &filename, q
     const bool currentlyActive = (state == 1);
 
     QMenu menu(host_);
-    QAction *editAct = menu.addAction(host_->tr("&Edit..."));
-    QAction *toggleAct = menu.addAction(currentlyActive ? host_->tr("&Disable") : host_->tr("&Enable"));
+    QAction *editAct = menu.addAction(QObject::tr("&Edit..."));
+    QAction *toggleAct = menu.addAction(currentlyActive ? QObject::tr("&Disable") : QObject::tr("&Enable"));
     menu.addSeparator();
-    QAction *removeAct = menu.addAction(host_->tr("&Remove"));
+    QAction *removeAct = menu.addAction(QObject::tr("&Remove"));
 
     /* exec() returns the chosen action, or nullptr if the user
      * dismissed the menu (Escape, click outside, focus loss). The
@@ -2175,7 +2175,7 @@ void LuaDebuggerBreakpointsController::updateHeaderButtonState()
         {
             mode = LuaDbgBpHeaderIconMode::NoBreakpoints;
             toggleAllButton_->setEnabled(false);
-            toggleAllButton_->setToolTip(host_->tr("No breakpoints\n%1: add or remove breakpoint on the current "
+            toggleAllButton_->setToolTip(QObject::tr("No breakpoints\n%1: add or remove breakpoint on the current "
                                                    "line in the editor")
                                              .arg(tglLineKeys));
         }
@@ -2184,7 +2184,7 @@ void LuaDebuggerBreakpointsController::updateHeaderButtonState()
             /* All BPs off: dot is gray (mirrors gutter); click activates all. */
             mode = LuaDbgBpHeaderIconMode::ActivateAll;
             toggleAllButton_->setEnabled(true);
-            toggleAllButton_->setToolTip(host_->tr("All breakpoints are inactive — click to activate all\n"
+            toggleAllButton_->setToolTip(QObject::tr("All breakpoints are inactive — click to activate all\n"
                                                    "%1: add or remove on the current line in the editor")
                                              .arg(tglLineKeys));
         }
@@ -2194,7 +2194,7 @@ void LuaDebuggerBreakpointsController::updateHeaderButtonState()
              * deactivates all. */
             mode = LuaDbgBpHeaderIconMode::DeactivateAll;
             toggleAllButton_->setEnabled(true);
-            toggleAllButton_->setToolTip(host_->tr("Click to deactivate all breakpoints\n"
+            toggleAllButton_->setToolTip(QObject::tr("Click to deactivate all breakpoints\n"
                                                    "%1: add or remove on the current line in the editor")
                                              .arg(tglLineKeys));
         }

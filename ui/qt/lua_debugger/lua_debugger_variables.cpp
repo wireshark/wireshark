@@ -107,7 +107,7 @@ void LuaDebuggerVariablesController::fetchAndAppend(QStandardItem *parent, const
             valueItem->setText(f.value);
             typeItem->setText(f.type);
 
-            const QString tooltipSuffix = f.type.isEmpty() ? QString() : host_->tr("Type: %1").arg(f.type);
+            const QString tooltipSuffix = f.type.isEmpty() ? QString() : QObject::tr("Type: %1").arg(f.type);
             nameItem->setToolTip(tooltipSuffix.isEmpty() ? f.name
                                                          : QStringLiteral("%1\n%2").arg(f.name, tooltipSuffix));
             valueItem->setToolTip(tooltipSuffix.isEmpty() ? f.value
@@ -259,19 +259,19 @@ void LuaDebuggerVariablesController::showContextMenu(const QPoint &pos)
 
     const QString nameText = item->text();
     const QString valueText = text(model_, item, VariablesColumn::Value);
-    const QString bothText = valueText.isEmpty() ? nameText : host_->tr("%1 = %2").arg(nameText, valueText);
+    const QString bothText = valueText.isEmpty() ? nameText : QObject::tr("%1 = %2").arg(nameText, valueText);
 
     const QString varPath = item->data(VariablePathRole).toString();
 
     QMenu menu(host_);
-    QAction *copyName = menu.addAction(host_->tr("Copy Name"));
-    QAction *copyValue = menu.addAction(host_->tr("Copy Value"));
+    QAction *copyName = menu.addAction(QObject::tr("Copy Name"));
+    QAction *copyValue = menu.addAction(QObject::tr("Copy Value"));
     QAction *copyPath = nullptr;
     if (!varPath.isEmpty())
     {
-        copyPath = menu.addAction(host_->tr("Copy Path"));
+        copyPath = menu.addAction(QObject::tr("Copy Path"));
     }
-    QAction *copyNameValue = menu.addAction(host_->tr("Copy Name && Value"));
+    QAction *copyNameValue = menu.addAction(QObject::tr("Copy Name && Value"));
 
     auto copyToClipboard = [](const QString &text)
     {
@@ -297,7 +297,7 @@ void LuaDebuggerVariablesController::showContextMenu(const QPoint &pos)
     if (!varPath.isEmpty())
     {
         QAction *addWatch =
-            menu.addAction(host_->tr("Add Watch: \"%1\"")
+            menu.addAction(QObject::tr("Add Watch: \"%1\"")
                                .arg(varPath.length() > 48 ? varPath.left(48) + QStringLiteral("…") : varPath));
         QObject::connect(addWatch, &QAction::triggered, host_,
                          [host = host_, varPath]() { host->addWatchFromSpec(varPath); });

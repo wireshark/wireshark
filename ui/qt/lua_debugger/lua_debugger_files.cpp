@@ -339,14 +339,14 @@ void LuaDebuggerFilesController::showContextMenu(const QPoint &pos)
     }
 
     QMenu menu(host_);
-    QAction *openAct = menu.addAction(host_->tr("Open Source"));
+    QAction *openAct = menu.addAction(QObject::tr("Open Source"));
 #ifdef Q_OS_MAC
-    QAction *revealAct = menu.addAction(host_->tr("Show in Finder"));
+    QAction *revealAct = menu.addAction(QObject::tr("Show in Finder"));
 #else
-    QAction *revealAct = menu.addAction(host_->tr("Show in Folder"));
+    QAction *revealAct = menu.addAction(QObject::tr("Show in Folder"));
 #endif
     menu.addSeparator();
-    QAction *copyPathAct = menu.addAction(host_->tr("Copy Path"));
+    QAction *copyPathAct = menu.addAction(QObject::tr("Copy Path"));
 
     QAction *chosen = menu.exec(tree_->viewport()->mapToGlobal(pos));
     if (!chosen)

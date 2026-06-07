@@ -225,9 +225,9 @@ void LuaDebuggerStackController::showContextMenu(const QPoint &pos)
     const qint64 line = item->data(StackItemLineRole).toLongLong();
 
     QMenu menu(host_);
-    QAction *openAct = menu.addAction(host_->tr("Open Source"));
+    QAction *openAct = menu.addAction(QObject::tr("Open Source"));
     openAct->setEnabled(navigable && !file.isEmpty() && line > 0);
-    QAction *copyLocAct = menu.addAction(host_->tr("Copy Location"));
+    QAction *copyLocAct = menu.addAction(QObject::tr("Copy Location"));
     copyLocAct->setEnabled(!file.isEmpty() && line > 0);
 
     QAction *chosen = menu.exec(tree_->viewport()->mapToGlobal(pos));

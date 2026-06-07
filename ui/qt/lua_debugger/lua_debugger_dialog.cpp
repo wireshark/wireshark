@@ -2025,14 +2025,14 @@ void LuaDebuggerLuaReloadCoordinator::onReloadLuaPluginsRequested()
     }
 
     reloadUiRequestWasEnabled_ = false;
-    if (!host_->codeTabsController().ensureUnsavedChangesHandled(host_->tr("Reload Lua Plugins")))
+    if (!host_->codeTabsController().ensureUnsavedChangesHandled(QObject::tr("Reload Lua Plugins")))
     {
         return;
     }
 
     const QMessageBox::StandardButton reply =
-        QMessageBox::question(host_, host_->tr("Reload Lua Plugins"),
-                              host_->tr("Are you sure you want to reload all Lua plugins?\n\nThis will "
+        QMessageBox::question(host_, QObject::tr("Reload Lua Plugins"),
+                              QObject::tr("Are you sure you want to reload all Lua plugins?\n\nThis will "
                                         "restart all Lua "
                                         "scripts and may affect capture analysis."),
                               QMessageBox::Yes | QMessageBox::No, QMessageBox::No);

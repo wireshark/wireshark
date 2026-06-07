@@ -186,6 +186,7 @@ private:
  */
 class ExpertInfoModel : public QAbstractItemModel
 {
+    Q_OBJECT
 public:
     /**
      * @brief Constructs a new ExpertInfoModel.

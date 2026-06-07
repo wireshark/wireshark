@@ -621,10 +621,9 @@ struct WatchContextMenuActions
 };
 
 void buildWatchContextMenu(QMenu &menu, QStandardItem *item, WatchContextMenuActions *acts,
-                           const QStandardItemModel *watchModel, const QKeySequence &addWatchShortcut,
-                           LuaDebuggerDialog *host)
+                           const QStandardItemModel *watchModel, const QKeySequence &addWatchShortcut)
 {
-    acts->addWatch = menu.addAction(host->tr("Add Watch"));
+    acts->addWatch = menu.addAction(QObject::tr("Add Watch"));
     if (!addWatchShortcut.isEmpty())
     {
         acts->addWatch->setShortcut(addWatchShortcut);
@@ -634,7 +633,7 @@ void buildWatchContextMenu(QMenu &menu, QStandardItem *item, WatchContextMenuAct
         if (watchModel && watchModel->rowCount() > 0)
         {
             menu.addSeparator();
-            acts->removeAllWatches = menu.addAction(host->tr("Remove All Watches"));
+            acts->removeAllWatches = menu.addAction(QObject::tr("Remove All Watches"));
             acts->removeAllWatches->setShortcut(kLuaDbgCtxWatchRemoveAll);
         }
         return;
@@ -642,14 +641,14 @@ void buildWatchContextMenu(QMenu &menu, QStandardItem *item, WatchContextMenuAct
 
     if (item->parent() == nullptr)
     {
-        acts->duplicate = menu.addAction(host->tr("Duplicate Watch"));
+        acts->duplicate = menu.addAction(QObject::tr("Duplicate Watch"));
         acts->duplicate->setShortcut(kLuaDbgCtxWatchDuplicate);
-        acts->editWatch = menu.addAction(host->tr("Edit Watch"));
+        acts->editWatch = menu.addAction(QObject::tr("Edit Watch"));
         acts->editWatch->setShortcut(kLuaDbgCtxWatchEdit);
         menu.addSeparator();
     }
 
-    acts->copyValue = menu.addAction(host->tr("Copy Value"));
+    acts->copyValue = menu.addAction(QObject::tr("Copy Value"));
     acts->copyValue->setShortcut(kLuaDbgCtxWatchCopyValue);
 
     if (item->parent() != nullptr)
@@ -658,11 +657,11 @@ void buildWatchContextMenu(QMenu &menu, QStandardItem *item, WatchContextMenuAct
     }
 
     menu.addSeparator();
-    acts->remove = menu.addAction(host->tr("Remove"));
+    acts->remove = menu.addAction(QObject::tr("Remove"));
     acts->remove->setShortcut(QKeySequence::Delete);
     if (watchModel->rowCount() > 0)
     {
-        acts->removeAllWatches = menu.addAction(host->tr("Remove All Watches"));
+        acts->removeAllWatches = menu.addAction(QObject::tr("Remove All Watches"));
         acts->removeAllWatches->setShortcut(kLuaDbgCtxWatchRemoveAll);
     }
 }
@@ -974,7 +973,7 @@ void LuaDebuggerWatchController::showContextMenu(const QPoint &pos)
 
     QMenu menu(host_);
     WatchContextMenuActions acts;
-    buildWatchContextMenu(menu, item, &acts, model_, host_->addWatchShortcut(), host_);
+    buildWatchContextMenu(menu, item, &acts, model_, host_->addWatchShortcut());
 
     QAction *chosen = menu.exec(tree_->viewport()->mapToGlobal(pos));
     if (!chosen)
@@ -1137,7 +1136,7 @@ void LuaDebuggerWatchController::removeAllTopLevelItems()
      * watch list. */
     const int count = static_cast<int>(all.size());
     QMessageBox::StandardButton reply = QMessageBox::question(
-        host_, host_->tr("Clear All Watches"), host_->tr("Are you sure you want to remove %Ln watch(es)?", "", count),
+        host_, QObject::tr("Clear All Watches"), QObject::tr("Are you sure you want to remove %Ln watch(es)?", "", count),
         QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
     if (reply != QMessageBox::Yes)
     {
@@ -1375,13 +1374,13 @@ void LuaDebuggerWatchController::fillPathChildren(QStandardItem *parent, const Q
     if (watchSubpathBoundaryCount(path) >= WSLUA_WATCH_MAX_PATH_SEGMENTS)
     {
         auto *sentinelSpec = new QStandardItem(QStringLiteral("\u2026"));
-        auto *sentinelValue = new QStandardItem(host_->tr("Maximum watch depth reached"));
+        auto *sentinelValue = new QStandardItem(QObject::tr("Maximum watch depth reached"));
         sentinelSpec->setFlags(Qt::ItemIsEnabled);
         sentinelValue->setFlags(Qt::ItemIsEnabled);
         LuaDebuggerItems::setForeground(model_, sentinelSpec, WatchColumn::Value,
                                         tree_->palette().brush(QPalette::PlaceholderText));
         LuaDebuggerItems::setToolTip(model_, sentinelSpec, WatchColumn::Value,
-                                     capWatchTooltipText(host_->tr("Maximum watch depth reached.")));
+                                     capWatchTooltipText(QObject::tr("Maximum watch depth reached.")));
         parent->appendRow({sentinelSpec, sentinelValue});
         return;
     }
@@ -1471,13 +1470,13 @@ void LuaDebuggerWatchController::fillExprChildren(QStandardItem *parent, const Q
     if (watchSubpathBoundaryCount(subpath) >= WSLUA_WATCH_MAX_PATH_SEGMENTS)
     {
         auto *sentinelSpec = new QStandardItem(QStringLiteral("\u2026"));
-        auto *sentinelValue = new QStandardItem(host_->tr("Maximum watch depth reached"));
+        auto *sentinelValue = new QStandardItem(QObject::tr("Maximum watch depth reached"));
         sentinelSpec->setFlags(Qt::ItemIsEnabled);
         sentinelValue->setFlags(Qt::ItemIsEnabled);
         LuaDebuggerItems::setForeground(model_, sentinelSpec, WatchColumn::Value,
                                         tree_->palette().brush(QPalette::PlaceholderText));
         LuaDebuggerItems::setToolTip(model_, sentinelSpec, WatchColumn::Value,
-                                     capWatchTooltipText(host_->tr("Maximum watch depth reached.")));
+                                     capWatchTooltipText(QObject::tr("Maximum watch depth reached.")));
         parent->appendRow({sentinelSpec, sentinelValue});
         return;
     }
