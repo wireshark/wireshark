@@ -2698,16 +2698,16 @@ void StratosharkMainWindow::connectCaptureMenuActions()
     connect(main_ui_->actionCaptureStop, &QAction::triggered, this,
             [this]() { stopCapture(); });
 
-    connect(main_ui_->actionCaptureRestart, &QAction::triggered, this, [this]() {
 #ifdef HAVE_LIBPCAP
+    connect(main_ui_->actionCaptureRestart, &QAction::triggered, this, [this]() {
         QString before_what(tr(" before restarting the capture"));
         cap_session_.capture_opts->restart = true;
         if (!tryClosingCaptureFile(before_what, Restart)) {
             return;
         }
         startCapture(QStringList());
-#endif // HAVE_LIBPCAP
     });
+#endif // HAVE_LIBPCAP
 
     connect(main_ui_->actionCaptureCaptureFilters, &QAction::triggered, this, [this]() {
         FilterDialog *capture_filter_dlg = new FilterDialog(window(), FilterDialog::CaptureFilter);
