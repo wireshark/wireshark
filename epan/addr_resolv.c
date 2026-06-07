@@ -1827,6 +1827,7 @@ manuf_hash_new_entry(const uint8_t *addr, const char* name, const char* longname
     unsigned manuf_key;
     hashmanuf_t *manuf_value;
     char *endp;
+    size_t attempted_size;
 
     /* manuf needs only the 3 most significant octets of the ethernet address */
     manuf_key = (addr[0] << 16) + (addr[1] << 8) + addr[2];
@@ -1837,7 +1838,10 @@ manuf_hash_new_entry(const uint8_t *addr, const char* name, const char* longname
         (void) g_strlcpy(manuf_value->resolved_name, name, MAXNAMELEN);
         manuf_value->flags = NAME_RESOLVED;
         if (longname != NULL) {
-            (void) g_strlcpy(manuf_value->resolved_longname, longname, MAXNAMELEN);
+            attempted_size = g_strlcpy(manuf_value->resolved_longname, longname, MAXNAMELEN);
+            if (attempted_size >= MAXNAMELEN) {
+                ws_utf8_truncate(manuf_value->resolved_longname, MAXNAMELEN - 1);
+            }
         }
         else {
             (void) g_strlcpy(manuf_value->resolved_longname, name, MAXNAMELEN);
