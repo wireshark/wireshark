@@ -42,6 +42,7 @@ jobs:
           -DENABLE_SNAPPY=OFF
           -DENABLE_SPANDSP=OFF
           -DENABLE_ZLIB=OFF
+          -DENABLE_ZLIBNG=OFF
           -DENABLE_ZSTD=OFF
           ..
         working-directory: build
