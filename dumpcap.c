@@ -5638,19 +5638,19 @@ main(int argc, char *argv[])
             return WS_EXIT_INVALID_OPTION;
         }
         /*
-	 * Don't print the usage for the -Z and --application-flavor
-	 * options, as they're not described in the usage message
-	 * because they're only for use by other Wirehsark/Stratoshark
-	 * programs when they're doing captures.
-	 *
-	 * The problem is that it's a long message and will probably
-	 * scroll the underlying error off the screen.
-	 *
-	 * XXX - perhaps we should, for *all* programs, suppress the
-	 * full error message for anything other than unknown options,
-	 * and print only the usage message for the option in question
-	 * if the problem is with a particular option.
-	 */
+         * Don't print the usage for the -Z and --application-flavor
+         * options, as they're not described in the usage message
+         * because they're only for use by other Wirehsark/Stratoshark
+         * programs when they're doing captures.
+         *
+         * The problem is that it's a long message and will probably
+         * scroll the underlying error off the screen.
+         *
+         * XXX - perhaps we should, for *all* programs, suppress the
+         * full error message for anything other than unknown options,
+         * and print only the usage message for the option in question
+         * if the problem is with a particular option.
+         */
         if (ws_optopt != 'Z' && ws_optopt != LONGOPT_APPLICATION_FLAVOR) {
             print_usage(stderr);
         }
