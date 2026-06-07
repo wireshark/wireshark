@@ -121,7 +121,7 @@
         },
 
         "filter": {
-            "description": "Optional filter-validity tint overrides. Every key is independently optional; omitted ones derive from accent + palette.base. `valid`, `invalid`, `deprecated` are bg tints for the filter-edit field. `busy` and `busyText` are the bg + fg used while a capture filter is being compiled off-thread (the legacy GTK behavior, exposed here so themes can pin a more distinct visual than the default placeholder fade). Explicit values let themes ship the historical Tango saturated-dark-green/dark-red look that alpha-tinting an accent can never reach.",
+            "description": "Optional filter-validity tint overrides. Every key is independently optional; omitted ones derive from accent + palette.base. `valid`, `invalid`, `deprecated` are bg tints for the filter-edit field. `busy` and `busyText` are the bg + fg used while a capture filter is being compiled off-thread (the legacy GTK behavior, exposed here so themes can pin a more distinct visual than the default placeholder fade). `history` is the resting tint of the recent-filters drop-down arrow (defaults to palette.mid; the arrow brightens on hover/press in the widget). Explicit values let themes ship the historical Tango saturated-dark-green/dark-red look that alpha-tinting an accent can never reach.",
             "type": "object",
             "additionalProperties": false,
             "properties": {
@@ -129,7 +129,8 @@
                 "invalid":    { "$ref": "#/$defs/colorPair" },
                 "deprecated": { "$ref": "#/$defs/colorPair" },
                 "busy":       { "$ref": "#/$defs/colorPair" },
-                "busyText":   { "$ref": "#/$defs/colorPair" }
+                "busyText":   { "$ref": "#/$defs/colorPair" },
+                "history":    { "$ref": "#/$defs/colorPair" }
             }
         },
 

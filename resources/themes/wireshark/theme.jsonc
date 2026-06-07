@@ -165,10 +165,16 @@
 	//
 	// "deprecated", "busy", and "busyText" are intentionally omitted;
 	// they derive from accent.warning / palette.base / palette.text.
+	//
+	// "history" is the resting tint of the recent-filters drop-down arrow.
+	// Pinned to the classic combo-arrow Tango grays (aluminium_4 /
+	// aluminium_2) so the default theme matches the pre-ThemeManager look;
+	// the glyph brightens to a strong colour on hover/press in the widget.
 	// -----------------------------------------------------------------
 	"filter": {
 		"valid":   { "light": "#296700", "dark": "#3a7a06" },
-		"invalid": { "light": "#5e0000", "dark": "#7a1818" }
+		"invalid": { "light": "#5e0000", "dark": "#7a1818" },
+		"history": { "light": "#555753", "dark": "#d3d7cf" }
 	},
 
 	// -----------------------------------------------------------------

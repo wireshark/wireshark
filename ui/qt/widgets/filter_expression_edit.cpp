@@ -212,7 +212,14 @@ FilterExpressionEdit::FilterExpressionEdit(QWidget *parent) :
 
     history_button_ = new AdaptiveToolButton(this);
     history_button_->setIconPadding(1);
-    history_button_->setIcon(ThemedIcon(":/svg_icons/x-filter-history.svg", ThemeManager::PaletteText));
+    // Dimmed disclosure caret at rest (FilterHistory ≈ the classic combo-arrow
+    // gray), brightening to the brand colour on hover and press so the arrow
+    // reads as a button. The stateful ThemedIcon supplies the per-mode glyph
+    // colours QToolButton requests on hover/press; QSS cannot recolour an SVG
+    // fill, so the feedback has to live on the icon, as it does for clear.
+    history_button_->setIcon(ThemedIcon(":/svg_icons/x-filter-history.svg",
+                                        ThemeManager::FilterHistory,
+                                        ThemeManager::BrandPrimary));
     history_button_->setToolTip(tr("Recent filters"));
     // Size the recent-filters dropdown like a disclosure arrow rather than a full
     // action glyph. QStyle exposes no tree-arrow metric; PM_MenuButtonIndicator

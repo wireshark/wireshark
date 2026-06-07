@@ -426,6 +426,7 @@ class TestSchemaFlexibility:
                 'deprecated': {'light': '#cc7700', 'dark': '#cc7700'},
                 'busy':       {'light': '#eeeeee', 'dark': '#222222'},
                 'busyText':   {'light': '#888888', 'dark': '#aaaaaa'},
+                'history':    {'light': '#555753', 'dark': '#d3d7cf'},
             },
             'separator': {'light': '#d6e3e6', 'dark': '#1f3338'},
         }
