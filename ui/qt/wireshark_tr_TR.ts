@@ -1303,47 +1303,83 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     <name>CaptureFilterCombo</name>
     <message>
         <source>Capture filter selector</source>
-        <translation>Yakalama filtresi seçici</translation>
+        <translation type="vanished">Yakalama filtresi seçici</translation>
     </message>
 </context>
 <context>
     <name>CaptureFilterEdit</name>
     <message>
         <source>Capture filter entry</source>
-        <translation>Filtre girişini yakala</translation>
+        <translation type="vanished">Filtre girişini yakala</translation>
     </message>
     <message>
         <source>Manage saved bookmarks.</source>
-        <translation>Kaydedilmiş yer imlerini yönetin.</translation>
+        <translation type="vanished">Kaydedilmiş yer imlerini yönetin.</translation>
     </message>
     <message>
         <source>Apply this filter string to the display.</source>
-        <translation>Bu filtre dizesini ekrana uygulayın.</translation>
+        <translation type="vanished">Bu filtre dizesini ekrana uygulayın.</translation>
     </message>
     <message>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
         <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
-        <translation>Birden çok filtre seçildi. Bunları burada geçersiz kılın veya korumak için burayı boş bırakın.</translation>
+        <translation type="vanished">Birden çok filtre seçildi. Bunları burada geçersiz kılın veya korumak için burayı boş bırakın.</translation>
     </message>
     <message>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Seçtiğiniz arayüzlerde farklı yakalama filtreleri var. Buraya bir filtre yazmak onları geçersiz kılar. Hiçbir şey yapmamak onları koruyacaktır.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Seçtiğiniz arayüzlerde farklı yakalama filtreleri var. Buraya bir filtre yazmak onları geçersiz kılar. Hiçbir şey yapmamak onları koruyacaktır.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Enter a capture filter %1</source>
-        <translation>Bir yakalama filtresi girin %1</translation>
+        <translation type="vanished">Bir yakalama filtresi girin %1</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation>Bu filtreyi kaydet</translation>
+        <translation type="vanished">Bu filtreyi kaydet</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation>Bu filtreyi kaldır</translation>
+        <translation type="vanished">Bu filtreyi kaldır</translation>
     </message>
     <message>
         <source>Manage Capture Filters</source>
-        <translation>Yakalama Filtrelerini Yönet</translation>
+        <translation type="vanished">Yakalama Filtrelerini Yönet</translation>
+    </message>
+</context>
+<context>
+    <name>CaptureFilterEntry</name>
+    <message>
+        <source>Capture filter entry</source>
+        <translation type="unfinished">Filtre girişini yakala</translation>
+    </message>
+    <message>
+        <source>Saved Capture Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished">Bu filtreyi kaydet</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished">Bu filtreyi kaldır</translation>
+    </message>
+    <message>
+        <source>Manage Capture Filters</source>
+        <translation type="unfinished">Yakalama Filtrelerini Yönet</translation>
+    </message>
+    <message>
+        <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
+        <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
+        <translation type="unfinished">Birden çok filtre seçildi. Bunları burada geçersiz kılın veya korumak için burayı boş bırakın.</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
+        <translation type="unfinished">&lt;p&gt;Seçtiğiniz arayüzlerde farklı yakalama filtreleri var. Buraya bir filtre yazmak onları geçersiz kılar. Hiçbir şey yapmamak onları koruyacaktır.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Enter a capture filter %1</source>
+        <translation type="unfinished">Bir yakalama filtresi girin %1</translation>
     </message>
 </context>
 <context>
@@ -1354,6 +1390,25 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CaptureFilterValidator</name>
+    <message>
+        <source>No interfaces selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to check capture filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to check capture filter (BPF extensions require a live handle)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Syntax checking unavailable</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2813,11 +2868,11 @@ Relative to reference: n/a (outside reference range)</source>
     <name>DisplayFilterCombo</name>
     <message>
         <source>Display filter selector</source>
-        <translation>Filtre seçiciyi görüntüle</translation>
+        <translation type="vanished">Filtre seçiciyi görüntüle</translation>
     </message>
     <message>
         <source>Select from previously used filters.</source>
-        <translation>Daha önce kullanılan filtreler arasından seçim yapın.</translation>
+        <translation type="vanished">Daha önce kullanılan filtreler arasından seçim yapın.</translation>
     </message>
 </context>
 <context>
@@ -2886,6 +2941,45 @@ Relative to reference: n/a (outside reference range)</source>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DisplayFilterEntry</name>
+    <message>
+        <source>Display filter entry</source>
+        <translation type="unfinished">Filtre girişini göster</translation>
+    </message>
+    <message>
+        <source>Saved Display Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished">Bu filtreyi kaydet</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished">Bu filtreyi kaldır</translation>
+    </message>
+    <message>
+        <source>Manage Display Filters</source>
+        <translation type="unfinished">Görüntü Filtrelerini Yönet</translation>
+    </message>
+    <message>
+        <source>Filter Button Preferences…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply a display filter %1 &lt;%2/&gt;</source>
+        <translation type="unfinished">Bir görüntüleme filtresi uygula %1 &lt;%2/&gt;</translation>
+    </message>
+    <message>
+        <source>Display Filter Expression…</source>
+        <translation type="unfinished">Filtre İfadesini Görüntüle…</translation>
+    </message>
+    <message>
+        <source>Left align buttons</source>
+        <translation type="unfinished">Sola hizalama düğmeleri</translation>
     </message>
 </context>
 <context>
@@ -2981,6 +3075,13 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Click OK to insert this filter</source>
         <translation>Bu filtreyi eklemek için Tamam&apos;ı tıklayın</translation>
+    </message>
+</context>
+<context>
+    <name>DisplayFilterValidator</name>
+    <message>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>
+        <translation type="unfinished">&quot;%1&quot;, &quot;%2&quot; yerine kullanımdan kaldırıldı. Ayrıntılar için Yardım bölümü 6.4.8&apos;e bakın.</translation>
     </message>
 </context>
 <context>
@@ -3105,18 +3206,6 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>protocols</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Only enabled protocols</source>
-        <translation type="vanished">Yalnızca etkin protokoller</translation>
-    </message>
-    <message>
-        <source>Only disabled protocols</source>
-        <translation type="vanished">Yalnızca devre dışı bırakılmış protokoller</translation>
-    </message>
-    <message>
-        <source>any protocol</source>
-        <translation type="vanished">herhangi bir protokol</translation>
     </message>
     <message>
         <source>non-heuristic protocols</source>
@@ -3811,6 +3900,45 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
 </context>
 <context>
+    <name>FilterExpressionEdit</name>
+    <message>
+        <source>Saved Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished">Bu filtreyi kaydet</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished">Bu filtreyi kaldır</translation>
+    </message>
+    <message>
+        <source>Manage Saved Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Button Preferences...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manage saved filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear the filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply this filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Recent filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FilterExpressionFrame</name>
     <message>
         <source>Frame</source>
@@ -3894,6 +4022,13 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Filter Expression</source>
         <translation>Filtre İfadesi</translation>
+    </message>
+</context>
+<context>
+    <name>FilterValidator</name>
+    <message>
+        <source>Invalid filter: %1</source>
+        <translation type="unfinished">Geçersiz filtre: %1</translation>
     </message>
 </context>
 <context>
@@ -5881,6 +6016,14 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Hide Interface</source>
         <translation>Arayüzü Gizle</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation type="unfinished">Bilinmiyor</translation>
+    </message>
+    <message>
+        <source>Hide all &apos;%1&apos; interfaces</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14735,6 +14878,46 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
 </context>
 <context>
+    <name>TcpDedupDialog</name>
+    <message>
+        <source>TCP Duplication Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;Detect duplication (capture-level) packets&quot; preference must be enabled in
+Preferences → Protocols → TCP to use this table.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation type="unfinished">Süre</translation>
+    </message>
+    <message>
+        <source>Delta</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame Number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplication Total</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stream:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ThemeDebugDialog</name>
     <message>
         <source>Theme Debug</source>
@@ -17201,6 +17384,14 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>TCP throughput</source>
         <translation>TCP verimi</translation>
+    </message>
+    <message>
+        <source>Duplication Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP capture-level duplicate packet table</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>General</source>

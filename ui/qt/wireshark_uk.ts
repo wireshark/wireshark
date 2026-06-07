@@ -1296,24 +1296,25 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
 </context>
 <context>
-    <name>CaptureFilterCombo</name>
-    <message>
-        <source>Capture filter selector</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>CaptureFilterEdit</name>
+    <name>CaptureFilterEntry</name>
     <message>
         <source>Capture filter entry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Manage saved bookmarks.</source>
+        <source>Saved Capture Filters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Apply this filter string to the display.</source>
+        <source>Save this filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manage Capture Filters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1329,18 +1330,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
         <source>Enter a capture filter %1</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Save this filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove this filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Manage Capture Filters</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>CaptureFilterSyntaxWorker</name>
@@ -1350,6 +1339,25 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CaptureFilterValidator</name>
+    <message>
+        <source>No interfaces selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to check capture filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to check capture filter (BPF extensions require a live handle)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Syntax checking unavailable</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2805,17 +2813,6 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
 </context>
 <context>
-    <name>DisplayFilterCombo</name>
-    <message>
-        <source>Display filter selector</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select from previously used filters.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>DisplayFilterEdit</name>
     <message>
         <source>Display filter entry</source>
@@ -2880,6 +2877,45 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DisplayFilterEntry</name>
+    <message>
+        <source>Display filter entry</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saved Display Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manage Display Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Button Preferences…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply a display filter %1 &lt;%2/&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter Expression…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left align buttons</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2973,6 +3009,13 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Click OK to insert this filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DisplayFilterValidator</name>
+    <message>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3794,6 +3837,45 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
 </context>
 <context>
+    <name>FilterExpressionEdit</name>
+    <message>
+        <source>Saved Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manage Saved Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Button Preferences...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manage saved filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear the filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply this filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Recent filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FilterExpressionFrame</name>
     <message>
         <source>Frame</source>
@@ -3876,6 +3958,13 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Filter Expression</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FilterValidator</name>
+    <message>
+        <source>Invalid filter: %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5877,6 +5966,14 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Hide Interface</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide all &apos;%1&apos; interfaces</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -14716,6 +14813,46 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
 </context>
 <context>
+    <name>TcpDedupDialog</name>
+    <message>
+        <source>TCP Duplication Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;Detect duplication (capture-level) packets&quot; preference must be enabled in
+Preferences → Protocols → TCP to use this table.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation type="unfinished">Час</translation>
+    </message>
+    <message>
+        <source>Delta</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame Number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplication Total</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stream:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ThemeDebugDialog</name>
     <message>
         <source>Theme Debug</source>
@@ -17183,6 +17320,14 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>TCP throughput</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplication Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP capture-level duplicate packet table</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

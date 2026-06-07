@@ -753,7 +753,7 @@ Gli errori di runtime vengono trattati come falsi (silenziosi) e visualizzati co
     </message>
     <message>
         <source>Gate the pause on a hit counter. The dropdown next to N picks the comparison mode: from pauses on every hit from N onwards (default); every pauses on hits N, 2N, 3N, …; once pauses on the N-th hit and deactivates the breakpoint. Use 0 to disable the gate. The counter is preserved across edits to Expression / Hit Count / Log Message; lowering the target below the current count rolls the counter back to 0 so the breakpoint can wait for the next N hits. Right-click the row to reset it explicitly. Combined with an Expression on the same row, the hit-count gate runs first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Imposta la pausa su un contatore di hit. Il menu a tendina accanto a N seleziona la modalità di confronto: da pausa a ogni hit da N in poi (impostazione predefinita); ogni pausa ai hit N, 2N, 3N, …; una volta mette in pausa all&apos;N-esimo hit e disattiva il breakpoint. Usa 0 per disabilitare il blocco. Il contatore viene mantenuto anche dopo le modifiche a Espressione / Conteggio hit / Messaggio di log; abbassando il target al di sotto del conteggio corrente, il contatore torna a 0 in modo che il breakpoint possa attendere i successivi N hit. Fai clic con il pulsante destro del mouse sulla riga per reimpostarlo esplicitamente. In combinazione con un&apos;espressione sulla stessa riga, il blocco del conteggio hit viene eseguito per primo.</translation>
     </message>
     <message>
         <source>Log Message</source>
@@ -1319,47 +1319,83 @@ Off = solo logpoint (corrisponde alla convenzione storica secondo cui &quot;i lo
     <name>CaptureFilterCombo</name>
     <message>
         <source>Capture filter selector</source>
-        <translation>Selettore del file di cattura</translation>
+        <translation type="vanished">Selettore del file di cattura</translation>
     </message>
 </context>
 <context>
     <name>CaptureFilterEdit</name>
     <message>
         <source>Capture filter entry</source>
-        <translation>Voce del filtro di cattura</translation>
+        <translation type="vanished">Voce del filtro di cattura</translation>
     </message>
     <message>
         <source>Manage saved bookmarks.</source>
-        <translation>Gestisci i segnalibri salvati.</translation>
+        <translation type="vanished">Gestisci i segnalibri salvati.</translation>
     </message>
     <message>
         <source>Apply this filter string to the display.</source>
-        <translation>Applica questa stringa di filtro alla visualizzazione.</translation>
+        <translation type="vanished">Applica questa stringa di filtro alla visualizzazione.</translation>
     </message>
     <message>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
         <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
-        <translation>Più filtri selezionati. Sovrascrivili qui o lascia vuoto per preservarli.</translation>
+        <translation type="vanished">Più filtri selezionati. Sovrascrivili qui o lascia vuoto per preservarli.</translation>
     </message>
     <message>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Le interfacce che hai selezionato hanno diversi filtri di cattura. Se digiti un filtro qui, avrà la precedenza su tali filtri. Se lasci vuoto, i filtri saranno preservati.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Le interfacce che hai selezionato hanno diversi filtri di cattura. Se digiti un filtro qui, avrà la precedenza su tali filtri. Se lasci vuoto, i filtri saranno preservati.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Enter a capture filter %1</source>
-        <translation>Inserisci un filtro di cattura %1</translation>
+        <translation type="vanished">Inserisci un filtro di cattura %1</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation>Salva questo filtro</translation>
+        <translation type="vanished">Salva questo filtro</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation>Rimuovi questo filtro</translation>
+        <translation type="vanished">Rimuovi questo filtro</translation>
     </message>
     <message>
         <source>Manage Capture Filters</source>
-        <translation>Gestisci filtri di cattura</translation>
+        <translation type="vanished">Gestisci filtri di cattura</translation>
+    </message>
+</context>
+<context>
+    <name>CaptureFilterEntry</name>
+    <message>
+        <source>Capture filter entry</source>
+        <translation type="unfinished">Voce del filtro di cattura</translation>
+    </message>
+    <message>
+        <source>Saved Capture Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished">Salva questo filtro</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished">Rimuovi questo filtro</translation>
+    </message>
+    <message>
+        <source>Manage Capture Filters</source>
+        <translation type="unfinished">Gestisci filtri di cattura</translation>
+    </message>
+    <message>
+        <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
+        <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
+        <translation type="unfinished">Più filtri selezionati. Sovrascrivili qui o lascia vuoto per preservarli.</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
+        <translation type="unfinished">&lt;p&gt;Le interfacce che hai selezionato hanno diversi filtri di cattura. Se digiti un filtro qui, avrà la precedenza su tali filtri. Se lasci vuoto, i filtri saranno preservati.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Enter a capture filter %1</source>
+        <translation type="unfinished">Inserisci un filtro di cattura %1</translation>
     </message>
 </context>
 <context>
@@ -1371,6 +1407,25 @@ Off = solo logpoint (corrisponde alla convenzione storica secondo cui &quot;i lo
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
         <translation>Impossibile controllare il filtro di cattura (le estensioni BPF richiedono un handle live)</translation>
+    </message>
+</context>
+<context>
+    <name>CaptureFilterValidator</name>
+    <message>
+        <source>No interfaces selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to check capture filter</source>
+        <translation type="unfinished">Impossibile controllare il filtro di cattura</translation>
+    </message>
+    <message>
+        <source>Unable to check capture filter (BPF extensions require a live handle)</source>
+        <translation type="unfinished">Impossibile controllare il filtro di cattura (le estensioni BPF richiedono un handle live)</translation>
+    </message>
+    <message>
+        <source>Syntax checking unavailable</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2836,11 +2891,11 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     <name>DisplayFilterCombo</name>
     <message>
         <source>Display filter selector</source>
-        <translation>Visualizza il selettore del filtro</translation>
+        <translation type="vanished">Visualizza il selettore del filtro</translation>
     </message>
     <message>
         <source>Select from previously used filters.</source>
-        <translation>Selezione tra i filtri precedentemente utilizzati.</translation>
+        <translation type="vanished">Selezione tra i filtri precedentemente utilizzati.</translation>
     </message>
 </context>
 <context>
@@ -2909,6 +2964,45 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
         <translation>Preferenze pulsante di filtro...</translation>
+    </message>
+</context>
+<context>
+    <name>DisplayFilterEntry</name>
+    <message>
+        <source>Display filter entry</source>
+        <translation type="unfinished">Voce del filtro di visualizzazione</translation>
+    </message>
+    <message>
+        <source>Saved Display Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished">Salva questo filtro</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished">Rimuovi questo filtro</translation>
+    </message>
+    <message>
+        <source>Manage Display Filters</source>
+        <translation type="unfinished">Gestisci filtri di visualizzazione</translation>
+    </message>
+    <message>
+        <source>Filter Button Preferences…</source>
+        <translation type="unfinished">Preferenze pulsante di filtro...</translation>
+    </message>
+    <message>
+        <source>Apply a display filter %1 &lt;%2/&gt;</source>
+        <translation type="unfinished">Applica un filtro di visualizzazione %1 &lt;%2/&gt;</translation>
+    </message>
+    <message>
+        <source>Display Filter Expression…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left align buttons</source>
+        <translation type="unfinished">Allinea i pulsanti a sinistra</translation>
     </message>
 </context>
 <context>
@@ -3004,6 +3098,13 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     <message>
         <source>Click OK to insert this filter</source>
         <translation>Fai clic su OK per inserire questo filtro</translation>
+    </message>
+</context>
+<context>
+    <name>DisplayFilterValidator</name>
+    <message>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>
+        <translation type="unfinished">&quot;%1&quot; è sconsigliato in favore di &quot;%2&quot;. Vedi la sezione 6.4.8 della guida per i dettagli.</translation>
     </message>
 </context>
 <context>
@@ -3115,31 +3216,19 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>all</source>
-        <translation type="unfinished"></translation>
+        <translation>tutti</translation>
     </message>
     <message>
         <source>enabled</source>
-        <translation type="unfinished">abilitato</translation>
+        <translation>abilitato</translation>
     </message>
     <message>
         <source>disabled</source>
-        <translation type="unfinished">disabilitato</translation>
+        <translation>disabilitato</translation>
     </message>
     <message>
         <source>protocols</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Only enabled protocols</source>
-        <translation type="vanished">Solo i protocolli abilitati</translation>
-    </message>
-    <message>
-        <source>Only disabled protocols</source>
-        <translation type="vanished">Solo i protocolli disabilitati</translation>
-    </message>
-    <message>
-        <source>any protocol</source>
-        <translation type="vanished">qualsiasi protocollo</translation>
+        <translation>protocolli</translation>
     </message>
     <message>
         <source>non-heuristic protocols</source>
@@ -3835,6 +3924,45 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
 </context>
 <context>
+    <name>FilterExpressionEdit</name>
+    <message>
+        <source>Saved Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished">Salva questo filtro</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished">Rimuovi questo filtro</translation>
+    </message>
+    <message>
+        <source>Manage Saved Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Button Preferences...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manage saved filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear the filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply this filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Recent filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FilterExpressionFrame</name>
     <message>
         <source>Frame</source>
@@ -3918,6 +4046,13 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     <message>
         <source>Filter Expression</source>
         <translation>Espressione del filtro</translation>
+    </message>
+</context>
+<context>
+    <name>FilterValidator</name>
+    <message>
+        <source>Invalid filter: %1</source>
+        <translation type="unfinished">Filtro non valido: %1</translation>
     </message>
 </context>
 <context>
@@ -5948,6 +6083,14 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
         <source>Hide Interface</source>
         <translation>Nascondi interfaccia</translation>
     </message>
+    <message>
+        <source>Unknown</source>
+        <translation type="unfinished">Sconosciuto</translation>
+    </message>
+    <message>
+        <source>Hide all &apos;%1&apos; interfaces</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InterfaceSortFilterModel</name>
@@ -7534,7 +7677,7 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Hit-count summary&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;code&gt;≥N&lt;/code&gt; &amp;mdash; &lt;i&gt;from&lt;/i&gt; mode: pause from hit &lt;i&gt;N&lt;/i&gt; onwards.&lt;br/&gt;&lt;code&gt;×N&lt;/code&gt; &amp;mdash; &lt;i&gt;every&lt;/i&gt; mode: pause on hits &lt;i&gt;N&lt;/i&gt;, &lt;i&gt;2N&lt;/i&gt;, &lt;i&gt;3N&lt;/i&gt;, &amp;hellip;&lt;br/&gt;&lt;code&gt;@N&lt;/code&gt; &amp;mdash; &lt;i&gt;once&lt;/i&gt; mode: pause once on the &lt;i&gt;N&lt;/i&gt;th hit, then deactivate.&lt;/p&gt;&lt;p&gt;The cell starts with the running hit counter; if a gate is set it follows in parentheses, e.g. &lt;code&gt;3 (≥10)&lt;/code&gt;. With no hit gate the cell is just the counter.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell to set or change the gate (see the breakpoint-extras section).&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;&lt;b&gt;Riepilogo conteggio hit&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;code&gt;≥N &lt;/code&gt;&amp;mdash; modalità &lt;i&gt;da&lt;/i&gt;: pausa dall&apos;hit &lt;i&gt;N&lt;/i&gt; in poi.&lt;br/&gt;&lt;code&gt;×N&lt;/code&gt; &amp;mdash; modalità &lt;i&gt;ogni&lt;/i&gt;: pausa agli hit &lt;i&gt;N&lt;/i&gt;, &lt;i&gt;2N&lt;/i&gt;, &lt;i&gt;3N&lt;/i&gt;, &amp;hellip;&lt;br/&gt;&lt;code&gt;@N&lt;/code&gt; &amp;mdash; modalità &lt;i&gt;una volta&lt;/i&gt;: pausa una volta all&apos;&lt;i&gt;N&lt;/i&gt;-esimo hit, quindi disattiva.&lt;/p&gt;&lt;p&gt;La cella inizia con il contatore di hit corrente; se è impostato un gate, questo segue tra parentesi, ad esempio &lt;code&gt;3 (≥10)&lt;/code&gt;. Senza alcun gate di hit, la cella contiene solo il contatore.&lt;/p&gt;&lt;p&gt;Modifica la cella &lt;i&gt;Posizione&lt;/i&gt; per impostare o cambiare il gate (vedi la sezione breakpoint-extras).&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Edit...</source>
@@ -7693,7 +7836,10 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
 Drag existing breakpoint: move to nearest free visible line
 Shift+click: on an empty line, add a disabled breakpoint;
 on an existing breakpoint, toggle its active state</source>
-        <translation type="unfinished"></translation>
+        <translation>Clic: aggiungi o rimuovi un punto di interruzione
+Trascina un punto di interruzione esistente: spostalo sulla riga libera visibile più vicina
+Maiusc+clic: su una riga vuota, aggiungi un breakpoint disabilitato;
+su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     </message>
 </context>
 <context>
@@ -7802,7 +7948,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Expression&lt;/b&gt;&lt;br/&gt;Pause only when this Lua expression is truthy in the current frame. Runtime errors count as false and surface a warning icon on the row.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hit Count&lt;/b&gt;&lt;br/&gt;Gate the pause on a hit counter. The dropdown next to &lt;i&gt;N&lt;/i&gt; picks the comparison mode: &lt;code&gt;from&lt;/code&gt; pauses on every hit from &lt;i&gt;N&lt;/i&gt; onwards (default); &lt;code&gt;every&lt;/code&gt; pauses on hits &lt;i&gt;N&lt;/i&gt;, 2&amp;times;&lt;i&gt;N&lt;/i&gt;, 3&amp;times;&lt;i&gt;N&lt;/i&gt;, &amp;hellip;; &lt;code&gt;once&lt;/code&gt; pauses on the &lt;i&gt;N&lt;/i&gt;-th hit and deactivates the breakpoint. The counter is preserved across edits; right-click the row to reset it.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Log Message&lt;/b&gt;&lt;br/&gt;Write a line to the &lt;i&gt;Evaluate&lt;/i&gt; output (and Wireshark&apos;s debug log) each time the breakpoint fires &amp;mdash; after the &lt;i&gt;Hit Count&lt;/i&gt; gate and any &lt;i&gt;Expression&lt;/i&gt; allow it. By default execution continues; click the pause toggle on the editor row to also pause after emitting. Tags: &lt;code&gt;{expr}&lt;/code&gt; (any Lua value); &lt;code&gt;{filename}&lt;/code&gt;, &lt;code&gt;{basename}&lt;/code&gt;, &lt;code&gt;{line}&lt;/code&gt;, &lt;code&gt;{function}&lt;/code&gt;, &lt;code&gt;{what}&lt;/code&gt;; &lt;code&gt;{hits}&lt;/code&gt;, &lt;code&gt;{depth}&lt;/code&gt;, &lt;code&gt;{thread}&lt;/code&gt;; &lt;code&gt;{timestamp}&lt;/code&gt;, &lt;code&gt;{datetime}&lt;/code&gt;, &lt;code&gt;{epoch}&lt;/code&gt;, &lt;code&gt;{epoch_ms}&lt;/code&gt;, &lt;code&gt;{elapsed}&lt;/code&gt;, &lt;code&gt;{delta}&lt;/code&gt;; &lt;code&gt;{{&lt;/code&gt; / &lt;code&gt;}}&lt;/code&gt; for literal braces.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell (double-click, F2, or right-click &amp;rarr; Edit) to attach one of these. A white core inside the breakpoint dot &amp;mdash; in this list and in the gutter &amp;mdash; marks rows that carry extras.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;&lt;b&gt;Espressione&lt;/b&gt;&lt;br/&gt;Sospendi solo quando questa espressione Lua è vera nel frame attuale. Gli errori di runtime vengono considerati falsi e mostrano un&apos;icona di avviso sulla riga.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Conteggio degli hit&lt;/b&gt;&lt;br/&gt;Imposta la pausa sul contatore degli hit. Il menu a tendina accanto a &lt;i&gt;N&lt;/i&gt; seleziona la modalità di confronto: &lt;code&gt;da&lt;/code&gt; sospende a ogni hit da &lt;i&gt;N&lt;/i&gt; in avanti (predefinito); &lt;code&gt;ogni&lt;/code&gt; sospende agli hit &lt;i&gt;N&lt;/i&gt;, 2&amp;times;&lt;i&gt;N&lt;/i&gt;, 3&amp;times;&lt;i&gt;N&lt;/i&gt;, &amp;hellip;; &lt;code&gt;una volta&lt;/code&gt; sospende all&apos;&lt;i&gt;N&lt;/i&gt;-esimo hit e disattiva il breakpoint. Il contatore viene mantenuto anche dopo le modifiche; fai clic con il pulsante destro del mouse sulla riga per reimpostarlo.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Messaggio di log&lt;/b&gt;&lt;br/&gt;Scrivi una riga nel risultato di &lt;i&gt;Valuta&lt;/i&gt; (e nel log di debug di Wireshark) ogni volta che il breakpoint si attiva &amp;mdash; dopo l&apos;impostazione del &lt;i&gt;Conteggio degli hit&lt;/i&gt; e qualsiasi &lt;i&gt;Espressione&lt;/i&gt; lo consenta. In modo predefinito, l&apos;esecuzione continua; fai clic sull&apos;interruttore di pausa nella riga dell&apos;editor per sospendere anche dopo l&apos;emissione. Tag: &lt;code&gt;{expr}&lt;/code&gt; (any Lua value); &lt;code&gt;{filename}&lt;/code&gt;, &lt;code&gt;{basename}&lt;/code&gt;, &lt;code&gt;{line}&lt;/code&gt;, &lt;code&gt;{function}&lt;/code&gt;, &lt;code&gt;{what}&lt;/code&gt;; &lt;code&gt;{hits}&lt;/code&gt;, &lt;code&gt;{depth}&lt;/code&gt;, &lt;code&gt;{thread}&lt;/code&gt;; &lt;code&gt;{timestamp}&lt;/code&gt;, &lt;code&gt;{datetime}&lt;/code&gt;, &lt;code&gt;{epoch}&lt;/code&gt;, &lt;code&gt;{epoch_ms}&lt;/code&gt;, &lt;code&gt;{elapsed}&lt;/code&gt;, &lt;code&gt;{delta}&lt;/code&gt;; &lt;code&gt;{{&lt;/code&gt; / &lt;code&gt;}}&lt;/code&gt; per le parentesi letterali.&lt;/p&gt;&lt;p&gt;Modifica la cella &lt;i&gt;Posizione&lt;/i&gt; (doppio clic, F2, o clic destro &amp;rarr; Modifica) per aggiungerne uno. Un nucleo bianco all&apos;interno del punto di interruzione &amp;mdash; in questo elenco e nel margine &amp;mdash; contrassegna le righe che contengono testo aggiuntivo.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Active</source>
@@ -7814,15 +7960,15 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Hits</source>
-        <translation type="unfinished"></translation>
+        <translation>Hit</translation>
     </message>
     <message>
         <source>ON — Break on Lua errors</source>
-        <translation type="unfinished"></translation>
+        <translation>ON — Interrompi in caso di errori Lua</translation>
     </message>
     <message>
         <source>OFF — Break on Lua errors</source>
-        <translation type="unfinished"></translation>
+        <translation>OFF — Interrompi in caso di errori Lua</translation>
     </message>
     <message>
         <source>Files</source>
@@ -7834,11 +7980,11 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>&lt;b&gt;Lua Expression Evaluation&lt;/b&gt;&lt;br&gt;&lt;br&gt;Code runs in a protected environment: runtime errors are caught and shown in the output instead of propagating.&lt;br&gt;&lt;br&gt;&lt;b&gt;What works:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Read/modify global variables (&lt;code&gt;_G.x = 42&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Modify table contents (&lt;code&gt;my_table.field = 99&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Call functions and inspect return values&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Limitations:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Local variables cannot be modified directly (use &lt;code&gt;debug.setlocal()&lt;/code&gt;) unless there is an associated &lt;i&gt;assign&lt;/i&gt; method (&lt;code&gt;pinfo.src_port&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Long-running expressions are automatically aborted&lt;/li&gt;&lt;li&gt;&lt;b&gt;Warning:&lt;/b&gt; Changes to globals persist and can affect ongoing dissection&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Valutazione delle espressioni Lua&lt;/b&gt;&lt;br&gt;&lt;br&gt;Il codice viene eseguito in un ambiente protetto: gli errori di runtime vengono rilevati e mostrati nell&apos;output anziché propagarsi.&lt;br&gt;&lt;br&gt;&lt;b&gt;Cosa funziona: &lt;/b&gt;&lt;ul&gt;&lt;li&gt;Leggere/modificare variabili globali (&lt;code&gt;_G.x = 42&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Modificare il contenuto della tabella (&lt;code&gt;my_table.field = 99&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Invocare funzioni e ispezionare i valori di ritorno&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Limitazioni:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Le variabili locali non possono essere modificate direttamente (utilizzare &lt;code&gt;debug.setlocal()&lt;/code&gt;) a meno che non sia presente un metodo di &lt;i&gt;assegnazione&lt;/i&gt; associato (&lt;code&gt;pinfo.src_port&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Le espressioni a lunga esecuzione vengono interrotte automaticamente&lt;/li&gt;&lt;li&gt;&lt;b&gt;Attenzione:&lt;/b&gt; le modifiche alle variabili globali persistono e possono influenzare l&apos;analisi in corso&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <source>Enter Lua expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci espressione Lua</translation>
     </message>
     <message>
         <source>Output</source>
@@ -7854,7 +8000,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Clear output</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancella il risultato</translation>
     </message>
     <message>
         <source>Settings</source>
@@ -8011,7 +8157,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>(runtime error)</source>
-        <translation type="unfinished"></translation>
+        <translation>(errore di runtime)</translation>
     </message>
     <message>
         <source>Running</source>
@@ -8110,7 +8256,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Enter Lua expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci espressione Lua</translation>
     </message>
     <message>
         <source>Error: %1</source>
@@ -8463,7 +8609,7 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source> %1 Aggregated: %2</source>
-        <translation type="unfinished"></translation>
+        <translation> %1 aggregati %2</translation>
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
@@ -10125,7 +10271,7 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>Aggregation</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggregazione</translation>
     </message>
 </context>
 <context>
@@ -14932,10 +15078,50 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
 </context>
 <context>
+    <name>TcpDedupDialog</name>
+    <message>
+        <source>TCP Duplication Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;Detect duplication (capture-level) packets&quot; preference must be enabled in
+Preferences → Protocols → TCP to use this table.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation type="unfinished">Tempo</translation>
+    </message>
+    <message>
+        <source>Delta</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame Number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplication Total</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation type="unfinished">Info</translation>
+    </message>
+    <message>
+        <source>Stream:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ThemeDebugDialog</name>
     <message>
         <source>Theme Debug</source>
-        <translation type="unfinished"></translation>
+        <translation>Debug tema</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -14943,7 +15129,7 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>Internal:</source>
-        <translation type="unfinished"></translation>
+        <translation>Interni:</translation>
     </message>
     <message>
         <source>Version:</source>
@@ -14963,7 +15149,7 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>Dark mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>Modalità scura:</translation>
     </message>
     <message>
         <source>Theme</source>
@@ -14971,27 +15157,27 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>Geometry:</source>
-        <translation type="unfinished"></translation>
+        <translation>Geometria:</translation>
     </message>
     <message>
         <source>Frame geometry:</source>
-        <translation type="unfinished"></translation>
+        <translation>Geometria della cornice:</translation>
     </message>
     <message>
         <source>Screen:</source>
-        <translation type="unfinished"></translation>
+        <translation>Schermo:</translation>
     </message>
     <message>
         <source>DPI / DPR:</source>
-        <translation type="unfinished"></translation>
+        <translation>DPI / DPR:</translation>
     </message>
     <message>
         <source>Window state:</source>
-        <translation type="unfinished"></translation>
+        <translation>Stato della finestra:</translation>
     </message>
     <message>
         <source>These values refresh live while the dialog is open.</source>
-        <translation type="unfinished"></translation>
+        <translation>Questi valori si aggiornano in tempo reale mentre la finestra è aperta.</translation>
     </message>
     <message>
         <source>Main Window</source>
@@ -14999,15 +15185,15 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>Track widget under mouse</source>
-        <translation type="unfinished"></translation>
+        <translation>Traccia il widget sotto il puntatore del mouse</translation>
     </message>
     <message>
         <source>The inspector reports any widget in this application under the cursor — including child dialogs. Widgets that belong to this debug window are skipped so the last hovered target stays pinned. Hold Alt+Shift and click any widget to pin it: this turns off tracking and locks the readout onto that widget (re-check the box above to resume). Note: on macOS, tool windows are hidden whenever another application has focus, so tracking pauses until Wireshark is frontmost again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lo strumento di ispezione segnala tutti i widget di questa applicazione sotto il puntatore, incluse le finestre secondarie. I widget appartenenti a questa finestra di debug vengono ignorati, in modo che l&apos;ultimo elemento su cui si è posizionato il puntatore rimanga bloccato. Tieni premuto Alt+Maiusc e fai clic su un widget qualsiasi per bloccarlo: in questo modo il tracciamento viene disattivato e la visualizzazione viene bloccata su quel widget (seleziona nuovamente la casella sopra per riprendere). Nota: su macOS, le finestre degli strumenti vengono nascoste quando un&apos;altra applicazione è in primo piano, quindi il tracciamento viene sospeso finché Wireshark non torna in primo piano.</translation>
     </message>
     <message>
         <source>Cursor (global):</source>
-        <translation type="unfinished"></translation>
+        <translation>Puntatore (globale):</translation>
     </message>
     <message>
         <source>Class:</source>
@@ -15023,15 +15209,15 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>Global rect:</source>
-        <translation type="unfinished"></translation>
+        <translation>Rettangolo globale:</translation>
     </message>
     <message>
         <source>Parent chain:</source>
-        <translation type="unfinished"></translation>
+        <translation>Catena principale:</translation>
     </message>
     <message>
         <source>Palette (Active group):</source>
-        <translation type="unfinished"></translation>
+        <translation>Tavolozza (gruppo attivo):</translation>
     </message>
     <message>
         <source>Role</source>
@@ -15043,11 +15229,11 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>ThemeManager token</source>
-        <translation type="unfinished"></translation>
+        <translation>Token Gestore tema</translation>
     </message>
     <message>
         <source>Swatch</source>
-        <translation type="unfinished"></translation>
+        <translation>Swatch</translation>
     </message>
     <message>
         <source>Stylesheet:</source>
@@ -15059,7 +15245,7 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>Widget Inspector</source>
-        <translation type="unfinished"></translation>
+        <translation>Ispettore di widget</translation>
     </message>
     <message>
         <source>Token</source>
@@ -15115,7 +15301,7 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>(unset)</source>
-        <translation type="unfinished"></translation>
+        <translation>(non impostato)</translation>
     </message>
     <message>
         <source>(none)</source>
@@ -15150,7 +15336,7 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>Len</source>
-        <translation type="unfinished"></translation>
+        <translation>Dur</translation>
     </message>
     <message>
         <source>Info</source>
@@ -15162,11 +15348,11 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>Marked (theme)</source>
-        <translation type="unfinished"></translation>
+        <translation>Marcati (tema)</translation>
     </message>
     <message>
         <source>Ignored (theme)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignorati (tema)</translation>
     </message>
     <message>
         <source>Ready</source>
@@ -15885,7 +16071,7 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>Auto advance slides</source>
-        <translation type="unfinished"></translation>
+        <translation>Avanzamento automatico delle diapositive</translation>
     </message>
     <message>
         <source>Slide display interval</source>
@@ -17401,6 +17587,14 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
         <translation>Throughput TCP</translation>
     </message>
     <message>
+        <source>Duplication Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP capture-level duplicate packet table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>General</source>
         <translation>Generale</translation>
     </message>
@@ -17710,7 +17904,7 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>Show the active theme, main window geometry, and live widget info</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra il tema attivo, la geometria della finestra principale e le informazioni sui widget in tempo reale.</translation>
     </message>
     <message>
         <source>MAP Summary</source>
@@ -18108,11 +18302,11 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>Aggregation View — displays frames grouped by your configured aggregation fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vista di aggregazione: visualizza i frame raggruppati in base ai campi di aggregazione configurati.</translation>
     </message>
     <message>
         <source>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vista aggregazione: mostra i frame raggruppati in base ai campi di aggregazione configurati. Per attivarla, vai su Preferenze → Aggregazione.</translation>
     </message>
     <message>
         <source>Unsaved packets…</source>

@@ -11,7 +11,7 @@
 #include "data-dmx-manfid.h"
 
 /*
- * ESTA codes download date: 2026-05-31
+ * ESTA codes download date: 2026-06-07
  */
 static const value_string dmx_esta_manfid_vals[] = {
   { 0x0000, "ESTA / PLASA" },
@@ -565,6 +565,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0772, "SP-Quality" },
   { 0x0773, "Papouch s.r.o." },
   { 0x0776, "lumenetix" },
+  { 0x0777, "Antalya Elektronik Mühendislik Sanayi ve Tic Ltd Şti." },
   { 0x077A, "Oblique Systems" },
   { 0x077B, "GENLED Brands" },
   { 0x0780, "Zedfy GmbH" },
@@ -622,6 +623,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x07E9, "TechLink Co., Ltd." },
   { 0x07EA, "Le Maitre Ltd" },
   { 0x07EC, "Image Show LLC" },
+  { 0x07ED, "Lightjams Inc." },
   { 0x07EF, "Guangzhou V-Show Pro Lighting Co., Ltd." },
   { 0x07F0, "Lifud Technology Co., Ltd" },
   { 0x07F2, "CB Electronics" },

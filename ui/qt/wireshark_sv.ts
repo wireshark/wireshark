@@ -1314,47 +1314,83 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     <name>CaptureFilterCombo</name>
     <message>
         <source>Capture filter selector</source>
-        <translation>Fångstfilterväljare</translation>
+        <translation type="vanished">Fångstfilterväljare</translation>
     </message>
 </context>
 <context>
     <name>CaptureFilterEdit</name>
     <message>
         <source>Capture filter entry</source>
-        <translation>Fångstfilterpost</translation>
+        <translation type="vanished">Fångstfilterpost</translation>
     </message>
     <message>
         <source>Manage saved bookmarks.</source>
-        <translation>Hantera sparade bokmärken.</translation>
+        <translation type="vanished">Hantera sparade bokmärken.</translation>
     </message>
     <message>
         <source>Apply this filter string to the display.</source>
-        <translation>Använd denna filtersträng på det visade.</translation>
+        <translation type="vanished">Använd denna filtersträng på det visade.</translation>
     </message>
     <message>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
         <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
-        <translation>Flera vilter valda. Åsidosätt dem här eller lämna detta blankt för att bevara dem.</translation>
+        <translation type="vanished">Flera vilter valda. Åsidosätt dem här eller lämna detta blankt för att bevara dem.</translation>
     </message>
     <message>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Gränssnittet du har valt har olika fångstfilter. Att skriva ett filter här kommer åsidosätta dem. Att inte göra något kommer att bevara dem.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Gränssnittet du har valt har olika fångstfilter. Att skriva ett filter här kommer åsidosätta dem. Att inte göra något kommer att bevara dem.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Enter a capture filter %1</source>
-        <translation>Ange ett fångstfilter %1</translation>
+        <translation type="vanished">Ange ett fångstfilter %1</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation>Spara detta filter</translation>
+        <translation type="vanished">Spara detta filter</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation>Ta bort detta filter</translation>
+        <translation type="vanished">Ta bort detta filter</translation>
     </message>
     <message>
         <source>Manage Capture Filters</source>
-        <translation>Hantera fångstfilter</translation>
+        <translation type="vanished">Hantera fångstfilter</translation>
+    </message>
+</context>
+<context>
+    <name>CaptureFilterEntry</name>
+    <message>
+        <source>Capture filter entry</source>
+        <translation type="unfinished">Fångstfilterpost</translation>
+    </message>
+    <message>
+        <source>Saved Capture Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished">Spara detta filter</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished">Ta bort detta filter</translation>
+    </message>
+    <message>
+        <source>Manage Capture Filters</source>
+        <translation type="unfinished">Hantera fångstfilter</translation>
+    </message>
+    <message>
+        <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
+        <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
+        <translation type="unfinished">Flera vilter valda. Åsidosätt dem här eller lämna detta blankt för att bevara dem.</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
+        <translation type="unfinished">&lt;p&gt;Gränssnittet du har valt har olika fångstfilter. Att skriva ett filter här kommer åsidosätta dem. Att inte göra något kommer att bevara dem.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Enter a capture filter %1</source>
+        <translation type="unfinished">Ange ett fångstfilter %1</translation>
     </message>
 </context>
 <context>
@@ -1366,6 +1402,25 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
         <translation>Kan inte kontrollera fångstfiltret (BPF-utökningar kräver ett aktivt handtag)</translation>
+    </message>
+</context>
+<context>
+    <name>CaptureFilterValidator</name>
+    <message>
+        <source>No interfaces selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to check capture filter</source>
+        <translation type="unfinished">Kan inte kontrollera fångstfiltret</translation>
+    </message>
+    <message>
+        <source>Unable to check capture filter (BPF extensions require a live handle)</source>
+        <translation type="unfinished">Kan inte kontrollera fångstfiltret (BPF-utökningar kräver ett aktivt handtag)</translation>
+    </message>
+    <message>
+        <source>Syntax checking unavailable</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2824,11 +2879,11 @@ Relative to reference: n/a (outside reference range)</source>
     <name>DisplayFilterCombo</name>
     <message>
         <source>Display filter selector</source>
-        <translation>Visningsfilterval</translation>
+        <translation type="vanished">Visningsfilterval</translation>
     </message>
     <message>
         <source>Select from previously used filters.</source>
-        <translation>Välj bland tidigare använda filter.</translation>
+        <translation type="vanished">Välj bland tidigare använda filter.</translation>
     </message>
 </context>
 <context>
@@ -2897,6 +2952,45 @@ Relative to reference: n/a (outside reference range)</source>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
         <translation>Inställningar för filterknapp...</translation>
+    </message>
+</context>
+<context>
+    <name>DisplayFilterEntry</name>
+    <message>
+        <source>Display filter entry</source>
+        <translation type="unfinished">Visningsfilterpost</translation>
+    </message>
+    <message>
+        <source>Saved Display Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished">Spara detta filter</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished">Ta bort detta filter</translation>
+    </message>
+    <message>
+        <source>Manage Display Filters</source>
+        <translation type="unfinished">Hantera visningsfilter</translation>
+    </message>
+    <message>
+        <source>Filter Button Preferences…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply a display filter %1 &lt;%2/&gt;</source>
+        <translation type="unfinished">Använd ett visningsfilter %1 &lt;%2/&gt;</translation>
+    </message>
+    <message>
+        <source>Display Filter Expression…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left align buttons</source>
+        <translation type="unfinished">Vänsterjustera knappar</translation>
     </message>
 </context>
 <context>
@@ -2992,6 +3086,13 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Click OK to insert this filter</source>
         <translation>Klicka OK för att infoga detta filter</translation>
+    </message>
+</context>
+<context>
+    <name>DisplayFilterValidator</name>
+    <message>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>
+        <translation type="unfinished">”%1” bör undvikas till förmån för ”%2”.  Se hjälpen avsnitt 6.4.8 för detaljer.</translation>
     </message>
 </context>
 <context>
@@ -3116,18 +3217,6 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>protocols</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Only enabled protocols</source>
-        <translation type="vanished">Endast aktiverade protokoll</translation>
-    </message>
-    <message>
-        <source>Only disabled protocols</source>
-        <translation type="vanished">Endast avaktiverade protokoll</translation>
-    </message>
-    <message>
-        <source>any protocol</source>
-        <translation type="vanished">alla protokoll</translation>
     </message>
     <message>
         <source>non-heuristic protocols</source>
@@ -3823,6 +3912,45 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
 </context>
 <context>
+    <name>FilterExpressionEdit</name>
+    <message>
+        <source>Saved Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished">Spara detta filter</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished">Ta bort detta filter</translation>
+    </message>
+    <message>
+        <source>Manage Saved Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Button Preferences...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manage saved filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear the filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply this filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Recent filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FilterExpressionFrame</name>
     <message>
         <source>Frame</source>
@@ -3906,6 +4034,13 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Filter Expression</source>
         <translation>Filteruttryck</translation>
+    </message>
+</context>
+<context>
+    <name>FilterValidator</name>
+    <message>
+        <source>Invalid filter: %1</source>
+        <translation type="unfinished">Felaktigt filter: %1</translation>
     </message>
 </context>
 <context>
@@ -5900,6 +6035,14 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Hide Interface</source>
         <translation>Dölj gränssnitt</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation type="unfinished">Okänd</translation>
+    </message>
+    <message>
+        <source>Hide all &apos;%1&apos; interfaces</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14822,6 +14965,46 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
 </context>
 <context>
+    <name>TcpDedupDialog</name>
+    <message>
+        <source>TCP Duplication Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;Detect duplication (capture-level) packets&quot; preference must be enabled in
+Preferences → Protocols → TCP to use this table.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation type="unfinished">Tid</translation>
+    </message>
+    <message>
+        <source>Delta</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame Number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplication Total</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stream:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ThemeDebugDialog</name>
     <message>
         <source>Theme Debug</source>
@@ -17289,6 +17472,14 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>TCP throughput</source>
         <translation>TCP-genomströmning</translation>
+    </message>
+    <message>
+        <source>Duplication Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP capture-level duplicate packet table</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>General</source>

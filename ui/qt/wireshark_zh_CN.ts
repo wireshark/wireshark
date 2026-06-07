@@ -1301,47 +1301,83 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     <name>CaptureFilterCombo</name>
     <message>
         <source>Capture filter selector</source>
-        <translation>捕获过滤器选择器</translation>
+        <translation type="vanished">捕获过滤器选择器</translation>
     </message>
 </context>
 <context>
     <name>CaptureFilterEdit</name>
     <message>
         <source>Capture filter entry</source>
-        <translation>捕获过滤器条目</translation>
+        <translation type="vanished">捕获过滤器条目</translation>
     </message>
     <message>
         <source>Manage saved bookmarks.</source>
-        <translation>管理保存的书签。</translation>
+        <translation type="vanished">管理保存的书签。</translation>
     </message>
     <message>
         <source>Apply this filter string to the display.</source>
-        <translation>将此过滤字符串应用于显示。</translation>
+        <translation type="vanished">将此过滤字符串应用于显示。</translation>
     </message>
     <message>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
         <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
-        <translation>已选择多个过滤器。在此处覆盖它们，或者保留为空以保留它们。</translation>
+        <translation type="vanished">已选择多个过滤器。在此处覆盖它们，或者保留为空以保留它们。</translation>
     </message>
     <message>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;您选择的接口具有不同的捕获过滤器。在此处键入过滤器将覆盖它们。不做任何事保留它们。&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;您选择的接口具有不同的捕获过滤器。在此处键入过滤器将覆盖它们。不做任何事保留它们。&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Enter a capture filter %1</source>
-        <translation>输入捕获过滤器 %1</translation>
+        <translation type="vanished">输入捕获过滤器 %1</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation>保存此过滤器</translation>
+        <translation type="vanished">保存此过滤器</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation>删除此过滤器</translation>
+        <translation type="vanished">删除此过滤器</translation>
     </message>
     <message>
         <source>Manage Capture Filters</source>
-        <translation>管理捕获过滤器</translation>
+        <translation type="vanished">管理捕获过滤器</translation>
+    </message>
+</context>
+<context>
+    <name>CaptureFilterEntry</name>
+    <message>
+        <source>Capture filter entry</source>
+        <translation type="unfinished">捕获过滤器条目</translation>
+    </message>
+    <message>
+        <source>Saved Capture Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished">保存此过滤器</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished">删除此过滤器</translation>
+    </message>
+    <message>
+        <source>Manage Capture Filters</source>
+        <translation type="unfinished">管理捕获过滤器</translation>
+    </message>
+    <message>
+        <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
+        <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
+        <translation type="unfinished">已选择多个过滤器。在此处覆盖它们，或者保留为空以保留它们。</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
+        <translation type="unfinished">&lt;p&gt;您选择的接口具有不同的捕获过滤器。在此处键入过滤器将覆盖它们。不做任何事保留它们。&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Enter a capture filter %1</source>
+        <translation type="unfinished">输入捕获过滤器 %1</translation>
     </message>
 </context>
 <context>
@@ -1352,6 +1388,25 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CaptureFilterValidator</name>
+    <message>
+        <source>No interfaces selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to check capture filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to check capture filter (BPF extensions require a live handle)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Syntax checking unavailable</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2811,11 +2866,11 @@ Relative to reference: n/a (outside reference range)</source>
     <name>DisplayFilterCombo</name>
     <message>
         <source>Display filter selector</source>
-        <translation>显示过滤选择器</translation>
+        <translation type="vanished">显示过滤选择器</translation>
     </message>
     <message>
         <source>Select from previously used filters.</source>
-        <translation>从以前使用的过滤器中选择.</translation>
+        <translation type="vanished">从以前使用的过滤器中选择.</translation>
     </message>
 </context>
 <context>
@@ -2883,6 +2938,45 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DisplayFilterEntry</name>
+    <message>
+        <source>Display filter entry</source>
+        <translation type="unfinished">显示过滤器条目</translation>
+    </message>
+    <message>
+        <source>Saved Display Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished">保存此过滤器</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished">删除此过滤器</translation>
+    </message>
+    <message>
+        <source>Manage Display Filters</source>
+        <translation type="unfinished">管理显示过滤器</translation>
+    </message>
+    <message>
+        <source>Filter Button Preferences…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply a display filter %1 &lt;%2/&gt;</source>
+        <translation type="unfinished">应用显示过滤器 %1 &lt;%2/&gt;</translation>
+    </message>
+    <message>
+        <source>Display Filter Expression…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left align buttons</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2977,6 +3071,13 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Click OK to insert this filter</source>
         <translation>点击确定插入此过滤器</translation>
+    </message>
+</context>
+<context>
+    <name>DisplayFilterValidator</name>
+    <message>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3795,6 +3896,45 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
 </context>
 <context>
+    <name>FilterExpressionEdit</name>
+    <message>
+        <source>Saved Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished">保存此过滤器</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished">删除此过滤器</translation>
+    </message>
+    <message>
+        <source>Manage Saved Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Button Preferences...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manage saved filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear the filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply this filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Recent filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FilterExpressionFrame</name>
     <message>
         <source>Frame</source>
@@ -3877,6 +4017,13 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Filter Expression</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FilterValidator</name>
+    <message>
+        <source>Invalid filter: %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5864,6 +6011,14 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Hide Interface</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation type="unfinished">未知</translation>
+    </message>
+    <message>
+        <source>Hide all &apos;%1&apos; interfaces</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -14706,6 +14861,46 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
 </context>
 <context>
+    <name>TcpDedupDialog</name>
+    <message>
+        <source>TCP Duplication Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;Detect duplication (capture-level) packets&quot; preference must be enabled in
+Preferences → Protocols → TCP to use this table.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation type="unfinished">时间</translation>
+    </message>
+    <message>
+        <source>Delta</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame Number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplication Total</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stream:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ThemeDebugDialog</name>
     <message>
         <source>Theme Debug</source>
@@ -17171,6 +17366,14 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>TCP throughput</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplication Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP capture-level duplicate packet table</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

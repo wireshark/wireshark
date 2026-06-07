@@ -1,4 +1,4 @@
-TShark (Wireshark) 4.7.0 (v4.7.0rc0-206-gc9bb74b3e72a)
+TShark (Wireshark) 4.7.1 (v4.7.1rc0-45-gd246c7c34b0c)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -152,14 +152,15 @@ Output:
   --compress <type>        compress the output file using the type compression format
 
 Diagnostic output:
-  --log-level <level>      sets the active log level ("critical", "warning", etc.)
-  --log-fatal <level>      sets level to abort the program ("critical" or "warning")
-  --log-domains <[!]list>  comma-separated list of the active log domains
+  --log-level <level>       sets the active log level ("critical", "warning", etc.)
+  --log-fatal <level>       sets level to abort the program ("critical" or "warning")
+  --log-fatal-count <count> sets the number of fatal errors before aborting the program
+  --log-domains <[!]list>   comma-separated list of the active log domains
   --log-fatal-domains <list>
-                           list of domains that cause the program to abort
-  --log-debug <[!]list>    list of domains with "debug" level
-  --log-noisy <[!]list>    list of domains with "noisy" level
-  --log-file <path>        file to output messages to (in addition to stderr)
+                            list of domains that cause the program to abort
+  --log-debug <[!]list>     list of domains with "debug" level
+  --log-noisy <[!]list>     list of domains with "noisy" level
+  --log-file <path>         file to output messages to (in addition to stderr)
 
 Miscellaneous:
   -h, --help               display this help and exit

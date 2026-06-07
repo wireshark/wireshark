@@ -847,11 +847,11 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
     <message>
         <source>%1 / %2 interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 / %2 インターフェース</translation>
     </message>
     <message>
         <source>%1 / %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 / %2</translation>
     </message>
     <message>
         <source>All interfaces shown</source>
@@ -859,8 +859,8 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
     <message numerus="yes">
         <source>%n interface(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n インターフェース</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -1308,47 +1308,83 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     <name>CaptureFilterCombo</name>
     <message>
         <source>Capture filter selector</source>
-        <translation>キャプチャフィルタ選択</translation>
+        <translation type="vanished">キャプチャフィルタ選択</translation>
     </message>
 </context>
 <context>
     <name>CaptureFilterEdit</name>
     <message>
         <source>Capture filter entry</source>
-        <translation>キャプチャフィルタエントリ</translation>
+        <translation type="vanished">キャプチャフィルタエントリ</translation>
     </message>
     <message>
         <source>Manage saved bookmarks.</source>
-        <translation>保存したブックマークを管理</translation>
+        <translation type="vanished">保存したブックマークを管理</translation>
     </message>
     <message>
         <source>Apply this filter string to the display.</source>
-        <translation>このフィルタ文字列を表示に適用</translation>
+        <translation type="vanished">このフィルタ文字列を表示に適用</translation>
     </message>
     <message>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
         <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
-        <translation>複数のフィルタが選択されています。選択を上書きするか空白のままにしてください</translation>
+        <translation type="vanished">複数のフィルタが選択されています。選択を上書きするか空白のままにしてください</translation>
     </message>
     <message>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;選択したインターフェースには異なるキャプチャフィルタがあります。ここにフィルタを入力すれば上書きされます。なにもしなければ保存します&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;選択したインターフェースには異なるキャプチャフィルタがあります。ここにフィルタを入力すれば上書きされます。なにもしなければ保存します&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Enter a capture filter %1</source>
-        <translation>キャプチャフィルタ %1 を入力</translation>
+        <translation type="vanished">キャプチャフィルタ %1 を入力</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation>このフィルタを保存</translation>
+        <translation type="vanished">このフィルタを保存</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation>このフィルタを削除</translation>
+        <translation type="vanished">このフィルタを削除</translation>
     </message>
     <message>
         <source>Manage Capture Filters</source>
-        <translation>キャプチャフィルタ管理</translation>
+        <translation type="vanished">キャプチャフィルタ管理</translation>
+    </message>
+</context>
+<context>
+    <name>CaptureFilterEntry</name>
+    <message>
+        <source>Capture filter entry</source>
+        <translation type="unfinished">キャプチャフィルタエントリ</translation>
+    </message>
+    <message>
+        <source>Saved Capture Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished">このフィルタを保存</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished">このフィルタを削除</translation>
+    </message>
+    <message>
+        <source>Manage Capture Filters</source>
+        <translation type="unfinished">キャプチャフィルタ管理</translation>
+    </message>
+    <message>
+        <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
+        <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
+        <translation type="unfinished">複数のフィルタが選択されています。選択を上書きするか空白のままにしてください</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
+        <translation type="unfinished">&lt;p&gt;選択したインターフェースには異なるキャプチャフィルタがあります。ここにフィルタを入力すれば上書きされます。なにもしなければ保存します&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Enter a capture filter %1</source>
+        <translation type="unfinished">キャプチャフィルタ %1 を入力</translation>
     </message>
 </context>
 <context>
@@ -1360,6 +1396,25 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
         <translation>キャプチャフィルタをチェックできません(BPF拡張はライブハンドルを必要とします)</translation>
+    </message>
+</context>
+<context>
+    <name>CaptureFilterValidator</name>
+    <message>
+        <source>No interfaces selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to check capture filter</source>
+        <translation type="unfinished">キャプチャフィルタをチェックできません</translation>
+    </message>
+    <message>
+        <source>Unable to check capture filter (BPF extensions require a live handle)</source>
+        <translation type="unfinished">キャプチャフィルタをチェックできません(BPF拡張はライブハンドルを必要とします)</translation>
+    </message>
+    <message>
+        <source>Syntax checking unavailable</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2821,11 +2876,11 @@ Relative to reference: n/a (outside reference range)</source>
     <name>DisplayFilterCombo</name>
     <message>
         <source>Display filter selector</source>
-        <translation>表示フィルタの選択</translation>
+        <translation type="vanished">表示フィルタの選択</translation>
     </message>
     <message>
         <source>Select from previously used filters.</source>
-        <translation>前に使ったフィルタから選択</translation>
+        <translation type="vanished">前に使ったフィルタから選択</translation>
     </message>
 </context>
 <context>
@@ -2894,6 +2949,45 @@ Relative to reference: n/a (outside reference range)</source>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
         <translation>フィルタボタン設定…</translation>
+    </message>
+</context>
+<context>
+    <name>DisplayFilterEntry</name>
+    <message>
+        <source>Display filter entry</source>
+        <translation type="unfinished">表示フィルタエントリ</translation>
+    </message>
+    <message>
+        <source>Saved Display Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished">このフィルタを保存</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished">このフィルタを削除</translation>
+    </message>
+    <message>
+        <source>Manage Display Filters</source>
+        <translation type="unfinished">表示フィルタを管理</translation>
+    </message>
+    <message>
+        <source>Filter Button Preferences…</source>
+        <translation type="unfinished">フィルタボタン設定…</translation>
+    </message>
+    <message>
+        <source>Apply a display filter %1 &lt;%2/&gt;</source>
+        <translation type="unfinished">表示フィルタ %1 &lt;%2/&gt; を適用</translation>
+    </message>
+    <message>
+        <source>Display Filter Expression…</source>
+        <translation type="unfinished">表示フィルタ式...</translation>
+    </message>
+    <message>
+        <source>Left align buttons</source>
+        <translation type="unfinished">ボタンを左揃え</translation>
     </message>
 </context>
 <context>
@@ -2989,6 +3083,13 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Click OK to insert this filter</source>
         <translation>OKをクリックしてこのフィルタを挿入</translation>
+    </message>
+</context>
+<context>
+    <name>DisplayFilterValidator</name>
+    <message>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>
+        <translation type="unfinished">&quot;%1&quot; は非推奨で &quot;%2&quot; が推奨されます。詳細はヘルプ 6.4.8をご覧ください</translation>
     </message>
 </context>
 <context>
@@ -3100,31 +3201,19 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>all</source>
-        <translation type="unfinished"></translation>
+        <translation>すべて</translation>
     </message>
     <message>
         <source>enabled</source>
-        <translation type="unfinished">有効</translation>
+        <translation>有効</translation>
     </message>
     <message>
         <source>disabled</source>
-        <translation type="unfinished">無効</translation>
+        <translation>無効</translation>
     </message>
     <message>
         <source>protocols</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Only enabled protocols</source>
-        <translation type="vanished">有効にしたプロトコルのみ</translation>
-    </message>
-    <message>
-        <source>Only disabled protocols</source>
-        <translation type="vanished">無効にしたプロトコルのみ</translation>
-    </message>
-    <message>
-        <source>any protocol</source>
-        <translation type="vanished">すべてのプロトコル</translation>
+        <translation>プロトコル</translation>
     </message>
     <message>
         <source>non-heuristic protocols</source>
@@ -3819,6 +3908,45 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
 </context>
 <context>
+    <name>FilterExpressionEdit</name>
+    <message>
+        <source>Saved Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished">このフィルタを保存</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished">このフィルタを削除</translation>
+    </message>
+    <message>
+        <source>Manage Saved Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Button Preferences...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manage saved filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear the filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply this filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Recent filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FilterExpressionFrame</name>
     <message>
         <source>Frame</source>
@@ -3902,6 +4030,13 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Filter Expression</source>
         <translation>フィルタ式</translation>
+    </message>
+</context>
+<context>
+    <name>FilterValidator</name>
+    <message>
+        <source>Invalid filter: %1</source>
+        <translation type="unfinished">無効なフィルタ: %1</translation>
     </message>
 </context>
 <context>
@@ -4070,11 +4205,11 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Personal Themes</source>
-        <translation type="unfinished"></translation>
+        <translation>個人テーマ</translation>
     </message>
     <message>
         <source>User-installed theme files (*.jsonc)</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザーインストールテーマファイル (*.jsonc)</translation>
     </message>
     <message>
         <source>MaxMind DB path</source>
@@ -4333,7 +4468,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>テーマ</translation>
     </message>
     <message>
         <source>Example GIF query packets have jumbo window sizes</source>
@@ -4346,27 +4481,27 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>System</source>
-        <translation type="unfinished">システム</translation>
+        <translation>システム</translation>
     </message>
     <message>
         <source>Light</source>
-        <translation type="unfinished">ライト</translation>
+        <translation>ライト</translation>
     </message>
     <message>
         <source>Dark</source>
-        <translation type="unfinished">ダーク</translation>
+        <translation>ダーク</translation>
     </message>
     <message>
         <source>Appearance mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>外観モード</translation>
     </message>
     <message>
         <source>Theme:</source>
-        <translation type="unfinished"></translation>
+        <translation>テーマ:</translation>
     </message>
     <message>
         <source>Theme by %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 によるテーマ</translation>
     </message>
     <message>
         <source>Font</source>
@@ -5922,6 +6057,14 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Hide Interface</source>
         <translation>インターフェースを隠す</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation type="unfinished">不明</translation>
+    </message>
+    <message>
+        <source>Hide all &apos;%1&apos; interfaces</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7806,11 +7949,11 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     </message>
     <message>
         <source>&lt;b&gt;Lua Expression Evaluation&lt;/b&gt;&lt;br&gt;&lt;br&gt;Code runs in a protected environment: runtime errors are caught and shown in the output instead of propagating.&lt;br&gt;&lt;br&gt;&lt;b&gt;What works:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Read/modify global variables (&lt;code&gt;_G.x = 42&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Modify table contents (&lt;code&gt;my_table.field = 99&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Call functions and inspect return values&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Limitations:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Local variables cannot be modified directly (use &lt;code&gt;debug.setlocal()&lt;/code&gt;) unless there is an associated &lt;i&gt;assign&lt;/i&gt; method (&lt;code&gt;pinfo.src_port&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Long-running expressions are automatically aborted&lt;/li&gt;&lt;li&gt;&lt;b&gt;Warning:&lt;/b&gt; Changes to globals persist and can affect ongoing dissection&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Lua式の評価&lt;/b&gt;&lt;br&gt;&lt;br&gt;コードは保護された環境で実行されます。実行時エラーは伝播せず、捕捉されて出力に表示されます。&lt;br&gt;&lt;br&gt;&lt;b&gt;実行可能な動作:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;  グローバル変数の読み取り・変更 (&lt;code&gt;_G.x = 42&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;テーブル内容の変更 (&lt;code&gt;my_table.field = 99&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;&#xa0; 関数の呼び出しおよび戻り値の確認&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;制限事項:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;  ローカル変数は直接変更できません ( &lt;code&gt;debug.setlocal()を使用するか&lt;/code&gt;&lt;i&gt;代入&lt;/i&gt; メソッドが関連付けられている場合を除く (&lt;code&gt;pinfo.src_port&lt;/code&gt;)&lt;/li&gt;)&lt;li&gt; 長時間実行される式は自動的に中断されます&lt;/li&gt;&lt;li&gt;&lt;b&gt;警告k:&lt;/b&gt; グローバル変数への変更は永続化され、進行中のディセクションに影響を与える可能性があります &lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <source>Enter Lua expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Lua式を入力</translation>
     </message>
     <message>
         <source>Output</source>
@@ -7826,7 +7969,7 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     </message>
     <message>
         <source>Clear output</source>
-        <translation type="unfinished"></translation>
+        <translation>出力をクリア</translation>
     </message>
     <message>
         <source>Settings</source>
@@ -8079,7 +8222,7 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     </message>
     <message>
         <source>Enter Lua expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Lua式を入力</translation>
     </message>
     <message>
         <source>Error: %1</source>
@@ -10060,7 +10203,7 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Theme and Font</source>
-        <translation type="unfinished"></translation>
+        <translation>テーマとフォント</translation>
     </message>
     <message>
         <source>Welcome Page</source>
@@ -14876,204 +15019,14 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
 </context>
 <context>
-    <name>ThemeDebugDialog</name>
+    <name>TcpDedupDialog</name>
     <message>
-        <source>Theme Debug</source>
+        <source>TCP Duplication Table</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Name:</source>
-        <translation type="unfinished">名前:</translation>
-    </message>
-    <message>
-        <source>Internal:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Version:</source>
-        <translation type="unfinished">バージョン:</translation>
-    </message>
-    <message>
-        <source>Author:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Description:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mode:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Dark mode:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Theme</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Geometry:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Frame geometry:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Screen:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>DPI / DPR:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Window state:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>These values refresh live while the dialog is open.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Main Window</source>
-        <translation type="unfinished">メインウインドウ</translation>
-    </message>
-    <message>
-        <source>Track widget under mouse</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The inspector reports any widget in this application under the cursor — including child dialogs. Widgets that belong to this debug window are skipped so the last hovered target stays pinned. Hold Alt+Shift and click any widget to pin it: this turns off tracking and locks the readout onto that widget (re-check the box above to resume). Note: on macOS, tool windows are hidden whenever another application has focus, so tracking pauses until Wireshark is frontmost again.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cursor (global):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Class:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Object name:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Font:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Global rect:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Parent chain:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Palette (Active group):</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Role</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>ThemeManager token</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Swatch</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stylesheet:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>(no stylesheet)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Widget Inspector</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Token</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hex</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Tokens</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="unfinished">更新</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>(no main window)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>(unknown)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>maximized</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>minimized</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>fullscreen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>active</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>normal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>(unset)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>(none)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>(unnamed)</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ThemePreviewWidget</name>
-    <message>
-        <source>No.</source>
+        <source>The &quot;Detect duplication (capture-level) packets&quot; preference must be enabled in
+Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15081,52 +15034,284 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation type="unfinished">時間</translation>
     </message>
     <message>
-        <source>Source</source>
+        <source>Delta</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Destination</source>
+        <source>Frame Number</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Proto</source>
+        <source>Duplication Total</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Len</source>
+        <source>Frame List</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Info</source>
+        <translation type="unfinished">情報</translation>
+    </message>
+    <message>
+        <source>Stream:</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ThemeDebugDialog</name>
+    <message>
+        <source>Theme Debug</source>
+        <translation>テーマデバッグ</translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation>名前:</translation>
+    </message>
+    <message>
+        <source>Internal:</source>
+        <translation>内部:</translation>
+    </message>
+    <message>
+        <source>Version:</source>
+        <translation>バージョン:</translation>
+    </message>
+    <message>
+        <source>Author:</source>
+        <translation>作者:</translation>
+    </message>
+    <message>
+        <source>Description:</source>
+        <translation>記述:</translation>
+    </message>
+    <message>
+        <source>Mode:</source>
+        <translation>モード:</translation>
+    </message>
+    <message>
+        <source>Dark mode:</source>
+        <translation>ダークモード:</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation>テーマ</translation>
+    </message>
+    <message>
+        <source>Geometry:</source>
+        <translation>サイズと位置:</translation>
+    </message>
+    <message>
+        <source>Frame geometry:</source>
+        <translation>フレームのサイズと位置:</translation>
+    </message>
+    <message>
+        <source>Screen:</source>
+        <translation>スクリーン:</translation>
+    </message>
+    <message>
+        <source>DPI / DPR:</source>
+        <translation>DPI / DPR:</translation>
+    </message>
+    <message>
+        <source>Window state:</source>
+        <translation>ウインドウ状態:</translation>
+    </message>
+    <message>
+        <source>These values refresh live while the dialog is open.</source>
+        <translation> ダイアログが開いている間は値がリアルタイムで更新されます。</translation>
+    </message>
+    <message>
+        <source>Main Window</source>
+        <translation>メインウインドウ</translation>
+    </message>
+    <message>
+        <source>Track widget under mouse</source>
+        <translation>マウスのある場所のウィジェットを追跡</translation>
+    </message>
+    <message>
+        <source>The inspector reports any widget in this application under the cursor — including child dialogs. Widgets that belong to this debug window are skipped so the last hovered target stays pinned. Hold Alt+Shift and click any widget to pin it: this turns off tracking and locks the readout onto that widget (re-check the box above to resume). Note: on macOS, tool windows are hidden whenever another application has focus, so tracking pauses until Wireshark is frontmost again.</source>
+        <translation> インスペクターは、このアプリケーション内でカーソル下にあるすべてのウィジェット（子ダイアログを含む）を表示します。このデバッグウィンドウに属するウィジェットは除外されるため、直前にホバーしていた対象が固定されます。
+Alt+Shift を押しながら任意のウィジェットをクリックするとピン留めされ、トラッキングが無効になって表示がそのウィジェットに固定されます（上のチェックボックスを再度オンにすると再開します）。
+注：macOS では、別のアプリケーションがフォーカスを持つとツールウィンドウが非表示になるため、Wireshark が再び最前面になるまでトラッキングは一時停止します。</translation>
+    </message>
+    <message>
+        <source>Cursor (global):</source>
+        <translation>カーソル(グローバル):</translation>
+    </message>
+    <message>
+        <source>Class:</source>
+        <translation>クラス:</translation>
+    </message>
+    <message>
+        <source>Object name:</source>
+        <translation>オブジェクト名:</translation>
+    </message>
+    <message>
+        <source>Font:</source>
+        <translation>フォント:</translation>
+    </message>
+    <message>
+        <source>Global rect:</source>
+        <translation>グローバル矩形:</translation>
+    </message>
+    <message>
+        <source>Parent chain:</source>
+        <translation>親チェーン:</translation>
+    </message>
+    <message>
+        <source>Palette (Active group):</source>
+        <translation>パレット (アクティブグループ):</translation>
+    </message>
+    <message>
+        <source>Role</source>
+        <translation>ロール</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>色</translation>
+    </message>
+    <message>
+        <source>ThemeManager token</source>
+        <translation>テーママネージャートークン</translation>
+    </message>
+    <message>
+        <source>Swatch</source>
+        <translation>スウォッチ</translation>
+    </message>
+    <message>
+        <source>Stylesheet:</source>
+        <translation>スタイルシート:</translation>
+    </message>
+    <message>
+        <source>(no stylesheet)</source>
+        <translation>(スタイルシートなし)</translation>
+    </message>
+    <message>
+        <source>Widget Inspector</source>
+        <translation> ウィジェットインスペクタ</translation>
+    </message>
+    <message>
+        <source>Token</source>
+        <translation>トークン</translation>
+    </message>
+    <message>
+        <source>Hex</source>
+        <translation>16進数</translation>
+    </message>
+    <message>
+        <source>Tokens</source>
+        <translation>トークン</translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation>更新</translation>
+    </message>
+    <message>
+        <source>yes</source>
+        <translation>はい</translation>
+    </message>
+    <message>
+        <source>no</source>
+        <translation>いいえ</translation>
+    </message>
+    <message>
+        <source>(no main window)</source>
+        <translation>(メインウインドウなし)</translation>
+    </message>
+    <message>
+        <source>(unknown)</source>
+        <translation>(不明)</translation>
+    </message>
+    <message>
+        <source>maximized</source>
+        <translation>最大化</translation>
+    </message>
+    <message>
+        <source>minimized</source>
+        <translation>最小化</translation>
+    </message>
+    <message>
+        <source>fullscreen</source>
+        <translation>フルスクリーン</translation>
+    </message>
+    <message>
+        <source>active</source>
+        <translation>アクティブ</translation>
+    </message>
+    <message>
+        <source>normal</source>
+        <translation>通常</translation>
+    </message>
+    <message>
+        <source>(unset)</source>
+        <translation>(未設定)</translation>
+    </message>
+    <message>
+        <source>(none)</source>
+        <translation>(なし)</translation>
+    </message>
+    <message>
+        <source>(unnamed)</source>
+        <translation>(名称未設定)</translation>
+    </message>
+</context>
+<context>
+    <name>ThemePreviewWidget</name>
+    <message>
+        <source>No.</source>
+        <translation>No.</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation>時間</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>送信元</translation>
+    </message>
+    <message>
+        <source>Destination</source>
+        <translation>宛先</translation>
+    </message>
+    <message>
+        <source>Proto</source>
+        <translation>プロトコル</translation>
+    </message>
+    <message>
+        <source>Len</source>
+        <translation>長さ</translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation>情報</translation>
     </message>
     <message>
         <source>Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>選択</translation>
     </message>
     <message>
         <source>Marked (theme)</source>
-        <translation type="unfinished"></translation>
+        <translation>マーク済(テーマ)</translation>
     </message>
     <message>
         <source>Ignored (theme)</source>
-        <translation type="unfinished"></translation>
+        <translation>無視された(テーマ)</translation>
     </message>
     <message>
         <source>Ready</source>
-        <translation type="unfinished"></translation>
+        <translation>準備</translation>
     </message>
     <message>
         <source>Profile: Default</source>
-        <translation type="unfinished"></translation>
+        <translation>プロファイル: デフォルト</translation>
     </message>
     <message>
         <source>Packets: %1</source>
-        <translation type="unfinished">パケット: %1</translation>
+        <translation>パケット: %1</translation>
     </message>
     <message>
         <source>Displayed: %1 (100.0%)</source>
-        <translation type="unfinished"></translation>
+        <translation>表示: %1 (100.0%)</translation>
     </message>
 </context>
 <context>
@@ -17344,6 +17529,14 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>TCP スループット</translation>
     </message>
     <message>
+        <source>Duplication Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP capture-level duplicate packet table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>General</source>
         <translation>一般</translation>
     </message>
@@ -17649,11 +17842,11 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>&amp;Theme Debug</source>
-        <translation type="unfinished"></translation>
+        <translation>テーマデバッグ (&amp;T)</translation>
     </message>
     <message>
         <source>Show the active theme, main window geometry, and live widget info</source>
-        <translation type="unfinished"></translation>
+        <translation>アクティブテーマ、メインウインドウのサイズと位置およびライブウィジェットの情報を表示します</translation>
     </message>
     <message>
         <source>MAP Summary</source>

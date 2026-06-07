@@ -1319,47 +1319,83 @@ Desactivat = només punt de registre (coincideix amb la convenció històrica «
     <name>CaptureFilterCombo</name>
     <message>
         <source>Capture filter selector</source>
-        <translation>Seleccionador de filtres de captura</translation>
+        <translation type="vanished">Seleccionador de filtres de captura</translation>
     </message>
 </context>
 <context>
     <name>CaptureFilterEdit</name>
     <message>
         <source>Capture filter entry</source>
-        <translation>Entrada dels filtres de captura</translation>
+        <translation type="vanished">Entrada dels filtres de captura</translation>
     </message>
     <message>
         <source>Manage saved bookmarks.</source>
-        <translation>Gestiona els marcadors desats.</translation>
+        <translation type="vanished">Gestiona els marcadors desats.</translation>
     </message>
     <message>
         <source>Apply this filter string to the display.</source>
-        <translation>Aplica aquesta cadena de filtre a la visualització.</translation>
+        <translation type="vanished">Aplica aquesta cadena de filtre a la visualització.</translation>
     </message>
     <message>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
         <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
-        <translation>S&apos;han seleccionat diversos filtres. Anul·leu-los aquí o deixeu-ho en blanc per a mantenir-los.</translation>
+        <translation type="vanished">S&apos;han seleccionat diversos filtres. Anul·leu-los aquí o deixeu-ho en blanc per a mantenir-los.</translation>
     </message>
     <message>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Les interfícies seleccionades tenen diferents filtres de captura. Si escriviu un filtre aquí, s&apos;anul·laran els altres filtres. Si no feu res, es mantindran els filtres existents.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Les interfícies seleccionades tenen diferents filtres de captura. Si escriviu un filtre aquí, s&apos;anul·laran els altres filtres. Si no feu res, es mantindran els filtres existents.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Enter a capture filter %1</source>
-        <translation>Escriviu un filtre de captura %1</translation>
+        <translation type="vanished">Escriviu un filtre de captura %1</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation>Desa aquest filtre</translation>
+        <translation type="vanished">Desa aquest filtre</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation>Trau aquest filtre</translation>
+        <translation type="vanished">Trau aquest filtre</translation>
     </message>
     <message>
         <source>Manage Capture Filters</source>
-        <translation>Gestiona els filtres de captura</translation>
+        <translation type="vanished">Gestiona els filtres de captura</translation>
+    </message>
+</context>
+<context>
+    <name>CaptureFilterEntry</name>
+    <message>
+        <source>Capture filter entry</source>
+        <translation type="unfinished">Entrada dels filtres de captura</translation>
+    </message>
+    <message>
+        <source>Saved Capture Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished">Desa aquest filtre</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished">Trau aquest filtre</translation>
+    </message>
+    <message>
+        <source>Manage Capture Filters</source>
+        <translation type="unfinished">Gestiona els filtres de captura</translation>
+    </message>
+    <message>
+        <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
+        <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
+        <translation type="unfinished">S&apos;han seleccionat diversos filtres. Anul·leu-los aquí o deixeu-ho en blanc per a mantenir-los.</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
+        <translation type="unfinished">&lt;p&gt;Les interfícies seleccionades tenen diferents filtres de captura. Si escriviu un filtre aquí, s&apos;anul·laran els altres filtres. Si no feu res, es mantindran els filtres existents.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Enter a capture filter %1</source>
+        <translation type="unfinished">Escriviu un filtre de captura %1</translation>
     </message>
 </context>
 <context>
@@ -1371,6 +1407,25 @@ Desactivat = només punt de registre (coincideix amb la convenció històrica «
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
         <translation>No es pot comprovar el filtre de captura (les extensions BPF requereixen gestió en directe)</translation>
+    </message>
+</context>
+<context>
+    <name>CaptureFilterValidator</name>
+    <message>
+        <source>No interfaces selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to check capture filter</source>
+        <translation type="unfinished">No es pot comprovar el filtre de captura</translation>
+    </message>
+    <message>
+        <source>Unable to check capture filter (BPF extensions require a live handle)</source>
+        <translation type="unfinished">No es pot comprovar el filtre de captura (les extensions BPF requereixen gestió en directe)</translation>
+    </message>
+    <message>
+        <source>Syntax checking unavailable</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2836,11 +2891,11 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <name>DisplayFilterCombo</name>
     <message>
         <source>Display filter selector</source>
-        <translation>Mostra el selector de filtres</translation>
+        <translation type="vanished">Mostra el selector de filtres</translation>
     </message>
     <message>
         <source>Select from previously used filters.</source>
-        <translation>Tria d&apos;entre els filtres emprats anteriorment.</translation>
+        <translation type="vanished">Tria d&apos;entre els filtres emprats anteriorment.</translation>
     </message>
 </context>
 <context>
@@ -2909,6 +2964,45 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
         <translation>Preferències del botó de filtre…</translation>
+    </message>
+</context>
+<context>
+    <name>DisplayFilterEntry</name>
+    <message>
+        <source>Display filter entry</source>
+        <translation type="unfinished">Mostra una entrada de filtre</translation>
+    </message>
+    <message>
+        <source>Saved Display Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished">Desa aquest filtre</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished">Trau aquest filtre</translation>
+    </message>
+    <message>
+        <source>Manage Display Filters</source>
+        <translation type="unfinished">Gestiona els filtres de visualització</translation>
+    </message>
+    <message>
+        <source>Filter Button Preferences…</source>
+        <translation type="unfinished">Preferències del botó de filtre…</translation>
+    </message>
+    <message>
+        <source>Apply a display filter %1 &lt;%2/&gt;</source>
+        <translation type="unfinished">Aplica un filtre de visualització %1 &lt;%2/&gt;</translation>
+    </message>
+    <message>
+        <source>Display Filter Expression…</source>
+        <translation type="unfinished">Mostra una expressió de filtre…</translation>
+    </message>
+    <message>
+        <source>Left align buttons</source>
+        <translation type="unfinished">Botons d&apos;alineació a l&apos;esquerra</translation>
     </message>
 </context>
 <context>
@@ -3004,6 +3098,13 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <message>
         <source>Click OK to insert this filter</source>
         <translation>Feu clic a «OK» per a inserir el filtre.</translation>
+    </message>
+</context>
+<context>
+    <name>DisplayFilterValidator</name>
+    <message>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>
+        <translation type="unfinished">«%1» ha quedat obsolet i s&apos;ha de substituir per «%2». Vegeu la secció d&apos;ajuda 6.4.8 per a més detalls.</translation>
     </message>
 </context>
 <context>
@@ -3128,18 +3229,6 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <message>
         <source>protocols</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Only enabled protocols</source>
-        <translation type="vanished">Només als protocols activats</translation>
-    </message>
-    <message>
-        <source>Only disabled protocols</source>
-        <translation type="vanished">Només als protocols desactivats</translation>
-    </message>
-    <message>
-        <source>any protocol</source>
-        <translation type="vanished">qualsevol protocol</translation>
     </message>
     <message>
         <source>non-heuristic protocols</source>
@@ -3835,6 +3924,45 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
 </context>
 <context>
+    <name>FilterExpressionEdit</name>
+    <message>
+        <source>Saved Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished">Desa aquest filtre</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished">Trau aquest filtre</translation>
+    </message>
+    <message>
+        <source>Manage Saved Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Button Preferences...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manage saved filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear the filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply this filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Recent filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FilterExpressionFrame</name>
     <message>
         <source>Frame</source>
@@ -3918,6 +4046,13 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <message>
         <source>Filter Expression</source>
         <translation>Expressió de filtre</translation>
+    </message>
+</context>
+<context>
+    <name>FilterValidator</name>
+    <message>
+        <source>Invalid filter: %1</source>
+        <translation type="unfinished">Filtre no vàlid: %1</translation>
     </message>
 </context>
 <context>
@@ -5945,6 +6080,14 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <message>
         <source>Hide Interface</source>
         <translation>Amaga la interfície</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation type="unfinished">Desconegut</translation>
+    </message>
+    <message>
+        <source>Hide all &apos;%1&apos; interfaces</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14930,6 +15073,46 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     </message>
 </context>
 <context>
+    <name>TcpDedupDialog</name>
+    <message>
+        <source>TCP Duplication Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;Detect duplication (capture-level) packets&quot; preference must be enabled in
+Preferences → Protocols → TCP to use this table.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation type="unfinished">Temps</translation>
+    </message>
+    <message>
+        <source>Delta</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame Number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplication Total</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stream:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ThemeDebugDialog</name>
     <message>
         <source>Theme Debug</source>
@@ -17397,6 +17580,14 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     <message>
         <source>TCP throughput</source>
         <translation>Cabal TCP</translation>
+    </message>
+    <message>
+        <source>Duplication Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP capture-level duplicate packet table</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>General</source>

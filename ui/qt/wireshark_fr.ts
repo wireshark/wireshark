@@ -1314,47 +1314,83 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     <name>CaptureFilterCombo</name>
     <message>
         <source>Capture filter selector</source>
-        <translation>Selecteur de filtre de capture</translation>
+        <translation type="vanished">Selecteur de filtre de capture</translation>
     </message>
 </context>
 <context>
     <name>CaptureFilterEdit</name>
     <message>
         <source>Capture filter entry</source>
-        <translation>Capturer l&apos;entrée du filtre</translation>
+        <translation type="vanished">Capturer l&apos;entrée du filtre</translation>
     </message>
     <message>
         <source>Manage saved bookmarks.</source>
-        <translation>Gérer les signets sauvegardés.</translation>
+        <translation type="vanished">Gérer les signets sauvegardés.</translation>
     </message>
     <message>
         <source>Apply this filter string to the display.</source>
-        <translation>Appliquer cette chaine de filtre à l&apos;affichage.</translation>
+        <translation type="vanished">Appliquer cette chaine de filtre à l&apos;affichage.</translation>
     </message>
     <message>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
         <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
-        <translation>Plusieurs filtres sélectionnés. Les écraser ici ou laisser vide pour les préserver.</translation>
+        <translation type="vanished">Plusieurs filtres sélectionnés. Les écraser ici ou laisser vide pour les préserver.</translation>
     </message>
     <message>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Les interfaces séléctionnées ont des filtres de capture différents. Entrer un filtre ici va les écraser. Ne rien entrer va les préserver.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Les interfaces séléctionnées ont des filtres de capture différents. Entrer un filtre ici va les écraser. Ne rien entrer va les préserver.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Enter a capture filter %1</source>
-        <translation>Entrer un filtre de capture %1</translation>
+        <translation type="vanished">Entrer un filtre de capture %1</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation>Sauvegarder ce filtre</translation>
+        <translation type="vanished">Sauvegarder ce filtre</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation>Supprimer ce filtre</translation>
+        <translation type="vanished">Supprimer ce filtre</translation>
     </message>
     <message>
         <source>Manage Capture Filters</source>
-        <translation>Gérer les Filtres de Capture</translation>
+        <translation type="vanished">Gérer les Filtres de Capture</translation>
+    </message>
+</context>
+<context>
+    <name>CaptureFilterEntry</name>
+    <message>
+        <source>Capture filter entry</source>
+        <translation type="unfinished">Capturer l&apos;entrée du filtre</translation>
+    </message>
+    <message>
+        <source>Saved Capture Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished">Sauvegarder ce filtre</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished">Supprimer ce filtre</translation>
+    </message>
+    <message>
+        <source>Manage Capture Filters</source>
+        <translation type="unfinished">Gérer les Filtres de Capture</translation>
+    </message>
+    <message>
+        <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
+        <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
+        <translation type="unfinished">Plusieurs filtres sélectionnés. Les écraser ici ou laisser vide pour les préserver.</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
+        <translation type="unfinished">&lt;p&gt;Les interfaces séléctionnées ont des filtres de capture différents. Entrer un filtre ici va les écraser. Ne rien entrer va les préserver.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Enter a capture filter %1</source>
+        <translation type="unfinished">Entrer un filtre de capture %1</translation>
     </message>
 </context>
 <context>
@@ -1365,6 +1401,25 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CaptureFilterValidator</name>
+    <message>
+        <source>No interfaces selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to check capture filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to check capture filter (BPF extensions require a live handle)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Syntax checking unavailable</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2824,11 +2879,11 @@ Relative to reference: n/a (outside reference range)</source>
     <name>DisplayFilterCombo</name>
     <message>
         <source>Display filter selector</source>
-        <translation>Sélecteur de filtre d&apos;affichage</translation>
+        <translation type="vanished">Sélecteur de filtre d&apos;affichage</translation>
     </message>
     <message>
         <source>Select from previously used filters.</source>
-        <translation>Sélectionnez parmi les filtres utilisés précédemment.</translation>
+        <translation type="vanished">Sélectionnez parmi les filtres utilisés précédemment.</translation>
     </message>
 </context>
 <context>
@@ -2897,6 +2952,45 @@ Relative to reference: n/a (outside reference range)</source>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DisplayFilterEntry</name>
+    <message>
+        <source>Display filter entry</source>
+        <translation type="unfinished">Entrée du filtre d&apos;affichage</translation>
+    </message>
+    <message>
+        <source>Saved Display Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished">Sauvegarder ce filtre</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished">Supprimer ce filtre</translation>
+    </message>
+    <message>
+        <source>Manage Display Filters</source>
+        <translation type="unfinished">Gérer les filtres d&apos;affichage</translation>
+    </message>
+    <message>
+        <source>Filter Button Preferences…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply a display filter %1 &lt;%2/&gt;</source>
+        <translation type="unfinished">Appliquer un filtre d&apos;affichage %1 &lt;%2/&gt;</translation>
+    </message>
+    <message>
+        <source>Display Filter Expression…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left align buttons</source>
+        <translation type="unfinished">Boutons alignés à gauche</translation>
     </message>
 </context>
 <context>
@@ -2990,6 +3084,13 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Click OK to insert this filter</source>
         <translation>Cliquer OK pour insérer ce filtre</translation>
+    </message>
+</context>
+<context>
+    <name>DisplayFilterValidator</name>
+    <message>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>
+        <translation type="unfinished">&quot;%1&quot; est obsolète au profit de &quot;%2&quot;. Voir la section Aide 6.4.8 pour plus de détails.</translation>
     </message>
 </context>
 <context>
@@ -3114,18 +3215,6 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>protocols</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Only enabled protocols</source>
-        <translation type="vanished">Uniquement les protocoles activés</translation>
-    </message>
-    <message>
-        <source>Only disabled protocols</source>
-        <translation type="vanished">Uniquement les protocoles désactivés</translation>
-    </message>
-    <message>
-        <source>any protocol</source>
-        <translation type="vanished">tout protocole</translation>
     </message>
     <message>
         <source>non-heuristic protocols</source>
@@ -3821,6 +3910,45 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
 </context>
 <context>
+    <name>FilterExpressionEdit</name>
+    <message>
+        <source>Saved Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save this filter</source>
+        <translation type="unfinished">Sauvegarder ce filtre</translation>
+    </message>
+    <message>
+        <source>Remove this filter</source>
+        <translation type="unfinished">Supprimer ce filtre</translation>
+    </message>
+    <message>
+        <source>Manage Saved Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Button Preferences...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manage saved filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear the filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply this filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Recent filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FilterExpressionFrame</name>
     <message>
         <source>Frame</source>
@@ -3904,6 +4032,13 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Filter Expression</source>
         <translation>Expression de filtre</translation>
+    </message>
+</context>
+<context>
+    <name>FilterValidator</name>
+    <message>
+        <source>Invalid filter: %1</source>
+        <translation type="unfinished">Filtre invalide : %1</translation>
     </message>
 </context>
 <context>
@@ -5898,6 +6033,14 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Hide Interface</source>
         <translation>Masquer l&apos;interface</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation type="unfinished">Inconnu</translation>
+    </message>
+    <message>
+        <source>Hide all &apos;%1&apos; interfaces</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14778,6 +14921,46 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
 </context>
 <context>
+    <name>TcpDedupDialog</name>
+    <message>
+        <source>TCP Duplication Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &quot;Detect duplication (capture-level) packets&quot; preference must be enabled in
+Preferences → Protocols → TCP to use this table.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation type="unfinished">Temps</translation>
+    </message>
+    <message>
+        <source>Delta</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame Number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplication Total</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stream:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ThemeDebugDialog</name>
     <message>
         <source>Theme Debug</source>
@@ -17245,6 +17428,14 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>TCP throughput</source>
         <translation>Débit TCP</translation>
+    </message>
+    <message>
+        <source>Duplication Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP capture-level duplicate packet table</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>General</source>

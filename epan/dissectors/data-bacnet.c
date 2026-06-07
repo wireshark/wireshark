@@ -1638,6 +1638,8 @@ BACnetVendorIdentifiers[] = {
     { 1625, "NICOR Lighting" },
     { 1626, "EME Automation" },
     { 1627, "ControlCom Technologies, LLC" },
+    { 1628, "ElectrSol" },
+    { 1629, "Corporación Empresarial Altra’" },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);
