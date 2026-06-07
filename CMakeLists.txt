@@ -3178,6 +3178,82 @@ else()
 	set(EXTRA_STRATOSHARK_BUNDLE_FILES)
 endif()
 
+function(add_qt_default_translations _target)
+	# Qt provides translation catalogs for strings used in Qt modules.
+	# https://doc.qt.io/qt-6/localization.html#available-catalogs
+	# main_application.cpp loads these via QLibraryInfo::TranslationPath
+	# On UN*X systems these will tend to be located in a shared directory,
+	# e.g. /usr/share/qt6/translations, but on Windows the path will map
+	# to a relative path ("translations") inside the app install directory.
+	# windeployqt merges the translation catalogs for all modules found
+	# and then deploys them to the application subdirectory. That doesn't
+	# work on MinGW. (The same problem might happen on WSL builds.)
+	#
+	# This is essentially what windeployqt does. On Qt 6.5 and later,
+	# qt_deploy_translations() is also similar, but that "can only be called
+	# from a deployment script. It cannot be called directly by the project
+	# during the configure stage."
+	# https://doc.qt.io/qt-6/qt-deploy-translations.html
+	# It might be possible to just call qt_deploy_translations from a
+	# POST_BUILD custom command, though.
+
+	get_target_property(QTPATHS_EXECUTABLE Qt6::qtpaths LOCATION)
+	execute_process(
+		COMMAND ${QTPATHS_EXECUTABLE} --query QT_INSTALL_TRANSLATIONS
+		OUTPUT_VARIABLE QT_TRANSLATIONS_DIR
+		OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+
+	file(GLOB QM_FILES CONFIGURE_DEPENDS "${QT_TRANSLATIONS_DIR}/qtbase_*.qm")
+	set(DETECTED_LANGUAGES "")
+	foreach(QM_FILE IN LISTS QM_FILES)
+		cmake_path(GET QM_FILE STEM QM_STEM)
+		string(SUBSTRING "${QM_STEM}" 7 -1 LANG_CODE)
+		list(APPEND DETECTED_LANGUAGES "${LANG_CODE}")
+	endforeach()
+	message(DEBUG "Detected Languages: ${DETECTED_LANGUAGES}")
+	set(GENERATED_QM_FILES "")
+
+	foreach(LANG IN LISTS DETECTED_LANGUAGES)
+		set(QM_FILE "${PROJECT_BINARY_DIR}/translations/qt_${LANG}.qm")
+		set(TS_FILES "${QT_TRANSLATIONS_DIR}/qtbase_${LANG}.qm")
+		set(MULTIMEDIA_TS "${QT_TRANSLATIONS_DIR}/qtmultimedia_${LANG}.qm")
+		if(Qt6Multimedia_FOUND AND EXISTS "${MULTIMEDIA_TS}")
+			list(APPEND TS_FILES "${MULTIMEDIA_TS}")
+		endif()
+		add_custom_command(
+			OUTPUT ${QM_FILE}
+			COMMAND $<TARGET_FILE:Qt6::lconvert> -o ${QM_FILE} ${TS_FILES}
+			COMMENT "Generated QM for ${LANG}..."
+			VERBATIM
+		)
+
+		list(APPEND GENERATED_QM_FILES ${QM_FILE})
+	endforeach()
+
+	add_custom_target(copy_qt_translations ALL DEPENDS ${GENERATED_QM_FILES})
+	add_custom_command(TARGET copy_qt_translations
+		POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${_target}>/translations
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${GENERATED_QM_FILES} $<TARGET_FILE_DIR:${_target}>/translations
+	)
+
+	# On MinGW (both cross-compiling and not), QLibraryInfo::TranslationPath
+	# resolves to the share directory (in some cases it seems to point to
+	# the share directory as relative path inside the app directory, which
+	# doesn't work even in the staging directory.) If we create an empty
+	# qt.conf file like so and place it in the app subdirectory, then the
+	# paths become the default and work.
+	# https://doc.qt.io/qt-6/qt-conf.html
+	# We could also place this in the resource system, but we (probably)
+	# don't want to do that if we're installing into the MinGW POSIX-like
+	# directory structure instead of making a NSIS installer.
+	file(GENERATE
+		OUTPUT "$<TARGET_FILE_DIR:${_target}>/qt.conf"
+		CONTENT "[Paths]\n"
+	)
+endfunction()
+
 if(BUILD_wireshark AND QT_FOUND)
 	set(wireshark_LIBS
 		ui
@@ -3292,6 +3368,10 @@ if(BUILD_wireshark AND QT_FOUND)
 		)
 
 	endif(QT_WINDEPLOYQT_EXECUTABLE)
+
+	if(MINGW)
+		add_qt_default_translations(wireshark)
+	endif()
 endif()
 
 if(BUILD_stratoshark AND QT_FOUND)
@@ -3402,6 +3482,12 @@ if(BUILD_stratoshark AND QT_FOUND)
 		)
 
 	endif(QT_WINDEPLOYQT_EXECUTABLE AND NOT BUILD_wireshark)
+
+	if(MINGW)
+		if(NOT BUILD_wireshark)
+			add_qt_default_translations(stratoshark)
+		endif()
+	endif()
 endif()
 
 if (BUILD_stratoshark AND FALCO_PLUGIN_DIR AND FALCO_PLUGINS)

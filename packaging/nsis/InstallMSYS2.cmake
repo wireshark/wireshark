@@ -71,5 +71,7 @@ if(USE_MSYSTEM)
 		${MINGW_BIN}/libzstd.dll
 		${MINGW_BIN}/lua5[3-9].dll
 		${MINGW_BIN}/zlib1.dll
+
+		$<TARGET_FILE_DIR:wireshark>/qt.conf
 	)
 endif()
