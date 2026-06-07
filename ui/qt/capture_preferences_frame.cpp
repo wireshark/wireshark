@@ -20,6 +20,8 @@
 #include <ui/qt/widgets/syntax_line_edit.h>
 #include <ui_capture_preferences_frame.h>
 #include "main_application.h"
+#include <ui/qt/main_window.h>
+#include <ui/qt/manager/interface_list_manager.h>
 
 #include <QSpacerItem>
 
@@ -79,7 +81,9 @@ void CapturePreferencesFrame::updateWidgets()
          * see whether any have showed up (or privileges have changed
          * to allow us to access them).
          */
-        mainApp->refreshLocalInterfaces();
+        MainWindow *mainWindow = mainApp->mainWindow();
+        if (mainWindow && mainWindow->interfaceListManager())
+            mainWindow->interfaceListManager()->requestRefresh();
     }
     for (unsigned i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);

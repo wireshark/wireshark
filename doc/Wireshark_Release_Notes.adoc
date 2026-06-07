@@ -97,6 +97,19 @@ The following features are either new or have been significantly updated since v
 * The protocol dissection API has been updated to more safely handle packet data offsets and lengths.
   See the <<Major API Changes>> section below for details.
 
+* The welcome screen's interface activity sparklines now keep their history for the whole session.
+  Previously the sparklines, and the activity-first ordering of the interface list, were reset whenever you
+  started or stopped a capture or returned to the welcome screen, so the list re-shuffled each time.
+  Now the history persists, the ordering stays stable, and a break in a sparkline marks the interval during
+  which a capture was running (interface statistics are not sampled while capturing).
+  When an interface is dropping packets, the drops are shown as a separate line.
+  The Capture Options dialog's interface list now shares the same statistics, so its sparklines match the
+  welcome screen exactly, including the capture-interval gap and the dropped-packet line.
+  wsbuglink:21318[]
+
+* Interfaces hidden from the welcome screen's right-click menu are now remembered
+  across profile switches and application restarts. wsbuglink:21325[]
+
 === Removed Features and Support
 
 Dumpcap's TCP@host:port interface has been removed.

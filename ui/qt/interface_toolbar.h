@@ -114,6 +114,9 @@ signals:
     void closeReader();
 
 private slots:
+    /** @brief Subscribes to the window's InterfaceListManager::interfaceListChanged. */
+    void connectInterfaceListManager();
+
     /**
      * @brief Starts the background reader thread for a specific interface.
      * @param ifname The name of the interface.

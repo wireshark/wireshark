@@ -35,6 +35,7 @@ class DataSourceTab;
 class DisplayFilterEntry;
 class FieldInformation;
 class FunnelAction;
+class InterfaceListManager;
 class MainStatusBar;
 class PacketDiagram;
 class PacketList;
@@ -119,6 +120,15 @@ public:
      * @return Pointer to the MainStatusBar.
      */
     MainStatusBar *statusBar();
+
+    /**
+     * @brief Returns the local interface enumeration/statistics coordinator.
+     *
+     * The manager owns the live InterfaceStatistics; reach it via
+     * interfaceListManager()->statistics().
+     * @return Pointer to the InterfaceListManager owned by this window.
+     */
+    InterfaceListManager *interfaceListManager() const;
 
     // Used for managing custom packet menus
 
@@ -325,6 +335,9 @@ protected:
 
     /** Pointer to the profile switcher widget. */
     ProfileSwitcher *profile_switcher_;
+
+    /** Coordinator for local interface enumeration; owns the live statistics. */
+    InterfaceListManager *interface_list_manager_;
 
     /** Flag indicating if the capturing title is used. */
     bool use_capturing_title_;

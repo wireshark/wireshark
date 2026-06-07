@@ -63,7 +63,6 @@
 #include "epan/srt_table.h"
 
 #include "ui/alert_box.h"
-#include "ui/iface_lists.h"
 #include "ui/language.h"
 #include "ui/persfilepath_opt.h"
 #include "ui/recent.h"
@@ -83,6 +82,8 @@
 #include "ui/qt/endpoint_dialog.h"
 #include "ui/qt/glib_mainloop_on_qeventloop.h"
 #include "ui/stratoshark/stratoshark_main_window.h"
+#include <ui/qt/manager/interface_list_manager.h>
+#include <wsutil/ws_assert.h>
 #include "ui/qt/simple_dialog.h"
 #include "ui/qt/simple_statistics_dialog.h"
 #include <ui/qt/widgets/splash_overlay.h>
@@ -349,19 +350,17 @@ win32_reset_library_path(void)
 static GList *
 capture_opts_get_interface_list(int *err _U_, char **err_str _U_)
 {
-    // Stratoshark only wants the IF_EXTCAP interfaces, so there's no point
-    // in spawning dumpcap to retrieve the other types of interfaces.
-#if 0
-    if (mainApp) {
-        GList *if_list = mainApp->getInterfaceList();
-        if (if_list == NULL) {
-            if_list = capture_interface_list(global_capture_opts.app_name, err, err_str, main_window_update);
-            mainApp->setInterfaceList(if_list);
-        }
-        return if_list;
-    }
-    return capture_interface_list(global_capture_opts.app_name, err, err_str, main_window_update);
-#endif
+    // Stratoshark only wants the IF_EXTCAP interfaces, so there's no point in
+    // spawning dumpcap to retrieve the other types of interfaces.
+    //
+    // NOTE: Unlike Wireshark, this deliberately does NOT route through
+    // InterfaceListManager::cachedInterfaceList() - that path spawns dumpcap to
+    // enumerate native interfaces, which Stratoshark must never do. The two apps
+    // therefore register different get_iface_list callbacks. This flavor split is
+    // a stopgap: InterfaceListManager should eventually be made aware that a
+    // flavor enumerates extcap-only, so both apps can share one entry point
+    // rather than maintaining parallel callbacks. (Revisit once the manager owns
+    // the full enumeration path.)
     return append_extcap_interface_list(NULL);
 }
 
@@ -825,12 +824,15 @@ int main(int argc, char *qt_argv[])
     }
 
 #ifdef DEBUG_STARTUP_TIME
-    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling fill_in_local_interfaces, elapsed time %" PRIu64 " us \n", g_get_monotonic_time() - start_time);
+    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Preparing InterfaceListManager, elapsed time %" PRIu64 " us \n", g_get_monotonic_time() - start_time);
 #endif
     splash_update(RA_INTERFACES, NULL, NULL);
 
     if (cf_name.isEmpty() && !prefs.capture_no_interface_load) {
-        ssApp->scanLocalInterfaces(nullptr);
+        // Enumerate synchronously before the event loop (see Wireshark main()).
+        InterfaceListManager *if_mgr = main_w->interfaceListManager();
+        ws_assert(if_mgr);
+        if_mgr->refreshNow();
     }
 
     capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);

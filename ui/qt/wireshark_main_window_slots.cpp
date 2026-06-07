@@ -16,6 +16,7 @@
 #endif
 
 #include "wireshark_main_window.h"
+#include <ui/qt/manager/interface_list_manager.h>
 #include <ui/qt/widgets/capture_card_widget.h>
 
 /*
@@ -3079,7 +3080,7 @@ void WiresharkMainWindow::connectCaptureMenuActions()
 #ifdef HAVE_LIBPCAP
     connect(main_ui_->actionCaptureRefreshInterfaces, &QAction::triggered, this, [this]() {
         main_ui_->actionCaptureRefreshInterfaces->setEnabled(false);
-        mainApp->refreshLocalInterfaces();
+        interfaceListManager()->requestRefresh(true);
         main_ui_->actionCaptureRefreshInterfaces->setEnabled(true);
     });
 #endif

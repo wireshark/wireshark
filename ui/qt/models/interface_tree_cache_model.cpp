@@ -20,6 +20,8 @@
 #include "wiretap/wtap.h"
 
 #include "main_application.h"
+#include <ui/qt/main_window.h>
+#include <ui/qt/manager/interface_list_manager.h>
 
 #include <QIdentityProxyModel>
 
@@ -270,7 +272,10 @@ void InterfaceTreeCacheModel::save()
         ++it;
     }
 
-    mainApp->emitAppSignal(MainApplication::LocalInterfacesChanged);
+    // Edits to existing interfaces: notify subscribers without a rescan.
+    MainWindow *mainWindow = mainApp->mainWindow();
+    if (mainWindow && mainWindow->interfaceListManager())
+        mainWindow->interfaceListManager()->notifyListChanged();
 }
 #endif
 
@@ -580,7 +585,9 @@ void InterfaceTreeCacheModel::deleteDevice(const QModelIndex &index)
         capture_opts_free_interface_t(device);
         global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, row);
         emit endRemoveRows();
-        mainApp->emitAppSignal(MainApplication::LocalInterfacesChanged);
+        MainWindow *mainWindow = mainApp->mainWindow();
+        if (mainWindow && mainWindow->interfaceListManager())
+            mainWindow->interfaceListManager()->notifyListChanged();
     }
 }
 #endif

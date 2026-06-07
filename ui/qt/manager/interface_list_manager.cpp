@@ -1,6 +1,7 @@
-/* iface_lists.c
- * Code to manage the global list of interfaces and to update widgets/windows
- * displaying items from those lists
+/* interface_list_manager.cpp
+ *
+ * Coordinates local interface enumeration: a single, coalesced, capture-aware
+ * refresh entry point that repopulates the global interface list.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -11,19 +12,103 @@
 
 #include "config.h"
 
-#ifdef HAVE_LIBPCAP
+#include <ui/qt/manager/interface_list_manager.h>
 
-#include <string.h>
-
-#include <glib.h>
+#include <ui/qt/manager/interface_statistics.h>
+#include <ui/qt/main_application.h>
 
 #include <epan/prefs.h>
+
+#ifdef HAVE_LIBPCAP
+#include <string.h>
+
 #include <epan/to_str.h>
 #include <wsutil/wslog.h>
 
-#include "ui/capture_ui_utils.h"
+#include "ui/capture_opts.h"
 #include "ui/capture_globals.h"
-#include "ui/iface_lists.h"
+#include "ui/capture_ui_utils.h"
+#include "ui/ws_ui_util.h"
+#include "capture/capture_ifinfo.h"
+#include "capture/capture-pcap-util.h"
+#include "extcap.h"
+#endif
+
+#include <QTimer>
+
+InterfaceListManager::InterfaceListManager(QObject *parent) :
+    QObject(parent),
+    interface_stats_(new InterfaceStatistics(this)),
+    scanning_(false),
+    refreshPending_(false),
+    pendingUserInitiated_(false),
+    captureActive_(false),
+    scanScheduled_(false),
+    prevCaptureNoInterfaceLoad_(prefs.capture_no_interface_load),
+    prevCaptureNoExtcap_(prefs.capture_no_extcap)
+{
+    // Own the "capture prefs changed -> reload interfaces" reaction that used to
+    // live in MainApplication::setConfigurationProfile.
+    connect(mainApp, &MainApplication::preferencesChanged,
+            this, &InterfaceListManager::onPreferencesChanged);
+}
+
+void InterfaceListManager::onPreferencesChanged()
+{
+    const bool changed =
+        prefs.capture_no_interface_load != prevCaptureNoInterfaceLoad_ ||
+        prefs.capture_no_extcap != prevCaptureNoExtcap_;
+    prevCaptureNoInterfaceLoad_ = prefs.capture_no_interface_load;
+    prevCaptureNoExtcap_ = prefs.capture_no_extcap;
+
+    // Mirror the old guard: only (re)load when interface loading is enabled.
+    if (changed && !prefs.capture_no_interface_load)
+        requestRefresh();
+}
+
+QStringList InterfaceListManager::currentInterfaceNames() const
+{
+    return currentNames_;
+}
+
+bool InterfaceListManager::isScanning() const
+{
+    return scanning_;
+}
+
+InterfaceStatistics *InterfaceListManager::statistics() const
+{
+    return interface_stats_;
+}
+
+#ifdef HAVE_LIBPCAP
+// Process-global cache behind the capture_opts get_iface_list callback. It is a
+// file-local static (not instance state) because the callback is registered in
+// main() and can fire before any InterfaceListManager exists - e.g. while the
+// commandline is still being parsed. Freed-on-replace below, so it never grows;
+// the final list is reclaimed at process exit.
+static GList *commandline_if_cache = nullptr;
+
+GList *InterfaceListManager::cachedInterfaceList(int *err, char **err_str)
+{
+    if (commandline_if_cache == nullptr) {
+        commandline_if_cache = capture_interface_list(err, err_str, main_window_update);
+    }
+    return interface_list_copy(commandline_if_cache);
+}
+
+void InterfaceListManager::cacheInterfaceList(GList *if_list)
+{
+    free_interface_list(commandline_if_cache);
+    commandline_if_cache = interface_list_copy(if_list);
+}
+
+// ---------------------------------------------------------------------------
+// Local interface enumeration. This was ui/iface_lists.c; it is GUI-only
+// (Wireshark + Stratoshark, never tshark/dumpcap) and the manager is its sole
+// caller, so it now lives here as file-static helpers instead of in the shared
+// C capture library.
+// ---------------------------------------------------------------------------
 
 /*
  * Try to populate the given device with options (like capture filter) from
@@ -123,18 +208,7 @@ get_iface_display_name(const char *description, const if_info_t *if_info)
  * and set the list of "all interfaces" in *capture_opts to include
  * those interfaces.
  */
-void
-scan_local_interfaces(capture_options* capture_opts, void (*update_cb)(void))
-{
-    scan_local_interfaces_filtered(capture_opts, (GList *)0, update_cb);
-}
-
-/*
- * Fetch the list of local interfaces with capture_interface_list()
- * and set the list of "all interfaces" in *capture_opts to include
- * those interfaces.
- */
-void
+static void
 scan_local_interfaces_filtered(capture_options* capture_opts, GList * allowed_types, void (*update_cb)(void))
 {
     GList             *if_entry, *lt_entry, *if_list;
@@ -155,11 +229,11 @@ scan_local_interfaces_filtered(capture_options* capture_opts, GList * allowed_ty
     static bool       running = false;
 
     if (running) {
-        /* scan_local_interfaces internally calls update_cb to process UI events
-           to avoid stuck UI while running possibly slow operations. A side effect
-           of this is that new interface changes can be detected before completing
-           the last one.
-           This return avoids recursive scan_local_interfaces operation. */
+        /* scan_local_interfaces_filtered internally calls update_cb to process UI
+           events to avoid a stuck UI while running possibly slow operations. A side
+           effect of this is that new interface changes can be detected before
+           completing the last one.
+           This return avoids recursive scan_local_interfaces_filtered operation. */
         return;
     }
     running = true;
@@ -310,7 +384,6 @@ scan_local_interfaces_filtered(capture_options* capture_opts, GList * allowed_ty
 #endif
 
             device.local = true;
-            device.last_packets = 0;
             if (!capture_dev_user_pmode_find(if_info->name, &device.pmode)) {
                 device.pmode = capture_opts->default_options.promisc_mode;
             }
@@ -399,7 +472,7 @@ scan_local_interfaces_filtered(capture_options* capture_opts, GList * allowed_ty
         device.links = NULL;
         caps = if_info->caps;
         if (caps == NULL) {
-            caps = g_hash_table_lookup(capability_hash, if_info->name);
+            caps = (if_capabilities_t *)g_hash_table_lookup(capability_hash, if_info->name);
         }
         if (caps != NULL && !caps->primary_msg) {
             GList *lt_list = caps->data_link_types;
@@ -530,7 +603,6 @@ scan_local_interfaces_filtered(capture_options* capture_opts, GList * allowed_ty
             device.active_dlt = interface_opts->linktype;
             device.addresses    = NULL;
             device.no_addresses = 0;
-            device.last_packets = 0;
             device.links        = NULL;
             device.local        = true;
             device.if_info.name = g_strdup(interface_opts->name);
@@ -550,78 +622,10 @@ scan_local_interfaces_filtered(capture_options* capture_opts, GList * allowed_ty
 }
 
 /*
- * Get the global interface list.  Generate it if we haven't done so
- * already.  This can be quite time consuming the first time, so
- * record how long it takes in the info log.
+ * Re-derive per-interface fields (display name, hidden flag, link type) from the
+ * current preferences over the existing all_ifaces. No dumpcap enumeration.
  */
-void
-fill_in_local_interfaces(capture_options* capture_opts, void(*update_cb)(void))
-{
-    fill_in_local_interfaces_filtered(capture_opts, (GList *)0, update_cb);
-}
-
-/*
- * Get the global interface list.  Generate it if we haven't done so
- * already.  This can be quite time consuming the first time, so
- * record how long it takes in the info log.
- */
-void
-fill_in_local_interfaces_filtered(capture_options* capture_opts, GList * filter_list, void(*update_cb)(void))
-{
-    int64_t start_time;
-    double elapsed;
-    static bool initialized = false;
-
-    /* record the time we started, so we can log total time later */
-    start_time = g_get_monotonic_time();
-
-    if (!initialized) {
-        /* do the actual work */
-        scan_local_interfaces_filtered(capture_opts, filter_list, update_cb);
-        initialized = true;
-    }
-    /* log how long it took */
-    elapsed = (g_get_monotonic_time() - start_time) / 1e6;
-
-    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Finished getting the global interface list, taking %.3fs", elapsed);
-}
-
-void
-hide_interface(capture_options* capture_opts, char* new_hide)
-{
-    char        *tok;
-    unsigned    i;
-    interface_t *device;
-    bool        found = false;
-    GList       *hidden_devices = NULL, *entry;
-    if (new_hide != NULL) {
-        for (tok = strtok (new_hide, ","); tok; tok = strtok(NULL, ",")) {
-            hidden_devices = g_list_append(hidden_devices, tok);
-        }
-    }
-    for (i = 0; i < capture_opts->all_ifaces->len; i++) {
-        device = &g_array_index(capture_opts->all_ifaces, interface_t, i);
-        found = false;
-        for (entry = hidden_devices; entry != NULL; entry = g_list_next(entry)) {
-            if (strcmp((char *)entry->data, device->name)==0) {
-                device->hidden = true;
-                if (device->selected) {
-                    device->selected = false;
-                    capture_opts->num_selected--;
-                }
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            device->hidden = false;
-        }
-    }
-    g_list_free(hidden_devices);
-    g_free(new_hide);
-}
-
-void
+static void
 update_local_interfaces(capture_options* capture_opts)
 {
     interface_t *device;
@@ -639,4 +643,133 @@ update_local_interfaces(capture_options* capture_opts)
         fill_from_ifaces(capture_opts, device);
     }
 }
-#endif /* HAVE_LIBPCAP */
+#endif // HAVE_LIBPCAP
+
+void InterfaceListManager::requestRefresh(bool userInitiated)
+{
+    refreshPending_ = true;
+    pendingUserInitiated_ = pendingUserInitiated_ || userInitiated;
+    maybeSchedule();
+}
+
+void InterfaceListManager::refreshNow()
+{
+    // Synchronous counterpart to requestRefresh(): run the scan inline instead of
+    // posting it. performScan() still guards re-entrancy and capture-in-progress,
+    // so this is a no-op while a scan is running or a capture is active.
+    refreshPending_ = true;
+    performScan();
+}
+
+void InterfaceListManager::notifyListChanged()
+{
+    emit interfaceListChanged();
+}
+
+void InterfaceListManager::setCaptureActive(bool active)
+{
+    if (captureActive_ == active)
+        return;
+
+    captureActive_ = active;
+    // Propagate to the owned statistics: free the dumpcap -S process while a
+    // capture is active (so it does not contend with the capture), resume after.
+    if (captureActive_) {
+        interface_stats_->pauseSampling();
+    } else {
+        interface_stats_->resumeSampling();
+        maybeSchedule(); // service any request deferred during the capture
+    }
+}
+
+void InterfaceListManager::maybeSchedule()
+{
+    // Post a single performScan() to the event loop. Anything that would make a
+    // scan inappropriate right now (none pending, one already running or posted,
+    // or a capture in progress) just leaves the request pending for later.
+    if (!refreshPending_ || scanning_ || captureActive_ || scanScheduled_)
+        return;
+
+    scanScheduled_ = true;
+    QTimer::singleShot(0, this, &InterfaceListManager::performScan);
+}
+
+void InterfaceListManager::performScan()
+{
+    scanScheduled_ = false;
+    if (scanning_ || captureActive_ || !refreshPending_)
+        return;
+
+    scanning_ = true;
+    refreshPending_ = false;
+    const bool userInitiated = pendingUserInitiated_;
+    pendingUserInitiated_ = false;
+
+    QStringList removed;
+
+#ifdef HAVE_LIBPCAP
+    // Repopulate global_capture_opts.all_ifaces. The update callback is omitted
+    // (nullptr): it is invoked only once just after forking dumpcap, before the
+    // blocking read of its output, so it provides no responsiveness during the
+    // slow part - and omitting it makes event-loop re-entrancy impossible while
+    // the list is half-rebuilt. Making the scan itself non-blocking is a future
+    // step (move enumeration off the GUI thread; blocked on all_ifaces being
+    // process-global).
+    //
+    // Force extcap re-discovery so added/removed extcap interfaces are picked up
+    // (previously done by MainApplication::refreshLocalInterfaces).
+    extcap_clear_interfaces();
+
+    // Drop the get_iface_list cache first so the scan observes hardware changes:
+    // scan_local_interfaces_filtered() pulls the list through cachedInterfaceList(),
+    // which would otherwise hand back the previously cached (stale) enumeration.
+    cacheInterfaceList(nullptr);
+    scan_local_interfaces_filtered(&global_capture_opts, nullptr, nullptr);
+
+    QStringList newNames;
+    if (global_capture_opts.all_ifaces != nullptr) {
+        for (unsigned i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+            interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            newNames.append(QString(device->name));
+        }
+    }
+
+    for (const QString &name : currentNames_) {
+        if (!newNames.contains(name))
+            removed.append(name);
+    }
+    currentNames_ = newNames;
+#endif // HAVE_LIBPCAP
+
+    scanning_ = false;
+
+    // Update the owned statistics first - prune vanished interfaces, and on a
+    // user-initiated refresh re-evaluate activity - then announce the stable list.
+    if (!removed.isEmpty())
+        interface_stats_->removeInterfaces(removed);
+    if (userInitiated)
+        interface_stats_->resetActivity();
+
+    emit interfaceListChanged();
+
+    maybeSchedule(); // in case a request arrived while scanning
+}
+
+void InterfaceListManager::reapplyInterfacePreferences()
+{
+#ifdef HAVE_LIBPCAP
+    // Re-derive each interface's display name, hidden flag and link type from the
+    // just-loaded preferences, over the EXISTING all_ifaces - no dumpcap
+    // enumeration. Called from MainApplication::setConfigurationProfile() on a
+    // profile switch.
+    //
+    // This is deliberately SYNCHRONOUS. The manager's normal, preferred way to ask
+    // for an update is the asynchronous requestRefresh(), which coalesces bursts
+    // and defers while a capture is running. That async path cannot be used here:
+    // the reapply has to complete before setConfigurationProfile() emits
+    // preferencesChanged()/columnsChanged(), so the listeners of those signals
+    // observe the updated names/hidden/dlt. Posting it to the event loop would race
+    // those emits and surface stale interface data for a frame.
+    update_local_interfaces(&global_capture_opts);
+#endif
+}

@@ -65,8 +65,6 @@ public:
         FieldsChanged,
         /** @brief Filter expressions changed. */
         FilterExpressionsChanged,
-        /** @brief Local interfaces changed. */
-        LocalInterfacesChanged,
         /** @brief Name resolution configuration changed. */
         NameResolutionChanged,
         /** @brief Packet dissection preferences changed. */
@@ -216,32 +214,6 @@ public:
      * @param up Indicator if the interface is up.
      */
     void emitLocalInterfaceEvent(const char *ifname, int added, int up);
-
-    /**
-     * @brief Refreshes the local interfaces list.
-     */
-    virtual void refreshLocalInterfaces();
-
-#ifdef HAVE_LIBPCAP
-    /**
-     * @brief Retrieves the cached interface list.
-     *
-     * This returns a deep copy of the cached interface list that must
-     * be freed with free_interface_list.
-     *
-     * @return A deep copy of the interface list.
-     */
-    GList * getInterfaceList() const;
-
-    /**
-     * @brief Sets the cached interface list.
-     *
-     * This sets the cached interface list to a deep copy of if_list.
-     *
-     * @param if_list The interface list to set.
-     */
-    void setInterfaceList(GList *if_list);
-#endif
 
     /**
      * @brief Reads application configuration files.
@@ -414,9 +386,6 @@ private:
     /** Count of currently active captures. */
     int active_captures_;
 
-    /** Flag indicating a local interface refresh is pending. */
-    bool refresh_interfaces_pending_;
-
     /**
      * @brief Stores the user's custom colors into the recent configuration.
      */
@@ -446,20 +415,11 @@ protected:
     /** Icon for active capture state. */
     QIcon capture_icon_;
 
-#ifdef HAVE_LIBPCAP
-    /** Cached pointer to the GList of interfaces. */
-    GList *cached_if_list_;
-#endif
-
 signals:
     /** @brief Signal emitted when application is fully initialized. */
     void appInitialized();
     /** @brief Signal emitted for local interface events (add/remove/up/down). */
     void localInterfaceEvent(const char *ifname, int added, int up);
-    /** @brief Signal emitted to request a scan of local interfaces. */
-    void scanLocalInterfaces(GList *filter_list = nullptr);
-    /** @brief Signal emitted when the local interface list changes. */
-    void localInterfaceListChanged();
     /** @brief Signal emitted to open a specific capture file. */
     void openCaptureFile(QString cf_path, QString display_filter, unsigned int type);
     /** @brief Signal emitted to open the capture options dialog. */

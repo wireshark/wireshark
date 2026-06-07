@@ -37,7 +37,6 @@
 #include "ui/commandline.h"
 #include "ui/decode_as_utils.h"
 #include "ui/preference_utils.h"
-#include "ui/iface_lists.h"
 #include "ui/language.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
@@ -76,6 +75,7 @@
 #include <ui/qt/capture_file.h>
 
 #include <ui/qt/main_window.h>
+#include <ui/qt/manager/interface_list_manager.h>
 #include <ui/qt/main_status_bar.h>
 #include <ui/qt/utils/workspace_state.h>
 #include <ui/qt/utils/theme_styler.h>
@@ -197,9 +197,6 @@ void MainApplication::setConfigurationProfile(const char *profile_name, bool wri
     char *err_msg = NULL;
     const char* env_prefix = application_configuration_environment_prefix();
 
-    bool prev_capture_no_interface_load;
-    bool prev_capture_no_extcap;
-
     /* First check if profile exists */
     if (!profile_exists(env_prefix, profile_name, false)) {
         if (profile_exists(env_prefix, profile_name, true)) {
@@ -233,9 +230,6 @@ void MainApplication::setConfigurationProfile(const char *profile_name, bool wri
     if (profile_name && strcmp (profile_name, get_profile_name()) == 0) {
         return;
     }
-
-    prev_capture_no_interface_load = prefs.capture_no_interface_load;
-    prev_capture_no_extcap = prefs.capture_no_extcap;
 
     /* Get the current geometry, before writing it to disk */
     emit profileChanging();
@@ -281,7 +275,12 @@ void MainApplication::setConfigurationProfile(const char *profile_name, bool wri
     prefs_to_capture_opts(&global_capture_opts);
     prefs_apply_all();
 #ifdef HAVE_LIBPCAP
-    update_local_interfaces(&global_capture_opts);
+    /* Re-apply interface display attributes from the new profile's prefs before
+       the preferencesChanged() emit below, so its listeners see fresh data. The
+       manager owns interface enumeration/attributes now. */
+    if (MainWindow *mw = mainWindow())
+        if (InterfaceListManager *mgr = mw->interfaceListManager())
+            mgr->reapplyInterfacePreferences();
 #endif
 
     emit columnsChanged();
@@ -298,14 +297,13 @@ void MainApplication::setConfigurationProfile(const char *profile_name, bool wri
         g_free(err_msg);
     }
 
-    /* Load interfaces if settings have changed */
-    if (!prefs.capture_no_interface_load &&
-        ((prefs.capture_no_interface_load != prev_capture_no_interface_load) ||
-         (prefs.capture_no_extcap != prev_capture_no_extcap))) {
-        refreshLocalInterfaces();
-    }
-
-    emit localInterfaceListChanged();
+    /* Capture-interface prefs are now watched by InterfaceListManager, which
+       rescans when capture_no_interface_load / capture_no_extcap flips. A profile
+       switch can also change interface display attributes, so notify subscribers
+       (the manager owns the interface-list-changed signal now). */
+    MainWindow *mw = mainWindow();
+    if (mw && mw->interfaceListManager())
+        mw->interfaceListManager()->notifyListChanged();
     emit packetDissectionChanged();
 
     /* Write recent_common file to ensure last used profile setting is stored. */
@@ -420,13 +418,9 @@ MainApplication::MainApplication(int &argc,  char **argv) :
     initialized_(false),
     is_reloading_lua_(false),
     if_notifier_(NULL),
-    active_captures_(0),
-    refresh_interfaces_pending_(false)
+    active_captures_(0)
 #if defined(Q_OS_MAC) || defined(Q_OS_WIN)
     , normal_icon_(windowIcon())
-#endif
-#ifdef HAVE_LIBPCAP
-    , cached_if_list_(NULL)
 #endif
 {
     mainApp = this;
@@ -486,9 +480,6 @@ MainApplication::MainApplication(int &argc,  char **argv) :
 MainApplication::~MainApplication()
 {
     mainApp = NULL;
-#ifdef HAVE_LIBPCAP
-    free_interface_list(cached_if_list_);
-#endif
     clearDynamicMenuGroupItems();
 }
 
@@ -506,9 +497,6 @@ void MainApplication::emitAppSignal(AppSignal signal)
         break;
     case FilterExpressionsChanged:
         emit filterExpressionsChanged();
-        break;
-    case LocalInterfacesChanged:
-        emit localInterfaceListChanged();
         break;
     case NameResolutionChanged:
         emit addressResolutionChanged();
@@ -708,7 +696,9 @@ iface_mon_event_cb(const char *iface, int added, int up)
          * so we probably should monitor those events as well and update
          * the interface list appropriately when those change.
          */
-        mainApp->refreshLocalInterfaces();
+        MainWindow *mainWindow = mainApp->mainWindow();
+        if (mainWindow && mainWindow->interfaceListManager())
+            mainWindow->interfaceListManager()->requestRefresh();
     }
 }
 
@@ -733,33 +723,6 @@ void MainApplication::emitLocalInterfaceEvent(const char *ifname, int added, int
     emit localInterfaceEvent(ifname, added, up);
 }
 
-void MainApplication::refreshLocalInterfaces()
-{
-    if (active_captures_ > 0) {
-        refresh_interfaces_pending_ = true;
-        return;
-    }
-
-    refresh_interfaces_pending_ = false;
-    extcap_clear_interfaces();
-
-#ifdef HAVE_LIBPCAP
-    emit scanLocalInterfaces(nullptr);
-#endif
-}
-
-#ifdef HAVE_LIBPCAP
-GList* MainApplication::getInterfaceList() const
-{
-    return interface_list_copy(cached_if_list_);
-}
-
-void MainApplication::setInterfaceList(GList *if_list)
-{
-    free_interface_list(cached_if_list_);
-    cached_if_list_ = interface_list_copy(if_list);
-}
-#endif
 
 void MainApplication::allSystemsGo()
 {
@@ -889,9 +852,9 @@ void MainApplication::captureEventHandler(CaptureEvent ev)
         case CaptureEvent::Finished:
             active_captures_--;
             emit captureActive(active_captures_);
-            if (refresh_interfaces_pending_ && !global_capture_opts.restart) {
-                refreshLocalInterfaces();
-            }
+            // A refresh requested during the capture was deferred by
+            // InterfaceListManager (capture-active guard) and is serviced now via
+            // the captureActive signal above; no explicit re-trigger needed.
             break;
         default:
             break;

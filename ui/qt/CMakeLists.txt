@@ -79,6 +79,9 @@ set(WIRESHARK_3RD_PARTY_WIDGET_HEADERS
 )
 
 set(WIRESHARK_MANAGER_HEADERS
+	manager/interface_list_manager.h
+	manager/interface_statistics.h
+	manager/interface_stats_worker.h
 	manager/preference_manager.h
 	manager/wireshark_preference.h
 )
@@ -404,6 +407,9 @@ set(WIRESHARK_3RD_PARTY_WIDGET_SRCS
 )
 
 set(WIRESHARK_MANAGER_SRCS
+	manager/interface_list_manager.cpp
+	manager/interface_statistics.cpp
+	manager/interface_stats_worker.cpp
 	manager/preference_manager.cpp
 	manager/wireshark_preference.cpp
 )

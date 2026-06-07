@@ -80,6 +80,9 @@ set(WIRESHARK_3RD_PARTY_WIDGET_HEADERS
 set (STRATOSHARK_3RD_PARTY_WIDGET_HEADERS ${WIRESHARK_3RD_PARTY_WIDGET_HEADERS})
 
 set(WIRESHARK_MANAGER_HEADERS
+	${CMAKE_SOURCE_DIR}/ui/qt/manager/interface_list_manager.h
+	${CMAKE_SOURCE_DIR}/ui/qt/manager/interface_statistics.h
+	${CMAKE_SOURCE_DIR}/ui/qt/manager/interface_stats_worker.h
 	${CMAKE_SOURCE_DIR}/ui/qt/manager/preference_manager.h
 	${CMAKE_SOURCE_DIR}/ui/qt/manager/wireshark_preference.h
 )
@@ -380,6 +383,9 @@ set(WIRESHARK_3RD_PARTY_WIDGET_SRCS
 set (STRATOSHARK_3RD_PARTY_WIDGET_SRCS ${WIRESHARK_3RD_PARTY_WIDGET_SRCS})
 
 set(WIRESHARK_MANAGER_SRCS
+	${CMAKE_SOURCE_DIR}/ui/qt/manager/interface_list_manager.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/manager/interface_statistics.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/manager/interface_stats_worker.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/manager/preference_manager.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/manager/wireshark_preference.cpp
 )

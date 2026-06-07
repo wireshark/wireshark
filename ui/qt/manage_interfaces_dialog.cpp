@@ -29,7 +29,6 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #endif
-#include "ui/iface_lists.h"
 #include "ui/preference_utils.h"
 #include "ui/ws_ui_util.h"
 #include <wsutil/utf8_entities.h>
@@ -37,6 +36,8 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 
 #include "main_application.h"
+#include <ui/qt/main_window.h>
+#include <ui/qt/manager/interface_list_manager.h>
 
 #include <QDebug>
 
@@ -262,7 +263,9 @@ ManageInterfacesDialog::~ManageInterfacesDialog()
         remoteAccepted();
 #endif
         prefs_main_write();
-        mainApp->refreshLocalInterfaces();
+        MainWindow *mainWindow = mainApp->mainWindow();
+        if (mainWindow && mainWindow->interfaceListManager())
+            mainWindow->interfaceListManager()->requestRefresh();
         emit ifsChanged();
     }
 

@@ -21,7 +21,6 @@ set(NONGENERATED_UI_SRC
 	file_dialog.c
 	firewall_rules.c
 	iface_toolbar.c
-	iface_lists.c
 	init.c
 	io_graph_item.c
 	language.c

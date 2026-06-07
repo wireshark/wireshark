@@ -98,14 +98,6 @@ Q_SIGNALS:
     void typeSelectionChanged();
 
 public slots:
-#ifdef HAVE_LIBPCAP
-    /**
-     * @brief Scans for and populates the list of local capture interfaces.
-     * @param filter_list An optional list of filters to apply during the scan.
-     */
-    void scanLocalInterfaces(GList *filter_list = nullptr);
-#endif
-
     /**
      * @brief Updates the UI state based on currently selected interfaces.
      */
@@ -141,18 +133,6 @@ public slots:
 
 protected:
     /**
-     * @brief Handles hide events for the frame, stopping updates if necessary.
-     * @param evt The hide event.
-     */
-    void hideEvent(QHideEvent *evt);
-
-    /**
-     * @brief Handles show events for the frame, resuming updates if necessary.
-     * @param evt The show event.
-     */
-    void showEvent(QShowEvent *evt);
-
-    /**
      * @brief Handles change events; re-fits the interface tree columns when
      *        the widget is re-polished (works around QTBUG-122109).
      * @param evt The change event.
@@ -168,6 +148,15 @@ protected:
     void resizeEvent(QResizeEvent *evt);
 
 private:
+
+    /**
+     * @brief Persists the current per-interface hidden state to the profile prefs.
+     *
+     * The welcome context-menu "Hide Interface" only flips the runtime
+     * device->hidden; this writes prefs.capture_devices_hide (and the prefs file)
+     * so the choice survives profile switches and restarts.
+     */
+    void saveHiddenInterfaces();
 
     /**
      * @brief Resets the display parameters of the interface tree.
@@ -200,12 +189,15 @@ private:
     /** Maps interface type IDs to their descriptive string representations. */
     QMap<int, QString> ifTypeDescription;
 
-#ifdef HAVE_LIBPCAP
-    /** Timer used to periodically trigger statistics updates. */
-    QTimer *stat_timer_;
-#endif // HAVE_LIBPCAP
-
 private slots:
+    /**
+     * @brief Subscribes to the window's InterfaceListManager::interfaceListChanged.
+     *
+     * Deferred until appInitialized when the frame is built before the window's
+     * manager exists; the manager is reached via mainApp->mainWindow().
+     */
+    void connectInterfaceListManager();
+
     /**
      * @brief Slot triggered when the selection in the interface tree changes.
      * @param selected The newly selected items.
@@ -226,11 +218,6 @@ private slots:
      */
     void on_interfaceTree_clicked(const QModelIndex &index);
 #endif
-
-    /**
-     * @brief Slot triggered periodically to update interface statistics (like sparklines).
-     */
-    void updateStatistics(void);
 
     /**
      * @brief Slot triggered when a generic action button is toggled.

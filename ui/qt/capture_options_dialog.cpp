@@ -20,6 +20,9 @@
 #include "manage_interfaces_dialog.h"
 
 #include "main_application.h"
+#include <ui/qt/main_window.h>
+#include <ui/qt/manager/interface_list_manager.h>
+#include <ui/qt/manager/interface_statistics.h>
 
 #include "extcap.h"
 
@@ -27,7 +30,6 @@
 
 #include <QAbstractItemModel>
 #include <QMessageBox>
-#include <QTimer>
 
 #include "ringbuffer.h"
 #include "ui/capture_opts.h"
@@ -64,8 +66,6 @@
 //   get the separate list of recent capture filters for that interface, but
 //   they don't.
 
-const int stat_update_interval_ = 1000; // ms
-
 /*
  * Symbolic names for column indices.
  * These have to match the order as defined in the .ui file.
@@ -99,6 +99,17 @@ static interface_t *find_device_by_if_name(const QString &interface_name)
     return NULL;
 }
 
+/* The window's InterfaceStatistics facade is the single source of truth for the
+ * traffic sparklines (received + dropped series, with gap markers). Returns NULL
+ * before the manager exists. */
+static InterfaceStatistics *interfaceStatistics()
+{
+    MainWindow *mainWindow = mainApp->mainWindow();
+    if (mainWindow && mainWindow->interfaceListManager())
+        return mainWindow->interfaceListManager()->statistics();
+    return NULL;
+}
+
 class InterfaceTreeWidgetItem : public QTreeWidgetItem
 {
 public:
@@ -106,7 +117,10 @@ public:
     bool operator< (const QTreeWidgetItem &other) const;
     QVariant data(int column, int role) const;
     void setData(int column, int role, const QVariant &value);
-    QList<int> points;
+
+    /* Identifies the interface whose history this row renders. Empty for rows
+     * with no live stats (e.g. extcap), which then draw a blank sparkline. */
+    QString stat_name_;
 
     void updateInterfaceColumns(interface_t *device)
     {
@@ -193,9 +207,6 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     loadGeometry();
     setWindowTitle(mainApp->windowTitleString(tr("Capture Options")));
 
-    stat_timer_ = NULL;
-    stat_cache_ = NULL;
-
     ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Start"));
 
     // Start out with the list *not* sorted, so they show up in the order
@@ -240,7 +251,10 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     connect(&interface_item_delegate_, &InterfaceTreeDelegate::filterChanged, ui->captureFilterComboBox, &QLineEdit::setText);
     connect(&interface_item_delegate_, &InterfaceTreeDelegate::filterChanged, this, &CaptureOptionsDialog::captureFilterTextEdited);
     connect(this, &CaptureOptionsDialog::ifsChanged, this, &CaptureOptionsDialog::refreshInterfaceList);
-    connect(mainApp, &MainApplication::localInterfaceListChanged, this, &CaptureOptionsDialog::updateLocalInterfaces);
+    if (mainApp->isInitialized())
+        connectInterfaceListManager();
+    else
+        connect(mainApp, &MainApplication::appInitialized, this, &CaptureOptionsDialog::connectInterfaceListManager);
     connect(ui->browseButton, &QPushButton::clicked, this, &CaptureOptionsDialog::browseButtonClicked);
     connect(ui->interfaceTree, &QTreeWidget::itemClicked, this, &CaptureOptionsDialog::itemClicked);
     connect(ui->interfaceTree, &QTreeWidget::itemDoubleClicked, this, &CaptureOptionsDialog::itemDoubleClicked);
@@ -859,8 +873,10 @@ void CaptureOptionsDialog::updateInterfaces(capture_options* capture_opts)
 
             ti->setText(col_interface_, device->display_name);
             ti->setData(col_interface_, Qt::UserRole, QString(device->name));
+            // Non-extcap rows render live traffic from InterfaceStatistics,
+            // keyed by interface name; extcap interfaces have no -S stats.
             if (device->if_info.type != IF_EXTCAP)
-                ti->setData(col_traffic_, Qt::UserRole, QVariant::fromValue(ti->points));
+                ti->stat_name_ = device->name;
 
             if (device->no_addresses > 0) {
                 QString addr_str = tr("%1: %2").arg(device->no_addresses > 1 ? tr("Addresses") : tr("Address")).arg(device->addresses);
@@ -940,13 +956,6 @@ void CaptureOptionsDialog::updateInterfaces(capture_options* capture_opts)
     }
 
     updateWidgets();
-
-    if (!stat_timer_) {
-        updateStatistics();
-        stat_timer_ = new QTimer(this);
-        connect(stat_timer_, &QTimer::timeout, this, &CaptureOptionsDialog::updateStatistics);
-        stat_timer_->start(stat_update_interval_);
-    }
 }
 
 void CaptureOptionsDialog::showEvent(QShowEvent *)
@@ -960,34 +969,35 @@ void CaptureOptionsDialog::refreshInterfaceList()
     emit interfaceListChanged();
 }
 
+void CaptureOptionsDialog::connectInterfaceListManager()
+{
+    MainWindow *mainWindow = mainApp->mainWindow();
+    if (!mainWindow || !mainWindow->interfaceListManager())
+        return;
+
+    InterfaceListManager *manager = mainWindow->interfaceListManager();
+    connect(manager, &InterfaceListManager::interfaceListChanged,
+            this, &CaptureOptionsDialog::updateLocalInterfaces, Qt::UniqueConnection);
+
+    // The facade owns the dumpcap -S stream; the dialog only renders. Repaint
+    // the sparklines whenever it samples or an interface's activity flips.
+    if (InterfaceStatistics *stats = manager->statistics()) {
+        connect(stats, &InterfaceStatistics::statisticsUpdated,
+                this, &CaptureOptionsDialog::redrawStatistics, Qt::UniqueConnection);
+        connect(stats, &InterfaceStatistics::activityChanged,
+                this, &CaptureOptionsDialog::redrawStatistics, Qt::UniqueConnection);
+    }
+}
+
 void CaptureOptionsDialog::updateLocalInterfaces()
 {
     updateInterfaces(&global_capture_opts);
 }
 
-void CaptureOptionsDialog::updateStatistics(void)
+void CaptureOptionsDialog::redrawStatistics()
 {
-    interface_t *device;
-
-    disconnect(ui->interfaceTree, &QTreeWidget::itemChanged, this, &CaptureOptionsDialog::interfaceItemChanged);
-    for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
-
-        for (unsigned if_idx = 0; if_idx < global_capture_opts.all_ifaces->len; if_idx++) {
-            QTreeWidgetItem *ti = ui->interfaceTree->topLevelItem(row);
-            if (!ti) {
-                continue;
-            }
-            device = &g_array_index(global_capture_opts.all_ifaces, interface_t, if_idx);
-            QString device_name = ti->text(col_interface_);
-            if (device_name.compare(device->display_name) || device->hidden || device->if_info.type == IF_PIPE) {
-                continue;
-            }
-            QList<int> points = ti->data(col_traffic_, Qt::UserRole).value<QList<int> >();
-            points.append(device->packet_diff);
-            ti->setData(col_traffic_, Qt::UserRole, QVariant::fromValue(points));
-        }
-    }
-    connect(ui->interfaceTree, &QTreeWidget::itemChanged, this, &CaptureOptionsDialog::interfaceItemChanged);
+    // History lives in InterfaceStatistics and is pulled on demand by
+    // InterfaceTreeWidgetItem::data(); a viewport repaint is all that's needed.
     ui->interfaceTree->viewport()->update();
 }
 
@@ -1384,9 +1394,18 @@ bool InterfaceTreeWidgetItem::operator< (const QTreeWidgetItem &other) const {
 
 QVariant InterfaceTreeWidgetItem::data(int column, int role) const
 {
-    // See setData for the special col_traffic_ treatment.
-    if (column == col_traffic_ && role == Qt::UserRole) {
-        return QVariant::fromValue(points);
+    // The traffic sparkline pulls live history straight from the
+    // InterfaceStatistics facade on read (mirrors InterfaceTreeModel::data):
+    // the received series via Qt::UserRole, the dropped series via
+    // SecondaryPointsRole. Points are surfaced only for active interfaces, so
+    // quiet rows draw a blank sparkline like the welcome page.
+    if (column == col_traffic_ && (role == Qt::UserRole || role == SparkLineDelegate::SecondaryPointsRole)) {
+        InterfaceStatistics *stats = interfaceStatistics();
+        if (stats && !stat_name_.isEmpty() && stats->isActive(stat_name_)) {
+            return QVariant::fromValue(role == Qt::UserRole ? stats->pointsFor(stat_name_)
+                                                            : stats->droppedPointsFor(stat_name_));
+        }
+        return QVariant::fromValue(QList<int>());
     }
 
     if (column == col_snaplen_ && role == Qt::DisplayRole) {
@@ -1401,15 +1420,6 @@ QVariant InterfaceTreeWidgetItem::data(int column, int role) const
 
 void InterfaceTreeWidgetItem::setData(int column, int role, const QVariant &value)
 {
-    // Workaround for closing editors on updates to the points list: normally
-    // QTreeWidgetItem::setData emits dataChanged when the value (list) changes.
-    // We could store a pointer to the list, or just have this hack that does
-    // not emit dataChanged.
-    if (column == col_traffic_ && role == Qt::UserRole) {
-        points = value.value<QList<int> >();
-        return;
-    }
-
     QTreeWidgetItem::setData(column, role, value);
 }
 

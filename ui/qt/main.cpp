@@ -27,6 +27,7 @@
 #include <ui/urls.h>
 #include <wsutil/time_util.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/ws_assert.h>
 #include <wsutil/privileges.h>
 #include <wsutil/socket.h>
 #include <wsutil/wslog.h>
@@ -64,7 +65,6 @@
 #include "epan/srt_table.h"
 
 #include "ui/alert_box.h"
-#include "ui/iface_lists.h"
 #include "ui/language.h"
 #include "ui/persfilepath_opt.h"
 #include "ui/recent.h"
@@ -94,6 +94,7 @@
 #include "ui/qt/wireshark_application.h"
 #include "ui/qt/utils/workspace_state.h"
 #include "ui/qt/utils/software_update.h"
+#include <ui/qt/manager/interface_list_manager.h>
 
 #include "capture/capture-pcap-util.h"
 
@@ -409,20 +410,6 @@ win32_reset_library_path(void)
 #endif
 
 #ifdef HAVE_LIBPCAP
-static GList *
-capture_opts_get_interface_list(int *err, char **err_str)
-{
-    if (mainApp) {
-        GList *if_list = mainApp->getInterfaceList();
-        if (if_list == NULL) {
-            if_list = capture_interface_list(err, err_str, main_window_update);
-            mainApp->setInterfaceList(if_list);
-        }
-        return if_list;
-    }
-    return capture_interface_list(err, err_str, main_window_update);
-}
-
 static void
 commandline_capture_interface_options(FILE* const output)
 {
@@ -721,7 +708,7 @@ int main(int argc, char *qt_argv[])
 #ifdef HAVE_LIBPCAP
     /* Set the initial values in the capture options. This might be overwritten
        by preference settings and then again by the command line parameters. */
-    capture_opts_init(&global_capture_opts, capture_opts_get_interface_list);
+    capture_opts_init(&global_capture_opts, InterfaceListManager::cachedInterfaceList);
 #endif
 
     /*
@@ -931,12 +918,18 @@ int main(int argc, char *qt_argv[])
     }
 
 #ifdef DEBUG_STARTUP_TIME
-    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling fill_in_local_interfaces, elapsed time %" PRIu64 " us \n", g_get_monotonic_time() - start_time);
+    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Preparing InterfaceListManager, elapsed time %" PRIu64 " us \n", g_get_monotonic_time() - start_time);
 #endif
     splash_update(RA_INTERFACES, NULL, NULL);
 
     if (cf_name.isEmpty() && !prefs.capture_no_interface_load) {
-        wsApp->scanLocalInterfaces(nullptr);
+        // Enumerate synchronously: the capture_device auto-select below reads
+        // global_capture_opts.all_ifaces immediately, before the event loop runs.
+        // The manager is created unconditionally in the MainWindow ctor, so its
+        // absence here is a broken invariant, not a runtime condition.
+        InterfaceListManager *if_mgr = main_w->interfaceListManager();
+        ws_assert(if_mgr);
+        if_mgr->refreshNow();
     }
 
     capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);

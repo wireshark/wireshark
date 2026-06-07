@@ -29,6 +29,8 @@ DIAG_ON(restrict)
 #include <ui/qt/widgets/interface_toolbar_lineedit.h>
 #include "simple_dialog.h"
 #include "main_application.h"
+#include <ui/qt/main_window.h>
+#include <ui/qt/manager/interface_list_manager.h>
 #include <ui_interface_toolbar.h>
 
 #include "ui/capture_opts.h"
@@ -98,7 +100,24 @@ InterfaceToolbar::InterfaceToolbar(QWidget *parent, const iface_toolbar *toolbar
         ui->horizontalSpacer->changeSize(0,0, QSizePolicy::Fixed, QSizePolicy::Fixed);
     }
 
+    // Refresh on app-init and on every interface-list change from the window's
+    // InterfaceListManager. The toolbar may be built before that manager exists,
+    // so defer the manager connection to appInitialized when needed.
+    connect(mainApp, &MainApplication::appInitialized, this, &InterfaceToolbar::interfaceListChanged);
+    if (mainApp->isInitialized())
+        connectInterfaceListManager();
+    else
+        connect(mainApp, &MainApplication::appInitialized, this, &InterfaceToolbar::connectInterfaceListManager);
+
     updateWidgets();
+}
+
+void InterfaceToolbar::connectInterfaceListManager()
+{
+    MainWindow *mainWindow = mainApp->mainWindow();
+    if (mainWindow && mainWindow->interfaceListManager())
+        connect(mainWindow->interfaceListManager(), &InterfaceListManager::interfaceListChanged,
+                this, &InterfaceToolbar::interfaceListChanged, Qt::UniqueConnection);
 }
 
 InterfaceToolbar::~InterfaceToolbar()

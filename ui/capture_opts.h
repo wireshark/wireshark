@@ -170,8 +170,6 @@ typedef struct interface_tag {
 #ifdef HAVE_PCAP_REMOTE
     remote_options  remote_opts;               /**< Remote capture options; only present when remote pcap support is compiled in. */
 #endif
-    uint32_t        last_packets;              /**< Packet count recorded at the previous statistics update. */
-    uint32_t        packet_diff;               /**< Difference in packet count since the last statistics update. */
     if_info_t       if_info;                   /**< Low-level interface information from the capture library. */
     bool            selected;                  /**< Whether this interface is selected for capture in the UI. */
     bool            hidden;                    /**< Whether this interface is hidden from the UI interface list. */

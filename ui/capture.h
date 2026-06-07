@@ -100,45 +100,11 @@ capture_stop(capture_session *cap_session);
 extern void
 capture_kill_child(capture_session *cap_session);
 
-struct if_stat_cache_s;
-typedef struct if_stat_cache_s if_stat_cache_t;
-
-/**
- * @brief Start gathering capture statistics for the interfaces specified.
- *
- * @param capture_opts A structure containing options for the capture.
- * @return A pointer to the statistics state data.
+/*
+ * Interface statistics (dumpcap -S) are now collected off-thread by the Qt
+ * InterfaceStatsWorker, which talks to sync_interface_stats_open() directly.
+ * The former C if_stat_cache API lived here and is gone.
  */
-extern WS_RETNONNULL if_stat_cache_t * capture_stat_start(capture_options *capture_opts);
-
-/**
- * @brief Retrieve the list of interfaces and their capabilities, and start
- * gathering capture statistics for the interfaces.
- *
- * @param[out] if_list A pointer that will store a GList of if_info_t.
- * @return A pointer to the statistics state data.
- */
-extern WS_RETNONNULL if_stat_cache_t * capture_interface_stat_start(GList **if_list);
-
-/**
- * Fetch capture statistics, similar to pcap_stats().
- */
-struct pcap_stat; /* Stub in case we don't or haven't yet included pcap.h */
-
-/**
- * @brief Fetch capture statistics for the interfaces specified.
- * @param sc A pointer to the statistics state data.
- * @param ifname The name of the interface to fetch statistics for.
- * @param ps A pointer to a pcap_stat structure to fill in with the statistics.
- * @return true if the statistics were successfully fetched, false otherwise.
- */
-extern bool capture_stats(if_stat_cache_t *sc, char *ifname, struct pcap_stat *ps);
-
-/**
- * @brief Stop gathering capture statistics.
- * @param sc A pointer to the statistics state data.
- */
-void capture_stat_stop(if_stat_cache_t *sc);
 
 #ifdef __cplusplus
 }

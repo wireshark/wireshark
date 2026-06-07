@@ -33,6 +33,7 @@
 
 #include "funnel_statistics.h"
 #include "main_application.h"
+#include "manager/interface_list_manager.h"
 #include "packet_list.h"
 #include "utils/profile_switcher.h"
 #include "utils/qt_ui_utils.h"
@@ -58,6 +59,7 @@ MainWindow::MainWindow(QWidget *parent) :
     df_combo_box_(nullptr),
     main_status_bar_(nullptr),
     profile_switcher_(new ProfileSwitcher(this)),
+    interface_list_manager_(new InterfaceListManager(this)),
     use_capturing_title_(false),
     recent_captures_menu_(nullptr),
     no_recent_files_action_(nullptr)
@@ -83,11 +85,21 @@ MainWindow::MainWindow(QWidget *parent) :
         }, Qt::BlockingQueuedConnection);
     }
 
+    // Tell the interface manager when a capture is active; it propagates that to
+    // the statistics it owns (pause sampling) and defers rescans accordingly.
+    connect(mainApp, &MainApplication::captureActive, this, [this](int active) {
+        interface_list_manager_->setCaptureActive(active > 0);
+    });
 }
 
 MainWindow::~MainWindow()
 {
     clearAddedPacketMenus();
+}
+
+InterfaceListManager *MainWindow::interfaceListManager() const
+{
+    return interface_list_manager_;
 }
 
 void MainWindow::findTextCodecs() {

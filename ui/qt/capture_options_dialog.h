@@ -21,8 +21,6 @@
 #include <QPushButton>
 #include <QTreeWidget>
 
-typedef struct if_stat_cache_s if_stat_cache_t;
-
 namespace Ui {
 class CaptureOptionsDialog;
 }
@@ -69,6 +67,8 @@ protected:
     virtual void showEvent(QShowEvent *);
 
 private slots:
+    /** @brief Subscribes to the window's InterfaceListManager::interfaceListChanged. */
+    void connectInterfaceListManager();
     void on_capturePromModeCheckBox_toggled(bool checked);
     void on_captureMonitorModeCheckBox_toggled(bool checked);
     void on_gbStopCaptureAuto_toggled(bool checked);
@@ -86,7 +86,8 @@ private slots:
     void on_buttonBox_helpRequested();
     void filterEdited();
     void updateWidgets();
-    void updateStatistics(void);
+    /** @brief Repaints the traffic sparklines when InterfaceStatistics samples. */
+    void redrawStatistics();
     void refreshInterfaceList();
     void updateLocalInterfaces();
     void browseButtonClicked();
@@ -112,8 +113,6 @@ signals:
 private:
     Ui::CaptureOptionsDialog *ui;
 
-    if_stat_cache_t *stat_cache_;
-    QTimer *stat_timer_;
     InterfaceTreeDelegate interface_item_delegate_;
 
     interface_t *getDeviceByName(const QString device_name);

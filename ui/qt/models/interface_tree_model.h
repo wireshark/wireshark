@@ -27,6 +27,8 @@
 
 typedef QList<int> PointList;
 
+class InterfaceStatistics;
+
 /**
  * @brief Column indices for the interface tree model shared across interface-related views.
  *
@@ -111,23 +113,14 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
     /**
-     * @brief Triggers an update of the statistics (like sparklines) for a specific row.
-     * @param row The row index of the interface to update.
+     * @brief Sets the statistics provider supplying sparkline/activity data.
+     *
+     * The model does not own it; it reads pointsFor()/isActive() in data() and
+     * connects to its update signals to repaint the stats column and re-sort on
+     * activity changes. Pass nullptr to detach.
+     * @param statistics The interface statistics, or nullptr.
      */
-    void updateStatistic(unsigned int row);
-
-#ifdef HAVE_LIBPCAP
-    /**
-     * @brief Sets the statistics cache used to query live interface metrics.
-     * @param stat_cache Pointer to the if_stat_cache_t structure.
-     */
-    void setCache(if_stat_cache_t *stat_cache);
-
-    /**
-     * @brief Stops all active statistics gathering and polling for interfaces.
-     */
-    void stopStatistic();
-#endif
+    void setStatistics(InterfaceStatistics *statistics);
 
     /**
      * @brief Retrieves any current interface-related error messages.
@@ -175,6 +168,22 @@ public slots:
      */
     void interfaceListChanged();
 
+private slots:
+    /**
+     * @brief Subscribes to the window's InterfaceListManager::interfaceListChanged.
+     *
+     * The model has no window reference and may be built either before the window
+     * (welcome frame's source model) or after (dialog cache model), so wiring is
+     * deferred to appInitialized only when the app is not yet initialized.
+     */
+    void connectInterfaceListManager();
+
+    /** @brief Repaints the statistics column when a new sample arrives. */
+    void onStatisticsUpdated();
+
+    /** @brief Re-sorts (via layoutChanged) when the active interface set changes. */
+    void onActivityChanged();
+
 private:
     /**
      * @brief Generates a tooltip string detailing information about a specific interface.
@@ -183,16 +192,8 @@ private:
      */
     QVariant toolTipForInterface(int idx) const;
 
-    /** Map storing a list of data points for sparkline generation per interface. */
-    QMap<QString, PointList> points;
-
-    /** Map tracking whether an interface is currently considered active for data polling. */
-    QMap<QString, bool> active;
-
-#ifdef HAVE_LIBPCAP
-    /** Pointer to the core interface statistics cache. */
-    if_stat_cache_t *stat_cache_;
-#endif // HAVE_LIBPCAP
+    /** Statistics provider (not owned) supplying sparkline/activity data. */
+    InterfaceStatistics *interface_stats_;
 };
 
 #endif // INTERFACE_TREE_MODEL_H

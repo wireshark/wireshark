@@ -25,6 +25,22 @@ public:
      */
     SparkLineDelegate(QWidget *parent = 0) : QStyledItemDelegate(parent) {}
 
+    /**
+     * @brief Optional second value series, drawn over the primary one.
+     *
+     * The primary series is read from Qt::UserRole (unchanged). A model may
+     * additionally provide a second QList<int> at this role (e.g. dropped
+     * packets); when present it is drawn on the same scale in a distinct theme
+     * color. Models that don't provide it render exactly one line as before.
+     */
+    static constexpr int SecondaryPointsRole = Qt::UserRole + 1;
+
+    /**
+     * @brief A negative value in either series marks a gap (a line break with a
+     *        dashed bridge), used to show an interval where no data was sampled.
+     */
+    static constexpr int GapValue = -1;
+
 protected:
     /**
      * @brief Renders the spark-line chart for the cell at @p index.

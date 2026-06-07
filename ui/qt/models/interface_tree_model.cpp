@@ -12,6 +12,8 @@
 
 #include <ui/qt/models/interface_tree_model.h>
 
+#include <ui/qt/manager/interface_statistics.h>
+
 #ifdef HAVE_LIBPCAP
 #include "ui/capture.h"
 #include "capture/capture-pcap-util.h"
@@ -25,6 +27,8 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/stock_icon.h>
 #include "main_application.h"
+#include <ui/qt/main_window.h>
+#include <ui/qt/manager/interface_list_manager.h>
 
 /* Needed for the meta type declaration of QList<int>* */
 #include <ui/qt/models/sparkline_delegate.h>
@@ -40,23 +44,30 @@ const QString InterfaceTreeModel::DefaultNumericValue = QObject::tr("default");
  * to the index from within the view, has to be filtered through the proxy model.
  */
 InterfaceTreeModel::InterfaceTreeModel(QObject *parent) :
-    QAbstractTableModel(parent)
-#ifdef HAVE_LIBPCAP
-    ,stat_cache_(NULL)
-#endif
+    QAbstractTableModel(parent),
+    interface_stats_(nullptr)
 {
     connect(mainApp, &MainApplication::appInitialized, this, &InterfaceTreeModel::interfaceListChanged);
-    connect(mainApp, &MainApplication::localInterfaceListChanged, this, &InterfaceTreeModel::interfaceListChanged);
+
+    // Interface-list change notifications come from the window's
+    // InterfaceListManager. Connect now if the window is already up (dialog
+    // cache model), otherwise wait for appInitialized (welcome source model).
+    if (mainApp->isInitialized())
+        connectInterfaceListManager();
+    else
+        connect(mainApp, &MainApplication::appInitialized, this, &InterfaceTreeModel::connectInterfaceListManager);
 }
 
 InterfaceTreeModel::~InterfaceTreeModel(void)
 {
-#ifdef HAVE_LIBPCAP
-    if (stat_cache_) {
-        capture_stat_stop(stat_cache_);
-        stat_cache_ = NULL;
-    }
-#endif // HAVE_LIBPCAP
+}
+
+void InterfaceTreeModel::connectInterfaceListManager()
+{
+    MainWindow *mainWindow = mainApp->mainWindow();
+    if (mainWindow && mainWindow->interfaceListManager())
+        connect(mainWindow->interfaceListManager(), &InterfaceListManager::interfaceListChanged,
+                this, &InterfaceTreeModel::interfaceListChanged, Qt::UniqueConnection);
 }
 
 QString InterfaceTreeModel::interfaceError()
@@ -223,18 +234,23 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
         {
             if (col == IFTREE_COL_STATS)
             {
-                if ((active.contains(device->name) && active[device->name]) && points.contains(device->name))
-                    return QVariant::fromValue(points[device->name]);
+                if (interface_stats_ && interface_stats_->isActive(device->name))
+                    return QVariant::fromValue(interface_stats_->pointsFor(device->name));
             }
             else if (col == IFTREE_COL_ACTIVE)
             {
-                if (active.contains(device->name))
-                    return QVariant::fromValue(active[device->name]);
+                return QVariant::fromValue(interface_stats_ != nullptr && interface_stats_->isActive(device->name));
             }
             else if (col == IFTREE_COL_HIDDEN)
             {
                 return QVariant::fromValue((bool)device->hidden);
             }
+        }
+        /* Dropped-packet series, drawn as the sparkline's secondary line */
+        else if (role == SparkLineDelegate::SecondaryPointsRole)
+        {
+            if (col == IFTREE_COL_STATS && interface_stats_ && interface_stats_->isActive(device->name))
+                return QVariant::fromValue(interface_stats_->droppedPointsFor(device->name));
         }
         /* Displays the configuration icon for extcap interfaces */
         else if (role == Qt::DecorationRole)
@@ -348,11 +364,9 @@ bool InterfaceTreeModel::isRemote(int idx)
  */
 void InterfaceTreeModel::interfaceListChanged()
 {
+    // Statistics/activity history lives in InterfaceStatistics and is retained
+    // across rescans there; the model just re-reads the (possibly changed) list.
     beginResetModel();
-
-    points.clear();
-    active.clear();
-
     endResetModel();
 }
 
@@ -406,76 +420,39 @@ QVariant InterfaceTreeModel::toolTipForInterface(int idx) const
 #endif
 }
 
-#ifdef HAVE_LIBPCAP
-void InterfaceTreeModel::setCache(if_stat_cache_t *stat_cache)
+void InterfaceTreeModel::setStatistics(InterfaceStatistics *statistics)
 {
-    stopStatistic();
-    stat_cache_ = stat_cache;
-}
-
-void InterfaceTreeModel::stopStatistic()
-{
-    if (stat_cache_)
-    {
-        capture_stat_stop(stat_cache_);
-        stat_cache_ = NULL;
-    }
-}
-#endif
-
-void InterfaceTreeModel::updateStatistic(unsigned int idx)
-{
-#ifdef HAVE_LIBPCAP
-    if (! global_capture_opts.all_ifaces || global_capture_opts.all_ifaces->len <= (unsigned) idx)
+    if (interface_stats_ == statistics)
         return;
 
-    interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
+    if (interface_stats_)
+        disconnect(interface_stats_, nullptr, this, nullptr);
 
-    if (device->if_info.type == IF_PIPE || device->if_info.type == IF_EXTCAP)
+    interface_stats_ = statistics;
+
+    if (interface_stats_)
+    {
+        connect(interface_stats_, &InterfaceStatistics::statisticsUpdated,
+                this, &InterfaceTreeModel::onStatisticsUpdated);
+        connect(interface_stats_, &InterfaceStatistics::activityChanged,
+                this, &InterfaceTreeModel::onActivityChanged);
+    }
+}
+
+void InterfaceTreeModel::onStatisticsUpdated()
+{
+    if (rowCount() == 0)
         return;
 
-    if (!stat_cache_)
-    {
-        // Start gathering statistics using dumpcap
-        //
-        // The stat cache will only properly configure if it has the list
-        // of interfaces in global_capture_opts->all_ifaces.
-        // We crash if we try to do this from InterfaceFrame::showEvent,
-        // because main.cpp calls mainw->show() before capture_opts_init().
-        stat_cache_ = capture_stat_start(&global_capture_opts);
-    }
+    // Repaint the live statistics (sparkline) column for every interface.
+    emit dataChanged(index(0, IFTREE_COL_STATS), index(rowCount() - 1, IFTREE_COL_STATS));
+}
 
-    struct pcap_stat stats;
-    unsigned diff = 0;
-    bool isActive = false;
-
-    if (capture_stats(stat_cache_, device->name, &stats))
-    {
-        if ( (int) stats.ps_recv > 0 )
-            isActive = true;
-
-        if ((int)(stats.ps_recv - device->last_packets) >= 0)
-        {
-            diff = stats.ps_recv - device->last_packets;
-            device->packet_diff = diff;
-        }
-        device->last_packets = stats.ps_recv;
-    }
-
-    points[device->name].append(diff);
-
-    if (active[device->name] != isActive)
-    {
-        emit layoutAboutToBeChanged();
-        active[device->name] = isActive;
-        emit layoutChanged();
-    }
-
-    emit dataChanged(index(idx, IFTREE_COL_STATS), index(idx, IFTREE_COL_STATS));
-
-#else
-    Q_UNUSED(idx)
-#endif
+void InterfaceTreeModel::onActivityChanged()
+{
+    // The activity-first sort key changed; ask the proxy to re-sort.
+    emit layoutAboutToBeChanged();
+    emit layoutChanged();
 }
 
 QItemSelection InterfaceTreeModel::selectedDevices()

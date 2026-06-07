@@ -22,6 +22,7 @@
 #include <ui/simple_dialog.h>
 #include <ui/recent.h>
 #include <main_window.h>
+#include <ui/qt/manager/interface_list_manager.h>
 #include <extcap.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
@@ -459,8 +460,11 @@ void PreferencesDialog::apply()
         mainApp->emitAppSignal(MainApplication::RecentPreferencesRead);
     }
 
-    if (prefs.capture_no_extcap != saved_capture_no_extcap_)
-        mainApp->refreshLocalInterfaces();
+    if (prefs.capture_no_extcap != saved_capture_no_extcap_) {
+        MainWindow *mainWindow = mainApp->mainWindow();
+        if (mainWindow && mainWindow->interfaceListManager())
+            mainWindow->interfaceListManager()->requestRefresh();
+    }
 }
 
 void PreferencesDialog::on_buttonBox_accepted()
