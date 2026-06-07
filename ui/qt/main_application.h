@@ -23,6 +23,9 @@
 #include <QTimer>
 #include <QTranslator>
 
+#include <functional>
+#include <utility>
+
 #include "capture_event.h"
 
 struct _e_prefs;
@@ -260,6 +263,34 @@ public:
     bool isInitialized() { return initialized_; }
 
     /**
+     * @brief Runs @p fn once the application has finished initialization.
+     *
+     * If initialization has already completed, @p fn is dispatched per the
+     * policy implemented below (see whenInitializedDispatch()). Otherwise it is
+     * connected to appInitialized() with @p context as the connection's
+     * receiver, so the connection is torn down automatically when @p context is
+     * destroyed and the callback runs on @p context's thread.
+     *
+     * This replaces the open-coded
+     *   if (mainApp->isInitialized()) doThing();
+     *   else connect(mainApp, &MainApplication::appInitialized, this, &Cls::doThing);
+     * pattern: late subscribers no longer have to branch by hand, so a slot can
+     * never be silently dropped by connecting after the signal already fired.
+     *
+     * @param context Receiver object governing lifetime/thread of the callback.
+     * @param fn Zero-argument callable to run when initialization is complete.
+     */
+    template <typename Func>
+    void whenInitialized(const QObject *context, Func &&fn)
+    {
+        if (initialized_) {
+            whenInitializedDispatch(context, std::function<void()>(std::forward<Func>(fn)));
+        } else {
+            connect(this, &MainApplication::appInitialized, context, std::forward<Func>(fn));
+        }
+    }
+
+    /**
      * @brief Sets the flag indicating if Lua is currently reloading.
      * @param is_reloading True if reloading, false otherwise.
      */
@@ -359,6 +390,13 @@ public:
     int maxMenuDepth(void) { return 5; }
 
 private:
+    /**
+     * @brief Dispatches a whenInitialized() callback that arrived after
+     * initialization already completed. Implements the "already initialized"
+     * timing policy in one place. See main_application.cpp.
+     */
+    void whenInitializedDispatch(const QObject *context, std::function<void()> fn);
+
     /** Indicates if the application initialization has completed. */
     bool initialized_;
 

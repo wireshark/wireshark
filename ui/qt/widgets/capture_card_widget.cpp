@@ -77,15 +77,11 @@ CaptureCardWidget::CaptureCardWidget(QWidget *parent) :
             this, &CaptureCardWidget::startCapture);
 
     // App-level connections
-    connect(mainApp, &MainApplication::appInitialized,
-            this, &CaptureCardWidget::appInitialized);
+    mainApp->whenInitialized(this, [this]() { appInitialized(); });
+
     // Interface-list notifications come from the window's InterfaceListManager;
     // defer the connection until the window exists if needed.
-    if (mainApp->isInitialized())
-        connectInterfaceListManager();
-    else
-        connect(mainApp, &MainApplication::appInitialized,
-                this, &CaptureCardWidget::connectInterfaceListManager);
+    mainApp->whenInitialized(this, [this]() { connectInterfaceListManager(); });
 }
 
 CaptureCardWidget::~CaptureCardWidget()

@@ -1300,6 +1300,21 @@ void StratosharkMainWindow::startInterfaceCapture(bool valid, const QString capt
     }
 }
 
+void StratosharkMainWindow::onAppInitialized()
+{
+    // Post-initialization setup, run once the application is ready. Ordered: a
+    // few of these steps populate menus that later ones extend.
+    setFeaturesEnabled();
+    applyGlobalCommandLineOptions();
+    initViewColorizeMenu();
+    addStatsPluginsToMenu();
+    addDynamicMenus();
+    addPluginIFStructures();
+    initConversationMenus();
+    initFollowStreamMenus();
+    addDisplayFilterTranslationActions(main_ui_->menuEditCopy);
+}
+
 void StratosharkMainWindow::applyGlobalCommandLineOptions()
 {
     if (global_dissect_options.time_format != TS_NOT_SET) {

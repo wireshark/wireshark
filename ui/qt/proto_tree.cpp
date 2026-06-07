@@ -101,7 +101,12 @@ ProtoTree::ProtoTree(QWidget *parent, epan_dissect_t *edt_fixed) :
     // have scrolled to an area with a different width at this point.
     connect(verticalScrollBar(), &QScrollBar::sliderReleased, this, &ProtoTree::updateContentWidth);
 
-    connect(mainApp, &MainApplication::appInitialized, this, &ProtoTree::connectToMainWindow);
+    // Only the main-window tree follows the main window's field/frame
+    // selection. A fixed-edt tree (the packet dialog) shows one frozen packet
+    // and wires its own selection signals, so it must not connect here.
+    if (!edt_) {
+        mainApp->whenInitialized(this, [this]() { connectToMainWindow(); });
+    }
 
     viewport()->installEventFilter(this);
 }
@@ -113,13 +118,13 @@ void ProtoTree::clear() {
 
 void ProtoTree::connectToMainWindow()
 {
-    if (mainApp->mainWindow())
-    {
-        connect(mainApp->mainWindow(), &MainWindow::fieldSelected,
-                this, &ProtoTree::selectedFieldChanged);
-        connect(mainApp->mainWindow(), &MainWindow::framesSelected,
-                this, &ProtoTree::selectedFrameChanged);
-    }
+    // Reached only for the main-window tree, and only once the app is
+    // initialized (the window is shown by then), so mainWindow() is non-null.
+    MainWindow *main_window = mainApp->mainWindow();
+    connect(main_window, &MainWindow::fieldSelected,
+            this, &ProtoTree::selectedFieldChanged);
+    connect(main_window, &MainWindow::framesSelected,
+            this, &ProtoTree::selectedFrameChanged);
 }
 
 void ProtoTree::ctxCopyVisibleItems()

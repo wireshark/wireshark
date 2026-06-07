@@ -708,6 +708,15 @@ public slots:
 
 private slots:
     /**
+     * @brief Runs the post-initialization setup once the application is ready.
+     *
+     * Invoked via MainApplication::whenInitialized(). Groups the menu/feature
+     * setup that can only run after appInitialized() into one ordered sequence,
+     * instead of one connection per step.
+     */
+    void onAppInitialized();
+
+    /**
      * @brief Dispatches capture lifecycle events to the appropriate UI update methods.
      * @param ev The capture event to handle.
      */

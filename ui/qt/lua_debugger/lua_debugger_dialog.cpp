@@ -566,8 +566,6 @@ LuaDebuggerDialog::LuaDebuggerDialog(QWidget *parent)
     {
         connect(FontManager::instance(), &FontManager::monospaceFontChanged, this, &LuaDebuggerDialog::onMonospaceFontUpdated,
                 Qt::UniqueConnection);
-        connect(mainApp, &MainApplication::appInitialized, this, &LuaDebuggerDialog::onMainAppInitialized,
-                Qt::UniqueConnection);
         connect(mainApp, &MainApplication::preferencesChanged, this, &LuaDebuggerDialog::onPreferencesChanged,
                 Qt::UniqueConnection);
         /*
@@ -577,10 +575,9 @@ LuaDebuggerDialog::LuaDebuggerDialog(QWidget *parent)
          */
         connect(ThemeManager::instance(), &ThemeManager::themeChanged, this, &LuaDebuggerDialog::onColorsChanged,
                 Qt::UniqueConnection);
-        if (mainApp->isInitialized())
-        {
-            onMainAppInitialized();
-        }
+        // Run now if the app is already up (the usual case for this on-demand
+        // dialog), otherwise once it finishes initializing.
+        mainApp->whenInitialized(this, [this]() { onMainAppInitialized(); });
     }
 
     filesController_.refreshAvailableScripts();

@@ -184,8 +184,8 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     progress_frame_.enableTaskbarUpdates(true);
 #endif
 
-    connect(mainApp, &MainApplication::appInitialized, splitter, &QSplitter::show);
-    connect(mainApp, &MainApplication::appInitialized, this, &MainStatusBar::appInitialized);
+    mainApp->whenInitialized(splitter, [splitter]() { splitter->show(); });
+    mainApp->whenInitialized(this, [this]() { appInitialized(); });
     connect(&info_status_, &LabelStack::toggleTemporaryFlash, this, &MainStatusBar::toggleBackground);
     connect(mainApp, &MainApplication::profileNameChanged, this, &MainStatusBar::setProfileName);
     connect(&profile_status_, &ClickableLabel::clickedAt, this, &MainStatusBar::showProfileMenu);

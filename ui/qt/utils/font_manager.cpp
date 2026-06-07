@@ -85,8 +85,7 @@ FontManager::FontManager(QObject *parent)
     // pref see a concrete value.  Previously done by a lambda in
     // ThemeManager's constructor.
     if (mainApp) {
-        connect(mainApp, &MainApplication::appInitialized, this,
-                [this]() { syncMonospacePref(); });
+        mainApp->whenInitialized(this, [this]() { syncMonospacePref(); });
     }
 }
 

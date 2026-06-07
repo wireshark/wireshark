@@ -325,7 +325,7 @@ WirelessTimeline::WirelessTimeline(QWidget *parent) : QWidget(parent)
     capfile = NULL;
 
     radio_packet_list = g_hash_table_new(g_direct_hash, g_direct_equal);
-    connect(mainApp, &MainApplication::appInitialized, this, &WirelessTimeline::appInitialized);
+    mainApp->whenInitialized(this, [this]() { appInitialized(); });
 }
 
 WirelessTimeline::~WirelessTimeline()

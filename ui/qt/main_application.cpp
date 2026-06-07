@@ -723,6 +723,45 @@ void MainApplication::emitLocalInterfaceEvent(const char *ifname, int added, int
     emit localInterfaceEvent(ifname, added, up);
 }
 
+void MainApplication::whenInitializedDispatch(const QObject *context, std::function<void()> fn)
+{
+    // POLICY DECISION (your input shapes behavior here):
+    //
+    // We get here only when a caller registers via whenInitialized() *after*
+    // appInitialized() has already fired. The not-yet-initialized path runs the
+    // callback later, from the event loop, once construction is long finished.
+    // How should the already-initialized path behave?
+    //
+    //   A) Synchronous: fn(); right now. Simplest. But the callback runs while
+    //      the caller's constructor is still on the stack -- the object may be
+    //      only partly built, and any code after the whenInitialized() call in
+    //      that constructor runs *after* the callback. Timing differs from the
+    //      deferred path.
+    //
+    //   B) Deferred to the event loop (e.g. QTimer::singleShot(0, context, fn)
+    //      or QMetaObject::invokeMethod(..., Qt::QueuedConnection)): callback
+    //      always runs after the current call returns, matching the signal path
+    //      exactly, so callers see one consistent ordering. Costs one event-loop
+    //      turn and needs the context-still-alive guarantee.
+    //
+    // Option A (current behavior) is intentional for now: it exactly reproduces
+    // the old open-coded `if (isInitialized()) doThing();` -- a synchronous call
+    // on the caller's stack -- so routing those sites through whenInitialized()
+    // is a pure no-op refactor. Option B is the intended end state, but it
+    // shifts the already-initialized callback by one event-loop turn and so
+    // changes ordering for every converted site at once; switch to it only
+    // behind broader ordering/lifetime tests (dialogs opened mid-session,
+    // welcome/interface frames at cold start, context destroyed same-turn).
+    //
+    // To switch, delete the fn() below and enable the deferred dispatch:
+    //
+    //     QTimer::singleShot(0, const_cast<QObject *>(context), std::move(fn));
+    //
+    // (context is the receiver, so the call is dropped if it dies first, and
+    // runs on context's thread -- matching the connect() branch.)
+    Q_UNUSED(context) // option A ignores context; option B uses it.
+    fn(); // option A: synchronous, matches legacy behavior.
+}
 
 void MainApplication::allSystemsGo()
 {

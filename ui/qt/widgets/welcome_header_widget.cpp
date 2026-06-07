@@ -71,7 +71,7 @@ WelcomeHeaderWidget::WelcomeHeaderWidget(QWidget *parent) :
     if (SoftwareUpdate::plattformSupported()) {
         connect(SoftwareUpdate::instance(), &SoftwareUpdate::updateAvailable, this, &WelcomeHeaderWidget::setAvailableUpdateVersion);
         connect(SoftwareUpdate::instance(), &SoftwareUpdate::updateEngaged, this, &WelcomeHeaderWidget::clearAvailableUpdateVersion);
-        connect(mainApp, &MainApplication::appInitialized, this, &WelcomeHeaderWidget::updateSoftwareUpdateInfo);
+        mainApp->whenInitialized(this, [this]() { updateSoftwareUpdateInfo(); });
 
         // Add the update button
         connect(header_ui_->updateDownload, &QPushButton::clicked, this, []() {

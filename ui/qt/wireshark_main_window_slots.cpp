@@ -1443,6 +1443,22 @@ void WiresharkMainWindow::startInterfaceCapture(bool valid, const QString captur
     }
 }
 
+void WiresharkMainWindow::onAppInitialized()
+{
+    // Post-initialization setup, run once the application is ready. Ordered: a
+    // few of these steps populate menus that later ones extend.
+    setFeaturesEnabled();
+    applyGlobalCommandLineOptions();
+    initViewColorizeMenu();
+    addStatsPluginsToMenu();
+    addDynamicMenus();
+    addPluginIFStructures();
+    initConversationMenus();
+    initExportObjectsMenus();
+    initFollowStreamMenus();
+    addDisplayFilterTranslationActions(main_ui_->menuEditCopy);
+}
+
 void WiresharkMainWindow::applyGlobalCommandLineOptions()
 {
     if (global_dissect_options.time_format != TS_NOT_SET) {

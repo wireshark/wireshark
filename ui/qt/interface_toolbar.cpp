@@ -104,10 +104,7 @@ InterfaceToolbar::InterfaceToolbar(QWidget *parent, const iface_toolbar *toolbar
     // InterfaceListManager. The toolbar may be built before that manager exists,
     // so defer the manager connection to appInitialized when needed.
     connect(mainApp, &MainApplication::appInitialized, this, &InterfaceToolbar::interfaceListChanged);
-    if (mainApp->isInitialized())
-        connectInterfaceListManager();
-    else
-        connect(mainApp, &MainApplication::appInitialized, this, &InterfaceToolbar::connectInterfaceListManager);
+    mainApp->whenInitialized(this, [this]() { connectInterfaceListManager(); });
 
     updateWidgets();
 }

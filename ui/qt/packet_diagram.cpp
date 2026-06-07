@@ -358,7 +358,7 @@ PacketDiagram::PacketDiagram(QWidget *parent) :
     // XXX Move to setMonospaceFont similar to ProtoTree
     layout_->setFont(font());
 
-    connect(mainApp, &MainApplication::appInitialized, this, &PacketDiagram::connectToMainWindow);
+    mainApp->whenInitialized(this, [this]() { connectToMainWindow(); });
     connect(FontManager::instance(), &FontManager::applicationFontChanged, this, &PacketDiagram::setFont);
     connect(ThemeManager::instance(), &ThemeManager::themeChanged, this, [this]() {
         resetScene(false);

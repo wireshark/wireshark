@@ -50,12 +50,10 @@ InterfaceTreeModel::InterfaceTreeModel(QObject *parent) :
     connect(mainApp, &MainApplication::appInitialized, this, &InterfaceTreeModel::interfaceListChanged);
 
     // Interface-list change notifications come from the window's
-    // InterfaceListManager. Connect now if the window is already up (dialog
-    // cache model), otherwise wait for appInitialized (welcome source model).
-    if (mainApp->isInitialized())
-        connectInterfaceListManager();
-    else
-        connect(mainApp, &MainApplication::appInitialized, this, &InterfaceTreeModel::connectInterfaceListManager);
+    // InterfaceListManager. Runs now if the window is already up (dialog cache
+    // model), otherwise once the app finishes initializing (welcome source
+    // model) -- whenInitialized() picks the right timing for us.
+    mainApp->whenInitialized(this, [this]() { connectInterfaceListManager(); });
 }
 
 InterfaceTreeModel::~InterfaceTreeModel(void)

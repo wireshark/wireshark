@@ -99,7 +99,7 @@ WelcomePage::WelcomePage(QWidget *parent) :
 
     welcome_ui_->openFileSectionRecentList->setTextElideMode(Qt::ElideLeft);
 
-    connect(mainApp, &MainApplication::appInitialized, this, &WelcomePage::appInitialized);
+    mainApp->whenInitialized(this, [this]() { appInitialized(); });
     connect(mainApp, &MainApplication::preferencesChanged, this, &WelcomePage::applySidebarPreferences);
 
     // "Capture" header click opens Capture Options dialog

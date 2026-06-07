@@ -135,11 +135,9 @@ InterfaceFrame::InterfaceFrame(QWidget * parent)
 
     // Interface-list change notifications come from the window's
     // InterfaceListManager. It may not exist yet when the welcome frame is
-    // built, so defer the connection to appInitialized in that case.
-    if (mainApp->isInitialized())
-        connectInterfaceListManager();
-    else
-        connect(mainApp, &MainApplication::appInitialized, this, &InterfaceFrame::connectInterfaceListManager);
+    // built; whenInitialized() connects now if the app is up, or defers to
+    // appInitialized otherwise.
+    mainApp->whenInitialized(this, [this]() { connectInterfaceListManager(); });
 
     connect(ui->interfaceTree->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &InterfaceFrame::interfaceTreeSelectionChanged);

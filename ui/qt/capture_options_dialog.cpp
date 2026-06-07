@@ -251,10 +251,7 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     connect(&interface_item_delegate_, &InterfaceTreeDelegate::filterChanged, ui->captureFilterComboBox, &QLineEdit::setText);
     connect(&interface_item_delegate_, &InterfaceTreeDelegate::filterChanged, this, &CaptureOptionsDialog::captureFilterTextEdited);
     connect(this, &CaptureOptionsDialog::ifsChanged, this, &CaptureOptionsDialog::refreshInterfaceList);
-    if (mainApp->isInitialized())
-        connectInterfaceListManager();
-    else
-        connect(mainApp, &MainApplication::appInitialized, this, &CaptureOptionsDialog::connectInterfaceListManager);
+    mainApp->whenInitialized(this, [this]() { connectInterfaceListManager(); });
     connect(ui->browseButton, &QPushButton::clicked, this, &CaptureOptionsDialog::browseButtonClicked);
     connect(ui->interfaceTree, &QTreeWidget::itemClicked, this, &CaptureOptionsDialog::itemClicked);
     connect(ui->interfaceTree, &QTreeWidget::itemDoubleClicked, this, &CaptureOptionsDialog::itemDoubleClicked);

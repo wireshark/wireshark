@@ -438,17 +438,7 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     //To prevent users use features before initialization complete
     //Otherwise unexpected problems may occur
     setFeaturesEnabled(false);
-    connect(mainApp, &MainApplication::appInitialized, this, [this]() { setFeaturesEnabled(); });
-    connect(mainApp, &MainApplication::appInitialized, this, &WiresharkMainWindow::applyGlobalCommandLineOptions);
-    connect(mainApp, &MainApplication::appInitialized, this, &WiresharkMainWindow::initViewColorizeMenu);
-    connect(mainApp, &MainApplication::appInitialized, this, &WiresharkMainWindow::addStatsPluginsToMenu);
-    connect(mainApp, &MainApplication::appInitialized, this, &WiresharkMainWindow::addDynamicMenus);
-    connect(mainApp, &MainApplication::appInitialized, this, &WiresharkMainWindow::addPluginIFStructures);
-    connect(mainApp, &MainApplication::appInitialized, this, &WiresharkMainWindow::initConversationMenus);
-    connect(mainApp, &MainApplication::appInitialized, this, &WiresharkMainWindow::initExportObjectsMenus);
-    connect(mainApp, &MainApplication::appInitialized, this, &WiresharkMainWindow::initFollowStreamMenus);
-    connect(mainApp, &MainApplication::appInitialized, this,
-            [=]() { addDisplayFilterTranslationActions(main_ui_->menuEditCopy); });
+    mainApp->whenInitialized(this, [this]() { onAppInitialized(); });
 
     connect(mainApp, &MainApplication::profileChanging, this, &WiresharkMainWindow::saveWindowGeometry);
     connect(mainApp, &MainApplication::preferencesChanged, this, &WiresharkMainWindow::layoutPanes);

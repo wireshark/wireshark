@@ -127,7 +127,7 @@ DisplayFilterEntry::DisplayFilterEntry(QWidget *parent) :
         recheck();
     });
 
-    connect(mainApp, &MainApplication::appInitialized, this, &DisplayFilterEntry::connectToMainWindow);
+    mainApp->whenInitialized(this, [this]() { connectToMainWindow(); });
 }
 
 void DisplayFilterEntry::connectToMainWindow()

@@ -204,7 +204,7 @@ DataSourceTab::DataSourceTab(QWidget *parent, epan_dissect_t *edt_fixed) :
     setMinimumSize(one_em, one_em);
 
     if (!edt_fixed) {
-        connect(mainApp, &MainApplication::appInitialized, this, &DataSourceTab::connectToMainWindow);
+        mainApp->whenInitialized(this, [this]() { connectToMainWindow(); });
     }
 }
 

@@ -87,11 +87,11 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
     connect(this, &DisplayFilterEdit::textChanged, this,
             static_cast<void (DisplayFilterEdit::*)(const QString &)>(&DisplayFilterEdit::checkFilter));
 
-    connect(mainApp, &MainApplication::appInitialized, this, &DisplayFilterEdit::updateBookmarkMenu);
+    mainApp->whenInitialized(this, [this]() { updateBookmarkMenu(); });
     connect(mainApp, &MainApplication::displayFilterListChanged, this, &DisplayFilterEdit::updateBookmarkMenu);
     connect(mainApp, &MainApplication::preferencesChanged, this, [=](){ checkFilter(); });
 
-    connect(mainApp, &MainApplication::appInitialized, this, &DisplayFilterEdit::connectToMainWindow);
+    mainApp->whenInitialized(this, [this]() { connectToMainWindow(); });
 }
 
 void DisplayFilterEdit::setType(DisplayFilterEditType type)
