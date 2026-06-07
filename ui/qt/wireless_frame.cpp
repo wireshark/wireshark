@@ -469,7 +469,7 @@ void WirelessFrame::setInterfaceInfo()
         center_freq_s = qstring_strdup(QString::number(center_freq));
     }
 
-    ret = sync_interface_set_80211_chan(global_capture_opts.app_name, cur_iface.toUtf8().constData(),
+    ret = sync_interface_set_80211_chan(cur_iface.toUtf8().constData(),
                                         QString::number(frequency).toUtf8().constData(), chan_type_s,
                                         center_freq_s, NULL,
                                         &data, &primary_msg, &secondary_msg, main_window_update);

@@ -85,7 +85,6 @@ sync_pipe_kill(ws_process_id fork_child);
  *  NULL, and -1 or errno value is returned; *primary_msg, and
  *  *secondary_msg if not NULL must be freed with g_free().
  *
- *  @param app_name Application name
  *  @param iface (monitor) network interface name
  *  @param freq channel control frequency string (in MHz)
  *  @param type channel type string (or NULL if not used)
@@ -98,7 +97,7 @@ sync_pipe_kill(ws_process_id fork_child);
  *  @return 0 on success
  */
 extern int
-sync_interface_set_80211_chan(const char* app_name, const char *iface, const char *freq, const char *type,
+sync_interface_set_80211_chan(const char *iface, const char *freq, const char *type,
                               const char *center_freq1, const char *center_freq2,
                               char **data, char **primary_msg,
                               char **secondary_msg, void (*update_cb)(void));
@@ -113,7 +112,6 @@ sync_interface_set_80211_chan(const char* app_name, const char *iface, const cha
  * without extensions that pcap_open_dead(3PCAP) produces. (However, it requires
  * permissions to open the device.)
  *
- *  @param app_name Application name
  *  @param ifname network interface name
  *  @param filter capture filter string
  *  @param linktype link layer type (-1 to use device default)
@@ -124,14 +122,13 @@ sync_interface_set_80211_chan(const char* app_name, const char *iface, const cha
  *  @param update_cb update callback
  */
 extern int
-sync_if_bpf_filter_open(const char* app_name, const char *ifname, const char* filter, int linktype,
+sync_if_bpf_filter_open(const char *ifname, const char* filter, int linktype,
                         bool optimize, char **data, char **primary_msg,
                         char **secondary_msg, void (*update_cb)(void));
 
 /**
  * @brief Get an interface list using dumpcap.
  *
- * @param app_name        Application name.
  * @param data            On success, set to dumpcap output; on failure, set to NULL.
  * @param primary_msg     On success NULL; on failure, set to an error message.
  * @param secondary_msg   On success NULL; on failure, set to an additional error message or NULL.
@@ -140,13 +137,12 @@ sync_if_bpf_filter_open(const char* app_name, const char *ifname, const char* fi
  * @return 0 on success, or -1/errno on failure.
  */
 extern int
-sync_interface_list_open(const char* app_name, char **data, char **primary_msg,
+sync_interface_list_open(char **data, char **primary_msg,
                          char **secondary_msg, void (*update_cb)(void));
 
 /**
  * @brief Get interface capabilities using dumpcap.
  *
- * @param app_name        Application name.
  * @param ifname          Interface name for which capabilities are requested.
  * @param monitor_mode    Whether to query capabilities in monitor mode.
  * @param auth            Authentication string, or NULL if unused.
@@ -158,14 +154,13 @@ sync_interface_list_open(const char* app_name, char **data, char **primary_msg,
  * @return 0 on success, or -1/errno on failure.
  */
 extern int
-sync_if_capabilities_open(const char* app_name, const char *ifname, bool monitor_mode, const char* auth,
+sync_if_capabilities_open(const char *ifname, bool monitor_mode, const char* auth,
                           char **data, char **primary_msg,
                           char **secondary_msg, void (*update_cb)(void));
 
 /**
  * @brief Start getting interface statistics using dumpcap.
  *
- * @param app_name Name of the application.
  * @param ifqueries List of interface queries.
  * @param data Pointer to store additional data.
  * @param primary_msg Pointer to store primary message.
@@ -174,14 +169,13 @@ sync_if_capabilities_open(const char* app_name, const char *ifname, bool monitor
  * @return Result code (-1 on error, otherwise on success).
  */
 extern int
-sync_if_list_capabilities_open(const char* app_name, GList *ifqueries,
+sync_if_list_capabilities_open(GList *ifqueries,
                           char **data, char **primary_msg,
                           char **secondary_msg, void (*update_cb)(void));
 
 /**
  * @brief Open an interface statistics stream using dumpcap.
  *
- * @param app_name    Application name.
  * @param read_fd     On success, set to a file descriptor for reading stats.
  * @param fork_child  On success, set to the PID of the dumpcap child process.
  * @param data        On success, initial dumpcap output; on failure, NULL.
@@ -191,7 +185,7 @@ sync_if_list_capabilities_open(const char* app_name, GList *ifqueries,
  * @return 0 on success, or -1/errno on failure.
  */
 extern int
-sync_interface_stats_open(const char* app_name, int *read_fd, ws_process_id *fork_child, char **data, char **msg, void (*update_cb)(void));
+sync_interface_stats_open(int *read_fd, ws_process_id *fork_child, char **data, char **msg, void (*update_cb)(void));
 
 /**
  * @brief Close an interface statistics stream previously opened with dumpcap.

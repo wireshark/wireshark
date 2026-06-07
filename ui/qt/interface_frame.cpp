@@ -237,7 +237,7 @@ void InterfaceFrame::scanLocalInterfaces(GList *filter_list)
     if (scan_mutex.tryLock()) {
         if (isVisible()) {
             source_model_.stopStatistic();
-            if_stat_cache_t * stat_cache = capture_interface_stat_start(&global_capture_opts, &if_list);
+            if_stat_cache_t * stat_cache = capture_interface_stat_start(&if_list);
             source_model_.setCache(stat_cache);
         }
         mainApp->setInterfaceList(if_list);

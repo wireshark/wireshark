@@ -52,10 +52,9 @@ static bool capture_opts_output_to_pipe(const char *save_file, bool *is_pipe);
 
 
 void
-capture_opts_init(capture_options *capture_opts, const char* app_name, GList *(*get_iface_list)(int *, char **))
+capture_opts_init(capture_options *capture_opts, GList *(*get_iface_list)(int *, char **))
 {
     capture_opts->get_iface_list                  = get_iface_list;
-    capture_opts->app_name                        = app_name;
     capture_opts->ifaces                          = g_array_new(FALSE, FALSE, sizeof(interface_options));
     capture_opts->all_ifaces                      = g_array_new(FALSE, FALSE, sizeof(interface_t));
     capture_opts->num_selected                    = 0;
@@ -241,7 +240,6 @@ capture_opts_log(const char *log_domain, enum ws_log_level log_level, capture_op
         ws_log(log_domain, log_level, "Timestamp type [%02d] : %s", i, interface_opts->timestamp_type);
     }
 
-    ws_log(log_domain, log_level, "Application name  : %s", capture_opts->app_name ? capture_opts->app_name : "(unspecified)");
     ws_log(log_domain, log_level, "Interface name[df]  : %s", capture_opts->default_options.name ? capture_opts->default_options.name : "(unspecified)");
     ws_log(log_domain, log_level, "Interface Descr[df] : %s", capture_opts->default_options.descr ? capture_opts->default_options.descr : "(unspecified)");
     ws_log(log_domain, log_level, "Interface Hardware Descr[df] : %s", capture_opts->default_options.hardware ? capture_opts->default_options.hardware : "(unspecified)");

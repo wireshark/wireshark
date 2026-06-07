@@ -254,7 +254,6 @@ typedef struct capture_options_tag {
                                                    when it was fetched, if any */
     char              *ifaces_err_info;       /**< error string for that error */
     unsigned           num_selected;
-    const char        *app_name;              /**< Application name that will be passed to dumpcap */
 
     /*
      * Options to be applied to all interfaces.
@@ -344,11 +343,10 @@ typedef struct capture_options_tag {
  * to waste time doing that if we don't have to.)
  *
  * @param capture_opts Pointer to the capture options structure to initialize.
- * @param app_name The application name that will be passed to dumpcap.
  * @param get_iface_list A function pointer to a routine that can be called to get the list of capture interfaces. This routine should return a GList of interface options and set the provided error parameters if it fails.
  */
 extern void
-capture_opts_init(capture_options *capture_opts, const char* app_name, GList *(*get_iface_list)(int *, char **));
+capture_opts_init(capture_options *capture_opts, GList *(*get_iface_list)(int *, char **));
 
 /* clean internal structures */
 

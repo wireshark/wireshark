@@ -5361,9 +5361,9 @@ main(int argc, char *argv[])
     /* Set the initial values in the capture options. This might be overwritten
        by the command line parameters. */
     if (strcmp(app_flavor_name, "stratoshark") == 0) {
-        capture_opts_init(&global_capture_opts, app_flavor_name, get_local_interface_list_ss);
+        capture_opts_init(&global_capture_opts, get_local_interface_list_ss);
     } else {
-        capture_opts_init(&global_capture_opts, app_flavor_name, get_local_interface_list_ws);
+        capture_opts_init(&global_capture_opts, get_local_interface_list_ws);
     }
     /* We always save to a file - if no file was specified, we save to a
        temporary file. */
