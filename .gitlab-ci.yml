@@ -1322,7 +1322,7 @@ Code Lines and Data:
     - build/run/tshark -G manuf | sed -e 's,:00:00:00/24,,' >> manuf
     - gzip --best --keep manuf
     - rclone config create wireshark $WS_RCLONE_REMOTE_OPTS > /dev/null
-    - if [ -n "$S3_DESTINATION_ANALYSIS" ] ; then rclone copy . "wireshark:$S3_DESTINATION_ANALYSIS" --include "cloc,scc,sloccount,tokei}.txt" ; fi
+    - if [ -n "$S3_DESTINATION_ANALYSIS" ] ; then rclone copy . "wireshark:$S3_DESTINATION_ANALYSIS" --include "{cloc,scc,sloccount,tokei}.txt" ; fi
     - if [ -n "$S3_DESTINATION_DATA" ] ; then rclone copy . "wireshark:$S3_DESTINATION_DATA" --include "manuf{,.gz}" ; fi
   artifacts:
     paths:
