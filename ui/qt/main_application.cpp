@@ -817,21 +817,27 @@ static void switchTranslator(QTranslator& myTranslator, const QLocale &locale, c
             return;
         }
     }
-    qWarning() << "Couldn't load translations!";
+    if (locale.language() != QLocale::C) {
+        /* Don't compare the locale itself, see:
+         * https://doc.qt.io/qt-6/qlocale.html#operator-eq-eq
+         *
+         * Note that the ordered list of languages that were tried is that of
+         * locale.uiLanguages(); the first language in that list is not
+         * necessarily locale.language(), especially on Windows (See #17221.)
+         */
+        qWarning() << "Couldn't load" << filename << "translations!" << "Searched:" << searchPath;
+    }
 }
 
 void MainApplication::loadLanguage(const QString newLanguage)
 {
     QLocale locale;
-    QString localeLanguage;
     const char* env_prefix = application_configuration_environment_prefix();
 
     if (newLanguage.isEmpty() || newLanguage == USE_SYSTEM_LANGUAGE) {
         locale = QLocale::system();
-        localeLanguage = locale.name();
     } else {
-        localeLanguage = newLanguage;
-        locale = QLocale(localeLanguage);
+        locale = QLocale(newLanguage);
     }
 
     QLocale::setDefault(locale);
