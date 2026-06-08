@@ -2205,7 +2205,7 @@ set_package_properties(Lua PROPERTIES
 )
 set_package_properties(CpuInfo PROPERTIES
 	DESCRIPTION "CPU INFOrmation library"
-	URL "https://https://github.com/pytorch/cpuinfo/"
+	URL "https://github.com/pytorch/cpuinfo/"
 	PURPOSE "Detect information about host CPU, e.g., for performance optimization"
 )
 

@@ -6,6 +6,9 @@
 #  CpuInfo_FOUND     - True if CpuInfo found.
 #
 # Note that the library is static only on Windows, there is no DLL.
+#
+# On macOS there is no package in homebrew, the library needs to be
+# built locally and will be found under /usr/local
 
 include( FindWSWinLibs )
 FindWSWinLibs( "cpuinfo-.*" "CPUINFO_HINTS" )
