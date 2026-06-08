@@ -1073,7 +1073,7 @@ print_statistics_loop(bool machine_readable)
 
     if (!stat_list) {
         cmdarg_err("There are no interfaces on which a capture can be done");
-        return 2;
+        return WS_EXIT_NO_INTERFACES;
     }
 
     if (capture_child) {
@@ -5738,7 +5738,7 @@ main(int argc, char *argv[])
                 if (!machine_readable) {
                     cmdarg_err("There are no interfaces on which a capture can be done");
                     exit_main();
-                    return WS_EXIT_INVALID_INTERFACE;
+                    return WS_EXIT_NO_INTERFACES;
                 }
             } else {
                 cmdarg_err("%s", err_str);
