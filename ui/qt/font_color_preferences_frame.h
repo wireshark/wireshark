@@ -61,11 +61,6 @@ private:
     /** Pointer to the generated UI elements. */
     Ui::FontColorPreferencesFrame *ui;
 
-    /** Combo box for selecting the overall color scheme. */
-    QComboBox *colorSchemeComboBox_;
-
-    QComboBox *themeComboBox_;
-
     QString    stashed_theme_name_;
 
     /**
@@ -77,9 +72,6 @@ private:
 
     /** Preference for the Qt GUI font name. */
     pref_t *pref_qt_gui_font_name_;
-
-    /** Hand-painted theme mockup driven by ThemeManager::previewTheme(). */
-    ThemePreviewWidget *previewWidget_ = nullptr;
 
     /** The currently selected font. */
     QFont cur_font_;

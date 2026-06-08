@@ -689,11 +689,13 @@ ThemeManager::previewTheme(const QString &internalName, PreviewScheme scheme) co
     // the mode-correct previewPalette built above so the preview tracks the
     // requested light/dark choice regardless of what the theme overrides.
     const struct { ThemeToken token; QPalette::ColorRole role; } paletteTokens[] = {
-        { PaletteBase,       QPalette::Base       },
-        { PaletteWindow,     QPalette::Window     },
-        { PaletteText,       QPalette::Text       },
-        { PaletteWindowText, QPalette::WindowText },
-        { PaletteMid,        QPalette::Mid        },
+        { PaletteBase,          QPalette::Base          },
+        { PaletteWindow,        QPalette::Window        },
+        { PaletteText,          QPalette::Text          },
+        { PaletteWindowText,    QPalette::WindowText    },
+        { PaletteMid,           QPalette::Mid           },
+        { PaletteAlternateBase, QPalette::AlternateBase },
+        { PaletteMidLight,      QPalette::Midlight      },
     };
     for (const auto &pt : paletteTokens) {
         if (!out.value(pt.token).isValid())
