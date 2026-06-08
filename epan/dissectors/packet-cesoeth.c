@@ -1,9 +1,9 @@
 /* packet-cesoeth.c
  * Dissection of Circuit Emulation Service over Ethernet (MEF 8)
- * www.mef.net
+ * www.mplify.net
  *
  * Copyright 2018, AimValley B.V.
- * Jaap Keuter <jkeuter@aimvalley.nl>
+ * Jaap Keuter <jaap.keuter@aimvalley.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -16,6 +16,8 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/decode_as.h>
+#include <epan/proto_data.h>
 #include <epan/expert.h>
 #include <epan/etypes.h>
 #include "packet-rtp.h"
@@ -24,6 +26,8 @@ void proto_register_cesoeth(void);
 void proto_reg_handoff_cesoeth(void);
 
 static dissector_handle_t cesoeth_handle;
+
+static dissector_table_t cesoeth_dissector_table;
 
 static int proto_cesoeth;
 static int hf_cesoeth_pw_ecid;
@@ -100,6 +104,18 @@ static const value_string l1_m_names[] =
 static bool has_rtp_header;
 static bool heuristic_rtp_header = true;
 
+static void cesoeth_ecid_prompt(packet_info *pinfo, char* result)
+{
+    uint32_t *ecid = (uint32_t *)p_get_proto_data(pinfo->pool, pinfo, proto_cesoeth, pinfo->curr_layer_num);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "ECID 0x%05x as", *ecid);
+}
+
+static void *cesoeth_ecid_value(packet_info *pinfo)
+{
+    uint32_t *ecid = (uint32_t *)p_get_proto_data(pinfo->pool, pinfo, proto_cesoeth, pinfo->curr_layer_num);
+    return GUINT_TO_POINTER(*ecid);
+}
+
 
 static int
 dissect_cesoeth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -108,7 +124,8 @@ dissect_cesoeth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     proto_item  *cesoeth_ti;
     proto_item  *bitmask_ti;
     int         offset = 0;
-    uint32_t    ecid, reserved;
+    uint32_t    *ecid = wmem_new(pinfo->pool, uint32_t);
+    uint32_t    reserved;
     bool        l_bit, r_bit;
     uint8_t     m_bits, frg;
     int         cw_len, padding_len, tail_len, payload_len;
@@ -121,12 +138,18 @@ dissect_cesoeth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     cesoeth_ti = proto_tree_add_item(tree, proto_cesoeth, tvb, 0, -1, ENC_NA);
     cesoeth_tree = proto_item_add_subtree(cesoeth_ti, ett_cesoeth);
 
-    proto_tree_add_item_ret_uint(cesoeth_tree, hf_cesoeth_pw_ecid, tvb, offset, 4, ENC_BIG_ENDIAN, &ecid);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "ECID: 0x%05x", ecid);
+    proto_tree_add_item_ret_uint(cesoeth_tree, hf_cesoeth_pw_ecid, tvb, offset, 4, ENC_BIG_ENDIAN, ecid);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "ECID: 0x%05x", *ecid);
+    p_add_proto_data(pinfo->pool, pinfo, proto_cesoeth, pinfo->curr_layer_num, ecid);
     bitmask_ti = proto_tree_add_item_ret_uint(cesoeth_tree, hf_cesoeth_pw_res, tvb, offset, 4, ENC_BIG_ENDIAN, &reserved);
     if (reserved != 0x102)
         expert_add_info_format(pinfo, bitmask_ti, &ei_cesoeth_reserved, "Reserved field must be 0x102");
     offset += 4;
+
+    next_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length_remaining(tvb, offset));
+    payload_len = dissector_try_uint(cesoeth_dissector_table, *ecid, next_tvb, pinfo, tree);
+    if (payload_len)
+        return payload_len;
 
     /*
      * CES header control word
@@ -314,6 +337,13 @@ proto_register_cesoeth(void)
               "Length field", EXPFILL }}
     };
 
+    /* Decode As handling */
+    static build_valid_func cesoeth_ecid_da_build_value[1] = {cesoeth_ecid_value};
+    static decode_as_value_t cesoeth_ecid_da_values = {cesoeth_ecid_prompt, 1, cesoeth_ecid_da_build_value};
+    static decode_as_t cesoeth_ecid_da = {"cesoeth", "cesoeth.ecid", 1, 0, &cesoeth_ecid_da_values, NULL, NULL,
+                                          decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change,
+                                          NULL, NULL, NULL};
+
     module_t *cesoeth_module;
     expert_module_t* expert_cesoeth;
 
@@ -322,6 +352,10 @@ proto_register_cesoeth(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_cesoeth = expert_register_protocol(proto_cesoeth);
     expert_register_field_array(expert_cesoeth, ei, array_length(ei));
+
+    cesoeth_dissector_table = register_dissector_table("cesoeth.ecid", "ECID",
+                                                       proto_cesoeth, FT_UINT24, BASE_HEX);
+    register_decode_as(&cesoeth_ecid_da);
 
     cesoeth_module = prefs_register_protocol(proto_cesoeth, NULL);
 

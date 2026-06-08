@@ -155,7 +155,7 @@ dissect_ple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     }
     else
     {
-        unsigned ple_seq = cw_seq;
+        uint32_t ple_seq = cw_seq;
 
         if (((pref_seq_size == PREF_SEQ_SIZE_AUTO) && (cw_seq != rtp_info.info_seq_num)) ||
             (pref_seq_size == PREF_SEQ_SIZE_32))
@@ -183,7 +183,7 @@ dissect_ple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             }
         }
 
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, "; ", "RTP PT: %u, SSRC: 0x%X, Seq: %u, Time=%u",
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, "; ", "RTP PT: %u, SSRC: 0x%08X, Seq: %u, Time=%u",
                             rtp_info.info_payload_type,
                             rtp_info.info_sync_src,
                             rtp_info.info_seq_num,
@@ -281,6 +281,7 @@ proto_reg_handoff_ple(void)
 {
     dissector_add_for_decode_as("mpls.label", ple_handle);
     dissector_add_for_decode_as("mpls.pfn", ple_handle);
+    dissector_add_for_decode_as("cesoeth.ecid", ple_handle);
     dissector_add_for_decode_as("ethertype", ple_handle);
     dissector_add_for_decode_as("udp.port", ple_handle);
 
