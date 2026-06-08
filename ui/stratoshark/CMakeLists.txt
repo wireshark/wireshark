@@ -846,12 +846,6 @@ qt_add_resources(STRATOSHARK_QT_QRC
 	OPTIONS ${CMAKE_AUTORCC_OPTIONS}
 )
 
-qt_add_lrelease(
-	TS_FILES ${STRATOSHARK_QT_TS}
-	QM_FILES_OUTPUT_VARIABLE STRATOSHARK_QT_QM
-	OPTIONS -silent
-)
-
 set_source_files_properties(
 	${STRATOSHARK_QT_FILES}
 	PROPERTIES
@@ -947,6 +941,12 @@ set_target_properties(ui_stratoshark PROPERTIES
 	AUTOUIC ON
 	# AUTORCC not needed with qt_add_resources
 	#AUTORCC ON
+)
+
+qt_add_lrelease(ui_stratoshark
+	TS_FILES ${STRATOSHARK_QT_TS}
+	QM_FILES_OUTPUT_VARIABLE STRATOSHARK_QT_QM
+	OPTIONS -silent
 )
 
 # Translation resource (i18n)
