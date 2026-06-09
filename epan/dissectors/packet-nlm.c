@@ -813,7 +813,7 @@ static const vsff nlm1_proc[] = {
 	{ 0,			NULL,
 		NULL,				NULL }
 };
-static const value_string nlm1_proc_vals[] = {
+static const value_string nlm1_2_proc_vals[] = {
 	{ NLM_NULL,		"NULL" },
 	{ NLM_TEST,		"TEST" },
 	{ NLM_LOCK,		"LOCK" },
@@ -871,25 +871,6 @@ static const vsff nlm2_proc[] = {
 	{ 0,			NULL,
 		NULL,				NULL }
 };
-static const value_string nlm2_proc_vals[] = {
-	{ NLM_NULL,		"NULL" },
-	{ NLM_TEST,		"TEST" },
-	{ NLM_LOCK,		"LOCK" },
-	{ NLM_CANCEL,		"CANCEL" },
-	{ NLM_UNLOCK,		"UNLOCK" },
-	{ NLM_GRANTED,		"GRANTED" },
-	{ NLM_TEST_MSG,		"TEST_MSG" },
-	{ NLM_LOCK_MSG,		"LOCK_MSG" },
-	{ NLM_CANCEL_MSG,	"CANCEL_MSG" },
-	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG" },
-	{ NLM_GRANTED_MSG,	"GRANTED_MSG" },
-	{ NLM_TEST_RES,		"TEST_RES" },
-	{ NLM_LOCK_RES,		"LOCK_RES" },
-	{ NLM_CANCEL_RES,	"CANCEL_RES" },
-	{ NLM_UNLOCK_RES,	"UNLOCK_RES" },
-	{ NLM_GRANTED_RES,	"GRANTED_RES" },
-	{ 0,			NULL }
-};
 /* end of NLM protocol version 2 */
 
 /* NLM protocol version 3 */
@@ -937,7 +918,7 @@ static const vsff nlm3_proc[] = {
 	{ 0,			NULL,
 		NULL,				NULL }
 };
-static const value_string nlm3_proc_vals[] = {
+static const value_string nlm3_4_proc_vals[] = {
 	{ NLM_NULL,		"NULL" },
 	{ NLM_TEST,		"TEST" },
 	{ NLM_LOCK,		"LOCK" },
@@ -1008,29 +989,6 @@ static const vsff nlm4_proc[] = {
 	{ 0,			NULL,
 		NULL,				NULL }
 };
-static const value_string nlm4_proc_vals[] = {
-	{ NLM_NULL,		"NULL" },
-	{ NLM_TEST,		"TEST" },
-	{ NLM_LOCK,		"LOCK" },
-	{ NLM_CANCEL,		"CANCEL" },
-	{ NLM_UNLOCK,		"UNLOCK" },
-	{ NLM_GRANTED,		"GRANTED" },
-	{ NLM_TEST_MSG,		"TEST_MSG" },
-	{ NLM_LOCK_MSG,		"LOCK_MSG" },
-	{ NLM_CANCEL_MSG,	"CANCEL_MSG" },
-	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG" },
-	{ NLM_GRANTED_MSG,	"GRANTED_MSG" },
-	{ NLM_TEST_RES,		"TEST_RES" },
-	{ NLM_LOCK_RES,		"LOCK_RES" },
-	{ NLM_CANCEL_RES,	"CANCEL_RES" },
-	{ NLM_UNLOCK_RES,	"UNLOCK_RES" },
-	{ NLM_GRANTED_RES,	"GRANTED_RES" },
-	{ NLM_SHARE,		"SHARE" },
-	{ NLM_UNSHARE,		"UNSHARE" },
-	{ NLM_NM_LOCK,		"NM_LOCK" },
-	{ NLM_FREE_ALL,		"FREE_ALL" },
-	{ 0,			NULL }
-};
 /* end of NLM protocol version 4 */
 
 static const rpc_prog_vers_info nlm_vers_info[] = {
@@ -1046,16 +1004,16 @@ proto_register_nlm(void)
 	static hf_register_info hf[] = {
 		{ &hf_nlm_procedure_v1, {
 			"V1 Procedure", "nlm.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(nlm1_proc_vals), 0, NULL, HFILL }},
+			VALS(nlm1_2_proc_vals), 0, NULL, HFILL }},
 		{ &hf_nlm_procedure_v2, {
 			"V2 Procedure", "nlm.procedure_v2", FT_UINT32, BASE_DEC,
-			VALS(nlm2_proc_vals), 0, NULL, HFILL }},
+			VALS(nlm1_2_proc_vals), 0, NULL, HFILL }},
 		{ &hf_nlm_procedure_v3, {
 			"V3 Procedure", "nlm.procedure_v3", FT_UINT32, BASE_DEC,
-			VALS(nlm3_proc_vals), 0, NULL, HFILL }},
+			VALS(nlm3_4_proc_vals), 0, NULL, HFILL }},
 		{ &hf_nlm_procedure_v4, {
 			"V4 Procedure", "nlm.procedure_v4", FT_UINT32, BASE_DEC,
-			VALS(nlm4_proc_vals), 0, NULL, HFILL }},
+			VALS(nlm3_4_proc_vals), 0, NULL, HFILL }},
 		{ &hf_nlm_cookie, {
 			"cookie", "nlm.cookie", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},

@@ -41,7 +41,7 @@ static const vsff rstat1_proc[] = {
 		dissect_rpc_unknown,	dissect_rpc_unknown },
 	{ 0,	NULL,	NULL,	NULL }
 };
-static const value_string rstat1_proc_vals[] = {
+static const value_string rstat_proc_vals[] = {
 	{ RSTATPROC_NULL,	"NULL" },
 	{ RSTATPROC_STATS,	"STATS" },
 	{ RSTATPROC_HAVEDISK,	"HAVEDISK" },
@@ -57,12 +57,6 @@ static const vsff rstat2_proc[] = {
 		dissect_rpc_unknown,	dissect_rpc_unknown },
 	{ 0,	NULL,	NULL,	NULL }
 };
-static const value_string rstat2_proc_vals[] = {
-	{ RSTATPROC_NULL,	"NULL" },
-	{ RSTATPROC_STATS,	"STATS" },
-	{ RSTATPROC_HAVEDISK,	"HAVEDISK" },
-	{ 0,	NULL }
-};
 
 static const vsff rstat3_proc[] = {
 	{ RSTATPROC_NULL,	"NULL",
@@ -73,12 +67,6 @@ static const vsff rstat3_proc[] = {
 		dissect_rpc_unknown,	dissect_rpc_unknown },
 	{ 0,	NULL,	NULL,	NULL }
 };
-static const value_string rstat3_proc_vals[] = {
-	{ RSTATPROC_NULL,	"NULL" },
-	{ RSTATPROC_STATS,	"STATS" },
-	{ RSTATPROC_HAVEDISK,	"HAVEDISK" },
-	{ 0,	NULL }
-};
 
 static const vsff rstat4_proc[] = {
 	{ RSTATPROC_NULL,	"NULL",
@@ -88,12 +76,6 @@ static const vsff rstat4_proc[] = {
 	{ RSTATPROC_HAVEDISK,	"HAVEDISK",
 		dissect_rpc_unknown,	dissect_rpc_unknown },
 	{ 0,	NULL,	NULL,	NULL }
-};
-static const value_string rstat4_proc_vals[] = {
-	{ RSTATPROC_NULL,	"NULL" },
-	{ RSTATPROC_STATS,	"STATS" },
-	{ RSTATPROC_HAVEDISK,	"HAVEDISK" },
-	{ 0,	NULL }
 };
 
 static const rpc_prog_vers_info rstat_vers_info[] = {
@@ -109,16 +91,16 @@ proto_register_rstat(void)
 	static hf_register_info hf[] = {
 		{ &hf_rstat_procedure_v1, {
 			"V1 Procedure", "rstat.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(rstat1_proc_vals), 0, NULL, HFILL }},
+			VALS(rstat_proc_vals), 0, NULL, HFILL }},
 		{ &hf_rstat_procedure_v2, {
 			"V2 Procedure", "rstat.procedure_v2", FT_UINT32, BASE_DEC,
-			VALS(rstat2_proc_vals), 0, NULL, HFILL }},
+			VALS(rstat_proc_vals), 0, NULL, HFILL }},
 		{ &hf_rstat_procedure_v3, {
 			"V3 Procedure", "rstat.procedure_v3", FT_UINT32, BASE_DEC,
-			VALS(rstat3_proc_vals), 0, NULL, HFILL }},
+			VALS(rstat_proc_vals), 0, NULL, HFILL }},
 		{ &hf_rstat_procedure_v4, {
 			"V4 Procedure", "rstat.procedure_v4", FT_UINT32, BASE_DEC,
-			VALS(rstat4_proc_vals), 0, NULL, HFILL }}
+			VALS(rstat_proc_vals), 0, NULL, HFILL }}
 	};
 
 	static int *ett[] = {

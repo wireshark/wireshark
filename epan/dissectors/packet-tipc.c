@@ -390,7 +390,7 @@ static const value_string tipcv2_error_code_short_strings[] = {
 	{ 0, NULL}
 };
 
-static const value_string tipcv2_lookup_scope_strings[] = {
+static const value_string tipcv2_lookup_or_dist_scope_strings[] = {
 	{ 0, "Zone Scope"},
 	{ 1, "Cluster Scope"},
 	{ 2, "Node Scope"},
@@ -515,13 +515,6 @@ static const value_string tipcv2_dist_dist_strings[] = {
 	{ 5, "To Cluster and Network"},
 	{ 6, "To Zone and Network"},
 	{ 7, "To Cluster, Zone and Network"},
-	{ 0, NULL}
-};
-
-static const value_string tipcv2_dist_scope_strings[] = {
-	{ 0, "Zone Scope"},
-	{ 1, "Cluster Scope"},
-	{ 2, "Node Scope"},
 	{ 0, NULL}
 };
 
@@ -2782,7 +2775,7 @@ proto_register_tipc(void)
 		},
 		{ &hf_tipcv2_lookup_scope,
 			{ "Lookup Scope", "tipcv2.lookup_scope",
-				FT_UINT32, BASE_DEC, VALS(tipcv2_lookup_scope_strings), 0x00180000,
+				FT_UINT32, BASE_DEC, VALS(tipcv2_lookup_or_dist_scope_strings), 0x00180000,
 				NULL, HFILL }
 		},
 		{ &hf_tipcv2_opt_p,
@@ -3054,7 +3047,7 @@ proto_register_tipc(void)
 		},
 		{ &hf_tipcv2_dist_scope,
 			{ "Route Distributor Scope", "tipcv2.dist_scope",
-				FT_UINT32, BASE_DEC, VALS(tipcv2_dist_scope_strings), 0x0000000f,
+				FT_UINT32, BASE_DEC, VALS(tipcv2_lookup_or_dist_scope_strings), 0x0000000f,
 				NULL, HFILL }
 		},
 		{ &hf_tipcv2_name_dist_port_id_node,

@@ -325,7 +325,7 @@ static const vsff portmap1_proc[] = {
 	{ PORTMAPPROC_CALLIT,	"CALLIT",	dissect_rpc_unknown,	dissect_rpc_unknown },
 	{ 0,			NULL,		NULL,	NULL }
 };
-static const value_string portmap1_proc_vals[] = {
+static const value_string portmap_proc_vals[] = {
 	{ PORTMAPPROC_NULL,	"NULL" },
 	{ PORTMAPPROC_SET,	"SET" },
 	{ PORTMAPPROC_UNSET,	"UNSET" },
@@ -350,15 +350,6 @@ static const vsff portmap2_proc[] = {
 	{ PORTMAPPROC_CALLIT, "CALLIT",
 		dissect_callit_call, dissect_callit_reply },
 	{ 0, NULL, NULL, NULL }
-};
-static const value_string portmap2_proc_vals[] = {
-	{ PORTMAPPROC_NULL, "NULL" },
-	{ PORTMAPPROC_SET, "SET" },
-	{ PORTMAPPROC_UNSET, "UNSET" },
-	{ PORTMAPPROC_GETPORT,	"GETPORT" },
-	{ PORTMAPPROC_DUMP, "DUMP" },
-	{ PORTMAPPROC_CALLIT, "CALLIT" },
-	{ 0, NULL }
 };
 /* end of Portmap version 2 */
 
@@ -544,10 +535,10 @@ proto_register_portmap(void)
 	static hf_register_info hf[] = {
 		{ &hf_portmap_procedure_v1, {
 			"V1 Procedure", "portmap.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(portmap1_proc_vals), 0, NULL, HFILL }},
+			VALS(portmap_proc_vals), 0, NULL, HFILL }},
 		{ &hf_portmap_procedure_v2, {
 			"V2 Procedure", "portmap.procedure_v2", FT_UINT32, BASE_DEC,
-			VALS(portmap2_proc_vals), 0, NULL, HFILL }},
+			VALS(portmap_proc_vals), 0, NULL, HFILL }},
 		{ &hf_portmap_procedure_v3, {
 			"V3 Procedure", "portmap.procedure_v3", FT_UINT32, BASE_DEC,
 			VALS(portmap3_proc_vals), 0, NULL, HFILL }},

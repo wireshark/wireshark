@@ -498,7 +498,7 @@ static const vsff ypserv1_proc[] = {
 	{ 0, NULL, NULL, NULL }
 };
 
-static const value_string ypserv1_proc_vals[] = {
+static const value_string ypserv_proc_vals[] = {
 	{ YPPROC_DOMAIN,        "DOMAIN" },
 	{ YPPROC_DOMAIN_NONACK, "DOMAIN_NONACK" },
 	{ YPPROC_MATCH,         "MATCH" },
@@ -545,20 +545,6 @@ static const vsff ypserv2_proc[] = {
 	{ 0, NULL, NULL, NULL }
 };
 
-static const value_string ypserv2_proc_vals[] = {
-	{ YPPROC_DOMAIN,	"DOMAIN" },
-	{ YPPROC_DOMAIN_NONACK, "DOMAIN_NONACK" },
-	{ YPPROC_MATCH,		"MATCH" },
-	{ YPPROC_FIRST,		"FIRST" },
-	{ YPPROC_NEXT,		"NEXT" },
-	{ YPPROC_XFR,		"XFR" },
-	{ YPPROC_CLEAR,		"CLEAR" },
-	{ YPPROC_ALL,		"ALL" },
-	{ YPPROC_MASTER,	"MASTER" },
-	{ YPPROC_ORDER,		"ORDER" },
-	{ YPPROC_MAPLIST,	"MAPLIST" },
-	{ 0, NULL }
-};
 
 /* end of YPServ version 2 */
 
@@ -574,10 +560,10 @@ proto_register_ypserv(void)
 	static hf_register_info hf[] = {
 		{ &hf_ypserv_procedure_v1, {
 			"V1 Procedure", "ypserv.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(ypserv1_proc_vals), 0, NULL, HFILL }},
+			VALS(ypserv_proc_vals), 0, NULL, HFILL }},
 		{ &hf_ypserv_procedure_v2, {
 			"V2 Procedure", "ypserv.procedure_v2", FT_UINT32, BASE_DEC,
-			VALS(ypserv2_proc_vals), 0, NULL, HFILL }},
+			VALS(ypserv_proc_vals), 0, NULL, HFILL }},
 		{ &hf_ypserv_domain, {
 			"Domain", "ypserv.domain", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},

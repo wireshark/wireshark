@@ -1003,7 +1003,7 @@ static const value_string mpeg_descr_satellite_delivery_modulation_type_vals[] =
     { 0x0, NULL }
 };
 
-static const value_string mpeg_descr_satellite_delivery_fec_inner_vals[] = {
+static const value_string mpeg_descr_delivery_fec_inner_vals[] = {
     { 0x0, "Not defined" },
     { 0x1, "1/2 convolutional code rate" },
     { 0x2, "2/3 convolutional code rate" },
@@ -1019,7 +1019,7 @@ static const value_string mpeg_descr_satellite_delivery_fec_inner_vals[] = {
     { 0x0, NULL }
 };
 static value_string_ext mpeg_descr_satellite_delivery_fec_inner_vals_ext =
-    VALUE_STRING_EXT_INIT(mpeg_descr_satellite_delivery_fec_inner_vals);
+    VALUE_STRING_EXT_INIT(mpeg_descr_delivery_fec_inner_vals);
 
 static void
 proto_mpeg_descriptor_dissect_satellite_delivery(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
@@ -1099,22 +1099,7 @@ static const value_string mpeg_descr_cable_delivery_modulation_vals[] = {
     { 0x0, NULL }
 };
 
-static const value_string mpeg_descr_cable_delivery_fec_inner_vals[] = {
-    { 0x0, "Not defined" },
-    { 0x1, "1/2 convolutional code rate" },
-    { 0x2, "2/3 convolutional code rate" },
-    { 0x3, "3/4 convolutional code rate" },
-    { 0x4, "5/6 convolutional code rate" },
-    { 0x5, "7/8 convolutional code rate" },
-    { 0x6, "8/9 convolutional code rate" },
-    { 0x7, "3/5 convolutional code rate" },
-    { 0x8, "4/5 convolutional code rate" },
-    { 0x9, "9/10 convolutional code rate" },
-    { 0xF, "No convolutional coding" },
-
-    { 0x0, NULL }
-};
-static value_string_ext mpeg_descr_cable_delivery_fec_inner_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_cable_delivery_fec_inner_vals);
+static value_string_ext mpeg_descr_cable_delivery_fec_inner_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_delivery_fec_inner_vals);
 
 static void
 proto_mpeg_descriptor_dissect_cable_delivery(tvbuff_t *tvb, unsigned offset, proto_tree *tree) {

@@ -127,7 +127,7 @@ static const vsff ypbind1_proc[] = {
 	{ YPBINDPROC_SETDOM,	"SETDOMAIN",	dissect_rpc_unknown,	dissect_rpc_unknown },
 	{ 0,			NULL,		NULL,	NULL }
 };
-static const value_string ypbind1_proc_vals[] = {
+static const value_string ypbind_proc_vals[] = {
 	{ YPBINDPROC_NULL,	"NULL" },
 	{ YPBINDPROC_DOMAIN,	"DOMAIN" },
 	{ YPBINDPROC_SETDOM,	"SETDOMAIN" },
@@ -144,12 +144,6 @@ static const vsff ypbind2_proc[] = {
 		dissect_ypbind_setdomain_v2_request, dissect_rpc_void },
 	{ 0,    		NULL,       	NULL,	NULL }
 };
-static const value_string ypbind2_proc_vals[] = {
-	{ YPBINDPROC_NULL,	"NULL" },
-	{ YPBINDPROC_DOMAIN,	"DOMAIN" },
-	{ YPBINDPROC_SETDOM,	"SETDOMAIN" },
-	{ 0,    NULL }
-};
 /* end of YPBind version 2 */
 
 
@@ -164,10 +158,10 @@ proto_register_ypbind(void)
 	static hf_register_info hf[] = {
 		{ &hf_ypbind_procedure_v1, {
 			"V1 Procedure", "ypbind.procedure_v1", FT_UINT32, BASE_DEC,
-			VALS(ypbind1_proc_vals), 0, NULL, HFILL }},
+			VALS(ypbind_proc_vals), 0, NULL, HFILL }},
 		{ &hf_ypbind_procedure_v2, {
 			"V2 Procedure", "ypbind.procedure_v2", FT_UINT32, BASE_DEC,
-			VALS(ypbind2_proc_vals), 0, NULL, HFILL }},
+			VALS(ypbind_proc_vals), 0, NULL, HFILL }},
 		{ &hf_ypbind_domain, {
 			"Domain", "ypbind.domain", FT_STRING, BASE_NONE,
 			NULL, 0, "Name of the NIS/YP Domain", HFILL }},
