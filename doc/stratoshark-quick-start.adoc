@@ -62,14 +62,14 @@ FALCO_PLUGINS:: Semicolon-separated paths to individual Falco plugins, e.g. `/pa
 .Example 1: Building on Linux using Make
 [sh]
 ----
-# This assumes that falcosecurity-libs and the CloudTrail plugin were installed in
-# `/opt/falco-libs/0.18.1`.
+# $WIRESHARK_BASE_DIR should be replaced with your third party library prefix as described in the Wireshark Developer's Guide.
 cmake \
   -DBUILD_stratoshark=ON \
   -DBUILD_falcodump=ON \
   -DBUILD_dumpcalls=ON \
-  -DCMAKE_PREFIX_PATH=/opt/falco-libs/0.18.1 \
-  -DFALCO_PLUGINS=/opt/falco-libs/0.18.1/lib/falcosecurity/plugins/libcloudtrail.so \
+  -DFALCO_PLUGIN_DIR="$WIRESHARK_BASE_DIR/wireshark-x64-libs/falcosecurity-plugins-2026-03-16-2-arm64-ws"
+  -DFALCO_PLUGINS="cloudtrail.dll;gcpaudit.dll;k8saudit.dll"
+  -DFALCO_PLUGIN_DLLS="libunwind.dll"
   ..
 make -j $(getconf _NPROCESSORS_ONLN)
 ----

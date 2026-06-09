@@ -195,6 +195,7 @@ workflow:
     AQT_ARCH: "msvc2022_64"
     VCVARS_ARCH: "64"
     WIRESHARK_BASE_DIR: "$CI_PROJECT_DIR\\.."
+    FALCO_PLUGIN_DIR: "$WIRESHARK_BASE_DIR/wireshark-x64-libs/falcosecurity-plugins-2026-03-16-2-x64-ws"
   stage: build
   retry: 1
   before_script:
@@ -274,7 +275,9 @@ workflow:
     - cmake --preset=ninja_ccache
       -DWIRESHARK_BASE_DIR=$WIRESHARK_BASE_DIR
       -DBUILD_stratoshark=on
-      -DFALCO_PLUGINS="$FALCO_PLUGIN_DIR/libcloudtrail.so;$FALCO_PLUGIN_DIR/libgcpaudit.so;$FALCO_PLUGIN_DIR/libk8saudit.so"
+      -DFALCO_PLUGIN_DIR="$FALCO_PLUGIN_DIR"
+      -DFALCO_PLUGINS="libcloudtrail.so;libgcpaudit.so;libk8saudit.so"
+      -DTEST_EXTRA_ARGS="--enable-stratoshark"
       ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
@@ -540,7 +543,8 @@ Arch Linux :
     - cd build
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -G Ninja -DBUILD_stratoshark=on
-      -DFALCO_PLUGINS="/tmp/falco-plugins/plugins/cloudtrail/libcloudtrail.so;/tmp/falco-plugins/plugins/gcpaudit/libgcpaudit.so;/tmp/falco-plugins/plugins/k8saudit/libk8saudit.so"
+      -DFALCO_PLUGIN_DIR="/tmp/falco-plugins/plugins"
+      -DFALCO_PLUGINS="libcloudtrail.so;libgcpaudit.so;libk8saudit.so"
       -DCMAKE_INSTALL_PREFIX=$WIRESHARK_PREFIX ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
@@ -554,8 +558,6 @@ Arch Linux :
       - $CI_PROJECT_DIR/wireshark-arch-*.tar.xz
 
 Windows x64 Package:
-  variables:
-    FALCO_PLUGIN_DIR: "$WIRESHARK_BASE_DIR/wireshark-x64-libs/falcosecurity-plugins-2026-03-16-2-x64-ws"
   extends: .build-windows
   rules: !reference [.if-w-w-only-merged]
   tags:
@@ -567,8 +569,9 @@ Windows x64 Package:
     - cmake -G "Visual Studio 18 2026" -A x64
       -DENABLE_LTO=off
       -DBUILD_stratoshark=on
-      -DFALCO_PLUGINS="$FALCO_PLUGIN_DIR/cloudtrail.dll;$FALCO_PLUGIN_DIR/gcpaudit.dll;$FALCO_PLUGIN_DIR/k8saudit.dll"
-      -DFALCO_PLUGIN_DLLS="$FALCO_PLUGIN_DIR/libunwind.dll"
+      -DFALCO_PLUGIN_DIR="$FALCO_PLUGIN_DIR"
+      -DFALCO_PLUGINS="cloudtrail.dll;gcpaudit.dll;k8saudit.dll"
+      -DFALCO_PLUGIN_DLLS="libunwind.dll"
       -DENABLE_SIGNED_NSIS=on ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.slnx
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
@@ -620,8 +623,9 @@ Windows Arm64 Package:
     - cmake -G "Visual Studio 18 2026" -A arm64
       -DENABLE_LTO=off
       -DBUILD_stratoshark=on
-      -DFALCO_PLUGINS="$FALCO_PLUGIN_DIR/cloudtrail.dll;$FALCO_PLUGIN_DIR/gcpaudit.dll;$FALCO_PLUGIN_DIR/k8saudit.dll"
-      -DFALCO_PLUGIN_DLLS="$FALCO_PLUGIN_DIR/libunwind.dll"
+      -DFALCO_PLUGIN_DIR="$FALCO_PLUGIN_DIR"
+      -DFALCO_PLUGINS="cloudtrail.dll;gcpaudit.dll;k8saudit.dll"
+      -DFALCO_PLUGIN_DLLS="libunwind.dll"
       -DENABLE_SIGNED_NSIS=on ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.slnx
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
@@ -707,7 +711,8 @@ macOS Universal Package:
       -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0
       -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
       -DBUILD_stratoshark=on
-      -DFALCO_PLUGINS="$FALCO_PLUGIN_DIR/libcloudtrail.so;$FALCO_PLUGIN_DIR/libgcpaudit.so;$FALCO_PLUGIN_DIR/libk8saudit.so"
+      -DFALCO_PLUGIN_DIR="$FALCO_PLUGIN_DIR"
+      -DFALCO_PLUGINS="libcloudtrail.so;libgcpaudit.so;libk8saudit.so"
       -DTEST_EXTRA_ARGS="--enable-stratoshark;--enable-release"
       ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
@@ -1051,7 +1056,13 @@ Windows Build:
     - job: "Commit Check"
       optional: true
   script:
-    - cmake -G "Visual Studio 18 2026" -A x64 -DENABLE_LTO=off -DBUILD_stratoshark=on ..
+    - cmake -G "Visual Studio 18 2026" -A x64
+      -DENABLE_LTO=off
+      -DBUILD_stratoshark=on
+      -DFALCO_PLUGIN_DIR="$FALCO_PLUGIN_DIR"
+      -DFALCO_PLUGINS="cloudtrail.dll;gcpaudit.dll;k8saudit.dll"
+      -DFALCO_PLUGIN_DLLS="libunwind.dll"
+      ..
     - msbuild /verbosity:minimal /maxcpucount /property:Configuration=Debug Wireshark.slnx
     - msbuild /verbosity:minimal /maxcpucount /property:Configuration=Debug test-programs.vcxproj
     # jsonschema gates the theme.jsonc schema tests in suite_theme; the runner image doesn't ship it.

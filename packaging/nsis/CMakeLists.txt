@@ -241,6 +241,9 @@ if (BUILD_stratoshark)
 			${SPEEXDSP_DLL}
 			# Needed for mmdbresolve
 			${MAXMINDDB_DLL}
+			# Transitive dependencies for Falco plugins. Rust plugins will at least
+			# need libunwind.
+			${FALCO_PLUGIN_DLLS}
 		)
 		set(_all_manifest_contents "${_all_manifest_contents}File \"\${STAGING_DIR}\\${_dll}\"\n")
 	endforeach()

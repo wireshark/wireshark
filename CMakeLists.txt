@@ -2507,8 +2507,10 @@ if(USE_REPOSITORY)
 	if (SPANDSP_FOUND)
 		list (APPEND THIRD_PARTY_DLLS "${SPANDSP_DLL_DIR}/${SPANDSP_DLL}")
 	endif(SPANDSP_FOUND)
-	if (SINSP_FOUND AND FALCO_PLUGIN_DLLS)
-		list (APPEND THIRD_PARTY_DLLS ${FALCO_PLUGIN_DLLS})
+	if (SINSP_FOUND AND FALCO_PLUGIN_DIR AND FALCO_PLUGIN_DLLS)
+		foreach(_falco_plugin_dll ${FALCO_PLUGIN_DLLS})
+			list (APPEND THIRD_PARTY_DLLS ${FALCO_PLUGIN_DIR}/${_falco_plugin_dll})
+		endforeach()
 	endif()
 	if (BCG729_FOUND)
 		list (APPEND THIRD_PARTY_DLLS "${BCG729_DLL_DIR}/${BCG729_DLL}")
@@ -3402,16 +3404,21 @@ if(BUILD_stratoshark AND QT_FOUND)
 	endif(QT_WINDEPLOYQT_EXECUTABLE AND NOT BUILD_wireshark)
 endif()
 
-if (BUILD_stratoshark AND FALCO_PLUGINS)
+if (BUILD_stratoshark AND FALCO_PLUGIN_DIR AND FALCO_PLUGINS)
+	set (_falco_plugins)
+	foreach(_plugin ${FALCO_PLUGINS})
+		list(APPEND _falco_plugins ${FALCO_PLUGIN_DIR}/${_plugin})
+	endforeach()
 	add_custom_target(copy_falco_plugins)
 	add_custom_command(TARGET copy_falco_plugins POST_BUILD
 		# XXX Falco plugins should probably be installed in a path that reflects
 		# the Falco version or its plugin API version.
 		COMMAND ${CMAKE_COMMAND} -E make_directory ${STRATOSHARK_PLUGIN_DIR}/../falco
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FALCO_PLUGINS} ${STRATOSHARK_PLUGIN_DIR}/../falco
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${_falco_plugins} ${STRATOSHARK_PLUGIN_DIR}/../falco
 		VERBATIM
 	)
 	add_dependencies(stratoshark copy_falco_plugins)
+	unset(_falco_plugins)
 endif()
 
 # Common properties for CLI executables

@@ -15,10 +15,15 @@
 #  SINSP_LINK_LIBRARIES - List of libraries when using libsinsp.
 
 # You must manually set the following variables:
-#  FALCO_PLUGINS        - Paths to plugins built from https://github.com/falcosecurity/plugins/.
-#  FALCO_PLUGIN_DLLS    - Paths to DLLs that plugins depend on.
+#  FALCO_PLUGIN_DIR     - Path to plugins and dependent DLLs.
+#  FALCO_PLUGINS        - Plugins built from https://github.com/falcosecurity/plugins/.
+#  FALCO_PLUGIN_DLLS    - DLLs that plugins depend on.
+#
+# The Rust std library depends on libunwind; FALCO_PLUGIN_DLLS will have to include
+# it if you have any Rust plugins: https://github.com/rust-lang/rust/issues/144533
 
 # To do:
+#  Automatically set FALCO_PLUGIN_DIR, FALCO_PLUGINS, and FALCO_PLUGIN_DLLS.
 #  SINSP_DLL_DIR        - (Windows) Path to the libsinsp and libscap DLLs
 #  SINSP_DLL            - (Windows) Name of the libsinsp and libscap DLLs
 
