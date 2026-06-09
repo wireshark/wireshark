@@ -700,7 +700,7 @@ macOS Universal Package:
     - export PKG_CONFIG_PATH=
     - mkdir build
     - cd build
-    - ../tools/make-version.py --set-release ..
+    - ../tools/make-version.py --set-release --wireshark-version-file=wireshark_version.txt --stratoshark-version-file=stratoshark_version.txt ..
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake --preset=ninja_ccache
       -DWIRESHARK_BASE_DIR="$WIRESHARK_BASE_DIR"
@@ -735,9 +735,11 @@ macOS Universal Package:
       fi
     - $CI_PROJECT_DIR/build/run/tshark --version
     - WIRESHARK_SPARKLE_SIGNATURE=$( age --decrypt --identity="$MACOS_AGE_IDENTITY" "$MACOS_SPARKLE_BLOB" | $WIRESHARK_BASE_DIR/macos-universal-master/sparkle/bin/sign_update --ed-key-file - Wireshark?[1-9]*.dmg )
+    - WIRESHARK_VERSION=$(< ../wireshark_version.txt)
     - printf 'sparkle_signature = %s\n' "$WIRESHARK_SPARKLE_SIGNATURE" >> wireshark-release-info-${WIRESHARK_VERSION}-macos-arm64.ini
     - cp wireshark-release-info-${WIRESHARK_VERSION}-macos-arm64.ini wireshark-release-info-${WIRESHARK_VERSION}-macos-intel64.ini
     - STRATOSHARK_SPARKLE_SIGNATURE=$( age --decrypt --identity="$MACOS_AGE_IDENTITY" "$MACOS_SPARKLE_BLOB" | $WIRESHARK_BASE_DIR/macos-universal-master/sparkle/bin/sign_update --ed-key-file - Stratoshark?[0-9]*.dmg )
+    - STRATOSHARK_VERSION=$(< ../stratoshark_version.txt)
     - printf 'sparkle_signature = %s\n' "$STRATOSHARK_SPARKLE_SIGNATURE" >> stratoshark-release-info-${STRATOSHARK_VERSION}-macos-arm64.ini
     - cp stratoshark-release-info-${STRATOSHARK_VERSION}-macos-arm64.ini stratoshark-release-info-${STRATOSHARK_VERSION}-macos-intel64.ini
     - if [ -n "$S3_DESTINATION_RELEASE" ] ; then
