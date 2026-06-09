@@ -492,7 +492,7 @@ typedef struct _http3_header_data {
     uint32_t                    len;           /**< Length of the encoded headers block. */
 #endif
     uint32_t                    offset;        /**< Offset of the headers block in the pinfo TVB. */
-    uint32_t                    ds_idx;        /**< Index of the data source tvb in the pinfo. */
+    int32_t                     ds_idx;        /**< Index of the data source tvb in the pinfo. */
     uint16_t                    state;         /**< See HTTP3_HD_DECODER_XXX above */
     int16_t                     error;         /**< Decoding error code if any. */
     wmem_array_t *              header_fields; /**< List of header fields contained in the header block. */
@@ -547,7 +547,7 @@ typedef struct _http3_pseudo_header_fields {
  */
 typedef struct _http3_qpack_encoder_state {
     unsigned                    offset;        /**< Offset of the headers block in the pinfo TVB. */
-    unsigned                    ds_idx;        /**< Index of the data source tvb in the pinfo. */
+    int32_t                     ds_idx;        /**< Index of the data source tvb in the pinfo. */
     uint32_t                    icnt_inc;      /**< Number of insertions in this header segment. */
     uint64_t                    icnt;          /**< Total number of insertions up to this point. */
     ptrdiff_t                   nread;         /**< Number of bytes read; if negative, an error code. */
@@ -753,33 +753,6 @@ cid_to_string(const quic_cid_t *cid, wmem_allocator_t *scope)
     return str;
 }
 
-/* Given a packet_info and a tvbuff_t, returns the index of the
- * data source tvb among the data sources in the packet.
- */
-static uint32_t
-get_tvb_ds_idx(packet_info *pinfo, tvbuff_t *tvb)
-{
-    bool found = false;
-    tvbuff_t *ds_tvb = tvb_get_ds_tvb(tvb);
-    GSList *src_le;
-    struct data_source *src;
-    uint32_t ds_idx = 0;
-    for (src_le = pinfo->data_src; src_le != NULL; src_le = src_le->next) {
-        src = (struct data_source *)src_le->data;
-        if (ds_tvb == get_data_source_tvb(src)) {
-            found = true;
-            break;
-        }
-        ds_idx++;
-    }
-
-    /* If this gets made to a more general function, return a
-     * failure condition (-1?) that must be checked instead of asserting.
-     */
-    DISSECTOR_ASSERT(found == true);
-    return ds_idx;
-}
-
 static http3_header_data_t *
 http3_get_header_data(packet_info *pinfo, tvbuff_t *tvb, unsigned offset)
 {
@@ -791,7 +764,8 @@ http3_get_header_data(packet_info *pinfo, tvbuff_t *tvb, unsigned offset)
      * packets in a single QUIC layer, so this guarantees the same raw
      * offset from different decrypted data gives different keys.
      */
-    uint32_t ds_idx = get_tvb_ds_idx(pinfo, tvb);
+    int32_t ds_idx = get_data_source_index_by_tvb(pinfo, tvb_get_ds_tvb(tvb));
+    DISSECTOR_ASSERT(ds_idx >= 0);
 
     data = (http3_header_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_http3, PROTO_DATA_KEY_HEADER);
 
@@ -845,7 +819,8 @@ http3_get_qpack_encoder_state(packet_info *pinfo, tvbuff_t *tvb, unsigned offset
      * packets in a single QUIC layer, so this guarantees the same raw
      * offset from different decrypted data gives different keys.
      */
-    uint32_t ds_idx = get_tvb_ds_idx(pinfo, tvb);
+    int32_t ds_idx = get_data_source_index_by_tvb(pinfo, tvb_get_ds_tvb(tvb));
+    DISSECTOR_ASSERT(ds_idx >= 0);
 
     data = (http3_qpack_encoder_state_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_http3, PROTO_DATA_KEY_QPACK);
 

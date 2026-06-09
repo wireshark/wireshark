@@ -537,6 +537,21 @@ get_data_source_by_tvb(const packet_info *pinfo, const tvbuff_t *tvb)
 	return NULL;
 }
 
+int32_t get_data_source_index_by_tvb(const packet_info *pinfo, const tvbuff_t *tvb)
+{
+	if (!pinfo) {
+		return -1;
+	}
+	int32_t idx = 0;
+	for (GSList *source = pinfo->data_src; source; source = source->next) {
+		struct data_source *this_source = (struct data_source *)source->data;
+		if (this_source->tvb == tvb) {
+			return idx;
+		}
+		++idx;
+	}
+	return -1;
+}
 
 data_source_media_type_e get_data_source_media_type(const struct data_source *src)
 {

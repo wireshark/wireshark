@@ -4,7 +4,7 @@
  *     RFC 9174: https://www.rfc-editor.org/rfc/rfc9174.html
  *
  * TCPCLv4 portions copyright 2019-2021, Brian Sipos <brian.sipos@gmail.com>
- * Copyright 2006-2007 The MITRE Corporation.
+ * TCPCLv3 portions copyright 2006-2007 The MITRE Corporation.
  * All Rights Reserved.
  * Approved for Public Release; Distribution Unlimited.
  * Tracking Number 07-0090.
@@ -258,14 +258,14 @@ static int hf_tcpclv4_xferext_transferlen_total_len;
 static int hf_othername_bundleeid;
 
 /*TCP Convergence Layer Reassembly boilerplate*/
-static int hf_xfer_fragments;
-static int hf_xfer_fragment;
-static int hf_xfer_fragment_overlap;
-static int hf_xfer_fragment_overlap_conflicts;
-static int hf_xfer_fragment_multiple_tails;
-static int hf_xfer_fragment_too_long_fragment;
-static int hf_xfer_fragment_error;
-static int hf_xfer_fragment_count;
+static int hf_xfer_segments;
+static int hf_xfer_segment;
+static int hf_xfer_segment_overlap;
+static int hf_xfer_segment_overlap_conflicts;
+static int hf_xfer_segment_multiple_tails;
+static int hf_xfer_segment_too_long_fragment;
+static int hf_xfer_segment_error;
+static int hf_xfer_segment_count;
 static int hf_xfer_reassembled_in;
 static int hf_xfer_reassembled_length;
 static int hf_xfer_reassembled_data;
@@ -435,31 +435,31 @@ static hf_register_info hf_tcpcl[] = {
     // PKIX other name form
     {&hf_othername_bundleeid, {"BundleEID", "tcpcl.v4.BundleEID", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
-    {&hf_xfer_fragments,
-        {"Transfer fragments", "tcpcl.xfer.fragments",
+    {&hf_xfer_segments,
+        {"TCPCL transfer segments", "tcpcl.xfer.fragments",
         FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-    {&hf_xfer_fragment,
-        {"Transfer fragment", "tcpcl.xfer.fragment",
+    {&hf_xfer_segment,
+        {"TCPCL transfer segment", "tcpcl.xfer.fragment",
         FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-    {&hf_xfer_fragment_overlap,
-        {"Transfer fragment overlap", "tcpcl.xfer.fragment.overlap",
+    {&hf_xfer_segment_overlap,
+        {"Transfer segment overlap", "tcpcl.xfer.fragment.overlap",
         FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-    {&hf_xfer_fragment_overlap_conflicts,
-        {"Transfer fragment overlapping with conflicting data",
+    {&hf_xfer_segment_overlap_conflicts,
+        {"Transfer segment overlapping with conflicting data",
         "tcpcl.xfer.fragment.overlap.conflicts",
         FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-    {&hf_xfer_fragment_multiple_tails,
-        {"Message has multiple tail fragments",
+    {&hf_xfer_segment_multiple_tails,
+        {"Message has multiple tail segments",
         "tcpcl.xfer.fragment.multiple_tails",
         FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-    {&hf_xfer_fragment_too_long_fragment,
-        {"Transfer fragment too long", "tcpcl.xfer.fragment.too_long_fragment",
+    {&hf_xfer_segment_too_long_fragment,
+        {"Transfer segment too long", "tcpcl.xfer.fragment.too_long_fragment",
         FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-    {&hf_xfer_fragment_error,
-        {"Transfer defragmentation error", "tcpcl.xfer.fragment.error",
+    {&hf_xfer_segment_error,
+        {"Transfer desegmentation error", "tcpcl.xfer.fragment.error",
         FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-    {&hf_xfer_fragment_count,
-        {"Transfer fragment count", "tcpcl.xfer.fragment.count",
+    {&hf_xfer_segment_count,
+        {"Transfer segment count", "tcpcl.xfer.fragment.count",
         FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
     {&hf_xfer_reassembled_in,
         {"Reassembled in", "tcpcl.xfer.reassembled.in",
@@ -514,8 +514,8 @@ static int ett_tcpclv3_chdr_flags;
 static int ett_tcpclv3_mhdr;
 static int ett_tcpclv3_data_procflags;
 static int ett_tcpclv3_shutdown_flags;
-static int ett_xfer_fragment;
-static int ett_xfer_fragments;
+static int ett_xfer_segment;
+static int ett_xfer_segments;
 static int ett_tcpclv4_chdr_flags;
 static int ett_tcpclv4_mhdr;
 static int ett_tcpclv4_sess_term_flags;
@@ -544,8 +544,8 @@ static int *ett[] = {
     &ett_tcpclv4_xferext,
     &ett_tcpclv4_xferext_flags,
     &ett_tcpclv4_xferext_data,
-    &ett_xfer_fragment,
-    &ett_xfer_fragments,
+    &ett_xfer_segment,
+    &ett_xfer_segments,
 };
 
 static expert_field ei_invalid_magic;
@@ -620,17 +620,17 @@ static ei_register_info ei_tcpcl[] = {
 
 static const fragment_items xfer_frag_items = {
     /*Fragment subtrees*/
-    &ett_xfer_fragment,
-    &ett_xfer_fragments,
+    &ett_xfer_segment,
+    &ett_xfer_segments,
     /*Fragment Fields*/
-    &hf_xfer_fragments,
-    &hf_xfer_fragment,
-    &hf_xfer_fragment_overlap,
-    &hf_xfer_fragment_overlap_conflicts,
-    &hf_xfer_fragment_multiple_tails,
-    &hf_xfer_fragment_too_long_fragment,
-    &hf_xfer_fragment_error,
-    &hf_xfer_fragment_count,
+    &hf_xfer_segments,
+    &hf_xfer_segment,
+    &hf_xfer_segment_overlap,
+    &hf_xfer_segment_overlap_conflicts,
+    &hf_xfer_segment_multiple_tails,
+    &hf_xfer_segment_too_long_fragment,
+    &hf_xfer_segment_error,
+    &hf_xfer_segment_count,
     /*Reassembled in field*/
     &hf_xfer_reassembled_in,
     /*Reassembled length field*/
@@ -638,7 +638,7 @@ static const fragment_items xfer_frag_items = {
     /* Reassembled data field */
     &hf_xfer_reassembled_data,
     /*Tag*/
-    "Transfer fragments"
+    "Transfer segments"
 };
 
 static unsigned tvb_get_sdnv(tvbuff_t *tvb, unsigned offset, uint64_t *value) {
@@ -647,17 +647,11 @@ static unsigned tvb_get_sdnv(tvbuff_t *tvb, unsigned offset, uint64_t *value) {
 
 static void tcpcl_frame_loc_init(tcpcl_frame_loc_t *loc, const packet_info *pinfo, tvbuff_t *tvb, const int offset) {
     loc->frame_num = pinfo->num;
-    // This is a messy way to determine the index,
-    // but no other public functions allow determining how two TVB are related
-    loc->src_ix = -1;
-    for(GSList *srcit = pinfo->data_src; srcit != NULL; srcit = g_slist_next(srcit)) {
-        ++(loc->src_ix);
-        struct data_source *src = srcit->data;
-        if (get_data_source_tvb(src)->real_data == tvb->real_data) {
-            break;
-        }
-    }
+
+    loc->ds_idx = get_data_source_index_by_tvb(pinfo, tvb_get_ds_tvb(tvb));
+    DISSECTOR_ASSERT(loc->ds_idx >= 0);
     loc->raw_offset = tvb_raw_offset(tvb) + offset;
+    DISSECTOR_ASSERT(offset >= 0);
 }
 
 /** Construct a new object on the file allocator.
@@ -691,6 +685,12 @@ static int tcpcl_frame_loc_compare(const void *a, const void *b, void *user_data
         return 1;
     }
 
+    if (aloc->ds_idx < bloc->ds_idx) {
+        return -1;
+    }
+    else if (aloc->ds_idx > bloc->ds_idx) {
+        return 1;
+    }
     if (aloc->raw_offset < bloc->raw_offset) {
         return -1;
     }
@@ -707,6 +707,7 @@ static gboolean tcpcl_frame_loc_equal(const void *a, const void *b) {
     const tcpcl_frame_loc_t *bobj = b;
     return (
         (aobj->frame_num == bobj->frame_num)
+        && (aobj->ds_idx == bobj->ds_idx)
         && (aobj->raw_offset == bobj->raw_offset)
     );
 }
@@ -717,6 +718,7 @@ static unsigned tcpcl_frame_loc_hash(const void *key) {
     const tcpcl_frame_loc_t *obj = key;
     return (
         g_int_hash(&(obj->frame_num))
+        ^ g_int_hash(&(obj->ds_idx))
         ^ g_int_hash(&(obj->raw_offset))
     );
 }
@@ -858,6 +860,7 @@ tcpcl_dissect_ctx_t * tcpcl_dissect_ctx_get(tvbuff_t *tvb, packet_info *pinfo, c
     if (!tcpcl_convo) {
         return NULL;
     }
+
     tcpcl_dissect_ctx_t *ctx = wmem_new0(pinfo->pool, tcpcl_dissect_ctx_t);
     ctx->convo = tcpcl_convo;
     ctx->cur_loc = tcpcl_frame_loc_new(pinfo->pool, pinfo, tvb, offset);
@@ -1013,7 +1016,8 @@ static void transfer_add_segment(tcpcl_dissect_ctx_t *ctx, uint64_t xfer_id, uin
         seg_meta = wmem_list_frame_data(frm);
     }
     else {
-        frm = wmem_list_insert_sorted(xfer->seg_list, seg_meta, tcpcl_seg_meta_compare_loc);
+        wmem_list_append(xfer->seg_list, seg_meta);
+        frm = wmem_list_tail(xfer->seg_list);
         // Set for new item
         seg_meta->flags = flags;
     }
@@ -1111,7 +1115,8 @@ static void transfer_add_ack(tcpcl_dissect_ctx_t *ctx, uint64_t xfer_id, uint8_t
         ack_meta = wmem_list_frame_data(frm);
     }
     else {
-        wmem_list_insert_sorted(xfer->ack_list, ack_meta, tcpcl_ack_meta_compare_loc);
+        wmem_list_append(xfer->ack_list, ack_meta);
+        frm = wmem_list_tail(xfer->ack_list);
         // Set for new item
         ack_meta->flags = flags;
         ack_meta->seen_len = ack_len;
@@ -1351,7 +1356,7 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 frag_msg,
                 &xfer_frag_items,
                 NULL,
-                proto_tree_get_parent_tree(tree)
+                tree
             );
         }
         offset += data_len_clamp;
@@ -1812,7 +1817,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     xferload_frag_msg,
                     &xfer_frag_items,
                     NULL,
-                    proto_tree_get_parent_tree(tree)
+                    tree
                 );
             }
 
@@ -2109,7 +2114,6 @@ static unsigned get_message_len(packet_info *pinfo, tvbuff_t *tvb, int ext_offse
 }
 
 static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    bool is_new_item_tcpcl = false;
     int offset = 0;
     tcpcl_dissect_ctx_t *ctx = tcpcl_dissect_ctx_get(tvb, pinfo, offset);
     if (!ctx) {
@@ -2124,9 +2128,10 @@ static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         }
     }
 
-    // Don't add more than one TCPCL tree item
+    // Append to the last TCPCL tree item if there is one
     proto_item *item_tcpcl;
     proto_tree *tree_tcpcl;
+    bool is_new_item_tcpcl = false;
     if (tree && (tree->last_child)
             && (PITEM_HFINFO(tree->last_child)->id == proto_tcpcl)) {
         item_tcpcl = tree->last_child;

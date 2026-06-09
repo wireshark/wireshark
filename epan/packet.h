@@ -1346,6 +1346,15 @@ WS_DLL_PUBLIC struct data_source *get_data_source_by_name(const packet_info *pin
 WS_DLL_PUBLIC struct data_source *get_data_source_by_tvb(const packet_info *pinfo, const tvbuff_t *tvb);
 
 /**
+ * Find and return the index of a data source for the given tvb.
+ * @param pinfo packet_info for the packet whose data sources are to be searched
+ * @param tvb tvb of the data source.
+ * This should be the output of tvb_get_ds_tvb() for an arbitrary starting TVB.
+ * @return the index of the data source or -1 if not found
+ */
+WS_DLL_PUBLIC int32_t get_data_source_index_by_tvb(const packet_info *pinfo, const tvbuff_t *tvb);
+
+/**
  * Get a data source's media type.
  * @param src The data source.
  * @return A media type.
