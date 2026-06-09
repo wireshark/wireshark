@@ -11,6 +11,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_QTUI
 
 #include <ui/qt/manager/interface_list_manager.h>
 
