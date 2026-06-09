@@ -1502,7 +1502,7 @@ static const value_string intsrv_services_str[] = {
     { INTSRV_GTD,         "Guaranteed Rate"},
     { INTSRV_CLOAD,       "Controlled Load"},
     { INTSRV_NULL,        "Null Service"},
-    { INTSRV_QUALITATIVE, "Null Service"},
+    { INTSRV_QUALITATIVE, "Null Service"},  /* TODO: correct string to display? */
     { 0, NULL }
 };
 static value_string_ext intsrv_services_str_ext = VALUE_STRING_EXT_INIT(intsrv_services_str);
@@ -2461,7 +2461,7 @@ static const value_string rsvp_c_type_call_id_vals[] = {
     {0,  NULL }
 };
 
-static const value_string rsvp_c_type_hop_vals[] = {
+static const value_string rsvp_c_type_hop_or_error_vals[] = {
     {1,  "IPv4"},
     {2,  "IPv6"},
     {3,  "IPv4  IF-ID"},
@@ -2474,26 +2474,12 @@ static const value_string rsvp_c_type_time_values_vals[] = {
     {0,  NULL }
 };
 
-static const value_string rsvp_c_type_error_vals[] = {
-    {1,  "IPv4"},
-    {2,  "IPv6"},
-    {3,  "IPv4  IF-ID"},
-    {4,  "IPv6  IF-ID"},
-    {0,  NULL }
-};
-
-static const value_string rsvp_c_type_scope_vals[] = {
-    {1,  "IPv4"},
-    {2,  "IPv6"},
-    {0,  NULL }
-};
-
 static const value_string rsvp_c_type_style_vals[] = {
     {1,  "Style"},
     {0,  NULL }
 };
 
-static const value_string rsvp_c_type_confirm_vals[] = {
+static const value_string rsvp_ipv4_ipv6_vals[] = {
     {1,  "IPv4"},
     {2,  "IPv6"},
     {0,  NULL }
@@ -2510,15 +2496,7 @@ static const value_string rsvp_c_type_template_vals[] = {
     {0,  NULL }
 };
 
-static const value_string rsvp_c_type_tspec_vals[] = {
-    {2,  "Integrated Services"},
-    {4,  "SONET/SDH"},
-    {5,  "G.709"},
-    {6,  "Ethernet"},
-    {0,  NULL }
-};
-
-static const value_string rsvp_c_type_flowspec_vals[] = {
+static const value_string rsvp_c_type_tspec_or_flowspec_vals[] = {
     {2,  "Integrated Services"},
     {4,  "SONET/SDH"},
     {5,  "G.709"},
@@ -2568,17 +2546,6 @@ static const value_string rsvp_c_type_label_vals[] = {
     { 0, NULL }
 };
 
-static const value_string rsvp_c_type_notify_request_vals[] = {
-    { 1, "IPv4"},
-    { 2, "IPv6"},
-    { 0, NULL }
-};
-
-static const value_string rsvp_c_type_s2l_sub_lsp_vals[] = {
-    { 1, "IPv4"},
-    { 2, "IPv6"},
-    { 0, NULL }
-};
 
 static char *
 summary_session(wmem_allocator_t *pool, tvbuff_t *tvb, int offset)
@@ -6654,8 +6621,7 @@ dissect_rsvp_3gpp_object(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_ob
                         proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_type, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
                         /* Length */
-                        pf_cont_len = tvb_get_uint8(tvb, offset);
-                        proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_cont_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item_ret_uint8(flow_tree, hf_rsvp_3gpp_obj_pf_cont_len, tvb, offset, 1, ENC_BIG_ENDIAN, &pf_cont_len);
                         offset++;
                         /* Packet filter component type identifier */
                         proto_tree_add_item_ret_uint8(flow_tree, hf_rsvp_3gpp_obj_pf_comp_type_id, tvb, offset, 1, ENC_BIG_ENDIAN, &pf_comp_type_id);
@@ -6788,7 +6754,8 @@ dissect_rsvp_3gpp_object(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_ob
                     uint8_t blob_len, item_len, padding_len;
                     bool verbose;
                     proto_tree   *qos_tree, *qos_sub_blob_tree, *qos_att_tree;
-                    int num = 0, j, num_qos_att_set;
+                    int num = 0;
+                    uint8_t j, num_qos_att_set;
 
                     proto_tree_add_item_ret_uint(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_qos_list_len, tvb, offset, 2, ENC_BIG_ENDIAN, &tft_qos_list_len);
                     offset+=2;
@@ -6818,8 +6785,7 @@ dissect_rsvp_3gpp_object(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_ob
                             qos_sub_blob_tree = proto_item_add_subtree(ti, ett_treelist[TT_3GPP_OBJ_QOS_SUB_BLOB]);
 
                             proto_tree_add_item(qos_sub_blob_tree, hf_rsvp_3gpp_r_qos_blob_flow_pri, tvb, offset, 1, ENC_BIG_ENDIAN);
-                            proto_tree_add_item(qos_sub_blob_tree, hf_rsvp_3gpp_r_qos_blob_num_qos_att_set, tvb, offset, 1, ENC_BIG_ENDIAN);
-                            num_qos_att_set = (tvb_get_uint8(tvb, offset) & 0x0e)>>1;
+                            proto_tree_add_item_ret_uint8(qos_sub_blob_tree, hf_rsvp_3gpp_r_qos_blob_num_qos_att_set, tvb, offset, 1, ENC_BIG_ENDIAN, &num_qos_att_set);
                             /* point to the first bit in the QoS_ATTRIBUTE_SET */
                             bit_offset = (offset<<3)+7;
                             for (j = 0; j < num_qos_att_set; j++) {
@@ -8437,7 +8403,7 @@ proto_register_rsvp(void)
 
         {&hf_rsvp_ctype_notify_request,
          { "C-type", "rsvp.ctype.notify_request",
-           FT_UINT32, BASE_DEC, VALS(rsvp_c_type_notify_request_vals), 0x0,
+           FT_UINT32, BASE_DEC, VALS(rsvp_ipv4_ipv6_vals), 0x0,
            NULL, HFILL }
         },
 
@@ -10076,7 +10042,7 @@ proto_register_rsvp(void)
 
         { &hf_rsvp_ctype_s2l_sub_lsp,
          { "C-Type", "rsvp.ctype.s2l_sub_lsp",
-           FT_UINT32, BASE_DEC, VALS(rsvp_c_type_s2l_sub_lsp_vals), 0,
+           FT_UINT32, BASE_DEC, VALS(rsvp_ipv4_ipv6_vals), 0,
            NULL, HFILL
          }
         },
@@ -10120,19 +10086,19 @@ proto_register_rsvp(void)
       { &hf_rsvp_ifid_tlv_error_string, { "Error String", "rsvp.ifid_tlv.error_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_ifid_tlv_data, { "Data", "rsvp.ifid_tlv.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_ifid_tlv_padding, { "Padding", "rsvp.ifid_tlv.padding", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_rsvp_ctype_hop, { "C-Type", "rsvp.ctype.hop", FT_UINT32, BASE_DEC, VALS(rsvp_c_type_hop_vals), 0x0, NULL, HFILL }},
+      { &hf_rsvp_ctype_hop, { "C-Type", "rsvp.ctype.hop", FT_UINT32, BASE_DEC, VALS(rsvp_c_type_hop_or_error_vals), 0x0, NULL, HFILL }},
       { &hf_rsvp_hop_neighbor_address_ipv4, { "Neighbor address", "rsvp.hop.neighbor_address_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_hop_logical_interface, { "Logical interface", "rsvp.hop.logical_interface", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_hop_neighbor_address_ipv6, { "Neighbor address", "rsvp.neighbor_address_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_hop_data, { "Data", "rsvp.hop.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_ctype_time_values, { "C-Type", "rsvp.ctype.time_values", FT_UINT32, BASE_DEC,  VALS(rsvp_c_type_time_values_vals), 0x0, NULL, HFILL }},
       { &hf_rsvp_time_values_data, { "Data", "rsvp.time_values.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_rsvp_ctype_error, { "C-Type", "rsvp.ctype.error", FT_UINT32, BASE_DEC, VALS(rsvp_c_type_error_vals), 0x0, NULL, HFILL }},
+      { &hf_rsvp_ctype_error, { "C-Type", "rsvp.ctype.error", FT_UINT32, BASE_DEC, VALS(rsvp_c_type_hop_or_error_vals), 0x0, NULL, HFILL }},
       { &hf_rsvp_error_error_node_ipv4, { "Error node", "rsvp.error.error_node_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_error_error_node_ipv6, { "Error node", "rsvp.error.error_node_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_error_data, { "Data", "rsvp.error.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_error_error_code, { "Error code", "rsvp.error.error_code", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &rsvp_error_codes_ext, 0x0, NULL, HFILL }},
-      { &hf_rsvp_ctype_scope, { "C-Type", "rsvp.ctype.scope", FT_UINT32, BASE_DEC, VALS(rsvp_c_type_scope_vals), 0x0, NULL, HFILL }},
+      { &hf_rsvp_ctype_scope, { "C-Type", "rsvp.ctype.scope", FT_UINT32, BASE_DEC, VALS(rsvp_ipv4_ipv6_vals), 0x0, NULL, HFILL }},
       { &hf_rsvp_scope_ipv4_address, { "IPv4 Address", "rsvp.scope.ipv4_address", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_scope_ipv6_address, { "IPv6 Address", "rsvp.scope.ipv6_address", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_scope_data, { "Data", "rsvp.scope.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -10140,7 +10106,7 @@ proto_register_rsvp(void)
       { &hf_rsvp_style_flags, { "Flags", "rsvp.style.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_style_style, { "Style", "rsvp.style.style", FT_UINT24, BASE_HEX, VALS(style_vals), 0x0, NULL, HFILL }},
       { &hf_rsvp_style_data, { "Data", "rsvp.style.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_rsvp_ctype_confirm, { "C-Type", "rsvp.ctype.confirm", FT_UINT32, BASE_DEC, VALS(rsvp_c_type_confirm_vals), 0x0, NULL, HFILL }},
+      { &hf_rsvp_ctype_confirm, { "C-Type", "rsvp.ctype.confirm", FT_UINT32, BASE_DEC, VALS(rsvp_ipv4_ipv6_vals), 0x0, NULL, HFILL }},
       { &hf_rsvp_confirm_receiver_address_ipv4, { "Receiver address", "rsvp.confirm.receiver_address_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_confirm_receiver_address_ipv6, { "Receiver address", "rsvp.confirm.receiver_address_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_confirm_data, { "Data", "rsvp.confirm.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -10162,7 +10128,7 @@ proto_register_rsvp(void)
       { &hf_rsvp_eth_tspec_cbs, { "CBS", "rsvp.eth_tspec.cbs", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_eth_tspec_eir, { "EIR", "rsvp.eth_tspec.eir", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_eth_tspec_ebs, { "EBS", "rsvp.eth_tspec.ebs", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_rsvp_ctype_tspec, { "C-Type", "rsvp.ctype.tspec", FT_UINT32, BASE_DEC, VALS(rsvp_c_type_tspec_vals), 0x0, NULL, HFILL }},
+      { &hf_rsvp_ctype_tspec, { "C-Type", "rsvp.ctype.tspec", FT_UINT32, BASE_DEC, VALS(rsvp_c_type_tspec_or_flowspec_vals), 0x0, NULL, HFILL }},
       { &hf_rsvp_tspec_message_format_version, { "Message format version", "rsvp.tspec.message_format_version", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
       { &hf_rsvp_tspec_service_header, { "Service header", "rsvp.tspec.service_header", FT_UINT8, BASE_DEC, VALS(qos_vals), 0x0, NULL, HFILL }},
       { &hf_rsvp_tspec_token_bucket_rate, { "Token bucket rate", "rsvp.tspec.token_bucket_rate", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -10181,7 +10147,7 @@ proto_register_rsvp(void)
       { &hf_rsvp_tspec_number_of_multiplexed_components, { "Number of Multiplexed Components (NMC)", "rsvp.number_of_multiplexed_components", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_tspec_mtu, { "MTU", "rsvp.tspec.mtu", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_tspec_data, { "Data", "rsvp.tspec.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_rsvp_ctype_flowspec, { "C-Type", "rsvp.ctype.flowspec", FT_UINT32, BASE_DEC, VALS(rsvp_c_type_flowspec_vals), 0x0, NULL, HFILL }},
+      { &hf_rsvp_ctype_flowspec, { "C-Type", "rsvp.ctype.flowspec", FT_UINT32, BASE_DEC, VALS(rsvp_c_type_tspec_or_flowspec_vals), 0x0, NULL, HFILL }},
       { &hf_rsvp_flowspec_message_format_version, { "Message format version", "rsvp.flowspec.message_format_version", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
       { &hf_rsvp_flowspec_service_header, { "Service header", "rsvp.flowspec.service_header", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &intsrv_services_str_ext, 0x0, NULL, HFILL }},
       { &hf_rsvp_flowspec_token_bucket_rate, { "Token bucket rate", "rsvp.flowspec.token_bucket_rate", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
