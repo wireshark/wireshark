@@ -918,6 +918,144 @@ mutate_packet_data(wtap_rec *rec, uint32_t change_offset, uint64_t count) {
     }
 }
 
+/*
+ * Split SCTP bundled DATA chunks into individual packets.
+ * Returns the number of packets written, or 0 if not an SCTP packet
+ * (caller should write the original packet in that case).
+ * Returns -1 on write error.
+ */
+static int
+sctp_split_and_write(wtap_dumper *pdh, wtap_rec *rec, int *write_err,
+                     char **write_err_info, uint64_t orig_frame_num)
+{
+    uint8_t *buf;
+    uint32_t caplen;
+    unsigned ip_hdr_offset, ip_hdr_len, sctp_offset, sctp_end;
+    uint8_t  ip_proto;
+    uint16_t ethertype;
+    int      data_chunks_written = 0;
+
+    if (rec->rec_type != REC_TYPE_PACKET)
+        return 0;
+
+    caplen = rec->rec_header.packet_header.caplen;
+    buf = ws_buffer_start_ptr(&rec->data);
+
+    /* Only handle Ethernet encapsulation */
+    if (rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_ETHERNET)
+        return 0;
+
+    if (caplen < 14)
+        return 0;
+
+    ethertype = (uint16_t)(buf[12] << 8 | buf[13]);
+
+    /* Handle VLAN tagging (802.1Q) */
+    ip_hdr_offset = 14;
+    if (ethertype == 0x8100) {
+        if (caplen < 18)
+            return 0;
+        ethertype = (uint16_t)(buf[16] << 8 | buf[17]);
+        ip_hdr_offset = 18;
+    }
+
+    /* Only handle IPv4 for now */
+    if (ethertype != 0x0800)
+        return 0;
+
+    if (caplen < ip_hdr_offset + 20)
+        return 0;
+
+    ip_hdr_len = (buf[ip_hdr_offset] & 0x0F) * 4;
+    if (ip_hdr_len < 20 || caplen < ip_hdr_offset + ip_hdr_len)
+        return 0;
+
+    ip_proto = buf[ip_hdr_offset + 9];
+    if (ip_proto != 132) /* Not SCTP */
+        return 0;
+
+    sctp_offset = ip_hdr_offset + ip_hdr_len;
+    /* SCTP common header is 12 bytes */
+    if (caplen < sctp_offset + 12)
+        return 0;
+
+    sctp_end = caplen;
+
+    /* Iterate over SCTP chunks, find DATA chunks (type 0) */
+    unsigned chunk_offset = sctp_offset + 12;
+    unsigned headers_len = sctp_offset + 12; /* Eth + IP + SCTP common hdr */
+
+    while (chunk_offset + 4 <= sctp_end) {
+        uint8_t  chunk_type = buf[chunk_offset];
+        uint16_t chunk_len = (uint16_t)(buf[chunk_offset + 2] << 8 | buf[chunk_offset + 3]);
+
+        if (chunk_len < 4)
+            break;
+
+        /* Pad to 4-byte boundary for next chunk */
+        unsigned padded_len = (chunk_len + 3) & ~3u;
+
+        if (chunk_type == 0) { /* DATA chunk */
+            /* Build a new packet: original headers + this one chunk */
+            unsigned new_pkt_len = headers_len + chunk_len;
+            uint8_t *new_buf;
+            wtap_rec new_rec;
+            uint16_t new_ip_total_len;
+
+            wtap_rec_init(&new_rec, new_pkt_len);
+            new_rec.rec_type = REC_TYPE_PACKET;
+            new_rec.presence_flags = rec->presence_flags;
+            new_rec.ts = rec->ts;
+            new_rec.tsprec = rec->tsprec;
+            new_rec.rec_header.packet_header.caplen = new_pkt_len;
+            new_rec.rec_header.packet_header.len = new_pkt_len;
+            new_rec.rec_header.packet_header.pkt_encap = rec->rec_header.packet_header.pkt_encap;
+            new_rec.rec_header.packet_header.interface_id = rec->rec_header.packet_header.interface_id;
+            new_rec.rec_header.packet_header.pseudo_header = rec->rec_header.packet_header.pseudo_header;
+
+            ws_buffer_assure_space(&new_rec.data, new_pkt_len);
+            new_buf = ws_buffer_start_ptr(&new_rec.data);
+
+            /* Copy Eth + IP + SCTP common header */
+            memcpy(new_buf, buf, headers_len);
+            /* Copy this DATA chunk */
+            memcpy(new_buf + headers_len, buf + chunk_offset, chunk_len);
+
+            /* Fix IP total length */
+            new_ip_total_len = (uint16_t)(new_pkt_len - ip_hdr_offset);
+            new_buf[ip_hdr_offset + 2] = (uint8_t)(new_ip_total_len >> 8);
+            new_buf[ip_hdr_offset + 3] = (uint8_t)(new_ip_total_len & 0xFF);
+
+            /* Zero out IP header checksum (let receivers recalculate) */
+            new_buf[ip_hdr_offset + 10] = 0;
+            new_buf[ip_hdr_offset + 11] = 0;
+
+            ws_buffer_increase_length(&new_rec.data, new_pkt_len);
+
+            /* Add comment with original frame number */
+            {
+                char comment[64];
+                snprintf(comment, sizeof(comment), "Original frame: %" PRIu64, orig_frame_num);
+                new_rec.block = wtap_block_create(WTAP_BLOCK_PACKET);
+                wtap_block_add_string_option(new_rec.block, OPT_COMMENT, comment, strlen(comment));
+            }
+
+            if (!wtap_dump(pdh, &new_rec, write_err, write_err_info)) {
+                wtap_rec_cleanup(&new_rec);
+                return -1;
+            }
+            wtap_rec_cleanup(&new_rec);
+            data_chunks_written++;
+        }
+
+        if (chunk_offset + padded_len <= chunk_offset) /* overflow check */
+            break;
+        chunk_offset += padded_len;
+    }
+
+    return data_chunks_written;
+}
+
 static void
 print_usage(FILE *output)
 {
@@ -959,6 +1097,7 @@ print_usage(FILE *output)
     fprintf(output, "\n");
     fprintf(output, "Packet manipulation:\n");
     fprintf(output, "  -s <snaplen>           truncate each packet to max. <snaplen> bytes of data.\n");
+    fprintf(output, "  --sctp-split           split SCTP bundled DATA chunks into individual packets.\n");
     fprintf(output, "  -C [offset:]<choplen>  chop each packet by <choplen> bytes. Positive values\n");
     fprintf(output, "                         chop at the packet beginning, negative values at the\n");
     fprintf(output, "                         packet end. If an optional offset precedes the length,\n");
@@ -1403,6 +1542,7 @@ main(int argc, char *argv[])
 #define LONGOPT_PRESERVE_PACKET_COMMENTS LONGOPT_BASE_APPLICATION+10
 #define LONGOPT_EXTRACT_SECRETS          LONGOPT_BASE_APPLICATION+11
 #define LONGOPT_COMPRESS                 LONGOPT_BASE_APPLICATION+12
+#define LONGOPT_SCTP_SPLIT               LONGOPT_BASE_APPLICATION+13
 
     static const struct ws_option long_options[] = {
         {"novlan", ws_no_argument, NULL, LONGOPT_NO_VLAN},
@@ -1419,6 +1559,7 @@ main(int argc, char *argv[])
         {"preserve-packet-comments", ws_no_argument, NULL, LONGOPT_PRESERVE_PACKET_COMMENTS},
         {"extract-secrets", ws_no_argument, NULL, LONGOPT_EXTRACT_SECRETS},
         {"compress", ws_required_argument, NULL, LONGOPT_COMPRESS},
+        {"sctp-split", ws_no_argument, NULL, LONGOPT_SCTP_SPLIT},
         LONGOPT_WSLOG
         {0, 0, 0, 0 }
     };
@@ -1457,6 +1598,7 @@ main(int argc, char *argv[])
     unsigned int                 seed = 0;
     bool                         edit_option_specified = false;
     ws_compression_type compression_type   = WS_FILE_UNKNOWN_COMPRESSION;
+    bool                         sctp_split = false;
     const struct file_extension_info* file_extensions;
     unsigned num_extensions;
 
@@ -1648,6 +1790,10 @@ main(int argc, char *argv[])
             }
             break;
         }
+
+        case LONGOPT_SCTP_SPLIT:
+            sctp_split = true;
+            break;
 
         case 'a':
         {
@@ -2629,7 +2775,33 @@ main(int argc, char *argv[])
             }
 
             /* Attempt to dump out current frame to the output file */
-            if (!wtap_dump(pdh, &read_rec, &write_err, &write_err_info)) {
+            if (sctp_split) {
+                int split_count = sctp_split_and_write(pdh, &read_rec, &write_err, &write_err_info, read_count);
+                if (split_count == -1) {
+                    report_cfile_write_failure(argv[ws_optind], filename,
+                                               write_err, write_err_info,
+                                               read_count,
+                                               out_file_type_subtype);
+                    ret = DUMP_ERROR;
+                    wtap_dump_close(pdh, NULL, &write_err, &write_err_info);
+                    goto clean_exit;
+                }
+                if (split_count > 0) {
+                    written_count += split_count;
+                } else {
+                    /* Not an SCTP packet, write as-is */
+                    if (!wtap_dump(pdh, &read_rec, &write_err, &write_err_info)) {
+                        report_cfile_write_failure(argv[ws_optind], filename,
+                                                   write_err, write_err_info,
+                                                   read_count,
+                                                   out_file_type_subtype);
+                        ret = DUMP_ERROR;
+                        wtap_dump_close(pdh, NULL, &write_err, &write_err_info);
+                        goto clean_exit;
+                    }
+                    written_count++;
+                }
+            } else if (!wtap_dump(pdh, &read_rec, &write_err, &write_err_info)) {
                 report_cfile_write_failure(argv[ws_optind], filename,
                                            write_err, write_err_info,
                                            read_count,

@@ -49,6 +49,7 @@ __outfile__
 [ *-I* <bytes to ignore> ]
 [ *--skip-radiotap-header* ]
 [ *--set-unused* ]
+[ *--sctp-split* ]
 __infile__
 __outfile__
 
@@ -588,6 +589,16 @@ The *--discard-packet-comments* option takes precedence over this option.
 Compress the output file using the type compression format.
 *--compress* with no argument provides a list of the compression formats supported
 for writing. The type given takes precedence over the extension of __outfile__.
+--
+
+--sctp-split::
++
+--
+Split SCTP packets containing multiple bundled DATA chunks into individual
+packets, one per DATA chunk. Each split packet retains the original Ethernet,
+IP, and SCTP common headers. A packet comment indicating the original frame
+number is added to each split packet. Non-SCTP packets and SCTP packets
+without DATA chunks are passed through unchanged.
 --
 
 include::diagnostic-options.adoc[]

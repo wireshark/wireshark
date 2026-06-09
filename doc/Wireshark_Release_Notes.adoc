@@ -122,6 +122,10 @@ The following features are either new or have been significantly updated since v
 * Interfaces hidden from the welcome screen's right-click menu are now remembered
   across profile switches and application restarts. wsbuglink:21325[]
 
+* Editcap has a new `--sctp-split` option that splits SCTP packets containing
+  multiple bundled DATA chunks into individual packets, one per DATA chunk.
+  Each split packet includes a comment indicating its original frame number.
+
 === Removed Features and Support
 
 Dumpcap's TCP@host:port interface has been removed.
