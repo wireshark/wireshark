@@ -1072,7 +1072,7 @@ print_statistics_loop(bool machine_readable)
     }
 
     if (!stat_list) {
-        cmdarg_err("There are no interfaces on which a capture can be done");
+        cmdarg_err("There are no interfaces on which statistics can be collected");
         return WS_EXIT_NO_INTERFACES;
     }
 
