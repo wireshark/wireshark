@@ -160,9 +160,10 @@ signals:
 
     /**
      * @brief Emitted when the stream could not be opened or has broken.
+     * @param exitCode Numerical exit code from the stats process.
      * @param errorMessage Human-readable description.
      */
-    void failed(const QString &errorMessage);
+    void failed(int exitCode, const QString &errorMessage);
 
     /**
      * @brief Emitted each cycle in which new counters were read.

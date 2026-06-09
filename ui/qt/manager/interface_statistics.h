@@ -201,7 +201,7 @@ private slots:
     void onSampled(const InterfaceStatsSnapshot &snapshot);
 
     /** @brief Logs a worker failure and clears the running state. */
-    void onWorkerFailed(const QString &message);
+    void onWorkerFailed(int exitCode, const QString &message);
 
 private:
     /** @brief Appends a value to a history buffer, dropping the oldest if full. */
@@ -227,6 +227,7 @@ private:
     int updateIntervalMsec_;                  /**< Sampling interval mirror. */
     bool running_;                            /**< True between start() and stop(). */
     bool paused_;                             /**< True while suspended. */
+    bool warned_no_interfaces_;               /**< True if already warned about no valid interfaces. */
 };
 
 #endif // INTERFACE_STATISTICS_H

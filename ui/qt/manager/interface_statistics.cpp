@@ -15,6 +15,7 @@
 
 #include <ui/qt/manager/interface_statistics.h>
 
+#include <ws_exit_codes.h>
 
 #include <wsutil/wslog.h>
 
@@ -45,7 +46,8 @@ InterfaceStatistics::InterfaceStatistics(QObject *parent) :
     historyCapacity_(kDefaultHistoryCapacity),
     updateIntervalMsec_(kDefaultUpdateIntervalMsec),
     running_(false),
-    paused_(false)
+    paused_(false),
+    warned_no_interfaces_(false)
 {
     worker_->moveToThread(&workerThread_);
 
@@ -293,9 +295,19 @@ void InterfaceStatistics::onSampled(const InterfaceStatsSnapshot &snapshot)
     emit statisticsUpdated();
 }
 
-void InterfaceStatistics::onWorkerFailed(const QString &message)
+void InterfaceStatistics::onWorkerFailed(int exitCode, const QString &message)
 {
-    ws_warning("Interface statistics worker: %s", qUtf8Printable(message));
+    switch (exitCode) {
+    case WS_EXIT_NO_INTERFACES:
+        if (!warned_no_interfaces_)
+            ws_message("Interface statistics worker: %s", qUtf8Printable(message));
+        warned_no_interfaces_ = true;
+        break;
+    default:
+        ws_warning("Interface statistics worker: %s", qUtf8Printable(message));
+        warned_no_interfaces_ = false;
+    }
+
     running_ = false;
 
     // dumpcap -S exits if a monitored interface disappears (unplugged/removed),
@@ -303,6 +315,13 @@ void InterfaceStatistics::onWorkerFailed(const QString &message)
     // after a short delay so a fresh dumpcap re-enumerates the current interfaces.
     // Re-check state when the timer fires: skip if a capture paused us in the
     // meantime, or if a refresh already restarted the worker.
+    //
+    // Note that even the platforms (Linux and the BSDs) where the interface
+    // monitor reports when interfaces go up or down or vanish completely
+    // don't send reports for when interfaces gain or lose permissions that
+    // allow statistics gathering or capturing, so we still have to check
+    // periodically. We don't want to keep spamming the console about having
+    // no interfaces which can produce stats, though.
     if (!paused_) {
         QTimer::singleShot(kRestartDelayMsec, this, [this]() {
             if (!running_ && !paused_)

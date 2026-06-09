@@ -13,6 +13,8 @@
 #include "config.h"
 #define WS_LOG_DOMAIN LOG_DOMAIN_QTUI
 
+#include <ws_exit_codes.h>
+
 #include <ui/qt/manager/interface_stats_worker.h>
 
 #include <glib.h>
@@ -185,7 +187,7 @@ void InterfaceStatsWorker::poll()
         // The dumpcap child or pipe is gone; tear down and report.
         closeStream();
         disarmTimer();
-        emit failed(tr("The interface statistics stream stopped unexpectedly."));
+        emit failed(-1, tr("The interface statistics stream stopped unexpectedly."));
         return;
     }
 
@@ -208,7 +210,7 @@ bool InterfaceStatsWorker::openStream()
                 ? QString::fromUtf8(msg)
                 : tr("Unable to start the interface statistics stream.");
         g_free(msg);
-        emit failed(err);
+        emit failed(ret, err);
         return false;
     }
     g_free(msg);
@@ -217,7 +219,7 @@ bool InterfaceStatsWorker::openStream()
     forkChild_ = fork_child;
     return true;
 #else
-    emit failed(tr("This build has no packet capture support."));
+    emit failed(WS_EXIT_PCAP_NOT_SUPPORTED, tr("This build has no packet capture support."));
     return false;
 #endif // HAVE_LIBPCAP
 }
