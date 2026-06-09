@@ -283,9 +283,13 @@ static int hf_gsm_bssmap_le_apdu;
 static int hf_gsm_bssmap_le_message_elements;
 static int hf_gsm_bssmap_le_location_inf;
 static int hf_gsm_bssmap_le_pos_method;
+static int hf_gsm_bssmap_le_id_disc;
+static int hf_gsm_bssmap_le_lmu_id;
 static int hf_gsm_bssmap_le_pos_data_disc;
 static int hf_gsm_bssmap_le_pos_data_pos_method;
 static int hf_gsm_bssmap_le_pos_data_usage;
+static int hf_gsm_bssmap_le_ret_err_req;
+static int hf_gsm_bssmap_le_ret_err_cause;
 static int hf_gsm_bssmap_le_bts_rec_acc;
 static int hf_gsm_bssmap_le_tar;
 static int hf_gsm_bssmap_le_mpm_timer;
@@ -388,7 +392,7 @@ de_bmaple_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t off
  * 10.8 Deciphering Keys
  */
 static uint16_t
-de_bmaple_decihp_keys(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_)
+de_bmaple_deciph_keys(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_)
 {
 	int bit_offset;
 
@@ -654,9 +658,48 @@ de_bmaple_location_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
 	return curr_offset - offset;
 }
+
 /*
  * 10.19 Network Element Identity
  */
+static const value_string bssmap_le_id_disc_vals[] = {
+	{ 0, "Identification using the MCC + MNC + LAC + CI"},
+	{ 1, "Identification using the LAC + CI"},
+	{ 4, "Identification using the MCC + MNC + LAC"},
+	{ 5, "Identification using the LAC"},
+	{ 6, "Identification using the LMU ID"},
+	{ 0, NULL }
+};
+/* Dissector for the Network Element Identity element */
+static uint16_t
+de_bmaple_network_elem_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_)
+{
+	uint32_t  curr_offset;
+	uint8_t disc;
+
+	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_spare, tvb, offset << 3, 4, ENC_NA);
+	proto_tree_add_item_ret_uint8(tree, hf_gsm_bssmap_le_id_disc, tvb, offset, 1, ENC_NA, &disc);
+	curr_offset = offset + 1;
+
+	switch (disc) {
+	case 0:
+	case 1:
+	case 4:
+	case 5:
+		curr_offset += be_cell_id_aux(tvb, tree, pinfo, curr_offset, len, add_string, string_len, disc);
+		break;
+	case 6:
+		proto_tree_add_item(tree, hf_gsm_bssmap_le_lmu_id, tvb, offset, len - 1, ENC_NA);
+		break;
+	default:
+		break;
+	}
+
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_bssmap_le_extraneous_data);
+
+	return curr_offset - offset;
+}
+
 /*
  * 10.20 Positioning Data
  */
@@ -686,12 +729,43 @@ de_bmaple_pos_dta(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint3
 
 	return len;
 }
+
 /*
  * 10.21 Return Error Request
  */
+static const value_string bssmap_le_ret_err_req_vals[] = {
+	{ 0, "Return an unsegmented APDU or the first segment of a segmented APDU" },
+	{ 0, NULL }
+};
+
+static uint16_t
+de_bmaple_ret_err_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_ret_err_req, tvb, offset, 1, ENC_NA);
+
+	return len;
+}
+
 /*
  * 10.22 Return Error Cause
  */
+static const value_string bssmap_le_ret_err_cause_vals[] = {
+	{ 0, "Unspecified" },
+	{ 1, "System Failure" },
+	{ 2, "Protocol Error" },
+	{ 3, "Destination unknown" },
+	{ 4, "Destination unreachable" },
+	{ 5, "Congestion" },
+	{ 0, NULL }
+};
+
+static uint16_t
+de_bmaple_ret_err_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_ret_err_cause, tvb, offset, 1, ENC_NA);
+
+	return len;
+}
 /*
  * 10.23 (void)
  */
@@ -1136,12 +1210,12 @@ uint16_t (* const bssmap_le_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_
 	de_bmaple_cause,				/* 10.13 LCS Cause */
 	de_bmaple_client,				/* LCS Client Type */
 	de_bmaple_apdu,					/* APDU */
-	NULL,							/* Network Element Identity */
+	de_bmaple_network_elem_id,			/* Network Element Identity */
 	de_bmaple_req_gps_ass_data,		/* 10.10 Requested GPS Assistance Data */
 	be_ganss_ass_dta,				/* Requested GANSS Assistance Data */
-	de_bmaple_decihp_keys,			/* 10.8 Deciphering Keys */
-	NULL,							/* Return Error Request */
-	NULL,							/* Return Error Cause */
+	de_bmaple_deciph_keys,			/* 10.8 Deciphering Keys */
+	de_bmaple_ret_err_req,					/* Return Error Request */
+	de_bmaple_ret_err_cause,				/* Return Error Cause */
 	NULL,							/* Segmentation */
 	NULL,							/* 10.7 Classmark Information Type 3 */
 	NULL,							/* Cause */
@@ -1310,6 +1384,29 @@ Segmentation	3.2,2,74	Both	C (note 1)	5
 Return Error Request	3.2.2.72	Both	C (note 2)	3-n
 Return Error Cause	3.2.2.73	Both	C (note 3)	3-n
 */
+static void
+bssmap_le_connectionless(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
+{
+	uint32_t	curr_offset;
+	uint32_t	consumed;
+	unsigned	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	ELEM_MAND_TLV(BSSMAP_LE_NETWORK_ELEMENT_IDENTITY, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_NETWORK_ELEM_ID, " (Source)", ei_gsm_a_bssmap_le_missing_mandatory_element);
+	ELEM_MAND_TLV(BSSMAP_LE_NETWORK_ELEMENT_IDENTITY, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_NETWORK_ELEM_ID, " (Destination)", ei_gsm_a_bssmap_le_missing_mandatory_element);
+
+	ELEM_OPT_TLV_E(BSSMAP_LE_APDU, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL);
+
+	ELEM_OPT_TLV(BSSMAP_LE_SEGMENTATION, BSSAP_PDU_TYPE_BSSMAP, BE_SEG, NULL);
+
+	ELEM_OPT_TLV(BSSMAP_LE_RETURN_ERROR_REQUEST, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_RETURN_ERROR_REQ, NULL);
+
+	ELEM_OPT_TLV(BSSMAP_LE_RETURN_ERROR_CAUSE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_RETURN_ERROR_REQ, NULL);
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_le_extraneous_data);
+}
 
 /*
  * 9.11 RESET ACKNOWLEDGE
@@ -1367,7 +1464,7 @@ static void (* const bssmap_le_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packe
 	NULL,				/* Assistance Information Request */
 	NULL,				/* Assistance Information Response */
 	bssmap_le_connection_oriented,	/* Connection Oriented Information */
-	NULL,						/* Connectionless Information */
+	bssmap_le_connectionless,	/* Connectionless Information */
 	bssmap_reset,				/* Reset */
 	NULL,		/* Reset Acknowledge */
 
@@ -1652,6 +1749,16 @@ proto_register_gsm_bssmap_le(void)
 			FT_UINT8, BASE_HEX, VALS(bssmap_le_pos_method_vals), 0x0,
 			NULL, HFILL }
 		},
+		{ &hf_gsm_bssmap_le_id_disc,
+		{ "Identity Discriminator", "gsm_bssmap_le.id_disc",
+			FT_UINT8, BASE_HEX, VALS(bssmap_le_id_disc_vals), 0xF,
+			NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_lmu_id,
+		{ "LMU ID", "gsm_bssmap_le.lmu_id",
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
 		{ &hf_gsm_bssmap_le_pos_data_disc,
 		{ "Positioning Data Discriminator", "gsm_bssmap_le.pos_data_disc",
 			FT_UINT8, BASE_HEX, NULL, 0x0f,
@@ -1665,6 +1772,16 @@ proto_register_gsm_bssmap_le(void)
 		{ &hf_gsm_bssmap_le_pos_data_usage,
 		{ "Usage", "gsm_bssmap_le.pos_data.usage",
 			FT_UINT8, BASE_HEX, VALS(bssmap_le_pos_data_usage_vals), 0x03,
+			NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_ret_err_req,
+		{ "Return Error Request", "gsm_bssmap_le.ret_err_req",
+			FT_UINT8, BASE_HEX, VALS(bssmap_le_ret_err_req_vals), 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_ret_err_cause,
+		{ "Return Error Cause", "gsm_bssmap_le.ret_err_cause",
+			FT_UINT8, BASE_HEX, VALS(bssmap_le_ret_err_cause_vals), 0x00,
 			NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_bts_rec_acc,
