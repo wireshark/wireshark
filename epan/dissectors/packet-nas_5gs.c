@@ -516,6 +516,66 @@ static int hf_nas_5gs_sm_eth_hdr_comp_config_cid_len;
 static int hf_nas_5gs_sm_pdu_session_pair_id;
 static int hf_nas_5gs_sm_pdu_session_rsn;
 static int hf_nas_5gs_sm_ecn_mark_l4s_ind_qri;
+
+static int hf_nas_5gs_sm_remote_ue_ctx_list_nb_ue_ctx;
+static int hf_nas_5gs_sm_remote_ue_ctx_len;
+static int hf_nas_5gs_sm_remote_ue_ctx_addr_type;
+static int hf_nas_5gs_sm_remote_ue_ctx_userid_len;
+static int hf_nas_5gs_sm_remote_ue_ctx_userid;
+static int hf_nas_5gs_sm_remote_ue_ctx_ipv4;
+static int hf_nas_5gs_sm_remote_ue_ctx_ipv6;
+static int hf_nas_5gs_sm_remote_ue_ctx_ipv6_pfx_len;
+
+static int hf_nas_5gs_sm_req_mbs_cont_num_sess;
+static int hf_nas_5gs_sm_req_mbs_sess_info_len;
+static int hf_nas_5gs_sm_req_mbs_sess_op;
+static int hf_nas_5gs_sm_req_mbs_sess_id_type;
+static int hf_nas_5gs_sm_req_mbs_tmgi;
+static int hf_nas_5gs_sm_req_mbs_src_ipv4;
+static int hf_nas_5gs_sm_req_mbs_mcast_ipv4;
+static int hf_nas_5gs_sm_req_mbs_src_ipv6;
+static int hf_nas_5gs_sm_req_mbs_mcast_ipv6;
+
+static int hf_nas_5gs_sm_rec_mbs_cont_num_sess;
+static int hf_nas_5gs_sm_rec_mbs_info_len;
+static int hf_nas_5gs_sm_rec_mbs_decision;
+static int hf_nas_5gs_sm_rec_mbs_sess_id_type;
+static int hf_nas_5gs_sm_rec_mbs_cause;
+
+static int hf_nas_5gs_sm_n3qai_num_qfis;
+static int hf_nas_5gs_sm_n3qai_qfi;
+static int hf_nas_5gs_sm_n3qai_num_params;
+static int hf_nas_5gs_sm_n3qai_param_id;
+static int hf_nas_5gs_sm_n3qai_param_len;
+static int hf_nas_5gs_sm_n3qai_param_contents;
+
+static int hf_nas_5gs_sm_n3gpp_delay_budget_val;
+static int hf_nas_5gs_sm_n3gpp_delay_budget_flags;
+static int hf_nas_5gs_sm_n3gpp_delay_budget_qfipi;
+static int hf_nas_5gs_sm_n3gpp_delay_budget_pfpi;
+static int hf_nas_5gs_sm_n3gpp_delay_budget_num_qfis;
+static int hf_nas_5gs_sm_n3gpp_delay_budget_qfi;
+
+static int hf_nas_5gs_sm_ursp_report_num_conn_caps;
+static int hf_nas_5gs_sm_ursp_report_conn_cap_id;
+
+static int hf_nas_5gs_sm_prot_desc_len;
+static int hf_nas_5gs_sm_prot_desc_qri;
+static int hf_nas_5gs_sm_prot_desc_tp;
+static int hf_nas_5gs_sm_prot_desc_heipi;
+static int hf_nas_5gs_sm_prot_desc_pilpi;
+static int hf_nas_5gs_sm_prot_desc_rtp_hdr_ext_type;
+static int hf_nas_5gs_sm_prot_desc_rtp_hdr_ext_id;
+static int hf_nas_5gs_sm_prot_desc_rtp_payload_info_list_len;
+static int hf_nas_5gs_sm_prot_desc_rtp_payload_format;
+static int hf_nas_5gs_sm_prot_desc_rtp_num_payload_types;
+static int hf_nas_5gs_sm_prot_desc_rtp_payload_type;
+
+static int hf_nas_5gs_sm_n3gpp_dev_info_pdu_sess_type;
+static int hf_nas_5gs_sm_n3gpp_dev_info_entry_len;
+static int hf_nas_5gs_sm_n3gpp_dev_info_id_len;
+static int hf_nas_5gs_sm_n3gpp_dev_info_id;
+static int hf_nas_5gs_sm_n3gpp_dev_info_conn_info;
 static int hf_nas_5gs_sm_sel_sc_mode;
 static int hf_nas_5gs_sm_tpmic_b7;
 static int hf_nas_5gs_sm_atsss_st_b3_b6;
@@ -665,6 +725,16 @@ static int ett_nas_5gs_n3nan_conf_inf;
 static int ett_nas_5gs_n3iwf_identifier_entry;
 static int ett_nas_5gs_epdg_identifier_entry;
 static int ett_nas_5gs_sm_srtp_mult_media_id_info;
+static int ett_nas_5gs_sm_remote_ue_ctx;
+static int ett_nas_5gs_sm_req_mbs_sess_info;
+static int ett_nas_5gs_sm_rec_mbs_info;
+static int ett_nas_5gs_sm_n3qai_entry;
+static int ett_nas_5gs_sm_n3qai_param;
+static int ett_nas_5gs_sm_n3gpp_delay_budget_entry;
+static int ett_nas_5gs_sm_ursp_report;
+static int ett_nas_5gs_sm_prot_desc_entry;
+static int ett_nas_5gs_sm_prot_desc_rtp_payload_info;
+static int ett_nas_5gs_sm_n3gpp_dev_info_entry;
 
 static int hf_nas_5gs_mm_abba;
 static int hf_nas_5gs_mm_supi_fmt;
@@ -7053,11 +7123,54 @@ de_nas_5gs_sm_eth_hdr_comp_conf(tvbuff_t* tvb, proto_tree* tree, packet_info* pi
  * 9.11.4.29 Remote UE context list
  */
 static uint16_t
-de_nas_5gs_sm_remote_ue_ctx_list(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+de_nas_5gs_sm_remote_ue_ctx_list(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
     uint32_t offset, unsigned len,
     char* add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    uint32_t curr_offset = offset;
+    uint32_t num_ue_ctx, i;
+
+    proto_tree_add_item_ret_uint(tree, hf_nas_5gs_sm_remote_ue_ctx_list_nb_ue_ctx, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &num_ue_ctx);
+    curr_offset++;
+
+    for (i = 0; i < num_ue_ctx && (curr_offset - offset) < len; i++) {
+        proto_tree *subtree;
+        proto_item *item;
+        uint32_t ctx_len, start_offset = curr_offset;
+
+        subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_sm_remote_ue_ctx, &item, "Remote UE context %u", i + 1);
+        proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_sm_remote_ue_ctx_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &ctx_len);
+        curr_offset++;
+
+        if (ctx_len > 0) {
+            uint32_t addr_type, userid_len;
+            proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_sm_remote_ue_ctx_addr_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &addr_type);
+            curr_offset++;
+
+            proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_sm_remote_ue_ctx_userid_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &userid_len);
+            curr_offset++;
+
+            if (userid_len > 0) {
+                proto_tree_add_item(subtree, hf_nas_5gs_sm_remote_ue_ctx_userid, tvb, curr_offset, userid_len, ENC_NA);
+                curr_offset += userid_len;
+            }
+
+            if ((curr_offset - start_offset - 1) < ctx_len) {
+                /* IP address fields if present */
+                if (addr_type & 0x01) {
+                    proto_tree_add_item(subtree, hf_nas_5gs_sm_remote_ue_ctx_ipv4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+                    curr_offset += 4;
+                }
+                if (addr_type & 0x02) {
+                    proto_tree_add_item(subtree, hf_nas_5gs_sm_remote_ue_ctx_ipv6_pfx_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                    curr_offset++;
+                    proto_tree_add_item(subtree, hf_nas_5gs_sm_remote_ue_ctx_ipv6, tvb, curr_offset, 16, ENC_NA);
+                    curr_offset += 16;
+                }
+            }
+        }
+        proto_item_set_end(item, tvb, curr_offset);
+    }
 
     return len;
 }
@@ -7065,12 +7178,66 @@ de_nas_5gs_sm_remote_ue_ctx_list(tvbuff_t* tvb, proto_tree* tree, packet_info* p
 /*
  * 9.11.4.30 Requested MBS container
  */
+static const value_string nas_5gs_sm_req_mbs_sess_op_vals[] = {
+    { 0x0, "Join" },
+    { 0x1, "Leave" },
+    { 0,   NULL }
+};
+
+static const value_string nas_5gs_sm_mbs_sess_id_type_vals[] = {
+    { 0x0, "TMGI" },
+    { 0x1, "Source specific IP multicast address for IPv4" },
+    { 0x2, "Source specific IP multicast address for IPv6" },
+    { 0,   NULL }
+};
+
 static uint16_t
-de_nas_5gs_sm_req_mbs_cont(tvbuff_t* tvb _U_, proto_tree* tree _U_, packet_info* pinfo _U_,
-    uint32_t offset _U_, unsigned len,
+de_nas_5gs_sm_req_mbs_cont(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
+    uint32_t offset, unsigned len,
     char* add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    uint32_t curr_offset = offset;
+    uint32_t num_sess, i;
+
+    proto_tree_add_item_ret_uint(tree, hf_nas_5gs_sm_req_mbs_cont_num_sess, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &num_sess);
+    curr_offset++;
+
+    for (i = 0; i < num_sess && (curr_offset - offset) < len; i++) {
+        proto_tree *subtree;
+        proto_item *item;
+        uint32_t sess_len, id_type, start_offset = curr_offset;
+
+        subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_sm_req_mbs_sess_info, &item, "MBS session info %u", i + 1);
+        proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_sm_req_mbs_sess_info_len, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &sess_len);
+        curr_offset += 2;
+
+        proto_tree_add_item(subtree, hf_nas_5gs_sm_req_mbs_sess_op, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_sm_req_mbs_sess_id_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &id_type);
+        curr_offset++;
+
+        switch (id_type) {
+        case 0: /* TMGI */
+            proto_tree_add_item(subtree, hf_nas_5gs_sm_req_mbs_tmgi, tvb, curr_offset, 6, ENC_NA);
+            curr_offset += 6;
+            break;
+        case 1: /* IPv4 */
+            proto_tree_add_item(subtree, hf_nas_5gs_sm_req_mbs_src_ipv4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+            curr_offset += 4;
+            proto_tree_add_item(subtree, hf_nas_5gs_sm_req_mbs_mcast_ipv4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+            curr_offset += 4;
+            break;
+        case 2: /* IPv6 */
+            proto_tree_add_item(subtree, hf_nas_5gs_sm_req_mbs_src_ipv6, tvb, curr_offset, 16, ENC_NA);
+            curr_offset += 16;
+            proto_tree_add_item(subtree, hf_nas_5gs_sm_req_mbs_mcast_ipv6, tvb, curr_offset, 16, ENC_NA);
+            curr_offset += 16;
+            break;
+        default:
+            curr_offset = start_offset + 2 + sess_len;
+            break;
+        }
+        proto_item_set_end(item, tvb, curr_offset);
+    }
 
     return len;
 }
@@ -7078,12 +7245,47 @@ de_nas_5gs_sm_req_mbs_cont(tvbuff_t* tvb _U_, proto_tree* tree _U_, packet_info*
 /*
  * 9.11.4.31 Received MBS container
  */
+static const value_string nas_5gs_sm_rec_mbs_decision_vals[] = {
+    { 0x0, "Network accepts the join of the MBS session" },
+    { 0x1, "Network rejects the join of the MBS session" },
+    { 0x2, "Network removes the UE from the MBS session" },
+    { 0x3, "Network accepts the leave of the MBS session" },
+    { 0,   NULL }
+};
+
 static uint16_t
-de_nas_5gs_sm_rec_mbs_cont(tvbuff_t* tvb _U_, proto_tree* tree _U_, packet_info* pinfo _U_,
-    uint32_t offset _U_, unsigned len,
+de_nas_5gs_sm_rec_mbs_cont(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
+    uint32_t offset, unsigned len,
     char* add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    uint32_t curr_offset = offset;
+    uint32_t num_sess, i;
+
+    proto_tree_add_item_ret_uint(tree, hf_nas_5gs_sm_rec_mbs_cont_num_sess, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &num_sess);
+    curr_offset++;
+
+    for (i = 0; i < num_sess && (curr_offset - offset) < len; i++) {
+        proto_tree *subtree;
+        proto_item *item;
+        uint32_t info_len, start_offset = curr_offset;
+
+        subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_sm_rec_mbs_info, &item, "Received MBS info %u", i + 1);
+        proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_sm_rec_mbs_info_len, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &info_len);
+        curr_offset += 2;
+
+        proto_tree_add_item(subtree, hf_nas_5gs_sm_rec_mbs_decision, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_nas_5gs_sm_rec_mbs_sess_id_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        curr_offset++;
+
+        if (info_len > 1) {
+            proto_tree_add_item(subtree, hf_nas_5gs_sm_rec_mbs_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+            curr_offset++;
+        }
+
+        /* Skip remaining content of this entry */
+        curr_offset = start_offset + 2 + info_len;
+        proto_item_set_end(item, tvb, curr_offset);
+    }
 
     return len;
 }
@@ -7123,12 +7325,71 @@ de_nas_5gs_sm_rsn(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
 /*
  * 9.11.4.36 N3QAI
  */
+static const value_string nas_5gs_sm_n3qai_param_id_vals[] = {
+    { 0x01, "5QI" },
+    { 0x02, "GFBR uplink" },
+    { 0x03, "GFBR downlink" },
+    { 0x04, "MFBR uplink" },
+    { 0x05, "MFBR downlink" },
+    { 0x06, "Averaging window" },
+    { 0x07, "Resource type" },
+    { 0x08, "Priority level" },
+    { 0x09, "Packet delay budget" },
+    { 0x0a, "Packet error rate" },
+    { 0x0b, "Maximum data burst volume" },
+    { 0x0c, "Maximum packet loss rate downlink" },
+    { 0x0d, "Maximum packet loss rate uplink" },
+    { 0x0e, "ARP" },
+    { 0x0f, "Periodicity" },
+    { 0,    NULL }
+};
+
 static uint16_t
-de_nas_5gs_sm_n3qai(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+de_nas_5gs_sm_n3qai(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
     uint32_t offset, unsigned len,
     char* add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    uint32_t curr_offset = offset;
+    unsigned i = 1;
+
+    while ((curr_offset - offset) < len) {
+        proto_tree *subtree;
+        proto_item *item;
+        uint32_t num_qfis, num_params, j;
+        uint32_t start_offset = curr_offset;
+
+        subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_sm_n3qai_entry, &item, "N3QAI %u", i++);
+
+        proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_sm_n3qai_num_qfis, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &num_qfis);
+        curr_offset++;
+
+        for (j = 0; j < num_qfis && (curr_offset - offset) < len; j++) {
+            proto_tree_add_item(subtree, hf_nas_5gs_sm_n3qai_qfi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+            curr_offset++;
+        }
+
+        proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_sm_n3qai_num_params, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &num_params);
+        curr_offset++;
+
+        for (j = 0; j < num_params && (curr_offset - offset) < len; j++) {
+            proto_tree *param_tree;
+            proto_item *param_item;
+            uint32_t param_len;
+
+            param_tree = proto_tree_add_subtree_format(subtree, tvb, curr_offset, -1, ett_nas_5gs_sm_n3qai_param, &param_item, "Parameter %u", j + 1);
+            proto_tree_add_item(param_tree, hf_nas_5gs_sm_n3qai_param_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+            curr_offset++;
+            proto_tree_add_item_ret_uint(param_tree, hf_nas_5gs_sm_n3qai_param_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &param_len);
+            curr_offset++;
+            proto_tree_add_item(param_tree, hf_nas_5gs_sm_n3qai_param_contents, tvb, curr_offset, param_len, ENC_NA);
+            curr_offset += param_len;
+            proto_item_set_end(param_item, tvb, curr_offset);
+        }
+        proto_item_set_end(item, tvb, curr_offset);
+
+        if (curr_offset == start_offset)
+            break;
+    }
 
     return len;
 }
@@ -7137,11 +7398,52 @@ de_nas_5gs_sm_n3qai(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
  * 9.11.4.37 Non-3GPP delay budget
  */
 static uint16_t
-de_nas_5gs_sm_n3gpp_delay_budget(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+de_nas_5gs_sm_n3gpp_delay_budget(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
     uint32_t offset, unsigned len,
     char* add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    uint32_t curr_offset = offset;
+    unsigned i = 1;
+
+    while ((curr_offset - offset) < len) {
+        proto_tree *subtree;
+        proto_item *item;
+        uint32_t flags, num_qfis, j;
+        uint32_t start_offset = curr_offset;
+
+        subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_sm_n3gpp_delay_budget_entry, &item, "Non-3GPP delay budget %u", i++);
+
+        proto_tree_add_item(subtree, hf_nas_5gs_sm_n3gpp_delay_budget_val, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+        curr_offset += 2;
+
+        proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_sm_n3gpp_delay_budget_flags, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &flags);
+        proto_tree_add_item(subtree, hf_nas_5gs_sm_n3gpp_delay_budget_qfipi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_nas_5gs_sm_n3gpp_delay_budget_pfpi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        curr_offset++;
+
+        if (flags & 0x02) { /* QFIPI */
+            proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_sm_n3gpp_delay_budget_num_qfis, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &num_qfis);
+            curr_offset++;
+            for (j = 0; j < num_qfis && (curr_offset - offset) < len; j++) {
+                proto_tree_add_item(subtree, hf_nas_5gs_sm_n3gpp_delay_budget_qfi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                curr_offset++;
+            }
+        }
+
+        /* PFPI - packet filter list: skip for now (complex, reuses QoS rule packet filter format) */
+        if (flags & 0x01) {
+            /* Remaining bytes in this entry belong to the packet filter list */
+            uint32_t remaining = len - (curr_offset - offset);
+            if (remaining > 0) {
+                curr_offset += remaining;
+            }
+        }
+
+        proto_item_set_end(item, tvb, curr_offset);
+
+        if (curr_offset == start_offset)
+            break;
+    }
 
     return len;
 }
@@ -7150,11 +7452,29 @@ de_nas_5gs_sm_n3gpp_delay_budget(tvbuff_t* tvb, proto_tree* tree, packet_info* p
  * 9.11.4.38 URSP rule enforcement reports
  */
 static uint16_t
-de_nas_5gs_sm_ursp_rule_enforce_reports(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+de_nas_5gs_sm_ursp_rule_enforce_reports(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
     uint32_t offset, unsigned len,
     char* add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    uint32_t curr_offset = offset;
+    unsigned i = 1;
+
+    while ((curr_offset - offset) < len) {
+        proto_tree *subtree;
+        proto_item *item;
+        uint32_t num_caps, j;
+
+        subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_sm_ursp_report, &item, "URSP rule enforcement report %u", i++);
+
+        proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_sm_ursp_report_num_conn_caps, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &num_caps);
+        curr_offset++;
+
+        for (j = 0; j < num_caps && (curr_offset - offset) < len; j++) {
+            proto_tree_add_item(subtree, hf_nas_5gs_sm_ursp_report_conn_cap_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+            curr_offset++;
+        }
+        proto_item_set_end(item, tvb, curr_offset);
+    }
 
     return len;
 }
@@ -7162,12 +7482,99 @@ de_nas_5gs_sm_ursp_rule_enforce_reports(tvbuff_t* tvb, proto_tree* tree, packet_
 /*
  * 9.11.4.39 Protocol description
  */
+static const value_string nas_5gs_sm_prot_desc_tp_vals[] = {
+    { 0x01, "RTP" },
+    { 0x02, "SRTP" },
+    { 0,    NULL }
+};
+
+static const value_string nas_5gs_sm_prot_desc_rtp_hdr_ext_type_vals[] = {
+    { 0x01, "RTP Header Extension for PDU Set Marking" },
+    { 0,    NULL }
+};
+
+static const value_string nas_5gs_sm_prot_desc_rtp_payload_format_vals[] = {
+    { 0x01, "H.264/AVC" },
+    { 0x02, "H.265/HEVC" },
+    { 0,    NULL }
+};
+
 static uint16_t
-de_nas_5gs_sm_prot_desc(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+de_nas_5gs_sm_prot_desc(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
     uint32_t offset, unsigned len,
     char* add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    uint32_t curr_offset = offset;
+    unsigned i = 1;
+
+    while ((curr_offset - offset) < len) {
+        proto_tree *subtree;
+        proto_item *item;
+        uint32_t desc_len, flags, start_offset = curr_offset;
+
+        subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_sm_prot_desc_entry, &item, "Protocol description %u", i++);
+
+        proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_sm_prot_desc_len, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &desc_len);
+        curr_offset += 2;
+
+        if (desc_len == 0) {
+            proto_item_set_end(item, tvb, curr_offset);
+            continue;
+        }
+
+        if (desc_len == 1) {
+            /* Only QRI */
+            proto_tree_add_item(subtree, hf_nas_5gs_sm_prot_desc_qri, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+            curr_offset++;
+            proto_item_set_end(item, tvb, curr_offset);
+            continue;
+        }
+
+        proto_tree_add_item(subtree, hf_nas_5gs_sm_prot_desc_qri, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        curr_offset++;
+
+        proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_sm_prot_desc_tp, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &flags);
+        proto_tree_add_item(subtree, hf_nas_5gs_sm_prot_desc_heipi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_nas_5gs_sm_prot_desc_pilpi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        curr_offset++;
+
+        if (flags & 0x10) { /* HEIPI */
+            proto_tree_add_item(subtree, hf_nas_5gs_sm_prot_desc_rtp_hdr_ext_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+            curr_offset++;
+            proto_tree_add_item(subtree, hf_nas_5gs_sm_prot_desc_rtp_hdr_ext_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+            curr_offset++;
+        }
+
+        if (flags & 0x20) { /* PILPI */
+            uint32_t pil_len, num_pt, j;
+            proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_sm_prot_desc_rtp_payload_info_list_len, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &pil_len);
+            curr_offset += 2;
+
+            uint32_t pil_end = curr_offset + pil_len;
+            while (curr_offset < pil_end && (curr_offset - offset) < len) {
+                proto_tree *pi_tree;
+                proto_item *pi_item;
+
+                pi_tree = proto_tree_add_subtree(subtree, tvb, curr_offset, -1, ett_nas_5gs_sm_prot_desc_rtp_payload_info, &pi_item, "RTP payload information");
+                proto_tree_add_item(pi_tree, hf_nas_5gs_sm_prot_desc_rtp_payload_format, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                curr_offset++;
+                proto_tree_add_item_ret_uint(pi_tree, hf_nas_5gs_sm_prot_desc_rtp_num_payload_types, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &num_pt);
+                curr_offset++;
+                for (j = 0; j < num_pt && (curr_offset - offset) < len; j++) {
+                    proto_tree_add_item(pi_tree, hf_nas_5gs_sm_prot_desc_rtp_payload_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                    curr_offset++;
+                }
+                proto_item_set_end(pi_item, tvb, curr_offset);
+            }
+        }
+
+        /* Advance to end of this description entry */
+        curr_offset = start_offset + 2 + desc_len;
+        proto_item_set_end(item, tvb, curr_offset);
+
+        if (curr_offset == start_offset)
+            break;
+    }
 
     return len;
 }
@@ -7191,14 +7598,52 @@ de_nas_5gs_sm_ecn_mark_l4s_ind(tvbuff_t* tvb, proto_tree* tree, packet_info* pin
 }
 
 /*
- * 9.11.4.41 ECN marking for L4S indication
+ * 9.11.4.41 Non-3GPP device information
  */
 static uint16_t
-de_nas_5gs_sm_n3gpp_device_info(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+de_nas_5gs_sm_n3gpp_device_info(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
     uint32_t offset, unsigned len,
     char* add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    uint32_t curr_offset = offset;
+    unsigned i = 1;
+
+    proto_tree_add_item(tree, hf_nas_5gs_sm_n3gpp_dev_info_pdu_sess_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    curr_offset++;
+
+    while ((curr_offset - offset) < len) {
+        proto_tree *subtree;
+        proto_item *item;
+        uint32_t entry_len, id_len;
+
+        subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_sm_n3gpp_dev_info_entry, &item, "Non-3GPP device %u", i++);
+
+        proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_sm_n3gpp_dev_info_entry_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &entry_len);
+        curr_offset++;
+
+        if (entry_len == 0) {
+            proto_item_set_end(item, tvb, curr_offset);
+            continue;
+        }
+
+        uint32_t entry_end = curr_offset + entry_len;
+
+        proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_sm_n3gpp_dev_info_id_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &id_len);
+        id_len &= 0x7F; /* 7 bits for length */
+        curr_offset++;
+
+        if (id_len > 0 && (curr_offset + id_len) <= (offset + len)) {
+            proto_tree_add_item(subtree, hf_nas_5gs_sm_n3gpp_dev_info_id, tvb, curr_offset, id_len, ENC_NA);
+            curr_offset += id_len;
+        }
+
+        if (curr_offset < entry_end && (curr_offset - offset) < len) {
+            proto_tree_add_item(subtree, hf_nas_5gs_sm_n3gpp_dev_info_conn_info, tvb, curr_offset, entry_end - curr_offset, ENC_NA);
+        }
+
+        curr_offset = entry_end;
+        proto_item_set_end(item, tvb, curr_offset);
+    }
 
     return len;
 }
@@ -15054,6 +15499,274 @@ proto_register_nas_5gs(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+
+        { &hf_nas_5gs_sm_remote_ue_ctx_list_nb_ue_ctx,
+        { "Number of remote UE contexts", "nas-5gs.sm.remote_ue_ctx_list.nb_ue_ctx",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_remote_ue_ctx_len,
+        { "Length of remote UE context", "nas-5gs.sm.remote_ue_ctx.len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_remote_ue_ctx_addr_type,
+        { "Address type", "nas-5gs.sm.remote_ue_ctx.addr_type",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_remote_ue_ctx_userid_len,
+        { "User ID length", "nas-5gs.sm.remote_ue_ctx.userid_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_remote_ue_ctx_userid,
+        { "User ID", "nas-5gs.sm.remote_ue_ctx.userid",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_remote_ue_ctx_ipv4,
+        { "IPv4 address", "nas-5gs.sm.remote_ue_ctx.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_remote_ue_ctx_ipv6,
+        { "IPv6 address", "nas-5gs.sm.remote_ue_ctx.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_remote_ue_ctx_ipv6_pfx_len,
+        { "IPv6 prefix length", "nas-5gs.sm.remote_ue_ctx.ipv6_pfx_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_nas_5gs_sm_req_mbs_cont_num_sess,
+        { "Number of MBS session infos", "nas-5gs.sm.req_mbs_cont.num_sess",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_req_mbs_sess_info_len,
+        { "MBS session info length", "nas-5gs.sm.req_mbs.sess_info_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_req_mbs_sess_op,
+        { "MBS session operation", "nas-5gs.sm.req_mbs.sess_op",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_req_mbs_sess_op_vals), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_req_mbs_sess_id_type,
+        { "Type of MBS session ID", "nas-5gs.sm.req_mbs.sess_id_type",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_mbs_sess_id_type_vals), 0x03,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_req_mbs_tmgi,
+        { "TMGI", "nas-5gs.sm.req_mbs.tmgi",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_req_mbs_src_ipv4,
+        { "Source IPv4 address", "nas-5gs.sm.req_mbs.src_ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_req_mbs_mcast_ipv4,
+        { "Multicast IPv4 address", "nas-5gs.sm.req_mbs.mcast_ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_req_mbs_src_ipv6,
+        { "Source IPv6 address", "nas-5gs.sm.req_mbs.src_ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_req_mbs_mcast_ipv6,
+        { "Multicast IPv6 address", "nas-5gs.sm.req_mbs.mcast_ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_nas_5gs_sm_rec_mbs_cont_num_sess,
+        { "Number of received MBS infos", "nas-5gs.sm.rec_mbs_cont.num_sess",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_rec_mbs_info_len,
+        { "Received MBS info length", "nas-5gs.sm.rec_mbs.info_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_rec_mbs_decision,
+        { "MBS decision", "nas-5gs.sm.rec_mbs.decision",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_rec_mbs_decision_vals), 0x70,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_rec_mbs_sess_id_type,
+        { "Type of MBS session ID", "nas-5gs.sm.rec_mbs.sess_id_type",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_mbs_sess_id_type_vals), 0x03,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_rec_mbs_cause,
+        { "MBS cause", "nas-5gs.sm.rec_mbs.cause",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_nas_5gs_sm_n3qai_num_qfis,
+        { "Number of QFIs", "nas-5gs.sm.n3qai.num_qfis",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_n3qai_qfi,
+        { "QFI", "nas-5gs.sm.n3qai.qfi",
+            FT_UINT8, BASE_DEC, NULL, 0x3f,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_n3qai_num_params,
+        { "Number of N3QAI parameters", "nas-5gs.sm.n3qai.num_params",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_n3qai_param_id,
+        { "N3QAI parameter identifier", "nas-5gs.sm.n3qai.param_id",
+            FT_UINT8, BASE_HEX, VALS(nas_5gs_sm_n3qai_param_id_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_n3qai_param_len,
+        { "Length of N3QAI parameter contents", "nas-5gs.sm.n3qai.param_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_n3qai_param_contents,
+        { "N3QAI parameter contents", "nas-5gs.sm.n3qai.param_contents",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_nas_5gs_sm_n3gpp_delay_budget_val,
+        { "Non-3GPP delay budget value", "nas-5gs.sm.n3gpp_delay_budget.value",
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_n3gpp_delay_budget_flags,
+        { "Flags", "nas-5gs.sm.n3gpp_delay_budget.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_n3gpp_delay_budget_qfipi,
+        { "QFIPI", "nas-5gs.sm.n3gpp_delay_budget.qfipi",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+            "QoS flow identifier presence indicator", HFILL }
+        },
+        { &hf_nas_5gs_sm_n3gpp_delay_budget_pfpi,
+        { "PFPI", "nas-5gs.sm.n3gpp_delay_budget.pfpi",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+            "Packet filter presence indicator", HFILL }
+        },
+        { &hf_nas_5gs_sm_n3gpp_delay_budget_num_qfis,
+        { "Number of QFIs", "nas-5gs.sm.n3gpp_delay_budget.num_qfis",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_n3gpp_delay_budget_qfi,
+        { "QFI", "nas-5gs.sm.n3gpp_delay_budget.qfi",
+            FT_UINT8, BASE_DEC, NULL, 0x3f,
+            NULL, HFILL }
+        },
+
+        { &hf_nas_5gs_sm_ursp_report_num_conn_caps,
+        { "Number of connection capability identifiers", "nas-5gs.sm.ursp_report.num_conn_caps",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_ursp_report_conn_cap_id,
+        { "Connection capability identifier", "nas-5gs.sm.ursp_report.conn_cap_id",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_nas_5gs_sm_prot_desc_len,
+        { "Length of protocol description", "nas-5gs.sm.prot_desc.len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_prot_desc_qri,
+        { "QoS Rule Identifier", "nas-5gs.sm.prot_desc.qri",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_prot_desc_tp,
+        { "Transport Protocol", "nas-5gs.sm.prot_desc.tp",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_prot_desc_tp_vals), 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_prot_desc_heipi,
+        { "HEIPI", "nas-5gs.sm.prot_desc.heipi",
+            FT_BOOLEAN, 8, TFS(&tfs_included_not_included), 0x10,
+            "RTP header extension information presence indicator", HFILL }
+        },
+        { &hf_nas_5gs_sm_prot_desc_pilpi,
+        { "PILPI", "nas-5gs.sm.prot_desc.pilpi",
+            FT_BOOLEAN, 8, TFS(&tfs_included_not_included), 0x20,
+            "RTP payload information list presence indicator", HFILL }
+        },
+        { &hf_nas_5gs_sm_prot_desc_rtp_hdr_ext_type,
+        { "RTP header extension type", "nas-5gs.sm.prot_desc.rtp_hdr_ext_type",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_prot_desc_rtp_hdr_ext_type_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_prot_desc_rtp_hdr_ext_id,
+        { "RTP header extension id", "nas-5gs.sm.prot_desc.rtp_hdr_ext_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_prot_desc_rtp_payload_info_list_len,
+        { "Length of RTP payload information list", "nas-5gs.sm.prot_desc.rtp_payload_info_list_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_prot_desc_rtp_payload_format,
+        { "RTP payload format", "nas-5gs.sm.prot_desc.rtp_payload_format",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_prot_desc_rtp_payload_format_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_prot_desc_rtp_num_payload_types,
+        { "Number of RTP payload types", "nas-5gs.sm.prot_desc.rtp_num_payload_types",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_prot_desc_rtp_payload_type,
+        { "RTP payload type", "nas-5gs.sm.prot_desc.rtp_payload_type",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_nas_5gs_sm_n3gpp_dev_info_pdu_sess_type,
+        { "PDU session type", "nas-5gs.sm.n3gpp_dev_info.pdu_sess_type",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_pdu_session_type_values), 0x07,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_n3gpp_dev_info_entry_len,
+        { "Length of non-3GPP device information", "nas-5gs.sm.n3gpp_dev_info.entry_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_n3gpp_dev_info_id_len,
+        { "Length of non-3GPP device identifier", "nas-5gs.sm.n3gpp_dev_info.id_len",
+            FT_UINT8, BASE_DEC, NULL, 0x7f,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_n3gpp_dev_info_id,
+        { "Non-3GPP device identifier", "nas-5gs.sm.n3gpp_dev_info.id",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_n3gpp_dev_info_conn_info,
+        { "Connection information", "nas-5gs.sm.n3gpp_dev_info.conn_info",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_nas_5gs_sm_sel_sc_mode,
         { "Selected SSC mode",   "nas-5gs.sm.sel_sc_mode",
             FT_UINT8, BASE_DEC, VALS(nas_5gs_sc_mode_values), 0x70,
@@ -17409,7 +18122,7 @@ proto_register_nas_5gs(void)
     unsigned  last_offset;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    65
+#define NUM_INDIVIDUAL_ELEMS    75
     int *ett[NUM_INDIVIDUAL_ELEMS +
         NUM_NAS_5GS_COMMON_ELEM +
         NUM_NAS_5GS_MM_MSG + NUM_NAS_5GS_MM_ELEM +
@@ -17482,6 +18195,16 @@ proto_register_nas_5gs(void)
     ett[62] = &ett_nas_5gs_n3iwf_identifier_entry;
     ett[63] = &ett_nas_5gs_epdg_identifier_entry;
     ett[64] = &ett_nas_5gs_sm_srtp_mult_media_id_info;
+    ett[65] = &ett_nas_5gs_sm_remote_ue_ctx;
+    ett[66] = &ett_nas_5gs_sm_req_mbs_sess_info;
+    ett[67] = &ett_nas_5gs_sm_rec_mbs_info;
+    ett[68] = &ett_nas_5gs_sm_n3qai_entry;
+    ett[69] = &ett_nas_5gs_sm_n3qai_param;
+    ett[70] = &ett_nas_5gs_sm_n3gpp_delay_budget_entry;
+    ett[71] = &ett_nas_5gs_sm_ursp_report;
+    ett[72] = &ett_nas_5gs_sm_prot_desc_entry;
+    ett[73] = &ett_nas_5gs_sm_prot_desc_rtp_payload_info;
+    ett[74] = &ett_nas_5gs_sm_n3gpp_dev_info_entry;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
