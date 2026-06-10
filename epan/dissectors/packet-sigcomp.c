@@ -4383,9 +4383,10 @@ execute_next_instruction:
             string[0]= buff[k];
             string[1]= '\0';
             if (print_level_3 ) {
-                proto_tree_add_uint_format(udvm_tree, hf_sigcomp_output_value, bytecode_tvb, 0, -1, buff[k],
+                ti = proto_tree_add_uint_format(udvm_tree, hf_sigcomp_output_value, bytecode_tvb, 0, 0, buff[k],
                                     "               Output value: %u (0x%x) ASCII(%s) from Addr: %u ,output to dispatcher position %u",
                                     buff[k],buff[k],format_text(pinfo->pool, string,1), k,output_address);
+                proto_item_set_generated(ti);
             }
             k = ( k + 1 ) & 0xffff;
             output_address ++;

@@ -407,6 +407,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, uint
     uint32_t            return_code=0, encrypt_error=0;
     proto_tree          *atree;
     proto_item          *expert_item;
+    proto_item          *ti;
     const char          *str;
 
 
@@ -430,7 +431,8 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, uint
         /*foffset += 4;*/
         break;
     case 2:
-        proto_tree_add_uint(atree, hf_verb, tvb, foffset, -1, subverb);
+        ti = proto_tree_add_uint(atree, hf_verb, tvb, 0, 0, subverb);
+        proto_item_set_generated(ti);
         proto_tree_add_item(atree, hf_length, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         msg_length = tvb_get_letohl(tvb, foffset);
         foffset +=4;
@@ -474,8 +476,9 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, uint
                 /*foffset += msg_length;*/
                 break;
             case 8:             /* Login Store Management */
-                proto_tree_add_uint_format(atree, hf_lsm_verb, tvb, foffset, -1, msgverb,
+                ti = proto_tree_add_uint_format(atree, hf_lsm_verb, tvb, 0, 0, msgverb,
                     "Subverb: %s", val_to_str(pinfo->pool, msgverb, nmas_lsmverb_enum, "Unknown (%u)"));
+                proto_item_set_generated(ti);
                 switch(msgverb) {
                     /* The data within these structures is all encrypted. */
                 case 1:

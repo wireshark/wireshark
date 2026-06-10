@@ -594,6 +594,7 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, uint8
 
     proto_tree          *atree;
     proto_item          *expert_item;
+    proto_item          *ti;
 
     foffset = 8;
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NSSS");
@@ -613,7 +614,8 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, uint8
             subverb = request_value->req_nds_flags;
             str = try_val_to_str(subverb, sss_verb_enum);
             if (str) {
-                proto_tree_add_uint(atree, hf_sss_verb, tvb, foffset, -1, subverb);
+                ti = proto_tree_add_uint(atree, hf_sss_verb, tvb, 0, 0, subverb);
+                proto_item_set_generated(ti);
             }
         }
         proto_tree_add_item(atree, hf_sss_length, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
