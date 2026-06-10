@@ -534,7 +534,7 @@ static uint16_t getChannelSNModulus(struct rlc_channel * ch_lookup)
  * It frees the GList pointed to by the entry.
  */
 static void
-free_sequence_table_entry_data(void *data)
+free_rlc_seqlist_data(void *data)
 {
     struct rlc_seqlist *list = (struct rlc_seqlist *)data;
     if (list->list != NULL) {
@@ -557,11 +557,11 @@ fragment_table_init(void)
 {
     int i;
     fragment_table = g_hash_table_new_full(rlc_channel_hash, rlc_channel_equal, rlc_channel_delete, NULL);
-    endpoints = g_hash_table_new_full(rlc_channel_hash, rlc_channel_equal, rlc_channel_delete, NULL);
+    endpoints = g_hash_table_new_full(rlc_channel_hash, rlc_channel_equal, rlc_channel_delete, free_rlc_seqlist_data);
     reassembled_table = g_hash_table_new_full(rlc_frag_hash, rlc_frag_equal,
         rlc_frag_delete, rlc_sdu_frags_delete);
     sequence_table = g_hash_table_new_full(rlc_channel_hash, rlc_channel_equal,
-        NULL, free_sequence_table_entry_data);
+        NULL, free_rlc_seqlist_data);
     duplicate_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
 
     /*Reset and or clear deciphering variables*/
@@ -955,7 +955,7 @@ reassemble_sequence(struct rlc_frag ** frags, struct rlc_seqlist * endlist,
     /* Remove first endpoint. */
     element = g_list_first(endlist->list);
     if (element) {
-        endlist->list = g_list_remove_link(endlist->list, element);
+        endlist->list = g_list_delete_link(endlist->list, element);
         if (frags[end] != NULL) {
             if (endlist->list) {
                 endlist->list->data = GINT_TO_POINTER((GPOINTER_TO_INT(endlist->list->data) - 1 + snmod) % snmod);
@@ -1145,7 +1145,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
         if (start == end && frags[start]->len == 0) {
             element = g_list_first(endlist->list);
             if (element) {
-                endlist->list = g_list_remove_link(endlist->list, element);
+                endlist->list = g_list_delete_link(endlist->list, element);
             }
             frags[start] = frags[start]->next;
 
