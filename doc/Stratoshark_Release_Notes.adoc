@@ -27,6 +27,10 @@ If you or your organization would like to contribute or become a sponsor, please
 // Many other improvements have been made.
 // See the “New and Updated Features” section below for more details.
 
+The following changes have been made since version 0.10.1:
+
+* Nothing of note.
+
 The following changes have been made since version 0.10.0:
 
 The Stratoshark Windows installer now includes a DLL that was required by the cloudtrail and gcpaudit plugins.

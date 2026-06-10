@@ -23,6 +23,10 @@ If you or your organization would like to contribute or become a sponsor, please
 // Add a summary of **major** changes here.
 // Add other changes to "New and Updated Features" below.
 
+The following changes have been made since version 4.7.1:
+
+* Nothing of note.
+
 The following changes have been made since version 4.7.0:
 
 The following issues have been fixed:
