@@ -221,6 +221,68 @@ class TestDissectBpv7:
         assert stdout.strip() == '\t'.join(['3', '96', '3,-31'])
 
 
+class TestDissectCbor:
+    '''
+    Test captures generated from the CBOR example files with commands:
+    python3 tools/generate_cbor_pcap.py --infile test/captures/cbor_variety.cbordiag --outfile test/captures/cbor_variety.pcap http
+    python3 tools/generate_cbor_pcap.py --infile test/captures/cborseq_variety.cbordiag --outfile test/captures/cborseq_variety.pcap http --content-type application/cbor-seq
+    '''
+
+    def test_cbor_variety_diag(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cbor_variety.pcap'),
+                '-o', 'cbor.dissect_embeded_bstr:TRUE',
+                '-o', 'cbor.display_diagnostic:top',
+                '-T', 'fields',
+                '-E', 'occurrence=l',
+                '-E', 'escape=n',
+                '-e', 'cbor.diagnostic',
+            ), encoding='utf-8', env=test_env)
+        expect = (
+            '[_ '
+            '[undefined, null, false, true, simple(10)], '
+            '[0, 10, 9223372036854775807, 18446744073709551615], '
+            '[-1, -10, -9223372036854775808, -9223372036854775809, -18446744073709551616], '
+            '[0.00000, 10.0000, 65504.0, -65504.0, NaN, -Infinity, Infinity], '
+            '[65505.0000000000, -65505.0000000000, 3.40282346638529e+38, -3.40282346638529e+38], '
+            '[3.40282346638529e+39, -3.40282346638529e+39, 1.79769313486232e+308, -1.79769313486232e+308], '
+            r"""['', ''_, 'test', 'Café', '\\'in"', h'00cafe', (_ 'te', 'st')], """
+            r"""["", ""_, "test", "Café", "'in\\"", "\\t\\n\\u200B", (_ "te", "st")], """
+            '[[], [_ ], [_ 1, 2, 3]], '
+            '[{}, {_ }, {_ 1: 2, 3: 4}], '
+            r"""[2(h'66691b50'), 24(<<10>>)], """
+            '[<<10>>, <<1, 2, "hi">>]'
+            ']'
+        )
+        assert stdout.strip() == expect
+
+    def test_cborseq_variety_diag(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cborseq_variety.pcap'),
+                '-o', 'cbor.dissect_embeded_bstr:TRUE',
+                '-o', 'cbor.display_diagnostic:top',
+                '-T', 'fields',
+                '-E', 'occurrence=l',
+                '-E', 'escape=n',
+                '-e', 'cbor.diagnostic',
+            ), encoding='utf-8', env=test_env)
+        expect = (
+            '[undefined, null, false, true, simple(10)], '
+            '[0, 10, 9223372036854775807, 18446744073709551615], '
+            '[-1, -10, -9223372036854775808, -9223372036854775809, -18446744073709551616], '
+            '[0.00000, 10.0000, 65504.0, -65504.0, NaN, -Infinity, Infinity], '
+            '[65505.0000000000, -65505.0000000000, 3.40282346638529e+38, -3.40282346638529e+38], '
+            '[3.40282346638529e+39, -3.40282346638529e+39, 1.79769313486232e+308, -1.79769313486232e+308], '
+            r"""['', 'test', 'Café', '\\'in"', h'00cafe', (_ 'te', 'st')], """
+            r"""["", "test", "Café", "'in\\"", "\\t\\n\\u200B", (_ "te", "st")], """
+            '[[], [_ 1, 2, 3]], '
+            '[{}, {_ 1: 2, 3: 4}], '
+            r"""[2(h'66691b50'), 24(<<10>>)], """
+            '[<<10>>, <<1, 2, "hi">>]'
+        )
+        assert stdout.strip() == expect
+
+
 class TestDissectCose:
     '''
     These test captures were generated from the COSE example files with command:

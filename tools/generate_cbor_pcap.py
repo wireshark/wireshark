@@ -14,6 +14,7 @@ import sys
 from argparse import ArgumentParser
 from subprocess import check_output
 
+import cbor_diag
 from scapy.contrib.coap import CoAP
 from scapy.layers.http import HTTP, HTTPRequest, HTTPResponse
 from scapy.layers.inet import IP, TCP, UDP
@@ -34,7 +35,7 @@ def main():
                         help='The PCAP output file, or "-" for stdout')
     parser.add_argument('--intype', default='cbordiag',
                         choices=['cbordiag', 'raw'],
-                        help='The input data type.')
+                        help='The input data type (default cbordiag)')
     subp = parser.add_subparsers(title='transport',
                                  dest='transport', required=True,
                                  help='Message transport')
@@ -61,15 +62,19 @@ def main():
     cbordata = []
     for infile_name in args.infile:
         infile_name = infile_name.strip()
-        if infile_name != '-':
-            infile = open(infile_name, 'rb')
-        else:
-            infile = sys.stdin.buffer
 
         if args.intype == 'raw':
+            if infile_name != '-':
+                infile = open(infile_name, 'rb')
+            else:
+                infile = sys.stdin.buffer
             cbordata.append(infile.read())
         elif args.intype == 'cbordiag':
-            cbordata.append(check_output('diag2cbor.rb', stdin=infile))
+            if infile_name != '-':
+                infile = open(infile_name, 'r')
+            else:
+                infile = sys.stdin
+            cbordata.append(cbor_diag.diag2cbor(infile.read(), seq=True))
 
     # Write the request directly into pcap
     outfile_name = args.outfile.strip()
