@@ -14689,7 +14689,7 @@ dissect_e2ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 static void e2ap_init_protocol(void)
 {
-  s_gnb_ran_functions_table.num_gnbs = 0;
+  memset(&s_gnb_ran_functions_table, 0, sizeof(s_gnb_ran_functions_table));
 }
 
 
