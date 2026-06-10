@@ -100,7 +100,7 @@ try_decode_payload(tvbuff_t *tvb, packet_info *pinfo, proto_item *tree)
 static void
 try_uncompress(tvbuff_t *tvb, packet_info *pinfo, int offset, /*int len,*/ proto_item *ti)
 {
-    tvbuff_t *uncompress_tvb = tvb_uncompress_zlib(tvb, offset, tvb_captured_length(tvb) - offset);
+    tvbuff_t *uncompress_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, tvb_captured_length_remaining(tvb, offset));
     if (uncompress_tvb) {
         add_new_data_source(pinfo, uncompress_tvb, "Uncompressed Payload");
 
