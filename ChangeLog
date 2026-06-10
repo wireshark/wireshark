@@ -1,3 +1,97 @@
+3294f01b71 UMTS RLC: Fix a leak
+132a346065 RRC: Fix a leak
+0b3249c4ee sgp32: Expand tagList
+fa55722b8c sgp22: Expand tagList
+05fa9535c5 NAS-5GS: Implement stub IEs per TS 24.501 v19.6.2
+723cbf55b1 E2AP: Zero out gnb table completely between captures files
+91c0a9d619 Qt: Don't repeatedly warn about no interfaces with stats
+8f1c932f24 Fix a few proto_tree_add_uint_format calls with length -1
+4b80091bd1 dumpcap: Amend an error message
+6dbe90cab2 CMake+Packaging: Build translations for MinGW
+d8e849b9ff CMake+NSIS: Ship libunwind.dll with Stratoshark
+8aa521e0e7 CESoPSN: Allow to be carried over CESoETH
+012e2099a4 GitLab CI: Disable the Coverity Scan jobs for now
+a79fc49120 dissectors: eliminate some duplicate value_strings
+f2eec8d102 Bluetooth HCI: Add core spec 6.1 - 6.3 support
+517b3a21b8 epan: Switch to unsigned offsets in proto API
+4356ab8125 GitLab CI: Keep creating the {WIRESHARK,STRATOSHARK}_VERSION vars
+4d6c2016a4 RSVP: address some check script warnings
+fed135da50 BSSMAP LE: Dissect Connectionless Information message
+2ff14af918 Qt: Define the log domain for the interface list manager
+e72cb10b12 CESoETH: allow other PW encapsulations than MEF 8 to be carried
+950f576257 dumpcap: Return WS_EXIT_NO_INTERFACES where appropriate
+32e13abe70 GitLab CI+packaging: Add minimum_system_version to our release-info .ini
+565ae5ae1e Packaging: MinGW: Ignore unexpected windeployqt output lines
+05f861e11f Qt: Redesign Font & Colors theme preview widget
+e80977df2a GitLab CI: Fix mismatched braces in Code Lines and Data job
+36c83a2ff5 CMake: Use the Qt 6.2 qt_add_lupdate signature
+cbf395a8d6 Qt: Emit cleared signal when expression is empty in applyExpression()
+1cab77ddc5 eDonkey: Don't let the offset go backwards when dissecting a list
+56c7a98a91 CMake: Fix wording and info for CpuInfo
+1d63468a9b CMake: Use new qt CMake commands for translations
+0b59425968 Qt: Make a warning slightly more verbose
+c9674e6cfa addr_resolv: Check for truncation of IEEE manuf long names
+959112c64f Qt: Fix a bunch of translation (lupdate) warnings
+0a71c2595f dumpcap: fix indentation of a new comment.
+2563d75685 GitLab CI: Switch more jobs to rclone
+6e3760c331 IPv4: Handle empty data packets
+056e4b078f dumpcap: determine the application flavor before we use it.
+acfc0af6c8 Qt: Add MainApplication::whenInitialized helper and convert appInitialized sites
+7096a5e8f4 mdb: Add checksum check
+197d1c9da0 Qt: Add hover/pressed feedback to recent-filters arrow
+dc1947b456 CI: disable ENABLE_ZLIBNG in no-options build
+837ba30cbb Qt: Don't install the binary translations a second time on Windows
+838e0e31b2 Stratoshark: fix no-libpcap build for capture restart action
+492db1be4b Qt: Off-thread interface statistics and InterfaceListManager
+849f1d184f [Automatic update for 2026-06-07]
+d246c7c34b nettrace_3gpp_32_423: Set file_start_ts from beginTime
+6970c2fb0f check_typed_item_calls.y: detect duplicate value_strings
+561ea0aa20 Added missing offset increment when field D28 is present.
+16add988e0 nettrace_3gpp_32_423: Fix beginTime attribute lookup on wrong XML node
+7d35e63721 Packaging: MSYS2: Install the opencore DLLs
+349bff114a Tools: Install qttranslations on MinGW rpm
+98899857fb Deal with passing the app flavor to dumpcap in at the lowest layer.
+436c4f3579 Qt: Respect preferred UI language on Windows
+23e5d871f5 epan: Use unsigned for proto_set_appendix_len
+59e459d412 wsutil:wslog: Introduce fatal log count
+3514a69b48 Qt: Fix FunnelConsoleAction UB
+816850c372 Funnel: Fix another leak
+bbd80e7479 Qt: Make colorscheme setting global
+01606bc5ee Qt: Remove unused source files
+7142b0d66f Qt: Treat empty capture filter as valid
+4cf86d7d25 Funnel: Fix some leaks
+b211076902 epan+ftypes: Fix FT_PROTOCOL offset and length handling
+846b518066 Funnel: Make GUI Lua plugins appear at startup
+9a388e4c54 cmake: use set() for bcrypt on Win32 to fix x86/x64 mismatch
+9386b678ab mingw-rpm-setup: Conditionally install the speexdsp package [skip ci]
+c255247c7f ftypes: Comment out another newly added assert for now
+ff238b8db1 PROFINET: Update SXP dissection to PN-Spec v2.50
+08611e79d1 CMake: Make SpeexDSP optional for Wireshark & Stratoshark
+95832dcb44 Qt: CopyFromProfileButton: parent the menu
+49ce9a782c epan: Add some comments around FT_PROTOCOL and don't assert for now
+d722627f78 dumpcap: do a better job of reporting warnings on capture device opens.
+5395bb23cf capture_sync: fix issues with "died on signal" error message.
+1257fab89f Qt: Use stdint uint32_t instead of spx_uint32_t in RtpAudioFile
+5a80554434 Qt: Use QFontDialog::MonospaceFonts for the monospace font pref
+67d3d5a2cd epan+ftypes: Use unsigned proto_item_[set|get]_len
+e32674357c packet-woww.c: Avoid use of uninitialized memory
+a674870672 CMake: We don't need to set QT_MULTIMEDIA_LIB or QT_DBUS_LIB ourselves
+203b58634f TLS: Fall back to SHA-256 for calculating early secret from PSK
+58bb23c51e ecpri: Show numerical value for msg_type as well as string
+5a71df4fe6 BSSMAP LE: Update to Release 19
+0fd0fc9195 HI2Operations: handle some bad implementation of apn and uli
+913553d5ed Dissect MS-TURN 0x0004 as Send Request
+e6ba3b748e Remove more support for Qt5
+440a019a7b Qt: Remove various Qt5 compatibility code
+7e97bd219e isobus: reassemble Transport Protocol BAM sessions
+7d07bd579e mctp-smbus: Add MCTP over SMBus/I2C transport binding dissector
+a062fcb8e2 NAS-5GS: Add missing URSP type registrations and parsers
+d524a95aa6 NAS-5GS: Parse URSP Time window, PDU session pair ID, and RSN descriptors
+329a349d78 BSSMAP LE: Fix APDU IEI handling with length 32768 octets or more
+ec76c78439 Qt: Preview Widget: Use monospace font for the proto tree
+f9acf3a4bc Version: Wireshark 4.7.0 → 4.7.1, Stratoshark 0.10.0 → 0.10.1
+37bbeffbda CMakeLists.txt: more improvements for Solaris.
+74a169fd36 Build: Wireshark 4.7.0 and Stratoshark 0.10.0 [skip ci]
 25603cece1 Qt: Fix HeaderView height on macOS
 d76102fac2 IPv4/IPv6: Improve proto_data "sharing"
 7263aa9b42 lbmc: add UME ranged retransmission request dissection for UM 6.17

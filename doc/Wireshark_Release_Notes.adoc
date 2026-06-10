@@ -25,7 +25,15 @@ If you or your organization would like to contribute or become a sponsor, please
 
 The following changes have been made since version 4.7.0:
 
-* Nothing of note.
+The following issues have been fixed:
+* Wireshark appears in German where Systemlanguage is Dutch. wsbuglink:20347[].
+* If you double-click an interface in the welcome screen interface list, and have typed nothing in the capture filter box, the system reports an invalid capture filter. wsbuglink:21303[].
+* Qt: Appearance mode is stored per-profile while theme name is global — theme flips on profile switch. wsbuglink:21311[].
+* Qt: 'Recent filters' arrow button gives no hover/pressed feedback. wsbuglink:21322[].
+* Qt: Hidden interfaces (Welcome page right-click) not persisted across profile switch or restart. wsbuglink:21325[].
+* Qt: Preferences dialog left category tree cannot be resized (labels truncated, only horizontal scrollbar) wsbuglink:21327[].
+* Qt: Make theme preview resemble a real Wireshark window (mini packet-list mockup) wsbuglink:21329[].
+* stratoshark -D lists a bunch of *network* capture devices. wsbuglink:21332[].
 
 The following changes have been made since version 4.6.0:
 
@@ -132,7 +140,7 @@ Bachmann M-Module
 
 // Add one protocol per line between the -- delimiters in the format
 // “Full protocol name (Abbreviation)”
-// git log --oneline --diff-filter=A --stat v4.7.0rc0.. epan/dissectors plugins
+// git log --oneline --diff-filter=A --stat v4.7.2rc0.. epan/dissectors plugins
 [commaize]
 --
 Apple Darwin Metadata
@@ -145,6 +153,7 @@ JSON Dictionary
 Linux mac80211_hwsim Netlink
 Linux Open vSwitch Netlink (OVS)
 MCData
+MCTP over SMBus/I2C
 MIDI System Exclusive DigiTech
 Mikrotik RoMON
 Multicast Router Discovery (MRD)
