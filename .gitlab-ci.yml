@@ -516,15 +516,12 @@ Arch Linux :
     # falcosecurity/plugins
     - pacman $COMMON_PACMAN_ARGS go
     - git clone https://github.com/falcosecurity/plugins.git falco-plugins
-    - pushd /tmp/falco-plugins/plugins/cloudtrail
-    - make
-    - popd
-    - pushd /tmp/falco-plugins/plugins/gcpaudit
-    - make
-    - popd
-    - pushd /tmp/falco-plugins/plugins/k8saudit
-    - make
-    - popd
+    - for plugin in cloudtrail gcpaudit k8saudit ; do
+        pushd /tmp/falco-plugins/plugins/$plugin ;
+        make ;
+        mv -v *.so ../.. ;
+        popd ;
+      done
     # falcosecurity/libs
     - pacman $COMMON_PACMAN_ARGS uthash libelf onetbb jsoncpp re2
     - export LDFLAGS=-Wl,-rpath,'$ORIGIN/../lib'
@@ -543,7 +540,7 @@ Arch Linux :
     - cd build
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -G Ninja -DBUILD_stratoshark=on
-      -DFALCO_PLUGIN_DIR="/tmp/falco-plugins/plugins"
+      -DFALCO_PLUGIN_DIR="/tmp/falco-plugins"
       -DFALCO_PLUGINS="libcloudtrail.so;libgcpaudit.so;libk8saudit.so"
       -DCMAKE_INSTALL_PREFIX=$WIRESHARK_PREFIX ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
