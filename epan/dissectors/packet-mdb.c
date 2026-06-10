@@ -1218,7 +1218,7 @@ static void dissect_mdb_mst_per(tvbuff_t *tvb, int offset, packet_info *pinfo,
             }
             break;
     }
-    offset += data_len;
+    /* offset += data_len; */
 
     /* Verify the checksum */
     mdb_add_checksum(tvb, pinfo, tree, start_offset, data_len + 2);
@@ -1358,7 +1358,7 @@ static void dissect_mdb_per_mst(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_tree_add_item(tree, hf_mdb_data, tvb, offset, data_len, ENC_NA);
             break;
     }
-    offset += data_len;
+    /* offset += data_len; */
 
     if (checksum_needed) {
         mdb_add_checksum(tvb, pinfo, tree, start_offset, data_len + 1);
