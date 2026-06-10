@@ -2076,7 +2076,7 @@ proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsign
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_time(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, const nstime_t* value_ptr);
+    unsigned length, const nstime_t* value_ptr);
 
 /** Get and add a FT_ABSOLUTE_TIME or FT_RELATIVE_TIME to a proto_tree.
  The item is extracted from the tvbuff handed to it, based on the ENC_* passed
@@ -2128,7 +2128,7 @@ proto_tree_add_time_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_time_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    unsigned start, int length, nstime_t* value_ptr, const char *format, ...)
+    unsigned start, unsigned length, nstime_t* value_ptr, const char *format, ...)
     G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_ABSOLUTE_TIME or FT_RELATIVE_TIME to a proto_tree, with
@@ -2145,7 +2145,7 @@ proto_tree_add_time_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, nstime_t* value_ptr, const char *format, ...) G_GNUC_PRINTF(7,8);
+    unsigned length, nstime_t* value_ptr, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_IPXNET to a proto_tree.
  @param tree the tree to append this item to
@@ -2157,7 +2157,7 @@ proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigne
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_ipxnet(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, uint32_t value);
+    unsigned length, uint32_t value);
 
 /** Add a formatted FT_IPXNET to a proto_tree, with the format generating
     the string for the value and with the field name being included
@@ -2173,7 +2173,7 @@ proto_tree_add_ipxnet(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned sta
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_ipxnet_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    unsigned start, int length, uint32_t value, const char *format, ...)
+    unsigned start, unsigned length, uint32_t value, const char *format, ...)
     G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_IPXNET to a proto_tree, with the format generating
@@ -2189,7 +2189,7 @@ proto_tree_add_ipxnet_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, uint32_t value, const char *format, ...) G_GNUC_PRINTF(7,8);
+    unsigned length, uint32_t value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_IPv4 to a proto_tree.
  @param tree the tree to append this item to
@@ -2201,7 +2201,7 @@ proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsig
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, ws_in4_addr value);
+    unsigned length, ws_in4_addr value);
 
 /** Add a formatted FT_IPv4 to a proto_tree, with the format generating
     the string for the value and with the field name being included
@@ -2217,7 +2217,7 @@ proto_tree_add_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_ipv4_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    unsigned start, int length, ws_in4_addr value, const char *format, ...)
+    unsigned start, unsigned length, ws_in4_addr value, const char *format, ...)
     G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_IPv4 to a proto_tree, with the format generating
@@ -2233,7 +2233,7 @@ proto_tree_add_ipv4_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, ws_in4_addr value, const char *format, ...) G_GNUC_PRINTF(7,8);
+    unsigned length, ws_in4_addr value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_IPv6 to a proto_tree.
  @param tree the tree to append this item to
@@ -2245,7 +2245,7 @@ proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigne
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, const ws_in6_addr *value_ptr);
+    unsigned length, const ws_in6_addr *value_ptr);
 
 /** Add a formatted FT_IPv6 to a proto_tree, with the format generating
     the string for the value and with the field name being included
@@ -2261,7 +2261,7 @@ proto_tree_add_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_ipv6_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    unsigned start, int length, const ws_in6_addr *value_ptr, const char *format,
+    unsigned start, unsigned length, const ws_in6_addr *value_ptr, const char *format,
     ...) G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_IPv6 to a proto_tree, with the format generating
@@ -2277,7 +2277,7 @@ proto_tree_add_ipv6_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, const ws_in6_addr *value_ptr, const char *format, ...) G_GNUC_PRINTF(7,8);
+    unsigned length, const ws_in6_addr *value_ptr, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_ETHER to a proto_tree.
  @param tree the tree to append this item to
@@ -2289,7 +2289,7 @@ proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigne
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_ether(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, const uint8_t* value);
+    unsigned length, const uint8_t* value);
 
 /** Add a formatted FT_ETHER to a proto_tree, with the format generating
     the string for the value and with the field name being included
@@ -2305,7 +2305,7 @@ proto_tree_add_ether(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned star
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_ether_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    unsigned start, int length, const uint8_t* value, const char *format, ...)
+    unsigned start, unsigned length, const uint8_t* value, const char *format, ...)
     G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_ETHER to a proto_tree, with the format generating
@@ -2321,7 +2321,7 @@ proto_tree_add_ether_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, const uint8_t* value, const char *format, ...) G_GNUC_PRINTF(7,8);
+    unsigned length, const uint8_t* value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_GUID to a proto_tree.
  @param tree the tree to append this item to
@@ -2333,7 +2333,7 @@ proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsign
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_guid(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, const e_guid_t *value_ptr);
+    unsigned length, const e_guid_t *value_ptr);
 
 /** Add a formatted FT_GUID to a proto_tree, with the format generating
     the string for the value and with the field name being included
@@ -2349,7 +2349,7 @@ proto_tree_add_guid(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_guid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    unsigned start, int length, const e_guid_t *value_ptr, const char *format,
+    unsigned start, unsigned length, const e_guid_t *value_ptr, const char *format,
     ...) G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_GUID to a proto_tree, with the format generating
@@ -2365,7 +2365,7 @@ proto_tree_add_guid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_guid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, const e_guid_t *value_ptr, const char *format, ...) G_GNUC_PRINTF(7,8);
+    unsigned length, const e_guid_t *value_ptr, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_OID to a proto_tree.
  @param tree the tree to append this item to
@@ -2377,7 +2377,7 @@ proto_tree_add_guid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigne
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_oid(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, const uint8_t* value_ptr);
+    unsigned length, const uint8_t* value_ptr);
 
 /** Add a formatted FT_OID to a proto_tree, with the format generating
     the string for the value and with the field name being included
@@ -2393,7 +2393,7 @@ proto_tree_add_oid(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_oid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    unsigned start, int length, const uint8_t* value_ptr, const char *format,
+    unsigned start, unsigned length, const uint8_t* value_ptr, const char *format,
     ...) G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_OID to a proto_tree, with the format generating
@@ -2409,7 +2409,7 @@ proto_tree_add_oid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_oid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, const uint8_t* value_ptr, const char *format, ...) G_GNUC_PRINTF(7,8);
+    unsigned length, const uint8_t* value_ptr, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add an FT_STRING, FT_STRINGZ, FT_STRINGZPAD, or FT_STRINGZTRUNC to a
     proto_tree. The value passed in should be a UTF-8 encoded null terminated
