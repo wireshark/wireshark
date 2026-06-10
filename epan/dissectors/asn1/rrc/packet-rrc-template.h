@@ -52,7 +52,7 @@ typedef struct rrc_info
 typedef struct rrc_ciphering_info
 {
   int seq_no[31][2];    /*Indicates for each Rbid when ciphering starts - Indexers are [BearerID][Direction]*/
-  GTree * /*uint32_t*/ start_cs;    /*Start value for CS counter*/
+  GTree * /*uint32_t*/ start_cs;    /*Start value for CS counter*/ /* XXX - UNUSED? */
   GTree * /*uint32_t*/ start_ps;    /*Start value for PS counter*/
   int32_t ciphering_algorithm;    /*Indicates which type of ciphering algorithm used*/
   int32_t integrity_algorithm;    /*Indicates which type of integrity algorithm used*/

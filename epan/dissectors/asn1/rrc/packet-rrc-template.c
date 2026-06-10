@@ -402,6 +402,17 @@ static void rrc_free_value(void *value ){
             g_free(value);
 }
 
+static void
+rrc_free_ciphering_info(void *data) {
+  rrc_ciphering_info *cipher_info = (rrc_ciphering_info *)data;
+
+  if (cipher_info->start_cs)
+      g_tree_unref(cipher_info->start_cs);
+  if (cipher_info->start_ps)
+      g_tree_unref(cipher_info->start_ps);
+  g_free(cipher_info);
+}
+
 static rrc_ciphering_info*
 get_or_create_cipher_info(fp_info *fpinf, rlc_info *rlcinf) {
   rrc_ciphering_info *cipher_info = NULL;
@@ -520,7 +531,7 @@ rrc_init(void) {
     rrc_ciph_info_tree = g_tree_new_full(rrc_key_cmp,
                        NULL,      /* data pointer, optional */
                        NULL,
-                       rrc_free_value);
+                       rrc_free_ciphering_info);
 }
 
 static void
