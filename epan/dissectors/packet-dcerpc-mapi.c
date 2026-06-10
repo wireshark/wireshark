@@ -46847,7 +46847,7 @@ void proto_register_dcerpc_mapi(void)
 	{ &hf_mapi_OpenPublicFolderByName_req_handle_idx,
 	  { "Handle Idx", "mapi.OpenPublicFolderByName_req.handle_idx", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_OpenPublicFolderByName_req_name,
-	  { "Name", "mapi.OpenPublicFolderByName_req.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	  { "Name", "mapi.OpenPublicFolderByName_req.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_OpenRecipientRow_CodePageId,
 	  { "CodePageId", "mapi.OpenRecipientRow.CodePageId", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_mapi_OpenRecipientRow_InputHandleIndex,
