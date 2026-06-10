@@ -25,14 +25,60 @@ void proto_register_sgp22(void);
 void proto_reg_handoff_sgp22(void);
 
 static int proto_sgp22;
+static int hf_sgp22_tag_len1;
+static int hf_sgp22_tag_len2;
+static int hf_sgp22_tag_01;
 #include "packet-sgp22-hf.c"
 
 static int ett_sgp22;
+static int ett_sgp22_tagList;
 #include "packet-sgp22-ett.c"
 
-#include "packet-sgp22-fn.c"
-
 static dissector_handle_t sgp22_handle;
+
+static const value_string sgp22_tag_vals[] = {
+  { 0x4F, "isdpAid" },
+  { 0x5A, "iccid" },
+  { 0x90, "profileNickname" },
+  { 0x91, "serviceProviderName" },
+  { 0x92, "profileName" },
+  { 0x93, "iconType" },
+  { 0x94, "icon" },
+  { 0x95, "profileClass" },
+  { 0x99, "profilePolicyRules" },
+  { 0xB6, "notificationConfigurationInfo" },
+  { 0xB7, "profileOwner" },
+  { 0xB8, "dpProprietaryData" },
+  { 0x9F26, "fallbackAttribute" },  // SGP.32
+  { 0x9F67, "fallbackAllowed" },    // SGP.32
+  { 0x9F70, "profileState" },
+  { 0x9F7B, "ecallIndication" },    // SGP.32
+  { 0, NULL }
+};
+
+static const value_string sgp22_tag_01_vals[] = {
+  { 0x5A, "eidValue" },
+  { 0, NULL }
+};
+
+static int dissect_sgp22_taglist(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+  unsigned offset = 0;
+
+  while (tvb_reported_length_remaining(tvb, offset)) {
+    if ((tvb_get_uint8(tvb, offset) & 0x1F) == 0x1F) { /* Continue */
+      proto_tree_add_item(tree, hf_sgp22_tag_len2, tvb, offset, 2, ENC_BIG_ENDIAN);
+      offset += 2;
+    } else {
+      proto_tree_add_item(tree, hf_sgp22_tag_len1, tvb, offset, 1, ENC_NA);
+      offset += 1;
+    }
+  }
+
+  return offset;
+}
+
+#include "packet-sgp22-fn.c"
 
 static int dissect_sgp22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -65,11 +111,24 @@ static int dissect_sgp22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 void proto_register_sgp22(void)
 {
   static hf_register_info hf[] = {
+    { &hf_sgp22_tag_len1,
+      { "Tag", "sgp22.tag",
+        FT_UINT8, BASE_HEX, VALS(sgp22_tag_vals), 0,
+        NULL, HFILL }},
+    { &hf_sgp22_tag_len2,
+      { "Tag", "sgp22.tag",
+        FT_UINT16, BASE_HEX, VALS(sgp22_tag_vals), 0,
+        NULL, HFILL }},
+    { &hf_sgp22_tag_01,
+      { "Tag", "sgp22.tag_01",
+        FT_UINT8, BASE_HEX, VALS(sgp22_tag_01_vals), 0,
+        NULL, HFILL }},
 #include "packet-sgp22-hfarr.c"
   };
 
   static int *ett[] = {
     &ett_sgp22,
+    &ett_sgp22_tagList,
 #include "packet-sgp22-ettarr.c"
   };
 

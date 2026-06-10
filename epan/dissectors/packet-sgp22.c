@@ -30,6 +30,9 @@ void proto_register_sgp22(void);
 void proto_reg_handoff_sgp22(void);
 
 static int proto_sgp22;
+static int hf_sgp22_tag_len1;
+static int hf_sgp22_tag_len2;
+static int hf_sgp22_tag_01;
 static int hf_sgp22_BoundProfilePackage_PDU;      /* BoundProfilePackage */
 static int hf_sgp22_ProfileInstallationResult_PDU;  /* ProfileInstallationResult */
 static int hf_sgp22_ExpirationDate_PDU;           /* ExpirationDate */
@@ -267,7 +270,7 @@ static int hf_sgp22_euiccCancelSessionSigned;     /* EuiccCancelSessionSigned */
 static int hf_sgp22_euiccCancelSessionSignature;  /* OCTET_STRING */
 static int hf_sgp22_searchCriteria_01;            /* T_searchCriteria_01 */
 static int hf_sgp22_isdpAid;                      /* OctetTo16 */
-static int hf_sgp22_tagList;                      /* OCTET_STRING */
+static int hf_sgp22_tagList;                      /* T_tagList */
 static int hf_sgp22_iotSpecificTagList;           /* OCTET_STRING */
 static int hf_sgp22_profileInfoListOk;            /* SEQUENCE_OF_ProfileInfo */
 static int hf_sgp22_profileInfoListOk_item;       /* ProfileInfo */
@@ -284,7 +287,7 @@ static int hf_sgp22_disableResult;                /* T_disableResult */
 static int hf_sgp22_deleteResult;                 /* T_deleteResult */
 static int hf_sgp22_resetOptions;                 /* T_resetOptions */
 static int hf_sgp22_resetResult;                  /* T_resetResult */
-static int hf_sgp22_tagList_01;                   /* Octet1 */
+static int hf_sgp22_tagList_01;                   /* T_tagList_01 */
 static int hf_sgp22_eidValue;                     /* Octet16 */
 static int hf_sgp22_setNicknameResult;            /* T_setNicknameResult */
 static int hf_sgp22_rat;                          /* RulesAuthorisationTable */
@@ -409,6 +412,7 @@ static int hf_sgp22_T_resetOptions_resetDefaultSmdpAddress;
 static int hf_sgp22_T_pprFlags_consentRequired;
 
 static int ett_sgp22;
+static int ett_sgp22_tagList;
 static int ett_sgp22_UICCCapability;
 static int ett_sgp22_PprIds;
 static int ett_sgp22_OperatorId;
@@ -541,6 +545,50 @@ static int ett_sgp22_AuthenticateClientResponseEs11_U;
 static int ett_sgp22_AuthenticateClientOkEs11;
 static int ett_sgp22_SEQUENCE_OF_EventEntries;
 static int ett_sgp22_EventEntries;
+
+static dissector_handle_t sgp22_handle;
+
+static const value_string sgp22_tag_vals[] = {
+  { 0x4F, "isdpAid" },
+  { 0x5A, "iccid" },
+  { 0x90, "profileNickname" },
+  { 0x91, "serviceProviderName" },
+  { 0x92, "profileName" },
+  { 0x93, "iconType" },
+  { 0x94, "icon" },
+  { 0x95, "profileClass" },
+  { 0x99, "profilePolicyRules" },
+  { 0xB6, "notificationConfigurationInfo" },
+  { 0xB7, "profileOwner" },
+  { 0xB8, "dpProprietaryData" },
+  { 0x9F26, "fallbackAttribute" },  // SGP.32
+  { 0x9F67, "fallbackAllowed" },    // SGP.32
+  { 0x9F70, "profileState" },
+  { 0x9F7B, "ecallIndication" },    // SGP.32
+  { 0, NULL }
+};
+
+static const value_string sgp22_tag_01_vals[] = {
+  { 0x5A, "eidValue" },
+  { 0, NULL }
+};
+
+static int dissect_sgp22_taglist(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+  unsigned offset = 0;
+
+  while (tvb_reported_length_remaining(tvb, offset)) {
+    if ((tvb_get_uint8(tvb, offset) & 0x1F) == 0x1F) { /* Continue */
+      proto_tree_add_item(tree, hf_sgp22_tag_len2, tvb, offset, 2, ENC_BIG_ENDIAN);
+      offset += 2;
+    } else {
+      proto_tree_add_item(tree, hf_sgp22_tag_len1, tvb, offset, 1, ENC_NA);
+      offset += 1;
+    }
+  }
+
+  return offset;
+}
 
 /*--- Cyclic dependencies ---*/
 
@@ -3044,9 +3092,29 @@ dissect_sgp22_T_searchCriteria_01(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsi
 }
 
 
+
+static unsigned
+dissect_sgp22_T_tagList(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb = NULL;
+
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+  if (parameter_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_sgp22_tagList);
+    dissect_sgp22_taglist(parameter_tvb, actx->pinfo, subtree);
+  }
+
+
+  return offset;
+}
+
+
 static const ber_sequence_t ProfileInfoListRequest_U_sequence[] = {
   { &hf_sgp22_searchCriteria_01, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp22_T_searchCriteria_01 },
-  { &hf_sgp22_tagList       , BER_CLASS_APP, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp22_OCTET_STRING },
+  { &hf_sgp22_tagList       , BER_CLASS_APP, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp22_T_tagList },
   { &hf_sgp22_iotSpecificTagList, BER_CLASS_APP, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp22_OCTET_STRING },
   { NULL, 0, 0, 0, NULL }
 };
@@ -3542,8 +3610,28 @@ dissect_sgp22_EuiccMemoryResetResponse(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
+
+static unsigned
+dissect_sgp22_T_tagList_01(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb = NULL;
+
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 1, hf_index, &parameter_tvb);
+
+  if (parameter_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_sgp22_tagList);
+    proto_tree_add_item(subtree, hf_sgp22_tag_01, parameter_tvb, 0, 1, ENC_NA);
+  }
+
+
+  return offset;
+}
+
+
 static const ber_sequence_t GetEuiccDataRequest_U_sequence[] = {
-  { &hf_sgp22_tagList_01    , BER_CLASS_APP, 28, BER_FLAGS_IMPLTAG, dissect_sgp22_Octet1 },
+  { &hf_sgp22_tagList_01    , BER_CLASS_APP, 28, BER_FLAGS_IMPLTAG, dissect_sgp22_T_tagList_01 },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -4830,8 +4918,6 @@ static int dissect_AuthenticateClientResponseEs11_PDU(tvbuff_t *tvb _U_, packet_
 }
 
 
-static dissector_handle_t sgp22_handle;
-
 static int dissect_sgp22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   media_content_info_t *content_info = (media_content_info_t *)data;
@@ -4863,6 +4949,18 @@ static int dissect_sgp22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 void proto_register_sgp22(void)
 {
   static hf_register_info hf[] = {
+    { &hf_sgp22_tag_len1,
+      { "Tag", "sgp22.tag",
+        FT_UINT8, BASE_HEX, VALS(sgp22_tag_vals), 0,
+        NULL, HFILL }},
+    { &hf_sgp22_tag_len2,
+      { "Tag", "sgp22.tag",
+        FT_UINT16, BASE_HEX, VALS(sgp22_tag_vals), 0,
+        NULL, HFILL }},
+    { &hf_sgp22_tag_01,
+      { "Tag", "sgp22.tag_01",
+        FT_UINT8, BASE_HEX, VALS(sgp22_tag_01_vals), 0,
+        NULL, HFILL }},
     { &hf_sgp22_BoundProfilePackage_PDU,
       { "BoundProfilePackage", "sgp22.BoundProfilePackage_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5814,7 +5912,7 @@ void proto_register_sgp22(void)
     { &hf_sgp22_tagList,
       { "tagList", "sgp22.tagList",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_sgp22_iotSpecificTagList,
       { "iotSpecificTagList", "sgp22.iotSpecificTagList",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -5882,7 +5980,7 @@ void proto_register_sgp22(void)
     { &hf_sgp22_tagList_01,
       { "tagList", "sgp22.tagList",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "Octet1", HFILL }},
+        "T_tagList_01", HFILL }},
     { &hf_sgp22_eidValue,
       { "eidValue", "sgp22.eidValue",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -6371,6 +6469,7 @@ void proto_register_sgp22(void)
 
   static int *ett[] = {
     &ett_sgp22,
+    &ett_sgp22_tagList,
     &ett_sgp22_UICCCapability,
     &ett_sgp22_PprIds,
     &ett_sgp22_OperatorId,

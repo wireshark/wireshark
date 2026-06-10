@@ -103,6 +103,30 @@ RemoteProfileProvisioningResponse/_untag VAL_PTR = &choice
     col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str_const(RemoteProfileProvisioningResponse_U_choice[choice].value, sgp22_RemoteProfileProvisioningResponse_U_vals, "Unknown"));
   }
 
+#.FN_BODY ProfileInfoListRequest/_untag/tagList VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_sgp22_tagList);
+    dissect_sgp22_taglist(parameter_tvb, actx->pinfo, subtree);
+  }
+
+#.FN_BODY GetEuiccDataRequest/_untag/tagList
+  tvbuff_t *parameter_tvb = NULL;
+
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 1, hf_index, &parameter_tvb);
+
+  if (parameter_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_sgp22_tagList);
+    proto_tree_add_item(subtree, hf_sgp22_tag_01, parameter_tvb, 0, 1, ENC_NA);
+  }
+
 #.REGISTER
 ExpirationDate                 B "2.23.146.1.2.0.1"  "id-rsp-expDate"
 TotalPartialCrlNumber          B "2.23.146.1.2.0.2"  "id-rsp-totalPartialCrlNumber"
