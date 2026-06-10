@@ -31,6 +31,8 @@ void proto_register_sgp32(void);
 void proto_reg_handoff_sgp32(void);
 
 static int proto_sgp32;
+static int hf_sgp32_tag_len1;
+static int hf_sgp32_tag_len2;
 static int hf_sgp32_EuiccPackageRequest_PDU;      /* EuiccPackageRequest */
 static int hf_sgp32_IpaEuiccDataRequest_PDU;      /* IpaEuiccDataRequest */
 static int hf_sgp32_ProfileDownloadTriggerRequest_PDU;  /* ProfileDownloadTriggerRequest */
@@ -133,7 +135,7 @@ static int hf_sgp32_defaultSmdpAddress;           /* UTF8String */
 static int hf_sgp32_setFallbackAttribute;         /* T_setFallbackAttribute */
 static int hf_sgp32_unsetFallbackAttribute;       /* T_unsetFallbackAttribute */
 static int hf_sgp32_setDefaultDpAddress;          /* SetDefaultDpAddressRequest */
-static int hf_sgp32_tagList;                      /* OCTET_STRING */
+static int hf_sgp32_tagList;                      /* T_tagList */
 static int hf_sgp32_euiccCiPKIdentifierToBeUsed;  /* OCTET_STRING */
 static int hf_sgp32_searchCriteriaNotification;   /* T_searchCriteriaNotification */
 static int hf_sgp32_seqNumber;                    /* INTEGER */
@@ -412,6 +414,7 @@ static int hf_sgp32_T_resetOptions_resetImmediateEnableConfig;
 
 static int ett_sgp32;
 static int ett_sgp32_rPLMN;
+static int ett_sgp32_tagList;
 static int ett_sgp32_EuiccPackageRequest_U;
 static int ett_sgp32_EuiccPackageSigned;
 static int ett_sgp32_EuiccPackage;
@@ -559,6 +562,46 @@ static int ett_sgp32_T_emptyResponse;
 static int ett_sgp32_TransferEimPackageRequest_U;
 static int ett_sgp32_TransferEimPackageResponse_U;
 static int ett_sgp32_T_ePRAndNotifications_01;
+
+static dissector_handle_t sgp32_handle;
+
+/* Dissector tables */
+static dissector_table_t sgp22_request_dissector_table;
+static dissector_table_t sgp22_response_dissector_table;
+static dissector_table_t sgp32_request_dissector_table;
+static dissector_table_t sgp32_response_dissector_table;
+
+static const value_string sgp32_tag_vals[] = {
+  { 0x81, "defaultSmdpAddress" },
+  { 0x83, "rootSmdsAddress" },
+  { 0x84, "associationToken" },
+  { 0xA0, "notificationsList" },
+  { 0xA2, "euiccPackageResultList" },
+  { 0xA5, "eumCertificate" },
+  { 0xA6, "euiccCertificate" },
+  { 0xA8, "ipaCapabilities" },
+  { 0xA9, "deviceInfo" },
+  { 0xBF20, "eUICCInfo1" },
+  { 0xBF22, "eUICCInfo2" },
+  { 0, NULL }
+};
+
+static int dissect_sgp32_taglist(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+  unsigned offset = 0;
+
+  while (tvb_reported_length_remaining(tvb, offset)) {
+    if ((tvb_get_uint8(tvb, offset) & 0x1F) == 0x1F) { /* Continue */
+      proto_tree_add_item(tree, hf_sgp32_tag_len2, tvb, offset, 2, ENC_BIG_ENDIAN);
+      offset += 2;
+    } else {
+      proto_tree_add_item(tree, hf_sgp32_tag_len1, tvb, offset, 1, ENC_NA);
+      offset += 1;
+    }
+  }
+
+  return offset;
+}
 
 
 
@@ -1027,6 +1070,26 @@ dissect_sgp32_EuiccPackageRequest(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsi
 }
 
 
+
+static unsigned
+dissect_sgp32_T_tagList(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb = NULL;
+
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+  if (parameter_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_sgp32_tagList);
+    dissect_sgp32_taglist(parameter_tvb, actx->pinfo, subtree);
+  }
+
+
+  return offset;
+}
+
+
 static const value_string sgp32_T_searchCriteriaNotification_vals[] = {
   {   0, "seqNumber" },
   {   1, "profileManagementOperation" },
@@ -1070,7 +1133,7 @@ dissect_sgp32_T_searchCriteriaEuiccPackageResult(bool implicit_tag _U_, tvbuff_t
 
 
 static const ber_sequence_t IpaEuiccDataRequest_U_sequence[] = {
-  { &hf_sgp32_tagList       , BER_CLASS_APP, 28, BER_FLAGS_IMPLTAG, dissect_sgp32_OCTET_STRING },
+  { &hf_sgp32_tagList       , BER_CLASS_APP, 28, BER_FLAGS_IMPLTAG, dissect_sgp32_T_tagList },
   { &hf_sgp32_euiccCiPKIdentifierToBeUsed, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_sgp32_OCTET_STRING },
   { &hf_sgp32_searchCriteriaNotification, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_T_searchCriteriaNotification },
   { &hf_sgp32_searchCriteriaEuiccPackageResult, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_T_searchCriteriaEuiccPackageResult },
@@ -5250,14 +5313,6 @@ static int dissect_TransferEimPackageResponse_PDU(tvbuff_t *tvb _U_, packet_info
 }
 
 
-static dissector_handle_t sgp32_handle;
-
-/* Dissector tables */
-static dissector_table_t sgp22_request_dissector_table;
-static dissector_table_t sgp22_response_dissector_table;
-static dissector_table_t sgp32_request_dissector_table;
-static dissector_table_t sgp32_response_dissector_table;
-
 static int get_sgp32_tag(tvbuff_t *tvb, uint32_t *tag)
 {
   int offset = 0;
@@ -5378,6 +5433,14 @@ static int dissect_sgp32(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 void proto_register_sgp32(void)
 {
   static hf_register_info hf[] = {
+    { &hf_sgp32_tag_len1,
+      { "Tag", "sgp32.tag",
+        FT_UINT8, BASE_HEX, VALS(sgp32_tag_vals), 0,
+        NULL, HFILL }},
+    { &hf_sgp32_tag_len2,
+      { "Tag", "sgp32.tag",
+        FT_UINT16, BASE_HEX, VALS(sgp32_tag_vals), 0,
+        NULL, HFILL }},
     { &hf_sgp32_EuiccPackageRequest_PDU,
       { "EuiccPackageRequest", "sgp32.EuiccPackageRequest_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5789,7 +5852,7 @@ void proto_register_sgp32(void)
     { &hf_sgp32_tagList,
       { "tagList", "sgp32.tagList",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_sgp32_euiccCiPKIdentifierToBeUsed,
       { "euiccCiPKIdentifierToBeUsed", "sgp32.euiccCiPKIdentifierToBeUsed",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -6891,6 +6954,7 @@ void proto_register_sgp32(void)
   static int *ett[] = {
     &ett_sgp32,
     &ett_sgp32_rPLMN,
+    &ett_sgp32_tagList,
     &ett_sgp32_EuiccPackageRequest_U,
     &ett_sgp32_EuiccPackageSigned,
     &ett_sgp32_EuiccPackage,

@@ -26,13 +26,14 @@ void proto_register_sgp32(void);
 void proto_reg_handoff_sgp32(void);
 
 static int proto_sgp32;
+static int hf_sgp32_tag_len1;
+static int hf_sgp32_tag_len2;
 #include "packet-sgp32-hf.c"
 
 static int ett_sgp32;
 static int ett_sgp32_rPLMN;
+static int ett_sgp32_tagList;
 #include "packet-sgp32-ett.c"
-
-#include "packet-sgp32-fn.c"
 
 static dissector_handle_t sgp32_handle;
 
@@ -41,6 +42,40 @@ static dissector_table_t sgp22_request_dissector_table;
 static dissector_table_t sgp22_response_dissector_table;
 static dissector_table_t sgp32_request_dissector_table;
 static dissector_table_t sgp32_response_dissector_table;
+
+static const value_string sgp32_tag_vals[] = {
+  { 0x81, "defaultSmdpAddress" },
+  { 0x83, "rootSmdsAddress" },
+  { 0x84, "associationToken" },
+  { 0xA0, "notificationsList" },
+  { 0xA2, "euiccPackageResultList" },
+  { 0xA5, "eumCertificate" },
+  { 0xA6, "euiccCertificate" },
+  { 0xA8, "ipaCapabilities" },
+  { 0xA9, "deviceInfo" },
+  { 0xBF20, "eUICCInfo1" },
+  { 0xBF22, "eUICCInfo2" },
+  { 0, NULL }
+};
+
+static int dissect_sgp32_taglist(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+  unsigned offset = 0;
+
+  while (tvb_reported_length_remaining(tvb, offset)) {
+    if ((tvb_get_uint8(tvb, offset) & 0x1F) == 0x1F) { /* Continue */
+      proto_tree_add_item(tree, hf_sgp32_tag_len2, tvb, offset, 2, ENC_BIG_ENDIAN);
+      offset += 2;
+    } else {
+      proto_tree_add_item(tree, hf_sgp32_tag_len1, tvb, offset, 1, ENC_NA);
+      offset += 1;
+    }
+  }
+
+  return offset;
+}
+
+#include "packet-sgp32-fn.c"
 
 static int get_sgp32_tag(tvbuff_t *tvb, uint32_t *tag)
 {
@@ -162,12 +197,21 @@ static int dissect_sgp32(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 void proto_register_sgp32(void)
 {
   static hf_register_info hf[] = {
+    { &hf_sgp32_tag_len1,
+      { "Tag", "sgp32.tag",
+        FT_UINT8, BASE_HEX, VALS(sgp32_tag_vals), 0,
+        NULL, HFILL }},
+    { &hf_sgp32_tag_len2,
+      { "Tag", "sgp32.tag",
+        FT_UINT16, BASE_HEX, VALS(sgp32_tag_vals), 0,
+        NULL, HFILL }},
 #include "packet-sgp32-hfarr.c"
   };
 
   static int *ett[] = {
     &ett_sgp32,
     &ett_sgp32_rPLMN,
+    &ett_sgp32_tagList,
 #include "packet-sgp32-ettarr.c"
   };
 

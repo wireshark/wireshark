@@ -50,6 +50,17 @@ EsipaMessageFromEimToIpa VAL_PTR = &choice
     dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, false);
   }
 
+#.FN_BODY IpaEuiccDataRequest/_untag/tagList VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_sgp32_tagList);
+    dissect_sgp32_taglist(parameter_tvb, actx->pinfo, subtree);
+  }
+
 #.REGISTER
 PrepareDownloadResponse                    N sgp32.response  0xBF21
 EUICCInfo2                                 N sgp32.response  0xBF22
