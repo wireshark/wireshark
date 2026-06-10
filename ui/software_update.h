@@ -17,6 +17,23 @@
  *
  * Routines that integrate with WinSparkle on Windows and Sparkle on
  * macOS.
+ *
+ * Sparkle and WinSparkle check for updates by fetching an Appcast XML file from www.wireshark.org.
+ * Appcast URLs have the form
+ * https://www.wireshark.org/update/<URL version>/<application>/<OS>/<architecture>/en-US/<channel>.xml
+ *
+ * Where:
+ *   URL version: Always 0
+ *   Application: One of "Wireshark" or "Stratoshark"
+ *   OS: One of :Windows" or "macOS"
+ *   Architecture: One of "x86-64" or "arm64"
+ *   Channel: One of "stable" or "development"
+ *
+ * Examples:
+ * https://www.wireshark.org/update/0/Wireshark/0.0.0/Windows/x86-64/en-US/stable.xml
+ * https://www.wireshark.org/update/0/Wireshark/0.0.0/macOS/arm64/en-US/stable.xml
+ * https://www.wireshark.org/update/0/Stratoshark/0.0.0/Windows/x86-64/en-US/stable.xml
+ *
  * @ingroup main_ui_group
  */
 

@@ -1231,7 +1231,10 @@ https://1.na.dl.wireshark.org/download/src/wireshark-{wireshark-version}.tar.xz
 ===== Staying Current
 
 Wireshark releases are announced on the link:{wireshark-mailing-lists-url}[wireshark-announce] mailing list.
-A https://appvisor.com/pad/[PAD] file is also published at https://www.wireshark.org/wireshark-pad.xml which contains the current stable version and release date.
+
+If you want to automatically check for the latest version, you can use one of the {wireshark-code-file-url}/ui/software_update.h[automatic update URLs] for our Windows or macOS packages, such as
+
+https://www.wireshark.org/update/0/Wireshark/0.0.0/Windows/x86-64/en-US/stable.xml
 
 [discrete]
 ===== Artwork
