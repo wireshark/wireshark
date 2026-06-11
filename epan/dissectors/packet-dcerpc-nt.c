@@ -545,7 +545,7 @@ static unsigned pol_hash_fn(const void *k)
 	   reasonable hash value */
 
 	return key->policy_hnd[4] + (key->policy_hnd[5] << 8) +
-		(key->policy_hnd[6] << 16) + (key->policy_hnd[7] << 24);
+		(key->policy_hnd[6] << 16) + ((unsigned)key->policy_hnd[7] << 24);
 }
 
 /* Return true if a policy handle is all zeros */
