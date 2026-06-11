@@ -47,7 +47,17 @@ struct logger_entry_v2 {
 
 wtap_open_return_val  logcat_open(wtap *wth, int *err, char **err_info);
 
-int      logcat_exported_pdu_length(const uint8_t *pd);
+/**
+ * @brief Calculate the length of a PDU (Protocol Data Unit) in a Logcat packet.
+ *
+ * This function calculates the total length of a PDU by iterating through the tags and their lengths.
+ *
+ * @param pd Pointer to the beginning of the PDU data.
+ * @param caplen The remaining length of the packet data, i.e. the size of pd.
+ * @param length The calculated length of the PDU.
+ * @return Whether the function succeeded.
+ */
+bool      logcat_exported_pdu_length(const uint8_t *pd, unsigned caplen, unsigned *length);
 #endif
 
 /*
