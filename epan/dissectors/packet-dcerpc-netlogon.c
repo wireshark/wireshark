@@ -2844,19 +2844,19 @@ netlogon_dissect_CLAIMS_SET_BUFFER(tvbuff_t *tvb, unsigned offset, unsigned leng
         subtvb = tvb_new_subset_length(tvb, offset, length);
         break;
     case 2:
-        subtvb = tvb_uncompress_lznt1(tvb, offset, length);
+        subtvb = tvb_child_uncompress_lznt1(tvb, tvb, offset, length);
         if (subtvb != NULL) {
             add_new_data_source(pinfo, subtvb, "Claims LZNT1 decompressed");
         }
         break;
     case 3:
-        subtvb = tvb_uncompress_lz77(tvb, offset, length);
+        subtvb = tvb_child_uncompress_lz77(tvb, tvb, offset, length);
         if (subtvb != NULL) {
             add_new_data_source(pinfo, subtvb, "Claims XPRESS decompressed");
         }
         break;
     case 4:
-        subtvb = tvb_uncompress_lz77huff(tvb, offset, length);
+        subtvb = tvb_child_uncompress_lz77huff(tvb, tvb, offset, length);
         if (subtvb != NULL) {
             add_new_data_source(pinfo, subtvb, "Claims XPRESS+HUFF decompressed");
         }
