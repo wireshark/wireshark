@@ -1528,11 +1528,6 @@ dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
        the encrypted payload. */
 
     /* We have a subdissector - call it. */
-    saved_proto          = pinfo->current_proto;
-    pinfo->current_proto = dissector_data->sub_proto->name;
-
-    init_ndr_pointer_list(dissector_data->info);
-
     length = tvb_captured_length(tvb);
     reported_length = tvb_reported_length(tvb);
 
@@ -1586,6 +1581,11 @@ dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
          * by a snapshot length, so there's nothing more to
          * dissect; just re-throw that exception.
          */
+        saved_proto          = pinfo->current_proto;
+        pinfo->current_proto = dissector_data->sub_proto->name;
+
+        init_ndr_pointer_list(dissector_data->info);
+
         TRY {
             proto_tree *stub_tree = NULL;
             int remaining;
@@ -1662,6 +1662,9 @@ dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
              * the authentication padding.
              */
             show_exception(stub_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+        } FINALLY {
+            free_ndr_pointer_list(dissector_data->info);
+            pinfo->current_proto = saved_proto;
         } ENDTRY;
     }
 
@@ -1669,10 +1672,6 @@ dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     if (auth_pad_len != 0) {
         proto_tree_add_item(sub_tree, hf_dcerpc_auth_padding, tvb, auth_pad_offset, auth_pad_len, ENC_NA);
     }
-
-    free_ndr_pointer_list(dissector_data->info);
-
-    pinfo->current_proto = saved_proto;
 
     return tvb_captured_length(tvb);
 }
