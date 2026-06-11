@@ -5333,7 +5333,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 /* Dissect udCompHdr (user data compression header, 7.5.2.10) */
 /* bit_width and comp_meth are out params */
 static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset,
-                             uint8_t direction, bool ignore,
+                             bool cplane, bool ignore,
                              unsigned *bit_width, unsigned *comp_meth, proto_item **comp_meth_ti,
                              oran_tap_info *tap_info)
 {
@@ -5357,25 +5357,30 @@ static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 
     /* Populate tap header with compression settings */
-    if (direction==0 && !ignore) {
+    if (!ignore) {
         tap_info->compression_methods |= (1 << ud_comp_meth);
         tap_info->compression_width = MAX(tap_info->compression_width, hdr_iq_width);
-    }
-
-    /* Summary */
-    if (direction==0 && !ignore) {
+        /* Summary */
         proto_item_append_text(udcomphdr_ti, " (IqWidth=%u, udCompMeth=%s)",
                                *bit_width, rval_to_str_const(ud_comp_meth, ud_comp_header_meth, "Unknown"));
     }
-    else {
+    else  {
         proto_item_append_text(udcomphdr_ti, " (ignored)");
-        if (direction==1) {
-            /* TODO: should also warn about set values when M-plane defines compression settings? */
-            if (hdr_iq_width || ud_comp_meth) {
+        if (hdr_iq_width || ud_comp_meth) {
+            if (cplane) {
+                /* Only ignore DL for cplane */
                 expert_add_info_format(pinfo, udcomphdr_ti, &ei_oran_udpcomphdr_should_be_zero,
                                        "udCompHdr in C-Plane for DL should be 0 - found 0x%02x",
                                        tvb_get_uint8(tvb, offset));
             }
+            else {
+                /* TODO: Ignore UL if using m-plane/preference setting rather than c-plane, but wrong to be set? */
+                /* expert_add_info_format(pinfo, udcomphdr_ti, &ei_oran_udpcomphdr_should_be_zero,
+                                       "udCompHdr in C-Plane for UL should be 0 - found 0x%02x",
+                                       tvb_get_uint8(tvb, offset));
+                */
+            }
+
         }
     }
     return offset+1;
@@ -5887,7 +5892,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
         case SEC_C_UE_SCHED:     /* Section Type 5 */
             /* udCompHdr */
             offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset,
-                                       direction, pref_override_ul_compression, /* ignore for DL or if using mplane for UL settings */
+                                       true, direction==0 && pref_override_ul_compression, /* ignore for DL or if using mplane for UL settings */
                                        &bit_width, &comp_meth, &comp_meth_ti, tap_info);
             /* reserved (8 bits) */
             add_reserved_field(section_tree, hf_oran_reserved_8bits, tvb, offset, 1);
@@ -5909,7 +5914,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
             offset += 2;
             /* udCompHdr */
             offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset,
-                                       direction, pref_override_ul_compression, /* ignore for DL or if using mplane for UL settings */
+                                       true, direction==0 && pref_override_ul_compression, /* ignore for DL or if using mplane for UL settings */
                                        &bit_width, &comp_meth, &comp_meth_ti, tap_info);
             break;
 
@@ -7073,7 +7078,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (included) {
             /* 7.5.2.10 */
             /* Extract these values to inform how wide IQ samples in each PRB will be. */
-            offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, direction, false, &sample_bit_width,
+            offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, false, direction == 0, &sample_bit_width,
                                        &compression, &ud_comp_meth_item, tap_info);
 
             /* Not part of udCompHdr */
@@ -7338,6 +7343,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if (pref_showIQSampleValues) {
                 /* Individual values */
                 unsigned samples_offset = offset*8;
+                unsigned samples_start = offset;
                 unsigned samples = 0;
 
                 if (compression >= BFP_AND_SELECTIVE_RE) {
@@ -7364,14 +7370,14 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 if (!tap_info->non_zero_re_in_current_prb) {
                     tap_info->num_prbs_zero++;
                     /* Add a filter to make zero-valued PRBs more findable */
-                    proto_tree_add_item(rb_tree, hf_oran_zero_prb, tvb,
-                                        samples_offset/8, nBytesForSamples, ENC_NA);
+                    proto_item *zero_ti = proto_tree_add_item(rb_tree, hf_oran_zero_prb, tvb,
+                                                              samples_start, nBytesForSamples, ENC_NA);
+                    proto_item_set_hidden(zero_ti);
                     proto_item_append_text(prbHeading, " (all zeros)");
                 }
                 else {
-                    proto_item *nonzero_ti = proto_tree_add_item(rb_tree, hf_oran_nonzero_prb, tvb, samples_offset/8, nBytesForSamples, ENC_NA);
+                    proto_item *nonzero_ti = proto_tree_add_item(rb_tree, hf_oran_nonzero_prb, tvb, samples_start, nBytesForSamples, ENC_NA);
                     proto_item_set_hidden(nonzero_ti);
-
                 }
             }
 
