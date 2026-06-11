@@ -2477,7 +2477,7 @@ proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsig
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, uint64_t value);
+    unsigned length, uint64_t value);
 
 /** Add a formatted FT_BOOLEAN to a proto_tree, with the format generating
     the string for the value and with the field name being included
@@ -2493,7 +2493,7 @@ proto_tree_add_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned st
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_boolean_format_value(proto_tree *tree, int hfindex,
-    tvbuff_t *tvb, unsigned start, int length, uint64_t value,
+    tvbuff_t *tvb, unsigned start, unsigned length, uint64_t value,
     const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_BOOLEAN to a proto_tree, with the format generating
@@ -2509,7 +2509,7 @@ proto_tree_add_boolean_format_value(proto_tree *tree, int hfindex,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, uint64_t value, const char *format, ...) G_GNUC_PRINTF(7,8);
+    unsigned length, uint64_t value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_FLOAT to a proto_tree.
  @param tree the tree to append this item to
@@ -2521,7 +2521,7 @@ proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsi
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_float(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, float value);
+    unsigned length, float value);
 
 /** Add a formatted FT_FLOAT to a proto_tree, with the format generating
     the string for the value and with the field name being included
@@ -2537,7 +2537,7 @@ proto_tree_add_float(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned star
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_float_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    unsigned start, int length, float value, const char *format, ...)
+    unsigned start, unsigned length, float value, const char *format, ...)
     G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_FLOAT to a proto_tree, with the format generating
@@ -2553,7 +2553,7 @@ proto_tree_add_float_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_float_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, float value, const char *format, ...) G_GNUC_PRINTF(7,8);
+    unsigned length, float value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_DOUBLE to a proto_tree.
  @param tree the tree to append this item to
@@ -2565,7 +2565,7 @@ proto_tree_add_float_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsign
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_double(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, double value);
+    unsigned length, double value);
 
 /** Add a formatted FT_DOUBLE to a proto_tree, with the format generating
     the string for the value and with the field name being included
@@ -2581,7 +2581,7 @@ proto_tree_add_double(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned sta
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_double_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    unsigned start, int length, double value, const char *format, ...)
+    unsigned start, unsigned length, double value, const char *format, ...)
     G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_DOUBLE to a proto_tree, with the format generating
@@ -2597,7 +2597,7 @@ proto_tree_add_double_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_double_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, double value, const char *format, ...) G_GNUC_PRINTF(7,8);
+    unsigned length, double value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add one of FT_UINT8, FT_UINT16, FT_UINT24 or FT_UINT32 to a proto_tree.
  @param tree the tree to append this item to
@@ -2609,7 +2609,7 @@ proto_tree_add_double_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsig
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, uint32_t value);
+    unsigned length, uint32_t value);
 
 /** Add a formatted FT_UINT8, FT_UINT16, FT_UINT24 or FT_UINT32 to a proto_tree,
     with the format generating the string for the value and with the field
@@ -2625,7 +2625,7 @@ proto_tree_add_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_uint_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    unsigned start, int length, uint32_t value, const char *format, ...)
+    unsigned start, unsigned length, uint32_t value, const char *format, ...)
     G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_UINT8, FT_UINT16, FT_UINT24 or FT_UINT32 to a proto_tree,
@@ -2642,7 +2642,7 @@ proto_tree_add_uint_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_uint_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, uint32_t value, const char *format, ...) G_GNUC_PRINTF(7,8);
+    unsigned length, uint32_t value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add an FT_UINT64 to a proto_tree.
  @param tree the tree to append this item to
@@ -2654,7 +2654,7 @@ proto_tree_add_uint_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigne
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, uint64_t value);
+    unsigned length, uint64_t value);
 
 /** Add a formatted FT_UINT64 to a proto_tree, with the format generating
     the string for the value and with the field name being included
@@ -2670,7 +2670,7 @@ proto_tree_add_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned sta
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_uint64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    unsigned start, int length, uint64_t value, const char *format, ...)
+    unsigned start, unsigned length, uint64_t value, const char *format, ...)
     G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_UINT64 to a proto_tree, with the format generating
@@ -2686,7 +2686,7 @@ proto_tree_add_uint64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_uint64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, uint64_t value, const char *format, ...) G_GNUC_PRINTF(7,8);
+    unsigned length, uint64_t value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add one of FT_INT8, FT_INT16, FT_INT24 or FT_INT32 to a proto_tree.
  @param tree the tree to append this item to
@@ -2698,7 +2698,7 @@ proto_tree_add_uint64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsig
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_int(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, int32_t value);
+    unsigned length, int32_t value);
 
 /** Add a formatted FT_INT8, FT_INT16, FT_INT24 or FT_INT32 to a proto_tree,
     with the format generating the string for the value and with the field
@@ -2714,7 +2714,7 @@ proto_tree_add_int(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_int_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    unsigned start, int length, int32_t value, const char *format, ...)
+    unsigned start, unsigned length, int32_t value, const char *format, ...)
     G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_INT8, FT_INT16, FT_INT24 or FT_INT32 to a proto_tree,
@@ -2731,7 +2731,7 @@ proto_tree_add_int_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_int_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, int32_t value, const char *format, ...) G_GNUC_PRINTF(7,8);
+    unsigned length, int32_t value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add an FT_INT64 to a proto_tree.
  @param tree the tree to append this item to
@@ -2743,7 +2743,7 @@ proto_tree_add_int_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, int64_t value);
+    unsigned length, int64_t value);
 
 /** Add a formatted FT_INT64 to a proto_tree, with the format generating
     the string for the value and with the field name being included
@@ -2759,7 +2759,7 @@ proto_tree_add_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned star
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_int64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    unsigned start, int length, int64_t value, const char *format, ...)
+    unsigned start, unsigned length, int64_t value, const char *format, ...)
     G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_INT64 to a proto_tree, with the format generating
@@ -2775,7 +2775,7 @@ proto_tree_add_int64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_int64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, int64_t value, const char *format, ...) G_GNUC_PRINTF(7,8);
+    unsigned length, int64_t value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_EUI64 to a proto_tree.
  @param tree the tree to append this item to
@@ -2787,7 +2787,7 @@ proto_tree_add_int64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsign
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_eui64(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, const uint64_t value);
+    unsigned length, const uint64_t value);
 
 /** Add a formatted FT_EUI64 to a proto_tree, with the format generating
     the string for the value and with the field name being included
@@ -2803,7 +2803,7 @@ proto_tree_add_eui64(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned star
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_eui64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    unsigned start, int length, const uint64_t value, const char *format, ...)
+    unsigned start, unsigned length, const uint64_t value, const char *format, ...)
     G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_EUI64 to a proto_tree, with the format generating
@@ -2819,7 +2819,7 @@ proto_tree_add_eui64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_eui64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned start,
-    int length, const uint64_t value, const char *format, ...) G_GNUC_PRINTF(7,8);
+    unsigned length, const uint64_t value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Structure used in proto_tree_add_mac48_detail below */
 typedef struct _mac_hf_list_t {
