@@ -433,7 +433,7 @@ static bool logcat_text_dump_text(wtap_dumper *wdh, const wtap_rec *rec,
     int *err, char **err_info)
 {
     char                           *buf;
-    int                             length;
+    unsigned                        length;
     char                            priority;
     const struct logger_entry      *log_entry;
     const struct logger_entry_v2   *log_entry_v2;
@@ -473,22 +473,32 @@ static bool logcat_text_dump_text(wtap_dumper *wdh, const wtap_rec *rec,
     switch (wdh->file_encap) {
     case WTAP_ENCAP_WIRESHARK_UPPER_PDU:
         {
-            int skipped_length;
+            unsigned skipped_length;
 
-            skipped_length = logcat_exported_pdu_length(pd);
+            length = rec->rec_header.packet_header.caplen;
+            if (!logcat_exported_pdu_length(pd, length, &skipped_length) ||
+                ckd_sub(&length, length, skipped_length)) {
+                *err = WTAP_ERR_BAD_FILE;
+                return false;
+            }
             pd += skipped_length;
 
-            if (!wtap_dump_file_write(wdh, (const char*) pd, rec->rec_header.packet_header.caplen - skipped_length, err)) {
+            if (!wtap_dump_file_write(wdh, (const char*) pd, length, err)) {
                 return false;
             }
         }
         break;
     case WTAP_ENCAP_LOGCAT:
-        /* Skip EXPORTED_PDU*/
+        length = rec->rec_header.packet_header.caplen;
         if (wdh->file_encap == WTAP_ENCAP_WIRESHARK_UPPER_PDU) {
-            int skipped_length;
+            /* Skip EXPORTED_PDU - XXX - This is unreachable. */
+            unsigned skipped_length;
 
-            skipped_length = logcat_exported_pdu_length(pd);
+            if (!logcat_exported_pdu_length(pd, length, &skipped_length) ||
+                ckd_sub(&length, length, skipped_length)) {
+                *err = WTAP_ERR_BAD_FILE;
+                return false;
+            }
             pd += skipped_length;
 
             logcat_version = buffered_detect_version(pd);

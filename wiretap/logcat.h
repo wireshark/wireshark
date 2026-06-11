@@ -66,9 +66,11 @@ wtap_open_return_val  logcat_open(wtap *wth, int *err, char **err_info);
  * This function calculates the total length of a PDU by iterating through the tags and their lengths.
  *
  * @param pd Pointer to the beginning of the PDU data.
- * @return The calculated length of the PDU.
+ * @param caplen The remaining length of the packet data, i.e. the size of pd.
+ * @param length The calculated length of the PDU.
+ * @return Whether the function succeeded.
  */
-int      logcat_exported_pdu_length(const uint8_t *pd);
+bool      logcat_exported_pdu_length(const uint8_t *pd, unsigned caplen, unsigned *length);
 #endif
 
 /*

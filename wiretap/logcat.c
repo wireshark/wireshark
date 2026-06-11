@@ -10,6 +10,7 @@
 
 #include <string.h>
 
+#include <wsutil/exported_pdu_tlvs.h>
 #include <wsutil/pint.h>
 
 #include "wtap_module.h"
@@ -138,24 +139,28 @@ static int detect_version(FILE_T fh, int *err, char **err_info)
     return 0;
 }
 
-int logcat_exported_pdu_length(const uint8_t *pd) {
-    const uint16_t *tag;
-    const uint16_t *tag_length;
-    int             length = 0;
+bool logcat_exported_pdu_length(const uint8_t *pd, unsigned caplen, unsigned *length) {
+    /* XXX - There's nothing logcat specific here; make this a generic fxn? */
+    const uint8_t * const pd_end = pd + caplen;
+    uint16_t    tag_length;
 
-    tag = (const uint16_t *)(const void *) pd;
-
-    while(GINT16_FROM_BE(*tag)) {
-        tag_length = (const uint16_t *)(const void *) (pd + 2);
-        length += 2 + 2 + GINT16_FROM_BE(*tag_length);
-
-        pd += 2 + 2 + GINT16_FROM_BE(*tag_length);
-        tag = (const uint16_t *)(const void *) pd;
+    *length = 0;
+    /* The last tag must be a EXP_PDU_TAG_END_OF_OPT (0) and have length 0.
+     * If we reach the end of the length first, that's bogus. */
+    while(pd + 4 < pd_end) {
+        if (pntohu16(pd) == EXP_PDU_TAG_END_OF_OPT) {
+            /* OTOH, we do not bother verifying that the length of the
+             * END_OF_OPT TLV is 0, even though it should be. */
+            *length += 2 + 2;
+            return true;
+        }
+        tag_length = pntohu16(pd + 2);
+        if (ckd_add(length, *length, 4 + tag_length))
+            return false;
+        pd += 2 + 2 + tag_length;
     }
 
-    length += 2 + 2;
-
-    return length;
+    return false;
 }
 
 static bool logcat_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
@@ -316,7 +321,7 @@ static int logcat_dump_can_write_encap(int encap)
 static bool logcat_binary_dump(wtap_dumper *wdh, const wtap_rec *rec,
     int *err, char **err_info _U_)
 {
-    int caplen;
+    uint32_t caplen;
 
     /* We can only write packet records. */
     if (rec->rec_type != REC_TYPE_PACKET) {
@@ -340,11 +345,14 @@ static bool logcat_binary_dump(wtap_dumper *wdh, const wtap_rec *rec,
 
     /* Skip EXPORTED_PDU*/
     if (wdh->file_encap == WTAP_ENCAP_WIRESHARK_UPPER_PDU) {
-        int skipped_length;
+        unsigned skipped_length;
 
-        skipped_length = logcat_exported_pdu_length(pd);
+        if (!logcat_exported_pdu_length(pd, caplen, &skipped_length) ||
+            ckd_sub(&caplen, caplen, skipped_length)) {
+            *err = WTAP_ERR_BAD_FILE;
+            return false;
+        }
         pd += skipped_length;
-        caplen -= skipped_length;
     }
 
     if (!wtap_dump_file_write(wdh, pd, caplen, err))
