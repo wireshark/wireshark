@@ -10630,7 +10630,7 @@ void proto_register_dcerpc_nspi(void)
 	{ &hf_nspi_FILETIME_dwLowDateTime,
 	  { "DwLowDateTime", "nspi.FILETIME.dwLowDateTime", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_nspi_LPSTR_lppszA,
-	  { "LppszA", "nspi.LPSTR.lppszA", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	  { "LppszA", "nspi.LPSTR.lppszA", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_nspi_MAPINAMEID_lID,
 	  { "LID", "nspi.MAPINAMEID.lID", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_nspi_MAPINAMEID_lpguid,
