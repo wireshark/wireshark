@@ -1096,7 +1096,7 @@ get_http_conversation_data(packet_info *pinfo, conversation_t **conversation)
 		conv_data = wmem_new0(wmem_file_scope(), http_conv_t);
 		conv_data->chunk_offsets_fwd = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 		conv_data->chunk_offsets_rev = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
-		conv_data->req_list = NULL;
+		conv_data->req_list = wmem_list_new(wmem_file_scope());
 		conv_data->matches_table = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 
 		conversation_add_proto_data(*conversation, proto_http,
@@ -4036,11 +4036,7 @@ process_header(tvbuff_t *tvb, unsigned offset, unsigned next_offset,
 				req_trans->abs_time = pinfo->fd->abs_ts;
 				req_trans->request_uri = curr_req_res->request_uri;
 
-				/* XXX - This leaks if matching responses aren't
-				 * found (the data does not, but the list node
-				 * does.) A wmem_list would prevent that.
-				 */
-				conv_data->req_list = g_slist_append(conv_data->req_list, req_trans);
+				wmem_list_append(conv_data->req_list, req_trans);
 				curr_req_res->req_has_range = true;
 			}
 			}
@@ -4069,7 +4065,7 @@ process_header(tvbuff_t *tvb, unsigned offset, unsigned next_offset,
 				request_trans_t *req_trans;
 				match_trans_t *match_trans = NULL;
 				nstime_t  ns;
-				GSList *iter = NULL;
+				wmem_list_frame_t *frame;
 
 				/* Note SP instead of '=' in ABNF. */
 				const char *pos = strchr(value, ' ');
@@ -4112,12 +4108,13 @@ process_header(tvbuff_t *tvb, unsigned offset, unsigned next_offset,
 				* handling of such edge cases is more difficult.
 				*/
 				req_trans = NULL;
-				if (conv_data->req_list && conv_data->req_list->data) {
-					for (iter = conv_data->req_list; iter; iter = iter->next) {
-						if (((request_trans_t*)iter->data)->first_range_num == first_crange_num) {
-							req_trans = iter->data;
-							break;
-						}
+				for (frame = wmem_list_head(conv_data->req_list);
+						frame; frame = wmem_list_frame_next(frame)) {
+
+					request_trans_t* frame_req_trans = wmem_list_frame_data(frame);
+					if (frame_req_trans->first_range_num == first_crange_num) {
+						req_trans = frame_req_trans;
+						break;
 					}
 				}
 
@@ -4137,19 +4134,12 @@ process_header(tvbuff_t *tvb, unsigned offset, unsigned next_offset,
 
 					/* Remove and free all of the list entries up to and including the
 					*  matching one from req_list. */
-					if (conv_data->req_list) {
-						GSList *top_of_list = NULL;
+					while ((frame = wmem_list_head(conv_data->req_list))) {
 
-						top_of_list = conv_data->req_list;
-						while (top_of_list && top_of_list->data != req_trans) {
-
-						    top_of_list = g_slist_delete_link(top_of_list, top_of_list);
+						wmem_list_remove_frame(conv_data->req_list, frame);
+						if (wmem_list_frame_data(frame) == req_trans) {
+							break;
 						}
-						if (top_of_list && top_of_list->data == req_trans) {
-
-						    top_of_list = g_slist_delete_link(top_of_list, top_of_list);
-						}
-						conv_data->req_list = top_of_list;
 					}
 				}
 			}

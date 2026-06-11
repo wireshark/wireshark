@@ -99,8 +99,8 @@ typedef struct _http_conv_t {
 	 */
 
 	/* Used for req/res matching */
-	GSList *req_list;
-        wmem_map_t *matches_table;
+	wmem_list_t *req_list;
+	wmem_map_t *matches_table;
 
 	/* Server address and port, known after first server response */
 	address server_addr;
