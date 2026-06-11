@@ -102,7 +102,7 @@ dissect_lls_table_payload(uint8_t lls_table_id, tvbuff_t *tvb, packet_info *pinf
     }
 
     proto_tree *uncompress_tree = proto_item_add_subtree(ti, ett_lls_table_payload);
-    tvbuff_t *uncompress_tvb = tvb_uncompress_zlib(tvb, offset, len);
+    tvbuff_t *uncompress_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, len);
     proto_tree *xml_tree = NULL;
     if (uncompress_tvb) {
         const char *table_type_short = val_to_str_const(lls_table_id, hf_lls_table_type_short_vals, "Unknown");
