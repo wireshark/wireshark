@@ -22,6 +22,7 @@
  * - RFC 7053
  * - https://tools.ietf.org/html/draft-stewart-sctp-pktdrprep-02
  * - https://www.ietf.org/archive/id/draft-ietf-tsvwg-sctp-zero-checksum-01.html
+ * - https://www.ietf.org/archive/id/draft-ietf-tsvwg-sctp-dtls-chunk-03.html
  *
  * Still to do (so stay tuned)
  * - error checking mode
@@ -143,6 +144,7 @@ static const value_string sctp_payload_proto_id_values[] = {
   { E2_UP_PROTOCOL_ID,                              "E2-UP" },
   { E2_DU_PROTOCOL_ID,                              "E2-DU" },
   { W1AP_PROTOCOL_ID,                               "W1AP" },
+  { DTLS_CHUNK_KM_MESSAGES_PAYLOAD_PROTOCOL_ID,     "DTLS chunk KM" },
 
   { 0,                                              NULL } };
 
@@ -281,6 +283,11 @@ static int hf_hmac;
 static int hf_shared_key_id;
 static int hf_supported_chunk_type;
 
+static int hf_dtls_km_tiebreaker;
+static int hf_dtls_km_flags;
+static int hf_dtls_km_c_bit;
+static int hf_dtls_km_s_bit;
+static int hf_dtls_km_r_bit;
 static int hf_dtls_km_id;
 
 static int hf_cause_code;
@@ -312,6 +319,8 @@ static int hf_i_forward_tsn_chunk_mid;
 static int hf_asconf_ack_seq_nr;
 static int hf_asconf_seq_nr;
 static int hf_correlation_id;
+
+static int hf_dtls_chunk_r_bit;
 
 static int hf_adap_indication;
 
@@ -374,6 +383,7 @@ static int ett_sctp_nr_sack_chunk_nr_gap_block_start;
 static int ett_sctp_nr_sack_chunk_nr_gap_block_end;
 static int ett_sctp_unrecognized_parameter_parameter;
 static int ett_sctp_i_forward_tsn_chunk_flags;
+static int ett_sctp_dtls_chunk_flags;
 
 static int ett_sctp_fragments;
 static int ett_sctp_fragment;
@@ -385,6 +395,7 @@ static int ett_sctp_tsn_retransmission;
 static int ett_sctp_tsn_retransmitted_count;
 static int ett_sctp_tsn_retransmitted;
 
+static int ett_sctp_dtls_km_flags;
 static expert_field ei_sctp_sack_chunk_adv_rec_window_credit;
 static expert_field ei_sctp_nr_sack_chunk_number_tsns_gap_acked_100;
 static expert_field ei_sctp_parameter_length;
@@ -420,6 +431,7 @@ static const value_string chunk_type_values[] = {
   { SCTP_AUTH_CHUNK_ID,              "AUTH" },
   { SCTP_NR_SACK_CHUNK_ID,           "NR_SACK" },
   { SCTP_I_DATA_CHUNK_ID,            "I_DATA" },
+  { SCTP_DTLS_CHUNK_ID,              "DTLS" },
   { SCTP_ASCONF_ACK_CHUNK_ID,        "ASCONF_ACK" },
   { SCTP_PKTDROP_CHUNK_ID,           "PKTDROP" },
   { SCTP_RE_CONFIG_CHUNK_ID,         "RE_CONFIG" },
@@ -1835,35 +1847,83 @@ dissect_hmac_algo_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree,
 }
 
 static const value_string dtls_km_id_values[] = {
-  { 0x0000,         "Reserved"                  },
-  { 0x0001,         "Single DTLS connection"    },
-  { 0x0002,         "Multiple DTLS connections" },
-  { 0,              NULL                        } };
+  { 0x00, "Reserved"                  },
+  { 0x01, "Single DTLS connection"    },
+  { 0x02, "Multiple DTLS connections" },
+  { 0,    NULL                        } };
 
-#define DTLS_KMID_LENGTH 2
+#define DTLS_KM_PARAMETER_TIE_BREAKER_LENGTH 4
+#define DTLS_KM_PARAMETER_FLAGS_LENGTH       1
+#define DTLS_KM_PARAMETER_KMID_LENGTH        1
+
+#define DTLS_KM_PARAMETER_TIE_BREAKER_OFFSET PARAMETER_VALUE_OFFSET
+#define DTLS_KM_PARAMETER_FLAGS_OFFSET       (DTLS_KM_PARAMETER_TIE_BREAKER_OFFSET + DTLS_KM_PARAMETER_TIE_BREAKER_LENGTH)
+#define DTLS_KM_PARAMETER_KMID_OFFSET        (DTLS_KM_PARAMETER_FLAGS_OFFSET + DTLS_KM_PARAMETER_FLAGS_LENGTH)
+
+#define DTLS_KM_PARAMETER_C_BIT 0x01
+#define DTLS_KM_PARAMETER_S_BIT 0x02
+#define DTLS_KM_PARAMETER_R_BIT 0x04
+
+static const true_false_string sctp_dtls_km_parameter_c_bit_value = {
+  "Client role supported",
+  "Client role not supported"
+};
+
+static const true_false_string sctp_dtls_km_parameter_s_bit_value = {
+  "Server role supported",
+  "Server role not supported"
+};
+
+static const true_false_string sctp_dtls_km_parameter_r_bit_value = {
+  "Restart supported",
+  "Restart not supported"
+};
 
 static void
 dissect_dtls_key_management_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item, bool dissecting_init_chunk, bool dissecting_init_ack_chunk)
 {
+  proto_item *flags_item;
+  proto_tree *flags_tree;
   uint16_t number_of_ids;
   uint16_t id_number, offset;
+  uint8_t flags, c_bit, s_bit, r_bit;
+  static int* const flag_list[] = {
+    &hf_dtls_km_c_bit,
+    &hf_dtls_km_s_bit,
+    &hf_dtls_km_r_bit,
+    NULL
+  };
 
   if (!dissecting_init_chunk && !dissecting_init_ack_chunk)
     expert_add_info(pinfo, parameter_item, &ei_sctp_illegal_parameter_occurrence);
 
-  proto_item_append_text(parameter_item, " (Supported DTLS key management ids: ");
-  number_of_ids = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / DTLS_KMID_LENGTH;
-  for(id_number = 0, offset = PARAMETER_VALUE_OFFSET; id_number < number_of_ids; id_number++, offset +=  DTLS_KMID_LENGTH) {
-    proto_tree_add_item(parameter_tree, hf_dtls_km_id, parameter_tvb, offset, DTLS_KMID_LENGTH, ENC_BIG_ENDIAN);
-    proto_item_append_text(parameter_item, "%s", val_to_str_const(tvb_get_ntohs(parameter_tvb, offset), dtls_km_id_values, "Unknown"));
+  proto_tree_add_item(parameter_tree, hf_dtls_km_tiebreaker, parameter_tvb, DTLS_KM_PARAMETER_TIE_BREAKER_OFFSET, DTLS_KM_PARAMETER_TIE_BREAKER_LENGTH, ENC_BIG_ENDIAN);
+  flags = tvb_get_uint8(parameter_tvb, DTLS_KM_PARAMETER_FLAGS_OFFSET);
+  c_bit = flags & DTLS_KM_PARAMETER_C_BIT;
+  s_bit = flags & DTLS_KM_PARAMETER_S_BIT;
+  r_bit = flags & DTLS_KM_PARAMETER_R_BIT;
+  proto_item_append_text(parameter_item, " (");
+  if (c_bit)
+    proto_item_append_text(parameter_item, "client%s", s_bit ? " and " : " ");
+  if (s_bit)
+    proto_item_append_text(parameter_item, "server");
+  if (c_bit || s_bit)
+    proto_item_append_text(parameter_item, " role, ");
+  proto_item_append_text(parameter_item, "restart%ssupported, ", r_bit ? " " : " not ");
+  flags_item = proto_tree_add_item(parameter_tree, hf_dtls_km_flags, parameter_tvb, DTLS_KM_PARAMETER_FLAGS_OFFSET, DTLS_KM_PARAMETER_FLAGS_LENGTH, ENC_BIG_ENDIAN);
+  flags_tree = proto_item_add_subtree(flags_item, ett_sctp_dtls_km_flags);
+  proto_tree_add_bitmask_list(flags_tree, parameter_tvb, DTLS_KM_PARAMETER_FLAGS_OFFSET, DTLS_KM_PARAMETER_FLAGS_LENGTH, flag_list, ENC_NA);
+  proto_item_append_text(parameter_item, "ids: ");
+  number_of_ids = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - DTLS_KM_PARAMETER_KMID_OFFSET) / DTLS_KM_PARAMETER_KMID_LENGTH;
+  for(id_number = 0, offset = DTLS_KM_PARAMETER_KMID_OFFSET; id_number < number_of_ids; id_number++, offset +=  DTLS_KM_PARAMETER_KMID_LENGTH) {
+    proto_tree_add_item(parameter_tree, hf_dtls_km_id, parameter_tvb, offset, DTLS_KM_PARAMETER_KMID_LENGTH, ENC_BIG_ENDIAN);
+    proto_item_append_text(parameter_item, "%s", val_to_str_const(tvb_get_uint8(parameter_tvb, offset), dtls_km_id_values, "Unknown"));
     if (id_number < (number_of_ids - 1))
       proto_item_append_text(parameter_item, ", ");
   }
   proto_item_append_text(parameter_item, ")");
   if (number_of_ids == 0)
     expert_add_info_format(pinfo, parameter_item, &ei_sctp_dtls_km_illegal_number_of_ids, "At least one identifier required.");
-  if (dissecting_init_ack_chunk && number_of_ids != 1)
-    expert_add_info_format(pinfo, parameter_item, &ei_sctp_dtls_km_illegal_number_of_ids, "Only a single identifier allowed.");
 }
 
 static void
@@ -2412,6 +2472,26 @@ dissect_protocol_violation_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree)
 }
 
 static void
+dissect_missing_dtls_chunk_support_cause(tvbuff_t *cause_tvb _U_, proto_tree *cause_tree _U_)
+{
+}
+
+static void
+dissect_no_common_dtls_key_management_method_cause(tvbuff_t *cause_tvb _U_, proto_tree *cause_tree _U_)
+{
+}
+
+static void
+dissect_dtls_key_management_tie_breaker_collision_cause(tvbuff_t *cause_tvb _U_, proto_tree *cause_tree _U_)
+{
+}
+
+static void
+dissect_incompatible_dtls_key_management_roles_cause(tvbuff_t *cause_tvb _U_, proto_tree *cause_tree _U_)
+{
+}
+
+static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_delete_last_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *cause_tree, proto_item *cause_item)
 {
@@ -2484,19 +2564,23 @@ dissect_unknown_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *c
   proto_item_append_text(cause_item, " (Code: %u, information length: %u byte%s)", tvb_get_ntohs(cause_tvb, CAUSE_CODE_OFFSET), cause_info_length, plurality(cause_info_length, "", "s"));
 }
 
-#define INVALID_STREAM_IDENTIFIER                  0x01
-#define MISSING_MANDATORY_PARAMETERS               0x02
-#define STALE_COOKIE_ERROR                         0x03
-#define OUT_OF_RESOURCE                            0x04
-#define UNRESOLVABLE_ADDRESS                       0x05
-#define UNRECOGNIZED_CHUNK_TYPE                    0x06
-#define INVALID_MANDATORY_PARAMETER                0x07
-#define UNRECOGNIZED_PARAMETERS                    0x08
-#define NO_USER_DATA                               0x09
-#define COOKIE_RECEIVED_WHILE_SHUTTING_DOWN        0x0a
-#define RESTART_WITH_NEW_ADDRESSES                 0x0b
-#define USER_INITIATED_ABORT                       0x0c
-#define PROTOCOL_VIOLATION                         0x0d
+#define INVALID_STREAM_IDENTIFIER                  0x0001
+#define MISSING_MANDATORY_PARAMETERS               0x0002
+#define STALE_COOKIE_ERROR                         0x0003
+#define OUT_OF_RESOURCE                            0x0004
+#define UNRESOLVABLE_ADDRESS                       0x0005
+#define UNRECOGNIZED_CHUNK_TYPE                    0x0006
+#define INVALID_MANDATORY_PARAMETER                0x0007
+#define UNRECOGNIZED_PARAMETERS                    0x0008
+#define NO_USER_DATA                               0x0009
+#define COOKIE_RECEIVED_WHILE_SHUTTING_DOWN        0x000a
+#define RESTART_WITH_NEW_ADDRESSES                 0x000b
+#define USER_INITIATED_ABORT                       0x000c
+#define PROTOCOL_VIOLATION                         0x000d
+#define MISSING_DTLS_CHUNK_SUPPORT                 0x0064
+#define NO_COMMON_DTLS_KEY_MANAGEMENT_METHOD       0x0065
+#define DTLS_KEY_MANAGEMENT_TIE_BREAKER_COLLISION  0x0066
+#define INCOMPATIBLE_DTLS_KEY_MANAGEMENT_ROLES     0x0067
 #define REQUEST_TO_DELETE_LAST_ADDRESS             0x00a0
 #define OPERATION_REFUSED_DUE_TO_RESOURCE_SHORTAGE 0x00a1
 #define REQUEST_TO_DELETE_SOURCE_ADDRESS           0x00a2
@@ -2518,6 +2602,10 @@ static const value_string cause_code_values[] = {
   { RESTART_WITH_NEW_ADDRESSES,                 "Restart of an association with new addresses" },
   { USER_INITIATED_ABORT,                       "User initiated ABORT" },
   { PROTOCOL_VIOLATION,                         "Protocol violation" },
+  { MISSING_DTLS_CHUNK_SUPPORT,                 "Missing DTLS chunk support" },
+  { NO_COMMON_DTLS_KEY_MANAGEMENT_METHOD,       "No common DTLS key management method" },
+  { DTLS_KEY_MANAGEMENT_TIE_BREAKER_COLLISION,  "DTLS key management tie breaker collision" },
+  { INCOMPATIBLE_DTLS_KEY_MANAGEMENT_ROLES,     "Incompatible DTLS key management roles" },
   { REQUEST_TO_DELETE_LAST_ADDRESS,             "Request to delete last address" },
   { OPERATION_REFUSED_DUE_TO_RESOURCE_SHORTAGE, "Operation refused due to resource shortage" },
   { REQUEST_TO_DELETE_SOURCE_ADDRESS,           "Request to delete source address" },
@@ -2586,6 +2674,18 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
     break;
   case PROTOCOL_VIOLATION:
     dissect_protocol_violation_cause(cause_tvb, cause_tree);
+    break;
+  case MISSING_DTLS_CHUNK_SUPPORT:
+    dissect_missing_dtls_chunk_support_cause(cause_tvb, cause_tree);
+    break;
+  case NO_COMMON_DTLS_KEY_MANAGEMENT_METHOD:
+    dissect_no_common_dtls_key_management_method_cause(cause_tvb, cause_tree);
+    break;
+  case DTLS_KEY_MANAGEMENT_TIE_BREAKER_COLLISION:
+    dissect_dtls_key_management_tie_breaker_collision_cause(cause_tvb, cause_tree);
+    break;
+  case INCOMPATIBLE_DTLS_KEY_MANAGEMENT_ROLES:
+    dissect_incompatible_dtls_key_management_roles_cause(cause_tvb, cause_tree);
     break;
   case REQUEST_TO_DELETE_LAST_ADDRESS:
     dissect_delete_last_address_cause(cause_tvb, pinfo, cause_tree, cause_item);
@@ -4450,6 +4550,25 @@ dissect_auth_chunk(tvbuff_t *chunk_tvb, uint16_t chunk_length, proto_tree *chunk
     proto_tree_add_item(chunk_tree, hf_hmac,    chunk_tvb, HMAC_OFFSET,    hmac_length,    ENC_NA);
 }
 
+#define SCTP_DTLS_CHUNK_R_BIT 0x01
+
+static const true_false_string sctp_dtls_chunk_r_bit_value = {
+  "Restart DTLS key context",
+  "Primary DTLS key context"
+};
+
+static void
+dissect_dtls_chunk(tvbuff_t *chunk_tvb, uint16_t chunk_length _U_, proto_tree *chunk_tree, proto_item *flags_item)
+{
+  proto_tree *flags_tree;
+
+  if (chunk_tree) {
+    flags_tree  = proto_item_add_subtree(flags_item, ett_sctp_dtls_chunk_flags);
+    proto_tree_add_item(flags_tree, hf_dtls_chunk_r_bit, chunk_tvb, CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH, ENC_BIG_ENDIAN);
+  }
+}
+
+
 #define SCTP_SEQUENCE_NUMBER_LENGTH    4
 #define SEQUENCE_NUMBER_OFFSET    CHUNK_VALUE_OFFSET
 #define ASCONF_CHUNK_PARAMETERS_OFFSET (SEQUENCE_NUMBER_OFFSET + SCTP_SEQUENCE_NUMBER_LENGTH)
@@ -4745,6 +4864,9 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
     break;
   case SCTP_NR_SACK_CHUNK_ID:
     dissect_nr_sack_chunk(pinfo, chunk_tvb, chunk_tree, chunk_item, flags_item, ha);
+    break;
+  case SCTP_DTLS_CHUNK_ID:
+    dissect_dtls_chunk(chunk_tvb, length, chunk_tree, flags_item);
     break;
   case SCTP_ASCONF_ACK_CHUNK_ID:
     dissect_asconf_ack_chunk(chunk_tvb, length, pinfo, chunk_tree, chunk_item);
@@ -5225,7 +5347,13 @@ proto_register_sctp(void)
     { &hf_chunks_to_auth,                           { "Chunk type",                                     "sctp.chunk_type_to_auth",                              FT_UINT8,   BASE_DEC,  VALS(chunk_type_values),                        0x0,                                NULL, HFILL } },
     { &hf_hmac_id,                                  { "HMAC identifier",                                "sctp.hmac_id",                                         FT_UINT16,  BASE_DEC,  VALS(hmac_id_values),                           0x0,                                NULL, HFILL } },
     { &hf_hmac,                                     { "HMAC",                                           "sctp.hmac",                                            FT_BYTES,   BASE_NONE, NULL,                                           0x0,                                NULL, HFILL } },
-    { &hf_dtls_km_id,                               { "DTLS key management identifier",                 "sctp.dtls_km_id",                                      FT_UINT16,  BASE_DEC,  VALS(dtls_km_id_values),                        0x0,                                NULL, HFILL } },
+    { &hf_dtls_km_tiebreaker,                       { "DTLS KM tiebreaker identifier",                  "sctp.dtls_km_tiebreaker",                              FT_UINT32,   BASE_DEC, NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_dtls_km_flags,                            { "DTLS KM flags",                                  "sctp.dtls_km_flags",                                   FT_UINT8,   BASE_HEX,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_dtls_km_c_bit,                            { "C-Bit",                                          "sctp.dtls_km_c_bit",                                   FT_BOOLEAN, 8,         TFS(&sctp_dtls_km_parameter_c_bit_value),       DTLS_KM_PARAMETER_C_BIT,            NULL, HFILL } },
+    { &hf_dtls_km_s_bit,                            { "S-Bit",                                          "sctp.dtls_km_s_bit",                                   FT_BOOLEAN, 8,         TFS(&sctp_dtls_km_parameter_s_bit_value),       DTLS_KM_PARAMETER_S_BIT,            NULL, HFILL } },
+    { &hf_dtls_km_r_bit,                            { "R-Bit",                                          "sctp.dtls_km_r_bit",                                   FT_BOOLEAN, 8,         TFS(&sctp_dtls_km_parameter_r_bit_value),       DTLS_KM_PARAMETER_R_BIT,            NULL, HFILL } },
+    { &hf_dtls_km_id,                               { "DTLS KM identifier",                             "sctp.dtls_km_id",                                      FT_UINT8,   BASE_DEC,  VALS(dtls_km_id_values),                        0x0,                                NULL, HFILL } },
+    { &hf_dtls_chunk_r_bit,                         { "R-Bit",                                          "sctp.dtls_r_bit",                                      FT_BOOLEAN, 8,         TFS(&sctp_dtls_chunk_r_bit_value),              SCTP_DTLS_CHUNK_R_BIT,              NULL, HFILL } },
     { &hf_shared_key_id,                            { "Shared key identifier",                          "sctp.shared_key_id",                                   FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_supported_chunk_type,                     { "Supported chunk type",                           "sctp.supported_chunk_type",                            FT_UINT8,   BASE_DEC,  VALS(chunk_type_values),                        0x0,                                NULL, HFILL } },
     { &hf_cause_code,                               { "Cause code",                                     "sctp.cause_code",                                      FT_UINT16,  BASE_HEX,  VALS(cause_code_values),                        0x0,                                NULL, HFILL } },
@@ -5292,6 +5420,7 @@ proto_register_sctp(void)
     &ett_sctp_nr_sack_chunk_nr_gap_block_end,
     &ett_sctp_unrecognized_parameter_parameter,
     &ett_sctp_i_forward_tsn_chunk_flags,
+    &ett_sctp_dtls_chunk_flags,
     &ett_sctp_fragments,
     &ett_sctp_fragment,
     &ett_sctp_ack,
@@ -5299,7 +5428,8 @@ proto_register_sctp(void)
     &ett_sctp_tsn,
     &ett_sctp_tsn_retransmission,
     &ett_sctp_tsn_retransmitted_count,
-    &ett_sctp_tsn_retransmitted
+    &ett_sctp_tsn_retransmitted,
+    &ett_sctp_dtls_km_flags
   };
 
   static ei_register_info ei[] = {

@@ -91,6 +91,7 @@ typedef struct _sctp_frag_msg {
 #define SCTP_AUTH_CHUNK_ID              15
 #define SCTP_NR_SACK_CHUNK_ID           16
 #define SCTP_I_DATA_CHUNK_ID          0x40
+#define SCTP_DTLS_CHUNK_ID            0x41
 #define SCTP_ASCONF_ACK_CHUNK_ID      0x80
 #define SCTP_PKTDROP_CHUNK_ID         0x81
 #define SCTP_RE_CONFIG_CHUNK_ID       0x82
@@ -191,6 +192,7 @@ typedef struct _sctp_frag_msg {
 #define E2_UP_PROTOCOL_ID                              71
 #define E2_DU_PROTOCOL_ID                              72
 #define W1AP_PROTOCOL_ID                               73
+#define DTLS_CHUNK_KM_MESSAGES_PAYLOAD_PROTOCOL_ID   4242
 
 WS_DLL_PUBLIC value_string_ext sctpppid_val_ext;
 
