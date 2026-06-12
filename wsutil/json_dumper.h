@@ -138,6 +138,19 @@ WS_DLL_PUBLIC void
 json_dumper_value_string(json_dumper *dumper, const char *value);
 
 /**
+ * @brief Writes a string value that is known to not require JSON escaping.
+ *
+ * Skips the escape-scanning overhead. The caller guarantees the string
+ * contains no characters that need escaping (no control chars, backslash, or quotes).
+ *
+ * @param dumper The JSON dumper context.
+ * @param value The pre-validated string value.
+ * @param len Length of the string.
+ */
+WS_DLL_PUBLIC void
+json_dumper_value_string_noesc(json_dumper *dumper, const char *value, size_t len);
+
+/**
  * @brief Writes a double-precision numeric value to the JSON output.
  *
  * Adds a floating-point number to the current object or array.

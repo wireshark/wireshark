@@ -674,6 +674,24 @@ json_dumper_value_string(json_dumper *dumper, const char *value)
 }
 
 void
+json_dumper_value_string_noesc(json_dumper *dumper, const char *value, size_t len)
+{
+    if (!json_dumper_check_previous_error(dumper)) {
+        return;
+    }
+    if (!json_dumper_setting_value_ok(dumper)) {
+        return;
+    }
+
+    prepare_token(dumper);
+    jd_putc(dumper, '"');
+    jd_puts_len(dumper, value, len);
+    jd_putc(dumper, '"');
+
+    dumper->state[dumper->current_depth] = JSON_DUMPER_TYPE_VALUE;
+}
+
+void
 json_dumper_value_double(json_dumper *dumper, double value)
 {
     if (!json_dumper_check_previous_error(dumper)) {
