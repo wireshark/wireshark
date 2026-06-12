@@ -12845,7 +12845,7 @@ proto_construct_match_selected_string(const field_info *finfo, epan_dissect_t *e
 
 static bool
 proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const unsigned offset,
-			    const int len, const int ett, int * const *fields,
+			    const unsigned len, const int ett, int * const *fields,
 			    const int flags, bool first,
 			    bool use_parent_tree,
 			    proto_tree* tree, uint64_t value)
@@ -12861,7 +12861,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const unsigned offs
 	if (!*fields)
 		REPORT_DISSECTOR_BUG("Illegal call of proto_item_add_bitmask_tree without fields");
 
-	if (len < 0 || len > 8)
+	if (len > 8)
 		REPORT_DISSECTOR_BUG("Invalid len: %d", len);
 	/**
 	 * packet-frame.c uses len=0 since the value is taken from the packet
@@ -12869,7 +12869,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const unsigned offs
 	 * in the provided value are valid.
 	 */
 	if (len > 0) {
-		available_bits >>= (8 - (unsigned)len)*8;
+		available_bits >>= (8 - len)*8;
 	}
 
 	if (use_parent_tree == false)
@@ -13261,7 +13261,7 @@ proto_tree_add_bitmask_with_flags_ret_uint64(proto_tree *parent_tree, tvbuff_t *
 {
 	proto_item        *item = NULL;
 	header_field_info *hf;
-	int                len;
+	unsigned           len;
 	uint64_t           value;
 
 	PROTO_REGISTRAR_GET_NTH(hf_hdr,hf);
@@ -13295,7 +13295,7 @@ proto_tree_add_bitmask_with_flags(proto_tree *parent_tree, tvbuff_t *tvb, const 
 {
 	proto_item        *item = NULL;
 	header_field_info *hf;
-	int                len;
+	unsigned           len;
 	uint64_t           value;
 
 	PROTO_REGISTRAR_GET_NTH(hf_hdr,hf);
@@ -13329,7 +13329,7 @@ proto_tree_add_bitmask_value_with_flags(proto_tree *parent_tree, tvbuff_t *tvb, 
 {
 	proto_item        *item = NULL;
 	header_field_info *hf;
-	int                len;
+	unsigned           len;
 
 	PROTO_REGISTRAR_GET_NTH(hf_hdr,hf);
 	DISSECTOR_ASSERT_FIELD_TYPE_IS_INTEGRAL(hf);
@@ -13353,7 +13353,7 @@ proto_tree_add_bitmask_value_with_flags(proto_tree *parent_tree, tvbuff_t *tvb, 
 /* Similar to proto_tree_add_bitmask(), but with no "header" item to group all of the fields */
 void
 proto_tree_add_bitmask_list(proto_tree *tree, tvbuff_t *tvb, const unsigned offset,
-								const int len, int * const *fields, const unsigned encoding)
+								const unsigned len, int * const *fields, const unsigned encoding)
 {
 	uint64_t value;
 
@@ -13366,7 +13366,7 @@ proto_tree_add_bitmask_list(proto_tree *tree, tvbuff_t *tvb, const unsigned offs
 
 WS_DLL_PUBLIC void
 proto_tree_add_bitmask_list_ret_uint64(proto_tree *tree, tvbuff_t *tvb, const unsigned offset,
-					const int len, int * const *fields, const unsigned encoding, uint64_t *retval)
+					const unsigned len, int * const *fields, const unsigned encoding, uint64_t *retval)
 {
 	uint64_t value;
 
@@ -13382,7 +13382,7 @@ proto_tree_add_bitmask_list_ret_uint64(proto_tree *tree, tvbuff_t *tvb, const un
 
 WS_DLL_PUBLIC void
 proto_tree_add_bitmask_list_value(proto_tree *tree, tvbuff_t *tvb, const unsigned offset,
-								const int len, int * const *fields, const uint64_t value)
+								const unsigned len, int * const *fields, const uint64_t value)
 {
 	if (tree) {
 		proto_item_add_bitmask_tree(NULL, tvb, offset, len, -1, fields,

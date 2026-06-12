@@ -3573,7 +3573,7 @@ proto_tree_add_bitmask_value_with_flags(proto_tree *tree, tvbuff_t *tvb, const u
  @param encoding big or little endian byte representation (ENC_BIG_ENDIAN/ENC_LITTLE_ENDIAN/ENC_HOST_ENDIAN) */
 WS_DLL_PUBLIC void
 proto_tree_add_bitmask_list(proto_tree *tree, tvbuff_t *tvb, const unsigned offset,
-                                const int len, int * const *fields, const unsigned encoding);
+                                const unsigned len, int * const *fields, const unsigned encoding);
 
 /** This function will dissect a value that describe a bitmask. Similar to proto_tree_add_bitmask_list(),
     but with a return value
@@ -3592,7 +3592,7 @@ proto_tree_add_bitmask_list(proto_tree *tree, tvbuff_t *tvb, const unsigned offs
  @param retval if a pointer is passed here the value is returned. */
 WS_DLL_PUBLIC  void
 proto_tree_add_bitmask_list_ret_uint64(proto_tree *tree, tvbuff_t *tvb, const unsigned offset,
-					const int len, int * const *fields, const unsigned encoding, uint64_t *retval);
+					const unsigned len, int * const *fields, const unsigned encoding, uint64_t *retval);
 
 /** This function will dissect a value that describe a bitmask. Similar to proto_tree_add_bitmask_list(),
     but with a passed in value (presumably because it can't be retrieved directly from tvb)
@@ -3610,7 +3610,7 @@ proto_tree_add_bitmask_list_ret_uint64(proto_tree *tree, tvbuff_t *tvb, const un
  @param value bitmask value */
 WS_DLL_PUBLIC void
 proto_tree_add_bitmask_list_value(proto_tree *tree, tvbuff_t *tvb, const unsigned offset,
-                                const int len, int * const *fields, const uint64_t value);
+                                const unsigned len, int * const *fields, const uint64_t value);
 
 
 /** This function will dissect a sequence of bytes that describe a bitmask.
