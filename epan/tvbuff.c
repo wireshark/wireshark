@@ -2867,13 +2867,6 @@ _tvb_get_bits64_le(tvbuff_t *tvb, unsigned bit_offset, const unsigned total_no_o
 	return value;
 }
 
-/* Get 1 - 32 bits (should be deprecated as same as tvb_get_bits32??) */
-uint32_t
-tvb_get_bits(tvbuff_t *tvb, const unsigned bit_offset, const unsigned no_of_bits, const unsigned encoding)
-{
-	return (uint32_t)tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
-}
-
 static bool
 tvb_find_uint8_generic(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8_t needle, unsigned *end_offset)
 {
@@ -4236,19 +4229,6 @@ tvb_get_stringz_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned 
  * functions that operate on strings that don't have a tvb_ equivalent.
  * That's hard to enforce, which is why this is deprecated.
  */
-const uint8_t *
-tvb_get_const_stringz(tvbuff_t *tvb, const unsigned offset, unsigned *lengthp)
-{
-	unsigned      size;
-	const uint8_t *strptr;
-
-	size   = tvb_strsize(tvb, offset);
-	strptr = ensure_contiguous_unsigned(tvb, offset, size);
-	if (lengthp)
-		*lengthp = size;
-	return strptr;
-}
-
 static char *
 tvb_get_ucs_2_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, unsigned *lengthp, const unsigned encoding)
 {

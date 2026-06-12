@@ -280,9 +280,6 @@ signed integers (int8_t):
 uint8_t tvb_get_uint8(tvbuff_t *tvb, const int offset);
 int8_t tvb_get_int8(tvbuff_t *tvb, const int offset);
 
-These functions were previously named tvb_get_guint8 and tvb_get_gint8. You
-can still use the old names but they have been deprecated.
-
 Network-to-host-order accessors:
 
 16-bit unsigned (uint16_t) and signed (int16_t) integers:
@@ -410,9 +407,6 @@ int64_t tvb_get_int56(tvbuff_t *tvb, const int offset, const unsigned encoding);
 
 uint64_t tvb_get_uint64(tvbuff_t *tvb, const int offset, const unsigned encoding);
 int64_t tvb_get_int64(tvbuff_t *tvb, const int offset, const unsigned encoding);
-
-These functions were previously named tvb_get_guintXX and tvb_get_gintXX. You
-can still use the old names but they have been deprecated.
 
 Single-precision and double-precision IEEE floating-point numbers:
 
@@ -3615,9 +3609,10 @@ Consider the following example using IP dissection, stolen from packet-ip.c:
     static build_valid_func ip_da_build_value[1] = {ip_value};
     static decode_as_value_t ip_da_values = {ip_prompt, 1, ip_da_build_value};
     static decode_as_t ip_da = {"ip", "ip.proto", 1, 0, &ip_da_values, NULL, NULL,
-                                decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+                                decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL, NULL };
     ...
-    ip_dissector_table = register_dissector_table("ip.proto", "IP protocol", ip_proto, FT_UINT8, BASE_DEC);
+    ip_dissector_table = register_dissector_table("ip.proto", "IP protocol",
+                                                  proto_ip, FT_UINT8, BASE_DEC);
     ...
     register_decode_as(&ip_da);
 

@@ -613,24 +613,6 @@ WS_DLL_PUBLIC struct tvbuff *tvb_get_ds_tvb(tvbuff_t *tvb);
 WS_DLL_PUBLIC uint8_t tvb_get_uint8(tvbuff_t *tvb, const unsigned offset);
 
 /**
- * @brief Deprecated accessor for an 8-bit unsigned value from a tvbuff.
- *
- * This function is equivalent to @ref tvb_get_uint8.
- * It is deprecated and should not be used in new code.
- *
- * @param tvb     The tvbuff_t to read from.
- * @param offset  The offset within the buffer to read the byte.
- *
- * @return The 8-bit unsigned value at the given offset.
- *
- * @deprecated Use @ref tvb_get_uint8 instead.
- */
-WS_DEPRECATED_X("Use tvb_get_uint8 instead")
-static inline uint8_t tvb_get_guint8(tvbuff_t *tvb, const unsigned offset) {
-    return tvb_get_uint8(tvb, offset);
-}
-
-/**
  * @brief Retrieve an 8-bit signed value from a tvbuff at the specified offset.
  *
  * This function reads a single byte from the given tvbuff_t at the specified offset.
@@ -642,22 +624,6 @@ static inline uint8_t tvb_get_guint8(tvbuff_t *tvb, const unsigned offset) {
  * @return The 8-bit signed value at the given offset.
  */
 WS_DLL_PUBLIC int8_t tvb_get_int8(tvbuff_t *tvb, const unsigned offset);
-
-/**
- * @brief Deprecated accessor for an 8-bit signed value from a tvbuff.
- *
- * This function is equivalent to @ref tvb_get_int8.
- * It is deprecated and should not be used in new code.
- *
- * @param tvb     The tvbuff_t to read from.
- * @param offset  The offset within the buffer to read the byte.
- *
- * @return The 8-bit signed value at the given offset.
- *
- * @deprecated Use @ref tvb_get_int8 instead.
- */
-WS_DEPRECATED_X("Use tvb_get_int8 instead")
-static inline int8_t tvb_get_gint8(tvbuff_t *tvb, const unsigned offset) { return tvb_get_int8(tvb, offset); }
 
 /**
  * @brief Retrieve a 16-bit unsigned value in network byte order.
@@ -945,8 +911,7 @@ WS_DLL_PUBLIC float tvb_get_ntohieee_float(tvbuff_t *tvb, const unsigned offset)
  *
  * @see tvb_get_ntohieee_float
  */
-WS_DLL_PUBLIC double tvb_get_ntohieee_double(tvbuff_t *tvb,
-    const unsigned offset);
+WS_DLL_PUBLIC double tvb_get_ntohieee_double(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 16-bit unsigned value in little-endian byte order.
@@ -1255,25 +1220,6 @@ WS_DLL_PUBLIC double tvb_get_letohieee_double(tvbuff_t *tvb,
 WS_DLL_PUBLIC uint16_t tvb_get_uint16(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
- * @brief Deprecated accessor for a 16-bit unsigned value from a tvbuff.
- *
- * This function is equivalent to @ref tvb_get_uint16.
- * It is deprecated and should not be used in new code.
- *
- * @param tvb       The tvbuff_t to read from.
- * @param offset    The offset within the buffer to begin reading.
- * @param encoding  The encoding to use when interpreting the bytes.
- *
- * @return The 16-bit unsigned value in host byte order.
- *
- * @deprecated Use @ref tvb_get_uint16 instead.
- */
-WS_DEPRECATED_X("Use tvb_get_uint16 instead")
-static inline uint16_t tvb_get_guint16(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) {
-    return tvb_get_uint16(tvb, offset, encoding);
-}
-
-/**
  * @brief Retrieve a 16-bit signed value from a tvbuff using the specified encoding.
  *
  * Reads two bytes from the given tvbuff_t at the specified offset,
@@ -1289,23 +1235,6 @@ static inline uint16_t tvb_get_guint16(tvbuff_t *tvb, const unsigned offset, con
  * @return The 16-bit signed value in host byte order.
  */
 WS_DLL_PUBLIC int16_t tvb_get_int16(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
-
-/**
- * @brief Deprecated accessor for a 16-bit signed value from a tvbuff.
- *
- * This function is equivalent to @ref tvb_get_int16.
- * It is deprecated and should not be used in new code.
- *
- * @param tvb       The tvbuff_t to read from.
- * @param offset    The offset within the buffer to begin reading.
- * @param encoding  The encoding to use when interpreting the bytes.
- *
- * @return The 16-bit signed value in host byte order.
- *
- * @deprecated Use @ref tvb_get_int16 instead.
- */
-WS_DEPRECATED_X("Use tvb_get_int16 instead")
-static inline int16_t tvb_get_gint16(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_int16(tvb, offset, encoding); }
 
 /**
  * @brief Retrieve a 24-bit unsigned value from a tvbuff using the specified encoding.
@@ -1325,23 +1254,6 @@ static inline int16_t tvb_get_gint16(tvbuff_t *tvb, const unsigned offset, const
 WS_DLL_PUBLIC uint32_t tvb_get_uint24(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
- * @brief Deprecated accessor for a 24-bit unsigned value from a tvbuff.
- *
- * This function is equivalent to @ref tvb_get_uint24.
- * It is deprecated and should not be used in new code.
- *
- * @param tvb       The tvbuff_t to read from.
- * @param offset    The offset within the buffer to begin reading.
- * @param encoding  The encoding to use when interpreting the bytes.
- *
- * @return The 24-bit unsigned value in host byte order.
- *
- * @deprecated Use @ref tvb_get_uint24 instead.
- */
-WS_DEPRECATED_X("Use tvb_get_uint24 instead")
-static inline uint32_t tvb_get_guint24(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_uint24(tvb, offset, encoding); }
-
-/**
  * @brief Retrieve a 24-bit signed value from a tvbuff using the specified encoding.
  *
  * Reads three bytes from the given tvbuff_t at the specified offset,
@@ -1357,23 +1269,6 @@ static inline uint32_t tvb_get_guint24(tvbuff_t *tvb, const unsigned offset, con
  * @return The 24-bit signed value in host byte order.
  */
 WS_DLL_PUBLIC int32_t tvb_get_int24(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
-
-/**
- * @brief Deprecated accessor for a 24-bit signed value from a tvbuff.
- *
- * This function is equivalent to @ref tvb_get_int24.
- * It is deprecated and should not be used in new code.
- *
- * @param tvb       The tvbuff_t to read from.
- * @param offset    The offset within the buffer to begin reading.
- * @param encoding  The encoding to use when interpreting the bytes.
- *
- * @return The 24-bit signed value in host byte order.
- *
- * @deprecated Use @ref tvb_get_int24 instead.
- */
-WS_DEPRECATED_X("Use tvb_get_int24 instead")
-static inline int32_t tvb_get_gint24(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_int24(tvb, offset, encoding); }
 
 /**
  * @brief Retrieve a 32-bit unsigned value from a tvbuff using the specified encoding.
@@ -1393,23 +1288,6 @@ static inline int32_t tvb_get_gint24(tvbuff_t *tvb, const unsigned offset, const
 WS_DLL_PUBLIC uint32_t tvb_get_uint32(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
- * @brief Deprecated accessor for a 32-bit unsigned value from a tvbuff.
- *
- * This function is equivalent to @ref tvb_get_uint32.
- * It is deprecated and should not be used in new code.
- *
- * @param tvb       The tvbuff_t to read from.
- * @param offset    The offset within the buffer to begin reading.
- * @param encoding  The encoding to use when interpreting the bytes.
- *
- * @return The 32-bit unsigned value in host byte order.
- *
- * @deprecated Use @ref tvb_get_uint32 instead.
- */
-WS_DEPRECATED_X("Use tvb_get_uint32 instead")
-static inline uint32_t tvb_get_guint32(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_uint32(tvb, offset, encoding); }
-
-/**
  * @brief Retrieve a 32-bit signed value from a tvbuff using the specified encoding.
  *
  * Reads four bytes from the given tvbuff_t at the specified offset,
@@ -1425,23 +1303,6 @@ static inline uint32_t tvb_get_guint32(tvbuff_t *tvb, const unsigned offset, con
  * @return The 32-bit signed value in host byte order.
  */
 WS_DLL_PUBLIC int32_t tvb_get_int32(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
-
-/**
- * @brief Deprecated accessor for a 32-bit signed value from a tvbuff.
- *
- * This function is equivalent to @ref tvb_get_int32.
- * It is deprecated and should not be used in new code.
- *
- * @param tvb       The tvbuff_t to read from.
- * @param offset    The offset within the buffer to begin reading.
- * @param encoding  The encoding to use when interpreting the bytes.
- *
- * @return The 32-bit signed value in host byte order.
- *
- * @deprecated Use @ref tvb_get_int32 instead.
- */
-WS_DEPRECATED_X("Use tvb_get_int32 instead")
-static inline int32_t tvb_get_gint32(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_int32(tvb, offset, encoding); }
 
 /**
  * @brief Retrieve a 40-bit unsigned value from a tvbuff using the specified encoding.
@@ -1461,23 +1322,6 @@ static inline int32_t tvb_get_gint32(tvbuff_t *tvb, const unsigned offset, const
 WS_DLL_PUBLIC uint64_t tvb_get_uint40(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
- * @brief Deprecated accessor for a 40-bit unsigned value from a tvbuff.
- *
- * This function is equivalent to @ref tvb_get_uint40.
- * It is deprecated and should not be used in new code.
- *
- * @param tvb       The tvbuff_t to read from.
- * @param offset    The offset within the buffer to begin reading.
- * @param encoding  The encoding to use when interpreting the bytes.
- *
- * @return The 40-bit unsigned value in host byte order.
- *
- * @deprecated Use @ref tvb_get_uint40 instead.
- */
-WS_DEPRECATED_X("Use tvb_get_uint40 instead")
-static inline uint64_t tvb_get_guint40(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_uint40(tvb, offset, encoding); }
-
-/**
  * @brief Retrieve a 40-bit signed value from a tvbuff using the specified encoding.
  *
  * Reads five bytes from the given tvbuff_t at the specified offset,
@@ -1493,23 +1337,6 @@ static inline uint64_t tvb_get_guint40(tvbuff_t *tvb, const unsigned offset, con
  * @return The 40-bit signed value in host byte order.
  */
 WS_DLL_PUBLIC int64_t tvb_get_int40(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
-
-/**
- * @brief Deprecated accessor for a 40-bit signed value from a tvbuff.
- *
- * This function is equivalent to @ref tvb_get_int40.
- * It is deprecated and should not be used in new code.
- *
- * @param tvb       The tvbuff_t to read from.
- * @param offset    The offset within the buffer to begin reading.
- * @param encoding  The encoding to use when interpreting the bytes.
- *
- * @return The 40-bit signed value in host byte order.
- *
- * @deprecated Use @ref tvb_get_int40 instead.
- */
-WS_DEPRECATED_X("Use tvb_get_int40 instead")
-static inline int64_t tvb_get_gint40(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_int40(tvb, offset, encoding); }
 
 /**
  * @brief Retrieve a 48-bit unsigned value from a tvbuff using the specified encoding.
@@ -1529,23 +1356,6 @@ static inline int64_t tvb_get_gint40(tvbuff_t *tvb, const unsigned offset, const
 WS_DLL_PUBLIC uint64_t tvb_get_uint48(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
- * @brief Deprecated accessor for a 48-bit unsigned value from a tvbuff.
- *
- * This function is equivalent to @ref tvb_get_uint48.
- * It is deprecated and should not be used in new code.
- *
- * @param tvb       The tvbuff_t to read from.
- * @param offset    The offset within the buffer to begin reading.
- * @param encoding  The encoding to use when interpreting the bytes.
- *
- * @return The 48-bit unsigned value in host byte order.
- *
- * @deprecated Use @ref tvb_get_uint48 instead.
- */
-WS_DEPRECATED_X("Use tvb_get_uint48 instead")
-static inline uint64_t tvb_get_guint48(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_uint48(tvb, offset, encoding); }
-
-/**
  * @brief Retrieve a 48-bit signed value from a tvbuff using the specified encoding.
  *
  * Reads six bytes from the given tvbuff_t at the specified offset,
@@ -1561,23 +1371,6 @@ static inline uint64_t tvb_get_guint48(tvbuff_t *tvb, const unsigned offset, con
  * @return The 48-bit signed value in host byte order.
  */
 WS_DLL_PUBLIC int64_t tvb_get_int48(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
-
-/**
- * @brief Deprecated accessor for a 48-bit signed value from a tvbuff.
- *
- * This function is equivalent to @ref tvb_get_int48.
- * It is deprecated and should not be used in new code.
- *
- * @param tvb       The tvbuff_t to read from.
- * @param offset    The offset within the buffer to begin reading.
- * @param encoding  The encoding to use when interpreting the bytes.
- *
- * @return The 48-bit signed value in host byte order.
- *
- * @deprecated Use @ref tvb_get_int48 instead.
- */
-WS_DEPRECATED_X("Use tvb_get_int48 instead")
-static inline int64_t tvb_get_gint48(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_int48(tvb, offset, encoding); }
 
 /**
  * @brief Retrieve a 56-bit unsigned value from a tvbuff using the specified encoding.
@@ -1597,23 +1390,6 @@ static inline int64_t tvb_get_gint48(tvbuff_t *tvb, const unsigned offset, const
 WS_DLL_PUBLIC uint64_t tvb_get_uint56(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
- * @brief Deprecated accessor for a 56-bit unsigned value from a tvbuff.
- *
- * This function is equivalent to @ref tvb_get_uint56.
- * It is deprecated and should not be used in new code.
- *
- * @param tvb       The tvbuff_t to read from.
- * @param offset    The offset within the buffer to begin reading.
- * @param encoding  The encoding to use when interpreting the bytes.
- *
- * @return The 56-bit unsigned value in host byte order.
- *
- * @deprecated Use @ref tvb_get_uint56 instead.
- */
-WS_DEPRECATED_X("Use tvb_get_uint56 instead")
-static inline uint64_t tvb_get_guint56(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_uint56(tvb, offset, encoding); }
-
-/**
  * @brief Retrieve a 56-bit signed value from a tvbuff using the specified encoding.
  *
  * Reads seven bytes from the given tvbuff_t at the specified offset,
@@ -1629,23 +1405,6 @@ static inline uint64_t tvb_get_guint56(tvbuff_t *tvb, const unsigned offset, con
  * @return The 56-bit signed value in host byte order.
  */
 WS_DLL_PUBLIC int64_t tvb_get_int56(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
-
-/**
- * @brief Deprecated accessor for a 56-bit signed value from a tvbuff.
- *
- * This function is equivalent to @ref tvb_get_int56.
- * It is deprecated and should not be used in new code.
- *
- * @param tvb       The tvbuff_t to read from.
- * @param offset    The offset within the buffer to begin reading.
- * @param encoding  The encoding to use when interpreting the bytes.
- *
- * @return The 56-bit signed value in host byte order.
- *
- * @deprecated Use @ref tvb_get_int56 instead.
- */
-WS_DEPRECATED_X("Use tvb_get_int56 instead")
-static inline int64_t tvb_get_gint56(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_int56(tvb, offset, encoding); }
 
 /**
  * @brief Retrieve a 64-bit unsigned value from a tvbuff using the specified encoding.
@@ -1687,23 +1446,6 @@ WS_DLL_PUBLIC uint64_t tvb_get_uint64(tvbuff_t *tvb, const unsigned offset, cons
 WS_DLL_PUBLIC uint64_t tvb_get_uint64_with_length(tvbuff_t *tvb, const unsigned offset, unsigned length, const unsigned encoding);
 
 /**
- * @brief Deprecated accessor for a 64-bit unsigned value from a tvbuff.
- *
- * This function is equivalent to @ref tvb_get_uint64.
- * It is deprecated and should not be used in new code.
- *
- * @param tvb       The tvbuff_t to read from.
- * @param offset    The offset within the buffer to begin reading.
- * @param encoding  The encoding to use when interpreting the bytes.
- *
- * @return The 64-bit unsigned value in host byte order.
- *
- * @deprecated Use @ref tvb_get_uint64 instead.
- */
-WS_DEPRECATED_X("Use tvb_get_uint64 instead")
-static inline uint64_t tvb_get_guint64(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) {return tvb_get_uint64(tvb, offset, encoding); }
-
-/**
  * @brief Retrieve a 64-bit signed value from a tvbuff using the specified encoding.
  *
  * Reads eight bytes from the given tvbuff_t at the specified offset,
@@ -1719,23 +1461,6 @@ static inline uint64_t tvb_get_guint64(tvbuff_t *tvb, const unsigned offset, con
  * @return The 64-bit signed value in host byte order.
  */
 WS_DLL_PUBLIC int64_t tvb_get_int64(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
-
-/**
- * @brief Deprecated accessor for a 64-bit signed value from a tvbuff.
- *
- * This function is equivalent to @ref tvb_get_int64.
- * It is deprecated and should not be used in new code.
- *
- * @param tvb       The tvbuff_t to read from.
- * @param offset    The offset within the buffer to begin reading.
- * @param encoding  The encoding to use when interpreting the bytes.
- *
- * @return The 64-bit signed value in host byte order.
- *
- * @deprecated Use @ref tvb_get_int64 instead.
- */
-WS_DEPRECATED_X("Use tvb_get_int64 instead")
-static inline int64_t tvb_get_gint64(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_int64(tvb, offset, encoding); }
 
 /**
  * @brief Retrieve a 32-bit IEEE float from a tvbuff using the specified encoding.
@@ -2298,28 +2023,6 @@ WS_DLL_PUBLIC uint32_t tvb_get_bits32(tvbuff_t *tvb, unsigned bit_offset,
  * @see tvb_get_bits32
  */
 WS_DLL_PUBLIC uint64_t tvb_get_bits64(tvbuff_t *tvb, unsigned bit_offset,
-    const unsigned no_of_bits, const unsigned encoding);
-
-/**
- * @brief Deprecated accessor for extracting bits from a tvbuff.
- *
- * This function extracts 1–32 bits starting at the specified bit offset and returns
- * them as a uint32_t, using the specified encoding to determine bit ordering.
- *
- * @param tvb          The tvbuff_t to read from.
- * @param bit_offset   The bit offset within the buffer to begin reading.
- * @param no_of_bits   The number of bits to extract (must be between 1 and 32).
- * @param encoding     The ENC_* constant defining bit ordering.
- *
- * @return The extracted bits as a uint32_t.
- *
- * @deprecated Use @ref tvb_get_bits32 instead.
- *
- * @see tvb_get_bits32
- */
-WS_DLL_PUBLIC
-WS_DEPRECATED_X("Use tvb_get_bits32() instead")
-uint32_t tvb_get_bits(tvbuff_t *tvb, const unsigned bit_offset,
     const unsigned no_of_bits, const unsigned encoding);
 
 /**
@@ -2919,41 +2622,6 @@ WS_DLL_PUBLIC uint8_t *tvb_get_stringz_enc(wmem_allocator_t *scope,
     tvbuff_t *tvb, const unsigned offset, unsigned *lengthp, const unsigned encoding);
 
 /**
- * @brief Deprecated function to retrieve a raw, unmodifiable null-terminated string from a tvbuff.
- *
- * Given a tvbuff_t and an offset assumed to point to a null-terminated string,
- * this function finds the string length (including the terminating null), allocates
- * a buffer to hold the string, copies the raw octets into it, and returns a pointer
- * to the string. The length of the string (including the null terminator) is returned
- * through `lengthp`.
- *
- * The returned string is constant and does not need to be freed by the caller; it is
- * automatically freed when the next packet is dissected.
- *
- * This function is more efficient than other string extraction routines but does not
- * perform any UTF-8 translation or validation. The string consists of raw octets as
- * present in the packet, including any invalid sequences.
- *
- * @warning This function is deprecated because it does not validate or convert string
- * encoding. Avoid using it in new code. Prefer safer alternatives such as:
- * - @ref tvb_get_stringz_enc
- * - @ref proto_tree_add_item_ret_string_and_length
- * - @ref tvb_strsize combined with manual validation of the string memory.
- *
- * @param tvb      The tvbuff_t to read from.
- * @param offset   The offset in the tvbuff where the string begins.
- * @param lengthp  Pointer to an unsigned to receive the string length (can be NULL.)
- *
- * @return A pointer to the constant, raw string data.
- *
- * @deprecated Use APIs that return validated UTF-8 strings instead.
- */
-WS_DLL_PUBLIC
-WS_DEPRECATED_X("Use APIs that return a valid UTF-8 string instead")
-const uint8_t *tvb_get_const_stringz(tvbuff_t *tvb,
-    const unsigned offset, unsigned *lengthp);
-
-/**
  * @brief Copy up to a specified number of bytes from a tvbuff into a buffer as a NUL-terminated string.
  *
  * Searches the given tvbuff_t starting at `offset` for a NUL byte and copies
@@ -3320,32 +2988,6 @@ WS_DLL_PUBLIC unsigned tvb_skip_wsp_return(tvbuff_t *tvb, const unsigned offset)
 WS_DLL_PUBLIC unsigned tvb_skip_uint8(tvbuff_t *tvb, unsigned offset, const unsigned maxlength, const uint8_t ch);
 
 /**
- * @brief Deprecated accessor for skipping consecutive bytes in a tvbuff.
- *
- * This function is equivalent to @ref tvb_skip_uint8 and should not be used in new code.
- * It scans the given tvbuff_t starting at `offset`, skipping up to `maxlength` bytes
- * as long as each byte matches the specified value `ch`. Returns the offset of the first
- * non-matching byte or `offset + maxlength` if all scanned bytes match.
- *
- * This function does not throw exceptions if the scan reaches beyond the tvbuff boundary.
- *
- * @param tvb        The tvbuff_t to scan.
- * @param offset     The offset in the tvbuff to begin scanning.
- * @param maxlength  The maximum number of bytes to scan.
- * @param ch         The byte value to skip.
- *
- * @return The offset of the first non-matching byte, or the end of the scan range.
- *
- * @deprecated Use @ref tvb_skip_uint8 instead.
- *
- * @see tvb_skip_uint8
- */
-WS_DEPRECATED_X("Use tvb_skip_uint8 instead")
-static inline unsigned tvb_skip_guint8(tvbuff_t *tvb, unsigned offset, const unsigned maxlength, const uint8_t ch) {
-	return tvb_skip_uint8(tvb, offset, maxlength, ch);
-}
-
-/**
  * @brief Determine the length of a token in a tvbuff, optionally desegmenting.
  *
  * Scans the given tvbuff_t starting at `offset` for the end of a token,
@@ -3693,29 +3335,6 @@ WS_DLL_PUBLIC bool tvb_find_tvb_remaining(tvbuff_t *haystack_tvb, tvbuff_t *need
 
 /* From tvbuff_zlib.c */
 /**
- * @brief Deprecated interface for uncompressing data from a tvbuff using zlib.
- *
- * Uncompresses `comprlen` bytes of compressed data from the given tvbuff_t
- * starting at `offset`, returning a new tvbuff_t containing the uncompressed data.
- *
- * This function is deprecated and should not be used in new code. Prefer
- * @ref tvb_uncompress_zlib for improved clarity and maintainability.
- *
- * @param tvb       The tvbuff_t containing compressed data.
- * @param offset    The offset in the tvbuff where compressed data begins.
- * @param comprlen  The number of bytes of compressed data to uncompress.
- *
- * @return A new tvbuff_t containing the uncompressed data.
- *
- * @deprecated Use @ref tvb_uncompress_zlib instead.
- *
- * @see tvb_uncompress_zlib
- */
-WS_DEPRECATED_X("Use tvb_uncompress_zlib instead")
-WS_DLL_PUBLIC tvbuff_t *tvb_uncompress(tvbuff_t *tvb, const unsigned offset,
-    unsigned comprlen);
-
-/**
  * @brief Uncompress zlib-compressed data from a tvbuff.
  *
  * Uncompresses `comprlen` bytes of zlib-compressed data from the given
@@ -3738,31 +3357,6 @@ WS_DLL_PUBLIC tvbuff_t *tvb_uncompress(tvbuff_t *tvb, const unsigned offset,
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_zlib(tvbuff_t *tvb, const unsigned offset,
     unsigned comprlen);
-
-/**
- * @brief Deprecated interface for uncompressing data and chaining the result to a parent tvbuff.
- *
- * Uncompresses `comprlen` bytes of compressed data from the given tvbuff_t starting at `offset`,
- * and returns a new tvbuff_t containing the uncompressed data. The returned tvbuff is automatically
- * chained to the specified `parent` tvbuff for memory management.
- *
- * This function is deprecated and should not be used in new code. Prefer
- * @ref tvb_child_uncompress_zlib for clearer semantics and zlib-specific handling.
- *
- * @param parent     The parent tvbuff_t to which the result will be chained.
- * @param tvb        The tvbuff_t containing compressed data.
- * @param offset     The offset in the tvbuff where compressed data begins.
- * @param comprlen   The number of bytes of compressed data to uncompress.
- *
- * @return A new tvbuff_t with uncompressed data, chained to `parent`, or NULL on failure.
- *
- * @deprecated Use @ref tvb_child_uncompress_zlib instead.
- *
- * @see tvb_child_uncompress_zlib
- */
-WS_DEPRECATED_X("Use tvb_child_uncompress_zlib instead")
-WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb,
-    const unsigned offset, unsigned comprlen);
 
 /**
  * @brief Uncompress a zlib-compressed packet inside a tvbuff and attach the result to a parent tvbuff.

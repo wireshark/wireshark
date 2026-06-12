@@ -380,23 +380,6 @@ WS_DLL_PUBLIC int dissector_try_uint(dissector_table_t sub_dissectors,
 WS_DLL_PUBLIC int dissector_try_uint_with_data(dissector_table_t sub_dissectors,
     const uint32_t uint_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const bool add_proto_name, void *data);
 
-/**
- * @brief Try to dissect using a uint-keyed dissector table entry, with additional options and caller data.
- * @param sub_dissectors  The dissector table to search.
- * @param uint_val        The uint selector value to look up.
- * @param tvb             The packet buffer.
- * @param pinfo           The packet info.
- * @param tree            The protocol tree.
- * @param add_proto_name  Whether to add the protocol name to the tree.
- * @param data            Caller-supplied data passed to the dissector.
- * @return The number of bytes consumed by the dissector, or 0 if no
- *         matching entry was found.
-*/
-WS_DEPRECATED_X("Use dissector_try_uint_with_data instead")
-static inline int dissector_try_uint_new(dissector_table_t sub_dissectors,
-	const uint32_t uint_val, tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, const bool add_proto_name, void* data) \
-{	return dissector_try_uint_with_data(sub_dissectors, uint_val, tvb, pinfo, tree, add_proto_name, data); }
-
 /** Look for a given value in a given uint dissector table and, if found,
  * return the current dissector handle for that value.
  *
@@ -472,44 +455,6 @@ WS_DLL_PUBLIC bool dissector_is_string_changed(dissector_table_t const subdissec
  */
 WS_DLL_PUBLIC int dissector_try_string_with_data(dissector_table_t sub_dissectors,
 	const char* string, tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, const bool add_proto_name, void* data);
-
-/**
- * @brief Look for a given string in a given dissector table and, if found, call
- * the dissector with the arguments supplied, and return the number of
- * bytes consumed, otherwise return 0.
- * @param sub_dissectors The dissector table to search.
- * @param string The string to look for.
- * @param tvb The TVBuffer containing the data to dissect.
- * @param pinfo Packet information for the current packet.
- * @param tree The protocol tree to add nodes to.
- * @param data Pointer to additional data to pass to the dissector.
- * @return The number of bytes consumed by the dissector, or 0 if not found.
- */
-WS_DEPRECATED_X("Use dissector_try_string_with_data instead")
-static inline int
-dissector_try_string(dissector_table_t sub_dissectors, const char* string,\
-	tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data) \
-	{ return dissector_try_string_with_data(sub_dissectors, string, tvb, pinfo, tree, true, data); }
-
-/**
- * @brief Look for a given string in a given dissector table and, if found, call
- * the dissector with the arguments supplied, and return the number of
- * bytes consumed, otherwise return 0.
- * @param sub_dissectors The dissector table to search.
- * @param string The string to look for.
- * @param tvb The TVBuffer containing the data to dissect.
- * @param pinfo Packet information for the current packet.
- * @param tree The protocol tree to add nodes to.
- * @param add_proto_name Whether to add the protocol name to each node.
- * @param data Pointer to additional data to pass to the dissector.
- * @return The number of bytes consumed by the dissector, or 0 if not found.
- */
-WS_DEPRECATED_X("Use dissector_try_string_with_data instead")
-static inline int
-dissector_try_string_new(dissector_table_t sub_dissectors, const char* string, \
-	tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, const bool add_proto_name, void* data) \
-{ return dissector_try_string_with_data(sub_dissectors, string, tvb, pinfo, tree, add_proto_name, data); }
-
 
 /** Look for a given value in a given string dissector table and, if found,
  * return the current dissector handle for that value.
@@ -626,43 +571,6 @@ WS_DLL_PUBLIC dissector_handle_t dissector_get_guid_handle(
  */
 WS_DLL_PUBLIC int dissector_try_payload_with_data(dissector_table_t sub_dissectors,
     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const bool add_proto_name, void *data);
-
-/**
- * @brief Invoke the currently assigned payload dissector for a dissector table.
- *
- * @param sub_dissectors  The dissector table whose payload dissector to invoke.
- * @param tvb             The packet buffer to dissect.
- * @param pinfo           The packet info for the current packet.
- * @param tree            The protocol tree to populate.
- * @param add_proto_name  Whether to add the protocol name to the protocol tree.
- * @param data            Caller-supplied data passed through to the dissector.
- * @return The number of bytes consumed by the dissector, or 0 if no payload
- *         dissector is assigned.
- */
-WS_DEPRECATED_X("Use dissector_try_payload_with_data instead")
-static inline int dissector_try_payload_new(dissector_table_t sub_dissectors,
-	tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, const bool add_proto_name, void* data){ \
-	return dissector_try_payload_with_data(sub_dissectors, tvb, pinfo, tree, add_proto_name, data); \
-}
-
-/**
- * @brief Use the currently assigned payload dissector for the dissector table and,
- * if any, call the dissector with the arguments supplied, and return the
- * number of bytes consumed, otherwise return 0.
- *
- * @param sub_dissectors The dissector table whose payload dissector to invoke.
- * @param tvb The TVBuffer containing the data to dissect.
- * @param pinfo Packet information for the current packet.
- * @param tree The protocol tree to add nodes to.
- * @return The number of bytes consumed by the dissector, or 0 if no payload
- *         dissector is assigned.
- */
-WS_DEPRECATED_X("Use dissector_try_payload_with_data instead")
-static inline int dissector_try_payload(dissector_table_t sub_dissectors,
-	tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
-	\
-	return dissector_try_payload_with_data(sub_dissectors, tvb, pinfo, tree, true, NULL); \
-}
 
 /** @brief Override the payload dissector for an FT_NONE dissector table.
  *  @param abbrev The internal name of the payload dissector table.
@@ -943,19 +851,6 @@ WS_DLL_PUBLIC const char *dissector_handle_get_protocol_long_name(
  */
 WS_DLL_PUBLIC const char *dissector_handle_get_protocol_short_name(
     const dissector_handle_t handle);
-
-/**
- * @brief Return the short protocol name for a dissector handle.
- *
- * For backwards source and binary compatibility.
- *
- * @param handle A valid dissector handle.
- * @return The short protocol name string, or NULL if @p handle is invalid.
- */
-G_DEPRECATED_FOR(dissector_handle_get_protocol_short_name)
-WS_DLL_PUBLIC const char *dissector_handle_get_short_name(
-    const dissector_handle_t handle);
-
 
 /**
  * @brief Return the user-visible description for a dissector handle.

@@ -115,21 +115,6 @@ get_uint32(const char *string, const char *name, uint32_t* number);
 /**
  * @brief Parses a string as a non-zero unsigned 32-bit integer.
  *
- * @param string The string to parse.
- * @param name The name of the option being parsed (for error messages).
- * @return uint32_t The parsed non-zero unsigned 32-bit integer.
- */
-WS_DEPRECATED_X("Use get_uint32 instead")
-static inline uint32_t
-get_guint32(const char *string, const char *name) {
-    uint32_t number = 0;
-    get_uint32(string, name, &number);
-    return number;
-}
-
-/**
- * @brief Parses a string as a non-zero unsigned 32-bit integer.
- *
  * Attempts to convert the input string to a `uint32_t` value.
  * If successful and the value is not zero, stores the result in `number` and returns true.
  * Returns false if the string is invalid or the parsed value is zero.
@@ -141,21 +126,6 @@ get_guint32(const char *string, const char *name) {
  */
 WS_DLL_PUBLIC bool
 get_nonzero_uint32(const char *string, const char *name, uint32_t* number);
-
-/**
- * @brief Parses a string as an unsigned 32-bit integer.
- *
- * @param string The string to parse.
- * @param name The name of the option being parsed, for error messages.
- * @return uint32_t The parsed unsigned 32-bit integer.
- */
-WS_DEPRECATED_X("Use get_nonzero_uint32 instead")
-static inline uint32_t
-get_nonzero_guint32(const char *string, const char *name) {
-    uint32_t number = 0;
-    get_nonzero_uint32(string, name, &number);
-    return number;
-}
 
 /**
  * @brief Parses a string as an unsigned 64-bit integer.

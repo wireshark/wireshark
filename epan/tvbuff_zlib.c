@@ -339,18 +339,6 @@ tvb_child_uncompress_zlib(tvbuff_t *parent, tvbuff_t *tvb, const unsigned offset
 	return new_tvb;
 }
 
-tvbuff_t *
-tvb_uncompress(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
-{
-	return tvb_uncompress_zlib(tvb, offset, comprlen);
-}
-
-tvbuff_t *
-tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
-{
-	return tvb_child_uncompress_zlib(parent, tvb, offset, comprlen);
-}
-
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

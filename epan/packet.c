@@ -3406,13 +3406,6 @@ dissector_handle_get_protocol_short_name(const dissector_handle_t handle)
 	return proto_get_protocol_short_name(handle->protocol);
 }
 
-/* For backwards source and binary compatibility */
-const char *
-dissector_handle_get_short_name(const dissector_handle_t handle)
-{
-	return dissector_handle_get_protocol_short_name(handle);
-}
-
 /* Get the description for what the dissector in the dissector handle
    dissects, if it has one. */
 const char *
