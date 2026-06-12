@@ -4474,21 +4474,7 @@ static inline void wslua_dbg_set_allowhook(lua_State *L, unsigned char v)
     ((wslua_dbg_lstate_prefix *)L)->allowhook = v;
 }
 
-#define WSLUA_DBG_HAS_ALLOWHOOK_FLIP 1
-
-#else  /* LUA_VERSION_NUM < 504 */
-
-static inline unsigned char wslua_dbg_get_allowhook(lua_State *L _U_)
-{
-    return 0;
-}
-
-static inline void wslua_dbg_set_allowhook(lua_State *L _U_,
-                                           unsigned char v _U_)
-{
-}
-
-#define WSLUA_DBG_HAS_ALLOWHOOK_FLIP 0
+#define WSLUA_DBG_HAS_ALLOWHOOK_FLIP
 
 #endif  /* LUA_VERSION_NUM */
 
@@ -5150,7 +5136,7 @@ static bool wslua_debugger_run_expr_chunk(lua_State *L,
                 LUA_MASKCOUNT | LUA_MASKCALL | LUA_MASKRET,
                 WSLUA_EVAL_INSTRUCTION_LIMIT);
 
-#if WSLUA_DBG_HAS_ALLOWHOOK_FLIP
+#ifdef WSLUA_DBG_HAS_ALLOWHOOK_FLIP
     /* Lua's luaD_hook flipped allowhook to 0 before invoking the line hook
      * that owns the surrounding Qt event loop; without restoring it for the
      * duration of this pcall, our timeout hook is silently dropped and a
@@ -5177,7 +5163,7 @@ static bool wslua_debugger_run_expr_chunk(lua_State *L,
 
     const int call_result = lua_pcall(L, 0, nresults, 0);
 
-#if WSLUA_DBG_HAS_ALLOWHOOK_FLIP
+#ifdef WSLUA_DBG_HAS_ALLOWHOOK_FLIP
     wslua_dbg_set_allowhook(L, saved_allowhook);
 #endif
     lua_sethook(L, NULL, 0, 0);
