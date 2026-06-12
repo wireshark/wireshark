@@ -544,7 +544,7 @@ static const value_string c15_isup_types[] = {
     { 0, NULL}
 };
 static value_string_ext c15_isup_types_ext = VALUE_STRING_EXT_INIT(c15_isup_types);
-static const value_string c15_isup_direction_types[] = {
+static const value_string c15ch_direction_types[] = {
     { 0, "Incoming" },
     { 1, "Outgoing" },
     { 0, NULL}
@@ -598,7 +598,7 @@ static int hf_c15ch_nitnxlate_pc_sts1;
 static int hf_c15ch_nitnxlate_port_vt15;
 
 
-static const value_string ett_c15ch_nitnxlate_gwe_types[] = {
+static const value_string c15ch_nitnxlate_gwe_types[] = {
     { 0, "NONE" },
     { 1, "H248_TRK" },
     { 2, "SIP_LN" },
@@ -620,7 +620,7 @@ static const value_string ett_c15ch_nitnxlate_gwe_types[] = {
 
 /* labels for equip (location) */
 /* non-contiguous integers */
-static const value_string ett_c15ch_nitnxlate_equip_types[] = {
+static const value_string c15ch_nitnxlate_equip_types[] = {
     {   4, "UNIT" },
     {  57, "LCM_LINE" },
     {  78, "RSLM_UNIT" },
@@ -643,7 +643,7 @@ static const value_string ett_c15ch_nitnxlate_equip_types[] = {
     { 155, "RDT" },
     { 0, NULL }
 };
-static value_string_ext ett_c15ch_nitnxlate_equip_types_ext = VALUE_STRING_EXT_INIT(ett_c15ch_nitnxlate_equip_types);
+static value_string_ext c15ch_nitnxlate_equip_types_ext = VALUE_STRING_EXT_INIT(c15ch_nitnxlate_equip_types);
 /* ntwk conn */
 
 /* Fields */
@@ -672,8 +672,8 @@ static int hf_c15ch_ntwk_conn_tolocation;
 static int hf_c15ch_ntwk_conn_tocnx;
 
 
-static const value_string ett_c15ch_ntwk_conn_path_types[] = {
-    { 0, "BRDCAST" },
+static const value_string c15ch_path_types[] = {
+    { 0, "BRDCST" },
     { 1, "1WAY" },
     { 2, "2WAY" },
     { 3, "BC_SPFC" },
@@ -687,7 +687,7 @@ static const value_string ett_c15ch_ntwk_conn_path_types[] = {
     { 0, NULL }
 };
 
-static const value_string ett_c15ch_ntwk_conn_conn_types[] = {
+static const value_string c15ch_ntwk_srcedest_conn_types[] = {
     { 0, "CONN_FULL" },
     { 1, "CONN_PRT_SRCE" },
     { 2, "CONN_PRT_DEST" },
@@ -810,6 +810,7 @@ static const value_string c15ch_orig_block_types[] = {
     {72, "CHD_LINK_HOLD"},
     {73, "CHD_LINK_ACT"},
     /* 74 IS UNUSED */
+    {74, "UNUSED"},
     {75, "TERM_IFACE"},
     {76, "SVCE_IFACE"},
     {77, "CONF_IFACE"},
@@ -1006,7 +1007,7 @@ static int hf_c15ch_pathfind_tonitn;
 
 /* value_string arrays to label fields */
 /* for vds30 field ...*/
-static const value_string c15ch_pathfind_vds30_types[] = {
+static const value_string c15ch_path_vds30_types[] = {
     { 0, "NOT_VDS30" },
     { 1, "NEWSLOT_0" },
     { 2, "NEWSLOT_1_ADD_0" },
@@ -1050,32 +1051,6 @@ static int hf_c15ch_pathidle_tonitn;
 static int hf_c15ch_pathidle_totn;
 
 
-/* for vds30 field */
-static const value_string c15ch_pathidle_vds30_types[] = {
-    { 0, "NOT_VDS30" },
-    { 1, "NEWSLOT_0" },
-    { 2, "NEWSLOT_1_ADD_0" },
-    { 3, "NEWSLOT_1_ADD_1" },
-    { 4, "IDLE" },
-    { 0, NULL }
-};
-
-/* for pathtype field */
-static const value_string c15ch_pathidle_path_types[] = {
-    { 0, "BRDCST" },
-    { 1, "1WAY" },
-    { 2, "2WAY" },
-    { 3, "BC_SPFC" },
-    { 4, "1WAY_SPFC" },
-    { 5, "BC_CMBND" },
-    { 6, "1WAY_CMBND" },
-    { 7, "NWLB" },
-    { 8, "1WAY_2_UTR" },
-    { 9, "2WAY_LB" },
-    {10, "2WAY_LSG" },
-    { 0, NULL }
-};
-
 /* for idlecode field */
 static const value_string c15ch_pathidle_idle_types[] = {
     { 0, "FULL" },
@@ -1094,15 +1069,6 @@ static int hf_c15ch_q931_ni;
 static int hf_c15ch_q931_tn;
 static int hf_c15ch_q931_ni_tn;
 static int hf_c15ch_q931_msglength;
-
-
-/* value_string arrays to label fields */
-/* for direction field */
-static const value_string c15ch_q931_direction_types[] = {
-    { 0, "Incoming" },
-    { 1, "Outgoing" },
-    { 0, NULL }
-};
 
 /* quality of service (qos) */
 
@@ -1143,7 +1109,7 @@ static int hf_c15ch_qos_day_of_week;
 
 
 /* value_string arrays to label fields */
-static const value_string ett_c15ch_qos_status_types[] = {
+static const value_string c15ch_qos_status_types[] = {
     { 1, "NO : No RTCP received from End" },
     { 2, "LO : Listener Only" },
     { 4, "CV : Conversation" },
@@ -1228,12 +1194,6 @@ static int hf_c15ch_sccp_iptime;
 static int hf_c15ch_sccp_level3index;
 
 
-static const value_string c15ch_sccp_direction_types[] = {
-    { 0, "Incoming" },
-    { 1, "Outgoing" },
-    { 0, NULL }
-};
-
 static const value_string c15ch_sccp_msg_types[] = {
     { 9, "UDT" },
     { 10, "UDTS" },
@@ -1252,35 +1212,6 @@ static int hf_c15ch_srcedest_pathdirect;
 
 
 /* field labels */
-/* for conntype field */
-static const value_string c15_srcedest_conn_types[] = {
-    { 0, "CONN_FULL" },
-    { 1, "CONN_PRT_SRCE" },
-    { 2, "CONN_PRT_DEST" },
-    { 3, "CONN_PRT_SRDS" },
-    { 4, "DISC_FULL" },
-    { 5, "DISC_PRT_SRCE" },
-    { 6, "DISC_PRT_DEST" },
-    { 7, "DISC_PRT_SRDS" },
-    { 0, NULL }
-};
-
-
-/* for pathtype field */
-static const value_string c15_srcedest_path_types[] = {
-    { 0, "BRDCST" },
-    { 1, "1WAY" },
-    { 2, "2WAY" },
-    { 3, "BC_SPFC" },
-    { 4, "1WAY_SPFC" },
-    { 5, "BC_CMBND" },
-    { 6, "1WAY_CMBND" },
-    { 7, "NWLB" },
-    { 8, "1WAY_2_UTR" },
-    { 9, "2WAY_LB" },
-    {10, "2WAY_LSG" },
-    { 0, NULL }
-};
 
 /* tcap */
 /* Fields */
@@ -2529,14 +2460,7 @@ static const value_string subpm_ain_rtg_types[] = {
     {0, NULL}
 };
 
-static const value_string subpm_nail_bcon_types[] = {
-    {0, "START_NAIL_CONN"},
-    {1, "WAIT_SCM_RESP"},
-    {2, "FINISH_NAIL_CONN"},
-    {0, NULL}
-};
-
-static const value_string subpm_nail_dcon_types[] = {
+static const value_string subpm_nail_bcon_dcon_types[] = {
     {0, "START_NAIL_CONN"},
     {1, "WAIT_SCM_RESP"},
     {2, "FINISH_NAIL_CONN"},
@@ -2715,8 +2639,8 @@ static const value_string * const subpm_name_tables[] = {
     subpm_ain_types,
     subpm_ain_sit_types,
     subpm_ain_rtg_types,
-    subpm_nail_bcon_types,
-    subpm_nail_dcon_types,
+    subpm_nail_bcon_dcon_types,
+    subpm_nail_bcon_dcon_types,
     subpm_qtrn_trvr_types,
     subpm_ekts_types,
     subpm_alt_types,
@@ -3093,20 +3017,7 @@ static const value_string c15inc_gwe_om_fiat_types[] = {
     { 0, NULL }
 };
 
-static const value_string c15inc_gwe_h248_fiat_types[] = {
-    { 0, "GW_FT_INVALID" },
-    { 1, "GWE_FT_REPLY" },
-    { 2, "GWE_FT_OFHK" },
-    { 3, "GWE_FT_ONHK" },
-    { 4, "GWE_FT_DIGIT" },
-    { 5, "GWE_FT_FLASH" },
-    { 6, "GWE_FT_COT" },
-    { 7, "GWE_FT_FAX_NTFY" },
-    { 8, "GWE_FT_MDM_NTFY" },
-    { 0, NULL }
-};
-
-static const value_string c15inc_gwe_mgcp_fiat_types[] = {
+static const value_string c15inc_gwe_h248_mgcp_fiat_types[] = {
     { 0, "GW_FT_INVALID" },
     { 1, "GWE_FT_REPLY" },
     { 2, "GWE_FT_OFHK" },
@@ -3163,9 +3074,9 @@ static const value_string * const fiat_name_tables[] = {
     c15inc_gwe_bc_fiat_types,
     c15inc_gwe_mtce_fiat_types,
     c15inc_gwe_om_fiat_types,
-    c15inc_gwe_h248_fiat_types,
+    c15inc_gwe_h248_mgcp_fiat_types,
     c15inc_gwe_sua_fiat_types,
-    c15inc_gwe_mgcp_fiat_types,
+    c15inc_gwe_h248_mgcp_fiat_types,
     c15inc_gwe_sip_notify_fiat_types,
     c15inc_gwe_admn_fiat_types
 };
@@ -5084,9 +4995,9 @@ static int dissect_c15ch_ntwk_conn(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     path_type_val = tvb_get_uint8(tvb, 0);
     conn_type_val = tvb_get_uint8(tvb, 1);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Path Type: %s",
-        val_to_str(pinfo->pool, path_type_val, ett_c15ch_ntwk_conn_path_types, "Unknown %d") );
+        val_to_str(pinfo->pool, path_type_val, c15ch_path_types, "Unknown %d") );
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Conn Type: %s",
-        val_to_str(pinfo->pool, conn_type_val, ett_c15ch_ntwk_conn_conn_types, "Unknown %d") );
+        val_to_str(pinfo->pool, conn_type_val, c15ch_ntwk_srcedest_conn_types, "Unknown %d") );
     if (tree)
     {
         int str_start;
@@ -5522,7 +5433,7 @@ static int dissect_c15ch_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     col_set_str(pinfo->cinfo, COL_PROTOCOL, C15_LABEL);
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type: Q931, Direction: %s",
-                val_to_str(pinfo->pool, direction, c15ch_q931_direction_types, "Unknown Direction Subtype: %d")  );
+                val_to_str(pinfo->pool, direction, c15ch_direction_types, "Unknown Direction Subtype: %d")  );
 
     return tvb_reported_length(tvb);
 }
@@ -5709,7 +5620,7 @@ static int dissect_c15ch_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     col_set_str(pinfo->cinfo, COL_PROTOCOL, C15_LABEL);
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type: SCCP, Direction: %s",
-                val_to_str(pinfo->pool, direction, c15ch_sccp_direction_types, "Unknown Direction Subtype: %d")  );
+                val_to_str(pinfo->pool, direction, c15ch_direction_types, "Unknown Direction Subtype: %d")  );
     return tvb_reported_length(tvb);
 }
 
@@ -8484,7 +8395,7 @@ void proto_register_c15ch(void)
         { &hf_c15ch_isup_direction,
             {"Direction", "c15.isup.direction",
             FT_UINT8, BASE_DEC,
-            VALS( c15_isup_direction_types ),
+            VALS( c15ch_direction_types ),
             0x0, NULL, HFILL }
         },
         { &hf_c15ch_isup_msgtype,
@@ -8636,7 +8547,7 @@ void proto_register_c15ch(void)
         { &hf_c15ch_nitnxlate_equiptype,
             { "Equipment Type", "c15.nitnxlate.equiptype",
             FT_UINT32, BASE_DEC|BASE_EXT_STRING,
-            &ett_c15ch_nitnxlate_equip_types_ext,
+            &c15ch_nitnxlate_equip_types_ext,
             0x0, NULL, HFILL}
         },
         { &hf_c15ch_nitnxlate_sitestring,
@@ -8666,7 +8577,7 @@ void proto_register_c15ch(void)
         { &hf_c15ch_nitnxlate_gw_type,
             { "GW Type", "c15.nitnxlate.gw_type",
             FT_UINT32, BASE_DEC,
-            VALS( ett_c15ch_nitnxlate_gwe_types ),
+            VALS( c15ch_nitnxlate_gwe_types ),
             0x0, NULL, HFILL}
         },
         { &hf_c15ch_nitnxlate_parm_1,
@@ -8799,13 +8710,13 @@ void proto_register_c15ch(void)
         { &hf_c15ch_ntwk_conn_pathtype,
             { "Path Type", "c15.ntwkconn.pathtype",
             FT_UINT8, BASE_DEC,
-            VALS( ett_c15ch_ntwk_conn_path_types ),
+            VALS( c15ch_path_types ),
             0x0, NULL, HFILL}
         },
         { &hf_c15ch_ntwk_conn_conntype,
             { "Conn Type", "c15.ntwkconn.conntype",
             FT_UINT8, BASE_DEC,
-            VALS( ett_c15ch_ntwk_conn_conn_types ),
+            VALS( c15ch_ntwk_srcedest_conn_types ),
             0x0, NULL, HFILL}
         },
         { &hf_c15ch_ntwk_conn_fromoptimized,
@@ -9126,7 +9037,7 @@ void proto_register_c15ch(void)
         { &hf_c15ch_pathfind_vds30,
             {"VDS30", "c15.pathfind.vds30",
             FT_UINT8, BASE_DEC,
-            VALS( c15ch_pathfind_vds30_types),
+            VALS( c15ch_path_vds30_types),
             0x0, NULL, HFILL}
         },
         { &hf_c15ch_pathfind_fromgweni,
@@ -9289,7 +9200,7 @@ void proto_register_c15ch(void)
         { &hf_c15ch_pathidle_vds30,
             {"VDS30", "c15.pathidle.vds30",
             FT_UINT8, BASE_DEC,
-            VALS( c15ch_pathidle_vds30_types ),
+            VALS( c15ch_path_vds30_types ),
             0x0, NULL, HFILL}
         },
         { &hf_c15ch_pathidle_idlecode,
@@ -9301,7 +9212,7 @@ void proto_register_c15ch(void)
         { &hf_c15ch_pathidle_pathtype,
             { "Path Type", "c15.pathidle.pathtype",
             FT_UINT8, BASE_DEC,
-            VALS( c15ch_pathidle_path_types ),
+            VALS( c15ch_path_types ),
             0x0, NULL, HFILL}
         },
         { &hf_c15ch_pathidle_fromgweni,
@@ -9452,7 +9363,7 @@ void proto_register_c15ch(void)
         { &hf_c15ch_q931_direction,
             { "Direction", "c15.q931.direction",
             FT_UINT8, BASE_DEC,
-            VALS( c15ch_q931_direction_types ),
+            VALS( c15ch_direction_types ),
             0x0, NULL, HFILL}
         },
         { &hf_c15ch_q931_ni,
@@ -9530,7 +9441,7 @@ void proto_register_c15ch(void)
         { &hf_c15ch_qos_status,
             { "Status", "c15.qos.status",
             FT_UINT32, BASE_DEC,
-            VALS( ett_c15ch_qos_status_types ),
+            VALS( c15ch_qos_status_types ),
             0x0, NULL, HFILL}
         },
         { &hf_c15ch_qos_codec,
@@ -9724,7 +9635,7 @@ void proto_register_c15ch(void)
         { &hf_c15ch_sccp_direction,
             { "Direction", "c15.sccp.direction",
             FT_UINT8, BASE_DEC,
-            VALS( c15ch_sccp_direction_types ),
+            VALS( c15ch_direction_types ),
             0x0, NULL, HFILL}
         },
         { &hf_c15ch_sccp_msgtype,
@@ -9821,13 +9732,13 @@ void proto_register_c15ch(void)
         { &hf_c15ch_srcedest_conntype,
             { "Connection Type", "c15.srcedest.conntype",
             FT_UINT8, BASE_DEC,
-            VALS( c15_srcedest_conn_types ),
+            VALS( c15ch_ntwk_srcedest_conn_types ),
             0x0, NULL, HFILL}
         },
         { &hf_c15ch_srcedest_pathtype,
             { "Path Type", "c15.srcedest.pathtype",
             FT_UINT8, BASE_DEC,
-            VALS( c15_srcedest_path_types ),
+            VALS( c15ch_path_types ),
             0x0, NULL, HFILL}
         },
         { &hf_c15ch_srcedest_pathdirect,
@@ -10424,13 +10335,13 @@ void proto_register_c15ch(void)
         { &hf_c15ch_cp_event_subpm_nail_bcon,
             { "Sub Progress Mark (NAIL BCON)", "c15.cpe.subpm_nail_bcon",
             FT_UINT32, BASE_DEC,
-            VALS( subpm_nail_bcon_types),
+            VALS( subpm_nail_bcon_dcon_types),
             0x0, NULL, HFILL }
         },
         { &hf_c15ch_cp_event_subpm_nail_dcon,
             { "Sub Progress Mark (NAIL DCON)", "c15.cpe.subpm_nail_dcon",
             FT_UINT32, BASE_DEC,
-            VALS( subpm_nail_dcon_types),
+            VALS( subpm_nail_bcon_dcon_types),
             0x0, NULL, HFILL }
         },
         { &hf_c15ch_cp_event_subpm_qtrn_trvr,
@@ -10586,7 +10497,7 @@ void proto_register_c15ch(void)
         { &hf_c15ch_inc_gwe_fiatid_h248,
             { "Fiat ID (H248)", "c15.inc_gwe.fiatid_h248",
             FT_UINT8, BASE_DEC,
-            VALS( c15inc_gwe_h248_fiat_types ),
+            VALS( c15inc_gwe_h248_mgcp_fiat_types ),
             0x0, NULL, HFILL}
         },
         { &hf_c15ch_inc_gwe_fiatid_sua,
@@ -10598,7 +10509,7 @@ void proto_register_c15ch(void)
         { &hf_c15ch_inc_gwe_fiatid_mgcp,
             { "Fiat ID (MGCP)", "c15.inc_gwe.fiatid_mgcp",
             FT_UINT8, BASE_DEC,
-            VALS( c15inc_gwe_mgcp_fiat_types ),
+            VALS( c15inc_gwe_h248_mgcp_fiat_types ),
             0x0, NULL, HFILL}
         },
         { &hf_c15ch_inc_gwe_fiatid_sip_notify,
