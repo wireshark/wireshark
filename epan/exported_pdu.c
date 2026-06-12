@@ -238,9 +238,11 @@ export_pdu_create_tags(packet_info *pinfo, const char* proto_name, uint16_t tag_
 	tag_buf_size += (proto_tag_len + 4);
 
 	/* Compute size of items */
-	while (*loop_items) {
-		tag_buf_size += (*loop_items)->size_func(pinfo, (*loop_items)->data);
-		loop_items++;
+	if (loop_items) {
+		while (*loop_items) {
+			tag_buf_size += (*loop_items)->size_func(pinfo, (*loop_items)->data);
+			loop_items++;
+		}
 	}
 
 	/* Add end of options length */
@@ -261,11 +263,13 @@ export_pdu_create_tags(packet_info *pinfo, const char* proto_name, uint16_t tag_
 
 	/* Populate data */
 	loop_items = items_list;
-	while (*loop_items) {
-		item_size = (*loop_items)->populate_data(pinfo, (*loop_items)->data, buffer_data, buf_remaining);
-		buffer_data += item_size;
-		buf_remaining -= item_size;
-		loop_items++;
+	if (loop_items) {
+		while (*loop_items) {
+			item_size = (*loop_items)->populate_data(pinfo, (*loop_items)->data, buffer_data, buf_remaining);
+			buffer_data += item_size;
+			buf_remaining -= item_size;
+			loop_items++;
+		}
 	}
 
 	return exp_pdu_data;
