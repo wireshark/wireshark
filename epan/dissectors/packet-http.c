@@ -4136,10 +4136,11 @@ process_header(tvbuff_t *tvb, unsigned offset, unsigned next_offset,
 					*  matching one from req_list. */
 					while ((frame = wmem_list_head(conv_data->req_list))) {
 
-						wmem_list_remove_frame(conv_data->req_list, frame);
 						if (wmem_list_frame_data(frame) == req_trans) {
+							wmem_list_remove_frame(conv_data->req_list, frame);
 							break;
 						}
+						wmem_list_remove_frame(conv_data->req_list, frame);
 					}
 				}
 			}
