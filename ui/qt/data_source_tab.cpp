@@ -803,7 +803,7 @@ void DataSourceTab::selectedFrameChanged(QList<int> frames)
 #else
     clear();
 #endif
-    qDeleteAll(findChildren<BaseDataSourceView *>(QString(), Qt::FindDirectChildrenOnly));
+    qDeleteAll(findChildren<BaseDataSourceView *>(QString()));
     setVisible(!save_hidden);
 
     /* only show the bytes for single selections */
