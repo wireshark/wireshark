@@ -59,8 +59,15 @@ bool ColumnProxyModel::filterAcceptsRow(int source_row, const QModelIndex &/*sou
 
 void ColumnProxyModel::setShowDisplayedOnly(bool set)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     showDisplayedOnly_ = set;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
     invalidateFilter();
+#endif
 }
 
 ColumnTypeDelegate::ColumnTypeDelegate(QObject * parent) :
