@@ -127,3 +127,29 @@ AdaptiveToolButton {
 AdaptiveToolButton::menu-indicator {
     image: none;
 }
+
+/* -------------------------------------------------------------------
+ * On KDE (Breeze), QMenuBar and QToolBar do not respect the standard
+ * QPalette::Window by default in order to have the colors match that
+ * of the window title bar, which is set by the KDE theme. That doesn't
+ * look good, especially when the QToolBars contain other widgets that
+ * are affected by our theme. Actually changing the title bar color to
+ * match our theme from KDE is possible but more difficult. Also note
+ * KDE uses different colors for active and inactive by default, which
+ * is not accessed via the built-in access to the QPalette in QT
+ * stylesheets but we might be able to get that from our themes.
+ * ------------------------------------------------------------------- */
+QMenuBar, QToolBar{
+    background-color: palette(window);
+}
+
+QMenuBar::item{
+    color: palette(window-text);
+}
+
+QMenuBar::item:selected{
+    background-color: palette(highlight);
+    color: palette(highlighted-text);
+}
+
+/* XXX - QMenuBar::item:pressed ? */
