@@ -727,7 +727,17 @@ WS_DLL_PUBLIC ftenum_t dissector_table_get_type(dissector_table_t dissector_tabl
  *
  * @param dissector_table The dissector table to mark.
  */
+WS_DEPRECATED_X("Use register_decode_as instead")
 WS_DLL_PUBLIC void dissector_table_allow_decode_as(dissector_table_t dissector_table);
+
+/**
+ * @brief Mark a dissector table as supporting Decode As.
+ *
+ * @note Internal to libwireshark. Not for use by dissectors or applications.
+ *
+ * @param dissector_table The dissector table to mark.
+ */
+void dissector_table_allow_decode_as_internal(dissector_table_t dissector_table);
 
 /**
  * @brief Return whether a dissector table supports Decode As.

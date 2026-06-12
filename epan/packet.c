@@ -103,7 +103,6 @@ struct dissector_table {
 	int		param;
 	protocol_t	*protocol;
 	GHashFunc	hash_func;
-	bool	supports_decode_as;
 };
 
 /*
@@ -1362,7 +1361,7 @@ dissector_add_uint(const char *name, const uint32_t pattern, dissector_handle_t 
 	 * to the list of handles that could be used for "Decode As"
 	 * with this table, because it *is* being used with this table.
 	 */
-	if (sub_dissectors->supports_decode_as)
+	if (dissector_table_supports_decode_as(sub_dissectors))
 		dissector_add_for_decode_as(name, handle);
 }
 
@@ -1389,9 +1388,8 @@ void dissector_add_uint_range(const char *name, range_t *range,
 	 * Decode As, if the dissector table supports
 	 * it.
 	 */
-	if (sub_dissectors->supports_decode_as) {
+	if (dissector_table_supports_decode_as(sub_dissectors))
 		dissector_add_for_decode_as(name, handle);
-	}
 }
 
 static range_t*
@@ -1924,7 +1922,7 @@ dissector_add_string(const char *name, const char *pattern,
 	 * to the list of handles that could be used for "Decode As"
 	 * with this table, because it *is* being used with this table.
 	 */
-	if (sub_dissectors->supports_decode_as)
+	if (dissector_table_supports_decode_as(sub_dissectors))
 		dissector_add_for_decode_as(name, handle);
 }
 
@@ -2165,7 +2163,7 @@ void dissector_add_custom_table_handle(const char *name, void *pattern, dissecto
 	 * to the list of handles that could be used for "Decode As"
 	 * with this table, because it *is* being used with this table.
 	 */
-	if (sub_dissectors->supports_decode_as)
+	if (dissector_table_supports_decode_as(sub_dissectors))
 		dissector_add_for_decode_as(name, handle);
 }
 
@@ -2204,7 +2202,7 @@ void dissector_add_guid(const char *name, guid_key* guid_val, dissector_handle_t
 	 * to the list of handles that could be used for "Decode As"
 	 * with this table, because it *is* being used with this table.
 	 */
-	if (sub_dissectors->supports_decode_as)
+	if (dissector_table_supports_decode_as(sub_dissectors))
 		dissector_add_for_decode_as(name, handle);
 }
 
@@ -2372,7 +2370,7 @@ dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 	/*
 	 * Make sure it supports Decode As.
 	 */
-	if (!sub_dissectors->supports_decode_as) {
+	if (!dissector_table_supports_decode_as(sub_dissectors)) {
 		ws_dissector_bug("Registering dissector %s for protocol %s in dissector table %s, which doesn't support Decode As\n",
 				    dissector_name,
 				    proto_get_protocol_short_name(handle->protocol),
@@ -2505,19 +2503,24 @@ dissector_table_get_type(dissector_table_t dissector_table) {
 	return dissector_table->type;
 }
 
-void
-dissector_table_allow_decode_as(dissector_table_t dissector_table)
+inline void
+dissector_table_allow_decode_as_internal(dissector_table_t dissector_table)
 {
-	dissector_table->supports_decode_as = true;
 	if (dissector_table->da_descriptions == NULL) {
 		dissector_table->da_descriptions = g_hash_table_new(wmem_str_hash, g_str_equal);
 	}
 }
 
-bool
+void
+dissector_table_allow_decode_as(dissector_table_t dissector_table)
+{
+	dissector_table_allow_decode_as_internal(dissector_table);
+}
+
+inline bool
 dissector_table_supports_decode_as(dissector_table_t dissector_table)
 {
-	return dissector_table->supports_decode_as;
+	return dissector_table->da_descriptions != NULL;
 }
 
 static int
@@ -2841,7 +2844,6 @@ register_dissector_table(const char *name, const char *ui_name, const int proto,
 	sub_dissectors->type    = type;
 	sub_dissectors->param   = param;
 	sub_dissectors->protocol  = (proto == -1) ? NULL : find_protocol_by_id(proto);
-	sub_dissectors->supports_decode_as = false;
 	/* Make sure the registration is unique */
 	if (!g_hash_table_insert(dissector_tables, (void *)name, (void *) sub_dissectors)) {
 		ws_error("The dissector table %s (%s) is already registered - are you using a buggy plugin?", name, ui_name);
@@ -2870,7 +2872,6 @@ dissector_table_t register_custom_dissector_table(const char *name,
 	sub_dissectors->type    = FT_BYTES; /* Consider key a "blob" of data, no need to really create new type */
 	sub_dissectors->param   = BASE_NONE;
 	sub_dissectors->protocol  = (proto == -1) ? NULL : find_protocol_by_id(proto);
-	sub_dissectors->supports_decode_as = false;
 	/* Make sure the registration is unique */
 	if (!g_hash_table_insert(dissector_tables, (void *)name, (void *) sub_dissectors)) {
 		ws_error("The dissector table %s (%s) is already registered - are you using a buggy plugin?", name, ui_name);
@@ -4083,7 +4084,7 @@ dissector_dump_dissector_tables_display (void *key, void *user_data _U_)
 	} else
 		printf("\t(no protocol)");
 	printf("\tDecode As %ssupported",
-	    table->supports_decode_as ? "" : "not ");
+	    dissector_table_supports_decode_as(table) ? "" : "not ");
 	printf("\n");
 }
 

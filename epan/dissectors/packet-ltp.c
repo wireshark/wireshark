@@ -2204,7 +2204,6 @@ proto_register_ltp(void)
 		&ltp_session_reassembly_table_functions);
 
 	ltp_client_service = register_dissector_table("ltp.client_service", "LTP Client Service", proto_ltp, FT_UINT32, BASE_DEC);
-	dissector_table_allow_decode_as(ltp_client_service);
 }
 
 void

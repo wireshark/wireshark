@@ -37,7 +37,7 @@ void register_decode_as(decode_as_t* reg)
     decode_table = find_dissector_table(reg->table_name);
     if (decode_table != NULL)
     {
-        dissector_table_allow_decode_as(decode_table);
+        dissector_table_allow_decode_as_internal(decode_table);
     }
 
     decode_as_list = g_list_prepend(decode_as_list, reg);
