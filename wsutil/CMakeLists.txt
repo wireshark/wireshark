@@ -150,7 +150,6 @@ set(WSUTIL_PUBLIC_HEADERS
 	glib-compat.h
 	ws_getopt.h
 	ws_mempbrk.h
-	ws_mempbrk_int.h
 	ws_padding_to.h
 	ws_pipe.h
 	ws_roundup.h
