@@ -21,6 +21,7 @@
 #include <QTimer>
 #include <cmath>
 #include <limits>
+#include <utility>
 
 // Debounce before running the (synchronous) validator after a text change.
 static const int validation_debounce_ms_ = 150;
@@ -121,9 +122,20 @@ void FilterEdit::onTextChanged()
 
 void FilterEdit::setState(SyntaxState state)
 {
-    if (state == state_)
+    if (std::exchange(state_, state) == state) {
+        // "All happy [filters] are alike; each unhappy [filter] is unhappy
+        // in its own way." If the state is unchanged but unhappy, still
+        // emit the status because the precise error message may have changed.
+        switch (state_) {
+        case SyntaxState::Invalid:
+        case SyntaxState::Deprecated:
+            emit syntaxStateChanged(state_);
+            break;
+        default:
+            break;
+        }
         return;
-    state_ = state;
+    }
 
     // The background tint comes from the global QSS (theme tokens). A single
     // fixed text color can't serve all tints — valid/invalid are dark, the
