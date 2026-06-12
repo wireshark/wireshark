@@ -102,7 +102,6 @@ struct dissector_table {
 	ftenum_t	type;
 	int		param;
 	protocol_t	*protocol;
-	GHashFunc	hash_func;
 };
 
 /*
@@ -2799,7 +2798,6 @@ register_dissector_table(const char *name, const char *ui_name, const int proto,
 		 * XXX - there's no "g_uint_hash()" or "g_uint_equal()",
 		 * so we use "g_direct_hash()" and "g_direct_equal()".
 		 */
-		sub_dissectors->hash_func = g_direct_hash;
 		sub_dissectors->hash_table = g_hash_table_new_full(g_direct_hash,
 							       g_direct_equal,
 							       NULL,
@@ -2810,7 +2808,6 @@ register_dissector_table(const char *name, const char *ui_name, const int proto,
 	case FT_STRINGZ:
 	case FT_STRINGZPAD:
 	case FT_STRINGZTRUNC:
-		sub_dissectors->hash_func = g_str_hash;
 		sub_dissectors->hash_table = g_hash_table_new_full(g_str_hash,
 							       g_str_equal,
 							       &g_free,
@@ -2827,7 +2824,6 @@ register_dissector_table(const char *name, const char *ui_name, const int proto,
 		/* Dissector tables with FT_NONE don't have values associated with
 		   dissectors so this will always be a hash table size of 1 just
 		   to store the single dtbl_entry_t */
-		sub_dissectors->hash_func = g_direct_hash;
 		sub_dissectors->hash_table = g_hash_table_new_full(g_direct_hash,
 							       g_direct_equal,
 							       NULL,
@@ -2860,7 +2856,6 @@ dissector_table_t register_custom_dissector_table(const char *name,
 	/* Create and register the dissector table for this name; returns */
 	/* a pointer to the dissector table. */
 	sub_dissectors = g_slice_new(struct dissector_table);
-	sub_dissectors->hash_func = hash_func;
 	sub_dissectors->hash_table = g_hash_table_new_full(hash_func,
 							       key_equal_func,
 							       key_destroy_func,
