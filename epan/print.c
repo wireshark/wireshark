@@ -62,6 +62,7 @@ typedef struct {
     bool            print_text;
     proto_node_children_grouper_func node_children_grouper;
     json_dumper    *dumper;
+    tvbuff_t       *first_src_tvb; /* cached tvb of first data source */
 } write_json_data;
 
 typedef struct {
@@ -90,7 +91,9 @@ static void proto_tree_print_node(proto_node *node, void *data);
 static void proto_tree_write_node_pdml(proto_node *node, void *data);
 static void proto_tree_write_node_ek(proto_node *node, write_json_data *data);
 static struct data_source* get_field_data_source(GSList *src_list, field_info *fi, uint32_t *idx);
+static struct data_source* get_field_data_source_cached(GSList *src_list, field_info *fi, uint32_t *idx, tvbuff_t *first_src_tvb);
 static const uint8_t *get_field_data(GSList *src_list, field_info *fi);
+static const uint8_t *get_field_data_cached(GSList *src_list, field_info *fi, tvbuff_t *first_src_tvb);
 static void pdml_write_field_hex_value(write_pdml_data *pdata, field_info *fi);
 static void json_write_field_hex_value(write_json_data *pdata, field_info *fi);
 static bool print_hex_data_buffer(print_stream_t *stream, const unsigned char *cp,
@@ -399,6 +402,8 @@ write_ek_proto_tree(output_fields_t* fields,
             data.src_list = edt->pi.data_src;
             data.filter = fields ? fields->protocolfilter : NULL;
             data.print_hex = print_hex;
+            data.first_src_tvb = edt->pi.data_src ?
+                get_data_source_tvb((struct data_source *)edt->pi.data_src->data) : NULL;
             proto_tree_write_node_ek(edt->tree, &data);
         } else {
             /* Write out specified fields */
@@ -774,6 +779,8 @@ write_json_proto_tree(output_fields_t* fields,
             data.print_text = false;
         }
         data.node_children_grouper = node_children_grouper;
+        data.first_src_tvb = edt->pi.data_src ?
+            get_data_source_tvb((struct data_source *)edt->pi.data_src->data) : NULL;
 
         write_json_proto_node_children(edt->tree, &data);
     } else {
@@ -968,13 +975,13 @@ write_json_proto_node_hex_dump(proto_node *node, write_json_data *pdata)
     /* Dump raw hex-encoded dissected information including position, length,
      * bitmask, type, and data source index. */
     /* These were added for use by json2pcap, but might be useful for others. */
-    json_dumper_value_anyf(pdata->dumper, "%" PRId32, fi->start);
-    json_dumper_value_anyf(pdata->dumper, "%" PRId32, fi->length);
-    json_dumper_value_anyf(pdata->dumper, "%" PRIu64, fi->hfinfo->bitmask);
-    json_dumper_value_anyf(pdata->dumper, "%" PRId32, (int32_t)fvalue_type_ftenum(fi->value));
+    json_dumper_value_int(pdata->dumper, fi->start);
+    json_dumper_value_int(pdata->dumper, fi->length);
+    json_dumper_value_uint(pdata->dumper, fi->hfinfo->bitmask);
+    json_dumper_value_int(pdata->dumper, (int32_t)fvalue_type_ftenum(fi->value));
 
-    if (get_field_data_source(pdata->src_list, fi, &src_idx)) {
-        json_dumper_value_anyf(pdata->dumper, "%" PRIu32, src_idx);
+    if (get_field_data_source_cached(pdata->src_list, fi, &src_idx, pdata->first_src_tvb)) {
+        json_dumper_value_uint(pdata->dumper, src_idx);
     } else {
         json_dumper_value_anyf(pdata->dumper, "null");
     }
@@ -1726,6 +1733,20 @@ get_field_data_source(GSList *src_list, field_info *fi, uint32_t *idx)
     return NULL;  /* not found */
 }
 
+/* Fast variant using cached first-source tvb to avoid PLT call in common case */
+static struct data_source*
+get_field_data_source_cached(GSList *src_list, field_info *fi, uint32_t *idx, tvbuff_t *first_src_tvb)
+{
+    /* Fast path: most fields use the first (primary) data source */
+    if (src_list && fi->ds_tvb == first_src_tvb) {
+        if (idx) {
+            *idx = 0;
+        }
+        return (struct data_source *)src_list->data;
+    }
+    return get_field_data_source(src_list, fi, idx);
+}
+
 /*
  * Find the data source for a specified field, and return a pointer
  * to the data in it. Returns NULL if the data is out of bounds.
@@ -1770,6 +1791,29 @@ get_field_data(GSList *src_list, field_info *fi)
         return tvb_get_ptr(src_tvb, fi->start, length);
     }
     return NULL;  /* not found */
+}
+
+/* Fast variant using cached first-source tvb */
+static const uint8_t *
+get_field_data_cached(GSList *src_list, field_info *fi, tvbuff_t *first_src_tvb)
+{
+    tvbuff_t *src_tvb;
+    int       length, tvbuff_length;
+    struct data_source *src;
+
+    src = get_field_data_source_cached(src_list, fi, NULL, first_src_tvb);
+    if (src) {
+        src_tvb = get_data_source_tvb(src);
+        tvbuff_length = tvb_captured_length_remaining(src_tvb, fi->start);
+        if (tvbuff_length < 0) {
+            return NULL;
+        }
+        length = fi->length;
+        if (length > tvbuff_length)
+            length = tvbuff_length;
+        return tvb_get_ptr(src_tvb, fi->start, length);
+    }
+    return NULL;
 }
 
 /* Print a string, escaping out certain characters that need to
@@ -1905,21 +1949,34 @@ json_write_field_hex_value(write_json_data *pdata, field_info *fi)
     }
 
     /* Find the data for this field. */
-    pd = get_field_data(pdata->src_list, fi);
+    pd = get_field_data_cached(pdata->src_list, fi, pdata->first_src_tvb);
 
     if (pd) {
-        unsigned i;
-        char* str = (char*)g_malloc(fi->length*2 + 1);    /* no need to zero */
+        /* Write hex directly using raw string output (no escape needed for hex). */
         static const char hex[] = "0123456789abcdef";
-        /* Print a simple hex dump */
-        for (i = 0; i < fi->length; i++) {
-            uint8_t c = pd[i];
-            str[2 * i] = hex[c >> 4];
-            str[2 * i + 1] = hex[c & 0xf];
+        unsigned len = fi->length;
+        char buf[512];
+        unsigned i = 0;
+        /* Build hex string in stack buffer chunks and write via anyf */
+        if (len <= (sizeof(buf) - 1) / 2) {
+            for (i = 0; i < len; i++) {
+                uint8_t c = pd[i];
+                buf[2 * i] = hex[c >> 4];
+                buf[2 * i + 1] = hex[c & 0xf];
+            }
+            buf[2 * len] = '\0';
+            json_dumper_value_string(pdata->dumper, buf);
+        } else {
+            char *str = (char*)g_malloc(len * 2 + 1);
+            for (i = 0; i < len; i++) {
+                uint8_t c = pd[i];
+                str[2 * i] = hex[c >> 4];
+                str[2 * i + 1] = hex[c & 0xf];
+            }
+            str[2 * len] = '\0';
+            json_dumper_value_string(pdata->dumper, str);
+            g_free(str);
         }
-        str[2 * fi->length] = '\0';
-        json_dumper_value_string(pdata->dumper, str);
-        g_free(str);
     } else {
         // Should this be null instead of the empty string?
         json_dumper_value_string(pdata->dumper, "");

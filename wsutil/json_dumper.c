@@ -15,8 +15,10 @@
 #define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
 
 #include <glib.h>
+#include <string.h>
 
 #include "json_dumper.h"
+#include <wsutil/to_str.h>
 #include <math.h>
 
 #include <wsutil/array.h>
@@ -64,58 +66,97 @@ enum json_dumper_change {
     JSON_DUMPER_FINISH,
 };
 
-/* JSON Dumper putc */
-static void
-jd_putc(const json_dumper *dumper, char c)
-{
-    if (dumper->output_file) {
-        fputc(c, dumper->output_file);
-    }
+/* Internal write buffer to reduce per-character stdio call overhead. */
 
-    if (dumper->output_string) {
-        g_string_append_c(dumper->output_string, c);
+static inline void
+jd_flush(json_dumper *dumper)
+{
+    if (dumper->buf_pos > 0) {
+        if (dumper->output_file) {
+            fwrite(dumper->buf, 1, dumper->buf_pos, dumper->output_file);
+        }
+        if (dumper->output_string) {
+            g_string_append_len(dumper->output_string, dumper->buf, dumper->buf_pos);
+        }
+        dumper->buf_pos = 0;
     }
+}
+
+static inline void
+jd_buf_append(json_dumper *dumper, const char *s, size_t len)
+{
+    while (len > 0) {
+        size_t avail = JD_BUF_SIZE - dumper->buf_pos;
+        if (len <= avail) {
+            memcpy(dumper->buf + dumper->buf_pos, s, len);
+            dumper->buf_pos += len;
+            return;
+        }
+        memcpy(dumper->buf + dumper->buf_pos, s, avail);
+        dumper->buf_pos = JD_BUF_SIZE;
+        jd_flush(dumper);
+        s += avail;
+        len -= avail;
+    }
+}
+
+/* JSON Dumper putc */
+static inline void
+jd_putc(json_dumper *dumper, char c)
+{
+    if (dumper->buf_pos >= JD_BUF_SIZE) {
+        jd_flush(dumper);
+    }
+    dumper->buf[dumper->buf_pos++] = c;
 }
 
 /* JSON Dumper puts */
-static void
-jd_puts(const json_dumper *dumper, const char *s)
+static inline void
+jd_puts(json_dumper *dumper, const char *s)
 {
-    if (dumper->output_file) {
-        fputs(s, dumper->output_file);
-    }
+    jd_buf_append(dumper, s, strlen(s));
+}
 
-    if (dumper->output_string) {
-        g_string_append(dumper->output_string, s);
-    }
+static inline void
+jd_puts_len(json_dumper *dumper, const char *s, size_t len)
+{
+    jd_buf_append(dumper, s, len);
 }
 
 static void
-jd_puts_len(const json_dumper *dumper, const char *s, size_t len)
+jd_vprintf(json_dumper *dumper, const char *format, va_list args)
 {
-    if (dumper->output_file) {
-        fwrite(s, 1, len, dumper->output_file);
+    /* Try to format directly into the remaining buffer space */
+    size_t saved_pos = dumper->buf_pos;
+    size_t avail = JD_BUF_SIZE - saved_pos;
+    va_list args_copy;
+    va_copy(args_copy, args);
+    int n = vsnprintf(dumper->buf + saved_pos, avail, format, args);
+    if (n >= 0 && (size_t)n < avail) {
+        dumper->buf_pos = saved_pos + n;
+        va_end(args_copy);
+        return;
     }
-
-    if (dumper->output_string) {
-        g_string_append_len(dumper->output_string, s, len);
+    /* Didn't fit - restore position (discard truncated write), flush, retry */
+    dumper->buf_pos = saved_pos;
+    jd_flush(dumper);
+    n = vsnprintf(dumper->buf, JD_BUF_SIZE, format, args_copy);
+    if (n >= 0 && (size_t)n < JD_BUF_SIZE) {
+        dumper->buf_pos = n;
+    } else {
+        /* Very large format - write directly */
+        if (dumper->output_file) {
+            vfprintf(dumper->output_file, format, args_copy);
+        }
+        if (dumper->output_string) {
+            g_string_append_vprintf(dumper->output_string, format, args_copy);
+        }
     }
+    va_end(args_copy);
 }
 
 static void
-jd_vprintf(const json_dumper *dumper, const char *format, va_list args)
-{
-    if (dumper->output_file) {
-        vfprintf(dumper->output_file, format, args);
-    }
-
-    if (dumper->output_string) {
-        g_string_append_vprintf(dumper->output_string, format, args);
-    }
-}
-
-static void
-json_puts_string(const json_dumper *dumper, const char *str, bool dot_to_underscore)
+json_puts_string(json_dumper *dumper, const char *str, bool dot_to_underscore)
 {
     if (!str) {
         jd_puts(dumper, "null");
@@ -128,21 +169,57 @@ json_puts_string(const json_dumper *dumper, const char *str, bool dot_to_undersc
     };
 
     jd_putc(dumper, '"');
-    for (int i = 0; str[i]; i++) {
-        if ((unsigned)str[i] < 0x20) {
-            jd_putc(dumper, '\\');
-            jd_puts(dumper, json_cntrl[(unsigned)str[i]]);
-        } else if (i > 0 && str[i - 1] == '<' && str[i] == '/') {
-            // Convert </script> to <\/script> to avoid breaking web pages.
-            jd_puts(dumper, "\\/");
-        } else {
-            if (str[i] == '\\' || str[i] == '"') {
-                jd_putc(dumper, '\\');
+    if (!dot_to_underscore) {
+        /* Fast path: scan for runs of characters that need no escaping */
+        const char *p = str;
+        while (*p) {
+            const char *run_start = p;
+            while ((unsigned char)*p >= 0x20 && *p != '\\' && *p != '"' &&
+                   !(*p == '/' && p > str && *(p - 1) == '<')) {
+                p++;
             }
-            if (dot_to_underscore && str[i] == '.')
+            if (p > run_start) {
+                jd_puts_len(dumper, run_start, p - run_start);
+            }
+            if (!*p) break;
+            if ((unsigned char)*p < 0x20) {
+                jd_putc(dumper, '\\');
+                jd_puts(dumper, json_cntrl[(unsigned char)*p]);
+            } else if (*p == '/' && p > str && *(p - 1) == '<') {
+                jd_puts_len(dumper, "\\/", 2);
+            } else {
+                /* '\\' or '"' */
+                jd_putc(dumper, '\\');
+                jd_putc(dumper, *p);
+            }
+            p++;
+        }
+    } else {
+        /* Dot-to-underscore path: scan for runs of plain chars (not dot/backslash/quote/control/</) */
+        const char *p = str;
+        while (*p) {
+            const char *run_start = p;
+            while ((unsigned char)*p >= 0x20 && *p != '\\' && *p != '"' && *p != '.' &&
+                   !(*p == '/' && p > str && *(p - 1) == '<')) {
+                p++;
+            }
+            if (p > run_start) {
+                jd_puts_len(dumper, run_start, p - run_start);
+            }
+            if (!*p) break;
+            if ((unsigned char)*p < 0x20) {
+                jd_putc(dumper, '\\');
+                jd_puts(dumper, json_cntrl[(unsigned char)*p]);
+            } else if (*p == '/' && p > str && *(p - 1) == '<') {
+                jd_puts_len(dumper, "\\/", 2);
+            } else if (*p == '\\' || *p == '"') {
+                jd_putc(dumper, '\\');
+                jd_putc(dumper, *p);
+            } else {
+                /* dot -> underscore */
                 jd_putc(dumper, '_');
-            else
-                jd_putc(dumper, str[i]);
+            }
+            p++;
         }
     }
     jd_putc(dumper, '"');
@@ -182,6 +259,7 @@ json_dumper_bad(json_dumper *dumper, const char *what)
     }
 
     if (dumper->output_file) {
+        jd_flush(dumper);
         fflush(dumper->output_file);
     }
     char unknown_curr_type_name[10+1];
@@ -248,12 +326,23 @@ json_dumper_check_previous_error(json_dumper *dumper)
 }
 
 static void
-print_newline_indent(const json_dumper *dumper, unsigned depth)
+print_newline_indent(json_dumper *dumper, unsigned depth)
 {
     if ((dumper->flags & JSON_DUMPER_FLAGS_PRETTY_PRINT)) {
-        jd_putc(dumper, '\n');
-        for (unsigned i = 0; i < depth; i++) {
-            jd_puts(dumper, "  ");
+        /* Pre-built indent: newline + up to 128 levels of 2-space indent */
+        static const char indent_buf[1 + 256 + 1] =
+            "\n                                                                "
+            "                                                                "
+            "                                                                "
+            "                                                                ";
+        size_t indent_len = depth * 2;
+        if (indent_len <= 256) {
+            jd_puts_len(dumper, indent_buf, 1 + indent_len);
+        } else {
+            jd_putc(dumper, '\n');
+            for (unsigned i = 0; i < depth; i++) {
+                jd_puts_len(dumper, "  ", 2);
+            }
         }
     }
 }
@@ -633,6 +722,44 @@ json_dumper_value_anyf(json_dumper *dumper, const char *format, ...)
     va_end(ap);
 }
 
+void
+json_dumper_value_int(json_dumper *dumper, int64_t value)
+{
+    if (!json_dumper_check_previous_error(dumper)) {
+        return;
+    }
+    if (!json_dumper_setting_value_ok(dumper)) {
+        return;
+    }
+    prepare_token(dumper);
+
+    char buf[22]; /* -9223372036854775808\0 = 21 chars + extra */
+    char *end = buf + sizeof(buf);
+    char *p = int64_to_str_back(end, value);
+    jd_puts_len(dumper, p, end - p);
+
+    dumper->state[dumper->current_depth] = JSON_DUMPER_TYPE_VALUE;
+}
+
+void
+json_dumper_value_uint(json_dumper *dumper, uint64_t value)
+{
+    if (!json_dumper_check_previous_error(dumper)) {
+        return;
+    }
+    if (!json_dumper_setting_value_ok(dumper)) {
+        return;
+    }
+    prepare_token(dumper);
+
+    char buf[21];
+    char *end = buf + sizeof(buf);
+    char *p = uint64_to_str_back(end, value);
+    jd_puts_len(dumper, p, end - p);
+
+    dumper->state[dumper->current_depth] = JSON_DUMPER_TYPE_VALUE;
+}
+
 bool
 json_dumper_finish(json_dumper *dumper)
 {
@@ -646,6 +773,7 @@ json_dumper_finish(json_dumper *dumper)
     }
 
     jd_putc(dumper, '\n');
+    jd_flush(dumper);
     dumper->state[0] = JSON_DUMPER_TYPE_NONE;
     return true;
 }

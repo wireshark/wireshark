@@ -69,6 +69,10 @@ typedef struct json_dumper {
     int     base64_state;    /**< Incremental base64 encoder state used when streaming binary data. */
     int     base64_save;     /**< Partially accumulated bits carried over between incremental base64 encoding calls. */
     uint8_t state[JSON_DUMPER_MAX_DEPTH]; /**< Per-depth state flags tracking whether a separator is needed before the next value. */
+    /* Internal write buffer */
+#define JD_BUF_SIZE 8192
+    char    buf[JD_BUF_SIZE]; /**< Internal buffer to batch small writes. */
+    size_t  buf_pos;         /**< Current position in internal buffer. */
 } json_dumper;
 
 /**
@@ -170,6 +174,24 @@ G_GNUC_PRINTF(2, 3);
  */
 WS_DLL_PUBLIC void
 json_dumper_value_va_list(json_dumper *dumper, const char *format, va_list ap);
+
+/**
+ * @brief Writes a signed 64-bit integer value without printf overhead.
+ *
+ * @param dumper The JSON dumper context.
+ * @param value The integer value to write.
+ */
+WS_DLL_PUBLIC void
+json_dumper_value_int(json_dumper *dumper, int64_t value);
+
+/**
+ * @brief Writes an unsigned 64-bit integer value without printf overhead.
+ *
+ * @param dumper The JSON dumper context.
+ * @param value The integer value to write.
+ */
+WS_DLL_PUBLIC void
+json_dumper_value_uint(json_dumper *dumper, uint64_t value);
 
 /**
  * @brief Begins a base64-encoded data block.
