@@ -35,6 +35,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/export_objects_view.h
 	widgets/field_filter_edit.h
 	widgets/filter_edit.h
+	widgets/in_packet_find_edit.h
 	widgets/filter_expression_edit.h
 	widgets/filter_expression_toolbar.h
 	widgets/find_line_edit.h
@@ -364,6 +365,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/export_objects_view.cpp
 	widgets/field_filter_edit.cpp
 	widgets/filter_edit.cpp
+	widgets/in_packet_find_edit.cpp
 	widgets/filter_expression_edit.cpp
 	widgets/filter_expression_toolbar.cpp
 	widgets/find_line_edit.cpp
@@ -485,6 +487,7 @@ set(WIRESHARK_MODEL_SRCS
 	models/filter_history_model.cpp
 	models/filter_list_model.cpp
 	models/filter_validator.cpp
+	models/in_packet_find_delegate.cpp
 	models/info_proxy_model.cpp
 	models/interface_sort_filter_model.cpp
 	models/interface_tree_cache_model.cpp
@@ -566,6 +569,8 @@ set(WIRESHARK_QT_SRC
 	glib_mainloop_on_qeventloop.cpp
 	iax2_analysis_dialog.cpp
 	import_text_dialog.cpp
+	in_packet_find_bar.cpp
+	in_packet_search.cpp
 	interface_frame.cpp
 	interface_toolbar_reader.cpp
 	interface_toolbar.cpp
@@ -775,6 +780,7 @@ set(WIRESHARK_QT_UI
 	sctp_graph_byte_dialog.ui
 	sctp_graph_dialog.ui
 	search_frame.ui
+	in_packet_find_bar.ui
 	sequence_dialog.ui
 	show_packet_bytes_dialog.ui
 	tlskeylog_launcher_dialog.ui
@@ -1028,6 +1034,23 @@ set_target_properties(qtui PROPERTIES
 	#AUTORCC ON
 )
 
+# Qt also provides translation catalogs for strings used in Qt modules
+# https://doc.qt.io/qt-6/localization.html#available-catalogs
+# main_application.cpp loads these too via QLibraryInfo::TranslationPath
+# On UN*X systems these will tend to be located in a common directory, e.g.
+# /usr/share/qt6/translations
+# On Windows that path will map to a relative path translations within the
+# app installation directory, but windeployqt will handle merging the
+# translations catalogs for all modules we find (we need the qtbase catalog
+# and optionally qtmultimedia) and then deploying them to the application
+# subdirectory.
+# However, on MinGW QLibraryInfo::TranslationPath resolves to the common
+# directory both when cross-compiling or for MSYS2 (and sometimes apparently
+# as the common directory but relative to the application directory), which
+# doesn't work for building a NSIS package and windeployqt does not fix this.
+# So to make this work properly we would need to manually do those merging
+# and deploying steps.
+#
 # Below uses the Qt 6.2 signature for qt_add_lrelease. Eventually it would
 # be good to use the newer signature in order to merge the Qt provided
 # translation catalogs.

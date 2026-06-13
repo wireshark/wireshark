@@ -42,6 +42,7 @@
 
 #include "ui/ws_ui_util.h"
 #include "ui/iface_toolbar.h"
+
 #ifdef HAVE_LIBPCAP
 #include "ui/capture_opts.h"
 #endif
@@ -73,6 +74,7 @@ class AccordionFrame;
 class DataSourceTab;
 class CaptureOptionsDialog;
 class DisStreamDialog;
+class InPacketSearch;
 class PrintDialog;
 class FileSetDialog;
 class FilterDialog;
@@ -286,7 +288,7 @@ private:
     CaptureOptionsDialog      *capture_options_dialog_;  /**< Modeless capture options dialog. */
     info_data_t                info_data_;               /**< Live capture statistics updated during capture. */
 #endif
-
+    InPacketSearch *in_packet_search_; /**< In-packet search for the main-window proto tree. */
     QPoint dragStartPosition; /**< Mouse position recorded at the start of a drag operation. */
 
     QPointer<TLSKeylogDialog> tlskeylog_dialog_; /**< Modeless TLS keylog dialog; null when not open. */

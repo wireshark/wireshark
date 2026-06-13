@@ -18,6 +18,8 @@
 #include "wireshark_main_window.h"
 #include <ui/qt/manager/interface_list_manager.h>
 #include <ui/qt/widgets/capture_card_widget.h>
+#include "packet_dialog.h"
+#include "search_frame.h"
 
 /*
  * The generated Ui_WiresharkMainWindow::setupUi() can grow larger than our configured limit,
@@ -1223,6 +1225,10 @@ void WiresharkMainWindow::setMenusForSelectedPacket()
     main_ui_->actionCopyListAsYAML->setEnabled(selectedRows().count() > 0);
     main_ui_->actionCopyListAsHTML->setEnabled(selectedRows().count() > 0);
 
+    if (main_ui_->searchFrame) {
+        main_ui_->searchFrame->setPacketSelected(frame_selected);
+    }
+
     main_ui_->actionEditMarkSelected->setEnabled(frame_selected || multi_selection);
     main_ui_->actionEditMarkAllDisplayed->setEnabled(have_frames);
     /* Unlike un-ignore, do not allow unmark of all frames when no frames are displayed  */
@@ -2285,12 +2291,14 @@ void WiresharkMainWindow::findPacket()
         return;
     }
     setPreviousFocus();
-    if (!main_ui_->searchFrame->isVisible()) {
-        showAccordionFrame(main_ui_->searchFrame, true);
+    SearchFrame *sf = main_ui_->searchFrame;
+    if (!sf->isVisible()) {
+        sf->setInPacketMode(false);
+        showAccordionFrame(sf, true);
     } else {
-        main_ui_->searchFrame->animatedHide();
+        sf->cancelSearch();
     }
-    main_ui_->searchFrame->setFocus();
+    sf->setFocus();
 }
 
 void WiresharkMainWindow::editTimeShift()

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>InPacketFindBar</class>
+ <widget class="QWidget" name="InPacketFindBar">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>28</height>
+   </rect>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="leftMargin">
+    <number>4</number>
+   </property>
+   <property name="topMargin">
+    <number>2</number>
+   </property>
+   <property name="rightMargin">
+    <number>4</number>
+   </property>
+   <property name="bottomMargin">
+    <number>2</number>
+   </property>
+   <property name="spacing">
+    <number>4</number>
+   </property>
+   <item>
+    <widget class="InPacketFindEdit" name="search_edit_">
+     <property name="minimumWidth">
+      <number>180</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="search_type_combo_">
+     <item>
+      <property name="text">
+       <string>String</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Regular Expression</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="case_checkbox_">
+     <property name="text">
+      <string>Case sensitive</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="spacer_small">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint">
+      <size>
+       <width>8</width>
+       <height>10</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QLabel" name="counter_label_">
+     <property name="minimumWidth">
+      <number>70</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="spacer_before_find">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint">
+      <size>
+       <width>8</width>
+       <height>10</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QPushButton" name="find_button_">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>27</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Find</string>
+     </property>
+     <property name="default">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="cancel_button_">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>27</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Cancel</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>InPacketFindEdit</class>
+   <extends>QLineEdit</extends>
+   <header>widgets/in_packet_find_edit.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

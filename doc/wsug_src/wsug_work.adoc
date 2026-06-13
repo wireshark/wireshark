@@ -34,6 +34,9 @@ packet list or by selecting the packet in which you are interested in the packet
 list pane and selecting menu:View[Show Packet in New Window]. This allows you to
 easily compare two or more packets, even across multiple files.
 
+The single-packet window also has its own find bar for searching within
+that packet's protocol tree: see <<ChWorkFindInPacketDialogSection>>.
+
 [#ChWorkPacketSepView]
 
 .Viewing a packet in a separate window
@@ -1309,6 +1312,8 @@ You can easily find packets once you have captured some packets or have
 read in a previously saved capture file. Simply select menu:Edit[Find
 Packet...] in the main menu. Wireshark will open a toolbar between the
 main toolbar and the packet list shown in <<ChWorkFindPacketToolbar>>.
+The same toolbar can also search within the currently selected packet:
+see <<ChWorkFindInSelectedPacketSection>>.
 
 ==== The “Find Packet” Toolbar
 
@@ -1348,6 +1353,57 @@ Regular Expression::
   document, but typing “pcre test” into your favorite search engine
   should return a number of sites that will help you test and explore
   your expressions.
+
+==== Finding Text in the Selected Packet
+
+[#ChWorkFindInSelectedPacketSection]
+
+When exactly one packet is selected in the packet list, the
+<<ChWorkFindPacketToolbar,"Find Packet" toolbar>> can search within that
+packet's protocol tree instead of searching the whole capture file.
+
+Check btn:[Find in selected Packet] on the options row at the bottom of
+the toolbar. Wireshark limits the search type to btn:[String] and
+btn:[Regular Expression] and searches only the packet details of the
+currently selected packet. The btn:[Search in], btn:[Multiple
+occurrences], and btn:[Search backward] options are not used in this
+mode.
+
+Enter a search string or regular expression in the search field, then
+click btn:[Find] or press kbd:[Enter] to move to the next match.
+Press kbd:[Shift+Enter] to move to the previous match. You can also use
+menu:Edit[Find Next] (kbd:[Ctrl+N]) and menu:Edit[Find Previous]
+(kbd:[Ctrl+B]). Matching fields are highlighted in the protocol tree.
+
+While a search is active, the status bar can show a match counter such
+as `[3 of 57]` before the description of the selected field. If no
+matches are found, Wireshark shows a message in the status bar.
+
+btn:[Find in selected Packet] is available only when a single packet is
+selected. If the selection is cleared or includes more than one packet,
+the checkbox is disabled and any in-packet highlighting is removed.
+Click btn:[Cancel] on the toolbar or press kbd:[Esc] to close the Find
+Packet toolbar and clear the highlighting.
+
+==== Finding Text in the Single-Packet Window
+
+[#ChWorkFindInPacketDialogSection]
+
+When you view a packet in a separate window (see
+<<ChWorkPacketSepView>>), you can search within that window's protocol
+tree without using the main Find Packet toolbar.
+
+Check btn:[Find in Packet] in the row of options below the protocol
+tree, or select menu:Edit[Find in Packet] (kbd:[Ctrl+Alt+F]). Wireshark
+opens a find bar above the protocol tree. The find bar provides
+btn:[String] and btn:[Regular Expression] search, a btn:[Case sensitive]
+option, a match counter, and btn:[Find] and btn:[Cancel] buttons.
+
+Enter a search string or regular expression, then click btn:[Find] or
+press kbd:[Enter] to move to the next match. Press kbd:[Shift+Enter] to
+move to the previous match. Matching fields are highlighted in the
+protocol tree. Uncheck btn:[Find in Packet] or click btn:[Cancel] to
+close the find bar and clear the highlighting.
 
 [#ChWorkGoToPacketSection]
 

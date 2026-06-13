@@ -68,6 +68,14 @@ public:
      */
     void setFileName(CaptureFile &cf);
 
+    /**
+     * @brief In-packet find status for STATUS_CTX_FIELD while Find in selected Packet is active.
+     *
+     * @a prefix ex. "[1 of 56]" or "[no matches]"; @a message ex. "No String found." when there
+     * are no matches.
+     */
+    void setFindInPacketStatus(const QString &prefix, const QString &message = QString());
+
 protected:
 
     /**
@@ -147,6 +155,21 @@ private:
 
     /** String representing the ready message. */
     QString ready_msg_;
+
+    /** Raw selected-field text without a find-in-packet prefix. */
+    QString field_status_base_;
+
+    /** Optional "[1 of N]" / "[no matches]" prefix for in-packet find. */
+    QString find_in_packet_prefix_;
+
+    /** Optional "No String found." message paired with @ref find_in_packet_prefix_. */
+    QString find_in_packet_message_;
+
+    /**
+     * @brief Push STATUS_CTX_FIELD using @ref field_status_base_, @ref find_in_packet_prefix_,
+     * and @ref find_in_packet_message_.
+     */
+    void refreshFieldStatus();
 
     /**
      * @brief Configures the status bar for a capture file.

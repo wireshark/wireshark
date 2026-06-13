@@ -22,10 +22,14 @@
 
 #include "data_source_tab.h"
 #include "proto_tree.h"
+#include "in_packet_find_bar.h"
 #include "main_application.h"
 
 #include <ui/qt/utils/field_information.h>
+#include <QKeySequence>
+#include <QSignalBlocker>
 #include <QTreeWidgetItemIterator>
+#include <QApplication>
 
 Q_DECLARE_METATYPE(splitter_layout_e)
 
@@ -38,12 +42,21 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     ui(new Ui::PacketDialog),
     pref_packet_dialog_layout_(nullptr),
     proto_tree_(NULL),
+    in_packet_find_bar_(nullptr),
     data_source_tab_(NULL)
 {
     ui->setupUi(this);
     loadGeometry(parent.width() * 4 / 5, parent.height() * 4 / 5);
     ui->hintLabel->setSmallText();
-    ui->prefsLayout->insertSpacing(1, 20);
+    const QString find_in_packet_tooltip = tr("Find in the packet details tree (%1)")
+            .arg(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_F).toString(QKeySequence::NativeText));
+    ui->chkFindInPacket->setToolTip(find_in_packet_tooltip);
+    ui->actionFindInPacket->setToolTip(find_in_packet_tooltip);
+    connect(ui->actionFindInPacket, &QAction::triggered, this, &PacketDialog::toggleFindInPacketBar);
+    connect(ui->chkFindInPacket, &QCheckBox::toggled, this, &PacketDialog::findInPacketCheckBoxToggled);
+    addAction(ui->actionFindInPacket);
+    ui->actionFindInPacket->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    ui->prefsLayout->insertSpacing(2, 20);
     ui->prefsLayout->addStretch();
 
     wtap_rec_init(&rec_, DEFAULT_INIT_BUFFER_SIZE_2048);
@@ -69,10 +82,16 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
                      fdata, &(cap_file_.capFile()->cinfo));
     epan_dissect_fill_in_columns(&edt_, true, true);
 
-    proto_tree_ = new ProtoTree(ui->packetSplitter, &edt_);
+    proto_tree_ = new ProtoTree(ui->protoContainer, &edt_);
     // Do not call proto_tree_->setCaptureFile, ProtoTree only needs the
     // dissection context.
     proto_tree_->setRootNode(edt_.tree);
+
+    in_packet_find_bar_ = new InPacketFindBar(proto_tree_, ui->protoContainer);
+    ui->protoVBox->insertWidget(0, in_packet_find_bar_);
+    ui->protoVBox->addWidget(proto_tree_);
+    connect(in_packet_find_bar_, &InPacketFindBar::openChanged,
+            this, &PacketDialog::syncFindInPacketCheckBox);
 
     data_source_tab_ = new DataSourceTab(ui->packetSplitter, &edt_);
     data_source_tab_->setCaptureFile(cap_file_.capFile());
@@ -156,6 +175,37 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
 #else
     connect(ui->chkShowByteView, &QCheckBox::stateChanged, this, &PacketDialog::viewVisibilityStateChanged);
 #endif
+}
+
+void PacketDialog::toggleFindInPacketBar()
+{
+    if (!in_packet_find_bar_) {
+        return;
+    }
+    setFindInPacketBarOpen(!in_packet_find_bar_->isOpen());
+}
+
+void PacketDialog::findInPacketCheckBoxToggled(bool checked)
+{
+    setFindInPacketBarOpen(checked);
+}
+
+void PacketDialog::syncFindInPacketCheckBox(bool open)
+{
+    QSignalBlocker blocker(ui->chkFindInPacket);
+    ui->chkFindInPacket->setChecked(open);
+}
+
+void PacketDialog::setFindInPacketBarOpen(bool open)
+{
+    if (!in_packet_find_bar_ || in_packet_find_bar_->isOpen() == open) {
+        return;
+    }
+    if (open) {
+        in_packet_find_bar_->showAnimated();
+    } else {
+        in_packet_find_bar_->hideAnimated();
+    }
 }
 
 PacketDialog::~PacketDialog()

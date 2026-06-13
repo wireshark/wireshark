@@ -34,6 +34,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/expert_info_view.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/field_filter_edit.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/filter_edit.h
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/in_packet_find_edit.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/filter_expression_edit.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/filter_expression_toolbar.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/find_line_edit.h
@@ -163,6 +164,7 @@ set(WIRESHARK_MODEL_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/models/recentcapturefiles_list_model.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/multi_color_packet_delegate.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/related_packet_delegate.h
+	${CMAKE_SOURCE_DIR}/ui/qt/models/in_packet_find_delegate.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/resolved_addresses_models.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/sparkline_delegate.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/supported_protocols_model.h
@@ -224,6 +226,8 @@ set(WIRESHARK_QT_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/interface_frame.h
 	${CMAKE_SOURCE_DIR}/ui/qt/interface_toolbar_reader.h
 	${CMAKE_SOURCE_DIR}/ui/qt/interface_toolbar.h
+	${CMAKE_SOURCE_DIR}/ui/qt/in_packet_find_bar.h
+	${CMAKE_SOURCE_DIR}/ui/qt/in_packet_search.h
 	${CMAKE_SOURCE_DIR}/ui/qt/io_console_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/io_graph.h
 	${CMAKE_SOURCE_DIR}/ui/qt/io_graph_action.h
@@ -337,6 +341,7 @@ set(WIRESHARK_WIDGET_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/expert_info_view.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/field_filter_edit.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/filter_edit.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/in_packet_find_edit.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/filter_expression_edit.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/filter_expression_toolbar.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/find_line_edit.cpp
@@ -474,6 +479,7 @@ set(WIRESHARK_MODEL_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/models/recentcapturefiles_list_model.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/multi_color_packet_delegate.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/related_packet_delegate.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/models/in_packet_find_delegate.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/resolved_addresses_models.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/sparkline_delegate.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/supported_protocols_model.cpp
@@ -530,6 +536,8 @@ set(WIRESHARK_QT_SRC
 	${CMAKE_SOURCE_DIR}/ui/qt/interface_frame.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/interface_toolbar_reader.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/interface_toolbar.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/in_packet_find_bar.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/in_packet_search.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/io_console_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/io_graph_action.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/layout_preferences_frame.cpp
@@ -687,6 +695,7 @@ set(WIRESHARK_QT_UI
 	${CMAKE_SOURCE_DIR}/ui/qt/resolved_addresses_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/rsa_keys_frame.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/search_frame.ui
+	${CMAKE_SOURCE_DIR}/ui/qt/in_packet_find_bar.ui
 	# XXX Depends on RTP Stream Dialog
 	# ${CMAKE_SOURCE_DIR}/ui/qt/sequence_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/show_packet_bytes_dialog.ui

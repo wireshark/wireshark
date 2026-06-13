@@ -112,6 +112,8 @@ protected:
      */
     void setState(SyntaxState state);
 
+    void paintEvent(QPaintEvent *event) override;
+
     /**
      * @brief Runs the validator against the current text and updates the state.
      *

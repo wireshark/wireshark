@@ -494,22 +494,17 @@ StratosharkMainWindow::StratosharkMainWindow(QWidget *parent) :
         main_ui_->actionHelpCheckUpdates->setToolTip(tr("Software update checking is not available on this platform."));
     }
 
-    master_split_.setObjectName("splitterMaster");
-    master_split_.setAccessibleName(tr("Main View Splitter"));
-    master_split_.setAccessibleDescription(tr("Contains the log list, protocol tree, and packet bytes."));
-    master_split_.setFocusPolicy(Qt::NoFocus);
+    master_split_ = main_ui_->splitterMaster;
     extra_split_.setObjectName("splitterExtra");
     extra_split_.setAccessibleName(tr("Extra View Splitter"));
     extra_split_.setAccessibleDescription(tr("Contains log extras and packet bytes views."));
     extra_split_.setFocusPolicy(Qt::NoFocus);
-    master_split_.setChildrenCollapsible(false);
     extra_split_.setChildrenCollapsible(false);
-    main_ui_->mainStack->addWidget(&master_split_);
 
     empty_pane_.setObjectName("emptyPane");
     empty_pane_.setVisible(false);
 
-    packet_list_ = new PacketList(&master_split_);
+    packet_list_ = new PacketList(master_split_);
     connect(packet_list_, &PacketList::framesSelected, this, &StratosharkMainWindow::setMenusForSelectedPacket);
     connect(packet_list_, &PacketList::framesSelected, this, &StratosharkMainWindow::framesSelected);
 
@@ -518,7 +513,7 @@ StratosharkMainWindow::StratosharkMainWindow(QWidget *parent) :
     action->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_C));
     connect(main_ui_->menuPacketComment, &QMenu::aboutToShow, this, &StratosharkMainWindow::setEditCommentsMenu);
 
-    proto_tree_ = new ProtoTree(&master_split_);
+    proto_tree_ = new ProtoTree(master_split_);
     proto_tree_->installEventFilter(this);
 
     packet_list_->setProtoTree(proto_tree_);
@@ -543,7 +538,7 @@ StratosharkMainWindow::StratosharkMainWindow(QWidget *parent) :
     connect(mainApp, &WiresharkApplication::captureActive,
             this, &StratosharkMainWindow::captureActive);
 
-    data_source_tab_ = new DataSourceTab(&master_split_);
+    data_source_tab_ = new DataSourceTab(master_split_);
 
     // Packet list and proto tree must exist before these are called.
     setMenusForSelectedPacket();
@@ -1133,18 +1128,18 @@ void StratosharkMainWindow::saveWindowGeometry()
 
     g_free(recent.gui_geometry_main_master_split);
     g_free(recent.gui_geometry_main_extra_split);
-    recent.gui_geometry_main_master_split = g_strdup(master_split_.saveState().toHex().constData());
+    recent.gui_geometry_main_master_split = g_strdup(master_split_->saveState().toHex().constData());
     recent.gui_geometry_main_extra_split = g_strdup(extra_split_.saveState().toHex().constData());
 
     // Saving the QSplitter state is more accurate (#19361), but save
     // the old GTK-style pane information for backwards compatibility
     // for switching back and forth with older versions.
-    if (master_split_.sizes().length() > 0) {
-        recent.gui_geometry_main_upper_pane = master_split_.sizes()[0];
+    if (master_split_->sizes().length() > 0) {
+        recent.gui_geometry_main_upper_pane = master_split_->sizes()[0];
     }
 
-    if (master_split_.sizes().length() > 2) {
-        recent.gui_geometry_main_lower_pane = master_split_.sizes()[1];
+    if (master_split_->sizes().length() > 2) {
+        recent.gui_geometry_main_lower_pane = master_split_->sizes()[1];
     } else if (extra_split_.sizes().length() > 0) {
         recent.gui_geometry_main_lower_pane = extra_split_.sizes()[0];
     }

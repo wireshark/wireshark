@@ -19,6 +19,7 @@
 #include <ui/qt/utils/field_information.h>
 
 class DataSourceTab;
+class InPacketFindBar;
 class ProtoTree;
 
 namespace Ui {
@@ -46,10 +47,12 @@ public:
      */
     ~PacketDialog();
 
-protected:
     /**
-     * @brief Handles the event when the capture file is closing.
+     * @brief Toggles the in-packet find bar visibility.
      */
+    void toggleFindInPacketBar();
+
+protected:
     void captureFileClosing();
 
 signals:
@@ -67,6 +70,9 @@ signals:
     void editProtocolPreference(pref_t *pref, module_t *module);
 
 private slots:
+    void findInPacketCheckBoxToggled(bool checked);
+    void syncFindInPacketCheckBox(bool open);
+
     /**
      * @brief Handles the event when the help button is clicked in the dialog's button box.
      */
@@ -104,6 +110,8 @@ private slots:
     void setHintTextSelected(FieldInformation *finfo);
 
 private:
+    void setFindInPacketBarOpen(bool open);
+
     /** @brief Pointer to the user interface object for this dialog. */
     Ui::PacketDialog *ui;
 
@@ -115,6 +123,9 @@ private:
 
     /** @brief Pointer to the protocol tree representation. */
     ProtoTree *proto_tree_;
+
+    /** @brief The in-packet find bar. */
+    InPacketFindBar *in_packet_find_bar_;
 
     /** @brief Pointer to the data source tab widget. */
     DataSourceTab *data_source_tab_;

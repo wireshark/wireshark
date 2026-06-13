@@ -13,7 +13,17 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0,0">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0,0">
+   <item>
+    <widget class="QMenuBar" name="menuBar">
+     <widget class="QMenu" name="menuEdit">
+      <property name="title">
+       <string>&amp;Edit</string>
+      </property>
+      <addaction name="actionFindInPacket"/>
+     </widget>
+    </widget>
+   </item>
    <item>
     <widget class="QSplitter" name="packetSplitter">
      <property name="frameShape">
@@ -25,6 +35,25 @@
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
+     <widget class="QWidget" name="protoContainer">
+      <layout class="QVBoxLayout" name="protoVBox">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item>
@@ -36,6 +65,16 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="prefsLayout">
+     <item>
+      <widget class="QCheckBox" name="chkFindInPacket">
+       <property name="text">
+        <string>Find in Packet</string>
+       </property>
+       <property name="toolTip">
+        <string>Find in the packet details tree (Ctrl+Alt+F)</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <widget class="QCheckBox" name="chkShowByteView">
        <property name="text">
@@ -70,6 +109,14 @@
     </widget>
    </item>
   </layout>
+  <action name="actionFindInPacket">
+   <property name="text">
+    <string>Find in &amp;Packet</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Alt+F</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

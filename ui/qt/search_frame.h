@@ -17,6 +17,9 @@
 #include <epan/cfile.h>
 
 #include <QComboBox>
+#include <QTimer>
+
+class InPacketSearch;
 
 namespace Ui {
 class SearchFrame;
@@ -63,6 +66,23 @@ public:
      */
     void setFocus();
 
+    /**
+     * @brief Attach in-packet search engine for the main-window proto tree.
+     */
+    void setInPacketSearch(InPacketSearch *search);
+
+    /**
+     * @brief Enable or disable in-packet search mode on the Find toolbar.
+     */
+    void setInPacketMode(bool enabled);
+
+    /**
+     * @brief Reflect whether exactly one packet is selected in the packet list.
+     */
+    void setPacketSelected(bool selected);
+
+    bool inPacketMode() const;
+
 public slots:
     /**
      * @brief Updates the capture file pointer used for frame searches.
@@ -71,11 +91,21 @@ public slots:
     void setCaptureFile(capture_file *cf);
 
     /**
+     * @brief Refreshes widget enablement and validation state.
+     */
+    void refreshWidgets();
+
+    /**
      * @brief Populates the search field with @p filter, switches the search
      *        type to display filter, and immediately executes a forward search.
      * @param filter Display filter expression to search for.
      */
     void findFrameWithFilter(QString &filter);
+
+    /**
+     * @brief Collapses the search frame and clears any active search highlight.
+     */
+    void cancelSearch();
 
 protected:
     /**
@@ -83,14 +113,14 @@ protected:
      *        Escape to collapsing the frame.
      * @param event The key event to process.
      */
-    virtual void keyPressEvent(QKeyEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event) override;
 
     /**
      * @brief Responds to language or palette change events by retranslating
      *        and refreshing the UI.
      * @param event The change event.
      */
-    void changeEvent(QEvent *event);
+    void changeEvent(QEvent *event) override;
 
     /**
      * @brief Enables or disables UI controls based on the current search type,
@@ -103,6 +133,8 @@ protected:
      * @return Pointer to the searchInComboBox widget.
      */
     QComboBox *searchInComboBox() const;
+
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     /**
@@ -118,10 +150,52 @@ private:
      */
     void applyRecentSearchSettings();
 
+    /**
+     * @brief Run a within-packet search using Find toolbar settings.
+     */
+    void executeInPacketSearch();
+
+    /**
+     * @brief Search if needed, then move to the next or previous in-packet match.
+     */
+    void advanceInPacketSearch(bool backward);
+
+    /**
+     * @brief Current search type (display filter, hex, string, or regex).
+     */
+    int searchTypeIndex() const;
+
+    /**
+     * @brief Limit or restore search-type combo items for in-packet mode.
+     */
+    void configureSearchTypeComboBox(bool in_packet_mode);
+
+    /**
+     * @brief Update the search-type combo tooltip for the highlighted item.
+     */
+    void updateSearchTypeToolTip(int combo_index);
+
+    /**
+     * @brief Set Find toolbar syntax tint while in-packet mode is active.
+     */
+    void updateInPacketSearchSyntax();
+
+    /**
+     * @brief Update the status bar find-in-packet match counter prefix.
+     */
+    void updateInPacketFindCounter();
+
+    InPacketSearch *in_packet_search_;
+    QTimer *in_packet_debounce_timer_;
     Ui::SearchFrame *sf_ui_;   /**< Qt Designer-generated UI object for this frame. */
     capture_file    *cap_file_; /**< Capture file currently being searched. */
     ws_regex_t      *regex_;    /**< Compiled regular expression, or @c nullptr if not in regex mode. */
     QString          regex_error_; /**< Human-readable error from the last failed regex compilation. */
+    QString          in_packet_last_pattern_; /**< Last in-packet search pattern (Enter navigation). */
+    QString          full_search_type_tooltip_; /**< Tooltip for all search types. */
+    QString          in_packet_string_tooltip_; /**< In-packet string search tooltip. */
+    QString          in_packet_regex_tooltip_; /**< In-packet regex search tooltip. */
+    bool             packet_selected_; /**< Exactly one packet is selected in the list. */
 
 private slots:
     /**
@@ -169,14 +243,20 @@ private slots:
     void on_multipleCheckBox_toggled(bool checked);
 
     /**
-     * @brief Executes a search in the current direction using the current criteria.
+     * @brief Toggles in-packet search mode (search current packet proto tree).
+     * @param checked Checked state of the checkbox.
      */
-    void on_findButton_clicked();
+    void inPacketCheckBoxToggled(bool checked);
 
     /**
-     * @brief Collapses the search frame and clears any active search highlight.
+     * @brief Called when application focus changes so the checkbox can update.
      */
-    void on_cancelButton_clicked();
+    void onApplicationFocusChanged(QWidget *old, QWidget *now);
+
+    /**
+     * @brief Executes a search in the current direction using the current criteria.
+     */
+    void executeSearch();
 };
 
 #endif // SEARCH_FRAME_H

@@ -157,7 +157,7 @@
   </layout>
   </item>
   <item>
-  <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="3,0,0,0,0,0,0,1">
+  <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="3,0,0,0,0,0,0,0,0,1">
    <property name="topMargin">
     <number>0</number>
    </property>
@@ -259,9 +259,32 @@
      </property>
     </widget>
    </item>
-  </layout>
-  </item>
-  </layout>
+   <item>
+    <widget class="QCheckBox" name="inPacketCheckBox">
+     <property name="toolTip">
+      <string>Search the selected packet details tree</string>
+     </property>
+     <property name="text">
+      <string>Find in selected Packet</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="horizontalSpacer_7">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>10</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+    </layout>
+    </item>
+ </layout>
  </widget>
  <customwidgets>
   <customwidget>

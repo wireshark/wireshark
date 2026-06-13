@@ -323,6 +323,9 @@ bool SyntaxLineEdit::event(QEvent *event)
         // qDebug() << "=so" << key_event->key() << key_event->modifiers() << key_event->text();
 
         if (key_event->modifiers() == Qt::KeyboardModifiers(Qt::ControlModifier|Qt::AltModifier)) {
+            if (key_event->key() == Qt::Key_F) {
+                return false;
+            }
             event->accept();
             return true;
         }

@@ -17,8 +17,11 @@
 #include <ui/qt/utils/themes/color_math.h>
 
 #include <QApplication>
+#include <QPainter>
 #include <QStyle>
+#include <QStyleOptionFrame>
 #include <QTimer>
+#include <ui/qt/utils/stock_icon.h>
 #include <cmath>
 #include <limits>
 #include <utility>
@@ -205,4 +208,51 @@ void FilterEdit::validateNow()
         break;
     }
     setState(mapped);
+}
+
+// invalid indicator
+void FilterEdit::paintEvent(QPaintEvent *event)
+{
+    QLineEdit::paintEvent(event);
+
+    QString si_name;
+    switch (state_) {
+    case SyntaxState::Invalid:
+        si_name = QStringLiteral("x-filter-invalid");
+        break;
+    case SyntaxState::Deprecated:
+        si_name = QStringLiteral("x-filter-deprecated");
+        break;
+    default:
+        return;
+    }
+
+    QStyleOptionFrame opt;
+    initStyleOption(&opt);
+
+    // get rect
+    const QRect cr = style()->subElementRect(QStyle::SE_LineEditContents, &opt, this);
+    QRect sir(0, 0, 14, 14); 
+    const int textWidth = fontMetrics().boundingRect(text()).width();
+    const int margin = 2 * 6 + 1;
+
+    if (cr.width() - margin - textWidth < sir.width() || cr.height() < sir.height()) {
+        return;
+    }
+
+    const QIcon state_icon = StockIcon(si_name);
+    if (state_icon.isNull()) {
+        return;
+    }
+
+    const int si_off = (cr.height() - sir.height()) / 2;
+    sir.moveTop(cr.top() + si_off);
+    sir.moveRight(cr.right() - si_off);
+
+    // paint icon
+    QPainter painter(this);
+    painter.save();
+    painter.setOpacity(0.25);
+    state_icon.paint(&painter, sir);
+    painter.restore();
 }

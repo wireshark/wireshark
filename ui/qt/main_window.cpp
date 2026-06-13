@@ -51,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     main_stack_(nullptr),
     welcome_page_(nullptr),
+    master_split_(nullptr),
     cur_layout_(QVector<unsigned>()),
     packet_list_(nullptr),
     proto_tree_(nullptr),
