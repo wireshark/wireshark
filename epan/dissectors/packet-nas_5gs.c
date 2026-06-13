@@ -7279,7 +7279,6 @@ de_nas_5gs_sm_rec_mbs_cont(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _
 
         if (info_len > 1) {
             proto_tree_add_item(subtree, hf_nas_5gs_sm_rec_mbs_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-            curr_offset++;
         }
 
         /* Skip remaining content of this entry */

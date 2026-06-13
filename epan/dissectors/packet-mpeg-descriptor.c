@@ -2824,7 +2824,6 @@ proto_mpeg_descriptor_dissect_multilng_desc(tvbuff_t *tvb, packet_info* pinfo, u
         cnt    -= 1;
 
         network_name_length = MIN(network_name_length, cnt);
-        if (cnt < network_name_length) return;
         dvb_encoding_e  encoding;
         unsigned enc_len = dvb_analyze_string_charset(tvb, offset, network_name_length, &encoding);
         dvb_add_chartbl(lng_tree, hf_name_encoding, tvb, offset, enc_len, encoding);
@@ -2913,7 +2912,6 @@ proto_mpeg_descriptor_dissect_multilng_srv_name_desc(tvbuff_t *tvb, packet_info*
         cnt    -= 1;
 
         service_provider_name_length = MIN(service_provider_name_length, cnt);
-        if (cnt < service_provider_name_length) return;
         dvb_encoding_e  encoding;
         unsigned enc_len = dvb_analyze_string_charset(tvb, offset, service_provider_name_length, &encoding);
         dvb_add_chartbl(lng_tree, hf_mpeg_descr_multilng_srv_name_desc_service_provider_name_encoding, tvb, offset, enc_len, encoding);
@@ -2929,7 +2927,6 @@ proto_mpeg_descriptor_dissect_multilng_srv_name_desc(tvbuff_t *tvb, packet_info*
         cnt    -= 1;
 
         service_name_length = MIN(service_name_length, cnt);
-        if (cnt < service_name_length) return;
         enc_len = dvb_analyze_string_charset(tvb, offset, service_name_length, &encoding);
         dvb_add_chartbl(lng_tree, hf_mpeg_descr_multilng_srv_name_desc_service_name_encoding, tvb, offset, enc_len, encoding);
 
@@ -2983,7 +2980,6 @@ proto_mpeg_descriptor_dissect_multilng_component_desc(tvbuff_t *tvb, packet_info
         cnt    -= 1;
 
         text_length = MIN(text_length, cnt);
-        if (cnt < text_length) return;
         dvb_encoding_e  encoding;
         unsigned enc_len = dvb_analyze_string_charset(tvb, offset, text_length, &encoding);
         dvb_add_chartbl(lng_tree, hf_mpeg_descr_multilng_component_desc_text_encoding, tvb, offset, enc_len, encoding);

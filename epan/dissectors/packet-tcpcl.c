@@ -1116,7 +1116,6 @@ static void transfer_add_ack(tcpcl_dissect_ctx_t *ctx, uint64_t xfer_id, uint8_t
     }
     else {
         wmem_list_append(xfer->ack_list, ack_meta);
-        frm = wmem_list_tail(xfer->ack_list);
         // Set for new item
         ack_meta->flags = flags;
         ack_meta->seen_len = ack_len;
@@ -2205,7 +2204,7 @@ static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             ctx->tx_peer->segment_mru = UINT64_MAX;
             ctx->tx_peer->transfer_mru = UINT64_MAX;
         }
-        else if (ctx->tx_peer->version == 4) {
+        else {          /* (version == 4) */
             uint8_t flags = tvb_get_uint8(tvb, offset);
             proto_tree_add_bitmask(tree_chdr, tvb, offset, hf_tcpclv4_chdr_flags, ett_tcpclv4_chdr_flags, v4_chdr_flags, ENC_BIG_ENDIAN);
             offset += 1;

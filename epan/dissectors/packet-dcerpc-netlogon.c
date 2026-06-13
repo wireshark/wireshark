@@ -1448,7 +1448,7 @@ netlogon_dissect_GENERIC_INFO(tvbuff_t *tvb, unsigned offset,
                                                   NULL);
 
     offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, di, drep,
-                                        hf_netlogon_package_name, 0|CB_STR_SAVE);
+                                        hf_netlogon_package_name, CB_STR_SAVE);
 
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
                                 hf_netlogon_data_length, NULL);
@@ -9370,7 +9370,7 @@ netlogon_dissect_NL_GENERIC_RPC_DATA_STRING(tvbuff_t *tvb, unsigned offset,
     }
 // TODO
     offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, di, drep,
-                                        hf_netlogon_package_name, 0|CB_STR_SAVE);
+                                        hf_netlogon_package_name, CB_STR_SAVE);
 
     return offset;
 }

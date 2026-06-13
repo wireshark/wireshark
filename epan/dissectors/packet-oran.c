@@ -1667,7 +1667,6 @@ static void ext11_work_out_bundles(unsigned startPrbc,
 typedef struct  {
     /* Application of each entry is filtered by RE.
      * TODO: should also be filtered by PRB + symbol... */
-    uint16_t section_id;
     uint16_t mod_compr_re_mask;
 
     /* Settings to apply */
@@ -1802,8 +1801,8 @@ static uint32_t make_flow_key(packet_info *pinfo, uint16_t eaxc_id, uint8_t plan
     uint16_t eth_bits = 0;
     if (pinfo->dl_src.len == 6 && pinfo->dl_dst.len == 6) {
         /* Only using (most of) 2 bytes from addresses for now, but reluctant to make key longer.. */
-        uint8_t *src_eth = (uint8_t*)pinfo->dl_src.data;
-        uint8_t *dst_eth = (uint8_t*)pinfo->dl_dst.data;
+        const uint8_t *src_eth = (uint8_t*)pinfo->dl_src.data;
+        const uint8_t *dst_eth = (uint8_t*)pinfo->dl_dst.data;
         if (!opposite_dir) {
             eth_bits = (src_eth[0]<<8) | dst_eth[5];
         }
@@ -3575,10 +3574,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* Also, that is the range of bits */
                 if (first_seen) {
                     proto_item_append_text(rbgmask_ti, " (%u bits spread)", last_seen_pos-first_seen_pos+1);
-                }
 
-                /* Complain if last set bit is beyond lastRbgid */
-                if (first_seen) {
+                    /* Complain if last set bit is beyond lastRbgid */
                     if (last_seen_pos > lastRbgid) {
                         expert_add_info_format(pinfo, rbgmask_ti, &ei_oran_rbgMask_beyond_last_rbdid,
                                                "SE6: rbgMask (0x%07x) has bit %u set, but lastRbgId is %u",
@@ -5806,7 +5803,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
     offset++;
 
     char id[16];
-    snprintf(id, 16, "%d-%d-%d-%d", frameId, subframeId, slotId, startSymbolId);
+    snprintf(id, 16, "%u-%u-%u-%u", frameId, subframeId, slotId, startSymbolId);
     proto_item *pi = proto_tree_add_string(section_tree, hf_oran_refa, tvb, ref_a_offset, 3, id);
     proto_item_set_generated(pi);
 
@@ -6338,7 +6335,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                         /* Time should be rounded up according to SCS */
                         float total = (float)(num_slots + num_slots_ext);
                         /* From table 7.5.2.13-3 */
-                        float slot_length_by_scs[16] = { 1000, 500, 250, 125, 62.5, 31.25,
+                        const float slot_length_by_scs[16] = { 1000, 500, 250, 125, 62.5, 31.25,
                                                          0, 0, 0, 0, 0, 0,  /* reserved */
                                                          1000, 1000, 1000, 1000 };
                         float slot_length = slot_length_by_scs[scs];
@@ -6447,7 +6444,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
 
             /* Check apparent size of padding (0-3 bytes ok) */
             long padding_remaining = command_start_offset + (st4_cmd_len * 4) - offset;
-            if (padding_remaining < 0 || padding_remaining > 3) {
+            if (padding_remaining > 3) {
                 expert_add_info_format(pinfo, len_ti, &ei_oran_st4_wrong_len_cmd,
                                        "Dissected ST4 command does not match signalled st4CmdLen - set to %u (%u bytes) but dissected %u bytes",
                                         st4_cmd_len, st4_cmd_len*4, offset-command_start_offset);
@@ -6858,7 +6855,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset++;
 
     char id[16];
-    snprintf(id, 16, "%d-%d-%d-%d", frameId, subframeId, slotId, symbolId);
+    snprintf(id, 16, "%u-%u-%u-%u", frameId, subframeId, slotId, symbolId);
     proto_item *pi = proto_tree_add_string(timing_header_tree, hf_oran_refa, tvb, ref_a_offset, 3, id);
     proto_item_set_generated(pi);
 
@@ -7070,7 +7067,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 1;
 
         proto_item *ud_comp_meth_item, *ud_comp_len_ti=NULL;
-        uint32_t ud_comp_len;
+        uint32_t ud_comp_len = 0;
 
         /* udCompHdr (if preferences indicate will be present) */
         bool included = (includeUdCompHeader==1) ||   /* 1 means present.. */
@@ -7310,7 +7307,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
                 else {
                     /* With masks (in section).  Choose between sresmask1 and sresmask2 */
-                    if (rb==1 || (i%1)==0) {
+                    if (rb==1 || (i%2)==0) {
                         /* Even values */
                         sresmask_to_use = (uint16_t)sresmask1;
                     }

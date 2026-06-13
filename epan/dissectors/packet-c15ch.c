@@ -5445,7 +5445,7 @@ static int dissect_c15ch_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_tree * c15ch_qos_tree = NULL;
     proto_tree * sub_ni_tn_tree = NULL;
 
-    uint32_t year_val = (uint32_t)0;
+    uint32_t year_val;
     float mos = (float)0.0;
 
     mos = tvb_get_ntohl(tvb, 72) / (float) (100.0);

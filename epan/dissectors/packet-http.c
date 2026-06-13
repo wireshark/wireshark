@@ -976,7 +976,7 @@ determine_http_location_target(wmem_allocator_t *scope, const char *base_url, co
 			}
 			/* Otherwise, it replaces the last element in the URI */
 			else {
-				char *end_of_path = g_strrstr(scheme_end, "/");
+				const char *end_of_path = g_strrstr(scheme_end, "/");
 
 				if (end_of_path != NULL) {
 					int base_through_path = (int) (end_of_path - base_url_no_query);
@@ -1189,15 +1189,13 @@ http_get_header_value(packet_info* pinfo, const char *name, bool the_other_direc
 	if (conv_data) {
 		const http_req_res_t *req_res = conv_data->req_res_tail;
 		if (req_res && req_res->private_data) {
-			const http_req_res_private_data_t *private = (http_req_res_private_data_t *)req_res->private_data;
-			if (private) {
-				wmem_map_t *headers = (conv_data->server_port == pinfo->destport && the_other_direction) || (
-					                      conv_data->server_port == pinfo->srcport && !the_other_direction)
-					                      ? private->response_headers
-					                      : private->request_headers;
-				if (headers) {
-					return wmem_map_lookup(headers, name);
-				}
+			const http_req_res_private_data_t *private_data = (http_req_res_private_data_t *)req_res->private_data;
+			wmem_map_t *headers = (conv_data->server_port == pinfo->destport && the_other_direction) || (
+									  conv_data->server_port == pinfo->srcport && !the_other_direction)
+									  ? private_data->response_headers
+									  : private_data->request_headers;
+			if (headers) {
+				return wmem_map_lookup(headers, name);
 			}
 		}
 	}
@@ -2585,7 +2583,7 @@ dissecting_body:
 	}
 
 	/* Detect protocol changes after receiving full response headers. */
-	if (http_type == MEDIA_CONTAINER_HTTP_RESPONSE && curr && pinfo->desegment_offset <= 0 && pinfo->desegment_len <= 0) {
+	if (http_type == MEDIA_CONTAINER_HTTP_RESPONSE && curr && pinfo->desegment_offset <= 0 && pinfo->desegment_len == 0) {
 		dissector_handle_t next_handle = NULL;
 		bool server_acked = false;
 
