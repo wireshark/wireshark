@@ -53,12 +53,6 @@ tap_packet_cb get_endpoint_packet_func(register_ct_t* ct)
     return ct->endpoint_func;
 }
 
-/* For backwards source and binary compatibility */
-tap_packet_cb get_hostlist_packet_func(register_ct_t* ct)
-{
-    return get_endpoint_packet_func(ct);
-}
-
 static wmem_tree_t *registered_ct_tables;
 
 static bool
@@ -116,13 +110,6 @@ void
 dissector_endpoint_init(const char* opt_arg, void* userdata)
 {
     dissector_endpoint_init_internal(opt_arg, userdata);
-}
-
-/* For backwards source and binary compatibility */
-void
-dissector_hostlist_init(const char *opt_arg, void* userdata)
-{
-    dissector_endpoint_init(opt_arg, userdata);
 }
 
 /** get conversation from protocol ID
@@ -206,12 +193,6 @@ set_endpoint_gui_data(const void *key _U_, void *value, void *userdata)
 void endpoint_table_set_gui_info(endpoint_gui_init_cb init_cb)
 {
     wmem_tree_foreach(registered_ct_tables, set_endpoint_gui_data, (void*)init_cb);
-}
-
-/* For backwards source and binary compatibility */
-void hostlist_table_set_gui_info(endpoint_gui_init_cb init_cb)
-{
-    endpoint_table_set_gui_info(init_cb);
 }
 
 void conversation_table_iterate_tables(wmem_foreach_func func, void* user_data)
@@ -330,12 +311,6 @@ void reset_endpoint_table_data(conv_hash_t *ch)
 
     ch->conv_array=NULL;
     ch->hashtable=NULL;
-}
-
-/* For backwards source and binary compatibility */
-void reset_hostlist_table_data(conv_hash_t *ch)
-{
-    reset_endpoint_table_data(ch);
 }
 
 char *get_conversation_address(wmem_allocator_t *allocator, address *addr, bool resolve_names)
@@ -650,12 +625,6 @@ char *get_endpoint_filter(endpoint_item_t *endpoint_item)
     g_free(sport);
     wmem_free(NULL, src_addr);
     return str;
-}
-
-/* For backwards source and binary compatibility */
-char *get_hostlist_filter(endpoint_item_t *endpoint_item)
-{
-    return get_endpoint_filter(endpoint_item);
 }
 
 void
@@ -1072,13 +1041,6 @@ add_endpoint_table_data_ipv4_subnet(
     else {
         add_endpoint_table_data(ch, addr, port, sender, num_frames, num_bytes, et_info, etype);
     }
-}
-
-/* For backwards source and binary compatibility */
-void
-add_hostlist_table_data(conv_hash_t *ch, const address *addr, uint32_t port, bool sender, int num_frames, int num_bytes, et_dissector_info_t *et_info, endpoint_type etype)
-{
-    add_endpoint_table_data(ch, addr, port, sender, num_frames, num_bytes, et_info, etype);
 }
 
 /*
