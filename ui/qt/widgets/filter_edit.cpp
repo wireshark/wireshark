@@ -24,7 +24,7 @@
 #include <utility>
 
 // Debounce before running the (synchronous) validator after a text change.
-static const int validation_debounce_ms_ = 150;
+static constexpr int validation_debounce_ms_ = 75;
 
 FilterEdit::FilterEdit(QWidget *parent) :
     QLineEdit(parent),
