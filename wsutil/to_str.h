@@ -44,20 +44,6 @@ WS_DLL_PUBLIC char *uint8_to_hex(char *out, uint8_t val);
  * The output is always 4 characters long, zero-padded if necessary (e.g., `0x000A` → `"000A"`).
  * The result is not NUL-terminated, and the caller must ensure the buffer has at least 4 bytes.
  *
- * @param out Pointer to the output buffer where the hexadecimal string will be written.
- * @param val The 16-bit word value to convert.
- * @return A pointer to the output buffer `out`.
- */
-WS_DEPRECATED_X("Use uint8_to_hex instead")
-static inline char *guint8_to_hex(char *out, uint8_t val) { return uint8_to_hex(out, val); }
-
-/**
- * @brief Converts a 16-bit word to a fixed-width hexadecimal string.
- *
- * Writes the hexadecimal representation of a `uint16_t` value to the provided buffer.
- * The output is always 4 characters long, zero-padded if necessary (e.g., `0x000A` → `"000A"`).
- * The result is not NUL-terminated, and the caller must ensure the buffer has at least 4 bytes.
- *
  * @param out Pointer to the destination buffer (must have space for at least 4 characters).
  * @param word The 16-bit value to convert.
  * @return Pointer to the position immediately after the last written character (`out + 4`).
@@ -373,59 +359,11 @@ WS_DLL_PUBLIC void uint32_to_str_buf(uint32_t u, char *buf, size_t buf_len);
  * The output is NUL-terminated and truncated if it exceeds `buf_len - 1` characters.
  * This function ensures safe formatting within the given buffer size.
  *
- * @param u        The 64-bit unsigned integer to convert.
- * @param buf      Buffer to store the resulting decimal string.
- * @param buf_len  Length of the buffer.
- */
-WS_DEPRECATED_X("Use uint32_to_str_buf instead")
-static inline void guint32_to_str_buf(uint32_t u, char *buf, size_t buf_len) { uint32_to_str_buf(u, buf, buf_len); }
-
-/**
- * @brief Converts a 64-bit unsigned integer to a decimal string.
- *
- * Writes the decimal representation of `u` into the provided buffer.
- * The output is NUL-terminated and truncated if it exceeds `buf_len - 1` characters.
- * This function ensures safe formatting within the given buffer size.
- *
  * @param u The 64-bit unsigned integer to convert.
  * @param buf Pointer to the destination buffer.
  * @param buf_len Size of the destination buffer, including space for the NUL terminator.
  */
 WS_DLL_PUBLIC void uint64_to_str_buf(uint64_t u, char *buf, size_t buf_len);
-
-/**
- * @brief Converts a 64-bit unsigned integer to a string buffer.
- *
- * @param u The 64-bit unsigned integer to convert.
- * @param buf The buffer where the resulting string will be stored.
- * @param buf_len The length of the buffer.
- */
-WS_DEPRECATED_X("Use uint64_to_str_buf instead")
-static inline void guint64_to_str_buf(uint64_t u, char *buf, size_t buf_len) { uint64_to_str_buf(u, buf, buf_len); }
-
-/**
- * @brief Converts a 32-bit IPv4 address to string format.
- *
- * This function takes a pointer to a 32-bit IPv4 address and converts it into a human-readable string representation.
- *
- * @param ad Pointer to the 32-bit IPv4 address.
- * @param buf Buffer to store the resulting string.
- * @param buf_len Length of the buffer.
- */
-WS_DEPRECATED_X("Use ip_num_to_str_buf() or ip_addr_to_str() instead")
-WS_DLL_PUBLIC void ip_to_str_buf(const uint8_t *ad, char *buf, const int buf_len);
-
-/**
- * @brief Converts a 32-bit IPv4 address to string format.
- *
- * This function takes a pointer to a 32-bit IPv4 address and converts it into a human-readable string representation.
- *
- * @param scope Memory allocator scope for the resulting string.
- * @param ad Pointer to the 32-bit IPv4 address to be converted.
- * @return A dynamically allocated string representing the IPv4 address in dot-decimal notation. The caller is responsible for freeing this memory when done.
- */
-WS_DEPRECATED_X("Use ip_num_to_str() or ip_addr_to_str() instead")
-WS_DLL_PUBLIC char *ip_to_str(wmem_allocator_t *scope, const uint8_t *ad);
 
 /**
  * @brief Converts a 32-bit IPv4 address to string format.

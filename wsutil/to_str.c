@@ -622,18 +622,6 @@ ip_num_to_str(wmem_allocator_t *scope, uint32_t ad)
 }
 
 void
-ip_to_str_buf(const uint8_t *ad, char *buf, const int buf_len)
-{
-	ip_addr_to_str_buf((const ws_in4_addr *)ad, buf, buf_len);
-}
-
-char *
-ip_to_str(wmem_allocator_t *scope, const uint8_t *ad)
-{
-	return ip_addr_to_str(scope, (const ws_in4_addr *)ad);
-}
-
-void
 ip6_to_str_buf(const ws_in6_addr *addr, char *buf, size_t buf_size)
 {
 	/*
