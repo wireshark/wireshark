@@ -200,6 +200,7 @@ Notes:
 
 #include "packet-ip.h"
 #include "packet-tcp.h"
+#include "packet-tls-utils.h"
 #include <epan/to_str.h>
 #include <epan/stats_tree.h>
 #define F5FILEINFOTAP_SRC
@@ -3168,31 +3169,40 @@ f5eth_add_tls_keylog(packet_info *pinfo, keylog_t keylog_type, f5tls_element_t *
 {
     char *xxxx_hex;
     char *yyyy_hex;
+    wmem_strbuf_t *secret_buf = wmem_strbuf_create(wmem_file_scope());
 
     xxxx_hex = f5eth_bytes_to_hexstrnz(pinfo->pool, xxxx->data, xxxx->len);
     yyyy_hex = f5eth_bytes_to_hexstrnz(pinfo->pool, yyyy->data, yyyy->len);
 
     switch (keylog_type) {
     case CLIENT_RANDOM:
-        return wmem_strdup_printf(wmem_file_scope(), "CLIENT_RANDOM %s %s", xxxx_hex, yyyy_hex);
+        wmem_strbuf_append_printf(secret_buf, "CLIENT_RANDOM %s %s", xxxx_hex, yyyy_hex);
+        break;
     case CLIENT_TRAFFIC_SECRET_0:
-        return wmem_strdup_printf(
-            wmem_file_scope(), "CLIENT_TRAFFIC_SECRET_0 %s %s", xxxx_hex, yyyy_hex);
+        wmem_strbuf_append_printf(secret_buf,
+            "CLIENT_TRAFFIC_SECRET_0 %s %s", xxxx_hex, yyyy_hex);
+        break;
     case SERVER_TRAFFIC_SECRET_0:
-        return wmem_strdup_printf(
-            wmem_file_scope(), "SERVER_TRAFFIC_SECRET_0 %s %s", xxxx_hex, yyyy_hex);
+        wmem_strbuf_append_printf(secret_buf,
+            "SERVER_TRAFFIC_SECRET_0 %s %s", xxxx_hex, yyyy_hex);
+        break;
     case CLIENT_HANDSHAKE_TRAFFIC_SECRET:
-        return wmem_strdup_printf(
-            wmem_file_scope(), "CLIENT_HANDSHAKE_TRAFFIC_SECRET %s %s", xxxx_hex, yyyy_hex);
+        wmem_strbuf_append_printf(secret_buf,
+            "CLIENT_HANDSHAKE_TRAFFIC_SECRET %s %s", xxxx_hex, yyyy_hex);
+        break;
     case SERVER_HANDSHAKE_TRAFFIC_SECRET:
-        return wmem_strdup_printf(
-            wmem_file_scope(), "SERVER_HANDSHAKE_TRAFFIC_SECRET %s %s", xxxx_hex, yyyy_hex);
+        wmem_strbuf_append_printf(secret_buf,
+            "SERVER_HANDSHAKE_TRAFFIC_SECRET %s %s", xxxx_hex, yyyy_hex);
+        break;
     case EARLY_TRAFFIC_SECRET:
-        return wmem_strdup_printf(
-            wmem_file_scope(), "CLIENT_EARLY_TRAFFIC_SECRET %s %s", xxxx_hex, yyyy_hex);
+        wmem_strbuf_append_printf(secret_buf,
+            "CLIENT_EARLY_TRAFFIC_SECRET %s %s", xxxx_hex, yyyy_hex);
+        break;
     default:
         DISSECTOR_ASSERT_NOT_REACHED();
     }
+    tls_keylog_process_lines(tls_get_master_key_map(false), (const uint8_t*)wmem_strbuf_get_str(secret_buf), (unsigned)wmem_strbuf_get_len(secret_buf));
+    return wmem_strbuf_finalize(secret_buf);
 } /* f5eth_add_tls_keylog() */
 
 /*-----------------------------------------------------------------------------------------------*/
