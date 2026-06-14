@@ -16054,6 +16054,7 @@ static const value_string usb_products_vals[] = {
     { 0x0a5c5804, "BCM5880 Secure Applications Processor with fingerprint swipe sensor" },
     { 0x0a5c5832, "BCM5880 Secure Applications Processor Smartcard reader" },
     { 0x0a5c5843, "BCM58200 ControlVault 3 (FingerPrint sensor + Contacted SmartCard)" },
+    { 0x0a5c5865, "Fingerprint Reader (Dell Control Vault)" },
     { 0x0a5c6300, "Pirelli Remote NDIS Device" },
     { 0x0a5c6410, "BCM20703A1 Bluetooth 4.1 + LE" },
     { 0x0a5cbd11, "BCM4320 802.11bg Wireless Adapter" },

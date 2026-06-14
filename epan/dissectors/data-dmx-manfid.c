@@ -11,7 +11,7 @@
 #include "data-dmx-manfid.h"
 
 /*
- * ESTA codes download date: 2026-06-07
+ * ESTA codes download date: 2026-06-14
  */
 static const value_string dmx_esta_manfid_vals[] = {
   { 0x0000, "ESTA / PLASA" },
@@ -640,7 +640,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x07FE, "Shenzhen Apexls Optoelectronic Co., Ltd." },
   { 0x07FF, "Guangzhou HOMEI LIGHT Manufacturer" },
   { 0x0800, "Hongyeah Light" },
-  { 0x0801, "Guangzhou Favolite Stage Lighting Co., Ltd." },
+  { 0x0801, "Foshan Favolite Stage Lighting Co., Ltd." },
   { 0x0802, "AstralPool" },
   { 0x0803, "Guangzhou FutureColor Electronic Technology Co., Ltd." },
   { 0x0804, "K&G Visual Technology" },

@@ -852,7 +852,7 @@ Desactivat = només punt de registre (coincideix amb la convenció històrica «
     </message>
     <message>
         <source>%1 / %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 / %2</translation>
     </message>
     <message>
         <source>All interfaces shown</source>
@@ -1316,57 +1316,10 @@ Desactivat = només punt de registre (coincideix amb la convenció històrica «
     </message>
 </context>
 <context>
-    <name>CaptureFilterCombo</name>
-    <message>
-        <source>Capture filter selector</source>
-        <translation type="vanished">Seleccionador de filtres de captura</translation>
-    </message>
-</context>
-<context>
-    <name>CaptureFilterEdit</name>
-    <message>
-        <source>Capture filter entry</source>
-        <translation type="vanished">Entrada dels filtres de captura</translation>
-    </message>
-    <message>
-        <source>Manage saved bookmarks.</source>
-        <translation type="vanished">Gestiona els marcadors desats.</translation>
-    </message>
-    <message>
-        <source>Apply this filter string to the display.</source>
-        <translation type="vanished">Aplica aquesta cadena de filtre a la visualització.</translation>
-    </message>
-    <message>
-        <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
-        <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
-        <translation type="vanished">S&apos;han seleccionat diversos filtres. Anul·leu-los aquí o deixeu-ho en blanc per a mantenir-los.</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
-        <translation type="vanished">&lt;p&gt;Les interfícies seleccionades tenen diferents filtres de captura. Si escriviu un filtre aquí, s&apos;anul·laran els altres filtres. Si no feu res, es mantindran els filtres existents.&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Enter a capture filter %1</source>
-        <translation type="vanished">Escriviu un filtre de captura %1</translation>
-    </message>
-    <message>
-        <source>Save this filter</source>
-        <translation type="vanished">Desa aquest filtre</translation>
-    </message>
-    <message>
-        <source>Remove this filter</source>
-        <translation type="vanished">Trau aquest filtre</translation>
-    </message>
-    <message>
-        <source>Manage Capture Filters</source>
-        <translation type="vanished">Gestiona els filtres de captura</translation>
-    </message>
-</context>
-<context>
     <name>CaptureFilterEntry</name>
     <message>
         <source>Capture filter entry</source>
-        <translation type="unfinished">Entrada dels filtres de captura</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Saved Capture Filters</source>
@@ -1382,20 +1335,20 @@ Desactivat = només punt de registre (coincideix amb la convenció històrica «
     </message>
     <message>
         <source>Manage Capture Filters</source>
-        <translation type="unfinished">Gestiona els filtres de captura</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
         <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
-        <translation type="unfinished">S&apos;han seleccionat diversos filtres. Anul·leu-los aquí o deixeu-ho en blanc per a mantenir-los.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;Les interfícies seleccionades tenen diferents filtres de captura. Si escriviu un filtre aquí, s&apos;anul·laran els altres filtres. Si no feu res, es mantindran els filtres existents.&lt;/p&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter a capture filter %1</source>
-        <translation type="unfinished">Escriviu un filtre de captura %1</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2888,17 +2841,6 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
 </context>
 <context>
-    <name>DisplayFilterCombo</name>
-    <message>
-        <source>Display filter selector</source>
-        <translation type="vanished">Mostra el selector de filtres</translation>
-    </message>
-    <message>
-        <source>Select from previously used filters.</source>
-        <translation type="vanished">Tria d&apos;entre els filtres emprats anteriorment.</translation>
-    </message>
-</context>
-<context>
     <name>DisplayFilterEdit</name>
     <message>
         <source>Display filter entry</source>
@@ -2978,31 +2920,31 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation type="unfinished">Desa aquest filtre</translation>
+        <translation>Desa aquest filtre</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation type="unfinished">Trau aquest filtre</translation>
+        <translation>Trau aquest filtre</translation>
     </message>
     <message>
         <source>Manage Display Filters</source>
-        <translation type="unfinished">Gestiona els filtres de visualització</translation>
+        <translation>Gestiona els filtres de visualització</translation>
     </message>
     <message>
         <source>Filter Button Preferences…</source>
-        <translation type="unfinished">Preferències del botó de filtre…</translation>
+        <translation>Preferències del botó de filtre…</translation>
     </message>
     <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
-        <translation type="unfinished">Aplica un filtre de visualització %1 &lt;%2/&gt;</translation>
+        <translation>Aplica un filtre de visualització %1 &lt;%2/&gt;</translation>
     </message>
     <message>
         <source>Display Filter Expression…</source>
-        <translation type="unfinished">Mostra una expressió de filtre…</translation>
+        <translation>Mostra una expressió de filtre…</translation>
     </message>
     <message>
         <source>Left align buttons</source>
-        <translation type="unfinished">Botons d&apos;alineació a l&apos;esquerra</translation>
+        <translation>Botons d&apos;alineació a l&apos;esquerra</translation>
     </message>
 </context>
 <context>
@@ -3104,7 +3046,7 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <name>DisplayFilterValidator</name>
     <message>
         <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>
-        <translation type="unfinished">«%1» ha quedat obsolet i s&apos;ha de substituir per «%2». Vegeu la secció d&apos;ajuda 6.4.8 per a més detalls.</translation>
+        <translation>«%1» ha quedat obsolet i s&apos;ha de substituir per «%2». Vegeu la secció d&apos;ajuda 6.4.8 per a més detalls.</translation>
     </message>
 </context>
 <context>
@@ -3216,19 +3158,19 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>all</source>
-        <translation type="unfinished"></translation>
+        <translation>tots</translation>
     </message>
     <message>
         <source>enabled</source>
-        <translation type="unfinished">activat</translation>
+        <translation>activats</translation>
     </message>
     <message>
         <source>disabled</source>
-        <translation type="unfinished">desactivat</translation>
+        <translation>desactivats</translation>
     </message>
     <message>
         <source>protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>protocols</translation>
     </message>
     <message>
         <source>non-heuristic protocols</source>
@@ -3610,7 +3552,7 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Unique</source>
-        <translation type="unfinished"></translation>
+        <translation>Únic</translation>
     </message>
     <message>
         <source>Only display the first of identical entries</source>
@@ -3630,11 +3572,11 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Save All</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa-ho tot</translation>
     </message>
     <message>
         <source>Save Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa els que es mostren</translation>
     </message>
     <message>
         <source>Preview</source>
@@ -3927,15 +3869,15 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <name>FilterExpressionEdit</name>
     <message>
         <source>Saved Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtres desats</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation type="unfinished">Desa aquest filtre</translation>
+        <translation>Desa aquest filtre</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation type="unfinished">Trau aquest filtre</translation>
+        <translation>Trau aquest filtre</translation>
     </message>
     <message>
         <source>Manage Saved Filters</source>
@@ -3955,11 +3897,11 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Apply this filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplica aquest filtre</translation>
     </message>
     <message>
         <source>Recent filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtres recents</translation>
     </message>
 </context>
 <context>
@@ -4052,7 +3994,7 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <name>FilterValidator</name>
     <message>
         <source>Invalid filter: %1</source>
-        <translation type="unfinished">Filtre no vàlid: %1</translation>
+        <translation>Filtre no vàlid: %1</translation>
     </message>
 </context>
 <context>
@@ -4221,7 +4163,7 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Personal Themes</source>
-        <translation type="unfinished"></translation>
+        <translation>Temes personals</translation>
     </message>
     <message>
         <source>User-installed theme files (*.jsonc)</source>
@@ -4491,6 +4433,14 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Theme</source>
+        <translation>Tema</translation>
+    </message>
+    <message>
+        <source>Theme Author Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Theme Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4504,15 +4454,15 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>System</source>
-        <translation type="unfinished">Sistema</translation>
+        <translation>Sistema</translation>
     </message>
     <message>
         <source>Light</source>
-        <translation type="unfinished">Clar</translation>
+        <translation>Clar</translation>
     </message>
     <message>
         <source>Dark</source>
-        <translation type="unfinished">Fosc</translation>
+        <translation>Fosc</translation>
     </message>
     <message>
         <source>Appearance mode:</source>
@@ -4520,7 +4470,7 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Theme:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema:</translation>
     </message>
     <message>
         <source>Theme by %1</source>
@@ -6098,6 +6048,21 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
 </context>
 <context>
+    <name>InterfaceStatsWorker</name>
+    <message>
+        <source>The interface statistics stream stopped unexpectedly.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to start the interface statistics stream.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This build has no packet capture support.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>InterfaceToolbar</name>
     <message>
         <source>Frame</source>
@@ -7671,131 +7636,127 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <name>LuaDebuggerBreakpointsController</name>
     <message>
         <source>Location</source>
-        <translation>Ubicació</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;&lt;b&gt;Hit-count summary&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;code&gt;≥N&lt;/code&gt; &amp;mdash; &lt;i&gt;from&lt;/i&gt; mode: pause from hit &lt;i&gt;N&lt;/i&gt; onwards.&lt;br/&gt;&lt;code&gt;×N&lt;/code&gt; &amp;mdash; &lt;i&gt;every&lt;/i&gt; mode: pause on hits &lt;i&gt;N&lt;/i&gt;, &lt;i&gt;2N&lt;/i&gt;, &lt;i&gt;3N&lt;/i&gt;, &amp;hellip;&lt;br/&gt;&lt;code&gt;@N&lt;/code&gt; &amp;mdash; &lt;i&gt;once&lt;/i&gt; mode: pause once on the &lt;i&gt;N&lt;/i&gt;th hit, then deactivate.&lt;/p&gt;&lt;p&gt;The cell starts with the running hit counter; if a gate is set it follows in parentheses, e.g. &lt;code&gt;3 (≥10)&lt;/code&gt;. With no hit gate the cell is just the counter.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell to set or change the gate (see the breakpoint-extras section).&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Ubicació</translation>
     </message>
     <message>
         <source>Edit...</source>
-        <translation>Edita...</translation>
+        <translation type="vanished">Edita...</translation>
     </message>
     <message>
         <source>Open Source</source>
-        <translation>Obre l&apos;origen</translation>
+        <translation type="vanished">Obre l&apos;origen</translation>
     </message>
     <message>
         <source>Reset Hit Count</source>
-        <translation>Restableix el recompte d&apos;execucions</translation>
+        <translation type="vanished">Restableix el recompte d&apos;execucions</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation>Trau</translation>
+        <translation type="vanished">Trau</translation>
     </message>
     <message>
         <source>Reset All Hit Counts</source>
-        <translation>Restableix tots els recomptes d&apos;execucions</translation>
+        <translation type="vanished">Restableix tots els recomptes d&apos;execucions</translation>
     </message>
     <message>
         <source>Remove All Breakpoints</source>
-        <translation>Trau tots els punts d&apos;interrupció</translation>
+        <translation type="vanished">Trau tots els punts d&apos;interrupció</translation>
     </message>
     <message>
         <source>Clear All Breakpoints</source>
-        <translation>Esborra tots els punts d&apos;interrupció</translation>
+        <translation type="vanished">Esborra tots els punts d&apos;interrupció</translation>
     </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>Esteu segur que voleu traure el punt d&apos;interrupció?</numerusform>
             <numerusform>Esteu segur que voleu traure els %Ln punts d&apos;interrupció?</numerusform>
         </translation>
     </message>
     <message>
         <source>Location: %1:%2</source>
-        <translation>Ubicació: %1:%2</translation>
+        <translation type="vanished">Ubicació: %1:%2</translation>
     </message>
     <message>
         <source>Condition: %1</source>
-        <translation>Condició: %1</translation>
+        <translation type="vanished">Condició: %1</translation>
     </message>
     <message>
         <source>pauses on hits %1, 2×%1, 3×%1, …</source>
-        <translation>posa en pausa en execucions %1, 2×%1, 3×%1, …</translation>
+        <translation type="vanished">posa en pausa en execucions %1, 2×%1, 3×%1, …</translation>
     </message>
     <message>
         <source>pauses once on hit %1, then deactivates the breakpoint</source>
-        <translation>posa en pausa una vegada que s&apos;executi %1, després desactiva el punt d&apos;interrupció</translation>
+        <translation type="vanished">posa en pausa una vegada que s&apos;executi %1, després desactiva el punt d&apos;interrupció</translation>
     </message>
     <message>
         <source>pauses on every hit from %1 onwards</source>
-        <translation>posa en pausa en cada execució des de %1 endavant</translation>
+        <translation type="vanished">posa en pausa en cada execució des de %1 endavant</translation>
     </message>
     <message>
         <source>Hit Count: %1 / %2 (%3)</source>
-        <translation>Recompte d&apos;execucions: %1 / %2 (%3)</translation>
+        <translation type="vanished">Recompte d&apos;execucions: %1 / %2 (%3)</translation>
     </message>
     <message>
         <source>Hits: %1</source>
-        <translation>Execucions: %1</translation>
+        <translation type="vanished">Execucions: %1</translation>
     </message>
     <message>
         <source>Log: %1</source>
-        <translation>Registre: %1</translation>
+        <translation type="vanished">Registre: %1</translation>
     </message>
     <message>
         <source>(logpoint — also pauses)</source>
-        <translation>(punt de registre — també posa en pausa)</translation>
+        <translation type="vanished">(punt de registre — també posa en pausa)</translation>
     </message>
     <message>
         <source>(logpoint — does not pause)</source>
-        <translation>(punt de registre — no posa en pausa)</translation>
+        <translation type="vanished">(punt de registre — no posa en pausa)</translation>
     </message>
     <message>
         <source>Condition error on last evaluation — treated as false (silent). Edit or reset the breakpoint to clear.</source>
-        <translation>Error de condició a l&apos;última avaluació — tractada com a falsa (silenciosa). Editeu o restabliu el punt d&apos;interrupció per a netejar-ho.</translation>
+        <translation type="vanished">Error de condició a l&apos;última avaluació — tractada com a falsa (silenciosa). Editeu o restabliu el punt d&apos;interrupció per a netejar-ho.</translation>
     </message>
     <message>
         <source>Condition error: %1</source>
-        <translation>Error de condició: %1</translation>
+        <translation type="vanished">Error de condició: %1</translation>
     </message>
     <message>
         <source>File not found: %1</source>
-        <translation>Fitxer no trobat: %1</translation>
+        <translation type="vanished">Fitxer no trobat: %1</translation>
     </message>
     <message>
         <source>&amp;Edit...</source>
-        <translation>&amp;Edita...</translation>
+        <translation type="vanished">&amp;Edita...</translation>
     </message>
     <message>
         <source>&amp;Disable</source>
-        <translation>&amp;Desactiva</translation>
+        <translation type="vanished">&amp;Desactiva</translation>
     </message>
     <message>
         <source>&amp;Enable</source>
-        <translation>&amp;Activa</translation>
+        <translation type="vanished">&amp;Activa</translation>
     </message>
     <message>
         <source>&amp;Remove</source>
-        <translation>&amp;Trau</translation>
+        <translation type="vanished">&amp;Trau</translation>
     </message>
     <message>
         <source>No breakpoints
 %1: add or remove breakpoint on the current line in the editor</source>
-        <translation>No hi ha punts d&apos;interrupció.
+        <translation type="vanished">No hi ha punts d&apos;interrupció.
 %1: afegiu o traieu un punt d&apos;interrupció a la línia actual de l&apos;editor.</translation>
     </message>
     <message>
         <source>All breakpoints are inactive — click to activate all
 %1: add or remove on the current line in the editor</source>
-        <translation>Tots els punts d&apos;interrupció estan desactivats — feu clic per a activar-los tots
+        <translation type="vanished">Tots els punts d&apos;interrupció estan desactivats — feu clic per a activar-los tots
 %1: afegiu o traieu a la línia actual de l&apos;editor</translation>
     </message>
     <message>
         <source>Click to deactivate all breakpoints
 %1: add or remove on the current line in the editor</source>
-        <translation>Feu clic per a desactivar tots els punts d&apos;interrupció.
+        <translation type="vanished">Feu clic per a desactivar tots els punts d&apos;interrupció.
 %1: afegiu o traieu a la línia actual de l&apos;editor</translation>
     </message>
 </context>
@@ -8247,38 +8208,34 @@ on an existing breakpoint, toggle its active state</source>
     <name>LuaDebuggerEvalController</name>
     <message>
         <source>Evaluation available when debugger is paused</source>
-        <translation>L&apos;avaluació és disponible quan el depurador està en pausa.</translation>
-    </message>
-    <message>
-        <source>Enter Lua expression</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">L&apos;avaluació és disponible quan el depurador està en pausa.</translation>
     </message>
     <message>
         <source>Error: %1</source>
-        <translation>Error: %1</translation>
+        <translation type="vanished">Error: %1</translation>
     </message>
     <message>
         <source>Error: Unknown error</source>
-        <translation>Error: Error desconegut</translation>
+        <translation type="vanished">Error: Error desconegut</translation>
     </message>
 </context>
 <context>
     <name>LuaDebuggerFilesController</name>
     <message>
         <source>Open Source</source>
-        <translation>Obre l&apos;origen</translation>
+        <translation type="vanished">Obre l&apos;origen</translation>
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation>Mostra al cercador</translation>
+        <translation type="vanished">Mostra al cercador</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation>Mostra a la carpeta</translation>
+        <translation type="vanished">Mostra a la carpeta</translation>
     </message>
     <message>
         <source>Copy Path</source>
-        <translation>Copia el camí</translation>
+        <translation type="vanished">Copia el camí</translation>
     </message>
 </context>
 <context>
@@ -8331,13 +8288,13 @@ on an existing breakpoint, toggle its active state</source>
     <name>LuaDebuggerLuaReloadCoordinator</name>
     <message>
         <source>Reload Lua Plugins</source>
-        <translation>Torna a carregar els complements Lua</translation>
+        <translation type="vanished">Torna a carregar els complements Lua</translation>
     </message>
     <message>
         <source>Are you sure you want to reload all Lua plugins?
 
 This will restart all Lua scripts and may affect capture analysis.</source>
-        <translation>Esteu segur que voleu tornar a carregar tots els complements Lua?
+        <translation type="vanished">Esteu segur que voleu tornar a carregar tots els complements Lua?
 
 Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captura.</translation>
     </message>
@@ -8357,53 +8314,53 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     <name>LuaDebuggerStackController</name>
     <message>
         <source>Open Source</source>
-        <translation>Obre l&apos;origen</translation>
+        <translation type="vanished">Obre l&apos;origen</translation>
     </message>
     <message>
         <source>Copy Location</source>
-        <translation>Copia la ubicació</translation>
+        <translation type="vanished">Copia la ubicació</translation>
     </message>
 </context>
 <context>
     <name>LuaDebuggerVariablesController</name>
     <message>
         <source>Type: %1</source>
-        <translation>Tipus: %1</translation>
+        <translation type="vanished">Tipus: %1</translation>
     </message>
     <message>
         <source>%1 = %2</source>
-        <translation>%1 = %2</translation>
+        <translation type="vanished">%1 = %2</translation>
     </message>
     <message>
         <source>Copy Name</source>
-        <translation>Copia el nom</translation>
+        <translation type="vanished">Copia el nom</translation>
     </message>
     <message>
         <source>Copy Value</source>
-        <translation>Copia el valor</translation>
+        <translation type="vanished">Copia el valor</translation>
     </message>
     <message>
         <source>Copy Path</source>
-        <translation>Copia el camí</translation>
+        <translation type="vanished">Copia el camí</translation>
     </message>
     <message>
         <source>Copy Name &amp;&amp; Value</source>
-        <translation>Copia el nom &amp;i el valor</translation>
+        <translation type="vanished">Copia el nom &amp;i el valor</translation>
     </message>
     <message>
         <source>Add Watch: &quot;%1&quot;</source>
-        <translation>Afegeix vigilància a: «%1»</translation>
+        <translation type="vanished">Afegeix vigilància a: «%1»</translation>
     </message>
 </context>
 <context>
     <name>LuaDebuggerWatchController</name>
     <message>
         <source>Clear All Watches</source>
-        <translation>Esborra totes les vigilàncies</translation>
+        <translation type="vanished">Esborra totes les vigilàncies</translation>
     </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln watch(es)?</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>Esteu segur que voleu traure el punt de vigilància?</numerusform>
             <numerusform>Esteu segur que voleu traure els %Ln punts de vigilància?</numerusform>
         </translation>
@@ -8421,11 +8378,11 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     </message>
     <message>
         <source>Maximum watch depth reached</source>
-        <translation>S&apos;ha assolit la profunditat de vigilància màxima.</translation>
+        <translation type="vanished">S&apos;ha assolit la profunditat de vigilància màxima.</translation>
     </message>
     <message>
         <source>Maximum watch depth reached.</source>
-        <translation>Profunditat de vigilància màxima assolida</translation>
+        <translation type="vanished">Profunditat de vigilància màxima assolida</translation>
     </message>
 </context>
 <context>
@@ -11458,6 +11415,238 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     <message>
         <source>Personal</source>
         <translation>Personal</translation>
+    </message>
+    <message>
+        <source>Type: %1</source>
+        <translation type="unfinished">Tipus: %1</translation>
+    </message>
+    <message>
+        <source>%1 = %2</source>
+        <translation type="unfinished">%1 = %2</translation>
+    </message>
+    <message>
+        <source>Copy Name</source>
+        <translation type="unfinished">Copia el nom</translation>
+    </message>
+    <message>
+        <source>Copy Value</source>
+        <translation type="unfinished">Copia el valor</translation>
+    </message>
+    <message>
+        <source>Copy Path</source>
+        <translation type="unfinished">Copia el camí</translation>
+    </message>
+    <message>
+        <source>Copy Name &amp;&amp; Value</source>
+        <translation type="unfinished">Copia el nom &amp;i el valor</translation>
+    </message>
+    <message>
+        <source>Add Watch: &quot;%1&quot;</source>
+        <translation type="unfinished">Afegeix vigilància a: «%1»</translation>
+    </message>
+    <message>
+        <source>Reload Lua Plugins</source>
+        <translation type="unfinished">Torna a carregar els complements Lua</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to reload all Lua plugins?
+
+This will restart all Lua scripts and may affect capture analysis.</source>
+        <translation type="unfinished">Esteu segur que voleu tornar a carregar tots els complements Lua?
+
+Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captura.</translation>
+    </message>
+    <message>
+        <source>Evaluation available when debugger is paused</source>
+        <translation type="unfinished">L&apos;avaluació és disponible quan el depurador està en pausa.</translation>
+    </message>
+    <message>
+        <source>Enter Lua expression</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error: %1</source>
+        <translation type="unfinished">Error: %1</translation>
+    </message>
+    <message>
+        <source>Error: Unknown error</source>
+        <translation type="unfinished">Error: Error desconegut</translation>
+    </message>
+    <message>
+        <source>Open Source</source>
+        <translation type="unfinished">Obre l&apos;origen</translation>
+    </message>
+    <message>
+        <source>Copy Location</source>
+        <translation type="unfinished">Copia la ubicació</translation>
+    </message>
+    <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished">Mostra al cercador</translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished">Mostra a la carpeta</translation>
+    </message>
+    <message>
+        <source>Add Watch</source>
+        <translation type="unfinished">Afegeix vigilància</translation>
+    </message>
+    <message>
+        <source>Remove All Watches</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate Watch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit Watch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="unfinished">Trau</translation>
+    </message>
+    <message>
+        <source>Clear All Watches</source>
+        <translation type="unfinished">Esborra totes les vigilàncies</translation>
+    </message>
+    <message numerus="yes">
+        <source>Are you sure you want to remove %Ln watch(es)?</source>
+        <translation type="unfinished">
+            <numerusform>Esteu segur que voleu traure el punt de vigilància?</numerusform>
+            <numerusform>Esteu segur que voleu traure els %Ln punts de vigilància?</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Maximum watch depth reached</source>
+        <translation type="unfinished">S&apos;ha assolit la profunditat de vigilància màxima.</translation>
+    </message>
+    <message>
+        <source>Maximum watch depth reached.</source>
+        <translation type="unfinished">Profunditat de vigilància màxima assolida</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation type="unfinished">Ubicació</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;&lt;b&gt;Hit-count summary&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;code&gt;≥N&lt;/code&gt; &amp;mdash; &lt;i&gt;from&lt;/i&gt; mode: pause from hit &lt;i&gt;N&lt;/i&gt; onwards.&lt;br/&gt;&lt;code&gt;×N&lt;/code&gt; &amp;mdash; &lt;i&gt;every&lt;/i&gt; mode: pause on hits &lt;i&gt;N&lt;/i&gt;, &lt;i&gt;2N&lt;/i&gt;, &lt;i&gt;3N&lt;/i&gt;, &amp;hellip;&lt;br/&gt;&lt;code&gt;@N&lt;/code&gt; &amp;mdash; &lt;i&gt;once&lt;/i&gt; mode: pause once on the &lt;i&gt;N&lt;/i&gt;th hit, then deactivate.&lt;/p&gt;&lt;p&gt;The cell starts with the running hit counter; if a gate is set it follows in parentheses, e.g. &lt;code&gt;3 (≥10)&lt;/code&gt;. With no hit gate the cell is just the counter.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell to set or change the gate (see the breakpoint-extras section).&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit...</source>
+        <translation type="unfinished">Edita...</translation>
+    </message>
+    <message>
+        <source>Reset Hit Count</source>
+        <translation type="unfinished">Restableix el recompte d&apos;execucions</translation>
+    </message>
+    <message>
+        <source>Reset All Hit Counts</source>
+        <translation type="unfinished">Restableix tots els recomptes d&apos;execucions</translation>
+    </message>
+    <message>
+        <source>Remove All Breakpoints</source>
+        <translation type="unfinished">Trau tots els punts d&apos;interrupció</translation>
+    </message>
+    <message>
+        <source>Clear All Breakpoints</source>
+        <translation type="unfinished">Esborra tots els punts d&apos;interrupció</translation>
+    </message>
+    <message numerus="yes">
+        <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
+        <translation type="unfinished">
+            <numerusform>Esteu segur que voleu traure el punt d&apos;interrupció?</numerusform>
+            <numerusform>Esteu segur que voleu traure els %Ln punts d&apos;interrupció?</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Location: %1:%2</source>
+        <translation type="unfinished">Ubicació: %1:%2</translation>
+    </message>
+    <message>
+        <source>Condition: %1</source>
+        <translation type="unfinished">Condició: %1</translation>
+    </message>
+    <message>
+        <source>pauses on hits %1, 2×%1, 3×%1, …</source>
+        <translation type="unfinished">posa en pausa en execucions %1, 2×%1, 3×%1, …</translation>
+    </message>
+    <message>
+        <source>pauses once on hit %1, then deactivates the breakpoint</source>
+        <translation type="unfinished">posa en pausa una vegada que s&apos;executi %1, després desactiva el punt d&apos;interrupció</translation>
+    </message>
+    <message>
+        <source>pauses on every hit from %1 onwards</source>
+        <translation type="unfinished">posa en pausa en cada execució des de %1 endavant</translation>
+    </message>
+    <message>
+        <source>Hit Count: %1 / %2 (%3)</source>
+        <translation type="unfinished">Recompte d&apos;execucions: %1 / %2 (%3)</translation>
+    </message>
+    <message>
+        <source>Hits: %1</source>
+        <translation type="unfinished">Execucions: %1</translation>
+    </message>
+    <message>
+        <source>Log: %1</source>
+        <translation type="unfinished">Registre: %1</translation>
+    </message>
+    <message>
+        <source>(logpoint — also pauses)</source>
+        <translation type="unfinished">(punt de registre — també posa en pausa)</translation>
+    </message>
+    <message>
+        <source>(logpoint — does not pause)</source>
+        <translation type="unfinished">(punt de registre — no posa en pausa)</translation>
+    </message>
+    <message>
+        <source>Condition error on last evaluation — treated as false (silent). Edit or reset the breakpoint to clear.</source>
+        <translation type="unfinished">Error de condició a l&apos;última avaluació — tractada com a falsa (silenciosa). Editeu o restabliu el punt d&apos;interrupció per a netejar-ho.</translation>
+    </message>
+    <message>
+        <source>Condition error: %1</source>
+        <translation type="unfinished">Error de condició: %1</translation>
+    </message>
+    <message>
+        <source>File not found: %1</source>
+        <translation type="unfinished">Fitxer no trobat: %1</translation>
+    </message>
+    <message>
+        <source>&amp;Edit...</source>
+        <translation type="unfinished">&amp;Edita...</translation>
+    </message>
+    <message>
+        <source>&amp;Disable</source>
+        <translation type="unfinished">&amp;Desactiva</translation>
+    </message>
+    <message>
+        <source>&amp;Enable</source>
+        <translation type="unfinished">&amp;Activa</translation>
+    </message>
+    <message>
+        <source>&amp;Remove</source>
+        <translation type="unfinished">&amp;Trau</translation>
+    </message>
+    <message>
+        <source>No breakpoints
+%1: add or remove breakpoint on the current line in the editor</source>
+        <translation type="unfinished">No hi ha punts d&apos;interrupció.
+%1: afegiu o traieu un punt d&apos;interrupció a la línia actual de l&apos;editor.</translation>
+    </message>
+    <message>
+        <source>All breakpoints are inactive — click to activate all
+%1: add or remove on the current line in the editor</source>
+        <translation type="unfinished">Tots els punts d&apos;interrupció estan desactivats — feu clic per a activar-los tots
+%1: afegiu o traieu a la línia actual de l&apos;editor</translation>
+    </message>
+    <message>
+        <source>Click to deactivate all breakpoints
+%1: add or remove on the current line in the editor</source>
+        <translation type="unfinished">Feu clic per a desactivar tots els punts d&apos;interrupció.
+%1: afegiu o traieu a la línia actual de l&apos;editor</translation>
     </message>
 </context>
 <context>
@@ -15105,7 +15294,7 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Info</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Info</translation>
     </message>
     <message>
         <source>Stream:</source>
@@ -15148,7 +15337,7 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Theme</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tema</translation>
     </message>
     <message>
         <source>Geometry:</source>
@@ -15318,36 +15507,60 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished">Temps</translation>
     </message>
     <message>
-        <source>Source</source>
+        <source>Delta</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Source</source>
+        <translation>Origen</translation>
+    </message>
+    <message>
         <source>Destination</source>
+        <translation>Destí</translation>
+    </message>
+    <message>
+        <source>Protocol</source>
+        <translation type="unfinished">Protocol</translation>
+    </message>
+    <message>
+        <source>Length</source>
+        <translation type="unfinished">Longitud</translation>
+    </message>
+    <message>
+        <source>Show Coloring Rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Image As…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Theme Preview</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PNG Image (*.png)</source>
+        <translation type="unfinished">Imatge PNG (*.png)</translation>
+    </message>
+    <message>
+        <source>Could not write the image to &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Proto</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Proto</translation>
     </message>
     <message>
         <source>Len</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Llarg</translation>
     </message>
     <message>
         <source>Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Info</translation>
     </message>
     <message>
         <source>Selection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Marked (theme)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ignored (theme)</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Selecció</translation>
     </message>
     <message>
         <source>Ready</source>

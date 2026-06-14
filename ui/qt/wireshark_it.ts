@@ -1316,86 +1316,39 @@ Off = solo logpoint (corrisponde alla convenzione storica secondo cui &quot;i lo
     </message>
 </context>
 <context>
-    <name>CaptureFilterCombo</name>
-    <message>
-        <source>Capture filter selector</source>
-        <translation type="vanished">Selettore del file di cattura</translation>
-    </message>
-</context>
-<context>
-    <name>CaptureFilterEdit</name>
-    <message>
-        <source>Capture filter entry</source>
-        <translation type="vanished">Voce del filtro di cattura</translation>
-    </message>
-    <message>
-        <source>Manage saved bookmarks.</source>
-        <translation type="vanished">Gestisci i segnalibri salvati.</translation>
-    </message>
-    <message>
-        <source>Apply this filter string to the display.</source>
-        <translation type="vanished">Applica questa stringa di filtro alla visualizzazione.</translation>
-    </message>
-    <message>
-        <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
-        <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
-        <translation type="vanished">Più filtri selezionati. Sovrascrivili qui o lascia vuoto per preservarli.</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
-        <translation type="vanished">&lt;p&gt;Le interfacce che hai selezionato hanno diversi filtri di cattura. Se digiti un filtro qui, avrà la precedenza su tali filtri. Se lasci vuoto, i filtri saranno preservati.&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Enter a capture filter %1</source>
-        <translation type="vanished">Inserisci un filtro di cattura %1</translation>
-    </message>
-    <message>
-        <source>Save this filter</source>
-        <translation type="vanished">Salva questo filtro</translation>
-    </message>
-    <message>
-        <source>Remove this filter</source>
-        <translation type="vanished">Rimuovi questo filtro</translation>
-    </message>
-    <message>
-        <source>Manage Capture Filters</source>
-        <translation type="vanished">Gestisci filtri di cattura</translation>
-    </message>
-</context>
-<context>
     <name>CaptureFilterEntry</name>
     <message>
         <source>Capture filter entry</source>
-        <translation type="unfinished">Voce del filtro di cattura</translation>
+        <translation>Voce filtro di cattura</translation>
     </message>
     <message>
         <source>Saved Capture Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtri di cattura salvati</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation type="unfinished">Salva questo filtro</translation>
+        <translation>Salva questo filtro</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation type="unfinished">Rimuovi questo filtro</translation>
+        <translation>Rimuovi questo filtro</translation>
     </message>
     <message>
         <source>Manage Capture Filters</source>
-        <translation type="unfinished">Gestisci filtri di cattura</translation>
+        <translation>Gestisci filtri di cattura</translation>
     </message>
     <message>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
         <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
-        <translation type="unfinished">Più filtri selezionati. Sovrascrivili qui o lascia vuoto per preservarli.</translation>
+        <translation>Più filtri selezionati. Sovrascrivili qui o lascia vuoto per preservarli.</translation>
     </message>
     <message>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;Le interfacce che hai selezionato hanno diversi filtri di cattura. Se digiti un filtro qui, avrà la precedenza su tali filtri. Se lasci vuoto, i filtri saranno preservati.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Le interfacce che hai selezionato hanno diversi filtri di cattura. Se digiti un filtro qui, avrà la precedenza su tali filtri. Se lasci vuoto, i filtri saranno preservati.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Enter a capture filter %1</source>
-        <translation type="unfinished">Inserisci un filtro di cattura %1</translation>
+        <translation>Inserisci un filtro di cattura %1</translation>
     </message>
 </context>
 <context>
@@ -1413,19 +1366,19 @@ Off = solo logpoint (corrisponde alla convenzione storica secondo cui &quot;i lo
     <name>CaptureFilterValidator</name>
     <message>
         <source>No interfaces selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuna interfaccia selezionata</translation>
     </message>
     <message>
         <source>Unable to check capture filter</source>
-        <translation type="unfinished">Impossibile controllare il filtro di cattura</translation>
+        <translation>Impossibile controllare il filtro di cattura</translation>
     </message>
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
-        <translation type="unfinished">Impossibile controllare il filtro di cattura (le estensioni BPF richiedono un handle live)</translation>
+        <translation>Impossibile controllare il filtro di cattura (le estensioni BPF richiedono un handle live)</translation>
     </message>
     <message>
         <source>Syntax checking unavailable</source>
-        <translation type="unfinished"></translation>
+        <translation>Controllo della sintassi non disponibile</translation>
     </message>
 </context>
 <context>
@@ -2888,17 +2841,6 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
 </context>
 <context>
-    <name>DisplayFilterCombo</name>
-    <message>
-        <source>Display filter selector</source>
-        <translation type="vanished">Visualizza il selettore del filtro</translation>
-    </message>
-    <message>
-        <source>Select from previously used filters.</source>
-        <translation type="vanished">Selezione tra i filtri precedentemente utilizzati.</translation>
-    </message>
-</context>
-<context>
     <name>DisplayFilterEdit</name>
     <message>
         <source>Display filter entry</source>
@@ -2970,39 +2912,39 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     <name>DisplayFilterEntry</name>
     <message>
         <source>Display filter entry</source>
-        <translation type="unfinished">Voce del filtro di visualizzazione</translation>
+        <translation>Voce del filtro di visualizzazione</translation>
     </message>
     <message>
         <source>Saved Display Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtri di visualizzazione salvati</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation type="unfinished">Salva questo filtro</translation>
+        <translation>Salva questo filtro</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation type="unfinished">Rimuovi questo filtro</translation>
+        <translation>Rimuovi questo filtro</translation>
     </message>
     <message>
         <source>Manage Display Filters</source>
-        <translation type="unfinished">Gestisci filtri di visualizzazione</translation>
+        <translation>Gestisci filtri di visualizzazione</translation>
     </message>
     <message>
         <source>Filter Button Preferences…</source>
-        <translation type="unfinished">Preferenze pulsante di filtro...</translation>
+        <translation>Preferenze pulsante di filtro...</translation>
     </message>
     <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
-        <translation type="unfinished">Applica un filtro di visualizzazione %1 &lt;%2/&gt;</translation>
+        <translation>Applica un filtro di visualizzazione %1 &lt;%2/&gt;</translation>
     </message>
     <message>
         <source>Display Filter Expression…</source>
-        <translation type="unfinished"></translation>
+        <translation>Espressione filtro di visualizzazione...</translation>
     </message>
     <message>
         <source>Left align buttons</source>
-        <translation type="unfinished">Allinea i pulsanti a sinistra</translation>
+        <translation>Allinea i pulsanti a sinistra</translation>
     </message>
 </context>
 <context>
@@ -3104,7 +3046,7 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     <name>DisplayFilterValidator</name>
     <message>
         <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>
-        <translation type="unfinished">&quot;%1&quot; è sconsigliato in favore di &quot;%2&quot;. Vedi la sezione 6.4.8 della guida per i dettagli.</translation>
+        <translation>&quot;%1&quot; è sconsigliato in favore di &quot;%2&quot;. Vedi la sezione 6.4.8 della guida per i dettagli.</translation>
     </message>
 </context>
 <context>
@@ -3927,39 +3869,39 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     <name>FilterExpressionEdit</name>
     <message>
         <source>Saved Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtri salvati</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation type="unfinished">Salva questo filtro</translation>
+        <translation>Salva questo filtro</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation type="unfinished">Rimuovi questo filtro</translation>
+        <translation>Rimuovi questo filtro</translation>
     </message>
     <message>
         <source>Manage Saved Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Gestisci filtri salvati</translation>
     </message>
     <message>
         <source>Filter Button Preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferenze pulsante di filtro...</translation>
     </message>
     <message>
         <source>Manage saved filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Gestisci filtri salvati</translation>
     </message>
     <message>
         <source>Clear the filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancella il filtro</translation>
     </message>
     <message>
         <source>Apply this filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Applica questo filtro</translation>
     </message>
     <message>
         <source>Recent filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtri recenti</translation>
     </message>
 </context>
 <context>
@@ -4052,7 +3994,7 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     <name>FilterValidator</name>
     <message>
         <source>Invalid filter: %1</source>
-        <translation type="unfinished">Filtro non valido: %1</translation>
+        <translation>Filtro non valido: %1</translation>
     </message>
 </context>
 <context>
@@ -4492,6 +4434,14 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     <message>
         <source>Theme</source>
         <translation>Tema</translation>
+    </message>
+    <message>
+        <source>Theme Author Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Theme Description</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Example GIF query packets have jumbo window sizes</source>
@@ -6085,11 +6035,11 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Sconosciuto</translation>
+        <translation>Sconosciuto</translation>
     </message>
     <message>
         <source>Hide all &apos;%1&apos; interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Nascondi tutte le interfacce &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
@@ -6097,6 +6047,21 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     <message>
         <source>No interfaces to be displayed. %1 interfaces hidden.</source>
         <translation>Nessuna interfaccia da visualizzare. %1 interfacce nascoste.</translation>
+    </message>
+</context>
+<context>
+    <name>InterfaceStatsWorker</name>
+    <message>
+        <source>The interface statistics stream stopped unexpectedly.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to start the interface statistics stream.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This build has no packet capture support.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7673,131 +7638,131 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     <name>LuaDebuggerBreakpointsController</name>
     <message>
         <source>Location</source>
-        <translation>Posizione</translation>
+        <translation type="vanished">Posizione</translation>
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Hit-count summary&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;code&gt;≥N&lt;/code&gt; &amp;mdash; &lt;i&gt;from&lt;/i&gt; mode: pause from hit &lt;i&gt;N&lt;/i&gt; onwards.&lt;br/&gt;&lt;code&gt;×N&lt;/code&gt; &amp;mdash; &lt;i&gt;every&lt;/i&gt; mode: pause on hits &lt;i&gt;N&lt;/i&gt;, &lt;i&gt;2N&lt;/i&gt;, &lt;i&gt;3N&lt;/i&gt;, &amp;hellip;&lt;br/&gt;&lt;code&gt;@N&lt;/code&gt; &amp;mdash; &lt;i&gt;once&lt;/i&gt; mode: pause once on the &lt;i&gt;N&lt;/i&gt;th hit, then deactivate.&lt;/p&gt;&lt;p&gt;The cell starts with the running hit counter; if a gate is set it follows in parentheses, e.g. &lt;code&gt;3 (≥10)&lt;/code&gt;. With no hit gate the cell is just the counter.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell to set or change the gate (see the breakpoint-extras section).&lt;/p&gt;</source>
-        <translation>&lt;p&gt;&lt;b&gt;Riepilogo conteggio hit&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;code&gt;≥N &lt;/code&gt;&amp;mdash; modalità &lt;i&gt;da&lt;/i&gt;: pausa dall&apos;hit &lt;i&gt;N&lt;/i&gt; in poi.&lt;br/&gt;&lt;code&gt;×N&lt;/code&gt; &amp;mdash; modalità &lt;i&gt;ogni&lt;/i&gt;: pausa agli hit &lt;i&gt;N&lt;/i&gt;, &lt;i&gt;2N&lt;/i&gt;, &lt;i&gt;3N&lt;/i&gt;, &amp;hellip;&lt;br/&gt;&lt;code&gt;@N&lt;/code&gt; &amp;mdash; modalità &lt;i&gt;una volta&lt;/i&gt;: pausa una volta all&apos;&lt;i&gt;N&lt;/i&gt;-esimo hit, quindi disattiva.&lt;/p&gt;&lt;p&gt;La cella inizia con il contatore di hit corrente; se è impostato un gate, questo segue tra parentesi, ad esempio &lt;code&gt;3 (≥10)&lt;/code&gt;. Senza alcun gate di hit, la cella contiene solo il contatore.&lt;/p&gt;&lt;p&gt;Modifica la cella &lt;i&gt;Posizione&lt;/i&gt; per impostare o cambiare il gate (vedi la sezione breakpoint-extras).&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;&lt;b&gt;Riepilogo conteggio hit&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;code&gt;≥N &lt;/code&gt;&amp;mdash; modalità &lt;i&gt;da&lt;/i&gt;: pausa dall&apos;hit &lt;i&gt;N&lt;/i&gt; in poi.&lt;br/&gt;&lt;code&gt;×N&lt;/code&gt; &amp;mdash; modalità &lt;i&gt;ogni&lt;/i&gt;: pausa agli hit &lt;i&gt;N&lt;/i&gt;, &lt;i&gt;2N&lt;/i&gt;, &lt;i&gt;3N&lt;/i&gt;, &amp;hellip;&lt;br/&gt;&lt;code&gt;@N&lt;/code&gt; &amp;mdash; modalità &lt;i&gt;una volta&lt;/i&gt;: pausa una volta all&apos;&lt;i&gt;N&lt;/i&gt;-esimo hit, quindi disattiva.&lt;/p&gt;&lt;p&gt;La cella inizia con il contatore di hit corrente; se è impostato un gate, questo segue tra parentesi, ad esempio &lt;code&gt;3 (≥10)&lt;/code&gt;. Senza alcun gate di hit, la cella contiene solo il contatore.&lt;/p&gt;&lt;p&gt;Modifica la cella &lt;i&gt;Posizione&lt;/i&gt; per impostare o cambiare il gate (vedi la sezione breakpoint-extras).&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Edit...</source>
-        <translation>Modifica...</translation>
+        <translation type="vanished">Modifica...</translation>
     </message>
     <message>
         <source>Open Source</source>
-        <translation>Apri sorgente</translation>
+        <translation type="vanished">Apri sorgente</translation>
     </message>
     <message>
         <source>Reset Hit Count</source>
-        <translation>Ripristina il conteggio degli hit</translation>
+        <translation type="vanished">Ripristina il conteggio degli hit</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation>Rimuovi</translation>
+        <translation type="vanished">Rimuovi</translation>
     </message>
     <message>
         <source>Reset All Hit Counts</source>
-        <translation>Ripristina tutti i conteggi degli hit</translation>
+        <translation type="vanished">Ripristina tutti i conteggi degli hit</translation>
     </message>
     <message>
         <source>Remove All Breakpoints</source>
-        <translation>Rimuovi tutti i breakpoint</translation>
+        <translation type="vanished">Rimuovi tutti i breakpoint</translation>
     </message>
     <message>
         <source>Clear All Breakpoints</source>
-        <translation>Cancella tutti i breakpoint</translation>
+        <translation type="vanished">Cancella tutti i breakpoint</translation>
     </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>Sei sicuro di voler rimuovere %Ln breakpoint?</numerusform>
             <numerusform>Sei sicuro di voler rimuovere %Ln breakpoint?</numerusform>
         </translation>
     </message>
     <message>
         <source>Location: %1:%2</source>
-        <translation>Posizione: %1:%2</translation>
+        <translation type="vanished">Posizione: %1:%2</translation>
     </message>
     <message>
         <source>Condition: %1</source>
-        <translation>Condizione: %1</translation>
+        <translation type="vanished">Condizione: %1</translation>
     </message>
     <message>
         <source>pauses on hits %1, 2×%1, 3×%1, …</source>
-        <translation>sospende agli hit %1, 2×%1, 3×%1, …</translation>
+        <translation type="vanished">sospende agli hit %1, 2×%1, 3×%1, …</translation>
     </message>
     <message>
         <source>pauses once on hit %1, then deactivates the breakpoint</source>
-        <translation>sospende una volta raggiunto l&apos;hit %1, quindi disattiva il breakpoint</translation>
+        <translation type="vanished">sospende una volta raggiunto l&apos;hit %1, quindi disattiva il breakpoint</translation>
     </message>
     <message>
         <source>pauses on every hit from %1 onwards</source>
-        <translation>sospende a ogni hit da %1 in poi</translation>
+        <translation type="vanished">sospende a ogni hit da %1 in poi</translation>
     </message>
     <message>
         <source>Hit Count: %1 / %2 (%3)</source>
-        <translation>Conteggio hit: %1 / %2 (%3)</translation>
+        <translation type="vanished">Conteggio hit: %1 / %2 (%3)</translation>
     </message>
     <message>
         <source>Hits: %1</source>
-        <translation>Hit: %1</translation>
+        <translation type="vanished">Hit: %1</translation>
     </message>
     <message>
         <source>Log: %1</source>
-        <translation>Log: %1</translation>
+        <translation type="vanished">Log: %1</translation>
     </message>
     <message>
         <source>(logpoint — also pauses)</source>
-        <translation>(logpoint — sospende anche)</translation>
+        <translation type="vanished">(logpoint — sospende anche)</translation>
     </message>
     <message>
         <source>(logpoint — does not pause)</source>
-        <translation>(logpoint — non sospende)</translation>
+        <translation type="vanished">(logpoint — non sospende)</translation>
     </message>
     <message>
         <source>Condition error on last evaluation — treated as false (silent). Edit or reset the breakpoint to clear.</source>
-        <translation>Errore di condizione nell&apos;ultima valutazione: trattato come falso (silenzioso). Modifica o ripristina il breakpoint per cancellarlo.</translation>
+        <translation type="vanished">Errore di condizione nell&apos;ultima valutazione: trattato come falso (silenzioso). Modifica o ripristina il breakpoint per cancellarlo.</translation>
     </message>
     <message>
         <source>Condition error: %1</source>
-        <translation>Errore di condizione: %1</translation>
+        <translation type="vanished">Errore di condizione: %1</translation>
     </message>
     <message>
         <source>File not found: %1</source>
-        <translation>File non trovato: %1</translation>
+        <translation type="vanished">File non trovato: %1</translation>
     </message>
     <message>
         <source>&amp;Edit...</source>
-        <translation>&amp;Modifica...</translation>
+        <translation type="vanished">&amp;Modifica...</translation>
     </message>
     <message>
         <source>&amp;Disable</source>
-        <translation>&amp;Disabilita</translation>
+        <translation type="vanished">&amp;Disabilita</translation>
     </message>
     <message>
         <source>&amp;Enable</source>
-        <translation>&amp;Abilita</translation>
+        <translation type="vanished">&amp;Abilita</translation>
     </message>
     <message>
         <source>&amp;Remove</source>
-        <translation>&amp;Rimuovi</translation>
+        <translation type="vanished">&amp;Rimuovi</translation>
     </message>
     <message>
         <source>No breakpoints
 %1: add or remove breakpoint on the current line in the editor</source>
-        <translation>Nessun breakpoint
+        <translation type="vanished">Nessun breakpoint
 %1: aggiunge o rimuove un breakpoint sulla riga attuale nell&apos;editor</translation>
     </message>
     <message>
         <source>All breakpoints are inactive — click to activate all
 %1: add or remove on the current line in the editor</source>
-        <translation>Tutti i breakpoint sono inattivi: fai clic per attivarli tutti
+        <translation type="vanished">Tutti i breakpoint sono inattivi: fai clic per attivarli tutti
 %1: aggiungi o rimuovi sulla riga attuale nell&apos;editor.</translation>
     </message>
     <message>
         <source>Click to deactivate all breakpoints
 %1: add or remove on the current line in the editor</source>
-        <translation>Fai clic per disattivare tutti i breakpoint
+        <translation type="vanished">Fai clic per disattivare tutti i breakpoint
 %1: aggiungi o rimuovi sulla riga attuale nell&apos;editor</translation>
     </message>
 </context>
@@ -8252,38 +8217,38 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     <name>LuaDebuggerEvalController</name>
     <message>
         <source>Evaluation available when debugger is paused</source>
-        <translation>Valutazione disponibile quando il debugger è in pausa</translation>
+        <translation type="vanished">Valutazione disponibile quando il debugger è in pausa</translation>
     </message>
     <message>
         <source>Enter Lua expression</source>
-        <translation>Inserisci espressione Lua</translation>
+        <translation type="vanished">Inserisci espressione Lua</translation>
     </message>
     <message>
         <source>Error: %1</source>
-        <translation>Errore: %1</translation>
+        <translation type="vanished">Errore: %1</translation>
     </message>
     <message>
         <source>Error: Unknown error</source>
-        <translation>Errore: errore sconosciuto</translation>
+        <translation type="vanished">Errore: errore sconosciuto</translation>
     </message>
 </context>
 <context>
     <name>LuaDebuggerFilesController</name>
     <message>
         <source>Open Source</source>
-        <translation>Apri sorgente</translation>
+        <translation type="vanished">Apri sorgente</translation>
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation>Mostra in Finder</translation>
+        <translation type="vanished">Mostra in Finder</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation>Mostra nella cartella</translation>
+        <translation type="vanished">Mostra nella cartella</translation>
     </message>
     <message>
         <source>Copy Path</source>
-        <translation>Copia percorso</translation>
+        <translation type="vanished">Copia percorso</translation>
     </message>
 </context>
 <context>
@@ -8336,13 +8301,13 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     <name>LuaDebuggerLuaReloadCoordinator</name>
     <message>
         <source>Reload Lua Plugins</source>
-        <translation>Ricarica plugin Lua</translation>
+        <translation type="vanished">Ricarica plugin Lua</translation>
     </message>
     <message>
         <source>Are you sure you want to reload all Lua plugins?
 
 This will restart all Lua scripts and may affect capture analysis.</source>
-        <translation>Sei sicuro di voler ricaricare tutti i plugin Lua?
+        <translation type="vanished">Sei sicuro di voler ricaricare tutti i plugin Lua?
 
 Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi delle catture.</translation>
     </message>
@@ -8362,53 +8327,53 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     <name>LuaDebuggerStackController</name>
     <message>
         <source>Open Source</source>
-        <translation>Apri sorgente</translation>
+        <translation type="vanished">Apri sorgente</translation>
     </message>
     <message>
         <source>Copy Location</source>
-        <translation>Copia posizione</translation>
+        <translation type="vanished">Copia posizione</translation>
     </message>
 </context>
 <context>
     <name>LuaDebuggerVariablesController</name>
     <message>
         <source>Type: %1</source>
-        <translation>Tipo: %1</translation>
+        <translation type="vanished">Tipo: %1</translation>
     </message>
     <message>
         <source>%1 = %2</source>
-        <translation>%1 = %2</translation>
+        <translation type="vanished">%1 = %2</translation>
     </message>
     <message>
         <source>Copy Name</source>
-        <translation>Copia nome</translation>
+        <translation type="vanished">Copia nome</translation>
     </message>
     <message>
         <source>Copy Value</source>
-        <translation>Copia valore</translation>
+        <translation type="vanished">Copia valore</translation>
     </message>
     <message>
         <source>Copy Path</source>
-        <translation>Copia percorso</translation>
+        <translation type="vanished">Copia percorso</translation>
     </message>
     <message>
         <source>Copy Name &amp;&amp; Value</source>
-        <translation>Copia nome e valore</translation>
+        <translation type="vanished">Copia nome e valore</translation>
     </message>
     <message>
         <source>Add Watch: &quot;%1&quot;</source>
-        <translation>Aggiungi monitoraggio: &quot;%1&quot;</translation>
+        <translation type="vanished">Aggiungi monitoraggio: &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
     <name>LuaDebuggerWatchController</name>
     <message>
         <source>Clear All Watches</source>
-        <translation>Cancella tutti i monitoraggi</translation>
+        <translation type="vanished">Cancella tutti i monitoraggi</translation>
     </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln watch(es)?</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>Sei sicuro di voler rimuovere %Ln monitoraggio?</numerusform>
             <numerusform>Sei sicuro di voler rimuovere %Ln monitoraggi?</numerusform>
         </translation>
@@ -8426,11 +8391,11 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>Maximum watch depth reached</source>
-        <translation>Profondità di monitoraggio massima raggiunta</translation>
+        <translation type="vanished">Profondità di monitoraggio massima raggiunta</translation>
     </message>
     <message>
         <source>Maximum watch depth reached.</source>
-        <translation>Profondità di monitoraggio massima raggiunta.</translation>
+        <translation type="vanished">Profondità di monitoraggio massima raggiunta.</translation>
     </message>
 </context>
 <context>
@@ -11464,6 +11429,238 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     <message>
         <source>Personal</source>
         <translation>Personale</translation>
+    </message>
+    <message>
+        <source>Type: %1</source>
+        <translation type="unfinished">Tipo: %1</translation>
+    </message>
+    <message>
+        <source>%1 = %2</source>
+        <translation type="unfinished">%1 = %2</translation>
+    </message>
+    <message>
+        <source>Copy Name</source>
+        <translation type="unfinished">Copia nome</translation>
+    </message>
+    <message>
+        <source>Copy Value</source>
+        <translation type="unfinished">Copia valore</translation>
+    </message>
+    <message>
+        <source>Copy Path</source>
+        <translation type="unfinished">Copia percorso</translation>
+    </message>
+    <message>
+        <source>Copy Name &amp;&amp; Value</source>
+        <translation type="unfinished">Copia nome e valore</translation>
+    </message>
+    <message>
+        <source>Add Watch: &quot;%1&quot;</source>
+        <translation type="unfinished">Aggiungi monitoraggio: &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Reload Lua Plugins</source>
+        <translation type="unfinished">Ricarica plugin Lua</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to reload all Lua plugins?
+
+This will restart all Lua scripts and may affect capture analysis.</source>
+        <translation type="unfinished">Sei sicuro di voler ricaricare tutti i plugin Lua?
+
+Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi delle catture.</translation>
+    </message>
+    <message>
+        <source>Evaluation available when debugger is paused</source>
+        <translation type="unfinished">Valutazione disponibile quando il debugger è in pausa</translation>
+    </message>
+    <message>
+        <source>Enter Lua expression</source>
+        <translation type="unfinished">Inserisci espressione Lua</translation>
+    </message>
+    <message>
+        <source>Error: %1</source>
+        <translation type="unfinished">Errore: %1</translation>
+    </message>
+    <message>
+        <source>Error: Unknown error</source>
+        <translation type="unfinished">Errore: errore sconosciuto</translation>
+    </message>
+    <message>
+        <source>Open Source</source>
+        <translation type="unfinished">Apri sorgente</translation>
+    </message>
+    <message>
+        <source>Copy Location</source>
+        <translation type="unfinished">Copia posizione</translation>
+    </message>
+    <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished">Mostra in Finder</translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Watch</source>
+        <translation type="unfinished">Aggiungi monitoraggio</translation>
+    </message>
+    <message>
+        <source>Remove All Watches</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate Watch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit Watch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="unfinished">Rimuovi</translation>
+    </message>
+    <message>
+        <source>Clear All Watches</source>
+        <translation type="unfinished">Cancella tutti i monitoraggi</translation>
+    </message>
+    <message numerus="yes">
+        <source>Are you sure you want to remove %Ln watch(es)?</source>
+        <translation type="unfinished">
+            <numerusform>Sei sicuro di voler rimuovere %Ln monitoraggio?</numerusform>
+            <numerusform>Sei sicuro di voler rimuovere %Ln monitoraggi?</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Maximum watch depth reached</source>
+        <translation type="unfinished">Profondità di monitoraggio massima raggiunta</translation>
+    </message>
+    <message>
+        <source>Maximum watch depth reached.</source>
+        <translation type="unfinished">Profondità di monitoraggio massima raggiunta.</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation type="unfinished">Posizione</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;&lt;b&gt;Hit-count summary&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;code&gt;≥N&lt;/code&gt; &amp;mdash; &lt;i&gt;from&lt;/i&gt; mode: pause from hit &lt;i&gt;N&lt;/i&gt; onwards.&lt;br/&gt;&lt;code&gt;×N&lt;/code&gt; &amp;mdash; &lt;i&gt;every&lt;/i&gt; mode: pause on hits &lt;i&gt;N&lt;/i&gt;, &lt;i&gt;2N&lt;/i&gt;, &lt;i&gt;3N&lt;/i&gt;, &amp;hellip;&lt;br/&gt;&lt;code&gt;@N&lt;/code&gt; &amp;mdash; &lt;i&gt;once&lt;/i&gt; mode: pause once on the &lt;i&gt;N&lt;/i&gt;th hit, then deactivate.&lt;/p&gt;&lt;p&gt;The cell starts with the running hit counter; if a gate is set it follows in parentheses, e.g. &lt;code&gt;3 (≥10)&lt;/code&gt;. With no hit gate the cell is just the counter.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell to set or change the gate (see the breakpoint-extras section).&lt;/p&gt;</source>
+        <translation type="unfinished">&lt;p&gt;&lt;b&gt;Riepilogo conteggio hit&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;code&gt;≥N &lt;/code&gt;&amp;mdash; modalità &lt;i&gt;da&lt;/i&gt;: pausa dall&apos;hit &lt;i&gt;N&lt;/i&gt; in poi.&lt;br/&gt;&lt;code&gt;×N&lt;/code&gt; &amp;mdash; modalità &lt;i&gt;ogni&lt;/i&gt;: pausa agli hit &lt;i&gt;N&lt;/i&gt;, &lt;i&gt;2N&lt;/i&gt;, &lt;i&gt;3N&lt;/i&gt;, &amp;hellip;&lt;br/&gt;&lt;code&gt;@N&lt;/code&gt; &amp;mdash; modalità &lt;i&gt;una volta&lt;/i&gt;: pausa una volta all&apos;&lt;i&gt;N&lt;/i&gt;-esimo hit, quindi disattiva.&lt;/p&gt;&lt;p&gt;La cella inizia con il contatore di hit corrente; se è impostato un gate, questo segue tra parentesi, ad esempio &lt;code&gt;3 (≥10)&lt;/code&gt;. Senza alcun gate di hit, la cella contiene solo il contatore.&lt;/p&gt;&lt;p&gt;Modifica la cella &lt;i&gt;Posizione&lt;/i&gt; per impostare o cambiare il gate (vedi la sezione breakpoint-extras).&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Edit...</source>
+        <translation type="unfinished">Modifica...</translation>
+    </message>
+    <message>
+        <source>Reset Hit Count</source>
+        <translation type="unfinished">Ripristina il conteggio degli hit</translation>
+    </message>
+    <message>
+        <source>Reset All Hit Counts</source>
+        <translation type="unfinished">Ripristina tutti i conteggi degli hit</translation>
+    </message>
+    <message>
+        <source>Remove All Breakpoints</source>
+        <translation type="unfinished">Rimuovi tutti i breakpoint</translation>
+    </message>
+    <message>
+        <source>Clear All Breakpoints</source>
+        <translation type="unfinished">Cancella tutti i breakpoint</translation>
+    </message>
+    <message numerus="yes">
+        <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
+        <translation type="unfinished">
+            <numerusform>Sei sicuro di voler rimuovere %Ln breakpoint?</numerusform>
+            <numerusform>Sei sicuro di voler rimuovere %Ln breakpoint?</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Location: %1:%2</source>
+        <translation type="unfinished">Posizione: %1:%2</translation>
+    </message>
+    <message>
+        <source>Condition: %1</source>
+        <translation type="unfinished">Condizione: %1</translation>
+    </message>
+    <message>
+        <source>pauses on hits %1, 2×%1, 3×%1, …</source>
+        <translation type="unfinished">sospende agli hit %1, 2×%1, 3×%1, …</translation>
+    </message>
+    <message>
+        <source>pauses once on hit %1, then deactivates the breakpoint</source>
+        <translation type="unfinished">sospende una volta raggiunto l&apos;hit %1, quindi disattiva il breakpoint</translation>
+    </message>
+    <message>
+        <source>pauses on every hit from %1 onwards</source>
+        <translation type="unfinished">sospende a ogni hit da %1 in poi</translation>
+    </message>
+    <message>
+        <source>Hit Count: %1 / %2 (%3)</source>
+        <translation type="unfinished">Conteggio hit: %1 / %2 (%3)</translation>
+    </message>
+    <message>
+        <source>Hits: %1</source>
+        <translation type="unfinished">Hit: %1</translation>
+    </message>
+    <message>
+        <source>Log: %1</source>
+        <translation type="unfinished">Log: %1</translation>
+    </message>
+    <message>
+        <source>(logpoint — also pauses)</source>
+        <translation type="unfinished">(logpoint — sospende anche)</translation>
+    </message>
+    <message>
+        <source>(logpoint — does not pause)</source>
+        <translation type="unfinished">(logpoint — non sospende)</translation>
+    </message>
+    <message>
+        <source>Condition error on last evaluation — treated as false (silent). Edit or reset the breakpoint to clear.</source>
+        <translation type="unfinished">Errore di condizione nell&apos;ultima valutazione: trattato come falso (silenzioso). Modifica o ripristina il breakpoint per cancellarlo.</translation>
+    </message>
+    <message>
+        <source>Condition error: %1</source>
+        <translation type="unfinished">Errore di condizione: %1</translation>
+    </message>
+    <message>
+        <source>File not found: %1</source>
+        <translation type="unfinished">File non trovato: %1</translation>
+    </message>
+    <message>
+        <source>&amp;Edit...</source>
+        <translation type="unfinished">&amp;Modifica...</translation>
+    </message>
+    <message>
+        <source>&amp;Disable</source>
+        <translation type="unfinished">&amp;Disabilita</translation>
+    </message>
+    <message>
+        <source>&amp;Enable</source>
+        <translation type="unfinished">&amp;Abilita</translation>
+    </message>
+    <message>
+        <source>&amp;Remove</source>
+        <translation type="unfinished">&amp;Rimuovi</translation>
+    </message>
+    <message>
+        <source>No breakpoints
+%1: add or remove breakpoint on the current line in the editor</source>
+        <translation type="unfinished">Nessun breakpoint
+%1: aggiunge o rimuove un breakpoint sulla riga attuale nell&apos;editor</translation>
+    </message>
+    <message>
+        <source>All breakpoints are inactive — click to activate all
+%1: add or remove on the current line in the editor</source>
+        <translation type="unfinished">Tutti i breakpoint sono inattivi: fai clic per attivarli tutti
+%1: aggiungi o rimuovi sulla riga attuale nell&apos;editor.</translation>
+    </message>
+    <message>
+        <source>Click to deactivate all breakpoints
+%1: add or remove on the current line in the editor</source>
+        <translation type="unfinished">Fai clic per disattivare tutti i breakpoint
+%1: aggiungi o rimuovi sulla riga attuale nell&apos;editor</translation>
     </message>
 </context>
 <context>
@@ -15081,40 +15278,41 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     <name>TcpDedupDialog</name>
     <message>
         <source>TCP Duplication Table</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabella duplicazioni TCP</translation>
     </message>
     <message>
         <source>The &quot;Detect duplication (capture-level) packets&quot; preference must be enabled in
 Preferences → Protocols → TCP to use this table.</source>
-        <translation type="unfinished"></translation>
+        <translation>La preferenza &quot;Rileva i pacchetti duplicati (in cattura)&quot; deve essere abilitata in
+Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished">Tempo</translation>
+        <translation>Tempo</translation>
     </message>
     <message>
         <source>Delta</source>
-        <translation type="unfinished"></translation>
+        <translation>Delta</translation>
     </message>
     <message>
         <source>Frame Number</source>
-        <translation type="unfinished"></translation>
+        <translation>Numero frame</translation>
     </message>
     <message>
         <source>Duplication Total</source>
-        <translation type="unfinished"></translation>
+        <translation>Totale duplicazioni</translation>
     </message>
     <message>
         <source>Frame List</source>
-        <translation type="unfinished"></translation>
+        <translation>Elenco frame</translation>
     </message>
     <message>
         <source>Info</source>
-        <translation type="unfinished">Info</translation>
+        <translation>Info</translation>
     </message>
     <message>
         <source>Stream:</source>
-        <translation type="unfinished"></translation>
+        <translation>Flusso:</translation>
     </message>
 </context>
 <context>
@@ -15323,6 +15521,10 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation>Tempo</translation>
     </message>
     <message>
+        <source>Delta</source>
+        <translation type="unfinished">Delta</translation>
+    </message>
+    <message>
         <source>Source</source>
         <translation>Sorgente</translation>
     </message>
@@ -15331,12 +15533,40 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation>Destinazione</translation>
     </message>
     <message>
+        <source>Protocol</source>
+        <translation type="unfinished">Protocollo</translation>
+    </message>
+    <message>
+        <source>Length</source>
+        <translation type="unfinished">Lunghezza</translation>
+    </message>
+    <message>
+        <source>Show Coloring Rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Image As…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Theme Preview</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PNG Image (*.png)</source>
+        <translation type="unfinished">Immagine PNG (*.png)</translation>
+    </message>
+    <message>
+        <source>Could not write the image to &quot;%1&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Proto</source>
-        <translation>Proto</translation>
+        <translation type="vanished">Proto</translation>
     </message>
     <message>
         <source>Len</source>
-        <translation>Dur</translation>
+        <translation type="vanished">Dur</translation>
     </message>
     <message>
         <source>Info</source>
@@ -15344,15 +15574,15 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Selection</source>
-        <translation>Selezione</translation>
+        <translation type="vanished">Selezione</translation>
     </message>
     <message>
         <source>Marked (theme)</source>
-        <translation>Marcati (tema)</translation>
+        <translation type="vanished">Marcati (tema)</translation>
     </message>
     <message>
         <source>Ignored (theme)</source>
-        <translation>Ignorati (tema)</translation>
+        <translation type="vanished">Ignorati (tema)</translation>
     </message>
     <message>
         <source>Ready</source>
@@ -17588,11 +17818,11 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Duplication Table</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabella duplicazioni</translation>
     </message>
     <message>
         <source>TCP capture-level duplicate packet table</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabella dei pacchetti TCP duplicati in cattura</translation>
     </message>
     <message>
         <source>General</source>

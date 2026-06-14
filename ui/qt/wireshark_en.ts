@@ -4419,6 +4419,14 @@ Relative to reference: n/a (outside reference range)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Theme Author Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Theme Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Example GIF query packets have jumbo window sizes</source>
         <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
         <translation type="unfinished"></translation>
@@ -5990,6 +5998,21 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
 </context>
 <context>
+    <name>InterfaceStatsWorker</name>
+    <message>
+        <source>The interface statistics stream stopped unexpectedly.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to start the interface statistics stream.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This build has no packet capture support.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>InterfaceToolbar</name>
     <message>
         <source>Frame</source>
@@ -7536,131 +7559,12 @@ Relative to reference: n/a (outside reference range)</source>
 </context>
 <context>
     <name>LuaDebuggerBreakpointsController</name>
-    <message>
-        <source>Location</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;&lt;b&gt;Hit-count summary&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;code&gt;≥N&lt;/code&gt; &amp;mdash; &lt;i&gt;from&lt;/i&gt; mode: pause from hit &lt;i&gt;N&lt;/i&gt; onwards.&lt;br/&gt;&lt;code&gt;×N&lt;/code&gt; &amp;mdash; &lt;i&gt;every&lt;/i&gt; mode: pause on hits &lt;i&gt;N&lt;/i&gt;, &lt;i&gt;2N&lt;/i&gt;, &lt;i&gt;3N&lt;/i&gt;, &amp;hellip;&lt;br/&gt;&lt;code&gt;@N&lt;/code&gt; &amp;mdash; &lt;i&gt;once&lt;/i&gt; mode: pause once on the &lt;i&gt;N&lt;/i&gt;th hit, then deactivate.&lt;/p&gt;&lt;p&gt;The cell starts with the running hit counter; if a gate is set it follows in parentheses, e.g. &lt;code&gt;3 (≥10)&lt;/code&gt;. With no hit gate the cell is just the counter.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell to set or change the gate (see the breakpoint-extras section).&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Source</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset Hit Count</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset All Hit Counts</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove All Breakpoints</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Clear All Breakpoints</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             <numerusform>Are you sure you want to remove %Ln breakpoint?</numerusform>
             <numerusform>Are you sure you want to remove %Ln breakpoints?</numerusform>
         </translation>
-    </message>
-    <message>
-        <source>Location: %1:%2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Condition: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>pauses on hits %1, 2×%1, 3×%1, …</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>pauses once on hit %1, then deactivates the breakpoint</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>pauses on every hit from %1 onwards</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hit Count: %1 / %2 (%3)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hits: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Log: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>(logpoint — also pauses)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>(logpoint — does not pause)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Condition error on last evaluation — treated as false (silent). Edit or reset the breakpoint to clear.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Condition error: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File not found: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Edit...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Disable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Enable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No breakpoints
-%1: add or remove breakpoint on the current line in the editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All breakpoints are inactive — click to activate all
-%1: add or remove on the current line in the editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Click to deactivate all breakpoints
-%1: add or remove on the current line in the editor</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8106,44 +8010,6 @@ on an existing breakpoint, toggle its active state</source>
     </message>
 </context>
 <context>
-    <name>LuaDebuggerEvalController</name>
-    <message>
-        <source>Evaluation available when debugger is paused</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter Lua expression</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error: Unknown error</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>LuaDebuggerFilesController</name>
-    <message>
-        <source>Open Source</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show in Folder</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy Path</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>LuaDebuggerFindFrame</name>
     <message>
         <source>Find:</source>
@@ -8190,19 +8056,6 @@ on an existing breakpoint, toggle its active state</source>
     </message>
 </context>
 <context>
-    <name>LuaDebuggerLuaReloadCoordinator</name>
-    <message>
-        <source>Reload Lua Plugins</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Are you sure you want to reload all Lua plugins?
-
-This will restart all Lua scripts and may affect capture analysis.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>LuaDebuggerPauseOverlay</name>
     <message>
         <source>Lua debugger paused</source>
@@ -8214,56 +8067,10 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
 </context>
 <context>
-    <name>LuaDebuggerStackController</name>
-    <message>
-        <source>Open Source</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy Location</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>LuaDebuggerVariablesController</name>
-    <message>
-        <source>Type: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 = %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy Value</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy Path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy Name &amp;&amp; Value</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add Watch: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>LuaDebuggerWatchController</name>
-    <message>
-        <source>Clear All Watches</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln watch(es)?</source>
-        <translation type="unfinished">
+        <translation type="obsolete">
             <numerusform>Are you sure you want to remove %Ln watch?</numerusform>
             <numerusform>Are you sure you want to remove %Ln watches?</numerusform>
         </translation>
@@ -8278,14 +8085,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
-    </message>
-    <message>
-        <source>Maximum watch depth reached</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Maximum watch depth reached.</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -11281,6 +11080,233 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Personal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 = %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy Name &amp;&amp; Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Watch: &quot;%1&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reload Lua Plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to reload all Lua plugins?
+
+This will restart all Lua scripts and may affect capture analysis.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Evaluation available when debugger is paused</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter Lua expression</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error: Unknown error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy Location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Watch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove All Watches</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate Watch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit Watch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear All Watches</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Are you sure you want to remove %Ln watch(es)?</source>
+        <translation type="unfinished">
+            <numerusform>Are you sure you want to remove %Ln watch?</numerusform>
+            <numerusform>Are you sure you want to remove %Ln watches?</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Maximum watch depth reached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maximum watch depth reached.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;&lt;b&gt;Hit-count summary&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;code&gt;≥N&lt;/code&gt; &amp;mdash; &lt;i&gt;from&lt;/i&gt; mode: pause from hit &lt;i&gt;N&lt;/i&gt; onwards.&lt;br/&gt;&lt;code&gt;×N&lt;/code&gt; &amp;mdash; &lt;i&gt;every&lt;/i&gt; mode: pause on hits &lt;i&gt;N&lt;/i&gt;, &lt;i&gt;2N&lt;/i&gt;, &lt;i&gt;3N&lt;/i&gt;, &amp;hellip;&lt;br/&gt;&lt;code&gt;@N&lt;/code&gt; &amp;mdash; &lt;i&gt;once&lt;/i&gt; mode: pause once on the &lt;i&gt;N&lt;/i&gt;th hit, then deactivate.&lt;/p&gt;&lt;p&gt;The cell starts with the running hit counter; if a gate is set it follows in parentheses, e.g. &lt;code&gt;3 (≥10)&lt;/code&gt;. With no hit gate the cell is just the counter.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell to set or change the gate (see the breakpoint-extras section).&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset Hit Count</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset All Hit Counts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove All Breakpoints</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear All Breakpoints</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
+        <translation type="unfinished">
+            <numerusform>Are you sure you want to remove %Ln breakpoint?</numerusform>
+            <numerusform>Are you sure you want to remove %Ln breakpoints?</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Location: %1:%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Condition: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>pauses on hits %1, 2×%1, 3×%1, …</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>pauses once on hit %1, then deactivates the breakpoint</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>pauses on every hit from %1 onwards</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hit Count: %1 / %2 (%3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hits: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Log: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>(logpoint — also pauses)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>(logpoint — does not pause)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Condition error on last evaluation — treated as false (silent). Edit or reset the breakpoint to clear.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Condition error: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File not found: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Edit...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Disable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Enable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Remove</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No breakpoints
+%1: add or remove breakpoint on the current line in the editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All breakpoints are inactive — click to activate all
+%1: add or remove on the current line in the editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click to deactivate all breakpoints
+%1: add or remove on the current line in the editor</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -15072,6 +15098,10 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Delta</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Source</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15080,27 +15110,35 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Proto</source>
+        <source>Protocol</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Len</source>
+        <source>Length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Coloring Rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Image As…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Theme Preview</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PNG Image (*.png)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not write the image to &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Info</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Selection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Marked (theme)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ignored (theme)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
