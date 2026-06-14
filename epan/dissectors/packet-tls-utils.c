@@ -10183,13 +10183,13 @@ ssl_dissect_hnd_hello_ext_ech(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
             }
             unsigned decrypted_len = length - aead_auth_tag_len;
 
-            uint16_t version = GUINT16_FROM_BE(*(uint16_t *)ech_config->data);
+            uint16_t version = pntohu16(ech_config->data);
             if (version != SSL_HND_HELLO_EXT_ENCRYPTED_CLIENT_HELLO) {
                 ssl_debug_printf("Unexpected version in ECH Config\n");
                 break;
             }
             uint32_t ech_config_offset = 2;
-            if (GUINT16_FROM_BE(*(uint16_t *)(ech_config->data + ech_config_offset)) != ech_config->data_len - 4) {
+            if (pntohu16(&ech_config->data[ech_config_offset]) != ech_config->data_len - 4) {
                 ssl_debug_printf("Malformed ECH Config, invalid length\n");
                 break;
             }
@@ -10199,8 +10199,7 @@ ssl_dissect_hnd_hello_ext_ech(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
                 break;
             }
             ech_config_offset += 1;
-            uint16_t kem_id_be = *(uint16_t *)(ech_config->data + ech_config_offset);
-            uint16_t kem_id = GUINT16_FROM_BE(kem_id_be);
+            uint16_t kem_id = pntohu16(&ech_config->data[ech_config_offset]);
             uint8_t suite_id[HPKE_SUIT_ID_LEN];
             hpke_suite_id(kem_id, kdf_id, aead_id, suite_id);
             GByteArray *info = g_byte_array_new();
@@ -10344,11 +10343,9 @@ ssl_dissect_hnd_hello_ext_ech(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
                             }
                         }
                     }
-                    uint16_t ech_extensions_len_be = GUINT16_TO_BE(ssl->ech_transcript.data_len - ech_extensions_len_offset - 2);
-                    *(ssl->ech_transcript.data + ech_extensions_len_offset) = ech_extensions_len_be & 0xff;
-                    *(ssl->ech_transcript.data + ech_extensions_len_offset + 1) = (ech_extensions_len_be >> 8);
-                    *(ssl->ech_transcript.data + len_offset + 2) = ((ssl->ech_transcript.data_len - len_offset - 4) >> 8);
-                    *(ssl->ech_transcript.data + len_offset + 3) = (ssl->ech_transcript.data_len - len_offset - 4) & 0xff;
+                    uint16_t ech_extensions_len = ssl->ech_transcript.data_len - ech_extensions_len_offset - 2;
+                    phtonu16(&ssl->ech_transcript.data[ech_extensions_len_offset], ech_extensions_len);
+                    phtonu16(&ssl->ech_transcript.data[len_offset + 2], ssl->ech_transcript.data_len - len_offset - 4);
                 }
                 uint32_t ech_padding_begin = (uint32_t)ssl_dissect_hnd_cli_hello(hf, ech_tvb, pinfo, payload_tree, 0, decrypted_len, session,
                                                                                ssl, NULL, mk_map);
