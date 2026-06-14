@@ -1,9 +1,11 @@
 # Security Issue Reporting Guidelines
 
-// Prior art and inspiration
-// https://github.com/curl/curl/blob/master/SECURITY.md
-// https://github.com/curl/curl/blob/master/docs/VULN-DISCLOSURE-POLICY.md
-// https://github.com/pkgconf/pkgconf/blob/master/CONTRIBUTING.md
+<!--
+Prior art and inspiration
+https://github.com/curl/curl/blob/master/SECURITY.md
+https://github.com/curl/curl/blob/master/docs/VULN-DISCLOSURE-POLICY.md
+https://github.com/pkgconf/pkgconf/blob/master/CONTRIBUTING.md
+-->
 
 People use Wireshark in a variety of environments, and the Wireshark development team strives to deliver an application that our users can trust.
 We use a variety of methods to ensure that our code is secure, including API safety, static analysis, dynamic analysis (fuzzing), and manual code review.
@@ -63,4 +65,4 @@ From our perspective, agent-submitted reports are just another way of externaliz
 
 ## Reporting a Website Security Issue
 
-For [www.wireshark.org](https://www.wireshark.org/), or a site hosted on a wireshark.org subdomain, please open a confidential issue at https://gitlab.com/wireshark/wireshark-web/-/work_items.
+For [www.wireshark.org](https://www.wireshark.org/), or any site hosted on a wireshark.org subdomain, please open a confidential issue at https://gitlab.com/wireshark/wireshark-web/-/work_items.
