@@ -1046,7 +1046,7 @@ static dissector_handle_t tls_handle;
 
 /* Code to dissect the packets */
 static int
-dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	bool ret;
 	unsigned offset = 0;
@@ -1100,7 +1100,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	}
 
 	if (per_conversation_info->security_type_selected == VNC_SECURITY_TYPE_VENCRYPT) {
-		call_dissector_with_data(tls_handle, tvb, pinfo, vnc_tree, GUINT_TO_POINTER(offset));
+		call_dissector_with_data(tls_handle, tvb, pinfo, vnc_tree, data);
 		return tvb_captured_length(tvb);
 	}
 
