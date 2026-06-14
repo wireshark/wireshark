@@ -6360,26 +6360,12 @@ ssl_equal (const void *v, const void *v2)
 }
 
 static unsigned
-ssl_hash  (const void *v)
+ssl_hash(const void *v)
 {
-    unsigned l,hash;
     const StringInfo* id;
-    const unsigned* cur;
-    hash = 0;
     id = (const StringInfo*) v;
 
-    /*  id and id->data are mallocated in ssl_save_master_key().  As such 'data'
-     *  should be aligned for any kind of access (for example as a unsigned as
-     *  is done below).  The intermediate void* cast is to prevent "cast
-     *  increases required alignment of target type" warnings on CPUs (such
-     *  as SPARCs) that do not allow misaligned memory accesses.
-     */
-    cur = (const unsigned*)(void*) id->data;
-
-    for (l=4; (l < id->data_len); l+=4, cur++)
-        hash = hash ^ (*cur);
-
-    return hash;
+    return wmem_strong_hash(id->data, id->data_len);
 }
 /* Functions for TLS/DTLS sessions and RSA private keys hashtables. }}} */
 
@@ -6719,8 +6705,6 @@ ssl_save_master_key(const char *label, GHashTable *ht, StringInfo *key,
         return;
     }
 
-    /* ssl_hash() depends on session_ticket->data being aligned for unsigned access
-     * so be careful in changing how it is allocated. */
     ht_key = ssl_data_clone(key);
     master_secret = ssl_data_clone(mk);
     g_hash_table_insert(ht, ht_key, master_secret);
