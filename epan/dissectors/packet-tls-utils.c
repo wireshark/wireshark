@@ -10251,6 +10251,9 @@ ssl_dissect_hnd_hello_ext_ech(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
                 tvbuff_t *ech_tvb = tvb_new_child_real_data(tvb, ech_decrypted_data, decrypted_len, decrypted_len);
                 add_new_data_source(pinfo, ech_tvb, "Client Hello Inner");
                 if (ssl) {
+                    /* Note the Outer Client Random for Inject TLS Secrets */
+                    tls_save_crandom(ssl, mk_map);
+
                     tvb_memcpy(ech_tvb, ssl->client_random.data, 2, 32);
                     uint32_t len_offset = ssl->ech_transcript.data_len;
                     if (ssl->ech_transcript.data_len > 0)

@@ -407,6 +407,12 @@ ssl_session_key_count(void)
         if (g_hash_table_contains(mk_map->tls13_server_appdata, key)) {
             count++;
         }
+        if (g_hash_table_contains(mk_map->ech_secret, key)) {
+            count++;
+        }
+        if (g_hash_table_contains(mk_map->ech_config, key)) {
+            count++;
+        }
     }
     return count;
 }
@@ -493,6 +499,12 @@ ssl_export_sessions(size_t* length)
         }
         if ((value = g_hash_table_lookup(mk_map->tls13_exporter, key))) {
             tls_export_client_randoms_func(key, value, (void*)keylist, "EXPORTER_SECRET ");
+        }
+        if ((value = g_hash_table_lookup(mk_map->ech_secret, key))) {
+            tls_export_client_randoms_func(key, value, (void*)keylist, "ECH_SECRET ");
+        }
+        if ((value = g_hash_table_lookup(mk_map->ech_config, key))) {
+            tls_export_client_randoms_func(key, value, (void*)keylist, "ECH_CONFIG ");
         }
     }
 
