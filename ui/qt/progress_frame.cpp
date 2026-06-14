@@ -126,7 +126,17 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
             "  background: transparent;"
             "}"));
 
-    ui->progressBar->setStyleSheet(QStringLiteral(
+    ui->progressBar->setStyleSheet(
+#if !defined(Q_OS_MAC) && !defined(Q_OS_WIN)
+    // Many platform themes and styles customize QProgressBar to look
+    // native, and Qt warns that if a style sheet is set for one part,
+    // then other sub-controls must be styled as well. On KDE, at least,
+    // (and also the old QGnomePlatform theme), setting a style sheet
+    // for the progress bar without also setting a style for the chunk
+    // makes the bar not work properly at all. The Highlight (or Accent)
+    // color is the normal one for the QProgressBar chunk; use that.
+    // https://doc.qt.io/qt-6/stylesheet-examples.html#customizing-qprogressbar
+        QStringLiteral(
             "QProgressBar {"
             "  max-width: 20em;"
             "  min-height: 0.5em;"
@@ -134,7 +144,24 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
             "  border-bottom: 0px;"
             "  border-top: 0px;"
             "  background: transparent;"
-            "}"));
+            "}"
+            "QProgressBar::chunk {"
+            "  background-color: palette(highlight);"
+            "}"
+    )
+#else
+        QStringLiteral(
+            "QProgressBar {"
+            "  max-width: 20em;"
+            "  min-height: 0.5em;"
+            "  max-height: 1em;"
+            "  border-bottom: 0px;"
+            "  border-top: 0px;"
+            "  background: transparent;"
+            "}"
+        )
+#endif
+    );
 
     ui->stopButton->setStockIcon("x-filter-clear");
     ui->stopButton->setIconSize(QSize(14, 14));
