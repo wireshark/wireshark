@@ -13983,7 +13983,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Auto advance slides</source>
-        <translation type="unfinished"></translation>
+        <translation>Avança de diapositiva automàticament</translation>
     </message>
     <message>
         <source>Slide display interval</source>
