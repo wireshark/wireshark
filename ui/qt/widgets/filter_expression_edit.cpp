@@ -191,6 +191,7 @@ FilterExpressionEdit::FilterExpressionEdit(QWidget *parent) :
     clear_button_->setVisible(false);
     connect(clear_button_, &QAbstractButton::clicked, this, [this]() {
         clear();
+        validateNow();
         emit cleared();
     });
 
