@@ -2292,6 +2292,10 @@ process_specified_records(capture_file *cf, packet_range_t *range,
         wtap_rec_reset(&rec);
     }
 
+    if (range == &all_range) {
+        packet_range_cleanup(range);
+    }
+
     /* We're done printing the packets; destroy the progress bar if
        it was created. */
     if (progbar != NULL)
