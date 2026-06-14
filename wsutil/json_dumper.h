@@ -96,6 +96,19 @@ json_dumper_begin_object(json_dumper *dumper);
 WS_DLL_PUBLIC void
 json_dumper_set_member_name(json_dumper *dumper, const char *name);
 
+WS_DLL_PUBLIC void
+json_dumper_set_member_name_noesc(json_dumper *dumper, const char *name, size_t len);
+
+/**
+ * @brief Sets the member name of an object using a string literal.
+ *
+ * The length is computed at compile time via sizeof. The literal must not
+ * contain characters that require JSON escaping (backslash, double-quote,
+ * or control characters). Only use with string literal arguments.
+ */
+#define json_dumper_set_member_name_const(dumper, literal) \
+    json_dumper_set_member_name_noesc(dumper, literal, sizeof(literal) - 1)
+
 /**
  * @brief Ends the current JSON object.
  *

@@ -554,6 +554,36 @@ json_dumper_set_member_name(json_dumper *dumper, const char *name)
 }
 
 void
+json_dumper_set_member_name_noesc(json_dumper *dumper, const char *name, size_t len)
+{
+    if (!json_dumper_check_previous_error(dumper)) {
+        return;
+    }
+
+    uint8_t prev_state = json_dumper_get_prev_state(dumper);
+
+    if (JSON_DUMPER_TYPE(prev_state) != JSON_DUMPER_TYPE_OBJECT) {
+        json_dumper_bad(dumper, "setting name on non-object nested item type");
+        return;
+    }
+    if (prev_state & JSON_DUMPER_HAS_NAME) {
+        json_dumper_bad(dumper, "setting name twice on an object member");
+        return;
+    }
+
+    prepare_token(dumper);
+    jd_putc(dumper, '"');
+    jd_puts_len(dumper, name, len);
+    jd_putc(dumper, '"');
+    jd_putc(dumper, ':');
+    if ((dumper->flags & JSON_DUMPER_FLAGS_PRETTY_PRINT)) {
+        jd_putc(dumper, ' ');
+    }
+
+    dumper->state[dumper->current_depth - 1] |= JSON_DUMPER_HAS_NAME;
+}
+
+void
 json_dumper_end_object(json_dumper *dumper)
 {
     json_dumper_end_nested_element(dumper, JSON_DUMPER_TYPE_OBJECT);

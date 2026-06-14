@@ -66,6 +66,7 @@ typedef struct {
     tvbuff_t       *cached_src_tvb;  /* last-hit data source tvb */
     struct data_source *cached_src;  /* last-hit data source */
     uint32_t        cached_src_idx;  /* last-hit data source index */
+    GHashTable     *grouping_table; /* reusable hash table for key grouping */
 } write_json_data;
 
 typedef struct {
@@ -381,7 +382,7 @@ write_ek_proto_tree(output_fields_t* fields,
     data.dumper = &dumper;
 
     json_dumper_begin_object(&dumper);
-    json_dumper_set_member_name(&dumper, "index");
+    json_dumper_set_member_name_const(&dumper, "index");
     json_dumper_begin_object(&dumper);
     write_json_index(&dumper, edt);
     json_dumper_end_object(&dumper);
@@ -390,14 +391,14 @@ write_ek_proto_tree(output_fields_t* fields,
     json_dumper_begin_object(&dumper);
 
     /* Timestamp added for time indexing in Elasticsearch */
-    json_dumper_set_member_name(&dumper, "timestamp");
+    json_dumper_set_member_name_const(&dumper, "timestamp");
     json_dumper_value_anyf(&dumper, "\"%" PRIu64 "%03d\"", (uint64_t)edt->pi.abs_ts.secs, edt->pi.abs_ts.nsecs/1000000);
 
     if (print_summary)
         write_ek_summary(edt->pi.cinfo, &data);
 
     if (edt->tree) {
-        json_dumper_set_member_name(&dumper, "layers");
+        json_dumper_set_member_name_const(&dumper, "layers");
         json_dumper_begin_object(&dumper);
 
         if (fields == NULL || fields->fields == NULL) {
@@ -749,7 +750,7 @@ write_json_index(json_dumper *dumper, epan_dissect_t *edt)
     } else {
         (void) g_strlcpy(ts, "XXXX-XX-XX", sizeof(ts)); /* XXX - better way of saying "Not representable"? */
     }
-    json_dumper_set_member_name(dumper, "_index");
+    json_dumper_set_member_name_const(dumper, "_index");
     str = ws_strdup_printf("packets-%s", ts);
     json_dumper_value_string_noesc(dumper, str, strlen(str));
     g_free(str);
@@ -769,11 +770,11 @@ write_json_proto_tree(output_fields_t* fields,
 
     json_dumper_begin_object(dumper);
     write_json_index(dumper, edt);
-    json_dumper_set_member_name(dumper, "_score");
+    json_dumper_set_member_name_const(dumper, "_score");
     json_dumper_value_string(dumper, NULL);
-    json_dumper_set_member_name(dumper, "_source");
+    json_dumper_set_member_name_const(dumper, "_source");
     json_dumper_begin_object(dumper);
-    json_dumper_set_member_name(dumper, "layers");
+    json_dumper_set_member_name_const(dumper, "layers");
 
     if (fields == NULL || fields->fields == NULL) {
         /* Write out all fields */
@@ -790,8 +791,10 @@ write_json_proto_tree(output_fields_t* fields,
         data.cached_src = edt->pi.data_src ?
             (struct data_source *)edt->pi.data_src->data : NULL;
         data.cached_src_idx = 0;
+        data.grouping_table = g_hash_table_new(g_direct_hash, g_direct_equal);
 
         write_json_proto_node_children(edt->tree, &data);
+        g_hash_table_destroy(data.grouping_table);
     } else {
         write_specified_fields(FORMAT_JSON, fields, edt, cinfo, NULL, dumper);
     }
@@ -962,7 +965,7 @@ write_json_proto_node_filtered(proto_node *node, write_json_data *pdata)
     const char *json_key = proto_node_to_json_key(node);
 
     json_dumper_begin_object(pdata->dumper);
-    json_dumper_set_member_name(pdata->dumper, "filtered");
+    json_dumper_set_member_name_const(pdata->dumper, "filtered");
     json_dumper_value_string(pdata->dumper, json_key);
     json_dumper_end_object(pdata->dumper);
 }
@@ -1003,7 +1006,7 @@ write_json_proto_node_hex_dump(proto_node *node, write_json_data *pdata)
  * or a node with children -- this will be determined dynamically
  */
 static void
-write_json_proto_node_dynamic(proto_node *node, write_json_data *data)
+write_json_proto_node_dynamic(proto_node *node, write_json_data *data) // NOLINT(misc-no-recursion)
 {
     if (node->first_child == NULL) {
         write_json_proto_node_no_value(node, data);
@@ -1016,9 +1019,116 @@ write_json_proto_node_dynamic(proto_node *node, write_json_data *data)
  * Writes the children of a node. Calls write_json_proto_node_list internally which recursively writes children of nodes
  * to the output.
  */
+/* Write a single child node directly (no-duplicate fast path, no GSList allocation) */
 static void
-write_json_proto_node_children(proto_node *node, write_json_data *data)
+write_json_proto_node_single(proto_node *node, write_json_data *pdata) // NOLINT(misc-no-recursion)
 {
+    const char *json_key = proto_node_to_json_key(node);
+    field_info *fi = node->finfo;
+    char *value_string_repr = fvalue_to_string_repr(NULL, fi->value, FTREPR_JSON, fi->hfinfo->display);
+    bool has_children = node->first_child != NULL;
+    bool has_value = value_string_repr != NULL;
+    bool is_pseudo_text_field = fi->hfinfo->id == hf_text_only;
+    size_t klen = strlen(json_key);
+
+    pf_flags filter_flags = PF_NONE;
+    bool is_filtered = pdata->filter != NULL && !check_protocolfilter(pdata->filter, json_key, &filter_flags);
+
+    wmem_free(NULL, value_string_repr);
+
+    if (pdata->print_hex && (!pdata->print_text || fi->length > 0) && !is_pseudo_text_field) {
+        char sbuf[256];
+        char *key_raw = (klen + 5 <= sizeof(sbuf)) ? sbuf : (char *)g_malloc(klen + 5);
+        memcpy(key_raw, json_key, klen);
+        memcpy(key_raw + klen, "_raw", 5);
+        json_dumper_set_member_name_noesc(pdata->dumper, key_raw, klen + 4);
+        if (key_raw != sbuf) g_free(key_raw);
+        write_json_proto_node_hex_dump(node, pdata);
+    }
+
+    if (pdata->print_text && has_value) {
+        if (!is_pseudo_text_field)
+            json_dumper_set_member_name_noesc(pdata->dumper, json_key, klen);
+        else
+            json_dumper_set_member_name(pdata->dumper, json_key);
+        write_json_proto_node_value(node, pdata);
+    }
+
+    if (has_children) {
+        if (has_value) {
+            char sbuf[256];
+            char *key_tree = (klen + 6 <= sizeof(sbuf)) ? sbuf : (char *)g_malloc(klen + 6);
+            memcpy(key_tree, json_key, klen);
+            memcpy(key_tree + klen, "_tree", 6);
+            if (!is_pseudo_text_field)
+                json_dumper_set_member_name_noesc(pdata->dumper, key_tree, klen + 5);
+            else
+                json_dumper_set_member_name(pdata->dumper, key_tree);
+            if (key_tree != sbuf) g_free(key_tree);
+        } else {
+            if (!is_pseudo_text_field)
+                json_dumper_set_member_name_noesc(pdata->dumper, json_key, klen);
+            else
+                json_dumper_set_member_name(pdata->dumper, json_key);
+        }
+
+        if (is_filtered) {
+            write_json_proto_node_filtered(node, pdata);
+        } else {
+            wmem_map_t *_filter = NULL;
+            if ((filter_flags & PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
+                _filter = pdata->filter;
+                pdata->filter = NULL;
+            }
+            write_json_proto_node_dynamic(node, pdata);
+            if ((filter_flags & PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
+                pdata->filter = _filter;
+            }
+        }
+    }
+
+    if (!has_value && !has_children && (pdata->print_text || (pdata->print_hex && is_pseudo_text_field))) {
+        if (!is_pseudo_text_field)
+            json_dumper_set_member_name_noesc(pdata->dumper, json_key, klen);
+        else
+            json_dumper_set_member_name(pdata->dumper, json_key);
+        write_json_proto_node_no_value(node, pdata);
+    }
+}
+
+static void
+write_json_proto_node_children(proto_node *node, write_json_data *data) // NOLINT(misc-no-recursion)
+{
+    if (data->grouping_table && data->node_children_grouper == proto_node_group_children_by_json_key) {
+        /* Fast path: check if all keys are unique (common case) */
+        GHashTable *table = data->grouping_table;
+        g_hash_table_remove_all(table);
+        proto_node *current_child = node->first_child;
+        bool has_duplicates = false;
+
+        while (current_child != NULL) {
+            char *json_key = (char *) proto_node_to_json_key(current_child);
+            if (g_hash_table_contains(table, json_key)) {
+                has_duplicates = true;
+                break;
+            }
+            g_hash_table_insert(table, json_key, json_key);
+            current_child = current_child->next;
+        }
+
+        if (!has_duplicates) {
+            /* No duplicates: write children directly without GSList allocation */
+            json_dumper_begin_object(data->dumper);
+            current_child = node->first_child;
+            while (current_child != NULL) {
+                write_json_proto_node_single(current_child, data);
+                current_child = current_child->next;
+            }
+            json_dumper_end_object(data->dumper);
+            return;
+        }
+    }
+
     GSList *grouped_children_list = data->node_children_grouper(node);
     write_json_proto_node_list(grouped_children_list, data);
     g_slist_free_full(grouped_children_list, (GDestroyNotify) g_slist_free);
@@ -1095,7 +1205,7 @@ proto_node_group_children_by_json_key(proto_node *node)
      * hashmap.
      */
     GSList *same_key_nodes_list = NULL;
-    GHashTable *lookup_by_json_key = g_hash_table_new(g_str_hash, g_str_equal);
+    GHashTable *lookup_by_json_key = g_hash_table_new(g_direct_hash, g_direct_equal);
     proto_node *current_child = node->first_child;
 
     /**
@@ -1379,7 +1489,7 @@ ek_write_attr(GSList *attr_instances, write_json_data *pdata)
 
                 /* print dummy field */
                 json_dumper_begin_object(pdata->dumper);
-                json_dumper_set_member_name(pdata->dumper, "filtered");
+                json_dumper_set_member_name_const(pdata->dumper, "filtered");
                 json_dumper_value_string_noesc(pdata->dumper, fi->hfinfo->abbrev, strlen(fi->hfinfo->abbrev));
                 json_dumper_end_object(pdata->dumper);
             } else {
@@ -1406,7 +1516,7 @@ ek_write_attr(GSList *attr_instances, write_json_data *pdata)
                     }
                 } else {
                     /* print dummy field */
-                    json_dumper_set_member_name(pdata->dumper, "filtered");
+                    json_dumper_set_member_name_const(pdata->dumper, "filtered");
                     json_dumper_value_string_noesc(pdata->dumper, fi->hfinfo->abbrev, strlen(fi->hfinfo->abbrev));
                 }
             } else {
