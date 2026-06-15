@@ -313,11 +313,22 @@ void WiresharkMainWindow::filterPackets(QString new_filter, bool force)
     cf_status = cf_filter_packets(CaptureFile::globalCapFile(), new_filter.toUtf8().data(), force);
 
     if (cf_status == CF_OK) {
-        // The display filter entry owns its own recent-filter history and
-        // records applied filters there itself, so we only need to keep the
-        // field text in sync when the filter is cleared.
-        if (new_filter.length() == 0) {
-            df_combo_box_->clear();
+        // This slot is used both by the main DisplayFilterEntry as well as
+        // other objects, which is not great design. Update the main filter
+        // entry if the sender was something else to keep the text in sync.
+        if (sender() != df_combo_box_) {
+            // XXX - The display filter entry owns its own recent-filter history
+            // and records applied filters there itself, but doesn't know about
+            // filters applied via other methods (command line, other dialogs,
+            // etc.) Either it needs a method to update its history with a
+            // filter that's already been applied, or this method should be
+            // split into two slots, one for the DisplayFilterEntry and one
+            // for everything else.
+            if (new_filter.length() > 0) {
+                df_combo_box_->setText(new_filter);
+            } else {
+                df_combo_box_->clear();
+            }
         }
         // Only after the display filter has been updated,
         // disable the arrow button
