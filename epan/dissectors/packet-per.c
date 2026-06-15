@@ -1157,21 +1157,27 @@ dissect_per_relative_oid_str(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, p
 uint32_t
 dissect_per_boolean(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, bool *bool_val)
 {
-	uint8_t ch, mask;
+	uint8_t ch;
 	bool value;
-	header_field_info *hfi;
 
 DEBUG_ENTRY("dissect_per_boolean");
 
-	ch=tvb_get_uint8(tvb, offset>>3);
-	mask=1<<(7-(offset&0x07));
-	if(ch&mask){
-		value=1;
-	} else {
-		value=0;
+	ch = tvb_get_uint8(tvb, offset >> 3);
+	value = (ch >> (7 - (offset & 0x07))) & 1;
+
+	if (hf_index <= 0) {
+		/* Fast path: no tree output needed, skip formatting overhead */
+		actx->created_item = NULL;
+		if (bool_val)
+			*bool_val = value;
+		return offset + 1;
 	}
-	if(hf_index > 0){
+
+	{
+		uint8_t mask = 1 << (7 - (offset & 0x07));
 		char bits[10];
+		header_field_info *hfi;
+
 		bits[0] = mask&0x80?'0'+value:'.';
 		bits[1] = mask&0x40?'0'+value:'.';
 		bits[2] = mask&0x20?'0'+value:'.';
@@ -1187,8 +1193,6 @@ DEBUG_ENTRY("dissect_per_boolean");
 		actx->created_item = proto_tree_add_boolean_format(tree, hf_index, tvb, offset>>3, 1, value,
 								   "%s %s: %s", bits, hfi->name,
 								   value?"True":"False");
-	} else {
-		actx->created_item = NULL;
 	}
 
 	if(bool_val){
