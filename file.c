@@ -463,13 +463,17 @@ calc_progbar_val(capture_file *cf, int64_t size, int64_t file_pos, char *status_
     progbar_val = (float) file_pos / (float) size;
     if (progbar_val > 1.0f) {
 
-        /*  The file probably grew while we were reading it.
-         *  Update file size, and try again.
-         */
-        size = wtap_file_size(cf->provider.wth, NULL);
+        if (cf) {
+            /*  The file probably grew while we were reading it.
+             *  Update file size, and try again.
+             *
+             *  (Don't bother to do this for certain cases like merging.)
+             */
+            size = wtap_file_size(cf->provider.wth, NULL);
 
-        if (size >= 0)
-            progbar_val = (float) file_pos / (float) size;
+            if (size >= 0)
+                progbar_val = (float) file_pos / (float) size;
+        }
 
         /*  If it's still > 1, either "wtap_file_size()" failed (in which
          *  case there's not much we can do about it), or the file
@@ -480,9 +484,12 @@ calc_progbar_val(capture_file *cf, int64_t size, int64_t file_pos, char *status_
             progbar_val = 1.0f;
     }
 
+    char *pos_formatted = format_size_wmem(NULL, file_pos, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_IEC);
+    char *size_formatted = format_size_wmem(NULL, size, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_IEC);
     snprintf(status_str, status_size,
-            "%" PRId64 "KB of %" PRId64 "KB",
-            file_pos / 1024, size / 1024);
+            "%s of %s", pos_formatted, size_formatted);
+    g_free(pos_formatted);
+    g_free(size_formatted);
 
     return progbar_val;
 }
@@ -1467,19 +1474,9 @@ merge_callback(merge_event event, int num _U_,
                     for (i = 0; i < in_file_count; i++)
                         file_pos += wtap_read_so_far(in_files[i].wth);
 
-                    progbar_val = (float) file_pos / (float) cb_data->f_len;
-                    if (progbar_val > 1.0f) {
-                        /* Some file probably grew while we were reading it.
-                           That "shouldn't happen", so we'll just clip the progress
-                           value at 1.0. */
-                        progbar_val = 1.0f;
-                    }
-
                     if (cb_data->progbar != NULL) {
                         char status_str[STATUS_LEN];
-                        snprintf(status_str, sizeof(status_str),
-                                "%" PRId64 "KB of %" PRId64 "KB",
-                                file_pos / 1024, cb_data->f_len / 1024);
+                        progbar_val = calc_progbar_val(NULL, cb_data->f_len, file_pos, status_str, sizeof(status_str));
                         update_progress_dlg(cb_data->progbar, progbar_val, status_str);
                     }
                     g_timer_start(cb_data->prog_timer);
