@@ -26,6 +26,7 @@
 # spaces in the package format.
 
 import argparse
+import email.utils
 import os
 import os.path
 import re
@@ -105,6 +106,12 @@ def update_debian_changelog(src_dir, repo_data):
     text_replacement = f"wireshark ({repo_data['ws_version_major']}.{repo_data['ws_version_minor']}.{repo_data['ws_version_patch']}{repo_data['ws_package_string']}) UNRELEASED; urgency=low"
     # Note: Only need to replace the first line, so we don't use re.MULTILINE or re.DOTALL
     new_changelog_contents = re.sub(CHANGELOG_PATTERN, text_replacement, changelog_contents)
+
+    # Update the timestamp (last line matching the " -- maintainer  date" pattern)
+    TIMESTAMP_PATTERN = r"(?m)^( -- .+>)  .+$"
+    timestamp = email.utils.formatdate(localtime=True)
+    new_changelog_contents = re.sub(TIMESTAMP_PATTERN, r"\1  " + timestamp, new_changelog_contents)
+
     with open(deb_changelog_filepath, mode='w', encoding='utf-8') as fh:
         fh.write(new_changelog_contents)
         print(deb_changelog_filepath + " has been updated.")
