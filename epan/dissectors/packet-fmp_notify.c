@@ -162,28 +162,24 @@ dissect_handleList(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		   proto_tree *tree)
 {
 
-	int	    numHandles;
-	int	    listLength;
-	int	    i;
+	unsigned    numHandles;
 	proto_tree *handleListTree;
+	proto_item *ti;
 
 	numHandles = tvb_get_ntohl(tvb, offset);
-	listLength = 4;
 
-	for (i = 0; i < numHandles; i++) {
-		listLength += (4 + tvb_get_ntohl(tvb, offset + listLength));
-	}
-
-	handleListTree =  proto_tree_add_subtree(tree, tvb, offset, listLength,
-					      ett_fmp_notify_hlist, NULL, "Handle List");
+	handleListTree =  proto_tree_add_subtree(tree, tvb, offset, 4,
+					      ett_fmp_notify_hlist, &ti, "Handle List");
 
 	offset = dissect_rpc_uint32(tvb,  handleListTree,
 				    hf_fmp_handleListLen, offset);
 
-	for (i = 0; i < numHandles; i++) {
+	for (unsigned i = 0; i < numHandles; i++) {
 		offset = dissect_rpc_data(tvb, pinfo, handleListTree,
 					  hf_fmp_fmpFHandle, offset);/*	 changed */
 	}
+
+	proto_item_set_end(ti, tvb, offset);
 
 	return offset;
 }
