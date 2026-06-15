@@ -62,7 +62,7 @@ delayed_create_progress_dlg(void *top_level_window, const char *task_title, cons
                             float progress)
 {
     progdlg_t *progress_dialog = create_progress_dlg(top_level_window, task_title, item_title, terminate_is_stop, stop_flag);
-    update_progress_dlg(progress_dialog, progress, item_title);
+    update_progress_dlg(progress_dialog, progress, NULL);
     return progress_dialog;
 }
 
@@ -70,12 +70,12 @@ delayed_create_progress_dlg(void *top_level_window, const char *task_title, cons
  * Update the progress information of the progress bar box.
  */
 void
-update_progress_dlg(progdlg_t *dlg, float percentage, const char *)
+update_progress_dlg(progdlg_t *dlg, float percentage, const char *status)
 {
     if (!dlg) return;
 
     dlg->progress_frame->setValue((int)(percentage * 100));
-
+    dlg->progress_frame->setStatus(status);
     /*
      * Flush out the update and process any input events.
      */
@@ -189,18 +189,50 @@ ProgressFrame::~ProgressFrame()
     delete ui;
 }
 
+QString ProgressFrame::elideLabel(const QString &title) const
+{
+    int max_w = fontMetrics().height() * 10; // em-widths, arbitrary
+    int title_w = fontMetrics().horizontalAdvance(title);
+    if (title_w > max_w) {
+        return fontMetrics().elidedText(title, Qt::ElideRight, max_w);
+    }
+
+    return title;
+}
+
+void ProgressFrame::updateLabel()
+{
+    // If we're in the main status bar, should we push this as a status message instead?
+    // Note that the QProgressBar has its own text, but this always ignored
+    // under some styles, e.g. QMacStyle.
+    QString labelString = message_;
+
+    if (!status_.isNull()) {
+        if (!labelString.isNull())
+            labelString.append(QStringLiteral(" "));
+        labelString.append(status_);
+    }
+
+    ui->label->setText(elideLabel(labelString));
+}
+
+void ProgressFrame::setTitle(const QString &title)
+{
+    message_ = title;
+    updateLabel();
+}
+
+void ProgressFrame::setStatus(const QString &status)
+{
+    status_ = status;
+    updateLabel();
+}
+
 struct progdlg *ProgressFrame::showProgress(const QString &title, bool animate, bool terminate_is_stop, bool *stop_flag, int value)
 {
     setMaximumValue(100);
     ui->progressBar->setValue(value);
-    QString elided_title = title;
-    int max_w = fontMetrics().height() * 20; // em-widths, arbitrary
-    int title_w = fontMetrics().horizontalAdvance(title);
-    if (title_w > max_w) {
-        elided_title = fontMetrics().elidedText(title, Qt::ElideRight, max_w);
-    }
-    // If we're in the main status bar, should we push this as a status message instead?
-    ui->label->setText(elided_title);
+    setTitle(title);
     emit showRequested(animate, terminate_is_stop, stop_flag);
     return &progress_dialog_;
 }

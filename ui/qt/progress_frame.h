@@ -99,6 +99,12 @@ public slots:
      */
     void setValue(int value);
 
+    /** @brief Sets the current progress title. */
+    void setTitle(const QString &title);
+
+    /** @brief Sets the current progress status. */
+    void setStatus(const QString &status);
+
     /**
      * @brief Hides the progress frame.
      */
@@ -143,6 +149,12 @@ protected:
     void timerEvent(QTimerEvent *event);
 
 private:
+    /** @brief Update the label for progress dialog. */
+    void updateLabel();
+
+    /** @brief Elide text if larger than some maximum value */
+    QString elideLabel(const QString &title) const;
+
     /** @brief Pointer to the user interface object for this frame. */
     Ui::ProgressFrame *ui;
 
