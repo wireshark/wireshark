@@ -38,10 +38,16 @@ compute_dpib_option_size(wtap_block_t block _U_, unsigned option_code,  wtap_opt
 
     switch (option_code) {
     case(OPT_DPIB_NAME): /* dpib_process_name */
-        size = (uint32_t)strlen(optval->stringval) & 0xffff;
+        size = (uint32_t)strlen(optval->stringval);
+        /* Don't write it if it's too big. */
+        if (size > UINT16_MAX)
+            size = 0;
         break;
     case(OPT_DPIB_UUID): /* dpib_process_uuid */
-        size = 16;
+        size = (uint32_t)g_bytes_get_size(optval->byteval);
+        /* Don't write it if it's an invalid size. */
+        if (size != 16)
+            size = 0;
         break;
     default:
         ws_warning("Unrecognized DPIB option code %u", option_code);
@@ -94,6 +100,12 @@ put_dpib_option(wtap_block_t block _U_, unsigned option_code, wtap_opttype_e opt
         break;
     case OPT_DPIB_UUID:
         uuid_bytes = g_bytes_get_data(optval->byteval, &size);
+        if (size != 16) {
+            /* A valid UUID option must be 16 bytes long. If it's not,
+             * don't write it. Like with the string option above, there's
+             * no way to indicate an error here. */
+            return true;
+        }
         option_hdr.type         = (uint16_t)option_code;
         option_hdr.value_length = (uint16_t)size;
         memcpy(*opt_ptrp, &option_hdr, 4);
