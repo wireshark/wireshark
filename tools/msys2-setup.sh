@@ -92,7 +92,6 @@ BASIC_LIST="base-devel \
 	${PACKAGE_PREFIX}-qt6-svg \
 	${PACKAGE_PREFIX}-qt6-tools \
 	${PACKAGE_PREFIX}-qt6-translations \
-	${PACKAGE_PREFIX}-qt6-5compat \
 	${PACKAGE_PREFIX}-sbc \
 	${PACKAGE_PREFIX}-snappy \
 	${PACKAGE_PREFIX}-spandsp \

@@ -204,9 +204,6 @@ then
 	add_package BASIC_LIST qt6-linguist-devel ||
 	echo "Required Qt6 module LinguistTools is unavailable" >&2
 
-	add_package BASIC_LIST qt6-qt5compat-devel ||
-	echo "Required Qt6 module Qt5Compat is unavailable"
-
 	add_package BASIC_LIST libxkbcommon-devel ||
 	echo "Required Qt6 dependency libxkbcommon-devel is unavailable"
 

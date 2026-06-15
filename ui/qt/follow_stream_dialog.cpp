@@ -42,7 +42,7 @@
 #include <QPrintDialog>
 #include <QPrinter>
 #include <QScrollBar>
-#include <QTextCodec>
+#include <glib.h>
 
 // To do:
 // - Show text while tapping.
@@ -109,7 +109,6 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, int pro
     cbcs->addItem(tr("EBCDIC"), SHOW_EBCDIC);
     cbcs->addItem(tr("Hex Dump"), SHOW_HEXDUMP);
     cbcs->addItem(tr("Raw"), SHOW_RAW);
-    // UTF-8 is guaranteed to exist as a QTextCodec
     cbcs->addItem(tr("UTF-8"), SHOW_CODEC);
     cbcs->addItem(tr("YAML"), SHOW_YAML);
     cbcs->setCurrentIndex(cbcs->findData(recent.gui_follow_show));
@@ -184,15 +183,15 @@ FollowStreamDialog::~FollowStreamDialog()
     resetStream(); // Frees payload
 }
 
-void FollowStreamDialog::addCodecs(const QMap<QString, QTextCodec *> &codecMap)
+void FollowStreamDialog::addCodecs(const QMap<QString, const char *> &codecMap)
 {
     // Make the combobox respect max visible items?
     //ui->cbCharset->setStyleSheet("QComboBox { combobox-popup: 0;}");
     ui->cbCharset->insertSeparator(ui->cbCharset->count());
-    for (const auto &codec : codecMap) {
-        // This is already in the menu and handled separately
-        if (codec->name() != "US-ASCII" && codec->name() != "UTF-8")
-            ui->cbCharset->addItem(tr(codec->name()), SHOW_CODEC);
+    for (const auto &encoding : codecMap) {
+        QString name = QString::fromUtf8(encoding);
+        if (name != "US-ASCII" && name != "UTF-8")
+            ui->cbCharset->addItem(name, SHOW_CODEC);
     }
 }
 
@@ -766,10 +765,17 @@ void FollowStreamDialog::showBuffer(QByteArray &buffer, size_t nchars, bool is_f
         // This assumes that multibyte characters don't span packets in the
         // stream. To handle that case properly (which might occur with fixed
         // block sizes, e.g. transferring over TFTP, we would need to create
-        // two stateful QTextDecoders, one for each direction, presumably in
-        // on_cbCharset_currentIndexChanged()
-        QTextCodec *codec = QTextCodec::codecForName(ui->cbCharset->currentText().toUtf8());
-        addText(codec->toUnicode(buffer), is_from_server, packet_num);
+        // two stateful decoders, one for each direction.
+        QByteArray encName = ui->cbCharset->currentText().toUtf8();
+        gsize bytes_written = 0;
+        gchar *utf8 = g_convert_with_fallback(buffer.constData(), buffer.size(),
+                                              "UTF-8", encName.constData(),
+                                              "\xEF\xBF\xBD",
+                                              NULL, &bytes_written, NULL);
+        if (utf8) {
+            addText(QString::fromUtf8(utf8, bytes_written), is_from_server, packet_num);
+            g_free(utf8);
+        }
         break;
     }
 

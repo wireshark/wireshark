@@ -121,11 +121,6 @@ QT6_LIST="
 # otherwise available packages appear as unavailable
 apt-get update || exit 2
 
-# qt6-5compat-dev: Debian >= bookworm, Ubuntu >= 23.04
-# libqt6core5compat6-dev: Ubuntu 22.04
-add_package QT6_LIST qt6-5compat-dev ||
-QT6_LIST="$QT6_LIST libqt6core5compat6-dev"
-
 # qt6-svg-dev: Debian >= bookworm, Ubuntu >= 23.04
 # libqt6svg6-dev: Ubuntu 22.04
 add_package QT6_LIST qt6-svg-dev ||

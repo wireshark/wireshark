@@ -28,8 +28,8 @@
 #include <QMenu>
 #include <QPrintDialog>
 #include <QPrinter>
-#include <QTextCodec>
 #include <QTextStream>
+#include <glib.h>
 
 // To do:
 // - Add show as custom protocol in a Packet Details view
@@ -90,7 +90,6 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     ui->cbShowAs->addItem(tr("JSON"), SHOW_JSON);
     ui->cbShowAs->addItem(tr("Raw"), SHOW_RAW);
     ui->cbShowAs->addItem(tr("Rust Array"), SHOW_RUSTARRAY);
-    // UTF-8 is guaranteed to exist as a QTextCodec
     ui->cbShowAs->addItem(tr("UTF-8"), SHOW_CODEC);
     ui->cbShowAs->addItem(tr("YAML"), SHOW_YAML);
     ui->cbShowAs->setCurrentIndex(ui->cbShowAs->findData(recent.gui_show_bytes_show));
@@ -126,16 +125,16 @@ ShowPacketBytesDialog::~ShowPacketBytesDialog()
     delete ui;
 }
 
-void ShowPacketBytesDialog::addCodecs(const QMap<QString, QTextCodec *> &codecMap)
+void ShowPacketBytesDialog::addCodecs(const QMap<QString, const char *> &codecMap)
 {
     ui->cbShowAs->blockSignals(true);
     // Make the combobox respect max visible items?
     //ui->cbShowAs->setStyleSheet("QComboBox { combobox-popup: 0;}");
     ui->cbShowAs->insertSeparator(ui->cbShowAs->count());
-    for (const auto &codec : codecMap) {
-        // This is already placed in the menu and handled separately
-        if (codec->name() != "US-ASCII" && codec->name() != "UTF-8")
-            ui->cbShowAs->addItem(tr(codec->name()), SHOW_CODEC);
+    for (const auto &encoding : codecMap) {
+        QString name = QString::fromUtf8(encoding);
+        if (name != "US-ASCII" && name != "UTF-8")
+            ui->cbShowAs->addItem(name, SHOW_CODEC);
     }
     ui->cbShowAs->blockSignals(false);
 }
@@ -790,15 +789,20 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
 
     case SHOW_CODEC:
     {
-        // The QTextCodecs docs say that there's a flag to cause invalid
-        // characters to be replaced with null. It's unclear what happens
-        // in the default case; it might depend on the codec though it
-        // seems that in practice replacement characters are used.
-        QTextCodec *codec = QTextCodec::codecForName(ui->cbShowAs->currentText().toUtf8());
+        // Invalid characters are replaced with the Unicode replacement
+        // character U+FFFD.
+        QByteArray encName = ui->cbShowAs->currentText().toUtf8();
         QByteArray ba(field_bytes_);
-        QString decoded = codec->toUnicode(ba);
-        ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
-        ui->tePacketBytes->setPlainText(decoded);
+        gsize bytes_written = 0;
+        gchar *utf8 = g_convert_with_fallback(ba.constData(), ba.size(),
+                                              "UTF-8", encName.constData(),
+                                              "\xEF\xBF\xBD",
+                                              NULL, &bytes_written, NULL);
+        if (utf8) {
+            ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
+            ui->tePacketBytes->setPlainText(QString::fromUtf8(utf8, bytes_written));
+            g_free(utf8);
+        }
         break;
     }
 

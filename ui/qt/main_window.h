@@ -29,7 +29,6 @@ class QAction;
 class QMenu;
 class QSplitter;
 class QStackedWidget;
-class QTextCodec;
 
 class DataSourceTab;
 class DisplayFilterEntry;
@@ -344,8 +343,8 @@ protected:
     /** Flag indicating if the capturing title is used. */
     bool use_capturing_title_;
 
-    /** Map of text codecs used for different strings. */
-    QMap<QString, QTextCodec *> text_codec_map_;
+    /** Map of display name to iconv encoding name. */
+    QMap<QString, const char *> text_codec_map_;
 
     // Recent captures menu support - set by subclasses
 

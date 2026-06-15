@@ -27,7 +27,6 @@
 #include <QFile>
 #include <QMap>
 #include <QPushButton>
-#include <QTextCodec>
 
 namespace Ui {
 class FollowStreamDialog;
@@ -57,9 +56,9 @@ public:
 
     /**
      * @brief Adds a map of character encodings to the dialog's codec selection.
-     * @param codecMap A map of codec names to their QTextCodec pointers.
+     * @param codecMap A map of codec names to their iconv encoding names.
      */
-    void addCodecs(const QMap<QString, QTextCodec *> &codecMap);
+    void addCodecs(const QMap<QString, const char *> &codecMap);
 
     /**
      * @brief Initiates the stream following process.

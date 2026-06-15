@@ -138,7 +138,6 @@ Wireshark packages, which at the time of this writing is Qt {macos-qt6-lts-versi
 Select the following components:
 
 * Desktop
-* Qt 5 Compatibility Module
 * Qt Debug Information Files (contains dSYM files which can be used for debugging)
 
 Optionally, under "Additional Libraries" also select the following components:
@@ -153,7 +152,7 @@ The AQt command to install Qt and the modules recommended above would look somet
 
 [source,sh,subs="attributes+"]
 ----
-aqt install-qt mac desktop {macos-qt6-lts-version} clang_64 --modules qt5compat qtmultimedia debug_info
+aqt install-qt mac desktop {macos-qt6-lts-version} clang_64 --modules qtmultimedia debug_info
 ----
 
 [#ChSetupUNIXBuild]
@@ -429,7 +428,7 @@ You can choose installation folder of Qt. In the following example, we're using 
 mkdir C:\Development\Qt
 cd C:\Development\Qt
 curl.exe -LOJ https://github.com/miurahr/aqtinstall/releases/download/v3.3.0/aqt_x64.exe
-.\aqt_x64.exe install-qt windows desktop {windows-qt6-lts-version} win64_msvc2022_64 -m qt5compat debug_info qtmultimedia
+.\aqt_x64.exe install-qt windows desktop {windows-qt6-lts-version} win64_msvc2022_64 -m debug_info qtmultimedia
 ----
 
 [#ChSetupQtOfficial]
@@ -452,7 +451,6 @@ stable Wireshark release, which at the time of this writing is Qt {windows-qt6-l
 Select the following components:
 
 * MSVC 2022 64-bit or MSVC 2022 ARM64
-* Qt 5 Compatibility Module
 * Qt Debug Information Files (contains PDB files which can be used for debugging)
 
 Optionally, under "Additional Libraries" also select the following components:
@@ -900,7 +898,7 @@ This guide assumes `paru` is being used.
 
 . Install Qt6:
 
-  paru -S mingw-w64-qt6-base mingw-w64-qt6-5compat mingw-w64-qt6-multimedia
+  paru -S mingw-w64-qt6-base mingw-w64-qt6-multimedia
 
 . Install optional dependencies:
 

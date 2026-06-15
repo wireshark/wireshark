@@ -266,7 +266,6 @@ BuildRequires:	qt6-qtsvg-devel
 # Require SVG runtime since we don't actually link with the library
 Requires:	qt6-qtsvg
 %endif
-BuildRequires:	qt6-qt5compat-devel
 BuildRequires:	libxkbcommon-devel
 Requires:	xdg-utils
 Requires:	hicolor-icon-theme
@@ -306,7 +305,6 @@ BuildRequires:	qt6-qtbase-devel
 BuildRequires:	qt6-qtmultimedia-devel
 BuildRequires:	qt6-qttools-devel
 %endif
-BuildRequires:	qt6-qt5compat-devel
 BuildRequires:	libxkbcommon-devel
 Requires:	xdg-utils
 Requires:	hicolor-icon-theme

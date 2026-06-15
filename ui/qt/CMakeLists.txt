@@ -997,7 +997,6 @@ add_library(qtui OBJECT
 
 target_link_libraries(qtui PUBLIC
 	Qt6::Concurrent
-	Qt6::Core5Compat
 	Qt6::Network
 	Qt6::PrintSupport
 	Qt6::Svg

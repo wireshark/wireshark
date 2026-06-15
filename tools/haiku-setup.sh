@@ -91,7 +91,6 @@ BASIC_LIST="
 	libxml2_devel
 	libxml2
 	qt6_base_devel
-	qt6_5compat_devel
 	qt6_multimedia_devel
 	qt6_svg_devel
 	qt6_tools_devel  

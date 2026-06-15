@@ -66,7 +66,6 @@ BASIC_LIST="
 	qt6-qttools-dev
 	qt6-qtmultimedia-dev
 	qt6-qtsvg-dev
-	qt6-qt5compat-dev
 	speexdsp-dev
 	python3
 	"

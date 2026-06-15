@@ -5,7 +5,6 @@
 #
 
 "bin/Qt6Core.dll" "Qt6Core.dll"
-"bin/Qt6Core5Compat.dll" "Qt6Core5Compat.dll"
 "bin/Qt6Gui.dll" "Qt6Gui.dll"
 "bin/Qt6Multimedia.dll" "Qt6Multimedia.dll"
 "bin/Qt6Network.dll" "Qt6Network.dll"

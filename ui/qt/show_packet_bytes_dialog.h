@@ -23,7 +23,6 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QTextEdit>
-#include <QTextCodec>
 
 namespace Ui {
 class ShowPacketBytesDialog;
@@ -64,9 +63,9 @@ public:
 
     /**
      * @brief Populates the character-encoding combo box with the supplied codecs.
-     * @param codecMap Map of codec display names to QTextCodec pointers.
+     * @param codecMap Map of codec display names to iconv encoding names.
      */
-    void addCodecs(const QMap<QString, QTextCodec *> &codecMap);
+    void addCodecs(const QMap<QString, const char *> &codecMap);
 
 protected:
     /**

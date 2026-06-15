@@ -29,7 +29,7 @@
 #include <QClipboard>
 #include <QFileInfo>
 #include <QMenu>
-#include <QTextCodec>
+#include <glib.h>
 
 #include "funnel_statistics.h"
 #include "main_application.h"
@@ -103,52 +103,74 @@ InterfaceListManager *MainWindow::interfaceListManager() const
 }
 
 void MainWindow::findTextCodecs() {
-    const QList<int> mibs = QTextCodec::availableMibs();
+    static const char *encodings[] = {
+        /* Unicode */
+        "UTF-7", "UTF-16", "UTF-16BE", "UTF-16LE",
+        "UTF-32", "UTF-32BE", "UTF-32LE",
+        /* ISO-8859 */
+        "ISO-8859-1", "ISO-8859-2", "ISO-8859-3", "ISO-8859-4",
+        "ISO-8859-5", "ISO-8859-6", "ISO-8859-7", "ISO-8859-8",
+        "ISO-8859-9", "ISO-8859-10", "ISO-8859-11", "ISO-8859-13",
+        "ISO-8859-14", "ISO-8859-15", "ISO-8859-16",
+        /* Windows */
+        "WINDOWS-874", "WINDOWS-1250", "WINDOWS-1251", "WINDOWS-1252",
+        "WINDOWS-1253", "WINDOWS-1254", "WINDOWS-1255", "WINDOWS-1256",
+        "WINDOWS-1257", "WINDOWS-1258",
+        /* IBM/DOS */
+        "IBM437", "IBM775", "IBM850", "IBM852", "IBM855", "IBM857",
+        "IBM858", "IBM860", "IBM861", "IBM862", "IBM863", "IBM864",
+        "IBM865", "IBM866", "IBM869",
+        /* Cyrillic */
+        "KOI8-R", "KOI8-U", "KOI8-RU", "KOI8-T",
+        /* Japanese */
+        "EUC-JP", "SHIFT_JIS", "ISO-2022-JP", "EUC-JISX0213",
+        "SHIFT_JISX0213",
+        /* Korean */
+        "EUC-KR",
+        /* Chinese */
+        "GB18030", "GBK", "GB2312", "BIG5", "BIG5-HKSCS", "EUC-TW",
+        /* Thai */
+        "TIS-620",
+        /* Vietnamese */
+        "VISCII", "TCVN-5712",
+        /* Armenian */
+        "ARMSCII-8",
+        /* Georgian */
+        "GEORGIAN-ACADEMY", "GEORGIAN-PS",
+        /* Mac */
+        "MACINTOSH", "MAC-CYRILLIC", "MAC-CENTRALEUROPE",
+        /* Other */
+        "WINDOWS-31J",
+        NULL
+    };
     QRegularExpression ibmRegExp("^IBM([0-9]+).*$");
     QRegularExpression iso8859RegExp("^ISO-8859-([0-9]+).*$");
     QRegularExpression windowsRegExp("^WINDOWS-([0-9]+).*$");
     QRegularExpressionMatch match;
-    for (int mib : mibs) {
-        QTextCodec *codec = QTextCodec::codecForMib(mib);
-        // QTextCodec::availableMibs() returns a list of hard-coded MIB
-        // numbers, it doesn't check if they are really available. ICU data may
-        // not have been compiled with support for all encodings.
-        if (!codec) {
+    for (const char **enc = encodings; *enc; enc++) {
+        GIConv cd = g_iconv_open("UTF-8", *enc);
+        if (cd == (GIConv)-1)
             continue;
-        }
-
-        QString key = codec->name().toUpper();
+        g_iconv_close(cd);
+        QString key = QString::fromUtf8(*enc).toUpper();
         char rank;
-
         if (key.localeAwareCompare("IBM") < 0) {
             rank = 1;
         } else if ((match = ibmRegExp.match(key)).hasMatch()) {
-            rank = match.captured(1).size(); // Up to 5
+            rank = match.captured(1).size();
         } else if (key.localeAwareCompare("ISO-8859-") < 0) {
             rank = 6;
         } else if ((match = iso8859RegExp.match(key)).hasMatch()) {
-            rank = 6 + match.captured(1).size(); // Up to 6 + 2
+            rank = 6 + match.captured(1).size();
         } else if (key.localeAwareCompare("WINDOWS-") < 0) {
             rank = 9;
         } else if ((match = windowsRegExp.match(key)).hasMatch()) {
-            rank = 9 + match.captured(1).size(); // Up to 9 + 4
+            rank = 9 + match.captured(1).size();
         } else {
             rank = 14;
         }
-        // This doesn't perfectly well order the IBM codecs because it's
-        // annoying to properly place IBM00858 and IBM00924 in the middle of
-        // code page numbers not zero padded to 5 digits.
-        // We could manipulate the key further to have more commonly used
-        // charsets earlier. IANA MIB ordering would be unexpected:
-        // https://www.iana.org/assignments/character-sets/character-sets.xml
-        // For data about use in HTTP (other protocols can be quite different):
-        // https://w3techs.com/technologies/overview/character_encoding
-
         key.prepend(char('0' + rank));
-        // We use a map here because, due to backwards compatibility,
-        // the same QTextCodec may be returned for multiple MIBs, which
-        // happens for GBK/GB2312, EUC-KR/windows-949/UHC, and others.
-        text_codec_map_.insert(key, codec);
+        text_codec_map_.insert(key, *enc);
     }
 }
 

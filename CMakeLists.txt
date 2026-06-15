@@ -1566,7 +1566,6 @@ if(BUILD_wireshark OR BUILD_stratoshark)
 		COMPONENTS
 			Core
 			Concurrent
-			Core5Compat
 			Gui
 			LinguistTools
 			Network

@@ -23,7 +23,6 @@ jobs:
         with:
           arch: win64_msvc2022_64
           version: 6.8.3
-          modules: 'qt5compat'
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v3
         with:

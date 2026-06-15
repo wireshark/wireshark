@@ -211,12 +211,6 @@ add_package BASIC_LIST qt6-qtbase ||
 add_package BASIC_LIST qt6-base ||
 echo "Qt6 is unavailable"
 
-# qt6-qt5ccompat: NetBSD, OpenBSD
-# qt6-5compat: FreeBSD, DragonFly BSD
-add_package BASIC_LIST qt6-qt5compat ||
-add_package BASIC_LIST qt6-5compat ||
-echo "Qt6 Qt5-compat is unavailable"
-
 # qt6-qtmultimediat: NetBSD, OpenBSD
 # qt6-multimedia: FreeBSD, DragonFly BSD
 add_package BASIC_LIST qt6-qtmultimedia ||
