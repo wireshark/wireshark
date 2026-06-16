@@ -362,16 +362,20 @@ static const enum_val_t tsap_display_options[] = {
 #define MAX_TSAP_LEN    32
 
 typedef struct _cotp_flow_info_t {
+  uint16_t ref; // The dst-ref of this flow
   uint16_t frag_id;
+  bool ref_set; // False if didn't get the CC/CR TPDU
   bool last_fragment;
   bool frame_reset;
 } cotp_flow_info_t;
 
 typedef struct _cotp_conv_info_t {
   cotp_flow_info_t flow[2];
+  cotp_flow_info_t *fwd;
+  cotp_flow_info_t *rev;
 } cotp_conv_info_t;
 
-static cotp_flow_info_t *get_cotp_flow_info(packet_info *pinfo)
+static cotp_conv_info_t *get_cotp_conv_info(packet_info *pinfo)
 {
   conversation_t *conv;
   cotp_conv_info_t *conv_info;
@@ -390,13 +394,18 @@ static cotp_flow_info_t *get_cotp_flow_info(packet_info *pinfo)
     direction = (pinfo->srcport > pinfo->destport) ? 1 : -1;
   }
 
-  if (direction >= 0)
-    return &(conv_info->flow[0]);
+  if (direction >= 0) {
+    conv_info->fwd = &(conv_info->flow[0]);
+    conv_info->rev = &(conv_info->flow[1]);
+  } else {
+    conv_info->fwd = &(conv_info->flow[1]);
+    conv_info->rev = &(conv_info->flow[0]);
+  }
 
-  return &(conv_info->flow[1]);
+  return conv_info;
 }
 
-static uint16_t get_cotp_frag_id(packet_info *pinfo, bool fragment)
+static uint16_t get_cotp_frag_id(packet_info *pinfo, cotp_flow_info_t *flow_info, bool fragment)
 {
   /* When using fragment_add_seq_next and there is a possibility of multiple
    * TSDUs being completed in the same frame, each TSDU needs a unique ID/
@@ -410,61 +419,57 @@ static uint16_t get_cotp_frag_id(packet_info *pinfo, bool fragment)
    * Cf. with epan/frame.h and with the streaming_data functions in
    * epan/reassemble.h for other approaches with this same issue. */
   uint16_t           frag_id;
-  cotp_flow_info_t  *conv_info;
-  unsigned           conv_index;
-  bool               conv_first_seen;
-  wmem_list_t       *used_conv_list;
+  unsigned           flow_index = 0;
+  bool               flow_first_seen = true;
+  wmem_list_t       *used_flow_list;
   uint32_t          *prev_dst_ref;
 
-  conv_info = get_cotp_flow_info(pinfo);
-  /* Have we seen this COTP conversation before on this frame?
+  /* Have we seen this COTP flow before on this frame?
    * Using a list here is a bit of extra work that guards against
    * unusual captures with multiple TCP/TPKT streams on the same
    * frame (e.g., DVB-S2 GSE). */
-  used_conv_list = (wmem_list_t *)p_get_proto_data(pinfo->pool, pinfo, proto_cotp, 0);
-  conv_first_seen = true; // true if not in list
-  conv_index = 0;
-  if (!used_conv_list) {
-    used_conv_list = wmem_list_new(pinfo->pool);
-    p_add_proto_data(pinfo->pool, pinfo, proto_cotp, 0, used_conv_list);
+  used_flow_list = (wmem_list_t *)p_get_proto_data(pinfo->pool, pinfo, proto_cotp, 0);
+  if (!used_flow_list) {
+    used_flow_list = wmem_list_new(pinfo->pool);
+    p_add_proto_data(pinfo->pool, pinfo, proto_cotp, 0, used_flow_list);
   } else {
-    if (wmem_list_find(used_conv_list, conv_info)) {
-      conv_first_seen = false;
+    if (wmem_list_find(used_flow_list, flow_info)) {
+      flow_first_seen = false;
     } else {
-      conv_index = wmem_list_count(used_conv_list);
+      flow_index = wmem_list_count(used_flow_list);
     }
   }
-  wmem_list_append(used_conv_list, conv_info);
-  if (conv_first_seen) {
+  wmem_list_append(used_flow_list, flow_info);
+  if (flow_first_seen) {
     /* If this is the first time this COTP conversation has been
      * seen in this frame on this pass, and last TPDU completed a
      * TSDU, then we can reset the fragment number back to zero.
      * (We don't really have to do this.) */
-    if (!conv_info->last_fragment) {
-      conv_info->frag_id = 0;
+    if (!flow_info->last_fragment) {
+      flow_info->frag_id = 0;
     }
 
     /* If this is the first sequential pass through the frame, then
      * we save the fragment number for this converation. If not, we
      * restore the conversation fragment number to what it was at
      * this point in the first pass. */
-    prev_dst_ref = (uint32_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_cotp, conv_index);
+    prev_dst_ref = (uint32_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_cotp, flow_index);
     if (!prev_dst_ref) {
       DISSECTOR_ASSERT(!PINFO_FD_VISITED(pinfo));
       prev_dst_ref = wmem_new(wmem_file_scope(), uint32_t);
-      *prev_dst_ref = conv_info->frag_id;
-      p_add_proto_data(wmem_file_scope(), pinfo, proto_cotp, conv_index, prev_dst_ref);
+      *prev_dst_ref = flow_info->frag_id;
+      p_add_proto_data(wmem_file_scope(), pinfo, proto_cotp, flow_index, prev_dst_ref);
     } else {
-      conv_info->frag_id = *prev_dst_ref;
+      flow_info->frag_id = *prev_dst_ref;
     }
   }
-  frag_id = conv_info->frag_id;
+  frag_id = flow_info->frag_id;
   /* We update the conversation info frag id even on later passes, so
    * that we only have to store as proto data the first fragment ID
    * for the conversation. */
-  conv_info->last_fragment = fragment;
+  flow_info->last_fragment = fragment;
   if (!fragment) {
-    conv_info->frag_id++;
+    flow_info->frag_id++;
   }
   return frag_id;
 }
@@ -955,6 +960,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
   proto_item        *ti;
   bool               is_extended;
   bool               is_class_234;
+  cotp_conv_info_t  *conv_info;
   uint32_t           dst_ref;
   unsigned           tpdu_nr;
   bool               fragment        = false;
@@ -970,7 +976,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
   /* The fixed part is 2 octets long, not including the length indicator,
      for classes 0 and 1; it is at least 4 octets long, not including
      the length indicator, for classes 2, 3, and 4. */
-  is_class_234 = (li > LI_NORMAL_DT_CLASS_01);
+  is_class_234 = true;
 
   /* note: in the ATN the user is up to chose between 3 different checksums:
    *       standard OSI, 2 or 4 octet extended checksum.
@@ -1021,6 +1027,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
         break;
 
       case LI_NORMAL_DT_CLASS_01           :
+        is_class_234 = false;
         tpdu_nr = tvb_get_uint8(tvb, offset + P_TPDU_NR_0_1);
         if (tpdu_nr & 0x80)
           tpdu_nr = tpdu_nr & 0x7F;
@@ -1029,7 +1036,8 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
         is_extended = false;
         /* For these classes the DST_REF is not included, we have to get
          * it from the underlying transport and generate a frag id. */
-        dst_ref = get_cotp_frag_id(pinfo, fragment);
+        conv_info = get_cotp_conv_info(pinfo);
+        dst_ref = conv_info->fwd->ref; // Note this may default to zero if not set
         break;
 
       default : /* bad TPDU */
@@ -1117,12 +1125,12 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
   pinfo->clnp_dstref = dst_ref;
 
   pinfo->fragmented = fragment;
-  if (is_class_234) {
-      col_append_fstr(pinfo->cinfo, COL_INFO, "DT TPDU (%u) dst-ref: 0x%04x",
+  if (is_class_234 || conv_info->fwd->ref_set) {
+    col_append_fstr(pinfo->cinfo, COL_INFO, "DT TPDU (%u) dst-ref: 0x%04x",
                       tpdu_nr, dst_ref);
-    } else {
-      col_append_fstr(pinfo->cinfo, COL_INFO, "DT TPDU (%u)", tpdu_nr);
-    }
+  } else {
+    col_append_fstr(pinfo->cinfo, COL_INFO, "DT TPDU (%u)", tpdu_nr);
+  }
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_NA);
@@ -1138,13 +1146,12 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
   li -= 1;
 
   if (is_class_234) {
-    if (tree)
-      proto_tree_add_uint(cotp_tree, hf_cotp_destref, tvb, offset, 2, dst_ref);
+    proto_tree_add_uint(cotp_tree, hf_cotp_destref, tvb, offset, 2, dst_ref);
     offset += 2;
     li -= 2;
-  } else if (tree) {
+  } else if (conv_info->fwd->ref_set) {
     ti = proto_tree_add_uint (cotp_tree, hf_cotp_destref, tvb, offset, 0,
-                              dst_ref);
+                              conv_info->fwd->ref);
     proto_item_set_generated (ti);
   }
 
@@ -1197,9 +1204,19 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
      *
      * Note also that TP0 has no sequence number, and relies on
      *      the protocol atop which it runs to guarantee in-order delivery.
+     *
+     * Class 2-4 should do something similar to Class 0/1 in obtaining a
+     * unique fragment id, if it's possible for more than one reassembly
+     * for a given dst_ref to complete in the same frame.
      */
+    uint32_t frag_id;
+    if (is_class_234) {
+        frag_id = dst_ref;
+    } else {
+        frag_id = get_cotp_frag_id(pinfo, conv_info->fwd, fragment);
+    }
     fd_head = fragment_add_seq_next(&cotp_reassembly_table, next_tvb, 0, pinfo,
-                                    dst_ref, NULL, fragment_length, fragment);
+                                    frag_id, NULL, fragment_length, fragment);
     if (fd_head && fd_head->next) {
       /* don't use -1 if fragment length is zero (throws Exception) */
       proto_tree_add_bytes_format(cotp_tree, hf_cotp_segment_data, tvb, offset, (fragment_length) ? -1 : 0,
@@ -1620,6 +1637,14 @@ static int ositp_decode_CR_CC(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpd
   /* XXX - the best way to detect seems to be if we have a port set */
   if (pinfo->destport == 0) {
     expert_add_info_format(pinfo, item, &ei_cotp_connection, "Connection %s: 0x%x -> 0x%x", tpdu == CR_TPDU ? "Request(CR)" : "Confirm(CC)", src_ref, dst_ref);
+  } else {
+    cotp_conv_info_t *conv_info = get_cotp_conv_info(pinfo);
+    conv_info->rev->ref = src_ref;
+    conv_info->rev->ref_set = true;
+    if (tpdu == CR_TPDU) {
+      conv_info->fwd->ref = dst_ref;
+      conv_info->fwd->ref_set = true;
+    }
   }
 
   proto_tree_add_bitmask_list(cotp_tree, tvb, offset, 1, class_options, ENC_NA);
