@@ -1652,13 +1652,13 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
     }
 
     if (follow_info->client_port == 0) {
-        follow_info->client_port = pinfo->srcport;
-        copy_address(&follow_info->client_ip, &pinfo->src);
-        follow_info->server_port = pinfo->destport;
-        copy_address(&follow_info->server_ip, &pinfo->dst);
+        follow_info->client_port = follow_data->tcph->th_sport;
+        copy_address(&follow_info->client_ip, &follow_data->tcph->ip_src);
+        follow_info->server_port = follow_data->tcph->th_dport;
+        copy_address(&follow_info->server_ip, &follow_data->tcph->ip_dst);
     }
 
-    is_server = !(addresses_equal(&follow_info->client_ip, &pinfo->src) && follow_info->client_port == pinfo->srcport);
+    is_server = !(addresses_equal(&follow_info->client_ip, &follow_data->tcph->ip_src) && follow_info->client_port == follow_data->tcph->th_sport);
 
    /* Check whether this frame ACKs fragments in flow from the other direction.
     * This happens when frames are not in the capture file, but were actually
