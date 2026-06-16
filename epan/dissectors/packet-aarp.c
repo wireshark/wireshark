@@ -92,9 +92,9 @@ static const value_string hrd_vals[] = {
         ((ar_pro) == ETHERTYPE_ATALK && (ar_pln) == 4)
 
 static char *
-tvb_atalkid_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int offset)
+tvb_atalkid_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset)
 {
-  int node;
+  unsigned node;
   char *cur;
 
   cur=(char *)wmem_alloc(scope, 16);
@@ -104,7 +104,7 @@ tvb_atalkid_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int offset)
 }
 
 static const char *
-tvb_aarphrdaddr_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int ad_len, uint16_t type)
+tvb_aarphrdaddr_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset, unsigned ad_len, uint16_t type)
 {
   if (AARP_HW_IS_ETHER(type, ad_len)) {
     /* Ethernet address (or Token Ring address, which is the same type
@@ -115,7 +115,7 @@ tvb_aarphrdaddr_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int a
 }
 
 static char *
-tvb_aarpproaddr_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int ad_len, uint16_t type)
+tvb_aarpproaddr_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset, unsigned ad_len, uint16_t type)
 {
   if (AARP_PRO_IS_ATALK(type, ad_len)) {
     /* Appletalk address.  */
@@ -142,7 +142,7 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   proto_tree  *aarp_tree;
   proto_item  *ti;
   const char *op_str;
-  int         sha_offset, spa_offset, tha_offset, tpa_offset;
+  unsigned    sha_offset, spa_offset, tha_offset, tpa_offset;
   const char *sha_str, *spa_str, /* *tha_str, */ *tpa_str;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AARP");

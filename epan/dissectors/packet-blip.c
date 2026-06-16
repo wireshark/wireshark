@@ -212,7 +212,7 @@ is_first_frame_in_msg(blip_conversation_entry_t *conversation_entry_ptr, packet_
 }
 
 static int
-handle_ack_message(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *blip_tree, int offset, _U_ uint64_t value_frame_flags)
+handle_ack_message(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *blip_tree, unsigned offset, _U_ uint64_t value_frame_flags)
 {
 	// This gets the number of ack bytes received  as a var int in order to find out how much to bump
 	// the offset for the next proto_tree item
@@ -282,7 +282,7 @@ get_decompress_stream(packet_info* pinfo)
 }
 
 static tvbuff_t*
-decompress(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, int offset, int length)
+decompress(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, unsigned offset, int length)
 {
 	if(PINFO_FD_VISITED(pinfo)) {
 		const decompress_result_t* saved_data = (decompress_result_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_blip, 0);
@@ -391,7 +391,7 @@ dissect_blip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, _U_ void *data
 {
 
 	proto_tree *blip_tree;
-	int offset = 0;
+	unsigned offset = 0;
 
 	/* Set the protocol column to say BLIP */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BLIP");

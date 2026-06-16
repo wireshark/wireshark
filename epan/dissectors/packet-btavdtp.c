@@ -761,7 +761,7 @@ get_sep_media_type(uint32_t interface_id,
 
 
 static int
-dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset,
     uint32_t interface_id, uint32_t adapter_id, uint32_t chandle)
 {
     proto_tree       *sep_tree;
@@ -843,7 +843,7 @@ dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 
 
 static int
-dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_item *service_item, proto_tree *tree, int offset,
+dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_item *service_item, proto_tree *tree, unsigned offset,
         unsigned losc, int media_type, int media_codec_type, uint32_t *vendor_id, uint16_t *vendor_codec)
 {
     proto_item    *pitem;
@@ -1233,7 +1233,7 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_item *service_item, proto
 
 static int
 dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree, int offset, int *codec,
+        proto_tree *tree, unsigned offset, int *codec,
         int *content_protection_type, uint32_t *vendor_id,
         uint16_t *vendor_codec, uint32_t *configuration_offset,
         uint8_t *configuration_length)
@@ -1445,7 +1445,7 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static int
-dissect_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+dissect_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset,
              int seid_side, int i_item, uint32_t *sep_seid,
              uint32_t interface_id, uint32_t adapter_id, uint32_t chandle,
              uint32_t frame_number)

@@ -422,14 +422,14 @@ static void dissect_rtp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static void create_5x_analysis_packet_header_subtree(proto_tree *tree, tvbuff_t *tvb);
 static void create_5x_hpi_packet_header_subtree(proto_tree *tree, tvbuff_t *tvb);
 
-static int
-create_full_session_id_subtree(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb, int offset, uint8_t ver)
+static unsigned
+create_full_session_id_subtree(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb, unsigned offset, uint8_t ver)
 {
     uint64_t full_session_id = tvb_get_letoh64(tvb, offset);
     proto_item *packet_item = NULL;
     proto_item *packet_tree = NULL;
     uint64_t session_int = 0;
-    int session_id_length;
+    unsigned session_id_length;
 
     // SessionID
     const char *str = "N/A";
@@ -484,7 +484,7 @@ create_full_session_id_subtree(wmem_allocator_t *scope, proto_tree *tree, tvbuff
 }
 
 static void
-create_header_extension_subtree(proto_tree *tree, tvbuff_t *tvb, int offset, uint8_t extension_length,
+create_header_extension_subtree(proto_tree *tree, tvbuff_t *tvb, unsigned offset, uint8_t extension_length,
                                 uint32_t ver, uint8_t media_type, uint8_t trace_point, uint8_t extra_data,
                                 AcdrTlsPacketInfo *tls_packet_info)
 {
@@ -699,7 +699,7 @@ create_header_extension_subtree(proto_tree *tree, tvbuff_t *tvb, int offset, uin
 }
 
 static void
-create_mii_header_subtree(proto_tree *tree, tvbuff_t *tvb, int offset, uint8_t media_type)
+create_mii_header_subtree(proto_tree *tree, tvbuff_t *tvb, unsigned offset, uint8_t media_type)
 {
     proto_tree *mii_header_tree;
 
@@ -969,7 +969,7 @@ dissect_signaling_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
 }
 
 static int32_t
-add_cid(proto_tree *tree, tvbuff_t *tvb, int offset, int cid_byte_length, int hf)
+add_cid(proto_tree *tree, tvbuff_t *tvb, unsigned offset, int cid_byte_length, int hf)
 {
     int32_t cid = 0;
     if (cid_byte_length == 2) {
@@ -989,7 +989,7 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
     proto_item *header_ti = NULL;
     proto_tree *acdr_tree;
     tvbuff_t *next_tvb = NULL;
-    int offset = 0;
+    unsigned offset = 0;
     int header_byte_length = 15;
     int cid_byte_length = 2;
     uint32_t sequence_num = 0;

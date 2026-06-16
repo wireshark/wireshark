@@ -4393,7 +4393,7 @@ dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 {
 	unsigned encoding;
 	int i;
-	int offset = 0;
+	unsigned offset = 0;
 	uint64_t toc_offset;
 	uint64_t querylen;
 	int toc_entries;

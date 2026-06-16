@@ -445,7 +445,7 @@ static const value_string match_criteria[] = {
 /*  Private functions  */
 
 static unsigned
-dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, unsigned length,
+dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned length,
                              const char *name, proto_tree *field_table_tree);
 
 static void
@@ -2396,7 +2396,7 @@ get_amqp_0_9_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, unsigned length, proto_item *item)
+dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned length, proto_item *item)
 {
     proto_tree *field_table_tree, *field_item_tree;
     proto_item *field_item;
@@ -2440,7 +2440,7 @@ too_short:
 
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_amqp_0_9_field_array(tvbuff_t *tvb, packet_info *pinfo, int offset, unsigned length, proto_item *item)
+dissect_amqp_0_9_field_array(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned length, proto_item *item)
 {
     proto_tree *field_table_tree, *field_item_tree;
     proto_item *field_item;
@@ -2531,7 +2531,7 @@ static const value_string amqp_0_9_field_type_vals[] = {
 
 static unsigned
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, unsigned length,
+dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned length,
                              const char *name _U_, proto_tree *field_tree)
 {
     proto_item *field_item, *type_item, *ti = NULL;
@@ -2697,13 +2697,13 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, unsi
 
 #define AMQP_0_10_SIZE_MAX(s) (((unsigned)(s) < (1U << 16)) ? (unsigned)s : (1U << 16))
 static unsigned
-amqp_0_10_get_32bit_size(tvbuff_t *tvb, int offset) {
+amqp_0_10_get_32bit_size(tvbuff_t *tvb, unsigned offset) {
     unsigned size = tvb_get_ntohl(tvb, offset);
     return AMQP_0_10_SIZE_MAX(size);
 }
 
 static unsigned
-amqp_0_10_get_32bit_size_new(proto_tree* tree, packet_info* pinfo, tvbuff_t *tvb, int hf, int offset) {
+amqp_0_10_get_32bit_size_new(proto_tree* tree, packet_info* pinfo, tvbuff_t *tvb, int hf, unsigned offset) {
     unsigned size;
     proto_item* ti;
 
@@ -2939,7 +2939,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
     uint32_t     arg_length;
     int          flags_offset;
     const char *method_name;
-    int offset = 0;
+    unsigned offset = 0;
     tvbuff_t *next_tvb;
 
     method = tvb_get_uint8(tvb, offset+1);
@@ -3279,7 +3279,7 @@ dissect_amqp_0_10_session(tvbuff_t *tvb,
     uint32_t     array_size;
     int          flags_offset;
     const char *method_name;
-    int offset = 0;
+    unsigned offset = 0;
 
     method = tvb_get_uint8(tvb, offset+1);
     method_name = val_to_str_const(method, amqp_0_10_session_methods,
@@ -3535,7 +3535,7 @@ dissect_amqp_0_10_execution(tvbuff_t *tvb,
     uint32_t     struct_size;
     int          class_hf;
     const char *method_name;
-    int offset = 0;
+    unsigned offset = 0;
     tvbuff_t *next_tvb;
 
     method = tvb_get_uint8(tvb, offset+1);
@@ -3731,7 +3731,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
     uint32_t     map_size;
     int          flags_offset;
     const char *method_name;
-    int offset = 0;
+    unsigned offset = 0;
     tvbuff_t    *next_tvb;
 
     method = tvb_get_uint8(tvb, offset+1);
@@ -4097,7 +4097,7 @@ dissect_amqp_0_10_dtx(tvbuff_t *tvb,
     uint16_t     xid_length;
     int          flags_offset;
     const char *method_name;
-    int offset = 0;
+    unsigned offset = 0;
 
     method = tvb_get_uint8(tvb, offset+1);
     method_name = val_to_str_const(method, amqp_0_10_dtx_methods,
@@ -4284,7 +4284,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
     uint32_t     map_length;
     int          flags_offset;
     const char *method_name;
-    int offset = 0;
+    unsigned offset = 0;
     tvbuff_t *next_tvb;
 
     method = tvb_get_uint8(tvb, offset+1);
@@ -4531,7 +4531,7 @@ dissect_amqp_0_10_queue(tvbuff_t *tvb,
     uint32_t     map_length;
     int          flags_offset;
     const char *method_name;
-    int offset = 0;
+    unsigned offset = 0;
     tvbuff_t *next_tvb;
 
     method = tvb_get_uint8(tvb, offset+1);
@@ -4682,7 +4682,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
     uint32_t     map_length;
     int          flags_offset;
     const char *method_name;
-    int offset = 0;
+    unsigned offset = 0;
     tvbuff_t    *next_tvb;
 
     method = tvb_get_uint8(tvb, offset+1);
@@ -4995,7 +4995,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
     uint32_t     map_length;
     int          flags_offset;
     const char *method_name;
-    int offset = 0;
+    unsigned offset = 0;
     tvbuff_t *next_tvb;
 
     method = tvb_get_uint8(tvb, offset+1);
@@ -5830,7 +5830,7 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
     uint16_t    size;
     proto_item *ti2, *result;
     proto_tree *tree;
-    int offset = 0;
+    unsigned offset = 0;
 
     tree = proto_item_add_subtree(ti, ett_args);
 
@@ -7090,7 +7090,7 @@ dissect_amqp_0_9_method_channel_flow_ok(tvbuff_t *tvb,
 
 static int
 dissect_amqp_0_9_method_channel_close(uint16_t channel_num, tvbuff_t *tvb,
-    packet_info *pinfo, int offset, proto_tree *args_tree)
+    packet_info *pinfo, unsigned offset, proto_tree *args_tree)
 {
     proto_item *tf_code;
     const uint8_t* reply;
@@ -7798,7 +7798,7 @@ dissect_amqp_0_9_method_basic_cancel_ok(tvbuff_t *tvb,
 
 static int
 dissect_amqp_0_9_method_basic_publish(uint16_t channel_num,
-    tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *args_tree)
+    tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *args_tree)
 {
     amqp_delivery *delivery;
     proto_item *pi;
@@ -7890,7 +7890,7 @@ dissect_amqp_0_9_method_basic_return(tvbuff_t *tvb, packet_info *pinfo,
 
 static int
 dissect_amqp_0_9_method_basic_deliver(uint16_t channel_num,
-    tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *args_tree)
+    tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *args_tree)
 {
     uint64_t delivery_tag;
     const uint8_t* str;
@@ -7958,7 +7958,7 @@ dissect_amqp_0_9_method_basic_get(tvbuff_t *tvb, packet_info *pinfo,
 
 static int
 dissect_amqp_0_9_method_basic_get_ok(uint16_t channel_num,
-    tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *args_tree)
+    tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *args_tree)
 {
     uint64_t delivery_tag;
     const uint8_t* str;
@@ -8014,7 +8014,7 @@ dissect_amqp_0_9_method_basic_get_empty(tvbuff_t *tvb,
 
 static int
 dissect_amqp_0_9_method_basic_ack(uint16_t channel_num,
-    tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *args_tree)
+    tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *args_tree)
 {
     uint64_t delivery_tag;
     int multiple;
@@ -8039,7 +8039,7 @@ dissect_amqp_0_9_method_basic_ack(uint16_t channel_num,
 
 static int
 dissect_amqp_0_9_method_basic_reject(uint16_t channel_num,
-    tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *args_tree)
+    tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *args_tree)
 {
     uint64_t delivery_tag;
 
@@ -8097,7 +8097,7 @@ dissect_amqp_0_9_method_basic_recover_ok(tvbuff_t *tvb _U_,
 
 static int
 dissect_amqp_0_9_method_basic_nack(uint16_t channel_num,
-    tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *args_tree)
+    tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *args_tree)
 {
     uint64_t delivery_tag;
     int multiple;
@@ -8783,7 +8783,7 @@ dissect_amqp_0_9_method_confirm_select(tvbuff_t *tvb,
 
 static int
 dissect_amqp_0_9_method_confirm_select_ok(uint16_t channel_num,
-    tvbuff_t *tvb _U_, packet_info *pinfo, int offset, proto_tree *args_tree _U_)
+    tvbuff_t *tvb _U_, packet_info *pinfo, unsigned offset, proto_tree *args_tree _U_)
 {
     if(!PINFO_FD_VISITED(pinfo))
     {

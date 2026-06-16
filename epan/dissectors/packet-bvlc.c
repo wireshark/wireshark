@@ -577,7 +577,8 @@ dissect_ipv4_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	proto_tree *bdt_tree; /* Broadcast Distribution Table */
 	proto_tree *fdt_tree; /* Foreign Device Table */
 
-	int offset;
+	unsigned offset;
+	bool sec_decrypted;
 	uint8_t bvlc_type;
 	uint8_t bvlc_function;
 	uint16_t bvlc_length;
@@ -723,8 +724,8 @@ dissect_ipv4_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		/*offset += 2;*/
 		break;
 	case 0x0C: /* Secure-BVLL */
-		offset = bacnet_dissect_sec_wrapper(tvb, pinfo, tree, offset, NULL);
-		if (offset < 0) {
+		offset = bacnet_dissect_sec_wrapper(tvb, pinfo, tree, offset, NULL, &sec_decrypted);
+		if (!sec_decrypted) {
 			call_data_dissector(tvb, pinfo, tree);
 			return tvb_captured_length(tvb);
 		}
@@ -776,7 +777,8 @@ dissect_ipv6_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	proto_item *ti;
 	proto_tree *bvlc_tree;
 
-	int offset;
+	unsigned offset;
+	bool sec_decrypted;
 	uint8_t bvlc_type;
 	uint8_t bvlc_function;
 	uint16_t bvlc_length = 0;
@@ -913,8 +915,8 @@ dissect_ipv6_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		offset += 2;
 		break;
 	case 0x0B: /* Secure-BVLL */
-		offset = bacnet_dissect_sec_wrapper(tvb, pinfo, tree, offset, NULL);
-		if (offset < 0) {
+		offset = bacnet_dissect_sec_wrapper(tvb, pinfo, tree, offset, NULL, &sec_decrypted);
+		if (!sec_decrypted) {
 			call_data_dissector(tvb, pinfo, tree);
 			return tvb_captured_length(tvb);
 		}

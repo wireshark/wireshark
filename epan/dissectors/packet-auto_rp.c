@@ -101,7 +101,7 @@ static const value_string auto_rp_mask_sign_vals[] = {
         {0,                            NULL}
 };
 
-static int do_auto_rp_map(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, proto_tree *auto_rp_tree);
+static int do_auto_rp_map(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset, proto_tree *auto_rp_tree);
 
 static int dissect_auto_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -159,7 +159,7 @@ static int dissect_auto_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 /*
  * Handles one Auto-RP map entry. Returns the new offset.
  */
-static int do_auto_rp_map(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, proto_tree *auto_rp_tree)
+static int do_auto_rp_map(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset, proto_tree *auto_rp_tree)
 {
         proto_tree *map_tree;
         uint8_t     group_count;

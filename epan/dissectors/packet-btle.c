@@ -1300,7 +1300,7 @@ reverse_bits_per_byte(const uint32_t val)
 }
 
 static int
-dissect_feature_set(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_feature_set(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_item           *sub_item;
     proto_tree           *sub_tree;
@@ -1336,7 +1336,7 @@ dissect_feature_set(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 }
 
 static int
-dissect_conn_param_req_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_conn_param_req_rsp(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_item(btle_tree, hf_control_interval_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
@@ -1378,7 +1378,7 @@ dissect_conn_param_req_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 }
 
 static int
-dissect_length_req_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_length_req_rsp(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_item(btle_tree, hf_control_max_rx_octets, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
@@ -1396,7 +1396,7 @@ dissect_length_req_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 }
 
 static int
-dissect_phy_req_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_phy_req_rsp(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_tx_phys, ett_tx_phys, hfx_control_phys_sender, ENC_NA);
     offset += 1;
@@ -1408,7 +1408,7 @@ dissect_phy_req_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 }
 
 static int
-dissect_periodic_sync_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset, packet_info *pinfo, uint32_t interface_id, uint32_t adapter_id)
+dissect_periodic_sync_ind(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset, packet_info *pinfo, uint32_t interface_id, uint32_t adapter_id)
 {
     uint32_t              sync_offset, interval;
     int                   reserved_offset;
@@ -1478,7 +1478,7 @@ dissect_periodic_sync_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset, pack
 }
 
 static int
-dissect_cis_req(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_cis_req(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     uint32_t              interval;
     proto_item           *item;
@@ -1551,7 +1551,7 @@ dissect_cis_req(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 }
 
 static int
-dissect_cis_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_cis_rsp(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_item(btle_tree, hf_control_cis_offset_min, tvb, offset, 3, ENC_LITTLE_ENDIAN);
     offset += 3;
@@ -1566,7 +1566,7 @@ dissect_cis_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 }
 
 static int
-dissect_cis_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_cis_ind(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_item(btle_tree, hf_control_access_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -1587,7 +1587,7 @@ dissect_cis_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 }
 
 static int
-dissect_cis_terminate_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_cis_terminate_ind(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_item(btle_tree, hf_control_cig_id, tvb, offset, 1, ENC_NA);
     offset += 1;
@@ -1602,7 +1602,7 @@ dissect_cis_terminate_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 }
 
 static int
-dissect_power_control_req(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_power_control_req(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_pwr_phy, ett_pwr_phy, hfx_control_pwr_phy, ENC_NA);
     offset += 1;
@@ -1618,7 +1618,7 @@ dissect_power_control_req(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 
 
 static int
-dissect_power_control_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_power_control_rsp(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_pwrflags, ett_pwrflags, hfx_control_pwrflags, ENC_NA);
     offset += 1;
@@ -1636,7 +1636,7 @@ dissect_power_control_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 }
 
 static int
-dissect_power_control_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_power_control_ind(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_pwr_phy, ett_pwr_phy, hfx_control_pwr_phy, ENC_NA);
     offset += 1;
@@ -1654,7 +1654,7 @@ dissect_power_control_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 }
 
 static int
-dissect_subrate_req(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_subrate_req(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_item(btle_tree, hf_control_subrate_factor_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
@@ -1675,7 +1675,7 @@ dissect_subrate_req(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 }
 
 static int
-dissect_subrate_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_subrate_ind(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_item(btle_tree, hf_control_subrate_factor, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
@@ -1696,7 +1696,7 @@ dissect_subrate_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 }
 
 static int
-dissect_channel_reporting_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_channel_reporting_ind(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_item(btle_tree, hf_control_channel_reporting_enable, tvb, offset, 1, ENC_NA);
     offset += 1;
@@ -1711,7 +1711,7 @@ dissect_channel_reporting_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 }
 
 static int
-dissect_channel_status_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_channel_status_ind(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_item(btle_tree, hf_control_channel_classification, tvb, offset, 10, ENC_NA);
     offset += 10;
@@ -1721,7 +1721,7 @@ dissect_channel_status_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 
 
 static int
-dissect_periodic_sync_wr_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset, packet_info *pinfo, uint32_t interface_id, uint32_t adapter_id)
+dissect_periodic_sync_wr_ind(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset, packet_info *pinfo, uint32_t interface_id, uint32_t adapter_id)
 {
     /* The first part of LL_PERIODIC_SYNC_WR_IND is identical to LL_PERIODIC_SYNC_IND */
     /* dissect_periodic_sync_ind returns the new offset, not bytes dissected. */
@@ -1746,7 +1746,7 @@ dissect_periodic_sync_wr_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset, p
 }
 
 static int
-dissect_cs_capabilities_req_and_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_cs_capabilities_req_and_rsp(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_item(btle_tree, hf_control_cs_capabilities_mode_types, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1824,7 +1824,7 @@ dissect_cs_capabilities_req_and_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int of
 }
 
 static int
-dissect_cs_config_req(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_cs_config_req(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_item(btle_tree, hf_control_cs_config_req_config_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(btle_tree, hf_control_cs_config_req_action, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1915,7 +1915,7 @@ dissect_cs_config_req(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 }
 
 static int
-dissect_cs_config_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_cs_config_rsp(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_item(btle_tree, hf_control_cs_config_rsp_config_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(btle_tree, hf_control_cs_config_rsp_rfu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1925,7 +1925,7 @@ dissect_cs_config_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 }
 
 static int
-dissect_cs_req(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_cs_req(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_item(btle_tree, hf_control_cs_req_config_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(btle_tree, hf_control_cs_req_rfu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1984,7 +1984,7 @@ dissect_cs_req(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 }
 
 static int
-dissect_cs_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_cs_rsp(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_item(btle_tree, hf_control_cs_rsp_config_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(btle_tree, hf_control_cs_rsp_rfu1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -2027,7 +2027,7 @@ dissect_cs_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 }
 
 static int
-dissect_cs_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_cs_ind(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_item(btle_tree, hf_control_cs_ind_config_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(btle_tree, hf_control_cs_ind_rfu1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -2067,7 +2067,7 @@ dissect_cs_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 }
 
 static int
-dissect_cs_terminate_req_and_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_cs_terminate_req_and_rsp(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_item(btle_tree, hf_control_cs_terminate_config_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(btle_tree, hf_control_cs_terminate_rfu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -2083,7 +2083,7 @@ dissect_cs_terminate_req_and_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offse
 }
 
 static int
-dissect_cs_sec_req(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_cs_sec_req(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_item(btle_tree, hf_control_cs_sec_iv_c, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
@@ -2098,7 +2098,7 @@ dissect_cs_sec_req(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 }
 
 static int
-dissect_cs_sec_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_cs_sec_rsp(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_item(btle_tree, hf_control_cs_sec_iv_p, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
@@ -2113,7 +2113,7 @@ dissect_cs_sec_rsp(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 }
 
 static int
-dissect_cs_channel_map_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
+dissect_cs_channel_map_ind(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset)
 {
     proto_tree_add_item(btle_tree, hf_control_cs_channel_map_ind_0, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -2152,7 +2152,7 @@ dissect_cs_channel_map_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset)
 }
 
 static int
-dissect_ctrl_pdu_without_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *btle_tree, int offset)
+dissect_ctrl_pdu_without_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *btle_tree, unsigned offset)
 {
     if (tvb_reported_length_remaining(tvb, offset) > 3) {
         proto_tree_add_expert(btle_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);

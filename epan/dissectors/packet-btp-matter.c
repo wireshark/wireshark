@@ -136,7 +136,7 @@ static const fragment_items btp_matter_frag_items = {
 
 // Dissect the Additional Data characteristic using Matter-defined TLV encoding.
 static int
-dissect_matter_chr_ad_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length)
+dissect_matter_chr_ad_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int length)
 {
 
     col_append_str(pinfo->cinfo, COL_INFO, " Additional Data");
@@ -154,7 +154,7 @@ dissect_matter_btp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *btatt_tree, vo
     btatt_data_t *att_data = (btatt_data_t *) data;
     uint64_t flags = 0;
     uint32_t opcode = 0;
-    int offset = 0;
+    unsigned offset = 0;
 
     DISSECTOR_ASSERT(att_data);
     btl2cap_data_t *l2cap_data = att_data->l2cap_data;

@@ -586,7 +586,7 @@ static unsigned char swap_nibbles(unsigned char x){
     return (x & 0x0F)<<4 | (x & 0xF0)>>4;
 }
 
-static int parameter_type(proto_tree *tree, tvbuff_t *tvb, int offset_parameter_type)
+static int parameter_type(proto_tree *tree, tvbuff_t *tvb, unsigned offset_parameter_type)
 {
   proto_tree *subtree;
   proto_item *ti, *subitem;

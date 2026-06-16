@@ -131,14 +131,14 @@ static expert_field ei_aodv_type;
 /* Code to actually dissect the packets */
 
 static void
-dissect_aodv_ext(tvbuff_t * tvb, packet_info *pinfo, int offset, proto_tree * tree)
+dissect_aodv_ext(tvbuff_t * tvb, packet_info *pinfo, unsigned offset, proto_tree * tree)
 {
     proto_tree *ext_tree;
     proto_item *len_item;
     uint8_t     type, len;
 
 again:
-    if ((int) tvb_reported_length(tvb) <= offset)
+    if (tvb_reported_length(tvb) <= offset)
         return;                 /* No more options left */
 
     type = tvb_get_uint8(tvb, offset);

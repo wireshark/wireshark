@@ -777,7 +777,7 @@ get_agentx_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
 static int
 dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	proto_tree* agentx_tree, *pdu_hdr_tree;
 	proto_item *t_item;
 	uint8_t version;

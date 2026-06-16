@@ -595,7 +595,7 @@ void proto_register_btavrcp(void);
 void proto_reg_handoff_btavrcp(void);
 
 static  int
-dissect_attribute_id_list(tvbuff_t *tvb, proto_tree *tree, int offset,
+dissect_attribute_id_list(tvbuff_t *tvb, proto_tree *tree, unsigned offset,
                           unsigned count)
 {
     unsigned    i_attribute;
@@ -661,7 +661,7 @@ dissect_attribute_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 static int
-dissect_item_mediaplayer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_item_mediaplayer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     unsigned    displayable_name_length;
     unsigned    item_length;
@@ -878,7 +878,7 @@ dissect_item_media_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 static int
-dissect_item_folder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_item_folder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     unsigned    displayable_name_length;
     unsigned    item_length;
@@ -953,7 +953,7 @@ dissect_passthrough(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 static int
-dissect_unit(tvbuff_t *tvb, proto_tree *tree, int offset, bool is_command)
+dissect_unit(tvbuff_t *tvb, proto_tree *tree, unsigned offset, bool is_command)
 {
     if (is_command) {
         proto_tree_add_item(tree, hf_btavrcp_data, tvb, offset, 5, ENC_NA);
@@ -973,7 +973,7 @@ dissect_unit(tvbuff_t *tvb, proto_tree *tree, int offset, bool is_command)
 
 
 static int
-dissect_subunit(tvbuff_t *tvb, proto_tree *tree, int offset, bool is_command)
+dissect_subunit(tvbuff_t *tvb, proto_tree *tree, unsigned offset, bool is_command)
 {
     proto_tree_add_item(tree, hf_btavrcp_subunit_page, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_btavrcp_subunit_extension_code, tvb, offset, 1, ENC_BIG_ENDIAN);

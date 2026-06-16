@@ -170,7 +170,7 @@ format_prefix(wmem_allocator_t *scope, const unsigned char *prefix, unsigned cha
 
 static int
 network_prefix(int ae, int plen, unsigned int omitted,
-               tvbuff_t *tvb, int offset, const unsigned char *dp,
+               tvbuff_t *tvb, unsigned offset, const unsigned char *dp,
                unsigned int len, unsigned char *p_r)
 {
     unsigned   pb;
@@ -234,7 +234,7 @@ network_prefix(int ae, int plen, unsigned int omitted,
 }
 
 static int
-network_address(int ae, tvbuff_t *tvb, int offset, unsigned int len,
+network_address(int ae, tvbuff_t *tvb, unsigned offset, unsigned int len,
                 unsigned char *a_r)
 {
     return network_prefix(ae, -1, 0, tvb, offset, NULL, len, a_r);

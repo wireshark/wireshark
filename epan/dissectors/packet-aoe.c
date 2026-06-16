@@ -194,7 +194,7 @@ ata_cmd_equal_unmatched(const void *k1, const void *k2)
 }
 
 static void
-dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, bool response, uint32_t tag)
+dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, unsigned offset, bool response, uint32_t tag)
 {
   proto_item *tmp_item;
   uint8_t aflags;

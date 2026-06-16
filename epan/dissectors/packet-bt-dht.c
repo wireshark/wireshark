@@ -747,7 +747,7 @@ dissect_bencoded_dict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
 }
 
 static bool
-test_bt_dht(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+test_bt_dht(packet_info *pinfo _U_, tvbuff_t *tvb, unsigned offset, void *data _U_)
 {
 
   /* The DHT KRPC protocol sends packets that are bencoded dictionaries.

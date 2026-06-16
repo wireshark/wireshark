@@ -126,7 +126,7 @@ static int dissect_2dparityfec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       /* we are being asked for details */
       proto_item *ti;
       proto_tree *tree_2dparityfec;
-      int offset = 0;
+      unsigned offset = 0;
 
       ti = proto_tree_add_item(tree, proto_2dparityfec, tvb, 0, -1, ENC_NA);
       tree_2dparityfec = proto_item_add_subtree(ti, ett_2dparityfec);

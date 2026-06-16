@@ -580,7 +580,7 @@ dissect_iso_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     uint16_t seq_no;
     uint32_t sdu_length;
     iso_data_info_t *iso_data_info = (iso_data_info_t *) data;
-    int offset = 0;
+    unsigned offset = 0;
 
     iso_data_load_item = proto_tree_add_item(tree, proto_bthci_iso_data, tvb, offset, -1, ENC_NA);
     iso_data_load_tree = proto_item_add_subtree(iso_data_load_item, ett_bthci_iso_data);

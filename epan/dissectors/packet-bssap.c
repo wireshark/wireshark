@@ -436,7 +436,7 @@ dissect_bssap_length_param(tvbuff_t *tvb, proto_tree *tree, uint16_t length)
  */
 static uint16_t
 dissect_bssap_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bssap_tree,
-               proto_tree *tree, uint8_t parameter_type, int offset,
+               proto_tree *tree, uint8_t parameter_type, unsigned offset,
                uint16_t parameter_length, struct _sccp_msg_info_t* sccp_info)
 {
     tvbuff_t *parameter_tvb;
@@ -469,7 +469,7 @@ dissect_bssap_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bssap_tre
 static uint16_t
 dissect_bssap_var_parameter(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree *bssap_tree, proto_tree *tree,
-                uint8_t parameter_type, int offset, struct _sccp_msg_info_t* sccp_info)
+                uint8_t parameter_type, unsigned offset, struct _sccp_msg_info_t* sccp_info)
 {
     uint16_t parameter_length;
     uint8_t length_length;
@@ -672,7 +672,7 @@ check_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, uint8
 }
 
 static bool
-check_optional_ie(tvbuff_t *tvb, int offset, uint8_t expected_ie)
+check_optional_ie(tvbuff_t *tvb, unsigned offset, uint8_t expected_ie)
 {
     uint8_t ie_type;
 
@@ -686,7 +686,7 @@ check_optional_ie(tvbuff_t *tvb, int offset, uint8_t expected_ie)
 
 /* 18.4.1 Cell global identity */
 static int
-dissect_bssap_cell_global_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
+dissect_bssap_cell_global_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -727,7 +727,7 @@ dissect_bssap_cell_global_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 }
 /* 18.4.2 Channel needed */
 static int
-dissect_bssap_channel_needed(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
+dissect_bssap_channel_needed(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -753,7 +753,7 @@ dissect_bssap_channel_needed(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 }
 /* 18.4.3 Downlink Tunnel Payload Control and Info */
 static int
-dissect_bssap_dlink_tunnel_payload_control_and_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_bssap_dlink_tunnel_payload_control_and_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -817,7 +817,7 @@ static const value_string bssap_call_priority_values[] = {
     { 0,                NULL }
 };
 static int
-dissect_bssap_emlpp_priority(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_emlpp_priority(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -848,7 +848,7 @@ dissect_bssap_emlpp_priority(tvbuff_t *tvb, proto_tree *tree, int offset)
     /* Erroneous message including the message type. */
 
 static int
-dissect_bssap_gprs_erroneous_msg(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_gprs_erroneous_msg(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -879,7 +879,7 @@ static const value_string bssap_plus_GPRS_loc_upd_type_values[] = {
 };
 /* 18.4.6 GPRS location update type */
 static int
-dissect_bssap_gprs_location_update_type(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_gprs_location_update_type(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -924,7 +924,7 @@ static const value_string bssap_Gs_cause_values[] = {
 
 /* 18.4.7 Gs cause */
 static int
-dissect_bssap_Gs_cause(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_Gs_cause(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -947,7 +947,7 @@ dissect_bssap_Gs_cause(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 /* 18.4.8 IMEI */
 static int
-dissect_bssap_imei(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_imei(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -978,7 +978,7 @@ dissect_bssap_imei_dissector(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 }
 /* 18.4.9 IMEISV */
 static int
-dissect_bssap_imeisv(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_imeisv(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -1010,7 +1010,7 @@ dissect_bssap_imeisv(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 
 static int
-dissect_bssap_imsi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
+dissect_bssap_imsi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -1041,7 +1041,7 @@ static const value_string bssap_imsi_det_from_gprs_serv_type_values[] _U_ = {
 
 /* 18.4.11 IMSI detach from GPRS service type */
 static int
-dissect_bssap_imsi_det_from_gprs_serv_type(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_imsi_det_from_gprs_serv_type(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -1064,7 +1064,7 @@ dissect_bssap_imsi_det_from_gprs_serv_type(tvbuff_t *tvb, proto_tree *tree, int 
 }
 /* 18.4.12 IMSI detach from non-GPRS service type */
 static int
-dissect_bssap_imsi_det_from_non_gprs_serv_type(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_imsi_det_from_non_gprs_serv_type(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -1099,7 +1099,7 @@ static const value_string bssap_info_req_values[] = {
 };
 /* 18.4.13 Information requested */
 static int
-dissect_bssap_info_req(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_info_req(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -1122,7 +1122,7 @@ dissect_bssap_info_req(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 /* 18.4.14 Location area identifier */
 static int
-dissect_bssap_loc_area_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
+dissect_bssap_loc_area_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -1148,7 +1148,7 @@ dissect_bssap_loc_area_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
 }
 /* 18.4.15 Location information age */
 static int
-dissect_bssap_location_information_age(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_location_information_age(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -1181,7 +1181,7 @@ dissect_bssap_location_information_age(tvbuff_t *tvb, proto_tree *tree, int offs
 }
 /* 18.4.16 MM information */
 static int
-dissect_bssap_MM_information(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
+dissect_bssap_MM_information(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -1209,7 +1209,7 @@ dissect_bssap_MM_information(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 }
 /* 18.4.17 Mobile identity */
 static int
-dissect_bssap_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
+dissect_bssap_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -1235,7 +1235,7 @@ dissect_bssap_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
 }
 /* 18.4.18 Mobile station classmark 1 */
 static int
-dissect_bssap_mobile_stn_cls_mrk1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
+dissect_bssap_mobile_stn_cls_mrk1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -1272,7 +1272,7 @@ static const value_string bssap_mobile_station_state_values[] = {
     { 0,                NULL }
 };
 static int
-dissect_bssap_mobile_station_state(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_mobile_station_state(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -1294,7 +1294,7 @@ dissect_bssap_mobile_station_state(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 /* 18.4.20 PTMSI */
 static int
-dissect_bssap_ptmsi(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_ptmsi(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -1318,7 +1318,7 @@ dissect_bssap_ptmsi(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 /* 18.4.21 Reject cause */
 static int
-dissect_bssap_reject_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
+dissect_bssap_reject_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -1344,7 +1344,7 @@ dissect_bssap_reject_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 
 /* 18.4.21b Service Area Identification */
 static int
-dissect_bssap_service_area_id(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_service_area_id(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -1371,7 +1371,7 @@ dissect_bssap_service_area_id(tvbuff_t *tvb, proto_tree *tree, int offset)
 /* 18.4.22 SGSN number */
 
 static int
-dissect_bssap_sgsn_number(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_sgsn_number(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -1405,7 +1405,7 @@ dissect_bssap_sgsn_number(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 /* 18.4.23 TMSI */
 static int
-dissect_bssap_tmsi(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_tmsi(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -1435,7 +1435,7 @@ static const true_false_string bssap_tmsi_flag = {
   "No valid TMSI available"
 };
 static int
-dissect_bssap_tmsi_status(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_tmsi_status(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -1470,7 +1470,7 @@ static const value_string bssap_tom_prot_disc_values[] = {
     { 0,                NULL }
 };
 static int
-dissect_bssap_ulink_tunnel_payload_control_and_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_bssap_ulink_tunnel_payload_control_and_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -1520,7 +1520,7 @@ dissect_bssap_ulink_tunnel_payload_control_and_info(tvbuff_t *tvb, packet_info *
 
 /* 18.4.26 VLR number */
 static int
-dissect_bssap_vlr_number(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_vlr_number(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -1554,7 +1554,7 @@ dissect_bssap_vlr_number(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 /* 18.4.27 Global CN-Id */
 static int
-dissect_bssap_global_cn_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_bssap_global_cn_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     proto_item *item;
     proto_tree *ie_tree;

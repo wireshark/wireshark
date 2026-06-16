@@ -163,7 +163,7 @@ void proto_reg_handoff_btsap(void);
 
 static int
 dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
-        proto_tree *tree, int offset, uint8_t *parameter, int *parameter_offset)
+        proto_tree *tree, unsigned offset, uint8_t *parameter, int *parameter_offset)
 {
     proto_item  *parameter_item;
     proto_item  *pitem;

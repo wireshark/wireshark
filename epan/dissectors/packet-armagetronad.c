@@ -127,7 +127,7 @@ is_armagetronad_packet(tvbuff_t * tvb)
 }
 
 static void
-add_message_data(tvbuff_t * tvb, int offset, int data_len, proto_tree * tree)
+add_message_data(tvbuff_t * tvb, unsigned offset, int data_len, proto_tree * tree)
 {
 	if (!tree)
 		return;
@@ -155,7 +155,7 @@ add_message_data(tvbuff_t * tvb, int offset, int data_len, proto_tree * tree)
 }
 
 static int
-add_message(tvbuff_t * tvb, packet_info* pinfo, int offset, proto_tree * tree, wmem_strbuf_t * info)
+add_message(tvbuff_t * tvb, packet_info* pinfo, unsigned offset, proto_tree * tree, wmem_strbuf_t * info)
 {
 	uint16_t     descriptor_id, message_id;
 	int          data_len;

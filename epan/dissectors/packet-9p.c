@@ -1118,11 +1118,11 @@ static expert_field ei_9P_msgtype;
 
 static wmem_map_t *_9p_hashtable;
 
-static void dissect_9P_dm(tvbuff_t *tvb,  proto_item *tree, int offset, int iscreate);
-static void dissect_9P_qid(tvbuff_t *tvb,  proto_tree *tree, int offset);
-static void dissect_9P_lflags(tvbuff_t *tvb, proto_tree *tree, int offset);
-static void dissect_9P_getattrflags(tvbuff_t *tvb, proto_tree *tree, int offset);
-static void dissect_9P_setattrflags(tvbuff_t *tvb, proto_tree *tree, int offset);
+static void dissect_9P_dm(tvbuff_t *tvb,  proto_item *tree, unsigned offset, int iscreate);
+static void dissect_9P_qid(tvbuff_t *tvb,  proto_tree *tree, unsigned offset);
+static void dissect_9P_lflags(tvbuff_t *tvb, proto_tree *tree, unsigned offset);
+static void dissect_9P_getattrflags(tvbuff_t *tvb, proto_tree *tree, unsigned offset);
+static void dissect_9P_setattrflags(tvbuff_t *tvb, proto_tree *tree, unsigned offset);
 
 static int * const _9P_modes[] = {
 	&hf_9P_mode_c,
@@ -2232,7 +2232,7 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 }
 
 /* dissect 9P Qid */
-static void dissect_9P_qid(tvbuff_t *tvb,  proto_tree *tree, int offset)
+static void dissect_9P_qid(tvbuff_t *tvb,  proto_tree *tree, unsigned offset)
 {
 	proto_item *qidtype_item;
 	proto_tree *qid_tree,*qidtype_tree;
@@ -2265,7 +2265,7 @@ static void dissect_9P_qid(tvbuff_t *tvb,  proto_tree *tree, int offset)
 }
 
 /*dissect 9P stat mode and create perm flags */
-static void dissect_9P_dm(tvbuff_t *tvb,  proto_item *item, int offset, int iscreate)
+static void dissect_9P_dm(tvbuff_t *tvb,  proto_item *item, unsigned offset, int iscreate)
 {
 	proto_item *mode_tree;
 
@@ -2295,7 +2295,7 @@ static void dissect_9P_dm(tvbuff_t *tvb,  proto_item *item, int offset, int iscr
 }
 
 /* Dissect 9P getattr_flags */
-static void dissect_9P_getattrflags(tvbuff_t *tvb, proto_item *item, int offset)
+static void dissect_9P_getattrflags(tvbuff_t *tvb, proto_item *item, unsigned offset)
 {
 	proto_item *attrmask_tree;
 
@@ -2321,7 +2321,7 @@ static void dissect_9P_getattrflags(tvbuff_t *tvb, proto_item *item, int offset)
 }
 
 /* Dissect 9P setattr_flags */
-static void dissect_9P_setattrflags(tvbuff_t *tvb, proto_item *item, int offset)
+static void dissect_9P_setattrflags(tvbuff_t *tvb, proto_item *item, unsigned offset)
 {
 	proto_item *attrmask_tree;
 
@@ -2341,7 +2341,7 @@ static void dissect_9P_setattrflags(tvbuff_t *tvb, proto_item *item, int offset)
 }
 
 /* Dissect 9P lflags */
-static void dissect_9P_lflags(tvbuff_t *tvb, proto_item *item, int offset)
+static void dissect_9P_lflags(tvbuff_t *tvb, proto_item *item, unsigned offset)
 {
 	proto_item *attrmask_tree;
 

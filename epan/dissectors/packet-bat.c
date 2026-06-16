@@ -151,7 +151,7 @@ static const value_string vis_packettypenames[] = {
 };
 
 /* supported packet dissectors */
-static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int dissect_bat_batman_v5(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree);
 
 
 static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -175,7 +175,7 @@ static int bat_follow_tap;
 static int dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	uint8_t version;
-	int offset = 0;
+	unsigned offset = 0;
 
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_BATMAN");
@@ -196,7 +196,7 @@ static int dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	return tvb_captured_length(tvb);
 }
 
-static void dissect_bat_gwflags(tvbuff_t *tvb, uint8_t gwflags, int offset, proto_item *tgw)
+static void dissect_bat_gwflags(tvbuff_t *tvb, uint8_t gwflags, unsigned offset, proto_item *tgw)
 {
 	proto_tree *gwflags_tree;
 	uint8_t s = (gwflags & 0x80) >> 7;
@@ -213,7 +213,7 @@ static void dissect_bat_gwflags(tvbuff_t *tvb, uint8_t gwflags, int offset, prot
 
 }
 
-static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+static int dissect_bat_batman_v5(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *tgw;
 	proto_tree *bat_batman_tree = NULL;
@@ -342,7 +342,7 @@ static int dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
 	tvbuff_t *next_tvb;
 	int length_remaining;
-	int offset = 0;
+	unsigned offset = 0;
 
 	gw_packeth = wmem_new(pinfo->pool, struct gw_packet);
 	gw_packeth->type = tvb_get_uint8(tvb, 0);
@@ -440,7 +440,7 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	tvbuff_t *next_tvb;
 	int length_remaining, i;
-	int offset = 0;
+	unsigned offset = 0;
 
 	vis_packeth = wmem_new(pinfo->pool, struct vis_packet_v22);
 
@@ -561,7 +561,7 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	tvbuff_t *next_tvb;
 	int length_remaining, i;
-	int offset = 0;
+	unsigned offset = 0;
 
 	vis_packeth = wmem_new(pinfo->pool, struct vis_packet_v23);
 

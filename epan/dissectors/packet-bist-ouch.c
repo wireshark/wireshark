@@ -252,7 +252,7 @@ static const value_string ouch_quote_status_vals[] = {
 };
 
 static int
-add_price(proto_tree *tree, int hf_int, int hf_double, tvbuff_t *tvb, int offset)
+add_price(proto_tree *tree, int hf_int, int hf_double, tvbuff_t *tvb, unsigned offset)
 {
     int32_t raw = (int32_t)tvb_get_ntohl(tvb, offset);
     if (bist_ouch_show_decimal_price) {
@@ -601,7 +601,7 @@ ob_track_and_annotate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, proto_i
 }
 
 static int
-dissect_u_replace_order(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, int offset)
+dissect_u_replace_order(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, unsigned offset)
 {
     /* Existing Order Token (EOT) — dedicated field + generated legacy alias */
     proto_tree_add_item(pt, hf_ouch_existing_order_token, tvb, offset, 14, ENC_ASCII);
@@ -628,7 +628,7 @@ dissect_u_replace_order(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, int o
 }
 
 static int
-dissect_u_order_replaced(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, int offset)
+dissect_u_order_replaced(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, unsigned offset)
 {
     proto_tree_add_item(pt, hf_ouch_timestamp_ns, tvb, offset,  8, ENC_BIG_ENDIAN); offset += 8;
     proto_tree_add_item(pt, hf_ouch_repl_order_token, tvb, offset, 14, ENC_ASCII);  offset += 14;
@@ -654,7 +654,7 @@ dissect_u_order_replaced(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, int 
 static int
 dissect_bist_ouch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t type;
     const char* str_type;
 

@@ -45,8 +45,8 @@ static dissector_handle_t FiveCoLegacy_udp_handle;
 /****************************************************************************/
 
 // Protocol header length and frame minimum length
-#define FIVECO_LEGACY_HEADER_LENGTH 6
-#define FIVECO_LEGACY_MIN_LENGTH FIVECO_LEGACY_HEADER_LENGTH + 2 // Checksum is 16 bits
+#define FIVECO_LEGACY_HEADER_LENGTH 6u
+#define FIVECO_LEGACY_MIN_LENGTH FIVECO_LEGACY_HEADER_LENGTH + 2u // Checksum is 16 bits
 
 /* Global sample ports preferences */
 #define FIVECO_TCP_PORTS "8010,8004"    /* TCP ports of the FiveCo protocol + web page upload */
@@ -210,8 +210,8 @@ static const value_string register_name_vals[] = {
 };
 
 /* Dissect the dynamic register data */
-static int
-dissect_FiveCoLegacy_registers(uint32_t reg_num, proto_tree* tree, packet_info* pinfo, tvbuff_t* tvb, int offset, int data_length, int unknownhf)
+static unsigned
+dissect_FiveCoLegacy_registers(uint32_t reg_num, proto_tree* tree, packet_info* pinfo, tvbuff_t* tvb, unsigned offset, unsigned data_length, int unknownhf)
 {
     switch (reg_num)
     {
@@ -311,7 +311,7 @@ dissect_FiveCoLegacy_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     FCOSConvRequestVal *pRequestVal = NULL;
     tvbuff_t *request_tvb = NULL;
     uint32_t ucAdd, ucBytesToWrite, ucBytesToRead, ucRegAdd;
-    int offset = 0, request_offset = 0;
+    unsigned offset = 0, request_offset = 0;
     const char* str_packet_type;
 
     /* Display fiveco in protocol column */

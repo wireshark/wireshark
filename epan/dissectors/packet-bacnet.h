@@ -10,9 +10,9 @@
 #ifndef __PACKET_BACNET_H__
 #define __PACKET_BACNET_H__
 
-extern int
+extern unsigned
 bacnet_dissect_sec_wrapper(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset, bool *pis_net_msg_flg);
+    unsigned offset, bool *pis_net_msg_flg, bool *decrypted);
 
 #endif /* __PACKET_BACNET_H__ */
 

@@ -137,7 +137,7 @@ void proto_register_btbnep(void);
 void proto_reg_handoff_btbnep(void);
 
 static int
-dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     proto_item  *pitem = NULL;
     unsigned     control_type;
@@ -231,7 +231,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     uint8_t extension_flag;
     uint8_t extension_type;

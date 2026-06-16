@@ -286,7 +286,7 @@ find_proto_by_channel(unsigned channel) {
 }
 
 static int
-get_le_multi_byte_value(tvbuff_t *tvb, int offset, proto_tree *tree, uint32_t *val_ptr, int hf_index)
+get_le_multi_byte_value(tvbuff_t *tvb, unsigned offset, proto_tree *tree, uint32_t *val_ptr, int hf_index)
 {
     uint8_t byte, bc     = 0;
     uint32_t val          = 0;
@@ -309,7 +309,7 @@ get_le_multi_byte_value(tvbuff_t *tvb, int offset, proto_tree *tree, uint32_t *v
 
 
 static int
-dissect_ctrl_pn(proto_tree *t, tvbuff_t *tvb, int offset, uint8_t *mcc_channel)
+dissect_ctrl_pn(proto_tree *t, tvbuff_t *tvb, unsigned offset, uint8_t *mcc_channel)
 {
     proto_tree   *st;
     proto_item   *ti;
@@ -367,7 +367,7 @@ dissect_ctrl_pn(proto_tree *t, tvbuff_t *tvb, int offset, uint8_t *mcc_channel)
 }
 
 static int
-dissect_ctrl_msc(proto_tree *t, tvbuff_t *tvb, int offset, int length, uint8_t *mcc_channel)
+dissect_ctrl_msc(proto_tree *t, tvbuff_t *tvb, unsigned offset, int length, uint8_t *mcc_channel)
 {
 
     proto_tree *st;
@@ -419,7 +419,7 @@ dissect_ctrl_msc(proto_tree *t, tvbuff_t *tvb, int offset, int length, uint8_t *
 }
 
 static int
-dissect_btrfcomm_address(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, uint8_t *ea_flagp, uint8_t *cr_flagp, uint8_t *dlcip)
+dissect_btrfcomm_address(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, uint8_t *ea_flagp, uint8_t *cr_flagp, uint8_t *dlcip)
 {
     proto_item *ti;
     proto_tree *addr_tree;
@@ -472,7 +472,7 @@ dissect_btrfcomm_address(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tr
 }
 
 static int
-dissect_btrfcomm_control(tvbuff_t *tvb, int offset, proto_tree *tree, uint8_t *pf_flagp, uint8_t *frame_typep)
+dissect_btrfcomm_control(tvbuff_t *tvb, unsigned offset, proto_tree *tree, uint8_t *pf_flagp, uint8_t *frame_typep)
 {
     proto_item *ti;
     proto_tree *hctl_tree;
@@ -504,7 +504,7 @@ dissect_btrfcomm_control(tvbuff_t *tvb, int offset, proto_tree *tree, uint8_t *p
 
 
 static int
-dissect_btrfcomm_payload_length(tvbuff_t *tvb, int offset, proto_tree *tree, uint16_t *frame_lenp)
+dissect_btrfcomm_payload_length(tvbuff_t *tvb, unsigned offset, proto_tree *tree, uint16_t *frame_lenp)
 {
     uint16_t frame_len;
     int     start_offset = offset;
@@ -530,7 +530,7 @@ dissect_btrfcomm_payload_length(tvbuff_t *tvb, int offset, proto_tree *tree, uin
 }
 
 static int
-dissect_btrfcomm_MccType(tvbuff_t *tvb, int offset, proto_tree *tree, uint8_t *mcc_cr_flagp, uint8_t *mcc_ea_flagp, uint32_t *mcc_typep)
+dissect_btrfcomm_MccType(tvbuff_t *tvb, unsigned offset, proto_tree *tree, uint8_t *mcc_cr_flagp, uint8_t *mcc_ea_flagp, uint32_t *mcc_typep)
 {
     int         start_offset = offset;
     proto_item *ti;

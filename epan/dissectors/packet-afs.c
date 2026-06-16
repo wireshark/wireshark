@@ -2758,7 +2758,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	proto_item		*hidden_item;
 	int port, node, typenode, opcode;
 	value_string_ext *vals_ext;
-	int offset = 0;
+	unsigned offset = 0;
 	nstime_t delta_ts;
 	uint8_t save_fragmented;
 	int reassembled = 0;

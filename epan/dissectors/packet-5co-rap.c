@@ -229,7 +229,7 @@ static hf_register_info hf_base[] = {
 /* so on until a byte with higher bit is not set.                            */
 /*****************************************************************************/
 /* XXX - Replace with equivalent tvb_get_varint(..., ENC_VARINT_PROTOBUF)? */
-static int
+static uint32_t
 get_data_size(tvbuff_t *tvb, uint32_t first_index, uint32_t *p_header_len) {
 
     uint8_t size8;

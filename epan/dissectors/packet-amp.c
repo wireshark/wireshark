@@ -30,7 +30,7 @@
 /*
  */
 static void
-add_value_time_to_tree(uint64_t value, int len, proto_tree *tree, tvbuff_t *tvb, int offset, int hf_time_format)
+add_value_time_to_tree(uint64_t value, int len, proto_tree *tree, tvbuff_t *tvb, unsigned offset, int hf_time_format)
 {
     nstime_t dtn_time;
 

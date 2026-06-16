@@ -173,7 +173,7 @@ is_ipv4_format(packet_info *pinfo)
   return true;
 }
 static int
-dissect_bt_tracker_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, int offset)
+dissect_bt_tracker_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, unsigned offset)
 {
   proto_item *ti;
   proto_tree *ext_tree;
@@ -181,7 +181,7 @@ dissect_bt_tracker_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *t
   uint32_t extension_length;
   int32_t tot_length;
 
-  while (offset < (int)tvb_reported_length(tvb)) {
+  while (offset < tvb_reported_length(tvb)) {
     extension_type = tvb_get_uint8(tvb, offset);
 
     tot_length = 1;

@@ -3322,7 +3322,7 @@ static void bthci_cmd_vendor_prompt(packet_info *pinfo _U_, char* result)
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Vendor as");
 }
 
-static int dissect_coding_format(proto_tree *tree, int hf_x, tvbuff_t *tvb, int offset, int ett_x)
+static int dissect_coding_format(proto_tree *tree, int hf_x, tvbuff_t *tvb, unsigned offset, int ett_x)
 {
     proto_item *sub_item;
     proto_tree *sub_tree;
@@ -3343,7 +3343,7 @@ static int dissect_coding_format(proto_tree *tree, int hf_x, tvbuff_t *tvb, int 
 }
 
 static int
-dissect_bthci_cmd_cod_mask(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_cmd_cod_mask(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_item  *cod_mask_item;
     proto_item  *cod_mask_tree;
@@ -3374,7 +3374,7 @@ dissect_bthci_cmd_cod_mask(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 }
 
 static int
-dissect_bthci_cmd_flow_spec(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, bool tx)
+dissect_bthci_cmd_flow_spec(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree, bool tx)
 {
     proto_item *ti_flow_spec;
     proto_tree *ti_flow_spec_subtree;
@@ -3399,7 +3399,7 @@ dissect_bthci_cmd_flow_spec(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 }
 
 static int
-dissect_antenna_switching_pattern(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_antenna_switching_pattern(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     uint8_t length_antenna_pattern;
 
@@ -3426,7 +3426,7 @@ dissect_antenna_switching_pattern(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static int
-dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_link_control_cmd(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
         proto_tree *tree, uint16_t cmd_ocf, bluetooth_data_t *bluetooth_data)
 {
     proto_item *item;
@@ -4007,7 +4007,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, uint16_t cmd_ocf, bluetooth_data_t *bluetooth_data)
+dissect_link_policy_cmd(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, uint16_t cmd_ocf, bluetooth_data_t *bluetooth_data)
 {
     switch (cmd_ocf) {
         case 0x0001: /* Hold Mode */
@@ -4128,7 +4128,7 @@ dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 }
 
 static int
-dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_host_controller_baseband_cmd(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
         proto_tree *tree, uint16_t cmd_ocf, bluetooth_data_t *bluetooth_data,
         bthci_cmd_data_t  *bthci_cmd_data)
 {
@@ -4992,7 +4992,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 static int
-dissect_informational_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_informational_parameters_cmd(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
         proto_tree *tree, uint16_t cmd_ocf)
 {
     switch (cmd_ocf) {
@@ -5024,7 +5024,7 @@ dissect_informational_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 static int
-dissect_status_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_status_parameters_cmd(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
         proto_tree *tree, uint16_t cmd_ocf)
 {
     switch (cmd_ocf) {
@@ -5100,7 +5100,7 @@ dissect_status_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-dissect_testing_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, uint16_t cmd_ocf)
+dissect_testing_cmd(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, uint16_t cmd_ocf)
 {
     switch (cmd_ocf) {
 
@@ -5152,7 +5152,7 @@ dissect_testing_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 }
 
 static int
-dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, uint16_t cmd_ocf, bluetooth_data_t *bluetooth_data)
+dissect_le_cmd(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, uint16_t cmd_ocf, bluetooth_data_t *bluetooth_data)
 {
     proto_item  *item;
     proto_item  *sub_item;
@@ -12351,7 +12351,7 @@ dissect_btcommon_eir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 static int
 dissect_btcommon_channel_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     int channel = 0;
     int num_channels;
 
@@ -12372,7 +12372,7 @@ dissect_btcommon_channel_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 static int
 dissect_btcommon_le_channel_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
-    int offset = 0;
+    unsigned offset = 0;
     int *reserved_bits_offset = (int *)data;
 
     proto_tree_add_item(tree, hf_btcommon_le_channel_map_0, tvb, offset, 1, ENC_NA);

@@ -1442,7 +1442,7 @@ void proto_reg_handoff_btad_matter(void);
 static int
 dissect_btad_matter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     proto_tree *main_item = proto_tree_add_item(tree, proto_btad_matter, tvb, offset, -1, ENC_NA);
     proto_tree *main_tree = proto_item_add_subtree(main_item, ett_btad_matter);
 

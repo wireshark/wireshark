@@ -279,7 +279,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 static int
-dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     /* flow: server <-> client */
     tvbuff_t *next_tvb;

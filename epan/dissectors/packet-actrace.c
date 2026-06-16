@@ -418,7 +418,7 @@ static int actrace_tap;
 static actrace_info_t *actrace_pi;
 
 /* Some basic utility functions that are specific to this dissector */
-static int is_actrace(tvbuff_t *tvb, int offset);
+static int is_actrace(tvbuff_t *tvb, unsigned offset);
 
 /*
  * The dissect functions
@@ -681,7 +681,7 @@ static void dissect_actrace_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
  * in tvb, ACTRACE_CAS if there's a CAS packet there, ACTRACE_ISDN if
  * there's an ISDN packet there.
  */
-static int is_actrace(tvbuff_t *tvb, int offset)
+static int is_actrace(tvbuff_t *tvb, unsigned offset)
 {
 	int    tvb_len;
 	int32_t source, isdn_header;

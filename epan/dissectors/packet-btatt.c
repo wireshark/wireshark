@@ -4251,7 +4251,7 @@ get_server_bdaddr_from_direction(btl2cap_data_t *l2cap_data, int direction, uint
 }
 
 static request_data_t *
-get_request(tvbuff_t *tvb, int offset, packet_info *pinfo, uint8_t opcode,
+get_request(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, uint8_t opcode,
         btl2cap_data_t *l2cap_data)
 {
     request_data_t  *request_data;
@@ -4716,7 +4716,7 @@ static void col_append_info_by_handle(packet_info *pinfo, uint16_t handle, uint8
     }
 }
 
-static int dissect_gatt_uuid(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+static int dissect_gatt_uuid(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset)
 {
     proto_item       *sub_item;
     bluetooth_uuid_t  sub_uuid;
@@ -4742,7 +4742,7 @@ static int dissect_gatt_uuid(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb
 
 static int
 dissect_handle(proto_tree *tree, packet_info *pinfo, int hf,
-        tvbuff_t *tvb, int offset, btl2cap_data_t *l2cap_data,
+        tvbuff_t *tvb, unsigned offset, btl2cap_data_t *l2cap_data,
         bluetooth_uuid_t *uuid, int32_t handle, uint8_t opcode, uint16_t *p_handle_value)
 {
     proto_item        *handle_item;
@@ -10837,7 +10837,7 @@ save_mtu(packet_info *pinfo, btl2cap_data_t *l2cap_data, unsigned mtu)
 }
 
 static void
-save_value_fragment(packet_info *pinfo, tvbuff_t *tvb, int offset,
+save_value_fragment(packet_info *pinfo, tvbuff_t *tvb, unsigned offset,
         uint32_t handle, unsigned data_offset, btl2cap_data_t *l2cap_data)
 {
     wmem_tree_key_t   key[7];
@@ -11823,7 +11823,7 @@ dissect_btgatt_microbit_accelerometer_data(tvbuff_t *tvb, packet_info *pinfo _U_
     proto_item *sub_item;
     proto_tree *sub_tree;
     double x_axis, y_axis, z_axis;
-    int offset = 0;
+    unsigned offset = 0;
 
     if (bluetooth_gatt_has_no_parameter(att_data->opcode))
         return -1;
@@ -11850,7 +11850,7 @@ static int
 dissect_btgatt_microbit_accelerometer_period(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
     btatt_data_t *att_data = (btatt_data_t *) data;
-    int offset = 0;
+    unsigned offset = 0;
 
     if (bluetooth_gatt_has_no_parameter(att_data->opcode))
         return -1;
@@ -11868,7 +11868,7 @@ dissect_btgatt_microbit_magnetometer_data(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_item *sub_item;
     proto_tree *sub_tree;
     double x_axis, y_axis, z_axis;
-    int offset = 0;
+    unsigned offset = 0;
 
     if (bluetooth_gatt_has_no_parameter(att_data->opcode))
         return -1;
@@ -11895,7 +11895,7 @@ static int
 dissect_btgatt_microbit_magnetometer_period(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
     btatt_data_t *att_data = (btatt_data_t *) data;
-    int offset = 0;
+    unsigned offset = 0;
 
     if (bluetooth_gatt_has_no_parameter(att_data->opcode))
         return -1;
@@ -11910,7 +11910,7 @@ static int
 dissect_btgatt_microbit_magnetometer_bearing(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
     btatt_data_t *att_data = (btatt_data_t *) data;
-    int offset = 0;
+    unsigned offset = 0;
 
     if (bluetooth_gatt_has_no_parameter(att_data->opcode))
         return -1;
@@ -11925,7 +11925,7 @@ static int
 dissect_btgatt_microbit_button_a_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
     btatt_data_t *att_data = (btatt_data_t *) data;
-    int offset = 0;
+    unsigned offset = 0;
 
     if (bluetooth_gatt_has_no_parameter(att_data->opcode))
         return -1;
@@ -11940,7 +11940,7 @@ static int
 dissect_btgatt_microbit_button_b_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
     btatt_data_t *att_data = (btatt_data_t *) data;
-    int offset = 0;
+    unsigned offset = 0;
 
     if (bluetooth_gatt_has_no_parameter(att_data->opcode))
         return -1;
@@ -11957,7 +11957,7 @@ dissect_btgatt_microbit_pin_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     btatt_data_t *att_data = (btatt_data_t *) data;
     proto_item *sub_item;
     proto_tree *sub_tree;
-    int offset = 0;
+    unsigned offset = 0;
     int num_pins;
     uint32_t number, value;
 
@@ -12060,7 +12060,7 @@ static int
 dissect_btgatt_microbit_scrolling_delay(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
     btatt_data_t *att_data = (btatt_data_t *) data;
-    int offset = 0;
+    unsigned offset = 0;
 
     if (bluetooth_gatt_has_no_parameter(att_data->opcode))
         return -1;
@@ -12127,7 +12127,7 @@ static int
 dissect_btgatt_microbit_dfu_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
     btatt_data_t *att_data = (btatt_data_t *) data;
-    int offset = 0;
+    unsigned offset = 0;
 
     if (bluetooth_gatt_has_no_parameter(att_data->opcode))
         return -1;
@@ -12142,7 +12142,7 @@ static int
 dissect_btgatt_microbit_temperature_value(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
     btatt_data_t *att_data = (btatt_data_t *) data;
-    int offset = 0;
+    unsigned offset = 0;
 
     if (bluetooth_gatt_has_no_parameter(att_data->opcode))
         return -1;
@@ -12157,7 +12157,7 @@ static int
 dissect_btgatt_microbit_temperature_period(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
     btatt_data_t *att_data = (btatt_data_t *) data;
-    int offset = 0;
+    unsigned offset = 0;
 
     if (bluetooth_gatt_has_no_parameter(att_data->opcode))
         return -1;

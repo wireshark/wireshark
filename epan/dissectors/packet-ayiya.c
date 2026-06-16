@@ -78,7 +78,7 @@ static int
 dissect_ayiya(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *ayiya_tree;
-    int offset = 0;
+    unsigned offset = 0;
     int idlen, siglen, ayiya_len;
     uint8_t next_header, opcode;
     tvbuff_t *payload;

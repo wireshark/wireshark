@@ -377,10 +377,10 @@ static int round_to_4byte(int current_offset,
  * @returns the offset rounded up to the next even eight byte boundary from
             start of the message.
  */
-static int round_to_8byte(int current_offset,
-                           int starting_offset)
+static unsigned round_to_8byte(unsigned current_offset,
+                           unsigned starting_offset)
 {
-    int length = current_offset - starting_offset;
+    unsigned length = current_offset - starting_offset;
 
     return starting_offset + ROUND_TO_8BYTE(length);
 }
@@ -829,9 +829,9 @@ advance_to_end_of_signature(packet_info *pinfo, const uint8_t **signature, uint8
  * @param tvb is the incoming network data buffer.
  * @param tree is the tree to which the new item should be attached.
  */
-static void add_padding_item(int padding_start, int padding_end, tvbuff_t *tvb, proto_tree *tree)
+static void add_padding_item(unsigned padding_start, unsigned padding_end, tvbuff_t *tvb, proto_tree *tree)
 {
-    if(padding_end > padding_start && padding_end < (int)tvb_reported_length(tvb)) {
+    if(padding_end > padding_start && padding_end < tvb_reported_length(tvb)) {
         int padding_length = padding_end - padding_start;
 
         if (padding_length <= MAX_ROUND_TO_BYTES) {
@@ -868,13 +868,13 @@ static void add_padding_item(int padding_start, int padding_end, tvbuff_t *tvb, 
  *         the message or the packet length to stop further processing if "really bad"
  *         parameters come in.
  */
-static int
+static unsigned
 // NOLINTNEXTLINE(misc-no-recursion)
 parse_arg(tvbuff_t      *tvb,
           packet_info   *pinfo,
           proto_item    *header_item,
           unsigned       encoding,
-          int            offset,
+          unsigned        offset,
           proto_tree    *field_tree,
           bool           is_reply_to,
           uint8_t        type_id,
@@ -885,7 +885,7 @@ parse_arg(tvbuff_t      *tvb,
 {
     unsigned length;
     int padding_start;
-    int saved_offset = offset;
+    unsigned saved_offset = offset;
 
     switch(type_id)
     {
@@ -1090,7 +1090,7 @@ parse_arg(tvbuff_t      *tvb,
 
         if(length > tvb_reported_length_remaining(tvb, offset)) {
             col_add_fstr(pinfo->cinfo, COL_INFO, "BAD DATA: String length is %d. Remaining packet length is %d.",
-                length, (int)tvb_reported_length_remaining(tvb, offset));
+                length, tvb_reported_length_remaining(tvb, offset));
             return tvb_reported_length(tvb);
         }
 
@@ -1278,13 +1278,13 @@ parse_arg(tvbuff_t      *tvb,
     }
 
     /* Make sure we never return something longer than the buffer for an offset. */
-    if(offset > (int)tvb_reported_length(tvb)) {
-        offset = (int)tvb_reported_length(tvb);
+    if(offset > tvb_reported_length(tvb)) {
+        offset = tvb_reported_length(tvb);
     } else if (offset == saved_offset) {
         /* The argument has a null size. Let's report the packet length to avoid an infinite loop. */
         /*expert_add_info(pinfo, header_item, &ei_alljoyn_empty_arg);*/
         proto_tree_add_expert(field_tree, pinfo, &ei_alljoyn_empty_arg, tvb, offset, 0);
-        offset = (int)tvb_reported_length(tvb);
+        offset = tvb_reported_length(tvb);
     }
 
     return offset;
@@ -1306,12 +1306,12 @@ parse_arg(tvbuff_t      *tvb,
  * @return The new offset into the buffer after removing the field code and value.
  *         the message.
  */
-static int
+static unsigned
 handle_message_field(tvbuff_t      *tvb,
                      packet_info   *pinfo,
                      proto_item    *header_tree,
                      unsigned       encoding,
-                     int            offset,
+                     unsigned        offset,
                      const uint8_t **signature,
                      uint8_t       *signature_length)
 {
@@ -1364,8 +1364,8 @@ handle_message_field(tvbuff_t      *tvb,
     offset = round_to_8byte(offset, starting_offset);
     add_padding_item(padding_start, offset, tvb, field_tree);
 
-    if(offset < 0 || offset > (int)tvb_reported_length(tvb)) {
-        offset = (int)tvb_reported_length(tvb);
+    if(offset > tvb_reported_length(tvb)) {
+        offset = tvb_reported_length(tvb);
     }
 
     proto_item_set_end(field_tree, tvb, offset);

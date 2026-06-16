@@ -44,7 +44,7 @@ static const value_string addr_type[] =
 };
 
 static int
-dissect_bp_address(tvbuff_t *tvb, int offset, proto_tree *tree, int hfindex)
+dissect_bp_address(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int hfindex)
 {
 	uint32_t type;
 	uint32_t ipaddr;
@@ -76,7 +76,7 @@ dissect_bp_address(tvbuff_t *tvb, int offset, proto_tree *tree, int hfindex)
 static int
 dissect_getfile_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_host, offset, NULL);
 	offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_fileid, offset, NULL);
@@ -87,7 +87,7 @@ dissect_getfile_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 static int
 dissect_getfile_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_host, offset, NULL);
 	offset = dissect_bp_address(tvb, offset, tree, hf_bootparams_hostaddr);
@@ -107,7 +107,7 @@ dissect_whoami_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
 static int
 dissect_whoami_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
     offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_host, offset, NULL);
 	offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_domain, offset, NULL);

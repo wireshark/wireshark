@@ -148,7 +148,7 @@ static const value_string a21_message_type_vals[] = {
 static void
 dissect_a21_correlation_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length _U_, uint8_t message_type _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	proto_item *tc;
 	proto_tree *corr_tree;
 	uint32_t corr_id;
@@ -178,7 +178,7 @@ static const value_string a21_mn_id_type_of_identity_vals[] = {
 static void
 dissect_a21_mobile_identity(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, uint16_t length, uint8_t message_type _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	unsigned identity_type;
 	const char *imsi_str;
 
@@ -223,7 +223,7 @@ dissect_a21_mobile_identity(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_a21_1x_message_transmission_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length _U_, uint8_t message_type _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	if (tree == NULL)
 		return;
 	proto_tree_add_item(tree, hf_a21_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -239,7 +239,7 @@ dissect_a21_1x_message_transmission_control(tvbuff_t *tvb, packet_info *pinfo _U
 static void
 dissect_a21_1x_lac_encapsulated_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length _U_, uint8_t message_type _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	proto_tree_add_item(tree, hf_a21_1x_lac_en_pdu, tvb, offset, 3, ENC_BIG_ENDIAN);
 	/* offset += 3; */
 
@@ -324,7 +324,7 @@ dissect_a21_pilot_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 {
 	proto_tree *sub_tree, *cr_tree;
 	proto_item* ti;
-	int offset = 0,start_offset;
+	unsigned offset = 0, start_offset;
 	uint32_t num, ch_rec_len, i, cell_id_info, hrpd_len, reference_pilot, pilot_ow_delay_flag;
 
 	proto_tree_add_item_ret_uint(tree, hf_a21_pilot_list_num_of_pilots, tvb, offset, 1, ENC_BIG_ENDIAN, &num);
@@ -428,7 +428,7 @@ static const range_string a21_random_number_type_rvals[] = {
 static void
 dissect_a21_authentication_challenge_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length _U_, uint8_t message_type _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	unsigned type;
 
 	if (tree == NULL)
@@ -459,7 +459,7 @@ static const value_string a21_record_identifier_vals[] = {
 static void
 dissect_a21_mobile_subscription_information(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length, uint8_t message_type _U_)
 {
-	int offset = 0, start_offset, rec_end_offset;
+	unsigned offset = 0, start_offset, rec_end_offset;
 	int i = 0, j = 0;
 	uint8_t record_id, band_class;
 	uint16_t record_len = 0;
@@ -543,7 +543,7 @@ static const value_string a21_gcsna_status_vals[] = {
 static void
 dissect_a21_gcsna_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length _U_, uint8_t message_type _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t priority_incl, status_incl;
 
 	if (tree == NULL)
@@ -572,7 +572,7 @@ dissect_a21_gcsna_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 static void
 dissect_a21_gcsna_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, proto_tree *tree, proto_item *item _U_, uint16_t length, uint8_t message_type _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	proto_tree_add_item(tree, hf_a21_gcsna_content, tvb, offset, length, ENC_NA);
 	if (gcsna_handle) {
@@ -588,7 +588,7 @@ dissect_a21_gcsna_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, p
 static void
 dissect_a21_reference_cell_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length _U_, uint8_t message_type _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	if (tree == NULL)
 		return;
@@ -625,7 +625,7 @@ static const value_string a21_cause_vals[] = {
 static void
 dissect_a21_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length _U_, uint8_t message_type _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	proto_tree_add_item(tree, hf_a21_cause_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 	/* offset++; */
@@ -665,7 +665,7 @@ static const value_string a21_additional_event_info_vals[] = {
 static void
 dissect_a21_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, uint16_t length, uint8_t message_type _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t event_id;
 
 	if (tree == NULL)
@@ -699,7 +699,7 @@ static const value_string a21_service_option_vals[] = {
 static void
 dissect_a21_service_option(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length _U_, uint8_t message_type _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	proto_tree_add_item(tree, hf_a21_service_option, tvb, offset, 2, ENC_BIG_ENDIAN);
 	/* offset += 2; */
@@ -732,7 +732,7 @@ static const value_string a21_element_type_vals[] = {
 
 
 void
-dissect_a21_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, proto_tree *tree, int offset, uint8_t message_type)
+dissect_a21_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, proto_tree *tree, unsigned offset, uint8_t message_type)
 {
 	uint8_t ie_type, length_len;
 	uint16_t length = 0;
@@ -740,7 +740,7 @@ dissect_a21_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, p
 	proto_tree *ie_tree;
 	proto_item *ti;
 
-	while (offset < (int)tvb_reported_length(tvb)) {
+	while (offset < tvb_reported_length(tvb)) {
 		ie_type = tvb_get_uint8(tvb, offset);
 		if (ie_type == A21_IEI_GCSNA_PDU) {
 			/* length of GCSNA PDU is 2 octets long */
@@ -833,7 +833,7 @@ static int
 dissect_a21(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	uint8_t message_type;
-	int offset = 0;
+	unsigned offset = 0;
 	proto_item *ti, *tc;
 	proto_tree *a21_tree, *corr_tree;
 	uint32_t corr_id;

@@ -506,7 +506,7 @@ check_hec(uint8_t uap, uint32_t header)
 }
 
 static bool
-check_crc(uint8_t uap, tvbuff_t *tvb, int offset, int len)
+check_crc(uint8_t uap, tvbuff_t *tvb, unsigned offset, int len)
 {
     static const uint16_t crc_poly_rev_bt_pdu = 0x8408;
     uint16_t crc = reverse_bits(uap);

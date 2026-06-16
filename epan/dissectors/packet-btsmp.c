@@ -173,7 +173,7 @@ void proto_register_btsmp(void);
 void proto_reg_handoff_btsmp(void);
 
 static int
-dissect_btsmp_auth_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_btsmp_auth_req(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree)
 {
     uint8_t value;
     const char *ph;
@@ -199,7 +199,7 @@ dissect_btsmp_auth_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 }
 
 static int
-dissect_btsmp_key_dist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bool initiator)
+dissect_btsmp_key_dist(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, bool initiator)
 {
     uint8_t value;
     bool next = false;

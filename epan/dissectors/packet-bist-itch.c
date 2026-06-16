@@ -118,7 +118,7 @@ static int hf_bist_unexpected;
 static int  proto_bist;
 static int ett_bist_itch;
 
-static int add_price(proto_tree *tree, int hf_id, tvbuff_t *tvb, int offset)
+static int add_price(proto_tree *tree, int hf_id, tvbuff_t *tvb, unsigned offset)
 {
     uint32_t raw = tvb_get_ntohl(tvb, offset);
     double val = bist_show_bigint_price ? raw / 10000.0 : (double)raw;
@@ -126,14 +126,14 @@ static int add_price(proto_tree *tree, int hf_id, tvbuff_t *tvb, int offset)
     return offset + 4;
 }
 
-static int dissect_timestamp(tvbuff_t *tvb, proto_tree *tree, int offset)
+static int dissect_timestamp(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     proto_tree_add_item(tree, hf_bist_nanosecond, tvb, offset, 4, ENC_BIG_ENDIAN);
     return offset + 4;
 }
 
 static int dissect_quantity(tvbuff_t *tvb, packet_info *pinfo,
-                            proto_tree *tree, int offset)
+                            proto_tree *tree, unsigned offset)
 {
     uint64_t q;
     proto_tree_add_item_ret_uint64(tree, hf_bist_quantity, tvb,
@@ -142,7 +142,7 @@ static int dissect_quantity(tvbuff_t *tvb, packet_info *pinfo,
     return offset + 8;
 }
 
-static int dissect_order_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+static int dissect_order_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     uint64_t oid;
     proto_tree_add_item_ret_uint64(tree, hf_bist_order_id, tvb,

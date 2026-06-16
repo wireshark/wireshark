@@ -331,7 +331,7 @@ static const value_string njack_authfailtrap[] = {
 #endif
 /* End SNMP TAB */
 
-static int
+static uint32_t
 dissect_portsettings(tvbuff_t *tvb, proto_tree *port_tree, uint32_t offset)
 {
 	/* XXX This is still work in progress, the information here
@@ -364,7 +364,7 @@ dissect_portsettings(tvbuff_t *tvb, proto_tree *port_tree, uint32_t offset)
 	return offset;
 }
 
-static int
+static uint32_t
 dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, uint32_t offset)
 {
 	uint8_t     tlv_type;
@@ -562,7 +562,7 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	uint32_t    offset     = 0;
 	uint8_t     packet_type;
 	uint8_t     setresult;
-	int         remaining;
+	unsigned    remaining;
 
 	packet_type = tvb_get_uint8(tvb, 5);
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NJACK");
