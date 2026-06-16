@@ -88,6 +88,7 @@ struct _output_fields {
     char          quote;
     bool          escape;
     bool          includes_col_fields;
+    char         *split_by;       /* protocol abbreviation to split rows on */
 };
 
 static char *get_field_hex_value(GSList *src_list, field_info *fi);
@@ -2224,6 +2225,7 @@ void output_fields_free(output_fields_t* fields)
         g_ptr_array_free(fields->fields, true);
     }
 
+    g_free(fields->split_by);
     g_free(fields);
 }
 
@@ -2437,6 +2439,11 @@ bool output_fields_set_option(output_fields_t *info, char *option)
         }
         return true;
     }
+    else if (0 == strcmp(option_name, "split")) {
+        g_free(info->split_by);
+        info->split_by = g_strdup(option_value);
+        return true;
+    }
 
     return false;
 }
@@ -2450,6 +2457,7 @@ void output_fields_list_options(FILE *fh)
     fputs("occurrence=f|l|a  Select the occurrence of a field to use;\n     \"f\" = first, \"l\" = last, \"a\" = all (def: a: all)\n", fh);
     fputs("aggregator=,|/s|<character>   Set the aggregator to use;\n     \",\" = comma, \"/s\" = space (def: ,: comma)\n", fh);
     fputs("quote=d|s|n   Print either d: double-quotes, s: single quotes or \n     n: no quotes around field values (def: n: none)\n", fh);
+    fputs("split=<proto>   Split output into one row per message instance of <proto>\n     (e.g., split=diameter)\n", fh);
 }
 
 bool output_fields_has_cols(output_fields_t* fields)
@@ -2636,6 +2644,169 @@ static void proto_tree_get_node_field_values(proto_node *node, void *data)
     }
 }
 
+/* --- Message-instance split mode --- */
+
+typedef struct {
+    output_fields_t *fields;
+    epan_dissect_t  *edt;
+    const char      *split_proto;    /* protocol abbreviation to split on */
+    GPtrArray       *instance_nodes; /* array of proto_node* for each message instance */
+    /* Per-instance field values: array of (GPtrArray **), each entry is
+     * an array[num_fields] of GPtrArray* (same layout as fields->field_values) */
+    GPtrArray       *instance_values;
+    GPtrArray      **global_values;  /* values for fields not under any split instance */
+    unsigned         num_fields;
+} split_field_data_t;
+
+/* Find the nearest ancestor node that is one of the split instance nodes */
+static int find_split_instance_index(proto_node *node, split_field_data_t *sdata)
+{
+    for (proto_node *p = node->parent; p != NULL; p = p->parent) {
+        for (unsigned k = 0; k < sdata->instance_nodes->len; k++) {
+            if (g_ptr_array_index(sdata->instance_nodes, k) == p) {
+                return (int)k;
+            }
+        }
+    }
+    return -1;  /* not under any split instance */
+}
+
+/* Collect split protocol instance nodes by iterating the tree */
+static void find_split_protocol_nodes(proto_node *node, const char *split_proto, GPtrArray *instances)
+{
+    GPtrArray *stack = g_ptr_array_new();
+    g_ptr_array_add(stack, node);
+
+    while (stack->len > 0) {
+        proto_node *cur = (proto_node *)g_ptr_array_index(stack, stack->len - 1);
+        g_ptr_array_set_size(stack, stack->len - 1);
+
+        for (proto_node *child = cur->first_child; child != NULL; child = child->next) {
+            if (child->hfinfo && child->hfinfo->type == FT_PROTOCOL &&
+                strcmp(child->hfinfo->abbrev, split_proto) == 0) {
+                g_ptr_array_add(instances, child);
+            } else {
+                g_ptr_array_add(stack, child);
+            }
+        }
+    }
+    g_ptr_array_free(stack, true);
+}
+
+/* Recursively collect field values bucketed by message instance */
+static void proto_tree_get_node_field_values_split(proto_node *node, void *data)
+{
+    split_field_data_t *sdata = (split_field_data_t *)data;
+    field_info *fi = PNODE_FINFO(node);
+
+    if (fi) {
+        void *field_index = g_hash_table_lookup(sdata->fields->field_indicies, fi->hfinfo->abbrev);
+        if (NULL != field_index) {
+            unsigned indx = GPOINTER_TO_UINT(field_index) - 1;
+            char *value = get_node_field_value(fi, sdata->edt);
+            if (value) {
+                int inst = find_split_instance_index(node, sdata);
+                GPtrArray **bucket;
+                if (inst >= 0) {
+                    bucket = (GPtrArray **)g_ptr_array_index(sdata->instance_values, inst);
+                } else {
+                    bucket = sdata->global_values;
+                }
+                if (bucket[indx] == NULL) {
+                    bucket[indx] = g_ptr_array_new_with_free_func(g_free);
+                }
+                g_ptr_array_add(bucket[indx], value);
+            }
+        }
+    }
+
+    if (node->first_child != NULL) {
+        proto_tree_children_foreach(node, proto_tree_get_node_field_values_split, data);
+    }
+}
+
+/* Output one CSV row from a field_values bucket */
+static void output_csv_row(output_fields_t *fields, GPtrArray **bucket,
+                           GPtrArray **global_values, FILE *fh)
+{
+    for (unsigned i = 0; i < fields->fields->len; ++i) {
+        if (0 != i) {
+            fputc(fields->separator, fh);
+        }
+        /* Use instance-specific value if present, else global */
+        GPtrArray *fv_p = bucket ? bucket[i] : NULL;
+        if (fv_p == NULL)
+            fv_p = global_values ? global_values[i] : NULL;
+        if (fv_p != NULL && g_ptr_array_len(fv_p) != 0) {
+            wmem_strbuf_t *buf = wmem_strbuf_new(NULL, g_ptr_array_index(fv_p, 0));
+            for (size_t j = 1; j < g_ptr_array_len(fv_p); j++) {
+                wmem_strbuf_append_c(buf, fields->aggregator);
+                wmem_strbuf_append(buf, (char *)g_ptr_array_index(fv_p, j));
+            }
+            print_escaped_csv(fh, wmem_strbuf_get_str(buf), fields->separator, fields->quote, fields->escape);
+            wmem_strbuf_destroy(buf);
+        }
+    }
+}
+
+/* Write fields in split mode: one CSV row per message instance */
+static void write_split_fields_csv(output_fields_t *fields, epan_dissect_t *edt, FILE *fh)
+{
+    unsigned num_fields = fields->fields->len;
+
+    /* Find all instances of the split protocol */
+    split_field_data_t sdata;
+    sdata.fields = fields;
+    sdata.edt = edt;
+    sdata.split_proto = fields->split_by;
+    sdata.instance_nodes = g_ptr_array_new();
+    sdata.instance_values = g_ptr_array_new();
+    sdata.global_values = g_new0(GPtrArray*, num_fields);
+    sdata.num_fields = num_fields;
+
+    find_split_protocol_nodes(edt->tree, sdata.split_proto, sdata.instance_nodes);
+
+    /* Allocate per-instance value arrays */
+    for (unsigned k = 0; k < sdata.instance_nodes->len; k++) {
+        GPtrArray **inst = g_new0(GPtrArray*, num_fields);
+        g_ptr_array_add(sdata.instance_values, inst);
+    }
+
+    /* Collect field values */
+    proto_tree_children_foreach(edt->tree, proto_tree_get_node_field_values_split, &sdata);
+
+    /* Output rows */
+    if (sdata.instance_nodes->len == 0) {
+        /* No split instances found, output global values as a single row */
+        output_csv_row(fields, NULL, sdata.global_values, fh);
+        fputc('\n', fh);
+    } else {
+        for (unsigned k = 0; k < sdata.instance_nodes->len; k++) {
+            GPtrArray **bucket = (GPtrArray **)g_ptr_array_index(sdata.instance_values, k);
+            output_csv_row(fields, bucket, sdata.global_values, fh);
+            fputc('\n', fh);
+            /* Free instance bucket */
+            for (unsigned i = 0; i < num_fields; i++) {
+                if (bucket[i]) {
+                    g_ptr_array_free(bucket[i], true);
+                }
+            }
+            g_free(bucket);
+        }
+    }
+
+    /* Free global values */
+    for (unsigned i = 0; i < num_fields; i++) {
+        if (sdata.global_values[i]) {
+            g_ptr_array_free(sdata.global_values[i], true);
+        }
+    }
+    g_free(sdata.global_values);
+    g_ptr_array_free(sdata.instance_nodes, true);
+    g_ptr_array_free(sdata.instance_values, true);
+}
+
+
 static void write_specified_fields(fields_format format, output_fields_t *fields, epan_dissect_t *edt, column_info *cinfo _U_, FILE *fh, json_dumper *dumper)
 {
     unsigned    i;
@@ -2670,6 +2841,12 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
                 g_hash_table_insert(fields->field_indicies, field, GUINT_TO_POINTER(i));
             }
         }
+    }
+
+    /* Split mode: one row per message instance */
+    if (fields->split_by && format == FORMAT_CSV) {
+        write_split_fields_csv(fields, edt, fh);
+        return;
     }
 
     /* Array buffer to store values for this packet              */
@@ -2969,7 +3146,13 @@ output_fields_t* output_fields_new(void)
     fields->quote               ='\0';
     fields->escape              = true;
     fields->includes_col_fields = false;
+    fields->split_by            = NULL;
     return fields;
+}
+
+bool output_fields_has_split(output_fields_t* fields)
+{
+    return fields->split_by != NULL;
 }
 
 /*

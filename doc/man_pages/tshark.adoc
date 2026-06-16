@@ -393,6 +393,15 @@ carriage return, form feed, and vertical tab) backspace, and the
 backslash will be replaced in field values by C-style escapes, e.g.
 "\n" for line feed.  If *n*, field value strings will be printed as-is.
 Defaults to *y*.
+
+*split=*<proto> Split the output into one row per message instance of
+the protocol <proto> within a packet.  This is useful when a single
+packet contains multiple protocol messages (e.g., several Diameter
+messages bundled in one SCTP packet).  Fields that belong to a specific
+message instance are output only on that instance's row, while fields
+not under any instance (e.g., frame-level fields) are repeated on every
+row.  Only applies to *-T fields* CSV output.  By default, no splitting
+is performed.
 --
 
 -f  <capture filter>::

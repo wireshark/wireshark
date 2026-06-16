@@ -340,6 +340,13 @@ WS_DLL_PUBLIC void write_fields_preamble(output_fields_t* fields, FILE *fh);
 WS_DLL_PUBLIC void write_fields_proto_tree(output_fields_t* fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh);
 
 /**
+ * @brief Returns true if split-by-message mode is active.
+ * @param fields Pointer to the output_fields_t structure.
+ * @return true if a split protocol is configured.
+ */
+WS_DLL_PUBLIC bool output_fields_has_split(output_fields_t* fields);
+
+/**
  * @brief Writes the finale for fields output.
  *
  * @param fields Pointer to the output_fields_t structure containing field information.

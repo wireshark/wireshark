@@ -4974,7 +4974,8 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
             }
             if (print_details) {
                 write_fields_proto_tree(output_fields, edt, &cf->cinfo, stdout);
-                printf("\n");
+                if (!output_fields_has_split(output_fields))
+                    printf("\n");
                 return !ferror(stdout);
             }
             break;
