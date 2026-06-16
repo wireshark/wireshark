@@ -676,7 +676,7 @@ static bool ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
       } else {
         uint32_t calc_c0 = 0, calc_c1 = 0;
 
-        if (osi_calc_checksum(tvb, 0, length, &calc_c0, &calc_c1)) {
+        if (osi_calc_checksum(tvb, 0, tpdu_len, &calc_c0, &calc_c1)) {
             /* Successfully processed checksum, verify it */
             proto_tree_add_checksum(tree, tvb, offset, hf_cotp_checksum, hf_cotp_checksum_status, &ei_cotp_checksum, pinfo, calc_c0 | calc_c1, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
         } else {
