@@ -645,7 +645,8 @@ WS_DLL_PUBLIC void dissector_table_allow_decode_as(dissector_table_t dissector_t
  *
  * @param dissector_table The dissector table to mark.
  */
-void dissector_table_allow_decode_as_internal(dissector_table_t dissector_table);
+extern void
+dissector_table_allow_decode_as_internal(dissector_table_t dissector_table);
 
 /**
  * @brief Return whether a dissector table supports Decode As.
