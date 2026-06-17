@@ -3953,7 +3953,7 @@ dissect_usb_standard_setup_request(packet_info *pinfo, proto_tree *tree ,
                                    tvbuff_t *tvb, urb_info_t *urb,
                                    usb_trans_info_t *usb_trans_info)
 {
-    int offset = 0;
+    unsigned offset = 0;
     const usb_setup_dissector_table_t *tmp;
     usb_setup_dissector dissector;
 

@@ -437,7 +437,7 @@ oscore_create_nonce(uint8_t *out,
 static oscore_decryption_status_t
 oscore_decrypt_and_verify(tvbuff_t *tvb_ciphertext,
         packet_info *pinfo,
-        int *offset,
+        unsigned *offset,
         proto_tree *tree,
         oscore_context_t *context,
         oscore_info_t *info,
@@ -590,13 +590,13 @@ oscore_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
     proto_tree *oscore_tree;
     /* Other misc. local variables. */
-    int offset = 0;
+    unsigned offset = 0;
     oscore_info_t *info = (oscore_info_t *) data;
     oscore_context_t *context = NULL;
     oscore_decryption_status_t status;
     tvbuff_t *tvb_decrypted = NULL;
     coap_info *coinfo;
-    int oscore_length;
+    unsigned oscore_length;
     uint8_t code_class;
 
     /* Check that the packet is long enough for it to belong to us. */
@@ -660,7 +660,7 @@ oscore_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (coinfo) {
         dissect_coap_code(tvb_decrypted, oscore_tree, &offset, &dissect_oscore_hf, &code_class);
-        offset = dissect_coap_options(tvb_decrypted, pinfo, oscore_tree, offset, oscore_length, code_class, coinfo, &dissect_oscore_hf);
+        offset = dissect_coap_options(tvb_decrypted, pinfo, oscore_tree, offset, oscore_length, code_class, coinfo, &dissect_oscore_hf, NULL);
         if (oscore_length > offset) {
             dissect_coap_payload(tvb_decrypted, pinfo, oscore_tree, tree, offset, oscore_length, code_class, coinfo, &dissect_oscore_hf, true);
         }

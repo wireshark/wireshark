@@ -97,7 +97,7 @@ static const value_string descriptors[] = {
 static bool
 is_armagetronad_packet(tvbuff_t * tvb)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	/* For each message in the frame */
 	while (tvb_captured_length_remaining(tvb, offset) > 2) {

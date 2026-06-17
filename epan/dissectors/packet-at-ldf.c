@@ -69,7 +69,7 @@ dissect_at_ldf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_item *ti = proto_tree_add_item(tree, proto_at_ldf, tvb, 0, AT_LDF_FRAME_LEN, ENC_NA);
     proto_tree *at_ldf_tree = proto_item_add_subtree(ti, ett_at_ldf);
 
-    int offset = 0;
+    unsigned offset = 0;
     proto_tree_add_item(at_ldf_tree, hf_at_ldf_version, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     proto_tree_add_item(at_ldf_tree, hf_at_ldf_src_vlan, tvb, offset, 2, ENC_BIG_ENDIAN);

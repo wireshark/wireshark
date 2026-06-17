@@ -56,7 +56,7 @@ dissect_at_rl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     proto_item *ti = proto_tree_add_item(tree, proto_at_rl, tvb, 0, AT_RL_FRAME_LEN, ENC_NA);
     proto_tree *at_rl_tree = proto_item_add_subtree(ti, ett_at_rl);
 
-    int offset = 0;
+    unsigned offset = 0;
     proto_tree_add_item(at_rl_tree, hf_at_rl_sequence, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 

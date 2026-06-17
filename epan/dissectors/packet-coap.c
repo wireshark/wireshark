@@ -857,8 +857,8 @@ dissect_coap_opt_uri_port(tvbuff_t *tvb, proto_item *head_item, proto_tree *subt
  * dissector for each option of CoAP.
  * return the total length of the option including the header (e.g. delta and length).
  */
-static int
-dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, int offset, uint8_t opt_count, unsigned *opt_num, int offset_end, uint8_t code_class, coap_info *coinfo, coap_common_dissect_t *dissect_hf)
+static unsigned
+dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, unsigned offset, uint8_t opt_count, unsigned *opt_num, unsigned offset_end, uint8_t code_class, coap_info *coinfo, coap_common_dissect_t *dissect_hf, bool *ok)
 {
 	uint8_t     opt_jump;
 	int         opt_length, opt_length_ext, opt_delta, opt_delta_ext;
@@ -914,7 +914,7 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 	case 0xf0:
 		expert_add_info_format(pinfo, coap_tree, &dissect_hf->ei.opt_length_bad,
 				"end-of-options marker found, but option length isn't 15");
-		return -1;
+		*ok = false; return offset;
 	default:
 		opt_delta = ((opt_jump & 0xf0) >> 4);
 		break;
@@ -958,15 +958,15 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 	case 0x0f:
 		expert_add_info_format(pinfo, coap_tree, &dissect_hf->ei.opt_length_bad,
 			"end-of-options marker found, but option delta isn't 15");
-		return -1;
+		*ok = false; return offset;
 	default:
 		opt_length = (opt_jump & 0x0f);
 		break;
 	}
-	if (opt_length > offset_end - offset) {
+	if ((unsigned)opt_length > offset_end - offset) {
 		expert_add_info_format(pinfo, coap_tree, &dissect_hf->ei.opt_length_bad,
 			"option longer than the package");
-		return -1;
+		*ok = false; return offset;
 	}
 
 	strbuf2 = wmem_strdup_printf(pinfo->pool, "#%u: %s", opt_count, val_to_str(pinfo->pool, *opt_num, vals_opt_type,
@@ -1132,19 +1132,24 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
  * return offset pointing the next of options. (i.e. the top of the payload
  * or the end of the data.
  */
-int
-dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, int offset, int offset_end, uint8_t code_class, coap_info *coinfo, coap_common_dissect_t *dissect_hf)
+unsigned
+dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, unsigned offset, unsigned offset_end, uint8_t code_class, coap_info *coinfo, coap_common_dissect_t *dissect_hf, bool *ok)
 {
 	unsigned  opt_num = 0;
 	int    i;
 	uint8_t endmarker;
+	bool sub_ok;
+
+	if (ok) *ok = true;
 
 	/* loop for dissecting options */
 	for (i = 1; offset < offset_end; i++) {
 		offset = dissect_coap_options_main(tvb, pinfo, coap_tree,
-		    offset, i, &opt_num, offset_end, code_class, coinfo, dissect_hf);
-		if (offset == -1)
-			return -1;
+		    offset, i, &opt_num, offset_end, code_class, coinfo, dissect_hf, &sub_ok);
+		if (!sub_ok) {
+			if (ok) *ok = false;
+			return offset;
+		}
 		if (offset >= offset_end)
 			break;
 		endmarker = tvb_get_uint8(tvb, offset);
@@ -1163,7 +1168,7 @@ dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, i
  * return code value and updates the offset
  * */
 uint8_t
-dissect_coap_code(tvbuff_t *tvb, proto_tree *tree, int *offset, coap_common_dissect_t *dissect_hf, uint8_t *code_class)
+dissect_coap_code(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, coap_common_dissect_t *dissect_hf, uint8_t *code_class)
 {
 	uint8_t code;
 
@@ -1313,7 +1318,7 @@ coap_frame_length(tvbuff_t *tvb, unsigned offset, int *size)
 static int
 dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, coap_parent_protocol parent_protocol, bool is_coap_for_tmf)
 {
-	int               offset = 0;
+	unsigned          offset = 0;
 	proto_item       *coap_root;
 	proto_item       *pi;
 	proto_tree       *coap_tree;
@@ -1467,9 +1472,11 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	}
 
 	/* process options */
-	offset = dissect_coap_options(tvb, pinfo, coap_tree, offset, coap_length, code_class, coinfo, &dissect_coap_hf);
-	if (offset == -1)
+	{ bool opts_ok;
+	offset = dissect_coap_options(tvb, pinfo, coap_tree, offset, coap_length, code_class, coinfo, &dissect_coap_hf, &opts_ok);
+	if (!opts_ok)
 		return tvb_captured_length(tvb);
+	}
 
 	/* Use conversations to track state for request/response */
 	conversation = find_or_create_conversation_noaddrb(pinfo, (code_class == 0));
@@ -1570,7 +1577,7 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* dissect the payload after info column updates below */
 	tvbuff_t *payload_tvb = NULL;
-	if ((int)coap_length > offset) {
+	if (coap_length > offset) {
 		if (coinfo->block_number == DEFAULT_COAP_BLOCK_NUMBER) {
 			payload_tvb = tvb_new_subset_remaining(tvb, offset);
 		} else {

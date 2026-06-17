@@ -80,7 +80,7 @@ dissect_aruba_iap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     proto_tree *aruba_iap_tree;
     uint16_t magic;
     uint8_t type;
-    int offset = 0;
+    unsigned offset = 0;
 
     magic = tvb_get_ntohs(tvb, offset);
 

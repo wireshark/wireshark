@@ -140,8 +140,8 @@ typedef struct coap_common_dissect {
 	} ei;
 } coap_common_dissect_t;
 
-uint8_t dissect_coap_code(tvbuff_t *tvb, proto_tree *coap_tree, int *offset, coap_common_dissect_t *dissect_hf, uint8_t *code_class);
-int dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, int offset, int offset_end, uint8_t code_class, coap_info *coinfo, coap_common_dissect_t *dissect_hf);
+uint8_t dissect_coap_code(tvbuff_t *tvb, proto_tree *coap_tree, unsigned *offset, coap_common_dissect_t *dissect_hf, uint8_t *code_class);
+unsigned dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, unsigned offset, unsigned offset_end, uint8_t code_class, coap_info *coinfo, coap_common_dissect_t *dissect_hf, bool *ok);
 void dissect_coap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, proto_tree *parent_tree, int offset, int offset_end, uint8_t code_class, coap_info *coinfo, coap_common_dissect_t *dissect_hf, bool oscore);
 
 extern const value_string coap_vals_observe_options[];
