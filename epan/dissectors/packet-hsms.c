@@ -175,7 +175,7 @@ static int ett_hsms_data_item;
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_secs_variable(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, int *offset)
+dissect_secs_variable(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, unsigned *offset)
 {
     proto_item *hdr_stream_item;
     proto_tree *hsms_data_item_tree, *hsms_data_item_header_tree;
@@ -335,7 +335,7 @@ dissect_secs_variable(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 }
 
 static int
-dissect_secs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, int *offset)
+dissect_secs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, unsigned *offset)
 {
     return dissect_secs_variable(tvb, pinfo, tree, data, offset);
 }
@@ -351,7 +351,7 @@ dissect_hsms_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     proto_tree *hsms_tree, *hsms_header_tree, *hsms_header_stream_tree;
 
     /* Other misc. local variables. */
-    int offset = 0;
+    unsigned offset = 0;
 
     unsigned sessionId = -1;
     unsigned byte2 = -1;

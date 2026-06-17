@@ -92,7 +92,7 @@ get_heuristic_handle(tvbuff_t *tvb)
 static int
 dissect_jmirror(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	dissector_handle_t dissector_handle;
 	unsigned int midval, sidval;
 	proto_item *ti = NULL;

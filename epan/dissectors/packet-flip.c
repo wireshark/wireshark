@@ -184,7 +184,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     int payload_len;
     int frame_len;
     int flip_len;
-    int offset = 0;
+    unsigned offset = 0;
 
     /* Error handling for basic header. */
     bool is_faulty_frame = false;

@@ -1274,7 +1274,7 @@ dissect_routing6_rt0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 {
     struct ws_rthdr *rt = (struct ws_rthdr *)data;
     proto_item *ti;
-    int offset = 0;
+    unsigned offset = 0;
     int idx;
     int rt0_addr_count;
     const ws_in6_addr *addr = NULL;
@@ -1316,7 +1316,7 @@ dissect_routing6_mipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 {
     struct ws_rthdr *rt = (struct ws_rthdr *)data;
     proto_item *ti;
-    int offset = 0;
+    unsigned offset = 0;
     const ws_in6_addr *addr;
 
     proto_tree_add_item(tree, hf_ipv6_routing_mipv6_reserved, tvb, offset, 4, ENC_NA);
@@ -1351,7 +1351,7 @@ dissect_routing6_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 {
     struct ws_rthdr *rt = (struct ws_rthdr *)data;
     proto_item *ti;
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t cmprI, cmprE, cmprX, pad;
     uint32_t reserved;
     int idx;
@@ -1480,7 +1480,7 @@ static int
 dissect_routing6_srh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     struct ws_rthdr *rt = (struct ws_rthdr *)data;
-    int offset = 0;
+    unsigned offset = 0;
     int addr_offset;
     uint32_t last_entry, addr_count;
 

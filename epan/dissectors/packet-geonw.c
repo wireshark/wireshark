@@ -2141,7 +2141,7 @@ dissect_geonw_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     uint32_t header_type;
     uint32_t rhl;
     uint32_t tmp_val;
-    int offset = 0;
+    unsigned offset = 0;
     proto_item *ti;
     proto_item *top_item;
     proto_item* rhl_ti = NULL;

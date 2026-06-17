@@ -76,7 +76,7 @@ dissect_homepna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
     proto_tree *ti;
     proto_tree *homepna_tree;
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t control_length;
     homepna_format_e homepna_format = HOMEPNA_FORMAT_SHORT;
     uint16_t protocol;

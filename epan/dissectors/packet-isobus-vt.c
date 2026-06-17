@@ -882,7 +882,7 @@ static const char* get_object_id_string(wmem_allocator_t* scope, uint16_t object
 static int
 dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_direction direction)
 {
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t function_id;
     proto_item *ti;
 

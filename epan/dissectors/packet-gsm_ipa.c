@@ -276,7 +276,7 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_udp)
 {
 	int remaining;
 	int header_length = 3;
-	int offset = 0;
+	unsigned offset = 0;
 	uint16_t len, msg_type;
 
 	if (tvb_reported_length(tvb) < 4)

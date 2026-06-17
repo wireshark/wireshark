@@ -82,7 +82,7 @@ static int
 gluster_hndsk_setvolume_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = gluster_rpc_dissect_dict(tree, pinfo, tvb, hf_gluster_hndsk_dict,
 								offset);
@@ -100,7 +100,7 @@ static int
 gluster_hndsk_2_setvolume_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = gluster_rpc_dissect_dict(tree, pinfo, tvb, hf_gluster_hndsk_dict,
 								offset);
@@ -118,7 +118,7 @@ static int
 gluster_hndsk_2_getspec_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = dissect_rpc_string(tvb, pinfo, tree, hf_gluster_hndsk_spec, offset,
 									NULL);
@@ -131,7 +131,7 @@ static int
 gluster_hndsk_2_getspec_call(tvbuff_t *tvb,
 				packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	proto_tree_add_item(tree, hf_gluster_hndsk_flags, tvb, offset,
 								4, ENC_BIG_ENDIAN);
@@ -147,7 +147,7 @@ static int
 gluster_hndsk_2_set_lk_ver_reply(tvbuff_t *tvb, packet_info *pinfo,
 							proto_tree *tree, void* data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = dissect_rpc_uint32(tvb, tree,hf_gluster_hndsk_lk_ver, offset);
 	return offset;
@@ -157,7 +157,7 @@ static int
 gluster_hndsk_2_set_lk_ver_call(tvbuff_t *tvb,
 				packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	offset = dissect_rpc_string(tvb, pinfo, tree, hf_gluster_hndsk_uid, offset,
 									NULL);
@@ -169,7 +169,7 @@ static int
 gluster_hndsk_2_event_notify_call(tvbuff_t *tvb,
 				packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	offset = dissect_rpc_uint32(tvb, tree, hf_gluster_hndsk_event_op,
 								offset);
@@ -184,7 +184,7 @@ static int
 gluster_hndsk_2_event_notify_reply(tvbuff_t *tvb,
 					packet_info *pinfo, proto_tree *tree, void* data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = gluster_rpc_dissect_dict(tree, pinfo, tvb, hf_gluster_hndsk_dict,
 								offset);
@@ -202,7 +202,7 @@ static int
 gluster_hndsk_2_get_volume_info_reply(tvbuff_t *tvb, packet_info *pinfo,
                                       proto_tree *tree, void* data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = dissect_rpc_string(tvb, pinfo, tree, hf_gluster_hndsk_op_errstr, offset,
 				    NULL);
@@ -244,7 +244,7 @@ static int
 gluster_cbk_cache_invalidation_call(tvbuff_t *tvb,
 				packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	offset = dissect_rpc_string(tvb, pinfo, tree, hf_gluster_cbk_gfid, offset, NULL);
 	offset = dissect_rpc_uint32(tvb, tree, hf_gluster_cbk_upcall_event_type, offset);

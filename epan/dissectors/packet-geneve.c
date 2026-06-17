@@ -376,7 +376,7 @@ dissect_geneve(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     proto_item *ti, *rsvd_item;
     proto_tree *geneve_tree;
     tvbuff_t *next_tvb;
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t ver_opt;
     uint8_t ver;
     uint8_t flags;

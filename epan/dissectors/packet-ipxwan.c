@@ -118,7 +118,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 {
 	proto_item *ti;
 	proto_tree *ipxwan_tree = NULL;
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t packet_type;
 	uint8_t num_options;
 	uint8_t option_number;

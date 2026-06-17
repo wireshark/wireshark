@@ -813,7 +813,7 @@ static bool dissect_iuup_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 static int find_iuup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     int len = tvb_captured_length(tvb);
-    int offset = 0;
+    unsigned offset = 0;
 
     while (len > 3) {
         if ( dissect_iuup_heur(tvb_new_subset_remaining(tvb,offset), pinfo, tree, data) )

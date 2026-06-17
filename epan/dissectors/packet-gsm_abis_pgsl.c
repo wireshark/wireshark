@@ -389,7 +389,7 @@ dissect_abis_pgsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 {
 	proto_item *ti;
 	proto_tree *pgsl_tree;
-	int offset = 0;
+	unsigned offset = 0;
 	tvbuff_t *next_tvb;
 	uint32_t msg_disc, len, ack_data_ind, cs, fn;
 	RlcMacPrivateData_t rlcmac_data = {0};

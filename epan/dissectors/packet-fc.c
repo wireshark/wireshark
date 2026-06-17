@@ -419,7 +419,7 @@ dissect_fc_ba_acc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_tree *acc_tree;
-    int offset = 0;
+    unsigned offset = 0;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BLS");
@@ -447,7 +447,7 @@ dissect_fc_ba_rjt (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_tree *rjt_tree;
-    int offset = 0;
+    unsigned offset = 0;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BLS");

@@ -3517,7 +3517,7 @@ dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     uint32_t type;
     uint32_t length;
-    int offset = 0;
+    unsigned offset = 0;
     proto_item *ti;
     proto_tree *tlvtree;
     uint32_t tap_fcs_type;

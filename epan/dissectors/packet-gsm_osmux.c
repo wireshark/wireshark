@@ -280,7 +280,7 @@ dissect_osmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         NULL
     };
 
-    int offset = 0;
+    unsigned offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Osmux");
     col_clear(pinfo->cinfo, COL_INFO);

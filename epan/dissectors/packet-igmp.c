@@ -346,7 +346,7 @@ dissect_igmp_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_item* ti;
 	proto_tree* tree;
 	int len;
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t type;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IGMP");
@@ -755,7 +755,7 @@ dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 {
 	proto_tree* tree;
 	proto_item* ti;
-	int offset = 0;
+	unsigned offset = 0;
 	unsigned char type;
 	const char *typestr, *blocks = NULL;
 	char buf[20];
@@ -893,7 +893,7 @@ dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 static int
 dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	unsigned char type;
 
 	type = tvb_get_uint8(tvb, offset);

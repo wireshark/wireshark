@@ -339,7 +339,7 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     proto_item *ti, *can_id_item;
     proto_tree *j1939_tree, *can_tree, *msg_tree;
 
-    int offset = 0;
+    unsigned offset = 0;
     struct can_info can_info;
     uint32_t data_length = tvb_reported_length(tvb);
     uint32_t pgn;

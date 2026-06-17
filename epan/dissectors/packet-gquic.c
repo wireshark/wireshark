@@ -2427,7 +2427,7 @@ static bool dissect_gquic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 {
 
     conversation_t *conversation = NULL;
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t flags;
     uint32_t version;
 

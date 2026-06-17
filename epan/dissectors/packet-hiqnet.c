@@ -668,7 +668,7 @@ dissect_hiqnet_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         proto_tree *hiqnet_subscription_tree = NULL;
         proto_tree *hiqnet_object_tree = NULL;
         proto_tree *hiqnet_ifaces_tree = NULL;
-        int offset = 0;
+        unsigned offset = 0;
 
         messagelen = tvb_get_ntohl(tvb, 2);
         ti = proto_tree_add_item(tree, proto_hiqnet, tvb, 0, messagelen, ENC_NA);

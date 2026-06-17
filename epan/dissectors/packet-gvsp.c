@@ -2349,7 +2349,7 @@ static void dissect_packet_trailer(proto_tree *gvsp_tree, tvbuff_t *tvb, int off
 static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti = NULL;
-    int offset = 0;
+    unsigned offset = 0;
     proto_tree *gvsp_tree = NULL;
     gvsp_packet_info info;
 

@@ -2446,7 +2446,7 @@ static void dissect_pending_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 
 static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	proto_tree *gvcp_tree = NULL;
 	proto_tree *gvcp_tree_flag = NULL;
 	proto_tree *gvcp_telegram_tree = NULL;

@@ -355,7 +355,7 @@ dissect_iso14443_cmd_type_wupa(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data _U_)
 {
     proto_item *ti = proto_tree_get_parent(tree);
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t uid_bits, uid_size = 0;
 
     if (pinfo->p2p_dir == P2P_DIR_SENT) {
@@ -537,7 +537,7 @@ dissect_iso14443_cmd_type_wupb(tvbuff_t *tvb, packet_info *pinfo,
 {
     proto_item *ti = proto_tree_get_parent(tree);
     bool crc_dropped = (bool)GPOINTER_TO_UINT(data);
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t param;
     const char *msg_type;
 
@@ -584,7 +584,7 @@ dissect_iso14443_cmd_type_hlta(tvbuff_t *tvb, packet_info *pinfo,
 {
     bool crc_dropped = (bool)GPOINTER_TO_UINT(data);
     proto_item *ti = proto_tree_get_parent(tree);
-    int offset = 0;
+    unsigned offset = 0;
 
     col_set_str(pinfo->cinfo, COL_INFO, "HLTA");
     proto_item_append_text(ti, ": HLTA");
@@ -630,7 +630,7 @@ dissect_iso14443_cmd_type_uid(tvbuff_t *tvb, packet_info *pinfo,
 {
     bool crc_dropped = (bool)GPOINTER_TO_UINT(data);
     proto_item *ti = proto_tree_get_parent(tree);
-    int offset = 0;
+    unsigned offset = 0;
 
     if (pinfo->p2p_dir == P2P_DIR_SENT) {
         proto_tree_add_item(tree, hf_iso14443_sel,
@@ -785,7 +785,7 @@ dissect_iso14443_cmd_type_ats(tvbuff_t *tvb, packet_info *pinfo,
 {
     bool crc_dropped = (bool)GPOINTER_TO_UINT(data);
     proto_item *ti = proto_tree_get_parent(tree);
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t fsdi, cid;
     proto_item *pi;
 
@@ -916,7 +916,7 @@ dissect_iso14443_cmd_type_attrib(tvbuff_t *tvb, packet_info *pinfo,
 {
     bool crc_dropped = (bool)GPOINTER_TO_UINT(data);
     proto_item *ti = proto_tree_get_parent(tree);
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t mbli, cid;
     int hl_resp_len;
     conversation_t *conv;
@@ -966,7 +966,7 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
 {
     bool crc_dropped = (bool)GPOINTER_TO_UINT(data);
     proto_item *ti = proto_tree_get_parent(tree);
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t pcb, block_type;
     const char *bt_str;
     proto_item *pcb_ti, *inf_ti;

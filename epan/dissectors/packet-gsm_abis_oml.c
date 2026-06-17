@@ -1530,7 +1530,7 @@ ipacc_tr_ie_chan_usage(tvbuff_t *tvb, proto_tree *att_tree, int offset)
 static int
 dissect_ipacc_test_rep(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	proto_tree_add_item(tree, hf_attr_ipa_test_res, tvb, offset++,
 			    1, ENC_BIG_ENDIAN);
@@ -2003,7 +2003,7 @@ dissect_abis_oml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	proto_item *ti;
 	proto_tree *oml_tree;
 	uint32_t remain_len;
-	int offset = 0;
+	unsigned offset = 0;
 
 	uint8_t	    msg_disc = tvb_get_uint8(tvb, offset);
 	uint8_t	    len	     = tvb_get_uint8(tvb, offset+3);

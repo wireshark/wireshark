@@ -130,7 +130,7 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
     proto_item *item;
     uint8_t type, tsecs, subtype, asize, msize;
     uint8_t authentication_result, accounting_status;
-    int offset = 0;
+    unsigned offset = 0;
 
     item = proto_tree_add_item(parent_tree, proto_igap, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_igap);

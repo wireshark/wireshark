@@ -11090,7 +11090,7 @@ dissect_ff_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 static int
 dissect_ff_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     while (tvb_reported_length_remaining(tvb, offset) > FDA_MSG_HDR_LENGTH)
     {

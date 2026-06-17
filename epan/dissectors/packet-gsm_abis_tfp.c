@@ -99,7 +99,7 @@ dissect_abis_tfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 {
 	proto_item *ti;
 	proto_tree *tfp_tree;
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t slot_rate, frame_bits, atsr, seq_nr;
 	uint8_t ftype;
 	tvbuff_t *next_tvb;

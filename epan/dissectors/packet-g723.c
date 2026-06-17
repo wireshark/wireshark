@@ -53,7 +53,7 @@ static const value_string g723_frame_size_and_codec_type_value[] = {
 static int
 dissect_g723(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	unsigned octet;
 
 	proto_item *ti;

@@ -1351,7 +1351,7 @@ static int dissect_idn_header(tvbuff_t *tvb, int offset, proto_tree *idn_tree, u
 }
 
 static int dissect_idn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-	int offset = 0;
+	unsigned offset = 0;
 	proto_item *ti = proto_tree_add_item(tree, proto_idn, tvb, 0, -1, ENC_NA);
 	proto_tree *idn_tree = proto_item_add_subtree(ti, ett_idn);
 	uint8_t packet_type = tvb_get_uint8(tvb, 0);

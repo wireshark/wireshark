@@ -187,7 +187,7 @@ dissect_handleList(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_FMP_NOTIFY_DownGrade_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	offset = dissect_rpc_data(tvb, pinfo, tree, hf_fmp_sessionHandle,
 				  offset);
@@ -210,7 +210,7 @@ dissect_FMP_NOTIFY_DownGrade_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 static int
 dissect_FMP_NOTIFY_RevokeList_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	offset = dissect_rpc_data(tvb, pinfo, tree, hf_fmp_sessionHandle,
 				  offset);
@@ -234,7 +234,7 @@ static int
 dissect_FMP_NOTIFY_RevokeAll_request(tvbuff_t *tvb,
 				     packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	offset = dissect_rpc_data(tvb, pinfo, tree, hf_fmp_sessionHandle,
 				  offset);
 	offset = dissect_rpc_data(tvb, pinfo, tree, hf_fmp_fmpFHandle, offset);
@@ -255,7 +255,7 @@ static int
 dissect_FMP_NOTIFY_FileSetEof_request(tvbuff_t *tvb,
 				      packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	offset = dissect_rpc_data(tvb, pinfo, tree, hf_fmp_sessionHandle,
 				  offset);
 	offset = dissect_rpc_data(tvb, pinfo, tree, hf_fmp_fmpFHandle, offset);
@@ -278,7 +278,7 @@ dissect_FMP_NOTIFY_RequestDone_request(tvbuff_t *tvb,
 				       packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int rval;
-	int offset = 0;
+	unsigned offset = 0;
 
 	offset = dissect_fmp_notify_status(tvb, offset,tree, &rval);
 	if (rval == 0) {
@@ -308,7 +308,7 @@ static int
 dissect_FMP_NOTIFY_volFreeze_request(tvbuff_t *tvb,
 				     packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	offset = dissect_rpc_data(tvb, pinfo, tree, hf_fmp_sessionHandle,
 				  offset);
@@ -329,7 +329,7 @@ static int
 dissect_FMP_NOTIFY_revokeHandleList_request(tvbuff_t *tvb,
 					    packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	offset = dissect_rpc_data(tvb, pinfo, tree, hf_fmp_sessionHandle, offset);
 	offset = dissect_revokeHandleListReason(tvb, offset, tree);

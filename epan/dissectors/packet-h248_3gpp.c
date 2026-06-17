@@ -321,8 +321,8 @@ static void dissect_3GTFO_codec_list(proto_tree* tree, tvbuff_t* tvb, packet_inf
 
 		if (sub_tvb) {
 			proto_tree* pt = proto_item_add_subtree(asn1_ctx.created_item,ett_h248_3GTFO_codec_list);
-			int len = tvb_reported_length(sub_tvb);
-			int offset = 0;
+			unsigned len = tvb_reported_length(sub_tvb);
+			unsigned offset = 0;
 			do {
 				offset = dissect_codec_mode(pt, sub_tvb, offset, len);
 			} while(offset < len);

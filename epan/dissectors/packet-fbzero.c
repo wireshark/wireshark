@@ -484,7 +484,7 @@ dissect_fb_zero(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static bool dissect_fb_zero_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t *conversation = NULL;
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t version, length, message_tag;
     /* Verify packet size (Flag (1 byte) + Version (3bytes) + Flag (1 byte) + length (4 bytes) + Tag (4 bytes)) */
     if (tvb_captured_length(tvb) < 13)

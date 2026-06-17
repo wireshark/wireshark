@@ -210,7 +210,7 @@ static const value_string ipdr_service_direction_vals[] = {
 static int
 dissect_ipdr_samis_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     proto_item *ti;
     proto_tree *samis_type_1_tree, *sf_ch_set_tree;
     unsigned len, cmts_sys_up_time, channel_id;
@@ -368,7 +368,7 @@ dissect_ipdr_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 {
     proto_item *ti, *type_item;
     proto_tree *ipdr_tree;
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t session_id, message_len, message_type;
 
     ti = proto_tree_add_item(tree, proto_ipdr, tvb, 0, -1, ENC_NA);

@@ -52,7 +52,7 @@ dissect_ipfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
     proto_tree *ipfc_tree;
-    int offset = 0;
+    unsigned offset = 0;
     tvbuff_t *next_tvb;
 
     /* Make entries in Protocol column and Info column on summary display */
