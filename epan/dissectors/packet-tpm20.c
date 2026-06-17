@@ -646,7 +646,7 @@ dissect_tpm20_platform_command(tvbuff_t *tvb, packet_info *pinfo,
 
 static void
 dissect_auth_common(tvbuff_t *tvb, packet_info *pinfo _U_,
-	proto_tree *auth, proto_tree *tree _U_, int *offset)
+	proto_tree *auth, proto_tree *tree _U_, unsigned *offset)
 {
 	unsigned nonce_size, auth_size;
 	static int * const attrib_fields[] = {
@@ -677,7 +677,7 @@ dissect_auth_common(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static void
 dissect_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *auth,
-	proto_tree *tree, int *offset)
+	proto_tree *tree, unsigned *offset)
 {
 	tpm_entry *command_entry = get_command_entry(cmd_tree, pinfo->num);
 	uint32_t i;
@@ -690,7 +690,7 @@ dissect_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *auth,
 
 static void
 dissect_auth_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *auth,
-		proto_tree *tree, int *offset)
+		proto_tree *tree, unsigned *offset)
 {
 	uint32_t auth_area_size;
 	uint32_t num_auths = 0;
@@ -723,7 +723,7 @@ dissect_auth_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *auth,
 
 static void
 dissect_startup(tvbuff_t *tvb, packet_info *pinfo _U_,
-	proto_tree *header, proto_tree *tree _U_, int *offset)
+	proto_tree *header, proto_tree *tree _U_, unsigned *offset)
 {
 	proto_tree_add_item(header, hf_tpm20_startup_type, tvb, *offset, 2, ENC_BIG_ENDIAN);
 	*offset += 2;
@@ -731,7 +731,7 @@ dissect_startup(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static void
 dissect_start_auth_session(tvbuff_t *tvb, packet_info *pinfo _U_,
-	proto_tree *header _U_, proto_tree *tree, int *offset)
+	proto_tree *header _U_, proto_tree *tree, unsigned *offset)
 {
 	uint32_t nonce_size, encrypted, sym_alg;
 	proto_tree_add_item_ret_uint(tree, hf_session_nonce_size, tvb, *offset, 2,
@@ -762,7 +762,7 @@ dissect_start_auth_session(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static void
 dissect_create_primary(tvbuff_t *tvb, packet_info *pinfo _U_,
-	proto_tree *header _U_, proto_tree *tree, int *offset)
+	proto_tree *header _U_, proto_tree *tree, unsigned *offset)
 {
 	uint32_t sensitive_size, pub_size, data_size;
 
@@ -787,7 +787,7 @@ dissect_create_primary(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static void
 dissect_create_loaded(tvbuff_t *tvb, packet_info *pinfo _U_,
-	proto_tree *header _U_, proto_tree *tree, int *offset)
+	proto_tree *header _U_, proto_tree *tree, unsigned *offset)
 {
 	uint32_t sensitive_size, template_size;
 
@@ -806,7 +806,7 @@ dissect_create_loaded(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static void
 dissect_command(uint32_t command, tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *header, proto_tree *tree, int *offset)
+	proto_tree *header, proto_tree *tree, unsigned *offset)
 {
 	last_command_pnum = pinfo->num;
 
@@ -830,7 +830,7 @@ static void
 dissect_tpm20_tpm_command(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t command = tvb_get_uint32(tvb, 6, ENC_BIG_ENDIAN);
 	uint16_t tag = tvb_get_uint16(tvb, 0, ENC_BIG_ENDIAN);
 	struct num_handles handl_map;
@@ -919,7 +919,7 @@ dissect_tpm20_platform_response(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static void
 dissect_start_auth_session_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-	int *offset, uint32_t param_size _U_)
+	unsigned *offset, uint32_t param_size _U_)
 {
 	uint32_t nonce_size;
 
@@ -932,7 +932,7 @@ dissect_start_auth_session_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 static void
 dissect_create_primary_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-	int *offset, uint32_t param_size _U_)
+	unsigned *offset, uint32_t param_size _U_)
 {
 	uint32_t pub_size, creation_data_size, digest_size, name_size;
 
@@ -963,7 +963,7 @@ dissect_create_primary_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 static void
 dissect_create_loaded_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-	int *offset, uint32_t param_size _U_)
+	unsigned *offset, uint32_t param_size _U_)
 {
 	uint32_t priv_size, pub_size, name_size;
 
@@ -988,7 +988,7 @@ dissect_create_loaded_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 static void
 dissect_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-	int *offset, uint32_t param_size)
+	unsigned *offset, uint32_t param_size)
 {
 	tpm_entry *entry = get_command_entry(cmd_tree, pinfo->num);
 	if (entry == NULL) {
@@ -1021,7 +1021,7 @@ dissect_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 static void
 dissect_tpm20_tpm_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	struct num_handles handl_map;
 	uint16_t tag = tvb_get_uint16(tvb, 0, ENC_BIG_ENDIAN);
 	uint32_t rc = tvb_get_uint32(tvb, 6, ENC_BIG_ENDIAN);

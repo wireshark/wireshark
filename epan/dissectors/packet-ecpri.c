@@ -492,7 +492,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     proto_item *ti_num_faults;
     proto_item *ti_fault_notif;
 
-    int offset;
+    unsigned offset;
     uint32_t msg_type;
     uint32_t event_type;
     uint32_t concatenation;

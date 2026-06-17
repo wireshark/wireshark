@@ -196,7 +196,7 @@ static const value_string psn_v1_identifier[] = {
 /******************************************************************************/
 /* Dissect protocol                                                           */
 
-static proto_tree* dissect_psn_chunk_header(tvbuff_t *tvb, proto_tree *tree, proto_item** ti, int* offset, int* chunk_end, uint32_t* chunk_id, uint16_t* chunk_data_len, const int hf_chunk, const int ett_chunk, const int hf_chunk_id) {
+static proto_tree* dissect_psn_chunk_header(tvbuff_t *tvb, proto_tree *tree, proto_item** ti, unsigned* offset, unsigned* chunk_end, uint32_t* chunk_id, uint16_t* chunk_data_len, const int hf_chunk, const int ett_chunk, const int hf_chunk_id) {
     *ti = proto_tree_add_item(tree, hf_chunk, tvb, *offset, -1, ENC_NA);
     proto_tree *chunk_tree = proto_item_add_subtree(*ti, ett_chunk);
 
@@ -213,8 +213,8 @@ static proto_tree* dissect_psn_chunk_header(tvbuff_t *tvb, proto_tree *tree, pro
     return chunk_tree;
 }
 
-static int dissect_psn_data_tracker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset) {
-    int chunk_end;
+static int dissect_psn_data_tracker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset) {
+    unsigned chunk_end;
     uint32_t track_id;
     uint16_t track_data_len;
     proto_item *track_item;
@@ -284,8 +284,8 @@ static int dissect_psn_data_tracker(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     return chunk_end;
 }
 
-static int dissect_psn_data_tracker_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset) {
-    int chunk_end;
+static int dissect_psn_data_tracker_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset) {
+    unsigned chunk_end;
     uint32_t tracker_id;
     uint16_t chunk_data_len;
     proto_item *chunk_item;
@@ -303,8 +303,8 @@ static int dissect_psn_data_tracker_list(tvbuff_t *tvb, packet_info *pinfo, prot
     return chunk_end;
 }
 
-static int dissect_psn_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset) {
-    int chunk_end;
+static int dissect_psn_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset) {
+    unsigned chunk_end;
     uint32_t chunk_id;
     uint16_t chunk_data_len;
     proto_item *chunk_item;
@@ -350,8 +350,8 @@ static int dissect_psn_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return chunk_end;
 }
 
-static int dissect_psn_info_tracker_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset) {
-    int chunk_end;
+static int dissect_psn_info_tracker_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset) {
+    unsigned chunk_end;
     uint32_t tracker_id;
     uint16_t chunk_data_len;
     proto_item *chunk_item;
@@ -361,7 +361,7 @@ static int dissect_psn_info_tracker_list(tvbuff_t *tvb, packet_info *pinfo, prot
     proto_item_append_text(chunk_item, ", tracker ID: %u", tracker_id);
 
     while (offset < chunk_end) {
-        int name_chunk_end;
+        unsigned name_chunk_end;
         uint32_t name_id;
         uint16_t name_data_len;
         proto_item *name_item;
@@ -383,8 +383,8 @@ static int dissect_psn_info_tracker_list(tvbuff_t *tvb, packet_info *pinfo, prot
     return chunk_end;
 }
 
-static int dissect_psn_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset) {
-    int chunk_end;
+static int dissect_psn_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset) {
+    unsigned chunk_end;
     uint32_t chunk_id;
     uint16_t chunk_data_len;
     proto_item *chunk_item;
@@ -438,7 +438,7 @@ static int dissect_psn_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return chunk_end;
 }
 
-static int dissect_psn_v1_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset) {
+static int dissect_psn_v1_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset) {
     proto_tree_add_item(tree, hf_psn_v1_identifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
 
@@ -521,7 +521,7 @@ dissect_psn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         return 0;
     }
 
-    int offset = 0;
+    unsigned offset = 0;
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PSN");
     /* Clear the info column */
     col_clear(pinfo->cinfo,COL_INFO);
@@ -540,7 +540,7 @@ dissect_psn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             proto_item_set_len(ti, chunk_data_len+4);
             proto_tree_add_bitmask_with_flags(psn_tree, tvb, offset, hf_psn_chunk_data_field, ett_psn_chunk_data_field, chunk_data_fields, ENC_LITTLE_ENDIAN, BMT_NO_FLAGS);
             offset+=2;
-            int chunk_end = offset+chunk_data_len;
+            unsigned chunk_end = offset+chunk_data_len;
 
             if (chunk_id == PSN_INFO_PACKET) {
                 proto_item_append_text(ti, ", V2 Info Packet");

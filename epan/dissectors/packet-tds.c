@@ -1983,12 +1983,12 @@ copy_nl_data(wmem_allocator_t *allocator, struct _netlib_data *nl_data)
 }
 
 static void
-dissect_tds_all_headers(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree)
+dissect_tds_all_headers(tvbuff_t *tvb, unsigned *offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *item = NULL, *total_length_item = NULL;
     proto_tree *sub_tree = NULL;
     uint32_t total_length;
-    int final_offset;
+    unsigned final_offset;
 
     total_length = tvb_get_letohl(tvb, *offset);
     /* Try to find out heuristically whether the ALL_HEADERS rule is actually present.
@@ -2842,7 +2842,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, unsigned *offset, packet_info *pinfo, pr
 static void
 dissect_tds_query_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_info_t *tds_info)
 {
-    int offset, len;
+    unsigned offset; int len;
     unsigned string_encoding = ENC_UTF_16|ENC_LITTLE_ENDIAN;
     proto_tree *query_tree;
 
@@ -3633,7 +3633,7 @@ static void
 dissect_tds_transmgr_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *request_tree;
-    int offset = 0, len;
+    unsigned offset = 0; int len;
 
     request_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_tds7_query, NULL, "Transaction Manager Request Packet");
     dissect_tds_all_headers(tvb, &offset, pinfo, request_tree);
@@ -4195,7 +4195,7 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tre
                              bool is_response)
 {
     uint8_t token;
-    int offset = 0;
+    unsigned offset = 0;
     uint16_t tokenoffset, tokenlen;
     proto_tree *prelogin_tree = NULL, *option_tree;
     proto_item *item, *option_item;
@@ -6369,7 +6369,7 @@ dissect_tds_procid_token(tvbuff_t *tvb, unsigned offset, proto_tree *tree, tds_c
 }
 
 static uint8_t
-dissect_tds_type_info(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree, uint8_t *scale, bool *plp, bool variantprop)
+dissect_tds_type_info(tvbuff_t *tvb, unsigned *offset, packet_info *pinfo, proto_tree *tree, uint8_t *scale, bool *plp, bool variantprop)
 {
     proto_item *item = NULL, *item1 = NULL, *data_type_item = NULL;
     proto_tree *sub_tree = NULL, *collation_tree;
@@ -6522,7 +6522,7 @@ dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_in
 {
     proto_item *item = NULL, *param_item = NULL;
     proto_tree *sub_tree = NULL, *status_sub_tree = NULL;
-    int offset = 0;
+    unsigned offset = 0;
     unsigned len;
     uint8_t data_type;
 
@@ -6956,7 +6956,7 @@ fill_tds_info_defaults(tds_conv_info_t *tds_info)
 static void
 dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int offset = 0;
+    unsigned offset = 0;
     proto_item *tds_item;
     proto_tree *tds_tree;
     uint8_t type;
@@ -7246,7 +7246,7 @@ dissect_tds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * data _U_
 static bool
 dissect_tds_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t type;
     uint8_t status;
     uint16_t plen;
