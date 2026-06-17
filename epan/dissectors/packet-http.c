@@ -102,6 +102,7 @@ static int hf_http_connection;
 static int hf_http_cookie;
 static int hf_http_cookie_pair;
 static int hf_http_accept;
+static int hf_http_accept_query;
 static int hf_http_referer;
 static int hf_http_accept_language;
 static int hf_http_accept_encoding;
@@ -3003,7 +3004,7 @@ http_conversation_is_connect(conversation_t *conv, uint32_t frame_num)
 /* Call a subdissector to handle HTTP CONNECT's traffic */
 static void
 http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
-			  packet_info *pinfo, http_conv_t *conv_data, void* data)
+			  packet_info *pinfo, http_conv_t *conv_data, struct tcpinfo *tcpinfo)
 {
 	uint32_t *ptr = NULL;
 	uint32_t uri_port, saved_port, srcport, destport;
@@ -3094,7 +3095,7 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 			*ptr = uri_port;
 			decode_tcp_ports(tvb, 0, pinfo, tree,
 				pinfo->srcport, pinfo->destport, NULL,
-				(struct tcpinfo *)data);
+				tcpinfo);
 			*ptr = saved_port;
 			copy_address_shallow(addrp, &saved_addr);
 		}
@@ -3183,7 +3184,8 @@ is_http_request_or_reply(packet_info *pinfo, const char *data, unsigned linelen,
 				strncmp(data, "TRACE", indx) == 0 ||
 				strncmp(data, "PATCH", indx) == 0 ||  /* RFC 5789 */
 				strncmp(data, "LABEL", indx) == 0 ||  /* RFC 3253 8.2 */
-				strncmp(data, "MERGE", indx) == 0) {  /* RFC 3253 11.2 */
+				strncmp(data, "MERGE", indx) == 0 ||  /* RFC 3253 11.2 */
+				strncmp(data, "QUERY", indx) == 0) {  /* RFC 10008 */
 				*type = MEDIA_CONTAINER_HTTP_REQUEST;
 				isHttpRequestOrReply = true;
 			}
@@ -3340,6 +3342,7 @@ static const header_info headers[] = {
 	{ "Connection", &hf_http_connection, HDR_NO_SPECIAL },
 	{ "Cookie", &hf_http_cookie, HDR_COOKIE },
 	{ "Accept", &hf_http_accept, HDR_NO_SPECIAL },
+	{ "Accept-Query", &hf_http_accept_query, HDR_NO_SPECIAL },
 	{ "Referer", &hf_http_referer, HDR_REFERER },
 	{ "Accept-Language", &hf_http_accept_language, HDR_NO_SPECIAL },
 	{ "Accept-Encoding", &hf_http_accept_encoding, HDR_NO_SPECIAL },
@@ -4502,7 +4505,7 @@ dissect_http_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 			copy_address_wmem(wmem_file_scope(), &conv_data->server_addr, &pinfo->dst);
 			conv_data->server_port = pinfo->destport;
 		}
-		http_payload_subdissector(tvb, tree, pinfo, conv_data, data);
+		http_payload_subdissector(tvb, tree, pinfo, conv_data, tcpinfo);
 
 		return tvb_captured_length(tvb);
 	}
@@ -4814,6 +4817,10 @@ proto_register_http(void)
 	      { "Accept", "http.accept",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Accept", HFILL }},
+	    { &hf_http_accept_query,
+	      { "Accept-Query", "http.accept_query",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Accept-Query", HFILL }},
 	    { &hf_http_referer,
 	      { "Referer", "http.referer",
 		FT_STRING, BASE_NONE, NULL, 0x0,
