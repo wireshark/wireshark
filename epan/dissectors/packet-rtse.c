@@ -669,8 +669,8 @@ dissect_rtse_RTSE_apdus(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offse
 static int
 dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-    int offset = 0;
-    int old_offset;
+    unsigned offset = 0;
+    unsigned old_offset;
     proto_item *item;
     proto_tree *tree;
     proto_tree *next_tree=NULL;

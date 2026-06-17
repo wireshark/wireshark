@@ -8464,8 +8464,8 @@ dissect_mms_MMSpdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_
 static int
 dissect_mms(tvbuff_t* tvb, packet_info* pinfo, proto_tree* parent_tree, void* data _U_)
 {
-    int offset = 0;
-    int old_offset;
+    unsigned offset = 0;
+    unsigned old_offset;
     proto_item* item = NULL;
     proto_tree* tree = NULL;
     asn1_ctx_t asn1_ctx;
@@ -11722,7 +11722,7 @@ static bool
 dissect_mms_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* parent_tree, void* data)
 {
     /* must check that this really is an mms packet */
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t length = 0;
     uint32_t oct;
     int idx = 0;

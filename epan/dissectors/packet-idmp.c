@@ -578,7 +578,7 @@ register_idmp_protocol_info(const char *oid, const ros_info_t *rinfo, int proto 
 
 static int dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_item                    *item;
     proto_tree                    *tree;

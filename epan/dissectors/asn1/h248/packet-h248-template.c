@@ -1494,7 +1494,7 @@ extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
     proto_tree *package_tree=NULL;
     uint16_t name_major, name_minor;
     const h248_package_t* pkg = NULL;
-    int offset = 0;
+    unsigned offset = 0;
     asn1_ctx_t asn1_ctx;
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 

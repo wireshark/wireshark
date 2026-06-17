@@ -1980,7 +1980,7 @@ dissect_atn_ulcs(
     proto_tree *tree,
     void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     proto_item *ti = NULL;
     proto_tree *atn_ulcs_tree = NULL;
     uint8_t value_pres = 0;

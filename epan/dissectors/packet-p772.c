@@ -1248,7 +1248,7 @@ static int dissect_Acp127NotificationType_PDU(tvbuff_t *tvb _U_, packet_info *pi
 static int
 dissect_p772(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 	asn1_ctx_t asn1_ctx;
