@@ -559,7 +559,7 @@ static void dissect_mqttsn_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 static int dissect_mqttsn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /* Various variables. */
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t mqttsn_msg_type_id;
 
     /*

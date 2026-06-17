@@ -63,7 +63,7 @@ static bool laplink_desegment = true;
 static int
 dissect_laplink_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	proto_item *ti;
 	proto_tree *laplink_tree;
 	uint32_t udp_ident;
@@ -100,7 +100,7 @@ dissect_laplink_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 static int
 dissect_laplink_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	unsigned length = 0;
 	proto_item *ti;
 	proto_tree *laplink_tree;

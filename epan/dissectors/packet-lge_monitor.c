@@ -54,7 +54,7 @@ static const value_string lge_monitor_prot_vals[] = {
 static int
 dissect_lge_monitor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t lge_monitor_proto_id;
 	tvbuff_t* next_tvb = NULL;
 	proto_tree* header_tree;

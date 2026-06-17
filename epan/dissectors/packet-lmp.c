@@ -684,7 +684,7 @@ static const true_false_string tfs_active_monitoring_not_allocated = { "Allocate
 static int
 dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     proto_tree *lmp_tree = NULL, *ti, *ti2;
     proto_tree *lmp_header_tree;
     proto_tree *lmp_object_tree;

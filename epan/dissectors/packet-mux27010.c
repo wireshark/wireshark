@@ -751,7 +751,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 {
     proto_item *ti, *tf, *tf_extended_header, *tf_addr, *tf_ctr;
     proto_tree *mux27010_tree, *field_tree, *field_tree_extended_header, *field_tree_addr, *field_tree_ctr;
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t length_info;
     bool save_fragmented;
     /*Address DLCI*/

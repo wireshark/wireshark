@@ -1093,7 +1093,7 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 {
     proto_tree * lbtrm_tree = NULL;
     proto_item * lbtrm_item;
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t next_hdr = 0;
     char * tag_name = NULL;
     int dissected_len = 0;

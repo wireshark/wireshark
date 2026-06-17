@@ -104,9 +104,9 @@ static const range_string msgpack_types[] = {
 	{0x00, 0x00, NULL}
 };
 
-static void dissect_msgpack_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data, int* offset, char** value);
+static void dissect_msgpack_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data, unsigned* offset, char** value);
 
-static void dissect_msgpack_integer(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, uint8_t type, void* data, int* offset, char** value)
+static void dissect_msgpack_integer(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, uint8_t type, void* data, unsigned* offset, char** value)
 {
 	uint8_t uint8;
 	uint16_t uint16;
@@ -212,7 +212,7 @@ static void dissect_msgpack_integer(tvbuff_t* tvb, packet_info *pinfo, proto_tre
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static void dissect_msgpack_map(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, uint8_t type, void* data, int* offset, char** value)
+static void dissect_msgpack_map(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, uint8_t type, void* data, unsigned* offset, char** value)
 {
 	proto_tree* subtree;
 	proto_tree* map_subtree;
@@ -260,7 +260,7 @@ static void dissect_msgpack_map(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static void dissect_msgpack_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, uint8_t type, void* data, int* offset, char** value)
+static void dissect_msgpack_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, uint8_t type, void* data, unsigned* offset, char** value)
 {
 	proto_tree* subtree;
 	proto_item* ti;
@@ -300,7 +300,7 @@ static void dissect_msgpack_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
 		*value = label;
 }
 
-static void dissect_msgpack_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int type, void* data, int* offset, char** value)
+static void dissect_msgpack_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int type, void* data, unsigned* offset, char** value)
 {
 	uint32_t len = 0;
 	uint8_t lensize = 0;
@@ -352,7 +352,7 @@ static void dissect_msgpack_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree
 		*value = lvalue;
 }
 
-static void dissect_msgpack_bin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int type, void* data, int* offset, char** value)
+static void dissect_msgpack_bin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int type, void* data, unsigned* offset, char** value)
 {
 	uint32_t len = 0;
 	uint8_t lensize = 0;
@@ -397,7 +397,7 @@ static void dissect_msgpack_bin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
 		*value = lvalue;
 }
 
-static void dissect_msgpack_float(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, int type, void* data, int* offset, char** value)
+static void dissect_msgpack_float(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, int type, void* data, unsigned* offset, char** value)
 {
 	char* label;
 	char* lvalue;
@@ -432,7 +432,7 @@ static void dissect_msgpack_float(tvbuff_t* tvb, packet_info *pinfo, proto_tree*
 	proto_tree_add_item(subtree, hf_msgpack_type, tvb, s_offset, 1, ENC_NA);
 }
 
-static void dissect_msgpack_ext(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, int type, void* data, int* offset, char** value)
+static void dissect_msgpack_ext(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, int type, void* data, unsigned* offset, char** value)
 {
 	char* label;
 	uint32_t len = 0;
@@ -483,7 +483,7 @@ static void dissect_msgpack_ext(tvbuff_t* tvb, packet_info *pinfo, proto_tree* t
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static void dissect_msgpack_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data, int* offset, char** value)
+static void dissect_msgpack_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data, unsigned* offset, char** value)
 {
 	uint8_t type;
 	int s_offset = *offset;
@@ -561,7 +561,7 @@ static void dissect_msgpack_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree
 
 static int dissect_msgpack(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MsgPack");
 	col_clear(pinfo->cinfo, COL_INFO);

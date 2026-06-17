@@ -403,7 +403,7 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 	tvbuff_t   *next_tvb;
 	proto_tree *fh_tree;
 
-	int offset = 0;
+	unsigned offset = 0;
 	int encoding;
 	unsigned len_rem, len_le, len_be;
 

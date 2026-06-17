@@ -39,11 +39,11 @@ static int
 dissect_midi_sysex_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
     uint8_t sysex_helper;
-    int data_len;
+    unsigned data_len;
     proto_item *item;
     proto_item *ti = NULL;
     proto_tree *tree = NULL;
-    int offset = 0;
+    unsigned offset = 0;
     int manufacturer_payload_len;
     uint8_t manufacturer_id;
     uint32_t three_byte_manufacturer_id = 0xFFFFFF;

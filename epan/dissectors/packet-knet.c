@@ -214,7 +214,7 @@ dissect_reliable_message_index_base(tvbuff_t *buffer, int offset, proto_tree *tr
  *
  */
 static int
-dissect_content_length_vle(tvbuff_t *buffer, int *offset, proto_tree *tree)
+dissect_content_length_vle(tvbuff_t *buffer, unsigned *offset, proto_tree *tree)
 {
     unsigned byte_count;
     uint32_t length;
@@ -332,7 +332,7 @@ dissect_reliable_message_number(tvbuff_t *buffer, int offset, proto_tree *tree)
  *
  */
 static int
-dissect_messageid(tvbuff_t *buffer, int *offset, proto_tree *tree, packet_info *pinfo, bool separator)
+dissect_messageid(tvbuff_t *buffer, unsigned *offset, proto_tree *tree, packet_info *pinfo, bool separator)
 {
     int    messageid_length;
     uint8_t messageid;
@@ -440,7 +440,7 @@ dissect_payload(tvbuff_t *buffer, int offset, int messageid, proto_tree *tree, i
  *
  */
 static int
-dissect_knet_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, int messageindex)
+dissect_knet_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, int messageindex)
 {
     int content_length, total_length, messageid;
     int start_offset = offset;
@@ -488,7 +488,7 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int current_pr
     proto_item *knet_ti, *message_ti;
     proto_tree *knet_tree, *message_tree;
 
-    int offset = 0, content_length, messageid;
+    unsigned offset = 0, content_length, messageid;
 
     /* Attach kNet main tree to Wireshark tree */
     knet_ti   = proto_tree_add_item(tree, proto_knet, tvb, 0, -1, ENC_NA);
@@ -521,7 +521,8 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int current_pr
 static unsigned
 get_knet_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    return count_vle_bytes(tvb, offset) + (unsigned)dissect_content_length_vle(tvb, &offset, NULL);
+    unsigned uoffset = offset;
+    return count_vle_bytes(tvb, offset) + (unsigned)dissect_content_length_vle(tvb, &uoffset, NULL);
 }
 
 /**
@@ -547,7 +548,7 @@ dissect_knet_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     if (tvb_reported_length(tvb) < 2)
         return 0;
 
-    int offset = 0;
+    unsigned offset = 0;
     if (dissect_content_length_vle(tvb, &offset, NULL) == 0)
         return 0;
 
@@ -598,7 +599,7 @@ dissect_knet_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     proto_tree *datagram_tree, /* Tree containing all header related info */
                *udpflags_tree; /* Tree containing UDP Datagram Flags */
 
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t packetid; /* Contains info about PacketID */
     int messageindex = 0; /*!< Index of the kNet message inside a datagram */
 

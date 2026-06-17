@@ -310,7 +310,7 @@ dissect_ma_wfp_capture_v4_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
 	proto_item *ti;
 	proto_tree *wfp_tree;
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t ip_proto, payload_length;
 	tvbuff_t *next_tvb;
 
@@ -370,7 +370,7 @@ dissect_ma_wfp_capture_v6_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
 	proto_item *ti;
 	proto_tree *wfp_tree;
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t ip_proto, payload_length;
 	tvbuff_t *next_tvb;
 
@@ -566,7 +566,7 @@ dissect_etw_wfp_capture(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 {
 	proto_item *ti, *generated;
 	proto_tree *etw_tree;
-	int offset = 0;
+	unsigned offset = 0;
 	struct netmon_provider_id_data *provider_id_data = (struct netmon_provider_id_data*)data;
 	unsigned length;
 

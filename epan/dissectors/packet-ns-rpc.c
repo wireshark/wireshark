@@ -1117,7 +1117,7 @@ dissect_ns_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 {
 	uint16_t rpc_errcode;
 	uint32_t datalen, rpc_cmd, remote_ioctl;
-	int offset = 0;
+	unsigned offset = 0;
 	proto_item *ti;
 	proto_tree *ns_rpc_tree;
 

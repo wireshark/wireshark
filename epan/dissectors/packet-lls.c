@@ -135,7 +135,7 @@ dissect_lls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_item *ti = proto_tree_add_item(tree, proto_lls, tvb, 0, -1, ENC_NA);
     proto_tree *lls_tree = proto_item_add_subtree(ti, ett_lls);
 
-    int offset = 0;
+    unsigned offset = 0;
 
     uint8_t lls_table_id = tvb_get_uint8(tvb, offset);
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(lls_table_id, hf_lls_table_type_vals, "Unknown"));

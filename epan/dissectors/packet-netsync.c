@@ -407,7 +407,7 @@ get_netsync_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *dat
 static int
 dissect_netsync_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t tmp;
 	uint8_t cmd, version;
 	uint32_t size, size_bytes, shift;

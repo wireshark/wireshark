@@ -348,7 +348,7 @@ static expert_field ei_netmon_process_user_sid;
 static dissector_table_t wtap_encap_table;
 
 void
-netmon_etl_field(proto_tree *tree, tvbuff_t *tvb, int* offset, int hf, uint16_t flags)
+netmon_etl_field(proto_tree *tree, tvbuff_t *tvb, unsigned* offset, int hf, uint16_t flags)
 {
 	if (flags & EVENT_HEADER_FLAG_64_BIT_HEADER) {
 		/* XXX - This seems to be how values are displayed in Network Monitor */
@@ -362,7 +362,7 @@ netmon_etl_field(proto_tree *tree, tvbuff_t *tvb, int* offset, int hf, uint16_t 
 }
 
 void
-netmon_sid_field(proto_tree *tree, tvbuff_t *tvb, int* offset, packet_info *pinfo,
+netmon_sid_field(proto_tree *tree, tvbuff_t *tvb, unsigned* offset, packet_info *pinfo,
 				int hf_revision, int hf_subauthority_count, int hf_sid_id, int hf_sid_authority, expert_field* invalid_sid, bool conformant _U_)
 {
 	proto_item *ti, *sid_item;
@@ -605,7 +605,7 @@ dissect_netmon_filter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 {
 	proto_item *ti;
 	proto_tree *filter_tree;
-	int offset = 0;
+	unsigned offset = 0;
 	unsigned length;
 	const uint8_t* filter;
 
@@ -774,7 +774,7 @@ dissect_netmon_system_trace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	proto_item *ti;
 	proto_tree *system_tree;
-	int offset = 0;
+	unsigned offset = 0;
 	struct netmon_provider_id_data *provider_id_data = (struct netmon_provider_id_data*)data;
 	unsigned length;
 	nstime_t timestamp;
@@ -893,7 +893,7 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 {
 	proto_item *ti;
 	proto_tree *system_tree;
-	int offset = 0;
+	unsigned offset = 0;
 	struct netmon_provider_id_data *provider_id_data = (struct netmon_provider_id_data*)data;
 	unsigned length;
 	uint32_t field1, field2;
@@ -1655,7 +1655,7 @@ dissect_netmon_process(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 {
 	proto_item *ti;
 	proto_tree *process_tree;
-	int offset = 0;
+	unsigned offset = 0;
 	struct netmon_provider_id_data *provider_id_data = (struct netmon_provider_id_data*)data;
 	unsigned length;
 	const uint8_t *filename;

@@ -1481,8 +1481,8 @@ dissect_ltp_segment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 static int
 dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	const int packet_len = tvb_reported_length(tvb);
-	int offset = 0;
+	const unsigned packet_len = tvb_reported_length(tvb);
+	unsigned offset = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTP");
 
@@ -1501,13 +1501,13 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 static bool
 dissect_ltp_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	const int packet_len = tvb_reported_length(tvb);
+	const unsigned packet_len = tvb_reported_length(tvb);
 	if (packet_len <= LTP_MIN_DATA_BUFFER)
 	{
 		return false;
 	}
 
-	int offset = 0;
+	unsigned offset = 0;
 	TRY {
 		// unlike dissect_ltp() this requires the entire datagram to be dissected
 		while (offset < packet_len)

@@ -203,7 +203,7 @@ dissect_msnip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	proto_tree *tree;
 	proto_item *item;
 	uint8_t type;
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t dst = g_htonl(MC_ALL_IGMPV3_ROUTERS);
 
 	/* Shouldn't be destined for us */

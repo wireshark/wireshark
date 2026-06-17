@@ -212,7 +212,7 @@ dissect_mrd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	proto_tree *tree;
 	proto_item *item;
 	uint8_t type;
-	int offset = 0;
+	unsigned offset = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MRD");
 	col_clear(pinfo->cinfo, COL_INFO);

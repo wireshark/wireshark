@@ -1990,7 +1990,7 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, uint
 static int dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
         proto_item *ti = NULL;
-        int offset = 0;
+        unsigned offset = 0;
         proto_item *item = NULL;
         proto_tree *mih_tree = NULL;
         proto_tree *ver_flags_tree = NULL;

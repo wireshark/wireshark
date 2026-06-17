@@ -158,7 +158,7 @@ dissect_kpasswd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool
 {
     proto_item *kpasswd_item=NULL;
     proto_tree *kpasswd_tree=NULL;
-    int offset = 0;
+    unsigned offset = 0;
     uint16_t message_len, version, ap_req_len;
     tvbuff_t *next_tvb;
 

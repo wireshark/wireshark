@@ -106,7 +106,7 @@ dissect_oicq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 {
 	proto_tree      *oicq_tree;
 	proto_item	*ti;
-	int offset = 0;
+	unsigned offset = 0;
 
 	/* Make sure this packet is for us.                                  */
 	/* heuristic: OICQ iff (([0] == STX) && ([3/4] == <valid_command>) ) */

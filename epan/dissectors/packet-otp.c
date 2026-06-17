@@ -278,7 +278,7 @@ static int* const otp_module_options[] = {
 /******************************************************************************/
 /* Dissect protocol                                                           */
 
-static proto_tree* dissect_otp_pdu_start(tvbuff_t* tvb, proto_tree* tree, proto_item** out_item, int* offset, int* pdu_end, uint32_t* vector, uint32_t* length, int hf_pdu, int ett_pdu, int hf_pdu_vector, int hf_pdu_length) {
+static proto_tree* dissect_otp_pdu_start(tvbuff_t* tvb, proto_tree* tree, proto_item** out_item, unsigned* offset, unsigned* pdu_end, uint32_t* vector, uint32_t* length, int hf_pdu, int ett_pdu, int hf_pdu_vector, int hf_pdu_length) {
     *out_item = proto_tree_add_item(tree, hf_pdu, tvb, *offset, -1, ENC_NA);
     proto_tree* pdu_tree = proto_item_add_subtree(*out_item, ett_pdu);
 
@@ -294,8 +294,8 @@ static proto_tree* dissect_otp_pdu_start(tvbuff_t* tvb, proto_tree* tree, proto_
     return pdu_tree;
 }
 
-static int dissect_otp_module_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset) {
-    int pdu_end;
+static int dissect_otp_module_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned offset) {
+    unsigned pdu_end;
     uint32_t manf_id, length;
     proto_item* module_item;
     proto_tree* module_tree = dissect_otp_pdu_start(tvb, tree, &module_item, &offset, &pdu_end, &manf_id,
@@ -404,8 +404,8 @@ static int dissect_otp_module_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tre
     return offset;
 }
 
-static int dissect_otp_point_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset) {
-    int pdu_end;
+static int dissect_otp_point_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned offset) {
+    unsigned pdu_end;
     uint32_t vector, length;
     proto_item* point_item;
     proto_tree* point_tree = dissect_otp_pdu_start(tvb, tree, &point_item, &offset, &pdu_end, &vector,
@@ -446,8 +446,8 @@ static int dissect_otp_point_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree
     return pdu_end;
 }
 
-static int dissect_otp_transform_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset) {
-    int pdu_end;
+static int dissect_otp_transform_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned offset) {
+    unsigned pdu_end;
     uint32_t vector, length;
     proto_item* trans_item;
     proto_tree* trans_tree = dissect_otp_pdu_start(tvb, tree, &trans_item, &offset, &pdu_end, &vector,
@@ -485,8 +485,8 @@ static int dissect_otp_transform_layer(tvbuff_t* tvb, packet_info* pinfo, proto_
     return pdu_end;
 }
 
-static int dissect_otp_advertisement_module_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset) {
-    int pdu_end;
+static int dissect_otp_advertisement_module_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned offset) {
+    unsigned pdu_end;
     uint32_t vector, length;
     proto_item* advert_item;
     proto_tree* advert_tree = dissect_otp_pdu_start(tvb, tree, &advert_item, &offset, &pdu_end, &vector,
@@ -526,8 +526,8 @@ static int dissect_otp_advertisement_module_layer(tvbuff_t* tvb, packet_info* pi
         expert_add_info(pinfo, advert_tree, &ei_otp_pdu_len);
     return pdu_end;
 }
-static int dissect_otp_advertisement_name_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset) {
-    int pdu_end;
+static int dissect_otp_advertisement_name_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned offset) {
+    unsigned pdu_end;
     uint32_t vector, length;
     proto_item* advert_item;
     proto_tree* advert_tree = dissect_otp_pdu_start(tvb, tree, &advert_item, &offset, &pdu_end, &vector,
@@ -577,8 +577,8 @@ static int dissect_otp_advertisement_name_layer(tvbuff_t* tvb, packet_info* pinf
         expert_add_info(pinfo, advert_tree, &ei_otp_pdu_len);
     return pdu_end;
 }
-static int dissect_otp_advertisement_system_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset) {
-    int pdu_end;
+static int dissect_otp_advertisement_system_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned offset) {
+    unsigned pdu_end;
     uint32_t vector, length;
     proto_item* advert_item;
     proto_tree* advert_tree = dissect_otp_pdu_start(tvb, tree, &advert_item, &offset, &pdu_end, &vector,
@@ -614,8 +614,8 @@ static int dissect_otp_advertisement_system_layer(tvbuff_t* tvb, packet_info* pi
     return pdu_end;
 }
 
-static int dissect_otp_advertisement_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset) {
-    int pdu_end;
+static int dissect_otp_advertisement_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned offset) {
+    unsigned pdu_end;
     uint32_t vector, length;
     proto_item* advert_item;
     proto_tree* advert_tree = dissect_otp_pdu_start(tvb, tree, &advert_item, &offset, &pdu_end, &vector,
@@ -662,7 +662,7 @@ dissect_otp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
         return 0;
     }
 
-    int offset = 0;
+    unsigned offset = 0;
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OTP");
     /* Clear the info column */
     col_clear(pinfo->cinfo,COL_INFO);
@@ -681,7 +681,7 @@ dissect_otp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
     proto_tree_add_item_ret_uint(otp_tree, hf_otp_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
     proto_item_set_len(ti, length+16);
     offset+=2;
-    int pdu_end = offset+length;
+    unsigned pdu_end = offset+length;
 
     proto_tree_add_item(otp_tree, hf_otp_footer_options, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset+=1;

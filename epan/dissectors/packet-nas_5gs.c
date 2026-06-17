@@ -10822,9 +10822,9 @@ static const range_string nas_5gs_ursp_traff_desc_conn_cap_values[] = {
 static void
 de_nas_5gs_ursp_traff_desc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 {
-    int len = tvb_reported_length(tvb);
+    unsigned len = tvb_reported_length(tvb);
     uint32_t traff_desc, length, i, bmp;
-    int offset = 0;
+    unsigned offset = 0;
 
     /*
     Traffic descriptor (octets v+5 to w)
@@ -11164,9 +11164,9 @@ static const value_string nas_5gs_ursp_r_sel_desc_comp_type_values[] = {
 static void
 de_nas_5gs_ursp_r_sel_desc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 {
-    int len = tvb_reported_length(tvb);
+    unsigned len = tvb_reported_length(tvb);
     uint32_t type_id;
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t length;
 
     while (offset < len) {
@@ -11249,7 +11249,7 @@ de_nas_5gs_ursp_r_sel_desc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
             uint32_t loc_len;
             proto_tree_add_item_ret_uint(tree, hf_nas_5gs_ursp_r_sel_desc_loc_crit_len, tvb, offset, 1, ENC_BIG_ENDIAN, &loc_len);
             offset++;
-            int loc_end = offset + loc_len;
+            unsigned loc_end = offset + loc_len;
             while (offset < loc_end) {
                 uint32_t loc_area_type;
                 proto_tree_add_item_ret_uint(tree, hf_nas_5gs_ursp_r_sel_desc_loc_area_type, tvb, offset, 1, ENC_BIG_ENDIAN, &loc_area_type);
@@ -11945,7 +11945,7 @@ de_nas_5gs_ue_policies_andsp_n3nan(tvbuff_t* tvb, packet_info* pinfo _U_, proto_
 {
     proto_tree* sub_tree, *entry_tree, * conf_inf_tree;
     proto_item* item;
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t inf_len, node_sel_entry_len, type, node_conf_len;
     uint32_t len = tvb_reported_length(tvb);
 
@@ -11963,7 +11963,7 @@ de_nas_5gs_ue_policies_andsp_n3nan(tvbuff_t* tvb, packet_info* pinfo _U_, proto_
 
     /* Content of N3AN node selection information */
     int i = 0;
-    while (offset < (int)inf_len) {
+    while (offset < inf_len) {
         i++;
         entry_tree = proto_tree_add_subtree_format(sub_tree, tvb, offset, -1, ett_nas_5gs_n3nan_sel_info_entry, &item, "N3AN node selection information entry %i", i);
         /* Length of N3AN node selection information entry */
@@ -11986,7 +11986,7 @@ de_nas_5gs_ue_policies_andsp_n3nan(tvbuff_t* tvb, packet_info* pinfo _U_, proto_
         offset++;
     }
 
-    while (offset < (int)len) {
+    while (offset < len) {
         conf_inf_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_nas_5gs_n3nan_conf_inf, &item, "N3AN node configuration information");
         /* N3AN node configuration information type */
         proto_tree_add_item_ret_uint(conf_inf_tree, hf_nas_5gs_n3nan_node_conf_inf_type, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
@@ -13096,7 +13096,7 @@ dissect_nas_5gs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_item *item;
     proto_tree *nas_5gs_tree, *sub_tree;
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t sec_hdr_type, ext_pd;
     struct nas5gs_private_data *nas5gs_data = nas5gs_get_private_data(pinfo);
 
@@ -13155,7 +13155,7 @@ static true_false_string nas_5gs_kacf_tfs = {
 void
 de_nas_5gs_intra_n1_mode_nas_transparent_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     static int * const flags[] = {
         &hf_nas_5gs_spare_b7,
@@ -13188,7 +13188,7 @@ de_nas_5gs_n1_mode_to_s1_mode_nas_transparent_cont(tvbuff_t *tvb, proto_tree *tr
 void
 de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     static int * const oct8_flags[] = {
         &hf_nas_5gs_spare_b7,
@@ -13321,7 +13321,7 @@ dissect_nas_5gs_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 static bool dissect_nas_5gs_heur(tvbuff_t *tvb, packet_info *pinfo,
                                      proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     tvbuff_t *nas_tvb;
 
     /* Needs to be at least as long as:

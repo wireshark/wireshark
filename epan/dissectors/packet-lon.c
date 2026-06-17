@@ -182,7 +182,7 @@ static int dissect_apdu(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 static int
 dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	int pdu_fmt, addr_fmt, dom_len, pdutype, length;
 	int addr_a;

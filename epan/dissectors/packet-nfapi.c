@@ -7977,7 +7977,7 @@ static int dissect_p45_config_request_msg_id(tvbuff_t *tvb, packet_info *pinfo, 
 static int dissect_p7_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uint8_t* m, uint8_t* seg, uint8_t* seq)
 {
 	proto_tree *header_tree;
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t m_seg;
 	static int * const fields[] = {
 		&hf_nfapi_p7_message_header_m,

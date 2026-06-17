@@ -1041,7 +1041,7 @@ static int dissect_ocfs2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	uint32_t len, msg_type;
 	uint32_t magic;
 	tvbuff_t   *next_tvb;
-	int offset = 0;
+	unsigned offset = 0;
 
 	magic = tvb_get_ntohs(tvb, offset);
 	if (try_val_to_str(magic, o2net_magic) == NULL)
@@ -1177,7 +1177,7 @@ get_ocfs2_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data 
 static int dissect_ocfs2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	uint32_t magic;
-	int offset = 0;
+	unsigned offset = 0;
 
 	if (!tvb_bytes_exist(tvb, offset, 2))
 		return 0;

@@ -59,7 +59,7 @@ dissect_mdp(tvbuff_t *mdp_tvb, packet_info *pinfo, proto_tree *tree, void *data 
     proto_tree  *mdp_tree, *tlv_tree;
     proto_item  *mdp_item, *tlv_item;
     uint32_t    mdp_type, mdp_length;
-    int offset = 0;
+    unsigned offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MDP");
     col_set_str(pinfo->cinfo, COL_INFO, "MDP");

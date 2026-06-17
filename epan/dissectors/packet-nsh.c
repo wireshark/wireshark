@@ -165,7 +165,7 @@ static int
 dissect_nsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
-	int offset = 0;
+	unsigned offset = 0;
 	unsigned md_type = -1;
 	uint32_t nsh_bytes_len;
 	unsigned nsh_next_proto = -1;

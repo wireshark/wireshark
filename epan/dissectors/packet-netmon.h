@@ -32,8 +32,8 @@ struct netmon_provider_id_data
 };
 
 
-void netmon_etl_field(proto_tree *tree, tvbuff_t *tvb, int* offset, int hf, uint16_t flags);
-void netmon_sid_field(proto_tree *tree, tvbuff_t *tvb, int* offset, packet_info *pinfo,
+void netmon_etl_field(proto_tree *tree, tvbuff_t *tvb, unsigned* offset, int hf, uint16_t flags);
+void netmon_sid_field(proto_tree *tree, tvbuff_t *tvb, unsigned* offset, packet_info *pinfo,
                       int hf_revision, int hf_subauthority_count, int hf_sid_id, int hf_sid_authority,
                       expert_field* invalid_sid, bool conformant);
 

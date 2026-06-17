@@ -409,7 +409,7 @@ static int
 dissect_nmf_payload(tvbuff_t *tvb, packet_info *pinfo,
 		    proto_tree *tree, nmf_conv_info_t *nmf_info)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		int ret;
@@ -435,7 +435,7 @@ dissect_nmf_pdu(tvbuff_t *tvb, packet_info *pinfo,
 	if (pinfo->fd->num > nmf_info->fnum_negotiated) {
 		proto_item *item = proto_tree_get_parent(tree);
 		uint32_t len = 0;
-		int offset = 0;
+		unsigned offset = 0;
 		tvbuff_t *gssapi_tvb = NULL;
 		tvbuff_t *plain_tvb = NULL, *decr_tvb= NULL;
 		int ver_len;
@@ -523,7 +523,7 @@ dissect_nmf_pdu(tvbuff_t *tvb, packet_info *pinfo,
 		unsigned rlen = tvb_reported_length(tvb);
 		uint16_t len = 0;
 		uint8_t type;
-		int offset = 0;
+		unsigned offset = 0;
 		tvbuff_t *negotiate_tvb = NULL;
 
 		col_set_str(pinfo->cinfo, COL_INFO, "NMF Upgrade");

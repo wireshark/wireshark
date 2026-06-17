@@ -4979,7 +4979,7 @@ dissect_mysql_compressed_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	conversation_t *conversation;
 	mysql_conn_data_t *conn_data;
-	int offset = 0;
+	unsigned offset = 0;
 	unsigned clen, ulen;
 
 	/* get conversation, create if necessary*/

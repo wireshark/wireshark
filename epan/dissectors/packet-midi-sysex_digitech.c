@@ -1083,7 +1083,7 @@ dissect_digitech_procedure(uint8_t procedure, const int offset,
 static int
 dissect_midi_sysex_digitech_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t procedure_id;
     uint8_t digitech_helper;
     proto_item *ti = NULL;

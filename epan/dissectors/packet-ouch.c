@@ -418,7 +418,7 @@ dissect_ouch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     const char *pkt_name;
     uint16_t reported_len;
     uint8_t pkt_type;
-    int offset = 0;
+    unsigned offset = 0;
 
     /* Get the OUCH message type value */
     pkt_type = tvb_get_uint8(tvb, offset);

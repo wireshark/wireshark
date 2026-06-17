@@ -636,7 +636,7 @@ static void dissect_udp_assoc(tvbuff_t *tvb, int offset,
 static void dissect_msproxy_request(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, hash_entry_t *conv_info) {
 
-	int offset = 0;
+	unsigned offset = 0;
 	int cmd;
     proto_item* cmd_item;
 
@@ -943,7 +943,7 @@ static void dissect_resolve(tvbuff_t *tvb, int offset, proto_tree *tree) {
 static void dissect_msproxy_response(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree *tree, hash_entry_t *conv_info) {
 
-	int offset = 0;
+	unsigned offset = 0;
 	int cmd;
 	proto_item* ti;
 

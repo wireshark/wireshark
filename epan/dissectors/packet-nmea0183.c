@@ -1611,7 +1611,7 @@ static const string_string alarm_ack_state_str[] = {
 static int
 dissect_nmea0183_sentence_alr(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree* subtree = proto_tree_add_subtree(tree, tvb, offset,
         tvb_captured_length(tvb), ett_nmea0183_sentence, NULL, "ALR sentence - Set Alarm State");
@@ -1636,7 +1636,7 @@ dissect_nmea0183_sentence_alr(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
 static int
 dissect_nmea0183_sentence_dpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence, NULL, "DPT sentence - Depth of Water");
@@ -1654,7 +1654,7 @@ dissect_nmea0183_sentence_dpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_nmea0183_sentence_gga(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
@@ -1699,7 +1699,7 @@ dissect_nmea0183_sentence_gga(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_nmea0183_sentence_gll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
@@ -1728,7 +1728,7 @@ dissect_nmea0183_sentence_gll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_nmea0183_sentence_gst(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
@@ -1755,7 +1755,7 @@ dissect_nmea0183_sentence_gst(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_nmea0183_sentence_hdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
@@ -1773,7 +1773,7 @@ dissect_nmea0183_sentence_hdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_nmea0183_sentence_rot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
@@ -1790,7 +1790,7 @@ dissect_nmea0183_sentence_rot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_nmea0183_sentence_txt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree* subtree = proto_tree_add_subtree(tree, tvb, offset,
         tvb_captured_length(tvb), ett_nmea0183_sentence,
@@ -1813,7 +1813,7 @@ dissect_nmea0183_sentence_txt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
 static int
 dissect_nmea0183_sentence_vhw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
@@ -1846,7 +1846,7 @@ dissect_nmea0183_sentence_vhw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_nmea0183_sentence_vbw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
@@ -1873,7 +1873,7 @@ dissect_nmea0183_sentence_vbw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_nmea0183_sentence_vlw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
@@ -1906,7 +1906,7 @@ dissect_nmea0183_sentence_vlw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_nmea0183_sentence_vtg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
@@ -1941,7 +1941,7 @@ dissect_nmea0183_sentence_vtg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_nmea0183_sentence_zda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int offset = 0;
+    unsigned offset = 0;
     proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
                                                  NULL, "ZDA sentence - Time & Date");
@@ -1967,7 +1967,7 @@ dissect_nmea0183_sentence_zda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_nmea0183_sentence_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
@@ -2199,7 +2199,7 @@ dissect_nmea0183_bin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
     proto_tree* nmea0183_tree, *fd_tree;
     uint32_t mtype, seqnum, file_descriptor_len, type_len;
 
-    int offset = 0;
+    unsigned offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NMEA 0183 Binary");
     /* Clear the info column */
@@ -2224,7 +2224,7 @@ dissect_nmea0183_bin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
     offset += 4;
     proto_tree_add_item(nmea0183_tree, hf_nmea0183_bin_max_seqnum, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    if (offset < (int)tvb_reported_length(tvb)) {
+    if (offset < tvb_reported_length(tvb)) {
         if ((mtype == 1) && (seqnum == 1)) {
             /* binary file descriptor*/
             ti = proto_tree_add_item(nmea0183_tree, hf_nmea0183_bin_file_descriptor, tvb, offset, -1, ENC_ASCII);

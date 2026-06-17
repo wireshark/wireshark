@@ -111,7 +111,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     proto_tree *nflog_tree = NULL;
     proto_item *ti;
 
-    int offset = 0;
+    unsigned offset = 0;
 
     struct {
         proto_tree *parent;

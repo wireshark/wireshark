@@ -398,8 +398,8 @@ dissect_matter_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     static const int elem_sizes[] = { 1, 2, 4, 8 };
 
     int matter_tlv_elem_tag = hf_matter_tlv_elem_tag;
-    int length = tvb_reported_length_remaining(tvb, 0);
-    int offset = 0;
+    unsigned length = tvb_reported_length_remaining(tvb, 0);
+    unsigned offset = 0;
 
     if (data != NULL)
         // Use caller-provided tag field.

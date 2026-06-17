@@ -619,7 +619,7 @@ dissect_nlm_gen_reply(tvbuff_t *tvb, packet_info *pinfo,
 		      proto_tree *tree, void* data)
 {
 	uint32_t nlm_stat;
-	int offset = 0;
+	unsigned offset = 0;
 
 	if(nlm_match_msgres){
 		rpc_call_info_value *rpc_call=(rpc_call_info_value *)data;

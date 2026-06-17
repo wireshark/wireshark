@@ -420,7 +420,7 @@ static const value_string nmea2000_industry_code_vals[] = {
 static tvbuff_t *
 dissect_nmea2000_fast_pkt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, uint32_t num_bytes)
 {
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t frame_count, sequence_no, fragment_length = 7;
 
     fragment_head* fd_fast_pkt = NULL;
@@ -578,7 +578,7 @@ dissect_nmea2000_126996(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, voi
     proto_tree* nmea2000_tree, *top_tree = proto_tree_get_root(tree);
 
     tvbuff_t* msg_tvb;
-    int offset = 0;
+    unsigned offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "nmea2000");
     ti = proto_tree_add_item(top_tree, proto_nmea2000, tvb, 0, -1, ENC_NA);

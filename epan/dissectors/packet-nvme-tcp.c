@@ -741,7 +741,7 @@ dissect_nvme_tcp_pdu(tvbuff_t *tvb,
     conversation_t *conversation;
     struct nvme_tcp_q_ctx *q_ctx;
     proto_item *ti;
-    int offset = 0;
+    unsigned offset = 0;
     int nvme_tcp_pdu_offset;
     proto_tree *nvme_tcp_tree;
     unsigned packet_type;

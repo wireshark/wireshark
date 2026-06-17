@@ -338,7 +338,7 @@ dissect_genl_ctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void 
 
 int dissect_genl_header(tvbuff_t *tvb, genl_info_t *genl_info, struct packet_netlink_data *nl_data, int hf_cmd)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	if (hf_cmd <= 0) {
 		hf_cmd = hf_genl_cmd;
@@ -363,7 +363,7 @@ dissect_netlink_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	const char *family_name;
 	uint32_t newfamily_frame_num;
 	tvbuff_t *next_tvb;
-	int offset = 0;
+	unsigned offset = 0;
 
 	DISSECTOR_ASSERT(nl_data && nl_data->magic == PACKET_NETLINK_MAGIC);
 

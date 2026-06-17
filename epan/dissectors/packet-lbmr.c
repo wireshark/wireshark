@@ -5126,7 +5126,7 @@ static int dissect_lbmr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
 {
     proto_tree * lbmr_tree = NULL;
     proto_item * ti = NULL;
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t ver_type;
     uint8_t ver;
     uint8_t type;

@@ -830,7 +830,7 @@ static int
 dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	uint32_t dword;
-	int offset = 0;
+	unsigned offset = 0;
 	proto_item *ti, *ver_item, *msg_item;
 	proto_tree *linx_tcp_tree;
 	proto_tree *tcp_header_tree;

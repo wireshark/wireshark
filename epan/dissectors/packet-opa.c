@@ -552,14 +552,14 @@ static dissector_handle_t opa_mad_handle;
 static dissector_handle_t infiniband_handle;
 static dissector_handle_t ipv6_handle;
 
-static void parse_opa_9B_Header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, uint8_t *lnh_val)
+static void parse_opa_9B_Header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset, uint8_t *lnh_val)
 {
     /* 16B - L2 Header */
     proto_item *L2_9B_header_item;
     proto_tree *L2_9B_header_tree;
     void *src_addr, *dst_addr;
 
-    int local_offset = *offset;
+    unsigned local_offset = *offset;
 
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "9B: ");
     L2_9B_header_item = proto_tree_add_item(tree, hf_opa_9B, tvb, local_offset, 8, ENC_NA);
@@ -600,12 +600,12 @@ static void parse_opa_9B_Header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     *offset = local_offset;
 }
 
-static void parse_opa_grh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, uint8_t *nextHdr)
+static void parse_opa_grh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset, uint8_t *nextHdr)
 {
     proto_item *global_route_header_item;
     proto_tree *global_route_header_tree;
 
-    int local_offset = *offset;
+    unsigned local_offset = *offset;
 
     col_append_str(pinfo->cinfo, COL_INFO, "GRH: ");
     global_route_header_item = proto_tree_add_item(tree, hf_opa_grh, tvb, local_offset, 40, ENC_NA);
@@ -640,12 +640,12 @@ static void parse_opa_grh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     *offset = local_offset;
 }
 
-static void parse_opa_bth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, uint8_t *opCode)
+static void parse_opa_bth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset, uint8_t *opCode)
 {
     proto_item *base_transport_header_item;
     proto_tree *base_transport_header_tree;
 
-    int local_offset = *offset;
+    unsigned local_offset = *offset;
 
     col_append_str(pinfo->cinfo, COL_INFO, "BTH: ");
     base_transport_header_item = proto_tree_add_item(tree, hf_opa_bth, tvb, local_offset, 12, ENC_NA);
@@ -767,9 +767,9 @@ static int32_t find_next_header_sequence(uint32_t OpCode)
 }
 
 /* Parse RDETH - Reliable Datagram Extended Transport Header */
-static void parse_RDETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+static void parse_RDETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset)
 {
-    int local_offset = *offset;
+    unsigned local_offset = *offset;
     /* RDETH - Reliable Datagram Extended Transport Header */
     proto_item *RDETH_header_item;
     proto_tree *RDETH_header_tree;
@@ -785,9 +785,9 @@ static void parse_RDETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     *offset = local_offset;
 }
 /* Parse DETH - Datagram Extended Transport Header */
-static void parse_DETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+static void parse_DETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset)
 {
-    int local_offset = *offset;
+    unsigned local_offset = *offset;
     /* DETH - Datagram Extended Transport Header */
     proto_item *DETH_header_item;
     proto_tree *DETH_header_tree;
@@ -806,9 +806,9 @@ static void parse_DETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     *offset = local_offset;
 }
 /* Parse RETH - RDMA Extended Transport Header */
-static void parse_RETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+static void parse_RETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset)
 {
-    int local_offset = *offset;
+    unsigned local_offset = *offset;
     /* RETH - RDMA Extended Transport Header */
     proto_item *RETH_header_item;
     proto_tree *RETH_header_tree;
@@ -827,9 +827,9 @@ static void parse_RETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     *offset = local_offset;
 }
 /* Parse AtomicETH - Atomic Extended Transport Header */
-static void parse_ATOMICETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+static void parse_ATOMICETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset)
 {
-    int local_offset = *offset;
+    unsigned local_offset = *offset;
     /* AtomicETH - Atomic Extended Transport Header */
     proto_item *ATOMICETH_header_item;
     proto_tree *ATOMICETH_header_tree;
@@ -849,9 +849,9 @@ static void parse_ATOMICETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     *offset = local_offset;
 }
 /* Parse AETH - ACK Extended Transport Header */
-static void parse_AETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+static void parse_AETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset)
 {
-    int local_offset = *offset;
+    unsigned local_offset = *offset;
     /* AETH - ACK Extended Transport Header */
     proto_item *AETH_header_item;
     proto_tree *AETH_header_tree;
@@ -868,9 +868,9 @@ static void parse_AETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     *offset = local_offset;
 }
 /* Parse AtomicAckEth - Atomic ACK Extended Transport Header */
-static void parse_ATOMICACKETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+static void parse_ATOMICACKETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset)
 {
-    int local_offset = *offset;
+    unsigned local_offset = *offset;
     /* AtomicAckEth - Atomic ACK Extended Transport Header */
     proto_item *ATOMICACKETH_header_item;
     proto_tree *ATOMICACKETH_header_tree;
@@ -883,9 +883,9 @@ static void parse_ATOMICACKETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     *offset = local_offset;
 }
 /* Parse IMMDT - Immediate Data Extended Transport Header */
-static void parse_IMMDT(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+static void parse_IMMDT(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset)
 {
-    int local_offset = *offset;
+    unsigned local_offset = *offset;
     /* IMMDT - Immediate Data Extended Transport Header */
     proto_item *IMMDT_header_item;
     proto_tree *IMMDT_header_tree;
@@ -898,9 +898,9 @@ static void parse_IMMDT(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     *offset = local_offset;
 }
 /* Parse IETH - Invalidate Extended Transport Header */
-static void parse_IETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+static void parse_IETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset)
 {
-    int local_offset = *offset;
+    unsigned local_offset = *offset;
     /* IETH - Invalidate Extended Transport Header */
     proto_item *IETH_header_item;
     proto_tree *IETH_header_tree;
@@ -915,9 +915,9 @@ static void parse_IETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     *offset = local_offset;
 }
 /* Parse KDETH - Key Datagram Extended Transport Header */
-static void parse_KDETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+static void parse_KDETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset)
 {
-    int local_offset = *offset;
+    unsigned local_offset = *offset;
     /* KDETH - Key Datagram Extended Transport Header */
     proto_item *KDETH_header_item;
     proto_tree *KDETH_header_tree;
@@ -935,9 +935,9 @@ static void parse_KDETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 }
 
 /* Parse PSM header */
-static void parse_PSM(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, int opCode)
+static void parse_PSM(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset, int opCode)
 {
-    int local_offset = *offset;
+    unsigned local_offset = *offset;
     /* PSM Header */
     proto_item *PSM_header_item;
     proto_tree *PSM_header_tree;
@@ -1118,9 +1118,9 @@ static void parse_PSM(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *
     }
     *offset = local_offset;
 }
-static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, int opCode, bool *parsePayload)
+static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset, int opCode, bool *parsePayload)
 {
-    int local_offset = *offset;
+    unsigned local_offset = *offset;
     proto_item *TIDRDMA_header_item;
     proto_tree *TIDRDMA_header_tree;
 
@@ -1276,7 +1276,7 @@ static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     }
     *offset = local_offset;
 }
-static void parse_IPvSix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+static void parse_IPvSix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset)
 {
     call_dissector(ipv6_handle, tvb_new_subset_remaining(tvb, *offset), pinfo, tree);
     *offset = tvb_reported_length(tvb);
@@ -1291,7 +1291,7 @@ static int dissect_opa_9b(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     /* TVB to pass to infiniband header */
     tvbuff_t *infiniband_tvb;
 
-    int offset = 0;    /* Current Offset */
+    unsigned offset = 0;    /* Current Offset */
     int ib_offset = 0; /* Offset to track if IB packet */
     int reported_length;
     uint8_t lnh_val = 0;

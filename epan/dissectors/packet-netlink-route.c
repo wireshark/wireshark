@@ -1244,7 +1244,7 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	struct packet_netlink_data *nl_data = (struct packet_netlink_data *)data;
 	proto_tree *nlmsg_tree;
 	proto_item *pi;
-	int offset = 0;
+	unsigned offset = 0;
 
 	DISSECTOR_ASSERT(nl_data && nl_data->magic == PACKET_NETLINK_MAGIC);
 

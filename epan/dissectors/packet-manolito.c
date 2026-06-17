@@ -70,7 +70,7 @@ static value_string_ext field_longname_ext = VALUE_STRING_EXT_INIT(field_longnam
 static int
 dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissector_data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	proto_item *ti;
 	proto_tree *manolito_tree;
 	char *packet_type = NULL;

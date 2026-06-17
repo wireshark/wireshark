@@ -165,7 +165,7 @@ static dissector_handle_t opa_9b_handle;
 
 static int dissect_opa_snc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;    /* Current Offset */
+    unsigned offset = 0;    /* Current Offset */
 
     bool isBypass = true;  /* Tracks if we are parsing a bypass packet or Not */
     uint8_t Direction = tvb_get_uint8(tvb, offset + 1);

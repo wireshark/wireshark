@@ -52,7 +52,7 @@ static unsigned get_opa_fe_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, in
 }
 static int dissect_opa_fe_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;    /* Current Offset */
+    unsigned offset = 0;    /* Current Offset */
     proto_item *FE_item;
     proto_tree *FE_tree;
 

@@ -721,7 +721,7 @@ dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, btle_context
 {
     proto_item *ti;
     proto_tree *nordic_ble_tree;
-    int offset = 0;
+    unsigned offset = 0;
     nordic_ble_context_t nordic_ble_context;
 
     memset(&nordic_ble_context, 0, sizeof(nordic_ble_context));

@@ -122,7 +122,7 @@ dissect_klm_stat_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 static int
 dissect_klm_lock_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	offset = dissect_rpc_bool( tvb, tree,
 			hf_klm_block, offset);
 
@@ -138,7 +138,7 @@ static int
 dissect_klm_test_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	int32_t	stats;
-	int offset = 0;
+	unsigned offset = 0;
 
 	stats = tvb_get_ntohl(tvb, offset);
 
@@ -155,7 +155,7 @@ dissect_klm_test_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 static int
 dissect_klm_test_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	offset = dissect_rpc_bool( tvb, tree,
 			hf_klm_exclusive, offset);
 

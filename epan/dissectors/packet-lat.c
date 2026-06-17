@@ -337,7 +337,7 @@ static void dissect_lat_slots(tvbuff_t *tvb, int offset, unsigned nbr_slots,
 static int
 dissect_lat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	proto_item *ti;
 	proto_tree *lat_tree = NULL;
 	uint8_t command;

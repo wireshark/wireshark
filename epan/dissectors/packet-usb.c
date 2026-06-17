@@ -5489,7 +5489,7 @@ static int dissect_freebsd_usb(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static int
-netmon_HostController2(proto_tree *tree, tvbuff_t *tvb, int offset, uint16_t flags)
+netmon_HostController2(proto_tree *tree, tvbuff_t *tvb, unsigned offset, uint16_t flags)
 {
     proto_tree *host_tree;
 
@@ -5511,7 +5511,7 @@ netmon_HostController2(proto_tree *tree, tvbuff_t *tvb, int offset, uint16_t fla
 }
 
 static int
-netmon_UsbPortPath(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo)
+netmon_UsbPortPath(proto_tree *tree, tvbuff_t *tvb, unsigned offset, packet_info *pinfo)
 {
     proto_item *path_item, *depth_item;
     proto_tree *path_tree;
@@ -5561,7 +5561,7 @@ netmon_UsbPortPath(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 static int
-netmon_fid_USBPORT_Device(proto_tree *tree, tvbuff_t *tvb, int offset, uint16_t flags, packet_info *pinfo)
+netmon_fid_USBPORT_Device(proto_tree *tree, tvbuff_t *tvb, unsigned offset, uint16_t flags, packet_info *pinfo)
 {
     proto_item *device_item;
     proto_tree *device_tree;
@@ -5582,7 +5582,7 @@ netmon_fid_USBPORT_Device(proto_tree *tree, tvbuff_t *tvb, int offset, uint16_t 
 }
 
 static int
-netmon_fid_USBPORT_Endpoint(proto_tree *tree, tvbuff_t *tvb, int offset, uint16_t flags)
+netmon_fid_USBPORT_Endpoint(proto_tree *tree, tvbuff_t *tvb, unsigned offset, uint16_t flags)
 {
     proto_tree *endpoint_tree;
 
@@ -5595,7 +5595,7 @@ netmon_fid_USBPORT_Endpoint(proto_tree *tree, tvbuff_t *tvb, int offset, uint16_
 }
 
 static int
-netmon_fid_USBPORT_Endpoint_Descriptor(proto_tree *tree, tvbuff_t *tvb, int offset)
+netmon_fid_USBPORT_Endpoint_Descriptor(proto_tree *tree, tvbuff_t *tvb, unsigned offset)
 {
     proto_tree *endpoint_desc_tree;
 
@@ -5617,7 +5617,7 @@ netmon_fid_USBPORT_Endpoint_Descriptor(proto_tree *tree, tvbuff_t *tvb, int offs
 }
 
 static int
-netmon_URB(proto_tree *tree, tvbuff_t *tvb, int offset, uint16_t flags)
+netmon_URB(proto_tree *tree, tvbuff_t *tvb, unsigned offset, uint16_t flags)
 {
     proto_item *urb_item;
     proto_tree *urb_tree;
@@ -5716,7 +5716,7 @@ dissect_netmon_usb_port(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent, v
 {
     proto_item *ti, *generated;
     proto_tree *usb_port_tree;
-    int offset = 0;
+    unsigned offset = 0;
     struct netmon_provider_id_data *provider_id_data = (struct netmon_provider_id_data*)data;
     static int * const keyword_fields[] = {
         &hf_usbport_keyword_diagnostic,
