@@ -126,6 +126,11 @@ The following features are either new or have been significantly updated since v
   multiple bundled DATA chunks into individual packets, one per DATA chunk.
   Each split packet includes a comment indicating its original frame number.
 
+* Sharkd supports Unix domain sockets where supported on Windows, which includes
+  all Windows versions supported by Wireshark 4.6 and later. (Windows 10 versions
+  1803 and later, including Windows Server 2019 and later, all support Unix domain
+  sockets.)
+
 === Removed Features and Support
 
 Dumpcap's TCP@host:port interface has been removed.

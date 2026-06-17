@@ -46,15 +46,20 @@
 
 #ifdef _WIN32
 /*
- * TCP sockets can work on Linux and other systems, but is disabled by default
+ * TCP sockets can work on Linux and other systems, but are disabled by default
  * because we do not want to encourage insecure setups. Unfiltered access to
  * sharkd could potentially result in arbitrary command execution.
- * On Windows, Unix sockets are not supported, so we enable it there.
+ * We enable them on Windows because Unix sockets are not traditionally
+ * supported, but all currently-supported Windows versions support them,
+ * so we might disable them by default whenever Unix sockets are supported.
  */
 # define SHARKD_TCP_SUPPORT
 #endif
 
-#ifndef _WIN32
+#ifdef HAVE_AF_UNIX
+# ifdef _WIN32
+#  include <afunix.h>
+# endif
 # define SHARKD_UNIX_SUPPORT
 #endif
 

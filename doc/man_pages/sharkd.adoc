@@ -68,7 +68,8 @@ Supported socket types:
 Listen on a Unix domain socket at __path__.  For example,
 *unix:/tmp/sharkd.sock*.  On Linux, abstract sockets are supported
 by prefixing the name with *@*, for example *unix:@sharkd*.
-Unix domain sockets are not available on Windows.
+Unix domain sockets are available on Windows 10 version 1803 and
+later, including Windows Server 2019.
 
 *tcp:__address__:__port__*::
 Listen on a TCP socket bound to __address__ on __port__.  For example,
