@@ -299,7 +299,7 @@ dissect_vdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree *vdp_tlv_tree;
 	proto_item *ti, *length_item;
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t	tlvtype;
 	uint16_t tlvhdr;
 	int tlvlen = 0;
@@ -351,7 +351,7 @@ dissect_ecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_item *ti;
 	proto_tree *ecp_tree = NULL;
-	int offset = 0;
+	unsigned offset = 0;
 	tvbuff_t *next_tvb;
 	uint16_t hdr, ver, op, subtype, seqno;
 

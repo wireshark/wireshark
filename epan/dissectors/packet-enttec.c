@@ -314,7 +314,7 @@ dissect_enttec_reset(tvbuff_t *tvb _U_, unsigned offset, proto_tree *tree _U_)
 static int
 dissect_enttec_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t head = 0;
 	proto_tree *ti, *enttec_tree;
 
@@ -386,7 +386,7 @@ dissect_enttec_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 static int
 dissect_enttec_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t head = 0;
 	proto_tree *ti,*enttec_tree;
 

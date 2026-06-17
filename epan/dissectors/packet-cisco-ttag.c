@@ -41,7 +41,7 @@ dissect_ttag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     proto_tree *ttag_tree;
     proto_item *ti;
-    int offset = 0;
+    unsigned offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TTAG");
     col_clear(pinfo->cinfo, COL_INFO);

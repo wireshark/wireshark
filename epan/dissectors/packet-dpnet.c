@@ -317,7 +317,7 @@ static void process_dpnet_query(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_in
 static void
 dpnet_process_data_frame(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_info *pinfo)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     col_set_str(pinfo->cinfo, COL_INFO, "DPNET DFrame");
 
@@ -329,7 +329,7 @@ dpnet_process_data_frame(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_info *pin
 static void
 dpnet_process_control_frame(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_info *pinfo)
 {
-    int offset = 0;
+    unsigned offset = 0;
     int command;
     const char *command_str;
     int flag;

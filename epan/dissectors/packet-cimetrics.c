@@ -42,7 +42,7 @@ dissect_cimetrics_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 {
 	proto_item *ti;
 	proto_tree *subtree;
-	int offset = 0;
+	unsigned offset = 0;
 #ifdef BACNET_MSTP_SUMMARY_IN_TREE
 	uint8_t mstp_frame_type = 0;
 	uint8_t mstp_frame_source = 0;

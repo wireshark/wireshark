@@ -3059,7 +3059,7 @@ static int dissect_edonkey_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 {
     proto_item *ti;
     proto_tree *edonkey_tree = NULL, *edonkey_msg_tree = NULL;
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t protocol, msg_type;
     const char *protocol_name, *message_name;
 

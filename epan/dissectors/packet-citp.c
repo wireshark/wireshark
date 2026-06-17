@@ -831,7 +831,7 @@ dissect_pinf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 {
     int str_len;
     const uint8_t *name;
-    int offset = 0;
+    unsigned offset = 0;
     col_append_str(pinfo->cinfo, COL_PROTOCOL, "/PINF");
     /* Clear the info column */
     col_clear(pinfo->cinfo, COL_INFO);
@@ -875,7 +875,7 @@ dissect_sdmx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     int str_len;
     uint32_t count;
     uint32_t univ_num; const uint8_t *name;
-    int offset = 0;
+    unsigned offset = 0;
     col_append_str(pinfo->cinfo, COL_PROTOCOL, "/SDMX");
     /* Clear the info column */
     col_clear(pinfo->cinfo, COL_INFO);
@@ -996,7 +996,7 @@ static int
 dissect_fptc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int str_len;
-    int offset = 0;
+    unsigned offset = 0;
     col_append_str(pinfo->cinfo, COL_PROTOCOL, "/FPTC");
     /* Clear the info column */
     col_clear(pinfo->cinfo, COL_INFO);
@@ -1050,7 +1050,7 @@ dissect_fptc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 static int
 dissect_fsel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     col_append_str(pinfo->cinfo, COL_PROTOCOL, "/FSEL");
     /* Clear the info column */
     col_clear(pinfo->cinfo, COL_INFO);
@@ -1089,7 +1089,7 @@ dissect_fsel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 static int
 dissect_finf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     col_append_str(pinfo->cinfo, COL_PROTOCOL, "/FINF");
     /* Clear the info column */
     col_clear(pinfo->cinfo, COL_INFO);
@@ -1436,7 +1436,7 @@ dissect_caex_laser_frame(tvbuff_t *tvb, int offset, packet_info *pinfo  _U_, pro
 static int
 dissect_caex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     const uint8_t *str;
     int str_len;
     col_append_str(pinfo->cinfo, COL_PROTOCOL, "/CAEX");
@@ -2197,7 +2197,7 @@ dissect_msex_stfr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
 static int
 dissect_msex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     col_append_str(pinfo->cinfo, COL_PROTOCOL, "/MSEX");
     /* Clear the info column */
     col_clear(pinfo->cinfo, COL_INFO);
@@ -2317,7 +2317,7 @@ dissect_citp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         return 0;
     }
 
-    int offset = 0;
+    unsigned offset = 0;
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CITP");
     /* Clear the info column */
     col_clear(pinfo->cinfo, COL_INFO);

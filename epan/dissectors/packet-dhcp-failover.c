@@ -403,13 +403,13 @@ get_dhcpfo_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
 static int
 dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	proto_item *ti, *pi, *oi;
 	proto_tree *dhcpfo_tree = NULL, *payload_tree, *option_tree;
 	uint8_t tls_request, tls_reply;
 	uint16_t length;
 	unsigned type, serverflag;
-	int poffset;
+	unsigned poffset;
 	uint32_t xid;
 	nstime_t timex;
 	uint32_t lease_expiration_time,

@@ -151,7 +151,7 @@ dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	proto_item *ti;
 	proto_tree *dtp_tree;
 	proto_tree *tlv_tree;
-	int offset = 0;
+	unsigned offset = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTP");
 	col_set_str(pinfo->cinfo, COL_INFO, "Dynamic Trunk Protocol");

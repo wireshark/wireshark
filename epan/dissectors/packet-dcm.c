@@ -3803,7 +3803,7 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_po
     uint32_t pdu_len = 0;
     uint32_t tlen = 0;
 
-    int offset = 0;
+    unsigned offset = 0;
 
     /*
         TCP packets are assembled well by wireshark in conjunction with the dissectors.

@@ -266,7 +266,7 @@ static version_t elasticsearch_parse_version(tvbuff_t *tvb, int offset){
 }
 
 static int dissect_elasticsearch_zen_ping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_){
-    int offset = 0;
+    unsigned offset = 0;
     version_t version;
     vstring_t cluster_name;
     vstring_t node_name;
@@ -424,7 +424,7 @@ static void elasticsearch_decode_binary_response(tvbuff_t *tvb, packet_info *pin
 static int elasticsearch_dissect_valid_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_){
 
     int i, j;
-    int offset = 0;
+    unsigned offset = 0;
     int8_t transport_status_flags;
     uint32_t version;
     uint64_t request_id;
@@ -549,7 +549,7 @@ static unsigned elasticsearch_get_binary_message_len(packet_info *pinfo _U_, tvb
 
 static int dissect_elasticsearch_binary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
 
-    int offset = 0;
+    unsigned offset = 0;
     proto_item *root_elasticsearch_item;
     proto_tree *elasticsearch_tree;
 

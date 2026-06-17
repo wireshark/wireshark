@@ -1403,7 +1403,7 @@ dissect_dbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	proto_item *pi = proto_tree_add_protocol_format(tree, proto_dbus, tvb, 0, -1, "D-Bus");
 	proto_tree *dbus_tree = proto_item_add_subtree(pi, ett_dbus);
 
-	int offset = 0;
+	unsigned offset = 0;
 	packet.cursor = ptvcursor_new(pinfo->pool, dbus_tree, tvb, offset);
 
 	(void)(dissect_dbus_header(&packet) ||

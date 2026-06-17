@@ -1461,8 +1461,8 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 	proto_tree* metadata_subtree = NULL;
 	proto_tree* prepared_metadata_subtree = NULL;
 
-	int offset = 0;
-	int offset_row_metadata = 0;
+	unsigned offset = 0;
+	unsigned offset_row_metadata = 0;
 	uint8_t flags = 0;
 	uint8_t first_byte = 0;
 	uint8_t server_to_client = 0;

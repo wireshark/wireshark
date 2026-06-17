@@ -766,7 +766,7 @@ diplay_timestamp_field(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_field
 static int
 dissect_sick_cola_read(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, bool binary _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	const uint8_t* read_name;
 
 	proto_tree_add_item_ret_string(tree, hf_sick_cola_read_name, tvb, offset, -1, ENC_NA | ENC_ASCII, pinfo->pool, &read_name);
@@ -1980,7 +1980,7 @@ dissect_sick_cola_answer_sra(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb
 static int
 dissect_sick_cola_answer_swa(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, bool binary _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	const uint8_t* answer_name;
 
 	proto_tree_add_item_ret_string(tree, hf_sick_cola_answer_name, tvb, offset, -1, ENC_NA | ENC_ASCII, pinfo->pool, &answer_name);
@@ -2222,7 +2222,7 @@ dissect_sick_cola_answer_ssn(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb
 static int
 dissect_sick_cola_answer_sfa(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, bool binary)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	if (binary)
 	{

@@ -1159,7 +1159,7 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	uint16_t mitel_eth_len, payload_len;
 	uint8_t prim_type, layer, mt_item_length;
-	int offset = 0;
+	unsigned offset = 0;
 	bool ip_encapsulated;
 	tvbuff_t *payload_tvb = NULL;
 

@@ -2676,7 +2676,7 @@ static int dissect_physical_header_field(tvbuff_t *tvb, int offset, packet_info 
 /* 6.3.3.1: Data MAC PDU Header */
 static int dissect_mac_data_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t long_rd_id;
 
 	dect_nr_context_t *ctx = (dect_nr_context_t *)data;
@@ -2711,7 +2711,7 @@ static int dissect_mac_data_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 /* 6.3.3.2: Beacon Header */
 static int dissect_mac_beacon_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t tx_addr;
 
 	dect_nr_context_t *ctx = (dect_nr_context_t *)data;
@@ -2734,7 +2734,7 @@ static int dissect_mac_beacon_header(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 /* 6.3.3.3: Unicast Header */
 static int dissect_mac_unicast_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t tx_addr;
 	uint32_t rx_addr;
 
@@ -2766,7 +2766,7 @@ static int dissect_mac_unicast_header(tvbuff_t *tvb, packet_info *pinfo, proto_t
 /* 6.3.3.4: RD Broadcasting Header */
 static int dissect_mac_rd_broadcasting_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t tx_addr;
 
 	dect_nr_context_t *ctx = (dect_nr_context_t *)data;
@@ -2888,7 +2888,7 @@ static int dissect_dlc_routing_header(tvbuff_t *tvb, int offset, packet_info *pi
 /* 6.3.3 EP Mux IE */
 static int dissect_cvg_ep_mux_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_cvg_ep_mux_ie, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_cvg_ep_mux_ie);
@@ -2904,7 +2904,7 @@ static int dissect_cvg_ep_mux_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 /* 6.3.4 Data IE */
 static int dissect_cvg_data_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t si;
 	uint8_t sli;
 	uint16_t seq_num;
@@ -2949,7 +2949,7 @@ static int dissect_cvg_data_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 /* 6.3.5 Data EP IE */
 static int dissect_cvg_data_ep_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint16_t ep_mux;
 	uint8_t si;
 	uint8_t sli;
@@ -3026,7 +3026,7 @@ static int dissect_cvg_data_transparent_ie(tvbuff_t *tvb, packet_info *pinfo, pr
 /* 6.3.7 Security IE */
 static int dissect_cvg_security_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_cvg_security_ie, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_cvg_security_ie);
@@ -3047,7 +3047,7 @@ static int dissect_cvg_security_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 /* 6.3.8 TX Services Config IE */
 static int dissect_cvg_tx_services_config_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_cvg_tx_services_config_ie, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_cvg_tx_services_config_ie);
@@ -3072,7 +3072,7 @@ static int dissect_cvg_tx_services_config_ie(tvbuff_t *tvb, packet_info *pinfo, 
 /* 6.3.9 ARQ Feedback IE */
 static int dissect_cvg_arq_fb_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t fb_info;
 
 	dect_nr_cvg_context_t *ctx = (dect_nr_cvg_context_t *)data;
@@ -3082,7 +3082,7 @@ static int dissect_cvg_arq_fb_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_item *uc_item;
 
 	/* No ie_length is one ARQ Feedback IE format 1 */
-	int length = ((ctx && ctx->ie_length_present) ? ctx->ie_length : 2);
+	unsigned length = ((ctx && ctx->ie_length_present) ? ctx->ie_length : 2);
 
 	while (offset < length) {
 		proto_tree_add_item(tree, hf_dect_nr_cvg_arq_fb_a_n, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3130,7 +3130,7 @@ static int dissect_cvg_arq_fb_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 /* 6.3.10 ARQ Poll IE */
 static int dissect_cvg_arq_poll_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_cvg_arq_poll_ie, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_cvg_arq_poll_ie);
@@ -3147,7 +3147,7 @@ static int dissect_cvg_arq_poll_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 /* 6.3.11 Flow Status IE */
 static int dissect_cvg_flow_status_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_cvg_flow_status_ie, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_cvg_flow_status_ie);
@@ -3291,8 +3291,8 @@ static int dissect_cvg_header(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 static void dissect_cvg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-	int offset = 0;
-	int length;
+	unsigned offset = 0;
+	unsigned length;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_cvg_pdu, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_cvg);
@@ -3494,7 +3494,7 @@ static int dissect_dlc_extension_header(tvbuff_t *tvb, int offset, packet_info *
 /* DLC Service Type */
 static int dissect_dlc_service_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	proto_item *uc_item;
 	proto_item *data_item = NULL;
 	uint8_t dlc_ie_type;
@@ -3649,7 +3649,7 @@ static int dissect_dlc_service_type(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	if (subtvb) {
 		if (dlc_ie_type == 5 || dlc_ie_type == 6) {
-			while (offset < (int)ctx->ie_length) {
+			while (offset < ctx->ie_length) {
 				offset = dissect_dlc_extension_header(tvb, offset, pinfo, tree);
 			}
 		} else {
@@ -3710,7 +3710,7 @@ static int dissect_user_plane_data_flow_4(tvbuff_t *tvb, packet_info *pinfo, pro
 /* 6.4.2.2: Network Beacon message */
 static int dissect_network_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	bool tx_pwr_field;
 	bool nb_current_field;
 	uint8_t nb_channels;
@@ -3769,7 +3769,7 @@ static int dissect_network_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_t
 /* 6.4.2.3: Cluster Beacon message */
 static int dissect_cluster_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	bool tx_pwr_field;
 	bool fo_field;
 	bool next_chan_field;
@@ -3837,7 +3837,7 @@ static int dissect_cluster_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_t
 /* 6.4.2.4: Association Request message */
 static int dissect_association_request_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t setup_cause;
 	uint8_t num_flows;
 	bool ft_mode_field;
@@ -3904,7 +3904,7 @@ static int dissect_association_request_msg(tvbuff_t *tvb, packet_info *pinfo, pr
 /* 6.4.2.5: Association Response message */
 static int dissect_association_response_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	bool ack_field;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_a_rsp_msg, tvb, offset, -1, ENC_NA);
@@ -3977,7 +3977,7 @@ static int dissect_association_response_msg(tvbuff_t *tvb, packet_info *pinfo, p
 /* 6.4.2.6: Association Release message */
 static int dissect_association_release_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t rel_cause;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_a_rel_msg, tvb, offset, -1, ENC_NA);
@@ -3996,7 +3996,7 @@ static int dissect_association_release_msg(tvbuff_t *tvb, packet_info *pinfo, pr
 /* 6.4.2.7: Reconfiguration Request message */
 static int dissect_reconfiguration_request_msg(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	bool tx_harq_field;
 	bool rx_harq_field;
 	uint8_t num_flows;
@@ -4041,7 +4041,7 @@ static int dissect_reconfiguration_request_msg(tvbuff_t *tvb, packet_info *pinfo
 /* 6.4.2.8: Reconfiguration Response message */
 static int dissect_reconfiguration_response_msg(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	bool tx_harq_field;
 	bool rx_harq_field;
 	uint8_t num_flows;
@@ -4099,7 +4099,7 @@ static int dissect_additional_mac_msg(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 /* 6.4.2.10 Joining Beacon message */
 static int dissect_joining_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t nb_channels;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_jb_msg, tvb, offset, -1, ENC_NA);
@@ -4124,7 +4124,7 @@ static int dissect_joining_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_t
 /* 6.4.3.1: MAC Security Info IE */
 static int dissect_security_info_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t iv_type;
 
 	dect_nr_context_t *ctx = (dect_nr_context_t *)data;
@@ -4153,7 +4153,7 @@ static int dissect_security_info_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 /* 6.4.3.2: Route Info IE */
 static int dissect_route_info_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_ri_ie, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_ri_ie);
@@ -4175,7 +4175,7 @@ static int dissect_route_info_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 /* 6.4.3.3: Resource Allocation IE */
 static int dissect_resource_allocation_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t allocation_type;
 	bool add_field;
 	bool id_field;
@@ -4323,7 +4323,7 @@ static int dissect_resource_allocation_ie(tvbuff_t *tvb, packet_info *pinfo, pro
 /* 6.4.3.4: Random Access Resource IE */
 static int dissect_random_access_resource_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t rar_repeat;
 	bool rar_sfn_field;
 	bool rar_channel_field;
@@ -4415,7 +4415,7 @@ static int dissect_random_access_resource_ie(tvbuff_t *tvb, packet_info *pinfo, 
 /* 6.4.3.5: RD Capability IE */
 static int dissect_rd_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t num_phy_cap;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_rdc_ie, tvb, offset, -1, ENC_NA);
@@ -4488,7 +4488,7 @@ static int dissect_rd_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 /* 6.4.3.6: Neighbouring IE */
 static int dissect_neighbouring_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	bool id_field;
 	bool mu_field;
 	bool snr_field;
@@ -4554,7 +4554,7 @@ static int dissect_neighbouring_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 /* 6.4.3.7: Broadcast Indication IE */
 static int dissect_broadcast_indication_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t ind_type;
 	uint8_t idtype;
 	uint8_t feedback = 0;
@@ -4635,7 +4635,7 @@ static int dissect_padding_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 /* 6.4.3.9: Group Assignment IE */
 static int dissect_group_assignment_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	bool single_field;
 	int num_resource_tags;
 
@@ -4669,7 +4669,7 @@ static int dissect_group_assignment_ie(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 /* 6.4.3.10: Load Info IE */
 static int dissect_load_info_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	bool max_assoc_field;
 	bool rd_pt_load_field;
 	bool rach_load_field;
@@ -4724,7 +4724,7 @@ static int dissect_load_info_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 /* 6.4.3.12: Measurement Report IE */
 static int dissect_measurement_report_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	bool snr_field;
 	bool rssi2_field;
 	bool rssi1_field;
@@ -4769,7 +4769,7 @@ static int dissect_measurement_report_ie(tvbuff_t *tvb, packet_info *pinfo, prot
 /* 6.4.3.13: Radio Device Status IE */
 static int dissect_radio_device_status_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t status_field;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_rds_ie, tvb, offset, -1, ENC_NA);
@@ -4790,7 +4790,7 @@ static int dissect_radio_device_status_ie(tvbuff_t *tvb, packet_info *pinfo, pro
 /* 6.4.3.15 RD Capability short IE */
 static int dissect_rd_capability_short_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_rdcs_ie, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_rdcs_ie);
@@ -4809,7 +4809,7 @@ static int dissect_rd_capability_short_ie(tvbuff_t *tvb, packet_info *pinfo _U_,
 /* 6.4.3.16 Source Routing IE */
 static int dissect_source_routing_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_sr_ie, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_sr_ie);
@@ -4835,7 +4835,7 @@ static int dissect_source_routing_ie(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 /* 6.4.3.17 Joining Information IE */
 static int dissect_joining_information_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t num_eps;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_ji_ie, tvb, offset, -1, ENC_NA);
@@ -4858,7 +4858,7 @@ static int dissect_joining_information_ie(tvbuff_t *tvb, packet_info *pinfo, pro
 /* 6.4.3.18 Association Control IE */
 static int dissect_association_control_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_ac_ie, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_ac_ie);
@@ -4876,7 +4876,7 @@ static int dissect_association_control_ie(tvbuff_t *tvb, packet_info *pinfo _U_,
 /* 6.4.3.19 Access Token IE */
 static int dissect_access_token_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_at_ie, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_at_ie);
@@ -4892,7 +4892,7 @@ static int dissect_access_token_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 /* 6.4.3.20 Application Sequence Number IE */
 static int dissect_application_sequence_number_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_asn_ie, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_asn_ie);
@@ -4919,7 +4919,7 @@ static int dissect_escape(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 /* IE type Extension */
 static int dissect_ie_type_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t extension_type;
 	tvbuff_t *subtvb;
 	int sublen;
@@ -5221,7 +5221,7 @@ static int dissect_mac_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 static int dissect_dect_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	dect_nr_context_t ctx = { 0 };
-	int offset = 0;
+	unsigned offset = 0;
 
 	proto_item *item = proto_tree_add_item(parent_tree, proto_dect_nr, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr);

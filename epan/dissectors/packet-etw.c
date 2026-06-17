@@ -458,7 +458,7 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
     uint16_t event_id;
     nstime_t timestamp;
     uint64_t ts;
-    int offset = 0;
+    unsigned offset = 0;
     static int* const etw_header_flags[] = {
         &hf_etw_header_flag_extended_info,
         &hf_etw_header_flag_private_session,

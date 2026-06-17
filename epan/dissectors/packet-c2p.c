@@ -2331,7 +2331,7 @@ static void sti_value_integer_format(char* string, int64_t value)
 
 static int dissect_dsrc_rx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(c2p_tree, hf_c2p_primary_channel_desc, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -2375,7 +2375,7 @@ static int dissect_dsrc_rx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pin
 
 static int dissect_dsrc_tx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(c2p_tree, hf_c2p_primary_channel_desc, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -2413,7 +2413,7 @@ static int dissect_dsrc_tx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pin
 
 static int dissect_cv2x_tx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(c2p_tree, hf_c2p_sps_desc, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -2443,7 +2443,7 @@ static int dissect_cv2x_tx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pin
 
 static int dissect_cv2x_rx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(c2p_tree, hf_c2p_socket_index_desc, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -2465,7 +2465,7 @@ static int dissect_cv2x_rx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pin
 
 static int dissect_nav(tvbuff_t* tvb, proto_tree* c2p_tree)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(c2p_tree, hf_c2p_nav_fix_is_valid_desc, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -2499,7 +2499,7 @@ static int dissect_nav(tvbuff_t* tvb, proto_tree* c2p_tree)
 
 static int dissect_sti(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     uint32_t length = tvb_get_uint32(tvb, 0, ENC_LITTLE_ENDIAN);
 
@@ -2548,7 +2548,7 @@ static int dissect_sti(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
 
 static int dissect_c2p(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t type, version;
     char* str_type;
 

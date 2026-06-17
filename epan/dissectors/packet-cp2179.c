@@ -961,7 +961,7 @@ classify_message_type(tvbuff_t *tvb)
 static int
 dissect_cp2179_pdu(tvbuff_t *cp2179_tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     int16_t message_type;
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CP2179");
     col_clear(pinfo->cinfo,COL_INFO);

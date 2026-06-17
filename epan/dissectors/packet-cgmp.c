@@ -46,7 +46,7 @@ dissect_cgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 {
 	proto_item *ti;
 	proto_tree *cgmp_tree = NULL;
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t count;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CGMP");

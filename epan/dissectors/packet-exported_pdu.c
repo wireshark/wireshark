@@ -279,7 +279,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_item *exported_pdu_ti, *ti, *item;
     proto_tree *exported_pdu_tree, *tag_tree;
     tvbuff_t * payload_tvb = NULL;
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t tag;
     uint16_t tag_len;
     int p2p_dir, link_dir;

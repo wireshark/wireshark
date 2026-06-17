@@ -3090,8 +3090,8 @@ dissect_cigi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 cigi_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
 {
-    int offset = 0;
-    int length = 0;
+    unsigned offset = 0;
+    unsigned length = 0;
     int packet_id = 0;
     int packet_size = 0;
     int data_size = 0;
@@ -3172,13 +3172,13 @@ cigi_add_data(tvbuff_t *tvb, proto_tree *tree, int offset)
 static void
 cigi2_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
 {
-    int offset = 0;
-    int length = 0;
-    int init_offset = 0;
+    unsigned offset = 0;
+    unsigned length = 0;
+    unsigned init_offset = 0;
 
     int packet_id = 0;
     int packet_size = 0;
-    int packet_length = 0;
+    unsigned packet_length = 0;
 
     proto_tree* cigi_packet_tree = NULL;
     proto_item* tipacket, *ti;
@@ -3405,13 +3405,13 @@ cigi2_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
 static void
 cigi3_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
 {
-    int offset = 0;
-    int length = 0;
-    int init_offset = 0;
+    unsigned offset = 0;
+    unsigned length = 0;
+    unsigned init_offset = 0;
 
     int packet_id = 0;
     int packet_size = 0;
-    int packet_length = 0;
+    unsigned packet_length = 0;
     uint16_t byte_swap = 0;
 
     proto_tree* cigi_packet_tree = NULL;
@@ -4460,7 +4460,7 @@ cigi2_add_image_generator_message(tvbuff_t *tvb, proto_tree *tree, int offset)
 static int
 cigi3_add_ig_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi_version, tvb, offset, 1, cigi_byte_order);
     offset++;
@@ -4506,7 +4506,7 @@ cigi3_add_ig_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, vo
 static int
 cigi3_add_entity_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_entity_control_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -4560,7 +4560,7 @@ cigi3_add_entity_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 static int
 cigi4_add_entity_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi4_entity_control_entity_state, tvb, offset, 1, cigi_byte_order);
     proto_tree_add_item(tree, hf_cigi4_entity_control_collision_reporting_enable, tvb, offset, 1, cigi_byte_order);
@@ -4603,7 +4603,7 @@ cigi4_add_entity_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree
 static int
 cigi4_add_animation_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi4_animation_control_state, tvb, offset, 1, cigi_byte_order);
     proto_tree_add_item(tree, hf_cigi4_animation_control_frame_position_reset, tvb, offset, 1, cigi_byte_order);
@@ -4631,7 +4631,7 @@ cigi4_add_animation_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* t
 static int
 cigi3_add_conformal_clamped_entity_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_conformal_clamped_entity_control_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -4652,7 +4652,7 @@ cigi3_add_conformal_clamped_entity_control(tvbuff_t *tvb, packet_info *pinfo _U_
 static int
 cigi3_add_component_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_component_control_component_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -4695,7 +4695,7 @@ cigi3_add_component_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 static int
 cigi3_add_short_component_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_short_component_control_component_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -4726,7 +4726,7 @@ cigi3_add_short_component_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 static int
 cigi4_add_short_component_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_short_component_control_component_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -4757,7 +4757,7 @@ cigi4_add_short_component_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_t
 static int
 cigi3_add_articulated_part_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_articulated_part_control_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -4799,7 +4799,7 @@ cigi3_add_articulated_part_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 static int
 cigi4_add_articulated_part_control(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree* field_tree;
     proto_item* tf;
@@ -4849,7 +4849,7 @@ cigi4_add_articulated_part_control(tvbuff_t* tvb, packet_info *pinfo _U_, proto_
 static int
 cigi3_add_short_articulated_part_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_short_articulated_part_control_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -4879,7 +4879,7 @@ cigi3_add_short_articulated_part_control(tvbuff_t *tvb, packet_info *pinfo _U_, 
 static int
 cigi4_add_short_articulated_part_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree* field_tree;
     proto_item* tf;
@@ -4920,7 +4920,7 @@ cigi4_add_short_articulated_part_control(tvbuff_t* tvb, packet_info* pinfo _U_, 
 static int
 cigi3_add_rate_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_rate_control_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -4959,7 +4959,7 @@ cigi3_add_rate_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 static int
 cigi4_add_velocity_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree* field_tree;
     proto_item* tf;
@@ -5003,7 +5003,7 @@ cigi4_add_velocity_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tr
 static int
 cigi3_add_celestial_sphere_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_celestial_sphere_control_hour, tvb, offset, 1, cigi_byte_order);
     offset++;
@@ -5031,7 +5031,7 @@ cigi3_add_celestial_sphere_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 static int
 cigi4_add_celestial_sphere_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree* field_tree;
     proto_item* tf;
@@ -5073,7 +5073,7 @@ cigi4_add_celestial_sphere_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 static int
 cigi3_add_atmosphere_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_atmosphere_control_atmospheric_model_enable, tvb, offset, 1, cigi_byte_order);
     offset++;
@@ -5106,7 +5106,7 @@ cigi3_add_atmosphere_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 static int
 cigi4_add_atmosphere_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_atmosphere_control_atmospheric_model_enable, tvb, offset, 1, cigi_byte_order);
 
@@ -5142,7 +5142,7 @@ cigi4_add_atmosphere_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* 
 static int
 cigi3_add_environmental_region_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_environmental_region_control_region_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -5183,7 +5183,7 @@ cigi3_add_environmental_region_control(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 static int
 cigi4_add_environmental_region_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_environmental_region_control_region_state, tvb, offset, 1, cigi_byte_order);
     proto_tree_add_item(tree, hf_cigi3_environmental_region_control_merge_weather, tvb, offset, 1, cigi_byte_order);
@@ -5224,7 +5224,7 @@ cigi4_add_environmental_region_control(tvbuff_t* tvb, packet_info* pinfo _U_, pr
 static int
 cigi3_add_weather_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_weather_control_entity_region_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -5290,7 +5290,7 @@ cigi3_add_weather_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 static int
 cigi4_add_weather_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_weather_control_layer_id, tvb, offset, 1, cigi_byte_order);
     offset++;
@@ -5366,7 +5366,7 @@ cigi4_add_weather_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tre
 static int
 cigi3_add_maritime_surface_conditions_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_maritime_surface_conditions_control_entity_region_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -5392,7 +5392,7 @@ cigi3_add_maritime_surface_conditions_control(tvbuff_t *tvb, packet_info *pinfo 
 static int
 cigi4_add_maritime_surface_conditions_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_maritime_surface_conditions_control_surface_conditions_enable, tvb, offset, 1, cigi_byte_order);
     proto_tree_add_item(tree, hf_cigi3_maritime_surface_conditions_control_whitecap_enable, tvb, offset, 1, cigi_byte_order);
@@ -5418,7 +5418,7 @@ cigi4_add_maritime_surface_conditions_control(tvbuff_t* tvb, packet_info* pinfo 
 static int
 cigi3_add_wave_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_wave_control_entity_region_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -5456,7 +5456,7 @@ cigi3_add_wave_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 static int
 cigi4_add_wave_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_wave_control_wave_id, tvb, offset, 1, cigi_byte_order);
     offset++;
@@ -5494,7 +5494,7 @@ cigi4_add_wave_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, 
 static int
 cigi3_add_terrestrial_surface_conditions_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_terrestrial_surface_conditions_control_entity_region_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -5517,7 +5517,7 @@ cigi3_add_terrestrial_surface_conditions_control(tvbuff_t *tvb, packet_info *pin
 static int
 cigi4_add_terrestrial_surface_conditions_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_terrestrial_surface_conditions_control_entity_region_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -5540,7 +5540,7 @@ cigi4_add_terrestrial_surface_conditions_control(tvbuff_t* tvb, packet_info* pin
 static int
 cigi3_add_view_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_view_control_view_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -5584,7 +5584,7 @@ cigi3_add_view_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 static int
 cigi4_add_view_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree* field_tree;
     proto_item* tf;
@@ -5637,7 +5637,7 @@ cigi4_add_view_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, 
 static int
 cigi3_add_sensor_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_sensor_control_view_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -5675,7 +5675,7 @@ cigi3_add_sensor_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 static int
 cigi4_add_sensor_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_sensor_control_sensor_id, tvb, offset, 1, cigi_byte_order);
     offset++;
@@ -5713,7 +5713,7 @@ cigi4_add_sensor_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree
 static int
 cigi3_add_motion_tracker_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_motion_tracker_control_view_group_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -5741,7 +5741,7 @@ cigi3_add_motion_tracker_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 static int
 cigi4_add_motion_tracker_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_motion_tracker_control_tracker_id, tvb, offset, 1, cigi_byte_order);
     offset++;
@@ -5769,7 +5769,7 @@ cigi4_add_motion_tracker_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
 static int
 cigi3_add_earth_reference_model_definition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_earth_reference_model_definition_erm_enable, tvb, offset, 1, cigi_byte_order);
     offset += 6;
@@ -5787,7 +5787,7 @@ cigi3_add_earth_reference_model_definition(tvbuff_t *tvb, packet_info *pinfo _U_
 static int
 cigi4_add_earth_reference_model_definition(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_earth_reference_model_definition_erm_enable, tvb, offset, 1, cigi_byte_order);
     offset += 4;
@@ -5805,7 +5805,7 @@ cigi4_add_earth_reference_model_definition(tvbuff_t* tvb, packet_info* pinfo _U_
 static int
 cigi3_add_trajectory_definition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_trajectory_definition_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -5832,7 +5832,7 @@ cigi3_add_trajectory_definition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 static int
 cigi4_add_acceleration_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi4_acceleration_control_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -5870,7 +5870,7 @@ cigi4_add_acceleration_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree
 static int
 cigi3_add_view_definition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_view_definition_view_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -5918,7 +5918,7 @@ cigi3_add_view_definition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 static int
 cigi4_add_view_definition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_view_definition_view_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -5966,7 +5966,7 @@ cigi4_add_view_definition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 static int
 cigi3_add_collision_detection_segment_definition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_definition_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -6005,7 +6005,7 @@ cigi3_add_collision_detection_segment_definition(tvbuff_t *tvb, packet_info *pin
 static int
 cigi4_add_collision_detection_segment_definition(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_definition_segment_id, tvb, offset, 1, cigi_byte_order);
     offset++;
@@ -6044,7 +6044,7 @@ cigi4_add_collision_detection_segment_definition(tvbuff_t* tvb, packet_info* pin
 static int
 cigi3_add_collision_detection_volume_definition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_definition_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -6090,7 +6090,7 @@ cigi3_add_collision_detection_volume_definition(tvbuff_t *tvb, packet_info *pinf
 static int
 cigi4_add_collision_detection_volume_definition(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_definition_volume_id, tvb, offset, 1, cigi_byte_order);
     offset++;
@@ -6136,7 +6136,7 @@ cigi4_add_collision_detection_volume_definition(tvbuff_t* tvb, packet_info* pinf
 static int
 cigi3_add_hat_hot_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_hat_hot_request_hat_hot_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -6169,7 +6169,7 @@ cigi3_add_hat_hot_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 static int
 cigi3_add_line_of_sight_segment_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_line_of_sight_segment_request_los_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -6227,7 +6227,7 @@ cigi3_add_line_of_sight_segment_request(tvbuff_t *tvb, packet_info *pinfo _U_, p
 static int
 cigi4_add_line_of_sight_segment_request(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_line_of_sight_segment_request_los_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -6279,7 +6279,7 @@ cigi4_add_line_of_sight_segment_request(tvbuff_t* tvb, packet_info* pinfo _U_, p
 static int
 cigi3_add_line_of_sight_vector_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_line_of_sight_vector_request_los_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -6331,7 +6331,7 @@ cigi3_add_line_of_sight_vector_request(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 static int
 cigi4_add_line_of_sight_vector_request(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_line_of_sight_vector_request_los_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -6381,7 +6381,7 @@ cigi4_add_line_of_sight_vector_request(tvbuff_t* tvb, packet_info* pinfo _U_, pr
 static int
 cigi3_add_position_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_position_request_object_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -6402,7 +6402,7 @@ cigi3_add_position_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static int
 cigi4_add_position_request(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_position_request_part_id, tvb, offset, 1, cigi_byte_order);
     offset++;
@@ -6422,7 +6422,7 @@ cigi4_add_position_request(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tr
 static int
 cigi3_add_environmental_conditions_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_environmental_conditions_request_type, tvb, offset, 1, cigi_byte_order);
     offset++;
@@ -6446,7 +6446,7 @@ cigi3_add_environmental_conditions_request(tvbuff_t *tvb, packet_info *pinfo _U_
 static int
 cigi4_add_environmental_conditions_request(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_environmental_conditions_request_type, tvb, offset, 1, cigi_byte_order);
     offset++;
@@ -6470,7 +6470,7 @@ cigi4_add_environmental_conditions_request(tvbuff_t* tvb, packet_info* pinfo _U_
 static int
 cigi3_3_add_symbol_surface_definition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     /* Dissect as data on versions before 3.3 */
     if (cigi_minor_version < 3) {
@@ -6532,7 +6532,7 @@ cigi3_3_add_symbol_surface_definition(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 static int
 cigi4_add_symbol_surface_definition(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_surface_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -6589,7 +6589,7 @@ cigi4_add_symbol_surface_definition(tvbuff_t* tvb, packet_info* pinfo _U_, proto
 static int
 cigi3_3_add_symbol_text_definition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     if (cigi_minor_version < 3) {
         return offset;
@@ -6623,7 +6623,7 @@ cigi3_3_add_symbol_text_definition(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static int
 cigi4_add_symbol_text_definition(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_3_symbol_text_definition_alignment, tvb, offset, 1, cigi_byte_order);
     proto_tree_add_item(tree, hf_cigi3_3_symbol_text_definition_orientation, tvb, offset, 1, cigi_byte_order);
@@ -6653,7 +6653,7 @@ cigi4_add_symbol_text_definition(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
 static int
 cigi3_3_add_symbol_circle_definition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     int ncircles, c;
 
@@ -6710,7 +6710,7 @@ cigi3_3_add_symbol_circle_definition(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 static int
 cigi4_add_symbol_circle_definition(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree* field_tree;
     proto_item* tf;
@@ -6771,7 +6771,7 @@ cigi4_add_symbol_circle_definition(tvbuff_t* tvb, packet_info* pinfo _U_, proto_
 static int
 cigi3_3_add_symbol_line_definition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     int nvertices, v;
 
@@ -6816,7 +6816,7 @@ cigi3_3_add_symbol_line_definition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 static int
 cigi4_add_symbol_polygon_definition(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree* field_tree;
     proto_item* tf;
@@ -6865,7 +6865,7 @@ cigi4_add_symbol_polygon_definition(tvbuff_t* tvb, packet_info *pinfo _U_, proto
 static int
 cigi3_3_add_symbol_clone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     if (cigi_minor_version < 3) {
         return offset;
@@ -6887,7 +6887,7 @@ cigi3_3_add_symbol_clone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 static int
 cigi4_add_symbol_clone(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_3_symbol_clone_symbol_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -6905,7 +6905,7 @@ cigi4_add_symbol_clone(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, 
 static int
 cigi3_3_add_symbol_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     if (cigi_minor_version < 3) {
         return offset;
@@ -6969,7 +6969,7 @@ cigi3_3_add_symbol_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static int
 cigi4_add_symbol_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_3_symbol_control_symbol_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -7029,7 +7029,7 @@ cigi4_add_symbol_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree
 static int
 cigi3_3_add_short_symbol_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     if (cigi_minor_version < 3) {
         return offset;
@@ -7131,7 +7131,7 @@ cigi3_3_add_short_symbol_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 static int
 cigi4_add_short_symbol_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_symbol_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -7164,7 +7164,7 @@ cigi4_add_symbol_circle_textured(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tr
     proto_tree* field_tree;
     proto_item* tf;
 
-    int offset = 0;
+    unsigned offset = 0;
 
     int ncircles, c, c_field;
 
@@ -7232,7 +7232,7 @@ cigi4_add_symbol_polygon_textured(tvbuff_t* tvb, packet_info* pinfo _U_, proto_t
     proto_tree* field_tree;
     proto_item* tf;
 
-    int offset = 0;
+    unsigned offset = 0;
 
     int nvertices, v, v_field;
 
@@ -7279,7 +7279,7 @@ cigi4_add_symbol_polygon_textured(tvbuff_t* tvb, packet_info* pinfo _U_, proto_t
 static int
 cigi3_add_start_of_frame(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi_version, tvb, offset, 1, cigi_byte_order);
     offset++;
@@ -7328,7 +7328,7 @@ cigi3_add_hat_hot_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     proto_tree* field_tree;
     proto_item* tf;
 
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_hat_hot_response_hat_hot_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -7355,7 +7355,7 @@ cigi4_add_hat_hot_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tr
     proto_tree* field_tree;
     proto_item* tf;
 
-    int offset = 0;
+    unsigned offset = 0;
 
     tf = proto_tree_add_item(tree, hf_cigi4_hat_hot_response_flags, tvb, offset, 1, cigi_byte_order);
     field_tree = proto_item_add_subtree(tf, ett_cigi4_hat_hot_response_flags);
@@ -7381,7 +7381,7 @@ cigi3_add_hat_hot_extended_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     proto_tree* field_tree;
     proto_item* tf;
 
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_hat_hot_extended_response_hat_hot_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -7419,7 +7419,7 @@ cigi4_add_hat_hot_extended_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto
     proto_tree* field_tree;
     proto_item* tf;
 
-    int offset = 0;
+    unsigned offset = 0;
 
     tf = proto_tree_add_item(tree, hf_cigi4_hat_hot_extended_response_flags, tvb, offset, 1, cigi_byte_order);
     field_tree = proto_item_add_subtree(tf, ett_cigi4_hat_hot_extended_response_flags);
@@ -7453,7 +7453,7 @@ cigi4_add_hat_hot_extended_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto
 static int
 cigi3_add_line_of_sight_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_line_of_sight_response_los_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -7482,7 +7482,7 @@ cigi3_add_line_of_sight_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 static int
 cigi4_add_line_of_sight_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_line_of_sight_response_los_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -7509,7 +7509,7 @@ cigi4_add_line_of_sight_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
 static int
 cigi3_add_line_of_sight_extended_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_line_of_sight_extended_response_los_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -7571,7 +7571,7 @@ cigi3_add_line_of_sight_extended_response(tvbuff_t *tvb, packet_info *pinfo _U_,
 static int
 cigi4_add_line_of_sight_extended_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_line_of_sight_extended_response_los_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -7629,7 +7629,7 @@ cigi4_add_line_of_sight_extended_response(tvbuff_t* tvb, packet_info* pinfo _U_,
 static int
 cigi3_add_sensor_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_sensor_response_view_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -7662,7 +7662,7 @@ cigi3_add_sensor_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 static int
 cigi4_add_sensor_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_sensor_response_sensor_id, tvb, offset, 1, cigi_byte_order);
     offset++;
@@ -7695,7 +7695,7 @@ cigi4_add_sensor_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tre
 static int
 cigi3_add_sensor_extended_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_sensor_extended_response_view_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -7741,7 +7741,7 @@ cigi3_add_sensor_extended_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 static int
 cigi4_add_sensor_extended_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_sensor_extended_response_view_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -7787,7 +7787,7 @@ cigi4_add_sensor_extended_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_
 static int
 cigi3_add_position_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_position_response_object_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -7824,7 +7824,7 @@ cigi3_add_position_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 static int
 cigi4_add_position_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_position_response_part_id, tvb, offset, 1, cigi_byte_order);
     offset++;
@@ -7861,7 +7861,7 @@ cigi4_add_position_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* t
 static int
 cigi3_add_weather_conditions_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_weather_conditions_response_request_id, tvb, offset, 1, cigi_byte_order);
     offset++;
@@ -7894,7 +7894,7 @@ cigi3_add_weather_conditions_response(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 static int
 cigi4_add_weather_conditions_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_weather_conditions_response_request_id, tvb, offset, 1, cigi_byte_order);
     offset++;
@@ -7927,7 +7927,7 @@ cigi4_add_weather_conditions_response(tvbuff_t* tvb, packet_info* pinfo _U_, pro
 static int
 cigi3_add_aerosol_concentration_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_aerosol_concentration_response_request_id, tvb, offset, 1, cigi_byte_order);
     offset++;
@@ -7945,7 +7945,7 @@ cigi3_add_aerosol_concentration_response(tvbuff_t *tvb, packet_info *pinfo _U_, 
 static int
 cigi4_add_aerosol_concentration_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_aerosol_concentration_response_request_id, tvb, offset, 1, cigi_byte_order);
     offset++;
@@ -7963,7 +7963,7 @@ cigi4_add_aerosol_concentration_response(tvbuff_t* tvb, packet_info* pinfo _U_, 
 static int
 cigi3_add_maritime_surface_conditions_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_maritime_surface_conditions_response_request_id, tvb, offset, 1, cigi_byte_order);
     offset += 2;
@@ -7984,7 +7984,7 @@ cigi3_add_maritime_surface_conditions_response(tvbuff_t *tvb, packet_info *pinfo
 static int
 cigi4_add_maritime_surface_conditions_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_maritime_surface_conditions_response_request_id, tvb, offset, 1, cigi_byte_order);
     offset += 4;
@@ -8005,7 +8005,7 @@ cigi4_add_maritime_surface_conditions_response(tvbuff_t* tvb, packet_info* pinfo
 static int
 cigi3_add_terrestrial_surface_conditions_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_terrestrial_surface_conditions_response_request_id, tvb, offset, 1, cigi_byte_order);
     offset += 2;
@@ -8020,7 +8020,7 @@ cigi3_add_terrestrial_surface_conditions_response(tvbuff_t *tvb, packet_info *pi
 static int
 cigi4_add_terrestrial_surface_conditions_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_terrestrial_surface_conditions_response_request_id, tvb, offset, 1, cigi_byte_order);
     offset += 4;
@@ -8035,7 +8035,7 @@ cigi4_add_terrestrial_surface_conditions_response(tvbuff_t* tvb, packet_info* pi
 static int
 cigi3_add_collision_detection_segment_notification(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_notification_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -8062,7 +8062,7 @@ cigi3_add_collision_detection_segment_notification(tvbuff_t *tvb, packet_info *p
 static int
 cigi4_add_collision_detection_segment_notification(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_notification_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -8089,7 +8089,7 @@ cigi4_add_collision_detection_segment_notification(tvbuff_t* tvb, packet_info* p
 static int
 cigi3_add_collision_detection_volume_notification(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_notification_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -8113,7 +8113,7 @@ cigi3_add_collision_detection_volume_notification(tvbuff_t *tvb, packet_info *pi
 static int
 cigi4_add_collision_detection_volume_notification(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_notification_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -8137,7 +8137,7 @@ cigi4_add_collision_detection_volume_notification(tvbuff_t* tvb, packet_info* pi
 static int
 cigi3_add_animation_stop_notification(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_animation_stop_notification_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 6;
@@ -8149,7 +8149,7 @@ cigi3_add_animation_stop_notification(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 static int
 cigi4_add_animation_stop_notification(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_animation_stop_notification_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 4;
@@ -8161,7 +8161,7 @@ cigi4_add_animation_stop_notification(tvbuff_t* tvb, packet_info* pinfo _U_, pro
 static int
 cigi3_add_event_notification(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_event_notification_event_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -8182,7 +8182,7 @@ cigi3_add_event_notification(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 static int
 cigi4_add_event_notification(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_event_notification_event_id, tvb, offset, 2, cigi_byte_order);
     offset += 4;
@@ -8203,7 +8203,7 @@ cigi4_add_event_notification(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* 
 static int
 cigi3_add_image_generator_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_image_generator_message_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -8223,7 +8223,7 @@ cigi3_add_image_generator_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 static int
 cigi4_add_image_generator_message(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_image_generator_message_id, tvb, offset, 2, cigi_byte_order);
     // 2 bytes Reserved (padding to multiple of 4)
@@ -8244,13 +8244,13 @@ cigi4_add_image_generator_message(tvbuff_t* tvb, packet_info* pinfo _U_, proto_t
 static void
 cigi4_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
 {
-    int offset = 0;
-    int length = 0;
-    int init_offset = 0;
+    unsigned offset = 0;
+    unsigned length = 0;
+    unsigned init_offset = 0;
 
     int packet_id = 0;
     int packet_size = 0;
-    int packet_length = 0;
+    unsigned packet_length = 0;
     uint16_t byte_swap = 0;
 
     proto_tree* cigi_packet_tree = NULL;
@@ -8513,7 +8513,7 @@ cigi4_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
 static int
 cigi4_add_ig_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree* field_tree;
     proto_item* tf;
@@ -8556,7 +8556,7 @@ cigi4_add_start_of_frame(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree
     proto_tree* field_tree;
     proto_item* tf;
 
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi_version, tvb, offset, 1, cigi_byte_order);
     offset++;
@@ -8596,7 +8596,7 @@ cigi4_add_start_of_frame(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree
 static int
 cigi4_add_entity_position(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree* field_tree;
     proto_item* tf;
@@ -8638,7 +8638,7 @@ cigi4_add_entity_position(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 /* CIGI Conformal Clamped Entity Position */
 static int
 cigi4_add_conformal_clamped_entity_position(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_) {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi4_conformal_clamped_entity_position_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 4;
@@ -8659,7 +8659,7 @@ cigi4_add_conformal_clamped_entity_position(tvbuff_t* tvb, packet_info* pinfo _U
 static int
 cigi4_add_component_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_component_control_component_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -8702,7 +8702,7 @@ cigi4_add_component_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* t
 static int
 cigi4_add_hat_hot_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree* field_tree;
     proto_item* tf;

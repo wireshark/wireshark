@@ -835,7 +835,7 @@ decode_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *r
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DO-IRP");
     col_clear(pinfo->cinfo,COL_INFO);
 
-    int offset = 0;
+    unsigned offset = 0;
 
     /* Message Envelope */
     proto_item *ti_envelope = proto_tree_add_item(tree, hf_do_irp_envelope, tvb, offset, 20, ENC_NA);
@@ -896,7 +896,7 @@ decode_header_body_credential(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_item *ti_header = proto_tree_add_item(tree, hf_do_irp_header, tvb, 0, 24, ENC_NA);
     proto_tree *do_irp_header_tree = proto_item_add_subtree(ti_header, ett_do_irp_header);
 
-    int offset = 0;
+    unsigned offset = 0;
 
     uint32_t opcode = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
     proto_tree_add_item(do_irp_header_tree, hf_do_irp_opcode, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1329,7 +1329,7 @@ dissect_do_irp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     uint32_t reqid;
     bool encrypted;
     tvbuff_t *new_tvb = NULL;
-    int offset = 0;
+    unsigned offset = 0;
 
     /*
      * RFC 3652 defines `<MessageFlag>` in 2.2.1.2 as two octets containing three flags.
@@ -1436,7 +1436,7 @@ dissect_do_irp_tcp_full_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     uint32_t reqid;
     bool enc;
-    int offset = 0;
+    unsigned offset = 0;
 
     offset += decode_envelope(tvb, pinfo, do_irp_tree, &reqid, &enc);
     offset += decode_header_body_credential(tvb_new_subset_remaining(tvb, offset), pinfo, do_irp_tree, reqid);

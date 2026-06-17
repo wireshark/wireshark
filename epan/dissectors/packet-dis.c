@@ -20650,8 +20650,8 @@ static int dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     proto_tree *dis_payload_tree = NULL;
     proto_item *dis_payload_node = NULL;
 
-    int offset = 0;
-    int offsetBeforePayloadParse = 0;
+    unsigned offset = 0;
+    unsigned offsetBeforePayloadParse = 0;
 
     const char *pduString = 0;
 

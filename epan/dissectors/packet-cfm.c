@@ -2237,7 +2237,7 @@ static int reply_ing_egr_tlv_port_id(proto_tree *cfm_tlv_tree, tvbuff_t *tvb, in
 /* Main CFM EOAM protocol dissector */
 static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t cfm_pdu_type;
 	char* str_cfm_pdu_type;
 
@@ -2353,7 +2353,7 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	}
 
 	/* Get the First TLV offset and add the offset of the common CFM header*/
-	int cfm_first_tlv_offset = tvb_get_uint8(tvb, CFM_1ST_TLV_OFFSET) + CFM_COMMON_HEADER_LEN;
+	unsigned cfm_first_tlv_offset = tvb_get_uint8(tvb, CFM_1ST_TLV_OFFSET) + CFM_COMMON_HEADER_LEN;
 
 	/* The TLV offset should be the same as where the PDU left off or we have a problem */
 	if (cfm_first_tlv_offset != offset) {

@@ -47,7 +47,7 @@ dissect_cmd_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     ethertype_data_t ethertype_data;
 
     proto_tree *cmd_tree = NULL;
-    int offset = 0;
+    unsigned offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CMD");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -104,7 +104,7 @@ dissect_cmd_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     proto_tree *cmd_tree = NULL;
     uint16_t encap_proto;
     tvbuff_t *next_tvb;
-    int offset = 0;
+    unsigned offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CMD");
     col_clear(pinfo->cinfo, COL_INFO);

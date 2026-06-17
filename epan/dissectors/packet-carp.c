@@ -77,7 +77,7 @@ test_carp_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, vo
 static int
 dissect_carp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    int offset = 0;
+    unsigned offset = 0;
     unsigned carp_len;
     uint8_t vhid;
     vec_t cksum_vec[4];

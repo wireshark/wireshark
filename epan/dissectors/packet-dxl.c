@@ -46,7 +46,7 @@ static const value_string dxl_message_types[] = {
 	{ 0, NULL }
 };
 
-static void dissect_dxl_event(tvbuff_t* tvb, packet_info* pinfo, proto_tree* dxl_tree, int* offset)
+static void dissect_dxl_event(tvbuff_t* tvb, packet_info* pinfo, proto_tree* dxl_tree, unsigned* offset)
 {
 	tvbuff_t* tvb_msgpack;
 
@@ -77,7 +77,7 @@ static void dissect_dxl_event(tvbuff_t* tvb, packet_info* pinfo, proto_tree* dxl
 
 static int dissect_dxl(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	proto_item* ti;
 	proto_tree* dxl_tree;
 	uint8_t type;
