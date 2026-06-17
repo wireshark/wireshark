@@ -1375,7 +1375,7 @@ static int dissect_uci_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     int group_id;
     int opcode_id;
     int payload_len;
-    int offset = 0;
+    unsigned offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "UCI");
     col_clear(pinfo->cinfo, COL_INFO);

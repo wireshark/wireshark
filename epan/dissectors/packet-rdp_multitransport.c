@@ -71,7 +71,7 @@ dissect_rdpmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 	proto_tree *tree, *subtree;
 	uint8_t action, subheader_len;
 	uint16_t payload_len;
-	int offset = 0;
+	unsigned offset = 0;
 
 	item = proto_tree_add_item(parent_tree, proto_rdpmt, tvb, 0, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_rdpmt);

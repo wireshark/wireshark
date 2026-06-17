@@ -47,7 +47,7 @@ static int
 dissect_telkonet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree *ti, *telkonet_tree;
-	int offset = 0;
+	unsigned offset = 0;
 	telkonet_type_t type;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TELKONET");

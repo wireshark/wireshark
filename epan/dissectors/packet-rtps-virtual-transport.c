@@ -189,7 +189,7 @@ static int dissect_rtps_virtual_transport(
     uint16_t version;
     uint8_t content_type;
     const char *content_type_label;
-    int offset = 0;
+    unsigned offset = 0;
     int output = 0;
 
     /* Add transport tree, used for the fields of our proto_rtpsvt */

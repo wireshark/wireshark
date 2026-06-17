@@ -90,7 +90,7 @@ static bool pcli_summary_in_tree = true;
 static dissector_table_t    pcli_subdissector_table;
 
 static proto_tree *
-dissect_pcli_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int* offset)
+dissect_pcli_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned* offset)
 {
     uint32_t cccid;
     proto_tree *pcli_tree;
@@ -133,7 +133,7 @@ dissect_pcli_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 static int
 dissect_pcli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     dissect_pcli_common(tvb, pinfo, tree, &offset);
 
@@ -145,7 +145,7 @@ static int
 dissect_pcli8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *pcli_tree;
-    int offset = 0;
+    unsigned offset = 0;
 
     pcli_tree = dissect_pcli_common(tvb, pinfo, tree, &offset);
 
@@ -160,7 +160,7 @@ static int
 dissect_pcli12(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *pcli_tree;
-    int offset = 0;
+    unsigned offset = 0;
 
     pcli_tree = dissect_pcli_common(tvb, pinfo, tree, &offset);
 
@@ -175,7 +175,7 @@ static int
 dissect_pcli20(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *pcli_tree;
-    int offset = 0;
+    unsigned offset = 0;
 
     pcli_tree = dissect_pcli_common(tvb, pinfo, tree, &offset);
 

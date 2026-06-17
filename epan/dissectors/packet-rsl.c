@@ -4712,7 +4712,7 @@ dissect_rsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     uint8_t     msg_type;
 
 
-    int offset = 0;
+    unsigned offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSL");
     col_clear(pinfo->cinfo, COL_INFO);

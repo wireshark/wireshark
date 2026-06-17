@@ -58,7 +58,7 @@ static int dissect_usb_printer_ctl(
     bool is_request = (pinfo->srcport == NO_ENDPOINT);
     urb_info_t *urb = (urb_info_t *)data;
     usb_trans_info_t *usb_trans_info;
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t bReq;
     uint32_t dev_id_len;
 

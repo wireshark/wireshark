@@ -104,7 +104,7 @@ static int
 dissect_vpp_metadata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                      void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     proto_item *ti;
     proto_tree *metadata_tree;
     int metadata_string_length;
@@ -128,7 +128,7 @@ static int
 dissect_vpp_trace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                   void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     proto_item *ti;
     proto_tree *trace_tree;
     int trace_string_length;
@@ -153,7 +153,7 @@ static int
 dissect_vpp_opaque(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                    void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     proto_item *ti;
     proto_tree *opaque_tree;
     int opaque_string_length;
@@ -175,7 +175,7 @@ static int
 dissect_vpp_opaque2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     proto_item *ti;
     proto_tree *opaque2_tree;
     int opaque2_string_length;
@@ -200,7 +200,7 @@ dissect_vpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     proto_item *ti;
     proto_tree *vpp_tree;
     tvbuff_t *metadata_tvb, *opaque_tvb, *opaque2_tvb, *eth_tvb, *trace_tvb;
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t major_version, minor_version, string_count, protocol_hint;
     char *name;
     unsigned len;

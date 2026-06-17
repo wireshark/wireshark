@@ -88,7 +88,7 @@ dissect_vxlan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int is
     proto_tree *vxlan_tree;
     proto_item *ti;
     tvbuff_t *next_tvb;
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t vxlan_next_proto, vxlan_vni;
     uint16_t vxlan_gbp;
 

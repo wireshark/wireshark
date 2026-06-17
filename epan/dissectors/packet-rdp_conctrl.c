@@ -32,7 +32,7 @@ static int ett_rdp_conctrl;
 static int
 dissect_rdp_conctrl(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree _U_, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	//bool packetToServer = rdp_isServerAddressTarget(pinfo);
 
 	parent_tree = proto_tree_get_root(parent_tree);

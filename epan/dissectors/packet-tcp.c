@@ -6157,7 +6157,7 @@ dissect_tcpopt_default_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_item *item;
     proto_tree *exp_tree;
     proto_item *length_item;
-    int offset = 0;
+    unsigned offset = 0;
 
     item = proto_tree_add_item(tree, proto, tvb, offset, -1, ENC_NA);
     exp_tree = proto_item_add_subtree(item, ett);
@@ -6219,7 +6219,7 @@ dissect_tcpopt_tfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 {
     proto_item *item;
     proto_tree *exp_tree;
-    int offset = 0;
+    unsigned offset = 0;
 
     item = proto_tree_add_item(tree, proto_tcp_option_tfo, tvb, offset, -1, ENC_NA);
     exp_tree = proto_item_add_subtree(item, ett_tcp_option_exp);
@@ -6430,7 +6430,7 @@ dissect_tcpopt_sack_perm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     proto_item *item;
     proto_tree *exp_tree;
     proto_item *length_item;
-    int offset = 0;
+    unsigned offset = 0;
     struct tcpheader *tcph = (struct tcpheader *)data;
 
     item = proto_tree_add_item(tree, proto_tcp_option_sack_perm, tvb, offset, -1, ENC_NA);
@@ -6457,7 +6457,7 @@ dissect_tcpopt_mss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     proto_item *item;
     proto_tree *exp_tree;
     proto_item *length_item;
-    int offset = 0;
+    unsigned offset = 0;
     struct tcpheader *tcph = (struct tcpheader *)data;
     uint32_t mss;
     struct tcp_analysis *tcpd;
@@ -6504,7 +6504,7 @@ dissect_tcpopt_wscale(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     proto_item *wscale_pi, *shift_pi, *gen_pi;
     proto_tree *wscale_tree;
     proto_item *length_item;
-    int offset = 0;
+    unsigned offset = 0;
     struct tcp_analysis *tcpd;
 
     /* find the conversation for this TCP session and its stored data */
@@ -6561,7 +6561,7 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     struct tcpheader *tcph = (struct tcpheader *)data;
     uint32_t base_ack=0;
     unsigned  num_sack_ranges = 0;
-    int offset = 0;
+    unsigned offset = 0;
     int sackoffset;
     int optlen = tvb_reported_length(tvb);
     uint8_t saved_sack_ranges = 0;
@@ -6786,7 +6786,7 @@ dissect_tcpopt_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     proto_item *item;
     proto_item *length_item;
     uint32_t echo;
-    int offset = 0;
+    unsigned offset = 0;
 
     item = proto_tree_add_item(tree, proto_tcp_option_echo, tvb, offset, -1, ENC_NA);
     field_tree = proto_item_add_subtree(item, ett_tcp_opt_echo);
@@ -6817,7 +6817,7 @@ dissect_tcpopt_timestamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     proto_item *ti, *tsval_ti;
     proto_tree *ts_tree;
     proto_item *length_item;
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t ts_val, ts_ecr;
     int len = tvb_reported_length(tvb);
 
@@ -7028,9 +7028,9 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     uint32_t version;
     uint8_t subtype;
     uint8_t ipver;
-    int offset = 0;
-    int optlen = tvb_reported_length(tvb);
-    int start_offset = offset;
+    unsigned offset = 0;
+    unsigned optlen = tvb_reported_length(tvb);
+    unsigned start_offset = offset;
     struct tcp_analysis *tcpd = NULL;
     struct mptcp_analysis* mptcpd = NULL;
     struct tcpheader *tcph = (struct tcpheader *)data;
@@ -7330,7 +7330,7 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
                 analyze_mapping(tcpd, pinfo, mph->mh_dss_length, mph->mh_dss_rawdsn, mph->mh_dss_flags & MPTCP_DSS_FLAG_DATA_ACK_8BYTES, mph->mh_dss_ssn);
 
-                if ((int)optlen >= offset-start_offset+4)
+                if (optlen >= offset-start_offset+4)
                 {
                     proto_tree_add_checksum(mptcp_tree, tvb, offset, hf_tcp_option_mptcp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
                 }
@@ -7382,7 +7382,7 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 1, optlen - 3);
             proto_item_set_generated(item);
             offset += 1;
-            while(offset < start_offset + (int)optlen) {
+            while(offset < start_offset + optlen) {
                 proto_tree_add_item(mptcp_tree, hf_tcp_option_mptcp_address_id, tvb, offset,
                                 1, ENC_BIG_ENDIAN);
                 offset += 1;
@@ -7466,7 +7466,7 @@ dissect_tcpopt_cc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     proto_tree *field_tree;
     proto_item *item;
     proto_item *length_item;
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t cc;
 
     item = proto_tree_add_item(tree, proto_tcp_option_cc, tvb, offset, -1, ENC_NA);
@@ -7556,7 +7556,7 @@ dissect_tcpopt_qs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     proto_item *item;
     proto_item *length_item;
     uint8_t rate;
-    int offset = 0;
+    unsigned offset = 0;
 
     item = proto_tree_add_item(tree, proto_tcp_option_qs, tvb, offset, -1, ENC_NA);
     field_tree = proto_item_add_subtree(item, ett_tcp_opt_qs);
@@ -7749,7 +7749,7 @@ dissect_tcpopt_user_to(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     proto_tree *field_tree;
     proto_item *length_item;
     uint16_t to;
-    int offset = 0;
+    unsigned offset = 0;
 
     tf = proto_tree_add_item(tree, proto_tcp_option_user_to, tvb, offset, -1, ENC_NA);
     field_tree = proto_item_add_subtree(tf, ett_tcp_option_user_to);

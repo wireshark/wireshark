@@ -1663,7 +1663,7 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static void
 dissect_tecmp_status_config_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *ti_root, uint8_t device_type _U_, uint8_t vendor_id) {
     proto_tree *tree = NULL;
-    int offset = 0;
+    unsigned offset = 0;
     unsigned data_length = 0;
 
     proto_item_append_text(ti_root, " (%s)", val_to_str(pinfo->pool, vendor_id, tecmp_vendor_ids, "(Unknown Vendor: %d)"));
@@ -1696,7 +1696,7 @@ dissect_tecmp_status_bus_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, prot
                                      uint8_t entry_number, uint8_t device_type, uint8_t vendor_id) {
     proto_tree *tree = NULL;
     proto_item *ti = NULL;
-    int offset = 0;
+    unsigned offset = 0;
     int bytes_remaining = 0;
     unsigned tmp = 0;
 
@@ -1848,7 +1848,7 @@ static void
 dissect_tecmp_status_device_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *ti_root, uint8_t device_type _U_, uint8_t vendor_id, uint64_t timestamp_ns) {
     proto_tree *tree = NULL;
     proto_item *ti = NULL;
-    int offset = 0;
+    unsigned offset = 0;
     unsigned tmp = 0;
     uint64_t tmp64 = 0;
     nstime_t timestamp;

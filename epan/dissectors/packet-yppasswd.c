@@ -37,7 +37,7 @@ dissect_yppasswd_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 {
 	proto_item *lock_item = NULL;
 	proto_tree *lock_tree = NULL;
-	int offset = 0;
+	unsigned offset = 0;
 
 	offset = dissect_rpc_string(tvb, pinfo, tree, hf_yppasswd_oldpass,
 			offset, NULL);

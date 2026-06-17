@@ -630,7 +630,7 @@ tipc_addr_str_len(const address* addr _U_)
 static void
 dissect_tipc_name_dist_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t item_size)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t dword;
 	char *addr_str_ptr;
 
@@ -2149,7 +2149,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 {
 	proto_item *ti, *item;
 	proto_tree *tipc_tree, *tipc_data_tree;
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t srcport, destport = 0, dword;
 	uint8_t version;
 	uint32_t msg_size;

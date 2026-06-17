@@ -1485,7 +1485,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
     struct _rtp_packet_info *p_packet_data;
     int payload_len;
     struct srtp_info *srtp_info;
-    int offset = 0;
+    unsigned offset = 0;
     proto_item *rtp_data;
 
     payload_len = tvb_captured_length_remaining(newtvb, offset);
@@ -1970,7 +1970,7 @@ dissect_full_rfc4571(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
      |             LENGTH            |  RTP or RTCP packet ...       |
       ---------------------------------------------------------------
      */
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t length = 0;
     proto_tree_add_item_ret_uint(tree, hf_rfc4571_header_len, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
     if (length == 0) {

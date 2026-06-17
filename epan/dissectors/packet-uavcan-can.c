@@ -160,7 +160,7 @@ dissect_uavcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item *ti, *toggle, *transfer_crc;
     proto_tree *uavcan_tree, *can_id_tree, *can_data_tree, *dsdl_tree;
 
-    int offset = 0;
+    unsigned offset = 0;
     struct can_info can_info;
     uint16_t *src_addr, *dest_addr;
     uint8_t tail_byte;

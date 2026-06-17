@@ -193,7 +193,7 @@ dissect_smb_direct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree *neg_req_tree = NULL;
 	proto_tree *neg_rep_tree = NULL;
 	proto_tree *data_tree = NULL;
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t status = 0;
 	uint32_t remaining_length = 0;
 	uint32_t data_offset = 0;

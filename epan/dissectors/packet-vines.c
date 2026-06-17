@@ -1412,7 +1412,7 @@ rtp_show_gateway_info(proto_tree *tree, tvbuff_t *tvb, int offset,
 static int
 dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	proto_tree *vines_rtp_tree = NULL;
 	proto_item *ti;
 	proto_tree *subtree;
@@ -1895,7 +1895,7 @@ static const value_string vines_icp_packet_type_vals[] = {
 static int
 dissect_vines_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	proto_tree *vines_icp_tree;
 	proto_item *ti;
 	uint16_t packet_type;

@@ -3972,8 +3972,8 @@ dissect_someip_payload_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 static void
 dissect_someip_payload(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, uint16_t serviceid, uint16_t methodid, uint8_t version, uint8_t msgtype) {
-    int length = -1;
-    int offset = 0;
+    unsigned length = 0;
+    unsigned offset = 0;
 
     proto_tree *tree = NULL;
 

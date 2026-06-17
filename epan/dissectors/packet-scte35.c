@@ -383,7 +383,7 @@ dissect_scte35_private_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 {
     int tvb_len;
     uint32_t identifier;
-    int offset = 0;
+    unsigned offset = 0;
     proto_item *ti;
     proto_tree *pc_tree;
 
@@ -447,7 +447,7 @@ proto_reg_handoff_scte35_private_command(void)
 static int
 dissect_component(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uint8_t sif, int idx)
 {
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t component_tag, tsf = 0;
     proto_tree *component_tree;
     int tvb_len, min_length = sif ? 1 : 2;
@@ -502,7 +502,7 @@ dissect_scte35_splice_insert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     uint8_t cancel_flag, psf, df, sif, tsf, component_count;
     uint32_t event_id;
     int component;
-    int offset = 0;
+    unsigned offset = 0;
     proto_item *ti;
     proto_tree *si_tree, *st_tree;
 
@@ -949,7 +949,7 @@ proto_reg_handoff_scte35_splice_schedule(void)
 static int
 dissect_scte35_avail_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    int offset = 0;
+    unsigned offset = 0;
     int tvb_len;
 
     /* Check length. */
@@ -967,7 +967,7 @@ dissect_scte35_avail_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 static int
 dissect_scte35_dtmf_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    int offset = 0;
+    unsigned offset = 0;
     int tvb_len, min_length = 2;
     uint8_t dtmf_count;
 
@@ -1001,7 +1001,7 @@ dissect_scte35_dtmf_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 static int
 dissect_scte35_component(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int idx) {
-    int offset = 0;
+    unsigned offset = 0;
     proto_tree *subtree;
 
     /* Create the subtree. */

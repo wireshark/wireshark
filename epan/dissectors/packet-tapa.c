@@ -273,7 +273,7 @@ dissect_tapa_discover(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *tapa_discover_tree = NULL;
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t packet_type;
 	int remaining;
 

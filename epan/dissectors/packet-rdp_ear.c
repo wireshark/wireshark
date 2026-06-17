@@ -92,7 +92,7 @@ dissect_rdpear_ber_packageName(bool implicit_tag, tvbuff_t *tvb, unsigned offset
 static int
 dissect_rdpear_packagePayload(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, RcgPackageType package)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	bool isServerTarget = rdp_isServerAddressTarget(pinfo);
 
 	proto_tree_add_item(tree, hf_rdpear_package_reservedHeader, tvb, offset, 16, ENC_NA);

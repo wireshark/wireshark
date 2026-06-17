@@ -5058,7 +5058,7 @@ dissect_usb_hid_control_class_intf(tvbuff_t *tvb, packet_info *pinfo,
 {
     usb_trans_info_t *usb_trans_info;
     bool is_request;
-    int offset = 0;
+    unsigned offset = 0;
     usb_setup_dissector dissector = NULL;
     const usb_setup_dissector_table_t *tmp;
 

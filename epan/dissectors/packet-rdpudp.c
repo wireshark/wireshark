@@ -284,7 +284,7 @@ rdpudp_is_reliable_transport(packet_info *pinfo)
 static int
 dissect_rdpudp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_conv_info_t *conv)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint16_t flags;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RDPUDP");
@@ -499,7 +499,7 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 	uint16_t flags;
 	uint8_t packet_type;
 	tvbuff_t *subtvb;
-	int offset = 0;
+	unsigned offset = 0;
 	tvbuff_t *tvb2 = unwrap_udp_v2(tvb, pinfo);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RDPUDP2");

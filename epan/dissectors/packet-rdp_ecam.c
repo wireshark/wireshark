@@ -187,7 +187,7 @@ dissect_media_descriptor(tvbuff_t *tvb, int offset, proto_tree *tree)
 static int
 dissect_rdp_ecam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree _U_, void *data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	//bool packetToServer = rdp_isServerAddressTarget(pinfo);
 
 	parent_tree = proto_tree_get_root(parent_tree);

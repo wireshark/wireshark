@@ -133,7 +133,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti;
 	proto_tree *vtp_tree = NULL, *vtp_pruning_tree = NULL;
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t code;
 	const char *upd_timestamp;
 	int vlan_info_len;

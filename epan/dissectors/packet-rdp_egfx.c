@@ -345,7 +345,7 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 	proto_item *pi;
 	proto_tree *tree;
 	proto_tree *subtree;
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t cmdId = 0;
 	uint32_t pduLength;
 	uint32_t i;

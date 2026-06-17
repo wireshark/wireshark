@@ -3923,7 +3923,7 @@ dissect_scsi_blockdescs(tvbuff_t *tvb, packet_info *pinfo _U_,
                         proto_tree *scsi_tree,
                         scsi_task_data_t *cdata, bool longlba)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     /* without cdata there is no point in continuing */
     if (!cdata)

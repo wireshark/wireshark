@@ -327,7 +327,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 {
 	proto_item *item;
 	proto_tree *tree;
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t cbIdSpCmd, cmdId;
 	uint8_t cbId, Len;
 	bool haveChannelId, havePri, haveLen;

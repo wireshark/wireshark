@@ -4609,7 +4609,7 @@ static void
 dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     dissector_handle_t dissector_handle, bool is_connectionless)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     uint8_t     pdut;
     unsigned    count            = 0;

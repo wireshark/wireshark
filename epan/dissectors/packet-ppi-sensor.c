@@ -180,7 +180,7 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     /* bits*/
     int bit;
     uint32_t present, next_present;
-    int offset = 0;
+    unsigned offset = 0;
     /* values actually read out, for displaying */
     uint16_t sensortype =0;
     char   scalefactor = 0;

@@ -512,7 +512,7 @@ dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t cmd;
 	proto_tree *tree = NULL;
 	proto_item *item = NULL;
@@ -740,7 +740,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 static int
 dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t cmd;
 	proto_tree *tree;
 	proto_item *item;

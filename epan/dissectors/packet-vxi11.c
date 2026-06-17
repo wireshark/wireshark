@@ -315,7 +315,7 @@ dissect_create_link_parms(tvbuff_t *tvb,
                           proto_tree *tree, void* data _U_)
 {
     const char *str;
-    int offset = 0;
+    unsigned offset = 0;
 
     offset = dissect_rpc_uint32(tvb, tree, hf_vxi11_core_client_id, offset);
     offset = dissect_rpc_bool(tvb, tree, hf_vxi11_core_lock_device, offset);
@@ -334,7 +334,7 @@ dissect_create_link_resp(tvbuff_t *tvb,
                          proto_tree *tree, void* data _U_)
 {
     uint32_t error, lid;
-    int offset = 0;
+    unsigned offset = 0;
 
     offset = dissect_error(tvb, offset, pinfo, tree, "Create_LinkResp", &error);
 
@@ -372,7 +372,7 @@ dissect_device_docmd_parms(tvbuff_t *tvb,
 {
     uint32_t lid, cmd;
     const char *cmdstr;
-    int offset = 0;
+    unsigned offset = 0;
 
     lid    = tvb_get_ntohl(tvb, offset);
     offset = dissect_rpc_uint32(tvb, tree, hf_vxi11_core_lid, offset);
@@ -401,7 +401,7 @@ dissect_device_docmd_resp(tvbuff_t *tvb,
                           proto_tree *tree, void* data _U_)
 {
     uint32_t error;
-    int offset = 0;
+    unsigned offset = 0;
 
     offset = dissect_error(tvb, offset, pinfo, tree, "Device_DocmdResp", &error);
     offset = dissect_rpc_opaque_data(tvb, offset, tree, pinfo, hf_vxi11_core_data, false, 0, false, NULL, NULL);
@@ -414,7 +414,7 @@ dissect_device_enable_SRQ_parms(tvbuff_t *tvb,
                                 packet_info *pinfo,
                                 proto_tree *tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t lid = tvb_get_ntohl(tvb, offset);
 
     offset = dissect_rpc_uint32(tvb, tree, hf_vxi11_core_lid, offset);
@@ -442,7 +442,7 @@ dissect_device_generic_parms(tvbuff_t *tvb,
                              packet_info *pinfo,
                              proto_tree *tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t lid = tvb_get_ntohl(tvb, offset);
 
     offset = dissect_rpc_uint32(tvb, tree, hf_vxi11_core_lid, offset);
@@ -461,7 +461,7 @@ dissect_device_link(tvbuff_t *tvb,
                     packet_info *pinfo,
                     proto_tree *tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t lid = tvb_get_ntohl(tvb, offset);
 
     offset = dissect_rpc_uint32(tvb, tree, hf_vxi11_core_lid, offset);
@@ -477,7 +477,7 @@ dissect_device_lock_parms(tvbuff_t *tvb,
                           packet_info *pinfo,
                           proto_tree *tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t lid = tvb_get_ntohl(tvb, offset);
 
     offset = dissect_rpc_uint32(tvb, tree, hf_vxi11_core_lid, offset);
@@ -495,7 +495,7 @@ dissect_device_read_parms(tvbuff_t *tvb,
                           packet_info *pinfo,
                           proto_tree *tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t lid = tvb_get_ntohl(tvb, offset);
 
     offset = dissect_rpc_uint32(tvb, tree, hf_vxi11_core_lid, offset);
@@ -517,7 +517,7 @@ dissect_device_read_resp(tvbuff_t *tvb,
                          proto_tree *tree, void* data _U_)
 {
     uint32_t error;
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t datalength = 0;
 
     offset = dissect_error(tvb, offset, pinfo, tree, "Device_ReadResp", &error);
@@ -539,7 +539,7 @@ dissect_device_readstb_resp(tvbuff_t *tvb,
                             proto_tree *tree, void* data _U_)
 {
     uint32_t error, stb;
-    int offset = 0;
+    unsigned offset = 0;
 
     offset = dissect_error(tvb, offset, pinfo, tree, "Device_ReadStbResp", &error);
 
@@ -562,7 +562,7 @@ dissect_device_remote_func(tvbuff_t *tvb,
 {
     uint32_t port;
     const char *addrstr;
-    int offset = 0;
+    unsigned offset = 0;
 
     addrstr = tvb_ip_to_str(pinfo->pool, tvb, offset);
     offset = dissect_rpc_uint32(tvb, tree, hf_vxi11_core_host_addr, offset);
@@ -586,7 +586,7 @@ dissect_device_write_parms(tvbuff_t *tvb,
                            proto_tree *tree, void* data _U_)
 {
     uint32_t datalength = 0;
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t lid = tvb_get_ntohl(tvb, offset);
 
     offset = dissect_rpc_uint32(tvb, tree, hf_vxi11_core_lid, offset);
@@ -612,7 +612,7 @@ dissect_device_write_resp(tvbuff_t *tvb,
                           proto_tree *tree, void* data _U_)
 {
     uint32_t error;
-    int offset = 0;
+    unsigned offset = 0;
 
     offset = dissect_error(tvb, offset, pinfo, tree, "Device_WriteResp", &error);
     offset = dissect_rpc_uint32(tvb, tree, hf_vxi11_core_size, offset);

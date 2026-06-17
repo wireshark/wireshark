@@ -1669,7 +1669,7 @@ dissect_u3v_stream_leader(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_i
 static void
 dissect_u3v_stream_trailer(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, urb_info_t *urb _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     uint64_t block_id;
     proto_item *item = NULL;
 
@@ -1746,7 +1746,7 @@ dissect_u3v_stream_payload(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_
 static int
 dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    int offset = 0;
+    unsigned offset = 0;
     proto_tree *u3v_tree = NULL, *ccd_tree_flag, *u3v_telegram_tree = NULL, *ccd_tree = NULL;
     int data_length = 0;
     int req_id = 0;

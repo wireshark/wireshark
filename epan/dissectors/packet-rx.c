@@ -406,7 +406,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *dat
 	proto_tree *tree;
 	proto_item *item;
 	const char *version_type;
-	int offset = 0;
+	unsigned offset = 0;
 	struct rxinfo rxinfo;
 	uint8_t type;
 	nstime_t ts;

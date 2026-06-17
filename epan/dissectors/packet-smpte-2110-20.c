@@ -55,7 +55,7 @@ dissect_st2110_20(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void*
     proto_item *item;
     proto_tree *st2110_20_tree;
 
-    int offset = 0;
+    unsigned offset = 0;
 
     struct _rtp_packet_info *rtp_pkt_info = (struct _rtp_packet_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, RTP_CONVERSATION_PROTO_DATA);
 

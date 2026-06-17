@@ -433,7 +433,7 @@ static int
 dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     urb_info_t *urb = (urb_info_t *)data;
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t type, subtype;
     proto_tree *subtree;
     proto_tree *subtree_capabilities;
@@ -619,7 +619,7 @@ dissect_usb_com_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     usb_trans_info_t *usb_trans_info;
     proto_tree *subtree;
     proto_item *ti;
-    int offset = 0;
+    unsigned offset = 0;
     bool is_request;
 
     if (tvb_reported_length(tvb) == 0) {
@@ -847,7 +847,7 @@ dissect_usb_com_interrupt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_tree *subtree;
     proto_item *it;
     uint32_t notif_code;
-    int offset = 0;
+    unsigned offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBCOM");
 

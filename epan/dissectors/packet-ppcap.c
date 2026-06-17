@@ -135,7 +135,7 @@ dissect_ppcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	proto_item *ti;
 	proto_tree *ppcap_tree, *ppcap_tree1;
 	uint16_t msg_type;
-	int offset = 0;
+	unsigned offset = 0;
 	payload_type_type payload_type = PPCAP_UNKNOWN;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPCAP");

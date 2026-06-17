@@ -122,7 +122,7 @@ dissect_pktap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	proto_tree *pktap_tree = NULL;
 	proto_item *ti = NULL;
 	tvbuff_t *next_tvb;
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t pkt_len, rectype, dlt;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKTAP");

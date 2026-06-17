@@ -261,7 +261,7 @@ dissect_tcp_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 static void
 dissect_tcp_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *stt_tree)
 {
-    int offset = 0;
+    unsigned offset = 0;
     proto_tree *tcp_tree;
     proto_item *tcp_item, *data_offset_item;
     int data_offset;

@@ -64,7 +64,7 @@ static int
 dissect_ypbind_domain_v2_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	uint32_t type;
-	int offset = 0;
+	unsigned offset = 0;
 
 	/* response type */
 	type=tvb_get_ntohl(tvb, offset);
@@ -95,7 +95,7 @@ dissect_ypbind_domain_v2_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 static int
 dissect_ypbind_setdomain_v2_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 
 	/* domain */
 	offset = dissect_rpc_string(tvb, pinfo, tree,

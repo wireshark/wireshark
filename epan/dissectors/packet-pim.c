@@ -494,7 +494,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     proto_tree *pim_tree = NULL;
     proto_item *ti;
     proto_tree *pimopt_tree = NULL;
-    int offset = 0;
+    unsigned offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PIMv1");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -1085,7 +1085,7 @@ dissect_pim_addr(packet_info *pinfo, proto_tree* tree, tvbuff_t *tvb, int offset
  */
 static int
 dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t pim_typever;
     uint8_t pim_subtype;
     uint8_t pim_bidir_subtype = 0;
@@ -1299,7 +1299,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             case PIM_HELLO_VAR_ADDR_LST: /* address list */
             case PIM_HELLO_ADDR_LST:     /* address list (old implementations) */
             {
-                int i;
+                unsigned i;
                 proto_tree *sub_tree = NULL;
 
                 sub_tree = proto_tree_add_subtree_format(opt_tree, tvb, offset, 4 + opt_len,

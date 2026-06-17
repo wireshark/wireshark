@@ -114,7 +114,7 @@ dissect_stat_stat_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	int32_t res;
-	int offset = 0;
+	unsigned offset = 0;
 
 	sub_item = proto_tree_add_item(tree, hf_stat_stat_res, tvb,
 				offset, -1, ENC_NA);
@@ -155,7 +155,7 @@ dissect_stat_mon_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;
-	int offset = 0;
+	unsigned offset = 0;
 
 	sub_item = proto_tree_add_item(tree, hf_stat_mon, tvb,
 				offset, mon_id_len(tvb,offset), ENC_NA);
@@ -197,7 +197,7 @@ dissect_stat_notify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;
-	int offset = 0;
+	unsigned offset = 0;
 	int start_offset = offset;
 
 	sub_item = proto_tree_add_item(tree, hf_stat_stat_chge, tvb,

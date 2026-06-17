@@ -2113,7 +2113,7 @@ static unsigned get_message_len(packet_info *pinfo, tvbuff_t *tvb, int ext_offse
 }
 
 static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    int offset = 0;
+    unsigned offset = 0;
     tcpcl_dissect_ctx_t *ctx = tcpcl_dissect_ctx_get(tvb, pinfo, offset);
     if (!ctx) {
         return 0;
@@ -2315,7 +2315,7 @@ dissect_tcpcl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 }
 
 static int dissect_xferext_transferlen(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-    int offset = 0;
+    unsigned offset = 0;
     tcpcl_dissect_ctx_t *ctx = tcpcl_dissect_ctx_get(tvb, pinfo, offset);
     if (!ctx) {
         return 0;
@@ -2341,7 +2341,7 @@ static int dissect_xferext_transferlen(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 }
 
 static int dissect_othername_bundleeid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    int offset = 0;
+    unsigned offset = 0;
     asn1_ctx_t actx;
     asn1_ctx_init(&actx, ASN1_ENC_BER, true, pinfo);
     offset += dissect_ber_restricted_string(

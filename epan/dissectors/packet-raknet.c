@@ -824,7 +824,7 @@ static int
 raknet_dissect_ACK(tvbuff_t *tvb, packet_info *pinfo,
                    proto_tree *tree, void* data)
 {
-    int offset = 0;
+    unsigned offset = 0;
     proto_tree *sub_tree;
     uint32_t count;
     uint32_t i;
@@ -904,7 +904,7 @@ raknet_dissect_ACK(tvbuff_t *tvb, packet_info *pinfo,
 static int
 raknet_dissect_common_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *raknet_tree, void *data)
 {
-    int offset = 0;
+    unsigned offset = 0;
     bool *has_multiple_messages;
     proto_item *ti;
     proto_item *raknet_ti;
@@ -1230,7 +1230,7 @@ raknet_dissect_connected_message(tvbuff_t *tvb, packet_info *pinfo,
     proto_item *ti;
     proto_tree *raknet_tree;
     int item_size;
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t msg_type;
 
     state = raknet_get_session_state(pinfo);

@@ -54,7 +54,7 @@ dissect_rgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
     proto_tree *tree;
     proto_item *item;
     uint8_t type;
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t dst = g_htonl(MC_RGMP);
 
     /* Shouldn't be destined for us */

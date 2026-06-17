@@ -40,7 +40,7 @@ dissect_get_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
 {
 	proto_item* lock_item = NULL;
 	proto_tree* lock_tree = NULL;
-	int offset = 0;
+	unsigned offset = 0;
 
 	offset = dissect_rpc_uint32(tvb, tree,
 			hf_spray_counter, offset);

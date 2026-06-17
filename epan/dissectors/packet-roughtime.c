@@ -175,7 +175,7 @@ dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rough
     /* Presence of fields of interest for req/resp tracking */
     bool fa_srep = false, fa_nonc = false;
 
-    int offset = 0;
+    unsigned offset = 0;
     nstime_set_unset(&time_midp);
     nstime_set_unset(&time_radius);
 

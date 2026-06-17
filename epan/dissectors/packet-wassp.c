@@ -5880,7 +5880,7 @@ static int dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	proto_tree *wassp_tree;
 	proto_tree *wassp_header_tree, *ru_discover_header_tree, *wassp_seq_flag_tree;
 	wassp_ru_msg_t ru_msg_type;
-	int offset = 0;
+	unsigned offset = 0;
 	uint16_t flag = 0, seq_number = 0;
 	uint32_t fragment = false, complete = true;
 	uint32_t remain_len = 0, length;

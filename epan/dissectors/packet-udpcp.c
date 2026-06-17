@@ -190,7 +190,7 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 {
     proto_tree *udpcp_tree;
     proto_item *root_ti;
-    int offset = 0;
+    unsigned offset = 0;
 
     /* Must be at least 12 bytes */
     if (tvb_reported_length(tvb) < 12) {

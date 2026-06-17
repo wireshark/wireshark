@@ -203,7 +203,7 @@ int find_twamp_session_by_first_accept_waiting (const void *element, const void 
 static int
 dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     bool is_request;
     proto_item *twamp_tree;
     proto_tree *it;
@@ -588,7 +588,7 @@ dissect_owamp_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 static int
 dissect_twamp_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     proto_item *ti = NULL;
     proto_item *twamp_tree = NULL;
     int padding = 0;

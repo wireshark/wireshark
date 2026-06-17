@@ -827,7 +827,7 @@ static const char *
 dissect_radius_3gpp_ms_tmime_zone(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 {
 
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t oct, daylight_saving_time;
 	char sign;
 

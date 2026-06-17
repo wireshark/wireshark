@@ -168,7 +168,7 @@ dissect_ubdp(tvbuff_t *ubdp_tvb, packet_info *pinfo, proto_tree *tree, void *dat
     uint32_t    ubdp_length;
     uint32_t    ubdp_type;
     uint32_t    version;
-    int offset = 0;
+    unsigned offset = 0;
     char *uValue;
     const char *uModel;
 

@@ -4337,7 +4337,7 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data, proto_tree *tree,
         ssh_message_info_t *message)
 {
-    int offset = 0;      // TODO:
+    unsigned offset = 0;      // TODO:
     int dissected_len = 0;
     tvbuff_t* payload_tvb;
 
@@ -5370,7 +5370,7 @@ ssh_dissect_term_modes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *term_mode_tree, *subtree;
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t opcode, value, idx;
     bool boolval;
 
@@ -5846,7 +5846,7 @@ ssh_dissect_public_key_blob(tvbuff_t *tvb, packet_info *pinfo, proto_item *tree)
     uint32_t slen;
     const char* key_type;
 
-    int offset = 0;
+    unsigned offset = 0;
     proto_tree *blob_tree = NULL;
     proto_item *blob_item = NULL;
 

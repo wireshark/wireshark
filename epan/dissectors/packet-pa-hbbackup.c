@@ -39,7 +39,7 @@ static int
 dissect_hbbak(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree *ti, *hbbak_tree;
-	int offset = 0;
+	unsigned offset = 0;
 	uint16_t eth_type_outer;
 	ethertype_data_t ethertype_data;
 

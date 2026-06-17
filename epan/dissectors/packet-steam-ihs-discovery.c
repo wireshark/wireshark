@@ -999,7 +999,7 @@ dissect_steam_ihs_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
     proto_tree *steam_ihs_discovery_tree;
     /* Other misc. local variables. */
-    int offset = 0;
+    unsigned offset = 0;
     int header_length = 0;
     int body_length = 0;
     int total_length = 0;

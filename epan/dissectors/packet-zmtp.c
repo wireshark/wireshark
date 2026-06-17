@@ -535,7 +535,7 @@ dissect_zmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 {
     proto_tree *zmtp_tree;
     proto_item *root_ti;
-    int offset = 0;
+    unsigned offset = 0;
     char* str_flags;
 
     /* Protocol column */

@@ -32,7 +32,7 @@ static void parse_config_file(SnortConfig_t *snort_config, FILE *config_file_fd,
 /* Skip white space from 'source', return pointer to first non-whitespace char */
 static const char *skipWhiteSpace(const char *source, int *accumulated_offset)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     /* Skip any leading whitespace */
     while ((source[offset] == ' ') || (source[offset] == '\t')) {
@@ -53,7 +53,7 @@ static const char *skipWhiteSpace(const char *source, int *accumulated_offset)
 static char* read_token(const char* source, char delimeter, int *length, int *accumulated_length, bool copy)
 {
     static char static_buffer[MAX_LINE_LENGTH];
-    int offset = 0;
+    unsigned offset = 0;
 
     const char *source_proper = skipWhiteSpace(source, accumulated_length);
 

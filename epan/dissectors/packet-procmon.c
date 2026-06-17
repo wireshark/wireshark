@@ -366,7 +366,7 @@ static const value_string system_error_code_vals[] = {
 static bool dissect_procmon_process_event(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, uint32_t operation, tvbuff_t* extra_details_tvb _U_)
 {
     proto_tree* process_tree;
-    int offset = 0;
+    unsigned offset = 0;
     bool handle_extra_details = false;
 
     process_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_procmon_process_event, NULL, "Process Data");
@@ -609,7 +609,7 @@ static int procmon_registry_query_or_enum_key_extra_details(proto_tree* tree, tv
 {
     uint32_t name_size;
     nstime_t timestamp;
-    int offset = 0;
+    unsigned offset = 0;
 
     switch (information_class)
     {
@@ -789,7 +789,7 @@ static int procmon_read_registry_data(proto_tree* tree, packet_info* pinfo, tvbu
 
 static int procmon_registry_query_or_enum_value_extra_details(proto_tree* tree, packet_info* pinfo, tvbuff_t* tvb, uint32_t information_class)
 {
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t length = 0, type, name_size;
 
     //Unknown fields
@@ -2461,7 +2461,7 @@ static const value_string profiling_operation_vals[] = {
 
 static bool dissect_procmon_profiling_event(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, uint32_t operation, tvbuff_t* extra_details_tvb _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree_add_subtree(tree, tvb, offset, -1, ett_procmon_profiling_event, NULL, "Profiling Data");
 
@@ -2513,7 +2513,7 @@ static const true_false_string tfs_tcp_udp = { "TCP", "UDP" };
 static bool dissect_procmon_network_event(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, uint32_t operation _U_, tvbuff_t* extra_details_tvb _U_)
 {
     proto_tree* network_event_tree;
-    int offset = 0;
+    unsigned offset = 0;
     uint16_t flags;
     int detail_offset;
     unsigned detail_length;

@@ -116,7 +116,7 @@ dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     /* These are locals used for processing the current tvb */
     unsigned length;
     int   length_remaining;
-    int offset = 0;
+    unsigned offset = 0;
 
     proto_tree *ppi_gps_tree = NULL;
 

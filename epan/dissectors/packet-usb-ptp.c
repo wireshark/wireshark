@@ -479,7 +479,7 @@ dissect_usb_ptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
     uint16_t ptp_code;
     uint32_t ptp_tid;
     /*uint32_t ptp_length _U_;*/
-    int offset = 0;
+    unsigned offset = 0;
     const char *ptp_code_desc = "";
     const char *col_class = "?";
     usb_ptp_conv_info_t *usb_ptp_conv_info;

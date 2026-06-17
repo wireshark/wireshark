@@ -5336,7 +5336,7 @@ static bool dissect_quic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
      * Supported Version (multiple of 4 bytes.)
      */
     conversation_t *conversation = NULL;
-    int offset = 0;
+    unsigned offset = 0;
     uint8_t flags, dcid, scid;
     uint32_t version;
     bool is_quic = false;
@@ -5369,7 +5369,7 @@ static bool dissect_quic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         return false;
     }
     offset += 1 + dcid;
-    if (offset >= (int)tvb_captured_length(tvb)) {
+    if (offset >= tvb_captured_length(tvb)) {
         return false;
     }
     scid = tvb_get_uint8(tvb, offset);

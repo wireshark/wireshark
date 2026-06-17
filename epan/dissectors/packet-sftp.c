@@ -146,7 +146,7 @@ static int dissect_sftp_attrs(tvbuff_t *packet_tvb, packet_info *pinfo,
 
 static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-        int offset = 0;
+        unsigned offset = 0;
         unsigned   plen;
         unsigned   slen;
         if (pinfo->can_desegment) {

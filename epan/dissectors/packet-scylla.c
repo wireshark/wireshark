@@ -324,7 +324,7 @@ get_scylla_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
 static int
 dissect_scylla_negotiation_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scylla_tree)
 {
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t feature_number, feature_len;
     uint64_t conn_id;
     proto_tree *scylla_features_tree;
@@ -371,7 +371,7 @@ dissect_scylla_negotiation_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sc
 static int
 dissect_scylla_response_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scylla_tree, request_response_t *req_resp)
 {
-    int offset = 0;
+    unsigned offset = 0;
     uint32_t len = tvb_get_letohl(tvb, offset + SCYLLA_RESPONSE_LEN_OFFSET) + SCYLLA_RESPONSE_SIZE;
 
     /* Add response subtree */
@@ -413,7 +413,7 @@ dissect_scylla_response_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scyll
 static int
 dissect_scylla_msg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scylla_tree, proto_item *ti, uint64_t verb_type, uint32_t len, request_response_t *req_resp)
 {
-    int offset = 0;
+    unsigned offset = 0;
 
     /* Add request subtree */
     proto_item *request_ti = proto_tree_add_string_format(scylla_tree, hf_scylla_request,
@@ -530,7 +530,7 @@ response_expected(uint64_t verb_type)
 static int
 dissect_scylla_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    int offset = 0;
+    unsigned offset = 0;
     conversation_t *conversation;
     wmem_map_t *conv_map;
 

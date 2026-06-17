@@ -239,7 +239,7 @@ static bool
 dissect_teredo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	uint16_t val;
-	int offset = 0;
+	unsigned offset = 0;
 
 	if (tvb_captured_length_remaining(tvb, offset) < 40)
 		return false;

@@ -1040,7 +1040,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_ses(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t type;
 	bool is_clsp = false;
 
@@ -1074,7 +1074,7 @@ static bool
 dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
 	/* must check that this really is a ses packet */
-	int offset = 0;
+	unsigned offset = 0;
 	uint8_t type;
 	int len_len;
 	uint16_t len;

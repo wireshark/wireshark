@@ -611,7 +611,7 @@ dissect_winsrepl_replication(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 static int
 dissect_winsrepl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	proto_item *winsrepl_item;
 	proto_tree *winsrepl_tree;
 	enum wrepl_mess_type mess_type;

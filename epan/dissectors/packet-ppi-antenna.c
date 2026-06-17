@@ -111,7 +111,7 @@ dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     uint32_t t_hbw, t_vbw, t_pgain, t_appspecific_num; /* temporary conversions */
     double horizbw, vertbw, pgain;
     char *curr_str;
-    int offset = 0;
+    unsigned offset = 0;
 
     static int * const ppi_antenna_present_flags[] = {
         &hf_ppi_antenna_present_flags,

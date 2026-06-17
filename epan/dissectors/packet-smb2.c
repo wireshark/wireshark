@@ -4278,7 +4278,7 @@ dissect_smb2_error_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *paren
 	proto_tree *tree;
 	proto_item *item = NULL;
 
-	int offset = 0;
+	unsigned offset = 0;
 	int i;
 
 	item = proto_tree_add_item(parent_tree, hf_smb2_error_data, tvb, offset, -1, ENC_NA);
@@ -4810,7 +4810,7 @@ dissect_smb2_notify_data_out(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 {
 	proto_tree *tree = NULL;
 	proto_item *item = NULL;
-	int offset = 0;
+	unsigned offset = 0;
 
 	while (tvb_reported_length_remaining(tvb, offset) > 4) {
 		uint32_t start_offset = offset;
@@ -5655,12 +5655,12 @@ static int dissect_smb2_posix_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
 static void dissect_smb2_posix_directory_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, smb2_info_t *si _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 
 	while (tvb_reported_length_remaining(tvb, offset) > 4) {
-		int old_offset = offset;
+		unsigned old_offset = offset;
 		int next_offset;
 		uint32_t file_name_len;
 
@@ -9736,7 +9736,7 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 static void
 dissect_smb2_read_blob(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	int length = tvb_captured_length_remaining(tvb, offset);
 
 	smb2_pipe_set_file_id(pinfo, si);
@@ -10332,7 +10332,7 @@ dissect_smb2_APP_INSTANCE_buffer_response(tvbuff_t *tvb, packet_info *pinfo _U_,
 static void
 dissect_smb2_svhdx_open_device_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t version;
 	proto_item *item = NULL;
 	proto_item *sub_tree;
@@ -10477,7 +10477,7 @@ dissect_smb2_app_instance_version_buffer_response(tvbuff_t *tvb, packet_info *pi
 static void
 dissect_smb2_posix_buffer_request(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, smb2_info_t *si _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	proto_item *item = NULL;
 
 	item = proto_tree_get_parent(tree);
@@ -10490,7 +10490,7 @@ dissect_smb2_posix_buffer_request(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 static void
 dissect_smb2_posix_buffer_response(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, smb2_info_t *si _U_)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	proto_item *item = NULL;
 
 	item = proto_tree_get_parent(tree);

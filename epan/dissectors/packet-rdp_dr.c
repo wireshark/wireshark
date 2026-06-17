@@ -571,7 +571,7 @@ static int
 dissect_rdpdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree _U_, void *data _U_)
 {
 	proto_item *item;
-	int offset = 0;
+	unsigned offset = 0;
 	proto_tree *tree;
 	//bool packetToServer = rdp_isServerAddressTarget(pinfo);
 

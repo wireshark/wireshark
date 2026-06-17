@@ -138,7 +138,7 @@ static void
 dissect_quake_CCREQ_CONNECT
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	int item_len;
 
 	proto_tree_add_item_ret_length(tree, hf_quake_CCREQ_CONNECT_game,
@@ -154,7 +154,7 @@ static void
 dissect_quake_CCREQ_SERVER_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	int item_len;
 
 	proto_tree_add_item_ret_length(tree, hf_quake_CCREQ_SERVER_INFO_game,
@@ -212,7 +212,7 @@ static void
 dissect_quake_CCREP_SERVER_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	int item_len;
 
 	proto_tree_add_item_ret_length(tree,
@@ -245,7 +245,7 @@ static void
 dissect_quake_CCREP_PLAYER_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	uint32_t colors;
 	uint32_t color_shirt;
 	uint32_t color_pants;
@@ -293,7 +293,7 @@ static void
 dissect_quake_CCREP_RULE_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	int item_len;
 
 	if (tvb_reported_length(tvb) == 0) return;

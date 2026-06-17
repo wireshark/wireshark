@@ -464,7 +464,7 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         conversation_t     *conversation;
         pana_conv_info_t   *pana_info;
         pana_transaction_t *pana_trans;
-        int offset = 0;
+        unsigned offset = 0;
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "PANA");
         col_clear(pinfo->cinfo,   COL_INFO);

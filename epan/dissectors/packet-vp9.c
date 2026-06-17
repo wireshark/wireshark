@@ -87,7 +87,7 @@ dissect_vp9(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data 
     proto_item *vp9_descriptor_item;
     proto_tree *vp9_descriptor_tree = proto_tree_add_subtree(vp9_tree, tvb, 0, 1, ett_vp9_descriptor, &vp9_descriptor_item, "Payload Descriptor");
 
-    int offset = 0;
+    unsigned offset = 0;
 
     /*
           0 1 2 3 4 5 6 7

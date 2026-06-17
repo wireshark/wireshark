@@ -52,7 +52,7 @@ static const value_string cmdvals[] = {
 
 static int
 dissect_ripng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
-    int offset = 0;
+    unsigned offset = 0;
     proto_tree *ripng_tree = NULL, *rte_tree = NULL;
     proto_item *ti, *rte_ti;
 
