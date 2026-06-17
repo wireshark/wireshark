@@ -487,7 +487,6 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 
     /* Make sure we have enough room, even for an oversized Ethernet packet */
     ws_buffer_assure_space(&rec->data, rec->rec_header.packet_header.caplen);
-    pd = ws_buffer_start_ptr(&rec->data);
 
     /*
      * We don't have an FCS in this frame.
