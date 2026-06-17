@@ -15,8 +15,7 @@ Security researchers are an important part of this effort, and we welcome report
 
 The security impact of an issue can usually be determined with the following question:
 
-[quote]
-Does this allow an attacker to ruin someone's day with little to no action on their part?
+> Does this allow an attacker to ruin someone's day with little to no action on their part?
 
 Examples of issues that *do* have a sufficient security impact include:
 
