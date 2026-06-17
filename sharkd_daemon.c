@@ -120,32 +120,56 @@ socket_init(char *path)
 #endif
     } else if (!strncmp(path, "tcp:", 4)) {
 #ifdef SHARKD_TCP_SUPPORT
-        struct sockaddr_in s_in;
+        struct sockaddr_storage s_in;
+        struct sockaddr_in  *s_in4;
+        struct sockaddr_in6 *s_in6;
         int one = 1;
-        char *port_sep;
+        socklen_t addrlen;
         uint16_t port;
+        uint32_t host_ip;
+        bool is_loopback;
 
         path += 4;
 
-        port_sep = strchr(path, ':');
-        if (!port_sep) {
-            fputs("Missing port number in socket path.\n", stderr);
+        if (ws_socket_ptoa(&s_in, path, 0) != 0) {
+            fprintf(stderr, "Invalid socket address and port: \"%s\"\n", path);
             return INVALID_SOCKET;
         }
 
-        *port_sep = '\0';
+        switch(s_in.ss_family) {
+        case AF_INET:
+            s_in4 = (struct sockaddr_in *)&s_in;
+            port = s_in4->sin_port;
+            addrlen = sizeof(struct sockaddr_in);
+            host_ip = g_ntohl(s_in4->sin_addr.s_addr);
+            is_loopback = ((host_ip >> 24) & 0xFF) == 0x7f;
+            break;
+        case AF_INET6:
+            s_in6 = (struct sockaddr_in6 *)&s_in;
+            port = s_in6->sin6_port;
+            addrlen = sizeof(struct sockaddr_in6);
+            is_loopback = IN6_IS_ADDR_LOOPBACK(&s_in6->sin6_addr);
+            break;
+        default:
+            ws_assert_not_reached();
+        }
 
-        if (ws_strtou16(port_sep + 1, NULL, &port) == false) {
-            fputs("Invalid port number.\n", stderr);
+        if (port == 0) {
+            fputs("Missing or invalid port number.\n", stderr);
+            return INVALID_SOCKET;
+        }
+
+        if (!is_loopback) {
+            fputs("For security reasons, only loopback addresses are supported.\n", stderr);
             return INVALID_SOCKET;
         }
 
 #ifdef _WIN32
         /* Need to use WSASocket() to disable overlapped I/O operations,
             this way on windows SOCKET can be used as HANDLE for stdin/stdout */
-        fd = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, 0);
+        fd = WSASocket(s_in.ss_family, SOCK_STREAM, 0, NULL, 0, 0);
 #else
-        fd = socket(AF_INET, SOCK_STREAM, 0);
+        fd = socket(s_in.ss_family, SOCK_STREAM, 0);
 #endif
         if (fd == INVALID_SOCKET) {
             fprintf(stderr, "Failed to open socket: %s\n",
@@ -158,14 +182,9 @@ socket_init(char *path)
             return INVALID_SOCKET;
         }
 
-        s_in.sin_family = AF_INET;
-        ws_inet_pton4(path, (ws_in4_addr *)&(s_in.sin_addr.s_addr));
-        s_in.sin_port = g_htons(port);
-        *port_sep = ':';
-
         setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (void *) &one, sizeof(one));
 
-        if (bind(fd, (struct sockaddr *) &s_in, sizeof(struct sockaddr_in)))
+        if (bind(fd, (struct sockaddr *) &s_in, addrlen))
         {
             fprintf(stderr, "Failed to bind socket: %s\n", g_strerror(errno));
             closesocket(fd);
@@ -218,7 +237,8 @@ print_usage(FILE* output)
     fprintf(output, "    (Unix domain sockets are unavailable on this platform.)\n");
 #endif
 #ifdef SHARKD_TCP_SUPPORT
-    fprintf(output, "    tcp:127.0.0.1:4446    - listen on TCP port 4446\n");
+    fprintf(output, "    tcp:127.0.0.1:4446    - listen on TCP IPv4 loopback port 4446\n");
+    fprintf(output, "    tcp:[::1]:5678        - listen on TCP IPv6 loopback port 5678\n");
 #else
     fprintf(output, "    (TCP sockets are disabled in this build)\n");
 #endif

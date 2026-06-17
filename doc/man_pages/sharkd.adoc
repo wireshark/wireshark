@@ -73,8 +73,11 @@ later, including Windows Server 2019.
 
 *tcp:__address__:__port__*::
 Listen on a TCP socket bound to __address__ on __port__.  For example,
-*tcp:127.0.0.1:4446*.  TCP sockets are only available on Windows builds
-by default for security reasons.
+*tcp:127.0.0.1:4446*.  For IPv6 addreses, enclose the address in square
+brackets, e.g. *tcp:[[::1]:5678*.  For security reasons,TCP sockets are
+only available on Windows builds by default and only loopback addresses
+are supported, i.e. an IPv4 address in the *127.0.0.0/8* address space
+or the *::1* IPv6 loopback address.
 
 If no *-a* option is provided, or if *sharkd -* is used, *sharkd* will
 accept commands via the console (standard input).
