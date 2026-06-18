@@ -67,14 +67,15 @@ Supported socket types:
 *unix:__path__*::
 Listen on a Unix domain socket at __path__.  For example,
 *unix:/tmp/sharkd.sock*.  On Linux, abstract sockets are supported
-by prefixing the name with *@*, for example *unix:@sharkd*.
+by prefixing the name with *@*, for example *unix:@sharkd*; abstract
+sockets only support connections from peers with the same effective UID.
 Unix domain sockets are available on Windows 10 version 1803 and
 later, including Windows Server 2019.
 
 *tcp:__address__:__port__*::
 Listen on a TCP socket bound to __address__ on __port__.  For example,
 *tcp:127.0.0.1:4446*.  For IPv6 addreses, enclose the address in square
-brackets, e.g. *tcp:[[::1]:5678*.  For security reasons,TCP sockets are
+brackets, e.g. *tcp:[[::1]:5678*.  For security reasons, TCP sockets are
 only available on Windows builds by default and only loopback addresses
 are supported, i.e. an IPv4 address in the *127.0.0.0/8* address space
 or the *::1* IPv6 loopback address.

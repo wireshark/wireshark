@@ -147,6 +147,9 @@ if(UNIX)
 	check_symbol_exists("vasprintf"     "stdio.h"    HAVE_VASPRINTF)
 	cmake_pop_check_state()
 endif()
+if(HAVE_SYS_SOCKET_H)
+	check_symbol_exists(SO_PEERCRED "sys/socket.h" HAVE_SO_PEERCRED)
+endif()
 
 #Struct members
 include(CheckStructHasMember)

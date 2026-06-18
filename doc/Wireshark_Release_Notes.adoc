@@ -136,8 +136,10 @@ The following features are either new or have been significantly updated since v
 Dumpcap's TCP@host:port interface has been removed.
 
 Sharkd only supports binding to a loopback IPv4 or IPv6 address when listening
-on a TCP socket. (TCP sockets are only available when UNIX domain sockets are
-unsupported. IPv6 support is new.)
+on a TCP socket. (TCP sockets are only available by default on Windows systems,
+and are deprecated, since UNIX domain sockets are now supported. IPv6 support
+is new.) Sharkd now rejects connecting to a Linux abstract domain socket from
+peer processes with effective UID other than that of the sharkd process.
 
 The individual color preferences under menu:Appearance[] (marked and ignored packets, "Follow Stream" client and server text, display filter validity, and the selected packet) have been removed. These colors are now provided by the selected theme; see the "What's New" section above.
 

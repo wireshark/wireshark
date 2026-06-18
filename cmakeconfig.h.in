@@ -285,6 +285,9 @@
 /* Define to 1 if you have the Sparkle or WinSparkle library */
 #cmakedefine HAVE_SOFTWARE_UPDATE 1
 
+/* Define to 1 if you have the SO_PEERCRED socket option. */
+#cmakedefine HAVE_SO_PEERCRED 1
+
 /* Define if you have the 'strptime' function. */
 #cmakedefine HAVE_STRPTIME 1
 

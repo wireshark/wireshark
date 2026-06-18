@@ -11,6 +11,9 @@
  */
 
 #include "config.h"
+#if HAVE_SO_PEERCRED
+#define _GNU_SOURCE // For struct ucred on Linux
+#endif
 #include "socket.h"
 
 #include <stdlib.h>
@@ -147,4 +150,26 @@ ws_socket_ptoa(struct sockaddr_storage *dst, const char *src,
 out:
     g_free(addr_src);
     return ret;
+}
+
+#if HAVE_SO_PEERCRED
+bool ws_verify_peercred(socket_handle_t sock) {
+    struct ucred cred;
+    socklen_t len = sizeof(struct ucred);
+
+    if (getsockopt(sock, SOL_SOCKET, SO_PEERCRED, &cred, &len) == -1) {
+        return false;
+    }
+
+    return geteuid() == cred.uid;
+#else
+bool ws_verify_peercred(socket_handle_t sock _U_) {
+    /* There are various other ways to do this in the BSDs, Solaris, macOS,
+     * AIX, etc. (mostly getpeereid()), and Windows, now that it supports
+     * Unix domain sockets through an implementation as Named Pipes, might
+     * support a way to retrieve the user credentials of the peer too.
+     * However, we only use this right now for abstract domain sockets,
+     * which we only supports under Linux (and only Linux supports). */
+    return false;
+#endif
 }

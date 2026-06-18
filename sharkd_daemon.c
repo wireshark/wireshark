@@ -65,6 +65,7 @@
 
 static int mode;
 static socket_handle_t _server_fd = INVALID_SOCKET;
+static bool abstract_socket;
 
 static socket_handle_t
 socket_init(char *path)
@@ -105,8 +106,11 @@ socket_init(char *path)
 
         s_un_len = (socklen_t)(offsetof(struct sockaddr_un, sun_path) + strlen(s_un.sun_path));
 
-        if (s_un.sun_path[0] == '@')
+        if (s_un.sun_path[0] == '@') {
+            // Linux-only, but just let bind fail on other OSes.
             s_un.sun_path[0] = '\0';
+            abstract_socket = true;
+        }
 
         if (bind(fd, (struct sockaddr *) &s_un, s_un_len))
         {
@@ -444,6 +448,15 @@ sharkd_loop(int argc _U_, char* argv[])
         {
             fprintf(stderr, "cannot accept(): %s\n", g_strerror(errno));
             continue;
+        }
+
+        if (abstract_socket)
+        {
+            if (!ws_verify_peercred(fd)) {
+                fprintf(stderr, "Unauthorized access. Terminating connection.\n");
+                closesocket(fd);
+                continue;
+            }
         }
 
         /* wireshark is not ready for handling multiple capture files in single process, so fork(), and handle it in separate process */
