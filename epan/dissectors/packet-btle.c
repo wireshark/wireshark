@@ -2520,7 +2520,7 @@ dissect_ad_eir(tvbuff_t *tvb, uint32_t interface_id, uint32_t adapter_id, uint32
             break;
         length = tvb_get_uint8(tvb, offset);
         ++offset;
-        if (length <= 0)
+        if (length == 0)
             continue;
         --remain;
         if (remain < length)

@@ -366,7 +366,6 @@ typedef struct _cotp_flow_info_t {
   uint16_t frag_id;
   bool ref_set; // False if didn't get the CC/CR TPDU
   bool last_fragment;
-  bool frame_reset;
 } cotp_flow_info_t;
 
 typedef struct _cotp_conv_info_t {
@@ -1252,7 +1251,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
      * - Reassembly option for COTP in preferences is unchecked
      * - Reassembly option is checked and this packet is the last fragment
      */
-    if ((!cotp_reassemble) || ((cotp_reassemble) && (!fragment))) {
+    if (!cotp_reassemble || !fragment) {
       if (dissector_try_heuristic(cotp_heur_subdissector_list, next_tvb, pinfo,
                                   tree, &hdtbl_entry, NULL)) {
         *subdissector_found = true;

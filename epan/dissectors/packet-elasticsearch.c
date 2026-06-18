@@ -133,7 +133,7 @@ static const value_string status_flag_message_type[] = {
 };
 
 static void elasticsearch_format_version(char *buf, uint32_t value) {
-    snprintf(buf, ELASTICSEARCH_VERSION_LABEL_LENGTH, "%d.%d.%d (%d)", (value / 1000000) % 100,
+    snprintf(buf, ELASTICSEARCH_VERSION_LABEL_LENGTH, "%d.%d.%d (%u)", (value / 1000000) % 100,
             (value / 10000) % 100, (value/ 100) % 100, value);
 }
 

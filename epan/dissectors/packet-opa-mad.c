@@ -7545,7 +7545,7 @@ static int parse_GetFocusPorts(proto_tree *parentTree, tvbuff_t *tvb, unsigned *
 /* Parse GetImageInfo MAD from the Performance Admin class. */
 static int parse_GetImageInfo(proto_tree *parentTree, tvbuff_t *tvb, unsigned *offset)
 {
-    proto_tree *GetImageInfo_header_tree = parentTree;
+    proto_tree *GetImageInfo_header_tree;
     proto_item *GetImageInfo_header_item;
     proto_tree *GetImageInfo_SM_tree;
     uint32_t numSMs;

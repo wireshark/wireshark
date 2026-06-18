@@ -681,7 +681,7 @@ dispVersion(char* result, uint32_t version)
 static void dispTimeout(char* result, uint32_t timeout)
 {
     if (timeout != 0)
-        snprintf(result, ITEM_LABEL_LENGTH, "%d seconds", timeout);
+        snprintf(result, ITEM_LABEL_LENGTH, "%u seconds", timeout);
     else
         snprintf(result, ITEM_LABEL_LENGTH, "Disabled");
 }

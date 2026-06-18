@@ -99,7 +99,7 @@ tvb_atalkid_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset)
 
   cur=(char *)wmem_alloc(scope, 16);
   node=tvb_get_uint8(tvb, offset+1)<<8|tvb_get_uint8(tvb, offset+2);
-  snprintf(cur, 16, "%d.%d",node,tvb_get_uint8(tvb, offset+3));
+  snprintf(cur, 16, "%u.%u", node, tvb_get_uint8(tvb, offset+3));
   return cur;
 }
 

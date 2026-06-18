@@ -19278,11 +19278,11 @@ static int dissect_DIS_PARSER_SIGNAL_PDU(tvbuff_t *tvb, packet_info *pinfo, prot
         dis_info->info_payload_type = (uint8_t)DIS_ENCODING_TYPE(encodingScheme);
         dis_info->info_payload_type_str = val_to_str_const(DIS_ENCODING_TYPE(encodingScheme),
             DIS_PDU_Signal_Encoding_Type_Strings, "Unknown");
-    }
-    if ((encodingScheme & 0xC000) >> 14 == DIS_ENCODING_CLASS_ENCODED_AUDIO)
+
         col_append_fstr(pinfo->cinfo, COL_INFO,", Encoding Type=%s",
             val_to_str_const(DIS_ENCODING_TYPE(encodingScheme),
             DIS_PDU_Signal_Encoding_Type_Strings, "Unknown"));
+    }
 
     ti = proto_tree_add_item(tree, hf_dis_ens, tvb, offset, 2, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(ti, ett_dis_ens);

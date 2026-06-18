@@ -372,7 +372,7 @@ cms_get_private_data(packet_info *pinfo)
 static void
 cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff_t *tvb, int offset)
 {
-  int i= 0, buffer_size = 0;
+  int i, buffer_size = 0;
 
   /* we only support two algorithms at the moment  - if we do add SHA2
      we should add a registration process to use a registration process */

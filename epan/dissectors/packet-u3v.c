@@ -1439,7 +1439,7 @@ dissect_u3v_write_mem_cmd(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_i
 static void
 dissect_u3v_event_cmd(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, int startoffset, int length)
 {
-    int32_t eventid;
+    uint32_t eventid;
     int offset = startoffset;
     proto_item *item = NULL;
 
@@ -1456,7 +1456,7 @@ dissect_u3v_event_cmd(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info 
     offset += 2;
 
     /* Use range to determine type of event */
-    if ((eventid >= 0x0000) && (eventid <= 0x8000)) {
+    if (eventid <= 0x8000) {
         /* Standard ID */
         proto_tree_add_item(u3v_telegram_tree, hf_u3v_eventcmd_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     } else if ((eventid >= 0x8001) && (eventid <= 0x8FFF)) {

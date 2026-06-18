@@ -8506,7 +8506,7 @@ static int dissect_oap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         offset = dof_dissect_pdu_as_field(dissect_2009_11_type_4, tvb, pinfo, oap_tree,
                                           offset, hf_oap_1_objectid, ett_oap_1_objectid, NULL);
 
-        if (alias_length && !packet_data->processed)
+        if (!packet_data->processed)
         {
             uint32_t alias;
             oap_1_binding *binding = wmem_new0(wmem_file_scope(), oap_1_binding);
@@ -9393,7 +9393,7 @@ static int dissect_tep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             offset = dof_dissect_pdu_as_field(dissect_2008_16_security_5, tvb, pinfo, tep_tree,
                                               offset, hf_tep_2_2_initiator_ticket, ett_tep_2_2_initiator_ticket, NULL);
 
-            if (!packet->processed && rekey_data)
+            if (!packet->processed)
             {
                 int i;
 
@@ -9459,7 +9459,7 @@ static int dissect_tep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         /* Responder Initialization - present based on whether the command was a rekey */
         {
 
-            if (rekey_data && rekey_data->is_rekey)
+            if (rekey_data->is_rekey)
             {
                 int block_length;
                 tvbuff_t *start = tvb_new_subset_remaining(tvb, offset);

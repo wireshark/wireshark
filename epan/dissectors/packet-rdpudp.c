@@ -247,7 +247,6 @@ rdp_isServerAddressTarget(packet_info *pinfo)
 	if (pinfo->ptype == PT_UDP) {
 		rdpudp_info = (rdpudp_conv_info_t *)conversation_get_proto_data(conv, proto_rdpudp);
 		if (!rdpudp_info) {
-			printf("%d: no proto_rdpudp info found, returning false\n", pinfo->num);
 			return false;
 		}
 
@@ -256,7 +255,6 @@ rdp_isServerAddressTarget(packet_info *pinfo)
 
 	rdp_info = (rdp_conv_info_t *)conversation_get_proto_data(conv, proto_rdp);
 	if (!rdp_info) {
-		printf("%d: no proto_rdp info found, returning false\n", pinfo->num);
 		return false;
 	}
 
@@ -308,9 +306,7 @@ dissect_rdpudp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 			conv->server_port = pinfo->destport;
 		}
 		col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "SYN");
-	}
 
-	if (flags & RDPUDP_SYN) {
 		proto_tree_add_item(tree, hf_rdpudp_snInitialSequenceNumber, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		proto_tree_add_item(tree, hf_rdpudp_upstreamMtu, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -397,10 +393,9 @@ dissect_rdpudp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 		col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "AOA");
 	}
 
-	if (flags & RDPUDP_DATA)
+	if (flags & RDPUDP_DATA) {
 		col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "DATA");
 
-	if (flags & RDPUDP_DATA) {
 		proto_tree *data_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rdpudp_data, NULL, "Data");
 		dissector_handle_t target_dissector;
 
@@ -689,7 +684,6 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 		data_tvb = tvb_new_composite();
 
 		if (chunk) {
-			//printf("%d: %ld preappending %d bytes\n", pinfo->num, *seqPtr, tvb_captured_length_remaining(chunk, 0));
 			tvb_composite_prepend(data_tvb, chunk);
 		}
 
@@ -717,9 +711,6 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 				}
 				chunk = tvb_clone_offset_len(data_tvb, pinfo->desegment_offset, remaining);
 				wmem_tree_insert32(targetTree, (uint32_t)(*seqPtr + 1), chunk);
-				//printf("%d: %ld inserting new chunk len=%d for %ld\n", pinfo->num, *seqPtr, tvb_captured_length_remaining(chunk, 0), *seqPtr + 1);
-			} else {
-				printf("%d: 0 bytes remaining but pinfo->desegment_len=%d\n", pinfo->num, pinfo->desegment_len);
 			}
 		}
 

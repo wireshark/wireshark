@@ -901,7 +901,7 @@ static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     uint16_t second_message_type = UINT16_MAX;
     uint16_t proto_version;
     uint32_t dplay_id;
-    uint8_t play_id[] = {'p','l','a','y'};
+    const uint8_t play_id[] = {'p','l','a','y'};
 
     dplay_id = tvb_get_letohl(tvb, 20);
     message_type = tvb_get_letohs(tvb, 24);

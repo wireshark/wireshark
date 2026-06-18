@@ -2886,7 +2886,7 @@ dcm_tag_lookup(uint16_t grp, uint16_t elm)
             tag_def = (dcm_tag_t const *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER(((uint32_t)grp << 16) | (elm & 0x000F)));
         }
         else if (grp == 0x1010) {
-            tag_def = (dcm_tag_t const *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER(((uint32_t)grp << 16) | (elm & 0x0000)));
+            tag_def = (dcm_tag_t const *)wmem_map_lookup(dcm_tag_table, GUINT_TO_POINTER(((uint32_t)grp << 16)));
         }
 
         if (tag_def == NULL) {

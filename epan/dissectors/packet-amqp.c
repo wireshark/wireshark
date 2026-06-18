@@ -10881,7 +10881,6 @@ format_amqp_0_10_sequence_set(tvbuff_t *tvb, unsigned offset, unsigned length,
                                tvb_get_ntohl(tvb, offset + 4),
                                (i < (values - 2)) ? ", " : "");
         offset += 8;
-        length -= 8;
     }
     proto_item_append_text(item, "]");
 }

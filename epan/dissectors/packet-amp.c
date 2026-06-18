@@ -210,7 +210,6 @@ static cborObj cbor_info(tvbuff_t *tvb, unsigned offset)
 {
     int tmp = 0;
     cborObj ret;
-    ret.type = CBOR_UNKNOWN;
     ret.size = 0;
     ret.totalSize = 0;
     ret.uint = -1;

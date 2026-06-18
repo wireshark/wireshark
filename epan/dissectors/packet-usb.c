@@ -1795,7 +1795,7 @@ static int usb_addr_to_str(const address* addr, char *buf, int buf_len _U_)
     if(pletohu32(&addrp[0])==0xffffffff){
         (void) g_strlcpy(buf, "host", buf_len);
     } else {
-        snprintf(buf, buf_len, "%d.%d.%d", pletohu16(&addrp[8]),
+        snprintf(buf, buf_len, "%u.%u.%u", pletohu16(&addrp[8]),
                         pletohu32(&addrp[0]), pletohu32(&addrp[4]) & 0x0f);
     }
 

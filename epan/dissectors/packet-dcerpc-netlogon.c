@@ -9994,7 +9994,7 @@ static const value_string seal_algs[] = {
 
 static int get_seal_key(const uint8_t *session_key,int key_len,uint8_t* seal_key)
 {
-    uint8_t zero_sk[16] = { 0 };
+    const uint8_t zero_sk[16] = { 0 };
 
     memset(seal_key,0,16);
     if(memcmp(session_key,zero_sk,16)) {
@@ -10053,7 +10053,7 @@ static uint64_t uncrypt_sequence_aes(uint8_t* session_key,uint64_t checksum,uint
 
 static uint64_t uncrypt_sequence_md5(uint8_t* session_key,uint64_t checksum,uint64_t enc_seq,unsigned char is_server _U_)
 {
-    uint8_t zeros[4] = { 0 };
+    const uint8_t zeros[4] = { 0 };
     uint8_t buf[HASH_MD5_LENGTH];
     uint8_t key[HASH_MD5_LENGTH];
     gcry_cipher_hd_t rc4_handle;

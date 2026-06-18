@@ -1244,8 +1244,8 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
     proto_item  *capabilities_item;
     proto_tree  *service_tree                                 = NULL;
     proto_item  *service_item                                 = NULL;
-    int         service_category                              = 0;
-    int         losc                                          = 0;
+    int         service_category;
+    int         losc;
     uint8_t     recovery_type;
     uint8_t     maximum_recovery_window_size;
     uint8_t     maximum_number_of_media_packet_in_parity_code;

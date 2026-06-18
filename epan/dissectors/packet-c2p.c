@@ -1907,7 +1907,7 @@ static void channel_format(char* string, uint32_t value)
     static const uint8_t CHANNEL_NA = 0U;
 
     if(CHANNEL_NA == value) {
-        snprintf(string, ITEM_LABEL_LENGTH, "Unavailable (%d)", value);
+        snprintf(string, ITEM_LABEL_LENGTH, "Unavailable (%u)", value);
     } else {
         snprintf(string, ITEM_LABEL_LENGTH, "%u", value);
     }
@@ -1918,7 +1918,7 @@ static void datarate_format(char* string, uint32_t value)
     static const uint8_t DATARATE_NA = 0U;
 
     if(DATARATE_NA == value) {
-        snprintf(string, ITEM_LABEL_LENGTH, "Unavailable (%d)", value);
+        snprintf(string, ITEM_LABEL_LENGTH, "Unavailable (%u)", value);
     } else {
         static const uint32_t DATARATE_500_KBPS_TO_KBPS_FACTOR = 500UL;
         uint32_t value_kbps = value * DATARATE_500_KBPS_TO_KBPS_FACTOR;

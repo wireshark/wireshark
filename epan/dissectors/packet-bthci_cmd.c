@@ -11575,7 +11575,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
     proto_tree  *sub_tree;
     int          offset = 0;
     int          offset_start;
-    uint8_t      length;
+    int          length;
     uint8_t      sub_length;
     uint8_t      type;
     uint8_t      flags;
@@ -11592,7 +11592,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
     data_size = tvb_reported_length(tvb);
 
     while (offset < data_size) {
-        length = tvb_get_uint8(tvb, offset);
+        length = (int)tvb_get_uint8(tvb, offset);
         if (length <= 0) break;
 
         type = tvb_get_uint8(tvb, offset + 1);

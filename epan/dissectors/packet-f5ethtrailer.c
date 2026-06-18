@@ -4352,7 +4352,7 @@ dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     while (tvb_captured_length_remaining(tvb, offset)) {
         object = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &objlen, ENC_ASCII);
 
-        if (objlen <= 0 || object == NULL)
+        if (objlen == 0 || object == NULL)
             break;
 
         if (strncmp(object, "CMD: ", 5) == 0) {

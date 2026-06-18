@@ -319,7 +319,7 @@ convert_oid_to_str(uint32_t *oid, int len, char* str, int slen, char prefix)
 	}
 
 	for(i=0; i < len && tlen < slen; i++) {
-		tlen += snprintf(str+tlen, slen-tlen, ".%d", oid[i]);
+        tlen += snprintf(str+tlen, slen-tlen, ".%u", oid[i]);
 	}
 	return tlen;
 }

@@ -575,7 +575,7 @@ dissect_btlmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         ++offset;
         proto_tree_add_item(btlmp_tree, hf_param_namelength, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
-        if (tvb_captured_length_remaining(tvb, offset) <= 0)
+        if (tvb_captured_length_remaining(tvb, offset) == 0)
             break;
         proto_tree_add_item(btlmp_tree, hf_param_namefragment, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
         offset = tvb_reported_length(tvb);
