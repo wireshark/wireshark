@@ -109,11 +109,17 @@ heur_dissect_hipercontracer(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
   if ( (sendTimeStamp < UINT64_C(1451602800000000000)) ||
        (sendTimeStamp > UINT64_C(4102441199999999999)) )
     return false;
+  // Now that nanoseconds are used, this test accepts some 14.37% of
+  // packets with a length of 16 octets.
 
-  // XXX - If there are more than 16 octets, do the remaining bytes have
-  // any known values? The time stamp heuristic is very weak now that
-  // nanoseconds are allowed. (It accepts some 14.37% of packets, one
-  // thousand times as many as before.)
+  // https://github.com/dreibh/hipercontracer/blob/master/src/traceserviceheader.h
+  // After the 16 octets of mandatory header, up to the next 48 octets are 0.
+  unsigned offset = tvb_skip_uint8(message_tvb, 16, 64, '\0');
+  if (offset != MIN(64U, length))
+    return false;
+
+  // Any remaining octets starting with offset 64 are equal in value to the
+  // offset; we don't test that yet.
 
   col_append_sep_fstr(pinfo->cinfo, COL_PROTOCOL, NULL, "HiPerConTracer");
 
