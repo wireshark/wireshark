@@ -1373,8 +1373,9 @@ Code Lines and Data:
     - . /tmp/fuzz_result.sh
     - if $FUZZ_PASSED ; then exit 0 ; fi
     - echo Fuzzing failed. Generating report.
-    - FUZZ_CAPTURE=$( find /tmp/fuzz -name "fuzz-*.pcap" -o -name "randpkt-*.pcap" | head -n 1 )
-    - FUZZ_ERRORS="/tmp/fuzz/$( basename "$FUZZ_CAPTURE" .pcap ).err"
+    - cd /tmp/fuzz
+    - FUZZ_CAPTURE=$( basename $( find . -name "fuzz-*.pcap" -o -name "randpkt-*.pcap" | head -n 1 ) )
+    - FUZZ_ERRORS="$( basename "$FUZZ_CAPTURE" .pcap ).err"
     - printf "\nfuzz-test.sh stderr:\n" >> "$FUZZ_ERRORS"
     - cat fuzz-test.err >> "$FUZZ_ERRORS"
     - rclone config create wireshark $WS_RCLONE_REMOTE_OPTS > /dev/null
