@@ -778,6 +778,197 @@ blf_logcontainers_search(const void *a, const void *b) {
     }
 }
 
+#ifdef USE_ZLIB_OR_ZLIBNG
+
+static uint8_t*
+blf_decompress_zlib(const uint8_t *compressed_data, unsigned compressed_len, uint64_t decompressed_len, int *err, char **err_info)
+{
+    /* decompressed_len is just read from packet data, and could be bogus.
+     * It's stored in real_length as a 64-bit integer, but appears to
+     * be read from packet data as a 32-bit quantity only. In any case,
+     * we only allocate a 32-bit chunk at a time, and zlib/zlib-ng only
+     * allow avail_out to be a 32-bit unsigned integer. */
+    uint32_t bufsize;
+
+    /* z_stream->total_out is an unsigned long in Zlib, which is always
+     * 32-bits on Windows (LLP). In Zlib-ng it's a size_t, which is 32-bits
+     * on 32-bit platforms. */
+    uint64_t total_out = 0;
+
+    /* blf_pull_logcontainer_into_memory already checks for 0 */
+    ws_assert(decompressed_len != 0);
+
+    /* blf_pull_logcontainer_into_memory already checks for 0 by
+     * checking the return value of g_[try_]malloc. */
+    ws_assert(compressed_len != 0);
+
+    /* Typical compression ratios are between 2:1-5:1; the theoretical max
+     * is somewhat above 1030:1; depending on what's being compressed, that
+     * could actually be legitimate (sometimes there are long runs of zeros),
+     * but we might want to just refuse past a certain point. Since the
+     * decompressed_len in reality seems to be 32-bit, that imposes a limit. */
+    uint64_t ratio = decompressed_len / compressed_len;
+    if (ratio > 1032) {
+        /* This is just impossible, so go ahead and stop now. */
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("blf: uncompressed data has wrong length (%" PRIu64 " with a compressed size of %u is a compression ratio of %" PRIu64 ", greater than the theoretical max of 1032)", decompressed_len, compressed_len, ratio);
+        return NULL;
+    } else if (ratio > 5) {
+        if (ckd_mul(&bufsize, compressed_len, 5)) {
+            bufsize = UINT_MAX;
+        }
+    } else {
+        bufsize = (unsigned)MIN(decompressed_len, UINT_MAX);
+    }
+
+    unsigned char *buf = g_try_malloc(bufsize);
+    if (buf == NULL) {
+        *err = WTAP_ERR_INTERNAL;
+        *err_info = ws_strdup("blf: cannot allocate memory");
+        return NULL;
+    }
+    zlib_stream infstream = {0};
+
+    infstream.avail_in  = compressed_len;
+    infstream.next_in   = compressed_data;
+
+    /* the actual DE-compression work. */
+    if (Z_OK != ZLIB_PREFIX(inflateInit)(&infstream)) {
+        /*
+         * XXX - check the error code and handle this appropriately.
+         */
+        g_free(buf);
+        *err = WTAP_ERR_INTERNAL;
+        if (infstream.msg != NULL) {
+            *err_info = ws_strdup_printf("blf: inflateInit failed for LogContainer, message\"%s\"",
+                                          infstream.msg);
+        } else {
+            *err_info = ws_strdup("blf: inflateInit failed for LogContainer");
+        }
+        ws_debug("inflateInit failed for LogContainer");
+        if (infstream.msg != NULL) {
+            ws_debug("inflateInit returned: \"%s\"", infstream.msg);
+        }
+        return NULL;
+    }
+
+    int ret;
+
+
+    do {
+        infstream.avail_out = bufsize;
+        infstream.next_out  = &buf[total_out];
+        ret = ZLIB_PREFIX(inflate)(&infstream, Z_NO_FLUSH);
+
+        switch (ret) {
+        case Z_OK:
+        case Z_STREAM_END:
+            total_out += (bufsize - infstream.avail_out);
+
+            /* Presumably need more space. */
+            if (total_out > decompressed_len) {
+                /* Decompressed more bytes than claimed. */
+                g_free(buf);
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = ws_strdup_printf("blf: uncompressed data has wrong length (%" PRIu64 " > %" PRIu64")", total_out, decompressed_len);
+                return NULL;
+            }
+            if (infstream.avail_out == 0) {
+                /* Increase the total buffer */
+                bufsize = (uint32_t)MIN(total_out, UINT32_MAX);
+                bufsize = (uint32_t)MIN(decompressed_len - total_out, bufsize);
+
+                buf = (uint8_t*)g_realloc(buf, total_out + bufsize);
+            }
+            continue;
+
+        case Z_NEED_DICT:
+            *err = WTAP_ERR_DECOMPRESS;
+            *err_info = ws_strdup("blf: preset dictionary needed to decompress");
+            break;
+
+        case Z_STREAM_ERROR:
+            *err = WTAP_ERR_INTERNAL;
+            *err_info = ws_strdup_printf("blf: Z_STREAM_ERROR from inflate(), message \"%s\"",
+                                         (infstream.msg != NULL) ? infstream.msg : "(none)");
+            break;
+
+        case Z_MEM_ERROR:
+            /* This means "not enough memory". */
+            *err = ENOMEM;
+            *err_info = NULL;
+            break;
+
+        case Z_DATA_ERROR:
+            /* This means "deflate stream invalid" */
+            *err = WTAP_ERR_DECOMPRESS;
+            *err_info = (infstream.msg != NULL) ? ws_strdup(infstream.msg) : NULL;
+            break;
+
+        case Z_BUF_ERROR:
+            /* XXX - this is recoverable; what should we do here? */
+            *err = WTAP_ERR_INTERNAL;
+            *err_info = ws_strdup_printf("blf: Z_BUF_ERROR from inflate(), message \"%s\"",
+                                         (infstream.msg != NULL) ? infstream.msg : "(none)");
+            break;
+
+        case Z_VERSION_ERROR:
+            *err = WTAP_ERR_INTERNAL;
+            *err_info = ws_strdup_printf("blf: Z_VERSION_ERROR from inflate(), message \"%s\"",
+                                         (infstream.msg != NULL) ? infstream.msg : "(none)");
+            break;
+
+        default:
+            *err = WTAP_ERR_INTERNAL;
+            *err_info = ws_strdup_printf("blf: unexpected error %d from inflate(), message \"%s\"",
+                                         ret,
+                                         (infstream.msg != NULL) ? infstream.msg : "(none)");
+            break;
+        }
+        g_free(buf);
+        ws_debug("inflate failed (return code %d) for LogContainer", ret);
+        if (infstream.msg != NULL) {
+            ws_debug("inflate returned: \"%s\"", infstream.msg);
+        }
+        /* Free up any dynamically-allocated memory in infstream */
+        ZLIB_PREFIX(inflateEnd)(&infstream);
+        return NULL;
+    } while (ret != Z_STREAM_END);
+
+    if (total_out < decompressed_len) {
+        /* Decompressed fewer bytes than claimed. */
+        g_free(buf);
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("blf: uncompressed data has wrong length (%" PRIu64 " > %" PRIu64")", total_out, decompressed_len);
+        return NULL;
+    }
+
+    if (Z_OK != ZLIB_PREFIX(inflateEnd)(&infstream)) {
+        /*
+         * The zlib manual says this only returns Z_OK on success
+         * and Z_STREAM_ERROR if the stream state was inconsistent.
+         *
+         * It's not clear what useful information can be reported
+         * for Z_STREAM_ERROR; a look at the 1.2.11 source indicates
+         * that no string is returned to indicate what the problem
+         * was.
+         *
+         * It's also not clear what to do about infstream if this
+         * fails.
+         */
+        *err = WTAP_ERR_INTERNAL;
+        *err_info = ws_strdup("blf: inflateEnd failed for LogContainer");
+        g_free(buf);
+        ws_debug("inflateEnd failed for LogContainer");
+        if (infstream.msg != NULL) {
+            ws_debug("inflateEnd returned: \"%s\"", infstream.msg);
+        }
+        return NULL;
+    }
+    return buf;
+}
+#endif /* USE_ZLIB_OR_ZLIBNG */
+
 /** Ensures the given log container is in memory
  *
  * If the log container already is not already in memory,
@@ -886,6 +1077,9 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
 #ifdef USE_ZLIB_OR_ZLIBNG
         unsigned char *compressed_data = g_try_malloc((size_t)data_length);
         if (compressed_data == NULL) {
+            /* g_try_malloc returns NULL if data_length is 0. Can data_length
+             * be zero, and in a way that we should just skip it, as above if
+             * the decompressed length is 0? */
             *err = WTAP_ERR_INTERNAL;
             *err_info = ws_strdup("blf_pull_logcontainer_into_memory: cannot allocate memory");
             return false;
@@ -903,126 +1097,11 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
             return false;
         }
 
-        unsigned char *buf = g_try_malloc((size_t)container->real_length);
-        if (buf == NULL) {
-            g_free(compressed_data);
-            *err = WTAP_ERR_INTERNAL;
-            *err_info = ws_strdup("blf_pull_logcontainer_into_memory: cannot allocate memory");
-            return false;
-        }
-        zlib_stream infstream = {0};
-
-        infstream.avail_in  = (unsigned int)data_length;
-        infstream.next_in   = compressed_data;
-        infstream.avail_out = (unsigned int)container->real_length;
-        infstream.next_out  = buf;
-
-        /* the actual DE-compression work. */
-        if (Z_OK != ZLIB_PREFIX(inflateInit)(&infstream)) {
-            /*
-             * XXX - check the error code and handle this appropriately.
-             */
-            g_free(buf);
-            g_free(compressed_data);
-            *err = WTAP_ERR_INTERNAL;
-            if (infstream.msg != NULL) {
-                *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: inflateInit failed for LogContainer, message\"%s\"",
-                                              infstream.msg);
-            } else {
-                *err_info = ws_strdup("blf_pull_logcontainer_into_memory: inflateInit failed for LogContainer");
-            }
-            ws_debug("inflateInit failed for LogContainer");
-            if (infstream.msg != NULL) {
-                ws_debug("inflateInit returned: \"%s\"", infstream.msg);
-            }
-            return false;
-        }
-
-        int ret = ZLIB_PREFIX(inflate)(&infstream, Z_NO_FLUSH);
-        /* Z_OK should not happen here since we know how big the buffer should be */
-        if (Z_STREAM_END != ret) {
-            switch (ret) {
-
-            case Z_NEED_DICT:
-                *err = WTAP_ERR_DECOMPRESS;
-                *err_info = ws_strdup("preset dictionary needed");
-                break;
-
-            case Z_STREAM_ERROR:
-                *err = WTAP_ERR_INTERNAL;
-                *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: Z_STREAM_ERROR from inflate(), message \"%s\"",
-                                             (infstream.msg != NULL) ? infstream.msg : "(none)");
-                break;
-
-            case Z_MEM_ERROR:
-                /* This means "not enough memory". */
-                *err = ENOMEM;
-                *err_info = NULL;
-                break;
-
-            case Z_DATA_ERROR:
-                /* This means "deflate stream invalid" */
-                *err = WTAP_ERR_DECOMPRESS;
-                *err_info = (infstream.msg != NULL) ? ws_strdup(infstream.msg) : NULL;
-                break;
-
-            case Z_BUF_ERROR:
-                /* XXX - this is recoverable; what should we do here? */
-                *err = WTAP_ERR_INTERNAL;
-                *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: Z_BUF_ERROR from inflate(), message \"%s\"",
-                                             (infstream.msg != NULL) ? infstream.msg : "(none)");
-                break;
-
-            case Z_VERSION_ERROR:
-                *err = WTAP_ERR_INTERNAL;
-                *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: Z_VERSION_ERROR from inflate(), message \"%s\"",
-                                             (infstream.msg != NULL) ? infstream.msg : "(none)");
-                break;
-
-            default:
-                *err = WTAP_ERR_INTERNAL;
-                *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: unexpected error %d from inflate(), message \"%s\"",
-                                             ret,
-                                             (infstream.msg != NULL) ? infstream.msg : "(none)");
-                break;
-            }
-            g_free(buf);
-            g_free(compressed_data);
-            ws_debug("inflate failed (return code %d) for LogContainer", ret);
-            if (infstream.msg != NULL) {
-                ws_debug("inflate returned: \"%s\"", infstream.msg);
-            }
-            /* Free up any dynamically-allocated memory in infstream */
-            ZLIB_PREFIX(inflateEnd)(&infstream);
-            return false;
-        }
-
-        if (Z_OK != ZLIB_PREFIX(inflateEnd)(&infstream)) {
-            /*
-             * The zlib manual says this only returns Z_OK on success
-             * and Z_STREAM_ERROR if the stream state was inconsistent.
-             *
-             * It's not clear what useful information can be reported
-             * for Z_STREAM_ERROR; a look at the 1.2.11 source indicates
-             * that no string is returned to indicate what the problem
-             * was.
-             *
-             * It's also not clear what to do about infstream if this
-             * fails.
-             */
-            *err = WTAP_ERR_INTERNAL;
-            *err_info = ws_strdup("blf_pull_logcontainer_into_memory: inflateEnd failed for LogContainer");
-            g_free(buf);
-            g_free(compressed_data);
-            ws_debug("inflateEnd failed for LogContainer");
-            if (infstream.msg != NULL) {
-                ws_debug("inflateEnd returned: \"%s\"", infstream.msg);
-            }
-            return false;
-        }
-
+        container->real_data = blf_decompress_zlib(compressed_data, (unsigned)data_length, container->real_length, err, err_info);
         g_free(compressed_data);
-        container->real_data = buf;
+        if (container->real_data == NULL) {
+            return false;
+        }
         return true;
 #else /* USE_ZLIB_OR_ZLIBNG */
         (void) params;
