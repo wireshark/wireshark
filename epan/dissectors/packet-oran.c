@@ -3941,7 +3941,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                     ext11_settings.bundles[b].end,
                                                     ext11_settings.bundles[b].is_orphan,
                                                     symbol_count,
-                                                    (link_planes_together) ? &dl_data_section->details[index_to_use] : NULL,
+                                                    (link_planes_together && dl_data_section) ? &dl_data_section->details[index_to_use] : NULL,
                                                     tap_info);
                         if (!offset) {
                             break;
