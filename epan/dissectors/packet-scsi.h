@@ -135,7 +135,7 @@ typedef struct _scsi_cdb_table_t {
 
 void dissect_spc_inquiry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, uint32_t payload_len, scsi_task_data_t *cdata);
 void dissect_spc_logselect(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc_logsense(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_logsense(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc_mgmt_protocol_in(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc_modeselect6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len, scsi_task_data_t *cdata);
 void dissect_spc_modesense6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len, scsi_task_data_t *cdata);
@@ -145,7 +145,7 @@ void dissect_spc_persistentreservein(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 void dissect_spc_persistentreserveout(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc_reportluns(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc_testunitready (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc_requestsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_requestsense (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc_preventallowmediaremoval (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc_writebuffer (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb _U_, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc_reserve6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
@@ -153,7 +153,7 @@ void dissect_spc_release6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 void dissect_spc_reserve10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc_release10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc_senddiagnostic (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc_extcopy (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_extcopy (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata);
 void dissect_spc_recvcopy (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
 
 

@@ -2883,8 +2883,7 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                 }
 
                 proto_tree_add_item(des_tree, hf_scsi_inq_evpd_devid_association, tvb, offset, 1, ENC_BIG_ENDIAN);
-                identifier_type = tvb_get_uint8(tvb, offset);
-                ti = proto_tree_add_item(des_tree, hf_scsi_inq_evpd_devid_identifier_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                ti = proto_tree_add_item_ret_uint8(des_tree, hf_scsi_inq_evpd_devid_identifier_type, tvb, offset, 1, ENC_BIG_ENDIAN, &identifier_type);
                 plen -= 1;
                 offset += 1;
 
@@ -3327,8 +3326,7 @@ dissect_spc_inquiry(tvbuff_t *tvb_a, packet_info *pinfo,
         try_offset+=1;
 
         /* Version */
-        version = tvb_get_uint8(try_tvb, try_offset);
-        proto_tree_add_item(tree, hf_scsi_inq_version, try_tvb, try_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(tree, hf_scsi_inq_version, try_tvb, try_offset, 1, ENC_BIG_ENDIAN, &version);
         try_offset+=1;
 
         /* aca flags */
@@ -3529,16 +3527,13 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
                         offset += 1;
                         proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_spc_xcopy_param_byte, ett_xcopy_param_byte, xcopy_param_list_bits, ENC_NA);
                         offset += 1;
-                        proto_tree_add_item(tree, hf_scsi_spc_xcopy_cscd_desc_list_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-                        cscd_desc_list_len = tvb_get_ntohs(tvb, offset);
+                        proto_tree_add_item_ret_uint16(tree, hf_scsi_spc_xcopy_cscd_desc_list_len, tvb, offset, 2, ENC_BIG_ENDIAN, &cscd_desc_list_len);
                         offset += 2;
                         proto_tree_add_item(tree, hf_scsi_reserved_32, tvb, offset, 4, ENC_BIG_ENDIAN);
                         offset += 4;
-                        proto_tree_add_item(tree, hf_scsi_spc_xcopy_seg_desc_list_len, tvb, offset, 4, ENC_BIG_ENDIAN);
-                        seg_desc_list_len = tvb_get_ntohl(tvb, offset);
+                        proto_tree_add_item_ret_uint(tree, hf_scsi_spc_xcopy_seg_desc_list_len, tvb, offset, 4, ENC_BIG_ENDIAN, &seg_desc_list_len);
                         offset += 4;
-                        proto_tree_add_item(tree, hf_scsi_spc_xcopy_inline_data_len, tvb, offset, 4, ENC_BIG_ENDIAN);
-                        inline_data_len = tvb_get_ntohl(tvb, offset);
+                        proto_tree_add_item_ret_uint(tree, hf_scsi_spc_xcopy_inline_data_len, tvb, offset, 4, ENC_BIG_ENDIAN, &inline_data_len);
                         offset += 4;
                         if (cscd_desc_list_len > 0) {
                                 cscds_tree = proto_tree_add_subtree_format(tree, tvb, offset, cscd_desc_list_len, ett_scsi_xcopy_cscds, NULL,
@@ -3560,17 +3555,14 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
                                         proto_tree_add_item(cscd_tree, hf_scsi_spc_xcopy_rel_init_port_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                                         offset += 2;
                                         cscd_desc_tree = proto_tree_add_subtree(cscd_tree, tvb, offset, 24, ett_scsi_cscd_desc, NULL, "CSCD descriptor parameters");
-                                        proto_tree_add_item(cscd_desc_tree, hf_scsi_spc_xcopy_cscd_desc_code_set, tvb, offset, 1, ENC_BIG_ENDIAN);
-                                        code_set = tvb_get_uint8(tvb, offset) & 0x0F;
+                                        proto_tree_add_item_ret_uint8(cscd_desc_tree, hf_scsi_spc_xcopy_cscd_desc_code_set, tvb, offset, 1, ENC_BIG_ENDIAN, &code_set);
                                         offset += 1;
                                         proto_tree_add_item(cscd_desc_tree, hf_scsi_spc_xcopy_cscd_desc_assoc, tvb, offset, 1, ENC_BIG_ENDIAN);
-                                        proto_tree_add_item(cscd_desc_tree, hf_scsi_spc_xcopy_cscd_desc_des_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-                                        des_type = tvb_get_uint8(tvb, offset) & 0x0F;
+                                        proto_tree_add_item_ret_uint8(cscd_desc_tree, hf_scsi_spc_xcopy_cscd_desc_des_type, tvb, offset, 1, ENC_BIG_ENDIAN, &des_type);
                                         offset += 1;
                                         proto_tree_add_item(cscd_desc_tree, hf_scsi_reserved_8, tvb, offset, 1, ENC_BIG_ENDIAN);
                                         offset += 1;
-                                        proto_tree_add_item(cscd_desc_tree, hf_scsi_spc_xcopy_cscd_desc_des_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-                                        des_len = tvb_get_uint8(tvb, offset);
+                                        proto_tree_add_item_ret_uint8(cscd_desc_tree, hf_scsi_spc_xcopy_cscd_desc_des_len, tvb, offset, 1, ENC_BIG_ENDIAN, &des_len);
                                         offset += 1;
                                         proto_tree_add_bytes_format(cscd_desc_tree, hf_scsi_designator, tvb, offset, 20, NULL, "Designator (20 bytes, zero padded, used length %u)", des_len);
                                         if (code_set == CODESET_BINARY && des_type == DEVID_TYPE_NAA) { /* des_type 3 = NAA */
@@ -5048,8 +5040,7 @@ dissect_spc_persistentreserveout(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         return;
 
     if (isreq && iscdb) {
-        svcaction = tvb_get_uint8(tvb, offset) & 0x1F;
-        proto_tree_add_item(tree, hf_scsi_persresvout_svcaction, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(tree, hf_scsi_persresvout_svcaction, tvb, offset, 1, ENC_BIG_ENDIAN, &svcaction);
         /* type and scope are ignored for REGISTER, REGISTER AND IGNORE EXISTING KEY, CLEAR service actions */
         if (svcaction != SCSI_PR_REGISTER && svcaction != SCSI_PR_REG_IGNORE && svcaction != SCSI_PR_CLEAR) {
             proto_tree_add_item(tree, hf_scsi_persresv_scope, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -5163,8 +5154,8 @@ void
 dissect_scsi_lun(proto_tree *tree, tvbuff_t *tvb, unsigned offset) {
     proto_item *ti;
     proto_tree *tt, *tl = proto_tree_add_subtree(tree, tvb, offset, 8, ett_scsi_lun, &ti, "LUN");
-    uint8_t address_mode, lun_len = 0, ea_code = 0, len_code = 0, lun_count = 0, complex_lun = 0;
-    uint16_t lun = 0;
+    uint8_t address_mode, lun_len = 0, ea_code = 0, len_code, lun_count = 0, complex_lun = 0;
+    uint16_t lun;
     const char *str = NULL;
 
     if (tvb_get_ntoh48(tvb, offset) << 16) {
@@ -6291,18 +6282,16 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, itlq->lun);
     proto_item_set_generated(ti);
 
-    if (itl) {
-        ti = proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset&SCSI_CMDSET_MASK,
-                                        "Command Set:%s (0x%02x) %s",
-                                        val_to_str(pinfo->pool, itl->cmdset&SCSI_CMDSET_MASK, scsi_devtype_val, "Unknown (%d)"),
-                                        itl->cmdset&SCSI_CMDSET_MASK,
-                                        itl->cmdset&SCSI_CMDSET_DEFAULT ? "(Using default commandset)" : "");
-        proto_item_set_generated(ti);
+    ti = proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset&SCSI_CMDSET_MASK,
+                                    "Command Set:%s (0x%02x) %s",
+                                    val_to_str(pinfo->pool, itl->cmdset&SCSI_CMDSET_MASK, scsi_devtype_val, "Unknown (%d)"),
+                                    itl->cmdset&SCSI_CMDSET_MASK,
+                                    itl->cmdset&SCSI_CMDSET_DEFAULT ? "(Using default commandset)" : "");
+    proto_item_set_generated(ti);
 
-        if (itlq && (itlq->scsi_opcode != 0xffff)) {
-            ti = proto_tree_add_uint(scsi_tree, csdata->hf_opcode, tvb, 0, 0, itlq->scsi_opcode);
-            proto_item_set_generated(ti);
-        }
+    if (itlq->scsi_opcode != 0xffff) {
+        ti = proto_tree_add_uint(scsi_tree, csdata->hf_opcode, tvb, 0, 0, itlq->scsi_opcode);
+        proto_item_set_generated(ti);
     }
 
     if (itlq->first_exchange_frame) {
