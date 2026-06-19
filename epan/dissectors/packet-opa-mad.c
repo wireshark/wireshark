@@ -3445,7 +3445,7 @@ static int parse_SwitchInfo(proto_tree *parentTree, tvbuff_t *tvb, unsigned *off
 static int parse_PortInfo(proto_tree *parentTree, tvbuff_t *tvb, unsigned *offset, MAD_t *MAD)
 {
     unsigned local_offset = *offset;
-    proto_tree *PortInfo_header_tree = parentTree,
+    proto_tree *PortInfo_header_tree,
         *PortInfo_VL_tree,
         *PortInfo_Link_tree,
         *PortInfo_FlitControl_tree,
@@ -4752,8 +4752,8 @@ static int parse_Aggregate(proto_tree *parentTree, packet_info* pinfo, tvbuff_t 
     int numAttributes;
     unsigned local_offset = *offset;
     int saved_offset;
-    uint16_t LocalAttributeID = 0;
-    bool AggregatError = false;
+    uint16_t LocalAttributeID;
+    bool AggregatError;
     proto_item *Aggregate_header_item;
     proto_item *Aggregate_Length_item;
     proto_item *Aggregate_Error_item;
@@ -7136,7 +7136,7 @@ static int parse_GetGroupInfo(proto_tree *parentTree, tvbuff_t *tvb, unsigned *o
 static int parse_GetGroupConfig(proto_tree *parentTree, tvbuff_t *tvb, unsigned *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
 {
     proto_item *GetGroupConfig_header_item;
-    proto_tree *GetGroupConfig_header_tree = parentTree;
+    proto_tree *GetGroupConfig_header_tree;
 
     proto_item *GetGroupConfig_Port_item;
     proto_tree *GetGroupConfig_Port_tree;

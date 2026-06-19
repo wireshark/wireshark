@@ -1973,7 +1973,7 @@ tvbuff_t *decrypt_ieee802154_payload(tvbuff_t * tvb, unsigned offset, packet_inf
         unsigned nkeys = set_key_func(packet, key, alt_key, &ieee802154_keys[decrypt_info->key_number]);
         if (nkeys >= 1) {
             /* Try with the initial key */
-            decrypt_info->key = key;
+            memcpy(decrypt_info->key, key, sizeof(key));
             payload_tvb = decrypt_func(tvb, offset, pinfo, packet, decrypt_info);
             if (!((*decrypt_info->status == DECRYPT_PACKET_MIC_CHECK_FAILED) || (*decrypt_info->status == DECRYPT_PACKET_DECRYPT_FAILED))) {
                 break;
@@ -1981,7 +1981,7 @@ tvbuff_t *decrypt_ieee802154_payload(tvbuff_t * tvb, unsigned offset, packet_inf
         }
         if (nkeys >= 2) {
             /* Try also with the alternate key */
-            decrypt_info->key = alt_key;
+            memcpy(decrypt_info->key, alt_key, sizeof(alt_key));
             payload_tvb = decrypt_func(tvb, offset, pinfo, packet, decrypt_info);
             if (!((*decrypt_info->status == DECRYPT_PACKET_MIC_CHECK_FAILED) || (*decrypt_info->status == DECRYPT_PACKET_DECRYPT_FAILED))) {
                 break;
@@ -2871,11 +2871,9 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
             addr16.addr = packet->src16;
             addr16.pan = packet->src_pan;
 
-            if (ieee_hints) {
-                ieee_hints->src16 = packet->src16;
-                ieee_hints->map_rec = (ieee802154_map_rec *)
-                    g_hash_table_lookup(ieee802154_map.short_table, &addr16);
-            }
+            ieee_hints->src16 = packet->src16;
+            ieee_hints->map_rec = (ieee802154_map_rec *)
+                g_hash_table_lookup(ieee802154_map.short_table, &addr16);
         }
 
         set_address_tvb(&pinfo->dl_src, ieee802_15_4_short_address_type, 2, tvb, offset);
@@ -2887,7 +2885,7 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
         proto_item_set_generated(ti);
         proto_item_set_hidden(ti);
 
-        if (ieee_hints && ieee_hints->map_rec) {
+        if (ieee_hints->map_rec) {
             /* Display inferred source address info */
             ti = proto_tree_add_eui64(ieee802154_tree, hf_ieee802154_src64, tvb, offset, 0,
                     ieee_hints->map_rec->addr64);
@@ -5669,7 +5667,7 @@ ccm_cbc_mac(const uint8_t *key, const uint8_t *iv, const uint8_t *a, int a_len, 
         }
         else {
             memcpy(block, a, a_len);
-            memset(block+a_len, 0, sizeof(block)-a_len);
+            memset(&block[a_len-1], 0, sizeof(block)-a_len);
         }
         /* Adjust pointers. */
         a += sizeof(block);
@@ -5689,7 +5687,7 @@ ccm_cbc_mac(const uint8_t *key, const uint8_t *iv, const uint8_t *a, int a_len, 
         }
         else {
             memcpy(block, m, m_len);
-            memset(block+m_len, 0, sizeof(block)-m_len);
+            memset(&block[a_len], 0, sizeof(block)-m_len);
         }
         /* Adjust pointers. */
         m += sizeof(block);

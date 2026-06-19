@@ -283,12 +283,12 @@ enum mausb_pkt_type {
     VendorSpecificResp    ,
 
     /* Control Packets */
-    TransferSetupReq = 0x00 | MAUSB_PKT_TYPE_CTRL,
+    TransferSetupReq = MAUSB_PKT_TYPE_CTRL,
     TransferSetupResp     ,
     TransferTearDownConf  ,
 
     /* Data Packets */
-    TransferReq = 0x00 | MAUSB_PKT_TYPE_DATA,
+    TransferReq = MAUSB_PKT_TYPE_DATA,
     TransferResp          ,
     TransferAck           ,
     IsochTransferReq      ,

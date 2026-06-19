@@ -164,7 +164,7 @@ dissect_kpasswd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool
 
     /* TCP record mark and length */
     uint32_t krb_rm = 0;
-    int krb_reclen = 0;
+    int krb_reclen;
     int krb_rm_size = 0;    /* bytes consumed by record mark: 0 or 4 */
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "KPASSWD");

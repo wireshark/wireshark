@@ -609,8 +609,8 @@ hiqnet_display_data(proto_tree *hiqnet_payload_tree, packet_info *pinfo, tvbuff_
 static int
 dissect_hiqnet_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    uint8_t headerlen = 0;
-    uint32_t messagelen = 0;
+    uint8_t headerlen;
+    uint32_t messagelen;
     uint16_t srcdev = 0;
     uint8_t srcvdaddr = 0;
     uint8_t srcob0addr = 0;
@@ -622,7 +622,7 @@ dissect_hiqnet_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     uint8_t dstob1addr = 0;
     uint8_t dstob2addr = 0;
     uint16_t messageid = 0;
-    uint16_t flags = 0;
+    uint16_t flags;
     uint16_t paramcount = 0;
     uint16_t subcount = 0;
     uint16_t attrcount = 0;

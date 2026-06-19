@@ -1542,7 +1542,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 		/* range=1000000; */
 		range = max-min;
 		if (range==65536)
-			range++; /* make it fall trough? */
+			range++; /* make it fall through? TODO: can't get here.. */
 	} else {
 		/* Copied from the 32 bit version, assuming the same problem occurs
 		 * at 64 bit boundary.

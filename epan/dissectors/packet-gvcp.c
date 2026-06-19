@@ -1912,7 +1912,7 @@ static void dissect_writemem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 
 static void dissect_event_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, int startoffset, int length, int extendedblockids)
 {
-	int32_t eventid;
+	uint16_t eventid;
 	int offset;
 	offset = startoffset;
 
@@ -1954,7 +1954,7 @@ static void dissect_event_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, pac
 			eventid = tvb_get_ntohs(tvb, offset);
 
 			/* Use range to determine type of event */
-			if ((eventid >= 0x0000) && (eventid <= 0x8000))
+			if (eventid <= 0x8000)
 			{
 				/* Standard ID */
 				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1964,7 +1964,7 @@ static void dissect_event_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, pac
 				/* Error */
 				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_error_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 			}
-			else if ((eventid >= 0x9000) && (eventid <= 0xFFFF))
+			else if (eventid >= 0x9000)
 			{
 				/* Device specific */
 				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_device_specific_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2003,7 +2003,7 @@ static void dissect_event_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, pac
 
 static void dissect_eventdata_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, int startoffset, int extendedblockids)
 {
-	int32_t eventid;
+	uint16_t eventid;
 	int offset;
 	int data_length = 0;
 	offset = startoffset;
@@ -2027,7 +2027,7 @@ static void dissect_eventdata_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb,
 		offset += 2;
 
 		/* Use range to determine type of event */
-		if ((eventid >= 0x0000) && (eventid <= 0x8000))
+		if (eventid <= 0x8000)
 		{
 			/* Standard ID */
 			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2037,7 +2037,7 @@ static void dissect_eventdata_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb,
 			/* Error */
 			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_error_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 		}
-		else if ((eventid >= 0x9000) && (eventid <= 0xFFFF))
+		else if (eventid >= 0x9000)
 		{
 			/* Device specific */
 			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_device_specific_id, tvb, offset, 2, ENC_BIG_ENDIAN);
