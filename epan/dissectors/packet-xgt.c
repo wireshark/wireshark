@@ -480,7 +480,7 @@ dissect_xgt_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
             } else if (data_length == 8 && data_type == XGT_DTYPE_LWORD) {
                 /* For 64-bit values, show as uint64 using data_value field */
                 uint64_t value = tvb_get_letoh64(tvb, offset);
-                proto_tree_add_uint64_format(block_tree, hf_xgt_data_value_uint64, tvb, offset, data_length, value, "Data: %" G_GUINT64_FORMAT, value);
+                proto_tree_add_uint64_format(block_tree, hf_xgt_data_value_uint64, tvb, offset, data_length, value, "Data: %" PRIu64, value);
             } else if (data_length == 1 && (data_type == XGT_DTYPE_BIT || data_type == XGT_DTYPE_BYTE)) {
                 uint8_t value = tvb_get_uint8(tvb, offset);
                 proto_tree_add_uint_format(block_tree, hf_xgt_data_value_uint8, tvb, offset, data_length, value, "Data: %u", value);
