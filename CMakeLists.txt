@@ -352,6 +352,21 @@ if(NOT (WIN32 OR APPLE OR USE_STATIC))
 	endif()
 endif()
 
+# Preprocessor definitions common to all compilers
+# Do not put any add_[compile_]definitions calls before this,
+# as this overrides the existing values.
+# These only depend on values from CMakeOptions.txt and CMAKE_BUILD_TYPE,
+# which have been handled above.
+set_property(DIRECTORY
+	PROPERTY COMPILE_DEFINITIONS
+		"G_DISABLE_DEPRECATED"
+		"G_DISABLE_SINGLE_INCLUDES"
+		$<$<OR:$<BOOL:${ENABLE_DEBUG}>,$<CONFIG:Debug>>:WS_DEBUG>
+		$<$<OR:$<AND:$<BOOL:${ENABLE_DEBUG}>,$<BOOL:${ENABLE_DEBUG_UTF_8}>>,$<CONFIG:Debug>>:WS_DEBUG_UTF_8>
+		$<$<BOOL:${ENABLE_ASSERT}>:ENABLE_ASSERT>
+		$<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:ENABLE_STATIC>
+)
+
 # Ensure that executables in the build directory always have the same RPATH.
 # This ensures relocatable binaries and reproducible builds (invariant of the
 # build directory location). (Requires CMake 3.14)
@@ -514,17 +529,6 @@ endif()
 # -pie is added below for non-MSVC, but requires objects to be built with
 # -fPIC/-fPIE (so set CMAKE_POSITION_INDEPENDENT_CODE to enable that).
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-# Preprocessor definitions common to all compilers
-set_property(DIRECTORY
-	PROPERTY COMPILE_DEFINITIONS
-		"G_DISABLE_DEPRECATED"
-		"G_DISABLE_SINGLE_INCLUDES"
-		$<$<OR:$<BOOL:${ENABLE_DEBUG}>,$<CONFIG:Debug>>:WS_DEBUG>
-		$<$<OR:$<AND:$<BOOL:${ENABLE_DEBUG}>,$<BOOL:${ENABLE_DEBUG_UTF_8}>>,$<CONFIG:Debug>>:WS_DEBUG_UTF_8>
-		$<$<BOOL:${ENABLE_ASSERT}>:ENABLE_ASSERT>
-		$<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:ENABLE_STATIC>
-)
 
 if(WIN32)
 	#
