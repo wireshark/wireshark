@@ -152,6 +152,7 @@ ADDITIONAL_LIST="
 	git
 	libbrotli-dev
 	libcap-dev
+	libcap2-bin
 	libgnutls28-dev
 	libkrb5-dev
 	liblz4-dev
