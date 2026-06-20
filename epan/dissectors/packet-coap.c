@@ -871,6 +871,7 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 	proto_item *item;
 	char	   *strbuf2;
 
+	*ok = true;
 	opt_jump = tvb_get_uint8(tvb, offset);
 	if (0xff == opt_jump)
 		return offset;
