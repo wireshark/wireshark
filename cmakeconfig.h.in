@@ -79,6 +79,12 @@
 /* Define to 1 if you have the `getexecname' function. */
 #cmakedefine HAVE_GETEXECNAME 1
 
+/* Define to 1 if you have the `getpeerucred' function. */
+#cmakedefine HAVE_GETPEERUCRED 1
+
+/* Define to 1 if you have the `getpeereid' function. */
+#cmakedefine HAVE_GETPEEREID 1
+
 /* Define to 1 if you have the `getifaddrs' function. */
 #cmakedefine HAVE_GETIFADDRS 1
 
@@ -285,9 +291,6 @@
 /* Define to 1 if you have the Sparkle or WinSparkle library */
 #cmakedefine HAVE_SOFTWARE_UPDATE 1
 
-/* Define to 1 if you have the SO_PEERCRED socket option. */
-#cmakedefine HAVE_SO_PEERCRED 1
-
 /* Define if you have the 'strptime' function. */
 #cmakedefine HAVE_STRPTIME 1
 
@@ -317,6 +320,9 @@
 
 /* Define to 1 if you have the <sys/time.h> header file. */
 #cmakedefine HAVE_SYS_TIME_H 1
+
+/* Define to 1 if you have the <sys/ucred.h> header file. */
+#cmakedefine HAVE_SYS_UCRED_H 1
 
 /* Define to 1 if you have the <sys/utsname.h> header file. */
 #cmakedefine HAVE_SYS_UTSNAME_H 1
@@ -349,6 +355,9 @@
 
 /* Define to 1 if the 'ssize_t' type exists. */
 #cmakedefine HAVE_SSIZE_T 1
+
+/* Define to 1 if the 'struct ucred' type exists. */
+#cmakedefine HAVE_STRUCT_UCRED 1
 
 /* Define to 1 if we are using the msys2 environment to build. */
 #cmakedefine HAVE_MSYSTEM 1
