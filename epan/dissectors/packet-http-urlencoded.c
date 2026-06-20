@@ -52,9 +52,7 @@ get_form_key_value(wmem_allocator_t *pool, tvbuff_t *tvb, char **ptr, unsigned o
 		len += (found_offset - offset);
 		offset = found_offset;
 		if (ch == '%') {
-			if (tvb_reported_length_remaining(tvb, offset) < 2) {
-				return false;
-			}
+			tvb_ensure_bytes_exist(tvb, offset, 3);
 			offset++;
 			ch = tvb_get_uint8(tvb, offset);
 			if (ws_xton(ch) == -1)
