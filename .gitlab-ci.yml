@@ -1353,6 +1353,7 @@ Code Lines and Data:
     INSTALL_PREFIX: "$CI_PROJECT_DIR/_install"
     MIN_PLUGINS: 10
     MAX_PASSES: 15
+    FUZZ_STDERR: "/tmp/fuzz/fuzz-test.err"
   before_script:
     - source /clang-latest.env
     - DEBIAN_FRONTEND=noninteractive apt-get update
@@ -1377,7 +1378,7 @@ Code Lines and Data:
     - FUZZ_CAPTURE=$( basename $( find . -name "fuzz-*.pcap" -o -name "randpkt-*.pcap" | head -n 1 ) )
     - FUZZ_ERRORS="$( basename "$FUZZ_CAPTURE" .pcap ).err"
     - printf "\nfuzz-test.sh stderr:\n" >> "$FUZZ_ERRORS"
-    - cat fuzz-test.err >> "$FUZZ_ERRORS"
+    - cat "$FUZZ_STDERR" >> "$FUZZ_ERRORS"
     - rclone config create wireshark $WS_RCLONE_REMOTE_OPTS > /dev/null
     - if [ -n "$S3_DESTINATION_FUZZ" ] ; then rclone copy . "wireshark:$S3_DESTINATION_FUZZ" --include "$FUZZ_CAPTURE" --include "$FUZZ_ERRORS" ; fi
 
@@ -1397,7 +1398,7 @@ ASan Menagerie Fuzz:
     - FUZZ_PASSED=true
     # /var/menagerie contains captures harvested from wireshark.org's mailing list, wiki, issues, etc.
     # We have more captures than we can fuzz in $MAX_SECONDS, so we shuffle them each run.
-    - ./tools/fuzz-test.sh -a -2 -P $MIN_PLUGINS -b $INSTALL_PREFIX/bin -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> fuzz-test.err || FUZZ_PASSED=false
+    - ./tools/fuzz-test.sh -a -2 -P $MIN_PLUGINS -b $INSTALL_PREFIX/bin -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> "$FUZZ_STDERR" || FUZZ_PASSED=false
     # Signal after_script, which runs in its own shell.
     - echo "export FUZZ_PASSED=$FUZZ_PASSED" > /tmp/fuzz_result.sh
     - $FUZZ_PASSED
@@ -1416,7 +1417,7 @@ ASan randpkt Fuzz:
     - ninja install
     - cd ..
     - FUZZ_PASSED=true
-    - ./tools/randpkt-test.sh -a -b $INSTALL_PREFIX/bin -d /tmp/fuzz -p $MAX_PASSES 2> fuzz-test.err || FUZZ_PASSED=false
+    - ./tools/randpkt-test.sh -a -b $INSTALL_PREFIX/bin -d /tmp/fuzz -p $MAX_PASSES 2> "$FUZZ_STDERR" || FUZZ_PASSED=false
     - echo "export FUZZ_PASSED=$FUZZ_PASSED" > /tmp/fuzz_result.sh
     - $FUZZ_PASSED
   needs: [ 'ASan Menagerie Fuzz' ]
@@ -1442,7 +1443,7 @@ Valgrind Menagerie Fuzz:
     - ninja install
     - cd ..
     - FUZZ_PASSED=true
-    - ./tools/fuzz-test.sh -g -P $MIN_PLUGINS -b $INSTALL_PREFIX/bin -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> fuzz-test.err || FUZZ_PASSED=false
+    - ./tools/fuzz-test.sh -g -P $MIN_PLUGINS -b $INSTALL_PREFIX/bin -d /tmp/fuzz -t $MAX_SECONDS $( shuf -e /var/menagerie/*/* ) 2> "$FUZZ_STDERR" || FUZZ_PASSED=false
     - echo "export FUZZ_PASSED=$FUZZ_PASSED" > /tmp/fuzz_result.sh
     - $FUZZ_PASSED
   needs: [ 'ASan randpkt Fuzz' ]
