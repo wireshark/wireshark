@@ -80,7 +80,7 @@ endif()
 # like crossing the beams or something), and there are two separate
 # .pc files, so if we're doing a 32-bit build we should make sure we look
 # in /usr/lib/pkgconfig for .pc files and if we're doing a 64-bit build
-# we should make sure we look in# /usr/lib/amd64/pkgconfig for .pc files.
+# we should make sure we look in /usr/lib/amd64/pkgconfig for .pc files.
 #
 if(CMAKE_SYSTEM_NAME STREQUAL "SunOS" AND CMAKE_SYSTEM_VERSION MATCHES "5[.][0-9.]*")
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
