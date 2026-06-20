@@ -43,20 +43,20 @@ const int ws_utf8_seqlen[256] = {
  * are replaced with one REPLACEMENT CHARACTER.)
  */
 static inline size_t
-utf_8_validate(const uint8_t *start, ssize_t length, const uint8_t **end)
+utf_8_validate(const uint8_t *start, ssize_t length, const uint8_t **endp)
 {
     const uint8_t *ptr = start;
     uint8_t ch;
     size_t unichar_len, valid_bytes = 0;
+    const uint8_t *end = start + length;
 
-    while (length > 0) {
+    while (ptr < end) {
 
         ch = *ptr;
 
         if (ch < 0x80) {
             valid_bytes++;
             ptr++;
-            length--;
             continue;
         }
 
@@ -64,8 +64,7 @@ utf_8_validate(const uint8_t *start, ssize_t length, const uint8_t **end)
 
         if (ch < 0xc2 || ch > 0xf4) {
             ptr++;
-            length--;
-            *end = ptr;
+            *endp = ptr;
             return valid_bytes;
         }
 
@@ -74,86 +73,81 @@ utf_8_validate(const uint8_t *start, ssize_t length, const uint8_t **end)
         } else if (ch < 0xf0) { /* 1110xxxx, 3 byte char */
             unichar_len = 3;
             ptr++;
-            length--;
-            if (length < 1) {
-                *end = ptr;
+            if (ptr == end) {
+                *endp = ptr;
                 return valid_bytes;
             }
             switch (ch) {
                 case 0xe0:
                     if (*ptr < 0xa0 || *ptr > 0xbf) {
-                        *end = ptr;
+                        *endp = ptr;
                         return valid_bytes;
                     }
                     break;
                 case 0xed:
                     if (*ptr < 0x80 || *ptr > 0x9f) {
-                        *end = ptr;
+                        *endp = ptr;
                         return valid_bytes;
                     }
                     break;
                 default:
                     if (*ptr < 0x80 || *ptr > 0xbf) {
-                        *end = ptr;
+                        *endp = ptr;
                         return valid_bytes;
                     }
             }
         } else { /* 11110xxx, 4 byte char - > 0xf4 excluded above */
             unichar_len = 4;
             ptr++;
-            length--;
-            if (length < 1) {
-                *end = ptr;
+            if (ptr == end) {
+                *endp = ptr;
                 return valid_bytes;
             }
             switch (ch) {
                 case 0xf0:
                     if (*ptr < 0x90 || *ptr > 0xbf) {
-                        *end = ptr;
+                        *endp = ptr;
                         return valid_bytes;
                     }
                     break;
                 case 0xf4:
                     if (*ptr < 0x80 || *ptr > 0x8f) {
-                        *end = ptr;
+                        *endp = ptr;
                         return valid_bytes;
                     }
                     break;
                 default:
                     if (*ptr < 0x80 || *ptr > 0xbf) {
-                        *end = ptr;
+                        *endp = ptr;
                         return valid_bytes;
                     }
             }
             ptr++;
-            length--;
-            if (length < 1) {
-                *end = ptr;
+            if (ptr == end) {
+                *endp = ptr;
                 return valid_bytes;
             }
             if (*ptr < 0x80 || *ptr > 0xbf) {
-                *end = ptr;
+                *endp = ptr;
                 return valid_bytes;
             }
         }
 
         ptr++;
-        length--;
-        if (length < 1) {
-            *end = ptr;
+        if (ptr == end) {
+            *endp = ptr;
             return valid_bytes;
         }
         if (*ptr < 0x80 || *ptr > 0xbf) {
-            *end = ptr;
+            *endp = ptr;
             return valid_bytes;
         } else {
             ptr++;
-            length--;
             valid_bytes += unichar_len;
         }
 
     }
-    *end = ptr;
+    *endp = ptr;
     return valid_bytes;
 }
 
