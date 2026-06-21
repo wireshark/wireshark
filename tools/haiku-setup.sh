@@ -99,22 +99,28 @@ BASIC_LIST="
 	python3.14
 	"
 
+# xz_utils_devel is for liblzma, which is required by minizip_ng_devel
 ADDITIONAL_LIST="
 	ccache
 	doxygen
 	git
 	brotli_devel
+	lua_devel
 	gnutls_devel
 	krb5_devel
+	libssh_devel
 	lz4_devel
-	maxminddb_devel
+	libmaxminddb_devel
 	minizip_devel
+	minizip_ng_devel
 	nghttp2_devel
 	opus_devel
 	parse_yapp
-	ibsbc_devel
+	sbc_devel
 	snappy_devel
+	xz_utils_devel
 	xxhash_devel
+	zlib_ng_devel
 	zstd_devel
 	ninja
 	perl
@@ -123,40 +129,9 @@ ADDITIONAL_LIST="
 # PNG compression utilities used by compress-pngs:
 ADDITIONAL_LIST="
 	$ADDITIONAL_LIST
-	advancecomp
 	optipng
 	pngcrush
 	"
-
-# libssh-gcrypt-dev: Debian < trixie, Ubuntu < 25.04
-# libssh-dev: All releases, but trixie and 25.04 has relicensed OpenSSH
-# See: https://bugs.debian.org/1074337
-add_package ADDITIONAL_LIST libssh-dev 0.11.1-1 ||
-ADDITIONAL_LIST="$ADDITIONAL_LIST libssh-gcrypt-dev"
-
-# Lua 5.5: Debian >= forky, Ubuntu >= 26.04 (resolute)
-# Lua 5.4: Debian >= bullseye, Ubuntu >= 22.04 (jammy)
-# Lua 5.3: Debian >= buster, Ubuntu >= 20.04 (focal)
-add_package ADDITIONAL_LIST liblua5.5-dev ||
-add_package ADDITIONAL_LIST liblua5.4-dev ||
-ADDITIONAL_LIST="$ADDITIONAL_LIST liblua5.3-dev"
-
-# Debian >= bookworm, Ubuntu >= 22.04
-add_package ADDITIONAL_LIST nghttp3_devel ||
-echo "nghttp3_devel is unavailable" >&2
-
-# ilbc library from http://www.deb-multimedia.org
-#add_package ADDITIONAL_LIST libilbc-dev ||
-#echo "libilbc-dev is unavailable"
-
-# Debian >= bullseye, Ubuntu >= 22.04 (jammy)
-# bcg729 library libbcg729-dev
-#add_package ADDITIONAL_LIST libbcg729-dev ||
-#    echo "libbcg729-dev is unavailable"
-
-# Debian >= bullseye, Ubuntu >= 22.04 (jammy)
-#add_package ADDITIONAL_LIST libcpuinfo-dev ||
-#    echo "libcpuinfo-dev is unavailable"
 
 ACTUAL_LIST=$BASIC_LIST
 
