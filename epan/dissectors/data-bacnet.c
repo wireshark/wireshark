@@ -1639,7 +1639,9 @@ BACnetVendorIdentifiers[] = {
     { 1626, "EME Automation" },
     { 1627, "ControlCom Technologies, LLC" },
     { 1628, "ElectrSol" },
-    { 1629, "Corporación Empresarial Altra’" },
+    { 1629, "Corporación Empresarial Altra" },
+    { 1630, "IC Valves (Nanjing) Co., Ltd." },
+    { 1631, "Occuspace Inc." },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);

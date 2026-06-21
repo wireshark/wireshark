@@ -404,7 +404,7 @@ static const struct ws_iana_ip_special_block __ipv6_special_block[] = {
 };
 
 
-/* (last updated 2026-06-12) */
+/* (last updated 2026-06-17) */
 
 
 static const value_string enterprise_val[] = {
@@ -66288,7 +66288,7 @@ static const value_string enterprise_val[] = {
 	{ 65992,    "Hangzhou Gold Electronic Equipment Co., Ltd." },
 	{ 65993,    "TAS" },
 	{ 65994,    "Evoked" },
-	{ 65995,    "Universal Protocol Research Fundation" },
+	{ 65995,    "AI Universal Protocol Research Foundation" },
 	{ 65996,    "Identity Consortium d.o.o." },
 	{ 65997,    "Reprodrive Center For Innovation Limited" },
 	{ 65998,    "Reclaim Protocol" },
@@ -66324,6 +66324,40 @@ static const value_string enterprise_val[] = {
 	{ 66028,    "Diehl Aviation Gilching GmbH" },
 	{ 66029,    "ICB S.A." },
 	{ 66030,    "Heinrich Klöcker GmbH & Co. KG" },
+	{ 66031,    "cadiros" },
+	{ 66032,    "MaxxKonnect" },
+	{ 66033,    "Abdal Security Group" },
+	{ 66034,    "78ResearchLab" },
+	{ 66035,    "Yucca Technology Co., LTD" },
+	{ 66036,    "City of Davenport, IA" },
+	{ 66037,    "ESTA" },
+	{ 66038,    "Wathiqa PQC" },
+	{ 66039,    "Joshua Cox" },
+	{ 66040,    "Barkov Alexey Fedorovich" },
+	{ 66041,    "HENAN JIUYU TENGLONG INFORMATION ENGINEERING CO.,LTD." },
+	{ 66042,    "Potin (Beijing) Technology Co., Ltd." },
+	{ 66043,    "imsoftware" },
+	{ 66044,    "GEODIS" },
+	{ 66045,    "AlbertiGroup" },
+	{ 66046,    "Technix S.p.A." },
+	{ 66047,    "Marian, Inc." },
+	{ 66048,    "SPOT Imaging dba Diagnostic Instruments, Inc." },
+	{ 66049,    "Arpnex Technologies" },
+	{ 66050,    "Vistra Netherlands" },
+	{ 66051,    "GHQ systems s.r.o." },
+	{ 66052,    "Wireless Supply, LLC" },
+	{ 66053,    "Bill Farmer, Jr." },
+	{ 66054,    "PetaBit S.r.l." },
+	{ 66055,    "Moultbase CAD for Code Signing" },
+	{ 66056,    "Fablaja" },
+	{ 66057,    "Aman Afzar Nahaanbin" },
+	{ 66058,    "Deepak Kumar" },
+	{ 66059,    "VYRTY Corporation d/b/a Sync.MD" },
+	{ 66060,    "Chane Terminals" },
+	{ 66061,    "ConnectPoint Sp. z o. o." },
+	{ 66062,    "Realworld" },
+	{ 66063,    "Easy Telecom Law Firm S.L." },
+	{ 66064,    "Black & Veatch" },
 	{ 0, NULL }
 };
 
@@ -71146,6 +71180,7 @@ static const ws_services_entry_t global_tcp_udp_services_table[] = {
 	{ 6600,     "mshvlm",           "Microsoft Hyper-V Live Migration"},
 	{ 6601,     "mstmg-sstp",       "Microsoft Threat Management Gateway SSTP"},
 	{ 6602,     "wsscomfrmwk",      "Windows WSS Communication Framework"},
+	{ 6610,     "bencher",          "Bencher API"},
 	{ 6619,     "odette-ftps",      "ODETTE-FTP over TLS/SSL"},
 	{ 6620,     "kftp-data",        "Kerberos V5 FTP Data"},
 	{ 6621,     "kftp",             "Kerberos V5 FTP Control"},
@@ -77312,6 +77347,7 @@ static const ws_services_entry_t global_tcp_services_table[] = {
 	{ 6600,     "mshvlm",           "Microsoft Hyper-V Live Migration"},
 	{ 6601,     "mstmg-sstp",       "Microsoft Threat Management Gateway SSTP"},
 	{ 6602,     "wsscomfrmwk",      "Windows WSS Communication Framework"},
+	{ 6610,     "bencher",          "Bencher API"},
 	{ 6619,     "odette-ftps",      "ODETTE-FTP over TLS/SSL"},
 	{ 6620,     "kftp-data",        "Kerberos V5 FTP Data"},
 	{ 6621,     "kftp",             "Kerberos V5 FTP Control"},
@@ -83225,6 +83261,7 @@ static const ws_services_entry_t global_udp_services_table[] = {
 	{ 6581,     "parsec-peer",      "Parsec Peer-to-Peer"},
 	{ 6582,     "parsec-game",      "Parsec Gameserver"},
 	{ 6583,     "joaJewelSuite",    "JOA Jewel Suite"},
+	{ 6610,     "bencher",          "Bencher API"},
 	{ 6619,     "odette-ftps",      "ODETTE-FTP over TLS/SSL"},
 	{ 6620,     "kftp-data",        "Kerberos V5 FTP Data"},
 	{ 6621,     "kftp",             "Kerberos V5 FTP Control"},

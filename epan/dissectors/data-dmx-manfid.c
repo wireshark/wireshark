@@ -11,7 +11,7 @@
 #include "data-dmx-manfid.h"
 
 /*
- * ESTA codes download date: 2026-06-14
+ * ESTA codes download date: 2026-06-21
  */
 static const value_string dmx_esta_manfid_vals[] = {
   { 0x0000, "ESTA / PLASA" },
@@ -408,6 +408,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x05A8, "Owl Labs" },
   { 0x05AB, "Shenzhen Lesan Lighting Co., Ltd." },
   { 0x05AC, "PRstage" },
+  { 0x05AF, "GUANGZHOU SIGWON ELECTRONICS CO., LTD" },
   { 0x05B5, "Turkowski GmbH" },
   { 0x05BC, "CantoUSA" },
   { 0x05C0, "Vertigo" },
@@ -491,6 +492,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x06BA, "Lightner" },
   { 0x06BB, "IQ COMPANY Ltd." },
   { 0x06C0, "ANTILATENCY LTD" },
+  { 0x06C1, "COLORFUL LIGHT TECHNOLOGY CO., LTD." },
   { 0x06C4, "RHENAC Systems GmbH" },
   { 0x06C5, "ZHIYUN INFORMATION (INTERNATIONAL) TECHNOLOGY CO., LIMITED" },
   { 0x06C7, "L&L Luce&Light" },
@@ -564,6 +566,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x076E, "DecoLed, LLC" },
   { 0x0772, "SP-Quality" },
   { 0x0773, "Papouch s.r.o." },
+  { 0x0774, "Guangzhou Hongcheng Stage Lighting Equipment Co., Ltd." },
   { 0x0776, "lumenetix" },
   { 0x0777, "Antalya Elektronik Mühendislik Sanayi ve Tic Ltd Şti." },
   { 0x077A, "Oblique Systems" },
@@ -606,6 +609,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x07C5, "SBS Lighting LLC" },
   { 0x07C6, "BK Lighting" },
   { 0x07C8, "Sidus Link Ltd." },
+  { 0x07CB, "ilLumenate Lighting" },
   { 0x07CC, "Griven S.r.l." },
   { 0x07CF, "MH-Sound" },
   { 0x07D1, "Made By Mouse LTD" },
@@ -661,6 +665,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0814, "squareV" },
   { 0x0815, "Q Squared Systems, LLC" },
   { 0x0816, "Benjamin Graf Ton- und Medientechnik" },
+  { 0x081B, "Guangzhou Rainstar Photoelectric Technology Co.,Ltd" },
   { 0x081C, "MR Electronics Ltd." },
   { 0x081E, "LOBO Electronic GmbH" },
   { 0x0822, "Hangzhou YD Illumination Co., Ltd" },
@@ -669,6 +674,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0826, "Easy Wireless Hire Limited t/a CORE Lighting" },
   { 0x0827, "PIXREAL" },
   { 0x0829, "CR-TEC Photoelectric" },
+  { 0x082A, "Theatrically Jerry LLC" },
   { 0x082B, "Changsha ZMIOT Co., Ltd." },
   { 0x082C, "RIVA GmbH Engineering" },
   { 0x082E, "QubiCast GmbH" },
