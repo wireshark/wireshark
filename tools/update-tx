@@ -23,6 +23,13 @@ if ! cd "$TOP_LEVEL" ; then
     exit 1
 fi
 
+if ! command -v lupdate &> /dev/null; then
+    echo "Can't find lupdate."
+    exit 1
+fi
+
+lupdate -version
+
 LUPDATE_INCLUDES=(-I .)
 while read -r ; do
     LUPDATE_INCLUDES+=(-I "$REPLY")
