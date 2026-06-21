@@ -24,6 +24,7 @@
 #include "wsutil/strtoi.h"
 #include "wsutil/epochs.h"
 #include "wsutil/nstime.h"
+#include "wsutil/win32-utils.h"
 #include "etw_message.h"
 #include "etw_ndiscap.h"
 
@@ -373,6 +374,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
 
                     if (!found)
                     {
+                        *err = ERROR_INVALID_PARAMETER;
                         *err_info = ws_strdup_printf("Unknown scenario: %s", provider_id);
                         return WTAP_OPEN_ERROR;
                     }
@@ -406,7 +408,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
                     }
                     else
                     {
-                        *err_info = ws_strdup_printf("Cannot convert provider %s to a GUID, err is 0x%x", ws_optarg, *err);
+                        *err_info = ws_strdup_printf("Cannot convert provider %s to a GUID: %s", ws_optarg, win32strerror(*err));
                         return WTAP_OPEN_ERROR;
                     }
 
@@ -508,7 +510,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
                 &super_trace_properties.prop);
             if (*err != ERROR_SUCCESS)
             {
-                *err_info = ws_strdup_printf("StartTrace failed with 0x%x", *err);
+                *err_info = ws_strdup_printf("StartTrace failed: %s", win32strerror(*err));
                 returnVal = WTAP_OPEN_ERROR;
                 break;
             }
@@ -530,7 +532,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
                     &trace_params);
                 if (*err != ERROR_SUCCESS)
                 {
-                    *err_info = ws_strdup_printf("EnableTraceEx failed with 0x%x", *err);
+                    *err_info = ws_strdup_printf("EnableTraceEx2 failed: %s", win32strerror(*err));
                     returnVal = WTAP_OPEN_ERROR;
                     break;
                 }
@@ -540,7 +542,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
         trace_handle = OpenTrace(&log_file);
         if (trace_handle == INVALID_PROCESSTRACE_HANDLE) {
             *err = GetLastError();
-            *err_info = ws_strdup_printf("OpenTrace failed with 0x%x", *err);
+            *err_info = ws_strdup_printf("OpenTrace failed: %s", win32strerror(*err));
             returnVal = WTAP_OPEN_NOT_MINE;
             break;
         }
@@ -555,7 +557,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
         *err = ProcessTrace(&trace_handle, 1, 0, 0);
         if (*err != ERROR_SUCCESS) {
             returnVal = WTAP_OPEN_ERROR;
-            *err_info = ws_strdup_printf("ProcessTrace failed with 0x%x", *err);
+            *err_info = ws_strdup_printf("ProcessTrace failed: %s", win32strerror(*err));
             break;
         }
 
