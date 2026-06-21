@@ -17,9 +17,11 @@ print_completion_summary() {
     echo "Git configuration is complete."
     echo "You can install dependencies later by running the appropriate script:"
     echo "  - macOS:   tools/macos-setup-brew.sh or tools/macos-setup.sh"
+    echo "  - *BSD:    tools/bsd-setup.sh"
     echo "  - Debian:  tools/debian-setup.sh"
     echo "  - Fedora:  tools/rpm-setup.sh"
     echo "  - Arch:    tools/arch-setup.sh"
+    echo "  - Haiku:   tools/haiku-setup.sh"
     echo "  - MSYS2 (Windows):   tools/msys2-setup.sh"
     echo "  - MinGW (Windows):   tools/mingw-rpm-setup.sh"
     echo ""
@@ -102,6 +104,14 @@ case "$os_name" in
     MINGW*|MSYS*)
         platform_label="Windows/MSYS2"
         platform_script="$repo_root/tools/msys2-setup.sh"
+        ;;
+    FreeBSD|NetBSD|OpenBSD|DragonFlu)
+        platform_label="BSD"
+        platform_script="$repo_root/tools/bsd-setup.sh"
+        ;;
+    Haiku)
+        platform_label="Haiku"
+        platform_script="$repo_root/tools/haiku-setup.sh"
         ;;
     *)
         # Assume Linux-ish; try os-release

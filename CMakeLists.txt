@@ -4951,7 +4951,10 @@ if(SHELLCHECK_EXECUTABLE)
 			tools/debian-setup.sh
 			tools/fuzz-test.sh
 			tools/gen-bugnote
+			tools/haiku-setup.sh
 			tools/macos-setup-brew.sh
+			tools/mingw-rpm-setup.sh
+			tools/msys2-setup.sh
 			tools/pre-commit
 			tools/randpkt-test.sh
 			tools/release-update-debian-soversions.sh

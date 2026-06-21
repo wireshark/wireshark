@@ -83,4 +83,5 @@ echo "Basic package mingw64-speexdsp is unavailable" >&2
 
 ACTUAL_LIST=$BASIC_LIST
 
+# shellcheck disable=SC2086
 dnf install $ACTUAL_LIST $OPTIONS
