@@ -44,7 +44,7 @@
     <type type-name="UTF8String"/>
   </avp>
   <avp name="3GPP-Session-Stop-Indicator" code="11" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-    <type type-name="UTF8String"/>
+    <type type-name="OctetString"/>
   </avp>
   <avp name="3GPP-Selection-Mode" code="12" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
     <type type-name="UTF8String"/>
