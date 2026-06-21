@@ -3680,10 +3680,19 @@ static const vsff glusterfs4_0_fop_proc[] = {
 		GFS3_OP_ZEROFILL, "ZEROFILL",
 		glusterfs_gfs4_0_op_zerofill_call, glusterfs_gfs4_0_op_common_2iatt_reply
 	},
+	{ GFS3_OP_IPC, "IPC", dissect_rpc_unknown, dissect_rpc_unknown },
 	{
 		GFS3_OP_SEEK, "SEEK",
 		glusterfs_gfs4_0_op_seek_call, glusterfs_gfs4_0_op_seek_reply
 	},
+	{ GFS3_OP_COMPOUND, "COMPOUND", dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_LEASE, "LEASE", dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_GETACTIVELK, "GETACTIVELK", dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_SETACTIVELK, "SETACTIVELK", dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_ICREATE, "ICREATE", dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_NAMELINK, "NAMELINK", dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_PUT, "PUT", dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GFS3_OP_COPY_FILE_RANGE, "COPY_FILE_RANGE", dissect_rpc_unknown, dissect_rpc_unknown },
 	{ 0, NULL, NULL, NULL }
 };
 
@@ -3737,7 +3746,6 @@ static const value_string glusterfs3_1_fop_proc_vals[] = {
 	{ GFS3_OP_SETATTR,      "SETATTR" },
 	{ GFS3_OP_FSETATTR,     "FSETATTR" },
 	{ GFS3_OP_READDIRP,     "READDIRP" },
-	{ GFS3_OP_FORGET,       "FORGET" },
 	{ GFS3_OP_RELEASE,      "RELEASE" },
 	{ GFS3_OP_RELEASEDIR,   "RELEASEDIR" },
 	{ GFS3_OP_FREMOVEXATTR, "FREMOVEXATTR" },
@@ -3746,6 +3754,14 @@ static const value_string glusterfs3_1_fop_proc_vals[] = {
 	{ GFS3_OP_ZEROFILL,     "ZEROFILL" },
 	{ GFS3_OP_IPC,	  "IPC" },
 	{ GFS3_OP_SEEK,	 "SEEK" },
+	{ GFS3_OP_COMPOUND, "COMPOUND" },
+	{ GFS3_OP_LEASE, "LEASE" },
+	{ GFS3_OP_GETACTIVELK, "GETACTIVELK" },
+	{ GFS3_OP_SETACTIVELK, "SETACTIVELK" },
+	{ GFS3_OP_ICREATE, "ICREATE" },
+	{ GFS3_OP_NAMELINK, "NAMELINK" },
+	{ GFS3_OP_PUT, "PUT" },
+	{ GFS3_OP_COPY_FILE_RANGE, "COPY_FILE_RANGE" },
 	{ 0, NULL }
 };
 static value_string_ext glusterfs3_1_fop_proc_vals_ext = VALUE_STRING_EXT_INIT(glusterfs3_1_fop_proc_vals);
