@@ -1019,8 +1019,8 @@ static const value_string dns_types_vals[] = {
   { DNS_T_PX,         "PX"         }, /* RFC 1664 */
   { DNS_T_GPOS,       "GPOS"       }, /* RFC 1712 */
   { DNS_T_AAAA,       "AAAA"       }, /* RFC 1886 */
-  { DNS_T_LOC,        "LOC"        }, /* RFC 1886 */
-  { DNS_T_NXT,        "NXT"        }, /* RFC 1876 */
+  { DNS_T_LOC,        "LOC"        }, /* RFC 1876 */
+  { DNS_T_NXT,        "NXT"        }, /* RFC 2535 */
   { DNS_T_EID,        "EID"        },
   { DNS_T_NIMLOC,     "NIMLOC"     },
   { DNS_T_SRV,        "SRV"        }, /* RFC 2052 */
@@ -1706,7 +1706,7 @@ make_local_part_domain(wmem_allocator_t* scope, const char* name)
 
 
 static double
-rfc1867_size(tvbuff_t *tvb, int offset)
+rfc1876_size(tvbuff_t *tvb, int offset)
 {
   uint8_t val;
   double  size;
@@ -1723,7 +1723,7 @@ rfc1867_size(tvbuff_t *tvb, int offset)
 }
 
 static char *
-rfc1867_angle(tvbuff_t *tvb, int offset, bool longitude)
+rfc1876_angle(tvbuff_t *tvb, int offset, bool longitude)
 {
   uint32_t    angle;
   char        direction;
@@ -3203,23 +3203,23 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         cur_offset++;
 
         ti = proto_tree_add_item(rr_tree, hf_dns_loc_size, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, " (%g m)", rfc1867_size(tvb, cur_offset));
+        proto_item_append_text(ti, " (%g m)", rfc1876_size(tvb, cur_offset));
         cur_offset++;
 
         ti = proto_tree_add_item(rr_tree, hf_dns_loc_horizontal_precision, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, " (%g m)", rfc1867_size(tvb, cur_offset));
+        proto_item_append_text(ti, " (%g m)", rfc1876_size(tvb, cur_offset));
         cur_offset++;
 
         ti = proto_tree_add_item(rr_tree, hf_dns_loc_vertical_precision, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, " (%g m)", rfc1867_size(tvb, cur_offset));
+        proto_item_append_text(ti, " (%g m)", rfc1876_size(tvb, cur_offset));
         cur_offset++;
 
         ti = proto_tree_add_item(rr_tree, hf_dns_loc_latitude, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, " (%s)", rfc1867_angle(tvb, cur_offset, false));
+        proto_item_append_text(ti, " (%s)", rfc1876_angle(tvb, cur_offset, false));
         cur_offset += 4;
 
         ti = proto_tree_add_item(rr_tree, hf_dns_loc_longitude, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, " (%s)", rfc1867_angle(tvb, cur_offset, true));
+        proto_item_append_text(ti, " (%s)", rfc1876_angle(tvb, cur_offset, true));
         cur_offset += 4;
 
         ti = proto_tree_add_item(rr_tree, hf_dns_loc_altitude, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
