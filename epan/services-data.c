@@ -4419,6 +4419,7 @@ static const ws_services_entry_t global_tcp_udp_services_table[] = {
     { 6581, "parsec-peer",      "Parsec Peer-to-Peer" },
     { 6582, "parsec-game",      "Parsec Gameserver" },
     { 6583, "joaJewelSuite",    "JOA Jewel Suite" },
+    { 6610, "bencher",          "Bencher API" },
     { 6619, "odette-ftps",      "ODETTE-FTP over TLS/SSL" },
     { 6620, "kftp-data",        "Kerberos V5 FTP Data" },
     { 6621, "kftp",             "Kerberos V5 FTP Control" },
