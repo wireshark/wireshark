@@ -496,7 +496,7 @@ cfile_write_failure_message(const char *in_filename, const char *out_filename,
         cmdarg_err("Not all the packets could be written to the %s because you are "
                    "too close to, or over your disk quota.",
                    out_file_string);
-  break;
+        break;
 #endif
 
     default:
@@ -564,14 +564,14 @@ cfile_close_failure_message(const char *filename, int err, char *err_info)
         cmdarg_err("Not all the packets could be written to the %s because there is "
                    "no space left on the file system.",
                    file_string);
-    break;
+        break;
 
 #ifdef EDQUOT
     case EDQUOT:
         cmdarg_err("Not all the packets could be written to the %s because you are "
                    "too close to, or over your disk quota.",
                    file_string);
-    break;
+        break;
 #endif
 
     default:
