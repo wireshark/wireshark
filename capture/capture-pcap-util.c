@@ -26,60 +26,11 @@
 #include <sys/socket.h>
 #endif
 
-/*
- * On Linux, <net/if.h> must be included before anything that pulls in
- * <linux/if.h> (e.g. <linux/if_bonding.h> below); otherwise glibc's
- * libc-compat guard cannot suppress the kernel-header definitions and
- * we get redefinition errors for IFF_UP and friends.
- */
-#ifndef _WIN32
-#include <sys/ioctl.h>
-#include <net/if.h>
-#include <ifaddrs.h>
-#include <unistd.h>
-#if defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__)
-#include <net/if_dl.h>
-#endif
-#endif
-
 #ifdef __APPLE__
 #include <dlfcn.h>
 #endif
 
 #include "ws_attributes.h"
-
-/*
- * Linux bonding devices mishandle unknown ioctls; they fail
- * with ENODEV rather than ENOTSUP, EOPNOTSUPP, or ENOTTY,
- * so pcap_can_set_rfmon() returns a "no such device" indication
- * if we try to do SIOCGIWMODE on them.
- *
- * So, on Linux, we check for bonding devices, if we can, before
- * trying pcap_can_set_rfmon(), as pcap_can_set_rfmon() will
- * end up trying SIOCGIWMODE on the device if that ioctl exists.
- */
-#if defined(__linux__)
-
-#include <sys/ioctl.h>
-
-/*
- * If we're building for a Linux version that supports bonding,
- * HAVE_BONDING will be defined.
- */
-
-#ifdef HAVE_LINUX_SOCKIOS_H
-#include <linux/sockios.h>
-#endif
-
-#ifdef HAVE_LINUX_IF_BONDING_H
-#include <linux/if_bonding.h>
-#endif
-
-#if defined(BOND_INFO_QUERY_OLD) || defined(SIOCBONDINFOQUERY)
-#define HAVE_BONDING
-#endif
-
-#endif /* defined(__linux__) */
 
 #include "capture/capture_ifinfo.h"
 #include "capture/capture-pcap-util.h"
@@ -94,24 +45,143 @@
 #include <wsutil/please_report_bug.h>
 #include <wsutil/wslog.h>
 
-#ifndef _WIN32
-#include <netinet/in.h>
+#ifdef _WIN32
+#include "capture/capture_win_ifnames.h" /* windows friendly interface names */
 #endif
 
 #ifdef _WIN32
 #include <iphlpapi.h>
 #include "capture/capture_win_ifnames.h" /* windows friendly interface names */
-#endif
 
-#ifndef _WIN32
-#if defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__HAIKU__)
+static interface_type
+get_windows_iftype(const char *name)
+{
+	ULONG buflen = 15000;
+	PIP_ADAPTER_ADDRESSES addrs, curr;
+	ULONG ret;
+	interface_type type = IF_WIRED;
+
+	addrs = (PIP_ADAPTER_ADDRESSES)g_malloc(buflen);
+	ret = GetAdaptersAddresses(AF_UNSPEC,
+	    GAA_FLAG_INCLUDE_PREFIX, NULL, addrs, &buflen);
+	if (ret == ERROR_BUFFER_OVERFLOW) {
+		g_free(addrs);
+		addrs = (PIP_ADAPTER_ADDRESSES)g_malloc(buflen);
+		ret = GetAdaptersAddresses(AF_UNSPEC,
+		    GAA_FLAG_INCLUDE_PREFIX, NULL, addrs, &buflen);
+	}
+	if (ret != NO_ERROR) {
+		g_free(addrs);
+		return IF_WIRED;
+	}
+
+	/*
+	 * Npcap device names use \Device\NPF_{GUID}, so
+	 * strip that prefix and match against AdapterName
+	 * which is the {GUID} part.
+	 */
+	const char *match_name = name;
+	if (strncmp(name, "\\Device\\NPF_", 12) == 0)
+		match_name = name + 12;
+
+	for (curr = addrs; curr != NULL; curr = curr->Next) {
+		if (g_ascii_strcasecmp(curr->AdapterName,
+		    match_name) != 0)
+			continue;
+
+		switch (curr->IfType) {
+		case IF_TYPE_SOFTWARE_LOOPBACK:
+			type = IF_LOOPBACK;
+			break;
+		case IF_TYPE_TUNNEL:
+			type = IF_TUNNEL;
+			break;
+		case IF_TYPE_PPP:
+			type = IF_DIALUP;
+			break;
+		case IF_TYPE_IEEE80211:
+			type = IF_WIRELESS;
+			break;
+		case IF_TYPE_PROP_VIRTUAL:
+			type = IF_VIRTUAL;
+			break;
+		default:
+			break;
+		}
+		break;
+	}
+
+	g_free(addrs);
+	return type;
+}
+#else /* _WIN32 */
+/*
+ * Not Windows (UN*Xes, Haiku)
+ *
+ * Get stuff for various socket ioctls.
+ */
+#include <sys/ioctl.h>
+
 /*
  * Needed for the code to get a device description.
  */
 #include <errno.h>
+
+#include <ifaddrs.h>
+#include <unistd.h>
+
+/*
+ * On most supported platforms <sys/ioctl.h> also defines the SIOCGIF* macros.
+ * However, on Haiku and Solaris/Illumos the macros need <sys/sockio.h>,
+ * which does not exist on some other systems.
+ */
+#if defined(__HAIKU__) || defined(sun) || defined(_sun)
 #include <sys/sockio.h>
-#include <sys/ioctl.h>
 #endif
+
+/*
+ * On Linux, <net/if.h> must be included before anything that pulls in
+ * <linux/if.h> (e.g. <linux/if_bonding.h> below); otherwise glibc's
+ * libc-compat guard cannot suppress the kernel-header definitions and
+ * we get redefinition errors for IFF_UP and friends.
+ */
+#include <net/if.h>
+
+/*
+ * Linux bonding devices mishandle unknown ioctls; they fail
+ * with ENODEV rather than ENOTSUP, EOPNOTSUPP, or ENOTTY,
+ * so pcap_can_set_rfmon() returns a "no such device" indication
+ * if we try to do SIOCGIWMODE on them.
+ *
+ * So, on Linux, we check for bonding devices, if we can, before
+ * trying pcap_can_set_rfmon(), as pcap_can_set_rfmon() will
+ * end up trying SIOCGIWMODE on the device if that ioctl exists.
+ */
+#if defined(__linux__)
+
+#ifdef HAVE_LINUX_SOCKIOS_H
+#include <linux/sockios.h>
+#endif
+
+#ifdef HAVE_LINUX_IF_BONDING_H
+#include <linux/if_bonding.h>
+#endif
+
+/*
+ * If we're building for a Linux version that supports bonding,
+ * define HAVE_BONDING.
+ */
+#if defined(BOND_INFO_QUERY_OLD) || defined(SIOCBONDINFOQUERY)
+#define HAVE_BONDING
+#endif
+
+#endif /* defined(__linux__) */
+
+#if defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__)
+#include <net/if_dl.h>
+#endif
+
+#include <netinet/in.h>
 
 /*
  * Given an interface name, find the "friendly name" and interface
@@ -146,7 +216,6 @@ static int get_unix_iff_flags(const char *ifname)
 	close(sock);
 	return ifr.ifr_flags;
 }
-#endif
 
 /*
  * Returns the sdl_type (IANA ifType) for the given interface name,
@@ -180,12 +249,12 @@ static int get_unix_sdl_type(const char *ifname)
 	freeifaddrs(ifap);
 	return type;
 }
-#elif !defined(_WIN32)
+#else /* defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) */
 static int get_unix_sdl_type(const char *ifname _U_)
 {
 	return -1;
 }
-#endif
+#endif /* defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) */
 
 #if defined(HAVE_MACOS_FRAMEWORKS)
 
@@ -344,7 +413,7 @@ add_unix_interface_ifinfo(if_info_t *if_info, const char *name,
 			if_info->type = IF_USB;
 	}
 }
-#elif !defined(_WIN32)
+#else
 /*
  * On other UN*Xes, if there is a description, it's a friendly
  * name, and there is no vendor description.  ("Other UN*Xes"
@@ -357,6 +426,7 @@ add_unix_interface_ifinfo(if_info_t *if_info, const char *name _U_,
 	if_info->friendly_name = g_strdup(description);
 }
 #endif
+#endif /* _WIN32 */
 
 static if_info_t *
 if_info_new(const char *name, const char *description, bool loopback);
@@ -599,70 +669,6 @@ if_info_copy_cb(const void* data, void *user_data _U_)
 	return if_info_copy((const if_info_t*)data);
 }
 
-#ifdef _WIN32
-static interface_type
-get_windows_iftype(const char *name)
-{
-	ULONG buflen = 15000;
-	PIP_ADAPTER_ADDRESSES addrs, curr;
-	ULONG ret;
-	interface_type type = IF_WIRED;
-
-	addrs = (PIP_ADAPTER_ADDRESSES)g_malloc(buflen);
-	ret = GetAdaptersAddresses(AF_UNSPEC,
-	    GAA_FLAG_INCLUDE_PREFIX, NULL, addrs, &buflen);
-	if (ret == ERROR_BUFFER_OVERFLOW) {
-		g_free(addrs);
-		addrs = (PIP_ADAPTER_ADDRESSES)g_malloc(buflen);
-		ret = GetAdaptersAddresses(AF_UNSPEC,
-		    GAA_FLAG_INCLUDE_PREFIX, NULL, addrs, &buflen);
-	}
-	if (ret != NO_ERROR) {
-		g_free(addrs);
-		return IF_WIRED;
-	}
-
-	/*
-	 * Npcap device names use \Device\NPF_{GUID}, so
-	 * strip that prefix and match against AdapterName
-	 * which is the {GUID} part.
-	 */
-	const char *match_name = name;
-	if (strncmp(name, "\\Device\\NPF_", 12) == 0)
-		match_name = name + 12;
-
-	for (curr = addrs; curr != NULL; curr = curr->Next) {
-		if (g_ascii_strcasecmp(curr->AdapterName,
-		    match_name) != 0)
-			continue;
-
-		switch (curr->IfType) {
-		case IF_TYPE_SOFTWARE_LOOPBACK:
-			type = IF_LOOPBACK;
-			break;
-		case IF_TYPE_TUNNEL:
-			type = IF_TUNNEL;
-			break;
-		case IF_TYPE_PPP:
-			type = IF_DIALUP;
-			break;
-		case IF_TYPE_IEEE80211:
-			type = IF_WIRELESS;
-			break;
-		case IF_TYPE_PROP_VIRTUAL:
-			type = IF_VIRTUAL;
-			break;
-		default:
-			break;
-		}
-		break;
-	}
-
-	g_free(addrs);
-	return type;
-}
-#endif
-
 static if_info_t *
 if_info_new(const char *name, const char *description, bool loopback)
 {
@@ -761,7 +767,7 @@ if_info_new(const char *name, const char *description, bool loopback)
 		if_info->friendly_name = g_strdup(description);
 		if_info->vendor_description = NULL;
 	}
-#else
+#else /* _WIN32 */
 	/*
 	 * On UN*X, if there is a description, it's a friendly
 	 * name, and there is no vendor description.
@@ -782,6 +788,10 @@ if_info_new(const char *name, const char *description, bool loopback)
 			if (if_info->friendly_name == NULL)
 				if_info->friendly_name = g_strdup("Loopback");
 		} else if (flags != -1 && (flags & IFF_POINTOPOINT)) {
+			/*
+			 * XXX - what about pppN interfaces?
+			 * They're just PPP links, not tunnels.
+			 */
 			if_info->type = IF_TUNNEL;
 			if (if_info->friendly_name == NULL) {
 #if defined(__APPLE__)
@@ -907,7 +917,7 @@ if_info_new(const char *name, const char *description, bool loopback)
 #endif
 
 	if_info->vendor_description = NULL;
-#endif
+#endif /* _WIN32 */
 	if_info->loopback = loopback;
 	if_info->addrs = NULL;
 	if_info->caps = NULL;
@@ -1050,7 +1060,7 @@ get_remote_interface_list_common(const char *hostname, const char *port,
 
 	return il;
 }
-#endif
+#endif /* HAVE_PCAP_REMOTE */
 
 GList *
 get_local_interface_list(int *err, char **err_str)
@@ -1185,8 +1195,8 @@ get_pcap_datalink(pcap_t *pch,
 #endif
 
 	datalink = pcap_datalink(pch);
-#ifdef _AIX
 
+#ifdef _AIX
 	/*
 	 * The libpcap that comes with AIX 5.x uses RFC 1573 ifType values
 	 * rather than DLT_ values for link-layer types; the ifType values
@@ -1286,7 +1296,7 @@ get_pcap_datalink(pcap_t *pch,
 			datalink = 0;
 		}
 	}
-#endif
+#endif /* _AIX */
 
 	return datalink;
 }
@@ -1557,13 +1567,13 @@ is_linux_bonding_device(const char *ifname)
 	close(fd);
 	return false;
 }
-#else
+#else /* HAVE_BONDING */
 static bool
 is_linux_bonding_device(const char *ifname _U_)
 {
 	return false;
 }
-#endif
+#endif /* HAVE_BONDING */
 
 if_capabilities_t *
 get_if_capabilities_pcap_create(interface_options *interface_opts,
