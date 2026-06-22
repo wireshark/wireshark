@@ -859,6 +859,13 @@ ws_strdup_underline(wmem_allocator_t *allocator, long offset, size_t len)
             FMTBUF_ENDSTR; \
             return fmtbuf; \
         } \
+        if (column+(nbytes+1) >= fmtbuf_len) { \
+            if (ckd_add(&fmtbuf_len, fmtbuf_len, (column + nbytes + 2) - fmtbuf_len)) { \
+                ws_debug("overflow!"); \
+                FMTBUF_ENDSTR; \
+                return fmtbuf; \
+            } \
+        } \
         fmtbuf = (char *)wmem_realloc(allocator, fmtbuf, fmtbuf_len); \
     }
 
@@ -888,6 +895,11 @@ ws_strdup_underline(wmem_allocator_t *allocator, long offset, size_t len)
     FMTBUF_PUTCHAR(hex[((b) >> 4) & 0xF]); \
     FMTBUF_PUTCHAR(hex[((b) >> 0) & 0xF])
 
+#define FMTBUF_PUTBYTES(bytes, len) \
+    FMTBUF_EXPAND(len) \
+    memcpy(&fmtbuf[column], bytes, len); \
+    column += (unsigned)len; // FMTBUF_EXPAND checks for overflow
+
 /*
  * Put the trailing '\0' at the end of the buffer.
  */
@@ -900,220 +912,47 @@ format_text_internal(wmem_allocator_t *allocator,
                         bool replace_space)
 {
     FMTBUF_VARS;
+    const unsigned char *prev = string;
     const unsigned char *stringend = string + len;
     unsigned char c;
+    size_t printable_bytes = 0;
 
     while (string < stringend) {
         /*
          * Get the first byte of this character.
          */
         c = *string++;
-        if (g_ascii_isprint(c)) {
+        if ((0x20 <= c) && (c < 0x7F)) {
             /*
              * Printable ASCII, so not part of a multi-byte UTF-8 sequence.
              * Make sure there's enough room for one more byte, and add
              * the character.
              */
-            FMTBUF_EXPAND(1);
-            FMTBUF_PUTCHAR(c);
-        } else if (replace_space && g_ascii_isspace(c)) {
-            /*
-             * ASCII, so not part of a multi-byte UTF-8 sequence, but
-             * not printable, but is a space character; show it as a
-             * blank.
-             *
-             * Make sure there's enough room for one more byte, and add
-             * the blank.
-             */
-            FMTBUF_EXPAND(1);
-            FMTBUF_PUTCHAR(' ');
-        } else if (c < 128) {
-            /*
-             * ASCII, so not part of a multi-byte UTF-8 sequence, but not
-             * printable.
-             *
-             * That requires a minimum of 2 bytes, one for the backslash
-             * and one for a letter, so make sure we have enough room
-             * for that, plus a trailing '\0'.
-             */
-            FMTBUF_EXPAND(2);
-            FMTBUF_PUTCHAR('\\');
-            switch (c) {
-
-                case '\a':
-                    FMTBUF_PUTCHAR('a');
-                    break;
-
-                case '\b':
-                    FMTBUF_PUTCHAR('b'); /* BS */
-                    break;
-
-                case '\f':
-                    FMTBUF_PUTCHAR('f'); /* FF */
-                    break;
-
-                case '\n':
-                    FMTBUF_PUTCHAR('n'); /* NL */
-                    break;
-
-                case '\r':
-                    FMTBUF_PUTCHAR('r'); /* CR */
-                    break;
-
-                case '\t':
-                    FMTBUF_PUTCHAR('t'); /* tab */
-                    break;
-
-                case '\v':
-                    FMTBUF_PUTCHAR('v');
-                    break;
-
-                default:
-                    /*
-                     * We've already put the backslash, but this
-                     * will put 3 more characters for the octal
-                     * number; make sure we have enough room for
-                     * that, plus the trailing '\0'.
-                     */
-                    FMTBUF_EXPAND(3);
-                    FMTBUF_PUTBYTE_OCTAL(c);
-                    break;
-            }
+            printable_bytes++;
         } else {
-            /*
-             * We've fetched the first byte of a multi-byte UTF-8
-             * sequence into c.
-             */
-            int utf8_len;
-            unsigned char mask;
-            gunichar uc;
-            unsigned char first;
-
-            if ((c & 0xe0) == 0xc0) {
-                /* Starts a 2-byte UTF-8 sequence; 1 byte left */
-                utf8_len = 1;
-                mask = 0x1f;
-            } else if ((c & 0xf0) == 0xe0) {
-                /* Starts a 3-byte UTF-8 sequence; 2 bytes left */
-                utf8_len = 2;
-                mask = 0x0f;
-            } else if ((c & 0xf8) == 0xf0) {
-                /* Starts a 4-byte UTF-8 sequence; 3 bytes left */
-                utf8_len = 3;
-                mask = 0x07;
-            } else if ((c & 0xfc) == 0xf8) {
-                /* Starts an old-style 5-byte UTF-8 sequence; 4 bytes left */
-                utf8_len = 4;
-                mask = 0x03;
-            } else if ((c & 0xfe) == 0xfc) {
-                /* Starts an old-style 6-byte UTF-8 sequence; 5 bytes left */
-                utf8_len = 5;
-                mask = 0x01;
-            } else {
-                /* 0xfe or 0xff or a continuation byte - not valid */
-                utf8_len = -1;
+            if (printable_bytes) {
+                FMTBUF_PUTBYTES(prev, printable_bytes);
+                printable_bytes = 0;
             }
-            if (utf8_len > 0) {
-                /* Try to construct the Unicode character */
-                uc = c & mask;
-                for (int i = 0; i < utf8_len; i++) {
-                    if (string >= stringend) {
-                        /*
-                         * Ran out of octets, so the character is
-                         * incomplete.  Put in a REPLACEMENT CHARACTER
-                         * instead, and then continue the loop, which
-                         * will terminate.
-                         */
-                        uc = UNICODE_REPLACEMENT_CHARACTER;
-                        break;
-                    }
-                    c = *string;
-                    if ((c & 0xc0) != 0x80) {
-                        /*
-                         * Not valid UTF-8 continuation character; put in
-                         * a replacement character, and then re-process
-                         * this octet as the beginning of a new character.
-                         */
-                        uc = UNICODE_REPLACEMENT_CHARACTER;
-                        break;
-                    }
-                    string++;
-                    uc = (uc << 6) | (c & 0x3f);
-                }
-
+            if (replace_space && g_ascii_isspace(c)) {
                 /*
-                 * If this isn't a valid Unicode character, put in
-                 * a REPLACEMENT CHARACTER.
-                 */
-                if (!g_unichar_validate(uc))
-                    uc = UNICODE_REPLACEMENT_CHARACTER;
-            } else {
-                /* 0xfe or 0xff; put it a REPLACEMENT CHARACTER */
-                uc = UNICODE_REPLACEMENT_CHARACTER;
-            }
-
-            /*
-             * OK, is it a printable Unicode character?
-             */
-            if (g_unichar_isprint(uc)) {
-                /*
-                 * Yes - put it into the string as UTF-8.
-                 * This means that if it was an overlong
-                 * encoding, this will put out the right
-                 * sized encoding.
-                 */
-                if (uc < 0x80) {
-                    first = 0;
-                    utf8_len = 1;
-                } else if (uc < 0x800) {
-                    first = 0xc0;
-                    utf8_len = 2;
-                } else if (uc < 0x10000) {
-                    first = 0xe0;
-                    utf8_len = 3;
-                } else if (uc < 0x200000) {
-                    first = 0xf0;
-                    utf8_len = 4;
-                } else if (uc < 0x4000000) {
-                    /*
-                     * This should never happen, as Unicode doesn't
-                     * go that high.
-                     */
-                    first = 0xf8;
-                    utf8_len = 5;
-                } else {
-                    /*
-                     * This should never happen, as Unicode doesn't
-                     * go that high.
-                     */
-                    first = 0xfc;
-                    utf8_len = 6;
-                }
-                FMTBUF_EXPAND(utf8_len);
-                for (int i = utf8_len - 1; i > 0; i--) {
-                    fmtbuf[column + i] = (uc & 0x3f) | 0x80;
-                    uc >>= 6;
-                }
-                fmtbuf[column] = uc | first;
-                column += utf8_len;
-            } else if (replace_space && g_unichar_isspace(uc)) {
-                /*
-                 * Not printable, but is a space character; show it
-                 * as a blank.
+                 * ASCII, so not part of a multi-byte UTF-8 sequence, but
+                 * not printable, but is a space character; show it as a
+                 * blank.
                  *
-                 * Make sure there's enough room for one more byte,
-                 * and add the blank.
+                 * Make sure there's enough room for one more byte, and add
+                 * the blank.
                  */
                 FMTBUF_EXPAND(1);
                 FMTBUF_PUTCHAR(' ');
             } else if (c < 128) {
                 /*
-                 * ASCII, but not printable.
-                 * Yes, this could happen with an overlong encoding.
+                 * ASCII, so not part of a multi-byte UTF-8 sequence, but not
+                 * printable.
                  *
-                 * That requires a minimum of 2 bytes, one for the
-                 * backslash and one for a letter, so make sure we
-                 * have enough room for that, plus a trailing '\0'.
+                 * That requires a minimum of 2 bytes, one for the backslash
+                 * and one for a letter, so make sure we have enough room
+                 * for that, plus a trailing '\0'.
                  */
                 FMTBUF_EXPAND(2);
                 FMTBUF_PUTCHAR('\\');
@@ -1160,32 +999,217 @@ format_text_internal(wmem_allocator_t *allocator,
                 }
             } else {
                 /*
-                 * Unicode, but not printable, and not ASCII;
-                 * put it out as \uxxxx or \Uxxxxxxxx.
+                 * We've fetched the first byte of a multi-byte UTF-8
+                 * sequence into c.
                  */
-                if (uc <= 0xFFFF) {
-                    FMTBUF_EXPAND(6);
-                    FMTBUF_PUTCHAR('\\');
-                    FMTBUF_PUTCHAR('u');
-                    FMTBUF_PUTCHAR(hex[(uc >> 12) & 0xF]);
-                    FMTBUF_PUTCHAR(hex[(uc >> 8) & 0xF]);
-                    FMTBUF_PUTCHAR(hex[(uc >> 4) & 0xF]);
-                    FMTBUF_PUTCHAR(hex[(uc >> 0) & 0xF]);
+                int utf8_len;
+                unsigned char mask;
+                gunichar uc;
+                unsigned char first;
+
+                if ((c & 0xe0) == 0xc0) {
+                    /* Starts a 2-byte UTF-8 sequence; 1 byte left */
+                    utf8_len = 1;
+                    mask = 0x1f;
+                } else if ((c & 0xf0) == 0xe0) {
+                    /* Starts a 3-byte UTF-8 sequence; 2 bytes left */
+                    utf8_len = 2;
+                    mask = 0x0f;
+                } else if ((c & 0xf8) == 0xf0) {
+                    /* Starts a 4-byte UTF-8 sequence; 3 bytes left */
+                    utf8_len = 3;
+                    mask = 0x07;
+                } else if ((c & 0xfc) == 0xf8) {
+                    /* Starts an old-style 5-byte UTF-8 sequence; 4 bytes left */
+                    utf8_len = 4;
+                    mask = 0x03;
+                } else if ((c & 0xfe) == 0xfc) {
+                    /* Starts an old-style 6-byte UTF-8 sequence; 5 bytes left */
+                    utf8_len = 5;
+                    mask = 0x01;
                 } else {
-                    FMTBUF_EXPAND(10);
+                    /* 0xfe or 0xff or a continuation byte - not valid */
+                    utf8_len = -1;
+                }
+                if (utf8_len > 0) {
+                    /* Try to construct the Unicode character */
+                    uc = c & mask;
+                    for (int i = 0; i < utf8_len; i++) {
+                        if (string >= stringend) {
+                            /*
+                             * Ran out of octets, so the character is
+                             * incomplete.  Put in a REPLACEMENT CHARACTER
+                             * instead, and then continue the loop, which
+                             * will terminate.
+                             */
+                            uc = UNICODE_REPLACEMENT_CHARACTER;
+                            break;
+                        }
+                        c = *string;
+                        if ((c & 0xc0) != 0x80) {
+                            /*
+                             * Not valid UTF-8 continuation character; put in
+                             * a replacement character, and then re-process
+                             * this octet as the beginning of a new character.
+                             */
+                            uc = UNICODE_REPLACEMENT_CHARACTER;
+                            break;
+                        }
+                        string++;
+                        uc = (uc << 6) | (c & 0x3f);
+                    }
+
+                    /*
+                     * If this isn't a valid Unicode character, put in
+                     * a REPLACEMENT CHARACTER.
+                     */
+                    if (!g_unichar_validate(uc))
+                        uc = UNICODE_REPLACEMENT_CHARACTER;
+                } else {
+                    /* 0xfe or 0xff; put it a REPLACEMENT CHARACTER */
+                    uc = UNICODE_REPLACEMENT_CHARACTER;
+                }
+
+                /*
+                 * OK, is it a printable Unicode character?
+                 */
+                if (g_unichar_isprint(uc)) {
+                    /*
+                     * Yes - put it into the string as UTF-8.
+                     * This means that if it was an overlong
+                     * encoding, this will put out the right
+                     * sized encoding.
+                     */
+                    if (uc < 0x80) {
+                        first = 0;
+                        utf8_len = 1;
+                    } else if (uc < 0x800) {
+                        first = 0xc0;
+                        utf8_len = 2;
+                    } else if (uc < 0x10000) {
+                        first = 0xe0;
+                        utf8_len = 3;
+                    } else if (uc < 0x200000) {
+                        first = 0xf0;
+                        utf8_len = 4;
+                    } else if (uc < 0x4000000) {
+                        /*
+                         * This should never happen, as Unicode doesn't
+                         * go that high.
+                         */
+                        first = 0xf8;
+                        utf8_len = 5;
+                    } else {
+                        /*
+                         * This should never happen, as Unicode doesn't
+                         * go that high.
+                         */
+                        first = 0xfc;
+                        utf8_len = 6;
+                    }
+                    FMTBUF_EXPAND(utf8_len);
+                    for (int i = utf8_len - 1; i > 0; i--) {
+                        fmtbuf[column + i] = (uc & 0x3f) | 0x80;
+                        uc >>= 6;
+                    }
+                    fmtbuf[column] = uc | first;
+                    column += utf8_len;
+                } else if (replace_space && g_unichar_isspace(uc)) {
+                    /*
+                     * Not printable, but is a space character; show it
+                     * as a blank.
+                     *
+                     * Make sure there's enough room for one more byte,
+                     * and add the blank.
+                     */
+                    FMTBUF_EXPAND(1);
+                    FMTBUF_PUTCHAR(' ');
+                } else if (c < 128) {
+                    /*
+                     * ASCII, but not printable.
+                     * Yes, this could happen with an overlong encoding.
+                     *
+                     * That requires a minimum of 2 bytes, one for the
+                     * backslash and one for a letter, so make sure we
+                     * have enough room for that, plus a trailing '\0'.
+                     */
+                    FMTBUF_EXPAND(2);
                     FMTBUF_PUTCHAR('\\');
-                    FMTBUF_PUTCHAR('U');
-                    FMTBUF_PUTCHAR(hex[(uc >> 28) & 0xF]);
-                    FMTBUF_PUTCHAR(hex[(uc >> 24) & 0xF]);
-                    FMTBUF_PUTCHAR(hex[(uc >> 20) & 0xF]);
-                    FMTBUF_PUTCHAR(hex[(uc >> 16) & 0xF]);
-                    FMTBUF_PUTCHAR(hex[(uc >> 12) & 0xF]);
-                    FMTBUF_PUTCHAR(hex[(uc >> 8) & 0xF]);
-                    FMTBUF_PUTCHAR(hex[(uc >> 4) & 0xF]);
-                    FMTBUF_PUTCHAR(hex[(uc >> 0) & 0xF]);
+                    switch (c) {
+
+                        case '\a':
+                            FMTBUF_PUTCHAR('a');
+                            break;
+
+                        case '\b':
+                            FMTBUF_PUTCHAR('b'); /* BS */
+                            break;
+
+                        case '\f':
+                            FMTBUF_PUTCHAR('f'); /* FF */
+                            break;
+
+                        case '\n':
+                            FMTBUF_PUTCHAR('n'); /* NL */
+                            break;
+
+                        case '\r':
+                            FMTBUF_PUTCHAR('r'); /* CR */
+                            break;
+
+                        case '\t':
+                            FMTBUF_PUTCHAR('t'); /* tab */
+                            break;
+
+                        case '\v':
+                            FMTBUF_PUTCHAR('v');
+                            break;
+
+                        default:
+                            /*
+                             * We've already put the backslash, but this
+                             * will put 3 more characters for the octal
+                             * number; make sure we have enough room for
+                             * that, plus the trailing '\0'.
+                             */
+                            FMTBUF_EXPAND(3);
+                            FMTBUF_PUTBYTE_OCTAL(c);
+                            break;
+                    }
+                } else {
+                    /*
+                     * Unicode, but not printable, and not ASCII;
+                     * put it out as \uxxxx or \Uxxxxxxxx.
+                     */
+                    if (uc <= 0xFFFF) {
+                        FMTBUF_EXPAND(6);
+                        FMTBUF_PUTCHAR('\\');
+                        FMTBUF_PUTCHAR('u');
+                        FMTBUF_PUTCHAR(hex[(uc >> 12) & 0xF]);
+                        FMTBUF_PUTCHAR(hex[(uc >> 8) & 0xF]);
+                        FMTBUF_PUTCHAR(hex[(uc >> 4) & 0xF]);
+                        FMTBUF_PUTCHAR(hex[(uc >> 0) & 0xF]);
+                    } else {
+                        FMTBUF_EXPAND(10);
+                        FMTBUF_PUTCHAR('\\');
+                        FMTBUF_PUTCHAR('U');
+                        FMTBUF_PUTCHAR(hex[(uc >> 28) & 0xF]);
+                        FMTBUF_PUTCHAR(hex[(uc >> 24) & 0xF]);
+                        FMTBUF_PUTCHAR(hex[(uc >> 20) & 0xF]);
+                        FMTBUF_PUTCHAR(hex[(uc >> 16) & 0xF]);
+                        FMTBUF_PUTCHAR(hex[(uc >> 12) & 0xF]);
+                        FMTBUF_PUTCHAR(hex[(uc >> 8) & 0xF]);
+                        FMTBUF_PUTCHAR(hex[(uc >> 4) & 0xF]);
+                        FMTBUF_PUTCHAR(hex[(uc >> 0) & 0xF]);
+                    }
                 }
             }
+            prev = string;
         }
+    }
+    if (printable_bytes) {
+        FMTBUF_PUTBYTES(prev, printable_bytes);
+        printable_bytes = 0;
     }
 
     FMTBUF_ENDSTR;
