@@ -720,8 +720,11 @@ gluster_rpc4_0_dissect_dict(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
 			dict_item = proto_tree_add_guid_format(subtree, hf_glusterfs_gfid,
 								tvb, offset, val_len, &gfid,
 								"%s: %s", key, gfid_s);
-		} else if (val_type == 6) {
+		/* GF_DATA_TYPE_PTR and GF_DATA_TYPE_STR_OLD share the XDR opaque<>
+		 * arm, whose payload is padded to a 4-byte boundary. */
+		} else if (val_type == 6 || val_type == 1) {
 			val_len = tvb_get_ntohl(tvb, offset);
+			val_len = rpc_roundup(val_len);
 			offset += 4;
 
 			/* read the value, possibly '\0' terminated */
