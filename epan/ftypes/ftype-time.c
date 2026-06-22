@@ -268,8 +268,13 @@ absolute_val_from_string(fvalue_t *fv, const char *s, size_t len _U_, char **err
 	/* Try ISO 8601 format. */
 	endptr = iso8601_to_nstime(&fv->value.time, s, ISO8601_DATETIME);
 	/* Check whether it parsed all of the string */
-	if (endptr != NULL && *endptr == '\0')
+	if (endptr != NULL && *endptr == '\0') {
+		if (nstime_is_unset(&fv->value.time)) {
+			err_msg = ws_strdup_printf("\"%s\" cannot be converted to a valid calendar time.", s);
+			goto fail;
+		}
 		return true;
+	}
 
 	/* No - try other legacy formats. */
 	memset(&tm, 0, sizeof(tm));

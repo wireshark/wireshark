@@ -553,6 +553,8 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr, iso8601_fmt_e format)
             }
         }
     }
+    nstime->nsecs = frac;
+    errno = 0;
     if (have_offset) {
         nstime->secs = mktime_utc(&tm);
         if (sign == '+') {
@@ -574,7 +576,17 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr, iso8601_fmt_e format)
         /* No UTC offset given; ISO 8601 says this means local time */
         nstime->secs = mktime(&tm);
     }
-    nstime->nsecs = frac;
+    /* The C standard does not require that mktime set errno; POSIX does,
+     * and also requires that tm_wday not be changed if -1 is returned
+     * due to the time not being representable in a time_t; C2Y is expected
+     * to include the latter. Windows also sets errno; note that Windows
+     * mktime will fail for dates after "3000-12-31T23:59:59Z", even when
+     * 64-bit time_t is used:
+     * https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/mktime-mktime32-mktime64?view=msvc-170
+     */
+    if (errno) {
+        nstime_set_unset(nstime);
+    }
     return ptr;
 }
 

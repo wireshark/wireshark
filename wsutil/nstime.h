@@ -316,7 +316,11 @@ typedef enum {
  * @brief Parses an ISO 8601 formatted datetime string into an nstime_t.
  *
  * Converts a string in ISO 8601 format (e.g., "2025-10-22T23:10:00.123Z") into an nstime_t structure.
- * On failure, returns NULL and sets the nstime to "unset".
+ * On failure, returns NULL and sets the nstime to "unset". If the string is
+ * successfully parsed, but the conversion fails (e.g., systems with
+ * 32-bit time_t, or Microsoft Windows with dates past the year 3000),
+ * the pointer will point to the first character after the parsed input,
+ * and the nstime will be unset.
  *
  * @param nstime Pointer to the destination nstime_t structure.
  * @param ptr Pointer to the ISO 8601 string to parse.
