@@ -2440,7 +2440,7 @@ typedef struct {
 #endif
 } file_hash_key;
 
-bool
+static bool
 files_identical_key(const void* fname, file_hash_key *key)
 {
     /* Two different implementations, because st_ino isn't filled in with

@@ -1323,10 +1323,16 @@ static void oid_add_unique_path(GHashTable* unique_paths, GString* path_str, con
 }
 
 //Done for more glib-friendly datatypes.
-gboolean
+static guint
+files_hash(gconstpointer key)
+{
+	return (guint)files_identical_hash((const void *)key);
+}
+
+static gboolean
 files_identical_equal(const void* fname1, const void* fname2)
 {
-	return files_identical((const char*)fname1, (const char*)fname2);
+	return files_identical((const char*)fname1, (const char*)fname2) ? TRUE : FALSE;
 }
 #endif
 
@@ -1346,7 +1352,7 @@ oid_get_default_mib_path(const char* app_env_var_prefix _U_) {
 	}
 
 	//To limit the size of the MIB path, we use a hash table to store the unique paths.
-	GHashTable* unique_paths = g_hash_table_new_full(files_identical_hash, files_identical_equal, NULL, g_free);
+	GHashTable* unique_paths = g_hash_table_new_full(files_hash, files_identical_equal, NULL, g_free);
 
 #ifdef _WIN32
 	/* XXX - This is appropriate for MSYS2 installed via package,
