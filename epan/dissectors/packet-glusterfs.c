@@ -2966,8 +2966,8 @@ glusterfs_gfs4_0_op_fxattrop_call(tvbuff_t *tvb,
 	unsigned offset = 0;
 
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
-	offset = glusterfs_rpc_dissect_flags(tree, tvb, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
+	offset = glusterfs_rpc_dissect_flags(tree, tvb, offset);
 	offset = gluster_rpc4_0_dissect_dict(tree, pinfo, tvb, hf_glusterfs_dict, offset);
 	offset = gluster_rpc4_0_dissect_dict(tree, pinfo, tvb, hf_glusterfs_dict, offset);
 
@@ -3067,7 +3067,7 @@ glusterfs_gfs4_0_op_readdirp_reply(tvbuff_t *tvb,
 	return offset;
 }
 
-/* READDIRP and DISCARD both use this */
+/* used by READDIRP (DISCARD now uses the ZEROFILL decoder) */
 static int
 glusterfs_gfs4_0_op_readdirp_call(tvbuff_t *tvb,
 				packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -3133,7 +3133,7 @@ glusterfs_gfs4_0_op_fallocate_call(tvbuff_t *tvb,
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	offset = glusterfs_rpc_dissect_flags(tree, tvb, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_offset, offset);
-	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_size, offset);
+	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_size64, offset);
 	offset = gluster_rpc4_0_dissect_dict(tree, pinfo, tvb, hf_glusterfs_dict, offset);
 
 	return offset;
@@ -3141,7 +3141,7 @@ glusterfs_gfs4_0_op_fallocate_call(tvbuff_t *tvb,
 
 static int
 glusterfs_gfs4_0_op_zerofill_call(tvbuff_t *tvb,
-				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+				packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	unsigned offset = 0;
 
@@ -3149,6 +3149,7 @@ glusterfs_gfs4_0_op_zerofill_call(tvbuff_t *tvb,
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_offset, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_size64, offset);
+	offset = gluster_rpc4_0_dissect_dict(tree, pinfo, tvb, hf_glusterfs_dict, offset);
 
 	return offset;
 }
@@ -3674,7 +3675,8 @@ static const vsff glusterfs4_0_fop_proc[] = {
 	},
 	{
 		GFS3_OP_DISCARD, "DISCARD",
-		glusterfs_gfs4_0_op_readdirp_call, glusterfs_gfs4_0_op_common_2iatt_reply
+		/* gfx_discard_req is byte-identical to gfx_zerofill_req */
+		glusterfs_gfs4_0_op_zerofill_call, glusterfs_gfs4_0_op_common_2iatt_reply
 	},
 	{
 		GFS3_OP_ZEROFILL, "ZEROFILL",
