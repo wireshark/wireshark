@@ -253,8 +253,14 @@ WS_DLL_PUBLIC void zbee_zcl_init_cluster(const char *proto_abbrev, int proto, in
 /*
  * Convert a given Zigbee time value to an nstime_t, for initializing
  * fields in a time_value_string.
+ *
+ * This might overflow when converted to a time_t, e.g. with 32-bit
+ * signed integer time_t. EPOCH_DELTA_2000_01_01_00_00_00_UTC is a
+ * UINT64_C so we can do this test to prevent overflow safely.
+ * Make sure to coordinate with whatever proto.c get_time_value()
+ * does with overflow of an ENC_TIME_ZBEE_ZCL.
  */
 #define NSTIME_INIT_ZBEE(t) \
-    NSTIME_INIT_SECS(((uint32_t)(t)) + EPOCH_DELTA_2000_01_01_00_00_00_UTC)
+    NSTIME_INIT_SECS(MIN(((uint32_t)(t)) + EPOCH_DELTA_2000_01_01_00_00_00_UTC, TIME_T_MAX))
 
 #endif /* PACKET_ZBEE_ZCL_H*/

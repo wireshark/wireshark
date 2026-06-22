@@ -2681,11 +2681,18 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const unsigned start,
 
 			if (length == 8) {
 				tmp64secs  = tvb_get_ntoh64(tvb, start);
-				time_stamp->secs = (time_t)(int64_t)(tmp64secs + EPOCH_DELTA_2000_01_01_00_00_00_UTC);
+				if (ckd_add(&time_stamp->secs, tmp64secs, EPOCH_DELTA_2000_01_01_00_00_00_UTC)) {
+					/* There are several other possible choices for what to do
+					 * with overflow; make sure to coordinate with whatever
+					 * packet-zbee-zcl.h does. */
+					time_stamp->secs = TIME_T_MAX;
+				}
 				time_stamp->nsecs = 0;
 			} else if (length == 4) {
 				tmpsecs  = tvb_get_ntohl(tvb, start);
-				time_stamp->secs = (time_t)(tmpsecs + EPOCH_DELTA_2000_01_01_00_00_00_UTC);
+				if (ckd_add(&time_stamp->secs, tmpsecs, EPOCH_DELTA_2000_01_01_00_00_00_UTC)) {
+					time_stamp->secs = TIME_T_MAX;
+				}
 				time_stamp->nsecs = 0;
 			} else {
 				time_stamp->secs  = 0;
@@ -2703,11 +2710,15 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const unsigned start,
 
 			if (length == 8) {
 				tmp64secs  = tvb_get_letoh64(tvb, start);
-				time_stamp->secs = (time_t)(int64_t)(tmp64secs + EPOCH_DELTA_2000_01_01_00_00_00_UTC);
+				if (ckd_add(&time_stamp->secs, tmp64secs, EPOCH_DELTA_2000_01_01_00_00_00_UTC)) {
+					time_stamp->secs = TIME_T_MAX;
+				}
 				time_stamp->nsecs = 0;
 			} else if (length == 4) {
 				tmpsecs  = tvb_get_letohl(tvb, start);
-				time_stamp->secs = (time_t)(tmpsecs + EPOCH_DELTA_2000_01_01_00_00_00_UTC);
+				if (ckd_add(&time_stamp->secs, tmpsecs, EPOCH_DELTA_2000_01_01_00_00_00_UTC)) {
+					time_stamp->secs = TIME_T_MAX;
+				}
 				time_stamp->nsecs = 0;
 			} else {
 				time_stamp->secs  = 0;
