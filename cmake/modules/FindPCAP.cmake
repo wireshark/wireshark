@@ -9,6 +9,53 @@
 include(FindWSWinLibs)
 FindWSWinLibs("libpcap-*" "PCAP_HINTS")
 
+function(write_temp_pcap out_file_path)
+	# We already require Python in the project main CMakeLists.txt
+	# Writing a binary file that includes NULs is difficult from CMake,
+	# which wants to treat everything as a NUL terminated string.
+	find_package(Python3 3.6 REQUIRED)
+	string(CONCAT python_script [[
+with open(']] "${out_file_path}" [[', 'wb') as f:
+	f.write(b'\324\303\262\241\002\000\004\000\000\000\000\000\000\000\000\000\377\377\000\000\344\000\000\000Y\371I\\\262u\003\000)\000\000\000)\000\000\000E\000\000)\000\001\000\000@\006f\314\n\000\000\001\n\000\000\002\377\230\001\273\000\000\000e\000\000\000\311P\020 \000bO\000\000\027')
+]]
+	)
+	execute_process(
+		COMMAND "${Python3_EXECUTABLE}" -c ${python_script}
+		RESULT_VARIABLE python_result
+	)
+
+	if(NOT python_result EQUAL 0)
+		message(FATAL_ERROR "Python failed to write temp file ${out_file_path}")
+	endif()
+endfunction()
+
+set(_pcap_test_source [=[
+#include <pcap/pcap.h>
+#include <stdint.h>
+
+int main(void) {
+	char err_buf[PCAP_ERRBUF_SIZE];
+	struct pcap_pkthdr *pkt_header;
+	const uint8_t *pkt_data;
+	/* It is important to pick a file with non-zero usec so that
+	   the test works under all sizes and endianness. */
+	pcap_t *pcap_h = pcap_open_offline("@temp_pcap_file@", err_buf);
+
+	if (!pcap_h)
+		return 1;
+	if (pcap_next_ex(pcap_h, &pkt_header, &pkt_data) != 1)
+		return 2;
+	/* This doesn't access memory outside the struct whether we're
+	   using 32-bit time_t and libpcap 64-bit time_t, or vice versa,
+	   due to the presence of the caplen and len members. */
+	if (pkt_header->ts.tv_sec != 0x5c49f959 || pkt_header->ts.tv_usec != 0x000375b2)
+		return 3;
+
+	return 0;
+}
+]=]
+)
+
 #
 # First, try pkg-config on platforms other than Windows.
 #
@@ -125,6 +172,8 @@ endif()
 if (WIN32 AND (CMAKE_CROSSCOMPILING OR USE_MSYSTEM))
   # For cross-compiling, just use the internal headers.
   # We have to turn off the sysroot.
+  # (For cross-compiling where CMAKE_CROSSCOMPILING_EMULATOR
+  # is set we could possibly take the other path.)
   find_path(PCAP_INCLUDE_DIR
     NAMES
       pcap/pcap.h
@@ -221,6 +270,7 @@ if(PCAP_FOUND)
   set( CMAKE_REQUIRED_LIBRARIES ${PCAP_LIBRARIES} )
 
   include(CheckSymbolExists)
+  include(CheckSourceRuns)
 
   if(WIN32)
     #
@@ -250,6 +300,21 @@ if(PCAP_FOUND)
     # assume other things about libpcap, even though, at least for the moment,
     # we don't use pcap_init itself on non-Windows.
     check_function_exists( "pcap_init" HAVE_PCAP_INIT )
+
+    if(NOT CMAKE_CROSSCOMPILING AND CMAKE_SIZEOF_VOID_P EQUAL 4)
+      # On 32-bit platforms, check whether libpcap was compiled with the same
+      # size time_t that we're using.
+      unset(PCAP_TEST_WORKS CACHE)
+      set(temp_pcap_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/temp.pcap")
+      write_temp_pcap(${temp_pcap_file})
+      string(CONFIGURE "${_pcap_test_source}" pcap_test_source @ONLY)
+      check_source_runs(C "${pcap_test_source}" PCAP_TEST_WORKS)
+
+      file(REMOVE temp_pcap_file)
+      if (NOT PCAP_TEST_WORKS)
+        message(FATAL_ERROR "Using libpcap to read a pcap offline failed, probably because libpcap was compiled with a different size time_t.")
+      endif()
+    endif()
 
     #
     # macOS Sonoma's libpcap includes stub versions of the remote-
