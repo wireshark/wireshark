@@ -2489,7 +2489,9 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
     if (!PINFO_FD_VISITED(pinfo)) {
         if (section_details) {
             for (unsigned prb = first_prb; prb <= last_prb; prb++) {
-                section_details->beamIds[prb] = beam_id;
+                if (prb < 273) {
+                    section_details->beamIds[prb] = beam_id;
+                }
             }
         }
     }
@@ -3142,7 +3144,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 dl_data_section->details[index_to_use].startPrb = startPrbc;
                 dl_data_section->details[index_to_use].numPrb = numPrbc;
                 for (unsigned prb = startPrbc; prb <= startPrbc+numPrbc; prb++) {
-                    dl_data_section->details[index_to_use].beamIds[prb] = section_beamId;
+                    if (prb < 273) {
+                        dl_data_section->details[index_to_use].beamIds[prb] = section_beamId;
+                    }
                 }
             }
         }
@@ -3991,9 +3995,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                         if (!PINFO_FD_VISITED(pinfo)) {
                             if (dl_data_section) {
-                                /* Set beamId only for range of PRBss */
+                                /* Set beamId only for range of PRBs */
                                 for (unsigned prb = ext11_settings.bundles[n].start; prb <= ext11_settings.bundles[n].end; prb++) {
-                                    dl_data_section->details[index_to_use].beamIds[prb] = beam_id;
+                                    if (prb < 273) {
+                                        dl_data_section->details[index_to_use].beamIds[prb] = beam_id;
+                                    }
                                 }
                             }
                         }
@@ -7514,9 +7520,11 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(rb_tree, hf_oran_iq_user_data, tvb, offset, nBytesForSamples, ENC_NA);
 
             if (section_details) {
-                proto_item *beamid_ti = proto_tree_add_uint(rb_tree, hf_oran_beamId, tvb, 0, 0,
-                                                            section_details->beamIds[startPrbu + i*(1+rb)]);
-                proto_item_set_generated(beamid_ti);
+                if ((startPrbu + i*(1+rb)) < 273) {
+                    proto_item *beamid_ti = proto_tree_add_uint(rb_tree, hf_oran_beamId, tvb, 0, 0,
+                                                                section_details->beamIds[startPrbu + i*(1+rb)]);
+                    proto_item_set_generated(beamid_ti);
+                }
             }
 
 
@@ -7549,7 +7557,9 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
                 proto_item_append_text(prbHeading, " (%u REs)", samples);
                 if (section_details) {
-                    proto_item_append_text(prbHeading, " [BeamId:%u]", section_details->beamIds[startPrbu + i*(1+rb)]);
+                    if ((startPrbu + i*(1+rb)) < 273) {
+                        proto_item_append_text(prbHeading, " [BeamId:%u]", section_details->beamIds[startPrbu + i*(1+rb)]);
+                    }
                 }
 
                 /* Was this PRB all zeros? */
