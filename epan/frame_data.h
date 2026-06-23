@@ -69,7 +69,7 @@ typedef struct _frame_data {
   /* These two are pointers, meaning 64-bit on LP64 (64-bit UN*X) and
      LLP64 (64-bit Windows) platforms.  Put them here, one after the
      other, so they don't require padding between them. */
-  GSList      *pfd;          /**< Per frame proto data */
+  wmem_list_t *pfd;          /**< Per frame proto data */
   GHashTable  *dependent_frames;     /**< A hash table of frames which this one depends on */
   const struct _color_filter *color_filter;  /**< Per-packet matching color_filter_t object */
   uint32_t     cum_bytes;    /**< Cumulative bytes into the capture */

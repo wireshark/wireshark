@@ -688,6 +688,7 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype, wtap_rec *rec,
 	edt->pi.src_win_scale = -1; /* unknown Rcv.Wind.Shift */
 	edt->pi.dst_win_scale = -1; /* unknown Rcv.Wind.Shift */
 	edt->pi.layers = wmem_list_new(edt->pi.pool);
+	edt->pi.proto_data = NULL;
 	edt->tvb = NULL;
 
 	/*
@@ -809,6 +810,7 @@ dissect_file(epan_dissect_t *edt, wtap_rec *rec,
 	edt->pi.p2p_dir = P2P_DIR_UNKNOWN;
 	edt->pi.link_dir = LINK_DIR_UNKNOWN;
 	edt->pi.layers = wmem_list_new(edt->pi.pool);
+	edt->pi.proto_data = NULL;
 	edt->tvb = NULL;
 
 	frame_rel_first_frame_time(edt->session, fd, &edt->pi.rel_ts);

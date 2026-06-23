@@ -123,7 +123,7 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 		if(pinfo->fd->pfd != 0){
 			proto_item *ppd_item;
-			unsigned num_entries = g_slist_length(pinfo->fd->pfd);
+			unsigned num_entries = wmem_list_count(pinfo->fd->pfd);
 			unsigned i;
 			ppd_item = proto_tree_add_uint(fh_tree, hf_file_num_p_prot_data, tvb, 0, 0, num_entries);
 			proto_item_set_generated(ppd_item);

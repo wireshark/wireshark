@@ -714,8 +714,6 @@ epan_dissect_reset(epan_dissect_t *edt)
 
 	wtap_block_unref(edt->pi.rec->block);
 
-	g_slist_free(edt->pi.proto_data);
-
 	/* Free the data sources list. */
 	free_data_sources(&edt->pi);
 
@@ -816,8 +814,6 @@ epan_dissect_cleanup(epan_dissect_t* edt)
 	ws_assert(edt);
 
 	g_slist_foreach(epan_plugins, epan_plugin_dissect_cleanup, edt);
-
-	g_slist_free(edt->pi.proto_data);
 
 	/* Free the data sources list. */
 	free_data_sources(&edt->pi);

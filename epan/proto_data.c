@@ -47,20 +47,21 @@ p_compare(const void *a, const void *b)
 }
 
 void
-p_add_proto_data(wmem_allocator_t *tmp_scope, struct _packet_info* pinfo, int proto, uint32_t key, void *proto_data)
+p_add_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, uint32_t key, void *proto_data)
 {
   proto_data_t     *p1;
-  GSList          **proto_list;
-  wmem_allocator_t *scope;
+  wmem_list_t     **proto_list;
 
-  if (tmp_scope == pinfo->pool) {
-    scope = tmp_scope;
+  if (scope == pinfo->pool) {
     proto_list = &pinfo->proto_data;
-  } else if (tmp_scope == wmem_file_scope()) {
-    scope = wmem_file_scope();
+  } else if (scope == wmem_file_scope()) {
     proto_list = &pinfo->fd->pfd;
   } else {
     DISSECTOR_ASSERT(!"invalid wmem scope");
+  }
+
+  if (*proto_list == NULL) {
+    *proto_list = wmem_list_new(scope);
   }
 
   p1 = wmem_new(scope, proto_data_t);
@@ -69,32 +70,37 @@ p_add_proto_data(wmem_allocator_t *tmp_scope, struct _packet_info* pinfo, int pr
   p1->key = key;
   p1->proto_data = proto_data;
 
-  /* Add it to the GSLIST */
-  *proto_list = g_slist_prepend(*proto_list, p1);
+  /* Add it to the list */
+  wmem_list_prepend(*proto_list, p1);
 }
 
 void
 p_set_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, uint32_t key, void *proto_data)
 {
+  /* Probably more dissectors should use this instead of p_add_proto_data. */
   proto_data_t  temp;
-  GSList       *item;
+  wmem_list_t  *proto_list;
+  wmem_list_frame_t *item;
 
   temp.proto = proto;
   temp.key = key;
   temp.proto_data = NULL;
 
   if (scope == pinfo->pool) {
-    item = g_slist_find_custom(pinfo->proto_data, &temp, p_compare);
+    proto_list = pinfo->proto_data;
   } else if (scope == wmem_file_scope()) {
-    item = g_slist_find_custom(pinfo->fd->pfd, &temp, p_compare);
+    proto_list = pinfo->fd->pfd;
   } else {
     DISSECTOR_ASSERT(!"invalid wmem scope");
   }
 
-  if (item) {
-    proto_data_t *pd = (proto_data_t *)item->data;
-    pd->proto_data = proto_data;
-    return;
+  if (proto_list) {
+    item = wmem_list_find_custom(proto_list, &temp, p_compare);
+    if (item) {
+      proto_data_t *pd = (proto_data_t*)wmem_list_frame_data(item);
+      pd->proto_data = proto_data;
+      return;
+    }
   }
 
   p_add_proto_data(scope, pinfo, proto, key, proto_data);
@@ -104,22 +110,28 @@ void *
 p_get_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, uint32_t key)
 {
   proto_data_t  temp, *p1;
-  GSList       *item;
+  wmem_list_t  *proto_list;
+  wmem_list_frame_t *item;
 
   temp.proto = proto;
   temp.key = key;
   temp.proto_data = NULL;
 
   if (scope == pinfo->pool) {
-    item = g_slist_find_custom(pinfo->proto_data, &temp, p_compare);
+    proto_list = pinfo->proto_data;
   } else if (scope == wmem_file_scope()) {
-    item = g_slist_find_custom(pinfo->fd->pfd, &temp, p_compare);
+    proto_list = pinfo->fd->pfd;
   } else {
     DISSECTOR_ASSERT(!"invalid wmem scope");
   }
 
+  if (!proto_list)
+    return NULL;
+
+  item = wmem_list_find_custom(proto_list, &temp, p_compare);
+
   if (item) {
-    p1 = (proto_data_t *)item->data;
+    p1 = wmem_list_frame_data(item);
     return p1->proto_data;
   }
 
@@ -130,41 +142,61 @@ void
 p_remove_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, uint32_t key)
 {
   proto_data_t  temp;
-  GSList       *item;
-  GSList      **proto_list;
+  wmem_list_t  *proto_list;
+  wmem_list_frame_t *item;
 
   temp.proto = proto;
   temp.key = key;
   temp.proto_data = NULL;
 
   if (scope == pinfo->pool) {
-    item = g_slist_find_custom(pinfo->proto_data, &temp, p_compare);
-    proto_list = &pinfo->proto_data;
+    proto_list = pinfo->proto_data;
   } else if (scope == wmem_file_scope()) {
-    item = g_slist_find_custom(pinfo->fd->pfd, &temp, p_compare);
-    proto_list = &pinfo->fd->pfd;
+    proto_list = pinfo->fd->pfd;
   } else {
     DISSECTOR_ASSERT(!"invalid wmem scope");
   }
 
+  if (!proto_list)
+    return;
+
+  item = wmem_list_find_custom(proto_list, &temp, p_compare);
   if (item) {
-    *proto_list = g_slist_remove(*proto_list, item->data);
+    wmem_list_remove_frame(proto_list, item);
   }
 }
 
 char *
 p_get_proto_name_and_key(wmem_allocator_t *scope, struct _packet_info* pinfo, unsigned pfd_index){
-  proto_data_t  *temp;
+  wmem_list_t  *proto_list;
+  proto_data_t *temp;
+
+  /* XXX - This function is inherently O(N^2) when called N times to loop over
+   * all entries, and it's not clear how else it would be used (when else would
+   * a dissector know the index into the proto data list?) It would make more
+   * sense to just have a function that returned an appropriate GPtrArray. */
 
   if (scope == pinfo->pool) {
-    temp = (proto_data_t *)g_slist_nth_data(pinfo->proto_data, pfd_index);
+    proto_list = pinfo->proto_data;
   } else if (scope == wmem_file_scope()) {
-    temp = (proto_data_t *)g_slist_nth_data(pinfo->fd->pfd, pfd_index);
+    proto_list = pinfo->fd->pfd;
   } else {
     DISSECTOR_ASSERT(!"invalid wmem scope");
   }
 
-  return wmem_strdup_printf(pinfo->pool, "[%s, key %u]",proto_get_protocol_name(temp->proto), temp->key);
+  if (!proto_list)
+    return NULL;
+
+  unsigned idx = 0;
+  for (wmem_list_frame_t *frame = wmem_list_head(proto_list);
+      frame; frame = wmem_list_frame_next(frame), idx++) {
+
+    if (idx == pfd_index) {
+      temp = wmem_list_frame_data(frame);
+      return wmem_strdup_printf(pinfo->pool, "[%s, key %u]",proto_get_protocol_name(temp->proto), temp->key);
+    }
+  }
+  return NULL;
 }
 
 #define PROTO_DEPTH_KEY 0x3c233fb5 // printf "0x%02x%02x\n" ${RANDOM} ${RANDOM}

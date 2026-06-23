@@ -158,7 +158,7 @@ typedef struct _packet_info {
   int16_t src_win_scale;                               /**< Rcv.Wind.Shift src applies when sending segments; -1 unknown; -2 disabled */
   int16_t dst_win_scale;                               /**< Rcv.Wind.Shift dst applies when sending segments; -1 unknown; -2 disabled */
 
-  GSList *proto_data;                                  /**< Per-packet protocol data */
+  wmem_list_t *proto_data;                             /**< Per-packet protocol data */
   GSList *frame_end_routines;                          /**< List of routines to execute after frame dissection */
 
   wmem_allocator_t *pool;                              /**< Memory pool scoped to this pinfo */

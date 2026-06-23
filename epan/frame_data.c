@@ -454,7 +454,7 @@ void
 frame_data_destroy(frame_data *fdata)
 {
   if (fdata->pfd) {
-    g_slist_free(fdata->pfd);
+    /* The file scope data has been freed already. */
     fdata->pfd = NULL;
   }
 
