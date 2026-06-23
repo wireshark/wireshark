@@ -473,10 +473,7 @@ dissect_xgt_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
                 }
 
                 /* Add data value to Info column for responses */
-                if (!is_request) {
-                    uint16_t first_value = tvb_get_letohs(tvb, offset);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "[%u bytes] = %u...", data_length, first_value);
-                }
+                col_append_fstr(pinfo->cinfo, COL_INFO, "[%u bytes] = %u...", data_length, tvb_get_letohs(tvb, offset));
             } else if (data_length == 8 && data_type == XGT_DTYPE_LWORD) {
                 /* For 64-bit values, show as uint64 using data_value field */
                 uint64_t value = tvb_get_letoh64(tvb, offset);
@@ -501,8 +498,8 @@ dissect_xgt_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
                     /* For single values, show the value */
                     uint16_t value = tvb_get_letohs(tvb, offset);
                     col_append_fstr(pinfo->cinfo, COL_INFO, "= %u", value);
-                } else if (data_length == 1) {
-                    /* For single byte */
+                } else {
+                    /* For single byte (data_length==1) */
                     uint8_t value = tvb_get_uint8(tvb, offset);
                     col_append_fstr(pinfo->cinfo, COL_INFO, "= %u", value);
                 }

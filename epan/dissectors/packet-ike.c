@@ -5582,13 +5582,8 @@ dissect_delete(tvbuff_t *tvb, unsigned offset, unsigned length, proto_tree *tree
     proto_tree_add_item(tree, hf_isakmp_delete_doi, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     length -= 4;
-  }
-
-
-  if (isakmp_version == 1)
-  {
-    proto_tree_add_item(tree, hf_isakmp_delete_protoid_v1, tvb, offset, 1, ENC_BIG_ENDIAN);
-  }else if (isakmp_version == 2)
+	proto_tree_add_item(tree, hf_isakmp_delete_protoid_v1, tvb, offset, 1, ENC_BIG_ENDIAN);
+  } else if (isakmp_version == 2)
   {
     proto_tree_add_item(tree, hf_isakmp_delete_protoid_v2, tvb, offset, 1, ENC_BIG_ENDIAN);
   }
@@ -6157,7 +6152,7 @@ dissect_tek_key_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
 static void
 dissect_key_download(tvbuff_t *tvb, packet_info *pinfo _U_, unsigned offset, unsigned length, proto_tree *tree, int isakmp_version)
 {
-  unsigned offset_end = 0, payload_end=0;
+  unsigned offset_end = 0, payload_end;
   uint32_t num_key_pkt, kdp_length, kdp_spi_size;
   proto_item    *kd_item;
   proto_tree    *payload_tree;
@@ -6389,15 +6384,15 @@ dissect_enc(tvbuff_t *tvb,
             bool dissect_payload_now)
 {
   ikev2_decrypt_data_t *key_info = NULL;
-  unsigned iv_len, encr_data_len, icd_len, decr_data_len, md_len, icv_len, encr_key_len, encr_iv_len;
+  unsigned iv_len, icd_len, decr_data_len, md_len, icv_len, encr_key_len, encr_iv_len;
   uint8_t pad_len;
   unsigned char *iv = NULL, *encr_data = NULL, *decr_data = NULL, *entire_message = NULL, *md = NULL, *encr_iv = NULL;
   gcry_cipher_hd_t cipher_hd;
   gcry_md_hd_t md_hd;
-  gcry_error_t err = 0;
+  gcry_error_t err;
   proto_item *item = NULL, *icd_item = NULL, *encr_data_item = NULL, *padlen_item = NULL, *iv_item = NULL;
   tvbuff_t *decr_tvb = NULL;
-  int payloads_len;
+  int payloads_len, encr_data_len;
   proto_tree *decr_tree = NULL, *decr_payloads_tree = NULL;
   unsigned char *aa_data = NULL, *icv_data = NULL;
   unsigned aad_len = 0;
@@ -6924,7 +6919,7 @@ UAT_BUFFER_CB_DEF(ikev1_users, icookie, ikev1_uat_data_key_t, icookie, icookie_l
 UAT_BUFFER_CB_DEF(ikev1_users, key, ikev1_uat_data_key_t, key, key_len)
 
 static bool ikev1_uat_data_update_cb(void* p, char** err) {
-  ikev1_uat_data_key_t *ud = (ikev1_uat_data_key_t *)p;
+  const ikev1_uat_data_key_t *ud = (ikev1_uat_data_key_t *)p;
 
   if (ud->icookie_len != COOKIE_SIZE) {
     *err = ws_strdup_printf("Length of Initiator's COOKIE must be %d octets (%d hex characters).", COOKIE_SIZE, COOKIE_SIZE * 2);

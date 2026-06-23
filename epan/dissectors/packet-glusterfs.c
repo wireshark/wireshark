@@ -4773,7 +4773,7 @@ proto_register_glusterfs(void)
 		},
 		{ &hf_glusterfs_setattr_set_reserved,
 			{ "Reserved", "glusterfs.setattr.set_reserved",
-				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0xffffffcf,
+				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0xffffffc0,
 				NULL, HFILL }
 		},
 		{ &hf_glusterfs_xflags,

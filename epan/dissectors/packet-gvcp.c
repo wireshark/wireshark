@@ -1959,7 +1959,7 @@ static void dissect_event_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, pac
 				/* Standard ID */
 				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 			}
-			else if ((eventid >= 0x8001) && (eventid <= 0x8FFF))
+			else if (eventid <= 0x8FFF)
 			{
 				/* Error */
 				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_error_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2032,7 +2032,7 @@ static void dissect_eventdata_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb,
 			/* Standard ID */
 			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 		}
-		else if ((eventid >= 0x8001) && (eventid <= 0x8FFF))
+		else if (eventid <= 0x8FFF)
 		{
 			/* Error */
 			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_error_id, tvb, offset, 2, ENC_BIG_ENDIAN);

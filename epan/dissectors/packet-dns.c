@@ -1423,8 +1423,7 @@ static void qname_host_and_domain(char* name, int name_len, char* host, char* do
     for (i = 0; i < name_len; i++) {
       if (name[i] == '.') {
         host[i] = '\0';
-        if (i < name_len)
-          ws_label_strcpy(domain, 256, 0, (uint8_t*)&name[i + 1], 0);
+        ws_label_strcpy(domain, 256, 0, (uint8_t*)&name[i + 1], 0);
         break;
       }
       else {
@@ -1693,7 +1692,7 @@ make_local_part_domain(wmem_allocator_t* scope, const char* name)
     }
     else if (*p == '\\')
     {
-      if ((*(p + 1) != '\0') && (*(p + 1) == '.'))
+      if (*(p + 1) == '.')
       {
         /* Skip over the \. because it's intended to be a . */
         p += 1;
