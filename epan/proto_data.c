@@ -166,15 +166,11 @@ p_remove_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int pro
   }
 }
 
-char *
-p_get_proto_name_and_key(wmem_allocator_t *scope, struct _packet_info* pinfo, unsigned pfd_index){
+GPtrArray *
+p_get_proto_names_and_keys(wmem_allocator_t *scope, struct _packet_info* pinfo) {
   wmem_list_t  *proto_list;
   proto_data_t *temp;
-
-  /* XXX - This function is inherently O(N^2) when called N times to loop over
-   * all entries, and it's not clear how else it would be used (when else would
-   * a dissector know the index into the proto data list?) It would make more
-   * sense to just have a function that returned an appropriate GPtrArray. */
+  GPtrArray *ret;
 
   if (scope == pinfo->pool) {
     proto_list = pinfo->proto_data;
@@ -187,16 +183,15 @@ p_get_proto_name_and_key(wmem_allocator_t *scope, struct _packet_info* pinfo, un
   if (!proto_list)
     return NULL;
 
-  unsigned idx = 0;
-  for (wmem_list_frame_t *frame = wmem_list_head(proto_list);
-      frame; frame = wmem_list_frame_next(frame), idx++) {
+  ret = g_ptr_array_new();
 
-    if (idx == pfd_index) {
-      temp = wmem_list_frame_data(frame);
-      return wmem_strdup_printf(pinfo->pool, "[%s, key %u]",proto_get_protocol_name(temp->proto), temp->key);
-    }
+  for (wmem_list_frame_t *frame = wmem_list_head(proto_list);
+      frame; frame = wmem_list_frame_next(frame)) {
+
+    temp = wmem_list_frame_data(frame);
+    g_ptr_array_add(ret, wmem_strdup_printf(pinfo->pool, "[%s, key %u]",proto_get_protocol_name(temp->proto), temp->key));
   }
-  return NULL;
+  return ret;
 }
 
 #define PROTO_DEPTH_KEY 0x3c233fb5 // printf "0x%02x%02x\n" ${RANDOM} ${RANDOM}

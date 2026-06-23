@@ -121,16 +121,17 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		ti = proto_tree_add_boolean(fh_tree, hf_file_ignored, tvb, 0, 0,pinfo->fd->ignored);
 		proto_item_set_generated(ti);
 
-		if(pinfo->fd->pfd != 0){
+		GPtrArray *ppd_array = p_get_proto_names_and_keys(wmem_file_scope(), pinfo);
+		if(ppd_array){
 			proto_item *ppd_item;
-			unsigned num_entries = wmem_list_count(pinfo->fd->pfd);
-			unsigned i;
+			unsigned num_entries = ppd_array->len;
 			ppd_item = proto_tree_add_uint(fh_tree, hf_file_num_p_prot_data, tvb, 0, 0, num_entries);
 			proto_item_set_generated(ppd_item);
-			for(i=0; i<num_entries; i++){
-				char* str = p_get_proto_name_and_key(wmem_file_scope(), pinfo, i);
+			for(unsigned i=0; i<num_entries; i++){
+				char* str = ppd_array->pdata[i];
 				proto_tree_add_string_format(fh_tree, hf_file_proto_name_and_key, tvb, 0, 0, str, "%s", str);
 			}
+			g_ptr_array_unref(ppd_array);
 		}
 
 #if 0
