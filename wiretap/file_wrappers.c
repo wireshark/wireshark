@@ -3057,6 +3057,7 @@ lz4wfile_flush(LZ4WFILE_T state)
     if (LZ4F_isError(bytesWritten)) {
         // Should never happen if size_out >= LZ4F_compressBound(0, prefsPtr)
         state->err = WTAP_ERR_INTERNAL;
+        state->err_info = LZ4F_getErrorName(bytesWritten);
         return -1;
     }
     if (!lz4_write_out(state, bytesWritten)) {
