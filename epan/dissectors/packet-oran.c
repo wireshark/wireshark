@@ -8665,10 +8665,10 @@ proto_register_oran(void)
             "Defines the IQ bit width for the user data in every section in the C-Plane message", HFILL}
         },
         { &hf_oran_udCompHdrIqWidth_pref,
-          { "User Data IQ width", "oran_fh_cus.udCompHdrWidth",
+          { "User Data IQ width", "oran_fh_cus.udCompHdrWidth.pref",
             FT_UINT8, BASE_DEC,
             NULL, 0x0,
-            "Defines the IQ bit width for the user data in every section in the C-Plane message", HFILL}
+            "IQ bit width for the user data in every section in the C-Plane message, from preference", HFILL}
         },
 
         { &hf_oran_sinrCompHdrIqWidth_pref,
@@ -8888,19 +8888,19 @@ proto_register_oran(void)
           { "ciCompHdr", "oran_fh_cus.ciCompHdr",
             FT_STRING, BASE_NONE,
             NULL, 0x0,
-            NULL, HFILL}
+            "Channel Information Compression Header", HFILL}
         },
         { &hf_oran_ciCompHdrMeth,
           { "User Data Compression Method", "oran_fh_cus.ciCompHdrMeth",
             FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
             RVALS(ud_comp_header_meth), 0x0e,
-            "Defines the compression method for the user data in every section in the C-Plane message", HFILL}
+            "Compression method for Channel Information", HFILL}
          },
         { &hf_oran_ciCompHdrIqWidth,
-          { "User Data IQ width", "oran_fh_cus.udCompHdrWidth",
+          { "User Data IQ width", "oran_fh_cus.ciCompHdrWidth",
             FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
             RVALS(ud_comp_header_width), 0xf0,
-            "Defines the IQ bit width for the user data in every section in the C-Plane message", HFILL}
+            "IQ bit width for Channel Information", HFILL}
         },
         { &hf_oran_ciCompOpt,
           { "ciCompOpt", "oran_fh_cus.ciCompOpt",
