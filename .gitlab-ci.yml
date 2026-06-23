@@ -1142,8 +1142,7 @@ AI Trailer Reminder:
 # Adapted from https://www.synopsys.com/blogs/software-security/integrating-coverity-scan-with-gitlab-ci/
 # and https://gitlab.gnome.org/GNOME/glib/-/blob/8f57a5b9/.gitlab-ci.yml#L481
 # and https://community.blackduck.com/s/article/Exclude-Unwanted-Files-from-Coverity-Scan-and-Manage-Unwanted-Issues-in-CIM
-# Black Duck / Coverity Scan has been down for quite a while. Disable it for now.
-.Coverity GCC Scan:
+Coverity GCC Scan:
   image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "coverity-gcc"'
@@ -1174,8 +1173,7 @@ AI Trailer Reminder:
       - cov-int.tar.gz
       - job_environment_variables.sh
 
-# Black Duck / Coverity Scan has been down for quite a while. Disable it for now.
-.Coverity GCC Submit:
+Coverity GCC Submit:
   image: curlimages/curl
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "coverity-gcc"'
@@ -1187,8 +1185,7 @@ AI Trailer Reminder:
     - curl --fail --data "project=$COVERITY_SCAN_PROJECT_NAME&token=$COVERITY_SCAN_TOKEN&email=$GITLAB_USER_EMAIL&url=$ARTIFACT_JOB_URL/artifacts/raw/cov-int.tar.gz&version=$GIT_DESCRIPTION&description=Ubuntu $GIT_DESCRIPTION $CI_COMMIT_REF_NAME:$CI_PIPELINE_ID" https://scan.coverity.com/builds
   needs: [ 'Coverity GCC Scan' ]
 
-# Black Duck / Coverity Scan has been down for quite a while. Disable it for now.
-.Coverity Visual C++ Scan:
+Coverity Visual C++ Scan:
   extends: .build-windows
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "coverity-visual-c++"'
@@ -1212,8 +1209,7 @@ AI Trailer Reminder:
       - cov-int.zip
       - job_environment_variables.sh
 
-# Black Duck / Coverity Scan has been down for quite a while. Disable it for now.
-.Coverity Visual C++ Submit:
+Coverity Visual C++ Submit:
   image: curlimages/curl
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "coverity-visual-c++"'
