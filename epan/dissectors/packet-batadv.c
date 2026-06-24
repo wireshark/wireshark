@@ -1053,35 +1053,35 @@ static void dissect_batadv_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	switch (version) {
 	case 5:
 	case 6:
-		while (offset != 0 && tvb_reported_length_remaining(tvb, offset) >= BATMAN_PACKET_V5_SIZE) {
+		while (tvb_reported_length_remaining(tvb, offset) >= BATMAN_PACKET_V5_SIZE) {
 			offset = dissect_batadv_batman_v5(tvb, offset, pinfo, tree);
 		}
 		break;
 	case 7:
 	case 8:
-		while (offset != 0 && tvb_reported_length_remaining(tvb, offset) >= BATMAN_PACKET_V7_SIZE) {
+		while (tvb_reported_length_remaining(tvb, offset) >= BATMAN_PACKET_V7_SIZE) {
 			offset = dissect_batadv_batman_v7(tvb, offset, pinfo, tree);
 		}
 		break;
 	case 9:
-		while (offset != 0 && tvb_reported_length_remaining(tvb, offset) >= BATMAN_PACKET_V9_SIZE) {
+		while (tvb_reported_length_remaining(tvb, offset) >= BATMAN_PACKET_V9_SIZE) {
 			offset = dissect_batadv_batman_v9(tvb, offset, pinfo, tree);
 		}
 		break;
 	case 11:
 	case 13:
-		while (offset != 0 && tvb_reported_length_remaining(tvb, offset) >= BATMAN_PACKET_V11_SIZE) {
+		while (tvb_reported_length_remaining(tvb, offset) >= BATMAN_PACKET_V11_SIZE) {
 			offset = dissect_batadv_batman_v11(tvb, offset, pinfo, tree);
 		}
 		break;
 	case 10:
 	case 12:
-		while (offset != 0 && tvb_reported_length_remaining(tvb, offset) >= BATMAN_PACKET_V10_SIZE) {
+		while (tvb_reported_length_remaining(tvb, offset) >= BATMAN_PACKET_V10_SIZE) {
 			offset = dissect_batadv_batman_v10(tvb, offset, pinfo, tree);
 		}
 		break;
 	case 14:
-		while (offset != 0 && tvb_reported_length_remaining(tvb, offset) >= BATMAN_PACKET_V14_SIZE) {
+		while (tvb_reported_length_remaining(tvb, offset) >= BATMAN_PACKET_V14_SIZE) {
 			offset = dissect_batadv_batman_v14(tvb, offset, pinfo, tree);
 		}
 		break;
@@ -1130,7 +1130,7 @@ static unsigned dissect_batadv_batman_v5(tvbuff_t *tvb, unsigned offset, packet_
 
 	/* don't interpret padding as B.A.T.M.A.N. advanced packet */
 	if (batman_packeth->version == 0 || type != BATADV_PACKET_V5) {
-		return 0;
+		return tvb_reported_length(tvb);
 	}
 
 	batman_packeth->flags = tvb_get_uint8(tvb, offset+2);
@@ -1225,7 +1225,7 @@ static unsigned dissect_batadv_batman_v7(tvbuff_t *tvb, unsigned offset, packet_
 
 	/* don't interpret padding as B.A.T.M.A.N. advanced packet */
 	if (batman_packeth->version == 0 || type != BATADV_PACKET_V5) {
-		return 0;
+		return tvb_reported_length(tvb);
 	}
 
 	batman_packeth->flags = tvb_get_uint8(tvb, offset+2);
@@ -1310,7 +1310,7 @@ static unsigned dissect_batadv_batman_v9(tvbuff_t *tvb, unsigned offset, packet_
 
 	/* don't interpret padding as B.A.T.M.A.N. advanced packet */
 	if (batman_packeth->version == 0 || type != BATADV_PACKET_V5) {
-		return 0;
+		return tvb_reported_length(tvb);
 	}
 
 	batman_packeth->flags = tvb_get_uint8(tvb, offset+2);
@@ -1403,7 +1403,7 @@ static unsigned dissect_batadv_batman_v10(tvbuff_t *tvb, unsigned offset, packet
 
 	/* don't interpret padding as B.A.T.M.A.N. advanced packet */
 	if (batman_packeth->version == 0 || type != BATADV_PACKET_V5) {
-		return 0;
+		return tvb_reported_length(tvb);
 	}
 
 	batman_packeth->flags = tvb_get_uint8(tvb, offset+2);
@@ -1496,7 +1496,7 @@ static unsigned dissect_batadv_batman_v11(tvbuff_t *tvb, unsigned offset, packet
 
 	/* don't interpret padding as B.A.T.M.A.N. advanced packet */
 	if (batman_packeth->version == 0 || type != BATADV_PACKET_V5) {
-		return 0;
+		return tvb_reported_length(tvb);
 	}
 
 	batman_packeth->flags = tvb_get_uint8(tvb, offset+2);
@@ -1582,7 +1582,7 @@ static unsigned dissect_batadv_batman_v14(tvbuff_t *tvb, unsigned offset, packet
 
 	/* don't interpret padding as B.A.T.M.A.N. advanced packet */
 	if (batman_packeth->version == 0 || type != BATADV_PACKET_V5) {
-		return 0;
+		return tvb_reported_length(tvb);
 	}
 
 	batman_packeth->ttl = tvb_get_uint8(tvb, offset+2);
@@ -1680,8 +1680,7 @@ static void dissect_batadv_iv_ogm(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	version = tvb_get_uint8(tvb, 1);
 	switch (version) {
 	case 15:
-		while (offset != 0 &&
-		       tvb_reported_length_remaining(tvb, offset) >= IV_OGM_PACKET_V15_SIZE) {
+		while (tvb_reported_length_remaining(tvb, offset) >= IV_OGM_PACKET_V15_SIZE) {
 			offset = dissect_batadv_iv_ogm_v15(tvb, offset, pinfo, tree);
 		}
 		break;
@@ -1712,7 +1711,7 @@ static unsigned dissect_batadv_iv_ogm_v15(tvbuff_t *tvb, unsigned offset,
 
 	/* don't interpret padding as B.A.T.M.A.N. advanced packet */
 	if (version == 0 || type != BATADV_IV_OGM_V15)
-		return 0;
+		return tvb_reported_length(tvb);
 
 	iv_ogm_packeth = wmem_new(pinfo->pool, struct iv_ogm_packet_v15);
 
@@ -3979,8 +3978,7 @@ static void dissect_batadv_ogm2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	version = tvb_get_uint8(tvb, 1);
 	switch (version) {
 	case 15:
-		while (offset != 0 &&
-		       tvb_reported_length_remaining(tvb, offset) >= OGM2_PACKET_V15_SIZE) {
+		while (tvb_reported_length_remaining(tvb, offset) >= OGM2_PACKET_V15_SIZE) {
 			offset = dissect_batadv_ogm2_v15(tvb, offset, pinfo, tree);
 		}
 		break;
@@ -4013,7 +4011,7 @@ static unsigned dissect_batadv_ogm2_v15(tvbuff_t *tvb, unsigned offset,
 
 	/* don't interpret padding as B.A.T.M.A.N. advanced packet */
 	if (version == 0 || type != BATADV_OGM2_V15)
-		return 0;
+		return tvb_reported_length(tvb);
 
 	ogm2_packeth = wmem_new(pinfo->pool, struct ogm2_packet_v15);
 
