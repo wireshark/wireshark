@@ -6264,12 +6264,16 @@ tls_set_appdata_dissector(dissector_handle_t tls_handle, packet_info *pinfo,
 {
     conversation_t  *conversation;
     SslSession      *session;
-    int             proto = dissector_handle_get_protocol_index(tls_handle);
-    uint8_t         curr_layer_num = p_get_proto_depth(pinfo, proto);
 
     /* Ignore if the TLS or other dissector is disabled. */
+    /* XXX - find_dissector still works if a dissector is disabled,
+     * this would be if the dissector isn't registered at all or the
+     * caller is calling this with explicit NULL. */
     if (!tls_handle || !app_handle)
         return;
+
+    int             proto = dissector_handle_get_protocol_index(tls_handle);
+    uint8_t         curr_layer_num = p_get_proto_depth(pinfo, proto);
 
     conversation = find_or_create_conversation(pinfo);
     session = &ssl_get_session(conversation, tls_handle, curr_layer_num)->session;
@@ -6280,14 +6284,20 @@ static uint32_t
 ssl_starttls(dissector_handle_t tls_handle, packet_info *pinfo,
                  dissector_handle_t app_handle, uint32_t last_nontls_frame)
 {
+
     conversation_t  *conversation;
     SslSession      *session;
+
+    /* Ignore if the TLS dissector is disabled. */
+    /* XXX - find_dissector still works if a dissector is disabled,
+     * this would be if the dissector isn't registered at all (or the
+     * caller has an error.) */
+    if (!tls_handle)
+        return 0;
+
     int             proto = dissector_handle_get_protocol_index(tls_handle);
     uint8_t         curr_layer_num = p_get_proto_depth(pinfo, proto);
 
-    /* Ignore if the TLS dissector is disabled. */
-    if (!tls_handle)
-        return 0;
     /* The caller should always pass a valid handle to its own dissector. */
     DISSECTOR_ASSERT(app_handle);
 
