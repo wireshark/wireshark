@@ -326,7 +326,7 @@ static void dissect_iuup_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
     iuup_circuit_t *iuup_circuit;
     iuup_rfci_t *rfci;
     int last_offset = tvb_reported_length(tvb) - 1;
-    unsigned bit_offset = 0;
+    unsigned bit_offset;
     proto_item* pi;
 
     if (offset == (int)tvb_reported_length(tvb)) /* NO_DATA */
@@ -783,7 +783,7 @@ static bool dissect_iuup_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     uint8_t first_octet =  tvb_get_uint8(tvb,0);
     uint8_t second_octet =  tvb_get_uint8(tvb,1);
-    uint8_t octet_array[] = {first_octet, second_octet};
+    const uint8_t octet_array[] = {first_octet, second_octet};
     uint16_t hdrcrc6 = tvb_get_uint8(tvb, 2) >> 2;
 
     if (crc6_0X6F(hdrcrc6, octet_array, second_octet)) return false;

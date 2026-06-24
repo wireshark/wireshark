@@ -682,7 +682,7 @@ static void rtp_prompt(packet_info *pinfo _U_, char* result)
     }
     else
     {
-        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "RTP payload type %d as", payload_type);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "RTP payload type %u as", payload_type);
     }
 }
 

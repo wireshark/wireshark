@@ -4,4 +4,5 @@ invalidscanf
 noConstructor
 internalAstError
 syntaxError
-
+constVariablePointer
+constParameterPointer

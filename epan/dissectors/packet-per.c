@@ -2436,7 +2436,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 uint32_t dissect_per_bit_string_containing_pdu_new(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, bool has_extension, dissector_t type_cb)
 {
 	tvbuff_t *val_tvb = NULL;
-	proto_tree *subtree = tree;
+	proto_tree *subtree;
 
 	offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension, NULL, 0, &val_tvb, NULL);
 
@@ -2591,7 +2591,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 uint32_t dissect_per_octet_string_containing_pdu_new(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, bool has_extension, dissector_t type_cb)
 {
 	tvbuff_t *val_tvb = NULL;
-	proto_tree *subtree = tree;
+	proto_tree *subtree;
 
 	offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension, &val_tvb);
 

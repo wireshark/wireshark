@@ -1459,10 +1459,10 @@ dissect_u3v_event_cmd(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info 
     if (eventid <= 0x8000) {
         /* Standard ID */
         proto_tree_add_item(u3v_telegram_tree, hf_u3v_eventcmd_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    } else if ((eventid >= 0x8001) && (eventid <= 0x8FFF)) {
+    } else if (eventid <= 0x8FFF) {
         /* Error */
         proto_tree_add_item(u3v_telegram_tree, hf_u3v_eventcmd_error_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    } else if ((eventid >= 0x9000) && (eventid <= 0xFFFF)) {
+    } else if (eventid <= 0xFFFF) {
         /* Device specific */
         proto_tree_add_item(u3v_telegram_tree, hf_u3v_eventcmd_device_specific_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     }

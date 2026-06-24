@@ -4092,7 +4092,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     proto_item_append_text(ti_someip, " (Service ID: 0x%04x, Method ID: 0x%04x, Length: %i)", someip_serviceid, someip_methodid, someip_length);
 
     /* check if we have bytes for the rest of the header */
-    if (tvb_length < 0 || offset + 8 > (uint32_t)tvb_length) {
+    if ((offset + 8) > (uint32_t)tvb_length) {
         expert_add_info_format(pinfo, ti_someip, &ei_someip_incomplete_headers, "%s", "SOME/IP not enough buffer bytes for header!");
         return tvb_length;
     }

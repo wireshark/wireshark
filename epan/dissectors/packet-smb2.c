@@ -10859,8 +10859,7 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 
 	/* data */
 	dissectors = &tag_dissectors->dissectors;
-	if (dissectors)
-		dissector = (si->flags & SMB2_FLAGS_RESPONSE) ? dissectors->response : dissectors->request;
+	dissector = (si->flags & SMB2_FLAGS_RESPONSE) ? dissectors->response : dissectors->request;
 
 	dissect_smb2_olb_buffer(pinfo, sub_tree, tvb, &data_olb, si, dissector);
 

@@ -944,7 +944,6 @@ static void parse_config_file(SnortConfig_t *snort_config, FILE *config_file_fd,
 void create_config(SnortConfig_t **snort_config, const char *snort_config_file)
 {
     char* dirname;
-    char* basename;
     FILE *config_file_fd;
 
     ws_debug("create_config (%s)", snort_config_file);
@@ -965,7 +964,6 @@ void create_config(SnortConfig_t **snort_config, const char *snort_config_file)
 
     /* Extract separate directory and filename. */
     dirname =  g_path_get_dirname(snort_config_file);
-    basename =  g_path_get_basename(snort_config_file);
 
     /* Attempt to open the config file */
     config_file_fd = ws_fopen(snort_config_file, "r");
@@ -980,7 +978,6 @@ void create_config(SnortConfig_t **snort_config, const char *snort_config_file)
     }
 
     g_free(dirname);
-    g_free(basename);
 }
 
 

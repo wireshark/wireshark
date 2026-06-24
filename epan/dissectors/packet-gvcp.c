@@ -1964,7 +1964,7 @@ static void dissect_event_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, pac
 				/* Error */
 				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_error_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 			}
-			else if (eventid >= 0x9000)
+			else
 			{
 				/* Device specific */
 				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_device_specific_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2037,7 +2037,7 @@ static void dissect_eventdata_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb,
 			/* Error */
 			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_error_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 		}
-		else if (eventid >= 0x9000)
+		else
 		{
 			/* Device specific */
 			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_device_specific_id, tvb, offset, 2, ENC_BIG_ENDIAN);

@@ -3030,7 +3030,8 @@ dissect_tls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             if (frag_info && frag_info->record_id != record_id) {
                 frag_info = NULL;
             }
-        } else if (frag_info->offset != 0) {
+        }
+        else {
             // The full TVB is in the middle of a handshake message and needs more data.
             tls_show_handshake_details(pinfo, tree, version, frag_info->type, false, is_first_msg, false,
                     tvb, offset, offset_end - offset);

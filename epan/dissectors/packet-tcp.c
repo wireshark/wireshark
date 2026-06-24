@@ -6732,9 +6732,8 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
         has_new_sack = false;
 
-        bool blok_seen = false;
         for(unsigned i=0; i<num_sack_ranges; i++) {
-            blok_seen = false;
+            bool blok_seen = false;
 
             for(unsigned j=0; j<saved_sack_ranges; j++) {
                 if( (tcpd->fwd->tcp_analyze_seq_info->sack_left_edge[i] == saved_left_edge[j])

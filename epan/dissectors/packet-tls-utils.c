@@ -11048,7 +11048,7 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         if (compression_method < 64)
             proto_tree_add_uint(cs_tree, hf->hf.hs_comp_method,
                                 hello_tvb, offset, 1, compression_method);
-        else if (compression_method > 63 && compression_method < 193)
+        else if (compression_method < 193)
             proto_tree_add_uint_format_value(cs_tree, hf->hf.hs_comp_method, hello_tvb, offset, 1,
                                 compression_method, "Reserved - to be assigned by IANA (%u)",
                                 compression_method);
@@ -12110,7 +12110,6 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             } else {
                 offset = ssl_dissect_hnd_hello_ext_ec_point_formats(hf, tvb, ext_tree, offset, NULL);
             }
-            break;
             break;
         case SSL_HND_HELLO_EXT_SRP:
             offset = ssl_dissect_hnd_hello_ext_srp(hf, tvb, pinfo, ext_tree, offset, next_offset);
