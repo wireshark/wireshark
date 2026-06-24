@@ -591,7 +591,7 @@ gz_comp(GZWFILE_T state, int flush)
         ret = ZLIB_PREFIX(deflate)(strm, flush);
         if (ret == Z_STREAM_ERROR) {
             /* This "shouldn't happen". */
-            state->err = FILE_ERR_INTERNAL;
+            state->err = FILE_ERR_CANT_COMPRESS;
             state->err_info = "Z_STREAM_ERROR from deflate()";
             return -1;
         }
@@ -799,7 +799,7 @@ lz4wfile_fdopen(int fd)
      */
 
     /* initialize stream */
-    state->err = 0;              /* clear error */
+    state->err = 0;                 /* clear error */
     state->err_info = NULL;         /* clear additional error information */
     state->pos = 0;                 /* no uncompressed data yet */
     state->pos_out = 0;
@@ -840,7 +840,7 @@ lz4_init(LZ4WFILE_T state)
     /* create Compression context */
     ret = LZ4F_createCompressionContext(&state->lz4_cctx, LZ4F_VERSION);
     if (LZ4F_isError(ret)) {
-        state->err = FILE_ERR_CANT_WRITE; // XXX - FILE_ERR_COMPRESS?
+        state->err = FILE_ERR_CANT_COMPRESS;
         state->err_info = LZ4F_getErrorName(ret);
         return -1;
     }
@@ -851,12 +851,25 @@ lz4_init(LZ4WFILE_T state)
         g_free(state->out);
         LZ4F_freeCompressionContext(state->lz4_cctx);
         state->err = ENOMEM;
+        state->err_info = NULL;
         return -1;
     }
 
     ret = LZ4F_compressBegin(state->lz4_cctx, state->out, state->want_out, &state->lz4_prefs);
     if (LZ4F_isError(ret)) {
-        state->err = FILE_ERR_CANT_WRITE; // XXX - FILE_ERR_COMPRESS?
+        /*
+         * Most of these errors appear to be an error by the caller or the
+         * library itself. When writing, it's not as if the file is bad,
+         * so presumably the error is either "ran out of memory", a bug
+         * in our code, or a bug in the library.
+         *
+         * Unfortunately, the codes are opaque outside the library - they
+         * don't, for example, define LZ4F_ERROR_allocation_failed -
+         * so if we were to try to determine what the underlying problem
+         * is, in order to report them differently, we'd have to do a
+         * string comparison on the results of LZ4F_getErrorName()..
+         */
+        state->err = FILE_ERR_CANT_COMPRESS;
         state->err_info = LZ4F_getErrorName(ret);
         return -1;
     }
@@ -896,7 +909,19 @@ lz4wfile_write(LZ4WFILE_T state, const void *buf, size_t len)
         size_t bytesWritten = LZ4F_compressUpdate(state->lz4_cctx, state->out, state->size_out,
             buf, to_write, NULL);
         if (LZ4F_isError(bytesWritten)) {
-            state->err = FILE_ERR_CANT_WRITE; // XXX - FILE_ERR_COMPRESS?
+            /*
+             * Most of these errors appear to be an error by the caller or the
+             * library itself. When writing, it's not as if the file is bad,
+             * so presumably the error is either "ran out of memory", a bug
+             * in our code, or a bug in the library.
+             *
+             * Unfortunately, the codes are opaque outside the library - they
+             * don't, for example, define LZ4F_ERROR_allocation_failed -
+             * so if we were to try to determine what the underlying problem
+             * is, in order to report them differently, we'd have to do a
+             * string comparison on the results of LZ4F_getErrorName()..
+             */
+            state->err = FILE_ERR_CANT_COMPRESS;
             state->err_info = LZ4F_getErrorName(bytesWritten);
             return 0;
         }
@@ -924,7 +949,7 @@ lz4wfile_flush(LZ4WFILE_T state)
     bytesWritten = LZ4F_flush(state->lz4_cctx, state->out, state->size_out, NULL);
     if (LZ4F_isError(bytesWritten)) {
         // Should never happen if size_out >= LZ4F_compressBound(0, prefsPtr)
-        state->err = FILE_ERR_INTERNAL;
+        state->err = FILE_ERR_CANT_COMPRESS;
         state->err_info = LZ4F_getErrorName(bytesWritten);
         return -1;
     }
@@ -945,7 +970,7 @@ lz4wfile_close(LZ4WFILE_T state)
     size_t bytesWritten = LZ4F_compressEnd(state->lz4_cctx, state->out, state->size_out, NULL);
     if (LZ4F_isError(bytesWritten)) {
         // Should never happen if size_out >= LZ4F_compressBound(0, prefsPtr)
-        ret = FILE_ERR_INTERNAL;
+        ret = FILE_ERR_CANT_COMPRESS;
     }
     if (!lz4_write_out(state, bytesWritten)) {
         ret = state->err;

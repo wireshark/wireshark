@@ -236,7 +236,7 @@ typedef ssize_t ws_file_ssize_t;
 
 /* Error codes from file handling routines */
 #define FILE_ERR_CANT_OPEN        -1
-#define FILE_ERR_CANT_WRITE       -2
+#define FILE_ERR_CANT_COMPRESS    -2
 #define FILE_ERR_SHORT_WRITE      -3
 #define FILE_ERR_CANT_CLOSE       -4
 #define FILE_ERR_INTERNAL         -5
