@@ -3242,7 +3242,7 @@ void proto_register_dvb_s2_table(void)
         },
         {&hf_dvb_s2_table_tx_type_waveform_id, {
                 "Tx type waveform id", "dvb-s2_table.tx_type.waveform_id",
-                FT_UINT8, BASE_HEX, NULL, 0x0,
+                FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL}
         },
         {&hf_dvb_s2_table_tx_type_tx_start_offset, {
@@ -3257,7 +3257,7 @@ void proto_register_dvb_s2_table(void)
                 NULL, HFILL}
         },
         {&hf_dvb_s2_table_tx_type_tx_start_offset_2, {
-                "Tx type tx start offset 1", "dvb-s2_table.tx_type.tx_start_offset_1",
+                "Tx type tx start offset 2", "dvb-s2_table.tx_type.tx_start_offset_2",
                 FT_UINT24, BASE_DEC, NULL, DVB_S2_TABLE_TX_TYPE_TX_START_OFFSET_MASK,
                 NULL , HFILL}
         },
