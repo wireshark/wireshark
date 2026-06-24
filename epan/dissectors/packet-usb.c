@@ -4460,10 +4460,6 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
         tvb_composite_append(next_tvb, data_tvb);
         offset += tvb_captured_length(data_tvb);
         tvb_composite_finalize(next_tvb);
-        next_tvb = tvb_new_child_real_data(tvb,
-                (const uint8_t *) tvb_memdup(pinfo->pool, next_tvb, 0, tvb_captured_length(next_tvb)),
-                tvb_captured_length(next_tvb),
-                tvb_captured_length(next_tvb));
         add_new_data_source(pinfo, next_tvb, "USB Control");
     } else {
         next_tvb = tvb_new_subset_length(tvb, setup_offset, 7);
@@ -5409,14 +5405,9 @@ static int freebsd_collect_frame_data(proto_tree *tree, tvbuff_t *tvb,
     }
 
     if (data_frame_count > 1) {
-        /* Finalise the composite and make a flat copy so that subdissectors
-         * can index into it freely without composite-TVB restrictions. */
         tvb_composite_finalize(composite);
-        assembled = tvb_new_child_real_data(
-            tvb,
-            (const uint8_t *)tvb_memdup(pinfo->pool, composite, 0,
-                                        tvb_captured_length(composite)),
-            tvb_captured_length(composite), tvb_captured_length(composite));
+        add_new_data_source(pinfo, composite, "FreeBSD USB payload");
+        assembled = composite;
     }
 
     *out_tvb = assembled;
