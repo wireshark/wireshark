@@ -7219,11 +7219,17 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         proto_item_set_generated(cplane_frame_ti);
 
                         /* usecs since cplane frame */
-                        time_t total_gap = (pinfo->abs_ts.secs*1000000 + (pinfo->abs_ts.nsecs/1000)) -
-                                           (section_details->frame_time.secs*1000000 + (section_details->frame_time.nsecs/1000));
+                        time_t total_gap = 0;
 
-                        proto_item *cplane_delta_ti = proto_tree_add_uint(section_tree, hf_oran_corresponding_cplane_frame_time_delta, tvb, 0, 0, (uint32_t)total_gap);
-                        proto_item_set_generated(cplane_delta_ti);
+                        if ((pinfo->abs_ts.secs == section_details->frame_time.secs) || (pinfo->abs_ts.secs == section_details->frame_time.secs+1)) {
+                            total_gap = ((pinfo->abs_ts.secs - section_details->frame_time.secs) * 1000000) +
+                                        ((pinfo->abs_ts.nsecs - section_details->frame_time.nsecs)/1000);
+                        }
+
+                        if (total_gap > 0) {
+                            proto_item *cplane_delta_ti = proto_tree_add_uint(section_tree, hf_oran_corresponding_cplane_frame_time_delta, tvb, 0, 0, (uint32_t)total_gap);
+                            proto_item_set_generated(cplane_delta_ti);
+                        }
 
                         break;
                     }
