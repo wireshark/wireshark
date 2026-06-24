@@ -82,9 +82,7 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 	if (err != Z_OK) {
 		ZLIB_PREFIX(inflateEnd)(strm);
 		g_free(strm);
-		wmem_free(NULL, compr);
-		g_free(strmbuf);
-		return NULL;
+		goto exit_err;
 	}
 
 	while (1) {
@@ -139,8 +137,7 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 			if (inflate_passes) {
 				break;
 			} else {
-				wmem_free(NULL, compr);
-				return NULL;
+				goto exit_err;
 			}
 
 		} else if (err == Z_DATA_ERROR && inits_done == 1
@@ -169,9 +166,7 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 			if (comprlen < 10 || *c != Z_DEFLATED) {
 				ZLIB_PREFIX(inflateEnd)(strm);
 				g_free(strm);
-				wmem_free(NULL, compr);
-				g_free(strmbuf);
-				return NULL;
+				goto exit_err;
 			}
 
 			c++;
@@ -228,9 +223,7 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 			if ((unsigned)(c - compr) > comprlen) {
 				ZLIB_PREFIX(inflateEnd)(strm);
 				g_free(strm);
-				wmem_free(NULL, compr);
-				g_free(strmbuf);
-				return NULL;
+				goto exit_err;
 			}
 			/* Drop gzip header */
 			comprlen -= (unsigned)(c - compr);
@@ -245,9 +238,7 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 			inits_done++;
 			if (err != Z_OK) {
 				g_free(strm);
-				wmem_free(NULL, compr);
-				g_free(strmbuf);
-				return NULL;
+				goto exit_err;
 			}
 		} else if (err == Z_DATA_ERROR && inflate_passes == 0 &&
 			inits_done <= 3) {
@@ -276,19 +267,14 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 
 			if (err != Z_OK) {
 				g_free(strm);
-				g_free(strmbuf);
-				wmem_free(NULL, compr);
-
-				return NULL;
+				goto exit_err;
 			}
 		} else {
 			ZLIB_PREFIX(inflateEnd)(strm);
 			g_free(strm);
-			g_free(strmbuf);
 
 			if (!inflate_passes) {
-				wmem_free(NULL, compr);
-				return NULL;
+				goto exit_err;
 			}
 
 			break;
@@ -306,6 +292,12 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 	}
 	wmem_free(NULL, compr);
 	return uncompr_tvb;
+
+exit_err:
+	wmem_free(NULL, compr);
+	g_free(strmbuf);
+	return NULL;
+
 }
 #else /* USE_ZLIB_OR_ZLIBNG */
 tvbuff_t *
