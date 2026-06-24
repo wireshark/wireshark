@@ -75,12 +75,6 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="minimumSize">
-        <size>
-         <width>550</width>
-         <height>0</height>
-        </size>
-       </property>
        <layout class="QVBoxLayout" name="mainContentLayout">
         <item>
          <widget class="AccordionFrame" name="openFrame">
