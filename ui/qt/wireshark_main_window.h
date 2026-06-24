@@ -570,12 +570,6 @@ public slots:
      */
     bool openCaptureFile(QString cf_path = QString(), QString display_filter = QString()) { return openCaptureFile(cf_path, display_filter, WTAP_TYPE_AUTO); }
 
-    /**
-     * @brief Applies a new display filter to the open capture file.
-     * @param new_filter New filter expression; empty string shows all packets.
-     * @param force      @c true to reapply even if the filter is unchanged.
-     */
-    void filterPackets(QString new_filter = QString(), bool force = false) override;
 
     /** @brief Repositions and resizes toolbars according to current layout settings. */
     void layoutToolbars();
@@ -705,6 +699,14 @@ public slots:
      * @param stream_ids Vector of RTP stream identifiers to deselect.
      */
     void rtpStreamsDialogDeselectRtpStreams(QVector<rtpstream_id_t *> stream_ids);
+
+protected slots:
+    /**
+     * @brief Applies a new display filter to the open capture file.
+     * @param new_filter New filter expression; empty string shows all packets.
+     * @param force      @c true to reapply even if the filter is unchanged.
+     */
+    void applyFilter(QString new_filter = QString(), bool force = false) override;
 
 private slots:
     /**

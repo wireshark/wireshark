@@ -167,11 +167,13 @@ public slots:
     void setDisplayFilter(QString filter, FilterAction::Action action, FilterAction::ActionType filterType);
 
     /**
-     * @brief Filters the packets.
-     * @param new_filter The filter string.
-     * @param force True to force the filter application.
+     * @brief Sets and applies a new display filter to the open capture file.
+     * @param new_filter New filter expression; empty string shows all packets.
+     * @param force      @c true to reapply even if the filter is unchanged.
+     *
+     * @note The force parameter is currently ignored.
      */
-    virtual void filterPackets(QString new_filter, bool force) = 0;
+    void filterPackets(QString new_filter = QString(), bool force = true);
 
     /**
      * @brief Shows the preferences dialog for a specific module.
@@ -403,6 +405,13 @@ protected slots:
      * @brief Updates the main title bar text.
      */
     void updateTitlebar();
+
+    /**
+     * @brief Applies a new display filter to the open capture file.
+     * @param new_filter New filter expression; empty string shows all packets.
+     * @param force      @c true to reapply even if the filter is unchanged.
+     */
+    virtual void applyFilter(QString new_filter, bool force) = 0;
 
 private:
     /**

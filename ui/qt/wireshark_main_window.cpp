@@ -455,6 +455,8 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
 
     df_combo_box_ = new DisplayFilterEntry(this);
 
+    connect(df_combo_box_, &DisplayFilterEntry::filterPackets, this, &WiresharkMainWindow::applyFilter);
+
     funnel_statistics_ = new FunnelStatistics(this, capture_file_);
     connect(df_combo_box_, &QLineEdit::textChanged, funnel_statistics_, &FunnelStatistics::displayFilterTextChanged);
     connect(funnel_statistics_, &FunnelStatistics::setDisplayFilter, this, &WiresharkMainWindow::setDisplayFilter);

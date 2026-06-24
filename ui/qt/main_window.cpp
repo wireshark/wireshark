@@ -220,6 +220,14 @@ void MainWindow::setDisplayFilter(QString filter, FilterAction::Action action, F
     emit filterAction(filter, action, filterType);
 }
 
+void MainWindow::filterPackets(QString filter, bool)
+{
+    // Ignore the force parameter. We could add a new action type, and make
+    // the main DisplayFilterEntry check. (Note a filter can have the same text
+    // but compile differently if field references, macros, etc. have changed.)
+    emit filterAction(filter, FilterAction::ActionApply, FilterAction::ActionTypePlain);
+}
+
 /*
  * Used for registering custom packet menus
  *

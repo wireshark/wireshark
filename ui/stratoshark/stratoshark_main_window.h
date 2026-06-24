@@ -510,13 +510,6 @@ public slots:
      */
     bool openCaptureFile(QString cf_path = QString(), QString display_filter = QString()) { return openCaptureFile(cf_path, display_filter, WTAP_TYPE_AUTO); }
 
-    /**
-     * @brief Applies a new display filter to the open capture file.
-     * @param new_filter New filter expression; empty string shows all packets.
-     * @param force      @c true to reapply even if the filter is unchanged.
-     */
-    void filterPackets(QString new_filter = QString(), bool force = false) override;
-
     /** @brief Updates title bar, menus, and status bar to reflect unsaved changes. */
     void updateForUnsavedChanges();
 
@@ -581,6 +574,14 @@ public slots:
     /** @brief Opens the Lua debugger dialog. */
     void openLuaDebuggerDialog();
 #endif
+
+protected slots:
+    /**
+     * @brief Applies a new display filter to the open capture file.
+     * @param new_filter New filter expression; empty string shows all packets.
+     * @param force      @c true to reapply even if the filter is unchanged.
+     */
+    void applyFilter(QString new_filter = QString(), bool force = false) override;
 
 private slots:
     /**

@@ -408,6 +408,8 @@ StratosharkMainWindow::StratosharkMainWindow(QWidget *parent) :
     updateRecentCaptures();
     df_combo_box_ = new DisplayFilterEntry(this);
 
+    connect(df_combo_box_, &DisplayFilterEntry::filterPackets, this, &StratosharkMainWindow::applyFilter);
+
     funnel_statistics_ = new FunnelStatistics(this, capture_file_);
     connect(df_combo_box_, &QLineEdit::textChanged, funnel_statistics_, &FunnelStatistics::displayFilterTextChanged);
     connect(funnel_statistics_, &FunnelStatistics::setDisplayFilter, this, &StratosharkMainWindow::setDisplayFilter);
