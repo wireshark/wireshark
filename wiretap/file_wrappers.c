@@ -1950,7 +1950,7 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
              */
             LZ4F_resetDecompressionContext(file->lz4_dctx);
             size_t hdr_size = LZ4F_HEADER_SIZE_MAX;
-            const LZ4F_errorCode_t frame_err = LZ4F_getFrameInfo(file->lz4_dctx, &file->lz4_info, here->data.lz4.lz4_hdr, &hdr_size);
+            LZ4F_errorCode_t frame_err = LZ4F_getFrameInfo(file->lz4_dctx, &file->lz4_info, here->data.lz4.lz4_hdr, &hdr_size);
             if (LZ4F_isError(frame_err)) {
                 file->err = WTAP_ERR_DECOMPRESS;
                 file->err_info = LZ4F_getErrorName(frame_err);
@@ -1961,7 +1961,12 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
 #if LZ4_VERSION_NUMBER >= 11000
             if (here->compression == LZ4_AFTER_HEADER && here->data.lz4.lz4_info.blockMode == LZ4F_blockLinked) {
                 size_t dstSize = 0, srcSize = 0;
-                LZ4F_decompress_usingDict(file->lz4_dctx, NULL, &dstSize, NULL, &srcSize, here->data.lz4.window, LZ4_WINSIZE, NULL);
+                frame_err = LZ4F_decompress_usingDict(file->lz4_dctx, NULL, &dstSize, NULL, &srcSize, here->data.lz4.window, LZ4_WINSIZE, NULL);
+                if (LZ4F_isError(frame_err)) {
+                    file->err = WTAP_ERR_DECOMPRESS;
+                    file->err_info = LZ4F_getErrorName(frame_err);
+                    return -1;
+                }
             }
 #endif /* LZ4_VERSION_NUMBER >= 11000 */
             break;
