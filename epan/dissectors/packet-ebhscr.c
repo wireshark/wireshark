@@ -1054,7 +1054,7 @@ static int dissect_ebhscr_flexray_frame_packet(tvbuff_t *tvb, packet_info *pinfo
 		header_data[1] |= 0x10;
 	}
 
-	hdr_tvb = tvb_new_real_data(header_data, 2U, 2U);
+	hdr_tvb = tvb_new_child_real_data(tvb, header_data, 2U, 2U);
 
 	tvb_composite_append(fr_tvb, hdr_tvb);
 	tvb_composite_append(fr_tvb, tvb_new_subset_length(tvb, 32, ebhscr_current_payload_length));
