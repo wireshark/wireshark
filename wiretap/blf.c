@@ -833,11 +833,9 @@ blf_decompress_zlib(const uint8_t *compressed_data, unsigned compressed_len, uin
 
             /* Presumably need more space. */
             if (total_out > decompressed_len) {
-                /* Decompressed more bytes than claimed. */
-                g_free(buf);
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = ws_strdup_printf("blf: uncompressed data has wrong length (%" PRIu64 " > %" PRIu64")", total_out, decompressed_len);
-                return NULL;
+                break;
             }
             if (infstream.avail_out == 0) {
                 /* Increase the total buffer */
@@ -901,14 +899,6 @@ blf_decompress_zlib(const uint8_t *compressed_data, unsigned compressed_len, uin
         return NULL;
     } while (ret != Z_STREAM_END);
 
-    if (total_out < decompressed_len) {
-        /* Decompressed fewer bytes than claimed. */
-        g_free(buf);
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = ws_strdup_printf("blf: uncompressed data has wrong length (%" PRIu64 " > %" PRIu64")", total_out, decompressed_len);
-        return NULL;
-    }
-
     if (Z_OK != ZLIB_PREFIX(inflateEnd)(&infstream)) {
         /*
          * The zlib manual says this only returns Z_OK on success
@@ -931,6 +921,15 @@ blf_decompress_zlib(const uint8_t *compressed_data, unsigned compressed_len, uin
         }
         return NULL;
     }
+
+    if (total_out < decompressed_len) {
+        /* Decompressed fewer bytes than claimed. */
+        g_free(buf);
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("blf: uncompressed data has wrong length (%" PRIu64 " < %" PRIu64")", total_out, decompressed_len);
+        return NULL;
+    }
+
     return buf;
 }
 #endif /* USE_ZLIB_OR_ZLIBNG */
