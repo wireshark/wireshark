@@ -724,7 +724,7 @@ dissect_ipv4_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		/*offset += 2;*/
 		break;
 	case 0x0C: /* Secure-BVLL */
-		offset = bacnet_dissect_sec_wrapper(tvb, pinfo, tree, offset, NULL, &sec_decrypted);
+		/*offset =*/ bacnet_dissect_sec_wrapper(tvb, pinfo, tree, offset, NULL, &sec_decrypted);
 		if (!sec_decrypted) {
 			call_data_dissector(tvb, pinfo, tree);
 			return tvb_captured_length(tvb);
