@@ -268,6 +268,7 @@ if(PCAP_FOUND)
   cmake_push_check_state()
   set( CMAKE_REQUIRED_INCLUDES ${PCAP_INCLUDE_DIRS} )
   set( CMAKE_REQUIRED_LIBRARIES ${PCAP_LIBRARIES} )
+  set( CMAKE_REQUIRED_DEFINITIONS ${LFS_DEFINITIONS} ${TIME64_DEFINITIONS} )
 
   include(CheckSymbolExists)
   include(CheckSourceRuns)

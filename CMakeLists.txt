@@ -534,6 +534,20 @@ if(NOT MSVC)
 		#
 		add_definitions(${FSEEKO_DEFINITIONS})
 	endif()
+	#
+	# Check for 64-bit time_t if asked for. We don't support 32-bit
+	# Windows at all so we don't call this outside this path.
+	#
+	if(ENABLE_Y2038)
+		include(FindTime64)
+		if(TIME64_FOUND)
+			# Add the required #defines.
+			#
+			add_definitions(${TIME64_DEFINITIONS})
+		else()
+			message(FATAL_ERROR "Y2038/POSIX.1-2024 compliant time_t not found")
+		endif()
+	endif()
 endif()
 
 # Banner shown at top right of Qt welcome screen.

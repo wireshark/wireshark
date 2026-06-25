@@ -81,6 +81,7 @@ else()
 endif()
 
 option(ENABLE_LTO "Use Link Time Optimization (release configuration only)" OFF)
+option(ENABLE_Y2038 "Require 64-bit time_t even on 32-bit platforms (experimental)" OFF)
 
 if(WIN32)
 	option(ENABLE_VLD "Enable Visual Leak Detect in Debug configuration" OFF)
