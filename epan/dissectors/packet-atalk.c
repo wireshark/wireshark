@@ -195,6 +195,36 @@ static int ett_zip_flags;
 static int ett_zip_zones_list;
 static int ett_zip_network_list;
 
+/* MacIP definitions */
+#define MACIP_ASSIGN  1
+#define MACIP_SERVER  3
+#define MACIP_ERROR  (-1)
+
+static int proto_macip;
+static int proto_macip_atp;
+static dissector_handle_t macip_handle;
+static dissector_handle_t macip_atp_handle;
+
+static int hf_macip_version;
+static int hf_macip_function;
+static int hf_macip_address;
+static int hf_macip_dns;
+static int hf_macip_broadcast;
+static int hf_macip_fileserver;
+static int hf_macip_other;
+static int hf_macip_pad;
+static int hf_macip_error;
+
+static const value_string macip_function_vals[] = {
+  {1, "ASSIGN"},
+  {3, "SERVER"},
+  {-1, "ERROR"},
+  {0, NULL}
+};
+static value_string_ext macip_function_vals_ext = VALUE_STRING_EXT_INIT(macip_function_vals);
+
+static int ett_macip;
+
 /* --------------------------------
  * from netatalk/include/atalk/ats.h
  */
@@ -401,6 +431,8 @@ static const value_string op_vals[] = {
   {DDP_RTMPREQ,  "AppleTalk Routing Table request"},
   {DDP_ZIP,      "AppleTalk Zone Information Protocol packet"},
   {DDP_ADSP,     "AppleTalk Data Stream Protocol"},
+  {DDP_MACIP,    "MacIP"},
+  {DDP_ARP,      "DDP ARP"},
   {DDP_EIGRP,    "Cisco EIGRP for AppleTalk"},
   {0, NULL}
 };
@@ -894,8 +926,13 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
   if (new_tvb) {
     /* if port == 6 it's not an ASP packet but a ZIP packet */
-    if (pinfo->srcport == 6 || pinfo->destport == 6 )
+    if (pinfo->srcport == 6 || pinfo->destport == 6) {
       call_dissector_with_data(zip_atp_handle, new_tvb, pinfo, tree, &atp_asp_dsi_info);
+    }
+    /* if port == 72 it's a MacIP gateway configuration packet */
+    else if (pinfo->srcport == 72 || pinfo->destport == 72) {
+      call_dissector_with_data(macip_atp_handle, new_tvb, pinfo, tree, &atp_asp_dsi_info);
+    }
     else {
       /* XXX need a conversation_get_dissector function ? */
       if (!atp_asp_dsi_info.reply && !conversation_get_dissector(conversation, pinfo->num)) {
@@ -1022,6 +1059,16 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     break;
   }
   return offset;
+}
+
+static int
+dissect_macip(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
+{
+  /* MacIP packets are IPv4 packets with a DDP header */
+  static dissector_handle_t ip_handle;
+  ip_handle = find_dissector("ip");
+  call_dissector(ip_handle, tvb, pinfo, tree);
+  return tvb_captured_length(tvb);
 }
 
 /* -----------------------------
@@ -1444,6 +1491,86 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
   default:
     break;
+  }
+  return tvb_captured_length(tvb);
+}
+
+/* -----------------------------
+   MacIP Gateway Protocol. Based on packet observation from various MacIP gateways and KIP source code.
+   Additional documentation in MacIP Gateway Protocol packet format can be found in section 3.8 of the
+   IETF MacIP draft specification at:
+   https://datatracker.ietf.org/doc/html/draft-ietf-appleip-MacIP-02
+*/
+
+static int
+dissect_atp_macip(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
+{
+  struct atp_asp_dsi_info* atp_asp_dsi_info;
+  int         captured = tvb_captured_length(tvb);
+  int         offset = 0;
+  proto_tree* macip_tree;
+  proto_item* ti;
+  int32_t     fn;
+
+  /* Reject the packet if data is NULL */
+  if (data == NULL)
+    return 0;
+
+  // ATP MacIP is carried over DDP
+  if (!(is_ddp_address(&pinfo->src) && is_ddp_address(&pinfo->dst))) {
+    return 0;
+  }
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "MacIP GP");
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  atp_asp_dsi_info = (struct atp_asp_dsi_info*)data;
+
+  ti = proto_tree_add_item(tree, proto_macip_atp, tvb, offset, -1, ENC_NA);
+  macip_tree = proto_item_add_subtree(ti, ett_macip);
+  if (atp_asp_dsi_info->reply) {
+    /* ATP user bytes are technically undefined, but Apple inserts a version number */
+    proto_tree_add_item(macip_tree, hf_macip_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(macip_tree, hf_macip_pad, tvb, offset, 2, ENC_NA);
+    offset += 2;
+  }
+  else {
+    proto_tree_add_item(macip_tree, hf_macip_pad, tvb, offset, 4, ENC_NA);
+    offset += 4;
+  }
+  proto_tree_add_item_ret_int(macip_tree, hf_macip_function, tvb, offset, 4, ENC_BIG_ENDIAN, &fn);
+  if (atp_asp_dsi_info->reply)
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u", atp_asp_dsi_info->tid);
+  else
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %u",
+      val_to_str_ext(pinfo->pool, fn, &macip_function_vals_ext, "Unknown (0x%01x)"), atp_asp_dsi_info->tid);
+
+  if (atp_asp_dsi_info->reply) {
+    offset += 4;
+    proto_tree_add_item(macip_tree, hf_macip_address, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(macip_tree, hf_macip_dns, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(macip_tree, hf_macip_broadcast, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(macip_tree, hf_macip_fileserver, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(macip_tree, hf_macip_other, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    /* Some MacIP servers (ex: macipgw) don't ouput the full list of IPs, so handle that here */
+    if (offset < captured) {
+      proto_tree_add_item(macip_tree, hf_macip_other, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(macip_tree, hf_macip_other, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(macip_tree, hf_macip_other, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+    }
+    /* Variable length error messages are attached to the end of the reply block */
+    if (fn == MACIP_ERROR) {
+      proto_tree_add_item(macip_tree, hf_macip_error, tvb, offset, -1, ENC_STRING);
+    }
   }
   return tvb_captured_length(tvb);
 }
@@ -2063,6 +2190,46 @@ proto_register_atalk(void)
 
   };
 
+  static hf_register_info hf_macip[] = {
+
+  { &hf_macip_version,
+      { "Version",    "macip.version", FT_UINT16,  BASE_DEC, NULL, 0x0,
+        NULL, HFILL}},
+
+  { &hf_macip_function,
+      { "Function",   "macip.function", FT_INT32,  BASE_DEC|BASE_EXT_STRING, &macip_function_vals_ext, 0x0,
+        NULL, HFILL}},
+
+  { &hf_macip_address,
+      { "Assigned IP Address", "macip.address", FT_IPv4,  BASE_NONE, NULL, 0x0,
+        NULL, HFILL}},
+
+  { &hf_macip_dns,
+      { "DNS Server", "macip.address", FT_IPv4,  BASE_NONE, NULL, 0x0,
+        NULL, HFILL}},
+
+  { &hf_macip_broadcast,
+      { "Broadcast Address", "macip.broadcast", FT_IPv4,  BASE_NONE, NULL, 0x0,
+        NULL, HFILL}},
+
+  { &hf_macip_fileserver,
+      { "File Server IP Address", "macip.fileserver", FT_IPv4,  BASE_NONE, NULL, 0x0,
+        NULL, HFILL}},
+
+  { &hf_macip_other,
+      { "Other IP Address", "macip.other", FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL}},
+
+  { &hf_macip_error,
+      { "Error",    "macip.error",FT_STRINGZ, BASE_SHOW_ASCII_PRINTABLE, NULL, 0x0,
+        "Error Message", HFILL}},
+
+  { &hf_macip_pad,
+      { "Pad",        "macip.pad",FT_NONE, BASE_NONE, NULL, 0,
+       "Pad Byte", HFILL }},
+
+  };
+
   static ei_register_info ei_ddp[] = {
      { &ei_ddp_len_invalid, { "ddp.len_invalid", PI_PROTOCOL, PI_WARN, "Invalid length", EXPFILL }},
   };
@@ -2088,6 +2255,8 @@ proto_register_atalk(void)
     &ett_zip_flags,
     &ett_zip_zones_list,
     &ett_zip_network_list,
+
+    &ett_macip,
   };
   module_t *atp_module;
   expert_module_t *expert_ddp;
@@ -2126,6 +2295,12 @@ proto_register_atalk(void)
   proto_pap = proto_register_protocol("Printer Access Protocol", "PrAP", "prap");
   proto_register_field_array(proto_pap, hf_pap, array_length(hf_pap));
   pap_handle = register_dissector("prap", dissect_pap, proto_pap);
+
+  proto_macip = proto_register_protocol("MacIP", "MacIP", "macip");
+  proto_macip_atp = proto_register_protocol("MacIP Gateway Protocol", "MacIP GP", "macip.atp");
+  proto_register_field_array(proto_macip_atp, hf_macip, array_length(hf_macip));
+  macip_handle = register_dissector("macip", dissect_macip, proto_macip);
+  macip_atp_handle = register_dissector("macip.atp", dissect_atp_macip, proto_macip_atp);
 
   proto_zip = proto_register_protocol("Zone Information Protocol", "ZIP", "zip");
   proto_register_field_array(proto_zip, hf_zip, array_length(hf_zip));
@@ -2169,6 +2344,7 @@ proto_reg_handoff_atalk(void)
   dissector_add_uint("ddp.type", DDP_RTMPREQ, rtmp_request_handle);
   dissector_add_uint("ddp.type", DDP_RTMPDATA, rtmp_data_handle);
   dissector_add_uint("ddp.type", DDP_ZIP, zip_ddp_handle);
+  dissector_add_uint("ddp.type", DDP_MACIP, macip_handle);
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_LOCALTALK, llap_handle);
   /*

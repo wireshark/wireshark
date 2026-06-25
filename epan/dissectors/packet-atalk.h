@@ -17,6 +17,8 @@
 #define DDP_RTMPREQ	0x05
 #define DDP_ZIP		0x06
 #define DDP_ADSP	0x07
+#define DDP_MACIP	0x16
+#define DDP_ARP		0x17
 #define DDP_EIGRP	0x58
 
 #endif
