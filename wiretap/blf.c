@@ -747,7 +747,7 @@ blf_logcontainers_search(const void *a, const void *b) {
 #ifdef USE_ZLIB_OR_ZLIBNG
 
 static uint8_t*
-blf_decompress_zlib(const uint8_t *compressed_data, unsigned compressed_len, uint64_t decompressed_len, int *err, char **err_info)
+blf_decompress_zlib(uint8_t *compressed_data, unsigned compressed_len, uint64_t decompressed_len, int *err, char **err_info)
 {
     /* decompressed_len is just read from packet data, and could be bogus.
      * It's stored in real_length as a 64-bit integer, but appears to
