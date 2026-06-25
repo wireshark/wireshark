@@ -132,7 +132,6 @@ DisplayFilterEntry::DisplayFilterEntry(QWidget *parent) :
 
 void DisplayFilterEntry::connectToMainWindow()
 {
-    connect(this, &DisplayFilterEntry::filterPackets, mainApp->mainWindow(), &MainWindow::filterPackets);
     connect(this, &DisplayFilterEntry::showPreferencesDialog, mainApp->mainWindow(), &MainWindow::showPreferencesDialog);
     connect(mainApp->mainWindow(), &MainWindow::displayFilterSuccess, this, &DisplayFilterEntry::displayFilterSuccess);
 }
