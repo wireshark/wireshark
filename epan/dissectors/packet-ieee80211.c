@@ -38374,10 +38374,9 @@ dissect_ieee80211_block_ack_bitmap(tvbuff_t *tvb, packet_info *pinfo _U_,
     for (f = 0; f < last_ack_frame_pos && f < 32; f++) {
       if (bitmap & (UINT64_C(1) << f))
         continue;
-      proto_tree_add_uint_format_value(ba_bitmap_tree,
+      proto_tree_add_uint(ba_bitmap_tree,
                     hf_ieee80211_block_ack_bitmap_missing_frame,
-                    tvb, offset + (f/8), 1, ssn + f, "%u",
-                    (ssn + f) & 0x0fff);
+                    tvb, offset + (f/8), 1, (ssn + f) & 0x0fff);
     }
 
   } else {
@@ -38398,18 +38397,16 @@ dissect_ieee80211_block_ack_bitmap(tvbuff_t *tvb, packet_info *pinfo _U_,
       for (f = 0; f < 64 && (f + j) < last_ack_frame_pos; f++) {
         if (bitmap & (UINT64_C(1) << f))
           continue;
-        proto_tree_add_uint_format_value(ba_bitmap_tree,
+        proto_tree_add_uint(ba_bitmap_tree,
                       hf_ieee80211_block_ack_bitmap_missing_frame,
-                      tvb, offset + ((f + j)/8), 1, ssn + f + j, "%u",
-                      (ssn + f + j) & 0x0fff);
+                      tvb, offset + ((f + j)/8), 1, (ssn + f + j) & 0x0fff);
       }
     }
   }
 
-  last_ack_frame_item = proto_tree_add_uint_format_value(ba_bitmap_tree,
+  last_ack_frame_item = proto_tree_add_uint(ba_bitmap_tree,
     hf_ieee80211_block_ack_bitmap_last_ack_frame,
-    tvb, offset + (last_ack_frame_pos/8), 1, ssn + last_ack_frame_pos, "%u",
-    (ssn + last_ack_frame_pos) & 0x0fff);
+    tvb, offset + (last_ack_frame_pos/8), 1, ssn + last_ack_frame_pos);
   proto_item_set_generated(last_ack_frame_item);
 
   return offset + bitmap_size;
@@ -44329,13 +44326,13 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_block_ack_bitmap_missing_frame,
-     {"Not acknowledged frame", "wlan.ba.bm.missing_frame",
-      FT_UINT32, BASE_DEC, NULL, 0,
+     {"Unacknowledged frame", "wlan.ba.bm.missing_frame",
+      FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_block_ack_bitmap_last_ack_frame,
      {"Last acknowledged frame", "wlan.ba.bm.last_ack_frame",
-      FT_UINT32, BASE_DEC, NULL, 0,
+      FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_block_ack_gcr_addr,
