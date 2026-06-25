@@ -1344,7 +1344,7 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if (plen >= SSH_MAX_PACKET_LEN) {
-        if (ssh1_tree && plen > 0) {
+        if (ssh1_tree) {
               proto_tree_add_uint_format(ssh1_tree, hf_ssh_packet_length, tvb,
                 offset, 4, plen, "Overly large length %x", plen);
         }
@@ -2020,7 +2020,6 @@ ssh_dissect_kex_pq_hybrid(uint8_t msg_code, tvbuff_t *tvb,
             ws_debug("ExpertInfo: Invalid PQ client key length at offset %d: %u", offset, bad_len);
 
             return offset + 4;
-            ws_debug("CLIENT INIT validate PQ client key length - offset: %d", offset); // debug trace offset
         }
 
         // PQ-hybrid KEMs cannot use ssh_add_tree_string => manual dissection
@@ -2147,7 +2146,6 @@ ssh_dissect_kex_pq_hybrid(uint8_t msg_code, tvbuff_t *tvb,
             ws_debug("ExpertInfo: Invalid PQ server key length at offset %d: %u", offset, bad_len);
 
             return offset + 4;
-            ws_debug("SERVER REPLY validate PQ server key length - offset: %d", offset); // debug trace offset
         }
 
         // Select encryption and MAC based on negotiated algorithms.
@@ -3983,7 +3981,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
             // uses the sequence number as an initialisation vector (IV) to
             // generate its per-packet MAC key and is otherwise stateless
             // between packets," we need no special handling here.
-            // https://www.ietf.org/id/draft-miller-sshm-strict-kex-01.html
+            // https://datatracker.ietf.org/doc/draft-miller-sshm-strict-kex/
             //
             if (ssh_desegment && pinfo->can_desegment) {
                 pinfo->desegment_offset = offset;
@@ -4322,7 +4320,7 @@ ssh_decrypt_chacha20(gcry_cipher_hd_t hd,
     // chacha20 uses a different cipher handle for the packet payload & length
     // the payload uses a block counter
     if (counter) {
-        unsigned char ctr[8] = {1,0,0,0,0,0,0,0};
+        const unsigned char ctr[8] = {1,0,0,0,0,0,0,0};
         memcpy(iv, ctr, 8);
         memcpy(iv+8, seq, 8);
     }

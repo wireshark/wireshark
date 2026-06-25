@@ -2513,7 +2513,7 @@ static unsigned dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_
                         offset += 3;
                     }
 
-                    static int* const ph_fields1[] = {
+                    static const int*  ph_fields1[] = {
                         &hf_mac_nr_control_me_phr_ph_c1,
                         &hf_mac_nr_control_me_phr_ph_c2,
                         &hf_mac_nr_control_me_phr_ph_c3,
@@ -2522,7 +2522,7 @@ static unsigned dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_
                         &hf_mac_nr_control_me_phr_ph_c6,
                         &hf_mac_nr_control_me_phr_ph_c7,
                     };
-                    static int* const ph_fields2_3_4[] = {
+                    static const int* ph_fields2_3_4[] = {
                         &hf_mac_nr_control_me_phr_ph_c8,
                         &hf_mac_nr_control_me_phr_ph_c9,
                         &hf_mac_nr_control_me_phr_ph_c10,
@@ -2623,7 +2623,7 @@ static unsigned dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_
                 case SHORT_TRUNCATED_BSR_LCID:
                 case SHORT_BSR_LCID:
                 {
-                    static int* const hf_mac_nr_control_bsr_short_bs_lcg[] = {
+                    static const int* hf_mac_nr_control_bsr_short_bs_lcg[] = {
                         &hf_mac_nr_control_bsr_short_bs_lcg0,
                         &hf_mac_nr_control_bsr_short_bs_lcg1,
                         &hf_mac_nr_control_bsr_short_bs_lcg2,
@@ -5489,6 +5489,13 @@ void proto_register_mac_nr(void)
     module_t *mac_nr_module;
     expert_module_t* expert_mac_nr;
 
+    static const enum_val_t show_info_col_vals[] = {
+        {"show-phy", "PHY Info", ShowPHYLayer},
+        {"show-mac", "MAC Info", ShowMACLayer},
+        {"show-rlc", "RLC Info", ShowRLCLayer},
+        {NULL, NULL, -1}
+    };
+
     static const enum_val_t lcid_drb_source_vals[] = {
         {"from-static-stable",          "From static table",           FromStaticTable},
         {"from-configuration-protocol", "From configuration protocol", FromConfigurationProtocol},
@@ -5558,6 +5565,11 @@ void proto_register_mac_nr(void)
                                   "LCID -> DRB Mappings Table",
                                   "A table that maps from configurable lcids -> RLC bearer configs",
                                   lcid_drb_mappings_uat);
+
+    prefs_register_enum_preference(mac_nr_module, "layer_to_show",
+        "Which layer info to show in Info column",
+        "Can show PHY, MAC or RLC layer info in Info column",
+        &global_mac_nr_layer_to_show, show_info_col_vals, false);
 
     register_init_routine(&mac_nr_init_protocol);
     register_cleanup_routine(&mac_nr_cleanup_protocol);

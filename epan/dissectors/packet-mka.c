@@ -1316,7 +1316,7 @@ dissect_announcement(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, in
     }
   }
 
-  return announcement_set_tree;;
+  return announcement_set_tree;
 }
 
 static proto_tree *

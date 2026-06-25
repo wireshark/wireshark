@@ -8530,8 +8530,7 @@ dissect_smb2_NETWORK_INTERFACE_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	offset += 4;
 
 	/* link speed */
-	link_speed = tvb_get_letoh64(tvb, offset);
-	item = proto_tree_add_item(sub_tree, hf_smb2_ioctl_network_interface_link_speed, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	item = proto_tree_add_item_ret_uint64(sub_tree, hf_smb2_ioctl_network_interface_link_speed, tvb, offset, 8, ENC_LITTLE_ENDIAN, &link_speed);
 	if (link_speed >= (1000*1000*1000)) {
 		val = (float)(link_speed / (1000*1000*1000));
 		unit = "G";
@@ -13182,7 +13181,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 								* used to lookup this ssi at which time ssi->frame_res and
 								* ssi->async->status_pending_in will be set to that frame#.
 								*/
-								async                    = wmem_new0(wmem_file_scope(), smb2_async_t);;
+								async                    = wmem_new0(wmem_file_scope(), smb2_async_t);
 								async->opcode            = si->opcode;
 								async->ssi_parent        = ssi;
 								async->cancel_req_in     = pinfo->fd->num;

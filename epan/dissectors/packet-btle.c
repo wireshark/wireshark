@@ -3630,7 +3630,6 @@ dissect_btle_acl(tvbuff_t *tvb,
                                 * Missing fragment for previous L2CAP and fragment start for this.
                                 * Set more_fragments and increase l2cap_index to avoid reassembly.
                                 */
-                            btle_frame_info->more_fragments = 1;
                             btle_frame_info->missing_start = 1;
                             btle_frame_info->l2cap_index = l2cap_index;
                             connection_info->direction_info[direction].l2cap_index = l2cap_index;

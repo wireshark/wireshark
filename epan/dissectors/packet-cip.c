@@ -5276,7 +5276,7 @@ static int dissect_pdd_get_attributes_all_class(packet_info *pinfo _U_, proto_tr
    if (request)
    {
       // no parameters for that service request
-      parsed_len = tvb_reported_length_remaining(tvb, offset);;
+      parsed_len = tvb_reported_length_remaining(tvb, offset);
    }
    else
    {

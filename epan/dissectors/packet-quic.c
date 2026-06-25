@@ -4605,7 +4605,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
         }
         if (!error) {
             uint32_t pkn32 = 0;
-            int hp_cipher_algo = long_packet_type != QUIC_LPT_INITIAL && conn ? conn->cipher_algo : GCRY_CIPHER_AES128;
+            int hp_cipher_algo = long_packet_type != QUIC_LPT_INITIAL ? conn->cipher_algo : GCRY_CIPHER_AES128;
             // PKN is after type(1) + version(4) + DCIL+DCID + SCIL+SCID
             unsigned pn_offset = 1 + 4 + 1 + dcid.len + 1 + scid.len;
             if (long_packet_type == QUIC_LPT_INITIAL) {

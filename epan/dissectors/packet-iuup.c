@@ -509,14 +509,11 @@ static void dissect_iuup_init(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
         }
     }
 
-    if (tree) {
-        pi = proto_tree_add_item(tree,hf_iuup_mode_versions,tvb,offset,2,ENC_BIG_ENDIAN);
-        support_tree = proto_item_add_subtree(pi,ett_support);
+    pi = proto_tree_add_item(tree,hf_iuup_mode_versions,tvb,offset,2,ENC_BIG_ENDIAN);
+    support_tree = proto_item_add_subtree(pi,ett_support);
 
-        for (i = 0; i < 16; i++) {
-            proto_tree_add_item(support_tree,hf_iuup_mode_versions_a[i],tvb,offset,2,ENC_BIG_ENDIAN);
-        }
-
+    for (i = 0; i < 16; i++) {
+        proto_tree_add_item(support_tree,hf_iuup_mode_versions_a[i],tvb,offset,2,ENC_BIG_ENDIAN);
     }
 
     offset += 2;
