@@ -279,9 +279,9 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 		strmbuf = (uint8_t*)g_realloc(strmbuf, bytes_out);
 		uncompr_tvb = tvb_new_real_data(strmbuf, bytes_out, bytes_out);
 		tvb_set_free_cb(uncompr_tvb, g_free);
+		wmem_free(NULL, compr);
+		return uncompr_tvb;
 	}
-	wmem_free(NULL, compr);
-	return uncompr_tvb;
 
 exit_err:
 	wmem_free(NULL, compr);
