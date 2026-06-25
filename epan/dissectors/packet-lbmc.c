@@ -10150,7 +10150,7 @@ static int dissect_nhdr_extopt(tvbuff_t * tvb, unsigned offset, packet_info * pi
                 tvb_memcpy(tvb, reassembly->data + fragment_offset, data_offset, data_len);
                 reassembly->len += data_len;
                 buf = (uint8_t*)wmem_memdup(pinfo->pool, reassembly->data, reassembly->len);
-                reassembly_tvb = tvb_new_real_data(buf, reassembly->len, reassembly->len);
+                reassembly_tvb = tvb_new_child_real_data(tvb, buf, reassembly->len, reassembly->len);
                 add_new_data_source(pinfo, reassembly_tvb, "Reassembled EXTOPT fragment data");
             }
             else
