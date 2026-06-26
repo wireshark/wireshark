@@ -2697,12 +2697,12 @@ tcp_detect_duplicate_packet(tvbuff_t *tvb,
      * it can be clamped by intermediate devices so its value bytes are zeroed
      * before hashing. The stream index scopes the hash to one conversation. */
     {
-        int     hdr_len  = tcph->th_hlen; /* th_hlen is already in bytes */
+        unsigned hdr_len  = tcph->th_hlen; /* th_hlen is already in bytes */
         /* TCP options max 40 bytes; fixed header 20 bytes; buf sized for both */
         uint8_t hdrbuf[64];
-        int     tvb_len  = (int)tvb_reported_length(tvb);
-        int     copy_len = hdr_len;
-        if (copy_len > (int)sizeof(hdrbuf)) copy_len = (int)sizeof(hdrbuf);
+        unsigned tvb_len  = tvb_captured_length(tvb);
+        unsigned copy_len = hdr_len;
+        if (copy_len > sizeof(hdrbuf)) copy_len = sizeof(hdrbuf);
         if (copy_len > tvb_len)             copy_len = tvb_len;
 
         if (copy_len < 20)
@@ -2719,14 +2719,20 @@ tcp_detect_duplicate_packet(tvbuff_t *tvb,
 
         if (tcph->th_flags & TH_SYN) {
             /* Scan options for MSS (kind=2, len=4) and zero its 2-byte value */
-            int opt = 20;
+            unsigned opt = 20;
             while (opt < copy_len) {
                 uint8_t kind = hdrbuf[opt];
                 if (kind == 0) break;               /* EOL */
                 if (kind == 1) { opt++; continue; } /* NOP */
                 if (opt + 1 >= copy_len) break;
                 uint8_t olen = hdrbuf[opt + 1];
-                if (olen < 2 || opt + olen > copy_len) break;
+                if (olen < 2 || opt + olen > copy_len) {
+                    if (kind == 2) {    /* MSS truncated mid-value — zero whatever bytes are present */
+                        if (opt + 2 < copy_len) hdrbuf[opt + 2] = 0;
+                        if (opt + 3 < copy_len) hdrbuf[opt + 3] = 0;
+                    }
+                    break;
+                }
                 if (kind == 2 && olen == 4) {       /* MSS */
                     hdrbuf[opt + 2] = 0;
                     hdrbuf[opt + 3] = 0;
