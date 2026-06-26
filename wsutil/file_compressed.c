@@ -773,12 +773,12 @@ lz4wfile_fdopen(int fd)
 
     memset(&state->lz4_prefs, 0, sizeof(LZ4F_preferences_t));
     /* Use the same prefs as the lz4 command line utility defaults. */
-    state->lz4_prefs.frameInfo.blockMode = LZ4F_blockIndependent; /* Allows fast seek */
-    /* We could use LZ4F_blockLinked but start a new frame every so often
-     * in order to allow fast seek. (Or implement fast seek for linked
-     * blocks via dictionary loading.) Linked blocks have better compression
+    state->lz4_prefs.frameInfo.blockMode = LZ4F_blockIndependent;
+    /* We could use LZ4F_blockLinked. Linked blocks have better compression
      * when blocks are small, as happens when flushing during live capture.
-     */
+     * It's not as widely supported, though; libwiretap supports reading
+     * linked blocks but not with fast seek until 4.6.0, and then only if
+     * the version of LZ4 is 1.10.0 or later. */
     state->lz4_prefs.frameInfo.contentChecksumFlag = 1;
     state->lz4_prefs.frameInfo.blockSizeID = LZ4F_max4MB;
     /* XXX - What should we set state->lz4_prefs.compressionLevel to?
