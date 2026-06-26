@@ -925,9 +925,19 @@ write_json_proto_node(GSList *node_values_head,
     // Retrieve json key from first value.
     proto_node *first_value = (proto_node *) node_values_head->data;
     const char *json_key = proto_node_to_json_key(first_value);
-    char* json_key_suffix = ws_strdup_printf("%s%s", json_key, suffix);
-    json_dumper_set_member_name(pdata->dumper, json_key_suffix);
-    g_free(json_key_suffix);
+
+    if (suffix[0] == '\0') {
+        json_dumper_set_member_name(pdata->dumper, json_key);
+    } else {
+        size_t klen = strlen(json_key);
+        size_t slen = strlen(suffix);
+        char sbuf[256];
+        char *key = (klen + slen + 1 <= sizeof(sbuf)) ? sbuf : (char *)g_malloc(klen + slen + 1);
+        memcpy(key, json_key, klen);
+        memcpy(key + klen, suffix, slen + 1);
+        json_dumper_set_member_name(pdata->dumper, key);
+        if (key != sbuf) g_free(key);
+    }
     write_json_proto_node_value_list(node_values_head, value_writer, pdata);
 }
 
@@ -995,7 +1005,7 @@ write_json_proto_node_hex_dump(proto_node *node, write_json_data *pdata)
     if (get_field_data_source_cached(pdata->src_list, fi, &src_idx, pdata)) {
         json_dumper_value_uint(pdata->dumper, src_idx);
     } else {
-        json_dumper_value_anyf(pdata->dumper, "null");
+        json_dumper_value_literal(pdata->dumper, "null", 4);
     }
 
     json_dumper_end_array(pdata->dumper);
@@ -1415,9 +1425,9 @@ ek_write_field_value(field_info *fi, write_json_data* pdata)
              * )
              */
             if (fvalue_get_uinteger64(fi->value))
-                json_dumper_value_anyf(pdata->dumper, "true");
+                json_dumper_value_literal(pdata->dumper, "true", 4);
             else
-                json_dumper_value_anyf(pdata->dumper, "false");
+                json_dumper_value_literal(pdata->dumper, "false", 5);
             break;
         default:
             dfilter_string = fvalue_to_string_repr(NULL, fi->value, FTREPR_EK, fi->hfinfo->display);

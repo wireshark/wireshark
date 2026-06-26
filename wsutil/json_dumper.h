@@ -202,6 +202,18 @@ WS_DLL_PUBLIC void
 json_dumper_value_va_list(json_dumper *dumper, const char *format, va_list ap);
 
 /**
+ * @brief Writes a literal JSON token without printf overhead.
+ *
+ * Suitable for "null", "true", "false" or other raw JSON literals.
+ *
+ * @param dumper The JSON dumper context.
+ * @param literal The literal string to write (not quoted).
+ * @param len Length of the literal.
+ */
+WS_DLL_PUBLIC void
+json_dumper_value_literal(json_dumper *dumper, const char *literal, size_t len);
+
+/**
  * @brief Writes a signed 64-bit integer value without printf overhead.
  *
  * @param dumper The JSON dumper context.

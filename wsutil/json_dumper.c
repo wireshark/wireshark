@@ -771,6 +771,20 @@ json_dumper_value_anyf(json_dumper *dumper, const char *format, ...)
 }
 
 void
+json_dumper_value_literal(json_dumper *dumper, const char *literal, size_t len)
+{
+    if (!json_dumper_check_previous_error(dumper)) {
+        return;
+    }
+    if (!json_dumper_setting_value_ok(dumper)) {
+        return;
+    }
+    prepare_token(dumper);
+    jd_puts_len(dumper, literal, len);
+    dumper->state[dumper->current_depth] = JSON_DUMPER_TYPE_VALUE;
+}
+
+void
 json_dumper_value_int(json_dumper *dumper, int64_t value)
 {
     if (!json_dumper_check_previous_error(dumper)) {
