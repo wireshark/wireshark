@@ -36,6 +36,7 @@
 #include <wsutil/ws_pipe.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/file_compressed.h>
+#include <wsutil/filesystem.h>
 
 #include <epan/prefs.h>
 
@@ -1405,28 +1406,6 @@ capture_opts_default_iface_if_necessary(capture_options *capture_opts,
     return capture_opts_add_iface_opt(capture_opts, "1");
 }
 
-#ifndef S_IFIFO
-#define S_IFIFO _S_IFIFO
-#endif
-#ifndef S_ISFIFO
-#define S_ISFIFO(mode)  (((mode) & S_IFMT) == S_IFIFO)
-#endif
-
-/* copied from filesystem.c */
-static int
-capture_opts_test_for_fifo(const char *path)
-{
-    ws_statb64 statb;
-
-    if (ws_stat64(path, &statb) < 0)
-        return errno;
-
-    if (S_ISFIFO(statb.st_mode))
-        return ESPIPE;
-    else
-        return 0;
-}
-
 static bool
 capture_opts_output_to_pipe(const char *save_file, bool *is_pipe)
 {
@@ -1445,7 +1424,7 @@ capture_opts_output_to_pipe(const char *save_file, bool *is_pipe)
             *is_pipe = true;
         } else {
             /* not writing to stdout, test for a FIFO (aka named pipe) */
-            err = capture_opts_test_for_fifo(save_file);
+            err = test_for_fifo(save_file);
             switch (err) {
 
             case ENOENT:      /* it doesn't exist, so we'll be creating it,
