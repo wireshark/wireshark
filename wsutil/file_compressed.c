@@ -946,6 +946,10 @@ lz4wfile_flush(LZ4WFILE_T state)
     if (state->err != 0)
         return -1;
 
+    /* If not initialized yet, nothing to flush. */
+    if (state->size_out == 0)
+        return 0;
+
     bytesWritten = LZ4F_flush(state->lz4_cctx, state->out, state->size_out, NULL);
     if (LZ4F_isError(bytesWritten)) {
         // Should never happen if size_out >= LZ4F_compressBound(0, prefsPtr)
@@ -966,17 +970,22 @@ lz4wfile_close(LZ4WFILE_T state)
 {
     int ret = 0;
 
-    /* flush, free memory, and close file */
-    size_t bytesWritten = LZ4F_compressEnd(state->lz4_cctx, state->out, state->size_out, NULL);
-    if (LZ4F_isError(bytesWritten)) {
-        // Should never happen if size_out >= LZ4F_compressBound(0, prefsPtr)
-        ret = FILE_ERR_CANT_COMPRESS;
+    /* If not initialized yet, nothing to flush. */
+    if (state->size_out != 0) {
+        /* flush and free memory */
+        size_t bytesWritten = LZ4F_compressEnd(state->lz4_cctx, state->out, state->size_out, NULL);
+        if (LZ4F_isError(bytesWritten)) {
+            // Should never happen if size_out >= LZ4F_compressBound(0, prefsPtr)
+            ret = FILE_ERR_CANT_COMPRESS;
+        }
+        if (!lz4_write_out(state, bytesWritten)) {
+            ret = state->err;
+        }
+        g_free(state->out);
+        LZ4F_freeCompressionContext(state->lz4_cctx);
     }
-    if (!lz4_write_out(state, bytesWritten)) {
-        ret = state->err;
-    }
-    g_free(state->out);
-    LZ4F_freeCompressionContext(state->lz4_cctx);
+
+    /* Close file */
     if (ws_close(state->fd) == -1 && ret == 0)
         ret = errno;
     g_free(state);
