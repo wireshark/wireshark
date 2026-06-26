@@ -5667,7 +5667,7 @@ ccm_cbc_mac(const uint8_t *key, const uint8_t *iv, const uint8_t *a, int a_len, 
         }
         else {
             memcpy(block, a, a_len);
-            memset(&block[a_len-1], 0, sizeof(block)-a_len);
+            memset(&block[a_len], 0, sizeof(block)-a_len);
         }
         /* Adjust pointers. */
         a += sizeof(block);
@@ -5687,7 +5687,7 @@ ccm_cbc_mac(const uint8_t *key, const uint8_t *iv, const uint8_t *a, int a_len, 
         }
         else {
             memcpy(block, m, m_len);
-            memset(&block[a_len], 0, sizeof(block)-m_len);
+            memset(&block[m_len], 0, sizeof(block)-m_len);
         }
         /* Adjust pointers. */
         m += sizeof(block);
