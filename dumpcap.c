@@ -4765,7 +4765,6 @@ capture_loop_write_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t 
                                        bh->block_total_length,
                                        &global_ld.bytes_written, &err);
 
-        ws_cwstream_flush(global_ld.pdh, NULL);
         if (!successful) {
             global_ld.go = false;
             global_ld.err = err;
@@ -4776,6 +4775,7 @@ capture_loop_write_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t 
                    bh->block_type, bh->block_total_length, pcap_src->interface_id);
             capture_loop_wrote_one_packet(pcap_src);
         } else if (bh->block_type == BLOCK_TYPE_SHB && report_capture_filename) {
+            ws_cwstream_flush(global_ld.pdh, NULL);
             ws_debug("Sending SP_FILE on first SHB");
             /* SHB is now ready for capture parent to read on SP_FILE message */
             sync_pipe_write_string_msg(sync_pipe_fd, SP_FILE, report_capture_filename);
