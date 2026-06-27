@@ -658,6 +658,8 @@ literal:
 			case '-':
 				neg = 1;
 				break;
+			case '\0':
+				goto out;
 			default:
 namedzone:
 				bp = zname;
