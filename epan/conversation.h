@@ -25,15 +25,53 @@ extern "C" {
  */
 
 /**
- * Flags to pass to "conversation_new()" to indicate that the address 2
- * and/or port 2 values for the conversation should be wildcards.
- * The CONVERSATION_TEMPLATE option tells that any of the other supplied
- * port and / or address wildcards will be used to match an infinite number
- * of new connections to the conversation(s) that have the CONVERSATION_-
- * TEMPLATE flag set. Any conversation created without the CONVERSATION_-
- * TEMPLATE flag will be altered once the first connections (connection
- * oriented protocols only) to include the newly found information which
- * matched the wildcard options.
+ * Flags to pass to "conversation_new()" to indicate that address and/or port
+ * values for the conversation should be wildcards. In some cases, detailed
+ * below, when the wildcard is matched with a non-wildcard value, the wildcard
+ * is replaced with the specific matched value. (I.e., there is an assumption
+ * that the true conversation is a address and port 5-tuple, with the wildcards
+ * indicating not yet known values.)
+ *
+ * NO_ADDR2 and NO_PORT2 indicate that the address 2 and port 2 field,
+ * respectively, are wildcards. These options can be used together.
+ * Conversations created with these flags will be altered to set the
+ * missing address or port upon being matched with find_conversation
+ * (only for connection oriented protocols, i.e. not for CONVERSATION_UDP
+ * only currently. XXX - This may not always work, see #8010.) The canonical
+ * use case is a control protocol setting up a data connection on some
+ * *other* ports or addresses than the current frame, where the current
+ * protocol message only specifies the port and/or address for one side
+ * of the connection, and the other side will be filled in by a response,
+ * e.g. SDP.
+ *
+ * NO_PORT2_FORCE indicates that port 2 is a wildcard, but that the
+ * conversation should *not* be altered to have port 2 set when the
+ * conversation is matched. The use case is a protocol with a given
+ * server port, but where a client can send messages from many different
+ * client ports which are all part of the same conversation. It implies
+ * NO_PORT2, which does not need to also be indicated.
+ *
+ * The CONVERSATION_TEMPLATE option must be used with a wildcard option.
+ * When a conversation with CONVERSATION_TEMPLATE is found, a new conversation
+ * is created with the specific values, but the CONVERSATION_TEMPLATE wildcard
+ * conversation remains to match other find requests with different specific
+ * values for the wildcarded address and/or port. The use case is a protocol
+ * with a given server port where clients can connect from many different
+ * client ports, but each client port should be mapped to its own unique
+ * conversation unlike NO_PORT2_FORCE.
+ *
+ * The NO_PORTS option indicates that the port fields are not used at all,
+ * and this is an address-only conversation. This is similar in behavior
+ * to creating a conversation when both port values are 0 and the port type
+ * is PT_NONE (as is the case  in a frame until any port values are set),
+ * but might prevent the need to temporarily clear the packet_info port
+ * values in some cases and/or be somewhat more efficient. Conversations
+ * with this option do *not* have their ports filled in upon a match.
+ *
+ * There are no options for indicating that address or port 1 only is a
+ * wildcard. Swap the address and ports instead so that the intended
+ * wildcard address or port is in the second position. Note that address
+ * and port conversations are bidirectional, so this makes no difference.
  */
 #define NO_ADDR2 0x01
 #define NO_PORT2 0x02
@@ -42,8 +80,20 @@ extern "C" {
 #define NO_PORTS 0x010
 
 /**
- * Flags to pass to "find_conversation()" to indicate that the address B
- * and/or port B search arguments are wildcards.
+ * Flags to pass to "find_conversation()" to indicate that addresses and/or
+ * ports are not provided as search values. NO_ADDR_B and NO_PORT_B indicate
+ * that the address B and port B search arguments, respectively, are not
+ * provided, while NO_PORT_X indicates that neither port is provided.
+ *
+ * Address and port search values not provided only match against existing
+ * conversation which have wildcard values for the corresponding address or
+ * port. By default, explicit address and port search values will match
+ * conversations with wildcards with the same value, possibly replacing the
+ * wildcard in the existing conversation as detailed above. With the NO_GREEDY
+ * flag, this behavior is changed, and specified addresses and ports only match
+ * against their exact value, not wildcards. The EXACT_EXCLUDED flag only finds
+ * conversations with at least one wildcard value to be filled in, and does
+ * not match conversations that have a full 5-tuple.
  */
 #define NO_MASK_B 0xFFFF0000
 #define NO_ADDR_B 0x00010000
