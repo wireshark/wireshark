@@ -2774,7 +2774,7 @@ ssh_keylog_process_line(const char *line)
         cookie = split[0];
         key = split[1];
     } else {
-        ws_debug("ssh keylog: invalid format");
+        ws_info("ssh keylog: invalid format");
         g_strfreev(split);
         return;
     }
@@ -2782,17 +2782,27 @@ ssh_keylog_process_line(const char *line)
     key_len = strlen(key);
     cookie_len = strlen(cookie);
     if(key_len & 1){
-        ws_debug("ssh keylog: invalid format (key should at least be even!)");
+        ws_info("ssh keylog: invalid format (key should at least be even!)");
         g_strfreev(split);
         return;
     }
     if(cookie_len & 1){
-        ws_debug("ssh keylog: invalid format (cookie should at least be even!)");
+        ws_info("ssh keylog: invalid format (cookie should at least be even!)");
         g_strfreev(split);
         return;
     }
     ssh_bignum * bn_cookie = ssh_kex_make_bignum(NULL, (unsigned)(cookie_len/2));
+    if (bn_cookie == NULL) {
+        ws_info("ssh keylog: invalid format (invalid cookie length %zu)", cookie_len);
+        g_strfreev(split);
+        return;
+    }
     ssh_bignum * bn_priv   = ssh_kex_make_bignum(NULL, (unsigned)(key_len/2));
+    if (bn_priv == NULL) {
+        ws_info("ssh keylog: invalid format (invalid key length %zu)", key_len);
+        g_strfreev(split);
+        return;
+    }
     uint8_t c;
     for (size_t i = 0; i < key_len/2; i ++) {
         char v0 = key[i * 2];
