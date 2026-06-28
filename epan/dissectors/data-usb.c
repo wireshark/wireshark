@@ -14589,6 +14589,7 @@ static const value_string usb_products_vals[] = {
     { 0x07cf4500, "LV-20 Digital Camera" },
     { 0x07cf6101, "fx-9750gII" },
     { 0x07cf6102, "fx-CP400" },
+    { 0x07cf6103, "fx-CG50" },
     { 0x07cf6801, "PL-40R" },
     { 0x07cf6802, "MIDI Keyboard" },
     { 0x07cf6803, "CTK-3500 (MIDI keyboard)" },

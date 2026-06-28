@@ -11,7 +11,7 @@
 #include "data-dmx-manfid.h"
 
 /*
- * ESTA codes download date: 2026-06-21
+ * ESTA codes download date: 2026-06-28
  */
 static const value_string dmx_esta_manfid_vals[] = {
   { 0x0000, "ESTA / PLASA" },
@@ -564,6 +564,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0766, "MR-Space LLC" },
   { 0x076A, "BeamZ (Tronios B.V.)" },
   { 0x076E, "DecoLed, LLC" },
+  { 0x0770, "M-Live s.r.l." },
   { 0x0772, "SP-Quality" },
   { 0x0773, "Papouch s.r.o." },
   { 0x0774, "Guangzhou Hongcheng Stage Lighting Equipment Co., Ltd." },

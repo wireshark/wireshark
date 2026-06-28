@@ -2,14 +2,6 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en">
 <context>
-    <name>Abbreviation</name>
-    <message>
-        <source></source>
-        <comment>for &quot;not applicable&quot;</comment>
-        <translation></translation>
-    </message>
-</context>
-<context>
     <name>AboutDialog</name>
     <message>
         <source>About Wireshark</source>
@@ -10894,6 +10886,10 @@ on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source></source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11307,13 +11303,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Click to deactivate all breakpoints
 %1: add or remove on the current line in the editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QObject::QObject::QObject</name>
-    <message>
-        <source>CCCH</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

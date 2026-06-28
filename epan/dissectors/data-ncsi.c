@@ -6,8 +6,8 @@
  *
  * List of PCI IDs
  *
- * Version: 2026.06.21
- * Date:    2026-06-21 03:15:02
+ * Version: 2026.06.24
+ * Date:    2026-06-24 03:15:02
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -35406,7 +35406,8 @@ static pci_id_t const pci_vid_1F47[] = {
 {0x1F47, 0x1003, 0xFFFF, 0xFFFF, "K2-Pro Family [FLEXFLOW-2200T MGMT Function](0x1003)"},
 {0x1F47, 0x1004, 0xFFFF, 0xFFFF, "K2-Pro Family [FLEXFLOW-2200T DATA Offload Engine](0x1004)"},
 {0x1F47, 0x1005, 0xFFFF, 0xFFFF, "CONFLUX-2200P NVMe Controller(0x1005)"},
-{0x1F47, 0x1011, 0xFFFF, 0xFFFF, "K3 Family [FLEXFLOW-3100T](0x1011)"},
+{0x1F47, 0x1011, 0xFFFF, 0xFFFF, "K3-T Family(0x1011)"},
+{0x1F47, 0x1011, 0x1DCF, 0x0363, "K3_F2_10G_PCIE 2*10GE Ethernet Adapter(0x1DCF-0x0363)"},
 {0x1F47, 0x1011, 0x1F47, 0x0001, "FLEXFLOW-3100T 2*10GE Ethernet Adapter(0x1F47-0x0001)"},
 {0x1F47, 0x1011, 0x1F47, 0x0002, "FLEXFLOW-3100T 4*10GE Ethernet Adapter(0x1F47-0x0002)"},
 {0x1F47, 0x1011, 0x1F47, 0x0003, "FLEXFLOW-3100T 2*25GE Ethernet Adapter(0x1F47-0x0003)"},
@@ -35417,8 +35418,8 @@ static pci_id_t const pci_vid_1F47[] = {
 {0x1F47, 0x1011, 0x1F47, 0x0008, "FLEXFLOW-3100T 4*10GE Ethernet Adapter(0x1F47-0x0008)"},
 {0x1F47, 0x1011, 0x1F47, 0x0009, "FLEXFLOW-3100T 2*25GE Ethernet Adapter(0x1F47-0x0009)"},
 {0x1F47, 0x1011, 0x1F47, 0x000A, "FLEXFLOW-3100T 4*25GE Ethernet Adapter(0x1F47-0x000A)"},
-{0x1F47, 0x1012, 0xFFFF, 0xFFFF, "K3 Family [FLEXFLOW-3100T Virtual Function](0x1012)"},
-{0x1F47, 0x1013, 0xFFFF, 0xFFFF, "K3 Family [FLEXFLOW-3100T MGMT Function](0x1013)"},
+{0x1F47, 0x1012, 0xFFFF, 0xFFFF, "K3-T Family [Virtual Function](0x1012)"},
+{0x1F47, 0x1013, 0xFFFF, 0xFFFF, "K3-T Family [MGMT Function](0x1013)"},
 {0x1F47, 0x1105, 0xFFFF, 0xFFFF, "CONFLUX-2200P NVMe Controller [Virtual Function](0x1105)"},
 {0x1F47, 0x2018, 0xFFFF, 0xFFFF, "DPU Card(0x2018)"},
 {0x1F47, 0x2020, 0xFFFF, 0xFFFF, "DPU(0x2020)"},
@@ -51478,7 +51479,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x1F3F, 38, pci_vid_1F3F },
 {0x1F40, 9, pci_vid_1F40 },
 {0x1F44, 1, pci_vid_1F44 },
-{0x1F47, 125, pci_vid_1F47 },
+{0x1F47, 126, pci_vid_1F47 },
 {0x1F49, 1, pci_vid_1F49 },
 {0x1F4B, 1, pci_vid_1F4B },
 {0x1F52, 5, pci_vid_1F52 },

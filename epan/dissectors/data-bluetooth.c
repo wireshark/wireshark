@@ -5622,6 +5622,11 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x10DA,   "SKAIChips Co.,Ltd" },
     { 0x10DB,   "SZ Avinox Innovation Co., Ltd." },
     { 0x10DC,   "Spectra Precision (Kaiserslautern) GmbH" },
+    { 0x10DD,   "Triumph Designs Ltd" },
+    { 0x10DE,   "Gastron Co.,Ltd" },
+    { 0x10DF,   "Hawkeye Surgical Lighting LLC" },
+    { 0x10E0,   "Arnold & Richter Cine Technik GmbH & Co. Betriebs KG" },
+    { 0x10E1,   "Neurable, Inc" },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
