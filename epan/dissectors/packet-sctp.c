@@ -1849,7 +1849,7 @@ dissect_hmac_algo_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree,
 static const value_string dtls_km_id_values[] = {
   { 0x00, "Reserved"                  },
   { 0x01, "Single DTLS connection"    },
-  { 0x02, "Multiple DTLS connections" },
+  { 0xC0, "Single TLS connection"     },
   { 0,    NULL                        } };
 
 #define DTLS_KM_PARAMETER_TIE_BREAKER_LENGTH 4
