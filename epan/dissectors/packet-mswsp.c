@@ -17,6 +17,7 @@
 #include <epan/proto_data.h>
 #include <epan/exceptions.h>
 #include <epan/to_str.h>
+#include <epan/wmem_scopes.h>
 
 #include <wsutil/ws_roundup.h>
 
@@ -204,7 +205,7 @@ struct CFullPropSpec {
 	enum PRSPEC_Kind kind;
 	union {
 		uint32_t propid;
-		const uint8_t *name;
+		char *name;
 	} u;
 };
 
@@ -3146,7 +3147,7 @@ static int parse_CTableColumn(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CTableColumn, &item, txt);
 
 	offset = parse_CFullPropSpec(tvb, pinfo, offset, tree, pad_tree, &v, "PropSpec");
-	col->name = get_name_from_fullpropspec(&v, pinfo->pool);
+	col->name = get_name_from_fullpropspec(&v, wmem_file_scope());
 	col->vtype = tvb_get_letohl(tvb, offset);
 	vtype_val = (enum vType)col->vtype;
 	vtype_valhi = (enum vType)(col->vtype & 0xFF00);
@@ -3256,7 +3257,7 @@ static int parse_CFullPropSpec(tvbuff_t *tvb, packet_info* pinfo, int offset, pr
 
 	if (v->kind == PRSPEC_LPWSTR) {
 		int len = 2*v->u.propid;
-		proto_tree_add_item_ret_string(tree, hf_mswsp_cfullpropspec_propname, tvb, offset, len, ENC_LITTLE_ENDIAN | ENC_UCS_2, pinfo->pool, &v->u.name);
+		proto_tree_add_item_ret_display_string(tree, hf_mswsp_cfullpropspec_propname, tvb, offset, len, ENC_LITTLE_ENDIAN | ENC_UCS_2, wmem_file_scope(), &v->u.name);
 		offset += len;
 	}
 
@@ -5061,7 +5062,7 @@ static int parse_RowsBuffer(tvbuff_t *tvb, packet_info *pinfo, int offset, uint3
 		proto_tree *row_tree;
 		row_tree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_GetRowsRow, NULL, "Row[%d]", num);
 		for (col = 0; col < bindingsin->ccolumns; col++) {
-			parse_RowsBufferCol(tvb, pinfo, offset, num, col, bindingsin, rowsin, is64bit, row_tree, wmem_strdup_printf(pinfo->pool, "Col[%d]", col));
+			parse_RowsBufferCol(tvb, pinfo, offset, num, col, bindingsin, rowsin, is64bit, row_tree, wmem_strdup_printf(pinfo->pool, "Col[%u]", col));
 		}
 	}
 	return offset;
@@ -5519,7 +5520,7 @@ static int dissect_CPMSetBindings(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 		ct = get_create_converstation_data(pinfo);
 
-		request.acolumns = (struct CTableColumn*)wmem_alloc(wmem_file_scope(),
+		request.acolumns = (struct CTableColumn*)wmem_alloc0(wmem_file_scope(),
 						   sizeof(struct CTableColumn) * num);
 		for (n=0; n<num; n++) {
 			offset = parse_padding(tvb, offset, 4, pad_tree, wmem_strdup_printf(pinfo->pool, "padding_aColumns[%u]", n));
@@ -6875,7 +6876,7 @@ proto_register_mswsp(void)
 		{
 			&hf_mswsp_ctablecolumn_status,
 			{
-				"status", "mswsp.ctablecolumn.name",
+				"status", "mswsp.ctablecolumn.status",
 				FT_UINT8, BASE_HEX, VALS(STATUS), 0, NULL, HFILL
 			}
 		},
