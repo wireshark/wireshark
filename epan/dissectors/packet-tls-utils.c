@@ -11265,18 +11265,19 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     }
 
     if (ssl && ssl->ech_transcript.data_len > 0 && (ssl->state & SSL_CIPHER) && ssl->client_random.data_len > 0) {
+        /* RFC 9849 7.2 Backend Server */
         int hash_algo = ssl_get_digest_by_name(ssl_cipher_suite_dig(ssl->cipher_suite)->name);
-        if (hash_algo) {
-            SSL_MD mc;
+        SSL_MD mc;
+        if (hash_algo && ssl_md_init(&mc, hash_algo) == 0) {
             unsigned char transcript_hash[DIGEST_MAX_SIZE];
             unsigned char prk[DIGEST_MAX_SIZE];
             unsigned char *ech_verify_out = NULL;
             unsigned int  len;
-            ssl_md_init(&mc, hash_algo);
             ssl_md_update(&mc, ssl->ech_transcript.data, ssl->ech_transcript.data_len);
             if (is_hrr) {
+                /* RFC 8446 4.4.1 The Transcript Hash
+                 * Special synthetic handshake following a HelloRetryRequest */
                 ssl_md_final(&mc, transcript_hash, &len);
-                ssl_md_cleanup(&mc);
                 wmem_free(wmem_file_scope(), ssl->ech_transcript.data);
                 ssl->ech_transcript.data_len = 4 + len;
                 ssl->ech_transcript.data = (unsigned char*)wmem_alloc(wmem_file_scope(), 4 + len + 4 + offset_end - initial_offset);
@@ -11285,7 +11286,7 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                 ssl->ech_transcript.data[2] = 0;
                 ssl->ech_transcript.data[3] = len;
                 memcpy(ssl->ech_transcript.data + 4, transcript_hash, len);
-                ssl_md_init(&mc, hash_algo);
+                ssl_md_reset(&mc);
                 ssl_md_update(&mc, ssl->ech_transcript.data, 4 + len);
             } else {
                 ssl->ech_transcript.data = wmem_realloc(wmem_file_scope(), ssl->ech_transcript.data,
