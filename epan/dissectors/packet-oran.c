@@ -33,19 +33,20 @@
 
 #include "epan/dissectors/packet-oran.h"
 
-/* N.B. dissector preferences are taking the place of (some) M-plane parameters, so unfortunately it can be
- * fiddly to get the preferences into a good state to decode a given capture..
+/* N.B. dissector preferences are taking the place of (some) M-plane parameters,
+ * so unfortunately it can be fiddly to get the preferences into a good state to
+ * decode a given capture..
  * TODO:
  * - for U-Plane, track back to last C-Plane frame for that eAxC
  *      doing, but this matching can be tricky see 7.8.1 Coupling of C-Plane and U-Plane
  * - Detect/indicate signs of application layer fragmentation?
  *      same eAxC in same symbol (same/different section ID?)
- * - Not handling M-plane setting for "little endian byte order" as applied to IQ samples and beam weights
- *      does anyone use this?
- * - for section extensions, check more constraints (which other extension types appear with them, order, repeated)
+ * - Not handling M-plane setting for "little endian byte order" as applied to
+ * IQ samples and beam weights does anyone use this?
+ * - for section extensions, check more constraints (which other extension types
+ *   appear with them, order, repeated)
  * - re-order items (decl and hf definitions) to match spec order?
  * - track energy-saving status, and identify TRX or ASM commands as 'Sleep extension'
- * - attempt to show (at least when section Ids are used) which beamId is associated with each DL U-Plane section
  */
 
 /* Prototypes */
@@ -1721,13 +1722,6 @@ typedef struct {
     section_details_t details[2];
 } expected_section_data_t;
 
-typedef struct {
-
-    /* Need at least 2 entries with same sectionId.. */
-    uint8_t num_data_sections;
-    expected_section_data_t data_sections[MAX_SECTION_IDs];
-} expected_dl_data_t;
-
 
 /*******************************************************/
 /* Overall state of a flow (eAxC/plane)                */
@@ -1737,8 +1731,8 @@ typedef struct {
     uint32_t last_frame[2];
     uint8_t  next_expected_sequence_number[2];
 
-    /* DL expected frames. */
-    expected_dl_data_t expected_dl_data;
+    /* DL expected frames.  sectionId -> expected_section_data_t* */
+    wmem_tree_t *expected_dl_sections;
 
     /* Table recording ackNack requests (ackNackId -> ack_nack_request_t*)
        Note that this assumes that the same ackNackId will not be reused within a state,
@@ -1865,7 +1859,8 @@ typedef struct {
     uint8_t  expected_sequence_number;
     uint32_t previous_frame;
 
-    expected_dl_data_t expected_dl_data;
+    /* sectionId -> expected_section_data_t*   */
+    wmem_tree_t *expected_dl_sections;
 
 } flow_result_t;
 
@@ -3108,44 +3103,45 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     if (link_planes_together && !PINFO_FD_VISITED(pinfo)) {
 
         if (!tap_info->uplink) {
-            /* Look for existing entry to overwrite first. */
-            for (uint8_t s=0; s < state->expected_dl_data.num_data_sections; s++) {
-                if (sectionId == state->expected_dl_data.data_sections[s].sectionId) {
-                    /* If 2nd entry not in use, use that one */
-                    if (!state->expected_dl_data.data_sections[s].details[1].in_use) {
-                        index_to_use = 1;
-                    }
-                    else {
-                        /* Both in use, so replace the older of the 2 entries */
-                        if (state->expected_dl_data.data_sections[s].details[1].frame_number < state->expected_dl_data.data_sections[s].details[0].frame_number) {
-                            index_to_use = 1;
-                        }
-                    }
-                    dl_data_section = &state->expected_dl_data.data_sections[s];
-                    break;
+            /* Look for existing entry for sectionId to overwrite first. */
+            dl_data_section = wmem_tree_lookup32(state->expected_dl_sections,
+                                                 sectionId);
+            if (dl_data_section == NULL) {
+                /* None, so create */
+                dl_data_section = wmem_new0(wmem_file_scope(), expected_section_data_t);
+                wmem_tree_insert32(state->expected_dl_sections,
+                                   sectionId,
+                                   dl_data_section);
+            }
+
+            /* If 2nd entry not in use, use that one */
+            if (!dl_data_section->details[1].in_use) {
+                index_to_use = 1;
+            }
+            else {
+                /* Both in use, so replace the older of the 2 entries */
+                if (dl_data_section->details[1].frame_number < dl_data_section->details[0].frame_number) {
+                    index_to_use = 1;
                 }
             }
 
-            /* Else try to allocate a new DL expected data section */
-            if (dl_data_section == NULL && state->expected_dl_data.num_data_sections < MAX_SECTION_IDs-1) {
-                dl_data_section = &state->expected_dl_data.data_sections[state->expected_dl_data.num_data_sections++];
-            }
-
             if (dl_data_section) {
-                dl_data_section->details[index_to_use].in_use = true;
-                dl_data_section->details[index_to_use].frame = frameId;
-                dl_data_section->details[index_to_use].subframe = subframeId;
-                dl_data_section->details[index_to_use].slot = slotId;
-                dl_data_section->details[index_to_use].startSymbol = startSymbolId;
+                section_details_t *details = &dl_data_section->details[index_to_use];
 
-                dl_data_section->details[index_to_use].frame_number = pinfo->num;
-                dl_data_section->details[index_to_use].frame_time = pinfo->abs_ts;
+                details->in_use = true;
+                details->frame = frameId;
+                details->subframe = subframeId;
+                details->slot = slotId;
+                details->startSymbol = startSymbolId;
+
+                details->frame_number = pinfo->num;
+                details->frame_time = pinfo->abs_ts;
                 dl_data_section->sectionId = sectionId;
-                dl_data_section->details[index_to_use].startPrb = startPrbc;
-                dl_data_section->details[index_to_use].numPrb = numPrbc;
+                details->startPrb = startPrbc;
+                details->numPrb = numPrbc;
                 for (unsigned prb = startPrbc; prb <= startPrbc+numPrbc; prb++) {
                     if (prb < 273) {
-                        dl_data_section->details[index_to_use].beamIds[prb] = section_beamId;
+                        details->beamIds[prb] = section_beamId;
                     }
                 }
             }
@@ -5822,8 +5818,9 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
         if (state == NULL) {
             /* Allocate new state */
             state = wmem_new0(wmem_file_scope(), flow_state_t);
-            state->ack_nack_requests = wmem_tree_new(wmem_epan_scope());
+            state->ack_nack_requests = wmem_tree_new(wmem_file_scope());
             wmem_tree_insert32(flow_states_table, key, state);
+            state->expected_dl_sections = wmem_tree_new(wmem_file_scope());
         }
 
         /* Check sequence analysis status */
@@ -6901,6 +6898,23 @@ static bool udcomphdr_appears_present(flow_state_t *flow, uint32_t direction, tv
     }
 }
 
+bool copy_section_entry(const void *key, void* value, void *userdata)
+{
+    /* Cast parameters to their types */
+    uint32_t sectionId = GPOINTER_TO_UINT(key);
+    expected_section_data_t *result_value = (expected_section_data_t *)value;
+    wmem_tree_t *result_tree = (wmem_tree_t*)userdata;
+
+    /* Deep copy of section data */
+    expected_section_data_t *copy = wmem_new0(wmem_file_scope(), expected_section_data_t);
+    *copy = *result_value;
+
+    /* Add into result tree */
+    wmem_tree_insert32(result_tree, sectionId, copy);
+
+    return false;
+}
+
 /* User plane dissector (section 8) */
 static int
 dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -7000,11 +7014,12 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (!state)  {
             /* Allocate new state */
             state = wmem_new0(wmem_file_scope(), flow_state_t);
-            state->ack_nack_requests = wmem_tree_new(wmem_epan_scope());
+            state->ack_nack_requests = wmem_tree_new(wmem_file_scope());
             wmem_tree_insert32(flow_states_table, key, state);
         }
 
         result = wmem_new0(wmem_file_scope(), flow_result_t);
+        result->expected_dl_sections = wmem_tree_new(wmem_file_scope());
         wmem_tree_insert32(flow_results_table, pinfo->num, result);
 
         /* Check sequence analysis status (but not if later part of radio layer fragmentation) */
@@ -7151,7 +7166,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (link_planes_together && !PINFO_FD_VISITED(pinfo) && cplane_samedir_state) {
         /* Take a deep-copy of this state on first pass */
-        result->expected_dl_data = cplane_samedir_state->expected_dl_data;
+        wmem_tree_foreach(cplane_samedir_state->expected_dl_sections, copy_section_entry, result->expected_dl_sections);
     }
 
     /* Add each section (not from count, just keep parsing until payload used) */
@@ -7182,56 +7197,54 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (link_planes_together && direction == 1) {
             if (cplane_samedir_state != NULL) {
 
-                expected_dl_data_t *dl_data = &result->expected_dl_data;
-                for (uint8_t sectIdx=0; sectIdx<dl_data->num_data_sections; sectIdx++) {
-                    if (sectionId == dl_data->data_sections[sectIdx].sectionId) {
-                        /* Need to work out which of 2 entries is in use for this data frame */
-                        unsigned index_to_use = 0;
+                expected_section_data_t *section_data = NULL;
+                section_data = wmem_tree_lookup32(result->expected_dl_sections, sectionId);
 
-                        /* Does the first entry match the timing for this frame? */
-                        if (dl_data->data_sections[sectIdx].details[0].frame == frameId &&
-                            dl_data->data_sections[sectIdx].details[0].subframe == subframeId &&
-                            dl_data->data_sections[sectIdx].details[0].slot == slotId &&
-                            /* Check that symbolId is in range */
-                            dl_data->data_sections[sectIdx].details[0].startSymbol <= symbolId &&
-                            (unsigned)(dl_data->data_sections[sectIdx].details[0].startSymbol + dl_data->data_sections[sectIdx].details[0].numSymbols) <= (unsigned)symbolId) {
+                if (section_data) {
+                    /* Need to work out which of 2 entries is in use for this data frame */
+                    unsigned index_to_use = 0;
 
-                            index_to_use = 0;
-                        }
-                        else if (dl_data->data_sections[sectIdx].details[1].frame == frameId &&
-                            dl_data->data_sections[sectIdx].details[1].subframe == subframeId &&
-                            dl_data->data_sections[sectIdx].details[1].slot == slotId &&
-                            /* Check that symbolId is in range */
-                            dl_data->data_sections[sectIdx].details[1].startSymbol <= symbolId &&
-                            (unsigned)(dl_data->data_sections[sectIdx].details[1].startSymbol + dl_data->data_sections[sectIdx].details[1].numSymbols) <= (unsigned)symbolId) {
+                    /* Does the first entry match the timing for this frame? */
+                    if (section_data->details[0].frame == frameId &&
+                        section_data->details[0].subframe == subframeId &&
+                        section_data->details[0].slot == slotId &&
+                        /* Check that symbolId is in range */
+                        section_data->details[0].startSymbol <= symbolId &&
+                        (unsigned)(section_data->details[0].startSymbol + section_data->details[0].numSymbols) <= (unsigned)symbolId) {
 
-                            index_to_use = 1;
-                        }
-                        else {
-                            /* TODO: expert info warning? */
-                        }
+                        index_to_use = 0;
+                    }
+                    else if (section_data->details[1].frame == frameId &&
+                        section_data->details[1].subframe == subframeId &&
+                        section_data->details[1].slot == slotId &&
+                        /* Check that symbolId is in range */
+                        section_data->details[1].startSymbol <= symbolId &&
+                        (unsigned)(section_data->details[1].startSymbol + section_data->details[1].numSymbols) <= (unsigned)symbolId) {
 
-                        section_details = &dl_data->data_sections[sectIdx].details[index_to_use];
+                        index_to_use = 1;
+                    }
+                    else {
+                        /* TODO: expert info warning? */
+                    }
 
-                        /* Cplane frame number */
-                        proto_item *cplane_frame_ti = proto_tree_add_uint(section_tree, hf_oran_corresponding_cplane_frame, tvb, 0, 0,
-                                                                          section_details->frame_number);
-                        proto_item_set_generated(cplane_frame_ti);
+                    section_details = &section_data->details[index_to_use];
 
-                        /* usecs since cplane frame */
-                        time_t total_gap = 0;
+                    /* Cplane frame number */
+                    proto_item *cplane_frame_ti = proto_tree_add_uint(section_tree, hf_oran_corresponding_cplane_frame, tvb, 0, 0,
+                                                                      section_details->frame_number);
+                    proto_item_set_generated(cplane_frame_ti);
 
-                        if ((pinfo->abs_ts.secs == section_details->frame_time.secs) || (pinfo->abs_ts.secs == section_details->frame_time.secs+1)) {
-                            total_gap = ((pinfo->abs_ts.secs - section_details->frame_time.secs) * 1000000) +
-                                        ((pinfo->abs_ts.nsecs - section_details->frame_time.nsecs)/1000);
-                        }
+                    /* usecs since cplane frame */
+                    time_t total_gap = 0;
 
-                        if (total_gap > 0) {
-                            proto_item *cplane_delta_ti = proto_tree_add_uint(section_tree, hf_oran_corresponding_cplane_frame_time_delta, tvb, 0, 0, (uint32_t)total_gap);
-                            proto_item_set_generated(cplane_delta_ti);
-                        }
+                    if ((pinfo->abs_ts.secs == section_details->frame_time.secs) || (pinfo->abs_ts.secs == section_details->frame_time.secs+1)) {
+                        total_gap = ((pinfo->abs_ts.secs - section_details->frame_time.secs) * 1000000) +
+                                    ((pinfo->abs_ts.nsecs - section_details->frame_time.nsecs)/1000);
+                    }
 
-                        break;
+                    if (total_gap > 0) {
+                        proto_item *cplane_delta_ti = proto_tree_add_uint(section_tree, hf_oran_corresponding_cplane_frame_time_delta, tvb, 0, 0, (uint32_t)total_gap);
+                        proto_item_set_generated(cplane_delta_ti);
                     }
                 }
             }
