@@ -91,8 +91,8 @@ size_t rsa_decrypt_inplace(const unsigned len, unsigned char* data, gcry_sexp_t 
 
 	/* create mpi representation of encrypted data */
 	rc = gcry_mpi_scan(&encr_mpi, GCRYMPI_FMT_USG, data, len, NULL);
-	if (rc != 0 ) {
-		*err = ws_strdup_printf("can't convert data to mpi (size %d):%s", len, gcry_strerror(rc));
+	if (rc != 0) {
+		*err = ws_strdup_printf("can't convert data to mpi (size %u):%s", len, gcry_strerror(rc));
 		return 0;
 	}
 
@@ -128,7 +128,7 @@ size_t rsa_decrypt_inplace(const unsigned len, unsigned char* data, gcry_sexp_t 
 		goto out;
 	}
 
-	/* write plain text to newly allocated buffer */
+	/* write plain text to buffer provided to us */
         memcpy(data, text, decr_len);
 
 out:
