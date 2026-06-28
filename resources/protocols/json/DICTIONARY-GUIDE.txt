@@ -108,6 +108,35 @@ Attributes:
   - If specified, this name appears in the Protocol column for matching packets
   - If not specified, "JSON+" is used as default
   - Protocol matching occurs by checking destination port first, then source port
+- path: Regex (PCRE2) matched against the HTTP request path/URI (optional)
+  - Matched against EXACTLY ONE of these display-filter fields, picked
+    automatically based on what's carrying the JSON:
+      * http2.headers.path   - when the frame is HTTP/2 (the :path
+                                pseudo-header value for the current stream)
+      * http.request.uri     - when the frame is HTTP/1.1 (the request URI
+                                from the original request line)
+  - You can preview the value Wireshark will feed the regex by selecting
+    the frame in the GUI and reading the appropriate display-filter field.
+  - For raw TCP/UDP JSON (no HTTP layer in front), neither field exists
+    and path= has no effect; fall back to port= for those captures.
+  - Examples: path=".*nchf-convergedcharging.*", path="/api/v[0-9]+/orders"
+  - Escape regex meta-characters (e.g., \. for a literal dot)
+  - At dissection time, path matching is tried before port matching, so
+    path-based entries can carry JSON over any HTTP-mux'd port
+- case: "sensitive" (default) or "insensitive" - controls path regex
+  case sensitivity. Matches the <field> case= default.
+- condition: "or" (default) or "and" - when BOTH port= and path= are set,
+  this controls how they combine:
+    - "or" (default): either port or path matching is sufficient
+    - "and": both port and path must match to select this protocol
+  When only one of port=/path= is set, condition= is a no-op.
+
+When at least one <protocol> entry exists in the loaded dictionary, the
+dictionary's <field> definitions only apply to packets that match one of
+the <protocol> entries (gated dispatch). Packets that don't match any
+<protocol> are rendered as generic JSON. When no <protocol> entries exist,
+all JSON traffic is parsed against the dictionary's fields (legacy
+behavior, no gating).
 
 Example: Port-based protocol identification:
 <!-- 5G AMF API on port 8000 -->
@@ -119,11 +148,168 @@ Example: Port-based protocol identification:
 <!-- CHF API on multiple ports -->
 <protocol name="CHF Charging API" port="8080,1090,3000" transport="tcp" displayName="AMF-JSON"/>
 
+Example: Path-based protocol identification (HTTP/2 or HTTP/1.1):
+<!-- 5G SBI: select on the request URI regardless of TCP port -->
+<protocol name="SMF Convergent Charging"
+          path=".*nchf-convergedcharging.*"
+          displayName="SMF_CHF"/>
+
+<!-- OR (default): either URI OR port match selects this protocol -->
+<protocol name="SMF (Loose)"
+          path=".*nchf-convergedcharging.*" port="1090"
+          displayName="SMF_CHF_LOOSE"/>
+
+<!-- AND: require both URI and port match -->
+<protocol name="SMF on Port 1090 (Strict)"
+          path=".*nchf-convergedcharging.*" port="1090"
+          condition="and" displayName="SMF_CHF_1090"/>
+
 Protocol Column Behavior:
 - Packet on port 8000 → Shows "5G-JSON" in Protocol column
 - Packet on port 9999 → Shows "TestAPI" in Protocol column
 - Packet on port 8080, 1090, or 3000 → Shows "AMF-JSON" in Protocol column
-- Packet on other ports → Shows "JSON+" in Protocol column
+- HTTP/2 packet with :path matching ".*nchf-convergedcharging.*" → "SMF_CHF"
+- Packet on other ports / non-matching paths → Shows "JSON+" in Protocol
+  column AND the JSON tree is rendered as generic JSON (no dictionary
+  field names), provided at least one <protocol> exists in the dictionary.
+
+Note: When two <protocol> entries declare the same port=, the later one
+overrides the earlier in the port lookup table (per-port slot). Path-based
+dispatch is unaffected (every path= entry is iterated). Avoid configuring
+two protocols on the exact same port with no distinguishing path=.
+
+###### Regex Patterns for the path= Attribute #########
+
+The path= attribute is a PCRE2 regular expression matched against the
+HTTP request path/URI from the current frame:
+
+  - HTTP/2 traffic:  the :path pseudo-header
+                     (display filter: http2.headers.path)
+  - HTTP/1.1 traffic: the request URI
+                      (display filter: http.request.uri)
+
+The match is "contains" semantics - no implicit anchoring at start or
+end - so use .* or ^ / $ as needed.
+
+Tip: select the frame in Wireshark and look in the packet detail pane
+for http2.headers.path or http.request.uri to see the exact string the
+regex will be tested against.
+
+### Alternation (OR)
+
+PCRE2 uses a single | character. Two equivalent forms:
+
+<!-- Verbose: full alternative on each side -->
+<protocol name="5G-NF" path=".*nchf.*|.*smf.*" displayName="5G-NF"/>
+
+<!-- Compact: non-capturing group (?:...) - preferred -->
+<protocol name="5G-NF" path=".*(?:nchf|smf).*" displayName="5G-NF"/>
+
+The (?:...) form groups the alternation without creating a capture group
+(we don't extract submatches here, so non-capturing is slightly faster).
+
+Common mistake: || is NOT alternation. It matches an empty string OR
+an empty string, which matches everything. Always use single |.
+
+### Anchoring
+
+By default the regex is unanchored (acts like "contains"). To require
+the path to start with a specific prefix, anchor at the beginning:
+
+<protocol name="CHF" path="^/nchf-convergedcharging/" displayName="CHF"/>
+
+To require an exact match, anchor at both ends:
+
+<protocol name="Exact" path="^/api/v1/orders$" displayName="Exact"/>
+
+### Escaping the literal dot
+
+In regex, . matches any single character. To match a literal period,
+escape with backslash:
+
+<!-- Match version "v1.2" - the . must be escaped -->
+<protocol name="V12" path="/api/v1\.2/.*" displayName="V12"/>
+
+XML attribute values accept \. as-is - no XML entity escaping needed.
+
+### Character classes
+
+[0-9]    any digit
+[a-z]    any lowercase letter
+[a-fA-F0-9]  any hex digit
+[^x]     anything EXCEPT x (negation)
+\d       shorthand for [0-9]
+\w       shorthand for [a-zA-Z0-9_]
+
+### Quantifiers
+
+x*       zero or more of x
+x+       one or more of x
+x?       zero or one of x  (makes x optional)
+x{3}     exactly 3 of x
+x{2,5}   between 2 and 5 of x
+x{2,}    2 or more of x
+
+### Case sensitivity
+
+Use the case= attribute on the <protocol>, NOT inline (?i) flags:
+
+<!-- Match either case of NCHF -->
+<protocol name="CHF" path=".*nchf-convergedcharging.*"
+          case="insensitive" displayName="CHF"/>
+
+The compiled regex picks up WS_REGEX_CASELESS automatically when
+case="insensitive". Default is case-sensitive (matches the <field>
+default).
+
+### Worked examples for 5G SBI
+
+<!-- Any 5G NF service prefix -->
+<protocol name="5G-SBI" path="^/(?:nchf|nudm|nsmf|npcf|namf|nausf|nudr)-"
+          displayName="5G-SBI"/>
+
+<!-- Versioned CHF endpoint -->
+<protocol name="CHF-v2+" path="^/nchf-convergedcharging/v[0-9]+/"
+          displayName="CHF"/>
+
+<!-- Any path containing a UUID -->
+<protocol name="UUID-Path"
+          path=".*[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}.*"
+          displayName="UUID-Path"/>
+
+<!-- Versioned REST endpoint -->
+<protocol name="OrdersAPI" path="^/api/v[0-9]+/orders" displayName="Orders"/>
+
+<!-- Default: match if either path OR port matches (condition="or" is default) -->
+<protocol name="SBI-Loose"
+          path="^/(?:nchf|nudm|nsmf)-" port="1090,8443"
+          displayName="SBI"/>
+
+<!-- Stricter: require both URI prefix AND port=1090 (condition="and") -->
+<protocol name="CHF-1090" path="^/nchf-convergedcharging/" port="1090"
+          condition="and" displayName="CHF-1090"/>
+
+### Common mistakes to avoid
+
+- || does not mean OR.  Use single |.
+- Unescaped . matches any character. Use \. for literal dot.
+- Forgetting to anchor when intended. ".*nchf.*" matches anywhere;
+  "^/nchf-" requires the prefix.
+- Setting case="insensitive" but writing the regex with explicit
+  upper-case characters - works fine but the case= flag does the work,
+  the regex shouldn't carry [Nn][Cc][Hh][Ff] noise.
+
+### Debugging a bad regex
+
+If the regex fails to compile, the JSON+ loader logs a warning via
+ws_warning() including the protocol name and pattern. Run Wireshark/
+tshark from the terminal to see the warning, e.g.:
+
+  WARN: JSON dictionary: failed to compile path regex for protocol "X"
+        (pattern="[unterminated"): missing ]
+
+The protocol's port= setting (if any) still applies; only the path=
+matching is disabled.
 
 ############## Field Definitions ##################
 

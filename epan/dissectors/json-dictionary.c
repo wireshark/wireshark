@@ -28,6 +28,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <wsutil/regex.h>
+#include <wsutil/wslog.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
@@ -111,12 +113,50 @@ dict_protocol_def_free(dict_protocol_def_t *proto_def)
 	xmlFree(proto_def->name);
 	xmlFree(proto_def->display_name);
 	xmlFree(proto_def->transport);
+	xmlFree(proto_def->path);
+	xmlFree(proto_def->case_attr);
+	xmlFree(proto_def->condition_attr);
 
 	g_slist_free_full(proto_def->content_types, (GDestroyNotify)xmlFree);
 	g_slist_free_full(proto_def->fields, (GDestroyNotify)dict_field_def_free);
 	g_slist_free_full(proto_def->ports, (GDestroyNotify)g_free);
 
 	g_free(proto_def);
+}
+
+// Walk path_matchers and free the heap-allocated regex objects + pattern
+// strings. The json_protocol_t structs themselves live in wmem_epan_scope and
+// are released by wmem; only the ws_regex_t and the g_strdup'd pattern need
+// explicit cleanup. Safe to call when path_matchers is NULL.
+void
+json_dictionary_cleanup(json_dictionary_t *dict)
+{
+	if (!dict) return;
+
+	/* Free regex objects (only protocols with a path regex are in
+	 * path_matchers). */
+	for (GSList *m = dict->path_matchers; m; m = m->next) {
+		json_protocol_t *p = (json_protocol_t *)m->data;
+		if (p->path_regex) {
+			ws_regex_free(p->path_regex);
+			p->path_regex = NULL;
+		}
+	}
+	g_slist_free(dict->path_matchers);
+	dict->path_matchers = NULL;
+
+	/* Free the port_list GSList nodes on every protocol (the unsigned*
+	 * entries themselves are wmem-managed so we don't free them, just the
+	 * linked-list scaffolding). */
+	for (GSList *e = dict->all_protocols; e; e = e->next) {
+		json_protocol_t *p = (json_protocol_t *)e->data;
+		if (p->port_list) {
+			g_slist_free(p->port_list);
+			p->port_list = NULL;
+		}
+	}
+	g_slist_free(dict->all_protocols);
+	dict->all_protocols = NULL;
 }
 
 // Look up base type mapping
@@ -335,6 +375,12 @@ process_protocol(xmlNodePtr node)
 	display_name = xmlGetProp(node, (const xmlChar *)XML_ATTR_DISPLAY_NAME);
 	port_str = xmlGetProp(node, (const xmlChar *)XML_ATTR_PORT);
 	transport = xmlGetProp(node, (const xmlChar *)XML_ATTR_TRANSPORT);
+	/* path= and case= are optional. path is a regex matched against the
+	 * HTTP/2 :path pseudo-header for dispatch in 5G SBI / HTTP-multiplexed
+	 * deployments where one TCP port carries many JSON services. */
+	xmlChar *path_attr = xmlGetProp(node, (const xmlChar *)XML_ATTR_PATH);
+	xmlChar *case_attr = xmlGetProp(node, (const xmlChar *)XML_ATTR_CASE);
+	xmlChar *condition_attr = xmlGetProp(node, (const xmlChar *)XML_ATTR_CONDITION);
 
 	// Parse comma-separated port numbers
 	if (port_str) {
@@ -362,6 +408,9 @@ process_protocol(xmlNodePtr node)
 	proto_def->transport = transport;
 	proto_def->content_types = NULL;
 	proto_def->fields = NULL;
+	proto_def->path = path_attr;
+	proto_def->case_attr = case_attr;
+	proto_def->condition_attr = condition_attr;
 
 	/* Process child nodes */
 	for (child = node->children; child != NULL; child = child->next) {
@@ -731,12 +780,63 @@ parse_dictionary_file(const char *filename, wmem_array_t *hf_array,
 		proto->port = 0;
 		proto->transport = proto_def->transport ? wmem_strdup(wmem_epan_scope(), (const char *)proto_def->transport) : NULL;
 		proto->content_types = NULL;
+		proto->path_regex = NULL;
+		proto->path_case_sensitive = false;
+		proto->port_list = NULL;
+		/* condition= defaults to "or"; require_all=true only when the user
+		 * explicitly sets condition="and". */
+		proto->require_all =
+			(proto_def->condition_attr &&
+			 xmlStrcasecmp(proto_def->condition_attr,
+				       (const xmlChar *)"and") == 0);
 
-		// Store protocol in dictionary under all specified ports
+		// Any protocol entry (even one with no port and a failed regex) signals
+		// "the user wants protocol-gated dispatch" → enable gating.
+		dict->has_any_protocol = true;
+
+		// Track every protocol for shutdown cleanup of non-wmem fields.
+		dict->all_protocols = g_slist_prepend(dict->all_protocols, proto);
+
+		// Store protocol in dictionary under all specified ports, and also
+		// record the port list on the protocol itself so dispatch can verify
+		// "is this protocol bound to port N?" in AND mode.
 		for (GSList *port_elem = proto_def->ports; port_elem; port_elem = port_elem->next) {
 			unsigned *port_ptr = (unsigned *)port_elem->data;
 			if (port_ptr && *port_ptr > 0) {
 				wmem_tree_insert32(dict->protocols, *port_ptr, proto);
+				unsigned *p = wmem_new(wmem_epan_scope(), unsigned);
+				*p = *port_ptr;
+				proto->port_list = g_slist_prepend(proto->port_list, p);
+			}
+		}
+
+		// Compile path regex and register for HTTP/2 :path-based dispatch.
+		// path_regex is heap-allocated (not wmem) and is freed by
+		// json_dictionary_cleanup() at shutdown.
+		if (proto_def->path) {
+			/* Default to case-sensitive, matching the existing <field>
+			 * behavior at lines 558-559 ("default to case-sensitive").
+			 * Only an explicit case="insensitive" flips it. */
+			proto->path_case_sensitive =
+				!(proto_def->case_attr &&
+				  xmlStrcasecmp(proto_def->case_attr,
+						(const xmlChar *)"insensitive") == 0);
+			unsigned re_flags = WS_REGEX_NEVER_UTF;
+			if (!proto->path_case_sensitive) {
+				re_flags |= WS_REGEX_CASELESS;
+			}
+			char *errmsg = NULL;
+			proto->path_regex = ws_regex_compile_ex(
+				(const char *)proto_def->path, -1, &errmsg, re_flags);
+			if (proto->path_regex) {
+				dict->path_matchers = g_slist_append(dict->path_matchers, proto);
+			} else {
+				ws_warning("JSON dictionary: failed to compile path regex "
+					   "for protocol \"%s\" (pattern=\"%s\"): %s",
+					   proto->name ? proto->name : "(unnamed)",
+					   (const char *)proto_def->path,
+					   errmsg ? errmsg : "unknown error");
+				g_free(errmsg);
 			}
 		}
 	}

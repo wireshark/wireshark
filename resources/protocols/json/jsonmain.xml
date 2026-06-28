@@ -20,6 +20,32 @@
 
         <protocol name="GitHub API" port="8080" transport="tcp"/>
 
+        <!--
+            Path-based dispatch examples (HTTP/2 :path or HTTP/1.1 request URI).
+            Uncomment to enable. These do not match the GitHub field set below;
+            they are syntax examples for path= / case= / condition=.
+
+              path=      PCRE2 regex matched against http2.headers.path or
+                         http.request.uri (whichever the frame carries).
+              case=      "sensitive" (default) or "insensitive".
+              condition= "or" (default) or "and". Combines port= and path=
+                         when both are set; no-op when only one is set.
+
+            Path only: any HTTP request whose URI contains /nchf-
+              <protocol name="SMF_CHF" path=".*nchf-convergedcharging.*"
+                        displayName="SMF_CHF"/>
+
+            Path OR port (default condition): matches either criterion.
+              <protocol name="Orders API" port="8443"
+                        path="/api/v[0-9]+/orders" displayName="Orders"/>
+
+            Path AND port: both must match. Useful when the same port
+            carries multiple services discriminated by URI.
+              <protocol name="Tenant API" port="8443" condition="and"
+                        path=".*/tenant/[0-9a-f-]+/.*" case="insensitive"
+                        displayName="Tenant"/>
+        -->
+
         <!-- Example fields demonstrating all type definitions -->
 
         <!-- Basic type examples -->

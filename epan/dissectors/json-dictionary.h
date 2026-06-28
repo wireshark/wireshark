@@ -63,12 +63,23 @@ struct _json_field_t {
 	bool case_insensitive;      /* Enable case-insensitive path matching */
 };
 
+// Forward declaration to keep wsutil/regex.h optional for callers
+struct _ws_regex;
+
 // Dictionary structure
 typedef struct _json_dictionary_t {
 	wmem_tree_t *fields;        // Field definitions (path hash → json_field_t)
 	wmem_tree_t *protocols;     // Protocol definitions (port → json_protocol_t)
 	value_string_ext *types;    // Type name → type enum mapping
 	bool has_case_insensitive_fields; // Optimization flag: true if any field is case-insensitive
+	GSList *path_matchers;      // List of json_protocol_t* with non-NULL path_regex (HTTP/2 :path dispatch)
+	GSList *all_protocols;      // List of every json_protocol_t* loaded. Used at cleanup to free
+	                            // heap-allocated fields (path_regex, port_list nodes) that aren't
+	                            // wmem-managed.
+	bool has_any_protocol;      // True if at least one <protocol> with port= or path= was loaded.
+	                            //   When true, field-level dictionary parsing is gated on a
+	                            //   per-packet protocol match. When false (no protocols defined),
+	                            //   dictionary fields are applied globally for backward compat.
 } json_dictionary_t;
 
 /* Protocol definition */
@@ -78,6 +89,13 @@ typedef struct _json_protocol_t {
 	unsigned port;              // Default port
 	char *transport;            // tcp or udp
 	char **content_types;       // Array of content-type strings
+	struct _ws_regex *path_regex; // Compiled regex (NULL if no path= or compile failed)
+	bool path_case_sensitive;   // True if path matching is case-sensitive
+	bool require_all;           // condition="and": when BOTH port and path are set, both must match.
+	                            // When only one is set, this is a no-op (the single condition is checked).
+	GSList *port_list;          // List of unsigned* port numbers this protocol is bound to.
+	                            // Stored on the protocol so dispatch can verify port membership when
+	                            // checking the AND condition. Owned via wmem_epan_scope().
 } json_protocol_t;
 
 /* Dictionary XML element names */
@@ -109,6 +127,7 @@ typedef struct _json_protocol_t {
 #define XML_ATTR_PARSER            "parser"
 #define XML_ATTR_PARSER_ARGS       "parser-args"
 #define XML_ATTR_CASE              "case"
+#define XML_ATTR_CONDITION         "condition"
 
 // Temporary structures for XML parsing
 typedef struct _dict_type_def {
@@ -145,7 +164,16 @@ typedef struct _dict_protocol_def {
 	xmlChar *transport;
 	GSList *content_types;     // List of xmlChar*
 	GSList *fields;            // List of dict_field_def_t
+	xmlChar *path;             // Regex pattern matched against HTTP/2 :path (NULL if none)
+	xmlChar *case_attr;        // "sensitive" or "insensitive" — default sensitive
+	xmlChar *condition_attr;   // "and" (default) or "or" — combines port and path conditions
 } dict_protocol_def_t;
+
+/* Free regex objects and port-list nodes owned by the dictionary. Walks
+ * dict->path_matchers to release each ws_regex_t, then dict->all_protocols to
+ * release each port_list, then frees both lists. Called from packet-json.c via
+ * register_shutdown_routine at program exit. */
+void json_dictionary_cleanup(json_dictionary_t *dict);
 
 /* Load dictionary from XML files
  * Returns true if successful, false otherwise

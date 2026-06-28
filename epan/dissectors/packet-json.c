@@ -35,12 +35,15 @@
 #include <wsutil/inet_addr.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
+#include <wsutil/regex.h>
 
 #include <wiretap/wtap.h>
 
 #include "packet-media-type.h"
 #include "packet-acdr.h"
 #include "packet-json.h"
+#include "packet-http.h"
+#include "packet-http2.h"
 #include "json-dictionary.h"
 
 void proto_register_json(void);
@@ -55,6 +58,7 @@ static dissector_handle_t json_handle;
 static dissector_handle_t json_file_handle;
 
 static int proto_json;
+static int proto_http = -1;
 
 //Used to get AC DR proto data
 static int proto_acdr;
@@ -109,6 +113,31 @@ static expert_field ei_json_plus_type_mismatch = EI_INIT;
 
 /* Global dictionary for JSON+ (loaded from XML) */
 static json_dictionary_t json_plus_dictionary;
+
+/* Per-packet gate for dictionary field parsing.
+ *
+ * When the loaded dictionary contains at least one <protocol> entry, the user
+ * wants field-level dissection to happen ONLY for packets that match one of
+ * those protocols (via path regex or port). This flag is set at the start of
+ * each JSON dissection inside the dispatch block:
+ *   true  - no <protocol> entries, or a matching <protocol> was found
+ *   false - <protocol> entries exist but none matched (skip dictionary fields)
+ *
+ * Default true preserves behavior when JSON+ is off (no dispatch block runs)
+ * and when no protocols are loaded. */
+static bool jsonplus_dict_active = true;
+
+/* True when `port` is in the protocol's port_list. Used to enforce
+ * condition="and": when a protocol matched on one criterion, this helper
+ * verifies the other criterion (port) also matches. */
+static bool
+jsonplus_proto_port_matches(const json_protocol_t *p, unsigned port)
+{
+	for (GSList *e = p->port_list; e; e = e->next) {
+		if (port == *(unsigned *)e->data) return true;
+	}
+	return false;
+}
 
 /* JSON+ constants */
 #define JSON_PLUS_MAX_TOKENS 4096
@@ -669,14 +698,70 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 	// Check if JSON+ mode is enabled with a custom protocol name
 	if (json_plus && json_plus_dictionary.protocols) {
-		// Look up protocol by destination or source port
-		json_protocol_t *protocol = (json_protocol_t *)wmem_tree_lookup32(
-			json_plus_dictionary.protocols, pinfo->destport);
+		json_protocol_t *protocol = NULL;
 
+		/* Path-based match first - more specific than port. We pull the URI
+		 * from whichever HTTP version is carrying this JSON:
+		 *   - HTTP/2: :path pseudo-header (http2_get_header_value).
+		 *   - HTTP/1.1: request_uri from the HTTP req/res tracker via
+		 *     p_get_proto_data. Same pattern as packet-grpc.c.
+		 * In raw TCP/UDP JSON contexts both lookups return NULL and we fall
+		 * through to the port lookup. */
+		/* Fetch the URI once - used by both path-matching loop and the AND
+		 * cross-check when port matches first.
+		 *
+		 * IMPORTANT: gate http2_get_header_value() on the frame actually
+		 * having http2 in its layer stack. The function calls
+		 * find_or_create_conversation() + get_http2_session() internally,
+		 * which CREATES an HTTP/2 session on the conversation as a side
+		 * effect. Calling it unconditionally would tag plain HTTP/1.1
+		 * (or other non-HTTP/2) traffic as HTTP/2 from then on. */
+		const char *uri = NULL;
+		if (proto_is_frame_protocol(pinfo->layers, "http2")) {
+			uri = http2_get_header_value(pinfo, HTTP2_HEADER_PATH, false);
+		}
+		if (!uri && proto_http != -1 &&
+		    proto_is_frame_protocol(pinfo->layers, "http")) {
+			http_req_res_t *rr = (http_req_res_t *)p_get_proto_data(
+				wmem_file_scope(), pinfo, proto_http,
+				HTTP_PROTO_DATA_REQRES);
+			if (rr) uri = rr->request_uri;
+		}
+
+		if (uri && json_plus_dictionary.path_matchers) {
+			for (GSList *m = json_plus_dictionary.path_matchers; m; m = m->next) {
+				json_protocol_t *p = (json_protocol_t *)m->data;
+				if (!p->path_regex || !ws_regex_matches(p->path_regex, uri))
+					continue;
+				/* condition="and" with both path and ports configured: the
+				 * port must also match. Otherwise skip to the next path
+				 * candidate. */
+				if (p->require_all && p->port_list &&
+				    !jsonplus_proto_port_matches(p, pinfo->destport) &&
+				    !jsonplus_proto_port_matches(p, pinfo->srcport)) {
+					continue;
+				}
+				protocol = p;
+				break;
+			}
+		}
+
+		/* Fall back to port lookup if no path match. */
 		if (!protocol) {
-			// Try source port (for server responses)
-			protocol = (json_protocol_t *)wmem_tree_lookup32(
-				json_plus_dictionary.protocols, pinfo->srcport);
+			json_protocol_t *p = (json_protocol_t *)wmem_tree_lookup32(
+				json_plus_dictionary.protocols, pinfo->destport);
+			if (!p) {
+				p = (json_protocol_t *)wmem_tree_lookup32(
+					json_plus_dictionary.protocols, pinfo->srcport);
+			}
+			/* condition="and" with both path and ports: URI must also match
+			 * this protocol's regex. */
+			if (p && p->require_all && p->path_regex) {
+				if (uri && ws_regex_matches(p->path_regex, uri))
+					protocol = p;
+			} else {
+				protocol = p;
+			}
 		}
 
 		if (protocol && protocol->display_name) {
@@ -686,8 +771,17 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			// Fallback to default
 			col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, "/", "JSON");
 		}
+
+		/* Gate dictionary field parsing: if the dictionary defines any
+		 * <protocol> entries and none matched, suppress dictionary lookups
+		 * so the JSON tree renders as generic JSON instead of being parsed
+		 * with the wrong dictionary. When no <protocol> entries exist,
+		 * dictionary fields apply globally (backward compat). */
+		jsonplus_dict_active =
+			!json_plus_dictionary.has_any_protocol || (protocol != NULL);
 	} else {
 		col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, "/", "JSON");
+		jsonplus_dict_active = true;
 	}
 
 	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "JSON");
@@ -1528,7 +1622,7 @@ jsonplus_lookup_field_by_path(const char *path)
 {
 	json_field_t *field;
 
-	if (!path || !json_plus_dictionary.fields) {
+	if (!path || !json_plus_dictionary.fields || !jsonplus_dict_active) {
 		return NULL;
 	}
 
@@ -2893,6 +2987,10 @@ json_prefs_apply(void)
 	}
 }
 
+/* Forward declaration: the definition is just below common_register_json,
+ * which references it in register_shutdown_routine(). */
+static void json_plus_dictionary_shutdown(void);
+
 static void
 common_register_json(void)
 {
@@ -3064,6 +3162,9 @@ common_register_json(void)
 	json_plus_dictionary.protocols = wmem_tree_new(wmem_epan_scope());
 	json_plus_dictionary.types = NULL;
 	json_plus_dictionary.has_case_insensitive_fields = false;
+	json_plus_dictionary.path_matchers = NULL;
+	json_plus_dictionary.all_protocols = NULL;
+	json_plus_dictionary.has_any_protocol = false;
 
 	/* Load JSON+ dictionary from XML files */
 	wmem_array_t *dynamic_hf_array = wmem_array_new(wmem_epan_scope(),
@@ -3091,6 +3192,12 @@ common_register_json(void)
 	json_file_handle = register_dissector("json_file", dissect_json_file, proto_json);
 
 	init_json_parser();
+	/* Use register_shutdown_routine (program-exit hook), NOT
+	 * register_cleanup_routine — the latter fires on every capture-file
+	 * close (via epan_free → cleanup_dissection), which would wipe the
+	 * dictionary's regex objects and path_matchers list between files,
+	 * leaving subsequent file opens with no protocol dispatch. */
+	register_shutdown_routine(json_plus_dictionary_shutdown);
 
 	json_module = prefs_register_protocol(proto_json, json_prefs_apply);
 	prefs_register_bool_preference(json_module, "compact_form",
@@ -3150,6 +3257,14 @@ common_register_json(void)
 	register_static_headers();
 }
 
+/* Cleanup wrapper for register_shutdown_routine(): free ws_regex_t objects
+ * and GSList scaffolding owned by the JSON+ dictionary at program exit. */
+static void
+json_plus_dictionary_shutdown(void)
+{
+	json_dictionary_cleanup(&json_plus_dictionary);
+}
+
 void
 proto_register_json(void)
 {
@@ -3201,6 +3316,7 @@ proto_reg_handoff_json(void)
 	dissector_add_uint_range_with_preference("udp.port", "", json_file_handle); /* JSON-RPC over UDP */
 
 	proto_acdr = proto_get_id_by_filter_name("acdr");
+	proto_http = proto_get_id_by_filter_name("http");
 }
 
 
