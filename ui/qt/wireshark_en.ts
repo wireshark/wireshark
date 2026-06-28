@@ -9698,13 +9698,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
-    <name>QObject::QObject::QObject</name>
-    <message>
-        <source>CCCH</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>RemoteCaptureDialog</name>
     <message>
         <source>Remote Interface</source>
