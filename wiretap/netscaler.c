@@ -2158,7 +2158,7 @@ static bool nstrace_add_signature(wtap_dumper *wdh, int *err)
     if (nstrace->version == NSTRACE_1_0)
     {
         uint16_t val16b;
-        nspr_signature_v10_t sig10;
+        nspr_signature_v10_t sig10 = {0};
 
         /* populate the record */
         val16b = GUINT16_TO_LE(NSPR_SIGNATURE_V10);
@@ -2178,7 +2178,7 @@ static bool nstrace_add_signature(wtap_dumper *wdh, int *err)
 
     } else if (nstrace->version == NSTRACE_2_0)
     {
-        nspr_signature_v20_t sig20;
+        nspr_signature_v20_t sig20 = {0};
 
         sig20.sig_RecordType = NSPR_SIGNATURE_V20;
         sig20.sig_RecordSize = nspr_signature_v20_s;
@@ -2194,7 +2194,7 @@ static bool nstrace_add_signature(wtap_dumper *wdh, int *err)
 
     } else if (nstrace->version == NSTRACE_3_0)
     {
-        nspr_signature_v30_t sig30;
+        nspr_signature_v30_t sig30 = {0};
 
         sig30.sig_RecordType = NSPR_SIGNATURE_V30;
         sig30.sig_RecordSize = nspr_signature_v30_s;
@@ -2209,7 +2209,7 @@ static bool nstrace_add_signature(wtap_dumper *wdh, int *err)
         nstrace->page_offset += (uint16_t) sig30.sig_RecordSize;
     } else if (nstrace->version == NSTRACE_3_5)
     {
-        nspr_signature_v35_t sig35;
+        nspr_signature_v35_t sig35 = {0};
 
         sig35.sig_RecordType = NSPR_SIGNATURE_V35;
         sig35.sig_RecordSize = nspr_signature_v35_s;
