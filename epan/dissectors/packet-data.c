@@ -100,7 +100,7 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 			if(generate_md5_hash) {
 				const uint8_t *cp;
-				uint8_t	      digest[HASH_MD5_LENGTH];
+				uint8_t	      digest[HASH_MD5_LENGTH] = {0};
 				const char   *digest_string;
 
 				cp = tvb_get_ptr(tvb, 0, bytes);
