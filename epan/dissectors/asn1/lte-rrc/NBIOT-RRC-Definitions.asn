@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V19.2.0 (2026-03)
+-- 3GPP TS 36.331 V19.3.0 (2026-06)
 
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -1939,7 +1939,7 @@ CB-Msg3-Config-NB-r19 ::=			SEQUENCE {
 															n1024, n1536, n2048, n3072, n4096,
 															n5120, n6144, n7168, n8192, n8704}
 		}															OPTIONAL,	-- Need OP
-		cb-Msg3-ResponseWindow-NB-r19			ENUMERATED {pp1, pp2, pp3, pp4, pp8, pp16, pp32,
+		cb-Msg3-ResponseWindowTimer-r19			ENUMERATED {pp1, pp2, pp3, pp4, pp8, pp16, pp32,
 																pp64}	OPTIONAL,	-- Cond SIB2
 		cb-Msg3-MaxAttemptNum-NB-r19			ENUMERATED {n2, n3, n4, n5, n6, n7, n8, n10}
 																	OPTIONAL	-- Need OP
@@ -2483,6 +2483,9 @@ PhysicalConfigDedicated-NB-r13 ::=	SEQUENCE {
 		npusch-ConfigDedicated-v1800	NPUSCH-ConfigDedicated-NB-v1800	OPTIONAL	-- Need ON
 	]],
 	[[	npusch-ConfigDedicated-v1900	NPUSCH-ConfigDedicated-NB-v1900	OPTIONAL	-- Need ON
+	]],
+	[[	uplinkPowerControlDedicated-v1930	UplinkPowerControlDedicated-NB-v1930
+																		OPTIONAL	-- Need ON
 	]]
 }
 
@@ -2895,7 +2898,11 @@ UplinkPowerControlDedicated-NB-r13 ::=	SEQUENCE {
 }
 
 UplinkPowerControlDedicated-NB-v1700 ::=	SEQUENCE {
-	deltaMCS-Enabled-r17					ENUMERATED {en0, en1}
+	deltaMCS-Enabled-r17						ENUMERATED {en0, en1}
+}
+
+UplinkPowerControlDedicated-NB-v1930 ::=	SEQUENCE {
+	powerBoostNB-r19							ENUMERATED {enabled}
 }
 
 
@@ -3116,7 +3123,12 @@ UE-Capability-NB-v1900-IEs ::=	SEQUENCE {
 
 UE-Capability-NB-v1920-IEs ::=	SEQUENCE {
 	rf-Parameters-v1920				RF-Parameters-NB-v1920,
-	nonCriticalExtension			SEQUENCE {}						OPTIONAL
+	nonCriticalExtension			UE-Capability-NB-v1930-IEs		OPTIONAL
+}
+
+UE-Capability-NB-v1930-IEs ::=	SEQUENCE {
+	rf-Parameters-v1930				RF-Parameters-NB-v1930,
+	nonCriticalExtension			SEQUENCE {}					OPTIONAL
 }
 
 TDD-UE-Capability-NB-r15 ::=		SEQUENCE {
@@ -3288,11 +3300,17 @@ RF-Parameters-NB-v1920 ::=			SEQUENCE {
 	supportedBandList-v1920				SupportedBandList-NB-v1920	OPTIONAL
 }
 
+RF-Parameters-NB-v1930 ::=			SEQUENCE {
+	supportedBandList-v1930				SupportedBandList-NB-v1930	OPTIONAL
+}
+
 SupportedBandList-NB-r13 ::=		SEQUENCE (SIZE (1..maxBands)) OF SupportedBand-NB-r13
 
 SupportedBandList-NB-v1710 ::=		SEQUENCE (SIZE (1..maxBands)) OF SupportedBand-NB-v1710
 
 SupportedBandList-NB-v1920 ::=		SEQUENCE (SIZE (1..maxBands)) OF SupportedBand-NB-v1920
+
+SupportedBandList-NB-v1930 ::=		SEQUENCE (SIZE (1..maxBands)) OF SupportedBand-NB-v1930
 
 SupportedBand-NB-r13	::=			SEQUENCE {
 	band-r13							FreqBandIndicator-NB-r13,
@@ -3305,6 +3323,10 @@ SupportedBand-NB-v1710	::=		SEQUENCE {
 
 SupportedBand-NB-v1920	::=		SEQUENCE {
 	powerBoostingNB-r19				ENUMERATED {supported}		OPTIONAL
+}
+
+SupportedBand-NB-v1930	::=		SEQUENCE {
+	powerClassNB-NdBm-r19			ENUMERATED {dBm26, dBm29, dBm31, spare1}		OPTIONAL
 }
 
 SON-Parameters-NB-r16 ::=			SEQUENCE {

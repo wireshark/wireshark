@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V19.2.0 (2026-03)
+-- 3GPP TS 36.331 V19.3.0 (2026-06)
 
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -3416,7 +3416,7 @@ SystemInformationBlockType1-MBMS-v1900 ::=	SEQUENCE {
 	cas-MutingConfig-r19						SEQUENCE {
 		k-CAS-r19									INTEGER (4..63),
 		n-CAS-r19									ENUMERATED {n2,n4,n8,n16}
-	}  																		OPTIONAL,	-- Need OR
+	}																		OPTIONAL,	-- Need OR
 	nonCriticalExtension						SEQUENCE {}					OPTIONAL
 }
 
@@ -5720,14 +5720,14 @@ BarringConfigDisasterRoamingEPS-r19 ::=	SEQUENCE {
 }
 
 DisasterRoamingEPS-BarringForCommon-r19 ::=		SEQUENCE {
-	disasterRoamingEPS-Barring-r19 		BarringConfigDisasterRoamingEPS-r19
+	disasterRoamingEPS-Barring-r19		BarringConfigDisasterRoamingEPS-r19
 }
 
 DisasterRoamingEPS-BarringPerPLMN-List-r19 ::=	SEQUENCE (SIZE (1.. maxPLMN-r11)) OF DisasterRoamingEPS-BarringPerPLMN-r19
 
 DisasterRoamingEPS-BarringPerPLMN-r19 ::=		SEQUENCE {
 	plmn-IdentityIndex-r19					INTEGER (1..maxPLMN-r11),
-	disasterRoamingEPS-Barring-r19 		BarringConfigDisasterRoamingEPS-r19	OPTIONAL	--Need OP
+	disasterRoamingEPS-Barring-r19		BarringConfigDisasterRoamingEPS-r19	OPTIONAL	--Need OP
 }
 
 
@@ -6038,7 +6038,7 @@ CB-Msg3-Config-r19 ::=				SEQUENCE {
 														n128, n192, n256, n320, n384, n512,
 														n640, n768, n896}
 	}																		OPTIONAL,	--Need OP
-	cb-Msg3-ResponseWindow-r19				ENUMERATED {sf240, sf480, sf960,
+	cb-Msg3-ResponseWindowTimer-r19				ENUMERATED {sf240, sf480, sf960,
 														sf1920, sf3840, sf5760, sf7680, sf10240},
 	cb-Msg3-MaxAttemptNum-r19				ENUMERATED {n2, n3, n4, n5, n6, n7, n8, n10}
 																			OPTIONAL	--Need OP
@@ -13480,6 +13480,17 @@ UE-EUTRA-Capability-v16c0-IEs ::= SEQUENCE {
 
 UE-EUTRA-Capability-v17b0-IEs ::= SEQUENCE {
 	ul-RRC-MaxCapaSegments-r17			ENUMERATED {supported}					OPTIONAL,
+	nonCriticalExtension				UE-EUTRA-Capability-v17x0-IEs			OPTIONAL
+}
+
+UE-EUTRA-Capability-v17x0-IEs ::= SEQUENCE {
+	-- Following field is only to be used for late REL-17 extensions
+	lateNonCriticalExtension			OCTET STRING							OPTIONAL,
+	nonCriticalExtension				UE-EUTRA-Capability-v18a0-IEs			OPTIONAL
+}
+
+UE-EUTRA-Capability-v18a0-IEs ::= SEQUENCE {
+	irat-ParametersNR-v18a0				IRAT-ParametersNR-v18a0					OPTIONAL,
 	nonCriticalExtension				SEQUENCE {}								OPTIONAL
 }
 
@@ -15464,6 +15475,19 @@ IRAT-ParametersNR-v1710 ::=		SEQUENCE {
 	extendedBand-n77-2-r17				ENUMERATED {supported}				OPTIONAL
 }
 
+IRAT-ParametersNR-v18a0 ::=		SEQUENCE {
+	supportedBand3MHzCBWList-NR-SA-r18		SupportedBand3MHzCBWList-NR-SA-r18	OPTIONAL
+}
+
+SupportedBand3MHzCBWList-NR-SA-r18 ::=		SEQUENCE (SIZE (1..maxBandsNR-r15)) OF SupportedBandNR3MHzCBW-r18
+
+SupportedBandNR3MHzCBW-r18 ::=			SEQUENCE {
+	support3MHz-ChannelBW-Symmetric-r18			ENUMERATED {supported}				OPTIONAL,
+	support3MHz-ChannelBW-Asymmetric-r18		ENUMERATED {supported}				OPTIONAL,
+	support12PRB-CORESET0-r18					ENUMERATED {supported}				OPTIONAL,
+	support12PRB-CORESET0-GSCN-41637-r18		ENUMERATED {supported}				OPTIONAL
+}
+
 IRAT-ParametersNR-v1900 ::=		SEQUENCE {
 	ntn-IdleMobilityForNR-r19				ENUMERATED {supported}				OPTIONAL
 }
@@ -15885,15 +15909,15 @@ MBMS-SupportedBandInfo-v1700 ::=	SEQUENCE {
 
 MBMS-SupportedBandInfo-v1900 ::=	SEQUENCE {
 	cas-Muting-5GB-r19					ENUMERATED {supported}		OPTIONAL,
-	timeInterleaving-r19 				SEQUENCE {
+	timeInterleaving-r19				SEQUENCE {
 		timeInterleavingKhz15-r19			ENUMERATED {supported}		OPTIONAL,
 		timeInterleavingKhz7dot5-r19		ENUMERATED {supported}		OPTIONAL,
 		timeInterleavingKhz2dot5-r19		ENUMERATED {supported}		OPTIONAL,
 		timeInterleavingKhz1dot25-r19		ENUMERATED {supported}		OPTIONAL
 	}									OPTIONAL,
-	pmch-CyclicShiftAlpha1-r19 			ENUMERATED {supported}			OPTIONAL,
-	pmch-CyclicShiftAlpha2-r19 			ENUMERATED {supported}			OPTIONAL,
-	pmch-CyclicShiftAlpha3-r19 			ENUMERATED {supported}			OPTIONAL,	freqInterleaving-r19 				SEQUENCE {
+	pmch-CyclicShiftAlpha1-r19			ENUMERATED {supported}			OPTIONAL,
+	pmch-CyclicShiftAlpha2-r19			ENUMERATED {supported}			OPTIONAL,
+	pmch-CyclicShiftAlpha3-r19			ENUMERATED {supported}			OPTIONAL,	freqInterleaving-r19				SEQUENCE {
 		freqInterleavingKhz15-r19			ENUMERATED {supported}		OPTIONAL,
 		freqInterleavingKhz7dot5-r19		ENUMERATED {supported}		OPTIONAL,
 		freqInterleavingKhz2dot5-r19		ENUMERATED {supported}		OPTIONAL,
@@ -16459,7 +16483,7 @@ PMCH-Info-r9 ::=					SEQUENCE {
 
 PMCH-InfoExt-r19 ::=				SEQUENCE {
 	pmch-Config-r19						PMCH-Config-r12,
-	pmch-TFI-Config-r19					PMCH-TFI-Config-r19			OPTIONAL, 	-- Need OR
+	pmch-TFI-Config-r19					PMCH-TFI-Config-r19			OPTIONAL,	-- Need OR
 	mbms-SessionInfoList-r19			MBMS-SessionInfoList-r9,
 	...
 }
@@ -16507,7 +16531,8 @@ PMCH-TFI-Config-r19 ::=			SEQUENCE {
 		pmch-TimeInterleavingM-LastMTCH-r19	ENUMERATED {sf4, sf8, sf16, sf32}	OPTIONAL,	-- Need OR
 		pmch-TimeInterleavingN-LastMTCH-r19	ENUMERATED {n1, n2, n4, n8, n16}		OPTIONAL,	-- Need OR
 		pmch-SoftBufferSizeParameters-r19	PMCH-SoftBufferSizeParameters-r19,
-		pmch-CyclicShiftAlpha-r19 			ENUMERATED {alpha1, alpha2, alpha3}	OPTIONAL 	-- Need OR
+		pmch-CyclicShiftAlpha-r19				ENUMERATED {alpha1, alpha2, alpha3}	OPTIONAL
+	-- Need OR
 	}					OPTIONAL, -- Need OR
 	pmch-FreqInterleaving-r19			ENUMERATED {enabled}						OPTIONAL, -- Need OR
 	mch-SchedulingPeriod-v1900			ENUMERATED {rf7, rf14, rf28, rf53, rf56, rf108, rf112, rf212, rf424}		OPTIONAL -- Need OR
