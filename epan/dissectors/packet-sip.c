@@ -2489,40 +2489,26 @@ dissect_sip_sec_mechanism(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, u
 static void
 dissect_sip_route_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, hf_sip_uri_t *sip_route_uri_p, unsigned start_offset, unsigned line_end_offset)
 {
-    unsigned current_offset;
+    unsigned delimiter_offset;
     uri_offset_info uri_offsets;
 
-    current_offset = start_offset;
-
     /* skip Spaces and Tabs */
-    current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
+    start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
 
-    if (current_offset >= line_end_offset) {
+    if (start_offset >= line_end_offset) {
         return;
     }
 
-    while (current_offset < line_end_offset) {
+    while (start_offset < line_end_offset) {
 
-        if (tvb_find_uint8_length(tvb, current_offset, (line_end_offset - 1) - current_offset, ',', &current_offset)) { /* found any ',' ? */
-            sip_uri_offset_init(&uri_offsets);
-            if (!dissect_sip_name_addr_or_addr_spec(tvb, pinfo, &current_offset, line_end_offset, &uri_offsets)) {
-                return;
-            }
-            display_sip_uri(tvb, tree, pinfo, &uri_offsets, sip_route_uri_p);
-
-            current_offset+=2;
-        } else {
-            /* current_offset = (line_end_offset - 1); */
-
-            sip_uri_offset_init(&uri_offsets);
-            if(!dissect_sip_name_addr_or_addr_spec(tvb, pinfo, &current_offset, line_end_offset, &uri_offsets))
-                return;
-            display_sip_uri(tvb, tree, pinfo, &uri_offsets, sip_route_uri_p);
-
+        /* find ',' delimiter or end of line */
+        tvb_find_uint8_length(tvb, start_offset, line_end_offset - start_offset, ',', &delimiter_offset);
+        sip_uri_offset_init(&uri_offsets);
+        if (!dissect_sip_name_addr_or_addr_spec(tvb, pinfo, &start_offset, delimiter_offset, &uri_offsets)) {
             return;
         }
-
-        current_offset++;
+        display_sip_uri(tvb, tree, pinfo, &uri_offsets, sip_route_uri_p);
+        start_offset = delimiter_offset + 1;
     }
 
     return;
