@@ -106,6 +106,7 @@ DIAG_ON(frame-larger-than=)
 #include <ui/qt/widgets/display_filter_edit.h>
 #include "display_filter_expression_dialog.h"
 #include "dissector_tables_dialog.h"
+#include "distribution_dialog.h"
 #include "endpoint_dialog.h"
 #include "expert_info_dialog.h"
 #include "export_object_action.h"
@@ -3467,6 +3468,8 @@ void WiresharkMainWindow::connectStatisticsMenuActions()
         sequence_dialog->show();
     });
 
+    connect(main_ui_->actionStatisticsDistribution, &QAction::triggered, this, [this]() { showDistributionDialog(QString()); } );
+
     connect(main_ui_->actionStatisticsCollectd, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("collectd"); });
     connect(main_ui_->actionStatisticsDNS, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("dns"); });
     connect(main_ui_->actionStatisticsDNS_QR, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("dns_qr"); });
@@ -4156,6 +4159,18 @@ void WiresharkMainWindow::showEndpointsDialog()
             });
     connect(endp_dialog, &EndpointDialog::openTcpStreamGraph, this, &WiresharkMainWindow::openTcpStreamDialog);
     endp_dialog->show();
+}
+
+void WiresharkMainWindow::showDistributionDialog(const QString &abbreviation)
+{
+    DistributionDialog *dis_dialog = new DistributionDialog(*this, capture_file_, abbreviation);
+    dis_dialog->show();
+    connect(dis_dialog, &DistributionDialog::filterAction, this, &WiresharkMainWindow::filterAction);
+}
+
+void WiresharkMainWindow::showDistributionDialog()
+{
+    showDistributionDialog(QString());
 }
 
 void WiresharkMainWindow::externalMenuItemTriggered()

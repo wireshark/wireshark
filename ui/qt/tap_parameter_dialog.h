@@ -202,6 +202,15 @@ protected:
      */
     void setRetapOnShow(bool retap);
 
+    /**
+     * @brief Retrieves the UI object.
+     * @return Pointer to the UI object.
+     */
+    Ui::TapParameterDialog * getUI(void)
+    {
+        return (ui);
+    }
+
 protected slots:
     /**
      * @brief Applies the filter action associated with the triggered context menu action.

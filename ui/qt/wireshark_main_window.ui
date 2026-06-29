@@ -618,6 +618,7 @@
     <addaction name="actionStatisticsIOGraph"/>
     <addaction name="actionStatisticsPlot"/>
     <addaction name="menuServiceResponseTime"/>
+    <addaction name="actionStatisticsDistribution"/>
     <addaction name="separator"/>
     <addaction name="actionStatistics_REGISTER_STAT_GROUP_UNSORTED"/>
     <addaction name="menu29West"/>
@@ -1946,6 +1947,14 @@
    </property>
    <property name="toolTip">
     <string>Collectd statistics</string>
+   </property>
+  </action>
+  <action name="actionStatisticsDistribution">
+   <property name="text">
+    <string>Distribution</string>
+   </property>
+   <property name="toolTip">
+    <string>Distribution statistics</string>
    </property>
   </action>
   <action name="actionStatisticsDNS">

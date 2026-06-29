@@ -678,6 +678,7 @@ Each menu item brings up a new window showing specific statistics.
 |menu:I/O Graphs[]|| Display user specified graphs (e.g., the number of packets in the course of time), see <<ChStatIOGraphs>>.
 |menu:Plots[]|| Plot display filter field values over time, see <<ChStatPlots>>.
 |menu:Service Response Time[]|| Display the time between a request and the corresponding response, see <<ChStatSRT>>.
+|menu:Distribution[]|| Display a Named Field distribution and entropy, see <<ChStatDistribution>>.
 |menu:DHCP (BOOTP)[]||See <<ChStatDHCPBOOTP>>
 |menu:NetPerfMeter[]||See <<ChStatNetPerfMeter>>
 |menu:ONC-RPC Programs[]||See <<ChStatONCRPC>>

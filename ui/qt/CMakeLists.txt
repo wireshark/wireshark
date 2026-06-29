@@ -204,6 +204,7 @@ set(WIRESHARK_QT_HEADERS
 	decode_as_dialog.h
 	display_filter_expression_dialog.h
 	dissector_tables_dialog.h
+	distribution_dialog.h
 	dis_audio_stream.h
 	dis_stream_dialog.h
 	dis_stream_analysis_dialog.h
@@ -666,6 +667,7 @@ if(LUA_FOUND)
 endif()
 
 set(WIRESHARK_QT_TAP_SRC
+	${CMAKE_CURRENT_SOURCE_DIR}/distribution_dialog.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/expert_info_dialog.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/funnel_statistics.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/graph.cpp

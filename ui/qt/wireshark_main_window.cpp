@@ -689,6 +689,9 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     connect(proto_tree_, &ProtoTree::redissectPacketsRequested,
             this, &WiresharkMainWindow::redissectPackets);
 
+    connect(proto_tree_, &ProtoTree::showDistributionDialog,
+            this, qOverload<const QString&>(&WiresharkMainWindow::showDistributionDialog));
+
     connect(main_ui_->statusBar, &MainStatusBar::showExpertInfo, this, [=]() {
         statCommandExpertInfo(NULL, NULL);
     });

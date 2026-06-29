@@ -1184,6 +1184,10 @@ private slots:
     /** @brief Opens the Endpoints statistics dialog. */
     void showEndpointsDialog();
 
+    /** @brief Opens the Distribution statistics dialog. */
+    void showDistributionDialog(const QString &abbreviation);
+    void showDistributionDialog();
+
     /**
      * @brief Opens a TCP stream graph dialog for the given graph type.
      * @param graph_type TCP stream graph type constant (e.g. time-sequence, throughput).

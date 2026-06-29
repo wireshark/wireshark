@@ -351,6 +351,29 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 
     ctx_menu->addMenu(PlotAction::createMenu(finfo->headerInfo(), ctx_menu));
 
+    // Checks for the Distribution menu (enabled according to the AGG_FT value)
+    /* XXX - ensure we are consistent with the Distribution Dialog. Move to a function ? */
+    bool isDistributable = false;
+    switch(finfo->headerInfo().type) {
+        case FT_IPv4:
+        case FT_IPv6:
+            isDistributable = true;
+            break;
+
+        default:
+            if (FT_IS_STRING(finfo->headerInfo().type) ||
+                FT_IS_INTEGER(finfo->headerInfo().type)) {
+                isDistributable = true;
+            }
+            break;
+    }
+
+    /* add Distribution menu */
+    action = ctx_menu->addAction(tr("Distribution"), [this, finfo]() {
+        emit showDistributionDialog(finfo->headerInfo().abbreviation);
+    });
+    action->setEnabled(isDistributable);
+
     submenu = ctx_menu->addMenu(tr("Copy"));
     submenu->setToolTipsVisible(true);
     submenu->addAction(tr("All Visible Items"), this, &ProtoTree::ctxCopyVisibleItems);
