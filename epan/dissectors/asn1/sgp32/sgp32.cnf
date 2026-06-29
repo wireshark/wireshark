@@ -65,6 +65,7 @@ EsipaMessageFromEimToIpa VAL_PTR = &choice
 PrepareDownloadResponse                    N sgp32.response  0xBF21
 EUICCInfo2                                 N sgp32.response  0xBF22
 StoreMetadataRequest                       N sgp32.request   0xBF25
+UpdateMetadataRequest                      N sgp32.request   0xBF2A
 RetrieveNotificationsListRequest           N sgp32.request   0xBF2B
 RetrieveNotificationsListResponse          N sgp32.response  0xBF2B
 ProfileInstallationResult                  N sgp32.response  0xBF37

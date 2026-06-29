@@ -43,6 +43,7 @@ static int hf_sgp32_ProfileDownloadTriggerResult_PDU;  /* ProfileDownloadTrigger
 static int hf_sgp32_sgp32_ISDRProprietaryApplicationTemplateIoT_PDU;  /* ISDRProprietaryApplicationTemplateIoT */
 static int hf_sgp32_IpaeActivationRequest_PDU;    /* IpaeActivationRequest */
 static int hf_sgp32_IpaeActivationResponse_PDU;   /* IpaeActivationResponse */
+static int hf_sgp32_UpdateMetadataRequest_PDU;    /* UpdateMetadataRequest */
 static int hf_sgp32_StoreMetadataRequest_PDU;     /* StoreMetadataRequest */
 static int hf_sgp32_EUICCInfo2_PDU;               /* EUICCInfo2 */
 static int hf_sgp32_AddInitialEimRequest_PDU;     /* AddInitialEimRequest */
@@ -116,6 +117,7 @@ static int hf_sgp32_trustedCertificateTls;        /* Certificate */
 static int hf_sgp32_eimSupportedProtocol;         /* EimSupportedProtocol */
 static int hf_sgp32_euiccCiPKId;                  /* SubjectKeyIdentifier */
 static int hf_sgp32_indirectProfileDownload;      /* NULL */
+static int hf_sgp32_eSipaProprietaryProtocolInformation;  /* VendorSpecificExtension */
 static int hf_sgp32_addEim;                       /* EimConfigurationData */
 static int hf_sgp32_deleteEim;                    /* T_deleteEim */
 static int hf_sgp32_eimId_01;                     /* UTF8String */
@@ -172,6 +174,7 @@ static int hf_sgp32_setDefaultDpAddressResult;    /* SetDefaultDpAddressResponse
 static int hf_sgp32_euiccPackageErrorDataSigned;  /* EuiccPackageErrorDataSigned */
 static int hf_sgp32_euiccSignEPE;                 /* OCTET_STRING */
 static int hf_sgp32_euiccPackageErrorCode;        /* EuiccPackageErrorCode */
+static int hf_sgp32_euiccPackageUnsignedErrorCode;  /* EuiccPackageUnsignedErrorCode */
 static int hf_sgp32_profileInfoListOk;            /* SEQUENCE_OF_ProfileInfo */
 static int hf_sgp32_profileInfoListOk_item;       /* ProfileInfo */
 static int hf_sgp32_profileInfoListError;         /* ProfileInfoListError */
@@ -220,7 +223,9 @@ static int hf_sgp32_serviceSpecificDataStoredInEuicc;  /* VendorSpecificExtensio
 static int hf_sgp32_ecallIndication;              /* BOOLEAN */
 static int hf_sgp32_fallbackAttribute;            /* BOOLEAN */
 static int hf_sgp32_fallbackAllowed;              /* BOOLEAN */
+static int hf_sgp32_iotSpecificProfileInfo;       /* T_iotSpecificProfileInfo */
 static int hf_sgp32_serviceSpecificDataNotStoredInEuicc;  /* VendorSpecificExtension */
+static int hf_sgp32_iotSpecificMetadata;          /* T_iotSpecificMetadata */
 static int hf_sgp32_profileVersion;               /* VersionType */
 static int hf_sgp32_svn;                          /* VersionType */
 static int hf_sgp32_euiccFirmwareVer;             /* VersionType */
@@ -248,10 +253,12 @@ static int hf_sgp32_euiccCiPKIdListForSigningV3_item;  /* SubjectKeyIdentifier *
 static int hf_sgp32_additionalEuiccInfo;          /* OCTET_STRING_SIZE_0_32 */
 static int hf_sgp32_highestSvn;                   /* VersionType */
 static int hf_sgp32_iotSpecificInfo;              /* IoTSpecificInfo */
+static int hf_sgp32_euiccMinimumSecurityLevel;    /* OCTET_STRING_SIZE_1 */
 static int hf_sgp32_iotVersion;                   /* SEQUENCE_OF_VersionType */
 static int hf_sgp32_iotVersion_item;              /* VersionType */
 static int hf_sgp32_ecallSupported;               /* NULL */
 static int hf_sgp32_fallbackSupported;            /* NULL */
+static int hf_sgp32_fallbackAllowedUpdateSupported;  /* NULL */
 static int hf_sgp32_eimConfigurationDataList;     /* SEQUENCE_OF_EimConfigurationData */
 static int hf_sgp32_eimConfigurationDataList_item;  /* EimConfigurationData */
 static int hf_sgp32_addInitialEimOk;              /* T_addInitialEimOk */
@@ -380,7 +387,12 @@ static int hf_sgp32_emptyResponse;                /* T_emptyResponse */
 static int hf_sgp32_provideEimPackageResultError;  /* T_provideEimPackageResultError */
 static int hf_sgp32_ePRAndNotifications_01;       /* T_ePRAndNotifications_01 */
 static int hf_sgp32_eimPackageReceived;           /* NULL */
+static int hf_sgp32_eimPackageReceivedWithCid;    /* EimPackageReceivedWithCid */
 static int hf_sgp32_eimPackageError_01;           /* T_eimPackageError_01 */
+static int hf_sgp32_eimPackageErrorWithCid;       /* EimPackageErrorWithCid */
+static int hf_sgp32_correlationId;                /* T_correlationId */
+static int hf_sgp32_correlationId_01;             /* T_correlationId_01 */
+static int hf_sgp32_eimPackageError_02;           /* EimPackageResultErrorCode */
 /* named bits */
 static int hf_sgp32_EimSupportedProtocol_eimRetrieveHttps;
 static int hf_sgp32_EimSupportedProtocol_eimRetrieveCoaps;
@@ -474,7 +486,10 @@ static int ett_sgp32_T_ipaFeatures;
 static int ett_sgp32_T_ipaSupportedProtocols;
 static int ett_sgp32_ProfileInfo_U;
 static int ett_sgp32_SEQUENCE_OF_NotificationConfigurationInformation;
+static int ett_sgp32_T_iotSpecificProfileInfo;
+static int ett_sgp32_UpdateMetadataRequest_U;
 static int ett_sgp32_StoreMetadataRequest_U;
+static int ett_sgp32_T_iotSpecificMetadata;
 static int ett_sgp32_EUICCInfo2_U;
 static int ett_sgp32_SEQUENCE_OF_SubjectKeyIdentifier;
 static int ett_sgp32_T_treProperties;
@@ -562,6 +577,10 @@ static int ett_sgp32_T_emptyResponse;
 static int ett_sgp32_TransferEimPackageRequest_U;
 static int ett_sgp32_TransferEimPackageResponse_U;
 static int ett_sgp32_T_ePRAndNotifications_01;
+static int ett_sgp32_EimPackageReceivedWithCid;
+static int ett_sgp32_T_correlationId;
+static int ett_sgp32_EimPackageErrorWithCid;
+static int ett_sgp32_T_correlationId_01;
 
 static dissector_handle_t sgp32_handle;
 
@@ -917,6 +936,7 @@ static const ber_sequence_t EimConfigurationData_sequence[] = {
   { &hf_sgp32_eimSupportedProtocol, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_EimSupportedProtocol },
   { &hf_sgp32_euiccCiPKId   , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pkix1implicit_SubjectKeyIdentifier },
   { &hf_sgp32_indirectProfileDownload, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_NULL },
+  { &hf_sgp32_eSipaProprietaryProtocolInformation, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp22_VendorSpecificExtension },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1383,6 +1403,19 @@ dissect_sgp32_BOOLEAN(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset 
 }
 
 
+static const ber_sequence_t T_iotSpecificProfileInfo_sequence[] = {
+  { NULL, 0, 0, 0, NULL }
+};
+
+static unsigned
+dissect_sgp32_T_iotSpecificProfileInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   T_iotSpecificProfileInfo_sequence, hf_index, ett_sgp32_T_iotSpecificProfileInfo);
+
+  return offset;
+}
+
+
 static const ber_sequence_t ProfileInfo_U_sequence[] = {
   { &hf_sgp32_iccid         , BER_CLASS_APP, 26, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_sgp22_Iccid },
   { &hf_sgp32_isdpAid       , BER_CLASS_APP, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp22_OctetTo16 },
@@ -1401,6 +1434,7 @@ static const ber_sequence_t ProfileInfo_U_sequence[] = {
   { &hf_sgp32_ecallIndication, BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_BOOLEAN },
   { &hf_sgp32_fallbackAttribute, BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_BOOLEAN },
   { &hf_sgp32_fallbackAllowed, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_BOOLEAN },
+  { &hf_sgp32_iotSpecificProfileInfo, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_T_iotSpecificProfileInfo },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1909,10 +1943,27 @@ dissect_sgp32_EuiccPackageErrorSigned(bool implicit_tag _U_, tvbuff_t *tvb _U_, 
 }
 
 
+static const value_string sgp32_EuiccPackageUnsignedErrorCode_vals[] = {
+  {  15, "sizeOverflow" },
+  { 127, "undefinedError" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_sgp32_EuiccPackageUnsignedErrorCode(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t EuiccPackageErrorUnsigned_sequence[] = {
   { &hf_sgp32_eimId         , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sgp32_UTF8String_SIZE_1_128 },
   { &hf_sgp32_eimTransactionId, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp22_TransactionId },
   { &hf_sgp32_associationToken, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_INTEGER },
+  { &hf_sgp32_euiccPackageUnsignedErrorCode, BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_EuiccPackageUnsignedErrorCode },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2100,6 +2151,7 @@ static const ber_sequence_t CompactOtherSignedNotification_sequence[] = {
   { &hf_sgp32_eidValue      , BER_CLASS_APP, 26, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp22_Octet16 },
   { &hf_sgp32_tbsOtherNotification, BER_CLASS_CON, 47, BER_FLAGS_NOOWNTAG, dissect_sgp22_NotificationMetadata },
   { &hf_sgp32_euiccNotificationSignature, BER_CLASS_APP, 55, BER_FLAGS_IMPLTAG, dissect_sgp32_OCTET_STRING },
+  { &hf_sgp32_euiccCiPKIdentifierToBeUsed, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_sgp32_OCTET_STRING },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2255,6 +2307,7 @@ static const ber_sequence_t IoTSpecificInfo_sequence[] = {
   { &hf_sgp32_iotVersion    , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sgp32_SEQUENCE_OF_VersionType },
   { &hf_sgp32_ecallSupported, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_NULL },
   { &hf_sgp32_fallbackSupported, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_NULL },
+  { &hf_sgp32_fallbackAllowedUpdateSupported, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_NULL },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2262,6 +2315,16 @@ static unsigned
 dissect_sgp32_IoTSpecificInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IoTSpecificInfo_sequence, hf_index, ett_sgp32_IoTSpecificInfo);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_sgp32_OCTET_STRING_SIZE_1(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 1, hf_index, NULL);
 
   return offset;
 }
@@ -2291,6 +2354,7 @@ static const ber_sequence_t EUICCInfo2_U_sequence[] = {
   { &hf_sgp32_additionalEuiccInfo, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_OCTET_STRING_SIZE_0_32 },
   { &hf_sgp32_highestSvn    , BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp22_VersionType },
   { &hf_sgp32_iotSpecificInfo, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_IoTSpecificInfo },
+  { &hf_sgp32_euiccMinimumSecurityLevel, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_OCTET_STRING_SIZE_1 },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2355,6 +2419,7 @@ dissect_sgp32_T_ipaSupportedProtocols(bool implicit_tag _U_, tvbuff_t *tvb _U_, 
 static const ber_sequence_t IpaCapabilities_sequence[] = {
   { &hf_sgp32_ipaFeatures   , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sgp32_T_ipaFeatures },
   { &hf_sgp32_ipaSupportedProtocols, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_T_ipaSupportedProtocols },
+  { &hf_sgp32_eSipaProprietaryProtocolInformation, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp22_VendorSpecificExtension },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2621,6 +2686,49 @@ dissect_sgp32_IpaeActivationResponse(bool implicit_tag _U_, tvbuff_t *tvb _U_, u
 }
 
 
+static const ber_sequence_t UpdateMetadataRequest_U_sequence[] = {
+  { &hf_sgp32_serviceProviderName, BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_UTF8String_SIZE_0_32 },
+  { &hf_sgp32_profileName   , BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_UTF8String_SIZE_0_64 },
+  { &hf_sgp32_iconType      , BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp22_IconType },
+  { &hf_sgp32_icon          , BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_OCTET_STRING_SIZE_0_1024 },
+  { &hf_sgp32_profilePolicyRules, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp22_PprIds },
+  { &hf_sgp32_serviceSpecificDataStoredInEuicc, BER_CLASS_CON, 34, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp22_VendorSpecificExtension },
+  { &hf_sgp32_fallbackAllowed, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_BOOLEAN },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static unsigned
+dissect_sgp32_UpdateMetadataRequest_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   UpdateMetadataRequest_U_sequence, hf_index, ett_sgp32_UpdateMetadataRequest_U);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_sgp32_UpdateMetadataRequest(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_CON, 42, true, dissect_sgp32_UpdateMetadataRequest_U);
+
+  return offset;
+}
+
+
+static const ber_sequence_t T_iotSpecificMetadata_sequence[] = {
+  { NULL, 0, 0, 0, NULL }
+};
+
+static unsigned
+dissect_sgp32_T_iotSpecificMetadata(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   T_iotSpecificMetadata_sequence, hf_index, ett_sgp32_T_iotSpecificMetadata);
+
+  return offset;
+}
+
+
 static const ber_sequence_t StoreMetadataRequest_U_sequence[] = {
   { &hf_sgp32_iccid         , BER_CLASS_APP, 26, BER_FLAGS_NOOWNTAG, dissect_sgp22_Iccid },
   { &hf_sgp32_serviceProviderName, BER_CLASS_CON, 17, BER_FLAGS_IMPLTAG, dissect_sgp32_UTF8String_SIZE_0_32 },
@@ -2635,6 +2743,7 @@ static const ber_sequence_t StoreMetadataRequest_U_sequence[] = {
   { &hf_sgp32_serviceSpecificDataNotStoredInEuicc, BER_CLASS_CON, 35, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp22_VendorSpecificExtension },
   { &hf_sgp32_ecallIndication, BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_BOOLEAN },
   { &hf_sgp32_fallbackAllowed, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_BOOLEAN },
+  { &hf_sgp32_iotSpecificMetadata, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_T_iotSpecificMetadata },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3593,6 +3702,7 @@ static const value_string sgp32_T_disableEmergencyProfileResult_vals[] = {
   {   0, "ok" },
   {   2, "profileNotInEnabledState" },
   {   5, "catBusy" },
+  {   8, "ecallNotAvailable" },
   { 127, "undefinedError" },
   { 0, NULL }
 };
@@ -4231,6 +4341,42 @@ dissect_sgp32_T_ePRAndNotifications_01(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
+static const value_string sgp32_T_correlationId_vals[] = {
+  {   0, "eimTransactionId" },
+  {   1, "eidValue" },
+  { 0, NULL }
+};
+
+static const ber_choice_t T_correlationId_choice[] = {
+  {   0, &hf_sgp32_eimTransactionId, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sgp22_TransactionId },
+  {   1, &hf_sgp32_eidValue      , BER_CLASS_APP, 26, BER_FLAGS_IMPLTAG, dissect_sgp22_Octet16 },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static unsigned
+dissect_sgp32_T_correlationId(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 T_correlationId_choice, hf_index, ett_sgp32_T_correlationId,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t EimPackageReceivedWithCid_sequence[] = {
+  { &hf_sgp32_correlationId , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_T_correlationId },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static unsigned
+dissect_sgp32_EimPackageReceivedWithCid(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   EimPackageReceivedWithCid_sequence, hf_index, ett_sgp32_EimPackageReceivedWithCid);
+
+  return offset;
+}
+
+
 static const value_string sgp32_T_eimPackageError_01_vals[] = {
   {   1, "invalidPackageFormat" },
   {   2, "unknownPackage" },
@@ -4248,12 +4394,51 @@ dissect_sgp32_T_eimPackageError_01(bool implicit_tag _U_, tvbuff_t *tvb _U_, uns
 }
 
 
+static const value_string sgp32_T_correlationId_01_vals[] = {
+  {   0, "eimTransactionId" },
+  {   1, "eidValue" },
+  { 0, NULL }
+};
+
+static const ber_choice_t T_correlationId_01_choice[] = {
+  {   0, &hf_sgp32_eimTransactionId, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sgp22_TransactionId },
+  {   1, &hf_sgp32_eidValue      , BER_CLASS_APP, 26, BER_FLAGS_IMPLTAG, dissect_sgp22_Octet16 },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static unsigned
+dissect_sgp32_T_correlationId_01(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 T_correlationId_01_choice, hf_index, ett_sgp32_T_correlationId_01,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t EimPackageErrorWithCid_sequence[] = {
+  { &hf_sgp32_correlationId_01, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp32_T_correlationId_01 },
+  { &hf_sgp32_eimPackageError_02, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_sgp32_EimPackageResultErrorCode },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static unsigned
+dissect_sgp32_EimPackageErrorWithCid(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   EimPackageErrorWithCid_sequence, hf_index, ett_sgp32_EimPackageErrorWithCid);
+
+  return offset;
+}
+
+
 static const value_string sgp32_TransferEimPackageResponse_U_vals[] = {
   {   0, "euiccPackageResult" },
   {   1, "ePRAndNotifications" },
   {   2, "ipaEuiccDataResponse" },
   {   3, "eimPackageReceived" },
-  {   4, "eimPackageError" },
+  {   4, "eimPackageReceivedWithCid" },
+  {   5, "eimPackageError" },
+  {   6, "eimPackageErrorWithCid" },
   { 0, NULL }
 };
 
@@ -4262,7 +4447,9 @@ static const ber_choice_t TransferEimPackageResponse_U_choice[] = {
   {   1, &hf_sgp32_ePRAndNotifications_01, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_sgp32_T_ePRAndNotifications_01 },
   {   2, &hf_sgp32_ipaEuiccDataResponse, BER_CLASS_CON, 82, BER_FLAGS_IMPLTAG, dissect_sgp32_IpaEuiccDataResponse },
   {   3, &hf_sgp32_eimPackageReceived, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_sgp32_NULL },
-  {   4, &hf_sgp32_eimPackageError_01, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_sgp32_T_eimPackageError_01 },
+  {   4, &hf_sgp32_eimPackageReceivedWithCid, BER_CLASS_CON, 96, BER_FLAGS_IMPLTAG, dissect_sgp32_EimPackageReceivedWithCid },
+  {   5, &hf_sgp32_eimPackageError_01, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_sgp32_T_eimPackageError_01 },
+  {   6, &hf_sgp32_eimPackageErrorWithCid, BER_CLASS_CON, 97, BER_FLAGS_IMPLTAG, dissect_sgp32_EimPackageErrorWithCid },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -4514,6 +4701,7 @@ static const value_string sgp32_T_authenticateClientErrorEsipa_vals[] = {
   {   9, "ciPKUnknown" },
   {  10, "invalidTransactionId" },
   {  11, "insufficientMemory" },
+  {  18, "downloadOrderExpired" },
   {  50, "pprNotAllowed" },
   {  56, "eventIdUnknown" },
   { 127, "undefinedError" },
@@ -4585,7 +4773,7 @@ static const value_string sgp32_T_getBoundProfilePackageErrorEsipa_vals[] = {
   {   3, "confirmationCodeRefused" },
   {   4, "confirmationCodeRetriesExceeded" },
   {   5, "bppRebindingRefused" },
-  {   6, "downloadOrderExpired" },
+  {   6, "deprecated" },
   {  50, "metadataMismatch" },
   {  95, "invalidTransactionId" },
   { 127, "undefinedError" },
@@ -4959,6 +5147,13 @@ static int dissect_IpaeActivationResponse_PDU(tvbuff_t *tvb _U_, packet_info *pi
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_sgp32_IpaeActivationResponse(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_IpaeActivationResponse_PDU);
+  return offset;
+}
+static int dissect_UpdateMetadataRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+  offset = dissect_sgp32_UpdateMetadataRequest(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_UpdateMetadataRequest_PDU);
   return offset;
 }
 static int dissect_StoreMetadataRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
@@ -5481,6 +5676,10 @@ void proto_register_sgp32(void)
       { "IpaeActivationResponse", "sgp32.IpaeActivationResponse_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_sgp32_UpdateMetadataRequest_PDU,
+      { "UpdateMetadataRequest", "sgp32.UpdateMetadataRequest_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_sgp32_StoreMetadataRequest_PDU,
       { "StoreMetadataRequest", "sgp32.StoreMetadataRequest_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5773,6 +5972,10 @@ void proto_register_sgp32(void)
       { "indirectProfileDownload", "sgp32.indirectProfileDownload_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_sgp32_eSipaProprietaryProtocolInformation,
+      { "eSipaProprietaryProtocolInformation", "sgp32.eSipaProprietaryProtocolInformation",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "VendorSpecificExtension", HFILL }},
     { &hf_sgp32_addEim,
       { "addEim", "sgp32.addEim_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5997,6 +6200,10 @@ void proto_register_sgp32(void)
       { "euiccPackageErrorCode", "sgp32.euiccPackageErrorCode",
         FT_INT32, BASE_DEC, VALS(sgp32_EuiccPackageErrorCode_vals), 0,
         NULL, HFILL }},
+    { &hf_sgp32_euiccPackageUnsignedErrorCode,
+      { "euiccPackageUnsignedErrorCode", "sgp32.euiccPackageUnsignedErrorCode",
+        FT_INT32, BASE_DEC, VALS(sgp32_EuiccPackageUnsignedErrorCode_vals), 0,
+        NULL, HFILL }},
     { &hf_sgp32_profileInfoListOk,
       { "profileInfoListOk", "sgp32.profileInfoListOk",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -6189,10 +6396,18 @@ void proto_register_sgp32(void)
       { "fallbackAllowed", "sgp32.fallbackAllowed",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
+    { &hf_sgp32_iotSpecificProfileInfo,
+      { "iotSpecificProfileInfo", "sgp32.iotSpecificProfileInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_sgp32_serviceSpecificDataNotStoredInEuicc,
       { "serviceSpecificDataNotStoredInEuicc", "sgp32.serviceSpecificDataNotStoredInEuicc",
         FT_UINT32, BASE_DEC, NULL, 0,
         "VendorSpecificExtension", HFILL }},
+    { &hf_sgp32_iotSpecificMetadata,
+      { "iotSpecificMetadata", "sgp32.iotSpecificMetadata_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_sgp32_profileVersion,
       { "profileVersion", "sgp32.profileVersion",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -6301,6 +6516,10 @@ void proto_register_sgp32(void)
       { "iotSpecificInfo", "sgp32.iotSpecificInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_sgp32_euiccMinimumSecurityLevel,
+      { "euiccMinimumSecurityLevel", "sgp32.euiccMinimumSecurityLevel",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_1", HFILL }},
     { &hf_sgp32_iotVersion,
       { "iotVersion", "sgp32.iotVersion",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -6315,6 +6534,10 @@ void proto_register_sgp32(void)
         NULL, HFILL }},
     { &hf_sgp32_fallbackSupported,
       { "fallbackSupported", "sgp32.fallbackSupported_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sgp32_fallbackAllowedUpdateSupported,
+      { "fallbackAllowedUpdateSupported", "sgp32.fallbackAllowedUpdateSupported_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sgp32_eimConfigurationDataList,
@@ -6829,10 +7052,30 @@ void proto_register_sgp32(void)
       { "eimPackageReceived", "sgp32.eimPackageReceived_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_sgp32_eimPackageReceivedWithCid,
+      { "eimPackageReceivedWithCid", "sgp32.eimPackageReceivedWithCid_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_sgp32_eimPackageError_01,
       { "eimPackageError", "sgp32.eimPackageError",
         FT_INT32, BASE_DEC, VALS(sgp32_T_eimPackageError_01_vals), 0,
         "T_eimPackageError_01", HFILL }},
+    { &hf_sgp32_eimPackageErrorWithCid,
+      { "eimPackageErrorWithCid", "sgp32.eimPackageErrorWithCid_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sgp32_correlationId,
+      { "correlationId", "sgp32.correlationId",
+        FT_UINT32, BASE_DEC, VALS(sgp32_T_correlationId_vals), 0,
+        NULL, HFILL }},
+    { &hf_sgp32_correlationId_01,
+      { "correlationId", "sgp32.correlationId",
+        FT_UINT32, BASE_DEC, VALS(sgp32_T_correlationId_01_vals), 0,
+        "T_correlationId_01", HFILL }},
+    { &hf_sgp32_eimPackageError_02,
+      { "eimPackageError", "sgp32.eimPackageError",
+        FT_INT32, BASE_DEC, VALS(sgp32_EimPackageResultErrorCode_vals), 0,
+        "EimPackageResultErrorCode", HFILL }},
     { &hf_sgp32_EimSupportedProtocol_eimRetrieveHttps,
       { "eimRetrieveHttps", "sgp32.EimSupportedProtocol.eimRetrieveHttps",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -7014,7 +7257,10 @@ void proto_register_sgp32(void)
     &ett_sgp32_T_ipaSupportedProtocols,
     &ett_sgp32_ProfileInfo_U,
     &ett_sgp32_SEQUENCE_OF_NotificationConfigurationInformation,
+    &ett_sgp32_T_iotSpecificProfileInfo,
+    &ett_sgp32_UpdateMetadataRequest_U,
     &ett_sgp32_StoreMetadataRequest_U,
+    &ett_sgp32_T_iotSpecificMetadata,
     &ett_sgp32_EUICCInfo2_U,
     &ett_sgp32_SEQUENCE_OF_SubjectKeyIdentifier,
     &ett_sgp32_T_treProperties,
@@ -7102,6 +7348,10 @@ void proto_register_sgp32(void)
     &ett_sgp32_TransferEimPackageRequest_U,
     &ett_sgp32_TransferEimPackageResponse_U,
     &ett_sgp32_T_ePRAndNotifications_01,
+    &ett_sgp32_EimPackageReceivedWithCid,
+    &ett_sgp32_T_correlationId,
+    &ett_sgp32_EimPackageErrorWithCid,
+    &ett_sgp32_T_correlationId_01,
   };
 
   proto_sgp32 = proto_register_protocol("SGP.32 GSMA Remote SIM Provisioning (RSP)", "SGP.32", "sgp32");
@@ -7130,6 +7380,7 @@ void proto_reg_handoff_sgp32(void)
   dissector_add_uint("sgp32.response", 0xBF21, create_dissector_handle(dissect_PrepareDownloadResponse_PDU, proto_sgp32));
   dissector_add_uint("sgp32.response", 0xBF22, create_dissector_handle(dissect_EUICCInfo2_PDU, proto_sgp32));
   dissector_add_uint("sgp32.request", 0xBF25, create_dissector_handle(dissect_StoreMetadataRequest_PDU, proto_sgp32));
+  dissector_add_uint("sgp32.request", 0xBF2A, create_dissector_handle(dissect_UpdateMetadataRequest_PDU, proto_sgp32));
   dissector_add_uint("sgp32.request", 0xBF2B, create_dissector_handle(dissect_RetrieveNotificationsListRequest_PDU, proto_sgp32));
   dissector_add_uint("sgp32.response", 0xBF2B, create_dissector_handle(dissect_RetrieveNotificationsListResponse_PDU, proto_sgp32));
   dissector_add_uint("sgp32.response", 0xBF37, create_dissector_handle(dissect_ProfileInstallationResult_PDU, proto_sgp32));
