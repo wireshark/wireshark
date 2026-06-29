@@ -936,18 +936,13 @@ For example, “closes #5” will close issue number 5.
 Other https://docs.gitlab.com/user/markdown/#gitlab-specific-references[GitLab-specific references] are `!` for a merge request and the short (8 character) hash for a commit.
 
 We also ask contributors to disclose whether AI tools were used when authoring the change.
-Add a trailer such as
+If you use an AI tool, add a trailer such as
 [source,sh]
 ----
-AI-Assisted: yes (Claude)
+Assisted-by: Claude
 ----
-or
-[source,sh]
-----
-AI-Assisted: no
-----
-to commit messages and mention the same in merge requests.
-This notice is adapted with thanks from the Seerr project’s AI usage statement (https://github.com/seerr-team/seerr/blob/develop/CONTRIBUTING.md).
+to your commit message(s) and mention the same in merge requests.
+The trailer should be omitted if no AI tools were used.
 
 Putting all that together, we get the following example:
 
@@ -958,7 +953,7 @@ MIPv6: Fix dissection of Service Selection Identifier
 APN field is not encoded as a dotted string so the first character is not a
 length. Closes #10323.
 
-AI-Assisted: no
+Assisted-by: Claude
 ----
 
 [#ChSrcCodeRequirements]
@@ -994,7 +989,7 @@ $ git config core.hooksPath tools/git_hooks
 --
 This uses the dedicated `tools/git_hooks/` directory, so other scripts in `tools/` remain untouched.
 
-To include the AI-Assisted trailer automatically, set the commit template with:
+To include the "Assisted-by" trailer automatically, set the commit template with:
 --
 [source,sh]
 ----
@@ -1003,7 +998,7 @@ $ git config commit.template .gitmessage
 --
 
 The Wireshark pre-commit hook (in `tools/git_hooks/`) runs Wireshark-specific API and formatting checks and might return false positives.
-The commit-msg hook warns if the AI-Assisted trailer is missing.
+The commit-msg hook warns if the "Assisted-by" trailer is missing.
 The wrappers in `tools/` remain for compatibility; if you prefer the classic layout you can still copy or symlink from `tools/git_hooks/` into `.git/hooks/`.
 
 If the pre-commit hook is preventing you from committing what you believe is a valid change, you can run `git commit --no-verify` to skip running the hooks.

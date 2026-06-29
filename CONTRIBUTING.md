@@ -47,7 +47,7 @@ Documentation updates must be made via a merge request similar to source code ch
 
 ## Commit messages and hooks
 
-- Use the repository commit template (includes the AI-Assisted trailer) with `git config commit.template .gitmessage`.
+- Use the repository commit template (which includes the "Assisted-by" trailer) with `git config commit.template .gitmessage`.
 - Run the shipped hooks from the dedicated path with `git config core.hooksPath tools/git_hooks` in this repository so they don’t interfere with other scripts in `tools/`.
 - To have new clones pick up those hooks automatically, create a global git template directory with stubs that exec the scripts in `tools/git_hooks/` and set `git config --global init.templateDir ~/.git-template`. For example, `~/.git-template/hooks/commit-msg` can `exec "$(git rev-parse --show-toplevel)"/tools/git_hooks/commit-msg "$@"`.
-- AI usage disclosure: Please declare AI assistance in commit messages and merge requests using the `AI-Assisted: yes|no [tool(s)]` trailer. This notice is adapted with thanks from the Seerr project’s AI usage statement (https://github.com/seerr-team/seerr/blob/develop/CONTRIBUTING.md).
+- AI usage disclosure: Please declare AI assistance in commit messages and merge requests using the `Assisted-by: [tool(s)]` trailer.

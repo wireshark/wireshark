@@ -54,8 +54,8 @@ Please rewrite your commit message to our standards, matching this format:
 
     Use paragraphs to improve readability. Limit each line to 80 characters.
 
-    Finish with a trailer about possible AI involvement, in the form of
-    AI-Assisted: no|yes [tool(s)]
+    If applicable, finish with a trailer about AI involvement, in the form of
+    Assisted-by: [tool(s)]
 ''')
 
 def verify_name(name):
