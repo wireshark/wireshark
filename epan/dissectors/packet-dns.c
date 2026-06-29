@@ -2183,6 +2183,16 @@ dissect_dns_svcparam_base64(proto_tree *param_tree, packet_info* pinfo, proto_it
 }
 
 static int
+mandatory_key_cmp(const void *a, const void *b)
+{
+  if (GPOINTER_TO_UINT(a) < GPOINTER_TO_UINT(b))
+    return -1;
+  if (GPOINTER_TO_UINT(a) > GPOINTER_TO_UINT(b))
+    return 1;
+  return 0;
+}
+
+static int
 dissect_svc_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   uint32_t       value;
@@ -2395,7 +2405,7 @@ dissect_svc_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                            "no-default-alpn present without alpn SvcParam");
   }
   if (mandatory_ti != NULL && wmem_map_size(mandatory_keys) > 0) {
-    wmem_list_t *mandatory_list = wmem_map_get_keys(NULL, mandatory_keys);
+    wmem_list_t *mandatory_list = wmem_map_get_keys_sorted(NULL, mandatory_keys, mandatory_key_cmp);
     for (wmem_list_frame_t *frame = wmem_list_head(mandatory_list); frame; frame = wmem_list_frame_next(frame)) {
       uint32_t mandatory_key = GPOINTER_TO_UINT(wmem_list_frame_data(frame));
       if (!wmem_map_contains(seen_keys, GUINT_TO_POINTER(mandatory_key))) {

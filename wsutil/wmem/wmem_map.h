@@ -179,6 +179,24 @@ wmem_list_t*
 wmem_map_get_keys(wmem_allocator_t *list_allocator, const wmem_map_t *map);
 
 /**
+ * @brief Retrieves a sorted list of keys inside the map
+ *
+ * @note This function uses wmem_list_insert_sorted(), which has O(n)
+ * complexity,  to construct the sorted list, so constructing the list
+ * is O(n^2).
+ *
+ * @param list_allocator The allocator scope for the returned list.
+ * @param map The map to extract keys from
+ * @param func Comparison function of type `GCompareFunc` used to maintain sort order.
+ *             Should return a negative value if the first argument is less than the second,
+ *             zero if equal, and positive if greater.
+ * @return sorted list of keys in the map
+ */
+WS_DLL_PUBLIC
+wmem_list_t*
+wmem_map_get_keys_sorted(wmem_allocator_t *list_allocator, const wmem_map_t *map, GCompareFunc func);
+
+/**
  * @brief Run a function against all key/value pairs in the map.
  *
  * The order

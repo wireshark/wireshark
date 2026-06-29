@@ -507,6 +507,29 @@ wmem_map_get_keys(wmem_allocator_t *list_allocator, const wmem_map_t *map)
     return list;
 }
 
+wmem_list_t*
+wmem_map_get_keys_sorted(wmem_allocator_t *list_allocator, const wmem_map_t *map, GCompareFunc compare_func)
+{
+    size_t capacity, i;
+    wmem_map_item_t *cur;
+    wmem_list_t* list = wmem_list_new(list_allocator);
+
+    if (map->table != NULL) {
+        capacity = CAPACITY(map);
+
+        /* copy all the elements into the list over from table */
+        for (i=0; i<capacity; i++) {
+            cur = map->table[i];
+            while (cur) {
+                wmem_list_insert_sorted(list, (void*)cur->key, compare_func);
+                cur = cur->next;
+            }
+        }
+    }
+
+    return list;
+}
+
 void
 wmem_map_foreach(const wmem_map_t *map, GHFunc foreach_func, void * user_data)
 {
