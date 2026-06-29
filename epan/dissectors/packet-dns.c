@@ -420,7 +420,7 @@ static int hf_dns_dnskey_flags_secure_entry_point;
 static int hf_dns_dnskey_flags_reserved;
 static int hf_dns_dnskey_protocol;
 static int hf_dns_dnskey_algorithm;
-static int hf_dns_dnskey_key_id;
+static int hf_dns_dnskey_key_tag;
 static int hf_dns_dnskey_public_key;
 static int hf_dns_key_flags;
 static int hf_dns_key_flags_authentication;
@@ -433,7 +433,7 @@ static int hf_dns_key_flags_mime;
 static int hf_dns_key_flags_signatory;
 static int hf_dns_key_protocol;
 static int hf_dns_key_algorithm;
-static int hf_dns_key_key_id;
+static int hf_dns_key_key_tag;
 static int hf_dns_key_public_key;
 static int hf_dns_px_preference;
 static int hf_dns_px_map822;
@@ -546,7 +546,7 @@ static int hf_dns_hip_hit;
 static int hf_dns_hip_pk;
 static int hf_dns_hip_rendezvous_server;
 static int hf_dns_dhcid_rdata;
-static int hf_dns_ds_key_id;
+static int hf_dns_ds_key_tag;
 static int hf_dns_ds_algorithm;
 static int hf_dns_apl_coded_prefix;
 static int hf_dns_ds_digest_type;
@@ -655,7 +655,7 @@ static expert_field ei_dns_depr_opc;
 static expert_field ei_ttl_high_bit_set;
 static expert_field ei_dns_tsig_alg;
 static expert_field ei_dns_undecoded_option;
-static expert_field ei_dns_key_id_buffer_too_short;
+static expert_field ei_dns_key_tag_buffer_too_short;
 static expert_field ei_dns_retransmit_request;
 static expert_field ei_dns_retransmit_response;
 static expert_field ei_dns_extraneous_data;
@@ -2135,25 +2135,25 @@ static const value_string esversions[] = {
 };
 
 /**
- *   Compute the key id of a KEY RR depending of the algorithm used.
+ *   Compute the key tag of a KEY/DNSKEY RR depending of the algorithm used.
  */
 static bool
-compute_key_id(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int size, uint8_t algo, uint16_t *key_id)
+compute_key_tag(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int size, uint8_t algo, uint16_t *key_tag)
 {
   uint32_t ac;
   uint8_t c1, c2;
 
   if (size < 4) {
     proto_item *item;
-    *key_id = 0;
-    item = proto_tree_add_expert(tree, pinfo, &ei_dns_key_id_buffer_too_short, tvb, offset, size);
+    *key_tag = 0;
+    item = proto_tree_add_expert(tree, pinfo, &ei_dns_key_tag_buffer_too_short, tvb, offset, size);
     proto_item_set_generated(item);
     return false;
   }
 
   switch( algo ) {
      case DNS_ALGO_RSAMD5:
-       *key_id = (uint16_t)(tvb_get_uint8(tvb, offset + size - 3) << 8) + tvb_get_uint8( tvb, offset + size - 2 );
+       *key_tag = (uint16_t)(tvb_get_uint8(tvb, offset + size - 3) << 8) + tvb_get_uint8( tvb, offset + size - 2 );
        break;
      default:
        for (ac = 0; size > 1; size -= 2, offset += 2) {
@@ -2166,7 +2166,7 @@ compute_key_id(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, 
          ac += c1 << 8;
        }
        ac += (ac >> 16) & 0xffff;
-       *key_id = (uint16_t)(ac & 0xffff);
+       *key_tag = (uint16_t)(ac & 0xffff);
        break;
   }
   return true;
@@ -3083,7 +3083,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_item *tf, *ti_gen;
       proto_tree *flags_tree;
       uint8_t     algo;
-      uint16_t    key_id;
+      uint16_t    key_tag;
 
       tf = proto_tree_add_item(rr_tree, hf_dns_key_flags, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       flags_tree = proto_item_add_subtree(tf, ett_key_flags);
@@ -3112,8 +3112,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += 1;
       rr_len     -= 1;
 
-      if (compute_key_id(rr_tree, pinfo, tvb, cur_offset-4, rr_len+4, algo, &key_id)) {
-        ti_gen = proto_tree_add_uint(rr_tree, hf_dns_key_key_id, tvb, 0, 0, key_id);
+      if (compute_key_tag(rr_tree, pinfo, tvb, cur_offset-4, rr_len+4, algo, &key_tag)) {
+        ti_gen = proto_tree_add_uint(rr_tree, hf_dns_key_key_tag, tvb, 0, 0, key_tag);
         proto_item_set_generated(ti_gen);
       }
 
@@ -3711,7 +3711,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     {
       int     rr_len = data_len;
 
-      proto_tree_add_item(rr_tree, hf_dns_ds_key_id, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(rr_tree, hf_dns_ds_key_tag, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
       rr_len     -= 2;
 
@@ -3886,7 +3886,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int         rr_len = data_len;
       proto_item *tf, *ti_gen;
       proto_tree *flags_tree;
-      uint16_t    key_id;
+      uint16_t    key_tag;
       uint8_t algo;
 
       tf = proto_tree_add_item(rr_tree, hf_dns_dnskey_flags, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
@@ -3910,8 +3910,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += 1;
       rr_len     -= 1;
 
-      if (compute_key_id(rr_tree, pinfo, tvb, cur_offset-4, rr_len+4, algo, &key_id)) {
-        ti_gen = proto_tree_add_uint(rr_tree, hf_dns_dnskey_key_id, tvb, 0, 0, key_id);
+      if (compute_key_tag(rr_tree, pinfo, tvb, cur_offset-4, rr_len+4, algo, &key_tag)) {
+        ti_gen = proto_tree_add_uint(rr_tree, hf_dns_dnskey_key_tag, tvb, 0, 0, key_tag);
         proto_item_set_generated(ti_gen);
       }
 
@@ -7066,8 +7066,8 @@ proto_register_dns(void)
         FT_UINT8, BASE_DEC, VALS(dnssec_algo_vals), 0x0,
         "Identifies the public key's cryptographic algorithm and determines the format of the Public Key field", HFILL }},
 
-    { &hf_dns_dnskey_key_id,
-      { "Key id", "dns.dnskey.key_id",
+    { &hf_dns_dnskey_key_tag,
+      { "Key Tag", "dns.dnskey.key_tag",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
@@ -7131,8 +7131,8 @@ proto_register_dns(void)
         FT_UINT8, BASE_DEC, VALS(dnssec_algo_vals), 0x0,
         NULL, HFILL }},
 
-    { &hf_dns_key_key_id,
-      { "Key ID", "dns.key.key_id",
+    { &hf_dns_key_key_tag,
+      { "Key Tag", "dns.key.key_tag",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
@@ -7360,7 +7360,7 @@ proto_register_dns(void)
 
     { &hf_dns_cert_key_tag,
       { "Key Tag", "dns.cert.key_tag",
-        FT_UINT16, BASE_HEX, NULL, 0x0,
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_dns_cert_algorithm,
@@ -7737,9 +7737,9 @@ proto_register_dns(void)
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 
-    { &hf_dns_ds_key_id,
-      { "Key id", "dns.ds.key_id",
-        FT_UINT16, BASE_HEX, NULL, 0,
+    { &hf_dns_ds_key_tag,
+      { "Key Tag", "dns.ds.key_tag",
+        FT_UINT16, BASE_DEC, NULL, 0,
         NULL, HFILL }},
 
     { &hf_dns_ds_algorithm,
@@ -8106,7 +8106,7 @@ proto_register_dns(void)
     { &ei_dns_depr_opc, { "dns.depr.opc", PI_PROTOCOL, PI_WARN, "Deprecated opcode", EXPFILL }},
     { &ei_ttl_high_bit_set, { "dns.ttl.high_bit_set", PI_PROTOCOL, PI_WARN, "The uppermost bit of the TTL is set (RFC 2181, section 8)", EXPFILL }},
     { &ei_dns_tsig_alg, { "dns.tsig.noalg", PI_UNDECODED, PI_WARN, "No dissector for algorithm", EXPFILL }},
-    { &ei_dns_key_id_buffer_too_short, { "dns.key_id_buffer_too_short", PI_PROTOCOL, PI_WARN, "Buffer too short to compute a key id", EXPFILL }},
+    { &ei_dns_key_tag_buffer_too_short, { "dns.key_tag_buffer_too_short", PI_PROTOCOL, PI_WARN, "Buffer too short to compute a key tag", EXPFILL }},
     { &ei_dns_retransmit_request, { "dns.retransmit_request", PI_PROTOCOL, PI_WARN, "DNS query retransmission", EXPFILL }},
     { &ei_dns_retransmit_response, { "dns.retransmit_response", PI_PROTOCOL, PI_WARN, "DNS response retransmission", EXPFILL }},
     { &ei_dns_extraneous_data, { "dns.extraneous", PI_UNDECODED, PI_NOTE, "Extraneous data", EXPFILL }},
