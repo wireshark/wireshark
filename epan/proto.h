@@ -1507,14 +1507,14 @@ with the _ret_uint64 function; Boolean values of 8, 16, 24, 32, 40, 48,
 @param hfindex field
 @param tvb the tv buffer of the current data
 @param start start of data in tvb (cannot be negative)
-@param length length of data in tvb (for strings can be -1 for remaining)
+@param length length of data in tvb
 @param encoding data encoding (e.g, ENC_LITTLE_ENDIAN, ENC_BIG_ENDIAN, ENC_ASCII|ENC_STRING, etc.)
 @param[out] retval points to a int32_t or uint32_t which will be set to the value
 @return the newly created item, and *retval is set to the decoded value masked/shifted according to bitmask
 */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_int(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    const unsigned start, int length, const unsigned encoding, int32_t *retval);
+    const unsigned start, unsigned length, const unsigned encoding, int32_t *retval);
 
 /**
  * @brief Add an FT_INT64 item to the protocol tree and return its value.
@@ -1530,7 +1530,7 @@ proto_tree_add_item_ret_int(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    const unsigned start, int length, const unsigned encoding, int64_t *retval);
+    const unsigned start, unsigned length, const unsigned encoding, int64_t *retval);
 
 /**
  * @brief Add an FT_UINT32 (or compatible uint) item to the protocol tree
@@ -1547,7 +1547,7 @@ proto_tree_add_item_ret_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    const unsigned start, int length, const unsigned encoding, uint32_t *retval);
+    const unsigned start, unsigned length, const unsigned encoding, uint32_t *retval);
 
 /**
  * @brief Add an FT_UINT32 item to the protocol tree and return its value.
@@ -1566,7 +1566,7 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_uint32(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    const unsigned start, int length, const unsigned encoding, uint32_t *retval);
+    const unsigned start, unsigned length, const unsigned encoding, uint32_t *retval);
 
 /**
  * @brief Add an FT_UINT8 item to the protocol tree and return its value.
@@ -1582,7 +1582,7 @@ proto_tree_add_item_ret_uint32(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_uint8(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    const unsigned start, int length, const unsigned encoding, uint8_t *retval);
+    const unsigned start, unsigned length, const unsigned encoding, uint8_t *retval);
 
 /**
  * @brief Add an FT_UINT16 item to the protocol tree and return its value.
@@ -1598,7 +1598,7 @@ proto_tree_add_item_ret_uint8(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_uint16(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    const unsigned start, int length, const unsigned encoding, uint16_t *retval);
+    const unsigned start, unsigned length, const unsigned encoding, uint16_t *retval);
 
 /**
  * @brief Add an FT_UINT64 item to the protocol tree and return its value.
@@ -1614,7 +1614,7 @@ proto_tree_add_item_ret_uint16(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    const unsigned start, int length, const unsigned encoding, uint64_t *retval);
+    const unsigned start, unsigned length, const unsigned encoding, uint64_t *retval);
 
 /**
  * @brief Add a variable-length integer item to the protocol tree and return
@@ -1656,7 +1656,7 @@ proto_tree_add_item_ret_varint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    const unsigned start, int length, const unsigned encoding, bool *retval);
+    const unsigned start, unsigned length, const unsigned encoding, bool *retval);
 
 /**
  * @brief Add an FT_IPv4 item to the protocol tree and return its value.
@@ -1673,7 +1673,7 @@ proto_tree_add_item_ret_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    const unsigned start, int length, const unsigned encoding, ws_in4_addr *retval);
+    const unsigned start, unsigned length, const unsigned encoding, ws_in4_addr *retval);
 
 /**
  * @brief Parse an ipv6 address from the buffer and add it to the tree,
@@ -1691,7 +1691,7 @@ proto_tree_add_item_ret_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    const unsigned start, int length, const unsigned encoding, ws_in6_addr *retval);
+    const unsigned start, unsigned length, const unsigned encoding, ws_in6_addr *retval);
 
 /**
  * @brief Parse an ethernet address from the buffer and add it to the tree,
@@ -1709,7 +1709,7 @@ proto_tree_add_item_ret_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_ether(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    const unsigned start, int length, const unsigned encoding, uint8_t *retval);
+    const unsigned start, unsigned length, const unsigned encoding, uint8_t *retval);
 
 /**
  * @brief Parse a float from the buffer and add it to the tree,
@@ -1726,7 +1726,7 @@ proto_tree_add_item_ret_ether(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_float(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-                                const unsigned start, int length,
+                                const unsigned start, unsigned length,
                                 const unsigned encoding, float *retval);
 
 /**
@@ -1744,7 +1744,7 @@ proto_tree_add_item_ret_float(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_double(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-                                const unsigned start, int length,
+                                const unsigned start, unsigned length,
                                 const unsigned encoding, double *retval);
 
 /** Add an string item to a proto_tree, using the text label registered to

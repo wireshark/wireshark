@@ -98,18 +98,18 @@ struct ptvcursor {
 /** See inlined comments.
  @param length the length of this item
  @param cleanup_block a code block to call to free resources if this returns
- @return NULL if 'length' is lower -1 or equal 0 */
-#define CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_CLEANUP(length, cleanup_block)	\
-	if (length < -1 || length == 0 ) {				\
+ @return NULL if 'length' is equal to 0 */
+#define CHECK_FOR_ZERO_LENGTH_AND_CLEANUP(length, cleanup_block)	\
+	if (length == 0) {				                \
 		cleanup_block;						\
 		return NULL;						\
 	}
 
 /** See inlined comments.
  @param length the length of this item
- @return NULL if 'length' is lower -1 or equal 0 */
-#define CHECK_FOR_ZERO_OR_MINUS_LENGTH(length) \
-	CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_CLEANUP(length, ((void)0))
+ @return NULL if 'length' is equal to 0 */
+#define CHECK_FOR_ZERO_LENGTH(length) \
+	CHECK_FOR_ZERO_LENGTH_AND_CLEANUP(length, ((void)0))
 
 /** See inlined comments.
  @param tree the tree to append this item to
@@ -3333,7 +3333,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 
 proto_item *
 proto_tree_add_item_ret_int(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-                            const unsigned start, int length,
+                            const unsigned start, unsigned length,
                             const unsigned encoding, int32_t *retval)
 {
 	header_field_info *hfinfo;
@@ -3356,7 +3356,7 @@ proto_tree_add_item_ret_int(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		    hfinfo->abbrev);
 	}
 
-	CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_CLEANUP(length,
+	CHECK_FOR_ZERO_LENGTH_AND_CLEANUP(length,
 		{
 			if(retval)
 			{
@@ -3398,7 +3398,7 @@ proto_tree_add_item_ret_int(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 proto_item *
 proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-                             const unsigned start, int length,
+                             const unsigned start, unsigned length,
                              const unsigned encoding, uint32_t *retval)
 {
 	header_field_info *hfinfo;
@@ -3419,12 +3419,14 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		    hfinfo->abbrev);
 	}
 
-	if (length == 0) {
-		if (retval) {
-			*retval = 0;
+	CHECK_FOR_ZERO_LENGTH_AND_CLEANUP(length,
+		{
+			if (retval) {
+				*retval = 0;
+			}
+			return NULL;
 		}
-		return NULL;
-	}
+	);
 
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
@@ -3466,7 +3468,7 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 proto_item *
 proto_tree_add_item_ret_uint32(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-                               const unsigned start, int length,
+                               const unsigned start, unsigned length,
                                const unsigned encoding, uint32_t *retval)
 {
     return proto_tree_add_item_ret_uint(tree, hfindex, tvb, start, length, encoding, retval);
@@ -3474,7 +3476,7 @@ proto_tree_add_item_ret_uint32(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 proto_item *
 proto_tree_add_item_ret_uint8(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-                              const unsigned start, int length,
+                              const unsigned start, unsigned length,
                               const unsigned encoding, uint8_t *retval)
 {
     /* TODO: further restrict by hfinfo->type ? */
@@ -3486,7 +3488,7 @@ proto_tree_add_item_ret_uint8(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 proto_item *
 proto_tree_add_item_ret_uint16(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-                               const unsigned start, int length,
+                               const unsigned start, unsigned length,
                                const unsigned encoding, uint16_t *retval)
 {
     /* TODO: further restrict by hfinfo->type ? */
@@ -3683,12 +3685,14 @@ ptvcursor_add_ret_boolean(ptvcursor_t* ptvc, int hfindex, unsigned length, const
 		    hfinfo->abbrev);
 	}
 
-	if (length == 0) {
-		if (retval) {
-			*retval = 0;
-		}
-		return NULL;
-	}
+	CHECK_FOR_ZERO_LENGTH_AND_CLEANUP(length,
+		{
+			if(retval)
+			{
+				*retval = false;
+			}
+		} );
+
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
 	}
@@ -3722,7 +3726,7 @@ ptvcursor_add_ret_boolean(ptvcursor_t* ptvc, int hfindex, unsigned length, const
 
 proto_item *
 proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    const unsigned start, int length, const unsigned encoding, uint64_t *retval)
+    const unsigned start, unsigned length, const unsigned encoding, uint64_t *retval)
 {
 	header_field_info *hfinfo;
 	field_info	  *new_fi;
@@ -3741,7 +3745,7 @@ proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		    hfinfo->abbrev);
 	}
 
-	CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_CLEANUP(length,
+	CHECK_FOR_ZERO_LENGTH_AND_CLEANUP(length,
 		{
 			if(retval)
 			{
@@ -3787,7 +3791,7 @@ proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 proto_item *
 proto_tree_add_item_ret_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-	const unsigned start, int length, const unsigned encoding, int64_t *retval)
+	const unsigned start, unsigned length, const unsigned encoding, int64_t *retval)
 {
 	header_field_info *hfinfo;
 	field_info	  *new_fi;
@@ -3806,7 +3810,7 @@ proto_tree_add_item_ret_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			hfinfo->abbrev);
 	}
 
-	CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_CLEANUP(length,
+	CHECK_FOR_ZERO_LENGTH_AND_CLEANUP(length,
 		{
 			if(retval)
 			{
@@ -3905,7 +3909,7 @@ proto_tree_add_item_ret_varint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 proto_item *
 proto_tree_add_item_ret_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-                                const unsigned start, int length,
+                                const unsigned start, unsigned length,
                                 const unsigned encoding, bool *retval)
 {
 	header_field_info *hfinfo;
@@ -3919,7 +3923,7 @@ proto_tree_add_item_ret_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		    hfinfo->abbrev);
 	}
 
-	CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_CLEANUP(length,
+	CHECK_FOR_ZERO_LENGTH_AND_CLEANUP(length,
 		{
 			if(retval)
 			{
@@ -3957,7 +3961,7 @@ proto_tree_add_item_ret_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 proto_item *
 proto_tree_add_item_ret_float(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-                                const unsigned start, int length,
+                                const unsigned start, unsigned length,
                                 const unsigned encoding, float *retval)
 {
 	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
@@ -3996,7 +4000,7 @@ proto_tree_add_item_ret_float(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 proto_item *
 proto_tree_add_item_ret_double(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-                                const unsigned start, int length,
+                                const unsigned start, unsigned length,
                                 const unsigned encoding, double *retval)
 {
 	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
@@ -4035,7 +4039,7 @@ proto_tree_add_item_ret_double(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 proto_item *
 proto_tree_add_item_ret_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-                             const unsigned start, int length,
+                             const unsigned start, unsigned length,
                              const unsigned encoding, ws_in4_addr *retval)
 {
 	header_field_info *hfinfo;
@@ -4088,7 +4092,7 @@ proto_tree_add_item_ret_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 proto_item *
 proto_tree_add_item_ret_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-                             const unsigned start, int length,
+                             const unsigned start, unsigned length,
                              const unsigned encoding, ws_in6_addr *addr)
 {
 	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
@@ -4127,7 +4131,7 @@ proto_tree_add_item_ret_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 proto_item *
 proto_tree_add_item_ret_ether(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    const unsigned start, int length, const unsigned encoding, uint8_t *retval) {
+    const unsigned start, unsigned length, const unsigned encoding, uint8_t *retval) {
 
 	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
 	field_info	  *new_fi;
