@@ -729,6 +729,13 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		}
 
 		if (uri && json_plus_dictionary.path_matchers) {
+			/* Walk the full list and keep the LAST match, not the first.
+			 * path_matchers is appended in load order, so the last entry
+			 * to match is the one loaded most recently — personal
+			 * dictionaries (loaded after system) and later entries in a
+			 * single config.txt both win. Matches the "later loaded wins"
+			 * rule used for ports (wmem_tree_insert32 overwrite) and
+			 * fields (wmem_tree_insert_string overwrite). */
 			for (GSList *m = json_plus_dictionary.path_matchers; m; m = m->next) {
 				json_protocol_t *p = (json_protocol_t *)m->data;
 				if (!p->path_regex || !ws_regex_matches(p->path_regex, uri))
@@ -742,7 +749,6 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 					continue;
 				}
 				protocol = p;
-				break;
 			}
 		}
 
@@ -1785,11 +1791,32 @@ jsonplus_execute_parser(json_field_t *field, const char *value, wmem_allocator_t
 		return NULL;
 	}
 
-	// Build full parser path: <datadir>/json/
-	data_dir = get_datafile_dir(NULL);
-	parser_path = wmem_strdup_printf(pool, "%s%cjson%cparsers%c%s",
-		data_dir, G_DIR_SEPARATOR, G_DIR_SEPARATOR, G_DIR_SEPARATOR,
-		field->parser);
+	// Resolve parser script: personal first (<persconfdir>/json/parsers/),
+	// fall back to system (<datadir>/json/parsers/). Matches the dictionary
+	// loader precedence — a personal copy shadows the system copy. Lookup
+	// happens once per dissected field invocation, so the file_exists()
+	// stat is acceptable; cache it later if it shows up in profiles.
+	parser_path = NULL;
+	char *personal_json_dir = get_persconffile_path("json", false, NULL);
+	if (personal_json_dir) {
+		char *personal_path = wmem_strdup_printf(pool,
+			"%s%cparsers%c%s",
+			personal_json_dir, G_DIR_SEPARATOR, G_DIR_SEPARATOR,
+			field->parser);
+		if (file_exists(personal_path)) {
+			parser_path = personal_path;
+		} else {
+			wmem_free(pool, personal_path);
+		}
+		g_free(personal_json_dir);
+	}
+	if (!parser_path) {
+		data_dir = get_datafile_dir(NULL);
+		parser_path = wmem_strdup_printf(pool,
+			"%s%cjson%cparsers%c%s",
+			data_dir, G_DIR_SEPARATOR, G_DIR_SEPARATOR,
+			G_DIR_SEPARATOR, field->parser);
+	}
 
 	// Build argument array
 	field_value_arg = wmem_strdup_printf(pool, "%s::%s", field->name, value);

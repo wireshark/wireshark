@@ -533,13 +533,21 @@ static json_field_t *create_json_field(dict_field_def_t *field_def, wmem_array_t
 		ft_type = FT_UINT32;
 	}
 
-	// Check if field already exists avoid duplicates from multiple dictionaries
-	json_field_t *existing = wmem_tree_lookup_string(dict->fields,
-		(const char *)field_def->path, 0);
-	if (existing) {
-		// Field already registered from another dictionary, skip
-		return existing;
-	}
+	/* Last-loaded wins. When the same path is defined by multiple
+	 * dictionary files, the later one overrides the earlier one (matches
+	 * the existing rule for <protocol> ports and the "Field Collision
+	 * Example" already documented in resources/protocols/json/config.txt).
+	 *
+	 * This is what lets a personal dictionary in ~/.config/wireshark/json/
+	 * override a system field of the same path: personal loads after
+	 * system, so wmem_tree_insert_string() below overwrites the mapping.
+	 *
+	 * Note: the prior field's hf registration stays in the protocol's hf
+	 * array (Wireshark does not support deregistering individual fields
+	 * after proto_register_field_array). The tree-level override is what
+	 * matters for dispatch; the orphaned hf entry is bounded by the
+	 * number of overridden fields and released with wmem_epan_scope at
+	 * program exit. */
 
 	/* Create field structure */
 	field = wmem_new0(wmem_epan_scope(), json_field_t);
@@ -857,13 +865,17 @@ parse_dictionary_file(const char *filename, wmem_array_t *hf_array,
 	return success;
 }
 
-// Load JSON dictionary from XML files
-// Main entry point called during protocol registration
-bool
-load_json_dictionary(wmem_array_t *hf_array, GPtrArray *ett_array,
-		     json_dictionary_t *dict)
+// Load JSON dictionaries from a single directory: read config.txt and the
+// XML files it lists, falling back to jsonmain.xml when there is no
+// config.txt. Returns true if any file loaded (or if the dir was empty,
+// in which case the loader is operating in "generic mode" for that dir).
+// Returns false if the directory itself does not exist or could not be
+// resolved — callers can treat that as "nothing to load here".
+static bool
+load_json_dictionary_from_dir(const char *dict_dir,
+			      wmem_array_t *hf_array, GPtrArray *ett_array,
+			      json_dictionary_t *dict)
 {
-	char *dict_dir;
 	char *config_file;
 	char *dict_file;
 	FILE *fp;
@@ -871,10 +883,7 @@ load_json_dictionary(wmem_array_t *hf_array, GPtrArray *ett_array,
 	bool success = false;
 	int loaded_count = 0;
 
-	/* Get dictionary directory path */
-	dict_dir = get_datafile_path("json", NULL);
 	if (!dict_dir) {
-		report_failure("JSON Dictionary: Could not get dictionary directory\n");
 		return false;
 	}
 
@@ -932,7 +941,7 @@ load_json_dictionary(wmem_array_t *hf_array, GPtrArray *ett_array,
 			fclose(fp);
 
 			if (loaded_count == 0) {
-				ws_message("JSON Dictionary: No dictionary files loaded (using generic mode)");
+				ws_message("JSON Dictionary: No dictionary files loaded from %s (using generic mode)", dict_dir);
 				success = true;  // just means generic mode
 			}
 		} else {
@@ -946,7 +955,7 @@ load_json_dictionary(wmem_array_t *hf_array, GPtrArray *ett_array,
 		if (file_exists(dict_file)) {
 			success = parse_dictionary_file(dict_file, hf_array, ett_array, dict);
 		} else {
-			ws_message("JSON Dictionary: No config.txt or jsonmain.xml found (using generic mode)");
+			ws_message("JSON Dictionary: No config.txt or jsonmain.xml in %s (using generic mode)", dict_dir);
 			success = true;  // generic mode
 		}
 
@@ -954,9 +963,51 @@ load_json_dictionary(wmem_array_t *hf_array, GPtrArray *ett_array,
 	}
 
 	wmem_free(NULL, config_file);
-	g_free(dict_dir);
-
 	return success;
+}
+
+// Load JSON dictionary from XML files
+// Main entry point called during protocol registration.
+//
+// Reads from two directories:
+//   1. System data dir (e.g. /usr/share/wireshark/json/) — shipped with
+//      Wireshark, overwritten on install/upgrade.
+//   2. Personal config dir (e.g. ~/.config/wireshark/json/) — opt-in,
+//      created by the user, survives upgrades.
+//
+// The personal dir is loaded second so its entries take precedence on
+// collisions (last-loaded-wins for ports, via wmem_tree_insert32).
+// The personal dir is silently skipped when it does not exist.
+//
+// Mirrors the pattern used by packet-radius.c (see lines around 2802).
+bool
+load_json_dictionary(wmem_array_t *hf_array, GPtrArray *ett_array,
+		     json_dictionary_t *dict)
+{
+	bool any_loaded = false;
+
+	/* System dictionary directory. */
+	char *system_dir = get_datafile_path("json", NULL);
+	if (system_dir) {
+		any_loaded |= load_json_dictionary_from_dir(system_dir,
+			hf_array, ett_array, dict);
+		g_free(system_dir);
+	} else {
+		report_failure("JSON Dictionary: Could not get system dictionary directory\n");
+	}
+
+	/* Personal dictionary directory. Opt-in — silently skipped when the
+	 * user has not created it. */
+	char *personal_dir = get_persconffile_path("json", false, NULL);
+	if (personal_dir) {
+		if (file_exists(personal_dir)) {
+			any_loaded |= load_json_dictionary_from_dir(personal_dir,
+				hf_array, ett_array, dict);
+		}
+		g_free(personal_dir);
+	}
+
+	return any_loaded;
 }
 
 /*

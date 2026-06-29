@@ -26,6 +26,39 @@
 #
 #   If dict2.xml is listed after dict1.xml, user.id will be treated as String
 #
+# <protocol> attributes:
+#
+#   port=        TCP/UDP destination or source port. Comma-separated for
+#                multiple ports: port="8080,1090,3000".
+#
+#   path=        PCRE2 regex matched against the HTTP request path. For
+#                HTTP/2 traffic this is http2.headers.path; for HTTP/1.1
+#                traffic this is http.request.uri. Useful when many
+#                services multiplex over the same TCP port (5G SBI,
+#                shared HTTP gateways).
+#
+#   case=        "sensitive" (default) or "insensitive" — controls
+#                whether the path= regex is case-sensitive.
+#
+#   condition=   "or" (default) or "and" — when BOTH port= and path=
+#                are set on the same <protocol>, decides whether either
+#                criterion alone is enough ("or") or both must match
+#                ("and"). No-op when only one of port=/path= is set.
+#
+# Examples:
+#
+#   # Path-only match (any HTTP request whose URI contains /nchf-)
+#   <protocol name="SMF_CHF" path=".*nchf-convergedcharging.*" displayName="SMF_CHF"/>
+#
+#   # Path OR port (default condition)
+#   <protocol name="Orders API" port="8443" path="/api/v[0-9]+/orders" displayName="Orders"/>
+#
+#   # Path AND port (both must match)
+#   <protocol name="Tenant API" port="8443" condition="and" path=".*/tenant/[0-9a-f-]+/.*" case="insensitive" displayName="Tenant"/>
+#
+#   # Multiple ports, no path
+#   <protocol name="CHF Charging" port="8080,1090,3000" displayName="CHF-JSON"/>
+#
 # COMMENTING OUT DICTIONARIES
 # ---------------------------
 # Add '#' at the beginning of a line to disable a dictionary:

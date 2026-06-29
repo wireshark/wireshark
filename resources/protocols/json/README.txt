@@ -27,6 +27,45 @@ jsonmain.xml
 
 Only fields from active dictionary files will be registered in Wireshark.
 
+## Personal Dictionaries
+
+In addition to the system directory shown above, JSON+ also loads
+dictionaries from your personal Wireshark config directory:
+
+  Linux / macOS:  ~/.config/wireshark/json/
+  Windows:        %APPDATA%\Wireshark\json\
+
+The personal directory is opt-in — Wireshark will not create it for you.
+To use it:
+
+  1. mkdir -p ~/.config/wireshark/json
+  2. Create config.txt listing your XML files (same format as the system
+     config.txt) and drop the .xml files next to it.
+  3. Restart Wireshark.
+
+The system directory loads first; the personal directory loads second.
+Within each directory, dictionaries load in the order listed in
+config.txt, top to bottom. On any collision — same <field path=...>,
+same <protocol port=...>, anywhere — the later-loaded entry wins.
+
+That means:
+- A personal XML always wins over a system XML (personal loads last).
+- Within a single config.txt, the last-listed dictionary wins for any
+  paths or ports it shares with earlier ones.
+
+Either way, "later loaded wins" is the single rule — see the existing
+Field Collision Example in config.txt for the same description.
+
+External parser scripts (parser="..." on a <field>) follow the same
+precedence: the personal copy at ~/.config/wireshark/json/parsers/<name>
+is used when present, otherwise the system copy at
+<datadir>/json/parsers/<name>. The existing
+"JSON+: Run external parsers" preference still gates whether scripts
+are executed at all.
+
+Personal files survive Wireshark upgrades and rebuilds — the system
+directory is overwritten by the installer, the personal one is not.
+
 ## Enabling JSON+
 
 JSON+ mode must be enabled in Wireshark preferences:

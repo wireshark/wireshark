@@ -6,6 +6,44 @@
 Dictionary files define how JSON fields are dissected and displayed in Wireshark.
 Each dictionary file is an XML document that maps JSON paths to Wireshark fields.
 
+## Where Dictionary Files Live
+
+JSON+ loads dictionaries from two locations, in order:
+
+  1. System directory   <datadir>/json/
+                        (e.g. /usr/share/wireshark/json/, or
+                         <build>/run/json/ for an in-tree build)
+  2. Personal directory ~/.config/wireshark/json/  (Linux/macOS)
+                        %APPDATA%\Wireshark\json\ (Windows)
+
+Each directory has its own config.txt listing the XML files to load.
+The personal directory is opt-in — JSON+ does not create it. Create it
+yourself, drop in a config.txt and one or more .xml files, and restart
+Wireshark.
+
+Precedence: later-loaded wins. Order of loading is
+
+  system config.txt (top → bottom), then
+  personal config.txt (top → bottom)
+
+so when two dictionaries define the same <field path="...">,
+<protocol port="...">, or <protocol path="..."> regex, the later one
+overrides the earlier. In practice this means:
+
+  - A personal dictionary always wins over a system dictionary.
+  - Within either config.txt, the last-listed dictionary wins on
+    collisions with earlier ones.
+
+External parser scripts referenced by parser="..." on a <field> use
+the same precedence: the personal copy at
+~/.config/wireshark/json/parsers/<name> is used when it exists,
+otherwise the system copy at <datadir>/json/parsers/<name>. The
+"JSON+: Run external parsers" preference still gates whether scripts
+are executed at all.
+
+Personal files survive Wireshark upgrades and rebuilds. The system
+directory is overwritten by the installer; the personal one is not.
+
 ## File Format
 
 Dictionary files must be valid XML with a root <json-dictionary> element.
