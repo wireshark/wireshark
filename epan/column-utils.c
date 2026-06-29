@@ -1175,7 +1175,8 @@ set_time_seconds(const frame_data *fd, const nstime_t *ts, char *buf)
 static void
 set_time_hour_min_sec(const frame_data *fd, const nstime_t *ts, char *buf, char *decimal_point)
 {
-  time_t secs = ts->secs;
+  time_t time_val = ts->secs;
+  int mins, secs;
   uint32_t nsecs;
   bool negative = false;
   char *ptr;
@@ -1185,10 +1186,19 @@ set_time_hour_min_sec(const frame_data *fd, const nstime_t *ts, char *buf, char 
 
   ws_assert(fd->has_ts);
 
-  if (secs < 0) {
-    secs = -secs;
+  if (time_val < 0) {
     negative = true;
+    /* C99 and C+11 require rounding towards zero. */
+    secs = -(time_val % 60);
+    /* Dividing first means we don't have to worry about overflow
+     * when negating time_val. */
+    time_val /= -60;
+  } else {
+    secs = time_val % 60;
+    time_val /= 60;
   }
+  mins = time_val % 60;
+  time_val /= 60;
   if (ts->nsecs >= 0) {
     nsecs = ts->nsecs;
   } else if (G_LIKELY(ts->nsecs != INT_MIN)) {
@@ -1218,21 +1228,19 @@ set_time_hour_min_sec(const frame_data *fd, const nstime_t *ts, char *buf, char 
   }
   ptr = buf;
   remaining = COL_MAX_LEN;
-  if (secs >= (60*60)) {
-    num_bytes = snprintf(ptr, remaining, "%s%dh %2dm %2d",
+  if (time_val != 0) {
+    num_bytes = snprintf(ptr, remaining, "%s%jdh %2dm %2d",
                negative ? "- " : "",
-               (int32_t) secs / (60 * 60),
-               (int32_t) (secs / 60) % 60,
-               (int32_t) secs % 60);
-  } else if (secs >= 60) {
+               (intmax_t) time_val,
+               mins, secs);
+  } else if (mins != 0) {
     num_bytes = snprintf(ptr, remaining, "%s%dm %2d",
                negative ? "- " : "",
-               (int32_t) secs / 60,
-               (int32_t) secs % 60);
+               mins, secs);
   } else {
     num_bytes = snprintf(ptr, remaining, "%s%d",
                negative ? "- " : "",
-               (int32_t) secs);
+               secs);
   }
   if (num_bytes < 0) {
     /*
