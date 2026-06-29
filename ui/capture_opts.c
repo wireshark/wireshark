@@ -1409,8 +1409,6 @@ capture_opts_default_iface_if_necessary(capture_options *capture_opts,
 static bool
 capture_opts_output_to_pipe(const char *save_file, bool *is_pipe)
 {
-    int err;
-
     *is_pipe = false;
 
     if (save_file != NULL) {
@@ -1423,8 +1421,19 @@ capture_opts_output_to_pipe(const char *save_file, bool *is_pipe)
                Least Astonishment. */
             *is_pipe = true;
         } else {
+#ifdef _WIN32
+            /* On Windows, check to see if the name is in the reserved namespace
+             * for Named Pipes. Actually calling _stat connects and disconnects
+             * from the named pipe, if it exists, forcing the pipe server to
+             * handle that with DisconnectNamedPipe. If it doesn't exist, we'll
+             * fail appropriately later. Creating an ordinary file is not an
+             * option if the name is in the reserved namespace, unlike UN*X.
+             *
+             * XXX - Should this logic just be in test_for_fifo()? */
+            *is_pipe = win32_is_pipe_name(save_file);
+#else
             /* not writing to stdout, test for a FIFO (aka named pipe) */
-            err = test_for_fifo(save_file);
+            int err = test_for_fifo(save_file);
             switch (err) {
 
             case ENOENT:      /* it doesn't exist, so we'll be creating it,
@@ -1440,6 +1449,7 @@ capture_opts_output_to_pipe(const char *save_file, bool *is_pipe)
                 break;          /* ignore: later attempt to open */
                 /*  will generate a nice msg     */
             }
+#endif /* _WIN32 */
         }
     }
 
