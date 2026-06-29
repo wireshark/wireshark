@@ -1,4 +1,4 @@
--- 3GPP TS 37.355 V19.2.0 (2026-03)
+-- 3GPP TS 37.355 V19.3.0 (2026-06)
 
 LPP-PDU-Definitions
 DEFINITIONS AUTOMATIC TAGS ::=
@@ -6316,7 +6316,7 @@ GNSS-SSR-OrbitCorrectionsSet2Support-r17 ::=	SEQUENCE {
 GNSS-SSR-ClockCorrectionsSet2Support-r17 ::=	SEQUENCE {
 	...,
 	[[
-	refEphSupport-r19	BIT STRING 	{	b1c 		(0),
+	refEphSupport-r19	BIT STRING	{	b1c		(0),
 										navicL1	(1)
 									} (SIZE (1..8))				OPTIONAL
 	]]
@@ -6326,7 +6326,7 @@ GNSS-SSR-ClockCorrectionsSet2Support-r17 ::=	SEQUENCE {
 GNSS-SSR-URA-Set2Support-r17 ::= SEQUENCE {
 	...,
 	[[
-	refEphSupport-r19	BIT STRING 	{	b1c 		(0),
+	refEphSupport-r19	BIT STRING	{	b1c		(0),
 										navicL1	(1)
 									} (SIZE (1..8))				OPTIONAL
 	]]
@@ -8783,7 +8783,14 @@ NR-DL-AIML-CapabilityPerBand-r19 ::= SEQUENCE {
 	inferenceTimePerPFL-r19						ENUMERATED { ms1, ms2, ms3, ms4, ms5, ms6,
 															ms7, ms8, ms9, ms10, ms11, ms12,
 															ms14, ms16, ms18, ms20 }	OPTIONAL,
-	maxUE-RxTEGs-Support-r19					ENUMERATED {n1, n2, n3, n4 }			OPTIONAL
+	dummy										ENUMERATED {n1, n2, n3, n4 }			OPTIONAL
+	]],
+	[[
+	ue-RxTEGs-Support-r19						BIT STRING {	n1 (0),
+																n2 (1),
+																n3 (2),
+																n4 (3)
+															} (SIZE(1..4))				OPTIONAL
 	]]
 }
 
