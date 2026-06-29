@@ -463,6 +463,9 @@ signed_time_msecs_to_str(wmem_allocator_t *scope, int32_t time_val)
         /* C99 and C++11 guarantee integer division rounds to zero */
         msecs = -(time_val % 1000);
         time_val /= 1000;
+        if (time_val == 0) {
+            wmem_strbuf_append_c(buf, '-');
+        }
     } else {
         msecs = time_val % 1000;
         time_val /= 1000;
