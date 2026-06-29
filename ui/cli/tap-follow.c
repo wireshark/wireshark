@@ -616,8 +616,10 @@ static bool follow_stream(const char *opt_argp, void *userdata)
   arg_success &= follow_arg_filter(&opt_argp, follow_info);
   arg_success &= follow_arg_range(&opt_argp, cli_follow_info);
   arg_success &= follow_arg_done(opt_argp);
-  if (!arg_success)
+  if (!arg_success) {
+    follow_free(follow_info);
     return false;
+  }
 
   if (cli_follow_info->stream_index >= 0)
   {
@@ -625,6 +627,7 @@ static bool follow_stream(const char *opt_argp, void *userdata)
     follow_info->filter_out_filter = index_filter(cli_follow_info->stream_index, cli_follow_info->sub_stream_index);
     if (follow_info->filter_out_filter == NULL || cli_follow_info->sub_stream_index < 0)
     {
+      follow_free(follow_info);
       cmdarg_err("Error creating filter for this stream.");
       return false;
     }
@@ -635,6 +638,7 @@ static bool follow_stream(const char *opt_argp, void *userdata)
     follow_info->filter_out_filter = address_filter(&cli_follow_info->addr[0], &cli_follow_info->addr[1], cli_follow_info->port[0], cli_follow_info->port[1]);
     if (follow_info->filter_out_filter == NULL)
     {
+      follow_free(follow_info);
       cmdarg_err("Error creating filter for this address/port pair.\n");
       return false;
     }

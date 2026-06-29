@@ -96,8 +96,10 @@ flow_init(const char *opt_argp, void *userdata)
     opt_argp += strlen(STR_FLOW);
     opt_argp += strlen(sequence_analysis_get_name(analysis));
 
-    if (!flow_arg_mode(&opt_argp, flow_info))
+    if (!flow_arg_mode(&opt_argp, flow_info)) {
+        g_free(flow_info);
         return false;
+    }
 
     if (*opt_argp == ',') {
         filter = opt_argp + 1;
