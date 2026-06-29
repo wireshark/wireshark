@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 24.501 19.6.2
+ * References: 3GPP TS 24.501 19.7.0
  */
 
 #include "config.h"
@@ -361,6 +361,7 @@ static int hf_nas_5gs_5g_prose_l2imrelay_b4;
 static int hf_nas_5gs_mint_eps_b5;
 static int hf_nas_5gs_ef5l_b6;
 static int hf_nas_5gs_lwd_b7;
+static int hf_nas_5gs_nonsatlsp_b0;
 static int hf_nas_5gs_mm_type_id;
 static int hf_nas_5gs_mm_odd_even;
 static int hf_nas_5gs_mm_length;
@@ -657,6 +658,10 @@ static int hf_nas_5gs_mm_nssci;
 static int hf_nas_5gs_mm_nssai_inc_mode;
 static int hf_nas_5gs_mm_ue_usage_setting;
 static int hf_nas_5gs_mm_5gs_drx_param;
+static int hf_nas_5gs_e802cstag;
+static int hf_nas_5gs_sup_rure;
+static int hf_nas_5gs_svpsu;
+static int hf_nas_5gs_epsurdp;
 static int hf_nas_5gs_sup_andsp;
 static int hf_nas_5gs_nssui;
 
@@ -1433,6 +1438,18 @@ de_nas_5gs_mm_5gmm_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         NULL
     };
 
+    static int * const flags11[] = {
+        &hf_nas_5gs_spare_b7,
+        &hf_nas_5gs_spare_b6,
+        &hf_nas_5gs_spare_b5,
+        &hf_nas_5gs_spare_b4,
+        &hf_nas_5gs_spare_b3,
+        &hf_nas_5gs_spare_b2,
+        &hf_nas_5gs_spare_b1,
+        &hf_nas_5gs_nonsatlsp_b0,
+        NULL
+    };
+
     curr_offset = offset;
 
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags1, ENC_BIG_ENDIAN);
@@ -1490,6 +1507,12 @@ de_nas_5gs_mm_5gmm_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         return (len);
 
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags10, ENC_BIG_ENDIAN);
+    curr_offset++;
+
+    if ((curr_offset - offset) >= len)
+        return (len);
+
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags11, ENC_BIG_ENDIAN);
     curr_offset++;
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_nas_5gs_extraneous_data);
@@ -12235,10 +12258,10 @@ de_nas_5gs_updp_ue_policy_cm(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
     &hf_nas_5gs_spare_b7,
     &hf_nas_5gs_spare_b6,
     &hf_nas_5gs_spare_b5,
-    &hf_nas_5gs_spare_b4,
-    &hf_nas_5gs_spare_b3,
-    &hf_nas_5gs_spare_b2,
-    &hf_nas_5gs_spare_b1,
+    &hf_nas_5gs_e802cstag,
+    &hf_nas_5gs_sup_rure,
+    &hf_nas_5gs_svpsu,
+    &hf_nas_5gs_epsurdp,
     &hf_nas_5gs_sup_andsp,
     NULL
     };
@@ -14768,6 +14791,11 @@ proto_register_nas_5gs(void)
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_nonsatlsp_b0,
+        { "Non satellite lower PLMN selection (NonSATLSP)",   "nas-5gs.mm.nonsatlsp_b0",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            NULL, HFILL }
+        },
         { &hf_nas_5gs_mm_type_id,
         { "Type of identity",   "nas-5gs.mm.type_id",
             FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_type_id_vals), 0x07,
@@ -17181,8 +17209,28 @@ proto_register_nas_5gs(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_e802cstag,
+        { "Support of extended 802.1Q C-TAG/S-TAG PCP/DEI traffic descriptor",   "nas-5gs.e802cstag",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sup_rure,
+        { "Support of Reporting URSP Rule Enforcement by the UE",   "nas-5gs.sup_rure",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_svpsu,
+        { "Support of VPS URSP",   "nas-5gs.svpsu",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_epsurdp,
+        { "Support of URSP provisioning in EPS by the UE",   "nas-5gs.epsurdp",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+            NULL, HFILL }
+        },
         { &hf_nas_5gs_sup_andsp,
-        { "Support ANDSP",   "nas-5gs.sup_andsp",
+        { "Support of ANDSP by the UE",   "nas-5gs.sup_andsp",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
             NULL, HFILL }
         },
