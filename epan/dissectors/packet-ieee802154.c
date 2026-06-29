@@ -413,7 +413,7 @@ static void dissect_ieee802154_realign         (tvbuff_t *, packet_info *, proto
 static void dissect_ieee802154_gtsreq          (tvbuff_t *, packet_info *, proto_tree *, ieee802154_packet *);
 
 /* Decryption helpers. */
-static tvbuff_t *dissect_ieee802154_decrypt(tvbuff_t *, unsigned, packet_info *, ieee802154_packet *, ieee802154_decrypt_info_t*);
+static tvbuff_t *dissect_ieee802154_decrypt(tvbuff_t *, unsigned, packet_info *, ieee802154_packet *, ieee802154_decrypt_info_t*, unsigned char *);
 
 static unsigned ieee802154_set_mac_key(ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t *uat_key);
 static unsigned ieee802154_set_trel_key(ieee802154_packet* packet, unsigned char* key, unsigned char* alt_key, ieee802154_key_t* uat_key);
@@ -1973,22 +1973,19 @@ tvbuff_t *decrypt_ieee802154_payload(tvbuff_t * tvb, unsigned offset, packet_inf
         unsigned nkeys = set_key_func(packet, key, alt_key, &ieee802154_keys[decrypt_info->key_number]);
         if (nkeys >= 1) {
             /* Try with the initial key */
-            decrypt_info->key = key;
-            payload_tvb = decrypt_func(tvb, offset, pinfo, packet, decrypt_info);
+            payload_tvb = decrypt_func(tvb, offset, pinfo, packet, decrypt_info, key);
             if (!((*decrypt_info->status == DECRYPT_PACKET_MIC_CHECK_FAILED) || (*decrypt_info->status == DECRYPT_PACKET_DECRYPT_FAILED))) {
                 break;
             }
         }
         if (nkeys >= 2) {
             /* Try also with the alternate key */
-            decrypt_info->key = alt_key;
-            payload_tvb = decrypt_func(tvb, offset, pinfo, packet, decrypt_info);
+            payload_tvb = decrypt_func(tvb, offset, pinfo, packet, decrypt_info, alt_key);
             if (!((*decrypt_info->status == DECRYPT_PACKET_MIC_CHECK_FAILED) || (*decrypt_info->status == DECRYPT_PACKET_DECRYPT_FAILED))) {
                 break;
             }
         }
     }
-    decrypt_info->key = NULL;
     if (decrypt_info->key_number == num_ieee802154_keys) {
         /* None of the stored keys seemed to work */
         *decrypt_info->status = DECRYPT_PACKET_NO_KEY;
@@ -3036,7 +3033,6 @@ ieee802154_decrypt_payload(tvbuff_t *tvb, unsigned mhr_len, packet_info *pinfo, 
         decrypt_info.rx_mic = rx_mic;
         decrypt_info.rx_mic_length = &rx_mic_len;
         decrypt_info.status = &status;
-        decrypt_info.key = NULL; /* payload function will fill that in */
 
         if (ptr2)  // if this pointer is not null that mean we found trel
             payload_tvb = decrypt_ieee802154_payload(tvb, mhr_len, pinfo, NULL, packet, &decrypt_info,
@@ -5275,7 +5271,8 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
                            unsigned offset,
                            packet_info *pinfo,
                            ieee802154_packet *packet,
-                           ieee802154_decrypt_info_t* decrypt_info)
+                           ieee802154_decrypt_info_t* decrypt_info,
+                           unsigned char *key)
 {
     tvbuff_t           *ptext_tvb;
     bool                have_mic = false;
@@ -5385,7 +5382,7 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
         text = (uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, captured_len);
 
         /* Perform CTR-mode transformation. */
-        if (!ccm_ctr_encrypt(decrypt_info->key, tmp, decrypt_info->rx_mic, text, captured_len)) {
+        if (!ccm_ctr_encrypt(key, tmp, decrypt_info->rx_mic, text, captured_len)) {
             wmem_free(pinfo->pool, text);
             *decrypt_info->status = DECRYPT_PACKET_DECRYPT_FAILED;
             return NULL;
@@ -5402,7 +5399,7 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
          * in the captured data.
          */
         /* Decrypt the MIC (if present). */
-        if ((have_mic) && (!ccm_ctr_encrypt(decrypt_info->key, tmp, decrypt_info->rx_mic, NULL, 0))) {
+        if ((have_mic) && (!ccm_ctr_encrypt(key, tmp, decrypt_info->rx_mic, NULL, 0))) {
             *decrypt_info->status = DECRYPT_PACKET_DECRYPT_FAILED;
             return NULL;
         }
@@ -5446,7 +5443,7 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
          * decryption phase.
          */
         memset(dec_mic, 0, sizeof(dec_mic));
-        if (!ccm_cbc_mac(decrypt_info->key, tmp, tvb_memdup(pinfo->pool, tvb, 0, l_a), l_a, tvb_get_ptr(ptext_tvb, 0, l_m), l_m, dec_mic)) {
+        if (!ccm_cbc_mac(key, tmp, tvb_memdup(pinfo->pool, tvb, 0, l_a), l_a, tvb_get_ptr(ptext_tvb, 0, l_m), l_m, dec_mic)) {
             *decrypt_info->status = DECRYPT_PACKET_MIC_CHECK_FAILED;
         }
         /* Compare the received MIC with the one we generated. */

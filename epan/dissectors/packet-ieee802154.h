@@ -569,7 +569,6 @@ unsigned ieee802154_dissect_frame_payload(tvbuff_t *tvb, packet_info *pinfo, pro
 /* Results for the decryption */
 typedef struct {
     /* Set by decrypt_ieee802154_payload */
-    unsigned char *key;  // not valid after return of decrypt_ieee802154_payload
     unsigned key_number;
     /* Set by the ieee802154_decrypt_func */
     unsigned char* rx_mic;
@@ -583,7 +582,7 @@ typedef struct {
  * and return the number of keys set (0: none, 1: just key, 2: key and alt_key) */
 typedef unsigned (*ieee802154_set_key_func) (ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t *uat_key);
 /** Decrypt the payload with the provided information */
-typedef tvbuff_t* (*ieee802154_decrypt_func) (tvbuff_t *, unsigned, packet_info *, ieee802154_packet *, ieee802154_decrypt_info_t*);
+typedef tvbuff_t* (*ieee802154_decrypt_func) (tvbuff_t *, unsigned, packet_info *, ieee802154_packet *, ieee802154_decrypt_info_t*, unsigned char *key);
 /** Loop over the keys specified in the IEEE 802.15.4 preferences, try to use them with the specified set_key_func
  * and try to decrypt with the specified decrypt_func
  */

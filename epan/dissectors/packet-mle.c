@@ -470,13 +470,14 @@ static const true_false_string mle_tlv_addr_reg_iid_type = {
  *  DESCRIPTION
  *      MLE dissector.
  *  PARAMETERS
- *      tvbuff_t *tvb               - IEEE 802.15.4 packet.
- *      packet_info * pinfo         - Packet info structure.
- *      unsigned offset                - Offset where the ciphertext 'c' starts.
- *      ieee802154_packet *packet   - IEEE 802.15.4 packet information.
- *      ws_decrypt_status *status   - status of decryption returned through here on failure.
+ *      tvbuff_t * tvb                           - IEEE 802.15.4 packet.
+ *      unsigned offset                          - Offset where the ciphertext 'c' starts.
+ *      packet_info * pinfo                      - Packet info structure.
+ *      ieee802154_packet * packet               - IEEE 802.15.4 packet information.
+ *      ieee802154_decrypt_info_t * decrypt_info - information for decryption
+ *      unsigned char * key                      - key for decryption
  *  RETURNS
- *      tvbuff_t *                  - Decrypted payload.
+ *      tvbuff_t *                               - Decrypted payload.
  *---------------------------------------------------------------
  */
 static tvbuff_t *
@@ -484,7 +485,8 @@ dissect_mle_decrypt(tvbuff_t * tvb,
                     unsigned offset,
                     packet_info * pinfo,
                     ieee802154_packet * packet,
-                    ieee802154_decrypt_info_t* decrypt_info)
+                    ieee802154_decrypt_info_t * decrypt_info,
+                    unsigned char * key)
 {
     tvbuff_t *          ptext_tvb;
     bool                have_mic = false;
@@ -560,7 +562,7 @@ dissect_mle_decrypt(tvbuff_t * tvb,
         text = (uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, captured_len);
 
         /* Perform CTR-mode transformation. Try both the likely key and the alternate key */
-        if (!ccm_ctr_encrypt(decrypt_info->key, tmp, decrypt_info->rx_mic, text, captured_len)) {
+        if (!ccm_ctr_encrypt(key, tmp, decrypt_info->rx_mic, text, captured_len)) {
             *decrypt_info->status = DECRYPT_PACKET_DECRYPT_FAILED;
             return NULL;
         }
@@ -575,7 +577,7 @@ dissect_mle_decrypt(tvbuff_t * tvb,
     else {
         /* Decrypt the MIC (if present). */
         if (have_mic) {
-            if (!ccm_ctr_encrypt(decrypt_info->key, tmp, decrypt_info->rx_mic, NULL, 0)) {
+            if (!ccm_ctr_encrypt(key, tmp, decrypt_info->rx_mic, NULL, 0)) {
                 *decrypt_info->status = DECRYPT_PACKET_DECRYPT_FAILED;
                 return NULL;
             }
@@ -622,7 +624,7 @@ dissect_mle_decrypt(tvbuff_t * tvb,
          * already points to contiguous memory, since we just allocated it in
          * decryption phase.
          */
-        if (!ccm_cbc_mac(decrypt_info->key, tmp, d_a, l_a, tvb_get_ptr(ptext_tvb, 0, l_m), l_m, dec_mic)) {
+        if (!ccm_cbc_mac(key, tmp, d_a, l_a, tvb_get_ptr(ptext_tvb, 0, l_m), l_m, dec_mic)) {
             *decrypt_info->status = DECRYPT_PACKET_MIC_CHECK_FAILED;
         }
         /* Compare the received MIC with the one we generated. */
@@ -746,7 +748,6 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         decrypt_info.aux_offset = aux_header_offset;
         decrypt_info.aux_length = aux_length;
         decrypt_info.status = &status;
-        decrypt_info.key = NULL; /* payload function will fill that in */
 
         payload_tvb = decrypt_ieee802154_payload(tvb, offset, pinfo, header_tree, packet, &decrypt_info,
                                      ieee802154_set_mle_key, dissect_mle_decrypt);
