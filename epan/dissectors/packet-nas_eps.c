@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 24.301 V19.5.0 (2025-12)
+ * References: 3GPP TS 24.301 V19.6.0 (2026-06)
  */
 
 #include "config.h"
@@ -232,6 +232,7 @@ static int hf_nas_eps_rclin_cap;
 static int hf_nas_eps_edc_cap;
 static int hf_nas_eps_ptcc_cap;
 static int hf_nas_eps_pr_cap;
+static int hf_nas_eps_nonsatlsp_cap;
 static int hf_nas_eps_emm_ue_ra_cap_inf_upd_need_flg;
 static int hf_nas_eps_emm_ss_code;
 static int hf_nas_eps_emm_lcs_ind;
@@ -2412,6 +2413,11 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         NULL
     };
 
+    static int * const oct12_flags[] = {
+        &hf_nas_eps_nonsatlsp_cap,
+        NULL
+    };
+
     curr_offset = offset;
 
 
@@ -2486,6 +2492,16 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
      * MINT-EPS    OHR-CP CIoT    SFSO    ATUC    RCLIN    EDC    PTCC    PR
      */
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct11_flags, ENC_NA);
+    curr_offset++;
+
+    if ((curr_offset - offset) >= len)
+        return (len);
+
+    /* Octet 12
+     * Spare    NonSATLSP
+     */
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 7, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct12_flags, ENC_NA);
     curr_offset++;
 
     while ((curr_offset - offset) < len) {
@@ -8518,6 +8534,11 @@ proto_register_nas_eps(void)
     },
     { &hf_nas_eps_pr_cap,
         { "Paging restriction","nas-eps.emm.pr_cap",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_nonsatlsp_cap,
+        { "Non satellite lower PLMN selection","nas-eps.emm.nonsatlsp_cap",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
         NULL, HFILL }
     },
