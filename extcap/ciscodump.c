@@ -664,6 +664,9 @@ static int parse_line_ios(uint8_t* packet, unsigned* offset, char* line, int sta
 	}
 	g_strfreev(parts);
 
+	if (*offset >= PACKET_MAX_SIZE)
+		return CISCODUMP_PARSER_IN_PACKET;
+
 	/* we got a line of the packet                                                          */
 	/* A line looks like                                                                    */
 	/* <address>: <1st group> <2nd group> <3rd group> <4th group> <ascii representation>    */
@@ -677,12 +680,15 @@ static int parse_line_ios(uint8_t* packet, unsigned* offset, char* line, int sta
 	if (*part && *(part+1)) {
 		/* There is at least one match. Skip first string */
 		part++;
-		while(*part) {
+		while(*offset < PACKET_MAX_SIZE && *part) {
 			/* RE matched */
 			if (strlen(*part) > 1) {
 				ws_hexstrtou32(*part, NULL, &value);
 				value = g_ntohl(value);
 				size = strlen(*part) / 2;
+				if (*offset + size > PACKET_MAX_SIZE) {
+					size = PACKET_MAX_SIZE - *offset;
+				}
 				memcpy(packet + *offset, &value, size);
 				*offset += (uint32_t)size;
 			}
@@ -730,6 +736,9 @@ static int parse_line_ios_xe_16(uint8_t* packet, unsigned* offset, char* line)
 		return CISCODUMP_PARSER_IN_HEADER;
 	}
 
+	if (*offset >= PACKET_MAX_SIZE)
+		return CISCODUMP_PARSER_IN_PACKET;
+
 	/* we got a line of the packet                                                          */
 	/* A line looks like                                                                    */
 	/*   0000:  00000C07 AC154C5D 3C259068 08004500   ......L]<%.h..E.                      */
@@ -744,11 +753,14 @@ static int parse_line_ios_xe_16(uint8_t* packet, unsigned* offset, char* line)
 	if (*part && *(part+1)) {
 		/* There is at least one match. Skip first string */
 		part++;
-		while(*part) {
+		while(*offset < PACKET_MAX_SIZE && *part) {
 			if (strlen(*part) > 1) {
 				ws_hexstrtou32(*part, NULL, &value);
 				value = g_ntohl(value);
 				size = strlen(*part) / 2;
+				if (*offset + size > PACKET_MAX_SIZE) {
+					size = PACKET_MAX_SIZE - *offset;
+				}
 				memcpy(packet + *offset, &value, size);
 				*offset += (uint32_t)size;
 			}
@@ -777,6 +789,9 @@ static int parse_line_ios_xe_17(uint8_t* packet, unsigned* offset, char* line)
 0030  10 20 6a 20 00 00 00 00 00 00 00 00               . j ........
 */
 
+	if (*offset >= PACKET_MAX_SIZE)
+		return CISCODUMP_PARSER_IN_PACKET;
+
 	/* we got a line of the packet                                                          */
 	/* A line looks like                                                                    */
 	/*   0000  6c 5e 3b 88 5e 80 6c 5e 3b 88 5e 80 08 00 45 00   l^;.^.l^;.^...E            */
@@ -791,7 +806,7 @@ static int parse_line_ios_xe_17(uint8_t* packet, unsigned* offset, char* line)
 	if (*part && *(part+1)) {
 		/* There is at least one match. Skip first string */
 		part++;
-		while(*part) {
+		while(*offset < PACKET_MAX_SIZE && *part) {
 			if (strlen(*part) > 1) {
 				ws_hexstrtou8(*part, NULL, &value);
 				memcpy(packet + *offset, &value, 1);
@@ -866,6 +881,9 @@ static int parse_line_asa(uint8_t* packet, unsigned* offset, char* line, uint32_
 		return CISCODUMP_PARSER_END_PACKET;
 	}
 
+	if (*offset >= PACKET_MAX_SIZE)
+		return CISCODUMP_PARSER_IN_PACKET;
+
 	/* we got a line of the packet                                                          */
 	/* A line looks like                                                                    */
 	/* 0x<address>: <1st group> <...> <8th group> <5th group> <ascii representation>        */
@@ -880,11 +898,14 @@ static int parse_line_asa(uint8_t* packet, unsigned* offset, char* line, uint32_
 	if (*part && *(part+1)) {
 		/* There is at least one match. Skip first string */
 		part++;
-		while(*part) {
+		while(*offset < PACKET_MAX_SIZE && *part) {
 			if (strlen(*part) > 1) {
 				ws_hexstrtou16(*part, NULL, &value);
 				value = g_ntohs(value);
 				size = strlen(*part) / 2;
+				if (*offset + size > PACKET_MAX_SIZE) {
+					size = PACKET_MAX_SIZE - *offset;
+				}
 				memcpy(packet + *offset, &value, size);
 				*offset += (uint32_t)size;
 			}
