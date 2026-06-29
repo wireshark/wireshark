@@ -7047,12 +7047,12 @@ proto_register_dns(void)
         NULL, HFILL }},
 
     { &hf_dns_dnskey_flags_secure_entry_point,
-      { "Key Signing Key", "dns.dnskey.flags.secure_entry_point",
+      { "Secure Entry Point", "dns.dnskey.flags.secure_entry_point",
         FT_BOOLEAN, 16, TFS(&tfs_yes_no), DNSKEY_FLAGS_SEP,
         NULL, HFILL }},
 
     { &hf_dns_dnskey_flags_reserved,
-      { "Key Signing Key", "dns.dnskey.flags.reserved",
+      { "Reserved", "dns.dnskey.flags.reserved",
         FT_UINT16, BASE_HEX, NULL, DNSKEY_FLAGS_RSV,
         "Must be zero", HFILL }},
 
