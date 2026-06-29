@@ -1973,7 +1973,7 @@ tvbuff_t *decrypt_ieee802154_payload(tvbuff_t * tvb, unsigned offset, packet_inf
         unsigned nkeys = set_key_func(packet, key, alt_key, &ieee802154_keys[decrypt_info->key_number]);
         if (nkeys >= 1) {
             /* Try with the initial key */
-            memcpy(decrypt_info->key, key, sizeof(key));
+            decrypt_info->key = key;
             payload_tvb = decrypt_func(tvb, offset, pinfo, packet, decrypt_info);
             if (!((*decrypt_info->status == DECRYPT_PACKET_MIC_CHECK_FAILED) || (*decrypt_info->status == DECRYPT_PACKET_DECRYPT_FAILED))) {
                 break;
@@ -1981,7 +1981,7 @@ tvbuff_t *decrypt_ieee802154_payload(tvbuff_t * tvb, unsigned offset, packet_inf
         }
         if (nkeys >= 2) {
             /* Try also with the alternate key */
-            memcpy(decrypt_info->key, alt_key, sizeof(alt_key));
+            decrypt_info->key = alt_key;
             payload_tvb = decrypt_func(tvb, offset, pinfo, packet, decrypt_info);
             if (!((*decrypt_info->status == DECRYPT_PACKET_MIC_CHECK_FAILED) || (*decrypt_info->status == DECRYPT_PACKET_DECRYPT_FAILED))) {
                 break;
