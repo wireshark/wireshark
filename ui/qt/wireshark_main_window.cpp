@@ -361,10 +361,8 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
 #ifdef HAVE_LIBPCAP
     , capture_options_dialog_(NULL)
     , info_data_()
-    , in_packet_search_(nullptr)
-#else
-    , in_packet_search_(nullptr)
 #endif
+    , in_packet_search_(nullptr)
 {
     if (!gbl_cur_main_window_) {
         connect(mainApp, &MainApplication::openStatCommandDialog, this, &WiresharkMainWindow::openStatCommandDialog);
@@ -553,17 +551,22 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
         main_ui_->actionHelpCheckUpdates->setToolTip(tr("Software update checking is not available on this platform."));
     }
 
-    master_split_ = main_ui_->splitterMaster;
+    master_split_.setObjectName("splitterMaster");
+    master_split_.setAccessibleName(tr("Main View Splitter"));
+    master_split_.setAccessibleDescription(tr("Contains the packet list, protocol tree, and packet bytes."));
+    master_split_.setFocusPolicy(Qt::NoFocus);
     extra_split_.setObjectName("splitterExtra");
     extra_split_.setAccessibleName(tr("Extra View Splitter"));
     extra_split_.setAccessibleDescription(tr("Contains packet extras and bytes views."));
     extra_split_.setFocusPolicy(Qt::NoFocus);
+    master_split_.setChildrenCollapsible(false);
     extra_split_.setChildrenCollapsible(false);
+    main_ui_->mainStack->addWidget(&master_split_);
 
     empty_pane_.setObjectName("emptyPane");
     empty_pane_.setVisible(false);
 
-    packet_list_ = new PacketList(master_split_);
+    packet_list_ = new PacketList(&master_split_);
     main_ui_->wirelessTimelineWidget->setPacketList(packet_list_);
     connect(packet_list_, &PacketList::framesSelected, this, &WiresharkMainWindow::setMenusForSelectedPacket);
     connect(packet_list_, &PacketList::framesSelected, this, &WiresharkMainWindow::framesSelected);
@@ -573,7 +576,7 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     action->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_C));
     connect(main_ui_->menuPacketComment, &QMenu::aboutToShow, this, &WiresharkMainWindow::setEditCommentsMenu);
 
-    proto_tree_ = new ProtoTree(master_split_);
+    proto_tree_ = new ProtoTree(&master_split_);
     proto_tree_->installEventFilter(this);
 
     in_packet_search_ = new InPacketSearch(proto_tree_, this);
@@ -586,7 +589,7 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     packet_list_->setProfileSwitcher(profile_switcher_);
     packet_list_->installEventFilter(this);
 
-    packet_diagram_ = new PacketDiagram(master_split_);
+    packet_diagram_ = new PacketDiagram(&master_split_);
 
     main_stack_ = main_ui_->mainStack;
     welcome_page_ = main_ui_->welcomePage;
@@ -606,7 +609,7 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     connect(mainApp, &WiresharkApplication::captureActive,
             this, &WiresharkMainWindow::captureActive);
 
-    data_source_tab_ = new DataSourceTab(master_split_);
+    data_source_tab_ = new DataSourceTab(&master_split_);
 
     // Packet list and proto tree must exist before these are called.
     setMenusForSelectedPacket();
@@ -1221,20 +1224,20 @@ void WiresharkMainWindow::saveWindowGeometry()
         recent.gui_geometry_main_maximized = isMaximized();
     }
 
-    if (master_split_->sizes().length() > 0) {
-        recent.gui_geometry_main_upper_pane = master_split_->sizes()[0];
+    if (master_split_.sizes().length() > 0) {
+        recent.gui_geometry_main_upper_pane = master_split_.sizes()[0];
     }
 
     g_free(recent.gui_geometry_main_master_split);
     g_free(recent.gui_geometry_main_extra_split);
-    recent.gui_geometry_main_master_split = g_strdup(master_split_->saveState().toHex().constData());
+    recent.gui_geometry_main_master_split = g_strdup(master_split_.saveState().toHex().constData());
     recent.gui_geometry_main_extra_split = g_strdup(extra_split_.saveState().toHex().constData());
 
     // Saving the QSplitter state is more accurate (#19361), but save
     // the old GTK-style pane information for backwards compatibility
     // for switching back and forth with older versions.
-    if (master_split_->sizes().length() > 2) {
-        recent.gui_geometry_main_lower_pane = master_split_->sizes()[1];
+    if (master_split_.sizes().length() > 2) {
+        recent.gui_geometry_main_lower_pane = master_split_.sizes()[1];
     } else if (extra_split_.sizes().length() > 0) {
         recent.gui_geometry_main_lower_pane = extra_split_.sizes()[0];
     }

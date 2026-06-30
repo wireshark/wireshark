@@ -1220,14 +1220,15 @@ void WiresharkMainWindow::setMenusForSelectedPacket()
         }
     }
 
-    main_ui_->actionCopyListAsText->setEnabled(selectedRows().count() > 0);
-    main_ui_->actionCopyListAsCSV->setEnabled(selectedRows().count() > 0);
-    main_ui_->actionCopyListAsYAML->setEnabled(selectedRows().count() > 0);
-    main_ui_->actionCopyListAsHTML->setEnabled(selectedRows().count() > 0);
-
+    QList<int> rows = selectedRows();
     if (main_ui_->searchFrame) {
-        main_ui_->searchFrame->setPacketSelected(frame_selected);
+        main_ui_->searchFrame->setSelectedFrames(rows, frame_selected);
     }
+
+    main_ui_->actionCopyListAsText->setEnabled(rows.count() > 0);
+    main_ui_->actionCopyListAsCSV->setEnabled(rows.count() > 0);
+    main_ui_->actionCopyListAsYAML->setEnabled(rows.count() > 0);
+    main_ui_->actionCopyListAsHTML->setEnabled(rows.count() > 0);
 
     main_ui_->actionEditMarkSelected->setEnabled(frame_selected || multi_selection);
     main_ui_->actionEditMarkAllDisplayed->setEnabled(have_frames);

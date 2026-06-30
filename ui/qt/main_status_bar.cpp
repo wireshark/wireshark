@@ -206,8 +206,8 @@ void MainStatusBar::showExpert() {
 void MainStatusBar::captureFileClosing() {
     expert_button_->hide();
     progress_frame_.captureFileClosing();
-    find_in_packet_prefix_.clear();
-    find_in_packet_message_.clear();
+    field_status_supplement_.clear();
+    field_status_include_base_ = true;
     field_status_base_.clear();
     popGenericStatus(STATUS_CTX_FIELD);
 }
@@ -291,31 +291,23 @@ void MainStatusBar::setStatusbarForCaptureFile()
     }
 }
 
-void MainStatusBar::setFindInPacketStatus(const QString &prefix, const QString &message)
+void MainStatusBar::setFieldStatusSupplement(const QString &supplement, bool include_selected_field)
 {
-    find_in_packet_prefix_ = prefix;
-    find_in_packet_message_ = message;
+    field_status_supplement_ = supplement;
+    field_status_include_base_ = include_selected_field;
     refreshFieldStatus();
 }
 
 void MainStatusBar::refreshFieldStatus()
 {
     QString display;
-    if (!find_in_packet_prefix_.isEmpty()) {
-        display = find_in_packet_prefix_;
-        if (!find_in_packet_message_.isEmpty()) {
-            display += QLatin1Char(' ') + find_in_packet_message_;
-        }
-    } else if (!find_in_packet_message_.isEmpty()) {
-        display = find_in_packet_message_;
-    }
-
-    if (!field_status_base_.isEmpty() && find_in_packet_message_.isEmpty()) {
-        if (display.isEmpty()) {
-            display = field_status_base_;
-        } else {
+    if (!field_status_supplement_.isEmpty()) {
+        display = field_status_supplement_;
+        if (field_status_include_base_ && !field_status_base_.isEmpty()) {
             display += QLatin1Char(' ') + field_status_base_;
         }
+    } else {
+        display = field_status_base_;
     }
     pushGenericStatus(STATUS_CTX_FIELD, display);
 }

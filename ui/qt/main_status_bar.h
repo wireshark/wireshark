@@ -69,12 +69,12 @@ public:
     void setFileName(CaptureFile &cf);
 
     /**
-     * @brief In-packet find status for STATUS_CTX_FIELD while Find in selected Packet is active.
+     * @brief Optional supplement for STATUS_CTX_FIELD, formatted by the caller.
      *
-     * @a prefix ex. "[1 of 56]" or "[no matches]"; @a message ex. "No String found." when there
-     * are no matches.
+     * When @a include_selected_field is true and a field is selected, the selected-field
+     * text is appended after @a supplement.
      */
-    void setFindInPacketStatus(const QString &prefix, const QString &message = QString());
+    void setFieldStatusSupplement(const QString &supplement, bool include_selected_field = true);
 
 protected:
 
@@ -156,18 +156,17 @@ private:
     /** String representing the ready message. */
     QString ready_msg_;
 
-    /** Raw selected-field text without a find-in-packet prefix. */
+    /** Selected-field text for STATUS_CTX_FIELD. */
     QString field_status_base_;
 
-    /** Optional "[1 of N]" / "[no matches]" prefix for in-packet find. */
-    QString find_in_packet_prefix_;
+    /** Optional supplement prepended to @ref field_status_base_. */
+    QString field_status_supplement_;
 
-    /** Optional "No String found." message paired with @ref find_in_packet_prefix_. */
-    QString find_in_packet_message_;
+    /** Whether @ref field_status_base_ is appended to @ref field_status_supplement_. */
+    bool field_status_include_base_ = true;
 
     /**
-     * @brief Push STATUS_CTX_FIELD using @ref field_status_base_, @ref find_in_packet_prefix_,
-     * and @ref find_in_packet_message_.
+     * @brief Push STATUS_CTX_FIELD using @ref field_status_supplement_ and @ref field_status_base_.
      */
     void refreshFieldStatus();
 

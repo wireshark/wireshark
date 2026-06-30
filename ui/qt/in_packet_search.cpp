@@ -181,6 +181,10 @@ void InPacketSearch::navigateTo(qsizetype index)
     }
 
     QModelIndex match = matches_.at(index);
+    if (!match.isValid()) {
+        return;
+    }
+
     expandParents(match);
     proto_tree_->autoScrollTo(match);
 }

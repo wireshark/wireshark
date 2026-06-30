@@ -305,8 +305,8 @@ protected:
     /** Pointer to the welcome page widget. */
     WelcomePage *welcome_page_;
 
-    /** Master splitter for the main layout (defined in the main window .ui). */
-    QSplitter *master_split_;
+    /** Master splitter for the main layout. */
+    QSplitter master_split_;
 
     /** Extra splitter for additional pane layout. */
     QSplitter extra_split_;

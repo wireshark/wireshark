@@ -174,20 +174,6 @@
        <string>Main View</string>
       </property>
       <widget class="WelcomePage" name="welcomePage"/>
-      <widget class="QSplitter" name="splitterMaster">
-       <property name="accessibleName">
-        <string>Main View Splitter</string>
-       </property>
-       <property name="accessibleDescription">
-        <string>Contains the log list, protocol tree, and packet bytes.</string>
-       </property>
-       <property name="focusPolicy">
-        <enum>Qt::FocusPolicy::NoFocus</enum>
-       </property>
-       <property name="childrenCollapsible">
-        <bool>false</bool>
-       </property>
-      </widget>
      </widget>
     </item>
    </layout>

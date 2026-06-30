@@ -56,7 +56,10 @@ SearchFrame::SearchFrame(QWidget *parent) :
     sf_ui_(new Ui::SearchFrame),
     cap_file_(nullptr),
     regex_(nullptr),
-    packet_selected_(false)
+    packet_selected_(false),
+    selected_frame_(-1),
+    last_searched_frame_(-1),
+    saved_full_search_type_(-1)
 {
     sf_ui_->setupUi(this);
     sf_ui_->searchLineEdit->setSyntaxState(SyntaxLineEdit::Invalid);
@@ -142,19 +145,54 @@ void SearchFrame::setInPacketMode(bool enabled)
     inPacketCheckBoxToggled(enabled);
 }
 
-void SearchFrame::setPacketSelected(bool selected)
+void SearchFrame::setSelectedFrames(const QList<int> &frames, bool single_selected)
 {
-    if (packet_selected_ == selected) {
+    const int new_frame = (single_selected && frames.count() == 1) ? frames.at(0) : -1;
+    const bool frame_changed = (selected_frame_ != new_frame);
+    const bool selection_changed = (packet_selected_ != single_selected);
+
+    if (!frame_changed && !selection_changed) {
         return;
     }
-    packet_selected_ = selected;
 
-    if (!packet_selected_ && sf_ui_->inPacketCheckBox->isChecked()) {
-        QSignalBlocker blocker(sf_ui_->inPacketCheckBox);
-        sf_ui_->inPacketCheckBox->setChecked(false);
-        inPacketCheckBoxToggled(false);
+    packet_selected_ = single_selected;
+    selected_frame_ = new_frame;
+
+    if (!packet_selected_) {
+        selected_frame_ = -1;
+        last_searched_frame_ = -1;
+        if (sf_ui_->inPacketCheckBox->isChecked()) {
+            QSignalBlocker blocker(sf_ui_->inPacketCheckBox);
+            sf_ui_->inPacketCheckBox->setChecked(false);
+            inPacketCheckBoxToggled(false);
+        }
+        updateWidgets();
+        return;
     }
+
+    if (frame_changed && sf_ui_->inPacketCheckBox->isChecked() && in_packet_search_) {
+        in_packet_debounce_timer_->stop();
+        in_packet_search_->clearMatches();
+        in_packet_last_pattern_.clear();
+        last_searched_frame_ = -1;
+        // Defer until ProtoTree::selectedFrameChanged has repopulated the model.
+        QTimer::singleShot(0, this, &SearchFrame::refreshInPacketSearchForSelectedFrame);
+    }
+
     updateWidgets();
+}
+
+void SearchFrame::refreshInPacketSearchForSelectedFrame()
+{
+    if (!sf_ui_->inPacketCheckBox->isChecked() || !in_packet_search_ || selected_frame_ < 0) {
+        return;
+    }
+
+    if (!sf_ui_->searchLineEdit->text().trimmed().isEmpty()) {
+        executeInPacketSearch();
+    } else {
+        updateInPacketFindCounter();
+    }
 }
 
 bool SearchFrame::inPacketMode() const
@@ -178,9 +216,16 @@ void SearchFrame::findNext()
             animatedShow();
             return;
         }
-        if (in_packet_search_->matchCount() == 0 && !sf_ui_->searchLineEdit->text().trimmed().isEmpty()) {
-            executeInPacketSearch();
-            return;
+        if (in_packet_search_->matchCount() == 0
+                || last_searched_frame_ != selected_frame_) {
+            if (!sf_ui_->searchLineEdit->text().trimmed().isEmpty()) {
+                executeInPacketSearch();
+                if (in_packet_search_->matchCount() == 0) {
+                    return;
+                }
+            } else {
+                return;
+            }
         }
         in_packet_search_->findNext();
         return;
@@ -203,9 +248,16 @@ void SearchFrame::findPrevious()
             animatedShow();
             return;
         }
-        if (in_packet_search_->matchCount() == 0 && !sf_ui_->searchLineEdit->text().trimmed().isEmpty()) {
-            executeInPacketSearch();
-            return;
+        if (in_packet_search_->matchCount() == 0
+                || last_searched_frame_ != selected_frame_) {
+            if (!sf_ui_->searchLineEdit->text().trimmed().isEmpty()) {
+                executeInPacketSearch();
+                if (in_packet_search_->matchCount() == 0) {
+                    return;
+                }
+            } else {
+                return;
+            }
         }
         in_packet_search_->findPrevious();
         return;
@@ -388,31 +440,40 @@ void SearchFrame::configureSearchTypeComboBox(bool in_packet_mode)
     QComboBox *cb = sf_ui_->searchTypeComboBox;
     QSignalBlocker blocker(cb);
 
-    int search_type = searchTypeIndex();
-    if (in_packet_mode && cb->count() != 2
-            && search_type != string_search_ && search_type != regex_search_) {
-        search_type = string_search_;
-    }
-
-    cb->clear();
     if (in_packet_mode) {
+        if (cb->count() != 2) {
+            saved_full_search_type_ = searchTypeIndex();
+        }
+        const int in_packet_type = (saved_full_search_type_ == regex_search_)
+                ? regex_search_ : string_search_;
+
+        cb->clear();
         cb->addItem(tr("String"));
         cb->setItemData(0, in_packet_string_tooltip_, Qt::ToolTipRole);
         cb->addItem(tr("Regular Expression"));
         cb->setItemData(1, in_packet_regex_tooltip_, Qt::ToolTipRole);
-        cb->setCurrentIndex(search_type == regex_search_ ? 1 : 0);
+        cb->setCurrentIndex(in_packet_type == regex_search_ ? 1 : 0);
         updateSearchTypeToolTip(cb->currentIndex());
+        applySearchLineEditForSearchType(in_packet_type);
     } else {
+        int restore_type = saved_full_search_type_;
+        if (restore_type < df_search_ || restore_type > regex_search_) {
+            restore_type = searchTypeIndex();
+            if (cb->count() == 2) {
+                restore_type = (cb->currentIndex() == 1) ? regex_search_ : string_search_;
+            }
+        }
+        saved_full_search_type_ = -1;
+
+        cb->clear();
         cb->addItem(tr("Display filter"));
         cb->addItem(tr("Hex value"));
         cb->addItem(tr("String"));
         cb->addItem(tr("Regular Expression"));
         cb->setToolTip(full_search_type_tooltip_);
-        if (search_type >= df_search_ && search_type <= regex_search_) {
-            cb->setCurrentIndex(search_type);
-        } else {
-            cb->setCurrentIndex(df_search_);
-        }
+        cb->setCurrentIndex(restore_type);
+        saveRecentSearchType(restore_type);
+        applySearchLineEditForSearchType(restore_type);
     }
 }
 
@@ -570,10 +631,8 @@ void SearchFrame::on_caseCheckBox_toggled(bool checked)
     updateWidgets();
 }
 
-void SearchFrame::on_searchTypeComboBox_currentIndexChanged(int idx)
+void SearchFrame::saveRecentSearchType(int search_type)
 {
-    const int search_type = searchTypeIndex();
-
     switch (search_type) {
     case df_search_:
         recent.gui_search_type = SEARCH_TYPE_DISPLAY_FILTER;
@@ -590,8 +649,10 @@ void SearchFrame::on_searchTypeComboBox_currentIndexChanged(int idx)
     default:
         break;
     }
+}
 
-    // Enable completion only for display filter search.
+void SearchFrame::applySearchLineEditForSearchType(int search_type)
+{
     sf_ui_->searchLineEdit->allowCompletion(search_type == df_search_);
 
     if (search_type == df_search_) {
@@ -602,6 +663,17 @@ void SearchFrame::on_searchTypeComboBox_currentIndexChanged(int idx)
         sf_ui_->searchLineEdit->setToolTip(QString());
         mainApp->popStatus(MainApplication::FilterSyntax);
     }
+}
+
+void SearchFrame::on_searchTypeComboBox_currentIndexChanged(int idx)
+{
+    const int search_type = searchTypeIndex();
+
+    if (!sf_ui_->inPacketCheckBox->isChecked()) {
+        saveRecentSearchType(search_type);
+    }
+
+    applySearchLineEditForSearchType(search_type);
 
     if (sf_ui_->inPacketCheckBox->isChecked()) {
         in_packet_last_pattern_.clear();
@@ -619,6 +691,7 @@ void SearchFrame::on_searchLineEdit_textChanged(const QString &)
             in_packet_debounce_timer_->stop();
             in_packet_search_->clearMatches();
             in_packet_last_pattern_.clear();
+            last_searched_frame_ = -1;
         } else {
             in_packet_debounce_timer_->start();
         }
@@ -811,12 +884,14 @@ void SearchFrame::executeInPacketSearch()
         in_packet_search_->clearMatches();
         in_packet_search_->setHighlightEnabled(true);
         in_packet_last_pattern_.clear();
+        last_searched_frame_ = -1;
         updateWidgets();
         return;
     }
 
     if (search_type == regex_search_ && !regexCompile()) {
         in_packet_search_->clearMatches();
+        last_searched_frame_ = -1;
         mainApp->pushStatus(MainApplication::FilterSyntax, regex_error_);
         updateWidgets();
         return;
@@ -827,6 +902,7 @@ void SearchFrame::executeInPacketSearch()
     const bool use_regex = (search_type == regex_search_);
     in_packet_search_->search(pattern, case_sensitive, use_regex);
     in_packet_last_pattern_ = pattern;
+    last_searched_frame_ = selected_frame_;
 
     updateWidgets();
 }
@@ -838,8 +914,12 @@ void SearchFrame::advanceInPacketSearch(bool backward)
     }
 
     const QString pattern = sf_ui_->searchLineEdit->text();
-    if (pattern != in_packet_last_pattern_) {
+    if (pattern != in_packet_last_pattern_ || last_searched_frame_ != selected_frame_) {
         in_packet_debounce_timer_->stop();
+        if (pattern.trimmed().isEmpty()) {
+            updateWidgets();
+            return;
+        }
         executeInPacketSearch();
     }
     if (in_packet_search_->matchCount() > 0) {
@@ -868,6 +948,7 @@ void SearchFrame::inPacketCheckBoxToggled(bool checked)
             in_packet_search_->clearMatches();
         }
         in_packet_last_pattern_.clear();
+        last_searched_frame_ = -1;
         updateWidgets();
         return;
     }
@@ -914,39 +995,40 @@ void SearchFrame::updateInPacketFindCounter()
         return;
     }
 
-    auto clearFindInPacketStatus = [status_bar]() {
-        status_bar->setFindInPacketStatus(QString());
+    auto clearFieldStatusSupplement = [status_bar]() {
+        status_bar->setFieldStatusSupplement(QString());
         mainApp->popStatus(MainApplication::FilterSyntax);
     };
 
     if (!sf_ui_->inPacketCheckBox->isChecked() || !in_packet_search_) {
-        clearFindInPacketStatus();
+        clearFieldStatusSupplement();
         return;
     }
 
     const QString pattern = sf_ui_->searchLineEdit->text();
     if (pattern.isEmpty()) {
-        clearFindInPacketStatus();
+        clearFieldStatusSupplement();
         return;
     }
 
     const int search_type = searchTypeIndex();
     if (search_type == regex_search_ && !regexCompile()) {
-        clearFindInPacketStatus();
+        clearFieldStatusSupplement();
         return;
     }
 
     mainApp->popStatus(MainApplication::FilterSyntax);
 
     if (in_packet_search_->isRegexInvalid()) {
-        status_bar->setFindInPacketStatus(QString());
+        status_bar->setFieldStatusSupplement(QString());
     } else if (in_packet_search_->matchCount() == 0) {
         const QString search_type_name = (search_type == regex_search_)
                 ? tr("Regular Expression") : tr("String");
-        status_bar->setFindInPacketStatus(tr("[no matches]"),
-                tr("No %1 found.").arg(search_type_name));
+        status_bar->setFieldStatusSupplement(
+                tr("[no matches] %1").arg(tr("No %1 found.").arg(search_type_name)),
+                false);
     } else {
-        status_bar->setFindInPacketStatus(tr("[%1 of %2]")
+        status_bar->setFieldStatusSupplement(tr("[%1 of %2]")
                 .arg(in_packet_search_->currentMatchIndex() + 1)
                 .arg(in_packet_search_->matchCount()));
     }
@@ -968,6 +1050,7 @@ void SearchFrame::cancelSearch()
         in_packet_search_->clearMatches();
     }
     in_packet_last_pattern_.clear();
+    last_searched_frame_ = -1;
     if (sf_ui_->inPacketCheckBox->isChecked()) {
         QSignalBlocker blocker(sf_ui_->inPacketCheckBox);
         sf_ui_->inPacketCheckBox->setChecked(false);

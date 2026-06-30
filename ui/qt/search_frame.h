@@ -17,6 +17,7 @@
 #include <epan/cfile.h>
 
 #include <QComboBox>
+#include <QList>
 #include <QTimer>
 
 class InPacketSearch;
@@ -77,9 +78,12 @@ public:
     void setInPacketMode(bool enabled);
 
     /**
-     * @brief Reflect whether exactly one packet is selected in the packet list.
+     * @brief Reflect packet list selection for in-packet find.
+     *
+     * @a single_selected is @c true only when exactly one packet is selected and
+     * multi-select is not active.
      */
-    void setPacketSelected(bool selected);
+    void setSelectedFrames(const QList<int> &frames, bool single_selected);
 
     bool inPacketMode() const;
 
@@ -161,6 +165,11 @@ private:
     void advanceInPacketSearch(bool backward);
 
     /**
+     * @brief Re-run in-packet search after the proto tree has been repopulated.
+     */
+    void refreshInPacketSearchForSelectedFrame();
+
+    /**
      * @brief Current search type (display filter, hex, string, or regex).
      */
     int searchTypeIndex() const;
@@ -169,6 +178,16 @@ private:
      * @brief Limit or restore search-type combo items for in-packet mode.
      */
     void configureSearchTypeComboBox(bool in_packet_mode);
+
+    /**
+     * @brief Update the search field for the current search type.
+     */
+    void applySearchLineEditForSearchType(int search_type);
+
+    /**
+     * @brief Persist the current search type to recent settings.
+     */
+    void saveRecentSearchType(int search_type);
 
     /**
      * @brief Update the search-type combo tooltip for the highlighted item.
@@ -196,6 +215,9 @@ private:
     QString          in_packet_string_tooltip_; /**< In-packet string search tooltip. */
     QString          in_packet_regex_tooltip_; /**< In-packet regex search tooltip. */
     bool             packet_selected_; /**< Exactly one packet is selected in the list. */
+    int              selected_frame_; /**< Selected frame number, or -1. */
+    int              last_searched_frame_; /**< Frame last searched in-packet, or -1. */
+    int              saved_full_search_type_; /**< Search type before in-packet mode. */
 
 private slots:
     /**
