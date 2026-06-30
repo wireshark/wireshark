@@ -15,6 +15,30 @@ from subprocesstest import count_output, grep_output
 import pytest
 
 
+class TestDissectHttpHeaderSyntax:
+    def test_http_header_syntax_expert_warnings(self, cmd_text2pcap, cmd_tshark, result_file, base_env, test_env):
+        testin_file = result_file('http-header-syntax.txt')
+        testout_file = result_file('http-header-syntax.pcap')
+        payload = '''\
+00000000  47 45 54 20 2f 20 48 54 54 50 2f 31 2e 31 0d 0a
+00000010  48 6f 73 74 3a 20 65 78 61 6d 70 6c 65 2e 63 6f
+00000020  6d 0d 0a 43 6f 6e 74 65 6e 74 2d 4c 65 6e 67 74
+00000030  68 20 3a 20 35 0d 0a 58 2d 54 65 73 74 3a 20 61
+00000040  62 63 00 64 65 66 0d 0a 0d 0a 68 65 6c 6c 6f
+'''
+        with open(testin_file, 'w') as f:
+            f.write(payload)
+        subprocess.check_call((cmd_text2pcap, '-T', '12345,80', testin_file, testout_file), env=base_env)
+
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', testout_file,
+                '-Tfields',
+                '-eframe.number',
+                '-Y', 'http.header_name.trailing_whitespace && http.header_value.invalid_nul_char',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '1\n'
+
+
 class TestDissectDtnTcpcl:
     def test_tcpclv3_xfer(self, cmd_tshark, capture_file, test_env):
         stdout = subprocess.check_output((cmd_tshark,

@@ -154,6 +154,8 @@ static expert_field ei_http_tls_port;
 static expert_field ei_http_leading_crlf;
 static expert_field ei_http_excess_data;
 static expert_field ei_http_bad_header_name;
+static expert_field ei_http_header_name_trailing_ws;
+static expert_field ei_http_bad_header_value_nul;
 static expert_field ei_http_decompression_failed;
 static expert_field ei_http_decompression_disabled;
 static expert_field ei_http_response_code_invalid;
@@ -387,6 +389,7 @@ static int is_http_request_or_reply(packet_info *pinfo, const char *data, unsign
 static unsigned chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 					proto_tree *tree, unsigned offset);
 static bool valid_header_name(const unsigned char *line, unsigned header_len);
+static bool invalid_header_value_char(uint8_t c);
 static bool process_header(tvbuff_t *tvb, unsigned offset, unsigned next_offset,
 			   const unsigned char *line, unsigned linelen, unsigned colon_offset,
 			   packet_info *pinfo, proto_tree *tree,
@@ -3544,6 +3547,13 @@ valid_header_name(const unsigned char *line, unsigned header_len)
 }
 
 static bool
+invalid_header_value_char(uint8_t c)
+{
+    /* NUL is not allowed in field values. */
+    return c == '\0';
+}
+
+static bool
 process_header(tvbuff_t *tvb, unsigned offset, unsigned next_offset,
 	       const unsigned char *line, unsigned linelen, unsigned colon_offset,
 	       packet_info *pinfo, proto_tree *tree, headers_t *eh_ptr,
@@ -3562,8 +3572,10 @@ process_header(tvbuff_t *tvb, unsigned offset, unsigned next_offset,
 	char *header_name;
 	char *p;
 	unsigned char *up;
-	proto_item *hdr_item, *it;
+	proto_item *hdr_item = NULL, *it;
 	unsigned f;
+	bool header_name_trailing_ws;
+	bool header_value_bad_char;
 	int* hf_id;
 	tap_credential_t* auth;
 	http_req_res_t  *curr_req_res = (http_req_res_t *)p_get_proto_data(wmem_file_scope(), pinfo,
@@ -3575,6 +3587,9 @@ process_header(tvbuff_t *tvb, unsigned offset, unsigned next_offset,
 	len = next_offset - offset;
 	line_end_offset = offset + linelen;
 	header_len = colon_offset - offset;
+	header_name_trailing_ws = header_len > 0 &&
+	    (line[header_len - 1] == ' ' || line[header_len - 1] == '\t');
+	header_value_bad_char = false;
 
 	/**
 	 * Not a valid header name? Just add a line plus expert info.
@@ -3596,6 +3611,9 @@ process_header(tvbuff_t *tvb, unsigned offset, unsigned next_offset,
 		it = proto_tree_add_item(tree, hf_index, tvb, offset, len, ENC_NA|ENC_ASCII);
 		proto_item_set_text(it, "%s", format_text(pinfo->pool, (char*)line, len));
 		expert_add_info(pinfo, it, &ei_http_bad_header_name);
+		if (header_name_trailing_ws) {
+			expert_add_info(pinfo, it, &ei_http_header_name_trailing_ws);
+		}
 		return false;
 	}
 
@@ -3649,6 +3667,12 @@ process_header(tvbuff_t *tvb, unsigned offset, unsigned next_offset,
 	value_bytes = (uint8_t *)wmem_alloc(PINFO_FD_VISITED(pinfo) ? pinfo->pool : header_value_map_allocator, value_bytes_len+1);
 	memcpy(value_bytes, &line[value_offset - offset], value_bytes_len);
 	value_bytes[value_bytes_len] = '\0';
+	for (f = 0; f < value_bytes_len; f++) {
+		if (invalid_header_value_char(value_bytes[f])) {
+			header_value_bad_char = true;
+			break;
+		}
+	}
 	value = (char*)tvb_get_string_enc(pinfo->pool, tvb, value_offset, value_bytes_len, ENC_ASCII);
 	/* The length of the value might change after UTF-8 sanitization */
 	value_len = (int)strlen(value);
@@ -3668,22 +3692,22 @@ process_header(tvbuff_t *tvb, unsigned offset, unsigned next_offset,
 			if (!hf_id) {
 				if (http_type == MEDIA_CONTAINER_HTTP_REQUEST ||
 					http_type == MEDIA_CONTAINER_HTTP_RESPONSE) {
-					it = proto_tree_add_item(tree,
+					hdr_item = proto_tree_add_item(tree,
 						http_type == MEDIA_CONTAINER_HTTP_RESPONSE ?
 						hf_http_response_line :
 						hf_http_request_line,
 						tvb, offset, len,
 						ENC_NA|ENC_ASCII);
-					proto_item_set_text(it, "%s",
+					proto_item_set_text(hdr_item, "%s",
 							format_text(pinfo->pool, (char*)line, len));
 				} else {
 					char* str = format_text(pinfo->pool, (char*)line, len);
-					proto_tree_add_string_format(tree, hf_http_unknown_header, tvb, offset,
+					hdr_item = proto_tree_add_string_format(tree, hf_http_unknown_header, tvb, offset,
 						len, str, "%s", str);
 				}
 
 			} else {
-				proto_tree_add_string_format(tree,
+				hdr_item = proto_tree_add_string_format(tree,
 					*hf_id, tvb, offset, len, value,
 					"%s", format_text(pinfo->pool, (char*)line, len));
 				if (http_type == MEDIA_CONTAINER_HTTP_REQUEST ||
@@ -3698,6 +3722,9 @@ process_header(tvbuff_t *tvb, unsigned offset, unsigned next_offset,
 							format_text(pinfo->pool, (char*)line, len));
 					proto_item_set_hidden(it);
 				}
+			}
+			if (header_value_bad_char && hdr_item) {
+				expert_add_info(pinfo, hdr_item, &ei_http_bad_header_value_nul);
 			}
 		}
 	} else {
@@ -3753,6 +3780,10 @@ process_header(tvbuff_t *tvb, unsigned offset, unsigned next_offset,
 			}
 		} else
 			hdr_item = NULL;
+
+		if (header_value_bad_char && hdr_item) {
+			expert_add_info(pinfo, hdr_item, &ei_http_bad_header_value_nul);
+		}
 
 		/*
 		 * Do any special processing that particular headers
@@ -4953,6 +4984,8 @@ proto_register_http(void)
 		{ &ei_http_excess_data, { "http.excess_data", PI_PROTOCOL, PI_WARN, "Excess data after a body (not a new request/response), previous Content-Length bogus?", EXPFILL }},
 		{ &ei_http_leading_crlf, { "http.leading_crlf", PI_MALFORMED, PI_ERROR, "Leading CRLF previous message in the stream may have extra CRLF", EXPFILL }},
 		{ &ei_http_bad_header_name, { "http.bad_header_name", PI_PROTOCOL, PI_WARN, "Illegal characters found in header name", EXPFILL }},
+		{ &ei_http_header_name_trailing_ws, { "http.header_name.trailing_whitespace", PI_PROTOCOL, PI_WARN, "Whitespace before header colon", EXPFILL }},
+		{ &ei_http_bad_header_value_nul, { "http.header_value.invalid_nul_char", PI_PROTOCOL, PI_WARN, "Invalid NUL byte in HTTP header value", EXPFILL }},
 		{ &ei_http_decompression_failed, { "http.decompression_failed", PI_UNDECODED, PI_WARN, "Decompression failed", EXPFILL }},
 		{ &ei_http_decompression_disabled, { "http.decompression_disabled", PI_UNDECODED, PI_CHAT, "Decompression disabled", EXPFILL }},
 		{ &ei_http_response_code_invalid, { "http.response.code.invalid", PI_MALFORMED, PI_WARN, "Invalid HTTP response status code token", EXPFILL }},
