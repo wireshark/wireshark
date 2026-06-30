@@ -971,6 +971,9 @@ static const value_string meas_type_id_vals[] = {
     { 6,  "DMRS-SNR per antenna" },
     { 7,  "UE positioning measurement report" },
     { 8,  "UE radial speed measurement report" },
+    { 9,  "UE post-equalization MU inteference measurement" },
+    { 10, "UE TPMI and rank recommendation measurement" },
+    { 11, "UE layer pre-equalization SINR report" },
     { 0, NULL}
 };
 
@@ -1036,6 +1039,8 @@ static const value_string exttype_vals[] = {
     {28,    "O-DU controlled frequency resolution for SINR reporting"},
     {29,    "Cyclic delay adjustment"},
     {30,    "PUSCH repetition indication"},
+    {31,    "MCS Information"},
+    {32,    "Rank and TPMI measurement request"},
     {0, NULL}
 };
 static value_string_ext exttype_vals_ext = VALUE_STRING_EXT_INIT(exttype_vals);
@@ -1086,6 +1091,8 @@ static const AllowedCTs_t ext_cts[HIGHEST_EXTTYPE] = {
     { false, false, false, true,  false, false, false},   // SE 28     (5)
     { false, true,  true,  true,  false, false, false},   // SE 29     (1,3,5)
     { false, false, false, true,  false, false, false},   // SE 30     (5)
+    { false, true,  true,  true,  false, false, false},   // SE 31     (1,3,5)
+    { false, false, false, true,  false, false, false},   // SE 32     (5)
 };
 
 static bool se_allowed_in_st(unsigned se, unsigned st)
@@ -1263,7 +1270,8 @@ static const range_string st4_cmd_type_vals[] = {
     {2, 2,   "TDD_CONFIG_PATTERN"},
     {3, 3,   "TRX_CONTROL"},
     {4, 4,   "ASM"},
-    {5, 255, "reserved for future command types"},
+    {5, 5,   "TRX_CONTROL_BIDIR"},
+    {6, 255, "reserved for future command types"},
     {0, 0,   NULL}
 };
 
@@ -5090,7 +5098,13 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 }
                 break;
             }
+            case 31: /* SE 31: MCS Information */
+                /* TODO: */
+                break;
 
+            case 32: /* SE 32: Rank and TPMI measurement request */
+                /* TODO: */
+                break;
 
             default:
                 /* Other/unexpected extension types */
@@ -5360,6 +5374,21 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* Reserved (16 bits) */
                     add_reserved_field(mr_tree, hf_oran_reserved_16bits, tvb, offset, 2);
                     offset += 2;
+                    break;
+                }
+                case 9:
+                {
+                    /* TODO: UE post-equalization MU interference measurement */
+                    break;
+                }
+                case 10:
+                {
+                    /* TODO: UE TPMI and rank recommendation measurement */
+                    break;
+                }
+                case 11:
+                {
+                    /* TODO: UE layer pre-equalization SINR report */
                     break;
                 }
 
@@ -6424,6 +6453,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                     break;
 
                 case 3:  /* TRX_CONTROL */
+                case 5:  /* TRX_CONTROL_BIDIR */
                 {
                     /* Only allowed cmdScope is ARRAY-COMMAND */
                     if (cmd_scope != 0) {
