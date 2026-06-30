@@ -1351,8 +1351,7 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                     return (total_dissected_len);
                 }
                 proto_tree_add_bitmask(opt_tree, tvb, ofs + O_LBTRU_BASIC_OPT_T_RES, hf_lbtru_opt_sid_flags, ett_lbtru_opt_sid_flags, sid_flags, ENC_BIG_ENDIAN);
-                proto_tree_add_item(opt_tree, hf_lbtru_opt_sid_session_id, tvb, ofs + L_LBTRU_BASIC_OPT_T + O_LBTRU_SID_OPT_T_SESSION_ID, L_LBTRU_SID_OPT_T_SESSION_ID, ENC_BIG_ENDIAN);
-                session_id = tvb_get_ntohl(tvb, ofs + L_LBTRU_BASIC_OPT_T + O_LBTRU_SID_OPT_T_SESSION_ID);
+                proto_tree_add_item_ret_uint(opt_tree, hf_lbtru_opt_sid_session_id, tvb, ofs + L_LBTRU_BASIC_OPT_T + O_LBTRU_SID_OPT_T_SESSION_ID, L_LBTRU_SID_OPT_T_SESSION_ID, ENC_BIG_ENDIAN, &session_id);
                 break;
             case LBTRU_NHDR_CID:
                 fld_item = proto_tree_add_item(lbtru_tree, hf_lbtru_opt_cid, tvb, ofs, L_LBTRU_BASIC_OPT_T + L_LBTRU_CID_OPT_T, ENC_NA);

@@ -2698,7 +2698,7 @@ get_param_attributes(uint8_t data_type, uint32_t id_ref, unsigned child_pos, par
 
             someip_parameter_bitfield_item_t *item = &(tmp->items[child_pos]);
 
-            if (item != NULL && item->bit_number < 64) {
+            if (item->bit_number < 64) {
                 ret->bitmask = (uint64_t)1 << item->bit_number;
             }
 
@@ -3201,11 +3201,11 @@ dissect_someip_payload_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     someip_parameter_string_t *config = NULL;
 
     uint8_t    *buf = NULL;
-    uint32_t    i = 0;
+    uint32_t    i;
 
     proto_item *ti = NULL;
     proto_tree *subtree = NULL;
-    int64_t     tmp = 0;
+    int64_t     tmp;
     uint32_t    length = 0;
     int         offset_orig = offset;
 
@@ -3392,7 +3392,7 @@ static int
 dissect_someip_payload_array_dim_length(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset_orig, int *length, int *lower_limit, int *upper_limit,
                                         someip_parameter_array_t *config, int current_dim, uint32_t length_of_length) {
     int     offset = offset_orig;
-    int64_t tmp = 0;
+    int64_t tmp;
 
     *lower_limit = config->dims[current_dim].lower_limit;
     *upper_limit = config->dims[current_dim].upper_limit;
@@ -3433,7 +3433,7 @@ dissect_someip_payload_array_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tr
                                      someip_parameter_array_t *config) {
     tvbuff_t   *subtvb = NULL;
     uint32_t    offset = offset_orig;
-    uint32_t    bytes_parsed = 0;
+    uint32_t    bytes_parsed;
     uint32_t    ret = 0;
     int         count = 0;
 
@@ -3484,9 +3484,9 @@ dissect_someip_payload_array_dim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     int    sub_length = 0;
     int    sub_lower_limit = 0;
     int    sub_upper_limit = 0;
-    unsigned i = 0;
+    unsigned i;
 
-    unsigned      sub_offset = 0;
+    unsigned      sub_offset;
     unsigned      offset = offset_orig;
 
     if (config->num_of_dims == current_dim + 1) {
@@ -4028,7 +4028,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     bool            msgtype_ack = false;
     bool            msgtype_tp = false;
     uint32_t        retcode = 0;
-    int             tmp = 0;
+    int             tmp;
 
     int             tvb_length = tvb_captured_length_remaining(tvb, offset);
 

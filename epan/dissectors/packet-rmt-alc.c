@@ -209,7 +209,7 @@ dissect_alc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     /* A/331 specifies start_offset field */
     int64_t object_start_offset = -1;
     if (lct.is_sp) {
-        object_start_offset = tvb_get_uint32(tvb, offset, 4);
+        object_start_offset = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
         proto_tree_add_item(alc_tree, hf_object_start_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }

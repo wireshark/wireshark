@@ -9406,13 +9406,13 @@ allocation_duration_base_custom(char *result, uint32_t allocation_duration)
 static void
 extra_one_base_custom(char *result, uint32_t value)
 {
-  snprintf(result, ITEM_LABEL_LENGTH, "%d", value+1);
+  snprintf(result, ITEM_LABEL_LENGTH, "%u", value+1);
 }
 
 static void
 extra_one_mul_two_base_custom(char *result, uint32_t value)
 {
-  snprintf(result, ITEM_LABEL_LENGTH, "%d", (value+1)*2);
+  snprintf(result, ITEM_LABEL_LENGTH, "%u", (value+1)*2);
 }
 
 static void
@@ -9436,7 +9436,7 @@ rcpi_and_power_level_custom(char *result, uint8_t value)
 static void
 sts_custom(char *result, uint32_t value)
 {
-  snprintf(result, ITEM_LABEL_LENGTH, "%d STS", value + 1);
+  snprintf(result, ITEM_LABEL_LENGTH, "%u STS", value + 1);
 }
 
 static void
@@ -9549,9 +9549,9 @@ he_ru_allocation_base_custom(char *result, uint32_t ru_allocation)
   }
 
   if (tones)
-    snprintf(result, ITEM_LABEL_LENGTH, "%d (%d tones)", ru_allocation, tones);
+    snprintf(result, ITEM_LABEL_LENGTH, "%u (%u tones)", ru_allocation, tones);
   else
-    snprintf(result, ITEM_LABEL_LENGTH, "%d (bogus number of tones)", ru_allocation);
+    snprintf(result, ITEM_LABEL_LENGTH, "%u (bogus number of tones)", ru_allocation);
 }
 
 static void
@@ -9596,7 +9596,7 @@ eht_ru_allocation_base_custom(char *result, uint32_t ru_allocation)
     ru_str = "Reserved";
   }
 
-  snprintf(result, ITEM_LABEL_LENGTH, "%d (%s)", ru_allocation, ru_str);
+  snprintf(result, ITEM_LABEL_LENGTH, "%u (%s)", ru_allocation, ru_str);
 }
 
 /*
@@ -26604,7 +26604,7 @@ dissect_wapi_param_set(tvbuff_t *tvb, packet_info *pinfo,
   /* Parse the WAPI Parameter Set IE Here*/
   proto_item *item;
   proto_tree *subtree;
-  uint16_t loop_cnt, version, akm_cnt  = 1, ucast_cnt = 1, bkid_cnt = 1;
+  uint16_t loop_cnt, version, akm_cnt  = 1, ucast_cnt = 1, bkid_cnt;
   uint8_t akm_suite_type = 0, ucast_cipher_type = 0, mcast_cipher_type = 0;
   static int * const ieee80211_tag_wapi_param_set[] = {
     &hf_ieee80211_tag_wapi_param_set_capab_preauth,
@@ -30399,14 +30399,14 @@ dissect_tid_to_link_mapping(tvbuff_t *tvb, packet_info *pinfo _U_,
   uint8_t presence;
   uint8_t control_byte = tvb_get_uint8(tvb, offset);
   uint8_t map_size = 2;
-  int hf_array[8] = {hf_ieee80211_eht_ttl_mapping_tid_0_link_mapping,
-                     hf_ieee80211_eht_ttl_mapping_tid_1_link_mapping,
-                     hf_ieee80211_eht_ttl_mapping_tid_2_link_mapping,
-                     hf_ieee80211_eht_ttl_mapping_tid_3_link_mapping,
-                     hf_ieee80211_eht_ttl_mapping_tid_4_link_mapping,
-                     hf_ieee80211_eht_ttl_mapping_tid_5_link_mapping,
-                     hf_ieee80211_eht_ttl_mapping_tid_6_link_mapping,
-                     hf_ieee80211_eht_ttl_mapping_tid_7_link_mapping};
+  const int hf_array[8] = {hf_ieee80211_eht_ttl_mapping_tid_0_link_mapping,
+                           hf_ieee80211_eht_ttl_mapping_tid_1_link_mapping,
+                           hf_ieee80211_eht_ttl_mapping_tid_2_link_mapping,
+                           hf_ieee80211_eht_ttl_mapping_tid_3_link_mapping,
+                           hf_ieee80211_eht_ttl_mapping_tid_4_link_mapping,
+                           hf_ieee80211_eht_ttl_mapping_tid_5_link_mapping,
+                           hf_ieee80211_eht_ttl_mapping_tid_6_link_mapping,
+                           hf_ieee80211_eht_ttl_mapping_tid_7_link_mapping};
   int hf_index = 0;
 
   /*
@@ -31740,7 +31740,7 @@ ieee80211_tag_tim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     return offset;
 
   if (is_s1g) {
-    unsigned bitmap_len = 0;
+    unsigned bitmap_len;
 
     if (tag_len >= 3) {
       uint8_t page_index = tvb_get_uint8(tvb, offset) >> 6;
@@ -32197,7 +32197,7 @@ ieee80211_tag_qbss_load(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     proto_tree_add_item(tree, hf_ieee80211_qbss_cu, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_ieee80211_qbss_adc, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
   }
-  else if (tag_len == 5)
+  else /* tag_len == 5 */
   {
     proto_item *base_item;
 
@@ -34427,9 +34427,7 @@ ieee80211_tag_vendor_specific_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   offset += 3;
   tag_vs_len -= 3;
 
-  if (tag_len > 0) {
-    proto_tree_add_item(field_data->item_tag, hf_ieee80211_tag_vendor_oui_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  }
+  proto_tree_add_item(field_data->item_tag, hf_ieee80211_tag_vendor_oui_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
   vendor_tvb = tvb_new_subset_length(tvb, offset, tag_vs_len);
   dissected = dissector_try_uint_with_data(vendor_specific_oui_table, oui, vendor_tvb, pinfo, tree, false, data);
@@ -37760,6 +37758,7 @@ ieee80211_tag_switching_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   offset += add_ff_band_id(tree, tvb, pinfo, 1);
   proto_tree_add_item(tree, hf_ieee80211_tag_switching_stream_non_qos, tvb, offset, 1, ENC_NA);
   offset += 1;
+  /* TODO: why reading value from 2 bytes, but field is only 1 byte? */
   param_num = tvb_get_letohs(tvb, offset);
   proto_tree_add_item(tree, hf_ieee80211_tag_switching_stream_param_num, tvb, offset, 1, ENC_NA);
   offset += 1;
@@ -41820,9 +41819,8 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               "Weak IV for key byte %d",
               is_iv_bad);
         }
-      }
-      if (tree)
         proto_tree_add_uint(wep_tree, hf_ieee80211_wep_key, tvb, hdr_len + 3, 1, wep_key);
+      }
 
       /* Subtract out the length of the IV. */
       len          -= 4;

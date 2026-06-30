@@ -8635,8 +8635,7 @@ static int dissect_nhdr_umq_idx_cmd(tvbuff_t * tvb, unsigned offset, packet_info
     proto_tree_add_item(subtree, hf_lbmc_umq_idx_cmd_next_hdr, tvb, offset + O_LBMC_CNTL_UMQ_IDX_CMD_HDR_T_NEXT_HDR, L_LBMC_CNTL_UMQ_IDX_CMD_HDR_T_NEXT_HDR, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lbmc_umq_idx_cmd_hdr_len, tvb, offset + O_LBMC_CNTL_UMQ_IDX_CMD_HDR_T_HDR_LEN, L_LBMC_CNTL_UMQ_IDX_CMD_HDR_T_HDR_LEN, ENC_BIG_ENDIAN);
     proto_tree_add_bitmask(subtree, tvb, offset + O_LBMC_CNTL_UMQ_IDX_CMD_HDR_T_FLAGS, hf_lbmc_umq_idx_cmd_flags, ett_lbmc_umq_idx_cmd_flags, flags, ENC_BIG_ENDIAN);
-    cmd_type = tvb_get_uint8(tvb, offset + O_LBMC_CNTL_UMQ_IDX_CMD_HDR_T_CMD_TYPE);
-    cmd_type_item = proto_tree_add_item(subtree, hf_lbmc_umq_idx_cmd_cmd_type, tvb, offset + O_LBMC_CNTL_UMQ_IDX_CMD_HDR_T_CMD_TYPE, L_LBMC_CNTL_UMQ_IDX_CMD_HDR_T_CMD_TYPE, ENC_BIG_ENDIAN);
+    cmd_type_item = proto_tree_add_item_ret_uint8(subtree, hf_lbmc_umq_idx_cmd_cmd_type, tvb, offset + O_LBMC_CNTL_UMQ_IDX_CMD_HDR_T_CMD_TYPE, L_LBMC_CNTL_UMQ_IDX_CMD_HDR_T_CMD_TYPE, ENC_BIG_ENDIAN, &cmd_type);
     proto_tree_add_item(subtree, hf_lbmc_umq_idx_cmd_queue_id, tvb, offset + O_LBMC_CNTL_UMQ_IDX_CMD_HDR_T_QUEUE_ID, L_LBMC_CNTL_UMQ_IDX_CMD_HDR_T_QUEUE_ID, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lbmc_umq_idx_cmd_cmd_id, tvb, offset + O_LBMC_CNTL_UMQ_IDX_CMD_HDR_T_CMD_ID, L_LBMC_CNTL_UMQ_IDX_CMD_HDR_T_CMD_ID, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lbmc_umq_idx_cmd_inst_idx, tvb, offset + O_LBMC_CNTL_UMQ_IDX_CMD_HDR_T_INST_IDX, L_LBMC_CNTL_UMQ_IDX_CMD_HDR_T_INST_IDX, ENC_BIG_ENDIAN);
@@ -9153,7 +9152,7 @@ static int dissect_nhdr_umq_rcv_msg_retrieve(tvbuff_t * tvb, unsigned offset, pa
 {
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
-    int len = 0;
+    int len;
     int dissected_len = 0;
     uint8_t num_msgids;
     uint8_t idx;
@@ -11424,8 +11423,8 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, unsigned offset, packet_info * pinf
         }
         if (next_hdr == LBMC_NHDR_DATA)
         {
-            int actual_data_len = 0;
-            int msgprop_offset = 0;
+            int actual_data_len;
+            int msgprop_offset;
             tvbuff_t * data_tvb = NULL;
             tvbuff_t * msgprop_tvb = NULL;
             bool msg_complete = true;

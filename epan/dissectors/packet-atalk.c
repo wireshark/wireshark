@@ -2205,7 +2205,7 @@ proto_register_atalk(void)
         NULL, HFILL}},
 
   { &hf_macip_dns,
-      { "DNS Server", "macip.address", FT_IPv4,  BASE_NONE, NULL, 0x0,
+      { "DNS Server", "macip.dns", FT_IPv4,  BASE_NONE, NULL, 0x0,
         NULL, HFILL}},
 
   { &hf_macip_broadcast,

@@ -1107,7 +1107,7 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
 
     /* If no KEK available, skip the decode. */
     mka_ckn_info_key_t *key = &(rec->key);
-    if ((NULL == key) || (0 == key->kek_len)) {
+    if (0 == key->kek_len) {
       goto out;
     }
 
@@ -1452,7 +1452,7 @@ calculate_icv(packet_info *pinfo, size_t icv_len) {
 
   /* If no ICK available, skip the calculation. */
   mka_ckn_info_key_t *key = &(rec->key);
-  if ((NULL == key) || (0 == key->ick_len)) {
+  if (0 == key->ick_len) {
     return NULL;
   }
 
