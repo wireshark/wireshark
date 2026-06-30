@@ -14,7 +14,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.413 v19.2.0 (2026-03)
+ * References: 3GPP TS 38.413 v19.3.0 (2026-06)
  */
 
 #include "config.h"
@@ -672,7 +672,7 @@ typedef enum _ProtocolIE_ID_enum {
   id_ANPacketDelayBudgetUL = 396,
   id_QosFlowAdditionalInfoList = 397,
   id_AssistanceInformationQoE_Meas = 398,
-  id_MBSCommServiceType = 399,
+  id_CommServiceType = 399,
   id_MobileIAB_Authorized = 400,
   id_MobileIAB_MTUserLocationInformation = 401,
   id_MobileIABNodeIndication = 402,
@@ -1024,7 +1024,7 @@ static int hf_ngap_MaximumDataBurstVolume_PDU;    /* MaximumDataBurstVolume */
 static int hf_ngap_MessageIdentifier_PDU;         /* MessageIdentifier */
 static int hf_ngap_MaximumIntegrityProtectedDataRate_PDU;  /* MaximumIntegrityProtectedDataRate */
 static int hf_ngap_MBS_AreaSessionID_PDU;         /* MBS_AreaSessionID */
-static int hf_ngap_MBSCommServiceType_PDU;        /* MBSCommServiceType */
+static int hf_ngap_CommServiceType_PDU;           /* CommServiceType */
 static int hf_ngap_MBS_QoSFlowsToBeSetupList_PDU;  /* MBS_QoSFlowsToBeSetupList */
 static int hf_ngap_MBS_ServiceArea_PDU;           /* MBS_ServiceArea */
 static int hf_ngap_MBS_IntendedServiceAreaList_PDU;  /* MBS_IntendedServiceAreaList */
@@ -4889,7 +4889,7 @@ static const value_string ngap_ProtocolIE_ID_vals[] = {
   { id_ANPacketDelayBudgetUL, "id-ANPacketDelayBudgetUL" },
   { id_QosFlowAdditionalInfoList, "id-QosFlowAdditionalInfoList" },
   { id_AssistanceInformationQoE_Meas, "id-AssistanceInformationQoE-Meas" },
-  { id_MBSCommServiceType, "id-MBSCommServiceType" },
+  { id_CommServiceType, "id-CommServiceType" },
   { id_MobileIAB_Authorized, "id-MobileIAB-Authorized" },
   { id_MobileIAB_MTUserLocationInformation, "id-MobileIAB-MTUserLocationInformation" },
   { id_MobileIABNodeIndication, "id-MobileIABNodeIndication" },
@@ -5743,7 +5743,7 @@ dissect_ngap_INTEGER_1_256_(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *
 
 
 static const per_sequence_t AIoT_CommandAssistanceInformation_sequence[] = {
-  { &hf_ngap_estimateofExpectedD2RMsgSize, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_INTEGER_1_256_ },
+  { &hf_ngap_estimateofExpectedD2RMsgSize, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ngap_INTEGER_1_256_ },
   { &hf_ngap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -5846,7 +5846,7 @@ dissect_ngap_AIoT_DeviceReportList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_
 static unsigned
 dissect_ngap_AIOTFIdentifier(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, false, NULL);
+                                       16, 36, true, NULL);
 
   return offset;
 }
@@ -16132,17 +16132,18 @@ dissect_ngap_MaximumIntegrityProtectedDataRate(tvbuff_t *tvb _U_, uint32_t offse
 }
 
 
-static const value_string ngap_MBSCommServiceType_vals[] = {
-  {   0, "broadcast" },
-  {   1, "multicast" },
+static const value_string ngap_CommServiceType_vals[] = {
+  {   0, "mbs-broadcast" },
+  {   1, "mbs-multicast" },
+  {   2, "unicast" },
   { 0, NULL }
 };
 
 
 static unsigned
-dissect_ngap_MBSCommServiceType(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ngap_CommServiceType(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, true, 0, NULL);
+                                     2, NULL, true, 1, NULL);
 
   return offset;
 }
@@ -29807,11 +29808,11 @@ static int dissect_MBS_AreaSessionID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_MBSCommServiceType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+static int dissect_CommServiceType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
-  offset = dissect_ngap_MBSCommServiceType(tvb, offset, &asn1_ctx, tree, hf_ngap_MBSCommServiceType_PDU);
+  offset = dissect_ngap_CommServiceType(tvb, offset, &asn1_ctx, tree, hf_ngap_CommServiceType_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -34447,7 +34448,7 @@ proto_reg_handoff_ngap(void)
   dissector_add_uint("ngap.extension", id_UplinkTLContainer, create_dissector_handle(dissect_TLContainer_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_ANPacketDelayBudgetUL, create_dissector_handle(dissect_ExtendedPacketDelayBudget_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_AssistanceInformationQoE_Meas, create_dissector_handle(dissect_AssistanceInformationQoE_Meas_PDU, proto_ngap));
-  dissector_add_uint("ngap.extension", id_MBSCommServiceType, create_dissector_handle(dissect_MBSCommServiceType_PDU, proto_ngap));
+  dissector_add_uint("ngap.extension", id_CommServiceType, create_dissector_handle(dissect_CommServiceType_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_MobileIAB_MTUserLocationInformation, create_dissector_handle(dissect_MobileIAB_MTUserLocationInformation_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_CN_MT_CommunicationHandling, create_dissector_handle(dissect_CN_MT_CommunicationHandling_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_PNI_NPN_AreaScopeofMDT, create_dissector_handle(dissect_PNI_NPN_AreaScopeofMDT_PDU, proto_ngap));
@@ -35607,9 +35608,9 @@ void proto_register_ngap(void) {
       { "MBS-AreaSessionID", "ngap.MBS_AreaSessionID",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_ngap_MBSCommServiceType_PDU,
-      { "MBSCommServiceType", "ngap.MBSCommServiceType",
-        FT_UINT32, BASE_DEC, VALS(ngap_MBSCommServiceType_vals), 0,
+    { &hf_ngap_CommServiceType_PDU,
+      { "CommServiceType", "ngap.CommServiceType",
+        FT_UINT32, BASE_DEC, VALS(ngap_CommServiceType_vals), 0,
         NULL, HFILL }},
     { &hf_ngap_MBS_QoSFlowsToBeSetupList_PDU,
       { "MBS-QoSFlowsToBeSetupList", "ngap.MBS_QoSFlowsToBeSetupList",

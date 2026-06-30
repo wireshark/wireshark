@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V19.2.0 (2026-03)
+-- 3GPP TS 38.413 V19.3.0 (2026-06)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -656,7 +656,7 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-ANPacketDelayBudgetUL								ProtocolIE-ID ::= 396
 	id-QosFlowAdditionalInfoList							ProtocolIE-ID ::= 397
 	id-AssistanceInformationQoE-Meas						ProtocolIE-ID ::= 398
-	id-MBSCommServiceType									ProtocolIE-ID ::= 399
+	id-CommServiceType									ProtocolIE-ID ::= 399
 	id-MobileIAB-Authorized									ProtocolIE-ID ::= 400
 	id-MobileIAB-MTUserLocationInformation					ProtocolIE-ID ::= 401
 	id-MobileIABNodeIndication							    ProtocolIE-ID ::= 402

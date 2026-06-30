@@ -1886,7 +1886,7 @@ id-UplinkTLContainer                                   ProtocolIE-ID
 id-ANPacketDelayBudgetUL                               ProtocolIE-ID
 id-QosFlowAdditionalInfoList                           ProtocolIE-ID
 id-AssistanceInformationQoE-Meas                       ProtocolIE-ID
-id-MBSCommServiceType                                  ProtocolIE-ID
+id-CommServiceType                                     ProtocolIE-ID
 id-MobileIAB-Authorized                                ProtocolIE-ID
 id-MobileIAB-MTUserLocationInformation                 ProtocolIE-ID
 id-MobileIABNodeIndication                             ProtocolIE-ID
@@ -2458,7 +2458,7 @@ TLContainer                                            N ngap.extension id-Uplin
 ExtendedPacketDelayBudget                              N ngap.extension id-ANPacketDelayBudgetUL
 #QosFlowAdditionalInfoListRelCom or QosFlowAdditionalInfoListRelRes N ngap.extension id-QosFlowAdditionalInfoList
 AssistanceInformationQoE-Meas                          N ngap.extension id-AssistanceInformationQoE-Meas
-MBSCommServiceType                                     N ngap.extension id-MBSCommServiceType
+CommServiceType                                        N ngap.extension id-CommServiceType
 MobileIAB-MTUserLocationInformation                    N ngap.extension id-MobileIAB-MTUserLocationInformation
 CN-MT-CommunicationHandling                            N ngap.extension id-CN-MT-CommunicationHandling
 PNI-NPN-AreaScopeofMDT                                 N ngap.extension id-PNI-NPN-AreaScopeofMDT
