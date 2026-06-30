@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V19.2.0 (2026-03)
+-- 3GPP TS 38.331 V19.3.0 (2026-06)
 
 NR-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -2272,6 +2272,9 @@ SL-PosTxResourceReq-r18 ::=                SEQUENCE {
     ...,
     [[
     sl-PosTxInterestedFreqList2-r18            SL-TxInterestedFreqList-r16                                            OPTIONAL
+    ]],
+    [[
+    sl-PosTypeTxSyncList2-r18                  SEQUENCE (SIZE (1..maxNrofFreqSL-r16)) OF SL-TypeTxSync-r16            OPTIONAL
     ]]
 }
 
@@ -3859,6 +3862,16 @@ SIB2 ::=                            SEQUENCE {
             rsrqThresholdLR6-r19                    ThresholdQ-LR-r19                       OPTIONAL        -- Need R
         }                                                                                   OPTIONAL        -- Cond SupportLR-OnSSB
     }                                                                                       OPTIONAL        -- Need R
+    ]],
+    [[
+    lowMobilityEvaluationLPWUS-r19            SEQUENCE {
+        s-SearchDeltaP-LPWUS-r19                  ENUMERATED {dB3, dB6, dB9, dB12, dB15, spare3, spare2, spare1},
+        t-SearchDeltaP-LPWUS-r19                  ENUMERATED {s1, s2, s3, s4, s5, s6, s7, s10, s20, s30, s60, s120, s180, s240, s300, spare1},
+        rsrp-Threshold2onMR-ForLR-OnSSB-r19       ReselectionThreshold                    OPTIONAL,       -- Cond SupportLR-OnSSB
+        rsrp-Threshold2onLR-ForLR-OnSSB-r19       ThresholdP-LR-r19,
+        rsrp-Threshold2onMR-ForLR-OnLPSS-r19      ReselectionThreshold                    OPTIONAL,       -- Cond SupportLR-OnLPSS
+        rsrp-Threshold2onLR-ForLR-OnLPSS-r19      ThresholdP-LR-r19
+    }                                                                                     OPTIONAL        -- Need R
     ]]
 }
 
@@ -5041,7 +5054,7 @@ AssociatedId-r19 ::=        BIT STRING (SIZE (24))
 
 ATG-Config-r18 ::=          SEQUENCE {
     atg-gNB-Location-r18         ReferenceLocation-r17                                 OPTIONAL,    -- Need R
-    height-gNB-r18                INTEGER (-16384..16383)                               OPTIONAL,    -- Need R
+    height-gNB-r18               INTEGER (-16384..16383)                               OPTIONAL,    -- Need R
     cellSpecificKoffset-r18      INTEGER(1..3)                                         OPTIONAL,    -- Need R
     ta-ReportATG-r18             ENUMERATED {enabled}                                  OPTIONAL     -- Need R
 }
@@ -9481,6 +9494,9 @@ MeasObjectNR ::=                    SEQUENCE {
     smtc6list-r19                       SSB-MTC6List-r19                                                OPTIONAL,   -- Need R
     smtc7-SSBAdapt-r19                  SSB-MTC-SSBAdapt-r19                                      OPTIONAL,   -- Cond IntraFreqConnected
     neighSCellMeasSkipping-r19          ENUMERATED { enabled }                                          OPTIONAL    -- Cond SCellMO
+    ]],
+    [[
+    cellsToAddModListExt-v1930          CellsToAddModListExt-v1930                                      OPTIONAL    -- Need N
     ]]
 }
 
@@ -9547,6 +9563,8 @@ CellsToAddModListExt-v1710 ::=      SEQUENCE (SIZE (1..maxNrofCellMeas)) OF Cell
 
 CellsToAddModListExt-v1800 ::=      SEQUENCE (SIZE (1..maxNrofCellMeas)) OF CellsToAddModExt-v1800
 
+CellsToAddModListExt-v1930 ::=      SEQUENCE (SIZE (1..maxNrofCellMeas)) OF CellsToAddModExt-v1930
+
 CellsToAddMod ::=                   SEQUENCE {
     physCellId                          PhysCellId,
     cellIndividualOffset                Q-OffsetRangeList
@@ -9559,6 +9577,10 @@ CellsToAddModExt-v1710 ::=          SEQUENCE {
 
 CellsToAddModExt-v1800 ::=          SEQUENCE {
     ntn-NeighbourCellInfo-r18           NTN-NeighbourCellInfo-r18                                       OPTIONAL   -- Cond NeighbourCell
+}
+
+CellsToAddModExt-v1930 ::=          SEQUENCE {
+    ntn-LinearPolarizationDL-r19        ENUMERATED {xlp,ylp}                                            OPTIONAL   -- Need R
 }
 
 RMTC-Config-r16 ::=                 SEQUENCE {
@@ -10791,7 +10813,11 @@ NTN-Config-r17 ::=             SEQUENCE {
     ntn-PolarizationUL-r17         ENUMERATED {rhcp,lhcp,linear}                                            OPTIONAL,  -- Need S
     ephemerisInfo-r17              EphemerisInfo-r17                                                        OPTIONAL,  -- Need R
     ta-Report-r17                  ENUMERATED {enabled}                                                     OPTIONAL,  -- Need R
-    ...
+    ...,
+    [[
+    ntn-LinearPolarizationDL-r19   ENUMERATED {xlp,ylp}                                                     OPTIONAL,  -- Need R
+    ntn-LinearPolarizationUL-r19   ENUMERATED {xlp,ylp}                                                     OPTIONAL   -- Need S
+    ]]
 }
 
 NTN-Config-r19 ::=               SEQUENCE {
@@ -14753,6 +14779,9 @@ UplinkConfig ::=                    SEQUENCE {
     enablePL-RS-UpdateForType1CG-PUSCH-r18  ENUMERATED {enabled}                                                OPTIONAL,   -- Need R
     powerBoostPi2BPSK-r18               BOOLEAN                                                                 OPTIONAL,   -- Need R
     powerBoostQPSK-r18                  BOOLEAN                                                                 OPTIONAL    -- Need R
+    ]],
+    [[
+    powerBoostNTN-r19                   ENUMERATED {true}                                                       OPTIONAL    -- Need R
     ]]
 }
 
@@ -16604,6 +16633,8 @@ BandCombinationList-v1860 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandComb
 
 BandCombinationList-v1900 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-v1900
 
+BandCombinationList-v1930 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-v1930
+
 BandCombinationList-UplinkTxSwitch-r16 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-r16
 
 BandCombinationList-UplinkTxSwitch-v1630 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-v1630
@@ -16649,6 +16680,8 @@ BandCombinationList-UplinkTxSwitch-v1840 ::= SEQUENCE (SIZE (1..maxBandComb)) OF
 BandCombinationList-UplinkTxSwitch-v1860 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-v1860
 
 BandCombinationList-UplinkTxSwitch-v1900 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-v1900
+
+BandCombinationList-UplinkTxSwitch-v1930 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-v1930
 
 BandCombination ::=                 SEQUENCE {
     bandList                            SEQUENCE (SIZE (1..maxSimultaneousBands)) OF BandParameters,
@@ -16828,6 +16861,10 @@ BandCombination-v1900 ::=          SEQUENCE {
     directSCellActivation-r19           ENUMERATED {supported}                                                 OPTIONAL
 }
 
+BandCombination-v1930 ::=          SEQUENCE {
+    powerClass-v1930                   ENUMERATED {pc1}                                                        OPTIONAL
+}
+
 BandCombination-UplinkTxSwitch-r16 ::= SEQUENCE {
     bandCombination-r16                 BandCombination,
     bandCombination-v1540               BandCombination-v1540                      OPTIONAL,
@@ -16952,6 +16989,10 @@ BandCombination-UplinkTxSwitch-v1900 ::= SEQUENCE {
     supportedBandPairListNR-v1900            SEQUENCE (SIZE (1..maxULTxSwitchingBandPairs)) OF ULTxSwitchingBandPair-v1900  OPTIONAL,
     uplinkTxSwitchingBandParametersList-v1900 SEQUENCE (SIZE (1..maxSimultaneousBands)) OF UplinkTxSwitchingBandParameters-v1900
                                                                                                                             OPTIONAL
+}
+
+BandCombination-UplinkTxSwitch-v1930 ::= SEQUENCE {
+    bandCombination-v1930                    BandCombination-v1930                                                          OPTIONAL
 }
 
 ULTxSwitchingBandPair-r16 ::=       SEQUENCE {
@@ -18048,9 +18089,9 @@ CA-ParametersNR-v1900 ::=                          SEQUENCE {
         scs15kHz-r19                                      ENUMERATED {n2,n4,n8}                         OPTIONAL,
         scs30kHz-r19                                      ENUMERATED {n4,n8,n14,n28}                    OPTIONAL,
         scs60kHz-r19                                      ENUMERATED {n8,n14,n28}                       OPTIONAL,
-        scs120kHz-r19                                     ENUMERATED {n14,n28,n56}                      OPTIONAL,
-        scs480kHz-r19                                     ENUMERATED {n56,n112,n224}                    OPTIONAL,
-        scs960kHz-r19                                     ENUMERATED {n112,n224,n448}                   OPTIONAL
+        dummy1                                            ENUMERATED {n14,n28,n56}                      OPTIONAL,
+        dummy2                                            ENUMERATED {n56,n112,n224}                    OPTIONAL,
+        dummy3                                            ENUMERATED {n112,n224,n448}                   OPTIONAL
     }                                                                                                   OPTIONAL,
     -- R1 59-2-4: Association up to 128 CSI-RS ports and SRS for non-codebook-based PUSCH
     nonCodebook-CSI-RS-SRS-PerBC-Enh-r19              SEQUENCE (SIZE (1.. maxNrofCSI-RS-ResourcesExt-r16)) OF
@@ -19304,7 +19345,7 @@ CodebookParametersCSI-PredictionDoppler-r19 ::= SEQUENCE {
     eType2DopplerX1-r19                         ENUMERATED {supported}                                           OPTIONAL,
     -- R1 58-3-1-3a: Support X=2 CQI based on 2 slots for Rel-16-based doppler codebook for UE side inference of CSI prediction
     eType2DopplerX2-r19                         ENUMERATED {supported}                                           OPTIONAL,
-    -- R1 58-3-1-4: support of l = (n – nCSI,ref ) for CSI reference slot for Rel-16 based doppler codebook for UE side inference of CSI prediction
+    -- R1 58-3-1-4: support of l = (n - nCSI,ref ) for CSI reference slot for Rel-16 based doppler codebook for UE side inference of CSI prediction
     eType2DopplerL-N4D1-r19                     ENUMERATED {supported}                                           OPTIONAL,
     -- R1 58-3-1-5: Support of L=6 for Rel-16 based doppler codebook for UE side inference of CSI prediction
     eType2DopplerL6-r19                         ENUMERATED {supported}                                           OPTIONAL,
@@ -20066,6 +20107,9 @@ FeatureSets ::=    SEQUENCE {
     featureSetsUplinkPerCC-v1900        SEQUENCE (SIZE (1..maxPerCC-FeatureSets)) OF FeatureSetUplinkPerCC-v1900        OPTIONAL,
     featureSetsDownlink-v1900           SEQUENCE (SIZE (1..maxDownlinkFeatureSets)) OF FeatureSetDownlink-v1900         OPTIONAL,
     featureSetsUplink-v1900             SEQUENCE (SIZE (1..maxUplinkFeatureSets)) OF FeatureSetUplink-v1900             OPTIONAL
+    ]],
+    [[
+    featureSetsUplink-v1930             SEQUENCE (SIZE (1..maxUplinkFeatureSets)) OF FeatureSetUplink-v1930             OPTIONAL
     ]]
 }
 
@@ -20447,6 +20491,11 @@ FeatureSetUplink-v1900 ::=                             SEQUENCE {
         pusch-PreparationLowPriority-r19                      ENUMERATED {sym0, sym1, sym2},
         pusch-PreparationHighPriority-r19                     ENUMERATED {sym0, sym1, sym2}
     }                                                                                                               OPTIONAL
+}
+
+FeatureSetUplink-v1930 ::=              SEQUENCE {
+    ue-PowerClassPerBandPerBC-v1930         ENUMERATED {pc1}                      OPTIONAL,
+    mpr-Enh-PowerBoosting-r19               ENUMERATED {supported}                OPTIONAL
 }
 
 SubSlot-Config-r16 ::=                  SEQUENCE {
@@ -21714,7 +21763,7 @@ MIMO-ParametersPerBand ::=          SEQUENCE {
     unifiedJointTCI-multiMAC-CE-r17             SEQUENCE{
         minBeamApplicationTime-r17                  ENUMERATED {n1, n2, n4, n7, n14, n28, n42, n56, n70, n84, n98, n112, n224, n336}
                                                                                                                OPTIONAL,
-        maxNumMAC-CE-PerCC                          ENUMERATED {n2, n3, n4, n5, n6, n7, n8}
+        maxNumMAC-CE-PerCC-r17                      ENUMERATED {n2, n3, n4, n5, n6, n7, n8}
     } OPTIONAL,
     -- R1 23-1-1d    Per BWP TCI state pool configuration for CA mode
     unifiedJointTCI-perBWP-CA-r17               ENUMERATED {supported}                                         OPTIONAL,
@@ -22360,9 +22409,9 @@ MIMO-ParametersPerBand ::=          SEQUENCE {
         scs15kHz-r19                                  ENUMERATED {n2,n4,n8}                                      OPTIONAL,
         scs30kHz-r19                                  ENUMERATED {n4,n8,n14,n28}                                 OPTIONAL,
         scs60kHz-r19                                  ENUMERATED {n8,n14,n28}                                    OPTIONAL,
-        scs120kHz-r19                                 ENUMERATED {n14,n28,n56}                                   OPTIONAL,
-        scs480kHz-r19                                 ENUMERATED {n56,n112,n224}                                 OPTIONAL,
-        scs960kHz-r19                                 ENUMERATED {n112,n224,n448}                                OPTIONAL
+        dummy1                                        ENUMERATED {n14,n28,n56}                                   OPTIONAL,
+        dummy2                                        ENUMERATED {n56,n112,n224}                                 OPTIONAL,
+        dummy3                                        ENUMERATED {n112,n224,n448}                                OPTIONAL
     }                                                                                                            OPTIONAL,
     -- R1 59-3-1a: Association between CSI-RS and SRS for non-codebook-based 3Tx PUSCH transmission for single TRP
     nonCodebook-CSI-RS-SRS-3TxPUSCH-r19           SEQUENCE (SIZE (1.. maxNrofCSI-RS-Resources))
@@ -23648,8 +23697,13 @@ RF-Parameters ::=                                   SEQUENCE {
     supportedBandCombinationList-UplinkTxSwitch-v1900   BandCombinationList-UplinkTxSwitch-v1900    OPTIONAL,
     -- R4 62-1: UE accuracy for CJTC delay offset reporting
     cjtc-DdReportHighAccuracy-r19                       ENUMERATED {supported}                      OPTIONAL,
+    dummy3                                              ENUMERATED {supported}                      OPTIONAL
+    ]],
+    [[
+    supportedBandCombinationList-v1930                  BandCombinationList-v1930                   OPTIONAL,
+    supportedBandCombinationList-UplinkTxSwitch-v1930   BandCombinationList-UplinkTxSwitch-v1930    OPTIONAL,
     -- R4 62-2: UE accuracy for CJTC frequency offset reporting
-    cjtc-FO-ReportHighAccuracy-r19                      ENUMERATED {supported}                      OPTIONAL
+    cjtc-FO-ReportHighAccuracy-r19                      ENUMERATED {level1, level2}                 OPTIONAL
     ]]
 }
 
@@ -24540,7 +24594,7 @@ BandNR ::=                          SEQUENCE {
     ltm-WithoutCSI-IM-r19                                           ENUMERATED {supported}                                     OPTIONAL,
     -- R1 65-1-1: 160 ms SSB periodicity assumed during initial access
     ssb-PeriodicityAddition-r19                                     ENUMERATED {supported}                                     OPTIONAL,
-    -- R1 65-1-2: PDCCH repetition for Type0 PDCCH CSS and SIB1 PDSCH repetition within 20ms duration
+    -- R1 65-1-2: PDCCH repetition for Type0 PDCCH CSS and SIB1 PDSCH repetition in two consecutive slots
     pdcch-RepetitionType0-r19                                       ENUMERATED {supported}                                     OPTIONAL,
     -- R1 65-1-3: PDCCH repetition for Type 0A/0B/1/1A/2/2A PDCCH CSS
     pdcch-RepetitionTypeOthers-r19                                  INTEGER (1..2)                                             OPTIONAL,
@@ -24638,7 +24692,7 @@ BandNR ::=                          SEQUENCE {
     -- R4 59-2: UE-side beam prediction for BM Case2
     aiml-BM-Case2-KnownRxBeam-r19                                   ENUMERATED {supported}                                     OPTIONAL,
     -- R4 61-1: Tx output power enhancement for NR-NTN UE
-    ntn-PowerBoosting-ERedCap-r19                                   ENUMERATED {supported}                                     OPTIONAL,
+    ntn-PowerBoosting-r19                                           ENUMERATED {supported}                                     OPTIONAL,
     -- CSI-RS and CSI-IM measurement and CSI reporting for target cell to support early CSI acquisition for reconfiguration with sync
     -- based on periodic CSI-RS and CSI-IM resource
     earlyCSI-AcquisitionWithCSI-IM-r19                       SEQUENCE {
@@ -25905,6 +25959,12 @@ UE-NR-Capability-v1900 ::=               SEQUENCE {
 
 UE-NR-Capability-v1920 ::=               SEQUENCE {
     ntn-RedirectionWithSatelliteInfo-r19     ENUMERATED {supported}                                       OPTIONAL,
+    nonCriticalExtension                     UE-NR-Capability-v1930                                       OPTIONAL
+}
+
+UE-NR-Capability-v1930 ::=               SEQUENCE {
+    ntn-LinearPolarizationOrientation-r19    ENUMERATED {supported}                                       OPTIONAL,
+    lpwus-TimeOffsetPreference-r19           ENUMERATED {supported}                                       OPTIONAL,
     nonCriticalExtension                     SEQUENCE{}                                                   OPTIONAL
 }
 

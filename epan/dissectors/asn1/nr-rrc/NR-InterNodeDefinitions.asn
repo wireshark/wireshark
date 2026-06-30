@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V19.2.0 (2026-03)
+-- 3GPP TS 38.331 V19.3.0 (2026-06)
 
 NR-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -378,7 +378,7 @@ CG-Config-v1800-IEs ::=             SEQUENCE {
 
 CG-Config-v1900-IEs ::=             SEQUENCE {
     ltm-ReferenceConfigurationSCG-r19   ReferenceConfiguration-r18                         OPTIONAL,
-    ltm-UE-MeasuredTA-ID-r19            INTEGER (1..maxNrofLTM-Configs-plus1-r18)          OPTIONAL,
+    dummy                               INTEGER (1..maxNrofLTM-Configs-plus1-r18)          OPTIONAL,
     nonCriticalExtension                SEQUENCE {}                                        OPTIONAL
 }
 
@@ -1027,6 +1027,9 @@ L1-MeasConfigNRDC-r18 ::= SEQUENCE {
     maxReportConfigsAperiodicSP-CSI-RS-r19     INTEGER(0..maxNrofReportConfigsAperiodic-r18)                 OPTIONAL,
     maxReportConfigsSemiPersistentSP-CSI-RS-r19    INTEGER(0..maxNrofReportConfigsSemiPersistent-r18)        OPTIONAL,
     maxResourcesL1-MeasSCG-CSI-RS-r19      INTEGER(0..maxNrofCSI-RS-Resources-r19)                           OPTIONAL
+    ]],
+    [[
+    maxCellsL1-CSI-RS-MeasInterFreqSCG-r19 INTEGER(0..maxNrofL1-MeasInterFreq-r18)                           OPTIONAL
     ]]
 }
 
