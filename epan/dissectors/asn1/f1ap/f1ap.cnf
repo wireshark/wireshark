@@ -1121,6 +1121,10 @@ id-NodeAssociatedInfoResult                          ProtocolIE-ID
 id-NeighbourFutureCoverageModNotification            ProtocolIE-ID
 id-AreaSpecificSemiPersistentSRSPosInfo              ProtocolIE-ID
 id-SBFD-AcrossSymbolType                             ProtocolIE-ID
+id-LTMConfig-to-Modify-List                          ProtocolIE-ID
+id-InterSNLTMMCGInformation                          ProtocolIE-ID
+id-LPWUSSupportedBandInfo                            ProtocolIE-ID
+id-DeliveryStatusReq                                 ProtocolIE-ID
 
 #.END
 
@@ -1754,6 +1758,8 @@ Predicted-CCO-Assistance-Information                N f1ap.ies id-Predicted-CCO-
 NodeAssociatedInfoResult                            N f1ap.ies id-NodeAssociatedInfoResult
 Neighbour-Future-Coverage-Modification-Notification N f1ap.ies id-NeighbourFutureCoverageModNotification
 AreaSpecificSemiPersistentSRSPosInfo                N f1ap.ies id-AreaSpecificSemiPersistentSRSPosInfo
+LTMConfig-to-Modify-List                            N f1ap.ies id-LTMConfig-to-Modify-List
+InterSNLTMMCGInformation                            N f1ap.ies id-InterSNLTMMCGInformation
 
 #F1AP-PROTOCOL-EXTENSION
 GNB-CUSystemInformation                           N f1ap.extension id-gNB-CUSystemInformation
@@ -2029,6 +2035,8 @@ LTMResidualTAInfoList                             N f1ap.extension id-LTMResidua
 ChannelResponseInformation                        N f1ap.extension id-ChannelResponseInformation
 UEPerformanceDelayMonitoring                      N f1ap.extension id-UEPerformanceDelayMonitoring
 SBFD-AcrossSymbolType                             N f1ap.extension id-SBFD-AcrossSymbolType
+LPWUSSupportedBandInfo                            N f1ap.extension id-LPWUSSupportedBandInfo
+DeliveryStatusReq                                 N f1ap.extension id-DeliveryStatusReq
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                                    N f1ap.proc.imsg id-Reset

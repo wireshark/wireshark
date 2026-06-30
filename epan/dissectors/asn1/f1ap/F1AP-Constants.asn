@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V19.2.0 (2026-03)
+-- 3GPP TS 38.473 V19.3.0 (2026-06)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -1260,6 +1260,12 @@ id-NodeAssociatedInfoResult							ProtocolIE-ID ::= 917
 id-NeighbourFutureCoverageModNotification			ProtocolIE-ID ::= 918
 id-AreaSpecificSemiPersistentSRSPosInfo			ProtocolIE-ID ::= 919
 id-SBFD-AcrossSymbolType							ProtocolIE-ID ::= 920
+id-LTMConfig-to-Modify-List							ProtocolIE-ID ::= 921
+id-InterSNLTMMCGInformation							ProtocolIE-ID ::= 922
+id-LPWUSSupportedBandInfo							ProtocolIE-ID ::= 923
+id-DeliveryStatusReq									ProtocolIE-ID ::= 924
+
+
 
 
 END

@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V19.2.0 (2026-03)
+-- 3GPP TS 38.473 V19.3.0 (2026-06)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -321,6 +321,8 @@ IMPORTS
 	id-UL-SRS-TDCT,
 	id-UEPerformanceDelayMonitoring,
 	id-SBFD-AcrossSymbolType,
+	id-LPWUSSupportedBandInfo,
+	id-DeliveryStatusReq,
 	maxNRARFCN,
 	maxnoofErrors,
 	maxnoofBPLMNs,
@@ -2226,6 +2228,8 @@ DedicatedSIDeliveryNeededUE-Item-ExtIEs F1AP-PROTOCOL-EXTENSION::={
 
 DedicatedSIDeliveryIndication::= ENUMERATED{true, ...}
 
+DeliveryStatusReq ::= ENUMERATED{start, stop, ...}
+
 DL-PRS ::= SEQUENCE {
 	prsid 					INTEGER (0..255),
 	dl-PRSResourceSetID		PRS-Resource-Set-ID,
@@ -3533,7 +3537,7 @@ Future-Coverage-Modification-Item ::= SEQUENCE {
 	nRCGI								NRCGI,
 	futurecellCoverageState				FutureCellCoverageState,
 	futureSSBCoverageModificationList	FutureSSBCoverageModification-List	OPTIONAL,
-	timeforFutureCoverageModification	TimeforFutureCoverageModification	OPTIONAL,
+	timeforFutureCoverageModification	TimeforFutureCoverageModification,
 	futureCoverageModificationCause		Future-Coverage-Modification-Notification-Cause		OPTIONAL,
 	iE-Extension			ProtocolExtensionContainer { { Future-Coverage-Modification-Item-ExtIEs} } 				OPTIONAL,
 	...
@@ -4231,6 +4235,27 @@ InterFrequencyConfig-NoGap ::= ENUMERATED {
 	...
 }
 
+InterSNLTMMCGInformation ::= SEQUENCE {
+	interSNLTM-trigger				LTM-trigger,
+	pscellid						NRCGI															OPTIONAL,
+	-- The above IE shall be present if the interSNLTM-trigger IE is set to "LTM-preparation" or "LTM-executed"
+	candidatePSCellsToCancel		PSCellList														OPTIONAL,
+	-- The above IE shall be present if the interSNLTM-trigger IE is set to "LTM-cancel"
+	iE-Extensions					ProtocolExtensionContainer { {InterSNLTMMCGInformation-ExtIEs} }	OPTIONAL,
+	...
+}
+
+InterSNLTMMCGInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+LTM-trigger ::= ENUMERATED {
+	ltm-preparation,
+	ltm-executed,
+	ltm-cancel,
+	...
+}
+
 IngressNonF1terminatingTopologyIndicator ::= ENUMERATED {true, ...}
 
 IntendedTDD-DL-ULConfig-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
@@ -4478,6 +4503,20 @@ LoS-NLoSInformation ::= CHOICE {
 LoS-NLoSInformation-ExtIEs F1AP-PROTOCOL-IES ::= {
 	...
 }
+
+LPWUSSupportedBandInfo ::= SEQUENCE {
+	minimumTimeGapIndication			ENUMERATED {cap1, cap2, cap3, ...} 	,
+	oOKIndication						ENUMERATED {supported, ...} 	OPTIONAL,
+	oFDMIndication						ENUMERATED {supported, ...} 	OPTIONAL,
+	lP-SSIndication						ENUMERATED {supported, ...} 	OPTIONAL,
+	iE-Extension				ProtocolExtensionContainer { { LPWUSSupportedBandInfo-ExtIEs} } 		OPTIONAL,
+	...
+}
+
+LPWUSSupportedBandInfo-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 LPWUSPSAssistanceInfo ::= SEQUENCE {
 	cNSubgroupID-LP-WUS		CNSubgroupID-LP-WUS,
@@ -4746,6 +4785,22 @@ LTMResidualTAInfo-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+
+LTMConfig-to-Modify-List ::= SEQUENCE (SIZE(1..maxnoofLTMCells)) OF LTMConfig-to-Modify-Item
+
+LTMConfig-to-Modify-Item ::= SEQUENCE {
+candidateCellID								NRCGI,
+	tCIStatesConfigurationsList					TCIStatesConfigurationsList					OPTIONAL,
+	cSI-RSResourceConfigforL1Measurement		CSI-RSResourceConfig						OPTIONAL,
+	cSI-RSResourceConfigforCSIAcquisition		CSI-RSResourceConfig						OPTIONAL,
+completeCandidateConfigurationIndicator		CompleteCandidateConfigurationIndicator OPTIONAL,
+iE-Extensions								ProtocolExtensionContainer { { LTMConfig-to-Modify-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+LTMConfig-to-Modify-Item-ExtIEs		F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 
 -- M
@@ -6234,8 +6289,8 @@ Neighbour-Future-Coverage-Modification-Item ::= SEQUENCE {
 	neighbourfuturecellCoverageState				NeighbourFutureCellCoverageState,
 	neighbourfutureSSBCoverageModificationList	NeighbourFutureSSBCoverageModification-List	OPTIONAL,
 	timeforneighbourFutureCoverageModification	TimeforNeighbourFutureCoverageModification	OPTIONAL,
-	futureCoverageModificationCause				Future-Coverage-Modification-Notification-Cause		OPTIONAL,
-	iE-Extension			ProtocolExtensionContainer { { Neighbour-Future-Coverage-Modification-Item-ExtIEs} } 				OPTIONAL,
+-- The above IE shall be present if the Future Coverage Modification Cause IE is set to the value “coverage” or “cell edge capacity”.
+	futureCoverageModificationCause				Future-Coverage-Modification-Notification-Cause,	iE-Extension			ProtocolExtensionContainer { { Neighbour-Future-Coverage-Modification-Item-ExtIEs} } 				OPTIONAL,
 	...
 }
 
@@ -6394,7 +6449,9 @@ PagingCell-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 	{	ID id-PEISubgroupingSupportIndication			CRITICALITY ignore	EXTENSION PEISubgroupingSupportIndication			PRESENCE optional }|
 	{	ID id-Recommended-SSBs-List						CRITICALITY ignore	EXTENSION Recommended-SSBs-List						PRESENCE optional }|
 	{	ID id-LPWUSSubgroupingSupportIndication			CRITICALITY ignore	EXTENSION LPWUSSubgroupingSupportIndication		PRESENCE optional }|
-	{	ID id-PEISubgroupingSupportIndication-PagingAdaptation			CRITICALITY ignore	EXTENSION PEISubgroupingSupportIndication-PagingAdaptation			PRESENCE optional },
+	{	ID id-PEISubgroupingSupportIndication-PagingAdaptation			CRITICALITY ignore	EXTENSION PEISubgroupingSupportIndication-PagingAdaptation			PRESENCE optional }|
+	{	ID id-LPWUSSupportedBandInfo					CRITICALITY ignore	EXTENSION LPWUSSupportedBandInfo				PRESENCE optional },
+		-- The above IE shall be present if the LPWUSSubgroupingSupportIndication IE is present --
 	...
 }
 
@@ -7049,6 +7106,7 @@ PosSItype-Item ::= SEQUENCE {
 }
 
 PosSItype-ItemExtIEs    F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-DeliveryStatusReq			CRITICALITY reject EXTENSION DeliveryStatusReq PRESENCE optional },
 	...
 }
 
@@ -8331,7 +8389,7 @@ ReportingIntervalIMs  ::= INTEGER (1.. 999)
 
 -- S
 
-SBFD-AcrossSymbolType ::= ENUMERATED {true, ...}
+SBFD-AcrossSymbolType ::= ENUMERATED {true, ..., false}
 
 
 SBFD-Frequency-Configuration ::= OCTET STRING
@@ -9259,7 +9317,7 @@ SpatialInformationPos-ExtIEs F1AP-PROTOCOL-IES ::= {
 
 SpectrumSharingGroupID ::= INTEGER (1..maxCellineNB)
 
-SRBID ::= INTEGER (0..3, ..., 4 | 5)
+SRBID ::= INTEGER (0..3, ..., 4 | 5 | 6)
 
 SRBs-FailedToBeSetup-Item	::= SEQUENCE {
 	sRBID		SRBID	,

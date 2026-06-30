@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.473 V19.2.0 (2026-03)
+ * References: 3GPP TS 38.473 V19.3.0 (2026-06)
  */
 
 #include "config.h"
@@ -1232,7 +1232,11 @@ typedef enum _ProtocolIE_ID_enum {
   id_NodeAssociatedInfoResult = 917,
   id_NeighbourFutureCoverageModNotification = 918,
   id_AreaSpecificSemiPersistentSRSPosInfo = 919,
-  id_SBFD_AcrossSymbolType = 920
+  id_SBFD_AcrossSymbolType = 920,
+  id_LTMConfig_to_Modify_List = 921,
+  id_InterSNLTMMCGInformation = 922,
+  id_LPWUSSupportedBandInfo = 923,
+  id_DeliveryStatusReq = 924
 } ProtocolIE_ID_enum;
 
 /* Initialize the protocol and registered fields */
@@ -1380,6 +1384,7 @@ static int hf_f1ap_DCBasedDuplicationConfigured_PDU;  /* DCBasedDuplicationConfi
 static int hf_f1ap_DeactivationIndication_PDU;    /* DeactivationIndication */
 static int hf_f1ap_Dedicated_SIDelivery_NeededUE_Item_PDU;  /* Dedicated_SIDelivery_NeededUE_Item */
 static int hf_f1ap_DedicatedSIDeliveryIndication_PDU;  /* DedicatedSIDeliveryIndication */
+static int hf_f1ap_DeliveryStatusReq_PDU;         /* DeliveryStatusReq */
 static int hf_f1ap_DLPDUSetInformationMarkingSupportIndication_PDU;  /* DLPDUSetInformationMarkingSupportIndication */
 static int hf_f1ap_DL_UP_TNL_Address_to_Update_List_Item_PDU;  /* DL_UP_TNL_Address_to_Update_List_Item */
 static int hf_f1ap_DRB_Activity_Item_PDU;         /* DRB_Activity_Item */
@@ -1499,6 +1504,7 @@ static int hf_f1ap_InactivityMonitoringResponse_PDU;  /* InactivityMonitoringRes
 static int hf_f1ap_Indication_of_Bitrate_Adaptation_PDU;  /* Indication_of_Bitrate_Adaptation */
 static int hf_f1ap_IntendedTDD_DL_ULConfig_PDU;   /* IntendedTDD_DL_ULConfig */
 static int hf_f1ap_InterFrequencyConfig_NoGap_PDU;  /* InterFrequencyConfig_NoGap */
+static int hf_f1ap_InterSNLTMMCGInformation_PDU;  /* InterSNLTMMCGInformation */
 static int hf_f1ap_IngressNonF1terminatingTopologyIndicator_PDU;  /* IngressNonF1terminatingTopologyIndicator */
 static int hf_f1ap_IndicationMCInactiveReception_PDU;  /* IndicationMCInactiveReception */
 static int hf_f1ap_LTMResetInformation_PDU;       /* LTMResetInformation */
@@ -1512,6 +1518,7 @@ static int hf_f1ap_LMF_UE_MeasurementID_PDU;      /* LMF_UE_MeasurementID */
 static int hf_f1ap_LocationMeasurementInformation_PDU;  /* LocationMeasurementInformation */
 static int hf_f1ap_LowerLayerPresenceStatusChange_PDU;  /* LowerLayerPresenceStatusChange */
 static int hf_f1ap_LoS_NLoSInformation_PDU;       /* LoS_NLoSInformation */
+static int hf_f1ap_LPWUSSupportedBandInfo_PDU;    /* LPWUSSupportedBandInfo */
 static int hf_f1ap_LPWUSPSAssistanceInfo_PDU;     /* LPWUSPSAssistanceInfo */
 static int hf_f1ap_LPWUSSubgroupingSupportIndication_PDU;  /* LPWUSSubgroupingSupportIndication */
 static int hf_f1ap_LTEUESidelinkAggregateMaximumBitrate_PDU;  /* LTEUESidelinkAggregateMaximumBitrate */
@@ -1531,6 +1538,7 @@ static int hf_f1ap_LTMInformationSCGAdd_PDU;      /* LTMInformationSCGAdd */
 static int hf_f1ap_LTMInformationSCGMod_PDU;      /* LTMInformationSCGMod */
 static int hf_f1ap_LTMSecurityInformation_PDU;    /* LTMSecurityInformation */
 static int hf_f1ap_LTMResidualTAInfoList_PDU;     /* LTMResidualTAInfoList */
+static int hf_f1ap_LTMConfig_to_Modify_List_PDU;  /* LTMConfig_to_Modify_List */
 static int hf_f1ap_MaskedIMEISV_PDU;              /* MaskedIMEISV */
 static int hf_f1ap_MaxDataBurstVolume_PDU;        /* MaxDataBurstVolume */
 static int hf_f1ap_MBS_Broadcast_NeighbourCellList_PDU;  /* MBS_Broadcast_NeighbourCellList */
@@ -2818,6 +2826,8 @@ static int hf_f1ap_nRSCS;                         /* T_nRSCS */
 static int hf_f1ap_nRCP;                          /* T_nRCP */
 static int hf_f1ap_nRDLULTxPeriodicity;           /* T_nRDLULTxPeriodicity */
 static int hf_f1ap_slot_Configuration_List;       /* Slot_Configuration_List */
+static int hf_f1ap_interSNLTM_trigger;            /* LTM_trigger */
+static int hf_f1ap_candidatePSCellsToCancel;      /* PSCellList */
 static int hf_f1ap_servingCellL2ResetConfiguration;  /* OCTET_STRING */
 static int hf_f1ap_lTML2ResetConfigurationList;   /* LTML2ResetConfigurationList */
 static int hf_f1ap_LTML2ResetConfigurationList_item;  /* LTML2ResetConfiguration_Item */
@@ -2862,6 +2872,10 @@ static int hf_f1ap_verticalUncertainty;           /* INTEGER_0_255 */
 static int hf_f1ap_verticalConfidence;            /* INTEGER_0_100 */
 static int hf_f1ap_loS_NLoSIndicatorSoft;         /* LoS_NLoSIndicatorSoft */
 static int hf_f1ap_loS_NLoSIndicatorHard;         /* LoS_NLoSIndicatorHard */
+static int hf_f1ap_minimumTimeGapIndication;      /* T_minimumTimeGapIndication */
+static int hf_f1ap_oOKIndication;                 /* T_oOKIndication */
+static int hf_f1ap_oFDMIndication;                /* T_oFDMIndication */
+static int hf_f1ap_lP_SSIndication;               /* T_lP_SSIndication */
 static int hf_f1ap_cNSubgroupID_LP_WUS;           /* CNSubgroupID_LP_WUS */
 static int hf_f1ap_uELTESidelinkAggregateMaximumBitrate;  /* BitRate */
 static int hf_f1ap_vehicleUE;                     /* VehicleUE */
@@ -2898,6 +2912,9 @@ static int hf_f1ap_servingCellNoSecurityChangeID;  /* T_servingCellNoSecurityCha
 static int hf_f1ap_securityChangeCandidateCellInfoList;  /* SecurityChangeCandidateCellInfoList */
 static int hf_f1ap_LTMResidualTAInfoList_item;    /* LTMResidualTAInfo_Item */
 static int hf_f1ap_tATRemainingTime;              /* INTEGER_0_10240 */
+static int hf_f1ap_LTMConfig_to_Modify_List_item;  /* LTMConfig_to_Modify_Item */
+static int hf_f1ap_cSI_RSResourceConfigforL1Measurement;  /* CSI_RSResourceConfig */
+static int hf_f1ap_cSI_RSResourceConfigforCSIAcquisition;  /* CSI_RSResourceConfig */
 static int hf_f1ap_MappingInformationtoRemove_item;  /* MappingInformationIndex */
 static int hf_f1ap_MBS_Flows_Mapped_To_MRB_List_item;  /* MBS_Flows_Mapped_To_MRB_Item */
 static int hf_f1ap_mBS_QoSFlowIdentifier;         /* QoSFlowIdentifier */
@@ -4406,6 +4423,7 @@ static int ett_f1ap_Mobile_IAB_MTUserLocationInformation;
 static int ett_f1ap_ImplicitFormat;
 static int ett_f1ap_IndirectPathAddition;
 static int ett_f1ap_IntendedTDD_DL_ULConfig;
+static int ett_f1ap_InterSNLTMMCGInformation;
 static int ett_f1ap_LTMResetInformation;
 static int ett_f1ap_LTML2ResetConfigurationList;
 static int ett_f1ap_LTML2ResetConfiguration_Item;
@@ -4428,6 +4446,7 @@ static int ett_f1ap_LocationDependentMBSF1UInformation;
 static int ett_f1ap_LocationDependentMBSF1UInformation_Item;
 static int ett_f1ap_LocationUncertainty;
 static int ett_f1ap_LoS_NLoSInformation;
+static int ett_f1ap_LPWUSSupportedBandInfo;
 static int ett_f1ap_LPWUSPSAssistanceInfo;
 static int ett_f1ap_LTEUESidelinkAggregateMaximumBitrate;
 static int ett_f1ap_LTEV2XServicesAuthorized;
@@ -4458,6 +4477,8 @@ static int ett_f1ap_LTMInformationSCGMod;
 static int ett_f1ap_LTMSecurityInformation;
 static int ett_f1ap_LTMResidualTAInfoList;
 static int ett_f1ap_LTMResidualTAInfo_Item;
+static int ett_f1ap_LTMConfig_to_Modify_List;
+static int ett_f1ap_LTMConfig_to_Modify_Item;
 static int ett_f1ap_MappingInformationtoRemove;
 static int ett_f1ap_MBS_Flows_Mapped_To_MRB_List;
 static int ett_f1ap_MBS_Flows_Mapped_To_MRB_Item;
@@ -6990,6 +7011,10 @@ static const value_string f1ap_ProtocolIE_ID_vals[] = {
   { id_NeighbourFutureCoverageModNotification, "id-NeighbourFutureCoverageModNotification" },
   { id_AreaSpecificSemiPersistentSRSPosInfo, "id-AreaSpecificSemiPersistentSRSPosInfo" },
   { id_SBFD_AcrossSymbolType, "id-SBFD-AcrossSymbolType" },
+  { id_LTMConfig_to_Modify_List, "id-LTMConfig-to-Modify-List" },
+  { id_InterSNLTMMCGInformation, "id-InterSNLTMMCGInformation" },
+  { id_LPWUSSupportedBandInfo, "id-LPWUSSupportedBandInfo" },
+  { id_DeliveryStatusReq, "id-DeliveryStatusReq" },
   { 0, NULL }
 };
 
@@ -16234,6 +16259,22 @@ dissect_f1ap_DedicatedSIDeliveryIndication(tvbuff_t *tvb _U_, uint32_t offset _U
 }
 
 
+static const value_string f1ap_DeliveryStatusReq_vals[] = {
+  {   0, "start" },
+  {   1, "stop" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_f1ap_DeliveryStatusReq(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
 
 static unsigned
 dissect_f1ap_BIT_STRING_SIZE_2(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -19686,7 +19727,7 @@ static const per_sequence_t Future_Coverage_Modification_Item_sequence[] = {
   { &hf_f1ap_nRCGI          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_NRCGI },
   { &hf_f1ap_futurecellCoverageState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_FutureCellCoverageState },
   { &hf_f1ap_futureSSBCoverageModificationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_FutureSSBCoverageModification_List },
-  { &hf_f1ap_timeforFutureCoverageModification, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_TimeforFutureCoverageModification },
+  { &hf_f1ap_timeforFutureCoverageModification, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_TimeforFutureCoverageModification },
   { &hf_f1ap_futureCoverageModificationCause, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_Future_Coverage_Modification_Notification_Cause },
   { &hf_f1ap_iE_Extension   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
@@ -21326,6 +21367,69 @@ dissect_f1ap_InterFrequencyConfig_NoGap(tvbuff_t *tvb _U_, uint32_t offset _U_, 
 }
 
 
+static const value_string f1ap_LTM_trigger_vals[] = {
+  {   0, "ltm-preparation" },
+  {   1, "ltm-executed" },
+  {   2, "ltm-cancel" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_f1ap_LTM_trigger(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t PSCellList_Item_sequence[] = {
+  { &hf_f1ap_pscell         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_f1ap_NRCGI },
+  { &hf_f1ap_iE_Extensions  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_f1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_f1ap_PSCellList_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_f1ap_PSCellList_Item, PSCellList_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t PSCellList_sequence_of[1] = {
+  { &hf_f1ap_PSCellList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_f1ap_PSCellList_Item },
+};
+
+static unsigned
+dissect_f1ap_PSCellList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_f1ap_PSCellList, PSCellList_sequence_of,
+                                                  1, maxnoofCHOcells, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t InterSNLTMMCGInformation_sequence[] = {
+  { &hf_f1ap_interSNLTM_trigger, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_LTM_trigger },
+  { &hf_f1ap_pscellid       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_NRCGI },
+  { &hf_f1ap_candidatePSCellsToCancel, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_PSCellList },
+  { &hf_f1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_f1ap_InterSNLTMMCGInformation(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_f1ap_InterSNLTMMCGInformation, InterSNLTMMCGInformation_sequence);
+
+  return offset;
+}
+
+
 static const value_string f1ap_IngressNonF1terminatingTopologyIndicator_vals[] = {
   {   0, "true" },
   { 0, NULL }
@@ -21763,6 +21867,86 @@ dissect_f1ap_LoS_NLoSInformation(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ct
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_f1ap_LoS_NLoSInformation, LoS_NLoSInformation_choice,
                                  NULL);
+
+  return offset;
+}
+
+
+static const value_string f1ap_T_minimumTimeGapIndication_vals[] = {
+  {   0, "cap1" },
+  {   1, "cap2" },
+  {   2, "cap3" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_f1ap_T_minimumTimeGapIndication(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string f1ap_T_oOKIndication_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_f1ap_T_oOKIndication(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string f1ap_T_oFDMIndication_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_f1ap_T_oFDMIndication(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string f1ap_T_lP_SSIndication_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_f1ap_T_lP_SSIndication(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t LPWUSSupportedBandInfo_sequence[] = {
+  { &hf_f1ap_minimumTimeGapIndication, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_T_minimumTimeGapIndication },
+  { &hf_f1ap_oOKIndication  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_T_oOKIndication },
+  { &hf_f1ap_oFDMIndication , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_T_oFDMIndication },
+  { &hf_f1ap_lP_SSIndication, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_T_lP_SSIndication },
+  { &hf_f1ap_iE_Extension   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_f1ap_LPWUSSupportedBandInfo(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_f1ap_LPWUSSupportedBandInfo, LPWUSSupportedBandInfo_sequence);
 
   return offset;
 }
@@ -22555,6 +22739,39 @@ dissect_f1ap_LTMResidualTAInfoList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_f1ap_LTMResidualTAInfoList, LTMResidualTAInfoList_sequence_of,
                                                   1, maxnoofTAs, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMConfig_to_Modify_Item_sequence[] = {
+  { &hf_f1ap_candidateCellID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_NRCGI },
+  { &hf_f1ap_tCIStatesConfigurationsList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_TCIStatesConfigurationsList },
+  { &hf_f1ap_cSI_RSResourceConfigforL1Measurement, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_CSI_RSResourceConfig },
+  { &hf_f1ap_cSI_RSResourceConfigforCSIAcquisition, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_CSI_RSResourceConfig },
+  { &hf_f1ap_completeCandidateConfigurationIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_CompleteCandidateConfigurationIndicator },
+  { &hf_f1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_f1ap_LTMConfig_to_Modify_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_f1ap_LTMConfig_to_Modify_Item, LTMConfig_to_Modify_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LTMConfig_to_Modify_List_sequence_of[1] = {
+  { &hf_f1ap_LTMConfig_to_Modify_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_f1ap_LTMConfig_to_Modify_Item },
+};
+
+static unsigned
+dissect_f1ap_LTMConfig_to_Modify_List(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_f1ap_LTMConfig_to_Modify_List, LTMConfig_to_Modify_List_sequence_of,
+                                                  1, maxnoofLTMCells, false);
 
   return offset;
 }
@@ -25981,7 +26198,7 @@ static const per_sequence_t Neighbour_Future_Coverage_Modification_Item_sequence
   { &hf_f1ap_neighbourfuturecellCoverageState, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_NeighbourFutureCellCoverageState },
   { &hf_f1ap_neighbourfutureSSBCoverageModificationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_NeighbourFutureSSBCoverageModification_List },
   { &hf_f1ap_timeforneighbourFutureCoverageModification, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_TimeforNeighbourFutureCoverageModification },
-  { &hf_f1ap_futureCoverageModificationCause, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_Future_Coverage_Modification_Notification_Cause },
+  { &hf_f1ap_futureCoverageModificationCause, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_Future_Coverage_Modification_Notification_Cause },
   { &hf_f1ap_iE_Extension   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -29066,35 +29283,6 @@ dissect_f1ap_PSIbasedSDUdiscardDL(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_c
 }
 
 
-static const per_sequence_t PSCellList_Item_sequence[] = {
-  { &hf_f1ap_pscell         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_f1ap_NRCGI },
-  { &hf_f1ap_iE_Extensions  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_f1ap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static unsigned
-dissect_f1ap_PSCellList_Item(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_f1ap_PSCellList_Item, PSCellList_Item_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t PSCellList_sequence_of[1] = {
-  { &hf_f1ap_PSCellList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_f1ap_PSCellList_Item },
-};
-
-static unsigned
-dissect_f1ap_PSCellList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_f1ap_PSCellList, PSCellList_sequence_of,
-                                                  1, maxnoofCHOcells, false);
-
-  return offset;
-}
-
-
 static const per_sequence_t QoEMetrics_sequence[] = {
   { &hf_f1ap_appLayerBufferLevelList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_AppLayerBufferLevelList },
   { &hf_f1ap_playoutDelayForMediaStartup, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_PlayoutDelayForMediaStartup },
@@ -30830,6 +31018,7 @@ dissect_f1ap_ReportingIntervalIMs(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_c
 
 static const value_string f1ap_SBFD_AcrossSymbolType_vals[] = {
   {   0, "true" },
+  {   1, "false" },
   { 0, NULL }
 };
 
@@ -30837,7 +31026,7 @@ static const value_string f1ap_SBFD_AcrossSymbolType_vals[] = {
 static unsigned
 dissect_f1ap_SBFD_AcrossSymbolType(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, true, 0, NULL);
+                                     1, NULL, true, 1, NULL);
 
   return offset;
 }
@@ -41547,6 +41736,14 @@ static int dissect_DedicatedSIDeliveryIndication_PDU(tvbuff_t *tvb _U_, packet_i
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_DeliveryStatusReq_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_f1ap_DeliveryStatusReq(tvb, offset, &asn1_ctx, tree, hf_f1ap_DeliveryStatusReq_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_DLPDUSetInformationMarkingSupportIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -42499,6 +42696,14 @@ static int dissect_InterFrequencyConfig_NoGap_PDU(tvbuff_t *tvb _U_, packet_info
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_InterSNLTMMCGInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_f1ap_InterSNLTMMCGInformation(tvb, offset, &asn1_ctx, tree, hf_f1ap_InterSNLTMMCGInformation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_IngressNonF1terminatingTopologyIndicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -42600,6 +42805,14 @@ static int dissect_LoS_NLoSInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_f1ap_LoS_NLoSInformation(tvb, offset, &asn1_ctx, tree, hf_f1ap_LoS_NLoSInformation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LPWUSSupportedBandInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_f1ap_LPWUSSupportedBandInfo(tvb, offset, &asn1_ctx, tree, hf_f1ap_LPWUSSupportedBandInfo_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -42752,6 +42965,14 @@ static int dissect_LTMResidualTAInfoList_PDU(tvbuff_t *tvb _U_, packet_info *pin
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
   offset = dissect_f1ap_LTMResidualTAInfoList(tvb, offset, &asn1_ctx, tree, hf_f1ap_LTMResidualTAInfoList_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_LTMConfig_to_Modify_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_f1ap_LTMConfig_to_Modify_List(tvb, offset, &asn1_ctx, tree, hf_f1ap_LTMConfig_to_Modify_List_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -49317,6 +49538,10 @@ void proto_register_f1ap(void) {
       { "DedicatedSIDeliveryIndication", "f1ap.DedicatedSIDeliveryIndication",
         FT_UINT32, BASE_DEC, VALS(f1ap_DedicatedSIDeliveryIndication_vals), 0,
         NULL, HFILL }},
+    { &hf_f1ap_DeliveryStatusReq_PDU,
+      { "DeliveryStatusReq", "f1ap.DeliveryStatusReq",
+        FT_UINT32, BASE_DEC, VALS(f1ap_DeliveryStatusReq_vals), 0,
+        NULL, HFILL }},
     { &hf_f1ap_DLPDUSetInformationMarkingSupportIndication_PDU,
       { "DLPDUSetInformationMarkingSupportIndication", "f1ap.DLPDUSetInformationMarkingSupportIndication",
         FT_UINT32, BASE_DEC, VALS(f1ap_DLPDUSetInformationMarkingSupportIndication_vals), 0,
@@ -49793,6 +50018,10 @@ void proto_register_f1ap(void) {
       { "InterFrequencyConfig-NoGap", "f1ap.InterFrequencyConfig_NoGap",
         FT_UINT32, BASE_DEC, VALS(f1ap_InterFrequencyConfig_NoGap_vals), 0,
         NULL, HFILL }},
+    { &hf_f1ap_InterSNLTMMCGInformation_PDU,
+      { "InterSNLTMMCGInformation", "f1ap.InterSNLTMMCGInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_f1ap_IngressNonF1terminatingTopologyIndicator_PDU,
       { "IngressNonF1terminatingTopologyIndicator", "f1ap.IngressNonF1terminatingTopologyIndicator",
         FT_UINT32, BASE_DEC, VALS(f1ap_IngressNonF1terminatingTopologyIndicator_vals), 0,
@@ -49844,6 +50073,10 @@ void proto_register_f1ap(void) {
     { &hf_f1ap_LoS_NLoSInformation_PDU,
       { "LoS-NLoSInformation", "f1ap.LoS_NLoSInformation",
         FT_UINT32, BASE_DEC, VALS(f1ap_LoS_NLoSInformation_vals), 0,
+        NULL, HFILL }},
+    { &hf_f1ap_LPWUSSupportedBandInfo_PDU,
+      { "LPWUSSupportedBandInfo", "f1ap.LPWUSSupportedBandInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_f1ap_LPWUSPSAssistanceInfo_PDU,
       { "LPWUSPSAssistanceInfo", "f1ap.LPWUSPSAssistanceInfo_element",
@@ -49919,6 +50152,10 @@ void proto_register_f1ap(void) {
         NULL, HFILL }},
     { &hf_f1ap_LTMResidualTAInfoList_PDU,
       { "LTMResidualTAInfoList", "f1ap.LTMResidualTAInfoList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_f1ap_LTMConfig_to_Modify_List_PDU,
+      { "LTMConfig-to-Modify-List", "f1ap.LTMConfig_to_Modify_List",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_f1ap_MaskedIMEISV_PDU,
@@ -55069,6 +55306,14 @@ void proto_register_f1ap(void) {
       { "slot-Configuration-List", "f1ap.slot_Configuration_List",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_f1ap_interSNLTM_trigger,
+      { "interSNLTM-trigger", "f1ap.interSNLTM_trigger",
+        FT_UINT32, BASE_DEC, VALS(f1ap_LTM_trigger_vals), 0,
+        "LTM_trigger", HFILL }},
+    { &hf_f1ap_candidatePSCellsToCancel,
+      { "candidatePSCellsToCancel", "f1ap.candidatePSCellsToCancel",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "PSCellList", HFILL }},
     { &hf_f1ap_servingCellL2ResetConfiguration,
       { "servingCellL2ResetConfiguration", "f1ap.servingCellL2ResetConfiguration",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -55245,6 +55490,22 @@ void proto_register_f1ap(void) {
       { "loS-NLoSIndicatorHard", "f1ap.loS_NLoSIndicatorHard",
         FT_UINT32, BASE_DEC, VALS(f1ap_LoS_NLoSIndicatorHard_vals), 0,
         NULL, HFILL }},
+    { &hf_f1ap_minimumTimeGapIndication,
+      { "minimumTimeGapIndication", "f1ap.minimumTimeGapIndication",
+        FT_UINT32, BASE_DEC, VALS(f1ap_T_minimumTimeGapIndication_vals), 0,
+        NULL, HFILL }},
+    { &hf_f1ap_oOKIndication,
+      { "oOKIndication", "f1ap.oOKIndication",
+        FT_UINT32, BASE_DEC, VALS(f1ap_T_oOKIndication_vals), 0,
+        NULL, HFILL }},
+    { &hf_f1ap_oFDMIndication,
+      { "oFDMIndication", "f1ap.oFDMIndication",
+        FT_UINT32, BASE_DEC, VALS(f1ap_T_oFDMIndication_vals), 0,
+        NULL, HFILL }},
+    { &hf_f1ap_lP_SSIndication,
+      { "lP-SSIndication", "f1ap.lP_SSIndication",
+        FT_UINT32, BASE_DEC, VALS(f1ap_T_lP_SSIndication_vals), 0,
+        NULL, HFILL }},
     { &hf_f1ap_cNSubgroupID_LP_WUS,
       { "cNSubgroupID-LP-WUS", "f1ap.cNSubgroupID_LP_WUS",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -55389,6 +55650,18 @@ void proto_register_f1ap(void) {
       { "tATRemainingTime", "f1ap.tATRemainingTime",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_10240", HFILL }},
+    { &hf_f1ap_LTMConfig_to_Modify_List_item,
+      { "LTMConfig-to-Modify-Item", "f1ap.LTMConfig_to_Modify_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_f1ap_cSI_RSResourceConfigforL1Measurement,
+      { "cSI-RSResourceConfigforL1Measurement", "f1ap.cSI_RSResourceConfigforL1Measurement_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CSI_RSResourceConfig", HFILL }},
+    { &hf_f1ap_cSI_RSResourceConfigforCSIAcquisition,
+      { "cSI-RSResourceConfigforCSIAcquisition", "f1ap.cSI_RSResourceConfigforCSIAcquisition_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CSI_RSResourceConfig", HFILL }},
     { &hf_f1ap_MappingInformationtoRemove_item,
       { "MappingInformationIndex", "f1ap.MappingInformationIndex",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -60049,6 +60322,7 @@ void proto_register_f1ap(void) {
     &ett_f1ap_ImplicitFormat,
     &ett_f1ap_IndirectPathAddition,
     &ett_f1ap_IntendedTDD_DL_ULConfig,
+    &ett_f1ap_InterSNLTMMCGInformation,
     &ett_f1ap_LTMResetInformation,
     &ett_f1ap_LTML2ResetConfigurationList,
     &ett_f1ap_LTML2ResetConfiguration_Item,
@@ -60071,6 +60345,7 @@ void proto_register_f1ap(void) {
     &ett_f1ap_LocationDependentMBSF1UInformation_Item,
     &ett_f1ap_LocationUncertainty,
     &ett_f1ap_LoS_NLoSInformation,
+    &ett_f1ap_LPWUSSupportedBandInfo,
     &ett_f1ap_LPWUSPSAssistanceInfo,
     &ett_f1ap_LTEUESidelinkAggregateMaximumBitrate,
     &ett_f1ap_LTEV2XServicesAuthorized,
@@ -60101,6 +60376,8 @@ void proto_register_f1ap(void) {
     &ett_f1ap_LTMSecurityInformation,
     &ett_f1ap_LTMResidualTAInfoList,
     &ett_f1ap_LTMResidualTAInfo_Item,
+    &ett_f1ap_LTMConfig_to_Modify_List,
+    &ett_f1ap_LTMConfig_to_Modify_Item,
     &ett_f1ap_MappingInformationtoRemove,
     &ett_f1ap_MBS_Flows_Mapped_To_MRB_List,
     &ett_f1ap_MBS_Flows_Mapped_To_MRB_Item,
@@ -61687,6 +61964,8 @@ proto_reg_handoff_f1ap(void)
   dissector_add_uint("f1ap.ies", id_NodeAssociatedInfoResult, create_dissector_handle(dissect_NodeAssociatedInfoResult_PDU, proto_f1ap));
   dissector_add_uint("f1ap.ies", id_NeighbourFutureCoverageModNotification, create_dissector_handle(dissect_Neighbour_Future_Coverage_Modification_Notification_PDU, proto_f1ap));
   dissector_add_uint("f1ap.ies", id_AreaSpecificSemiPersistentSRSPosInfo, create_dissector_handle(dissect_AreaSpecificSemiPersistentSRSPosInfo_PDU, proto_f1ap));
+  dissector_add_uint("f1ap.ies", id_LTMConfig_to_Modify_List, create_dissector_handle(dissect_LTMConfig_to_Modify_List_PDU, proto_f1ap));
+  dissector_add_uint("f1ap.ies", id_InterSNLTMMCGInformation, create_dissector_handle(dissect_InterSNLTMMCGInformation_PDU, proto_f1ap));
   dissector_add_uint("f1ap.extension", id_gNB_CUSystemInformation, create_dissector_handle(dissect_GNB_CUSystemInformation_PDU, proto_f1ap));
   dissector_add_uint("f1ap.extension", id_HandoverPreparationInformation, create_dissector_handle(dissect_HandoverPreparationInformation_PDU, proto_f1ap));
   dissector_add_uint("f1ap.extension", id_TAISliceSupportList, create_dissector_handle(dissect_SliceSupportList_PDU, proto_f1ap));
@@ -61960,6 +62239,8 @@ proto_reg_handoff_f1ap(void)
   dissector_add_uint("f1ap.extension", id_ChannelResponseInformation, create_dissector_handle(dissect_ChannelResponseInformation_PDU, proto_f1ap));
   dissector_add_uint("f1ap.extension", id_UEPerformanceDelayMonitoring, create_dissector_handle(dissect_UEPerformanceDelayMonitoring_PDU, proto_f1ap));
   dissector_add_uint("f1ap.extension", id_SBFD_AcrossSymbolType, create_dissector_handle(dissect_SBFD_AcrossSymbolType_PDU, proto_f1ap));
+  dissector_add_uint("f1ap.extension", id_LPWUSSupportedBandInfo, create_dissector_handle(dissect_LPWUSSupportedBandInfo_PDU, proto_f1ap));
+  dissector_add_uint("f1ap.extension", id_DeliveryStatusReq, create_dissector_handle(dissect_DeliveryStatusReq_PDU, proto_f1ap));
   dissector_add_uint("f1ap.proc.imsg", id_Reset, create_dissector_handle(dissect_Reset_PDU, proto_f1ap));
   dissector_add_uint("f1ap.proc.sout", id_Reset, create_dissector_handle(dissect_ResetAcknowledge_PDU, proto_f1ap));
   dissector_add_uint("f1ap.proc.imsg", id_F1Setup, create_dissector_handle(dissect_F1SetupRequest_PDU, proto_f1ap));

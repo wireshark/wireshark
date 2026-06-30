@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V19.2.0 (2026-03)
+-- 3GPP TS 38.473 V19.3.0 (2026-06)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -462,7 +462,10 @@ IMPORTS
 	Future-Coverage-Modification-Notification,
 	Predicted-CCO-Assistance-Information,
 	Neighbour-Future-Coverage-Modification-Notification,
-	AreaSpecificSemiPersistentSRSPosInfo
+	AreaSpecificSemiPersistentSRSPosInfo,
+	LTMConfig-to-Modify-List,
+	InterSNLTMMCGInformation
+
 
 
 
@@ -1077,6 +1080,8 @@ FROM F1AP-Containers
 	id-Predicted-CCO-Assistance-Information,
 	id-NeighbourFutureCoverageModNotification,
 	id-AreaSpecificSemiPersistentSRSPosInfo,
+	id-LTMConfig-to-Modify-List,
+	id-InterSNLTMMCGInformation,
 	maxCellingNBDU,
 	maxnoofCandidateSpCells,
 	maxnoofDRBs,
@@ -2098,7 +2103,8 @@ UEContextModificationRequestIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-LTMResetInformation						CRITICALITY ignore	TYPE LTMResetInformation								PRESENCE optional	}|
 	{ ID id-LTMTCIStatesConfigurationsList			CRITICALITY reject	TYPE LTMTCIStatesConfigurationsList				PRESENCE optional	}|
 	{ ID id-LTMSecurityInformation					CRITICALITY reject	TYPE LTMSecurityInformation							PRESENCE optional	}|
-	{ ID id-LTMInformationSCGMod					CRITICALITY reject	TYPE LTMInformationSCGMod								PRESENCE optional	},
+	{ ID id-LTMInformationSCGMod					CRITICALITY reject	TYPE LTMInformationSCGMod								PRESENCE optional	}|
+	{ ID id-InterSNLTMMCGInformation				CRITICALITY ignore	TYPE InterSNLTMMCGInformation						PRESENCE optional	},
 	...
 }
 
@@ -2437,7 +2443,8 @@ UEContextModificationRequiredIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-PC5RLCChannelRequiredToBeReleasedList		CRITICALITY reject	TYPE PC5RLCChannelRequiredToBeReleasedList			PRESENCE optional}|
 	{ ID id-UE-MulticastMRBs-RequiredToBeModified-List	CRITICALITY reject	TYPE UE-MulticastMRBs-RequiredToBeModified-List	PRESENCE optional  }|
 	{ ID id-UE-MulticastMRBs-RequiredToBeReleased-List	CRITICALITY reject	TYPE UE-MulticastMRBs-RequiredToBeReleased-List	PRESENCE optional  }|
-	{ ID id-LTMCells-ToBeReleased-List					CRITICALITY reject	TYPE LTMCells-ToBeReleased-List						PRESENCE optional	},
+	{ ID id-LTMCells-ToBeReleased-List					CRITICALITY reject	TYPE LTMCells-ToBeReleased-List						PRESENCE optional	}|
+	{ ID id-LTMConfig-to-Modify-List					CRITICALITY ignore	TYPE LTMConfig-to-Modify-List							PRESENCE optional	},
 	...
 }
 
@@ -6170,7 +6177,7 @@ DUCUCSIRSCoordinationResponse ::= SEQUENCE {
 DUCUCSIRSCoordinationResponse-IEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-gNB-CU-UE-F1AP-ID						CRITICALITY reject	TYPE GNB-CU-UE-F1AP-ID									PRESENCE mandatory	}|
 	{ ID id-gNB-DU-UE-F1AP-ID						CRITICALITY reject	TYPE GNB-DU-UE-F1AP-ID									PRESENCE mandatory	}|
-	{ ID id-CSI-RSCoordinationResultList			CRITICALITY ignore	TYPE CSI-RSCoordinationResultList					PRESENCE optional},
+	{ ID id-CSI-RSCoordinationResultList			CRITICALITY ignore	TYPE CSI-RSCoordinationResultList					PRESENCE mandatory},
 	...
 }
 
@@ -6215,7 +6222,7 @@ CUDUCSIRSCoordinationResponse ::= SEQUENCE {
 CUDUCSIRSCoordinationResponse-IEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-gNB-CU-UE-F1AP-ID						CRITICALITY reject	TYPE GNB-CU-UE-F1AP-ID									PRESENCE mandatory	}|
 	{ ID id-gNB-DU-UE-F1AP-ID						CRITICALITY reject	TYPE GNB-DU-UE-F1AP-ID									PRESENCE mandatory 	}|
-	{ ID id-CSI-RSCoordinationResultList			CRITICALITY ignore	TYPE CSI-RSCoordinationResultList					PRESENCE optional},
+	{ ID id-CSI-RSCoordinationResultList			CRITICALITY ignore	TYPE CSI-RSCoordinationResultList					PRESENCE mandatory},
 	...
 }
 
