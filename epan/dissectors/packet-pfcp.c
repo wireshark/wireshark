@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 29.244 V19.5.0 (2026-03)
+ * Ref 3GPP TS 29.244 V19.6.0 (2026-06)
  */
 #include "config.h"
 
@@ -514,6 +514,7 @@ static int hf_pfcp_node_report_type_b2_ckdr;
 static int hf_pfcp_node_report_type_b3_gpqr;
 static int hf_pfcp_node_report_type_b4_purr;
 static int hf_pfcp_node_report_type_b5_vsr;
+static int hf_pfcp_node_report_type_b6_n6dr;
 
 static int hf_pfcp_remote_gtp_u_peer_flags_b0_v6;
 static int hf_pfcp_remote_gtp_u_peer_flags_b1_v4;
@@ -1160,8 +1161,8 @@ static int hf_pfcp_smf_change_reason_b0_mpsnr;
 static int hf_pfcp_smf_change_reason_b1_mpssf;
 static int hf_pfcp_smf_change_reason_b2_mpsai;
 
-static int hf_pfcp_pdu_set_importance_octet5;
-static int hf_pfcp_pdu_set_importance_octet6;
+static int hf_pfcp_pdu_set_importance_psi0_7;
+static int hf_pfcp_pdu_set_importance_psi8_15;
 
 static int hf_pfcp_moq_control_information_b0_mqrei;
 static int hf_pfcp_moq_control_information_b1_mqrai;
@@ -1197,6 +1198,9 @@ static int hf_pfcp_session_reflector_mode_stamp_b0_srm;
 static int hf_pfcp_transport_level_marking_indications_b0_tlmip;
 
 static int hf_pfcp_binding_indication;
+
+static int hf_pfcp_pdu_set_importance_for_n6_unmarked_pdus_spare;
+static int hf_pfcp_pdu_set_importance_for_n6_unmarked_pdus_psi_value;
 
 /* Enterprise IEs */
 /* BBF */
@@ -2274,7 +2278,8 @@ static const value_string pfcp_ie_type[] = {
     { 400, "Local N3/N9 Tunnel Information"},                       /* 	Extendable / Table 7.5.8.6-6	Not Applicable */
     { 401, "Remote N3/N9 Tunnel Information"},                      /* 	Extendable / Table 7.5.8.6-7	Not Applicable */
     { 402, "Binding Indication"},                                   /* 	Variable / Clause 8.2.281 */
-    //403 to 32767 Spare. For future use.
+    { 403, "PDU Set Importance for N6-unmarked PDUs"},              /* 	Fixed / Clause 8.2.282 */
+    //404 to 32767 Spare. For future use.
     //32768 to 65535 Vendor-specific IEs.
     {0, NULL}
 };
@@ -5675,7 +5680,8 @@ dissect_pfcp_node_report_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     unsigned offset = 0;
 
     static int * const pfcp_node_report_type_flags[] = {
-        &hf_pfcp_spare_b7_b6,
+        &hf_pfcp_spare_b7,
+        &hf_pfcp_node_report_type_b6_n6dr,
         &hf_pfcp_node_report_type_b5_vsr,
         &hf_pfcp_node_report_type_b4_purr,
         &hf_pfcp_node_report_type_b3_gpqr,
@@ -5684,7 +5690,7 @@ dissect_pfcp_node_report_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         &hf_pfcp_node_report_type_b0_upfr,
         NULL
     };
-    /* Octet 5  Spare   VSR   PURR   GPQR   CKDR   UPRR    MBQE */
+    /* Octet 5  Spare   N6DR   VSR   PURR   GPQR   CKDR   UPRR    UPFR */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_node_report_type_flags, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -10921,11 +10927,11 @@ dissect_pfcp_pdu_set_importance(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
     unsigned offset = 0;
 
-    proto_tree_add_item(tree, hf_pfcp_pdu_set_importance_octet5, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_pfcp_pdu_set_importance_psi0_7, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     if (offset < length) {
-        proto_tree_add_item(tree, hf_pfcp_pdu_set_importance_octet6, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pfcp_pdu_set_importance_psi8_15, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
     }
 
@@ -11201,6 +11207,31 @@ static void
 dissect_pfcp_binding_indication(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length, uint8_t message_type _U_, pfcp_session_args_t *args _U_)
 {
     proto_tree_add_item(tree, hf_pfcp_binding_indication, tvb, 0, length, ENC_NA);
+}
+
+/*
+ * 8.2.282   PDU Set Importance for N6-unmarked PDUs
+ */
+static void
+dissect_pfcp_pdu_set_importance_for_n6_unmarked_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, uint16_t length, uint8_t message_type _U_, pfcp_session_args_t *args _U_)
+{
+    unsigned offset = 0;
+    uint32_t value;
+
+    static int * const pdu_set_importance_for_n6_unmarked_pdus_flags[] = {
+        &hf_pfcp_pdu_set_importance_for_n6_unmarked_pdus_spare,
+        &hf_pfcp_pdu_set_importance_for_n6_unmarked_pdus_psi_value,
+        NULL
+    };
+
+    proto_tree_add_bitmask_list_ret_uint64(tree, tvb, offset, 1, pdu_set_importance_for_n6_unmarked_pdus_flags, ENC_BIG_ENDIAN, NULL);
+    value = tvb_get_uint8(tvb, offset) & 0x0f;
+    proto_item_append_text(item, "%u", value);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset);
+    }
 }
 
 static pfcp_msg_hash_t *
@@ -11943,7 +11974,8 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    400 */    { dissect_pfcp_grouped_ie },                                    /* Local N3/N9 Tunnel Information                   Extendable / Table 7.5.8.6-6 */
 /*    401 */    { dissect_pfcp_grouped_ie },                                    /* Remote N3/N9 Tunnel Information                  Extendable / Table 7.5.8.6-7 */
 /*    402 */    { dissect_pfcp_binding_indication },                            /* Binding Indication                               Variable / Clause 8.2.281 */
-//403 to 32767 Spare. For future use.
+/*    403 */    { dissect_pfcp_pdu_set_importance_for_n6_unmarked_pdus },       /* PDU Set Importance for N6-unmarked PDUs           Fixed / Clause 8.2.282 */
+//404 to 32767 Spare. For future use.
 //32768 to 65535 Vendor-specific IEs.
     { NULL },                                                        /* End of List */
 };
@@ -16754,6 +16786,11 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, NULL, 0x20,
             NULL, HFILL }
         },
+        { &hf_pfcp_node_report_type_b6_n6dr,
+        { "N6DR (N6 Delay Measurement Report)", "pfcp.node_report_type.n6dr",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
 
         { &hf_pfcp_remote_gtp_u_peer_flags_b0_v6,
         { "V6 (IPv6)", "pfcp.remote_gtp_u_peer.flags.v6",
@@ -19299,13 +19336,13 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
 
-        { &hf_pfcp_pdu_set_importance_octet5,
-        { "PDU Set Importance (PSI0-PSI7)", "pfcp.pdu_set_importance.octet5",
+        { &hf_pfcp_pdu_set_importance_psi0_7,
+        { "PDU Set Importance (PSI0-PSI7)", "pfcp.pdu_set_importance.psi0_7",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pfcp_pdu_set_importance_octet6,
-        { "PDU Set Importance (PSI8-PSI13)", "pfcp.pdu_set_importance.octet6",
+        { &hf_pfcp_pdu_set_importance_psi8_15,
+        { "PDU Set Importance (PSI8-PSI15)", "pfcp.pdu_set_importance.psi8_15",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
@@ -19430,6 +19467,17 @@ proto_register_pfcp(void)
         { &hf_pfcp_binding_indication,
         { "Binding Indication", "pfcp.binding_indication",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_pdu_set_importance_for_n6_unmarked_pdus_spare,
+        { "Spare", "pfcp.pdu_set_importance_for_n6_unmarked_pdus.spare",
+            FT_UINT8, BASE_DEC, NULL, 0xf0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_pdu_set_importance_for_n6_unmarked_pdus_psi_value,
+        { "PSI Value", "pfcp.pdu_set_importance_for_n6_unmarked_pdus.psi_value",
+            FT_UINT8, BASE_DEC, NULL, 0x0f,
             NULL, HFILL }
         },
 
