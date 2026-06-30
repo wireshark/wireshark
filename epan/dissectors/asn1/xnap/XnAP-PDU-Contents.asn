@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V19.2.0 (2026-03)
+-- 3GPP TS 38.423 V19.3.0 (2026-06)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -332,7 +332,9 @@ IMPORTS
 	LTMPSCellInformation-ChangeConfirm,
 	LTM-DC-DataForwarding-Indicator,
 	SemipersistentPositioningInformation,
-	LP-WUS-Disable-Indication
+	LP-WUS-Disable-Indication,
+	LTMUpdatesToSourceNodeInformation-List
+
 
 
 
@@ -728,6 +730,8 @@ FROM XnAP-Containers
 	id-SemipersistentPositioningInformation,
 	id-LP-WUS-Disable-Indication,
 	id-ContinuousMDT,
+	id-LTMUpdatesToSourceNodeInformation-List,
+
 
 
 
@@ -1328,7 +1332,7 @@ SNodeAdditionRequestAcknowledge-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-DirectForwardingPathAvailabilityWithSourceMN CRITICALITY ignore	TYPE DirectForwardingPathAvailabilityWithSourceMN	PRESENCE optional }|
 	{ ID id-PDUSetbasedHandlingIndicator		CRITICALITY ignore		TYPE PDUSetbasedHandlingIndicator			PRESENCE optional }|
 	{ ID id-LTMPSCellInformation-AddReqAck		CRITICALITY	reject		TYPE LTMPSCellInformation-AddReqAck		PRESENCE optional	}|
-	{ ID id-LTMInformationSCG-AddReqAck			CRITICALITY	ignore		TYPE LTMInformationSCG-AddReqAck			PRESENCE optional	},
+	{ ID id-LTMInformationSCG-AddReqAck			CRITICALITY	reject		TYPE LTMInformationSCG-AddReqAck			PRESENCE optional	},
 	...
 }
 
@@ -3895,7 +3899,8 @@ LTMConfigurationUpdate-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-NGRAN-Node1-ID								CRITICALITY reject	TYPE NG-RANnodeUEXnAPID										PRESENCE mandatory}|
 	{ ID id-NGRAN-Node2-ID									CRITICALITY reject	TYPE NG-RANnodeUEXnAPID										PRESENCE optional }|
 	{ ID id-LTMUpdatesToCandidateNodeInformation		CRITICALITY ignore	TYPE LTMUpdatesToCandidateNodeInformation				PRESENCE optional }|
-	{ ID id-LTMUpdatesToCandidateCellInformation-List	CRITICALITY ignore	TYPE LTMUpdatesToCandidateCellInformation-List		PRESENCE optional }|	{ ID id-LTMUESecurityInformation					CRITICALITY ignore	TYPE LTMUESecurityInformation								PRESENCE optional },
+	{ ID id-LTMUpdatesToCandidateCellInformation-List	CRITICALITY ignore	TYPE LTMUpdatesToCandidateCellInformation-List		PRESENCE optional }|	{ ID id-LTMUESecurityInformation					CRITICALITY ignore	TYPE LTMUESecurityInformation								PRESENCE optional }|
+	{ ID id-LTMUpdatesToSourceNodeInformation-List		CRITICALITY ignore	TYPE LTMUpdatesToSourceNodeInformation-List			PRESENCE optional	},
 	...
 }
 

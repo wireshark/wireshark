@@ -2062,7 +2062,7 @@ id-MBS-AssistanceInformation                                        ProtocolIE-I
 id-QMCCoordinationRequest                                           ProtocolIE-ID
 id-QMCCoordinationResponse                                          ProtocolIE-ID
 id-QoE-Measurement-Results                                          ProtocolIE-ID
-id-MBSCommServiceType                                               ProtocolIE-ID
+id-CommServiceType                                                  ProtocolIE-ID
 id-AssistanceInformationQoE-Meas                                    ProtocolIE-ID
 id-ProtocolIE-ID-439-not-to-be-used                                 ProtocolIE-ID
 id-QoERVQoEReportingPaths                                           ProtocolIE-ID
@@ -2177,6 +2177,8 @@ id-ContinuousMDT                                                    ProtocolIE-I
 id-ProposedLTM-UEBasedTAMeasurementID-List                          ProtocolIE-ID
 id-UEBasedTAMeasurementConfiguration                                ProtocolIE-ID
 id-ServingGNB-ID                                                    ProtocolIE-ID
+id-LTMUpdatesToSourceNodeInformation-List                           ProtocolIE-ID
+id-EarlyRACHResourcesRequesterID                                    ProtocolIE-ID
 
 
 #.REGISTER
@@ -2543,6 +2545,7 @@ LTM-DC-DataForwarding-Indicator                   N xnap.ies id-LTM-DC-DataForwa
 SemipersistentPositioningInformation              N xnap.ies id-SemipersistentPositioningInformation
 LP-WUS-Disable-Indication                         N xnap.ies id-LP-WUS-Disable-Indication
 NG-RANTraceID                                     N xnap.ies id-ContinuousMDT
+LTMUpdatesToSourceNodeInformation-List            N xnap.ies id-LTMUpdatesToSourceNodeInformation-List
 
 #XNAP-PROTOCOL-EXTENSION
 Additional-UL-NG-U-TNLatUPF-List                                 N xnap.extension id-Additional-UL-NG-U-TNLatUPF-List
@@ -2685,7 +2688,7 @@ DataforwardingandOffloadingInfofromSource                        N xnap.extensio
 CPACcandidatePSCells-wotherInfo-list                             N xnap.extension id-CPACcandidatePSCells-wotherInfo-list
 ERedcap-Bcast-Information                                        N xnap.extension id-eRedcap-Bcast-Information
 MBS-AssistanceInformation                                        N xnap.extension id-MBS-AssistanceInformation
-MBSCommServiceType                                               N xnap.extension id-MBSCommServiceType
+CommServiceType                                                  N xnap.extension id-CommServiceType
 AssistanceInformationQoE-Meas                                    N xnap.extension id-AssistanceInformationQoE-Meas
 QoERVQoEReportingPaths                                           N xnap.extension id-QoERVQoEReportingPaths
 CHO-Maxnoof-CondReconfig                                         N xnap.extension id-CHO-Maxnoof-CondReconfig
@@ -2736,6 +2739,7 @@ UEAveragePacketLossUL                                            N xnap.extensio
 LTM-UEBasedTAMeasurementID-List                                  N xnap.extension id-ProposedLTM-UEBasedTAMeasurementID-List
 UEBasedTAMeasurementConfiguration                                N xnap.extension id-UEBasedTAMeasurementConfiguration
 GlobalgNB-ID                                                     N xnap.extension id-ServingGNB-ID
+EarlyRACHResourcesRequesterID                                    N xnap.extension id-EarlyRACHResourcesRequesterID
 
 #XNAP-ELEMENTARY-PROCEDURE
 HandoverRequest                            N xnap.proc.imsg id-handoverPreparation

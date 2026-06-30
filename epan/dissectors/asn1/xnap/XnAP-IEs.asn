@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V19.2.0 (2026-03)
+-- 3GPP TS 38.423 V19.3.0 (2026-06)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -164,7 +164,7 @@ IMPORTS
 	id-CPACcandidatePSCells-wotherInfo-list,
 	id-eRedcap-Bcast-Information,
 	id-NRPagingLongeDRXInformationforRRCINACTIVE,
-	id-MBSCommServiceType,
+	id-CommServiceType,
 	id-AssistanceInformationQoE-Meas,
 	id-QoERVQoEReportingPaths,
 	id-DirectForwardingPathAvailability,
@@ -215,6 +215,7 @@ IMPORTS
 	id-UEBasedTAMeasurementConfiguration,
 	id-ServingGNB-ID,
 	id-requestedTargetCellGlobalID,
+	id-EarlyRACHResourcesRequesterID,
 	maxEARFCN,
 	maxnoofAllowedAreas,
 	maxnoofAMFRegions,
@@ -3254,8 +3255,9 @@ Future-Coverage-Modification-Item ::= SEQUENCE {
 	nR-CGI						NR-CGI,
 	future-cellCoverageState				INTEGER (0..63, ...),
 	future-SSB-Coverage-Modification-List	Future-SSB-Coverage-Modification-List		OPTIONAL,
-	predicted-Coverage-Modification-Cause	Predicted-CoverageModificationCause			OPTIONAL,
+	predicted-Coverage-Modification-Cause	Predicted-CoverageModificationCause,
 	timeForFutureCoverageState				INTEGER (1..60, ...)						OPTIONAL,
+-- This IE shall be present if the Predicted Coverage Modification Cause IE is set to the value “coverage” or “cell edge capacity”.
 	iE-Extension			ProtocolExtensionContainer { { Future-Coverage-Modification-Item-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -4181,7 +4183,6 @@ LTMUpdatesToCandidateCellInformation-Item ::= SEQUENCE {
 	ueBasedTAMeasurementConfiguration		OCTET STRING 						OPTIONAL,
 	aSSecurityInformation					AS-SecurityInformation				OPTIONAL,
 	lTM-NoSecurityChangeID					LTM-NoSecurityChangeID				OPTIONAL,
-	lTMUEAssociation						LTMUEAssociationInformation-List	OPTIONAL,
 	dataForwardingInfoForLTM-List			DataForwardingInfoForLTM-List		OPTIONAL,
 	lastTarget-NG-RANnodeUEXnAPID			NG-RANnodeUEXnAPID					OPTIONAL,
 	iE-Extensions							ProtocolExtensionContainer { { LTMUpdatesToCandidateCellInformation-Item-ExtIEs} } OPTIONAL,
@@ -4267,7 +4268,7 @@ LTMUserPlaneSecurityInformation-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 }
 
 
-LTMCandidateCellsToBeCancelled-List ::= SEQUENCE (SIZE(0..maxnoofLTMCells)) OF LTMCandidateCellsToBeCancelled-Item
+LTMCandidateCellsToBeCancelled-List ::= SEQUENCE (SIZE(1..maxnoofLTMCells)) OF LTMCandidateCellsToBeCancelled-Item
 
 LTMCandidateCellsToBeCancelled-Item ::= SEQUENCE {
 	targetCellID				NR-CGI,
@@ -4505,6 +4506,23 @@ LTM-SCG-SecurityConfig-Info-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 
 LTMIndicator ::= ENUMERATED {true, ...}
 
+LTMUpdatesToSourceNodeInformation-List ::= SEQUENCE (SIZE(1..maxnoofLTMCells)) OF LTMUpdatesToSourceNodeInformation-Item
+
+LTMUpdatesToSourceNodeInformation-Item ::= SEQUENCE {
+candidateCellID								NR-CGI,
+	tCI-StatesConfigurationsList				OCTET STRING 								OPTIONAL,
+	cSI-RSResourceConfigurationForLayer1Measurements		CSI-RSResourceConfiguration		OPTIONAL,
+	cSI-RSResourceConfigurationForEarlyCSIAcquisition		CSI-RSResourceConfiguration		OPTIONAL,
+	ltm-CandidateConfig							OCTET STRING								OPTIONAL,
+	completeCandidateConfigurationIndicator 	CompleteCandidateConfigurationIndicator 	OPTIONAL,
+    iE-Extensions                               ProtocolExtensionContainer { { LTMUpdatesToSourceNodeInformation-Item-ExtIEs} } OPTIONAL,
+    ...
+}
+
+LTMUpdatesToSourceNodeInformation-Item-ExtIEs   XNAP-PROTOCOL-EXTENSION ::= {
+    ...
+}
+
 
 -- M
 
@@ -4512,7 +4530,7 @@ MaxNrofRS-IndexesToReport::= INTEGER (1..64, ...)
 
 MaxNrofPSCellsToPrepare::= INTEGER (1..8, ...)
 
-MBSCommServiceType ::= ENUMERATED {multicast, broadcast, ...}
+CommServiceType ::= ENUMERATED {mbs-multicast, mbs-broadcast, ..., unicast}
 
 MDTAlignmentInfo ::= CHOICE {
 	s-BasedMDT						S-BasedMDT,
@@ -8613,7 +8631,8 @@ ServedCellInformation-NR-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-XR-Bcast-Information			CRITICALITY ignore	EXTENSION XR-Bcast-Information					PRESENCE optional }|
 	{ ID id-BarringExemptionforEmerCallInfo	CRITICALITY ignore	EXTENSION BarringExemptionforEmerCallInfo	PRESENCE optional }|
 	{ ID id-NZP-CSI-RS-Resources-Config		CRITICALITY ignore	EXTENSION NZP-CSI-RS-Resources-Config		PRESENCE optional }|
-	{ ID id-SRS-Resource-Configuration		CRITICALITY ignore	EXTENSION SRS-Resource-Configuration			PRESENCE optional },
+	{ ID id-SRS-Resource-Configuration		CRITICALITY ignore	EXTENSION SRS-Resource-Configuration			PRESENCE optional }|
+	{ ID id-EarlyRACHResourcesRequesterID	CRITICALITY ignore	EXTENSION EarlyRACHResourcesRequesterID		PRESENCE optional },
 	...
 }
 
@@ -9996,7 +10015,7 @@ UEAppLayerMeasConfigInfo ::= SEQUENCE {
 }
 
 UEAppLayerMeasConfigInfo-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-MBSCommServiceType				CRITICALITY ignore	EXTENSION MBSCommServiceType							PRESENCE optional }|
+	{ ID id-CommServiceType				CRITICALITY ignore	EXTENSION CommServiceType							PRESENCE optional }|
 	{ ID id-AssistanceInformationQoE-Meas	CRITICALITY ignore	EXTENSION AssistanceInformationQoE-Meas				PRESENCE optional }|
 	{ ID id-QoERVQoEReportingPaths			CRITICALITY ignore	EXTENSION QoERVQoEReportingPaths						PRESENCE optional },
 	...
