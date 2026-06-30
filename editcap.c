@@ -1002,26 +1002,42 @@ sctp_split_and_write(wtap_dumper *pdh, wtap_rec *rec, int *write_err,
             wtap_rec new_rec;
             uint16_t new_ip_total_len;
 
+            /*
+             * Handle truncated captures: if the chunk extends beyond
+             * the captured data, only copy what was actually captured.
+             * Set caplen to reflect the truncated size while len
+             * reflects the full on-wire size.
+             */
+            unsigned chunk_captured = chunk_len;
+            if (chunk_offset + chunk_len > caplen) {
+                if (chunk_offset >= caplen)
+                    chunk_captured = 0;
+                else
+                    chunk_captured = caplen - chunk_offset;
+            }
+            unsigned new_caplen = headers_len + chunk_captured;
+
             wtap_rec_init(&new_rec, new_pkt_len);
             new_rec.rec_type = REC_TYPE_PACKET;
             new_rec.presence_flags = rec->presence_flags;
             new_rec.ts = rec->ts;
             new_rec.tsprec = rec->tsprec;
-            new_rec.rec_header.packet_header.caplen = new_pkt_len;
+            new_rec.rec_header.packet_header.caplen = new_caplen;
             new_rec.rec_header.packet_header.len = new_pkt_len;
             new_rec.rec_header.packet_header.pkt_encap = rec->rec_header.packet_header.pkt_encap;
             new_rec.rec_header.packet_header.interface_id = rec->rec_header.packet_header.interface_id;
             new_rec.rec_header.packet_header.pseudo_header = rec->rec_header.packet_header.pseudo_header;
 
-            ws_buffer_assure_space(&new_rec.data, new_pkt_len);
+            ws_buffer_assure_space(&new_rec.data, new_caplen);
             new_buf = ws_buffer_start_ptr(&new_rec.data);
 
             /* Copy Eth + IP + SCTP common header */
             memcpy(new_buf, buf, headers_len);
-            /* Copy this DATA chunk */
-            memcpy(new_buf + headers_len, buf + chunk_offset, chunk_len);
+            /* Copy this DATA chunk (only the captured portion) */
+            if (chunk_captured > 0)
+                memcpy(new_buf + headers_len, buf + chunk_offset, chunk_captured);
 
-            /* Fix IP total length */
+            /* Fix IP total length (reflects full on-wire size) */
             new_ip_total_len = (uint16_t)(new_pkt_len - ip_hdr_offset);
             new_buf[ip_hdr_offset + 2] = (uint8_t)(new_ip_total_len >> 8);
             new_buf[ip_hdr_offset + 3] = (uint8_t)(new_ip_total_len & 0xFF);
@@ -1030,7 +1046,7 @@ sctp_split_and_write(wtap_dumper *pdh, wtap_rec *rec, int *write_err,
             new_buf[ip_hdr_offset + 10] = 0;
             new_buf[ip_hdr_offset + 11] = 0;
 
-            ws_buffer_increase_length(&new_rec.data, new_pkt_len);
+            ws_buffer_increase_length(&new_rec.data, new_caplen);
 
             /* Add comment with original frame number */
             {
