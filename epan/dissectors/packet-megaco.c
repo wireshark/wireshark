@@ -2836,6 +2836,7 @@ dissect_megaco_Packagesdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             tvb_LBRKT = tvb_find_uint8(tvb, tvb_LBRKT,
                 tvb_packages_end_offset, '{');
 
+            /* Find the comma that delimits the next packagesItem */
             tvb_current_offset  = tvb_find_uint8(tvb, tvb_previous_offset,
                 tvb_packages_end_offset, ',');
 
@@ -2870,19 +2871,13 @@ dissect_megaco_Packagesdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
             proto_tree_add_format_text(megaco_packagesdescriptor_tree, tvb, tvb_previous_offset, tokenlen);
 
-            tvb_current_offset      = tvb_find_uint8(tvb, tvb_RBRKT,
-                tvb_packages_end_offset, ',');
-
-            if (tvb_current_offset == -1 || tvb_current_offset > tvb_packages_end_offset ){
-                tvb_current_offset = tvb_packages_end_offset;
-            }
-
+            /* Move past the comma and any LWSP */
             tvb_previous_offset = megaco_tvb_skip_wsp(tvb, tvb_current_offset+1);
 
             tvb_LBRKT = tvb_previous_offset;
             tvb_RBRKT = tvb_previous_offset;
 
-        } while ( tvb_current_offset < tvb_packages_end_offset );
+        } while ( tvb_previous_offset < tvb_packages_end_offset );
     }
 
 }
