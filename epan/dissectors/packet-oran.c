@@ -506,6 +506,18 @@ static int hf_oran_is_last_rep;
 static int hf_oran_rep_index;
 static int hf_oran_num_reps;
 
+static int hf_oran_mcs_table;
+static int hf_oran_mcs_index;
+
+static int hf_oran_num_meas_req;
+static int hf_oran_num_of_ue_ant_ports;
+static int hf_oran_ue_rank;
+static int hf_oran_codebook_subset;
+static int hf_oran_full_pwr_mode;
+static int hf_oran_full_pwr_mode_2_tpmi_group;
+
+static int hf_oran_num_cand_ranks;
+static int hf_oran_ue_pref_rank;
 
 /* Computed fields */
 static int hf_oran_c_eAxC_ID;
@@ -824,6 +836,29 @@ static const value_string lbtMode_vals[] = {
     { 3,  "Full LBT and stop (regular LBT, without sending reservation signal" },
     { 0, NULL}
 };
+
+static const value_string ue_rank_vals[] = {
+    { 1, "1" },
+    { 2, "2" },
+    { 3, "3" },
+    { 4, "4" },
+    { 0, NULL}
+};
+
+static const value_string num_of_ue_ant_ports_vals[] = {
+    { 2, "2" },
+    { 4, "4" },
+    { 0, NULL}
+};
+
+static const value_string codebook_subset_vals[] = {
+    { 0, "nonCoherent" },
+    { 1, "partialAndNonCoherent" },
+    { 2, "fullyAndPartialAndNonCoherent" },
+    { 3, "reserved" },
+    { 0, NULL}
+};
+
 
 static const range_string filter_indices[] = {
     {0, 0,  "standard channel filter"},
@@ -1367,6 +1402,26 @@ static const value_string hopping_mode_vals[] = {
     { 1, "group hopping is enabled and sequence hopping is disabled"},
     { 2, "sequence hopping is enabled and group hopping is disabled"},
     { 3, "reserved"},
+    { 0, NULL}
+};
+
+/* Table 7.7.31.2-1 */
+static const value_string mcs_table_vals[] = {
+    { 0,  "MCS index table 1 for PDSCH and PUSCH without transform precoding" },
+    { 1,  "MCS index table 2 for PDSCH and PUSCH without transform precoding" },
+    { 2,  "MCS index table 3 for PDSCH and PUSCH without transform precoding" },
+    { 3,  "MCS index table 4 for PDSCH" },
+    { 4,  "MCS index table for PUSCH with transform precoding and 64QAM" },
+    { 5,  "MCS index table 2 for PUSCH with transform precoding and 64QAM" },
+    { 0, NULL}
+};
+
+/* 7.7.32.9 */
+static const value_string full_pwr_mode_vals[] = {
+    { 0, "not configured"},
+    { 1, "full power mode 0"},
+    { 2, "full power mode 1"},
+    { 3, "full power mode 2"},
     { 0, NULL}
 };
 
@@ -5099,12 +5154,68 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 break;
             }
             case 31: /* SE 31: MCS Information */
-                /* TODO: */
+            {
+                /* TODO: show ueid (from ST5 or SE10) as generated field?  Maybe add a subtree for each entry? */
+                for (uint32_t u=0; u < number_of_ueids; u++) {
+                    /* reserved (4 bits) */
+                    add_reserved_field(extension_tree, hf_oran_reserved_4bits, tvb, offset, 1);
+                    /* mcsTable (4 bits) */
+                    proto_tree_add_item(extension_tree, hf_oran_mcs_table, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset += 1;
+
+                    /* reserved (2 bits) */
+                    add_reserved_field(extension_tree, hf_oran_reserved_4bits, tvb, offset, 1);
+                    /* mcsIndex (6 bits) */
+                    proto_tree_add_item(extension_tree, hf_oran_mcs_index, tvb, offset, 1, ENC_BIG_ENDIAN);
+                }
                 break;
+            }
 
             case 32: /* SE 32: Rank and TPMI measurement request */
-                /* TODO: */
+            {
+                /* reserved (3 bits) */
+                add_reserved_field(extension_tree, hf_oran_reserved_3bits, tvb, offset, 1);
+                /* numMeasReq (5 bits) */
+                uint8_t num_meas_req;
+                proto_tree_add_item_ret_uint8(extension_tree, hf_oran_num_meas_req, tvb, offset, 1, ENC_BIG_ENDIAN, &num_meas_req);
+                offset += 1;
+
+                /* reserved (8 bits) */
+                add_reserved_field(extension_tree, hf_oran_reserved_8bits, tvb, offset, 1);
+                offset += 1;
+
+                /* Show each measurement request */
+                for (unsigned r=0; r < num_meas_req; r++) {
+                    /* Reserved (1 bit) */
+                    add_reserved_field(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1);
+                    /* ueId (14 bits) */
+                    proto_tree_add_item(extension_tree, hf_oran_ueId, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+
+                    /* numOfUeAntPorts (4 bits) */
+                    proto_tree_add_item(extension_tree, hf_oran_num_of_ue_ant_ports, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    /* ueRank (4 bits) */
+                    proto_tree_add_item(extension_tree, hf_oran_ue_rank, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset += 1;
+
+                    /* codebookSubset (2 bits) */
+                    proto_tree_add_item(extension_tree, hf_oran_codebook_subset, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    /* TODO: tpmiIndex (6 bits) */
+                    offset += 1;
+
+                    /* fullPwrMode (2 bits) */
+                    proto_tree_add_item(extension_tree, hf_oran_full_pwr_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    /* fullPwrMode2TmpiGroup (14 bits) */
+                    /* TODO: add as a bitset */
+                    proto_tree_add_item(extension_tree, hf_oran_full_pwr_mode_2_tpmi_group, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+
+                    /* reserved (2 bytes) */
+                    add_reserved_field(extension_tree, hf_oran_reserved_16bits, tvb, offset, 2);
+                    offset += 2;
+                }
                 break;
+            }
 
             default:
                 /* Other/unexpected extension types */
@@ -5379,16 +5490,38 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 case 9:
                 {
                     /* TODO: UE post-equalization MU interference measurement */
+
+                    /* reserved (16 bits) */
+                    add_reserved_field(mr_tree, hf_oran_reserved_16bits, tvb, offset, 2);
+                    offset += 2;
+
+                    /* TODO: muInterferenceLevel (all layers * all PRB blocks) */
                     break;
                 }
                 case 10:
                 {
                     /* TODO: UE TPMI and rank recommendation measurement */
+
+                    /* numCandRanks (4 bits) */
+                    add_reserved_field(mr_tree, hf_oran_num_cand_ranks, tvb, offset, 1);
+                    /* uePrefRank (4 bits) */
+                    add_reserved_field(mr_tree, hf_oran_ue_pref_rank, tvb, offset, 1);
+                    offset += 1;
+
+                    /* TODO: ueTpmiRank1 (1 byte) */
+                    offset += 1;
+
+                    /* TODO: ueTpmiRank1Sinr1 (2 bytes) */
+                    offset += 2;
+
+                    /* TODO: various Sinr depending upon numCandRanks value.. */
                     break;
                 }
                 case 11:
                 {
                     /* TODO: UE layer pre-equalization SINR report */
+
+                    /* TODO: 1st to last layer ueLayerPreEqSinr (2 bytes each) */
                     break;
                 }
 
@@ -6928,7 +7061,7 @@ static bool udcomphdr_appears_present(flow_state_t *flow, uint32_t direction, tv
     }
 }
 
-bool copy_section_entry(const void *key, void* value, void *userdata)
+static bool copy_section_entry(const void *key, void* value, void *userdata)
 {
     /* Cast parameters to their types */
     uint32_t sectionId = GPOINTER_TO_UINT(key);
@@ -10378,6 +10511,88 @@ proto_register_oran(void)
             HFILL}
         },
 
+        /* 7.7.31.2 */
+        { &hf_oran_mcs_table,
+          {"mcsTable", "oran_fh_cus.mcsTable",
+            FT_UINT8, BASE_DEC,
+            VALS(mcs_table_vals), 0x0f,
+            "MCS index table",
+            HFILL}
+        },
+        /* 7.7.31.3 */
+        { &hf_oran_mcs_index,
+          {"mcsIndex", "oran_fh_cus.mcsIndex",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x3f,
+            "MCS index value",
+            HFILL}
+        },
+
+        /* 7.7.33.3 */
+        { &hf_oran_num_meas_req,
+          {"numMeasReq", "oran_fh_cus.numMeasReq",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x1f,
+            "Number of UEs for which meas is requested",
+            HFILL}
+        },
+        /* 7.7.32.5 */
+        { &hf_oran_ue_rank,
+          {"ueRank", "oran_fh_cus.ueRank",
+            FT_UINT8, BASE_DEC,
+            VALS(ue_rank_vals), 0x0f,
+            "Number of UE layers under evaluation",
+            HFILL}
+        },
+        /* 7.7.32.6 */
+        { &hf_oran_num_of_ue_ant_ports,
+          {"numOfUeAntPorts", "oran_fh_cus.numofUeAntPorts",
+            FT_UINT8, BASE_DEC,
+            VALS(num_of_ue_ant_ports_vals), 0xf0,
+            "Used for the PUSCH tx under evaluation",
+            HFILL}
+        },
+        /* 7.7.32.8 */
+        { &hf_oran_codebook_subset,
+          {"codebookSubset", "oran_fh_cus.codebookSubset",
+            FT_UINT8, BASE_DEC,
+            VALS(codebook_subset_vals), 0xc0,
+            "UE capability wrt ULTPMI sets",
+            HFILL}
+        },
+        /* 7.7.32.9 */
+        { &hf_oran_full_pwr_mode,
+          {"fullPwrMode", "oran_fh_cus.fullPwrMode",
+            FT_UINT8, BASE_DEC,
+            VALS(full_pwr_mode_vals), 0xc0,
+            "Transmission mode",
+            HFILL}
+        },
+        /* 7.7.32.10 */
+        { &hf_oran_full_pwr_mode_2_tpmi_group,
+          {"fullPwrMode2TpmiGroup", "oran_fh_cus.fullPwrMode2TpmiGroup",
+            FT_UINT16, BASE_HEX,
+            NULL, 0x3fff,
+            "Capabilities",
+            HFILL}
+        },
+
+        /* 7.5.3.75 */
+        { &hf_oran_num_cand_ranks,
+          {"numCandRanks", "oran_fh_cus.numCandRanks",
+            FT_UINT8, BASE_DEC,
+            NULL, 0xf0,
+            NULL,
+            HFILL}
+        },
+        /* 7.5.3.76 */
+        { &hf_oran_ue_pref_rank,
+          {"uePrefRank", "oran_fh_cus.uePrefRank",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0f,
+            "Most optimal UL Tx rank for UE",
+            HFILL}
+        },
 
         { &hf_oran_c_section_common,
           { "Common Section", "oran_fh_cus.c-plane.section.common",
