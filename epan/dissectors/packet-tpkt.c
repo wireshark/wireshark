@@ -544,7 +544,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          */
         save_fragmented = pinfo->fragmented;
         length = length_remaining - 4;
-        if (length > data_len) {
+        if (length < data_len) {
             pinfo->fragmented = true;
         }
         next_tvb = tvb_new_subset_length(tvb, offset, data_len);

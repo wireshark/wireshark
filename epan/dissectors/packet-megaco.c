@@ -483,10 +483,15 @@ static int dissect_megaco_text_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
      * The minimum length of a MEGACO message is 6?:
      * Re-assembly ?
      */
-    if (is_tpkt(tvb, 6, NULL)) {
+    if (!is_tpkt(tvb, 6, NULL)) {
         /*
          * It's not a TPKT packet;
          * Is in MEGACO ?
+         *
+         * XXX - Why call dissect_tpkt_encap after deciding that
+         * MEGACO is not in TPKT? For the Continuation case? But
+         * dissect_megaco_text can call the data dissector if it
+         * doesn't look like MEGACO, so it's duplicative.
          */
         dissect_megaco_text(tvb, pinfo, tree, data);
     }
