@@ -288,7 +288,7 @@ window_geom_free(void *data)
 {
     window_geometry_t *geom = (window_geometry_t*)data;
     g_free(geom->key);
-    g_free(geom->qt_geom);
+    g_free((char*)geom->qt_geom); // We copied it; we can free it
     g_free(geom);
 }
 
@@ -309,6 +309,7 @@ window_geom_save(const char *name, window_geometry_t *geom)
     *work = *geom;
     key = g_strdup(name);
     work->key = key;
+    work->qt_geom = g_strdup(geom->qt_geom);
     g_hash_table_replace(window_geom_hash, key, work);
 }
 
@@ -417,7 +418,7 @@ window_geom_recent_read_pair(const char *name,
         parse_recent_boolean(value, &geom.maximized);
         geom.set_maximized = true;
     } else if (strcmp(key, "qt_geometry") == 0) {
-        geom.qt_geom = g_strdup(value);
+        geom.qt_geom = value;
     } else {
         /*
          * Silently ignore the bogus key.  We shouldn't abort here,

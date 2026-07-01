@@ -392,6 +392,9 @@ extern void recent_set_column_xalign(int col, char xalign);
  *
  * @param name The name of the window.
  * @param geom Pointer to the window_geometry_t structure containing the geometry data.
+ *
+ * @note This deep copies the window_geometry_t struct (including the qt_geom
+ * member) and does NOT take ownership of the original.
  */
 extern void window_geom_save(const char *name, window_geometry_t *geom);
 

@@ -37,7 +37,7 @@ typedef struct window_geometry_s {
     int         height;         /**< the windows height */
     bool        set_maximized;  /**< set the maximized state */
     bool        maximized;      /**< the windows maximized state */
-    char*       qt_geom;        /**< hex bytestring from Qt's saveGeometry() */
+    const char* qt_geom;        /**< hex bytestring from Qt's saveGeometry() */
 } window_geometry_t;
 
 /**
