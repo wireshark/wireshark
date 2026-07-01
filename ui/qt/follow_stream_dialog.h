@@ -46,8 +46,9 @@ public:
      * @param parent The parent widget.
      * @param cf The capture file containing the stream data.
      * @param proto_id The protocol ID of the stream to follow.
+     * @param previous_filter The main display filter at the time of creation
      */
-    explicit FollowStreamDialog(QWidget &parent, CaptureFile &cf, int proto_id);
+    explicit FollowStreamDialog(QWidget &parent, CaptureFile &cf, int proto_id, const QString& previous_filter);
 
     /**
      * @brief Destroys the FollowStreamDialog.
@@ -62,13 +63,12 @@ public:
 
     /**
      * @brief Initiates the stream following process.
-     * @param previous_filter An optional previous display filter to restore later.
      * @param use_stream_index True to follow using a specific stream index rather than the selected packet.
      * @param stream_num The specific stream number to follow (if use_stream_index is true).
      * @param sub_stream_num The specific sub-stream number (e.g., HTTP2 streams within a TCP connection).
      * @return True if the stream was successfully followed, false otherwise.
      */
-    bool follow(QString previous_filter = QString(), bool use_stream_index = false, unsigned stream_num = 0, unsigned sub_stream_num = 0);
+    bool follow(bool use_stream_index = false, unsigned stream_num = 0, unsigned sub_stream_num = 0);
 
 protected:
     /**
@@ -77,18 +77,20 @@ protected:
      * @param event The event to filter.
      * @return True if the event was handled, false otherwise.
      */
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
     /**
      * @brief Handles key press events in the dialog.
      * @param event The key event.
      */
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
+
+    void endRetapPackets() override;
 
     /**
      * @brief Slot triggered when the underlying capture file is closed.
      */
-    void captureFileClosed();
+    void captureFileClosed() override;
 
     /**
      * @brief Generates a hint label based on the current packet.
@@ -185,11 +187,6 @@ private slots:
     void close();
 
     /**
-     * @brief Slot triggered to apply a filter excluding the current stream.
-     */
-    void filterOut();
-
-    /**
      * @brief Slot triggered to toggle regex search mode.
      * @param use_regex True to enable regex search, false for plain text.
      */
@@ -280,7 +277,7 @@ private:
     /**
      * @brief Updates the states of the dialog widgets.
      */
-    void updateWidgets() { updateWidgets(false); } // Needed for WiresharkDialog?
+    void updateWidgets() override { updateWidgets(false); } // Needed for WiresharkDialog?
 
     /**
      * @brief Appends a buffer of stream data to the text display.
@@ -318,11 +315,16 @@ private:
      */
     void addText(QString text, bool is_from_server, uint32_t packet_num, bool colorize = true);
 
+    void filterMenuAboutToShow(QMenu *, bool);
+
     /** Pointer to the generated UI elements. */
     Ui::FollowStreamDialog  *ui;
 
-    /** Pointer to the "Filter Out" button. */
-    QPushButton             *b_filter_out_;
+    /** Pointer to the "Prepare as Filter" button. */
+    QPushButton             *b_filter_prepare_;
+
+    /** Pointer to the "Apply as Filter" button. */
+    QPushButton             *b_filter_apply_;
 
     /** Pointer to the "Find" button. */
     QPushButton             *b_find_;
@@ -345,11 +347,11 @@ private:
     /** The display filter active before the dialog was opened. */
     QString                 previous_filter_;
 
-    /** The filter string used to exclude this stream. */
-    QString                 filter_out_filter_;
+    /** The display string applied, if any, when closing the dialog. */
+    QString                 output_filter_;
 
     /** The filter string representing this specific stream. */
-    QString                 output_filter_;
+    QString                 follow_filter_;
 
     /** Counter for buffers received from the client. */
     int                     client_buffer_count_;

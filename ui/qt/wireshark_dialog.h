@@ -145,6 +145,8 @@ protected:
     /** @brief Flag indicating if the capture file has been closed. */
     bool file_closed_;
 
+    bool listening() const { return !tap_listeners_.isEmpty(); }
+
     /**
      * @brief Check to see if the user has closed (and not minimized) the dialog.
      * @return true if the dialog has been closed, false otherwise.

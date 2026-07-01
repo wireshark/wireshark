@@ -3288,11 +3288,7 @@ prefs_register_modules(void)
     prefs_register_obsolete_preference(gui_module, "tree_view_altern_colors");
     prefs_register_obsolete_preference(gui_module, "expert_composite_eyecandy");
     prefs_register_obsolete_preference(gui_module, "filter_toolbar_show_in_statusbar");
-
-    prefs_register_bool_preference(gui_module, "restore_filter_after_following_stream",
-                                   "Restore current display filter after following a stream",
-                                   "Restore current display filter after following a stream?",
-                                   &prefs.restore_filter_after_following_stream);
+    prefs_register_obsolete_preference(gui_module, "restore_filter_after_following_stream");
 
     prefs_register_obsolete_preference(gui_module, "protocol_tree_line_style");
 
@@ -4299,7 +4295,6 @@ prefs_set_global_defaults(wmem_allocator_t* pref_scope, const char** col_fmt, in
     char        *col_name;
     fmt_data    *cfmt;
 
-    prefs.restore_filter_after_following_stream = false;
     prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
     /* We try to find the best font in the Qt code */
     wmem_free(pref_scope, prefs.gui_font_name);

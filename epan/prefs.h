@@ -214,8 +214,6 @@ typedef struct _e_prefs {
     GList        *col_list;                  /**< Ordered list of packet list column definitions */
     unsigned      num_cols;                  /**< Number of entries in @ref col_list */
 
-    bool          restore_filter_after_following_stream; /**< If true, restore the previous display filter after closing a stream follow dialog */
-
     /* GUI appearance */
     int           gui_toolbar_main_style;    /**< Style of the main toolbar (icon size/text) */
     char         *gui_font_name;             /**< Name and size of the font used in the packet list and details pane */

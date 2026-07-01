@@ -12,8 +12,8 @@
 #include <ui/qt/utils/theme_manager.h>
 
 
-StratosharkFollowStreamDialog::StratosharkFollowStreamDialog(QWidget &parent, CaptureFile &cf, int proto_id) :
-    FollowStreamDialog(parent, cf, proto_id)
+StratosharkFollowStreamDialog::StratosharkFollowStreamDialog(QWidget &parent, CaptureFile &cf, int proto_id, const QString& previous_filter) :
+    FollowStreamDialog(parent, cf, proto_id, previous_filter)
 {
 }
 

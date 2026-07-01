@@ -31,8 +31,9 @@ public:
      * @param parent The parent widget.
      * @param cf The capture file.
      * @param proto_id The protocol identifier to follow.
+     * @param previous_filter The main display filter at time of creation
      */
-    explicit StratosharkFollowStreamDialog(QWidget &parent, CaptureFile &cf, int proto_id);
+    explicit StratosharkFollowStreamDialog(QWidget &parent, CaptureFile &cf, int proto_id, const QString& previous_filter);
 
     /**
      * @brief Destroys the StratosharkFollowStreamDialog object.

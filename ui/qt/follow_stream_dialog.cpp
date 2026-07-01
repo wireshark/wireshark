@@ -36,6 +36,7 @@
 
 #include <QElapsedTimer>
 #include <QKeyEvent>
+#include <QMenu>
 #include <QMessageBox>
 #include <QMutex>
 #include <QPrintDialog>
@@ -60,11 +61,13 @@ static bool isReadRunning;
 
 Q_DECLARE_METATYPE(bytes_show_type)
 
-FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, int proto_id) :
+FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, int proto_id, const QString& previous_filter) :
     WiresharkDialog(parent, cf),
     ui(new Ui::FollowStreamDialog),
     b_find_(NULL),
     follower_(NULL),
+    previous_filter_(previous_filter),
+    follow_filter_(),
     client_buffer_count_(0),
     server_buffer_count_(0),
     client_packet_count_(0),
@@ -114,8 +117,19 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, int pro
 
     ui->deltaComboBox->setCurrentIndex(recent.gui_follow_delta);
 
-    b_filter_out_ = ui->buttonBox->addButton(tr("Filter Out This Stream"), QDialogButtonBox::ActionRole);
-    connect(b_filter_out_, &QPushButton::clicked, this, &FollowStreamDialog::filterOut);
+    QMenu *filter_menu = new QMenu(this);
+    connect(filter_menu, &QMenu::aboutToShow, this, [this, filter_menu]() {
+        this->filterMenuAboutToShow(filter_menu, true);
+    });
+    b_filter_prepare_ = ui->buttonBox->addButton(tr("Prepare as Filter"), QDialogButtonBox::ActionRole);
+    b_filter_prepare_->setMenu(filter_menu);
+
+    filter_menu = new QMenu(this);
+    connect(filter_menu, &QMenu::aboutToShow, this, [this, filter_menu]() {
+        this->filterMenuAboutToShow(filter_menu, false);
+    });
+    b_filter_apply_ = ui->buttonBox->addButton(tr("Apply as Filter"), QDialogButtonBox::ActionRole);
+    b_filter_apply_->setMenu(filter_menu);
 
     b_print_ = ui->buttonBox->addButton(tr("Print"), QDialogButtonBox::ActionRole);
     connect(b_print_, &QPushButton::clicked, this, &FollowStreamDialog::printStream);
@@ -239,6 +253,13 @@ void FollowStreamDialog::goToPacketForTextPos(int pkt)
     }
 }
 
+void FollowStreamDialog::filterMenuAboutToShow(QMenu *menu, bool prepare)
+{
+    menu->clear();
+    QActionGroup * group = FilterAction::createFilterGroup(follow_filter_, prepare, !follow_filter_.isEmpty(), menu);
+    menu->addActions(group->actions());
+}
+
 void FollowStreamDialog::updateWidgets(bool follow_in_progress)
 {
     // XXX: If follow_in_progress set cursor to Qt::BusyCursor or WaitCursor,
@@ -257,7 +278,8 @@ void FollowStreamDialog::updateWidgets(bool follow_in_progress)
     }
     ui->leFind->setEnabled(enable);
     ui->bFind->setEnabled(enable);
-    b_filter_out_->setEnabled(enable);
+    b_filter_prepare_->setEnabled(enable);
+    b_filter_apply_->setEnabled(enable);
     b_print_->setEnabled(enable);
     b_save_->setEnabled(enable);
 
@@ -351,23 +373,12 @@ void FollowStreamDialog::backButton()
     close();
 }
 
-void FollowStreamDialog::filterOut()
-{
-    if (terminating_)
-        return;
-
-    output_filter_ = filter_out_filter_;
-
-    close();
-}
-
 void FollowStreamDialog::close()
 {
     terminating_ = true;
 
     // Update filter - Use:
-    //     previous_filter if 'Close' (passed in follow() method)
-    //     filter_out_filter_ if 'Filter Out This Stream' (built by appending !current_stream to previous_filter)
+    //     previous_filter if 'Back' (passed in constructor)
     //     leave filter alone if window closed. (current stream)
     emit updateFilter(output_filter_, true);
 
@@ -479,7 +490,7 @@ void FollowStreamDialog::streamNumberSpinBoxValueChanged(int stream_num)
     }
 
     if (stream_num >= 0 && ok) {
-        follow(previous_filter_, true, stream_num, sub_stream_num);
+        follow(true, stream_num, sub_stream_num);
         previous_sub_stream_num_ = sub_stream_num;
     }
 }
@@ -518,7 +529,7 @@ void FollowStreamDialog::subStreamNumberSpinBoxValueChanged(int sub_stream_num)
     sub_stream_num = static_cast<int>(sub_stream_num_new);
 
     if (ok) {
-        follow(previous_filter_, true, stream_num, sub_stream_num);
+        follow(true, stream_num, sub_stream_num);
         previous_sub_stream_num_ = sub_stream_num;
     }
 }
@@ -1010,12 +1021,8 @@ QString FollowStreamDialog::bothDirectionsString() const
             FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
 }
 
-bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, unsigned stream_num, unsigned sub_stream_num)
+bool FollowStreamDialog::follow(bool use_stream_index, unsigned stream_num, unsigned sub_stream_num)
 {
-    QString             follow_filter;
-    QString             server_to_client_string;
-    QString             client_to_server_string;
-    QString             both_directions_string;
     bool                is_follower = false;
     int                 stream_count;
     follow_stream_count_func stream_count_func = NULL;
@@ -1043,11 +1050,11 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
     /* Create a new filter that matches all packets in the TCP stream,
         and set the display filter entry accordingly */
     if (use_stream_index) {
-        follow_filter = gchar_free_to_qstring(get_follow_index_func(follower_)(stream_num, sub_stream_num));
+        follow_filter_ = gchar_free_to_qstring(get_follow_index_func(follower_)(stream_num, sub_stream_num));
     } else {
-        follow_filter = gchar_free_to_qstring(get_follow_conv_func(follower_)(cap_file_.capFile()->edt, &cap_file_.capFile()->edt->pi, &stream_num, &sub_stream_num));
+        follow_filter_ = gchar_free_to_qstring(get_follow_conv_func(follower_)(cap_file_.capFile()->edt, &cap_file_.capFile()->edt->pi, &stream_num, &sub_stream_num));
     }
-    if (follow_filter.isEmpty()) {
+    if (follow_filter_.isEmpty()) {
         // XXX: This error probably has to do with tunneling (#18231), where
         // the addresses or ports changed after the TCP or UDP layer.
         // (The appropriate layer must be present, or else the GUI
@@ -1058,23 +1065,12 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
         return false;
     }
 
-    previous_filter_ = previous_filter;
-    /* append the negation */
-    if (!previous_filter.isEmpty()) {
-        filter_out_filter_ = QStringLiteral("%1 and !(%2)")
-                .arg(previous_filter, follow_filter);
-    }
-    else
-    {
-        filter_out_filter_ = QStringLiteral("!(%1)").arg(follow_filter);
-    }
-
     follow_info_.stream_id = stream_num;
     follow_info_.substream_id = sub_stream_num;
 
     /* data will be passed via tap callback*/
     if (!registerTapListener(get_follow_tap_string(follower_), &follow_info_,
-                                follow_filter.toUtf8().constData(),
+                                follow_filter_.toUtf8().constData(),
                                 0, FollowStreamDialog::resetStream,
                                 get_follow_tap_handler(follower_), NULL)) {
         return false;
@@ -1122,58 +1118,34 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
         ui->subStreamNumberLabel->setVisible(false);
     }
 
-    beginRetapPackets();
     updateWidgets(true);
 
-    /* Run the display filter so it goes in effect - even if it's the
-       same as the previous display filter. */
-    /* XXX: This forces a cf_filter_packets() - but if a rescan (or something else
-     * that sets cf->read_lock) is in progress, this will queue the filter
-     * and return immediately. It will also cause a rescan in progress to
-     * stop and restart with the new filter. That also applies to this rescan;
-     * changing the main display filter (from the main window, or from, e.g.
-     * another FollowStreamDialog) will cause this to restart and reset the
-     * tap.
-     *
-     * Other tapping dialogs call cf_retap_packets (which retaps but doesn't
-     * set the main display filter, freeze the packet list, etc.), which
-     * has somewhat different behavior when another dialog tries to retap,
-     * but also results in the taps being reset mid tap.
-     *
-     * Either way, we should be event driven and listening for CaptureEvents
-     * instead of drawing after this returns. (Or like other taps, draw
-     * periodically in a callback, provided that can be done without causing
-     * issues with changing the Decode As type.)
-     */
-    emit updateFilter(follow_filter, true);
-
-    removeTapListeners();
-
-    server_to_client_string = serverToClientString();
-    client_to_server_string = clientToServerString();
-    both_directions_string = bothDirectionsString();
-
     setWindowSubtitle(tr("Follow %1 Stream (%2)").arg(proto_get_protocol_short_name(find_protocol_by_id(get_follow_proto_id(follower_))),
-                                                follow_filter));
-
-    ui->cbDirections->blockSignals(true);
-    ui->cbDirections->clear();
-    ui->cbDirections->addItem(both_directions_string);
-    ui->cbDirections->addItem(client_to_server_string);
-    ui->cbDirections->addItem(server_to_client_string);
-    ui->cbDirections->blockSignals(false);
-
-    followStream();
-    fillHintLabel();
-
-    updateWidgets(false);
-    endRetapPackets();
-
-    if (prefs.restore_filter_after_following_stream) {
-        emit updateFilter(previous_filter_, true);
-    }
+                                                follow_filter_));
+    cap_file_.retapPackets();
 
     return true;
+}
+
+void FollowStreamDialog::endRetapPackets()
+{
+    if (listening()) {
+        removeTapListeners();
+
+        ui->cbDirections->blockSignals(true);
+        ui->cbDirections->clear();
+        ui->cbDirections->addItem(bothDirectionsString());
+        ui->cbDirections->addItem(clientToServerString());
+        ui->cbDirections->addItem(serverToClientString());
+        ui->cbDirections->blockSignals(false);
+
+        followStream();
+        fillHintLabel();
+
+        updateWidgets(false);
+    }
+
+    WiresharkDialog::endRetapPackets();
 }
 
 void FollowStreamDialog::captureFileClosed()
