@@ -100,7 +100,10 @@ void GeometryStateDialog::saveWindowGeometry()
     // XXX: maximized and fullScreen are different window states; we've been
     // using the maximized key for fullScreen ever since this was added.
     geom.maximized = isFullScreen();
-    geom.qt_geom = g_strdup(saveGeometry().toHex().constData());
+
+    // Don't let the hex QByteArray be freed until window_geom_save copies it.
+    QByteArray qgeometry = saveGeometry().toHex();
+    geom.qt_geom = qgeometry.constData();
 
     window_geom_save(dialog_name_.toUtf8().constData(), &geom);
 }

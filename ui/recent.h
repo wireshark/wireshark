@@ -279,7 +279,15 @@ extern char recent_get_column_xalign(int col);
  */
 extern void recent_set_column_xalign(int col, char xalign);
 
-/* save the window and its current geometry into the geometry hashtable */
+/**
+ * @brief save the window and its current geometry into the geometry hashtable.
+ *
+ * @param name The name of the window.
+ * @param geom Pointer to the window_geometry_t structure containing the geometry data.
+ *
+ * @note This deep copies the window_geometry_t struct (including the qt_geom
+ * member) and does NOT take ownership of the original.
+ */
 extern void window_geom_save(const char *name, window_geometry_t *geom);
 
 /* load the desired geometry for this window from the geometry hashtable */
