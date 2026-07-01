@@ -1494,18 +1494,14 @@ proto_tree_add_text_node(proto_tree *tree, tvbuff_t *tvb, unsigned start, int le
 
 /* (INTERNAL USE ONLY) Add a text-only node to the proto_tree */
 proto_item *
-proto_tree_add_text_internal(proto_tree *tree, tvbuff_t *tvb, unsigned start, int length,
+proto_tree_add_text_internal(proto_tree *tree, tvbuff_t *tvb, unsigned start, unsigned length,
 		    const char *format, ...)
 {
 	proto_item	  *pi;
 	va_list		   ap;
 	header_field_info *hfinfo;
 
-	if (length == -1) {
-		length = tvb_captured_length(tvb) ? tvb_ensure_captured_length_remaining(tvb, start) : 0;
-	} else {
-		tvb_ensure_bytes_exist(tvb, start, length);
-	}
+	tvb_ensure_bytes_exist(tvb, start, length);
 
 	CHECK_FOR_NULL_TREE(tree);
 
@@ -1525,7 +1521,7 @@ proto_tree_add_text_internal(proto_tree *tree, tvbuff_t *tvb, unsigned start, in
 /* (INTERNAL USE ONLY) Add a text-only node to the proto_tree (va_list version) */
 proto_item *
 proto_tree_add_text_valist_internal(proto_tree *tree, tvbuff_t *tvb, unsigned start,
-			   int length, const char *format, va_list ap)
+			   unsigned length, const char *format, va_list ap)
 {
 	proto_item        *pi;
 	header_field_info *hfinfo;
@@ -1566,6 +1562,10 @@ proto_tree_add_subtree_format(proto_tree *tree, tvbuff_t *tvb, unsigned start, i
 	proto_item *pi;
 	va_list	    ap;
 
+	if (length == -1) {
+		length = tvb_captured_length_remaining(tvb, start);
+	}
+
 	va_start(ap, format);
 	pi = proto_tree_add_text_valist_internal(tree, tvb, start, length, format, ap);
 	va_end(ap);
@@ -1603,7 +1603,7 @@ proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
 }
 
 proto_item *
-proto_tree_add_format_text(proto_tree *tree, tvbuff_t *tvb, unsigned start, int length)
+proto_tree_add_format_text(proto_tree *tree, tvbuff_t *tvb, unsigned start, unsigned length)
 {
 	proto_item	  *pi;
 	header_field_info *hfinfo;
@@ -1622,7 +1622,7 @@ proto_tree_add_format_text(proto_tree *tree, tvbuff_t *tvb, unsigned start, int 
 }
 
 proto_item *
-proto_tree_add_format_wsp_text(proto_tree *tree, tvbuff_t *tvb, unsigned start, int length)
+proto_tree_add_format_wsp_text(proto_tree *tree, tvbuff_t *tvb, unsigned start, unsigned length)
 {
 	proto_item	  *pi;
 	header_field_info *hfinfo;
@@ -13853,15 +13853,11 @@ proto_tree_add_split_bits_crumb(proto_tree *tree, const int hfindex, tvbuff_t *t
 {
 	header_field_info *hfinfo;
 	unsigned start = bit_offset >> 3;
-	int length = ((bit_offset + crumb_spec[crumb_index].crumb_bit_length - 1) >> 3) - (bit_offset >> 3) + 1;
+	unsigned length = ((bit_offset + crumb_spec[crumb_index].crumb_bit_length - 1) >> 3) - (bit_offset >> 3) + 1;
 
 	/* We have to duplicate this length check from proto_tree_add_text_internal in order to check for a null tree
 	 * so that we can use the tree's memory scope in calculating the string */
-	if (length == -1) {
-		tvb_captured_length(tvb) ? tvb_ensure_captured_length_remaining(tvb, start) : 0;
-	} else {
-		tvb_ensure_bytes_exist(tvb, start, length);
-	}
+	tvb_ensure_bytes_exist(tvb, start, length);
 	if (!tree) return;
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);

@@ -1892,7 +1892,7 @@ proto_tree_add_item_ret_time_string(proto_tree *tree, int hfindex,
  @param ... printf like parameters
  @return the newly created item */
 proto_item *
-proto_tree_add_text_internal(proto_tree *tree, tvbuff_t *tvb, unsigned start, int length, const char *format,
+proto_tree_add_text_internal(proto_tree *tree, tvbuff_t *tvb, unsigned start, unsigned length, const char *format,
     ...) G_GNUC_PRINTF(5,6);
 
 /** (INTERNAL USE ONLY) Add a text-only node to a proto_tree using a variable argument list.
@@ -1905,7 +1905,7 @@ proto_tree_add_text_internal(proto_tree *tree, tvbuff_t *tvb, unsigned start, in
  @return the newly created item */
 proto_item *
 proto_tree_add_text_valist_internal(proto_tree *tree, tvbuff_t *tvb, unsigned start,
-    int length, const char *format, va_list ap) G_GNUC_PRINTF(5, 0);
+    unsigned length, const char *format, va_list ap) G_GNUC_PRINTF(5, 0);
 
 /** Add a text-only node that creates a subtree underneath.
  @param tree the tree to append this item to
@@ -1936,11 +1936,11 @@ proto_tree_add_subtree_format(proto_tree *tree, tvbuff_t *tvb, unsigned start, i
 
 /** Add a text-only node to a proto_tree with tvb_format_text() string. */
 WS_DLL_PUBLIC proto_item *
-proto_tree_add_format_text(proto_tree *tree, tvbuff_t *tvb, unsigned start, int length);
+proto_tree_add_format_text(proto_tree *tree, tvbuff_t *tvb, unsigned start, unsigned length);
 
 /** Add a text-only node to a proto_tree with tvb_format_text_wsp() string. */
 WS_DLL_PUBLIC proto_item *
-proto_tree_add_format_wsp_text(proto_tree *tree, tvbuff_t *tvb, unsigned start, int length);
+proto_tree_add_format_wsp_text(proto_tree *tree, tvbuff_t *tvb, unsigned start, unsigned length);
 
 /** Add a FT_NONE field to a proto_tree.
  @param tree the tree to append this item to
