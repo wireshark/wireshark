@@ -618,6 +618,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-clnp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cmpp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cnip.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-coap-eap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-coap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cola.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-collectd.c

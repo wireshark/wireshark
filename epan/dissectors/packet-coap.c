@@ -342,6 +342,7 @@ static const value_string vals_ctype[] = {
 	{ 256, "application/coap-group+json" },
 	{ 257, "application/concise-problem-details+cbor" },
 	{ 258, "application/swid+cbor" },
+	{ 269, "application/coap-eap" },
 	{ 271, "application/dots+cbor" },
 	{ 272, "application/missing-blocks+cbor-seq" },
 	{ 280, "application/pkcs7-mime; smime-type=server-generated-key" },
