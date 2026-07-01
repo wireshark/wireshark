@@ -2335,11 +2335,11 @@ dissect_h265_hrd_parameters(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo 
 		}
 		if (nal_hrd_parameters_present_flag) {
 
-			dissect_h265_sub_layer_hrd_parameters(tree, tvb, pinfo, bit_offset, subLayerId, cpb_cnt_minus1[subLayerId] + 1, sub_pic_hrd_params_present_flag);
+			bit_offset = dissect_h265_sub_layer_hrd_parameters(tree, tvb, pinfo, bit_offset, subLayerId, cpb_cnt_minus1[subLayerId] + 1, sub_pic_hrd_params_present_flag);
 		}
 		if (vcl_hrd_parameters_present_flag) {
 
-			dissect_h265_sub_layer_hrd_parameters(tree, tvb, pinfo, bit_offset, subLayerId, cpb_cnt_minus1[subLayerId] + 1, sub_pic_hrd_params_present_flag);
+			bit_offset = dissect_h265_sub_layer_hrd_parameters(tree, tvb, pinfo, bit_offset, subLayerId, cpb_cnt_minus1[subLayerId] + 1, sub_pic_hrd_params_present_flag);
 		}
 	}
 	return bit_offset;
