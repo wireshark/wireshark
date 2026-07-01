@@ -12,7 +12,9 @@
  */
 
 /*  See http://ivifoundation.org/downloads/Class%20Specifications/IVI-6.1_HiSLIP-1.1-2011-02-24.pdf
-    IVI VI-6.1: High-Speed LAN Instrument Protocol (HiSLIP)-*/
+    IVI-6.1: High-Speed LAN Instrument Protocol (HiSLIP) 1.1
+    See http://www.ivifoundation.org/downloads/Protocol%20Specifications/IVI-6.1_HiSLIP-2.0-2020-04-23.pdf
+    IVI-6.1: High-Speed LAN Instrument Protocol (HiSLIP) 2.0 */
 
 
 #include "config.h"
@@ -20,7 +22,10 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/tfs.h>
+#include <epan/proto_data.h>
 #include "packet-tcp.h"
+#include "packet-tls-utils.h"
 
 #define PROTO_TAG_HiSLIP    "HiSLIP"
 #define FRAME_HEADER_LEN    16
@@ -54,11 +59,26 @@
 #define HISLIP_ASYNCLOCKINFO                   24
 #define HISLIP_ASYNCLOCKINFORESPONSE           25
 
+/* HiSLIP 2.0 message types */
+#define HISLIP_GETDESCRIPTORS                  26
+#define HISLIP_GETDESCRIPTORSRESPONSE          27
+#define HISLIP_STARTTLS                        28
+#define HISLIP_ASYNCSTARTTLS                   29
+#define HISLIP_ASYNCSTARTTLSRESPONSE           30
+#define HISLIP_ENDTLS                          31
+#define HISLIP_ASYNCENDTLS                     32
+#define HISLIP_ASYNCENDTLSRESPONSE             33
+#define HISLIP_GETSASLMECHANISMLIST            34
+#define HISLIP_GETSASLMECHANISMLISTRESPONSE    35
+#define HISLIP_AUTHENTICATIONSTART             36
+#define HISLIP_AUTHENTICATIONEXCHANGE          37
+#define HISLIP_AUTHENTICATIONRESULT            38
 
 
 static int proto_hislip;
 
 static dissector_handle_t hislip_handle;
+static dissector_handle_t tls_handle;
 
 /* Request/Response tracking*/
 
@@ -74,9 +94,15 @@ typedef struct _hislip_transaction_t
 typedef struct _hislip_conv_info_t
 {
     uint8_t connectiontype;
+    wmem_tree_t *tls_transitions;
     wmem_tree_t *pdus;
  }hislip_conv_info_t;
 
+typedef struct _hislip_dissect_data_t
+{
+    conversation_t *conversation;
+    hislip_conv_info_t *hislip_info;
+} hislip_dissect_data_t;
 
 typedef struct _hislipinfo
 {
@@ -94,7 +120,7 @@ void proto_reg_handoff_hislip(void);
 
 #define HISLIP_PORT     4880
 
-/*Field indexs*/
+/*Field indexes*/
 static int hf_hislip_prologue;
 static int hf_hislip_messagetype;
 static int hf_hislip_controlcode;
@@ -126,9 +152,25 @@ static int hf_hislip_request;
 static int hf_hislip_maxmessagesize;
 static int hf_hislip_response;
 
+/* HiSLIP 2.0 field indexes */
+static int hf_hislip_controlcode_encryption_mode;
+static int hf_hislip_controlcode_initial_encryption_mode;
+static int hf_hislip_controlcode_reserved;
+static int hf_hislip_controlcode_vendor_specific;
+static int hf_hislip_controlcode_async_secure_connection;
+static int hf_hislip_controlcode_async_reserved;
+static int hf_hislip_controlcode_async_vendor_specific;
+static int hf_hislip_controlcode_tls_handshake_result;
+static int hf_hislip_controlcode_authentication_result;
+static int hf_hislip_last_received_message_id;
+static int hf_hislip_msgpara_authentication_error_code;
+
+
 /*Subtree index*/
 static int ett_hislip;
 static int ett_hislip_msgpara;
+static int ett_hislip_intializeresponse_controlcode;
+static int ett_hislip_asyncinitializeresponse_controlcode;
 
 
 static expert_field ei_wrong_prologue;
@@ -162,7 +204,20 @@ static const range_string messagetypestring[] =
     { HISLIP_ASYNCDEVICECLEARACKNOWLEDGE    , HISLIP_ASYNCDEVICECLEARACKNOWLEDGE    , "AsyncDeviceClearAcknowledge" },
     { HISLIP_ASYNCLOCKINFO                  , HISLIP_ASYNCLOCKINFO                  , "AsyncLockInfo" },
     { HISLIP_ASYNCLOCKINFORESPONSE          , HISLIP_ASYNCLOCKINFORESPONSE          , "AsyncLockInfoResponse" },
-    { 26                                    , 127                                   , "reserved for future use"},
+    { HISLIP_GETDESCRIPTORS                 , HISLIP_GETDESCRIPTORS                 , "GetDescriptors" },
+    { HISLIP_GETDESCRIPTORSRESPONSE         , HISLIP_GETDESCRIPTORSRESPONSE         , "GetDescriptorsResponse" },
+    { HISLIP_STARTTLS                       , HISLIP_STARTTLS                       , "StartTLS" },
+    { HISLIP_ASYNCSTARTTLS                  , HISLIP_ASYNCSTARTTLS                  , "AsyncStartTLS" },
+    { HISLIP_ASYNCSTARTTLSRESPONSE          , HISLIP_ASYNCSTARTTLSRESPONSE          , "AsyncStartTLSResponse" },
+    { HISLIP_ENDTLS                         , HISLIP_ENDTLS                         , "EndTLS" },
+    { HISLIP_ASYNCENDTLS                    , HISLIP_ASYNCENDTLS                    , "AsyncEndTLS" },
+    { HISLIP_ASYNCENDTLSRESPONSE            , HISLIP_ASYNCENDTLSRESPONSE            , "AsyncEndTLSResponse" },
+    { HISLIP_GETSASLMECHANISMLIST           , HISLIP_GETSASLMECHANISMLIST           , "GetSaslMechanismList" },
+    { HISLIP_GETSASLMECHANISMLISTRESPONSE   , HISLIP_GETSASLMECHANISMLISTRESPONSE   , "GetSaslMechanismListResponse" },
+    { HISLIP_AUTHENTICATIONSTART            , HISLIP_AUTHENTICATIONSTART            , "AuthenticationStart" },
+    { HISLIP_AUTHENTICATIONEXCHANGE         , HISLIP_AUTHENTICATIONEXCHANGE         , "AuthenticationExchange" },
+    { HISLIP_AUTHENTICATIONRESULT           , HISLIP_AUTHENTICATIONRESULT           , "AuthenticationResult" },
+    { 39                                    , 127                                   , "reserved for future use"},
     {128                                    , 255                                   , "VendorSpecific" },
     {  0                                    ,   0                                   , NULL }
 };
@@ -243,6 +298,36 @@ static const value_string remotetype[] =
         { 0, NULL}
 };
 
+/* HiSLIP 2.0 control code value strings */
+static const value_string encryption_mode[] =
+{
+        { 0, "Optional" },
+        { 1, "Mandatory" },
+        { 0, NULL }
+};
+
+static const value_string initial_encryption_mode[] =
+{
+        { 0, "Not Required" },
+        { 1, "Required" },
+        { 0, NULL }
+};
+
+static const value_string tls_handshake_result_code[] =
+{
+        { 0, "Busy" },
+        { 1, "Success" },
+        { 3, "Error" },
+        { 0, NULL }
+};
+
+static const value_string authentication_result_code[] =
+{
+        { 0, "Failure" },
+        { 1, "Success" },
+        { 0, NULL }
+};
+
 static const range_string fatalerrortype[] =
 {
     {  0,  0, "Unidentified error" },
@@ -250,7 +335,8 @@ static const range_string fatalerrortype[] =
     {  2,  2, "Attempt to use connection without both channels established" },
     {  3,  3, "Invalid Initialization Sequence" },
     {  4,  4, "Server refused connection due to maximum number of clients exceeded" },
-    {  5,127, "Reserved for HiSLIP extensions" },
+    {  5,  5, "Secure connection failed" },
+    {  6,127, "Reserved for HiSLIP extensions" },
     {128,255, "Device defined errors" },
     {  0,  0, NULL }
 };
@@ -262,7 +348,8 @@ static const range_string nonfatalerrortype[] =
     {  2,  2, "Unrecognized control code" },
     {  3,  3, "Unrecognized Vendor Defined Message" },
     {  4,  4, "Message too large" },
-    {  5,127, "Reserved for HiSLIP extensions" },
+    {  5,  5, "Authentication failed" },
+    {  6,127, "Reserved for HiSLIP extensions" },
     {128,255, "Device defined errors" },
     {  0,  0, NULL }
 };
@@ -439,11 +526,21 @@ decode_messagepara(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, hislipin
     case HISLIP_ASYNCINTERRUPTED:
     case HISLIP_ASYNCSTATUSQUERY:
     case HISLIP_ASYNCREMOTELOCALCONTROL:
+    case HISLIP_ASYNCSTARTTLS:
+    case HISLIP_ASYNCENDTLS:
 
          proto_tree_add_item(msgpara_tree, hf_hislip_msgpara_messageid, tvb, data->offset, 4, ENC_BIG_ENDIAN );
          proto_item_append_text(data->hislip_item, ", MessageId: 0x%0x", data->messageparameter);
          data->offset += 4;
          break;
+
+
+    case HISLIP_AUTHENTICATIONRESULT:
+
+        proto_tree_add_item(msgpara_tree, hf_hislip_msgpara_authentication_error_code, tvb, data->offset, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(data->hislip_item, ", Error Code: 0x%0x", data->messageparameter);
+        data->offset += 4;
+        break;
 
 
     default:
@@ -461,23 +558,59 @@ decode_messagepara(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, hislipin
 static void
 decode_controlcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, hislipinfo *data, uint8_t oldcontrolvalue)
 {
-    proto_item * item = NULL;
+    proto_item *item = NULL;
+    proto_tree *subtree = NULL;
+
     switch (data->messagetype )
     {
     case HISLIP_DATA:
     case HISLIP_DATAEND:
     case HISLIP_TRIGGER:
     case HISLIP_ASYNCSTATUSQUERY:
+    case HISLIP_ASYNCSTARTTLS:
+    case HISLIP_ASYNCENDTLS:
 
         proto_tree_add_item(tree, hf_hislip_controlcode_rmt, tvb, data->offset, 1, ENC_BIG_ENDIAN );
         break;
 
 
     case HISLIP_INITIALIZERESPONSE:
+    case HISLIP_ASYNCDEVICECLEARACKNOWLEDGE:
+    case HISLIP_DEVICECLEARCOMPLETE:
+    case HISLIP_DEVICECLEARACKNOWLEDGE:
+    {
+        const char* ov = val_to_str_const(data->controlcode & 1, overlap, "Unknown");
+        const char* enc = val_to_str_const((data->controlcode >> 1) & 1, encryption_mode, "Unknown");
+        const char* ienc = val_to_str_const((data->controlcode >> 2) & 1, initial_encryption_mode, "Unknown");
 
-        proto_tree_add_item(tree, hf_hislip_controlcode_overlap, tvb, data->offset, 1, ENC_BIG_ENDIAN );
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", val_to_str_const(data->controlcode, overlap, "Unknown"));
-        proto_item_append_text(data->hislip_item, ", %s", val_to_str_const(data->controlcode, overlap, "Unknown"));
+        item = proto_tree_add_item(tree, hf_hislip_controlcode, tvb, data->offset, 1, ENC_BIG_ENDIAN);
+        subtree = proto_item_add_subtree(item, ett_hislip_intializeresponse_controlcode);
+
+        proto_tree_add_item(subtree, hf_hislip_controlcode_overlap, tvb, data->offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_hislip_controlcode_encryption_mode, tvb, data->offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_hislip_controlcode_initial_encryption_mode, tvb, data->offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_hislip_controlcode_reserved, tvb, data->offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_hislip_controlcode_vendor_specific, tvb, data->offset, 1, ENC_BIG_ENDIAN);
+
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [Overlap Mode: %s, Encryption: %s, Initial Encryption: %s]", ov, enc, ienc);
+        proto_item_append_text(data->hislip_item, ", Overlap Mode: %s, Encryption: %s, Initial Encryption: %s", ov, enc, ienc);
+        break;
+    }
+
+    case HISLIP_ASYNCINITIALIZERESPONSE:
+
+        item = proto_tree_add_item(tree, hf_hislip_controlcode, tvb, data->offset, 1, ENC_BIG_ENDIAN);
+        subtree = proto_item_add_subtree(item, ett_hislip_asyncinitializeresponse_controlcode);
+
+        proto_tree_add_item(subtree, hf_hislip_controlcode_async_secure_connection, tvb, data->offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_hislip_controlcode_async_reserved, tvb, data->offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_hislip_controlcode_async_vendor_specific, tvb, data->offset, 1, ENC_BIG_ENDIAN);
+
+        if (data->controlcode & 1)
+        {
+            col_append_str(pinfo->cinfo, COL_INFO, " [Capability: Secure Connection]");
+            proto_item_append_text(data->hislip_item, ", Capability: Secure Connection");
+        }
         break;
 
 
@@ -571,13 +704,23 @@ decode_controlcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, hislipin
         proto_item_append_text(data->hislip_item, ", STB (0x%x)", data->controlcode);
         break;
 
-    case HISLIP_ASYNCDEVICECLEARACKNOWLEDGE:
-    case HISLIP_DEVICECLEARCOMPLETE:
-    case HISLIP_DEVICECLEARACKNOWLEDGE:
 
-        proto_tree_add_item(tree, hf_hislip_controlcode_feature_negotiation, tvb, data->offset, 1, ENC_BIG_ENDIAN );
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", val_to_str_const(data->controlcode&0x01, feature_negotiation, "Unknown"));
+    case HISLIP_ASYNCSTARTTLSRESPONSE:
+    case HISLIP_ASYNCENDTLSRESPONSE:
+
+        proto_tree_add_item(tree, hf_hislip_controlcode_tls_handshake_result, tvb, data->offset, 1, ENC_BIG_ENDIAN);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", val_to_str_const(data->controlcode, tls_handshake_result_code, "Unknown"));
+        proto_item_append_text(data->hislip_item, ", %s", val_to_str_const(data->controlcode, tls_handshake_result_code, "Unknown"));
         break;
+
+
+    case HISLIP_AUTHENTICATIONRESULT:
+
+        proto_tree_add_item(tree, hf_hislip_controlcode_authentication_result, tvb, data->offset, 1, ENC_BIG_ENDIAN);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", val_to_str_const(data->controlcode & 0x01, authentication_result_code, "Unknown"));
+        proto_item_append_text(data->hislip_item, ", %s", val_to_str_const(data->controlcode & 0x01, authentication_result_code, "Unknown"));
+        break;
+
 
     default:
         proto_tree_add_item(tree, hf_hislip_controlcode, tvb, data->offset, 1, ENC_BIG_ENDIAN);
@@ -592,39 +735,61 @@ decode_controlcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, hislipin
 static void
 decode_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, hislipinfo *data)
 {
-    proto_item * item = NULL;
     /*check for data in packet*/
     if (data->payloadlength != 0)
     {
-        uint64_t datalength;
-        double max_message_size;
-
         switch (data->messagetype)
         {
         case HISLIP_DATA:
         case HISLIP_DATAEND:
         case HISLIP_INITIALIZE:
-
-            datalength = MAX_DATA_SHOW_SIZE;
-
+        case HISLIP_FATALERROR:
+        case HISLIP_ERROR:
+        case HISLIP_GETSASLMECHANISMLISTRESPONSE:
+        case HISLIP_AUTHENTICATIONSTART:
+        case HISLIP_AUTHENTICATIONRESULT:
+        {
+            uint64_t datalength = MAX_DATA_SHOW_SIZE;
             if (data->payloadlength <= datalength)
                 datalength = data->payloadlength;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s", tvb_format_text(pinfo->pool, tvb, data->offset, (uint32_t)datalength));
-            proto_tree_add_item(tree, hf_hislip_data, tvb, data->offset, -1, ENC_UTF_8);
-
+            proto_tree_add_item(tree, hf_hislip_data, tvb, data->offset, -1, ENC_ASCII);
             break;
+        }
 
         case HISLIP_ASYNCMAXIMUMMESSAGESIZE:
         case HISLIP_ASYNCMAXIMUMMESSAGESIZERESPONSE:
 
-            max_message_size = (double)tvb_get_ntoh64(tvb, data->offset);
-            max_message_size = max_message_size/1048576.0;
+            if (data->payloadlength == 8)
+            {
+                double max_message_size = (double)tvb_get_ntoh64(tvb, data->offset);
+                max_message_size /= 1048576.0;
 
-            item = proto_tree_add_item(tree, hf_hislip_maxmessagesize, tvb, data->offset, 8, ENC_BIG_ENDIAN);
-            proto_item_append_text(item, " bytes (%.2f Mbytes)", max_message_size);
-            col_append_fstr(pinfo->cinfo, COL_INFO, " Max Message Size: %.2f Mbytes", max_message_size);
+                proto_item* item = proto_tree_add_item(tree, hf_hislip_maxmessagesize, tvb, data->offset, 8, ENC_BIG_ENDIAN);
+                proto_item_append_text(item, " bytes (%.2f Mbytes)", max_message_size);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " Max Message Size: %.2f Mbytes", max_message_size);
+            }
+            else
+            {
+                proto_tree_add_item(tree, hf_hislip_data, tvb, data->offset, -1, ENC_UTF_8);
+            }
+            break;
 
+
+        case HISLIP_ASYNCSTARTTLS:
+        case HISLIP_ASYNCENDTLS:
+
+            if (data->payloadlength == 4)
+            {
+                uint32_t last_recv_msgid = tvb_get_ntohl(tvb, data->offset);
+                proto_tree_add_item(tree, hf_hislip_last_received_message_id, tvb, data->offset, 4, ENC_BIG_ENDIAN);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " Last Received MessageID: 0x%x", last_recv_msgid);
+            }
+            else
+            {
+                proto_tree_add_item(tree, hf_hislip_data, tvb, data->offset, -1, ENC_UTF_8);
+            }
             break;
 
         default:
@@ -661,34 +826,45 @@ search_for_retransmission(wmem_tree_t *pdus, hislipinfo *data, uint32_t fnum )
 static uint8_t
 is_connection_syn_or_asyn(uint8_t messagetype)
 {
-    if (messagetype >= HISLIP_ASYNCINTERRUPTED)
+    switch (messagetype)
     {
+    case HISLIP_ASYNCLOCK:
+    case HISLIP_ASYNCLOCK_RESPONSE:
+    case HISLIP_ASYNCREMOTELOCALCONTROL:
+    case HISLIP_ASYNCREMOTELOCALRESPONSE:
+    case HISLIP_ASYNCINTERRUPTED:
+    case HISLIP_ASYNCMAXIMUMMESSAGESIZE:
+    case HISLIP_ASYNCMAXIMUMMESSAGESIZERESPONSE:
+    case HISLIP_ASYNCINITIALIZE:
+    case HISLIP_ASYNCINITIALIZERESPONSE:
+    case HISLIP_ASYNCDEVICECLEAR:
+    case HISLIP_ASYNCSERVICEREQUEST:
+    case HISLIP_ASYNCSTATUSQUERY:
+    case HISLIP_ASYNCSTATUSRESPONSE:
+    case HISLIP_ASYNCDEVICECLEARACKNOWLEDGE:
+    case HISLIP_ASYNCLOCKINFO:
+    case HISLIP_ASYNCLOCKINFORESPONSE:
+    /* HiSLIP 2.0 async message types */
+    case HISLIP_ASYNCSTARTTLS:
+    case HISLIP_ASYNCSTARTTLSRESPONSE:
+    case HISLIP_ASYNCENDTLS:
+    case HISLIP_ASYNCENDTLSRESPONSE:
+
         return HISLIP_ASYNCINITIALIZE;
-    }
-    else
-    {
-        switch (messagetype)
-        {
-        case HISLIP_ASYNCLOCK:
-        case HISLIP_ASYNCLOCK_RESPONSE:
-        case HISLIP_ASYNCREMOTELOCALCONTROL:
-        case HISLIP_ASYNCREMOTELOCALRESPONSE:
 
-            return HISLIP_ASYNCINITIALIZE;
+    default:
 
-        default:
-
-            return HISLIP_INITIALIZE;
-        }
+        return HISLIP_INITIALIZE;
     }
 }
 
 
 static int
-dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    conversation_t *conversation;
-    hislip_conv_info_t *hislip_info;
+    hislip_dissect_data_t *dissect_data = (hislip_dissect_data_t *)data;
+    conversation_t *conversation = dissect_data->conversation;
+    hislip_conv_info_t *hislip_info = dissect_data->hislip_info;
     hislip_transaction_t *hislip_trans;
     proto_tree *hislip_tree;
     proto_item *it = NULL;
@@ -697,8 +873,6 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     uint32_t frame_number;
 
     hislip_tree  = NULL;
-    conversation = NULL;
-    hislip_info  = NULL;
     memset(&hislip_data, 0, sizeof(hislip_data));
 
 
@@ -734,16 +908,15 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         expert_add_info(pinfo, hislip_data.hislip_item, &ei_wrong_prologue);
     }
 
-    conversation = find_or_create_conversation(pinfo);
-
     /*Do we already have a state structure for this conv*/
-    hislip_info = (hislip_conv_info_t *)conversation_get_proto_data(conversation, proto_hislip);
     if (!hislip_info)
     {
         hislip_info = (hislip_conv_info_t *)wmem_alloc(wmem_file_scope(), (sizeof(hislip_conv_info_t)));
         hislip_info->connectiontype = is_connection_syn_or_asyn(hislip_data.messagetype);
+        hislip_info->tls_transitions = wmem_tree_new(wmem_file_scope());
         hislip_info->pdus = wmem_tree_new(wmem_file_scope());
         conversation_add_proto_data(conversation, proto_hislip, (void *)hislip_info);
+        dissect_data->hislip_info = hislip_info;
     }
 
     /*synchronous or asynchronous channel*/
@@ -767,6 +940,12 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     case HISLIP_INITIALIZE:
     case HISLIP_ASYNCSTATUSQUERY:
     case HISLIP_ASYNCLOCKINFO:
+    /* HiSLIP 2.0 requests */
+    case HISLIP_GETDESCRIPTORS:
+    case HISLIP_ASYNCSTARTTLS:
+    case HISLIP_ASYNCENDTLS:
+    case HISLIP_GETSASLMECHANISMLIST:
+    case HISLIP_AUTHENTICATIONSTART:
 
         /*Request*/
         if(!PINFO_FD_VISITED(pinfo))
@@ -795,7 +974,31 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             it = proto_tree_add_uint( hislip_tree, hf_hislip_retransmission, tvb, 0, 0, frame_number);
             proto_item_set_generated(it);
         }
+        break;
 
+
+    case HISLIP_STARTTLS:
+
+        /* Notify TLS dissector that encryption starts after this frame */
+        ssl_starttls_ack(tls_handle, pinfo, hislip_handle);
+        /* Additionally keep HiSLIP as conversation dissector for detection with keys */
+        conversation_set_dissector_from_frame_number(conversation, pinfo->num + 1, hislip_handle);
+        /* Record TLS transition point for routing in dissect_hislip() */
+        wmem_tree_insert32(hislip_info->tls_transitions, pinfo->num + 1, GUINT_TO_POINTER(1));
+        break;
+
+
+    case HISLIP_ASYNCSTARTTLSRESPONSE:
+
+        if (hislip_data.controlcode == 1)
+        {
+            /* ASYNCSTARTTLS accepted, next data will be TLS. */
+            ssl_starttls_ack(tls_handle, pinfo, hislip_handle);
+            /* Switch conversation dissector to HiSLIP from next frame onward */
+            conversation_set_dissector_from_frame_number(conversation, pinfo->num + 1, hislip_handle);
+            /* Record TLS transition point for routing in dissect_hislip() */
+            wmem_tree_insert32(hislip_info->tls_transitions, pinfo->num + 1, GUINT_TO_POINTER(1));
+        }
         break;
 
 
@@ -805,6 +1008,11 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     case HISLIP_INITIALIZERESPONSE:
     case HISLIP_ASYNCSTATUSRESPONSE:
     case HISLIP_ASYNCLOCKINFORESPONSE:
+    /* HiSLIP 2.0 responses */
+    case HISLIP_GETDESCRIPTORSRESPONSE:
+    case HISLIP_GETSASLMECHANISMLISTRESPONSE:
+    case HISLIP_AUTHENTICATIONRESULT:
+    case HISLIP_ASYNCENDTLSRESPONSE:
 
         /*Response*/
         hislip_trans = (hislip_transaction_t *) wmem_tree_lookup32_le( hislip_info->pdus, pinfo->num);
@@ -818,6 +1026,7 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         break;
 
 
+    case HISLIP_ENDTLS:
     default:
         ;
 
@@ -860,11 +1069,44 @@ get_hislip_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 }
 
 static int
-dissect_hislip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_hislip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
+    unsigned depth = p_get_proto_depth(pinfo, proto_hislip);
+    conversation_t *conversation = find_or_create_conversation(pinfo);
+    hislip_conv_info_t *hislip_info = (hislip_conv_info_t *)conversation_get_proto_data(conversation, proto_hislip);
+    hislip_dissect_data_t dissect_data;
+
+    /* Only perform TLS routing on first entry (not when reentered from TLS engine). */
+    if (hislip_info && depth == 0 && tvb_captured_length(tvb) >= 2)
+    {
+        bool in_tls = (0 != GPOINTER_TO_UINT(wmem_tree_lookup32_le(hislip_info->tls_transitions, pinfo->num)));
+
+        if (in_tls)
+        {
+            if (tvb_get_ntohs(tvb, 0) == 0x4853)
+            {
+                /* Clear TLS flag on plaintext "HS" detection. */
+                if (!PINFO_FD_VISITED(pinfo))
+                    wmem_tree_insert32(hislip_info->tls_transitions, pinfo->num, GUINT_TO_POINTER(0));
+            }
+            else
+            {
+                /* Forward encrypted record/continuation to the TLS dissector. */
+                pinfo->can_desegment++;
+                p_set_proto_depth(pinfo, proto_hislip, depth + 1);
+                int ret = call_dissector(tls_handle, tvb, pinfo, tree);
+                p_set_proto_depth(pinfo, proto_hislip, depth);
+                return ret;
+            }
+        }
+    }
+
+    dissect_data.conversation = conversation;
+    dissect_data.hislip_info = hislip_info;
+
     /*Reassembling TCP fragments*/
     tcp_dissect_pdus(tvb, pinfo, tree, true, FRAME_HEADER_LEN,
-                     get_hislip_message_len, dissect_hislip_message, data);
+                     get_hislip_message_len, dissect_hislip_message, &dissect_data);
 
     return tvb_captured_length(tvb);
 }
@@ -906,13 +1148,13 @@ proto_register_hislip(void)
         { "Message Type", "hislip.messagetype", FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(messagetypestring), 0x0,
         "HiSLIP Message Type", HFILL }},
         { &hf_hislip_controlcode,
-        { "Control Code", "hislip.controlcode", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Control Code", "hislip.controlcode", FT_UINT8, BASE_HEX, NULL, 0x0,
         "HiSLIP Control Code", HFILL }},
         { &hf_hislip_controlcode_rmt,
         { "Control Code", "hislip.controlcode.rmt", FT_UINT8, BASE_HEX, VALS(rmt), 0x0,
         "HiSLIP RMT", HFILL }},
         { &hf_hislip_controlcode_overlap,
-        { "Control Code", "hislip.controlcode.overlap", FT_UINT8, BASE_HEX, VALS(overlap), 0x0,
+        { "Overlap Mode", "hislip.controlcode.overlap", FT_UINT8, BASE_HEX, VALS(overlap), 0x01,
         "HiSLIP overlap", HFILL }},
         { &hf_hislip_controlcode_asynclockinforesponse_code,
         { "Control Code", "hislip.controlcode.asynclockinforesponse", FT_UINT8, BASE_HEX, VALS(asynclockinforesponse_code), 0x0,
@@ -988,13 +1230,50 @@ proto_register_hislip(void)
         "HiSLIP Nonfatalerror Code", HFILL }},
         { &hf_hislip_maxmessagesize,
         { "Max Message Size", "hislip.maxmsgsize", FT_UINT64, BASE_DEC, NULL, 0x0,
-        "HiSLIP Maximum Message Size", HFILL }}
+        "HiSLIP Maximum Message Size", HFILL }},
+
+        /* HiSLIP 2.0 fields */
+        { &hf_hislip_controlcode_encryption_mode,
+        { "Encryption Mode", "hislip.controlcode.encryption_mode", FT_UINT8, BASE_HEX, VALS(encryption_mode), 0x02,
+        "HiSLIP encryption", HFILL }},
+        { &hf_hislip_controlcode_initial_encryption_mode,
+        { "Initial Encryption", "hislip.controlcode.initial_encryption_mode", FT_UINT8, BASE_HEX, VALS(initial_encryption_mode), 0x04,
+        "HiSLIP secure connection", HFILL }},
+        { &hf_hislip_controlcode_reserved,
+        { "Reserved for IVI", "hislip.controlcode.reserved", FT_UINT8, BASE_HEX, NULL, 0x38,
+        "HiSLIP reserved for IVI", HFILL }},
+        { &hf_hislip_controlcode_vendor_specific,
+        { "Vendor Specific", "hislip.controlcode.vendor_specific", FT_UINT8, BASE_HEX, NULL, 0xC0,
+        "HiSLIP Vendor Specific", HFILL }},
+        { &hf_hislip_controlcode_async_secure_connection,
+        { "Capability: Secure Connection", "hislip.controlcode.capability.secure_connection", FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+        "HiSLIP Capability: Secure Connection", HFILL }},
+        { &hf_hislip_controlcode_async_reserved,
+        { "Capability: Reserved for IVI", "hislip.controlcode.capability.reserved", FT_UINT8, BASE_HEX, NULL, 0x3C,
+        "HiSLIP Capability: Reserved for IVI", HFILL }},
+        { &hf_hislip_controlcode_async_vendor_specific,
+        { "Capability: Vendor Specific", "hislip.controlcode.capability.vendor_specific", FT_UINT8, BASE_HEX, NULL, 0xC0,
+        "HiSLIP Capability: Vendor Specific", HFILL }},
+        { &hf_hislip_controlcode_tls_handshake_result,
+        { "TLS", "hislip.controlcode.tls_handshake_result", FT_UINT8, BASE_HEX, VALS(tls_handshake_result_code), 0x0,
+        "HiSLIP 2.0 TLS handshake Result", HFILL }},
+        { &hf_hislip_controlcode_authentication_result,
+        { "Control Code", "hislip.controlcode.authentication_result", FT_UINT8, BASE_HEX, VALS(authentication_result_code), 0x00,
+        "HiSLIP 2.0 Authentication Result", HFILL }},
+        { &hf_hislip_last_received_message_id,
+        { "Last Received MessageID", "hislip.last_received_message_id", FT_UINT32, BASE_HEX, NULL, 0x0,
+        "HiSLIP MessageID of last received message", HFILL }},
+        { &hf_hislip_msgpara_authentication_error_code,
+        { "Error Code", "hislip.msgpara.authentication_error_code", FT_UINT32, BASE_HEX, NULL, 0x0,
+        "HiSLIP 2.0 Authentication Error Code", HFILL }}
     };
 
 
     static int *ett[] = {
         &ett_hislip,
-        &ett_hislip_msgpara
+        &ett_hislip_msgpara,
+        &ett_hislip_intializeresponse_controlcode,
+        &ett_hislip_asyncinitializeresponse_controlcode
     };
 
 
@@ -1024,6 +1303,8 @@ proto_reg_handoff_hislip(void)
     heur_dissector_add("tcp", dissect_hislip_heur, "HiSLIP over TCP", "hislip_tcp", proto_hislip, HEURISTIC_DISABLE);
 
     dissector_add_uint_with_preference("tcp.port", HISLIP_PORT, hislip_handle);
+
+    tls_handle = find_dissector("tls");
 }
 
 /*
