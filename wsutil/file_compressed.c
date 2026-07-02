@@ -54,7 +54,7 @@ ws_compression_type
 ws_name_to_compression_type(const char *name)
 {
     for (const struct compression_type *p = compression_types;
-	 p->type != WS_FILE_UNKNOWN_COMPRESSION; p++) {
+         p->type != WS_FILE_UNKNOWN_COMPRESSION; p++) {
         if (!g_strcmp0(name, p->name))
             return p->type;
     }
@@ -122,7 +122,7 @@ ws_get_all_compression_type_extensions_list(void)
 {
     GSList *extensions;
 
-    extensions = NULL;	/* empty list, to start with */
+    extensions = NULL; /* empty list, to start with */
 
     for (const struct compression_type *p = compression_types;
          p->type != WS_FILE_UNCOMPRESSED; p++)
@@ -136,7 +136,7 @@ ws_get_all_output_compression_type_names_list(void)
 {
     GSList *names;
 
-    names = NULL;	/* empty list, to start with */
+    names = NULL; /* empty list, to start with */
 
     for (const struct compression_type *p = compression_types;
          p->type != WS_FILE_UNCOMPRESSED; p++) {
@@ -246,8 +246,8 @@ ws_cwstream_open(const char *filename, ws_compression_type ctype, int *err)
     void* fh = writecap_file_open(pfile, filename);
     if (fh == NULL) {
         *err = errno;
-	g_free(pfile);
-	return NULL;
+        g_free(pfile);
+        return NULL;
     }
 
     pfile->fh = fh;
