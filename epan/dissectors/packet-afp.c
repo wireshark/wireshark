@@ -1490,7 +1490,7 @@ parse_UTF8_filename(proto_tree *tree, tvbuff_t *tvb, int offset, int org_offset)
 		proto_tree_add_item(sub_tree, hf_afp_prodos_auxtype, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 		hidden_item = proto_tree_add_item(sub_tree, hf_afp_pad, tvb, offset, 2, ENC_NA);
-		offset += 2;
+		/* offset += 2; */
 		proto_item_set_hidden(hidden_item); /* hide two byte pad */
 		return tp_ofs;
 	}
