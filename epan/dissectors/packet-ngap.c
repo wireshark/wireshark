@@ -5197,7 +5197,7 @@ dissect_ngap_TransportLayerAddress(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_
 static unsigned
 dissect_ngap_GTP_TEID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
-  uint32_t teid = 0;
+  uint32_t teid;
   const char *imsi = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,

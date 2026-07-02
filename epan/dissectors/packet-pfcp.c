@@ -4364,7 +4364,7 @@ static void
 dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, uint16_t length, uint8_t message_type _U_, pfcp_session_args_t *args _U_)
 {
     unsigned offset = 0;
-    int dissected_len = 0;
+    int dissected_len;
     uint64_t flags;
     uint32_t len;
     proto_tree *afd_tree, *aurl_tree, *adnp_tree;
@@ -5751,9 +5751,8 @@ dissect_pfcp_remote_gtp_u_peer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         /* Network Instance */
         offset += decode_pfcp_network_instance(tvb, pinfo, tree, item, offset, length_ni);
-    }
-    /* RTS (if present)*/
-    if (flags & 0x8) {
+
+        /* RTS (if present)*/
         proto_tree_add_item(tree, hf_pfcp_remote_gtp_u_peer_time_stamp, tvb, offset, 4, ENC_TIME_NTP | ENC_BIG_ENDIAN);
         offset += 4;
     }
@@ -8314,10 +8313,8 @@ dissect_pfcp_pmf_address_information(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     if ((pmf_address_information_flags & 0x4)) {
         proto_tree_add_item(tree, hf_pfcp_pmf_mac_address_3gpp, tvb, offset, 6, ENC_NA);
         offset += 6;
-    }
 
-    /* u to (u+5) PMF MAC address for Non-3GPP access (if present)*/
-    if ((pmf_address_information_flags & 0x4)) {
+        /* u to (u+5) PMF MAC address for Non-3GPP access (if present)*/
         proto_tree_add_item(tree, hf_pfcp_pmf_mac_address_non3gpp, tvb, offset, 6, ENC_NA);
         offset += 6;
     }
@@ -10314,10 +10311,8 @@ dissect_pfcp_reporting_thresholds(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     if ((reporting_thresholds_flags & 0x4)) {
         proto_tree_add_item(tree, hf_pfcp_reporting_thresholds_dl_data_rate_threshold, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
-    }
 
-    /* r to (r+4) UL Data Rate threshold */
-    if ((reporting_thresholds_flags & 0x4)) {
+        /* r to (r+4) UL Data Rate threshold */
         proto_tree_add_item(tree, hf_pfcp_reporting_thresholds_ul_data_rate_threshold, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }

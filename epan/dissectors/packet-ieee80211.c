@@ -9562,9 +9562,9 @@ eht_ru_allocation_base_custom(char *result, uint32_t ru_allocation)
   /* TODO: check with PS160, B0 of RU allocation, BW */
   if (ru_allocation <= 36) {
     ru_str = "RU size: 26";
-  } else if (ru_allocation >= 37 && ru_allocation <= 52) {
+  } else if (ru_allocation <= 52) {
     ru_str = "RU size: 52";
-  } else if (ru_allocation >= 53 && ru_allocation <= 60) {
+  } else if (ru_allocation <= 60) {
     ru_str = "RU size: 106";
   } else if (ru_allocation >= 61 && ru_allocation <= 64) {
     ru_str = "RU size: 242";

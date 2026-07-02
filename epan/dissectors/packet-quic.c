@@ -4706,10 +4706,9 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     /* Payload */
     ti = proto_tree_add_item(quic_tree, hf_quic_payload, tvb, offset, -1, ENC_NA);
 
-    if (conn) {
-        quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
-                             conn, quic_packet, from_server, &ciphers->pp_cipher, first_byte, quic_packet->pkn_len);
-    }
+    quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
+                         conn, quic_packet, from_server, &ciphers->pp_cipher, first_byte, quic_packet->pkn_len);
+
     if (!PINFO_FD_VISITED(pinfo) && !quic_packet->decryption.error) {
         // Packet number is verified to be valid, remember it.
         *quic_max_packet_number(conn, dgram_info->path_id, from_server, first_byte) = quic_packet->packet_number;
@@ -4838,26 +4837,26 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     /* Protected Payload */
     ti = proto_tree_add_item(hdr_tree, hf_quic_protected_payload, tvb, offset, -1, ENC_NA);
 
-    if (conn) {
-        bool phase_change = false;
-        if (!PINFO_FD_VISITED(pinfo)) {
-            phase_change = quic_get_pp_cipher(&pp_cipher, key_phase, conn, from_server, quic_packet->packet_number);
-        }
 
-        quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
-                             conn, quic_packet, from_server, &pp_cipher,
-                             first_byte, quic_packet->pkn_len);
-        if (!PINFO_FD_VISITED(pinfo)) {
-            if (!quic_packet->decryption.error) {
-                // Packet number is verified to be valid, remember it.
-                *quic_max_packet_number(conn, dgram_info->path_id, from_server, first_byte) = quic_packet->packet_number;
-                // pp cipher is verified to be valid, remember if it new.
-                quic_set_pp_cipher(&pp_cipher, key_phase, conn, from_server, quic_packet->packet_number);
-            } else if (phase_change) {
-                quic_pp_cipher_reset(&pp_cipher);
-            }
+    bool phase_change = false;
+    if (!PINFO_FD_VISITED(pinfo)) {
+        phase_change = quic_get_pp_cipher(&pp_cipher, key_phase, conn, from_server, quic_packet->packet_number);
+    }
+
+    quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
+                         conn, quic_packet, from_server, &pp_cipher,
+                         first_byte, quic_packet->pkn_len);
+    if (!PINFO_FD_VISITED(pinfo)) {
+        if (!quic_packet->decryption.error) {
+            // Packet number is verified to be valid, remember it.
+            *quic_max_packet_number(conn, dgram_info->path_id, from_server, first_byte) = quic_packet->packet_number;
+            // pp cipher is verified to be valid, remember if it new.
+            quic_set_pp_cipher(&pp_cipher, key_phase, conn, from_server, quic_packet->packet_number);
+        } else if (phase_change) {
+            quic_pp_cipher_reset(&pp_cipher);
         }
     }
+
     offset += tvb_reported_length_remaining(tvb, offset);
 
     return offset;

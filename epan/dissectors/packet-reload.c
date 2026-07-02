@@ -2239,7 +2239,7 @@ static int dissect_nodeid_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   uint16_t    list_length;
   uint16_t    local_offset   = 0;
   int32_t     list_offset    = 0;
-  uint16_t    list_increment = 0;
+  uint16_t    list_increment;
   int         nNodeIds       = 0;
   proto_item *ti_local;
   proto_tree *local_tree;
@@ -3595,7 +3595,7 @@ static int dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pro
                                pinfo, kinddescription_tree);
               }
               local_increment += 2;
-              if (local_increment <= 0) break;
+              if (local_increment <= 0) break;  /* impossible.. */
               kinds_offset    += local_increment;
               nKinds++;
             }

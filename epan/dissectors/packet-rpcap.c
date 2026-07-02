@@ -484,8 +484,7 @@ dissect_rpcap_ifaddr (tvbuff_t *tvb, packet_info *pinfo,
   ti = proto_tree_add_item (parent_tree, hf_id, tvb, offset, 128, ENC_BIG_ENDIAN);
   tree = proto_item_add_subtree (ti, ett_ifaddr);
 
-  af = tvb_get_ntohs (tvb, offset);
-  proto_tree_add_item (tree, hf_if_af, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint16 (tree, hf_if_af, tvb, offset, 2, ENC_BIG_ENDIAN, &af);
   offset += 2;
 
   switch (af) {
@@ -726,8 +725,7 @@ dissect_rpcap_filter (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree_add_item (tree, hf_dummy, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
-  nitems = tvb_get_ntohl (tvb, offset);
-  proto_tree_add_item (tree, hf_nitems, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint (tree, hf_nitems, tvb, offset, 4, ENC_BIG_ENDIAN, &nitems);
   offset += 4;
 
   for (i = 0; i < nitems; i++) {
@@ -938,8 +936,7 @@ dissect_rpcap_sampling_request (tvbuff_t *tvb, packet_info *pinfo _U_,
   ti = proto_tree_add_item (parent_tree, hf_sampling_request, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_sampling_request);
 
-  method = tvb_get_uint8 (tvb, offset);
-  proto_tree_add_item (tree, hf_sampling_method, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint8 (tree, hf_sampling_method, tvb, offset, 1, ENC_BIG_ENDIAN, &method);
   offset += 1;
 
   proto_tree_add_item (tree, hf_sampling_dummy1, tvb, offset, 1, ENC_BIG_ENDIAN);

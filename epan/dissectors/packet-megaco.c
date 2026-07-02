@@ -2574,7 +2574,7 @@ dissect_megaco_statisticsdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_comma
     unsigned tokenlen;
     proto_tree  *megaco_statisticsdescriptor_tree;
     proto_item  *megaco_statisticsdescriptor_ti;
-    unsigned tvb_help_offset, param_start_offset, param_end_offset = 0;
+    unsigned tvb_help_offset, param_start_offset, param_end_offset;
 
     /* statisticsDescriptor = StatsToken LBRKT statisticsParameter
      *                        *(COMMA statisticsParameter ) RBRKT
@@ -3151,7 +3151,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
     unsigned tokenlen;
     unsigned token_name_len;
     unsigned tvb_offset = 0, tvb_help_offset, tvb_current_offset = 0, endoff;
-    int token_index = 0;
+    int token_index;
     char *msg;
     proto_item* item;
     uint32_t dscp;
@@ -3520,7 +3520,7 @@ static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree){
 * Returns: The position in tvb of the first non-whitespace
 */
 static unsigned megaco_tvb_skip_wsp(tvbuff_t* tvb, unsigned offset ){
-    unsigned counter = offset;
+    unsigned counter;
     unsigned end = tvb_reported_length(tvb);
 
     for(counter = offset; counter < end &&
@@ -3529,7 +3529,7 @@ static unsigned megaco_tvb_skip_wsp(tvbuff_t* tvb, unsigned offset ){
 }
 
 static unsigned megaco_tvb_skip_wsp_return(tvbuff_t* tvb, unsigned offset){
-    unsigned counter = offset;
+    unsigned counter;
     unsigned end = 0;
 
     for(counter = offset; counter > end &&
@@ -3579,7 +3579,7 @@ megaco_fmt_content( char *result, uint32_t context )
         (void) g_strlcpy(result, val_to_str_const(context, megaco_context_vals, "Unknown"), ITEM_LABEL_LENGTH);
         break;
     default:
-        snprintf( result, ITEM_LABEL_LENGTH, "%d", context);
+        snprintf( result, ITEM_LABEL_LENGTH, "%u", context);
     }
 }
 

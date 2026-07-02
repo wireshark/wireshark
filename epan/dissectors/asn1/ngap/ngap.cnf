@@ -1230,7 +1230,7 @@ LAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
 
 #.FN_BODY GTP-TEID VAL_PTR = &parameter_tvb LEN_PTR = &len
   tvbuff_t *parameter_tvb = NULL;
-  uint32_t teid = 0;
+  uint32_t teid;
   const char *imsi = NULL;
 
 %(DEFAULT_BODY)s
