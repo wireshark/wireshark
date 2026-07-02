@@ -1471,7 +1471,7 @@ dissect_tibia(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *fragmen
         offset += 1;
     }
 
-    int len;
+    unsigned len;
     if (convo->has.session_key && !convo->loginserv_is_peer) {
         /* OTServs I tested against use "$acc\n$pacc" as session key */
         if (convo->session_key) {

@@ -592,7 +592,7 @@ static void ts2_parse_loginpart2(tvbuff_t *tvb, proto_tree *ts2_tree)
 static void ts2_parse_channellist(tvbuff_t *tvb, proto_tree *ts2_tree)
 {
     uint32_t offset;
-    int string_len;
+    unsigned string_len;
     proto_tree    *subtree;
     proto_item    *item;
 

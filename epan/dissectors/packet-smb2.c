@@ -8680,7 +8680,7 @@ dissect_smb2_FSCTL_SRV_ENUMERATE_SNAPSHOTS(tvbuff_t *tvb, packet_info *pinfo _U_
 	offset += 4;
 
 	while (num_snapshots--) {
-		int len;
+		unsigned len;
 		int old_offset = offset;
 
 		proto_tree_add_item_ret_length(tree, hf_smb2_ioctl_enumerate_snapshots_snapshot,

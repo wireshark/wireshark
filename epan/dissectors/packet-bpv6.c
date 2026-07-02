@@ -1581,12 +1581,12 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
     }
     case BUNDLE_BLOCK_TYPE_PREVIOUS_HOP_INSERT:
     {
-        int scheme_length;
+        unsigned scheme_length;
 
         proto_tree_add_item_ret_length(block_tree, hf_bundle_block_previous_hop_scheme, tvb, offset, 4, ENC_ASCII, &scheme_length);
         offset += scheme_length;
         proto_tree_add_item(block_tree, hf_bundle_block_previous_hop_eid, tvb, offset, block_length-scheme_length, ENC_ASCII);
-        if (block_length - scheme_length < 1) {
+        if ((unsigned)block_length < scheme_length + 1) {
             expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Metadata Block Length Error");
             *lastheader = true;
             return offset;

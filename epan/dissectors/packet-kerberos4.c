@@ -92,7 +92,7 @@ static const value_string m_type_vals[] = {
 static int
 dissect_krb4_string(packet_info *pinfo _U_, int hf_index, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	int length;
+	unsigned length;
 	proto_tree_add_item_ret_length(tree, hf_index, tvb, offset, -1, ENC_ASCII|ENC_NA, &length);
 
 	return offset + length;

@@ -95,7 +95,7 @@ dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     int i=0;
     uint8_t packet_type;
     char* str_name;
-    int str_len;
+    unsigned str_len;
     int remaining_length;
 
     packet_type = tvb_get_uint8(tvb, 0);

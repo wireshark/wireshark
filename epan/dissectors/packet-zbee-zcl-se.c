@@ -2234,7 +2234,7 @@ dissect_zcl_price_get_credit_payment(tvbuff_t *tvb, proto_tree *tree, unsigned *
 static void
 dissect_zcl_price_publish_price(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    int length;
+    unsigned length;
 
     static int * const trailing_digit[] = {
         &hf_zbee_zcl_price_tier,
@@ -2484,7 +2484,7 @@ dissect_zcl_price_publish_calorific_value(tvbuff_t *tvb, proto_tree *tree, unsig
 static void
 dissect_zcl_price_publish_tariff_information(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    int length;
+    unsigned length;
 
     static int * const price_trailing_digit[] = {
         &hf_zbee_zcl_price_tariff_information_price_trailing_digit,
@@ -2743,7 +2743,7 @@ static void
 dissect_zcl_price_publish_tier_labels(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     uint8_t number_of_labels;
-    int length;
+    unsigned length;
 
     /* Provider ID */
     proto_tree_add_item(tree, hf_zbee_zcl_price_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
@@ -2916,7 +2916,7 @@ dissect_zcl_price_publish_cpp_event(tvbuff_t *tvb, proto_tree *tree, unsigned *o
 static void
 dissect_zcl_price_publish_credit_payment(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    int length;
+    unsigned length;
 
     /* Provider ID */
     proto_tree_add_item(tree, hf_zbee_zcl_price_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
@@ -8031,7 +8031,7 @@ dissect_zbee_zcl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 static void
 dissect_zcl_msg_display(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    int msg_len;
+    unsigned msg_len;
 
     static int * const message_ctrl_flags[] = {
         &hf_zbee_zcl_msg_ctrl_tx,
@@ -8143,7 +8143,7 @@ dissect_zcl_msg_get_cancel(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 static void
 dissect_zcl_msg_confirm(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    int msg_len;
+    unsigned msg_len;
 
     /* Message ID */
     proto_tree_add_item(tree, hf_zbee_zcl_msg_message_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
@@ -9540,7 +9540,7 @@ dissect_zcl_pp_emergency_credit_setup(tvbuff_t *tvb, proto_tree *tree, unsigned 
 static void
 dissect_zcl_pp_consumer_top_up(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    int length;
+    unsigned length;
 
     /* Originating Device */
     proto_tree_add_item(tree, hf_zbee_zcl_pp_consumer_top_up_originating_device, tvb, *offset, 1, ENC_NA);
@@ -9865,7 +9865,7 @@ static void
 dissect_zcl_pp_publish_top_up_log(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     unsigned i = 0;
-    int length;
+    unsigned length;
     proto_tree *sub_tree;
 
     /* Command Index */
@@ -11357,7 +11357,7 @@ dissect_zcl_calendar_get_special_days(tvbuff_t *tvb, proto_tree *tree, unsigned 
 static void
 dissect_zcl_calendar_publish_calendar(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    int length;
+    unsigned length;
 
     /* Provider Id */
     proto_tree_add_item(tree, hf_zbee_zcl_calendar_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
@@ -12085,7 +12085,7 @@ dissect_zbee_zcl_daily_schedule(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static void
 dissect_zcl_daily_schedule_publish_schedule(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    int length;
+    unsigned length;
 
     /* Provider Id */
     proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
@@ -13188,8 +13188,8 @@ dissect_zcl_device_management_publish_change_of_tenancy(proto_tree *tree, tvbuff
 static void
 dissect_zcl_device_management_publish_change_of_supplier(proto_tree *tree, tvbuff_t *tvb, unsigned *offset)
 {
-    int name_length;
-    int detail_length;
+    unsigned name_length;
+    unsigned detail_length;
 
     /* Current Provider ID */
     proto_tree_add_item(tree, hf_zbee_zcl_device_management_publish_change_of_supplier_current_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
@@ -13235,7 +13235,7 @@ dissect_zcl_device_management_publish_change_of_supplier(proto_tree *tree, tvbuf
 static void
 dissect_zcl_device_management_request_new_password_response(proto_tree *tree, tvbuff_t *tvb, unsigned *offset)
 {
-    int      password_length;
+    unsigned password_length;
 
     /* Issuer Event ID */
     proto_tree_add_item(tree, hf_zbee_zcl_device_management_request_new_password_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
@@ -13270,7 +13270,7 @@ dissect_zcl_device_management_request_new_password_response(proto_tree *tree, tv
 static void
 dissect_zcl_device_management_update_site_id(proto_tree *tree, tvbuff_t *tvb, unsigned *offset)
 {
-    int      siteid_length;
+    unsigned siteid_length;
 
     /* Issuer Event ID */
     proto_tree_add_item(tree, hf_zbee_zcl_device_management_update_site_id_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
@@ -13377,7 +13377,7 @@ dissect_zcl_device_management_get_event_configuration(proto_tree *tree, tvbuff_t
 static void
 dissect_zcl_device_management_update_cin(proto_tree *tree, tvbuff_t *tvb, unsigned *offset)
 {
-    int      customer_id_length;
+    unsigned customer_id_length;
 
     /* Issuer Event ID */
     proto_tree_add_item(tree, hf_zbee_zcl_device_management_update_cin_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
@@ -14053,7 +14053,7 @@ dissect_zcl_events_clear_event_log_request(tvbuff_t *tvb, proto_tree *tree, unsi
 static void
 dissect_zcl_events_publish_event(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    int         length;
+    unsigned    length;
 
     if (gPREF_zbee_se_protocol_version >= ZBEE_SE_VERSION_1_2) {
         /* Log ID - Introduced from ZCL version 1.2 */
@@ -14089,7 +14089,7 @@ static void
 dissect_zcl_events_publish_event_log(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     proto_tree* event_log_tree;
-    int         length;
+    unsigned    length;
 
     /* Total Number of Matching Events */
     proto_tree_add_item(tree, hf_zbee_zcl_events_publish_event_log_total_number_of_matching_events, tvb, *offset, 2, ENC_LITTLE_ENDIAN);

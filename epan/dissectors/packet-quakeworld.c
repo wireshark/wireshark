@@ -341,9 +341,9 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree	*text_tree = NULL;
 	proto_item	*pi = NULL;
 	const char	*text;
-	int		len;
+	unsigned	len;
 	int		offset;
-	uint32_t		marker;
+	uint32_t	marker;
 	int		command_len;
 	const char	*command;
 	bool	command_finished = false;

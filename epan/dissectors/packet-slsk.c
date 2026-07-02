@@ -342,7 +342,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   unsigned i, j;
   uint32_t msg_len, msg_code;
   const char *str;
-  int str_len, start_offset, start_offset2;
+  unsigned str_len;
+  int start_offset, start_offset2;
 
   int comprlen = 0, uncomprlen = 0, uncompr_tvb_offset = 0;
   unsigned i2 = 0, j2 = 0;
@@ -1051,7 +1052,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
               uncompr_tvb_offset = 0;
               if (check_slsk_format(uncompr_tvb, pinfo, uncompr_tvb_offset, "isi*")) {
-                int len;
+                unsigned len;
 
                 proto_tree_add_item(slsk_compr_packet_tree, hf_slsk_token, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN);
                 uncompr_tvb_offset += 4;

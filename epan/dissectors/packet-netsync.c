@@ -271,7 +271,7 @@ static int dissect_netsync_cmd_refine(tvbuff_t *tvb,  int offset, proto_tree *tr
 
 static int dissect_netsync_cmd_done(tvbuff_t *tvb,  int offset, proto_tree *tree, unsigned size _U_)
 {
-	int bytes = 0;
+	unsigned bytes = 0;
 
 	proto_tree_add_item_ret_length(tree, hf_netsync_cmd_done_level, tvb,
 					offset, -1, ENC_LITTLE_ENDIAN|ENC_VARINT_PROTOBUF, &bytes);

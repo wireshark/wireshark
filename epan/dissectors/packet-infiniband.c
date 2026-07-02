@@ -3068,7 +3068,7 @@ static void parse_VENDOR(proto_tree * parentTree, tvbuff_t *tvb, unsigned *offse
     unsigned    local_offset = *offset;
     proto_item *VENDOR_header_item;
     proto_tree *VENDOR_header_tree;
-    int         VENDOR_header_length;
+    unsigned    VENDOR_header_length;
 
     VENDOR_header_item = proto_tree_add_item(parentTree, hf_infiniband_vendor, tvb, local_offset, 4, ENC_NA);
     proto_item_set_text(VENDOR_header_item, "%s", "Vendor Specific or Unknown Header Sequence");

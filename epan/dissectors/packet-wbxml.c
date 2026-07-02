@@ -6948,7 +6948,7 @@ show_wbxml_string_table (proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, ui
 	proto_tree *item_tree;
 	proto_item *ti;
 	const char *str;
-	int len;
+	unsigned len;
 
 	while (off < end) {
 		/*

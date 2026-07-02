@@ -858,7 +858,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 	unsigned msg_no = 0;
 	uint32_t msg_in_bundle_size;
 	uint8_t msg_in_bundle_user;
-	int b_inst_strlen;
+	unsigned b_inst_strlen;
 	unsigned padlen;
 
 	/* for fragmented messages */

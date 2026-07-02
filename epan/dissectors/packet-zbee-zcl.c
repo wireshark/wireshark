@@ -2275,32 +2275,32 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, 
 
         case ZBEE_ZCL_OCTET_STRING:
             /* Display octet string */
-            proto_tree_add_item_ret_length(tree, hf_zbee_zcl_attr_ostr, tvb, *offset, 1, ENC_NA|ENC_ZIGBEE, &attr_int);
-            if (attr_int > 1)
-                proto_item_append_text(tree, ", Octets: %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, (*offset)+1, attr_int-1, ':'));
-            *offset += attr_int;
+            proto_tree_add_item_ret_length(tree, hf_zbee_zcl_attr_ostr, tvb, *offset, 1, ENC_NA|ENC_ZIGBEE, &attr_uint);
+            if (attr_uint > 1)
+                proto_item_append_text(tree, ", Octets: %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, (*offset)+1, attr_uint-1, ':'));
+            *offset += attr_uint;
             break;
 
         case ZBEE_ZCL_CHAR_STRING:
             /* Display string */
-            proto_tree_add_item_ret_string_and_length(tree, hf_zbee_zcl_attr_str, tvb, *offset, 1, ENC_NA|ENC_ZIGBEE, pinfo->pool, &attr_string, &attr_int);
+            proto_tree_add_item_ret_string_and_length(tree, hf_zbee_zcl_attr_str, tvb, *offset, 1, ENC_NA|ENC_ZIGBEE, pinfo->pool, &attr_string, &attr_uint);
             proto_item_append_text(tree, ", String: %s", attr_string);
-            *offset += attr_int;
+            *offset += attr_uint;
             break;
 
         case ZBEE_ZCL_LONG_OCTET_STRING:
             /* Display long octet string */
-            proto_tree_add_item_ret_length(tree, hf_zbee_zcl_attr_ostr, tvb, *offset, 2, ENC_LITTLE_ENDIAN|ENC_ZIGBEE, &attr_int);
-            if (attr_int > 2)
-                proto_item_append_text(tree, ", Octets: %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, (*offset)+2, attr_int-2, ':'));
-            *offset += attr_int;
+            proto_tree_add_item_ret_length(tree, hf_zbee_zcl_attr_ostr, tvb, *offset, 2, ENC_LITTLE_ENDIAN|ENC_ZIGBEE, &attr_uint);
+            if (attr_uint > 2)
+                proto_item_append_text(tree, ", Octets: %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, (*offset)+2, attr_uint-2, ':'));
+            *offset += attr_uint;
             break;
 
         case ZBEE_ZCL_LONG_CHAR_STRING:
             /* Display long string */
-            proto_tree_add_item_ret_string_and_length(tree, hf_zbee_zcl_attr_str, tvb, *offset, 2, ENC_LITTLE_ENDIAN|ENC_ZIGBEE, pinfo->pool, &attr_string, &attr_int);
+            proto_tree_add_item_ret_string_and_length(tree, hf_zbee_zcl_attr_str, tvb, *offset, 2, ENC_LITTLE_ENDIAN|ENC_ZIGBEE, pinfo->pool, &attr_string, &attr_uint);
             proto_item_append_text(tree, ", String: %s", attr_string);
-            *offset += attr_int;
+            *offset += attr_uint;
             break;
 
         case ZBEE_ZCL_ARRAY:

@@ -2407,9 +2407,9 @@ dissect_lcp_auth_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 {
     proto_tree *field_tree;
     proto_item *tf;
-    int id_len;
+    unsigned id_len;
     unsigned offset = 0;
-    int length;
+    unsigned length;
 
     if (!dissect_lcp_var_opt(tvb, pinfo, tree, proto_lcp_option_auth, ett_lcp_auth_opt, 3,
                              &field_tree, &tf))

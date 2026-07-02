@@ -433,7 +433,7 @@ dissect_zcl_ias_ace_get_zone_status(tvbuff_t *tvb, proto_tree *tree, unsigned *o
 static void
 dissect_zcl_ias_ace_zone_status_changed(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    int length;
+    unsigned length;
 
     /* Retrieve "Zone ID" field */
     proto_tree_add_item(tree, hf_zbee_zcl_ias_ace_zone_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);

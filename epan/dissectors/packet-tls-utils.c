@@ -9001,14 +9001,14 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
         uint32_t parameter_end_offset;
         uint64_t value;
         uint32_t i;
-        int len = 0;
+        unsigned len = 0;
 
         parameter_tree = proto_tree_add_subtree(tree, tvb, offset, 2, hf->ett.hs_ext_quictp_parameter,
                                                 NULL, "Parameter");
         /* TransportParameter ID and Length. */
         if (use_varint_encoding) {
             uint64_t parameter_length64;
-            int type_len = 0;
+            unsigned type_len = 0;
 
             proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_type,
                                            tvb, offset, -1, ENC_VARINT_QUIC, &parameter_type, &type_len);

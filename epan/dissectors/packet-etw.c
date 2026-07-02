@@ -388,7 +388,7 @@ dissect_edata_tlvs(tvbuff_t* tvb, packet_info* pinfo, proto_tree* edata_tree, ui
         case 0x000B:  // EVENT_SCHEMA_TL
         {
             uint8_t schema_size = 0;
-            int item_size = 0;
+            unsigned item_size = 0;
 
             *is_tl = true;
             proto_item_set_text(ti, "Data (EVENT_SCHEMA_TL)");

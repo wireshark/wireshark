@@ -2598,7 +2598,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 	const struct lanman_desc *lanman;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int descriptor_len;
+	unsigned descriptor_len;
 	const char *param_descrip, *data_descrip, *aux_data_descrip = NULL;
 	bool has_data;
 	bool has_ent_count;

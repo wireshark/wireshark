@@ -86,7 +86,7 @@ static const val64_string bhttp_frame_indicators[] = {
 };
 
 static bool
-try_get_quic_varint(tvbuff_t *tvb, int offset, uint64_t *value, int *lenvar)
+try_get_quic_varint(tvbuff_t *tvb, int offset, uint64_t *value, unsigned *lenvar)
 {
     if (tvb_reported_length_remaining(tvb, offset) == 0) {
         return false;
@@ -95,7 +95,7 @@ try_get_quic_varint(tvbuff_t *tvb, int offset, uint64_t *value, int *lenvar)
     if (tvb_reported_length_remaining(tvb, offset) < len) {
         return false;
     }
-    *lenvar = (int)len;
+    *lenvar = len;
     if (value) {
         unsigned n = tvb_get_varint(tvb, offset, -1, value, ENC_VARINT_QUIC);
         DISSECTOR_ASSERT_CMPINT(n, ==, len);
@@ -107,7 +107,7 @@ static int
 dissect_bhttp_request_control_data(tvbuff_t *tvb, packet_info *pinfo, proto_item *pi, int offset)
 {
     uint64_t method_len, scheme_len, authority_len, path_len;
-    int32_t lenvar;
+    uint32_t lenvar;
     proto_tree *cd_tree;
     const uint8_t *method, *path;
 
@@ -148,7 +148,7 @@ static int
 dissect_bhttp_known_field_section(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     uint64_t fs_length, length;
-    int32_t lenvar;
+    uint32_t lenvar;
     proto_tree *fs_tree;
     proto_item *pi;
     int target_offset, total_fields;
@@ -187,7 +187,7 @@ static int
 dissect_bhttp_indeterminate_field_section(tvbuff_t *tvb, proto_tree *tree, int offset, bool is_trailing)
 {
     uint64_t length, content_terminator;
-    int32_t lenvar;
+    uint32_t lenvar;
     proto_tree *fs_tree;
     proto_item *pi;
     int original_offset, total_fields;
@@ -239,7 +239,7 @@ static int
 dissect_bhttp_indeterminate_content(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     uint64_t chunk_length, content_terminator;
-    int32_t lenvar;
+    uint32_t lenvar;
     proto_tree *c_tree;
     proto_item *pi;
     int original_offset = offset;
@@ -277,7 +277,7 @@ static int
 dissect_bhttp_known_content(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     uint64_t length;
-    int32_t lenvar;
+    uint32_t lenvar;
     proto_tree *c_tree;
     proto_item *pi;
 
@@ -315,7 +315,7 @@ static int
 dissect_bhttp_informational_response_control_data(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     uint64_t status;
-    int32_t lenvar;
+    uint32_t lenvar;
     proto_item *pi;
     proto_tree *cd_tree;
 
@@ -334,7 +334,7 @@ static int
 dissect_bhttp_final_response_control_data(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     uint64_t status;
-    int32_t lenvar;
+    uint32_t lenvar;
     proto_item *pi;
     proto_tree *cd_tree;
 
@@ -380,7 +380,7 @@ static int
 dissect_bhttp_response(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     uint64_t status;
-    int32_t lenvar;
+    uint32_t lenvar;
     bool final_response = false;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0 && !final_response) {
@@ -450,7 +450,7 @@ static int
 dissect_bhttp_indeterminate_response(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     uint64_t status;
-    int32_t lenvar;
+    uint32_t lenvar;
     bool final_response = false;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0 && !final_response) {
@@ -492,7 +492,7 @@ static int
 dissect_bhttp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     uint64_t framing_indicator;
-    int32_t lenvar;
+    uint32_t lenvar;
     proto_item *ti_ft;
     proto_tree *ft_tree;
 

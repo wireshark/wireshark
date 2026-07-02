@@ -442,7 +442,7 @@ dissect_netrom_routing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	tvbuff_t *next_tvb;
 	const uint8_t* mnemonic;
-	int mnemonic_len;
+	unsigned mnemonic_len;
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "NET/ROM");
 	col_set_str( pinfo->cinfo, COL_INFO, "routing table frame");

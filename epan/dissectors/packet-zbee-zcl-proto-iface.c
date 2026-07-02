@@ -185,7 +185,7 @@ dissect_zbee_zcl_generic_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static void
 dissect_zcl_generic_tunnel_attr_data(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
-    int octstr_len;
+    unsigned octstr_len;
 
     /* Dissect attribute data type and data */
     switch (attr_id) {

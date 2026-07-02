@@ -1872,7 +1872,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
 
         if(frame_type == FT_CRYPTO) {
             uint64_t crypto_offset, crypto_length;
-            int32_t lenvar;
+            uint32_t lenvar;
 
             DISSECTOR_ASSERT(gquic_info->version_valid && gquic_info->version >= 50);
 

@@ -2173,7 +2173,7 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     unsigned offset_end = ((8 * offset + offset_bits + item->bitlength_encoded_type) / 8);
     unsigned offset_end_bits = ((8 * offset + offset_bits + item->bitlength_encoded_type) % 8);
 
-    int string_length = 0;
+    unsigned string_length = 0;
     unsigned signal_length = offset_end - offset;
     if (offset_end_bits != 0) {
         signal_length++;

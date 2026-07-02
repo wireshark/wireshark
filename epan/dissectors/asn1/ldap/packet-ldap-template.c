@@ -1399,7 +1399,7 @@ static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
   uint16_t itype;
   uint16_t len;
   uint32_t version;
-  int fn_len;
+  unsigned fn_len;
   proto_item *item;
 
   ldm_tree = NULL;

@@ -869,7 +869,7 @@ static unsigned dissect_mqtt_properties(tvbuff_t *tvb, packet_info *pinfo, proto
 
       case PROP_SUBSCRIPTION_IDENTIFIER:
       {
-        int vbi_len;
+        unsigned vbi_len;
         proto_tree_add_item_ret_length(mqtt_prop_tree, hf_mqtt_prop_num, tvb, offset, -1, ENC_LITTLE_ENDIAN|ENC_VARINT_PROTOBUF, &vbi_len);
         offset += vbi_len;
         break;
@@ -877,7 +877,7 @@ static unsigned dissect_mqtt_properties(tvbuff_t *tvb, packet_info *pinfo, proto
 
       case PROP_CONTENT_TYPE:
       {
-        int length;
+        unsigned length;
         proto_tree_add_item_ret_string_and_length(mqtt_prop_tree, hf_mqtt_prop_content_type, tvb, offset, 2, ENC_UTF_8, pinfo->pool, (const uint8_t**)&mqtt_properties->content_type, &length);
         offset += length;
         break;

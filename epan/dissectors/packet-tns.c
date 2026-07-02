@@ -671,7 +671,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 			}
 			else
 			{
-				int len;
+				unsigned len;
 				versions_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1, ett_tns_acc_versions, &ti, "Versions");
 				sep = ':';
 				for (;;) {

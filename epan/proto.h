@@ -1463,7 +1463,7 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item, and *lenretval is set to the item length */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_new_ret_length(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
-    const unsigned start, int length, const unsigned encoding, int *lenretval);
+    const unsigned start, int length, const unsigned encoding, unsigned *lenretval);
 
 /**
  * @brief Add an item to a protocol tree and return the length of the parsed field.
@@ -1479,7 +1479,7 @@ proto_tree_add_item_new_ret_length(proto_tree *tree, header_field_info *hfinfo, 
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_length(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    const unsigned start, int length, const unsigned encoding, int *lenretval);
+    const unsigned start, int length, const unsigned encoding, unsigned *lenretval);
 
 /** Add an integer data item to a proto_tree, using the text label registered to that item.
 The item is extracted from the tvbuff handed to it, and the retrieved
@@ -1621,26 +1621,27 @@ proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  * its value and consumed byte count.
  *
  * Decodes a varint (e.g. Protocol Buffers base-128 or QUIC variable-length
- * integer) from @p tvb starting at @p start. Up to @p length bytes are
- * consumed; the actual number of bytes read is stored in @p lenretval.
+ * integer) from @p tvb starting at @p start. Up to the minimum of @p length
+ * and FT_VARINT_MAX_LEN (10) bytes are consumed; the actual number of bytes
+ * read is stored in @p lenretval.
  *
  * @param tree      The protocol tree to add the item to.
  * @param hfindex   The header field index (must be an FT_UINT* type).
  * @param tvb       The packet buffer containing the field data.
  * @param start     Offset in @p tvb at which the varint begins.
- * @param length    Maximum number of bytes to read, or -1 to read to end of
- *                  @p tvb.
+ * @param length    Maximum number of bytes to read; no greater than
+ *                  FT_VARINT_MAX_LEN (10) will be read in any case.
  * @param encoding  Varint encoding variant (e.g. ENC_VARINT_PROTOBUF,
  *                  ENC_VARINT_QUIC).
- * @param retval    Receives the decoded uint64_t value on success; NULL to
- *                  ignore.
- * @param lenretval Receives the number of bytes consumed on success; NULL to
- *                  ignore.
+ * @param retval    Receives the decoded uint64_t value on success, or 0
+ *                  on failure; NULL to ignore.
+ * @param lenretval Receives the number of bytes consumed on success, or 0
+ *                  on failure; NULL to ignore. On failure,
  * @return The newly created proto_item leaf node.
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_varint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    const unsigned start, int length, const unsigned encoding, uint64_t *retval, int *lenretval);
+    const unsigned start, unsigned length, const unsigned encoding, uint64_t *retval, unsigned *lenretval);
 
 /**
  * @brief Add an FT_BOOLEAN item to the protocol tree and return its value.
@@ -1779,7 +1780,7 @@ and *lenretval is set to the item length
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_string_and_length(proto_tree *tree, int hfindex,
     tvbuff_t *tvb, const unsigned start, int length, const unsigned encoding,
-    wmem_allocator_t *scope, const uint8_t **retval, int *lenretval);
+    wmem_allocator_t *scope, const uint8_t **retval, unsigned *lenretval);
 
 /** Add an string item to a proto_tree, using the text label registered to
 that item.
@@ -1837,7 +1838,7 @@ WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_display_string_and_length(proto_tree *tree, int hfindex,
     tvbuff_t *tvb,
     const unsigned start, int length, const unsigned encoding,
-    wmem_allocator_t *scope, char **retval, int *lenretval);
+    wmem_allocator_t *scope, char **retval, unsigned *lenretval);
 
 /** Add an string or byte array item to a proto_tree, using the
 text label registered to that item.

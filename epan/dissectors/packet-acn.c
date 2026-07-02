@@ -3050,7 +3050,7 @@ dissect_magic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *ti, *subtype_item;
   proto_tree *magic_tree;
   uint32_t command;
-  int32_t str_len;
+  uint32_t str_len;
   uint32_t major, minor, patch, aud, crit, build;
   char *buffer;
 

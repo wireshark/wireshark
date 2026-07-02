@@ -1505,7 +1505,7 @@ static int
 dissect_http3_settings(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http3_tree, unsigned offset)
 {
     uint64_t    settingsid, value;
-    int         lenvar;
+    unsigned    lenvar;
     proto_item  *ti_settings, *pi;
     proto_tree  *settings_tree;
 
@@ -1582,7 +1582,7 @@ dissect_http3_priority_update(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 {
     uint64_t element_id;
     unsigned priority_field_value_len;
-    int     lenvar;
+    unsigned lenvar;
 
     proto_tree_add_item_ret_varint(http3_tree, hf_http3_priority_update_element_id, tvb, offset, -1, ENC_VARINT_QUIC,
                                    &element_id, &lenvar);
@@ -1627,7 +1627,7 @@ static int
 dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, quic_stream_info *stream_info, http3_stream_info_t *http3_stream)
 {
     uint64_t    frame_type, frame_length;
-    int         type_length_size, lenvar, payload_length;
+    unsigned    type_length_size, lenvar, payload_length, total_length;
     proto_item  *ti_ft, *ti_ft_type, *ti_streamid;
     proto_tree  *ft_tree;
     const char *ft_display_name;
@@ -1656,14 +1656,14 @@ dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     offset += lenvar;
     type_length_size += lenvar;
 
-    if (frame_length >= (uint64_t)(INT32_MAX - type_length_size)) {
+    if (ckd_add(&total_length, type_length_size, frame_length)) {
         // There is no way for us to correctly handle these sizes. Most likely
         // it is garbage.
         return INT32_MAX;
     }
 
-    payload_length = (int)frame_length;
-    proto_item_set_len(ti_ft, type_length_size + payload_length);
+    proto_item_set_len(ti_ft, total_length);
+    payload_length = (unsigned)frame_length;
     if (payload_length == 0) {
         return offset;
     }
@@ -2451,7 +2451,7 @@ dissect_http3_uni_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
                          http3_stream_info_t *http3_stream)
 {
     uint64_t    stream_type;
-    int         lenvar;
+    unsigned    lenvar;
     proto_item *ti_stream, *ti_stream_type;
     proto_tree *stream_tree;
     const char *stream_display_name;
@@ -2617,7 +2617,7 @@ dissect_http3_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     uint64_t             request_stream_id;
     proto_item         * ti;
     proto_tree         * http3_tree, * datragram_tree, * stream_id_tree;
-    int32_t              lenvar;
+    uint32_t             lenvar;
     int                  offset = 0;
 
     if (!datagram_info) {

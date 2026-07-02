@@ -853,7 +853,7 @@ icqv5_srv_meta_user(proto_tree *tree, /* Tree to put the data in */
          *
          * They are used to "implement" a poorman's exception handling
          */
-        int len = 0;
+        unsigned len = 0;
         unsigned char auth;
         /*
          * Read UIN
@@ -891,7 +891,7 @@ icqv5_srv_meta_user(proto_tree *tree, /* Tree to put the data in */
     }
     case META_USER_INFO:
     {
-        int len = 0;
+        unsigned len = 0;
 #if 0
         /* Get the uin */
         proto_tree_add_item(sstree, hf_icq_uin, tvb, offset, 4, ENC_LITTLE_ENDIAN);

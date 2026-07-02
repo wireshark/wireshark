@@ -1145,7 +1145,8 @@ decode_misc (tvbuff_t *tvb, int offset, packet_info* pinfo, proto_tree *pt)
 static int
 decode_text (tvbuff_t *tvb, int offset, int msglen, proto_tree *pt)
 {
-    int       padding, length;
+    int       padding;
+    unsigned  length;
 
     padding = 3 - (msglen + 3) % 4;
 
@@ -2259,7 +2260,7 @@ static int
 cmd_cnvt_get_values(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     uint8_t num_signals;
-    int length;
+    unsigned length;
     int i;
     proto_tree_add_item_ret_uint8(pt, hf_gryphon_ldf_get_frame_num_signals, tvb, offset, 1, ENC_BIG_ENDIAN, &num_signals);
     offset += 1;
@@ -2277,7 +2278,7 @@ resp_cnvt_get_values(tvbuff_t *tvb, int offset, proto_tree *pt)
     uint8_t num_signals;
     float fvalue;
     int i;
-    int length;
+    unsigned length;
     proto_tree_add_item_ret_uint8(pt, hf_gryphon_ldf_get_frame_num_signals, tvb, offset, 1, ENC_BIG_ENDIAN, &num_signals);
     offset += 1;
     for(i=0;i< num_signals; i++) {
@@ -2311,7 +2312,7 @@ static int
 cmd_cnvt_get_units(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     uint8_t num_signals;
-    int length;
+    unsigned length;
     int i;
     proto_tree_add_item_ret_uint8(pt, hf_gryphon_ldf_get_frame_num_signals, tvb, offset, 1, ENC_BIG_ENDIAN, &num_signals);
     offset += 1;
@@ -2327,7 +2328,7 @@ resp_cnvt_get_units(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     uint8_t num_signals;
     int i;
-    int length;
+    unsigned length;
     proto_tree_add_item_ret_uint8(pt, hf_gryphon_ldf_get_frame_num_signals, tvb, offset, 1, ENC_BIG_ENDIAN, &num_signals);
     offset += 1;
     for(i=0;i< num_signals; i++) {
@@ -2342,7 +2343,7 @@ static int
 cmd_cnvt_set_values(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     uint8_t num_signals;
-    int length;
+    unsigned length;
     int i;
     float fvalue;
     proto_tree_add_item_ret_uint8(pt, hf_gryphon_ldf_get_frame_num_signals, tvb, offset, 1, ENC_BIG_ENDIAN, &num_signals);
@@ -2361,7 +2362,7 @@ cmd_cnvt_set_values(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_cnvt_destroy_session(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int msglen;
+    unsigned msglen;
     msglen = tvb_reported_length_remaining(tvb, offset);
     proto_tree_add_item(pt, hf_gryphon_ldf_ui, tvb, offset, msglen, ENC_NA);
     offset += msglen;
@@ -2371,7 +2372,7 @@ cmd_cnvt_destroy_session(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 resp_ldf_get_node_names(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int length;
+    unsigned length;
     uint16_t us_num;
     /* number */
     us_num = tvb_get_ntohs(tvb, offset);
@@ -2393,7 +2394,7 @@ resp_ldf_get_node_names(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_ldf_get_frames(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int length;
+    unsigned length;
     proto_tree_add_item_ret_length(pt, hf_gryphon_ldf_get_frame, tvb, offset, -1, ENC_NA | ENC_ASCII, &length);
     offset += length;
     return offset;
@@ -2402,7 +2403,7 @@ cmd_ldf_get_frames(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 resp_ldf_get_frames(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int length;
+    unsigned length;
     uint16_t us_num;
     uint8_t pid;
     /* number */
@@ -2445,7 +2446,7 @@ cmd_ldf_get_frame_info(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
 static int
 resp_ldf_get_frame_info(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int length;
+    unsigned length;
     uint8_t count, i;
     proto_tree_add_item(pt, hf_gryphon_ldf_get_frame_num, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -2464,7 +2465,7 @@ resp_ldf_get_frame_info(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_ldf_get_signal_info(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int length;
+    unsigned length;
     proto_tree_add_item_ret_length(pt, hf_gryphon_ldf_signal_name, tvb, offset, -1, ENC_NA | ENC_ASCII, &length);
     offset += length;
     return offset;
@@ -2473,7 +2474,7 @@ cmd_ldf_get_signal_info(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 resp_ldf_get_signal_info(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int length;
+    unsigned length;
 /* offset */
     proto_tree_add_item(pt, hf_gryphon_ldf_signal_offset, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -2491,7 +2492,7 @@ resp_ldf_get_signal_info(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_ldf_get_signal_detail(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int length;
+    unsigned length;
     proto_tree_add_item_ret_length(pt, hf_gryphon_ldf_signal_name, tvb, offset, -1, ENC_NA | ENC_ASCII, &length);
     offset += length;
     return offset;
@@ -2501,7 +2502,7 @@ static int
 resp_ldf_do_encoding_block(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *pt)
 {
     char *string;
-    int length;
+    unsigned length;
     /* encoding */
     proto_tree_add_item_ret_string(pt, hf_gryphon_ldf_signal_encoding_type, tvb, offset, 12, ENC_ASCII, pinfo->pool, (const uint8_t**)&string);
     offset += 12;
@@ -2564,7 +2565,7 @@ resp_ldf_get_signal_detail(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
 static int
 cmd_ldf_get_encoding_info(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int length;
+    unsigned length;
     proto_tree_add_item_ret_length(pt, hf_gryphon_ldf_signal_encoding_name, tvb, offset, -1, ENC_NA | ENC_ASCII, &length);
     offset += length;
     return offset;
@@ -2589,7 +2590,7 @@ resp_ldf_get_encoding_info(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
 static int
 cmd_ldf_save_session(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int msglen;
+    unsigned msglen;
     msglen = tvb_reported_length_remaining(tvb, offset);
     proto_tree_add_item(pt, hf_gryphon_ldf_restore_session, tvb, offset, msglen, ENC_NA);
     offset += msglen;
@@ -2633,7 +2634,7 @@ cmd_ldf_emulate_nodes(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
 static int
 resp_ldf_get_schedules(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int length;
+    unsigned length;
     uint16_t us_num;
     /* number */
     us_num = tvb_get_ntohs(tvb, offset);
@@ -2651,7 +2652,7 @@ resp_ldf_get_schedules(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_ldf_start_schedule(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int length;
+    unsigned length;
     proto_tree_add_item_ret_length(pt, hf_gryphon_ldf_schedule_name, tvb, offset, -1, ENC_NA | ENC_ASCII, &length);
     offset += length;
     return offset;
@@ -2660,7 +2661,7 @@ cmd_ldf_start_schedule(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_ldf_get_node_signals(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int length;
+    unsigned length;
     proto_tree_add_item_ret_length(pt, hf_gryphon_ldf_node_name, tvb, offset, -1, ENC_NA | ENC_ASCII, &length);
     offset += length;
     return offset;
@@ -2669,7 +2670,7 @@ cmd_ldf_get_node_signals(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 resp_ldf_get_node_signals(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int length;
+    unsigned length;
     uint16_t us_num;
     /* number */
     us_num = tvb_get_ntohs(tvb, offset);

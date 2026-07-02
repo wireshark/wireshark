@@ -189,7 +189,7 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
         case FT_UINT_STRING:
             {
                 const uint8_t *ret;
-                int len;
+                unsigned len;
                 item = proto_tree_add_item_ret_string_and_length(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
                                                     tvbr->offset, tvbr->len, encoding,
                                                     NULL, &ret, &len);

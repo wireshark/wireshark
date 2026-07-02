@@ -9327,7 +9327,7 @@ static void dissect_zcl_part_trasfpartframe(tvbuff_t *tvb, proto_tree *tree, uns
 {
 
     uint8_t   options;
-    int       frame_len;
+    unsigned  frame_len;
 
     static int * const part_opt[] = {
         &hf_zbee_zcl_part_opt_first_block,

@@ -1137,7 +1137,7 @@ dissect_eh_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *segment_tree,
     unsigned       cfi_size = 0;
     uint64_t       unsigned_value;
     int64_t        signed_value;
-    int            size;
+    unsigned       size;
     const char    *augmentation_string = "";
     bool           is_extended_length;
     int            start_offset = offset;

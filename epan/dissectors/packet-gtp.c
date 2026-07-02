@@ -9555,7 +9555,7 @@ static unsigned
 decode_gtp_ext_node_id(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     uint16_t    length;
-    int         item_len;
+    unsigned    item_len;
     proto_tree *ext_tree;
 
     length = tvb_get_ntohs(tvb, offset + 1);

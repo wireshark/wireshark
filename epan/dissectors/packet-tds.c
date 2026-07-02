@@ -2710,7 +2710,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, unsigned *offset, packet_info *pinfo, pr
         case TDS_DATA_TYPE_CHAR:            /* Char (TDS 4/5) */
         case TDS_DATA_TYPE_VARCHAR:         /* VarChar (TDS 4/5) */
         {
-            int len;
+            unsigned len;
             proto_tree_add_item_ret_length(sub_tree, hf_tds_type_varbyte_data_uint_string,
                 tvb, *offset, 1, tds_get_char_encoding(tds_info), &len);
             *offset += len;
@@ -2719,7 +2719,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, unsigned *offset, packet_info *pinfo, pr
         case TDS_DATA_TYPE_BINARY:          /* Binary (TDS 4/5) */
         case TDS_DATA_TYPE_VARBINARY:       /* VarBinary (TDS 4/5) */
         {
-            int len;
+            unsigned len;
             proto_tree_add_item_ret_length(sub_tree, hf_tds_type_varbyte_data_uint_bytes,
                 tvb, *offset, 1, ENC_NA, &len);
             *offset += len;
@@ -2734,7 +2734,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, unsigned *offset, packet_info *pinfo, pr
         case TDS_DATA_TYPE_NCHAR:           /* NChar */
             /* Special case where MS and Sybase independently assigned a data type of 0xaf. */
             if ((data_type == SYBLONGCHAR) && TDS_PROTO_LESS_THAN_TDS7(tds_info)) {
-                int len;
+                unsigned len;
                 proto_tree_add_item_ret_length(sub_tree, hf_tds_type_varbyte_data_uint_string, tvb, *offset, 4,
                     tds_get_char_encoding(tds_info)|tds_get_int4_encoding(tds_info), &len);
                 *offset += len;
@@ -2782,7 +2782,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, unsigned *offset, packet_info *pinfo, pr
          * It is handled under TDS_DATA_TYPE_BIGCHAR above. */
         case TDS_DATA_TYPE_LONGBINARY:      /* Long Binary (TDS 5.0) */
         {
-            int len;
+            unsigned len;
             proto_tree_add_item_ret_length(sub_tree, hf_tds_type_varbyte_data_uint_bytes, tvb, *offset, 4,
                 tds_get_int4_encoding(tds_info), &len);
             *offset += len;
@@ -2959,7 +2959,7 @@ dissect_tds5_curclose_token(tvbuff_t *tvb, packet_info *pinfo, unsigned offset,
     cur += 4;
 
     if (cursorid == 0) {
-        int cursorname_len;
+        unsigned cursorname_len;
         const uint8_t *cursorname;
         proto_item *cursor_name_pi;
 
@@ -3013,7 +3013,7 @@ dissect_tds5_curdeclare_token(tvbuff_t *tvb, packet_info *pinfo, unsigned offset
                               proto_tree *tree, tds_conv_info_t *tds_info)
 {
     unsigned len, cur = offset, num_updatable_columns;
-    int cursorname_len, stmtlen;
+    unsigned cursorname_len, stmtlen;
     const uint8_t *cursorname;
     tds_cursor_info_t *packet_cursor =
         (tds_cursor_info_t *) p_get_proto_data(wmem_file_scope(), pinfo, proto_tds, 0);
@@ -3043,7 +3043,7 @@ dissect_tds5_curdeclare_token(tvbuff_t *tvb, packet_info *pinfo, unsigned offset
     cur += 1;
 
     if (num_updatable_columns > 0) {
-        int column_name_len;
+        unsigned column_name_len;
 
         proto_tree_add_item_ret_length(tree, hf_tds_curdeclare_update_columns_name,
             tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA, &column_name_len);
@@ -3113,7 +3113,7 @@ dissect_tds5_curfetch_token(tvbuff_t *tvb, packet_info *pinfo, unsigned offset,
     cur += 4;
 
     if (cursorid == 0) {
-        int cursorname_len;
+        unsigned cursorname_len;
         proto_item *cursor_name_pi;
 
         cursor_name_pi = proto_tree_add_item_ret_string_and_length(tree, hf_tds_curfetch_cursor_name,
@@ -3197,7 +3197,7 @@ dissect_tds5_curinfo_token(tvbuff_t *tvb, packet_info *pinfo, unsigned offset,
     cur += 4;
 
     if (cursorid == 0) {
-        int cursorname_len;
+        unsigned cursorname_len;
         proto_item *cursor_name_pi;
         cursor_name_pi = proto_tree_add_item_ret_string_and_length(tree,
             hf_tds_curinfo_cursor_name, tvb, cur, 1,
@@ -3294,7 +3294,7 @@ dissect_tds5_curopen_token(tvbuff_t *tvb, packet_info *pinfo, unsigned offset,
     cur += 4;
 
     if (cursorid == 0) {
-        int cursorname_len;
+        unsigned cursorname_len;
         const uint8_t *cursorname;
         proto_item *pi;
 
@@ -3697,7 +3697,7 @@ dissect_tds_paramfmt_token(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, 
     col = 0;
     while (cur < next) {
         const uint8_t *colname = NULL;
-        int colnamelen, localelen;
+        unsigned colnamelen, localelen;
 
         if (col >= TDS_MAX_COLUMNS) {
             nl_data->num_cols = TDS_MAX_COLUMNS;
@@ -3778,7 +3778,7 @@ dissect_tds_paramfmt2_token(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
     col = 0;
     while (cur < next) {
         const uint8_t *colname = NULL;
-        int colnamelen, localelen;
+        unsigned colnamelen, localelen;
 
         if (col >= TDS_MAX_COLUMNS) {
             nl_data->num_cols = TDS_MAX_COLUMNS;
@@ -4747,7 +4747,7 @@ dissect_tds_col_name_token(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, 
         proto_item *col_item;
         proto_tree *col_tree;
         const uint8_t *colname;
-        int str_len;
+        unsigned str_len;
 
         if (col >= TDS_MAX_COLUMNS) {
             nl_data->num_cols = TDS_MAX_COLUMNS;
@@ -4850,7 +4850,7 @@ dissect_tds_colfmt_token(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, un
 
         if (!is_fixedlen_type_tds(nl_data->columns[col]->ctype)) {
             if (is_image_type_tds(nl_data->columns[col]->ctype)) {
-                int tnamelen;
+                unsigned tnamelen;
                 proto_tree_add_item_ret_uint(col_tree, hf_tds_colfmt_csize_long, tvb, cur, 4,
                                              tds_get_int4_encoding(tds_info),
                                              &nl_data->columns[col]->csize);
@@ -4909,8 +4909,8 @@ dissect_tds_rowfmt_token(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *col_tree;
         unsigned colstart = cur;
         bool first = true;
-        int colnamelen;
-        int localelen;
+        unsigned colnamelen;
+        unsigned localelen;
         const uint8_t *colname = NULL;
 
         if (col >= TDS_MAX_COLUMNS) {
@@ -4962,7 +4962,7 @@ dissect_tds_rowfmt_token(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
         if (!is_fixedlen_type_tds(nl_data->columns[col]->ctype)) {
             if (is_image_type_tds(nl_data->columns[col]->ctype)) {
-                int tnamelen;
+                unsigned tnamelen;
                 proto_tree_add_item_ret_uint(col_tree, hf_tds_rowfmt_csize, tvb, cur, 4,
                     tds_get_int4_encoding(tds_info),
                     &nl_data->columns[col]->csize);
@@ -5052,7 +5052,7 @@ dissect_tds_rowfmt2_token(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *col_tree;
         unsigned colstart = cur;
         unsigned ctype;
-        int labelnamelen, catalognamelen, schemanamelen, tablenamelen, colnamelen, localelen;
+        unsigned labelnamelen, catalognamelen, schemanamelen, tablenamelen, colnamelen, localelen;
         const uint8_t *labelname = NULL, *catalogname = (const uint8_t * )"", *schemaname = (const uint8_t * )"",
                      *tablename = (const uint8_t*)"", *colname = (const uint8_t*)"";
         const char *name;
@@ -5138,7 +5138,7 @@ dissect_tds_rowfmt2_token(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
         if (!is_fixedlen_type_tds(ctype)) {
             if (is_image_type_tds(ctype)) {
-                int tnamelen;
+                unsigned tnamelen;
                 proto_tree_add_item_ret_uint(col_tree, hf_tds_rowfmt2_csize, tvb, cur, 4,
                     tds_get_int4_encoding(tds_info),
                     &nl_data->columns[col]->csize);
@@ -5225,7 +5225,7 @@ dissect_tds_control_token(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, u
         if (!(nl_data->columns[col])) {
             nl_data->columns[col] = wmem_new0(pinfo->pool, struct _tds_col);
         }
-        proto_tree_add_item_ret_length(tree, hf_tds_control_fmt, tvb, cur, 1, ENC_NA, (int*)&len);
+        proto_tree_add_item_ret_length(tree, hf_tds_control_fmt, tvb, cur, 1, ENC_NA, &len);
 
         cur += len;
         col += 1;
@@ -5675,7 +5675,7 @@ static int
 dissect_tds_eed_token(tvbuff_t *tvb, unsigned offset, proto_tree *tree, tds_conv_info_t *tds_info)
 {
     unsigned cur = offset;
-    int32_t msg_len, len;
+    uint32_t msg_len, len;
 
     proto_tree_add_item(tree, hf_tds_eed_length, tvb, cur, 2,
                         tds_get_int2_encoding(tds_info));

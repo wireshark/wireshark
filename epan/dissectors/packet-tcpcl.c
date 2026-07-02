@@ -1276,7 +1276,7 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     const char *msgtype_name;
     uint8_t        refuse_bundle_hdr;
     int            offset = 0;
-    int sdnv_length;
+    unsigned sdnv_length;
     uint64_t segment_length;
     proto_item    *conv_item, *sub_item;
     proto_tree    *conv_tree, *sub_tree;
@@ -2188,7 +2188,7 @@ static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
              * New format Contact header has length field followed by EID.
              */
             uint64_t eid_length;
-            int sdnv_length;
+            unsigned sdnv_length;
             proto_item *sub_item = proto_tree_add_item_ret_varint(tree_chdr, hf_tcpclv3_chdr_local_eid_length, tvb, offset, -1, ENC_VARINT_SDNV, &eid_length, &sdnv_length);
             if (sdnv_length == 0) {
                 expert_add_info(pinfo, sub_item, &ei_tcpclv3_eid_length);

@@ -443,7 +443,7 @@ dissect_wmio_encoded_string(tvbuff_t *tvb, int offset, int hfindex, packet_info 
     proto_item *sub_item;
     proto_tree *sub_tree;
     int old_offset = offset;
-    int fn_len = 0;
+    unsigned fn_len = 0;
     header_field_info *hfinfo;
     char *s= NULL;
     uint32_t foffset = 0;

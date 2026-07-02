@@ -2569,7 +2569,7 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, unsigned offset,
     case 'S': /* long string, UTF-8 encoded */
         if (length < 4)
             return 0; /* too short */
-        ti = proto_tree_add_item_ret_length(field_tree, hf_amqp_field_string, tvb, offset, 4, ENC_BIG_ENDIAN|ENC_UTF_8, (int*)&vallen);
+        ti = proto_tree_add_item_ret_length(field_tree, hf_amqp_field_string, tvb, offset, 4, ENC_BIG_ENDIAN|ENC_UTF_8, &vallen);
         offset += vallen;
         break;
     case 'T': /* timestamp (u64) */
@@ -2662,7 +2662,7 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, unsigned offset,
         if (length < 4)
             return 0; /* too short */
         ti = proto_tree_add_item_ret_length(field_tree, hf_amqp_field_byte_array, tvb,
-                                 offset, 4, ENC_NA, (int*)&vallen);
+                                 offset, 4, ENC_NA, &vallen);
         offset += vallen;
         break;
     default:

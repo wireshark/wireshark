@@ -47,7 +47,7 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_tree *ti;
     proto_tree *fsso_tree;
     uint32_t payload_length, client_ip;
-    int string_length = -1;
+    unsigned string_length;
     const char *string;
     uint32_t len;
     unsigned offset = 0;

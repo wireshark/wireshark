@@ -490,7 +490,8 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
 {
     proto_tree *shrub;
     proto_item *ti;
-    int siz, content_length, leftover;
+    unsigned siz;
+    int content_length, leftover;
     uint32_t i;
 
     unsigned char message_type = tvb_get_uint8(tvb, n);
@@ -533,7 +534,6 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
         siz = tvb_strsize(tvb, n);
         proto_tree_add_item(shrub, hf_logical_message_prefix, tvb, n, siz, ENC_ASCII);
         n += siz;
-        content_length = tvb_strsize(tvb, n);
         proto_tree_add_item_ret_int(shrub, hf_logical_message_length, tvb, n, 4, ENC_BIG_ENDIAN, &content_length);
         n += 4;
         proto_tree_add_item(shrub, hf_logical_message_content, tvb, n, content_length, ENC_ASCII);
@@ -1130,7 +1130,8 @@ static void dissect_pgsql_be_msg(unsigned char type, unsigned length, tvbuff_t *
                                  pgsql_conn_data_t *conv_data)
 {
     unsigned char c;
-    int i, siz;
+    int i;
+    unsigned siz;
     int32_t num_nonsupported_options;
     proto_item *ti;
     proto_tree *shrub;

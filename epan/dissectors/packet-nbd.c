@@ -876,7 +876,7 @@ dissect_nbd_opt_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			offset += name_len;
 			proto_tree_add_item_ret_uint(tree, hf_nbd_query_num, tvb, offset, 4, ENC_BIG_ENDIAN, &info_num);
 			offset += 4;
-			int query_len;
+			unsigned query_len;
 			for (unsigned i = 0; i < info_num; ++i) {
 				proto_tree_add_item_ret_length(tree, hf_nbd_query, tvb, offset, 2, ENC_BIG_ENDIAN, &query_len);
 				offset += query_len;

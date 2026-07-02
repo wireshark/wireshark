@@ -502,12 +502,12 @@ ltp_ref_use(wmem_map_t *map, uint64_t ref_num, packet_info *pinfo, proto_tree *t
 }
 
 static proto_item *
-add_sdnv64_to_tree(proto_tree *tree, tvbuff_t *tvb, packet_info* pinfo, int offset, int hf_sdnv, uint64_t *retval, int *lenretval)
+add_sdnv64_to_tree(proto_tree *tree, tvbuff_t *tvb, packet_info* pinfo, int offset, int hf_sdnv, uint64_t *retval, unsigned *lenretval)
 {
 	proto_item *ti;
 	ti = proto_tree_add_item_ret_varint(tree, hf_sdnv, tvb, offset, -1, ENC_VARINT_SDNV, retval, lenretval);
 
-	if (*lenretval <= 0) {
+	if (*lenretval == 0) {
 		expert_add_info(pinfo, ti, &ei_ltp_sdnv_length);
 	}
 	return ti;
@@ -576,7 +576,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 
 	unsigned segment_size = 0;
 
-	int sdnv_length;
+	unsigned sdnv_length;
 
 	proto_tree *ltp_data_tree;
 	proto_item *ti;
@@ -870,7 +870,7 @@ ltp_dissect_client_service_id_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	while(parse_offset < parse_length)
 	{
 		uint64_t sda_client_id = 0;
-		int sdnv_length;
+		unsigned sdnv_length;
 
 		add_sdnv64_to_tree(tree, tvb, pinfo, parse_offset, hf_ltp_data_sda_clid, &sda_client_id, &sdnv_length);
 		parse_offset += sdnv_length;
@@ -987,13 +987,13 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 	uint64_t length;
 	uint64_t clm_fst, clm_lst;
 
-	int rpt_sno_size;
-	int chkp_sno_size;
-	int upper_bound_size;
-	int lower_bound_size;
-	int rcpt_clm_cnt_size;
-	int offset_size;
-	int length_size;
+	unsigned rpt_sno_size;
+	unsigned chkp_sno_size;
+	unsigned upper_bound_size;
+	unsigned lower_bound_size;
+	unsigned rcpt_clm_cnt_size;
+	unsigned offset_size;
+	unsigned length_size;
 
 	int segment_offset = 0;
 	int gap_count = 0;
@@ -1168,8 +1168,8 @@ static int
 dissect_report_ack_segment(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pinfo, int frame_offset, ltp_tap_info_t *tap){
 	ltp_session_data_t *session = tap->session;
 	uint64_t rpt_sno;
-	int rpt_sno_size;
-	int segment_offset = 0;
+	unsigned rpt_sno_size;
+	unsigned segment_offset = 0;
 
 	proto_item *ltp_rpt_ack_item, *item_rpt_sno;
 	proto_tree *ltp_rpt_ack_tree;
@@ -1240,7 +1240,7 @@ dissect_cancel_ack_segment(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pin
 static int
 dissect_header_extn(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pinfo, int frame_offset,int hdr_extn_cnt){
 	uint64_t length;
-	int length_size;
+	unsigned length_size;
 
 	int extn_offset = 0;
 
@@ -1272,7 +1272,7 @@ dissect_header_extn(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pinfo, int
 static int
 dissect_trailer_extn(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pinfo, int frame_offset,int trl_extn_cnt){
 	uint64_t length;
-	int length_size;
+	unsigned length_size;
 
 	int extn_offset = 0;
 
@@ -1312,8 +1312,8 @@ dissect_ltp_segment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	int     hdr_extn_cnt;
 	int     trl_extn_cnt;
 
-	int engine_id_size;
-	int session_num_size;
+	unsigned engine_id_size;
+	unsigned session_num_size;
 	const char *sess_name;
 	ltp_session_data_t *session = NULL;
 

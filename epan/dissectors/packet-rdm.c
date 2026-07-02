@@ -4127,7 +4127,7 @@ dissect_rdm_pd_shipping_lock(tvbuff_t *tvb, unsigned offset, proto_tree *tree, u
 static unsigned
 dissect_rdm_pd_list_tags(tvbuff_t *tvb, unsigned offset, proto_tree *tree, uint8_t cc, uint8_t len _U_)
 {
-  int s_len;
+  unsigned s_len;
 
   switch(cc) {
   case RDM_CC_GET_COMMAND_RESPONSE:

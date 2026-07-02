@@ -53,7 +53,7 @@ static int dissect_ems(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     GByteArray *bytes = g_byte_array_new();
 
     const char *nof_bits_hex_str;
-    int nof_bits_hex_str_len;
+    unsigned nof_bits_hex_str_len;
     int nof_bits;
     int nof_hex_chars_len;
 

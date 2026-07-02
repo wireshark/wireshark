@@ -829,7 +829,7 @@ dissect_u16_list(tvbuff_t *tvb, proto_tree *tree, int offset, uint32_t count, in
 static int
 dissect_pinf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int str_len;
+    unsigned str_len;
     const uint8_t *name;
     unsigned offset = 0;
     col_append_str(pinfo->cinfo, COL_PROTOCOL, "/PINF");
@@ -872,7 +872,7 @@ dissect_pinf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 static int
 dissect_sdmx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int str_len;
+    unsigned str_len;
     uint32_t count;
     uint32_t univ_num; const uint8_t *name;
     unsigned offset = 0;
@@ -995,7 +995,7 @@ dissect_sdmx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 static int
 dissect_fptc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int str_len;
+    unsigned str_len;
     unsigned offset = 0;
     col_append_str(pinfo->cinfo, COL_PROTOCOL, "/FPTC");
     /* Clear the info column */
@@ -1120,7 +1120,7 @@ dissect_finf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             offset += 1;
             col_add_fstr(pinfo->cinfo, COL_INFO, "Fram, Fixture %d, %d filters, %d gobos", fixt_id, filter_count, gobo_count);
 
-            int str_len;
+            unsigned str_len;
             proto_tree_add_item_ret_length(finf_tree, hf_citp_finf_frame_names, tvb, offset, -1, ENC_UTF_8, &str_len);
             uint8_t* start = tvb_get_string_enc(pinfo->pool, tvb, offset, str_len, ENC_UTF_8);
             /* based on SrvLoc attribute list parser */
@@ -1194,7 +1194,7 @@ dissect_caex_view_inner(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 static int
 dissect_caex_cue_inner(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, uint32_t content_code) {
     uint32_t option_count;
-    int str_len, prev_offset;
+    unsigned str_len, prev_offset;
     proto_tree_add_item_ret_uint(tree, hf_citp_caex_cue_option_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &option_count);
     offset+=1;
     for (unsigned int i = 0; i < option_count; i++) {
@@ -1224,7 +1224,7 @@ dissect_caex_cue_inner(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 static int
 dissect_caex_fixture(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, uint32_t content_code) {
     const uint8_t* str;
-    int str_len;
+    unsigned str_len;
     uint32_t fixture_id;
     if (content_code == CITP_CAEX_FIXTURE_LIST) {
         proto_tree_add_item(tree, hf_citp_caex_show_fixture_list_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1438,7 +1438,7 @@ dissect_caex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 {
     unsigned offset = 0;
     const uint8_t *str;
-    int str_len;
+    unsigned str_len;
     col_append_str(pinfo->cinfo, COL_PROTOCOL, "/CAEX");
     /* Clear the info column */
     col_clear(pinfo->cinfo, COL_INFO);
@@ -1675,7 +1675,7 @@ dissect_msex_affected_array(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_
  */
 static int
 dissect_msex_sinf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint16_t version) {
-    int str_len;
+    unsigned str_len;
     uint32_t count;
 
     if (version >= CITP_MSEX_V12) {
@@ -1734,7 +1734,7 @@ dissect_msex_sinf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int o
  */
 static int
 dissect_msex_lsta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint16_t version) {
-    int str_len;
+    unsigned str_len;
     uint32_t count;
 
     proto_tree_add_item_ret_uint(tree, hf_citp_msex_layer_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &count);
@@ -1823,7 +1823,7 @@ dissect_msex_library(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
         const char* lib_num;
         const uint8_t* lib_name;
-        int lib_name_len;
+        unsigned lib_name_len;
         uint32_t elem_count;
         offset = dissect_msex_library_num_or_id(tvb, pinfo, lib_tree, offset, version >= CITP_MSEX_V11, &lib_num);
         if (version >= CITP_MSEX_V12) {
@@ -1862,7 +1862,7 @@ dissect_msex_library(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
  */
 static int
 dissect_msex_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint16_t version, uint32_t content_type) {
-    int str_len;
+    unsigned str_len;
 
     uint32_t library_type;
     if (content_type == CITP_MSEX_GEIN || (content_type == CITP_MSEX_GLEI && version >= CITP_MSEX_V12)) {
@@ -2089,7 +2089,7 @@ static int
 dissect_msex_vsrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint16_t version _U_) {
     uint32_t count;
     const uint8_t* str;
-    int str_len;
+    unsigned str_len;
 
     proto_tree_add_item_ret_uint(tree, hf_citp_msex_source_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &count);
     offset+=2;

@@ -371,9 +371,9 @@ dissect_bson_document(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_
   do {
     /* Read document elements */
     uint8_t e_type;  /* Element type */
-    int str_len = -1;   /* String length */
-    int e_len = -1;     /* Element length */
-    int doc_len = -1;   /* Document length */
+    unsigned str_len;   /* String length */
+    unsigned e_len;     /* Element length */
+    unsigned doc_len;   /* Document length */
 
     e_type = tvb_get_uint8(tvb, offset);
 

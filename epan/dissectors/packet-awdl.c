@@ -1191,7 +1191,7 @@ add_awdl_dns_name(proto_tree *tree, int hfindex_regular, int hfindex_compressed,
       offset += 2;
     } else {
       /* regular label */
-      int label_len;
+      unsigned label_len;
       proto_tree_add_item_ret_string_and_length(tree, hfindex_regular, tvb, offset, 1, ENC_ASCII, scope, (const uint8_t**)&component, &label_len);
       offset += label_len;
     }
@@ -1276,12 +1276,12 @@ awdl_tag_service_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   case T_TXT:
     while (len > 0) {
       const unsigned char *txt;
-      int label_len;
+      unsigned label_len;
       proto_tree_add_item_ret_string_and_length(rr_tree, hf_awdl_dns_txt, tvb, offset, 1, ENC_ASCII,
                                                 pinfo->pool, &txt, &label_len);
       offset += label_len;
       proto_item_append_text(rr_item, ", %s", txt);
-      if (label_len > (int) len) {
+      if (label_len > len) {
         expert_add_info_format(pinfo, data_len, &ei_awdl_tag_length,
                                "DNS data length is too short");
         break;
