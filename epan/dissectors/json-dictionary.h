@@ -61,10 +61,25 @@ struct _json_field_t {
 	char *parser_args;          /* Additional arguments for parser */
 	wmem_tree_t *parser_child_hf; /* Dynamic header fields from parser (filter → hf_index) */
 	bool case_insensitive;      /* Enable case-insensitive path matching */
+	GSList *wildcard_fields;    /* Ordered list of json_wildcard_field_t* (NULL if none) */
 };
 
 // Forward declaration to keep wsutil/regex.h optional for callers
 struct _ws_regex;
+
+/* Runtime wildcard field — one per <wildcardfield> element */
+typedef struct _json_wildcard_field_t json_wildcard_field_t;
+struct _json_wildcard_field_t {
+	char   *name;                    /* display name */
+	char   *path;                    /* full path string */
+	char   *alias;                   /* last segment of path — substituted for runtime key */
+	char   *display_value;           /* label for key-value string field */
+	struct _ws_regex *match_re;      /* compiled PCRE2 regex */
+	wmem_tree_t *child_fields;       /* child json_field_t entries keyed by path */
+	GSList      *child_wildcards;    /* nested json_wildcard_field_t entries (ordered) */
+	int     hf_key_value;            /* hf index for the auto key-value string field */
+	int    *ett;                     /* subtree index */
+};
 
 // Dictionary structure
 typedef struct _json_dictionary_t {
@@ -80,6 +95,8 @@ typedef struct _json_dictionary_t {
 	                            //   When true, field-level dictionary parsing is gated on a
 	                            //   per-packet protocol match. When false (no protocols defined),
 	                            //   dictionary fields are applied globally for backward compat.
+	GSList *wildcard_regexes;   // List of struct _ws_regex* compiled for <wildcardfield> match= attrs.
+	                            // Freed at shutdown by json_dictionary_cleanup().
 } json_dictionary_t;
 
 /* Protocol definition */
@@ -96,6 +113,14 @@ typedef struct _json_protocol_t {
 	GSList *port_list;          // List of unsigned* port numbers this protocol is bound to.
 	                            // Stored on the protocol so dispatch can verify port membership when
 	                            // checking the AND condition. Owned via wmem_epan_scope().
+	wmem_tree_t *fields;        // Protocol-scoped field tree (path → json_field_t*). NULL when
+	                            // this protocol's file defined no <field> elements, or when the
+	                            // file had no <protocol> at all. Populated by parse_dictionary_file()
+	                            // after all fields are created. Shares json_field_t* pointers with
+	                            // the global dict->fields — no duplication.
+	bool has_case_insensitive_fields; // True if any field in this protocol's tree is case_insensitive.
+	int hf_proto_present;       // FT_BOOLEAN hf index for "json.<sanitized-name>". Set to -1
+	                            // until registration; used to mark matched packets filterable.
 } json_protocol_t;
 
 /* Dictionary XML element names */
@@ -107,6 +132,7 @@ typedef struct _json_protocol_t {
 #define XML_ELEMENT_ARRAY_ELEMENT  "array-element"
 #define XML_ELEMENT_ENUM           "enum"
 #define XML_ELEMENT_CONTENT_TYPE   "content-type"
+#define XML_ELEMENT_WILDCARDFIELD  "wildcardfield"
 
 /* XML attribute names */
 #define XML_ATTR_NAME              "name"
@@ -128,6 +154,8 @@ typedef struct _json_protocol_t {
 #define XML_ATTR_PARSER_ARGS       "parser-args"
 #define XML_ATTR_CASE              "case"
 #define XML_ATTR_CONDITION         "condition"
+#define XML_ATTR_DISPLAY_VALUE     "displayvalue"
+#define XML_ATTR_MATCH             "match"
 
 // Temporary structures for XML parsing
 typedef struct _dict_type_def {
@@ -142,6 +170,17 @@ typedef struct _dict_enum_def {
 	xmlChar *description;
 } dict_enum_def_t;
 
+typedef struct _dict_wildcardfield_def_t dict_wildcardfield_def_t;
+struct _dict_wildcardfield_def_t {
+	xmlChar *name;             // display name
+	xmlChar *path;             // full path (e.g. "dnnConfigurations.apn")
+	xmlChar *alias;            // last segment of path (e.g. "apn") — derived at parse time
+	xmlChar *display_value;    // label for the key-value string field (default "key")
+	xmlChar *match;            // PCRE2 regex string matched against runtime key
+	GSList  *child_fields;     // List of dict_field_def_t (regular children)
+	GSList  *child_wildcards;  // List of dict_wildcardfield_def_t (nested wildcards)
+};
+
 typedef struct _dict_field_def {
 	xmlChar *name;
 	xmlChar *path;
@@ -149,6 +188,7 @@ typedef struct _dict_field_def {
 	xmlChar *description;
 	GSList *child_fields;      // List of dict_field_def_t
 	GSList *enum_values;       // List of dict_enum_def_t
+	GSList *wildcard_children; // List of dict_wildcardfield_def_t
 	bool is_array_element;
 	xmlChar *info_label;       // Custom label for Info column (NULL = don't show)
 	xmlChar *display_filter;   // Custom display filter name (NULL = use path-based name)

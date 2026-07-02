@@ -82,6 +82,9 @@ dict_enum_def_free(dict_enum_def_t *enum_def)
 	g_free(enum_def);
 }
 
+/* Forward declaration — dict_wildcardfield_def_free and dict_field_def_free are mutually recursive */
+static void dict_wildcardfield_def_free(dict_wildcardfield_def_t *wf);
+
 // Free field definition recursively
 void
 dict_field_def_free(dict_field_def_t *field_def)
@@ -100,8 +103,23 @@ dict_field_def_free(dict_field_def_t *field_def)
 
 	g_slist_free_full(field_def->child_fields, (GDestroyNotify)dict_field_def_free);
 	g_slist_free_full(field_def->enum_values, (GDestroyNotify)dict_enum_def_free);
+	g_slist_free_full(field_def->wildcard_children, (GDestroyNotify)dict_wildcardfield_def_free);
 
 	g_free(field_def);
+}
+
+static void
+dict_wildcardfield_def_free(dict_wildcardfield_def_t *wf)
+{
+	if (!wf) return;
+	xmlFree(wf->name);
+	xmlFree(wf->path);
+	xmlFree(wf->alias);
+	xmlFree(wf->display_value);
+	xmlFree(wf->match);
+	g_slist_free_full(wf->child_fields, (GDestroyNotify)dict_field_def_free);
+	g_slist_free_full(wf->child_wildcards, (GDestroyNotify)dict_wildcardfield_def_free);
+	g_free(wf);
 }
 
 // Free protocol definition
@@ -157,6 +175,13 @@ json_dictionary_cleanup(json_dictionary_t *dict)
 	}
 	g_slist_free(dict->all_protocols);
 	dict->all_protocols = NULL;
+
+	/* Free compiled regexes for <wildcardfield> match= attributes */
+	for (GSList *wr = dict->wildcard_regexes; wr; wr = wr->next) {
+		ws_regex_free((struct _ws_regex *)wr->data);
+	}
+	g_slist_free(dict->wildcard_regexes);
+	dict->wildcard_regexes = NULL;
 }
 
 // Look up base type mapping
@@ -232,6 +257,77 @@ process_enum(xmlNodePtr node)
 	enum_def->description = description;
 
 	return enum_def;
+}
+
+/* Forward declarations for mutual recursion */
+// NOLINTNEXTLINE(misc-no-recursion)
+static dict_field_def_t *process_field(xmlNodePtr node, const char *parent_path, bool is_array_element);
+// NOLINTNEXTLINE(misc-no-recursion)
+static dict_wildcardfield_def_t *process_wildcardfield(xmlNodePtr node, const char *parent_path);
+
+// NOLINTNEXTLINE(misc-no-recursion)
+static dict_wildcardfield_def_t *process_wildcardfield(xmlNodePtr node, const char *parent_path)
+{
+	xmlChar *name = xmlGetProp(node, (const xmlChar *)XML_ATTR_NAME);
+	xmlChar *path = xmlGetProp(node, (const xmlChar *)XML_ATTR_PATH);
+	xmlChar *display_value = xmlGetProp(node, (const xmlChar *)XML_ATTR_DISPLAY_VALUE);
+	xmlChar *match = xmlGetProp(node, (const xmlChar *)XML_ATTR_MATCH);
+
+	if (!path || !match) {
+		ws_warning("JSON Dictionary: <wildcardfield> missing required 'path' or 'match' attribute");
+		if (name) xmlFree(name);
+		if (path) xmlFree(path);
+		if (display_value) xmlFree(display_value);
+		if (match) xmlFree(match);
+		return NULL;
+	}
+
+	/* Extract alias as last segment of path */
+	const char *last_dot = strrchr((const char *)path, '.');
+	xmlChar *alias = last_dot ?
+		xmlStrdup((const xmlChar *)(last_dot + 1)) :
+		xmlStrdup(path);
+
+	dict_wildcardfield_def_t *wf = g_new0(dict_wildcardfield_def_t, 1);
+	wf->name          = name ? name : xmlStrdup(path);
+	wf->path          = path;
+	wf->alias         = alias;
+	wf->display_value = display_value ? display_value : xmlStrdup((const xmlChar *)"key");
+	wf->match         = match;
+	wf->child_fields  = NULL;
+	wf->child_wildcards = NULL;
+
+	/* Process child nodes */
+	for (xmlNodePtr child = node->children; child != NULL; child = child->next) {
+		if (child->type != XML_ELEMENT_NODE)
+			continue;
+
+		if (xmlStrcmp(child->name, (const xmlChar *)XML_ELEMENT_FIELD) == 0) {
+			dict_field_def_t *cf = process_field(child, parent_path, false);
+			if (cf)
+				wf->child_fields = g_slist_append(wf->child_fields, cf);
+		}
+		else if (xmlStrcmp(child->name, (const xmlChar *)XML_ELEMENT_ARRAY_ELEMENT) == 0) {
+			/* Treat like process_field does: iterate <field> children of <array-element> */
+			xmlChar *elem_type = xmlGetProp(child, (const xmlChar *)XML_ATTR_TYPE);
+			for (xmlNodePtr ec = child->children; ec != NULL; ec = ec->next) {
+				if (ec->type != XML_ELEMENT_NODE) continue;
+				if (xmlStrcmp(ec->name, (const xmlChar *)XML_ELEMENT_FIELD) == 0) {
+					dict_field_def_t *ef = process_field(ec, parent_path, true);
+					if (ef)
+						wf->child_fields = g_slist_append(wf->child_fields, ef);
+				}
+			}
+			if (elem_type) xmlFree(elem_type);
+		}
+		else if (xmlStrcmp(child->name, (const xmlChar *)XML_ELEMENT_WILDCARDFIELD) == 0) {
+			dict_wildcardfield_def_t *cwf = process_wildcardfield(child, parent_path);
+			if (cwf)
+				wf->child_wildcards = g_slist_append(wf->child_wildcards, cwf);
+		}
+	}
+
+	return wf;
 }
 
 // Process field element (recursive for nested fields)
@@ -329,8 +425,9 @@ static dict_field_def_t *process_field(xmlNodePtr node, const char *parent_path,
 				}
 			}
 
-			/* If this is a primitive array element with info label, create a field def for it */
-			if (!has_child_fields && elem_info) {
+			/* Register a field at <path>[] for primitive array elements so values
+			 * are filterable (e.g. json.allowedSscModes[] == "SSC_MODE_1"). */
+			if (!has_child_fields) {
 				dict_field_def_t *elem_field = g_new0(dict_field_def_t, 1);
 				elem_field->name = xmlStrdup(field_def->name);
 				elem_field->path = xmlStrdup((const xmlChar *)wmem_strdup_printf(
@@ -355,6 +452,14 @@ static dict_field_def_t *process_field(xmlNodePtr node, const char *parent_path,
 			if (enum_def) {
 				field_def->enum_values = g_slist_append(
 					field_def->enum_values, enum_def);
+			}
+		}
+		else if (xmlStrcmp(child->name, (const xmlChar *)XML_ELEMENT_WILDCARDFIELD) == 0) {
+			dict_wildcardfield_def_t *wf = process_wildcardfield(child,
+				(const char *)path);
+			if (wf) {
+				field_def->wildcard_children = g_slist_append(
+					field_def->wildcard_children, wf);
 			}
 		}
 	}
@@ -454,6 +559,90 @@ parse_display_type(const char *display_str)
 	}
 
 	return JSON_DISPLAY_NONE;
+}
+
+/* Forward declaration for mutual recursion between create_wildcardfield and create_json_field */
+// NOLINTNEXTLINE(misc-no-recursion)
+static json_field_t *create_json_field(dict_field_def_t *field_def, wmem_array_t *hf_array,
+		  GPtrArray *ett_array, json_dictionary_t *dict, GHashTable *type_definitions);
+
+// NOLINTNEXTLINE(misc-no-recursion)
+static json_wildcard_field_t *create_wildcardfield(dict_wildcardfield_def_t *wf_def, wmem_array_t *hf_array,
+		     GPtrArray *ett_array, json_dictionary_t *dict, GHashTable *type_definitions)
+{
+	if (!wf_def || !wf_def->match)
+		return NULL;
+
+	/* Compile the match regex */
+	char *regex_err = NULL;
+	struct _ws_regex *re = ws_regex_compile((const char *)wf_def->match, &regex_err);
+	if (!re) {
+		ws_warning("JSON Dictionary: wildcardfield match='%s' regex compile failed: %s",
+			   (const char *)wf_def->match, regex_err ? regex_err : "unknown");
+		g_free(regex_err);
+		return NULL;
+	}
+
+	json_wildcard_field_t *jwf = wmem_new0(wmem_epan_scope(), json_wildcard_field_t);
+	jwf->name          = wmem_strdup(wmem_epan_scope(), (const char *)wf_def->name);
+	jwf->path          = wmem_strdup(wmem_epan_scope(), (const char *)wf_def->path);
+	jwf->alias         = wmem_strdup(wmem_epan_scope(), (const char *)wf_def->alias);
+	jwf->display_value = wmem_strdup(wmem_epan_scope(),
+		wf_def->display_value ? (const char *)wf_def->display_value : "key");
+	jwf->match_re      = re;
+	jwf->hf_key_value  = -1;
+	/* Track regex for cleanup at shutdown */
+	dict->wildcard_regexes = g_slist_append(dict->wildcard_regexes, re);
+	jwf->child_fields  = NULL;
+	jwf->child_wildcards = NULL;
+
+	/* Register the auto key-value string field: json.<path>.<displayvalue> */
+	char *kv_filter = wmem_strdup_printf(wmem_epan_scope(), "json.%s.%s",
+		jwf->path, jwf->display_value);
+	/* Sanitize: strip brackets, collapse leading dots */
+	{
+		char *rp = kv_filter, *wp = kv_filter;
+		while (*rp) {
+			if (*rp != '[' && *rp != ']') *wp++ = *rp;
+			rp++;
+		}
+		*wp = '\0';
+		char *suffix = kv_filter + strlen("json.");
+		while (*suffix == '.') memmove(suffix, suffix + 1, strlen(suffix + 1) + 1);
+	}
+
+	int *ett_ptr = wmem_new(wmem_epan_scope(), int);
+	*ett_ptr = -1;
+	jwf->ett = ett_ptr;
+	g_ptr_array_add(ett_array, ett_ptr);
+
+	hf_register_info kv_hf = {
+		&jwf->hf_key_value,
+		{ jwf->display_value, kv_filter,
+		  FT_STRING, BASE_NONE, NULL, 0, "", HFILL }
+	};
+	wmem_array_append_one(hf_array, kv_hf);
+
+	/* Register child <field> entries into jwf->child_fields tree */
+	if (wf_def->child_fields) {
+		jwf->child_fields = wmem_tree_new(wmem_epan_scope());
+		for (GSList *elem = wf_def->child_fields; elem; elem = elem->next) {
+			dict_field_def_t *cf = (dict_field_def_t *)elem->data;
+			json_field_t *jf = create_json_field(cf, hf_array, ett_array, dict, type_definitions);
+			if (jf)
+				wmem_tree_insert_string(jwf->child_fields, jf->path, jf, 0);
+		}
+	}
+
+	/* Register nested <wildcardfield> entries */
+	for (GSList *wc = wf_def->child_wildcards; wc; wc = wc->next) {
+		json_wildcard_field_t *cwf = create_wildcardfield(
+			(dict_wildcardfield_def_t *)wc->data, hf_array, ett_array, dict, type_definitions);
+		if (cwf)
+			jwf->child_wildcards = g_slist_append(jwf->child_wildcards, cwf);
+	}
+
+	return jwf;
 }
 
 // Create json_field_t from dict_field_def_t and register header fields
@@ -611,6 +800,30 @@ static json_field_t *create_json_field(dict_field_def_t *field_def, wmem_array_t
 			read_ptr++;
 		}
 		*write_ptr = '\0';
+
+		// Bracket removal can leave invalid dots: "[]" -> "json." (trailing dot)
+		// and "[].foo" -> "json..foo" (doubled dot). Collapse any dots immediately
+		// after the "json." prefix so the filter name stays valid.
+		char *suffix = filter_name + strlen("json.");
+		while (*suffix == '.') {
+			memmove(suffix, suffix + 1, strlen(suffix + 1) + 1);
+		}
+		// If the path was purely "[]", suffix is now empty — use the field name.
+		if (*suffix == '\0') {
+			filter_name = wmem_strdup_printf(wmem_epan_scope(), "json.%s",
+				(const char *)field_def->name);
+			for (char *p = filter_name + strlen("json."); *p; p++) {
+				*p = (*p == ' ') ? '_' : g_ascii_tolower(*p);
+			}
+		}
+
+		/* Array container fields (type=Array, FT_NONE) get a "_array" suffix so
+		 * their filter name doesn't collide with the auto-generated element field
+		 * at the same path (which gets the clean natural filter name). This prevents
+		 * a crash when "apply as filter" is used on the array container node. */
+		if (field->type == JSON_FIELD_ARRAY && !field_def->is_array_element) {
+			filter_name = wmem_strdup_printf(wmem_epan_scope(), "%s_array", filter_name);
+		}
 	}
 
 	/* Build enum value_string array if present */
@@ -675,7 +888,117 @@ static json_field_t *create_json_field(dict_field_def_t *field_def, wmem_array_t
 		}
 	}
 
+	/* Process <wildcardfield> children */
+	if (field_def->wildcard_children) {
+		for (GSList *wc = field_def->wildcard_children; wc; wc = wc->next) {
+			json_wildcard_field_t *jwf = create_wildcardfield(
+				(dict_wildcardfield_def_t *)wc->data,
+				hf_array, ett_array, dict, type_definitions);
+			if (jwf)
+				field->wildcard_fields = g_slist_append(field->wildcard_fields, jwf);
+		}
+	}
+
 	return field;
+}
+
+/* Forward declaration — mutually recursive with populate_protocol_field_trees. */
+// NOLINTNEXTLINE(misc-no-recursion)
+static void populate_protocol_wildcard_trees(dict_wildcardfield_def_t *wdef, GSList *proto_list,
+					     json_dictionary_t *dict);
+
+/* Recursively walk a field_def tree and insert each already-created
+ * json_field_t* (fetched from dict->fields) into every protocol's scoped
+ * field tree.  Also recurses into wildcard_children so alias-path fields
+ * (e.g. dnnConfigurations.apn.5gQosProfile) are included.
+ * Called once per file after all json_field_t objects have been created.
+ * Shares pointers — no duplication. */
+// NOLINTNEXTLINE(misc-no-recursion)
+static void populate_protocol_field_trees(dict_field_def_t *fdef, GSList *proto_list,
+			      json_dictionary_t *dict)
+{
+	if (!fdef || !fdef->path)
+		return;
+	json_field_t *jf = (json_field_t *)wmem_tree_lookup_string(
+		dict->fields, (const char *)fdef->path, 0);
+	if (jf) {
+		for (GSList *pe = proto_list; pe; pe = pe->next) {
+			json_protocol_t *proto = (json_protocol_t *)pe->data;
+			wmem_tree_insert_string(proto->fields, jf->path, jf, 0);
+			if (jf->case_insensitive)
+				proto->has_case_insensitive_fields = true;
+		}
+	}
+	for (GSList *ce = fdef->child_fields; ce; ce = ce->next)
+		populate_protocol_field_trees(
+			(dict_field_def_t *)ce->data, proto_list, dict);
+	for (GSList *wc = fdef->wildcard_children; wc; wc = wc->next)
+		populate_protocol_wildcard_trees(
+			(dict_wildcardfield_def_t *)wc->data, proto_list, dict);
+}
+
+/* Recurse into a wildcardfield def's child_fields and child_wildcards,
+ * inserting their already-created json_field_t* into every protocol tree. */
+// NOLINTNEXTLINE(misc-no-recursion)
+static void populate_protocol_wildcard_trees(dict_wildcardfield_def_t *wdef,
+				 GSList *proto_list,
+				 json_dictionary_t *dict)
+{
+	if (!wdef)
+		return;
+	for (GSList *ce = wdef->child_fields; ce; ce = ce->next)
+		populate_protocol_field_trees(
+			(dict_field_def_t *)ce->data, proto_list, dict);
+	for (GSList *wc = wdef->child_wildcards; wc; wc = wc->next)
+		populate_protocol_wildcard_trees(
+			(dict_wildcardfield_def_t *)wc->data, proto_list, dict);
+}
+
+/* Sanitize a protocol name= value into a valid Wireshark filter suffix:
+ * lowercase, spaces→'_', non-[a-z0-9_]→'_', collapse runs of '_',
+ * strip trailing '_', prefix '_' if result starts with a digit. */
+static char *
+sanitize_protocol_filter_name(const char *name)
+{
+	if (!name || *name == '\0')
+		return NULL;
+
+	size_t len = strlen(name);
+	char *buf = (char *)wmem_alloc(wmem_epan_scope(), len + 2); /* +2: possible '_' prefix + NUL */
+	size_t out = 0;
+
+	for (size_t i = 0; i < len; i++) {
+		unsigned char c = (unsigned char)name[i];
+		char mapped;
+		if (c >= 'A' && c <= 'Z')
+			mapped = (char)(c + ('a' - 'A'));
+		else if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9'))
+			mapped = (char)c;
+		else
+			mapped = '_';
+
+		/* Collapse consecutive underscores */
+		if (mapped == '_' && out > 0 && buf[out - 1] == '_')
+			continue;
+		buf[out++] = mapped;
+	}
+
+	/* Strip trailing underscores */
+	while (out > 0 && buf[out - 1] == '_')
+		out--;
+
+	buf[out] = '\0';
+
+	if (out == 0)
+		return NULL;
+
+	/* Prefix '_' if first char is a digit */
+	if (buf[0] >= '0' && buf[0] <= '9') {
+		memmove(buf + 1, buf, out + 1);
+		buf[0] = '_';
+	}
+
+	return buf;
 }
 
 // Parse dictionary XML file
@@ -791,6 +1114,29 @@ parse_dictionary_file(const char *filename, wmem_array_t *hf_array,
 		proto->path_regex = NULL;
 		proto->path_case_sensitive = false;
 		proto->port_list = NULL;
+		proto->fields = NULL;
+		proto->has_case_insensitive_fields = false;
+		proto->hf_proto_present = -1;
+
+		/* Register a filterable FT_BOOLEAN field "json.<sanitized-name>"
+		 * so users can filter packets by matched protocol. */
+		if (proto->name) {
+			char *suffix = sanitize_protocol_filter_name(proto->name);
+			if (suffix) {
+				char *abbrev = wmem_strdup_printf(wmem_epan_scope(),
+								  "json.%s", suffix);
+				char *label = wmem_strdup_printf(wmem_epan_scope(),
+								 "JSON+ Protocol: %s", proto->name);
+				hf_register_info proto_hf = {
+					&proto->hf_proto_present,
+					{ label, abbrev,
+					  FT_BOOLEAN, BASE_NONE, NULL, 0,
+					  "Set when this JSON+ protocol matched dispatch", HFILL }
+				};
+				wmem_array_append_one(hf_array, proto_hf);
+			}
+		}
+
 		/* condition= defaults to "or"; require_all=true only when the user
 		 * explicitly sets condition="and". */
 		proto->require_all =
@@ -847,6 +1193,29 @@ parse_dictionary_file(const char *filename, wmem_array_t *hf_array,
 				g_free(errmsg);
 			}
 		}
+	}
+
+	/* Populate per-protocol scoped field trees for this file.
+	 * Only runs when the file defined both protocols and fields.
+	 * Fields from files with no <protocol> stay global-only (strict isolation). */
+	if (protocol_defs && field_defs) {
+		int n_protos = g_slist_length(protocol_defs);
+		GSList *file_protocols = NULL;
+		GSList *ap = dict->all_protocols;
+		for (int i = 0; i < n_protos && ap; i++, ap = ap->next)
+			file_protocols = g_slist_prepend(file_protocols, ap->data);
+
+		for (GSList *pe = file_protocols; pe; pe = pe->next) {
+			json_protocol_t *proto = (json_protocol_t *)pe->data;
+			proto->fields = wmem_tree_new(wmem_epan_scope());
+			proto->has_case_insensitive_fields = false;
+		}
+
+		for (GSList *fe = field_defs; fe; fe = fe->next)
+			populate_protocol_field_trees(
+				(dict_field_def_t *)fe->data, file_protocols, dict);
+
+		g_slist_free(file_protocols);
 	}
 
 	success = true;

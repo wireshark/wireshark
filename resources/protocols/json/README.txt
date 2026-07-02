@@ -284,6 +284,63 @@ Comment out dictionaries to reduce registered fields:
 3. **Minimal fields**: Don't define fields you won't use
 4. **Protocol names**: Define protocol names/ports for automatic detection
 
+## Wildcard Object Keys
+
+Some JSON objects use runtime values as keys (e.g. DNN names, subscription
+IDs). Use `<wildcardfield>` to match these by regex and dissect their children
+with fixed alias paths:
+
+<field name="DnnConfigurations" path="dnnConfigurations" type="Object">
+    <wildcardfield name="Apn" path="dnnConfigurations.apn"
+                   displayvalue="name" match=".*">
+        <field name="DefaultSessionType"
+               path="dnnConfigurations.apn.pduSessionTypes.defaultSessionType"
+               type="String"/>
+    </wildcardfield>
+</field>
+
+- `path=` — full path; the last segment (`apn`) becomes the alias token
+  substituted for the runtime key in all child path lookups
+- `displayvalue=` — label for the auto-generated string field that shows
+  the actual key value (default: "key")
+- `match=` — PCRE2 regex matched against the runtime JSON key (required)
+
+Matching priority per key: literal `<field>` lookup first, then
+`<wildcardfield>` entries in document order, then generic display.
+
+Filter the key value: `json.dnnConfigurations.apn.name == "web.operator.com"`
+Filter a child field: `json.dnnConfigurations.apn.pduSessionTypes.defaultSessionType == "TYPE"`
+
+See DICTIONARY-GUIDE.txt for full `<wildcardfield>` reference.
+
+## Per-Protocol Field Scoping
+
+When `<protocol>` entries are defined, each protocol's dictionary fields are
+scoped to packets that matched that protocol. Fields from one XML file do not
+apply to packets matched by a protocol defined in a different XML file. This
+prevents cross-contamination between dictionaries.
+
+Fields in XML files with no `<protocol>` element are global and only apply
+when no protocols are defined at all (legacy mode).
+
+## Filtering by Protocol Name
+
+Every `<protocol>` element automatically registers a hidden boolean field:
+
+    json.<sanitized-name>
+
+where the name is lowercased and non-alphanumeric characters replaced with
+underscores. Examples:
+- `<protocol name="NUDM_SDM" ...>` → filter: `json.nudm_sdm`
+- `<protocol name="GitHub API" ...>` → filter: `json.github_api`
+- `<protocol name="5GC Core" ...>` → filter: `json._5gc_core`
+
+Use it to isolate packets matched by that protocol:
+    json.nudm_sdm          (show only NUDM_SDM packets)
+
+The field is registered at startup regardless of whether any packets match,
+so it is always available as a valid filter name.
+
 ## Advanced Topics
 
 ### Multiple API Versions

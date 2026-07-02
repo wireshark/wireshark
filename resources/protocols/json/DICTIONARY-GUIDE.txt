@@ -202,6 +202,24 @@ Example: Path-based protocol identification (HTTP/2 or HTTP/1.1):
           path=".*nchf-convergedcharging.*" port="1090"
           condition="and" displayName="SMF_CHF_1090"/>
 
+Per-Protocol Filterable Boolean Field:
+Each <protocol> element automatically registers a hidden FT_BOOLEAN field
+with abbrev json.<sanitized-name>, where the name is lowercased and
+non-alphanumeric characters are replaced with underscores:
+  <protocol name="NUDM_SDM" ...>  →  json.nudm_sdm
+  <protocol name="GitHub API" ...>  →  json.github_api
+  <protocol name="5GC Core" ...>  →  json._5gc_core
+This field is set on every packet where the protocol matched, making it
+possible to filter: json.nudm_sdm (shows only NUDM_SDM-matched packets).
+The field exists in the registry at startup even if no packets matched.
+
+Per-Protocol Field Scoping:
+When <protocol> entries are defined, each protocol's <field> definitions
+are scoped to packets that matched that specific protocol. Fields from
+one XML file do not apply to packets matched by a protocol in a different
+XML file. Files with no <protocol> element contribute fields only in
+legacy mode (no protocols defined anywhere).
+
 Protocol Column Behavior:
 - Packet on port 8000 → Shows "5G-JSON" in Protocol column
 - Packet on port 9999 → Shows "TestAPI" in Protocol column
@@ -516,6 +534,68 @@ Nested Arrays:
         <array-element type="Integer"/>
     </array-element>
 </field>
+
+### Wildcard Object Keys (<wildcardfield>)
+
+Some JSON APIs use object keys that are runtime values — DNN names,
+subscription IDs, UUIDs — rather than fixed schema names. A
+`<wildcardfield>` element matches those keys by regex and dissects their
+children using a fixed alias path, so child fields are filterable even
+though the parent key is unknown at schema time.
+
+Syntax:
+<field name="DnnConfigurations" path="dnnConfigurations" type="Object">
+    <wildcardfield name="Apn" path="dnnConfigurations.apn"
+                   displayvalue="name" match=".*\.com">
+        <field name="DefaultSessionType"
+               path="dnnConfigurations.apn.pduSessionTypes.defaultSessionType"
+               type="String"/>
+        <field name="5qi" path="dnnConfigurations.apn.5gQosProfile.5qi"
+               type="Integer"/>
+        <!-- Nested wildcardfield is allowed -->
+        <wildcardfield name="Slice" path="dnnConfigurations.apn.slice"
+                       displayvalue="id" match="[0-9]+">
+            <field name="Sst" path="dnnConfigurations.apn.slice.sst"
+                   type="Integer"/>
+        </wildcardfield>
+    </wildcardfield>
+    <!-- Catch-all after more specific patterns -->
+    <wildcardfield name="AnyKey" path="dnnConfigurations.key"
+                   displayvalue="key" match=".*">
+    </wildcardfield>
+</field>
+
+Attributes:
+- name:         Display name for the wildcard subtree
+- path:         Full path string. The last segment (after the final dot)
+                is the alias token — it replaces the runtime key in all
+                child path lookups. Example: path="dnnConfigurations.apn"
+                → alias "apn", child paths use "dnnConfigurations.apn.*"
+- displayvalue: Label for the auto-generated string field that shows the
+                actual runtime key value. Default: "key".
+                Filter: json.<path>.<displayvalue> == "web.operator.com"
+- match:        PCRE2 regex matched against the runtime JSON key. Required.
+                First matching wildcardfield wins (document order).
+
+Matching priority for each key encountered under the parent object:
+  1. Exact literal <field> lookup by full path — wins if found
+  2. <wildcardfield> entries tried in document order — first match wins
+  3. No match — key displayed as generic JSON
+
+Child elements inside <wildcardfield>:
+  - <field>         — regular child field (path uses alias, not runtime key)
+  - <array-element> — if the wildcard value is an array
+  - <wildcardfield> — nested wildcard (recursive)
+
+Auto-generated key-value field:
+Each <wildcardfield> registers a FT_STRING field at
+json.<path>.<displayvalue> (e.g. json.dnnConfigurations.apn.name).
+This field holds the actual runtime key and is always filterable.
+
+Examples:
+  Filter the key:       json.dnnConfigurations.apn.name == "web.operator.com"
+  Filter a child:       json.dnnConfigurations.apn.5gQosProfile.5qi == 9
+  Filter array child:   json.dnnConfigurations.apn.sscModes.allowedSscModes == "SSC_MODE_1"
 
 ## Integer Enum Mapping
 
