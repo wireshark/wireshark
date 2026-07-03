@@ -3037,6 +3037,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_STREAM_E:
         case FT_STREAM_F: {
             uint64_t stream_id, stream_offset = 0, length;
+            bool stream_fin;
             int32_t lenvar;
 
             offset -= 1;
@@ -3044,7 +3045,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             col_append_str(pinfo->cinfo, COL_INFO, ", STREAM");
 
             ftflags_tree = proto_item_add_subtree(ti_ftflags, ett_quic_ftflags);
-            proto_tree_add_item(ftflags_tree, hf_quic_stream_fin, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item_ret_boolean(ftflags_tree, hf_quic_stream_fin, tvb, offset, 1, ENC_NA, &stream_fin);
             proto_tree_add_item(ftflags_tree, hf_quic_stream_len, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(ftflags_tree, hf_quic_stream_off, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -3058,7 +3059,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_item_append_text(ti_ft, " id=%" PRIu64, stream_id);
             col_append_fstr(pinfo->cinfo, COL_INFO, "(%" PRIu64 ")", stream_id);
 
-            proto_item_append_text(ti_ft, " fin=%d", !!(frame_type & FTFLAGS_STREAM_FIN));
+            proto_item_append_text(ti_ft, " fin=%d", stream_fin);
 
             if (!PINFO_FD_VISITED(pinfo)) {
                 quic_streams_add(pinfo, quic_info, (unsigned)stream_id);
@@ -3096,6 +3097,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 .stream_offset = stream_offset,
                 .quic_info = quic_info,
                 .from_server = from_server,
+                .fin = stream_fin,
             };
             dissect_quic_stream_payload(tvb, offset, (int)length, pinfo, ft_tree, quic_info, &stream_info, stream, quic_packet);
             offset += (int)length;

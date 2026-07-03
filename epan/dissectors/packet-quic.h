@@ -22,7 +22,8 @@ extern "C" {
 
 /**
  * Metadata for a STREAM frame.
- * https://tools.ietf.org/html/draft-ietf-quic-transport-23#section-19.8
+ * https://www.rfc-editor.org/info/rfc9000/#section-19.8
+ * This is passed to subdissectors as the data pointer.
  */
 typedef struct _quic_stream_info {
     uint64_t    stream_id;      /**< 62-bit Stream ID. */
@@ -30,6 +31,7 @@ typedef struct _quic_stream_info {
     uint32_t    offset;         /**< Offset within the stream (different for reassembled data). */
     struct quic_info_data *quic_info;    /**< Opaque data structure to find the QUIC session. */
     bool        from_server;
+    bool        fin;            /**< True if the frame marks the end of the stream. */
 } quic_stream_info;
 
 /**
