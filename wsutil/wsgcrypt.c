@@ -109,7 +109,7 @@ size_t rsa_decrypt_inplace(const unsigned len, unsigned char* data, gcry_sexp_t 
 		goto out;
 	}
 
-	/* convert plain text sexp to mpi format */
+	/* convert plaintext sexp to mpi format */
 	text = gcry_sexp_nth_mpi(s_plain, 0, 0);
 	if (! text) {
 		*err = g_strdup("can't convert sexp to mpi");
@@ -132,7 +132,7 @@ size_t rsa_decrypt_inplace(const unsigned len, unsigned char* data, gcry_sexp_t 
 		goto out;
 	}
 
-	/* write plain text to newly allocated buffer */
+	/* write plaintext to newly allocated buffer */
 	rc = gcry_mpi_print(GCRYMPI_FMT_USG, data, len, &decr_len, text);
 	if (rc != 0) {
 		*err = ws_strdup_printf("can't print decr data to mpi (size %zu):%s", decr_len, gcry_strerror(rc));
