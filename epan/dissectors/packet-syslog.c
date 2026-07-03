@@ -284,7 +284,7 @@ static bool dissect_syslog_sd(proto_tree* tree, tvbuff_t* tvb, packet_info *pinf
 
         /* If start or end could not be determined, move to next element */
         if(!tvb_find_uint8_length(tvb, *offset, element_end - *offset, CHR_QUOTE, &value_start) ||
-           !tvb_find_uint8_length(tvb, value_start, element_end - value_start, CHR_QUOTE, &value_end)) {
+           !tvb_find_uint8_length(tvb, value_start + 1, element_end - value_start, CHR_QUOTE, &value_end)) {
           *offset = element_end + 1;
           break;
         }
