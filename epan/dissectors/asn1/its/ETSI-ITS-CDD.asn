@@ -6423,7 +6423,8 @@ ParkingSpaceBasic ::= SEQUENCE{
  * @revision: Created in V2.3.1 
 */
 ParkingSpaceDetailed ::= SEQUENCE{
-   COMPONENTS OF            ParkingSpaceBasic,
+--   COMPONENTS OF            ParkingSpaceBasic,
+   parkingSpaceBasic        ParkingSpaceBasic,
    arrangementType          ParkingAreaArrangementType OPTIONAL,
    boundary                 DeltaPositions OPTIONAL,
    orientation              Wgs84Angle OPTIONAL,

@@ -1,0 +1,533 @@
+MIM-PDU-Descriptions {
+  itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (103882) mim (6) major-version-1 (1) minor-version-1 (1)
+}
+
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN  -- Marshalling Infrastucture Message
+
+IMPORTS
+
+RollingCounter, Centimetre, HighResCurvature, GearEnum, DirectionIndicatorEnum, MotorSystemEnum, WaypointIndex, Pose, AvmE2EProtection, ProprietaryExtensionField, SystemManagementData, UInt8, UInt16, UInt32, UInt64
+FROM AVM-Commons {
+  itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (103882) avpCommons (5) major-version-1 (1) minor-version-1(1)
+} -- WITH SUCCESSORS
+
+ItsPduHeader, TimestampIts, LongitudinalAccelerationValue, VelocityComponentValue, CartesianAngleValue
+FROM ETSI-ITS-CDD {
+  itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) 102894 cdd (2) major-version-4 (4) minor-version-1 (1)
+} -- WITH SUCCESSORS
+;
+
+/** 
+ * This type represents the MIM PDU.
+ *
+ * It shall include the following components: 
+ *
+ * @field header: the header of the MIM PDU.
+ *
+ * @field e2eProtection: A mandatory container for E2E Protection by Autosar Profile 4
+ *
+ * @field mims: a sequence of Mim containers which addresses min 1 and max. 32 vehicles .
+ */
+MIM ::= SEQUENCE {
+-- WS Header dissected as part of ITS common code
+--  header ItsPduHeader,
+  e2eProtection AvmE2EProtection,           
+  mims SEQUENCE (SIZE(1..32)) OF Mim  
+}
+
+/** 
+ * This type represents the Mim Container.
+ *
+ * It shall include the following components: 
+ *
+ * @field mimDataControlField: a container of specific Control Data for MIM.
+ *
+ * @field systemManagementData: a container of identification data
+ *
+ * @field vehicleIdentification: It allows the selection of the mechanism for visual vehicle identification. 
+ *
+ * @field drivingPermission: The driving permission container offers a safety concept to allow or deny vehicle motion.
+ *        It defines the bounds within which the vehicle is allowed to drive.
+ *
+ * @field safetyTimeSyncRequest: The Remote Vehicle Operation needs to be able to continuously
+ *        determine the current time in which the Subject Vehicle operates.
+ *        This container supports functional safety concepts.
+ *
+ * @field driveCommand: It addresses the specific vehicle and determines the actual state
+ *        request to the vehicle, especially the active drive request for the overall VCM operation.
+ *
+ * @field detectedVehiclePose: The RO permanently senses the vehicle's position
+ *        in a proprietary two-dimensional coordinate system (X and Y). 
+ *
+ * @field controlInterface: This container offers different control methods for vehicle motion control VMC as a choice between .
+ *
+ */
+Mim ::= SEQUENCE {
+  mimDataControlField MIMDataControlField OPTIONAL,
+  systemManagementData SystemManagementData OPTIONAL,					          	
+  vehicleIdentification VidRequest OPTIONAL,         	
+  drivingPermission DrivingPermission OPTIONAL,      	
+  safetyTimeSyncRequest SafetyTimeSyncRequest OPTIONAL, 
+  driveCommand DriveCommand OPTIONAL,                         	
+  detectedVehiclePose DetectedVehiclePose OPTIONAL,  	
+  controlInterface ControlInterface OPTIONAL,                 	             	
+  ...
+}
+
+/** 
+ * This type represents a container of specific Control Data for MIM.
+ *
+ * It shall include the following components: 
+ * 
+ * @field checksum: the optional checksum of a single mim vehicle container.
+ *
+ * @field mimGenerationTime: the time at which the vehicle container was fully assembled.
+ *
+ * @field rollingCounterFromMvm: It serves as a mirror of the rolling counter that was 
+ *        received with the latest MVM of the corresponding vehicle. 
+ *
+ * @field proprietaryExtensionField: This data element defines optionally 2 bytes are used to carry
+ *        specific information or request from the RO system to a specific OEM vehicle.
+ */
+MIMDataControlField ::= SEQUENCE {
+  checksum UInt32 OPTIONAL,
+  mimGenerationTime  TimestampIts OPTIONAL,
+  rollingCounterFromMvm SEQUENCE (SIZE(0..10)) OF RollingCounter,
+  proprietaryExtensionField ProprietaryExtensionField OPTIONAL,
+  ...
+}
+
+/** 
+ * This type represents a selection of methods for vehicle identification during standstill.
+ *
+ * It shall include the following components: 
+ * 
+ * @field blinking : At current stage only the "blinking lights" method is selectable for vehicle identification
+ *
+*/
+VidRequest ::= CHOICE {     
+  blinking Blinking,
+  ...
+}
+
+/** 
+ * This type represents the container with data elements for the blinking vehicle identification method.
+ *
+ * It shall include the following components: 
+ * 
+ * @field vidRoPublicKey : A 64-bit public key is transmitted from the RO to the vehicle
+ *        in order to derive the vehicle identification secret.
+ *
+ * @field codeLength : The codelength data element sends a value that indicates how many bits (8 - 20)
+ *        from the seed shall be used for generating the blinking pattern.
+ *
+ * @field currentState : This data element mirrors the current authorization/identification
+ *        request status from the perspective of the RO system.
+ *
+*/
+Blinking ::= SEQUENCE {
+  vidRoPublicKey UInt64,					 
+  codeLength UInt8,                          
+  blinkingCommand VidRequestCommandEnum           
+}
+
+/** 
+ * This type represents the container with data elements for the vehicle obtaining or denying a permission to drive.
+ *
+ * The driving permission concept offers an expiration time for driving permission and the boundary values of longitudinal and lateral movement of the subject vehicle. 
+ *
+ * It shall include the following components: 
+ * 
+ * @field expirationTime : At this time the vehicle shall start braking, unless a new and updated expirationTime time stamp was sent.
+ *
+ * @field velocityMax : During the allowed expiration time the vehicle shall not exceed the velocityMax speed value in forward as well in reverse driving conditions.
+ *
+ * @field curvatureMin : During the allowed expiration time the vehicle steering system shall not exceed the limits of interval given by data element curvatureMin.
+ *
+ * @field curvatureMax : During the allowed expiration time the vehicle steering system shall not exceed the limits of interval given by data element curvatureMax.
+ *
+ * @field checksum : The driving permission needs to be protected by a dedicated safety checksum.
+ *
+*/
+DrivingPermission ::= SEQUENCE {
+  expirationTime TimestampIts,         
+  velocityMax VelocityComponentValue,  
+  curvatureMin HighResCurvature,       
+  curvatureMax HighResCurvature,       
+  checksum UInt32                      
+}
+
+/** 
+ * This type represents the container with data elements for requesting a safety time synchronization.
+ *
+ * It shall include the following components: 
+ * 
+ * @field challenge : The Remote Vehicle Operation shall use this challenge to relate the response to this request. This challenge is chosen by the RO in accordance with the safety requirements. 
+ *
+ * @field checksum : This safety time synchronization needs to be protected by a dedicated safety checksum.
+ *
+*/
+SafetyTimeSyncRequest ::= SEQUENCE {
+  challenge UInt16, 
+  checksum UInt32   
+}
+
+/** 
+ * This type represents the container with data elements for general drive commands.
+ *
+ * It addresses the specific vehicle and determines the actual state request to the vehicle, especially the active drive request for the VCM operation. 
+ *
+ * It shall include the following components: 
+ * 
+ * @field driveCommandAction : The main drive state request, inf the loop of initialize and terminate.
+ *
+ * @field terminateReason : If action equals terminate, indicates whether a terminate is requested because the vehicle reached the destination or because of an error.
+ *
+ * @field gearRequest : It describes the desired driving direction of the vehicle in alignment with the signed value of the vehicle speed requests.
+ *
+ * @field directionIndicatorRequest : It signalizes the currently requested direction indicator.
+ *
+ * @field parkingBrakeRequest : It signalizes the currently requested actuation of the vehicle's electric parking brake.
+ *
+ * @field motorSystemRequest : It signalizes the currently requested actuation of the vehicle's propulsion motor.
+ *
+ * @field emergencyStopRequest : This  enables as part of an optional safety concept to apply a vehicle specific emergency stop manoeuvre at any time.
+ *
+ * @field interlockRequest : This data element enables an optional safety concept to apply a vehicle interlock.
+ *
+ * @field hornRequest : This data element enables an optional safety concept. It commands the vehicle to sound the horn in different formats in order to warn pedestrians or animals.
+ *
+*/
+DriveCommand ::= SEQUENCE {
+  driveCommandAction DriveCommandActionEnum,   		
+  terminateReason TerminateReasonEnum,         		 
+  gearRequest GearEnum OPTIONAL,                     
+  directionIndicatorRequest DirectionIndicatorEnum OPTIONAL,  
+  parkingBrakeRequest ParkingBrakeRequestEnum OPTIONAL,
+  motorSystemRequest MotorSystemEnum OPTIONAL,
+  emergencyStopRequest EmergencyStopEnum OPTIONAL,	
+  interlockRequest InterlockEnum OPTIONAL,          
+  hornRequest VehicleHornRequestEnum OPTIONAL   	
+}
+
+/** 
+ * This type represents the container with a report of the vehicle's localization.
+ *
+ * The RO permanently senses the vehicle's position in a relative two-dimensional coordinate system (X and Y). 
+ *
+ * It shall include the following components: 
+ * 
+ * @field detectedPose : This field implements the sequence of data elements for the vehicle' positioning. The field indicates an agreed reference point of the vehicle,
+ * e.g. the middle of the rear axle.   
+ *
+ * @field poseMeasurementTime : The data element signals an absolute and synchronized time stamp when the measurement was taken.
+ *
+*/
+DetectedVehiclePose ::= SEQUENCE {
+  detectedPose Pose,
+  poseMeasurementTime TimestampIts
+}
+
+/** 
+ * This type selects the container that is used for vehicle motion control.
+ *
+ * With an extension marker additional choices for further control methods are applicable in later versions of the protocol. 
+ *
+ * It shall include the following components: 
+ * 
+ * @field pathControl : The pathSnippet control method transfers a sequence of wayPoint containers from the infrastructure into the vehicle.   
+ *
+ * @field trajectoryControl : A vehicle trajectory consists of a vector of ControlTrajectory elements and StateTrajectory elements. It also contains a reference time stamp and an optional drive direction element.
+ *
+*/
+ControlInterface ::= CHOICE {
+  pathControl PathControl,
+  trajectoryControl TrajectoryControl,
+  ...
+}
+
+/** 
+ * The type PathControl sequeence represents the container with Path Snippet elements.
+ *
+ * It shall include the following components: 
+ *
+ * @field pathSnippet: a sequence of up to 200 way points
+ *
+ * @field clearedDistanceOnPath: the RO can tell the vehicle to stop on the known PathSnippet without sending a new PathSnippet.
+ *
+ * @field situationalVelocityLimit: the RO can tell the vehicle to temporarily drive slower without sending a new PathSnippet. 
+*/
+PathControl ::= SEQUENCE { 
+  pathSnippet PathSnippet OPTIONAL, 
+  clearedDistanceOnPath Centimetre, 
+  situationalVelocityLimit VelocityComponentValue OPTIONAL 
+} 
+
+
+/** 
+ * The type PathSnippet represents the container with Path Snippet elements.
+ *
+ * It shall contain up to 200 way points of type @ref WayPoint
+ *
+*/
+PathSnippet ::= SEQUENCE (SIZE(0..200)) OF WayPoint
+
+/** 
+ * This type represents the container with elements describing a way point, 
+ *
+ * It shall include the following components: 
+ *
+ * @field index: It is used to build an array of consecutive way points.
+ *
+ * @field wayPointPose: This field implements the positioning request to the vehicle. The waypoint indicates an agreed reference point of the vehicle,
+ * e.g. the middle of the rear axle.  
+ *
+ * @field velocity: This data element represents the target speed of the vehicle in that specific way point.
+ * It is a signed velocity value compliant with the drive direction request. Positive: drive forwards / Negative: reverse.
+ *
+ * @field curvature: This data element represents the target curvature of the vehicle in that specific way point.
+ *
+ * @field pitchAngle: For better velocity control, it should be possible to specify the inclination (or vehicle pitch angle) at specific locations.
+ *
+*/
+WayPoint ::= SEQUENCE {
+  index WaypointIndex OPTIONAL,                 
+  wayPointPose Pose,
+  velocity VelocityComponentValue,     
+  curvature HighResCurvature,
+  pitchAngle CartesianAngleValue OPTIONAL          
+}
+
+/** 
+ * The type TrajectoryControl represents the container with elements for the trajectory control method. 
+ *
+ * It shall include the following components: 
+ *
+ * @field timeReference: The reference time indicates the absolute time given in Vehicle Functional Clock 
+ * at which the first element of the @ref ControlTrajectory vector and @ref StateTrajectory vector is expected to be executed.
+ *
+ * @field driveDirection: The data element describes the desired driving direction of the vehicle in alignment with the signed value of the vehicle acceleration requests. 
+ * 
+ * @field controlTrajectory: This consists of a sequence of @ref ControlPoint elements with a maximum size of 50. 
+ * 
+ * @field stateTrajectory: The elements in the optional field @ref StateTrajectory vector are considered as odometry target values.
+ *        These consist of a sequence of @ref StatePoint elements with a maximum size of 50.
+ *
+*/
+TrajectoryControl ::= SEQUENCE {
+  timeReference TimestampIts,
+  driveDirection DriveDirectionEnum OPTIONAL,
+  controlTrajectory ControlTrajectory,
+  stateTrajectory StateTrajectory OPTIONAL
+}  
+
+ControlTrajectory ::= SEQUENCE (SIZE(0..50)) OF ControlPoint
+
+/** 
+ * A ControlPoint container carries a set of ControlPoint elements, 
+ *
+ * It shall include the following components: 
+ *
+ * @field curvature: The data element contains the target curvature that is requested in the according control Poiint
+ *
+ * @field controlParameter: This field selects the method how to represent a @ref ControlPoint container .
+ * 
+*/
+ControlPoint ::= SEQUENCE {
+  curvature HighResCurvature,            
+  controlParameter ControlParameter					  
+}
+
+/** 
+ * The ControlParameter container offers two  options to represent the second parameter within a @ref ControlPoint, 
+ *
+ * It shall include the following components: 
+ *
+ * @field controlAcceleration: The data element represents the vehicles's target acceleration in the according control point.
+ *
+ * @field controlVelocity: Theis field is selected when the according @ref ControlPoint uses speed values instead of acceleration.
+ * 
+*/
+ControlParameter ::= CHOICE {
+  controlAcceleration ControlAcceleration,
+  controlVelocity ControlVelocity
+}
+
+/** 
+ * The @ref ControlAcceleration data element is a single data element when choosing the @ref ControlParameter controlAcceleration
+ * It deals with a signed acceleration value.
+ *
+ */
+ControlAcceleration ::= LongitudinalAccelerationValue 	 
+
+/** 
+ * The ControlVelocity container consists of 2 data elements belonging to the according @ref ControlPoint, 
+ *
+ * It includes the following components: 
+ *
+ * @field velocity: The data element represents the target speed of the vehicle. It is a signed velocity value. 
+ * It deals with a signed velocity value.
+ * - Positive: drive forwards
+ * - Negative: driving reverse.
+ *
+ * @field distanceToStop: The data element represents the unsigned maximum distance that the vehicle can drive before a standstill. 
+ * 
+ */
+ControlVelocity ::= SEQUENCE {
+  velocity VelocityComponentValue,  
+  distanceToStop Centimetre OPTIONAL	
+}
+
+/** 
+ * @field StateTrajectory : a vector, considered as odometry target values. It consist of a sequence of statePoint containers with a maximum size of 50.
+ *
+ */
+ StateTrajectory ::= SEQUENCE (SIZE(0..50)) OF StatePoint
+
+/** 
+ * A StatePoint container carries a set of SatePoint elements, 
+ *
+ * It shall include the following components: 
+ *
+ * @field statePose: This field implements the sequence of data elements for the vehicle's positioning in the according statePoint. 
+ * A point indicates an agreed reference point of the vehicle,e.g. the middle of the rear axle.
+ *
+ * @field velocity: The data element represents the target speed of the vehicle in the according statePoint. It is a signed velocity value.
+ * 
+*/
+StatePoint ::= SEQUENCE {
+  statePose Pose,
+  velocity VelocityComponentValue  
+}
+  
+-- *************** MIM-SPECIFIC DATA DICTONARY , enumerated signal values ************************************
+
+/**
+ * Data element DriveCommandActionEnum describes the current state in the vehicle identification process .
+ * It offers the following signal values:
+ * 
+ * - 0 - `sleep`		- The vehicle is commanded to go into sleep mode for low power consumption
+ * - 1 - `initialize`	- The vehicle is awake and remains in standstill. It shall initialize and prepare for a driving job, including a sequence of power-on the engine system and the lights,
+ * - 2 - `wait`			- The vehicle shall wait in marshalling capable state,
+ * - 3 - `drive`		- The vehicle is commanded to actively drive and follow the according control commands. Standstill and pause situations are potentially included in this stage,
+ * - 4 - `terminate`	- The vehicle shall disable the according control interface. After brining the vehicle to a safe standstill state it shuts down as soon as possible.
+ */
+DriveCommandActionEnum ::= ENUMERATED {
+  sleep(0),     
+  initialize(1),  
+  wait(2), 		  
+  drive(3),       
+  terminate(4)    
+}
+
+/**
+ * Data element TerminateReasonEnum describes verbally the rational why to terminate the VMC process  .
+ * It offers the following signal values:
+ * 
+ * - 0 - `proceed`				- Everything is okay. Proceed, do not terminate,
+ * - 1 - `destinationReached`	- Vehicle has reached its destinations,
+ * - 2 - `infrastructureError`	- Error in infrastructure detected,
+ * - 3 - `vehicleError`		- Vehicle has sent an error code,
+ * - 4 - `backend`				- Error in backend,
+ * - 5 - `vehicleIdentificationError`   - Either a wrong or no code was detected. Even with a crash of the camera, there is an error.
+ */
+ TerminateReasonEnum ::= ENUMERATED {
+  proceed(0),               
+  destinationReached(1),   
+  infrastructureError(2),   
+  vehicleError(3),         
+  backend(4),
+  vehicleIdentificationError(5)                
+}
+
+/**
+ * Data element ParkingBrakeRequestEnum describes the status of the EmergencyStop Request during VMC .
+ * It offers the following signal values:
+ * 
+ * - 0 - `disengage`		- The vehicle shall disengage the electric parking brake.
+ * - 1 - `engage`			  - The vehicle shall activate the electric parking brake.
+ */
+ ParkingBrakeRequestEnum ::= ENUMERATED {
+  disengage(0),   	 
+  engage(1)
+} 
+
+/**
+ * Data element EmergencyStopEnum describes the status of the EmergencyStop Request during VMC .
+ * It offers the following signal values:
+ * 
+ * - 0 - `inactive`		- The vehicle shall not use EmergencyStop at this stage. ,
+ * - 1 - `precharge`	- The vehicle brake  system shall stay in standby (brake prefill) and wait for an active command.  ,
+ * - 2 - `active`		  - The vehicle shall initiate an emergency stop using the maximum possible deceleration. ,
+ * - 3 - `tempError`	- Maturing Failures - Vehicle shall decellerate and hold, it is waiting for the failure to clear or mature. ,
+ * - 4 - `suspend`		- Command for critical failures (not recoverable) in RO system – The vehicle shall decelerate and secure.
+ */
+ EmergencyStopEnum ::= ENUMERATED {
+  inactive(0),   	 
+  precharge(1),  	
+  active(2),      	
+  tempError(3),	
+  suspend(4)		
+} 
+
+/**
+ * Data element InterlockEnum describes the status of vehicle interlock system during VMC .
+ * It offers the following signal values:
+ * 
+ * - 0 - `none`				    - The vehicle shall not use Interlock at this stage,
+ * - 1 - `zonalInterlock`	- Zonal Interlock is specific to the factory use case,
+ * - 2 - `globalStop`		  - Command for global stop - external operator intervention is required.
+ */
+InterlockEnum ::= ENUMERATED {
+  none(0),   			 
+  zonalInterlock(1),  	
+  globalStop(2)      	  
+}
+
+/**
+ * Data element VehicleHornRequestEnum describes the use of vehicle alarm horn during VMC .
+ * It offers the following signal values:
+ * 
+ * - 0 - `none`				  - The vehicle does not sound a horn at this stage. ,
+ * - 1 - `singleHorn`		- The vehicle applies a single horn for alerting surroundings when marshalling of vehicle is starting.  ,
+ * - 2 - `doubleHorn`		- For notifying pedestrians who pose obstacles to the vehicle marshalling task.  ,
+ * - 3 - `holdHorn`		  - In event of ground staff intervention is needed for the vehicle.
+ */
+ VehicleHornRequestEnum ::= ENUMERATED {
+  none(0),   			
+  singleHorn(1),	
+  doubleHorn(2),	
+  holdHorn(3)		
+}
+
+/**
+ * Data element VidRequestCommandEnum describes the vehicle identification request.
+ * It offers the following signal values:
+ * 
+ * - 0 - `generateNewCode`                       - A new safe vehicle identification cycle was started. There is no intent for flashing in this cycle.
+ * - 1 - `generateNewCodeAndPrepareForFlashing`  - A new safe vehicle identification cycle was started. Flashing will be required in this cycle.
+ * - 2 - `flashing`	                             - The infrastructure is prepared and waiting for the Subject Vehicle to flash the code.  ,
+ * - 3 - `successful`                            - The Subject Vehicle was recognized correctly and the identification is completed.  ,
+ */
+
+VidRequestCommandEnum ::= ENUMERATED {
+  generateNewCode(0),     
+  generateNewCodeAndPrepareForFlashing(1), 
+  flashing(2), 		
+  successful(3)
+}
+
+/**
+ * Data element DriveDirectionEnum describes the request of the vehicle drive direction. 
+ * This must be in line with the signed vehicle speed request .
+ * It offers the following signal values:
+ * 
+ * - 0 - `forwards`			- D: Vehicle shall drive forwards. ,
+ * - 1 - `backwards`		- R: Vehicle shall drive backwards.
+ */
+DriveDirectionEnum ::= ENUMERATED {
+  forwards(0),          
+  backwards(1)		    
+}
+
+END

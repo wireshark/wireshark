@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-its.c                                                               */
-/* asn2wrs.py -q -L -o its -c ./its.cnf -s ./packet-its-template -D . -O ../.. ETSI-ITS-CDD.asn ITS-ContainerV1.asn ISO_TS_14816.asn ISO_TS_14906_Application.asn DSRC.asn DSRC-region.asn DSRC-addgrp-C.asn GDD.asn ISO19321IVIv2.asn ETSI_TS_103301.asn CAMv1.asn CAM-PDU-Descriptions.asn DENMv1.asn DENM-PDU-Descriptions.asn TIS_TPG_Transactions_Descriptions.asn EVCSN-PDU-Descriptions.asn EV-RSR-PDU-Descriptions.asn CPM-OriginatingStationContainers.asn CPM-PDU-Descriptionsv1.asn CPM-PDU-Descriptions.asn CPM-PerceivedObjectContainer.asn CPM-PerceptionRegionContainer.asn CPM-SensorInformationContainer.asn VAM-PDU-Descriptions.asn IMZM-PDU-Descriptions.asn */
+/* asn2wrs.py -q -L -o its -c ./its.cnf -s ./packet-its-template -D . -O ../.. ETSI-ITS-CDD.asn ITS-ContainerV1.asn ISO_TS_14816.asn ISO_TS_14906_Application.asn DSRC.asn DSRC-region.asn DSRC-addgrp-C.asn GDD.asn ISO19321IVIv2.asn ETSI_TS_103301.asn CAMv1.asn CAM-PDU-Descriptions.asn DENMv1.asn DENM-PDU-Descriptions.asn TIS_TPG_Transactions_Descriptions.asn EVCSN-PDU-Descriptions.asn EV-RSR-PDU-Descriptions.asn CPM-OriginatingStationContainers.asn CPM-PDU-Descriptionsv1.asn CPM-PDU-Descriptions.asn CPM-PerceivedObjectContainer.asn CPM-PerceptionRegionContainer.asn CPM-SensorInformationContainer.asn VAM-PDU-Descriptions.asn IMZM-PDU-Descriptions.asn PIM-PDU-Descriptions.asn AVM-Commons.asn MIM-PDU-Descriptions.asn MVM-PDU-Descriptions.asn */
 
 /* packet-its-template.c
  *
@@ -153,6 +153,9 @@ static int proto_its_cpm;
 static int proto_its_imzm;
 static int proto_its_vam;
 static int proto_addgrpc;
+static int proto_its_pim;
+static int proto_its_mim;
+static int proto_its_mvm;
 
 /*
  * DENM SSP
@@ -558,7 +561,8 @@ static int hf_its_eventDeltaTime;                 /* PathDeltaTime */
 static int hf_its_informationQuality;             /* InformationQuality */
 static int hf_its_latitude;                       /* Latitude */
 static int hf_its_longitude;                      /* Longitude */
-static int hf_its_altitude;                       /* Altitude */
+static int hf_its_altitude;                       /* AltitudeValue */
+static int hf_its_altitude_01;                    /* Altitude */
 static int hf_its_GeoPositionsWAltitude_item;     /* GeoPositionWAltitude */
 static int hf_its_GeoPositionsWoAltitude_item;    /* GeoPositionWoAltitude */
 static int hf_its_lanePositionBased;              /* LanePositionOptions */
@@ -634,6 +638,21 @@ static int hf_its_objectClass;                    /* ObjectClass */
 static int hf_its_confidence_05;                  /* ConfidenceLevel */
 static int hf_its_value_04;                       /* ObjectDimensionValue */
 static int hf_its_confidence_06;                  /* ObjectDimensionConfidence */
+static int hf_its_unknown;                        /* NULL */
+static int hf_its_unlimitedOccupancy;             /* NULL */
+static int hf_its_onlyWhileCharging;              /* NULL */
+static int hf_its_limitedDuration;                /* INTEGER */
+static int hf_its_onlyWhileChargingLimitedDuration;  /* INTEGER */
+static int hf_its_parkingAllowedUntil;            /* TimestampIts */
+static int hf_its_forcedParkingUntil;             /* TimestampIts */
+static int hf_its_free;                           /* NULL */
+static int hf_its_freeUntil;                      /* TimestampIts */
+static int hf_its_fullyOccupied;                  /* NULL */
+static int hf_its_partiallyOccupied;              /* INTEGER_0_100 */
+static int hf_its_occupiedUntil;                  /* TimestampIts */
+static int hf_its_reservedUntil;                  /* TimestampIts */
+static int hf_its_accessBlocked;                  /* NULL */
+static int hf_its_retrictedUsage;                 /* NULL */
 static int hf_its_Path_item;                      /* PathPoint */
 static int hf_its_deltaTimeHighPrecision;         /* DeltaTimeTenthOfSecond */
 static int hf_its_deltaTimeBigRange;              /* DeltaTimeTenSeconds */
@@ -2500,6 +2519,184 @@ static int hf_imzm_basicContainer;                /* BasicContainer */
 static int hf_imzm_imzmContainer;                 /* ImzmContainer */
 static int hf_imzm_interferenceManagementZones;   /* InterferenceManagementZones */
 
+/* --- Module PIM-PDU-Descriptions --- --- ---                                */
+
+static int hf_pim_pim_PimPayload_PDU;             /* PimPayload */
+static int hf_pim_managementContainer;            /* PimManagementContainer */
+static int hf_pim_detections;                     /* ParkingSpaceDetections */
+static int hf_pim_arrivalIndication;              /* ParkingSpaceIntentIndication */
+static int hf_pim_departureIndication;            /* ParkingSpaceIntentIndication */
+static int hf_pim_segmentationInfo;               /* MessageSegmentationInfo */
+static int hf_pim_individualParkingSpaces;        /* IndividualParkingSpaces */
+static int hf_pim_segmentsOfParkingSpaces;        /* ParkingSpaceSegments */
+static int hf_pim_IndividualParkingSpaces_item;   /* IndividualParkingSpace */
+static int hf_pim_ParkingSpaceSegments_item;      /* ParkingSpaceSegment */
+static int hf_pim_spaceId;                        /* Identifier2B */
+static int hf_pim_reporter;                       /* StationId */
+static int hf_pim_estimatedCompletionTime;        /* TimestampIts */
+static int hf_pim_subjectParkingSpace;            /* IndividualParkingSpace */
+static int hf_pim_detectionMetaData;              /* ParkingSpaceDetectionMetaData */
+static int hf_pim_position;                       /* GeoPosition */
+static int hf_pim_attributes;                     /* ParkingSpaceAttributes */
+static int hf_pim_size;                           /* ParkingSpaceSize */
+static int hf_pim_externalParkingSpaceIds;        /* ExternalParkingSpaceIdentifiers */
+static int hf_pim_id;                             /* Identifier2B */
+static int hf_pim_stationId;                      /* StationId */
+static int hf_pim_endTime;                        /* TimestampIts */
+static int hf_pim_detectionReferencePosition;     /* GeoPosition */
+static int hf_pim_path;                           /* Path */
+static int hf_pim_spacesOnTheLeft;                /* ParkingSegments */
+static int hf_pim_spacesOnTheRight;               /* ParkingSegments */
+static int hf_pim_evSEId;                         /* IA5String_SIZE_1_36 */
+static int hf_pim_parkingSpaceId;                 /* Identifier2B */
+static int hf_pim_ParkingSegments_item;           /* ParkingSegment */
+static int hf_pim_distanceFromLastPoint;          /* StandardLength12b */
+static int hf_pim_timeDelta;                      /* DeltaTimeTenthOfSecond */
+static int hf_pim_offsetToPath;                   /* StandardLength1B */
+static int hf_pim_status;                         /* ParkingSpaceStatus */
+static int hf_pim_arrangementType;                /* ParkingAreaArrangementType */
+static int hf_pim_occupancyRule;                  /* ParkingOccupancyInfo */
+static int hf_pim_reservationType;                /* SEQUENCE_SIZE_0_3__OF_ParkingReservationType */
+static int hf_pim_reservationType_item;           /* ParkingReservationType */
+static int hf_pim_observedWidth;                  /* ObjectDimension */
+static int hf_pim_observedLength;                 /* ObjectDimension */
+static int hf_pim_nominalWidth;                   /* ObjectDimension */
+static int hf_pim_nominalLength;                  /* ObjectDimension */
+
+/* --- Module AVM-Commons --- --- ---                                         */
+
+static int hf_avm_x;                              /* Centimetre */
+static int hf_avm_y;                              /* Centimetre */
+static int hf_avm_psi;                            /* Psi */
+static int hf_avm_sessionID;                      /* SessionMissionID */
+static int hf_avm_missionID;                      /* SessionMissionID */
+static int hf_avm_vehicleID;                      /* VehicleID */
+static int hf_avm_facilityID;                     /* FacilityID */
+static int hf_avm_length;                         /* UInt16 */
+static int hf_avm_rollingCounter;                 /* UInt16 */
+static int hf_avm_dataID;                         /* UInt32 */
+static int hf_avm_crc32;                          /* UInt32 */
+
+/* --- Module MIM-PDU-Descriptions --- --- ---                                */
+
+static int hf_mim_mim_MIM_PDU;                    /* MIM */
+static int hf_mim_e2eProtection;                  /* AvmE2EProtection */
+static int hf_mim_mims;                           /* SEQUENCE_SIZE_1_32_OF_Mim */
+static int hf_mim_mims_item;                      /* Mim */
+static int hf_mim_mimDataControlField;            /* MIMDataControlField */
+static int hf_mim_systemManagementData;           /* SystemManagementData */
+static int hf_mim_vehicleIdentification;          /* VidRequest */
+static int hf_mim_drivingPermission;              /* DrivingPermission */
+static int hf_mim_safetyTimeSyncRequest;          /* SafetyTimeSyncRequest */
+static int hf_mim_driveCommand;                   /* DriveCommand */
+static int hf_mim_detectedVehiclePose;            /* DetectedVehiclePose */
+static int hf_mim_controlInterface;               /* ControlInterface */
+static int hf_mim_checksum;                       /* UInt32 */
+static int hf_mim_mimGenerationTime;              /* TimestampIts */
+static int hf_mim_rollingCounterFromMvm;          /* SEQUENCE_SIZE_0_10_OF_RollingCounter */
+static int hf_mim_rollingCounterFromMvm_item;     /* RollingCounter */
+static int hf_mim_proprietaryExtensionField;      /* ProprietaryExtensionField */
+static int hf_mim_blinking;                       /* Blinking */
+static int hf_mim_vidRoPublicKey;                 /* UInt64 */
+static int hf_mim_codeLength;                     /* UInt8 */
+static int hf_mim_blinkingCommand;                /* VidRequestCommandEnum */
+static int hf_mim_expirationTime;                 /* TimestampIts */
+static int hf_mim_velocityMax;                    /* VelocityComponentValue */
+static int hf_mim_curvatureMin;                   /* HighResCurvature */
+static int hf_mim_curvatureMax;                   /* HighResCurvature */
+static int hf_mim_challenge;                      /* UInt16 */
+static int hf_mim_driveCommandAction;             /* DriveCommandActionEnum */
+static int hf_mim_terminateReason;                /* TerminateReasonEnum */
+static int hf_mim_gearRequest;                    /* GearEnum */
+static int hf_mim_directionIndicatorRequest;      /* DirectionIndicatorEnum */
+static int hf_mim_parkingBrakeRequest;            /* ParkingBrakeRequestEnum */
+static int hf_mim_motorSystemRequest;             /* MotorSystemEnum */
+static int hf_mim_emergencyStopRequest;           /* EmergencyStopEnum */
+static int hf_mim_interlockRequest;               /* InterlockEnum */
+static int hf_mim_hornRequest;                    /* VehicleHornRequestEnum */
+static int hf_mim_detectedPose;                   /* Pose */
+static int hf_mim_poseMeasurementTime;            /* TimestampIts */
+static int hf_mim_pathControl;                    /* PathControl */
+static int hf_mim_trajectoryControl;              /* TrajectoryControl */
+static int hf_mim_pathSnippet;                    /* PathSnippet */
+static int hf_mim_clearedDistanceOnPath;          /* Centimetre */
+static int hf_mim_situationalVelocityLimit;       /* VelocityComponentValue */
+static int hf_mim_PathSnippet_item;               /* WayPoint */
+static int hf_mim_index;                          /* WaypointIndex */
+static int hf_mim_wayPointPose;                   /* Pose */
+static int hf_mim_velocity;                       /* VelocityComponentValue */
+static int hf_mim_curvature;                      /* HighResCurvature */
+static int hf_mim_pitchAngle;                     /* CartesianAngleValue */
+static int hf_mim_timeReference;                  /* TimestampIts */
+static int hf_mim_driveDirection;                 /* DriveDirectionEnum */
+static int hf_mim_controlTrajectory;              /* ControlTrajectory */
+static int hf_mim_stateTrajectory;                /* StateTrajectory */
+static int hf_mim_ControlTrajectory_item;         /* ControlPoint */
+static int hf_mim_controlParameter;               /* ControlParameter */
+static int hf_mim_controlAcceleration;            /* ControlAcceleration */
+static int hf_mim_controlVelocity;                /* ControlVelocity */
+static int hf_mim_distanceToStop;                 /* Centimetre */
+static int hf_mim_StateTrajectory_item;           /* StatePoint */
+static int hf_mim_statePose;                      /* Pose */
+
+/* --- Module MVM-PDU-Descriptions --- --- ---                                */
+
+static int hf_mvm_mvm_MVM_PDU;                    /* MVM */
+static int hf_mvm_e2eProtection;                  /* AvmE2EProtection */
+static int hf_mvm_mvm;                            /* Mvm */
+static int hf_mvm_mvmDataControlField;            /* MVMDataControlField */
+static int hf_mvm_systemManagementData;           /* SystemManagementData */
+static int hf_mvm_vehicleState;                   /* VehicleState */
+static int hf_mvm_vidResponse;                    /* VidResponse */
+static int hf_mvm_safetyTimeSyncResponse;         /* SafetyTimeSyncResponse */
+static int hf_mvm_safeVehicleTypeConfirmation;    /* SafeVehicleTypeConfirmation */
+static int hf_mvm_vehicleError;                   /* VehicleError */
+static int hf_mvm_vehicleSafetyFeedback;          /* VehicleSafetyFeedback */
+static int hf_mvm_vehicleProperties;              /* VehicleProperties */
+static int hf_mvm_mvmGenerationTime;              /* TimestampIts */
+static int hf_mvm_rollingCounterFromMim;          /* SEQUENCE_SIZE_0_10_OF_RollingCounter */
+static int hf_mvm_rollingCounterFromMim_item;     /* RollingCounter */
+static int hf_mvm_proprietaryExtensionField;      /* ProprietaryExtensionField */
+static int hf_mvm_vehicleStateGenerationTime;     /* TimestampIts */
+static int hf_mvm_operationMode;                  /* OperationModeEnum */
+static int hf_mvm_gearState;                      /* GearEnum */
+static int hf_mvm_directionIndicatorState;        /* DirectionIndicatorEnum */
+static int hf_mvm_parkingBrakeState;              /* ParkingBrakeStateEnum */
+static int hf_mvm_motorSystemState;               /* MotorSystemEnum */
+static int hf_mvm_currentVelocity;                /* VelocityComponentValue */
+static int hf_mvm_currentCurvature;               /* HighResCurvature */
+static int hf_mvm_secureStandstill;               /* BOOLEAN */
+static int hf_mvm_idxLastWayPoint;                /* WaypointIndex */
+static int hf_mvm_localizedPose;                  /* Pose */
+static int hf_mvm_vidVehicleState;                /* VidVehicleStateEnum */
+static int hf_mvm_vidVehiclePublicKey;            /* UInt64 */
+static int hf_mvm_challenge;                      /* UInt16 */
+static int hf_mvm_vehicleSafetyClockReceiveTimestamp;  /* TimestampIts */
+static int hf_mvm_vehicleSafetyClockTransmitTimestamp;  /* TimestampIts */
+static int hf_mvm_checksum;                       /* UInt32 */
+static int hf_mvm_vehicleType;                    /* IA5String_SIZE_1_32 */
+static int hf_mvm_safetyProfile;                  /* IA5String_SIZE_1_32 */
+static int hf_mvm_time;                           /* TimestampIts */
+static int hf_mvm_vehCode;                        /* VehCodeEnum */
+static int hf_mvm_customCode;                     /* UInt8 */
+static int hf_mvm_description;                    /* Description */
+static int hf_mvm_VehicleSafetyFeedback_item;     /* VehicleSafetyFeedbackContainer */
+static int hf_mvm_remainingTimeToStartBraking;    /* Millisecond16 */
+static int hf_mvm_safetyViolations;               /* SafetyViolationsContainer */
+static int hf_mvm_currentVehicleSafetyClockTime;  /* TimestampIts */
+static int hf_mvm_SafetyViolationsContainer_item;  /* SafetyViolationsEnum */
+static int hf_mvm_basicVehicleClass;              /* BasicVehicleClassEnum */
+static int hf_mvm_vehicleLength;                  /* Centimetre */
+static int hf_mvm_vehicleWheelbase;               /* Centimetre */
+static int hf_mvm_vehicleRearOverhang;            /* Centimetre */
+static int hf_mvm_vehicleWidth;                   /* Centimetre */
+static int hf_mvm_vehicleTireWidth;               /* Centimetre */
+static int hf_mvm_vehicleTrackWidth;              /* Centimetre */
+static int hf_mvm_vehicleMass;                    /* VehicleMass */
+static int hf_mvm_vehicleSpeedLimit;              /* VelocityComponentValue */
+static int hf_mvm_vehicleCuvatureLimit;           /* HighResCurvature */
+static int hf_mvm_vehicleMaxAngularSteeringRate;  /* RadPerSecond */
+
 static int ett_its;
 
 
@@ -2561,6 +2758,7 @@ static int ett_its_EulerAnglesWithConfidence;
 static int ett_its_EuVehicleCategoryCode;
 static int ett_its_EventHistory;
 static int ett_its_EventPoint;
+static int ett_its_GeoPosition;
 static int ett_its_GeoPositionWAltitude;
 static int ett_its_GeoPositionsWAltitude;
 static int ett_its_GeoPositionWoAltitude;
@@ -2598,6 +2796,8 @@ static int ett_its_ObjectClass;
 static int ett_its_ObjectClassDescription;
 static int ett_its_ObjectClassWithConfidence;
 static int ett_its_ObjectDimension;
+static int ett_its_ParkingOccupancyInfo;
+static int ett_its_ParkingSpaceStatus;
 static int ett_its_Path;
 static int ett_its_PathDeltaTimeChoice;
 static int ett_its_PathHistory;
@@ -3223,6 +3423,71 @@ static int ett_vam_VruMotionPredictionContainer;
 static int ett_imzm_InterferenceManagementZoneMessage;
 static int ett_imzm_ImzmParameters;
 static int ett_imzm_ImzmContainer;
+
+/* --- Module PIM-PDU-Descriptions --- --- ---                                */
+
+static int ett_pim_PimPayload;
+static int ett_pim_PimManagementContainer;
+static int ett_pim_ParkingSpaceDetections;
+static int ett_pim_IndividualParkingSpaces;
+static int ett_pim_ParkingSpaceSegments;
+static int ett_pim_ParkingSpaceIntentIndication;
+static int ett_pim_IndividualParkingSpace;
+static int ett_pim_ParkingSpaceDetectionMetaData;
+static int ett_pim_ParkingSpaceSegment;
+static int ett_pim_ExternalParkingSpaceIdentifiers;
+static int ett_pim_ParkingSegments;
+static int ett_pim_ParkingSegment;
+static int ett_pim_ParkingSpaceAttributes;
+static int ett_pim_SEQUENCE_SIZE_0_3__OF_ParkingReservationType;
+static int ett_pim_ParkingSpaceSize;
+
+/* --- Module AVM-Commons --- --- ---                                         */
+
+static int ett_avm_Pose;
+static int ett_avm_SystemManagementData;
+static int ett_avm_AvmE2EProtection;
+
+/* --- Module MIM-PDU-Descriptions --- --- ---                                */
+
+static int ett_mim_MIM;
+static int ett_mim_SEQUENCE_SIZE_1_32_OF_Mim;
+static int ett_mim_Mim;
+static int ett_mim_MIMDataControlField;
+static int ett_mim_SEQUENCE_SIZE_0_10_OF_RollingCounter;
+static int ett_mim_VidRequest;
+static int ett_mim_Blinking;
+static int ett_mim_DrivingPermission;
+static int ett_mim_SafetyTimeSyncRequest;
+static int ett_mim_DriveCommand;
+static int ett_mim_DetectedVehiclePose;
+static int ett_mim_ControlInterface;
+static int ett_mim_PathControl;
+static int ett_mim_PathSnippet;
+static int ett_mim_WayPoint;
+static int ett_mim_TrajectoryControl;
+static int ett_mim_ControlTrajectory;
+static int ett_mim_ControlPoint;
+static int ett_mim_ControlParameter;
+static int ett_mim_ControlVelocity;
+static int ett_mim_StateTrajectory;
+static int ett_mim_StatePoint;
+
+/* --- Module MVM-PDU-Descriptions --- --- ---                                */
+
+static int ett_mvm_MVM;
+static int ett_mvm_Mvm;
+static int ett_mvm_MVMDataControlField;
+static int ett_mvm_SEQUENCE_SIZE_0_10_OF_RollingCounter;
+static int ett_mvm_VehicleState;
+static int ett_mvm_VidResponse;
+static int ett_mvm_SafetyTimeSyncResponse;
+static int ett_mvm_SafeVehicleTypeConfirmation;
+static int ett_mvm_VehicleError;
+static int ett_mvm_VehicleSafetyFeedback;
+static int ett_mvm_VehicleSafetyFeedbackContainer;
+static int ett_mvm_SafetyViolationsContainer;
+static int ett_mvm_VehicleProperties;
 
 // Deal with cause/subcause code management
 static struct { CauseCodeType_enum cause; int* hf; } cause_to_subcause[] = {
@@ -4972,6 +5237,55 @@ dissect_its_OtherSubClass(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *ac
 }
 
 
+static const value_string its_ParkingAreaArrangementType_vals[] = {
+  {   0, "parallelParkingSpace" },
+  {   1, "diagonalParkingSpace" },
+  {   2, "perpendicularParkingSpace" },
+  {   3, "queueParking" },
+  {   4, "mixed" },
+  {   7, "unknown" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_its_ParkingAreaArrangementType(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 7U, NULL, false);
+
+  return offset;
+}
+
+
+static const value_string its_ParkingReservationType_vals[] = {
+  {   0, "disabled" },
+  {   1, "pregnant" },
+  {   2, "womenOnly" },
+  {   3, "parentAndChild" },
+  {   4, "loadAndOffloadGoods" },
+  {   5, "manualElectricVehicleCharging" },
+  {   6, "automatedElectricVehicleCharging" },
+  {   7, "refriferatedTransport" },
+  {   8, "vip" },
+  {   9, "preBooking" },
+  {  10, "freeToBeReserved" },
+  {  11, "reservationNotPossible" },
+  {  12, "automatedValetparking" },
+  {  13, "permit" },
+  {  14, "unmarked" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_its_ParkingReservationType(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 31U, NULL, false);
+
+  return offset;
+}
+
+
 
 static unsigned
 dissect_its_PathDeltaTime(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -6668,7 +6982,7 @@ static const per_sequence_t its_ReferencePositionWithConfidence_sequence[] = {
   { &hf_its_latitude        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_Latitude },
   { &hf_its_longitude       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_Longitude },
   { &hf_its_positionConfidenceEllipse_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_PositionConfidenceEllipse },
-  { &hf_its_altitude        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_Altitude },
+  { &hf_its_altitude_01     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_Altitude },
   { NULL, 0, 0, NULL }
 };
 
@@ -7373,7 +7687,7 @@ static const per_sequence_t its_ReferencePosition_sequence[] = {
   { &hf_its_latitude        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_Latitude },
   { &hf_its_longitude       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_Longitude },
   { &hf_its_positionConfidenceEllipse, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_PosConfidenceEllipse },
-  { &hf_its_altitude        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_Altitude },
+  { &hf_its_altitude_01     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_Altitude },
   { NULL, 0, 0, NULL }
 };
 
@@ -7512,10 +7826,26 @@ dissect_its_EventZone(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _
 }
 
 
+static const per_sequence_t its_GeoPosition_sequence[] = {
+  { &hf_its_latitude        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_Latitude },
+  { &hf_its_longitude       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_Longitude },
+  { &hf_its_altitude        , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_AltitudeValue },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_its_GeoPosition(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_its_GeoPosition, its_GeoPosition_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t its_GeoPositionWAltitude_sequence[] = {
   { &hf_its_latitude        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_Latitude },
   { &hf_its_longitude       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_Longitude },
-  { &hf_its_altitude        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_Altitude },
+  { &hf_its_altitude_01     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_Altitude },
   { NULL, 0, 0, NULL }
 };
 
@@ -8453,6 +8783,93 @@ static unsigned
 dissect_its_ObjectDimension(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_its_ObjectDimension, its_ObjectDimension_sequence);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_its_INTEGER(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, NULL);
+
+  return offset;
+}
+
+
+static const value_string its_ParkingOccupancyInfo_vals[] = {
+  {   0, "unknown" },
+  {   1, "unlimitedOccupancy" },
+  {   2, "onlyWhileCharging" },
+  {   3, "limitedDuration" },
+  {   4, "onlyWhileChargingLimitedDuration" },
+  {   5, "parkingAllowedUntil" },
+  {   6, "forcedParkingUntil" },
+  { 0, NULL }
+};
+
+static const per_choice_t its_ParkingOccupancyInfo_choice[] = {
+  {   0, &hf_its_unknown         , ASN1_EXTENSION_ROOT    , dissect_its_NULL },
+  {   1, &hf_its_unlimitedOccupancy, ASN1_EXTENSION_ROOT    , dissect_its_NULL },
+  {   2, &hf_its_onlyWhileCharging, ASN1_EXTENSION_ROOT    , dissect_its_NULL },
+  {   3, &hf_its_limitedDuration , ASN1_EXTENSION_ROOT    , dissect_its_INTEGER },
+  {   4, &hf_its_onlyWhileChargingLimitedDuration, ASN1_EXTENSION_ROOT    , dissect_its_INTEGER },
+  {   5, &hf_its_parkingAllowedUntil, ASN1_EXTENSION_ROOT    , dissect_its_TimestampIts },
+  {   6, &hf_its_forcedParkingUntil, ASN1_EXTENSION_ROOT    , dissect_its_TimestampIts },
+  { 0, NULL, 0, NULL }
+};
+
+static unsigned
+dissect_its_ParkingOccupancyInfo(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_its_ParkingOccupancyInfo, its_ParkingOccupancyInfo_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_its_INTEGER_0_100(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 100U, NULL, false);
+
+  return offset;
+}
+
+
+static const value_string its_ParkingSpaceStatus_vals[] = {
+  {   0, "unknown" },
+  {   1, "free" },
+  {   2, "freeUntil" },
+  {   3, "fullyOccupied" },
+  {   4, "partiallyOccupied" },
+  {   5, "occupiedUntil" },
+  {   6, "reservedUntil" },
+  {   7, "accessBlocked" },
+  {   8, "retrictedUsage" },
+  { 0, NULL }
+};
+
+static const per_choice_t its_ParkingSpaceStatus_choice[] = {
+  {   0, &hf_its_unknown         , ASN1_EXTENSION_ROOT    , dissect_its_NULL },
+  {   1, &hf_its_free            , ASN1_EXTENSION_ROOT    , dissect_its_NULL },
+  {   2, &hf_its_freeUntil       , ASN1_EXTENSION_ROOT    , dissect_its_TimestampIts },
+  {   3, &hf_its_fullyOccupied   , ASN1_EXTENSION_ROOT    , dissect_its_NULL },
+  {   4, &hf_its_partiallyOccupied, ASN1_EXTENSION_ROOT    , dissect_its_INTEGER_0_100 },
+  {   5, &hf_its_occupiedUntil   , ASN1_EXTENSION_ROOT    , dissect_its_TimestampIts },
+  {   6, &hf_its_reservedUntil   , ASN1_EXTENSION_ROOT    , dissect_its_TimestampIts },
+  {   7, &hf_its_accessBlocked   , ASN1_EXTENSION_ROOT    , dissect_its_NULL },
+  {   8, &hf_its_retrictedUsage  , ASN1_EXTENSION_ROOT    , dissect_its_NULL },
+  { 0, NULL, 0, NULL }
+};
+
+static unsigned
+dissect_its_ParkingSpaceStatus(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_its_ParkingSpaceStatus, its_ParkingSpaceStatus_choice,
+                                 NULL);
 
   return offset;
 }
@@ -23508,6 +23925,1507 @@ static int dissect_imzm_InterferenceManagementZoneMessage_PDU(tvbuff_t *tvb _U_,
 }
 
 
+/* --- Module PIM-PDU-Descriptions --- --- ---                                */
+
+
+static const per_sequence_t pim_PimManagementContainer_sequence[] = {
+  { &hf_pim_segmentationInfo, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_its_MessageSegmentationInfo },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_pim_PimManagementContainer(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_pim_PimManagementContainer, pim_PimManagementContainer_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t pim_ParkingSpaceDetectionMetaData_sequence[] = {
+  { &hf_pim_id              , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_its_Identifier2B },
+  { &hf_pim_stationId       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_StationId },
+  { &hf_pim_endTime         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_its_TimestampIts },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_pim_ParkingSpaceDetectionMetaData(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_pim_ParkingSpaceDetectionMetaData, pim_ParkingSpaceDetectionMetaData_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t pim_SEQUENCE_SIZE_0_3__OF_ParkingReservationType_sequence_of[1] = {
+  { &hf_pim_reservationType_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_ParkingReservationType },
+};
+
+static unsigned
+dissect_pim_SEQUENCE_SIZE_0_3__OF_ParkingReservationType(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_pim_SEQUENCE_SIZE_0_3__OF_ParkingReservationType, pim_SEQUENCE_SIZE_0_3__OF_ParkingReservationType_sequence_of,
+                                                  0, 3, true);
+
+  return offset;
+}
+
+
+static const per_sequence_t pim_ParkingSpaceAttributes_sequence[] = {
+  { &hf_pim_status          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_its_ParkingSpaceStatus },
+  { &hf_pim_arrangementType , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_ParkingAreaArrangementType },
+  { &hf_pim_occupancyRule   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_ParkingOccupancyInfo },
+  { &hf_pim_reservationType , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pim_SEQUENCE_SIZE_0_3__OF_ParkingReservationType },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_pim_ParkingSpaceAttributes(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_pim_ParkingSpaceAttributes, pim_ParkingSpaceAttributes_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t pim_ParkingSpaceSize_sequence[] = {
+  { &hf_pim_observedWidth   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_ObjectDimension },
+  { &hf_pim_observedLength  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_ObjectDimension },
+  { &hf_pim_nominalWidth    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_ObjectDimension },
+  { &hf_pim_nominalLength   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_ObjectDimension },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_pim_ParkingSpaceSize(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_pim_ParkingSpaceSize, pim_ParkingSpaceSize_sequence);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_pim_IA5String_SIZE_1_36(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
+                                          1, 36, false,
+                                          NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t pim_ExternalParkingSpaceIdentifiers_sequence[] = {
+  { &hf_pim_evSEId          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pim_IA5String_SIZE_1_36 },
+  { &hf_pim_parkingSpaceId  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_Identifier2B },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_pim_ExternalParkingSpaceIdentifiers(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_pim_ExternalParkingSpaceIdentifiers, pim_ExternalParkingSpaceIdentifiers_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t pim_IndividualParkingSpace_sequence[] = {
+  { &hf_pim_detectionMetaData, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pim_ParkingSpaceDetectionMetaData },
+  { &hf_pim_position        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_its_GeoPosition },
+  { &hf_pim_attributes      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pim_ParkingSpaceAttributes },
+  { &hf_pim_size            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pim_ParkingSpaceSize },
+  { &hf_pim_externalParkingSpaceIds, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pim_ExternalParkingSpaceIdentifiers },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_pim_IndividualParkingSpace(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_pim_IndividualParkingSpace, pim_IndividualParkingSpace_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t pim_IndividualParkingSpaces_sequence_of[1] = {
+  { &hf_pim_IndividualParkingSpaces_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_pim_IndividualParkingSpace },
+};
+
+static unsigned
+dissect_pim_IndividualParkingSpaces(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_pim_IndividualParkingSpaces, pim_IndividualParkingSpaces_sequence_of,
+                                                  0, 31, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t pim_ParkingSegment_sequence[] = {
+  { &hf_pim_distanceFromLastPoint, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_its_StandardLength12b },
+  { &hf_pim_timeDelta       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_its_DeltaTimeTenthOfSecond },
+  { &hf_pim_offsetToPath    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_StandardLength1B },
+  { &hf_pim_attributes      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pim_ParkingSpaceAttributes },
+  { &hf_pim_size            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pim_ParkingSpaceSize },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_pim_ParkingSegment(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_pim_ParkingSegment, pim_ParkingSegment_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t pim_ParkingSegments_sequence_of[1] = {
+  { &hf_pim_ParkingSegments_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_pim_ParkingSegment },
+};
+
+static unsigned
+dissect_pim_ParkingSegments(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_pim_ParkingSegments, pim_ParkingSegments_sequence_of,
+                                                  1, 32, true);
+
+  return offset;
+}
+
+
+static const per_sequence_t pim_ParkingSpaceSegment_sequence[] = {
+  { &hf_pim_detectionMetaData, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pim_ParkingSpaceDetectionMetaData },
+  { &hf_pim_detectionReferencePosition, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_its_GeoPosition },
+  { &hf_pim_path            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_its_Path },
+  { &hf_pim_spacesOnTheLeft , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pim_ParkingSegments },
+  { &hf_pim_spacesOnTheRight, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pim_ParkingSegments },
+  { &hf_pim_externalParkingSpaceIds, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pim_ExternalParkingSpaceIdentifiers },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_pim_ParkingSpaceSegment(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_pim_ParkingSpaceSegment, pim_ParkingSpaceSegment_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t pim_ParkingSpaceSegments_sequence_of[1] = {
+  { &hf_pim_ParkingSpaceSegments_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_pim_ParkingSpaceSegment },
+};
+
+static unsigned
+dissect_pim_ParkingSpaceSegments(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_pim_ParkingSpaceSegments, pim_ParkingSpaceSegments_sequence_of,
+                                                  0, 31, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t pim_ParkingSpaceDetections_sequence[] = {
+  { &hf_pim_individualParkingSpaces, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pim_IndividualParkingSpaces },
+  { &hf_pim_segmentsOfParkingSpaces, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pim_ParkingSpaceSegments },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_pim_ParkingSpaceDetections(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_pim_ParkingSpaceDetections, pim_ParkingSpaceDetections_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t pim_ParkingSpaceIntentIndication_sequence[] = {
+  { &hf_pim_spaceId         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_its_Identifier2B },
+  { &hf_pim_reporter        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_StationId },
+  { &hf_pim_estimatedCompletionTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_TimestampIts },
+  { &hf_pim_subjectParkingSpace, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pim_IndividualParkingSpace },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_pim_ParkingSpaceIntentIndication(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_pim_ParkingSpaceIntentIndication, pim_ParkingSpaceIntentIndication_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t pim_PimPayload_sequence[] = {
+  { &hf_pim_managementContainer, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pim_PimManagementContainer },
+  { &hf_pim_detections      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pim_ParkingSpaceDetections },
+  { &hf_pim_arrivalIndication, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pim_ParkingSpaceIntentIndication },
+  { &hf_pim_departureIndication, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pim_ParkingSpaceIntentIndication },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_pim_PimPayload(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_pim_PimPayload, pim_PimPayload_sequence);
+
+  return offset;
+}
+
+/*--- PDUs ---*/
+
+static int dissect_pim_PimPayload_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, false, pinfo);
+  offset = dissect_pim_PimPayload(tvb, offset, &asn1_ctx, tree, hf_pim_pim_PimPayload_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+
+
+/* --- Module AVM-Commons --- --- ---                                         */
+
+
+
+static unsigned
+dissect_avm_UInt8(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, false);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_avm_Int16(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -32768, 32767U, NULL, false);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_avm_UInt16(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 65535U, NULL, false);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_avm_UInt32(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 4294967295U, NULL, false);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_avm_UInt64(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
+                                                            0U, UINT64_C(18446744073709551615), NULL, false);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_avm_RollingCounter(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_avm_UInt16(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_avm_WaypointIndex(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_avm_UInt16(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_avm_ProprietaryExtensionField(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_avm_UInt16(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const value_string avm_Centimetre_vals[] = {
+  { -524287, "negativeOutOfRange" },
+  { 524287, "positiveOutOfRange" },
+  { -524288, "unavailable" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_avm_Centimetre(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -524288, 524287U, NULL, false);
+
+  return offset;
+}
+
+
+static const value_string avm_Psi_vals[] = {
+  {   0, "xDirection" },
+  { 62832, "outOfRange" },
+  { 62833, "unavailable" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_avm_Psi(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 62833U, NULL, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t avm_Pose_sequence[] = {
+  { &hf_avm_x               , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_Centimetre },
+  { &hf_avm_y               , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_Centimetre },
+  { &hf_avm_psi             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_Psi },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_avm_Pose(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_avm_Pose, avm_Pose_sequence);
+
+  return offset;
+}
+
+
+static const value_string avm_HighResCurvature_vals[] = {
+  { -32767, "outOfRangeNegative" },
+  {   0, "straight" },
+  { 32767, "outOfRangePositive" },
+  { -32768, "unavailable" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_avm_HighResCurvature(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -32768, 32767U, NULL, false);
+
+  return offset;
+}
+
+
+static const value_string avm_RadPerSecond_vals[] = {
+  { -32766, "negativeOutOfRange" },
+  { 32766, "positiveOutOfRange" },
+  { -32767, "unavailable" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_avm_RadPerSecond(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -32767, 32766U, NULL, false);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_avm_Millisecond16(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_avm_Int16(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const value_string avm_GearEnum_vals[] = {
+  {   0, "park" },
+  {   1, "backwards" },
+  {   2, "neutral" },
+  {   3, "forwards" },
+  {   4, "unknown" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_avm_GearEnum(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     5, NULL, false, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string avm_DirectionIndicatorEnum_vals[] = {
+  {   0, "off" },
+  {   1, "right" },
+  {   2, "left" },
+  {   3, "both" },
+  {   4, "unknown" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_avm_DirectionIndicatorEnum(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     5, NULL, false, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string avm_MotorSystemEnum_vals[] = {
+  {   0, "off" },
+  {   1, "on" },
+  {   2, "unknown" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_avm_MotorSystemEnum(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, false, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string avm_VidVehicleStateEnum_vals[] = {
+  {   0, "undefined" },
+  {   1, "ready" },
+  {   2, "lightFlashingInProgress" },
+  {   3, "lightFlashingCompleted" },
+  {   4, "lightFlashingFailed" },
+  {   5, "authorized" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_avm_VidVehicleStateEnum(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     6, NULL, false, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string avm_SafetyViolationsEnum_vals[] = {
+  {   0, "noViolation" },
+  {   1, "noDrivingPermissionReceived" },
+  {   2, "lastDrivingPermissionTooOld" },
+  {   3, "crcViolationClockSyncRequest" },
+  {   4, "crcViolationDrivingPermission" },
+  {   5, "expirationTimeViolation" },
+  {   6, "drivingDirectionMismatch" },
+  {   7, "velocityViolation" },
+  {   8, "curvatureMinViolation" },
+  {   9, "curvatureMaxViolation" },
+  {  10, "expirationTimeTooHigh" },
+  {  11, "monitoring" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_avm_SafetyViolationsEnum(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     12, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_avm_SessionMissionID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
+                                          17, 32, false,
+                                          NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_avm_VehicleID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
+                                          1, 17, false,
+                                          NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_avm_FacilityID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
+                                          1, 32, false,
+                                          NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t avm_SystemManagementData_sequence[] = {
+  { &hf_avm_sessionID       , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_avm_SessionMissionID },
+  { &hf_avm_missionID       , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_avm_SessionMissionID },
+  { &hf_avm_vehicleID       , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_avm_VehicleID },
+  { &hf_avm_facilityID      , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_avm_FacilityID },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_avm_SystemManagementData(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_avm_SystemManagementData, avm_SystemManagementData_sequence);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_avm_Description(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
+                                          1, 200, false,
+                                          NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t avm_AvmE2EProtection_sequence[] = {
+  { &hf_avm_length          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_UInt16 },
+  { &hf_avm_rollingCounter  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_UInt16 },
+  { &hf_avm_dataID          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_UInt32 },
+  { &hf_avm_crc32           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_UInt32 },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_avm_AvmE2EProtection(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_avm_AvmE2EProtection, avm_AvmE2EProtection_sequence);
+
+  return offset;
+}
+
+
+/* --- Module MIM-PDU-Descriptions --- --- ---                                */
+
+
+static const per_sequence_t mim_SEQUENCE_SIZE_0_10_OF_RollingCounter_sequence_of[1] = {
+  { &hf_mim_rollingCounterFromMvm_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_RollingCounter },
+};
+
+static unsigned
+dissect_mim_SEQUENCE_SIZE_0_10_OF_RollingCounter(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_mim_SEQUENCE_SIZE_0_10_OF_RollingCounter, mim_SEQUENCE_SIZE_0_10_OF_RollingCounter_sequence_of,
+                                                  0, 10, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t mim_MIMDataControlField_sequence[] = {
+  { &hf_mim_checksum        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_avm_UInt32 },
+  { &hf_mim_mimGenerationTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_TimestampIts },
+  { &hf_mim_rollingCounterFromMvm, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_mim_SEQUENCE_SIZE_0_10_OF_RollingCounter },
+  { &hf_mim_proprietaryExtensionField, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_avm_ProprietaryExtensionField },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mim_MIMDataControlField(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mim_MIMDataControlField, mim_MIMDataControlField_sequence);
+
+  return offset;
+}
+
+
+static const value_string mim_VidRequestCommandEnum_vals[] = {
+  {   0, "generateNewCode" },
+  {   1, "generateNewCodeAndPrepareForFlashing" },
+  {   2, "flashing" },
+  {   3, "successful" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_mim_VidRequestCommandEnum(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     4, NULL, false, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t mim_Blinking_sequence[] = {
+  { &hf_mim_vidRoPublicKey  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_UInt64 },
+  { &hf_mim_codeLength      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_UInt8 },
+  { &hf_mim_blinkingCommand , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mim_VidRequestCommandEnum },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mim_Blinking(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mim_Blinking, mim_Blinking_sequence);
+
+  return offset;
+}
+
+
+static const value_string mim_VidRequest_vals[] = {
+  {   0, "blinking" },
+  { 0, NULL }
+};
+
+static const per_choice_t mim_VidRequest_choice[] = {
+  {   0, &hf_mim_blinking        , ASN1_EXTENSION_ROOT    , dissect_mim_Blinking },
+  { 0, NULL, 0, NULL }
+};
+
+static unsigned
+dissect_mim_VidRequest(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_mim_VidRequest, mim_VidRequest_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t mim_DrivingPermission_sequence[] = {
+  { &hf_mim_expirationTime  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_TimestampIts },
+  { &hf_mim_velocityMax     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_VelocityComponentValue },
+  { &hf_mim_curvatureMin    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_HighResCurvature },
+  { &hf_mim_curvatureMax    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_HighResCurvature },
+  { &hf_mim_checksum        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_UInt32 },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mim_DrivingPermission(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mim_DrivingPermission, mim_DrivingPermission_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t mim_SafetyTimeSyncRequest_sequence[] = {
+  { &hf_mim_challenge       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_UInt16 },
+  { &hf_mim_checksum        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_UInt32 },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mim_SafetyTimeSyncRequest(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mim_SafetyTimeSyncRequest, mim_SafetyTimeSyncRequest_sequence);
+
+  return offset;
+}
+
+
+static const value_string mim_DriveCommandActionEnum_vals[] = {
+  {   0, "sleep" },
+  {   1, "initialize" },
+  {   2, "wait" },
+  {   3, "drive" },
+  {   4, "terminate" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_mim_DriveCommandActionEnum(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     5, NULL, false, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string mim_TerminateReasonEnum_vals[] = {
+  {   0, "proceed" },
+  {   1, "destinationReached" },
+  {   2, "infrastructureError" },
+  {   3, "vehicleError" },
+  {   4, "backend" },
+  {   5, "vehicleIdentificationError" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_mim_TerminateReasonEnum(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     6, NULL, false, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string mim_ParkingBrakeRequestEnum_vals[] = {
+  {   0, "disengage" },
+  {   1, "engage" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_mim_ParkingBrakeRequestEnum(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, false, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string mim_EmergencyStopEnum_vals[] = {
+  {   0, "inactive" },
+  {   1, "precharge" },
+  {   2, "active" },
+  {   3, "tempError" },
+  {   4, "suspend" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_mim_EmergencyStopEnum(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     5, NULL, false, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string mim_InterlockEnum_vals[] = {
+  {   0, "none" },
+  {   1, "zonalInterlock" },
+  {   2, "globalStop" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_mim_InterlockEnum(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, false, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string mim_VehicleHornRequestEnum_vals[] = {
+  {   0, "none" },
+  {   1, "singleHorn" },
+  {   2, "doubleHorn" },
+  {   3, "holdHorn" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_mim_VehicleHornRequestEnum(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     4, NULL, false, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t mim_DriveCommand_sequence[] = {
+  { &hf_mim_driveCommandAction, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mim_DriveCommandActionEnum },
+  { &hf_mim_terminateReason , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mim_TerminateReasonEnum },
+  { &hf_mim_gearRequest     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_avm_GearEnum },
+  { &hf_mim_directionIndicatorRequest, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_avm_DirectionIndicatorEnum },
+  { &hf_mim_parkingBrakeRequest, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_mim_ParkingBrakeRequestEnum },
+  { &hf_mim_motorSystemRequest, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_avm_MotorSystemEnum },
+  { &hf_mim_emergencyStopRequest, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_mim_EmergencyStopEnum },
+  { &hf_mim_interlockRequest, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_mim_InterlockEnum },
+  { &hf_mim_hornRequest     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_mim_VehicleHornRequestEnum },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mim_DriveCommand(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mim_DriveCommand, mim_DriveCommand_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t mim_DetectedVehiclePose_sequence[] = {
+  { &hf_mim_detectedPose    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_Pose },
+  { &hf_mim_poseMeasurementTime, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_TimestampIts },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mim_DetectedVehiclePose(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mim_DetectedVehiclePose, mim_DetectedVehiclePose_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t mim_WayPoint_sequence[] = {
+  { &hf_mim_index           , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_avm_WaypointIndex },
+  { &hf_mim_wayPointPose    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_Pose },
+  { &hf_mim_velocity        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_VelocityComponentValue },
+  { &hf_mim_curvature       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_HighResCurvature },
+  { &hf_mim_pitchAngle      , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_CartesianAngleValue },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mim_WayPoint(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mim_WayPoint, mim_WayPoint_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t mim_PathSnippet_sequence_of[1] = {
+  { &hf_mim_PathSnippet_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mim_WayPoint },
+};
+
+static unsigned
+dissect_mim_PathSnippet(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_mim_PathSnippet, mim_PathSnippet_sequence_of,
+                                                  0, 200, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t mim_PathControl_sequence[] = {
+  { &hf_mim_pathSnippet     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_mim_PathSnippet },
+  { &hf_mim_clearedDistanceOnPath, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_Centimetre },
+  { &hf_mim_situationalVelocityLimit, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_VelocityComponentValue },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mim_PathControl(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mim_PathControl, mim_PathControl_sequence);
+
+  return offset;
+}
+
+
+static const value_string mim_DriveDirectionEnum_vals[] = {
+  {   0, "forwards" },
+  {   1, "backwards" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_mim_DriveDirectionEnum(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, false, 0, NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_mim_ControlAcceleration(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_its_LongitudinalAccelerationValue(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const per_sequence_t mim_ControlVelocity_sequence[] = {
+  { &hf_mim_velocity        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_VelocityComponentValue },
+  { &hf_mim_distanceToStop  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_avm_Centimetre },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mim_ControlVelocity(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mim_ControlVelocity, mim_ControlVelocity_sequence);
+
+  return offset;
+}
+
+
+static const value_string mim_ControlParameter_vals[] = {
+  {   0, "controlAcceleration" },
+  {   1, "controlVelocity" },
+  { 0, NULL }
+};
+
+static const per_choice_t mim_ControlParameter_choice[] = {
+  {   0, &hf_mim_controlAcceleration, ASN1_NO_EXTENSIONS     , dissect_mim_ControlAcceleration },
+  {   1, &hf_mim_controlVelocity , ASN1_NO_EXTENSIONS     , dissect_mim_ControlVelocity },
+  { 0, NULL, 0, NULL }
+};
+
+static unsigned
+dissect_mim_ControlParameter(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_mim_ControlParameter, mim_ControlParameter_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t mim_ControlPoint_sequence[] = {
+  { &hf_mim_curvature       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_HighResCurvature },
+  { &hf_mim_controlParameter, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mim_ControlParameter },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mim_ControlPoint(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mim_ControlPoint, mim_ControlPoint_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t mim_ControlTrajectory_sequence_of[1] = {
+  { &hf_mim_ControlTrajectory_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mim_ControlPoint },
+};
+
+static unsigned
+dissect_mim_ControlTrajectory(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_mim_ControlTrajectory, mim_ControlTrajectory_sequence_of,
+                                                  0, 50, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t mim_StatePoint_sequence[] = {
+  { &hf_mim_statePose       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_Pose },
+  { &hf_mim_velocity        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_VelocityComponentValue },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mim_StatePoint(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mim_StatePoint, mim_StatePoint_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t mim_StateTrajectory_sequence_of[1] = {
+  { &hf_mim_StateTrajectory_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mim_StatePoint },
+};
+
+static unsigned
+dissect_mim_StateTrajectory(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_mim_StateTrajectory, mim_StateTrajectory_sequence_of,
+                                                  0, 50, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t mim_TrajectoryControl_sequence[] = {
+  { &hf_mim_timeReference   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_TimestampIts },
+  { &hf_mim_driveDirection  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_mim_DriveDirectionEnum },
+  { &hf_mim_controlTrajectory, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mim_ControlTrajectory },
+  { &hf_mim_stateTrajectory , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_mim_StateTrajectory },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mim_TrajectoryControl(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mim_TrajectoryControl, mim_TrajectoryControl_sequence);
+
+  return offset;
+}
+
+
+static const value_string mim_ControlInterface_vals[] = {
+  {   0, "pathControl" },
+  {   1, "trajectoryControl" },
+  { 0, NULL }
+};
+
+static const per_choice_t mim_ControlInterface_choice[] = {
+  {   0, &hf_mim_pathControl     , ASN1_EXTENSION_ROOT    , dissect_mim_PathControl },
+  {   1, &hf_mim_trajectoryControl, ASN1_EXTENSION_ROOT    , dissect_mim_TrajectoryControl },
+  { 0, NULL, 0, NULL }
+};
+
+static unsigned
+dissect_mim_ControlInterface(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_mim_ControlInterface, mim_ControlInterface_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t mim_Mim_sequence[] = {
+  { &hf_mim_mimDataControlField, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mim_MIMDataControlField },
+  { &hf_mim_systemManagementData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_avm_SystemManagementData },
+  { &hf_mim_vehicleIdentification, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mim_VidRequest },
+  { &hf_mim_drivingPermission, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mim_DrivingPermission },
+  { &hf_mim_safetyTimeSyncRequest, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mim_SafetyTimeSyncRequest },
+  { &hf_mim_driveCommand    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mim_DriveCommand },
+  { &hf_mim_detectedVehiclePose, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mim_DetectedVehiclePose },
+  { &hf_mim_controlInterface, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mim_ControlInterface },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mim_Mim(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mim_Mim, mim_Mim_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t mim_SEQUENCE_SIZE_1_32_OF_Mim_sequence_of[1] = {
+  { &hf_mim_mims_item       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mim_Mim },
+};
+
+static unsigned
+dissect_mim_SEQUENCE_SIZE_1_32_OF_Mim(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_mim_SEQUENCE_SIZE_1_32_OF_Mim, mim_SEQUENCE_SIZE_1_32_OF_Mim_sequence_of,
+                                                  1, 32, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t mim_MIM_sequence[] = {
+  { &hf_mim_e2eProtection   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_AvmE2EProtection },
+  { &hf_mim_mims            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mim_SEQUENCE_SIZE_1_32_OF_Mim },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mim_MIM(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mim_MIM, mim_MIM_sequence);
+
+  return offset;
+}
+
+/*--- PDUs ---*/
+
+static int dissect_mim_MIM_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, false, pinfo);
+  offset = dissect_mim_MIM(tvb, offset, &asn1_ctx, tree, hf_mim_mim_MIM_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+
+
+/* --- Module MVM-PDU-Descriptions --- --- ---                                */
+
+
+static const per_sequence_t mvm_SEQUENCE_SIZE_0_10_OF_RollingCounter_sequence_of[1] = {
+  { &hf_mvm_rollingCounterFromMim_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_RollingCounter },
+};
+
+static unsigned
+dissect_mvm_SEQUENCE_SIZE_0_10_OF_RollingCounter(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_mvm_SEQUENCE_SIZE_0_10_OF_RollingCounter, mvm_SEQUENCE_SIZE_0_10_OF_RollingCounter_sequence_of,
+                                                  0, 10, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t mvm_MVMDataControlField_sequence[] = {
+  { &hf_mvm_mvmGenerationTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_TimestampIts },
+  { &hf_mvm_rollingCounterFromMim, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_mvm_SEQUENCE_SIZE_0_10_OF_RollingCounter },
+  { &hf_mvm_proprietaryExtensionField, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_avm_ProprietaryExtensionField },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mvm_MVMDataControlField(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mvm_MVMDataControlField, mvm_MVMDataControlField_sequence);
+
+  return offset;
+}
+
+
+static const value_string mvm_OperationModeEnum_vals[] = {
+  {   0, "unknown" },
+  {   1, "initializing" },
+  {   2, "prepared" },
+  {   3, "driving" },
+  {   4, "terminating" },
+  {   5, "suspend" },
+  {   6, "tempError" },
+  {   7, "humanInControl" },
+  {   8, "stationHold" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_mvm_OperationModeEnum(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     9, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string mvm_ParkingBrakeStateEnum_vals[] = {
+  {   0, "unknown" },
+  {   1, "engaging" },
+  {   2, "engaged" },
+  {   3, "disengaging" },
+  {   4, "disengaged" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_mvm_ParkingBrakeStateEnum(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     5, NULL, false, 0, NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_mvm_BOOLEAN(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_boolean(tvb, offset, actx, tree, hf_index, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t mvm_VehicleState_sequence[] = {
+  { &hf_mvm_vehicleStateGenerationTime, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_its_TimestampIts },
+  { &hf_mvm_operationMode   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mvm_OperationModeEnum },
+  { &hf_mvm_gearState       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_GearEnum },
+  { &hf_mvm_directionIndicatorState, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_DirectionIndicatorEnum },
+  { &hf_mvm_parkingBrakeState, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mvm_ParkingBrakeStateEnum },
+  { &hf_mvm_motorSystemState, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_MotorSystemEnum },
+  { &hf_mvm_currentVelocity , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_VelocityComponentValue },
+  { &hf_mvm_currentCurvature, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_HighResCurvature },
+  { &hf_mvm_secureStandstill, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mvm_BOOLEAN },
+  { &hf_mvm_idxLastWayPoint , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_avm_WaypointIndex },
+  { &hf_mvm_localizedPose   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_avm_Pose },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mvm_VehicleState(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mvm_VehicleState, mvm_VehicleState_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t mvm_VidResponse_sequence[] = {
+  { &hf_mvm_vidVehicleState , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_VidVehicleStateEnum },
+  { &hf_mvm_vidVehiclePublicKey, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_UInt64 },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mvm_VidResponse(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mvm_VidResponse, mvm_VidResponse_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t mvm_SafetyTimeSyncResponse_sequence[] = {
+  { &hf_mvm_challenge       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_UInt16 },
+  { &hf_mvm_vehicleSafetyClockReceiveTimestamp, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_TimestampIts },
+  { &hf_mvm_vehicleSafetyClockTransmitTimestamp, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_TimestampIts },
+  { &hf_mvm_checksum        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_UInt32 },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mvm_SafetyTimeSyncResponse(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mvm_SafetyTimeSyncResponse, mvm_SafetyTimeSyncResponse_sequence);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_mvm_IA5String_SIZE_1_32(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
+                                          1, 32, false,
+                                          NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t mvm_SafeVehicleTypeConfirmation_sequence[] = {
+  { &hf_mvm_vehicleType     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mvm_IA5String_SIZE_1_32 },
+  { &hf_mvm_safetyProfile   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mvm_IA5String_SIZE_1_32 },
+  { &hf_mvm_checksum        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_UInt32 },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mvm_SafeVehicleTypeConfirmation(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mvm_SafeVehicleTypeConfirmation, mvm_SafeVehicleTypeConfirmation_sequence);
+
+  return offset;
+}
+
+
+static const value_string mvm_VehCodeEnum_vals[] = {
+  {   0, "unspecified" },
+  {   1, "pathNotDriveable" },
+  {   2, "onboardVehicleFault" },
+  {   3, "communicationFault" },
+  {   4, "vehicleEgressFault" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_mvm_VehCodeEnum(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     5, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t mvm_VehicleError_sequence[] = {
+  { &hf_mvm_time            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_TimestampIts },
+  { &hf_mvm_vehCode         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mvm_VehCodeEnum },
+  { &hf_mvm_customCode      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_UInt8 },
+  { &hf_mvm_description     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_avm_Description },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mvm_VehicleError(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mvm_VehicleError, mvm_VehicleError_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t mvm_SafetyViolationsContainer_sequence_of[1] = {
+  { &hf_mvm_SafetyViolationsContainer_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_SafetyViolationsEnum },
+};
+
+static unsigned
+dissect_mvm_SafetyViolationsContainer(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_mvm_SafetyViolationsContainer, mvm_SafetyViolationsContainer_sequence_of,
+                                                  0, 5, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t mvm_VehicleSafetyFeedbackContainer_sequence[] = {
+  { &hf_mvm_remainingTimeToStartBraking, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_Millisecond16 },
+  { &hf_mvm_safetyViolations, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mvm_SafetyViolationsContainer },
+  { &hf_mvm_currentVehicleSafetyClockTime, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_its_TimestampIts },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mvm_VehicleSafetyFeedbackContainer(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mvm_VehicleSafetyFeedbackContainer, mvm_VehicleSafetyFeedbackContainer_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t mvm_VehicleSafetyFeedback_sequence_of[1] = {
+  { &hf_mvm_VehicleSafetyFeedback_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mvm_VehicleSafetyFeedbackContainer },
+};
+
+static unsigned
+dissect_mvm_VehicleSafetyFeedback(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_mvm_VehicleSafetyFeedback, mvm_VehicleSafetyFeedback_sequence_of,
+                                                  1, 20, false);
+
+  return offset;
+}
+
+
+static const value_string mvm_BasicVehicleClassEnum_vals[] = {
+  {   0, "none" },
+  {   1, "unknown" },
+  {   2, "special" },
+  {   3, "moto" },
+  {   4, "car" },
+  {   5, "carOther" },
+  {   6, "bus" },
+  {   7, "axleCnt2" },
+  {   8, "axleCnt3" },
+  {   9, "axleCnt4" },
+  {  10, "axleCnt4Trailer" },
+  {  11, "axleCnt5Trailer" },
+  {  12, "axleCnt6Trailer" },
+  {  13, "axleCnt5MultiTrailer" },
+  {  14, "axleCnt6MultiTrailer" },
+  {  15, "axleCnt7MultiTrailer" },
+  { 0, NULL }
+};
+
+
+static unsigned
+dissect_mvm_BasicVehicleClassEnum(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     16, NULL, true, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t mvm_VehicleProperties_sequence[] = {
+  { &hf_mvm_basicVehicleClass, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_mvm_BasicVehicleClassEnum },
+  { &hf_mvm_vehicleLength   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_avm_Centimetre },
+  { &hf_mvm_vehicleWheelbase, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_avm_Centimetre },
+  { &hf_mvm_vehicleRearOverhang, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_avm_Centimetre },
+  { &hf_mvm_vehicleWidth    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_avm_Centimetre },
+  { &hf_mvm_vehicleTireWidth, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_avm_Centimetre },
+  { &hf_mvm_vehicleTrackWidth, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_avm_Centimetre },
+  { &hf_mvm_vehicleMass     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_its_VehicleMass },
+  { &hf_mvm_vehicleSpeedLimit, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_its_VelocityComponentValue },
+  { &hf_mvm_vehicleCuvatureLimit, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_avm_HighResCurvature },
+  { &hf_mvm_vehicleMaxAngularSteeringRate, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_avm_RadPerSecond },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mvm_VehicleProperties(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mvm_VehicleProperties, mvm_VehicleProperties_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t mvm_Mvm_sequence[] = {
+  { &hf_mvm_mvmDataControlField, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mvm_MVMDataControlField },
+  { &hf_mvm_systemManagementData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_avm_SystemManagementData },
+  { &hf_mvm_vehicleState    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mvm_VehicleState },
+  { &hf_mvm_vidResponse     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mvm_VidResponse },
+  { &hf_mvm_safetyTimeSyncResponse, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mvm_SafetyTimeSyncResponse },
+  { &hf_mvm_safeVehicleTypeConfirmation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mvm_SafeVehicleTypeConfirmation },
+  { &hf_mvm_vehicleError    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mvm_VehicleError },
+  { &hf_mvm_vehicleSafetyFeedback, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mvm_VehicleSafetyFeedback },
+  { &hf_mvm_vehicleProperties, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mvm_VehicleProperties },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mvm_Mvm(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mvm_Mvm, mvm_Mvm_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t mvm_MVM_sequence[] = {
+  { &hf_mvm_e2eProtection   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_avm_AvmE2EProtection },
+  { &hf_mvm_mvm             , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mvm_Mvm },
+  { NULL, 0, 0, NULL }
+};
+
+static unsigned
+dissect_mvm_MVM(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_mvm_MVM, mvm_MVM_sequence);
+
+  return offset;
+}
+
+/*--- PDUs ---*/
+
+static int dissect_mvm_MVM_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, false, pinfo);
+  offset = dissect_mvm_MVM(tvb, offset, &asn1_ctx, tree, hf_mvm_mvm_MVM_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+
+
 static int
 dissect_cam_WrappedExtensionContainerData(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
@@ -24938,6 +26856,10 @@ void proto_register_its(void)
         FT_INT32, BASE_CUSTOM, CF_FUNC(its_longitude_fmt), 0,
         NULL, HFILL }},
     { &hf_its_altitude,
+      { "altitude", "its.altitude",
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_altitude_fmt), 0,
+        "AltitudeValue", HFILL }},
+    { &hf_its_altitude_01,
       { "altitude", "its.altitude_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -25241,6 +27163,66 @@ void proto_register_its(void)
       { "confidence", "its.confidence",
         FT_UINT32, BASE_CUSTOM, CF_FUNC(cpm_object_dimension_confidence_fmt), 0,
         "ObjectDimensionConfidence", HFILL }},
+    { &hf_its_unknown,
+      { "unknown", "its.unknown_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_its_unlimitedOccupancy,
+      { "unlimitedOccupancy", "its.unlimitedOccupancy_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_its_onlyWhileCharging,
+      { "onlyWhileCharging", "its.onlyWhileCharging_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_its_limitedDuration,
+      { "limitedDuration", "its.limitedDuration",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER", HFILL }},
+    { &hf_its_onlyWhileChargingLimitedDuration,
+      { "onlyWhileChargingLimitedDuration", "its.onlyWhileChargingLimitedDuration",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER", HFILL }},
+    { &hf_its_parkingAllowedUntil,
+      { "parkingAllowedUntil", "its.parkingAllowedUntil",
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
+        "TimestampIts", HFILL }},
+    { &hf_its_forcedParkingUntil,
+      { "forcedParkingUntil", "its.forcedParkingUntil",
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
+        "TimestampIts", HFILL }},
+    { &hf_its_free,
+      { "free", "its.free_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_its_freeUntil,
+      { "freeUntil", "its.freeUntil",
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
+        "TimestampIts", HFILL }},
+    { &hf_its_fullyOccupied,
+      { "fullyOccupied", "its.fullyOccupied_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_its_partiallyOccupied,
+      { "partiallyOccupied", "its.partiallyOccupied",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_100", HFILL }},
+    { &hf_its_occupiedUntil,
+      { "occupiedUntil", "its.occupiedUntil",
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
+        "TimestampIts", HFILL }},
+    { &hf_its_reservedUntil,
+      { "reservedUntil", "its.reservedUntil",
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
+        "TimestampIts", HFILL }},
+    { &hf_its_accessBlocked,
+      { "accessBlocked", "its.accessBlocked_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_its_retrictedUsage,
+      { "retrictedUsage", "its.retrictedUsage_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_its_Path_item,
       { "PathPoint", "its.PathPoint_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -32481,6 +34463,682 @@ void proto_register_its(void)
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
 
+/* --- Module PIM-PDU-Descriptions --- --- ---                                */
+
+    { &hf_pim_pim_PimPayload_PDU,
+      { "PimPayload", "pim.PimPayload_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pim_managementContainer,
+      { "managementContainer", "pim.managementContainer_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PimManagementContainer", HFILL }},
+    { &hf_pim_detections,
+      { "detections", "pim.detections_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ParkingSpaceDetections", HFILL }},
+    { &hf_pim_arrivalIndication,
+      { "arrivalIndication", "pim.arrivalIndication_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ParkingSpaceIntentIndication", HFILL }},
+    { &hf_pim_departureIndication,
+      { "departureIndication", "pim.departureIndication_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ParkingSpaceIntentIndication", HFILL }},
+    { &hf_pim_segmentationInfo,
+      { "segmentationInfo", "pim.segmentationInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MessageSegmentationInfo", HFILL }},
+    { &hf_pim_individualParkingSpaces,
+      { "individualParkingSpaces", "pim.individualParkingSpaces",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pim_segmentsOfParkingSpaces,
+      { "segmentsOfParkingSpaces", "pim.segmentsOfParkingSpaces",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ParkingSpaceSegments", HFILL }},
+    { &hf_pim_IndividualParkingSpaces_item,
+      { "IndividualParkingSpace", "pim.IndividualParkingSpace_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pim_ParkingSpaceSegments_item,
+      { "ParkingSpaceSegment", "pim.ParkingSpaceSegment_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pim_spaceId,
+      { "spaceId", "pim.spaceId",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Identifier2B", HFILL }},
+    { &hf_pim_reporter,
+      { "reporter", "pim.reporter",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "StationId", HFILL }},
+    { &hf_pim_estimatedCompletionTime,
+      { "estimatedCompletionTime", "pim.estimatedCompletionTime",
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
+        "TimestampIts", HFILL }},
+    { &hf_pim_subjectParkingSpace,
+      { "subjectParkingSpace", "pim.subjectParkingSpace_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "IndividualParkingSpace", HFILL }},
+    { &hf_pim_detectionMetaData,
+      { "detectionMetaData", "pim.detectionMetaData_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ParkingSpaceDetectionMetaData", HFILL }},
+    { &hf_pim_position,
+      { "position", "pim.position_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GeoPosition", HFILL }},
+    { &hf_pim_attributes,
+      { "attributes", "pim.attributes_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ParkingSpaceAttributes", HFILL }},
+    { &hf_pim_size,
+      { "size", "pim.size_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ParkingSpaceSize", HFILL }},
+    { &hf_pim_externalParkingSpaceIds,
+      { "externalParkingSpaceIds", "pim.externalParkingSpaceIds_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ExternalParkingSpaceIdentifiers", HFILL }},
+    { &hf_pim_id,
+      { "id", "pim.id",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Identifier2B", HFILL }},
+    { &hf_pim_stationId,
+      { "source", "pim.stationId",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "StationId", HFILL }},
+    { &hf_pim_endTime,
+      { "endTime", "pim.endTime",
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
+        "TimestampIts", HFILL }},
+    { &hf_pim_detectionReferencePosition,
+      { "detectionReferencePosition", "pim.detectionReferencePosition_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GeoPosition", HFILL }},
+    { &hf_pim_path,
+      { "path", "pim.path",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pim_spacesOnTheLeft,
+      { "spacesOnTheLeft", "pim.spacesOnTheLeft",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ParkingSegments", HFILL }},
+    { &hf_pim_spacesOnTheRight,
+      { "spacesOnTheRight", "pim.spacesOnTheRight",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ParkingSegments", HFILL }},
+    { &hf_pim_evSEId,
+      { "evSEId", "pim.evSEId",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "IA5String_SIZE_1_36", HFILL }},
+    { &hf_pim_parkingSpaceId,
+      { "parkingSpaceId", "pim.parkingSpaceId",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Identifier2B", HFILL }},
+    { &hf_pim_ParkingSegments_item,
+      { "ParkingSegment", "pim.ParkingSegment_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pim_distanceFromLastPoint,
+      { "distanceFromLastPoint", "pim.distanceFromLastPoint",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "StandardLength12b", HFILL }},
+    { &hf_pim_timeDelta,
+      { "timeDelta", "pim.timeDelta",
+        FT_UINT32, BASE_DEC, VALS(its_DeltaTimeTenthOfSecond_vals), 0,
+        "DeltaTimeTenthOfSecond", HFILL }},
+    { &hf_pim_offsetToPath,
+      { "offsetToPath", "pim.offsetToPath",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "StandardLength1B", HFILL }},
+    { &hf_pim_status,
+      { "status", "pim.status",
+        FT_UINT32, BASE_DEC, VALS(its_ParkingSpaceStatus_vals), 0,
+        "ParkingSpaceStatus", HFILL }},
+    { &hf_pim_arrangementType,
+      { "arrangementType", "pim.arrangementType",
+        FT_UINT32, BASE_DEC, VALS(its_ParkingAreaArrangementType_vals), 0,
+        "ParkingAreaArrangementType", HFILL }},
+    { &hf_pim_occupancyRule,
+      { "occupancyRule", "pim.occupancyRule",
+        FT_UINT32, BASE_DEC, VALS(its_ParkingOccupancyInfo_vals), 0,
+        "ParkingOccupancyInfo", HFILL }},
+    { &hf_pim_reservationType,
+      { "reservationType", "pim.reservationType",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_0_3__OF_ParkingReservationType", HFILL }},
+    { &hf_pim_reservationType_item,
+      { "ParkingReservationType", "pim.ParkingReservationType",
+        FT_UINT32, BASE_DEC, VALS(its_ParkingReservationType_vals), 0,
+        NULL, HFILL }},
+    { &hf_pim_observedWidth,
+      { "observedWidth", "pim.observedWidth_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ObjectDimension", HFILL }},
+    { &hf_pim_observedLength,
+      { "observedLength", "pim.observedLength_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ObjectDimension", HFILL }},
+    { &hf_pim_nominalWidth,
+      { "nominalWidth", "pim.nominalWidth_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ObjectDimension", HFILL }},
+    { &hf_pim_nominalLength,
+      { "nominalLength", "pim.nominalLength_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ObjectDimension", HFILL }},
+
+/* --- Module AVM-Commons --- --- ---                                         */
+
+    { &hf_avm_x,
+      { "x", "avm.x",
+        FT_INT32, BASE_DEC, VALS(avm_Centimetre_vals), 0,
+        "Centimetre", HFILL }},
+    { &hf_avm_y,
+      { "y", "avm.y",
+        FT_INT32, BASE_DEC, VALS(avm_Centimetre_vals), 0,
+        "Centimetre", HFILL }},
+    { &hf_avm_psi,
+      { "psi", "avm.psi",
+        FT_UINT32, BASE_DEC, VALS(avm_Psi_vals), 0,
+        NULL, HFILL }},
+    { &hf_avm_sessionID,
+      { "sessionID", "avm.sessionID",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "SessionMissionID", HFILL }},
+    { &hf_avm_missionID,
+      { "missionID", "avm.missionID",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "SessionMissionID", HFILL }},
+    { &hf_avm_vehicleID,
+      { "vehicleID", "avm.vehicleID",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_avm_facilityID,
+      { "facilityID", "avm.facilityID",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_avm_length,
+      { "length", "avm.length",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "UInt16", HFILL }},
+    { &hf_avm_rollingCounter,
+      { "rollingCounter", "avm.rollingCounter",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "UInt16", HFILL }},
+    { &hf_avm_dataID,
+      { "dataID", "avm.dataID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "UInt32", HFILL }},
+    { &hf_avm_crc32,
+      { "crc32", "avm.crc32",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "UInt32", HFILL }},
+
+/* --- Module MIM-PDU-Descriptions --- --- ---                                */
+
+    { &hf_mim_mim_MIM_PDU,
+      { "MIM", "mim.MIM_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mim_e2eProtection,
+      { "e2eProtection", "mim.e2eProtection_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AvmE2EProtection", HFILL }},
+    { &hf_mim_mims,
+      { "mims", "mim.mims",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_32_OF_Mim", HFILL }},
+    { &hf_mim_mims_item,
+      { "Mim", "mim.Mim_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mim_mimDataControlField,
+      { "mimDataControlField", "mim.mimDataControlField_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mim_systemManagementData,
+      { "systemManagementData", "mim.systemManagementData_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mim_vehicleIdentification,
+      { "vehicleIdentification", "mim.vehicleIdentification",
+        FT_UINT32, BASE_DEC, VALS(mim_VidRequest_vals), 0,
+        "VidRequest", HFILL }},
+    { &hf_mim_drivingPermission,
+      { "drivingPermission", "mim.drivingPermission_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mim_safetyTimeSyncRequest,
+      { "safetyTimeSyncRequest", "mim.safetyTimeSyncRequest_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mim_driveCommand,
+      { "driveCommand", "mim.driveCommand_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mim_detectedVehiclePose,
+      { "detectedVehiclePose", "mim.detectedVehiclePose_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mim_controlInterface,
+      { "controlInterface", "mim.controlInterface",
+        FT_UINT32, BASE_DEC, VALS(mim_ControlInterface_vals), 0,
+        NULL, HFILL }},
+    { &hf_mim_checksum,
+      { "checksum", "mim.checksum",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "UInt32", HFILL }},
+    { &hf_mim_mimGenerationTime,
+      { "mimGenerationTime", "mim.mimGenerationTime",
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
+        "TimestampIts", HFILL }},
+    { &hf_mim_rollingCounterFromMvm,
+      { "rollingCounterFromMvm", "mim.rollingCounterFromMvm",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_0_10_OF_RollingCounter", HFILL }},
+    { &hf_mim_rollingCounterFromMvm_item,
+      { "RollingCounter", "mim.RollingCounter",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mim_proprietaryExtensionField,
+      { "proprietaryExtensionField", "mim.proprietaryExtensionField",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mim_blinking,
+      { "blinking", "mim.blinking_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mim_vidRoPublicKey,
+      { "vidRoPublicKey", "mim.vidRoPublicKey",
+        FT_UINT64, BASE_DEC, NULL, 0,
+        "UInt64", HFILL }},
+    { &hf_mim_codeLength,
+      { "codeLength", "mim.codeLength",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "UInt8", HFILL }},
+    { &hf_mim_blinkingCommand,
+      { "blinkingCommand", "mim.blinkingCommand",
+        FT_UINT32, BASE_DEC, VALS(mim_VidRequestCommandEnum_vals), 0,
+        "VidRequestCommandEnum", HFILL }},
+    { &hf_mim_expirationTime,
+      { "expirationTime", "mim.expirationTime",
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
+        "TimestampIts", HFILL }},
+    { &hf_mim_velocityMax,
+      { "velocityMax", "mim.velocityMax",
+        FT_INT32, BASE_DEC, VALS(its_VelocityComponentValue_vals), 0,
+        "VelocityComponentValue", HFILL }},
+    { &hf_mim_curvatureMin,
+      { "curvatureMin", "mim.curvatureMin",
+        FT_INT32, BASE_DEC, VALS(avm_HighResCurvature_vals), 0,
+        "HighResCurvature", HFILL }},
+    { &hf_mim_curvatureMax,
+      { "curvatureMax", "mim.curvatureMax",
+        FT_INT32, BASE_DEC, VALS(avm_HighResCurvature_vals), 0,
+        "HighResCurvature", HFILL }},
+    { &hf_mim_challenge,
+      { "challenge", "mim.challenge",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "UInt16", HFILL }},
+    { &hf_mim_driveCommandAction,
+      { "driveCommandAction", "mim.driveCommandAction",
+        FT_UINT32, BASE_DEC, VALS(mim_DriveCommandActionEnum_vals), 0,
+        "DriveCommandActionEnum", HFILL }},
+    { &hf_mim_terminateReason,
+      { "terminateReason", "mim.terminateReason",
+        FT_UINT32, BASE_DEC, VALS(mim_TerminateReasonEnum_vals), 0,
+        "TerminateReasonEnum", HFILL }},
+    { &hf_mim_gearRequest,
+      { "gearRequest", "mim.gearRequest",
+        FT_UINT32, BASE_DEC, VALS(avm_GearEnum_vals), 0,
+        "GearEnum", HFILL }},
+    { &hf_mim_directionIndicatorRequest,
+      { "directionIndicatorRequest", "mim.directionIndicatorRequest",
+        FT_UINT32, BASE_DEC, VALS(avm_DirectionIndicatorEnum_vals), 0,
+        "DirectionIndicatorEnum", HFILL }},
+    { &hf_mim_parkingBrakeRequest,
+      { "parkingBrakeRequest", "mim.parkingBrakeRequest",
+        FT_UINT32, BASE_DEC, VALS(mim_ParkingBrakeRequestEnum_vals), 0,
+        "ParkingBrakeRequestEnum", HFILL }},
+    { &hf_mim_motorSystemRequest,
+      { "motorSystemRequest", "mim.motorSystemRequest",
+        FT_UINT32, BASE_DEC, VALS(avm_MotorSystemEnum_vals), 0,
+        "MotorSystemEnum", HFILL }},
+    { &hf_mim_emergencyStopRequest,
+      { "emergencyStopRequest", "mim.emergencyStopRequest",
+        FT_UINT32, BASE_DEC, VALS(mim_EmergencyStopEnum_vals), 0,
+        "EmergencyStopEnum", HFILL }},
+    { &hf_mim_interlockRequest,
+      { "interlockRequest", "mim.interlockRequest",
+        FT_UINT32, BASE_DEC, VALS(mim_InterlockEnum_vals), 0,
+        "InterlockEnum", HFILL }},
+    { &hf_mim_hornRequest,
+      { "hornRequest", "mim.hornRequest",
+        FT_UINT32, BASE_DEC, VALS(mim_VehicleHornRequestEnum_vals), 0,
+        "VehicleHornRequestEnum", HFILL }},
+    { &hf_mim_detectedPose,
+      { "detectedPose", "mim.detectedPose_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Pose", HFILL }},
+    { &hf_mim_poseMeasurementTime,
+      { "poseMeasurementTime", "mim.poseMeasurementTime",
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
+        "TimestampIts", HFILL }},
+    { &hf_mim_pathControl,
+      { "pathControl", "mim.pathControl_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mim_trajectoryControl,
+      { "trajectoryControl", "mim.trajectoryControl_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mim_pathSnippet,
+      { "pathSnippet", "mim.pathSnippet",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mim_clearedDistanceOnPath,
+      { "clearedDistanceOnPath", "mim.clearedDistanceOnPath",
+        FT_INT32, BASE_DEC, VALS(avm_Centimetre_vals), 0,
+        "Centimetre", HFILL }},
+    { &hf_mim_situationalVelocityLimit,
+      { "situationalVelocityLimit", "mim.situationalVelocityLimit",
+        FT_INT32, BASE_DEC, VALS(its_VelocityComponentValue_vals), 0,
+        "VelocityComponentValue", HFILL }},
+    { &hf_mim_PathSnippet_item,
+      { "WayPoint", "mim.WayPoint_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mim_index,
+      { "index", "mim.index",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "WaypointIndex", HFILL }},
+    { &hf_mim_wayPointPose,
+      { "wayPointPose", "mim.wayPointPose_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Pose", HFILL }},
+    { &hf_mim_velocity,
+      { "velocity", "mim.velocity",
+        FT_INT32, BASE_DEC, VALS(its_VelocityComponentValue_vals), 0,
+        "VelocityComponentValue", HFILL }},
+    { &hf_mim_curvature,
+      { "curvature", "mim.curvature",
+        FT_INT32, BASE_DEC, VALS(avm_HighResCurvature_vals), 0,
+        "HighResCurvature", HFILL }},
+    { &hf_mim_pitchAngle,
+      { "pitchAngle", "mim.pitchAngle",
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(cpm_cartesian_angle_value_fmt), 0,
+        "CartesianAngleValue", HFILL }},
+    { &hf_mim_timeReference,
+      { "timeReference", "mim.timeReference",
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
+        "TimestampIts", HFILL }},
+    { &hf_mim_driveDirection,
+      { "driveDirection", "mim.driveDirection",
+        FT_UINT32, BASE_DEC, VALS(mim_DriveDirectionEnum_vals), 0,
+        "DriveDirectionEnum", HFILL }},
+    { &hf_mim_controlTrajectory,
+      { "controlTrajectory", "mim.controlTrajectory",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mim_stateTrajectory,
+      { "stateTrajectory", "mim.stateTrajectory",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mim_ControlTrajectory_item,
+      { "ControlPoint", "mim.ControlPoint_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mim_controlParameter,
+      { "controlParameter", "mim.controlParameter",
+        FT_UINT32, BASE_DEC, VALS(mim_ControlParameter_vals), 0,
+        NULL, HFILL }},
+    { &hf_mim_controlAcceleration,
+      { "controlAcceleration", "mim.controlAcceleration",
+        FT_INT32, BASE_CUSTOM, CF_FUNC(its_acceleration_value_fmt), 0,
+        NULL, HFILL }},
+    { &hf_mim_controlVelocity,
+      { "controlVelocity", "mim.controlVelocity_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mim_distanceToStop,
+      { "distanceToStop", "mim.distanceToStop",
+        FT_INT32, BASE_DEC, VALS(avm_Centimetre_vals), 0,
+        "Centimetre", HFILL }},
+    { &hf_mim_StateTrajectory_item,
+      { "StatePoint", "mim.StatePoint_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mim_statePose,
+      { "statePose", "mim.statePose_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Pose", HFILL }},
+
+/* --- Module MVM-PDU-Descriptions --- --- ---                                */
+
+    { &hf_mvm_mvm_MVM_PDU,
+      { "MVM", "mvm.MVM_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mvm_e2eProtection,
+      { "e2eProtection", "mvm.e2eProtection_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AvmE2EProtection", HFILL }},
+    { &hf_mvm_mvm,
+      { "mvm", "mvm.mvm_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mvm_mvmDataControlField,
+      { "mvmDataControlField", "mvm.mvmDataControlField_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mvm_systemManagementData,
+      { "systemManagementData", "mvm.systemManagementData_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mvm_vehicleState,
+      { "vehicleState", "mvm.vehicleState_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mvm_vidResponse,
+      { "vidResponse", "mvm.vidResponse_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mvm_safetyTimeSyncResponse,
+      { "safetyTimeSyncResponse", "mvm.safetyTimeSyncResponse_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mvm_safeVehicleTypeConfirmation,
+      { "safeVehicleTypeConfirmation", "mvm.safeVehicleTypeConfirmation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mvm_vehicleError,
+      { "vehicleError", "mvm.vehicleError_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mvm_vehicleSafetyFeedback,
+      { "vehicleSafetyFeedback", "mvm.vehicleSafetyFeedback",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mvm_vehicleProperties,
+      { "vehicleProperties", "mvm.vehicleProperties_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mvm_mvmGenerationTime,
+      { "mvmGenerationTime", "mvm.mvmGenerationTime",
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
+        "TimestampIts", HFILL }},
+    { &hf_mvm_rollingCounterFromMim,
+      { "rollingCounterFromMim", "mvm.rollingCounterFromMim",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_0_10_OF_RollingCounter", HFILL }},
+    { &hf_mvm_rollingCounterFromMim_item,
+      { "RollingCounter", "mvm.RollingCounter",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mvm_proprietaryExtensionField,
+      { "proprietaryExtensionField", "mvm.proprietaryExtensionField",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mvm_vehicleStateGenerationTime,
+      { "vehicleStateGenerationTime", "mvm.vehicleStateGenerationTime",
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
+        "TimestampIts", HFILL }},
+    { &hf_mvm_operationMode,
+      { "operationMode", "mvm.operationMode",
+        FT_UINT32, BASE_DEC, VALS(mvm_OperationModeEnum_vals), 0,
+        "OperationModeEnum", HFILL }},
+    { &hf_mvm_gearState,
+      { "gearState", "mvm.gearState",
+        FT_UINT32, BASE_DEC, VALS(avm_GearEnum_vals), 0,
+        "GearEnum", HFILL }},
+    { &hf_mvm_directionIndicatorState,
+      { "directionIndicatorState", "mvm.directionIndicatorState",
+        FT_UINT32, BASE_DEC, VALS(avm_DirectionIndicatorEnum_vals), 0,
+        "DirectionIndicatorEnum", HFILL }},
+    { &hf_mvm_parkingBrakeState,
+      { "parkingBrakeState", "mvm.parkingBrakeState",
+        FT_UINT32, BASE_DEC, VALS(mvm_ParkingBrakeStateEnum_vals), 0,
+        "ParkingBrakeStateEnum", HFILL }},
+    { &hf_mvm_motorSystemState,
+      { "motorSystemState", "mvm.motorSystemState",
+        FT_UINT32, BASE_DEC, VALS(avm_MotorSystemEnum_vals), 0,
+        "MotorSystemEnum", HFILL }},
+    { &hf_mvm_currentVelocity,
+      { "currentVelocity", "mvm.currentVelocity",
+        FT_INT32, BASE_DEC, VALS(its_VelocityComponentValue_vals), 0,
+        "VelocityComponentValue", HFILL }},
+    { &hf_mvm_currentCurvature,
+      { "currentCurvature", "mvm.currentCurvature",
+        FT_INT32, BASE_DEC, VALS(avm_HighResCurvature_vals), 0,
+        "HighResCurvature", HFILL }},
+    { &hf_mvm_secureStandstill,
+      { "secureStandstill", "mvm.secureStandstill",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_mvm_idxLastWayPoint,
+      { "idxLastWayPoint", "mvm.idxLastWayPoint",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "WaypointIndex", HFILL }},
+    { &hf_mvm_localizedPose,
+      { "localizedPose", "mvm.localizedPose_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Pose", HFILL }},
+    { &hf_mvm_vidVehicleState,
+      { "vidVehicleState", "mvm.vidVehicleState",
+        FT_UINT32, BASE_DEC, VALS(avm_VidVehicleStateEnum_vals), 0,
+        "VidVehicleStateEnum", HFILL }},
+    { &hf_mvm_vidVehiclePublicKey,
+      { "vidVehiclePublicKey", "mvm.vidVehiclePublicKey",
+        FT_UINT64, BASE_DEC, NULL, 0,
+        "UInt64", HFILL }},
+    { &hf_mvm_challenge,
+      { "challenge", "mvm.challenge",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "UInt16", HFILL }},
+    { &hf_mvm_vehicleSafetyClockReceiveTimestamp,
+      { "vehicleSafetyClockReceiveTimestamp", "mvm.vehicleSafetyClockReceiveTimestamp",
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
+        "TimestampIts", HFILL }},
+    { &hf_mvm_vehicleSafetyClockTransmitTimestamp,
+      { "vehicleSafetyClockTransmitTimestamp", "mvm.vehicleSafetyClockTransmitTimestamp",
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
+        "TimestampIts", HFILL }},
+    { &hf_mvm_checksum,
+      { "checksum", "mvm.checksum",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "UInt32", HFILL }},
+    { &hf_mvm_vehicleType,
+      { "vehicleType", "mvm.vehicleType",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "IA5String_SIZE_1_32", HFILL }},
+    { &hf_mvm_safetyProfile,
+      { "safetyProfile", "mvm.safetyProfile",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "IA5String_SIZE_1_32", HFILL }},
+    { &hf_mvm_time,
+      { "time", "mvm.time",
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
+        "TimestampIts", HFILL }},
+    { &hf_mvm_vehCode,
+      { "vehCode", "mvm.vehCode",
+        FT_UINT32, BASE_DEC, VALS(mvm_VehCodeEnum_vals), 0,
+        "VehCodeEnum", HFILL }},
+    { &hf_mvm_customCode,
+      { "customCode", "mvm.customCode",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "UInt8", HFILL }},
+    { &hf_mvm_description,
+      { "description", "mvm.description",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mvm_VehicleSafetyFeedback_item,
+      { "VehicleSafetyFeedbackContainer", "mvm.VehicleSafetyFeedbackContainer_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mvm_remainingTimeToStartBraking,
+      { "remainingTimeToStartBraking", "mvm.remainingTimeToStartBraking",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "Millisecond16", HFILL }},
+    { &hf_mvm_safetyViolations,
+      { "safetyViolations", "mvm.safetyViolations",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SafetyViolationsContainer", HFILL }},
+    { &hf_mvm_currentVehicleSafetyClockTime,
+      { "currentVehicleSafetyClockTime", "mvm.currentVehicleSafetyClockTime",
+        FT_UINT64, BASE_CUSTOM, CF_FUNC(its_timestamp_fmt), 0,
+        "TimestampIts", HFILL }},
+    { &hf_mvm_SafetyViolationsContainer_item,
+      { "SafetyViolationsEnum", "mvm.SafetyViolationsEnum",
+        FT_UINT32, BASE_DEC, VALS(avm_SafetyViolationsEnum_vals), 0,
+        NULL, HFILL }},
+    { &hf_mvm_basicVehicleClass,
+      { "basicVehicleClass", "mvm.basicVehicleClass",
+        FT_UINT32, BASE_DEC, VALS(mvm_BasicVehicleClassEnum_vals), 0,
+        "BasicVehicleClassEnum", HFILL }},
+    { &hf_mvm_vehicleLength,
+      { "vehicleLength", "mvm.vehicleLength",
+        FT_INT32, BASE_DEC, VALS(avm_Centimetre_vals), 0,
+        "Centimetre", HFILL }},
+    { &hf_mvm_vehicleWheelbase,
+      { "vehicleWheelbase", "mvm.vehicleWheelbase",
+        FT_INT32, BASE_DEC, VALS(avm_Centimetre_vals), 0,
+        "Centimetre", HFILL }},
+    { &hf_mvm_vehicleRearOverhang,
+      { "vehicleRearOverhang", "mvm.vehicleRearOverhang",
+        FT_INT32, BASE_DEC, VALS(avm_Centimetre_vals), 0,
+        "Centimetre", HFILL }},
+    { &hf_mvm_vehicleWidth,
+      { "vehicleWidth", "mvm.vehicleWidth",
+        FT_INT32, BASE_DEC, VALS(avm_Centimetre_vals), 0,
+        "Centimetre", HFILL }},
+    { &hf_mvm_vehicleTireWidth,
+      { "vehicleTireWidth", "mvm.vehicleTireWidth",
+        FT_INT32, BASE_DEC, VALS(avm_Centimetre_vals), 0,
+        "Centimetre", HFILL }},
+    { &hf_mvm_vehicleTrackWidth,
+      { "vehicleTrackWidth", "mvm.vehicleTrackWidth",
+        FT_INT32, BASE_DEC, VALS(avm_Centimetre_vals), 0,
+        "Centimetre", HFILL }},
+    { &hf_mvm_vehicleMass,
+      { "vehicleMass", "mvm.vehicleMass",
+        FT_UINT32, BASE_DEC, VALS(its_VehicleMass_vals), 0,
+        NULL, HFILL }},
+    { &hf_mvm_vehicleSpeedLimit,
+      { "vehicleSpeedLimit", "mvm.vehicleSpeedLimit",
+        FT_INT32, BASE_DEC, VALS(its_VelocityComponentValue_vals), 0,
+        "VelocityComponentValue", HFILL }},
+    { &hf_mvm_vehicleCuvatureLimit,
+      { "vehicleCuvatureLimit", "mvm.vehicleCuvatureLimit",
+        FT_INT32, BASE_DEC, VALS(avm_HighResCurvature_vals), 0,
+        "HighResCurvature", HFILL }},
+    { &hf_mvm_vehicleMaxAngularSteeringRate,
+      { "vehicleMaxAngularSteeringRate", "mvm.vehicleMaxAngularSteeringRate",
+        FT_INT32, BASE_DEC, VALS(avm_RadPerSecond_vals), 0,
+        "RadPerSecond", HFILL }},
+
 
     /*
      * DENM SSP
@@ -32645,6 +35303,7 @@ void proto_register_its(void)
     &ett_its_EuVehicleCategoryCode,
     &ett_its_EventHistory,
     &ett_its_EventPoint,
+    &ett_its_GeoPosition,
     &ett_its_GeoPositionWAltitude,
     &ett_its_GeoPositionsWAltitude,
     &ett_its_GeoPositionWoAltitude,
@@ -32682,6 +35341,8 @@ void proto_register_its(void)
     &ett_its_ObjectClassDescription,
     &ett_its_ObjectClassWithConfidence,
     &ett_its_ObjectDimension,
+    &ett_its_ParkingOccupancyInfo,
+    &ett_its_ParkingSpaceStatus,
     &ett_its_Path,
     &ett_its_PathDeltaTimeChoice,
     &ett_its_PathHistory,
@@ -33307,6 +35968,71 @@ void proto_register_its(void)
     &ett_imzm_InterferenceManagementZoneMessage,
     &ett_imzm_ImzmParameters,
     &ett_imzm_ImzmContainer,
+
+/* --- Module PIM-PDU-Descriptions --- --- ---                                */
+
+    &ett_pim_PimPayload,
+    &ett_pim_PimManagementContainer,
+    &ett_pim_ParkingSpaceDetections,
+    &ett_pim_IndividualParkingSpaces,
+    &ett_pim_ParkingSpaceSegments,
+    &ett_pim_ParkingSpaceIntentIndication,
+    &ett_pim_IndividualParkingSpace,
+    &ett_pim_ParkingSpaceDetectionMetaData,
+    &ett_pim_ParkingSpaceSegment,
+    &ett_pim_ExternalParkingSpaceIdentifiers,
+    &ett_pim_ParkingSegments,
+    &ett_pim_ParkingSegment,
+    &ett_pim_ParkingSpaceAttributes,
+    &ett_pim_SEQUENCE_SIZE_0_3__OF_ParkingReservationType,
+    &ett_pim_ParkingSpaceSize,
+
+/* --- Module AVM-Commons --- --- ---                                         */
+
+    &ett_avm_Pose,
+    &ett_avm_SystemManagementData,
+    &ett_avm_AvmE2EProtection,
+
+/* --- Module MIM-PDU-Descriptions --- --- ---                                */
+
+    &ett_mim_MIM,
+    &ett_mim_SEQUENCE_SIZE_1_32_OF_Mim,
+    &ett_mim_Mim,
+    &ett_mim_MIMDataControlField,
+    &ett_mim_SEQUENCE_SIZE_0_10_OF_RollingCounter,
+    &ett_mim_VidRequest,
+    &ett_mim_Blinking,
+    &ett_mim_DrivingPermission,
+    &ett_mim_SafetyTimeSyncRequest,
+    &ett_mim_DriveCommand,
+    &ett_mim_DetectedVehiclePose,
+    &ett_mim_ControlInterface,
+    &ett_mim_PathControl,
+    &ett_mim_PathSnippet,
+    &ett_mim_WayPoint,
+    &ett_mim_TrajectoryControl,
+    &ett_mim_ControlTrajectory,
+    &ett_mim_ControlPoint,
+    &ett_mim_ControlParameter,
+    &ett_mim_ControlVelocity,
+    &ett_mim_StateTrajectory,
+    &ett_mim_StatePoint,
+
+/* --- Module MVM-PDU-Descriptions --- --- ---                                */
+
+    &ett_mvm_MVM,
+    &ett_mvm_Mvm,
+    &ett_mvm_MVMDataControlField,
+    &ett_mvm_SEQUENCE_SIZE_0_10_OF_RollingCounter,
+    &ett_mvm_VehicleState,
+    &ett_mvm_VidResponse,
+    &ett_mvm_SafetyTimeSyncResponse,
+    &ett_mvm_SafeVehicleTypeConfirmation,
+    &ett_mvm_VehicleError,
+    &ett_mvm_VehicleSafetyFeedback,
+    &ett_mvm_VehicleSafetyFeedbackContainer,
+    &ett_mvm_SafetyViolationsContainer,
+    &ett_mvm_VehicleProperties,
     };
 
     static ei_register_info ei[] = {
@@ -33356,6 +36082,9 @@ void proto_register_its(void)
     proto_its_cpm = proto_register_protocol_in_name_only("ITS message - CPM", "CPM", "its.message.cpm", proto_its, FT_BYTES);
     proto_its_vam = proto_register_protocol_in_name_only("ITS message - VAM", "VAM", "its.message.vam", proto_its, FT_BYTES);
     proto_its_imzm = proto_register_protocol_in_name_only("ITS message - IMZM", "IMZM", "its.message.imzm", proto_its, FT_BYTES);
+    proto_its_pim = proto_register_protocol_in_name_only("ITS message - PIM", "PIM", "its.message.pim", proto_its, FT_BYTES);
+    proto_its_mim = proto_register_protocol_in_name_only("ITS message - MIM", "MIM", "its.message.mim", proto_its, FT_BYTES);
+    proto_its_mvm = proto_register_protocol_in_name_only("ITS message - MVM", "MVM", "its.message.mvm", proto_its, FT_BYTES);
 
     proto_addgrpc = proto_register_protocol_in_name_only("DSRC Addition Grp C (EU)", "ADDGRPC", "dsrc.addgrpc", proto_its, FT_BYTES);
 
@@ -33400,6 +36129,9 @@ void proto_register_its(void)
 #define ITS_CPM_PROT_VER 2
 #define ITS_VAM_PROT_VER 3
 #define ITS_IMZM_PROT_VER 2
+#define ITS_MIM_PROT_VER 1
+#define ITS_PIM_PROT_VER 2
+#define ITS_MVM_PROT_VER 1
 
 void proto_reg_handoff_its(void)
 {
@@ -33417,27 +36149,37 @@ void proto_reg_handoff_its(void)
     // Enable decode as for its pdu's send via udp
     dissector_add_for_decode_as("udp.port", its_handle);
 
-    dissector_add_uint("its.msg_id", (ITS_DENM_PROT_VER << 16) + ITS_DENM,          create_dissector_handle(dissect_denm_DenmPayload_PDU, proto_its_denm ));
-    dissector_add_uint("its.msg_id", (ITS_DENM_PROT_VERv1 << 16) + ITS_DENM,        create_dissector_handle(dissect_denmv1_DecentralizedEnvironmentalNotificationMessageV1_PDU, proto_its_denmv1 ));
-    dissector_add_uint("its.msg_id", (ITS_CAM_PROT_VER << 16) + ITS_CAM,            create_dissector_handle( dissect_cam_CamPayload_PDU, proto_its_cam ));
-    dissector_add_uint("its.msg_id", (ITS_CAM_PROT_VERv1 << 16) + ITS_CAM,          create_dissector_handle( dissect_camv1_CoopAwarenessV1_PDU, proto_its_camv1));
-    dissector_add_uint("its.msg_id", (ITS_SPATEM_PROT_VERv1 << 16) + ITS_SPATEM,    create_dissector_handle( dissect_dsrc_SPAT_PDU, proto_its_spatemv1 ));
-    dissector_add_uint("its.msg_id", (ITS_SPATEM_PROT_VER << 16) + ITS_SPATEM,      create_dissector_handle( dissect_dsrc_SPAT_PDU, proto_its_spatem ));
-    dissector_add_uint("its.msg_id", (ITS_MAPEM_PROT_VERv1 << 16) + ITS_MAPEM,      create_dissector_handle( dissect_dsrc_MapData_PDU, proto_its_mapemv1 ));
-    dissector_add_uint("its.msg_id", (ITS_MAPEM_PROT_VER << 16) + ITS_MAPEM,        create_dissector_handle( dissect_dsrc_MapData_PDU, proto_its_mapem ));
-    dissector_add_uint("its.msg_id", (ITS_IVIM_PROT_VERv1 << 16) + ITS_IVIM,        create_dissector_handle( dissect_ivi_IviStructure_PDU, proto_its_ivimv1 ));
-    dissector_add_uint("its.msg_id", (ITS_IVIM_PROT_VER << 16) + ITS_IVIM,          create_dissector_handle( dissect_ivi_IviStructure_PDU, proto_its_ivim ));
-    dissector_add_uint("its.msg_id", ITS_RFU1  ,                                    create_dissector_handle( dissect_evrsr_EV_RSR_MessageBody_PDU, proto_its_evrsr ));
-    dissector_add_uint("its.msg_id", (ITS_SREM_PROT_VER << 16) + ITS_SREM,          create_dissector_handle( dissect_dsrc_SignalRequestMessage_PDU, proto_its_srem ));
-    dissector_add_uint("its.msg_id", (ITS_SSEM_PROT_VER << 16) + ITS_SSEM,          create_dissector_handle( dissect_dsrc_SignalStatusMessage_PDU, proto_its_ssem ));
-    dissector_add_uint("its.msg_id", (ITS_RTCMEM_PROT_VERv1 << 16) + ITS_RTCMEM,    create_dissector_handle( dissect_dsrc_RTCMcorrections_PDU, proto_its_rtcmemv1));
-    dissector_add_uint("its.msg_id", (ITS_RTCMEM_PROT_VER << 16) + ITS_RTCMEM,      create_dissector_handle(dissect_dsrc_RTCMcorrections_PDU, proto_its_rtcmem));
-    dissector_add_uint("its.msg_id", ITS_EVCSN,                                     create_dissector_handle( dissect_evcsn_EVChargingSpotNotificationPOIMessage_PDU, proto_its_evcsn ));
-    dissector_add_uint("its.msg_id", (ITS_TIS_TPG_PROT_VER << 16) + ITS_RFU2,       create_dissector_handle( dissect_tistpg_TisTpgTransaction_PDU, proto_its_tistpg ));
-    dissector_add_uint("its.msg_id", (ITS_CPM_PROT_VERv1 << 16) + ITS_CPM,          create_dissector_handle(dissect_cpmv1_CollectivePerceptionMessagev1_PDU, proto_its_cpmv1));
-    dissector_add_uint("its.msg_id", (ITS_CPM_PROT_VER << 16) + ITS_CPM,            create_dissector_handle(dissect_cpm_CpmPayload_PDU, proto_its_cpm));
-    dissector_add_uint("its.msg_id", (ITS_IMZM_PROT_VER << 16) + ITS_IMZM,          create_dissector_handle(dissect_imzm_InterferenceManagementZoneMessage_PDU, proto_its_imzm));
-    dissector_add_uint("its.msg_id", (ITS_VAM_PROT_VER << 16) + ITS_VAM,            create_dissector_handle(dissect_vam_VruAwareness_PDU, proto_its_vam));
+    dissector_add_uint("its.msg_id", (ITS_DENM_PROT_VER << 16) + ITS_DENM,          /* denm    (1) */create_dissector_handle(dissect_denm_DenmPayload_PDU, proto_its_denm));
+    dissector_add_uint("its.msg_id", (ITS_DENM_PROT_VERv1 << 16) + ITS_DENM,        /* denm    (1) */create_dissector_handle(dissect_denmv1_DecentralizedEnvironmentalNotificationMessageV1_PDU, proto_its_denmv1));
+    dissector_add_uint("its.msg_id", (ITS_CAM_PROT_VER << 16) + ITS_CAM,            /* cam     (2) */create_dissector_handle( dissect_cam_CamPayload_PDU, proto_its_cam ));
+    dissector_add_uint("its.msg_id", (ITS_CAM_PROT_VERv1 << 16) + ITS_CAM,          /* cam     (2) */create_dissector_handle( dissect_camv1_CoopAwarenessV1_PDU, proto_its_camv1));
+                                                                                    /* poim    (3) */
+    dissector_add_uint("its.msg_id", (ITS_SPATEM_PROT_VERv1 << 16) + ITS_SPATEM,    /*spatem   (4) */create_dissector_handle(dissect_dsrc_SPAT_PDU, proto_its_spatemv1));
+    dissector_add_uint("its.msg_id", (ITS_SPATEM_PROT_VER << 16) + ITS_SPATEM,      /*spatem   (4) */create_dissector_handle( dissect_dsrc_SPAT_PDU, proto_its_spatem ));
+    dissector_add_uint("its.msg_id", (ITS_MAPEM_PROT_VERv1 << 16) + ITS_MAPEM,      /* mapem   (5) */create_dissector_handle(dissect_dsrc_MapData_PDU, proto_its_mapemv1));
+    dissector_add_uint("its.msg_id", (ITS_MAPEM_PROT_VER << 16) + ITS_MAPEM,        /* mapem   (5) */create_dissector_handle( dissect_dsrc_MapData_PDU, proto_its_mapem ));
+    dissector_add_uint("its.msg_id", (ITS_IVIM_PROT_VERv1 << 16) + ITS_IVIM,        /* ivim    (6) */create_dissector_handle(dissect_ivi_IviStructure_PDU, proto_its_ivimv1));
+    dissector_add_uint("its.msg_id", (ITS_IVIM_PROT_VER << 16) + ITS_IVIM,          /* ivim    (6) */create_dissector_handle( dissect_ivi_IviStructure_PDU, proto_its_ivim ));
+    dissector_add_uint("its.msg_id", ITS_RFU1  ,                                    /* rfu1    (7) */create_dissector_handle(dissect_evrsr_EV_RSR_MessageBody_PDU, proto_its_evrsr));
+    dissector_add_uint("its.msg_id", (ITS_TIS_TPG_PROT_VER << 16) + ITS_RFU2,       /* rfu2    (8) */create_dissector_handle(dissect_tistpg_TisTpgTransaction_PDU, proto_its_tistpg));
+    dissector_add_uint("its.msg_id", (ITS_SREM_PROT_VER << 16) + ITS_SREM,          /* srem    (9) */create_dissector_handle(dissect_dsrc_SignalRequestMessage_PDU, proto_its_srem));
+    dissector_add_uint("its.msg_id", (ITS_SSEM_PROT_VER << 16) + ITS_SSEM,          /* ssem   (10) */create_dissector_handle(dissect_dsrc_SignalStatusMessage_PDU, proto_its_ssem));
+    dissector_add_uint("its.msg_id", ITS_EVCSN,                                     /* evcsn  (11) */create_dissector_handle(dissect_evcsn_EVChargingSpotNotificationPOIMessage_PDU, proto_its_evcsn));
+                                                                                    /* saem   (12) */
+    dissector_add_uint("its.msg_id", (ITS_RTCMEM_PROT_VERv1 << 16) + ITS_RTCMEM,    /* rtcmem (13) */create_dissector_handle(dissect_dsrc_RTCMcorrections_PDU, proto_its_rtcmemv1));
+    dissector_add_uint("its.msg_id", (ITS_RTCMEM_PROT_VER << 16) + ITS_RTCMEM,      /* rtcmem (13) */create_dissector_handle(dissect_dsrc_RTCMcorrections_PDU, proto_its_rtcmem));
+    dissector_add_uint("its.msg_id", (ITS_CPM_PROT_VERv1 << 16) + ITS_CPM,          /* cpm    (14) */create_dissector_handle(dissect_cpmv1_CollectivePerceptionMessagev1_PDU, proto_its_cpmv1));
+    dissector_add_uint("its.msg_id", (ITS_CPM_PROT_VER << 16) + ITS_CPM,            /* cpm    (14) */create_dissector_handle(dissect_cpm_CpmPayload_PDU, proto_its_cpm));
+    dissector_add_uint("its.msg_id", (ITS_IMZM_PROT_VER << 16) + ITS_IMZM,          /* imzm   (15) */create_dissector_handle(dissect_imzm_InterferenceManagementZoneMessage_PDU, proto_its_imzm));
+    dissector_add_uint("its.msg_id", (ITS_VAM_PROT_VER << 16) + ITS_VAM,            /* vam    (16) */create_dissector_handle(dissect_vam_VruAwareness_PDU, proto_its_vam));
+
+    /* dsm    (17) */
+
+    dissector_add_uint("its.msg_id", (ITS_MIM_PROT_VER << 16) + ITS_MIM,            /* mim    (18) */create_dissector_handle(dissect_mim_MIM_PDU, proto_its_mim));
+    dissector_add_uint("its.msg_id", (ITS_MVM_PROT_VER << 16) + ITS_MVM,            /* mvm    (19) */create_dissector_handle(dissect_mvm_MVM_PDU, proto_its_mvm));
+    /* mcm    (20) */
+
+    dissector_add_uint("its.msg_id", (ITS_PIM_PROT_VER << 16) + ITS_PIM,            /* pim    (21) */create_dissector_handle(dissect_pim_PimPayload_PDU, proto_its_pim));
 
     /* Missing definitions: ITS_POI, ITS_SAEM */
 

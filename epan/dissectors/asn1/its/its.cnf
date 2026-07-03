@@ -27,6 +27,7 @@ RTCMEM
 VAM
 ItsPduHeaderVam
 IMZM
+ParkingInformationMessage
 EvcsnPdu
 DriverLanguage
 ChargingPower
@@ -63,17 +64,12 @@ Position1d
 ProviderId
 MapemConnectionList
 MapemLaneList
-GeoPosition
 StandardLength2B
 PathId
 $ETSI-ITS-CDD$VehicleHeight
 MultiplicativeFactor
-ParkingSpaceBasic
 ParkingSpaceDetailed
-ParkingAreaArrangementType
-ParkingReservationType
-ParkingOccupancyInfo
-ParkingSpaceStatus
+ParkingSpaceBasic
 
 #.NO_EMIT
 Code-Units WITHOUT_VALS
@@ -120,6 +116,10 @@ CPM-SensorInformationContainer                          cpm
 VAM-PDU-Descriptions                                    vam
 IMZM-PDU-Descriptions                                   imzm
 #VAM-Temp-Imports                                       vam
+PIM-PDU-Descriptions                                    pim
+AVM-Commons                                             avm
+MIM-PDU-Descriptions                                    mim
+MVM-PDU-Descriptions                                    mvm
 #.END
 
 #.PDU
@@ -166,7 +166,9 @@ VeryLowFrequencyContainer
 PathPredictionContainer
 RoadLanePositionsContainer
 VehicleMovementControlContainer
-
+PimPayload
+MIM
+MVM
 #.TYPE_RENAME
 
 # GicPart
@@ -371,6 +373,7 @@ Node-XY-26b/y                     n26bY
 Node-XY-28b/y                     n28bY
 Node-XY-32b/y                     n32bY
 
+ParkingSpaceDetectionMetaData/source stationId
 #.TYPE_ATTR
 Latitude           DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_latitude_fmt)
 Longitude          DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(its_longitude_fmt)

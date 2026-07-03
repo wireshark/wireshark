@@ -47,6 +47,10 @@ set( ASN_FILE_LIST
 	VAM-PDU-Descriptions.asn
 #	VAM-Temp-Imports.asn
 	IMZM-PDU-Descriptions.asn
+	PIM-PDU-Descriptions.asn
+	AVM-Commons.asn
+	MIM-PDU-Descriptions.asn
+	MVM-PDU-Descriptions.asn
 )
 
 set( EXTRA_DIST

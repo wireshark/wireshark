@@ -1,0 +1,302 @@
+PIM-PDU-Descriptions  {itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) pimPduRelease2 (104072) pim (1) major-version-2 (2) minor-version-1 (1)}
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS 
+
+BasicContainer, ItsPduHeader, Identifier2B, ParkingSpaceStatus, StandardLength12b, TimestampIts, StationId, Wgs84Angle, DeltaPosition, Path, DeltaTimeTenthOfSecond, StandardLength1B, GeoPosition, ParkingReservationType, ParkingAreaArrangementType, ParkingOccupancyInfo, ParkingSpaceBasic, DeltaPositions, MessageSegmentationInfo, ObjectDimension
+FROM ETSI-ITS-CDD {
+    itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) 102894 cdd (2) major-version-4 (4) minor-version-2 (2)
+} WITH SUCCESSORS
+;
+
+/**
+ * This DF represents the Parking Information Service
+ * and is the top level Protocol Data Unit.
+ *
+ * @field header: This header contains basic message information
+ *
+ * @field pimPayload: This field contains the data necessary for ParkingInformationMessage
+ *
+ * @category:
+ * @revision: Created in V2.1.1
+*/
+ParkingInformationMessage ::= SEQUENCE {
+	header          ItsPduHeader (WITH COMPONENTS {... , protocolVersion (2), messageId(21)}),
+	pimPayload PimPayload
+}
+
+/**
+ * This DF indicates the parameters necessary for the PIM
+ *
+ * @field managementContainer: The management container.
+ *
+ * @field detections: The list of detected spaces.
+ *
+ * @field arrivalIndication: This field is used to indicate the parking space intended to be occupied by the sender.
+ *
+ * @field departureIndication: This field is used to indicate the parking space from which the sender is about to depart.
+ *
+ * @category:
+ * @revision: Created in V2.1.1
+*/
+PimPayload ::= SEQUENCE {
+    managementContainer PimManagementContainer,
+    detections          ParkingSpaceDetections OPTIONAL,
+    arrivalIndication   ParkingSpaceIntentIndication OPTIONAL,
+    departureIndication ParkingSpaceIntentIndication OPTIONAL,
+    ...
+}
+
+/**
+ * This DF  represents the management container of the PIM.
+ * It shall include the following components:
+ *
+ * @field segmentationInfo: information regarding the message segmentation on facility layer.
+*/
+PimManagementContainer ::= SEQUENCE {
+    segmentationInfo    MessageSegmentationInfo,
+    ...
+}
+
+/**
+ * This DF describes the list of space detections
+ *
+ * @field individualParkingSpaces: The list of individual parking spaces detected
+ *
+ * @field segmentsOfParkingSpaces: The list of parking spaces detected in a segment-based way
+ *
+ * @category:
+ * @revision: Created in V2.1.1
+*/
+ParkingSpaceDetections ::= SEQUENCE {
+    individualParkingSpaces     IndividualParkingSpaces,
+    segmentsOfParkingSpaces     ParkingSpaceSegments,
+    ...
+}
+
+/**
+ * The DF shall contain a list of DF @ref IndividualParkingSpace.
+ *
+ * @category:
+ * @revision: Created in V2.1.1
+*/
+IndividualParkingSpaces ::= SEQUENCE (SIZE (0..31)) OF IndividualParkingSpace
+
+/**
+ * The DF shall contain a list of DF @ref ParkingSpaceSegment.
+ *
+ * @category:
+ * @revision: Created in V2.1.1
+*/
+ParkingSpaceSegments ::= SEQUENCE (SIZE (0..31)) OF ParkingSpaceSegment
+
+/**
+ * This DF indicates the space intended to be allocated by the ego vehicle
+ *
+ * @field spaceId: The identifier of an individual parking space. Unique for each sender.
+ *
+ * @field reporter: The station id of the reporter of the particular space. Shall be filled if the reporter is not the same as the sender.
+ *
+ * @field estimatedActionTime: The estimated time of completion of the intent (e.g., arrival or departure time).
+ *
+ * @field subjectParkingSpace: Represents the target of the parking space intent. If the intended parking space was received in a non individual
+ * representation, then the sender shall genenrate an individual representation and append to the intent.
+ *
+ * @category:
+ * @revision: Created in V2.1.1
+*/
+ParkingSpaceIntentIndication ::= SEQUENCE {
+    spaceId                 Identifier2B,
+    reporter                StationId OPTIONAL,
+    estimatedCompletionTime TimestampIts OPTIONAL,
+    subjectParkingSpace     IndividualParkingSpace OPTIONAL,
+    ...
+}
+
+/**
+ * This DF represents the location of an individual parking space
+ * 
+ * @field detectionMetaData: The field contains meta data about the individual parking space.
+ * 
+ * @field position: The position of the individual space.
+ * 
+ * @field attributes: Shared attributes of the parking space, such as status, arrangement type, occupancy rules,
+ * and reservation type. These attributes provide key details about the parking space's characteristics.
+ *
+ * @field size: The size dimensions of the parking space, including width and length measurements.
+ * 
+ * @field externalParkingSpaceIds: Represents links to external systems, e.g., to electric vehicle charging stations.
+ *
+ * @category:
+ * @revision: Created in V2.1.1
+ */
+IndividualParkingSpace ::= SEQUENCE {
+    detectionMetaData       ParkingSpaceDetectionMetaData,
+    position                GeoPosition,
+    attributes              ParkingSpaceAttributes,
+    size                    ParkingSpaceSize OPTIONAL,
+    externalParkingSpaceIds ExternalParkingSpaceIdentifiers OPTIONAL,
+    ...
+}
+
+/**
+ * This DF describes parking space detection parameters
+ *
+ * @field id: The identifier of the detection. Shall be unique when combined with source
+ *
+ * @field source: The station id of the sender vehicle. Shall only be filled if the sender is not the detector.
+ *
+ * @field endTime: The end time of detection. (e.g., when the detector vehicle passed by)
+ *
+ * @category:
+ * @revision: Created in V2.1.1
+*/
+ParkingSpaceDetectionMetaData ::= SEQUENCE {
+    id          Identifier2B,
+    source      StationId OPTIONAL,
+    endTime     TimestampIts,
+    ...
+}
+
+/**
+ * This DF represents subsequent parking spaces
+ *
+ * @field detectionMetaData: The field contains meta data about the individual parking space.
+ * 
+ * @field detectionReferencePosition: The reference position related to the detection segment.
+ * 
+ * @field path: The path of the ego vehicle. A new point shall be at least added each time the heading of the
+ * vehicle changes more then SegmentNewPathPointHeadingThreshold, the closest distance between the current
+ * position and line calculated from the last two path points exceeds SegmentNewPathPointLateralDistanceThreshold,
+ * or the detection segment is ended. The pathDeltaTime in the path points should not be filled.
+ *
+ * @field spacesOnTheLeft: The list of parking space segments on the left of the vehicle.
+ *
+ * @field spacesOnTheRight: The list of parking space segments on the right of the vehicle.
+ *
+ * @field externalParkingSpaceIds: Represents links to external systems, e.g., to electric vehicle charging stations.
+ *
+ * @category:
+ * @revision: Created in V2.1.1
+ */
+ParkingSpaceSegment ::= SEQUENCE {
+    detectionMetaData           ParkingSpaceDetectionMetaData,
+    detectionReferencePosition  GeoPosition,
+    path                        Path,
+    spacesOnTheLeft             ParkingSegments OPTIONAL,
+    spacesOnTheRight            ParkingSegments OPTIONAL,
+    externalParkingSpaceIds     ExternalParkingSpaceIdentifiers OPTIONAL,
+    ...
+}
+((WITH COMPONENTS {..., spacesOnTheLeft PRESENT}) |
+ (WITH COMPONENTS {..., spacesOnTheRight PRESENT}))
+
+
+/**
+ * This DF represents external ids
+ * 
+ * @field evSEId: Electric Vehicle Supply Equipment Identification, as defined in ISO 15118.
+ * 
+ * @field parkingSpaceId: The identifier of the parking space, as defined in the ParkingSpaceBasic data frame.
+ *
+ * @category:
+ * @revision: Created in V2.1.1
+ */
+ExternalParkingSpaceIdentifiers ::= SEQUENCE {
+    evSEId          IA5String (SIZE(1..36)) OPTIONAL,
+    parkingSpaceId  Identifier2B OPTIONAL,
+    ...
+}
+
+/**
+ * This DF describes a list of subsequent parking space segments
+ *
+ * @category:
+ * @revision: Created in V2.1.1
+*/
+ParkingSegments ::= SEQUENCE SIZE(1..32, ...) OF ParkingSegment
+
+/**
+ * This DF represents a parking space segment
+ *
+ * @field distanceFromLastPoint: The starting point of the segment relative to the previous point.
+ * The distance is measured on the path of the detector vehicle. If the first point is not the same
+ * as the starting point of the path, a space shall be added with status unknown. If the last point is
+ * not the same as the terminating point of the path, a space shall be added with status unknown.
+ *
+ * @field status: The status of the parking space.
+ *
+ * @field timeDelta: The time between the detectionTime and the detection of the current space
+ * @note: D where X is detectionTime and Y is the detection of the current space:
+ * ------Y---------X------>
+ *       |<---D--->|
+ *
+ * @field offsetToPath: Distance between the path of the vehicle and the closest position of 
+ * the parking space to the path.
+ *
+ * @field attributes: Shared attributes of the parking space, such as status, arrangement type, occupancy rules,
+ * and reservation type. These attributes provide key details about the parking space's characteristics.
+ *
+ * @field size: The size dimensions of the parking space, including width and length measurements.
+ *
+ * @category:
+ * @revision: Created in V2.1.1
+ */
+ParkingSegment ::= SEQUENCE {
+    distanceFromLastPoint   StandardLength12b,
+    timeDelta               DeltaTimeTenthOfSecond,
+    offsetToPath            StandardLength1B OPTIONAL,
+    attributes              ParkingSpaceAttributes,
+    size                    ParkingSpaceSize OPTIONAL,
+    ...
+}
+
+/**
+ * This sequence encapsulates shared attributes for parking space entities.
+ *
+ * @field status: The status of the parking space.
+ *
+ * @field arrangementType: The arrangement of the parking space. It is optional to fill this field.
+ *
+ * @field occupancyRule: The occupancy rule of the parking space. It is optional to fill this field.
+ *
+ * @field reservationType: The reservation type of the parking space. If it is not filled, then the value is not known.
+ * If it is filled with length 0, then no restriction applies.
+ */
+
+ParkingSpaceAttributes ::= SEQUENCE {
+    status                  ParkingSpaceStatus,
+    arrangementType         ParkingAreaArrangementType OPTIONAL,
+    occupancyRule           ParkingOccupancyInfo OPTIONAL,
+    reservationType         SEQUENCE (SIZE(0..3,...)) OF ParkingReservationType OPTIONAL,
+    ...
+}
+
+/**
+ * This sequence encapsulates the size dimensions of a parking space.
+ *
+ * @field observedWidth: The observed width of the physical space available for parking measured perpendicular
+ * to the anticipated orientation of the parking vehicle.
+ *
+ * @field observedLength: The observed length of the physical space available for parking measured
+ * in the direction of the parking vehicle.
+ *
+ * @field nominalWidth: The width of a parking space. This field indicates the length between
+ * the center of the width markings, if there are any.
+ *
+ * @field nominalLength: The length of a parking space. This field indicates the length between
+ * the center of the length markings, if there are any.
+ */
+
+ParkingSpaceSize ::= SEQUENCE {
+    observedWidth           ObjectDimension OPTIONAL,
+    observedLength          ObjectDimension OPTIONAL,
+    nominalWidth            ObjectDimension OPTIONAL,
+    nominalLength           ObjectDimension OPTIONAL
+}
+
+
+END

@@ -1,0 +1,383 @@
+MVM-PDU-Descriptions {
+  itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (103882) mvm (4) major-version-1 (1) minor-version-1(1)
+}
+
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN  -- Marshalling Vehicle Message
+
+IMPORTS
+
+RollingCounter, ProprietaryExtensionField, GearEnum, DirectionIndicatorEnum, MotorSystemEnum, Centimetre, RadPerSecond, HighResCurvature, WaypointIndex, Pose, SystemManagementData, Description, AvmE2EProtection, VidVehicleStateEnum , UInt8, UInt16, UInt32, UInt64, Millisecond16, SafetyViolationsEnum 
+FROM AVM-Commons {
+  itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (103882) avpCommons (5) major-version-1 (1) minor-version-1(1)
+} -- WITH SUCCESSORS
+
+ItsPduHeader, TimestampIts, VehicleMass, VelocityComponentValue
+FROM ETSI-ITS-CDD {
+  itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) 102894 cdd (2) major-version-4 (4) minor-version-1 (1)
+} -- WITH SUCCESSORS
+;
+
+/** 
+ * This type represents the MVM PDU.
+ *
+ * It shall include the following components: 
+ *
+ * @field header: The header of the MVM PDU.
+ *
+ * @field e2eProtection: A mandatory container for E2E Protection by Autosar Profile 4.
+ *
+ * @field mvm: The payload of the MVM PDU.
+*/
+MVM ::= SEQUENCE {
+-- WS Header dissected as part of ITS common code
+--  header ItsPduHeader,
+  e2eProtection AvmE2EProtection,           
+  mvm Mvm
+}
+
+/**
+  * This type represents the optional container added to the MVM message mainly as a surrogate for missing static vehicle data that RO will possibly need.  
+  *
+  * It includes the following components: 
+  *
+  * @field mvmDataControlField: It contains specific Control Data for @ref MVM   
+  * 
+  * @field systemManagementData: It contains system management data, i.e. identification labels   				
+  * 
+  * @field vehicleState: Relevant vehicle state information.
+  * 
+  * @field vidResponse: Represents the current vehicle identification status.
+  * 
+  * @field safetyTimeSyncResponse: Represents a functional safety time related container.
+  * 
+  * @field safeVehicleTypeConfirmation: Represents a functional safety related container.
+  * 
+  * @field vehicleError: Error information. Depending on the given error, the infrastructure either tries to resolve the issue or aborts the mission.
+  * 
+  * @field vehicleSafetyFeedback: Represents relevant safety information from vehicle.
+  * 
+  * @field vehicleProperties: Represents vehicle-specific data elements as feedback from vehicle to external system.
+  * 
+  * @field oemSpecific: Represents an OEM specific 16 bit field for special purposes.
+  */
+Mvm ::= SEQUENCE {
+  mvmDataControlField MVMDataControlField OPTIONAL,
+  systemManagementData SystemManagementData OPTIONAL,		              					   						
+  vehicleState VehicleState OPTIONAL,                 						
+  vidResponse VidResponse OPTIONAL, 								
+  safetyTimeSyncResponse SafetyTimeSyncResponse OPTIONAL,			
+  safeVehicleTypeConfirmation SafeVehicleTypeConfirmation OPTIONAL,	
+  vehicleError VehicleError OPTIONAL,        						
+  vehicleSafetyFeedback VehicleSafetyFeedback OPTIONAL, 			
+  vehicleProperties VehicleProperties OPTIONAL,         			 							
+  ...                                                           
+}
+
+/** 
+ * This type represents a container of specific Control Data for @ref MVM.
+ *
+ * It shall include the following components: 
+ *
+ * @field mvmGenerationTime: the time at which the mvm container was fully assembled.
+ *
+ * @field rollingCounterFromMim: It serves as a mirror of the rolling counter that was 
+ *        received with the latest MIM of the corresponding vehicle. 
+ *
+ * @field proprietaryExtensionField: This data element defines optionally 2 bytes are used to carry
+ *        specific information or request from a specific OEM vehicle to the RO system .
+ */
+MVMDataControlField ::= SEQUENCE {
+  mvmGenerationTime  TimestampIts OPTIONAL,
+  rollingCounterFromMim SEQUENCE (SIZE(0..10)) OF RollingCounter,             		
+  proprietaryExtensionField ProprietaryExtensionField OPTIONAL,             	
+  ...
+}
+
+/**
+  * This type represents the container theat carries signals about the actual status of the vehicle's condition with reference to the driving task. This return signals from the vehicle is usable in the RO system for correction and refinement of the vehicle motion control VMC.
+  *
+  * It includes the following components: 
+  *
+  * @field vehicleStateGenerationTime: Checks on the data freshness on receive side. 
+  * 
+  * @field operationMode: The current operation mode or state of the vehicle.
+  * 
+  * @field gearState: Direction in which the vehicle is currently driving or about to drive.
+  *
+  * @field directionIndicatorState: State of vehicle blinking and direction indication
+  * 
+  * @field parkingBrakeState: Status of the vehicle's electric parking brake system.
+  *
+  * @field motorSystemState: State of vehicle's propulsion motor system
+  * 
+  * @field currentVelocity: Current vehicle velocity. Negative when driving backwards.
+  * 
+  * @field currentCurvature: Current vehicle curvature.
+  * 
+  * @field secureStandstill: True if the vehicle is currently in secure standstill (i.e. standstill and secured against rolling, even when vehicle is powered down and even on ramps).
+  * 
+  * @field idxLastWayPoint: Index of last WayPoint that has been received from infrastucture. 0 if not applicable.
+  * 
+  * @field localizedPose: The current vehicle pose estimated by the vehicle. (Usually close to the pose estimated by the RO, prediction by the vehicle) 
+*/
+VehicleState ::= SEQUENCE {
+  vehicleStateGenerationTime  TimestampIts OPTIONAL, 
+  operationMode OperationModeEnum,                    
+  gearState GearEnum, 
+  directionIndicatorState DirectionIndicatorEnum,  
+  parkingBrakeState ParkingBrakeStateEnum,    
+  motorSystemState MotorSystemEnum,                       
+  currentVelocity VelocityComponentValue,                
+  currentCurvature HighResCurvature,                 
+  secureStandstill BOOLEAN,                          
+  idxLastWayPoint WaypointIndex OPTIONAL,           
+  localizedPose Pose OPTIONAL                     
+}
+
+/**
+  * This type represents the optional container supporting a key exchange process that allows the two participants to agree on a secret seed. Note: It is assumed that the communication between the participants is authenticated (payloads are signed). The proposed key exchange is for safety only. It does not contribute to security.
+  *
+  * It includes the following components: 
+  * 
+  * @field  vidVehicleState: The current vehicle identification state.
+  * 
+  * @field  vidVehiclePublicKey: Public Key used by vehicle to derive vehicle identification secret.
+*/
+VidResponse ::= SEQUENCE {
+ vidVehicleState VidVehicleStateEnum, 				  
+ vidVehiclePublicKey UInt64 						
+}
+
+/**
+  * This type represents the optional container supporting the calculation of the ITS timestamp given in the expirationTime data element from the DrivingPermission container in the MIM message.
+  *
+  * It includes the following components: 
+  * 
+  * @field challenge: Challenge received in the SafetyTimeSyncRequest message.
+  * 
+  * @field vehicleSafetyClockReceiveTimestamp: Time of the Vehicle Safety Clock when SafetyTimeSyncRequest arrived in the vehicle.
+  * 
+  * @field vehicleSafetyClockTransmitTimestamp: Time of the Vehicle Safety Clock when this response left for the RV.
+  * 
+  * @field checksum: See safety checksum calculation.
+*/
+SafetyTimeSyncResponse ::= SEQUENCE {
+  challenge UInt16,                           			
+  vehicleSafetyClockReceiveTimestamp TimestampIts,		
+  vehicleSafetyClockTransmitTimestamp TimestampIts,		
+  checksum UInt32                             			
+}
+
+/**
+  * This type represents the optional container supporting a safe confirmation by the Subject Vehicle.
+  *
+  * It includes the following components: 
+  * 
+  * @field  vehicleType: Vehicle type identifier.
+  *
+  * @field safetyProfile: VehicleBackend and OperatorBackend negotiate which version of an interface specification 
+  *        or which profile is to be used for the communication between RO and Vehicle. 
+  * 
+  * @field  checksum: Safety checksum calculation.
+*/
+SafeVehicleTypeConfirmation ::= SEQUENCE {
+  vehicleType IA5String (SIZE(1..32)), 	
+  safetyProfile IA5String (SIZE(1..32)),
+  checksum UInt32                   	
+}
+
+/**
+  * This type represents the optional container data carrier and is added to the MVM message in case an error appears during VMC of the vehicle. 
+  *
+  * It includes the following components: 
+  * 
+  * @field time: Timestamp when the error occurred.
+  * 
+  * @field vehCode: Depending on the given error, the infrastructure either tries to resolve the issue or aborts the mission, saves this message for logging and forwards its content to the backend.
+  * 
+  * @field customCode: Customer specific error code. The infrastructure won't further interpret this value.
+  * 
+  * @field description: optional description of the error with further details.
+*/
+VehicleError ::= SEQUENCE {
+  time TimestampIts,    			
+  vehCode VehCodeEnum,  		
+  customCode UInt8,     				
+  description Description OPTIONAL		
+}
+
+/**
+  * Up to 20 elements of @ref VehicleSafetyFeedbackContainer for down to 5 ms monitoring, logging and debugging.
+*/
+VehicleSafetyFeedback ::= SEQUENCE (SIZE(1..20)) OF VehicleSafetyFeedbackContainer   
+
+/**
+  * This type represents the optional container added to the MVM message mainly as a surrogate for missing static vehicle data that RO will possibly need.  
+  *
+  * It includes the following components: 
+  *
+  * @field remainingTimeToStartBraking: Represents the time which the vehicle is allowed to keep driving until brakes must be engaged. 
+  *
+  * @field safetyViolations: Represents a list of violations which currently lead to stopping the vehicle.
+  *
+  * @field currentVehicleSafetyClockTime: Represents the time when safety component created this container
+  */
+VehicleSafetyFeedbackContainer ::= SEQUENCE {
+  remainingTimeToStartBraking Millisecond16,                                                           
+  safetyViolations SafetyViolationsContainer, 
+  currentVehicleSafetyClockTime TimestampIts  
+}
+
+/**
+  * Up to 5 elements of @ref SafetyViolationsEnum can be reported per cycle.
+*/
+SafetyViolationsContainer ::= SEQUENCE (SIZE(0..5)) OF SafetyViolationsEnum 
+
+/**
+  * This type represents the optional container added to the MVM message mainly as a surrogate for missing static vehicle data that RO will possibly need.  
+  *
+  * It includes the following components: 
+  *
+  * @field basicVehicleClass: It shares the vehicle class information to the RO. 
+  *
+  * @field vehicleLength: Represents the overall vehicle length in (cm).
+  *
+  * @field vehicleWheelbase: Represents the wheelbase value (cm).
+  *
+  * @field vehicleRearOverhang: Represents the rear overhang value (cm). 
+  *
+  * @field vehicleWidth: Represents the overall vehicle width value (cm).  
+  *
+  * @field vehicleTireWidth: Represents a rough vehicle mass value imported fom the CDD.
+  *
+  * @field vehicleTrackWidth: Represents the specified width of tires value (cm). 
+  *
+  * @field vehicleMass: Represents a rough vehicle mass value imported fom the CDD.
+  *
+  * @field vehicleSpeedLimit: Represents the limit value of the vehicle speed according to the use case, unit in (cm/s).   
+  *
+  * @field vehicleCuvatureLimit: Represents the maximum curvature for left and right turning (assumed symmetrical).
+  *
+  * @field vehicleMaxAngularSteeringRate: Represents maximum steering rate for automated operation (rate of road wheel angle).
+  */
+VehicleProperties ::= SEQUENCE {
+  basicVehicleClass BasicVehicleClassEnum,
+  vehicleLength  Centimetre,  
+  vehicleWheelbase  Centimetre,  
+  vehicleRearOverhang  Centimetre,  
+  vehicleWidth  Centimetre,  
+  vehicleTireWidth  Centimetre, 
+  vehicleTrackWidth Centimetre,  
+  vehicleMass VehicleMass,
+  vehicleSpeedLimit  VelocityComponentValue, 
+  vehicleCuvatureLimit  HighResCurvature,   	
+  vehicleMaxAngularSteeringRate RadPerSecond,  
+  ...
+}
+
+/**
+ * Data element ParkingBrakeStateEnum describes the status of the electric parking brake .
+ * It offers the following signal values:
+ * 
+ * - 0 - `unknown`		    - The status of the electric parking brake is not known.
+ * - 1 - `engaging`	      - The parking brake is processing to become engaged .
+ * - 2 - `engaged`		    - The The parking brake is fully engaged .
+ * - 3 - `disengaging`	  - The parking brake is processing to become disengaged .
+ * - 4 - `disengaged`	    - The The parking brake is fully disengaged .
+ */
+ ParkingBrakeStateEnum ::= ENUMERATED {
+  unknown(0),   
+  engaging(1),   
+  engaged(2), 
+  disengaging(3),   	 
+  disengaged(4)
+} 
+
+/**
+  * The data element OperationModeEnum reports the vehicle' general state. It can also be used for logging purposes and forwarding its content to the backend.
+  *
+  * The value shall be set to:
+  * - 0 - `unknown(0)`            - The vehicle operation mode is not defined, 
+  * - 1 - `initializing(1)`  		  - The vehicle is preparing for the mission, but hasn't entered automted mode yet,
+  * - 2 - `prepared(2)`      		  - The vehicle is in automted mode, but currently doesn't follow one of the control interfaces (waypoints, direct control, ...),
+  * - 3 - `driving(3)`       		  - The vehicle is in automted mode and actively follows one of the control interfaces (waypoints, direct control, ...). It hasn't reached the end of the given path yet. Also applies if the vehicle stopped temporarily,
+  * - 4 - `terminating(4)`   		  - The vehicle left automated mode and is terminating related functions,
+  * - 5 - `suspend (5)` 			    - The vehicle is in a critical error state and requires external operator intervention,
+  * - 6 - `tempError (6)`         - The vehicle is in a non-critical error state and is initiating a deceleration into stop and hold, prior to suspend,
+  * - 7 - `humanInControl (7)`    - Manual control of the vehicle has been taken over ,
+  * - 8 - `stationHold (8)`		    - The external mfg./customer environment interlocks have taken over and is holding the vehicle from marshalling.
+  */
+OperationModeEnum ::= ENUMERATED {
+  unknown           (0),
+  initializing      (1),  		
+  prepared          (2),      	
+  driving           (3),       		
+  terminating       (4),   		
+  suspend           (5), 				
+  tempError         (6),           
+  humanInControl    (7), 		
+  stationHold       (8),		    
+  ...
+}
+
+/**
+  * This DE saves this state for logging purposes and forwards its content to the backend.
+  *
+  * The value shall be set to:
+  * - 0 - `unspecified`        		- Any kind of error that is not specified otherwise. Infrastructure aborts the mission,
+  * - 1 - `pathNotDriveable`  		- The vehicle can't follow the given waypoints, based on the given DetectedVehiclePose. Infrastructure tries to plan a different path or aborts the mission otherwise,
+  * - 2 - `onboardVehicleFault` 	- Failure during vehicle onboarding,
+  * - 3 - `communicationFault`		- vehicle internal comms fault,
+  * - 4 - `vehicleEgressFault`	  - Failure during vehicle AVP egress or shutdown process.
+*/
+VehCodeEnum ::= ENUMERATED {
+  unspecified         (0),        		
+  pathNotDriveable    (1),  		
+  onboardVehicleFault (2), 	
+  communicationFault  (3),	
+  vehicleEgressFault  (4),		
+  ...
+}
+
+/**
+  * This data element specified a generic vehicle class that the RO has to cope with.
+  *
+  * The value shall be set to:
+  * - 0 - `none`                    - Not known or unavailable category,
+  * - 1 - `unknown`                 - Does not fit any other category,
+  * - 2 - `special`                 - Special use,
+  * - 3 - `moto`                    - Motorcycle,
+  * - 4 - `car`                     - Passenger car,
+  * - 5 - `carOther`                - Four tire single units,
+  * - 6 - `bus`                     - Buses,
+  * - 7 - `axleCnt2`                - Two axle, six tire single units,
+  * - 8 - `axleCnt3`                - Three axle, single units,
+  * - 9 - `axleCnt4`                - Four or more axle, single unit,
+  * - 10 - `axleCnt4Trailer`        - Four or less axle, single trailer,
+  * - 11 - `axleCnt5Trailer`        - Five or less axle, single trailer,
+  * - 12 - `axleCnt6Trailer`        - Six or more axle, single trailer,
+  * - 13 - `axleCnt5MultiTrailer`   - Five or less axle, multi-trailer,
+  * - 14 - `axleCnt6MultiTrailer`   - Six axle, multi-trailer,
+  * - 15 - `axleCnt7MultiTrailer`   - Seven or more axle, multi-trailer.
+*/
+BasicVehicleClassEnum ::= ENUMERATED {
+  none                  (0), 
+  unknown               (1), 
+  special               (2), 
+  moto                  (3),
+  car                   (4),
+  carOther              (5), 
+  bus                   (6), 
+  axleCnt2              (7), 
+  axleCnt3              (8), 
+  axleCnt4              (9), 
+  axleCnt4Trailer       (10), 
+  axleCnt5Trailer       (11), 
+  axleCnt6Trailer       (12), 
+  axleCnt5MultiTrailer  (13), 
+  axleCnt6MultiTrailer  (14), 
+  axleCnt7MultiTrailer  (15), 
+  ...
+}
+
+END

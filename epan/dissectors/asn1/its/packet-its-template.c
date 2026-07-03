@@ -148,6 +148,9 @@ static int proto_its_cpm;
 static int proto_its_imzm;
 static int proto_its_vam;
 static int proto_addgrpc;
+static int proto_its_pim;
+static int proto_its_mim;
+static int proto_its_mvm;
 
 /*
  * DENM SSP
@@ -1089,6 +1092,9 @@ void proto_register_its(void)
     proto_its_cpm = proto_register_protocol_in_name_only("ITS message - CPM", "CPM", "its.message.cpm", proto_its, FT_BYTES);
     proto_its_vam = proto_register_protocol_in_name_only("ITS message - VAM", "VAM", "its.message.vam", proto_its, FT_BYTES);
     proto_its_imzm = proto_register_protocol_in_name_only("ITS message - IMZM", "IMZM", "its.message.imzm", proto_its, FT_BYTES);
+    proto_its_pim = proto_register_protocol_in_name_only("ITS message - PIM", "PIM", "its.message.pim", proto_its, FT_BYTES);
+    proto_its_mim = proto_register_protocol_in_name_only("ITS message - MIM", "MIM", "its.message.mim", proto_its, FT_BYTES);
+    proto_its_mvm = proto_register_protocol_in_name_only("ITS message - MVM", "MVM", "its.message.mvm", proto_its, FT_BYTES);
 
     proto_addgrpc = proto_register_protocol_in_name_only("DSRC Addition Grp C (EU)", "ADDGRPC", "dsrc.addgrpc", proto_its, FT_BYTES);
 
@@ -1133,6 +1139,9 @@ void proto_register_its(void)
 #define ITS_CPM_PROT_VER 2
 #define ITS_VAM_PROT_VER 3
 #define ITS_IMZM_PROT_VER 2
+#define ITS_MIM_PROT_VER 1
+#define ITS_PIM_PROT_VER 2
+#define ITS_MVM_PROT_VER 1
 
 void proto_reg_handoff_its(void)
 {
@@ -1150,27 +1159,37 @@ void proto_reg_handoff_its(void)
     // Enable decode as for its pdu's send via udp
     dissector_add_for_decode_as("udp.port", its_handle);
 
-    dissector_add_uint("its.msg_id", (ITS_DENM_PROT_VER << 16) + ITS_DENM,          create_dissector_handle(dissect_denm_DenmPayload_PDU, proto_its_denm ));
-    dissector_add_uint("its.msg_id", (ITS_DENM_PROT_VERv1 << 16) + ITS_DENM,        create_dissector_handle(dissect_denmv1_DecentralizedEnvironmentalNotificationMessageV1_PDU, proto_its_denmv1 ));
-    dissector_add_uint("its.msg_id", (ITS_CAM_PROT_VER << 16) + ITS_CAM,            create_dissector_handle( dissect_cam_CamPayload_PDU, proto_its_cam ));
-    dissector_add_uint("its.msg_id", (ITS_CAM_PROT_VERv1 << 16) + ITS_CAM,          create_dissector_handle( dissect_camv1_CoopAwarenessV1_PDU, proto_its_camv1));
-    dissector_add_uint("its.msg_id", (ITS_SPATEM_PROT_VERv1 << 16) + ITS_SPATEM,    create_dissector_handle( dissect_dsrc_SPAT_PDU, proto_its_spatemv1 ));
-    dissector_add_uint("its.msg_id", (ITS_SPATEM_PROT_VER << 16) + ITS_SPATEM,      create_dissector_handle( dissect_dsrc_SPAT_PDU, proto_its_spatem ));
-    dissector_add_uint("its.msg_id", (ITS_MAPEM_PROT_VERv1 << 16) + ITS_MAPEM,      create_dissector_handle( dissect_dsrc_MapData_PDU, proto_its_mapemv1 ));
-    dissector_add_uint("its.msg_id", (ITS_MAPEM_PROT_VER << 16) + ITS_MAPEM,        create_dissector_handle( dissect_dsrc_MapData_PDU, proto_its_mapem ));
-    dissector_add_uint("its.msg_id", (ITS_IVIM_PROT_VERv1 << 16) + ITS_IVIM,        create_dissector_handle( dissect_ivi_IviStructure_PDU, proto_its_ivimv1 ));
-    dissector_add_uint("its.msg_id", (ITS_IVIM_PROT_VER << 16) + ITS_IVIM,          create_dissector_handle( dissect_ivi_IviStructure_PDU, proto_its_ivim ));
-    dissector_add_uint("its.msg_id", ITS_RFU1  ,                                    create_dissector_handle( dissect_evrsr_EV_RSR_MessageBody_PDU, proto_its_evrsr ));
-    dissector_add_uint("its.msg_id", (ITS_SREM_PROT_VER << 16) + ITS_SREM,          create_dissector_handle( dissect_dsrc_SignalRequestMessage_PDU, proto_its_srem ));
-    dissector_add_uint("its.msg_id", (ITS_SSEM_PROT_VER << 16) + ITS_SSEM,          create_dissector_handle( dissect_dsrc_SignalStatusMessage_PDU, proto_its_ssem ));
-    dissector_add_uint("its.msg_id", (ITS_RTCMEM_PROT_VERv1 << 16) + ITS_RTCMEM,    create_dissector_handle( dissect_dsrc_RTCMcorrections_PDU, proto_its_rtcmemv1));
-    dissector_add_uint("its.msg_id", (ITS_RTCMEM_PROT_VER << 16) + ITS_RTCMEM,      create_dissector_handle(dissect_dsrc_RTCMcorrections_PDU, proto_its_rtcmem));
-    dissector_add_uint("its.msg_id", ITS_EVCSN,                                     create_dissector_handle( dissect_evcsn_EVChargingSpotNotificationPOIMessage_PDU, proto_its_evcsn ));
-    dissector_add_uint("its.msg_id", (ITS_TIS_TPG_PROT_VER << 16) + ITS_RFU2,       create_dissector_handle( dissect_tistpg_TisTpgTransaction_PDU, proto_its_tistpg ));
-    dissector_add_uint("its.msg_id", (ITS_CPM_PROT_VERv1 << 16) + ITS_CPM,          create_dissector_handle(dissect_cpmv1_CollectivePerceptionMessagev1_PDU, proto_its_cpmv1));
-    dissector_add_uint("its.msg_id", (ITS_CPM_PROT_VER << 16) + ITS_CPM,            create_dissector_handle(dissect_cpm_CpmPayload_PDU, proto_its_cpm));
-    dissector_add_uint("its.msg_id", (ITS_IMZM_PROT_VER << 16) + ITS_IMZM,          create_dissector_handle(dissect_imzm_InterferenceManagementZoneMessage_PDU, proto_its_imzm));
-    dissector_add_uint("its.msg_id", (ITS_VAM_PROT_VER << 16) + ITS_VAM,            create_dissector_handle(dissect_vam_VruAwareness_PDU, proto_its_vam));
+    dissector_add_uint("its.msg_id", (ITS_DENM_PROT_VER << 16) + ITS_DENM,          /* denm    (1) */create_dissector_handle(dissect_denm_DenmPayload_PDU, proto_its_denm));
+    dissector_add_uint("its.msg_id", (ITS_DENM_PROT_VERv1 << 16) + ITS_DENM,        /* denm    (1) */create_dissector_handle(dissect_denmv1_DecentralizedEnvironmentalNotificationMessageV1_PDU, proto_its_denmv1));
+    dissector_add_uint("its.msg_id", (ITS_CAM_PROT_VER << 16) + ITS_CAM,            /* cam     (2) */create_dissector_handle( dissect_cam_CamPayload_PDU, proto_its_cam ));
+    dissector_add_uint("its.msg_id", (ITS_CAM_PROT_VERv1 << 16) + ITS_CAM,          /* cam     (2) */create_dissector_handle( dissect_camv1_CoopAwarenessV1_PDU, proto_its_camv1));
+                                                                                    /* poim    (3) */
+    dissector_add_uint("its.msg_id", (ITS_SPATEM_PROT_VERv1 << 16) + ITS_SPATEM,    /*spatem   (4) */create_dissector_handle(dissect_dsrc_SPAT_PDU, proto_its_spatemv1));
+    dissector_add_uint("its.msg_id", (ITS_SPATEM_PROT_VER << 16) + ITS_SPATEM,      /*spatem   (4) */create_dissector_handle( dissect_dsrc_SPAT_PDU, proto_its_spatem ));
+    dissector_add_uint("its.msg_id", (ITS_MAPEM_PROT_VERv1 << 16) + ITS_MAPEM,      /* mapem   (5) */create_dissector_handle(dissect_dsrc_MapData_PDU, proto_its_mapemv1));
+    dissector_add_uint("its.msg_id", (ITS_MAPEM_PROT_VER << 16) + ITS_MAPEM,        /* mapem   (5) */create_dissector_handle( dissect_dsrc_MapData_PDU, proto_its_mapem ));
+    dissector_add_uint("its.msg_id", (ITS_IVIM_PROT_VERv1 << 16) + ITS_IVIM,        /* ivim    (6) */create_dissector_handle(dissect_ivi_IviStructure_PDU, proto_its_ivimv1));
+    dissector_add_uint("its.msg_id", (ITS_IVIM_PROT_VER << 16) + ITS_IVIM,          /* ivim    (6) */create_dissector_handle( dissect_ivi_IviStructure_PDU, proto_its_ivim ));
+    dissector_add_uint("its.msg_id", ITS_RFU1  ,                                    /* rfu1    (7) */create_dissector_handle(dissect_evrsr_EV_RSR_MessageBody_PDU, proto_its_evrsr));
+    dissector_add_uint("its.msg_id", (ITS_TIS_TPG_PROT_VER << 16) + ITS_RFU2,       /* rfu2    (8) */create_dissector_handle(dissect_tistpg_TisTpgTransaction_PDU, proto_its_tistpg));
+    dissector_add_uint("its.msg_id", (ITS_SREM_PROT_VER << 16) + ITS_SREM,          /* srem    (9) */create_dissector_handle(dissect_dsrc_SignalRequestMessage_PDU, proto_its_srem));
+    dissector_add_uint("its.msg_id", (ITS_SSEM_PROT_VER << 16) + ITS_SSEM,          /* ssem   (10) */create_dissector_handle(dissect_dsrc_SignalStatusMessage_PDU, proto_its_ssem));
+    dissector_add_uint("its.msg_id", ITS_EVCSN,                                     /* evcsn  (11) */create_dissector_handle(dissect_evcsn_EVChargingSpotNotificationPOIMessage_PDU, proto_its_evcsn));
+                                                                                    /* saem   (12) */
+    dissector_add_uint("its.msg_id", (ITS_RTCMEM_PROT_VERv1 << 16) + ITS_RTCMEM,    /* rtcmem (13) */create_dissector_handle(dissect_dsrc_RTCMcorrections_PDU, proto_its_rtcmemv1));
+    dissector_add_uint("its.msg_id", (ITS_RTCMEM_PROT_VER << 16) + ITS_RTCMEM,      /* rtcmem (13) */create_dissector_handle(dissect_dsrc_RTCMcorrections_PDU, proto_its_rtcmem));
+    dissector_add_uint("its.msg_id", (ITS_CPM_PROT_VERv1 << 16) + ITS_CPM,          /* cpm    (14) */create_dissector_handle(dissect_cpmv1_CollectivePerceptionMessagev1_PDU, proto_its_cpmv1));
+    dissector_add_uint("its.msg_id", (ITS_CPM_PROT_VER << 16) + ITS_CPM,            /* cpm    (14) */create_dissector_handle(dissect_cpm_CpmPayload_PDU, proto_its_cpm));
+    dissector_add_uint("its.msg_id", (ITS_IMZM_PROT_VER << 16) + ITS_IMZM,          /* imzm   (15) */create_dissector_handle(dissect_imzm_InterferenceManagementZoneMessage_PDU, proto_its_imzm));
+    dissector_add_uint("its.msg_id", (ITS_VAM_PROT_VER << 16) + ITS_VAM,            /* vam    (16) */create_dissector_handle(dissect_vam_VruAwareness_PDU, proto_its_vam));
+
+    /* dsm    (17) */
+
+    dissector_add_uint("its.msg_id", (ITS_MIM_PROT_VER << 16) + ITS_MIM,            /* mim    (18) */create_dissector_handle(dissect_mim_MIM_PDU, proto_its_mim));
+    dissector_add_uint("its.msg_id", (ITS_MVM_PROT_VER << 16) + ITS_MVM,            /* mvm    (19) */create_dissector_handle(dissect_mvm_MVM_PDU, proto_its_mvm));
+    /* mcm    (20) */
+
+    dissector_add_uint("its.msg_id", (ITS_PIM_PROT_VER << 16) + ITS_PIM,            /* pim    (21) */create_dissector_handle(dissect_pim_PimPayload_PDU, proto_its_pim));
 
     /* Missing definitions: ITS_POI, ITS_SAEM */
 
