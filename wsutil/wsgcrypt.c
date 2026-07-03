@@ -128,7 +128,7 @@ size_t rsa_decrypt_inplace(const unsigned len, unsigned char* data, gcry_sexp_t 
 		goto out;
 	}
 
-	/* write plain text to buffer provided to us */
+	/* write plaintext to buffer provided to us */
         memcpy(data, text, decr_len);
 
 out:
@@ -183,7 +183,7 @@ size_t rsa_decrypt(const unsigned len, const unsigned char* data, uint8_t** plai
 		goto out;
 	}
 
-	/* write plain text to newly allocated buffer */
+	/* write plaintext to newly allocated buffer */
 	*plain = g_memdup2(text, decr_len);
 
 out:
