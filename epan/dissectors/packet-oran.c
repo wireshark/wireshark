@@ -528,6 +528,7 @@ static int hf_oran_bfws_symbols_since_defined;
 
 static int hf_oran_corresponding_cplane_frame;
 static int hf_oran_corresponding_cplane_frame_time_delta;
+static int hf_oran_corresponding_uplane_frame;
 
 
 /* Convenient fields for filtering, mostly shown as hidden */
@@ -1913,6 +1914,13 @@ static uint32_t make_flow_key(packet_info *pinfo, uint16_t eaxc_id, uint8_t plan
 /* Table maintained on first pass from flow_key(uint32_t) -> flow_state_t* */
 static wmem_tree_t *flow_states_table;
 
+typedef struct {
+    uint32_t frame_number;
+    uint16_t sectionId;
+    uint32_t gap_in_usecs;
+    /* TODO: could add PRB, symbol ranges here too? */
+} corresponding_uplane_frame;
+
 /* Table consulted on subsequent passes: frame_num -> flow_result_t* */
 static wmem_tree_t *flow_results_table;
 
@@ -1926,6 +1934,8 @@ typedef struct {
     /* Frame only covers one direction */
     wmem_tree_t *expected_sections;
 
+    /* List of u-plane frames (corresponding_uplane_frame*) corresponding to a c-plane frame */
+    wmem_list_t *u_plane_frames;
 } flow_result_t;
 
 
@@ -5994,6 +6004,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
             result->unexpected_seq_number = true;
             result->expected_sequence_number = state->next_expected_sequence_number[direction];
             result->previous_frame = state->last_frame[direction];
+            result->u_plane_frames = wmem_list_new(wmem_file_scope());
             wmem_tree_insert32(flow_results_table, pinfo->num, result);
         }
         /* Update conversation info */
@@ -6922,6 +6933,18 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                                tvb_reported_length_remaining(tvb, offset));
     }
 
+    if (PINFO_FD_VISITED(pinfo)) {
+        /* Show list of frames that have corresponding U-plane data */
+        wmem_list_frame_t *list_frame;
+        for (list_frame = wmem_list_head(result->u_plane_frames); list_frame != NULL; list_frame = wmem_list_frame_next(list_frame)) {
+            corresponding_uplane_frame *frame = wmem_list_frame_data(list_frame);
+            proto_item *uplane_frame_ti = proto_tree_add_uint(oran_tree, hf_oran_corresponding_uplane_frame, tvb, 0, 0,
+                                                              frame->frame_number);
+            proto_item_append_text(uplane_frame_ti, " sectionId:%u (in %uus)", frame->sectionId, frame->gap_in_usecs);
+            proto_item_set_generated(uplane_frame_ti);
+        }
+    }
+
     return tvb_captured_length(tvb);
 }
 
@@ -7248,7 +7271,6 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     int nseconds_between_packets =
                           pinfo->abs_ts.nsecs - timing->first_frame_time.nsecs;
 
-
                     /* Round to nearest microsecond. */
                     uint32_t total_gap = (seconds_between_packets*1000000) +
                                          ((nseconds_between_packets+500) / 1000);
@@ -7356,7 +7378,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         section_details_t *section_details = NULL;
 
-        /* For DL, lookup corresponding C-plane frame/info */
+        /* Lookup corresponding C-plane frame/info */
         if (link_planes_together) {
             if (cplane_state != NULL) {
 
@@ -7408,6 +7430,24 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     if (total_gap > 0) {
                         proto_item *cplane_delta_ti = proto_tree_add_uint(section_tree, hf_oran_corresponding_cplane_frame_time_delta, tvb, 0, 0, (uint32_t)total_gap);
                         proto_item_set_generated(cplane_delta_ti);
+                    }
+
+                    if (!PINFO_FD_VISITED(pinfo)) {
+                        /* Look up 'result' for c-plane frame, and tell it about this frame.. */
+                        flow_result_t *cplane_result = wmem_tree_lookup32(flow_results_table, section_details->frame_number);
+                        if (!cplane_result) {
+                            cplane_result = wmem_new0(wmem_file_scope(), flow_result_t);
+                            cplane_result->u_plane_frames = wmem_list_new(wmem_file_scope());
+                            wmem_tree_insert32(flow_results_table, section_details->frame_number, cplane_result);
+                        }
+                        /* TODO: add more details? If move this further down, can include prb and symbol info.. */
+
+                        corresponding_uplane_frame *details = wmem_new(wmem_file_scope(), corresponding_uplane_frame);
+                        details->frame_number = pinfo->num;
+                        details->gap_in_usecs = (uint32_t)total_gap;
+                        details->sectionId = sectionId;
+
+                        wmem_list_append(cplane_result->u_plane_frames, details);
                     }
                 }
             }
@@ -10640,11 +10680,17 @@ proto_register_oran(void)
             FT_FRAMENUM, BASE_NONE,
             FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0, NULL, HFILL}
         },
-        /* Time since corresponding C-plane frame for DL U-plane */
+        /* Time since corresponding C-plane frame for U-plane */
         { &hf_oran_corresponding_cplane_frame_time_delta,
           { "Time since C-plane frame", "oran_fh_cus.cplane-frame-time-delta",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             "Microseconds since C-plane frame", HFILL}
+        },
+        /* Corresponding U-plane frame for C-plane */
+        { &hf_oran_corresponding_uplane_frame,
+          { "U-plane frame", "oran_fh_cus.uplane-frame",
+            FT_FRAMENUM, BASE_NONE,
+            FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0, NULL, HFILL}
         },
 
         /* Reassembly */
