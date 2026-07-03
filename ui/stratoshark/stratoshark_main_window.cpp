@@ -7,6 +7,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#define WS_LOG_DOMAIN LOG_DOMAIN_QTUI
+
 #include "main_application.h"
 #include "stratoshark_main_window.h"
 #include <ui/qt/widgets/capture_card_widget.h>

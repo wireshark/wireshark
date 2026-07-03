@@ -7,6 +7,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#define WS_LOG_DOMAIN LOG_DOMAIN_QTUI
+
 #include "main_application.h"
 #include "wireshark_main_window.h"
 #include "in_packet_search.h"
