@@ -534,7 +534,7 @@ static int st_node_resps_by_srv_addr = -1;
 
 /* Parse HTTP path sub components RFC3986 Ch 3.3, 3.4 */
 void
-http_add_path_components_to_tree(tvbuff_t* tvb, packet_info* pinfo _U_, proto_item* item, unsigned offset, unsigned length)
+http_add_path_components_to_tree(tvbuff_t* tvb, packet_info* pinfo, proto_item* item, unsigned offset, unsigned length)
 {
 	proto_item* ti;
 	proto_tree* uri_tree;
@@ -582,6 +582,23 @@ http_add_path_components_to_tree(tvbuff_t* tvb, packet_info* pinfo _U_, proto_it
 			parameter_offset = end_offset;
 		}
 		proto_tree_add_item(query_tree, hf_http_request_query_parameter, tvb, offset, parameter_offset - offset, ENC_ASCII);
+
+		// RFC 8484 - DNS Queries over HTTPS (DoH)
+		if (!tvb_strneql(tvb, offset, "dns=", 4)) {
+			unsigned parameter_value_length = parameter_offset - offset - 4;
+			unsigned expected_dns_tvb_length = ((parameter_value_length) / 4) * 3;
+			tvbuff_t *dns_tvb = base64uri_tvb_to_new_tvb(tvb, offset + 4, parameter_value_length);
+			if (tvb_reported_length(dns_tvb) == expected_dns_tvb_length &&
+				expected_dns_tvb_length >= 30) {  // Check if parameter value was likely base64uri encoded DNS query
+				add_new_data_source(pinfo, dns_tvb, "DNS query");
+				const char *save_match_string = pinfo->match_string;
+				pinfo->match_string = "application/dns-message";  // The DNS dissector needs this for DOH
+				dissector_try_string_with_data(media_type_subdissector_table, "application/dns-message",
+					dns_tvb, pinfo, query_tree, true, NULL);
+				pinfo->match_string = save_match_string;
+			}
+		}
+
 		offset = parameter_offset + 1;
 	}
 }
