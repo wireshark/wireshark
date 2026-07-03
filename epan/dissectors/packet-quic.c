@@ -2073,12 +2073,14 @@ again:
     }
 
     bool has_gap = false;
-    quic_retrans_key *tmp_key = wmem_new(pinfo->pool, quic_retrans_key);
-    tmp_key->num = pinfo->num;
-    tmp_key->offset = offset;
-    tmp_key->pkt_number = stream_info->stream_offset;
 
-    /* if (! REASSEMBLE_UNTIL_FIN ) */ {
+    /* Only do retransmission & gap checks on the whole STREAM frame. */
+    if (first_pdu /* && ! REASSEMBLE_UNTIL_FIN */ ) {
+        quic_retrans_key *tmp_key = wmem_new(pinfo->pool, quic_retrans_key);
+        tmp_key->num = pinfo->num;
+        tmp_key->offset = offset;
+        tmp_key->pkt_number = stream_info->stream_offset;
+
         if (!PINFO_FD_VISITED(pinfo)) {
             if (stream->inorder_offset < seq) {
                 /* A gap. */
