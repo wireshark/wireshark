@@ -25,7 +25,7 @@ If you or your organization would like to contribute or become a sponsor, please
 
 The following changes have been made since version 4.7.1:
 
-* Nothing of note.
+* Follow Stream is implemented for HTTP/3. wsbuglink:20610[].
 
 The following changes have been made since version 4.7.0:
 

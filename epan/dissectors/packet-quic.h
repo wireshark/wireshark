@@ -12,7 +12,7 @@
 
 #include "ws_symbol_export.h"
 
-#include <glibconfig.h>
+#include <epan/tap.h>
 #include <wsutil/wsgcrypt.h>
 
 #ifdef __cplusplus
@@ -125,6 +125,28 @@ quic_get_stream_id_ge(unsigned streamid, unsigned sub_stream_id, unsigned *sub_s
  */
 WS_DLL_PUBLIC bool
 quic_conn_data_get_conn_client_dcid_initial(struct _packet_info *pinfo, quic_cid_t *dcid);
+
+/**
+ * Data used to allow "Follow QUIC Stream" functionality
+ * Also used by HTTP/3
+ */
+typedef struct quic_follow_tap_data {
+    tvbuff_t *tvb;
+    uint64_t stream_id;
+    bool from_server;
+} quic_follow_tap_data_t;
+
+extern bool
+quic_get_sub_stream_id(unsigned streamid, unsigned sub_stream_id, bool le, unsigned *sub_stream_id_out);
+
+extern char *
+quic_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, unsigned *stream, unsigned *sub_stream);
+
+extern char *
+quic_follow_index_filter(unsigned stream, unsigned sub_stream);
+
+extern tap_packet_status
+follow_quic_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_);
 
 #ifdef __cplusplus
 }

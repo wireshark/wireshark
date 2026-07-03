@@ -27,10 +27,12 @@
 #include <string.h>
 
 #include <epan/wmem_scopes.h>
+#include <epan/addr_resolv.h>
 #include <epan/conversation_table.h>
 #include <epan/decode_as.h>
 #include <epan/exceptions.h>
 #include <epan/expert.h>
+#include <epan/follow.h>
 #include <epan/packet.h>
 #include <epan/proto_data.h>
 #include <epan/reassemble.h>
@@ -39,6 +41,7 @@
 
 #include <epan/dissectors/packet-http.h> /* for getting status reason-phrase */
 #include <epan/dissectors/packet-quic.h>
+#include <epan/dissectors/packet-udp.h>
 
 #include <wsutil/pint.h>
 #include <wsutil/ws_assert.h>
@@ -54,6 +57,8 @@ void proto_register_http3(void);
 
 static dissector_handle_t http3_handle;
 static dissector_handle_t http3_datagram_handle;
+
+static int http3_follow_tap;
 
 #define PROTO_DATA_KEY_HEADER 0
 #define PROTO_DATA_KEY_QPACK 1
@@ -183,6 +188,7 @@ static int hf_http3_datagram_payload;
 
 static expert_field ei_http3_qpack_failed;
 static expert_field ei_http3_prefix_int_failed;
+static expert_field ei_http3_huffman_failed;
 /* HTTP3 dissection EIs */
 static expert_field ei_http3_unknown_stream_type;
 /* Encoded data EIs */
@@ -1202,6 +1208,9 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
                              wmem_array_get_count(header_data->header_fields));
     proto_item_set_generated(ti);
 
+    wmem_strbuf_t *headers_buf = wmem_strbuf_create(pinfo->pool);
+    wmem_strbuf_t *header_buf;
+
     for (unsigned i = 0; i < wmem_array_get_count(header_data->header_fields); ++i) {
         http3_header_field_t    *in;
         proto_item              *ti_named_field;
@@ -1244,7 +1253,13 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
 
         hoffset += header_value_length;
 
-        proto_item_append_text(header, ": %s: %s", header_name, header_value);
+        /* Create a buffer of one header name and value per line to resemble
+         * text-based HTTP for adding to Follow Stream. The header_tvb already
+         * created has the string lengths and lacks newlines. */
+        header_buf = wmem_strbuf_new(pinfo->pool, header_name);
+        wmem_strbuf_append_printf(header_buf, ": %s", header_value);
+        proto_item_append_text(header, ": %s", wmem_strbuf_get_str(header_buf));
+        wmem_strbuf_append_printf(headers_buf, "%s\n", wmem_strbuf_finalize(header_buf));
 
         /* Collect the pseudo-header values to be used later. */
         if (strcmp(header_name, HTTP3_HEADER_NAME_METHOD) == 0) {
@@ -1270,6 +1285,20 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
         }
 
         tvb_offset += in->encoded.len;
+    }
+
+    if (have_tap_listener(http3_follow_tap)) {
+        quic_follow_tap_data_t *follow_data = wmem_new0(pinfo->pool, quic_follow_tap_data_t);
+
+        wmem_strbuf_append(headers_buf, "\n");
+        follow_data->tvb = tvb_new_child_real_data(header_tvb,
+            (const uint8_t*)wmem_strbuf_get_str(headers_buf),
+            (unsigned)wmem_strbuf_get_len(headers_buf),
+            (unsigned)wmem_strbuf_get_len(headers_buf));
+        follow_data->stream_id = http3_stream->id;
+        follow_data->from_server = stream_info->from_server;
+
+        tap_queue_packet(http3_follow_tap, pinfo, follow_data);
     }
 
     /* We have finished constructing the tree for the header fields.
@@ -1549,19 +1578,47 @@ dissect_http3_settings(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http3_tree
  */
 static int
 dissect_http3_priority_update(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http3_tree, unsigned offset,
-                              uint64_t frame_length)
+                              http3_stream_info_t *http3_stream)
 {
-    uint64_t priority_field_value_len;
+    uint64_t element_id;
+    unsigned priority_field_value_len;
     int     lenvar;
 
     proto_tree_add_item_ret_varint(http3_tree, hf_http3_priority_update_element_id, tvb, offset, -1, ENC_VARINT_QUIC,
-                                   NULL, &lenvar);
+                                   &element_id, &lenvar);
     offset += lenvar;
-    priority_field_value_len = frame_length - lenvar;
+    priority_field_value_len = tvb_reported_length_remaining(tvb, offset);
 
-    proto_tree_add_item(http3_tree, hf_http3_priority_update_field_value, tvb, offset, (int)priority_field_value_len,
+    proto_tree_add_item(http3_tree, hf_http3_priority_update_field_value, tvb, offset, priority_field_value_len,
                         ENC_ASCII);
-    offset += (int)priority_field_value_len;
+
+    if (have_tap_listener(http3_follow_tap)) {
+        quic_follow_tap_data_t *follow_data = wmem_new0(pinfo->pool, quic_follow_tap_data_t);
+
+        wmem_strbuf_t *priority_buf = wmem_strbuf_new(pinfo->pool, "priority: ");
+        tvbuff_t *priority_tvb = tvb_new_composite();
+        tvb_composite_append(priority_tvb,
+                             tvb_new_child_real_data(tvb,
+                                (const uint8_t*)wmem_strbuf_get_str(priority_buf),
+                                (unsigned)wmem_strbuf_get_len(priority_buf),
+                                (unsigned)wmem_strbuf_get_len(priority_buf)));
+        tvb_composite_append(priority_tvb, tvb_new_subset_length(tvb, offset, priority_field_value_len));
+        priority_buf = wmem_strbuf_create(pinfo->pool);
+        wmem_strbuf_append_printf(priority_buf, " [Prioritized Element ID %" PRIu64 "]\n", element_id);
+        tvb_composite_append(priority_tvb,
+                             tvb_new_child_real_data(tvb,
+                                (const uint8_t*)wmem_strbuf_get_str(priority_buf),
+                                (unsigned)wmem_strbuf_get_len(priority_buf),
+                                (unsigned)wmem_strbuf_get_len(priority_buf)));
+        tvb_composite_finalize(priority_tvb);
+        follow_data->tvb = priority_tvb;
+        follow_data->stream_id = http3_stream->id;
+        follow_data->from_server = http3_stream->direction;
+
+        tap_queue_packet(http3_follow_tap, pinfo, follow_data);
+    }
+
+    offset += priority_field_value_len;
 
     return offset;
 }
@@ -1574,6 +1631,7 @@ dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     proto_item  *ti_ft, *ti_ft_type, *ti_streamid;
     proto_tree  *ft_tree;
     const char *ft_display_name;
+    bool        use_follow_tap = false;
 
     ti_ft = proto_tree_add_item(tree, hf_http3_frame, tvb, offset, -1, ENC_NA);
     ft_tree = proto_item_add_subtree(ti_ft, ett_http3_frame);
@@ -1616,11 +1674,14 @@ dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     case HTTP3_DATA: { /* TODO: dissect Data Frame */
         tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, payload_length);
         dissect_http3_data(next_tvb, pinfo, ft_tree, 0, stream_info, http3_stream);
+        use_follow_tap = true; // Until decompression is implemented
     } break;
     case HTTP3_HEADERS: {
 #ifdef HAVE_NGHTTP3
         tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, payload_length);
         dissect_http3_headers(next_tvb, pinfo, ft_tree, 0, offset, stream_info, http3_stream);
+#else
+        use_follow_tap = true;
 #endif /* HAVE_NGHTTP3 */
     } break;
     case HTTP3_CANCEL_PUSH: /* TODO: dissect Cancel_Push Frame */
@@ -1639,11 +1700,22 @@ dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
         /* FALLTHROUGH */
     case HTTP3_PRIORITY_UPDATE_PUSH_STREAM: { /* Priority_Update Frame */
         tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, payload_length);
-        dissect_http3_priority_update(next_tvb, pinfo, ft_tree, 0, frame_length);
+        dissect_http3_priority_update(next_tvb, pinfo, ft_tree, 0, http3_stream);
     } break;
     default: /* TODO: add expert_advise */
         break;
     }
+
+    if (use_follow_tap && have_tap_listener(http3_follow_tap)) {
+        quic_follow_tap_data_t *follow_data = wmem_new0(pinfo->pool, quic_follow_tap_data_t);
+
+        follow_data->tvb = tvb_new_subset_length(tvb, offset, payload_length);
+        follow_data->stream_id = http3_stream->id;
+        follow_data->from_server = stream_info->from_server;
+
+        tap_queue_packet(http3_follow_tap, pinfo, follow_data);
+    }
+
     offset += payload_length;
     return offset;
 }
@@ -1742,7 +1814,7 @@ read_qpack_prefixed_integer(tvbuff_t *tvb, unsigned offset, unsigned prefix,
 
 static int
 dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                                   int start_offset, http3_stream_info_t *http3_stream _U_, int *picnt)
+                                   int start_offset, http3_stream_info_t *http3_stream, int *picnt)
 {
     unsigned            end_offset;     /* Sentinel offset past the buffer. */
     tvbuff_t            *decoded_tvb;   /* TVB with the result of decoding the Huffman-encoding strings */
@@ -1754,13 +1826,15 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     icnt            = 0;
     offset          = start_offset;
     end_offset      = start_offset + tvb_captured_length_remaining(tvb, start_offset);
+    wmem_strbuf_t  *follow_buf = wmem_strbuf_create(pinfo->pool);
+    wmem_strbuf_t  *instr_buf;
 
     while (offset < end_offset && can_continue) {
         int         inst_offset;        /* Starting offset of the currently parsed instruction in the tvb */
         int         inst_len;           /* Total length of the instruction */
         unsigned    varint_len;
 
-        proto_item  *opcode_ti;
+        proto_item  *opcode_ti = NULL, *huffman_ti;
         proto_tree  *opcode_tree;
 
         inst_offset     = offset;
@@ -1821,20 +1895,25 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                     tvb, inst_offset, inst_len, name_idx);
 
                 if (val_huffman) {
-                    proto_tree_add_item(opcode_tree, hf_http3_qpack_encoder_opcode_insert_indexed_hval,
+                    huffman_ti = proto_tree_add_item(opcode_tree, hf_http3_qpack_encoder_opcode_insert_indexed_hval,
                         tvb, val_offset, (uint32_t)val_len, ENC_NA);
                     decoded_tvb = tvb_child_uncompress_hpack_huff(tvb, val_offset, (unsigned)val_len);
                     if (decoded_tvb) {
                         add_new_data_source(pinfo, decoded_tvb, "Decoded QPACK Value");
                         proto_tree_add_item_ret_string(opcode_tree, hf_http3_qpack_encoder_opcode_insert_indexed_val,
-                             decoded_tvb,0, tvb_captured_length(decoded_tvb), ENC_NA, pinfo->pool, &val_str);
+                             decoded_tvb, 0, tvb_captured_length(decoded_tvb), ENC_NA, pinfo->pool, &val_str);
+                    } else {
+                        expert_add_info(pinfo, huffman_ti, &ei_http3_huffman_failed);
+                        val_str = (const uint8_t*)"???";
                     }
                 } else {
                     proto_tree_add_item_ret_string(opcode_tree, hf_http3_qpack_encoder_opcode_insert_indexed_val,
-                        tvb,val_offset, (uint32_t)val_len, ENC_NA, pinfo->pool, &val_str);
+                        tvb, val_offset, (uint32_t)val_len, ENC_NA, pinfo->pool, &val_str);
                 }
-                proto_item_set_text(opcode_ti, "INSERT_INDEXED[%" PRIu64 "=%s]",
-                        name_idx, val_str);
+                instr_buf = wmem_strbuf_new(pinfo->pool, "INSERT_INDEXED");
+                wmem_strbuf_append_printf(instr_buf, "[%" PRIu64 "=%s]", name_idx, val_str);
+                proto_item_set_text(opcode_ti, "%s", wmem_strbuf_get_str(instr_buf));
+                wmem_strbuf_append_printf(follow_buf, "%s\n", wmem_strbuf_finalize(instr_buf));
             } else if (opcode & QPACK_OPCODE_INSERT) {
                 unsigned        name_offset     = 0;
                 uint64_t        name_len        = 0;
@@ -1889,13 +1968,16 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 opcode_tree = proto_item_add_subtree(opcode_ti, ett_http3_qpack_opcode);
 
                 if (name_huffman) {
-                    proto_tree_add_item(opcode_tree, hf_http3_qpack_encoder_opcode_insert_hname,
-                        tvb, name_offset,(uint32_t)name_len, ENC_NA);
+                    huffman_ti = proto_tree_add_item(opcode_tree, hf_http3_qpack_encoder_opcode_insert_hname,
+                        tvb, name_offset, (uint32_t)name_len, ENC_NA);
                     decoded_tvb = tvb_child_uncompress_hpack_huff(tvb, name_offset, (unsigned)name_len);
                     if (decoded_tvb) {
                         add_new_data_source(pinfo, decoded_tvb, "Decoded QPACK Name");
                         proto_tree_add_item_ret_string(opcode_tree, hf_http3_qpack_encoder_opcode_insert_name,
                              decoded_tvb, 0, tvb_captured_length(decoded_tvb), ENC_NA, pinfo->pool, &name_str);
+                    } else {
+                        expert_add_info(pinfo, huffman_ti, &ei_http3_huffman_failed);
+                        name_str = (const uint8_t*)"???";
                     }
                 } else {
                     proto_tree_add_item_ret_string(opcode_tree, hf_http3_qpack_encoder_opcode_insert_name,
@@ -1903,20 +1985,26 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 }
 
                 if (val_huffman) {
-                    proto_tree_add_item(opcode_tree, hf_http3_qpack_encoder_opcode_insert_hval,
+                    huffman_ti = proto_tree_add_item(opcode_tree, hf_http3_qpack_encoder_opcode_insert_hval,
                         tvb, val_offset,(uint32_t)val_len, ENC_NA);
                     decoded_tvb = tvb_child_uncompress_hpack_huff(tvb, val_offset, (unsigned)val_len);
                     if (decoded_tvb) {
                         add_new_data_source(pinfo, decoded_tvb, "Decoded QPACK Value");
                         proto_tree_add_item_ret_string(opcode_tree, hf_http3_qpack_encoder_opcode_insert_val,
                              decoded_tvb, 0, tvb_captured_length(decoded_tvb), ENC_NA, pinfo->pool, &val_str);
+                    } else {
+                        expert_add_info(pinfo, huffman_ti, &ei_http3_huffman_failed);
+                        val_str = (const uint8_t*)"???";
                     }
                 } else {
                     proto_tree_add_item_ret_string(opcode_tree, hf_http3_qpack_encoder_opcode_insert_val,
                         tvb, val_offset,(uint32_t)val_len, ENC_NA, pinfo->pool, &val_str);
                 }
 
-                proto_item_set_text(opcode_ti, "INSERT[%s=%s]", name_str, val_str);
+                instr_buf = wmem_strbuf_new(pinfo->pool, "INSERT");
+                wmem_strbuf_append_printf(instr_buf, "[%s=%s]", name_str, val_str);
+                proto_item_set_text(opcode_ti, "%s", wmem_strbuf_get_str(instr_buf));
+                wmem_strbuf_append_printf(follow_buf, "%s\n", wmem_strbuf_finalize(instr_buf));
             } else if (opcode & QPACK_OPCODE_SET_DTABLE_CAP) {
                 uint64_t dynamic_capacity = 0;
 
@@ -1945,7 +2033,10 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 proto_tree_add_uint64(opcode_tree, hf_http3_qpack_encoder_opcode_dtable_cap_val,
                     tvb, inst_offset, inst_len,dynamic_capacity);
 
-                proto_item_set_text(opcode_ti, "DTABLE_CAP[%" PRIu64 "]", dynamic_capacity);
+                instr_buf = wmem_strbuf_new(pinfo->pool, "DTABLE_CAP");
+                wmem_strbuf_append_printf(instr_buf, "[%" PRIu64 "]", dynamic_capacity);
+                proto_item_set_text(opcode_ti, "%s", wmem_strbuf_get_str(instr_buf));
+                wmem_strbuf_append_printf(follow_buf, "%s\n", wmem_strbuf_finalize(instr_buf));
             } else if (opcode == QPACK_OPCODE_DUPLICATE) {
                 uint64_t duplicate_of = 0;
 
@@ -1970,6 +2061,11 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 /* Add the protocol tree items */
                 proto_tree_add_item(tree, hf_http3_qpack_encoder_opcode_duplicate,
                         tvb, inst_offset, inst_len, ENC_NA);
+
+                instr_buf = wmem_strbuf_new(pinfo->pool, "DUPLICATE");
+                wmem_strbuf_append_printf(instr_buf, "[%" PRIu64 "]", duplicate_of);
+                proto_item_set_text(opcode_ti, "%s", wmem_strbuf_get_str(instr_buf));
+                wmem_strbuf_append_printf(follow_buf, "%s\n", wmem_strbuf_finalize(instr_buf));
             } else {
                 ws_debug("Opcode=%" PRIu8 ": UNKNOWN", opcode);
                 can_continue = false;
@@ -1996,6 +2092,19 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             can_continue = false;
         }
         ENDTRY;
+    }
+
+    if (icnt && have_tap_listener(http3_follow_tap)) {
+        quic_follow_tap_data_t *follow_data = wmem_new0(pinfo->pool, quic_follow_tap_data_t);
+
+        follow_data->tvb = tvb_new_child_real_data(tvb,
+            (const uint8_t*)wmem_strbuf_get_str(follow_buf),
+            (unsigned)wmem_strbuf_get_len(follow_buf),
+            (unsigned)wmem_strbuf_get_len(follow_buf));
+        follow_data->stream_id = http3_stream->id;
+        follow_data->from_server = http3_stream->direction;
+
+        tap_queue_packet(http3_follow_tap, pinfo, follow_data);
     }
 
     *picnt = icnt;
@@ -2106,7 +2215,7 @@ dissect_http3_qpack_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 static int
 dissect_http3_qpack_decoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                                   int start_offset, http3_stream_info_t *http3_stream _U_, int *picnt)
+                                   int start_offset, http3_stream_info_t *http3_stream, int *picnt)
 {
     unsigned            end_offset;     /* Sentinel offset past the buffer. */
     volatile bool       can_continue;   /* Flag to indicate that we can parse the next QPACK instruction */
@@ -2117,6 +2226,9 @@ dissect_http3_qpack_decoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     icnt            = 0;
     offset          = start_offset;
     end_offset      = start_offset + tvb_captured_length_remaining(tvb, start_offset);
+
+    wmem_strbuf_t  *follow_buf = wmem_strbuf_create(pinfo->pool);
+    wmem_strbuf_t  *instr_buf;
 
     while (offset < end_offset && can_continue) {
         int         inst_offset;        /* Starting offset of the currently parsed instruction in the tvb */
@@ -2162,8 +2274,12 @@ dissect_http3_qpack_decoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                         tvb, inst_offset, inst_len, ENC_NA);
                 opcode_tree = proto_item_add_subtree(opcode_ti, ett_http3_qpack_opcode);
                 proto_tree_add_uint64(opcode_tree, hf_http3_qpack_decoder_opcode_section_ack_stream_id,
-                        tvb, inst_offset, inst_len,stream_id);
-                proto_item_set_text(opcode_ti, "SECTION_ACK[id=%" PRIu64 "]", stream_id);
+                        tvb, inst_offset, inst_len, stream_id);
+
+                instr_buf = wmem_strbuf_new(pinfo->pool, "SECTION_ACK");
+                wmem_strbuf_append_printf(instr_buf, "[id=%" PRIu64 "]", stream_id);
+                proto_item_set_text(opcode_ti, "%s", wmem_strbuf_get_str(instr_buf));
+                wmem_strbuf_append_printf(follow_buf, "%s\n", wmem_strbuf_finalize(instr_buf));
             } else if (opcode & QPACK_OPCODE_STREAM_CANCEL) {
                 uint64_t stream_id      = 0;
 
@@ -2192,7 +2308,11 @@ dissect_http3_qpack_decoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 opcode_tree = proto_item_add_subtree(opcode_ti, ett_http3_qpack_opcode);
                 proto_tree_add_uint64(opcode_tree, hf_http3_qpack_decoder_opcode_cancel_stream_id,
                         tvb, inst_offset, inst_len,stream_id);
-                proto_item_set_text(opcode_ti, "STREAM_CANCEL[id=%" PRIu64 "]", stream_id);
+
+                instr_buf = wmem_strbuf_new(pinfo->pool, "STREAM_CANCEL");
+                wmem_strbuf_append_printf(instr_buf, "[id=%" PRIu64 "]", stream_id);
+                proto_item_set_text(opcode_ti, "%s", wmem_strbuf_get_str(instr_buf));
+                wmem_strbuf_append_printf(follow_buf, "%s\n", wmem_strbuf_finalize(instr_buf));
             } else if (opcode == QPACK_OPCODE_ICNT_INCREMENT) {
                 uint64_t icnt_inc      = 0;
 
@@ -2221,7 +2341,11 @@ dissect_http3_qpack_decoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 opcode_tree = proto_item_add_subtree(opcode_ti, ett_http3_qpack_opcode);
                 proto_tree_add_uint64(opcode_tree, hf_http3_qpack_decoder_opcode_icnt_increment_value,
                         tvb, inst_offset, inst_len,icnt_inc);
-                proto_item_set_text(opcode_ti, "ICNT_INC[%" PRIu64 "]", icnt_inc);
+
+                instr_buf = wmem_strbuf_new(pinfo->pool, "ICNT_INC");
+                wmem_strbuf_append_printf(instr_buf, "[%" PRIu64 "]", icnt_inc);
+                proto_item_set_text(opcode_ti, "%s", wmem_strbuf_get_str(instr_buf));
+                wmem_strbuf_append_printf(follow_buf, "%s\n", wmem_strbuf_finalize(instr_buf));
             } else {
                 ws_debug("Opcode=%" PRIu8 ": UNKNOWN", opcode);
                 can_continue = false;
@@ -2237,6 +2361,19 @@ dissect_http3_qpack_decoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             can_continue = false;
         }
         ENDTRY;
+    }
+
+    if (icnt && have_tap_listener(http3_follow_tap)) {
+        quic_follow_tap_data_t *follow_data = wmem_new0(pinfo->pool, quic_follow_tap_data_t);
+
+        follow_data->tvb = tvb_new_child_real_data(tvb,
+            (const uint8_t*)wmem_strbuf_get_str(follow_buf),
+            (unsigned)wmem_strbuf_get_len(follow_buf),
+            (unsigned)wmem_strbuf_get_len(follow_buf));
+        follow_data->stream_id = http3_stream->id;
+        follow_data->from_server = http3_stream->direction;
+
+        tap_queue_packet(http3_follow_tap, pinfo, follow_data);
     }
 
     *picnt = icnt;
@@ -3131,6 +3268,10 @@ proto_register_http3(void)
           { "http3.prefix_int.failed", PI_UNDECODED, PI_WARN,
             "Error decoding prefixed integer (too big)", EXPFILL }
         },
+        { &ei_http3_huffman_failed,
+          { "http3.huffman.failed", PI_UNDECODED, PI_WARN,
+            "Error in Huffman decoding", EXPFILL }
+        },
         { &ei_http3_header_encoded_state ,
           { "http3.expert.header.encoded_state", PI_DEBUG, PI_NOTE,
             "HTTP3 header encoded block", EXPFILL }
@@ -3175,6 +3316,12 @@ proto_register_http3(void)
     /* Fill hash table with static headers */
     register_static_headers();
 #endif
+
+    http3_follow_tap = register_tap("http3_follow");
+
+    /* Just use the QUIC functions for now, since the IDs are the same.
+     * This may change once QUIC multipath is supported. */
+    register_follow_stream(proto_http3, "http3_follow", quic_follow_conv_filter, quic_follow_index_filter, udp_follow_address_filter, udp_port_to_display, follow_quic_tap_listener, get_quic_connections_count, quic_get_sub_stream_id);
 }
 
 void

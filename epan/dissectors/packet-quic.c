@@ -398,12 +398,6 @@ typedef struct _quic_follow_stream {
     uint64_t        stream_id;
 } quic_follow_stream;
 
-typedef struct quic_follow_tap_data {
-    tvbuff_t *tvb;
-    uint64_t stream_id;
-    bool from_server;
-} quic_follow_tap_data_t;
-
 typedef struct quic_endpoint {
     address     server_address;
     uint16_t    server_port;
@@ -5513,7 +5507,7 @@ quic_get_stream_id_ge(unsigned streamid, unsigned sub_stream_id, unsigned *sub_s
     return false;
 }
 
-static bool
+bool
 quic_get_sub_stream_id(unsigned streamid, unsigned sub_stream_id, bool le, unsigned *sub_stream_id_out)
 {
     if (le) {
@@ -5523,7 +5517,7 @@ quic_get_sub_stream_id(unsigned streamid, unsigned sub_stream_id, bool le, unsig
     }
 }
 
-static char *
+char *
 quic_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, unsigned *stream, unsigned *sub_stream)
 {
     quic_datagram *dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, proto_get_layer_num(pinfo, proto_quic));
@@ -5548,13 +5542,13 @@ quic_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, unsigned *s
     return NULL;
 }
 
-static char *
+char *
 quic_follow_index_filter(unsigned stream, unsigned sub_stream)
 {
     return ws_strdup_printf("quic.connection.number eq %u and quic.stream.stream_id eq %u", stream, sub_stream);
 }
 
-static tap_packet_status
+tap_packet_status
 follow_quic_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
 {
     follow_record_t *follow_record;
