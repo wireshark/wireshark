@@ -1507,7 +1507,7 @@ static const char *wtap_errlist[] = {
 const char *
 wtap_strerror(int err)
 {
-	static char errbuf[128];
+	static WS_THREAD_LOCAL char errbuf[128];
 	unsigned int wtap_errlist_index;
 
 	if (err < 0) {
