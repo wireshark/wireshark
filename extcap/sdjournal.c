@@ -213,8 +213,7 @@ static int sdj_start_export(const int start_from_entries, const bool start_from_
 			ws_warning("Error opening standard out: %s", g_strerror(errno));
 			return EXIT_FAILURE;
 		}
-        }
-
+	}
 
 	appname = ws_strdup_printf(SDJOURNAL_EXTCAP_INTERFACE " (Wireshark) %s.%s.%s",
 		SDJOURNAL_VERSION_MAJOR, SDJOURNAL_VERSION_MINOR, SDJOURNAL_VERSION_RELEASE);
@@ -299,7 +298,7 @@ cleanup:
 	}
 
 	/* clean up and exit */
-        writecap_close(fp, NULL);
+	writecap_close(fp, NULL);
 	return ret;
 }
 
