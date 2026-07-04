@@ -1788,7 +1788,7 @@ static bool erf_dump(
   int      erf_type;
   int64_t  alignbytes   = 0;
   unsigned padbytes   = 0;
-  int      round_down   = 0;
+  unsigned round_down = 0;
   bool must_add_crc = false;
   uint32_t crc32        = 0x00000000;
   erf_dump_t *dump_priv = (erf_dump_t*)wdh->priv;
@@ -1892,7 +1892,7 @@ static bool erf_dump(
 
     padbytes = WS_PADDING_TO_8(total_rlen);  /*calculate how much padding will be required */
     if(rec->rec_header.packet_header.caplen < rec->rec_header.packet_header.len){ /*if packet has been snapped, we need to round down what we output*/
-      round_down = (8 - padbytes) % 8;
+      round_down = (8U - padbytes) % 8U;
       total_rlen -= round_down;
     }else{
       total_rlen += padbytes;
