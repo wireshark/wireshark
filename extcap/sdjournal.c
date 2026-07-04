@@ -195,7 +195,6 @@ static int sdj_start_export(const int start_from_entries, const bool start_from_
 	sd_id128_t boot_id;
 	char boot_id_str[FLD_BOOT_ID_LEN] = FLD_BOOT_ID;
 	int ret = EXIT_FAILURE;
-	char* err_info = NULL;
 	char *appname;
 	bool success;
 	int jr = 0;
@@ -291,12 +290,6 @@ cleanup:
 	if (jnl) {
 		sd_journal_close(jnl);
 	}
-
-	if (err_info) {
-		ws_warning("%s", err_info);
-	}
-
-	g_free(err_info);
 
 	/* clean up and exit */
 	if (g_strcmp0(fifo, "-")) {
