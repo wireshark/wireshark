@@ -2309,6 +2309,13 @@ fragment_add_seq_common(reassembly_table *table, tvbuff_t *tvb,
 		if (orig_keyp != NULL)
 			*orig_keyp = orig_key;
 
+		/*
+		 * XXX If fd_head exists, but nothing has been added to it,
+		 * i.e. it was created with a known datalen with
+		 * fragment_start_seq_check, we should also be able to
+		 * do the memory saving trick as in the case above
+		 * when first creating it.
+		 */
 		if (flags & REASSEMBLE_FLAGS_NO_FRAG_NUMBER) {
 			fragment_item *fd;
 			/*

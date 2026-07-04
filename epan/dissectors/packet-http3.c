@@ -40,11 +40,14 @@
 #include <epan/uat.h>
 
 #include <epan/dissectors/packet-http.h> /* for getting status reason-phrase */
+#include <epan/dissectors/packet-media-type.h>
 #include <epan/dissectors/packet-quic.h>
 #include <epan/dissectors/packet-udp.h>
 
 #include <wsutil/pint.h>
+#include <wsutil/str_util.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/zlib_compat.h>
 
 #include "charsets.h"
 
@@ -59,6 +62,22 @@ static dissector_handle_t http3_handle;
 static dissector_handle_t http3_datagram_handle;
 
 static int http3_follow_tap;
+
+#ifdef HAVE_NGHTTP3
+static reassembly_table http3_body_reassembly_table;
+
+static dissector_table_t media_type_dissector_table;
+
+/*
+ * Decompression of content-encoded entities.
+ */
+#if defined(HAVE_ZLIB) || defined(HAVE_ZLIBNG) || defined(HAVE_BROTLI) || defined(HAVE_ZSTD)
+static bool http3_decompress_body = true;
+#else
+static bool http3_decompress_body;
+#endif
+
+#endif /* HAVE_NGHTTP3 */
 
 #define PROTO_DATA_KEY_HEADER 0
 #define PROTO_DATA_KEY_QPACK 1
@@ -75,6 +94,18 @@ static int hf_http3_frame_length;
 static int hf_http3_frame_payload;
 
 static int hf_http3_data;
+static int hf_http3_encoded_entity;
+static int hf_http3_body_fragments;
+static int hf_http3_body_fragment;
+static int hf_http3_body_fragment_overlap;
+static int hf_http3_body_fragment_overlap_conflicts;
+static int hf_http3_body_fragment_multiple_tails;
+static int hf_http3_body_fragment_too_long_fragment;
+static int hf_http3_body_fragment_error;
+static int hf_http3_body_fragment_count;
+static int hf_http3_body_reassembled_in;
+static int hf_http3_body_reassembled_length;
+static int hf_http3_body_reassembled_data;
 
 static int hf_http3_headers_count;
 static int hf_http3_header;
@@ -198,6 +229,9 @@ static expert_field ei_http3_header_decoding_failed;
 static expert_field ei_http3_header_decoding_blocked;
 static expert_field ei_http3_header_decoding_no_output;
 static expert_field ei_http3_header_size;
+static expert_field ei_http3_header_transfer_encoding;
+/* HTTP3 body decoding EIs */
+static expert_field ei_http3_body_decompression_failed;
 /* HTTP3 datagram prefix EIs */
 static expert_field ei_http3_datagram_invalid_stream_id;
 
@@ -206,6 +240,9 @@ static int ett_http3;
 static int ett_http3_stream_uni;
 static int ett_http3_stream_bidi;
 static int ett_http3_frame;
+static int ett_http3_body_fragment;
+static int ett_http3_body_fragments;
+static int ett_http3_encoded_entity;
 static int ett_http3_settings;
 static int ett_http3_headers;
 static int ett_http3_headers_qpack_blocked;
@@ -214,6 +251,27 @@ static int ett_http3_qpack_opcode;
 static int ett_http3_datagram;
 static int ett_http3_datagram_stream_id;
 
+#ifdef HAVE_NGHTTP3
+static const fragment_items http3_body_fragment_items = {
+    /* Fragment subtrees */
+    &ett_http3_body_fragment,
+    &ett_http3_body_fragments,
+    /* Fragment fields */
+    &hf_http3_body_fragments,
+    &hf_http3_body_fragment,
+    &hf_http3_body_fragment_overlap,
+    &hf_http3_body_fragment_overlap_conflicts,
+    &hf_http3_body_fragment_multiple_tails,
+    &hf_http3_body_fragment_too_long_fragment,
+    &hf_http3_body_fragment_error,
+    &hf_http3_body_fragment_count,
+    &hf_http3_body_reassembled_in,
+    &hf_http3_body_reassembled_length,
+    &hf_http3_body_reassembled_data,
+    "Body fragments"
+};
+#endif
+
 /**
  * HTTP3 header constants.
  * The below constants are used for dissecting the
@@ -221,6 +279,7 @@ static int ett_http3_datagram_stream_id;
  */
 #define HTTP3_HEADER_NAME_CONTENT_ENCODING  "content-encoding"
 #define HTTP3_HEADER_NAME_CONTENT_TYPE      "content-type"
+#define HTTP3_HEADER_NAME_CONTENT_LENGTH    "content-length"
 #define HTTP3_HEADER_NAME_TRANSFER_ENCODING "transfer-encoding"
 #define HTTP3_HEADER_NAME_AUTHORITY         ":authority"
 #define HTTP3_HEADER_NAME_METHOD            ":method"
@@ -367,6 +426,7 @@ typedef struct _http3_stream_info {
     const char          *protocol;             /**< Protocol from extended CONNECT */
     dissector_handle_t   next_handle;	       /**< Dissector for extended CONNECT protocol */
     http_upgrade_info_t *upgrade_info;         /**< Data for new protocol */
+    bool                 is_connect;           /**< Method is CONNECT (plain or extended) */
 } http3_stream_info_t;
 
 /**
@@ -1262,6 +1322,8 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
         wmem_strbuf_append_printf(headers_buf, "%s\n", wmem_strbuf_finalize(header_buf));
 
         /* Collect the pseudo-header values to be used later. */
+        /* XXX - We could save other headers to possibly save parsing
+         * later, see HTTP/2 populate_http_header_tracking */
         if (strcmp(header_name, HTTP3_HEADER_NAME_METHOD) == 0) {
             pseudo_headers.method = header_value;
         } else if (strcmp(header_name, HTTP3_HEADER_NAME_PROTOCOL) == 0) {
@@ -1282,6 +1344,10 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
             pseudo_headers.reason_phrase = val_to_str_const(status_code, vals_http_status_code, "Unknown");
             proto_item_append_text(header_tree, " %s", pseudo_headers.reason_phrase);
             proto_item_append_text(tree, ", %s %s", pseudo_headers.status, pseudo_headers.reason_phrase);
+        } else if (strcmp(header_name, HTTP3_HEADER_NAME_TRANSFER_ENCODING) == 0) {
+            /* The Transfer-Encoding header field MUST NOT be used.
+             * https://www.rfc-editor.org/rfc/rfc9114.html#section-4.1-11 */
+            expert_add_info(pinfo, header, &ei_http3_header_transfer_encoding);
         }
 
         tvb_offset += in->encoded.len;
@@ -1326,6 +1392,7 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
              * The "Extended CONNECT" uses the pseudo-headers
              * in the same way as other HTTP methods.
              */
+            http3_stream->is_connect = true;
             if (pseudo_headers.protocol == NULL) {
                 /* This is the plain CONNECT method
                  * https://www.rfc-editor.org/rfc/rfc7231#section-4.3.6
@@ -1423,6 +1490,7 @@ http3_session_lookup_or_create(packet_info *pinfo)
     return http3_session;
 }
 
+#ifdef HAVE_NGHTTP3
 
 static conversation_t *
 http3_find_inner_conversation(packet_info *pinfo, quic_stream_info *stream_info, http3_stream_info_t *http3_stream, void **ctx)
@@ -1479,26 +1547,290 @@ http3_reset_inner_conversation(packet_info *pinfo, void *ctx)
     }
 }
 
+enum body_decompression {
+    BODY_DECOMPRESSION_NONE,
+    BODY_DECOMPRESSION_ZLIB,
+    BODY_DECOMPRESSION_BROTLI,
+    BODY_DECOMPRESSION_ZSTD,
+    BODY_DECOMPRESSION_FAIL
+};
+
+static enum body_decompression
+get_body_decompression_info(packet_info *pinfo)
+{
+    const char *content_encoding = http3_get_header_value(pinfo, HTTP3_HEADER_NAME_CONTENT_ENCODING, false);
+    const char *status = http3_get_header_value(pinfo, HTTP3_HEADER_NAME_STATUS, false);
+    if (content_encoding == NULL) {
+        return BODY_DECOMPRESSION_NONE;
+    }
+    if (!http3_decompress_body || g_strcmp0(status, HTTP3_HEADER_STATUS_PARTIAL_CONTENT) == 0) {
+        return BODY_DECOMPRESSION_FAIL;
+    }
+#ifdef USE_ZLIB_OR_ZLIBNG
+    if (strncmp(content_encoding, "gzip", 4) == 0 || strncmp(content_encoding, "deflate", 7) == 0) {
+        return BODY_DECOMPRESSION_ZLIB;
+    }
+#endif
+#ifdef HAVE_BROTLI
+    if (strncmp(content_encoding, "br", 2) == 0) {
+        return BODY_DECOMPRESSION_BROTLI;
+    }
+#endif
+#ifdef HAVE_ZSTD
+    if (strncmp(content_encoding, "zstd", 4) == 0) {
+        return BODY_DECOMPRESSION_ZSTD;
+    }
+#endif
+
+    return BODY_DECOMPRESSION_FAIL;
+}
+
+static void
+dissect_http3_body_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *body_tree, http3_stream_info_t *http3_stream, bool decompression_success)
+{
+    unsigned length = tvb_reported_length(tvb);
+
+    proto_tree_add_item(body_tree, hf_http3_data, tvb, 0, length, ENC_NA);
+
+    if (have_tap_listener(http3_follow_tap)) {
+        quic_follow_tap_data_t *follow_data = wmem_new0(pinfo->pool, quic_follow_tap_data_t);
+
+        follow_data->tvb = tvb;
+        follow_data->stream_id = http3_stream->id;
+        follow_data->from_server = http3_stream->direction;
+
+        tap_queue_packet(http3_follow_tap, pinfo, follow_data);
+    }
+
+    /* If we couldn't, or wouldn't, decompress the data, stop here. */
+    if (!decompression_success)
+        return;
+
+    const char *content_type = http3_get_header_value(pinfo, HTTP3_HEADER_NAME_CONTENT_TYPE, false);
+    if (content_type != NULL) {
+        const char *semicolon = ws_strchrnul(content_type, ';');
+        char *media_type = wmem_ascii_strdown(pinfo->pool, content_type, semicolon - content_type);
+        char *media_type_parameters = NULL;
+        while (*semicolon && *semicolon == ';' && g_ascii_isspace(*semicolon)) {
+            ++semicolon;
+        }
+        if (*semicolon) {
+            media_type_parameters = wmem_strdup(pinfo->pool, semicolon);
+        }
+        media_content_info_t media_type_metadata = { MEDIA_CONTAINER_HTTP_OTHERS, media_type_parameters, NULL, NULL};
+        dissector_try_string_with_data(media_type_dissector_table, media_type,
+            tvb, pinfo, proto_tree_get_root(body_tree), true, &media_type_metadata);
+    }
+}
+
+static void
+dissect_http3_data_full_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http3_tree, http3_stream_info_t *http3_stream)
+{
+    unsigned datalen = tvb_reported_length(tvb);
+    proto_tree *body_tree = http3_tree;
+    tvbuff_t *next_tvb = tvb;
+
+    const char *content_encoding = http3_get_header_value(pinfo, HTTP3_HEADER_NAME_CONTENT_ENCODING, false);
+    enum body_decompression decompression = get_body_decompression_info(pinfo);
+    bool decompression_success = true;
+
+    if (decompression != BODY_DECOMPRESSION_NONE) {
+        proto_item *compressed_ti = NULL;
+
+        tvbuff_t *decompressed_tvb = NULL;
+        switch (decompression) {
+        case BODY_DECOMPRESSION_ZLIB:
+            decompressed_tvb = tvb_child_uncompress_zlib(tvb, tvb, 0, datalen);
+            break;
+        case BODY_DECOMPRESSION_BROTLI:
+            decompressed_tvb = tvb_child_uncompress_brotli(tvb, tvb, 0, datalen);
+            break;
+        case BODY_DECOMPRESSION_ZSTD:
+            decompressed_tvb = tvb_child_uncompress_zstd(tvb, tvb, 0, datalen);
+            break;
+        default:
+            break;
+        }
+
+        compressed_ti = proto_tree_add_none_format(http3_tree,
+            hf_http3_encoded_entity, tvb, 0, datalen,
+            "Content-encoded entity body (%s): %u bytes",
+            content_encoding == NULL ? "unknown" : content_encoding, datalen);
+
+        if (decompressed_tvb) {
+            unsigned decompressed_length = tvb_reported_length(decompressed_tvb);
+            add_new_data_source(pinfo, decompressed_tvb, "Decompressed entity body");
+
+            proto_item_append_text(compressed_ti, " -> %u bytes", decompressed_length);
+            body_tree = proto_item_add_subtree(compressed_ti, ett_http3_encoded_entity);
+            next_tvb = decompressed_tvb;
+            datalen = decompressed_length;
+        } else {
+            expert_add_info(pinfo, compressed_ti, &ei_http3_body_decompression_failed);
+            decompression_success = false;
+        }
+    }
+
+    dissect_http3_body_data(next_tvb, pinfo, body_tree, http3_stream, decompression_success);
+}
+
+static void
+dissect_http3_data_partial_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http3_tree, quic_stream_info *stream_info, http3_stream_info_t *http3_stream)
+{
+    unsigned length;
+    void    *saved_ctx = NULL;
+
+    if (http3_stream->is_connect) {
+        /* Part of a tunneled CONNECT method. */
+        proto_item_append_text(http3_tree, " (tunneled data)");
+    } else {
+        /* Not part of CONNECT, frame that should be reassembled later. */
+        proto_item_append_text(http3_tree, " (partial entity body)");
+    }
+
+    length = tvb_reported_length(tvb);
+    /* Adding this seems redundant with http3.frame_payload. */
+    proto_tree_add_item(http3_tree, hf_http3_data, tvb, 0, length, ENC_NA);
+
+    if (http3_stream->next_handle) {
+        /* Extended CONNECT */
+        /* inner_conv = */ http3_find_inner_conversation(pinfo, stream_info, http3_stream, &saved_ctx);
+        http3_stream->upgrade_info->from_server = http3_stream->direction;
+        call_dissector_only(http3_stream->next_handle, tvb, pinfo, proto_tree_get_root(http3_tree), http3_stream->upgrade_info);
+        http3_reset_inner_conversation(pinfo, saved_ctx);
+    }
+}
+
+static bool
+should_attempt_to_reassemble_data_content(http3_stream_info_t *http3_stream)
+{
+    /* If this data frame is part of a CONNECT tunnel, don't try to reassemble.
+     * XXX - This is what HTTP/2 does, but perhaps CONNECT data should also
+     * use the streaming reassembly mode, once that is implemented.
+     */
+    if (http3_stream->is_connect) {
+        return false;
+    }
+
+    return true;
+}
+
+static tvbuff_t*
+reassemble_http3_data_into_full_content(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http3_tree, unsigned offset, quic_stream_info *stream_info, http3_stream_info_t *http3_stream, bool fin)
+{
+    if (!should_attempt_to_reassemble_data_content(http3_stream)) {
+        return NULL;
+    }
+
+    fragment_head *head = NULL;
+    unsigned remaining = tvb_captured_length_remaining(tvb, offset);
+    unsigned content_length;
+    bool content_length_set = false;
+
+    /* We can re-use the QUIC reassembly functions; we only have one body
+     * reassembly per request/response (since we only reassemble at FIN
+     * or when reaching the content-length), so the QUIC stream_info
+     * has all the necessary information to make the reassembly unique. */
+
+    /* Are we starting the body defragmentation? */
+    if (!PINFO_FD_VISITED(pinfo) && !fragment_get(&http3_body_reassembly_table, pinfo, 0, stream_info)) {
+        /* If so, do we know the content length */
+        const char *content_length_str = http3_get_header_value(pinfo, HTTP3_HEADER_NAME_CONTENT_LENGTH, false);
+        if (content_length_str && ws_strtou(content_length_str, NULL, &content_length)) {
+            content_length_set = true;
+            /* Is this DATA frame the entire content-length? */
+            if (remaining == content_length) {
+                /* Yes; there are no more DATA frames. If FIN isn't set, that
+                 * is because a later QUIC frame with no DATA will have FIN.
+                 * Let's go ahead and desegment now. The reassembly head isn't
+                 * created, so we can't use fragment_set_tot_len, which will
+                 * handle this in the other cases.
+                 *
+                 * XXX - Would it be simpler to have something like
+                 * fragment_start_seq_check?
+                 */
+                fin = true;
+            }
+        }
+    }
+
+    /* We might want a fragment_add_next instead of fragment_add_check_next so
+     * that we can get reassembly errors when the segment is too long instead
+     * of creating a new reassembly. */
+    head = fragment_add_check_next(&http3_body_reassembly_table, tvb, offset, pinfo, 0, stream_info, remaining, !fin);
+    if (content_length_set) {
+        fragment_set_tot_len(&http3_body_reassembly_table, pinfo, 0, stream_info, content_length);
+    }
+
+    if (head) {
+        if (!PINFO_FD_VISITED(pinfo)) {
+            /* XXX - Remember that we dissected via DATA frames so we don't need
+             * to dissect at FIN in a non-DATA frame, e.g. HEADERS or GREASE. */
+        }
+        /* The Info column information is less useful when dissected in the
+         * same capture file frame, even in a different HTTP/3 DATA frame. */
+        if (pinfo->num != head->reassembled_in) {
+            col_append_frame_number(pinfo, COL_INFO, " [HTTP/3 reassembled in #%u]",
+                head->reassembled_in);
+        }
+        /* This should work now (layer numbers are more stable), but check
+         * to see if we need to do what HTTP/2 does. */
+        return process_reassembled_data(tvb, offset, pinfo, "Reassembled body",
+            head, &http3_body_fragment_items, NULL, http3_tree);
+
+#if 0
+        proto_tree_add_uint(http3_tree, hf_http3_body_reassembled_in, tvb, 0,
+            0, head->reassembled_in);
+#endif
+    }
+
+    return NULL;
+}
+
 static int
 dissect_http3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http3_tree, unsigned offset _U_,
-                   quic_stream_info *stream_info, http3_stream_info_t *http3_stream)
+                   quic_stream_info *stream_info, http3_stream_info_t *http3_stream, bool fin)
 {
-    void                *saved_ctx = NULL;
-    int                 remaining;
-    conversation_t      *inner_conv _U_;
-    proto_item          *ti_data _U_;
+    /* Padding is not defined in HTTP/3 DATA Frames
+     * https://www.rfc-editor.org/rfc/rfc9114.html#name-comparison-of-http-2-and-ht
+     */
 
-    remaining = tvb_reported_length(tvb);
-    inner_conv = http3_find_inner_conversation(pinfo, stream_info, http3_stream, &saved_ctx);
-    ti_data    = proto_tree_add_item(http3_tree, hf_http3_data, tvb, offset, remaining, ENC_NA);
-    if (http3_stream->next_handle) {
-        http3_stream->upgrade_info->from_server = http3_stream->direction;
-        call_dissector_only(http3_stream->next_handle, tvb_new_subset_remaining(tvb, offset), pinfo, proto_tree_get_parent_tree(proto_tree_get_parent_tree(proto_tree_get_parent_tree(http3_tree))), http3_stream->upgrade_info);
+    /* XXX - HTTP/2 supports fake headers for a stream here */
+
+    /* "Because some messages are large or unbounded, endpoints SHOULD begin
+     * processing partial HTTP messages once enough of the message has been
+     * received to make progress."
+     * https://www.rfc-editor.org/rfc/rfc9114.html#section-4.1-14
+     * Not all possible media type subdissectors support defragmentation via
+     * setting desegment_offset and desegment_len in pinfo, and the necessary
+     * hooks are not in this dissector. For now, just reassemble everything
+     * into the full content.
+     *
+     * XXX - Cf. what the HTTP/2 dissector does for the streaming reassembly
+     * mode.
+     */
+
+    tvbuff_t *data_tvb = reassemble_http3_data_into_full_content(tvb, pinfo, http3_tree, offset, stream_info, http3_stream, fin);
+    if (data_tvb) {
+        dissect_http3_data_full_body(data_tvb, pinfo, http3_tree, http3_stream);
+    } else {
+        dissect_http3_data_partial_body(tvb, pinfo, http3_tree, stream_info, http3_stream);
     }
-    http3_reset_inner_conversation(pinfo, saved_ctx);
 
     return tvb_reported_length(tvb);
 }
+#else
+static int
+dissect_http3_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http3_tree, unsigned offset _U_,
+                   quic_stream_info *stream_info _U_, http3_stream_info_t *http3_stream _U_, bool fin _U_)
+{
+    unsigned length = tvb_reported_length(tvb);
+    /* Adding this seems redundant with http3.frame_payload. */
+    proto_tree_add_item(http3_tree, hf_http3_data, tvb, 0, length, ENC_NA);
+
+    return length;
+}
+#endif /* HAVE_NGHTTP3 */
 
 /* Settings */
 static int
@@ -1632,6 +1964,7 @@ dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     proto_tree  *ft_tree;
     const char *ft_display_name;
     bool        use_follow_tap = false;
+    bool        fin = false;
 
     ti_ft = proto_tree_add_item(tree, hf_http3_frame, tvb, offset, -1, ENC_NA);
     ft_tree = proto_item_add_subtree(ti_ft, ett_http3_frame);
@@ -1668,13 +2001,18 @@ dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
         return offset;
     }
 
+    if (stream_info->fin && tvb_reported_length_remaining(tvb, offset) == frame_length) {
+        // If the QUIC stream is at FIN, then finish reassembly iff this
+        // is the last HTTP/3 frame within the QUIC STREAM frame.
+        fin = true;
+    }
     proto_tree_add_item(ft_tree, hf_http3_frame_payload, tvb, offset, payload_length, ENC_NA);
 
     switch (frame_type) {
     case HTTP3_DATA: { /* TODO: dissect Data Frame */
         tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, payload_length);
-        dissect_http3_data(next_tvb, pinfo, ft_tree, 0, stream_info, http3_stream);
-        use_follow_tap = true; // Until decompression is implemented
+        dissect_http3_data(next_tvb, pinfo, ft_tree, 0, stream_info, http3_stream, fin);
+        fin = false;
     } break;
     case HTTP3_HEADERS: {
 #ifdef HAVE_NGHTTP3
@@ -1702,9 +2040,23 @@ dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
         tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, payload_length);
         dissect_http3_priority_update(next_tvb, pinfo, ft_tree, 0, http3_stream);
     } break;
-    default: /* TODO: add expert_advise */
+    default: /* TODO: add expert advice (remember to treat GREASE differntly) */
         break;
     }
+
+#ifdef HAVE_NGHTTP3
+    if (fin) {
+        fragment_head *head = NULL;
+        head = fragment_end_seq_next(&http3_body_reassembly_table, pinfo, 0, stream_info);
+
+        if (head) {
+            tvbuff_t *reassembled_data = process_reassembled_data(tvb, offset, pinfo, "Reassembled body",
+                head, &http3_body_fragment_items, NULL, ft_tree);
+            if (reassembled_data)
+                dissect_http3_data_full_body(reassembled_data, pinfo, ft_tree, http3_stream);
+        }
+    }
+#endif
 
     if (use_follow_tap && have_tap_listener(http3_follow_tap)) {
         quic_follow_tap_data_t *follow_data = wmem_new0(pinfo->pool, quic_follow_tap_data_t);
@@ -2547,6 +2899,16 @@ dissect_http3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         return 0;
     }
 
+    /* XXX - Handle implementations where QUIC signals FIN in a QUIC frame that
+     * has no HTTP/3 frames, and we don't get a Content-Length header either?
+     * Unlike HTTP/1.1, there might be nothing for QUIC itself to reassemble,
+     * since each HTTP/3 frame has a TPKT-like header with its own length.
+     * So tvb might be length 0 here. We also might want to handle the case
+     * where FIN is set but the length is too short for a frame. In that
+     * case, it is more likely that more DATA will be forthcoming, or would
+     * the QUIC stream just abruptly stop like a RESET_STREAM? For that matter,
+     * should we try to reassemble any leftover data on a RESET_STREAM? */
+
     switch (QUIC_STREAM_TYPE(stream_info->stream_id)) {
     case QUIC_STREAM_CLIENT_BIDI:
         /* Used for HTTP requests and responses. */
@@ -2986,6 +3348,67 @@ proto_register_http3(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_http3_encoded_entity,
+          { "Content-encoded entity body", "http3.body.content_encoded",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        /* Body fragments */
+        { &hf_http3_body_fragments,
+            { "Body fragments", "http3.body.fragments",
+              FT_NONE, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http3_body_fragment,
+            { "Body fragment", "http3.body.fragment",
+              FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http3_body_fragment_overlap,
+            { "Body fragment overlap", "http3.body.fragment.overlap",
+              FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http3_body_fragment_overlap_conflicts,
+            { "Body fragment overlapping with conflicting data", "http3.body.fragment.overlap.conflicts",
+              FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http3_body_fragment_multiple_tails,
+            { "Body has multiple tail fragments", "http3.body.fragment.multiple_tails",
+              FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http3_body_fragment_too_long_fragment,
+            { "Body fragment too long", "http3.body.fragment.too_long_fragment",
+              FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http3_body_fragment_error,
+            { "Body defragment error", "http3.body.fragment.error",
+              FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http3_body_fragment_count,
+            { "Body fragment count", "http3.body.fragment.count",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http3_body_reassembled_in,
+            { "Reassembled body in frame", "http3.body.reassembled.in",
+              FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+              "Reassembled body in frame number", HFILL }
+        },
+        { &hf_http3_body_reassembled_length,
+            { "Reassembled body length", "http3.body.reassembled.length",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+              "Reassembled body in frame number", HFILL }
+        },
+        { &hf_http3_body_reassembled_data,
+            { "Reassembled body data", "http3.body.reassembled.data",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+              "Reassembled body data for multisegment PDU spanning across DATAs", HFILL }
+        },
 
         /* Headers */
         { &hf_http3_headers_count,
@@ -3247,6 +3670,9 @@ proto_register_http3(void)
                           &ett_http3_stream_uni,
                           &ett_http3_stream_bidi,
                           &ett_http3_frame,
+                          &ett_http3_body_fragment,
+                          &ett_http3_body_fragments,
+                          &ett_http3_encoded_entity,
                           &ett_http3_settings,
                           &ett_http3_headers,
                           &ett_http3_headers_qpack_blocked,
@@ -3294,6 +3720,14 @@ proto_register_http3(void)
           { "http3.expert.header_decoding.header_size_exceeded", PI_UNDECODED, PI_WARN,
             "QPACK decompression stopped after " G_STRINGIFY(QPACK_MAX_HEADER_SIZE) " bytes", EXPFILL}
         },
+        { &ei_http3_header_transfer_encoding,
+          { "http3.header.transfer_encoding", PI_PROTOCOL, PI_WARN,
+            "The Transfer-Encoding header field MUST NOT be used in HTTP/3", EXPFILL}
+        },
+        { &ei_http3_body_decompression_failed,
+          { "http3.body.content_encoded.failed", PI_UNDECODED, PI_WARN,
+            "Unable to decompress content-encoded entity", EXPFILL}
+        },
         { &ei_http3_datagram_invalid_stream_id,
           { "http3.expert.datagram.invalid_stream_id", PI_UNDECODED, PI_WARN,
             "Failed to decode HTTP3 datagram stream id", EXPFILL}
@@ -3315,6 +3749,19 @@ proto_register_http3(void)
 #ifdef HAVE_NGHTTP3
     /* Fill hash table with static headers */
     register_static_headers();
+
+#if defined(HAVE_ZLIB) || defined(HAVE_ZLIBNG) || defined(HAVE_BROTLI) || defined(HAVE_ZSTD)
+    prefs_register_bool_preference(module_http3, "decompress_body",
+        "Decompress entity bodies",
+        "Whether to decompress entity bodies that are compressed "
+        "using \"Content-Encoding: \"",
+        &http3_decompress_body);
+#else
+    prefs_register_obsolete_preference(module_http3, "decompress_body");
+#endif
+
+    reassembly_table_register(&http3_body_reassembly_table,
+        &quic_reassembly_table_functions);
 #endif
 
     http3_follow_tap = register_tap("http3_follow");
@@ -3327,6 +3774,10 @@ proto_register_http3(void)
 void
 proto_reg_handoff_http3(void)
 {
+#ifdef HAVE_NGHTTP3
+    media_type_dissector_table = find_dissector_table("media_type");
+#endif
+
     dissector_add_string("quic.proto", "h3", http3_handle);
     dissector_add_string("quic.proto.datagram", "h3", http3_datagram_handle);
 }

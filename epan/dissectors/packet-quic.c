@@ -1634,7 +1634,7 @@ quic_stream_free_persistent_key(void *ptr)
     g_slice_free(quic_stream_key, key);
 }
 
-static const reassembly_table_functions
+const reassembly_table_functions
 quic_reassembly_table_functions = {
     quic_stream_hash,
     quic_stream_equal,
@@ -2483,10 +2483,9 @@ dissect_quic_stream_payload(tvbuff_t *tvb, int offset, int length, packet_info *
      * preference to disable reassembly.
      */
 
-    /* If stream_info->fin, then call the subdissector (especially for
-     * HTTP/3?) */
     if (length > 0) {
-        /* Don't call a subdissector for a zero length segment. It won't
+        /* Don't try to desegment for a zero length segment. Our methods
+         * probably don't work and aren't needed. (see #19497).
          * work for dissection (see #12368), and our methods of determing
          * if desegmentation is needed won't work either (#19497). If there
          * ever is an app_handle on top of QUIC that needs to be called with
@@ -2494,6 +2493,11 @@ dissect_quic_stream_payload(tvbuff_t *tvb, int offset, int length, packet_info *
          */
         pinfo->can_desegment = 2;
         desegment_quic_stream(tvb, offset, length, pinfo, tree, quic_info, stream_info, stream, quic_packet);
+    } else if (stream_info->fin) {
+        /* Do try to call the subdissector at FIN; HTTP/3 might need this
+         * for some implementations. It probably doesn't work yet. Cf.
+         * #15159 and #12368. */
+        process_quic_stream(tvb, offset, pinfo, tree, quic_info, stream_info, quic_packet);
     }
 }
 /* QUIC Streams tracking and reassembly. }}} */

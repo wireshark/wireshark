@@ -12,6 +12,7 @@
 
 #include "ws_symbol_export.h"
 
+#include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <wsutil/wsgcrypt.h>
 
@@ -127,6 +128,8 @@ quic_get_stream_id_ge(unsigned streamid, unsigned sub_stream_id, unsigned *sub_s
  */
 WS_DLL_PUBLIC bool
 quic_conn_data_get_conn_client_dcid_initial(struct _packet_info *pinfo, quic_cid_t *dcid);
+
+extern const reassembly_table_functions quic_reassembly_table_functions;
 
 /**
  * Data used to allow "Follow QUIC Stream" functionality
