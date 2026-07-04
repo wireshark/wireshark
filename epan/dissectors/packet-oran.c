@@ -6933,7 +6933,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                                tvb_reported_length_remaining(tvb, offset));
     }
 
-    if (PINFO_FD_VISITED(pinfo)) {
+    if (PINFO_FD_VISITED(pinfo) && result) {
         /* Show list of frames that have corresponding U-plane data */
         wmem_list_frame_t *list_frame;
         for (list_frame = wmem_list_head(result->u_plane_frames); list_frame != NULL; list_frame = wmem_list_frame_next(list_frame)) {
@@ -7207,6 +7207,8 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         result = wmem_new0(wmem_file_scope(), flow_result_t);
         result->expected_sections = wmem_tree_new(wmem_file_scope());
+        /* u_plane_frames not used for u-plane frames.. */
+
         wmem_tree_insert32(flow_results_table, pinfo->num, result);
 
         /* Check sequence analysis status (but not if later part of radio layer fragmentation) */
