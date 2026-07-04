@@ -137,9 +137,6 @@ indent_size = tab
 indent_style = tab
 indent_size = tab
 
-[tvbuff_base64.[ch]]
-indent_size = 2
-
 [tvbuff_composite.[ch]]
 indent_style = tab
 indent_size = tab
