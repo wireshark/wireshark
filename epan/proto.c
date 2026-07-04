@@ -909,7 +909,10 @@ proto_tree_free_node(proto_node *node, void *data _U_)
 	proto_tree_children_foreach(node, proto_tree_free_node, NULL);
 
 	if (finfo) {
-		fvalue_free(finfo->value);
+		// The fvalue_t structure was allocated using fvalue_new_pool()
+		// (see new_field_info()) and will be reclaimed when the pool is
+		// freed, so we only release the type-specific data it owns here.
+		fvalue_cleanup(finfo->value);
 		finfo->value = NULL;
 	}
 }
@@ -2818,13 +2821,6 @@ detect_trailing_stray_characters(unsigned encoding, const char *string, int leng
 	}
 }
 
-static void
-free_fvalue_cb(void *data)
-{
-	fvalue_t *fv = (fvalue_t*)data;
-	fvalue_free(fv);
-}
-
 /* Add an item to a proto_tree, using the text label registered to that item;
    the item is extracted from the tvbuff handed to it. */
 static proto_item *
@@ -2843,13 +2839,14 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	bool        length_error;
 	unsigned    item_length;
 
-	/* Ensure that the newly created fvalue_t is freed if we throw an
-	 * exception before adding it to the tree. (gcc creates clobbering
-	 * when it optimizes the equivalent TRY..EXCEPT implementation.)
-	 * XXX: Move the new_field_info() call inside here?
-	 */
-	CLEANUP_PUSH(free_fvalue_cb, new_fi->value);
-
+	// new_fi->value is allocated from the packet-scoped pool (see
+	// new_field_info()), so if a tvbuff accessor below throws before the
+	// node is added to the tree the fvalue_t structure is still reclaimed
+	// when the pool is freed; no explicit cleanup handler is needed. This
+	// relies on the invariant that the type-specific data an fvalue owns
+	// (byte arrays, string buffers, ...) is only allocated *after* the
+	// throwing tvbuff read that produced it succeeds, so nothing that would
+	// need fvalue_cleanup() is ever leaked on the exception path.
 	switch (new_fi->hfinfo->type) {
 		case FT_NONE:
 			/* no value to set for FT_NONE */
@@ -3305,7 +3302,6 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	 * strings and bytes, we would have to set new_fi->value to something
 	 * non-NULL, or otherwise ensure that proto_item_fill_display_label
 	 * could handle NULL values. */
-	CLEANUP_POP
 	pi = proto_tree_add_node(tree, new_fi);
 
 	switch (new_fi->hfinfo->type) {
@@ -6607,7 +6603,9 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 		for (tnode = tree; tnode != NULL; tnode = tnode->parent) {
 			depth++;
 			if (G_UNLIKELY(depth > prefs.gui_max_tree_depth)) {
-				fvalue_free(fi->value);
+				/* The fvalue_t is pool-allocated; just release the
+				 * type-specific data it owns (see new_field_info()). */
+				fvalue_cleanup(fi->value);
 				fi->value = NULL;
 				THROW_MESSAGE(DissectorError, wmem_strdup_printf(PNODE_POOL(tree),
 						     "Maximum tree depth %d exceeded for \"%s\" - \"%s\" (%s:%u) (Maximum depth can be increased in advanced preferences)",
@@ -6630,9 +6628,11 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 	tfi = PNODE_FINFO(tnode);
 	if (tfi != NULL && (tfi->tree_type < 0 || tfi->tree_type >= num_tree_types)) {
 		/* Since we are not adding fi to a node, its fvalue won't get
-		 * freed by proto_tree_free_node(), so free it now.
+		 * cleaned up by proto_tree_free_node(), so release the
+		 * type-specific data it owns now. The fvalue_t structure itself
+		 * is pool-allocated (see new_field_info()).
 		 */
-		fvalue_free(fi->value);
+		fvalue_cleanup(fi->value);
 		fi->value = NULL;
 		REPORT_DISSECTOR_BUG("\"%s\" - \"%s\" tfi->tree_type: %d invalid (%s:%u)",
 				     fi->hfinfo->name, fi->hfinfo->abbrev, tfi->tree_type, __FILE__, __LINE__);
@@ -7094,7 +7094,7 @@ new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 			FI_SET_FLAG(fi, FI_HIDDEN);
 		}
 	}
-	fi->value = fvalue_new(fi->hfinfo->type);
+	fi->value = fvalue_new_pool(PNODE_POOL(tree), fi->hfinfo->type);
 	fi->rep        = NULL;
 
 	fi->appendix_start  = 0;

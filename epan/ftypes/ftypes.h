@@ -559,14 +559,27 @@ typedef struct _protocol_value_t
 typedef struct _fvalue_t fvalue_t;
 
 /**
- * @brief Creates a new fvalue_t structure.
+ * @brief Create and initialize a new fvalue_t structure.
  *
  * @param ftype The type of the fvalue to create.
- * @return A pointer to the newly created fvalue_t structure.
+ * @return A pointer to the newly created fvalue_t structure. Must be
+ * freed with fvalue_free().
  */
 WS_DLL_PUBLIC
 fvalue_t*
 fvalue_new(ftenum_t ftype);
+
+/**
+ * @brief Create and initialize a new fvalue_t structure using a wmem pool.
+ *
+ * @param scope The wmem pool to allocate the fvalue_t structure from.
+ * @param ftype The type of the fvalue to create.
+ * @return A pointer to the newly created fvalue_t structure. Must not
+ * be freed with fvalue_free().
+ */
+WS_DLL_PUBLIC
+fvalue_t*
+fvalue_new_pool(wmem_allocator_t *scope, ftenum_t ftype);
 
 /**
  * @brief Duplicates a fvalue_t structure.

@@ -487,23 +487,26 @@ ftype_can_val_to_double(enum ftenum ftype)
 
 /* ---------------------------------------------------------- */
 
-/* Allocate and initialize an fvalue_t, given an ftype */
+/* Allocate and initialize an fvalue_t, given an ftype using a GSlice. */
 fvalue_t*
 fvalue_new(ftenum_t ftype)
 {
 	fvalue_t		*fv;
-	const ftype_t		*ft;
-	FvalueNewFunc		new_value;
 
 	fv = g_slice_new(fvalue_t);
+	fvalue_init(fv, ftype);
 
-	FTYPE_LOOKUP(ftype, ft);
-	fv->ftype = ft;
+	return fv;
+}
 
-	new_value = ft->new_value;
-	if (new_value) {
-		new_value(fv);
-	}
+/* Allocate and initialize an fvalue_t, given an ftype using wmem. */
+fvalue_t *
+fvalue_new_pool(wmem_allocator_t *scope, ftenum_t ftype)
+{
+	fvalue_t		*fv;
+
+	fv = wmem_new(scope, fvalue_t);
+	fvalue_init(fv, ftype);
 
 	return fv;
 }
