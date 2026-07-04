@@ -50,6 +50,7 @@ static dissector_handle_t zip_ddp_handle;
 static dissector_handle_t rtmp_data_handle;
 static dissector_handle_t llap_handle;
 static capture_dissector_handle_t llap_cap_handle;
+static dissector_handle_t adsp_handle;
 
 
 static int proto_llap;
@@ -413,6 +414,127 @@ static const value_string pap_function_vals[] = {
   {0, NULL}
 };
 static value_string_ext pap_function_vals_ext = VALUE_STRING_EXT_INIT(pap_function_vals);
+
+/* -------------------------------- */
+
+/* ADSP protocol cf. Inside AppleTalk chap. 12 */
+
+#define ADSP_HDRSIZE 13
+
+#define ADSP_CTRL_PROBE_ACK         0
+#define ADSP_CTRL_OPEN_REQ          1
+#define ADSP_CTRL_OPEN_ACK          2
+#define ADSP_CTRL_OPEN_REQACK       3
+#define ADSP_CTRL_OPEN_DENY         4
+#define ADSP_CTRL_CLOSE_ADVICE      5
+#define ADSP_CTRL_FORWARD_RESET     6
+#define ADSP_CTRL_FORWARD_RESET_ACK 7
+#define ADSP_CTRL_RETRANSMIT_ADVICE 8
+
+#define ADSP_FLAG_CONTROL   0x80
+#define ADSP_FLAG_ACK       0x40
+#define ADSP_FLAG_EOM       0x20
+#define ADSP_FLAG_ATTENTION 0x10
+
+static int proto_adsp;
+
+static int hf_adsp_connid;
+static int hf_adsp_first_byte_seq;
+static int hf_adsp_next_recv_seq;
+static int hf_adsp_recv_window;
+static int hf_adsp_descriptor;
+static int hf_adsp_flag_control;
+static int hf_adsp_flag_ack;
+static int hf_adsp_flag_eom;
+static int hf_adsp_flag_attn;
+static int hf_adsp_ctrl_code;
+static int hf_adsp_attn_code;
+static int hf_adsp_data;
+
+static int ett_adsp;
+static int ett_adsp_descriptor;
+
+/* Only meaningful when the Control flag (0x80) is set; a clear Control
+ * bit always means a Data packet regardless of these low bits (Inside
+ * AppleTalk ch. 12, Figure 12-2). */
+static const value_string adsp_ctrl_code_vals[] = {
+  { ADSP_CTRL_PROBE_ACK,         "Control (Probe/Ack)" },
+  { ADSP_CTRL_OPEN_REQ,          "Open Connection Request" },
+  { ADSP_CTRL_OPEN_ACK,          "Open Connection Ack" },
+  { ADSP_CTRL_OPEN_REQACK,       "Open Connection Req+Ack" },
+  { ADSP_CTRL_OPEN_DENY,         "Open Connection Deny" },
+  { ADSP_CTRL_CLOSE_ADVICE,      "Close Connection Advice" },
+  { ADSP_CTRL_FORWARD_RESET,     "Forward Reset" },
+  { ADSP_CTRL_FORWARD_RESET_ACK, "Forward Reset Ack" },
+  { ADSP_CTRL_RETRANSMIT_ADVICE, "Retransmit Advice" },
+  { 0, NULL }
+};
+
+static int
+dissect_adsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  proto_tree *adsp_tree;
+  proto_item *ti;
+  uint8_t     descriptor;
+  bool        is_control;
+  uint8_t     ctrl_code;
+  uint16_t    connid;
+  int         offset;
+
+  static int * const descriptor_flags[] = {
+    &hf_adsp_flag_control,
+    &hf_adsp_flag_ack,
+    &hf_adsp_flag_eom,
+    &hf_adsp_flag_attn,
+    NULL
+  };
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ADSP");
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  descriptor = tvb_get_uint8(tvb, 12);
+  is_control = (descriptor & ADSP_FLAG_CONTROL) != 0;
+  ctrl_code  = descriptor & 0x0F;
+  connid     = tvb_get_ntohs(tvb, 0);
+
+  ti = proto_tree_add_item(tree, proto_adsp, tvb, 0, ADSP_HDRSIZE, ENC_NA);
+  adsp_tree = proto_item_add_subtree(ti, ett_adsp);
+
+  proto_tree_add_item(adsp_tree, hf_adsp_connid,         tvb, 0, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(adsp_tree, hf_adsp_first_byte_seq, tvb, 2, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(adsp_tree, hf_adsp_next_recv_seq,  tvb, 6, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(adsp_tree, hf_adsp_recv_window,    tvb, 10, 2, ENC_BIG_ENDIAN);
+
+  proto_tree_add_bitmask(adsp_tree, tvb, 12, hf_adsp_descriptor,
+                          ett_adsp_descriptor, descriptor_flags, ENC_NA);
+
+  if (is_control) {
+    proto_tree_add_item(adsp_tree, hf_adsp_ctrl_code, tvb, 12, 1, ENC_NA);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s  ConnID: %u",
+                 val_to_str(pinfo->pool, ctrl_code, adsp_ctrl_code_vals, "Unknown control (0x%01x)"),
+                 connid);
+  } else {
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Data  ConnID: %u  Seq: %u",
+                 connid, tvb_get_ntohl(tvb, 2));
+  }
+
+  offset = ADSP_HDRSIZE;
+
+  /* Attention Data: Control=0, Attention=1 carries a 2-byte attention
+   * code ahead of its payload. A Control+Attention packet (0x90) is an
+   * Attention Ack instead and carries no extra payload. */
+  if (!is_control && (descriptor & ADSP_FLAG_ATTENTION)) {
+    proto_tree_add_item(adsp_tree, hf_adsp_attn_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+  }
+
+  if (tvb_reported_length_remaining(tvb, offset) > 0) {
+    proto_tree_add_item(adsp_tree, hf_adsp_data, tvb, offset, -1, ENC_NA);
+    offset = tvb_reported_length(tvb);
+  }
+
+  return offset;
+}
 
 /* -------------------------------- */
 
@@ -2190,6 +2312,57 @@ proto_register_atalk(void)
 
   };
 
+  static hf_register_info hf_adsp[] = {
+    { &hf_adsp_connid,
+      { "Connection ID", "adsp.connid", FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_adsp_first_byte_seq,
+      { "First Byte Sequence", "adsp.first_byte_seq", FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_adsp_next_recv_seq,
+      { "Next Receive Sequence", "adsp.next_recv_seq", FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_adsp_recv_window,
+      { "Receive Window", "adsp.recv_window", FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_adsp_descriptor,
+      { "Descriptor", "adsp.descriptor", FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_adsp_flag_control,
+      { "Control", "adsp.control", FT_BOOLEAN, 8, NULL, ADSP_FLAG_CONTROL,
+        "Set for control packets; clear for data packets", HFILL }},
+
+    { &hf_adsp_flag_ack,
+      { "Ack Request", "adsp.ackreq", FT_BOOLEAN, 8, NULL, ADSP_FLAG_ACK,
+        NULL, HFILL }},
+
+    { &hf_adsp_flag_eom,
+      { "End Of Message", "adsp.eom", FT_BOOLEAN, 8, NULL, ADSP_FLAG_EOM,
+        NULL, HFILL }},
+
+    { &hf_adsp_flag_attn,
+      { "Attention", "adsp.attention", FT_BOOLEAN, 8, NULL, ADSP_FLAG_ATTENTION,
+        NULL, HFILL }},
+
+    { &hf_adsp_ctrl_code,
+      { "Control Code", "adsp.ctrl_code", FT_UINT8, BASE_DEC, VALS(adsp_ctrl_code_vals), 0x0F,
+        NULL, HFILL }},
+
+    { &hf_adsp_attn_code,
+      { "Attention Code", "adsp.attn_code", FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_adsp_data,
+      { "Data", "adsp.data", FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+  };
+
   static hf_register_info hf_macip[] = {
 
   { &hf_macip_version,
@@ -2257,6 +2430,9 @@ proto_register_atalk(void)
     &ett_zip_network_list,
 
     &ett_macip,
+
+    &ett_adsp,
+    &ett_adsp_descriptor,
   };
   module_t *atp_module;
   expert_module_t *expert_ddp;
@@ -2295,6 +2471,10 @@ proto_register_atalk(void)
   proto_pap = proto_register_protocol("Printer Access Protocol", "PrAP", "prap");
   proto_register_field_array(proto_pap, hf_pap, array_length(hf_pap));
   pap_handle = register_dissector("prap", dissect_pap, proto_pap);
+
+  proto_adsp = proto_register_protocol("AppleTalk Data Stream Protocol", "ADSP", "adsp");
+  proto_register_field_array(proto_adsp, hf_adsp, array_length(hf_adsp));
+  adsp_handle = register_dissector("adsp", dissect_adsp, proto_adsp);
 
   proto_macip = proto_register_protocol("MacIP", "MacIP", "macip");
   proto_macip_atp = proto_register_protocol("MacIP Gateway Protocol", "MacIP GP", "macip.atp");
@@ -2345,6 +2525,7 @@ proto_reg_handoff_atalk(void)
   dissector_add_uint("ddp.type", DDP_RTMPDATA, rtmp_data_handle);
   dissector_add_uint("ddp.type", DDP_ZIP, zip_ddp_handle);
   dissector_add_uint("ddp.type", DDP_MACIP, macip_handle);
+  dissector_add_uint("ddp.type", DDP_ADSP, adsp_handle);
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_LOCALTALK, llap_handle);
   /*
