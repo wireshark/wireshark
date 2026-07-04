@@ -586,7 +586,21 @@ http_add_path_components_to_tree(tvbuff_t* tvb, packet_info* pinfo, proto_item* 
 		// RFC 8484 - DNS Queries over HTTPS (DoH)
 		if (!tvb_strneql(tvb, offset, "dns=", 4)) {
 			unsigned parameter_value_length = parameter_offset - offset - 4;
-			unsigned expected_dns_tvb_length = ((parameter_value_length) / 4) * 3;
+			// The Base64 decode functions just silently skip over
+			// invalid bytes, so we check the length. (It might be
+			// nice for those functions to do the checking.)
+			// Padding is expressely omitted
+			// https://www.rfc-editor.org/info/rfc8484/#section-6
+			// as allowed by base64url
+			// https://www.rfc-editor.org/info/rfc4648/#section-5
+			// https://www.rfc-editor.org/info/rfc4648/#section-3.2
+			// which makes the expected length calculation a bit
+			// tedious.
+			// https://www.rfc-editor.org/info/rfc4648/#section-4
+			unsigned expected_dns_tvb_length = (parameter_value_length / 4) * 3;
+			// parameter_value_length % 4 == 1 should perhaps just
+			// be rejected, it's not valid encoding output.
+			expected_dns_tvb_length += ((parameter_value_length % 4) + 1) / 2;
 			tvbuff_t *dns_tvb = base64uri_tvb_to_new_tvb(tvb, offset + 4, parameter_value_length);
 			if (tvb_reported_length(dns_tvb) == expected_dns_tvb_length &&
 				expected_dns_tvb_length >= 30) {  // Check if parameter value was likely base64uri encoded DNS query

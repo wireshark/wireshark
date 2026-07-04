@@ -4797,12 +4797,17 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   /*
-   * DoH: Each DNS query-response pair is mapped into an HTTP exchange.
+   * DoH: Each DNS query-response pair is mapped into an HTTP exchange,
+   * and the DNS ID SHOULD be 0 when the "application/dns-message" media
+   * type is used (i.e., the POST method) for cache reasons. It MAY also
+   * be 0 when the GET method is used.
+   * https://www.rfc-editor.org/info/rfc8484/#section-4.1
    * For other transports, just use the DNS transaction ID as usual.
    */
   if (transport == DNS_TRANSPORT_HTTP) {
     /* For DoH using HTTP/2, use the Stream ID if available. For HTTP/1,
      * hopefully there is no pipelining or the DNS ID is unique enough. */
+    /* XXX - Get the stream ID for DoH over HTTP/3 */
     reqresp_id = http2_get_stream_id(pinfo);
   }
   if (reqresp_id == 0) {
