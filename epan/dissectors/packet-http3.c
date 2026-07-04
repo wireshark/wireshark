@@ -669,8 +669,8 @@ static inline http3_stream_dir
 http3_packet_get_direction(quic_stream_info *stream_info)
 {
     return stream_info->from_server
-        ? FROM_CLIENT_TO_SERVER
-        : FROM_SERVER_TO_CLIENT;
+        ? FROM_SERVER_TO_CLIENT
+        : FROM_CLIENT_TO_SERVER;
 }
 
 /**
@@ -1336,7 +1336,7 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
                  * `:scheme' and `:path' MUST be empty
                  */
                  authority_contains_target = true;
-            } else {
+            } else if (!PINFO_FD_VISITED(pinfo)) {
                 http3_stream->protocol = wmem_strdup(wmem_file_scope(), pseudo_headers.protocol);
                 http3_stream->next_handle = http_upgrade_dissector(http3_stream->protocol);
                 http3_stream->upgrade_info = wmem_new0(wmem_file_scope(), http_upgrade_info_t);
