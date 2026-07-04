@@ -1904,7 +1904,7 @@ static bool netmon_dump_finish(wtap_dumper *wdh, int *err,
 	const char *magicp;
 	size_t magic_size;
 	struct tm *tm;
-	int64_t saved_bytes_dumped;
+	uint64_t saved_bytes_dumped;
 	bool success = false;
 
 	/* Write out the frame table.  "netmon->frame_table_index" is

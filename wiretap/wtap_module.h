@@ -172,7 +172,7 @@ struct wtap_dumper {
                                               */
     ws_compression_type     compression_type; /**< Compression type used for output. */
     bool                    needs_reload;    /**< true if the file requires re-loading after saving with wtap */
-    int64_t                 bytes_dumped;    /**< Total bytes written. */
+    uint64_t                bytes_dumped;    /**< Total bytes written. */
 
     void                    *priv;           /**< this one holds per-file state and is free'd automatically by wtap_dump_close() */
     void                    *wslua_data;     /**< this one holds wslua state info and is not free'd */

@@ -688,7 +688,7 @@ static bool lanalyzer_dump(wtap_dumper *wdh, const wtap_rec *rec,
 
       LA_TmpInfo *itmp = (LA_TmpInfo*)(wdh->priv);
       nstime_t td;
-      int    thisSize = rec->rec_header.packet_header.caplen + LA_PacketRecordSize + LA_RecordHeaderSize;
+      unsigned thisSize = rec->rec_header.packet_header.caplen + LA_PacketRecordSize + LA_RecordHeaderSize;
 
       /* We can only write packet records. */
       if (rec->rec_type != REC_TYPE_PACKET) {
@@ -794,7 +794,7 @@ static int lanalyzer_dump_can_write_encap(int encap)
  *---------------------------------------------------*/
 static bool lanalyzer_dump_open(wtap_dumper *wdh, int *err, char **err_info _U_)
 {
-      int   jump;
+      unsigned jump;
       void  *tmp;
 
       tmp = g_malloc(sizeof(LA_TmpInfo));
@@ -965,7 +965,7 @@ static bool lanalyzer_dump_finish(wtap_dumper *wdh, int *err,
        * but lanalyzer_dump_header() (via wtap_dump_file_write())
        * will keep incrementing it.
        */
-      int64_t saved_bytes_dumped = wdh->bytes_dumped;
+      uint64_t saved_bytes_dumped = wdh->bytes_dumped;
       lanalyzer_dump_header(wdh,err);
       wdh->bytes_dumped = saved_bytes_dumped;
       return *err ? false : true;

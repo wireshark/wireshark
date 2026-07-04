@@ -2626,14 +2626,14 @@ wtap_dump_file_type_subtype(const wtap_dumper *wdh)
 	return wdh->file_type_subtype;
 }
 
-int64_t
+uint64_t
 wtap_get_bytes_dumped(const wtap_dumper *wdh)
 {
 	return wdh->bytes_dumped;
 }
 
 void
-wtap_set_bytes_dumped(wtap_dumper *wdh, int64_t bytes_dumped)
+wtap_set_bytes_dumped(wtap_dumper *wdh, uint64_t bytes_dumped)
 {
 	wdh->bytes_dumped = bytes_dumped;
 }

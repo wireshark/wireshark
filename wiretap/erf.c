@@ -1677,7 +1677,7 @@ static bool erf_write_meta_record(wtap_dumper *wdh, erf_dump_t *dump_priv, uint6
   struct erf_meta_section *section_ptr;
   unsigned total_wlen = 0;
   unsigned total_rlen = 0;
-  int64_t alignbytes = 0;
+  uint64_t alignbytes = 0;
   unsigned i;
   unsigned num_extra_ehdrs = 0;
 
@@ -1786,7 +1786,7 @@ static bool erf_dump(
   union wtap_pseudo_header other_phdr;
   const uint8_t *pd = ws_buffer_start_ptr(&rec->data);
   int      erf_type;
-  int64_t  alignbytes   = 0;
+  uint64_t alignbytes = 0;
   unsigned padbytes   = 0;
   unsigned round_down = 0;
   bool must_add_crc = false;

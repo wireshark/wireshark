@@ -2932,10 +2932,10 @@ int wtap_dump_file_type_subtype(const wtap_dumper *wdh);
  * @brief Get the number of bytes dumped by a packet capture.
  *
  * @param wdh Pointer to the wtap_dumper structure.
- * @return int64_t The number of bytes dumped.
+ * @return uint64_t The number of bytes dumped.
  */
 WS_DLL_PUBLIC
-int64_t wtap_get_bytes_dumped(const wtap_dumper *wdh);
+uint64_t wtap_get_bytes_dumped(const wtap_dumper *wdh);
 
 /**
  * @brief Set the number of bytes dumped by a capture file.
@@ -2944,7 +2944,7 @@ int64_t wtap_get_bytes_dumped(const wtap_dumper *wdh);
  * @param bytes_dumped The number of bytes that have been dumped.
  */
 WS_DLL_PUBLIC
-void wtap_set_bytes_dumped(wtap_dumper *wdh, int64_t bytes_dumped);
+void wtap_set_bytes_dumped(wtap_dumper *wdh, uint64_t bytes_dumped);
 
 struct addrinfo;
 
