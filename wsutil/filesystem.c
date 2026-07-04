@@ -2237,7 +2237,7 @@ const char *
 file_open_error_message(int err, bool for_writing)
 {
     const char *errmsg;
-    static char errmsg_errno[1024+1];
+    static WS_THREAD_LOCAL char errmsg_errno[1024+1];
 
     switch (err) {
 
@@ -2342,7 +2342,7 @@ const char *
 file_write_error_message(int err)
 {
     const char *errmsg;
-    static char errmsg_errno[1024+1];
+    static WS_THREAD_LOCAL char errmsg_errno[1024+1];
 
     switch (err) {
 
