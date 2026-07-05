@@ -3453,7 +3453,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
 
     if (ld->pdh == NULL) {
         /* We couldn't set up to write to the capture file. */
-        /* XXX - use cf_open_error_message from tshark instead? */
+        /* XXX - use cf_open_error_message from ui/capture.c instead? */
         if (err < 0) {
             snprintf(errmsg, errmsg_len,
                        "The file to which the capture would be"
@@ -3470,7 +3470,6 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
 
     return true;
 }
-
 
 static bool
 capture_loop_finish_output(capture_options *capture_opts, loop_data *ld)
@@ -3523,11 +3522,6 @@ capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err
     ws_debug("capture_loop_close_output");
 
     if (capture_opts->multi_files_on) {
-        /*
-         * XXX - if we're writing to a pcapng file, we don't write out
-         * an ISB at the end. Should we do so, with the statistics
-         * since we started writing this file?
-         */
         return ringbuf_libpcap_dump_close(&capture_opts->save_file, err_close);
     } else {
         return ws_cwstream_close(ld->pdh, err_close);
