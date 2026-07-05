@@ -3088,6 +3088,29 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
 </context>
 <context>
+    <name>DistributionDialog</name>
+    <message>
+        <source>Field Values Distribution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Occurrences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Percent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distribution:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>EnabledProtocolsDialog</name>
     <message>
         <source>Dialog</source>
@@ -4194,7 +4217,7 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Filter Out This Stream</source>
         <oldsource>Hide this stream</oldsource>
-        <translation>このストリームを除外します</translation>
+        <translation type="vanished">このストリームを除外します</translation>
     </message>
     <message>
         <source>Print</source>
@@ -4239,6 +4262,14 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Raw</source>
         <translation>Raw (生データ)</translation>
+    </message>
+    <message>
+        <source>Prepare as Filter</source>
+        <translation type="unfinished">フィルタとして準備</translation>
+    </message>
+    <message>
+        <source>Apply as Filter</source>
+        <translation type="unfinished">フィルタとして適用</translation>
     </message>
     <message>
         <source>Save as…</source>
@@ -5881,6 +5912,41 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Import Text File</source>
         <translation>テキストファイルをインポート</translation>
+    </message>
+</context>
+<context>
+    <name>InPacketFindBar</name>
+    <message>
+        <source>String</source>
+        <translation type="unfinished">文字列</translation>
+    </message>
+    <message>
+        <source>Regular Expression</source>
+        <translation type="unfinished">正規表現</translation>
+    </message>
+    <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">大文字小文字を区別</translation>
+    </message>
+    <message>
+        <source>Find</source>
+        <translation type="unfinished">検索</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">キャンセル</translation>
+    </message>
+    <message>
+        <source>invalid pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no matches</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 of %2</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8936,8 +9002,20 @@ Shift+クリック: 空行では無効なブレークポイントを追加
         <translation>ダイアログ</translation>
     </message>
     <message>
+        <source>&amp;Edit</source>
+        <translation type="unfinished">編集(&amp;E)</translation>
+    </message>
+    <message>
         <source>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
+    </message>
+    <message>
+        <source>Find in Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find in the packet details tree (Ctrl+Alt+F)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show packet bytes</source>
@@ -8946,6 +9024,14 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     <message>
         <source>Layout:</source>
         <translation>レイアウト:</translation>
+    </message>
+    <message>
+        <source>Find in &amp;Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find in the packet details tree (%1)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packet %1</source>
@@ -10326,6 +10412,10 @@ Shift+クリック: 空行では無効なブレークポイントを追加
         <translation>すべて閉じる</translation>
     </message>
     <message>
+        <source>Distribution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Copy</source>
         <translation>コピー</translation>
     </message>
@@ -11375,13 +11465,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
 %1: add or remove on the current line in the editor</source>
         <translation>クリックしてすべてのブレークポイントを無効化します
 %1: エディタの現在の行で追加または削除</translation>
-    </message>
-</context>
-<context>
-    <name>QObject::QObject::QObject</name>
-    <message>
-        <source>CCCH</source>
-        <translation type="vanished">CCCH</translation>
     </message>
 </context>
 <context>
@@ -13421,6 +13504,14 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>複数発生するフィールド値</translation>
     </message>
     <message>
+        <source>Search the selected packet details tree</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find in selected Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5), a plain string (e.g. My String) or a regular expression (e.g. colou?r).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5) or a plain string (e.g. My String).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</oldsource>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;表示フィルタ構文(例 ip.addr==10.1.1.1),16数文字列(例 ffffda5),平文文字列(例 My String)もしくは正規表現(例 colou?r)を用いてデータを検索しますt;/body&gt;&lt;/html&gt;</translation>
@@ -13456,6 +13547,14 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Invalid filter.</source>
         <translation>無効なフィルタです</translation>
+    </message>
+    <message>
+        <source>Search for a plain text string in the current packet details tree (e.g. My String).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search using a regular expression in the current packet details tree (e.g. colou?r).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>
@@ -13500,6 +13599,30 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>No packet matched that filter.</source>
         <translation>フィルタに一致するパケットはありませんでした</translation>
+    </message>
+    <message>
+        <source>Find in Packet supports string and regular expression search only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>[no matches] %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No %1 found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>[%1 of %2]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search for a plain text string/char in the current packet details tree (e.g. &apos;flag&apos; or &apos;f&apos;).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search using a regular expression in the current packet details tree (e.g. &apos;d&apos;).</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -17510,6 +17633,14 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
     <message>
         <source>TCP capture-level duplicate packet table</source>
         <translation>TCPキャプチャレベル複製パケットテーブル</translation>
+    </message>
+    <message>
+        <source>Distribution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distribution statistics</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>General</source>

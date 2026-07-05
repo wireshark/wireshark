@@ -3076,6 +3076,29 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
 </context>
 <context>
+    <name>DistributionDialog</name>
+    <message>
+        <source>Field Values Distribution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Occurrences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Percent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distribution:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>EnabledProtocolsDialog</name>
     <message>
         <source>Dialog</source>
@@ -4182,7 +4205,7 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Filter Out This Stream</source>
         <oldsource>Hide this stream</oldsource>
-        <translation>滤掉此流</translation>
+        <translation type="vanished">滤掉此流</translation>
     </message>
     <message>
         <source>Print</source>
@@ -4227,6 +4250,14 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Raw</source>
         <translation>原始数据</translation>
+    </message>
+    <message>
+        <source>Prepare as Filter</source>
+        <translation type="unfinished">准备作为过滤器</translation>
+    </message>
+    <message>
+        <source>Apply as Filter</source>
+        <translation type="unfinished">作为过滤器应用</translation>
     </message>
     <message>
         <source>Save as…</source>
@@ -5836,6 +5867,41 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Import Text File</source>
         <translation>导入文本文件</translation>
+    </message>
+</context>
+<context>
+    <name>InPacketFindBar</name>
+    <message>
+        <source>String</source>
+        <translation type="unfinished">字符串</translation>
+    </message>
+    <message>
+        <source>Regular Expression</source>
+        <translation type="unfinished">正则表达式</translation>
+    </message>
+    <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">区分大小写</translation>
+    </message>
+    <message>
+        <source>Find</source>
+        <translation type="unfinished">查找</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">取消</translation>
+    </message>
+    <message>
+        <source>invalid pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no matches</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 of %2</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8869,8 +8935,20 @@ on an existing breakpoint, toggle its active state</source>
         <translation>对话框</translation>
     </message>
     <message>
+        <source>&amp;Edit</source>
+        <translation type="unfinished">编辑(&amp;E)</translation>
+    </message>
+    <message>
         <source>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
+    </message>
+    <message>
+        <source>Find in Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find in the packet details tree (Ctrl+Alt+F)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show packet bytes</source>
@@ -8878,6 +8956,14 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Layout:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find in &amp;Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find in the packet details tree (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10211,6 +10297,10 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>Collapse All</source>
         <translation type="unfinished">全部折叠</translation>
+    </message>
+    <message>
+        <source>Distribution</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy</source>
@@ -13296,6 +13386,14 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Search the selected packet details tree</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find in selected Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5), a plain string (e.g. My String) or a regular expression (e.g. colou?r).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5) or a plain string (e.g. My String).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</oldsource>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;以“显示过滤器”语法 (如 ip.addr==10.1.1.1)、十六进制字符串 (如 fffffda5) 或纯字符串 (如 My String) 搜索数据。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -13331,6 +13429,14 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Invalid filter.</source>
         <translation>无效过滤器。</translation>
+    </message>
+    <message>
+        <source>Search for a plain text string in the current packet details tree (e.g. My String).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search using a regular expression in the current packet details tree (e.g. colou?r).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>
@@ -13375,6 +13481,30 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>No packet matched that filter.</source>
         <translation>无分组与该过滤器匹配。</translation>
+    </message>
+    <message>
+        <source>Find in Packet supports string and regular expression search only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>[no matches] %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No %1 found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>[%1 of %2]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search for a plain text string/char in the current packet details tree (e.g. &apos;flag&apos; or &apos;f&apos;).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search using a regular expression in the current packet details tree (e.g. &apos;d&apos;).</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -17341,6 +17471,14 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>TCP capture-level duplicate packet table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distribution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distribution statistics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

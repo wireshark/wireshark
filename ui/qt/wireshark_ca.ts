@@ -1370,7 +1370,7 @@ Desactivat = només punt de registre (coincideix amb la convenció històrica «
     </message>
     <message>
         <source>Syntax checking unavailable</source>
-        <translation type="unfinished"></translation>
+        <translation>La comprovació de sintaxi no està disponible.</translation>
     </message>
 </context>
 <context>
@@ -3103,6 +3103,29 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
 </context>
 <context>
+    <name>DistributionDialog</name>
+    <message>
+        <source>Field Values Distribution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Occurrences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Percent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distribution:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>EnabledProtocolsDialog</name>
     <message>
         <source>Dialog</source>
@@ -3548,7 +3571,7 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Only display the first of identical entries</source>
-        <translation type="unfinished"></translation>
+        <translation>De les entrades idèntiques, mostra&apos;n només la primera</translation>
     </message>
     <message>
         <source>Searching for objects</source>
@@ -3592,7 +3615,7 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Save Objects In…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa els objectes en…</translation>
     </message>
     <message>
         <source>Save All Objects In…</source>
@@ -3885,7 +3908,7 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Clear the filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Neteja el filtre</translation>
     </message>
     <message>
         <source>Apply this filter</source>
@@ -4159,7 +4182,7 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>User-installed theme files (*.jsonc)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxers de temes instal·lats per l&apos;usuari (*.jsonc)</translation>
     </message>
     <message>
         <source>MaxMind DB path</source>
@@ -4210,7 +4233,7 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <message>
         <source>Filter Out This Stream</source>
         <oldsource>Hide this stream</oldsource>
-        <translation>Filtra aquest flux</translation>
+        <translation type="vanished">Filtra aquest flux</translation>
     </message>
     <message>
         <source>Print</source>
@@ -4257,6 +4280,14 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <message>
         <source>Raw</source>
         <translation>Valors en brut (Raw)</translation>
+    </message>
+    <message>
+        <source>Prepare as Filter</source>
+        <translation type="unfinished">Prepara com a filtre</translation>
+    </message>
+    <message>
+        <source>Apply as Filter</source>
+        <translation type="unfinished">Aplica com a filtre</translation>
     </message>
     <message>
         <source>Save as…</source>
@@ -5907,6 +5938,41 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
 </context>
 <context>
+    <name>InPacketFindBar</name>
+    <message>
+        <source>String</source>
+        <translation type="unfinished">Cadena</translation>
+    </message>
+    <message>
+        <source>Regular Expression</source>
+        <translation type="unfinished">Expressió regular</translation>
+    </message>
+    <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">Distingeix majúscules i minúscules</translation>
+    </message>
+    <message>
+        <source>Find</source>
+        <translation type="unfinished">Cerca</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Cancel·la</translation>
+    </message>
+    <message>
+        <source>invalid pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no matches</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 of %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>InfoBannerWidget</name>
     <message>
         <source>Tips and announcements</source>
@@ -6029,7 +6095,7 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Hide all &apos;%1&apos; interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Amaga totes les interfícies «%1»</translation>
     </message>
 </context>
 <context>
@@ -6043,15 +6109,15 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <name>InterfaceStatsWorker</name>
     <message>
         <source>The interface statistics stream stopped unexpectedly.</source>
-        <translation type="unfinished"></translation>
+        <translation>El flux d&apos;estadístiques de la interfície ha parat inesperadament.</translation>
     </message>
     <message>
         <source>Unable to start the interface statistics stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>El flux d&apos;estadístiques de la interfície no s&apos;ha pogut iniciar.</translation>
     </message>
     <message>
         <source>This build has no packet capture support.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aquest muntatge no té suport de captura de paquets.</translation>
     </message>
 </context>
 <context>
@@ -7794,11 +7860,11 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>ON — Break on Lua errors</source>
-        <translation type="unfinished"></translation>
+        <translation>ON — Para quan hi hagi errors LUA</translation>
     </message>
     <message>
         <source>OFF — Break on Lua errors</source>
-        <translation type="unfinished"></translation>
+        <translation>OFF — Para quan hi hagi errors LUA</translation>
     </message>
     <message>
         <source>Files</source>
@@ -7987,7 +8053,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>(runtime error)</source>
-        <translation type="unfinished"></translation>
+        <translation>(error d&apos;execució)</translation>
     </message>
     <message>
         <source>Running</source>
@@ -8332,7 +8398,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source> %1 Aggregated: %2</source>
-        <translation type="unfinished"></translation>
+        <translation> %1 agragat: %2</translation>
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
@@ -8970,8 +9036,20 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Diàleg</translation>
     </message>
     <message>
+        <source>&amp;Edit</source>
+        <translation type="unfinished">&amp;Edita</translation>
+    </message>
+    <message>
         <source>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
+    </message>
+    <message>
+        <source>Find in Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find in the packet details tree (Ctrl+Alt+F)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show packet bytes</source>
@@ -8980,6 +9058,14 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>Layout:</source>
         <translation>Disposició:</translation>
+    </message>
+    <message>
+        <source>Find in &amp;Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find in the packet details tree (%1)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packet %1</source>
@@ -9993,7 +10079,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Aggregation</source>
-        <translation type="unfinished"></translation>
+        <translation>Agregació</translation>
     </message>
 </context>
 <context>
@@ -10368,6 +10454,10 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>Collapse All</source>
         <translation>Plega-ho tot</translation>
+    </message>
+    <message>
+        <source>Distribution</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy</source>
@@ -11422,13 +11512,6 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
 %1: add or remove on the current line in the editor</source>
         <translation>Feu clic per a desactivar tots els punts d&apos;interrupció.
 %1: afegiu o traieu a la línia actual de l&apos;editor</translation>
-    </message>
-</context>
-<context>
-    <name>QObject::QObject::QObject</name>
-    <message>
-        <source>CCCH</source>
-        <translation type="vanished">CCCH</translation>
     </message>
 </context>
 <context>
@@ -13472,6 +13555,14 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
         <translation>Ocurrències múltiples</translation>
     </message>
     <message>
+        <source>Search the selected packet details tree</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find in selected Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5), a plain string (e.g. My String) or a regular expression (e.g. colou?r).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5) or a plain string (e.g. My String).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</oldsource>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cerca dades fent servir la sintaxi de filtres de visualització (com ara ip.addr==10.1.1.1), com a cadena hexadecimal (com ara fffffda5), una cadena neta (com ara «La meva cadena») o una expressió regular (com ara un color).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -13507,6 +13598,14 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     <message>
         <source>Invalid filter.</source>
         <translation>Filtre no vàlid.</translation>
+    </message>
+    <message>
+        <source>Search for a plain text string in the current packet details tree (e.g. My String).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search using a regular expression in the current packet details tree (e.g. colou?r).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>
@@ -13551,6 +13650,30 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     <message>
         <source>No packet matched that filter.</source>
         <translation>Cap paquet compleix aquest filtre.</translation>
+    </message>
+    <message>
+        <source>Find in Packet supports string and regular expression search only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>[no matches] %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No %1 found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>[%1 of %2]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search for a plain text string/char in the current packet details tree (e.g. &apos;flag&apos; or &apos;f&apos;).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search using a regular expression in the current packet details tree (e.g. &apos;d&apos;).</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -15040,12 +15163,13 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     <name>TcpDedupDialog</name>
     <message>
         <source>TCP Duplication Table</source>
-        <translation type="unfinished"></translation>
+        <translation>Taula de duplicats TCP</translation>
     </message>
     <message>
         <source>The &quot;Detect duplication (capture-level) packets&quot; preference must be enabled in
 Preferences → Protocols → TCP to use this table.</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;ha d&apos;activar l&apos;opció «Detecta paquets duplicats (a nivell de captura)» que hi ha a 
+Preferències → Protocols → TCP per a fer servir aquesta taula.</translation>
     </message>
     <message>
         <source>Time</source>
@@ -15061,7 +15185,7 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Duplication Total</source>
-        <translation type="unfinished"></translation>
+        <translation>Total de duplicats</translation>
     </message>
     <message>
         <source>Frame List</source>
@@ -15088,7 +15212,7 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Internal:</source>
-        <translation type="unfinished"></translation>
+        <translation>Intern:</translation>
     </message>
     <message>
         <source>Version:</source>
@@ -15136,7 +15260,7 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>These values refresh live while the dialog is open.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aquests valors s&apos;actualitzen en directe mentre el diàleg estigui obert.</translation>
     </message>
     <message>
         <source>Main Window</source>
@@ -15144,7 +15268,7 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Track widget under mouse</source>
-        <translation type="unfinished"></translation>
+        <translation>Rastreja el giny que hi ha sota el ratolí</translation>
     </message>
     <message>
         <source>The inspector reports any widget in this application under the cursor — including child dialogs. Widgets that belong to this debug window are skipped so the last hovered target stays pinned. Hold Alt+Shift and click any widget to pin it: this turns off tracking and locks the readout onto that widget (re-check the box above to resume). Note: on macOS, tool windows are hidden whenever another application has focus, so tracking pauses until Wireshark is frontmost again.</source>
@@ -15188,7 +15312,7 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>ThemeManager token</source>
-        <translation type="unfinished"></translation>
+        <translation>Token del ThemeManager</translation>
     </message>
     <message>
         <source>Swatch</source>
@@ -15196,11 +15320,11 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Stylesheet:</source>
-        <translation type="unfinished"></translation>
+        <translation>Full d&apos;estils:</translation>
     </message>
     <message>
         <source>(no stylesheet)</source>
-        <translation type="unfinished"></translation>
+        <translation>(sense full d&apos;estils)</translation>
     </message>
     <message>
         <source>Widget Inspector</source>
@@ -15208,15 +15332,15 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Token</source>
-        <translation type="unfinished"></translation>
+        <translation>Token</translation>
     </message>
     <message>
         <source>Hex</source>
-        <translation type="unfinished"></translation>
+        <translation>Hex</translation>
     </message>
     <message>
         <source>Tokens</source>
-        <translation type="unfinished"></translation>
+        <translation>Tokens</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -15319,7 +15443,7 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Could not write the image to &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut escriure la imatge a «%1».</translation>
     </message>
     <message>
         <source>Info</source>
@@ -15339,7 +15463,7 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Displayed: %1 (100.0%)</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrats: %1 (100.0 %)</translation>
     </message>
 </context>
 <context>
@@ -17559,10 +17683,18 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Duplication Table</source>
-        <translation type="unfinished"></translation>
+        <translation>Taula de duplicats</translation>
     </message>
     <message>
         <source>TCP capture-level duplicate packet table</source>
+        <translation>Taula de paquets TCP duplicats a nivell de captura</translation>
+    </message>
+    <message>
+        <source>Distribution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distribution statistics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

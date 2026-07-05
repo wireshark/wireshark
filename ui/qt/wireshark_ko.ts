@@ -3080,6 +3080,29 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
 </context>
 <context>
+    <name>DistributionDialog</name>
+    <message>
+        <source>Field Values Distribution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Occurrences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Percent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distribution:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>EnabledProtocolsDialog</name>
     <message>
         <source>Dialog</source>
@@ -4186,7 +4209,7 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Filter Out This Stream</source>
         <oldsource>Hide this stream</oldsource>
-        <translation>필터로 이 스트림 제외</translation>
+        <translation type="vanished">필터로 이 스트림 제외</translation>
     </message>
     <message>
         <source>Print</source>
@@ -4231,6 +4254,14 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Raw</source>
         <translation>Raw(무편집) 형식</translation>
+    </message>
+    <message>
+        <source>Prepare as Filter</source>
+        <translation type="unfinished">필터로 준비</translation>
+    </message>
+    <message>
+        <source>Apply as Filter</source>
+        <translation type="unfinished">필터로 적용</translation>
     </message>
     <message>
         <source>Save as…</source>
@@ -5840,6 +5871,41 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Import Text File</source>
         <translation>텍스트 파일 가져오기</translation>
+    </message>
+</context>
+<context>
+    <name>InPacketFindBar</name>
+    <message>
+        <source>String</source>
+        <translation type="unfinished">문자열</translation>
+    </message>
+    <message>
+        <source>Regular Expression</source>
+        <translation type="unfinished">정규 표현식</translation>
+    </message>
+    <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished">대소문자 구분</translation>
+    </message>
+    <message>
+        <source>Find</source>
+        <translation type="unfinished">찾기</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">취소</translation>
+    </message>
+    <message>
+        <source>invalid pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no matches</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 of %2</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8873,8 +8939,20 @@ on an existing breakpoint, toggle its active state</source>
         <translation>대화 상자</translation>
     </message>
     <message>
+        <source>&amp;Edit</source>
+        <translation type="unfinished">편집(&amp;E)</translation>
+    </message>
+    <message>
         <source>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
+    </message>
+    <message>
+        <source>Find in Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find in the packet details tree (Ctrl+Alt+F)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show packet bytes</source>
@@ -8883,6 +8961,14 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>Layout:</source>
         <translation>레이아웃:</translation>
+    </message>
+    <message>
+        <source>Find in &amp;Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find in the packet details tree (%1)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packet %1</source>
@@ -10230,6 +10316,10 @@ on an existing breakpoint, toggle its active state</source>
         <translation>모두 접기</translation>
     </message>
     <message>
+        <source>Distribution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Copy</source>
         <translation>복사</translation>
     </message>
@@ -11274,13 +11364,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <source>Click to deactivate all breakpoints
 %1: add or remove on the current line in the editor</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QObject::QObject::QObject</name>
-    <message>
-        <source>CCCH</source>
-        <translation type="vanished">CCCH</translation>
     </message>
 </context>
 <context>
@@ -13320,6 +13403,14 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>여러 번 발견됨</translation>
     </message>
     <message>
+        <source>Search the selected packet details tree</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find in selected Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5), a plain string (e.g. My String) or a regular expression (e.g. colou?r).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5) or a plain string (e.g. My String).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</oldsource>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;표시 필터 문법(예: ip.addr==10.1.1.1), 16진수 문자열(예: ffffda5), 일반 문자열(예: My String) 또는 정규 표현식(예: colou?r)을 사용하여 데이터를 검색합니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -13355,6 +13446,14 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Invalid filter.</source>
         <translation>잘못된 필터입니다.</translation>
+    </message>
+    <message>
+        <source>Search for a plain text string in the current packet details tree (e.g. My String).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search using a regular expression in the current packet details tree (e.g. colou?r).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>
@@ -13399,6 +13498,30 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>No packet matched that filter.</source>
         <translation>필터와 일치하는 패킷이 없습니다.</translation>
+    </message>
+    <message>
+        <source>Find in Packet supports string and regular expression search only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>[no matches] %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No %1 found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>[%1 of %2]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search for a plain text string/char in the current packet details tree (e.g. &apos;flag&apos; or &apos;f&apos;).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search using a regular expression in the current packet details tree (e.g. &apos;d&apos;).</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -17365,6 +17488,14 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>TCP capture-level duplicate packet table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distribution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distribution statistics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

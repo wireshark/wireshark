@@ -404,7 +404,7 @@ static const struct ws_iana_ip_special_block __ipv6_special_block[] = {
 };
 
 
-/* (last updated 2026-06-26) */
+/* (last updated 2026-07-02) */
 
 
 static const value_string enterprise_val[] = {
@@ -24310,7 +24310,7 @@ static const value_string enterprise_val[] = {
 	{ 23940,    "Sysco S.p.A." },
 	{ 23941,    "Opentaskforce" },
 	{ 23942,    "Intelligent Mobile Solutions, Inc." },
-	{ 23943,    "Cendres+Métaux Holding SA" },
+	{ 23943,    "CMSA Holding SA" },
 	{ 23944,    "DENIC eG" },
 	{ 23945,    "Institute of Journalism, University Dortmund" },
 	{ 23946,    "MINISTERO DELL'INTERNO - DIREZIONE CENTRALE POLIZIA CRIMINALE" },
@@ -39337,7 +39337,7 @@ static const value_string enterprise_val[] = {
 	{ 38989,    "Qtree BVBA" },
 	{ 38990,    "Nova World International, LLC dba Nova Shipping" },
 	{ 38991,    "Innoforma E-learning Technologies" },
-	{ 38992,    "SCCT, Wilhelm Wimmreuter" },
+	{ 38992,    "Wilhelm Wimmreuter" },
 	{ 38993,    "South Jersey Healthcare" },
 	{ 38994,    "San Juan Software" },
 	{ 38995,    "Connexon Telecom Inc." },
@@ -66419,6 +66419,30 @@ static const value_string enterprise_val[] = {
 	{ 66123,    "YJC POWER AUSTRALIA PTY LTD" },
 	{ 66124,    "Henrik levinsson AB" },
 	{ 66125,    "PRAIMTECH, LIMITED LIABILITY COMPANY" },
+	{ 66126,    "Perinet GmbH" },
+	{ 66127,    "ANF AC DOMINICANA" },
+	{ 66128,    "PharmaProspective LLC" },
+	{ 66129,    "Ontario School District" },
+	{ 66130,    "Wreckedkernel" },
+	{ 66131,    "China Broadnet" },
+	{ 66132,    "HaysMac LLP" },
+	{ 66133,    "THINGS4NUVA SL" },
+	{ 66134,    "AIRNITY" },
+	{ 66135,    "Telonic Systems Inc." },
+	{ 66136,    "OOO NPO MIR" },
+	{ 66137,    "Natalka" },
+	{ 66138,    "Civic Hacker LLC" },
+	{ 66139,    "slvk" },
+	{ 66140,    "Viaflux" },
+	{ 66141,    "extr3m IT" },
+	{ 66142,    "NBSN Telecom Limited" },
+	{ 66143,    "Bergkvist Siljan Insjön AB" },
+	{ 66144,    "Arexico" },
+	{ 66145,    "Reuniwatt SAS" },
+	{ 66146,    "Hmi Muhendislik Otomatik Kontrol Sistemleri" },
+	{ 66147,    "TAKE IT GmbH & Co. KG" },
+	{ 66148,    "Cambodian Network Exchange" },
+	{ 66149,    "FOM Hochschule für Oekonomie und Management" },
 	{ 0, NULL }
 };
 

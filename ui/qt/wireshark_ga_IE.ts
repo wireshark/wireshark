@@ -3115,6 +3115,29 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     </message>
 </context>
 <context>
+    <name>DistributionDialog</name>
+    <message>
+        <source>Field Values Distribution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Occurrences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Percent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distribution:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>EnabledProtocolsDialog</name>
     <message>
         <source>Dialog</source>
@@ -4223,7 +4246,7 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     <message>
         <source>Filter Out This Stream</source>
         <oldsource>Hide this stream</oldsource>
-        <translation>Scag Amach an Sruth seo</translation>
+        <translation type="vanished">Scag Amach an Sruth seo</translation>
     </message>
     <message>
         <source>Print</source>
@@ -4272,6 +4295,14 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     <message>
         <source>Raw</source>
         <translation>Amh</translation>
+    </message>
+    <message>
+        <source>Prepare as Filter</source>
+        <translation type="unfinished">Ullmhaigh mar Scagaire</translation>
+    </message>
+    <message>
+        <source>Apply as Filter</source>
+        <translation type="unfinished">Cuir i bhfeidhm mar scagaire</translation>
     </message>
     <message>
         <source>Save as…</source>
@@ -5924,6 +5955,41 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     <message>
         <source>Import Text File</source>
         <translation>Iompórtáil Téacschomhad</translation>
+    </message>
+</context>
+<context>
+    <name>InPacketFindBar</name>
+    <message>
+        <source>String</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Regular Expression</source>
+        <translation type="unfinished">Slonn ionadaíochta</translation>
+    </message>
+    <message>
+        <source>Case sensitive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find</source>
+        <translation type="unfinished">Aimsigh</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>invalid pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>no matches</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 of %2</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9006,8 +9072,20 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
         <translation>Dialóg</translation>
     </message>
     <message>
+        <source>&amp;Edit</source>
+        <translation type="unfinished">&amp;Cuir in eagar</translation>
+    </message>
+    <message>
         <source>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
+    </message>
+    <message>
+        <source>Find in Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find in the packet details tree (Ctrl+Alt+F)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show packet bytes</source>
@@ -9016,6 +9094,14 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     <message>
         <source>Layout:</source>
         <translation>Leagan Amach:</translation>
+    </message>
+    <message>
+        <source>Find in &amp;Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find in the packet details tree (%1)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packet %1</source>
@@ -10416,6 +10502,10 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
         <translation>Laghdaigh Gach Rud</translation>
     </message>
     <message>
+        <source>Distribution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Copy</source>
         <translation>Cóipeáil</translation>
     </message>
@@ -11470,13 +11560,6 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
 %1: add or remove on the current line in the editor</source>
         <translation>Cliceáil chun na pointí briste go léir a dhíghníomhachtú
 %1: cuir leis nó bain ar an líne reatha san eagarthóir</translation>
-    </message>
-</context>
-<context>
-    <name>QObject::QObject::QObject</name>
-    <message>
-        <source>CCCH</source>
-        <translation type="vanished">CCCH</translation>
     </message>
 </context>
 <context>
@@ -13524,6 +13607,14 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
         <translation>Tarluithe iolracha</translation>
     </message>
     <message>
+        <source>Search the selected packet details tree</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find in selected Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5), a plain string (e.g. My String) or a regular expression (e.g. colou?r).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5) or a plain string (e.g. My String).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</oldsource>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cuardaigh sonraí ag baint úsáide as comhréir scagaire taispeána (m.sh. ip.addr ==10.1.1.1), teaghrán heicsidheachúlach (m.sh. fffffda5), teaghrán simplí (m.sh. Mo Teaghrán) nó slonn ionadaíochta (m.sh. colou?r).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -13559,6 +13650,14 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     <message>
         <source>Invalid filter.</source>
         <translation>Scagaire neamhbhailí.</translation>
+    </message>
+    <message>
+        <source>Search for a plain text string in the current packet details tree (e.g. My String).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search using a regular expression in the current packet details tree (e.g. colou?r).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>
@@ -13603,6 +13702,30 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     <message>
         <source>No packet matched that filter.</source>
         <translation>Níor mheaitseáil aon phaicéad an scagaire sin.</translation>
+    </message>
+    <message>
+        <source>Find in Packet supports string and regular expression search only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>[no matches] %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No %1 found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>[%1 of %2]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search for a plain text string/char in the current packet details tree (e.g. &apos;flag&apos; or &apos;f&apos;).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search using a regular expression in the current packet details tree (e.g. &apos;d&apos;).</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -17621,6 +17744,14 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
     <message>
         <source>TCP capture-level duplicate packet table</source>
         <translation>Tábla paicéad dúblach leibhéal gabhála TCP</translation>
+    </message>
+    <message>
+        <source>Distribution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distribution statistics</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>General</source>

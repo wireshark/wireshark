@@ -11,7 +11,7 @@
 #include "data-dmx-manfid.h"
 
 /*
- * ESTA codes download date: 2026-06-28
+ * ESTA codes download date: 2026-07-05
  */
 static const value_string dmx_esta_manfid_vals[] = {
   { 0x0000, "ESTA / PLASA" },
@@ -446,6 +446,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0638, "ROLITECH LIMITED" },
   { 0x063A, "AVM Belgium BVBA" },
   { 0x063C, "LaserNet" },
+  { 0x0642, "RavLight" },
   { 0x0644, "COLEDER DISPLAY CO., LTD." },
   { 0x0645, "MATSUMURA ELECTRIC MFG. CO. , LTD." },
   { 0x064A, "RZ LIGHTING CO., LTD" },
@@ -905,6 +906,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0921, "Guangzhou mengyi stage lighting equipment co., LTD." },
   { 0x0922, "von Gaisberg Engineering" },
   { 0x0923, "Hangzhou Roleds Lighting System Co., Ltd." },
+  { 0x0924, "Guangzhou Crolighting CO., LTD" },
   { 0x0925, "Guangzhou Aiweidy Lighting Acoustics Equipment Co.,Ltd." },
   { 0x0926, "Elumeros Lighting Limited" },
   { 0x0927, "Guangzhou Mingying Electronic Technology / Phazed Logik" },
