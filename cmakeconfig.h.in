@@ -300,6 +300,9 @@
 /* Define if you have the 'memrchr' function. */
 #cmakedefine HAVE_MEMRCHR 1
 
+/* Define if you have the 'strchrnul' function. */
+#cmakedefine HAVE_STRCHRNUL 1
+
 /* Define if you have the 'strerrorname_np' function. */
 #cmakedefine HAVE_STRERRORNAME_NP 1
 

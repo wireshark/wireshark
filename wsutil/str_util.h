@@ -230,6 +230,17 @@ const char *ws_ascii_strcasestr(const char *haystack, const char *needle);
 WS_DLL_PUBLIC
 const uint8_t *ws_memrchr(const void *haystack, int ch, size_t n);
 
+/** Like the strchr() function, except if the character is not found
+ * returns a pointer to the terminating '\0' byte.
+ *
+ * @param str Pointer to the null-terminated string to search
+ * @param ch The character to search
+ * @return A pointer to the first occurrence of "ch" in "str";
+ * if "ch" isn't found, returns a pointer to "str"'s null terminator.
+ */
+WS_DLL_PUBLIC
+char *ws_strchrnul(const char *str, int ch);
+
 /**
  * @brief Escape a null-terminated string for safe display or output.
  *
