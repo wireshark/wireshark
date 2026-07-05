@@ -1999,6 +1999,8 @@ desegment_quic_stream(tvbuff_t *tvb, int offset, int length, packet_info *pinfo,
     const uint32_t nxtseq = seq + (uint32_t)length;
     uint32_t reassembly_id = 0;
     bool first_pdu = true;
+    bool saved_fin;
+    bool has_gap = false;
 
     // XXX fix the tvb accessors below such that no new tvb is needed.
     tvb = tvb_new_subset_length(tvb, 0, offset + length);
@@ -2072,9 +2074,8 @@ again:
         reassembly_id = msp ? msp->first_frame : pinfo->num;
     }
 
-    bool has_gap = false;
-
-    /* Only do retransmission & gap checks on the whole STREAM frame. */
+    /* Only do retransmission & gap checks on the whole STREAM frame.
+     * If there was a gap on the first PDU there still is one. */
     if (first_pdu /* && ! REASSEMBLE_UNTIL_FIN */ ) {
         quic_retrans_key *tmp_key = wmem_new(pinfo->pool, quic_retrans_key);
         tmp_key->num = pinfo->num;
@@ -2301,8 +2302,15 @@ again:
             tvbuff_t *next_tvb = tvb_new_chain(tvb, fh->tvb_data);
             add_new_data_source(pinfo, next_tvb, "Reassembled QUIC");
             stream_info->offset = seq;
+            /* If we know that another PDU follows, don't tell the subdissector
+             * that we're at FIN. It will be set on the next PDU. */
+            saved_fin = stream_info->fin;
+            if (another_pdu_follows) {
+                stream_info->fin = false;
+            }
             process_quic_stream(next_tvb, 0, pinfo, tree, quic_info, stream_info, quic_packet);
             called_dissector = true;
+            stream_info->fin = saved_fin;
 
             int old_len = (int)(tvb_reported_length(next_tvb) - last_fragment_len);
             if (pinfo->desegment_len &&
@@ -2475,6 +2483,8 @@ dissect_quic_stream_payload(tvbuff_t *tvb, int offset, int length, packet_info *
      * preference to disable reassembly.
      */
 
+    /* If stream_info->fin, then call the subdissector (especially for
+     * HTTP/3?) */
     if (length > 0) {
         /* Don't call a subdissector for a zero length segment. It won't
          * work for dissection (see #12368), and our methods of determing
