@@ -9684,13 +9684,6 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
 </context>
 <context>
-    <name>QObject::QObject::QObject</name>
-    <message>
-        <source>CCCH</source>
-        <translation type="vanished">CCCH</translation>
-    </message>
-</context>
-<context>
     <name>RemoteCaptureDialog</name>
     <message>
         <source>Remote Interface</source>
