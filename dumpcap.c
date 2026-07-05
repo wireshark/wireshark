@@ -3430,27 +3430,6 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
     } else {
         ld->pdh = ws_cwstream_fdopen(ld->save_file_fd, ws_name_to_compression_type(capture_opts->compress_type), &err);
     }
-    if (ld->pdh) {
-        bool successful;
-        if (capture_opts->use_pcapng) {
-            successful = capture_loop_init_pcapng_output(capture_opts, ld, &err);
-        } else {
-            capture_src *pcap_src;
-            pcap_src = g_array_index(ld->pcaps, capture_src *, 0);
-            if (pcap_src->from_cap_pipe) {
-                pcap_src->snaplen = pcap_src->cap_pipe_info.pcap.hdr.snaplen;
-            } else {
-                pcap_src->snaplen = pcap_snapshot(pcap_src->pcap_h);
-            }
-            successful = libpcap_write_file_header(ld->pdh, pcap_src->linktype, pcap_src->snaplen,
-                                                pcap_src->ts_nsec, &ld->bytes_written, &err);
-        }
-        if (!successful) {
-            ws_cwstream_close(ld->pdh, NULL);
-            ld->pdh = NULL;
-        }
-    }
-
     if (ld->pdh == NULL) {
         /* We couldn't set up to write to the capture file. */
         /* XXX - use cf_open_error_message from ui/capture.c instead? */
@@ -3465,6 +3444,39 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
                        " saved (\"%s\") could not be opened: %s.",
                        capture_opts->save_file, g_strerror(err));
         }
+        return false;
+    }
+
+    bool successful;
+
+    if (capture_opts->use_pcapng) {
+        successful = capture_loop_init_pcapng_output(capture_opts, ld, &err);
+    } else {
+        capture_src *pcap_src;
+        pcap_src = g_array_index(ld->pcaps, capture_src *, 0);
+        if (pcap_src->from_cap_pipe) {
+            pcap_src->snaplen = pcap_src->cap_pipe_info.pcap.hdr.snaplen;
+        } else {
+            pcap_src->snaplen = pcap_snapshot(pcap_src->pcap_h);
+        }
+        successful = libpcap_write_file_header(ld->pdh, pcap_src->linktype, pcap_src->snaplen,
+                                               pcap_src->ts_nsec, &ld->bytes_written, &err);
+    }
+    if (!successful) {
+        /* We couldn't write to the capture file. */
+        if (err < 0) {
+            snprintf(errmsg, errmsg_len,
+                     "The file to which the capture would be"
+                     " saved (\"%s\") could not be written to: Error %d.",
+                     capture_opts->save_file, err);
+        } else {
+            snprintf(errmsg, errmsg_len,
+                     "The file to which the capture would be"
+                     " saved (\"%s\") could not be written to: %s.",
+                     capture_opts->save_file, g_strerror(err));
+        }
+        ws_cwstream_close(ld->pdh, NULL);
+        ld->pdh = NULL;
         return false;
     }
 
