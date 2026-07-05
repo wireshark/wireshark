@@ -419,6 +419,7 @@ ws_cwstream_close(ws_cwstream* pfile, int *errp)
             if (fclose(pfile->fh) == EOF) {
                 err = errno;
             }
+            break;
     }
 
     g_free(pfile->io_buffer);
@@ -427,6 +428,29 @@ ws_cwstream_close(ws_cwstream* pfile, int *errp)
         *errp = err;
     }
     return err == 0;
+}
+
+void
+ws_cwstream_close_after_error(ws_cwstream* pfile)
+{
+    switch (pfile->ctype) {
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+        case WS_FILE_GZIP_COMPRESSED:
+            gzwfile_close_after_error(pfile->fh);
+            break;
+#endif
+#ifdef HAVE_LZ4FRAME_H
+        case WS_FILE_LZ4_COMPRESSED:
+            lz4wfile_close_after_error(pfile->fh);
+            break;
+#endif /* HAVE_LZ4FRAME_H */
+        default:
+            (void)fclose(pfile->fh);
+            break;
+    }
+
+    g_free(pfile->io_buffer);
+    g_free(pfile);
 }
 
 #ifdef USE_ZLIB_OR_ZLIBNG
@@ -713,6 +737,18 @@ gzwfile_close(GZWFILE_T state)
     return ret;
 }
 
+/* Immediately close the file after an error has occurred writing or
+   flushing; do nothing other than freeing memory and closing file
+   descriptors. Returns no error. */
+void
+gzwfile_close_after_error(GZWFILE_T state)
+{
+    g_free(state->out);
+    g_free(state->in);
+    (void)ws_close(state->fd);
+    g_free(state);
+}
+
 int
 gzwfile_geterr(GZWFILE_T state)
 {
@@ -978,7 +1014,7 @@ lz4wfile_close(LZ4WFILE_T state)
             // Should never happen if size_out >= LZ4F_compressBound(0, prefsPtr)
             ret = FILE_ERR_CANT_COMPRESS;
         }
-        if (!lz4_write_out(state, bytesWritten)) {
+        if (!lz4_write_out(state, bytesWritten) && ret == 0) {
             ret = state->err;
         }
         g_free(state->out);
@@ -990,6 +1026,23 @@ lz4wfile_close(LZ4WFILE_T state)
         ret = errno;
     g_free(state);
     return ret;
+}
+
+/* Immediately close the file after an error has occurred writing or
+   flushing; do nothing other than freeing memory and closing file
+   descriptors. Returns no error. */
+void
+lz4wfile_close_after_error(LZ4WFILE_T state)
+{
+    /* If not initialized yet, nothing to flush. */
+    if (state->size_out != 0) {
+        g_free(state->out);
+        LZ4F_freeCompressionContext(state->lz4_cctx);
+    }
+
+    /* Close file */
+    (void)ws_close(state->fd);
+    g_free(state);
 }
 
 int

@@ -3475,7 +3475,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
                      " saved (\"%s\") could not be written to: %s.",
                      capture_opts->save_file, g_strerror(err));
         }
-        ws_cwstream_close(ld->pdh, NULL);
+        ws_cwstream_close_after_error(ld->pdh);
         ld->pdh = NULL;
         return false;
     }
@@ -3986,7 +3986,7 @@ do_file_switch_or_stop(capture_options *capture_opts)
             }
 
             if (!successful) {
-                ws_cwstream_close(global_ld.pdh, NULL);
+                ws_cwstream_close_after_error(global_ld.pdh);
                 global_ld.pdh = NULL;
                 global_ld.go = false;
                 return false;

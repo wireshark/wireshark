@@ -413,20 +413,10 @@ ringbuf_error_cleanup(void)
 {
     unsigned int i;
 
-    /* try to close via wtap */
+    /* close output stream if it's still open */
     if (rb_data.pdh != NULL) {
-        /*
-         * XXX - if fclose() is guaranteed to close the underlying
-         * descriptor, which both POSIX and the Windows documentation
-         * on learn.microsoft.com say it is, there's no reason why
-         * the FD for rb_data.pdh will still be open, so checking
-         * the return value and only setting rb_data.fd to -1 if
-         * ws_cwstream_close()  succeeds shouldn't be necessary -
-         * just set it unconditionally.
-         */
-        if (ws_cwstream_close(rb_data.pdh, NULL)) {
-            rb_data.fd = -1;
-        }
+        ws_cwstream_close_after_error(rb_data.pdh);
+        rb_data.fd = -1;  /* the above closes the associated fd */
         rb_data.pdh = NULL;
     }
 

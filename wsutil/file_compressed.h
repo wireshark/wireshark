@@ -188,6 +188,20 @@ ws_cwstream_flush(ws_cwstream* pfile, int *err);
 WS_DLL_PUBLIC bool
 ws_cwstream_close(ws_cwstream* pfile, int *err);
 
+/**
+ * Close open file handles and frees memory associaed with pfile after
+ * an error. Do not finish the compresion process or write out any
+ * data, as this is supposed to be used after a write error, so
+ * subsequent writes are likely to fail.
+ *
+ * @brief Closes a file stream and frees associated resources, without
+ * finishing compression or flushing data.
+ *
+ * @param pfile Pointer to the ws_cwstream structure representing the file stream.
+ */
+WS_DLL_PUBLIC void
+ws_cwstream_close_after_error(ws_cwstream* pfile);
+
 #if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 
 typedef struct gzip_writer *GZWFILE_T;
@@ -197,6 +211,7 @@ WS_DLL_PUBLIC GZWFILE_T gzwfile_fdopen(int fd);
 WS_DLL_PUBLIC unsigned gzwfile_write(GZWFILE_T state, const void *buf, unsigned len);
 WS_DLL_PUBLIC int gzwfile_flush(GZWFILE_T state);
 WS_DLL_PUBLIC int gzwfile_close(GZWFILE_T state);
+WS_DLL_PUBLIC void gzwfile_close_after_error(GZWFILE_T state);
 WS_DLL_PUBLIC int gzwfile_geterr(GZWFILE_T state);
 #endif /* HAVE_ZLIB */
 
@@ -208,6 +223,7 @@ WS_DLL_PUBLIC LZ4WFILE_T lz4wfile_fdopen(int fd);
 WS_DLL_PUBLIC size_t lz4wfile_write(LZ4WFILE_T state, const void *buf, size_t len);
 WS_DLL_PUBLIC int lz4wfile_flush(LZ4WFILE_T state);
 WS_DLL_PUBLIC int lz4wfile_close(LZ4WFILE_T state);
+WS_DLL_PUBLIC void lz4wfile_close_after_error(LZ4WFILE_T state);
 WS_DLL_PUBLIC int lz4wfile_geterr(LZ4WFILE_T state);
 #endif
 
