@@ -7207,7 +7207,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         result = wmem_new0(wmem_file_scope(), flow_result_t);
         result->expected_sections = wmem_tree_new(wmem_file_scope());
-        /* u_plane_frames not used for u-plane frames.. */
+        result->u_plane_frames = wmem_list_new(wmem_file_scope());
 
         wmem_tree_insert32(flow_results_table, pinfo->num, result);
 
