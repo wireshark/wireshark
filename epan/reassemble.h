@@ -399,6 +399,38 @@ fragment_add_check_with_fallback(reassembly_table *table, tvbuff_t *tvb, const i
 		   const uint32_t fallback_frame);
 
 /**
+ * @brief Adds a fragment to a reassembly table for protocols where the total
+ * reassembled length in octets is known, but not each fragment offset.
+ *
+ * Like fragment_add_check, but without explicit fragment offset. Fragments
+ * are simply appended until "more_frags" is false. Equivalently, like
+ * fragment_add_seq_next, but where the value given to fragment_set_tot_len
+ * is treated as a length in octets instead of the number of fragments;
+ * otherwise the behavior is the same.
+ *
+ * @note Out of order fragments will not be reassembled correctly.
+ * Dissectors atop a reliable protocol like TCP may rely on the lower
+ * level dissector reordering out or order segments (if the appropriate
+ * out of order reassembly preference is enabled), but other dissectors
+ * will have to handle out of order fragments themselves, if possible.
+ *
+ * @param table The reassembly table.
+ * @param tvb The TV buffer containing the fragment data.
+ * @param offset The offset of the fragment within the TV buffer.
+ * @param pinfo Packet information.
+ * @param id The reassembly ID.
+ * @param data Pointer to the fragment data.
+ * @param frag_data_len Length of the fragment data.
+ * @param more_frags Indicates if there are more fragments to come.
+ * @return A pointer to the reassembled data or NULL if not fully reassembled.
+ */
+WS_DLL_PUBLIC fragment_head *
+fragment_add_check_next(reassembly_table *table, tvbuff_t *tvb, const int offset,
+		   const packet_info *pinfo, const uint32_t id,
+		   const void *data, const uint32_t frag_data_len,
+		   const bool more_frags);
+
+/**
  * @brief Adds a fragment to the reassembly table and handles sequence-based reassembly.
  *
  * Like fragment_add, but fragments have a block sequence number starting from
@@ -509,10 +541,11 @@ fragment_add_seq_802_11(reassembly_table *table, tvbuff_t *tvb,
 			const bool more_frags);
 
 /**
- * @brief Adds a fragment to a reassembly table for protocols with a single sequence number.
+ * @brief Adds a fragment to a reassembly table for protocols with no individual
+ * fragment numbers.
  *
  * Like fragment_add_seq_check, but without explicit fragment number. Fragments
- * are simply appended until no "more_frags" is false.
+ * are simply appended until "more_frags" is false.
  *
  * @note Out of order fragments will not be reassembled correctly.
  * Dissectors atop a reliable protocol like TCP may rely on the lower

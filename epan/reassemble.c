@@ -1775,12 +1775,13 @@ fragment_add_out_of_order(reassembly_table *table, tvbuff_t *tvb,
 		frag_offset, frag_data_len, more_frags, true, frag_frame);
 }
 
-fragment_head *
-fragment_add_check_with_fallback(reassembly_table *table, tvbuff_t *tvb, const int offset,
+
+static fragment_head *
+fragment_add_check_common(reassembly_table *table, tvbuff_t *tvb, const int offset,
 		   const packet_info *pinfo, const uint32_t id,
-		   const void *data, const uint32_t frag_offset,
+		   const void *data, uint32_t frag_offset,
 		   const uint32_t frag_data_len, const bool more_frags,
-		   const uint32_t fallback_frame)
+		   const uint32_t flags, const uint32_t fallback_frame)
 {
 	reassembled_key reass_key;
 	fragment_head *fd_head;
@@ -1822,10 +1823,43 @@ fragment_add_check_with_fallback(reassembly_table *table, tvbuff_t *tvb, const i
 		 */
 		fd_head = new_head(0);
 
+		if((flags & REASSEMBLE_FLAGS_NO_FRAG_NUMBER)
+		   && !more_frags) {
+			/*
+			 * This is the last fragment for this packet, and
+			 * is the only one we've seen.
+			 *
+			 * We assume this is the first and only fragment for
+			 * this packet; just add the head of the list to
+			 * the table of reassembled packets.
+			 */
+			/* To save memory, we don't actually copy the
+			 * fragment from the tvbuff to the fragment, and in
+			 * process_reassembled_data just return back a subset
+			 * of the original tvbuff (which must be passed in).
+			 */
+			fd_head->datalen = frag_data_len;
+			fd_head->reassembled_in=pinfo->num;
+			fd_head->reas_in_layer_num = pinfo->curr_layer_num;
+			/*
+			 * Add this item to the table of reassembled packets.
+			 */
+			fragment_reassembled(table, fd_head, pinfo, id);
+			return fd_head;
+		}
 		/*
 		 * Save the key, for unhashing it later.
 		 */
 		orig_key = insert_fd_head(table, fd_head, pinfo, id, data);
+
+		if (flags & REASSEMBLE_FLAGS_NO_FRAG_NUMBER)
+			frag_offset = 0;
+	} else {
+		if (flags & REASSEMBLE_FLAGS_NO_FRAG_NUMBER) {
+			/* There are no gaps by construction, so we can
+			 * simply use the contiguous length. */
+			frag_offset = fd_head->contiguous_len;
+		}
 	}
 
 	/*
@@ -1869,13 +1903,34 @@ fragment_add_check_with_fallback(reassembly_table *table, tvbuff_t *tvb, const i
 }
 
 fragment_head *
+fragment_add_check_with_fallback(reassembly_table *table, tvbuff_t *tvb, const int offset,
+		   const packet_info *pinfo, const uint32_t id,
+		   const void *data, const uint32_t frag_offset,
+		   const uint32_t frag_data_len, const bool more_frags,
+		   const uint32_t fallback_frame)
+{
+	return fragment_add_check_common(table, tvb, offset, pinfo, id, data,
+		frag_offset, frag_data_len, more_frags, 0, fallback_frame);
+}
+
+fragment_head *
 fragment_add_check(reassembly_table *table, tvbuff_t *tvb, const int offset,
 		   const packet_info *pinfo, const uint32_t id,
 		   const void *data, const uint32_t frag_offset,
 		   const uint32_t frag_data_len, const bool more_frags)
 {
-	return fragment_add_check_with_fallback(table, tvb, offset, pinfo, id, data,
-		frag_offset, frag_data_len, more_frags, pinfo->num);
+	return fragment_add_check_common(table, tvb, offset, pinfo, id, data,
+		frag_offset, frag_data_len, more_frags, 0, pinfo->num);
+}
+
+fragment_head *
+fragment_add_check_next(reassembly_table *table, tvbuff_t *tvb, const int offset,
+		   const packet_info *pinfo, const uint32_t id,
+		   const void *data,
+		   const uint32_t frag_data_len, const bool more_frags)
+{
+	return fragment_add_check_common(table, tvb, offset, pinfo, id, data,
+		0, frag_data_len, more_frags, REASSEMBLE_FLAGS_NO_FRAG_NUMBER, pinfo->num);
 }
 
 static void
@@ -2260,6 +2315,8 @@ fragment_add_seq_common(reassembly_table *table, tvbuff_t *tvb,
 			 * If we weren't given an initial fragment number,
 			 * use the next expected fragment number as the fragment
 			 * number for this fragment.
+			 *
+			 * XXX - Use fd_head->first_gap to speed this up?
 			 */
 			for (fd = fd_head->next; fd != NULL; fd = fd->next) {
 				if (fd->next == NULL)
@@ -2879,7 +2936,6 @@ process_reassembled_data(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 			if (fd_head->flags & FD_BLOCKSEQUENCE) {
 				len = fd_head->len;
 			} else {
-				// XXX Do the non-seq functions have this optimization?
 				len = fd_head->datalen;
 			}
 			next_tvb = tvb_new_subset_length(tvb, offset, len);
