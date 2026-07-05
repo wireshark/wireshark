@@ -8960,13 +8960,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
 </context>
 <context>
-    <name>QObject::QObject::QObject</name>
-    <message>
-        <source>CCCH</source>
-        <translation type="vanished">CCCH</translation>
-    </message>
-</context>
-<context>
     <name>RemoteCaptureDialog</name>
     <message>
         <source>Remote Interface</source>

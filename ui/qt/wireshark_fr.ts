@@ -8959,13 +8959,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
 </context>
 <context>
-    <name>QObject::QObject::QObject</name>
-    <message>
-        <source>CCCH</source>
-        <translation type="vanished">CCCH</translation>
-    </message>
-</context>
-<context>
     <name>RemoteCaptureDialog</name>
     <message>
         <source>Remote Interface</source>

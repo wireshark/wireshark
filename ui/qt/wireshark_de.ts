@@ -8960,13 +8960,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
 </context>
 <context>
-    <name>QObject::QObject::QObject</name>
-    <message>
-        <source>CCCH</source>
-        <translation type="vanished">CCCH</translation>
-    </message>
-</context>
-<context>
     <name>RemoteCaptureDialog</name>
     <message>
         <source>Remote Interface</source>
