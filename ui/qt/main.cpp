@@ -636,6 +636,16 @@ int main(int argc, char *qt_argv[])
     win32_reset_library_path();
 #endif
 
+    /* The Qt Windows platform plugin provides the ability to detect the AltGr key.
+     * Without this, AltGr maps to Ctrl+Alt on Windows which may triggers shortcuts instead of
+     * entering special characters into text fields.
+     *
+     * Enabling the AltGr detection by setting the QT_QPA_PLATFORM environment variable.
+     * This setting can still be overridden by specifying the `-platform` command line parameter. */
+#ifdef _WIN32
+     g_setenv("QT_QPA_PLATFORM", "windows:altgr", 0);
+#endif
+
     /* Create The Wireshark app */
     WiresharkApplication ws_app(argc, qt_argv);
 
