@@ -528,11 +528,11 @@ static void
 its_sax_length_fmt(char *s, uint32_t v)
 {
   if (v == 4095) {
-    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
   } else if (v == 4094) {
-    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%u)", v);
   } else {
-    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", v * 0.01, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%u)", v * 0.01, v);
   }
 }
 
@@ -541,9 +541,9 @@ its_heading_value_fmt(char *s, uint32_t v)
 {
   const char *p = try_val_to_str(v, VALS(its_HeadingValue_vals));
   if (p) {
-    snprintf(s, ITEM_LABEL_LENGTH, "%s (%d)", p, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%s (%u)", p, v);
   } else {
-    snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v * 0.1, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%u)", v * 0.1, v);
   }
 }
 
@@ -551,11 +551,11 @@ static void
 its_heading_confidence_fmt(char *s, uint32_t v)
 {
   if (v == 127) {
-    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
   } else if (v == 126) {
-    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%u)", v);
   } else {
-    snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v * 0.1, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%u)", v * 0.1, v);
   }
 }
 
@@ -563,12 +563,12 @@ static void
 its_speed_value_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
-    snprintf(s, ITEM_LABEL_LENGTH, "standstill (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "standstill (%u)", v);
   } else if (v == 16383) {
-    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
   } else {
     double vms = v * 0.01;
-    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s = %.1fkm/h (%d)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s = %.1fkm/h (%u)",
             vms, vms * 3.6, v);
   }
 }
@@ -577,29 +577,29 @@ static void
 its_speed_confidence_fmt(char *s, uint32_t v)
 {
   if (v == 127) {
-    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
   } else if (v == 126) {
-    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%u)", v);
   } else {
-    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s (%d)", v * 0.01, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s (%u)", v * 0.01, v);
   }
 }
 
 static void
 its_speed_limit_fmt(char *s, uint32_t v)
 {
-  snprintf(s, ITEM_LABEL_LENGTH, "%dkm/h (%d)", v, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%dkm/h (%u)", v, v);
 }
 
 static void
 its_vehicle_length_value_fmt(char *s, uint32_t v)
 {
   if (v == 1023) {
-    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
   } else if (v == 1022) {
-    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%u)", v);
   } else {
-    snprintf(s, ITEM_LABEL_LENGTH, "%.1fm (%d)", v * 0.1, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.1fm (%u)", v * 0.1, v);
   }
 }
 
@@ -607,11 +607,11 @@ static void
 its_vehicle_width_fmt(char *s, uint32_t v)
 {
   if (v == 62) {
-    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
   } else if (v == 61) {
-    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%u)", v);
   } else {
-    snprintf(s, ITEM_LABEL_LENGTH, "%.1fm (%d)", v * 0.1, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.1fm (%u)", v * 0.1, v);
   }
 }
 
@@ -620,7 +620,7 @@ its_acceleration_value_fmt(char *s, uint32_t v)
 {
   int32_t acc = (int32_t)v;
   if (acc == 161) {
-    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
   } else {
     snprintf(s, ITEM_LABEL_LENGTH, "%.1fm/s² (%d)", acc * 0.1, acc);
   }
@@ -630,9 +630,9 @@ static void
 its_acceleration_confidence_fmt(char *s, uint32_t v)
 {
   if (v == 102) {
-    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
   } else if (v == 101) {
-    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%u)", v);
   } else {
     snprintf(s, ITEM_LABEL_LENGTH, "%.1fm/s² (%d)", v * 0.1, v);
   }
@@ -643,9 +643,9 @@ its_curvature_value_fmt(char *s, uint32_t v)
 {
   int32_t curv = (int32_t)v;
   if (curv == 0) {
-    snprintf(s, ITEM_LABEL_LENGTH, "straight (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "straight (%u)", v);
   } else if (curv == 30001) {
-    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
   } else {
     snprintf(s, ITEM_LABEL_LENGTH, "%.3fm %s (%d)",
                30000.0 / curv,
@@ -659,9 +659,9 @@ its_yaw_rate_value_fmt(char *s, uint32_t v)
 {
   int32_t yaw = (int32_t)v;
   if (yaw == 0) {
-    snprintf(s, ITEM_LABEL_LENGTH, "straight (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "straight (%u)", v);
   } else if (yaw == 32767) {
-    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
   } else {
     snprintf(s, ITEM_LABEL_LENGTH, "%.2f°/s %s (%d)",
                yaw * 0.01,
@@ -675,9 +675,9 @@ its_swa_value_fmt(char *s, uint32_t v)
 {
   int32_t swa = (int32_t)v;
   if (swa == 0) {
-    snprintf(s, ITEM_LABEL_LENGTH, "straight (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "straight (%u)", v);
   } else if (swa == 512) {
-    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
   } else {
     snprintf(s, ITEM_LABEL_LENGTH, "%.1f° %s (%d)",
                swa * 1.5,
@@ -690,11 +690,11 @@ static void
 its_swa_confidence_fmt(char *s, uint32_t v)
 {
   if (v == 127) {
-    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
   } else if (v == 126) {
-    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%u)", v);
   } else {
-    snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v * 1.5, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%u)", v * 1.5, v);
   }
 }
 
@@ -702,9 +702,9 @@ static void
 dsrc_moi_fmt(char *s, uint32_t v)
 {
   if (v == 527040) {
-    snprintf(s, ITEM_LABEL_LENGTH, "invalid (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "invalid (%u)", v);
   } else {
-    snprintf(s, ITEM_LABEL_LENGTH, "%ud %02u:%02u (%d)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%ud %02u:%02u (%u)",
             v / 1440, v % 1440 / 60, v % 60, v);
   }
 }
@@ -713,11 +713,11 @@ static void
 dsrc_dsecond_fmt(char *s, uint32_t v)
 {
   if (v == 65535) {
-    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
   } else if ((61000 <= v) && (v <= 65534)) {
-    snprintf(s, ITEM_LABEL_LENGTH, "reserved (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "reserved (%u)", v);
   } else {
-    snprintf(s, ITEM_LABEL_LENGTH, "%02u.%03u (%d)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%02u.%03u (%u)",
             v / 1000, v % 1000, v);
   }
 }
@@ -726,11 +726,11 @@ static void
 dsrc_time_mark_fmt(char *s, uint32_t v)
 {
   if (v == 36001) {
-    snprintf(s, ITEM_LABEL_LENGTH, "unknown (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unknown (%u)", v);
   } else if (v == 36000) {
-    snprintf(s, ITEM_LABEL_LENGTH, "moreThanHour (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "moreThanHour (%u)", v);
   } else {
-    snprintf(s, ITEM_LABEL_LENGTH, "%02u:%02u.%u (%d)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%02u:%02u.%u (%u)",
             v / 600, v % 600 / 10, v % 10, v);
   }
 }
@@ -748,7 +748,7 @@ its_timestamp_fmt(char *s, uint64_t v)
 static void
 its_validity_duration_fmt(char *s, uint32_t v)
 {
-  snprintf(s, ITEM_LABEL_LENGTH, "%02u:%02u:%02u (%d)",
+  snprintf(s, ITEM_LABEL_LENGTH, "%02u:%02u:%02u (%u)",
           v / 3600, v % 3600 / 60, v % 60, v);
 }
 
@@ -831,13 +831,13 @@ static void
 cpm_distance_confidence_fmt(char* s, uint32_t v)
 {
     if (v == 102) {
-        snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+        snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
     }
     else if (v == 101) {
-        snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+        snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%u)", v);
     }
     else {
-        snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", v * 0.01, v);
+        snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%u)", v * 0.01, v);
     }
 }
 
@@ -862,10 +862,10 @@ static void
 cpm_cartesian_angle_value_fmt(char* s, uint32_t v)
 {
     if (v == 3601) {
-        snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+        snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
     }
     else {
-        snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v * 0.1, v);
+        snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%u)", v * 0.1, v);
     }
 }
 
@@ -873,31 +873,31 @@ static void
 cpm_angle_confidence_fmt(char* s, uint32_t v)
 {
     if (v == 127) {
-        snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+        snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
     }
     else if (v == 126) {
-        snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+        snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%u)", v);
     }
     else {
-        snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v * 0.1, v);
+        snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%u)", v * 0.1, v);
     }
 }
 
 static void
 cpm_object_dimension_value_fmt(char *s, uint32_t v)
 {
-  snprintf(s, ITEM_LABEL_LENGTH, "%.1fm (%d)", v * 0.1, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fm (%u)", v * 0.1, v);
 }
 
 static void
 cpm_object_dimension_confidence_fmt(char *s, uint32_t v)
 {
   if (v == 32) {
-    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
   } else if (v == 31) {
-    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%u)", v);
   } else {
-    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", v * 0.01, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%u)", v * 0.01, v);
   }
 }
 

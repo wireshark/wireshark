@@ -6320,7 +6320,6 @@ dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     case CHAP_CHAL:
     case CHAP_RESP:
         if (length > 0) {
-            unsigned value_offset = 0;
             unsigned name_offset  = 0, name_size = 0;
 
             /* Create data subtree */
@@ -6343,7 +6342,7 @@ dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
             /* Value */
             if (length > 0) {
-                value_offset = offset;
+                unsigned value_offset = offset;
                 proto_tree_add_item(field_tree, hf_chap_value, tvb, offset,
                                     value_size, ENC_NA);
 

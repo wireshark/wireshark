@@ -835,7 +835,7 @@ dissect_op_msg_section(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto
   section_len = tvb_get_letohil(tvb, offset);
   /* The section length must be strictly smaller than the total message size,
    * both signed int32s. This prevents signed integer overflow. */
-  if (section_len < 0 || section_len == INT32_MAX) {
+  if (section_len < 0 || section_len >= (INT32_MAX-1)) {
     proto_tree_add_expert_format(section_tree, pinfo, &ei_mongo_section_size_bad, tvb, offset, 4, "Bogus Mongo message section size: %i", section_len);
     THROW(ReportedBoundsError);
   }

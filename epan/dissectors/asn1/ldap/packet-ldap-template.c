@@ -1,4 +1,4 @@
-/* packet-ldap-template.c
+/* packet-ldap.c
  * Routines for ldap packet dissection
  *
 * See RFC 3494 (LDAP v2), RFC 4511 (LDAP v3), and RFC 2222 (SASL).

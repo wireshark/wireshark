@@ -1903,7 +1903,7 @@ dissect_local_interface_list(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, unsigned offset, uint8_t count)
 {
     unsigned lil_index = 0;
-    unsigned media_type_offset = 0;
+    unsigned media_type_offset;
     proto_item *pi = NULL;
     proto_tree *dev_tree = NULL;
 
@@ -1954,7 +1954,7 @@ dissect_device_bridging_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
 {
     uint8_t count = tvb_get_uint8(tvb, offset);
     uint8_t tuple_no = 0;
-    uint8_t mac_addresses = 0;
+    uint8_t mac_addresses;
     unsigned start = 0;
     proto_tree *tuple_list = NULL;
     proto_tree *bridging_list = NULL;
@@ -2241,7 +2241,7 @@ dissect_push_button_event_notification(tvbuff_t *tvb, packet_info *pinfo,
 {
     proto_item *pi = NULL, *mpi = NULL;
     proto_tree *media_type_list = NULL, *media_item = NULL;
-    unsigned list_offset = 0, media_type_offset = 0;
+    unsigned list_offset, media_type_offset;
     uint8_t media_types = tvb_get_uint8(tvb, offset);
     uint8_t media_type_index = 0;
 
@@ -4226,7 +4226,7 @@ dissect_steering_request(tvbuff_t *tvb, packet_info *pinfo,
     uint8_t steering_count = 0;
     proto_item *pi = NULL;
     proto_tree *sta_list = NULL, *bssid_list = NULL;
-    uint8_t target_bssid_count = 0;
+    uint8_t target_bssid_count;
     unsigned start_offset = offset;
 
     proto_tree_add_item(tree, hf_ieee1905_source_bss_bssid, tvb, offset,
@@ -4536,7 +4536,7 @@ dissect_beacon_metrics_response(tvbuff_t *tvb, packet_info *pinfo,
                         tvb, offset, 6, ENC_NA);
     offset += 6;
 
-    pi = proto_tree_add_item(tree, hf_ieee1905_beacon_metrics_response_reserved,
+    proto_tree_add_item(tree, hf_ieee1905_beacon_metrics_response_reserved,
                         tvb, offset, 1, ENC_NA);
     offset++;
 
@@ -5067,11 +5067,11 @@ dissect_unassociated_sta_link_metrics_query(tvbuff_t *tvb,
         packet_info *pinfo _U_, proto_tree *tree, unsigned offset, uint16_t len _U_)
 {
     uint8_t channel_count = 0;
-    uint8_t mac_count = 0;
+    uint8_t mac_count;
     proto_tree *channel_list = NULL;
     proto_tree *sta_mac_list = NULL;
     proto_item *pi = NULL, *ci = NULL;
-    unsigned saved_offset = 0, chan_saved_offset = 0;
+    unsigned saved_offset, chan_saved_offset;
 
     proto_tree_add_item(tree, hf_ieee1905_unassoc_sta_link_metrics_class,
                         tvb, offset, 1, ENC_NA);
@@ -6267,7 +6267,7 @@ dissect_cac_completion_report(tvbuff_t *tvb, packet_info *pinfo _U_,
     if (radio_count > 0) {
         proto_tree *radio_list = NULL;
         uint8_t radio_num = 0;
-        uint8_t radar_count = 0;
+        uint8_t radar_count;
 
         radio_list = proto_tree_add_subtree(tree, tvb, offset, radio_count * 9,
                                         ett_cac_completion_radio_list,
@@ -6538,7 +6538,7 @@ dissect_cac_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
                 proto_tree *cac_type_list = NULL;
                 proto_item *rci = NULL;
                 unsigned cac_type_start = offset;
-                uint8_t cac_classes = 0;
+                uint8_t cac_classes;
 
                 cac_type_list = proto_tree_add_subtree(radio_tree, tvb, offset,
                                         -1, ett_cac_capabilities_type_list,
@@ -8161,8 +8161,6 @@ static int
 dissect_qos_management_descriptor(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, unsigned offset, uint16_t len)
 {
-    uint16_t desc_size = 0;
-
     proto_tree_add_item(tree, hf_ieee1905_qos_mgmt_desc_qmid, tvb, offset,
                         2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -8180,7 +8178,7 @@ dissect_qos_management_descriptor(tvbuff_t *tvb, packet_info *pinfo,
 
     /* There is MSCS, SCS or QoS element */
     while (len > 0) {
-        desc_size = add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+        uint16_t desc_size = add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
         offset += desc_size;
         len -= desc_size;
     }

@@ -6662,13 +6662,12 @@ dissect_tds_sessionstate_token(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
         if(tvb_get_uint8(tvb, cur) == 0xFF)
         {
             cur += 1;
-            /* TODO: Is this really little endian?  tvb_get_ntohs() is not... */
+            /* TODO: Is this really little endian?  tvb_get_ntohs() is not... Also, offsets don't match.. */
             statelen = tvb_get_ntohs(tvb, cur + 2);
             proto_tree_add_item(tree, hf_tds_sessionstate_statelen, tvb, cur, 2, ENC_LITTLE_ENDIAN);
             cur += 2;
         } else {
-            statelen = tvb_get_uint8(tvb, cur);
-            proto_tree_add_item(tree, hf_tds_sessionstate_statelen, tvb, cur, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint16(tree, hf_tds_sessionstate_statelen, tvb, cur, 1, ENC_NA, &statelen);
             cur += 1;
         }
 
@@ -7002,14 +7001,12 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tds_item = proto_tree_add_item(tree, proto_tds, tvb, offset, -1, ENC_NA);
     tds_tree = proto_item_add_subtree(tds_item, ett_tds);
 
-    type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tds_tree, hf_tds_type, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tds_tree, hf_tds_type, tvb, offset, 1, ENC_NA, &type);
 
     status = tvb_get_uint8(tvb, offset + 1);
     proto_tree_add_bitmask(tds_tree, tvb, offset+1, hf_tds_status, ett_tds_status, status_flags, ENC_NA);
     proto_tree_add_item(tds_tree, hf_tds_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-    channel = tvb_get_ntohs(tvb, offset + 4);
-    proto_tree_add_item(tds_tree, hf_tds_channel, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tds_tree, hf_tds_channel, tvb, offset + 4, 2, ENC_BIG_ENDIAN, &channel);
     proto_tree_add_item_ret_uint8(tds_tree, hf_tds_packet_number, tvb, offset + 6, 1, ENC_NA, &packet_number);
     proto_tree_add_item(tds_tree, hf_tds_window, tvb, offset + 7, 1, ENC_NA);
 

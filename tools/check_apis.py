@@ -28,7 +28,6 @@
 # TODO:
 # - continue to check for overlap between this script and check_typed_item_calls.py and rationalize
 # - use more check_common.py functions for working out lists of files to check (--commit, --open)
-# - speedup using concurrent.futures.ProcessPoolExecutor() - one file per future
 # - see if we need to do anything special with respect to Python's regex cache. We create a *lot*
 #   of expressions.
 
@@ -425,7 +424,7 @@ def check_value_string_arrays(file_contents, filename, debug_flag, result):
         if debug_flag:
             decl_m = re.search(rf'(.+{vs_varname_re}[^=]+)=', vsx)
             if decl_m:
-                result.note(f"==> {filename:<35.35s}: {decl_m.group(1)}")
+                result.note(f"==> {filename:<50.50s}: {decl_m.group(1)}")
             result.note(vs)
         vs_nospace = re.sub(r'\s', '', vs)
 
@@ -446,19 +445,19 @@ def check_value_string_arrays(file_contents, filename, debug_flag, result):
         if not re.search(expected_trailer + r',?\};$', vs_nospace):
             decl_m = re.search(rf'({vs_varname_re}[^=]+)=', vsx)
             decl = decl_m.group(1) if decl_m else "?"
-            result.error(f"{filename:<35.35s}: {{{trailer_hint}}} is required as the last {type_name} array entry: {decl}")
+            result.error(f"{filename:<}: {{{trailer_hint}}} is required as the last {type_name} array entry: {decl}")
             count += 1
 
         if not re.search(rf'(?:static)?const{vs_varname_re}', vs_nospace):
             decl_m = re.search(rf'({vs_varname_re}[^=]+)=', vsx)
             decl = decl_m.group(1) if decl_m else "?"
-            result.error(f"{filename:<35.35s}: Missing 'const': {decl}")
+            result.error(f"{filename:<50.50s}: Missing 'const': {decl}")
             count += 1
 
         if re.search(newline_string_re, vs) and type_name != "bytes_string":
             decl_m = re.search(rf'({vs_varname_re}[^=]+)=', vsx)
             decl = decl_m.group(1) if decl_m else "?"
-            result.error(f"{filename:<35.35s}: XXX_string contains a newline: {decl}")
+            result.error(f"{filename:<50.50s}: XXX_string contains a newline: {decl}")
             count += 1
 
     # Brute force check for enum_val_t arrays which are missing {NULL, NULL, ...}
@@ -474,7 +473,7 @@ def check_value_string_arrays(file_contents, filename, debug_flag, result):
         if debug_flag:
             decl_m = re.search(r'(.+enum_val_t[^=]+)=', vsx)
             if decl_m:
-                result.note(f"==> {filename:<35.35s}: {decl_m.group(1)}")
+                result.note(f"==> {filename:<50.50s}: {decl_m.group(1)}")
             result.note(vs)
         vs_nospace = re.sub(r'\s', '', vs)
 
@@ -484,19 +483,19 @@ def check_value_string_arrays(file_contents, filename, debug_flag, result):
         if not re.search(r'NULL,NULL,-?[0-9]\},?\};$', vs_nospace):
             decl_m = re.search(r'(enum_val_t[^=]+)=', vsx)
             decl = decl_m.group(1) if decl_m else "?"
-            result.error(f"{filename:<35.35s}: {{NULL, NULL, ...}} is required as the last enum_val_t array entry: {decl}")
+            result.error(f"{filename:<50.50s}: {{NULL, NULL, ...}} is required as the last enum_val_t array entry: {decl}")
             count += 1
 
         if not re.search(r'(?:static)?constenum_val_t', vs_nospace):
             decl_m = re.search(r'(enum_val_t[^=]+)=', vsx)
             decl = decl_m.group(1) if decl_m else "?"
-            result.error(f"{filename:<35.35s}: Missing 'const': {decl}")
+            result.error(f"{filename:<50.50s}: Missing 'const': {decl}")
             count += 1
 
         if re.search(newline_string_re, vs):
             decl_m = re.search(r'((?:value|string|range)_string[^=]+)=', vsx)
             decl = decl_m.group(1) if decl_m else "?"
-            result.error(f"{filename:<35.35s}: enum_val_t contains a newline: {decl}")
+            result.error(f"{filename:<50.50s}: enum_val_t contains a newline: {decl}")
             count += 1
 
     return count

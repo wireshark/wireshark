@@ -10318,8 +10318,7 @@ dissect_zcl_ota_imageblockrsp(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
         *offset += 4;
 
         /* Retrieve 'Data Size' field */
-        data_size = tvb_get_uint8(tvb, *offset);
-        proto_tree_add_item(tree, hf_zbee_zcl_ota_data_size, tvb, *offset, 1, ENC_NA);
+        proto_tree_add_item_ret_uint8(tree, hf_zbee_zcl_ota_data_size, tvb, *offset, 1, ENC_NA, &data_size);
         *offset += 1;
 
         /* Retrieve 'Image Data' field */
@@ -11419,8 +11418,7 @@ dissect_zcl_pwr_prof_enphsschednotif(tvbuff_t *tvb, proto_tree *tree, unsigned *
     *offset += 1;
 
     /* Retrieve "Number of Scheduled Phases" field */
-    num_of_sched_phases = tvb_get_uint8(tvb, *offset);
-    proto_tree_add_item(tree, hf_zbee_zcl_pwr_prof_num_of_sched_phases, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_zcl_pwr_prof_num_of_sched_phases, tvb, *offset, 1, ENC_NA, &num_of_sched_phases);
     *offset += 1;
 
     /* Scheduled Energy Phases decoding */
@@ -13681,8 +13679,7 @@ dissect_zbee_zcl_gp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(tree, hf_zbee_gp_gpd_command_id, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    payload_size = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_gp_gpd_payload_size, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint(tree, hf_zbee_gp_gpd_payload_size, tvb, offset, 1, ENC_NA, &payload_size);
     offset += 1;
 
     if (payload_size != 0 && payload_size != 0xff) {

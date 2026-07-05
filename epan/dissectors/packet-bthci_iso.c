@@ -370,7 +370,7 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         next_tvb = tvb_new_subset_length(tvb, offset, length);
         call_dissector_with_data(bthci_iso_data_handle, next_tvb, pinfo, tree, &iso_data_info);
-    } else if (fragmented && iso_reassembly) {
+    } else if (iso_reassembly) {
         /* XXX - This reassembly is like fragment_add_next, if that existed in
          * reassemble.h, along with fragment_set_tot_len. Could we implement
          * that? Note that this method doesn't mark frames as depended upon

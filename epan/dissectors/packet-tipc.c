@@ -1835,8 +1835,7 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_info *pinfo, i
 			/* W8 name type / transport sequence number */
 			/* Transport Level Sequence Number: 32 bits */
 			/* Port Name Type: 32 bits */
-			proto_tree_add_item(tipc_tree, hf_tipcv2_port_name_type, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
-			name_type = tvb_get_ntohl(tipc_tvb, offset);
+			proto_tree_add_item_ret_uint(tipc_tree, hf_tipcv2_port_name_type, tipc_tvb, offset, 4, ENC_BIG_ENDIAN, &name_type);
 			name_type_p = &name_type;
 			offset = offset + 4;
 

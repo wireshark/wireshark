@@ -165,7 +165,6 @@ save_command(uint32_t cmd, uint32_t arg0, uint32_t arg1, uint32_t data_length,
         interface_id = 0;
 
     if (proto == proto_usb) {
-        urb = (urb_info_t *) data;
         DISSECTOR_ASSERT(urb);
 
         direction = urb->direction;

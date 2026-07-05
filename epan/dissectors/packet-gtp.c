@@ -2947,7 +2947,7 @@ static unsigned decode_gtp_cell_id(tvbuff_t * tvb, unsigned offset, packet_info 
 static unsigned decode_gtp_pdu_no(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 static unsigned decode_gtp_bssgp_cause(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 static unsigned decode_gtp_mbms_bearer_cap(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
-static unsigned decode_gtp_rim_ra_disc(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static unsigned decode_gtp_rim_ra_disc(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 static unsigned decode_gtp_lst_set_up_pfc(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 static unsigned decode_gtp_ps_handover_xid(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 static unsigned decode_gtp_direct_tnl_flg(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
@@ -2973,7 +2973,7 @@ static unsigned decode_gtp_max_mbr_apn_ambr(tvbuff_t * tvb, unsigned offset, pac
 static unsigned decode_gtp_add_mm_ctx_srvcc(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 static unsigned decode_gtp_add_flgs_srvcc(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
 static unsigned decode_gtp_stn_sr(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
-static unsigned decode_gtp_c_msisdn(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static unsigned decode_gtp_c_msisdn(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 static unsigned decode_gtp_ext_ranap_cause(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 static unsigned decode_gtp_ext_enodeb_id(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
 static unsigned decode_gtp_ext_sel_mode_w_nsapi(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
@@ -2984,7 +2984,7 @@ static unsigned decode_gtp_ue_usage_type(tvbuff_t * tvb, unsigned offset, packet
 static unsigned decode_gtp_extended_common_flgs_II(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
 static unsigned decode_gtp_ext_node_id(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
 static unsigned decode_gtp_ciot_opt_sup_ind(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
-static unsigned decode_gtp_scef_pdn_conn(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static unsigned decode_gtp_scef_pdn_conn(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 static unsigned decode_gtp_iov_updates_counter(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
 static unsigned decode_gtp_mapped_ue_usage_type(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
 static unsigned decode_gtp_up_fun_sel_ind_flags(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
