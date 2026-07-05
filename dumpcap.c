@@ -3471,22 +3471,23 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
     return true;
 }
 
+
 static bool
-capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err_close)
+capture_loop_finish_output(capture_options *capture_opts, loop_data *ld)
 {
-
-    unsigned int i;
-    capture_src *pcap_src;
-    uint64_t     end_time = create_timestamp();
-    bool success;
-
-    ws_debug("capture_loop_close_output");
-
-    if (capture_opts->multi_files_on) {
-        return ringbuf_libpcap_dump_close(&capture_opts->save_file, err_close);
-    } else {
+    /*
+     * Write out statistics if we're writing to a single pcapng file.
+     *
+     * XXX - if we're writing to multiple files, hould we write out
+     * statistics showing counts since we started writing this file?
+     */
+    if (!capture_opts->multi_files_on) {
         if (capture_opts->use_pcapng) {
-            for (i = 0; i < global_ld.pcaps->len; i++) {
+            uint64_t     end_time = create_timestamp();
+
+            for (unsigned i = 0; i < global_ld.pcaps->len; i++) {
+                capture_src *pcap_src;
+
                 pcap_src = g_array_index(global_ld.pcaps, capture_src *, i);
                 if (!pcap_src->from_cap_pipe) {
                     uint64_t isb_ifrecv, isb_ifdrop;
@@ -3495,24 +3496,41 @@ capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err
                     if (pcap_stats(pcap_src->pcap_h, &stats) >= 0) {
                         isb_ifrecv = pcap_src->received;
                         isb_ifdrop = stats.ps_drop + pcap_src->dropped + pcap_src->flushed;
-                   } else {
+                    } else {
                         isb_ifrecv = UINT64_MAX;
                         isb_ifdrop = UINT64_MAX;
                     }
-                    pcapng_write_interface_statistics_block(ld->pdh,
-                                                            i,
-                                                            &ld->bytes_written,
-                                                            "Counters provided by dumpcap",
-                                                            start_time,
-                                                            end_time,
-                                                            isb_ifrecv,
-                                                            isb_ifdrop,
-                                                            err_close);
+                    if (!pcapng_write_interface_statistics_block(ld->pdh,
+                                                                 i,
+                                                                 &ld->bytes_written,
+                                                                 "Counters provided by dumpcap",
+                                                                 start_time,
+                                                                 end_time,
+                                                                 isb_ifrecv,
+                                                                 isb_ifdrop,
+                                                                 &ld->err))
+                        return false;
                 }
             }
         }
-        success = ws_cwstream_close(ld->pdh, err_close);
-        return success;
+    }
+    return true;
+}
+
+static bool
+capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err_close)
+{
+    ws_debug("capture_loop_close_output");
+
+    if (capture_opts->multi_files_on) {
+        /*
+         * XXX - if we're writing to a pcapng file, we don't write out
+         * an ISB at the end. Should we do so, with the statistics
+         * since we started writing this file?
+         */
+        return ringbuf_libpcap_dump_close(&capture_opts->save_file, err_close);
+    } else {
+        return ws_cwstream_close(ld->pdh, err_close);
     }
 }
 
@@ -4499,8 +4517,11 @@ capture_loop_start(capture_options *capture_opts, bool *stats_known, struct pcap
     }
     /* did we have an output error while capturing? */
     if (global_ld.err == 0) {
-        write_ok = true;
-    } else {
+        /* finish writing the output file */
+        write_ok = capture_loop_finish_output(capture_opts, &global_ld);
+    } else
+        write_ok = false;
+    if (!write_ok) {
         capture_loop_get_errmsg(errmsg, sizeof(errmsg), secondary_errmsg,
                                 sizeof(secondary_errmsg),
                                 capture_opts->save_file, global_ld.err, false);
