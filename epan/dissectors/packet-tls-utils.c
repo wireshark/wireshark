@@ -10077,6 +10077,7 @@ ssl_dissect_hnd_hello_ext_ech(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
                     ssl->ech_transcript.data_len += 2;
                     uint32_t extensions_end = ech_offset + tvb_get_ntohs(ech_tvb, ech_offset) + 2;
                     ech_offset += 2;
+                    bool ech_outer_extensions_found = false;
                     while (extensions_end - ech_offset >= 4) {
                         uint16_t ext_type = tvb_get_ntohs(ech_tvb, ech_offset);
                         ech_offset += 2;
@@ -10089,6 +10090,16 @@ ssl_dissect_hnd_hello_ext_ech(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
                             ssl->ech_transcript.data_len += 4 + ext_len;
                             ech_offset += ext_len;
                         } else if (ext_len > 0) {
+                            if (ech_outer_extensions_found) {
+                                ssl_debug_printf("Illegal parameter; only a single \"ech_outer_extensions\" extension is allowed\n");
+                                /* This could lead to a buffer overflow by
+                                 * making the post-copying ClientHelloInner
+                                 * longer than ClientHelloOuter and is
+                                 * illegal, so skip this and don't copy. */
+                                ech_offset += ext_len;
+                                continue;
+                            }
+                            ech_outer_extensions_found = true;
                             unsigned num_ech_outer_extensions = tvb_get_uint8(ech_tvb, ech_offset);
                             ech_offset += 1;
                             uint32_t ech_outer_extensions_end = ech_offset + num_ech_outer_extensions;
