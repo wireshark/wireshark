@@ -139,31 +139,33 @@ static const value_string mp_tcprst_reasons[] = {
 
 /*
  * RST Diagnostic Payload:
- * https://datatracker.ietf.org/doc/html/draft-boucadair-tcpm-rst-diagnostic-payload-17
+ * https://datatracker.ietf.org/doc/html/draft-ietf-tcpm-rst-diagnostic-payload-03
  */
 #define TCP_RST_DIAGNOSTIC_MAGIC 0x33AA
 #define TCP_RST_DIAGNOSTIC_LEN   8  /* magic(2) + reason_code(2) + pen(4) */
 
 /* IANA "TCP Failure Causes" registry */
 static const value_string tcp_failure_cause_vals[] = {
-        { 0,  "Reserved" },
-        { 1,  "Illegal Option" },
-        { 2,  "Desynchronized state" },
-        { 3,  "New data is received after CLOSE is called" },
-        { 4,  "ABORT Process" },
-        { 5,  "Unexpected ACK received by non-synchronized state connection" },
-        { 6,  "Unexpected SYN in the window" },
-        { 7,  "Unexpected security compartment" },
-        { 8,  "Malformed Message" },
-        { 9,  "Not Authorized" },
-        { 10, "Resource Exceeded" },
-        { 11, "Network Failure" },
-        { 12, "Reset received from the peer" },
-        { 13, "Destination Unreachable" },
-        { 14, "Connection Timeout" },
-        { 15, "Too much outstanding data" },
-        { 16, "Unacceptable performance" },
-        { 17, "Middlebox interference" },
+        { 0, "Reserved" },
+        { 1, "Illegal option length" },
+        { 2, "Data available or received when application cannot read data anymore" },
+        { 3, "ABORT process" },
+        { 4, "Segment received in CLOSED state" },
+        { 5, "ACK segment received in LISTEN state" },
+        { 6, "ACK segment received in SYN-SENT state and SEG.ACK is not acceptable" },
+        { 7, "ACK segment received in SYN-RECEIVED state and SEG.ACK is not acceptable" },
+        { 8, "In window SYN segment received in synchronized state without RFC 5961 support" },
+        { 9, "Unexpected security compartment" },
+        { 10, "Malformed message" },
+        { 11, "Not authorized" },
+        { 12, "Resource exceeded" },
+        { 13, "Network failure" },
+        { 14, "Reset received from the peer" },
+        { 15, "Destination unreachable" },
+        { 16, "Connection timeout" },
+        { 17, "Too much outstanding data" },
+        { 18, "Unacceptable performance" },
+        { 19, "Middlebox interference" },
         { 0, NULL },
 };
 
