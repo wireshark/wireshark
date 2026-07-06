@@ -160,6 +160,7 @@ static bool                   dup_detect;
 static bool                   dup_detect_by_time;
 static bool                   skip_radiotap;
 static bool                   discard_all_secrets;
+static bool                   discard_name_resolution;
 static bool                   discard_cap_comments;
 static bool                   set_unused;
 static bool                   discard_pkt_comments;
@@ -1190,6 +1191,9 @@ print_usage(FILE *output)
     fprintf(output, "                         when writing the output file.  Does not discard\n");
     fprintf(output, "                         secrets added by \"--inject-secrets\" in the same\n");
     fprintf(output, "                         command line.\n");
+    fprintf(output, "  --discard-name-resolution\n");
+    fprintf(output, "                         Discard all name resolution records from the input\n");
+    fprintf(output, "                         file when writing the output file.\n");
     fprintf(output, "  --capture-comment <comment>\n");
     fprintf(output, "                         Add a capture file comment, if supported.\n");
     fprintf(output, "  --discard-capture-comment\n");
@@ -1559,6 +1563,7 @@ main(int argc, char *argv[])
 #define LONGOPT_EXTRACT_SECRETS          LONGOPT_BASE_APPLICATION+11
 #define LONGOPT_COMPRESS                 LONGOPT_BASE_APPLICATION+12
 #define LONGOPT_SCTP_SPLIT               LONGOPT_BASE_APPLICATION+13
+#define LONGOPT_DISCARD_NAME_RESOLUTION  LONGOPT_BASE_APPLICATION+14
 
     static const struct ws_option long_options[] = {
         {"novlan", ws_no_argument, NULL, LONGOPT_NO_VLAN},
@@ -1566,6 +1571,7 @@ main(int argc, char *argv[])
         {"seed", ws_required_argument, NULL, LONGOPT_SEED},
         {"inject-secrets", ws_required_argument, NULL, LONGOPT_INJECT_SECRETS},
         {"discard-all-secrets", ws_no_argument, NULL, LONGOPT_DISCARD_ALL_SECRETS},
+        {"discard-name-resolution", ws_no_argument, NULL, LONGOPT_DISCARD_NAME_RESOLUTION},
         {"help", ws_no_argument, NULL, 'h'},
         {"version", ws_no_argument, NULL, 'v'},
         {"capture-comment", ws_required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
@@ -1733,6 +1739,12 @@ main(int argc, char *argv[])
         case LONGOPT_DISCARD_ALL_SECRETS:
         {
             discard_all_secrets = true;
+            break;
+        }
+
+        case LONGOPT_DISCARD_NAME_RESOLUTION:
+        {
+            discard_name_resolution = true;
             break;
         }
 
@@ -2264,6 +2276,10 @@ main(int argc, char *argv[])
      */
     if (discard_all_secrets) {
         wtap_dump_params_discard_decryption_secrets(&params);
+    }
+
+    if (discard_name_resolution) {
+        wtap_dump_params_discard_name_resolution(&params);
     }
 
     /*

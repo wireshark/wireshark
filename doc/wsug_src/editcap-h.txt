@@ -116,6 +116,9 @@ Output File(s):
                          when writing the output file.  Does not discard
                          secrets added by "--inject-secrets" in the same
                          command line.
+  --discard-name-resolution
+                         Discard all name resolution records from the input
+                         file when writing the output file.
   --capture-comment <comment>
                          Add a capture file comment, if supported.
   --discard-capture-comment

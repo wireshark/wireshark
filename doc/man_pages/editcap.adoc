@@ -32,6 +32,7 @@ editcap - Edit and/or translate the format of capture files
 [ *-V* ]
 [ *--inject-secrets* <secrets type>,<file> ]
 [ *--discard-all-secrets* ]
+[ *--discard-name-resolution* ]
 [ *--capture-comment* <comment> ]
 [ *--discard-capture-comment* ]
 [ *--discard-packet-comments* ]
@@ -530,6 +531,14 @@ Incompatible with other options except for *-V*.
 Discard all decryption secrets from the input file when writing the
 output file.  Does not discard secrets added by *--inject-secrets* in
 the same command line.
+--
+
+--discard-name-resolution::
++
+--
+Discard all Name Resolution Block (NRB) entries from the input file when
+writing the output file. This removes all hostname-to-IP address mappings
+that were embedded in the capture file at capture time.
 --
 
 --capture-comment <comment>::
