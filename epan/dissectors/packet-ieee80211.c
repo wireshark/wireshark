@@ -42007,30 +42007,39 @@ keydata_padding_len(tvbuff_t *tvb)
   return 0;
 }
 
-static void
+static bool
 get_eapol_parsed(packet_info *pinfo, PDOT11DECRYPT_EAPOL_PARSED eapol_parsed,
                  ieee80211_conversation_data_t *conv_data)
 {
   if (!eapol_parsed) {
-    return;
+    return false;
   }
 
   proto_eapol_key_frame_t *eapol_key =
     (proto_eapol_key_frame_t *)p_get_proto_data(pinfo->pool, pinfo, proto_eapol,
                                                 EAPOL_KEY_FRAME_KEY);
   if (!eapol_key) {
-    return;
+    return false;
   }
   eapol_parsed->len = eapol_key->len;
+  if (eapol_parsed->len > DOT11DECRYPT_EAPOL_MAX_LEN) {
+    return false;
+  }
   eapol_parsed->key_type = eapol_key->type;
   eapol_parsed->key_version = (uint8_t)
     GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, KEY_VERSION_KEY));
   eapol_parsed->key_len = (uint16_t)
     GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, KEY_LEN_KEY));
+  if (eapol_parsed->key_len > DOT11DECRYPT_EAPOL_MAX_LEN) {
+    return false;
+  }
   eapol_parsed->key_iv = (uint8_t *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, KEY_IV_KEY);
   eapol_parsed->key_data = (uint8_t *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, KEY_DATA_KEY);
   eapol_parsed->key_data_len = (uint16_t)
     GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, KEY_DATA_LEN_KEY));
+  if (eapol_parsed->key_data_len > DOT11DECRYPT_EAPOL_MAX_LEN) {
+    return false;
+  }
   eapol_parsed->nonce = (uint8_t *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, NONCE_KEY);
   eapol_parsed->group_cipher = (uint8_t)
     GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, GROUP_CIPHER_KEY));
@@ -42059,6 +42068,7 @@ get_eapol_parsed(packet_info *pinfo, PDOT11DECRYPT_EAPOL_PARSED eapol_parsed,
   if (conv_data) {
     eapol_parsed->dh_group = conv_data->sae_group;
   }
+  return true;
 }
 
 static void
@@ -42110,7 +42120,7 @@ get_assoc_parsed(packet_info *pinfo, PDOT11DECRYPT_ASSOC_PARSED assoc_parsed)
 static void
 try_decrypt_keydata(packet_info *pinfo)
 {
-  uint32_t dec_caplen;
+  uint32_t dec_caplen = DOT11DECRYPT_EAPOL_MAX_LEN;
   unsigned char dec_data[DOT11DECRYPT_EAPOL_MAX_LEN];
   DOT11DECRYPT_EAPOL_PARSED eapol_parsed;
   DOT11DECRYPT_KEY_ITEM used_key;
@@ -42137,7 +42147,8 @@ try_decrypt_keydata(packet_info *pinfo)
   }
 
   memset(&eapol_parsed, 0, sizeof(eapol_parsed));
-  get_eapol_parsed(pinfo, &eapol_parsed, conversation_data);
+  if (!get_eapol_parsed(pinfo, &eapol_parsed, conversation_data))
+    return;
 
   int ret = Dot11DecryptDecryptKeyData(&dot11decrypt_ctx,
                                         &eapol_parsed,
@@ -42186,7 +42197,8 @@ try_scan_eapol_keys(packet_info *pinfo, DOT11DECRYPT_HS_MSG_TYPE msg_type)
   }
 
   memset(&eapol_parsed, 0, sizeof(eapol_parsed));
-  get_eapol_parsed(pinfo, &eapol_parsed, conversation_data);
+  if (!get_eapol_parsed(pinfo, &eapol_parsed, conversation_data))
+    return;
   eapol_parsed.msg_type = msg_type;
 
   Dot11DecryptScanEapolForKeys(&dot11decrypt_ctx,
