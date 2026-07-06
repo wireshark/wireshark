@@ -580,8 +580,8 @@ static int hf_ieee1905_bss_config_report_transmitted_bssid;
 static int hf_ieee1905_bss_config_report_reserved;
 static int hf_ieee1905_bss_config_report_res;
 static int hf_ieee1905_bss_config_report_bss_cnt;
-static int hf_ieee1902_bss_config_report_mac;
-static int hf_ieee1902_bss_config_report_ssid_len;
+static int hf_ieee1905_bss_config_report_mac;
+static int hf_ieee1905_bss_config_report_ssid_len;
 static int hf_ieee1905_bss_config_report_ssid;
 static int hf_ieee1905_bssid_tlv_bssid;
 static int hf_ieee1905_service_prio_rule_id;
@@ -1151,7 +1151,7 @@ static expert_field ei_ieee1905_extraneous_tlv_data;
 #define CAC_REQUEST_MESSAGE                            0x8020
 #define CAC_TERMINATION_MESSAGE                        0x8021
 #define CLIENT_DISASSOCIATION_STATS_MESSAGE            0x8022
-#define SERVICE_PPRIORITIZATION_REQUEST                0x8023
+#define SERVICE_PRIORITIZATION_REQUEST                 0x8023
 #define ERROR_RESPONSE_MESSAGE                         0x8024
 #define ASSOCIATION_STATUS_NOTIFICATION_MESSAGE        0x8025
 #define TUNNELLED_MESSAGE                              0x8026
@@ -1233,7 +1233,7 @@ static const value_string ieee1905_message_type_vals[] = {
   { CAC_REQUEST_MESSAGE,                         "CAC Request" },
   { CAC_TERMINATION_MESSAGE,                     "CAC Termination" },
   { CLIENT_DISASSOCIATION_STATS_MESSAGE,         "Client Disassociation Stats" },
-  { SERVICE_PPRIORITIZATION_REQUEST,             "Service Prioritization Request" },
+  { SERVICE_PRIORITIZATION_REQUEST,              "Service Prioritization Request" },
   { ERROR_RESPONSE_MESSAGE,                      "Error Response" },
   { ASSOCIATION_STATUS_NOTIFICATION_MESSAGE,     "Association Status Notification" },
   { TUNNELLED_MESSAGE,                           "Tunnelled" },
@@ -6886,7 +6886,7 @@ dissect_bss_configuration_report(tvbuff_t *tvb, packet_info *pinfo _U_,
                                           -1, ett_bss_config_report_bss_tree,
                                           &bti, "BSS %d", bss_id);
 
-                proto_tree_add_item(bss_tree, hf_ieee1902_bss_config_report_mac,
+                proto_tree_add_item(bss_tree, hf_ieee1905_bss_config_report_mac,
                                     tvb, offset, 6, ENC_NA);
                 offset += 6;
 
@@ -6903,7 +6903,7 @@ dissect_bss_configuration_report(tvbuff_t *tvb, packet_info *pinfo _U_,
                 ssid_len = tvb_get_uint8(tvb, offset);
 
                 proto_tree_add_item(bss_tree,
-                                    hf_ieee1902_bss_config_report_ssid_len,
+                                    hf_ieee1905_bss_config_report_ssid_len,
                                     tvb, offset, 1, ENC_NA);
                 offset += 1;
 
@@ -9592,10 +9592,11 @@ dissect_ieee1905_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         eom_seen = (tlv_type == EOM_TLV) ? true : false;
         /*
         * We can only deal with the reported length remaining ATM so take the
-        * min of the TLV len and the reported len.
+        * min of the TLV len and the reported len. We have to allow 3 for the
+        * type and len
         */
         tlv_len = min(tvb_get_ntohs(tvb, offset + 1),
-                    tvb_reported_length_remaining(tvb, offset));
+                    tvb_reported_length_remaining(tvb, offset + 3));
 
         tlv_tree = proto_tree_add_subtree(tree, tvb, offset, tlv_len + 3,
                                           ett_tlv, NULL, val_to_str_ext(pinfo->pool, tlv_type,
@@ -12141,12 +12142,12 @@ proto_register_ieee1905(void)
           { "BSS Count", "ieee1905.bss_config_report.bss_count",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
-        { &hf_ieee1902_bss_config_report_mac,
+        { &hf_ieee1905_bss_config_report_mac,
           { "Local Interface MAC addr",
             "ieee1905.bss_config_report.mac_addr",
             FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
 
-        { &hf_ieee1902_bss_config_report_ssid_len,
+        { &hf_ieee1905_bss_config_report_ssid_len,
           { "SSID Length", "ieee1905.bss_config_report.ssid_length",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
