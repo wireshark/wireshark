@@ -28,6 +28,7 @@
 
 #include <epan/wmem_scopes.h>
 #include <epan/addr_resolv.h>
+#include <epan/charsets.h>
 #include <epan/conversation_table.h>
 #include <epan/decode_as.h>
 #include <epan/exceptions.h>
@@ -39,6 +40,7 @@
 #include <epan/to_str.h>
 #include <epan/uat.h>
 
+#include <epan/dissectors/packet-http3.h>
 #include <epan/dissectors/packet-http.h> /* for getting status reason-phrase */
 #include <epan/dissectors/packet-media-type.h>
 #include <epan/dissectors/packet-quic.h>
@@ -48,8 +50,6 @@
 #include <wsutil/str_util.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/zlib_compat.h>
-
-#include "charsets.h"
 
 #ifdef HAVE_NGHTTP3
 #include <nghttp3/nghttp3.h>
@@ -86,9 +86,9 @@ static int proto_http3;
 static int hf_http3_stream_uni;
 static int hf_http3_stream_uni_type;
 static int hf_http3_stream_bidi;
+static int hf_http3_stream_id;
 static int hf_http3_push_id;
 static int hf_http3_frame;
-static int hf_http3_frame_streamid;
 static int hf_http3_frame_type;
 static int hf_http3_frame_length;
 static int hf_http3_frame_payload;
@@ -731,6 +731,12 @@ http3_packet_get_direction(quic_stream_info *stream_info)
     return stream_info->from_server
         ? FROM_SERVER_TO_CLIENT
         : FROM_CLIENT_TO_SERVER;
+}
+
+uint64_t*
+http3_get_stream_id(packet_info *pinfo)
+{
+    return p_get_proto_data(pinfo->pool, pinfo, hf_http3_stream_id, 0);
 }
 
 /**
@@ -1960,7 +1966,7 @@ dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 {
     uint64_t    frame_type, frame_length;
     unsigned    type_length_size, lenvar, payload_length, total_length;
-    proto_item  *ti_ft, *ti_ft_type, *ti_streamid;
+    proto_item  *ti_ft, *ti_ft_type;
     proto_tree  *ft_tree;
     const char *ft_display_name;
     bool        use_follow_tap = false;
@@ -1968,9 +1974,6 @@ dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 
     ti_ft = proto_tree_add_item(tree, hf_http3_frame, tvb, offset, -1, ENC_NA);
     ft_tree = proto_item_add_subtree(ti_ft, ett_http3_frame);
-
-    ti_streamid = proto_tree_add_uint64(ft_tree, hf_http3_frame_streamid, tvb, offset, 0, http3_stream->id);
-    proto_item_set_generated(ti_streamid);
 
     ti_ft_type = proto_tree_add_item_ret_varint(ft_tree, hf_http3_frame_type, tvb, offset, -1, ENC_VARINT_QUIC, &frame_type,
                                         &lenvar);
@@ -2040,7 +2043,7 @@ dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
         tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, payload_length);
         dissect_http3_priority_update(next_tvb, pinfo, ft_tree, 0, http3_stream);
     } break;
-    default: /* TODO: add expert advice (remember to treat GREASE differntly) */
+    default: /* TODO: add expert advice (remember to treat GREASE differently) */
         break;
     }
 
@@ -2782,11 +2785,14 @@ static int
 dissect_http3_client_bidi_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
                                  quic_stream_info *stream_info, http3_stream_info_t *http3_stream)
 {
-    proto_item *ti_stream;
+    proto_item *ti_stream, *ti_stream_id;
     proto_tree *stream_tree;
 
     ti_stream = proto_tree_add_item(tree, hf_http3_stream_bidi, tvb, offset, 1, ENC_NA);
     stream_tree = proto_item_add_subtree(ti_stream, ett_http3_stream_bidi);
+
+    ti_stream_id = proto_tree_add_uint64(stream_tree, hf_http3_stream_id, tvb, offset, 0, http3_stream->id);
+    proto_item_set_generated(ti_stream_id);
 
     while (tvb_reported_length_remaining(tvb, offset)) {
         if (!http3_check_frame_size(tvb, pinfo, offset)) {
@@ -2804,12 +2810,15 @@ dissect_http3_uni_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 {
     uint64_t    stream_type;
     unsigned    lenvar;
-    proto_item *ti_stream, *ti_stream_type;
+    proto_item *ti_stream, *ti_stream_id, *ti_stream_type;
     proto_tree *stream_tree;
     const char *stream_display_name;
 
     ti_stream = proto_tree_add_item(tree, hf_http3_stream_uni, tvb, offset, -1, ENC_NA);
     stream_tree = proto_item_add_subtree(ti_stream, ett_http3_stream_uni);
+
+    ti_stream_id = proto_tree_add_uint64(stream_tree, hf_http3_stream_id, tvb, offset, 0, http3_stream->id);
+    proto_item_set_generated(ti_stream_id);
 
     if (stream_info->offset == 0) {
         ti_stream_type = proto_tree_add_item_ret_varint(stream_tree, hf_http3_stream_uni_type, tvb, offset, -1, ENC_VARINT_QUIC, &stream_type,
@@ -2945,6 +2954,10 @@ dissect_http3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     http3_session = http3_session_lookup_or_create(pinfo);
     http3_session->current_stream = http3_stream;
     http3_stream->direction = http3_packet_get_direction(stream_info);
+
+    uint64_t *stream_id = wmem_new(pinfo->pool, uint64_t);
+    *stream_id = http3_stream->id;
+    p_add_proto_data(pinfo->pool, pinfo, hf_http3_stream_id, 0, stream_id);
 
     // If a STREAM has unknown data, everything afterwards cannot be dissected.
     if (http3_stream->broken_from_offset && http3_stream->broken_from_offset <= stream_info->offset + offset) {
@@ -3311,6 +3324,11 @@ proto_register_http3(void)
              FT_NONE, BASE_NONE, NULL, 0x0,
              NULL, HFILL }
         },
+        { &hf_http3_stream_id,
+          { "Stream ID", "http3.stream.id",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "62-bit value identical to the QUIC Stream ID", HFILL }
+        },
         { &hf_http3_push_id,
           { "Push ID", "http3.push_id",
             FT_UINT64, BASE_DEC, NULL, 0x0,
@@ -3325,11 +3343,6 @@ proto_register_http3(void)
           { "Type", "http3.frame_type",
             FT_UINT64, BASE_HEX|BASE_VAL64_STRING, VALS64(http3_frame_types), 0x0,
             "Frame Type", HFILL }
-        },
-        { &hf_http3_frame_streamid,
-          { "Stream ID", "http3.frame_streamid",
-            FT_UINT64, BASE_DEC, NULL, 0x0,
-            "QUIC Stream id that this frame came in on", HFILL }
         },
         { &hf_http3_frame_length,
           { "Length", "http3.frame_length",

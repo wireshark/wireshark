@@ -74,6 +74,7 @@
 #include "packet-tls.h"
 #include "packet-dtls.h"
 #include "packet-http2.h"
+#include "packet-http3.h"
 #include <wsutil/array.h>
 
 // parent knob to turn on-off the entire query-response statistics (at runtime)
@@ -4800,17 +4801,30 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    * DoH: Each DNS query-response pair is mapped into an HTTP exchange,
    * and the DNS ID SHOULD be 0 when the "application/dns-message" media
    * type is used (i.e., the POST method) for cache reasons. It MAY also
-   * be 0 when the GET method is used.
+   * be always 0 when the GET method is used. (See #21384 for example.)
    * https://www.rfc-editor.org/info/rfc8484/#section-4.1
    * For other transports, just use the DNS transaction ID as usual.
    */
   if (transport == DNS_TRANSPORT_HTTP) {
-    /* For DoH using HTTP/2, use the Stream ID if available. For HTTP/1,
+    /* For DoH using HTTP/[23], use the Stream ID if available. For HTTP/1,
      * hopefully there is no pipelining or the DNS ID is unique enough. */
-    /* XXX - Get the stream ID for DoH over HTTP/3 */
-    reqresp_id = http2_get_stream_id(pinfo);
-  }
-  if (reqresp_id == 0) {
+    uint64_t *http3_stream_id = http3_get_stream_id(pinfo);
+    if (http3_stream_id) {
+      /* QUIC / HTTP/3 stream IDs are 62-bit in size and assigned sequentially;
+       * assume we're ok casting this to 32-bit. (There's likely other problems
+       * in Wireshark when more than UINT32_MAX streams are used.) Stream 0
+       * is a normal and commonly used stream ID in HTTP/3.  */
+      reqresp_id = (uint32_t)*http3_stream_id;
+    } else {
+      /* In HTTP/2, stream ID 0 is a special control message only stream that
+       * doesn't carry DATA frames, so we assume it means failure, not the
+       * control stream, when http2_get_stream_id returns it. */
+      reqresp_id = http2_get_stream_id(pinfo);
+      if (reqresp_id == 0) {
+        reqresp_id = id;
+      }
+    }
+  } else {
     reqresp_id = id;
   }
 
