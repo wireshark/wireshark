@@ -435,6 +435,11 @@ Dot11DecryptDecryptKeyData(PDOT11DECRYPT_CONTEXT ctx,
         }
     }
 
+    if (key_bytes_len > *decrypted_len) {
+        ws_debug("Too large EAPOL key data");
+        return DOT11DECRYPT_RET_UNSUCCESS;
+    }
+
     if ((key_bytes_len < GROUP_KEY_MIN_LEN) ||
         (eapol_parsed->len < EAPOL_RSN_KEY_LEN) ||
         (key_bytes_len > eapol_parsed->len - EAPOL_RSN_KEY_LEN)) {
