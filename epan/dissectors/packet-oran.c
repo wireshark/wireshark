@@ -518,6 +518,10 @@ static int hf_oran_full_pwr_mode_2_tpmi_group;
 
 static int hf_oran_num_cand_ranks;
 static int hf_oran_ue_pref_rank;
+static int hf_oran_ue_tpmi_rank_y;
+static int hf_oran_ue_tpmi_rank_y_sinr_lx;
+static int hf_oran_ue_layer_pre_eq_sinr;
+
 
 /* Computed fields */
 static int hf_oran_c_eAxC_ID;
@@ -985,6 +989,18 @@ static const range_string freq_offset_fb_values[] = {
     {0x0,    0xffff,   "reserved"},
     {0, 0, NULL}
 };
+
+/* 7.5.3.78 */
+static const range_string ue_tmpi_rank_sinr_vals[] = {
+    {0,      0,        "0 dB SINR"},
+    {0x0001, 0x07ff,   "positive SINR"},
+    {0xf800, 0xffff,   "-ve SINR"},
+    {0x8000, 0x8000,   "invalid measurement result"},
+    {0x0,    0xffff,   "reserved"},
+    {0, 0, NULL}
+};
+
+
 
 /* Table 7.5.2.19-1 */
 static const value_string num_sinr_per_prb_vals[] = {
@@ -5513,28 +5529,52 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 }
                 case 10:
                 {
-                    /* TODO: UE TPMI and rank recommendation measurement */
+                    /* UE TPMI and rank recommendation measurement */
 
-                    /* numCandRanks (4 bits) */
-                    add_reserved_field(mr_tree, hf_oran_num_cand_ranks, tvb, offset, 1);
+                    /* numCandRanks (4 bits - only 1-4 valid) */
+                    uint8_t num_cand_ranks;
+                    proto_tree_add_item_ret_uint8(mr_tree, hf_oran_num_cand_ranks, tvb, offset, 1, ENC_NA, &num_cand_ranks);
+                    if (num_cand_ranks > 4) {
+                        num_cand_ranks = 4;
+                    }
+                    if (num_cand_ranks < 1) {
+                        num_cand_ranks = 1;
+                    }
+
                     /* uePrefRank (4 bits) */
                     add_reserved_field(mr_tree, hf_oran_ue_pref_rank, tvb, offset, 1);
                     offset += 1;
 
-                    /* TODO: ueTpmiRank1 (1 byte) */
-                    offset += 1;
+                    for (uint8_t cand_rank=1; cand_rank <= num_cand_ranks; cand_rank++) {
+                        /* ueTpmiRankY (1 byte) */
+                        proto_item *rank_y_ti = proto_tree_add_item(mr_tree, hf_oran_ue_tpmi_rank_y,
+                                                                    tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_item_append_text(rank_y_ti, " (rank %u)", cand_rank);
 
-                    /* TODO: ueTpmiRank1Sinr1 (2 bytes) */
-                    offset += 2;
+                        offset += 1;
 
-                    /* TODO: various Sinr depending upon numCandRanks value.. */
+                        for (uint8_t sinr = 1; sinr <= cand_rank; sinr++) {
+                            /* ueTpmiRankYSinrLX (2 bytes) */
+                            proto_item *rank_y_sinr_x_ti = proto_tree_add_item(mr_tree, hf_oran_ue_tpmi_rank_y_sinr_lx,
+                                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
+                            proto_item_append_text(rank_y_sinr_x_ti, " (rank %u, sinr %u)", cand_rank, sinr);
+                            offset += 2;
+                        }
+                    }
                     break;
                 }
                 case 11:
                 {
-                    /* TODO: UE layer pre-equalization SINR report */
-
-                    /* TODO: 1st to last layer ueLayerPreEqSinr (2 bytes each) */
+                    /* UE layer pre-equalization SINR report */
+                    /* TODO: how to know how many layers? Just fill up available data? */
+                    unsigned num_layers = (meas_data_size-1) * 4;
+                    for (unsigned layer=0; layer < num_layers; layer++) {
+                        /* ueLayerPreEqSinr (2 bytes each) */
+                        proto_item *pre_eq_sinr_ti = proto_tree_add_item(mr_tree, hf_oran_ue_layer_pre_eq_sinr,
+                                                                    tvb, offset, 2, ENC_BIG_ENDIAN);
+                        proto_item_append_text(pre_eq_sinr_ti, " (layer %u)", layer);
+                        offset += 2;
+                    }
                     break;
                 }
 
@@ -10647,6 +10687,30 @@ proto_register_oran(void)
             FT_UINT8, BASE_DEC,
             NULL, 0x0f,
             "Most optimal UL Tx rank for UE",
+            HFILL}
+        },
+        /* 7.5.3.77 */
+        { &hf_oran_ue_tpmi_rank_y,
+          {"ueTpmiRankY", "oran_fh_cus.ueTpmiRankY",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "TPMI index for codebook-based PUSCH tx",
+            HFILL}
+        },
+        /* 7.5.3.78 */
+        { &hf_oran_ue_tpmi_rank_y_sinr_lx,
+          {"ueTpmiRankYSinrLX", "oran_fh_cus.ueTpmiRankYSinrLX",
+            FT_UINT16, BASE_HEX | BASE_RANGE_STRING,
+            RVALS(ue_tmpi_rank_sinr_vals), 0x0,
+            "Estimation of post-equalization SINR",
+            HFILL}
+        },
+        /* 7.5.3.79 */
+        { &hf_oran_ue_layer_pre_eq_sinr,
+          {"ueLayerPreEqSinr", "oran_fh_cus.ueLayerPreEqSinr",
+            FT_UINT16, BASE_HEX,
+            NULL, 0x0,
+            "Pre-equalization SINR of a UE layer",
             HFILL}
         },
 
