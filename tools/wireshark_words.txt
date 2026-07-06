@@ -137,6 +137,7 @@ anonymization
 antsel
 aperiodic
 apname
+appcast
 appcheader
 appcontainer
 appdata
@@ -971,6 +972,7 @@ enqueue
 enrollee
 entel
 entityid
+entries
 entryid
 enttec
 entypes
@@ -1105,6 +1107,7 @@ filter1d
 filter2d
 finalise
 finditer
+finfo
 firefox
 firewall
 fiveco
@@ -1366,6 +1369,7 @@ ieee17221
 ieee80211
 ienergy
 iface
+ifaces
 ifconfig
 ifdef
 ifindex
@@ -1498,6 +1502,7 @@ ipmap
 ipnos
 ipphone
 ipprim
+ipproto
 ipsec
 ipseckey
 ipset
@@ -1542,6 +1547,7 @@ jiangsu
 jminfo
 joerg
 joiners
+jsonc
 jsonraw
 jtids
 juliat
@@ -1723,6 +1729,7 @@ marconi
 mariadb
 marvell
 masterkey
+matchers
 mathieson
 matrixes
 matsushita
@@ -1993,6 +2000,7 @@ nforge
 nfs2err
 nfs3err
 nfs4err
+nftables
 nfula
 nghttp
 ngran
@@ -2040,6 +2048,7 @@ normalise
 normalised
 nortel
 norzig
+noslot
 nosupp
 notarized
 notational
@@ -2278,6 +2287,7 @@ persian
 persistency
 persresv
 pfcpsr
+pflog
 pfname
 pfsync
 pgpool
@@ -2577,6 +2587,7 @@ redirects
 redissect
 redissecting
 redissection
+redissects
 redist
 redistributable
 redistributables
@@ -2772,6 +2783,7 @@ sanitize
 sanitizers
 santa
 santiago
+sapdiag
 sapgui
 sarajevo
 sargent
@@ -2787,6 +2799,7 @@ scaleout
 scaler
 scannable
 scard
+sccpch
 scdma
 scell
 sched
@@ -3088,8 +3101,10 @@ sunday
 superseding
 superset
 suppfeat
+supportof
 svalidator
 svalue
+svcctl
 svcparam
 svcparams
 sverige
@@ -3305,6 +3320,7 @@ type2ps
 type2r
 type3
 typedef
+typedefn
 typeof
 télécom
 uarfcn
@@ -3546,7 +3562,14 @@ v1410
 v1530
 v1610
 v2client
+v590ext
 v6133cl
+v690non
+v770ext
+v770non
+v860ext
+v860non
+va40ext
 valgrind
 validations
 validator
@@ -3554,8 +3577,10 @@ valstringname
 varbyte
 varinfo
 varint
+vb50ext
 vbucket
 vbuckets
+vc50ext
 vcard
 vcinstalldir
 vcpkg
@@ -3726,6 +3751,7 @@ xtest
 xtreme
 xtypes
 xxhash
+ypxfr
 yyextra
 yyscanner
 yyterminate

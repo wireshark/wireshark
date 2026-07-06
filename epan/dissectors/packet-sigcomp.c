@@ -340,7 +340,7 @@ static proto_tree *top_tree;
 #define STATE_MIN_ACCESS_LEN 6
 
 /*
- * Defenitions for:
+ * Definitions for:
  * The Session Initiation Protocol (SIP) and Session Description Protocol
  *    (SDP) Static Dictionary for Signaling Compression (SigComp)
  * https://www.ietf.org/rfc/rfc3485
@@ -353,7 +353,7 @@ static const uint8_t sip_sdp_state_identifier[STATE_BUFFER_SIZE] =
    /* -0010, */  0x9c, 0xe6, 0x1b, 0xa5
 };
 
-static const uint8_t sip_sdp_static_dictionaty_for_sigcomp[0x12e4] =
+static const uint8_t sip_sdp_static_dictionary_for_sigcomp[0x12e4] =
 {
 
    /* -0000, */  0x0d, 0x0a, 0x52, 0x65, 0x6a, 0x65, 0x63, 0x74, 0x2d, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74,
@@ -917,7 +917,7 @@ sigcomp_init_udvm(void) {
     memset(sip_sdp_buff, 0, 8);
     sip_sdp_buff[0] = SIP_SDP_STATE_LENGTH >> 8;
     sip_sdp_buff[1] = SIP_SDP_STATE_LENGTH & 0xff;
-    memcpy(sip_sdp_buff+8, sip_sdp_static_dictionaty_for_sigcomp, SIP_SDP_STATE_LENGTH);
+    memcpy(sip_sdp_buff+8, sip_sdp_static_dictionary_for_sigcomp, SIP_SDP_STATE_LENGTH);
 
     g_hash_table_insert(state_buffer_table, g_strdup(partial_state_str), sip_sdp_buff);
     wmem_free(NULL, partial_state_str);
@@ -994,7 +994,7 @@ static int udvm_state_access(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         return result_code;
     }
     /*
-     * sip_sdp_static_dictionaty
+     * sip_sdp_static_dictionary
      *
      * 8.4.  Byte copying
      * :
@@ -1424,7 +1424,7 @@ decode_udvm_multitype_operand(uint8_t *buff,unsigned operand_address, uint16_t *
     uint32_t result;
     uint8_t temp_data;
     uint16_t temp_data16;
-    uint16_t memmory_addr = 0;
+    uint16_t memory_addr = 0;
 
     *value = 0;
 
@@ -1448,9 +1448,9 @@ decode_udvm_multitype_operand(uint8_t *buff,unsigned operand_address, uint16_t *
         /*
          * 01nnnnnn                        memory[2 * N]       0 - 65535
          */
-        memmory_addr = ( bytecode & 0x3f) * 2;
-        temp_data16 = buff[memmory_addr] << 8;
-        temp_data16 = temp_data16 | buff[(memmory_addr+1) & 0xffff];
+        memory_addr = ( bytecode & 0x3f) * 2;
+        temp_data16 = buff[memory_addr] << 8;
+        temp_data16 = temp_data16 | buff[(memory_addr+1) & 0xffff];
         *value = temp_data16;
         offset ++;
         break;
@@ -1513,9 +1513,9 @@ decode_udvm_multitype_operand(uint8_t *buff,unsigned operand_address, uint16_t *
                          * ws_warning("Reading 0x%x From address %u",temp_data16,operand_address);
                          */
                         if ( (bytecode & 0x01) == 1 ) {
-                            memmory_addr = temp_data16;
-                            temp_data16 = buff[memmory_addr] << 8;
-                            temp_data16 = temp_data16 | buff[(memmory_addr+1) & 0xffff];
+                            memory_addr = temp_data16;
+                            temp_data16 = buff[memory_addr] << 8;
+                            temp_data16 = temp_data16 | buff[(memory_addr+1) & 0xffff];
                         }
                         *value = temp_data16;
                         offset = offset +2;
@@ -1540,14 +1540,14 @@ decode_udvm_multitype_operand(uint8_t *buff,unsigned operand_address, uint16_t *
             /*
              * 110nnnnn nnnnnnnn               memory[N]           0 - 65535
              */
-            memmory_addr = buff[operand_address] & 0x1f;
-            memmory_addr = memmory_addr << 8;
-            memmory_addr = memmory_addr | buff[(operand_address + 1) & 0xffff];
-            temp_data16 = buff[memmory_addr] << 8;
-            temp_data16 = temp_data16 | buff[(memmory_addr+1) & 0xffff];
+            memory_addr = buff[operand_address] & 0x1f;
+            memory_addr = memory_addr << 8;
+            memory_addr = memory_addr | buff[(operand_address + 1) & 0xffff];
+            temp_data16 = buff[memory_addr] << 8;
+            temp_data16 = temp_data16 | buff[(memory_addr+1) & 0xffff];
             *value = temp_data16;
             /*  debug
-             * ws_warning("Reading 0x%x From address %u",temp_data16,memmory_addr);
+             * ws_warning("Reading 0x%x From address %u",temp_data16,memory_addr);
              */
             offset = offset +2;
         }

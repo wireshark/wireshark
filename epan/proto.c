@@ -10456,7 +10456,7 @@ proto_item_fill_label(const field_info *fi, char *label_str, size_t *value_pos)
 			}
 			if (hfinfo->strings) {
 				/*
-				 * Table of time valus to be displayed
+				 * Table of time values to be displayed
 				 * specially.
 				 */
 				const char *time_string = try_time_val_to_str(value, (const time_value_string *)hfinfo->strings);

@@ -4396,7 +4396,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
                     break;
                 }
             } else { /* Openwave header code page */
-                /* Here I'm delibarately assuming that Openwave is the only
+                /* Here I'm deliberately assuming that Openwave is the only
                  * company that defines a WSP header code page. */
                 save_offset = offset;
                 offset = WellKnownOpenwaveHeader[hdr_id & 0x7F](wsp_headers,

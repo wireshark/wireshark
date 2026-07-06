@@ -3489,7 +3489,7 @@ capture_loop_finish_output(capture_options *capture_opts, loop_data *ld)
     /*
      * Write out statistics if we're writing to a single pcapng file.
      *
-     * XXX - if we're writing to multiple files, hould we write out
+     * XXX - if we're writing to multiple files, should we write out
      * statistics showing counts since we started writing this file?
      */
     if (!capture_opts->multi_files_on) {
@@ -4221,7 +4221,7 @@ capture_loop_start(capture_options *capture_opts, bool *stats_known, struct pcap
     } else {
         /* If we're not writing to a file, we're not writing to a pipe.
          * This is a programming error with the caller, and would lead
-         * to NULL pointer deferences. */
+         * to NULL pointer dereferences. */
         ws_assert(!capture_opts->output_to_pipe);
     }
 
@@ -5162,7 +5162,7 @@ main(int argc, char *argv[])
      * So we do an early parse of the arguments, checking only for -Z
      * an --application-flavor,
      *
-     * We also ignore errors other than errors in the opations we're
+     * We also ignore errors other than errors in the options we're
      * processing - *and* set "ws_opterr" to 0 to suppress the
      * error messages for invalid options.
      *
@@ -5667,7 +5667,7 @@ main(int argc, char *argv[])
         /*
          * Don't print the usage for the -Z and --application-flavor
          * options, as they're not described in the usage message
-         * because they're only for use by other Wirehsark/Stratoshark
+         * because they're only for use by other Wireshark/Stratoshark
          * programs when they're doing captures.
          *
          * The problem is that it's a long message and will probably
@@ -6023,7 +6023,7 @@ main(int argc, char *argv[])
                 }
                 if (interface_opts->ifname != NULL) {
                     /*
-                     * Re-generate the display name based on the strins
+                     * Re-generate the display name based on the strings
                      * we were handed.
                      */
                     g_free(interface_opts->display_name);

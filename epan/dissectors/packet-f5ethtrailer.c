@@ -1364,7 +1364,7 @@ perform_analysis(struct f5eth_analysis_data_t *ad)
  * @brief Puts the results of the F5 Ethernet trailer analysis into the protocol tree.
  *
  * @param tvb   A pointer to a TV buffer for the packet.
- * @param pinfo A pointer to the packet info struction for the packet
+ * @param pinfo A pointer to the packet info structure for the packet
  * @param tree  A pointer to the protocol tree structure
  * @param ad    A pointer to the intra-noise information data
  */
@@ -1391,7 +1391,7 @@ render_analysis(
  * @brief Tap call back to retrieve information about the IP headers.
  *
  * @param tapdata UNUSED
- * @param pinfo   Pointer to acket Info data structure
+ * @param pinfo   Pointer to packet Info data structure
  * @param edt     UNUSED
  * @param data    Pointer to ws_ip4 structure
  * @return tap_packet_status
@@ -1435,7 +1435,7 @@ ip_tap_pkt(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const
  * @brief Tap call back to retrieve information about the IPv6 headers.
  *
  * @param tapdata UNUSED
- * @param pinfo   Pointer to acket Info data structure
+ * @param pinfo   Pointer to packet Info data structure
  * @param edt     UNUSED
  * @param data    Pointer to ws_ip6_hdr structure
  * @return tap_packet_status
@@ -1482,7 +1482,7 @@ ipv6_tap_pkt(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
  * @brief Tap call back to retrieve information about the TCP headers.
  *
  * @param tapdata UNUSED
- * @param pinfo   Pointer to acket Info data structure
+ * @param pinfo   Pointer to packet Info data structure
  * @param edt     UNUSED
  * @param data    Pointer to tcp_info_t structure
  * @return tap_packet_status
@@ -1547,9 +1547,9 @@ static const uint8_t f5rtdomprefix[] = {0x26, 0x20, 0, 0, 0x0c, 0x10, 0xf5, 0x01
  *
  * @param tree          Pointer to tree struct
  * @param addrfield     hf_index address will be placed in
- * @param rtdomfield    hf_index route doamin will be placed in
+ * @param rtdomfield    hf_index route domain will be placed in
  * @param tvb           Pointer to tvb
- * @param offset        Offset into the tvb containg the IPv6 address
+ * @param offset        Offset into the tvb containing the IPv6 address
  * @param hidden        Should the protocol item be hidden
  * @return              Pointer to proto_item created
  */
@@ -1592,7 +1592,7 @@ displayIPv6as4(
 } /* displayIPv6as4() */
 
 /**
- * @brief Render a tree item to dispalay header info for old format trailer blocks
+ * @brief Render a tree item to display header info for old format trailer blocks
  *
  * @attention The old format trailers used a fair amount of magic numbers.  Continuing that
               use for now with the same magic numbers in this function
@@ -2502,7 +2502,7 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         offset += viplen;
     } else {           /* Low noise version 4 */
         /* This area now is a data block containing a number of BIG-IP config object names
-         * i.e. Virtual server that handled the packt
+         * i.e. Virtual server that handled the packet
          *     Port that handled the packet
          *     Trunk that handled the packet
          *
@@ -2747,9 +2747,9 @@ dissect_dpt_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
  *
  * @param tvb    The tvbuff containing the packet data for this trailer
  * @param pinfo  The pinfo structure for the frame
- * @param tree   The tree to render the thrailer under
+ * @param tree   The tree to render the trailer under
  * @param data   Pointer to tdata for the trailer
- * @return int   Number of bytes cosumed by the dissector
+ * @return int   Number of bytes consumed by the dissector
  */
 static int
 dissect_old_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -2829,9 +2829,9 @@ dissect_old_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
  *
  * @param tvb    The tvbuff containing the packet data for this trailer
  * @param pinfo  The pinfo structure for the frame
- * @param tree   The tree to render the thrailer under
+ * @param tree   The tree to render the trailer under
  * @param data   Pointer to tdata for the trailer
- * @return int   Number of bytes cosumed by the dissector
+ * @return int   Number of bytes consumed by the dissector
  *
  * New format trailers (BIG-IP 14.0 and later) begin with
  * 4-byte magic number (0xf5deb0f5)
@@ -3022,7 +3022,7 @@ dissect_f5ethtrailer_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
  *  can be generated we will generate it even if it is wrong.
  *
  *  The diagnostic information provided in F5 Ethernet trailers is state information
- *  inteded for troubleshooting and diagnostics.  This data is not sent on the wire.
+ *  intended for troubleshooting and diagnostics.  This data is not sent on the wire.
  *  It is only appended to frames captured on the BIG-IP, if explicitly requested.  As
  *  such if the data exists in the context, it will be appended to each packet with a
  *  TLS layer.  Filtering of duplicate / appropriate data and interpretation is left

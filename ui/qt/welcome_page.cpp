@@ -184,7 +184,7 @@ void WelcomePage::applySidebarPreferences()
 
     // Ensure sidebar layout adapts to the restored window size.
     // (XXX - This really only needs to happen if one of the cards is switching
-    // to visibile, and only if this is the first time being shown or if a
+    // to visible, and only if this is the first time being shown or if a
     // ResizeEvent occurred while hidden. But preference changes should be
     // rare.)
     updateSidebarLayout();

@@ -189,8 +189,8 @@ WS_DLL_PUBLIC bool
 ws_cwstream_close(ws_cwstream* pfile, int *err);
 
 /**
- * Close open file handles and frees memory associaed with pfile after
- * an error. Do not finish the compresion process or write out any
+ * Close open file handles and frees memory associated with pfile after
+ * an error. Do not finish the compression process or write out any
  * data, as this is supposed to be used after a write error, so
  * subsequent writes are likely to fail.
  *

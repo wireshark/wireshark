@@ -205,7 +205,7 @@ dissect_ndr_counted_string(tvbuff_t *tvb, unsigned offset,
 }
 
 /* Dissect a counted string as a callback to dissect_ndr_pointer().
-   This doesn't add a adds a proto item and subtreee for the string as
+   This doesn't add a adds a proto item and subtree for the string as
    the pointer dissection already creates one. */
 
 unsigned
