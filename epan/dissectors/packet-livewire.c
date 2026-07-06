@@ -291,8 +291,12 @@ static void write_src_info(axia_adv_info_t *info)
     {
         info->src_info->psid = (uint32_t)(0 - (int32_t)info->src_info->psid);
     }
+    /* Check for an existing src_info entry for this source, by PSID
+       If there is already an entry for this source, copy the new values into it, and delete the new one.
+       If not, insert the new src_info entry into the tree
+       If the new src_info is already in the tree, do nothing. */
     axia_src_info_t *existing = (axia_src_info_t *)wmem_tree_lookup32(axia_sources, info->src_info->psid);
-    if (existing)
+    if (existing && existing != info->src_info)
     {
         if (info->src_info->fsid)
             existing->fsid = info->src_info->fsid;
@@ -309,7 +313,7 @@ static void write_src_info(axia_adv_info_t *info)
         wmem_free(wmem_file_scope(), info->src_info);
         info->src_info = existing;
     }
-    else
+    else if (!existing)
     {
         wmem_tree_insert32(axia_sources, info->src_info->psid, (void *)info->src_info);
     }
@@ -520,8 +524,13 @@ static int dissect_axia_adv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             else if (strcmp(msg_type, "HWID") == 0)
             {
                 info->term_info->hwid = tvb_get_uint16(tvb, offset + 1, ENC_BIG_ENDIAN);
+
+                /* Check for an existing term_info entry for this node, by HWID
+                   If there is already an entry for this node, copy the new values into it, and delete the new one.
+                   If not, insert the new term_info entry into the tree
+                   If the new term_info is already in the tree, do nothing. */
                 axia_term_info_t *existing = (axia_term_info_t *)wmem_tree_lookup32(axia_nodes, info->term_info->hwid);
-                if (existing)
+                if (existing && existing != info->term_info)
                 {
                     if (info->term_info->atrn)
                         existing->atrn = info->term_info->atrn;
@@ -532,7 +541,7 @@ static int dissect_axia_adv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                     wmem_free(wmem_file_scope(), info->term_info);
                     info->term_info = existing;
                 }
-                else
+                else if (!existing)
                 {
                     wmem_tree_insert32(axia_nodes, info->term_info->hwid, (void *)info->term_info);
                 }
