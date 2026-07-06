@@ -529,6 +529,7 @@ static int hf_oran_bfws_symbols_since_defined;
 static int hf_oran_corresponding_cplane_frame;
 static int hf_oran_corresponding_cplane_frame_time_delta;
 static int hf_oran_corresponding_uplane_frame;
+static int hf_oran_corresponding_uplane_frames_total;
 
 
 /* Convenient fields for filtering, mostly shown as hidden */
@@ -1918,7 +1919,9 @@ typedef struct {
     uint32_t frame_number;
     uint16_t sectionId;
     uint32_t gap_in_usecs;
-    /* TODO: could add PRB, symbol ranges here too? */
+    uint8_t symbol;
+    uint16_t startPrbu;
+    uint16_t numPrbu;
 } corresponding_uplane_frame;
 
 /* Table consulted on subsequent passes: frame_num -> flow_result_t* */
@@ -6940,9 +6943,14 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
             corresponding_uplane_frame *frame = wmem_list_frame_data(list_frame);
             proto_item *uplane_frame_ti = proto_tree_add_uint(oran_tree, hf_oran_corresponding_uplane_frame, tvb, 0, 0,
                                                               frame->frame_number);
-            proto_item_append_text(uplane_frame_ti, " sectionId:%u (in %uus)", frame->sectionId, frame->gap_in_usecs);
+            proto_item_append_text(uplane_frame_ti, "  sectionId:%2u symbol:%2u PRBs %3u->%3u  (in %uus)",
+                                   frame->sectionId, frame->symbol, frame->startPrbu, frame->startPrbu+frame->numPrbu-1, frame->gap_in_usecs);
             proto_item_set_generated(uplane_frame_ti);
         }
+        /* Also show total number of corresponding u-plane frames */
+        proto_item *uplane_frame_count_ti = proto_tree_add_uint(oran_tree, hf_oran_corresponding_uplane_frames_total, tvb, 0, 0,
+                                                                wmem_list_count(result->u_plane_frames));
+        proto_item_set_generated(uplane_frame_count_ti);
     }
 
     return tvb_captured_length(tvb);
@@ -7379,6 +7387,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         section_details_t *section_details = NULL;
+        corresponding_uplane_frame *details = NULL;
 
         /* Lookup corresponding C-plane frame/info */
         if (link_planes_together) {
@@ -7442,12 +7451,13 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             cplane_result->u_plane_frames = wmem_list_new(wmem_file_scope());
                             wmem_tree_insert32(flow_results_table, section_details->frame_number, cplane_result);
                         }
-                        /* TODO: add more details? If move this further down, can include prb and symbol info.. */
+                        /* PRB range filled in below.. */
 
-                        corresponding_uplane_frame *details = wmem_new(wmem_file_scope(), corresponding_uplane_frame);
+                        details = wmem_new(wmem_file_scope(), corresponding_uplane_frame);
                         details->frame_number = pinfo->num;
                         details->gap_in_usecs = (uint32_t)total_gap;
                         details->sectionId = sectionId;
+                        details->symbol = symbolId;
 
                         wmem_list_append(cplane_result->u_plane_frames, details);
                     }
@@ -7473,6 +7483,11 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         uint32_t numPrbu = 0;
         proto_tree_add_item_ret_uint(section_tree, hf_oran_numPrbu, tvb, offset, 1, ENC_NA, &numPrbu);
         offset += 1;
+
+        if (!PINFO_FD_VISITED(pinfo) && details) {
+            details->startPrbu = startPrbu;
+            details->numPrbu = (numPrbu) ? numPrbu : 273;
+        }
 
         proto_item *ud_comp_meth_item, *ud_comp_len_ti=NULL;
         uint32_t ud_comp_len = 0;
@@ -10693,6 +10708,11 @@ proto_register_oran(void)
           { "U-plane frame", "oran_fh_cus.uplane-frame",
             FT_FRAMENUM, BASE_NONE,
             FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0, NULL, HFILL}
+        },
+        { &hf_oran_corresponding_uplane_frames_total,
+          { "U-plane frames total", "oran_fh_cus.u-plane-frames-total",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Number of corresponding U-plane frames", HFILL}
         },
 
         /* Reassembly */
