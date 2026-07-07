@@ -353,11 +353,22 @@ hosts::
 Wireshark uses the entries in the _hosts_ files to translate IPv4 and
 IPv6 addresses into names.
 
-At program start, if there is a _hosts_ file in the global configuration
-folder, it is read first.  Then, if there is a _hosts_ file in the
-personal configuration folder, that is read; if there is an entry for a
-given IP address in both files, the setting in the personal hosts file
-overrides the entry in the global hosts file.
+Wireshark reads hosts files from multiple locations in a hierarchical manner:
+
+1. Global hosts file (e.g., `C:\Program Files\Wireshark\hosts` on Windows)
+2. Base personal hosts file (e.g., `%APPDATA%\Wireshark\hosts` on Windows)
+3. Profile hosts file (e.g., `%APPDATA%\Wireshark\profiles\<name>\hosts` on Windows)
+
+All three files are read in sequence. When entries conflict, the last file
+loaded wins, creating a three-tier precedence system:
+- Enterprise/global settings (lowest priority)
+- User-wide personal overrides (medium priority)
+- Profile-specific overrides (highest priority)
+
+The profile hosts file is always loaded when name resolution is enabled. The
+base personal hosts file allows users to maintain user-wide name resolution
+mappings across all profiles without needing write access to system
+directories or duplicating entries in every profile.
 
 This file has the same format as the usual _/etc/hosts_ file on Unix systems.
 
@@ -368,7 +379,7 @@ An example is:
 192.168.0.1 homeserver
 ----
 
-The settings from this file are read in at program start, and reloaded when
+The settings from these files are read in at program start, and reloaded when
 opening a new capture file or changing the configuration profile, and never
 written by Wireshark.
 --

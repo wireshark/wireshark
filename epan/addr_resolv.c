@@ -4043,7 +4043,21 @@ host_name_lookup_init(const char* app_env_var_prefix)
     }
     g_free(hostspath);
     /*
-     * Load the user's hosts file no matter what, if they have one.
+     * Load the base personal hosts file, if we have one.  This is in the
+     * root of the personal configuration directory (e.g. %APPDATA%\Wireshark\hosts
+     * on Windows), not in a profile subdirectory, so it survives upgrades and
+     * applies across all profiles.  It is loaded after the global file so that
+     * personal entries take precedence over global ones.
+     */
+    hostspath = get_persconffile_path(ENAME_HOSTS, false, app_env_var_prefix);
+    if (!read_hosts_file(hostspath, true) && errno != ENOENT) {
+        report_open_failure(hostspath, errno, false);
+    }
+    g_free(hostspath);
+    /*
+     * Load the profile hosts file, if we have one.  This is loaded last so
+     * that profile entries take precedence over both the global and base
+     * personal hosts files.
      */
     hostspath = get_persconffile_path(ENAME_HOSTS, true, app_env_var_prefix);
     if (!read_hosts_file(hostspath, true) && errno != ENOENT) {
