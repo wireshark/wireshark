@@ -30,6 +30,8 @@ The following changes have been made since version 4.7.1:
   Decompression is implemented for gzip/deflate, brotli, and zstd.
   Media type dissectors are called for the Content-Type.
   Follow Stream is implemented. wsbuglink:20610[].
+  Export Objects is implemented.
+  Request/response tracking is implemented.
 
 The following changes have been made since version 4.7.0:
 

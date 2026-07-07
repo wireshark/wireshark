@@ -116,9 +116,11 @@ typedef struct _http_conv_t {
 
 /* Used for HTTP Export Object feature */
 typedef struct _http_eo_t {
-	char    *hostname;
-	char    *filename;
-	char    *content_type;
+	/* The strings are copied by http_eo_packet. Their lifetime must be
+	 * at least pinfo->pool. */
+	const char *hostname;
+	const char *filename;
+	const char *content_type;
 	tvbuff_t *payload;
 } http_eo_t;
 

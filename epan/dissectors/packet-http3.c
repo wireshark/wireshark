@@ -53,6 +53,7 @@
 
 #ifdef HAVE_NGHTTP3
 #include <nghttp3/nghttp3.h>
+#include <epan/export_object.h>
 #endif
 
 void proto_reg_handoff_http3(void);
@@ -67,6 +68,10 @@ static int http3_follow_tap;
 static reassembly_table http3_body_reassembly_table;
 
 static dissector_table_t media_type_dissector_table;
+
+static dissector_handle_t media_handle;
+
+static int http_eo_tap;
 
 /*
  * Decompression of content-encoded entities.
@@ -92,6 +97,10 @@ static int hf_http3_frame;
 static int hf_http3_frame_type;
 static int hf_http3_frame_length;
 static int hf_http3_frame_payload;
+
+static int hf_http3_time;
+static int hf_http3_request_in;
+static int hf_http3_response_in;
 
 static int hf_http3_data;
 static int hf_http3_encoded_entity;
@@ -416,6 +425,39 @@ typedef enum _http3_stream_dir {
  * HTTP3 streams roughly correspond to QUIC streams, with the
  * HTTP3 Server Push being an exception to the rule.
  */
+
+/* HTTP/3 pseudo-header fields.
+ *
+ * This is a convenience structure that is used
+ * to collect the values of the HTTP/3 pseudo-headers
+ * while constructing the protocol tree,
+ * and to construct the column info afterwards.
+ * Pseudo-header fields defined for requests MUST NOT appear in responses;
+ * pseudo-header fields defined for responses MUST NOT appear in requests.
+ * Pseudo-header fields MUST NOT appear in trailer sections.
+ * https://www.rfc-editor.org/rfc/rfc9114.html#name-http-control-data
+ *
+ * Therefore, we can store these at the bidirectional stream level.
+ */
+typedef struct _http3_pseudo_header_fields {
+    const char      *authority;
+    const char      *method;
+    const char      *path;
+    const char      *protocol;
+    const char      *reason_phrase;    /**< "pseudo" pseudo-header. */
+    const char      *scheme;
+    const char      *status;
+} http3_pseudo_header_fields_t;
+
+#define HTTP3_PSEUDO_HEADERS_INITIALIZER (http3_pseudo_header_fields_t){    \
+    .authority      = NULL,                                                 \
+    .method         = NULL,                                                 \
+    .path           = NULL,                                                 \
+    .protocol       = NULL,                                                 \
+    .reason_phrase  = NULL,                                                 \
+    .scheme         = NULL,                                                 \
+    .status         = NULL,                                                 \
+}
 typedef struct _http3_stream_info {
     uint64_t             id;                   /**< HTTP3 stream id */
     uint64_t             uni_stream_type;      /**< Unidirectional stream type */
@@ -426,7 +468,11 @@ typedef struct _http3_stream_info {
     const char          *protocol;             /**< Protocol from extended CONNECT */
     dissector_handle_t   next_handle;	       /**< Dissector for extended CONNECT protocol */
     http_upgrade_info_t *upgrade_info;         /**< Data for new protocol */
+    nstime_t             request_ts;           /**< Timestamp of request first HEADERS frame */
+    uint32_t             request_frame_num;    /**< Frame number of request first HEADERS frame */
+    uint32_t             response_frame_num;   /**< Frame number of response first HEADERS frame */
     bool                 is_connect;           /**< Method is CONNECT (plain or extended) */
+    http3_pseudo_header_fields_t pseudo_headers;
 } http3_stream_info_t;
 
 /**
@@ -569,33 +615,6 @@ typedef struct _http3_header_data {
 
 
 #ifdef HAVE_NGHTTP3
-/* HTTP/3 pseudo-header fields.
- *
- * This is a convenience structure that is used
- * to collect the values of the HTTP/3 pseudo-headers
- * while constructing the protocol tree,
- * and to construct the column info afterwards.
- * https://www.ietf.org/archive/id/draft-ietf-quic-http-34.html#name-pseudo-header-fields
- */
-typedef struct _http3_pseudo_header_fields {
-    const char      *authority;
-    const char      *method;
-    const char      *path;
-    const char      *protocol;
-    const char      *reason_phrase;    /**< "pseudo" pseudo-header. */
-    const char      *scheme;
-    const char      *status;
-} http3_pseudo_header_fields_t;
-
-#define HTTP3_PSEUDO_HEADERS_INITIALIZER (http3_pseudo_header_fields_t){    \
-    .authority      = NULL,                                                 \
-    .method         = NULL,                                                 \
-    .path           = NULL,                                                 \
-    .protocol       = NULL,                                                 \
-    .reason_phrase  = NULL,                                                 \
-    .scheme         = NULL,                                                 \
-    .status         = NULL,                                                 \
-}
 #endif /* HAVE_NGHTTP3 */
 
 /* HTTP3 QPACK encoder state
@@ -737,6 +756,32 @@ uint64_t*
 http3_get_stream_id(packet_info *pinfo)
 {
     return p_get_proto_data(pinfo->pool, pinfo, hf_http3_stream_id, 0);
+}
+
+static const char*
+http3_get_request_full_uri(packet_info *pinfo, http3_stream_info_t *http3_stream)
+{
+    const char* uri = NULL;
+    if (http3_stream->pseudo_headers.authority) {
+        /* "All HTTP/3 requests MUST include exactly one value for the :method,
+         * :scheme, and :path pseudo-header fields, unless the request is a
+         * CONNECT request[.]"
+         * https://www.rfc-editor.org/rfc/rfc9114.html#section-4.3.1-3
+         */
+        if (http3_stream->is_connect && !http3_stream->protocol) {
+            /* Both plain CONNECT and CONNECT-UDP use only the `:authority' header.
+             * https://www.rfc-editor.org/rfc/rfc9114.html#connect */
+            uri = wmem_strdup(pinfo->pool, http3_stream->pseudo_headers.authority);
+        } else {
+            /* The Extended CONNECT uses the standard URL construction
+             * https://www.rfc-editor.org/rfc/rfc8441.html#section-4 */
+            uri = wmem_strdup_printf(pinfo->pool, "%s://%s%s",
+                http3_stream->pseudo_headers.scheme,
+                http3_stream->pseudo_headers.authority,
+                http3_stream->pseudo_headers.path);
+        }
+    }
+    return uri;
 }
 
 /**
@@ -936,8 +981,8 @@ http3_get_qpack_encoder_state(packet_info *pinfo, tvbuff_t *tvb, unsigned offset
 }
 
 static proto_item *
-try_add_named_header_field(proto_tree *tree, tvbuff_t *tvb, int offset, uint32_t length, const char *header_name,
-                           const char *header_value)
+try_add_named_header_field(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, uint32_t length,
+                           const char *header_name, const char *header_value)
 {
     int                hf_id;
     header_field_info *hfi;
@@ -965,6 +1010,9 @@ try_add_named_header_field(proto_tree *tree, tvbuff_t *tvb, int offset, uint32_t
         }
     } else {
         ti = proto_tree_add_item(tree, hf_id, tvb, offset, length, ENC_BIG_ENDIAN);
+    }
+    if (hf_id == hf_http3_headers_path) {
+        http_add_path_components_to_tree(tvb, pinfo, ti, offset, length);
     }
     return ti;
 }
@@ -1065,9 +1113,70 @@ http3_get_header_value(packet_info *pinfo, const char* name, bool the_other_dire
     return NULL;
 }
 
+static void
+populate_http3_header_tracking(packet_info *pinfo _U_, http3_stream_info_t *http3_stream,
+    const char *header_name, const char *header_value)
+{
+    /* HTTP/3 header tracking is simpler than HTTP/2 in that the header
+     * section is sent as a single HEADERS frame, and the trailer section
+     * as a single HEADERS frame.
+     * https://www.rfc-editor.org/rfc/rfc9114.html#section-4.1-4
+     * CONTINUATION frames do not exist:
+     * https://www.rfc-editor.org/rfc/rfc9114.html#appendix-A.2.5-1.20.1
+     * Headers may also be carried on PUSH PROMISE frames, which reference
+     * a push ID instead of a server-initiated stream ID. If PUSH_PROMISE
+     * is used, if the same push ID occurs in multiple frames, the "header
+     * sets MUST contain the same fields in the same order, and both the
+     * name and the value in each field MUST be exact matches." Server push
+     * is not handled yet.
+     *
+     * Thus, we could do some more error checking regarding those conditions.
+     */
+
+    /* There are pseudo-header and header values we wish to save to the
+     * bidirectional stream for access across frames, and values we wish
+     * to save on a per-direction basis. Right now we don't do the latter,
+     * only retrieving them from the full header list, but it might be
+     * worth the optimization to pre-process here.
+     */
+    if (strcmp(header_name, HTTP3_HEADER_NAME_METHOD) == 0) {
+        http3_stream->pseudo_headers.method = wmem_strdup(wmem_file_scope(), header_value);
+        if (strcmp(header_value, "CONNECT") == 0) {
+            /* This is a variant of CONNECT method.
+             * Supported variants:
+             * 1. "Plain CONNECT"
+             *    https://www.rfc-editor.org/rfc/rfc7231#section-4.3.6
+             * 2. "Extended CONNECT"
+             *     https://www.rfc-editor.org/rfc/rfc9298.html#section-2
+             *     https://www.rfc-editor.org/rfc/rfc9298.html#section-3.4
+             *     https://www.rfc-editor.org/rfc/rfc8441.html#section-4
+             *
+             * "Plain CONNECT" utilizes the `:authority' pseudo-header as
+             * the connection target.
+             * The "Extended CONNECT" uses the pseudo-headers
+             * in the same way as other HTTP methods. */
+            http3_stream->is_connect = true;
+        }
+    } else if (strcmp(header_name, HTTP3_HEADER_NAME_PROTOCOL) == 0) {
+        http3_stream->pseudo_headers.protocol = wmem_strdup(wmem_file_scope(), header_value);
+    } else if (strcmp(header_name, HTTP3_HEADER_NAME_PATH) == 0) {
+        http3_stream->pseudo_headers.path = wmem_strdup(wmem_file_scope(), header_value);
+    } else if (strcmp(header_name, HTTP3_HEADER_NAME_AUTHORITY) == 0) {
+        http3_stream->pseudo_headers.authority = wmem_strdup(wmem_file_scope(), header_value);
+    } else if (strcmp(header_name, HTTP3_HEADER_NAME_SCHEME) == 0) {
+        http3_stream->pseudo_headers.scheme = wmem_strdup(wmem_file_scope(), header_value);
+    } else if (strcmp(header_name, HTTP3_HEADER_NAME_STATUS) == 0) {
+        unsigned status_code;
+
+        status_code             = (unsigned)strtoul(header_value, NULL, 10);
+        http3_stream->pseudo_headers.status   = wmem_strdup(wmem_file_scope(), header_value);
+        http3_stream->pseudo_headers.reason_phrase = val_to_str_const(status_code, vals_http_status_code, "Unknown");
+    }
+}
+
 static int
-dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned tvb_offset, unsigned offset,
-                      quic_stream_info *stream_info, http3_stream_info_t *http3_stream)
+decode_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned tvb_offset, unsigned offset,
+                     quic_stream_info *stream_info, http3_stream_info_t *http3_stream)
 {
     http3_header_data_t           *header_data;         /* The decoded header data block; populated on the first pass. */
     http3_session_info_t          *http3_session;       /* The corresponding HTTP/3 session. */
@@ -1279,7 +1388,6 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
 
     for (unsigned i = 0; i < wmem_array_get_count(header_data->header_fields); ++i) {
         http3_header_field_t    *in;
-        proto_item              *ti_named_field;
         proto_item              *header;
         proto_tree              *header_tree;
         uint32_t                header_name_length;
@@ -1314,8 +1422,8 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
         proto_tree_add_item_ret_string(header_tree, hf_http3_header_value, header_tvb, hoffset, header_value_length,
                                        ENC_ASCII | ENC_NA, pinfo->pool, (const uint8_t**)&header_value);
 
-        ti_named_field = try_add_named_header_field(header_tree, header_tvb, hoffset, header_value_length, header_name,
-                                                    header_value);
+        try_add_named_header_field(header_tree, pinfo, header_tvb, hoffset, header_value_length,
+                                   header_name, header_value);
 
         hoffset += header_value_length;
 
@@ -1327,17 +1435,21 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
         proto_item_append_text(header, ": %s", wmem_strbuf_get_str(header_buf));
         wmem_strbuf_append_printf(headers_buf, "%s\n", wmem_strbuf_finalize(header_buf));
 
-        /* Collect the pseudo-header values to be used later. */
-        /* XXX - We could save other headers to possibly save parsing
-         * later, see HTTP/2 populate_http_header_tracking */
+        /* Track pseudo-header and header values stored persistently. */
+        if (!PINFO_FD_VISITED(pinfo)) {
+            populate_http3_header_tracking(pinfo, http3_stream,
+                header_name, header_value);
+        }
+
+        /* Add special values to the tree for certain pseudo-headers
+         * and headers, and collect the values for later processing,
+         * as some depend on each other. */
         if (strcmp(header_name, HTTP3_HEADER_NAME_METHOD) == 0) {
             pseudo_headers.method = header_value;
         } else if (strcmp(header_name, HTTP3_HEADER_NAME_PROTOCOL) == 0) {
             pseudo_headers.protocol = header_value;
         } else if (strcmp(header_name, HTTP3_HEADER_NAME_PATH) == 0) {
             pseudo_headers.path = header_value;
-            http_add_path_components_to_tree(header_tvb, pinfo, ti_named_field, hoffset - header_value_length,
-                                             header_value_length);
         } else if (strcmp(header_name, HTTP3_HEADER_NAME_AUTHORITY) == 0) {
             pseudo_headers.authority = header_value;
         } else if (strcmp(header_name, HTTP3_HEADER_NAME_SCHEME) == 0) {
@@ -1348,8 +1460,8 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
             status_code             = (unsigned)strtoul(header_value, NULL, 10);
             pseudo_headers.status   = header_value;
             pseudo_headers.reason_phrase = val_to_str_const(status_code, vals_http_status_code, "Unknown");
-            proto_item_append_text(header_tree, " %s", pseudo_headers.reason_phrase);
-            proto_item_append_text(tree, ", %s %s", pseudo_headers.status, pseudo_headers.reason_phrase);
+            proto_item_append_text(header, " %s", pseudo_headers.reason_phrase);
+            proto_item_append_text(proto_item_get_parent(header), ", %s %s", pseudo_headers.status, pseudo_headers.reason_phrase);
         } else if (strcmp(header_name, HTTP3_HEADER_NAME_TRANSFER_ENCODING) == 0) {
             /* The Transfer-Encoding header field MUST NOT be used.
              * https://www.rfc-editor.org/rfc/rfc9114.html#section-4.1-11 */
@@ -1375,41 +1487,19 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
 
     /* We have finished constructing the tree for the header fields.
      * Proceed to determine whether this is a variant of the CONNECT
-     * method and to update the `hf_http3_header_request_full_uri'
-     * and the info column display accordingly.
+     * method and to update the info column display accordingly.
+     *
+     * We do this here, because while pseudo-headers must appear before
+     * regular headers, there is no guarantee of their internal ordering
+     * (although some implementations may assume that), and we want to
+     * add to COL_INFO in a particular order, and only can determine
+     * the CONNECT variant with both ":protocol" and ":method", etc.
      */
     if (pseudo_headers.method != NULL) {
-        proto_item   *ti_url;
-        char         *uri;
-        bool         authority_contains_target = false;
+        const char   *uri;
 
-        if (strcmp(pseudo_headers.method, "CONNECT") == 0) {
-            /* This is a variant of CONNECT method.
-             * Supported variants:
-             * 1. "Plain CONNECT"
-             *    https://www.rfc-editor.org/rfc/rfc7231#section-4.3.6
-             * 2. "Extended CONNECT"
-             *     https://www.rfc-editor.org/rfc/rfc9298.html#section-2
-             *     https://www.rfc-editor.org/rfc/rfc9298.html#section-3.4
-             *     https://www.rfc-editor.org/rfc/rfc8441.html#section-4
-             *
-             * "Plain CONNECT" utilizes the `:authority' pseudo-header as
-             * the connection target.
-             * The "Extended CONNECT" uses the pseudo-headers
-             * in the same way as other HTTP methods.
-             */
-            http3_stream->is_connect = true;
-            if (pseudo_headers.protocol == NULL) {
-                /* This is the plain CONNECT method
-                 * https://www.rfc-editor.org/rfc/rfc7231#section-4.3.6
-                 *
-                 * Pseudo-header semantics:
-                 * `:method' contains "CONNECT"
-                 * `:authority' contains the target host and port
-                 * `:scheme' and `:path' MUST be empty
-                 */
-                 authority_contains_target = true;
-            } else if (!PINFO_FD_VISITED(pinfo)) {
+        if (!PINFO_FD_VISITED(pinfo)) {
+            if (http3_stream->is_connect && pseudo_headers.protocol) {
                 http3_stream->protocol = wmem_strdup(wmem_file_scope(), pseudo_headers.protocol);
                 http3_stream->next_handle = http_upgrade_dissector(http3_stream->protocol);
                 http3_stream->upgrade_info = wmem_new0(wmem_file_scope(), http_upgrade_info_t);
@@ -1419,22 +1509,10 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
             }
         }
 
-        if (authority_contains_target) {
-            /* Both plain CONNECT and CONNECT-UDP use only the `:authority' header.
-             */
-            uri = wmem_strdup(pinfo->pool, pseudo_headers.authority);
-        } else {
-            /* The Extended CONNECT uses the standard URL construction
-             */
-            uri = wmem_strdup_printf(pinfo->pool, "%s://%s%s",
-                pseudo_headers.scheme, pseudo_headers.authority, pseudo_headers.path);
-        }
-
+        /* HTTP/1.1 and HTTP/2 only add the method and path here */
+        uri = http3_get_request_full_uri(pinfo, http3_stream);
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s %s",
             pseudo_headers.method, uri);
-        ti_url = proto_tree_add_string(tree, hf_http3_header_request_full_uri, tvb, 0, 0, uri);
-        proto_item_set_url(ti_url);
-        proto_item_set_generated(ti_url);
     } else if (pseudo_headers.status != NULL) {
         DISSECTOR_ASSERT(pseudo_headers.reason_phrase); /* Must be filled together with `:status' */
         /* append the status code and the reason phrase (for example, HEADERS: 200 OK) */
@@ -1595,6 +1673,8 @@ static void
 dissect_http3_body_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *body_tree, http3_stream_info_t *http3_stream, bool decompression_success)
 {
     unsigned length = tvb_reported_length(tvb);
+    http_eo_t *eo_info;
+    const char *content_type = http3_get_header_value(pinfo, HTTP3_HEADER_NAME_CONTENT_TYPE, false);
 
     proto_tree_add_item(body_tree, hf_http3_data, tvb, 0, length, ENC_NA);
 
@@ -1608,11 +1688,21 @@ dissect_http3_body_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *body_tree
         tap_queue_packet(http3_follow_tap, pinfo, follow_data);
     }
 
+    if (have_tap_listener(http_eo_tap)) {
+        eo_info = wmem_new0(pinfo->pool, http_eo_t);
+
+        eo_info->filename = http3_stream->pseudo_headers.path;
+        eo_info->hostname = http3_stream->pseudo_headers.authority;
+        eo_info->content_type = content_type;
+        eo_info->payload = tvb;
+
+        tap_queue_packet(http_eo_tap, pinfo, eo_info);
+    }
+
     /* If we couldn't, or wouldn't, decompress the data, stop here. */
     if (!decompression_success)
         return;
 
-    const char *content_type = http3_get_header_value(pinfo, HTTP3_HEADER_NAME_CONTENT_TYPE, false);
     if (content_type != NULL) {
         const char *semicolon = ws_strchrnul(content_type, ';');
         char *media_type = wmem_ascii_strdown(pinfo->pool, content_type, semicolon - content_type);
@@ -1624,8 +1714,14 @@ dissect_http3_body_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *body_tree
             media_type_parameters = wmem_strdup(pinfo->pool, semicolon);
         }
         media_content_info_t media_type_metadata = { MEDIA_CONTAINER_HTTP_OTHERS, media_type_parameters, NULL, NULL};
-        dissector_try_string_with_data(media_type_dissector_table, media_type,
-            tvb, pinfo, proto_tree_get_root(body_tree), true, &media_type_metadata);
+        if (!dissector_try_string_with_data(media_type_dissector_table, media_type,
+            tvb, pinfo, proto_tree_get_root(body_tree), true, &media_type_metadata)) {
+
+            const char *saved_match_string = pinfo->match_string;
+            pinfo->match_string = media_type;
+            call_dissector_with_data(media_handle, tvb, pinfo, proto_tree_get_root(body_tree), &media_type_metadata);
+            pinfo->match_string = saved_match_string;
+        }
     }
 }
 
@@ -1838,6 +1934,41 @@ dissect_http3_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http3_tree
 }
 #endif /* HAVE_NGHTTP3 */
 
+static unsigned
+#ifdef HAVE_NGHTTP3
+dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned tvb_offset, unsigned offset,
+                      quic_stream_info *stream_info, http3_stream_info_t *http3_stream)
+#else
+dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, unsigned tvb_offset _U_, unsigned offset _U_,
+                      quic_stream_info *stream_info _U_, http3_stream_info_t *http3_stream)
+#endif
+{
+    if (http3_stream->direction == FROM_CLIENT_TO_SERVER) {
+        if (http3_stream->request_frame_num == 0) {
+            http3_stream->request_frame_num = pinfo->num;
+            http3_stream->request_ts = pinfo->abs_ts;
+        }
+    } else {
+        if (http3_stream->response_frame_num == 0) {
+            http3_stream->response_frame_num = pinfo->num;
+        }
+    }
+#ifdef HAVE_NGHTTP3
+    decode_http3_headers(tvb, pinfo, tree, tvb_offset, offset, stream_info, http3_stream);
+#else
+    if (have_tap_listener(http3_follow_tap)) {
+        quic_follow_tap_data_t *follow_data = wmem_new0(pinfo->pool, quic_follow_tap_data_t);
+
+        follow_data->tvb = tvb;
+        follow_data->stream_id = http3_stream->id;
+        follow_data->from_server = stream_info->from_server;
+
+        tap_queue_packet(http3_follow_tap, pinfo, follow_data);
+    }
+#endif
+    return tvb_reported_length(tvb);
+}
+
 /* Settings */
 static int
 dissect_http3_settings(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http3_tree, unsigned offset)
@@ -1969,7 +2100,6 @@ dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     proto_item  *ti_ft, *ti_ft_type;
     proto_tree  *ft_tree;
     const char *ft_display_name;
-    bool        use_follow_tap = false;
     bool        fin = false;
 
     ti_ft = proto_tree_add_item(tree, hf_http3_frame, tvb, offset, -1, ENC_NA);
@@ -2018,12 +2148,8 @@ dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
         fin = false;
     } break;
     case HTTP3_HEADERS: {
-#ifdef HAVE_NGHTTP3
         tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, payload_length);
         dissect_http3_headers(next_tvb, pinfo, ft_tree, 0, offset, stream_info, http3_stream);
-#else
-        use_follow_tap = true;
-#endif /* HAVE_NGHTTP3 */
     } break;
     case HTTP3_CANCEL_PUSH: /* TODO: dissect Cancel_Push Frame */
         break;
@@ -2060,16 +2186,6 @@ dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
         }
     }
 #endif
-
-    if (use_follow_tap && have_tap_listener(http3_follow_tap)) {
-        quic_follow_tap_data_t *follow_data = wmem_new0(pinfo->pool, quic_follow_tap_data_t);
-
-        follow_data->tvb = tvb_new_subset_length(tvb, offset, payload_length);
-        follow_data->stream_id = http3_stream->id;
-        follow_data->from_server = stream_info->from_server;
-
-        tap_queue_packet(http3_follow_tap, pinfo, follow_data);
-    }
 
     offset += payload_length;
     return offset;
@@ -2796,9 +2912,33 @@ dissect_http3_client_bidi_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     while (tvb_reported_length_remaining(tvb, offset)) {
         if (!http3_check_frame_size(tvb, pinfo, offset)) {
-            return tvb_captured_length(tvb);
+            offset = tvb_captured_length(tvb);
+            break;
         }
         offset = dissect_http3_frame(tvb, pinfo, stream_tree, offset, stream_info, http3_stream);
+    }
+
+    const char *uri = http3_get_request_full_uri(pinfo, http3_stream);
+    if (uri) {
+        proto_item *ti_url = proto_tree_add_string(stream_tree, hf_http3_header_request_full_uri, tvb, 0, 0, uri);
+        proto_item_set_url(ti_url);
+        proto_item_set_generated(ti_url);
+    }
+
+    if (http3_stream->direction == FROM_CLIENT_TO_SERVER) {
+        if (http3_stream->response_frame_num != 0) {
+            proto_item_set_generated(proto_tree_add_uint(stream_tree, hf_http3_response_in, tvb, 0, 0, http3_stream->response_frame_num));
+        }
+    } else {
+        if (http3_stream->request_frame_num != 0) {
+            if (!nstime_is_unset(&http3_stream->request_ts)) {
+                nstime_t delta;
+
+                nstime_delta(&delta, &pinfo->abs_ts, &http3_stream->request_ts);
+                proto_item_set_generated(proto_tree_add_time(stream_tree, hf_http3_time, tvb, 0, 0, &delta));
+            }
+            proto_item_set_generated(proto_tree_add_uint(stream_tree, hf_http3_request_in, tvb, 0, 0, http3_stream->request_frame_num));
+        }
     }
 
     return offset;
@@ -2944,6 +3084,7 @@ dissect_http3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     http3_stream = (http3_stream_info_t *)quic_stream_get_proto_data(pinfo, stream_info);
     if (!http3_stream) {
         http3_stream = wmem_new0(wmem_file_scope(), http3_stream_info_t);
+        nstime_set_unset(&http3_stream->request_ts);
         quic_stream_add_proto_data(pinfo, stream_info, http3_stream);
         http3_stream->id               = stream_info->stream_id;
     }
@@ -3042,7 +3183,7 @@ register_static_headers(void)
         },
         { &hf_http3_headers_status,
           { ":status", "http3.headers.status",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC, VALS(vals_http_status_code), 0x0,
             NULL, HFILL }
         },
         { &hf_http3_headers_path,
@@ -3353,6 +3494,23 @@ proto_register_http3(void)
           { "Frame Payload", "http3.frame_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
+        },
+
+        /* Generated Fields */
+        { &hf_http3_time,
+          { "Time since request", "http3.time",
+            FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
+            "Time since the request was sent", HFILL }
+        },
+        { &hf_http3_request_in,
+            { "Request in frame", "http3.request_in",
+              FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+              "This frame is part of a response to a HTTP/3 request that began in this frame", HFILL }
+        },
+        { &hf_http3_response_in,
+            { "Response in frame", "http3.response_in",
+              FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
+              "This frame is part of a request responded in the frame with this number", HFILL }
         },
 
         /* Data */
@@ -3789,6 +3947,12 @@ proto_reg_handoff_http3(void)
 {
 #ifdef HAVE_NGHTTP3
     media_type_dissector_table = find_dissector_table("media_type");
+    media_handle = find_dissector_add_dependency("media", proto_http3);
+
+    register_eo_t *http_eo = get_eo_by_name("http");
+    if (http_eo) {
+        http_eo_tap = find_tap_id(get_eo_tap_listener_name(http_eo));
+    }
 #endif
 
     dissector_add_string("quic.proto", "h3", http3_handle);
