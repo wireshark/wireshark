@@ -442,21 +442,23 @@ static loop_data   global_ld;
  */
 #define CAP_READ_TIMEOUT        250
 
-/*
- * Timeout, in microseconds, for reads from the stream of captured packets
- * from a pipe.  Pipes don't have the same problem that BPF devices do
- * in Mac OS X 10.6, 10.6.1, 10.6.3, and 10.6.4, so we always use a timeout
- * of 250ms, i.e. the same value as CAP_READ_TIMEOUT when not on one
- * of the offending versions of Snow Leopard.
- *
- * On Windows this value is converted to milliseconds and passed to
- * WaitForSingleObject. If it's less than 1000 WaitForSingleObject
- * will return immediately.
- */
 #if defined(_WIN32)
-#define PIPE_READ_TIMEOUT   100000
+/*
+ * Windows. This value is used as the timeout for g_async_queue_timeout_pop()
+ * on pipes.
+ */
+#define PIPE_READ_TIMEOUT   100000 /* .1 s */
 #else
-#define PIPE_READ_TIMEOUT   250000
+/*
+ * UNIX-like systems (UN*Xes and Haiku). This value is used as the timeout,
+ * in microseconds, for reads from the stream of captured packets from a pipe.
+ *
+ * Pipes don't have the same problem that BPF devices do in Mac OS X 10.6,
+ * 10.6.1, 10.6.3, and 10.6.4, so we always use a timeout of 250ms, i.e.
+ * the same value as CAP_READ_TIMEOUT when not on one of the offending
+ * versions of Snow Leopard.
+ */
+#define PIPE_READ_TIMEOUT   250000 /* .25 s */
 #endif
 
 #define WRITER_THREAD_TIMEOUT 100000 /* usecs */
@@ -2030,10 +2032,10 @@ cap_pipe_open_live(char *pipename,
     /*
      * On UN*X, we can use select() on pipes or sockets.
      *
-     * On Windows, we can only use it on sockets; to do non-blocking
-     * reads from pipes, we currently do reads in a separate thread
-     * and use GLib asynchronous queues from the main thread to start
-     * read operations and to wait for them to complete.
+     * XXX - we use multiple threads for capturing, in part because
+     * select() isn't guaranteed to work on capture devices; should
+     * we use multiple threas if use_threads is set, which it will be
+     * if we have more than one capture device?
      */
     bytes_read = 0;
     while (bytes_read < sizeof magic) {
@@ -2064,7 +2066,14 @@ cap_pipe_open_live(char *pipename,
         }
     }
 #else
-    /* Create a thread to read from this pipe */
+    /*
+     * On Windows, we can only use select() on sockets; to do non-blocking
+     * reads from pipes, we currently do reads in a separate thread
+     * and use GLib asynchronous queues from the main thread to start
+     * read operations and to wait for them to complete.
+     *
+     * Create a thread to read from this pipe.
+     */
     g_thread_new("cap_pipe_open_live", &cap_thread_read, pcap_src);
 
     pipe_read_sync(pcap_src, &magic, sizeof(magic));
