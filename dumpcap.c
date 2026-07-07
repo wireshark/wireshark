@@ -4036,6 +4036,8 @@ do_file_switch_or_stop(capture_options *capture_opts)
     return true;
 }
 
+/* Runs in a per-capture-source thread, receiving packets from the
+   capture source and pushing them onto the end of the packet queue. */
 static void *
 pcap_read_handler(void* arg)
 {
@@ -4055,7 +4057,8 @@ pcap_read_handler(void* arg)
     return (NULL);
 }
 
-/* Try to pop an item off the packet queue and if it exists, write it */
+/* Try to pop an item off the head of the packet queue and if it exists,
+   write it */
 static bool
 capture_loop_dequeue_packet(void) {
     pcap_queue_element *queue_element;
@@ -4277,6 +4280,8 @@ capture_loop_start(capture_options *capture_opts, bool *stats_known, struct pcap
     /* WOW, everything is prepared! */
     /* please fasten your seat belts, we will enter now the actual capture loop */
     if (use_threads) {
+        /* Start threads, one per capture device, to queue incoming packets
+           for writing. */
         pcap_queue = g_async_queue_new();
         pcap_queue_bytes = 0;
         pcap_queue_packets = 0;
@@ -4287,8 +4292,9 @@ capture_loop_start(capture_options *capture_opts, bool *stats_known, struct pcap
         }
     }
     while (global_ld.go) {
-        /* dispatch incoming packets */
         if (use_threads) {
+            /* Write out the packet at the head of the queue of received
+               packets. */
             bool dequeued = capture_loop_dequeue_packet();
 
             if (dequeued) {
@@ -4297,6 +4303,7 @@ capture_loop_start(capture_options *capture_opts, bool *stats_known, struct pcap
                 inpkts = 0;
             }
         } else {
+            /* Dispatch incoming packets and write them out. */
             pcap_src = g_array_index(global_ld.pcaps, capture_src *, 0);
             inpkts = capture_loop_dispatch(&global_ld, errmsg,
                                            sizeof(errmsg), pcap_src);
