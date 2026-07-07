@@ -3689,8 +3689,8 @@ capture_loop_dispatch(loop_data *ld,
                     inpkts = pcap_dispatch(pcap_src->pcap_h, 1, capture_loop_write_packet_cb, (uint8_t *)pcap_src);
                 }
                 if (inpkts < 0) {
-                    if (inpkts == PCAP_ERROR) {
-                        /* Error, rather than pcap_breakloop(). */
+                    if (inpkts != PCAP_ERROR_BREAK) {
+                        /* An error, rather than a pcap_breakloop() call. */
                         pcap_src->pcap_err = true;
                     }
                     ld->go = false; /* error or pcap_breakloop() - stop capturing */
@@ -3708,7 +3708,6 @@ capture_loop_dispatch(loop_data *ld,
 #endif /* MUST_DO_SELECT */
         {
             /* dispatch from pcap without select */
-#if 1
 #ifdef LOG_CAPTURE_VERBOSE
             ws_debug("capture_loop_dispatch: from pcap_dispatch");
 #endif
@@ -3732,49 +3731,12 @@ capture_loop_dispatch(loop_data *ld,
             }
 #endif
             if (inpkts < 0) {
-                if (inpkts == PCAP_ERROR) {
-                    /* Error, rather than pcap_breakloop(). */
+                if (inpkts != PCAP_ERROR_BREAK) {
+                    /* An error, rather than a pcap_breakloop() call. */
                     pcap_src->pcap_err = true;
                 }
                 ld->go = false; /* error or pcap_breakloop() - stop capturing */
             }
-#else /* pcap_next_ex */
-#ifdef LOG_CAPTURE_VERBOSE
-            ws_debug("capture_loop_dispatch: from pcap_next_ex");
-#endif
-            /* XXX - this is currently unused, as there is some confusion with pcap_next_ex() vs. pcap_dispatch() */
-
-            /*
-             * WinPcap's remote capturing feature doesn't work with pcap_dispatch(),
-             * see https://gitlab.com/wireshark/wireshark/-/wikis/CaptureSetup/WinPcapRemote
-             * This should be fixed in the WinPcap 4.0 alpha release.
-             *
-             * For reference, an example remote interface:
-             * rpcap://[1.2.3.4]/\Device\NPF_{39993D68-7C9B-4439-A329-F2D888DA7C5C}
-             */
-
-            /* emulate dispatch from pcap */
-            {
-                int in;
-                struct pcap_pkthdr *pkt_header;
-                uint8_t *pkt_data;
-
-                in = 0;
-                while(ld->go &&
-                      (in = pcap_next_ex(pcap_src->pcap_h, &pkt_header, &pkt_data)) == 1) {
-                    if (use_threads) {
-                        capture_loop_queue_packet_cb((uint8_t *)pcap_src, pkt_header, pkt_data);
-                    } else {
-                        capture_loop_write_packet_cb((uint8_t *)pcap_src, pkt_header, pkt_data);
-                    }
-                }
-
-                if (in < 0) {
-                    pcap_src->pcap_err = true;
-                    ld->go = false;
-                }
-            }
-#endif /* pcap_next_ex */
         }
     }
 
