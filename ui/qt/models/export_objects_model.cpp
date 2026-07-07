@@ -309,7 +309,8 @@ void ExportObjectModel::removeTap()
 
 
 ExportObjectProxyModel::ExportObjectProxyModel(QObject * parent)
-    : QSortFilterProxyModel(parent)
+    : QSortFilterProxyModel(parent),
+    uniqueFilter_(false)
 {
 
 }
