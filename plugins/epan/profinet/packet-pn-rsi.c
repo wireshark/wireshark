@@ -922,6 +922,17 @@ dissect_PNIO_RSI_with_security(tvbuff_t* tvb, unsigned offset,
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep,
             hf_pn_rsi_var_part_len, &u16VarPartLen);
 
+        /* The SecurityData spans u16SecurityLength octets following the 8-byte
+         * SecurityMetaData; the SecurityChecksum (and any padding) follow it.
+         * Bound the inner RTA/block dissection to the SecurityData so the
+         * trailing checksum/padding are not misinterpreted as PN-IO blocks. */
+        unsigned    security_data_end = (unsigned)start_offset + 8 + u16SecurityLength;
+        tvbuff_t   *sec_tvb = tvb;
+
+        if (security_data_end <= tvb_reported_length(tvb)) {
+            sec_tvb = tvb_new_subset_length(tvb, 0, security_data_end);
+        }
+
         switch (u8PDUType & 0x0F) {
         case(3):    /* ACK-RTA */
             col_append_str(pinfo->cinfo, COL_INFO, "ACK-RTA");
@@ -947,14 +958,20 @@ dissect_PNIO_RSI_with_security(tvbuff_t* tvb, unsigned offset,
             }
             break;
         case(5):    /* FREQ-RTA */
-            offset = dissect_FREQ_RTA_block(tvb, offset, pinfo, rta_tree, drep, u16VarPartLen, u8MoreFrag, u16DestinationServiceAccessPoint);
+            offset = dissect_FREQ_RTA_block(sec_tvb, offset, pinfo, rta_tree, drep, u16VarPartLen, u8MoreFrag, u16DestinationServiceAccessPoint);
             break;
         case(6):    /* FRSP-RTA */
-            offset = dissect_FRSP_RTA_block(tvb, offset, pinfo, rta_tree, drep, u16VarPartLen, u8MoreFrag);
+            offset = dissect_FRSP_RTA_block(sec_tvb, offset, pinfo, rta_tree, drep, u16VarPartLen, u8MoreFrag);
             break;
         default:
-            offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, tvb_captured_length(tvb));
+            offset = dissect_pn_undecoded(sec_tvb, offset, pinfo, tree, tvb_captured_length(sec_tvb));
             break;
+        }
+
+        /* The SecurityChecksum immediately follows the SecurityData, regardless
+         * of how far the inner dissection advanced (e.g. for fragments). */
+        if (security_data_end <= tvb_reported_length(tvb)) {
+            offset = security_data_end;
         }
 
         /* SecurityChecksum */

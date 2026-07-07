@@ -32,9 +32,11 @@ void proto_reg_handoff_pkcs10(void);
 void proto_register_pkcs10(void);
 
 static dissector_handle_t csr_handle;
+static dissector_handle_t cri_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_pkcs10;
+static int hf_pkcs10_CertificationRequestInfo_PDU;  /* CertificationRequestInfo */
 static int hf_pkcs10_Attributes_PDU;              /* Attributes */
 static int hf_pkcs10_CertificationRequest_PDU;    /* CertificationRequest */
 static int hf_pkcs10_version;                     /* T_version */
@@ -139,7 +141,7 @@ static const ber_sequence_t CertificationRequestInfo_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static unsigned
+unsigned
 dissect_pkcs10_CertificationRequestInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CertificationRequestInfo_sequence, hf_index, ett_pkcs10_CertificationRequestInfo);
@@ -176,6 +178,13 @@ dissect_pkcs10_CertificationRequest(bool implicit_tag _U_, tvbuff_t *tvb _U_, un
 
 /*--- PDUs ---*/
 
+static int dissect_CertificationRequestInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+  offset = dissect_pkcs10_CertificationRequestInfo(false, tvb, offset, &asn1_ctx, tree, hf_pkcs10_CertificationRequestInfo_PDU);
+  return offset;
+}
 static int dissect_Attributes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -197,6 +206,10 @@ void proto_register_pkcs10(void) {
 
 	/* List of fields */
 	static hf_register_info hf[] = {
+    { &hf_pkcs10_CertificationRequestInfo_PDU,
+      { "CertificationRequestInfo", "pkcs10.CertificationRequestInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_pkcs10_Attributes_PDU,
       { "Attributes", "pkcs10.Attributes",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -267,7 +280,9 @@ void proto_register_pkcs10(void) {
 	proto_register_subtree_array(ett, array_length(ett));
 
   csr_handle = register_dissector("pkcs10", dissect_CertificationRequest_PDU, proto_pkcs10);
+  cri_handle = register_dissector("pkcs10.cri", dissect_CertificationRequestInfo_PDU, proto_pkcs10);
   register_ber_syntax_dissector("CertificationRequest", proto_pkcs10, dissect_CertificationRequest_PDU);
+  register_ber_syntax_dissector("CertificationRequestInfo", proto_pkcs10, dissect_CertificationRequestInfo_PDU);
   register_ber_oid_syntax(".p10", NULL, "CertificationRequest");
   register_ber_oid_syntax(".csr", NULL, "CertificationRequest");
 }

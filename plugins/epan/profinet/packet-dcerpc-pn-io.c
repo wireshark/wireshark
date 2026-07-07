@@ -68,6 +68,7 @@
 #include <epan/tfs.h>
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-ber.h>
+#include <epan/dissectors/packet-x509af.h>
 #include <epan/exceptions.h>
 
 #include <wsutil/array.h>
@@ -120,6 +121,8 @@ void proto_reg_handoff_pn_io(void);
 #endif
 
 static dissector_handle_t eap_handle;
+static dissector_handle_t pkcs10_handle;
+static dissector_handle_t pkcs10_cri_handle;
 
 static int proto_pn_io;
 static int proto_pn_io_device;
@@ -630,12 +633,11 @@ static int hf_pn_io_credential_id_credential_type;
 static int hf_pn_io_credential_id_reserved;
 static int hf_pn_io_expected_credential_type;
 static int hf_pn_io_number_of_entries;
-static int hf_pn_io_private_key;
-static int hf_pn_io_private_key_length;
 static int hf_pn_io_certificate_length;
 static int hf_pn_io_certificate;
 static int hf_pn_io_certification_request_length;
 static int hf_pn_io_certification_request;
+static int hf_pn_io_certification_request_information;
 
 static int hf_pn_io_nme_parameter_uuid;
 static int hf_pn_io_nme_domain_vid_config;
@@ -1016,7 +1018,7 @@ static int hf_pn_io_snmp_write_community_name;
 
 static int hf_pn_io_snmp_control;
 static int hf_pn_io_eap_data;
-static int hf_pn_io_security_pdu;
+static int hf_pn_io_actual_credential_type;
 static int hf_pn_io_managing_roles_pdu;
 static int hf_pn_io_usage_roles_pdu;
 static int hf_pn_io_uniform_component_identifier_pdu;
@@ -1133,6 +1135,8 @@ static int ett_pn_io_counter_status;
 static int ett_pn_io_neighbor;
 static int ett_pn_io_credential_id;
 static int ett_pn_io_security;
+static int ett_pn_io_certification_request;
+static int ett_pn_io_certification_request_information;
 static int ett_pn_io_security_configuration_parameters;
 static int ett_pn_io_security_features;
 static int ett_pn_io_security_capability;
@@ -1411,6 +1415,7 @@ static const value_string pn_io_block_type[] = {
     { 0x0608, "PDInterfaceFSUDataAdjust"},
     { 0x0609, "ARFSUDataAdjust"},
     { 0x06E0, "SAMRequestBlock"},
+    { 0x06E1, "ARUUIDBlock"},
     { 0x06E2, "ARAlgorithmInfoBlock"},
     { 0x06E3, "ExpectedCredentialTypeBlock"},
     { 0x06E4, "ARMetadataBlock"},
@@ -3843,7 +3848,7 @@ static const range_string pn_io_security_operation[] = {
     { 0x0004, 0x0004, "Get EE Certification Path" },
     { 0x0005, 0x0005, "Get Trusted CA Certificate" },
     { 0x0006, 0x0006, "Generate Key Pair And CSR" },
-    { 0x0007, 0x0007, "Imprint Private Key" },
+    { 0x0007, 0x0007, "Reserved" },
     { 0x0008, 0x0008, "Imprint EE Certification Path" },
     { 0x0009, 0x0009, "Remove EE Certification Path and Private Key" },
     { 0x000A, 0x000A, "Imprint Trusted CA Certificate" },
@@ -8516,10 +8521,9 @@ static int
 dissect_SecurityRequest_block(tvbuff_t* tvb, int offset,
     packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t* drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow, uint16_t u16BodyLength)
 {
+    const int    body_end = offset + u16BodyLength;
     uint16_t     u16SecurityOperation;
-    uint16_t     u16CertificateRequestLength;
     uint16_t     u16NumberOfEntries;
-    uint16_t     u16PrivateKeyLength;
     uint16_t     u16CertificateLength;
     uint32_t     u32CredentialIDCredentialType;
     uint32_t     u32CredentialIDReserved;
@@ -8533,6 +8537,7 @@ dissect_SecurityRequest_block(tvbuff_t* tvb, int offset,
     dcerpc_call_value dcv; /* fake dcerpc_call_value struct */
     di.call_data = &dcv;
 
+    asn1_ctx_t asn1_ctx;
 
     proto_item* configuration_item;
     proto_tree* configuration_tree;
@@ -8569,25 +8574,25 @@ dissect_SecurityRequest_block(tvbuff_t* tvb, int offset,
             }
             if (u16SecurityOperation == 0x0006) // GenerateKeyPairandCSRReq
             {
-                /* CertificationRequestLength */
-                proto_tree_add_item_ret_uint16(tree, hf_pn_io_certification_request_length, tvb, offset, 2,
-                    ENC_BIG_ENDIAN, &u16CertificateRequestLength);
-                offset += 2;
-                /* CertificationRequestInfo */
-                proto_tree_add_item(tree, hf_pn_io_certification_request, tvb, offset, u16CertificateRequestLength, ENC_ASCII);
-                offset += u16CertificateRequestLength;
-            }
-            if (u16SecurityOperation == 0x0007) /* ImprintPrivateKeyReq */
-            {
-                /* PrivateKeyLength */
-                proto_tree_add_item_ret_uint16(tree, hf_pn_io_private_key_length, tvb, offset, 2,
-                    ENC_BIG_ENDIAN, &u16PrivateKeyLength);
-                offset += 2;
-                //offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_private_key_length, &u16PrivateKeyLength);
-
-                /* PrivateKey */
-                proto_tree_add_item(tree, hf_pn_io_private_key, tvb, offset, u16PrivateKeyLength, ENC_NA);
-                offset += u16PrivateKeyLength;
+                /* CertificationRequestInformation (CertificationRequestInfo,
+                 * PKCS#10 DER TBS structure without the outer signature) fills
+                 * the remainder of the block body; there is no separate length
+                 * field here. */
+                int cri_len = body_end - offset;
+                if (cri_len < 0) {
+                    cri_len = 0;
+                }
+                proto_item *cri_item = proto_tree_add_item(tree,
+                    hf_pn_io_certification_request_information, tvb, offset,
+                    cri_len, ENC_NA);
+                if (cri_len > 0 && pkcs10_cri_handle != NULL) {
+                    proto_tree *cri_tree = proto_item_add_subtree(cri_item,
+                        ett_pn_io_certification_request_information);
+                    tvbuff_t *cri_tvb = tvb_new_subset_length(tvb, offset,
+                        cri_len);
+                    call_dissector(pkcs10_cri_handle, cri_tvb, pinfo, cri_tree);
+                }
+                offset += cri_len;
             }
 
             if (u16SecurityOperation == 0x0008) /* ImprintEECertificationPathReq */
@@ -8609,10 +8614,12 @@ dissect_SecurityRequest_block(tvbuff_t* tvb, int offset,
                     proto_tree_add_item_ret_uint16(tree, hf_pn_io_certificate_length, tvb, offset, 2,
                         ENC_BIG_ENDIAN, &u16CertificateLength);
                     offset += 2;
-               //     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_certificate_length, &u16CertificateLength);
 
-                    /* Certificate */
-                    proto_tree_add_item(tree, hf_pn_io_certificate, tvb, offset, u16CertificateLength, ENC_NA);
+                    /* Certificate (DER-encoded X.509 certificate) */
+                    if (u16CertificateLength > 0) {
+                        asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+                        dissect_x509af_Certificate(false, tvb, offset, &asn1_ctx, tree, hf_pn_io_certificate);
+                    }
                     offset += u16CertificateLength;
 
                     /* Padding */
@@ -8627,10 +8634,12 @@ dissect_SecurityRequest_block(tvbuff_t* tvb, int offset,
                 proto_tree_add_item_ret_uint16(tree, hf_pn_io_certificate_length, tvb, offset, 2,
                     ENC_BIG_ENDIAN, &u16CertificateLength);
                 offset += 2;
-            //    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_certificate_length, &u16CertificateLength);
 
-                /* Certificate */
-                proto_tree_add_item(tree, hf_pn_io_certificate, tvb, offset, u16CertificateLength, ENC_NA);
+                /* Certificate (DER-encoded X.509 certificate) */
+                if (u16CertificateLength > 0) {
+                    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+                    dissect_x509af_Certificate(false, tvb, offset, &asn1_ctx, tree, hf_pn_io_certificate);
+                }
                 offset += u16CertificateLength;
             }
 
@@ -8712,6 +8721,8 @@ dissect_SecurityResponse_block(tvbuff_t* tvb, int offset,
     dcerpc_info di; /* fake dcerpc_info struct */
     dcerpc_call_value dcv; /* fake dcerpc_call_value struct */
     di.call_data = &dcv;
+
+    asn1_ctx_t asn1_ctx;
 
     proto_item* features_item;
     proto_tree* features_tree;
@@ -8858,8 +8869,11 @@ dissect_SecurityResponse_block(tvbuff_t* tvb, int offset,
                         ENC_BIG_ENDIAN, &u16CertificateLength);
                     offset += 2;
 
-                    /* Certificate */
-                    proto_tree_add_item(tree, hf_pn_io_certificate, tvb, offset, u16CertificateLength, ENC_NA);
+                    /* Certificate (DER-encoded X.509 certificate) */
+                    if (u16CertificateLength > 0) {
+                        asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+                        dissect_x509af_Certificate(false, tvb, offset, &asn1_ctx, tree, hf_pn_io_certificate);
+                    }
                     offset += u16CertificateLength;
 
                     /* Padding */
@@ -8873,8 +8887,11 @@ dissect_SecurityResponse_block(tvbuff_t* tvb, int offset,
                     ENC_BIG_ENDIAN, &u16CertificateLength);
                 offset += 2;
 
-                /* Certificate */
-                proto_tree_add_item(tree, hf_pn_io_certificate, tvb, offset, u16CertificateLength, ENC_NA);
+                /* Certificate (DER-encoded X.509 certificate) */
+                if (u16CertificateLength > 0) {
+                    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+                    dissect_x509af_Certificate(false, tvb, offset, &asn1_ctx, tree, hf_pn_io_certificate);
+                }
                 offset += u16CertificateLength;
                 break;
             case(0x0006): // GenerateKeyPairAndCSRRsp
@@ -8883,12 +8900,23 @@ dissect_SecurityResponse_block(tvbuff_t* tvb, int offset,
                 proto_tree_add_item_ret_uint16(tree, hf_pn_io_certification_request_length, tvb, offset, 2,
                     ENC_BIG_ENDIAN, &u16CertificateRequestLength);
                 offset += 2;
-                /* CertificationRequest */
-                proto_tree_add_item(tree, hf_pn_io_certification_request, tvb, offset, u16CertificateRequestLength, ENC_ASCII);
+                /* CertificationRequest (PKCS#10 DER: CertificationRequestInfo +
+                 * signatureAlgorithm + signature) */
+                {
+                    proto_item *csr_item = proto_tree_add_item(tree,
+                        hf_pn_io_certification_request, tvb, offset,
+                        u16CertificateRequestLength, ENC_NA);
+                    if (u16CertificateRequestLength > 0 && pkcs10_handle != NULL) {
+                        proto_tree *csr_tree = proto_item_add_subtree(csr_item,
+                            ett_pn_io_certification_request);
+                        tvbuff_t *csr_tvb = tvb_new_subset_length(tvb, offset,
+                            u16CertificateRequestLength);
+                        call_dissector(pkcs10_handle, csr_tvb, pinfo, csr_tree);
+                    }
+                }
                 offset += u16CertificateRequestLength;
 
                 break;
-            case(0x0007): /* ImprintPrivateKeyRsp */
             case(0x0008): /* ImprintEECertificationPathRsp */
             case(0x0009): /* ImprintEECertificationPathAndPrivateKeyRsp */
             case(0x000A): /* ImprintTrustedCACertificateRsp */
@@ -17148,6 +17176,9 @@ dissect_block(tvbuff_t *tvb, unsigned offset,
     case(0x06E0):
         dissect_SecurityRequest_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
+    case(0x06E1):
+        dissect_ARUUID_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
     case(0x06E2):
         dissect_ARAlgorithmInfoBlock_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
@@ -18741,7 +18772,7 @@ dissect_PNIO_RTA_with_security(tvbuff_t* tvb, int offset,
 
 }
 
-unsigned dissect_PnoSecurity(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+unsigned dissect_PnoActualCredentialType(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -18792,11 +18823,11 @@ unsigned dissect_PnoNameOfStation(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsi
   return offset;
 }
 
-static int dissect_PnoSecurity_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+static int dissect_PnoActualCredentialType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
     int offset = 0;
     asn1_ctx_t asn1_ctx;
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-    offset = dissect_PnoSecurity(false, tvb, offset, &asn1_ctx, tree, hf_pn_io_security_pdu);
+    offset = dissect_PnoActualCredentialType(false, tvb, offset, &asn1_ctx, tree, hf_pn_io_actual_credential_type);
     return offset;
 }
 
@@ -22956,16 +22987,6 @@ proto_register_pn_io (void)
         FT_UINT8, BASE_HEX, VALS(pn_io_credential_id_credential_type), 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_private_key_length,
-        { "PrivateKeyLength", "pn_io.private_key_length",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        NULL, HFILL }
-    },
-    { &hf_pn_io_private_key,
-    { "PrivateKey", "pn_io.private_key",
-        FT_BYTES, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }
-    },
     { &hf_pn_io_certificate_length,
     { "CertificateLength", "pn_io.certificate_length",
         FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -22973,8 +22994,8 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_certificate,
     { "Certificate", "pn_io.certificate",
-        FT_BYTES, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }
+        FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0,
+        "DER-encoded X.509 certificate", HFILL }
     },
     { &hf_pn_io_number_of_entries,
     { "NumberOfEntries", "pn_io.number_of_entries",
@@ -23013,7 +23034,12 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_certification_request,
     { "Certification Request", "pn_io.certification_request",
-        FT_STRING, BASE_NONE, NULL, 0x0,
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_certification_request_information,
+    { "Certification Request Information", "pn_io.certification_request_information",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_eap_data,
@@ -23021,9 +23047,9 @@ proto_register_pn_io (void)
           FT_BYTES, BASE_NONE, NULL, 0x00,
           NULL, HFILL }
     },
-    { &hf_pn_io_security_pdu,
-    { "Security", "pn_io.security",
-        FT_NONE, BASE_NONE, NULL, 0,
+    { &hf_pn_io_actual_credential_type,
+    { "ActualCredentialType", "pn_io.actual_credential_type",
+        FT_UINT32, BASE_DEC, VALS(pn_io_credential_id_credential_type), 0,
         NULL, HFILL }},
     { &hf_pn_io_managing_roles_pdu,
     { "ManagingRoles", "pn_io.managing_roles",
@@ -23250,6 +23276,8 @@ proto_register_pn_io (void)
         &ett_pn_io_dcp_boundary,
         &ett_pn_io_credential_id,
         &ett_pn_io_security,
+        &ett_pn_io_certification_request,
+        &ett_pn_io_certification_request_information,
         &ett_pn_io_security_configuration_parameters,
         &ett_pn_io_security_features,
         &ett_pn_io_security_capability,
@@ -23377,6 +23405,10 @@ proto_reg_handoff_pn_io (void)
     // find and add eap dissector
     eap_handle = find_dissector_add_dependency("eap", proto_pn_io);
 
+    /* PKCS#10 CSR + CRI dissectors for SecurityOperation 0x0006 */
+    pkcs10_handle = find_dissector_add_dependency("pkcs10", proto_pn_io);
+    pkcs10_cri_handle = find_dissector_add_dependency("pkcs10.cri", proto_pn_io);
+
     /* Register the protocols as dcerpc */
     dcerpc_init_uuid (proto_pn_io_device, ett_pn_io, &uuid_pn_io_device, ver_pn_io_device, pn_io_dissectors, hf_pn_io_opnum);
     dcerpc_init_uuid (proto_pn_io_controller, ett_pn_io, &uuid_pn_io_controller, ver_pn_io_controller, pn_io_dissectors, hf_pn_io_opnum);
@@ -23384,7 +23416,7 @@ proto_reg_handoff_pn_io (void)
     dcerpc_init_uuid (proto_pn_io_parameterserver, ett_pn_io, &uuid_pn_io_parameterserver, ver_pn_io_parameterserver, pn_io_dissectors, hf_pn_io_opnum);
     dcerpc_init_uuid (proto_pn_io_implicitar, ett_pn_io, &uuid_pn_io_implicitar, ver_pn_io_implicitar, pn_io_dissectors, hf_pn_io_opnum);
 
-    register_ber_oid_dissector("1.3.6.1.4.1.24686.1",   dissect_PnoSecurity_PDU, proto_pn_io, "id-pno-security");
+    register_ber_oid_dissector("1.3.6.1.4.1.24686.1.0", dissect_PnoActualCredentialType_PDU, proto_pn_io, "id-pno-actualCredentialType");
     register_ber_oid_dissector("1.3.6.1.4.1.24686.1.1", dissect_PnoManagingRoles_PDU, proto_pn_io, "id-pno-managingRoles");
     register_ber_oid_dissector("1.3.6.1.4.1.24686.1.2", dissect_PnoUsageRoles_PDU, proto_pn_io, "id-pno-usageRoles");
     register_ber_oid_dissector("1.3.6.1.4.1.24686.1.3", dissect_PnouniformComponentIdentifier_PDU, proto_pn_io, "id-pno-uniformComponentIdentifier");

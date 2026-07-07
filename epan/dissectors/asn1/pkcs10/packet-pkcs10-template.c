@@ -27,6 +27,7 @@ void proto_reg_handoff_pkcs10(void);
 void proto_register_pkcs10(void);
 
 static dissector_handle_t csr_handle;
+static dissector_handle_t cri_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_pkcs10;
@@ -56,7 +57,9 @@ void proto_register_pkcs10(void) {
 	proto_register_subtree_array(ett, array_length(ett));
 
   csr_handle = register_dissector("pkcs10", dissect_CertificationRequest_PDU, proto_pkcs10);
+  cri_handle = register_dissector("pkcs10.cri", dissect_CertificationRequestInfo_PDU, proto_pkcs10);
   register_ber_syntax_dissector("CertificationRequest", proto_pkcs10, dissect_CertificationRequest_PDU);
+  register_ber_syntax_dissector("CertificationRequestInfo", proto_pkcs10, dissect_CertificationRequestInfo_PDU);
   register_ber_oid_syntax(".p10", NULL, "CertificationRequest");
   register_ber_oid_syntax(".csr", NULL, "CertificationRequest");
 }

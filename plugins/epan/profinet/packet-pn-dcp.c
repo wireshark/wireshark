@@ -99,6 +99,15 @@ static int hf_pn_dcp_rsi_properties_value_bit4;
 static int hf_pn_dcp_rsi_properties_value_bit5;
 static int hf_pn_dcp_rsi_properties_value_otherbits;
 
+static int hf_pn_dcp_protocol_properties_value;
+static int hf_pn_dcp_protocol_properties_value_bit0;
+static int hf_pn_dcp_protocol_properties_value_bit1;
+static int hf_pn_dcp_protocol_properties_value_bit2;
+static int hf_pn_dcp_protocol_properties_value_bit3;
+static int hf_pn_dcp_protocol_properties_value_bit4;
+static int hf_pn_dcp_protocol_properties_value_bit5;
+static int hf_pn_dcp_protocol_properties_value_otherbits;
+
 static int hf_pn_dcp_suboption_nme;
 static int hf_pn_dcp_suboption_nme_domain_name;
 static int hf_pn_dcp_suboption_nme_domain_uuid;
@@ -134,6 +143,7 @@ static int ett_pn_dcp;
 static int ett_pn_dcp_block;
 
 static int ett_pn_dcp_rsi_properties_value;
+static int ett_pn_dcp_protocol_properties_value;
 static int ett_pn_dcp_service_type;
 
 static expert_field ei_pn_dcp_block_parse_error;
@@ -242,7 +252,7 @@ static const range_string pn_dcp_option[] = {
     { PNDCP_OPTION_RESERVED        , PNDCP_OPTION_RESERVED        , "Reserved" },
     { PNDCP_OPTION_CONTROL         , PNDCP_OPTION_CONTROL         , "Control" },
     { PNDCP_OPTION_DEVICEINITIATIVE, PNDCP_OPTION_DEVICEINITIATIVE, "Device Initiative" },
-    { PNDCP_OPTION_NME             , PNDCP_OPTION_NME             , "NME Domain"},
+    { PNDCP_OPTION_NME             , PNDCP_OPTION_NME             , "CIM"},
     /*0x07 - 0x7F reserved */
     /*0x80 - 0xFE manufacturer specific */
     { PNDCP_OPTION_MANUF_X80  , PNDCP_OPTION_MANUF_XFE  , "Manufacturer specific" },
@@ -288,6 +298,7 @@ static const value_string pn_dcp_suboption_control_signal_value[] = {
 #define PNDCP_SUBOPTION_DEVICE_DEV_INSTANCE     0x07
 #define PNDCP_SUBOPTION_DEVICE_OEM_DEV_ID       0x08
 #define PNDCP_SUBOPTION_DEVICE_RSI_PROPERTIES   0x0A
+#define PNDCP_SUBOPTION_DEVICE_PROTOCOL_PROPERTIES  0x0B
 
 static const value_string pn_dcp_suboption_device[] = {
     { 0x00, "Reserved" },
@@ -300,6 +311,7 @@ static const value_string pn_dcp_suboption_device[] = {
     { PNDCP_SUBOPTION_DEVICE_DEV_INSTANCE,  "Device Instance" },
     { PNDCP_SUBOPTION_DEVICE_OEM_DEV_ID,    "OEM Device ID"},
     { PNDCP_SUBOPTION_DEVICE_RSI_PROPERTIES,"RSI Properties" },
+    { PNDCP_SUBOPTION_DEVICE_PROTOCOL_PROPERTIES, "Protocol Properties" },
     /*0x09 - 0xff reserved */
     { 0, NULL }
 };
@@ -307,22 +319,28 @@ static const value_string pn_dcp_suboption_device[] = {
 static const true_false_string pn_dcp_rsi_properties_value_bit =
     {  "Available", "Not available" } ;
 
+static const true_false_string pn_dcp_protocol_properties_available_bit =
+    {  "Available", "Not available" } ;
+
+static const true_false_string pn_dcp_protocol_properties_activated_bit =
+    {  "Activated", "Not activated" } ;
+
     #define PNDCP_SUBOPTION_NME_DOMAIN_NAME        0x01
     #define PNDCP_SUBOPTION_NME_MANAGER            0x02
     #define PNDCP_SUBOPTION_NME_PARAMETER_UUID     0x03
     #define PNDCP_SUBOPTION_NME_AGENT              0x04
     #define PNDCP_SUBOPTION_NME_CIM_INTERFACE      0x05
-    
+
 static const value_string pn_dcp_suboption_nme[] = {
     { 0x00, "Reserved" },
-    { PNDCP_SUBOPTION_NME_DOMAIN_NAME,     "NME Domain Name" },
-    { PNDCP_SUBOPTION_NME_MANAGER,         "NME Manager" },
-    { PNDCP_SUBOPTION_NME_PARAMETER_UUID,  "NME Paramater UUID" },
-    { PNDCP_SUBOPTION_NME_AGENT,           "NME Agent" },
+    { PNDCP_SUBOPTION_NME_DOMAIN_NAME,     "Configuration Domain" },
+    { PNDCP_SUBOPTION_NME_MANAGER,         "NME Manager (obsoleted)" },
+    { PNDCP_SUBOPTION_NME_PARAMETER_UUID,  "NME Parameter UUID (obsoleted)" },
+    { PNDCP_SUBOPTION_NME_AGENT,           "NME Agent (obsoleted)" },
     { PNDCP_SUBOPTION_NME_CIM_INTERFACE,   "CIM Interface" },
     { 0, NULL }
 };
-    
+
 static const range_string pn_dcp_suboption_nme_prio[] =
 {
     { 0x0000, 0x0000, "Highest priority NME manager" },
@@ -1005,6 +1023,37 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 rval_to_str_const(block_info, pn_dcp_block_info, "Unknown"));
         }
         break;
+    case PNDCP_SUBOPTION_DEVICE_PROTOCOL_PROPERTIES:
+    {
+        static int* const proto_props_flags[] = {
+            &hf_pn_dcp_protocol_properties_value_bit0,
+            &hf_pn_dcp_protocol_properties_value_bit1,
+            &hf_pn_dcp_protocol_properties_value_bit2,
+            &hf_pn_dcp_protocol_properties_value_bit3,
+            &hf_pn_dcp_protocol_properties_value_bit4,
+            &hf_pn_dcp_protocol_properties_value_bit5,
+            &hf_pn_dcp_protocol_properties_value_otherbits,
+            NULL
+        };
+
+        sub_item = proto_tree_add_item(tree, hf_pn_dcp_protocol_properties_value, tvb, offset, 2, ENC_BIG_ENDIAN);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn_dcp_protocol_properties_value);
+        proto_tree_add_bitmask(sub_tree, tvb, offset, hf_pn_dcp_protocol_properties_value,
+                               ett_pn_dcp_protocol_properties_value, proto_props_flags, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        pn_append_info(pinfo, dcp_item, ", Protocol-Properties");
+        proto_item_append_text(block_item, "Device/Protocol Properties");
+        if (have_block_qualifier) {
+            proto_item_append_text(block_item, ", BlockQualifier: %s",
+                val_to_str_const(block_qualifier, pn_dcp_block_qualifier, "Unknown"));
+        }
+        if (have_block_info) {
+            proto_item_append_text(block_item, ", BlockInfo: %s",
+                rval_to_str_const(block_info, pn_dcp_block_info, "Unknown"));
+        }
+        break;
+    }
     default:
         offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, block_length);
     }
@@ -1065,8 +1114,8 @@ dissect_PNDCP_Suboption_NME(tvbuff_t* tvb, int offset, packet_info* pinfo,
         offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_nme_domain_uuid, &nme_domain_uuid);
         proto_tree_add_item_ret_display_string(tree, hf_pn_dcp_suboption_nme_domain_name, tvb, offset, (block_length-16), ENC_ASCII | ENC_NA, pinfo->pool, &domain_name);
 
-        pn_append_info(pinfo, dcp_item, ", NME-Domain Name");
-        proto_item_append_text(block_item, "NME/NME-Domain Name");
+        pn_append_info(pinfo, dcp_item, ", Configuration Domain");
+        proto_item_append_text(block_item, "CIM/Configuration Domain");
         if (have_block_qualifier) {
             proto_item_append_text(block_item, ", BlockQualifier: %s",
                 val_to_str_const(block_qualifier, pn_dcp_block_qualifier, "Unknown"));
@@ -1089,9 +1138,9 @@ dissect_PNDCP_Suboption_NME(tvbuff_t* tvb, int offset, packet_info* pinfo,
         }
 
         if ((nme_domain_uuid.data1 == 0) && (nme_domain_uuid.data2 == 0) && (nme_domain_uuid.data3 == 0) && (is_zeros))
-            proto_item_append_text(block_item, ", No NME domain assigned");
+            proto_item_append_text(block_item, ", No configuration domain assigned");
         else
-            proto_item_append_text(block_item, ", UUID identifying a NME domain using SNMP/ LLDP/ DCP");
+            proto_item_append_text(block_item, ", UUID identifying a configuration domain using SNMP/ LLDP/ DCP");
 
         break;
 
@@ -1641,7 +1690,7 @@ dissect_PNDCP_PDU(tvbuff_t *tvb,
         dissect_pn_uint8(tvb, offset, pinfo, sub_tree, hf_pn_dcp_service_type_response, &service_type_selection);
         offset = dissect_pn_uint8(tvb, offset, pinfo, sub_tree, hf_pn_dcp_service_type_reserved_1, &service_type_selection);
     }
-    
+
     proto_tree_add_item_ret_uint(tree, hf_pn_dcp_xid, tvb, offset, 4, ENC_BIG_ENDIAN, &xid);
     offset += 4;
     if (service_id == PNDCP_SERVICE_ID_IDENTIFY && service_type == PNDCP_SERVICE_TYPE_REQUEST) {
@@ -1758,27 +1807,27 @@ proto_register_pn_dcp (void)
           { "ServiceType", "pn_dcp.service_type",
             FT_UINT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL }},
-    
+
         { &hf_pn_dcp_service_type_selection,
           { "Selection", "pn_dcp.service_type.selection",
             FT_UINT8, BASE_DEC, VALS(pn_dcp_service_type_selection), 0x01,
             NULL, HFILL }},
-                    
+
         { &hf_pn_dcp_service_type_reserved,
           { "Reserved", "pn_dcp.service_type.reserved",
             FT_UINT8, BASE_DEC, NULL, 0x02,
             NULL, HFILL }},
-    
+
         { &hf_pn_dcp_service_type_response,
           { "Response", "pn_dcp.service_type.response",
             FT_UINT8, BASE_DEC, VALS(pn_dcp_service_type_response), 0x04,
             NULL, HFILL }},
-    
+
         { &hf_pn_dcp_service_type_reserved_1,
           { "Reserved", "pn_dcp.service_type.reserved_1",
             FT_UINT8, BASE_DEC, NULL, 0xF8,
             NULL, HFILL }},
-    
+
         { &hf_pn_dcp_service_type_reserved_2,
           { "Reserved", "pn_dcp.service_type.reserved_2",
             FT_UINT8, BASE_DEC, NULL, 0xFE,
@@ -1981,6 +2030,46 @@ proto_register_pn_dcp (void)
             FT_UINT16, BASE_HEX, NULL, 0xFFC0,
             NULL, HFILL } },
 
+        { &hf_pn_dcp_protocol_properties_value,
+          { "ProtocolPropertiesValue", "pn_dcp.suboption_device_protocol_properties_value",
+            FT_UINT16, BASE_HEX, 0, 0x0,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_protocol_properties_value_bit0,
+          { "IP Stack", "pn_dcp.suboption_device_protocol_properties_value.bit0",
+            FT_BOOLEAN, 16, TFS(&pn_dcp_protocol_properties_available_bit), 0x0001,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_protocol_properties_value_bit1,
+          { "CLRPC Stack", "pn_dcp.suboption_device_protocol_properties_value.bit1",
+            FT_BOOLEAN, 16, TFS(&pn_dcp_protocol_properties_available_bit), 0x0002,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_protocol_properties_value_bit2,
+          { "SXP via RTAv3 Stack", "pn_dcp.suboption_device_protocol_properties_value.bit2",
+            FT_BOOLEAN, 16, TFS(&pn_dcp_protocol_properties_available_bit), 0x0004,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_protocol_properties_value_bit3,
+          { "RTAv3 Plain Port", "pn_dcp.suboption_device_protocol_properties_value.bit3",
+            FT_BOOLEAN, 16, TFS(&pn_dcp_protocol_properties_activated_bit), 0x0008,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_protocol_properties_value_bit4,
+          { "SXP via TCP Stack", "pn_dcp.suboption_device_protocol_properties_value.bit4",
+            FT_BOOLEAN, 16, TFS(&pn_dcp_protocol_properties_available_bit), 0x0010,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_protocol_properties_value_bit5,
+          { "TCP Plain Port", "pn_dcp.suboption_device_protocol_properties_value.bit5",
+            FT_BOOLEAN, 16, TFS(&pn_dcp_protocol_properties_activated_bit), 0x0020,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_protocol_properties_value_otherbits,
+          { "ProtocolPropertiesValue.Reserved", "pn_dcp.suboption_device_protocol_properties_value.otherbits",
+            FT_UINT16, BASE_HEX, NULL, 0xFFC0,
+            NULL, HFILL } },
+
         { &hf_pn_dcp_vendor_id_high,
           { "VendorIDHigh", "pn_dcp.vendor_id_high",
             FT_UINT16, BASE_HEX, NULL, 0xFF00,
@@ -2072,12 +2161,12 @@ proto_register_pn_dcp (void)
             NULL, HFILL } },
 
         { &hf_pn_dcp_suboption_nme_domain_name,
-          { "NMEDomainName", "pn_dcp.suboption_nme_domain_name",
+          { "ConfigurationDomainName", "pn_dcp.suboption_nme_domain_name",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL } },
 
         { &hf_pn_dcp_suboption_nme_domain_uuid,
-          { "NMEDomainUUID", "pn_dcp.nme_domain_uuid",
+          { "ConfigurationDomainUUID", "pn_dcp.nme_domain_uuid",
             FT_GUID, BASE_NONE, NULL, 0x0,
             NULL, HFILL } },
 
@@ -2112,6 +2201,7 @@ proto_register_pn_dcp (void)
         &ett_pn_dcp,
         &ett_pn_dcp_block,
         &ett_pn_dcp_rsi_properties_value,
+        &ett_pn_dcp_protocol_properties_value,
         &ett_pn_dcp_service_type
     };
 
