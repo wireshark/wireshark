@@ -1,5 +1,5 @@
 /* packet-edonkey.c
- * Routines for edonkey dissection
+ * Routines for eDonkey dissection
  * Copyright 2003, Xuan Zhang <xz@aemail4u.com>
  * Copyright 2007, Stefano Picerno <stefano.picerno@gmail.com>
  * Copyright 2008, Stefan Monhof <stefan.monhof@stud.uni-due.de>
@@ -3470,7 +3470,7 @@ void proto_register_edonkey(void) {
     module_t *edonkey_module;
     expert_module_t* expert_edonkey;
 
-    proto_edonkey = proto_register_protocol("eDonkey Protocol", "EDONKEY", "edonkey");
+    proto_edonkey = proto_register_protocol("eDonkey Protocol", "eDonkey", "edonkey");
 
     proto_register_field_array(proto_edonkey, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
