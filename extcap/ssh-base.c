@@ -13,6 +13,11 @@
 #include "config.h"
 #define WS_LOG_DOMAIN LOG_DOMAIN_EXTCAP
 
+#ifdef __APPLE__
+// Needed for memset_s on macOS
+#define __STDC_WANT_LIB_EXT1__ 1
+#endif
+
 #include "ssh-base.h"
 
 #include <extcap/extcap-base.h>
@@ -362,10 +367,25 @@ ssh_params_t* ssh_params_new(void)
 	return g_new0(ssh_params_t, 1);
 }
 
+#if _WIN32
+# define ZERO_FILL_STRING(str) if (str) SecureZeroMemory(str, strlen(str))
+#elif HAVE_MEMSET_S
+# define ZERO_FILL_STRING(str) if (str) memset_s(str, strlen(str), 0, strlen(str))
+#else // Something that will probably be optimized away.
+# define ZERO_FILL_STRING(str) if (str) memset(str, 0, strlen(str))
+#endif
+
 void ssh_params_free(ssh_params_t* ssh_params)
 {
-	if (!ssh_params)
+	if (!ssh_params) {
 		return;
+	}
+	ZERO_FILL_STRING(ssh_params->host);
+	ZERO_FILL_STRING(ssh_params->username);
+	ZERO_FILL_STRING(ssh_params->password);
+	ZERO_FILL_STRING(ssh_params->sshkey_path);
+	ZERO_FILL_STRING(ssh_params->sshkey_passphrase);
+	ZERO_FILL_STRING(ssh_params->proxycommand);
 	g_free(ssh_params->host);
 	g_free(ssh_params->username);
 	g_free(ssh_params->password);

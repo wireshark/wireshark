@@ -64,6 +64,9 @@
 /* Define to 1 if you have the `tzset` function. */
 #cmakedefine HAVE_TZSET 1
 
+/* Define to 1 if you have the `memset_s` function. */
+#cmakedefine HAVE_MEMSET_S 1
+
 /* Define to use the MaxMind DB library */
 #cmakedefine HAVE_MAXMINDDB 1
 /* MaxmindDB version */
