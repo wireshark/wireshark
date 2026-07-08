@@ -399,8 +399,8 @@ static int hf_oran_sym_prb_pattern;
 static int hf_oran_sym_mask;
 static int hf_oran_num_mc_scale_offset;
 static int hf_oran_prb_pattern;
-static int hf_oran_prb_block_offset;
-static int hf_oran_prb_block_size;
+static int hf_oran_prb_blk_offset;
+static int hf_oran_prb_blk_size;
 
 static int hf_oran_codebook_index;
 static int hf_oran_layerid;
@@ -4678,28 +4678,19 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         /* reserved (8 bits) */
                         add_reserved_field(pattern_tree, hf_oran_reserved_8bits, tvb, offset, 1);
                         offset += 1;
-                    }
-                    else {               /* PRB-BLOCK */
-                        /* prbBlkOffset (8 bits) */
-                        proto_tree_add_item(pattern_tree, hf_oran_prb_block_offset, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        offset += 1;
-                        /* prbBlkSize (4 bits) */
-                        proto_tree_add_item(pattern_tree, hf_oran_prb_block_size, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        offset += 1;
-                    }
-
-                    /* Yellowish part */
-                    if (prb_mode) {   /* PRB-BLOCK */
-                        /* prbBlkSize (4 bits) */
-                        proto_tree_add_item(pattern_tree, hf_oran_prb_block_size, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    }
-                    else {
                         /* reserved (4 bits) */
                         add_reserved_field(pattern_tree, hf_oran_reserved_4bits, tvb, offset, 1);
                     }
+                    else {               /* PRB-BLOCK */
+                        /* prbBlkOffset (8 bits) */
+                        proto_tree_add_item(pattern_tree, hf_oran_prb_blk_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 1;
+                        /* prbBlkSize (8 bits) */
+                        proto_tree_add_item(pattern_tree, hf_oran_prb_blk_size, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 1;
+                    }
 
                     for (unsigned c=0; c < numMcScaleOffset; c++) {
-
                         if (c > 0) {
                             /* reserved (4 bits) */
                             add_reserved_field(pattern_tree, hf_oran_reserved_4bits, tvb, offset, 1);
@@ -4727,8 +4718,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                           hf_oran_mc_scale_re_mask_even,
                                                           ett_oran_mc_scale_remask,
                                                           remask_flags_even, ENC_BIG_ENDIAN, &mcScaleReMask);
-
                         offset += 2;
+
                         /* csf (1 bit) */
                         bool csf;
                         dissect_csf(pattern_tree, tvb, offset*8, ci_iq_width, &csf);
@@ -10004,21 +9995,20 @@ proto_register_oran(void)
             NULL, 0xf0,
             "number of symbol and resource block patterns", HFILL}
         },
-        /* 7.7.23.11 */
+        /* 7.7.23.9 */
         { &hf_oran_prb_mode,
           { "prbMode", "oran_fh_cus.prbMode",
             FT_BOOLEAN, 8,
             TFS(&prb_mode_tfs), 0x01,
             "PRB Mode", HFILL}
         },
-
+        /* 7.7.23.4 */
         { &hf_oran_sym_prb_pattern,
           { "symPrbPattern", "oran_fh_cus.symPrbPattern",
             FT_STRING, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL}
         },
-
         /* 7.7.23.3 */
         { &hf_oran_sym_mask,
           { "symMask", "oran_fh_cus.symMask",
@@ -10039,7 +10029,22 @@ proto_register_oran(void)
           { "prbPattern", "oran_fh_cus.prbPattern",
             FT_UINT8, BASE_DEC,
             NULL, 0x0f,
-            "resource block pattern part of symPrbPattern", HFILL}
+            "size of one PRB block of one SymPrbPattern", HFILL}
+        },
+        /* 7.7.23.10 */
+        { &hf_oran_prb_blk_offset,
+          { "prbBlkOffset", "oran_fh_cus.prbBlkOffset",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0ff0,
+            "offset to start of PRB block", HFILL}
+        },
+
+        /* 7.7.23.11 */
+        { &hf_oran_prb_blk_size,
+          { "prbBlkSize", "oran_fh_cus.prbBlkSize",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0ff0,
+            "size of one PRB block of one SymPrbPattern", HFILL}
         },
 
         /* 7.7.3.2 */

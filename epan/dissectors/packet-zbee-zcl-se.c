@@ -4376,7 +4376,7 @@ proto_register_zbee_zcl_drlc(void)
             { "Signature", "zbee_zcl_se.drlc.report_event.signature",
             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
-        { & hf_zbee_zcl_drlc_get_scheduled_events_earliest_end_time,
+        { &hf_zbee_zcl_drlc_get_scheduled_events_earliest_end_time,
             { "Earliest End Time", "zbee_zcl_se.drlc.get_scheduled_events.earliest_end_time",
             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, TIME_VALS(now_strings), 0x0, NULL, HFILL } },
 

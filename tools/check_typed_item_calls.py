@@ -2141,7 +2141,7 @@ def find_field_arrays(filename, contents, all_fields, all_hf, result):
 def find_item_declarations(filename, lines):
     items = set()
 
-    p = re.compile(r'^static int (hf_[a-zA-Z0-9_]*)\s*\=\s*-1;')
+    p = re.compile(r'^static int (hf_[a-zA-Z0-9_]*)\s*;')
     for line in lines:
         m = p.search(line)
         if m:
@@ -2333,7 +2333,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
 
     items_declared = {}
     if check_missing_items:
-        items_declared = find_item_declarations(filename, lines)
+        items_declared = find_item_declarations(filename, contents_no_comments.splitlines())
         items_extern_declared = find_item_extern_declarations(filename, lines)
 
     fields = set()
