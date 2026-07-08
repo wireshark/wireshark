@@ -7451,7 +7451,10 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         index_to_use = 1;
                     }
                     else {
-                        /* TODO: expert info warning? */
+                        /* Just choose the latest one.  Don't know numerology, so just use up to subframe */
+                        unsigned total_first =  section_data->details[0].frame * 10 + section_data->details[0].subframe;
+                        unsigned total_second = section_data->details[1].frame * 10 + section_data->details[1].subframe;
+                        index_to_use = total_second > total_first;
                     }
 
                     section_details = &section_data->details[index_to_use];
