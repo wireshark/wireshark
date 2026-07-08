@@ -1674,6 +1674,11 @@ proto_register_bthci_vendor_android(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_android_a2dp_hardware_offload_start_legacy_codec_information_reserved,
+          { "Reserved",                                    "bthci_vendor.android.a2dp_hardware_offload.start_legacy.codec_information.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_android_a2dp_hardware_offload_start_connection_handle,
           { "Connection Handle",                           "bthci_vendor.android.a2dp_hardware_offload.start.connection_handle",
             FT_UINT16, BASE_HEX_DEC, NULL, 0x0,

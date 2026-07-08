@@ -3478,6 +3478,12 @@ proto_register_citp(void) {
             NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_citp_msex_layer,
+            { "Layer", "citp.msex.layer",
+            FT_NONE, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_citp_msex_layer_number,
             { "Number", "citp.msex.layer.number",
             FT_UINT8, BASE_DEC,

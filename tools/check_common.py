@@ -96,7 +96,7 @@ def removeComments(code_string):
                          code_string)
     # C++-style comment
     # Avoid matching // where it is allowed, e.g.,  https://www... or file:///...
-    code_string = re.sub(re.compile(r"(?<!:)(?<!/)(?<!\")(?<!\"\s\s)(?<!file:/)(?<!\.)(?<!\,\s)(?<!\\n)//.*?\n"),
+    code_string = re.sub(re.compile(r"(?<!:)(?<!/)(?<!\")(?<!\"\s)(?<!file:/)(?<!\.)(?<!\\n)//.*?$", re.MULTILINE),
                          "", code_string)
     # Ignored region
     code_string = re.sub(re.compile(r"#if 0.*?#endif", re.DOTALL), "", code_string)
@@ -163,7 +163,7 @@ hf_re = re.compile(r'\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"'           # hf
                    r'([0-9A-Z_\|\s\*]*?)\s*,\s*'                       # display
                    r'(.*?)\s*,\s*'                                     # convert
                    r'(.*?)\s*,\s*'                                     # bitmask
-                   r'(NULL|"[a-zA-Z0-9µ\W\s_\u00f6\u00e4]*?")\s*,\s*HFILL'    # blurb
+                   r'(NULL|[A-Z_]+|"[a-zA-Z0-9µβ\W\s_\u00f6\u00e4]*?")\s*,\s*HFILL'    # blurb
                    )
 
 

@@ -776,10 +776,10 @@ static void
 dsrc_velocity_fmt(char *s, uint32_t v)
 {
   if (v == 8191) {
-    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
   } else {
     double vms = v * 0.02;
-    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s = %ukm/h (%d)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s = %ukm/h (%u)",
             vms, (int)lround(vms * 3.6), v);
   }
 }
@@ -787,7 +787,7 @@ dsrc_velocity_fmt(char *s, uint32_t v)
 static void
 dsrc_angle_fmt(char *s, uint32_t v)
 {
-  snprintf(s, ITEM_LABEL_LENGTH, "%.2f° (%d)", v * 0.0125, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.2f° (%u)", v * 0.0125, v);
 }
 
 static void

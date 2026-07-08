@@ -4655,6 +4655,14 @@ proto_register_nan(void)
                 FT_UINT8, BASE_HEX_DEC, VALS(nan_pairing_bootstrapping_pairing_bootstrapping_status), 0xf0, NULL, HFILL
             }
         },
+        /* TODO: add a VALS() for this */
+        { &hf_nan_attr_pairing_bootstrapping_reason_code,
+            {
+                "Reason code",
+                "wifi_nan.nan_pairing_bootstrapping.reason_code",
+                FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL
+            }
+        },
         { &hf_nan_attr_pairing_bootstrapping_comeback_after,
             {
                 "Comeback after (TU)",

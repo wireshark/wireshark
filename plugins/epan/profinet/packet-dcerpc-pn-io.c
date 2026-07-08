@@ -20497,6 +20497,11 @@ proto_register_pn_io (void)
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_pn_io_trace_unit_src_mac_addr,
+      { "MacAddr", "pn_io.trace_unit.maC_address",
+        FT_ETHER, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_sync_send_factor,
       { "SyncSendFactor", "pn_io.sync_send_factor",
         FT_UINT32, BASE_DEC, NULL, 0x0,
