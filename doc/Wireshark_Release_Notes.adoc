@@ -28,140 +28,7 @@ https://www.wireshark.org/certifications[the Wireshark Foundation].
 
 === Bug Fixes
 
-The following vulnerabilities have been fixed:
-
-* wssalink:2026-52[] {notable}
-Catapult DCT2000 protocol dissector crash.
-wsbuglink:21270[].
-// cveidlink:2026-xxx[].
-// Fixed in master: bd203ccf97
-// Fixed in release-4.6: 06e17433371
-// Fixed in release-4.4: 420c0caa15
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-122
-// Buffer overlow/segfault in Catapult DCT2000 dissector via not check no_ddi_entries in header
-
-* wssalink:2026-53[] {notable}
-pcapng file parser crash.
-wsbuglink:21285[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 63aab2afd4
-// Fixed in release-4.6: a4198d81745
-// Fixed in release-4.4: n/a
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-122
-// Darwin DPIB UUID option rewrite heap overflow
-
-* wssalink:2026-54[] {notable}
-FMP/NOTIFY protocol dissector large loop.
-wsbuglink:21347[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 2ad5f65dd9
-// Fixed in release-4.6: 6c78c2b6621
-// Fixed in release-4.4: f43b392897
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-606
-// FMP Notify dissector integer overflow
-
-* wssalink:2026-55[] {notable}
-SSH protocol dissector crash.
-wsbuglink:21378[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 97421ea7f6
-// Fixed in release-4.6: ddc960c97f9
-// Fixed in release-4.4: 57c0b1283c
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-476
-// NULL pointer dereference in ssh_keylog_process_line when opening a pcapng with malformed SSH Decryption Secrets
-
-* wssalink:2026-56[] {notable}
-TLS ECH decryption crash.
-wsbuglink:21390[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 39a3c43737
-// Fixed in release-4.6: e65b917b1de
-// Fixed in release-4.4: n/a
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-122
-// [Security] TLS ECH transcript reconstruction: heap buffer overflow via repeated ech_outer_extensions
-
-* wssalink:2026-57[] {notable}
-IEEE 802.11 protocol dissector crash.
-wsbuglink:21391[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 68a91452af
-// Fixed in release-4.6: 16a7d76c09
-// Fixed in release-4.4: d1a5cf3074
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-121
-// 802.11 EAPOL stack buffer overwrite
-
-* wssalink:2026-58[] {notable}
-Z39.50 protocol dissector crash.
-wsbuglink:21397[].
-// cveidlink:2026-xxx[].
-// Fixed in master: c9bd49828f
-// Fixed in release-4.6: c748dce966
-// Fixed in release-4.4: 1c9d199cf0
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-122
-
-* wssalink:2026-59[] {notable}
-UMTS FP protocol dissector crash.
-wsbuglink:21398[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 3d1a963a84
-// Fixed in release-4.6: 1804fa6f24
-// Fixed in release-4.4: af60874945
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-122
-
-* wssalink:2026-60[] {notable}
-BLF file parser information disclosure.
-wsbuglink:21361[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 4191f0bc56,956e2f8ef3,1d68084ca4,282c84389b
-// Fixed in release-4.6: eb700bb102,3b8b99225b,db348c5d35
-// Fixed in release-4.4: 9c0116293b,c6ff6ec93f,c22e23f462
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-457
-// BLF memory disclosure
-
-* wssalink:2026-61[] {notable}
-Multiple protocol dissector infinite loops.
-wsbuglink:21275[],
-wsbuglink:21277[],
-wsbuglink:21330[],
-wsbuglink:21383[].
-// cveidlink:2026-xxx[].
-// Fixed in master: b41196f188,d075ecbe3d,1cab77ddc5,0adbc2f921
-// Fixed in release-4.6: 0f685cfe9a,db1b45a04c,85fa38f4da,eaee38efb0
-// Fixed in release-4.4: ff115a3d4d,c8f93558c2,ea8a474379,f6f1bff1b7
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-835
-
-* wssalink:2026-62[] {notable}
-DBS Etherwatch file parser crash.
-wsbuglink:21352[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 0143274e20
-// Fixed in release-4.6: df5ba9264a8
-// Fixed in release-4.4: bcf6b4ca79
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-121
-// Buffer overflow in DBS Etherwatch capture file parser
-
-* wssalink:2026-63[] {notable}
-Ciscodump extcap crash.
-wsbuglink:21375[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 744b45054a
-// Fixed in release-4.6: 2c80e6e0dcf
-// Fixed in release-4.4: 6aed9a2315
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-122
-// ciscodump extcap heap buffer overwrite
-
+// The following vulnerabilities have been fixed:
 
 // * wssalink:2026-64[] {notable}
 // Foo protocol dissector {crash,infinite loop,memory leak}.
@@ -181,29 +48,10 @@ The following bugs have been fixed:
 // Bugs with the {notable} attribute show up in the "What's Changed" box on the download page.
 //* Wireshark contains traces of nuts. What kind of nuts? The kind you're allergic to. wsbuglink:5000[] {notable}
 
-* Wireshark appears in German when the system language is Dutch. wsbuglink:20347[].
-* Qt: Capture filter combo box does not enforce minimum size or expanding size policy. wsbuglink:21080[].
-* BACapp: Error parsing you-are request. wsbuglink:21260[].
-* Use-After-Free in Ethernet POWERLINK (EPL) Dissector during profile loading error path. wsbuglink:21267[].
-* Sponsor slides are not properly shown. wsbuglink:21268[].
-* Buffer overlow/segfault in Catapult DCT2000 dissector via not check no_ddi_entries in header. wsbuglink:21270[].
-* Fuzz job issue: fuzz-2026-05-24-14517548985.pcap. wsbuglink:21272[].
-* Fuzz job UTF-8 encoding issue: fuzz-2026-06-07-14732586286.pcap. wsbuglink:21331[].
-* Memory leak in alp-sample1.pcap. wsbuglink:21343[].
-* Memory leak in nspi.pcap. wsbuglink:21344[].
-* Heap-Buffer-Overflow in Wireshark Logcat Parser. wsbuglink:21346[].
-* IPv6 Ping from Debian (among others) is dissected as "HiPerConTracer" wsbuglink:21349[].
-* HEVC (H.265) dissector: bit_offset not advanced after sub_layer_hrd_parameters() causes false Malformed Packet. wsbuglink:21362[].
-* dfilter_compile_full: heap-buffer-overflow READ in ws_strptime on a time literal. wsbuglink:21376[].
-* Wireshark crashes with a HEAP_CORRUPTION error when using the last saved recent_common file. wsbuglink:21379[].
-* Fuzz job issue: fuzz-2026-06-30-15106674620.pcap. wsbuglink:21381[].
-
 
 // == Known Bugs
 
 === New and Updated Features
-
-* The Windows installers are now built with Visual Studio 2026.
 
 //  * The Windows installers now ship with Npcap 1.88.
 //    They previously shipped with Npcap 1.87.
@@ -225,36 +73,6 @@ There are no new protocols in this release.
 // rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.6.6.. | rg packet- | sort -u)
 [commaize]
 --
-ALC
-BACapp
-C2P
-Catapult DCT2000
-COTP
-CSN.1
-DCERPC
-DCERPC MAPI
-DCERPC NSPI
-DNS
-DVB-S2-TABLE
-eDonkey
-EPL
-FC ELS
-FMP/NOTIFY
-H.265
-HiPerConTracer
-IEEE 802.11
-LLS
-MEGACO
-MIH
-MPEG DSM-CC
-MS-WSP
-RELOAD
-SGP.32
-SSH
-STANAG 4607
-UMTS FP
-WOWW
-Z39.50
 --
 
 === New and Updated Capture File Support
@@ -263,11 +81,6 @@ Z39.50
 // Add one file type per line between the -- delimiters.
 [commaize]
 --
-Android Logcat
-BLF
-DBS Etherwatch
-Netlog
-pcapng
 --
 
 === New and Updated File Format Decoding Support
@@ -307,6 +120,76 @@ multilib support. On such systems extcap binaries should be in the same
 location as before.
 
 == Prior Versions
+
+=== Wireshark 4.6.7 included the following changes.
+
+* wssalink:2026-52[] {notable}
+Catapult DCT2000 protocol dissector crash.
+wsbuglink:21270[].
+
+* wssalink:2026-53[] {notable}
+pcapng file parser crash.
+wsbuglink:21285[].
+
+* wssalink:2026-54[] {notable}
+FMP/NOTIFY protocol dissector large loop.
+wsbuglink:21347[].
+
+* wssalink:2026-55[] {notable}
+SSH protocol dissector crash.
+wsbuglink:21378[].
+
+* wssalink:2026-56[] {notable}
+TLS ECH decryption crash.
+wsbuglink:21390[].
+
+* wssalink:2026-57[] {notable}
+IEEE 802.11 protocol dissector crash.
+wsbuglink:21391[].
+
+* wssalink:2026-58[] {notable}
+Z39.50 protocol dissector crash.
+wsbuglink:21397[].
+
+* wssalink:2026-59[] {notable}
+UMTS FP protocol dissector crash.
+wsbuglink:21398[].
+
+* wssalink:2026-60[] {notable}
+BLF file parser information disclosure.
+wsbuglink:21361[].
+
+* wssalink:2026-61[] {notable}
+Multiple protocol dissector infinite loops.
+wsbuglink:21275[],
+wsbuglink:21277[],
+wsbuglink:21330[],
+wsbuglink:21383[].
+
+* wssalink:2026-62[] {notable}
+DBS Etherwatch file parser crash.
+wsbuglink:21352[].
+
+* wssalink:2026-63[] {notable}
+Ciscodump extcap crash.
+wsbuglink:21375[].
+
+* Wireshark appears in German when the system language is Dutch. wsbuglink:20347[].
+* Qt: Capture filter combo box does not enforce minimum size or expanding size policy. wsbuglink:21080[].
+* BACapp: Error parsing you-are request. wsbuglink:21260[].
+* Use-After-Free in Ethernet POWERLINK (EPL) Dissector during profile loading error path. wsbuglink:21267[].
+* Sponsor slides are not properly shown. wsbuglink:21268[].
+* Buffer overlow/segfault in Catapult DCT2000 dissector via not check no_ddi_entries in header. wsbuglink:21270[].
+* Fuzz job issue: fuzz-2026-05-24-14517548985.pcap. wsbuglink:21272[].
+* Fuzz job UTF-8 encoding issue: fuzz-2026-06-07-14732586286.pcap. wsbuglink:21331[].
+* Memory leak in alp-sample1.pcap. wsbuglink:21343[].
+* Memory leak in nspi.pcap. wsbuglink:21344[].
+* Heap-Buffer-Overflow in Wireshark Logcat Parser. wsbuglink:21346[].
+* IPv6 Ping from Debian (among others) is dissected as "HiPerConTracer" wsbuglink:21349[].
+* HEVC (H.265) dissector: bit_offset not advanced after sub_layer_hrd_parameters() causes false Malformed Packet. wsbuglink:21362[].
+* dfilter_compile_full: heap-buffer-overflow READ in ws_strptime on a time literal. wsbuglink:21376[].
+* Wireshark crashes with a HEAP_CORRUPTION error when using the last saved recent_common file. wsbuglink:21379[].
+* Fuzz job issue: fuzz-2026-06-30-15106674620.pcap. wsbuglink:21381[].
 
 === Wireshark 4.6.6 included the following changes.
 
