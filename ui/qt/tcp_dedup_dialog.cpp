@@ -184,24 +184,21 @@ tap_packet_status TcpDedupDialog::tapPacket(void *tapdata, _packet_info *pinfo,
     d->prev_stream_ts_ = pinfo->abs_ts;
     d->first_stream_pkt_ = false;
 
-    /* We still need to track all stream packets for delta, but only accumulate
-     * dedup groups for packets that went through dedup analysis. */
-    if (tcph->th_dup_count == 0)
-        return TAP_PACKET_DONT_REDRAW;
-
-    uint32_t orig      = tcph->th_dup_orig_frame;
+    uint32_t orig      = (tcph->th_dup_count > 0) ? tcph->th_dup_orig_frame : pinfo->num;
     uint32_t frame_num = pinfo->num;
+
+    uint32_t effective_count = (tcph->th_dup_count > 0) ? tcph->th_dup_count : 1;
 
     DedupGroup &group = d->groups_[orig];
     if (group.frames.isEmpty()) {
         group.first_abs_ts = pinfo->abs_ts;
         group.delta_secs   = delta_secs;
         group.orig_frame   = orig;
-        group.max_count    = tcph->th_dup_count;
+        group.max_count    = effective_count;
         const char *info   = col_get_text(pinfo->cinfo, COL_INFO);
         group.info         = info ? QString(info) : QString();
-    } else if (tcph->th_dup_count > group.max_count) {
-        group.max_count = tcph->th_dup_count;
+    } else if (effective_count > group.max_count) {
+        group.max_count = effective_count;
     }
     if (!group.frames.contains(frame_num))
         group.frames.append(frame_num);
@@ -223,9 +220,6 @@ void TcpDedupDialog::populateTable()
     table_->setRowCount(0);
 
     for (const DedupGroup &g : groups_) {
-        if (g.max_count < 2)
-            continue;
-
         int row = table_->rowCount();
         table_->insertRow(row);
 

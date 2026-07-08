@@ -4379,8 +4379,16 @@ tcp_sequence_number_analysis_print_packet_count(packet_info *pinfo,
     if (!tcp_detect_duplicate_packets || ta->dup_count == 0)
         return;
 
+    /* dup_frame_list is shared across all frames in the group and is fully
+     * populated by the end of the first pass, so by the display pass its
+     * count is the true final total — use it instead of the incremental
+     * dup_count that was stamped when each frame was first seen. */
+    if (ta->dup_frame_list == NULL)
+        return;
+    nframes = wmem_array_get_count(ta->dup_frame_list);
+
     item = proto_tree_add_uint(tree, hf_tcp_analysis_packet_count,
-                               tvb, 0, 0, ta->dup_count);
+                               tvb, 0, 0, nframes);
     proto_item_set_generated(item);
 
     if (ta->dup_count > 1) {
@@ -4390,13 +4398,6 @@ tcp_sequence_number_analysis_print_packet_count(packet_info *pinfo,
                                "Capture-level duplicate (occurrence #%u)", ta->dup_count);
     }
 
-    /* Build the [Dedup frames] subtree whenever the group has >1 member.
-     * dup_frame_list is shared across all frames in the group, so by the
-     * display pass it contains every frame number that was appended during
-     * the first pass — including the original. */
-    if (ta->dup_frame_list == NULL)
-        return;
-    nframes = wmem_array_get_count(ta->dup_frame_list);
     if (nframes < 2)
         return;
 
