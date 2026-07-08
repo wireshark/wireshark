@@ -23,8 +23,6 @@ static int proto_uet;
 //UET TSS
 static int hf_uet_tss_prlg;
 static int hf_uet_tss_type;
-static int hf_uet_tss_nh;
-static int hf_uet_tss_ver;
 static int hf_uet_tss_sp;
 static int hf_uet_tss_reserved;
 static int hf_uet_tss_an;
@@ -691,7 +689,7 @@ static const true_false_string uet_ses_std_rel_str = {
 #define UET_SES_MEDIUM_REQ_MIN_HDR_LEN  32
 #define UET_SES_RESP_HDR_LEN            12
 #define UET_SES_STD_MIN_HDR_LEN         44
-#define UET_TSS_HDR_LEN                 20
+#define UET_TSS_MIN_HDR_LEN             12
 
 static int
 dissect_ses_comp_swap_atomic_ext_hdr(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int offset)
@@ -1630,6 +1628,7 @@ dissect_tss(tvbuff_t* tvb, packet_info* pinfo, proto_tree* uet_tree, proto_item*
     proto_item* tss_item;
     int         offset = 0;
     uint8_t     type = 0;
+    uint8_t     sp = 0;
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, "", "TSS");
 
@@ -1637,29 +1636,30 @@ dissect_tss(tvbuff_t* tvb, packet_info* pinfo, proto_tree* uet_tree, proto_item*
     proto_item_set_text(tss_item, "%s", "TSS");
     tss_tree = proto_item_add_subtree(tss_item, ett_uet_tss_auth_proto);
 
-    if (tvb_reported_length_remaining(tvb, offset) < UET_TSS_HDR_LEN) {
-        expert_add_info_format(pinfo, tss_item, &ei_uet_tss_hdr_len_invalid, "TSS header must be %d bytes",
-            UET_TSS_HDR_LEN);
+    if (tvb_reported_length_remaining(tvb, offset) < UET_TSS_MIN_HDR_LEN) {
+        expert_add_info_format(pinfo, tss_item, &ei_uet_tss_hdr_len_invalid, "TSS header must be at least %d bytes",
+            UET_TSS_MIN_HDR_LEN);
     }
 
-    type = tvb_get_bits8(tvb, offset * 8, 4);
+    type = tvb_get_bits8(tvb, offset * 8, 5);
+    sp   = tvb_get_bits8(tvb, offset * 8 + 5, 1);
 
-    proto_tree_add_item(tss_tree, hf_uet_tss_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tss_tree, hf_uet_tss_nh, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tss_tree, hf_uet_tss_ver, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tss_tree, hf_uet_tss_sp, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tss_tree, hf_uet_tss_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
+    proto_tree_add_item(tss_tree, hf_uet_tss_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tss_tree, hf_uet_tss_sp, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tss_tree, hf_uet_tss_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tss_tree, hf_uet_tss_an, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tss_tree, hf_uet_tss_sdi, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
 
     proto_item_append_text(uet_item, ", TSS Type: %s", val_to_str(pinfo->pool, type, uet_tss_type_vals, "Unknown (%u)"));
     proto_item_append_text(tss_item, ", Type: %s", val_to_str(pinfo->pool, type, uet_tss_type_vals, "Unknown (%u)"));
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str(pinfo->pool, type, uet_tss_type_vals, "Unknown (%u)"));
 
-    proto_tree_add_item(tss_tree, hf_uet_tss_an, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tss_tree, hf_uet_tss_sdi, tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset += 4;
-    proto_tree_add_item(tss_tree, hf_uet_tss_ssi, tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset += 4;
+    if (sp) {
+        proto_tree_add_item(tss_tree, hf_uet_tss_ssi, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
     proto_tree_add_item(tss_tree, hf_uet_tss_tsc, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
@@ -1734,38 +1734,27 @@ proto_register_uet(void)
         },
         { &hf_uet_tss_type,
             { "Type", "uet.tss.type",
-                FT_UINT16, BASE_DEC | BASE_EXT_STRING, &uet_tss_type_vals_ext, 0xf000,
-                NULL, HFILL }
-        },
-        { &hf_uet_tss_nh,
-            { "Next Hdr", "uet.tss.nh",
-                FT_UINT16, BASE_DEC, NULL, 0x0f80,
-                NULL, HFILL }
-        },
-        { &hf_uet_tss_ver,
-            { "Ver", "uet.tss.ver",
-                FT_UINT16, BASE_DEC, NULL, 0x0060,
+                FT_UINT32, BASE_DEC | BASE_EXT_STRING, &uet_tss_type_vals_ext, 0xF8000000,
                 NULL, HFILL }
         },
         { &hf_uet_tss_sp,
             { "SP", "uet.tss.sp",
-                FT_UINT16, BASE_DEC, NULL, 0x0010,
+                FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x04000000,
                 NULL, HFILL }
         },
         { &hf_uet_tss_reserved,
             { "Reserved", "uet.tss.reserved",
-                FT_UINT16, BASE_HEX, NULL, 0x000f,
+                FT_UINT32, BASE_HEX, NULL, 0x02000000,
                 NULL, HFILL }
         },
-
         { &hf_uet_tss_an,
             { "AN", "uet.tss.an",
-                FT_UINT32, BASE_DEC, NULL, 0x80000000,
+                FT_UINT32, BASE_DEC, NULL, 0x01000000,
                 NULL, HFILL }
         },
         { &hf_uet_tss_sdi,
             { "SDI", "uet.tss.sdi",
-                FT_UINT32, BASE_DEC, NULL, 0x7FFFFFFF,
+                FT_UINT32, BASE_DEC, NULL, 0x00FFFFFF,
                 NULL, HFILL }
         },
         { &hf_uet_tss_ssi,
