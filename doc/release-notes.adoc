@@ -110,10 +110,32 @@ wsbuglink:21383[].
 // CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
 // CWE-835
 
+* wssalink:2026-62[] {notable}
+DBS Etherwatch file parser crash.
+wsbuglink:21352[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 0143274e20
+// Fixed in release-4.6: df5ba9264a8
+// Fixed in release-4.4: bcf6b4ca79
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-121
+// Buffer overflow in DBS Etherwatch capture file parser
 
-* wssalink:2026-52[] {notable}
-Foo dissector {crash,infinite loop,memory leak}.
-wsbuglink:xxx[].
+* wssalink:2026-63[] {notable}
+Ciscodump extcap crash.
+wsbuglink:21375[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 744b45054a
+// Fixed in release-4.6: 2c80e6e0dcf
+// Fixed in release-4.4: 6aed9a2315
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-122
+// ciscodump extcap heap buffer overwrite
+
+
+// * wssalink:2026-64[] {notable}
+// Foo dissector {crash,infinite loop,memory leak}.
+// wsbuglink:xxx[].
 // cveidlink:2026-xxx[].
 // Fixed in master: xxx
 // Fixed in release-4.6: xxx
