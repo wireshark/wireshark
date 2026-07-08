@@ -1,0 +1,1481 @@
+commit 21ea836202e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jul 8 11:29:38 2026 -0700
+
+    Build: 4.6.7 [skip ci]
+
+commit 2c80e6e0dcf
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jul 8 13:39:39 2026 -0400
+
+    ciscodump: Don't try to write more than PACKET_MAX_SIZE
+
+    Stop writing to the packet buffer once it reaches its maximum size.
+    Prevents a heap buffer overflow (and typically a crash with the
+    default compiler optios) on bogus or hostile input from something
+    emulating the output of a Cisco device.
+
+    Thanks to Doruk of 0sec for the report and PoC.
+
+    Fix #21375.
+
+    AI-Assisted: no
+
+    (cherry picked from commit 744b45054ac047096dd5252d6100c70468dc7a20)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 51c822b47f0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jul 8 09:45:58 2026 -0700
+
+    Prep for 4.6.7 [skip ci]
+
+commit e48715a5019
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jul 7 23:01:31 2026 -0400
+
+    Zebra: Fix use of uninitialized memory
+
+    Fix a likely copy-and-pasteo.
+
+    Fix #21372
+
+    AI-Assisted: no
+
+    (cherry picked from commit 8ac2da71b5ccb3fa6204ab9a796144dea1a3ae1d)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 1804fa6f241
+Author: Martin Mathieson <martin.r.mathieson@googlemail.com>
+Date:   Mon Jul 6 19:31:59 2026 +0000
+
+    UMTS-FP: Check some limits (fp channels and number of mac pdus)
+
+    (cherry picked from commit 3d1a963a84c1811b12f056300d9f4443a18f2e20)
+
+commit c748dce9667
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Jul 6 18:04:43 2026 -0400
+
+    z3950: Use a wmem_array to avoid overflow
+
+    Sizing the directory array ahead of time can lead to issues when
+    there are partial records, as floor division is used for sizing
+    but a partial record can be added to the array. To eliminate the
+    chance of a buffer overflow, use a wmem_array, add each new entry
+    to the entry, and then read the count at the end.
+
+    The error handling should probably be cleaned up more, both for
+    overflow and for illegal directory entries, but this prevents the
+    biggest issue.
+
+    Fix #21397
+
+    Thanks to Anthropic and Ada Logics for the report and PoC.
+
+    (cherry picked from commit c9bd49828f4e9cd8c04f90aacb11e2238016bc31)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 16a7d76c093
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Jul 5 21:46:47 2026 -0400
+
+    IEEE 802.11 crypt: Check for too large values in EAPOL frames
+
+    Have get_eapol_parsed return false if the values are bogus, and don't
+    call the crypt functions to inspect the parsed EAPOL frame if that's
+    the case.
+
+    The IEEE 802.11 dissector is the one that allocates the decrypted
+    data frame array. Rather than just agreeing it will be a certain
+    size, have the initial value of the length in,out parameter passed
+    in contain the allocated size, so that Dot11DecryptDecryptKeyData
+    can refuse to copy too large values.
+
+    Fix #21391
+
+    Thanks to Anthropic Claude and Ada Logics for the report and PoC.
+
+    (backported from commit 68a91452afc0a68b37314efa969b9232e1ec6711)
+
+commit e65b917b1de
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Jul 5 01:46:05 2026 -0400
+
+    TLS: Only copy extensions from a "ech_outer_extensions" extension
+
+    Otherwise, as detailed in RFC 9849, this can lead to a buffer
+    overrun via a packet amplification attack.
+
+    https://www.rfc-editor.org/rfc/rfc9849.html#section-5.1
+    https://www.rfc-editor.org/rfc/rfc9849.html#decompression-amp
+
+    Thanks to Claude and Ada Logics for the report.
+
+    Fix #21390
+
+    (cherry picked from commit 39a3c437378890840e201d773ba52b2cdb762bc9)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 229574d01bf
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 5 10:12:34 2026 +0000
+
+    [Automatic update for 2026-07-05]
+
+    Update manuf, services, enterprise numbers, translations, and other items.
+
+commit 0fa87c2c359
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Jul 4 23:14:56 2026 +0000
+
+    Make some static error message buffers thread-local.
+
+    (cherry picked from commit 984fe5b7f5dff700e9cd09a7404a6c312b77faea)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit 0d14589bbb7
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Jul 4 14:18:04 2026 -0700
+
+    sdjournal: whitespace cleanups.
+
+    Get rid of two non-tab indents, and remove an extra blank line.
+
+    (cherry picked from commit cbee07a9f8c5f2a58a6430e10890cd4b6ec9c01c)
+
+commit c50a878281b
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Jul 4 21:13:21 2026 +0000
+
+    sdjournal: remove unnecessary variable.
+
+    It's initialized to NULL, unused, and then tested against NULL, with
+    nothing needed being done if it's NULL.
+
+    (cherry picked from commit aea6b4f27c4da98a70af1abdf48a678278ea992d)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit 90243b91f6f
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Jul 3 15:00:16 2026 -0700
+
+    gcrypt: fix a comment.
+
+    "Plain text" usually means "readable text", e.g. this comment.
+    "Plaintext" means the results of decrypting ciphertext; use "plaintext"
+    to make it clearer what's being referred to.
+
+    AI-Assisted: no
+
+    (cherry picked from commit ee4719048d1a5d26259e79d613bc96e32d874883)
+
+commit 9e4f92985d0
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Jul 2 19:22:07 2026 -0700
+
+    ringbuffer: properly test for close succeeding.
+
+    writecap_close() returns true on success and false on failure, so, in
+    ringbuf_error_cleanup(), correctly test for success. Testing whether
+    it's equal to zero is equivalent to testing whether it's false, i.e.
+    testing whether it *failed*.
+
+    Add a comment indicating that we should probably just unconditionally
+    set rb_data.fd to -1.
+
+    (backported from commit f23bf82d9befd5cf21f6f4f96790dd3f99273868)
+
+commit c52bc6b6903
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Jun 23 16:15:03 2026 -0700
+
+    file_wrappers: provide an info string for one WTAP_ERR_INTERNAL case.
+
+    The others already either provided it or have no place to provide it -
+    and are currently never checked anyway.
+
+    AI-Assisted: no
+
+    (backported from commit cc5675eb9b8197cd1051ffd9c1e097e9bc5300f9)
+
+commit bf435aad042
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Jun 27 19:54:03 2026 -0700
+
+    wsgcrypt: minor cleanups.
+
+    Use %u, not %d, when formatting an unsigned value.
+
+    Fix a comment to reflect reality (*we* didn't allocate the buffer, so we
+    have no idea whether it's newly-allocated or not). */
+
+    (cherry picked from commit 22253bcaac5e0a81ef923f3381e8a738499b52b1)
+
+commit f812662903a
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jul 2 06:10:22 2026 -0400
+
+    RELOAD: Widen the offset
+
+    This dissector has a lot of issues, and one of them is storing 32-bit
+    quantities retrieved from packet data into 16-bit integers. Widening
+    all the offsets fixes #21381, at least, though a lot more could be
+    done to clean this up.
+
+    (cherry picked from commit 9f86e53c69a763ef34f2787301b482de1868738b)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 0559aad9610
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jul 1 09:30:16 2026 -0400
+
+    recent: Prevent a double-free with duplicated geometry entries
+
+    Make sure we copy the qt geometry hexstring if we're updating a
+    current hash table entry, but also avoid leaking by copying
+    extra times when it's a new value. Make sure the QByteArray of
+    the hex geometry has a lifetime long enough for it to be copied
+    too.
+
+    Fix #21379
+
+    (backported from commit 8d83f5df52542b93af82cfa4bb02dd8d0c8c8b4a)
+
+commit eaee38efb0f
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jul 1 08:11:55 2026 -0400
+
+    MEGACO: Avoid an infinite loop with doubled commas
+
+    A packagasDescriptor in MEGACO text has a list of COMMA
+    separated packagesItem. The parsing finds the comma delimiter
+    (or end of the descriptor), and then moves backwards to find
+    the end of the item, skipping excess linear whitespace. There's
+    no need to find the comma again; in fact, the way that the
+    comma was searched for again (starting at the end of the item
+    instead of from the next offset) resulted in an infinite loop
+    with two consecutive commas.
+
+    For other reasons, this is not encountered on the master branch
+    with the fuzzed file.
+
+    Fix #21383.
+
+    (backported from commit 0adbc2f921a6c6f695c26eab167a33c50e8e9609)
+
+commit da62409ed55
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Wed Jul 1 07:59:43 2026 +0200
+
+    H265: Advance bit offset after dissect_h265_sub_layer_hrd_parameters
+
+    The bit offset is returned but the return value was not being used.
+
+    Fix #21362
+
+    (cherry picked from commit 04600a3b381a481ebfd2ee88b43b8c0e38523a78)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit a0be71208b6
+Author: Martin Mayer <martin.mayer@m2-it-solutions.de>
+Date:   Mon Jun 29 21:17:24 2026 +0200
+
+    DNS: Fix DNSKEY flags naming
+
+commit c945cbc4ee8
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Jun 28 20:46:38 2026 -0400
+
+    epan: Fix signed_time_msecs_to_str for small negative values
+
+    If the input msecs was negative, and after converting the msecs
+    input to seconds and a fractional time the seconds is zero, i.e.
+    the msecs value was in [-999, -1], add the negative sign because
+    signed_time_secs_to_str_buf won't put it in at that point.
+
+    AI-Assisted: no
+
+    (cherry picked from commit b53e6f5ef6fbd2739293666cd292b1783c814e5d)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit c4e1c70036b
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Jun 28 09:06:06 2026 -0400
+
+    TLS: Ensure that gcry_md_init failure is handled
+
+    In Encrypted Client Hello processing, to save the overhead of creating
+    and releasing a context when starting over using the same hash algorithm
+    in the HelloRetryRequest case, just call ssl_md_reset instead of
+    ssl_md_cleanup followed by ssl_md_init again.
+
+    This should address Coverity 1682295, where a double-free is possible if
+    the second ssl_md_init (and thus gcry_md_init) fails, which is unlikely
+    but not checked for in this path. Note that, unlike gcry_md_init,
+    gcry_md_reset cannot fail.
+
+    Check if the first ssl_md_init fails (also unlikely) and don't enter the
+    loop if so.
+
+    AI-Assisted: no
+
+    (cherry picked from commit 0ed4dbfd709c69659f13a4f2715912a757392fe8)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit c1a7b909cae
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 28 10:18:04 2026 +0000
+
+    [Automatic update for 2026-06-28]
+
+    Update manuf, services, enterprise numbers, translations, and other items.
+
+commit ddc960c97f9
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jun 27 22:06:48 2026 -0400
+
+    ssh: Check for ssh_kex_make_bignum failure (length 0 or too long) in keylog
+
+    ssh_kex_make_bignum can return NULL, generally with length of zero or
+    too large. Check for failure when parsing a SSH Keylog line.
+
+    Fix #21378.
+
+    AI-Assisted: no (other than in the bug report)
+
+    (cherry picked from commit 97421ea7f6719d7acb4d4614e3eca75c40d8919e)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 4824977557a
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Jun 28 03:03:30 2026 +0000
+
+    Windows Search: keep names around after the dissection finishes.
+
+    Allocate names in persistent data structure with file scope.
+
+    While we're at it:
+
+    Get those names as display names, with non-printable characters such as
+    control characters escaped, rather than as raw strings, as they're used
+    for display purposes.
+
+    Display an unsigned column number with %u, not %d.
+
+    Zero-fill some data structures when allocated, to make sure we don't
+    have random crap in pointers.
+
+    Fix the field name for a field.
+
+    (cherry picked from commit e46c6b6a9912f6fb16a73e63c544d83aaade1e58)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit c556b648aaa
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jun 27 10:01:20 2026 -0400
+
+    strptime: Don't read a character past a null timezone
+
+    Fix a small buffer overrun in the strptime code copied from NetBSD.
+    (Note, the error appears to still be in NetBSD's code too[1].)
+
+    If the first character of the putative timezone is the null terminator,
+    don't try to check if the second character is also the null terminator
+    (or a delimiter.)
+
+    It's slightly easier to understand and possibly faster to put in a
+    case for NUL here, rather than switching around a couple of if statement
+    tests so that they short-circuit before calling delim(bp[1]). Note
+    that these tests always failed, so this had essentially no impact;
+    no more than one character beyond the heap allocated buffer was read,
+    and absolutely nothing was done with that value regardless.
+
+    The buffer overrun requires a time that does *not* parse with
+    iso8601_to_nstime(), and also is not quoted (because the quoting
+    ends up allocating a slightly larger buffer from the heap that is
+    then reused when edited in place to remove the quotes, it seems.)
+    The comments in the FT_ABSOLUTE_TIME parsing from strings implies
+    that dates without at least hours and minutes should be rejected, but
+    instead they are accepted with a time of midnight (in the appropriate
+    timezone.) Fixing that would also prevent the particular issue, but
+    it's possible that ws_strptime is called from elsewhere.
+
+    FIx #21376
+
+    [1] https://github.com/NetBSD/src/blob/7fa61a786e7ae2a3f2fcfdf8258866e88052b365/lib/libc/time/strptime.c
+
+    AI-Assisted: no (other than by the reporter)
+
+    (cherry picked from commit 866d68f876e0a75726bf09f2c4d63261ff99ea09)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 79d248a181d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jun 25 23:17:16 2026 -0400
+
+    lz4: Don't try to flush if not initalized yet
+
+    If the LZ4 stream hasn't been initialized with anything, don't try
+    to flush it (which will crash.) Fixes a crash on pcapng passthrough.
+
+    Also check if the stream state has been initialized or not when closing.
+
+    AI-Assisted: no
+    (backported from commit a5d408b4829adf83e6b4ab16f7669f37afb9f9cf)
+
+commit fa31b317771
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jun 24 11:10:43 2026 -0400
+
+    Qt: Don't allow capture filter combo box and interface button to overlap
+
+    The mainContentContainer QWidget should not need to set a minimumSize
+    which is smaller than that that the captureSectionLayout gets from
+    its label, combo box, and push button. That causes the layout to
+    make the widgets overlap because its parent is allowed to shrink to
+    smaller than its own recommended size.
+
+    This does not occur in 5.0 because of other changes, only 4.6
+
+    Fix #21080
+
+    AI-Assisted: no
+
+commit db348c5d357
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jun 24 22:38:33 2026 -0400
+
+    wiretap: blf: Remove const
+
+    In zlib, the next_in parameter in the z_stream struct may not be const
+    for historical reasons, though it is const-safe. (It may be compiled
+    with const; in zlib-ng it is always const.) Remove the const qualifier
+    from this parameter in the static function.
+
+    Fixup 4191f0bc5613fe4908dcbfff6e63e19ec26356a3
+
+    AI-Assisted: no
+
+    (cherry picked from commit 1d68084ca4467e50e70cd6baf4ebe9de8afe6afa)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 3b8b99225b1
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jun 24 22:01:07 2026 -0400
+
+    wiretap: blf: Fix leak and typo in previous commit
+
+    Call InflateEnd to free memory
+
+    Fixup 4191f0bc5613fe4908dcbfff6e63e19ec26356a3
+
+    AI-Assisted: no
+
+    (cherry picked from commit 956e2f8ef34f924f1d742224cd7ec19573ec381a)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit eb700bb1027
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jun 24 18:01:25 2026 -0400
+
+    wiretap: blf: Check actual decompressed size against claimed size
+
+    Also, reject if the claimed decompressed size is larger than the
+    theoretical maximum for the zlib algorithm, and only allocate up
+    to a reasonable multiple of the compressed size initially.
+
+    Fix: #21361
+
+    AI-Assisted: no
+
+    (cherry picked from commit 4191f0bc5613fe4908dcbfff6e63e19ec26356a3)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit f321a31ce5f
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Jun 23 20:58:48 2026 +0000
+
+    Lua: fix some leaks.
+
+    Some wiretap errors provide an allocated string containing additional
+    information about the error; it must be freed after it's been used when
+    reporting the error.
+
+    This means that it cannot be used in a `luaL_error()` call, as
+    `luaL_error()` never returns, so you can't free it after the call. You
+    also obviously can't free it *before* the call.
+
+    `luaL_error()` is a wrapper around `lua_pushvfstring()` and
+    `lua_error()`,  so we could just use `lua_pushfstring()` to push the
+    formatted string, free the info string, and then call `lua_error()`.
+
+    (We use `return lua_error();`, matching the `return luaL_error();` idiom
+    mentioned in the Lua reference manual.  It doesn't appear to cause
+    errors if `lua_error()` is marked as a "noreturn" function.)
+
+    AI-Assisted: no
+
+    (cherry picked from commit 02017e2dda3f70cbbe19ed59a068a0782c230141)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit 145a1e76ccb
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Jun 22 09:47:42 2026 -0400
+
+    wsutil: Fix NSTIME_INIT_MAX initializer
+
+    On many platforms (e.g. Windows), LONG_MAX and INT_MAX are the same,
+    and both are 32-bit even when time_t is 64-bit.
+
+    Move the more general TIME_T_MIN and TIME_T_MAX macros (which also
+    handle unsigned integer time_t) to the header and use those to set
+    the maximum possible value in the initializer.
+
+    (cherry picked from commit d5c6201670cb472c21420b57ac8d0e735fa21217)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit c39fd97261a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Jun 20 10:09:32 2026 -0700
+
+    GitLab CI: Make sure we use the same path for our error output everywhere
+
+    AI-Assisted: no
+    (cherry picked from commit 40f0303bd8a7cf57f7f2804ce45f918f21d16bc8)
+
+commit f594b098f6d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Jun 19 09:56:41 2026 -0700
+
+    GitLab CI: Fix our fuzz artifact uploads
+
+    AI-Assisted: no
+    (cherry picked from commit 042e66c5d09a95af95c040f22cb730ff912fcea0)
+
+commit f61dd712756
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Jun 21 09:39:39 2026 -0400
+
+    HiPerConTracer: Strengthen heuristic
+
+    According to the source[1] and personal testing with large payload
+    lengths given, if the HiPerConTracer payload is longer than the minimum
+    16 octets, any octets up to the 64th octet are the zero byte, followed
+    by any remaining octets being equal to their offset.
+
+    Use this to strengthen the heuristics.
+
+    [1] - https://github.com/dreibh/hipercontracer/blob/master/src/traceserviceheader.h
+
+    Fix #21349
+
+    AI-Assisted: no
+
+    (cherry picked from commit a6b329a81c667e73e9b1225a37ba5b3e1171f63b)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 605a47b5c2f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 21 10:12:18 2026 +0000
+
+    [Automatic update for 2026-06-21]
+
+    Update manuf, services, enterprise numbers, translations, and other items.
+
+    Transifex failed.
+
+commit fd8d80f35ec
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jun 20 12:25:53 2026 -0400
+
+    CMake: Fix Large File Support on 32-bit platforms
+
+    set_property(DIRECTORY PROPERTY COMPILE_DEFINITIONS ...) overrides any
+    previous value from add_[compile_]definitions, so it must be done before
+    the LFS checks. Those generic all target definitions only depend on
+    CMakeOptions.txt and the CMake Build Type, so moving them up to this
+    location is fine.
+
+    Without this none of the LFS -D definitions show up in any target on
+    a 32-bit Debian i386 container build.
+
+    Ping 3f556a6e7639716a7254a4fcdf88e33ef3896fe8
+    Ping #21297
+
+    AI-Assisted: no
+
+    (cherry picked from commit ef5c1337b92f5e9e50f6bdf5b3419cf0e4adf216)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 1fbef6b971a
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sat Jun 20 20:54:15 2026 +0000
+
+    DVB-S2-TABLE: Fix FCT2 section_fixed_access_method bitmask
+
+    - DVB_S2_TABLE_FRAME_TYPE_SECTION_FAM_MASK was 0x0C (bits 3:2, 2-bit
+      field) instead of 0x0F (bits 3:0, 4-bit field)
+    - Per ETSI EN 301 545-2 V1.4.1 p.57: upper nibble is reserved,
+      lower nibble carries fixed_access_method
+
+    AI-Assisted: no
+
+    (cherry picked from commit 38ac0ca19f1034b84fd9921aad006d81da7ad7fe)
+
+    Co-authored-by: Daniil Batalov <dbatalov@deltard.ru>
+
+commit df5ba9264a8
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jun 17 10:53:00 2026 -0400
+
+    wiretap: DBS Etherwatch: Ensure buffer has slack for an extra line
+
+    THe DBS Etherwatch parser checks the frame length against the reported
+    frame length *after* parsing and writing a hex line, so ensure that the
+    buffer has space for an extra hex line's worth of data. (The maximum
+    line length is 240 characters, into which somewhat less than 120
+    characters can be read, since the separator is technically optional.)
+
+    Thanks to Nguyen Huu Trung for the report and POC.
+
+    AI-Assisted: no (outside of the initial report and POC)
+
+    (cherry picked from commit 0143274e20b236ac8a8f4a0aee3f290ad89ae4aa)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 943a403e1ae
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jun 17 10:15:49 2026 -0400
+
+    dbs-etherwatch(wiretap): fix Dead Store (Assignment) found by Clang Analyzer
+
+    (cherry picked from commit 2ca6ca6faab1d3ef2a626e42b91d1e2bec762267)
+
+    Co-authored-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit 20d3d5e1830
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jun 16 11:17:59 2026 -0400
+
+    OSI COTP: Fix checksum calculation
+
+    The checksum needs to be calculated over the entire TPDU len, not the
+    length of the checksum TLV itself (which is always 2.) Pass in the
+    proper variable.
+
+    Fixup ad6fc87d64de30cdcdca18168a117d2ec24591da (typo substituted
+    the wrong variable.)
+
+    Ping #21350
+
+    AI-Assisted: no
+
+    (cherry picked from commit c0fcbcb509958220ae66c273cbc0a9b0932fe3d1)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit a4198d81745
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Mon Jun 15 08:35:31 2026 +0200
+
+    wiretap: pcapng-darwin-custom: Don't overflow allocated option size
+
+    If the OPT_DPIB_UUID has to be 16 bytes, don't write it if it's not.
+    In any case, don't allocate a size based on assuming it is 16 bytes
+    but then write whatever is in the option header.
+
+    Fix #21285
+
+    AI-Assisted: no
+
+    (cherry picked from commit 63aab2afd4f3b997b583637c4ea83ea0f3e17471)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 6c78c2b6621
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Mon Jun 15 08:36:31 2026 +0200
+
+    FMP/NOTIFY: Do not precompute the HandleList length
+
+    A HandleList can have a 32-bit unsigned integer number of handles,
+    each of which has a 32-bit unsigned integer length value; the total
+    thus could be a 64-bit integer, except that doesn't fit in a packet.
+    Pre-calculating this avoids all the normal bounds chechs.
+
+    Set the length of the subtree item at the end. That way, we'll throw
+    an exception when we run out of packet.
+
+    Fix #21347
+
+    AI-Assisted: no
+
+    (cherry picked from commit 2ad5f65dd91e4b8003383e64713713a6935f8046)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 2e3c91670a3
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 14 10:17:55 2026 +0000
+
+    [Automatic update for 2026-06-14]
+
+    Update manuf, services, enterprise numbers, translations, and other items.
+
+commit 7527a0aebdd
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jun 11 18:10:17 2026 -0400
+
+    wiretap: logcat: Check for ill-formed Exported PDU header TLVs
+
+    Don't run off the end of the buffer. Most of the time when this path
+    is used it's probably a cycle of:
+
+    * read capture file of ADB containing logcat data
+    * Use Export PDUs to WTAP_ENCAP_WIRESHARK_UPPER_PDU
+    * Save the resultant UPPER PDU file into a native Logcat format
+
+    However, due to the implementation, *any* file that is indicated
+    as WTAP_ENCAP_WIRESHARK_UPPER_PDU can be written as a Logcat
+    format, even if the Exported PDU Dissector Name tag isn't a Logcat
+    dissector and thus the file does not really contain Logcat data.
+    Even worse, if the file has been altered to have bad data.
+
+    It might make sense to add a link-layer header type for the Logcat
+    format directly, and also might make sense to allow Export PDUs to
+    export directly to the native format. Either of those might be less
+    fragile.
+
+    Thanks to Raj Kumar Rathod for the report and PoC.
+
+    Fix #21346
+
+    AI-Assisted: no
+
+    (backported from commit f46adcd0881a18e44b403c24a9319d15230475c3)
+
+commit 11cbb533252
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Jun 12 05:57:53 2026 -0400
+
+    Exported PDU: Fix passing in a NULL list of items
+
+    Don't deference a NULL list of PDU items to export, just treat it
+    as an empty list. The Logcat and Logcat Text exported PDU handlers
+    pass in NULL.
+
+    Fixup be12a252dd0bfeddc4b82da4690bcd582aa94d4a
+
+    AI-Assisted: no
+
+    (cherry picked from commit 986e1ce0d0c0cb80f1df90a25e3394e14dfbd754)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 9defc7d6b9a
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Fri Jun 12 08:57:32 2026 +0200
+
+    WOWW: Use tvb_child_uncompress_zlib
+
+    Avoid leaking the decompressed TVB. It's safer to put it in the chain of
+    creation than try to manually free it.
+
+    AI-Assisted: no
+
+    (cherry picked from commit 721c90996c1753b69bf4364b9cdaa27ff4ebce66)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 400474874f1
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jun 11 16:18:25 2026 -0400
+
+    PIDL: Identify some more string types as FT_STRING
+
+    Copy some of the logic used in Wireshark/NDR.pm ElementLevel() to
+    determine if a type should call a dissect_ndr_*_string() function
+    because it contains a string over to NDR.pm ContainsString(), which
+    is used to make the container type be a FT_STRING instead of an
+    FT_NONE. The various dissect_ndr_*_string() functions all require
+    that the field types be a FT_STRING. (In some cases, they're null
+    terminated, so maybe a FT_STRINGZ or such would make more sense,
+    but in any case the functions assert that the field type is a
+    FT_STRING specifically, so let's not get into that at the moment.)
+
+    Ping #21344
+
+    AI-Assisted: no
+
+    (cherry picked from commit d9e0f4d646e71d356e9e36b5b19165abd1f1e0fe)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 3e1dc259b09
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Thu Jun 11 20:01:15 2026 +0200
+
+    DCERPC: Do cleanup in a FINALLY block
+
+    Do the necessary cleanup in a FINALLY block of the TRY so that it
+    never leaks.
+
+    Fix #21344. (The particular case doesn't leak after commit
+    d9e0f4d646e71d356e9e36b5b19165abd1f1e0fe, but this handles the
+    general case.)
+
+    AI-Assisted: no
+
+    (cherry picked from commit 9e1ab5a759e8426eb0d026a5d641716b099044fb)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit b2b805cfddc
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jun 10 20:19:03 2026 -0400
+
+    ALC/LCT, LLS/SLT: Avoid leaking decompressed TVBs
+
+    As the documentation for tvb_uncompressed_zlib and the other
+    decompression functions mention, in most cases the `tvb_child_uncompress`
+    functions are the one to use. Only in some very specific cases where the
+    decompressed tvb does not want to be part of the chain of ownership
+    of the compressed tvb (e.g., because it's being saved in file scoped
+    data and the compressed tvb will expire when the packet dissection is
+    done) should the former be used.
+
+    Fix #21343
+
+    AI-Assisted: no
+
+    (cherry picked from commit 8b36a52c88771be0a0f378fe153030756727ee08)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 1eafd3705cd
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Jun 8 12:40:25 2026 -0400
+
+    Packaging: MinGW: Ignore unexpected windeployqt output lines
+
+    The Qt fix for https://qt-project.atlassian.net/browse/QTBUG-142131
+    prints lines like "Skipping system library" in Qt 6.11.1 and later.
+    Ignore those lines.
+
+    Also, for other unexpected lines (e.g., with more than one space),
+    print the unexpected line to stderr and skip them.
+
+    AI-Assisted: no
+
+    (cherry picked from commit 565ae5ae1e2653592f56854c250c764a2b1bc3a8)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 4631a82fe7d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Jun 7 21:21:08 2026 -0400
+
+    Qt: Make a warning slightly more verbose
+
+    Mention which sort of translations (application-specific or Qt
+    distributed catalogs) are failing to load.
+
+    Don't warn about missing translations for the C locale / C language
+    (that's basically untranslated.)
+
+    AI-Assisted: no
+    (backported from commit 0b594259682d4bcb32cf351c3d8fb4a921ba9c65)
+
+commit 85fa38f4dae
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Mon Jun 8 09:14:05 2026 +0200
+
+    eDonkey: Don't let the offset go backwards when dissecting a list
+
+    If the offset after dissecting a list item goes backwards (or stays
+    the same, which also means that it overflowed), throw an exception.
+
+    Also as a drive by fix the field type of the Blob Length; it is reported
+    as being a uint32_t and retrieved that way early before being added to
+    the tree as 16 bits.
+
+    Fix: #21330
+
+    AI-Assisted: no
+
+    (cherry picked from commit 1cab77ddc5c133d58c6f63c49d5af2f2511bad66)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 5c7eb4faf4b
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jun 6 15:31:15 2026 -0400
+
+    Qt: Respect preferred UI language on Windows
+
+    Use the version of QTranslator::load that takes the QLocale so that
+    when the system locale has a list of UI languages that are other than
+    the language used for regional settings, numbers, etc, or a list of
+    several UI languages in order rather than simply one language.
+
+    Instead of testing to see if a file exists, just have the translator try
+    to load each directory in the search path in order. Note that this
+    properly takes care of sufficies and trying languages without country
+    suffixes, etc.
+
+    Use the same "languages" subdirectory for updates to the generic
+    Qt translations as used for updated Wireshark translations.
+
+    Try the personal configuration subdirectory first, then the data
+    directory, then the QLibraryInfo::TranslationsPath (paths on
+    6.8.0 and higher), then the embedded resources.
+
+    Fix #17221. Ping #20347
+
+    AI-Assisted: no
+    (backported from commit 436c4f357936bbaff6131fe085e0808e6b769808)
+
+commit 0b17a33aacf
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Jun 7 20:37:42 2026 -0400
+
+    addr_resolv: Check for truncation of IEEE manuf long names
+
+    There's no guarantee that the long company name in the IEEE OUI
+    listings are less than MAXNAMELEN (64) bytes in UTF-8, and
+    "Shenzhen Talent Technology Comapny Limited 深圳市泰霖科技有限公司"
+    is not. (Each of the hanzi is 3 octets in UTF-8.)
+
+    Instead of just throwing away g_strlcpy's notification that the string
+    was truncated, use it for the long name and truncate to valid UTF-8
+    (assuming we have valid UTF-8 up to truncation, which we should.)
+
+    Fix #21331
+
+    AI-Assisted: no
+
+    (cherry picked from commit c9674e6cfa51d1459835e66a1515678537e40b05)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 93456628698
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Jun 7 09:57:50 2026 -0400
+
+    Packaging: MSYS2: Install the opencore DLLs
+
+    The AMR NB and WB codecs need to have the DLLs installed in order to
+    be loaded correctly.
+
+    AI-Assisted: no
+
+    (cherry picked from commit 7d35e6372101d9f4725a857e99be188875b3e366)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit b2355388ffb
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jun 3 16:52:40 2026 -0700
+
+    GitLab CI: Switch more jobs to rclone
+
+    Switch the Ubuntu jobs from mc to rclone.
+
+    AI-Assisted: no
+    (cherry picked from commit 2563d7568524df195eb7a271e18c64f0d7738e28)
+
+    Conflicts:
+            .gitlab-ci.yml
+
+commit b970c0fa4b3
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 7 10:18:58 2026 +0000
+
+    [Automatic update for 2026-06-07]
+
+    Update manuf, services, enterprise numbers, translations, and other items.
+
+commit c36dacbe534
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Sun Jun 7 09:11:54 2026 +0200
+
+    Added missing offset increment when field D28 is present.
+
+    (cherry picked from commit 561ea0aa20102bcbf0375060de2b5e622ad11bbd)
+
+    Co-authored-by: Neko'z <zacke.palmer@gmail.com>
+
+commit 6b04f7de62a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Jun 4 09:27:49 2026 -0700
+
+    mingw-rpm-setup: Conditionally install the speexdsp package
+
+    The package isn't distributed currently, but that might change in the
+    future. Copy over add_package from rpm-setup.sh and conditionally add it
+    to the installation list.
+
+    AI-Assisted: no
+    (cherry picked from commit 9386b678ab6217fd23101d13b6a1c92d65df43f4)
+
+commit 7af27122215
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jun 4 19:28:07 2026 -0400
+
+    CMake: Make SpeexDSP optional for Wireshark & Stratoshark
+
+    SpeexDSP is only used by Wireshark and Stratoshark if we are using
+    Qt Multimedia. Since Qt Multimedia is an optional requirement, we
+    can make SpeexDSP optional in those cases. It is required for
+    sharkd.
+
+    If building Wireshark or Stratoshark but not sharkd, make SpeexDSP
+    optional. If we don't have it, then don't check for Qt Multimedia.
+
+    AI-Assisted: no
+    (cherry picked from commit 08611e79d13718de0d1f19f5fe341e03a7b62488)
+
+    Conflicts:
+            CMakeLists.txt
+
+commit 88c9ab7d9ca
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jun 2 12:12:45 2026 -0700
+
+    GitLab CI: Fix our asciidoctor-pdf installation
+
+    Ubuntu 26.04 split off asciidoctor-pdf into its own package.
+
+    AI-Assisted: no
+    (cherry picked from commit 909ce75110477394062298776c7a2246fdeec3b1)
+
+commit a54372b3eca
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Tue Jun 2 08:50:00 2026 +0000
+
+    gsm_sim: Make STORE DATA Le optional
+
+    Some implementations does not add STORAGE DATA Le for last block
+    even if it's mandatory. Relax this constraint.
+
+    AI-Assisted: no
+
+    (cherry picked from commit bd90700260997f1cb44604060882ebeda43dc765)
+
+    Co-authored-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit d668011a584
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Thu Mar 5 09:21:55 2026 +0100
+
+    sgp32: Register SGP.32 specific objects
+
+    Register SGP.32 objects which is different from SGP.22.
+
+    (cherry picked from commit 7d4c1ba094b304fc7e57438ef57ff3d6911b08bf)
+
+commit 16feedfcfa6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 31 17:45:31 2026 -0700
+
+    GitLab CI+packaging: Remove Ninja support from our Debian packaging
+
+    Newer versions of Debian and Ubuntu enable LTO by default. This means we
+    link with gcc's lto-wrapper, which creates a Makefile and runs
+    `getenv("MAKE")` on it. Setting MAKE=ninja will fail, so don't do that.
+    Remove cmake+ninja support from our Debian packaging since it's now
+    problematic.
+
+    AI-Assisted: no
+    (cherry picked from commit 02cd27ae7b28b26a76406277e6149807ee779a9f)
+
+commit 5bc70fc258d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 31 10:18:47 2026 +0000
+
+    [Automatic update for 2026-05-31]
+
+    Update manuf, services, enterprise numbers, translations, and other items.
+
+commit bf2d064bb82
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Thu May 28 14:04:53 2026 +0200
+
+    csn1: CSN_UINT_ARRAY: fix pointer increment logic
+
+    In the CSN_UINT_ARRAY handling path, the post-increment in
+    `*pui8++ = tvb_get_bits8(...)` advances pui8 before the value
+    is read back on the next line.  As a result, the subsequent
+    proto_tree_add_uint_bits_format_value() call dereferences pui8
+    one element past the slot that was just written, displaying a
+    stale/uninitialized value in the tree rather than the value
+    actually decoded from the tvb.
+
+    Split the assignment and the increment, so that the dereference
+    in proto_tree_add_uint_bits_format_value() refers to the element
+    that was just populated, and only advance pui8 afterwards.
+
+    AI-Assisted: yes (Claude) - commit message only
+
+    (cherry picked from commit cbd84990bb5979752167d397f699c726cb63aa18)
+
+    Co-authored-by: Vadim Yanitskiy <fixeria@osmocom.org>
+
+commit 9b08ca23749
+Author: Marton Papp <marcigladiator@gmail.com>
+Date:   Wed May 27 09:50:50 2026 +0200
+
+     C2P: Fix timestamp display
+
+    ms values under 100ms were displayed incorrectly, e.g. 94ms got
+    displayed as .94 instead of .094 .
+
+    (cherry picked from commit 61c6a29b2df14e65798def79c774dcd9cd9fae90)
+
+commit 5f8916beb93
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue May 26 14:34:36 2026 -0700
+
+    CMake+Qt: Look for and link with QtSvg
+
+    Some of the welcome page slides contain SVG elements, so look for QtSvg.
+
+    Make sure some packet diagram preprocessor logic matches.
+
+    Fixes #21268
+
+    AI-Assisted: no
+    (cherry picked from commit 3322dd3c6a35219970f4b8eef61d6678a2667f95)
+
+    Conflicts:
+            CMakeLists.txt
+            ui/qt/CMakeLists.txt
+
+commit 3aba25e21e4
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon May 25 21:12:20 2026 -0400
+
+    packet-epl: Fix Use-After-Free in profile loading error path
+
+    A Use-After-Free (UAF) vulnerability exists in the Ethernet POWERLINK
+    (packet-epl.c) dissector. The vulnerability is triggered during the
+    error-handling path of loading an EPL profile (.eds, .xdd, or .xdc
+    files). When the profile parsing fails, the associated memory pool is
+    destroyed, but the local pointer is not nullified. This dangling
+    pointer is subsequently returned to the caller
+    (nodeid_profile_parse_uat), bypassing safety checks and leading to a
+    UAF when the dissector attempts to duplicate address data into the
+    destroyed memory allocator.
+
+    Fixes #21267
+
+    (cherry picked from commit e15e4942dc24baa46bbda4d42c44d792a1d3d46a)
+
+    Co-authored-by: Xuqing Yang <43904538+RigelYoung@users.noreply.github.com>
+
+commit db1b45a04cd
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon May 25 17:28:56 2026 -0400
+
+    MPEG DSM-CC: Advance the offset in a loop
+
+    Fix #21277
+
+    AI-Assisted: no
+
+    (cherry picked from commit d075ecbe3dac938838c6974ce96a33cb50197139)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 0f685cfe9ad
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon May 25 08:37:06 2026 -0400
+
+    MIH: Advance the offset on an unknown link address type
+
+    When processing a link address TV (it doesn't always have an
+    length, depending on the type), return an offset past the type
+    in the case of an unknown link address type, not zero. (There's
+    no special handling elsewhere in the dissector for offset 0 meaning
+    failure.)
+
+    Fix #21275.
+
+    AI-Assisted: no
+
+    (cherry picked from commit b41196f188cf2f2010dfae192313504f4348deb6)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 64a268b96c3
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 24 10:17:31 2026 +0000
+
+    [Automatic update for 2026-05-24]
+
+    Update manuf, services, enterprise numbers, translations, and other items.
+
+commit 06e17433371
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat May 23 12:13:05 2026 -0400
+
+    catapult-dct2000: cap E-DCH no_ddi_entries at MAX_EDCH_DDIS
+
+    In attach_fp_info() (epan/dissectors/packet-catapult-dct2000.c),
+    the E-DCH branch reads p_fp_info->no_ddi_entries from the parsed
+    outhdr_values[] block and then loops over that value to fill the
+    fixed-size edch_ddi[MAX_EDCH_DDIS] and edch_macd_pdu_size[
+    MAX_EDCH_DDIS] arrays inside struct fp_info. The read at line
+    1871 is taken verbatim from the capture-file header, with no cap.
+
+    The neighbouring NBAP/conversation-info path in
+    packet-umts_fp.c:5188 already hard-caps the value at 0x0f, and
+    the num_chans field a few lines above (line 1837) is capped at
+    MAX_FP_CHANS in the same idiom. Only this E-DCH wiretap-importer
+    path is missing the cap. A crafted Catapult/DCT2000 text capture
+    with a large no_ddi_entries value drives both for-loops far past
+    the fixed arrays and into the wmem block allocator's freelist
+    headers; the next wmem_alloc walks a corrupted free chunk and
+    faults inside wmem_block_split_free_chunk.
+
+    Cap no_ddi_entries at MAX_EDCH_DDIS immediately after the read,
+    mirroring the num_chans cap at lines 1837-1839.
+
+    Fixup: 1936461d8dc0 ("Added E-DCH (HSUPA) channels to FP. Also show VPI/VCI/CID in ATM protocol label.")
+    Fix: #21270
+    Assisted-by: Claude:claude-opus-4-7
+    Signed-off-by: Michael Bommarito <michael.bommarito@gmail.com>
+
+    (cherry picked from commit bd203ccf97638da6c6f50552f181841fa5a65bfc)
+
+    Co-authored-by: Michael Bommarito <michael.bommarito@gmail.com>
+
+commit a6770082d24
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat May 23 21:46:26 2026 -0400
+
+    fcels: Advance a loop offset
+
+    This particular offset doesn't seem to have ever advanced, going back
+    to b60b1414c39e902281dd7c819cb2deb5083d6bcc. It's bounded by the
+    loop iterations, which are a 12-bit integer, so it's not the worst
+    possible result.
+
+    Fix #21272
+
+    AI-Assisted: no
+
+    (cherry picked from commit cc63424938c586407adc340a4a0c2e4d13f5a509)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 649c556ac16
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat May 23 09:58:02 2026 -0400
+
+    packaging: WiX: Fix toolset version in one more place
+
+    AI-Assisted: no
+    (cherry picked from commit 56d1583f366ce4951982efe9752e27b958c75dc8)
+
+commit 67eaea7e56d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat May 23 06:57:01 2026 -0400
+
+    CMake: WiX: Set merge module location correctly
+
+    Use the same merge module file name we searched for in the path.
+
+    Fixup 23a1a9b3b74b2de7888ef68b1fd8eb9804d717cf
+
+    AI-Assisted: no
+    (cherry picked from commit 42687bca53acace4b794340fac11a9e9373a9f62)
+
+commit 01800481550
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri May 22 17:02:11 2026 -0700
+
+    CMake: Let CMake figure out our toolset version
+
+    CMake sets MSVC_TOOLSET_VERSION. Use it instead of trying to figure out
+    our merge module version component.
+
+    AI-Assisted: no
+    (cherry picked from commit 23a1a9b3b74b2de7888ef68b1fd8eb9804d717cf)
+
+commit b81769868bf
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri May 22 12:46:59 2026 -0700
+
+    GitLab CI: Switch the Windows builds to Visual Studio 2026
+
+    Switch the merge request and package builds to Visual Studio 2026.
+
+    AI-Assisted: no
+    (cherry picked from commit c23d7c2e727aacb620e6e1e969fdf5bcbe46b4e0)
+
+    Conflicts:
+            .gitlab-ci.yml
+
+commit c124311da72
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue May 19 08:49:10 2026 -0400
+
+    BACapp: Fix You-Are service primitive dissection
+
+    The Device Identifier and Device MAC Address are both optional, but at
+    least one must appear. Fix the handling to cover all three possible
+    cases, and add expert info in bad cases.
+
+    https://bacnet.org/wp-content/uploads/sites/4/2022/08/Add-135-2016bz.pdf
+
+    Fixup 989002841eceae5cf4d9c3ce5cd7d0e6dc7f38f8
+
+    Fix #21260
+
+    AI-Assisted: no
+
+    (cherry picked from commit e85f80e39c993f4a23b2416980548b2082c942aa)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 381681583ba
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri May 22 23:17:54 2026 -0400
+
+    wiretap: pcapng: fix put_nrb_option NRB custom-string over-copy
+
+    In wiretap/pcapng.c put_nrb_option(), the OPT_CUSTOM_STR_COPY branch
+    computes size = sizeof(uint32_t) + stringlen to set the option header
+    length, writes the 4-byte PEN separately, then copies the string
+    payload using size bytes instead of stringlen. The PEN is counted
+    twice: once when written explicitly, and again when the memcpy walks
+    4 bytes past the end of the g_strndup'd stringlen-sized buffer,
+    causing a heap-buffer-overflow READ at wiretap/pcapng.c:5506 under
+    ASAN. On stock glibc builds the over-read does not crash; the 4
+    stale bytes are written into the output pcapng option payload and
+    are visible to any reader of that file.
+
+    This is the partner fix to commit 82db2faf45a2 ("pcapng: Fix writing
+    Custom Options containing a UTF-8 string"), which corrected the same
+    double-count in the generic writer pcapng_write_custom_string_option()
+    but did not touch this NRB-specialized writer. The fix mirrors that
+    correction: copy stringlen bytes (the string body), not size (which
+    includes the already-written PEN). The header length and trailing pad
+    calculation continue to use size, so on-wire format is unchanged.
+
+    Fixes: 82db2faf45a2 ("pcapng: Fix writing Custom Options containing a UTF-8 string")
+    Assisted-by: Claude:claude-opus-4-7
+    Signed-off-by: Michael Bommarito <michael.bommarito@gmail.com>
+
+    (cherry picked from commit 4162912cac1d99923e4e62e60abbc9b7a1fc8031)
+
+    Co-authored-by: Michael Bommarito <michael.bommarito@gmail.com>
+
+commit 1377903dfa2
+Author: Michael Bommarito <michael.bommarito@gmail.com>
+Date:   Fri May 22 12:21:06 2026 -0400
+
+    wiretap: netlog: reject files missing the events array
+
+    netlog_parse_entirety() calls json_get_array(filebuf, root, "events")
+    at line 777 and passes the return directly to parse_json_events() at
+    line 779 without checking for NULL. json_get_array() returns NULL when
+    the named key is absent (return-value contract at wsutil/wsjson.h:87,
+    full doc block at wsutil/wsjson.h:82-89). The first use inside
+    parse_json_events() is json_get_array_len(json_events) at
+    wiretap/netlog.c:526, which reads array->type at offset 0 of the null
+    pointer and faults.
+
+    A Chrome NetLog file that satisfies parse_log_event_constants() (a
+    constants object with timeTickOffset plus the ten logEventTypes
+    entries) but omits the events key reliably crashes tshark, editcap,
+    capinfos, mergecap, and the Wireshark GUI on open. The NetLog reader
+    is registered as OPEN_INFO_HEURISTIC at wiretap/file_access.c:371, so
+    any file the user opens reaches the probe regardless of extension.
+
+    Add a NULL check between the json_get_array call and the
+    parse_json_events call. When the events key is absent, return false
+    (WTAP_OPEN_NOT_MINE) after freeing json_tokens and filebuf. This
+    mirrors the cleanup shape of the json_parse_len < 0 branch already in
+    the same function, and causes libwiretap to fall through to the next
+    heuristic reader (or the generic JSON reader), which is the correct
+    behavior for an OPEN_INFO_HEURISTIC reader that rejects malformed
+    input.
+
+    Three earlier null-deref fixes in netlog.c (942b111d6aa9, c35362bcffe1,
+    facef9a3399a) each addressed different sites. Commit b96777df4377
+    (2026-04-30) rejects empty or whitespace-only input upstream of the
+    events read but does not cover the missing-events-key path.
+
+    Fixes: 2fc6da852e70 ("wiretap:Add support for Chrome NetLog")
+    Assisted-by: Claude:claude-opus-4-7
+    Signed-off-by: Michael Bommarito <michael.bommarito@gmail.com>
+    (cherry picked from commit b98723c359bbcd5bb8c531f719e999ece9be15c7)
+
+commit 4d70a80fca3
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri May 22 09:09:50 2026 -0400
+
+    wsutil: Update version_info for MSVC 2026
+
+    Minor version 50 (MSVC Build Tools 14.50 == Compiler version 19.50)
+    ships with Visual Studio 2026, which is also known as version 18.x.
+
+    https://learn.microsoft.com/en-us/cpp/overview/compiler-versions
+    https://learn.microsoft.com/en-us/visualstudio/releases/2026/release-notes
+    https://learn.microsoft.com/en-us/visualstudio/releases/2026/release-history
+
+    AI-Assisted: no
+
+    (cherry picked from commit b463dfd902acb71b52e3c70382e262601b1e044c)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 16bbb67279c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed May 20 10:36:28 2026 -0700
+
+    GitLab CI: Make sure a variable doesn't get clobbered
+
+    The "extends" keyword applies to global variables as well, apparently.
+
+    AI-Assisted: no
+    (cherry picked from commit b847564e014dbb70e2b24ffc9b4c880c4e263266)
+
+commit 63c9ba75430
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue May 19 11:56:19 2026 -0700
+
+    GitLab CI: Change our macOS ccache directory
+
+    AI-Assisted: no
+    (cherry picked from commit abc313430e13673dd64a1f0cecb3014f1f841b9d)
+
+commit d6792a5e8f4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue May 19 13:19:31 2026 -0700
+
+    Version: 4.6.6 → 4.6.7 [skip ci]
