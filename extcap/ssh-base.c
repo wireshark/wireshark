@@ -367,10 +367,14 @@ ssh_params_t* ssh_params_new(void)
 	return g_new0(ssh_params_t, 1);
 }
 
-#if _WIN32
+#if HAVE_MEMSET_EXPLICIT
+# define ZERO_FILL_STRING(str) if (str) memset_explicit(str, 0, strlen(str))
+#elif _WIN32
 # define ZERO_FILL_STRING(str) if (str) SecureZeroMemory(str, strlen(str))
+#elif HAVE_EXPLICIT_BZERO
+# define ZERO_FILL_STRING(str) if (str) explicit_bzero(str, strlen(str))
 #elif HAVE_MEMSET_S
-# define ZERO_FILL_STRING(str) if (str) memset_s(str, strlen(str), 0, strlen(str))
+# define ZERO_FILL_STRING(str) if (str) (void) memset_s(str, strlen(str), 0, strlen(str))
 #else // Something that will probably be optimized away.
 # define ZERO_FILL_STRING(str) if (str) memset(str, 0, strlen(str))
 #endif

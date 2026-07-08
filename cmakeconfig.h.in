@@ -52,6 +52,9 @@
 /* Define to 1 if you have the `timespec_get` function. */
 #cmakedefine HAVE_TIMESPEC_GET 1
 
+/* Define to 1 if you have the C23 `memset_explicit` function. */
+#cmakedefine HAVE_MEMSET_EXPLICIT 1
+
 /* Define to 1 if you have the `localtime_r` function. */
 #cmakedefine HAVE_LOCALTIME_R 1
 
@@ -66,6 +69,9 @@
 
 /* Define to 1 if you have the `memset_s` function. */
 #cmakedefine HAVE_MEMSET_S 1
+
+/* Define to 1 if you have the `explicit_bzero` function. */
+#cmakedefine HAVE_EXPLICIT_BZERO 1
 
 /* Define to use the MaxMind DB library */
 #cmakedefine HAVE_MAXMINDDB 1
