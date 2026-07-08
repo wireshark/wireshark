@@ -3642,13 +3642,7 @@ void proto_register_c2p(void)
         &ett_c2p
     };
 
-    static const char* const C2P_PROTOCOL_NAME = "C2P (Commsignia Capture Protocol)";
-    static const char* const C2P_PROTOCOL_SHORT_NAME = "C2P";
-    static const char* const C2P_FILTER_NAME = "c2p";
-
-    proto_desc = proto_register_protocol(C2P_PROTOCOL_NAME,
-                                         C2P_PROTOCOL_SHORT_NAME,
-                                         C2P_FILTER_NAME);
+    proto_desc = proto_register_protocol("C2P (Commsignia Capture Protocol)", "C2P", "c2p");
 
     proto_register_field_array(proto_desc, header_fields, array_length(header_fields));
     proto_register_subtree_array(ett, array_length(ett));
