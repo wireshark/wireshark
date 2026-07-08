@@ -1812,11 +1812,11 @@ cap_pipe_close(int pipe_fd _U_)
 }
 
 /* Some forward declarations for breaking up cap_pipe_open_live for pcap and pcapng formats */
-static void pcap_pipe_open_live(int fd, capture_src *pcap_src,
+static bool pcap_pipe_open_live(int fd, capture_src *pcap_src,
                                 struct pcap_hdr *hdr,
                                 char *errmsg, size_t errmsgl,
                                 char *secondary_errmsg, size_t secondary_errmsgl);
-static void pcapng_pipe_open_live(int fd, capture_src *pcap_src,
+static bool pcapng_pipe_open_live(int fd, capture_src *pcap_src,
                                   char *errmsg, size_t errmsgl);
 static int pcapng_pipe_dispatch(capture_src *pcap_src,
                                 char *errmsg, size_t errmsgl);
@@ -1831,8 +1831,10 @@ static char not_our_bug[] =
  * open it, and read the header.
  *
  * N.B. : we can't read the libpcap formats used in RedHat 6.1 or SuSE 6.3
- * because we can't seek on pipes (see wiretap/libpcap.c for details) */
-static void
+ * because we can't seek on pipes (see wiretap/libpcap.c for details)
+ *
+ * Returns true on success, fals on failure. */
+static bool
 cap_pipe_open_live(char *pipename,
                    capture_src *pcap_src,
                    void *hdr,
@@ -1882,7 +1884,7 @@ cap_pipe_open_live(char *pipename,
                            "due to error getting information on pipe or socket: %s.", g_strerror(errno));
                 pcap_src->cap_pipe_err = PIPERR;
             }
-            return;
+            return false;
         }
         if (S_ISFIFO(pipe_stat.st_mode)) {
             fd = ws_open(pipename, O_RDONLY | O_NONBLOCK, 0000 /* no creation so don't matter */);
@@ -1891,7 +1893,7 @@ cap_pipe_open_live(char *pipename,
                            "The capture session could not be initiated "
                            "due to error on pipe open: %s.", g_strerror(errno));
                 pcap_src->cap_pipe_err = PIPERR;
-                return;
+                return false;
             }
         } else if (S_ISSOCK(pipe_stat.st_mode)) {
             fd = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -1900,7 +1902,7 @@ cap_pipe_open_live(char *pipename,
                            "The capture session could not be initiated "
                            "due to error on socket create: %s.", g_strerror(errno));
                 pcap_src->cap_pipe_err = PIPERR;
-                return;
+                return false;
             }
             sa.sun_family = AF_UNIX;
             /*
@@ -1933,7 +1935,7 @@ cap_pipe_open_live(char *pipename,
                            "due to error on socket connect: Path name too long.");
                 pcap_src->cap_pipe_err = PIPERR;
                 ws_close(fd);
-                return;
+                return false;
             }
             b = connect(fd, (struct sockaddr *)&sa, sizeof sa);
             if (b == -1) {
@@ -1942,7 +1944,7 @@ cap_pipe_open_live(char *pipename,
                            "due to error on socket connect: %s.", g_strerror(errno));
                 pcap_src->cap_pipe_err = PIPERR;
                 ws_close(fd);
-                return;
+                return false;
             }
         } else {
             if (S_ISCHR(pipe_stat.st_mode)) {
@@ -1957,7 +1959,7 @@ cap_pipe_open_live(char *pipename,
                            "\"%s\" is neither an interface nor a socket nor a pipe.", pipename);
                 pcap_src->cap_pipe_err = PIPERR;
             }
-            return;
+            return false;
         }
 
 #else /* _WIN32 */
@@ -1976,7 +1978,7 @@ cap_pipe_open_live(char *pipename,
                     "The capture session could not be initiated because\n"
                     "\"%s\" is neither an interface nor a pipe.", pipename);
                 pcap_src->cap_pipe_err = PIPNEXIST;
-                return;
+                return false;
             }
 
             /* Wait for the pipe to appear */
@@ -1993,7 +1995,7 @@ cap_pipe_open_live(char *pipename,
                         "due to error on pipe open: %s.",
                         pipename, win32strerror(GetLastError()));
                     pcap_src->cap_pipe_err = PIPERR;
-                    return;
+                    return false;
                 }
 
                 if (!WaitNamedPipe(utf_8to16(pipename), 30 * 1000)) {
@@ -2002,7 +2004,7 @@ cap_pipe_open_live(char *pipename,
                         "pipe open: %s.",
                         pipename, win32strerror(GetLastError()));
                     pcap_src->cap_pipe_err = PIPERR;
-                    return;
+                    return false;
                 }
             }
         }
@@ -2146,12 +2148,10 @@ cap_pipe_open_live(char *pipename,
     }
 
     if (pcap_src->from_pcapng)
-        pcapng_pipe_open_live(fd, pcap_src, errmsg, errmsgl);
+        return pcapng_pipe_open_live(fd, pcap_src, errmsg, errmsgl);
     else
-        pcap_pipe_open_live(fd, pcap_src, (struct pcap_hdr *) hdr, errmsg, errmsgl,
-                            secondary_errmsg, secondary_errmsgl);
-
-    return;
+        return pcap_pipe_open_live(fd, pcap_src, (struct pcap_hdr *) hdr, errmsg, errmsgl,
+                                   secondary_errmsg, secondary_errmsgl);
 
 error:
     ws_debug("cap_pipe_open_live: error %s", errmsg);
@@ -2161,13 +2161,14 @@ error:
 #ifdef _WIN32
     pcap_src->cap_pipe_h = INVALID_HANDLE_VALUE;
 #endif
+    return false;
 }
 
 /*
  * Read the part of the pcap file header that follows the magic
  * number (we've already read the magic number).
  */
-static void
+static bool
 pcap_pipe_open_live(int fd,
                     capture_src *pcap_src,
                     struct pcap_hdr *hdr,
@@ -2287,7 +2288,7 @@ pcap_pipe_open_live(int fd,
     }
 
     pcap_src->cap_pipe_fd = fd;
-    return;
+    return true;
 
 error:
     ws_debug("pcap_pipe_open_live: error %s", errmsg);
@@ -2297,6 +2298,7 @@ error:
 #ifdef _WIN32
     pcap_src->cap_pipe_h = INVALID_HANDLE_VALUE;
 #endif
+    return false;
 }
 
 /*
@@ -2540,7 +2542,7 @@ static bool is_data_block(uint32_t block_type)
  * Read the part of the initial pcapng SHB following the block type
  * (we've already read the block type).
  */
-static void
+static bool
 pcapng_pipe_open_live(int fd,
                       capture_src *pcap_src,
                       char *errmsg,
@@ -2597,7 +2599,7 @@ pcapng_pipe_open_live(int fd,
         goto error;
     }
 
-    return;
+    return true;
 
 error:
     ws_debug("pcapng_pipe_open_live: error %s", errmsg);
@@ -2607,6 +2609,7 @@ error:
 #ifdef _WIN32
     pcap_src->cap_pipe_h = INVALID_HANDLE_VALUE;
 #endif
+    return false;
 }
 
 /* We read one record from the pipe, take care of byte order in the record
@@ -3068,6 +3071,8 @@ capture_loop_open_input(capture_options *capture_opts,
          */
         global_ld.pcapng_passthrough = false;
 
+        /* XXX - should we just force use_threads to true here, or is it
+           too late to do that? */
         if (use_threads == false) {
             snprintf(errmsg, errmsg_len,
                        "Using threads is required for capturing on multiple interfaces.");
@@ -3157,23 +3162,10 @@ capture_loop_open_input(capture_options *capture_opts,
         } else {
             /* We couldn't open "iface" as a network device. */
             /* Try to open it as a pipe */
-            bool pipe_err = false;
-            cap_pipe_open_live(interface_opts->name, pcap_src,
-                               &pcap_src->cap_pipe_info.pcap.hdr,
-                               errmsg, errmsg_len,
-                               secondary_errmsg, secondary_errmsg_len);
-
-#ifndef _WIN32
-            if (pcap_src->cap_pipe_fd == -1) {
-                pipe_err = true;
-            }
-#else
-            if (pcap_src->cap_pipe_h == INVALID_HANDLE_VALUE) {
-                pipe_err = true;
-            }
-#endif
-
-            if (pipe_err) {
+            if (!cap_pipe_open_live(interface_opts->name, pcap_src,
+                                    &pcap_src->cap_pipe_info.pcap.hdr,
+                                    errmsg, errmsg_len,
+                                    secondary_errmsg, secondary_errmsg_len)) {
                 if (pcap_src->cap_pipe_err == PIPNEXIST) {
                     /*
                      * We tried opening as an interface, and that failed,
@@ -3690,6 +3682,8 @@ capture_loop_dispatch(char *errmsg, int errmsg_len, capture_src *pcap_src)
                  * per pcap_dispatch() call, to allow a signal to stop the
                  * processing immediately, rather than processing all packets
                  * in a batch before quitting.
+                 *
+                 * XXX - we *do* have pcap_breakloop().
                  */
                 if (use_threads) {
                     inpkts = pcap_dispatch(pcap_src->pcap_h, 1, capture_loop_queue_packet_cb, (uint8_t *)pcap_src);
