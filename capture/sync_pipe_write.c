@@ -109,9 +109,9 @@ sync_pipe_write_int_msg(int pipe_fd, char indicator, int num)
     sync_pipe_write_string_msg(pipe_fd, indicator, count_str);
 }
 
-/* Write a message, with a primary and secondary error message as the body,
-   to the recipient pipe.  The header is an SP_ERROR_MSG header, with the
-   length being the length of two string submessages; the submessages
+/* Write an error message, with primary and secondary error messages as
+   the body, to the recipient pipe.  The header is an SP_ERROR_MSG header,
+   with the length being the length of two string submessages; the submessages
    are the body of the message, with each submessage being a message
    with an indicator of SP_ERROR_MSG, the first message having the
    primary error message string and the second message having the secondary
@@ -124,6 +124,23 @@ sync_pipe_write_errmsgs_to_parent(int pipe_fd, const char *error_msg,
                            (unsigned int) (strlen(error_msg) + 1 + 4 + strlen(secondary_error_msg) + 1 + 4));
     sync_pipe_write_string_msg(pipe_fd, SP_ERROR_MSG, error_msg);
     sync_pipe_write_string_msg(pipe_fd, SP_ERROR_MSG, secondary_error_msg);
+}
+
+/* Write a warning message, with primary and secondary warning messages as
+   the body, to the recipient pipe.  The header is an SP_WARNING_MSG header,
+   with the length being the length of two string submessages; the submessages
+   are the body of the message, with each submessage being a message
+   with an indicator of SP_WARNING_MSG, the first message having the
+   primary warning message string and the second message having the secondary
+   warning message string. */
+void
+sync_pipe_write_warnmsgs_to_parent(int pipe_fd, const char *warning_msg,
+                                   const char *secondary_warning_msg)
+{
+    sync_pipe_write_header(pipe_fd, SP_WARNING_MSG,
+                           (unsigned int) (strlen(warning_msg) + 1 + 4 + strlen(secondary_warning_msg) + 1 + 4));
+    sync_pipe_write_string_msg(pipe_fd, SP_WARNING_MSG, warning_msg);
+    sync_pipe_write_string_msg(pipe_fd, SP_WARNING_MSG, secondary_warning_msg);
 }
 
 /*

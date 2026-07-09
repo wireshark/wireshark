@@ -612,10 +612,8 @@ capture_input_drops(capture_session *cap_session, uint32_t dropped, const char* 
 }
 
 
-/* Capture child told us that an error has occurred while starting/running
-   the capture.
-   The buffer we're handed has *two* null-terminated strings in it - a
-   primary message and a secondary message, one right after the other.
+/* Capture child told us that an error has occurred while starting or
+   running the capture.
    The secondary message might be a null string.
  */
 static void
@@ -651,7 +649,7 @@ capture_input_error(capture_session *cap_session _U_, char *error_msg,
 }
 
 /* Capture child told us that an error has occurred while parsing a
-   capture filter when starting/running the capture.
+   capture filter when starting or running the capture.
  */
 static void
 capture_input_cfilter_error(capture_session *cap_session, unsigned i,
@@ -696,6 +694,42 @@ capture_input_cfilter_error(capture_session *cap_session, unsigned i,
     g_free(safe_cfilter);
 
     /* the capture child will close the sync_pipe if required, nothing to do for now */
+}
+
+/* Capture child told us that a warning has occurred while starting or
+   running the capture.
+   The secondary message might be a null string.
+ */
+static void
+capture_input_warning(capture_session *cap_session _U_, char *warning_msg,
+                      char *secondary_warning_msg)
+{
+    char *safe_warning_msg;
+    char *safe_secondary_warning_msg;
+
+    /* The primary message might be an empty string, e.g. when the error was
+     * from extcap. (The extcap stderr is gathered when the session closes
+     * and printed in capture_input_closed below.) */
+    if (*warning_msg != '\0') {
+        ws_message("Warning message from child: \"%s\", \"%s\"", warning_msg, secondary_warning_msg);
+    }
+
+    ws_assert(cap_session->state == CAPTURE_PREPARING || cap_session->state == CAPTURE_RUNNING);
+
+    safe_warning_msg = simple_dialog_format_message(warning_msg);
+    if (secondary_warning_msg != NULL && *secondary_warning_msg != '\0') {
+        /* We have both primary and secondary messages. */
+        safe_secondary_warning_msg = simple_dialog_format_message(secondary_warning_msg);
+        simple_message_box(ESD_TYPE_WARN, NULL, safe_secondary_warning_msg,
+                           "%s", safe_warning_msg);
+        g_free(safe_secondary_warning_msg);
+    } else {
+        /* We have only a primary message. */
+        simple_message_box(ESD_TYPE_WARN, NULL, NULL, "%s", safe_warning_msg);
+    }
+    g_free(safe_warning_msg);
+
+    /* It's just a warning, so nothing more to do */
 }
 
 /* capture child closed its side of the pipe, do the required cleanup */
@@ -881,6 +915,7 @@ capture_input_init(capture_session *cap_session, capture_file *cf)
     capture_session_init(cap_session, cf,
                          capture_input_new_file, capture_input_new_packets,
                          capture_input_drops, capture_input_error,
-                         capture_input_cfilter_error, capture_input_closed);
+                         capture_input_cfilter_error,
+                         capture_input_warning, capture_input_closed);
 }
 #endif /* HAVE_LIBPCAP */

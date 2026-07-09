@@ -233,6 +233,8 @@ static void capture_input_error(capture_session *cap_session,
         char *error_msg, char *secondary_error_msg);
 static void capture_input_cfilter_error(capture_session *cap_session,
         unsigned i, const char *error_message);
+static void capture_input_warning(capture_session *cap_session,
+        char *error_msg, char *secondary_error_msg);
 static void capture_input_closed(capture_session *cap_session, char *msg);
 
 static void report_counts(void);
@@ -1344,7 +1346,8 @@ main(int argc, char *argv[])
     capture_session_init(&global_capture_session, &cfile,
             capture_input_new_file, capture_input_new_packets,
             capture_input_drops, capture_input_error,
-            capture_input_cfilter_error, capture_input_closed);
+            capture_input_cfilter_error,
+            capture_input_warning, capture_input_closed);
 #endif
 
     timestamp_set_type(TS_RELATIVE);
@@ -3129,6 +3132,23 @@ capture_input_cfilter_error(capture_session *cap_session, unsigned i, const char
                 "That string isn't a valid capture filter (%s).\n"
                 "See the User's Guide for a description of the capture filter syntax.",
                 interface_opts->cfilter, interface_opts->descr, error_message);
+    }
+}
+
+
+/* capture child detected a warning */
+static void
+capture_input_warning(capture_session *cap_session _U_, char *error_msg, char *secondary_warning_msg)
+{
+    /* The primary message might be an empty string, e.g. when the error was
+     * from extcap. (The extcap stderr is gathered when the session closes
+     * and printed in capture_input_closed below.) */
+    if (*error_msg != '\0') {
+        cmdarg_err("%s", error_msg);
+        if (secondary_warning_msg != NULL && *secondary_warning_msg != '\0') {
+            /* We have both primary and secondary messages. */
+            cmdarg_err_cont("%s", secondary_warning_msg);
+        }
     }
 }
 

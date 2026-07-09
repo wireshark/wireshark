@@ -497,6 +497,7 @@ static void report_packet_count(unsigned int packet_count);
 static void report_packet_drops(uint32_t received, uint32_t pcap_drops, uint32_t drops, uint32_t flushed, uint32_t ps_ifdrop, char *name);
 static void report_capture_error(const char *error_msg, const char *secondary_error_msg);
 static void report_cfilter_error(capture_options *capture_opts, unsigned i, const char *errmsg);
+static void report_capture_warning(const char *warning_msg, const char *secondary_warning_msg);
 
 #define MSG_MAX_LENGTH 4096
 
@@ -3213,7 +3214,7 @@ capture_loop_open_input(capture_options *capture_opts,
                                                      errmsg_len,
                                                      secondary_errmsg,
                                                      secondary_errmsg_len);
-            report_capture_error(errmsg, secondary_errmsg);
+            report_capture_warning(errmsg, secondary_errmsg);
         }
         if (pcap_src->from_pcapng) {
             /*
@@ -6273,6 +6274,20 @@ report_capture_error(const char *error_msg, const char *secondary_error_msg)
         cmdarg_err("%s", error_msg);
         if (secondary_error_msg[0] != '\0')
           cmdarg_err_cont("%s", secondary_error_msg);
+    }
+}
+
+static void
+report_capture_warning(const char *warning_msg, const char *secondary_warning_msg)
+{
+    if (capture_child) {
+        ws_debug("Primary Warning: %s", warning_msg);
+        ws_debug("Secondary Warning: %s", secondary_warning_msg);
+        sync_pipe_write_warnmsgs_to_parent(sync_pipe_fd, warning_msg, secondary_warning_msg);
+    } else {
+        cmdarg_err("%s", warning_msg);
+        if (secondary_warning_msg[0] != '\0')
+          cmdarg_err_cont("%s", secondary_warning_msg);
     }
 }
 

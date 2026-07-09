@@ -42,6 +42,7 @@
 #define SP_EXEC_FAILED  'X'     /* errno value for the exec failing */
 #define SP_FILE         'F'     /* the name of the recently opened file */
 #define SP_ERROR_MSG    'E'     /* error message */
+#define SP_WARNING_MSG  'W'     /* warning message */
 #define SP_LOG_MSG      'L'     /* log message */
 #define SP_BAD_FILTER   'B'     /* error message for bad capture filter */
 #define SP_PACKET_COUNT 'P'     /* count of packets captured since last message */
@@ -109,6 +110,16 @@ sync_pipe_write_int_msg(int pipe_fd, char indicator, int num);
 extern void
 sync_pipe_write_errmsgs_to_parent(int pipe_fd, const char *error_msg,
                                   const char *secondary_error_msg);
+
+/**
+ * @brief Notify the parent that the child encountered an warning indication.
+ *
+ * @param warning_msg The warning message to be sent to the parent.
+ * @param secondary_warning_msg An optional secondary warning message to be sent to the parent.
+ */
+extern void
+sync_pipe_write_warnmsgs_to_parent(int pipe_fd, const char *warning_msg,
+                                   const char *secondary_warning_msg);
 
 /** Has the parent signalled the child to stop? */
 #define SIGNAL_PIPE_CTRL_ID_NONE "none"

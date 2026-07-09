@@ -64,15 +64,15 @@ typedef void (*drops_fn)(capture_session *cap_session, uint32_t dropped,
                          const char *interface_name);
 
 /**
- * Capture child told us that an error has occurred while starting
- * the capture.
+ * Capture child told us that a warning or error has occurred while
+ * starting or running the capture.
  */
-typedef void (*error_fn)(capture_session *cap_session, char *error_msg,
+typedef void (*message_fn)(capture_session *cap_session, char *error_msg,
                          char *secondary_error_msg);
 
 /**
  * Capture child told us that an error has occurred while parsing a
- * capture filter when starting/running the capture.
+ * capture filter when starting or running the capture.
  */
 typedef void (*cfilter_error_fn)(capture_session *cap_session, unsigned i,
                                  const char *error_message);
@@ -118,16 +118,18 @@ struct _capture_session {
     new_file_fn new_file;
     new_packets_fn new_packets;
     drops_fn drops;
-    error_fn error;
+    message_fn error;
     cfilter_error_fn cfilter_error;
+    message_fn warning;
     closed_fn closed;
 };
 
 extern void
 capture_session_init(capture_session *cap_session, capture_file *cf,
                      new_file_fn new_file, new_packets_fn new_packets,
-                     drops_fn drops, error_fn error,
-                     cfilter_error_fn cfilter_error, closed_fn closed);
+                     drops_fn drops, message_fn error,
+                     cfilter_error_fn cfilter_error,
+                     message_fn warning, closed_fn closed);
 
 void capture_process_finished(capture_session *cap_session);
 #else

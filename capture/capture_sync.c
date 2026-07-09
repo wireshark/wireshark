@@ -122,8 +122,9 @@ static void (*fetch_dumpcap_pid)(ws_process_id);
 void
 capture_session_init(capture_session *cap_session, capture_file *cf,
                      new_file_fn new_file, new_packets_fn new_packets,
-                     drops_fn drops, error_fn error,
-                     cfilter_error_fn cfilter_error, closed_fn closed)
+                     drops_fn drops, message_fn error,
+                     cfilter_error_fn cfilter_error,
+                     message_fn warning, closed_fn closed)
 {
     cap_session->cf                              = cf;
     cap_session->fork_child                      = WS_INVALID_PID;   /* invalid process handle */
@@ -145,6 +146,7 @@ capture_session_init(capture_session *cap_session, capture_file *cf,
     cap_session->drops                           = drops;
     cap_session->error                           = error;
     cap_session->cfilter_error                   = cfilter_error;
+    cap_session->warning                         = warning;
     cap_session->closed                          = closed;
     cap_session->frame_cksum                     = NULL;
 }
@@ -1073,7 +1075,7 @@ sync_pipe_run_command_actual(char **argv, char **data, char **primary_msg,
     /*
      * We were able to set up to read dumpcap's output.  Do so.
      *
-     * First, wait for an SP_ERROR_MSG message or SP_SUCCESS message.
+     * First, wait for an SP_ERROR_MSG message or an SP_SUCCESS message.
      */
     do {
         nread = pipe_read_block(sync_pipe_read_io, &indicator, SP_MAX_MSG_LEN,
@@ -1225,6 +1227,13 @@ sync_pipe_run_command_actual(char **argv, char **data, char **primary_msg,
             *data = NULL;
             break;
         }
+
+        case SP_WARNING_MSG:
+            /*
+             * XXX - add a callback for these.
+             */
+            break;
+
         case SP_LOG_MSG:
             /*
              * Log from dumpcap; pass to our log
@@ -1626,7 +1635,7 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **d
     /*
      * We were able to set up to read dumpcap's output.  Do so.
      *
-     * First, wait for an SP_ERROR_MSG message or SP_SUCCESS message.
+     * First, wait for an SP_ERROR_MSG message or an SP_SUCCESS message.
      */
     do {
         nread = pipe_read_block(message_read_io, &indicator, SP_MAX_MSG_LEN,
@@ -1743,6 +1752,12 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **d
              * Log from dumpcap; pass to our log
              */
             sync_pipe_handle_log_msg(buffer);
+            break;
+
+        case SP_WARNING_MSG:
+            /*
+             * XXX - add a callback for these.
+             */
             break;
 
         case SP_IFACE_LIST:
@@ -2124,6 +2139,7 @@ sync_pipe_input_cb(GIOChannel *pipe_io, capture_session *cap_session)
         /* (an error message doesn't mean we have to stop capturing) */
         break;
     case SP_ERROR_MSG:
+    case SP_WARNING_MSG:
         /* convert primary message */
         pipe_convert_header((unsigned char*)buffer, &indicator, &primary_len);
         primary_msg = buffer+4;
@@ -2131,7 +2147,10 @@ sync_pipe_input_cb(GIOChannel *pipe_io, capture_session *cap_session)
         pipe_convert_header((unsigned char*)primary_msg + primary_len, &indicator, &secondary_len);
         secondary_msg = primary_msg + primary_len + 4;
         /* message output */
-        cap_session->error(cap_session, primary_msg, secondary_msg);
+        if (indicator == SP_WARNING_MSG)
+            cap_session->warning(cap_session, primary_msg, secondary_msg);
+        else
+            cap_session->error(cap_session, primary_msg, secondary_msg);
         /* the capture child will close the sync_pipe, nothing to do for now */
         /* (an error message doesn't mean we have to stop capturing) */
         break;
