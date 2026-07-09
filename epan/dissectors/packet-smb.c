@@ -2203,7 +2203,7 @@ dissect_smb_UTIME(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, cons
 	return offset;
 }
 
-static int
+int
 dissect_smb_datetime(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
     int hf_date, int hf_dos_date, int hf_dos_time, bool time_first)
 {

@@ -396,6 +396,9 @@ extern const char *smb_get_unicode_or_ascii_string(wmem_allocator_t *scope, tvbu
 /* Returns an IP (v4 or v6) of the server in a SMB/SMB2 conversation */
 extern const char *tree_ip_str(packet_info *pinfo, uint16_t cmd);
 
+int dissect_smb_datetime(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
+    int hf_date, int hf_dos_date, int hf_dos_time, bool time_first);
+
 #endif
 
 /*

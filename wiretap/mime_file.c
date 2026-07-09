@@ -74,6 +74,7 @@ static const uint8_t pcapng_premagic[]      = { 0x0A, 0x0D, 0x0D, 0x0A };
 static const uint8_t blf_magic[]                 = { 'L', 'O', 'G', 'G' };
 static const uint8_t autosar_dlt_magic[]         = { 'D', 'L', 'T', 0x01 };
 static const uint8_t ttl_magic[]		 = { 'T', 'T', 'L', ' ' };
+static const uint8_t zip_magic[]		 = { 'P', 'K', 0x03, 0x04 };
 static const uint8_t rtpdump_magic[]         = { '#', '!', 'r', 't', 'p', 'p', 'l', 'a', 'y', '1', '.', '0', ' ' };
 
 /* File does not start with it */
@@ -99,6 +100,7 @@ static const mime_files_t magic_files[] = {
 	{ blf_magic, sizeof(blf_magic) },
 	{ autosar_dlt_magic, sizeof(autosar_dlt_magic) },
 	{ ttl_magic, sizeof(ttl_magic) },
+	{ zip_magic, sizeof(zip_magic) },
 	{ rtpdump_magic, sizeof(rtpdump_magic) },
 };
 
