@@ -9858,17 +9858,17 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Velocity Control */
-        { & hf_cigi4_velocity_control,
+        { &hf_cigi4_velocity_control,
             { "Rate Control", "cigi.rate_control",
                 FT_NONE, BASE_NONE, NULL, 0x0,
                 "Velocity Control Packet", HFILL }
         },
-        { & hf_cigi4_velocity_control_entity_id,
+        { &hf_cigi4_velocity_control_entity_id,
             { "Entity ID", "cigi.rate_control.entity_id",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
                 "Specifies the entity to which the rate should be applied", HFILL }
         },
-        { & hf_cigi4_velocity_control_part_id,
+        { &hf_cigi4_velocity_control_part_id,
             { "Articulated Part ID", "cigi.rate_control.part_id",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Specifies the articulated part to which the rate should be applied", HFILL }
@@ -9878,42 +9878,42 @@ proto_register_cigi(void)
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
         },
-        { & hf_cigi4_velocity_control_apply_to_part,
+        { &hf_cigi4_velocity_control_apply_to_part,
             { "Apply to Articulated Part", "cigi.rate_control.apply_to_part",
                 FT_BOOLEAN, 8, NULL, 0x01,
                 "Determines whether the rate is applied to the articulated part specified by the Articulated Part ID parameter", HFILL }
         },
-        { & hf_cigi4_velocity_control_coordinate_system,
+        { &hf_cigi4_velocity_control_coordinate_system,
             { "Coordinate System", "cigi.rate_control.coordinate_system",
                 FT_BOOLEAN, 8, TFS(&local_worldparent_tfs), 0x02,
                 "Specifies the reference coordinate system to which the linear and angular rates are applied", HFILL }
         },
-        { & hf_cigi4_velocity_control_x_rate,
+        { &hf_cigi4_velocity_control_x_rate,
             { "X Linear Rate (m/s)", "cigi.rate_control.x_rate",
                 FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the X component of a linear velocity vector", HFILL }
         },
-        { & hf_cigi4_velocity_control_y_rate,
+        { &hf_cigi4_velocity_control_y_rate,
             { "Y Linear Rate (m/s)", "cigi.rate_control.y_rate",
                 FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the Y component of a linear velocity vector", HFILL }
         },
-        { & hf_cigi4_velocity_control_z_rate,
+        { &hf_cigi4_velocity_control_z_rate,
             { "Z Linear Rate (m/s)", "cigi.rate_control.z_rate",
                 FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the Z component of a linear velocity vector", HFILL }
         },
-        { & hf_cigi4_velocity_control_roll_rate,
+        { &hf_cigi4_velocity_control_roll_rate,
             { "Roll Angular Rate (degrees/s)", "cigi.rate_control.roll_rate",
                 FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the angle of rotation of the articulated part submodel about its X axis after yaw and pitch have been applied", HFILL }
         },
-        { & hf_cigi4_velocity_control_pitch_rate,
+        { &hf_cigi4_velocity_control_pitch_rate,
             { "Pitch Angular Rate (degrees/s)", "cigi.rate_control.pitch_rate",
                 FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the angle of rotation of the articulated part submodel about its Y axis after yaw has been applied", HFILL }
         },
-        { & hf_cigi4_velocity_control_yaw_rate,
+        { &hf_cigi4_velocity_control_yaw_rate,
             { "Yaw Angular Rate (degrees/s)", "cigi.rate_control.yaw_rate",
                 FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the angle of rotation of the articulated part about its Z axis when its X axis is parallel to that of the entity", HFILL }
@@ -12485,6 +12485,11 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Symbol Circle Definition */
+        { &hf_cigi4_symbol_circle_definition_circles,
+            { "Circles", "cigi.symbol_circle_def.circles",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+        },
 
         /* CIGI3_3 Symbol Line Definition */
         { &hf_cigi3_3_symbol_line_definition,

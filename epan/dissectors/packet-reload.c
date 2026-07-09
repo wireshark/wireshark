@@ -4951,7 +4951,7 @@ proto_register_reload(void)
         BASE_DEC, NULL, 0x0,  NULL, HFILL
       }
     },
-    { & hf_reload_metadata_hash_value,
+    { &hf_reload_metadata_hash_value,
       { "hash_value",  "reload.metadata.hash_value", FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL
       }

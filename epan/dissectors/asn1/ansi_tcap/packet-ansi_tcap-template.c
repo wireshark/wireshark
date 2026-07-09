@@ -1332,6 +1332,45 @@ proto_register_ansi_tcap(void)
             FT_UINT8, BASE_HEX, VALS(ansi_tcap_terminating_restrictions), 0,
             NULL, HFILL }
         },
+
+        /* TODO: these were missing! */
+        { &hf_ansi_tcap_parameter_bearer_capability_requested1,
+          { "Capability Requested1",
+            "ansi_tcap.capability_requested1",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_tcap_parameter_bearer_capability_requested2,
+          { "Capability Requested2",
+            "ansi_tcap.capability_requested2",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_tcap_parameter_bearer_capability_requested2a,
+          { "Capability Requested2a",
+            "ansi_tcap.capability_requested2a",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_tcap_parameter_bearer_capability_requested2b,
+          { "Capability Requested2b",
+            "ansi_tcap.capability_requested2b",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_tcap_parameter_bearer_capability_requested3,
+          { "Capability Requested3",
+            "ansi_tcap.capability_requested3",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_tcap_parameter_bearer_capability_requested3a,
+          { "Capability Requested3a",
+            "ansi_tcap.capability_requested3a",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+
         { &hf_ansi_tcap_bearer_capability_supported,
           { "Bearer Capability",
             "ansi_tcap.bearer_capability_supported",

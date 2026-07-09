@@ -291,15 +291,15 @@ static int * const can_status_bits[] = {
 };
 
 static int * const can_mjr_hdr_bits[] = {
-	& hf_can_reserved_bytes,
-	& hf_can_LEC,
-	& hf_can_ERRP,
-	& hf_can_ERRW,
-	& hf_can_BOFF,
-	& hf_can_DLEC,
-	& hf_can_TEC,
-	& hf_can_REC,
-	& hf_can_CEL,
+	&hf_can_reserved_bytes,
+	&hf_can_LEC,
+	&hf_can_ERRP,
+	&hf_can_ERRW,
+	&hf_can_BOFF,
+	&hf_can_DLEC,
+	&hf_can_TEC,
+	&hf_can_REC,
+	&hf_can_CEL,
 	NULL
 };
 

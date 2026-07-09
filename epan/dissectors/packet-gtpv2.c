@@ -4359,8 +4359,8 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     /* GGSN - 1 octet */
     static int* const tra_info_lggsn_flags[] = {
         &hf_gtpv2_tra_info_lggsn_gmb,
-        & hf_gtpv2_tra_info_lggsn_gi,
-        & hf_gtpv2_tra_info_lggsn_gn,
+        &hf_gtpv2_tra_info_lggsn_gi,
+        &hf_gtpv2_tra_info_lggsn_gn,
         NULL
     };
     proto_tree_add_bitmask_list(lggsn_tree, tvb, offset, 1, tra_info_lggsn_flags, ENC_BIG_ENDIAN);

@@ -2889,12 +2889,12 @@ proto_register_dtls(void)
         FT_BYTES, BASE_NONE|BASE_NO_DISPLAY_VALUE, NULL, 0x0,
         "Encrypted record data", HFILL }
     },
-    { & hf_dtls_alert_message,
+    { &hf_dtls_alert_message,
       { "Alert Message", "dtls.alert_message",
         FT_NONE, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
-    { & hf_dtls_alert_message_level,
+    { &hf_dtls_alert_message_level,
       { "Level", "dtls.alert_message.level",
         FT_UINT8, BASE_DEC, VALS(ssl_31_alert_level), 0x0,
         "Alert message level", HFILL }
