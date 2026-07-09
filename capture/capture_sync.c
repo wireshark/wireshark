@@ -1230,6 +1230,9 @@ sync_pipe_run_command_actual(char **argv, char **data, char **primary_msg,
 
         case SP_WARNING_MSG:
             /*
+             * Warning from dumpcap; there will be a primary message and a
+             * secondary message.
+             *
              * XXX - add a callback for these.
              */
             break;
@@ -1756,6 +1759,9 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **d
 
         case SP_WARNING_MSG:
             /*
+             * Warning from dumpcap; there will be a primary message and a
+             * secondary message.
+             *
              * XXX - add a callback for these.
              */
             break;
