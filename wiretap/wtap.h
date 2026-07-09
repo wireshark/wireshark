@@ -316,6 +316,7 @@ extern "C" {
 #define WTAP_ENCAP_DECT_NR                      225
 #define WTAP_ENCAP_MMODULE                      226
 #define WTAP_ENCAP_PROCMON                      227
+#define WTAP_ENCAP_ZWAVE_TAP                    228
 
 /* After adding new item here, please also add new item to encap_table_base array */
 

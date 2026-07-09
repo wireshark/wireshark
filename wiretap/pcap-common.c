@@ -502,6 +502,9 @@ static const struct {
 	/* Auerswald log file captured from any supported Auerswald device */
 	{ 296,		WTAP_ENCAP_AUERSWALD_LOG },
 
+	/* Z-Wave Tap */
+	{ 297,		WTAP_ENCAP_ZWAVE_TAP },
+
 	/* Silicon Labs debug channel */
 	{ 298,		WTAP_ENCAP_SILABS_DEBUG_CHANNEL },
 
