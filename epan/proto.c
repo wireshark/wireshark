@@ -393,6 +393,11 @@ static int proto_string_errors;
 static expert_field ei_string_trailing_characters;
 static void register_string_errors(void);
 
+/* Handle varint errors expert info */
+static int proto_varint_errors;
+static expert_field ei_varint_decoding_failed_error;
+static void register_varint_errors(void);
+
 static int proto_register_field_init(header_field_info *hfinfo, const int parent);
 
 /* special-case header field used within proto.c */
@@ -630,6 +635,7 @@ proto_init(GSList *register_all_plugin_protocols_list,
 	register_byte_array_string_decodinws_error();
 	register_date_time_string_decodinws_error();
 	register_string_errors();
+	register_varint_errors();
 	ftypes_register_pseudofields();
 	col_register_protocol();
 
@@ -3885,6 +3891,11 @@ proto_tree_add_item_ret_varint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	 * Having the length makes the signature more similar to other
 	 * functions, though. */
 	length = tvb_get_varint(tvb, start, length, &value, encoding);
+
+	if (length == 0) {
+		expert_add_info(NULL, tree, &ei_varint_decoding_failed_error);
+		THROW(ReportedBoundsError);
+	}
 
 	if (retval) {
 		*retval = value;
@@ -10084,6 +10095,27 @@ register_string_errors(void)
 	/* "String Errors" isn't really a protocol, it's an error indication;
 	   disabling them makes no sense. */
 	proto_set_cant_toggle(proto_string_errors);
+}
+
+static void
+register_varint_errors(void)
+{
+	static ei_register_info ei[] = {
+		{ &ei_varint_decoding_failed_error,
+			{ "_ws.varint.decoding_failed", PI_MALFORMED, PI_ERROR, "Varint decoding failed", EXPFILL }
+		},
+	};
+
+	expert_module_t* expert_varint_errors;
+
+	proto_varint_errors = proto_register_protocol("Varint Errors", "Varint errors", "_ws.varint");
+
+	expert_varint_errors = expert_register_protocol(proto_varint_errors);
+	expert_register_field_array(expert_varint_errors, ei, array_length(ei));
+
+	/* "Varint Errors" isn't really a protocol, it's an error indication;
+	   disabling them makes no sense. */
+	proto_set_cant_toggle(proto_varint_errors);
 }
 
 static int

@@ -5624,7 +5624,10 @@ tvb_get_varint(tvbuff_t *tvb, unsigned offset, unsigned maxlen, uint64_t *value,
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
-	return 0; /* 10 bytes scanned, but no bytes' msb is zero */
+	// We have scanned 10 bytes, but no bytes' msb is zero. We should probably
+	// return a nonzero value instead since we might be incrementing an offset
+	// inside a loop.
+	return 0;
 }
 
 /*

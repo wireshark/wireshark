@@ -555,11 +555,8 @@ static expert_field ei_chdr_duplicate;
 static expert_field ei_length_clamped;
 static expert_field ei_chdr_missing;
 
-static expert_field ei_tcpclv3_eid_length;
 static expert_field ei_tcpclv3_invalid_msg_type;
 static expert_field ei_tcpclv3_data_flags;
-static expert_field ei_tcpclv3_segment_length;
-static expert_field ei_tcpclv3_ack_length;
 
 static expert_field ei_tcpclv4_invalid_msg_type;
 static expert_field ei_tcpclv4_invalid_sessext_type;
@@ -590,11 +587,8 @@ static ei_register_info ei_tcpcl[] = {
     {&ei_length_clamped, { "tcpcl.length_clamped", PI_UNDECODED, PI_ERROR, "Length too large for Wireshark to handle", EXPFILL}},
     {&ei_chdr_missing, { "tcpcl.contact_missing", PI_ASSUMPTION, PI_NOTE, "Contact Header is missing, TCPCL version is implied", EXPFILL}},
 
-    {&ei_tcpclv3_eid_length, { "tcpcl.eid_length_invalid", PI_PROTOCOL, PI_ERROR, "Invalid EID Length", EXPFILL }},
     {&ei_tcpclv3_invalid_msg_type, { "tcpcl.unknown_message_type", PI_UNDECODED, PI_ERROR, "Message type is unknown", EXPFILL}},
     {&ei_tcpclv3_data_flags, { "tcpcl.data.flags.invalid", PI_PROTOCOL, PI_WARN, "Invalid TCP CL Data Segment Flags", EXPFILL }},
-    {&ei_tcpclv3_segment_length, { "tcpcl.data.length.invalid", PI_PROTOCOL, PI_ERROR, "Invalid Data Length", EXPFILL }},
-    {&ei_tcpclv3_ack_length, { "tcpcl.ack.length.error", PI_PROTOCOL, PI_WARN, "Ack Length: Error", EXPFILL }},
 
     {&ei_tcpclv4_invalid_msg_type, { "tcpcl.v4.unknown_message_type", PI_UNDECODED, PI_ERROR, "Message type is unknown", EXPFILL}},
     {&ei_tcpclv4_invalid_sessext_type, { "tcpcl.v4.unknown_sessext_type", PI_UNDECODED, PI_WARN, "Session Extension type is unknown", EXPFILL}},
@@ -1311,10 +1305,6 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         sub_item = proto_tree_add_item_ret_varint(conv_tree, hf_tcpclv3_data_segment_length, tvb, offset, -1, ENC_VARINT_SDNV, &segment_length, &sdnv_length);
-        if (sdnv_length == 0) {
-            expert_add_info(pinfo, sub_item, &ei_tcpclv3_segment_length);
-            return 0;
-        }
         offset += sdnv_length;
         const int data_len_clamp = get_clamped_length(segment_length, pinfo, sub_item);
 
@@ -1367,11 +1357,7 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 1;
 
         sub_item = proto_tree_add_item_ret_varint(conv_tree, hf_tcpclv3_ack_length, tvb, offset, -1, ENC_VARINT_SDNV, &segment_length, &sdnv_length);
-        if (sdnv_length == 0) {
-            expert_add_info(pinfo, sub_item, &ei_tcpclv3_ack_length);
-        } else {
-            offset += sdnv_length;
-        }
+        offset += sdnv_length;
 
         // implied transfer ID
         xfer_id = wmem_map_lookup(ctx->rx_peer->frame_loc_to_transfer, ctx->cur_loc);
@@ -2190,10 +2176,6 @@ static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             uint64_t eid_length;
             unsigned sdnv_length;
             proto_item *sub_item = proto_tree_add_item_ret_varint(tree_chdr, hf_tcpclv3_chdr_local_eid_length, tvb, offset, -1, ENC_VARINT_SDNV, &eid_length, &sdnv_length);
-            if (sdnv_length == 0) {
-                expert_add_info(pinfo, sub_item, &ei_tcpclv3_eid_length);
-                return 0;
-            }
             offset += sdnv_length;
             const int eid_len_clamp = get_clamped_length(eid_length, pinfo, sub_item);
 

@@ -1623,7 +1623,7 @@ proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  * Decodes a varint (e.g. Protocol Buffers base-128 or QUIC variable-length
  * integer) from @p tvb starting at @p start. Up to the minimum of @p length
  * and FT_VARINT_MAX_LEN (10) bytes are consumed; the actual number of bytes
- * read is stored in @p lenretval.
+ * read is stored in @p lenretval. Throws an exception on failure.
  *
  * @param tree      The protocol tree to add the item to.
  * @param hfindex   The header field index (must be an FT_UINT* type).
@@ -1635,8 +1635,8 @@ proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  *                  ENC_VARINT_QUIC).
  * @param retval    Receives the decoded uint64_t value on success, or 0
  *                  on failure; NULL to ignore.
- * @param lenretval Receives the number of bytes consumed on success, or 0
- *                  on failure; NULL to ignore. On failure,
+ * @param lenretval Receives the number of bytes consumed on success; NULL
+ *                  to ignore.
  * @return The newly created proto_item leaf node.
  */
 WS_DLL_PUBLIC proto_item *
