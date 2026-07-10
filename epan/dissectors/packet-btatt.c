@@ -4203,6 +4203,12 @@ static bool is_writeable_response(uint8_t opcode)
             opcode == ATT_OPCODE_WRITE_PREPARE_RESPONSE);
 }
 
+static bool is_writable_command(uint8_t opcode)
+{
+    return (opcode == ATT_OPCODE_WRITE_COMMAND ||
+            opcode == ATT_OPCODE_WRITE_SIGNED_COMMAND);
+}
+
 static uint16_t
 get_gatt_service_handle_from_handle(packet_info *pinfo, uint32_t handle,
     btl2cap_data_t *l2cap_data);
@@ -4224,7 +4230,8 @@ static bool bluetooth_gatt_has_no_parameter(uint8_t opcode)
 static int
 get_server_direction(uint8_t opcode, int direction)
 {
-    if (is_readable_request(opcode) || is_writeable_request(opcode) || opcode == ATT_OPCODE_HANDLE_VALUE_CONFIRMATION || opcode == ATT_OPCODE_WRITE_REQUEST)
+    if (is_readable_request(opcode) || is_writeable_request(opcode) || is_writable_command(opcode)
+        || opcode == ATT_OPCODE_HANDLE_VALUE_CONFIRMATION || opcode == ATT_OPCODE_WRITE_REQUEST)
         return !direction;
     if (is_readable_response(opcode) || is_writeable_response(opcode))
         return direction;
