@@ -1341,7 +1341,10 @@ static const struct encap_type_info encap_table_base[] = {
 	{ "dect_nr", "DECT-2020 New Radio (NR) MAC layer" },
 
 	/* WTAP_ENCAP_MMODULE */
-	{ "m_module", "Bachmann M-Module File" },
+	{ "m_module", "Bachmann M-Module file" },
+
+	/* WTAP_ENCAP_PROCMON */
+	{ "procmon", "Microsoft Process Monitor file"},
 };
 
 static int wtap_num_encap_types = array_length(encap_table_base);
