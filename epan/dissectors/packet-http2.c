@@ -3289,7 +3289,8 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2sessi
                     boundary_len = boundary_len - 2; /* ignore ending CRLF*/
                     /* We have a potential boundary string */
                     const char *boundary = (char*)tvb_get_string_enc(pinfo->pool, data_tvb, 2, boundary_len, ENC_ASCII | ENC_NA);
-                    if (tvb_strneql(data_tvb, (length - 4) - boundary_len, boundary, boundary_len) == 0) {
+                    /* Check for cases where close-delimiter is followed by CRLF or not */
+                    if ((tvb_strneql(data_tvb, (length - 4) - boundary_len, boundary, boundary_len) == 0) || (tvb_strneql(data_tvb, (length - 2) - boundary_len, boundary, boundary_len) == 0)) {
                         /* We have multipart/mixed */
                         /* Populate the content type so we can dissect the body later */
                         body_info->content_type = wmem_strndup(wmem_file_scope(), "multipart/mixed", 15);
