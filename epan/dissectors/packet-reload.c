@@ -2259,7 +2259,7 @@ static int dissect_nodeid_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   while (list_offset >= 0 && list_offset < list_length) {
     dissect_nodeid(-1, tvb, pinfo, local_tree, offset+local_offset+list_offset,list_length-list_offset);
     list_increment = reload_nodeid_length;
-    if (list_increment <= 0) break;
+    if (list_increment == 0) break;
     list_offset += list_increment;
     nNodeIds++;
   }
@@ -2780,7 +2780,6 @@ static int dissect_findans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
       findkinddata_tree = proto_item_add_subtree(ti_findkinddata, ett_reload_findkinddata);
       dissect_kindid(hf_reload_kinddata_kind,tvb, findkinddata_tree, offset+2+results_offset,&kind);
       dissect_resourceid(hf_reload_findkinddata_closest, tvb, pinfo, findkinddata_tree, offset+2+results_offset+4,  results_length - 4 - results_offset);
-      if (findkinddata_length <= 0) break;
       results_offset += findkinddata_length;
       nResults++;
     }

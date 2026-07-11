@@ -380,7 +380,7 @@ static const value_string option_code_interface_description_vals[] = {
  *            The darwin_svc_class option is a number that maps to a
  *            specific Darwin Service Class mnemonic that the packet is
  *            associated with. The Darwin Service Class is an internal
- *            enumeration that generally follows the guildelines in
+ *            enumeration that generally follows the guidelines in
  *            https://www.rfc-editor.org/rfc/rfc4594
  *
  *            The following Darwin Service Class values are defined:

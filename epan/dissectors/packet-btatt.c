@@ -3192,7 +3192,7 @@ static const value_string cycling_power_feature_sensor_measurement_context_vals[
     {0x0, NULL}
 };
 
-static const value_string body_composition_feature_mass_measurement_resolution_vals[] = {
+static const value_string mass_measurement_resolution_vals[] = {
     {0x00,   "Not Specified"},
     {0x01,   "Resolution of 0.5 kg or 1 lb"},
     {0x02,   "Resolution of 0.2 kg or 0.5 lb"},
@@ -3217,18 +3217,6 @@ static const value_string weight_scale_feature_height_measurement_resolution_val
     {0x01,   "Resolution of 0.01 meter or 1 inch"},
     {0x02,   "Resolution of 0.005 meter or 0.5 inch"},
     {0x03,   "Resolution of 0.001 meter or 0.1 inch"},
-    {0x0, NULL}
-};
-
-static const value_string weight_scale_feature_weight_measurement_resolution_vals[] = {
-    {0x00,   "Not Specified"},
-    {0x01,   "Resolution of 0.5 kg or 1 lb"},
-    {0x02,   "Resolution of 0.2 kg or 0.5 lb"},
-    {0x03,   "Resolution of 0.1 kg or 0.2 lb"},
-    {0x04,   "Resolution of 0.05 kg or 0.1 lb"},
-    {0x05,   "Resolution of 0.02 kg or 0.05 lb"},
-    {0x06,   "Resolution of 0.01 kg or 0.02 lb"},
-    {0x07,   "Resolution of 0.005 kg or 0.01 lb"},
     {0x0, NULL}
 };
 
@@ -4842,14 +4830,14 @@ btatt_call_dissector_by_dissector_name_with_data(const char *dissector_name,
 /*
     dissects attribute handle and takes care of reassembly:
     If sub-dissector sets pinfo->deseg_offset >0 && < pktlen the leftover bytes are stored and front-attached to the next packet
-    returns 0 if paket was not handled
+    returns 0 if packet was not handled
     returns #bytes consumed
 */
 static int
 btatt_dissect_with_reassmbly(uint16_t handle, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, btatt_data_t *att_data){
     /*
      * Cases
-     * 1) single paket: deseg_len=0 deseg_offset=pktlen oder 0??
+     * 1) single packet: deseg_len=0 deseg_offset=pktlen oder 0??
      * 2) start stream: deseg_len=MORE_BYTE   deseg_offset>-1<pktlen -> partially consumed, store fragment, finish
      * 3) cont stream:  deseg_len=MORE_BYTE   deseg_offset=-1 (due to header mismatch) -> not consumed, add previous fragment, run again
      * 4) end stream: deseg_len=0              deseg_offset=pktlen -> completely consumed, return pktlen
@@ -13868,7 +13856,7 @@ proto_register_btatt(void)
         },
         {&hf_btatt_body_composition_feature_mass_measurement_resolution,
             {"Mass Measurement Resolution", "btatt.body_composition_feature.mass_measurement_resolution",
-            FT_UINT32, BASE_HEX, VALS(body_composition_feature_mass_measurement_resolution_vals), 0x00007800,
+            FT_UINT32, BASE_HEX, VALS(mass_measurement_resolution_vals), 0x00007800,
             NULL, HFILL}
         },
         {&hf_btatt_body_composition_feature_height,
@@ -13943,7 +13931,7 @@ proto_register_btatt(void)
         },
         {&hf_btatt_weight_scale_feature_weight_measurement_resolution,
             {"Mass Measurement Resolution", "btatt.weight_scale_feature.weight_measurement_resolution",
-            FT_UINT32, BASE_HEX, VALS(weight_scale_feature_weight_measurement_resolution_vals), 0x00000078,
+            FT_UINT32, BASE_HEX, VALS(mass_measurement_resolution_vals), 0x00000078,
             NULL, HFILL}
         },
         {&hf_btatt_weight_scale_feature_bmi,

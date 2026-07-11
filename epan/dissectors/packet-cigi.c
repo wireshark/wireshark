@@ -1163,46 +1163,8 @@ static int hf_cigi3_short_component_control_component_state;
 static int hf_cigi3_short_component_control_data_1;
 static int hf_cigi3_short_component_control_data_2;
 
-static const value_string cigi3_short_component_control_component_class_vals[] = {
-    {0, "Entity"},
-    {1, "View"},
-    {2, "View Group"},
-    {3, "Sensor"},
-    {4, "Regional Sea Surface"},
-    {5, "Regional Terrain Surface"},
-    {6, "Regional Layered Weather"},
-    {7, "Global Sea Surface"},
-    {8, "Global Terrain Surface"},
-    {9, "Global Layered Weather"},
-    {10, "Atmosphere"},
-    {11, "Celestial Sphere"},
-    {12, "Event"},
-    {13, "System"},
-    {0, NULL},
-};
-
 /* CIGI3_3 Short Component Control */
 static int hf_cigi3_3_short_component_control_component_class;
-
-static const value_string cigi3_3_short_component_control_component_class_vals[] = {
-    {0, "Entity"},
-    {1, "View"},
-    {2, "View Group"},
-    {3, "Sensor"},
-    {4, "Regional Sea Surface"},
-    {5, "Regional Terrain Surface"},
-    {6, "Regional Layered Weather"},
-    {7, "Global Sea Surface"},
-    {8, "Global Terrain Surface"},
-    {9, "Global Layered Weather"},
-    {10, "Atmosphere"},
-    {11, "Celestial Sphere"},
-    {12, "Event"},
-    {13, "System"},
-    {14, "Symbol Surface"},
-    {15, "Symbol"},
-    {0, NULL},
-};
 
 /* CIGI3 Articulated Part Control */
 #define CIGI3_PACKET_SIZE_ARTICULATED_PART_CONTROL 32
@@ -9492,7 +9454,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_short_component_control_component_class,
             { "Component Class", "cigi.short_component_control.component_class",
-                FT_UINT8, BASE_DEC, VALS(cigi3_short_component_control_component_class_vals), 0x0f,
+                FT_UINT8, BASE_DEC, VALS(cigi3_component_control_component_class_vals), 0x0f,
                 "Identifies the type of object to which the Instance ID parameter refers", HFILL }
         },
         { &hf_cigi3_short_component_control_component_state,
@@ -9514,7 +9476,7 @@ proto_register_cigi(void)
         /* CIGI3_3 Short Component Control */
         { &hf_cigi3_3_short_component_control_component_class,
             { "Component Class", "cigi.short_component_control.component_class",
-                FT_UINT8, BASE_DEC, VALS(cigi3_3_short_component_control_component_class_vals), 0x3f,
+                FT_UINT8, BASE_DEC, VALS(cigi3_3_component_control_component_class_vals), 0x3f,
                 "Identifies the type of object to which the Instance ID parameter refers", HFILL }
         },
 

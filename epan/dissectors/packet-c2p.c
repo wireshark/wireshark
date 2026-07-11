@@ -1934,7 +1934,7 @@ static void latitude_format(char* string, uint32_t value)
     if(LATITUDE_NA == lat) {
         snprintf(string, ITEM_LABEL_LENGTH, "Unavailable (%ld)", (long int)lat);
     } else {
-        snprintf(string, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
+        snprintf(string, ITEM_LABEL_LENGTH, "%d°%d'%.3f\"%c (%d)",
                  abs(lat) / 10000000,
                  abs(lat) % 10000000 * 6 / 1000000,
                  abs(lat) % 10000000 * 6 % 1000000 * 6.0 / 100000.0,
@@ -1951,7 +1951,7 @@ static void longitude_format(char* string, uint32_t value)
     if(LONGITUDE_NA == lon) {
         snprintf(string, ITEM_LABEL_LENGTH, "Unavailable (%ld)", (long int)lon);
     } else {
-        snprintf(string, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
+        snprintf(string, ITEM_LABEL_LENGTH, "%d°%d'%.3f\"%c (%d)",
                  abs(lon) / 10000000,
                  abs(lon) % 10000000 * 6 / 1000000,
                  abs(lon) % 10000000 * 6 % 1000000 * 6.0 / 100000.0,

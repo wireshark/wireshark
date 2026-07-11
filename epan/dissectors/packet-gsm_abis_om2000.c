@@ -1530,12 +1530,12 @@ proto_register_abis_om2000(void)
 		},
 		{ &hf_om2k_brr,
 		  { "BTS Requested Restart", "gsm_abis_om2000.brr",
-		    FT_BOOLEAN, 0x01, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x??,' ? */
+		    FT_BOOLEAN, BASE_NONE, NULL, 0,     /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x??,' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_bfr,
 		  { "BTS Requested File Relation", "gsm_abis_om2000.bfr",
-		    FT_BOOLEAN, 0x01, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x??,' ? */
+		    FT_BOOLEAN, BASE_NONE, NULL, 0,     /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x??,' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_hwinfo_sig,

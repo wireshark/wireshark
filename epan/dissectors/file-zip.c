@@ -174,12 +174,12 @@ static const value_string zip_record_vals[] = {
     { 0, NULL}
 };
 
-#define ZIP_FLAG_ENCRYPTION         0x01
-#define ZIP_FLAG_LZMA_OPTS          0x02
-#define ZIP_FLAG_DEFLATE_OPTS       0x06
-#define ZIP_FLAG_DATA_DESCRIPTOR    0x08
-#define ZIP_FLAG_PATCHED_DATA       0x20
-#define ZIP_FLAG_STRONG_ENCRYPTION  0x40
+#define ZIP_FLAG_ENCRYPTION         0x0001
+#define ZIP_FLAG_LZMA_OPTS          0x0002
+#define ZIP_FLAG_DEFLATE_OPTS       0x0006
+#define ZIP_FLAG_DATA_DESCRIPTOR    0x0008
+#define ZIP_FLAG_PATCHED_DATA       0x0020
+#define ZIP_FLAG_STRONG_ENCRYPTION  0x0040
 #define ZIP_FLAG_LANGUAGE_ENCODING  0x0800
 #define ZIP_FLAG_CENTRAL_DIR_CRYPT  0x2000
 
@@ -189,7 +189,7 @@ static const value_string zip_host_vals[] = {
     { 2, "OpenVMS" },
     { 3, "UNIX" },
     { 4, "VM/CMS" },
-    { 5, "Atari ST", },
+    { 5, "Atari ST" },
     { 6, "OS/2 HPFS" },
     { 7, "Macintosh" },
     { 8, "Z-System" },
