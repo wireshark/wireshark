@@ -2146,7 +2146,8 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const unsigned start,
 			 * XXX: We do the latter, but no dissector uses this format.
 			 * OTOH, ERF timestamps do the former, so perhaps we
 			 * should switch the interpretation so that packet-erf.c
-			 * could use this directly?
+			 * could use this directly? (ENC_TIME_RTPS is this 64-bit
+			 * struct with two 32-bit fields, but with the UN*X epoch.)
 			 */
 			DISSECTOR_ASSERT(!is_relative);
 
@@ -2738,6 +2739,69 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const unsigned start,
 			}
 			break;
 
+		case ENC_TIME_WINDOWS | ENC_BIG_ENDIAN:
+			/*
+			 * WINDOWS FILETIME, big-endian.
+			 * Only supported for absolute times.
+			 * A FILETIME is a struct with the low 32-bits followed
+			 * by the high 32-bits:
+			 * https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-filetime
+			 * There exist cases where the value is stored in a
+			 * 64-bit integer:
+			 * (See epan/dissectors/pidl/samr/samr.idl "NTTIME_hyper last_password_change;"
+			 * which is confirmed as "LARGE_INTEGER PasswordLastSet;" in
+			 * https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/1cd138b9-cc1b-4706-b115-49e53189e32e
+			 * That doesn't make a difference when retrieving little-endian,
+			 * because tvb_get_letoh64 handles unaligned accesses and it's
+			 * otherwise the same. However, for big-endian, it does matter,
+			 * analogous to the ENC_TIME_NTP little-endian case. We use the
+			 * struct version, but that means that this MUST NOT be used
+			 * for dissect_nttime_hyper in packet-windows-common.h, at
+			 * least
+			 */
+			DISSECTOR_ASSERT(!is_relative);
+
+			if (length == 8) {
+				tmp64secs = tvb_get_ntoh64(tvb, start); // Really 100-ns units
+				if (!filetime_to_nstime(time_stamp, tmp64secs)) {
+					// With 32-bit time_t, this could overflow in
+					// either direction. We should probably add some
+					// kind of time overflow expert item to all
+					// encodings.
+					time_stamp->secs = TIME_T_MAX;
+					time_stamp->nsecs = 0;
+				}
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
+				report_type_length_mismatch(tree, "an NTFS FILETIME time stamp", length, (length < 8));
+			}
+			break;
+
+		case ENC_TIME_WINDOWS | ENC_LITTLE_ENDIAN:
+			/*
+			 * WINDOWS FILETIME, big-endian.
+			 * Only supported for absolute times.
+			 * https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-filetime
+			 */
+			DISSECTOR_ASSERT(!is_relative);
+
+			if (length == 8) {
+				tmp64secs = tvb_get_letoh64(tvb, start); // Really 100-ns units
+				if (!filetime_to_nstime(time_stamp, tmp64secs)) {
+					// With 32-bit time_t, this could overflow in
+					// either direction. We should probably add some
+					// kind of time overflow expert item to all
+					// encodings.
+					time_stamp->secs = TIME_T_MAX;
+					time_stamp->nsecs = 0;
+				}
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
+				report_type_length_mismatch(tree, "an NTFS FILETIME time stamp", length, (length < 8));
+			}
+			break;
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();
 			break;
@@ -10490,6 +10554,11 @@ proto_item_fill_label(const field_info *fi, char *label_str, size_t *value_pos)
 				/*
 				 * Table of time values to be displayed
 				 * specially.
+				 *
+				 * XXX - Initializing these time_value_strings can be a pain
+				 * because the special times usually have special values in
+				 * the original encoding, not when converted to a nstime_t
+				 * relative to the UN*X epoch.
 				 */
 				const char *time_string = try_time_val_to_str(value, (const time_value_string *)hfinfo->strings);
 				if (time_string != NULL) {

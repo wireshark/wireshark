@@ -608,7 +608,6 @@ static const value_string registry_disposition_vals[] = {
 static int procmon_registry_query_or_enum_key_extra_details(proto_tree* tree, tvbuff_t* tvb, uint32_t information_class)
 {
     uint32_t name_size;
-    nstime_t timestamp;
     unsigned offset = 0;
 
     switch (information_class)
@@ -631,8 +630,7 @@ static int procmon_registry_query_or_enum_key_extra_details(proto_tree* tree, tv
         break;
 
     case PROCMON_REGISTRY_KEY_INFORMATION_CLASS_CACHED:
-        filetime_to_nstime(&timestamp, tvb_get_letoh64(tvb, offset));
-        proto_tree_add_time(tree, hf_procmon_registry_key_last_write_time, tvb, offset, 8, &timestamp);
+        proto_tree_add_item(tree, hf_procmon_registry_key_last_write_time, tvb, offset, 8, ENC_TIME_WINDOWS|ENC_LITTLE_ENDIAN);
         offset += 8;
         proto_tree_add_item(tree, hf_procmon_registry_key_title_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
@@ -649,8 +647,7 @@ static int procmon_registry_query_or_enum_key_extra_details(proto_tree* tree, tv
         break;
 
     case PROCMON_REGISTRY_KEY_INFORMATION_CLASS_BASIC:
-        filetime_to_nstime(&timestamp, tvb_get_letoh64(tvb, offset));
-        proto_tree_add_time(tree, hf_procmon_registry_key_last_write_time, tvb, offset, 8, &timestamp);
+        proto_tree_add_item(tree, hf_procmon_registry_key_last_write_time, tvb, offset, 8, ENC_TIME_WINDOWS|ENC_LITTLE_ENDIAN);
         offset += 8;
         proto_tree_add_item(tree, hf_procmon_registry_key_title_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
@@ -661,8 +658,7 @@ static int procmon_registry_query_or_enum_key_extra_details(proto_tree* tree, tv
         break;
 
     case PROCMON_REGISTRY_KEY_INFORMATION_CLASS_FULL:
-        filetime_to_nstime(&timestamp, tvb_get_letoh64(tvb, offset));
-        proto_tree_add_time(tree, hf_procmon_registry_key_last_write_time, tvb, offset, 8, &timestamp);
+        proto_tree_add_item(tree, hf_procmon_registry_key_last_write_time, tvb, offset, 8, ENC_TIME_WINDOWS|ENC_LITTLE_ENDIAN);
         offset += 8;
         proto_tree_add_item(tree, hf_procmon_registry_key_title_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
@@ -685,8 +681,7 @@ static int procmon_registry_query_or_enum_key_extra_details(proto_tree* tree, tv
         break;
 
     case PROCMON_REGISTRY_KEY_INFORMATION_CLASS_NODE:
-        filetime_to_nstime(&timestamp, tvb_get_letoh64(tvb, offset));
-        proto_tree_add_time(tree, hf_procmon_registry_key_last_write_time, tvb, offset, 8, &timestamp);
+        proto_tree_add_item(tree, hf_procmon_registry_key_last_write_time, tvb, offset, 8, ENC_TIME_WINDOWS|ENC_LITTLE_ENDIAN);
         offset += 8;
         proto_tree_add_item(tree, hf_procmon_registry_key_title_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
@@ -1024,13 +1019,9 @@ static bool dissect_procmon_registry_event(tvbuff_t* tvb, packet_info* pinfo, pr
                 switch (information_class)
                 {
                 case PROCMON_REGISTRY_KEY_SET_INFORMATION_WRITE_TIME_INFO:
-                {
-                    nstime_t timestamp;
-                    filetime_to_nstime(&timestamp, tvb_get_letoh64(extra_details_tvb, offset));
-                    proto_tree_add_time(registry_tree, hf_procmon_registry_key_set_information_write_time, extra_details_tvb, extra_offset, 8, &timestamp);
+                    proto_tree_add_item(registry_tree, hf_procmon_registry_key_set_information_write_time, extra_details_tvb, extra_offset, 8, ENC_TIME_WINDOWS|ENC_LITTLE_ENDIAN);
                     extra_offset += 8;
                     break;
-                }
                 case PROCMON_REGISTRY_KEY_SET_INFORMATION_WOW64_FLAGS_INFO:
                     proto_tree_add_item(registry_tree, hf_procmon_registry_key_set_information_wow64_flags, extra_details_tvb, extra_offset, 4, ENC_LITTLE_ENDIAN);
                     extra_offset += 4;
@@ -2163,7 +2154,6 @@ static bool dissect_procmon_filesystem_event(tvbuff_t* tvb, packet_info* pinfo, 
                 proto_tree_add_item_ret_uint(filesystem_tree, hf_procmon_filesystem_directory_control_file_information_class, tvb, control_offset, 4, ENC_LITTLE_ENDIAN, &file_information_class);
                 if (tvb_reported_length(extra_details_tvb) > 0)
                 {
-                    nstime_t timestamp;
                     uint32_t name_length, next_entry_offset;
                     switch (file_information_class)
                     {
@@ -2200,17 +2190,13 @@ static bool dissect_procmon_filesystem_event(tvbuff_t* tvb, packet_info* pinfo, 
                                 continue;
                             }
 
-                            filetime_to_nstime(&timestamp, tvb_get_letoh64(extra_details_tvb, extra_offset));
-                            proto_tree_add_time(information_tree, hf_procmon_filesystem_directory_control_query_creation_time, extra_details_tvb, extra_offset, 8, &timestamp);
+                            proto_tree_add_item(information_tree, hf_procmon_filesystem_directory_control_query_creation_time, extra_details_tvb, extra_offset, 8, ENC_TIME_WINDOWS|ENC_LITTLE_ENDIAN);
                             extra_offset += 8;
-                            filetime_to_nstime(&timestamp, tvb_get_letoh64(extra_details_tvb, extra_offset));
-                            proto_tree_add_time(information_tree, hf_procmon_filesystem_directory_control_query_last_access_time, extra_details_tvb, extra_offset, 8, &timestamp);
+                            proto_tree_add_item(information_tree, hf_procmon_filesystem_directory_control_query_last_access_time, extra_details_tvb, extra_offset, 8, ENC_TIME_WINDOWS|ENC_LITTLE_ENDIAN);
                             extra_offset += 8;
-                            filetime_to_nstime(&timestamp, tvb_get_letoh64(extra_details_tvb, extra_offset));
-                            proto_tree_add_time(information_tree, hf_procmon_filesystem_directory_control_query_last_write_time, extra_details_tvb, extra_offset, 8, &timestamp);
+                            proto_tree_add_item(information_tree, hf_procmon_filesystem_directory_control_query_last_write_time, extra_details_tvb, extra_offset, 8, ENC_TIME_WINDOWS|ENC_LITTLE_ENDIAN);
                             extra_offset += 8;
-                            filetime_to_nstime(&timestamp, tvb_get_letoh64(extra_details_tvb, extra_offset));
-                            proto_tree_add_time(information_tree, hf_procmon_filesystem_directory_control_query_change_time, extra_details_tvb, extra_offset, 8, &timestamp);
+                            proto_tree_add_item(information_tree, hf_procmon_filesystem_directory_control_query_change_time, extra_details_tvb, extra_offset, 8, ENC_TIME_WINDOWS|ENC_LITTLE_ENDIAN);
                             extra_offset += 8;
                             proto_tree_add_item(information_tree, hf_procmon_filesystem_directory_control_query_end_of_file, extra_details_tvb, extra_offset, 8, ENC_LITTLE_ENDIAN);
                             extra_offset += 8;
@@ -2602,7 +2588,6 @@ dissect_procmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     int         offset = 0;
     uint32_t event_class, operation;
     uint32_t details_size, extra_details_offset;
-    nstime_t timestamp;
     uint16_t extra_details_size = 0;
     int hf_operation;
     const value_string* operation_vs = NULL;
@@ -2717,8 +2702,7 @@ dissect_procmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     offset += 6;
     proto_tree_add_item(header_tree, hf_procmon_duration, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
-    filetime_to_nstime(&timestamp, tvb_get_letoh64(tvb, offset));
-    proto_tree_add_time(header_tree, hf_procmon_timestamp, tvb, offset, 8, &timestamp);
+    proto_tree_add_item(header_tree, hf_procmon_timestamp, tvb, offset, 8, ENC_TIME_WINDOWS|ENC_LITTLE_ENDIAN);
     offset += 8;
     proto_tree_add_item(header_tree, hf_procmon_event_result, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;

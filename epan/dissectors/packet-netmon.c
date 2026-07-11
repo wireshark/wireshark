@@ -461,7 +461,6 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	proto_tree *event_tree, *event_desc_tree, *extended_data_tree, *buffer_context_tree;
 	int offset = 0, extended_data_count_offset;
 	uint32_t i, thread_id, process_id, extended_data_count, extended_data_size, user_data_size;
-	nstime_t timestamp;
 	tvbuff_t *provider_id_tvb;
 	guid_key provider_guid;
 	struct netmon_provider_id_data provider_id_data;
@@ -506,10 +505,7 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	proto_tree_add_item_ret_uint(event_tree, hf_netmon_event_process_id, tvb, offset, 4, ENC_LITTLE_ENDIAN, &process_id);
 	offset += 4;
 
-	timestamp.secs = 0;
-	timestamp.nsecs = 0;
-	filetime_to_nstime(&timestamp, tvb_get_letoh64(tvb, offset));
-	proto_tree_add_time(event_tree, hf_netmon_event_timestamp, tvb, offset, 8, &timestamp);
+	proto_tree_add_item(event_tree, hf_netmon_event_timestamp, tvb, offset, 8, ENC_TIME_WINDOWS|ENC_LITTLE_ENDIAN);
 	offset += 8;
 
 	proto_tree_add_item(event_tree, hf_netmon_event_provider_id, tvb, offset, 16, ENC_LITTLE_ENDIAN);
@@ -777,7 +773,7 @@ dissect_netmon_system_trace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	unsigned offset = 0;
 	struct netmon_provider_id_data *provider_id_data = (struct netmon_provider_id_data*)data;
 	unsigned length;
-	nstime_t timestamp;
+	nstime_t timestamp = NSTIME_INIT_ZERO;
 	uint64_t raw_timestamp;
 
 	DISSECTOR_ASSERT(provider_id_data != NULL);
@@ -800,13 +796,11 @@ dissect_netmon_system_trace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_item(system_tree, hf_netmon_system_trace_num_processors, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
+		// TODO: Replace with a time_value_string
 		raw_timestamp = tvb_get_letoh64(tvb, offset);
 		if (raw_timestamp != 0)
 		{
-			timestamp.secs = 0;
-			timestamp.nsecs = 0;
-			filetime_to_nstime(&timestamp, raw_timestamp);
-			proto_tree_add_time(system_tree, hf_netmon_system_trace_end_time, tvb, offset, 8, &timestamp);
+			proto_tree_add_item(system_tree, hf_netmon_system_trace_end_time, tvb, offset, 8, ENC_TIME_WINDOWS|ENC_LITTLE_ENDIAN);
 		}
 		else
 		{
@@ -835,19 +829,13 @@ dissect_netmon_system_trace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_item(system_tree, hf_netmon_system_trace_time_zone_info, tvb, offset, 176, ENC_NA);
 		offset += 176;
 
-		timestamp.secs = 0;
-		timestamp.nsecs = 0;
-		filetime_to_nstime(&timestamp, tvb_get_letoh64(tvb, offset));
-		proto_tree_add_time(system_tree, hf_netmon_system_trace_boot_time, tvb, offset, 8, &timestamp);
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_boot_time, tvb, offset, 8, ENC_TIME_WINDOWS|ENC_LITTLE_ENDIAN);
 		offset += 8;
 
 		proto_tree_add_item(system_tree, hf_netmon_system_trace_perf_freq, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset += 8;
 
-		timestamp.secs = 0;
-		timestamp.nsecs = 0;
-		filetime_to_nstime(&timestamp, tvb_get_letoh64(tvb, offset));
-		proto_tree_add_time(system_tree, hf_netmon_system_trace_start_time, tvb, offset, 8, &timestamp);
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_start_time, tvb, offset, 8, ENC_TIME_WINDOWS|ENC_LITTLE_ENDIAN);
 		offset += 8;
 
 		proto_tree_add_item(system_tree, hf_netmon_system_trace_reserved_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);

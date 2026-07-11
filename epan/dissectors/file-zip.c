@@ -99,6 +99,8 @@ static int hf_zip_extra_data_size;
 static int hf_zip_extra_data;
 static int hf_zip_extra_version;
 
+static int hf_zip_extra_ntfs_tag;
+
 static int hf_zip_extra_ut_flags;
 static int hf_zip_extra_ut_flag_mtime;
 static int hf_zip_extra_ut_flag_atime;
@@ -248,6 +250,7 @@ static const value_string zip_method_vals[] = {
 };
 
 #define ZIP_EXTRA_ZIP64 0x0001
+#define ZIP_EXTRA_NTFS  0x000a
 #define ZIP_EXTRA_UT    0x5455
 #define ZIP_EXTRA_UCOM  0x6375
 #define ZIP_EXTRA_UPATH 0x7075
@@ -256,12 +259,20 @@ static const value_string zip_method_vals[] = {
 
 static const value_string zip_extra_id_vals[] = {
     { ZIP_EXTRA_ZIP64, "Zip64"},
+    { ZIP_EXTRA_NTFS,  "NTFS"},
     { ZIP_EXTRA_UT,    "Unix Time"},
     { ZIP_EXTRA_UCOM,  "UTF-8 Comment"},
     { ZIP_EXTRA_UPATH, "UTF-8 Path"},
     { ZIP_EXTRA_UNIX2, "Unix (type 2)"},
     { ZIP_EXTRA_UNIX3, "Unix (type 3)"},
     { 0, NULL }
+};
+
+#define ZIP_EXTRA_NTFS_FILETIMES 0x0001
+
+static const value_string zip_extra_ntfs_tag_vals[] = {
+    { ZIP_EXTRA_NTFS_FILETIMES, "File Times" },
+    { 0, NULL },
 };
 
 static void
@@ -379,6 +390,29 @@ dissect_zip_extra_zip64(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (extra_info->disk_start_number == UINT16_MAX) {
         proto_tree_add_item(tree, hf_zip_disk_start_number, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
+    }
+
+    return offset;
+}
+
+static int
+dissect_zip_extra_ntfs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    unsigned offset = 0;
+    uint16_t tag, size;
+
+    offset += 4;
+    while (tvb_reported_length_remaining(tvb, offset)) {
+        proto_tree_add_item_ret_uint16(tree, hf_zip_extra_ntfs_tag, tvb, offset, 2, ENC_LITTLE_ENDIAN, &tag);
+        offset += 2;
+        proto_tree_add_item_ret_uint16(tree, hf_zip_extra_data_size, tvb, offset, 2, ENC_LITTLE_ENDIAN, &size);
+        offset += 2;
+        if (tag == ZIP_EXTRA_NTFS_FILETIMES) {
+            proto_tree_add_item(tree, hf_zip_extra_ut_mtime, tvb, offset, 8, ENC_TIME_WINDOWS|ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_zip_extra_ut_atime, tvb, offset + 8, 8, ENC_TIME_WINDOWS|ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_zip_extra_ut_ctime, tvb, offset + 16, 8, ENC_TIME_WINDOWS|ENC_LITTLE_ENDIAN);
+        }
+        offset += size;
     }
 
     return offset;
@@ -1080,6 +1114,12 @@ proto_register_zip(void)
             0x0, NULL, HFILL },
         },
 
+        { &hf_zip_extra_ntfs_tag,
+            { "Tag", "zipfile.extra.ntfs.tag",
+            FT_UINT16, BASE_HEX, VALS(zip_extra_ntfs_tag_vals),
+            0x0, NULL, HFILL },
+        },
+
         { &hf_zip_extra_ut_flags,
             { "Flags", "zipfile.extra.ut.flags",
             FT_UINT8, BASE_HEX, NULL,
@@ -1319,6 +1359,7 @@ proto_reg_handoff_zip(void)
     dissector_add_uint("zip.record", ZIP64_END_OF_DIRECTORY_LOCATOR_RECORD, create_dissector_handle(dissect_zip64_end_of_directory_locator, proto_zip));
 
     dissector_add_uint("zip.extra", ZIP_EXTRA_ZIP64, create_dissector_handle(dissect_zip_extra_zip64, proto_zip));
+    dissector_add_uint("zip.extra", ZIP_EXTRA_NTFS, create_dissector_handle(dissect_zip_extra_ntfs, proto_zip));
     dissector_add_uint("zip.extra", ZIP_EXTRA_UT, create_dissector_handle(dissect_zip_extra_unix_time, proto_zip));
     dissector_add_uint("zip.extra", ZIP_EXTRA_UCOM, create_dissector_handle(dissect_zip_extra_utf8_comment, proto_zip));
     dissector_add_uint("zip.extra", ZIP_EXTRA_UPATH, create_dissector_handle(dissect_zip_extra_utf8_path, proto_zip));
