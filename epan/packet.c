@@ -949,7 +949,7 @@ call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
 	saved_proto = pinfo->current_proto;
 	saved_proto_layer_num = pinfo->curr_proto_layer_num;
 
-	if ((handle->protocol != NULL) && (!proto_is_pino(handle->protocol))) {
+	if ((handle->protocol != NULL) && (!proto_is_bytes_pino(handle->protocol))) {
 		pinfo->current_proto =
 			proto_get_protocol_short_name(handle->protocol);
 	}
@@ -1027,7 +1027,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 	 */
 	pinfo->saved_can_desegment = saved_can_desegment;
 	pinfo->can_desegment = saved_can_desegment-(saved_can_desegment>0);
-	if ((handle->protocol != NULL) && (!proto_is_pino(handle->protocol))) {
+	if ((handle->protocol != NULL) && (!proto_is_bytes_pino(handle->protocol))) {
 		pinfo->current_proto =
 			proto_get_protocol_short_name(handle->protocol);
 
@@ -1064,7 +1064,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 	 * test that the packet didn't change desegment_offset and desegment_len
 	 * while rejecting the packet from packet-tcp.c decode_tcp_ports to here.
 	 */
-	if (handle->protocol != NULL && !proto_is_pino(handle->protocol) && add_proto_name &&
+	if (handle->protocol != NULL && !proto_is_bytes_pino(handle->protocol) && add_proto_name &&
 		(consumed_none || (tree && saved_tree_count == tree->tree_data->count))) {
 		/*
 		 * We've added a layer and either the dissector didn't

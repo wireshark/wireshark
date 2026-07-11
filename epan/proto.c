@@ -9064,6 +9064,18 @@ proto_is_pino(const protocol_t *protocol)
 }
 
 bool
+proto_is_bytes_pino(const protocol_t *protocol)
+{
+	header_field_info *hfinfo;
+
+	if (!proto_is_pino(protocol))
+		return false;
+
+	PROTO_REGISTRAR_GET_NTH(protocol->proto_id, hfinfo);
+	return hfinfo->type != FT_PROTOCOL;
+}
+
+bool
 // NOLINTNEXTLINE(misc-no-recursion)
 proto_is_protocol_enabled(const protocol_t *protocol)
 {

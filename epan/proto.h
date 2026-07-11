@@ -3166,6 +3166,15 @@ WS_DLL_PUBLIC bool proto_is_protocol_enabled_by_default(const protocol_t *protoc
  @return true if helper, false if not */
 WS_DLL_PUBLIC bool proto_is_pino(const protocol_t *protocol);
 
+/** Is this a protocol in name only registered with a FT_BYTES?
+ * That means that the bytes are not highlighted in the packet bytes
+ * like a protocol and the name is not added to the list of protocols
+ * in the the frame. This is usually for protocols in name only that
+ * are registered for the purpose of being called in one of their parent
+ * protocol's dissector tables.
+ @return true if a bytes-type PINO, false if not */
+extern bool proto_is_bytes_pino(const protocol_t *protocol);
+
 /** Get a protocol's filter name by its item number.
  @param proto_id protocol id (0-indexed)
  @return its filter name. */
