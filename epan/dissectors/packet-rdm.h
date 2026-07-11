@@ -17,7 +17,18 @@
 #ifndef __PACKET_RDM_H__
 #define __PACKET_RDM_H__
 
+#include <stdint.h>
+
 extern value_string_ext rdm_param_id_vals_ext;
 
+typedef struct _rdm_pid_info {
+    uint16_t pid;
+    uint8_t command_class;
+} rdm_pid_info;
+
+/* Information for each manufacturer */
+#define RDM_MANUFACTURER_ID_ETC 0x6574
+extern const value_string etc_model_id_vals[];
+extern value_string_ext etc_param_id_vals_ext;
 
 #endif /* #ifndef __PACKET_RDM_H__ */
