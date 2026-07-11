@@ -592,6 +592,7 @@ static const value_string dsb_secrets_types_vals[] = {
 void proto_register_pcapng(void);
 void event_register_pcapng(void);
 void proto_reg_handoff_pcapng(void);
+void event_reg_handoff_pcapng(void);
 
 #define BYTE_ORDER_MAGIC_SIZE  4
 
@@ -2911,8 +2912,6 @@ void
 event_register_pcapng(void)
 {
     common_register_pcapng();
-
-    /* No need for a handoff function */
 }
 
 void
@@ -2920,6 +2919,12 @@ proto_reg_handoff_pcapng(void)
 {
     heur_dissector_add("wtap_file", dissect_pcapng_heur, "PCAPNG File", "pcapng_wtap", proto_pcapng, HEURISTIC_ENABLE);
     pcap_pktdata_handle = find_dissector_add_dependency("pcap_pktdata", proto_pcapng);
+}
+
+void
+event_reg_handoff_pcapng(void)
+{
+    heur_dissector_add("wtap_file", dissect_pcapng_heur, "SCAP File", "pcapng_wtap", proto_pcapng, HEURISTIC_ENABLE);
 }
 
 /*
