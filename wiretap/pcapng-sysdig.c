@@ -144,13 +144,6 @@ pcapng_read_sysdig_event_block(wtap* wth, FILE_T fh, uint32_t block_type,
         byte_order = G_BYTE_ORDER;
     }
 
-    if (ts) {
-        wblock->rec->presence_flags |= WTAP_HAS_TS;
-    }
-
-    wblock->rec->ts.secs = (time_t)(ts / 1000000000);
-    wblock->rec->ts.nsecs = (int)(ts % 1000000000);
-
     // Event data
     uint32_t event_data_len;
 
@@ -210,6 +203,11 @@ pcapng_read_sysdig_event_block(wtap* wth, FILE_T fh, uint32_t block_type,
     wtap_setup_syscall_rec(wblock->rec);
     wblock->rec->rec_header.syscall_header.record_type = block_type;
     wblock->rec->presence_flags = WTAP_HAS_CAP_LEN /*|WTAP_HAS_INTERFACE_ID */;
+    if (ts) {
+        wblock->rec->presence_flags |= WTAP_HAS_TS;
+    }
+    wblock->rec->ts.secs = (time_t)(ts / 1000000000);
+    wblock->rec->ts.nsecs = (int)(ts % 1000000000);
     wblock->rec->tsprec = WTAP_TSPREC_NSEC;
     wblock->rec->rec_header.syscall_header.pathname = wth->pathname;
 
