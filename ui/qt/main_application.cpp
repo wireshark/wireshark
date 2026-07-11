@@ -850,7 +850,7 @@ void MainApplication::loadLanguage(const QString newLanguage)
     searchPath.emplaceBack(QStringLiteral(":/i18n/"));
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
-    searchPath.append(QLibraryInfo::path(QLibraryInfo::TranslationsPath));
+    searchPath.append(QLibraryInfo::paths(QLibraryInfo::TranslationsPath));
 #else
     searchPath.emplaceBack(QLibraryInfo::path(QLibraryInfo::TranslationsPath));
 #endif
