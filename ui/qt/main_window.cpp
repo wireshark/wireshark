@@ -103,74 +103,101 @@ InterfaceListManager *MainWindow::interfaceListManager() const
 }
 
 void MainWindow::findTextCodecs() {
-    static const char *encodings[] = {
+    static const struct {
+        char category;      /* sort group: A=Unicode, B=ISO-8859, C=Windows,
+                               D=IBM/DOS, E=CJK, F=Cyrillic, G=Other */
+        const char *name;   /* iconv encoding name */
+    } encodings[] = {
         /* Unicode */
-        "UTF-7", "UTF-16", "UTF-16BE", "UTF-16LE",
-        "UTF-32", "UTF-32BE", "UTF-32LE",
+        { 'A', "UTF-7" },
+        { 'A', "UTF-16" },
+        { 'A', "UTF-16BE" },
+        { 'A', "UTF-16LE" },
+        { 'A', "UTF-32" },
+        { 'A', "UTF-32BE" },
+        { 'A', "UTF-32LE" },
         /* ISO-8859 */
-        "ISO-8859-1", "ISO-8859-2", "ISO-8859-3", "ISO-8859-4",
-        "ISO-8859-5", "ISO-8859-6", "ISO-8859-7", "ISO-8859-8",
-        "ISO-8859-9", "ISO-8859-10", "ISO-8859-11", "ISO-8859-13",
-        "ISO-8859-14", "ISO-8859-15", "ISO-8859-16",
-        /* Windows */
-        "WINDOWS-874", "WINDOWS-1250", "WINDOWS-1251", "WINDOWS-1252",
-        "WINDOWS-1253", "WINDOWS-1254", "WINDOWS-1255", "WINDOWS-1256",
-        "WINDOWS-1257", "WINDOWS-1258",
-        /* IBM/DOS */
-        "IBM437", "IBM775", "IBM850", "IBM852", "IBM855", "IBM857",
-        "IBM858", "IBM860", "IBM861", "IBM862", "IBM863", "IBM864",
-        "IBM865", "IBM866", "IBM869",
+        { 'B', "ISO-8859-1" },         /* Western European */
+        { 'B', "ISO-8859-2" },         /* Central European */
+        { 'B', "ISO-8859-3" },         /* South European (Turkish, Maltese, Esperanto) */
+        { 'B', "ISO-8859-4" },         /* North European (Baltic) */
+        { 'B', "ISO-8859-5" },         /* Cyrillic */
+        { 'B', "ISO-8859-6" },         /* Arabic */
+        { 'B', "ISO-8859-7" },         /* Greek */
+        { 'B', "ISO-8859-8" },         /* Hebrew */
+        { 'B', "ISO-8859-9" },         /* Turkish */
+        { 'B', "ISO-8859-10" },        /* Nordic */
+        { 'B', "ISO-8859-11" },        /* Thai */
+        { 'B', "ISO-8859-13" },        /* Baltic */
+        { 'B', "ISO-8859-14" },        /* Celtic */
+        { 'B', "ISO-8859-15" },        /* Western European (with Euro sign) */
+        { 'B', "ISO-8859-16" },        /* South-Eastern European (Romanian) */
+        /* Windows codepages */
+        { 'C', "WINDOWS-874" },        /* Thai */
+        { 'C', "WINDOWS-1250" },       /* Central European */
+        { 'C', "WINDOWS-1251" },       /* Cyrillic */
+        { 'C', "WINDOWS-1252" },       /* Western European */
+        { 'C', "WINDOWS-1253" },       /* Greek */
+        { 'C', "WINDOWS-1254" },       /* Turkish */
+        { 'C', "WINDOWS-1255" },       /* Hebrew */
+        { 'C', "WINDOWS-1256" },       /* Arabic */
+        { 'C', "WINDOWS-1257" },       /* Baltic */
+        { 'C', "WINDOWS-1258" },       /* Vietnamese */
+        /* IBM/DOS codepages */
+        { 'D', "IBM437" },             /* US English */
+        { 'D', "IBM775" },             /* Baltic */
+        { 'D', "IBM850" },             /* Western European */
+        { 'D', "IBM852" },             /* Central European */
+        { 'D', "IBM855" },             /* Cyrillic */
+        { 'D', "IBM857" },             /* Turkish */
+        { 'D', "IBM858" },             /* Western European (with Euro sign) */
+        { 'D', "IBM860" },             /* Portuguese */
+        { 'D', "IBM861" },             /* Icelandic */
+        { 'D', "IBM862" },             /* Hebrew */
+        { 'D', "IBM863" },             /* Canadian French */
+        { 'D', "IBM864" },             /* Arabic */
+        { 'D', "IBM865" },             /* Nordic */
+        { 'D', "IBM866" },             /* Russian */
+        { 'D', "IBM869" },             /* Greek */
+        /* CJK */
+        { 'E', "BIG5" },              /* Traditional Chinese (Taiwan) */
+        { 'E', "BIG5-HKSCS" },        /* Traditional Chinese (Hong Kong) */
+        { 'E', "EUC-JP" },            /* Japanese (Unix) */
+        { 'E', "EUC-JISX0213" },      /* Japanese (extended) */
+        { 'E', "EUC-KR" },            /* Korean */
+        { 'E', "EUC-TW" },            /* Traditional Chinese (Unix) */
+        { 'E', "GB2312" },            /* Simplified Chinese (legacy) */
+        { 'E', "GB18030" },           /* Chinese (modern standard) */
+        { 'E', "GBK" },               /* Simplified Chinese (Windows) */
+        { 'E', "ISO-2022-JP" },       /* Japanese (email) */
+        { 'E', "SHIFT_JIS" },         /* Japanese (Windows/DOS) */
+        { 'E', "SHIFT_JISX0213" },    /* Japanese (extended Shift-JIS) */
+        { 'E', "WINDOWS-31J" },       /* Japanese (Microsoft variant) */
         /* Cyrillic */
-        "KOI8-R", "KOI8-U", "KOI8-RU", "KOI8-T",
-        /* Japanese */
-        "EUC-JP", "SHIFT_JIS", "ISO-2022-JP", "EUC-JISX0213",
-        "SHIFT_JISX0213",
-        /* Korean */
-        "EUC-KR",
-        /* Chinese */
-        "GB18030", "GBK", "GB2312", "BIG5", "BIG5-HKSCS", "EUC-TW",
-        /* Thai */
-        "TIS-620",
-        /* Vietnamese */
-        "VISCII", "TCVN-5712",
-        /* Armenian */
-        "ARMSCII-8",
-        /* Georgian */
-        "GEORGIAN-ACADEMY", "GEORGIAN-PS",
-        /* Mac */
-        "MACINTOSH", "MAC-CYRILLIC", "MAC-CENTRALEUROPE",
+        { 'F', "KOI8-R" },            /* Russian */
+        { 'F', "KOI8-RU" },           /* Belarusian/Ukrainian */
+        { 'F', "KOI8-T" },            /* Tajik */
+        { 'F', "KOI8-U" },            /* Ukrainian */
         /* Other */
-        "WINDOWS-31J",
-        NULL
+        { 'G', "ARMSCII-8" },         /* Armenian */
+        { 'G', "GEORGIAN-ACADEMY" },  /* Georgian */
+        { 'G', "GEORGIAN-PS" },       /* Georgian (Parliament) */
+        { 'G', "MACINTOSH" },         /* Western European (Mac) */
+        { 'G', "MAC-CENTRALEUROPE" }, /* Central European (Mac) */
+        { 'G', "MAC-CYRILLIC" },      /* Cyrillic (Mac) */
+        { 'G', "TCVN-5712" },         /* Vietnamese */
+        { 'G', "TIS-620" },           /* Thai */
+        { 'G', "VISCII" },            /* Vietnamese */
     };
-    QRegularExpression ibmRegExp("^IBM([0-9]+).*$");
-    QRegularExpression iso8859RegExp("^ISO-8859-([0-9]+).*$");
-    QRegularExpression windowsRegExp("^WINDOWS-([0-9]+).*$");
-    QRegularExpressionMatch match;
-    for (const char **enc = encodings; *enc; enc++) {
-        GIConv cd = g_iconv_open("UTF-8", *enc);
+
+    for (size_t i = 0; i < G_N_ELEMENTS(encodings); i++) {
+        GIConv cd = g_iconv_open("UTF-8", encodings[i].name);
         if (cd == (GIConv)-1)
             continue;
         g_iconv_close(cd);
-        QString key = QString::fromUtf8(*enc).toUpper();
-        char rank;
-        if (key.localeAwareCompare("IBM") < 0) {
-            rank = 1;
-        } else if ((match = ibmRegExp.match(key)).hasMatch()) {
-            rank = match.captured(1).size();
-        } else if (key.localeAwareCompare("ISO-8859-") < 0) {
-            rank = 6;
-        } else if ((match = iso8859RegExp.match(key)).hasMatch()) {
-            rank = 6 + match.captured(1).size();
-        } else if (key.localeAwareCompare("WINDOWS-") < 0) {
-            rank = 9;
-        } else if ((match = windowsRegExp.match(key)).hasMatch()) {
-            rank = 9 + match.captured(1).size();
-        } else {
-            rank = 14;
-        }
-        key.prepend(char('0' + rank));
-        text_codec_map_.insert(key, *enc);
+        QString key = QString(QChar(encodings[i].category)) +
+                      QString::fromUtf8(encodings[i].name);
+        text_codec_map_.insert(key, encodings[i].name);
     }
 }
 
