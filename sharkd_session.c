@@ -4486,10 +4486,9 @@ sharkd_session_process_iograph(char *buf, const jsmntok_t *tokens, int count)
     const char *tok_interval = json_find_attr(buf, tokens, count, "interval");
     const char *tok_interval_units = json_find_attr(buf, tokens, count, "interval_units");
     struct sharkd_iograph graphs[10];
-    bool is_any_ok = false;
-    int graph_count;
+    unsigned graph_count;
 
-    int i;
+    unsigned i;
 
     /* default: 1000ms = one per second */
     uint32_t interval = 1000;
@@ -4527,7 +4526,7 @@ sharkd_session_process_iograph(char *buf, const jsmntok_t *tokens, int count)
         interval_us = 1000000 * interval;
     }
 
-    for (i = graph_count = 0; i < (int) G_N_ELEMENTS(graphs); i++)
+    for (i = graph_count = 0; i < G_N_ELEMENTS(graphs); i++)
     {
         struct sharkd_iograph *graph = &graphs[graph_count];
 
@@ -4585,8 +4584,6 @@ sharkd_session_process_iograph(char *buf, const jsmntok_t *tokens, int count)
         if (!graph->error)
             graph->error = register_tap_listener("frame", graph, tok_filter, TL_REQUIRES_PROTO_TREE, NULL, sharkd_iograph_packet, NULL, NULL);
 
-        graph_count++;
-
         if (graph->error)
         {
             sharkd_json_error(
@@ -4594,15 +4591,14 @@ sharkd_session_process_iograph(char *buf, const jsmntok_t *tokens, int count)
                     "%s", graph->error->str
                     );
             g_string_free(graph->error, TRUE);
-            return;
+            goto cleanup;
         }
 
-        if (graph->error == NULL)
-            is_any_ok = true;
+        graph_count++;
     }
 
     /* retap only if we have at least one ok */
-    if (is_any_ok)
+    if (graph_count)
         sharkd_retap();
 
     sharkd_json_result_prologue(rpcid);
@@ -4647,12 +4643,19 @@ sharkd_session_process_iograph(char *buf, const jsmntok_t *tokens, int count)
         }
         json_dumper_end_object(&dumper);
 
-        remove_tap_listener(graph);
-        g_free(graph->items);
     }
     sharkd_json_array_close();
 
     sharkd_json_result_epilogue();
+
+cleanup:
+    for (i = 0; i < graph_count; i++)
+    {
+        struct sharkd_iograph *graph = &graphs[i];
+
+        remove_tap_listener(graph);
+        g_free(graph->items);
+    }
 }
 
 /**
