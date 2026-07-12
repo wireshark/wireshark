@@ -4207,11 +4207,6 @@ Relative to reference: n/a (outside reference range)</source>
 <context>
     <name>FollowStreamDialog</name>
     <message>
-        <source>Filter Out This Stream</source>
-        <oldsource>Hide this stream</oldsource>
-        <translation type="vanished">필터로 이 스트림 제외</translation>
-    </message>
-    <message>
         <source>Print</source>
         <translation>인쇄</translation>
     </message>

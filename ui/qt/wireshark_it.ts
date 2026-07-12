@@ -3106,23 +3106,23 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     <name>DistributionDialog</name>
     <message>
         <source>Field Values Distribution</source>
-        <translation type="unfinished"></translation>
+        <translation>Distribuzione valori di campo</translation>
     </message>
     <message>
         <source>Field Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Valore campo</translation>
     </message>
     <message>
         <source>Occurrences</source>
-        <translation type="unfinished"></translation>
+        <translation>Occorrenze</translation>
     </message>
     <message>
         <source>Percent</source>
-        <translation type="unfinished"></translation>
+        <translation>Percento</translation>
     </message>
     <message>
         <source>Distribution:</source>
-        <translation type="unfinished"></translation>
+        <translation>Distribuzione:</translation>
     </message>
 </context>
 <context>
@@ -4231,11 +4231,6 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
 <context>
     <name>FollowStreamDialog</name>
     <message>
-        <source>Filter Out This Stream</source>
-        <oldsource>Hide this stream</oldsource>
-        <translation type="vanished">Filtra questo flusso</translation>
-    </message>
-    <message>
         <source>Print</source>
         <translation>Stampa</translation>
     </message>
@@ -4283,11 +4278,11 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <translation type="unfinished">Prepara come filtro</translation>
+        <translation>Prepara come filtro</translation>
     </message>
     <message>
         <source>Apply as Filter</source>
-        <translation type="unfinished">Applica come filtro</translation>
+        <translation>Applica come filtro</translation>
     </message>
     <message>
         <source>Save as…</source>
@@ -5943,35 +5938,35 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     <name>InPacketFindBar</name>
     <message>
         <source>String</source>
-        <translation type="unfinished">Stringa</translation>
+        <translation>Stringa</translation>
     </message>
     <message>
         <source>Regular Expression</source>
-        <translation type="unfinished">Espressione regolare</translation>
+        <translation>Espressione regolare</translation>
     </message>
     <message>
         <source>Case sensitive</source>
-        <translation type="unfinished">Distingui maiuscole</translation>
+        <translation>Distingui maiuscole</translation>
     </message>
     <message>
         <source>Find</source>
-        <translation type="unfinished">Trova</translation>
+        <translation>Trova</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annulla</translation>
+        <translation>Annulla</translation>
     </message>
     <message>
         <source>invalid pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Pattern non valido</translation>
     </message>
     <message>
         <source>no matches</source>
-        <translation type="unfinished"></translation>
+        <translation>nessuna corrispondenza</translation>
     </message>
     <message>
         <source>%1 of %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 di %2</translation>
     </message>
 </context>
 <context>
@@ -9042,7 +9037,7 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
-        <translation type="unfinished">&amp;Modifica</translation>
+        <translation>&amp;Modifica</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</source>
@@ -9050,11 +9045,11 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     </message>
     <message>
         <source>Find in Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Trova nel pacchetto</translation>
     </message>
     <message>
         <source>Find in the packet details tree (Ctrl+Alt+F)</source>
-        <translation type="unfinished"></translation>
+        <translation>Trova nell&apos;albero dei dettagli del pacchetto (Ctrl+Alt+F)</translation>
     </message>
     <message>
         <source>Show packet bytes</source>
@@ -9066,11 +9061,11 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     </message>
     <message>
         <source>Find in &amp;Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Trova nel &amp;pacchetto</translation>
     </message>
     <message>
         <source>Find in the packet details tree (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Trova nell&apos;albero dei dettagli del pacchetto (%1)</translation>
     </message>
     <message>
         <source>Packet %1</source>
@@ -10463,7 +10458,7 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     </message>
     <message>
         <source>Distribution</source>
-        <translation type="unfinished"></translation>
+        <translation>Distribuzione</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -13562,11 +13557,11 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>Search the selected packet details tree</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca nell&apos;albero dei dettagli del pacchetto selezionato</translation>
     </message>
     <message>
         <source>Find in selected Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Trova nel pacchetto selezionato</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5), a plain string (e.g. My String) or a regular expression (e.g. colou?r).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -13607,11 +13602,11 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>Search for a plain text string in the current packet details tree (e.g. My String).</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca una stringa di testo semplice nell&apos;albero dei dettagli del pacchetto attuale (ad es., Mia stringa).</translation>
     </message>
     <message>
         <source>Search using a regular expression in the current packet details tree (e.g. colou?r).</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca utilizzando un&apos;espressione regolare nell&apos;albero dei dettagli del pacchetto attuale (ad es., colou?r).</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>
@@ -13659,27 +13654,27 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>Find in Packet supports string and regular expression search only.</source>
-        <translation type="unfinished"></translation>
+        <translation>La funzione &quot;Trova nel pacchetto&quot; supporta solo la ricerca di stringhe ed espressioni regolari.</translation>
     </message>
     <message>
         <source>[no matches] %1</source>
-        <translation type="unfinished"></translation>
+        <translation>[nessuna corrispondenza] %1</translation>
     </message>
     <message>
         <source>No %1 found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessun %1 trovato.</translation>
     </message>
     <message>
         <source>[%1 of %2]</source>
-        <translation type="unfinished"></translation>
+        <translation>[%1 di %2]</translation>
     </message>
     <message>
         <source>Search for a plain text string/char in the current packet details tree (e.g. &apos;flag&apos; or &apos;f&apos;).</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca una stringa/un carattere di testo semplice nell&apos;albero dei dettagli del pacchetto attuale (ad es., &apos;flag&apos; o &apos;f&apos;).</translation>
     </message>
     <message>
         <source>Search using a regular expression in the current packet details tree (e.g. &apos;d&apos;).</source>
-        <translation type="unfinished"></translation>
+        <translation>Effettua la ricerca utilizzando un&apos;espressione regolare nell&apos;albero dei dettagli del pacchetto attuale (ad es., &apos;d&apos;).</translation>
     </message>
 </context>
 <context>
@@ -17696,11 +17691,11 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     </message>
     <message>
         <source>Distribution</source>
-        <translation type="unfinished"></translation>
+        <translation>Distribuzione</translation>
     </message>
     <message>
         <source>Distribution statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statistiche sulla distribuzione</translation>
     </message>
     <message>
         <source>General</source>

@@ -6,8 +6,8 @@
  *
  * List of PCI IDs
  *
- * Version: 2026.07.05
- * Date:    2026-07-05 03:15:02
+ * Version: 2026.07.12
+ * Date:    2026-07-12 03:15:01
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -14286,6 +14286,7 @@ static pci_id_t const pci_vid_10DE[] = {
 {0x10DE, 0x2DD8, 0xFFFF, 0xFFFF, "GB207M [GeForce RTX 5050 Max-Q / Mobile](0x2DD8)"},
 {0x10DE, 0x2DF9, 0xFFFF, 0xFFFF, "GB207GLM [RTX PRO 500 Blackwell Embedded GPU](0x2DF9)"},
 {0x10DE, 0x2E03, 0xFFFF, 0xFFFF, "GB20B [JMJWOA-Generic-GPU](0x2E03)"},
+{0x10DE, 0x2E06, 0xFFFF, 0xFFFF, "GB20B [JMJWOA-Generic-GPU](0x2E06)"},
 {0x10DE, 0x2E12, 0xFFFF, 0xFFFF, "GB20B [GB10](0x2E12)"},
 {0x10DE, 0x2E2A, 0xFFFF, 0xFFFF, "GB20B [JMJWOA-Generic-GPU](0x2E2A)"},
 {0x10DE, 0x2F04, 0xFFFF, 0xFFFF, "GB205 [GeForce RTX 5070](0x2F04)"},
@@ -14294,7 +14295,13 @@ static pci_id_t const pci_vid_10DE[] = {
 {0x10DE, 0x2F38, 0xFFFF, 0xFFFF, "GB205GLM [RTX PRO 3000 Blackwell Generation Laptop GPU](0x2F38)"},
 {0x10DE, 0x2F58, 0xFFFF, 0xFFFF, "GB205M [GeForce RTX 5070 Ti Mobile](0x2F58)"},
 {0x10DE, 0x2F80, 0xFFFF, 0xFFFF, "GB205 High Definition Audio Controller(0x2F80)"},
-{0x10DE, 0x3040, 0xFFFF, 0xFFFF, "GR100(0x3040)"},
+{0x10DE, 0x2F95, 0xFFFF, 0xFFFF, "Vera Rubin CPU(0x2F95)"},
+{0x10DE, 0x2F96, 0xFFFF, 0xFFFF, "Vera Rubin CPU(0x2F96)"},
+{0x10DE, 0x2F97, 0xFFFF, 0xFFFF, "Vera Rubin CPU(0x2F97)"},
+{0x10DE, 0x2F98, 0xFFFF, 0xFFFF, "Vera Rubin CPU(0x2F98)"},
+{0x10DE, 0x3000, 0xFFFF, 0xFFFF, "GR100 [Reserved Dev ID A](0x3000)"},
+{0x10DE, 0x3021, 0xFFFF, 0xFFFF, "GR100 [PCIe Faber](0x3021)"},
+{0x10DE, 0x3040, 0xFFFF, 0xFFFF, "GR100 [Reserved Dev ID B](0x3040)"},
 {0x10DE, 0x30C0, 0xFFFF, 0xFFFF, "GR102(0x30C0)"},
 {0x10DE, 0x3180, 0xFFFF, 0xFFFF, "GB110 [Reserved Dev ID A](0x3180)"},
 {0x10DE, 0x3182, 0xFFFF, 0xFFFF, "GB110 [B300 SXM6 AC](0x3182)"},
@@ -32648,7 +32655,7 @@ static pci_id_t const pci_vid_1CFD[] = {
 }; /* pci_vid_1CFD[] */
 
 static pci_id_t const pci_vid_1D00[] = {
-{0x1D00, 0xFFFF, 0xFFFF, 0xFFFF, "Pure Storage(0x1D00)"},
+{0x1D00, 0xFFFF, 0xFFFF, 0xFFFF, "Everpure, Inc.(0x1D00)"},
 }; /* pci_vid_1D00[] */
 
 static pci_id_t const pci_vid_1D05[] = {
@@ -36265,6 +36272,10 @@ static pci_id_t const pci_vid_20A9[] = {
 {0x20A9, 0x1201, 0xFFFF, 0xFFFF, "MUX Ultimate FPGA Accelerator Card(0x1201)"},
 }; /* pci_vid_20A9[] */
 
+static pci_id_t const pci_vid_20B4[] = {
+{0x20B4, 0xFFFF, 0xFFFF, 0xFFFF, "Genstoraige Technology Co., Ltd.(0x20B4)"},
+}; /* pci_vid_20B4[] */
+
 static pci_id_t const pci_vid_20B5[] = {
 {0x20B5, 0xFFFF, 0xFFFF, 0xFFFF, "Shanghai StarFive Technology Co., Ltd.(0x20B5)"},
 }; /* pci_vid_20B5[] */
@@ -36398,6 +36409,10 @@ static pci_id_t const pci_vid_2116[] = {
 static pci_id_t const pci_vid_2123[] = {
 {0x2123, 0xFFFF, 0xFFFF, 0xFFFF, "Shanghai Warpdrive Technology Co., Ltd(0x2123)"},
 }; /* pci_vid_2123[] */
+
+static pci_id_t const pci_vid_2136[] = {
+{0x2136, 0xFFFF, 0xFFFF, 0xFFFF, "Dongguan Xincun Chengbang Technology Co., Ltd.(0x2136)"},
+}; /* pci_vid_2136[] */
 
 static pci_id_t const pci_vid_21B4[] = {
 {0x21B4, 0xFFFF, 0xFFFF, 0xFFFF, "Hunan Goke Microelectronics Co., Ltd(0x21B4)"},
@@ -37550,12 +37565,15 @@ static pci_id_t const pci_vid_6766[] = {
 {0x6766, 0x3D02, 0xFFFF, 0xFFFF, "Arise1020(0x3D02)"},
 {0x6766, 0x3D03, 0xFFFF, 0xFFFF, "Arise-GT-1040(0x3D03)"},
 {0x6766, 0x3D04, 0xFFFF, 0xFFFF, "Arise1010(0x3D04)"},
+{0x6766, 0x3D05, 0xFFFF, 0xFFFF, "Arise2050(0x3D05)"},
 {0x6766, 0x3D06, 0xFFFF, 0xFFFF, "Arise-GT-10C0t(0x3D06)"},
 {0x6766, 0x3D07, 0xFFFF, 0xFFFF, "Arise2030(0x3D07)"},
 {0x6766, 0x3D08, 0xFFFF, 0xFFFF, "Arise2020(0x3D08)"},
+{0x6766, 0x3D09, 0xFFFF, 0xFFFF, "Arise2020C(0x3D09)"},
 {0x6766, 0x3D0E, 0xFFFF, 0xFFFF, "Arise10D0(0x3D0E)"},
 {0x6766, 0x3D40, 0xFFFF, 0xFFFF, "GLF HDMI/DP Audio(0x3D40)"},
 {0x6766, 0x3D41, 0xFFFF, 0xFFFF, "GLF HDMI/DP Audio(0x3D41)"},
+{0x6766, 0x3D42, 0xFFFF, 0xFFFF, "GLF HDMI/DP Audio(0x3D42)"},
 {0x6766, 0x3D43, 0xFFFF, 0xFFFF, "GLF HDMI/DP Audio(0x3D43)"},
 }; /* pci_vid_6766[] */
 
@@ -47555,6 +47573,8 @@ static pci_id_t const pci_vid_8086[] = {
 {0x8086, 0xD743, 0xFFFF, 0xFFFF, "NVL-HX(0xD743)"},
 {0x8086, 0xD744, 0xFFFF, 0xFFFF, "NVL-UL(0xD744)"},
 {0x8086, 0xD745, 0xFFFF, 0xFFFF, "NVL-HX(0xD745)"},
+{0x8086, 0xD74A, 0xFFFF, 0xFFFF, "NVL-S(0xD74A)"},
+{0x8086, 0xD74B, 0xFFFF, 0xFFFF, "NVL-S(0xD74B)"},
 {0x8086, 0xD750, 0xFFFF, 0xFFFF, "NVL-P(0xD750)"},
 {0x8086, 0xD751, 0xFFFF, 0xFFFF, "NVL-P(0xD751)"},
 {0x8086, 0xD752, 0xFFFF, 0xFFFF, "NVL-P(0xD752)"},
@@ -49646,7 +49666,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x10DB, 1, pci_vid_10DB },
 {0x10DC, 6, pci_vid_10DC },
 {0x10DD, 3, pci_vid_10DD },
-{0x10DE, 3434, pci_vid_10DE },
+{0x10DE, 3441, pci_vid_10DE },
 {0x10DF, 133, pci_vid_10DF },
 {0x10E0, 7, pci_vid_10E0 },
 {0x10E1, 5, pci_vid_10E1 },
@@ -51571,6 +51591,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x20A7, 1, pci_vid_20A7 },
 {0x20A8, 2, pci_vid_20A8 },
 {0x20A9, 5, pci_vid_20A9 },
+{0x20B4, 1, pci_vid_20B4 },
 {0x20B5, 1, pci_vid_20B5 },
 {0x20BA, 3, pci_vid_20BA },
 {0x20BB, 2, pci_vid_20BB },
@@ -51594,6 +51615,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x2114, 3, pci_vid_2114 },
 {0x2116, 1, pci_vid_2116 },
 {0x2123, 1, pci_vid_2123 },
+{0x2136, 1, pci_vid_2136 },
 {0x21B4, 1, pci_vid_21B4 },
 {0x21C3, 1, pci_vid_21C3 },
 {0x22B8, 2, pci_vid_22B8 },
@@ -51716,7 +51738,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x6666, 12, pci_vid_6666 },
 {0x6688, 5, pci_vid_6688 },
 {0x6704, 1, pci_vid_6704 },
-{0x6766, 12, pci_vid_6766 },
+{0x6766, 15, pci_vid_6766 },
 {0x6899, 1, pci_vid_6899 },
 {0x6900, 1, pci_vid_6900 },
 {0x6903, 1, pci_vid_6903 },
@@ -51738,7 +51760,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x8008, 4, pci_vid_8008 },
 {0x807D, 1, pci_vid_807D },
 {0x8080, 2, pci_vid_8080 },
-{0x8086, 10090, pci_vid_8086 },
+{0x8086, 10092, pci_vid_8086 },
 {0x8088, 90, pci_vid_8088 },
 {0x80EE, 3, pci_vid_80EE },
 {0x8164, 2, pci_vid_8164 },
@@ -51881,7 +51903,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0xFFFD, 2, pci_vid_FFFD },
 {0xFFFE, 2, pci_vid_FFFE },
 {0xFFFF, 1, pci_vid_FFFF },
-}; /* We have 2504 VIDs */
+}; /* We have 2506 VIDs */
 
 static int vid_search(const void *key, const void *tbl_entry)
 {

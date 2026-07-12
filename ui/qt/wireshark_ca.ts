@@ -3106,23 +3106,23 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <name>DistributionDialog</name>
     <message>
         <source>Field Values Distribution</source>
-        <translation type="unfinished"></translation>
+        <translation>Distribució dels valors del camp</translation>
     </message>
     <message>
         <source>Field Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Valor del camp</translation>
     </message>
     <message>
         <source>Occurrences</source>
-        <translation type="unfinished"></translation>
+        <translation>Freqüència</translation>
     </message>
     <message>
         <source>Percent</source>
-        <translation type="unfinished"></translation>
+        <translation>Percentatge</translation>
     </message>
     <message>
         <source>Distribution:</source>
-        <translation type="unfinished"></translation>
+        <translation>Distribució:</translation>
     </message>
 </context>
 <context>
@@ -4231,11 +4231,6 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
 <context>
     <name>FollowStreamDialog</name>
     <message>
-        <source>Filter Out This Stream</source>
-        <oldsource>Hide this stream</oldsource>
-        <translation type="vanished">Filtra aquest flux</translation>
-    </message>
-    <message>
         <source>Print</source>
         <translation>Imprimeix</translation>
     </message>
@@ -4283,11 +4278,11 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <translation type="unfinished">Prepara com a filtre</translation>
+        <translation>Prepara com a filtre</translation>
     </message>
     <message>
         <source>Apply as Filter</source>
-        <translation type="unfinished">Aplica com a filtre</translation>
+        <translation>Aplica com a filtre</translation>
     </message>
     <message>
         <source>Save as…</source>
@@ -5941,35 +5936,35 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <name>InPacketFindBar</name>
     <message>
         <source>String</source>
-        <translation type="unfinished">Cadena</translation>
+        <translation>Cadena</translation>
     </message>
     <message>
         <source>Regular Expression</source>
-        <translation type="unfinished">Expressió regular</translation>
+        <translation>Expressió regular</translation>
     </message>
     <message>
         <source>Case sensitive</source>
-        <translation type="unfinished">Distingeix majúscules i minúscules</translation>
+        <translation>Distingeix majúscules i minúscules</translation>
     </message>
     <message>
         <source>Find</source>
-        <translation type="unfinished">Cerca</translation>
+        <translation>Cerca</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Cancel·la</translation>
+        <translation>Cancel·la</translation>
     </message>
     <message>
         <source>invalid pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>patró no vàlid</translation>
     </message>
     <message>
         <source>no matches</source>
-        <translation type="unfinished"></translation>
+        <translation>sense coincidències</translation>
     </message>
     <message>
         <source>%1 of %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 de %2</translation>
     </message>
 </context>
 <context>
@@ -9037,7 +9032,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>&amp;Edit</source>
-        <translation type="unfinished">&amp;Edita</translation>
+        <translation>&amp;Edita</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</source>
@@ -9045,7 +9040,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Find in Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Troba al paquet</translation>
     </message>
     <message>
         <source>Find in the packet details tree (Ctrl+Alt+F)</source>
@@ -9061,7 +9056,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Find in &amp;Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Troba al &amp;paquet</translation>
     </message>
     <message>
         <source>Find in the packet details tree (%1)</source>
@@ -10457,7 +10452,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Distribution</source>
-        <translation type="unfinished"></translation>
+        <translation>Distribució</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -13556,11 +13551,11 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     </message>
     <message>
         <source>Search the selected packet details tree</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca l&apos;arbre de detalls del paquet seleccionat</translation>
     </message>
     <message>
         <source>Find in selected Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Troba al paquet seleccionat</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5), a plain string (e.g. My String) or a regular expression (e.g. colou?r).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -13657,7 +13652,7 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     </message>
     <message>
         <source>[no matches] %1</source>
-        <translation type="unfinished"></translation>
+        <translation>[sense coincidències] %1</translation>
     </message>
     <message>
         <source>No %1 found.</source>
@@ -13665,7 +13660,7 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     </message>
     <message>
         <source>[%1 of %2]</source>
-        <translation type="unfinished"></translation>
+        <translation>[%1 de %2]</translation>
     </message>
     <message>
         <source>Search for a plain text string/char in the current packet details tree (e.g. &apos;flag&apos; or &apos;f&apos;).</source>
@@ -17691,11 +17686,11 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     </message>
     <message>
         <source>Distribution</source>
-        <translation type="unfinished"></translation>
+        <translation>Distribució</translation>
     </message>
     <message>
         <source>Distribution statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de la distribució</translation>
     </message>
     <message>
         <source>General</source>

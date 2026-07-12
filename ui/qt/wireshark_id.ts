@@ -4207,11 +4207,6 @@ Relative to reference: n/a (outside reference range)</source>
 <context>
     <name>FollowStreamDialog</name>
     <message>
-        <source>Filter Out This Stream</source>
-        <oldsource>Hide this stream</oldsource>
-        <translation type="vanished">Saring Stream Ini</translation>
-    </message>
-    <message>
         <source>Print</source>
         <translation>Cetak</translation>
     </message>

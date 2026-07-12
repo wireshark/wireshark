@@ -4244,11 +4244,6 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
 <context>
     <name>FollowStreamDialog</name>
     <message>
-        <source>Filter Out This Stream</source>
-        <oldsource>Hide this stream</oldsource>
-        <translation type="vanished">Scag Amach an Sruth seo</translation>
-    </message>
-    <message>
         <source>Print</source>
         <translation>Priontáil</translation>
     </message>

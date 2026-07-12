@@ -4203,11 +4203,6 @@ Relative to reference: n/a (outside reference range)</source>
 <context>
     <name>FollowStreamDialog</name>
     <message>
-        <source>Filter Out This Stream</source>
-        <oldsource>Hide this stream</oldsource>
-        <translation type="vanished">滤掉此流</translation>
-    </message>
-    <message>
         <source>Print</source>
         <translation>打印</translation>
     </message>

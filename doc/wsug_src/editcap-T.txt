@@ -117,7 +117,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     loop - OpenBSD loopback
     loratap - LoRaTap
     ltalk - Localtalk
-    m_module - Bachmann M-Module File
+    m_module - Bachmann M-Module file
     mdb - MDB (Multi-Drop Bus)
     message_analyzer_wfp_capture2_v4 - Message Analyzer WFP Capture2 v4
     message_analyzer_wfp_capture2_v6 - Message Analyzer WFP Capture2 v6
@@ -157,6 +157,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     ppp - PPP
     ppp-with-direction - PPP with Directional Info
     pppoes - PPP-over-Ethernet session
+    procmon - Microsoft Process Monitor file
     raw-icmp-nettl - Raw ICMP with nettl headers
     raw-icmpv6-nettl - Raw ICMPv6 with nettl headers
     raw-telnet-nettl - Raw telnet with nettl headers

@@ -11,7 +11,7 @@
 #include "data-dmx-manfid.h"
 
 /*
- * ESTA codes download date: 2026-07-05
+ * ESTA codes download date: 2026-07-12
  */
 static const value_string dmx_esta_manfid_vals[] = {
   { 0x0000, "ESTA / PLASA" },
@@ -372,6 +372,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x04D8, "Guangzhou Hong Yuan Electronic Technology Co., LTD." },
   { 0x04DC, "Modern Stage Service Projects" },
   { 0x04DD, "Topstriving Photoelectricity Technology Co., Ltd." },
+  { 0x04E2, "TOKI CORPORATION" },
   { 0x04E6, "Kelvix" },
   { 0x04EE, "Tivoli Lighting" },
   { 0x04F0, "SIGMA NET" },
@@ -435,6 +436,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x060B, "Lighting Science Group (formerly LED Effects, Inc.)" },
   { 0x060D, "HANIL TNC CO.,LTD" },
   { 0x060F, "ILLUMINATE" },
+  { 0x0611, "MODE China" },
   { 0x0614, "Master FX" },
   { 0x061C, "LEDRAYS INC" },
   { 0x0622, "Lupo SRL" },
@@ -621,6 +623,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x07DA, "Flytech s.r.l." },
   { 0x07DB, "Foshan Yihe Technology Co., Ltd" },
   { 0x07DC, "EVLight (Guangzhou) Co.,Ltd." },
+  { 0x07E0, "Olivers Technology Inc." },
   { 0x07E2, "Lumi-Tru LTD" },
   { 0x07E3, "Lichtlogistik LED Support GmbH" },
   { 0x07E4, "Media Graph" },
@@ -1350,6 +1353,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x4253, "Barco" },
   { 0x42A2, "Birket Engineering, Inc." },
   { 0x4321, "Design Partners of Canada" },
+  { 0x432A, "432audio" },
   { 0x4344, "CDCA Ltd." },
   { 0x4347, "CAST Software" },
   { 0x4349, "C.I.Tronics Lighting Designers Ltda" },
