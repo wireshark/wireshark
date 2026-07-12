@@ -1,4 +1,4 @@
-Captype (Wireshark) 4.6.7 (v4.6.7rc0-12-g06e174333718)
+Captype (Wireshark) 4.6.8 (v4.6.8rc0-1-g4d083e23a1f3)
 Print the file types of capture files.
 See https://www.wireshark.org for more information.
 

@@ -5627,6 +5627,16 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x10DF,   "Hawkeye Surgical Lighting LLC" },
     { 0x10E0,   "Arnold & Richter Cine Technik GmbH & Co. Betriebs KG" },
     { 0x10E1,   "Neurable, Inc" },
+    { 0x10E2,   "CAREHAWK INC." },
+    { 0x10E3,   "Vybe Audio LLC" },
+    { 0x10E4,   "Smart Technologies ULC" },
+    { 0x10E5,   "Durin, inc." },
+    { 0x10E6,   "KWANG YANG MOTOR CO., LTD." },
+    { 0x10E7,   "Placenet Internet of Places S.L." },
+    { 0x10E8,   "Liontron GmbH & Co. KG" },
+    { 0x10E9,   "Hankook Tire & Technology Co., Ltd." },
+    { 0x10EA,   "Guangdong Youhong Medical Technology Co.,Ltd" },
+    { 0x10EB,   "Fontaine Fifth Wheel Company" },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
