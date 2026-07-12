@@ -36,6 +36,7 @@
 #include <epan/packet.h>
 #include <epan/unit_strings.h>
 #include <epan/expert.h>
+#include <epan/crc16-tvb.h>
 #include "packet-rdm.h"
 #include "packet-arp.h"
 #include "data-dmx-manfid.h"
@@ -296,6 +297,13 @@ static const value_string rdm_nr_vals[] = {
 #define RDM_PARAM_ID_IDENTIFY_TIMEOUT                             0x1050  /* E1.37-5 */
 #define RDM_PARAM_ID_POWER_OFF_READY                              0x1051
 
+#define RDM_PARAM_ID_FTC_INITIATE                                 0x1200  /* E1.37-4 */
+#define RDM_PARAM_ID_FTC_TRANSFER_UPLOAD                          0x1201
+#define RDM_PARAM_ID_FTC_COMMIT                                   0x1202
+#define RDM_PARAM_ID_FTC_CANCEL                                   0x1203
+#define RDM_PARAM_ID_FTC_FILELIST                                 0x1204
+#define RDM_PARAM_ID_FTC_TRANSFER_DOWNLOAD                        0x1205
+
 static const value_string rdm_param_id_vals[] = {
   { RDM_PARAM_ID_DISC_UNIQUE_BRANCH,                  "Discovery Unique Branch" },
   { RDM_PARAM_ID_DISC_MUTE,                           "Discovery Mute" },
@@ -449,6 +457,13 @@ static const value_string rdm_param_id_vals[] = {
 
   { RDM_PARAM_ID_IDENTIFY_TIMEOUT,                    "Identify Timeout" },  /* E1.37-5 */
   { RDM_PARAM_ID_POWER_OFF_READY,                     "Power Off Ready" },
+
+  { RDM_PARAM_ID_FTC_INITIATE,                        "FTC Initiate Transfer" },  /* E1.37- 4 */
+  { RDM_PARAM_ID_FTC_TRANSFER_UPLOAD,                 "FTC Transfer Data Upload" },
+  { RDM_PARAM_ID_FTC_COMMIT,                          "FTC Commit Data" },
+  { RDM_PARAM_ID_FTC_CANCEL,                          "FTC Cancel Transfer" },
+  { RDM_PARAM_ID_FTC_FILELIST,                        "FTC File List" },
+  { RDM_PARAM_ID_FTC_TRANSFER_DOWNLOAD,               "FTC Transfer Data Download" },
 
   { 0, NULL },
 };
@@ -1379,6 +1394,90 @@ static const value_string rdm_dhcp_status_vals[] = {
   { 0, NULL },
 };
 
+/* E1.37-4 */
+#define RDM_FTC_RS_STATUS_OK              0x00
+#define RDM_FTC_RS_INITOK_UL              0x01
+#define RDM_FTC_RS_INITOK_DL              0x02
+#define RDM_FTC_RS_STATUS_IN_PROGRESS     0x03
+#define RDM_FTC_RS_TRANSFER_COMPLETE      0x04
+#define RDM_FTC_RS_MODAL_ERROR            0x05
+#define RDM_FTC_RS_SWITCH_TO_BOOTLOADER   0x06
+#define RDM_FTC_RS_SESSIONID_MISMATCH     0x07
+#define RDM_FTC_RS_UNSUPPORTED_FILEID     0x08
+#define RDM_FTC_RS_FILE_NOT_COMPATIBLE    0x09
+#define RDM_FTC_RS_FILE_NOT_AVAILABLE     0x0A
+#define RDM_FTC_RS_PACKET_CRC_ERROR       0x0B
+#define RDM_FTC_RS_FILE_CRC_ERROR         0x0C
+#define RDM_FTC_RS_VALIDATION_ERROR       0x0D
+#define RDM_FTC_RS_E137_LOCKACTIVE        0x10
+#define RDM_FTC_RS_OTHER_LOCKACTIVE       0x11
+#define RDM_FTC_RS_WRITE_PROTECT          0x12
+#define RDM_FTC_RS_INVALID_DIRECTION      0x13
+#define RDM_FTC_RS_OFFSET_ERROR           0x14
+#define RDM_FTC_RS_FILESIZE_ERROR         0x15
+#define RDM_FTC_RS_FTCVERSION_ERROR       0x16
+#define RDM_FTC_RS_FILE_CRC_NOT_SUPPORTED 0x17
+#define RDM_FTC_RS_DOWNLOAD_KEY_REQUIRED  0x18
+#define RDM_FTC_RS_DOWNLOAD_FILE_CRC      0x19
+#define RDM_FTC_RS_DOWNLOAD_COMMAND_ERROR 0x1A
+#define RDM_FTC_RS_UNRESOLVED_ERROR       0x7F
+
+static const value_string rdm_ftc_response_status_vals[] = {
+  { RDM_FTC_RS_STATUS_OK,              "Ok" },
+  { RDM_FTC_RS_INITOK_UL,              "Upload Init Ok" },
+  { RDM_FTC_RS_INITOK_DL,              "Download Init Ok" },
+  { RDM_FTC_RS_STATUS_IN_PROGRESS,     "In Progress" },
+  { RDM_FTC_RS_TRANSFER_COMPLETE,      "Transfer Complete" },
+  { RDM_FTC_RS_MODAL_ERROR,            "Modal Error" },
+  { RDM_FTC_RS_SWITCH_TO_BOOTLOADER,   "Switching to Bootloader" },
+  { RDM_FTC_RS_SESSIONID_MISMATCH,     "Session ID Mismatch" },
+  { RDM_FTC_RS_UNSUPPORTED_FILEID,     "Unsupported File ID" },
+  { RDM_FTC_RS_FILE_NOT_COMPATIBLE,    "File Not Compatible" },
+  { RDM_FTC_RS_FILE_NOT_AVAILABLE,     "File Not Available" },
+  { RDM_FTC_RS_PACKET_CRC_ERROR,       "Packet CRC Error" },
+  { RDM_FTC_RS_FILE_CRC_ERROR,         "File CRC Error" },
+  { RDM_FTC_RS_VALIDATION_ERROR,       "Validation Error" },
+  { RDM_FTC_RS_E137_LOCKACTIVE,        "E1.37 Lock Active" },
+  { RDM_FTC_RS_OTHER_LOCKACTIVE,       "Other Lock Active" },
+  { RDM_FTC_RS_WRITE_PROTECT,          "Write Protect" },
+  { RDM_FTC_RS_INVALID_DIRECTION,      "Invalid Direciton" },
+  { RDM_FTC_RS_OFFSET_ERROR,           "Offset Error" },
+  { RDM_FTC_RS_FILESIZE_ERROR,         "File Size Error" },
+  { RDM_FTC_RS_FTCVERSION_ERROR,       "FTC Version Error" },
+  { RDM_FTC_RS_FILE_CRC_NOT_SUPPORTED, "File CRC Not Supported" },
+  { RDM_FTC_RS_DOWNLOAD_KEY_REQUIRED,  "Download Key Required" },
+  { RDM_FTC_RS_DOWNLOAD_FILE_CRC,      "Download File CRC" },
+  { RDM_FTC_RS_DOWNLOAD_COMMAND_ERROR, "Download Command Error" },
+  { RDM_FTC_RS_UNRESOLVED_ERROR,       "Unresolved Error" },
+  { 0, NULL }
+};
+
+/* E1.37-4 */
+#define FTC_TD_GET_NEXT_PACKET    0x01
+#define FTC_TD_RESEND_LAST_PACKET 0x02
+#define FTC_TD_GET_FILE_CRC       0x03
+
+static const value_string rdm_ftc_download_command_vals[] = {
+  { FTC_TD_GET_NEXT_PACKET,    "Get Next Packet" },
+  { FTC_TD_RESEND_LAST_PACKET, "Resend Last Packet" },
+  { FTC_TD_GET_FILE_CRC,       "Get File CRC" },
+  { 0, NULL }
+};
+
+/* E1.37-4 */
+static const value_string rdm_ftc_session_id_vals[] = {
+  { 0x00, "No Session ID" },
+  { 0xFF, "All Sessions" },
+  { 0, NULL }
+};
+
+/* E1.37-4 */
+static const value_string rdm_ftc_file_id_vals[] = {
+  { 0x00, "No FileID offered" },
+  { 0xFF, "Multiple FileIDs" },
+  { 0, NULL }
+};
+
 /* E1.37-5 */
 static const value_string rdm_identify_timeout_vals[] = {
   { 0, "Timeout Disabled" },
@@ -1886,6 +1985,71 @@ static int hf_rdm_pd_zeroconf_mode_interface_identifier;
 static int hf_rdm_pd_zeroconf_mode_enabled;
 static int hf_rdm_pd_rec_value_support;
 
+static int hf_rdm_pd_ftc_session_id;
+static int hf_rdm_pd_ftc_file_id;
+static int hf_rdm_pd_ftc_version_major;
+static int hf_rdm_pd_ftc_version_minor;
+static int hf_rdm_pd_ftc_transfer_flags;
+static int hf_rdm_pd_ftc_transfer_flags_test_mode;
+static int hf_rdm_pd_ftc_transfer_flags_download;
+static int hf_rdm_pd_ftc_response_status;
+static int hf_rdm_pd_ftc_response_data;
+static int hf_rdm_pd_ftc_response_data_commit_time;
+static int hf_rdm_pd_ftc_response_data_time_to_wait;
+static int hf_rdm_pd_ftc_response_data_received_crc;
+static int hf_rdm_pd_ftc_response_data_calculated_crc;
+static int hf_rdm_pd_ftc_response_data_offered_fileid;
+static int hf_rdm_pd_ftc_response_data_supported_fileid;
+static int hf_rdm_pd_ftc_response_data_received_sessionid;
+static int hf_rdm_pd_ftc_response_data_expected_sessionid;
+static int hf_rdm_pd_ftc_response_data_expected_offset;
+static int hf_rdm_pd_ftc_response_data_expected_file_size;
+static int hf_rdm_pd_ftc_response_data_supported_major_ver;
+static int hf_rdm_pd_ftc_response_data_supported_minor_ver;
+static int hf_rdm_pd_ftc_response_data_received_command;
+static int hf_rdm_pd_ftc_file_size;
+static int hf_rdm_pd_ftc_data;
+static int hf_rdm_pd_ftc_file_crc;
+static int hf_rdm_pd_ftc_packet_crc;
+static int hf_rdm_pd_ftc_packet_crc_status;
+static int hf_rdm_pd_ftc_capabilities;
+static int hf_rdm_pd_ftc_capabilities_accept_upload;
+static int hf_rdm_pd_ftc_capabilities_accept_download;
+static int hf_rdm_pd_ftc_capabilities_process_file_crc;
+static int hf_rdm_pd_ftc_capabilities_process_packet_crc;
+static int hf_rdm_pd_ftc_capabilities_generate_file_crc;
+static int hf_rdm_pd_ftc_capabilities_generate_packet_crc;
+static int hf_rdm_pd_ftc_capabilities_download_key;
+static int hf_rdm_pd_ftc_capabilities_bootloader_switch;
+static int hf_rdm_pd_ftc_capabilities_nsc_no_iterleave;
+static int hf_rdm_pd_ftc_capabilities_nsc_ignored;
+static int hf_rdm_pd_ftc_capabilities_function_limit;
+static int hf_rdm_pd_ftc_capabilities_e137_lock;
+static int hf_rdm_pd_ftc_capabilities_other_lock;
+static int hf_rdm_pd_ftc_capabilities_accept_broadcasts;
+static int hf_rdm_pd_ftc_capabilities_fail_may_brick;
+static int hf_rdm_pd_ftc_capabilities_alternate_error_recovery;
+static int hf_rdm_pd_ftc_capabilities_test_mode_supported;
+static int hf_rdm_pd_ftc_data_offset;
+static int hf_rdm_pd_ftc_transfer_block_size;
+static int hf_rdm_pd_ftc_initial_delay;
+static int hf_rdm_pd_ftc_inter_packet_delay;
+static int hf_rdm_pd_ftc_accumulated_byte_count;
+static int hf_rdm_pd_ftc_accumulated_byte_delay;
+static int hf_rdm_pd_ftc_validation_delay;
+static int hf_rdm_pd_ftc_max_inter_packet_delay;
+static int hf_rdm_pd_ftc_commit_flags;
+static int hf_rdm_pd_ftc_commit_flags_test_mode;
+static int hf_rdm_pd_ftc_commit_flags_download;
+static int hf_rdm_pd_ftc_calculated_file_crc;
+static int hf_rdm_pd_ftc_expected_uid;
+static int hf_rdm_pd_ftc_expected_uid_manf;
+static int hf_rdm_pd_ftc_expected_uid_dev;
+static int hf_rdm_pd_ftc_expected_uid_dyn;
+static int hf_rdm_pd_ftc_file_description;
+static int hf_rdm_pd_ftc_file_suffix;
+static int hf_rdm_pd_ftc_command;
+
 static int * const rdm_pd_disc_mute_control_field[] = {
   &hf_rdm_pd_disc_mute_control_field_managed,
   &hf_rdm_pd_disc_mute_control_field_sub_device,
@@ -1952,6 +2116,39 @@ static int * const rdm_pd_selftest_capability[] = {
   NULL
 };
 
+static int * const rdm_pd_ftc_transfer_flags[] = {
+  &hf_rdm_pd_ftc_transfer_flags_test_mode,
+  &hf_rdm_pd_ftc_transfer_flags_download,
+  NULL
+};
+
+static int * const rdm_pd_ftc_capabilities[] = {
+  &hf_rdm_pd_ftc_capabilities_accept_upload,
+  &hf_rdm_pd_ftc_capabilities_accept_download,
+  &hf_rdm_pd_ftc_capabilities_process_file_crc,
+  &hf_rdm_pd_ftc_capabilities_process_packet_crc,
+  &hf_rdm_pd_ftc_capabilities_generate_file_crc,
+  &hf_rdm_pd_ftc_capabilities_generate_packet_crc,
+  &hf_rdm_pd_ftc_capabilities_download_key,
+  &hf_rdm_pd_ftc_capabilities_bootloader_switch,
+  &hf_rdm_pd_ftc_capabilities_nsc_no_iterleave,
+  &hf_rdm_pd_ftc_capabilities_nsc_ignored,
+  &hf_rdm_pd_ftc_capabilities_function_limit,
+  &hf_rdm_pd_ftc_capabilities_e137_lock,
+  &hf_rdm_pd_ftc_capabilities_other_lock,
+  &hf_rdm_pd_ftc_capabilities_accept_broadcasts,
+  &hf_rdm_pd_ftc_capabilities_fail_may_brick,
+  &hf_rdm_pd_ftc_capabilities_alternate_error_recovery,
+  &hf_rdm_pd_ftc_capabilities_test_mode_supported,
+  NULL
+};
+
+static int * const rdm_pd_ftc_commit_flags[] = {
+  &hf_rdm_pd_ftc_commit_flags_test_mode,
+  &hf_rdm_pd_ftc_commit_flags_download,
+  NULL
+};
+
 static int ett_rdm;
 static int ett_rdm_mdb;
 static int ett_rdm_pd;
@@ -1965,9 +2162,14 @@ static int ett_rdm_pd_comms_status_nsc_supported_fields;
 static int ett_rdm_pd_supported_parameters_pid_support;
 static int ett_rdm_pd_controller_flag_support_flags;
 static int ett_rdm_pd_selftest_capability;
+static int ett_rdm_pd_ftc_transfer_flags;
+static int ett_rdm_pd_ftc_response_data;
+static int ett_rdm_pd_ftc_capabilities;
+static int ett_rdm_pd_ftc_commit_flags;
 
 static expert_field ei_rdm_checksum;
 static expert_field ei_rdm_parameter_data_length;
+static expert_field ei_rdm_ftc_crc;
 
 static int hf_rdm_etc_parameter_id;
 static int hf_rdm_etc_pd_parameter_id;
@@ -1984,6 +2186,15 @@ rdm_checksum(tvbuff_t *tvb, unsigned length)
   for (i = 0; i < length; i++)
     sum += tvb_get_uint8(tvb, i);
   return sum;
+}
+
+static uint16_t
+crc16_rdm_tvb_offset(tvbuff_t *tvb, unsigned offset, unsigned len) {
+  uint16_t modbus_crc = crc16_usb_tvb_offset(tvb, offset, len) ^ 0xFFFF;
+  // we undo the out XOR
+  // then do a byte swap, because the RDM version uses it's high and low bytes in the opposite
+  // way to the Modbus (and USB) version
+  return (modbus_crc >> 8) | (modbus_crc << 8);
 }
 
 static void
@@ -2024,6 +2235,53 @@ rdm_add_param_id(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t dev
     }
   }
   return param_id;
+}
+
+static void
+rdm_add_ftc_response_status_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t param_id) {
+  uint8_t response_status;
+  proto_tree_add_item_ret_uint8(tree, hf_rdm_pd_ftc_response_status, tvb, *offset, 1, ENC_BIG_ENDIAN, &response_status);
+  *offset += 1;
+  proto_item* ti = proto_tree_add_item(tree, hf_rdm_pd_ftc_response_data, tvb, *offset, 4, ENC_BIG_ENDIAN);
+  proto_tree* status_tree = proto_item_add_subtree(ti, ett_rdm_pd_ftc_response_data);
+  switch (response_status) {
+  case RDM_FTC_RS_STATUS_OK:
+    if (param_id == RDM_PARAM_ID_FTC_COMMIT) {
+      proto_tree_add_item(status_tree, hf_rdm_pd_ftc_response_data_commit_time, tvb, *offset, 4, ENC_BIG_ENDIAN);
+    }
+    break;
+  case RDM_FTC_RS_STATUS_IN_PROGRESS:
+  case RDM_FTC_RS_SWITCH_TO_BOOTLOADER:
+    proto_tree_add_item(status_tree, hf_rdm_pd_ftc_response_data_time_to_wait, tvb, *offset, 4, ENC_BIG_ENDIAN);
+    break;
+  case RDM_FTC_RS_PACKET_CRC_ERROR:
+  case RDM_FTC_RS_FILE_CRC_ERROR:
+    proto_tree_add_item(status_tree, hf_rdm_pd_ftc_response_data_received_crc, tvb, *offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(status_tree, hf_rdm_pd_ftc_response_data_calculated_crc, tvb, *offset + 2, 2, ENC_BIG_ENDIAN);
+    break;
+  case RDM_FTC_RS_UNSUPPORTED_FILEID:
+    proto_tree_add_item(status_tree, hf_rdm_pd_ftc_response_data_offered_fileid, tvb, *offset + 1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(status_tree, hf_rdm_pd_ftc_response_data_supported_fileid, tvb, *offset + 3, 1, ENC_BIG_ENDIAN);
+    break;
+  case RDM_FTC_RS_SESSIONID_MISMATCH:
+    proto_tree_add_item(status_tree, hf_rdm_pd_ftc_response_data_received_sessionid, tvb, *offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(status_tree, hf_rdm_pd_ftc_response_data_expected_sessionid, tvb, *offset + 2, 2, ENC_BIG_ENDIAN);
+    break;
+  case RDM_FTC_RS_OFFSET_ERROR:
+    proto_tree_add_item(status_tree, hf_rdm_pd_ftc_response_data_expected_offset, tvb, *offset, 4, ENC_BIG_ENDIAN);
+    break;
+  case RDM_FTC_RS_FILESIZE_ERROR:
+    proto_tree_add_item(status_tree, hf_rdm_pd_ftc_response_data_expected_file_size, tvb, *offset, 4, ENC_BIG_ENDIAN);
+    break;
+  case RDM_FTC_RS_FTCVERSION_ERROR:
+    proto_tree_add_item(status_tree, hf_rdm_pd_ftc_response_data_supported_major_ver, tvb, *offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(status_tree, hf_rdm_pd_ftc_response_data_supported_minor_ver, tvb, *offset + 2, 2, ENC_BIG_ENDIAN);
+    break;
+  case RDM_FTC_RS_DOWNLOAD_COMMAND_ERROR:
+    proto_tree_add_item(status_tree, hf_rdm_pd_ftc_response_data_received_command, tvb, *offset, 4, ENC_BIG_ENDIAN);
+    break;
+  }
+  *offset += 4;
 }
 
 /**
@@ -3973,6 +4231,214 @@ dissect_rdm_pd_dns_domain_name(tvbuff_t *tvb, unsigned offset, proto_tree *tree,
 }
 
 static unsigned
+dissect_rdm_pd_ftc_initiate(tvbuff_t *tvb, unsigned offset, packet_info* pinfo, proto_tree *tree, uint8_t cc)
+{
+  unsigned start_offset = offset;
+  switch (cc) {
+  case RDM_CC_GET_COMMAND:
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_file_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_version_major, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_version_minor, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_bitmask(tree, tvb, offset, hf_rdm_pd_ftc_transfer_flags,
+      ett_rdm_pd_ftc_transfer_flags, rdm_pd_ftc_transfer_flags, ENC_BIG_ENDIAN);
+    offset += 2;
+    break;
+  case RDM_CC_SET_COMMAND:
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_file_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_version_major, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_version_minor, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_bitmask(tree, tvb, offset, hf_rdm_pd_ftc_transfer_flags,
+      ett_rdm_pd_ftc_transfer_flags, rdm_pd_ftc_transfer_flags, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_file_size, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_data, tvb, offset, 16, ENC_NA);
+    offset += 16;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_file_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    uint16_t crc_calc = crc16_rdm_tvb_offset(tvb, start_offset, offset-start_offset);
+    proto_tree_add_checksum(tree, tvb, offset, hf_rdm_pd_ftc_packet_crc, hf_rdm_pd_ftc_packet_crc_status,
+      &ei_rdm_ftc_crc, pinfo, crc_calc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+    offset += 2;
+    break;
+  case RDM_CC_GET_COMMAND_RESPONSE:
+  case RDM_CC_SET_COMMAND_RESPONSE:
+    rdm_add_ftc_response_status_data(tree, tvb, &offset, RDM_PARAM_ID_FTC_INITIATE);
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_file_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_version_major, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_version_minor, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_file_size, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_bitmask(tree, tvb, offset, hf_rdm_pd_ftc_capabilities,
+        ett_rdm_pd_ftc_capabilities, rdm_pd_ftc_capabilities, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_data_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_transfer_block_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_initial_delay, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_inter_packet_delay, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_accumulated_byte_count, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_accumulated_byte_delay, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_validation_delay, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_max_inter_packet_delay, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    break;
+  }
+
+  return offset;
+}
+
+static unsigned
+dissect_rdm_pd_ftc_transfer_upload(tvbuff_t *tvb, unsigned offset, packet_info* pinfo, proto_tree *tree, uint8_t cc, uint8_t len)
+{
+  unsigned start_offset = offset;
+  switch (cc) {
+  case RDM_CC_GET_COMMAND:
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    break;
+  case RDM_CC_SET_COMMAND:
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_data_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_data, tvb, offset, len-7, ENC_NA);
+    offset += len-7;
+    uint16_t crc_calc = crc16_rdm_tvb_offset(tvb, start_offset, offset-start_offset);
+    proto_tree_add_checksum(tree, tvb, offset, hf_rdm_pd_ftc_packet_crc, hf_rdm_pd_ftc_packet_crc_status,
+      &ei_rdm_ftc_crc, pinfo, crc_calc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+    offset += 2;
+    break;
+  case RDM_CC_GET_COMMAND_RESPONSE:
+  case RDM_CC_SET_COMMAND_RESPONSE:
+    rdm_add_ftc_response_status_data(tree, tvb, &offset, RDM_PARAM_ID_FTC_TRANSFER_UPLOAD);
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_data_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    break;
+  }
+
+  return offset;
+}
+
+static unsigned
+dissect_rdm_pd_ftc_commit(tvbuff_t *tvb, unsigned offset, proto_tree *tree, uint8_t cc)
+{
+  switch (cc) {
+  case RDM_CC_GET_COMMAND:
+  case RDM_CC_SET_COMMAND:
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_bitmask(tree, tvb, offset, hf_rdm_pd_ftc_commit_flags,
+      ett_rdm_pd_ftc_commit_flags, rdm_pd_ftc_commit_flags, ENC_BIG_ENDIAN);
+    offset += 2;
+    break;
+  case RDM_CC_GET_COMMAND_RESPONSE:
+  case RDM_CC_SET_COMMAND_RESPONSE:
+    rdm_add_ftc_response_status_data(tree, tvb, &offset, RDM_PARAM_ID_FTC_COMMIT);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_rdm_pd_ftc_commit_flags,
+      ett_rdm_pd_ftc_commit_flags, rdm_pd_ftc_commit_flags, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_calculated_file_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    rdm_add_uid_item(tree, hf_rdm_pd_ftc_expected_uid, tvb, &offset,
+      hf_rdm_pd_ftc_expected_uid_manf, hf_rdm_pd_ftc_expected_uid_dev,
+      hf_rdm_pd_ftc_expected_uid_dyn);
+    break;
+  }
+
+  return offset;
+}
+
+static unsigned
+dissect_rdm_pd_ftc_cancel(tvbuff_t *tvb, unsigned offset, proto_tree *tree, uint8_t cc)
+{
+  switch (cc) {
+  case RDM_CC_SET_COMMAND:
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    break;
+  case RDM_CC_SET_COMMAND_RESPONSE:
+    rdm_add_ftc_response_status_data(tree, tvb, &offset, RDM_PARAM_ID_FTC_CANCEL);
+    break;
+  }
+
+  return offset;
+}
+
+static unsigned
+dissect_rdm_pd_ftc_filelist(tvbuff_t *tvb, unsigned offset, proto_tree *tree, uint8_t cc, uint8_t len)
+{
+  switch (cc) {
+  case RDM_CC_GET_COMMAND_RESPONSE:
+    while (len >= 43) {
+      proto_tree_add_item(tree, hf_rdm_pd_ftc_file_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+      offset += 1;
+      proto_tree_add_bitmask(tree, tvb, offset, hf_rdm_pd_ftc_capabilities,
+        ett_rdm_pd_ftc_capabilities, rdm_pd_ftc_capabilities, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(tree, hf_rdm_pd_ftc_file_description, tvb, offset, 32, ENC_UTF_8);
+      offset += 32;
+      proto_tree_add_item(tree, hf_rdm_pd_ftc_file_suffix, tvb, offset, 6, ENC_UTF_8);
+      offset += 6;
+      len -= 43;
+    }
+    break;
+  }
+
+  return offset;
+}
+
+static unsigned
+dissect_rdm_pd_ftc_transfer_download(tvbuff_t *tvb, unsigned offset, packet_info* pinfo, proto_tree *tree, uint8_t cc, uint8_t len)
+{
+  unsigned start_offset = offset;
+  switch (cc) {
+  case RDM_CC_GET_COMMAND:
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_command, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_data_offset, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    break;
+  case RDM_CC_GET_COMMAND_RESPONSE:
+    rdm_add_ftc_response_status_data(tree, tvb, &offset, RDM_PARAM_ID_FTC_TRANSFER_DOWNLOAD);
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_rdm_pd_ftc_data, tvb, offset, len-8, ENC_NA);
+    offset += len-8;
+    uint16_t crc_calc = crc16_rdm_tvb_offset(tvb, start_offset, offset-start_offset);
+    proto_tree_add_checksum(tree, tvb, offset, hf_rdm_pd_ftc_packet_crc, hf_rdm_pd_ftc_packet_crc_status,
+      &ei_rdm_ftc_crc, pinfo, crc_calc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+    offset += 2;
+    break;
+  }
+
+  return offset;
+}
+
+static unsigned
 dissect_rdm_pd_identify_device(tvbuff_t *tvb, unsigned offset, proto_tree *tree, uint8_t cc, uint8_t len _U_)
 {
   switch(cc) {
@@ -5147,6 +5613,30 @@ dissect_rdm_mdb_param_data_no_packed(tvbuff_t *tvb, unsigned offset, packet_info
 
     case RDM_PARAM_ID_DNS_DOMAIN_NAME:
       offset = dissect_rdm_pd_dns_domain_name(tvb, offset, tree, cc, pdl);
+      break;
+
+    case RDM_PARAM_ID_FTC_INITIATE:
+      offset = dissect_rdm_pd_ftc_initiate(tvb, offset, pinfo, tree, cc);
+      break;
+
+    case RDM_PARAM_ID_FTC_TRANSFER_UPLOAD:
+      offset = dissect_rdm_pd_ftc_transfer_upload(tvb, offset, pinfo, tree, cc, pdl);
+      break;
+
+    case RDM_PARAM_ID_FTC_COMMIT:
+      offset = dissect_rdm_pd_ftc_commit(tvb, offset, tree, cc);
+      break;
+
+    case RDM_PARAM_ID_FTC_CANCEL:
+      offset = dissect_rdm_pd_ftc_cancel(tvb, offset, tree, cc);
+      break;
+
+    case RDM_PARAM_ID_FTC_FILELIST:
+      offset = dissect_rdm_pd_ftc_filelist(tvb, offset, tree, cc, pdl);
+      break;
+
+    case RDM_PARAM_ID_FTC_TRANSFER_DOWNLOAD:
+      offset = dissect_rdm_pd_ftc_transfer_download(tvb, offset, pinfo, tree, cc, pdl);
       break;
 
     case RDM_PARAM_ID_IDENTIFY_DEVICE:
@@ -7560,6 +8050,326 @@ proto_register_rdm(void)
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
 
+    { &hf_rdm_pd_ftc_session_id,
+      { "Session ID", "rdm.pd.ftc.session_id",
+        FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(rdm_ftc_session_id_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_file_id,
+      { "File ID", "rdm.pd.ftc.file_id",
+        FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(rdm_ftc_file_id_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_version_major,
+      { "FTC Major Version", "rdm.pd.ftc.version_major",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_version_minor,
+      { "FTC Minor Version", "rdm.pd.ftc.version_minor",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_transfer_flags,
+      { "Transfer Flags", "rdm.pd.ftc.transfer_flags",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_transfer_flags_test_mode,
+      { "Test Mode", "rdm.pd.ftc.transfer_flags.test_mode",
+        FT_BOOLEAN, 16, NULL, 0x0001,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_transfer_flags_download,
+      { "Download", "rdm.pd.ftc.transfer_flags.download",
+        FT_BOOLEAN, 16, NULL, 0x0002,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_response_status,
+      { "Response Status", "rdm.pd.ftc.response_status",
+        FT_UINT8, BASE_HEX, VALS(rdm_ftc_response_status_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_response_data,
+      { "Response Data", "rdm.pd.ftc.response_data",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_response_data_commit_time,
+      { "Commit Time", "rdm.pd.ftc.response_data.commit_time",
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_response_data_time_to_wait,
+      { "Time to Wait", "rdm.pd.ftc.response_data.time_to_wait",
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_response_data_received_crc,
+      { "Received CRC", "rdm.pd.ftc.response_data.received_crc",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_response_data_calculated_crc,
+      { "Calculated CRC", "rdm.pd.ftc.response_data.calculated_crc",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_response_data_offered_fileid,
+      { "Offered File ID", "rdm.pd.ftc.response_data.offered_fileid",
+        FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(rdm_ftc_file_id_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_response_data_supported_fileid,
+      { "Supported File ID", "rdm.pd.ftc.response_data.supported_fileid",
+        FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(rdm_ftc_file_id_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_response_data_received_sessionid,
+      { "Received Session ID", "rdm.pd.ftc.response_data.received_sessionid",
+        FT_UINT16, BASE_DEC|BASE_SPECIAL_VALS, VALS(rdm_ftc_session_id_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_response_data_expected_sessionid,
+      { "Expected Session ID", "rdm.pd.ftc.response_data.expected_sessionid",
+        FT_UINT16, BASE_DEC|BASE_SPECIAL_VALS, VALS(rdm_ftc_session_id_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_response_data_expected_offset,
+      { "Expected Offset", "rdm.pd.ftc.response_data.expected_offset",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_response_data_expected_file_size,
+      { "Expected File Size", "rdm.pd.ftc.response_data.expected_file_size",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_response_data_supported_major_ver,
+      { "Supported Major Version", "rdm.pd.ftc.response_data.supported_major_ver",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_response_data_supported_minor_ver,
+      { "Supported Minor Version", "rdm.pd.ftc.response_data.supported_minor_ver",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_response_data_received_command,
+      { "Received Command", "rdm.pd.ftc.response_data.received_command",
+        FT_UINT32, BASE_HEX, VALS(rdm_ftc_download_command_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_file_size,
+      { "File Size", "rdm.pd.ftc.file_size",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_data,
+      { "File Data", "rdm.pd.ftc.data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_file_crc,
+      { "File CRC", "rdm.pd.ftc.file_crc",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_packet_crc,
+      { "Packet CRC", "rdm.pd.ftc.packet_crc",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_packet_crc_status,
+      { "Packet CRC Status", "rdm.pd.ftc.packet_crc.status",
+        FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_capabilities,
+      { "Capabilities", "rdm.pd.ftc.capabilities",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_capabilities_accept_upload,
+      { "Accepts Upload", "rdm.pd.ftc.capabilities.accept_upload",
+        FT_BOOLEAN, 32, NULL, 0x00000001,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_capabilities_accept_download,
+      { "Accepts Download", "rdm.pd.ftc.capabilities.accept_download",
+        FT_BOOLEAN, 32, NULL, 0x00000002,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_capabilities_process_file_crc,
+      { "Processes File CRC", "rdm.pd.ftc.capabilities.process_file_crc",
+        FT_BOOLEAN, 32, NULL, 0x00000004,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_capabilities_process_packet_crc,
+      { "Processes Packet CRC", "rdm.pd.ftc.capabilities.process_packet_crc",
+        FT_BOOLEAN, 32, NULL, 0x00000008,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_capabilities_generate_file_crc,
+      { "Generates File CRC", "rdm.pd.ftc.capabilities.generate_file_crc",
+        FT_BOOLEAN, 32, NULL, 0x00000010,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_capabilities_generate_packet_crc,
+      { "Generates File CRC", "rdm.pd.ftc.capabilities.generate_packet_crc",
+        FT_BOOLEAN, 32, NULL, 0x00000020,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_capabilities_download_key,
+      { "Download Key Required", "rdm.pd.ftc.capabilities.download_key",
+        FT_BOOLEAN, 32, NULL, 0x00000040,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_capabilities_bootloader_switch,
+      { "Switch to Bootloader", "rdm.pd.ftc.capabilities.bootloader_switch",
+        FT_BOOLEAN, 32, NULL, 0x00000080,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_capabilities_nsc_no_iterleave,
+      { "NSC No Interleave", "rdm.pd.ftc.capabilities.nsc_no_iterleave",
+        FT_BOOLEAN, 32, NULL, 0x00000100,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_capabilities_nsc_ignored,
+      { "NSC Ignored", "rdm.pd.ftc.capabilities.nsc_ignored",
+        FT_BOOLEAN, 32, NULL, 0x00000200,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_capabilities_function_limit,
+      { "Functions Limited", "rdm.pd.ftc.capabilities.function_limit",
+        FT_BOOLEAN, 32, NULL, 0x00000400,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_capabilities_e137_lock,
+      { "E1.37 Unlock Required", "rdm.pd.ftc.capabilities.e137_lock",
+        FT_BOOLEAN, 32, NULL, 0x00001000,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_capabilities_other_lock,
+      { "Other Unlock Required", "rdm.pd.ftc.capabilities.other_lock",
+        FT_BOOLEAN, 32, NULL, 0x00002000,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_capabilities_accept_broadcasts,
+      { "Accepts Broadcasts", "rdm.pd.ftc.capabilities.accept_broadcasts",
+        FT_BOOLEAN, 32, NULL, 0x00008000,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_capabilities_fail_may_brick,
+      { "Fail May Brick Device", "rdm.pd.ftc.capabilities.fail_may_brick",
+        FT_BOOLEAN, 32, NULL, 0x00010000,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_capabilities_alternate_error_recovery,
+      { "Alternate Error Recovery Available", "rdm.pd.ftc.capabilities.alternate_error_recovery",
+        FT_BOOLEAN, 32, NULL, 0x00020000,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_capabilities_test_mode_supported,
+      { "Test Mode Supported", "rdm.pd.ftc.capabilities.test_mode_supported",
+        FT_BOOLEAN, 32, NULL, 0x00800000,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_data_offset,
+      { "Data Offset", "rdm.pd.ftc.data_offset",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_transfer_block_size,
+      { "Transfer Block Size", "rdm.pd.ftc.transfer_block_size",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_initial_delay,
+      { "Initial Delay Time", "rdm.pd.ftc.initial_delay",
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_inter_packet_delay,
+      { "Inter-Packet Delay Time", "rdm.pd.ftc.inter_packet_delay",
+        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_accumulated_byte_count,
+      { "Accumulated Byte Count", "rdm.pd.ftc.accumulated_byte_count",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_accumulated_byte_delay,
+      { "Accumulated Byte Delay", "rdm.pd.ftc.accumulated_byte_delay",
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_validation_delay,
+      { "Validation Delay Time", "rdm.pd.ftc.validation_delay",
+        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_max_inter_packet_delay,
+      { "Max Inter-Packet Delay Time", "rdm.pd.ftc.max_inter_packet_delay",
+        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_commit_flags,
+      { "Commit Flags", "rdm.pd.ftc.commit_flags",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_commit_flags_test_mode,
+      { "Test Mode", "rdm.pd.ftc.commit_flags.test_mode",
+        FT_BOOLEAN, 16, NULL, 0x0001,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_commit_flags_download,
+      { "Download", "rdm.pd.ftc.commit_flags.download",
+        FT_BOOLEAN, 16, NULL, 0x0002,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_calculated_file_crc,
+      { "Calculated File CRC", "rdm.pd.ftc.calculated_file_crc",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_expected_uid,
+      { "Expected UID", "rdm.pd.ftc.expected_uid",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_expected_uid_dyn,
+      { "Dynamic UID", "rdm.pd.ftc.expected_uid.dyn",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_expected_uid_manf,
+      { "Manufacturer ID", "rdm.pd.ftc.expected_uid.manf",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_expected_uid_dev,
+      { "Device ID", "rdm.pd.ftc.expected_uid.dev",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_file_description,
+      { "File Description", "rdm.pd.ftc.file_description",
+        FT_STRINGZPAD, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_file_suffix,
+      { "File Extension", "rdm.pd.ftc.file_suffix",
+        FT_STRINGZPAD, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_ftc_command,
+      { "Download Command", "rdm.pd.ftc.command",
+        FT_UINT8, BASE_HEX, VALS(rdm_ftc_download_command_vals), 0x0,
+        NULL, HFILL }},
+
     { &hf_rdm_etc_parameter_id,
       { "Parameter ID", "rdm.pid",
         FT_UINT16, BASE_HEX | BASE_EXT_STRING, &etc_param_id_vals_ext, 0x0,
@@ -7590,12 +8400,16 @@ proto_register_rdm(void)
     &ett_rdm_pd_supported_parameters_pid_support,
     &ett_rdm_pd_controller_flag_support_flags,
     &ett_rdm_pd_selftest_capability,
-
+    &ett_rdm_pd_ftc_response_data,
+    &ett_rdm_pd_ftc_transfer_flags,
+    &ett_rdm_pd_ftc_capabilities,
+    &ett_rdm_pd_ftc_commit_flags
   };
 
   static ei_register_info ei[] = {
     { &ei_rdm_checksum, { "rdm.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
     { &ei_rdm_parameter_data_length, { "rdm.pdl.mismatch", PI_PROTOCOL, PI_WARN, "Parameter Data Length Mismatch", EXPFILL }},
+    { &ei_rdm_ftc_crc, { "rdm.bad_ftc_crc", PI_CHECKSUM, PI_ERROR, "Bad FTC Packet CRC", EXPFILL }},
   };
 
   expert_module_t* expert_rdm;
