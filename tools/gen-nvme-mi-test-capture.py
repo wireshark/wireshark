@@ -11,11 +11,14 @@ nvme-mi-req-resp.pcapng  (7 frames)
   2. Admin command with More Processing Required (MPR) then final response (CSI=0)
   3. Concurrent MI command on the second slot (CSI=1), interleaved with the MPR sequence
 
-nvme-mi-types.pcapng  (72 frames)
+nvme-mi-types.pcapng  (103 frames)
   Comprehensive coverage across all NVMe-MI message types and edge cases:
   - Orphan response (response before any request on that slot; simulates capture
     started mid-conversation — the dissector must not crash or mislink)
-  - All five MI opcodes (0x00-0x04)
+  - MI opcodes 0x00-0x07 and 0x0C with realistic command dwords and response
+    payloads (Port/Subsystem Information, Controller List, command lists,
+    NSHDS, CHDS entries, Configuration Set/Get per-CONFIGID fields,
+    VPD Read/Write, Reset, Shutdown)
   - Several Admin opcodes (Get Log, Set Features, Get Features, Identify)
   - Admin request flags (DLEN, DOFF)
   - Admin response with CQE payload data
@@ -54,6 +57,9 @@ nvme-mi-types.pcapng  (72 frames)
       payload, MIC verification skipped, expert added)
     * 1-byte MI MPR interim response: the status byte alone must keep the
       command slot open so the final response still links to the request
+    * Sliced MPR interim response (caplen cut right after the NVMe-MI
+      header): the status byte is unverifiable, so the framing layer must
+      leave the slot open rather than mislink the request to the interim
 
 Wire format layers (outer to inner):
   Linux SLL cooked capture header (16 bytes, DLT=113)
@@ -107,12 +113,14 @@ def idb(link_type=113, snaplen=65535):
     body = struct.pack('<HHI', link_type, 0, snaplen)
     return _block(0x00000001, body)
 
-def epb(packet_bytes, ts_us):
-    """Enhanced Packet Block with microsecond timestamp."""
+def epb(packet_bytes, ts_us, origlen=None):
+    """Enhanced Packet Block with microsecond timestamp.  Passing an origlen
+    larger than len(packet_bytes) produces a sliced frame (snaplen cut)."""
     ts_high = (ts_us >> 32) & 0xFFFFFFFF
     ts_low  =  ts_us & 0xFFFFFFFF
     caplen = len(packet_bytes)
-    origlen = caplen
+    if origlen is None:
+        origlen = caplen
     padded = packet_bytes + b'\x00' * (_pad4(caplen) - caplen)
     body = struct.pack('<IIIII', 0, ts_high, ts_low, caplen, origlen) + padded
     return _block(0x00000006, body)
@@ -191,13 +199,74 @@ def mi_request_payload(opcode, cdw0=0, cdw1=0):
     """MI command request: opcode(1) + rsvd(3) + CDW0(4) + CDW1(4) = 12 bytes."""
     return bytes([opcode, 0, 0, 0]) + struct.pack('<II', cdw0, cdw1)
 
-def mi_response_payload(status):
+def mi_response_payload(status, nmresp=0):
     """MI command response: status(1) + nmresp(3) = 4 bytes."""
-    return bytes([status, 0, 0, 0])
+    return bytes([status]) + struct.pack('<I', nmresp)[:3]
 
-def mi_response_payload_with_data(status, data):
+def mi_response_payload_with_data(status, data, nmresp=0):
     """MI command response with trailing data bytes (exercises nvme-mi.mi.data)."""
-    return bytes([status, 0, 0, 0]) + data
+    return bytes([status]) + struct.pack('<I', nmresp)[:3] + data
+
+# ---------------------------------------------------------------------------
+# MI command response data structures (NVMe-MI 2.1 §5)
+# ---------------------------------------------------------------------------
+
+def port_info_pcie():
+    """Port Information data structure (Figure 114) with PCIe-specific data
+    (Figure 115), 32 bytes."""
+    return (bytes([
+        0x01,                       # PRTTYP = PCIe
+        0x03,                       # PRTCAP = AEMS | CIAPS
+    ]) + struct.pack('<H', 64)      # MMTUS = 64 bytes
+       + struct.pack('<I', 0x1000)  # MEBS = 4096 bytes
+       + bytes([
+        0x01,                       # PCIEMPS = 256 bytes
+        0x0F,                       # PCIESLSV = 2.5/5.0/8.0/16.0 GT/s
+        0x04,                       # PCIECLS = 16.0 GT/s
+        0x08,                       # PCIEMLW = x8
+        0x04,                       # PCIENLW = x4
+        0x00,                       # PCIEPN = 0
+    ]) + b'\x00' * 18)              # reserved to 32 bytes
+
+def port_info_twire():
+    """Port Information data structure with 2-Wire-specific data
+    (Figure 116), 32 bytes."""
+    return (bytes([
+        0x02,                       # PRTTYP = 2-Wire
+        0x01,                       # PRTCAP = CIAPS
+    ]) + struct.pack('<H', 64)      # MMTUS = 64 bytes
+       + struct.pack('<I', 0)       # MEBS = 0 (no MEB)
+       + bytes([
+        0x53,                       # CVPDADDR
+        0x02,                       # MVPDFREQ = 400 kHz
+        0x1D,                       # CMEADDR
+        0x82,                       # TWPRT = I3CSPRT | MSMBFREQ=400 kHz
+        0x00,                       # NVMEBM = no basic management
+    ]) + b'\x00' * 19)              # reserved to 32 bytes
+
+def subsys_info():
+    """NVM Subsystem Information data structure (Figure 112), 32 bytes."""
+    return bytes([
+        0x01,                       # NUMP = 1 (0's based -> 2 ports)
+        0x02,                       # MJR = 2
+        0x01,                       # MNR = 1 (NVMe-MI 2.1)
+        0x01,                       # NNSC = SRE
+    ]) + b'\x00' * 28               # reserved to 32 bytes
+
+def nshds():
+    """NVM Subsystem Health Data Structure (Figure 108), 8 bytes."""
+    return (bytes([
+        0x38,                       # NSS = DF | RNR | P0LA
+        0xFF,                       # SW (all-healthy: inverted CW field)
+        0x2D,                       # CTEMP = 45 C
+        0x05,                       # PDLU = 5 %
+    ]) + struct.pack('<H', 0x0211)  # CCS = CTEMP | NSSRO | RDY
+       + b'\x00' * 2)               # reserved
+
+def chds(ctlid, csts, ctemp, pdlu, spare, cwarn, chsc):
+    """One Controller Health Data Structure (Figure 97), 16 bytes."""
+    return struct.pack('<HHHBBBH', ctlid, csts, ctemp, pdlu, spare,
+                       cwarn, chsc) + b'\x00' * 5
 
 # ---------------------------------------------------------------------------
 # NVMe-MI Control Primitive payload (NVMe-MI 2.1 §4.2.1, Figures 37/39)
@@ -263,7 +332,9 @@ def make_packet(is_request, msg_type, csi, payload,
     nvme_hdr = nvme_mi_header(msg_type, csi, is_response=not is_request, ic=ic, meb=meb)
     if ic:
         protected = nvme_hdr + payload
-        mic_bytes = struct.pack('>I', crc32c(protected))
+        # The MIC is little-endian on the wire, like every NVMe-MI field
+        # (libnvme: cpu_to_le32 on transmit, le32_to_cpu on verify).
+        mic_bytes = struct.pack('<I', crc32c(protected))
         return sll + mctp + nvme_hdr + payload + mic_bytes
     return sll + mctp + nvme_hdr + payload
 
@@ -408,9 +479,51 @@ def _packets_comprehensive():
                          admin_response_payload(STATUS_SUCCESS)))
 
     # F2-F11: All five MI command opcodes (request + success response each)
-    for opcode in range(5):  # 0x00..0x04
-        p.append(make_packet(True,  NVME_MI_TYPE_MI, 0, mi_request_payload(opcode)))
-        p.append(make_packet(False, NVME_MI_TYPE_MI, 0, mi_response_payload(STATUS_SUCCESS)))
+    # with realistic command dwords and response payloads (MR3 field decode).
+
+    # F2-F3: Read NVMe-MI Data Structure, DTYP=01h (Port Information).
+    # Response carries RDL=32 in NMRESP and a PCIe Port Information structure.
+    p.append(make_packet(True,  NVME_MI_TYPE_MI, 0,
+                         mi_request_payload(0x00, cdw0=0x01000000)))
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
+                         mi_response_payload_with_data(STATUS_SUCCESS,
+                                                       port_info_pcie(),
+                                                       nmresp=32)))
+
+    # F4-F5: NVM Subsystem Health Status Poll with CS=1 (clear status).
+    # Response data is the 8-byte NVM Subsystem Health Data Structure.
+    p.append(make_packet(True,  NVME_MI_TYPE_MI, 0,
+                         mi_request_payload(0x01, cdw1=0x80000000)))
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
+                         mi_response_payload_with_data(STATUS_SUCCESS,
+                                                       nshds())))
+
+    # F6-F7: Controller Health Status Poll: ALL=1, MAXRENT=1 (0's based -> 2),
+    # CCF=1 + CSTS selection.  Response: RENT=2 + two CHDS entries.
+    p.append(make_packet(True,  NVME_MI_TYPE_MI, 0,
+                         mi_request_payload(0x02, cdw0=0x80010000,
+                                            cdw1=0x80000001)))
+    chds_pair = (chds(1, 0x0001, 0x0136, 3, 100, 0x00, 0x0001)
+                 + chds(2, 0x0083, 0x0140, 7, 0x5A, 0x02, 0x1002))
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
+                         mi_response_payload_with_data(STATUS_SUCCESS,
+                                                       chds_pair,
+                                                       nmresp=0x020000)))
+
+    # F8-F9: Configuration Set, CID=03h (MCTP Transmission Unit Size),
+    # PORTID=1, MTUS=128.
+    p.append(make_packet(True,  NVME_MI_TYPE_MI, 0,
+                         mi_request_payload(0x03, cdw0=0x01000003,
+                                            cdw1=0x00000080)))
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
+                         mi_response_payload(STATUS_SUCCESS)))
+
+    # F10-F11: Configuration Get, CID=03h, PORTID=1.  Response NMRESP
+    # carries the current MTUS (64).
+    p.append(make_packet(True,  NVME_MI_TYPE_MI, 0,
+                         mi_request_payload(0x04, cdw0=0x01000003)))
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
+                         mi_response_payload(STATUS_SUCCESS, nmresp=64)))
 
     # F12-F13: Admin Get Log Page, ctrl_id=0x0002, CQE1 carries a sentinel value
     p.append(make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
@@ -453,8 +566,9 @@ def _packets_comprehensive():
     p.append(make_packet(True, NVME_MI_TYPE_ADMIN, 1,
                          admin_request_payload(0x06, ctrl_id=0x0001, cns=0x01)))
 
-    # F27: MI Config Get on CSI=0 — unanswered
-    p.append(make_packet(True, NVME_MI_TYPE_MI, 0, mi_request_payload(0x04)))
+    # F27: MI Config Get (CID=02h Health Status Change) on CSI=0 — unanswered
+    p.append(make_packet(True, NVME_MI_TYPE_MI, 0,
+                         mi_request_payload(0x04, cdw0=0x00000002)))
 
     # F28-F29: Second MCTP conversation (BMC_EID=0x09) — independent slot tracking
     p.append(make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
@@ -643,7 +757,151 @@ def _packets_comprehensive():
     p.append(make_packet(False, NVME_MI_TYPE_MI, 1, bytes([STATUS_MPR])))
     p.append(make_packet(False, NVME_MI_TYPE_MI, 1, mi_response_payload(STATUS_SUCCESS)))
 
-    assert len(p) == 72, f"Expected 72 frames, got {len(p)}"
+    # ------------------------------------------------------------------
+    # F73-F90: MI command per-opcode decode fixtures (MR3) — one exchange
+    # per Read NVMe-MI Data Structure DTYP and Configuration Identifier
+    # not already covered by F2-F11.
+    # ------------------------------------------------------------------
+
+    # F73-F74: Read DS, DTYP=00h (NVM Subsystem Information)
+    p.append(make_packet(True,  NVME_MI_TYPE_MI, 0,
+                         mi_request_payload(0x00, cdw0=0x00000000)))
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
+                         mi_response_payload_with_data(STATUS_SUCCESS,
+                                                       subsys_info(),
+                                                       nmresp=32)))
+
+    # F75-F76: Read DS, DTYP=02h (Controller List): 3 IDs (1, 2, 5)
+    p.append(make_packet(True,  NVME_MI_TYPE_MI, 0,
+                         mi_request_payload(0x00, cdw0=0x02000000)))
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
+                         mi_response_payload_with_data(STATUS_SUCCESS,
+                                                       struct.pack('<HHHH',
+                                                                   3, 1, 2, 5),
+                                                       nmresp=8)))
+
+    # F77-F78: Read DS, DTYP=04h (Optionally Supported Command List),
+    # CTRLID=1, IOCSI=0.  Two entries: MI VPD Read (0x05) and Admin
+    # Device Self-test (0x14).
+    p.append(make_packet(True,  NVME_MI_TYPE_MI, 0,
+                         mi_request_payload(0x00, cdw0=0x04000001)))
+    osc_list = struct.pack('<H', 2) + bytes([0x08, 0x05, 0x10, 0x14])
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
+                         mi_response_payload_with_data(STATUS_SUCCESS,
+                                                       osc_list, nmresp=6)))
+
+    # F79-F80: Read DS, DTYP=01h (Port Information) for PORTID=1, which is
+    # a 2-Wire port (exercises the 2-Wire port-specific decode).
+    p.append(make_packet(True,  NVME_MI_TYPE_MI, 0,
+                         mi_request_payload(0x00, cdw0=0x01010000)))
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
+                         mi_response_payload_with_data(STATUS_SUCCESS,
+                                                       port_info_twire(),
+                                                       nmresp=32)))
+
+    # F81-F82: Configuration Get, CID=01h (SMBus/I2C Frequency), PORTID=0.
+    # Response NMRESP carries SFREQ=2 (400 kHz).
+    p.append(make_packet(True,  NVME_MI_TYPE_MI, 0,
+                         mi_request_payload(0x04, cdw0=0x00000001)))
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
+                         mi_response_payload(STATUS_SUCCESS, nmresp=0x000002)))
+
+    # F83-F84: Configuration Set, CID=02h (Health Status Change): clear
+    # CWARN + CTEMP + RDY (NMD1 = 0x0901).
+    p.append(make_packet(True,  NVME_MI_TYPE_MI, 0,
+                         mi_request_payload(0x03, cdw0=0x00000002,
+                                            cdw1=0x00000901)))
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
+                         mi_response_payload(STATUS_SUCCESS)))
+
+    # F85-F86: Configuration Set, CID=01h (SMBus/I2C Frequency): SFREQ=3
+    # (1 MHz) on PORTID=0.
+    p.append(make_packet(True,  NVME_MI_TYPE_MI, 0,
+                         mi_request_payload(0x03, cdw0=0x00000301)))
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
+                         mi_response_payload(STATUS_SUCCESS)))
+
+    # F87-F88: Configuration Get with a reserved CID (0x50) — must fire the
+    # reserved-configid expert; endpoint rejects with Invalid Parameter.
+    # The error response carries a Parameter Error Location pointing at the
+    # offending CONFIGID byte: bit 2 of message byte 8 (NMD0 byte 0), i.e.
+    # PEL bit=2 (payload byte 1) and byte offset=8 (payload bytes 3:2 LE)
+    # -> NMRESP bytes 0x02, 0x08, 0x00 = nmresp 0x000802.
+    p.append(make_packet(True,  NVME_MI_TYPE_MI, 0,
+                         mi_request_payload(0x04, cdw0=0x00000050)))
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
+                         mi_response_payload(0x04, nmresp=0x000802)))
+
+    # F89-F90: Read DS, DTYP=03h (Controller Information) for CTRLID=1.
+    ctrl_info = (bytes([0x00])                      # PORTID
+                 + b'\x00' * 4                      # reserved
+                 + bytes([0x01])                    # PRII = PCIERIV
+                 + struct.pack('<H', 0x1219)        # PRI: bus 0x12 dev 3 fn 1
+                 + struct.pack('<HHHH', 0x144D, 0xA808, 0x144D, 0xA801)
+                 + bytes([0x00])                    # PCIESN
+                 + b'\x00' * 15)                    # reserved to 32 bytes
+    p.append(make_packet(True,  NVME_MI_TYPE_MI, 0,
+                         mi_request_payload(0x00, cdw0=0x03000001)))
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
+                         mi_response_payload_with_data(STATUS_SUCCESS,
+                                                       ctrl_info, nmresp=32)))
+
+    # ------------------------------------------------------------------
+    # F91-F100: MI command per-opcode decode fixtures (MR3b) — opcodes
+    # 05h-07h and 0Ch (VPD Read/Write, Reset, Shutdown).
+    # ------------------------------------------------------------------
+
+    # F91-F92: VPD Read, DOFST=0, DLEN=8.  Response returns 8 VPD bytes
+    # (no Response Data Length in the NMRESP for VPD Read).
+    p.append(make_packet(True,  NVME_MI_TYPE_MI, 0,
+                         mi_request_payload(0x05, cdw0=0x0000, cdw1=0x0008)))
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
+                         mi_response_payload_with_data(
+                             STATUS_SUCCESS,
+                             bytes([0x4E, 0x56, 0x4D, 0x65,
+                                    0x01, 0x02, 0x03, 0x04]))))
+
+    # F93-F94: VPD Write, DOFST=0x10, DLEN=4, with 4 Request Data bytes.
+    p.append(make_packet(True,  NVME_MI_TYPE_MI, 0,
+                         mi_request_payload(0x06, cdw0=0x0010, cdw1=0x0004)
+                         + bytes([0xDE, 0xAD, 0xBE, 0xEF])))
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
+                         mi_response_payload(STATUS_SUCCESS)))
+
+    # F95-F96: Reset, RSTTYP=00h (Reset NVM Subsystem).
+    p.append(make_packet(True,  NVME_MI_TYPE_MI, 0,
+                         mi_request_payload(0x07, cdw0=0x00000000)))
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
+                         mi_response_payload(STATUS_SUCCESS)))
+
+    # F97-F98: Shutdown, SHDNTYP=01h (Abrupt NVM Subsystem Shutdown).
+    p.append(make_packet(True,  NVME_MI_TYPE_MI, 0,
+                         mi_request_payload(0x0C, cdw0=0x01000000)))
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
+                         mi_response_payload(STATUS_SUCCESS)))
+
+    # F99-F100: Reset with a reserved RSTTYP=02h — must fire the
+    # reserved-value expert.
+    p.append(make_packet(True,  NVME_MI_TYPE_MI, 0,
+                         mi_request_payload(0x07, cdw0=0x02000000)))
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
+                         mi_response_payload(STATUS_SUCCESS)))
+
+    # F101-F103: sliced MPR interim response.  F102 is an MPR interim whose
+    # capture was cut right after the 4-byte NVMe-MI header (caplen 24 of 28),
+    # so the status byte exists in the reported length but not in the captured
+    # bytes.  The framing layer cannot tell interim from final and must leave
+    # the slot open (treating the response like an interim one) so the real
+    # final response (F103) still links to the request — closing the slot on
+    # the unverifiable status would silently mislink F101 to F102.
+    p.append(make_packet(True, NVME_MI_TYPE_MI, 0, mi_request_payload(0x01)))
+    full = make_packet(False, NVME_MI_TYPE_MI, 0,
+                       mi_response_payload(STATUS_MPR))
+    p.append((full[:24], len(full)))   # SLL(16) + MCTP(4) + NVMe-MI header(4)
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
+                         mi_response_payload(STATUS_SUCCESS)))
+
+    assert len(p) == 103, f"Expected 103 frames, got {len(p)}"
     return p
 
 packets_comprehensive = _packets_comprehensive()
@@ -655,7 +913,10 @@ def build_comprehensive_pcapng(output_path):
     data = shb() + idb()
     for i, pkt in enumerate(packets_comprehensive):
         ts = BASE_TS_TYPES_US + i * 1_000_000
-        data += epb(pkt, ts)
+        if isinstance(pkt, tuple):       # (sliced bytes, original length)
+            data += epb(pkt[0], ts, origlen=pkt[1])
+        else:
+            data += epb(pkt, ts)
 
     with open(output_path, 'wb') as f:
         f.write(data)
@@ -736,6 +997,37 @@ def build_comprehensive_pcapng(output_path):
         "F70: MI  Req   CSI=1  opcode=0x02",
         "F71: MI  Resp  CSI=1  1-BYTE MPR interim -> F70 [slot must stay open]",
         "F72: MI  Resp  CSI=1  status=0x00 (final) -> F70",
+        "F73: MI  Req   CSI=0  Read DS DTYP=00h (NVM Subsystem Information)",
+        "F74: MI  Resp  CSI=0  RDL=32 + NVM Subsystem Information -> F73",
+        "F75: MI  Req   CSI=0  Read DS DTYP=02h (Controller List)",
+        "F76: MI  Resp  CSI=0  RDL=8 + Controller List (1, 2, 5) -> F75",
+        "F77: MI  Req   CSI=0  Read DS DTYP=04h (Opt Supported Cmd List) CTRLID=1",
+        "F78: MI  Resp  CSI=0  RDL=6 + 2 command entries -> F77",
+        "F79: MI  Req   CSI=0  Read DS DTYP=01h (Port Information) PORTID=1",
+        "F80: MI  Resp  CSI=0  RDL=32 + 2-Wire Port Information -> F79",
+        "F81: MI  Req   CSI=0  Config Get CID=01h (SMBus/I2C Frequency)",
+        "F82: MI  Resp  CSI=0  NMRESP SFREQ=400 kHz -> F81",
+        "F83: MI  Req   CSI=0  Config Set CID=02h (Health Status Change) clear=0x0901",
+        "F84: MI  Resp  CSI=0  status=0x00 -> F83",
+        "F85: MI  Req   CSI=0  Config Set CID=01h (SMBus/I2C Frequency) SFREQ=1 MHz",
+        "F86: MI  Resp  CSI=0  status=0x00 -> F85",
+        "F87: MI  Req   CSI=0  Config Get CID=0x50 (RESERVED — expert expected)",
+        "F88: MI  Resp  CSI=0  status=0x04 (Invalid Parameter) PEL bit=2 byte=8 -> F87",
+        "F89: MI  Req   CSI=0  Read DS DTYP=03h (Controller Information) CTRLID=1",
+        "F90: MI  Resp  CSI=0  RDL=32 + Controller Information -> F89",
+        "F91: MI  Req   CSI=0  VPD Read DOFST=0 DLEN=8",
+        "F92: MI  Resp  CSI=0  8 VPD data bytes -> F91",
+        "F93: MI  Req   CSI=0  VPD Write DOFST=0x10 DLEN=4 + 4 data bytes",
+        "F94: MI  Resp  CSI=0  status=0x00 -> F93",
+        "F95: MI  Req   CSI=0  Reset RSTTYP=00h (Reset NVM Subsystem)",
+        "F96: MI  Resp  CSI=0  status=0x00 -> F95",
+        "F97: MI  Req   CSI=0  Shutdown SHDNTYP=01h (Abrupt)",
+        "F98: MI  Resp  CSI=0  status=0x00 -> F97",
+        "F99: MI  Req   CSI=0  Reset RSTTYP=02h (RESERVED — expert expected)",
+        "F100: MI Resp  CSI=0  status=0x00 -> F99",
+        "F101: MI Req   CSI=0  opcode=0x01 (Health Status Poll)",
+        "F102: MI Resp  CSI=0  SLICED MPR (caplen 24/28, status byte missing) -> F101",
+        "F103: MI Resp  CSI=0  status=0x00 (final) -> F101 [slot survived the sliced MPR]",
     ]
     for d in descs:
         print(f"  {d}")
@@ -746,7 +1038,8 @@ def build_comprehensive_pcapng(output_path):
     print("                             F22->23, F24->25, F28->29, F30->33, F31->32,")
     print("                             F34->38, F35->36, F39->40, F41->42,")
     print("                             F57->58, F59->60, F61->64, F62->63,")
-    print("                             F65->66, F67->68, F70->72")
+    print("                             F65->66, F67->68, F70->72, F101->103,")
+    print("                             F73->74 ... F89->90 (sequential pairs)")
     print("  Requests without response_in: F26 (unanswered CSI=1), F27 (unanswered CSI=0),")
     print("                                F69 (unanswered, IC-truncated)")
     print("  Responses with response_to:  F3->2, F5->4, F7->6, F9->8, F11->10,")
@@ -755,9 +1048,12 @@ def build_comprehensive_pcapng(output_path):
     print("                               F23->22, F25->24, F29->28, F32->31, F33->30,")
     print("                               F36->35, F37->34 (MPR), F38->34, F40->39, F42->41,")
     print("                               F58->57, F60->59, F63->62, F64->61,")
-    print("                               F66->65, F68->67, F71->70 (MPR), F72->70")
+    print("                               F66->65, F68->67, F71->70 (MPR), F72->70,")
+    print("                               F102->101 (sliced), F103->101,")
+    print("                               F74->73 ... F90->89 (sequential pairs)")
     print("  Orphan with no response_to: F1")
-    print("  MPR flag set on: F19, F20, F37, F71")
+    print("  MPR flag set on: F19, F20, F37, F71 (not F102 — status unverifiable)")
+    print("  Superseded-request expert on: F30, F70, F73")
 
 
 if __name__ == '__main__':

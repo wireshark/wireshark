@@ -101,6 +101,15 @@ static const value_string ssta_vals[] = {
     { 0, NULL },
 };
 
+/*
+ * Per-transaction request context hung off nvme_mi_transaction.body_ctx
+ * (wmem_file_scope).  Records the request tag so the matching response can
+ * validate the tag it echoes.
+ */
+struct nvme_mi_ctl_req_ctx {
+    uint8_t tag;
+};
+
 static int * const cpsr_abort_fields[]    = { &hf_nvme_mi_ctl_cpas, NULL };
 static int * const cpsp_getstate_fields[] = { &hf_nvme_mi_ctl_cesf, NULL };
 static int * const cpsr_mes_fields[] = {
@@ -188,7 +197,9 @@ dissect_nvme_mi_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item_ret_uint8(ctl_tree, hf_nvme_mi_ctl_tag, tvb, 1, 1, ENC_NA, &tag);
 
         /* The response tag must echo the request tag (NVMe-MI 2.1 §4.2.1). */
-        if (trans && trans->req_parsed && tag != trans->cp_tag)
+        const struct nvme_mi_ctl_req_ctx *req = (trans && trans->req_parsed)
+                ? (const struct nvme_mi_ctl_req_ctx *)trans->body_ctx : NULL;
+        if (req && tag != req->tag)
             expert_add_info(pinfo, it, &ei_nvme_mi_ctl_tag_mismatch);
 
         switch (opcode) {
@@ -224,8 +235,14 @@ dissect_nvme_mi_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Record opcode and tag so the matching response can pick the correct
          * CPSR layout and validate its echoed tag. */
         if (trans) {
+            struct nvme_mi_ctl_req_ctx *req;
+
+            if (!trans->body_ctx)
+                trans->body_ctx = wmem_new0(wmem_file_scope(),
+                                            struct nvme_mi_ctl_req_ctx);
+            req = (struct nvme_mi_ctl_req_ctx *)trans->body_ctx;
+            req->tag = tag;
             trans->opcode = opcode;
-            trans->cp_tag = tag;
             trans->req_parsed = true;
         }
 

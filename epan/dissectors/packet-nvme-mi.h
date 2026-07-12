@@ -29,6 +29,21 @@ enum nvme_mi_msg_type {
  */
 extern const value_string nvme_mi_status_vals[];
 
+/* Status values the body dissectors branch on (subset of status values). */
+#define NVME_MI_STATUS_SUCCESS                   0x00
+#define NVME_MI_STATUS_MORE_PROCESSING_REQUIRED  0x01
+#define NVME_MI_STATUS_INVALID_PARAMETER         0x04
+
+/*
+ * Decode the Parameter Error Location (PEL) of an Invalid Parameter Error
+ * Response (status 04h) over payload bytes 3:1.  The error response format is
+ * defined at the message level and shared by every command message type, so
+ * the MI/Admin/PCIe body dissectors all call this rather than each decoding
+ * the field.  The caller must have at least 4 payload bytes.  Defined in
+ * packet-nvme-mi.c.
+ */
+void nvme_mi_dissect_invalid_param_resp(tvbuff_t *tvb, proto_tree *tree);
+
 /*
  * Per-transaction state shared across the request frame and every response
  * frame (including MPR interim responses) that belongs to the same command.
@@ -38,8 +53,8 @@ extern const value_string nvme_mi_status_vals[];
  * layer: the body dissector fills them in while dissecting the request and
  * reads them back when the matching response is dissected (the response
  * carries no opcode of its own).  'opcode' is the per-type opcode (CP CPO /
- * MI opcode / Admin opcode); 'cp_tag' is the Control Primitive tag echoed in
- * the response and is unused by the other types.
+ * MI opcode / Admin opcode); any further per-type request state lives behind
+ * 'body_ctx'.
  */
 struct nvme_mi_transaction {
     uint32_t  req_frame;
@@ -53,7 +68,18 @@ struct nvme_mi_transaction {
      */
     bool      req_parsed;
     unsigned  opcode;
-    uint8_t   cp_tag;
+    /*
+     * Opaque per-opcode request context, owned entirely by the body
+     * dissector that handles this transaction's NMIMT (the framing layer
+     * never looks inside).  Allocated in wmem_file_scope() while dissecting
+     * the request and read back when dissecting the matching response(s),
+     * for request parameters that select the response layout or that the
+     * response must echo (e.g. the MI Read NVMe-MI Data Structure DTYP, the
+     * Configuration Set/Get CONFIGID, or the Control Primitive tag).  NULL
+     * when the request did not carry those fields (truncated) or no request
+     * was seen.
+     */
+    void     *body_ctx;
 };
 
 /*

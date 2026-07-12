@@ -47,6 +47,11 @@ static int hf_nvme_mi_type;
 static int hf_nvme_mi_ror;
 static int hf_nvme_mi_meb;
 static int hf_nvme_mi_mic;
+static int hf_nvme_mi_mic_status;
+
+/* Invalid Parameter Error Response — Parameter Error Location (PEL) */
+static int hf_nvme_mi_pel_bit;
+static int hf_nvme_mi_pel_byte;
 
 /* Request/response cross-reference fields */
 static int hf_nvme_mi_response_in;
@@ -58,13 +63,8 @@ static int ett_nvme_mi;
 static int ett_nvme_mi_hdr;
 
 static expert_field ei_nvme_mi_mic_truncated;
-
-/*
- * Response status indicating that processing is not yet complete; the
- * endpoint will send a final response when it is done.
- * NVMe-MI 2.1 Figure 29.
- */
-#define NVME_MI_STATUS_MORE_PROCESSING_REQUIRED  0x01
+static expert_field ei_nvme_mi_mic_bad;
+static expert_field ei_nvme_mi_req_superseded;
 
 /* Dissector table keyed by the NMIMT field; sub-dissectors register here. */
 static dissector_table_t nvme_mi_type_dissector_table;
@@ -72,11 +72,11 @@ static dissector_table_t nvme_mi_type_dissector_table;
 /* Response Message Status (NVMe-MI 2.1 Figure 29); shared with the per-type
  * body dissectors via packet-nvme-mi.h. */
 const value_string nvme_mi_status_vals[] = {
-    { 0x00, "Success" },
+    { NVME_MI_STATUS_SUCCESS, "Success" },
     { NVME_MI_STATUS_MORE_PROCESSING_REQUIRED, "More Processing Required" },
     { 0x02, "Internal Error" },
     { 0x03, "Invalid Command Opcode" },
-    { 0x04, "Invalid Parameter" },
+    { NVME_MI_STATUS_INVALID_PARAMETER, "Invalid Parameter" },
     { 0x05, "Invalid Command Size" },
     { 0x06, "Invalid Command Input Data Size" },
     { 0x07, "Access Denied" },
@@ -110,6 +110,14 @@ static const value_string mi_type_vals[] = {
 
 static const true_false_string tfs_meb = { "data in MEB", "data in message" };
 
+void
+nvme_mi_dissect_invalid_param_resp(tvbuff_t *tvb, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_nvme_mi_pel_bit, tvb, 1, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_nvme_mi_pel_byte, tvb, 2, 2,
+                        ENC_LITTLE_ENDIAN);
+}
+
 /* Per-slot in-flight transaction (NULL when the slot is idle); only written
  * when !pinfo->fd->visited. */
 struct nvme_mi_conv_info {
@@ -129,6 +137,9 @@ struct nvme_mi_conv_info {
 struct nvme_mi_frame_info {
     struct nvme_mi_transaction *trans;
     bool                        is_interim_mpr;
+    /* This request found the slot still occupied by an unanswered request,
+     * whose transaction it supersedes. */
+    bool                        superseded_unanswered;
 };
 
 static int
@@ -158,9 +169,10 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_item(tree, proto_nvme_mi, tvb, 0, -1, ENC_NA);
     nvme_mi_tree = proto_item_add_subtree(ti, ett_nvme_mi);
 
-    ti = proto_tree_add_item(nvme_mi_tree, proto_nvme_mi, tvb, 0, 4, ENC_NA);
-    proto_item_set_text(ti, "NVMe-MI header");
-    nvme_mi_hdr_tree = proto_item_add_subtree(ti, ett_nvme_mi_hdr);
+    proto_item *hdr_it =
+        proto_tree_add_item(nvme_mi_tree, proto_nvme_mi, tvb, 0, 4, ENC_NA);
+    proto_item_set_text(hdr_it, "NVMe-MI header");
+    nvme_mi_hdr_tree = proto_item_add_subtree(hdr_it, ett_nvme_mi_hdr);
 
     proto_tree_add_item(nvme_mi_hdr_tree, hf_nvme_mi_mctp_mt,
                         tvb, 0, 4, ENC_LITTLE_ENDIAN);
@@ -199,21 +211,6 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  val_to_str_const(type, mi_type_vals, "command"),
                  tfs_get_string(resp, &tfs_response_request));
 
-    /*
-     * The Response Message Status byte sits at payload offset 0 for every
-     * command-message response type (NVMe-MI 2.1 Figure 29; Control
-     * Primitives have their own out-of-band lifecycle and no MPR concept).
-     * Peek it here in the framing layer so the slot lifecycle below never
-     * depends on a body dissector running to completion: a disabled body
-     * protocol or an exception thrown on a truncated payload must not leak
-     * a pending slot and mislink later responses.
-     */
-    bool is_mpr = false;
-    if (resp && type != NVME_MI_TYPE_CONTROL && payload_len >= 1 &&
-        tvb_bytes_exist(tvb, 4, 1))
-        is_mpr = tvb_get_uint8(tvb, 4) ==
-                 NVME_MI_STATUS_MORE_PROCESSING_REQUIRED;
-
     struct nvme_mi_frame_info *fi = p_get_proto_data(wmem_file_scope(), pinfo,
                                                      proto_nvme_mi, 0);
 
@@ -223,6 +220,32 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * response links to the same transaction.
      */
     if (!pinfo->fd->visited) {
+        /*
+         * The Response Message Status byte sits at payload offset 0 for
+         * every command-message response type (NVMe-MI 2.1 Figure 29;
+         * Control Primitives have their own out-of-band lifecycle and no
+         * MPR concept).  Peek it here in the framing layer so the slot
+         * lifecycle below never depends on a body dissector running to
+         * completion: a disabled body protocol or an exception thrown on a
+         * truncated payload must not leak a pending slot and mislink later
+         * responses.
+         *
+         * On a sliced capture the status byte may be missing even though
+         * the reported payload carries one; the response is then treated
+         * like an interim one (the slot stays open) so that an MPR whose
+         * status was cut off cannot close the slot and silently mislink the
+         * real final response.
+         */
+        bool is_mpr = false;
+        bool status_known = true;
+        if (resp && type != NVME_MI_TYPE_CONTROL && payload_len >= 1) {
+            if (tvb_bytes_exist(tvb, 4, 1))
+                is_mpr = tvb_get_uint8(tvb, 4) ==
+                         NVME_MI_STATUS_MORE_PROCESSING_REQUIRED;
+            else
+                status_known = false;
+        }
+
         conv = find_or_create_conversation(pinfo);
         mi_conv = conversation_get_proto_data(conv, proto_nvme_mi);
         if (!mi_conv) {
@@ -241,7 +264,7 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 fi->is_interim_mpr = is_mpr;
                 p_add_proto_data(wmem_file_scope(), pinfo, proto_nvme_mi,
                                  0, fi);
-                if (!is_mpr) {
+                if (!is_mpr && status_known) {
                     fi->trans->resp_frame = pinfo->num;
                     *slot = NULL;
                 }
@@ -252,11 +275,12 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             trans->req_frame = pinfo->num;
             trans->req_time  = pinfo->fd->abs_ts;
 
-            *slot = trans;
-
             fi = wmem_new0(wmem_file_scope(), struct nvme_mi_frame_info);
             fi->trans = trans;
+            fi->superseded_unanswered = (*slot != NULL);
             p_add_proto_data(wmem_file_scope(), pinfo, proto_nvme_mi, 0, fi);
+
+            *slot = trans;
         }
     }
 
@@ -283,6 +307,8 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_item_set_generated(it2);
             }
         } else {
+            if (fi->superseded_unanswered)
+                expert_add_info(pinfo, ti, &ei_nvme_mi_req_superseded);
             if (fi->trans->resp_frame) {
                 it2 = proto_tree_add_uint(nvme_mi_tree, hf_nvme_mi_response_in,
                                           tvb, 0, 0, fi->trans->resp_frame);
@@ -308,9 +334,15 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                       &ctx) && payload_len > 0)
         call_data_dissector(sub_tvb, pinfo, nvme_mi_tree);
 
+    /*
+     * The MIC is little-endian on the wire (NVMe convention); reading it
+     * big-endian matches the byte-swapped value crc32c_tvb_offset_calculate
+     * returns, so the two swaps cancel out.
+     */
     if (mic_enabled)
         proto_tree_add_checksum(nvme_mi_tree, tvb, payload_len + 4,
-                                hf_nvme_mi_mic, -1, NULL, pinfo, mic,
+                                hf_nvme_mi_mic, hf_nvme_mi_mic_status,
+                                &ei_nvme_mi_mic_bad, pinfo, mic,
                                 ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
     return tvb_captured_length(tvb);
@@ -357,6 +389,26 @@ proto_register_nvme_mi(void)
             FT_UINT32, BASE_HEX, NULL, 0,
             NULL, HFILL },
         },
+        { &hf_nvme_mi_mic_status,
+          { "Message Integrity Check Status", "nvme-mi.mic.status",
+            FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0,
+            NULL, HFILL },
+        },
+
+        /* Invalid Parameter Error Response (status 04h) — Parameter Error
+         * Location over payload bytes 3:1; shared by the command message
+         * types via nvme_mi_dissect_invalid_param_resp(). */
+        { &hf_nvme_mi_pel_bit,
+          { "Parameter Error Bit (PEL)", "nvme-mi.pel.bit",
+            FT_UINT8, BASE_DEC, NULL, 0x07,
+            "Least-significant bit of the parameter in error", HFILL },
+        },
+        { &hf_nvme_mi_pel_byte,
+          { "Parameter Error Byte (PEL)", "nvme-mi.pel.byte",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "Offset of the least-significant byte of the parameter in "
+            "error, relative to the start of the message", HFILL },
+        },
 
         /* Request/response cross-reference (generated fields) */
         { &hf_nvme_mi_response_in,
@@ -393,6 +445,16 @@ proto_register_nvme_mi(void)
           { "nvme-mi.mic_truncated", PI_MALFORMED, PI_WARN,
             "IC bit is set but the message is too short to contain a MIC; "
             "trailing bytes treated as payload", EXPFILL },
+        },
+        { &ei_nvme_mi_mic_bad,
+          { "nvme-mi.mic_bad", PI_CHECKSUM, PI_WARN,
+            "Message Integrity Check does not match the computed CRC-32C",
+            EXPFILL },
+        },
+        { &ei_nvme_mi_req_superseded,
+          { "nvme-mi.req_superseded", PI_SEQUENCE, PI_NOTE,
+            "The previous request on this command slot was still unanswered; "
+            "its transaction is superseded by this request", EXPFILL },
         },
     };
 

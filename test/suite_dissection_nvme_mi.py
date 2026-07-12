@@ -14,21 +14,101 @@ tools/gen-nvme-mi-test-capture.py:
     ensures resp_frame written during the response pass is visible when the
     request frame is re-displayed.
 
-  nvme-mi-types.pcapng  (72 frames)
+  nvme-mi-types.pcapng  (103 frames)
     Comprehensive coverage: all four NVMe-MI message types (Control, MI, Admin,
-    PCIe), all five MI opcodes, several Admin opcodes, Admin request flags
-    (DLEN/DOFF), Admin response CQE data, multiple consecutive MPR responses,
-    an orphan response (no preceding request in capture), unanswered requests,
-    a second MCTP conversation with a different BMC EID, Control Primitive
-    Pause/Get State/Abort/Replay exchanges exercising per-opcode CPSP/CPSR
-    field decode, a Control Primitive interleaved with an in-flight Admin
-    command on the same slot (out-of-band CP tracking), and malformed-frame
-    fixtures (truncated requests, bogus IC bit, 1-byte MPR interim) that the
-    dissector must flag with expert info without throwing or corrupting the
-    request/response tracking.
+    PCIe), MI opcodes 0x00-0x07 and 0x0C with realistic command dwords and
+    response payloads (per-DTYP Read NVMe-MI Data Structure exchanges, health
+    status poll structures, per-CONFIGID Configuration Set/Get, VPD Read/Write,
+    Reset, Shutdown), several Admin
+    opcodes, Admin request flags (DLEN/DOFF), Admin response CQE data,
+    multiple consecutive MPR responses, an orphan response (no preceding
+    request in capture), unanswered requests (whose slots are later
+    superseded by new requests — flagged with expert info), a second MCTP
+    conversation with a different BMC EID, Control Primitive Pause/Get
+    State/Abort/Replay exchanges exercising per-opcode CPSP/CPSR field
+    decode, a Control Primitive interleaved with an in-flight Admin command
+    on the same slot (out-of-band CP tracking), and malformed-frame fixtures
+    (truncated requests, bogus IC bit, 1-byte MPR interim, sliced MPR
+    interim) that the dissector must flag with expert info without throwing
+    or corrupting the request/response tracking.
 """
 
 import subprocess
+
+import pytest
+
+
+@pytest.fixture
+def tshark_fields(cmd_tshark, capture_file, test_env):
+    """Run `tshark -r <capture> [-2] [-Y <filter>] -Tfields -e <field>...`
+    over a capture under test/captures/ and return its raw stdout.
+
+    Pass two_pass=True for generated fields that need the second dissection
+    pass (e.g. nvme-mi.response_in).
+    """
+    def run(filename, dfilter=None, fields=('frame.number',), two_pass=False):
+        cmd = [cmd_tshark, '-r', capture_file(filename)]
+        if two_pass:
+            cmd.append('-2')
+        if dfilter is not None:
+            cmd += ['-Y', dfilter]
+        cmd.append('-Tfields')
+        for field in fields:
+            cmd += ['-e', field]
+        return subprocess.check_output(cmd, encoding='utf-8', env=test_env)
+    return run
+
+
+@pytest.fixture
+def assert_frame_matches(tshark_fields):
+    """Assert that a display filter expression matches exactly the given
+    frame of the capture."""
+    def check(filename, frame, expr):
+        stdout = tshark_fields(filename, f'frame.number == {frame} && {expr}')
+        assert stdout.strip() == str(frame), \
+            f'Frame {frame}: filter did not match: {expr}'
+    return check
+
+
+@pytest.fixture
+def assert_frames_match(tshark_fields):
+    """Assert several (frame, expr) cases in a *single* tshark invocation.
+
+    Spawning tshark is the dominant cost of this suite (~0.1 s of process
+    startup + dissector registration per call), so per-frame loops that each
+    spawn tshark are collapsed into one call here: the cases are OR'd into a
+    single display filter and the matching frame set is checked in one shot.
+
+    Each case is (frame_number, expr).  A frame is reported only if its expr
+    is true, so a missing frame in the output means that case failed.  Pass
+    two_pass=True when any expr uses a field that needs the second dissection
+    pass (e.g. nvme-mi.response_in).
+    """
+    def check(filename, cases, two_pass=False):
+        terms = [f'(frame.number == {f} && ({e}))' for f, e in cases]
+        stdout = tshark_fields(filename, ' || '.join(terms), two_pass=two_pass)
+        got = sorted(int(x) for x in stdout.split())
+        expected = sorted({f for f, _ in cases})
+        assert got == expected, \
+            f'matched frames {got}, expected {expected}; cases={cases}'
+    return check
+
+
+@pytest.fixture
+def link_fields(tshark_fields):
+    """Return {frame: (response_in, response_to)} for the named frames in a
+    single two-pass tshark call (response_in needs the second pass)."""
+    def run(filename, frames):
+        flt = ' || '.join(f'frame.number == {f}' for f in frames)
+        stdout = tshark_fields(filename, flt, two_pass=True,
+                               fields=('frame.number', 'nvme-mi.response_in',
+                                       'nvme-mi.response_to'))
+        out = {}
+        for line in stdout.splitlines():
+            parts = (line.split('\t') + ['', ''])[:3]
+            out[int(parts[0])] = (parts[1], parts[2])
+        return out
+    return run
 
 
 class TestNvmeMiReqResp:
@@ -40,25 +120,15 @@ class TestNvmeMiReqResp:
 
     FILE = 'nvme-mi-req-resp.pcapng'
 
-    def test_frame_count(self, cmd_tshark, capture_file, test_env):
+    def test_frame_count(self, tshark_fields):
         """All 7 frames are decoded as NVMe-MI."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'nvme-mi',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
+        stdout = tshark_fields(self.FILE, 'nvme-mi')
         assert stdout.split() == ['1', '2', '3', '4', '5', '6', '7']
 
-    def test_request_response_links(self, cmd_tshark, capture_file, test_env):
+    def test_request_response_links(self, tshark_fields):
         """Verify response_in and response_to for every frame (needs -2 for response_in)."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-2',
-            '-Tfields',
-            '-e', 'frame.number',
-            '-e', 'nvme-mi.response_in',
-            '-e', 'nvme-mi.response_to',
-        ), encoding='utf-8', env=test_env)
+        stdout = tshark_fields(self.FILE, two_pass=True, fields=(
+            'frame.number', 'nvme-mi.response_in', 'nvme-mi.response_to'))
         rows = [r.split('\t') for r in stdout.splitlines()]
         assert len(rows) == 7
         # frame: [frame_num, response_in, response_to]
@@ -79,258 +149,150 @@ class TestNvmeMiReqResp:
         # F7: Admin final response -> request was F3
         assert by_frame[7] == ('', '3')
 
-    def test_mpr_flag_only_on_frame_5(self, cmd_tshark, capture_file, test_env):
+    def test_mpr_flag_only_on_frame_5(self, tshark_fields):
         """Only the MPR interim response (F5) carries the response_is_mpr field."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'nvme-mi.response_is_mpr',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
+        stdout = tshark_fields(self.FILE, 'nvme-mi.response_is_mpr')
         assert stdout.strip() == '5'
 
-    def test_admin_opcode_carried_to_response(self, cmd_tshark, capture_file, test_env):
+    def test_admin_opcode_carried_to_response(self, tshark_fields):
         """Admin opcode (Identify=0x06) is propagated as a generated field on responses F5/F7."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'nvme-mi.admin.opcode == 0x06',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
+        stdout = tshark_fields(self.FILE, 'nvme-mi.admin.opcode == 0x06')
         # Opcode appears on the request (F3) and both responses (F5 MPR, F7 final)
         assert stdout.split() == ['3', '5', '7']
 
-    def test_admin_cqe1_in_final_response(self, cmd_tshark, capture_file, test_env):
+    def test_admin_cqe1_in_final_response(self, assert_frame_matches):
         """CQE1 value 0xABCD1234 is decoded in the final Admin response (F7)."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 7 && nvme-mi.admin.cqe1 == 0xABCD1234',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '7'
+        assert_frame_matches(self.FILE, 7, 'nvme-mi.admin.cqe1 == 0xABCD1234')
 
-    def test_response_time_present(self, cmd_tshark, capture_file, test_env):
+    def test_response_time_present(self, tshark_fields):
         """All four response frames carry a nvme-mi.response_time generated field."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'nvme-mi.response_time',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
+        stdout = tshark_fields(self.FILE, 'nvme-mi.response_time')
         assert stdout.split() == ['2', '5', '6', '7']
 
 
 class TestNvmeMiTypes:
-    """72-frame comprehensive capture: all types, opcodes, MPR, EID, MCTP tags, IC=1, MEB, CP fields, edge cases."""
+    """103-frame comprehensive capture: all types, opcodes, MPR, EID, MCTP
+    tags, IC=1, MEB, CP fields, edge cases."""
 
     FILE = 'nvme-mi-types.pcapng'
 
-    def test_frame_count(self, cmd_tshark, capture_file, test_env):
-        """All 72 frames are decoded as NVMe-MI."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'nvme-mi',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert len(stdout.split()) == 72
+    def test_frame_count(self, tshark_fields):
+        """All 103 frames are decoded as NVMe-MI."""
+        stdout = tshark_fields(self.FILE, 'nvme-mi')
+        assert len(stdout.split()) == 103
 
     # ------------------------------------------------------------------
     # Orphan response (F1): response with no preceding request in capture
     # ------------------------------------------------------------------
 
-    def test_orphan_has_no_response_to(self, cmd_tshark, capture_file, test_env):
+    def test_orphan_has_no_response_to(self, tshark_fields):
         """F1 (orphan Admin response) must not carry a response_to field."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 1',
-            '-Tfields', '-e', 'nvme-mi.response_to',
-        ), encoding='utf-8', env=test_env)
+        stdout = tshark_fields(self.FILE, 'frame.number == 1',
+                               fields=('nvme-mi.response_to',))
         assert stdout.strip() == ''
 
-    def test_orphan_is_still_decoded_as_admin(self, cmd_tshark, capture_file, test_env):
-        """The orphan frame is still recognized as an Admin response with a status field."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 1 && nvme-mi.type == 0x2 && nvme-mi.ror == 1',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '1'
-        # status field is decodable even on an orphan (no linked request)
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 1 && nvme-mi.admin.status == 0x00',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '1'
+    def test_orphan_is_still_decoded_as_admin(self, assert_frame_matches):
+        """The orphan frame is still recognized as an Admin response with a
+        decodable status field (even with no linked request)."""
+        assert_frame_matches(self.FILE, 1,
+            'nvme-mi.type == 0x2 && nvme-mi.ror == 1'
+            ' && nvme-mi.admin.status == 0x00')
 
     # ------------------------------------------------------------------
     # MI command opcodes (F2-F11)
     # ------------------------------------------------------------------
 
-    def test_all_mi_opcodes_present(self, cmd_tshark, capture_file, test_env):
+    def test_all_mi_opcodes_present(self, assert_frames_match):
         """All five MI opcodes (0x00-0x04) appear among the MI request frames."""
-        for opcode, frame_num in ((0x00, 2), (0x01, 4), (0x02, 6), (0x03, 8), (0x04, 10)):
-            stdout = subprocess.check_output((cmd_tshark,
-                '-r', capture_file(self.FILE),
-                '-Y', f'frame.number == {frame_num} && nvme-mi.mi.opcode == {opcode}',
-                '-Tfields', '-e', 'frame.number',
-            ), encoding='utf-8', env=test_env)
-            assert stdout.strip() == str(frame_num), \
-                f'Expected opcode 0x{opcode:02x} on frame {frame_num}'
+        assert_frames_match(self.FILE, [
+            (frame_num, f'nvme-mi.mi.opcode == {opcode}')
+            for opcode, frame_num in
+            ((0x00, 2), (0x01, 4), (0x02, 6), (0x03, 8), (0x04, 10))])
 
-    def test_mi_opcode_propagated_to_response(self, cmd_tshark, capture_file, test_env):
+    def test_mi_opcode_propagated_to_response(self, assert_frames_match):
         """MI opcodes are carried as generated fields on corresponding response frames."""
-        for opcode, resp_frame in ((0x00, 3), (0x01, 5), (0x02, 7), (0x03, 9), (0x04, 11)):
-            stdout = subprocess.check_output((cmd_tshark,
-                '-r', capture_file(self.FILE),
-                '-Y', f'frame.number == {resp_frame} && nvme-mi.mi.opcode == {opcode}',
-                '-Tfields', '-e', 'frame.number',
-            ), encoding='utf-8', env=test_env)
-            assert stdout.strip() == str(resp_frame), \
-                f'Opcode 0x{opcode:02x} not propagated to response frame {resp_frame}'
+        assert_frames_match(self.FILE, [
+            (resp_frame, f'nvme-mi.mi.opcode == {opcode}')
+            for opcode, resp_frame in
+            ((0x00, 3), (0x01, 5), (0x02, 7), (0x03, 9), (0x04, 11))])
 
-    def test_mi_response_status_success(self, cmd_tshark, capture_file, test_env):
+    def test_mi_response_status_success(self, assert_frames_match):
         """MI success responses (F3/F5/F7/F9/F11) carry status 0x00."""
-        for frame_num in (3, 5, 7, 9, 11):
-            stdout = subprocess.check_output((cmd_tshark,
-                '-r', capture_file(self.FILE),
-                '-Y', f'frame.number == {frame_num} && nvme-mi.mi.status == 0x00',
-                '-Tfields', '-e', 'frame.number',
-            ), encoding='utf-8', env=test_env)
-            assert stdout.strip() == str(frame_num), \
-                f'Frame {frame_num}: expected MI status 0x00'
+        assert_frames_match(self.FILE, [
+            (frame_num, 'nvme-mi.mi.status == 0x00')
+            for frame_num in (3, 5, 7, 9, 11)])
 
     # ------------------------------------------------------------------
     # Admin command opcodes and request fields (F12-F17)
     # ------------------------------------------------------------------
 
-    def test_admin_get_log_page_opcode_and_ctrl_id(self, cmd_tshark, capture_file, test_env):
+    def test_admin_get_log_page_opcode_and_ctrl_id(self, assert_frame_matches):
         """F12: Admin Get Log Page (opcode=0x02) with ctrl_id=0x0002."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 12 && nvme-mi.admin.opcode == 0x02'
-                  ' && nvme-mi.admin.ctrl-id == 0x0002',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '12'
+        assert_frame_matches(self.FILE, 12,
+            'nvme-mi.admin.opcode == 0x02 && nvme-mi.admin.ctrl-id == 0x0002')
 
-    def test_admin_get_log_cqe1_in_response(self, cmd_tshark, capture_file, test_env):
+    def test_admin_get_log_cqe1_in_response(self, assert_frame_matches):
         """F13: Admin response carries sentinel CQE1=0xDEAD0002."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 13 && nvme-mi.admin.cqe1 == 0xDEAD0002',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '13'
+        assert_frame_matches(self.FILE, 13, 'nvme-mi.admin.cqe1 == 0xDEAD0002')
 
-    def test_admin_set_features_opcode_and_ctrl_id(self, cmd_tshark, capture_file, test_env):
+    def test_admin_set_features_opcode_and_ctrl_id(self, assert_frame_matches):
         """F14: Admin Set Features (opcode=0x09) with ctrl_id=0x0001."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 14 && nvme-mi.admin.opcode == 0x09'
-                  ' && nvme-mi.admin.ctrl-id == 0x0001',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '14'
+        assert_frame_matches(self.FILE, 14,
+            'nvme-mi.admin.opcode == 0x09 && nvme-mi.admin.ctrl-id == 0x0001')
 
-    def test_admin_flags_dlen_only(self, cmd_tshark, capture_file, test_env):
+    def test_admin_flags_dlen_only(self, assert_frame_matches):
         """F14 (Set Features): DLEN flag set, DOFF flag clear."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 14 && nvme-mi.admin.flags.dlen == 1'
-                  ' && nvme-mi.admin.flags.doff == 0',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '14'
+        assert_frame_matches(self.FILE, 14,
+            'nvme-mi.admin.flags.dlen == 1 && nvme-mi.admin.flags.doff == 0')
 
-    def test_admin_get_features_opcode_and_ctrl_id(self, cmd_tshark, capture_file, test_env):
+    def test_admin_get_features_opcode_and_ctrl_id(self, assert_frame_matches):
         """F16: Admin Get Features (opcode=0x0a) with ctrl_id=0x0003."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 16 && nvme-mi.admin.opcode == 0x0a'
-                  ' && nvme-mi.admin.ctrl-id == 0x0003',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '16'
+        assert_frame_matches(self.FILE, 16,
+            'nvme-mi.admin.opcode == 0x0a && nvme-mi.admin.ctrl-id == 0x0003')
 
-    def test_admin_flags_doff_and_dlen(self, cmd_tshark, capture_file, test_env):
+    def test_admin_flags_doff_and_dlen(self, assert_frame_matches):
         """F16 (Get Features): both DLEN and DOFF flags are set."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 16 && nvme-mi.admin.flags.dlen == 1'
-                  ' && nvme-mi.admin.flags.doff == 1',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '16'
+        assert_frame_matches(self.FILE, 16,
+            'nvme-mi.admin.flags.dlen == 1 && nvme-mi.admin.flags.doff == 1')
 
-    def test_admin_response_with_data_payload(self, cmd_tshark, capture_file, test_env):
+    def test_admin_response_with_data_payload(self, assert_frame_matches):
         """F17 (Get Features response): carries inline data beyond the 16-byte CQE."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 17 && nvme-mi.admin.data',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '17'
+        assert_frame_matches(self.FILE, 17, 'nvme-mi.admin.data')
 
-    def test_admin_opcode_propagated_to_responses(self, cmd_tshark, capture_file, test_env):
+    def test_admin_opcode_propagated_to_responses(self, assert_frames_match):
         """Admin opcodes are propagated as generated fields on their response frames."""
-        for opcode, resp_frame in ((0x02, 13), (0x09, 15), (0x0a, 17),
-                                   (0x06, 37), (0x06, 38), (0x02, 64)):
-            stdout = subprocess.check_output((cmd_tshark,
-                '-r', capture_file(self.FILE),
-                '-Y', f'frame.number == {resp_frame}'
-                      f' && nvme-mi.admin.opcode == {opcode}',
-                '-Tfields', '-e', 'frame.number',
-            ), encoding='utf-8', env=test_env)
-            assert stdout.strip() == str(resp_frame), \
-                f'Opcode 0x{opcode:02x} not propagated to Admin response frame {resp_frame}'
+        assert_frames_match(self.FILE, [
+            (resp_frame, f'nvme-mi.admin.opcode == {opcode}')
+            for opcode, resp_frame in
+            ((0x02, 13), (0x09, 15), (0x0a, 17),
+             (0x06, 37), (0x06, 38), (0x02, 64))])
 
     # ------------------------------------------------------------------
     # Multiple consecutive MPR responses (F18-F21)
     # ------------------------------------------------------------------
 
-    def test_multiple_mpr_request_links_to_final(self, cmd_tshark, capture_file, test_env):
-        """F18 (request) shows response_in pointing to the final response F21, not the MPRs."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-2',
-            '-Y', 'frame.number == 18',
-            '-Tfields', '-e', 'nvme-mi.response_in',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '21'
+    # F18->21 (request links to final, not interim) is asserted in
+    # test_all_response_in_links; F19/F20/F21->18 in test_all_response_to_links.
 
-    def test_mpr_frames_flagged(self, cmd_tshark, capture_file, test_env):
+    def test_mpr_frames_flagged(self, tshark_fields):
         """F19, F20 (MI MPRs), F37 (Admin MPR on tag=0 slot) and F71 (1-byte MI
-        MPR) carry response_is_mpr; final responses do not."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'nvme-mi.response_is_mpr',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
+        MPR) carry response_is_mpr; final responses do not, and neither does
+        F102 (sliced MPR — the status byte is not captured, so the flag
+        cannot be claimed)."""
+        stdout = tshark_fields(self.FILE, 'nvme-mi.response_is_mpr')
         assert stdout.split() == ['19', '20', '37', '71']
 
-    def test_mpr_responses_link_to_request(self, cmd_tshark, capture_file, test_env):
-        """Both MPR responses (F19, F20) and the final response (F21) all link back to F18."""
-        for frame_num in (19, 20, 21):
-            stdout = subprocess.check_output((cmd_tshark,
-                '-r', capture_file(self.FILE),
-                '-Y', f'frame.number == {frame_num}',
-                '-Tfields', '-e', 'nvme-mi.response_to',
-            ), encoding='utf-8', env=test_env)
-            assert stdout.strip() == '18', \
-                f'Frame {frame_num}: expected response_to=18'
-
-    def test_final_mpr_response_not_flagged(self, cmd_tshark, capture_file, test_env):
+    def test_final_mpr_response_not_flagged(self, tshark_fields):
         """The final response after MPRs (F21) must NOT carry the MPR flag."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 21 && nvme-mi.response_is_mpr',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
+        stdout = tshark_fields(self.FILE,
+                               'frame.number == 21 && nvme-mi.response_is_mpr')
         assert stdout.strip() == ''
 
     # ------------------------------------------------------------------
     # Control primitive (type=0x0) and PCIe command (type=0x4)
     # ------------------------------------------------------------------
 
-    def test_control_primitive_type_detected(self, cmd_tshark, capture_file, test_env):
+    def test_control_primitive_type_detected(self, tshark_fields):
         """All Control Primitive frames are decoded with type = Control primitive (0x0).
 
         F22/F23  Pause (tag=0), F35/F36  Get State (tag=1),
@@ -338,138 +300,69 @@ class TestNvmeMiTypes:
         F62/F63  Get State interleaved with an Admin command (tag=0),
         F65/F66  truncated request + complete response (tag=4).
         """
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'nvme-mi.type == 0x0',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
+        stdout = tshark_fields(self.FILE, 'nvme-mi.type == 0x0')
         assert stdout.split() == ['22', '23', '35', '36', '57', '58', '59', '60',
                                   '62', '63', '65', '66']
 
-    def test_control_primitive_req_resp_link(self, cmd_tshark, capture_file, test_env):
-        """F22 (Control request) and F23 (Control response) are linked."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-2',
-            '-Y', 'frame.number == 22',
-            '-Tfields', '-e', 'nvme-mi.response_in',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '23'
+    # F22<->F23 link is asserted in test_all_response_in_links / _to_links.
 
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 23',
-            '-Tfields', '-e', 'nvme-mi.response_to',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '22'
-
-    def test_pcie_type_detected(self, cmd_tshark, capture_file, test_env):
+    def test_pcie_type_detected(self, tshark_fields):
         """F24/F25 are decoded with type = PCIe command (0x4)."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'nvme-mi.type == 0x4',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
+        stdout = tshark_fields(self.FILE, 'nvme-mi.type == 0x4')
         assert stdout.split() == ['24', '25']
 
-    def test_pcie_req_resp_link(self, cmd_tshark, capture_file, test_env):
-        """F24 (PCIe request) and F25 (PCIe response) are linked."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-2',
-            '-Y', 'frame.number == 24',
-            '-Tfields', '-e', 'nvme-mi.response_in',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '25'
+    # F24<->F25 link is asserted in test_all_response_in_links / _to_links.
 
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 25',
-            '-Tfields', '-e', 'nvme-mi.response_to',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '24'
-
-    def test_pcie_body_falls_back_to_data(self, cmd_tshark, capture_file, test_env):
+    def test_pcie_body_falls_back_to_data(self, assert_frames_match):
         """With no PCIe body dissector registered yet, the framing layer hands
         the body to the data dissector instead of dropping it from the tree."""
-        for frame_num in (24, 25):
-            stdout = subprocess.check_output((cmd_tshark,
-                '-r', capture_file(self.FILE),
-                '-Y', f'frame.number == {frame_num} && data.data',
-                '-Tfields', '-e', 'frame.number',
-            ), encoding='utf-8', env=test_env)
-            assert stdout.strip() == str(frame_num), \
-                f'Frame {frame_num}: PCIe body should fall back to the data dissector'
+        assert_frames_match(self.FILE,
+                            [(frame_num, 'data.data') for frame_num in (24, 25)])
 
     # ------------------------------------------------------------------
     # Unanswered requests (F26, F27)
     # ------------------------------------------------------------------
 
-    def test_unanswered_csi1_request_no_response_in(self, cmd_tshark, capture_file, test_env):
+    def test_unanswered_csi1_request_no_response_in(self, tshark_fields):
         """F26 (Admin Identify on CSI=1, no response) must not have a response_in field."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-2',
-            '-Y', 'frame.number == 26',
-            '-Tfields', '-e', 'nvme-mi.response_in',
-        ), encoding='utf-8', env=test_env)
+        stdout = tshark_fields(self.FILE, 'frame.number == 26',
+                               fields=('nvme-mi.response_in',), two_pass=True)
         assert stdout.strip() == ''
 
-    def test_unanswered_csi0_request_no_response_in(self, cmd_tshark, capture_file, test_env):
+    def test_unanswered_csi0_request_no_response_in(self, tshark_fields):
         """F27 (MI Config Get on CSI=0, no response) must not have a response_in field."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-2',
-            '-Y', 'frame.number == 27',
-            '-Tfields', '-e', 'nvme-mi.response_in',
-        ), encoding='utf-8', env=test_env)
+        stdout = tshark_fields(self.FILE, 'frame.number == 27',
+                               fields=('nvme-mi.response_in',), two_pass=True)
         assert stdout.strip() == ''
 
-    def test_unanswered_csi1_is_admin_identify(self, cmd_tshark, capture_file, test_env):
+    def test_unanswered_csi1_is_admin_identify(self, assert_frame_matches):
         """F26 (unanswered) is an Admin Identify on CSI=1."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 26 && nvme-mi.csi == 1'
-                  ' && nvme-mi.admin.opcode == 0x06',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '26'
+        assert_frame_matches(self.FILE, 26,
+            'nvme-mi.csi == 1 && nvme-mi.admin.opcode == 0x06')
+
+    def test_superseded_unanswered_requests_flagged(self, tshark_fields):
+        """A request that finds its slot still occupied by an unanswered
+        request carries the superseded expert note: F30 (supersedes F27),
+        F70 (supersedes F26 on CSI=1) and F73 (supersedes F69).  No other
+        frame fires it."""
+        stdout = tshark_fields(self.FILE, 'nvme-mi.req_superseded')
+        assert stdout.split() == ['30', '70', '73']
 
     # ------------------------------------------------------------------
     # Second MCTP conversation (BMC EID=0x09, F28-F29)
     # ------------------------------------------------------------------
 
-    def test_second_conversation_req_resp_link(self, cmd_tshark, capture_file, test_env):
-        """F28 (Conv2 Admin request) and F29 (Conv2 Admin response) are linked."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-2',
-            '-Y', 'frame.number == 28',
-            '-Tfields', '-e', 'nvme-mi.response_in',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '29'
-
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 29',
-            '-Tfields', '-e', 'nvme-mi.response_to',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '28'
+    # F28<->F29 (second MCTP conversation, BMC EID=0x09) link is asserted in
+    # test_all_response_in_links / _to_links.
 
     # ------------------------------------------------------------------
     # Full request-response link table (all frames, with -2)
     # ------------------------------------------------------------------
 
-    def test_all_response_in_links(self, cmd_tshark, capture_file, test_env):
+    def test_all_response_in_links(self, tshark_fields):
         """Every request frame that has a response shows the correct response_in value."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-2',
-            '-Y', 'nvme-mi.response_in',
-            '-Tfields',
-            '-e', 'frame.number',
-            '-e', 'nvme-mi.response_in',
-        ), encoding='utf-8', env=test_env)
+        stdout = tshark_fields(self.FILE, 'nvme-mi.response_in', two_pass=True,
+                               fields=('frame.number', 'nvme-mi.response_in'))
         pairs = {int(r.split('\t')[0]): int(r.split('\t')[1])
                  for r in stdout.splitlines()}
         expected = {
@@ -499,19 +392,20 @@ class TestNvmeMiTypes:
             65: 66,                              # truncated CP request still links
             67: 68,                              # truncated Admin request still links
             70: 72,                              # 1-byte MPR interim must not close slot
+            73: 74, 75: 76, 77: 78, 79: 80,      # MI per-DTYP Read DS fixtures
+            81: 82, 83: 84, 85: 86, 87: 88,      # MI per-CONFIGID fixtures
+            89: 90,                              # MI Controller Information
+            91: 92, 93: 94, 95: 96, 97: 98,      # MI VPD Read/Write, Reset, Shutdown
+            99: 100,                             # MI Reset with reserved RSTTYP
+            101: 103,                            # sliced MPR must not close slot
         }
         assert pairs == expected
         # Implicitly: F1 (orphan), F26, F27, F69 (unanswered) are absent
 
-    def test_all_response_to_links(self, cmd_tshark, capture_file, test_env):
+    def test_all_response_to_links(self, tshark_fields):
         """Every response frame (including MPRs) shows the correct response_to value."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'nvme-mi.response_to',
-            '-Tfields',
-            '-e', 'frame.number',
-            '-e', 'nvme-mi.response_to',
-        ), encoding='utf-8', env=test_env)
+        stdout = tshark_fields(self.FILE, 'nvme-mi.response_to',
+                               fields=('frame.number', 'nvme-mi.response_to'))
         pairs = {int(r.split('\t')[0]): int(r.split('\t')[1])
                  for r in stdout.splitlines()}
         expected = {
@@ -543,6 +437,13 @@ class TestNvmeMiTypes:
             68: 67,                              # response to truncated Admin request
             71: 70,                              # 1-byte MPR interim
             72: 70,                              # final after the 1-byte MPR
+            74: 73, 76: 75, 78: 77, 80: 79,      # MI per-DTYP Read DS fixtures
+            82: 81, 84: 83, 86: 85, 88: 87,      # MI per-CONFIGID fixtures
+            90: 89,                              # MI Controller Information
+            92: 91, 94: 93, 96: 95, 98: 97,      # MI VPD Read/Write, Reset, Shutdown
+            100: 99,                             # MI Reset with reserved RSTTYP
+            102: 101,                            # sliced MPR interim
+            103: 101,                            # final after the sliced MPR
         }
         assert pairs == expected
         # Implicitly: F1 (orphan) has no response_to and is absent
@@ -551,7 +452,7 @@ class TestNvmeMiTypes:
     # Conversation isolation under interleaving (F30-F33)
     # ------------------------------------------------------------------
 
-    def test_conversation_isolation_under_interleaving(self, cmd_tshark, capture_file, test_env):
+    def test_conversation_isolation_under_interleaving(self, link_fields):
         """Conv2 opening and closing (F31→F32) must not disturb Conv1's open slot (F30→F33).
 
         F30: Conv1 Admin request, slot 0 open
@@ -559,111 +460,42 @@ class TestNvmeMiTypes:
         F32: Conv2 Admin response              (Conv2 slot 0 closes)
         F33: Conv1 Admin response              (Conv1 slot 0 closes — must link to F30, not be lost)
         """
+        links = link_fields(self.FILE, (30, 32, 33))
         # F30 must point to F33, not F32 (Conv2's response)
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-2',
-            '-Y', 'frame.number == 30',
-            '-Tfields', '-e', 'nvme-mi.response_in',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '33', 'F30 response_in should be 33, not 32 (Conv2 leak)'
-
+        assert links[30][0] == '33', 'F30 response_in should be 33, not 32 (Conv2 leak)'
         # F32 must point back to F31 (its own Conv2 request), not to F30
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 32',
-            '-Tfields', '-e', 'nvme-mi.response_to',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '31', 'F32 response_to should be 31 (Conv2 request)'
-
+        assert links[32][1] == '31', 'F32 response_to should be 31 (Conv2 request)'
         # F33 must point back to F30 (Conv1 request), not to F31
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 33',
-            '-Tfields', '-e', 'nvme-mi.response_to',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '30', 'F33 response_to should be 30 (Conv1 request)'
+        assert links[33][1] == '30', 'F33 response_to should be 30 (Conv1 request)'
 
     # ------------------------------------------------------------------
     # MCTP tag isolation (F34-F40)
     # ------------------------------------------------------------------
+    # F35<->F36 (tag=1 CP) and F39<->F40 (tag=1 Admin) links are asserted in
+    # test_all_response_in_links / _to_links; the tag=0-slot-survival
+    # regression below covers the cross-tag isolation that those tables alone
+    # would not make obvious.
 
-    def test_mctp_tag_isolates_conversations(self, cmd_tshark, capture_file, test_env):
-        """Different MCTP tags create separate conversations with independent slot tracking.
-
-        F35/F36 use tag=1; F34/F37/F38 use tag=0.  The tag=1 Control primitive
-        must link only to itself (F35->F36) and must not be confused with F34's
-        tag=0 Admin slot.
-        """
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-2',
-            '-Y', 'frame.number == 35',
-            '-Tfields', '-e', 'nvme-mi.response_in',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '36', 'F35 (tag=1 CTL req) should link to F36, not F38'
-
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 36',
-            '-Tfields', '-e', 'nvme-mi.response_to',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '35', 'F36 (tag=1 CTL resp) should link back to F35'
-
-    def test_tag0_slot_survives_tag1_activity(self, cmd_tshark, capture_file, test_env):
+    def test_tag0_slot_survives_tag1_activity(self, link_fields):
         """tag=0 Admin slot (F34) remains open while tag=1 CP (F35/F36) completes.
 
         F34's response_in must point to F38 (the tag=0 final Admin response),
         not F36 (the tag=1 CP response).  F37 (tag=0 MPR) and F38 (tag=0 final)
         must both link back to F34.
         """
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-2',
-            '-Y', 'frame.number == 34',
-            '-Tfields', '-e', 'nvme-mi.response_in',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '38', \
+        links = link_fields(self.FILE, (34, 37, 38))
+        assert links[34][0] == '38', \
             'F34 response_in should be 38 (tag=0 final Admin), not 36 (tag=1 CP)'
-
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 37',
-            '-Tfields', '-e', 'nvme-mi.response_to',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '34', \
+        assert links[37][1] == '34', \
             'F37 (tag=0 Admin MPR) should link to F34, not be confused with tag=1'
-
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 38',
-            '-Tfields', '-e', 'nvme-mi.response_to',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '34', \
+        assert links[38][1] == '34', \
             'F38 (tag=0 Admin final) should link back to F34'
-
-    def test_tag1_admin_independent_slot(self, cmd_tshark, capture_file, test_env):
-        """F39/F40 (tag=1 Admin) link correctly to each other, independent of tag=0 slots."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-2',
-            '-Y', 'frame.number == 39',
-            '-Tfields', '-e', 'nvme-mi.response_in',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '40'
-
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 40',
-            '-Tfields', '-e', 'nvme-mi.response_to',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '39'
 
     # ------------------------------------------------------------------
     # Control Primitive interleaved with an in-flight command (F61-F64)
     # ------------------------------------------------------------------
 
-    def test_cp_interleave_does_not_steal_command_slot(self, cmd_tshark, capture_file, test_env):
+    def test_cp_interleave_does_not_steal_command_slot(self, link_fields):
         """A Control Primitive issued while a command is outstanding on the same
         conversation and slot is tracked out-of-band (NVMe-MI 2.1 §4.2.1).
 
@@ -672,250 +504,151 @@ class TestNvmeMiTypes:
         F63: Get State CP response       -> F62
         F64: Admin response              -> F61 (slot survived the CP exchange)
         """
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-2',
-            '-Y', 'frame.number == 61',
-            '-Tfields', '-e', 'nvme-mi.response_in',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '64', \
+        links = link_fields(self.FILE, (61, 62))
+        assert links[61][0] == '64', \
             'F61 response_in should be 64; the CP request must not displace the Admin transaction'
+        assert links[62][0] == '63', 'F62 (CP request) should pair with F63 (CP response)'
 
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-2',
-            '-Y', 'frame.number == 62',
-            '-Tfields', '-e', 'nvme-mi.response_in',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '63', 'F62 (CP request) should pair with F63 (CP response)'
-
-    def test_cp_interleave_admin_opcode_propagated(self, cmd_tshark, capture_file, test_env):
+    def test_cp_interleave_admin_opcode_propagated(self, assert_frame_matches):
         """F64 (Admin response after the CP exchange) still recovers the Get Log
         Page opcode (0x02) from the request it pairs with."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 64 && nvme-mi.admin.opcode == 0x02'
-                  ' && nvme-mi.admin.cqe1 == 0xFEED0009',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '64'
+        assert_frame_matches(self.FILE, 64,
+            'nvme-mi.admin.opcode == 0x02 && nvme-mi.admin.cqe1 == 0xFEED0009')
 
     # ------------------------------------------------------------------
     # Admin response status and CQE field coverage
     # ------------------------------------------------------------------
 
-    def test_admin_status_success_on_responses(self, cmd_tshark, capture_file, test_env):
+    def test_admin_status_success_on_responses(self, assert_frames_match):
         """Admin success responses carry nvme-mi.admin.status == 0x00."""
-        for frame_num in (13, 15, 17, 29, 32, 33, 38, 40, 48, 50, 64):
-            stdout = subprocess.check_output((cmd_tshark,
-                '-r', capture_file(self.FILE),
-                '-Y', f'frame.number == {frame_num} && nvme-mi.admin.status == 0x00',
-                '-Tfields', '-e', 'frame.number',
-            ), encoding='utf-8', env=test_env)
-            assert stdout.strip() == str(frame_num), \
-                f'Frame {frame_num}: expected nvme-mi.admin.status 0x00'
+        assert_frames_match(self.FILE, [
+            (frame_num, 'nvme-mi.admin.status == 0x00')
+            for frame_num in (13, 15, 17, 29, 32, 33, 38, 40, 48, 50, 64)])
 
-    def test_admin_mpr_status_code(self, cmd_tshark, capture_file, test_env):
+    def test_admin_mpr_status_code(self, assert_frame_matches):
         """F37 (tag=0 Admin MPR) carries status=0x01 (More Processing Required)."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 37 && nvme-mi.admin.status == 0x01',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '37'
+        assert_frame_matches(self.FILE, 37, 'nvme-mi.admin.status == 0x01')
 
-    def test_admin_cqe2_and_cqe3_in_get_log_response(self, cmd_tshark, capture_file, test_env):
+    def test_admin_cqe2_and_cqe3_in_get_log_response(self, assert_frame_matches):
         """F13 (Get Log Page response) carries CQE2=0 and CQE3=0 alongside CQE1."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 13 && nvme-mi.admin.cqe2 == 0 && nvme-mi.admin.cqe3 == 0',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '13'
+        assert_frame_matches(self.FILE, 13,
+            'nvme-mi.admin.cqe2 == 0 && nvme-mi.admin.cqe3 == 0')
 
-    def test_admin_cqe1_in_tag_isolation_responses(self, cmd_tshark, capture_file, test_env):
+    def test_admin_cqe1_in_tag_isolation_responses(self, assert_frames_match):
         """F38 (tag=0 Admin final) and F40 (tag=1 Admin) carry distinct CQE1 sentinel values."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 38 && nvme-mi.admin.cqe1 == 0x12345678',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '38'
+        assert_frames_match(self.FILE, [
+            (38, 'nvme-mi.admin.cqe1 == 0x12345678'),
+            (40, 'nvme-mi.admin.cqe1 == 0xCAFEBABE')])
 
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 40 && nvme-mi.admin.cqe1 == 0xCAFEBABE',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '40'
-
-    def test_admin_dlen_dword_value(self, cmd_tshark, capture_file, test_env):
+    def test_admin_dlen_dword_value(self, assert_frame_matches):
         """F16 (Get Features request) carries the data-length dword nvme-mi.admin.dlen = 0x1000."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 16 && nvme-mi.admin.dlen == 0x1000',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '16'
+        assert_frame_matches(self.FILE, 16, 'nvme-mi.admin.dlen == 0x1000')
 
-    def test_admin_sqe10_on_identify(self, cmd_tshark, capture_file, test_env):
+    def test_admin_sqe10_on_identify(self, assert_frame_matches):
         """F28 (Conv2 Admin Identify) carries CNS=1 encoded in SQE10 (nvme-mi.admin.sqe10)."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 28 && nvme-mi.admin.sqe10 == 0x01',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '28'
+        assert_frame_matches(self.FILE, 28, 'nvme-mi.admin.sqe10 == 0x01')
 
     # ------------------------------------------------------------------
     # MI response nmresp field
     # ------------------------------------------------------------------
 
-    def test_mi_nmresp_field_on_all_mi_responses(self, cmd_tshark, capture_file, test_env):
+    def test_mi_nmresp_field_on_all_mi_responses(self, tshark_fields):
         """nvme-mi.mi.nmresp appears on every MI response frame and no other type."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'nvme-mi.mi.nmresp',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
+        stdout = tshark_fields(self.FILE, 'nvme-mi.mi.nmresp')
         # F3/5/7/9/11: MI command responses; F19/20/21: MPR chain; F42: IC-enabled;
         # F44/46/54/56: CDW non-zero, MI data, non-success, MEB; F72: final after
-        # the 1-byte MPR (F71 itself is too short to carry an nmresp)
+        # the 1-byte MPR (F71 itself is too short to carry an nmresp);
+        # F74-F90 (even): MI per-DTYP / per-CONFIGID fixture responses;
+        # F92-F100 (even): VPD Read/Write, Reset, Shutdown fixture responses;
+        # F103: final after the sliced MPR (F102's nmresp bytes are not captured)
         assert stdout.split() == ['3', '5', '7', '9', '11', '19', '20', '21', '42',
-                                   '44', '46', '54', '56', '72']
+                                   '44', '46', '54', '56', '72', '74', '76', '78',
+                                   '80', '82', '84', '86', '88', '90', '92', '94',
+                                   '96', '98', '100', '103']
 
     # ------------------------------------------------------------------
     # Response-time generated field
     # ------------------------------------------------------------------
 
-    def test_response_time_absent_on_orphan(self, cmd_tshark, capture_file, test_env):
+    def test_response_time_absent_on_orphan(self, tshark_fields):
         """Orphan F1 (no linked request) must not carry a nvme-mi.response_time field."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 1 && nvme-mi.response_time',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
+        stdout = tshark_fields(self.FILE,
+                               'frame.number == 1 && nvme-mi.response_time')
         assert stdout.strip() == ''
 
-    def test_response_time_on_linked_responses(self, cmd_tshark, capture_file, test_env):
+    def test_response_time_on_linked_responses(self, assert_frames_match):
         """Linked response frames carry a nvme-mi.response_time generated field."""
-        for frame_num in (3, 13, 21, 29, 42, 44, 48, 52, 54, 56):
-            stdout = subprocess.check_output((cmd_tshark,
-                '-r', capture_file(self.FILE),
-                '-Y', f'frame.number == {frame_num} && nvme-mi.response_time',
-                '-Tfields', '-e', 'frame.number',
-            ), encoding='utf-8', env=test_env)
-            assert stdout.strip() == str(frame_num), \
-                f'Frame {frame_num}: expected nvme-mi.response_time'
+        assert_frames_match(self.FILE, [
+            (frame_num, 'nvme-mi.response_time')
+            for frame_num in (3, 13, 21, 29, 42, 44, 48, 52, 54, 56)])
 
     # ------------------------------------------------------------------
     # IC=1 (MIC-enabled integrity check) frames (F41-F42)
     # ------------------------------------------------------------------
 
-    def test_mic_enabled_frames(self, cmd_tshark, capture_file, test_env):
+    def test_mic_enabled_frames(self, tshark_fields):
         """Only F41/F42 (valid MIC) and F69 (IC set but no room for a MIC)
         carry the IC bit (nvme-mi.mctp-ic); all other frames do not."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'nvme-mi.mctp-ic == true',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
+        stdout = tshark_fields(self.FILE, 'nvme-mi.mctp-ic == true')
         assert stdout.split() == ['41', '42', '69']
 
-    def test_mic_req_resp_link(self, cmd_tshark, capture_file, test_env):
-        """IC-enabled request (F41) and response (F42) are correctly linked."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-2',
-            '-Y', 'frame.number == 41',
-            '-Tfields', '-e', 'nvme-mi.response_in',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '42'
+    def test_mic_valid(self, tshark_fields):
+        """The MICs on F41/F42 verify as correct (the MIC is little-endian on
+        the wire); no frame carries a bad-MIC status."""
+        stdout = tshark_fields(self.FILE, 'nvme-mi.mic.status == 1')    # 1 = Good
+        assert stdout.split() == ['41', '42']
 
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 42',
-            '-Tfields', '-e', 'nvme-mi.response_to',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '41'
+        stdout = tshark_fields(self.FILE, 'nvme-mi.mic.status == 0')    # 0 = Bad
+        assert stdout.strip() == ''
+
+    # F41<->F42 (IC-enabled) link is asserted in
+    # test_all_response_in_links / _to_links.
 
     # ------------------------------------------------------------------
     # New field-coverage tests (F43-F56)
     # ------------------------------------------------------------------
 
-    def test_mi_cdw0_cdw1_non_zero(self, cmd_tshark, capture_file, test_env):
+    def test_mi_cdw0_cdw1_non_zero(self, assert_frame_matches):
         """F43 carries non-zero CDW0=0x12345678 and CDW1=0x9ABCDEF0."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 43 && nvme-mi.mi.cdw0 == 0x12345678'
-                  ' && nvme-mi.mi.cdw1 == 0x9ABCDEF0',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '43'
+        assert_frame_matches(self.FILE, 43,
+            'nvme-mi.mi.cdw0 == 0x12345678 && nvme-mi.mi.cdw1 == 0x9ABCDEF0')
 
-    def test_mi_response_data_payload(self, cmd_tshark, capture_file, test_env):
+    def test_mi_response_data_payload(self, assert_frame_matches):
         """F46 (MI response) carries a nvme-mi.mi.data field (trailing data bytes)."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 46 && nvme-mi.mi.data',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '46'
+        assert_frame_matches(self.FILE, 46, 'nvme-mi.mi.data')
 
-    def test_admin_doff_only_flags(self, cmd_tshark, capture_file, test_env):
+    def test_admin_doff_only_flags(self, assert_frame_matches):
         """F47 has DOFF flag set and DLEN flag clear (flags=0x02)."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 47 && nvme-mi.admin.flags.doff == 1'
-                  ' && nvme-mi.admin.flags.dlen == 0',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '47'
+        assert_frame_matches(self.FILE, 47,
+            'nvme-mi.admin.flags.doff == 1 && nvme-mi.admin.flags.dlen == 0')
 
-    def test_admin_non_zero_doff_value(self, cmd_tshark, capture_file, test_env):
+    def test_admin_non_zero_doff_value(self, assert_frame_matches):
         """F47 carries a non-zero data-offset dword (nvme-mi.admin.doff == 0x2000)."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 47 && nvme-mi.admin.doff == 0x2000',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '47'
+        assert_frame_matches(self.FILE, 47, 'nvme-mi.admin.doff == 0x2000')
 
-    def test_admin_short_response_no_cqe(self, cmd_tshark, capture_file, test_env):
+    def test_admin_short_response_no_cqe(self, tshark_fields):
         """F50 (4-byte Admin response) must not carry CQE fields."""
-        for field in ('nvme-mi.admin.cqe1', 'nvme-mi.admin.cqe2', 'nvme-mi.admin.cqe3'):
-            stdout = subprocess.check_output((cmd_tshark,
-                '-r', capture_file(self.FILE),
-                '-Y', f'frame.number == 50 && {field}',
-                '-Tfields', '-e', 'frame.number',
-            ), encoding='utf-8', env=test_env)
-            assert stdout.strip() == '', f'Frame 50 should not have {field}'
+        stdout = tshark_fields(self.FILE, 'frame.number == 50 && (nvme-mi.admin.cqe1'
+                               ' || nvme-mi.admin.cqe2 || nvme-mi.admin.cqe3)')
+        assert stdout.strip() == '', 'Frame 50 should not have any CQE field'
 
-    def test_admin_non_success_status(self, cmd_tshark, capture_file, test_env):
+    def test_admin_short_success_response_expert(self, tshark_fields):
+        """F50 (4-byte Success Response missing the CQE dwords block) fires
+        the short-CQE expert; error/MPR short responses do not."""
+        stdout = tshark_fields(self.FILE, 'nvme-mi.admin.short_cqe')
+        assert stdout.split() == ['50']
+
+    def test_admin_non_success_status(self, assert_frame_matches):
         """F52 carries a non-zero Admin status code (0x03 = Invalid Command Opcode)."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 52 && nvme-mi.admin.status == 0x03',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '52'
+        assert_frame_matches(self.FILE, 52, 'nvme-mi.admin.status == 0x03')
 
-    def test_mi_non_success_status(self, cmd_tshark, capture_file, test_env):
+    def test_mi_non_success_status(self, assert_frame_matches):
         """F54 carries a non-zero, non-MPR MI status code (0x06)."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 54 && nvme-mi.mi.status == 0x06',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '54'
+        assert_frame_matches(self.FILE, 54, 'nvme-mi.mi.status == 0x06')
 
-    def test_meb_field_only_on_meb_frame(self, cmd_tshark, capture_file, test_env):
+    def test_meb_field_only_on_meb_frame(self, tshark_fields):
         """Only F55 has the MEB bit set; no other frame in the capture does."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'nvme-mi.meb == true',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
+        stdout = tshark_fields(self.FILE, 'nvme-mi.meb == true')
         assert stdout.strip() == '55'
 
 
@@ -933,122 +666,351 @@ class TestNvmeMiControlPrimitives:
 
     FILE = 'nvme-mi-types.pcapng'
 
-    def test_cp_opcode_on_requests(self, cmd_tshark, capture_file, test_env):
+    def test_cp_opcode_on_requests(self, assert_frames_match):
         """Each request frame carries the expected nvme-mi.control.opcode."""
-        for opcode, frame_num in ((0x00, 22), (0x03, 35), (0x02, 57), (0x04, 59),
-                                  (0x03, 62)):
-            stdout = subprocess.check_output((cmd_tshark,
-                '-r', capture_file(self.FILE),
-                '-Y', f'frame.number == {frame_num} && nvme-mi.control.opcode == {opcode}',
-                '-Tfields', '-e', 'frame.number',
-            ), encoding='utf-8', env=test_env)
-            assert stdout.strip() == str(frame_num), \
-                f'Frame {frame_num}: expected CP opcode 0x{opcode:02x}'
+        assert_frames_match(self.FILE, [
+            (frame_num, f'nvme-mi.control.opcode == {opcode}')
+            for opcode, frame_num in
+            ((0x00, 22), (0x03, 35), (0x02, 57), (0x04, 59), (0x03, 62))])
 
-    def test_cp_opcode_propagated_to_response(self, cmd_tshark, capture_file, test_env):
+    def test_cp_opcode_propagated_to_response(self, assert_frames_match):
         """The matched response frame shows the request's opcode as a generated field."""
-        for opcode, resp_frame in ((0x00, 23), (0x03, 36), (0x02, 58), (0x04, 60),
-                                   (0x03, 63)):
-            stdout = subprocess.check_output((cmd_tshark,
-                '-r', capture_file(self.FILE),
-                '-Y', f'frame.number == {resp_frame} && nvme-mi.control.opcode == {opcode}',
-                '-Tfields', '-e', 'frame.number',
-            ), encoding='utf-8', env=test_env)
-            assert stdout.strip() == str(resp_frame), \
-                f'Frame {resp_frame}: opcode 0x{opcode:02x} not propagated'
+        assert_frames_match(self.FILE, [
+            (resp_frame, f'nvme-mi.control.opcode == {opcode}')
+            for opcode, resp_frame in
+            ((0x00, 23), (0x03, 36), (0x02, 58), (0x04, 60), (0x03, 63))])
 
-    def test_cp_tag_on_request_and_response(self, cmd_tshark, capture_file, test_env):
+    def test_cp_tag_on_request_and_response(self, assert_frames_match):
         """nvme-mi.control.tag matches between request and matched response."""
-        for tag, req, resp in ((0, 22, 23), (1, 35, 36), (2, 57, 58), (3, 59, 60),
-                               (5, 62, 63)):
-            for frame_num in (req, resp):
-                stdout = subprocess.check_output((cmd_tshark,
-                    '-r', capture_file(self.FILE),
-                    '-Y', f'frame.number == {frame_num} && nvme-mi.control.tag == {tag}',
-                    '-Tfields', '-e', 'frame.number',
-                ), encoding='utf-8', env=test_env)
-                assert stdout.strip() == str(frame_num), \
-                    f'Frame {frame_num}: expected nvme-mi.control.tag == {tag}'
+        assert_frames_match(self.FILE, [
+            (frame_num, f'nvme-mi.control.tag == {tag}')
+            for tag, req, resp in
+            ((0, 22, 23), (1, 35, 36), (2, 57, 58), (3, 59, 60), (5, 62, 63))
+            for frame_num in (req, resp)])
 
-    def test_get_state_cesf_set_on_request(self, cmd_tshark, capture_file, test_env):
+    def test_get_state_cesf_set_on_request(self, assert_frame_matches):
         """F35 (Get State request) carries CESF=1 in CPSP."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 35 && nvme-mi.control.cesf == 1',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '35'
+        assert_frame_matches(self.FILE, 35, 'nvme-mi.control.cesf == 1')
 
-    def test_get_state_mes_response_bits(self, cmd_tshark, capture_file, test_env):
+    def test_get_state_mes_response_bits(self, assert_frame_matches):
         """F36 (Get State response) MES sentinel: NSSRO=1 and SSTA=1 (Receive)."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 36 && nvme-mi.control.mes.nssro == 1'
-                  ' && nvme-mi.control.mes.ssta == 1',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '36'
+        assert_frame_matches(self.FILE, 36,
+            'nvme-mi.control.mes.nssro == 1 && nvme-mi.control.mes.ssta == 1')
 
-    def test_abort_cpas_field(self, cmd_tshark, capture_file, test_env):
+    def test_abort_cpas_field(self, assert_frame_matches):
         """F58 (Abort response) CPSR carries CPAS=2 (partial abort)."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 58 && nvme-mi.control.cpas == 2',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '58'
+        assert_frame_matches(self.FILE, 58, 'nvme-mi.control.cpas == 2')
 
-    def test_replay_rro_on_request(self, cmd_tshark, capture_file, test_env):
+    def test_replay_rro_on_request(self, assert_frame_matches):
         """F59 (Replay request) CPSP carries RRO=5."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 59 && nvme-mi.control.rro == 5',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '59'
+        assert_frame_matches(self.FILE, 59, 'nvme-mi.control.rro == 5')
 
-    def test_replay_rr_on_response(self, cmd_tshark, capture_file, test_env):
+    def test_replay_rr_on_response(self, assert_frame_matches):
         """F60 (Replay response) CPSR carries RR=1 (replaying)."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 60 && nvme-mi.control.rr == 1',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '60'
+        assert_frame_matches(self.FILE, 60, 'nvme-mi.control.rr == 1')
 
-    def test_get_state_ssta_process_during_command(self, cmd_tshark, capture_file, test_env):
+    def test_get_state_ssta_process_during_command(self, assert_frame_matches):
         """F63 (Get State response while an Admin command is in flight) reports
         SSTA=2 (Process) — the slot is busy servicing the Admin command."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 63 && nvme-mi.control.mes.ssta == 2',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '63'
+        assert_frame_matches(self.FILE, 63, 'nvme-mi.control.mes.ssta == 2')
 
-    def test_pause_cpsr_raw_value(self, cmd_tshark, capture_file, test_env):
+    def test_pause_cpsr_raw_value(self, assert_frame_matches):
         """F23 (Pause response) CPSR raw value is 0x0003 (obsolete must-be-1 bits)."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 23 && nvme-mi.control.cpsr == 0x0003',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '23'
+        assert_frame_matches(self.FILE, 23, 'nvme-mi.control.cpsr == 0x0003')
 
-    def test_cp_status_on_responses(self, cmd_tshark, capture_file, test_env):
+    def test_cp_status_on_responses(self, assert_frames_match):
         """All Control-Primitive response frames carry Success status (0x00)."""
-        for resp in (23, 36, 58, 60, 63):
-            stdout = subprocess.check_output((cmd_tshark,
-                '-r', capture_file(self.FILE),
-                '-Y', f'frame.number == {resp} && nvme-mi.control.status == 0x00',
-                '-Tfields', '-e', 'frame.number',
-            ), encoding='utf-8', env=test_env)
-            assert stdout.strip() == str(resp), \
-                f'Frame {resp}: expected nvme-mi.control.status == 0x00'
+        assert_frames_match(self.FILE, [
+            (resp, 'nvme-mi.control.status == 0x00')
+            for resp in (23, 36, 58, 60, 63)])
+
+
+class TestNvmeMiMiCommands:
+    """MI command body decode (MR3/MR3b): per-opcode request dwords, NMRESP
+    subfields, and response data structures for opcodes 00h-07h and 0Ch.
+
+      F2/F3    Read DS DTYP=01h (Port Information, PCIe port)
+      F4/F5    NVM Subsystem Health Status Poll (CS=1, NSHDS response)
+      F6/F7    Controller Health Status Poll (2 CHDS entries)
+      F8/F9    Configuration Set CID=03h (MTUS=128, PORTID=1)
+      F10/F11  Configuration Get CID=03h (current MTUS=64)
+      F73/F74  Read DS DTYP=00h (NVM Subsystem Information)
+      F75/F76  Read DS DTYP=02h (Controller List: 1, 2, 5)
+      F77/F78  Read DS DTYP=04h (Optionally Supported Command List)
+      F79/F80  Read DS DTYP=01h (Port Information, 2-Wire port)
+      F81/F82  Configuration Get CID=01h (SFREQ=400 kHz)
+      F83/F84  Configuration Set CID=02h (Health Status Change clears)
+      F85/F86  Configuration Set CID=01h (SFREQ=1 MHz)
+      F87/F88  Configuration Get CID=0x50 (reserved — expert)
+      F89/F90  Read DS DTYP=03h (Controller Information)
+      F91/F92  VPD Read (DOFST=0, DLEN=8, response data)
+      F93/F94  VPD Write (DOFST=0x10, DLEN=4, request data)
+      F95/F96  Reset (RSTTYP=00h Reset NVM Subsystem)
+      F97/F98  Shutdown (SHDNTYP=01h Abrupt)
+      F99/F100 Reset (RSTTYP=02h reserved — expert)
+    """
+
+    FILE = 'nvme-mi-types.pcapng'
+
+    # ------------------------------------------------------------------
+    # Read NVMe-MI Data Structure (00h)
+    # ------------------------------------------------------------------
+
+    def test_read_ds_request_fields(self, assert_frames_match):
+        """DTYP/PORTID/CTRLID/IOCSI decode on Read DS requests."""
+        assert_frames_match(self.FILE, [
+            (2,  'nvme-mi.mi.rds.dtyp == 0x01 && nvme-mi.mi.rds.portid == 0'),
+            (73, 'nvme-mi.mi.rds.dtyp == 0x00'),
+            (75, 'nvme-mi.mi.rds.dtyp == 0x02 && nvme-mi.mi.rds.ctrlid == 0'),
+            (77, 'nvme-mi.mi.rds.dtyp == 0x04 && nvme-mi.mi.rds.ctrlid == 1'
+                 ' && nvme-mi.mi.rds.iocsi == 0'),
+            (79, 'nvme-mi.mi.rds.dtyp == 0x01 && nvme-mi.mi.rds.portid == 1'),
+            (89, 'nvme-mi.mi.rds.dtyp == 0x03 && nvme-mi.mi.rds.ctrlid == 1')])
+
+    def test_read_ds_rdl_on_responses(self, assert_frames_match):
+        """NMRESP bits 15:0 decode as the Response Data Length."""
+        assert_frames_match(self.FILE, [
+            (frame, f'nvme-mi.mi.rds.rdl == {rdl}')
+            for frame, rdl in
+            ((3, 32), (74, 32), (76, 8), (78, 6), (80, 32), (90, 32))])
+
+    def test_subsys_info_fields(self, assert_frame_matches):
+        """F74: NVM Subsystem Information structure decode."""
+        assert_frame_matches(self.FILE, 74,
+            'nvme-mi.mi.subsys.nump == 1 && nvme-mi.mi.subsys.mjr == 2'
+            ' && nvme-mi.mi.subsys.mnr == 1 && nvme-mi.mi.subsys.sre == 1')
+
+    def test_port_info_pcie_fields(self, assert_frame_matches):
+        """F3: Port Information with PCIe port-specific data."""
+        assert_frame_matches(self.FILE, 3,
+            'nvme-mi.mi.port.prttyp == 1 && nvme-mi.mi.port.aems == 1'
+            ' && nvme-mi.mi.port.ciaps == 1 && nvme-mi.mi.port.mmtus == 64'
+            ' && nvme-mi.mi.port.mebs == 0x1000'
+            ' && nvme-mi.mi.port.pcie.mps == 0x1 && nvme-mi.mi.port.pcie.cls == 0x4'
+            ' && nvme-mi.mi.port.pcie.mlw == 8 && nvme-mi.mi.port.pcie.nlw == 4')
+
+    def test_port_info_twire_fields(self, assert_frame_matches):
+        """F80: Port Information with 2-Wire port-specific data."""
+        assert_frame_matches(self.FILE, 80,
+            'nvme-mi.mi.port.prttyp == 2 && nvme-mi.mi.port.cvpdaddr == 0x53'
+            ' && nvme-mi.mi.port.mvpdfreq == 0x2'
+            ' && nvme-mi.mi.port.cmeaddr == 0x1D'
+            ' && nvme-mi.mi.port.i3csprt == 1'
+            ' && nvme-mi.mi.port.msmbfreq == 0x2'
+            ' && nvme-mi.mi.port.nvmebms == 0')
+
+    def test_ctrl_list_fields(self, tshark_fields, assert_frame_matches):
+        """F76: Controller List count and identifiers."""
+        assert_frame_matches(self.FILE, 76, 'nvme-mi.mi.ctrllist.numids == 3')
+        stdout = tshark_fields(self.FILE, 'frame.number == 76',
+                               fields=('nvme-mi.mi.ctrllist.ctrlid',))
+        assert stdout.strip().split(',') == ['0x0001', '0x0002', '0x0005']
+
+    def test_cmd_list_fields(self, assert_frame_matches):
+        """F78: Optionally Supported Command List entries decode.
+
+        Entry 0: MI command (NMIMT=1) VPD Read (0x05);
+        entry 1: Admin command (NMIMT=2) Device Self-test (0x14).
+        """
+        assert_frame_matches(self.FILE, 78,
+            'nvme-mi.mi.cmdlist.numcmd == 2'
+            ' && (nvme-mi.mi.cmdlist.nmimt == 1 && nvme-mi.mi.cmdlist.opc == 0x05)'
+            ' && (nvme-mi.mi.cmdlist.nmimt == 2 && nvme-mi.mi.cmdlist.opc == 0x14)')
+
+    def test_ctrl_info_fields(self, assert_frame_matches):
+        """F90: Controller Information structure decode."""
+        assert_frame_matches(self.FILE, 90,
+            'nvme-mi.mi.ctrlinfo.portid == 0 && nvme-mi.mi.ctrlinfo.riv == 1'
+            ' && nvme-mi.mi.ctrlinfo.pri.bus == 0x12'
+            ' && nvme-mi.mi.ctrlinfo.pri.dev == 0x03'
+            ' && nvme-mi.mi.ctrlinfo.pri.fn == 0x01'
+            ' && nvme-mi.mi.ctrlinfo.pcivid == 0x144D'
+            ' && nvme-mi.mi.ctrlinfo.pcidid == 0xA808')
+
+    def test_reserved_dtyp_expert(self, tshark_fields):
+        """F43 (Read DS with CDW0=0x12345678 -> DTYP=0x12) fires the
+        reserved-DTYP expert; the valid-DTYP requests do not."""
+        stdout = tshark_fields(self.FILE, 'nvme-mi.mi.reserved_dtyp')
+        assert stdout.split() == ['43']
+
+    # ------------------------------------------------------------------
+    # NVM Subsystem Health Status Poll (01h)
+    # ------------------------------------------------------------------
+
+    def test_nshsp_request_cs_flag(self, assert_frame_matches):
+        """F4: Clear Status bit decoded from NMD1."""
+        assert_frame_matches(self.FILE, 4, 'nvme-mi.mi.nshsp.cs == 1')
+
+    def test_nshds_fields(self, assert_frame_matches):
+        """F5: NVM Subsystem Health Data Structure decode."""
+        # CCS = 0x0211: CTEMP | NSSRO | RDY
+        assert_frame_matches(self.FILE, 5,
+            'nvme-mi.mi.nshds.nss.df == 1 && nvme-mi.mi.nshds.nss.rnr == 1'
+            ' && nvme-mi.mi.nshds.nss.p0la == 1 && nvme-mi.mi.nshds.nss.atf == 0'
+            ' && nvme-mi.mi.nshds.sw == 0xFF && nvme-mi.mi.nshds.ctemp == 45'
+            ' && nvme-mi.mi.nshds.pdlu == 5'
+            ' && nvme-mi.mi.hsf.ctemp == 1 && nvme-mi.mi.hsf.nssro == 1'
+            ' && nvme-mi.mi.hsf.rdy == 1 && nvme-mi.mi.hsf.cwarn == 0')
+
+    # ------------------------------------------------------------------
+    # Controller Health Status Poll (02h)
+    # ------------------------------------------------------------------
+
+    def test_chsp_request_fields(self, assert_frame_matches):
+        """F6: NMD0/NMD1 selection field decode."""
+        assert_frame_matches(self.FILE, 6,
+            'nvme-mi.mi.chsp.all == 1 && nvme-mi.mi.chsp.maxrent == 1'
+            ' && nvme-mi.mi.chsp.sctlid == 0 && nvme-mi.mi.chsp.ccf == 1'
+            ' && nvme-mi.mi.chsp.csts == 1 && nvme-mi.mi.chsp.cwarn == 0')
+
+    def test_chsp_rent_on_response(self, assert_frame_matches):
+        """F7: NMRESP bits 23:16 decode as Response Entries."""
+        assert_frame_matches(self.FILE, 7, 'nvme-mi.mi.chsp.rent == 2')
+
+    def test_chds_entries(self, assert_frame_matches):
+        """F7: both 16-byte CHDS entries decode.
+
+        Entry 0: CTLID=1, RDY, CTEMP=310 K, PDLU=3, SPARE=100.
+        Entry 1: CTLID=2, CSTS = FA|CFS|RDY, CWARN = TAUT, CHSC = CWARN|CFS.
+        """
+        assert_frame_matches(self.FILE, 7,
+            '(nvme-mi.mi.chds.ctlid == 1 && nvme-mi.mi.chds.csts.rdy == 1'
+            ' && nvme-mi.mi.chds.ctemp == 310 && nvme-mi.mi.chds.pdlu == 3'
+            ' && nvme-mi.mi.chds.spare == 100)'
+            ' && (nvme-mi.mi.chds.ctlid == 2 && nvme-mi.mi.chds.csts.fa == 1'
+            ' && nvme-mi.mi.chds.csts.cfs == 1'
+            ' && nvme-mi.mi.chds.cwarn.taut == 1)'
+            ' && (nvme-mi.mi.chds.chsc == 0x1002 && nvme-mi.mi.hsf.cwarn == 1'
+            ' && nvme-mi.mi.hsf.cfs == 1)')
+
+    # ------------------------------------------------------------------
+    # Configuration Set (03h) / Configuration Get (04h)
+    # ------------------------------------------------------------------
+
+    def test_config_set_mtus(self, assert_frame_matches):
+        """F8: MTUS Set request decode (CID, PORTID, new MTUS)."""
+        assert_frame_matches(self.FILE, 8,
+            'nvme-mi.mi.config.cid == 0x03 && nvme-mi.mi.config.portid == 1'
+            ' && nvme-mi.mi.config.mtus == 128')
+
+    def test_config_get_mtus_response(self, assert_frames_match):
+        """F10/F11: Config Get request CID/PORTID and current MTUS in the response NMRESP."""
+        assert_frames_match(self.FILE, [
+            (10, 'nvme-mi.mi.config.cid == 0x03 && nvme-mi.mi.config.portid == 1'),
+            (11, 'nvme-mi.mi.config.mtus_cur == 64')])
+
+    def test_config_get_sfreq_response(self, assert_frames_match):
+        """F81/F82: SMBus frequency Get request and current-frequency response."""
+        assert_frames_match(self.FILE, [
+            (81, 'nvme-mi.mi.config.cid == 0x01 && nvme-mi.mi.config.portid == 0'),
+            (82, 'nvme-mi.mi.config.sfreq_cur == 0x2')])
+
+    def test_config_set_sfreq(self, assert_frame_matches):
+        """F85: SMBus frequency Set request carries the new SFREQ."""
+        assert_frame_matches(self.FILE, 85,
+            'nvme-mi.mi.config.cid == 0x01 && nvme-mi.mi.config.sfreq == 0x3')
+
+    def test_config_set_hsc_clear_bits(self, assert_frame_matches):
+        """F83: Health Status Change clear-selection bits decode from NMD1."""
+        assert_frame_matches(self.FILE, 83,
+            'nvme-mi.mi.config.cid == 0x02 && nvme-mi.mi.config.hsc.cwarn == 1'
+            ' && nvme-mi.mi.config.hsc.ctemp == 1'
+            ' && nvme-mi.mi.config.hsc.rdy == 1'
+            ' && nvme-mi.mi.config.hsc.spare == 0')
+
+    def test_reserved_configid_expert(self, tshark_fields):
+        """F87 (CID=0x50) fires the reserved-CONFIGID expert; the valid-CID
+        requests do not."""
+        stdout = tshark_fields(self.FILE, 'nvme-mi.mi.reserved_configid')
+        assert stdout.split() == ['87']
+
+    def test_error_response_keeps_raw_nmresp(self, assert_frame_matches):
+        """F88 (Invalid Parameter response to the reserved-CID Get) carries
+        the raw NMRESP but no command-specific subfields."""
+        assert_frame_matches(self.FILE, 88,
+            'nvme-mi.mi.status == 0x04 && nvme-mi.mi.nmresp'
+            ' && !nvme-mi.mi.config.sfreq_cur')
+
+    def test_invalid_parameter_pel(self, tshark_fields):
+        """F88 (Invalid Parameter response) decodes the Parameter Error
+        Location: bit 2 of message byte 8 (the reserved CONFIGID), and no
+        other frame carries PEL fields."""
+        stdout = tshark_fields(self.FILE,
+                               'nvme-mi.pel.bit == 2 && nvme-mi.pel.byte == 8')
+        assert stdout.split() == ['88']
+
+    def test_col_info_carries_detail(self, tshark_fields):
+        """COL_INFO names the opcode and the DTYP/CONFIGID on request and
+        response frames."""
+        stdout = tshark_fields(self.FILE,
+            'frame.number == 2 || frame.number == 3'
+            ' || frame.number == 10 || frame.number == 11',
+            fields=('_ws.col.info',))
+        lines = stdout.splitlines()
+        assert len(lines) == 4
+        assert 'Read NVMe-MI Data Structure: Port Information' in lines[0]
+        assert 'Read NVMe-MI Data Structure: Port Information' in lines[1]
+        assert 'Configuration Get: MCTP Transmission Unit Size' in lines[2]
+        assert 'Configuration Get: MCTP Transmission Unit Size' in lines[3]
+
+    # ------------------------------------------------------------------
+    # VPD Read (05h) / VPD Write (06h)
+    # ------------------------------------------------------------------
+
+    def test_vpd_read_request_fields(self, assert_frame_matches):
+        """F91: VPD Read DOFST/DLEN decode from NMD0/NMD1."""
+        assert_frame_matches(self.FILE, 91,
+            'nvme-mi.mi.opcode == 0x05 && nvme-mi.mi.vpd.dofst == 0'
+            ' && nvme-mi.mi.vpd.dlen == 8')
+
+    def test_vpd_read_response_data(self, assert_frame_matches):
+        """F92: VPD Read response carries the VPD bytes as vpd.data."""
+        assert_frame_matches(self.FILE, 92,
+                             'nvme-mi.mi.vpd.data == 4e:56:4d:65:01:02:03:04')
+
+    def test_vpd_write_request_fields_and_data(self, assert_frame_matches):
+        """F93: VPD Write DOFST/DLEN plus the Request Data bytes."""
+        assert_frame_matches(self.FILE, 93,
+            'nvme-mi.mi.opcode == 0x06 && nvme-mi.mi.vpd.dofst == 0x10'
+            ' && nvme-mi.mi.vpd.dlen == 4'
+            ' && nvme-mi.mi.vpd.data == de:ad:be:ef')
+
+    # ------------------------------------------------------------------
+    # Reset (07h) / Shutdown (0Ch)
+    # ------------------------------------------------------------------
+
+    def test_reset_request_type(self, assert_frame_matches):
+        """F95: Reset Type decodes from NMD0 bits 31:24."""
+        assert_frame_matches(self.FILE, 95,
+            'nvme-mi.mi.opcode == 0x07 && nvme-mi.mi.reset.rsttyp == 0x00')
+
+    def test_shutdown_request_type(self, assert_frame_matches):
+        """F97: Shutdown Type decodes from NMD0 bits 31:24."""
+        assert_frame_matches(self.FILE, 97,
+            'nvme-mi.mi.opcode == 0x0c && nvme-mi.mi.shutdown.shdntyp == 0x01')
+
+    def test_reserved_reset_type_expert(self, tshark_fields):
+        """F99 (Reset RSTTYP=02h) fires the reserved-value expert; the valid
+        Reset/Shutdown requests do not."""
+        stdout = tshark_fields(self.FILE, 'nvme-mi.mi.reserved_value')
+        assert stdout.split() == ['99']
+
+    def test_new_opcodes_col_info(self, tshark_fields):
+        """COL_INFO names the new opcodes on their request frames."""
+        stdout = tshark_fields(self.FILE,
+            'frame.number == 91 || frame.number == 93'
+            ' || frame.number == 95 || frame.number == 97',
+            fields=('_ws.col.info',))
+        lines = stdout.splitlines()
+        assert len(lines) == 4
+        assert 'VPD Read' in lines[0]
+        assert 'VPD Write' in lines[1]
+        assert 'Reset: Reset NVM Subsystem' in lines[2]
+        assert 'Shutdown: Abrupt NVM Subsystem Shutdown' in lines[3]
 
 
 class TestNvmeMiMalformed:
-    """Malformed-frame fixtures (F65-F72 of nvme-mi-types.pcapng).
+    """Malformed-frame fixtures (F65-F72 and F101-F103 of nvme-mi-types.pcapng).
 
     The dissector must flag each anomaly with expert info, show leftover
     bytes as raw data, and keep request/response tracking intact — never
@@ -1057,157 +1019,97 @@ class TestNvmeMiMalformed:
 
     FILE = 'nvme-mi-types.pcapng'
 
-    def test_no_dissection_exceptions(self, cmd_tshark, capture_file, test_env):
+    def test_no_dissection_exceptions(self, tshark_fields):
         """No frame aborts dissection with an exception ('Malformed Packet
         (Exception occurred)').  The intentional PI_MALFORMED truncation
         experts also live under _ws.malformed, so filter on the
-        exception-specific field."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', '_ws.malformed.expert',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
+        exception-specific field.  (F102's capture slicing surfaces as
+        '[Packet size limited during capture]', which is not an exception
+        expert.)"""
+        stdout = tshark_fields(self.FILE, '_ws.malformed.expert')
         assert stdout.strip() == ''
 
     # ------------------------------------------------------------------
     # Truncated Control Primitive request (F65) + complete response (F66)
     # ------------------------------------------------------------------
 
-    def test_truncated_cp_request_flagged(self, cmd_tshark, capture_file, test_env):
+    def test_truncated_cp_request_flagged(self, assert_frame_matches):
         """F65 (2-byte CP request) carries the control truncation expert info."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 65 && nvme-mi.control.truncated',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '65'
+        assert_frame_matches(self.FILE, 65, 'nvme-mi.control.truncated')
 
-    def test_truncated_cp_response_no_fabricated_opcode(self, cmd_tshark, capture_file, test_env):
-        """F66 must not show a generated opcode recovered from the unparsable
-        request, and must carry the orphan/unusable-request expert instead."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 66 && nvme-mi.control.opcode',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == ''
+    def test_truncated_cp_response_no_fabricated_opcode(self, assert_frame_matches):
+        """F66 must carry the orphan/unusable-request expert and must not show
+        a generated opcode recovered from the unparsable request."""
+        assert_frame_matches(self.FILE, 66,
+            'nvme-mi.control.orphan_response && !nvme-mi.control.opcode')
 
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 66 && nvme-mi.control.orphan_response',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '66'
-
-    def test_no_spurious_tag_mismatch(self, cmd_tshark, capture_file, test_env):
+    def test_no_spurious_tag_mismatch(self, tshark_fields):
         """No frame fires the tag-mismatch expert — in particular not F66,
         whose request was too truncated to record a tag to compare against."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'nvme-mi.control.tag_mismatch',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
+        stdout = tshark_fields(self.FILE, 'nvme-mi.control.tag_mismatch')
         assert stdout.strip() == ''
 
     # ------------------------------------------------------------------
     # Truncated Admin request (F67) + complete response (F68)
     # ------------------------------------------------------------------
 
-    def test_truncated_admin_request_flagged_and_parsed(self, cmd_tshark, capture_file, test_env):
+    def test_truncated_admin_request_flagged_and_parsed(self, assert_frame_matches):
         """F67 (8-byte Admin request) is flagged truncated but its opcode is
         still decoded (graceful degradation instead of a thrown exception)."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 67 && nvme-mi.admin.truncated'
-                  ' && nvme-mi.admin.opcode == 0x06',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '67'
+        assert_frame_matches(self.FILE, 67,
+            'nvme-mi.admin.truncated && nvme-mi.admin.opcode == 0x06')
 
-    def test_truncated_admin_request_opcode_propagated(self, cmd_tshark, capture_file, test_env):
+    def test_truncated_admin_request_opcode_propagated(self, assert_frame_matches):
         """F68 recovers the opcode (0x06) recorded from the truncated request."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 68 && nvme-mi.admin.opcode == 0x06'
-                  ' && nvme-mi.admin.cqe1 == 0x0BAD0001',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '68'
+        assert_frame_matches(self.FILE, 68,
+            'nvme-mi.admin.opcode == 0x06 && nvme-mi.admin.cqe1 == 0x0BAD0001')
 
     # ------------------------------------------------------------------
     # Orphan response handling (F1)
     # ------------------------------------------------------------------
 
-    def test_orphan_admin_response_no_fabricated_opcode(self, cmd_tshark, capture_file, test_env):
-        """F1 (orphan Admin response) must not fabricate an opcode-0 generated
-        item; it carries the orphan-response expert instead."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 1 && nvme-mi.admin.opcode',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == ''
-
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 1 && nvme-mi.admin.orphan_response',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '1'
+    def test_orphan_admin_response_no_fabricated_opcode(self, assert_frame_matches):
+        """F1 (orphan Admin response) carries the orphan-response expert and
+        must not fabricate an opcode-0 generated item."""
+        assert_frame_matches(self.FILE, 1,
+            'nvme-mi.admin.orphan_response && !nvme-mi.admin.opcode')
 
     # ------------------------------------------------------------------
     # IC bit set without room for a MIC (F69)
     # ------------------------------------------------------------------
 
-    def test_ic_without_mic_flagged(self, cmd_tshark, capture_file, test_env):
+    def test_ic_without_mic_flagged(self, assert_frame_matches):
         """F69 carries the MIC-truncation expert, no MIC field, and its
         2 payload bytes are still dissected (opcode decoded)."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 69 && nvme-mi.mic_truncated'
-                  ' && nvme-mi.mi.opcode == 0x01',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '69'
-
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 69 && nvme-mi.mic',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == ''
+        assert_frame_matches(self.FILE, 69,
+            'nvme-mi.mic_truncated && nvme-mi.mi.opcode == 0x01 && !nvme-mi.mic')
 
     # ------------------------------------------------------------------
     # 1-byte MPR interim response (F70-F72)
     # ------------------------------------------------------------------
 
-    def test_short_mpr_keeps_slot_open(self, cmd_tshark, capture_file, test_env):
-        """F71 (1-byte MPR) must not close the slot: the request (F70) links
-        to the final response (F72), and both responses link back to F70."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-2',
-            '-Y', 'frame.number == 70',
-            '-Tfields', '-e', 'nvme-mi.response_in',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '72'
+    # The slot-survival links for the 1-byte MPR (F70->72 request link, and
+    # F71/F72->70 response links) are asserted in
+    # TestNvmeMiTypes.test_all_response_in_links / _to_links.
 
-        for frame_num in (71, 72):
-            stdout = subprocess.check_output((cmd_tshark,
-                '-r', capture_file(self.FILE),
-                '-Y', f'frame.number == {frame_num}',
-                '-Tfields', '-e', 'nvme-mi.response_to',
-            ), encoding='utf-8', env=test_env)
-            assert stdout.strip() == '70', \
-                f'Frame {frame_num}: expected response_to=70'
-
-    def test_short_mpr_truncation_flagged(self, cmd_tshark, capture_file, test_env):
+    def test_short_mpr_truncation_flagged(self, assert_frame_matches):
         """F71 (1-byte MI response) still gets the MI truncation expert and a
         decoded status byte (0x01 = More Processing Required)."""
-        stdout = subprocess.check_output((cmd_tshark,
-            '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 71 && nvme-mi.mi.truncated'
-                  ' && nvme-mi.mi.status == 0x01',
-            '-Tfields', '-e', 'frame.number',
-        ), encoding='utf-8', env=test_env)
-        assert stdout.strip() == '71'
+        assert_frame_matches(self.FILE, 71,
+            'nvme-mi.mi.truncated && nvme-mi.mi.status == 0x01')
+
+    # ------------------------------------------------------------------
+    # Sliced MPR interim response (F101-F103)
+    # ------------------------------------------------------------------
+
+    # The slot-survival links for the sliced MPR (F101->103 request link, and
+    # F102/F103->101 response links) are asserted in
+    # TestNvmeMiTypes.test_all_response_in_links / _to_links; the dissector
+    # behaviour unique to the sliced interim is checked below.
+
+    def test_sliced_mpr_not_flagged_as_mpr(self, tshark_fields):
+        """F102's MPR status cannot be verified from the captured bytes, so
+        it must not claim the response_is_mpr flag."""
+        stdout = tshark_fields(self.FILE,
+                               'frame.number == 102 && nvme-mi.response_is_mpr')
+        assert stdout.strip() == ''

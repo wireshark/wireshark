@@ -57,6 +57,7 @@ static int ett_nvme_mi_admin_flags;
 
 static expert_field ei_nvme_mi_admin_truncated;
 static expert_field ei_nvme_mi_admin_orphan_response;
+static expert_field ei_nvme_mi_admin_short_cqe;
 
 /* Same opcode namespace as packet-nvme.c's aq_opc_tbl; kept in sync by hand
  * until the two dissectors share one exported table. */
@@ -126,8 +127,20 @@ dissect_nvme_mi_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             return tvb_captured_length(tvb);
         }
 
-        proto_tree_add_item(admin_tree, hf_nvme_mi_admin_status,
-                            tvb, 0, 1, ENC_NA);
+        uint8_t status;
+        proto_tree_add_item_ret_uint8(admin_tree, hf_nvme_mi_admin_status,
+                                      tvb, 0, 1, ENC_NA, &status);
+
+        if (len < 4) {
+            expert_add_info(pinfo, it, &ei_nvme_mi_admin_truncated);
+            if (len > 1)
+                proto_tree_add_item(admin_tree, hf_nvme_mi_admin_data,
+                                    tvb, 1, -1, ENC_NA);
+            return tvb_captured_length(tvb);
+        }
+
+        if (status == NVME_MI_STATUS_INVALID_PARAMETER)
+            nvme_mi_dissect_invalid_param_resp(tvb, admin_tree);
 
         if (len >= 16) {
             proto_tree_add_item(admin_tree, hf_nvme_mi_admin_cqe1,
@@ -136,11 +149,19 @@ dissect_nvme_mi_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 tvb, 8, 4, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(admin_tree, hf_nvme_mi_admin_cqe3,
                                 tvb, 12, 4, ENC_LITTLE_ENDIAN);
+            if (len > 16)
+                proto_tree_add_item(admin_tree, hf_nvme_mi_admin_data,
+                                    tvb, 16, -1, ENC_NA);
+        } else {
+            /* A Success Response carries the full 16-byte status + CQE
+             * dwords block; error and MPR responses are legitimately the
+             * 4-byte short form. */
+            if (status == NVME_MI_STATUS_SUCCESS)
+                expert_add_info(pinfo, it, &ei_nvme_mi_admin_short_cqe);
+            if (len > 4)
+                proto_tree_add_item(admin_tree, hf_nvme_mi_admin_data,
+                                    tvb, 4, -1, ENC_NA);
         }
-
-        if (len > 16)
-            proto_tree_add_item(admin_tree, hf_nvme_mi_admin_data,
-                                tvb, 16, -1, ENC_NA);
     } else {
         if (len < 1) {
             expert_add_info(pinfo, it, &ei_nvme_mi_admin_truncated);
@@ -324,20 +345,25 @@ proto_register_nvme_mi_admin(void)
             FT_UINT32, BASE_HEX, NULL, 0,
             NULL, HFILL },
         },
+        /* The MI response carries CQE dwords 0, 1 and 3 — DW2 (SQ head
+         * pointer / SQ ID) is meaningless over MCTP and omitted.  The
+         * cqe1/cqe2/cqe3 abbreviations predate this and are kept so existing
+         * display filters stay valid. */
         { &hf_nvme_mi_admin_cqe1,
-          { "Completion Queue Entry dword 1", "nvme-mi.admin.cqe1",
+          { "Completion Queue Entry dword 0", "nvme-mi.admin.cqe1",
             FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
+            "Command-specific result (CQE DW0)", HFILL },
         },
         { &hf_nvme_mi_admin_cqe2,
-          { "Completion Queue Entry dword 2", "nvme-mi.admin.cqe2",
+          { "Completion Queue Entry dword 1", "nvme-mi.admin.cqe2",
             FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
+            "Reserved in Admin completions (CQE DW1)", HFILL },
         },
         { &hf_nvme_mi_admin_cqe3,
           { "Completion Queue Entry dword 3", "nvme-mi.admin.cqe3",
             FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
+            "Phase tag, status (SCT/SC/M/DNR) and command identifier "
+            "(CQE DW3)", HFILL },
         },
         { &hf_nvme_mi_admin_data,
           { "Data", "nvme-mi.admin.data",
@@ -361,6 +387,11 @@ proto_register_nvme_mi_admin(void)
           { "nvme-mi.admin.orphan_response", PI_SEQUENCE, PI_NOTE,
             "Admin response without a usable matching request (missing or "
             "truncated); opcode could not be recovered", EXPFILL },
+        },
+        { &ei_nvme_mi_admin_short_cqe,
+          { "nvme-mi.admin.short_cqe", PI_MALFORMED, PI_WARN,
+            "Success Response shorter than the 16-byte status + CQE dwords "
+            "block", EXPFILL },
         },
     };
 
