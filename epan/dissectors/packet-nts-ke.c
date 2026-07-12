@@ -478,7 +478,7 @@ dissect_nts_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     nts_ke_tree = proto_item_add_subtree(ti, ett_nts_ke);
 
     /* Error on ALPN mismatch */
-    alpn = tls_get_alpn(pinfo);
+    alpn = pinfo->match_string;
     if(!alpn || strcmp(alpn, NTS_KE_ALPN) != 0)
         expert_add_info(pinfo, nts_ke_tree, &ei_nts_ke_alpn_mismatch);
 

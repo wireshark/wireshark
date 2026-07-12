@@ -2136,6 +2136,7 @@ process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
     tvbuff_t *next_tvb;
     heur_dtbl_entry_t *hdtbl_entry;
     uint16_t saved_match_port, app_port;
+    const char *saved_match_string;
     bool heur_first;
 
     tlsinfo->app_handle = &session->app_handle;
@@ -2200,7 +2201,9 @@ process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
                      dissector_handle_get_dissector_name(session->app_handle));
 
     saved_match_port = pinfo->match_uint;
+    saved_match_string = pinfo->match_string; // probably unneeded
     pinfo->match_uint = app_port;
+    pinfo->match_string = session->alpn_name;
     call_dissector_with_data(session->app_handle, next_tvb, pinfo, proto_tree_get_root(tree), tlsinfo);
     /* The app dissector might not fully dissect next_tvb and request
      * desegmentation. This is especially true on the first pass, but
@@ -2214,6 +2217,7 @@ process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
                           dissector_handle_get_dissector_name(session->app_handle));
     }
     pinfo->match_uint = saved_match_port;
+    pinfo->match_string = saved_match_string;
 }
 
 static void

@@ -871,6 +871,7 @@ dissect_dtls_appdata(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset,
   if (decrypted) {
     bool  dissected;
     uint16_t  saved_match_port;
+    const char *saved_match_string;
     /* try to dissect decrypted data*/
     ssl_debug_printf("%s decrypted len %d\n", G_STRFUNC, record->content_len);
 
@@ -880,8 +881,10 @@ dissect_dtls_appdata(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset,
     } else {
       pinfo->match_uint = pinfo->destport;
     }
+    saved_match_string = pinfo->match_string;
+    pinfo->match_string = session->alpn_name;
 
-    /* find out a dissector using server port*/
+    /* find out a dissector using ALPN or server port*/
     if (session->app_handle) {
       ssl_debug_printf("%s: found handle %p (%s)\n", G_STRFUNC,
                        (void *)session->app_handle,
@@ -903,6 +906,7 @@ dissect_dtls_appdata(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset,
       }
     }
     pinfo->match_uint = saved_match_port;
+    pinfo->match_string = saved_match_string;
     /* fallback to data dissector */
     if (!dissected) {
       call_data_dissector(decrypted, pinfo, top_tree);

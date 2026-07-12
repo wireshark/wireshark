@@ -55,6 +55,12 @@ tls13_get_quic_secret(packet_info *pinfo, bool is_from_server, int type, unsigne
 /**
  * Returns the application-layer protocol name (ALPN) for the current TLS
  * session, or NULL if unavailable.
+ *
+ * @note This is for the TLS dissector itself to determine what next dissector
+ * to call; it is externally linked (but not public) because the QUIC dissector
+ * also uses it due to how QUIC uses the TLS handshake information without TLS
+ * being called on later frames. Dissectors that want to know how they were
+ * called should check pinfo->match_string.
  */
 const char *
 tls_get_alpn(packet_info *pinfo);
