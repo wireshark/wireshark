@@ -1012,7 +1012,7 @@ static bool dissect_procmon_registry_event(tvbuff_t* tvb, packet_info* pinfo, pr
             //Unknown fields
             offset += 2;
 
-            offset = dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_key);
+            /* offset = */ dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_key);
 
             if (tvb_reported_length(extra_details_tvb) > 0)
             {
