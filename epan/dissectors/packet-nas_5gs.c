@@ -5435,12 +5435,12 @@ de_nas_5gs_mm_s_nssai_loc_valid_info(tvbuff_t* tvb, proto_tree* tree, packet_inf
         proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_mm_length, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &length);
         curr_offset++;
         curr_offset += de_nas_5gs_cmn_s_nssai(tvb, subtree, pinfo, curr_offset, length, NULL, 0);
-        proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_mm_s_nssai_loc_valid_info_per_s_nssai_nb_nr_cgi, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &length);
-        curr_offset++;
+        proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_mm_s_nssai_loc_valid_info_per_s_nssai_nb_nr_cgi, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &length);
+        curr_offset += 2;
         for (j = 0; j < length; j++) {
             proto_tree_add_item(subtree, hf_nas_5gs_mm_s_nssai_loc_valid_info_per_s_nssai_nr_cell_id, tvb, curr_offset, 5, ENC_BIG_ENDIAN);
             curr_offset += 5;
-            curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, E212_NONE, true);
+            curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, subtree, curr_offset, E212_NONE, true);
         }
         proto_item_set_len(item, curr_offset - start_offset);
     }
@@ -17624,7 +17624,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_mm_s_nssai_loc_valid_info_per_s_nssai_nb_nr_cgi,
         { "Number of NR CGIs", "nas-5gs.mm.s_nssai_loc_valid_info.nb_nr_cgi",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_s_nssai_loc_valid_info_per_s_nssai_nr_cell_id,
