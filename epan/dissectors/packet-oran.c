@@ -37,16 +37,15 @@
  * so unfortunately it can be fiddly to get the preferences into a good state to
  * decode a given capture..
  * TODO:
- * - for U-Plane, track back to last C-Plane frame for that eAxC
- *      doing, but this matching can be tricky see 7.8.1 Coupling of C-Plane and U-Plane
  * - Detect/indicate signs of application layer fragmentation?
  *      same eAxC in same symbol (same/different section ID?)
  * - Not handling M-plane setting for "little endian byte order" as applied to
- * IQ samples and beam weights does anyone use this?
+ *   IQ samples and beam weights does anyone use this?
  * - for section extensions, check more constraints (which other extension types
  *   appear with them, order, repeated)
  * - re-order items (decl and hf definitions) to match spec order?
  * - track energy-saving status, and identify TRX or ASM commands as 'Sleep extension'
+ * - when tracking between C-plane and U-plane, indicated in C-plane any missing sectionIds/PRBs/REs
  */
 
 /* Prototypes */
@@ -710,7 +709,7 @@ static expert_field ei_oran_se30_not_ul;
 static expert_field ei_oran_se30_unknown_ueid;
 static expert_field ei_oran_beamid_bfws_not_found;
 static expert_field ei_oran_syminc_set_for_uplane;
-
+static expert_field ei_oran_cplane_entry_not_found;
 
 
 /* These are the message types handled by this dissector.  Others have handling in packet-ecpri.c */
@@ -7407,9 +7406,9 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* sectionId */
         uint32_t sectionId = 0;
-        proto_item *ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_section_id, tvb, offset, 2, ENC_BIG_ENDIAN, &sectionId);
+        proto_item *sectionId_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_section_id, tvb, offset, 2, ENC_BIG_ENDIAN, &sectionId);
         if (sectionId == 4095) {
-            proto_item_append_text(ti, " (not default coupling C/U planes using sectionId)");
+            proto_item_append_text(sectionId_ti, " (not default coupling C/U planes using sectionId)");
         }
         offset++;
 
@@ -7451,50 +7450,63 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         index_to_use = 1;
                     }
                     else {
-                        /* Just choose the latest one.  Don't know numerology, so just use up to subframe */
-                        unsigned total_first =  section_data->details[0].frame * 10 + section_data->details[0].subframe;
-                        unsigned total_second = section_data->details[1].frame * 10 + section_data->details[1].subframe;
-                        index_to_use = total_second > total_first;
+                        /* There was a sectionId, but timing header didn't exactly match, so neither index may be used.. */
+                        index_to_use = 2;         /* invalid value */
+                        /* Expert info */
+                        expert_add_info_format(NULL, sectionId_ti,
+                                               &ei_oran_cplane_entry_not_found,
+                                               "C-plane entry for %s sectionId %u at timing header %u-%u-%u-%u",
+                                               (direction) ? "DL" : "UL", sectionId,
+                                               frameId, subframeId, slotId, symbolId);
                     }
 
-                    section_details = &section_data->details[index_to_use];
+                    if (index_to_use <= 1) {
+                        section_details = &section_data->details[index_to_use];
 
-                    /* Cplane frame number */
-                    proto_item *cplane_frame_ti = proto_tree_add_uint(section_tree, hf_oran_corresponding_cplane_frame, tvb, 0, 0,
-                                                                      section_details->frame_number);
-                    proto_item_set_generated(cplane_frame_ti);
+                        /* Cplane frame number */
+                        proto_item *cplane_frame_ti = proto_tree_add_uint(section_tree, hf_oran_corresponding_cplane_frame, tvb, 0, 0,
+                                                                          section_details->frame_number);
+                        proto_item_set_generated(cplane_frame_ti);
 
-                    /* usecs since cplane frame */
-                    time_t total_gap = 0;
+                        /* usecs since cplane frame */
+                        time_t total_gap = 0;
 
-                    if ((pinfo->abs_ts.secs == section_details->frame_time.secs) || (pinfo->abs_ts.secs == section_details->frame_time.secs+1)) {
-                        total_gap = ((pinfo->abs_ts.secs - section_details->frame_time.secs) * 1000000) +
-                                    ((pinfo->abs_ts.nsecs - section_details->frame_time.nsecs)/1000);
-                    }
-
-                    if (total_gap > 0) {
-                        proto_item *cplane_delta_ti = proto_tree_add_uint(section_tree, hf_oran_corresponding_cplane_frame_time_delta, tvb, 0, 0, (uint32_t)total_gap);
-                        proto_item_set_generated(cplane_delta_ti);
-                    }
-
-                    if (!PINFO_FD_VISITED(pinfo)) {
-                        /* Look up 'result' for c-plane frame, and tell it about this frame.. */
-                        flow_result_t *cplane_result = wmem_tree_lookup32(flow_results_table, section_details->frame_number);
-                        if (!cplane_result) {
-                            cplane_result = wmem_new0(wmem_file_scope(), flow_result_t);
-                            cplane_result->u_plane_frames = wmem_list_new(wmem_file_scope());
-                            wmem_tree_insert32(flow_results_table, section_details->frame_number, cplane_result);
+                        if ((pinfo->abs_ts.secs == section_details->frame_time.secs) || (pinfo->abs_ts.secs == section_details->frame_time.secs+1)) {
+                            total_gap = ((pinfo->abs_ts.secs - section_details->frame_time.secs) * 1000000) +
+                                        ((pinfo->abs_ts.nsecs - section_details->frame_time.nsecs)/1000);
                         }
-                        /* PRB range filled in below.. */
 
-                        details = wmem_new(wmem_file_scope(), corresponding_uplane_frame);
-                        details->frame_number = pinfo->num;
-                        details->gap_in_usecs = (uint32_t)total_gap;
-                        details->sectionId = sectionId;
-                        details->symbol = symbolId;
+                        if (total_gap > 0) {
+                            proto_item *cplane_delta_ti = proto_tree_add_uint(section_tree, hf_oran_corresponding_cplane_frame_time_delta, tvb, 0, 0, (uint32_t)total_gap);
+                            proto_item_set_generated(cplane_delta_ti);
+                        }
 
-                        wmem_list_append(cplane_result->u_plane_frames, details);
+                        if (!PINFO_FD_VISITED(pinfo)) {
+                            /* Look up 'result' for c-plane frame, and tell it about this frame.. */
+                            flow_result_t *cplane_result = wmem_tree_lookup32(flow_results_table, section_details->frame_number);
+                            if (!cplane_result) {
+                                cplane_result = wmem_new0(wmem_file_scope(), flow_result_t);
+                                cplane_result->u_plane_frames = wmem_list_new(wmem_file_scope());
+                                wmem_tree_insert32(flow_results_table, section_details->frame_number, cplane_result);
+                            }
+                            /* PRB range filled in below.. */
+
+                            details = wmem_new(wmem_file_scope(), corresponding_uplane_frame);
+                            details->frame_number = pinfo->num;
+                            details->gap_in_usecs = (uint32_t)total_gap;
+                            details->sectionId = sectionId;
+                            details->symbol = symbolId;
+
+                            wmem_list_append(cplane_result->u_plane_frames, details);
+                        }
                     }
+                }
+                else {
+                    /* No section entry at all */
+                    expert_add_info_format(NULL, sectionId_ti,
+                                           &ei_oran_cplane_entry_not_found,
+                                           "C-plane entry for %s sectionId %u not found",
+                                           (direction) ? "DL" : "UL", sectionId);
                 }
             }
         }
@@ -10943,8 +10955,10 @@ proto_register_oran(void)
         { &ei_oran_se30_not_ul, { "oran_fh_cus.se30_not_ul", PI_MALFORMED, PI_WARN, "SE30 should only be sent in uplink direction", EXPFILL }},
         { &ei_oran_se30_unknown_ueid, { "oran_fh_cus.se30_unknown_ue", PI_MALFORMED, PI_WARN, "SE30 UEId not recognised from SE10", EXPFILL }},
         { &ei_oran_beamid_bfws_not_found, { "oran_fh_cus.beamid_bfws_not_found", PI_SEQUENCE, PI_WARN, "Have bundle with disableBFWs but no definition found", EXPFILL }},
-        { &ei_oran_syminc_set_for_uplane, { "oran_fh_cus.syminc_set_for_uplane", PI_MALFORMED, PI_ERROR, "symcInc is prohibited in the U-Plane", EXPFILL }}
+        { &ei_oran_syminc_set_for_uplane, { "oran_fh_cus.syminc_set_for_uplane", PI_MALFORMED, PI_ERROR, "symcInc is prohibited in the U-Plane", EXPFILL }},
+        { &ei_oran_cplane_entry_not_found, { "oran_fh_cus.cplane_entry_not_found", PI_SEQUENCE, PI_WARN, "C-plane for this U-plane section not found", EXPFILL }},
     };
+
 
     /* Register the protocol name and description */
     proto_oran = proto_register_protocol("O-RAN Fronthaul CUS", "O-RAN FH CUS", "oran_fh_cus");
