@@ -1096,6 +1096,11 @@ void StratosharkMainWindow::setMenusForSelectedPacket()
         }
     }
 
+    QList<int> rows = selectedRows();
+    if (main_ui_->searchFrame) {
+        main_ui_->searchFrame->setSelectedFrames(rows, frame_selected);
+    }
+
     main_ui_->actionCopyListAsText->setEnabled(selectedRows().count() > 0);
     main_ui_->actionCopyListAsCSV->setEnabled(selectedRows().count() > 0);
     main_ui_->actionCopyListAsYAML->setEnabled(selectedRows().count() > 0);
@@ -2004,12 +2009,14 @@ void StratosharkMainWindow::findPacket()
         return;
     }
     setPreviousFocus();
-    if (!main_ui_->searchFrame->isVisible()) {
-        showAccordionFrame(main_ui_->searchFrame, true);
+    SearchFrame *sf = main_ui_->searchFrame;
+    if (!sf->isVisible()) {
+        sf->setInPacketMode(false);
+        showAccordionFrame(sf, true);
     } else {
-        main_ui_->searchFrame->animatedHide();
+        sf->cancelSearch();
     }
-    main_ui_->searchFrame->setFocus();
+    sf->setFocus();
 }
 
 void StratosharkMainWindow::editTimeShift()
