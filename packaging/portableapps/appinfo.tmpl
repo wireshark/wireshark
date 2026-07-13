@@ -26,3 +26,9 @@ DisplayVersion=@PROJECT_VERSION@
 [Control]
 Icons=1
 Start=@PORTABLEAPPS_NAME@.exe
+
+[SpecialPaths]
+# Preserve the global plugins directory (and its per-version subfolders,
+# e.g. plugins\5.0\epan) across upgrades instead of deleting it.
+# See gitlab.com/wireshark/wireshark/-/issues/15550
+Plugins=App\Wireshark\plugins
