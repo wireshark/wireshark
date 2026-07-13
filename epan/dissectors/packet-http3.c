@@ -1766,7 +1766,6 @@ dissect_http3_data_full_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http
             proto_item_append_text(compressed_ti, " -> %u bytes", decompressed_length);
             body_tree = proto_item_add_subtree(compressed_ti, ett_http3_encoded_entity);
             next_tvb = decompressed_tvb;
-            datalen = decompressed_length;
         } else {
             expert_add_info(pinfo, compressed_ti, &ei_http3_body_decompression_failed);
             decompression_success = false;
