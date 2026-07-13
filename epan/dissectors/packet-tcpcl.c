@@ -1356,7 +1356,7 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /*No valid flags*/
         offset += 1;
 
-        sub_item = proto_tree_add_item_ret_varint(conv_tree, hf_tcpclv3_ack_length, tvb, offset, -1, ENC_VARINT_SDNV, &segment_length, &sdnv_length);
+        proto_tree_add_item_ret_varint(conv_tree, hf_tcpclv3_ack_length, tvb, offset, -1, ENC_VARINT_SDNV, &segment_length, &sdnv_length);
         offset += sdnv_length;
 
         // implied transfer ID
