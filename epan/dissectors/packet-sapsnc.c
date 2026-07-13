@@ -129,8 +129,7 @@ dissect_sapsnc_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 	offset+=8;
 
 	/* Frame type */
-	frame_type = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(sapsnc_frame_tree, hf_sapsnc_frame_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint8(sapsnc_frame_tree, hf_sapsnc_frame_type, tvb, offset, 1, ENC_BIG_ENDIAN, &frame_type);
 	offset+=1;
 
 	/* Protocol version */

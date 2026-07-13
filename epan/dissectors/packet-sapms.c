@@ -899,8 +899,7 @@ dissect_sapms_property(tvbuff_t *tvb, proto_tree *tree, uint32_t offset){
 	proto_tree_add_item(tree, hf_sapms_property_client, tvb, offset, 40, ENC_ASCII);
 	offset+=40;
 
-	property_id = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_sapms_property_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_sapms_property_id, tvb, offset, 4, ENC_BIG_ENDIAN, &property_id);
 	offset+=4;
 
 	/* Check if the property item has a value */
@@ -1314,8 +1313,7 @@ dissect_sapms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 		proto_tree_add_item(sapms_tree, hf_sapms_key, tvb, offset, 8, ENC_NA);
 		offset+=8;
 
-		flag = tvb_get_uint8(tvb, offset);
-		proto_tree_add_item(sapms_tree, hf_sapms_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint8(sapms_tree, hf_sapms_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &flag);
 		offset+=1;
 		proto_item_append_text(sapms_tree, ", Flag=%s", val_to_str_const(flag, sapms_flag_vals, "Unknown"));
 

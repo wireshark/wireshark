@@ -1440,7 +1440,7 @@ static const value_string rdm_ftc_response_status_vals[] = {
   { RDM_FTC_RS_E137_LOCKACTIVE,        "E1.37 Lock Active" },
   { RDM_FTC_RS_OTHER_LOCKACTIVE,       "Other Lock Active" },
   { RDM_FTC_RS_WRITE_PROTECT,          "Write Protect" },
-  { RDM_FTC_RS_INVALID_DIRECTION,      "Invalid Direciton" },
+  { RDM_FTC_RS_INVALID_DIRECTION,      "Invalid Direction" },
   { RDM_FTC_RS_OFFSET_ERROR,           "Offset Error" },
   { RDM_FTC_RS_FILESIZE_ERROR,         "File Size Error" },
   { RDM_FTC_RS_FTCVERSION_ERROR,       "FTC Version Error" },

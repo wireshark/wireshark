@@ -322,8 +322,7 @@ static void dissect_norm_data(proto_tree *tree, packet_info *pinfo,
 
     offset = dissect_grrtetc(tree, tvb, offset);
 
-    ti = proto_tree_add_item(tree, hf_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-    flags = tvb_get_uint8(tvb, offset);
+    ti = proto_tree_add_item_ret_uint8(tree, hf_flags, tvb, offset, 1, ENC_BIG_ENDIAN, &flags);
     flag_tree = proto_item_add_subtree(ti, ett_flags);
     proto_tree_add_item(flag_tree, hf_flag_repair,        tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(flag_tree, hf_flag_norm_explicit, tvb, offset, 1, ENC_BIG_ENDIAN);

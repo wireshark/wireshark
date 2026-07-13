@@ -262,17 +262,15 @@ static int dissect_counted_values(tvbuff_t *tvb, int offset, int hf_id,  packet_
 
 static int dissect_counted_address(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-  uint16_t length;
+  uint32_t length;
 
-  length = tvb_get_letohs(tvb, offset);
-  proto_tree_add_item(tree, hf_tnef_value_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item_ret_uint(tree, hf_tnef_value_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &length);
   offset += 2;
 
   proto_tree_add_item(tree, hf_tnef_attribute_display_name, tvb, offset, length, ENC_ASCII);
   offset += length;
 
-  length = tvb_get_letohs(tvb, offset);
-  proto_tree_add_item(tree, hf_tnef_value_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item_ret_uint(tree, hf_tnef_value_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &length);
   offset += 2;
 
   proto_tree_add_item(tree, hf_tnef_attribute_email_address, tvb, offset, length, ENC_ASCII);
@@ -365,16 +363,14 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
       proto_tree_add_item(tag_tree, hf_tnef_property_tag_set, tvb, offset, 16, ENC_LITTLE_ENDIAN);
       offset += 16;
 
-      tag_kind = tvb_get_letohl(tvb, offset);
-      proto_tree_add_item(tag_tree, hf_tnef_property_tag_kind, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item_ret_uint(tag_tree, hf_tnef_property_tag_kind, tvb, offset, 4, ENC_LITTLE_ENDIAN, &tag_kind);
       offset += 4;
 
       if(tag_kind == 0) {
         proto_tree_add_item(tag_tree, hf_tnef_property_tag_name_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
       } else {
-        tag_length = tvb_get_letohl(tvb, offset);
-        proto_tree_add_item(tag_tree, hf_tnef_property_tag_name_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint(tag_tree, hf_tnef_property_tag_name_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &tag_length);
         offset += 4;
 
         proto_tree_add_item_ret_string(tag_tree, hf_tnef_property_tag_name_string, tvb, offset, tag_length,
@@ -529,8 +525,7 @@ static int dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     /* remember the type for the value dissection */
     offset += 2;
 
-    length = tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(attr_tree, hf_tnef_attribute_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(attr_tree, hf_tnef_attribute_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &length);
     offset += 4;
 
     switch(tag) {

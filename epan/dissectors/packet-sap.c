@@ -151,8 +151,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     offset++;
 
-    auth_len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(sap_tree, hf_sap_auth_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(sap_tree, hf_sap_auth_len, tvb, offset, 1, ENC_BIG_ENDIAN, &auth_len);
     offset++;
 
     proto_tree_add_item(sap_tree, hf_sap_message_identifier_hash, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -177,8 +176,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         sdi = proto_tree_add_item(sap_tree, hf_auth_data, tvb, offset, auth_data_len, ENC_NA);
         sa_tree = proto_item_add_subtree(sdi, ett_sap_auth);
 
-        auth_flags = tvb_get_uint8(tvb, offset);
-        sai = proto_tree_add_item(sa_tree, hf_auth_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+        sai = proto_tree_add_item_ret_uint8(sa_tree, hf_auth_flags, tvb, offset, 1, ENC_BIG_ENDIAN, &auth_flags);
         saf_tree = proto_item_add_subtree(sai, ett_sap_authf);
         proto_tree_add_item(saf_tree, hf_auth_flags_v, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(saf_tree, hf_auth_flags_p, tvb, offset, 1, ENC_NA);

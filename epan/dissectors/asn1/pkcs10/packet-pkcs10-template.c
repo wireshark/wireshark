@@ -1,4 +1,4 @@
-/* packet-p10.c
+/* packet-pkcs10.c
  *
  * Routines for PKCS10 packet dissection
  *   Martin Peylo <wireshark@izac.de> 2018

@@ -306,8 +306,7 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
         offset += 2;
 
         /* CDBLength */
-        cdb_length = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_cdb_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint(sub_tree, hf_svhdx_tunnel_scsi_cdb_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &cdb_length);
         offset++;
 
         /* SensInfoExLength */
@@ -320,8 +319,7 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
         offset++;
 
         /* DataIn */
-        data_in = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_data_in, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint8(sub_tree, hf_svhdx_tunnel_scsi_data_in, tvb, offset, 1, ENC_LITTLE_ENDIAN, &data_in);
         offset++;
 
         /* Reserved2 */
@@ -333,8 +331,7 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
         offset += 4;
 
         /* DataTransferLength */
-        data_transfer_length = tvb_get_letohl(tvb, offset);
-        proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_data_transfer_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint(sub_tree, hf_svhdx_tunnel_scsi_data_transfer_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &data_transfer_length);
         offset += 4;
 
         /* CDBBuffer */
@@ -393,8 +390,7 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
         offset++;
 
         /* ScsiStatus */
-        scsi_status = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint8(sub_tree, hf_svhdx_tunnel_scsi_status, tvb, offset, 1, ENC_LITTLE_ENDIAN, &scsi_status);
         offset++;
 
         /* CdbLength */
@@ -402,13 +398,11 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
         offset++;
 
         /* SensInfoExLength */
-        sense_info_ex_length = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_sense_info_ex_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint(sub_tree, hf_svhdx_tunnel_scsi_sense_info_ex_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &sense_info_ex_length);
         offset++;
 
         /* DataIn */
-        data_in = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_data_in, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint8(sub_tree, hf_svhdx_tunnel_scsi_data_in, tvb, offset, 1, ENC_LITTLE_ENDIAN, &data_in);
         offset++;
 
         /* Reserved */
@@ -420,8 +414,7 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
         offset += 4;
 
         /* DataTransferLength */
-        data_transfer_length = tvb_get_letohl(tvb, offset);
-        proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_data_transfer_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint(sub_tree, hf_svhdx_tunnel_scsi_data_transfer_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &data_transfer_length);
         offset += 4;
 
         /* SenseDataEx */
@@ -656,8 +649,7 @@ dissect_RSVD2_META_OPERATION_START(tvbuff_t *tvb, proto_tree *parent_tree, int o
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_transaction_id, tvb, offset, 16, ENC_LITTLE_ENDIAN);
         offset += 16;
 
-        operation_type = tvb_get_letohl(tvb, offset);
-        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_meta_operation_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint(gfi_sub_tree, hf_svhdx_tunnel_meta_operation_type, tvb, offset, 4, ENC_LITTLE_ENDIAN, &operation_type);
         offset += 4;
 
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_padding, tvb, offset, 4, ENC_LITTLE_ENDIAN);

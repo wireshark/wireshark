@@ -723,8 +723,7 @@ dissect_saphdb_gss_authentication_fields(tvbuff_t *tvb, packet_info *pinfo, prot
 	uint16_t field_count = 0, field_length;
 
 	/* Parse the field count */
-	field_count = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(tree, hf_saphdb_part_authentication_field_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint16(tree, hf_saphdb_part_authentication_field_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &field_count);
 	offset += 2;
 
 	for (uint16_t field = 0; field < field_count; field++) {
@@ -733,8 +732,7 @@ dissect_saphdb_gss_authentication_fields(tvbuff_t *tvb, packet_info *pinfo, prot
 		field_short_length = tvb_get_uint8(tvb, offset);
 		if (field_short_length == 0xff) {
 			offset += 1;
-			field_length = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_saphdb_part_authentication_field_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item_ret_uint16(tree, hf_saphdb_part_authentication_field_length, tvb, offset, 2, ENC_BIG_ENDIAN, &field_length);
 			offset += 2;
 		} else {
 			proto_tree_add_item(tree, hf_saphdb_part_authentication_field_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -784,8 +782,7 @@ dissect_saphdb_part_authentication_fields(tvbuff_t *tvb, packet_info *pinfo, pro
 	bool is_gss = false;
 
 	/* Parse the field count */ /* TODO: Should this match with argcount? */
-	field_count = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(tree, hf_saphdb_part_authentication_field_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint16(tree, hf_saphdb_part_authentication_field_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &field_count);
 	offset += 2;
 	parsed_length += 2;
 
@@ -796,8 +793,7 @@ dissect_saphdb_part_authentication_fields(tvbuff_t *tvb, packet_info *pinfo, pro
 		if (field_short_length == 0xff) {
 			offset += 1;
 			parsed_length += 1;
-			field_length = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_saphdb_part_authentication_field_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item_ret_uint16(tree, hf_saphdb_part_authentication_field_length, tvb, offset, 2, ENC_BIG_ENDIAN, &field_length);
 			offset += 2;
 			parsed_length += 2;
 		} else {

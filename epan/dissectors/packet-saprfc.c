@@ -688,8 +688,7 @@ dissect_saprfc_payload(tvbuff_t *tvb, packet_info *info, proto_tree *tree, proto
 		item_tree = proto_item_add_subtree(item, ett_saprfc);
 
 		/* Get the first identifier */
-		item_id1 = tvb_get_uint8(tvb, offset);
-		proto_tree_add_item(item_tree, hf_saprfc_item_id1, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint8(item_tree, hf_saprfc_item_id1, tvb, offset, 1, ENC_BIG_ENDIAN, &item_id1);
 		offset += 1;
 		item_length += 1;
 		proto_item_append_text(item, ": (0x%.2x)", item_id1);
@@ -701,8 +700,7 @@ dissect_saprfc_payload(tvbuff_t *tvb, packet_info *info, proto_tree *tree, proto
 		/* Otherwise follow dissection */
 		} else {
 
-			item_id2 = tvb_get_uint8(tvb, offset);
-			proto_tree_add_item(item_tree, hf_saprfc_item_id2, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item_ret_uint8(item_tree, hf_saprfc_item_id2, tvb, offset, 1, ENC_BIG_ENDIAN, &item_id2);
 			offset += 1;
 			item_length += 1;
 			proto_item_append_text(item, ", (0x%.2x)", item_id2);

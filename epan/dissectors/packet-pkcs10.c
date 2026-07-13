@@ -3,7 +3,7 @@
 /* packet-pkcs10.c                                                            */
 /* asn2wrs.py -b -q -L -p pkcs10 -c ./pkcs10.cnf -s ./packet-pkcs10-template -D . -O ../.. PKCS10.asn */
 
-/* packet-p10.c
+/* packet-pkcs10.c
  *
  * Routines for PKCS10 packet dissection
  *   Martin Peylo <wireshark@izac.de> 2018

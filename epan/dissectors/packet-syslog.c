@@ -456,7 +456,7 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
   framing_pdu_len = get_framed_syslog_pdu_len(pinfo, tvb, msg_off, data);
   if(framing_pdu_len > 0) {
-    framing_leading_str_len = snprintf(NULL, 0, "%d", framing_pdu_len) + 1;
+    framing_leading_str_len = snprintf(NULL, 0, "%u", framing_pdu_len) + 1;
     msg_off += framing_leading_str_len;
   }
 
@@ -540,10 +540,8 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     mtp3_item = proto_tree_add_boolean(syslog_tree, hf_syslog_msu_present,
                                         tvb, msg_off, msg_len, true);
     proto_item_set_generated(mtp3_item);
-  }
 
-  /* Call MTP dissector if encapsulated MSU was found... */
-  if (mtp3_tvb) {
+    /* Call MTP dissector if encapsulated MSU was found... */
     call_dissector(mtp_handle, mtp3_tvb, pinfo, tree);
   }
 

@@ -204,8 +204,7 @@ dissect_sapenqueue_server_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	offset += 1;
 	proto_tree_add_item(server_admin_tree, hf_sapenqueue_server_admin_length, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	opcode = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(server_admin_tree, hf_sapenqueue_server_admin_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint8(server_admin_tree, hf_sapenqueue_server_admin_opcode, tvb, offset, 1, ENC_BIG_ENDIAN, &opcode);
 	offset += 1;
 	proto_tree_add_item(server_admin_tree, hf_sapenqueue_server_admin_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -217,7 +216,6 @@ dissect_sapenqueue_server_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	if (tvb_reported_length_remaining(tvb, offset) > 0){
 		switch(opcode){
 			case 0x06:{		/* EnAdmTraceRequest */
-				uint8_t pattern_length = 0;
 				uint32_t nopatterns = 0, total_length = 0;
 				proto_item *trace_request = NULL, *trace_request_patterns = NULL, *trace_request_pattern = NULL;
 				proto_tree *trace_request_tree = NULL, *trace_request_patterns_tree = NULL, *trace_request_pattern_tree = NULL;
@@ -244,8 +242,7 @@ dissect_sapenqueue_server_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 				proto_tree_add_item(trace_request_tree, hf_sapenqueue_server_admin_trace_max_file_size, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
-				nopatterns = tvb_get_ntohl(tvb, offset);
-				proto_tree_add_item(trace_request_tree, hf_sapenqueue_server_admin_trace_nopatterns, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item_ret_uint(trace_request_tree, hf_sapenqueue_server_admin_trace_nopatterns, tvb, offset, 4, ENC_BIG_ENDIAN, &nopatterns);
 				offset += 4;
 				proto_tree_add_item(trace_request_tree, hf_sapenqueue_server_admin_trace_unknown, tvb, offset, 8, ENC_NA);
 				offset += 8;
@@ -261,7 +258,7 @@ dissect_sapenqueue_server_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 					trace_request_pattern = proto_tree_add_item(trace_request_patterns_tree, hf_sapenqueue_server_admin_trace_pattern, tvb, offset, 1, ENC_NA);
 					trace_request_pattern_tree = proto_item_add_subtree(trace_request_pattern, ett_sapenqueue);
 
-					pattern_length = tvb_get_uint8(tvb, offset) + 1; /* Pattern string is null terminated */
+					uint8_t pattern_length = tvb_get_uint8(tvb, offset) + 1; /* Pattern string is null terminated */
 					proto_tree_add_item(trace_request_pattern_tree, hf_sapenqueue_server_admin_trace_pattern_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset += 1;
 
@@ -307,13 +304,12 @@ dissect_sapenqueue_conn_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		case 0x01:		/* Parameter Request */
 		case 0x02:{		/* Parameter Response */
 			int name_length_remaining = 0;
-			uint8_t length = 0, total_length = 0;
+			uint8_t length, total_length = 0;
 			uint32_t count = 0, id = 0, name_length = 0;
 			proto_item *params = NULL, *param = NULL;
 			proto_tree *params_tree = NULL, *param_tree = NULL;
 
-			count = tvb_get_ntohl(tvb, offset);
-			proto_tree_add_item(conn_admin_tree, hf_sapenqueue_conn_admin_params_count, tvb, offset, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item_ret_uint(conn_admin_tree, hf_sapenqueue_conn_admin_params_count, tvb, offset, 4, ENC_BIG_ENDIAN, &count);
 			offset += 4;
 
 			params = proto_tree_add_item(conn_admin_tree, hf_sapenqueue_conn_admin_params, tvb, offset, 1, ENC_NA);
@@ -324,8 +320,7 @@ dissect_sapenqueue_conn_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 				param = proto_tree_add_item(params_tree, hf_sapenqueue_conn_admin_param, tvb, offset, 1, ENC_NA);
 				param_tree = proto_item_add_subtree(param, ett_sapenqueue);
 
-				id = tvb_get_ntohl(tvb, offset);
-				proto_tree_add_item(param_tree, hf_sapenqueue_conn_admin_param_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item_ret_uint(param_tree, hf_sapenqueue_conn_admin_param_id, tvb, offset, 4, ENC_BIG_ENDIAN, &id);
 				offset += 4;
 				length = 4;
 

@@ -1162,9 +1162,9 @@ dissect_PNDCP_Suboption_NME(tvbuff_t* tvb, int offset, packet_info* pinfo,
 
             if (nme_prio == 0x0000)
                 proto_item_append_text(block_item, ", Highest priority NME manager");
-            else if ((0x0001 <= nme_prio) && (nme_prio <= 0x3000))
+            else if (nme_prio <= 0x3000)
                 proto_item_append_text(block_item, ", High priorities for NME manager");
-            else if ((0x3001 <= nme_prio) && (nme_prio <= 0x9FFF))
+            else if (nme_prio <= 0x9FFF)
                 proto_item_append_text(block_item, ", Low priorities for NME manager");
             else if (0xA000 == nme_prio)
                 proto_item_append_text(block_item, ", Lowest priority for NME manager / Default priority for NME manager");
