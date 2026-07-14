@@ -3042,6 +3042,11 @@ dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
             subframes[n].number_of_mac_is_sdus[pdu_no] = 0;
 
             do {
+                if (subframes[n].number_of_mac_is_sdus[pdu_no] == 16) {
+                    expert_add_info_format(pinfo, f_ti, &ei_fp_mac_is_sdus_miscount, "Found too many (%u) MAC-is SDUs - max tracked is 16", macis_sdus_found);
+                    break;
+                }
+
                 /* Check we haven't gone past the limit */
                 if (macis_sdus_found++ > total_macis_sdus) {
                     expert_add_info_format(pinfo, f_ti, &ei_fp_mac_is_sdus_miscount, "Found too many (%u) MAC-is SDUs - header said there were %u", macis_sdus_found, (uint16_t)total_macis_sdus);
@@ -3082,7 +3087,6 @@ dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
                 f_ti = proto_tree_add_item(subframe_macis_descriptors_tree, hf_fp_edch_macis_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                 subframes[n].number_of_mac_is_sdus[pdu_no]++;
-
                 offset++;
             } while (F == 0);
         }
@@ -3111,7 +3115,7 @@ dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
             }
 
             /* Call MAC for this PDU if configured to */
-            if (preferences_call_mac_dissectors) {
+            if (preferences_call_mac_dissectors && data) {
                 p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, mac_is_info);
                 call_dissector_with_data(mac_fdd_edch_type2_handle, tvb_new_subset_remaining(tvb, offset), pinfo, top_level_tree, data);
             }
