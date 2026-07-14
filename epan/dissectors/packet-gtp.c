@@ -2312,7 +2312,7 @@ static const value_string ms_not_reachable_type[] = {
     { 4, "MS purge for non GPRS"},
     { 5, "No paging response via the SGSN"},
     { 6, "GPRS detached"},
-    { 7, "Deregistered in the HLR for non GPRS"},
+    { 7, "Deregistered in the HLR for GPRS"},
     { 8, "MS purged for GPRS"},
     { 9, "Unidentified subscriber via the MSC"},
     {10, "Unidentified subscriber via the SGSN"},

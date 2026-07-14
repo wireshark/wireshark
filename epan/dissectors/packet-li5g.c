@@ -115,7 +115,7 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree  *li5g_tree, *attr_tree, *parent=NULL;
     proto_item  *ti, *attr_ti;
     tvbuff_t    *payload_tvb;
-    int offset = LI_5G_HEADER_LEN_MIN, hf_attr = -1;
+    int offset = LI_5G_HEADER_LEN_MIN, hf_attr;
     uint32_t headerLen, payloadLen, pduType;
     uint16_t payloadFormat, attrType, attrLen;
     const char* info;

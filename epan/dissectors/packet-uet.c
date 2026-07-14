@@ -1823,7 +1823,7 @@ dissect_uet_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, bool has
             } else {
                 struct ip_hdr_info ip_info = { 0 };
                 wmem_list_frame_t* cur;
-                int layer_proto = -1;
+                int layer_proto;
                 int layer_num = pinfo->curr_layer_num;
 
                 /* CRC depends on previous IPv4/IPv6 layers, so figure out where the last IP packet

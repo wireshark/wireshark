@@ -345,8 +345,7 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* GPIO edge */
         offset++;
-        ti = proto_tree_add_item (netanalyzer_header_tree, hf_netanalyzer_gpio_edge, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        gpio_edge = (tvb_get_uint8(tvb, offset) & 0x01);
+        ti = proto_tree_add_item_ret_uint (netanalyzer_header_tree, hf_netanalyzer_gpio_edge, tvb, offset, 1, ENC_LITTLE_ENDIAN, &gpio_edge);
 
         szTemp = wmem_strdup_printf(pinfo->pool, "GPIO event on GPIO %d (%sing edge)", gpio_num, (gpio_edge == 0x00) ? "ris" : "fall");
 

@@ -647,12 +647,10 @@ static void ts2_add_statusflags(tvbuff_t *tvb, proto_tree *ts2_tree, uint32_t of
 static void ts2_parse_playerlist(tvbuff_t *tvb, proto_tree *ts2_tree)
 {
     uint32_t offset;
-    int32_t number_of_players;
-    int32_t x;
+    uint32_t number_of_players;
+    uint32_t x=0;
     offset=0;
-    x=0;
-    proto_tree_add_item(ts2_tree, hf_ts2_number_of_players, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    number_of_players = tvb_get_letohl(tvb, 0);
+    proto_tree_add_item_ret_uint(ts2_tree, hf_ts2_number_of_players, tvb, offset, 4, ENC_LITTLE_ENDIAN, &number_of_players);
     offset+=4;
     while(offset<tvb_reported_length_remaining(tvb, 0) && x<number_of_players)
     {

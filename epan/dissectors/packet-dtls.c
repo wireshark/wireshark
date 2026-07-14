@@ -615,7 +615,7 @@ dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
    * captured payload length against the remainder of the UDP packet size. */
   unsigned length = tvb_captured_length(tvb);
   unsigned offset = 0;
-  unsigned record_length = 0;
+  unsigned record_length;
   SslDecryptSession *ssl_session = NULL;
   SslSession *session = NULL;
 

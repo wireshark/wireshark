@@ -12332,7 +12332,7 @@ static const value_string nas_5gs_updp_upds_cause_vals[] = {
     { 0x60, "Invalid mandatory information"},
     { 0x61, "Message type non-existent or not implemented"},
     { 0x62, "Message type not compatible with the protocol state"},
-    { 0x53, "Information element non-existent or not implemented"},
+    { 0x63, "Information element non-existent or not implemented"},
     { 0x64, "Conditional IE error"},
     { 0x6f, "Protocol error, unspecified"},
     { 0,    NULL }

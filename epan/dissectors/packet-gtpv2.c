@@ -9545,10 +9545,10 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
             /* Treat IE type zero special as type zero is used to end the loop in the else branch */
             expert_add_info(pinfo, ti, &ei_gtpv2_ie);
         } else {
-            i = -1;
+            i = 0;
             /* Loop over the IE dissector list to se if we find an entry;
                the last entry will have ie_type=0 breaking the loop */
-            while (gtpv2_ies[++i].ie_type) {
+            while (gtpv2_ies[i++].ie_type) {
                 if (gtpv2_ies[i].ie_type == type)
                     break;
             }

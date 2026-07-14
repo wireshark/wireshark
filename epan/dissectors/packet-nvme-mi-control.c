@@ -392,23 +392,23 @@ proto_register_nvme_mi_control(void)
     static ei_register_info ei[] = {
         { &ei_nvme_mi_ctl_truncated,
           { "nvme-mi.control.truncated", PI_MALFORMED, PI_WARN,
-            "Control Primitive payload truncated (less than 4 bytes)", EXPFILL },
+            "Control Primitive payload truncated (less than 4 bytes)", EXPFILL }
         },
         { &ei_nvme_mi_ctl_reserved_opcode,
           { "nvme-mi.control.reserved_opcode", PI_PROTOCOL, PI_NOTE,
             "Control Primitive opcode is in the Reserved range (05h-EFh)",
-            EXPFILL },
+            EXPFILL }
         },
         { &ei_nvme_mi_ctl_orphan_response,
           { "nvme-mi.control.orphan_response", PI_SEQUENCE, PI_NOTE,
             "Control Primitive response without a usable matching request "
             "(missing or truncated); opcode and CPSR layout could not be "
-            "recovered", EXPFILL },
+            "recovered", EXPFILL }
         },
         { &ei_nvme_mi_ctl_tag_mismatch,
           { "nvme-mi.control.tag_mismatch", PI_PROTOCOL, PI_WARN,
             "Control Primitive response tag does not echo the request tag",
-            EXPFILL },
+            EXPFILL }
         },
     };
 

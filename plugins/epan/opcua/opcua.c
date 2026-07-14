@@ -366,7 +366,7 @@ static int opcua_get_footer_info(uint32_t channel_id, uint32_t token_id, uint8_t
     }
 
     ws_debug("no keyset found for channel_id=%u and token_id=%u", channel_id, token_id);
-    /* we use sig_len set from OpenSecurehChannel Policy in this case.
+    /* we use sig_len set from OpenSecureChannel Policy in this case.
      * this requires to have the OPN in the capture file, otherwise we are out of luck.
      */
 
@@ -668,7 +668,7 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                 if (ret == 0) {
                     /* decrypted */
                     /* to get the payload length we need to subtract the sequence header (8) byte,
-                     * the padding (paddin_len+1), and the signature from the plaintext */
+                     * the padding (pad_len+1), and the signature from the plaintext */
                     payload_len = plaintext_len - pad_len - sig_len - 9; /* pad_len 2 = 02 02 02 */
                     /* Now re-setup the tvb buffer to have the new data */
                     decrypted_tvb = tvb_new_child_real_data(tvb, plaintext, (unsigned)plaintext_len, (unsigned)plaintext_len);

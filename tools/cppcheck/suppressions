@@ -6,3 +6,4 @@ internalAstError
 syntaxError
 constVariablePointer
 constParameterPointer
+varFuncNullUB

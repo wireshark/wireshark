@@ -521,22 +521,22 @@ proto_register_nvme_mi_admin(void)
     static ei_register_info ei[] = {
         { &ei_nvme_mi_admin_truncated,
           { "nvme-mi.admin.truncated", PI_MALFORMED, PI_WARN,
-            "Admin command payload truncated", EXPFILL },
+            "Admin command payload truncated", EXPFILL }
         },
         { &ei_nvme_mi_admin_orphan_response,
           { "nvme-mi.admin.orphan_response", PI_SEQUENCE, PI_NOTE,
             "Admin response without a usable matching request (missing or "
-            "truncated); opcode could not be recovered", EXPFILL },
+            "truncated); opcode could not be recovered", EXPFILL }
         },
         { &ei_nvme_mi_admin_short_cqe,
           { "nvme-mi.admin.short_cqe", PI_MALFORMED, PI_WARN,
             "Success Response shorter than the 16-byte status + CQE dwords "
-            "block", EXPFILL },
+            "block", EXPFILL }
         },
         { &ei_nvme_mi_admin_prohibited_opcode,
           { "nvme-mi.admin.prohibited_opcode", PI_PROTOCOL, PI_WARN,
             "Admin opcode is Prohibited over the Management Interface "
-            "(NVMe-MI 2.1 Figure 134)", EXPFILL },
+            "(NVMe-MI 2.1 Figure 134)", EXPFILL }
         },
     };
 

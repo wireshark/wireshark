@@ -475,17 +475,17 @@ proto_register_nvme_mi(void)
         { &ei_nvme_mi_mic_truncated,
           { "nvme-mi.mic_truncated", PI_MALFORMED, PI_WARN,
             "IC bit is set but the message is too short to contain a MIC; "
-            "trailing bytes treated as payload", EXPFILL },
+            "trailing bytes treated as payload", EXPFILL }
         },
         { &ei_nvme_mi_mic_bad,
           { "nvme-mi.mic_bad", PI_CHECKSUM, PI_WARN,
             "Message Integrity Check does not match the computed CRC-32C",
-            EXPFILL },
+            EXPFILL }
         },
         { &ei_nvme_mi_req_superseded,
           { "nvme-mi.req_superseded", PI_SEQUENCE, PI_NOTE,
             "The previous request on this command slot was still unanswered; "
-            "its transaction is superseded by this request", EXPFILL },
+            "its transaction is superseded by this request", EXPFILL }
         },
     };
 

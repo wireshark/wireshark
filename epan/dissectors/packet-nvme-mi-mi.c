@@ -1977,12 +1977,12 @@ proto_register_nvme_mi_mi(void)
     static ei_register_info ei[] = {
         { &ei_nvme_mi_mi_truncated,
           { "nvme-mi.mi.truncated", PI_MALFORMED, PI_WARN,
-            "MI command payload truncated", EXPFILL },
+            "MI command payload truncated", EXPFILL }
         },
         { &ei_nvme_mi_mi_orphan_response,
           { "nvme-mi.mi.orphan_response", PI_SEQUENCE, PI_NOTE,
             "MI response without a usable matching request (missing or "
-            "truncated); opcode could not be recovered", EXPFILL },
+            "truncated); opcode could not be recovered", EXPFILL }
         },
         { &ei_nvme_mi_mi_reserved_dtyp,
           { "nvme-mi.mi.reserved_dtyp", PI_PROTOCOL, PI_NOTE,
@@ -1992,12 +1992,12 @@ proto_register_nvme_mi_mi(void)
         { &ei_nvme_mi_mi_reserved_configid,
           { "nvme-mi.mi.reserved_configid", PI_PROTOCOL, PI_NOTE,
             "Configuration Identifier is in a Reserved range (00h, 05h-BFh)",
-            EXPFILL },
+            EXPFILL }
         },
         { &ei_nvme_mi_mi_reserved_value,
           { "nvme-mi.mi.reserved_value", PI_PROTOCOL, PI_NOTE,
-            "A command-specific field carries a Reserved value", EXPFILL },
-        },
+            "A command-specific field carries a Reserved value", EXPFILL }
+        }
     };
 
     expert_module_t *expert_nvme_mi_mi;

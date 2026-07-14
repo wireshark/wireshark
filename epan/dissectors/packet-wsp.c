@@ -5151,9 +5151,9 @@ add_capabilities (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, uint8_t p
     char       *capaName, *str;
     uint32_t    offset       = 0;
     uint32_t    len          = 0;
-    uint32_t    capaStart    = 0; /* Start offset of the capability */
-    uint32_t    capaLen      = 0; /* Length of the entire capability */
-    uint32_t    capaValueLen = 0; /* Length of the capability value & type */
+    uint32_t    capaStart;        /* Start offset of the capability */
+    uint32_t    capaLen;          /* Length of the entire capability */
+    uint32_t    capaValueLen;     /* Length of the capability value & type */
     uint32_t    tvb_len      = tvb_reported_length(tvb);
     bool        ok           = false;
     uint8_t     peek;
@@ -5378,7 +5378,7 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, unsigned contentType,
     unsigned    variableStart = 0;
     unsigned    variableEnd   = 0;
     unsigned    valueStart    = 0;
-    uint8_t     peek          = 0;
+    uint8_t     peek;
     proto_item *ti;
     proto_tree *sub_tree;
 
@@ -5476,7 +5476,7 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
     tvbuff_t   *tmp_tvb;
     int         partnr      = 1;
     int         part_start;
-    int         found_match = 0;
+    int         found_match;
 
     proto_item *sub_tree   = NULL;
     proto_item *ti         = NULL;
