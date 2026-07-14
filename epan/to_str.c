@@ -373,7 +373,7 @@ unsigned_time_secs_to_str_buf(uint64_t time_val, const uint32_t frac,
 }
 
 char *
-unsigned_time_secs_to_str(wmem_allocator_t *scope, const uint32_t time_val)
+unsigned_time_secs_to_str(wmem_allocator_t *scope, const uint64_t time_val)
 {
     wmem_strbuf_t *buf;
 
@@ -407,10 +407,6 @@ signed_time_secs_to_str_buf(int64_t time_val, const uint32_t frac,
              * a 64-bit signed integer.  Just directly
              * pass UINT64_MAX, which is its absolute
              * value, directly to unsigned_time_secs_to_str_buf().
-             *
-             * (XXX - does ISO C guarantee that -(-2^n),
-             * when calculated and cast to an n-bit unsigned
-             * integer type, will have the value 2^n?)
              */
             unsigned_time_secs_to_str_buf(UINT64_MAX, frac,
                 is_nsecs, buf);
@@ -427,7 +423,7 @@ signed_time_secs_to_str_buf(int64_t time_val, const uint32_t frac,
 }
 
 char *
-signed_time_secs_to_str(wmem_allocator_t *scope, const int32_t time_val)
+signed_time_secs_to_str(wmem_allocator_t *scope, const int64_t time_val)
 {
     wmem_strbuf_t *buf;
 
@@ -447,7 +443,7 @@ signed_time_secs_to_str(wmem_allocator_t *scope, const int32_t time_val)
  * hours, minutes, and seconds, and put the result into a buffer.
  */
 char *
-signed_time_msecs_to_str(wmem_allocator_t *scope, int32_t time_val)
+signed_time_msecs_to_str(wmem_allocator_t *scope, int64_t time_val)
 {
     wmem_strbuf_t *buf;
     int msecs;

@@ -222,7 +222,7 @@ WS_DLL_PUBLIC char *abs_time_secs_to_str_ex(wmem_allocator_t *scope,
  * @param time_val Signed time value in seconds.
  * @return String representation of the time value.
  */
-WS_DLL_PUBLIC char *signed_time_secs_to_str(wmem_allocator_t *scope, const int32_t time_val);
+WS_DLL_PUBLIC char *signed_time_secs_to_str(wmem_allocator_t *scope, const int64_t time_val);
 
 /**
  * @brief Convert an unsigned value in seconds to a string.
@@ -231,7 +231,7 @@ WS_DLL_PUBLIC char *signed_time_secs_to_str(wmem_allocator_t *scope, const int32
  * @param time_val Time value in seconds.
  * @return String representation of the time value.
  */
-WS_DLL_PUBLIC char *unsigned_time_secs_to_str(wmem_allocator_t *scope, const uint32_t time_val);
+WS_DLL_PUBLIC char *unsigned_time_secs_to_str(wmem_allocator_t *scope, const uint64_t time_val);
 
 /**
  * @brief Convert a signed time value in milliseconds to a string.
@@ -240,7 +240,7 @@ WS_DLL_PUBLIC char *unsigned_time_secs_to_str(wmem_allocator_t *scope, const uin
  * @param time_val Signed time value in milliseconds.
  * @return String representation of the time value.
  */
-WS_DLL_PUBLIC char *signed_time_msecs_to_str(wmem_allocator_t *scope, int32_t time_val);
+WS_DLL_PUBLIC char *signed_time_msecs_to_str(wmem_allocator_t *scope, int64_t time_val);
 
 /**
  * @brief Convert a relative time to a string representation.

@@ -516,7 +516,7 @@ add_reltime(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
 	nstime.nsecs = 0;
 	proto_tree_add_time_format_value(tree, hf_index, tvb, offset, 4,
 	    &nstime, "%s",
-	    signed_time_secs_to_str(pinfo->pool,  (int32_t) nstime.secs));
+	    signed_time_secs_to_str(pinfo->pool, nstime.secs));
 	offset += 4;
 	return offset;
 }
