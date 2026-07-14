@@ -42211,6 +42211,20 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           pinfo->fragmented = save_fragmented;
           goto end_of_wlan; /* heuristics dissector handled it. */
         }
+
+        meshoff = 0;
+        meshctl_len = 0;
+        if (tvb_bytes_exist(next_tvb, meshoff, 1)) {
+          mesh_flags = tvb_get_uint8(next_tvb, meshoff);
+          if (DATA_FRAME_IS_QOS(frame_type_subtype)) {
+            if (has_mesh_control(fcf, qos_control, mesh_flags)) {
+              meshctl_len = dissect_mesh_control(hdr_tree, next_tvb, pinfo, 0);
+            }
+          }
+        }
+        len -= meshctl_len;
+        next_tvb = tvb_new_subset_length_caplen(next_tvb, meshctl_len, len, reported_len);
+
         encap_type = ENCAP_802_2;
         if (tvb_bytes_exist(next_tvb, 0, 2)) {
           octet1 = tvb_get_uint8(next_tvb, 0);
