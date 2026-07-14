@@ -43,7 +43,7 @@ extern const ftype_t* type_list[FT_ENUM_SIZE + 1];
 /* Given an ftenum number, return an ftype_t* */
 #define FTYPE_LOOKUP(ftype, result)		\
 	/* Check input */			\
-	ws_assert(ftype < FT_NUM_TYPES);	\
+	ws_abort_if_fail(ftype < FT_NUM_TYPES);	\
 	result = type_list[ftype];
 
 typedef void (*FvalueNewFunc)(fvalue_t*);

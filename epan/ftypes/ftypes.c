@@ -167,11 +167,9 @@ ftype_similar_types(const enum ftenum ftype_a, const enum ftenum ftype_b)
 const char*
 ftype_name(enum ftenum ftype)
 {
-	const ftype_t	*ft;
 	const char *s = "(null)";
 
-	FTYPE_LOOKUP(ftype, ft);
-	switch (ft->ftype) {
+	switch (ftype) {
 		case FT_NONE:		s = "FT_NONE"; break;
 		case FT_PROTOCOL:	s = "FT_PROTOCOL"; break;
 		case FT_BOOLEAN:	s = "FT_BOOLEAN"; break;
@@ -227,11 +225,9 @@ ftype_name(enum ftenum ftype)
 const char*
 ftype_pretty_name(enum ftenum ftype)
 {
-	const ftype_t	*ft;
 	const char *s = "(null)";
 
-	FTYPE_LOOKUP(ftype, ft);
-	switch (ft->ftype) {
+	switch (ftype) {
 		case FT_NONE:		s = "Label"; break;
 		case FT_PROTOCOL:	s = "Protocol"; break;
 		case FT_BOOLEAN:	s = "Boolean"; break;

@@ -178,3 +178,40 @@ class TestDfilterTimeArithmetic:
         dfilter = 'frame.time_relative > ${frame.time_relative} / 2.5'
         # select frame 440, expect 483 frames out of 562.
         checkDFilterCountWithSelectedFrame(dfilter, 483, 440)
+
+    # Regression tests for #21377: NULL pointer dereference in
+    # ftype_can_val_to_uinteger when compiling a display filter with
+    # TIME-field scalar arithmetic using min()/max(). The FT_SCALAR
+    # pseudo-type reached compatible_ftypes() as the second argument
+    # and was passed to ftype_can_val_to_uinteger(), which indexed
+    # type_list[] out of bounds via FTYPE_LOOKUP and dereferenced NULL.
+    def test_time_math_scalar_min_fail_1(self, checkDFilterFail):
+        dfilter = 'frame.time > 2*min(tcp.port, udp.port)'
+        error = "must be of compatible type"
+        checkDFilterFail(dfilter, error)
+
+    def test_time_math_scalar_max_fail_1(self, checkDFilterFail):
+        dfilter = 'frame.time > 2*max(tcp.port, udp.port)'
+        error = "must be of compatible type"
+        checkDFilterFail(dfilter, error)
+
+    def test_time_math_scalar_min_fail_2(self, checkDFilterFail):
+        dfilter = 'frame.time > 2*min(frame.time_delta, frame.time_delta)'
+        error = "must be of compatible type"
+        checkDFilterFail(dfilter, error)
+
+    def test_time_math_scalar_min_fail_3(self, checkDFilterFail):
+        # Literal scalars pass compatible_ftypes (FT_IS_SCALAR(FT_INT64)
+        # is true) but min() returns FT_SCALAR which is not recognized
+        # by FT_IS_SCALAR in check_arithmetic_LHS_TIME. This was a crash
+        # before the fix (ftype_pretty_name(FT_SCALAR) via FTYPE_LOOKUP).
+        dfilter = 'frame.time > 2*min(2, 3)'
+        error = "Right hand side must be an integer or float type"
+        checkDFilterFail(dfilter, error)
+
+    def test_time_math_scalar_min_fail_4(self, checkDFilterFail):
+        # Mixed scalar literal and non-scalar field: the field fails
+        # the compatible_ftypes check.
+        dfilter = 'frame.time > 2*min(2, tcp.port)'
+        error = "must be of compatible type"
+        checkDFilterFail(dfilter, error)

@@ -103,6 +103,19 @@ op_is_equality(stnode_op_t op)
 bool
 compatible_ftypes(ftenum_t a, ftenum_t b)
 {
+	/* FT_SCALAR is a pseudo-type used internally for TIME arithmetic
+	 * (multiply/divide). It is not a real field type and has no entry
+	 * in type_list[], so it must not reach the ftype_can_*() calls
+	 * below, which index type_list[] via FTYPE_LOOKUP. A type is
+	 * compatible with FT_SCALAR only if it is itself a scalar type
+	 * (FT_INT64 or FT_DOUBLE), per FT_IS_SCALAR(). */
+	if (b == FT_SCALAR) {
+		return FT_IS_SCALAR(a);
+	}
+	if (b >= FT_NUM_TYPES) {
+		ASSERT_FTYPE_NOT_REACHED(b);
+	}
+
 	switch (a) {
 		case FT_NONE:
 		case FT_BOOLEAN:
