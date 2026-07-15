@@ -874,13 +874,10 @@ void proto_cleanup_opcua(void)
 /** secrets callback called from Wireshark when loading a capture file with OPC UA Keylog File. */
 static void opcua_secrets_block_callback(const void *secrets, unsigned size)
 {
-    char *tmp = g_memdup2(secrets, size + 1);
-    if (tmp == NULL) return; /* OOM */
-
+    char *tmp = g_malloc0(size + 1);
+    memcpy(tmp, secrets, size);
     ws_debug("Loading secrets block '%s'...", (const char*)secrets);
     ws_debug("size = %u", size);
-    /* ensure data is zero terminated */
-    tmp[size] = 0;
     /* parse data */
     opcua_keylog_process_lines(tmp);
     g_free(tmp);
