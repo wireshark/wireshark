@@ -73,7 +73,7 @@ static int hf_uet_pds_ctl_payload;
 static int hf_uet_pds_ack_prlg;
 static int hf_uet_pds_ack_cc_type;
 static int hf_uet_pds_ack_mpr;
-static int hf_uet_pds_ack_sack_offset;
+static int hf_uet_pds_ack_sack_psn;
 static int hf_uet_pds_ack_cc_state;
 static int hf_uet_pds_ack_cc_state_service_time;
 static int hf_uet_pds_ack_cc_state_rc;
@@ -1340,7 +1340,7 @@ dissect_pds_ctl(tvbuff_t* tvb, packet_info *pinfo, proto_tree* pds_tree, int off
 }
 
 static int
-dissect_pds_ack_ext_hdr(tvbuff_t* tvb, packet_info* pinfo, proto_tree* pds_tree, int offset, uint8_t type)
+dissect_pds_ack_ext_hdr(tvbuff_t* tvb, packet_info* pinfo, proto_tree* pds_tree, int offset, uint8_t type, uint32_t cack_psn)
 {
     proto_tree* ext_tree = NULL;
     proto_item* ext_item = NULL;
@@ -1348,6 +1348,8 @@ dissect_pds_ack_ext_hdr(tvbuff_t* tvb, packet_info* pinfo, proto_tree* pds_tree,
     proto_item* cc_state_item = NULL;
     int         orig_offset = offset;
     uint8_t     cc_type = 0;
+    int32_t sack_psn_offset;
+    uint32_t sack_psn;
 
     if (tvb_reported_length_remaining(tvb, offset) < UET_PDS_ACK_EXT_HDR_SIZE) {
         proto_tree_add_expert_format(pds_tree, pinfo, &ei_uet_pds_ack_ext_hdr_len_invalid, tvb, offset, 1,
@@ -1364,7 +1366,9 @@ dissect_pds_ack_ext_hdr(tvbuff_t* tvb, packet_info* pinfo, proto_tree* pds_tree,
     offset += 1;
     proto_tree_add_item(ext_tree, hf_uet_pds_ack_mpr, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    proto_tree_add_item(ext_tree, hf_uet_pds_ack_sack_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
+    sack_psn_offset = tvb_get_ntohis(tvb, offset);
+    sack_psn = cack_psn + sack_psn_offset;
+    proto_tree_add_uint_format_value(ext_tree, hf_uet_pds_ack_sack_psn, tvb, offset, 2, sack_psn, "%u (%+d)", sack_psn, sack_psn_offset);
     offset += 2;
     proto_tree_add_item(ext_tree, hf_uet_pds_ack_sack_bitmap, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
@@ -1418,7 +1422,7 @@ dissect_pds_ack(tvbuff_t* tvb, packet_info* pinfo, proto_tree* pds_tree, int off
 
     if ((type == UET_PDS_TYPE_ACK_CC) || (type == UET_PDS_TYPE_ACK_CCX)) {
         //ext hdr
-        offset += dissect_pds_ack_ext_hdr(tvb, pinfo, pds_tree, offset, type);
+        offset += dissect_pds_ack_ext_hdr(tvb, pinfo, pds_tree, offset, type, cack_psn);
     }
 
     return (offset - orig_offset);
@@ -1977,9 +1981,9 @@ proto_register_uet(void)
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_uet_pds_ack_sack_offset,
-            { "SACK Offset", "uet.pds.ack.sack_offset",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
+        { &hf_uet_pds_ack_sack_psn,
+            { "SACK PSN", "uet.pds.ack.sack_psn",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_uet_pds_ack_cc_state,
