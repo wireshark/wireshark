@@ -3277,6 +3277,15 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, wtap_rec *rec, uint
       if(state.gen_time == 0U
           && tag.type == ERF_META_TAG_gen_time
           ) {
+        if (tag.length < sizeof(state.gen_time)) {
+          /*
+           * Skip the record if the time tag is bogusly short.
+           * XXX - Should this, and other tags with bogus length,
+           * be reported as an error and bad file?
+           */
+          return 0;
+        }
+
         memcpy(&state.gen_time, tag.value, sizeof(state.gen_time));
 
         /*
