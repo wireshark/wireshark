@@ -1,3 +1,345 @@
+4308c957f9 opcua: Fix heap-buffer-overflow in opcua_secrets_block_callback
+4e030d2b17 erf: Check that a time tag is long enough before copying
+08827034f7 tcpcl: fix Dead Store (Assignment) found by Clang Analyzer
+8e349a9a4a procmon: fix Dead Store (Assignment) found by Clang Analyzer
+ed9d682451 http3: fix Dead Store (Assignment) found by Clang Analyzer
+b3953f3349 epan: Widen input value in relative time_[m]secs_to_str functions
+5c5d3d5381 UMTS-FP: More bounds checking against subframes[]
+c517aedc99 K12: Fix a possible buffer overrun
+8bc069fe71 ORAN FH CUS: Section/timing-header in u-plane must match c-plane exactly
+3511f89277 .mailmap: map jaxlvl to Juan Carlos Valera
+a82cb811ac Stratoshark: Sync up some "Find in Packet" code with Wireshark
+94acaf7f33 OSPFv3: Add preference for Authentication Trailer
+8ef8e0fa78 NAS 5GS: fix dissection of NSAG information
+8874dd16df Fix some more dissector warnings
+c92cf203e2 NAS 5GS: fix S-NSSAI location validity information dissection
+15d8fcbf74 RDM: Add packets for E1.37-4 FTC
+9ced22a5eb Added ProfiNet v2.5 CIM records. Syslog SD bugfix.
+d43d89d201 sharkd: Make sure to deregister and already added IO Graphs on error
+178939f126 sharkd: Make sure to deregister and free taps on failure
+9c47ab577b [D]TLS: Report ALPN used in pinfo->match_string
+51831814f0 [Automatic update for 2026-07-12]
+961ee2b9bf hosts: Add base personal hosts file to name resolution load order
+fd340b9bf1 TCP: fix duplication detection count and table display
+a3a611d797 PROFINET: remove obsolete SecurityOperation 0x0007 (Imprint Private Key)
+70231fc0fa CoAP-EAP: Add test suite and captures
+cb4ddd4d61 CoAP-EAP: Add dissector for RFC 9820
+be9fc3349a RDM: Introduce dissector table for Manufacturer-Specific PIDs
+9b6556b115 epan: Add FT_PROTOCOL PINOs to the layer list
+4ba90bea89 Livewire: Fix use-after-free error
+7c7950394d epan: Define ENC_TIME_WINDOWS and use it
+4fd8300ddf gpg: Signature made Sat Jul 11 15:36:28 2026 PDT
+gpg:                using RSA key FDC8309C16E1AACB048944539F2B309A9E5F8D37
+gpg: Can't check signature: No public key
+Qt: Replace codec ranking heuristics with category-tagged struct
+9b04d315d5 Dissectors: address more warnings
+aec48f5155 stratoshark: Make View as File Format work again
+4b62256815 Qt: Append all the system translation paths
+1de20fed9b pcapng-sysdig: Set timestamp presence again
+36a8914895 Qt: Remove dependency on Qt6 Core5Compat module
+f7ed872b40 ZIP File: Add ZIP file support to Fileshark
+b600bec102 wiretap: add encapulation table entry for WTAP_ENCAP_PROCMON.
+9942e897e0 feat(ble_att): Added ATT write command to direction recognition
+9b2703cb23 Supply some more unregistered items
+98ca993343 HISLIP: Add HiSLIP 2.0 protocol support
+9ca3864aaa capture_sync: expand the comments for SP_WARNING_MSG.
+86974d3de3 epan: Improve proto_tree_add_item_ret_varint error handling
+ca57c2ad7b Add support for warning messages t odumpcap.
+87d9a9f3a4 dissectors: address some more warnings
+405dae5d22 ORAN FH CUS: If no exact match for timing header, match section to latest entry
+436b1136cd BER: Move extra unknown SEQUENCE/SET field to PI_UNDECODED
+28663ccddd C2P: Make the protocol name greppable
+d3decdf420 CMake+extcap: Check for memset_explict and explicit_bzero also
+d121c26a9b extcap: Scrub our SSH credentials before freeing them
+471ecd8cf6 UET: Fix TSS header fields [issue/21400]
+067697fc86 ORAN FH CUS: register 2 SE23 fields
+2ab7f4cce3 dumpcap: have cap_pipe_open_live() return a succes/failure indication.
+79302a032f eDonkey: Fix our protocol name
+44bd0b8200 dumpcap: don't pass around a pointer to global_ld.
+170dc5f9c6 HTTP/3: Export Objects, Request/Response tracking
+1880735dda dumpcap: more comment updates.
+a39a7345eb Qt: Export Objects: Init a member variable
+309ff0a109 atalk: Add support for ADSP packets
+fd8f1c9431 editcap: Add --discard-name-resolution flag to strip embedded NRBs
+8c941b4e1f HTTP/3: Provide a method to retrieve the stream ID and use it for DoH
+918eebd24c dissectors: fix more script warnings
+90349844c9 dumpcap: comment the code a bit more.
+d469a9babc ORAN FH CUS: dissect ST10 measType 10 & 11
+0e2c129e78 dumpcap: remove some code `#if`ed out since 2005.
+c9bd49828f z3950: Use a wmem_array to avoid overflow
+3d1a963a84 UMTS-FP: Check some limits (fp channels and number of mac pdus)
+e98b151a89 tcp: update rst diagnostic payload
+58e13e06d2 HTTP/3: body reassembly and dissection
+9b74d6c31e ieee1905: Handle the case where a TLV len is too large.
+322aea2ed0 ORAN FH CUS: Show more info for linked U-plane frames
+485c041586 dumpcap: fix a comment.
+d5557afc50 Fix some spelling errors
+68a91452af IEEE 802.11 crypt: Check for too large values in EAPOL frames
+e4181901b5 epan: Add and use fvalue_new_pool
+69ddb4ea63 wsutil: Fix strchrnul runtime logic on MacOS
+e1a4317c88 file_compressed: add a routine for a "quick-and-dirty" close.
+58f29a7a52 CMake+wsutil: Add ws_strchrnul
+01202f794d QUIC: Don't reset gap status on later PDUs in a frame
+ebfc206436 reassemble: Add a fragment_add_check_next function
+818badf572 Qt: Fix AltGr detection on Windows
+3f2b19a992 ORAN FH CUS: Always create frame list as part of result entry
+101e06613f [Automatic update for 2026-07-05]
+0ff95dbd4e dumpcap: clean up capture_loop_init_output().
+4dbf3ff463 dumpcap: clean up some comments.
+e85189715b dumpcap: clean up the file-finishing code.
+39a3c43737 TLS: Only copy extensions from a "ech_outer_extensions" extension
+f1ee34b4ad epan: Return unsigned lengths from proto API
+984fe5b7f5 Make some static error message buffers thread-local.
+cbee07a9f8 sdjournal: whitespace cleanups.
+aea6b4f27c sdjournal: remove unnecessary variable.
+e37de123cb wiretap: make the "bytes dumped" value unsigned.
+b260b00b86 HTTP/3: Don't create file scoped upgrade info on a second pass
+0776d01c6c HTTP/DoH: Adjust the expected base64url length for no padding
+11b8d41452 epan: Handle base64url encoding padding being optional
+44b4e46112 ITS: Add Automated Vehicle Marshalling and ParkingInformationMessage
+89ec98b659 Qt: Fix find-in-packet follow-up issues
+f2dd5a68b1 ORAN FH CUS: check result before walking list
+4a0fca61ea erf: do unsigned artihmetic for byte counts.
+a89d4ddbd3 ORAN FH CUS: Link forward from C-plane to U-plane frames
+ee4719048d gcrypt: fix a comment.
+f960bf0692 HTTP: Add DNS-over-HTTPS GET request query parameter handling
+a8a97101a1 QUIC: Only do retransmission checks on the first PDU in a frame
+28085c5ea7 Qt: Set log domain in main windows
+ad83934cd1 QUIC: Pass FIN to subdissectors in quic_stream_info
+f1535cbcc0 ORAN FH CUS: Also link C-U plane section info for UL
+02cf9cb3e0 dissectors: address some more warnings
+a278b0ee7a HTTP/3: Implement Follow HTTP/3 Stream
+540844ffea JSON+: Add wildcardfield, protocol-scoped lookups, and per-protocol filters
+f23bf82d9b ringbuffer: properly test for close succeeding.
+c5d99cece2 afp: fix Dead Store assignment found by Clang Analyzer
+f5e10372cd Qt: Rework Follow Stream Dialog
+955dacd046 file_compressed.c: change some tabs to spaces.
+c4797b16a2 ORAN FH CUS: Dissector v21 SEs
+e3301efabd epan: More unsigned lengths in proto API
+9f86e53c69 RELOAD: Widen the offset
+f7f3245d73 GitLab CI: Update the manuf file header
+8d83f5df52 recent: Prevent a double-free with duplicated geometry entries
+0adbc2f921 MEGACO: Avoid an infinite loop with doubled commas
+8a514bd7fc MEGACO: Fix some flipped signs in MEGACO over TPKT
+04600a3b38 H265: Advance bit offset after dissect_h265_sub_layer_hrd_parameters
+f1b16ee59f recent: Remove some old transitional backwards compatibility code
+ed6406f288 epan: conversation: Comment flags
+b2fbeb3f38 ORAN FH CUS: Updates for v21 spec
+458e6c9448 pfcp: Update to 3GPP TS 29.244 V19.6.0
+26d1f36c79 epan: Use unsigned lengths for more proto API types
+122574449d NR RRC: upgrade dissector to v19.3.0
+d3f836444e editcap: fix buffer overread in --sctp-split for truncated captures
+8bae1354d5 dissectors: fix a few more warnings
+fbddad76b3 XnAP: upgrade dissector to v19.3.0
+2a21284658 NGAP: upgrade dissector to v19.3.0
+5d519bef2c F1AP: upgrade dissector to v19.3.0
+bfcff7c294 JSON: Allow to load personal dictionaries from personal configuration folder
+e2945de19f HTTP: Add expert warnings for malformed header syntax
+7d37bc0dcb capture_opts: Don't call stat on Windows to see if a filename is a Named Pipe
+744b45054a ciscodump: Don't try to write more than PACKET_MAX_SIZE
+703ad954d7 git+docs: Switch our AI disclosure to "Assisted-by"
+81559a96f2 wmem, DNS: add wmem_map_get_keys_sorted() and use it for DNS.
+9265ba2a4d SIP: Fix dissecting route record
+e8e7345798 802.15.4 decryption: pass the decryption key as a separate arguemnt.
+3ab545a555 sgp32: Update to v1.3
+c638393949 LPP: upgrade dissector to v19.3.0
+0cf6e6359b NAS 5GS: upgrade dissector to v19.7.0
+dd30af214e LTE RRC: upgrade dissector to v19.3.0
+a604108799 NAS EPS: upgrade dissector to v19.6.0
+e3d5ef723a cli: Fix a few leaks in taps in error cases
+c168d158e6 DNS: Remove Key ID/Tag naming ambiguity
+2f76d503be DNS: Fix DNSKEY flags naming
+9b9ce9724b IEEE 802.15.4: fix null pointer in decryption.
+0d5c9da8c8 Qt: Add Find in Packet search feature
+b8cfd8975f Qt: Add a statistics Distribution Dialog
+ea0ba904fd json: optimize JSON output for literal values and key suffixes
+75e5a7749f AFP: Add support for AFP 2.x ProDOS Info Block
+9bdf0adc28 JSON: add path-based protocol dispatch to JSON+ dictionary
+eed529e074 column: Don't overflow when converting a large time to hms
+8bd7ed476a sctp: update DTLS KM method IDs
+3658b43950 ORAN FH CUS: Use a wmem_tree for section info
+b53e6f5ef6 epan: Fix signed_time_msecs_to_str for small negative values
+4d37760a49 Init MD5 digest arrays to zero in a couple of dissectors
+451a125c33 netscaler: Initialize signature struct to 0 when writing
+e893e73ef0 CMake: Add an option to force 64-bit time_t/Y2038 compliance
+e202b42dfb DNS: Update DNSSEC Algorithm Numbers
+723816f0d4 [Automatic update for 2026-06-28]
+c847a47634 pcap_pktdata: Restore the record's pkt_encap after calling
+0ed4dbfd70 TLS: Ensure that gcry_md_init failure is handled
+919869fda8 packet-ieee802154: fix indentation.
+22253bcaac wsgcrypt: minor cleanups.
+97421ea7f6 ssh: Check for ssh_kex_make_bignum failure (length 0 or too long) in keylog
+e46c6b6a99 Windows Search: keep names around after the dissection finishes.
+866d68f876 strptime: Don't read a character past a null timezone
+d829fcf75c IEEE 802.15.4: Fix ccm_cbc_mac stack buffer underflow
+45bcc7b79b LZ4: Update a comment
+7223d36a4c TCP: Duplication detection requested fixes
+38d6271f44 capture opts: Use test_for_fifo from libwsutil
+c5e2d10daf atalk: Add support for MacIP packets
+4dfc29f541 dumpcap: Do not flush after every packet in pcapng passthrough mode
+a5d408b482 lz4: Don't try to flush if not initalized yet
+282c84389b wiretap: blf: Make Coverity happier with a smaller max buffer
+be2814cffe epan: zlib: Fix a possible leak in an unlikely case
+6af581f447 dissectors: fix more detected warnings
+af79109dc5 wlan: Block ack sequence numbers are 12-bit
+27ae0feed5 Qt: Prevent a filtering loop
+678de4f9e3 bvlc: fix Dead Store (assignement) found by Clang Analyzer
+6f85fc6895 Qt: Make sure the main display filter history always updates
+8ac2da71b5 Zebra: Fix use of uninitialized memory
+f7ee8cc199 lbmc: Fix tvb leak
+6c10bb38e9 EBHSCR: Fix a leak
+1d68084ca4 wiretap: blf: Remove const
+956e2f8ef3 wiretap: blf: Fix leak and typo in previous commit
+4191f0bc56 wiretap: blf: Check actual decompressed size against claimed size
+2b67767a43 DVB-S2-TABLE: Fix duplicate field name and waveform_id display base in BCT table
+d06f6a4ea1 wiretap: lz4: Check for error in one additional case
+0acfba6ab9 epan: tvbuff_zlib: Declare the zlib stream on the stack
+e9d7bf7417 USB: Don't memdup a composite TVB after finalizing
+67be0a7dd9 B.A.T.M.A.N. Advanced: Update return values for unsigned
+7db3ead8bb ORAN FH CUS: avoid potential overflow while working out usec timing delta
+a859cba78d TLS: Move (probably-unnecessary) NULL check before dereference
+02dbbdbf41 Dissectors: fix some more cppcheck warnings
+e5dc76c30c epan: zlib: Avoid a use after free in an error path
+d52a99e1cc TRDP: Fix too restrictive XML-sdt-param checks and an older coverity bug
+8f23919ee4 proto_data: Fetch the list of protocol name and keys as GPtrArray
+2aefd64649 epan: Use a wmem_list instead of GSList for proto_data
+6adeb5d8a3 CMake: Check libpcap time_t size on 32-bit platforms
+d1c9a27063 file_compressed: improve handling of compression library errors.
+cc5675eb9b file_compressed: provide an info string for one FILE_ERR_INTERNAL case.
+4f00d6092d SMB2 Fix pipeline overfow using decode_smb2_name
+86867db768 SMB2: Fix_str_util.c
+02017e2dda Lua: fix some leaks.
+1107b0e135 Revert "GitLab CI: Disable the Coverity Scan jobs for now"
+cab8f4b590 ORAN FH CUS: Fix some duplicate or confusing filters
+2813301e89 TCP: Implement 2 new fields to track who sent TCP RST first: client or server.
+210513dc0e EPAN: OIDS: make proper glib type - c11 type conversion functions
+0b7208d2e2 dissectors: address a few more cppcheck issues
+f852aaa753 GlusterFS: decode the v4.0 procedures shown as dissect_rpc_unknown
+33313cacc6 test: Fix a test result with 32-bit time_t
+08cb7a103d ORAN FH CUS: Take more care over index into beamIds[]
+00fc37d700 Zigbee: Fix build with 32-bit time_t
+fc996a6dba GlusterFS: round opaque<> dict values to the XDR 4-byte boundary
+ffad2da4fe GlusterFS: fix FALLOCATE/DISCARD/ZEROFILL/FXATTROP request field decoding
+23daff7259 tools: Check for lupdate in update-tx
+cbb4b3ed35 wsutil: Optimize format_text_internal
+0249c7369d Adjusted data type for 3GPP-Session-Stop-Indicator
+799160722d GlusterFS: Sync FOP procedure enum with current GlusterFS
+56ea4ac47f Fix some break statment indentation.
+139328ce90 etwdump: Show human-readable Win32 error messages
+3f7ae7067c [Automatic update for 2026-06-21]
+5ff723fb4a Preferences/Protocols/IKEv2: fix error message
+5ad476d0f6 haiku-setup: improvements/fixes for --install-optional.
+1cb9ced0c2 Add a haiku-setup.sh script in tools, for the Haiku operating system.
+e44712058e DNS: Fix some RFC references.
+87a0a8643b capture: fix capture-pcap-util.c to build on other platforms.
+f7e5a4fd4d xgt: prefer C standard printf formats to GLib ones.
+40f0303bd8 GitLab CI: Make sure we use the same path for our error output everywhere
+38ac0ca19f DVB-S2-TABLE: Fix FCT2 section_fixed_access_method bitmask
+e154ee01ac Debian setup: Install libcap2-bin
+ef5c1337b9 CMake: Fix Large File Support on 32-bit platforms
+314a0e1648 http-urlencoded: fix percent-decoding bounds check
+a08554817a TRDP: Fix printf formatting with 32-bit time_t
+e1cb516a97 CMakeLists.txt: remove a stray #.
+dee92aea6b ws_verify_peercred(): fix build on some platforms.
+22001325f2 SMB2: Support for asynchronous communications
+a0e868c875 wsutil: Optimize utf_8_validate a bit
+c8fa5b19b8 CoAP: Initialize a boolean pointer out value to true
+5d76196504 epan: Zlib: Remove unnecessary memcpy and memset
+042e66c5d0 GitLab CI: Fix our fuzz artifact uploads
+f152fb4f36 adb: cap data_length and use lazy allocation
+a038993777 ORAN FH CUS: Check for no data section information available
+6336e545ea SCSI: Fix some checking warnings
+d6049d90d7 dissectors: more cppcheck errors
+a6b329a81c HiPerConTracer: Strengthen heuristic
+aecf4a71d9 UDP, DCCP: Use follow_stream_tap_listener
+295d8c60e2 sharkd: Only peers with the same eUID may connect to Linux abstract sockets
+d5b7164102 TLS: Get rid of an unaligned hash
+c98792c501 dissectors: address more cppcheck warnings
+6f8cd3d7ff sharkd: Support TCP sockets on loopback addresses only (IPv4 or IPv6)
+70285ee525 sharkd: Use Unix Domain Sockets on Windows where available
+0b0825639b docs: Fix some markup in SECURITY.md [skip ci]
+fcbdb1e6d0 HTTP: Add QUERY method and Accept-Query header field
+7f3d9cf1df Update tpncp.dat
+7054117d2b epan: Use unsigned for offset variables in missed dissectors
+cc3f8fcd54 SECURITY.md: Add a line about confidential issues
+5928088edb ORAN FH CUS: match U-plane to C-plane in more detail
+a47f4d0f08 OSI COTP: Set src-ref and dst-ref from CR and CC TPDUs
+0143274e20 wiretap: DBS Etherwatch: Ensure buffer has slack for an extra line
+5e9cfc97b7 Remove .travis.yml [skip ci]
+fc1c966e60 epan: Use unsigned for offset variables in ASN1 dissectors
+bad2ede314 gpg: Signature made Wed Jun 17 05:24:12 2026 PDT
+gpg:                using RSA key FDC8309C16E1AACB048944539F2B309A9E5F8D37
+gpg: Can't check signature: No public key
+epan: Use unsigned for offset variables in some dissectors
+fe168fe75c epan: Use unsigned for offset variables in packet-[p-z]* dissectors
+39d421c445 epan: Use unsigned for offset variables in packet-[k-o]* dissectors
+839145f210 epan: Use unsigned for offset variables in packet-[f-j]* dissectors
+8f71ae5ac5 epan: Use unsigned for offset variables in packet-[c-e]* dissectors
+f7461969ff epan: Use unsigned for offset variables in packet-[0-9a-b]* dissectors
+d296f939b4 Decode As: Try to fix MSVC GitHub build
+db91d83def TCP: Follow: Use the ports and addresses from the TCP header
+157821c17f OSI COTP: Handle TSDU fragmentation in both directions
+c0fcbcb509 OSI COTP: Fix checksum calculation
+ca6a8b7eff epan: Optimize ws_label_strcpy and dissect_per_boolean performance
+6520474bc9 json: even further optimize JSON output (10.2x total speedup)
+89588c1515 file: Format the progress bar sizes
+b5324c395d bsd-setup.sh: updates.
+0947f2a310 Debian: fix timestamp in changelog
+f691ad7815 Qt: Add back progress bar status updates when called from the C routine
+9495da2b4d Themes: Match QMenuBar and QToolBar background color to our theme
+f4560aedfc docs: README.tapping minor update for a function signature
+df8cc6e0e2 editcap: add --sctp-split option to unbundle SCTP DATA chunks
+2ad5f65dd9 FMP/NOTIFY: Do not precompute the HandleList length
+63aab2afd4 wiretap: pcapng-darwin-custom: Don't overflow allocated option size
+3cef3c9624 Qt: Update main display filter entry when filter changed programmatically
+e4b042ba98 Qt: Make the progress bar actually move and work on KDE
+64021224fa docs: SECURITY.md fixes
+ca6d8c41e8 Qt: Update DisplayFilterEntry status immediately on clear button
+1ba9a0c0ec json: further optimize JSON output (6.6x total speedup)
+11c1fb239e VNC: Pass on tcpinfo pointer to TLS dissector
+59b5911ee4 file: Work around DSBs not at the start of a file
+19ed5e70e7 TLS: Prevent some UB unaligned memory access in ECH
+c15cd034f9 [Automatic update for 2026-06-14]
+a14a5760c5 Qt: Lower FilterEdit debounce timer
+718ad98074 TLS: Inject Encrypted Client Hello secrets too
+675c13f3ad F5 Trailer: Add TLS secrets
+2bdec974ce Add security issue guidelines
+ae5de2ea3c file: Cleanup the packet range if it's the all range
+1a9db80e2e dissectors: fix some cppcheck warnings
+2cba60e263 wsutil: remove glib type related and other deprecated functions
+6d096ef8c0 EPAN: remove glib type related and other deprecated functions
+4f704578ea Qt: Ensure that filter status bar error updates in bad state
+3c13d80cf7 sctp: update DTLS chunk support
+47ed071ada epan: unsigned lengths for proto_tree_add_bitmask_ functions
+57ed951f65 json: optimize JSON output performance (~5x speedup)
+16f29ea5bd EPAN: No need to remember hash function
+fe14ade0bf EPAN: remove glib type related and other deprecated functions
+88f59451e8 Qt: Ensure that data source views are actually deleted
+bf445ecc80 C15CH: Avoid creating duplicate value_strings
+f1add64ead CMake: Don't install ws_mempbrk_int.h
+2912984f03 EPAN: Finalize Decode as implementation conversion
+0defc09e5f HTTP: Prevent a use-after-free
+721c90996c WOWW: Use tvb_child_uncompress_zlib
+986e1ce0d0 Exported PDU: Fix passing in a NULL list of items
+f46adcd088 wiretap: logcat: Check for ill-formed Exported PDU header TLVs
+697cf9a07b TCPCL: Use unique message index including data source index
+b9097a617e Lua: don't define unused static inline functions in the debugger.
+243346d673 docs: Document the software update URL format
+498e98aa38 ORAN-FH-CUS: Fix a couple of recent regressions
+a122841759 epan: Use unsigned lengths for more proto_tree_add types
+ac052c66b8 DCE/RPC NETLOGON: Use tvb_child_uncompress_
+7dfa283ca6 debian: Check if including wsutil public headers compile
+6b239cf71a HTTP: Use a wmem_list for the request list to prevent leaks
+9e1ab5a759 DCERPC: Do cleanup in a FINALLY block
+079574d49a File: Don't use -1 as a length for a boolean
+d9e0f4d646 PIDL: Identify some more string types as FT_STRING
+6ebe429614 DCERPC: Fix technically undefined left shift behavior
+58107f1523 mdb: Fix Dead Store (increment) found by Clang Analyzer
+90ce3ee7b6 GitLab CI: Fix the Arch Linux job
+8b36a52c88 ALC/LCT, LLS/SLT: Avoid leaking decompressed TVBs
+464e215384 Version: Wireshark 4.7.1 → 4.7.2, Stratoshark 0.10.1 → 0.10.2 [skip ci]
+667ab240e6 Build: Wireshark 4.7.1 and Stratoshark 0.10.1 [skip ci]
+0acc11a5a4 epan: Use unsigned lengths for some field types in proto API
 3294f01b71 UMTS RLC: Fix a leak
 132a346065 RRC: Fix a leak
 0b3249c4ee sgp32: Expand tagList

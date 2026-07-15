@@ -25,6 +25,8 @@ If you or your organization would like to contribute or become a sponsor, please
 
 The following changes have been made since version 4.7.1:
 
+* The Follow Stream window is more responsive and has more filtering options.
+
 * HTTP/3 improvements:
   Reassembly is implemented.
   Decompression is implemented for gzip/deflate, brotli, and zstd.

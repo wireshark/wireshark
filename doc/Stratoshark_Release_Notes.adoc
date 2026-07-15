@@ -29,7 +29,7 @@ If you or your organization would like to contribute or become a sponsor, please
 
 The following changes have been made since version 0.10.1:
 
-* Nothing of note.
+* Timestamps missing in Stratoshark in 0.10.0 and 0.10.1. wsbuglink:21406[].
 
 The following changes have been made since version 0.10.0:
 
