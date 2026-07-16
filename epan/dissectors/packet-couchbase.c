@@ -1430,6 +1430,8 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case CLIENT_OPCODE_GETQ:
   case CLIENT_OPCODE_GETK:
   case CLIENT_OPCODE_GETKQ:
+  case CLIENT_OPCODE_GET_EX:
+  case CLIENT_OPCODE_GET_EX_REPLICA:
     if (extlen) {
       if (request) {
         /* Request shall not have extras */
@@ -2340,6 +2342,8 @@ dissect_client_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case CLIENT_OPCODE_GETQ:
     case CLIENT_OPCODE_GETK:
     case CLIENT_OPCODE_GETKQ:
+    case CLIENT_OPCODE_GET_EX:
+    case CLIENT_OPCODE_GET_EX_REPLICA:
     case CLIENT_OPCODE_SET:
     case CLIENT_OPCODE_ADD:
     case CLIENT_OPCODE_REPLACE:
@@ -2742,7 +2746,8 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       opcode == CLIENT_OPCODE_DCP_EXPIRATION || opcode == CLIENT_OPCODE_DCP_PREPARE ||
       opcode == CLIENT_OPCODE_DEL_WITH_META || opcode == CLIENT_OPCODE_ADD_WITH_META ||
       opcode == CLIENT_OPCODE_SETQ_WITH_META || opcode == CLIENT_OPCODE_DELQ_WITH_META ||
-      opcode == CLIENT_OPCODE_ADDQ_WITH_META )) {
+      opcode == CLIENT_OPCODE_ADDQ_WITH_META || opcode == CLIENT_OPCODE_GET_EX ||
+      opcode == CLIENT_OPCODE_GET_EX_REPLICA )) {
 
       dissect_dcp_xattrs(tvb, tree, value_len, offset, pinfo);
     } else if (request && opcode == CLIENT_OPCODE_GET_ERROR_MAP) {
@@ -2810,6 +2815,8 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case CLIENT_OPCODE_GETQ:
     case CLIENT_OPCODE_GETK:
     case CLIENT_OPCODE_GETKQ:
+    case CLIENT_OPCODE_GET_EX:
+    case CLIENT_OPCODE_GET_EX_REPLICA:
     case CLIENT_OPCODE_INCREMENT:
     case CLIENT_OPCODE_DECREMENT:
     case CLIENT_OPCODE_VERSION:
