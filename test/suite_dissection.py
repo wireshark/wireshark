@@ -502,6 +502,22 @@ class TestDissectGrpcWeb:
 
 
 class TestDissectHttp:
+    def test_http_request_target_whitespace(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('http-tab-request.pcapng'),
+                '-Tfields',
+                '-e_ws.expert',
+                '-ehttp.request.method',
+                '-ehttp.request.uri',
+                '-ehttp.request.version',
+                '-ehttp.request.full_uri',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, 'GET')
+        assert '/foo\\tbar' in stdout
+        assert grep_output(stdout, 'HTTP/1.1')
+        assert 'http://example.com/foo\\tbar' in stdout
+        assert grep_output(stdout, 'Request target contains whitespace')
+
     def test_http_brotli_decompression(self, cmd_tshark, features, dirs, capture_file, test_env):
         '''HTTP brotli decompression'''
         if not features.have_brotli:

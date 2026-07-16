@@ -160,6 +160,7 @@ static expert_field ei_http_decompression_failed;
 static expert_field ei_http_decompression_disabled;
 static expert_field ei_http_response_code_invalid;
 static expert_field ei_http_request_uri_invalid;
+static expert_field ei_http_request_uri_whitespace;
 
 static dissector_handle_t http_handle;
 static dissector_handle_t http_tcp_handle;
@@ -2703,6 +2704,15 @@ basic_request_dissector(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
 		curr->request_uri = wmem_strdup(wmem_file_scope(), request_uri);
 	}
 	ti = proto_tree_add_string(tree, hf_http_request_uri, tvb, offset, tokenlen, request_uri);
+	const char *p;
+
+	/* RFC 9112 §3.2: No whitespace is allowed in the request-target. */
+	for (p = request_uri; *p != '\0'; p++) {
+		if (*p == ' ' || *p == '\t') {
+			expert_add_info(pinfo, ti, &ei_http_request_uri_whitespace);
+			break;
+		}
+	}
 	http_add_path_components_to_tree(tvb, pinfo, ti, offset, tokenlen);
 	offset += (unsigned) (next_token - line);
 	line = next_token;
@@ -5021,6 +5031,7 @@ proto_register_http(void)
 		{ &ei_http_decompression_disabled, { "http.decompression_disabled", PI_UNDECODED, PI_CHAT, "Decompression disabled", EXPFILL }},
 		{ &ei_http_response_code_invalid, { "http.response.code.invalid", PI_MALFORMED, PI_WARN, "Invalid HTTP response status code token", EXPFILL }},
 		{ &ei_http_request_uri_invalid, { "http.request.uri.invalid", PI_MALFORMED, PI_ERROR, "Invalid request target", EXPFILL }},
+		{ &ei_http_request_uri_whitespace, { "http.request.uri.whitespace", PI_PROTOCOL, PI_WARN, "Request target contains whitespace", EXPFILL }},
 
 	};
 
