@@ -694,8 +694,6 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                 col_clear_fence(pinfo->cinfo, COL_INFO);
                 col_set_str(pinfo->cinfo, COL_INFO, "Abort message");
 
-                offset = 0;
-                (*pfctParse)(transport_tree, tvb, pinfo, &offset, &metadata);
                 parseAbort(transport_tree, tvb, pinfo, &offset, &metadata);
 
                 return tvb_reported_length(tvb);

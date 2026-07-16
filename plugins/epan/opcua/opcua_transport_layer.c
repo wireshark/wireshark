@@ -149,7 +149,9 @@ int parseMessage(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *p
 
 int parseAbort(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset, struct ua_metadata *data _U_)
 {
-    parseMessageHeader(tree, tvb, pinfo, pOffset, data);
+    /* Called from dissect_opcua_message, when parseMessage was already called.
+     * So we only parse the abort message payload here.
+     */
     parseStatusCode(tree, tvb, pinfo, pOffset, hf_opcua_transport_error);
     parseString(tree, tvb, pinfo, pOffset, hf_opcua_transport_reason);
 
