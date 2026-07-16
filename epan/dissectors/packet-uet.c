@@ -1622,11 +1622,10 @@ dissect_pds(tvbuff_t* tvb, packet_info* pinfo, proto_tree* uet_tree, proto_item*
 }
 
 static int
-dissect_tss(tvbuff_t* tvb, packet_info* pinfo, proto_tree* uet_tree, proto_item* uet_item)
+dissect_tss(tvbuff_t* tvb, packet_info* pinfo, proto_tree* uet_tree, proto_item* uet_item, int offset)
 {
     proto_tree* tss_tree;
     proto_item* tss_item;
-    int         offset = 0;
     uint8_t     type = 0;
     uint8_t     sp = 0;
 
@@ -1697,7 +1696,7 @@ dissect_uet_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, bool has
     type = tvb_get_bits8(tvb, (offset * 8), 5);
 
     if (type == UET_TYPE_ENC) {
-        offset += dissect_tss(tvb, pinfo, uet_tree, uet_item);
+        offset += dissect_tss(tvb, pinfo, uet_tree, uet_item, offset);
     } else {
         //PDS
         offset += dissect_pds(tvb, pinfo, uet_tree, uet_item, offset);
