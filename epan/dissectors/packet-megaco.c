@@ -3269,7 +3269,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
             break;
 
         case MEGACO_DS_DSCP:
-            tvb_get_string_uint(tvb, tvb_current_offset, 3, ENC_STR_NUM, &dscp, &endoff);
+            tvb_get_string_uint(tvb, tvb_current_offset, 3, ENC_STR_HEX, &dscp, &endoff);
             item = proto_tree_add_uint(megaco_LocalControl_tree, hf_megaco_ds_dscp, tvb,
                 tvb_help_offset, 1, dscp);
             proto_item_set_len(item, tvb_offset-tvb_help_offset);
