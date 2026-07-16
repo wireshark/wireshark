@@ -127,7 +127,15 @@ dissect_mctp_smbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     len = tvb_reported_length(tvb);
 
-    if (len < MCTP_SMBUS_MIN_LENGTH)
+    /*
+     * Gate on captured length too: when invoked directly via "Decode As" a
+     * snaplen-truncated frame can report a large length while only a few bytes
+     * were captured, and the fixed-header reads below would otherwise throw a
+     * bounds exception mid-dissection.  The heuristic path applies the same
+     * guard in mctp_smbus_frame_is_valid().
+     */
+    if (len < MCTP_SMBUS_MIN_LENGTH ||
+        tvb_captured_length(tvb) < MCTP_SMBUS_MIN_LENGTH)
         return 0;
 
     ti = proto_tree_add_item(tree, proto_mctp_smbus, tvb, 0, -1, ENC_NA);
@@ -191,8 +199,24 @@ dissect_mctp_smbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     col_set_writable(pinfo->cinfo, -1, true);
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMBus/I2C / ");
-    col_set_fence(pinfo->cinfo, COL_PROTOCOL);
+
+    /*
+     * Propagate the SMBus 7-bit physical addresses into pinfo->net_src/dst
+     * before calling the MCTP subdissector.  Subdissectors such as NVMe-MI
+     * use these stable physical addresses (rather than MCTP EIDs, which are
+     * only assigned after the MCTP discovery phase) to key per-device
+     * conversations correctly in multi-device topologies.
+     *
+     * Note the address *type* is AT_MCTP but the one-byte payload here is
+     * the SMBus 7-bit slave address, not an MCTP EID.  This overload is
+     * deliberate (there is no AT_ type for SMBus addresses) and consumers
+     * key on it opaquely; do not "fix" the type without also updating the
+     * conversation keying in packet-nvme-mi.c.
+     */
+    alloc_address_wmem(pinfo->pool, &pinfo->net_src, AT_MCTP,
+                       sizeof(src_addr), &src_addr);
+    alloc_address_wmem(pinfo->pool, &pinfo->net_dst, AT_MCTP,
+                       sizeof(dst_addr), &dst_addr);
 
     /*
      * Hand the MCTP base header + payload to the MCTP dissector.
@@ -202,8 +226,16 @@ dissect_mctp_smbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      */
     next_tvb = tvb_new_subset_length(tvb, 4, byte_count - 1);
     if (mctp_handle) {
+        /*
+         * Set the protocol column to "SMBus/I2C / " with a fence only when the
+         * MCTP subdissector will run and append its own protocol name after
+         * it; otherwise the trailing separator would be left dangling.
+         */
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMBus/I2C / ");
+        col_set_fence(pinfo->cinfo, COL_PROTOCOL);
         call_dissector(mctp_handle, next_tvb, pinfo, tree);
     } else {
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMBus/I2C");
         call_data_dissector(next_tvb, pinfo, tree);
     }
 
