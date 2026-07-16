@@ -42,7 +42,7 @@ target_compile_definitions(uiqt_plugin PRIVATE
 set_target_properties(uiqt_plugin PROPERTIES
 	PREFIX "lib"
 	LINK_FLAGS "${WS_LINK_FLAGS}"
-	VERSION "0.0.0" SOVERSION 0
+	VERSION "0.0.${PROJECT_PATCH_VERSION}" SOVERSION 0
 	FOLDER "DLLs"
 	INSTALL_RPATH "${LIBRARY_INSTALL_RPATH}"
 )

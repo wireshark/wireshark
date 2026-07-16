@@ -163,30 +163,6 @@ def update_docinfo_asciidoc(src_dir, repo_data):
             print(doc_path + " has been updated.")
 
 
-def update_cmake_lib_releases(src_dir, repo_data):
-    # Read CMakeLists.txt for each library, then write back out an updated version.
-    dir_paths = []
-    dir_paths += [os.path.join(src_dir, 'epan')]
-    dir_paths += [os.path.join(src_dir, 'wiretap')]
-
-    for dir_path in dir_paths:
-        cmakelists_filepath = os.path.join(dir_path, "CMakeLists.txt")
-        with open(cmakelists_filepath, encoding='utf-8') as fh:
-            cmakelists_contents = fh.read()
-
-        # Sample line (without quotes; note leading tab: "    VERSION "0.0.0" SOVERSION 0")
-        VERSION_PATTERN = r'^(\s*VERSION\s+"\d+\.\d+\.)\d+'
-        replacement_text = f"\\g<1>{repo_data['ws_version_patch']}"
-        new_cmakelists_contents = re.sub(VERSION_PATTERN,
-                                         replacement_text,
-                                         cmakelists_contents,
-                                         flags=re.MULTILINE)
-
-        with open(cmakelists_filepath, mode='w', encoding='utf-8') as fh:
-            fh.write(new_cmakelists_contents)
-            print(cmakelists_filepath + " has been updated.")
-
-
 # Update distributed files that contain any version information
 def update_versioned_files(src_dir, set_version, repo_data):
     update_cmakelists_txt(src_dir, set_version, repo_data)
@@ -194,7 +170,6 @@ def update_versioned_files(src_dir, set_version, repo_data):
     if set_version:
         update_attributes_asciidoc(src_dir, repo_data)
         update_docinfo_asciidoc(src_dir, repo_data)
-        update_cmake_lib_releases(src_dir, repo_data)
 
 
 def generate_version_h(repo_data):
