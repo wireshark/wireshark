@@ -1224,8 +1224,13 @@ void scheduleFlashClear(QObject *owner, QStandardItem *cell, qint32 serial, int 
     }
     QPointer<QAbstractItemModel> modelGuard(cell->model());
     const QPersistentModelIndex pix(cell->index());
-    QTimer::singleShot(delayMs, owner,
-                       [modelGuard, pix, serial]()
+    QTimer::singleShot(delayMs, owner, [
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+                       modelGuard = std::move(modelGuard),
+#else
+                       modelGuard,
+#endif
+                       pix, serial]()
                        {
                            if (!modelGuard || !pix.isValid())
                            {
