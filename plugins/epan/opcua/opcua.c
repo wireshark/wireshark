@@ -317,12 +317,17 @@ static void opcua_load_keylog_file(const char *filename)
  * @param padding Pointer to last padding byte.
  * @return padding length on success, -1 if the padding is invalid.
  */
-static int verify_padding(const uint8_t *padding)
+static int verify_padding(const uint8_t *padding, unsigned available)
 {
     uint8_t pad_len;
     uint8_t i;
 
     pad_len = *padding;
+
+    if (pad_len > available) {
+        ws_debug("padding length %u exceeds available space %u", pad_len, available);
+        return -1;
+    }
 
     for (i = 0; i < pad_len; ++i) {
         if (padding[-pad_len + i] != pad_len) return -1;
@@ -480,13 +485,21 @@ static int decrypt_opcua(
         return ret;
     }
 
-    ret = verify_padding(&plaintext[plaintext_len - *sig_len - 1]);
+    /* guard: need at least sig_len + 1 bytes for the padding-length byte */
+    if (plaintext_len < (unsigned)*sig_len + 1) {
+        ws_debug("plaintext too short for signature and padding");
+        return -1;
+    }
+
+    unsigned pad_offset = plaintext_len - *sig_len - 1;
+    ret = verify_padding(&plaintext[pad_offset], pad_offset);
     if (ret < 0) {
         ws_debug("padding is invalid.");
+        return -1;
     }
 
     /* return padding length */
-    *padding_len = plaintext[plaintext_len - *sig_len - 1];
+    *padding_len = plaintext[pad_offset];
     ws_debug("sig_len=%u", *sig_len);
     ws_debug("pad_len=%u", *padding_len);
 
