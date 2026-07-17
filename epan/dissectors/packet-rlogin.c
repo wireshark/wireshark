@@ -71,11 +71,13 @@ typedef enum  {
 	DONE=2
 } session_state_t;
 
+/* Modern systems often support up to 256 these days (but rlogin isn't
+ * used so much anymore.) */
 #define NAME_LEN 32
 typedef struct {
 	session_state_t  state;
 	uint32_t         info_framenum;
-	char             user_name[NAME_LEN];
+	char*            user_name;
 } rlogin_hash_entry_t;
 
 
@@ -157,9 +159,17 @@ rlogin_state_machine(rlogin_hash_entry_t *hash_info, tvbuff_t *tvb, packet_info 
 		else if (stringlen > NAME_LEN - 1)
 			stringlen = NAME_LEN - 1;   /* name too long */
 
-		/* Copy and terminate string into hash name */
-		tvb_memcpy(tvb, (uint8_t *)hash_info->user_name, 0, stringlen);
-		hash_info->user_name[stringlen] = '\0';
+		/* Copy string into hash name */
+		/* POSIX-2024 strongly recommends that user names be composed of
+		 * characteers from the portable filename character set and that
+		 * the first character cannot be '-'. We could check this with
+		 * module_check_valid_name and add an expert info in the tree,
+		 * since that's exactly what that function tests. (There's also
+		 * some usernames with '$' at the end for Samba, IIRC.)
+		 * https://pubs.opengroup.org/onlinepubs/9799919799/basedefs/V1_chap03.html#tag_03_409
+		 * https://pubs.opengroup.org/onlinepubs/9799919799/basedefs/V1_chap03.html#tag_03_265
+		 */
+		hash_info->user_name = (char *)tvb_get_string_enc(wmem_file_scope(), tvb, 0, stringlen, ENC_ASCII);
 
 		col_append_str(pinfo->cinfo, COL_INFO, ", (User information)");
 	}
@@ -397,7 +407,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		hash_info = wmem_new(wmem_file_scope(), rlogin_hash_entry_t);
 		hash_info->state = NONE;
 		hash_info->info_framenum = 0;  /* no frame has the number 0 */
-		hash_info->user_name[0] = '\0';
+		hash_info->user_name = NULL;
 
 		/* ... and store in conversation */
 		conversation_add_proto_data(conversation, proto_rlogin, hash_info);
@@ -408,7 +418,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 	/* Set info column */
 	/* Show user-name if available */
-	if (hash_info->user_name[0])
+	if (hash_info->user_name)
 	{
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 		              "User name: %s, ", hash_info->user_name);
