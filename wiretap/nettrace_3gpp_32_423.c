@@ -820,6 +820,19 @@ nettrace_parse_msg(wtap *wth, wtap_rec *rec, uint8_t *msg_start, size_t msg_len,
 	return status;
 }
 
+/* Search for a <traceRecSession> tag in the given buffer and parse it if found.
+ * Updates file_info->session_time and UE identity fields.
+ */
+static void
+nettrace_update_session_from_buffer(const uint8_t *buf, size_t buf_len, nettrace_3gpp_32_423_file_info_t *file_info)
+{
+	char *session_tag = g_strstr_len((const char*)buf, (unsigned)buf_len, (const char*)c_s_trace_rec_session);
+	if (session_tag) {
+		size_t session_avail = buf_len - (size_t)(session_tag - (const char*)buf);
+		nettrace_parse_session_tag(session_tag, session_avail, file_info);
+	}
+}
+
 /* Find a complete packet, parse and return it to wiretap.
  * Set as the subtype_read function in the file_open function below.
  */
@@ -842,13 +855,7 @@ nettrace_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_t *data
 	buf_start = file_info->buffer->data;
 
 	/* Check if there's a <traceRecSession before this <msg and update session_time */
-	{
-		char *session_tag = g_strstr_len((const char*)buf_start, (unsigned)(msg_end - buf_start), (const char*)c_s_trace_rec_session);
-		if (session_tag) {
-			size_t session_avail = (size_t)(msg_end - (uint8_t*)session_tag);
-			nettrace_parse_session_tag(session_tag, session_avail, file_info);
-		}
-	}
+	nettrace_update_session_from_buffer(buf_start, (size_t)(msg_end - buf_start), file_info);
 
 	/* Now search backwards for the msg start */
 	msg_start = (uint8_t*)g_strrstr_len((const char*)buf_start, msg_end - buf_start, c_s_msg);
@@ -910,13 +917,7 @@ nettrace_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *err, char **
 	msg_len = (unsigned)(msg_end - file_info->buffer->data);
 
 	/* Check for traceRecSession stime before the msg */
-	{
-		char *session_tag = g_strstr_len((const char*)file_info->buffer->data, msg_len, (const char*)c_s_trace_rec_session);
-		if (session_tag) {
-			size_t session_avail = (size_t)(msg_len - (unsigned)(session_tag - (char*)file_info->buffer->data));
-			nettrace_parse_session_tag(session_tag, session_avail, file_info);
-		}
-	}
+	nettrace_update_session_from_buffer(file_info->buffer->data, msg_len, file_info);
 
 	/* Find the <msg start in the buffer */
 	uint8_t *msg_start = (uint8_t*)g_strstr_len((const char*)file_info->buffer->data, msg_len, c_s_msg);
