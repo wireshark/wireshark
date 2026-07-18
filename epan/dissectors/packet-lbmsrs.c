@@ -1025,14 +1025,11 @@ static const char *getFrameTypeName(const uint64_t frame_type) {
 static bool check_lbmsrs_packet(tvbuff_t *tvb, unsigned offset)
 {
     /*check if valid rsocket packet*/
-    unsigned start_offset = offset;
     offset += rsocket_frame_len_field_size;
 
     /*check the length*/
     /*rsocket data may be split across multiple packets*/
-    uint32_t tvb_length = tvb_captured_length(tvb);
-
-    if (tvb_length < (offset - start_offset + rsocket_stream_id_field_size))
+    if (tvb_captured_length_remaining(tvb, offset) < rsocket_stream_id_field_size)
     {
         return false;
     }
@@ -1121,7 +1118,7 @@ static bool check_lbmsrs_packet(tvbuff_t *tvb, unsigned offset)
 
     /*check the SRS message id*/
 
-    uint32_t rsocket_payload_len = tvb_length - offset;
+    uint32_t rsocket_payload_len = tvb_captured_length_remaining(tvb, offset);
     /*if payload is available start processing for SRS*/
     if (rsocket_payload_len > 2)
     {
