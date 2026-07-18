@@ -697,42 +697,102 @@ read_until(GByteArray *buffer, const unsigned char *needle, FILE_T fh, int *err,
 	return found_it;
 }
 
-/* Parse a <traceRecSession stime="..."> tag and extract the stime attribute
- * into file_info->session_time. Also look for <ue idValue="..."/> to extract IMSI.
+/* Parse a <traceRecSession ...> tag and extract the stime attribute
+ * into file_info->session_time. Also look for <ue idType="..." idValue="..."/>
+ * within the session block.
+ *
+ * session_start points into the buffer at the '<' of <traceRecSession.
+ * session_len is the number of bytes available from session_start.
  */
 static void
-nettrace_parse_session_tag(const char *session_tag, nettrace_3gpp_32_423_file_info_t *file_info)
+nettrace_parse_session_tag(const char *session_start, size_t session_len, nettrace_3gpp_32_423_file_info_t *file_info)
 {
-	const char *stime_attr = strstr(session_tag, "stime=\"");
-	if (stime_attr) {
-		stime_attr += 7; /* skip past stime=" */
-		const char *end_quote = strchr(stime_attr, '"');
-		if (end_quote) {
-			char time_buf[64];
-			size_t len = (size_t)(end_quote - stime_attr);
-			if (len < sizeof(time_buf)) {
-				memcpy(time_buf, stime_attr, len);
-				time_buf[len] = '\0';
-				iso8601_to_nstime(&file_info->session_time, time_buf, ISO8601_DATETIME);
+	xmlDocPtr doc;
+	xmlNodePtr root_element;
+
+	/* Find the end of the <traceRecSession ...> opening tag.
+	 * We need at least the opening tag to extract attributes.
+	 * Wrap it as a self-closing element so libxml2 can parse it,
+	 * and also include any <ue .../> child element if present.
+	 */
+	const char *tag_end = (const char*)memchr(session_start, '>', session_len);
+	if (tag_end == NULL)
+		return;
+
+	/* Check if there's a <ue .../> element before the first <msg.
+	 * Build a parseable fragment: <traceRecSession ...><ue .../></traceRecSession>
+	 * or just <traceRecSession .../> if no children needed.
+	 */
+	const char *ue_start = g_strstr_len(session_start, (unsigned)session_len, "<ue ");
+	const char *msg_start = g_strstr_len(session_start, (unsigned)session_len, "<msg");
+
+	/* Determine the end of what we want to parse */
+	const char *fragment_end;
+	if (ue_start && (!msg_start || ue_start < msg_start)) {
+		/* Include the <ue .../> element */
+		const char *ue_end = (const char*)memchr(ue_start, '>', session_len - (size_t)(ue_start - session_start));
+		if (ue_end)
+			fragment_end = ue_end + 1;
+		else
+			fragment_end = tag_end + 1;
+	} else {
+		fragment_end = tag_end + 1;
+	}
+
+	/* Build a complete XML fragment we can parse */
+	size_t frag_len = (size_t)(fragment_end - session_start);
+	GString *xml_buf = g_string_sized_new(frag_len + 32);
+	g_string_append_len(xml_buf, session_start, (gssize)frag_len);
+	g_string_append(xml_buf, "</traceRecSession>");
+
+	doc = xmlParseMemory(xml_buf->str, (int)xml_buf->len);
+	g_string_free(xml_buf, TRUE);
+	if (doc == NULL)
+		return;
+
+	root_element = xmlDocGetRootElement(doc);
+	if (root_element == NULL) {
+		xmlFreeDoc(doc);
+		return;
+	}
+
+	/* Extract stime attribute from <traceRecSession stime="..."> */
+	for (xmlAttrPtr attr = root_element->properties; attr; attr = attr->next) {
+		if (xmlStrcmp(attr->name, (const xmlChar*)"stime") == 0) {
+			xmlChar* str = xmlNodeListGetString(root_element->doc, attr->children, 1);
+			if (str != NULL) {
+				iso8601_to_nstime(&file_info->session_time, (const char*)str, ISO8601_DATETIME);
+				xmlFree(str);
 			}
 		}
 	}
 
-	/* Look for <ue idType="..." idValue="..."/> */
-	const char *id_type_attr = strstr(session_tag, "idType=\"");
-	const char *id_val_attr = strstr(session_tag, "idValue=\"");
-	if (id_type_attr && id_val_attr) {
-		id_type_attr += 8; /* skip past idType=" */
-		const char *end_type = strchr(id_type_attr, '"');
-		id_val_attr += 9; /* skip past idValue=" */
-		const char *end_val = strchr(id_val_attr, '"');
-		if (end_type && end_val && end_type > id_type_attr && end_val > id_val_attr) {
-			g_free(file_info->session_ue_id_type);
-			g_free(file_info->session_ue_id_value);
-			file_info->session_ue_id_type = g_strndup(id_type_attr, (size_t)(end_type - id_type_attr));
-			file_info->session_ue_id_value = g_strndup(id_val_attr, (size_t)(end_val - id_val_attr));
+	/* Look for <ue idType="..." idValue="..."/> child element */
+	for (xmlNodePtr cur = root_element->children; cur != NULL; cur = cur->next) {
+		if (cur->type == XML_ELEMENT_NODE && xmlStrcmp(cur->name, (const xmlChar*)"ue") == 0) {
+			xmlChar *id_type = NULL;
+			xmlChar *id_value = NULL;
+			for (xmlAttrPtr attr = cur->properties; attr; attr = attr->next) {
+				if (xmlStrcmp(attr->name, (const xmlChar*)"idType") == 0) {
+					id_type = xmlNodeListGetString(cur->doc, attr->children, 1);
+				}
+				else if (xmlStrcmp(attr->name, (const xmlChar*)"idValue") == 0) {
+					id_value = xmlNodeListGetString(cur->doc, attr->children, 1);
+				}
+			}
+			if (id_type && id_value) {
+				g_free(file_info->session_ue_id_type);
+				g_free(file_info->session_ue_id_value);
+				file_info->session_ue_id_type = g_strdup((const char*)id_type);
+				file_info->session_ue_id_value = g_strdup((const char*)id_value);
+			}
+			xmlFree(id_type);
+			xmlFree(id_value);
+			break;
 		}
 	}
+
+	xmlFreeDoc(doc);
 }
 
 /* Parse a <msg>...</msg> block using XML and produce a packet */
@@ -785,7 +845,8 @@ nettrace_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_t *data
 	{
 		char *session_tag = g_strstr_len((const char*)buf_start, (unsigned)(msg_end - buf_start), (const char*)c_s_trace_rec_session);
 		if (session_tag) {
-			nettrace_parse_session_tag(session_tag, file_info);
+			size_t session_avail = (size_t)(msg_end - (uint8_t*)session_tag);
+			nettrace_parse_session_tag(session_tag, session_avail, file_info);
 		}
 	}
 
@@ -852,7 +913,8 @@ nettrace_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *err, char **
 	{
 		char *session_tag = g_strstr_len((const char*)file_info->buffer->data, msg_len, (const char*)c_s_trace_rec_session);
 		if (session_tag) {
-			nettrace_parse_session_tag(session_tag, file_info);
+			size_t session_avail = (size_t)(msg_len - (unsigned)(session_tag - (char*)file_info->buffer->data));
+			nettrace_parse_session_tag(session_tag, session_avail, file_info);
 		}
 	}
 
