@@ -192,6 +192,7 @@ nettrace_parse_address(char* curr_pos, bool is_src_addr, exported_pdu_info_t *ex
 	char *err; //for strtol function
 
 	GMatchInfo *match_info;
+	/* Compiled once, lives for process lifetime (intentional, not a leak) */
 	static GRegex *regex = NULL;
 	char *matched_ipaddress = NULL;
 	char *matched_port = NULL;
@@ -353,10 +354,9 @@ nettrace_parse_msg_attributes(xmlNodePtr msg_element,
 				if (scan_found == 2) {
 					unsigned start_ms = start_time.nsecs / 1000000;
 					unsigned elapsed_ms = start_ms + ms;
-					if (elapsed_ms > 1000) {
-						elapsed_ms -= 1000;
-						second++;
-					}
+					/* Carry overflow milliseconds into seconds */
+					second += elapsed_ms / 1000;
+					elapsed_ms = elapsed_ms % 1000;
 					rec->presence_flags |= WTAP_HAS_TS;
 					rec->ts.secs = start_time.secs + second;
 					rec->ts.nsecs = (elapsed_ms * 1000000);
@@ -938,8 +938,12 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err _U_, char **err_info _U_)
 					if (xmlStrcmp(attr->name, (const xmlChar*)"fileFormatVersion") == 0) {
 						xmlChar* str_fileformatversion = xmlNodeListGetString(cur->doc, attr->children, 1);
 						if (str_fileformatversion != NULL) {
-							if (strncmp((const char*)str_fileformatversion, "32.423", strlen("32.423")) != 0)
+							if (strncmp((const char*)str_fileformatversion, "32.423", strlen("32.423")) != 0) {
+								xmlFree(str_fileformatversion);
+								xmlFreeDoc(doc);
 								return WTAP_OPEN_NOT_MINE;
+							}
+							xmlFree(str_fileformatversion);
 						} else {
 							xmlFreeDoc(doc);
 							return WTAP_OPEN_NOT_MINE;
@@ -968,6 +972,8 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err _U_, char **err_info _U_)
 	}
 
 	/* Ok it's our file. From here we'll need to free memory */
+	xmlFreeDoc(doc);
+
 	file_info = g_new0(nettrace_3gpp_32_423_file_info_t, 1);
 	file_info->start_time = start_time;
 	file_info->start_offset = 0;
