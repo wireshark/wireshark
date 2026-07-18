@@ -48,15 +48,86 @@ static const unsigned char c_s_trace_rec_session[] = "<traceRecSession";
 static const char c_s_msg[] = "<msg";
 static const unsigned char c_e_msg[] = "</msg>";
 
-/* These are protocol names we may put in the exported-pdu data based on
- * what's in the XML. They're defined here as constants so we can use
- * sizeof()/CLEN() on them and slightly reduce our use of magic constants
- * for their size. (Modern compilers should make this no slower than that.)
+/* Protocol mapping table: maps (protocol, function, name) from the XML trace
+ * to Wireshark dissector names or dissector table entries.
+ *
+ * Match rules:
+ *   - trace_protocol is compared case-insensitively against rawMsg protocol=""
+ *   - trace_function (if non-NULL) must match msg function="" (case-insensitive)
+ *   - trace_name (if non-NULL) must match msg name="" (case-insensitive)
+ *   - First matching entry wins
+ *
+ * Dispatch modes:
+ *   - If dissector_table is NULL, dissector_name is used directly via EXP_PDU_TAG_DISSECTOR_NAME
+ *   - If dissector_table is non-NULL, table-based dispatch is used
  */
-static const char c_sai_req[] = "gsm_map.v3.arg.opcode";
-static const char c_sai_rsp[] = "gsm_map.v3.res.opcode";
-static const char c_nas_eps[] = "nas-eps_plain";
-static const char c_nas_5gs[] = "nas-5gs";
+typedef struct {
+	const char *trace_protocol;    /* rawMsg protocol="" value (case-insensitive match) */
+	const char *trace_function;    /* msg function="" value, or NULL for any */
+	const char *trace_name;        /* msg name="" value, or NULL for any */
+	const char *dissector_name;    /* Wireshark dissector name (NULL if using table) */
+	const char *dissector_table;   /* dissector table name (NULL if using dissector_name) */
+	int         dissector_table_val; /* dissector table numeric value */
+	const char *col_protocol;      /* protocol column override string, or NULL */
+} protocol_mapping_t;
+
+static const protocol_mapping_t protocol_map[] = {
+	/* GTPv2 */
+	{ "gtpv2-c",   NULL,  NULL,            "gtpv2",        NULL, 0, NULL },
+	{ "gtpv2",     NULL,  NULL,            "gtpv2",        NULL, 0, NULL },
+
+	/* NAS: dispatch depends on function (interface) */
+	{ "nas",       "s1",  NULL,            "nas-eps_plain", NULL, 0, NULL },
+	{ "nas",       "n1",  NULL,            "nas-5gs",      NULL, 0, NULL },
+
+	/* GSM MAP: dispatch depends on message name */
+	{ "map",       NULL,  "sai_request",   NULL, "gsm_map.v3.arg.opcode", 56, "GSM MAP" },
+	{ "map",       NULL,  "sai_response",  NULL, "gsm_map.v3.res.opcode", 56, "GSM MAP" },
+
+	/* 5GC / NG-RAN protocols */
+	{ "ngap",      NULL,  NULL,            "ngap",         NULL, 0, NULL },
+	{ "s1ap",      NULL,  NULL,            "s1ap",         NULL, 0, NULL },
+	{ "x2ap",      NULL,  NULL,            "x2ap",         NULL, 0, NULL },
+	{ "xnap",      NULL,  NULL,            "xnap",         NULL, 0, NULL },
+	{ "f1ap",      NULL,  NULL,            "f1ap",         NULL, 0, NULL },
+	{ "e1ap",      NULL,  NULL,            "e1ap",         NULL, 0, NULL },
+	{ "pfcp",      NULL,  NULL,            "pfcp",         NULL, 0, NULL },
+
+	/* Legacy UMTS protocols */
+	{ "ranap",     NULL,  NULL,            "ranap",        NULL, 0, NULL },
+	{ "nbap",      NULL,  NULL,            "nbap",         NULL, 0, NULL },
+	{ "rnsap",     NULL,  NULL,            "rnsap",        NULL, 0, NULL },
+	{ "rrc",       NULL,  NULL,            "rrc",          NULL, 0, NULL },
+
+	/* Diameter (S6a, S13, etc.) */
+	{ "diameter",  NULL,  NULL,            "diameter",     NULL, 0, NULL },
+
+	/* GTP-C v1 */
+	{ "gtp",       NULL,  NULL,            "gtp",          NULL, 0, NULL },
+
+	/* Sentinel */
+	{ NULL, NULL, NULL, NULL, NULL, 0, NULL }
+};
+
+/* Look up a protocol mapping entry.
+ * Returns pointer to matching entry, or NULL if no match found.
+ */
+static const protocol_mapping_t *
+nettrace_lookup_protocol(const char *protocol, const char *function, const char *name)
+{
+	for (const protocol_mapping_t *entry = protocol_map; entry->trace_protocol != NULL; entry++) {
+		if (g_ascii_strcasecmp(protocol, entry->trace_protocol) != 0)
+			continue;
+		if (entry->trace_function != NULL &&
+		    g_ascii_strcasecmp(function, entry->trace_function) != 0)
+			continue;
+		if (entry->trace_name != NULL &&
+		    g_ascii_strcasecmp(name, entry->trace_name) != 0)
+			continue;
+		return entry;
+	}
+	return NULL;
+}
 
 
 #define RINGBUFFER_START_SIZE INT_MAX
@@ -64,8 +135,8 @@ static const char c_nas_5gs[] = "nas-5gs";
 
 #define MAX_FUNCTION_LEN 64
 #define MAX_NAME_LEN 128
-#define MAX_PROTO_LEN 16
-#define MAX_DTBL_LEN 32
+#define MAX_PROTO_LEN 32
+#define MAX_DTBL_LEN 64
 
 /* We expect to find all the info we need to tell if this file is ours
  * within this many bytes. Must include the beginTime attribute.
@@ -400,48 +471,27 @@ nettrace_msg_to_packet(wtap* wth, wtap_rec* rec, xmlNodePtr root_element, int* e
 					goto end;
 				}
 
-				/* Do string matching and replace with Wiresharks protocol name */
-				if (strcmp(proto_name_str, "gtpv2-c") == 0) {
-					/* Change to gtpv2 */
-					proto_name_str[5] = '\0';
+				/* Look up protocol mapping from table */
+				const protocol_mapping_t *mapping = nettrace_lookup_protocol(proto_name_str, function_str, name_str);
+				if (mapping == NULL) {
+					/* No mapping found — pass through as-is (best-effort dissection) */
 				}
-				else if (strcmp(proto_name_str, "nas") == 0) {
-					if (strcmp(function_str, "s1") == 0) {
-						/* Change to nas-eps_plain */
-						(void)g_strlcpy(proto_name_str, c_nas_eps, sizeof(c_nas_eps));
-					}
-					else if (strcmp(function_str, "n1") == 0) {
-						/* Change to nas-5gs */
-						(void)g_strlcpy(proto_name_str, c_nas_5gs, sizeof(c_nas_5gs));
-					}
-					else {
-						*err = WTAP_ERR_BAD_FILE;
-						*err_info = ws_strdup_printf("nettrace_3gpp_32_423: No handle of message \"%s\" on function \"%s\" ", proto_name_str, function_str);
-						status = false;
-						goto end;
-					}
-				}
-				else if (strcmp(proto_name_str, "map") == 0) {
-					/* For GSM map, it looks like the message data is stored like SendAuthenticationInfoArg
-					 * use the GSM MAP dissector table to dissect the content.
-					 */
-					exported_pdu_info.proto_col_str = g_strdup("GSM MAP");
-
-					if (strcmp(name_str, "sai_request") == 0) {
-						use_proto_table = true;
-						(void)g_strlcpy(dissector_table_str, c_sai_req, sizeof(c_sai_req));
-						dissector_table_val = 56;
+				else if (mapping->dissector_table != NULL) {
+					/* Table-based dispatch */
+					use_proto_table = true;
+					(void)g_strlcpy(dissector_table_str, mapping->dissector_table, sizeof(dissector_table_str));
+					dissector_table_val = mapping->dissector_table_val;
+					if (mapping->col_protocol != NULL) {
+						exported_pdu_info.proto_col_str = g_strdup(mapping->col_protocol);
 						exported_pdu_info.presence_flags |= EXP_PDU_TAG_COL_PROT_BIT;
 					}
-					else if (strcmp(name_str, "sai_response") == 0) {
-						use_proto_table = true;
-						(void)g_strlcpy(dissector_table_str, c_sai_rsp, sizeof(c_sai_rsp));
-						dissector_table_val = 56;
+				}
+				else {
+					/* Direct dissector name dispatch */
+					(void)g_strlcpy(proto_name_str, mapping->dissector_name, sizeof(proto_name_str));
+					if (mapping->col_protocol != NULL) {
+						exported_pdu_info.proto_col_str = g_strdup(mapping->col_protocol);
 						exported_pdu_info.presence_flags |= EXP_PDU_TAG_COL_PROT_BIT;
-					}
-					else {
-						g_free(exported_pdu_info.proto_col_str);
-						exported_pdu_info.proto_col_str = NULL;
 					}
 				}
 
