@@ -253,7 +253,7 @@ zgfx_write_raw(zgfx_context_t *zgfx, bitstream_t *b, uint32_t count)
 	uint32_t rest, tocopy;
 
 	/* first copy in the output buffer */
-	if (zgfx->outputCount > 65535 - count)
+	if (count > 65535 - zgfx->outputCount)
 		return false;
 
 	if (!bitstream_copyraw(b, &(zgfx->outputSegment[zgfx->outputCount]), count))
@@ -289,7 +289,7 @@ zgfx_write_from_history(zgfx_context_t *zgfx, uint32_t distance, uint32_t count)
 	uint32_t remainingCount, copyTemplateSize, toCopy;
 	uint8_t *outputPtr;
 
-	if (zgfx->outputCount > 65535 - count)
+	if (count > 65535 - zgfx->outputCount)
 		return false;
 
 	remainingCount = count;
@@ -340,7 +340,7 @@ rdp8_decompress_segment(zgfx_context_t *zgfx, tvbuff_t *tvb)
 
 	if (!(flags & ZGX_PACKET_COMPRESSED)) {
 		if (len > 65535) {
-		    return false;
+			return false;
 		}
 		tvbuff_t *raw = tvb_new_subset_remaining(tvb, 1);
 		zgfx_write_history_buffer_tvb(zgfx, raw, len);
@@ -516,7 +516,7 @@ rdp8_decompress(zgfx_context_t *zgfx, wmem_allocator_t *allocator, tvbuff_t *tvb
 			if (!rdp8_decompress_segment(zgfx, tvb_new_subset_length(tvb, offset, segment_size))) {
 				wmem_free(allocator, output);
 				return NULL;
-                        }
+			}
 
 			output_consumed += zgfx->outputCount;
 			if (output_consumed > uncompressed_size) {
