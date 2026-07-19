@@ -227,3 +227,4 @@ editcap: The available encapsulation types for the "-T" flag are:
     xeth - Xerox 3MB Ethernet
     zbncp - ZBOSS NCP
     zwave-serial - Z-Wave Serial API packets
+    zwave-tap - Z-Wave Wireless with TAP pseudo-header

@@ -1642,6 +1642,12 @@ BACnetVendorIdentifiers[] = {
     { 1629, "Corporación Empresarial Altra" },
     { 1630, "IC Valves (Nanjing) Co., Ltd." },
     { 1631, "Occuspace Inc." },
+    { 1632, "Shenzhen Keenyoda Technologies Co., Ltd." },
+    { 1633, "Jiangsu CHINT Techsel Intelligent Technolgoy Co., Ltd." },
+    { 1634, "Techsoul Trading LLC" },
+    { 1635, "Action Target Inc." },
+    { 1636, "Tektelic Communications Inc." },
+    { 1637, "Expansion Electronic SRL" },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);

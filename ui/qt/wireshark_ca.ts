@@ -745,7 +745,7 @@ Els errors d&apos;execució es tracten com a falsos (silenciats) i es mostren am
     </message>
     <message>
         <source>Gate the pause on a hit counter. The dropdown next to N picks the comparison mode: from pauses on every hit from N onwards (default); every pauses on hits N, 2N, 3N, …; once pauses on the N-th hit and deactivates the breakpoint. Use 0 to disable the gate. The counter is preserved across edits to Expression / Hit Count / Log Message; lowering the target below the current count rolls the counter back to 0 so the breakpoint can wait for the next N hits. Right-click the row to reset it explicitly. Combined with an Expression on the same row, the hit-count gate runs first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Estableix els moments en què es posa en pausa segons el recompte d&apos;execucions. El selector del costat de l&apos;N estableix el mètode de comparació: «a partir de» posa en pausa a l&apos;execució N i posteriors (per defecte); «cada» posa en pausa a les execucions N, 2N, 3N...; «una vegada» posa en pausa a l&apos;execució N i després es desactiva el punt d&apos;interrupció. Feu servir 0 per a desactivar la porta. El comptador es manté entre edicions de l&apos;expressió/recompte d&apos;execucions/registre de missatges; si es redueix l&apos;objectiu per sota del recompte actual, el comptador s&apos;estableix a 0 per tal que el punt d&apos;interrupció pugui esperar les N execucions següents. Feu clic amb el botó dret a la fila per a restablir-la explícitament. Si es combina amb una expressió a la mateixa fila, la porta del recompte d&apos;execucions s&apos;executa primer.</translation>
     </message>
     <message>
         <source>Log Message</source>
@@ -7730,7 +7730,10 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
 Drag existing breakpoint: move to nearest free visible line
 Shift+click: on an empty line, add a disabled breakpoint;
 on an existing breakpoint, toggle its active state</source>
-        <translation type="unfinished"></translation>
+        <translation>Clic: afegeix o elimina un punt d&apos;interrupció
+Arrossega un punt d&apos;interrupció existent: mou a la línia visible lliure més propera
+Maj+clic: en una línia buida, afegeix un punt d&apos;interrupció desactivat;
+en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desactivat</translation>
     </message>
 </context>
 <context>
@@ -7871,7 +7874,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>&lt;b&gt;Lua Expression Evaluation&lt;/b&gt;&lt;br&gt;&lt;br&gt;Code runs in a protected environment: runtime errors are caught and shown in the output instead of propagating.&lt;br&gt;&lt;br&gt;&lt;b&gt;What works:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Read/modify global variables (&lt;code&gt;_G.x = 42&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Modify table contents (&lt;code&gt;my_table.field = 99&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Call functions and inspect return values&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Limitations:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Local variables cannot be modified directly (use &lt;code&gt;debug.setlocal()&lt;/code&gt;) unless there is an associated &lt;i&gt;assign&lt;/i&gt; method (&lt;code&gt;pinfo.src_port&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Long-running expressions are automatically aborted&lt;/li&gt;&lt;li&gt;&lt;b&gt;Warning:&lt;/b&gt; Changes to globals persist and can affect ongoing dissection&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Avaluació de l&apos;expressió Lua&lt;/b&gt;&lt;br&gt;&lt;br&gt;El codi s&apos;executa en un entorn protegit: els errors d&apos;execució es capturen i es mostren a la sortida en lloc de propagar-se.&lt;br&gt;&lt;br&gt;&lt;b&gt;Què funciona:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Llegir/modificar variables globals (&lt;code&gt;_G.x = 42&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Modificar els continguts de les taules (&lt;code&gt;my_table.field = 99&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Cridar funcions i inspeccionar els valors de retorn&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Limitacions:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Les variables locals no es poden modificar directament (feu servir &lt;code&gt;debug.setlocal()&lt;/code&gt;) a no ser que hi hagi un mètode d&apos;&lt;i&gt;assignació&lt;/i&gt; (&lt;code&gt;pinfo.src_port&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Les expressions de llarga execució s&apos;avorten automàticament&lt;/li&gt;&lt;li&gt;&lt;b&gt;Avís:&lt;/b&gt; Els canvis a les variables globals persisteixen i poden afectar a la dissecció que s&apos;estigui fent.&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <source>Enter Lua expression</source>
@@ -7952,7 +7955,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>&lt;p&gt;Each row is either a &lt;b&gt;Variables-tree path&lt;/b&gt; or a &lt;b&gt;Lua expression&lt;/b&gt;; the panel auto-detects which based on the syntax you type.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Path watches&lt;/b&gt; &amp;mdash; resolved against the paused frame&apos;s locals, upvalues, and globals:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Section-qualified: &lt;code&gt;Locals.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;, &lt;code&gt;Upvalues.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;, &lt;code&gt;Globals.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;.&lt;/li&gt;&lt;li&gt;Section root alone: &lt;code&gt;Locals&lt;/code&gt;, &lt;code&gt;Upvalues&lt;/code&gt;, &lt;code&gt;Globals&lt;/code&gt; (&lt;code&gt;_G&lt;/code&gt; is an alias for &lt;code&gt;Globals&lt;/code&gt;).&lt;/li&gt;&lt;li&gt;Unqualified name: resolved in &lt;b&gt;Locals &amp;rarr; Upvalues &amp;rarr; Globals&lt;/b&gt; order; the row tooltip shows which section matched.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;After the first segment, chain &lt;code&gt;.field&lt;/code&gt; or bracket keys &amp;mdash; integer (&lt;code&gt;[1]&lt;/code&gt;, &lt;code&gt;[-1]&lt;/code&gt;, &lt;code&gt;[0x1F]&lt;/code&gt;), boolean (&lt;code&gt;[true]&lt;/code&gt;), or short-literal string (&lt;code&gt;[&quot;key&quot;]&lt;/code&gt;, &lt;code&gt;[&apos;k&apos;]&lt;/code&gt;). Depth is capped at 32 segments.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Expression watches&lt;/b&gt; &amp;mdash; anything that is not a plain path (operators, function/method calls, table constructors, length &lt;code&gt;#&lt;/code&gt;, comparisons, &amp;hellip;) is evaluated as Lua against the same locals/upvalues/globals. &lt;b&gt;You do not need a leading &lt;code&gt;=&lt;/code&gt; or &lt;code&gt;return&lt;/code&gt;&lt;/b&gt;; value-returning expressions auto-return their value. Examples: &lt;code&gt;#packets&lt;/code&gt;, &lt;code&gt;tbl[i + 1]&lt;/code&gt;, &lt;code&gt;obj:method()&lt;/code&gt;, &lt;code&gt;a == b&lt;/code&gt;, &lt;code&gt;{x, y}&lt;/code&gt;. Tables produced by an expression are expandable, and children re-resolve on every pause.&lt;/p&gt;&lt;p&gt;Values are only read while the debugger is &lt;b&gt;paused&lt;/b&gt;; otherwise the Value column shows a muted em dash. Values that differ from the previous pause are drawn in a &lt;b&gt;bold accent color&lt;/b&gt;, and briefly flash on the pause that introduced the change.&lt;/p&gt;&lt;p&gt;Double-click or press &lt;b&gt;F2&lt;/b&gt; to edit a row; &lt;b&gt;Delete&lt;/b&gt; removes it; drag rows to reorder. Use the &lt;b&gt;Evaluate&lt;/b&gt; panel below to run statements with side effects (assignments, blocks, loops).&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Cada fila és un &lt;b&gt;camí de l&apos;arbre de variables&lt;/b&gt; o una &lt;b&gt;expressió Lua&lt;/b&gt;; el panell detecta automàticament en quina sintaxi s&apos;ha escrit.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Punts de vigilància de camins&lt;/b&gt; &amp;mdash; resolts respecte les trames en pausa locals, upvalues i globals:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Qualificats per secció: &lt;code&gt;Locals.&lt;i&gt;nom&lt;/i&gt;&lt;/code&gt;, &lt;code&gt;Upvalues.&lt;i&gt;nom&lt;/i&gt;&lt;/code&gt;, &lt;code&gt;Globals.&lt;i&gt;nom&lt;/i&gt;&lt;/code&gt;.&lt;/li&gt;&lt;li&gt;Només secció root: &lt;code&gt;Locals&lt;/code&gt;, &lt;code&gt;Upvalues&lt;/code&gt;, &lt;code&gt;Globals&lt;/code&gt; (&lt;code&gt;_G&lt;/code&gt; és un àlies per a &lt;code&gt;Globals&lt;/code&gt;).&lt;/li&gt;&lt;li&gt;Nom sense qualificar: es resol en aquest ordre: &lt;b&gt;Locals &amp;rarr; Upvalues &amp;rarr; Globals&lt;/b&gt;; la fila d&apos;ajuda mostra a quina secció es correspon.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Després del primer segment, la cadena &lt;code&gt;.field&lt;/code&gt; o tecles de claudàtor &amp;mdash; enter (&lt;code&gt;[1]&lt;/code&gt;, &lt;code&gt;[-1]&lt;/code&gt;, &lt;code&gt;[0x1F]&lt;/code&gt;), booleà (&lt;code&gt;[true]&lt;/code&gt;), o cadena literal curta (&lt;code&gt;[&quot;key&quot;]&lt;/code&gt;, &lt;code&gt;[&apos;k&apos;]&lt;/code&gt;). La profunditat es mostra truncada a 32 segments.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Punts de vigilància d&apos;expressions&lt;/b&gt; &amp;mdash; qualsevol expressió que no sigui un camí (operadors, crides a funcions/mètodes, constructors de taules, llargada &lt;code&gt;#&lt;/code&gt;, comparacions, &amp;hellip;) s&apos;avalua com a Lua amb els mateixos locals/upvalues/globals. &lt;b&gt;No cal començar amb el símbol &lt;code&gt;=&lt;/code&gt; o un &lt;code&gt;retorn&lt;/code&gt;&lt;/b&gt;; les expressions que retornen valors els retornen automàticament. Exemples: &lt;code&gt;#packets&lt;/code&gt;, &lt;code&gt;tbl[i + 1]&lt;/code&gt;, &lt;code&gt;obj:method()&lt;/code&gt;, &lt;code&gt;a == b&lt;/code&gt;, &lt;code&gt;{x, y}&lt;/code&gt;. Les taules produïdes amb expressions es poden expandir i els fills es tornen a resoldre a cada pausa.&lt;/p&gt;&lt;p&gt;Els valors només es llegeixen quan el depurador està en &lt;b&gt;pausa&lt;/b&gt;; altrament la columna Valor mostra un guió llarg mutat. Els valors de variables que han canviat respecte la pausa anterior es mostren en un &lt;b&gt;color ressaltat&lt;/b&gt; i pampalluguegen breument durant la pausa en què ha canviat el valor.&lt;/p&gt;&lt;p&gt;Feu doble clic o premeu &lt;b&gt;F2&lt;/b&gt; per a editar una fila; &lt;b&gt;Esborra&lt;/b&gt; la trau; arrossegueu files per a reordenar-les. Feu servir el panell d&apos;&lt;b&gt;Avalua&lt;/b&gt; que hi ha a sota de les sentències d&apos;execució amb efectes col·laterals (assignacions, blocs o bucles).&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Remove Watch (%1)</source>
@@ -9044,7 +9047,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Find in the packet details tree (Ctrl+Alt+F)</source>
-        <translation type="unfinished"></translation>
+        <translation>Troba a l&apos;arbre de detalls del paquet (Ctrl+Alt+F)</translation>
     </message>
     <message>
         <source>Show packet bytes</source>
@@ -9060,7 +9063,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Find in the packet details tree (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Troba a l&apos;arbre de detalls del paquet (%1)</translation>
     </message>
     <message>
         <source>Packet %1</source>
@@ -11393,7 +11396,7 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Hit-count summary&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;code&gt;≥N&lt;/code&gt; &amp;mdash; &lt;i&gt;from&lt;/i&gt; mode: pause from hit &lt;i&gt;N&lt;/i&gt; onwards.&lt;br/&gt;&lt;code&gt;×N&lt;/code&gt; &amp;mdash; &lt;i&gt;every&lt;/i&gt; mode: pause on hits &lt;i&gt;N&lt;/i&gt;, &lt;i&gt;2N&lt;/i&gt;, &lt;i&gt;3N&lt;/i&gt;, &amp;hellip;&lt;br/&gt;&lt;code&gt;@N&lt;/code&gt; &amp;mdash; &lt;i&gt;once&lt;/i&gt; mode: pause once on the &lt;i&gt;N&lt;/i&gt;th hit, then deactivate.&lt;/p&gt;&lt;p&gt;The cell starts with the running hit counter; if a gate is set it follows in parentheses, e.g. &lt;code&gt;3 (≥10)&lt;/code&gt;. With no hit gate the cell is just the counter.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell to set or change the gate (see the breakpoint-extras section).&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;&lt;b&gt;Resum del recompte d&apos;execucions&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;code&gt;≥N&lt;/code&gt; &amp;mdash; Mode &lt;i&gt;a partir de&lt;/i&gt;: pausa des de l&apos;execució &lt;i&gt;N&lt;/i&gt; endavant.&lt;br/&gt;&lt;code&gt;×N&lt;/code&gt; &amp;mdash; Mode &lt;i&gt;cada&lt;/i&gt;: posa en pausa a les execucions &lt;i&gt;N&lt;/i&gt;, &lt;i&gt;2N&lt;/i&gt;, &lt;i&gt;3N&lt;/i&gt;, &amp;hellip;&lt;br/&gt;&lt;code&gt;@N&lt;/code&gt; &amp;mdash; Mode &lt;i&gt;una vegada&lt;/i&gt;: posa en pausa només a l&apos;execució &lt;i&gt;N&lt;/i&gt; i, després, es desactiva.&lt;/p&gt;&lt;p&gt;La cel·la comença amb el recompte d&apos;execució; si s&apos;estableix una porta, va seguida d&apos;un parèntesi, com ara &lt;code&gt;3 (≥10)&lt;/code&gt;. Si no hi ha cap porta, la cel·la mostra només el comptador.&lt;/p&gt;&lt;p&gt;Editeu la cel·la d&apos;&lt;i&gt;ubicació&lt;/i&gt; per a establir o canviar la porta (llegiu la secció addicional de punts d&apos;interrupció).&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Edit...</source>
@@ -13596,11 +13599,11 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     </message>
     <message>
         <source>Search for a plain text string in the current packet details tree (e.g. My String).</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca una cadena normal a l&apos;arbre de detalls del paquet (com ara «La meva cadena»).</translation>
     </message>
     <message>
         <source>Search using a regular expression in the current packet details tree (e.g. colou?r).</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca amb una expressió regular a l&apos;arbre de detalls del paquet (com ara «colo?r»).</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>
@@ -13648,7 +13651,7 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     </message>
     <message>
         <source>Find in Packet supports string and regular expression search only.</source>
-        <translation type="unfinished"></translation>
+        <translation>Troba al paquet suporta només cerques per cadena o amb expressions regulars.</translation>
     </message>
     <message>
         <source>[no matches] %1</source>
@@ -13656,7 +13659,7 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     </message>
     <message>
         <source>No %1 found.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha trobat cap %1.</translation>
     </message>
     <message>
         <source>[%1 of %2]</source>
@@ -13664,11 +13667,11 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     </message>
     <message>
         <source>Search for a plain text string/char in the current packet details tree (e.g. &apos;flag&apos; or &apos;f&apos;).</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca una cadena normal o un caràcter a l&apos;arbre de detalls del paquet (com ara «La meva cadena» o «f»).</translation>
     </message>
     <message>
         <source>Search using a regular expression in the current packet details tree (e.g. &apos;d&apos;).</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca amb una expressió regular a l&apos;arbre de detalls del paquet (com ara «d»).</translation>
     </message>
 </context>
 <context>
@@ -15267,7 +15270,7 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     </message>
     <message>
         <source>The inspector reports any widget in this application under the cursor — including child dialogs. Widgets that belong to this debug window are skipped so the last hovered target stays pinned. Hold Alt+Shift and click any widget to pin it: this turns off tracking and locks the readout onto that widget (re-check the box above to resume). Note: on macOS, tool windows are hidden whenever another application has focus, so tracking pauses until Wireshark is frontmost again.</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;inspector informa de qualsevol giny d&apos;aquesta aplicació sota el cursor, inclosos els diàlegs fills. Els ginys que pertanyen a aquesta finestra de depuració s&apos;ometen de manera que l&apos;últim objectiu sota el cursor es manté fix. Mantingueu premut Alt + Maj i feu clic a qualsevol giny per a fixar-lo: això desactiva el seguiment i en bloca la lectura (torneu a marcar la casella de dalt per a reprendre). Nota: en macOS, les finestres de l&apos;eina s&apos;amaguen cada vegada que una altra aplicació té focus, de manera que el seguiment fa una pausa fins que Wireshark torna a estar al davant.</translation>
     </message>
     <message>
         <source>Cursor (global):</source>
@@ -15311,7 +15314,7 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     </message>
     <message>
         <source>Swatch</source>
-        <translation type="unfinished"></translation>
+        <translation>Swatch</translation>
     </message>
     <message>
         <source>Stylesheet:</source>
@@ -18400,11 +18403,11 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     </message>
     <message>
         <source>Aggregation View — displays frames grouped by your configured aggregation fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vista d&apos;agregació — mostra les trames agrupades segons la configuració dels camps d&apos;agregació.</translation>
     </message>
     <message>
         <source>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vista d&apos;agregació — mostra les trames agrupades segons la configuració dels camps d&apos;agregació. Per a activar-la, aneu a Preferències → Agregació.</translation>
     </message>
     <message>
         <source>Unsaved packets…</source>

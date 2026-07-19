@@ -4,7 +4,7 @@
 * This file is auto generated, do not edit!
 * See tools/asterix/README.md for details.
 *
-* Data source: ['https://zoranbosnjak.github.io/asterix-specs', 'git revision: d53554a651aad4dfca0f088e412852681b3a4f24']
+* Data source: ['https://zoranbosnjak.github.io/asterix-specs', 'git revision: 7679897841f393cfd7ce74bb5cb62b8df0b0a212']
 *
 * Generated definitions for ASTERIX dissector
 *
@@ -23774,8 +23774,8 @@ static int dissect_cat_21_ed_major_1_ed_minor_5_datafield_1381_re(tvbuff_t *tvb,
   offset+=1;
   proto_tree_add_bits_item(datablock_tree, expand_var_2136, tvb, (offset * 8) + 0, 1, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_2137, tvb, (offset * 8) + 1, 5, ENC_BIG_ENDIAN);
-  proto_item *spare_item_6 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 6, 1, ENC_NA);
-  check_spare_bits (tvb, (offset * 8) + 6, 1, spare_item_6);
+  proto_item *spare_item_5_6 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 6, 1, ENC_NA);
+  check_spare_bits (tvb, (offset * 8) + 6, 1, spare_item_5_6);
   proto_tree_add_bits_item(datablock_tree, expand_var_2138, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
   if (!asterix_extended_end(tvb, offset + 1 - 1))
   {

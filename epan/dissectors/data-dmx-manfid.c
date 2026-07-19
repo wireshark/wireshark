@@ -11,7 +11,7 @@
 #include "data-dmx-manfid.h"
 
 /*
- * ESTA codes download date: 2026-07-12
+ * ESTA codes download date: 2026-07-19
  */
 static const value_string dmx_esta_manfid_vals[] = {
   { 0x0000, "ESTA / PLASA" },

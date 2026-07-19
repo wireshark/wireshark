@@ -6,8 +6,8 @@
  *
  * List of PCI IDs
  *
- * Version: 2026.07.12
- * Date:    2026-07-12 03:15:01
+ * Version: 2026.07.19
+ * Date:    2026-07-19 03:15:02
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -4300,6 +4300,7 @@ static pci_id_t const pci_vid_1002[] = {
 {0x1002, 0x7590, 0x1EAE, 0x8601, "RX-96TS316W7 [SWIFT RX 9060 XT OC White Triple Fan Gaming Edition 16GB](0x1EAE-0x8601)"},
 {0x1002, 0x75A0, 0xFFFF, 0xFFFF, "Aqua Vanjaram [Instinct MI350X](0x75A0)"},
 {0x1002, 0x75A3, 0xFFFF, 0xFFFF, "Aqua Vanjaram [Instinct MI355X](0x75A3)"},
+{0x1002, 0x75A8, 0xFFFF, 0xFFFF, "Aqua Vanjaram [Instinct MI350P](0x75A8)"},
 {0x1002, 0x7833, 0xFFFF, 0xFFFF, "RS350 Host Bridge(0x7833)"},
 {0x1002, 0x7834, 0xFFFF, 0xFFFF, "RS350 [Radeon 9100 PRO/XT IGP](0x7834)"},
 {0x1002, 0x7835, 0xFFFF, 0xFFFF, "RS350M [Mobility Radeon 9000 IGP](0x7835)"},
@@ -14285,9 +14286,10 @@ static pci_id_t const pci_vid_10DE[] = {
 {0x10DE, 0x2DB9, 0xFFFF, 0xFFFF, "GB207GLM [RTX PRO 500 Blackwell Generation Laptop GPU](0x2DB9)"},
 {0x10DE, 0x2DD8, 0xFFFF, 0xFFFF, "GB207M [GeForce RTX 5050 Max-Q / Mobile](0x2DD8)"},
 {0x10DE, 0x2DF9, 0xFFFF, 0xFFFF, "GB207GLM [RTX PRO 500 Blackwell Embedded GPU](0x2DF9)"},
-{0x10DE, 0x2E03, 0xFFFF, 0xFFFF, "GB20B [JMJWOA-Generic-GPU](0x2E03)"},
-{0x10DE, 0x2E06, 0xFFFF, 0xFFFF, "GB20B [JMJWOA-Generic-GPU](0x2E06)"},
+{0x10DE, 0x2E03, 0xFFFF, 0xFFFF, "GB20B [RTX Spark N1X (6144-core Blackwell RTX GPU)](0x2E03)"},
+{0x10DE, 0x2E06, 0xFFFF, 0xFFFF, "GB20B [RTX Spark N1X (5120-core Blackwell RTX GPU)](0x2E06)"},
 {0x10DE, 0x2E12, 0xFFFF, 0xFFFF, "GB20B [GB10](0x2E12)"},
+{0x10DE, 0x2E13, 0xFFFF, 0xFFFF, "GB20B [Desktop Device](0x2E13)"},
 {0x10DE, 0x2E2A, 0xFFFF, 0xFFFF, "GB20B [JMJWOA-Generic-GPU](0x2E2A)"},
 {0x10DE, 0x2F04, 0xFFFF, 0xFFFF, "GB205 [GeForce RTX 5070](0x2F04)"},
 {0x10DE, 0x2F06, 0xFFFF, 0xFFFF, "GB205 [GeForce RTX 5060](0x2F06)"},
@@ -25390,6 +25392,21 @@ static pci_id_t const pci_vid_14E4[] = {
 {0x14E4, 0x1760, 0x14E4, 0xD125, "BCM57608 2x200G PCIe Ethernet NIC(0x14E4-0xD125)"},
 {0x14E4, 0x1760, 0x193D, 0x105B, "NIC-ETH2030F-LP-2P 2x200G PCIe Ethernet NIC(0x193D-0x105B)"},
 {0x14E4, 0x1760, 0x193D, 0x105C, "NIC-ETH4030F-LP-1P 1x400G PCIe Ethernet NIC(0x193D-0x105C)"},
+{0x14E4, 0x1780, 0xFFFF, 0xFFFF, "BCM57708 50Gb/100Gb/200Gb/400Gb/800Gb Ethernet(0x1780)"},
+{0x14E4, 0x1780, 0x14E4, 0x1043, "BCM957708 1x800G OCP Ethernet NIC(0x14E4-0x1043)"},
+{0x14E4, 0x1780, 0x14E4, 0x1143, "BCM957708 1x800G OCP Ethernet NIC(0x14E4-0x1143)"},
+{0x14E4, 0x1780, 0x14E4, 0x1443, "BCM957708 1x800G OCP Ethernet NIC(0x14E4-0x1443)"},
+{0x14E4, 0x1780, 0x14E4, 0x1543, "BCM957708 1x800G OCP Ethernet NIC(0x14E4-0x1543)"},
+{0x14E4, 0x1780, 0x14E4, 0x1843, "BCM957708 1x800G OCP Ethernet NIC(0x14E4-0x1843)"},
+{0x14E4, 0x1780, 0x14E4, 0x1943, "BCM957708 1x800G OCP Ethernet NIC(0x14E4-0x1943)"},
+{0x14E4, 0x1780, 0x14E4, 0x8023, "BCM957708 2x400G PCIe Ethernet NIC(0x14E4-0x8023)"},
+{0x14E4, 0x1780, 0x14E4, 0x8043, "BCM957708 1x800G PCIe Ethernet NIC(0x14E4-0x8043)"},
+{0x14E4, 0x1780, 0x14E4, 0x8123, "BCM957708 2x400G PCIe Ethernet NIC(0x14E4-0x8123)"},
+{0x14E4, 0x1780, 0x14E4, 0x8143, "BCM957708 1x800G PCIe Ethernet NIC(0x14E4-0x8143)"},
+{0x14E4, 0x1780, 0x14E4, 0x9023, "BCM957708 2x400G PCIe Ethernet NIC(0x14E4-0x9023)"},
+{0x14E4, 0x1780, 0x14E4, 0x9043, "BCM957708 1x800G PCIe Ethernet NIC(0x14E4-0x9043)"},
+{0x14E4, 0x1780, 0x14E4, 0x9123, "BCM957708 2x400G PCIe Ethernet NIC(0x14E4-0x9123)"},
+{0x14E4, 0x1780, 0x14E4, 0x9143, "BCM957708 1x800G PCIe Ethernet NIC(0x14E4-0x9143)"},
 {0x14E4, 0x1800, 0xFFFF, 0xFFFF, "BCM57502 NetXtreme-E Ethernet Partition(0x1800)"},
 {0x14E4, 0x1801, 0xFFFF, 0xFFFF, "BCM57504 NetXtreme-E Ethernet Partition(0x1801)"},
 {0x14E4, 0x1801, 0x1590, 0x0420, "Ethernet NPAR 6310C Adapter(0x1590-0x0420)"},
@@ -27412,8 +27429,9 @@ static pci_id_t const pci_vid_15B7[] = {
 {0x15B7, 0x5049, 0xFFFF, 0xFFFF, "SN8000S NVMe SSD(0x5049)"},
 {0x15B7, 0x504A, 0xFFFF, 0xFFFF, "WD Blue SN5000 NVMe SSD (DRAM-less)(0x504A)"},
 {0x15B7, 0x5050, 0xFFFF, 0xFFFF, "WD PC SN8050S / WD_BLACK SN8100 NVMe SSD(0x5050)"},
-{0x15B7, 0x5062, 0xFFFF, 0xFFFF, "WD PC SN5100S NVMe SSD (DRAM-less)(0x5062)"},
-{0x15B7, 0x5063, 0xFFFF, 0xFFFF, "WD Blue SN5100 NVMe SSD (DRAM-less)(0x5063)"},
+{0x15B7, 0x5061, 0xFFFF, 0xFFFF, "PC SN5100S M.2 2230 NVMe SSD (DRAM-less)(0x5061)"},
+{0x15B7, 0x5062, 0xFFFF, 0xFFFF, "PC SN5100S M.2 2242 NVMe SSD (DRAM-less)(0x5062)"},
+{0x15B7, 0x5063, 0xFFFF, 0xFFFF, "PC SN5100S / WD Blue SN5100 M.2 2280 NVMe SSD (DRAM-less)(0x5063)"},
 }; /* pci_vid_15B7[] */
 
 static pci_id_t const pci_vid_15B8[] = {
@@ -35433,9 +35451,9 @@ static pci_id_t const pci_vid_1F47[] = {
 {0x1F47, 0x1005, 0xFFFF, 0xFFFF, "CONFLUX-2200P NVMe Controller(0x1005)"},
 {0x1F47, 0x1011, 0xFFFF, 0xFFFF, "K3-T Family(0x1011)"},
 {0x1F47, 0x1011, 0x1DCF, 0x0363, "K3_F2_10G_PCIE 2*10GE Ethernet Adapter(0x1DCF-0x0363)"},
-{0x1F47, 0x1011, 0x1F47, 0x0001, "FLEXFLOW-3100T 2*10GE Ethernet Adapter(0x1F47-0x0001)"},
+{0x1F47, 0x1011, 0x1F47, 0x0001, "F31TX2S 2*10GE Ethernet Adapter(0x1F47-0x0001)"},
 {0x1F47, 0x1011, 0x1F47, 0x0002, "FLEXFLOW-3100T 4*10GE Ethernet Adapter(0x1F47-0x0002)"},
-{0x1F47, 0x1011, 0x1F47, 0x0003, "FLEXFLOW-3100T 2*25GE Ethernet Adapter(0x1F47-0x0003)"},
+{0x1F47, 0x1011, 0x1F47, 0x0003, "F31TA2S 2*25GE Ethernet Adapter(0x1F47-0x0003)"},
 {0x1F47, 0x1011, 0x1F47, 0x0004, "FLEXFLOW-3100T 4*25GE Ethernet Adapter(0x1F47-0x0004)"},
 {0x1F47, 0x1011, 0x1F47, 0x0005, "FLEXFLOW-3100T 1*40GE Ethernet Adapter(0x1F47-0x0005)"},
 {0x1F47, 0x1011, 0x1F47, 0x0006, "FLEXFLOW-3100T 1*100GE Ethernet Adapter(0x1F47-0x0006)"},
@@ -36409,6 +36427,11 @@ static pci_id_t const pci_vid_2116[] = {
 static pci_id_t const pci_vid_2123[] = {
 {0x2123, 0xFFFF, 0xFFFF, 0xFFFF, "Shanghai Warpdrive Technology Co., Ltd(0x2123)"},
 }; /* pci_vid_2123[] */
+
+static pci_id_t const pci_vid_212B[] = {
+{0x212B, 0xFFFF, 0xFFFF, 0xFFFF, "Flumeio(0x212B)"},
+{0x212B, 0x5951, 0xFFFF, 0xFFFF, "Flumeio F5950Q(0x5951)"},
+}; /* pci_vid_212B[] */
 
 static pci_id_t const pci_vid_2136[] = {
 {0x2136, 0xFFFF, 0xFFFF, 0xFFFF, "Dongguan Xincun Chengbang Technology Co., Ltd.(0x2136)"},
@@ -49454,7 +49477,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x0F62, 1, pci_vid_0F62 },
 {0x1000, 843, pci_vid_1000 },
 {0x1001, 10, pci_vid_1001 },
-{0x1002, 3307, pci_vid_1002 },
+{0x1002, 3308, pci_vid_1002 },
 {0x1003, 2, pci_vid_1003 },
 {0x1004, 34, pci_vid_1004 },
 {0x1005, 8, pci_vid_1005 },
@@ -49666,7 +49689,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x10DB, 1, pci_vid_10DB },
 {0x10DC, 6, pci_vid_10DC },
 {0x10DD, 3, pci_vid_10DD },
-{0x10DE, 3441, pci_vid_10DE },
+{0x10DE, 3442, pci_vid_10DE },
 {0x10DF, 133, pci_vid_10DF },
 {0x10E0, 7, pci_vid_10E0 },
 {0x10E1, 5, pci_vid_10E1 },
@@ -50667,7 +50690,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x14E1, 1, pci_vid_14E1 },
 {0x14E2, 1, pci_vid_14E2 },
 {0x14E3, 1, pci_vid_14E3 },
-{0x14E4, 900, pci_vid_14E4 },
+{0x14E4, 915, pci_vid_14E4 },
 {0x14E5, 1, pci_vid_14E5 },
 {0x14E6, 1, pci_vid_14E6 },
 {0x14E7, 1, pci_vid_14E7 },
@@ -50875,7 +50898,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x15B4, 1, pci_vid_15B4 },
 {0x15B5, 1, pci_vid_15B5 },
 {0x15B6, 17, pci_vid_15B6 },
-{0x15B7, 43, pci_vid_15B7 },
+{0x15B7, 44, pci_vid_15B7 },
 {0x15B8, 11, pci_vid_15B8 },
 {0x15B9, 1, pci_vid_15B9 },
 {0x15BA, 1, pci_vid_15BA },
@@ -51615,6 +51638,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x2114, 3, pci_vid_2114 },
 {0x2116, 1, pci_vid_2116 },
 {0x2123, 1, pci_vid_2123 },
+{0x212B, 2, pci_vid_212B },
 {0x2136, 1, pci_vid_2136 },
 {0x21B4, 1, pci_vid_21B4 },
 {0x21C3, 1, pci_vid_21C3 },
@@ -51903,7 +51927,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0xFFFD, 2, pci_vid_FFFD },
 {0xFFFE, 2, pci_vid_FFFE },
 {0xFFFF, 1, pci_vid_FFFF },
-}; /* We have 2506 VIDs */
+}; /* We have 2507 VIDs */
 
 static int vid_search(const void *key, const void *tbl_entry)
 {
