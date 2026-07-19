@@ -636,9 +636,27 @@ Text string::
 +
 Strings are a sequence of bytes. Functions like `lower()` use ASCII, otherwise
 no particular encoding is assumed. String literals are specified with double
-quotes. Characters can also be specified using a byte escape sequence using
-hex `\x__hh__` or octal `{backslash}__ddd__`, where `_h_` and `_d_` are hex and octal
-numerical digits respectively:
+quotes. Characters can also be specified using escape sequences as in C or C++:
++
+.Display Filter Escape Sequences in Character and String Literals
+|===
+|`\'`         | single quote
+|`\"`         | double quote
+|`\\`         | backslash
+|`\a`         | audible bell
+|`\b`         | backspace
+|`\f`         | form feed
+|`\n`         | line feed
+|`\r`         | carriage return
+|`\t`         | horizontal tab
+|`\v`         | vertical tab
+|`\ddd`       | arbitrary octal value
+|`\xhh`       | arbitrary hexadecimal value
+|`\uhhhh`     | Unicode codepoint U+hhhh
+|`\Uhhhhhhhh` | Unicode codepoint U+hhhhhhhh
+|===
++
+where `_h_` and `_d_` are hex and octal numerical digits respectively:
 +
 `dns.qry.name contains "www.\x77\x69\x72\x65\x73\x68\x61\x72\x6b.org"`
 +

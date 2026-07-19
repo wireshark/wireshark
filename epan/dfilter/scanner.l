@@ -810,19 +810,31 @@ parse_universal_character_name(dfsyntax_t *dfs _U_, const char *str, char **ret_
 
 	/*
 	 * Ref: https://en.cppreference.com/w/c/language/escape
-	 * Range of universal character names
+	 * https://en.cppreference.com/cpp/language/escape
+	 * https://www.open-std.org/jtc1/sc22/wg14/www/docs/n3124.pdf
+	 * N3096 (Working draft of C23 shortly before final version)
+	 * https://www.open-std.org/jtc1/sc22/wg14/www/docs/n3096.pdf
+	 * N3220 (Working draft of C2y shortly thereafter)
+	 * https://www.open-std.org/jtc1/sc22/wg14/www/docs/n3220.pdf
 	 *
-	 * If a universal character name corresponds to a code point that is
-	 * not 0x24 ($), 0x40 (@), nor 0x60 (`) and less than 0xA0, or a
-	 * surrogate code point (the range 0xD800-0xDFFF, inclusive), or
-	 * greater than 0x10FFFF, i.e. not a Unicode code point (since C23),
-	 * the program is ill-formed. In other words, members of basic source
-	 * character set and control characters (in ranges 0x0-0x1F and
-	 * 0x7F-0x9F) cannot be expressed in universal character names.
+	 * "Range of universal character names
+	 *
+	 * If a universal character name corresponding to a scalar value of a
+	 * character in the basic character set or a control character appear
+	 * outside a character or string literal, the program is ill-formed.
+	 * If a universal character name does not correspond to a code point in
+	 * ISO/IEC 10646 (the range 0x0-0x10FFFF, inclusive) or corresponds to a
+	 * surrogate code point (the range 0xD800-0xDFFF, inclusive), the program
+	 * is ill-formed."
+	 *
+	 * We are inside a character or string literal here. WG14 adopted N3124,
+	 * which aligned with C++11 and allowed UCNs to have values of characters
+	 * in the basic character set inside character and string literals, between
+	 * N3096 and N3220 (compare 6.4.3 Universal character names). We shall also
+	 * allow UCNs of the basic character set because there's no good reason to
+	 * exclude them in our case either.
 	 */
-	if (val < 0xA0 && val != 0x24 && val != 0x40 && val != 0x60)
-		return false;
-	else if (val >= 0xD800 && val <= 0xDFFF)
+	if (val >= 0xD800 && val <= 0xDFFF)
 		return false;
 	else if (val > 0x10FFFF)
 		return false;
