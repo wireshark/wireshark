@@ -43,6 +43,7 @@ variables:
     acl=private
     --non-interactive --obscure"
   # --no-output
+  WS_AQTINSTALL_LOCATION: "aqtinstall@git+https://github.com/miurahr/aqtinstall.git@5be32a75a81513792d95f13065b72cac3381c612"
 
 workflow:
   auto_cancel:
@@ -202,7 +203,7 @@ workflow:
     - if (-Not (Test-Path C:\Qt)) { New-Item -Path C:\Qt -ItemType "directory" }
     - if (-Not (Test-Path "C:\Qt\$($env:WINDOWS_QT_VERSION)\$($env:AQT_ARCH)\include\QtCore")) {
         py.exe -m venv --clear "$($env:TEMP)\aqt.venv" ;
-        & $env:TEMP\aqt.venv\Scripts\pip3.exe install aqtinstall ;
+        & $env:TEMP\aqt.venv\Scripts\pip3.exe install $env:WS_AQTINSTALL_LOCATION ;
         & $env:TEMP\aqt.venv\Scripts\aqt.exe install-qt --outputdir C:\Qt $env:AQT_HOST desktop $env:WINDOWS_QT_VERSION "win64_$($env:AQT_ARCH)" --modules qtmultimedia ;
       }
     - $env:Configuration = "RelWithDebInfo"
@@ -267,7 +268,7 @@ workflow:
     - if [ ! -d $WIRESHARK_BASE_DIR ] ; then mkdir $WIRESHARK_BASE_DIR ; fi
     - if [ ! -d "$WIRESHARK_BASE_DIR/Qt" ] ; then mkdir "$WIRESHARK_BASE_DIR/Qt" ; fi
     - if [ ! -d "$WIRESHARK_BASE_DIR/Qt/$MACOS_QT_VERSION/macos/lib/QtCore.framework" ] ; then
-        pip3 install aqtinstall ;
+        pip3 install $WS_AQTINSTALL_LOCATION ;
         aqt install-qt --outputdir $WIRESHARK_BASE_DIR/Qt mac desktop $MACOS_QT_VERSION clang_64 --modules qtmultimedia --timeout 10 ;
       fi
     - export CMAKE_PREFIX_PATH="$WIRESHARK_BASE_DIR/Qt/$MACOS_QT_VERSION/macos"
@@ -694,7 +695,7 @@ macOS Universal Package:
     - if [[ $MACOS_REINSTALL_THIRD_PARTY == true ]] ; then rm -rf "$WIRESHARK_BASE_DIR" ; fi
     - if [ ! -d "$WIRESHARK_BASE_DIR/Qt" ] ; then mkdir -p "$WIRESHARK_BASE_DIR/Qt" ; fi
     - if [ ! -d "$WIRESHARK_BASE_DIR/Qt/$MACOS_QT_VERSION/macos/lib/QtCore.framework" ] ; then
-        pip3 install aqtinstall ;
+        pip3 install $WS_AQTINSTALL_LOCATION ;
         aqt install-qt --outputdir $WIRESHARK_BASE_DIR/Qt mac desktop $MACOS_QT_VERSION clang_64 --modules qtmultimedia --timeout 10 ;
       fi
     - export CMAKE_PREFIX_PATH="$WIRESHARK_BASE_DIR/Qt/$MACOS_QT_VERSION/macos"
