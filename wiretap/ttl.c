@@ -1554,8 +1554,8 @@ static const ttl_addr_to_iface_entry_t* ttl_lookup_interface_int(wtap* wth, uint
 
     /* Recursion limit to avoid coding errors. */
     if (iteration > TTL_LOOKUP_INTERFACE_MAX_ITERATIONS) {
-        *err = WTAP_ERR_INTERNAL;
-        *err_info = ws_strdup_printf("ttl_lookup_interface(): more iterations than allowed: %d (max. %d)", iteration, TTL_LOOKUP_INTERFACE_MAX_ITERATIONS);
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("ttl: more iterations than allowed: %d (max. %d)", iteration, TTL_LOOKUP_INTERFACE_MAX_ITERATIONS);
         return NULL;
     }
 
@@ -1632,7 +1632,7 @@ ttl_read_bytes(ttl_read_t* in, void* out, uint16_t size, int* err, char** err_in
         if (size != 0) {
             if ((in->cur_pos + size) > in->size) {
                 *err = WTAP_ERR_SHORT_READ;
-                *err_info = ws_strdup("ttl_read_bytes(): Attempt to read beyond buffer end");
+                *err_info = ws_strdup("ttl: Attempt to read beyond buffer end");
                 return false;
             }
             if (out != NULL) {
@@ -1642,8 +1642,8 @@ ttl_read_bytes(ttl_read_t* in, void* out, uint16_t size, int* err, char** err_in
         }
         break;
     default:
-        *err = WTAP_ERR_INTERNAL;
-        *err_info = ws_strdup_printf("ttl_read_bytes(): ttl_read_t unknown validity flags: %d", in->validity);
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("ttl: ttl_read_t unknown validity flags: %d", in->validity);
         return false;
     }
 
@@ -2008,14 +2008,14 @@ ttl_check_segmented_message_recursion(const ttl_read_t* in, int* err, char** err
     ttl_entryheader_t header;
 
     if (in->validity != VALIDITY_BUF) {
-        *err = WTAP_ERR_INTERNAL;
-        *err_info = ws_strdup("ttl_check_segmented_message_recursion: input buffer is not valid");
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup("ttl: input buffer is not valid");
         return false;
     }
 
     if (sizeof(ttl_entryheader_t) > in->size - in->cur_pos) {
-        *err = WTAP_ERR_INTERNAL;
-        *err_info = ws_strdup("ttl_check_segmented_message_recursion: input buffer too short");
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup("ttl: input buffer too short");
         return false;
     }
     memcpy(&header, in->buf + in->cur_pos, sizeof(ttl_entryheader_t));
@@ -2037,8 +2037,8 @@ ttl_fix_segmented_message_entry_timestamp(const ttl_read_t* in, uint64_t timesta
     ttl_entryheader_t header;
 
     if (in->validity != VALIDITY_BUF) {
-        *err = WTAP_ERR_INTERNAL;
-        *err_info = ws_strdup("ttl_fix_segmented_message_entry_timestamp: input buffer is not valid");
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup("ttl: input buffer is not valid");
         return false;
     }
 
@@ -2051,8 +2051,8 @@ ttl_fix_segmented_message_entry_timestamp(const ttl_read_t* in, uint64_t timesta
     if ((header.size_type >> 12) == TTL_BUS_DATA_ENTRY) {
         if (sizeof(uint64_t) > in->size - (in->cur_pos + sizeof(ttl_entryheader_t))) {
         buf_too_small:
-            *err = WTAP_ERR_INTERNAL;
-            *err_info = ws_strdup("ttl_fix_segmented_message_entry_timestamp: input buffer too short");
+            *err = WTAP_ERR_BAD_FILE;
+            *err_info = ws_strdup("ttl: input buffer too short");
             return false;
         }
         timestamp = GUINT64_TO_LE(timestamp);
