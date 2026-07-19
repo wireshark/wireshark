@@ -205,8 +205,8 @@ nettrace_parse_address(char* curr_pos, bool is_src_addr, exported_pdu_info_t *ex
 	 *  Address=198.142.204.199,Port=2123
 	 */
 
-	if (regex == NULL) {
-		regex = g_regex_new (
+	if (g_once_init_enter(&regex)) {
+		GRegex *re = g_regex_new (
 			"^.*address\\s*=*\\s*" //curr_pos will begin with address
 			"\\[?(?P<ipaddress>(?:" //store ipv4 or ipv6 address in named group "ipaddress"
 				"(?:\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})" //match an IPv4 address
@@ -215,6 +215,7 @@ nettrace_parse_address(char* curr_pos, bool is_src_addr, exported_pdu_info_t *ex
 			"(?:.*port\\s*=*\\s*(?P<port>\\d{1,5}))?" //match a port store it in named group "port"
 			"(?:.*transport\\s*=*\\s*(?P<transport>\\w+))?", //match a transport store it in named group "transport"
 			G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
+		g_once_init_leave(&regex, re);
 	 }
 
 	/* curr_pos pointing to first char of "address" */
@@ -258,18 +259,22 @@ nettrace_parse_address(char* curr_pos, bool is_src_addr, exported_pdu_info_t *ex
 	if (port > 0) {
 		/* Only add port_type once */
 		if (exported_pdu_info->ptype == EXP_PDU_PT_NONE) {
-			if (g_ascii_strncasecmp(matched_transport, "udp", 3) == 0) {
-				exported_pdu_info->ptype = EXP_PDU_PT_UDP;
-			}
-			else if (g_ascii_strncasecmp(matched_transport, "tcp", 3) == 0) {
-				exported_pdu_info->ptype = EXP_PDU_PT_TCP;
-			}
-			else if (g_ascii_strncasecmp(matched_transport, "sctp", 4) == 0) {
-				exported_pdu_info->ptype = EXP_PDU_PT_SCTP;
-			}
-			else {
-				/* fall to something so that ports are shown in column */
-				exported_pdu_info->ptype = EXP_PDU_PT_TCP;
+			static const struct {
+				const char *name;
+				unsigned    len;
+				uint32_t    ptype;
+			} transport_map[] = {
+				{ "udp",  3, EXP_PDU_PT_UDP },
+				{ "tcp",  3, EXP_PDU_PT_TCP },
+				{ "sctp", 4, EXP_PDU_PT_SCTP },
+			};
+			/* Default to TCP so that ports are shown in column */
+			exported_pdu_info->ptype = EXP_PDU_PT_TCP;
+			for (size_t i = 0; i < G_N_ELEMENTS(transport_map); i++) {
+				if (g_ascii_strncasecmp(matched_transport, transport_map[i].name, transport_map[i].len) == 0) {
+					exported_pdu_info->ptype = transport_map[i].ptype;
+					break;
+				}
 			}
 		}
 		if (is_src_addr) {
@@ -954,6 +959,56 @@ nettrace_close(wtap *wth)
 	}
 }
 
+/* Validate the file header and extract the beginTime timestamp.
+ * Returns WTAP_OPEN_MINE if valid, WTAP_OPEN_NOT_MINE otherwise.
+ * On success, start_time is set from the traceCollec beginTime attribute.
+ */
+static wtap_open_return_val
+nettrace_parse_file_header(xmlNodePtr root_element, nstime_t *start_time)
+{
+	if (root_element->children == NULL)
+		return WTAP_OPEN_NOT_MINE;
+
+	for (xmlNodePtr cur = root_element->children; cur != NULL; cur = cur->next) {
+		if (cur->type != XML_ELEMENT_NODE)
+			continue;
+		if (xmlStrcmp(cur->name, (const xmlChar*)"fileHeader") != 0)
+			continue;
+
+		/* Validate fileFormatVersion attribute */
+		for (xmlAttrPtr attr = cur->properties; attr; attr = attr->next) {
+			if (xmlStrcmp(attr->name, (const xmlChar*)"fileFormatVersion") == 0) {
+				xmlChar* version = xmlNodeListGetString(cur->doc, attr->children, 1);
+				if (version == NULL)
+					return WTAP_OPEN_NOT_MINE;
+				bool valid = (strncmp((const char*)version, "32.423", strlen("32.423")) == 0);
+				xmlFree(version);
+				if (!valid)
+					return WTAP_OPEN_NOT_MINE;
+			}
+		}
+
+		/* Extract beginTime from <traceCollec beginTime="..."> */
+		for (xmlNodePtr child = cur->children; child != NULL; child = child->next) {
+			if (child->type != XML_ELEMENT_NODE)
+				continue;
+			if (xmlStrcmp(child->name, (const xmlChar*)"traceCollec") != 0)
+				continue;
+			for (xmlAttrPtr attr = child->properties; attr; attr = attr->next) {
+				if (xmlStrcmp(attr->name, (const xmlChar*)"beginTime") == 0) {
+					xmlChar* str_begintime = xmlNodeListGetString(child->doc, attr->children, 1);
+					if (str_begintime != NULL) {
+						iso8601_to_nstime(start_time, (const char*)str_begintime, ISO8601_DATETIME);
+						xmlFree(str_begintime);
+					}
+				}
+			}
+		}
+		return WTAP_OPEN_MINE;
+	}
+	return WTAP_OPEN_NOT_MINE;
+}
+
 /* Test the current file to see if it's one we can read.
  * Set in file_access.c as the function to be called for this file type.
  */
@@ -967,10 +1022,6 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err _U_, char **err_info _U_)
 
 	doc = xmlReadFile(wth->pathname, NULL, XML_PARSE_NONET | XML_PARSE_NOERROR);
 	if (doc == NULL) {
-		//const xmlError * error = xmlGetLastError();
-		//if (error) {
-		//	ws_warning("Failed to parse =%s", error->message);
-		//}
 		return WTAP_OPEN_NOT_MINE;
 	}
 
@@ -980,58 +1031,18 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err _U_, char **err_info _U_)
 		return WTAP_OPEN_NOT_MINE;
 	}
 
-	//Sanity check
+	/* Sanity check: root must be <traceCollecFile> (note: no 't' in Collec) */
 	if (xmlStrcmp(root_element->name, (const xmlChar*)"traceCollecFile") != 0) {
-		//traceCollecFile note no t(Collec t )
 		ws_debug("traceCollecFile did not match root_element->name %s", root_element->name);
 		xmlFreeDoc(doc);
 		return WTAP_OPEN_NOT_MINE;
 	}
 
-	if (root_element->children == NULL) {
+	/* Validate file header and extract beginTime */
+	wtap_open_return_val header_result = nettrace_parse_file_header(root_element, &start_time);
+	if (header_result != WTAP_OPEN_MINE) {
 		xmlFreeDoc(doc);
-		return WTAP_OPEN_NOT_MINE;
-	}
-
-	for (xmlNodePtr cur = root_element->children; cur != NULL; cur = cur->next) {
-		if (cur->type == XML_ELEMENT_NODE) {
-			if (xmlStrcmp(cur->name, (const xmlChar*)"fileHeader") == 0) {
-				/* Walk the attributes of the fileHeader */
-				for (xmlAttrPtr attr = cur->properties; attr; attr = attr->next) {
-					if (xmlStrcmp(attr->name, (const xmlChar*)"fileFormatVersion") == 0) {
-						xmlChar* str_fileformatversion = xmlNodeListGetString(cur->doc, attr->children, 1);
-						if (str_fileformatversion != NULL) {
-							if (strncmp((const char*)str_fileformatversion, "32.423", strlen("32.423")) != 0) {
-								xmlFree(str_fileformatversion);
-								xmlFreeDoc(doc);
-								return WTAP_OPEN_NOT_MINE;
-							}
-							xmlFree(str_fileformatversion);
-						} else {
-							xmlFreeDoc(doc);
-							return WTAP_OPEN_NOT_MINE;
-						}
-					}
-				}
-				/* Check the children of the fileHeader root */
-				for (xmlNodePtr fileHeader_node = cur->children; fileHeader_node != NULL; fileHeader_node = fileHeader_node->next) {
-					if (fileHeader_node->type == XML_ELEMENT_NODE) {
-						if (xmlStrcmp(fileHeader_node->name, (const xmlChar*)"traceCollec") == 0) {
-							/* Walk the attributes of the traceCollec element */
-							for (xmlAttrPtr attr = fileHeader_node->properties; attr; attr = attr->next) {
-								if (xmlStrcmp(attr->name, (const xmlChar*)"beginTime") == 0) {
-									xmlChar* str_begintime = xmlNodeListGetString(fileHeader_node->doc, attr->children, 1);
-									if (str_begintime != NULL) {
-										iso8601_to_nstime(&start_time, (const char*)str_begintime, ISO8601_DATETIME);
-										xmlFree(str_begintime);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+		return header_result;
 	}
 
 	/* Ok it's our file. From here we'll need to free memory */
