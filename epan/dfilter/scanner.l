@@ -388,6 +388,19 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 	g_string_append(yyextra->quoted_string, yytext);
 }
 
+<DQUOTE>\\				{
+	/* backslash with no escape sequence following */
+	update_string_loc(yyextra, yytext);
+	if (yyextra->raw_string) {
+		g_string_append(yyextra->quoted_string, yytext);
+	}
+	else {
+		g_string_free(yyextra->quoted_string, TRUE);
+		yyextra->quoted_string = NULL;
+		FAIL("Empty escape sequence.");
+		return SCAN_FAILED;
+	}
+}
 
 \047				{
 	/* start quote of a quoted character value */
@@ -428,6 +441,15 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 	/* non-escaped string */
 	update_string_loc(yyextra, yytext);
 	g_string_append(yyextra->quoted_string, yytext);
+}
+
+<SQUOTE>\\				{
+	/* backslash with no escape sequence following */
+	update_string_loc(yyextra, yytext);
+	g_string_free(yyextra->quoted_string, TRUE);
+	yyextra->quoted_string = NULL;
+	FAIL("Empty escape sequence.");
+	return SCAN_FAILED;
 }
 
 	/* NOTE: None of the patterns below can match ".." anywhere in the token string. */
