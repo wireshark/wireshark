@@ -34,7 +34,6 @@ bool ncp_echo_server = true;
 bool ncp_echo_file;
 bool ncp_newstyle    = true;
 
-extern dissector_handle_t nds_data_handle;
 typedef struct {
     uint32_t    nds_frag_verb;
     uint32_t    nds_frag_version;
