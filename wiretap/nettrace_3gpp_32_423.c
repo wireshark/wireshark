@@ -143,6 +143,17 @@ nettrace_lookup_protocol(const char *protocol, const char *function, const char 
  */
 #define MAGIC_BUF_SIZE 1024
 
+/* Per-packet session context recorded during sequential read for seek_read access.
+ * The session_time and UE ID are derived from the most recent <traceRecSession>
+ * preceding each <msg> and cannot be reliably recovered during random seek_read
+ * since only the <msg>...</msg> block is re-read.
+ */
+typedef struct {
+	nstime_t session_time;
+	char *ue_id_type;
+	char *ue_id_value;
+} nettrace_packet_ctx_t;
+
 typedef struct nettrace_3gpp_32_423_file_info {
 	GByteArray *buffer;		// holds current chunk of file
 	int64_t start_offset;		// where in the file the start of the buffer points
@@ -150,6 +161,7 @@ typedef struct nettrace_3gpp_32_423_file_info {
 	nstime_t session_time;		// from most recent <traceRecSession stime=""> attribute
 	char *session_ue_id_type;	// from most recent <ue idType="..."/>
 	char *session_ue_id_value;	// from most recent <ue idValue="..."/>
+	GHashTable *offset_pkt_ctx;	// maps data_offset (int64_t*) -> nettrace_packet_ctx_t*
 } nettrace_3gpp_32_423_file_info_t;
 
 typedef struct exported_pdu_info {
@@ -179,6 +191,16 @@ typedef struct exported_pdu_info {
 static int nettrace_3gpp_32_423_file_type_subtype = -1;
 
 void register_nettrace_3gpp_32_423(void);
+
+/* Hash table helper for per-packet session context storage */
+static void
+nettrace_packet_ctx_free(void *data)
+{
+	nettrace_packet_ctx_t *ctx = (nettrace_packet_ctx_t *)data;
+	g_free(ctx->ue_id_type);
+	g_free(ctx->ue_id_value);
+	g_free(ctx);
+}
 
 /* Parse a string IPv4 or IPv6 address into bytes for exported_pdu_info.
  * Also parses the port pairs and transport layer type.
@@ -878,6 +900,19 @@ nettrace_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_t *data
 	/* Tell Wireshark to put us at the start of the "<msg" for seek_read later */
 	*data_offset = file_info->start_offset + msg_offset;
 
+	/* Save the current session context for this packet so seek_read can retrieve it */
+	{
+		int64_t *key = g_new(int64_t, 1);
+		*key = *data_offset;
+		nettrace_packet_ctx_t *ctx = g_new0(nettrace_packet_ctx_t, 1);
+		ctx->session_time = file_info->session_time;
+		if (file_info->session_ue_id_type)
+			ctx->ue_id_type = g_strdup(file_info->session_ue_id_type);
+		if (file_info->session_ue_id_value)
+			ctx->ue_id_value = g_strdup(file_info->session_ue_id_value);
+		g_hash_table_insert(file_info->offset_pkt_ctx, key, ctx);
+	}
+
 	/* pass all of <msg....</msg> to nettrace_parse_msg() */
 	status = nettrace_parse_msg(wth, rec, msg_start, msg_len, err, err_info);
 
@@ -910,6 +945,17 @@ nettrace_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *err, char **
 	uint8_t *msg_end;
 	unsigned msg_len = 0;
 
+	/* Restore the per-packet session context that was recorded during sequential read */
+	nettrace_packet_ctx_t *ctx = (nettrace_packet_ctx_t *)g_hash_table_lookup(
+		file_info->offset_pkt_ctx, &seek_off);
+	if (ctx) {
+		file_info->session_time = ctx->session_time;
+		g_free(file_info->session_ue_id_type);
+		g_free(file_info->session_ue_id_value);
+		file_info->session_ue_id_type = ctx->ue_id_type ? g_strdup(ctx->ue_id_type) : NULL;
+		file_info->session_ue_id_value = ctx->ue_id_value ? g_strdup(ctx->ue_id_value) : NULL;
+	}
+
 	/* We stored the offset of the "<msg" for this packet */
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return false;
@@ -920,9 +966,6 @@ nettrace_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *err, char **
 	}
 	msg_end += CLEN(c_e_msg);
 	msg_len = (unsigned)(msg_end - file_info->buffer->data);
-
-	/* Check for traceRecSession stime before the msg */
-	nettrace_update_session_from_buffer(file_info->buffer->data, msg_len, file_info);
 
 	/* Find the <msg start in the buffer */
 	uint8_t *msg_start = (uint8_t*)g_strstr_len((const char*)file_info->buffer->data, msg_len, c_s_msg);
@@ -956,6 +999,10 @@ nettrace_close(wtap *wth)
 		g_free(file_info->session_ue_id_value);
 		file_info->session_ue_id_type = NULL;
 		file_info->session_ue_id_value = NULL;
+		if (file_info->offset_pkt_ctx != NULL) {
+			g_hash_table_destroy(file_info->offset_pkt_ctx);
+			file_info->offset_pkt_ctx = NULL;
+		}
 	}
 }
 
@@ -1052,6 +1099,8 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err _U_, char **err_info _U_)
 	file_info->start_time = start_time;
 	file_info->start_offset = 0;
 	file_info->buffer = g_byte_array_sized_new(RINGBUFFER_START_SIZE);
+	file_info->offset_pkt_ctx = g_hash_table_new_full(g_int64_hash, g_int64_equal,
+	                                                   g_free, nettrace_packet_ctx_free);
 
 	wth->file_type_subtype = nettrace_3gpp_32_423_file_type_subtype;
 	wth->file_encap = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
