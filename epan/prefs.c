@@ -2154,50 +2154,41 @@ pref_stash(pref_t *pref, void *unused _U_)
     return 0;
 }
 
-unsigned
-pref_unstash(pref_t *pref, void *unstash_data_p)
+unsigned pref_get_changed_flags(pref_t *pref, void *unstash_data_p)
 {
     pref_unstash_data_t *unstash_data = (pref_unstash_data_t *)unstash_data_p;
-    dissector_table_t sub_dissectors = NULL;
-    dissector_handle_t handle = NULL;
 
     ws_assert(!pref->obsolete);
 
-    /* Revert the preference to its saved value. */
     switch (pref->type) {
 
     case PREF_UINT:
         if (*pref->varp.uint != pref->stashed_val.uint) {
             unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
-            *pref->varp.uint = pref->stashed_val.uint;
         }
         break;
 
     case PREF_INT:
         if (*pref->varp.intp != pref->stashed_val.intval) {
             unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
-            *pref->varp.intp = pref->stashed_val.intval;
         }
         break;
 
     case PREF_FLOAT:
         if (*pref->varp.floatp != pref->stashed_val.floatval) {
             unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
-            *pref->varp.floatp = pref->stashed_val.floatval;
         }
         break;
 
     case PREF_BOOL:
         if (*pref->varp.boolp != pref->stashed_val.boolval) {
             unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
-            *pref->varp.boolp = pref->stashed_val.boolval;
         }
         break;
 
     case PREF_ENUM:
         if (*pref->varp.enump != pref->stashed_val.enumval) {
             unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
-            *pref->varp.enump = pref->stashed_val.enumval;
         }
         break;
 
@@ -2212,11 +2203,11 @@ pref_unstash(pref_t *pref, void *unstash_data_p)
             fdata = (frame_data*)elem->data;
             if (fdata->tcp_snd_manual_analysis != *pref->varp.enump) {
                 unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
-                fdata->tcp_snd_manual_analysis = *pref->varp.enump;
             }
         }
         break;
     }
+
     case PREF_STRING:
     case PREF_SAVE_FILENAME:
     case PREF_OPEN_FILENAME:
@@ -2225,6 +2216,111 @@ pref_unstash(pref_t *pref, void *unstash_data_p)
     case PREF_DISSECTOR:
         if (strcmp(*pref->varp.string, pref->stashed_val.string) != 0) {
             unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
+        }
+        break;
+
+    case PREF_DECODE_AS_RANGE:
+        if (!ranges_are_equal(*pref->varp.range, pref->stashed_val.range)) {
+            unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
+        }
+        break;
+
+    case PREF_RANGE:
+        if (!ranges_are_equal(*pref->varp.range, pref->stashed_val.range)) {
+            unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
+        }
+        break;
+
+    case PREF_COLOR:
+        if ((pref->varp.colorp->blue != pref->stashed_val.color.blue) ||
+            (pref->varp.colorp->red != pref->stashed_val.color.red) ||
+            (pref->varp.colorp->green != pref->stashed_val.color.green)) {
+            unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
+        }
+        break;
+
+    case PREF_UAT:
+        if (pref->varp.uat && pref->varp.uat->changed) {
+            unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
+        }
+        break;
+
+    case PREF_STATIC_TEXT:
+    case PREF_CUSTOM:
+        break;
+
+    default:
+        ws_assert_not_reached();
+        break;
+    }
+    return 0;
+}
+
+unsigned
+pref_unstash(pref_t *pref, void *unstash_data_p)
+{
+    pref_unstash_data_t *unstash_data = (pref_unstash_data_t *)unstash_data_p;
+    dissector_table_t sub_dissectors = NULL;
+    dissector_handle_t handle = NULL;
+
+    ws_assert(!pref->obsolete);
+
+    /* Revert the preference to its saved value. */
+    switch (pref->type) {
+
+    case PREF_UINT:
+        if (*pref->varp.uint != pref->stashed_val.uint) {
+            *pref->varp.uint = pref->stashed_val.uint;
+        }
+        break;
+
+    case PREF_INT:
+        if (*pref->varp.intp != pref->stashed_val.intval) {
+            *pref->varp.intp = pref->stashed_val.intval;
+        }
+        break;
+
+    case PREF_FLOAT:
+        if (*pref->varp.floatp != pref->stashed_val.floatval) {
+            *pref->varp.floatp = pref->stashed_val.floatval;
+        }
+        break;
+
+    case PREF_BOOL:
+        if (*pref->varp.boolp != pref->stashed_val.boolval) {
+            *pref->varp.boolp = pref->stashed_val.boolval;
+        }
+        break;
+
+    case PREF_ENUM:
+        if (*pref->varp.enump != pref->stashed_val.enumval) {
+            *pref->varp.enump = pref->stashed_val.enumval;
+        }
+        break;
+
+    case PREF_PROTO_TCP_SNDAMB_ENUM:
+    {
+        /* The preference dialogs are modal so the frame_data pointers should
+         * still be valid; otherwise we could store the frame numbers to
+         * change.
+         */
+        frame_data *fdata;
+        for (GList* elem = pref->stashed_val.list; elem != NULL; elem = elem->next) {
+            fdata = (frame_data*)elem->data;
+            if (fdata->tcp_snd_manual_analysis != *pref->varp.enump) {
+                fdata->tcp_snd_manual_analysis = *pref->varp.enump;
+            }
+        }
+        break;
+    }
+
+    case PREF_STRING:
+    case PREF_SAVE_FILENAME:
+    case PREF_OPEN_FILENAME:
+    case PREF_DIRNAME:
+    case PREF_PASSWORD:
+    case PREF_DISSECTOR:
+        if (strcmp(*pref->varp.string, pref->stashed_val.string) != 0) {
             wmem_free(pref->scope, *pref->varp.string);
             *pref->varp.string = wmem_strdup(pref->scope, pref->stashed_val.string);
         }
@@ -2235,7 +2331,6 @@ pref_unstash(pref_t *pref, void *unstash_data_p)
         const char* table_name = prefs_get_dissector_table(pref);
         if (!ranges_are_equal(*pref->varp.range, pref->stashed_val.range)) {
             uint32_t i, j;
-            unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
 
             if (unstash_data->handle_decode_as) {
                 sub_dissectors = find_dissector_table(table_name);
@@ -2289,9 +2384,9 @@ pref_unstash(pref_t *pref, void *unstash_data_p)
         }
         break;
     }
+
     case PREF_RANGE:
         if (!ranges_are_equal(*pref->varp.range, pref->stashed_val.range)) {
-            unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
             wmem_free(pref->scope, *pref->varp.range);
             *pref->varp.range = range_copy(pref->scope, pref->stashed_val.range);
         }
@@ -2301,15 +2396,11 @@ pref_unstash(pref_t *pref, void *unstash_data_p)
         if ((pref->varp.colorp->blue != pref->stashed_val.color.blue) ||
             (pref->varp.colorp->red != pref->stashed_val.color.red) ||
             (pref->varp.colorp->green != pref->stashed_val.color.green)) {
-            unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
             *pref->varp.colorp = pref->stashed_val.color;
         }
-        break;
+    break;
+
     case PREF_UAT:
-        if (pref->varp.uat && pref->varp.uat->changed) {
-            unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
-        }
-        break;
     case PREF_STATIC_TEXT:
     case PREF_CUSTOM:
         break;

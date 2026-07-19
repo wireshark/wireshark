@@ -696,6 +696,18 @@ typedef struct pref_unstash_data
 } pref_unstash_data_t;
 
 /**
+ * @brief Get the effect_flags from a stashed preference.
+ * Can be called from prefs_pref_foreach().
+ *
+ * @param pref A preference.
+ * @param unstash_data_p A pointer to a pref_unstash_data_t structure.
+ *
+ * @return Always returns 0.
+ */
+WS_DLL_PUBLIC
+unsigned pref_get_changed_flags(pref_t *pref, void *unstash_data_p);
+
+/**
  * @brief "Unstash" a preference.
  * Set a preference to its stashed value. Can be called from prefs_pref_foreach().
  *
