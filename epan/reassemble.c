@@ -1473,15 +1473,18 @@ fragment_add_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 				}
 				overlap = 0;
 				if (fd_i->offset < dfpos) {
-					/* The new item's begins before the
-					 * existing end. How much overlap? */
-					overlap = dfpos - fd_i->offset;
+					/* The new item's begins before the existing end. */
 					/* duplicate/retransmission/overlap */
-					uint32_t cmp_len = MIN(fd_i->len,overlap);
-
 					fd_i->flags    |= FD_OVERLAP;
 					fd_head->flags |= FD_OVERLAP;
-					if ( memcmp(data + fd_i->offset,
+
+					/* How much overlap is there with data in the buffer?
+					 * (It's possible that multiple fragments conflict in
+					 * data past the given datalen; we don't check that.) */
+					overlap = MIN(dfpos, fd_head->datalen) - fd_i->offset;
+					uint32_t cmp_len = MIN(fd_i->len,overlap);
+
+					if ( cmp_len && memcmp(data + fd_i->offset,
 							tvb_get_ptr(fd_i->tvb_data, 0, cmp_len),
 							cmp_len)
 							 ) {
