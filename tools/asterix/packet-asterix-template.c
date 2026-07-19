@@ -606,12 +606,12 @@ static void asterix_build_subtree (tvbuff_t *tvb, packet_info *pinfo, unsigned o
     uint8_t *air_speed_im_bit;
     if (field->part != NULL) {
         for (i = 0, inner_offset = 0, go_on = 1; go_on && field->part[i] != NULL; i++) {
-            value = tvb_get_bits64 (tvb, offset * 8 + inner_offset, field->part[i]->bit_length, ENC_BIG_ENDIAN);
             if (field->part[i]->hf != NULL) {
                 offset_in_tvb = offset + inner_offset / 8;
                 length_in_tvb = (inner_offset % 8 + field->part[i]->bit_length + 7) / 8;
                 switch (field->part[i]->type) {
                     case FIELD_PART_FX:
+                        value = tvb_get_bits64 (tvb, offset * 8 + inner_offset, field->part[i]->bit_length, ENC_BIG_ENDIAN);
                         if (!value) go_on = 0;
                         /* Fall through */
                     case FIELD_PART_INT:
@@ -646,9 +646,11 @@ static void asterix_build_subtree (tvbuff_t *tvb, packet_info *pinfo, unsigned o
                         proto_tree_add_item (parent, *field->part[i]->hf, tvb, offset_in_tvb, length_in_tvb, ENC_BIG_ENDIAN);
                         break;
                     case FIELD_PART_FLOAT:
+                        value = tvb_get_bits64 (tvb, offset * 8 + inner_offset, field->part[i]->bit_length, ENC_BIG_ENDIAN);
                         twos_complement (&value, field->part[i]->bit_length);
                         /* Fall through */
                     case FIELD_PART_UFLOAT:
+                        value = tvb_get_bits64 (tvb, offset * 8 + inner_offset, field->part[i]->bit_length, ENC_BIG_ENDIAN);
                         scaling_factor = field->part[i]->scaling_factor;
                         if (field->part[i]->format_string != NULL)
                             proto_tree_add_double_format_value (parent, *field->part[i]->hf, tvb, offset_in_tvb, length_in_tvb, value * scaling_factor, field->part[i]->format_string, value * scaling_factor);
@@ -656,6 +658,7 @@ static void asterix_build_subtree (tvbuff_t *tvb, packet_info *pinfo, unsigned o
                             proto_tree_add_double (parent, *field->part[i]->hf, tvb, offset_in_tvb, length_in_tvb, value * scaling_factor);
                         break;
                     case FIELD_PART_CALLSIGN:
+                        value = tvb_get_bits64 (tvb, offset * 8 + inner_offset, field->part[i]->bit_length, ENC_BIG_ENDIAN);
                         str_buffer = wmem_strdup_printf(
                             pinfo->pool,
                             "%c%c%c%c%c%c%c%c",
@@ -678,6 +681,7 @@ static void asterix_build_subtree (tvbuff_t *tvb, packet_info *pinfo, unsigned o
                         proto_tree_add_item (parent, *field->part[i]->hf, tvb, offset_in_tvb, length_in_tvb, ENC_BIG_ENDIAN);
                         break;
                     case FIELD_PART_IAS_ASPD:
+                        value = tvb_get_bits64 (tvb, offset * 8 + inner_offset, field->part[i]->bit_length, ENC_BIG_ENDIAN);
                         /* special processing for I021/150 and I062/380#4 because Air Speed depends on IM subfield */
                         air_speed_im_bit = (uint8_t *)p_get_proto_data (pinfo->pool, pinfo, proto_asterix, 21150);
                         if (!air_speed_im_bit || *air_speed_im_bit == 0)
