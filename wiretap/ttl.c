@@ -2021,10 +2021,15 @@ ttl_check_segmented_message_recursion(const ttl_read_t* in, int* err, char** err
 
     if (in->validity != VALIDITY_BUF) {
         *err = WTAP_ERR_INTERNAL;
-        *err_info = ws_strdup("tt_fix_segmented_message_entry_payload: input buffer is not valid");
+        *err_info = ws_strdup("ttl_check_segmented_message_recursion: input buffer is not valid");
         return false;
     }
 
+    if (sizeof(ttl_entryheader_t) > in->size - in->cur_pos) {
+        *err = WTAP_ERR_INTERNAL;
+        *err_info = ws_strdup("ttl_check_segmented_message_recursion: input buffer too short");
+        return false;
+    }
     memcpy(&header, in->buf + in->cur_pos, sizeof(ttl_entryheader_t));
     fix_endianness_ttl_entryheader(&header);
 
@@ -2045,14 +2050,23 @@ ttl_fix_segmented_message_entry_timestamp(const ttl_read_t* in, uint64_t timesta
 
     if (in->validity != VALIDITY_BUF) {
         *err = WTAP_ERR_INTERNAL;
-        *err_info = ws_strdup("tt_fix_segmented_message_entry_payload: input buffer is not valid");
+        *err_info = ws_strdup("ttl_fix_segmented_message_entry_timestamp: input buffer is not valid");
         return false;
     }
 
+    if (sizeof(ttl_entryheader_t) > in->size - in->cur_pos) {
+        goto buf_too_small;
+    }
     memcpy(&header, in->buf + in->cur_pos, sizeof(ttl_entryheader_t));
     fix_endianness_ttl_entryheader(&header);
 
     if ((header.size_type >> 12) == TTL_BUS_DATA_ENTRY) {
+        if (sizeof(uint64_t) > in->size - (in->cur_pos + sizeof(ttl_entryheader_t))) {
+        buf_too_small:
+            *err = WTAP_ERR_INTERNAL;
+            *err_info = ws_strdup("ttl_fix_segmented_message_entry_timestamp: input buffer too short");
+            return false;
+        }
         timestamp = GUINT64_TO_LE(timestamp);
         memcpy(in->buf + in->cur_pos + sizeof(ttl_entryheader_t), &timestamp, sizeof(uint64_t));
     }
