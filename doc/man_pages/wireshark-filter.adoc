@@ -129,6 +129,131 @@ case-sensitive pattern match but other options can be specified as well. More
 information can be found in the
 pcre2pattern(3)|https://www.pcre.org/current/doc/html/pcre2pattern.html man page.
 
+=== The slice operator
+
+You can take a slice of a field if the field base type is a text string or a
+byte array (the base type of most network address fields is bytes).
+For example, you can filter on the vendor portion of an ethernet address
+(the first three bytes) like this:
+
+    eth.src[0:3] == 00:00:83
+
+Another example is:
+
+    http.content_type[0:4] == "text"
+
+You can use the slice operator on a protocol name, too.
+The "frame" protocol can be useful, encompassing all the data captured
+by *Wireshark* or *TShark*.
+
+    token[0:5] ne 0.0.0.1.1
+    llc[0] eq aa
+    frame[100-199] contains "wireshark"
+
+The following syntax governs slices:
+
+    [i:j]    i = start_offset, j = length
+    [i-j]    i = start_offset, j = end_offset, inclusive.
+    [i]      i = start_offset, length = 1
+    [:j]     start_offset = 0, length = j
+    [i:]     start_offset = i, end_offset = end_of_field
+
+Slice indexes are zero-based.
+Offsets can be negative, in which case they indicate the
+offset from the *end* of the field.  The last byte of the field is at offset
+-1, the last but one byte is at offset -2, and so on.
+Here's how to check the last four bytes of a frame:
+
+    frame[-4:4] == 0.1.2.3
+
+or
+
+    frame[-4:] == 0.1.2.3
+
+As mentioned above the slice operator can be used on string and byte fields
+and will respectively produce string or byte slices. String slices are
+indexed on UTF-8 codepoint boundaries (i.e: internationalized characters),
+so the following comparison is true:
+
+    "touché"[5] == "é"
+
+The example above generates an error because the compiler rejects constant
+expressions but is otherwise syntactically correct and exemplifies the
+behaviour of string slices.
+
+To obtain a byte slice of the same string the raw (@) operator can be used:
+
+    @"touché"[5-6] == c3:a9
+
+A slice can always be compared against either a string or a byte sequence.
+
+Slices can be combined. You can concatenate them using the comma operator:
+
+    ftp[1,3-5,9:] == 01:03:04:05:09:0a:0b
+
+This concatenates offset 1, offsets 3-5, and offset 9 to the end of the ftp
+data.
+
+=== The layer operator
+
+A field can be restricted to a certain layer in the protocol stack using the
+layer operator (#), followed by a decimal number:
+
+    ip.addr#2 == 192.168.30.40
+
+matches only the inner (second) layer in the packet.
+Layers use simple stacking semantics and protocol layers are counted sequentially starting from 1.
+For example, in a packet that contains two IPv4 headers, the outer (first) source address can be matched with "ip.src#1" and the inner (second) source address can be matched with "ip.src#2".
+
+For more complicated ranges the same syntax used with slices is valid:
+
+    tcp.port#[2-4]
+
+means layers number 2, 3 or 4 inclusive. The hash symbol is required to
+distinguish a layer range from a slice.
+
+=== The at operator
+
+By prefixing the field name with an at sign (@) the comparison is done against
+the raw packet data for the field.
+
+A character string must be decoded from a source encoding during dissection.
+If there are decoding errors the resulting string will usually contain
+replacement characters:
+
+[subs="replacements"]
+----
+browser.comment == "string is &#xFFFD;&#xFFFD;&#xFFFD;&#xFFFD;"
+----
+
+The at operator allows testing the raw undecoded data:
+
+    @browser.comment == 73:74:72:69:6e:67:20:69:73:20:aa:aa:aa:aa
+
+The syntactical rules for a bytes field type apply to the second example.
+
+=== The membership operator
+
+A field may be checked for matches against a set of values simply with the
+membership operator. For instance, you may find traffic on common HTTP/HTTPS
+ports with the following filter:
+
+    tcp.port in {80,443,8080}
+
+as opposed to the more verbose:
+
+    tcp.port == 80 or tcp.port == 443 or tcp.port == 8080
+
+To find HTTP requests using the HEAD or GET methods:
+
+    http.request.method in {"HEAD", "GET"}
+
+The set of values can also contain ranges:
+
+    tcp.port in {443, 4430..4434}
+    ip.addr in {10.0.0.5 .. 10.0.0.9, 192.168.1.1..192.168.1.9}
+    frame.time_delta in {10 .. 10.5}
+
 === Functions
 
 The filter language has the following functions:
@@ -395,131 +520,6 @@ designations (https://man.netbsd.org/strptime.3[see the specification for %z in 
 Note that arbitrary timezone names are not supported however.
 
 If the timezone is omitted then date and time values are interpreted as local time.
-
-=== The slice operator
-
-You can take a slice of a field if the field base type is a text string or a
-byte array (the base type of most network address fields is bytes).
-For example, you can filter on the vendor portion of an ethernet address
-(the first three bytes) like this:
-
-    eth.src[0:3] == 00:00:83
-
-Another example is:
-
-    http.content_type[0:4] == "text"
-
-You can use the slice operator on a protocol name, too.
-The "frame" protocol can be useful, encompassing all the data captured
-by *Wireshark* or *TShark*.
-
-    token[0:5] ne 0.0.0.1.1
-    llc[0] eq aa
-    frame[100-199] contains "wireshark"
-
-The following syntax governs slices:
-
-    [i:j]    i = start_offset, j = length
-    [i-j]    i = start_offset, j = end_offset, inclusive.
-    [i]      i = start_offset, length = 1
-    [:j]     start_offset = 0, length = j
-    [i:]     start_offset = i, end_offset = end_of_field
-
-Slice indexes are zero-based.
-Offsets can be negative, in which case they indicate the
-offset from the *end* of the field.  The last byte of the field is at offset
--1, the last but one byte is at offset -2, and so on.
-Here's how to check the last four bytes of a frame:
-
-    frame[-4:4] == 0.1.2.3
-
-or
-
-    frame[-4:] == 0.1.2.3
-
-As mentioned above the slice operator can be used on string and byte fields
-and will respectively produce string or byte slices. String slices are
-indexed on UTF-8 codepoint boundaries (i.e: internationalized characters),
-so the following comparison is true:
-
-    "touché"[5] == "é"
-
-The example above generates an error because the compiler rejects constant
-expressions but is otherwise syntactically correct and exemplifies the
-behaviour of string slices.
-
-To obtain a byte slice of the same string the raw (@) operator can be used:
-
-    @"touché"[5-6] == c3:a9
-
-A slice can always be compared against either a string or a byte sequence.
-
-Slices can be combined. You can concatenate them using the comma operator:
-
-    ftp[1,3-5,9:] == 01:03:04:05:09:0a:0b
-
-This concatenates offset 1, offsets 3-5, and offset 9 to the end of the ftp
-data.
-
-=== The layer operator
-
-A field can be restricted to a certain layer in the protocol stack using the
-layer operator (#), followed by a decimal number:
-
-    ip.addr#2 == 192.168.30.40
-
-matches only the inner (second) layer in the packet.
-Layers use simple stacking semantics and protocol layers are counted sequentially starting from 1.
-For example, in a packet that contains two IPv4 headers, the outer (first) source address can be matched with "ip.src#1" and the inner (second) source address can be matched with "ip.src#2".
-
-For more complicated ranges the same syntax used with slices is valid:
-
-    tcp.port#[2-4]
-
-means layers number 2, 3 or 4 inclusive. The hash symbol is required to
-distinguish a layer range from a slice.
-
-=== The at operator
-
-By prefixing the field name with an at sign (@) the comparison is done against
-the raw packet data for the field.
-
-A character string must be decoded from a source encoding during dissection.
-If there are decoding errors the resulting string will usually contain
-replacement characters:
-
-[subs="replacements"]
-----
-browser.comment == "string is &#xFFFD;&#xFFFD;&#xFFFD;&#xFFFD;"
-----
-
-The at operator allows testing the raw undecoded data:
-
-    @browser.comment == 73:74:72:69:6e:67:20:69:73:20:aa:aa:aa:aa
-
-The syntactical rules for a bytes field type apply to the second example.
-
-=== The membership operator
-
-A field may be checked for matches against a set of values simply with the
-membership operator. For instance, you may find traffic on common HTTP/HTTPS
-ports with the following filter:
-
-    tcp.port in {80,443,8080}
-
-as opposed to the more verbose:
-
-    tcp.port == 80 or tcp.port == 443 or tcp.port == 8080
-
-To find HTTP requests using the HEAD or GET methods:
-
-    http.request.method in {"HEAD", "GET"}
-
-The set of values can also contain ranges:
-
-    tcp.port in {443, 4430..4434}
-    ip.addr in {10.0.0.5 .. 10.0.0.9, 192.168.1.1..192.168.1.9}
-    frame.time_delta in {10 .. 10.5}
 
 === Implicit type conversions
 
