@@ -11488,9 +11488,8 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     offset = dissect_attribute_value(main_tree, NULL, pinfo, tvb, offset, tvb_captured_length_remaining(tvb, offset), request_data->parameters.read_multiple.handle[i_handle], uuid, &att_data);
                 }
             } else {
-                i_handle = 0;
                 /* Read Multiple Variable Response */
-                for (;;) {
+                for (i_handle = 0; i_handle < request_data->parameters.read_multiple.number_of_handles; i_handle += 1) {
                     int remain = tvb_reported_length_remaining(tvb, offset);
                     uint16_t length;
                     if (remain < 2)
@@ -11504,7 +11503,6 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     dissect_handle(main_tree, pinfo, hf_btatt_handle, tvb, offset, l2cap_data, &uuid, request_data->parameters.read_multiple.handle[i_handle], opcode, NULL);
                     dissect_attribute_value(main_tree, NULL, pinfo, tvb, offset, length, request_data->parameters.read_multiple.handle[i_handle], uuid, &att_data);
 
-                    i_handle++;
                     offset += length;
                 }
             }
