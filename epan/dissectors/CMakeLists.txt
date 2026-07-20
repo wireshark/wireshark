@@ -1374,6 +1374,9 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-null.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nvme.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nvme-mi.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-nvme-mi-admin.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-nvme-mi-control.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-nvme-mi-mi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nvme-rdma.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nvme-tcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nwmtp.c

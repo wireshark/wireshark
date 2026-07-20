@@ -11,7 +11,7 @@ nvme-mi-req-resp.pcapng  (7 frames)
   2. Admin command with More Processing Required (MPR) then final response (CSI=0)
   3. Concurrent MI command on the second slot (CSI=1), interleaved with the MPR sequence
 
-nvme-mi-types.pcapng  (56 frames)
+nvme-mi-types.pcapng  (72 frames)
   Comprehensive coverage across all NVMe-MI message types and edge cases:
   - Orphan response (response before any request on that slot; simulates capture
     started mid-conversation — the dissector must not crash or mislink)
@@ -20,8 +20,10 @@ nvme-mi-types.pcapng  (56 frames)
   - Admin request flags (DLEN, DOFF)
   - Admin response with CQE payload data
   - Multiple consecutive MPR responses (2 interim) before the final response
-  - Control primitive (type=0x0) — dissector detects type but has no payload decoder
-  - PCIe command (type=0x4) — same
+  - Control primitives (type=0x0) — Pause, Get State, Abort, Replay with
+    per-opcode CPSP/CPSR payloads
+  - PCIe command (type=0x4) — type detected; body falls back to the data
+    dissector until a PCIe body decoder exists
   - Two unanswered requests (no response before capture end): one on CSI=1, one on CSI=0
   - A second MCTP conversation (different BMC EID=0x09) to verify per-conversation
     slot isolation
@@ -33,9 +35,25 @@ nvme-mi-types.pcapng  (56 frames)
   - MI response with trailing data bytes (exercises nvme-mi.mi.data on the response path)
   - Admin request with DOFF-only flags (0x02) and a non-zero doff value
   - Admin response shorter than 16 bytes (CQE dword fields absent — exercises the < 16 branch)
-  - Non-success Admin status code (0x03 Internal Error)
-  - Non-success MI status code (0x06 Command Sequence Error)
+  - Non-success Admin status code (0x03 Invalid Command Opcode)
+  - Non-success MI status code (0x06 Invalid Command Input Data Size)
   - MI request with MEB bit set (exercises nvme-mi.meb)
+  - Control Primitive interleaved with an in-flight Admin command on the SAME
+    conversation and slot (CSI=0): per NVMe-MI 2.1 a Control Primitive may be
+    issued while a command is outstanding, so it must not displace the pending
+    command transaction (separate per-slot CP tracking in the dissector)
+  - Malformed-frame fixtures (the dissector must flag these with expert info,
+    show leftover bytes as raw data, and keep request/response tracking
+    intact — never throw mid-tree or corrupt the slot state):
+    * Truncated (2-byte) Control Primitive request followed by its complete
+      response: the response keeps its link but must not fabricate an opcode
+      or a spurious tag-mismatch warning
+    * Truncated (8-byte) Admin request followed by a complete response: the
+      opcode is still recorded and propagated to the response
+    * IC bit set on a frame too short to hold a MIC (trailing bytes kept as
+      payload, MIC verification skipped, expert added)
+    * 1-byte MI MPR interim response: the status byte alone must keep the
+      command slot open so the final response still links to the request
 
 Wire format layers (outer to inner):
   Linux SLL cooked capture header (16 bytes, DLT=113)
@@ -182,6 +200,25 @@ def mi_response_payload_with_data(status, data):
     return bytes([status, 0, 0, 0]) + data
 
 # ---------------------------------------------------------------------------
+# NVMe-MI Control Primitive payload (NVMe-MI 2.1 §4.2.1, Figures 37/39)
+# ---------------------------------------------------------------------------
+# Request layout :  CPO(1) + TAG(1) + CPSP(2)
+# Response layout:  STATUS(1) + TAG(1) + CPSR(2)
+# Both: 4 payload bytes.
+
+CP_OPC_PAUSE     = 0x00
+CP_OPC_RESUME    = 0x01
+CP_OPC_ABORT     = 0x02
+CP_OPC_GET_STATE = 0x03
+CP_OPC_REPLAY    = 0x04
+
+def cp_request_payload(opcode, tag=0, cpsp=0):
+    return struct.pack('<BBH', opcode, tag, cpsp)
+
+def cp_response_payload(status, tag=0, cpsr=0):
+    return struct.pack('<BBH', status, tag, cpsr)
+
+# ---------------------------------------------------------------------------
 # NVMe-MI Admin payload
 # ---------------------------------------------------------------------------
 
@@ -297,7 +334,7 @@ def build_pcapng(output_path):
         print(f"  {d}")
 
 # ---------------------------------------------------------------------------
-# Build the 56-frame comprehensive capture (nvme-mi-types.pcapng)
+# Build the comprehensive capture (nvme-mi-types.pcapng)
 # ---------------------------------------------------------------------------
 #
 # Conversation 1 (Host=0x0A <-> BMC=0x08):
@@ -332,11 +369,11 @@ def build_pcapng(output_path):
 #   F20: MI Resp CSI=0 status=0x01 (MPR, 2nd interim)        -> F18
 #   F21: MI Resp CSI=0 status=0x00 (final)                   -> F18
 #
-#  Control primitive (type=0x0) — type recognized, no payload decoder:
+#  Control primitive (type=0x0) — Pause exchange:
 #   F22: CTL Req  CSI=0
 #   F23: CTL Resp CSI=0                                       -> F22
 #
-#  PCIe command (type=0x4) — type recognized, no payload decoder:
+#  PCIe command (type=0x4) — type recognized, no payload decoder yet:
 #   F24: PCIe Req  CSI=0
 #   F25: PCIe Resp CSI=0                                      -> F24
 #
@@ -400,9 +437,13 @@ def _packets_comprehensive():
     p.append(make_packet(False, NVME_MI_TYPE_MI, 0, mi_response_payload(STATUS_MPR)))   # 2nd MPR
     p.append(make_packet(False, NVME_MI_TYPE_MI, 0, mi_response_payload(STATUS_SUCCESS)))  # final
 
-    # F22-F23: Control primitive (type=0x0) — no payload decoder in dissector
-    p.append(make_packet(True,  NVME_MI_TYPE_CONTROL, 0, b'\x00' * 4))
-    p.append(make_packet(False, NVME_MI_TYPE_CONTROL, 0, b'\x00' * 4))
+    # F22-F23: Control Primitive — Pause (opcode 0x00) on tag=0, CSI=0.
+    # Pause CPSP is reserved (zero); Pause CPSR's low two bits are obsolete
+    # "must be 1" for back-compat (NVMe-MI 2.1 §4.2.1.1) — encode 0x0003.
+    p.append(make_packet(True,  NVME_MI_TYPE_CONTROL, 0,
+                         cp_request_payload(CP_OPC_PAUSE, tag=0, cpsp=0x0000)))
+    p.append(make_packet(False, NVME_MI_TYPE_CONTROL, 0,
+                         cp_response_payload(STATUS_SUCCESS, tag=0, cpsr=0x0003)))
 
     # F24-F25: PCIe command (type=0x4) — no payload decoder in dissector
     p.append(make_packet(True,  NVME_MI_TYPE_PCIE, 0, b'\x00' * 8))
@@ -456,10 +497,15 @@ def _packets_comprehensive():
     p.append(make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
                          admin_request_payload(0x06, ctrl_id=0x0005, cns=0x01),
                          tag=0))
-    # F35: [tag=1] CTL  Req   CSI=0 — new conversation on a different MCTP tag
-    p.append(make_packet(True,  NVME_MI_TYPE_CONTROL, 0, b'\x00' * 4, tag=1))
-    # F36: [tag=1] CTL  Resp  CSI=0 -> F35 — tag=1 conversation completes
-    p.append(make_packet(False, NVME_MI_TYPE_CONTROL, 0, b'\x00' * 4, tag=1))
+    # F35: [tag=1] CTL  Req   CSI=0 — Get State (opcode 0x03) with CESF=1
+    #             (CPSP bit 0 — request clear of MES error-state bits)
+    p.append(make_packet(True,  NVME_MI_TYPE_CONTROL, 0,
+                         cp_request_payload(CP_OPC_GET_STATE, tag=1, cpsp=0x0001),
+                         tag=1))
+    # F36: [tag=1] CTL  Resp  CSI=0 -> F35 — MES sentinel: NSSRO=1 + SSTA=01b (Receive)
+    p.append(make_packet(False, NVME_MI_TYPE_CONTROL, 0,
+                         cp_response_payload(STATUS_SUCCESS, tag=1, cpsr=0x4001),
+                         tag=1))
     # F37: [tag=0] Admin MPR  CSI=0 -> F34 — slot still open despite tag=1 activity
     p.append(make_packet(False, NVME_MI_TYPE_ADMIN, 0,
                          admin_response_payload(STATUS_MPR), tag=0))
@@ -508,13 +554,13 @@ def _packets_comprehensive():
     p.append(make_packet(False, NVME_MI_TYPE_ADMIN, 0,
                          admin_response_payload_short(STATUS_SUCCESS)))
 
-    # F51-F52: Admin command with non-success, non-MPR status (0x03 = Internal Error)
+    # F51-F52: Admin command with non-success, non-MPR status (0x03 = Invalid Command Opcode)
     p.append(make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
                          admin_request_payload(0x09, ctrl_id=0x0001)))
     p.append(make_packet(False, NVME_MI_TYPE_ADMIN, 0,
                          admin_response_payload(0x03)))
 
-    # F53-F54: MI command with non-success, non-MPR status (0x06 = Command Sequence Error)
+    # F53-F54: MI command with non-success, non-MPR status (0x06 = Invalid Command Input Data Size)
     p.append(make_packet(True,  NVME_MI_TYPE_MI, 0, mi_request_payload(0x01)))
     p.append(make_packet(False, NVME_MI_TYPE_MI, 0, mi_response_payload(0x06)))
 
@@ -522,7 +568,82 @@ def _packets_comprehensive():
     p.append(make_packet(True,  NVME_MI_TYPE_MI, 0, mi_request_payload(0x00), meb=True))
     p.append(make_packet(False, NVME_MI_TYPE_MI, 0, mi_response_payload(STATUS_SUCCESS)))
 
-    assert len(p) == 56, f"Expected 56 frames, got {len(p)}"
+    # F57-F58: Control Primitive Abort (opcode 0x02) on tag=2.
+    # Response CPSR carries CPAS=10b (Aborted after partial processing).
+    p.append(make_packet(True,  NVME_MI_TYPE_CONTROL, 0,
+                         cp_request_payload(CP_OPC_ABORT, tag=2, cpsp=0x0000),
+                         tag=2))
+    p.append(make_packet(False, NVME_MI_TYPE_CONTROL, 0,
+                         cp_response_payload(STATUS_SUCCESS, tag=2, cpsr=0x0002),
+                         tag=2))
+
+    # F59-F60: Control Primitive Replay (opcode 0x04) on tag=3.
+    # Request CPSP carries RRO=5; response CPSR carries RR=1 (replaying).
+    p.append(make_packet(True,  NVME_MI_TYPE_CONTROL, 0,
+                         cp_request_payload(CP_OPC_REPLAY, tag=3, cpsp=0x0005),
+                         tag=3))
+    p.append(make_packet(False, NVME_MI_TYPE_CONTROL, 0,
+                         cp_response_payload(STATUS_SUCCESS, tag=3, cpsr=0x0001),
+                         tag=3))
+
+    # F61-F64: Control Primitive interleaved with an in-flight Admin command
+    # on the SAME conversation (MCTP tag=0) and SAME slot (CSI=0).  This is the
+    # normal use of Control Primitives (NVMe-MI 2.1 §4.2.1): they are processed
+    # out-of-band while a command occupies the slot.  The CP exchange must pair
+    # F62<->F63 without displacing the pending Admin transaction, which still
+    # pairs F61<->F64.  The Get State response reports SSTA=10b (Process) —
+    # exactly what an endpoint would say while crunching the Admin command.
+    p.append(make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                         admin_request_payload(0x02, ctrl_id=0x0009)))
+    p.append(make_packet(True,  NVME_MI_TYPE_CONTROL, 0,
+                         cp_request_payload(CP_OPC_GET_STATE, tag=5, cpsp=0x0000)))
+    p.append(make_packet(False, NVME_MI_TYPE_CONTROL, 0,
+                         cp_response_payload(STATUS_SUCCESS, tag=5, cpsr=0x0002)))
+    p.append(make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                         admin_response_payload(STATUS_SUCCESS, cqe1=0xFEED0009)))
+
+    # ------------------------------------------------------------------
+    # F65-F72: malformed-frame fixtures.  The dissector must flag each with
+    # expert info, render leftover bytes as raw data, and keep the slot
+    # tracking intact — it must never throw mid-tree.
+    # ------------------------------------------------------------------
+
+    # F65-F66: truncated (2-byte) Control Primitive request on MCTP tag=4,
+    # followed by a complete response.  The dissector cannot record opcode or
+    # CP tag from the truncated request, so the response must keep its
+    # request/response link but not fabricate a generated opcode or a
+    # spurious tag-mismatch warning.
+    p.append(make_packet(True,  NVME_MI_TYPE_CONTROL, 0,
+                         struct.pack('<BB', CP_OPC_GET_STATE, 9),
+                         tag=4))
+    p.append(make_packet(False, NVME_MI_TYPE_CONTROL, 0,
+                         cp_response_payload(STATUS_SUCCESS, tag=9, cpsr=0x4001),
+                         tag=4))
+
+    # F67-F68: truncated (8-byte) Admin request followed by a complete
+    # response.  The opcode (first payload byte) is still parseable and must
+    # be recorded and propagated to the response.
+    p.append(make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                         admin_request_payload(0x06, ctrl_id=0x000A, cns=0x01)[:8]))
+    p.append(make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                         admin_response_payload(STATUS_SUCCESS, cqe1=0x0BAD0001)))
+
+    # F69: IC bit set, but the frame is too short to contain a 4-byte MIC
+    # (only 2 payload bytes, no MIC appended).  The dissector must flag the
+    # bogus IC claim, keep the 2 bytes as payload, and skip MIC verification.
+    p.append(sll_header(HOST_EID, outgoing=True)
+             + mctp_header(True)
+             + nvme_mi_header(NVME_MI_TYPE_MI, 0, is_response=False, ic=True)
+             + bytes([0x01, 0x00]))
+
+    # F70-F72: 1-byte MI MPR interim response.  The status byte alone (per
+    # the spec the framing layer needs only payload byte 0) must keep the
+    # command slot open so the final response still links to the request.
+    p.append(make_packet(True,  NVME_MI_TYPE_MI, 1, mi_request_payload(0x02)))
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 1, bytes([STATUS_MPR])))
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 1, mi_response_payload(STATUS_SUCCESS)))
+
+    assert len(p) == 72, f"Expected 72 frames, got {len(p)}"
     return p
 
 packets_comprehensive = _packets_comprehensive()
@@ -564,8 +685,8 @@ def build_comprehensive_pcapng(output_path):
         "F19: MI  Resp  CSI=0  status=0x01 (MPR, 1st interim) -> F18",
         "F20: MI  Resp  CSI=0  status=0x01 (MPR, 2nd interim) -> F18",
         "F21: MI  Resp  CSI=0  status=0x00 (final) -> F18",
-        "F22: CTL Req   CSI=0  (Control primitive, type=0x0)",
-        "F23: CTL Resp  CSI=0  -> F22",
+        "F22: CTL Req   CSI=0  CP=Pause (0x00) tag=0",
+        "F23: CTL Resp  CSI=0  CPSR=0x0003 (Pause obsolete bits) -> F22",
         "F24: PCIe Req  CSI=0  (PCIe command, type=0x4)",
         "F25: PCIe Resp CSI=0  -> F24",
         "F26: ADM Req   CSI=1  opcode=0x06 (Identify) — UNANSWERED",
@@ -577,8 +698,8 @@ def build_comprehensive_pcapng(output_path):
         "F32: ADM Resp  CSI=0  status=0x00 -> F31 [Conv2 closes while Conv1 pending]",
         "F33: ADM Resp  CSI=0  status=0x00 -> F30 [Conv1 closes, isolation verified]",
         "F34: ADM Req   CSI=0  opcode=0x06 ctrl_id=0x0005 [tag=0, slot open]",
-        "F35: CTL Req   CSI=0  [tag=1, separate conversation]",
-        "F36: CTL Resp  CSI=0  -> F35 [tag=1 closes while tag=0 pending]",
+        "F35: CTL Req   CSI=0  CP=Get State (0x03) CESF=1 [tag=1, separate conversation]",
+        "F36: CTL Resp  CSI=0  MES=0x4001 (NSSRO=1, SSTA=Receive) -> F35 [tag=1 closes while tag=0 pending]",
         "F37: ADM MPR   CSI=0  -> F34 [tag=0 slot survived tag=1 activity]",
         "F38: ADM Resp  CSI=0  -> F34 [tag=0 final cqe1=0x12345678]",
         "F39: ADM Req   CSI=0  opcode=0x06 ctrl_id=0x0006 [tag=1 independent slot]",
@@ -594,11 +715,27 @@ def build_comprehensive_pcapng(output_path):
         "F49: ADM Req   CSI=0  opcode=0x02 ctrl_id=0x0008",
         "F50: ADM Resp  CSI=0  4-byte short (no CQE fields) -> F49",
         "F51: ADM Req   CSI=0  opcode=0x09 ctrl_id=0x0001",
-        "F52: ADM Resp  CSI=0  status=0x03 (Internal Error) -> F51",
+        "F52: ADM Resp  CSI=0  status=0x03 (Invalid Command Opcode) -> F51",
         "F53: MI  Req   CSI=0  opcode=0x01",
-        "F54: MI  Resp  CSI=0  status=0x06 (Command Sequence Error) -> F53",
+        "F54: MI  Resp  CSI=0  status=0x06 (Invalid Command Input Data Size) -> F53",
         "F55: MI  Req   CSI=0  opcode=0x00 MEB=1",
         "F56: MI  Resp  CSI=0  status=0x00 -> F55",
+        "F57: CTL Req   CSI=0  CP=Abort (0x02) [tag=2]",
+        "F58: CTL Resp  CSI=0  CPSR=0x0002 (CPAS=partial abort) -> F57 [tag=2]",
+        "F59: CTL Req   CSI=0  CP=Replay (0x04) CPSP RRO=5 [tag=3]",
+        "F60: CTL Resp  CSI=0  CPSR=0x0001 (RR=1) -> F59 [tag=3]",
+        "F61: ADM Req   CSI=0  opcode=0x02 (Get Log Page) ctrl_id=0x0009 [slot open]",
+        "F62: CTL Req   CSI=0  CP=Get State (0x03) [tag=0, same slot as F61 — out-of-band]",
+        "F63: CTL Resp  CSI=0  MES=0x0002 (SSTA=Process) -> F62 [Admin still pending]",
+        "F64: ADM Resp  CSI=0  status=0x00 cqe1=0xFEED0009 -> F61 [slot survived the CP]",
+        "F65: CTL Req   CSI=0  TRUNCATED (2 bytes) [tag=4 — opcode/tag not recordable]",
+        "F66: CTL Resp  CSI=0  status=0x00 tag=9 -> F65 [no fabricated opcode/tag check]",
+        "F67: ADM Req   CSI=0  TRUNCATED (8 bytes) opcode=0x06 [opcode still recorded]",
+        "F68: ADM Resp  CSI=0  status=0x00 cqe1=0x0BAD0001 -> F67",
+        "F69: MI  Req   CSI=0  IC=1 but NO ROOM FOR MIC (2 payload bytes) — UNANSWERED",
+        "F70: MI  Req   CSI=1  opcode=0x02",
+        "F71: MI  Resp  CSI=1  1-BYTE MPR interim -> F70 [slot must stay open]",
+        "F72: MI  Resp  CSI=1  status=0x00 (final) -> F70",
     ]
     for d in descs:
         print(f"  {d}")
@@ -607,15 +744,20 @@ def build_comprehensive_pcapng(output_path):
     print("  Requests with response_in: F2->3, F4->5, F6->7, F8->9, F10->11,")
     print("                             F12->13, F14->15, F16->17, F18->21,")
     print("                             F22->23, F24->25, F28->29, F30->33, F31->32,")
-    print("                             F34->38, F35->36, F39->40, F41->42")
-    print("  Requests without response_in: F26 (unanswered CSI=1), F27 (unanswered CSI=0)")
+    print("                             F34->38, F35->36, F39->40, F41->42,")
+    print("                             F57->58, F59->60, F61->64, F62->63,")
+    print("                             F65->66, F67->68, F70->72")
+    print("  Requests without response_in: F26 (unanswered CSI=1), F27 (unanswered CSI=0),")
+    print("                                F69 (unanswered, IC-truncated)")
     print("  Responses with response_to:  F3->2, F5->4, F7->6, F9->8, F11->10,")
     print("                               F13->12, F15->14, F17->16,")
     print("                               F19->18 (MPR), F20->18 (MPR), F21->18,")
     print("                               F23->22, F25->24, F29->28, F32->31, F33->30,")
-    print("                               F36->35, F37->34 (MPR), F38->34, F40->39, F42->41")
+    print("                               F36->35, F37->34 (MPR), F38->34, F40->39, F42->41,")
+    print("                               F58->57, F60->59, F63->62, F64->61,")
+    print("                               F66->65, F68->67, F71->70 (MPR), F72->70")
     print("  Orphan with no response_to: F1")
-    print("  MPR flag set on: F19, F20, F37")
+    print("  MPR flag set on: F19, F20, F37, F71")
 
 
 if __name__ == '__main__':
@@ -629,7 +771,8 @@ if __name__ == '__main__':
     build_pcapng(out1)
     print()
 
-    # nvme-mi-types.pcapng — 56-frame comprehensive coverage capture
+    # nvme-mi-types.pcapng — comprehensive coverage capture (frame count is
+    # asserted in _packets_comprehensive)
     out2 = sys.argv[2] if len(sys.argv) > 2 else os.path.join(
         captures_dir, 'nvme-mi-types.pcapng')
     build_comprehensive_pcapng(out2)

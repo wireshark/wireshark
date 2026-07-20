@@ -9,25 +9,37 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* NVMe is defined by the NVM Express Management Interface standard,
- * athttps://nvmexpress.org/developers/nvme-mi-specification/
+/* NVMe-MI is defined by the NVM Express Management Interface specification:
+ * https://nvmexpress.org/specification/nvme-mi-specification/
+ *
+ * This file handles the common NVMe-MI framing (4-byte header, MIC) and
+ * request/response transaction tracking.  Per-type body decoding is split
+ * into separate files that each register a dissector handle into the
+ * "nvme-mi.type" table keyed by the NMIMT field:
+ *
+ *   packet-nvme-mi-control.c  NMIMT=0  Control Primitive (§4.2.1)
+ *   packet-nvme-mi-mi.c       NMIMT=1  MI Command        (§5)
+ *   packet-nvme-mi-admin.c    NMIMT=2  Admin Command     (§6)
  */
 
 #include <config.h>
 
 #include <epan/conversation.h>
 #include <epan/crc32-tvb.h>
+#include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include "packet-mctp.h"
+#include "packet-nvme-mi.h"
 
 void proto_register_nvme_mi(void);
 void proto_reg_handoff_nvme_mi(void);
 
 static int proto_nvme_mi;
 
+/* Common NVMe-MI header fields */
 static int hf_nvme_mi_mctp_mt;
 static int hf_nvme_mi_mctp_ic;
 static int hf_nvme_mi_csi;
@@ -36,83 +48,51 @@ static int hf_nvme_mi_ror;
 static int hf_nvme_mi_meb;
 static int hf_nvme_mi_mic;
 
-static int hf_nvme_mi_mi_opcode;
-static int hf_nvme_mi_mi_cdw0;
-static int hf_nvme_mi_mi_cdw1;
-static int hf_nvme_mi_mi_status;
-static int hf_nvme_mi_mi_nmresp;
-static int hf_nvme_mi_mi_data;
-
-static int hf_nvme_mi_admin_opcode;
-static int hf_nvme_mi_admin_status;
-static int hf_nvme_mi_admin_flags;
-static int hf_nvme_mi_admin_flags_doff;
-static int hf_nvme_mi_admin_flags_dlen;
-static int hf_nvme_mi_admin_ctrl_id;
-static int hf_nvme_mi_admin_sqe1;
-static int hf_nvme_mi_admin_sqe2;
-static int hf_nvme_mi_admin_sqe3;
-static int hf_nvme_mi_admin_sqe4;
-static int hf_nvme_mi_admin_sqe5;
-static int hf_nvme_mi_admin_doff;
-static int hf_nvme_mi_admin_dlen;
-static int hf_nvme_mi_admin_resv0;
-static int hf_nvme_mi_admin_resv1;
-static int hf_nvme_mi_admin_sqe10;
-static int hf_nvme_mi_admin_sqe11;
-static int hf_nvme_mi_admin_sqe12;
-static int hf_nvme_mi_admin_sqe13;
-static int hf_nvme_mi_admin_sqe14;
-static int hf_nvme_mi_admin_sqe15;
-static int hf_nvme_mi_admin_data;
-static int hf_nvme_mi_admin_cqe1;
-static int hf_nvme_mi_admin_cqe2;
-static int hf_nvme_mi_admin_cqe3;
-
+/* Request/response cross-reference fields */
 static int hf_nvme_mi_response_in;
 static int hf_nvme_mi_response_to;
 static int hf_nvme_mi_response_time;
 static int hf_nvme_mi_response_is_mpr;
 
-
 static int ett_nvme_mi;
 static int ett_nvme_mi_hdr;
-static int ett_nvme_mi_mi;
-static int ett_nvme_mi_admin;
-static int ett_nvme_mi_admin_flags;
 
-enum nvme_mi_type {
-    NVME_MI_TYPE_CONTROL = 0x0,
-    NVME_MI_TYPE_MI = 0x1,
-    NVME_MI_TYPE_ADMIN = 0x2,
-    NVME_MI_TYPE_PCIE = 0x4,
-};
+static expert_field ei_nvme_mi_mic_truncated;
 
-#define NVME_MI_STATUS_MORE_PROCESSING_REQUIRED  0x01  /* NVMe-MI 2.1 Figure 29 */
+/*
+ * Response status indicating that processing is not yet complete; the
+ * endpoint will send a final response when it is done.
+ * NVMe-MI 2.1 Figure 29.
+ */
+#define NVME_MI_STATUS_MORE_PROCESSING_REQUIRED  0x01
 
-/* Shared across all frames of one transaction so the request frame sees
- * resp_frame written during the response's first dissection pass. */
-struct nvme_mi_transaction {
-    uint32_t            req_frame;
-    uint32_t            resp_frame;  /* 0 until a non-MPR response is seen */
-    nstime_t            req_time;
-    unsigned            opcode;
-};
+/* Dissector table keyed by the NMIMT field; sub-dissectors register here. */
+static dissector_table_t nvme_mi_type_dissector_table;
 
-/* Per-frame annotation; points into the shared transaction. */
-struct nvme_mi_frame_info {
-    struct nvme_mi_transaction *trans;
-    bool                        is_interim_mpr;
-};
-
-/* Per-slot mutable state; only written when !pinfo->fd->visited. */
-struct nvme_mi_command {
-    bool                        pending;
-    struct nvme_mi_transaction *current;
-};
-
-struct nvme_mi_conv_info {
-    struct nvme_mi_command command_slots[2];
+/* Response Message Status (NVMe-MI 2.1 Figure 29); shared with the per-type
+ * body dissectors via packet-nvme-mi.h. */
+const value_string nvme_mi_status_vals[] = {
+    { 0x00, "Success" },
+    { NVME_MI_STATUS_MORE_PROCESSING_REQUIRED, "More Processing Required" },
+    { 0x02, "Internal Error" },
+    { 0x03, "Invalid Command Opcode" },
+    { 0x04, "Invalid Parameter" },
+    { 0x05, "Invalid Command Size" },
+    { 0x06, "Invalid Command Input Data Size" },
+    { 0x07, "Access Denied" },
+    { 0x08, "Unable to Abort" },
+    { 0x20, "VPD Updates Exceeded" },
+    { 0x21, "PCIe Inaccessible" },
+    { 0x22, "Management Endpoint Buffer Cleared Due to Sanitize" },
+    { 0x23, "Enclosure Services Failure" },
+    { 0x24, "Enclosure Services Transfer Failure" },
+    { 0x25, "Enclosure Failure" },
+    { 0x26, "Enclosure Services Transfer Refused" },
+    { 0x27, "Unsupported Enclosure Function" },
+    { 0x28, "Enclosure Services Unavailable" },
+    { 0x29, "Enclosure Degraded" },
+    { 0x2a, "Sanitize In Progress" },
+    { 0, NULL },
 };
 
 static const value_string mi_mctp_type_vals[] = {
@@ -128,162 +108,28 @@ static const value_string mi_type_vals[] = {
     { 0, NULL },
 };
 
-static const value_string mi_opcode_vals[] = {
-    { 0x00, "Read NVMe-MI Data Structure" },
-    { 0x01, "NVM Subsystem Health Status Poll" },
-    { 0x02, "Controller Health Status Poll" },
-    { 0x03, "Configuration Set" },
-    { 0x04, "Configuration Get" },
-    { 0, NULL },
-};
-
-static const value_string admin_opcode_vals[] = {
-    { 0x00, "Delete I/O Submission Queue" },
-    { 0x01, "Create I/O Submission Queue" },
-    { 0x02, "Get Log Page" },
-    { 0x04, "Delete I/O Completion Queue" },
-    { 0x05, "Create I/O Completion Queue" },
-    { 0x06, "Identify" },
-    { 0x09, "Set Features" },
-    { 0x0a, "Get Features" },
-    { 0x0d, "Namespace Management" },
-    { 0x10, "Firmware Commit" },
-    { 0x11, "Firmware Image Download" },
-    { 0x80, "Format NVM" },
-    { 0x81, "Security Send" },
-    { 0x82, "Security Receive" },
-    { 0, NULL },
-};
-
 static const true_false_string tfs_meb = { "data in MEB", "data in message" };
 
-static int
-dissect_nvme_mi_mi(tvbuff_t *tvb, bool resp, struct nvme_mi_transaction *trans,
-                   proto_tree *tree)
-{
-    proto_item *it, *it2;
-    proto_tree *mi_tree;
+/* Per-slot in-flight transaction (NULL when the slot is idle); only written
+ * when !pinfo->fd->visited. */
+struct nvme_mi_conv_info {
+    struct nvme_mi_transaction *command_slots[2];
+    /*
+     * Control Primitives are processed out-of-band from the command slots:
+     * Pause/Abort/Get State/Replay exist precisely to be issued while a
+     * command message is outstanding in the targeted slot, so a Control
+     * Primitive request must not displace the in-flight command transaction.
+     * They get their own per-slot request/response pairing (the CSI bit in
+     * the message header selects which slot the primitive targets).
+     */
+    struct nvme_mi_transaction *cp_slots[2];
+};
 
-    it = proto_tree_add_item(tree, proto_nvme_mi, tvb, 0, -1, ENC_NA);
-    mi_tree = proto_item_add_subtree(it, ett_nvme_mi_mi);
-
-    if (!resp) {
-        proto_tree_add_item(mi_tree, hf_nvme_mi_mi_opcode,
-                            tvb, 0, 1, ENC_NA);
-
-        proto_tree_add_item(mi_tree, hf_nvme_mi_mi_cdw0,
-                            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(mi_tree, hf_nvme_mi_mi_cdw1,
-                            tvb, 8, 4, ENC_LITTLE_ENDIAN);
-
-        if (tvb_reported_length(tvb) > 12)
-            proto_tree_add_item(mi_tree, hf_nvme_mi_mi_data,
-                                tvb, 12, -1, ENC_NA);
-    } else {
-        it2 = proto_tree_add_uint(mi_tree, hf_nvme_mi_mi_opcode,
-                                  tvb, 0, 0, trans ? trans->opcode : 0);
-        proto_item_set_generated(it2);
-
-        proto_tree_add_item(mi_tree, hf_nvme_mi_mi_status,
-                            tvb, 0, 1, ENC_NA);
-        proto_tree_add_item(mi_tree, hf_nvme_mi_mi_nmresp,
-                            tvb, 1, 3, ENC_LITTLE_ENDIAN);
-
-        if (tvb_reported_length(tvb) > 4)
-            proto_tree_add_item(mi_tree, hf_nvme_mi_mi_data,
-                                tvb, 4, -1, ENC_NA);
-    }
-
-    return 0;
-}
-
-static int
-dissect_nvme_mi_admin(tvbuff_t *tvb, bool resp, struct nvme_mi_transaction *trans,
-                      proto_tree *tree)
-{
-    proto_tree *admin_tree;
-    proto_item *it, *it2;
-
-    it = proto_tree_add_item(tree, proto_nvme_mi, tvb, 0, -1, ENC_NA);
-    admin_tree = proto_item_add_subtree(it, ett_nvme_mi_admin);
-
-    proto_item_set_text(it, "NVMe Admin %s",
-                        resp ? "response" : "request");
-
-    if (resp) {
-        it2 = proto_tree_add_uint(admin_tree, hf_nvme_mi_admin_opcode,
-                                  tvb, 0, 0, trans ? trans->opcode : 0);
-        proto_item_set_generated(it2);
-
-        proto_tree_add_item(admin_tree, hf_nvme_mi_admin_status,
-                            tvb, 0, 1, ENC_NA);
-
-        if (tvb_reported_length(tvb) >= 16) {
-            proto_tree_add_item(admin_tree, hf_nvme_mi_admin_cqe1,
-                                tvb, 4, 4, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(admin_tree, hf_nvme_mi_admin_cqe2,
-                                tvb, 8, 4, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(admin_tree, hf_nvme_mi_admin_cqe3,
-                                tvb, 12, 4, ENC_LITTLE_ENDIAN);
-        }
-
-        if (tvb_reported_length(tvb) > 16)
-            proto_tree_add_item(admin_tree, hf_nvme_mi_admin_data,
-                                tvb, 16, -1, ENC_NA);
-    } else {
-        static int * const nvme_mi_admin_flags[] = {
-            &hf_nvme_mi_admin_flags_doff,
-            &hf_nvme_mi_admin_flags_dlen,
-            NULL,
-        };
-
-        proto_tree_add_item(admin_tree, hf_nvme_mi_admin_opcode,
-                            tvb, 0, 1, ENC_NA);
-
-        proto_tree_add_bitmask(admin_tree, tvb, 1, hf_nvme_mi_admin_flags,
-                               ett_nvme_mi_admin_flags, nvme_mi_admin_flags,
-                               ENC_NA);
-
-        proto_tree_add_item(admin_tree, hf_nvme_mi_admin_ctrl_id,
-                            tvb, 2, 2, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(admin_tree, hf_nvme_mi_admin_sqe1,
-                            tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(admin_tree, hf_nvme_mi_admin_sqe2,
-                            tvb, 8, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(admin_tree, hf_nvme_mi_admin_sqe3,
-                            tvb, 12, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(admin_tree, hf_nvme_mi_admin_sqe4,
-                            tvb, 16, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(admin_tree, hf_nvme_mi_admin_sqe5,
-                            tvb, 20, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(admin_tree, hf_nvme_mi_admin_doff,
-                            tvb, 24, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(admin_tree, hf_nvme_mi_admin_dlen,
-                            tvb, 28, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(admin_tree, hf_nvme_mi_admin_resv0,
-                            tvb, 32, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(admin_tree, hf_nvme_mi_admin_resv1,
-                            tvb, 36, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(admin_tree, hf_nvme_mi_admin_sqe10,
-                            tvb, 40, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(admin_tree, hf_nvme_mi_admin_sqe11,
-                            tvb, 44, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(admin_tree, hf_nvme_mi_admin_sqe12,
-                            tvb, 48, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(admin_tree, hf_nvme_mi_admin_sqe13,
-                            tvb, 52, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(admin_tree, hf_nvme_mi_admin_sqe14,
-                            tvb, 56, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(admin_tree, hf_nvme_mi_admin_sqe15,
-                            tvb, 60, 4, ENC_LITTLE_ENDIAN);
-
-        if (tvb_reported_length(tvb) > 64)
-            proto_tree_add_item(admin_tree, hf_nvme_mi_admin_data,
-                                tvb, 64, -1, ENC_NA);
-    }
-
-    return 0;
-}
+/* Per-frame annotation; points into the shared transaction. */
+struct nvme_mi_frame_info {
+    struct nvme_mi_transaction *trans;
+    bool                        is_interim_mpr;
+};
 
 static int
 dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -302,9 +148,7 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NVMe-MI");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    /* Check that the packet is long enough for it to belong to us. */
     len = tvb_reported_length(tvb);
-
     if (len < 4) {
         col_add_fstr(pinfo->cinfo, COL_INFO, "Bogus length %u, minimum %u",
                      len, 4);
@@ -320,98 +164,109 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     proto_tree_add_item(nvme_mi_hdr_tree, hf_nvme_mi_mctp_mt,
                         tvb, 0, 4, ENC_LITTLE_ENDIAN);
-
-    proto_tree_add_item_ret_boolean(nvme_mi_hdr_tree, hf_nvme_mi_mctp_ic,
-                                    tvb, 0, 4, ENC_LITTLE_ENDIAN, &mic_enabled);
-
+    proto_item *ic_it =
+        proto_tree_add_item_ret_boolean(nvme_mi_hdr_tree, hf_nvme_mi_mctp_ic,
+                                        tvb, 0, 4, ENC_LITTLE_ENDIAN,
+                                        &mic_enabled);
     proto_tree_add_item_ret_uint(nvme_mi_hdr_tree, hf_nvme_mi_csi,
                                  tvb, 0, 4, ENC_LITTLE_ENDIAN, &csi);
-
     proto_tree_add_item_ret_uint(nvme_mi_hdr_tree, hf_nvme_mi_type,
                                  tvb, 0, 4, ENC_LITTLE_ENDIAN, &type);
-
     proto_tree_add_item_ret_boolean(nvme_mi_hdr_tree, hf_nvme_mi_ror,
                                     tvb, 0, 4, ENC_LITTLE_ENDIAN, &resp);
-
     proto_tree_add_item(nvme_mi_hdr_tree, hf_nvme_mi_meb,
                         tvb, 0, 4, ENC_LITTLE_ENDIAN);
 
-    payload_len = tvb_reported_length(tvb) - 4;
+    payload_len = len - 4;
     if (mic_enabled) {
-        mic = ~crc32c_tvb_offset_calculate(tvb, 0, payload_len, 0xffffffff);
-        payload_len -= 4;
+        if (payload_len < 4) {
+            /*
+             * The IC bit claims a trailing 4-byte MIC, but the frame is too
+             * short to contain one.  Flag the inconsistency and keep the
+             * trailing bytes as payload (rather than underflowing
+             * payload_len, which would corrupt the sub-tvb's reported
+             * length); only MIC verification is skipped.
+             */
+            expert_add_info(pinfo, ic_it, &ei_nvme_mi_mic_truncated);
+            mic_enabled = false;
+        } else {
+            mic = ~crc32c_tvb_offset_calculate(tvb, 0, payload_len, 0xffffffff);
+            payload_len -= 4;
+        }
     }
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "NVMe-MI %s %s",
                  val_to_str_const(type, mi_type_vals, "command"),
                  tfs_get_string(resp, &tfs_response_request));
 
-    conv = find_or_create_conversation(pinfo);
-    mi_conv = conversation_get_proto_data(conv, proto_nvme_mi);
-    if (!mi_conv) {
-        mi_conv = wmem_new0(wmem_file_scope(), struct nvme_mi_conv_info);
-        conversation_add_proto_data(conv, proto_nvme_mi, mi_conv);
-    }
+    /*
+     * The Response Message Status byte sits at payload offset 0 for every
+     * command-message response type (NVMe-MI 2.1 Figure 29; Control
+     * Primitives have their own out-of-band lifecycle and no MPR concept).
+     * Peek it here in the framing layer so the slot lifecycle below never
+     * depends on a body dissector running to completion: a disabled body
+     * protocol or an exception thrown on a truncated payload must not leak
+     * a pending slot and mislink later responses.
+     */
+    bool is_mpr = false;
+    if (resp && type != NVME_MI_TYPE_CONTROL && payload_len >= 1 &&
+        tvb_bytes_exist(tvb, 4, 1))
+        is_mpr = tvb_get_uint8(tvb, 4) ==
+                 NVME_MI_STATUS_MORE_PROCESSING_REQUIRED;
 
-    struct nvme_mi_command *cmd = &mi_conv->command_slots[csi];
     struct nvme_mi_frame_info *fi = p_get_proto_data(wmem_file_scope(), pinfo,
                                                      proto_nvme_mi, 0);
 
+    /*
+     * Identify the transaction this frame belongs to and resolve the slot
+     * lifecycle.  An MPR response leaves the slot occupied so the next
+     * response links to the same transaction.
+     */
     if (!pinfo->fd->visited) {
+        conv = find_or_create_conversation(pinfo);
+        mi_conv = conversation_get_proto_data(conv, proto_nvme_mi);
+        if (!mi_conv) {
+            mi_conv = wmem_new0(wmem_file_scope(), struct nvme_mi_conv_info);
+            conversation_add_proto_data(conv, proto_nvme_mi, mi_conv);
+        }
+
+        struct nvme_mi_transaction **slot = (type == NVME_MI_TYPE_CONTROL)
+                                                ? &mi_conv->cp_slots[csi]
+                                                : &mi_conv->command_slots[csi];
+
         if (resp) {
-            if (cmd->pending && cmd->current) {
-                bool is_mpr = false;
-
-                /*
-                 * Detect More Processing Required: the status byte is the
-                 * first byte of the payload (tvb offset 4) for both MI and
-                 * Admin response types.  Control primitives (type 0x0) do
-                 * not carry a status byte at this position and are excluded.
-                 */
-                if ((type == NVME_MI_TYPE_MI || type == NVME_MI_TYPE_ADMIN)
-                        && payload_len >= 1) {
-                    uint8_t status = tvb_get_uint8(tvb, 4);
-                    is_mpr = (status == NVME_MI_STATUS_MORE_PROCESSING_REQUIRED);
-                }
-
+            if (*slot) {
                 fi = wmem_new0(wmem_file_scope(), struct nvme_mi_frame_info);
-                fi->trans = cmd->current;
+                fi->trans = *slot;
                 fi->is_interim_mpr = is_mpr;
                 p_add_proto_data(wmem_file_scope(), pinfo, proto_nvme_mi,
                                  0, fi);
-
                 if (!is_mpr) {
-                    cmd->current->resp_frame = pinfo->num;
-                    cmd->pending = false;
-                    cmd->current = NULL;
+                    fi->trans->resp_frame = pinfo->num;
+                    *slot = NULL;
                 }
-                /* MPR: leave slot open so the next response links to the same transaction. */
             }
         } else {
             struct nvme_mi_transaction *trans =
                 wmem_new0(wmem_file_scope(), struct nvme_mi_transaction);
             trans->req_frame = pinfo->num;
             trans->req_time  = pinfo->fd->abs_ts;
-            if ((type == NVME_MI_TYPE_MI || type == NVME_MI_TYPE_ADMIN) && payload_len >= 1)
-                trans->opcode = tvb_get_uint8(tvb, 4);
 
-            cmd->pending = true;
-            cmd->current = trans;
+            *slot = trans;
 
             fi = wmem_new0(wmem_file_scope(), struct nvme_mi_frame_info);
             fi->trans = trans;
-            fi->is_interim_mpr = false;
             p_add_proto_data(wmem_file_scope(), pinfo, proto_nvme_mi, 0, fi);
         }
     }
 
-    /* fi->trans is shared, so resp_frame written on the response pass is
-     * visible here when re-dissecting the request. */
+    /* Cross-references that do not depend on the body.  fi->trans is shared,
+     * so resp_frame written on the response pass is visible here when
+     * re-dissecting the request. */
     if (fi && fi->trans) {
         if (resp) {
             if (fi->trans->req_frame) {
                 nstime_t ns;
-
                 nstime_delta(&ns, &pinfo->fd->abs_ts, &fi->trans->req_time);
 
                 it2 = proto_tree_add_uint(nvme_mi_tree, hf_nvme_mi_response_to,
@@ -438,18 +293,20 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     sub_tvb = tvb_new_subset_length(tvb, 4, payload_len);
 
-    struct nvme_mi_transaction *trans = fi ? fi->trans : NULL;
-
-    switch (type) {
-    case NVME_MI_TYPE_MI:
-        dissect_nvme_mi_mi(sub_tvb, resp, trans, nvme_mi_tree);
-        break;
-    case NVME_MI_TYPE_ADMIN:
-        dissect_nvme_mi_admin(sub_tvb, resp, trans, nvme_mi_tree);
-        break;
-    default:
-        break;
-    }
+    struct nvme_mi_dissect_ctx ctx = {
+        .resp  = resp,
+        .trans = fi ? fi->trans : NULL,
+    };
+    /*
+     * A body dissector handed an empty payload legitimately returns 0, which
+     * is indistinguishable from "no dissector registered for this type" —
+     * only fall back to the data dissector when there are actual payload
+     * bytes left to show.
+     */
+    if (!dissector_try_uint_with_data(nvme_mi_type_dissector_table, type,
+                                      sub_tvb, pinfo, nvme_mi_tree, false,
+                                      &ctx) && payload_len > 0)
+        call_data_dissector(sub_tvb, pinfo, nvme_mi_tree);
 
     if (mic_enabled)
         proto_tree_add_checksum(nvme_mi_tree, tvb, payload_len + 4,
@@ -463,9 +320,8 @@ void
 proto_register_nvme_mi(void)
 {
     /* *INDENT-OFF* */
-    /* Field definitions */
     static hf_register_info hf[] = {
-        /* base MI header */
+        /* Common NVMe-MI header (4 bytes, NVMe-MI 2.1 Figure 12) */
         { &hf_nvme_mi_mctp_mt,
           { "MCTP message type", "nvme-mi.mctp-mt",
             FT_UINT32, BASE_HEX, VALS(mi_mctp_type_vals), 0x7f,
@@ -502,208 +358,62 @@ proto_register_nvme_mi(void)
             NULL, HFILL },
         },
 
-        /* meta */
+        /* Request/response cross-reference (generated fields) */
         { &hf_nvme_mi_response_in,
-            { "Response In", "nvme-mi.response_in",
-                FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
-                "The response to this NVMe-MI request is in this frame", HFILL }
+          { "Response In", "nvme-mi.response_in",
+            FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
+            "The response to this NVMe-MI request is in this frame", HFILL }
         },
         { &hf_nvme_mi_response_to,
-            { "Request In", "nvme-mi.response_to",
-                FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
-                "This is a response to the NVMe-MI request in this frame", HFILL }
+          { "Request In", "nvme-mi.response_to",
+            FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+            "This is a response to the NVMe-MI request in this frame", HFILL }
         },
         { &hf_nvme_mi_response_time,
-            { "Response Time", "nvme-mi.response_time",
-                FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
-                "The time between the request and the response", HFILL }
+          { "Response Time", "nvme-mi.response_time",
+            FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+            "The time between the request and the response", HFILL }
         },
         { &hf_nvme_mi_response_is_mpr,
-            { "More Processing Required", "nvme-mi.response_is_mpr",
-                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-                "This response has More Processing Required status; a further response will follow on this command slot", HFILL }
-        },
-
-        /* MI commands */
-        { &hf_nvme_mi_mi_opcode,
-          { "Opcode", "nvme-mi.mi.opcode",
-            FT_UINT8, BASE_HEX, VALS(mi_opcode_vals), 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_mi_cdw0,
-          { "Command dword 0", "nvme-mi.mi.cdw0",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_mi_cdw1,
-          { "Command dword 1", "nvme-mi.mi.cdw1",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_mi_status,
-          { "Status", "nvme-mi.mi.status",
-            FT_UINT8, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_mi_nmresp,
-          { "Management Response", "nvme-mi.mi.nmresp",
-            FT_UINT24, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_mi_data,
-          { "Data", "nvme-mi.mi.data",
-            FT_BYTES, SEP_SPACE, NULL, 0,
-            NULL, HFILL },
-        },
-
-        /* Admin commands */
-        { &hf_nvme_mi_admin_opcode,
-          { "Opcode", "nvme-mi.admin.opcode",
-            FT_UINT8, BASE_HEX, VALS(admin_opcode_vals), 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_status,
-          { "Status", "nvme-mi.admin.status",
-            FT_UINT8, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_flags,
-          { "Command Flags", "nvme-mi.admin.flags",
-            FT_UINT8, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_flags_dlen,
-          { "Use Data Length", "nvme-mi.admin.flags.dlen",
-            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x1,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_flags_doff,
-          { "Use Data Offset", "nvme-mi.admin.flags.doff",
-            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x2,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_ctrl_id,
-          { "Controller ID", "nvme-mi.admin.ctrl-id",
-            FT_UINT16, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_sqe1,
-          { "Submission Queue Entry dword 1", "nvme-mi.admin.sqe1",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_sqe2,
-          { "Submission Queue Entry dword 2", "nvme-mi.admin.sqe2",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_sqe3,
-          { "Submission Queue Entry dword 3", "nvme-mi.admin.sqe3",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_sqe4,
-          { "Submission Queue Entry dword 4", "nvme-mi.admin.sqe4",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_sqe5,
-          { "Submission Queue Entry dword 5", "nvme-mi.admin.sqe5",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_doff,
-          { "Data Offset", "nvme-mi.admin.doff",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_dlen,
-          { "Data Length", "nvme-mi.admin.dlen",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_resv0,
-          { "Reserved", "nvme-mi.admin.reserved",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_resv1,
-          { "Reserved", "nvme-mi.admin.reserved",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_sqe10,
-          { "Submission Queue Entry dword 10", "nvme-mi.admin.sqe10",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_sqe11,
-          { "Submission Queue Entry dword 11", "nvme-mi.admin.sqe11",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_sqe12,
-          { "Submission Queue Entry dword 12", "nvme-mi.admin.sqe12",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_sqe13,
-          { "Submission Queue Entry dword 13", "nvme-mi.admin.sqe13",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_sqe14,
-          { "Submission Queue Entry dword 14", "nvme-mi.admin.sqe14",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_sqe15,
-          { "Submission Queue Entry dword 15", "nvme-mi.admin.sqe15",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_cqe1,
-          { "Completion Queue Entry dword 1", "nvme-mi.admin.cqe1",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_cqe2,
-          { "Completion Queue Entry dword 2", "nvme-mi.admin.cqe2",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_cqe3,
-          { "Completion Queue Entry dword 3", "nvme-mi.admin.cqe3",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL },
-        },
-        { &hf_nvme_mi_admin_data,
-          { "Data", "nvme-mi.admin.data",
-            FT_BYTES, SEP_SPACE, NULL, 0,
-            NULL, HFILL },
+          { "More Processing Required", "nvme-mi.response_is_mpr",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "This is an interim response; the endpoint will send a final "
+            "response when processing is complete", HFILL }
         },
     };
+    /* *INDENT-ON* */
 
-    /* protocol subtree */
     static int *ett[] = {
         &ett_nvme_mi,
         &ett_nvme_mi_hdr,
-        &ett_nvme_mi_mi,
-        &ett_nvme_mi_admin,
-        &ett_nvme_mi_admin_flags,
     };
 
-    proto_nvme_mi = proto_register_protocol("NVMe-MI", "NVMe-MI", "nvme-mi");
+    static ei_register_info ei[] = {
+        { &ei_nvme_mi_mic_truncated,
+          { "nvme-mi.mic_truncated", PI_MALFORMED, PI_WARN,
+            "IC bit is set but the message is too short to contain a MIC; "
+            "trailing bytes treated as payload", EXPFILL },
+        },
+    };
 
+    expert_module_t *expert_nvme_mi;
+
+    proto_nvme_mi = proto_register_protocol("NVMe-MI", "NVMe-MI", "nvme-mi");
     proto_register_field_array(proto_nvme_mi, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_nvme_mi = expert_register_protocol(proto_nvme_mi);
+    expert_register_field_array(expert_nvme_mi, ei, array_length(ei));
+
+    nvme_mi_type_dissector_table = register_dissector_table("nvme-mi.type",
+            "NVMe-MI Message Type", proto_nvme_mi, FT_UINT8, BASE_HEX);
 }
 
 void
 proto_reg_handoff_nvme_mi(void)
 {
-    dissector_handle_t nvme_mi_handle;
-    nvme_mi_handle = create_dissector_handle(dissect_nvme_mi, proto_nvme_mi);
+    dissector_handle_t nvme_mi_handle =
+        create_dissector_handle(dissect_nvme_mi, proto_nvme_mi);
     dissector_add_uint("mctp.type", MCTP_TYPE_NVME, nvme_mi_handle);
 }
 
