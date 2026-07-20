@@ -138,9 +138,8 @@ static int hf_uet_ses_atomic_op_ext_hdr_sem_ctl;
 static int hf_uet_ses_atomic_op_ext_hdr_rsvd;
 static int hf_uet_ses_rendv_ext_hdr;
 static int hf_uet_ses_rendv_ext_hdr_eager_length;
-static int hf_uet_ses_rendv_ext_hdr_reserved;
+static int hf_uet_ses_rendv_ext_hdr_read_ri_generation;
 static int hf_uet_ses_rendv_ext_hdr_read_pid_on_fep;
-static int hf_uet_ses_rendv_ext_hdr_reserved2;
 static int hf_uet_ses_rendv_ext_hdr_read_resource_index;
 static int hf_uet_ses_rendv_ext_hdr_read_offset;
 static int hf_uet_ses_rendv_ext_hdr_read_match_bits;
@@ -835,12 +834,10 @@ dissect_ses_rendv_ext_hdr(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, i
 
     proto_tree_add_item(ext_tree, hf_uet_ses_rendv_ext_hdr_eager_length, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(ext_tree, hf_uet_ses_rendv_ext_hdr_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ext_tree, hf_uet_ses_rendv_ext_hdr_read_pid_on_fep, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-    proto_tree_add_item(ext_tree, hf_uet_ses_rendv_ext_hdr_reserved2, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ext_tree, hf_uet_ses_rendv_ext_hdr_read_resource_index, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
+    proto_tree_add_item(ext_tree, hf_uet_ses_rendv_ext_hdr_read_ri_generation, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_uet_ses_rendv_ext_hdr_read_pid_on_fep, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_uet_ses_rendv_ext_hdr_read_resource_index, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
     proto_tree_add_item(ext_tree, hf_uet_ses_rendv_ext_hdr_read_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
     proto_tree_add_item(ext_tree, hf_uet_ses_rendv_ext_hdr_read_match_bits, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -2397,24 +2394,19 @@ proto_register_uet(void)
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_uet_ses_rendv_ext_hdr_reserved,
-            { "Reserved", "uet.ses.rendv_ext_hdr.reserved",
-                FT_UINT16, BASE_HEX, NULL, 0xc000,
+        { &hf_uet_ses_rendv_ext_hdr_read_ri_generation,
+            { "Read RI Generation", "uet.ses.rendv_ext_hdr.read_ri_generation",
+                FT_UINT32, BASE_DEC, NULL, 0xff000000,
                 NULL, HFILL }
         },
         { &hf_uet_ses_rendv_ext_hdr_read_pid_on_fep,
             { "Read PIDonFEP", "uet.ses.rendv_ext_hdr.read_pid_on_fep",
-                FT_UINT16, BASE_DEC, NULL, 0x3fff,
-                NULL, HFILL }
-        },
-        { &hf_uet_ses_rendv_ext_hdr_reserved2,
-            { "Reserved", "uet.ses.rendv_ext_hdr.reserved2",
-                FT_UINT16, BASE_HEX, NULL, 0xf000,
+                FT_UINT32, BASE_DEC, NULL, 0x00fff000,
                 NULL, HFILL }
         },
         { &hf_uet_ses_rendv_ext_hdr_read_resource_index,
             { "Read Resource Index", "uet.ses.rendv_ext_hdr.read_resource_index",
-                FT_UINT16, BASE_DEC, NULL, 0x0fff,
+                FT_UINT32, BASE_DEC, NULL, 0x00000fff,
                 NULL, HFILL }
         },
         { &hf_uet_ses_rendv_ext_hdr_read_offset,
