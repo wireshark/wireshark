@@ -1947,7 +1947,12 @@ fragment_defragment_and_free (fragment_head *fd_head, const packet_info *pinfo)
 
 	for(fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
 		if(!last_fd || last_fd->offset!=fd_i->offset){
-			size+=fd_i->len;
+			if (ckd_add(&size, size, fd_i->len) || size > INT32_MAX) {
+				/* Change this maximum size when unsigned lengths
+				 * are fully supported (#20103). */
+				size = INT32_MAX;
+				break;
+			}
 		}
 		last_fd=fd_i;
 	}
@@ -1969,15 +1974,24 @@ fragment_defragment_and_free (fragment_head *fd_head, const packet_info *pinfo)
 	dfpos = 0;
 	for (fd_i=fd_head->next; fd_i; fd_i=fd_i->next) {
 		if (fd_i->len) {
-			if(!last_fd || last_fd->offset != fd_i->offset) {
+			if (dfpos >= size) {
+				fd_i->flags    |= FD_TOOLONGFRAGMENT; // FD_OVERFLOW?
+				fd_head->flags |= FD_TOOLONGFRAGMENT; // FD_OVERFLOW?
+			} else if (!last_fd || last_fd->offset != fd_i->offset) {
 				/* First fragment or in-sequence fragment */
-				if (!(fd_i->flags & FD_DEFRAGMENTED)) {
-					/* Already copied on the first pass */
-					memcpy(data+dfpos, tvb_get_ptr(fd_i->tvb_data, 0, fd_i->len), fd_i->len);
-				}
-				/* But we need the position for overlap calculation of new fragments */
+				/* We need the position for overlap calculation of new fragments */
+				uint32_t copy_len = fd_i->len;
 				old_dfpos = dfpos;
-				dfpos += fd_i->len;
+				if (ckd_add(&dfpos, dfpos, fd_i->len) || dfpos > size) {
+					copy_len = size - old_dfpos;
+					dfpos = size;
+					fd_i->flags    |= FD_TOOLONGFRAGMENT; // FD_OVERFLOW?
+					fd_head->flags |= FD_TOOLONGFRAGMENT; // FD_OVERFLOW?
+				}
+				if (!(fd_i->flags & FD_DEFRAGMENTED)) {
+					/* Copy if not already copied on the first pass */
+					memcpy(data + old_dfpos, tvb_get_ptr(fd_i->tvb_data, 0, fd_i->len), copy_len);
+				}
 			} else if (!(fd_i->flags & FD_DEFRAGMENTED)){
 				/* duplicate/retransmission/overlap */
 				/* Note that overlaps of old fragments were already calculated. */
