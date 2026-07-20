@@ -58,6 +58,12 @@
  */
 %option extra-type="dfsyntax_t *"
 
+/*
+ * Token matching is case-insensitive. yytext still has the original case.
+ * The escape sequences are the only patterns not case-insensitive.
+ */
+%option case-insensitive
+
 %{
 /*
  * Wireshark - Network traffic analyzer
@@ -325,7 +331,7 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 	}
 }
 
-<DQUOTE>\\x[[:xdigit:]]{1,2} {
+<DQUOTE>\\(?-i:x)[[:xdigit:]]{1,2} {
 	/* hex sequence */
 	/*
 	 * C standard does not place a limit on the number of hex
@@ -342,8 +348,8 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 	}
 }
 
-<DQUOTE>\\u[[:xdigit:]]{0,4} {
-	/* universal character name */
+<DQUOTE>\\(?-i:u)[[:xdigit:]]{0,4} {
+	/* universal character name, BMP */
 	update_string_loc(yyextra, yytext);
 	if (yyextra->raw_string) {
 		g_string_append(yyextra->quoted_string, yytext);
@@ -355,8 +361,8 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 	}
 }
 
-<DQUOTE>\\U[[:xdigit:]]{0,8} {
-	/* universal character name */
+<DQUOTE>\\(?-i:U)[[:xdigit:]]{0,8} {
+	/* universal character name, upper-case (8 digits) */
 	update_string_loc(yyextra, yytext);
 	if (yyextra->raw_string) {
 		g_string_append(yyextra->quoted_string, yytext);

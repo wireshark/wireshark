@@ -540,6 +540,15 @@ static const char * const reserved_filter_names[] = {
 static GHashTable *proto_reserved_filter_names;
 static GQueue* saved_dir_queue;
 
+static gboolean
+proto_strcase_equal(const void* name1, const void* name2)
+{
+	const char* s1 = (const char*)name1;
+	const char* s2 = (const char*)name2;
+
+	return g_ascii_strcasecmp(s1, s2) == 0 ? TRUE : FALSE;
+}
+
 static int
 proto_compare_name(const void *p1_arg, const void *p2_arg)
 {
@@ -593,7 +602,7 @@ void proto_pre_init(void)
 	proto_short_names = g_hash_table_new(wmem_str_hash, g_str_equal);
 	proto_filter_names = g_hash_table_new(wmem_str_hash, g_str_equal);
 
-	proto_reserved_filter_names = g_hash_table_new(wmem_str_hash, g_str_equal);
+	proto_reserved_filter_names = g_hash_table_new(wmem_str_hash, proto_strcase_equal);
 	for (const char* const * ptr = reserved_filter_names; *ptr != NULL; ptr++) {
 		/* GHashTable has no key destructor so the cast is safe. */
 		g_hash_table_add(proto_reserved_filter_names, *(char**)ptr);

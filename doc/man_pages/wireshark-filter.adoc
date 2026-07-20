@@ -53,6 +53,11 @@ display or *TShark* output.  For example, a protocol is semantically
 equivalent to the sequence of bytes that it spans, not its displayed text
 in the protocol tree.
 
+Many operators have English forms; the English forms are given in lower case
+in this documentation but are case-insensitive. In contrast, the names of fields,
+functions, and macros are case-sensitive, as are the first characters in
+escape sequences.
+
 === Comparison operators
 
 The comparison operators can be expressed either through English-like

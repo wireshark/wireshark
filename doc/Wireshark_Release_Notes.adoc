@@ -38,6 +38,7 @@ The following changes have been made since version 4.7.1:
   Follow Stream is implemented. wsbuglink:20610[].
   Export Objects is implemented.
   Request/response tracking is implemented.
+* Display filter operators' English forms like "and" and "or" are case-insensitive.
 
 The following changes have been made since version 4.7.0:
 

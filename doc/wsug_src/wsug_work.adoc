@@ -543,6 +543,8 @@ A complete list of available comparison operators is shown in <<DispCompOps>>.
 [TIP]
 ====
 English and C-like operators are interchangeable and can be mixed within a filter string.
+Beginning in Wireshark 5.0, the English forms of operators (but not field, function, or
+macro names, or the first characters in escape sequences) are case-insensitive.
 ====
 
 [#DispCompOps]
