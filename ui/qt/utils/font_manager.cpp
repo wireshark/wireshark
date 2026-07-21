@@ -261,18 +261,22 @@ QFont FontManager::fontFromName(const QString &name)
     // A QFont descriptor string (QFont::toString()) is comma-separated; a
     // bare family name is not.
     if (name.contains(QLatin1Char(','))) {
-        if (!f.fromString(name)) {
-            // Qt 5 couldn't parse a Qt 6-format string (or it was malformed).
-            // Fall back: strip the extra trailing fields to the 10/11 Qt 5
-            // expects, preserving a trailing style name if present.
-            const QStringList parts = name.split(QLatin1Char(','));
-            if (parts.size() >= 11) {
-                QStringList trimmed = parts.mid(0, 10);
-                if (!parts.last().isEmpty() && !parts.last().at(0).isDigit())
-                    trimmed << parts.last();
-                f.fromString(trimmed.join(QLatin1Char(',')));
-            }
+        QString trimmedName(name.trimmed());
+#if QT_VERSION < QT_VERSION_CHECK(6, 11, 0)
+        // Qt 6.11 added two extra attributes to the comma separated list.
+        // https://doc.qt.io/qt-6/qfont.html#toString
+        // https://doc.qt.io/qt-6.10/qfont.html#toString
+        // On earlier versions, strip any attributes after 17.
+        const auto parts = name.trimmed().split(QLatin1Char(','));
+        constexpr qsizetype maxAttributes = 17;
+        const qsizetype size = parts.size();
+
+        if (size > maxAttributes) {
+            // QList.first is Qt 6.0
+            trimmedName = parts.mid(0, maxAttributes).join(QLatin1Char(','));
         }
+#endif
+        f.fromString(trimmedName);
     } else if (!name.isEmpty()) {
         f.setFamily(name);
     }
