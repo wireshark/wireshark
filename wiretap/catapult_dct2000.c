@@ -1369,7 +1369,7 @@ process_parsed_line(wtap *wth, const dct2000_file_externals_t *file_externals,
     if (!is_comment) {
         /***********************************************************/
         /* Copy packet data into buffer, converting from ascii hex */
-        for (n=0; n < data_chars; n+=2) {
+        for (n=0; n < (data_chars & ~1); n+=2) {
             frame_buffer[stub_offset + n/2] =
                 hex_byte_from_chars(linebuff+dollar_offset+n);
         }
