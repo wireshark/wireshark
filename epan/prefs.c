@@ -2220,11 +2220,6 @@ unsigned pref_get_changed_flags(pref_t *pref, void *unstash_data_p)
         break;
 
     case PREF_DECODE_AS_RANGE:
-        if (!ranges_are_equal(*pref->varp.range, pref->stashed_val.range)) {
-            unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
-        }
-        break;
-
     case PREF_RANGE:
         if (!ranges_are_equal(*pref->varp.range, pref->stashed_val.range)) {
             unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
