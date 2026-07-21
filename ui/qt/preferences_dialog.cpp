@@ -407,6 +407,9 @@ void PreferencesDialog::apply()
     //       input when the dialog was opened.
     // XXX - We're also too enthusiastic about setting must_redissect.
     prefs_modules_for_all_modules(module_prefs_get_redissect_flags, (void *)&redissect_flags);
+#ifdef HAVE_LIBGNUTLS
+    redissect_flags |= pd_ui_->rsaKeysFrame->acceptChanges();
+#endif
     if (redissect_flags & PREF_EFFECT_DISSECTION) {
         // Freeze the packet list early to avoid updating column data before doing a
         // full redissection. The packet list will be thawed when redissection is done.
@@ -432,9 +435,6 @@ void PreferencesDialog::apply()
     pd_ui_->filterExpressonsFrame->acceptChanges();
     pd_ui_->aggregationFrame->acceptChanges();
     pd_ui_->expertFrame->acceptChanges();
-#ifdef HAVE_LIBGNUTLS
-    redissect_flags |= pd_ui_->rsaKeysFrame->acceptChanges();
-#endif
 
     //Filter expressions don't affect dissection, so there is no need to
     //send any events to that effect.  However, the app needs to know
