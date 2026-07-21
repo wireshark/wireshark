@@ -317,27 +317,22 @@ const QFont MainApplication::monospaceFont(bool zoomed) const
 void MainApplication::setMonospaceFont(const char *font_string) {
 
     if (font_string && strlen(font_string) > 0) {
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-        // Qt 6's QFont::toString returns a value with 16 or 17 fields, e.g.
-        // Consolas,11,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
-        // Corbel,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1,Regular
-        // Qt 5's QFont::fromString expects a value with 10 or 11 fields, e.g.
-        // Consolas,10,-1,5,50,0,0,0,0,0
-        // Corbel,10,-1,5,50,0,0,0,0,0,Regular
-        // It looks like Qt6's QFont::fromString can read both forms:
-        // https://github.com/qt/qtbase/blob/6.0/src/gui/text/qfont.cpp#L2146
-        // but Qt5's cannot:
-        // https://github.com/qt/qtbase/blob/5.15/src/gui/text/qfont.cpp#L2151
-        const char *fs_ptr = font_string;
-        int field_count = 1;
-        while ((fs_ptr = strchr(fs_ptr, ',')) != NULL) {
-            fs_ptr++;
-            field_count++;
-        }
-        if (field_count <= 11) {
-#endif
-            mono_font_.fromString(font_string);
+        QString trimmedName = QString::fromUtf8(font_string).trimmed();
+#if QT_VERSION < QT_VERSION_CHECK(6, 11, 0)
+        // Qt 6.11 added two extra attributes to the comma separated list.
+        // https://doc.qt.io/qt-6/qfont.html#toString
+        // https://doc.qt.io/qt-6.10/qfont.html#toString
+        // On earlier versions, strip any attributes after 17.
+        const auto parts = trimmedName.split(QLatin1Char(','));
+        constexpr qsizetype maxAttributes = 17;
+        const qsizetype size = parts.size();
 
+        if (size > maxAttributes) {
+            // QList.first is Qt 6.0
+            trimmedName = parts.mid(0, maxAttributes).join(QLatin1Char(','));
+        }
+#endif
+        if (mono_font_.fromString(trimmedName)) {
             // Only accept the font name if it actually exists.
             if (mono_font_.family() == QFontInfo(mono_font_).family()) {
                 return;
@@ -348,8 +343,27 @@ void MainApplication::setMonospaceFont(const char *font_string) {
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
         } else {
             ws_warning("Monospace font %s appears to be from Qt6 and we're running Qt5.", font_string);
+            // Qt 5 couldn't parse a Qt 6-format string (or it was malformed).
+            // Fall back: strip the extra trailing fields to the 10/11 Qt 5
+            // expects, preserving a trailing style name if present.
+            // (Qt 5.15 appears to expect the Qt 6 style, this is for even
+            // earlier.)
+            if (parts.size() >= 11) {
+                QStringList trimmed = parts.mid(0, 10);
+                if (!parts.last().isEmpty() && !parts.last().at(0).isDigit())
+                    trimmed << parts.last();
+                if (mono_font_.fromString(trimmed.join(QLatin1Char(',')))) {
+                    // Only accept the font name if it actually exists.
+                    if (mono_font_.family() == QFontInfo(mono_font_).family()) {
+                        return;
+                    } else {
+                        ws_warning("Monospace font family %s differs from its fontinfo: %s",
+                            qUtf8Printable(mono_font_.family()), qUtf8Printable(QFontInfo(mono_font_).family()));
+                    }
+                }
+            }
+#endif /* QT_VERSION < QT_VERSION_CHECK(6, 0, 0) */
         }
-#endif
     }
 
     // https://en.wikipedia.org/wiki/Category:Monospaced_typefaces
