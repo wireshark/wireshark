@@ -2882,16 +2882,16 @@ try_init_stream_with_fake_headers(tvbuff_t* tvb, packet_info* pinfo, http2_sessi
 }
 
 static void
-dissect_http2_add_assoc_imsi_to_tracked_3gpp_session(tvbuff_t *tvb, proto_tree *http2_tree, http2_stream_info_t *stream_info) {
+dissect_http2_add_assoc_imsi_to_tracked_3gpp_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http2_tree, http2_stream_info_t *stream_info) {
     /* Add Associate IMSI */
     if (http2_3gpp_session) {
         char *imsi = NULL;
         if(stream_info->imsi && (strcmp(stream_info->imsi, "") != 0)) {
-            add_assoc_imsi_item(tvb, http2_tree, stream_info->imsi);
+            add_assoc_imsi_item(tvb, pinfo, http2_tree, stream_info->imsi);
         } else if (stream_info->referenceid && (strcmp(stream_info->referenceid, "") != 0) && (imsi = http2_get_imsi_from_location(stream_info->referenceid))) {
-            add_assoc_imsi_item(tvb, http2_tree, imsi);
+            add_assoc_imsi_item(tvb, pinfo, http2_tree, imsi);
         } else if (stream_info->path && (strcmp(stream_info->path, "") != 0) && (imsi = http2_get_imsi_from_notifyuri(stream_info->path))) {
-            add_assoc_imsi_item(tvb, http2_tree, imsi);
+            add_assoc_imsi_item(tvb, pinfo, http2_tree, imsi);
         }
     }
 }
@@ -4289,7 +4289,7 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_
     }
 
     /* Add Associate IMSI */
-    dissect_http2_add_assoc_imsi_to_tracked_3gpp_session(tvb, http2_tree, stream_info);
+    dissect_http2_add_assoc_imsi_to_tracked_3gpp_session(tvb, pinfo, http2_tree, stream_info);
 #endif
 
     offset += headlen;
@@ -4665,7 +4665,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     http2_stream_info_t *stream_info = get_stream_info_for_id(pinfo, http2_session, false, streamid);
 
     /* Add Associate IMSI */
-    dissect_http2_add_assoc_imsi_to_tracked_3gpp_session(tvb, http2_tree, stream_info);
+    dissect_http2_add_assoc_imsi_to_tracked_3gpp_session(tvb, pinfo, http2_tree, stream_info);
 #endif
 
     tap_queue_packet(http2_tap, pinfo, http2_stats);

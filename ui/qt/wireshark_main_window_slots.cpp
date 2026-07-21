@@ -173,6 +173,7 @@ DIAG_ON(frame-larger-than=)
 #include "time_shift_dialog.h"
 #include "uat_dialog.h"
 #include "voip_calls_dialog.h"
+#include "imsi_list_dialog.h"
 #include "wlan_statistics_dialog.h"
 #include <ui/qt/widgets/wireless_timeline.h>
 #include <ui/qt/utils/workspace_state.h>
@@ -3875,6 +3876,16 @@ void WiresharkMainWindow::connectTelephonyMenuActions()
     connect(main_ui_->actionTelephonySipFlows, &QAction::triggered, this, [=]() {
         VoipCallsDialog *dialog = VoipCallsDialog::openVoipCallsDialogSip(*this, capture_file_, packet_list_);
         dialog->show();
+    });
+
+    connect(action_telephony_imsi_list_, &QAction::triggered, this, [=]() {
+        ImsiListDialog *imsi_dialog = new ImsiListDialog(*this, capture_file_);
+        connect(imsi_dialog, &ImsiListDialog::updateFilter, this, &WiresharkMainWindow::filterPackets);
+        connect(imsi_dialog, &ImsiListDialog::goToPacket, this, [this](int packet) {
+            if (packet_list_) packet_list_->goToPacket(packet);
+        });
+        imsi_dialog->setAttribute(Qt::WA_DeleteOnClose);
+        imsi_dialog->show();
     });
 }
 

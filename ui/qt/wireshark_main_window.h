@@ -270,6 +270,7 @@ private:
     QActionGroup              *time_precision_actions_;/**< Action group for timestamp precision actions. */
     FunnelStatistics          *funnel_statistics_;     /**< Lua funnel statistics manager. */
     QAction                   *action_telephony_dis_streams_; /**< Telephony → DIS Streams menu action. */
+    QAction                   *action_telephony_imsi_list_; /**< Telephony → IMSI List menu action. */
     QList<QPair<QAction *, bool>> freeze_actions_;     /**< Actions whose enabled state is saved and restored around freeze/thaw. */
     QPointer<QWidget>          freeze_focus_;          /**< Widget to restore focus to after thawing. */
     QMap<QAction *, ts_type>   td_actions;             /**< Map from timestamp-display menu actions to ts_type values. */

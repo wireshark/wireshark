@@ -1382,7 +1382,7 @@ dissect_3gpp_supi(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offse
 	if (g_match_info_matches(match_info)) {
 		matched_imsi = g_match_info_fetch(match_info, 1); //will be empty string if imsi is not in supi
 		if (matched_imsi && (strcmp(matched_imsi, "") != 0)) {
-			add_assoc_imsi_item(supi_tvb, tree, matched_imsi);
+			add_assoc_imsi_item(supi_tvb, pinfo, tree, matched_imsi);
 			/* Add Associate IMSI to HTTP2 stream */
 			if (proto_is_frame_protocol(pinfo->layers, "http2")) {
 				http2_set_stream_imsi(pinfo, matched_imsi);

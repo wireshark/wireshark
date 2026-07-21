@@ -460,7 +460,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 proto_tree_add_item_ret_string(tag_tree, hf_exported_pdu_3gpp_ue_id_type, tvb, offset, type_sz, ENC_UTF_8 | ENC_NA, pinfo->pool, &id_type);
                 proto_tree_add_item_ret_string(tag_tree, hf_exported_pdu_3gpp_ue_id_value, tvb, offset + type_sz, tag_len - type_sz, ENC_UTF_8 | ENC_NA, pinfo->pool, &id_value);
                 if (strcmp((const char*)id_type, "IMSI") == 0)
-                    add_assoc_imsi_item(tvb, tag_tree, (const char*)id_value);
+                    add_assoc_imsi_item(tvb, pinfo, tag_tree, (const char*)id_value);
                 break;
             }
             case EXP_PDU_TAG_END_OF_OPT:

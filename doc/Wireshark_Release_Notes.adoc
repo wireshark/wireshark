@@ -93,6 +93,15 @@ See the “New and Updated Features” section below for more details.
 
 The following features are either new or have been significantly updated since version 4.6.0:
 
+* New IMSI List dialog (menu:Telephony[IMSI List]) scans all packets in a capture and lists
+  every unique IMSI with packet count, first/last frame, and protocols.
+  Double-click an IMSI to apply a display filter for that subscriber.
+  Multi-select and "Prepare Filter" combines multiple IMSIs.
+
+* New `tshark -z imsi` statistics lists all unique IMSIs found in a capture
+  with packet counts, first/last frame numbers, and protocols.
+  A new "imsi" tap is registered by the E.212 dissector.
+
 * The Windows installers now ship with Npcap 1.88.
   They previously shipped with Npcap 1.83.
 

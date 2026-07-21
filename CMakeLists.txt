@@ -2270,6 +2270,7 @@ set(TSHARK_TAP_SRC
 	${CMAKE_SOURCE_DIR}/ui/cli/tap-httpstat.c
 	${CMAKE_SOURCE_DIR}/ui/cli/tap-icmpstat.c
 	${CMAKE_SOURCE_DIR}/ui/cli/tap-icmpv6stat.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-imsi.c
 	${CMAKE_SOURCE_DIR}/ui/cli/tap-iostat.c
 	${CMAKE_SOURCE_DIR}/ui/cli/tap-iousers.c
 	${CMAKE_SOURCE_DIR}/ui/cli/tap-macltestat.c

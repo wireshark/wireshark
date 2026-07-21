@@ -178,7 +178,7 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 if (g_match_info_matches(match_info_imsi)) {
                     matched_imsi = g_match_info_fetch(match_info_imsi, 1); //will be empty string if imsi is not in supi
                     if (matched_imsi && (strcmp(matched_imsi, "") != 0)) {
-                        add_assoc_imsi_item(tvb, attr_tree, matched_imsi);
+                        add_assoc_imsi_item(tvb, pinfo, attr_tree, matched_imsi);
                     }
                     g_free(matched_imsi);
                 }

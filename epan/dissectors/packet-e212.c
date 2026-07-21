@@ -17,6 +17,7 @@
 #include <epan/packet.h>
 
 #include <wsutil/array.h>
+#include <epan/tap.h>
 
 #include "packet-e212.h"
 #include "expert.h"
@@ -3937,6 +3938,7 @@ static const value_string mcc_mnc_3digits_codes[] = {
 value_string_ext mcc_mnc_3digits_codes_ext = VALUE_STRING_EXT_INIT(mcc_mnc_3digits_codes);
 
 static int proto_e212;
+static int imsi_tap;
 static int hf_E212_imsi;
 static int hf_e212_assoc_imsi;
 static int hf_E212_mcc;
@@ -4449,11 +4451,47 @@ is_imsi_string_valid(const char *imsi_str)
     return true;
 }
 
+/* Strict check: valid length AND all digits 0-9. Used to guard the tap. */
+static bool
+is_imsi(const char *imsi_str)
+{
+    size_t len;
+
+    if (imsi_str == NULL)
+        return false;
+    len = strlen(imsi_str);
+    if (len < 5 || len > 15)
+        return false;
+    for (size_t i = 0; i < len; i++) {
+        if (imsi_str[i] < '0' || imsi_str[i] > '9')
+            return false;
+    }
+    return true;
+}
+
+/* Fire the "imsi" tap if imsi_str is a valid numeric IMSI */
+static void
+queue_imsi_tap(packet_info *pinfo, const char *imsi_str)
+{
+    if (is_imsi(imsi_str)) {
+        tap_imsi_info_t *tap_info = wmem_new0(pinfo->pool, tap_imsi_info_t);
+        tap_info->frame_number = pinfo->num;
+        tap_info->imsi = wmem_strdup(pinfo->pool, imsi_str);
+        copy_address_shallow(&tap_info->src_addr, &pinfo->src);
+        copy_address_shallow(&tap_info->dst_addr, &pinfo->dst);
+        tap_info->protocol = pinfo->current_proto;
+        tap_queue_packet(imsi_tap, pinfo, tap_info);
+    }
+}
+
 void
-add_assoc_imsi_item(tvbuff_t *tvb _U_, proto_tree *tree, const char* imsi_str) {
+add_assoc_imsi_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const char* imsi_str) {
     proto_item *item;
+
     item = proto_tree_add_string(tree, hf_e212_assoc_imsi, tvb, 0, 0, imsi_str);
     proto_item_set_generated(item);
+
+    queue_imsi_tap(pinfo, imsi_str);
 }
 
 
@@ -4494,6 +4532,8 @@ dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
     proto_item_set_generated(item);
     subtree = proto_item_add_subtree(item, ett_e212_imsi);
 
+    queue_imsi_tap(pinfo, imsi_str);
+
     if(skip_first) {
         dissect_e212_mcc_mnc_high_nibble(tvb, pinfo, subtree, offset);
     } else {
@@ -4518,6 +4558,8 @@ dissect_e212_utf8_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     }
     item = proto_tree_add_string(tree, hf_e212_assoc_imsi, tvb, offset, length, imsi_str);
     proto_item_set_generated(item);
+
+    queue_imsi_tap(pinfo, imsi_str);
 
     subtree = proto_item_add_subtree(item, ett_e212_imsi);
 
@@ -4706,6 +4748,7 @@ proto_register_e212(void)
     expert_e212 = expert_register_protocol(proto_e212);
     expert_register_field_array(expert_e212, ei, array_length(ei));
 
+    imsi_tap = register_tap("imsi");
 }
 
 /*

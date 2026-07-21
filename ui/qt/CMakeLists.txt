@@ -236,6 +236,7 @@ set(WIRESHARK_QT_HEADERS
 	graph.h
 	gsm_map_summary_dialog.h
 	iax2_analysis_dialog.h
+	imsi_list_dialog.h
 	import_text_dialog.h
 	interface_frame.h
 	interface_toolbar_reader.h
@@ -568,6 +569,7 @@ set(WIRESHARK_QT_SRC
 	geometry_state_dialog.cpp
 	glib_mainloop_on_qeventloop.cpp
 	iax2_analysis_dialog.cpp
+	imsi_list_dialog.cpp
 	import_text_dialog.cpp
 	in_packet_find_bar.cpp
 	in_packet_search.cpp
@@ -740,6 +742,7 @@ set(WIRESHARK_QT_UI
 	funnel_text_dialog.ui
 	gsm_map_summary_dialog.ui
 	iax2_analysis_dialog.ui
+	imsi_list_dialog.ui
 	import_text_dialog.ui
 	interface_frame.ui
 	interface_toolbar.ui

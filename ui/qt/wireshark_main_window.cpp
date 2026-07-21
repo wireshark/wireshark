@@ -351,6 +351,7 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     time_precision_actions_(NULL),
     funnel_statistics_(NULL),
     action_telephony_dis_streams_(NULL),
+    action_telephony_imsi_list_(NULL),
     freeze_focus_(NULL),
     was_maximized_(false),
     capture_stopping_(false),
@@ -385,6 +386,10 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     action_telephony_dis_streams_ = new QAction(tr("DIS Streams"), this);
     action_telephony_dis_streams_->setObjectName(QStringLiteral("actionTelephonyDisStreams"));
     action_telephony_dis_streams_->setToolTip(tr("Show and analyze DIS radio streams"));
+
+    action_telephony_imsi_list_ = new QAction(tr("IMSI List"), this);
+    action_telephony_imsi_list_->setObjectName(QStringLiteral("actionTelephonyImsiList"));
+    action_telephony_imsi_list_->setToolTip(tr("Show all IMSIs in the capture"));
 
 #ifdef HAVE_LUA
     QAction *luaDebuggerAction = new QAction(tr("Lua Debugger"), this);
@@ -2830,6 +2835,7 @@ void WiresharkMainWindow::addDynamicMenus()
     mainApp->addDynamicMenuGroupItem(REGISTER_TELEPHONY_GROUP_MTP3, main_ui_->actionTelephonyMtp3Summary);
     mainApp->addDynamicMenuGroupItem(REGISTER_TELEPHONY_GROUP_UNSORTED, main_ui_->actionTelephonySipFlows);
     mainApp->addDynamicMenuGroupItem(REGISTER_TELEPHONY_GROUP_UNSORTED, action_telephony_dis_streams_);
+    mainApp->addDynamicMenuGroupItem(REGISTER_TELEPHONY_GROUP_UNSORTED, action_telephony_imsi_list_);
 
     // Fill in each menu
     foreach(register_stat_group_t menu_group, menu_groups_) {

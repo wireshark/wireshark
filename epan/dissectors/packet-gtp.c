@@ -10162,12 +10162,12 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
 
             imsi = wmem_map_lookup(session_imsi, GUINT_TO_POINTER(session));
             if (imsi) {
-                add_assoc_imsi_item(tvb, tree, imsi);
+                add_assoc_imsi_item(tvb, pinfo, tree, imsi);
             }
         } else {
             imsi = gtp_get_imsi_from_teid((uint32_t)gtp_hdr->teid);
             if (imsi) {
-                add_assoc_imsi_item(tvb, tree, imsi);
+                add_assoc_imsi_item(tvb, pinfo, tree, imsi);
             }
         }
     }

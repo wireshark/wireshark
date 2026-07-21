@@ -9456,7 +9456,7 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
 
             imsi = wmem_map_lookup(session_imsi, GUINT_TO_POINTER(session));
             if (imsi) {
-                add_assoc_imsi_item(tvb, tree, imsi);
+                add_assoc_imsi_item(tvb, pinfo, tree, imsi);
             }
         }
     }
