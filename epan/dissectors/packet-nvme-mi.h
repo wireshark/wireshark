@@ -29,6 +29,13 @@ enum nvme_mi_msg_type {
  */
 extern const value_string nvme_mi_status_vals[];
 
+/*
+ * NVMe-MI Message Type (NMIMT) names (NVMe-MI 2.1 Figure 12).  Defined in
+ * packet-nvme-mi.c and shared so the command-list entry decode (which carries
+ * an NMIMT in each entry) renders the same names as the message header.
+ */
+extern const value_string mi_type_vals[];
+
 /* Status values the body dissectors branch on (subset of status values). */
 #define NVME_MI_STATUS_SUCCESS                   0x00
 #define NVME_MI_STATUS_MORE_PROCESSING_REQUIRED  0x01
@@ -43,6 +50,16 @@ extern const value_string nvme_mi_status_vals[];
  * packet-nvme-mi.c.
  */
 void nvme_mi_dissect_invalid_param_resp(tvbuff_t *tvb, proto_tree *tree);
+
+/*
+ * Flag a truncated/short payload via the given expert field and render any
+ * bytes remaining from `off` raw under `hf_data`.  Shared by the body
+ * dissectors so the "expert + leftover bytes" rendering is defined once.
+ * Defined in packet-nvme-mi.c.
+ */
+void nvme_mi_dissect_truncated(tvbuff_t *tvb, packet_info *pinfo,
+                               proto_tree *tree, proto_item *it,
+                               expert_field *ei, int hf_data, int off);
 
 /*
  * Per-transaction state shared across the request frame and every response
@@ -67,6 +84,14 @@ struct nvme_mi_transaction {
      * not observed) rather than interpreting them.
      */
     bool      req_parsed;
+    /*
+     * NMIMT of the request that owns 'opcode' and 'body_ctx'.  ADMIN and MI
+     * requests share the same per-CSI command slot, so a response of one type
+     * can land on a slot opened by a request of the other type; the response
+     * side must check this matches its own NMIMT before trusting opcode or
+     * casting body_ctx.  Set by the framing layer when the request is seen.
+     */
+    uint8_t   nmimt;
     unsigned  opcode;
     /*
      * Opaque per-opcode request context, owned entirely by the body
@@ -98,6 +123,23 @@ struct nvme_mi_dissect_ctx {
     bool                        resp;
     struct nvme_mi_transaction *trans;
 };
+
+/*
+ * Response opcode recovery, shared by the command-message body dissectors.  A
+ * response carries no opcode of its own, so it must be recovered from the
+ * matching request.  When 'trans' is a parsed request of NMIMT 'nmimt', adds a
+ * generated 'hf_opcode' item carrying the recovered opcode (returned via
+ * '*opcode'), and returns that proto_item so the caller can append a name.
+ * Otherwise (no request, truncated request, or a request of a different
+ * NMIMT that happens to share the slot) fires 'ei_orphan' against 'it' and
+ * returns NULL with '*opcode' set to 0.  Defined in packet-nvme-mi.c.
+ */
+proto_item *nvme_mi_recover_resp_opcode(tvbuff_t *tvb, packet_info *pinfo,
+                                        proto_tree *tree, proto_item *it,
+                                        const struct nvme_mi_transaction *trans,
+                                        uint8_t nmimt, int hf_opcode,
+                                        expert_field *ei_orphan,
+                                        unsigned *opcode);
 
 #endif /* __PACKET_NVME_MI_H__ */
 

@@ -181,23 +181,24 @@ dissect_nvme_mi_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * Without a usable matching request (missing, or too truncated to
          * record opcode and tag) we cannot know which CPSR layout applies, so
          * render the raw value rather than guessing the primitive. */
-        if (trans && trans->req_parsed) {
-            opcode = (uint8_t)trans->opcode;
-            it2 = proto_tree_add_uint(ctl_tree, hf_nvme_mi_ctl_opcode,
-                                      tvb, 0, 0, opcode);
-            proto_item_set_generated(it2);
+        unsigned rec_opcode;
+        it2 = nvme_mi_recover_resp_opcode(tvb, pinfo, ctl_tree, it, trans,
+                                          NVME_MI_TYPE_CONTROL,
+                                          hf_nvme_mi_ctl_opcode,
+                                          &ei_nvme_mi_ctl_orphan_response,
+                                          &rec_opcode);
+        if (it2) {
+            opcode = (uint8_t)rec_opcode;
             col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
                             val_to_str_const(opcode, cp_opcode_vals,
                                              "Unknown"));
-        } else {
-            expert_add_info(pinfo, it, &ei_nvme_mi_ctl_orphan_response);
         }
 
         proto_tree_add_item(ctl_tree, hf_nvme_mi_ctl_status, tvb, 0, 1, ENC_NA);
         proto_tree_add_item_ret_uint8(ctl_tree, hf_nvme_mi_ctl_tag, tvb, 1, 1, ENC_NA, &tag);
 
         /* The response tag must echo the request tag (NVMe-MI 2.1 §4.2.1). */
-        const struct nvme_mi_ctl_req_ctx *req = (trans && trans->req_parsed)
+        const struct nvme_mi_ctl_req_ctx *req = it2
                 ? (const struct nvme_mi_ctl_req_ctx *)trans->body_ctx : NULL;
         if (req && tag != req->tag)
             expert_add_info(pinfo, it, &ei_nvme_mi_ctl_tag_mismatch);

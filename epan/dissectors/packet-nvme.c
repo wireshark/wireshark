@@ -171,7 +171,8 @@ static const value_string ams_table[] = {
     { 0x0, NULL}
 };
 
-static const value_string shst_table[] = {
+/* Shared with the NVMe-MI Controller Health Data Structure CSTS.SHST decode. */
+const value_string shst_table[] = {
     { 0x0, "No Shutdown"},
     { 0x1, "Shutdown in Process"},
     { 0x2, "Shutdown Complete"},
@@ -232,6 +233,18 @@ static int hf_nvme_get_logpage_lpo;
 static int hf_nvme_get_logpage_dword14[3];
 static int hf_nvme_set_features_dword10[4];
 static int hf_nvme_set_features_dword14[3];
+
+/* Admin opcodes whose CDW10-15 decode is shared with the NVMe-MI Admin
+ * dissector (the request layout is a standard SQE from offset 40 onward). */
+static int hf_nvme_format_nvm_dword10[8];
+static int hf_nvme_fw_commit_dword10[5];
+static int hf_nvme_fw_download_numd;
+static int hf_nvme_fw_download_ofst;
+static int hf_nvme_self_test_dword10[3];
+static int hf_nvme_lockdown_dword10[7];
+static int hf_nvme_lockdown_dword14[3];
+static int hf_nvme_sanitize_dword10[8];
+static int hf_nvme_sanitize_ovrpat;
 static int hf_nvme_cmd_set_features_dword11_arb[6];
 static int hf_nvme_cmd_set_features_dword11_pm[4];
 static int hf_nvme_cmd_set_features_dword11_lbart[3];
@@ -653,21 +666,8 @@ static int hf_nvme_gen_data;
 /* Initialize the subtree pointers */
 static int ett_data;
 
-#define NVME_AQ_OPC_DELETE_SQ           0x0
-#define NVME_AQ_OPC_CREATE_SQ           0x1
-#define NVME_AQ_OPC_GET_LOG_PAGE        0x2
-#define NVME_AQ_OPC_DELETE_CQ           0x4
-#define NVME_AQ_OPC_CREATE_CQ           0x5
-#define NVME_AQ_OPC_IDENTIFY            0x6
-#define NVME_AQ_OPC_ABORT               0x8
-#define NVME_AQ_OPC_SET_FEATURES        0x9
-#define NVME_AQ_OPC_GET_FEATURES        0xa
-#define NVME_AQ_OPC_ASYNC_EVE_REQ       0xc
-#define NVME_AQ_OPC_NS_MGMT             0xd
-#define NVME_AQ_OPC_FW_COMMIT           0x10
-#define NVME_AQ_OPC_FW_IMG_DOWNLOAD     0x11
-#define NVME_AQ_OPC_NS_ATTACH           0x15
-#define NVME_AQ_OPC_KEEP_ALIVE          0x18
+/* NVME_AQ_OPC_* admin opcodes are defined in packet-nvme.h (shared with the
+ * NVMe-MI Admin dissector). */
 
 #define NVME_IOQ_OPC_FLUSH                  0x0
 #define NVME_IOQ_OPC_WRITE                  0x1
@@ -681,9 +681,7 @@ static int ett_data;
 #define NVME_IOQ_OPC_RESV_ACQUIRE           0x11
 #define NVME_IOQ_OPC_RESV_RELEASE           0x15
 
-#define NVME_IDENTIFY_CNS_IDENTIFY_NS       0x0
-#define NVME_IDENTIFY_CNS_IDENTIFY_CTRL     0x1
-#define NVME_IDENTIFY_CNS_IDENTIFY_NSLIST   0x2
+/* NVME_IDENTIFY_CNS_* values are defined in packet-nvme.h. */
 
 typedef enum {
     NVME_CQE_SCT_GENERIC = 0x0,
@@ -959,8 +957,23 @@ static const value_string aq_opc_tbl[] = {
     { NVME_AQ_OPC_NS_MGMT,       "Namespace Management"},
     { NVME_AQ_OPC_FW_COMMIT,     "Firmware Commit"},
     { NVME_AQ_OPC_FW_IMG_DOWNLOAD, "Firmware Image Download"},
+    { NVME_AQ_OPC_SELF_TEST,     "Device Self-test"},
     { NVME_AQ_OPC_NS_ATTACH,     "Namespace attach"},
     { NVME_AQ_OPC_KEEP_ALIVE,    "Keep Alive"},
+    { NVME_AQ_OPC_VIRT_MGMT,     "Virtualization Management"},
+    { NVME_AQ_OPC_CAP_MGMT,      "Capacity Management"},
+    { NVME_AQ_OPC_LOCKDOWN,      "Lockdown"},
+    { NVME_AQ_OPC_CLEAR_EXP_NVM_CFG, "Clear Exported NVM Resource Configuration"},
+    { NVME_AQ_OPC_CREATE_EXP_NVM_SUBSYS, "Create Exported NVM Subsystem"},
+    { NVME_AQ_OPC_MANAGE_EXP_NVM_SUBSYS, "Manage Exported NVM Subsystem"},
+    { NVME_AQ_OPC_MANAGE_EXP_NS, "Manage Exported Namespace"},
+    { NVME_AQ_OPC_MANAGE_EXP_PORT, "Manage Exported Port"},
+    { NVME_AQ_OPC_FORMAT_NVM,    "Format NVM"},
+    { NVME_AQ_OPC_SECURITY_SEND, "Security Send"},
+    { NVME_AQ_OPC_SECURITY_RECV, "Security Receive"},
+    { NVME_AQ_OPC_SANITIZE,      "Sanitize"},
+    { NVME_AQ_OPC_GET_LBA_STATUS, "Get LBA Status"},
+    { NVME_AQ_OPC_SANITIZE_NS,   "Sanitize Namespace"},
     { 0, NULL}
 };
 
@@ -2171,24 +2184,50 @@ static void dissect_nvme_identify_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree)
     proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword15, cmd_tvb, 60, 4, ENC_LITTLE_ENDIAN);
 }
 
+/* Log Page Identifiers (NVMe Base 2.3 Figure 206).  LID 0Eh is defined by the
+ * NVM Command Set Specification (LBA Status Information). */
 static const value_string logpage_tbl[] = {
-    { 0, "Unspecified" },
-    { 1, "Error Information" },
-    { 2, "SMART/Health Information" },
-    { 3, "Firmware Slot Information" },
-    { 4, "Changed Namespace List" },
-    { 5, "Commands Supported and Effects" },
-    { 6, "Device Self-test" },
-    { 7, "Telemetry Host-Initiated" },
-    { 8, "Telemetry Controller-Initiated" },
-    { 9, "Endurance Group Information" },
-    { 10, "Predictable Latency Per NVM Set" },
-    { 11, "Predictable Latency Event Aggregate" },
-    { 12, "Asymmetric Namespace Access" },
-    { 13, "Persistent Event Log" },
-    { 14, "LBA Status Information" },
-    { 15, "Endurance Group Event Aggregate" },
-    { 0x70, "NVMeOF Discovery" },
+    { 0x00, "Supported Log Pages" },
+    { 0x01, "Error Information" },
+    { 0x02, "SMART/Health Information" },
+    { 0x03, "Firmware Slot Information" },
+    { 0x04, "Changed Attached Namespace List" },
+    { 0x05, "Commands Supported and Effects" },
+    { 0x06, "Device Self-test" },
+    { 0x07, "Telemetry Host-Initiated" },
+    { 0x08, "Telemetry Controller-Initiated" },
+    { 0x09, "Endurance Group Information" },
+    { 0x0A, "Predictable Latency Per NVM Set" },
+    { 0x0B, "Predictable Latency Event Aggregate" },
+    { 0x0C, "Asymmetric Namespace Access" },
+    { 0x0D, "Persistent Event Log" },
+    { 0x0E, "LBA Status Information" },
+    { 0x0F, "Endurance Group Event Aggregate" },
+    { 0x10, "Media Unit Status" },
+    { 0x11, "Supported Capacity Configuration List" },
+    { 0x12, "Feature Identifiers Supported and Effects" },
+    { 0x13, "NVMe-MI Commands Supported and Effects" },
+    { 0x14, "Command and Feature Lockdown" },
+    { 0x15, "Boot Partition" },
+    { 0x16, "Rotational Media Information" },
+    { 0x17, "Dispersed Namespace Participating NVM Subsystems" },
+    { 0x18, "Management Address List" },
+    { 0x1A, "Reachability Groups" },
+    { 0x1B, "Reachability Associations" },
+    { 0x1C, "Changed Allocated Namespace List" },
+    { 0x1D, "Device Personalities" },
+    { 0x1E, "Cross-Controller Reset" },
+    { 0x1F, "Lost Host Communication" },
+    { 0x20, "FDP Configurations" },
+    { 0x21, "Reclaim Unit Handle Usage" },
+    { 0x22, "FDP Statistics" },
+    { 0x23, "FDP Events" },
+    { 0x25, "Power Measurement" },
+    { 0x70, "Discovery" },
+    { 0x71, "Host Discovery" },
+    { 0x72, "AVE Discovery" },
+    { 0x73, "Pull Model DDC Request" },
+    { 0x7F, "Sanitize Namespace Status List" },
     { 0x80, "Reservation Notification" },
     { 0x81, "Sanitize Status" },
     { 0, NULL }
@@ -2196,14 +2235,16 @@ static const value_string logpage_tbl[] = {
 
 static const char *get_logpage_name(unsigned lid)
 {
-    if (lid > 0x70 && lid < 0x80)
-        return "NVMeoF Reserved Page name";
-    else if (lid > 0x81 && lid < 0xc0)
-        return "IO Command Set Specific Page";
-    else if (lid >= 0xc0)
-        return "Vendor Specific Page";
+    if (lid == 0x19)
+        return "Transport Specific";
+    else if (lid >= 0x82 && lid <= 0xBE)
+        return "I/O Command Set Specific";
+    else if (lid == 0xBF)
+        return "Zoned Namespace Command Set";
+    else if (lid >= 0xC0)
+        return "Vendor Specific";
     else
-        return val_to_str_const(lid, logpage_tbl, "Reserved Page Name");
+        return val_to_str_const(lid, logpage_tbl, "Reserved");
 }
 
 static void add_logpage_lid(char *result, uint32_t val)
@@ -3439,11 +3480,28 @@ typedef enum {
     F_HOST_BEHV_SUPPORT = 0x16,
     F_SANITIZE_CON = 0x17,
     F_END_GROUP_EV_CONF = 0x18,
+    F_IO_CMD_SET_PROFILE = 0x19,
+    F_SPINUP_CONTROL = 0x1A,
+    F_POWER_LOSS_SIG_CONF = 0x1B,
+    F_FDP = 0x1D,
+    F_FDP_EVENTS = 0x1E,
+    F_NS_ADMIN_LABEL = 0x1F,
+    F_CTRL_DATA_QUEUE = 0x21,
+    F_CONF_DEV_PERSONALITY = 0x22,
+    F_POWER_LIMIT = 0x23,
+    F_POWER_THRESHOLD = 0x24,
+    F_POWER_MEASUREMENT = 0x25,
+    F_EMB_MGMT_CTRL_ADDR = 0x78,
+    F_HOST_MGMT_AGENT_ADDR = 0x79,
+    F_ENH_CTRL_METADATA = 0x7D,
+    F_CTRL_METADATA = 0x7E,
+    F_NS_METADATA = 0x7F,
     F_SW_PR_MARKER = 0x80,
     F_HOST_ID = 0x81,
     F_RSRV_NOT_MASK = 0x82,
     F_RSRV_PRST = 0x83,
     F_NS_WRITE_CONF = 0x84,
+    F_BP_WRITE_PROT_CONF = 0x85,
 } nvme_setf_t;
 
 
@@ -3472,11 +3530,28 @@ static const value_string fid_table[] = {
     { F_HOST_BEHV_SUPPORT, "Host Behavior Support" },
     { F_SANITIZE_CON, "Sanitize Config" },
     { F_END_GROUP_EV_CONF, "Endurance Group Event Configuration" },
+    { F_IO_CMD_SET_PROFILE, "I/O Command Set Profile" },
+    { F_SPINUP_CONTROL, "Spinup Control" },
+    { F_POWER_LOSS_SIG_CONF, "Power Loss Signaling Config" },
+    { F_FDP, "Flexible Data Placement" },
+    { F_FDP_EVENTS, "Flexible Data Placement Events" },
+    { F_NS_ADMIN_LABEL, "Namespace Admin Label" },
+    { F_CTRL_DATA_QUEUE, "Controller Data Queue" },
+    { F_CONF_DEV_PERSONALITY, "Configurable Device Personality" },
+    { F_POWER_LIMIT, "Power Limit" },
+    { F_POWER_THRESHOLD, "Power Threshold" },
+    { F_POWER_MEASUREMENT, "Power Measurement" },
+    { F_EMB_MGMT_CTRL_ADDR, "Embedded Management Controller Address" },
+    { F_HOST_MGMT_AGENT_ADDR, "Host Management Agent Address" },
+    { F_ENH_CTRL_METADATA, "Enhanced Controller Metadata" },
+    { F_CTRL_METADATA, "Controller Metadata" },
+    { F_NS_METADATA, "Namespace Metadata" },
     { F_SW_PR_MARKER, "Software Progress Marker" },
     { F_HOST_ID, "Host Identifier" },
     { F_RSRV_NOT_MASK, "Reservation Notification Mask" },
     { F_RSRV_PRST, "Reservation Persistence" },
     { F_NS_WRITE_CONF, "Namespace Write Protection Config" },
+    { F_BP_WRITE_PROT_CONF, "Boot Partition Write Protection Config" },
     { 0, NULL },
 };
 
@@ -4156,6 +4231,165 @@ static void dissect_nvme_unhandled_cmd(tvbuff_t *nvme_tvb, proto_tree *cmd_tree)
     proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword15, nvme_tvb, 60, 4, ENC_LITTLE_ENDIAN);
 }
 
+/* Format NVM – Secure Erase Settings (SES), NVMe Base Figure 193. */
+static const value_string fmt_nvm_ses_tbl[] = {
+    { 0x0, "No secure erase operation requested" },
+    { 0x1, "User Data Erase" },
+    { 0x2, "Cryptographic Erase" },
+    { 0, NULL }
+};
+
+static void dissect_nvme_format_nvm_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree)
+{
+    add_group_mask_entry(cmd_tvb, cmd_tree, 40, 4, ASPEC(hf_nvme_format_nvm_dword10));
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword11, cmd_tvb, 44, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword12, cmd_tvb, 48, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword13, cmd_tvb, 52, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword14, cmd_tvb, 56, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword15, cmd_tvb, 60, 4, ENC_LITTLE_ENDIAN);
+}
+
+/* Firmware Commit – Commit Action (CA), NVMe Base Figure 185. */
+static const value_string fw_commit_ca_tbl[] = {
+    { 0x0, "Replace image in slot, do not activate" },
+    { 0x1, "Replace image in slot, activate at next reset" },
+    { 0x2, "Activate existing image in slot at next reset" },
+    { 0x3, "Replace image in slot and activate immediately" },
+    { 0x6, "Replace Boot Partition specified by BPID" },
+    { 0x7, "Mark Boot Partition in BPID active, update BPINFO.ABPID" },
+    { 0, NULL }
+};
+
+static void dissect_nvme_fw_commit_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree)
+{
+    add_group_mask_entry(cmd_tvb, cmd_tree, 40, 4, ASPEC(hf_nvme_fw_commit_dword10));
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword11, cmd_tvb, 44, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword12, cmd_tvb, 48, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword13, cmd_tvb, 52, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword14, cmd_tvb, 56, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword15, cmd_tvb, 60, 4, ENC_LITTLE_ENDIAN);
+}
+
+static void dissect_nvme_fw_download_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree)
+{
+    proto_tree_add_item(cmd_tree, hf_nvme_fw_download_numd, cmd_tvb, 40, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_fw_download_ofst, cmd_tvb, 44, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword12, cmd_tvb, 48, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword13, cmd_tvb, 52, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword14, cmd_tvb, 56, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword15, cmd_tvb, 60, 4, ENC_LITTLE_ENDIAN);
+}
+
+/* Device Self-test – Self-test Code (STC), NVMe Base Figure 175. */
+static const value_string self_test_stc_tbl[] = {
+    { 0x1, "Short device self-test" },
+    { 0x2, "Extended device self-test" },
+    { 0x3, "Host-Initiated Refresh" },
+    { 0xe, "Vendor specific" },
+    { 0xf, "Abort device self-test" },
+    { 0, NULL }
+};
+
+static void dissect_nvme_self_test_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree)
+{
+    add_group_mask_entry(cmd_tvb, cmd_tree, 40, 4, ASPEC(hf_nvme_self_test_dword10));
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword11, cmd_tvb, 44, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword12, cmd_tvb, 48, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword13, cmd_tvb, 52, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword14, cmd_tvb, 56, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword15, cmd_tvb, 60, 4, ENC_LITTLE_ENDIAN);
+}
+
+/* Lockdown – Scope (SCP) / Interface (IFC), NVMe Base Figure 353. */
+static const value_string lockdown_scp_tbl[] = {
+    { 0x0, "Admin command opcode" },
+    { 0x2, "Set Features Feature Identifier" },
+    { 0x3, "Management Interface Command Set opcode" },
+    { 0x4, "PCIe Command Set opcode" },
+    { 0, NULL }
+};
+
+static const value_string lockdown_ifc_tbl[] = {
+    { 0x0, "Admin Submission Queue" },
+    { 0x1, "Admin Submission Queue and out-of-band Management Endpoint" },
+    { 0x2, "Out-of-band Management Endpoint" },
+    { 0, NULL }
+};
+
+static void dissect_nvme_lockdown_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree)
+{
+    add_group_mask_entry(cmd_tvb, cmd_tree, 40, 4, ASPEC(hf_nvme_lockdown_dword10));
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword11, cmd_tvb, 44, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword12, cmd_tvb, 48, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword13, cmd_tvb, 52, 4, ENC_LITTLE_ENDIAN);
+    add_group_mask_entry(cmd_tvb, cmd_tree, 56, 4, ASPEC(hf_nvme_lockdown_dword14));
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword15, cmd_tvb, 60, 4, ENC_LITTLE_ENDIAN);
+}
+
+/* Sanitize – Sanitize Action (SANACT), NVMe Base Figure 388. */
+static const value_string sanitize_act_tbl[] = {
+    { 0x1, "Exit Failure Mode" },
+    { 0x2, "Block Erase" },
+    { 0x3, "Overwrite" },
+    { 0x4, "Crypto Erase" },
+    { 0x5, "Exit Media Verification State" },
+    { 0, NULL }
+};
+
+static void dissect_nvme_sanitize_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree)
+{
+    add_group_mask_entry(cmd_tvb, cmd_tree, 40, 4, ASPEC(hf_nvme_sanitize_dword10));
+    proto_tree_add_item(cmd_tree, hf_nvme_sanitize_ovrpat, cmd_tvb, 44, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword12, cmd_tvb, 48, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword13, cmd_tvb, 52, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword14, cmd_tvb, 56, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_cmd_dword15, cmd_tvb, 60, 4, ENC_LITTLE_ENDIAN);
+}
+
+void
+nvme_dissect_admin_sqe_cdws(tvbuff_t *sqe_tvb, packet_info *pinfo,
+                            proto_tree *tree, struct nvme_cmd_ctx *cmd_ctx)
+{
+    switch (cmd_ctx->opcode) {
+    case NVME_AQ_OPC_IDENTIFY:
+        cmd_ctx->cmd_ctx.cmd_identify.cns = tvb_get_uint16(sqe_tvb, 40, ENC_LITTLE_ENDIAN);
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "%s", val_to_str_const(cmd_ctx->cmd_ctx.cmd_identify.cns, cns_table, "Unknown"));
+        dissect_nvme_identify_cmd(sqe_tvb, tree);
+        break;
+    case NVME_AQ_OPC_GET_LOG_PAGE:
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "%s", get_logpage_name(tvb_get_uint8(sqe_tvb, 40)));
+        dissect_nvme_get_logpage_cmd(sqe_tvb, tree, cmd_ctx);
+        break;
+    case NVME_AQ_OPC_SET_FEATURES:
+        dissect_nvme_set_features_cmd(sqe_tvb, tree, cmd_ctx);
+        break;
+    case NVME_AQ_OPC_GET_FEATURES:
+        dissect_nvme_get_features_cmd(sqe_tvb, tree, cmd_ctx);
+        break;
+    case NVME_AQ_OPC_FW_COMMIT:
+        dissect_nvme_fw_commit_cmd(sqe_tvb, tree);
+        break;
+    case NVME_AQ_OPC_FW_IMG_DOWNLOAD:
+        dissect_nvme_fw_download_cmd(sqe_tvb, tree);
+        break;
+    case NVME_AQ_OPC_SELF_TEST:
+        dissect_nvme_self_test_cmd(sqe_tvb, tree);
+        break;
+    case NVME_AQ_OPC_LOCKDOWN:
+        dissect_nvme_lockdown_cmd(sqe_tvb, tree);
+        break;
+    case NVME_AQ_OPC_FORMAT_NVM:
+        dissect_nvme_format_nvm_cmd(sqe_tvb, tree);
+        break;
+    case NVME_AQ_OPC_SANITIZE:
+        dissect_nvme_sanitize_cmd(sqe_tvb, tree);
+        break;
+    default:
+        dissect_nvme_unhandled_cmd(sqe_tvb, tree);
+        break;
+    }
+}
+
 void
 dissect_nvme_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
                  struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd_ctx)
@@ -4214,26 +4448,7 @@ dissect_nvme_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
             break;
         }
     } else { //AQ
-        switch (cmd_ctx->opcode) {
-        case NVME_AQ_OPC_IDENTIFY:
-            cmd_ctx->cmd_ctx.cmd_identify.cns = tvb_get_uint16(nvme_tvb, 40, ENC_LITTLE_ENDIAN);
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "%s", val_to_str_const(cmd_ctx->cmd_ctx.cmd_identify.cns, cns_table, "Unknown"));
-            dissect_nvme_identify_cmd(nvme_tvb, cmd_tree);
-            break;
-        case NVME_AQ_OPC_GET_LOG_PAGE:
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "%s", get_logpage_name(tvb_get_uint8(nvme_tvb, 40)));
-            dissect_nvme_get_logpage_cmd(nvme_tvb, cmd_tree, cmd_ctx);
-            break;
-        case NVME_AQ_OPC_SET_FEATURES:
-            dissect_nvme_set_features_cmd(nvme_tvb, cmd_tree, cmd_ctx);
-            break;
-        case NVME_AQ_OPC_GET_FEATURES:
-            dissect_nvme_get_features_cmd(nvme_tvb, cmd_tree, cmd_ctx);
-            break;
-        default:
-            dissect_nvme_unhandled_cmd(nvme_tvb, cmd_tree);
-            break;
-        }
+        nvme_dissect_admin_sqe_cdws(nvme_tvb, pinfo, cmd_tree, cmd_ctx);
     }
 }
 
@@ -5241,6 +5456,163 @@ proto_register_nvme(void)
         { &hf_nvme_set_features_dword14[2],
             { "Reserved", "nvme.cmd.set_features.dword14.rsvd",
                FT_UINT32, BASE_HEX, NULL, 0xffffff80, NULL, HFILL}
+        },
+        /* Format NVM – Command Dword 10 (NVMe Base Figure 193) */
+        { &hf_nvme_format_nvm_dword10[0],
+            { "DWORD10", "nvme.cmd.format_nvm.dword10",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_format_nvm_dword10[1],
+            { "LBA Format Lower (LBAFL)", "nvme.cmd.format_nvm.dword10.lbafl",
+               FT_UINT32, BASE_HEX, NULL, 0x0000000f, NULL, HFILL}
+        },
+        { &hf_nvme_format_nvm_dword10[2],
+            { "Metadata Settings (MSET)", "nvme.cmd.format_nvm.dword10.mset",
+               FT_UINT32, BASE_HEX, NULL, 0x00000010, NULL, HFILL}
+        },
+        { &hf_nvme_format_nvm_dword10[3],
+            { "Protection Information (PI)", "nvme.cmd.format_nvm.dword10.pi",
+               FT_UINT32, BASE_HEX, NULL, 0x000000e0, NULL, HFILL}
+        },
+        { &hf_nvme_format_nvm_dword10[4],
+            { "Protection Information Location (PIL)", "nvme.cmd.format_nvm.dword10.pil",
+               FT_UINT32, BASE_HEX, NULL, 0x00000100, NULL, HFILL}
+        },
+        { &hf_nvme_format_nvm_dword10[5],
+            { "Secure Erase Settings (SES)", "nvme.cmd.format_nvm.dword10.ses",
+               FT_UINT32, BASE_HEX, VALS(fmt_nvm_ses_tbl), 0x00000e00, NULL, HFILL}
+        },
+        { &hf_nvme_format_nvm_dword10[6],
+            { "LBA Format Upper (LBAFU)", "nvme.cmd.format_nvm.dword10.lbafu",
+               FT_UINT32, BASE_HEX, NULL, 0x00003000, NULL, HFILL}
+        },
+        { &hf_nvme_format_nvm_dword10[7],
+            { "Reserved", "nvme.cmd.format_nvm.dword10.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xffffc000, NULL, HFILL}
+        },
+        /* Firmware Commit – Command Dword 10 (NVMe Base Figure 185) */
+        { &hf_nvme_fw_commit_dword10[0],
+            { "DWORD10", "nvme.cmd.fw_commit.dword10",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_fw_commit_dword10[1],
+            { "Firmware Slot (FS)", "nvme.cmd.fw_commit.dword10.fs",
+               FT_UINT32, BASE_HEX, NULL, 0x00000007, NULL, HFILL}
+        },
+        { &hf_nvme_fw_commit_dword10[2],
+            { "Commit Action (CA)", "nvme.cmd.fw_commit.dword10.ca",
+               FT_UINT32, BASE_HEX, VALS(fw_commit_ca_tbl), 0x00000038, NULL, HFILL}
+        },
+        { &hf_nvme_fw_commit_dword10[3],
+            { "Reserved", "nvme.cmd.fw_commit.dword10.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0x7fffffc0, NULL, HFILL}
+        },
+        { &hf_nvme_fw_commit_dword10[4],
+            { "Boot Partition ID (BPID)", "nvme.cmd.fw_commit.dword10.bpid",
+               FT_UINT32, BASE_HEX, NULL, 0x80000000, NULL, HFILL}
+        },
+        /* Firmware Image Download – Command Dwords 10/11 (NVMe Base Figures 189/190) */
+        { &hf_nvme_fw_download_numd,
+            { "Number of Dwords (NUMD)", "nvme.cmd.fw_download.numd",
+               FT_UINT32, BASE_HEX, NULL, 0x0,
+               "Number of dwords to transfer, a 0's based value", HFILL}
+        },
+        { &hf_nvme_fw_download_ofst,
+            { "Offset (OFST)", "nvme.cmd.fw_download.ofst",
+               FT_UINT32, BASE_HEX, NULL, 0x0,
+               "Dword offset from the start of the firmware image", HFILL}
+        },
+        /* Device Self-test – Command Dword 10 (NVMe Base Figure 175) */
+        { &hf_nvme_self_test_dword10[0],
+            { "DWORD10", "nvme.cmd.self_test.dword10",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_self_test_dword10[1],
+            { "Self-test Code (STC)", "nvme.cmd.self_test.dword10.stc",
+               FT_UINT32, BASE_HEX, VALS(self_test_stc_tbl), 0x0000000f, NULL, HFILL}
+        },
+        { &hf_nvme_self_test_dword10[2],
+            { "Reserved", "nvme.cmd.self_test.dword10.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xfffffff0, NULL, HFILL}
+        },
+        /* Lockdown – Command Dword 10 (NVMe Base Figure 353) */
+        { &hf_nvme_lockdown_dword10[0],
+            { "DWORD10", "nvme.cmd.lockdown.dword10",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_lockdown_dword10[1],
+            { "Scope (SCP)", "nvme.cmd.lockdown.dword10.scp",
+               FT_UINT32, BASE_HEX, VALS(lockdown_scp_tbl), 0x0000000f, NULL, HFILL}
+        },
+        { &hf_nvme_lockdown_dword10[2],
+            { "Prohibit (PRHBT)", "nvme.cmd.lockdown.dword10.prhbt",
+               FT_UINT32, BASE_HEX, NULL, 0x00000010, NULL, HFILL}
+        },
+        { &hf_nvme_lockdown_dword10[3],
+            { "Interface (IFC)", "nvme.cmd.lockdown.dword10.ifc",
+               FT_UINT32, BASE_HEX, VALS(lockdown_ifc_tbl), 0x00000060, NULL, HFILL}
+        },
+        { &hf_nvme_lockdown_dword10[4],
+            { "Reserved", "nvme.cmd.lockdown.dword10.rsvd0",
+               FT_UINT32, BASE_HEX, NULL, 0x00000080, NULL, HFILL}
+        },
+        { &hf_nvme_lockdown_dword10[5],
+            { "Opcode or Feature Identifier (OFI)", "nvme.cmd.lockdown.dword10.ofi",
+               FT_UINT32, BASE_HEX, NULL, 0x0000ff00, NULL, HFILL}
+        },
+        { &hf_nvme_lockdown_dword10[6],
+            { "Reserved", "nvme.cmd.lockdown.dword10.rsvd1",
+               FT_UINT32, BASE_HEX, NULL, 0xffff0000, NULL, HFILL}
+        },
+        /* Lockdown – Command Dword 14 (NVMe Base Figure 354) */
+        { &hf_nvme_lockdown_dword14[0],
+            { "DWORD14", "nvme.cmd.lockdown.dword14",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_lockdown_dword14[1],
+            { "UUID Index (UIDX)", "nvme.cmd.lockdown.dword14.uidx",
+               FT_UINT32, BASE_HEX, NULL, 0x0000007f, NULL, HFILL}
+        },
+        { &hf_nvme_lockdown_dword14[2],
+            { "Reserved", "nvme.cmd.lockdown.dword14.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xffffff80, NULL, HFILL}
+        },
+        /* Sanitize – Command Dwords 10/11 (NVMe Base Figures 388/389) */
+        { &hf_nvme_sanitize_dword10[0],
+            { "DWORD10", "nvme.cmd.sanitize.dword10",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_sanitize_dword10[1],
+            { "Sanitize Action (SANACT)", "nvme.cmd.sanitize.dword10.sanact",
+               FT_UINT32, BASE_HEX, VALS(sanitize_act_tbl), 0x00000007, NULL, HFILL}
+        },
+        { &hf_nvme_sanitize_dword10[2],
+            { "Allow Unrestricted Sanitize Exit (AUSE)", "nvme.cmd.sanitize.dword10.ause",
+               FT_UINT32, BASE_HEX, NULL, 0x00000008, NULL, HFILL}
+        },
+        { &hf_nvme_sanitize_dword10[3],
+            { "Overwrite Pass Count (OWPASS)", "nvme.cmd.sanitize.dword10.owpass",
+               FT_UINT32, BASE_HEX, NULL, 0x000000f0, NULL, HFILL}
+        },
+        { &hf_nvme_sanitize_dword10[4],
+            { "Overwrite Invert Pattern Between Passes (OIPBP)", "nvme.cmd.sanitize.dword10.oipbp",
+               FT_UINT32, BASE_HEX, NULL, 0x00000100, NULL, HFILL}
+        },
+        { &hf_nvme_sanitize_dword10[5],
+            { "No-Deallocate After Sanitize (NDAS)", "nvme.cmd.sanitize.dword10.ndas",
+               FT_UINT32, BASE_HEX, NULL, 0x00000200, NULL, HFILL}
+        },
+        { &hf_nvme_sanitize_dword10[6],
+            { "Enter Media Verification State (EMVS)", "nvme.cmd.sanitize.dword10.emvs",
+               FT_UINT32, BASE_HEX, NULL, 0x00000400, NULL, HFILL}
+        },
+        { &hf_nvme_sanitize_dword10[7],
+            { "Reserved", "nvme.cmd.sanitize.dword10.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0xfffff800, NULL, HFILL}
+        },
+        { &hf_nvme_sanitize_ovrpat,
+            { "Overwrite Pattern (OVRPAT)", "nvme.cmd.sanitize.ovrpat",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_cmd_set_features_dword11_arb[0],
             { "DWORD11", "nvme.cmd.set_features.dword11.arb",

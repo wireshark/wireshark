@@ -100,7 +100,7 @@ static const value_string mi_mctp_type_vals[] = {
     { 0, NULL },
 };
 
-static const value_string mi_type_vals[] = {
+const value_string mi_type_vals[] = {
     { NVME_MI_TYPE_CONTROL, "Control primitive" },
     { NVME_MI_TYPE_MI,      "MI command" },
     { NVME_MI_TYPE_ADMIN,   "NVMe Admin command" },
@@ -116,6 +116,36 @@ nvme_mi_dissect_invalid_param_resp(tvbuff_t *tvb, proto_tree *tree)
     proto_tree_add_item(tree, hf_nvme_mi_pel_bit, tvb, 1, 1, ENC_NA);
     proto_tree_add_item(tree, hf_nvme_mi_pel_byte, tvb, 2, 2,
                         ENC_LITTLE_ENDIAN);
+}
+
+void
+nvme_mi_dissect_truncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                          proto_item *it, expert_field *ei, int hf_data, int off)
+{
+    expert_add_info(pinfo, it, ei);
+    if (tvb_reported_length_remaining(tvb, off) > 0)
+        proto_tree_add_item(tree, hf_data, tvb, off, -1, ENC_NA);
+}
+
+proto_item *
+nvme_mi_recover_resp_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                            proto_item *it,
+                            const struct nvme_mi_transaction *trans,
+                            uint8_t nmimt, int hf_opcode,
+                            expert_field *ei_orphan, unsigned *opcode)
+{
+    proto_item *gi;
+
+    if (!trans || !trans->req_parsed || trans->nmimt != nmimt) {
+        *opcode = 0;
+        expert_add_info(pinfo, it, ei_orphan);
+        return NULL;
+    }
+
+    *opcode = trans->opcode;
+    gi = proto_tree_add_uint(tree, hf_opcode, tvb, 0, 0, trans->opcode);
+    proto_item_set_generated(gi);
+    return gi;
 }
 
 /* Per-slot in-flight transaction (NULL when the slot is idle); only written
@@ -274,6 +304,7 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 wmem_new0(wmem_file_scope(), struct nvme_mi_transaction);
             trans->req_frame = pinfo->num;
             trans->req_time  = pinfo->fd->abs_ts;
+            trans->nmimt     = (uint8_t)type;
 
             fi = wmem_new0(wmem_file_scope(), struct nvme_mi_frame_info);
             fi->trans = trans;

@@ -291,20 +291,29 @@ def cp_response_payload(status, tag=0, cpsr=0):
 # NVMe-MI Admin payload
 # ---------------------------------------------------------------------------
 
-def admin_request_payload(opcode, ctrl_id=0x0000, cns=0x00, flags=0x01, doff=0, dlen=0x1000):
+def admin_request_payload(opcode, ctrl_id=0x0000, cns=0x00, flags=0x01, doff=0, dlen=0x1000,
+                          cdw11=0, cdw14=0):
     """Admin request SQE (64 bytes).
 
     flags byte:
       bit 0 (0x1) = DLEN: use data length field
       bit 1 (0x2) = DOFF: use data offset field
+
+    cns is CDW10 (named for the Identify CNS selector, the original use); cdw11
+    and cdw14 fill the command dwords that the other opcode decoders read
+    (e.g. Firmware Image Download OFST, Sanitize Overwrite Pattern, Lockdown
+    UUID Index).
     """
     payload  = bytes([opcode, flags]) + struct.pack('<H', ctrl_id)
     payload += b'\x00' * 20          # SQE1-SQE5
     payload += struct.pack('<I', doff)  # data offset
     payload += struct.pack('<I', dlen)  # data length
     payload += b'\x00' * 8           # reserved
-    payload += struct.pack('<I', cns)   # SQE10 (CNS / identify selector)
-    payload += b'\x00' * 20          # SQE11-SQE15
+    payload += struct.pack('<I', cns)    # CDW10 (CNS / identify selector)
+    payload += struct.pack('<I', cdw11)  # CDW11
+    payload += b'\x00' * 8           # CDW12-CDW13
+    payload += struct.pack('<I', cdw14)  # CDW14
+    payload += b'\x00' * 4           # CDW15
     assert len(payload) == 64, f"Admin request payload must be 64 bytes, got {len(payload)}"
     return payload
 
@@ -1056,6 +1065,101 @@ def build_comprehensive_pcapng(output_path):
     print("  Superseded-request expert on: F30, F70, F73")
 
 
+# ---------------------------------------------------------------------------
+# nvme-mi-admin-decode.pcapng — Admin SQE CDW10-15 shared-decode coverage (MR4)
+# ---------------------------------------------------------------------------
+#
+# Standalone admin-request capture exercising nvme_dissect_admin_sqe_cdws()
+# (shared with packet-nvme.c) under the NVMe-MI Admin dissector, plus the
+# prohibited-opcode expert.  Each request rides its own MCTP tag so no two
+# share a command slot (keeps every request independent; no superseded-slot
+# noise).  Responses are omitted: MR4 decodes only the request side.
+#
+#   F1   Identify (06h)        CDW10 CNS=01h Identify Controller, CNTID=0
+#   F2   Get Log Page (02h)    CDW10 LID=02h SMART
+#   F3   Set Features (09h)    CDW10 FID=02h Power Management
+#   F4   Get Features (0Ah)    CDW10 FID=04h Temperature Threshold
+#   F5   Format NVM (80h)      CDW10=0x351 LBAFL=1 MSET=1 PI=2 PIL=1 SES=1
+#   F6   Firmware Commit (10h) CDW10=0x19 FS=1 CA=3 (replace+activate now)
+#   F7   FW Img Download (11h) CDW10 NUMD=0xFF, CDW11 OFST=0x100
+#   F8   Device Self-test (14h)CDW10 STC=2 (extended)
+#   F9   Lockdown (24h)        CDW10=0x950 SCP=0 PRHBT=1 IFC=2 OFI=09h; CDW14 UIDX=1
+#   F10  Sanitize (84h)        CDW10=0x20a SANACT=2 AUSE=1 NDAS=1; CDW11 OVRPAT
+#   F11  Abort (08h)           Prohibited over MI -> prohibited-opcode expert
+
+packets_admin_decode = [
+    make_packet(True, NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(0x06, ctrl_id=0x0001, cns=0x01), tag=0),
+    make_packet(True, NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(0x02, ctrl_id=0x0002, cns=0x02), tag=1),
+    make_packet(True, NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(0x09, ctrl_id=0x0003, cns=0x02), tag=2),
+    make_packet(True, NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(0x0a, ctrl_id=0x0004, cns=0x04), tag=3),
+    make_packet(True, NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(0x80, ctrl_id=0x0005, cns=0x351), tag=4),
+    make_packet(True, NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(0x10, ctrl_id=0x0006, cns=0x19), tag=5),
+    make_packet(True, NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(0x11, ctrl_id=0x0007, cns=0xFF, cdw11=0x100), tag=6),
+    make_packet(True, NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(0x14, ctrl_id=0x0008, cns=0x02), tag=7),
+    make_packet(True, NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(0x24, ctrl_id=0x0009, cns=0x950, cdw14=0x1), tag=8),
+    make_packet(True, NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(0x84, ctrl_id=0x000a, cns=0x20a, cdw11=0xDEADBEEF), tag=9),
+    make_packet(True, NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(0x08, ctrl_id=0x000b), tag=10),
+]
+
+# Timestamps: 1-second intervals starting at 2024-03-01 10:00:00 UTC
+BASE_TS_ADMIN_US = 1709287200 * 1_000_000
+
+def build_admin_decode_pcapng(output_path):
+    data = shb() + idb()
+    for i, pkt in enumerate(packets_admin_decode):
+        data += epb(pkt, BASE_TS_ADMIN_US + i * 1_000_000)
+    with open(output_path, 'wb') as f:
+        f.write(data)
+    print(f"Written {len(packets_admin_decode)} packets to {output_path}")
+
+# ---------------------------------------------------------------------------
+# Build the cross-NMIMT slot-reuse capture (nvme-mi-typemismatch.pcapng)
+# ---------------------------------------------------------------------------
+#
+# Malformed: a response whose NMIMT differs from the request still occupying
+# the per-CSI command slot.  ADMIN and MI commands share that slot (only
+# Control Primitives are tracked out-of-band), so the framing layer links the
+# response to the slot's outstanding request regardless of type.  The body
+# dissector must NOT then read the other type's recorded opcode / body_ctx: it
+# checks the request's NMIMT and treats a cross-type response as an orphan.
+#
+#   F1 Admin Identify request (CSI=0) -> opens the CSI=0 slot as ADMIN
+#   F2 MI    success response (CSI=0) -> lands on the ADMIN slot; the MI body
+#                                        must flag orphan, not recover opc 06h
+#   F3 MI    request          (CSI=1) -> opens the CSI=1 slot as MI
+#   F4 Admin success response (CSI=1) -> lands on the MI slot; the Admin body
+#                                        must flag orphan, not recover an opcode
+packets_typemismatch = [
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(0x06, ctrl_id=0x0001, cns=0x01)),
+    make_packet(False, NVME_MI_TYPE_MI,    0, mi_response_payload(STATUS_SUCCESS)),
+    make_packet(True,  NVME_MI_TYPE_MI,    1, mi_request_payload(0x00)),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 1,
+                admin_response_payload(STATUS_SUCCESS, cqe1=0x12345678)),
+]
+
+BASE_TS_TYPEMISMATCH_US = 1709290800 * 1_000_000
+
+def build_typemismatch_pcapng(output_path):
+    data = shb() + idb()
+    for i, pkt in enumerate(packets_typemismatch):
+        data += epb(pkt, BASE_TS_TYPEMISMATCH_US + i * 1_000_000)
+    with open(output_path, 'wb') as f:
+        f.write(data)
+    print(f"Written {len(packets_typemismatch)} packets to {output_path}")
+
+
 if __name__ == '__main__':
     captures_dir = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
@@ -1072,3 +1176,15 @@ if __name__ == '__main__':
     out2 = sys.argv[2] if len(sys.argv) > 2 else os.path.join(
         captures_dir, 'nvme-mi-types.pcapng')
     build_comprehensive_pcapng(out2)
+    print()
+
+    # nvme-mi-admin-decode.pcapng — Admin SQE CDW10-15 shared-decode coverage
+    out3 = sys.argv[3] if len(sys.argv) > 3 else os.path.join(
+        captures_dir, 'nvme-mi-admin-decode.pcapng')
+    build_admin_decode_pcapng(out3)
+    print()
+
+    # nvme-mi-typemismatch.pcapng — cross-NMIMT slot-reuse guard coverage
+    out4 = sys.argv[4] if len(sys.argv) > 4 else os.path.join(
+        captures_dir, 'nvme-mi-typemismatch.pcapng')
+    build_typemismatch_pcapng(out4)

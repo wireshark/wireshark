@@ -25,6 +25,7 @@
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include <wsutil/utf8_entities.h>
+#include "packet-nvme.h"
 #include "packet-nvme-mi.h"
 
 void proto_register_nvme_mi_mi(void);
@@ -350,24 +351,13 @@ static const value_string mi_shdntyp_vals[] = {
     { 0, NULL },
 };
 
-/* CSTS.SHST shutdown status (NVMe Base) */
-static const value_string mi_shst_vals[] = {
-    { 0x0, "Normal operation" },
-    { 0x1, "Shutdown processing occurring" },
-    { 0x2, "Shutdown processing complete" },
-    { 0x3, "Reserved" },
-    { 0, NULL },
-};
-
-/* NMIMT in command-list entries (Figure 119/121); same encoding as the
- * message header NMIMT. */
-static const value_string mi_cmdlist_nmimt_vals[] = {
-    { NVME_MI_TYPE_CONTROL, "Control Primitive" },
-    { NVME_MI_TYPE_MI,      "MI Command" },
-    { NVME_MI_TYPE_ADMIN,   "NVMe Admin Command" },
-    { NVME_MI_TYPE_PCIE,    "PCIe Command" },
-    { 0, NULL },
-};
+/*
+ * CSTS.SHST shutdown status: reuse packet-nvme.c's shst_table (shared via
+ * packet-nvme.h) so the MI CHDS decode and the NVMe Base decode never drift.
+ *
+ * NMIMT in command-list entries (Figure 119/121) uses the same encoding as the
+ * message header, so the entry decode reuses mi_type_vals (packet-nvme-mi.h).
+ */
 
 /*
  * Per-transaction request context hung off nvme_mi_transaction.body_ctx
@@ -573,9 +563,8 @@ static void
 nvme_mi_mi_data_truncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           proto_item *it, int off)
 {
-    expert_add_info(pinfo, it, &ei_nvme_mi_mi_truncated);
-    if (tvb_reported_length_remaining(tvb, off) > 0)
-        proto_tree_add_item(tree, hf_nvme_mi_mi_data, tvb, off, -1, ENC_NA);
+    nvme_mi_dissect_truncated(tvb, pinfo, tree, it, &ei_nvme_mi_mi_truncated,
+                              hf_nvme_mi_mi_data, off);
 }
 
 /* DTYP 00h — NVM Subsystem Information (Figure 112) */
@@ -890,10 +879,7 @@ dissect_nvme_mi_mi_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if (len < 12) {
             nvme_mi_mi_col_append(pinfo, opcode, NULL);
-            expert_add_info(pinfo, it, &ei_nvme_mi_mi_truncated);
-            if (len > 1)
-                proto_tree_add_item(mi_tree, hf_nvme_mi_mi_data,
-                                    tvb, 1, -1, ENC_NA);
+            nvme_mi_mi_data_truncated(tvb, pinfo, mi_tree, it, 1);
             return tvb_captured_length(tvb);
         }
 
@@ -1031,20 +1017,21 @@ dissect_nvme_mi_mi_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(mi_tree, data_hf, tvb, 12, -1, ENC_NA);
         }
     } else {
-        /* The response carries no opcode; recover it from the request.  When
-         * there is no matching request (or it was too truncated to record an
-         * opcode), say so rather than fabricating an opcode-0 item. */
-        bool opcode_known = trans && trans->req_parsed;
-        unsigned opcode = opcode_known ? trans->opcode : 0;
+        /* The response carries no opcode; recover it from the matching request
+         * (of this same NMIMT).  Without one, the helper notes an orphan
+         * response rather than fabricating an opcode-0 item. */
+        unsigned opcode;
+        it2 = nvme_mi_recover_resp_opcode(tvb, pinfo, mi_tree, it, trans,
+                                          NVME_MI_TYPE_MI, hf_nvme_mi_mi_opcode,
+                                          &ei_nvme_mi_mi_orphan_response,
+                                          &opcode);
+        bool opcode_known = (it2 != NULL);
         const struct nvme_mi_mi_req_ctx *req = opcode_known
                 ? (const struct nvme_mi_mi_req_ctx *)trans->body_ctx : NULL;
         const char *detail = NULL;
         uint8_t status;
 
         if (opcode_known) {
-            it2 = proto_tree_add_uint(mi_tree, hf_nvme_mi_mi_opcode,
-                                      tvb, 0, 0, opcode);
-            proto_item_set_generated(it2);
             if (req) {
                 if (opcode == NVME_MI_MI_OPC_READ_DS)
                     detail = val_to_str_const(req->dtyp, mi_dtyp_vals,
@@ -1054,8 +1041,6 @@ dissect_nvme_mi_mi_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     detail = nvme_mi_mi_configid_name(req->configid);
             }
             nvme_mi_mi_col_append(pinfo, opcode, detail);
-        } else {
-            expert_add_info(pinfo, it, &ei_nvme_mi_mi_orphan_response);
         }
 
         if (len < 1) {
@@ -1067,10 +1052,7 @@ dissect_nvme_mi_mi_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                       tvb, 0, 1, ENC_NA, &status);
 
         if (len < 4) {
-            expert_add_info(pinfo, it, &ei_nvme_mi_mi_truncated);
-            if (len > 1)
-                proto_tree_add_item(mi_tree, hf_nvme_mi_mi_data,
-                                    tvb, 1, -1, ENC_NA);
+            nvme_mi_mi_data_truncated(tvb, pinfo, mi_tree, it, 1);
             return tvb_captured_length(tvb);
         }
 
@@ -1125,46 +1107,63 @@ dissect_nvme_mi_mi_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (len > 4) {
             int dlen = (int)len - 4;
 
-            if (success && opcode == NVME_MI_MI_OPC_READ_DS && req) {
-                switch (req->dtyp) {
-                case NVME_MI_DTYP_SUBSYS_INFO:
-                    nvme_mi_mi_data_subsys_info(tvb, pinfo, mi_tree, it,
-                                                4, dlen);
+            /* Response Data is only defined for a Success response of a known
+             * opcode; everything else (errors, MPR, orphan) renders raw. */
+            if (success && opcode_known) {
+                switch (opcode) {
+                case NVME_MI_MI_OPC_READ_DS:
+                    /* The request's DTYP selects the structure layout; without
+                     * it (truncated request) fall back to raw. */
+                    if (!req) {
+                        proto_tree_add_item(mi_tree, hf_nvme_mi_mi_data,
+                                            tvb, 4, -1, ENC_NA);
+                        break;
+                    }
+                    switch (req->dtyp) {
+                    case NVME_MI_DTYP_SUBSYS_INFO:
+                        nvme_mi_mi_data_subsys_info(tvb, pinfo, mi_tree, it,
+                                                    4, dlen);
+                        break;
+                    case NVME_MI_DTYP_PORT_INFO:
+                        nvme_mi_mi_data_port_info(tvb, pinfo, mi_tree, it,
+                                                  4, dlen);
+                        break;
+                    case NVME_MI_DTYP_CTRL_LIST:
+                        nvme_mi_mi_data_ctrl_list(tvb, pinfo, mi_tree, it,
+                                                  4, dlen);
+                        break;
+                    case NVME_MI_DTYP_CTRL_INFO:
+                        nvme_mi_mi_data_ctrl_info(tvb, pinfo, mi_tree, it,
+                                                  4, dlen);
+                        break;
+                    case NVME_MI_DTYP_OSC_LIST:
+                    case NVME_MI_DTYP_MEB_LIST:
+                        nvme_mi_mi_data_cmd_list(tvb, pinfo, mi_tree, it,
+                                                 4, dlen);
+                        break;
+                    default:
+                        proto_tree_add_item(mi_tree, hf_nvme_mi_mi_data,
+                                            tvb, 4, -1, ENC_NA);
+                        break;
+                    }
                     break;
-                case NVME_MI_DTYP_PORT_INFO:
-                    nvme_mi_mi_data_port_info(tvb, pinfo, mi_tree, it,
-                                              4, dlen);
+                case NVME_MI_MI_OPC_SUBSYS_HSP:
+                    nvme_mi_mi_data_nshds(tvb, pinfo, mi_tree, it, 4, dlen);
                     break;
-                case NVME_MI_DTYP_CTRL_LIST:
-                    nvme_mi_mi_data_ctrl_list(tvb, pinfo, mi_tree, it,
-                                              4, dlen);
+                case NVME_MI_MI_OPC_CTRL_HSP:
+                    nvme_mi_mi_data_chds_list(tvb, pinfo, mi_tree, it, 4, dlen);
                     break;
-                case NVME_MI_DTYP_CTRL_INFO:
-                    nvme_mi_mi_data_ctrl_info(tvb, pinfo, mi_tree, it,
-                                              4, dlen);
-                    break;
-                case NVME_MI_DTYP_OSC_LIST:
-                case NVME_MI_DTYP_MEB_LIST:
-                    nvme_mi_mi_data_cmd_list(tvb, pinfo, mi_tree, it,
-                                             4, dlen);
+                case NVME_MI_MI_OPC_VPD_READ:
+                    /* Response Data is the requested window of VPD bytes
+                     * (Figure 130). */
+                    proto_tree_add_item(mi_tree, hf_nvme_mi_mi_vpd_data,
+                                        tvb, 4, -1, ENC_NA);
                     break;
                 default:
                     proto_tree_add_item(mi_tree, hf_nvme_mi_mi_data,
                                         tvb, 4, -1, ENC_NA);
                     break;
                 }
-            } else if (success && opcode_known &&
-                       opcode == NVME_MI_MI_OPC_SUBSYS_HSP) {
-                nvme_mi_mi_data_nshds(tvb, pinfo, mi_tree, it, 4, dlen);
-            } else if (success && opcode_known &&
-                       opcode == NVME_MI_MI_OPC_CTRL_HSP) {
-                nvme_mi_mi_data_chds_list(tvb, pinfo, mi_tree, it, 4, dlen);
-            } else if (success && opcode_known &&
-                       opcode == NVME_MI_MI_OPC_VPD_READ) {
-                /* Response Data is the requested window of VPD bytes
-                 * (Figure 130). */
-                proto_tree_add_item(mi_tree, hf_nvme_mi_mi_vpd_data,
-                                    tvb, 4, -1, ENC_NA);
             } else {
                 proto_tree_add_item(mi_tree, hf_nvme_mi_mi_data,
                                     tvb, 4, -1, ENC_NA);
@@ -1706,7 +1705,7 @@ proto_register_nvme_mi_mi(void)
         },
         { &hf_nvme_mi_mi_cmdlist_nmimt,
           { "NVMe-MI Message Type (NMIMT)", "nvme-mi.mi.cmdlist.nmimt",
-            FT_UINT8, BASE_HEX, VALS(mi_cmdlist_nmimt_vals), 0x78,
+            FT_UINT8, BASE_HEX, VALS(mi_type_vals), 0x78,
             NULL, HFILL },
         },
         { &hf_nvme_mi_mi_cmdlist_opc,
@@ -1888,7 +1887,7 @@ proto_register_nvme_mi_mi(void)
         },
         { &hf_nvme_mi_mi_chds_csts_shst,
           { "Shutdown Status (SHST)", "nvme-mi.mi.chds.csts.shst",
-            FT_UINT16, BASE_HEX, VALS(mi_shst_vals), 0x000C,
+            FT_UINT16, BASE_HEX, VALS(shst_table), 0x000C,
             NULL, HFILL },
         },
         { &hf_nvme_mi_mi_chds_csts_cfs,

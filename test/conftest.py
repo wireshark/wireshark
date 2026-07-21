@@ -438,3 +438,63 @@ def make_screenshot_on_error(request, make_screenshot, result_file):
             make_screenshot(filename)
             raise
     return make_screenshot_on_error_real
+
+
+@pytest.fixture
+def tshark_fields(cmd_tshark, capture_file, test_env):
+    '''Runs `tshark -r <capture> [-2] [-Y <filter>] -Tfields -e <field>...`
+    over a capture in test/captures/ and returns its raw stdout.
+
+    This is the standard dissector-test invocation, so it lives here rather
+    than being reimplemented per suite.  Pass two_pass=True for generated
+    fields that only resolve on the second dissection pass (e.g. a link to a
+    later frame), and separator to override the default tab field separator.
+    '''
+    def run(filename, dfilter=None, fields=('frame.number',), two_pass=False,
+            separator=None):
+        cmd = [cmd_tshark, '-r', capture_file(filename)]
+        if two_pass:
+            cmd.append('-2')
+        if dfilter is not None:
+            cmd += ['-Y', dfilter]
+        cmd.append('-Tfields')
+        if separator is not None:
+            cmd += ['-E', 'separator={}'.format(separator)]
+        for field in fields:
+            cmd += ['-e', field]
+        return subprocess.check_output(cmd, encoding='utf-8', env=test_env)
+    return run
+
+
+@pytest.fixture
+def assert_frame_matches(tshark_fields):
+    '''Asserts that a display filter expression matches exactly the given
+    frame of a capture.'''
+    def check(filename, frame, expr):
+        stdout = tshark_fields(filename, 'frame.number == {} && {}'.format(frame, expr))
+        assert stdout.strip() == str(frame), \
+            'Frame {}: filter did not match: {}'.format(frame, expr)
+    return check
+
+
+@pytest.fixture
+def assert_frames_match(tshark_fields):
+    '''Asserts several (frame, expr) cases in a *single* tshark invocation.
+
+    Spawning tshark is the dominant cost of a dissector suite (process startup
+    plus dissector registration per call), so per-frame loops that each spawn
+    tshark are collapsed here: the cases are OR'd into one display filter and
+    the matching frame set is checked in one shot.
+
+    A frame is reported only if its expr is true, so a missing frame in the
+    output means that case failed.  Pass two_pass=True when any expr uses a
+    field that needs the second dissection pass.
+    '''
+    def check(filename, cases, two_pass=False):
+        terms = ['(frame.number == {} && ({}))'.format(f, e) for f, e in cases]
+        stdout = tshark_fields(filename, ' || '.join(terms), two_pass=two_pass)
+        got = sorted(int(x) for x in stdout.split())
+        expected = sorted({f for f, _ in cases})
+        assert got == expected, \
+            'matched frames {}, expected {}; cases={}'.format(got, expected, cases)
+    return check

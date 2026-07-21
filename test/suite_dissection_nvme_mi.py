@@ -33,65 +33,12 @@ tools/gen-nvme-mi-test-capture.py:
     or corrupting the request/response tracking.
 """
 
-import subprocess
-
 import pytest
 
 
-@pytest.fixture
-def tshark_fields(cmd_tshark, capture_file, test_env):
-    """Run `tshark -r <capture> [-2] [-Y <filter>] -Tfields -e <field>...`
-    over a capture under test/captures/ and return its raw stdout.
-
-    Pass two_pass=True for generated fields that need the second dissection
-    pass (e.g. nvme-mi.response_in).
-    """
-    def run(filename, dfilter=None, fields=('frame.number',), two_pass=False):
-        cmd = [cmd_tshark, '-r', capture_file(filename)]
-        if two_pass:
-            cmd.append('-2')
-        if dfilter is not None:
-            cmd += ['-Y', dfilter]
-        cmd.append('-Tfields')
-        for field in fields:
-            cmd += ['-e', field]
-        return subprocess.check_output(cmd, encoding='utf-8', env=test_env)
-    return run
-
-
-@pytest.fixture
-def assert_frame_matches(tshark_fields):
-    """Assert that a display filter expression matches exactly the given
-    frame of the capture."""
-    def check(filename, frame, expr):
-        stdout = tshark_fields(filename, f'frame.number == {frame} && {expr}')
-        assert stdout.strip() == str(frame), \
-            f'Frame {frame}: filter did not match: {expr}'
-    return check
-
-
-@pytest.fixture
-def assert_frames_match(tshark_fields):
-    """Assert several (frame, expr) cases in a *single* tshark invocation.
-
-    Spawning tshark is the dominant cost of this suite (~0.1 s of process
-    startup + dissector registration per call), so per-frame loops that each
-    spawn tshark are collapsed into one call here: the cases are OR'd into a
-    single display filter and the matching frame set is checked in one shot.
-
-    Each case is (frame_number, expr).  A frame is reported only if its expr
-    is true, so a missing frame in the output means that case failed.  Pass
-    two_pass=True when any expr uses a field that needs the second dissection
-    pass (e.g. nvme-mi.response_in).
-    """
-    def check(filename, cases, two_pass=False):
-        terms = [f'(frame.number == {f} && ({e}))' for f, e in cases]
-        stdout = tshark_fields(filename, ' || '.join(terms), two_pass=two_pass)
-        got = sorted(int(x) for x in stdout.split())
-        expected = sorted({f for f, _ in cases})
-        assert got == expected, \
-            f'matched frames {got}, expected {expected}; cases={cases}'
-    return check
+# The tshark_fields / assert_frame_matches / assert_frames_match fixtures this
+# suite drives are the standard dissector-test invocations and live in
+# test/conftest.py.
 
 
 @pytest.fixture
@@ -544,9 +491,13 @@ class TestNvmeMiTypes:
         """F16 (Get Features request) carries the data-length dword nvme-mi.admin.dlen = 0x1000."""
         assert_frame_matches(self.FILE, 16, 'nvme-mi.admin.dlen == 0x1000')
 
-    def test_admin_sqe10_on_identify(self, assert_frame_matches):
-        """F28 (Conv2 Admin Identify) carries CNS=1 encoded in SQE10 (nvme-mi.admin.sqe10)."""
-        assert_frame_matches(self.FILE, 28, 'nvme-mi.admin.sqe10 == 0x01')
+    def test_admin_identify_cns_shared_decode(self, assert_frame_matches):
+        """F28 (Conv2 Admin Identify) CDW10 is decoded by the shared
+        packet-nvme.c helper: CNS=1 (Identify Controller) surfaces as
+        nvme.cmd.identify.dword10.cns rather than the old raw sqe10 dword."""
+        assert_frame_matches(self.FILE, 28,
+                             'nvme-mi.admin.opcode == 0x06 && '
+                             'nvme.cmd.identify.dword10.cns == 0x01')
 
     # ------------------------------------------------------------------
     # MI response nmresp field
@@ -1113,3 +1064,189 @@ class TestNvmeMiMalformed:
         stdout = tshark_fields(self.FILE,
                                'frame.number == 102 && nvme-mi.response_is_mpr')
         assert stdout.strip() == ''
+
+
+class TestNvmeMiAdminCommands:
+    """Admin SQE CDW10-15 shared-decode coverage (MR4).
+
+    nvme-mi-admin-decode.pcapng (11 frames, request-only) drives the NVMe-MI
+    Admin request through nvme_dissect_admin_sqe_cdws() -- the same decode
+    packet-nvme.c uses for the NVMe transports -- so the opcode-specific command
+    dwords surface with their NVMe field names (and DW nesting) under the MI
+    admin tree:
+
+      F1 Identify (06h) CNS=01h, F2 Get Log Page (02h) LID=02h,
+      F3 Set Features (09h) FID=02h, F4 Get Features (0Ah) FID=04h,
+      F5 Format NVM (80h) CDW10 fields, F6 Firmware Commit (10h) FS/CA,
+      F7 FW Image Download (11h) NUMD/OFST, F8 Device Self-test (14h) STC,
+      F9 Lockdown (24h) SCP/PRHBT/IFC/OFI + UUID Index, F10 Sanitize (84h)
+      SANACT/AUSE/NDAS + Overwrite Pattern, F11 Abort (08h) -> Prohibited (expert).
+    """
+
+    FILE = 'nvme-mi-admin-decode.pcapng'
+
+    def test_frame_count(self, tshark_fields):
+        stdout = tshark_fields(self.FILE, 'nvme-mi.admin.opcode')
+        assert stdout.split() == ['1', '2', '3', '4', '5',
+                                  '6', '7', '8', '9', '10', '11']
+
+    def test_shared_cdw10_decode(self, assert_frames_match):
+        """Each decoded opcode's CDW10 is rendered by the shared packet-nvme.c
+        helper, so its NVMe field (nested under DWORD10) resolves under the MI
+        admin request."""
+        assert_frames_match(self.FILE, [
+            (1, 'nvme.cmd.identify.dword10.cns == 0x01'),
+            (1, 'nvme.cmd.identify.dword10.cntid == 0x0000'),
+            (2, 'nvme.cmd.get_logpage.dword10.id == 0x02'),
+            (3, 'nvme.cmd.set_features.dword10.fid == 0x02'),
+            (4, 'nvme.cmd.get_features.dword10.fid == 0x04'),
+        ])
+
+    def test_format_nvm_cdw10_fields(self, assert_frame_matches):
+        """F5 Format NVM (80h) CDW10 sub-fields decode (NVMe Base Figure 193)."""
+        assert_frame_matches(self.FILE, 5,
+                             'nvme-mi.admin.opcode == 0x80 && '
+                             'nvme.cmd.format_nvm.dword10.lbafl == 1 && '
+                             'nvme.cmd.format_nvm.dword10.mset == 1 && '
+                             'nvme.cmd.format_nvm.dword10.pi == 2 && '
+                             'nvme.cmd.format_nvm.dword10.pil == 1 && '
+                             'nvme.cmd.format_nvm.dword10.ses == 1')
+
+    def test_fw_commit_cdw10_fields(self, assert_frame_matches):
+        """F6 Firmware Commit (10h) CDW10 FS/CA decode (NVMe Base Figure 185)."""
+        assert_frame_matches(self.FILE, 6,
+                             'nvme-mi.admin.opcode == 0x10 && '
+                             'nvme.cmd.fw_commit.dword10.fs == 1 && '
+                             'nvme.cmd.fw_commit.dword10.ca == 3')
+
+    def test_fw_download_numd_ofst(self, assert_frame_matches):
+        """F7 Firmware Image Download (11h) NUMD (CDW10) and OFST (CDW11)
+        decode (NVMe Base Figures 189/190)."""
+        assert_frame_matches(self.FILE, 7,
+                             'nvme-mi.admin.opcode == 0x11 && '
+                             'nvme.cmd.fw_download.numd == 0xff && '
+                             'nvme.cmd.fw_download.ofst == 0x100')
+
+    def test_self_test_stc(self, assert_frame_matches):
+        """F8 Device Self-test (14h) Self-test Code decode (NVMe Base
+        Figure 175)."""
+        assert_frame_matches(self.FILE, 8,
+                             'nvme-mi.admin.opcode == 0x14 && '
+                             'nvme.cmd.self_test.dword10.stc == 2')
+
+    def test_lockdown_cdw10_and_uuid_index(self, assert_frame_matches):
+        """F9 Lockdown (24h) CDW10 fields plus CDW14 UUID Index (NVMe Base
+        Figures 353/354)."""
+        assert_frame_matches(self.FILE, 9,
+                             'nvme-mi.admin.opcode == 0x24 && '
+                             'nvme.cmd.lockdown.dword10.scp == 0 && '
+                             'nvme.cmd.lockdown.dword10.prhbt == 1 && '
+                             'nvme.cmd.lockdown.dword10.ifc == 2 && '
+                             'nvme.cmd.lockdown.dword10.ofi == 9 && '
+                             'nvme.cmd.lockdown.dword14.uidx == 1')
+
+    def test_sanitize_cdw10_and_pattern(self, assert_frame_matches):
+        """F10 Sanitize (84h) CDW10 fields plus CDW11 Overwrite Pattern
+        (NVMe Base Figures 388/389)."""
+        assert_frame_matches(self.FILE, 10,
+                             'nvme-mi.admin.opcode == 0x84 && '
+                             'nvme.cmd.sanitize.dword10.sanact == 2 && '
+                             'nvme.cmd.sanitize.dword10.ause == 1 && '
+                             'nvme.cmd.sanitize.dword10.ndas == 1 && '
+                             'nvme.cmd.sanitize.ovrpat == 0xdeadbeef')
+
+    def test_unhandled_opcode_dw_labeled_fallback(self, assert_frame_matches):
+        """F11 Abort (08h) has no per-opcode CDW decoder, so CDW10 falls back to
+        the shared DW-labeled raw dword (nvme.cmd.dword10), preserving the DW
+        reference for opcodes that are not decoded."""
+        assert_frame_matches(self.FILE, 11,
+                             'nvme-mi.admin.opcode == 0x08 && '
+                             'nvme.cmd.dword10 == 0x00000000')
+
+    def test_prohibited_opcode_expert(self, assert_frame_matches):
+        """F11 Abort (08h) is Prohibited over the Management Interface and must
+        raise the prohibited-opcode expert; the shared table still names it."""
+        assert_frame_matches(self.FILE, 11,
+                             'nvme-mi.admin.opcode == 0x08 && '
+                             'nvme-mi.admin.prohibited_opcode')
+
+    def test_non_prohibited_opcodes_no_expert(self, tshark_fields):
+        """The prohibited expert fires only for F11; the legitimate opcodes
+        (F1-F10) must not raise it."""
+        stdout = tshark_fields(self.FILE, 'nvme-mi.admin.prohibited_opcode')
+        assert stdout.split() == ['11']
+
+    def test_renamed_header_fields(self, assert_frames_match):
+        """The common SQE header now decodes with DW-referenced names
+        (Controller ID + NSID/MPTR) instead of the old opaque sqe1-5 dwords."""
+        assert_frames_match(self.FILE, [
+            (1, 'nvme-mi.admin.ctrl-id == 0x0001 && nvme-mi.admin.nsid == 0 && '
+                'nvme-mi.admin.mptr == 0'),
+            (4, 'nvme-mi.admin.ctrl-id == 0x0004'),
+        ])
+
+    def test_sqe_hidden_aliases_resolve(self, assert_frame_matches):
+        """The pre-split nvme-mi.admin.sqe* field names are preserved as hidden
+        aliases for display-filter compatibility.  On F1 (Identify, NSID=0,
+        MPTR=0, CDW10 CNS=1) the envelope aliases resolve to the same dwords as
+        the visible NSID/CDW2/CDW3 fields, and the legacy raw CDW10 alias (which
+        has no visible nvme-mi.admin counterpart any more) still reads
+        0x00000001."""
+        assert_frame_matches(self.FILE, 1,
+                             'nvme-mi.admin.sqe1 == nvme-mi.admin.nsid && '
+                             'nvme-mi.admin.sqe2 == nvme-mi.admin.cdw2 && '
+                             'nvme-mi.admin.sqe3 == nvme-mi.admin.cdw3 && '
+                             'nvme-mi.admin.sqe4 == 0 && '
+                             'nvme-mi.admin.sqe5 == 0 && '
+                             'nvme-mi.admin.sqe10 == 0x00000001')
+
+    def test_col_info_opcode_and_detail(self, tshark_fields):
+        """COL_INFO carries the opcode name (shared table) plus the CNS /
+        log-page detail the shared decoder appends."""
+        stdout = tshark_fields(self.FILE, 'frame.number <= 2',
+                               fields=('frame.number', '_ws.col.info'))
+        rows = [line.split('\t', 1) for line in stdout.splitlines()]
+        assert rows == [
+            ['1', 'NVMe-MI NVMe Admin command Request (Identify) Controller'],
+            ['2', 'NVMe-MI NVMe Admin command Request (Get Log Page) '
+                  'SMART/Health Information'],
+        ]
+
+
+class TestNvmeMiTypeMismatch:
+    """Cross-NMIMT slot reuse (nvme-mi-typemismatch.pcapng).
+
+    ADMIN and MI commands share the per-CSI command slot, so a malformed
+    capture can land a response of one type on a slot opened by a request of
+    the other type.  The framing layer links by slot, but each body dissector
+    must reject the mismatch (NMIMT check) and treat it as an orphan response
+    rather than recovering the other type's opcode / casting its body_ctx.
+
+      F1 Admin Identify request  (CSI=0) opens the slot as ADMIN
+      F2 MI    success response  (CSI=0) lands on the ADMIN slot
+      F3 MI    request           (CSI=1) opens the slot as MI
+      F4 Admin success response  (CSI=1) lands on the MI slot
+    """
+
+    FILE = 'nvme-mi-typemismatch.pcapng'
+
+    def test_frame_count(self, tshark_fields):
+        """All 4 frames decode as NVMe-MI."""
+        stdout = tshark_fields(self.FILE, 'nvme-mi')
+        assert stdout.split() == ['1', '2', '3', '4']
+
+    def test_mi_response_on_admin_slot_is_orphan(self, assert_frame_matches):
+        """F2 (MI response) sits on the ADMIN-opened CSI=0 slot: the MI body
+        flags orphan_response and must NOT recover the admin opcode (06h) — a
+        regression in the NMIMT guard would surface nvme-mi.mi.opcode == 0x06
+        here from the admin request's recorded opcode."""
+        assert_frame_matches(self.FILE, 2,
+                             'nvme-mi.mi.orphan_response && !nvme-mi.mi.opcode')
+
+    def test_admin_response_on_mi_slot_is_orphan(self, assert_frame_matches):
+        """F4 (Admin response) sits on the MI-opened CSI=1 slot: the Admin body
+        flags orphan_response and must NOT recover an opcode from the MI
+        request's transaction."""
+        assert_frame_matches(self.FILE, 4,
+                             'nvme-mi.admin.orphan_response && '
+                             '!nvme-mi.admin.opcode')
