@@ -2455,7 +2455,16 @@ signal_pipe_capquit_to_child(capture_session *cap_session)
     /*sync_pipe_write_string_msg(cap_session->signal_pipe_write_fd, SP_QUIT, quit_msg);*/
     ret = ws_write(cap_session->signal_pipe_write_fd, quit_msg, sizeof quit_msg);
     if(ret == -1) {
-        ws_warning("%d header: error %s", cap_session->signal_pipe_write_fd, win32strerror(GetLastError()));
+        DWORD lastError = GetLastError();
+        switch (lastError) {
+        case ERROR_NO_DATA:
+            /* "The pipe is being closed." - This is a normal condition in
+             * this situation. */
+            ws_debug("%s", win32strerror(lastError));
+            break;
+        default:
+            ws_warning("%d header: error %s", cap_session->signal_pipe_write_fd, win32strerror(lastError));
+        }
     }
 }
 #endif
