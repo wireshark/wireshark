@@ -202,9 +202,17 @@ void WorkspaceState::addRecentCaptureFile(const QString &filePath)
         return;
     }
 
+    // Note: QDir.canonicalPath requires that a file actually exist,
+    // as that's the only way to resolve symbolic links.
+    // absolutePath followed by cleanPath is similar to canonicalPath,
+    // but doesn't resolve symbolic links, thus not requiring the file
+    // exists.
+    QDir fileDir(filePath);
+    QString canonicalFilePath = QDir::toNativeSeparators(QDir::cleanPath(fileDir.absolutePath()));
+
     // Remove existing entry if present (Qt5-compatible approach)
-    auto matchesPath = [&filePath](const RecentFileInfo &info) {
-        return filePathsMatch(info.filename, filePath);
+    auto matchesPath = [&canonicalFilePath](const RecentFileInfo &info) {
+        return filePathsMatch(info.filename, canonicalFilePath);
     };
     recent_capture_files_.erase(
         std::remove_if(recent_capture_files_.begin(), recent_capture_files_.end(), matchesPath),
@@ -214,7 +222,7 @@ void WorkspaceState::addRecentCaptureFile(const QString &filePath)
     RecentFileInfo info;
     info.size = 0;
     info.accessible = false;
-    info.filename = filePath;
+    info.filename = canonicalFilePath;
     recent_capture_files_.append(info);
 
     // Trim to max size (remove oldest = front of list)
@@ -224,7 +232,7 @@ void WorkspaceState::addRecentCaptureFile(const QString &filePath)
     }
 
     // Queue async status check for the newly added file
-    queueFileStatusCheck(filePath);
+    queueFileStatusCheck(canonicalFilePath);
 
     emit recentCaptureFilesChanged();
     write_recent();  // Persist immediately
@@ -232,9 +240,11 @@ void WorkspaceState::addRecentCaptureFile(const QString &filePath)
 
 void WorkspaceState::removeRecentCaptureFile(const QString &filePath)
 {
+    QDir fileDir(filePath);
+    QString canonicalFilePath = QDir::toNativeSeparators(QDir::cleanPath(fileDir.absolutePath()));
     // Qt5-compatible approach using std::remove_if
-    auto matchesPath = [&filePath](const RecentFileInfo &info) {
-        return filePathsMatch(info.filename, filePath);
+    auto matchesPath = [&canonicalFilePath](const RecentFileInfo &info) {
+        return filePathsMatch(info.filename, canonicalFilePath);
     };
     auto originalSize = recent_capture_files_.size();
     auto newEnd = std::remove_if(recent_capture_files_.begin(), recent_capture_files_.end(), matchesPath);
