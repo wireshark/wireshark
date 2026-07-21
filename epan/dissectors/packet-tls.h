@@ -14,6 +14,9 @@
 #include "ws_symbol_export.h"
 #include <epan/packet.h>
 
+/* Opaque structure; the details are defined in packet-tls-utils.h */
+typedef struct _SslDecryptSession SslDecryptSession;
+
 struct tlsinfo {
         uint32_t seq; /* The sequence number within the TLS stream. */
         bool is_reassembled;
@@ -31,6 +34,37 @@ WS_DLL_PUBLIC void ssl_set_master_secret(uint32_t frame_num, address *addr_srv, 
                                   uint32_t version, int cipher, const unsigned char *_master_secret,
                                   const unsigned char *_client_random, const unsigned char *_server_random,
                                   uint32_t client_seq, uint32_t server_seq);
+
+/**
+ * Returns a SslDecryptSession pointer that can be used to retrieve info
+ * about the current TLS session for a packet. This function is used by the
+ * TLS dissector itself or by dissectors like QUIC that use a TLS handshake
+ * but whose later packets are not inside a TLS record layer.
+ *
+ * This returns NULL if a session does not exist. Use ssl_get_session to
+ * create a new session if one does not exist.
+ *
+ * @note At the very end of a packet dissection (e.g., when Follow Stream
+ * functions are called), the TLS nested proto depth should be reset to
+ * zero and this will return the first TLS session, if any.
+ */
+extern SslDecryptSession *
+tls_get_current_session(packet_info *pinfo);
+
+/**
+ * Returns a SslDecryptSession pointer that can be used to retrieve info
+ * about the TLS session of the TLS record layer that just called the
+ * current dissector. This is use by subdissectors whose PDUs are inside
+ * a TLS record layer.
+ *
+ * This returns NULL if there was not a previous TLS record layer.
+ *
+ * @note At the very end of a packet dissection, the TLS nested proto
+ * depth should be reset to zero and this will return NULL.
+ */
+extern SslDecryptSession *
+tls_get_parent_session(packet_info *pinfo);
+
 /**
  * Retrieves Libgcrypt identifiers for the current TLS cipher. Only valid after
  * the Server Hello has been processed and if the current conversation has TLS.
@@ -38,14 +72,14 @@ WS_DLL_PUBLIC void ssl_set_master_secret(uint32_t frame_num, address *addr_srv, 
  * ('cipher_suite') is provided (non-zero).
  */
 extern bool
-tls_get_cipher_info(packet_info *pinfo, uint16_t cipher_suite, int *cipher_algo, int *cipher_mode, int *hash_algo);
+tls_get_cipher_info(SslDecryptSession *tls_session, uint16_t cipher_suite, int *cipher_algo, int *cipher_mode, int *hash_algo);
 
 /**
  * Computes the TLS 1.3 "TLS-Exporter(label, context_value, key_length)" value.
  * On success, the secret is in "out" (free with "wmem_free(NULL, out)").
  */
 bool
-tls13_exporter(packet_info *pinfo, bool is_early,
+tls13_exporter(SslDecryptSession *tls_session, bool is_early,
                const char *label, uint8_t *context,
                unsigned context_length, unsigned key_length, unsigned char **out);
 
@@ -53,24 +87,27 @@ int
 tls13_get_quic_secret(packet_info *pinfo, bool is_from_server, int type, unsigned secret_min_len, unsigned secret_max_len, uint8_t *secret_out);
 
 /**
- * Returns the application-layer protocol name (ALPN) for the current TLS
- * session, or NULL if unavailable.
+ * Returns the application-layer protocol name (ALPN) for a TLS session,
+ * or NULL if unavailable.
  *
- * @note This is for the TLS dissector itself to determine what next dissector
- * to call; it is externally linked (but not public) because the QUIC dissector
- * also uses it due to how QUIC uses the TLS handshake information without TLS
- * being called on later frames. Dissectors that want to know how they were
- * called should check pinfo->match_string.
+ * @note The TLS dissector itself and the QUIC dissector call this with the
+ * result of tls_get_current_session. Dissectors called by TLS can call
+ * this with the session returned by tls_get_parent_session or check
+ * pinfo->match_string instead.
  */
 const char *
-tls_get_alpn(packet_info *pinfo);
+tls_get_alpn(SslDecryptSession *tls_session);
 
 /**
  * Returns the application-layer protocol name (ALPN) that the client wanted for
- * the current TLS session, or NULL if unavailable.
+ * a TLS session, or NULL if unavailable.
+ *
+ * @note The TLS dissector itself and the QUIC dissector call this with the
+ * result of tls_get_current_session. Dissectors called by TLS can call
+ * this with the session from tls_get_parent_session.
  */
 const char *
-tls_get_client_alpn(packet_info *pinfo);
+tls_get_client_alpn(SslDecryptSession *tls_session);
 
 extern uint32_t
 tls_increment_stream_count(void);

@@ -4370,20 +4370,40 @@ ssl_looks_like_valid_v2_handshake(tvbuff_t *tvb, const uint32_t offset,
     return ret;
 }
 
+SslDecryptSession *
+tls_get_current_session(packet_info *pinfo)
+{
+    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+    if (!conv) {
+        return NULL;
+    }
+
+    return tls_get_session(conv, proto_tls, p_get_proto_depth(pinfo, proto_tls));
+}
+
+SslDecryptSession *
+tls_get_parent_session(packet_info *pinfo)
+{
+    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+    if (!conv) {
+        return NULL;
+    }
+
+    int tls_depth = p_get_proto_depth(pinfo, proto_tls);
+    if (tls_depth == 0) {
+        return NULL;
+    }
+
+    return tls_get_session(conv, proto_tls, tls_depth - 1);
+}
+
 bool
-tls_get_cipher_info(packet_info *pinfo, uint16_t cipher_suite, int *cipher_algo, int *cipher_mode, int *hash_algo)
+tls_get_cipher_info(SslDecryptSession *ssl_session, uint16_t cipher_suite, int *cipher_algo, int *cipher_mode, int *hash_algo)
 {
     if (cipher_suite == 0) {
-        conversation_t *conv = find_conversation_pinfo(pinfo, 0);
-        if (!conv) {
-            return false;
-        }
-
-        SslDecryptSession *ssl_session = tls_get_session(conv, proto_tls, p_get_proto_depth(pinfo, proto_tls));
         if (ssl_session == NULL) {
             return false;
         }
-
         cipher_suite = ssl_session->session.cipher;
     }
     const SslCipherSuite *suite = ssl_find_cipher(cipher_suite);
@@ -4437,12 +4457,8 @@ tls13_get_quic_secret(packet_info *pinfo, bool is_from_server, int type, unsigne
 {
     GHashTable *key_map;
     const char *label;
-    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
-    if (!conv) {
-        return 0;
-    }
 
-    SslDecryptSession *ssl = tls_get_session(conv, proto_tls, p_get_proto_depth(pinfo, proto_tls));
+    SslDecryptSession *ssl = tls_get_current_session(pinfo);
     if (ssl == NULL) {
         return 0;
     }
@@ -4506,14 +4522,8 @@ tls13_get_quic_secret(packet_info *pinfo, bool is_from_server, int type, unsigne
 }
 
 const char *
-tls_get_alpn(packet_info *pinfo)
+tls_get_alpn(SslDecryptSession *session)
 {
-    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
-    if (!conv) {
-        return NULL;
-    }
-
-    SslDecryptSession *session = tls_get_session(conv, proto_tls, p_get_proto_depth(pinfo, proto_tls));
     if (session == NULL) {
         return NULL;
     }
@@ -4522,14 +4532,8 @@ tls_get_alpn(packet_info *pinfo)
 }
 
 const char *
-tls_get_client_alpn(packet_info *pinfo)
+tls_get_client_alpn(SslDecryptSession *session)
 {
-    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
-    if (!conv) {
-        return NULL;
-    }
-
-    SslDecryptSession *session = tls_get_session(conv, proto_tls, p_get_proto_depth(pinfo, proto_tls));
     if (session == NULL) {
         return NULL;
     }
@@ -4593,7 +4597,7 @@ tls13_exporter_common(int algo, const StringInfo *secret, const char *label, uin
  * tls13_exporter_common for more details.
  */
 bool
-tls13_exporter(packet_info *pinfo, bool is_early,
+tls13_exporter(SslDecryptSession *ssl_session, bool is_early,
                const char *label, uint8_t *context,
                unsigned context_length, unsigned key_length, unsigned char **out)
 {
@@ -4601,21 +4605,15 @@ tls13_exporter(packet_info *pinfo, bool is_early,
     GHashTable *key_map;
     const StringInfo *secret;
 
-    if (!tls_get_cipher_info(pinfo, 0, NULL, NULL, &hash_algo)) {
-        return false;
-    }
-
-    /* Lookup EXPORTER_SECRET based on client_random from conversation */
-    conversation_t *conv = find_conversation_strat(pinfo, conversation_pt_to_conversation_type(pinfo->ptype), 0, false);
-    if (!conv) {
-        return false;
-    }
-
-    SslDecryptSession *ssl_session = tls_get_session(conv, proto_tls, p_get_proto_depth(pinfo, proto_tls));
     if (ssl_session == NULL) {
         return false;
     }
 
+    if (!tls_get_cipher_info(ssl_session, 0, NULL, NULL, &hash_algo)) {
+        return false;
+    }
+
+    /* Lookup EXPORTER_SECRET based on client_random from conversation */
     ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
     key_map = is_early ? ssl_master_key_map.tls13_early_exporter
                        : ssl_master_key_map.tls13_exporter;

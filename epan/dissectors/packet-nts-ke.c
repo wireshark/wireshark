@@ -309,10 +309,11 @@ nts_new_cookie(tvbuff_t *tvb, uint16_t aead, packet_info *pinfo)
     if(!cookie) {
 
         /* Extract keys */
-        k1 = tls13_exporter(pinfo, false,
+        SslDecryptSession *tls_session = tls_get_parent_session(pinfo);
+        k1 = tls13_exporter(tls_session, false,
                 NTS_KE_EXPORTER_LABEL, ex_context_c2s,
                 sizeof(ex_context_c2s), aead_entry->key_len, &key_c2s);
-        k2 = tls13_exporter(pinfo, false,
+        k2 = tls13_exporter(tls_session, false,
                 NTS_KE_EXPORTER_LABEL, ex_context_s2c,
                 sizeof(ex_context_s2c), aead_entry->key_len, &key_s2c);
 

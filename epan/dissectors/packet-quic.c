@@ -3854,7 +3854,7 @@ quic_create_decoders(packet_info *pinfo, quic_info_data_t *quic_info, quic_ciphe
                      bool from_server, TLSRecordType type, const char **error)
 {
     if (!quic_info->hash_algo) {
-        if (!tls_get_cipher_info(pinfo, 0, &quic_info->cipher_algo, &quic_info->cipher_mode, &quic_info->hash_algo)) {
+        if (!tls_get_cipher_info(tls_get_current_session(pinfo), 0, &quic_info->cipher_algo, &quic_info->cipher_mode, &quic_info->hash_algo)) {
             *error = "Unable to retrieve cipher information";
             return false;
         }
@@ -3962,7 +3962,7 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, bool fr
     /* Try to lookup secrets if not available. */
     if (!quic_info->client_pp.next_secret) {
         /* Query TLS for the cipher suite. */
-        if (!tls_get_cipher_info(pinfo, 0, &quic_info->cipher_algo, &quic_info->cipher_mode, &quic_info->hash_algo)) {
+        if (!tls_get_cipher_info(tls_get_current_session(pinfo), 0, &quic_info->cipher_algo, &quic_info->cipher_mode, &quic_info->hash_algo)) {
             /* We end up here if:
                 * no previous TLS handshake is found
                 * the used ciphers are unsupported
@@ -4016,7 +4016,7 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, bool fr
 
         // For efficiency, look up the application layer protocol once. The
         // handshake must have been completed before, so ALPN is known.
-        const char *proto_name = tls_get_alpn(pinfo);
+        const char *proto_name = tls_get_alpn(tls_get_current_session(pinfo));
         if (proto_name) {
             quic_info->app_handle = dissector_get_string_handle(quic_proto_dissector_table, proto_name);
             quic_info->app_datagram_handle = dissector_get_string_handle(quic_datagram_proto_dissector_table, proto_name);
@@ -4733,7 +4733,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 
         // To be able to understand 0-RTT data sent we need to grab the ALPN the client wanted.
         if (long_packet_type == QUIC_LPT_INITIAL) {
-            const char *proto_name = tls_get_client_alpn(pinfo);
+            const char *proto_name = tls_get_client_alpn(tls_get_current_session(pinfo));
             if (proto_name) {
                 conn->zrtt_app_handle = dissector_get_string_handle(quic_proto_dissector_table, proto_name);
                 // If no specific handle is found, alias "h3-*" to "h3" and "doq-*" to "doq"
