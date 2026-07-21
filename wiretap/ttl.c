@@ -1642,7 +1642,7 @@ ttl_read_bytes(ttl_read_t* in, void* out, uint16_t size, int* err, char** err_in
         }
         break;
     default:
-        *err = WTAP_ERR_BAD_FILE;
+        *err = WTAP_ERR_INTERNAL;
         *err_info = ws_strdup_printf("ttl: ttl_read_t unknown validity flags: %d", in->validity);
         return false;
     }
@@ -2008,7 +2008,7 @@ ttl_check_segmented_message_recursion(const ttl_read_t* in, int* err, char** err
     ttl_entryheader_t header;
 
     if (in->validity != VALIDITY_BUF) {
-        *err = WTAP_ERR_BAD_FILE;
+        *err = WTAP_ERR_INTERNAL;
         *err_info = ws_strdup("ttl: input buffer is not valid");
         return false;
     }
@@ -2037,7 +2037,7 @@ ttl_fix_segmented_message_entry_timestamp(const ttl_read_t* in, uint64_t timesta
     ttl_entryheader_t header;
 
     if (in->validity != VALIDITY_BUF) {
-        *err = WTAP_ERR_BAD_FILE;
+        *err = WTAP_ERR_INTERNAL;
         *err_info = ws_strdup("ttl: input buffer is not valid");
         return false;
     }
