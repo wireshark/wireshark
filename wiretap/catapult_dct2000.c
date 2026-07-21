@@ -749,7 +749,13 @@ catapult_dct2000_dump(wtap_dumper *wdh, const wtap_rec *rec,
         return false;
     }
 
-    if (!is_comment) {
+    if (is_comment) {
+        /* Comment */
+        if (!wtap_dump_file_write(wdh, pd+n, rec->rec_header.packet_header.len-n, err)) {
+            return false;
+        }
+    }
+    else {
         /* Each binary byte is written out as 2 hex string chars */
         for (; n < rec->rec_header.packet_header.len; n++) {
             char c[2];
@@ -760,12 +766,6 @@ catapult_dct2000_dump(wtap_dumper *wdh, const wtap_rec *rec,
             if (!wtap_dump_file_write(wdh, c, 2, err)) {
                 return false;
             }
-        }
-    }
-    else {
-        /* Comment */
-        if (!wtap_dump_file_write(wdh, pd+n, rec->rec_header.packet_header.len-n, err)) {
-            return false;
         }
     }
 
@@ -1141,7 +1141,10 @@ parse_line(char *linebuff, int line_length,
     }
 
     /* Next character gives direction of message (must be 's' or 'r') */
-    if (!(*is_comment)) {
+    if ((*is_comment)) {
+        *direction = sent;
+    }
+    else {
         if (linebuff[n] == 's') {
             *direction = sent;
         }
@@ -1154,9 +1157,6 @@ parse_line(char *linebuff, int line_length,
         }
         /* Skip it */
         n++;
-    }
-    else {
-        *direction = sent;
     }
 
 
@@ -1375,7 +1375,12 @@ process_parsed_line(wtap *wth, const dct2000_file_externals_t *file_externals,
     frame_buffer[stub_offset++] = (uint8_t)encap;
     ws_buffer_increase_length(&rec->data, stub_offset);
 
-    if (!is_comment) {
+    if (is_comment) {
+        /***********************************************************/
+        /* Copy packet data into buffer, just copying ascii chars  */
+        ws_buffer_append(&rec->data, (uint8_t*)&file_externals->linebuff[dollar_offset], data_chars);
+    }
+    else {
         /***********************************************************/
         /* Copy packet data into buffer, converting from ascii hex */
         for (n=0; n < (data_chars & ~1); n+=2) {
@@ -1383,11 +1388,6 @@ process_parsed_line(wtap *wth, const dct2000_file_externals_t *file_externals,
                 hex_byte_from_chars(file_externals->linebuff+dollar_offset+n);
         }
         ws_buffer_increase_length(&rec->data, data_chars/2);
-    }
-    else {
-        /***********************************************************/
-        /* Copy packet data into buffer, just copying ascii chars  */
-        ws_buffer_append(&rec->data, (uint8_t*)&file_externals->linebuff[dollar_offset], data_chars);
     }
 
     /*****************************************/
