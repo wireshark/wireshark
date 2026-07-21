@@ -1789,21 +1789,21 @@ bool StratosharkMainWindow::tryClosingCaptureFile(QString before_what, FileClose
             QPushButton *discard_button;
 
             msg_dialog.setIcon(QMessageBox::Question);
-            msg_dialog.setWindowTitle(tr("Unsaved packets…"));
+            msg_dialog.setWindowTitle(tr("Unsaved events…"));
 
             /* This file has unsaved data or there's a capture in
                progress; ask the user whether to save the data. */
             if (capture_in_progress && context != Restart) {
-                question = tr("Do you want to stop the capture and save the captured packets%1?").arg(before_what);
-                infotext = tr("Your captured packets will be lost if you don't save them.");
+                question = tr("Do you want to stop the capture and save the captured events%1?").arg(before_what);
+                infotext = tr("Your captured events will be lost if you don't save them.");
             } else if (capture_file_.capFile()->is_tempfile) {
                 if (context == Reload) {
                     // Reloading a tempfile will keep the packets, so this is not unsaved packets
                     question = tr("Do you want to save the changes you've made%1?").arg(before_what);
                     infotext = tr("Your changes will be lost if you don't save them.");
                 } else {
-                    question = tr("Do you want to save the captured packets%1?").arg(before_what);
-                    infotext = tr("Your captured packets will be lost if you don't save them.");
+                    question = tr("Do you want to save the captured events%1?").arg(before_what);
+                    infotext = tr("Your captured events will be lost if you don't save them.");
                 }
             } else {
                 // No capture in progress and not a tempfile, so this is not unsaved packets
