@@ -932,6 +932,7 @@ dissect_ses_std_req(proto_tree* ses_tree, proto_item* ses_item, tvbuff_t* tvb, p
     switch (opcode) {
     case UET_SES_OPCODE_ATOMIC:
     case UET_SES_OPCODE_FETCHING_ATOMIC:
+    case UET_SES_OPCODE_TSEND_ATOMIC:
     case UET_SES_OPCODE_TSEND_FETCH_ATOMIC:
         offset += dissect_ses_atomic_hdr(ses_tree, tvb, pinfo, offset);
         break;
@@ -1005,6 +1006,7 @@ dissect_ses_small_req(proto_tree* ses_tree, proto_item* ses_item, tvbuff_t* tvb,
     switch (opcode) {
     case UET_SES_OPCODE_ATOMIC:
     case UET_SES_OPCODE_FETCHING_ATOMIC:
+    case UET_SES_OPCODE_TSEND_ATOMIC:
     case UET_SES_OPCODE_TSEND_FETCH_ATOMIC:
         offset += dissect_ses_atomic_hdr(ses_tree, tvb, pinfo, offset);
         break;
@@ -1082,6 +1084,7 @@ dissect_ses_medium_req(proto_tree* ses_tree, proto_item* ses_item, tvbuff_t* tvb
     switch (opcode) {
     case UET_SES_OPCODE_ATOMIC:
     case UET_SES_OPCODE_FETCHING_ATOMIC:
+    case UET_SES_OPCODE_TSEND_ATOMIC:
     case UET_SES_OPCODE_TSEND_FETCH_ATOMIC:
         offset += dissect_ses_atomic_hdr(ses_tree, tvb, pinfo, offset);
         break;
