@@ -81,11 +81,11 @@ typedef struct dct2000_file_externals
 
     /* Buffer to hold first line, including magic and format number */
     char firstline[MAX_FIRST_LINE_LENGTH];
-    int  firstline_length;
+    unsigned firstline_length;
 
     /* Buffer to hold second line with formatted file creation data/time */
     char secondline[MAX_TIMESTAMP_LINE_LENGTH];
-    int  secondline_length;
+    unsigned secondline_length;
 
     /* Hash table to store text prefix data part of displayed packets.
        Records (file offset -> line_prefix_info_t)
@@ -113,14 +113,14 @@ static bool catapult_dct2000_dump(wtap_dumper *wdh, const wtap_rec *rec,
 
 /************************************************************/
 /* Private helper functions                                 */
-static bool read_new_line(FILE_T fh, int *length,
+static bool read_new_line(FILE_T fh, unsigned *length,
                               char *buf, size_t bufsize, int *err,
                               char **err_info);
-static bool parse_line(char *linebuff, int line_length,
-                           int *seconds, int *useconds,
+static bool parse_line(char *linebuff, unsigned line_length,
+                           unsigned *seconds, unsigned *useconds,
                            long *before_time_offset, long *after_time_offset,
                            long *data_offset,
-                           int *data_chars,
+                           unsigned *data_chars,
                            packet_direction_t *direction,
                            int *encap, bool *is_comment, bool *is_sprint,
                            char *aal_header_chars,
@@ -131,13 +131,13 @@ static bool process_parsed_line(wtap *wth,
                                     const dct2000_file_externals_t *file_externals,
                                     wtap_rec *rec,
                                     int64_t file_offset, long dollar_offset,
-                                    int seconds, int useconds,
+                                    unsigned seconds, unsigned useconds,
                                     char *timestamp_string,
                                     packet_direction_t direction, int encap,
                                     char *context_name, uint8_t context_port,
                                     char *protocol_name, char *variant_name,
                                     char *outhdr_name, char *aal_header_chars,
-                                    bool is_comment, int data_chars,
+                                    bool is_comment, unsigned data_chars,
                                     int *err, char **err_info);
 static uint8_t hex_from_char(char c);
 static void   prepare_hex_byte_from_chars_table(void);
@@ -171,7 +171,7 @@ catapult_dct2000_open(wtap *wth, int *err, char **err_info)
 {
     time_t  timestamp;
     uint32_t usecs;
-    int firstline_length = 0;
+    unsigned firstline_length = 0;
     dct2000_file_externals_t *file_externals;
     char linebuff[MAX(MAX_FIRST_LINE_LENGTH, MAX_TIMESTAMP_LINE_LENGTH) + 1];
     static bool hex_byte_table_values_set = false;
@@ -192,7 +192,7 @@ catapult_dct2000_open(wtap *wth, int *err, char **err_info)
             return WTAP_OPEN_NOT_MINE;
         }
     }
-    if (((size_t)firstline_length < strlen(catapult_dct2000_magic)) ||
+    if ((firstline_length < strlen(catapult_dct2000_magic)) ||
         firstline_length >= MAX_FIRST_LINE_LENGTH) {
 
         return WTAP_OPEN_NOT_MINE;
@@ -360,7 +360,7 @@ catapult_dct2000_read(wtap *wth, wtap_rec *rec,
 
     /* Search for a line containing a usable packet */
     while (1) {
-        int line_length, seconds, useconds, data_chars;
+        unsigned line_length, seconds, useconds, data_chars;
         bool is_comment = false;
         bool is_sprint = false;
         int64_t this_offset;
@@ -449,7 +449,7 @@ static bool
 catapult_dct2000_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
                            int *err, char **err_info)
 {
-    int length;
+    unsigned length;
     long dollar_offset, before_time_offset, after_time_offset;
     char aal_header_chars[AAL_HEADER_CHARS];
     char context_name[MAX_CONTEXT_NAME];
@@ -461,7 +461,7 @@ catapult_dct2000_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
     bool is_sprint = false;
     packet_direction_t direction;
     int encap;
-    int seconds, useconds, data_chars;
+    unsigned seconds, useconds, data_chars;
 
     /* Get wtap external structure for this wtap */
     dct2000_file_externals_t *file_externals =
@@ -687,12 +687,12 @@ catapult_dct2000_dump(wtap_dumper *wdh, const wtap_rec *rec,
     /* Calculate time of this packet to write, relative to start of dump */
     if (rec->ts.nsecs >= dct2000->start_time.nsecs) {
         write_timestamp_string(time_string,
-                               (int)(rec->ts.secs - dct2000->start_time.secs),
+                               (unsigned)(rec->ts.secs - dct2000->start_time.secs),
                                (rec->ts.nsecs - dct2000->start_time.nsecs) / 100000);
     }
     else {
         write_timestamp_string(time_string,
-                               (int)(rec->ts.secs - dct2000->start_time.secs-1),
+                               (unsigned)(rec->ts.secs - dct2000->start_time.secs-1),
                                ((1000000000 + (rec->ts.nsecs / 100000)) - (dct2000->start_time.nsecs / 100000)) % 10000);
     }
 
@@ -789,7 +789,7 @@ catapult_dct2000_dump(wtap_dumper *wdh, const wtap_rec *rec,
 /* - return true if this read is successful                           */
 /**********************************************************************/
 static bool
-read_new_line(FILE_T fh, int *length,
+read_new_line(FILE_T fh, unsigned *length,
               char *linebuff, size_t linebuffsize, int *err, char **err_info)
 {
     /* Read in a line */
@@ -802,15 +802,15 @@ read_new_line(FILE_T fh, int *length,
     }
 
     /* Set length (avoiding strlen()) and offset.. */
-    *length = (int)(file_tell(fh) - pos_before);
+    *length = (unsigned)(file_tell(fh) - pos_before);
 
     /* ...but don't want to include newline in line length */
-    if (*length > 0 && linebuff[*length-1] == '\n') {
+    if (*length != 0 && linebuff[*length-1] == '\n') {
         linebuff[*length-1] = '\0';
         *length = *length - 1;
     }
     /* Nor do we want '\r' (as will be written when log is created on windows) */
-    if (*length > 0 && linebuff[*length-1] == '\r') {
+    if (*length != 0 && linebuff[*length-1] == '\r') {
         linebuff[*length-1] = '\0';
         *length = *length - 1;
     }
@@ -827,10 +827,10 @@ read_new_line(FILE_T fh, int *length,
 /* Return true if this packet looks valid and can be displayed        */
 /**********************************************************************/
 static bool
-parse_line(char *linebuff, int line_length,
-           int *seconds, int *useconds,
+parse_line(char *linebuff, unsigned line_length,
+           unsigned *seconds, unsigned *useconds,
            long *before_time_offset, long *after_time_offset,
-           long *data_offset, int *data_chars,
+           long *data_offset, unsigned *data_chars,
            packet_direction_t *direction,
            int *encap, bool *is_comment, bool *is_sprint,
            char *aal_header_chars,
@@ -838,7 +838,7 @@ parse_line(char *linebuff, int line_length,
            char *protocol_name, char *variant_name,
            char *outhdr_name)
 {
-    int  n = 0;
+    unsigned  n = 0;
     int  port_digits;
     char port_number_string[MAX_PORT_DIGITS+1];
     int  variant_digits;
@@ -1199,7 +1199,7 @@ parse_line(char *linebuff, int line_length,
     /* Convert found value into number */
     seconds_buff[seconds_chars] = '\0';
     /* Already know they are digits, so avoid expense of ws_strtoi32() */
-    int multiplier = 1;
+    unsigned multiplier = 1;
     *seconds = 0;
     for (int d=seconds_chars-1; d >= 0; d--) {
         *seconds += ((seconds_buff[d]-'0')*multiplier);
@@ -1232,10 +1232,10 @@ parse_line(char *linebuff, int line_length,
     /* Convert found value into microseconds */
     subsecond_decimals_buff[subsecond_decimals_chars] = '\0';
     /* Already know they are digits, so avoid expense of ws_strtoi32() */
-    *useconds = ((subsecond_decimals_buff[0]-'0') * 100000) +
-                ((subsecond_decimals_buff[1]-'0') * 10000) +
-                ((subsecond_decimals_buff[2]-'0') * 1000) +
-                ((subsecond_decimals_buff[3]-'0') * 100);
+    *useconds = ((subsecond_decimals_buff[0]-'0') * 100000U) +
+                ((subsecond_decimals_buff[1]-'0') * 10000U) +
+                ((subsecond_decimals_buff[2]-'0') * 1000U) +
+                ((subsecond_decimals_buff[3]-'0') * 100U);
 
     /* Space character must follow end of timestamp */
     if (linebuff[n] != ' ') {
@@ -1272,7 +1272,8 @@ parse_line(char *linebuff, int line_length,
     /* May need to skip first byte (2 hex string chars) */
     if (skip_first_byte) {
         *data_offset += 2;
-        *data_chars -= 2;
+        if (*data_chars >= 2)
+            *data_chars -= 2;
     }
 
     return true;
@@ -1285,15 +1286,14 @@ static bool
 process_parsed_line(wtap *wth, const dct2000_file_externals_t *file_externals,
                     wtap_rec *rec,
                     int64_t file_offset, long dollar_offset,
-                    int seconds, int useconds, char *timestamp_string,
+                    unsigned seconds, unsigned useconds, char *timestamp_string,
                     packet_direction_t direction, int encap,
                     char *context_name, uint8_t context_port,
                     char *protocol_name, char *variant_name,
                     char *outhdr_name, char *aal_header_chars,
-                    bool is_comment, int data_chars,
+                    bool is_comment, unsigned data_chars,
                     int *err, char **err_info)
 {
-    int n;
     unsigned stub_offset = 0;
     size_t length;
     uint8_t *frame_buffer;
@@ -1383,7 +1383,7 @@ process_parsed_line(wtap *wth, const dct2000_file_externals_t *file_externals,
     else {
         /***********************************************************/
         /* Copy packet data into buffer, converting from ascii hex */
-        for (n=0; n < (data_chars & ~1); n+=2) {
+        for (unsigned n=0; n < (data_chars & ~1); n+=2) {
             frame_buffer[stub_offset + n/2] =
                 hex_byte_from_chars(file_externals->linebuff+dollar_offset+n);
         }
