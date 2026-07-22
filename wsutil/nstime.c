@@ -108,32 +108,30 @@ void nstime_delta(nstime_t *delta, const nstime_t *b, const nstime_t *a )
            should have the same sign, so if the difference between the
            nanoseconds values would be *positive*, subtract 1,000,000,000
            from it, and add one to the seconds value. */
-        delta->secs = b->secs;
-        if(delta->nsecs > 0) {
-            delta->nsecs -= WS_NSECS_PER_SEC;
-            /* This can never overflow, because b is less than a. */
-            delta->secs++;
-        }
-        if (ckd_sub(&delta->secs, delta->secs, a->secs)) {
+        if (ckd_sub(&delta->secs, b->secs, a->secs)) {
             /* Because b is less than a, the correct answer is smaller than
              * representable. Clamp to the minimum valid value. */
             delta->secs = TIME_T_MIN;
             delta->nsecs = 1 - WS_NSECS_PER_SEC;
             errno = ERANGE;
         }
-    } else {
-        delta->secs = b->secs;
-        if(delta->nsecs < 0) {
-            delta->nsecs += WS_NSECS_PER_SEC;
-            /* This can never overflow, because b is greater than a. */
-            delta->secs--;
+        if (delta->nsecs > 0) {
+            delta->nsecs -= WS_NSECS_PER_SEC;
+            /* This can never overflow, because b->secs was less than a->secs. */
+            delta->secs++;
         }
-        if (ckd_sub(&delta->secs, delta->secs, a->secs)) {
+    } else {
+        if (ckd_sub(&delta->secs, b->secs, a->secs)) {
             /* Because b is greater than a, the correct answer is greater
              * than representable. Clamp to the maximum valid value. */
             delta->secs = TIME_T_MAX;
             delta->nsecs = WS_NSECS_PER_SEC - 1;
             errno = ERANGE;
+        }
+        if (delta->nsecs < 0) {
+            delta->nsecs += WS_NSECS_PER_SEC;
+            /* This can never overflow, because b->secs was greater than a->secs. */
+            delta->secs--;
         }
     }
 }
