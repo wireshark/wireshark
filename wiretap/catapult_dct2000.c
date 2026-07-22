@@ -1313,15 +1313,16 @@ process_parsed_line(wtap *wth, const dct2000_file_externals_t *file_externals,
 
     if (is_comment) {
         /*
-         * Comment - the data is represented as ASCII text, so each
-         * character corresponds to one byte.
+         * Comment - the data is just the text of the comment in the file,
+         * so one character corresponds to one byte.
          */
         data_bytes = data_chars;
     } else {
         /*
-         * Non-comment - the data is represented in the file as hex
-         * bytes in a textual representtaion, every two characters
-         * translates into one byte.
+         * Non-comment - the data is the result of converting the text
+         * form of arbitrary bytes, each byte being represented as two
+         * hex digits using ASCII digits and letters from A to F, so
+         * a pair of characters corresponds to one byte.
          *
          * XXX - if data_chars is odd, we should issue a warning.
          * That requires that we have a way to issue warnings about
@@ -1334,14 +1335,14 @@ process_parsed_line(wtap *wth, const dct2000_file_externals_t *file_externals,
      * Calculate the length of the stub info and the packet data.
      */
     rec->rec_header.packet_header.caplen = (unsigned)strlen(context_name)+1 +     /* Context name */
-                   1 +                                 /* port */
+                   1 +                                    /* port */
                    (unsigned)strlen(timestamp_string)+1 + /* timestamp */
                    (unsigned)strlen(variant_name)+1 +     /* variant */
                    (unsigned)strlen(outhdr_name)+1 +      /* outhdr */
                    (unsigned)strlen(protocol_name)+1 +    /* Protocol name */
-                   1 +                                 /* direction */
-                   1 +                                 /* encap */
-                   data_bytes;
+                   1 +                                    /* direction */
+                   1 +                                    /* encap */
+                   data_bytes;                            /* data */
     if (rec->rec_header.packet_header.caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
         /*
          * Probably a corrupt capture file; return an error,
@@ -1396,12 +1397,12 @@ process_parsed_line(wtap *wth, const dct2000_file_externals_t *file_externals,
 
     if (is_comment) {
         /***********************************************************/
-        /* Copy packet data into buffer, just copying ascii chars  */
+        /* Copy the comment text verbatim into the buffer          */
         ws_buffer_append(&rec->data, (uint8_t*)&file_externals->linebuff[dollar_offset], data_bytes);
     }
     else {
         /***********************************************************/
-        /* Copy packet data into buffer, converting from ascii hex */
+        /* Copy packet data into buffer, converting from ASCII hex */
         for (unsigned n = 0; n < data_bytes; n++) {
             frame_buffer[stub_offset + n] =
                 hex_byte_from_chars(file_externals->linebuff+dollar_offset+n*2);
