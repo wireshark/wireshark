@@ -30663,13 +30663,13 @@ double QCPItemTracer::selectTest(const QPointF &pos, bool onlySelectable, QVaria
 
   QPointF center(position->pixelPosition());
   double w = mSize/2.0;
-  QRect clip = clipRect();
+  QRectF clip(clipRect());
   switch (mStyle)
   {
     case tsNone: return -1;
     case tsPlus:
     {
-      if (clipRect().intersects(QRectF(center-QPointF(w, w), center+QPointF(w, w)).toRect()))
+      if (clip.intersects(QRectF(center-QPointF(w, w), center+QPointF(w, w))))
         return qSqrt(qMin(QCPVector2D(pos).distanceSquaredToLine(center+QPointF(-w, 0), center+QPointF(w, 0)),
                           QCPVector2D(pos).distanceSquaredToLine(center+QPointF(0, -w), center+QPointF(0, w))));
       break;
@@ -30681,7 +30681,7 @@ double QCPItemTracer::selectTest(const QPointF &pos, bool onlySelectable, QVaria
     }
     case tsCircle:
     {
-      if (clip.intersects(QRectF(center-QPointF(w, w), center+QPointF(w, w)).toRect()))
+      if (clip.intersects(QRectF(center-QPointF(w, w), center+QPointF(w, w))))
       {
         // distance to border:
         double centerDist = QCPVector2D(center-pos).length();
@@ -30699,7 +30699,7 @@ double QCPItemTracer::selectTest(const QPointF &pos, bool onlySelectable, QVaria
     }
     case tsSquare:
     {
-      if (clip.intersects(QRectF(center-QPointF(w, w), center+QPointF(w, w)).toRect()))
+      if (clip.intersects(QRectF(center-QPointF(w, w), center+QPointF(w, w))))
       {
         QRectF rect = QRectF(center-QPointF(w, w), center+QPointF(w, w));
         bool filledRect = mBrush.style() != Qt::NoBrush && mBrush.color().alpha() != 0;
@@ -30722,13 +30722,13 @@ void QCPItemTracer::draw(QCPPainter *painter)
   painter->setBrush(mainBrush());
   QPointF center(position->pixelPosition());
   double w = mSize/2.0;
-  QRect clip = clipRect();
+  QRectF clip(clipRect());
   switch (mStyle)
   {
     case tsNone: return;
     case tsPlus:
     {
-      if (clip.intersects(QRectF(center-QPointF(w, w), center+QPointF(w, w)).toRect()))
+      if (clip.intersects(QRectF(center-QPointF(w, w), center+QPointF(w, w))))
       {
         painter->drawLine(QLineF(center+QPointF(-w, 0), center+QPointF(w, 0)));
         painter->drawLine(QLineF(center+QPointF(0, -w), center+QPointF(0, w)));
@@ -30745,13 +30745,13 @@ void QCPItemTracer::draw(QCPPainter *painter)
     }
     case tsCircle:
     {
-      if (clip.intersects(QRectF(center-QPointF(w, w), center+QPointF(w, w)).toRect()))
+      if (clip.intersects(QRectF(center-QPointF(w, w), center+QPointF(w, w))))
         painter->drawEllipse(center, w, w);
       break;
     }
     case tsSquare:
     {
-      if (clip.intersects(QRectF(center-QPointF(w, w), center+QPointF(w, w)).toRect()))
+      if (clip.intersects(QRectF(center-QPointF(w, w), center+QPointF(w, w))))
         painter->drawRect(QRectF(center-QPointF(w, w), center+QPointF(w, w)));
       break;
     }
