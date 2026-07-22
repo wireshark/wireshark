@@ -759,6 +759,7 @@ set(WIRESHARK_QT_UI
 	packet_comment_dialog.ui
 	packet_dialog.ui
 	packet_format_group_box.ui
+	packet_format_csv_group_box.ui
 	packet_format_json_group_box.ui
 	packet_range_group_box.ui
 	plot_dialog.ui

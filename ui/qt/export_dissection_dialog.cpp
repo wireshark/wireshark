@@ -150,6 +150,7 @@ void ExportDissectionDialog::dialogAccepted(const QStringList &selected)
         print_args_.print_hex           = false;
         print_args_.print_formfeed      = false;
         print_args_.no_duplicate_keys   = false;
+        print_args_.csv_args            = {};
 
         packet_format_stack_->updatePrintArgs(print_args_);
 

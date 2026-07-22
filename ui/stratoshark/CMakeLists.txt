@@ -683,6 +683,7 @@ set(WIRESHARK_QT_UI
 	${CMAKE_SOURCE_DIR}/ui/qt/packet_comment_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/packet_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/packet_format_group_box.ui
+	${CMAKE_SOURCE_DIR}/ui/qt/packet_format_csv_group_box.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/packet_format_json_group_box.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/packet_range_group_box.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/plot_dialog.ui

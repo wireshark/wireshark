@@ -18,14 +18,17 @@ PacketFormatStack::PacketFormatStack(QWidget *parent) :
 
     PacketFormatTextGroupBox *format_text_group_box = new PacketFormatTextGroupBox(this);
     PacketFormatJSONGroupBox *format_json_group_box = new PacketFormatJSONGroupBox(this);
+    PacketFormatCSVGroupBox *format_csv_group_box = new PacketFormatCSVGroupBox(this);
     PacketFormatBlankGroupBox *blank_group_box = new PacketFormatBlankGroupBox(this);
 
     export_type_map_[export_type_text] = addWidget(format_text_group_box);
     export_type_map_[export_type_json] = addWidget(format_json_group_box);
+    export_type_map_[export_type_csv] = addWidget(format_csv_group_box);
     blank_idx_ = addWidget(blank_group_box);
 
     connect(format_text_group_box, &PacketFormatGroupBox::formatChanged, this, &PacketFormatStack::formatChanged);
     connect(format_json_group_box, &PacketFormatGroupBox::formatChanged, this, &PacketFormatStack::formatChanged);
+    connect(format_csv_group_box, &PacketFormatGroupBox::formatChanged, this, &PacketFormatStack::formatChanged);
 }
 
 PacketFormatStack::~PacketFormatStack()

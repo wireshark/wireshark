@@ -26,6 +26,7 @@
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/report_message.h>
+#include <wsutil/utf8_entities.h>
 
 #include <wiretap/merge.h>
 
@@ -3016,7 +3017,7 @@ write_csv_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec,
     epan_dissect_fill_in_columns(&args->edt, false, true);
 
     /* Write out the column information. */
-    write_csv_columns(&args->edt, args->fh);
+    write_csv_columns_with_args(&args->edt, args->fh, args->print_args->csv_args);
 
     epan_dissect_reset(&args->edt);
 
@@ -3035,7 +3036,11 @@ cf_write_csv_packets(capture_file *cf, print_args_t *print_args)
     if (fh == NULL)
         return CF_PRINT_OPEN_ERROR; /* attempt to open destination failed */
 
-    write_csv_column_titles(&cf->cinfo, fh);
+    if (print_args->csv_args.print_bom) {
+        fputs(UTF8_BOM, fh);
+    }
+    write_csv_column_titles_with_args(&cf->cinfo, fh, print_args->csv_args);
+
     if (ferror(fh)) {
         fclose(fh);
         return CF_PRINT_WRITE_ERROR;

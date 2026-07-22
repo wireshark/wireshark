@@ -63,6 +63,12 @@ typedef enum {
     PF_INCLUDE_CHILDREN = 0x01  /**< Also print all child fields of a matched field */
 } pf_flags;
 
+typedef struct {
+    bool print_utf8;
+    bool print_bom;
+    bool escape_wsp;
+} print_args_csv_t;
+
 /*
  * Print user selected list of fields
  */
@@ -311,6 +317,26 @@ WS_DLL_PUBLIC void write_csv_column_titles(column_info *cinfo, FILE *fh);
  * @param fh File handle where the CSV columns will be written.
  */
 WS_DLL_PUBLIC void write_csv_columns(epan_dissect_t *edt, FILE *fh);
+
+/**
+ * @brief Writes CSV column titles to a file, with optional arguments.
+ *
+ * @param cinfo Pointer to the column information structure.
+ * @param fh File handle where the column titles will be written.
+ * @param args Arguments that control whether UTF-8 CSV is used, a BOM is
+ * included, and/or whitespace is escaped.
+ */
+WS_DLL_PUBLIC void write_csv_column_titles_with_args(column_info *cinfo, FILE *fh, print_args_csv_t args);
+
+/**
+ * @brief Writes CSV columns to a file, with optional arguments.
+ *
+ * @param edt Pointer to the epan_dissect_t structure containing dissection data.
+ * @param fh File handle where the CSV columns will be written.
+ * @param args Arguments that control whether UTF-8 CSV is used, a BOM is
+ * included, and/or whitespace is escaped.
+ */
+WS_DLL_PUBLIC void write_csv_columns_with_args(epan_dissect_t *edt, FILE *fh, print_args_csv_t args);
 
 /**
  * @brief Writes hexadecimal data from a list of data sources to a file.

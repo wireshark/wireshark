@@ -491,6 +491,9 @@ typedef struct {
 
     /* --- JSON output options --- */
     bool no_duplicate_keys; /**< True if duplicate JSON keys within an object should be suppressed (JSON export only) */
+
+    /* --- CSV output options -- */
+    print_args_csv_t csv_args;
 } print_args_t;
 
 /**

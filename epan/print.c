@@ -1736,8 +1736,35 @@ static void csv_write_str(const char *str, char sep, FILE *fh, bool print_separa
     g_free(csv_str);
 }
 
+static void csv_write_str_utf8(const char *str, char sep, FILE *fh, bool print_separator, bool escape_wsp)
+{
+    char *csv_str;
+
+    csv_str = ws_escape_csv(NULL, str, true, '\"', true, escape_wsp);
+    if (print_separator) {
+        fprintf(fh, "%c%s", sep, csv_str);
+    } else {
+        fprintf(fh, "%s", csv_str);
+    }
+    g_free(csv_str);
+}
+
 void
 write_csv_column_titles(column_info *cinfo, FILE *fh)
+{
+    print_args_csv_t csv_args = {0};
+    write_csv_column_titles_with_args(cinfo, fh, csv_args);
+}
+
+void
+write_csv_columns(epan_dissect_t *edt, FILE *fh)
+{
+    print_args_csv_t csv_args = {0};
+    write_csv_columns_with_args(edt, fh, csv_args);
+}
+
+void
+write_csv_column_titles_with_args(column_info *cinfo, FILE *fh, print_args_csv_t csv_args)
 {
     unsigned i;
     bool print_separator = false;
@@ -1746,7 +1773,11 @@ write_csv_column_titles(column_info *cinfo, FILE *fh)
     for (i = 0; i < cinfo->num_cols; i++) {
         if (!get_column_visible(i))
             continue;
-        csv_write_str(cinfo->columns[i].col_title, ',', fh, print_separator);
+        if (csv_args.print_utf8) {
+            csv_write_str_utf8(cinfo->columns[i].col_title, ',', fh, print_separator, csv_args.escape_wsp);
+        } else {
+            csv_write_str(cinfo->columns[i].col_title, ',', fh, print_separator);
+        }
         print_separator = true;
     }
     if (print_separator) { // Only add line break if anything was output
@@ -1755,7 +1786,7 @@ write_csv_column_titles(column_info *cinfo, FILE *fh)
 }
 
 void
-write_csv_columns(epan_dissect_t *edt, FILE *fh)
+write_csv_columns_with_args(epan_dissect_t *edt, FILE *fh, print_args_csv_t csv_args)
 {
     unsigned i;
     bool print_separator = false;
@@ -1764,7 +1795,11 @@ write_csv_columns(epan_dissect_t *edt, FILE *fh)
     for (i = 0; i < edt->pi.cinfo->num_cols; i++) {
         if (!get_column_visible(i))
             continue;
-        csv_write_str(get_column_text(edt->pi.cinfo, i), ',', fh, print_separator);
+        if (csv_args.print_utf8) {
+            csv_write_str_utf8(get_column_text(edt->pi.cinfo, i), ',', fh, print_separator, csv_args.escape_wsp);
+        } else {
+            csv_write_str(get_column_text(edt->pi.cinfo, i), ',', fh, print_separator);
+        }
         print_separator = true;
     }
     if (print_separator) { // Only add line break if anything was output

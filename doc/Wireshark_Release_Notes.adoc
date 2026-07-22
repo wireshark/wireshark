@@ -29,6 +29,9 @@ The following changes have been made since version 4.7.2:
 * Display filter string literals can be surrounded by appropriate pairs of
   directional ("smart" or "curly") double quotes instead of straight double
   quotes.
+* The Export Packet Dissections CSV output is UTF-8 CSV (with optional BOM) by
+  default; the previous format which escapes non-ASCII characters is still
+  available.
 
 The following changes have been made since version 4.7.1:
 
