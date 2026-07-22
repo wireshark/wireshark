@@ -16,6 +16,7 @@
 #include "epan/follow.h"
 #include "epan/prefs.h"
 #include "epan/addr_resolv.h"
+#include "epan/charsets.h"
 
 #include <ui/recent.h>
 #include <wsutil/utf8_entities.h>
@@ -767,13 +768,12 @@ void FollowStreamDialog::showBuffer(QByteArray &buffer, size_t nchars, bool is_f
         // block sizes, e.g. transferring over TFTP, we would need to create
         // two stateful decoders, one for each direction.
         QByteArray encName = ui->cbCharset->currentText().toUtf8();
-        gsize bytes_written = 0;
-        gchar *utf8 = g_convert_with_fallback(buffer.constData(), buffer.size(),
-                                              "UTF-8", encName.constData(),
-                                              "\xEF\xBF\xBD",
-                                              NULL, &bytes_written, NULL);
+        uint8_t *utf8 = get_string_enc_iconv(NULL,
+                                             (const uint8_t *)buffer.constData(),
+                                             buffer.size(),
+                                             encName.constData());
         if (utf8) {
-            addText(QString::fromUtf8(utf8, bytes_written), is_from_server, packet_num);
+            addText(QString::fromUtf8((const char *)utf8), is_from_server, packet_num);
             g_free(utf8);
         }
         break;

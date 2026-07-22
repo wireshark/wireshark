@@ -1435,7 +1435,7 @@ get_nonascii_unichar2_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t
  * Unicode Standard 5.22 U+FFFD Substitution for Conversion
  * ( https://www.unicode.org/versions/Unicode13.0.0/ch05.pdf )
  */
-static uint8_t *
+uint8_t *
 get_string_enc_iconv(wmem_allocator_t *scope, const uint8_t *ptr, size_t length, const char *encoding)
 {
     GIConv cd;
@@ -1448,11 +1448,12 @@ get_string_enc_iconv(wmem_allocator_t *scope, const uint8_t *ptr, size_t length,
     wmem_strbuf_t *str;
 
     if ((cd = g_iconv_open("UTF-8", encoding)) == (GIConv) -1) {
-        REPORT_DISSECTOR_BUG("Unable to allocate iconv() converter from %s to UTF-8", encoding);
         /* Most likely to be a programming error passing in a bad encoding
          * name. However, could be a issue with the iconv support on the
          * system running WS. GLib requires iconv/libiconv, but is it possible
          * that some versions don't support all common encodings? */
+        ws_warning("Unable to allocate iconv() converter from %s to UTF-8", encoding);
+        return NULL;
     }
 
     inbytes = length;
@@ -1502,8 +1503,8 @@ get_string_enc_iconv(wmem_allocator_t *scope, const uint8_t *ptr, size_t length,
                     /* Unexpected conversion error, unrecoverable */
                     g_free(tempstr);
                     g_iconv_close(cd);
-                    REPORT_DISSECTOR_BUG("Unexpected iconv() error when converting from %s to UTF-8", encoding);
-                    break;
+                    ws_warning("Unexpected iconv() error when converting from %s to UTF-8", encoding);
+                    return (uint8_t *) wmem_strbuf_finalize(str);
             }
         } else {
             /* Otherwise err is the number of replacement characters used,
