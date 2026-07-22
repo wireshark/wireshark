@@ -36,7 +36,7 @@ EnabledProtocolsDialog::EnabledProtocolsDialog(QWidget *parent) :
     ui->protocol_tree_->setColumnWidth(EnabledProtocolsModel::colProtocol, one_em * 18);
 
     ui->cmbSearchType->addItem(tr("Everywhere"), QVariant::fromValue(EnabledProtocolsProxyModel::EveryWhere));
-    ui->cmbSearchType->addItem(tr("Only Protocols"), QVariant::fromValue(EnabledProtocolsProxyModel::OnlyProtocol));
+    ui->cmbSearchType->addItem(tr("Only Protocol"), QVariant::fromValue(EnabledProtocolsProxyModel::OnlyProtocol));
     ui->cmbSearchType->addItem(tr("Only Description"), QVariant::fromValue(EnabledProtocolsProxyModel::OnlyDescription));
 
     ui->cmbEnabled->addItem(tr("all"), QVariant::fromValue(EnabledProtocolsProxyModel::EveryWhere));
