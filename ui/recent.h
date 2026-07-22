@@ -44,6 +44,7 @@ extern "C" {
  * @brief Stores the display width and alignment for a single column.
  */
 typedef struct _col_width_data {
+    int  fmt;     /**< Column format, used for consistency check. */
     int  width;   /**< Column width in characters. */
     char xalign;  /**< Horizontal alignment specifier (e.g., 'l' = left, 'r' = right, 'c' = center). */
 } col_width_data;
@@ -356,6 +357,14 @@ extern void recent_insert_column(int col);
  * @param col column number
  */
 extern void recent_remove_column(int col);
+
+/**
+ * @brief Set the column width for the given column
+ *
+ * @param col column number
+ * @param format column format
+ */
+extern void recent_set_column_format(int col, int format);
 
 /**
  * @brief Get the column width for the given column

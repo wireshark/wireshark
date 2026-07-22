@@ -921,6 +921,8 @@ get_column_format_from_str(const char *str)
 {
   int i;
 
+  /* XXX - Should this handle the custom column special case instead of
+   * callers having to call strncmp(fmt, cust_format, cust_format_len) first? */
   for (i = 0; i < NUM_COL_FMTS; i++) {
     if (strcmp(str, col_format_to_string(i)) == 0)
       return i;

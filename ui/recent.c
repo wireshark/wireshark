@@ -1574,12 +1574,19 @@ read_set_recent_pair_static(char *key, const char *value,
         recent_free_column_width_info(&recent);
         recent.col_width_list = NULL;
         col_l_elt = g_list_first(col_l);
+        const char *cust_format = col_format_to_string(COL_CUSTOM);
+        size_t cust_format_len = strlen(cust_format);
         while (col_l_elt) {
             cfmt = g_new(col_width_data, 1);
-            /* Skip the column format, we don't use it anymore because the
-             * column indices are in sync and the key since 4.4. Format is
-             * still written for backwards compatibility.
-             */
+            /* The column format should be in sync with the preferences, but
+             * that might not be true if switching versions and using the
+             * default preferences. Copy it for consistency. */
+            const char* fmt = (const char*)col_l_elt->data;
+            if (strncmp(fmt, cust_format, cust_format_len) == 0) {
+                cfmt->fmt = COL_CUSTOM;
+            } else {
+                cfmt->fmt = get_column_format_from_str(fmt);
+            }
             col_l_elt      = col_l_elt->next;
             cfmt->width    = (int)strtol((const char *)col_l_elt->data, &p, 0);
             if (p == col_l_elt->data || (*p != '\0' && *p != ':')) {
@@ -1905,6 +1912,7 @@ recent_insert_column(int col)
     col_width_data *col_w;
 
     col_w = g_new(col_width_data, 1);
+    col_w->fmt = get_column_format(col);
     col_w->width = -1;
     col_w->xalign = COLUMN_XALIGN_DEFAULT;
     recent.col_width_list = g_list_insert(recent.col_width_list, col_w, col);
@@ -1934,6 +1942,11 @@ recent_get_column_width(int col)
 
     col_w = g_list_nth_data(recent.col_width_list, col);
     if (col_w) {
+        int pref_fmt = get_column_format(col);
+        if (pref_fmt != col_w->fmt) {
+            ws_debug("format mismatch %i!=%i (probably due to mixing prefs and recent across versions)", pref_fmt, col_w->fmt);
+            return -1;
+        }
         return col_w->width;
     } else {
         /* Make sure the recent column list isn't out of sync with the
@@ -1965,6 +1978,26 @@ recent_set_column_width(int col, int width)
         col_w = g_list_nth_data(recent.col_width_list, col);
         if (col_w) {
             col_w->width = width;
+        }
+    }
+}
+
+void
+recent_set_column_format(int col, int fmt _U_)
+{
+    col_width_data* col_w;
+
+    /* XXX - Don't actually use the format because we just get it from prefs. */
+    col_w = g_list_nth_data(recent.col_width_list, col);
+    if (col_w) {
+        col_w->fmt = get_column_format(col);
+    }
+    else {
+        /* Make sure the recent column list isn't out of sync with the
+         * number of columns (e.g., for a brand new profile.)
+         */
+        for (unsigned colnr = g_list_length(recent.col_width_list); colnr < g_list_length(prefs.col_list); colnr++) {
+            recent_insert_column(colnr);
         }
     }
 }

@@ -204,6 +204,7 @@ void ColumnEditorFrame::on_buttonBox_accepted()
                 set_column_display_format(cur_column_, ui->displayComboBox->itemData(ui->displayComboBox->currentIndex()).toInt());
             }
         }
+        recent_set_column_format(cur_column_, ui->typeComboBox->currentIndex());
         prefs_main_write();
         emit columnEdited();
     }
