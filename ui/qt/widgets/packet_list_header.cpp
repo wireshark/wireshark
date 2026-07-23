@@ -213,7 +213,7 @@ void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
     action->setChecked(action->isEnabled() && (get_column_display_format(sectionIdx) == COLUMN_DISPLAY_STRINGS));
     action->setData(QVariant::fromValue(COLUMN_DISPLAY_STRINGS));
     action->setToolTip(displayToolTip);
-    action = displayActions->addAction(tr("Display as packet Details"));
+    action = displayActions->addAction(tr("Display as Packet Details"));
     action->setEnabled(canDisplayDetails);
     action->setCheckable(true);
     action->setChecked(action->isEnabled() && (get_column_display_format(sectionIdx) == COLUMN_DISPLAY_DETAILS));
