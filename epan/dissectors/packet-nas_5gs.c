@@ -2064,7 +2064,7 @@ dissect_nas_5gs_mm_cag_information_list(tvbuff_t* tvb, proto_tree* tree, packet_
     proto_item *item;
     unsigned num_entry = 1;
     uint32_t curr_offset = offset;
-    uint32_t start_offset, entry_len;
+    uint32_t start_offset, entry_len, cag_id_offset;
     bool caili, lci;
 
     while ((curr_offset - offset) < len) {
@@ -2089,10 +2089,13 @@ dissect_nas_5gs_mm_cag_information_list(tvbuff_t* tvb, proto_tree* tree, packet_
         proto_tree_add_item(sub_tree, hf_nas_5gs_mm_cag_info_entry_cag_only, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         curr_offset++;
         if (lci) {
+            cag_id_offset = curr_offset;
             proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_mm_cag_info_entry_cag_without_add_info_list_len, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &entry_len);
             curr_offset += 2;
+        } else {
+            cag_id_offset = start_offset;
         }
-        while ((curr_offset - start_offset) < entry_len) {
+        while ((curr_offset - cag_id_offset) < entry_len) {
             proto_tree_add_item(sub_tree, hf_nas_5gs_mm_cag_info_entry_cag_id, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
             curr_offset += 4;
         }
