@@ -1967,9 +1967,9 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
        * situation where the first octet of the encrypted handshake
        * message is actually a known handshake message type.
        */
-      if (!maybe_encrypted || offset + fragment_length <= record_length) {
+      if (!maybe_encrypted || offset + 12 + fragment_length <= record_length) {
         if (msg_type == SSL_HND_SERVER_HELLO) {
-          tls_scan_server_hello(tvb, offset+12, fragment_length, &version, &is_hrr);
+          tls_scan_server_hello(tvb, offset + 12, offset + 12 + fragment_length, &version, &is_hrr);
         }
         if (is_hrr) {
             msg_type_str = try_val_to_str(SSL_HND_HELLO_RETRY_REQUEST, ssl_31_handshake_type);
@@ -2216,7 +2216,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
           case SSL_HND_SERVER_HELLO:
-            tls_scan_server_hello(sub_tvb, 0, fragment_length, &version, &is_hrr);
+            tls_scan_server_hello(sub_tvb, 0, length, &version, &is_hrr);
             ssl_try_set_version(session, ssl, SSL_ID_HANDSHAKE, SSL_HND_SERVER_HELLO, true, version);
 
             ssl_dissect_hnd_srv_hello(&dissect_dtls_hf, sub_tvb, pinfo, ssl_hand_tree,
