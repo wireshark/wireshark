@@ -43,7 +43,11 @@ private slots:
      */
     void on_txtSearchLine_textChanged(const QString &search_re);
 
+    void on_cmbSearchType_currentIndexChanged(int);
+
 private:
+    void searchFilterChange();
+
     /** Pointer to the generated UI elements. */
     Ui::DissectorTablesDialog *ui;
 

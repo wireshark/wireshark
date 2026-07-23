@@ -148,6 +148,18 @@ class DissectorTablesProxyModel : public QSortFilterProxyModel
 
 public:
     /**
+     * @brief Defines the search filtering scope.
+     */
+    enum SearchType
+    {
+        EveryWhere = 0x0,       /**< Search all text fields. */
+        OnlyName = 0x1,         /**< Search only names. */
+        OnlyDescription = 0x2,  /**< Search only descriptions. */
+    };
+    Q_ENUM(SearchType)
+    Q_DECLARE_FLAGS(SearchTypes, SearchType)
+
+    /**
      * @brief Constructs a new DissectorTablesProxyModel.
      * @param parent The parent QObject, defaults to Q_NULLPTR.
      */
@@ -181,7 +193,7 @@ public:
      * @brief Sets the filter string used to screen items.
      * @param filter The filter text.
      */
-    void setFilter(const QString& filter);
+    void setFilter(const QString& filter, SearchTypes type);
 
 protected:
     /**
@@ -191,13 +203,6 @@ protected:
      * @return True if the left item should appear before the right item.
      */
     bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
-
-    /**
-     * @brief Checks if an individual item is accepted by the filter.
-     * @param item The DissectorTablesItem to check.
-     * @return True if accepted, false otherwise.
-     */
-    bool filterAcceptItem(DissectorTablesItem& item) const;
 
 private:
 
@@ -209,6 +214,8 @@ private:
 
     /** The currently active filter string. */
     QString filter_;
+
+    DissectorTablesProxyModel::SearchTypes type_;
 };
 
 #endif // DISSECTOR_TABLES_MODEL_H

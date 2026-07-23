@@ -358,6 +358,9 @@ tableName_(tr("Table Type")),
 dissectorDescription_(),
 filter_()
 {
+    // The tree is only three levels deep so recursion is ok
+    setRecursiveFilteringEnabled(true);
+    setAutoAcceptChildRows(true);
 }
 
 QVariant DissectorTablesProxyModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -389,46 +392,36 @@ bool DissectorTablesProxyModel::lessThan(const QModelIndex &left, const QModelIn
     return false;
 }
 
-// NOLINTNEXTLINE(misc-no-recursion)
-bool DissectorTablesProxyModel::filterAcceptItem(DissectorTablesItem& item) const
-{
-    if (filter_.isEmpty())
-        return true;
-
-    if (item.tableName().contains(filter_, Qt::CaseInsensitive) || item.dissectorDescription().contains(filter_, Qt::CaseInsensitive))
-        return true;
-
-    DissectorTablesItem *child_item;
-    for (int child_row = 0; child_row < item.childCount(); child_row++)
-    {
-        child_item = item.child(child_row);
-        // We recurse here, but the tree is only three levels deep
-        if ((child_item != NULL) && (filterAcceptItem(*child_item)))
-            return true;
-    }
-
-    return false;
-}
-
 bool DissectorTablesProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     QModelIndex nameIdx = sourceModel()->index(sourceRow, DissectorTablesModel::colTableName, sourceParent);
     DissectorTablesItem* item = static_cast<DissectorTablesItem*>(nameIdx.internalPointer());
-    if (item == NULL)
+    if (item == nullptr)
         return false;
 
-    if (filterAcceptItem(*item))
+    if (filter_.isEmpty())
+        return true;
+
+    QRegularExpression regex(filter_, QRegularExpression::CaseInsensitiveOption);
+    if (!regex.isValid())
+        return false;
+
+    if ((!type_.testFlag(OnlyDescription)) && item->tableName().contains(regex))
+        return true;
+
+    if ((!type_.testFlag(OnlyName)) && item->dissectorDescription().contains(regex))
         return true;
 
     return false;
 }
 
-void DissectorTablesProxyModel::setFilter(const QString& filter)
+void DissectorTablesProxyModel::setFilter(const QString& filter, DissectorTablesProxyModel::SearchTypes type)
 {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
     beginFilterChange();
 #endif
     filter_ = filter;
+    type_ = type;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
     endFilterChange(QSortFilterProxyModel::Direction::Rows);
 #else

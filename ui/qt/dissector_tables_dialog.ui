@@ -26,6 +26,9 @@
      <item>
       <widget class="QLineEdit" name="txtSearchLine"/>
      </item>
+     <item>
+      <widget class="QComboBox" name="cmbSearchType"/>
+     </item>
     </layout>
    </item>
    <item>
