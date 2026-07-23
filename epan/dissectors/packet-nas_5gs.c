@@ -4650,8 +4650,8 @@ de_nas_5gs_mm_reg_wait_range(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 
     subtree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_nas_5gs_mm_reg_wait_range, NULL, "Minimum registration wait time");
     de_gc_timer(tvb, subtree, pinfo, offset, 1, NULL, 0);
-    subtree = proto_tree_add_subtree(tree, tvb, offset+1, 1, ett_nas_5gs_mm_reg_wait_range, NULL, "Minimum registration wait time");
-    de_gc_timer(tvb, subtree, pinfo, offset, 1, NULL, 0);
+    subtree = proto_tree_add_subtree(tree, tvb, offset+1, 1, ett_nas_5gs_mm_reg_wait_range, NULL, "Maximum registration wait time");
+    de_gc_timer(tvb, subtree, pinfo, offset+1, 1, NULL, 0);
 
     return len;
 }
