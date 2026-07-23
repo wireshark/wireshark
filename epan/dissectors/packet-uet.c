@@ -166,7 +166,7 @@ static int hf_uet_ses_rsp_read_req_message_id;
 static int hf_uet_ses_rsp_reserved2;
 static int hf_uet_ses_rsp_payload_length;
 static int hf_uet_ses_rsp_message_offset;
-static int hf_uet_ses_rsp_reserved3;
+static int hf_uet_ses_rsp_original_req_psn;
 static int hf_uet_ses_small_req_rsv;
 static int hf_uet_ses_small_req_flags;
 static int hf_uet_ses_small_req_flags_ver;
@@ -1198,9 +1198,15 @@ dissect_ses_resp_data_small(proto_tree* ses_tree, proto_item* ses_item, tvbuff_t
     proto_tree_add_item(ses_tree, hf_uet_ses_rsp_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ses_tree, hf_uet_ses_rsp_return_code, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    proto_tree_add_item(ses_tree, hf_uet_ses_rsp_reserved3, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ses_tree, hf_uet_ses_rsp_reserved2, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(ses_tree, hf_uet_ses_rsp_payload_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
+    proto_tree_add_item(ses_tree, hf_uet_ses_rsp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(ses_tree, hf_uet_ses_rsp_job_id, tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset += 3;
+    proto_tree_add_item(ses_tree, hf_uet_ses_rsp_original_req_psn, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
 
     return (offset - orig_offset);
 }
@@ -2550,9 +2556,9 @@ proto_register_uet(void)
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_uet_ses_rsp_reserved3,
-            { "Rsv", "uet.ses.rsp.reserved3",
-                FT_UINT16, BASE_HEX, NULL, 0xc000,
+        { &hf_uet_ses_rsp_original_req_psn,
+            { "Original Request PSN", "uet.ses.rsp.original_request_psn",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_uet_ses_small_req_rsv,
