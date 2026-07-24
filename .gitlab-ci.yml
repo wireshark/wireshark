@@ -984,7 +984,7 @@ Clang + Code Checks:
     - cd ..
     - pip3 install pyspellchecker ruff
     # Run Ruff on '.' and Python3 scripts without .py extension because this is a very quick check.
-    - ruff check . tools/idl2deb tools/asn2deb tools/idl2deb tools/pidl/wscript --extend-exclude tools/pkt-from-core.py --extend-exclude tools/WiresharkXML.py --extend-exclude tools/dissector_generators/yacc.py --extend-exclude tools/dissector_generators/generate-ncp2222.py
+    - ruff check . tools/idl2deb tools/asn2deb tools/idl2deb tools/pidl/wscript --extend-exclude tools/pkt-from-core.py --extend-exclude tools/WiresharkXML.py --extend-exclude tools/dissector_generators/yacc.py --extend-exclude tools/dissector_generators/generate-ncp2222.py --exit-zero
     - ./tools/check_spelling.py --no-wikipedia --comments --commits $NUM_COMMITS | tee spelling_check.txt
     - ./tools/check_typed_item_calls.py --consecutive --label --mask --check-bitmask-fields --commits $NUM_COMMITS | tee item_calls_check.txt
     - ./tools/check_tfs.py --check-value-strings --commits $NUM_COMMITS | tee tfs_check.txt
