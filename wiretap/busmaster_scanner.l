@@ -102,7 +102,11 @@ NUM (0x)?[0-9A-Fa-f]+
 
 <*>{SPC}   ;
 <INITIAL>{ENDL}               { yyterminate(); };
-<HEADER,TIME>{ENDL}           { YY_FATAL_ERROR("Unterminated header statement"); }
+<HEADER,TIME>{ENDL}           {
+                                  yyextra->err = WTAP_ERR_BAD_FILE;
+                                  yyextra->err_info = g_strdup("Unterminated header statement");
+                                  yyterminate();
+                              }
 
 "***"                         { BEGIN(HEADER); }
 <HEADER,TIME>"***"{ENDL}"***" { BEGIN(HEADER); return TOKEN_ENDL; }
