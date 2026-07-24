@@ -3,7 +3,7 @@
  *
  *  routines for importing tektronix k12xx *.rf5 files
  *
- *  Copyright (c) 2005, Luis E. Garia Ontanon <luis@ontanon.org>
+ *  Copyright (c) 2005, Luis E. Garcia Ontanon <luis@ontanon.org>
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1211,7 +1211,7 @@ static bool k12_dump_src_setting(k12_src_desc_t *src_desc, wtap_dumper *wdh, int
 }
 
 static bool k12_dump(wtap_dumper *wdh, const wtap_rec *rec,
-                     int *err, char **err_info _U_) {
+                     int *err, char **err_info) {
     const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
     k12_dump_t *k12 = (k12_dump_t *)wdh->priv;
     uint32_t len;
@@ -1227,7 +1227,7 @@ static bool k12_dump(wtap_dumper *wdh, const wtap_rec *rec,
             uint32_t datum_2;
             uint64_t ts;
 
-            uint8_t frame[0x1fc0];
+            uint8_t frame[K12_RECORD_SIZE - K12_PACKET_FRAME];
         } record;
     } obj;
 
@@ -1247,6 +1247,18 @@ static bool k12_dump(wtap_dumper *wdh, const wtap_rec *rec,
         return false;
     }
 
+    /*
+     * This is the maximum size record the current implementation can write.
+     * We support reading multi-page records large than this in this format.
+     */
+    if (rec->rec_header.packet_header.caplen > sizeof obj.record.frame) {
+        *err = WTAP_ERR_UNWRITABLE_REC_DATA;
+        *err_info = ws_strdup_printf("k12: packet length %u > maximum %zu",
+                                    rec->rec_header.packet_header.caplen,
+                                    sizeof obj.record.frame);
+        return false;
+    }
+
     if (k12->num_of_records == 0) {
         k12_t* file_data = (k12_t*)pseudo_header->k12.stuff;
         GHashTableIter iter;
@@ -1260,7 +1272,7 @@ static bool k12_dump(wtap_dumper *wdh, const wtap_rec *rec,
             }
         }
     }
-    obj.record.len = 0x20 + rec->rec_header.packet_header.caplen;
+    obj.record.len = K12_PACKET_FRAME + rec->rec_header.packet_header.caplen;
     obj.record.len = WS_ROUNDUP_4(obj.record.len);
 
     len = obj.record.len;
