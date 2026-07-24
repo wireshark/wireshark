@@ -644,6 +644,8 @@ static int hf_range_scan_item_limit;
 static int hf_range_scan_time_limit;
 static int hf_range_scan_byte_limit;
 
+static int hf_file_fragment_data;
+
 static expert_field ei_warn_shall_not_have_value;
 static expert_field ei_warn_shall_not_have_extras;
 static expert_field ei_warn_shall_not_have_key;
@@ -1241,6 +1243,8 @@ has_json_value(bool is_request, uint8_t opcode)
     switch (opcode) {
     case CLIENT_OPCODE_AUDIT_PUT:
     case CLIENT_OPCODE_RANGE_SCAN_CREATE:
+    case CLIENT_OPCODE_DOWNLOAD_SNAPSHOT:
+    case CLIENT_OPCODE_GET_FILE_FRAGMENT:
       return true;
 
     default:
@@ -1252,6 +1256,7 @@ has_json_value(bool is_request, uint8_t opcode)
     case CLIENT_OPCODE_SUBDOC_GET:
     case CLIENT_OPCODE_COLLECTIONS_GET_MANIFEST:
     case CLIENT_OPCODE_COLLECTIONS_SET_MANIFEST:
+    case CLIENT_OPCODE_PREPARE_SNAPSHOT:
       return true;
 
     default:
@@ -2114,6 +2119,18 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       offset += 16;
     }
     break;
+
+  /* Snapshot management commands never carry extras (request or response) -
+   * any structured data lives in the JSON value instead. */
+  case CLIENT_OPCODE_PREPARE_SNAPSHOT:
+  case CLIENT_OPCODE_RELEASE_SNAPSHOT:
+  case CLIENT_OPCODE_DOWNLOAD_SNAPSHOT:
+  case CLIENT_OPCODE_GET_FILE_FRAGMENT:
+    if (extlen) {
+      illegal = true;
+    }
+    break;
+
   default:
     if (extlen) {
       /* Decode as unknown extras */
@@ -2254,6 +2271,8 @@ dissect_client_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       case CLIENT_OPCODE_DELETE_BUCKET:
       case CLIENT_OPCODE_SELECT_BUCKET:
       case CLIENT_OPCODE_IFCONFIG:
+      case CLIENT_OPCODE_RELEASE_SNAPSHOT:
+      case CLIENT_OPCODE_GET_FILE_FRAGMENT:
         collection_encoded_key = false;
         break;
       default:
@@ -2335,6 +2354,13 @@ dissect_client_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         illegal = true;
       }
       break;
+
+    case CLIENT_OPCODE_PREPARE_SNAPSHOT:
+    case CLIENT_OPCODE_DOWNLOAD_SNAPSHOT:
+      /* Request and Response must not have key - the vbucket (if any) comes
+       * from the header vbucket field or the JSON value instead */
+      illegal = true;
+      break;
     }
   } else {
     switch (opcode) {
@@ -2344,6 +2370,7 @@ dissect_client_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case CLIENT_OPCODE_GETKQ:
     case CLIENT_OPCODE_GET_EX:
     case CLIENT_OPCODE_GET_EX_REPLICA:
+    case CLIENT_OPCODE_GET_FILE_FRAGMENT:
     case CLIENT_OPCODE_SET:
     case CLIENT_OPCODE_ADD:
     case CLIENT_OPCODE_REPLACE:
@@ -2790,6 +2817,11 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(tree, hf_extras_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
             }
         }
+    } else if (!request && opcode == CLIENT_OPCODE_GET_FILE_FRAGMENT) {
+      /* Successful response value is a raw chunk of the requested file (not
+       * text), optionally with a 4 byte CRC32C checksum interleaved after
+       * every checksum_length bytes requested by the client. */
+      ti = proto_tree_add_item(tree, hf_file_fragment_data, tvb, offset, value_len, ENC_NA);
     } else {
       ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII);
 #ifdef HAVE_SNAPPY
@@ -2817,6 +2849,8 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case CLIENT_OPCODE_GETKQ:
     case CLIENT_OPCODE_GET_EX:
     case CLIENT_OPCODE_GET_EX_REPLICA:
+    case CLIENT_OPCODE_PREPARE_SNAPSHOT:
+    case CLIENT_OPCODE_RELEASE_SNAPSHOT:
     case CLIENT_OPCODE_INCREMENT:
     case CLIENT_OPCODE_DECREMENT:
     case CLIENT_OPCODE_VERSION:
@@ -2867,6 +2901,13 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case CLIENT_OPCODE_DCP_FAILOVER_LOG_REQUEST:
       /* Successful response must have value */
       if (!request) {
+        missing = true;
+      }
+      break;
+    case CLIENT_OPCODE_DOWNLOAD_SNAPSHOT:
+    case CLIENT_OPCODE_GET_FILE_FRAGMENT:
+      /* Request must have value (JSON metadata) */
+      if (request) {
         missing = true;
       }
       break;
@@ -3340,6 +3381,7 @@ static bool opcode_use_vbucket(uint8_t magic _U_, uint8_t opcode) {
     case CLIENT_OPCODE_CREATE_BUCKET:
     case CLIENT_OPCODE_DELETE_BUCKET:
     case CLIENT_OPCODE_SELECT_BUCKET:
+    case CLIENT_OPCODE_GET_FILE_FRAGMENT:
       return false;
 
     default:
@@ -4001,7 +4043,9 @@ proto_register_couchbase(void)
     { &hf_range_scan_uuid, { "Range Scan UUID", "couchbase.range_scan.uuid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_range_scan_item_limit, { "Range Scan item limit", "couchbase.range_scan.item_limit", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_range_scan_time_limit, { "Range Scan time limit", "couchbase.range_scan.time_limit", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-    { &hf_range_scan_byte_limit, { "Range Scan byte limit", "couchbase.range_scan.byte_limit", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } }
+    { &hf_range_scan_byte_limit, { "Range Scan byte limit", "couchbase.range_scan.byte_limit", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
+    { &hf_file_fragment_data, { "File Fragment Data", "couchbase.file_fragment.data", FT_BYTES, BASE_NONE, NULL, 0x0, "Raw bytes of the requested file fragment (may contain interleaved CRC32C checksums when checksumming was requested)", HFILL } }
   };
 
   static ei_register_info ei[] = {
