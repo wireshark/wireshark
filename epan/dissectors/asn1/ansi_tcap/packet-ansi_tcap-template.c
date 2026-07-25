@@ -64,8 +64,8 @@ static int hf_ansi_tcap_parameter_standard_announcement;
 static int hf_ansi_tcap_parameter_customized_announcement;
 static int hf_ansi_tcap_parameter_set;
 static int hf_ansi_tcap_parameter_digits_type_of_digits;
-static int hf_ansi_tcap_parameter_digits_nature_of_numbers;
-static int hf_ansi_tcap_parameter_digits_number_planning;
+static int hf_ansi_tcap_parameter_digits_nature_of_number;
+static int hf_ansi_tcap_parameter_digits_number_plan;
 static int hf_ansi_tcap_parameter_digits_encoding;
 static int hf_ansi_tcap_parameter_digits_number_of_digits;
 static int hf_ansi_tcap_parameter_digits;
@@ -279,7 +279,7 @@ static const value_string ansi_tcap_national_parameter_digits_type_of_digits[] =
  { 0, NULL },
 };
 
-static const value_string ansi_tcap_national_parameter_digits_nature_of_numbers[] = {
+static const value_string ansi_tcap_national_parameter_digits_nature_of_number[] = {
  { 0x0, "National" },
  { 0x1, "International" },
  { 0x2, "No Presentation Restriction" },
@@ -294,7 +294,7 @@ static const value_string ansi_tcap_national_parameter_digits_encoding[] = {
  { 0, NULL },
 };
 
-static const value_string ansi_tcap_national_parameter_digits_number_planning[] = {
+static const value_string ansi_tcap_national_parameter_digits_number_plan[] = {
  { 0x0, "Unknown or Not applicable" },
  { 0x1, "ISDN Numbering" },
  { 0x2, "Telephony Numbering" },
@@ -306,7 +306,7 @@ static const value_string ansi_tcap_national_parameter_digits_number_planning[] 
  { 0, NULL },
 };
 
-static const value_string ansi_tcap_national_parameter_digits_number_of_digits[] = {
+static const value_string ansi_tcap_national_parameter_digits[] = {
  { 0x0, "Digit 0 or filler" },
  { 0x1, "Digit 1" },
  { 0x2, "Digit 2" },
@@ -323,16 +323,6 @@ static const value_string ansi_tcap_national_parameter_digits_number_of_digits[]
  { 0xd, "*" },
  { 0xe, "#" },
  { 0xf, "ST" },
- { 0, NULL },
-};
-
-static const value_string ansi_tcap_national_parameter_digits[] = {
- { 0x0, "Remove Gap Control" },
- { 0x1, "0.00 Second" },
- { 0x2, "0.10 Seconds" },
- { 0x3, "0.25 Seconds" },
- { 0x4, "0.50 Seconds" },
- { 0x5, "1.00 Seconds" },
  { 0, NULL },
 };
 
@@ -659,17 +649,18 @@ static int parameter_type(proto_tree *tree, tvbuff_t *tvb, unsigned offset_param
       break;
     case DIGITS:
     {
+        /* XXX - Just call dissect_ansi_map_digits_type()? */
         uint32_t num_digits;
         proto_tree_add_item(tree, hf_ansi_tcap_parameter_digits_type_of_digits, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
         offset_parameter_type += 1;
-        proto_tree_add_item(tree, hf_ansi_tcap_parameter_digits_nature_of_numbers, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_ansi_tcap_parameter_digits_nature_of_number, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
         offset_parameter_type += 1;
-        proto_tree_add_item(tree, hf_ansi_tcap_parameter_digits_number_planning, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_ansi_tcap_parameter_digits_number_plan, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_ansi_tcap_parameter_digits_encoding, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
         offset_parameter_type += 1;
         proto_tree_add_item_ret_uint(tree, hf_ansi_tcap_parameter_digits_number_of_digits, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN, &num_digits);
         offset_parameter_type += 1;
-        for (uint32_t i = 0; i <= num_digits; i++)
+        for (uint32_t i = 0; i < num_digits; i++)
         {
             proto_tree_add_item(tree, hf_ansi_tcap_parameter_digits, tvb, offset_parameter_type, 1, ENC_BIG_ENDIAN);
             offset_parameter_type += 1;
@@ -1049,10 +1040,11 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
                 uint8_t specifier = (uint8_t)(ansi_tcap_private.d.OperationCode_national & 0xff);
                 if(!dissector_try_uint(ansi_tcap_national_opcode_table, ansi_tcap_private.d.OperationCode_national, tvb, actx->pinfo, actx->subtree.top_tree)){
                         proto_tree_add_expert_format_remaining(tree, actx->pinfo, &ei_ansi_tcap_dissector_not_implemented, tvb, 0,
-                                        "Dissector for ANSI TCAP NATIONAL code:0x%x(Family %u, Specifier %u) \n"
+                                        "Dissector for ANSI TCAP NATIONAL code:0x%x(Family %u, Specifier %u) "
                                         "not implemented. Contact Wireshark developers if you want this supported(Spec required)",
                                         ansi_tcap_private.d.OperationCode_national, family, specifier);
-                        tree2 = proto_tree_add_subtree(tree, tvb, 0, 1, ett_tcap, &item2, "Parameters");
+                        item2 = proto_tree_add_item(tree, hf_ansi_tcap_parameter_set, tvb, 0, 1, ENC_NA);
+                        tree2 = proto_item_add_subtree(item2, ett_tcap);
                         int offset_parameter = 0;
                         proto_tree_add_item(tree2, hf_ansi_tcap_parameter_set_start, tvb, 0, 1, ENC_BIG_ENDIAN);
 
@@ -1060,6 +1052,7 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
                             offset_parameter += 1;
                             int parameter_length = tvb_get_uint8(tvb, offset_parameter);
                             proto_tree_add_item(tree2, hf_ansi_tcap_parameter_length, tvb, offset_parameter, 1, ENC_BIG_ENDIAN);
+                            proto_item_set_len(item2, parameter_length + 2);
                             offset_parameter += 1;
                             while (offset_parameter <= parameter_length)
                             {
@@ -1239,7 +1232,7 @@ proto_register_ansi_tcap(void)
         { &hf_ansi_tcap_parameter_set,
           { "Parameters",
             "ansi_tcap.parameter_set",
-            FT_UINT8, BASE_HEX, NULL, 0,
+            FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_ansi_tcap_parameter_set_start,
@@ -1618,38 +1611,39 @@ proto_register_ansi_tcap(void)
             NULL, HFILL }
         },
         { &hf_ansi_tcap_parameter_digits_type_of_digits,
-          { "Gap",
-            "ansi_tcap.acg_gap",
+          { "Type of Digits",
+            "ansi_tcap.digits.type_of_digits",
             FT_UINT8, BASE_HEX, VALS(ansi_tcap_national_parameter_digits_type_of_digits), 0x0,
             NULL, HFILL }
         },
-        { &hf_ansi_tcap_parameter_digits_nature_of_numbers,
-          { "Gap",
-            "ansi_tcap.acg_gap",
-            FT_UINT8, BASE_HEX, VALS(ansi_tcap_national_parameter_digits_nature_of_numbers), 0x0,
+        { &hf_ansi_tcap_parameter_digits_nature_of_number,
+          { "Nature of Number",
+            "ansi_tcap.digits.nature_of_number",
+            FT_UINT8, BASE_HEX, VALS(ansi_tcap_national_parameter_digits_nature_of_number), 0x03,
             NULL, HFILL }
         },
-        { &hf_ansi_tcap_parameter_digits_number_planning,
-          { "Gap",
-            "ansi_tcap.digits_number_planning",
-            FT_UINT8, BASE_HEX, VALS(ansi_tcap_national_parameter_digits_number_planning), 0x0,
+        { &hf_ansi_tcap_parameter_digits_number_plan,
+          { "Numbering Plan",
+            "ansi_tcap.digits.number_plan",
+            FT_UINT8, BASE_HEX, VALS(ansi_tcap_national_parameter_digits_number_plan), 0xf0,
             NULL, HFILL }
         },
         { &hf_ansi_tcap_parameter_digits_encoding,
-          { "Gap",
-            "ansi_tcap.digits_number_planning",
-            FT_UINT8, BASE_HEX, VALS(ansi_tcap_national_parameter_digits_encoding), 0x0,
+          { "Encoding",
+            "ansi_tcap.digits.encoding",
+            FT_UINT8, BASE_HEX, VALS(ansi_tcap_national_parameter_digits_encoding), 0x0f,
             NULL, HFILL }
         },
         { &hf_ansi_tcap_parameter_digits_number_of_digits,
-          { "Gap",
-            "ansi_tcap.digits_number_planning",
-            FT_UINT8, BASE_HEX, VALS(ansi_tcap_national_parameter_digits_number_of_digits), 0x0,
+          { "Number of Digits",
+            "ansi_tcap.digits.number_of_digits",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
+        /* XXX - Should there be separate values for BCD and IA5 digits? */
         { &hf_ansi_tcap_parameter_digits,
-          { "Gap",
-            "ansi_tcap.digits_number_planning",
+          { "Digits",
+            "ansi_tcap.digits.digit",
             FT_UINT8, BASE_HEX, VALS(ansi_tcap_national_parameter_digits), 0x0,
             NULL, HFILL }
         },
