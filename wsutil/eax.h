@@ -30,7 +30,7 @@ typedef struct tagMAC_T
 
 /*!
  @brief Decrypts cleartext data using EAX' mode (see ANSI Standard C12.22-2008).
- @param[in]	pN	pointer to cleartext (canonified form)
+ @param[in]	pN	pointer to cleartext (canonicalized form)
  @param[in]	pK	pointer to secret key
  @param[in,out] pC	pointer to ciphertext
  @param[in]	SizeN	byte length of cleartext (pN) buffer
