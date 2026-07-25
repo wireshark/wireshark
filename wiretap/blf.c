@@ -4470,9 +4470,8 @@ static bool blf_dump_ethernet(wtap_dumper *wdh, const wtap_rec *rec, int *err, c
 
     /* 14 bytes is the full Ethernet Header up to EtherType */
     if (length < 14) {
-        *err = WTAP_ERR_INTERNAL;
-        *err_info = ws_strdup_printf("blf: record length %u for Ethernet message is lower than minimum of 14", (uint32_t)length);
-        ws_warning("LINKTYPE_ETHERNET Data is too short!");
+        *err = WTAP_ERR_UNWRITABLE_REC_DATA;
+        *err_info = ws_strdup_printf("blf: record length %zu for Ethernet message is less than minimum of 14", length);
         return false;
     }
 
@@ -4501,6 +4500,11 @@ static bool blf_dump_ethernet(wtap_dumper *wdh, const wtap_rec *rec, int *err, c
     offset += 2;
 
     if (eth_type == 0x8100 || eth_type == 0x9100 || eth_type == 0x88a8) {
+        if (length < 18) {
+            *err = WTAP_ERR_UNWRITABLE_REC_DATA;
+            *err_info = ws_strdup_printf("blf: record length %zu for VLAN-tagged Ethernet frame is less than minimum of 18", length);
+            return false;
+        }
         ethheader.tpid = eth_type;
         ethheader.tci = pntohu16(pd + offset);
         offset += 2;
@@ -4513,7 +4517,13 @@ static bool blf_dump_ethernet(wtap_dumper *wdh, const wtap_rec *rec, int *err, c
     }
 
     ethheader.ethtype = eth_type;
-    ethheader.payloadlength = rec->rec_header.packet_header.caplen - offset;
+    if (ckd_sub(&ethheader.payloadlength, length, offset)) {
+        /* Congratulations! You may have spotted a IPv6 Jumbogram (RFC 2675)!
+         * You're another lucky winner of a Wiretap No-Prize! */
+        *err = WTAP_ERR_UNWRITABLE_REC_DATA;
+        *err_info = ws_strdup_printf("blf: Ethernet payload length %zu is too big", length - offset);
+        return false;
+    }
     ethheader.res = 0;
     fix_endianness_blf_ethernetframeheader(&ethheader);
 
