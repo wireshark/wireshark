@@ -2095,8 +2095,9 @@ static int dlms_get_type_description_length(tvbuff_t* tvb, packet_info* pinfo, i
 
     int choice = tvb_get_uint8(tvb, offset);
     if (choice == 1) { // array
+        int type_description_length = 1 + 2 + dlms_get_type_description_length(tvb, pinfo, offset + 3);
         decrement_dissection_depth_by_n(pinfo, 3);
-        return 1 + 2 + dlms_get_type_description_length(tvb, pinfo, offset + 3);
+        return type_description_length;
     }
     else if (choice == 2) { // structure
         int end_offset = offset + 1;
