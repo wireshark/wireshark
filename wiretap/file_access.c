@@ -301,9 +301,9 @@ static const struct open_info open_info_base[] = {
 	{ "3GPP TS 32.423 Trace format",            OPEN_INFO_MAGIC,     nettrace_3gpp_32_423_file_open, NULL, NULL, NULL },
 	/* Gammu DCT3 trace must come before MIME files as it's XML based*/
 	{ "Gammu DCT3 trace",                       OPEN_INFO_MAGIC,     dct3trace_open,           NULL,       NULL, NULL },
-	{ "BLF Logfile",                            OPEN_INFO_MAGIC,     blf_open,                 NULL,     NULL, NULL },
+	{ "Vector Informatik BLF logfile",          OPEN_INFO_MAGIC,     blf_open,                 NULL,     NULL, NULL },
 	{ "AUTOSAR DLT Logfile",                    OPEN_INFO_MAGIC,     autosar_dlt_open,         NULL,     NULL, NULL },
-	{ "TTL Logfile",                            OPEN_INFO_MAGIC,     ttl_open,                 NULL,     NULL, NULL },
+	{ "TTTech Computertechnik TTL logfile",     OPEN_INFO_MAGIC,     ttl_open,                 NULL,     NULL, NULL },
 	{ "RTPDump files",                          OPEN_INFO_MAGIC,     rtpdump_open,             NULL, NULL, NULL },
 	{ "MIME Files Format",                      OPEN_INFO_MAGIC,     mime_file_open,           NULL,       NULL, NULL },
 	{ "Micropross mplog",                       OPEN_INFO_MAGIC,     mplog_open,               NULL,   NULL, NULL },
