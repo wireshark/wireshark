@@ -15,6 +15,8 @@
 /* Use libgcrypt for cipher libraries. */
 #include <gcrypt.h>
 
+#include <wsutil/ws_roundup.h>
+
 typedef struct {
     uint8_t L[EAX_SIZEOF_KEY];
     uint8_t D[EAX_SIZEOF_KEY];
@@ -25,9 +27,9 @@ typedef struct {
 #define BLK_CPY(dst, src) { memcpy(dst, src, EAX_SIZEOF_KEY); }
 #define BLK_XOR(dst, src) { int z; for (z=0; z < EAX_SIZEOF_KEY; z++) dst[z] ^= src[z]; }
 static void Dbl(uint8_t *out, const uint8_t *in);
-static void CTR(const uint8_t *ws, uint8_t *pK, uint8_t *pN, uint16_t SizeN);
-static void CMAC(const eax_s *instance, uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint16_t SizeN);
-static void dCMAC(const eax_s *instance, uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint16_t SizeN, const uint8_t *pC, uint16_t SizeC);
+static void CTR(const uint8_t *ws, uint8_t *pK, uint8_t *pN, uint32_t SizeN);
+static bool CMAC(const eax_s *instance, uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint32_t SizeN);
+static bool dCMAC(const eax_s *instance, uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint32_t SizeN, const uint8_t *pC, uint32_t SizeC);
 void AesEncrypt(unsigned char msg[EAX_SIZEOF_KEY], unsigned char key[EAX_SIZEOF_KEY]);
 
 /*!
@@ -67,9 +69,13 @@ bool Eax_Decrypt(uint8_t *pN, uint8_t *pK, uint8_t *pC,
     /* first copy the nonce into our working space */
     BLK_CPY(wsn, instance.D);
     if (Mode == EAX_MODE_CLEARTEXT_AUTH) {
-        dCMAC(&instance, pK, wsn, pN, SizeN, pC, SizeC);
+        if (!dCMAC(&instance, pK, wsn, pN, SizeN, pC, SizeC)) {
+            return false;
+        }
     } else {
-        CMAC(&instance, pK, wsn, pN, SizeN);
+        if (!CMAC(&instance, pK, wsn, pN, SizeN)) {
+            return false;
+        }
     }
     /*
      *  In authentication mode the inputs are: pN, pK (and associated sizes),
@@ -120,26 +126,30 @@ static void Dbl(uint8_t *out, const uint8_t *in)
         out[0] ^= 0x87;
 }
 
-static void CMAC(const eax_s *instance, uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint16_t SizeN)
+static bool CMAC(const eax_s *instance, uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint32_t SizeN)
 {
-    dCMAC(instance, pK, ws, pN, SizeN, NULL, 0);
+    return dCMAC(instance, pK, ws, pN, SizeN, NULL, 0);
 }
 
-static void dCMAC(const eax_s *instance, uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint16_t SizeN, const uint8_t *pC, uint16_t SizeC)
+static bool dCMAC(const eax_s *instance, uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint32_t SizeN, const uint8_t *pC, uint32_t SizeC)
 {
     gcry_cipher_hd_t cipher_hd;
     uint8_t *work;
     uint8_t *ptr;
-    uint16_t SizeT = SizeN + SizeC;
-    uint16_t worksize = SizeT;
+    uint32_t SizeT;
+    size_t worksize;
+
+    if (ckd_add(&SizeT, SizeN, SizeC)) {
+        return false;
+    }
 
     /* worksize must be an integral multiple of 16 */
-    if (SizeT & 0xf)  {
-        worksize += 0x10 - (worksize & 0xf);
-    }
+    worksize = WS_ROUNDUP_16(SizeT);
+    /* WS_ROUNDUP_16 can "round up" to 0, but then g_malloc will
+     * safely return NULL and we'll return false. */
     work = (uint8_t *)g_malloc(worksize);
     if (work == NULL) {
-        return;
+        return false;
     }
     memcpy(work, pN, SizeN);
     if (pC != NULL) {
@@ -162,31 +172,31 @@ static void dCMAC(const eax_s *instance, uint8_t *pK, uint8_t *ws, const uint8_t
     /* open the cipher */
     if (gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CBC,0)){/* GCRY_CIPHER_CBC_MAC)) { */
         g_free(work);
-        return;
+        return false;
     }
     if (gcry_cipher_setkey(cipher_hd, pK, EAX_SIZEOF_KEY)) {
         g_free(work);
         gcry_cipher_close(cipher_hd);
-        return;
+        return false;
     }
     if (gcry_cipher_setiv(cipher_hd, ws, EAX_SIZEOF_KEY)) {
         g_free(work);
         gcry_cipher_close(cipher_hd);
-        return;
+        return false;
     }
     if (gcry_cipher_encrypt(cipher_hd, work, worksize, work, worksize)) {
         g_free(work);
         gcry_cipher_close(cipher_hd);
-        return;
+        return false;
     }
     memcpy(ws, ptr, EAX_SIZEOF_KEY);
 
     g_free(work);
     gcry_cipher_close(cipher_hd);
-    return;
+    return true;
 }
 
-static void CTR(const uint8_t *ws, uint8_t *pK, uint8_t *pN, uint16_t SizeN)
+static void CTR(const uint8_t *ws, uint8_t *pK, uint8_t *pN, uint32_t SizeN)
 {
     gcry_cipher_hd_t cipher_hd;
     uint8_t ctr[EAX_SIZEOF_KEY];
