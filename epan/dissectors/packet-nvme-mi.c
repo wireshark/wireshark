@@ -28,6 +28,7 @@
 #include <epan/crc32-tvb.h>
 #include <epan/expert.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
@@ -38,6 +39,14 @@ void proto_register_nvme_mi(void);
 void proto_reg_handoff_nvme_mi(void);
 
 static int proto_nvme_mi;
+
+static dissector_handle_t nvme_mi_handle;
+
+/* Preference: compute the CRC-32C over each message and verify the MIC.
+ * When disabled, the MIC field is still shown (and payload_len still
+ * excludes the 4 MIC bytes -- the IC bit says the MIC is on the wire
+ * regardless), but the checksum computation and comparison are skipped. */
+static bool nvme_mi_check_mic = true;
 
 /* Common NVMe-MI header fields */
 static int hf_nvme_mi_mctp_mt;
@@ -53,6 +62,12 @@ static int hf_nvme_mi_mic_status;
 static int hf_nvme_mi_pel_bit;
 static int hf_nvme_mi_pel_byte;
 
+/* Error Response — the status-dependent bytes 3:1 when they carry nothing */
+static int hf_nvme_mi_resp_rsvd;
+
+/* More Processing Required Response — More Processing Required Time (MPRT) */
+static int hf_nvme_mi_mprt;
+
 /* Request/response cross-reference fields */
 static int hf_nvme_mi_response_in;
 static int hf_nvme_mi_response_to;
@@ -65,6 +80,51 @@ static int ett_nvme_mi_hdr;
 static expert_field ei_nvme_mi_mic_truncated;
 static expert_field ei_nvme_mi_mic_bad;
 static expert_field ei_nvme_mi_req_superseded;
+static expert_field ei_nvme_mi_reserved_type;
+
+/*
+ * NMIMT values NVMe-MI 2.1 Figure 20 defines; 3h and 6h-Fh are Reserved.  A
+ * Reserved type carries no known message format, so the framing layer must not
+ * read an opcode or a status byte out of it.
+ */
+static bool
+nvme_mi_type_is_known(unsigned type)
+{
+    switch (type) {
+    case NVME_MI_TYPE_CONTROL:
+    case NVME_MI_TYPE_MI:
+    case NVME_MI_TYPE_ADMIN:
+    case NVME_MI_TYPE_PCIE:
+    case NVME_MI_TYPE_AEM:
+        return true;
+    default:
+        return false;
+    }
+}
+
+/*
+ * Whether a message takes part in the Command Slot lifecycle.  Only Command
+ * Messages and Control Primitives do.  An Asynchronous Event Message is not a
+ * Request or a Response at all -- the ROR bit does not apply to it and its CSI
+ * bit "is not applicable and shall be cleared to '0'" (Figure 20) -- so it must
+ * be kept out, exactly as a Reserved type is: an AEM carries ROR=0 and CSI=0,
+ * so treating it as a request would open a transaction on Command Slot 0,
+ * supersede whatever command is outstanding there, and orphan that command's
+ * real response.
+ */
+static bool
+nvme_mi_type_tracks_slot(unsigned type)
+{
+    switch (type) {
+    case NVME_MI_TYPE_CONTROL:
+    case NVME_MI_TYPE_MI:
+    case NVME_MI_TYPE_ADMIN:
+    case NVME_MI_TYPE_PCIE:
+        return true;
+    default:
+        return false;
+    }
+}
 
 /* Dissector table keyed by the NMIMT field; sub-dissectors register here. */
 static dissector_table_t nvme_mi_type_dissector_table;
@@ -105,17 +165,52 @@ const value_string mi_type_vals[] = {
     { NVME_MI_TYPE_MI,      "MI command" },
     { NVME_MI_TYPE_ADMIN,   "NVMe Admin command" },
     { NVME_MI_TYPE_PCIE,    "PCIe command" },
+    { NVME_MI_TYPE_AEM,     "Asynchronous Event" },
     { 0, NULL },
 };
 
 static const true_false_string tfs_meb = { "data in MEB", "data in message" };
 
-void
-nvme_mi_dissect_invalid_param_resp(tvbuff_t *tvb, proto_tree *tree)
+/* CSI is a one-bit Command Slot selector (NVMe-MI 2.1 Figure 12). */
+static const true_false_string tfs_csi = { "Command Slot 1", "Command Slot 0" };
+
+/* MPRT is a worst-case time in 100 ms units; FFFFh means >= 6,553.5 s
+ * (NVMe-MI 2.1 Figure 34). */
+static void
+nvme_mi_fmt_mprt(char *buf, uint32_t value)
 {
-    proto_tree_add_item(tree, hf_nvme_mi_pel_bit, tvb, 1, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_nvme_mi_pel_byte, tvb, 2, 2,
-                        ENC_LITTLE_ENDIAN);
+    if (value == 0xffff)
+        snprintf(buf, ITEM_LABEL_LENGTH, ">= 6553.5 s (0xffff)");
+    else
+        snprintf(buf, ITEM_LABEL_LENGTH, "%u ms (%u x 100 ms)",
+                 value * 100, value);
+}
+
+bool
+nvme_mi_dissect_resp_status_bytes(tvbuff_t *tvb, proto_tree *tree,
+                                  uint8_t status)
+{
+    switch (status) {
+    case NVME_MI_STATUS_SUCCESS:
+        return true;
+    case NVME_MI_STATUS_INVALID_PARAMETER:
+        /* Parameter Error Location (NVMe-MI 2.1 Figure 32). */
+        proto_tree_add_item(tree, hf_nvme_mi_pel_bit, tvb, 1, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_nvme_mi_pel_byte, tvb, 2, 2,
+                            ENC_LITTLE_ENDIAN);
+        break;
+    case NVME_MI_STATUS_MORE_PROCESSING_REQUIRED:
+        /* Byte 1 is reserved; MPRT occupies bytes 3:2 (Figure 34). */
+        proto_tree_add_item(tree, hf_nvme_mi_mprt, tvb, 2, 2,
+                            ENC_LITTLE_ENDIAN);
+        break;
+    default:
+        /* Every other Error Response leaves bytes 3:1 Reserved (Figure 30). */
+        proto_tree_add_item(tree, hf_nvme_mi_resp_rsvd, tvb, 1, 3,
+                            ENC_LITTLE_ENDIAN);
+        break;
+    }
+    return false;
 }
 
 void
@@ -147,6 +242,29 @@ nvme_mi_recover_resp_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item_set_generated(gi);
     return gi;
 }
+
+void *
+nvme_mi_trans_body_ctx(struct nvme_mi_transaction *trans, size_t size)
+{
+    if (!trans->body_ctx)
+        trans->body_ctx = wmem_alloc0(wmem_file_scope(), size);
+    return trans->body_ctx;
+}
+
+/*
+ * True when an MCTP endpoint address is the null (unassigned) EID 0.  During
+ * MCTP EID assignment the host itself is the null EID, and the peer device EID
+ * is not yet stable across a request/response pair (the request targets the
+ * null destination while the response carries the device's real EID), so the
+ * device address cannot be part of the conversation key in that phase.
+ */
+static bool
+nvme_mi_addr_is_null_eid(const address *addr)
+{
+    return addr->type == AT_MCTP && addr->len == 1 &&
+           *(const uint8_t *)addr->data == 0;
+}
+
 
 /* Per-slot in-flight transaction (NULL when the slot is idle); only written
  * when !pinfo->fd->visited. */
@@ -184,7 +302,7 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     conversation_t *conv;
     tvbuff_t *sub_tvb;
     uint32_t mic = 0;
-    unsigned csi;
+    bool csi;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NVMe-MI");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -210,10 +328,11 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item_ret_boolean(nvme_mi_hdr_tree, hf_nvme_mi_mctp_ic,
                                         tvb, 0, 4, ENC_LITTLE_ENDIAN,
                                         &mic_enabled);
-    proto_tree_add_item_ret_uint(nvme_mi_hdr_tree, hf_nvme_mi_csi,
-                                 tvb, 0, 4, ENC_LITTLE_ENDIAN, &csi);
-    proto_tree_add_item_ret_uint(nvme_mi_hdr_tree, hf_nvme_mi_type,
-                                 tvb, 0, 4, ENC_LITTLE_ENDIAN, &type);
+    proto_tree_add_item_ret_boolean(nvme_mi_hdr_tree, hf_nvme_mi_csi,
+                                    tvb, 0, 4, ENC_LITTLE_ENDIAN, &csi);
+    proto_item *type_it =
+        proto_tree_add_item_ret_uint(nvme_mi_hdr_tree, hf_nvme_mi_type,
+                                     tvb, 0, 4, ENC_LITTLE_ENDIAN, &type);
     proto_tree_add_item_ret_boolean(nvme_mi_hdr_tree, hf_nvme_mi_ror,
                                     tvb, 0, 4, ENC_LITTLE_ENDIAN, &resp);
     proto_tree_add_item(nvme_mi_hdr_tree, hf_nvme_mi_meb,
@@ -232,14 +351,25 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             expert_add_info(pinfo, ic_it, &ei_nvme_mi_mic_truncated);
             mic_enabled = false;
         } else {
-            mic = ~crc32c_tvb_offset_calculate(tvb, 0, payload_len, 0xffffffff);
+            if (nvme_mi_check_mic)
+                mic = ~crc32c_tvb_offset_calculate(tvb, 0, payload_len,
+                                                   0xffffffff);
             payload_len -= 4;
         }
     }
 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "NVMe-MI %s %s",
-                 val_to_str_const(type, mi_type_vals, "command"),
-                 tfs_get_string(resp, &tfs_response_request));
+    /* The ROR bit does not apply to an Asynchronous Event Message, so it is
+     * neither a request nor a response (NVMe-MI 2.1 Figure 20). */
+    if (type == NVME_MI_TYPE_AEM)
+        col_add_fstr(pinfo->cinfo, COL_INFO, "NVMe-MI %s",
+                     val_to_str_const(type, mi_type_vals, "Reserved type"));
+    else
+        col_add_fstr(pinfo->cinfo, COL_INFO, "NVMe-MI %s %s",
+                     val_to_str_const(type, mi_type_vals, "Reserved type"),
+                     tfs_get_string(resp, &tfs_response_request));
+
+    if (!nvme_mi_type_is_known(type))
+        expert_add_info(pinfo, type_it, &ei_nvme_mi_reserved_type);
 
     struct nvme_mi_frame_info *fi = p_get_proto_data(wmem_file_scope(), pinfo,
                                                      proto_nvme_mi, 0);
@@ -247,9 +377,11 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /*
      * Identify the transaction this frame belongs to and resolve the slot
      * lifecycle.  An MPR response leaves the slot occupied so the next
-     * response links to the same transaction.
+     * response links to the same transaction.  Message types that own no
+     * Command Slot -- an Asynchronous Event Message, or a Reserved type -- are
+     * left out of the lifecycle entirely (see nvme_mi_type_tracks_slot()).
      */
-    if (!pinfo->fd->visited) {
+    if (!pinfo->fd->visited && nvme_mi_type_tracks_slot(type)) {
         /*
          * The Response Message Status byte sits at payload offset 0 for
          * every command-message response type (NVMe-MI 2.1 Figure 29;
@@ -276,7 +408,100 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 status_known = false;
         }
 
-        conv = find_or_create_conversation(pinfo);
+        /*
+         * NVMe-MI conversation key: physical address pair + MCTP EID pair +
+         * MCTP message tag.  All three are needed; each covers a case the
+         * others cannot.
+         *
+         * The tag alone is not a key.  An MCTP tag is unique only per endpoint
+         * pair, so concurrent transactions to different peers routinely share a
+         * tag value and would cross-match.
+         *
+         * The EID pair alone is not a key either, because it is not stable
+         * across MCTP EID assignment.  Before assignment the host is the null
+         * EID 0 and the device answers from its real EID, so the (src, dst)
+         * pair differs between a request and its own response:
+         *
+         *   request:  src=0,       dst=0, srcport=tag|0x08 (TO=1)
+         *   response: src=EID_dev, dst=0, srcport=tag      (TO=0)
+         *
+         * Keying on that (as find_or_create_conversation() would, on all four
+         * of src/dst/sport/dport) puts the two frames in different
+         * conversations: the command-slot state is never shared, so every
+         * response looks like an orphan and every new request finds the slot
+         * still occupied by the previous one.
+         *
+         * The physical address pair alone is not a key either.  MCTP bridging
+         * puts *several* Management Endpoints behind one physical address --
+         * OCP Datacenter NVMe SSD 2.7 NVMe-MI-29 requires exactly that, so a
+         * Management Controller can manage more than one endpoint on a 2-Wire
+         * port -- and those endpoints are distinguished only by EID.  Keying on
+         * the address pair alone merges them into one conversation, so a
+         * command outstanding on Command Slot 0 of one endpoint is superseded
+         * by a command to a *different* endpoint that happens to reuse the tag,
+         * and the responses cross-match.
+         *
+         * So: use the physical addresses when the transport supplies them
+         * (packet-mctp-smbus.c publishes the SMBus 7-bit slave addresses in
+         * pinfo->net_src/dst; for PCIe VDM they are absent), the EIDs when the
+         * tag owner actually has one, and always the tag.  "The tag owner has
+         * an EID" is the symmetric test for EID-assignment being complete: the
+         * host is the null EID in *both* directions of the exchange while it is
+         * still unassigned (request src = 0, response dst = 0), so both frames
+         * of a pre-assignment exchange agree to leave the EIDs out of the key
+         * and match on the physical addresses instead.
+         */
+        {
+            bool src_owns_tag = (pinfo->srcport & 0x08) != 0;
+            uint32_t tag      = src_owns_tag ? pinfo->srcport : pinfo->destport;
+            bool has_phys     = (pinfo->net_src.type != AT_NONE &&
+                                 pinfo->net_src.len  == sizeof(uint8_t));
+
+            const address *owner_eid  = src_owns_tag ? &pinfo->src : &pinfo->dst;
+            const address *device_eid = src_owns_tag ? &pinfo->dst : &pinfo->src;
+            bool eids_usable = !nvme_mi_addr_is_null_eid(owner_eid);
+
+            /* At most: 2 addresses + 2 EIDs + tag + type terminator. */
+            conversation_element_t *key =
+                wmem_alloc_array(pinfo->pool, conversation_element_t, 6);
+            unsigned n = 0;
+
+            if (has_phys) {
+                key[n].type = CE_ADDRESS;
+                copy_address_shallow(&key[n].addr_val,
+                        src_owns_tag ? &pinfo->net_src : &pinfo->net_dst);
+                n++;
+                key[n].type = CE_ADDRESS;
+                copy_address_shallow(&key[n].addr_val,
+                        src_owns_tag ? &pinfo->net_dst : &pinfo->net_src);
+                n++;
+            }
+
+            if (eids_usable) {
+                key[n].type = CE_ADDRESS;
+                copy_address_shallow(&key[n].addr_val, owner_eid);
+                n++;
+                key[n].type = CE_ADDRESS;
+                copy_address_shallow(&key[n].addr_val, device_eid);
+                n++;
+            } else if (!has_phys) {
+                /* Pre-assignment on a transport with no physical addresses:
+                 * the tag owner (the null EID) and the tag are all there is. */
+                key[n].type = CE_ADDRESS;
+                copy_address_shallow(&key[n].addr_val, owner_eid);
+                n++;
+            }
+
+            key[n].type     = CE_UINT;
+            key[n].uint_val = tag;
+            n++;
+            key[n].type                  = CE_CONVERSATION_TYPE;
+            key[n].conversation_type_val = CONVERSATION_NVME_MI;
+
+            conv = find_conversation_full(pinfo->num, key);
+            if (!conv)
+                conv = conversation_new_full(pinfo->num, key);
+        }
         mi_conv = conversation_get_proto_data(conv, proto_nvme_mi);
         if (!mi_conv) {
             mi_conv = wmem_new0(wmem_file_scope(), struct nvme_mi_conv_info);
@@ -305,6 +530,25 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             trans->req_frame = pinfo->num;
             trans->req_time  = pinfo->fd->abs_ts;
             trans->nmimt     = (uint8_t)type;
+
+            /*
+             * The opcode byte sits at payload offset 0 for an Admin or MI
+             * Command Message request.  Record it here in the always-run
+             * framing layer so response->request opcode recovery survives a
+             * disabled or truncated body dissector; the per-opcode request
+             * context that drives the structured field decode is still
+             * recorded separately by the body in trans->body_ctx.
+             *
+             * Control Primitives are excluded (as in the MPR peek above): they
+             * have a stricter minimum length before opcode/tag are trustworthy
+             * (the body's >= 4-byte guard) and their own slot lifecycle, so the
+             * Control body records trans->opcode/req_parsed itself.
+             */
+            if (type != NVME_MI_TYPE_CONTROL &&
+                payload_len >= 1 && tvb_bytes_exist(tvb, 4, 1)) {
+                trans->opcode     = tvb_get_uint8(tvb, 4);
+                trans->req_parsed = true;
+            }
 
             fi = wmem_new0(wmem_file_scope(), struct nvme_mi_frame_info);
             fi->trans = trans;
@@ -374,7 +618,9 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_checksum(nvme_mi_tree, tvb, payload_len + 4,
                                 hf_nvme_mi_mic, hf_nvme_mi_mic_status,
                                 &ei_nvme_mi_mic_bad, pinfo, mic,
-                                ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+                                ENC_BIG_ENDIAN,
+                                nvme_mi_check_mic ? PROTO_CHECKSUM_VERIFY
+                                                  : PROTO_CHECKSUM_NO_FLAGS);
 
     return tvb_captured_length(tvb);
 }
@@ -397,8 +643,8 @@ proto_register_nvme_mi(void)
         },
         { &hf_nvme_mi_csi,
           { "CSI", "nvme-mi.csi",
-            FT_UINT32, BASE_DEC, NULL, 0x00000100,
-            NULL, HFILL },
+            FT_BOOLEAN, 32, TFS(&tfs_csi), 0x00000100,
+            "Command Slot Identifier", HFILL },
         },
         { &hf_nvme_mi_type,
           { "Type", "nvme-mi.type",
@@ -439,6 +685,23 @@ proto_register_nvme_mi(void)
             FT_UINT16, BASE_DEC, NULL, 0,
             "Offset of the least-significant byte of the parameter in "
             "error, relative to the start of the message", HFILL },
+        },
+
+        /* More Processing Required Response — MPRT over payload bytes 3:2;
+         * shared by the command message types via
+         * nvme_mi_dissect_mpr_resp(). */
+        { &hf_nvme_mi_mprt,
+          { "More Processing Required Time (MPRT)", "nvme-mi.mprt",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(nvme_mi_fmt_mprt), 0,
+            "Worst-case additional processing time before the final "
+            "Response Message (NVMe-MI 2.1 Figure 34)", HFILL },
+        },
+        { &hf_nvme_mi_resp_rsvd,
+          { "Reserved", "nvme-mi.resp_reserved",
+            FT_UINT24, BASE_HEX, NULL, 0,
+            "Reserved in an Error Response that carries no Parameter Error "
+            "Location or More Processing Required Time (NVMe-MI 2.1 "
+            "Figure 30)", HFILL },
         },
 
         /* Request/response cross-reference (generated fields) */
@@ -487,6 +750,12 @@ proto_register_nvme_mi(void)
             "The previous request on this command slot was still unanswered; "
             "its transaction is superseded by this request", EXPFILL }
         },
+        { &ei_nvme_mi_reserved_type,
+          { "nvme-mi.reserved_type", PI_PROTOCOL, PI_WARN,
+            "NVMe-MI Message Type is Reserved (NVMe-MI 2.1 Figure 12); the "
+            "message body cannot be decoded and the message takes no part in "
+            "command slot tracking", EXPFILL },
+        },
     };
 
     expert_module_t *expert_nvme_mi;
@@ -500,13 +769,21 @@ proto_register_nvme_mi(void)
 
     nvme_mi_type_dissector_table = register_dissector_table("nvme-mi.type",
             "NVMe-MI Message Type", proto_nvme_mi, FT_UINT8, BASE_HEX);
+
+    module_t *nvme_mi_module = prefs_register_protocol(proto_nvme_mi, NULL);
+    prefs_register_bool_preference(nvme_mi_module, "check_mic",
+            "Validate the Message Integrity Check",
+            "Whether to compute the CRC-32C over each NVMe-MI message and "
+            "verify it against the Message Integrity Check (MIC)",
+            &nvme_mi_check_mic);
+
+    nvme_mi_handle = register_dissector_with_description("nvme-mi",
+            "NVMe-MI over MCTP", dissect_nvme_mi, proto_nvme_mi);
 }
 
 void
 proto_reg_handoff_nvme_mi(void)
 {
-    dissector_handle_t nvme_mi_handle =
-        create_dissector_handle(dissect_nvme_mi, proto_nvme_mi);
     dissector_add_uint("mctp.type", MCTP_TYPE_NVME, nvme_mi_handle);
 }
 

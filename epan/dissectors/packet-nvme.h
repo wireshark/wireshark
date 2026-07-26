@@ -54,6 +54,7 @@
 #define NVME_AQ_OPC_MANAGE_EXP_NVM_SUBSYS  0x2d
 #define NVME_AQ_OPC_MANAGE_EXP_NS          0x31
 #define NVME_AQ_OPC_MANAGE_EXP_PORT        0x35
+#define NVME_AQ_OPC_DBBUF_CONFIG           0x7c
 #define NVME_AQ_OPC_FORMAT_NVM             0x80
 #define NVME_AQ_OPC_SECURITY_SEND          0x81
 #define NVME_AQ_OPC_SECURITY_RECV          0x82
@@ -64,6 +65,16 @@
 #define NVME_IDENTIFY_CNS_IDENTIFY_NS      0x0
 #define NVME_IDENTIFY_CNS_IDENTIFY_CTRL    0x1
 #define NVME_IDENTIFY_CNS_IDENTIFY_NSLIST  0x2
+#define NVME_IDENTIFY_CNS_NSID_DESC_LIST   0x3
+#define NVME_IDENTIFY_CNS_NVM_SET_LIST     0x4
+#define NVME_IDENTIFY_CNS_NS_ALLOC_LIST    0x10
+#define NVME_IDENTIFY_CNS_NS_ALLOC         0x11
+#define NVME_IDENTIFY_CNS_CTRL_LIST_NS     0x12
+#define NVME_IDENTIFY_CNS_CTRL_LIST        0x13
+#define NVME_IDENTIFY_CNS_PRI_CTRL_CAP     0x14
+#define NVME_IDENTIFY_CNS_SEC_CTRL_LIST    0x15
+#define NVME_IDENTIFY_CNS_NS_GRAN_LIST     0x16
+#define NVME_IDENTIFY_CNS_UUID_LIST        0x17
 
 
 struct nvme_q_ctx {
@@ -242,6 +253,41 @@ extern const value_string shst_table[];
 void
 nvme_dissect_admin_sqe_cdws(tvbuff_t *sqe_tvb, packet_info *pinfo,
                             proto_tree *tree, struct nvme_cmd_ctx *cmd_ctx);
+
+/**
+ * Decode the opcode-specific Admin completion result (CQE Dword 0) at dw0_off
+ * into tree.  cmd_ctx->opcode (and, for Get/Set Features, the saved FID) selects
+ * the per-opcode decoder; 'status' is the 16-bit NVMe status word (the Set
+ * Features decode distinguishes success from error by its SC field).  Shared by
+ * the NVMe transports and the NVMe-MI Admin response dissector, whose CQE Dword
+ * 0 sits at a different offset but is otherwise identical.
+ */
+void
+nvme_dissect_admin_cqe_dw0(tvbuff_t *nvme_tvb, int dw0_off, proto_tree *cqe_tree,
+                           uint16_t status, struct nvme_cmd_ctx *cmd_ctx);
+
+/**
+ * Decode the NVMe completion Status Field word (Phase Tag, SCT, SC, CRD, More,
+ * Do-Not-Retry, plus the status-code string) at status_off into tree, without
+ * the SQHD/SQID/CID fields of a full CQE.  For transports such as NVMe-MI that
+ * carry the status word but omit the rest of the completion layout.
+ */
+void
+nvme_dissect_cqe_status(tvbuff_t *nvme_tvb, int status_off, proto_tree *cqe_tree);
+
+/**
+ * Decode the data payload returned by a data-returning Admin command (Identify,
+ * Get Log Page, Get/Set Features) into cmd_tree, honoring a byte offset 'off'
+ * into the logical structure (the transfer offset for the NVMe transports, or
+ * the NVMe-MI Admin request Data Offset/DOFST) and a present-byte count 'len'.
+ * cmd_ctx supplies the opcode and the saved per-opcode request parameters
+ * (Identify CNS, Get Log Page LID, Set Features FID).  Returns true if the
+ * opcode was one that carries a decodable data payload; false otherwise so the
+ * caller can fall back to a raw-bytes rendering.
+ */
+bool
+nvme_dissect_admin_data_resp(tvbuff_t *nvme_tvb, proto_tree *cmd_tree,
+                             struct nvme_cmd_ctx *cmd_ctx, unsigned off, unsigned len);
 
 /*
  * Tells if opcode can be an opcode of io queue.

@@ -14,12 +14,14 @@
 
 #include <epan/packet.h>
 
-/* NVMe-MI Message Type (NMIMT) values — NVMe-MI 2.1 Figure 12 */
+/* NVMe-MI Message Type (NMIMT) values — NVMe-MI 2.1 Figure 20.
+ * 3h and 6h-Fh are Reserved. */
 enum nvme_mi_msg_type {
     NVME_MI_TYPE_CONTROL = 0x0,
     NVME_MI_TYPE_MI      = 0x1,
     NVME_MI_TYPE_ADMIN   = 0x2,
     NVME_MI_TYPE_PCIE    = 0x4,
+    NVME_MI_TYPE_AEM     = 0x5,   /* Asynchronous Event Message (§4.1.3) */
 };
 
 /*
@@ -42,14 +44,23 @@ extern const value_string mi_type_vals[];
 #define NVME_MI_STATUS_INVALID_PARAMETER         0x04
 
 /*
- * Decode the Parameter Error Location (PEL) of an Invalid Parameter Error
- * Response (status 04h) over payload bytes 3:1.  The error response format is
- * defined at the message level and shared by every command message type, so
- * the MI/Admin/PCIe body dissectors all call this rather than each decoding
- * the field.  The caller must have at least 4 payload bytes.  Defined in
- * packet-nvme-mi.c.
+ * Decode payload bytes 3:1 of a Response Message according to its Response
+ * Message Status.  Those bytes are status-dependent and mutually exclusive:
+ * the Parameter Error Location on an Invalid Parameter Error Response
+ * (NVMe-MI 2.1 Figure 32), the More Processing Required Time on a More
+ * Processing Required Response (Figure 34), and Reserved on any other Error
+ * Response (Figure 30).  Only a Success Response gives them a command-specific
+ * meaning, so this returns true in that case alone and the caller renders the
+ * bytes itself (the MI NVMe Management Response, the Admin reserved dwords).
+ *
+ * The error-response formats are defined at the message level and shared by
+ * every command message type, so the MI/Admin/PCIe body dissectors all call
+ * this rather than each decoding them -- and none of them mislabels an error
+ * response's bytes as command-specific.  The caller must have at least 4
+ * payload bytes.  Defined in packet-nvme-mi.c.
  */
-void nvme_mi_dissect_invalid_param_resp(tvbuff_t *tvb, proto_tree *tree);
+bool nvme_mi_dissect_resp_status_bytes(tvbuff_t *tvb, proto_tree *tree,
+                                       uint8_t status);
 
 /*
  * Flag a truncated/short payload via the given expert field and render any
@@ -78,10 +89,15 @@ struct nvme_mi_transaction {
     uint32_t  resp_frame;   /* 0 until a non-MPR response is seen */
     nstime_t  req_time;
     /*
-     * true once the request body dissector has recorded the per-type fields
-     * below.  Stays false when the request was too truncated to parse; the
-     * response side must then treat them as unknown (they are zero-filled,
-     * not observed) rather than interpreting them.
+     * true once the request 'opcode' (the command byte at payload offset 0)
+     * has been recorded: by the always-run framing layer for Admin/MI Command
+     * Messages, or by the Control body once past its >= 4-byte guard.  Stays
+     * false when the request was too short to record an opcode; the response
+     * side must then treat the opcode as unknown (zero-filled, not observed)
+     * rather than interpreting it.  Independent of body_ctx, which the body
+     * dissector populates separately and which may be NULL even when
+     * req_parsed is true (e.g. an Admin request truncated below its 64-byte
+     * SQE, or a disabled body protocol).
      */
     bool      req_parsed;
     /*
@@ -140,6 +156,14 @@ proto_item *nvme_mi_recover_resp_opcode(tvbuff_t *tvb, packet_info *pinfo,
                                         uint8_t nmimt, int hf_opcode,
                                         expert_field *ei_orphan,
                                         unsigned *opcode);
+
+/*
+ * Return the transaction's per-opcode request context, allocating it (zeroed,
+ * 'size' bytes, wmem_file_scope) on first use.  Lets each body dissector store
+ * its own struct in trans->body_ctx without repeating the allocate-once
+ * idiom.  'trans' must be non-NULL.  Defined in packet-nvme-mi.c.
+ */
+void *nvme_mi_trans_body_ctx(struct nvme_mi_transaction *trans, size_t size);
 
 #endif /* __PACKET_NVME_MI_H__ */
 

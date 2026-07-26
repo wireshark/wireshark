@@ -33,6 +33,8 @@ void proto_reg_handoff_nvme_mi_mi(void);
 
 static int proto_nvme_mi_mi;
 
+static dissector_handle_t nvme_mi_mi_handle;
+
 static int hf_nvme_mi_mi_opcode;
 static int hf_nvme_mi_mi_cdw0;
 static int hf_nvme_mi_mi_cdw1;
@@ -92,6 +94,18 @@ static int hf_nvme_mi_mi_cfg_hsc_rdy;
 static int hf_nvme_mi_mi_vpd_dofst;
 static int hf_nvme_mi_mi_vpd_dlen;
 static int hf_nvme_mi_mi_vpd_data;
+
+/* Configuration Set (03h) Asynchronous Event — AE Enable List request data
+ * (Figures 92/93) */
+static int hf_nvme_mi_mi_ae;
+static int hf_nvme_mi_mi_ae_numaee;
+static int hf_nvme_mi_mi_ae_aeelver;
+static int hf_nvme_mi_mi_ae_aeetl;
+static int hf_nvme_mi_mi_ae_aeelhl;
+static int hf_nvme_mi_mi_ae_entry;
+static int hf_nvme_mi_mi_ae_aeel;
+static int hf_nvme_mi_mi_ae_aee;
+static int hf_nvme_mi_mi_ae_id;
 
 /* Reset (07h) — Figure 122 */
 static int hf_nvme_mi_mi_reset_rsttyp;
@@ -287,6 +301,26 @@ static const value_string mi_configid_vals[] = {
     { NVME_MI_CFGID_HSC,        "Health Status Change" },
     { NVME_MI_CFGID_MTUS,       "MCTP Transmission Unit Size" },
     { NVME_MI_CFGID_AE,         "Asynchronous Event" },
+    { 0, NULL },
+};
+
+/* AE Enable ID — Asynchronous Events (Figure 63) */
+static const value_string mi_ae_id_vals[] = {
+    { 0x00, "Controller Ready" },
+    { 0x01, "Controller Fatal Status" },
+    { 0x02, "Shutdown Status" },
+    { 0x03, "Controller Enable" },
+    { 0x04, "Namespace Attribute Changed" },
+    { 0x05, "Firmware Activated" },
+    { 0x06, "Composite Temperature" },
+    { 0x07, "Percentage Drive Life Used" },
+    { 0x08, "Available Spare" },
+    { 0x09, "SMART Warnings" },
+    { 0x0a, "Telemetry Controller-Initiated Data Available" },
+    { 0x0b, "PCIe Link Active" },
+    { 0x0c, "Sanitize Failure Mode" },
+    { 0x0d, "Sanitize Namespace Failure Mode" },
+    { 0x0e, "Power Threshold Exceeded" },
     { 0, NULL },
 };
 
@@ -842,6 +876,75 @@ nvme_mi_mi_dissect_typebyte_req(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 /*
+ * AE Enable List request data for a Configuration Set (03h) of the
+ * Asynchronous Event configuration (Figures 92/93).  A 5-byte header (NUMAEE,
+ * AEELVER, AEETL, AEELHL) followed by NUMAEE AE Enable data structures, each a
+ * 1-byte length (AEEL) plus a 2-byte AE Enable Info (AEE bit 15, AE Enable ID
+ * bits 7:0).
+ */
+static void
+dissect_nvme_mi_mi_ae_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                           proto_item *it, unsigned off, unsigned len)
+{
+    proto_tree *ae_tree;
+    proto_item *ti;
+    uint32_t numaee, i;
+    unsigned pos;
+
+    ti = proto_tree_add_item(tree, hf_nvme_mi_mi_ae, tvb, off, len, ENC_NA);
+    ae_tree = proto_item_add_subtree(ti, ett_nvme_mi_mi);
+
+    /* The AE Enable List Header is 5 bytes; anything shorter is truncated. */
+    if (len < 5) {
+        nvme_mi_mi_data_truncated(tvb, pinfo, ae_tree, it, off);
+        return;
+    }
+
+    proto_tree_add_item_ret_uint(ae_tree, hf_nvme_mi_mi_ae_numaee,
+                                 tvb, off, 1, ENC_LITTLE_ENDIAN, &numaee);
+    proto_tree_add_item(ae_tree, hf_nvme_mi_mi_ae_aeelver,
+                        tvb, off + 1, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(ae_tree, hf_nvme_mi_mi_ae_aeetl,
+                        tvb, off + 2, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(ae_tree, hf_nvme_mi_mi_ae_aeelhl,
+                        tvb, off + 4, 1, ENC_LITTLE_ENDIAN);
+
+    pos = off + 5;
+    for (i = 0; i < numaee; i++) {
+        proto_tree *e_tree;
+        proto_item *e_ti;
+        unsigned aeel, entry_len;
+
+        /* Each AE Enable data structure is at least 3 bytes (AEEL + AEEI).
+         * Stop if the next entry would run past the request data. */
+        if (pos + 3 > off + len)
+            break;
+        aeel = tvb_get_uint8(tvb, pos);
+        if (aeel < 3)
+            aeel = 3;   /* spec value is 3h; guarantee forward progress */
+
+        /* A bogus AEEL must not drive the entry item past the request data;
+         * clamp its displayed length to what remains so a truncated list
+         * stops cleanly rather than raising a bounds exception. */
+        entry_len = aeel;
+        if (pos + entry_len > off + len)
+            entry_len = off + len - pos;
+
+        e_ti = proto_tree_add_item(ae_tree, hf_nvme_mi_mi_ae_entry,
+                                   tvb, pos, entry_len, ENC_NA);
+        proto_item_set_text(e_ti, "AE Enable %u", i);
+        e_tree = proto_item_add_subtree(e_ti, ett_nvme_mi_mi_field);
+        proto_tree_add_item(e_tree, hf_nvme_mi_mi_ae_aeel,
+                            tvb, pos, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(e_tree, hf_nvme_mi_mi_ae_aee,
+                            tvb, pos + 1, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(e_tree, hf_nvme_mi_mi_ae_id,
+                            tvb, pos + 1, 2, ENC_LITTLE_ENDIAN);
+        pos += aeel;
+    }
+}
+
+/*
  * Body worker.  Kept separate from the registered wrapper so that a future
  * in-band NVMe-MI Send/Receive decode (NVMe Admin opcodes 1Dh/1Eh tunnel the
  * same MI command bytes) can call it directly with an explicit direction and
@@ -870,12 +973,6 @@ dissect_nvme_mi_mi_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         proto_tree_add_item_ret_uint8(mi_tree, hf_nvme_mi_mi_opcode, tvb, 0, 1, ENC_NA, &opcode);
-        /* Record the request opcode so the matching response (which carries
-         * no opcode of its own) can display it. */
-        if (trans) {
-            trans->opcode = opcode;
-            trans->req_parsed = true;
-        }
 
         if (len < 12) {
             nvme_mi_mi_col_append(pinfo, opcode, NULL);
@@ -885,12 +982,8 @@ dissect_nvme_mi_mi_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* The command dwords are present; persist the response-layout
          * selectors for the response pass. */
-        if (trans) {
-            if (!trans->body_ctx)
-                trans->body_ctx = wmem_new0(wmem_file_scope(),
-                                            struct nvme_mi_mi_req_ctx);
-            req = (struct nvme_mi_mi_req_ctx *)trans->body_ctx;
-        }
+        if (trans)
+            req = nvme_mi_trans_body_ctx(trans, sizeof(*req));
 
         switch (opcode) {
         case NVME_MI_MI_OPC_READ_DS: {
@@ -1010,11 +1103,19 @@ dissect_nvme_mi_mi_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         nvme_mi_mi_col_append(pinfo, opcode, detail);
 
         if (len > 12) {
-            /* VPD Write carries the VPD bytes to write as Request Data
-             * (Figure 133); label them rather than as an opaque blob. */
-            int data_hf = (opcode == NVME_MI_MI_OPC_VPD_WRITE)
-                          ? hf_nvme_mi_mi_vpd_data : hf_nvme_mi_mi_data;
-            proto_tree_add_item(mi_tree, data_hf, tvb, 12, -1, ENC_NA);
+            /* A few commands carry structured Request Data after the command
+             * dwords: a Configuration Set of the Asynchronous Event config
+             * sends an AE Enable List (Figures 92/93); VPD Write sends the VPD
+             * bytes (Figure 133, opaque, just labeled).  Everything else is an
+             * opaque blob. */
+            if (opcode == NVME_MI_MI_OPC_CONFIG_SET &&
+                tvb_get_uint8(tvb, 4) == NVME_MI_CFGID_AE) {
+                dissect_nvme_mi_mi_ae_list(tvb, pinfo, mi_tree, it, 12, len - 12);
+            } else {
+                int data_hf = (opcode == NVME_MI_MI_OPC_VPD_WRITE)
+                              ? hf_nvme_mi_mi_vpd_data : hf_nvme_mi_mi_data;
+                proto_tree_add_item(mi_tree, data_hf, tvb, 12, -1, ENC_NA);
+            }
         }
     } else {
         /* The response carries no opcode; recover it from the matching request
@@ -1056,16 +1157,16 @@ dissect_nvme_mi_mi_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             return tvb_captured_length(tvb);
         }
 
-        proto_tree_add_item(mi_tree, hf_nvme_mi_mi_nmresp,
-                            tvb, 1, 3, ENC_LITTLE_ENDIAN);
-
-        if (status == NVME_MI_STATUS_INVALID_PARAMETER)
-            nvme_mi_dissect_invalid_param_resp(tvb, mi_tree);
-
         /* The NVMe Management Response field and the Response Data are only
-         * defined for a Success Response; error and MPR responses carry no
-         * command-specific content. */
-        bool success = (status == NVME_MI_STATUS_SUCCESS);
+         * defined for a Success Response.  On an error response those same
+         * bytes are the Parameter Error Location, the More Processing Required
+         * Time, or Reserved, so the shared helper owns them and NMRESP is not
+         * rendered over them (NVMe-MI 2.1 Figures 30/32/34). */
+        bool success = nvme_mi_dissect_resp_status_bytes(tvb, mi_tree, status);
+
+        if (success)
+            proto_tree_add_item(mi_tree, hf_nvme_mi_mi_nmresp,
+                                tvb, 1, 3, ENC_LITTLE_ENDIAN);
 
         if (success && opcode_known) {
             switch (opcode) {
@@ -1464,6 +1565,53 @@ proto_register_nvme_mi_mi(void)
             FT_BYTES, SEP_SPACE, NULL, 0,
             "VPD contents transferred by the command (Figures 130/133)",
             HFILL },
+        },
+
+        /* Configuration Set (03h) Asynchronous Event — AE Enable List */
+        { &hf_nvme_mi_mi_ae,
+          { "AE Enable List", "nvme-mi.mi.ae",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            "Asynchronous Event Enable List request data (Figure 92)", HFILL },
+        },
+        { &hf_nvme_mi_mi_ae_numaee,
+          { "Number of AE Enable Data Structures (NUMAEE)", "nvme-mi.mi.ae.numaee",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL },
+        },
+        { &hf_nvme_mi_mi_ae_aeelver,
+          { "AE Enable List Version (AEELVER)", "nvme-mi.mi.ae.aeelver",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL },
+        },
+        { &hf_nvme_mi_mi_ae_aeetl,
+          { "AE Enable Total Length (AEETL)", "nvme-mi.mi.ae.aeetl",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL },
+        },
+        { &hf_nvme_mi_mi_ae_aeelhl,
+          { "AE Enable List Header Length (AEELHL)", "nvme-mi.mi.ae.aeelhl",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL },
+        },
+        { &hf_nvme_mi_mi_ae_entry,
+          { "AE Enable", "nvme-mi.mi.ae.entry",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            "AE Enable data structure (Figure 93)", HFILL },
+        },
+        { &hf_nvme_mi_mi_ae_aeel,
+          { "AE Enable Length (AEEL)", "nvme-mi.mi.ae.aeel",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL },
+        },
+        { &hf_nvme_mi_mi_ae_aee,
+          { "AE Enable (AEE)", "nvme-mi.mi.ae.aee",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x8000,
+            "Enable (1) or disable (0) the indicated asynchronous event", HFILL },
+        },
+        { &hf_nvme_mi_mi_ae_id,
+          { "AE Enable ID", "nvme-mi.mi.ae.id",
+            FT_UINT16, BASE_HEX, VALS(mi_ae_id_vals), 0x00FF,
+            "Identifier of the asynchronous event (Figure 63)", HFILL },
         },
 
         /* Reset (07h) */
@@ -2009,14 +2157,17 @@ proto_register_nvme_mi_mi(void)
 
     expert_nvme_mi_mi = expert_register_protocol(proto_nvme_mi_mi);
     expert_register_field_array(expert_nvme_mi_mi, ei, array_length(ei));
+
+    nvme_mi_mi_handle = register_dissector_with_description(
+            "nvme-mi.mi", "NVMe-MI MI Command",
+            dissect_nvme_mi_mi, proto_nvme_mi_mi);
 }
 
 void
 proto_reg_handoff_nvme_mi_mi(void)
 {
     dissector_add_uint("nvme-mi.type", NVME_MI_TYPE_MI,
-                       create_dissector_handle(dissect_nvme_mi_mi,
-                                               proto_nvme_mi_mi));
+                       nvme_mi_mi_handle);
 }
 
 /*

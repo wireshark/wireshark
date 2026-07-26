@@ -14,11 +14,12 @@ tools/gen-nvme-mi-test-capture.py:
     ensures resp_frame written during the response pass is visible when the
     request frame is re-displayed.
 
-  nvme-mi-types.pcapng  (103 frames)
+  nvme-mi-types.pcapng  (105 frames)
     Comprehensive coverage: all four NVMe-MI message types (Control, MI, Admin,
     PCIe), MI opcodes 0x00-0x07 and 0x0C with realistic command dwords and
     response payloads (per-DTYP Read NVMe-MI Data Structure exchanges, health
-    status poll structures, per-CONFIGID Configuration Set/Get, VPD Read/Write,
+    status poll structures, per-CONFIGID Configuration Set/Get incl. an
+    Asynchronous Event AE Enable List request, VPD Read/Write,
     Reset, Shutdown), several Admin
     opcodes, Admin request flags (DLEN/DOFF), Admin response CQE data,
     multiple consecutive MPR responses, an orphan response (no preceding
@@ -108,8 +109,8 @@ class TestNvmeMiReqResp:
         assert stdout.split() == ['3', '5', '7']
 
     def test_admin_cqe1_in_final_response(self, assert_frame_matches):
-        """CQE1 value 0xABCD1234 is decoded in the final Admin response (F7)."""
-        assert_frame_matches(self.FILE, 7, 'nvme-mi.admin.cqe1 == 0xABCD1234')
+        """CQE DW0 value 0xABCD1234 is decoded in the final Admin response (F7)."""
+        assert_frame_matches(self.FILE, 7, 'nvme-mi.admin.cqe_dw0 == 0xABCD1234')
 
     def test_response_time_present(self, tshark_fields):
         """All four response frames carry a nvme-mi.response_time generated field."""
@@ -118,15 +119,15 @@ class TestNvmeMiReqResp:
 
 
 class TestNvmeMiTypes:
-    """103-frame comprehensive capture: all types, opcodes, MPR, EID, MCTP
+    """105-frame comprehensive capture: all types, opcodes, MPR, EID, MCTP
     tags, IC=1, MEB, CP fields, edge cases."""
 
     FILE = 'nvme-mi-types.pcapng'
 
     def test_frame_count(self, tshark_fields):
-        """All 103 frames are decoded as NVMe-MI."""
+        """All 105 frames are decoded as NVMe-MI."""
         stdout = tshark_fields(self.FILE, 'nvme-mi')
-        assert len(stdout.split()) == 103
+        assert len(stdout.split()) == 105
 
     # ------------------------------------------------------------------
     # Orphan response (F1): response with no preceding request in capture
@@ -179,8 +180,8 @@ class TestNvmeMiTypes:
             'nvme-mi.admin.opcode == 0x02 && nvme-mi.admin.ctrl-id == 0x0002')
 
     def test_admin_get_log_cqe1_in_response(self, assert_frame_matches):
-        """F13: Admin response carries sentinel CQE1=0xDEAD0002."""
-        assert_frame_matches(self.FILE, 13, 'nvme-mi.admin.cqe1 == 0xDEAD0002')
+        """F13: Admin response carries sentinel CQE DW0=0xDEAD0002."""
+        assert_frame_matches(self.FILE, 13, 'nvme-mi.admin.cqe_dw0 == 0xDEAD0002')
 
     def test_admin_set_features_opcode_and_ctrl_id(self, assert_frame_matches):
         """F14: Admin Set Features (opcode=0x09) with ctrl_id=0x0001."""
@@ -188,9 +189,9 @@ class TestNvmeMiTypes:
             'nvme-mi.admin.opcode == 0x09 && nvme-mi.admin.ctrl-id == 0x0001')
 
     def test_admin_flags_dlen_only(self, assert_frame_matches):
-        """F14 (Set Features): DLEN flag set, DOFF flag clear."""
+        """F14 (Set Features): DLENV flag set, DOFSTV flag clear."""
         assert_frame_matches(self.FILE, 14,
-            'nvme-mi.admin.flags.dlen == 1 && nvme-mi.admin.flags.doff == 0')
+            'nvme-mi.admin.flags.dlenv == 1 && nvme-mi.admin.flags.dofstv == 0')
 
     def test_admin_get_features_opcode_and_ctrl_id(self, assert_frame_matches):
         """F16: Admin Get Features (opcode=0x0a) with ctrl_id=0x0003."""
@@ -198,13 +199,17 @@ class TestNvmeMiTypes:
             'nvme-mi.admin.opcode == 0x0a && nvme-mi.admin.ctrl-id == 0x0003')
 
     def test_admin_flags_doff_and_dlen(self, assert_frame_matches):
-        """F16 (Get Features): both DLEN and DOFF flags are set."""
+        """F16 (Get Features): both DLENV and DOFSTV flags are set."""
         assert_frame_matches(self.FILE, 16,
-            'nvme-mi.admin.flags.dlen == 1 && nvme-mi.admin.flags.doff == 1')
+            'nvme-mi.admin.flags.dlenv == 1 && nvme-mi.admin.flags.dofstv == 1')
 
     def test_admin_response_with_data_payload(self, assert_frame_matches):
-        """F17 (Get Features response): carries inline data beyond the 16-byte CQE."""
-        assert_frame_matches(self.FILE, 17, 'nvme-mi.admin.data')
+        """F17 (Get Features response): inline data beyond the 16-byte CQE
+        routes through the shared NVMe decoder, surfacing as the generic
+        nvme.data view -- the raw nvme-mi.admin.data alias is hidden (not
+        absent) on this path, so it stays filterable but nvme.data is the
+        field callers should rely on."""
+        assert_frame_matches(self.FILE, 17, 'nvme.data')
 
     def test_admin_opcode_propagated_to_responses(self, assert_frames_match):
         """Admin opcodes are propagated as generated fields on their response frames."""
@@ -345,6 +350,7 @@ class TestNvmeMiTypes:
             91: 92, 93: 94, 95: 96, 97: 98,      # MI VPD Read/Write, Reset, Shutdown
             99: 100,                             # MI Reset with reserved RSTTYP
             101: 103,                            # sliced MPR must not close slot
+            104: 105,                             # MI Config Set Async Event (AE Enable List)
         }
         assert pairs == expected
         # Implicitly: F1 (orphan), F26, F27, F69 (unanswered) are absent
@@ -391,6 +397,7 @@ class TestNvmeMiTypes:
             100: 99,                             # MI Reset with reserved RSTTYP
             102: 101,                            # sliced MPR interim
             103: 101,                            # final after the sliced MPR
+            105: 104,                             # MI Config Set Async Event response
         }
         assert pairs == expected
         # Implicitly: F1 (orphan) has no response_to and is absent
@@ -460,7 +467,7 @@ class TestNvmeMiTypes:
         """F64 (Admin response after the CP exchange) still recovers the Get Log
         Page opcode (0x02) from the request it pairs with."""
         assert_frame_matches(self.FILE, 64,
-            'nvme-mi.admin.opcode == 0x02 && nvme-mi.admin.cqe1 == 0xFEED0009')
+            'nvme-mi.admin.opcode == 0x02 && nvme-mi.admin.cqe_dw0 == 0xFEED0009')
 
     # ------------------------------------------------------------------
     # Admin response status and CQE field coverage
@@ -477,15 +484,15 @@ class TestNvmeMiTypes:
         assert_frame_matches(self.FILE, 37, 'nvme-mi.admin.status == 0x01')
 
     def test_admin_cqe2_and_cqe3_in_get_log_response(self, assert_frame_matches):
-        """F13 (Get Log Page response) carries CQE2=0 and CQE3=0 alongside CQE1."""
+        """F13 (Get Log Page response) carries CQE DW1=0 and CQE DW3=0 alongside DW0."""
         assert_frame_matches(self.FILE, 13,
-            'nvme-mi.admin.cqe2 == 0 && nvme-mi.admin.cqe3 == 0')
+            'nvme-mi.admin.cqe_dw1 == 0 && nvme-mi.admin.cqe_dw3 == 0')
 
     def test_admin_cqe1_in_tag_isolation_responses(self, assert_frames_match):
-        """F38 (tag=0 Admin final) and F40 (tag=1 Admin) carry distinct CQE1 sentinel values."""
+        """F38 (tag=0 Admin final) and F40 (tag=1 Admin) carry distinct CQE DW0 sentinel values."""
         assert_frames_match(self.FILE, [
-            (38, 'nvme-mi.admin.cqe1 == 0x12345678'),
-            (40, 'nvme-mi.admin.cqe1 == 0xCAFEBABE')])
+            (38, 'nvme-mi.admin.cqe_dw0 == 0x12345678'),
+            (40, 'nvme-mi.admin.cqe_dw0 == 0xCAFEBABE')])
 
     def test_admin_dlen_dword_value(self, assert_frame_matches):
         """F16 (Get Features request) carries the data-length dword nvme-mi.admin.dlen = 0x1000."""
@@ -503,19 +510,39 @@ class TestNvmeMiTypes:
     # MI response nmresp field
     # ------------------------------------------------------------------
 
-    def test_mi_nmresp_field_on_all_mi_responses(self, tshark_fields):
-        """nvme-mi.mi.nmresp appears on every MI response frame and no other type."""
+    def test_mi_nmresp_field_on_success_responses_only(self, tshark_fields):
+        """nvme-mi.mi.nmresp appears on every *Success* MI response and nowhere
+        else.
+
+        The NVMe Management Response field is only defined for a Success
+        Response.  In an error response those same bytes (3:1) carry something
+        else entirely -- the Parameter Error Location (F88, Invalid Parameter),
+        the More Processing Required Time (F19/F20, MPR) -- or are Reserved
+        (F54, Invalid Command Input Data Size), so no NMRESP item is rendered
+        over them (NVMe-MI 2.1 Figures 30/32/34).
+        """
         stdout = tshark_fields(self.FILE, 'nvme-mi.mi.nmresp')
-        # F3/5/7/9/11: MI command responses; F19/20/21: MPR chain; F42: IC-enabled;
-        # F44/46/54/56: CDW non-zero, MI data, non-success, MEB; F72: final after
-        # the 1-byte MPR (F71 itself is too short to carry an nmresp);
+        # F3/5/7/9/11: MI command responses; F21: final of the MPR chain;
+        # F42: IC-enabled; F44/46/56: CDW non-zero, MI data, MEB; F72: final
+        # after the 1-byte MPR (F71 itself is too short to carry an nmresp);
         # F74-F90 (even): MI per-DTYP / per-CONFIGID fixture responses;
         # F92-F100 (even): VPD Read/Write, Reset, Shutdown fixture responses;
-        # F103: final after the sliced MPR (F102's nmresp bytes are not captured)
-        assert stdout.split() == ['3', '5', '7', '9', '11', '19', '20', '21', '42',
-                                   '44', '46', '54', '56', '72', '74', '76', '78',
-                                   '80', '82', '84', '86', '88', '90', '92', '94',
-                                   '96', '98', '100', '103']
+        # F103: final after the sliced MPR (F102's nmresp bytes are not captured);
+        # F105: Config Set Async Event response
+        assert stdout.split() == ['3', '5', '7', '9', '11', '21', '42',
+                                   '44', '46', '56', '72', '74', '76', '78',
+                                   '80', '82', '84', '86', '90', '92', '94',
+                                   '96', '98', '100', '103', '105']
+
+    def test_generic_error_response_bytes_are_reserved(self, tshark_fields):
+        """An error response that carries neither a Parameter Error Location
+        nor a More Processing Required Time leaves bytes 3:1 Reserved
+        (NVMe-MI 2.1 Figure 30): F52 (Admin, Invalid Command Opcode) and F54
+        (MI, Invalid Command Input Data Size).  The PEL (F88) and MPRT
+        (F19/F20/F37) frames render those bytes as their own field instead, so
+        they must not also show a Reserved item."""
+        stdout = tshark_fields(self.FILE, 'nvme-mi.resp_reserved')
+        assert stdout.split() == ['52', '54']
 
     # ------------------------------------------------------------------
     # Response-time generated field
@@ -569,19 +596,45 @@ class TestNvmeMiTypes:
         assert_frame_matches(self.FILE, 46, 'nvme-mi.mi.data')
 
     def test_admin_doff_only_flags(self, assert_frame_matches):
-        """F47 has DOFF flag set and DLEN flag clear (flags=0x02)."""
+        """F47 has DOFSTV flag set and DLENV flag clear (flags=0x02)."""
         assert_frame_matches(self.FILE, 47,
-            'nvme-mi.admin.flags.doff == 1 && nvme-mi.admin.flags.dlen == 0')
+            'nvme-mi.admin.flags.dofstv == 1 && nvme-mi.admin.flags.dlenv == 0')
 
     def test_admin_non_zero_doff_value(self, assert_frame_matches):
         """F47 carries a non-zero data-offset dword (nvme-mi.admin.doff == 0x2000)."""
         assert_frame_matches(self.FILE, 47, 'nvme-mi.admin.doff == 0x2000')
 
+    def test_admin_ish_flag_decoded(self, assert_frame_matches):
+        """The Ignore Shutdown (ISH) Command Flags bit is decoded (clear here);
+        this pins that the flag field is registered and parses (Figure 136)."""
+        assert_frame_matches(self.FILE, 14, 'nvme-mi.admin.flags.ish == 0')
+
+    def test_admin_obsolete_flags_expert(self, tshark_fields):
+        """Admin requests that set the obsolete DOFSTV/DLENV Command Flags bits
+        raise the obsolete-flag expert; those bits are ignored by Management
+        Endpoints compliant with NVMe-MI later than 1.1 (Figure 136)."""
+        frames = tshark_fields(self.FILE, 'nvme-mi.admin.obsolete_flag').split()
+        # F14 (DLENV), F16 (DLENV+DOFSTV) and F47 (DOFSTV) each set an obsolete bit
+        for frame in ('14', '16', '47'):
+            assert frame in frames, f'F{frame} should raise the obsolete-flag expert'
+
+    def test_mprt_decoded_on_mpr_responses(self, tshark_fields):
+        """More Processing Required responses decode the MPRT field (message
+        bytes 7:6), common to every command type (NVMe-MI 2.1 Figure 34)."""
+        stdout = tshark_fields(self.FILE, 'nvme-mi.mprt')
+        assert stdout.split() == ['19', '20', '37']
+
     def test_admin_short_response_no_cqe(self, tshark_fields):
-        """F50 (4-byte Admin response) must not carry CQE fields."""
-        stdout = tshark_fields(self.FILE, 'frame.number == 50 && (nvme-mi.admin.cqe1'
-                               ' || nvme-mi.admin.cqe2 || nvme-mi.admin.cqe3)')
-        assert stdout.strip() == '', 'Frame 50 should not have any CQE field'
+        """F50 (4-byte Admin response) is dissected as a status-0 admin response
+        but carries none of the CQE dwords.  The positive anchor guards against
+        the no-CQE check passing vacuously because F50 failed to dissect."""
+        present = tshark_fields(self.FILE,
+                                'frame.number == 50 && nvme-mi.admin.status == 0x00')
+        assert present.split() == ['50'], \
+            'Frame 50 should dissect as a status-0 admin response'
+        cqe = tshark_fields(self.FILE, 'frame.number == 50 && (nvme-mi.admin.cqe_dw0'
+                            ' || nvme-mi.admin.cqe_dw1 || nvme-mi.admin.cqe_dw3)')
+        assert cqe.strip() == '', 'Frame 50 should not have any CQE field'
 
     def test_admin_short_success_response_expert(self, tshark_fields):
         """F50 (4-byte Success Response missing the CQE dwords block) fires
@@ -869,18 +922,35 @@ class TestNvmeMiMiCommands:
             ' && nvme-mi.mi.config.hsc.rdy == 1'
             ' && nvme-mi.mi.config.hsc.spare == 0')
 
+    def test_config_set_ae_enable_list(self, assert_frame_matches):
+        """F104: a Configuration Set of the Asynchronous Event config (CID=04h)
+        decodes its AE Enable List Request Data (Figures 92/93): the header
+        counts and both per-entry AE Enable bit + AE Enable ID."""
+        assert_frame_matches(self.FILE, 104,
+            'nvme-mi.mi.config.cid == 0x04 && '
+            'nvme-mi.mi.ae.numaee == 2 && nvme-mi.mi.ae.aeelhl == 5 && '
+            '(nvme-mi.mi.ae.aee == 1 && nvme-mi.mi.ae.id == 0x06) && '
+            '(nvme-mi.mi.ae.aee == 0 && nvme-mi.mi.ae.id == 0x09)')
+
+    def test_config_set_ae_blob_replaced(self, assert_frame_matches):
+        """F104: the structured AE Enable List replaces the raw nvme-mi.mi.data
+        blob on the request."""
+        assert_frame_matches(self.FILE, 104, '!nvme-mi.mi.data')
+
     def test_reserved_configid_expert(self, tshark_fields):
         """F87 (CID=0x50) fires the reserved-CONFIGID expert; the valid-CID
         requests do not."""
         stdout = tshark_fields(self.FILE, 'nvme-mi.mi.reserved_configid')
         assert stdout.split() == ['87']
 
-    def test_error_response_keeps_raw_nmresp(self, assert_frame_matches):
-        """F88 (Invalid Parameter response to the reserved-CID Get) carries
-        the raw NMRESP but no command-specific subfields."""
+    def test_error_response_has_no_nmresp(self, assert_frame_matches):
+        """F88 (Invalid Parameter response to the reserved-CID Get) renders its
+        bytes 3:1 as the Parameter Error Location only.  The NVMe Management
+        Response is not defined for an error response, so neither the raw
+        NMRESP nor a command-specific subfield may be shown over those bytes."""
         assert_frame_matches(self.FILE, 88,
-            'nvme-mi.mi.status == 0x04 && nvme-mi.mi.nmresp'
-            ' && !nvme-mi.mi.config.sfreq_cur')
+            'nvme-mi.mi.status == 0x04 && nvme-mi.pel.bit'
+            ' && !nvme-mi.mi.nmresp && !nvme-mi.mi.config.sfreq_cur')
 
     def test_invalid_parameter_pel(self, tshark_fields):
         """F88 (Invalid Parameter response) decodes the Parameter Error
@@ -1013,7 +1083,7 @@ class TestNvmeMiMalformed:
     def test_truncated_admin_request_opcode_propagated(self, assert_frame_matches):
         """F68 recovers the opcode (0x06) recorded from the truncated request."""
         assert_frame_matches(self.FILE, 68,
-            'nvme-mi.admin.opcode == 0x06 && nvme-mi.admin.cqe1 == 0x0BAD0001')
+            'nvme-mi.admin.opcode == 0x06 && nvme-mi.admin.cqe_dw0 == 0x0BAD0001')
 
     # ------------------------------------------------------------------
     # Orphan response handling (F1)
@@ -1034,6 +1104,12 @@ class TestNvmeMiMalformed:
         2 payload bytes are still dissected (opcode decoded)."""
         assert_frame_matches(self.FILE, 69,
             'nvme-mi.mic_truncated && nvme-mi.mi.opcode == 0x01 && !nvme-mi.mic')
+
+    def test_no_reserved_types_in_this_capture(self, tshark_fields):
+        """Every message type in this capture is one Figure 12 defines; the
+        Reserved-type handling has its own fixture (TestNvmeMiReservedType)."""
+        stdout = tshark_fields(self.FILE, 'nvme-mi.reserved_type')
+        assert stdout.strip() == ''
 
     # ------------------------------------------------------------------
     # 1-byte MPR interim response (F70-F72)
@@ -1185,21 +1261,6 @@ class TestNvmeMiAdminCommands:
             (4, 'nvme-mi.admin.ctrl-id == 0x0004'),
         ])
 
-    def test_sqe_hidden_aliases_resolve(self, assert_frame_matches):
-        """The pre-split nvme-mi.admin.sqe* field names are preserved as hidden
-        aliases for display-filter compatibility.  On F1 (Identify, NSID=0,
-        MPTR=0, CDW10 CNS=1) the envelope aliases resolve to the same dwords as
-        the visible NSID/CDW2/CDW3 fields, and the legacy raw CDW10 alias (which
-        has no visible nvme-mi.admin counterpart any more) still reads
-        0x00000001."""
-        assert_frame_matches(self.FILE, 1,
-                             'nvme-mi.admin.sqe1 == nvme-mi.admin.nsid && '
-                             'nvme-mi.admin.sqe2 == nvme-mi.admin.cdw2 && '
-                             'nvme-mi.admin.sqe3 == nvme-mi.admin.cdw3 && '
-                             'nvme-mi.admin.sqe4 == 0 && '
-                             'nvme-mi.admin.sqe5 == 0 && '
-                             'nvme-mi.admin.sqe10 == 0x00000001')
-
     def test_col_info_opcode_and_detail(self, tshark_fields):
         """COL_INFO carries the opcode name (shared table) plus the CNS /
         log-page detail the shared decoder appends."""
@@ -1211,6 +1272,94 @@ class TestNvmeMiAdminCommands:
             ['2', 'NVMe-MI NVMe Admin command Request (Get Log Page) '
                   'SMART/Health Information'],
         ]
+
+
+class TestNvmeMiAdminResponse:
+    """Admin response status + CQE DW0 shared-decode coverage (MR5).
+
+    nvme-mi-admin-resp.pcapng (8 frames, 4 request/response pairs) drives the
+    NVMe-MI Admin response through the shared packet-nvme.c helpers: the
+    opcode-specific completion result (nvme_dissect_admin_cqe_dw0) and the NVMe
+    status word SCT/SC/M/DNR (nvme_dissect_cqe_status).  Each response recovers
+    its request's opcode/FID from body_ctx, so the CQE DW0 surfaces with the
+    same nvme.cqe.* field names the NVMe transports use:
+
+      F1/F2 Get Features (0Ah) FID=04h Temperature Threshold,
+      F3/F4 Set Features (09h) FID=07h Number of Queues (success),
+      F5/F6 Set Features (09h) FID=02h Power Management (failed: SCT=1 SC=0Eh),
+      F7/F8 Identify (06h) success with More + Do-Not-Retry status bits.
+    """
+
+    FILE = 'nvme-mi-admin-resp.pcapng'
+
+    def test_frame_count(self, tshark_fields):
+        """Responses (even frames) recover the request opcode, so the generated
+        nvme-mi.admin.opcode field resolves on all 8 frames."""
+        stdout = tshark_fields(self.FILE, 'nvme-mi.admin.opcode')
+        assert stdout.split() == ['1', '2', '3', '4', '5', '6', '7', '8']
+
+    def test_responses_link_to_requests(self, assert_frames_match):
+        """Each even frame is a response paired to the preceding request."""
+        assert_frames_match(self.FILE, [
+            (2, 'nvme-mi.response_to == 1'),
+            (4, 'nvme-mi.response_to == 3'),
+            (6, 'nvme-mi.response_to == 5'),
+            (8, 'nvme-mi.response_to == 7'),
+        ])
+
+    def test_get_features_tt_dw0(self, assert_frame_matches):
+        """F2: Get Features Temperature Threshold completion result (CQE DW0)
+        decodes via the shared per-FID decoder (TMPTH/TMPSEL/THPSEL)."""
+        assert_frame_matches(self.FILE, 2,
+                             'nvme.cqe.dword0.get_features.tt.tmpth == 0x14b && '
+                             'nvme.cqe.dword0.get_features.tt.tmpsel == 2 && '
+                             'nvme.cqe.dword0.get_features.tt.thpsel == 1')
+
+    def test_set_features_nq_dw0(self, assert_frame_matches):
+        """F4: Set Features Number of Queues success result decodes NSQA/NCQA."""
+        assert_frame_matches(self.FILE, 4,
+                             'nvme.cqe.dword0.set_features.nq.nsqa == 3 && '
+                             'nvme.cqe.dword0.set_features.ncqa == 7')
+
+    def test_set_features_error_dw0(self, assert_frame_matches):
+        """F6: a failed Set Features (status SC != 0) decodes CQE DW0 as the
+        Set-Features error-specific code rather than the success bitmask."""
+        assert_frame_matches(self.FILE, 6,
+                             'nvme.cqe.dword0.set_features.err == 0x0e')
+
+    def test_status_subfields_error(self, assert_frame_matches):
+        """F6: the NVMe status word (SCT/SC/DNR) decodes from CQE DW3."""
+        assert_frame_matches(self.FILE, 6,
+                             'nvme.cqe.status.sct == 1 && '
+                             'nvme.cqe.status.sc == 0x0e && '
+                             'nvme.cqe.status.dnr == 1')
+
+    def test_status_subfields_success(self, assert_frames_match):
+        """Successful responses decode SCT=0/SC=0 (Successful Completion).  F2
+        also sets the Phase Tag (bit 0); asserting it pins the status word at
+        the right offset and the phase mask distinctly from SCT/SC -- an all-
+        zero success word alone cannot tell a correct offset from a wrong one."""
+        assert_frames_match(self.FILE, [
+            (2, 'nvme.cqe.status.sct == 0 && nvme.cqe.status.sc == 0 && '
+                'nvme.cqe.status.p == 1'),
+            (4, 'nvme.cqe.status.sct == 0 && nvme.cqe.status.sc == 0 && '
+                'nvme.cqe.status.p == 0'),
+        ])
+
+    def test_status_more_and_dnr_bits(self, assert_frame_matches):
+        """F8: the More and Do-Not-Retry status bits decode independently."""
+        assert_frame_matches(self.FILE, 8,
+                             'nvme.cqe.status.m == 1 && nvme.cqe.status.dnr == 1')
+
+    def test_identify_generic_dw0(self, assert_frame_matches):
+        """F8: an opcode with no per-opcode DW0 decoder falls back to the raw
+        nvme.cqe.dword0 dword."""
+        assert_frame_matches(self.FILE, 8, 'nvme.cqe.dword0 == 0xcafebabe')
+
+    def test_cqe1_alias_preserved(self, assert_frame_matches):
+        """The raw nvme-mi.admin.cqe_dw0 dword stays resolvable as a hidden
+        alias once the structured DW0 decode is in place."""
+        assert_frame_matches(self.FILE, 8, 'nvme-mi.admin.cqe_dw0 == 0xcafebabe')
 
 
 class TestNvmeMiTypeMismatch:
@@ -1250,3 +1399,919 @@ class TestNvmeMiTypeMismatch:
         assert_frame_matches(self.FILE, 4,
                              'nvme-mi.admin.orphan_response && '
                              '!nvme-mi.admin.opcode')
+
+
+
+class TestNvmeMiAdminLogpageWindowed:
+    """48-frame multi-window Get Log Page capture
+    (tools/gen-nvme-mi-test-capture.py build_admin_logpage_windowed_pcapng).
+
+    Regression coverage for a bug found while adding fuzz-corpus diversity:
+    dissect_nvme_get_logpage_resp() (packet-nvme.c) silently failed to thread
+    a nonzero offset through to 9 of its 19 per-LID decoders (Error Info,
+    SMART, FW Slot, Changed NSList, Endurance Group, Predictable Latency NVM
+    Set, Reservation Notification, Sanitize Status, Command/Feature
+    Lockdown) -- they read cmd_ctx->cmd_ctx.get_logpage.off directly instead
+    of the offset actually threaded down from the NVMe-MI/TCP/RDMA framing
+    layer.  That field genuinely holds the NVMe-level Log Page Offset (LPO,
+    CDW12/13, captured at request time) rather than being dead code, so the
+    real fix combines LPO with the transport-level offset (NVMe-MI DOFST, or
+    the TCP/RDMA transfer offset) once at the dispatcher -- per NVMe-MI 2.1
+    Figure 139/140, LPO is applied first to select the logical data, then
+    DOFST/DLEN slice further into that -- and passes the combined value
+    uniformly to the 9 broken decoders (the other 10, which already combined
+    LPO+transport-offset internally, are untouched).
+
+    Three additional, independent bugs turned up in the same functions while
+    fixing this, none reachable before because off was always 0:
+      - FW Slot and Endurance Group's trailing "reserved" field length was
+        computed via an unguarded "len -= poff", underflowing `len`
+        (unsigned) whenever a window landed near the end of the structure
+        with too little data remaining.
+      - Sanitize Status's trailing-field bail-out condition was inverted
+        ("if (poff <= len) return;" instead of "if (len <= poff) return;"):
+        it bailed out exactly when there WAS enough data, so the field never
+        rendered at all, regardless of offset -- including in a completely
+        ordinary, non-windowed response.
+      - decode_fw_slot_frs()'s own `poff` formula used ": off" instead of
+        ": 0" for the off >= 8 branch, mixing a struct-absolute offset into
+        a cmd_tvb-relative position -- unreachable (and therefore untested)
+        until the dispatcher fix above first allowed a nonzero off to reach
+        this function at all.
+    """
+
+    FILE = 'nvme-mi-admin-logpage-windowed.pcapng'
+
+    def test_frame_count(self, tshark_fields):
+        """All 68 frames decode as NVMe-MI."""
+        stdout = tshark_fields(self.FILE, 'nvme-mi')
+        assert stdout.split() == [str(n) for n in range(1, 69)]
+
+    def test_smart_window_dofst_only(self, assert_frame_matches):
+        """F4: SMART Data Units Read/Written decode correctly at DOFST=32
+        alone (LPO=0) -- the original bug this whole audit started from."""
+        assert_frame_matches(self.FILE, 4,
+            'nvme.cmd.get_logpage.smart.dur == 10:11:12:13:14:15:16:17:18:19:1a:1b:1c:1d:1e:1f'
+            ' && nvme.cmd.get_logpage.smart.duw == 20:21:22:23:24:25:26:27:28:29:2a:2b:2c:2d:2e:2f')
+
+    def test_smart_window_lpo_plus_dofst_combined(self, assert_frame_matches):
+        """F6: the SAME Data Units Read/Written fields, reached via LPO=16 +
+        DOFST=16 (combined_off=32) with a DIFFERENT byte pattern than F4 --
+        this only passes if dissect_nvme_get_logpage_resp() actually adds
+        LPO and the transport offset together, per NVMe-MI 2.1 Figure
+        139/140, rather than using either one alone."""
+        assert_frame_matches(self.FILE, 6,
+            'nvme.cmd.get_logpage.smart.dur == 40:41:42:43:44:45:46:47:48:49:4a:4b:4c:4d:4e:4f'
+            ' && nvme.cmd.get_logpage.smart.duw == 50:51:52:53:54:55:56:57:58:59:5a:5b:5c:5d:5e:5f')
+
+    def test_error_info_window(self, assert_frame_matches):
+        """F8: Error Information CSI field decodes at DOFST=32 -- the first
+        off != 0 exercise of this decoder in the corpus."""
+        assert_frame_matches(self.FILE, 8,
+            'nvme.cmd.get_logpage.errinf.csi == 0x5756555453525150')
+
+    def test_fw_slot_window(self, assert_frame_matches):
+        """F10: Firmware Slot Information Slot-1 revision ("WIRESHK1")
+        decodes at DOFST=8 -- exercises both the dispatcher fix and the
+        independent decode_fw_slot_frs() poff-formula fix together."""
+        assert_frame_matches(self.FILE, 10,
+            'nvme.cmd.get_logpage.fw_slot.frs.s1 == 0x314b485345524957')
+
+    def test_fw_slot_trailing_underflow_guarded(self, tshark_fields):
+        """F12: DOFST=63, DLEN=1 lands exactly on the trailing-reserved-field
+        boundary with far too little data for it.  Before the fix,
+        "len -= poff" here underflowed `len` (unsigned) to a huge value;
+        the frame must decode with no malformed/exception expert."""
+        stdout = tshark_fields(self.FILE, 'frame.number == 12 && _ws.malformed')
+        assert stdout.strip() == ''
+
+    def test_changed_nslist_window(self, assert_frame_matches):
+        """F14: Changed Namespace List's 2nd entry decodes at DOFST=8 (each
+        entry is a bare, position-independent NSID, but a nonzero window
+        offset must still land the walk on the correct entry, not restart
+        from index 0)."""
+        assert_frame_matches(self.FILE, 14,
+            'nvme.cmd.get_logpage.changed_nslist == 0x00000042')
+
+    def test_egroup_window(self, assert_frame_matches):
+        """F16: Endurance Group Data Units Read decodes at DOFST=48."""
+        assert_frame_matches(self.FILE, 16,
+            'nvme.cmd.get_logpage.egroup.dur == 60:61:62:63:64:65:66:67:68:69:6a:6b:6c:6d:6e:6f')
+
+    def test_egroup_trailing_underflow_guarded(self, assert_frame_matches, tshark_fields):
+        """F18: DOFST=400, DLEN=112 (=512-400, the outer guard's exact
+        minimum) -- the trailing field's pre-fix poff ((off<=160)?...:
+        (off-160) = 240) exceeds this len, which the "(512-off)<=len" guard
+        alone does NOT exclude (it only requires len>=112, not len>=240);
+        before the fix this underflowed. Unlike the previous DOFST=505/DLEN=2
+        version of this test, off=400/len=112 actually reaches the
+        underflow-prone subtraction instead of being skipped entirely by the
+        outer guard."""
+        stdout = tshark_fields(self.FILE, 'frame.number == 18 && _ws.malformed')
+        assert stdout.strip() == ''
+        assert_frame_matches(self.FILE, 18,
+            'nvme.cmd.get_logpage.egroup.rsvd2[0:4] == 00:01:02:03')
+
+    def test_pred_lat_window(self, assert_frame_matches):
+        """F20: Predictable Latency NVM Set DTWIN Reads Typical decodes at
+        DOFST=32."""
+        assert_frame_matches(self.FILE, 20,
+            'nvme.cmd.get_logpage.pred_lat.dtwin_rt == 8608196880778817904')
+
+    def test_reserv_notif_window(self, assert_frame_matches):
+        """F22: Reservation Notification Log Page Type decodes at DOFST=8."""
+        assert_frame_matches(self.FILE, 22,
+            'nvme.cmd.get_logpage.reserv_notif.lpt == 7')
+
+    def test_sanitize_trailing_field_no_longer_swallowed(self, assert_frame_matches):
+        """F24: DOFST=0, DLEN=64 -- an entirely ordinary, non-windowed
+        response with plenty of data for the trailing "rsvd" field (struct
+        offset 32 onward).  Before the fix, the bail-out condition here was
+        inverted ("if (poff <= len) return;" instead of
+        "if (len <= poff) return;"): it bailed out exactly when there WAS
+        enough data, so this field never rendered at all -- regardless of
+        offset, even in the most common, non-windowed case."""
+        assert_frame_matches(self.FILE, 24,
+            'nvme.cmd.get_logpage.sanitize.rsvd == '
+            '80:81:82:83:84:85:86:87:88:89:8a:8b:8c:8d:8e:8f:'
+            '90:91:92:93:94:95:96:97:98:99:9a:9b:9c:9d:9e:9f')
+
+    def test_cmd_feat_lockdown_lpo_alone_bails(self, tshark_fields):
+        """F26: LPO=4 (nonzero), DOFST=0 -> combined_off=4.  The decoder's
+        "variable-length list can only be decoded starting at offset 0"
+        guard must still bail out here, proving LPO alone (not just DOFST)
+        reaches this decoder via the combined offset."""
+        stdout = tshark_fields(self.FILE,
+            'frame.number == 26 && nvme.cmd.get_logpage.cmd_feat_lockdown.cfil')
+        assert stdout.strip() == ''
+
+    def test_feat_sup_and_eff_window(self, assert_frame_matches):
+        """F28: Feature Identifiers Supported and Effects FID-index-1 entry
+        decodes at DOFST=4."""
+        assert_frame_matches(self.FILE, 28,
+            'nvme.cmd.get_logpage.feat_sup_and_eff.fidx == 01:00:00:00')
+
+    def test_mi_cmd_sup_and_eff_window(self, assert_frame_matches):
+        """F30: NVMe-MI Command Supported and Effects command-index-1 entry
+        decodes at DOFST=4."""
+        assert_frame_matches(self.FILE, 30,
+            'nvme.cmd.get_logpage.mi_cmd_sup_and_eff.cs == 01:00:00:00')
+
+    def test_supported_log_pages_window(self, assert_frame_matches):
+        """F32: Supported Log Pages LID-index-2 entry decodes at DOFST=8."""
+        assert_frame_matches(self.FILE, 32,
+            'nvme.cmd.get_logpage.supported.lids == 01:00:00:00')
+
+    def test_cmd_sup_and_eff_iocs0_not_skipped(self, assert_frame_matches):
+        """F34: Commands Supported and Effects, off=0, full 2048-byte page.
+        NVMe Base 2.3 lays ACS0..255 at bytes [0:1024) and IOCS0..255 at bytes
+        [1024:2048), contiguous.  The decoder's IOCS base was 1028, not 1024,
+        so IOCS0 (struct offset 1024) was skipped and every IOCS entry
+        mislabelled.  The IOCS0 sentinel CSEDS (0x5a5a0002) therefore never
+        appeared among the decoded records pre-fix; asserting it is present
+        proves IOCS0 is decoded at the right offset."""
+        assert_frame_matches(self.FILE, 34,
+            'nvme.cmd.get_logpage.cmd_and_eff.cseds == 0x5a5a0002')
+
+    def test_cmd_sup_and_eff_no_page_overread(self, tshark_fields):
+        """F34: the same off=1028 base also read 4 bytes past the 2048-byte
+        page (256 IOCS records * 4 from tvb offset 1028 ends at 2052), raising
+        a Malformed exception even at off=0; the fixed base (1024) fits the
+        page exactly."""
+        stdout = tshark_fields(self.FILE, 'frame.number == 34 && _ws.malformed')
+        assert stdout.strip() == ''
+
+    def test_smart_temp_sensor_window_at_200(self, assert_frame_matches):
+        """F36: SMART windowed to combined_off=200 (start of the Temperature
+        Sensor array).  Pre-fix, decode_smart_resp_temps() set poff=off=200 and
+        early-returned (200+2 > len=16), rendering no sensor at all; the
+        per-sensor bounds check also used off+pos instead of pos-off.  With
+        both fixes, Temperature Sensor 1 (struct 200:202) decodes to 300."""
+        assert_frame_matches(self.FILE, 36,
+            'nvme.cmd.get_logpage.smart.ts.s1 == 300')
+
+    def test_telemetry_short_transfer_no_underflow(self, tshark_fields):
+        """F38: Telemetry Host-Initiated, off=0, DLEN=100 (< 512).  poff = 512
+        - (off & 0x1ff) = 512; the pre-fix unguarded "len -= poff" underflowed
+        `len` (unsigned) and the data-block loop overran the tvb (Malformed).
+        The new "if (len < poff) return;" makes it decode cleanly."""
+        stdout = tshark_fields(self.FILE, 'frame.number == 38 && _ws.malformed')
+        assert stdout.strip() == ''
+
+    def test_pred_lat_aggreg_short_transfer_no_underflow(self, tshark_fields):
+        """F40: Predictable Latency Event Aggregate, off=0, DLEN=4 (< poff=8).
+        The pre-fix guard "if (len < (poff+2) && off) return;" was gated on
+        off, so off=0 fell through to "len -= poff" and underflowed."""
+        stdout = tshark_fields(self.FILE, 'frame.number == 40 && _ws.malformed')
+        assert stdout.strip() == ''
+
+    def test_ana_short_transfer_no_underflow(self, tshark_fields):
+        """F42: ANA, off=0, DLEN=8 (< the 16-byte header poff).  No guard
+        preceded "len -= poff" (poff=16), so off=0 underflowed `len`; the
+        8-byte Change Count header still renders above the new guard."""
+        stdout = tshark_fields(self.FILE, 'frame.number == 42 && _ws.malformed')
+        assert stdout.strip() == ''
+
+    def test_selftest_short_transfer_no_underflow(self, tshark_fields):
+        """F44: Device Self-test, off=0, DLEN=2 (< the 4-byte header).  The
+        if(off<=4) branch did "len -= (4-off)" with no check, underflowing
+        `len`; the new "if (len < skip) return;" prevents it."""
+        stdout = tshark_fields(self.FILE, 'frame.number == 44 && _ws.malformed')
+        assert stdout.strip() == ''
+
+    def test_selftest_result_window_at_32(self, assert_frame_matches):
+        """F46: Device Self-test windowed to combined_off=32 (start of result
+        index 1; results begin at struct 4, each 28 bytes).  The loop offset
+        must be tvb-relative; pre-fix it was struct-absolute (off=4+tst_idx*8
+        = 12), so result[1]'s Power-On-Hours was read from tvb offset 16
+        instead of 4, yielding 0 rather than the sentinel.  With the fix POH
+        decodes to 0xDEADBEEF (3735928559)."""
+        assert_frame_matches(self.FILE, 46,
+            'nvme.cmd.get_logpage.selftest.res.poh == 3735928559')
+
+    def test_fw_slot_trailing_reserved_window_position(self, assert_frame_matches):
+        """F48: Firmware Slot windowed to combined_off=32 (0 < off < 64).  The
+        trailing reserved field begins at struct offset 64, i.e. tvb offset
+        (64 - off) = 32; pre-fix "poff = (off<64)?64:off" read it from tvb
+        offset 64 (struct 96) instead, so its leading bytes were the wrong
+        data.  The sentinel "FWRSVD01" placed at struct 64 confirms the
+        corrected position."""
+        assert_frame_matches(self.FILE, 48,
+            'nvme.cmd.get_logpage.fw_slot.rsvd1[0:8] == 46:57:52:53:56:44:30:31')
+
+    def test_sanitize_trailing_field_dimensional_clamp(self, tshark_fields):
+        """F50: DOFST=8, DLEN=508.  The trailing "rsvd" field's tvb-relative
+        start is poff=32-8=24, so the correct remaining-room cap is
+        (512-off)-poff=480 (off-independent) -- not the pre-fix "512-poff"=
+        488 (488 = 480+off, off bytes too many).  With len_after_poff=
+        508-24=484 landing strictly between 480 and 488, the pre-fix formula
+        renders 484 bytes (spilling 4 bytes past the log page's real end)
+        while the fix clamps to exactly 480: the last 4 bytes must be the
+        struct-508:512 sentinel CAFEBABE, and the struct-512:516 sentinel
+        DEADBEEF must NOT appear anywhere in the rendered field."""
+        stdout = tshark_fields(self.FILE, 'frame.number == 50',
+                               fields=('nvme.cmd.get_logpage.sanitize.rsvd',))
+        rendered = stdout.strip()
+        assert len(rendered) == 480 * 2, f"expected 480-byte rsvd, got {len(rendered) // 2}"
+        assert rendered.endswith('cafebabe')
+
+    def test_egroup_trailing_field_dimensional_clamp(self, tshark_fields):
+        """F52: DOFST=200, DLEN=400.  off=200 (>160) puts poff=0 in both the
+        pre-fix and fixed code, so only the missing max_len clamp differs:
+        correct cap=512-200=312, but the pre-fix code applied no cap at all
+        and would render the full 400-byte len.  The fix must clamp to
+        exactly 312 bytes, ending at the struct-508:512 sentinel CAFEBABE;
+        the struct-512:516 sentinel DEADBEEF must NOT appear."""
+        stdout = tshark_fields(self.FILE, 'frame.number == 52',
+                               fields=('nvme.cmd.get_logpage.egroup.rsvd2',))
+        rendered = stdout.strip()
+        assert len(rendered) == 312 * 2, f"expected 312-byte rsvd2, got {len(rendered) // 2}"
+        assert rendered.endswith('cafebabe')
+
+    def test_pred_lat_trailing_field_dimensional_clamp(self, tshark_fields):
+        """F54: DOFST=200, DLEN=400 -- identical dimensional-clamp shape as
+        the Endurance Group case above, for Predictable Latency NVM Set's
+        "rsvd3" field (off=200 > 152, so poff=0 in both versions; correct
+        cap=512-200=312, pre-fix code applied no cap at all)."""
+        stdout = tshark_fields(self.FILE, 'frame.number == 54',
+                               fields=('nvme.cmd.get_logpage.pred_lat.rsvd3',))
+        rendered = stdout.strip()
+        assert len(rendered) == 312 * 2, f"expected 312-byte rsvd3, got {len(rendered) // 2}"
+        assert rendered.endswith('cafebabe')
+
+    def test_cmd_feat_lockdown_lpo_overflow_saturates(self, tshark_fields):
+        """F56: LPO=2**32 (overflows 32 bits), DOFST=0.  The pre-fix
+        dispatcher truncated the 64-bit sum (LPO+DOFST) to unsigned, wrapping
+        2**32 down to 0, so the decoder's "if (off) return" guard incorrectly
+        did NOT bail out -- the CFIL list would decode as if genuinely at
+        offset 0.  The fix saturates an overflowing sum to UINT32_MAX instead
+        of truncating it, so the guard must still bail out here."""
+        stdout = tshark_fields(self.FILE,
+            'frame.number == 56 && nvme.cmd.get_logpage.cmd_feat_lockdown.cfil')
+        assert stdout.strip() == ''
+
+    def test_cmd_feat_lockdown_lpo_addition_overflow_rejected(self, tshark_fields):
+        """F58: LPO=0xFFFFFFFFFFFFFFFC, DOFST=4 -- unlike F56 (which overflows
+        only the 32-bit narrowing clamp), LPO+DOFST here wraps the 64-bit
+        addition itself past 2**64 back to 0.  The pre-fix dispatcher had no
+        overflow check on the addition, so this wrapped combined_off64 to 0,
+        defeating the "if (off) return" guard exactly like F56's bug but via
+        a different mechanism.  The fix checks for overflow before adding, so
+        the guard must still bail out here."""
+        stdout = tshark_fields(self.FILE,
+            'frame.number == 58 && nvme.cmd.get_logpage.cmd_feat_lockdown.cfil')
+        assert stdout.strip() == ''
+
+    def test_telemetry_block_renders_at_exact_boundary(self, tshark_fields):
+        """F60: DOFST=512, DLEN=512 -- a window starting exactly on a
+        512-byte data-block boundary.  The pre-fix "poff = 512 - (off &
+        0x1ff)" treated this the same as off==0 (poff=512), so "len -= poff"
+        consumed the entire window before the block loop ran and the whole
+        legitimate data block was silently dropped.  512 bytes of a known
+        value prove the block now renders."""
+        stdout = tshark_fields(self.FILE,
+            'frame.number == 60', fields=('nvme.cmd.get_logpage.telemetry.db',))
+        assert stdout.strip() == '5a' * 512
+
+    def test_pred_lat_aggreg_window_uses_combined_offset(self, assert_frame_matches):
+        """F62: DOFST=5 -- the pre-fix "poff = 8 - (raw LPO & 0x7)" ignored
+        the transport offset actually threaded to this decoder and used only
+        the (here zero) per-command LPO, computing poff=8 instead of the
+        correct 3.  The first NSET entry must be the sentinel placed at the
+        CORRECT tvb position (3), not the one placed at the pre-fix WRONG
+        position (8, which would read 0xdead instead)."""
+        assert_frame_matches(self.FILE, 62,
+            'nvme.cmd.get_logpage.pred_lat_aggreg.nset == 0xbeef')
+
+    def test_supported_log_pages_misaligned_offset_rejected(self, tshark_fields):
+        """F64: DOFST=2 -- not a multiple of the table's 4-byte record size.
+        Pre-fix, "fidx = off / 4" truncated to a valid-looking index and
+        spliced two adjacent on-wire records into one mislabeled entry
+        instead of rejecting the misaligned window.  No entry should render
+        at all now."""
+        stdout = tshark_fields(self.FILE,
+            'frame.number == 64', fields=('nvme.cmd.get_logpage.supported.lids',))
+        assert stdout.strip() == ''
+
+    def test_changed_nslist_misaligned_offset_rejected(self, tshark_fields):
+        """F66: DOFST=2 -- same misalignment regression as F64 but for
+        dissect_nvme_get_logpage_changed_nslist_resp()'s different code shape
+        (a raw tvb-position-0 byte-stride loop that spliced adjacent NSIDs
+        together instead of rejecting the window)."""
+        stdout = tshark_fields(self.FILE,
+            'frame.number == 66', fields=('nvme.cmd.get_logpage.changed_nslist',))
+        assert stdout.strip() == ''
+
+    def test_fw_slot_afi_exact_one_byte_transfer(self, assert_frame_matches):
+        """F68: DOFST=0, DLEN=1 -- exactly the AFI field's 1 byte and nothing
+        else.  The pre-fix guard "if (!off && len > 1)" used a strict ">"
+        instead of ">=", so a transfer of exactly 1 byte silently skipped AFI
+        entirely even though the whole field was present."""
+        assert_frame_matches(self.FILE, 68,
+            'nvme.cmd.get_logpage.fw_slot.afi == 0x02')
+
+    def test_no_dissection_errors(self, tshark_fields):
+        """No frame in this capture throws a dissection exception."""
+        stdout = tshark_fields(self.FILE, '_ws.malformed')
+        assert stdout.strip() == ''
+
+
+class TestNvmeMiFeaturesWindowed:
+    """8-frame Set/Get Features windowed-transfer capture
+    (tools/gen-nvme-mi-test-capture.py build_features_windowed_pcapng).
+
+    Regression coverage for the same off-dropping bug class found in 4
+    Set/Get Features FID decoders (Auto Power State Transition, Timestamp,
+    Predictable Latency Mode Config, Host Behavior Support), plus a
+    confirmed unsigned-underflow bug in PLMC's and HBS's trailing-field
+    length arithmetic (an unconditional "tvb, N, len-N" with no guard that
+    len actually reaches N).  Unlike Get Log Page, Set/Get Features has no
+    NVMe-level offset field to combine (struct nvme_cmd_ctx's set_features
+    union arm is just `{ uint8_t fid; }`), so here the NVMe-MI transport
+    offset (DOFST) is the only thing that needed to reach these decoders.
+    """
+
+    FILE = 'nvme-mi-features-windowed.pcapng'
+
+    def test_frame_count(self, tshark_fields):
+        """All 16 frames decode as NVMe-MI."""
+        stdout = tshark_fields(self.FILE, 'nvme-mi')
+        assert stdout.split() == [str(n) for n in range(1, 17)]
+
+    def test_apst_window(self, assert_frame_matches):
+        """F2: Auto Power State Transition's 2nd entry decodes at DOFST=8."""
+        assert_frame_matches(self.FILE, 2,
+            'nvme.set_features.lbart.apst == 0x9796959493929190')
+
+    def test_timestamp_off_and_len_now_threaded(self, assert_frame_matches):
+        """F4: Timestamp decodes at all -- this decoder took neither `off`
+        nor `len` as parameters before the fix (a fixed 8-byte read
+        regardless of how much data actually arrived)."""
+        assert_frame_matches(self.FILE, 4,
+            'nvme.set_features.tst == 0xa7a6a5a4a3a2a1a0')
+
+    def test_plmc_short_transfer_no_underflow(self, assert_frame_matches, tshark_fields):
+        """F6: a 40-byte PLMC transfer (<56 bytes) still correctly decodes
+        DTWIN Reads Threshold within the available data.  Before the fix,
+        the trailing field's length was computed as "tvb, 56, len-56"
+        unconditionally -- unsigned underflow for any transfer shorter than
+        56 bytes, exactly this case.  dtwinrt is rendered before the
+        vulnerable trailing-field statement, so its value alone would still
+        match even if that statement later underflowed and threw a
+        dissection exception -- checking _ws.malformed is what actually
+        catches a regression of the fix."""
+        assert_frame_matches(self.FILE, 6,
+            'nvme.set_features.plmc.dtwinrt == 0xd7d6d5d4d3d2d1d0')
+        stdout = tshark_fields(self.FILE, 'frame.number == 6 && _ws.malformed')
+        assert stdout.strip() == ''
+
+    def test_hbs_minimal_transfer_no_crash(self, tshark_fields):
+        """F8: a 1-byte HBS transfer (just ACRE, no reserved bytes) decodes
+        without a dissection exception.  The trailing field was computed as
+        "tvb, 1, len-1" unconditionally before the fix; len-1 doesn't
+        itself underflow at len=1, but the guard now in place also protects
+        the len=0 case, which the NVMe-MI admin response framing's
+        "len > 16" gate otherwise makes hard to construct a capture for."""
+        stdout = tshark_fields(self.FILE, 'frame.number == 8 && _ws.malformed')
+        assert stdout.strip() == ''
+
+    def test_plmc_trailing_field_fallback_past_boundary(self, assert_frame_matches):
+        """F10: DOFST=60 (>56) -- the whole window lies entirely inside the
+        trailing "rsvd1" region.  Before the fallback fix, the guard
+        "off <= 56 && ..." excluded this window entirely, so rsvd1 never
+        rendered at all (not underflow -- silently dropped data).  The fix
+        falls back to poff=0 for off > 56, rendering the whole window."""
+        assert_frame_matches(self.FILE, 10,
+            'nvme.set_features.plmc.rsvd1 == 11:22:33:44:55:66:77:88')
+
+    def test_hbs_trailing_field_fallback_past_boundary(self, assert_frame_matches):
+        """F12: DOFST=5 (>1) -- the whole window lies entirely inside the
+        trailing "rsvd" region.  Same fallback gap as PLMC above, for HBS's
+        1-byte-fixed-field boundary."""
+        assert_frame_matches(self.FILE, 12,
+            'nvme.set_features.hbs.rsvd == aa:bb:cc')
+
+    def test_plmc_trailing_field_clamped_to_structure_size(self, tshark_fields):
+        """F14: DOFST=480, DLEN=50 (oversized) -- 2026-07-22 code review
+        regression.  Neither PLMC nor HBS clamped the trailing field's
+        rendered length to the structure's real 512-byte end the way every
+        sibling decoder in this file does, so an oversized transfer rendered
+        bytes past the true end as "Reserved".  The correct cap here is
+        (512-480)=32 bytes; the field must stop at the sentinel placed
+        there, not include the 18 extra bytes requested past it."""
+        stdout = tshark_fields(self.FILE, 'frame.number == 14',
+                               fields=('nvme.set_features.plmc.rsvd1',))
+        rendered = stdout.strip()
+        assert len(rendered) == 32 * 2, f"expected 32-byte rsvd1, got {len(rendered) // 2}"
+        assert rendered.endswith('cafebabe')
+
+    def test_hbs_trailing_field_clamped_to_structure_size(self, tshark_fields):
+        """F16: DOFST=480, DLEN=50 (oversized) -- same missing-clamp
+        regression as F14, for HBS's trailing "rsvd" field."""
+        stdout = tshark_fields(self.FILE, 'frame.number == 16',
+                               fields=('nvme.set_features.hbs.rsvd',))
+        rendered = stdout.strip()
+        assert len(rendered) == 32 * 2, f"expected 32-byte rsvd, got {len(rendered) // 2}"
+        assert rendered.endswith('cafebabe')
+
+    def test_no_dissection_errors(self, tshark_fields):
+        """No frame in this capture throws a dissection exception."""
+        stdout = tshark_fields(self.FILE, '_ws.malformed')
+        assert stdout.strip() == ''
+
+
+class TestNvmeMiReservedType:
+    """Message types that own no Command Slot (nvme-mi-reserved-type.pcapng).
+
+    NMIMT 3h and 6h-Fh are Reserved (NVMe-MI 2.1 Figure 20): such a message has
+    no defined format, so it must be flagged and decoded no further.  5h is
+    *not* reserved -- it is an Asynchronous Event Message -- so it must NOT be
+    flagged; but the ROR bit does not apply to an AEM and its CSI bit is always
+    cleared to 0, so it is not a request either.
+
+    Neither may take part in the command-slot lifecycle: opening a transaction
+    for one would supersede an in-flight command and orphan that command's real
+    response.
+
+      F1 Admin Identify request  (CSI=0) opens the CSI=0 command slot
+      F2 Reserved type (NMIMT=3h)        flagged; must not touch the slot
+      F3 Asynchronous Event (NMIMT=5h)   not flagged; must not touch the slot
+      F4 Admin success response  (CSI=0) must still pair with F1
+    """
+
+    FILE = 'nvme-mi-reserved-type.pcapng'
+
+    def test_reserved_type_flagged_and_not_decoded(self, assert_frame_matches):
+        """F2 raises the reserved-type expert and its body goes to the data
+        dissector; it is not decoded as any of the defined message types."""
+        assert_frame_matches(self.FILE, 2,
+                             'nvme-mi.reserved_type && data.data && '
+                             '!nvme-mi.admin && !nvme-mi.mi && !nvme-mi.control')
+
+    def test_async_event_is_not_flagged_reserved(self, assert_frame_matches,
+                                                 tshark_fields):
+        """F3 (NMIMT=5h) is a defined type -- an Asynchronous Event Message --
+        so it must be named as such and must NOT raise the reserved-type
+        expert, which is reserved for the values Figure 20 leaves undefined."""
+        assert_frame_matches(self.FILE, 3,
+                             'nvme-mi.type == 0x5 && !nvme-mi.reserved_type')
+        # The expert fires for the Reserved type (F2) and nothing else.
+        assert tshark_fields(self.FILE, 'nvme-mi.reserved_type').split() == ['2']
+        # ...and the AEM is named rather than shown as a Reserved type.
+        info = tshark_fields(self.FILE, 'frame.number == 3',
+                             fields=('_ws.col.info',)).strip()
+        assert 'Asynchronous Event' in info, info
+        assert 'Reserved' not in info, info
+
+    def test_slotless_types_do_not_steal_the_command_slot(self, link_fields,
+                                                          assert_frame_matches):
+        """The in-flight Admin transaction survives both messages: F1 still
+        links to F4 (not to F2 or F3), and F4 recovers F1's opcode and CQE.
+
+        Before these types were excluded from the slot lifecycle they each
+        opened a transaction of their own on CSI=0, superseding F1 and leaving
+        F4 an orphan response with no opcode, CQE or data decode at all.
+        """
+        links = link_fields(self.FILE, (1, 2, 3, 4))
+        assert links[1][0] == '4', \
+            'F1 response_in should be 4; a slotless type must not displace it'
+        assert links[4][1] == '1', 'F4 should link back to F1'
+        assert links[2] == ('', ''), 'F2 (Reserved) must open no transaction'
+        assert links[3] == ('', ''), 'F3 (AEM) must open no transaction'
+        assert_frame_matches(self.FILE, 4,
+                             'nvme-mi.admin.opcode == 0x06 && '
+                             'nvme-mi.admin.cqe_dw0 == 0x5EED0005')
+
+    def test_slotless_types_do_not_supersede(self, tshark_fields):
+        """No frame raises the superseded-request expert: neither message opens
+        a transaction, so F1's is left untouched."""
+        stdout = tshark_fields(self.FILE, 'nvme-mi.req_superseded')
+        assert stdout.strip() == ''
+
+
+class TestNvmeMiMctpBridge:
+    """Conversation keying across an MCTP bridge (nvme-mi-mctp-bridge.pcapng).
+
+    This is the only fixture framed over real MCTP-over-SMBus, so it is also the
+    only one that exercises the conversation keying's *physical address* path --
+    every other capture is SLL+MCTP, where the transport supplies no physical
+    addresses and the EID path is taken instead.
+
+    MCTP bridging puts several Management Endpoints behind one physical address
+    (OCP Datacenter NVMe SSD 2.7 NVMe-MI-29 requires it), and they are told apart
+    only by EID.  An MCTP tag is unique only per endpoint pair, so the BMC may
+    legitimately have tag 0 outstanding to both at once.  The conversation key
+    must therefore carry the physical address pair, the EID pair AND the tag.
+
+      BMC  SMBus 0x10, EID 0x08
+      ME-A SMBus 0x3A, EID 0x1E  } one 2-Wire port, two Management Endpoints
+      ME-B SMBus 0x3A, EID 0x1F  }
+
+      F1 BMC -> ME-A  Admin Identify     (06h) tag=0 CSI=0
+      F2 BMC -> ME-B  Admin Get Log Page (02h) tag=0 CSI=0
+      F3 ME-A -> BMC  response  -> F1
+      F4 ME-B -> BMC  response  -> F2
+      F5/F6           pre-EID-assignment exchange on the same bus (host is the
+                      null EID in both directions)
+
+    Keyed on the address pair and tag alone, F2 displaced F1's transaction and
+    ME-A's response (F3) was attributed to ME-B's Get Log Page -- decoded against
+    the wrong command's context entirely -- while F4 was orphaned.
+    """
+
+    FILE = 'nvme-mi-mctp-bridge.pcapng'
+
+    def test_smbus_framed(self, tshark_fields):
+        """The fixture really is MCTP-over-SMBus, so the physical addresses are
+        present and the address path of the keying is the one under test."""
+        out = tshark_fields(self.FILE, fields=('frame.protocols',))
+        assert 'mctp.smbus' in out.splitlines()[0], out.splitlines()[0]
+
+    def test_bridged_endpoints_do_not_share_a_conversation(self, link_fields):
+        """Each endpoint's command pairs with its own response, even though both
+        ride the same SMBus address with the same MCTP tag."""
+        links = link_fields(self.FILE, (1, 2, 3, 4))
+        assert links[1][0] == '3', 'F1 (to ME-A) must pair with F3, ME-A\'s response'
+        assert links[2][0] == '4', 'F2 (to ME-B) must pair with F4, ME-B\'s response'
+        assert links[3][1] == '1', 'F3 must link back to F1, not to ME-B\'s command'
+        assert links[4][1] == '2', 'F4 must link back to F2'
+
+    def test_response_recovers_its_own_endpoints_opcode(self, assert_frames_match):
+        """The decisive check: each response recovers the opcode of the command
+        sent to *its own* endpoint.  Under the old key F3 reported opcode 0x02
+        (ME-B's Get Log Page) although it is ME-A's Identify response."""
+        assert_frames_match(self.FILE, [
+            (3, 'nvme-mi.admin.opcode == 0x06 && '
+                'nvme-mi.admin.cqe_dw0 == 0xAAAA000A'),
+            (4, 'nvme-mi.admin.opcode == 0x02 && '
+                'nvme-mi.admin.cqe_dw0 == 0xBBBB000B'),
+        ])
+
+    def test_no_endpoint_supersedes_another(self, tshark_fields):
+        """A command to one bridged endpoint must never displace the command
+        outstanding on another.  Under the old key, F2 superseded F1."""
+        stdout = tshark_fields(self.FILE, 'nvme-mi.req_superseded')
+        assert stdout.strip() == ''
+
+    def test_null_eid_exchange_still_pairs(self, link_fields):
+        """Pre-EID-assignment, the host is the null EID in both directions and
+        the device answers from its real EID, so the EIDs are left out of the key
+        and the physical addresses carry the match.  F5 must still pair with F6.
+        """
+        links = link_fields(self.FILE, (5, 6))
+        assert links[5][0] == '6', 'F5 (null-EID request) must pair with F6'
+        assert links[6][1] == '5', 'F6 must link back to F5'
+
+
+class TestNvmeMiAdminIdentify:
+    """Admin Identify response payload shared-decode coverage (MR6).
+
+    nvme-mi-admin-identify.pcapng (12 frames, 6 request/response pairs) drives
+    the NVMe-MI Admin Identify response through the shared
+    dissect_nvme_data_response() in packet-nvme.c: the inline data at response
+    offset 16 is the same Identify structure the NVMe transports return, so it
+    surfaces with the same nvme.cmd.identify.* field names.  Each response
+    recovers its request's opcode + CNS + DOFF from body_ctx.
+
+      F1/F2   Identify Controller (CNS 01h),
+      F3/F4   Identify Namespace (CNS 00h),
+      F5/F6   Active Namespace ID List (CNS 02h),
+      F7/F8   NS Identification Descriptor list (CNS 03h),
+      F9/F10  Controller List (CNS 13h),
+      F11/F12 Identify Controller windowed at DOFF=24 (Model Number),
+      F13/F14 Identify Namespace truncated by a small DLEN (64 bytes).
+    """
+
+    FILE = 'nvme-mi-admin-identify.pcapng'
+
+    def test_frame_count(self, tshark_fields):
+        """All 14 frames are Admin (opcode 06h recovered on responses too)."""
+        stdout = tshark_fields(self.FILE, 'nvme-mi.admin.opcode == 0x06')
+        assert stdout.split() == [str(n) for n in range(1, 15)]
+
+    def test_responses_link_to_requests(self, assert_frames_match):
+        assert_frames_match(self.FILE, [
+            (2, 'nvme-mi.response_to == 1'),
+            (4, 'nvme-mi.response_to == 3'),
+            (6, 'nvme-mi.response_to == 5'),
+            (8, 'nvme-mi.response_to == 7'),
+            (10, 'nvme-mi.response_to == 9'),
+            (12, 'nvme-mi.response_to == 11'),
+            (14, 'nvme-mi.response_to == 13'),
+        ])
+
+    def test_identify_ctrl_payload(self, assert_frame_matches):
+        """F2: Identify Controller (CNS 01h) data decodes VID/SSVID/SN/MN/CNTLID
+        via the shared packet-nvme.c decoder."""
+        assert_frame_matches(self.FILE, 2,
+                             'nvme.cmd.identify.ctrl.vid == 0x144d && '
+                             'nvme.cmd.identify.ctrl.cntlid == 0x0007 && '
+                             'nvme.cmd.identify.ctrl.sn contains "SERIAL01234567890123" && '
+                             'nvme.cmd.identify.ctrl.mn contains "WIRESHARK MODEL NUMBER"')
+
+    def test_identify_ns_payload(self, assert_frame_matches):
+        """F4: Identify Namespace (CNS 00h) data decodes NSZE/NCAP."""
+        assert_frame_matches(self.FILE, 4,
+                             'nvme.cmd.identify.ns.nsze == 0x100000 && '
+                             'nvme.cmd.identify.ns.ncap == 0x80000')
+
+    def test_active_nslist_payload(self, assert_frame_matches):
+        """F6: Active Namespace ID List (CNS 02h) decodes each NSID element."""
+        assert_frame_matches(self.FILE, 6,
+                             'nvme.cmd.identify.nslist.nsid == 1 && '
+                             'nvme.cmd.identify.nslist.nsid == 2 && '
+                             'nvme.cmd.identify.nslist.nsid == 7')
+
+    def test_nsid_desc_list_payload(self, assert_frame_matches):
+        """F8: NS Identification Descriptor list (CNS 03h) decodes the
+        variable-length EUI64 (NIDT 1h, NIDL 8) and NGUID (NIDT 2h, NIDL 16)
+        descriptors -- a new shared decoder added with MR6."""
+        assert_frame_matches(self.FILE, 8,
+                             'nvme.cmd.identify.nsdesc.nidt == 0x1 && '
+                             'nvme.cmd.identify.nsdesc.nidl == 8 && '
+                             'nvme.cmd.identify.nsdesc.nidt == 0x2 && '
+                             'nvme.cmd.identify.nsdesc.nidl == 16')
+
+    def test_ctrl_list_payload(self, assert_frame_matches):
+        """F10: Controller List (CNS 13h) decodes NUMCIDS and the controller
+        identifiers -- a new shared decoder added with MR6."""
+        assert_frame_matches(self.FILE, 10,
+                             'nvme.cmd.identify.ctrl_list.num == 3 && '
+                             'nvme.cmd.identify.ctrl_list.id == 1 && '
+                             'nvme.cmd.identify.ctrl_list.id == 5')
+
+    def test_doff_windowed_payload(self, assert_frame_matches):
+        """F12: a DOFF=24 windowed Identify Controller response places its bytes
+        at structure offset 24, so the Model Number (at offset 24) decodes while
+        the Vendor ID (at offset 0, not in this window) does not appear."""
+        assert_frame_matches(self.FILE, 12,
+                             'nvme.cmd.identify.ctrl.mn contains "WIRESHARK MODEL NUMBER" && '
+                             '!nvme.cmd.identify.ctrl.vid')
+
+    def test_protocol_column_preserved(self, tshark_fields):
+        """The inline NVMe decode must not leave the response frame's protocol
+        column reading "NVMe" -- it is still an NVMe-MI frame."""
+        stdout = tshark_fields(self.FILE, 'frame.number == 2',
+                               fields=('_ws.col.protocol',))
+        assert stdout.strip() == 'NVMe-MI'
+
+    def test_identify_data_decoded_structured(self, assert_frame_matches):
+        """The Identify response payload decodes via the shared structured
+        decoder (nvme.cmd.identify.ctrl.*) rather than only the raw
+        nvme-mi.admin.data blob -- the raw alias is hidden (not absent) on
+        this path, so it stays filterable but the structured fields are what
+        callers should rely on."""
+        assert_frame_matches(self.FILE, 2, 'nvme.cmd.identify.ctrl.vid == 0x144d')
+
+    def test_truncated_ns_payload_no_exception(self, assert_frame_matches):
+        """F14: an Identify Namespace response truncated by a small DLEN (64
+        bytes) decodes the fields that fit (NSZE/NCAP) and stops -- the
+        length-guarded decoder must NOT overrun the payload, so the frame is
+        not flagged malformed."""
+        assert_frame_matches(self.FILE, 14,
+                             'nvme.cmd.identify.ns.nsze == 0x100000 && '
+                             'nvme.cmd.identify.ns.ncap == 0x80000 && '
+                             '!_ws.malformed')
+
+
+class TestNvmeMiAdminLogPage:
+    """Admin Get Log Page response payload shared-decode coverage (MR7).
+
+    nvme-mi-admin-logpage.pcapng (6 frames, 3 request/response pairs) drives the
+    NVMe-MI Admin Get Log Page (opcode 02h) response through the shared
+    dissect_nvme_data_response() in packet-nvme.c.  The inline data at response
+    offset 16 is the same log-page structure the NVMe transports return, so it
+    surfaces with the same nvme.cmd.get_logpage.* field names.  Each response
+    recovers its request's opcode + LID (CDW10) from body_ctx; these three pages
+    are the OOB-BMC-common ones that fit the smallest MCTP MTU without windowing.
+
+      F1/F2  SMART / Health Information (LID 02h),
+      F3/F4  Firmware Slot Information (LID 03h),
+      F5/F6  Error Information (LID 01h),
+      F7/F8  Supported Log Pages (LID 00h).
+    """
+
+    FILE = 'nvme-mi-admin-logpage.pcapng'
+
+    # Firmware Revision for Slot 1 is read by the decoder as a little-endian
+    # uint64; this is the value of the eight ASCII bytes the fixture writes.
+    FW_S1 = int.from_bytes(b'FWREV100', 'little')
+
+    def test_frame_count(self, tshark_fields):
+        """All 8 frames are Admin Get Log Page (opcode 02h recovered on
+        responses too)."""
+        stdout = tshark_fields(self.FILE, 'nvme-mi.admin.opcode == 0x02')
+        assert stdout.split() == [str(n) for n in range(1, 9)]
+
+    def test_responses_link_to_requests(self, assert_frames_match):
+        assert_frames_match(self.FILE, [
+            (2, 'nvme-mi.response_to == 1'),
+            (4, 'nvme-mi.response_to == 3'),
+            (6, 'nvme-mi.response_to == 5'),
+            (8, 'nvme-mi.response_to == 7'),
+        ])
+
+    def test_smart_payload(self, assert_frame_matches):
+        """F2: SMART (LID 02h) data decodes composite temperature, percentage
+        used and available spare via the shared packet-nvme.c decoder."""
+        assert_frame_matches(self.FILE, 2,
+                             'nvme.cmd.get_logpage.smart.ct == 320 && '
+                             'nvme.cmd.get_logpage.smart.lae == 5 && '
+                             'nvme.cmd.get_logpage.smart.asc == 100')
+
+    def test_fw_slot_payload(self, assert_frame_matches):
+        """F4: Firmware Slot Information (LID 03h) decodes the active firmware
+        slot and the slot-1 firmware revision string."""
+        assert_frame_matches(self.FILE, 4,
+                             'nvme.cmd.get_logpage.fw_slot.afi.afs == 0x1 && '
+                             f'nvme.cmd.get_logpage.fw_slot.frs.s1 == {self.FW_S1}')
+
+    def test_error_info_payload(self, assert_frame_matches):
+        """F6: Error Information (LID 01h) decodes the error count, submission
+        queue ID and command ID of the first log entry."""
+        assert_frame_matches(self.FILE, 6,
+                             'nvme.cmd.get_logpage.errinf.errcnt == 42 && '
+                             'nvme.cmd.get_logpage.errinf.sqid == 3 && '
+                             'nvme.cmd.get_logpage.errinf.cid == 0x00ab')
+
+    def test_supported_log_pages_payload(self, assert_frame_matches):
+        """F8: Supported Log Pages (LID 00h) decodes the per-LID array of LID
+        Supported and Effects structures: LSUPP is set on the supported LIDs,
+        the IOS bit is set on LID 02h (SMART), and the LID Specific Parameter
+        carries the sentinel set on LID 0Dh (Persistent Event Log)."""
+        assert_frame_matches(self.FILE, 8,
+                             'nvme.cmd.get_logpage.supported.lidseds.lsupp == 1 && '
+                             'nvme.cmd.get_logpage.supported.lidseds.ios == 1 && '
+                             'nvme.cmd.get_logpage.supported.lidseds.lidsp == 0x1234')
+
+    def test_protocol_column_preserved(self, tshark_fields):
+        """The inline NVMe decode must not leave the response frame's protocol
+        column reading "NVMe" -- it is still an NVMe-MI frame."""
+        stdout = tshark_fields(self.FILE, 'frame.number == 2',
+                               fields=('_ws.col.protocol',))
+        assert stdout.strip() == 'NVMe-MI'
+
+    def test_log_page_data_decoded_structured(self, assert_frame_matches):
+        """The Get Log Page response payload decodes via the shared structured
+        decoder (nvme.cmd.get_logpage.smart.*) rather than only the raw
+        nvme-mi.admin.data blob -- the raw alias is hidden (not absent) on
+        this path, so it stays filterable but the structured fields are what
+        callers should rely on."""
+        assert_frame_matches(self.FILE, 2, 'nvme.cmd.get_logpage.smart.ct == 320')
+
+    def test_no_dissection_exceptions(self, tshark_fields):
+        """None of the log-page responses overrun their payload (no Malformed)."""
+        stdout = tshark_fields(self.FILE, '_ws.malformed')
+        assert stdout.strip() == ''
+
+
+class TestNvmeMiAdminFeatures:
+    """Admin Get/Set Features payload shared-decode coverage (MR8).
+
+    nvme-mi-admin-features.pcapng (8 frames, 4 request/response pairs) drives the
+    NVMe-MI Admin Get/Set Features path through the shared packet-nvme.c
+    decoders.  The three Mandatory Management Endpoint metadata FIDs (7Dh/7Eh/
+    7Fh) return a Host Metadata data structure (NVMe Base 2.3 Figures 461/462),
+    routed through dissect_nvme_data_response() on the Get Features response and
+    surfacing with nvme.set_features.hmd.* field names; the Set Features request
+    Element Action decodes from CDW11 via the shared SQE decoder.
+
+      F1/F2  Get Features Controller Metadata (FID 7Eh),
+      F3/F4  Get Features Namespace Metadata  (FID 7Fh),
+      F5/F6  Set Features Enhanced Ctrl Meta  (FID 7Dh) request EA,
+      F7/F8  Get Features Temperature Threshold (FID 04h) already-covered DW0.
+    """
+
+    FILE = 'nvme-mi-admin-features.pcapng'
+
+    def test_frame_count(self, tshark_fields):
+        """Responses (even frames) recover the request opcode, so the generated
+        nvme-mi.admin.opcode field resolves on all 8 frames."""
+        stdout = tshark_fields(self.FILE, 'nvme-mi.admin.opcode')
+        assert stdout.split() == [str(n) for n in range(1, 9)]
+
+    def test_responses_link_to_requests(self, assert_frames_match):
+        assert_frames_match(self.FILE, [
+            (2, 'nvme-mi.response_to == 1'),
+            (4, 'nvme-mi.response_to == 3'),
+            (6, 'nvme-mi.response_to == 5'),
+            (8, 'nvme-mi.response_to == 7'),
+        ])
+
+    def test_ctrl_metadata_payload(self, assert_frame_matches):
+        """F2: Controller Metadata (FID 7Eh) Get Features data decodes the NMED
+        count and both Metadata Element Descriptors (ET named via Figure 463,
+        ELEN, and the UTF-8 Element Value)."""
+        assert_frame_matches(self.FILE, 2,
+                             'nvme.set_features.hmd.nmed == 2 && '
+                             'nvme.set_features.hmd.med.et == 0x01 && '
+                             'nvme.set_features.hmd.med.et == 0x0a && '
+                             'nvme.set_features.hmd.med.elen == 5 && '
+                             'nvme.set_features.hmd.med.elen == 11 && '
+                             'nvme.set_features.hmd.med.eval == "nvme0" && '
+                             'nvme.set_features.hmd.med.eval == "Linux 6.1.0"')
+
+    def test_ns_metadata_payload(self, assert_frame_matches):
+        """F4: Namespace Metadata (FID 7Fh) Get Features data decodes the
+        Figure 464 Element Types and their UTF-8 values."""
+        assert_frame_matches(self.FILE, 4,
+                             'nvme.set_features.hmd.nmed == 2 && '
+                             'nvme.set_features.hmd.med.et == 0x01 && '
+                             'nvme.set_features.hmd.med.et == 0x02 && '
+                             'nvme.set_features.hmd.med.eval == "nvme0n1" && '
+                             'nvme.set_features.hmd.med.eval == "EFI NS1"')
+
+    def test_set_features_metadata_ea(self, assert_frame_matches):
+        """F5: a Set Features Enhanced Controller Metadata (FID 7Dh) request
+        decodes the Element Action (EA, CDW11 bits 14:13) via the shared SQE
+        decoder -- 10b = Add Entry Multiple."""
+        assert_frame_matches(self.FILE, 5,
+                             'nvme.cmd.set_features.dword11.hmd.ea == 0x2')
+
+    def test_set_features_request_payload(self, assert_frame_matches):
+        """F5: the Set Features request data buffer (offset 64 onward) now
+        decodes request-side through the shared per-FID transfer decoder, so the
+        Host Metadata descriptors written by the host surface on the request
+        frame (ET named via Figure 463, ELEN, UTF-8 Element Value)."""
+        assert_frame_matches(self.FILE, 5,
+                             'nvme.set_features.hmd.nmed == 2 && '
+                             'nvme.set_features.hmd.med.et == 0x01 && '
+                             'nvme.set_features.hmd.med.et == 0x10 && '
+                             'nvme.set_features.hmd.med.eval == "nvme9" && '
+                             'nvme.set_features.hmd.med.eval == "overtemp"')
+
+    def test_set_features_request_blob_replaced(self, assert_frame_matches):
+        """F5: the Set Features request data decodes via the shared structured
+        decoder (nvme.set_features.hmd.*) rather than only the raw
+        nvme-mi.admin.data blob -- the raw alias is hidden (not absent) on
+        this path, so it stays filterable but the structured fields are what
+        callers should rely on."""
+        assert_frame_matches(self.FILE, 5, 'nvme.set_features.hmd.nmed == 2')
+
+    def test_temp_threshold_dw0_reaches_shared_decoder(self, assert_frame_matches):
+        """F8: an already-covered Optional FID (04h Temperature Threshold) still
+        reaches the shared per-FID CQE DW0 decoder over the MI path."""
+        assert_frame_matches(self.FILE, 8,
+                             'nvme.cqe.dword0.get_features.tt.tmpth == 0x14b && '
+                             'nvme.cqe.dword0.get_features.tt.tmpsel == 2 && '
+                             'nvme.cqe.dword0.get_features.tt.thpsel == 1')
+
+    def test_protocol_column_preserved(self, tshark_fields):
+        """The inline NVMe decode must not leave the response frame's protocol
+        column reading "NVMe" -- it is still an NVMe-MI frame."""
+        stdout = tshark_fields(self.FILE, 'frame.number == 2',
+                               fields=('_ws.col.protocol',))
+        assert stdout.strip() == 'NVMe-MI'
+
+    def test_features_data_decoded_structured(self, assert_frame_matches):
+        """The Get Features response payload decodes via the shared structured
+        decoder (nvme.set_features.hmd.*) rather than only the raw
+        nvme-mi.admin.data blob -- the raw alias is hidden (not absent) on
+        this path, so it stays filterable but the structured fields are what
+        callers should rely on."""
+        assert_frame_matches(self.FILE, 2, 'nvme.set_features.hmd.nmed == 2')
+
+    def test_no_dissection_exceptions(self, tshark_fields):
+        """None of the feature responses overrun their payload (no Malformed)."""
+        stdout = tshark_fields(self.FILE, '_ws.malformed')
+        assert stdout.strip() == ''

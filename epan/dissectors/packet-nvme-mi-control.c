@@ -26,6 +26,8 @@ void proto_reg_handoff_nvme_mi_control(void);
 
 static int proto_nvme_mi_control;
 
+static dissector_handle_t nvme_mi_control_handle;
+
 static int hf_nvme_mi_ctl_opcode;
 static int hf_nvme_mi_ctl_status;
 static int hf_nvme_mi_ctl_tag;
@@ -233,15 +235,14 @@ dissect_nvme_mi_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         proto_tree_add_item_ret_uint8(ctl_tree, hf_nvme_mi_ctl_tag, tvb, 1, 1, ENC_NA, &tag);
 
-        /* Record opcode and tag so the matching response can pick the correct
-         * CPSR layout and validate its echoed tag. */
+        /* Record the opcode (for the response's CPSR-layout selection) and the
+         * echoed tag here in the body rather than the framing layer: a Control
+         * Primitive request is only trustworthy past the >= 4-byte guard above,
+         * so the framing layer deliberately leaves Control opcode recovery to
+         * us (a shorter request stays an orphan with no fabricated opcode). */
         if (trans) {
-            struct nvme_mi_ctl_req_ctx *req;
-
-            if (!trans->body_ctx)
-                trans->body_ctx = wmem_new0(wmem_file_scope(),
-                                            struct nvme_mi_ctl_req_ctx);
-            req = (struct nvme_mi_ctl_req_ctx *)trans->body_ctx;
+            struct nvme_mi_ctl_req_ctx *req =
+                nvme_mi_trans_body_ctx(trans, sizeof(*req));
             req->tag = tag;
             trans->opcode = opcode;
             trans->req_parsed = true;
@@ -427,14 +428,17 @@ proto_register_nvme_mi_control(void)
 
     expert_nvme_mi_control = expert_register_protocol(proto_nvme_mi_control);
     expert_register_field_array(expert_nvme_mi_control, ei, array_length(ei));
+
+    nvme_mi_control_handle = register_dissector_with_description(
+            "nvme-mi.control", "NVMe-MI Control Primitive",
+            dissect_nvme_mi_control, proto_nvme_mi_control);
 }
 
 void
 proto_reg_handoff_nvme_mi_control(void)
 {
     dissector_add_uint("nvme-mi.type", NVME_MI_TYPE_CONTROL,
-                       create_dissector_handle(dissect_nvme_mi_control,
-                                               proto_nvme_mi_control));
+                       nvme_mi_control_handle);
 }
 
 /*

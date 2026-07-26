@@ -35,11 +35,14 @@ void proto_reg_handoff_nvme_mi_admin(void);
 
 static int proto_nvme_mi_admin;
 
+static dissector_handle_t nvme_mi_admin_handle;
+
 static int hf_nvme_mi_admin_opcode;
 static int hf_nvme_mi_admin_status;
 static int hf_nvme_mi_admin_flags;
-static int hf_nvme_mi_admin_flags_doff;
-static int hf_nvme_mi_admin_flags_dlen;
+static int hf_nvme_mi_admin_flags_dlenv;
+static int hf_nvme_mi_admin_flags_dofstv;
+static int hf_nvme_mi_admin_flags_ish;
 static int hf_nvme_mi_admin_ctrl_id;
 static int hf_nvme_mi_admin_nsid;
 static int hf_nvme_mi_admin_cdw2;
@@ -49,51 +52,47 @@ static int hf_nvme_mi_admin_doff;
 static int hf_nvme_mi_admin_dlen;
 static int hf_nvme_mi_admin_resv0;
 static int hf_nvme_mi_admin_resv1;
+static int hf_nvme_mi_admin_resp_rsvd;
 static int hf_nvme_mi_admin_data;
-static int hf_nvme_mi_admin_cqe1;
-static int hf_nvme_mi_admin_cqe2;
-static int hf_nvme_mi_admin_cqe3;
-
-/*
- * Hidden raw-dword aliases (nvme-mi.admin.sqe1..5, sqe10..15) preserved from
- * the pre-split layout so display filters/columns written against the old
- * field names keep resolving; the visible tree uses the structured NSID/MPTR
- * and shared CDW10-15 decode.  See nvme_mi_admin_add_sqe_aliases().
- */
-static int hf_nvme_mi_admin_sqe1;
-static int hf_nvme_mi_admin_sqe2;
-static int hf_nvme_mi_admin_sqe3;
-static int hf_nvme_mi_admin_sqe4;
-static int hf_nvme_mi_admin_sqe5;
-static int hf_nvme_mi_admin_sqe10;
-static int hf_nvme_mi_admin_sqe11;
-static int hf_nvme_mi_admin_sqe12;
-static int hf_nvme_mi_admin_sqe13;
-static int hf_nvme_mi_admin_sqe14;
-static int hf_nvme_mi_admin_sqe15;
+static int hf_nvme_mi_admin_cqe_dw0;
+static int hf_nvme_mi_admin_cqe_dw1;
+static int hf_nvme_mi_admin_cqe_dw3;
 
 static int ett_nvme_mi_admin;
 static int ett_nvme_mi_admin_flags;
 static int ett_nvme_mi_admin_sqe;
+static int ett_nvme_mi_admin_data;
 
 static expert_field ei_nvme_mi_admin_truncated;
 static expert_field ei_nvme_mi_admin_orphan_response;
 static expert_field ei_nvme_mi_admin_short_cqe;
 static expert_field ei_nvme_mi_admin_prohibited_opcode;
+static expert_field ei_nvme_mi_admin_obsolete_flag;
 
-/* Command Flags byte (request offset 1): Data Offset / Data Length present. */
-#define NVME_MI_ADMIN_FLAG_DLEN 0x01
-#define NVME_MI_ADMIN_FLAG_DOFF 0x02
+/*
+ * Command Flags byte (request offset 1, NVMe-MI 2.1 Figure 136).  DLENV/DOFSTV
+ * (bits 0/1) are obsolete: "not used and shall be ignored by the Management
+ * Endpoint for implementations compliant with versions ... later than 1.1".
+ * ISH (bit 2, Ignore Shutdown) is the only active flag.
+ */
+#define NVME_MI_ADMIN_FLAG_DLENV  0x01
+#define NVME_MI_ADMIN_FLAG_DOFSTV 0x02
+#define NVME_MI_ADMIN_FLAG_ISH    0x04
 
 /*
  * Per-transaction request context hung off nvme_mi_transaction.body_ctx
  * (wmem_file_scope).  Wraps the shared struct nvme_cmd_ctx that
  * nvme_dissect_admin_sqe_cdws() populates on the request pass so the
  * response-side decode (added in later MRs) can recover the opcode-specific
- * request parameters.
+ * request parameters.  The Data Offset/Length (DOFST/DLEN) the request selects
+ * are saved alongside so the response can slice its data payload into the
+ * shared NVMe data decoders at the requested offset (NVMe-MI 2.1 Figure 137).
  */
 struct nvme_mi_admin_req_ctx {
     struct nvme_cmd_ctx cmd;
+    uint32_t dofst;    /* request Data Offset (Figure 136); DOFSTV is obsolete
+                        * and ignored, so this is always meaningful */
+    uint32_t dlen;     /* request Data Length (Figure 136); DLENV obsolete */
 };
 
 /*
@@ -113,37 +112,10 @@ nvme_mi_admin_opcode_prohibited(uint8_t opcode)
     case NVME_AQ_OPC_ABORT:         /* 08h */
     case NVME_AQ_OPC_ASYNC_EVE_REQ: /* 0Ch */
     case NVME_AQ_OPC_KEEP_ALIVE:    /* 18h */
-    case 0x7c:                      /* Doorbell Buffer Config */
+    case NVME_AQ_OPC_DBBUF_CONFIG:  /* 7Ch */
         return true;
     default:
         return false;
-    }
-}
-
-/*
- * Add the hidden legacy raw-dword aliases over the 64-byte SQE.  Each aliases
- * one command dword the visible tree now decodes structurally (sqe1=NSID,
- * sqe4/sqe5=the two halves of the 64-bit MPTR, sqe10-15=the opcode-specific
- * CDW10-15) so old display filters resolve without cluttering the tree.
- */
-static void
-nvme_mi_admin_add_sqe_aliases(tvbuff_t *tvb, proto_tree *tree)
-{
-    static const struct { int *hf; int off; } aliases[] = {
-        { &hf_nvme_mi_admin_sqe1,   4 }, { &hf_nvme_mi_admin_sqe2,   8 },
-        { &hf_nvme_mi_admin_sqe3,  12 }, { &hf_nvme_mi_admin_sqe4,  16 },
-        { &hf_nvme_mi_admin_sqe5,  20 }, { &hf_nvme_mi_admin_sqe10, 40 },
-        { &hf_nvme_mi_admin_sqe11, 44 }, { &hf_nvme_mi_admin_sqe12, 48 },
-        { &hf_nvme_mi_admin_sqe13, 52 }, { &hf_nvme_mi_admin_sqe14, 56 },
-        { &hf_nvme_mi_admin_sqe15, 60 },
-    };
-    unsigned i;
-
-    for (i = 0; i < array_length(aliases); i++) {
-        proto_item *ai = proto_tree_add_item(tree, *aliases[i].hf, tvb,
-                                             aliases[i].off, 4,
-                                             ENC_LITTLE_ENDIAN);
-        proto_item_set_hidden(ai);
     }
 }
 
@@ -158,8 +130,9 @@ dissect_nvme_mi_admin_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            bool resp, struct nvme_mi_transaction *trans)
 {
     static int * const nvme_mi_admin_flags[] = {
-        &hf_nvme_mi_admin_flags_doff,
-        &hf_nvme_mi_admin_flags_dlen,
+        &hf_nvme_mi_admin_flags_ish,
+        &hf_nvme_mi_admin_flags_dofstv,
+        &hf_nvme_mi_admin_flags_dlenv,
         NULL,
     };
     proto_tree *admin_tree;
@@ -202,19 +175,81 @@ dissect_nvme_mi_admin_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             return tvb_captured_length(tvb);
         }
 
-        if (status == NVME_MI_STATUS_INVALID_PARAMETER)
-            nvme_mi_dissect_invalid_param_resp(tvb, admin_tree);
+        /* On an error response bytes 3:1 are the Parameter Error Location, the
+         * More Processing Required Time, or Reserved; the shared helper owns
+         * them (NVMe-MI 2.1 Figures 30/32/34).  Only a Success Response
+         * reaches the Admin-specific layout, whose bytes 3:1 are Reserved
+         * (Figure 138, message bytes 7:5). */
+        if (nvme_mi_dissect_resp_status_bytes(tvb, admin_tree, status))
+            proto_tree_add_item(admin_tree, hf_nvme_mi_admin_resp_rsvd,
+                                tvb, 1, 3, ENC_LITTLE_ENDIAN);
 
         if (len >= 16) {
-            proto_tree_add_item(admin_tree, hf_nvme_mi_admin_cqe1,
-                                tvb, 4, 4, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(admin_tree, hf_nvme_mi_admin_cqe2,
+            /* When the matching request was recovered (it2 != NULL) its saved
+             * per-opcode context lets the command-specific completion result
+             * (CQE DW0) decode with the same NVMe field names packet-nvme.c
+             * uses; otherwise DW0 stays a raw dword.  The raw cqe_dw0 alias is
+             * kept as a filterable hidden item on that path either way.
+             * The structured path peeks the CQE status word at bytes 15:14
+             * directly, so it also requires those bytes to actually be
+             * captured (a snaplen-sliced frame can report 16+ bytes while
+             * capturing fewer). */
+            struct nvme_mi_admin_req_ctx *req =
+                (it2 && tvb_bytes_exist(tvb, 14, 2))
+                    ? (struct nvme_mi_admin_req_ctx *)trans->body_ctx : NULL;
+
+            proto_item *cqe_dw0 = proto_tree_add_item(admin_tree,
+                                                   hf_nvme_mi_admin_cqe_dw0,
+                                                   tvb, 4, 4, ENC_LITTLE_ENDIAN);
+            if (req) {
+                /* Hide the raw alias; the structured DW0 decode takes over.
+                 * The CQE status word (DW3 + 2) selects the Set Features
+                 * success/error rendering, so it is only read on this path. */
+                proto_item_set_hidden(cqe_dw0);
+                nvme_dissect_admin_cqe_dw0(tvb, 4, admin_tree,
+                                           tvb_get_uint16(tvb, 14, ENC_LITTLE_ENDIAN),
+                                           &req->cmd);
+            }
+
+            proto_tree_add_item(admin_tree, hf_nvme_mi_admin_cqe_dw1,
                                 tvb, 8, 4, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(admin_tree, hf_nvme_mi_admin_cqe3,
+
+            /* CQE DW3: keep the raw dword (it also carries the phase tag) and
+             * decode the NVMe status word (SCT/SC/M/DNR) in its upper half via
+             * the shared helper, at the standard CQE status offset (DW3 + 2). */
+            proto_tree_add_item(admin_tree, hf_nvme_mi_admin_cqe_dw3,
                                 tvb, 12, 4, ENC_LITTLE_ENDIAN);
-            if (len > 16)
-                proto_tree_add_item(admin_tree, hf_nvme_mi_admin_data,
-                                    tvb, 16, -1, ENC_NA);
+            nvme_dissect_cqe_status(tvb, 14, admin_tree);
+
+            if (len > 16) {
+                /* The response data payload is a slice of the command's logical
+                 * data structure beginning at the request's Data Offset
+                 * (DOFST).  When the matching request was recovered, hand the
+                 * slice to the shared NVMe Admin data decoder at that offset so
+                 * Identify / Get Log Page / Get-Set Features render structured
+                 * fields instead of a raw blob; the raw alias is kept (hidden
+                 * on success) for display-filter compatibility.  'len - 16' is
+                 * the number of bytes actually present, so a truncated capture
+                 * still stops cleanly regardless of the requested DLEN. */
+                unsigned data_len = len - 16;
+                proto_item *data_it = proto_tree_add_item(admin_tree,
+                                                          hf_nvme_mi_admin_data,
+                                                          tvb, 16, -1, ENC_NA);
+                if (req) {
+                    unsigned off = req->dofst;
+                    tvbuff_t *data_tvb = tvb_new_subset_length(tvb, 16, data_len);
+                    proto_item *data_sub_it;
+                    proto_tree *data_tree =
+                        proto_tree_add_subtree(admin_tree, data_tvb, 0, data_len,
+                                               ett_nvme_mi_admin_data,
+                                               &data_sub_it, "Data");
+                    if (nvme_dissect_admin_data_resp(data_tvb, data_tree,
+                                                     &req->cmd, off, data_len))
+                        proto_item_set_hidden(data_it);
+                    else
+                        proto_item_set_hidden(data_sub_it);
+                }
+            }
         } else {
             /* A Success Response carries the full 16-byte status + CQE
              * dwords block; error and MPR responses are legitimately the
@@ -245,12 +280,6 @@ dissect_nvme_mi_admin_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (nvme_mi_admin_opcode_prohibited(opcode))
         expert_add_info(pinfo, opc_it, &ei_nvme_mi_admin_prohibited_opcode);
 
-    /* Record the request opcode for the matching response. */
-    if (trans) {
-        trans->opcode = opcode;
-        trans->req_parsed = true;
-    }
-
     /* The fixed part of an Admin request is the full 64-byte SQE.  For
      * anything shorter, flag the truncation and show the remaining bytes raw
      * instead of throwing mid-tree. */
@@ -266,10 +295,7 @@ dissect_nvme_mi_admin_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * when dissecting the matching response. */
     struct nvme_mi_admin_req_ctx *req;
     if (trans) {
-        if (!trans->body_ctx)
-            trans->body_ctx = wmem_new0(wmem_file_scope(),
-                                        struct nvme_mi_admin_req_ctx);
-        req = (struct nvme_mi_admin_req_ctx *)trans->body_ctx;
+        req = nvme_mi_trans_body_ctx(trans, sizeof(*req));
     } else {
         /* No transaction (orphan request or external caller): a throwaway
          * packet-scope context is enough to drive the CDW decode. */
@@ -279,16 +305,29 @@ dissect_nvme_mi_admin_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* NVMe-MI envelope fields: the SQE positions NVMe-MI repurposes for its
      * own meaning (Command Flags, Controller ID in place of CID, Data
-     * Offset/Length in place of PRP1, and the following reserved dwords). */
-    proto_tree_add_bitmask(admin_tree, tvb, 1, hf_nvme_mi_admin_flags,
+     * Offset/Length in place of PRP1, and the following reserved dwords).
+     *
+     * DOFSTV/DLENV (Command Flags bits 1:0) are obsolete and shall be ignored
+     * by 2.1-compliant Management Endpoints (NVMe-MI 2.1 Figure 136), so the
+     * Data Offset/Length dwords are always meaningful.  They are captured as
+     * they are added to the tree so the response pass can slice its data
+     * payload into the shared NVMe decoders at the requested offset; DOFST is
+     * 0h for commands that do not transfer Response Data, which yields the
+     * correct offset-0 slice. */
+    uint64_t flags;
+    proto_item *flags_it = proto_tree_add_bitmask_ret_uint64(admin_tree, tvb, 1,
+                           hf_nvme_mi_admin_flags,
                            ett_nvme_mi_admin_flags, nvme_mi_admin_flags,
-                           ENC_NA);
+                           ENC_NA, &flags);
+    if (flags & (NVME_MI_ADMIN_FLAG_DOFSTV | NVME_MI_ADMIN_FLAG_DLENV))
+        expert_add_info(pinfo, flags_it, &ei_nvme_mi_admin_obsolete_flag);
+
     proto_tree_add_item(admin_tree, hf_nvme_mi_admin_ctrl_id,
                         tvb, 2, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(admin_tree, hf_nvme_mi_admin_doff,
-                        tvb, 24, 4, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(admin_tree, hf_nvme_mi_admin_dlen,
-                        tvb, 28, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(admin_tree, hf_nvme_mi_admin_doff,
+                                 tvb, 24, 4, ENC_LITTLE_ENDIAN, &req->dofst);
+    proto_tree_add_item_ret_uint(admin_tree, hf_nvme_mi_admin_dlen,
+                                 tvb, 28, 4, ENC_LITTLE_ENDIAN, &req->dlen);
     proto_tree_add_item(admin_tree, hf_nvme_mi_admin_resv0,
                         tvb, 32, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(admin_tree, hf_nvme_mi_admin_resv1,
@@ -316,12 +355,31 @@ dissect_nvme_mi_admin_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * opcode byte onward, so the helper consumes this tvb directly. */
     nvme_dissect_admin_sqe_cdws(tvb, pinfo, sqe_tree, &req->cmd);
 
-    /* Hidden raw-dword aliases for pre-split display-filter compatibility. */
-    nvme_mi_admin_add_sqe_aliases(tvb, admin_tree);
-
-    if (len > 64)
-        proto_tree_add_item(admin_tree, hf_nvme_mi_admin_data,
-                            tvb, 64, -1, ENC_NA);
+    if (len > 64) {
+        /* Inline request data (offset 64 onward) is a slice of the command's
+         * logical data structure beginning at the request's Data Offset
+         * (DOFST), same as the response-side dispatch above.  For Set
+         * Features this routes through the shared packet-nvme.c per-FID
+         * transfer decoder (e.g. the Host Metadata structure written for FID
+         * 7Dh/7Eh/7Fh, the LBA Range / APST / Timestamp / Host Behavior
+         * structures for the others); other opcodes keep the raw Data blob. */
+        unsigned data_len = len - 64;
+        proto_item *data_it = proto_tree_add_item(admin_tree,
+                                                  hf_nvme_mi_admin_data,
+                                                  tvb, 64, -1, ENC_NA);
+        unsigned off = req->dofst;
+        tvbuff_t *data_tvb = tvb_new_subset_length(tvb, 64, data_len);
+        proto_item *data_sub_it;
+        proto_tree *data_tree =
+            proto_tree_add_subtree(admin_tree, data_tvb, 0, data_len,
+                                   ett_nvme_mi_admin_data,
+                                   &data_sub_it, "Data");
+        if (nvme_dissect_admin_data_resp(data_tvb, data_tree,
+                                         &req->cmd, off, data_len))
+            proto_item_set_hidden(data_it);
+        else
+            proto_item_set_hidden(data_sub_it);
+    }
 
     return tvb_captured_length(tvb);
 }
@@ -358,15 +416,23 @@ proto_register_nvme_mi_admin(void)
             FT_UINT8, BASE_HEX, NULL, 0,
             NULL, HFILL },
         },
-        { &hf_nvme_mi_admin_flags_dlen,
-          { "Use Data Length", "nvme-mi.admin.flags.dlen",
-            FT_BOOLEAN, 8, TFS(&tfs_set_notset), NVME_MI_ADMIN_FLAG_DLEN,
-            NULL, HFILL },
+        { &hf_nvme_mi_admin_flags_ish,
+          { "Ignore Shutdown (ISH)", "nvme-mi.admin.flags.ish",
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), NVME_MI_ADMIN_FLAG_ISH,
+            "Effect specified in NVMe-MI 2.1 §8.5; no effect on CSTS.SHST",
+            HFILL },
         },
-        { &hf_nvme_mi_admin_flags_doff,
-          { "Use Data Offset", "nvme-mi.admin.flags.doff",
-            FT_BOOLEAN, 8, TFS(&tfs_set_notset), NVME_MI_ADMIN_FLAG_DOFF,
-            NULL, HFILL },
+        { &hf_nvme_mi_admin_flags_dofstv,
+          { "Data Offset Valid (DOFSTV)", "nvme-mi.admin.flags.dofstv",
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), NVME_MI_ADMIN_FLAG_DOFSTV,
+            "Obsolete: not used and shall be ignored by Management Endpoints "
+            "compliant with NVMe-MI later than 1.1 (Figure 136)", HFILL },
+        },
+        { &hf_nvme_mi_admin_flags_dlenv,
+          { "Data Length Valid (DLENV)", "nvme-mi.admin.flags.dlenv",
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), NVME_MI_ADMIN_FLAG_DLENV,
+            "Obsolete: not used and shall be ignored by Management Endpoints "
+            "compliant with NVMe-MI later than 1.1 (Figure 136)", HFILL },
         },
         { &hf_nvme_mi_admin_ctrl_id,
           { "Controller ID", "nvme-mi.admin.ctrl-id",
@@ -395,7 +461,9 @@ proto_register_nvme_mi_admin(void)
         { &hf_nvme_mi_admin_mptr,
           { "Metadata Pointer", "nvme-mi.admin.mptr",
             FT_UINT64, BASE_HEX, NULL, 0,
-            NULL, HFILL },
+            "Reserved over NVMe-MI: the MPTR and PRP2 fields are reserved for "
+            "commands sent using the out-of-band mechanism (NVMe-MI 2.1 \u00a76)",
+            HFILL },
         },
         { &hf_nvme_mi_admin_doff,
           { "Data Offset", "nvme-mi.admin.doff",
@@ -408,31 +476,35 @@ proto_register_nvme_mi_admin(void)
             NULL, HFILL },
         },
         { &hf_nvme_mi_admin_resv0,
-          { "Reserved", "nvme-mi.admin.reserved",
+          { "Reserved", "nvme-mi.admin.reserved0",
             FT_UINT32, BASE_HEX, NULL, 0,
             NULL, HFILL },
         },
         { &hf_nvme_mi_admin_resv1,
-          { "Reserved", "nvme-mi.admin.reserved",
+          { "Reserved", "nvme-mi.admin.reserved1",
             FT_UINT32, BASE_HEX, NULL, 0,
             NULL, HFILL },
         },
+        { &hf_nvme_mi_admin_resp_rsvd,
+          { "Reserved", "nvme-mi.admin.resp_reserved",
+            FT_UINT24, BASE_HEX, NULL, 0,
+            "Reserved bytes between Status and the CQE dwords", HFILL },
+        },
         /* The MI response carries CQE dwords 0, 1 and 3 — DW2 (SQ head
-         * pointer / SQ ID) is meaningless over MCTP and omitted.  The
-         * cqe1/cqe2/cqe3 abbreviations predate this and are kept so existing
-         * display filters stay valid. */
-        { &hf_nvme_mi_admin_cqe1,
-          { "Completion Queue Entry dword 0", "nvme-mi.admin.cqe1",
+         * pointer / SQ ID) is meaningless over MCTP and omitted (NVMe-MI 2.1
+         * Figure 138).  The filter suffixes match the CQE dword numbers. */
+        { &hf_nvme_mi_admin_cqe_dw0,
+          { "Completion Queue Entry dword 0", "nvme-mi.admin.cqe_dw0",
             FT_UINT32, BASE_HEX, NULL, 0,
             "Command-specific result (CQE DW0)", HFILL },
         },
-        { &hf_nvme_mi_admin_cqe2,
-          { "Completion Queue Entry dword 1", "nvme-mi.admin.cqe2",
+        { &hf_nvme_mi_admin_cqe_dw1,
+          { "Completion Queue Entry dword 1", "nvme-mi.admin.cqe_dw1",
             FT_UINT32, BASE_HEX, NULL, 0,
             "Reserved in Admin completions (CQE DW1)", HFILL },
         },
-        { &hf_nvme_mi_admin_cqe3,
-          { "Completion Queue Entry dword 3", "nvme-mi.admin.cqe3",
+        { &hf_nvme_mi_admin_cqe_dw3,
+          { "Completion Queue Entry dword 3", "nvme-mi.admin.cqe_dw3",
             FT_UINT32, BASE_HEX, NULL, 0,
             "Phase tag, status (SCT/SC/M/DNR) and command identifier "
             "(CQE DW3)", HFILL },
@@ -442,73 +514,6 @@ proto_register_nvme_mi_admin(void)
             FT_BYTES, SEP_SPACE, NULL, 0,
             NULL, HFILL },
         },
-        /*
-         * Hidden raw-dword aliases (added per item via proto_item_set_hidden)
-         * preserving the pre-split nvme-mi.admin.sqe* filter names.  The visible
-         * tree decodes these dwords structurally (NSID, MPTR, CDW10-15); these
-         * exist only so old display filters/columns keep resolving.
-         */
-        { &hf_nvme_mi_admin_sqe1,
-          { "SQE dword 1 (NSID)", "nvme-mi.admin.sqe1",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            "Deprecated alias for nvme-mi.admin.nsid", HFILL },
-        },
-        { &hf_nvme_mi_admin_sqe2,
-          { "SQE dword 2", "nvme-mi.admin.sqe2",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            "Deprecated alias for nvme-mi.admin.cdw2", HFILL },
-        },
-        { &hf_nvme_mi_admin_sqe3,
-          { "SQE dword 3", "nvme-mi.admin.sqe3",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            "Deprecated alias for nvme-mi.admin.cdw3", HFILL },
-        },
-        { &hf_nvme_mi_admin_sqe4,
-          { "SQE dword 4 (MPTR low)", "nvme-mi.admin.sqe4",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            "Deprecated alias for the low dword of nvme-mi.admin.mptr", HFILL },
-        },
-        { &hf_nvme_mi_admin_sqe5,
-          { "SQE dword 5 (MPTR high)", "nvme-mi.admin.sqe5",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            "Deprecated alias for the high dword of nvme-mi.admin.mptr", HFILL },
-        },
-        { &hf_nvme_mi_admin_sqe10,
-          { "SQE dword 10", "nvme-mi.admin.sqe10",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            "Deprecated alias for Command Dword 10 (now decoded as nvme.cmd.*)",
-            HFILL },
-        },
-        { &hf_nvme_mi_admin_sqe11,
-          { "SQE dword 11", "nvme-mi.admin.sqe11",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            "Deprecated alias for Command Dword 11 (now decoded as nvme.cmd.*)",
-            HFILL },
-        },
-        { &hf_nvme_mi_admin_sqe12,
-          { "SQE dword 12", "nvme-mi.admin.sqe12",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            "Deprecated alias for Command Dword 12 (now decoded as nvme.cmd.*)",
-            HFILL },
-        },
-        { &hf_nvme_mi_admin_sqe13,
-          { "SQE dword 13", "nvme-mi.admin.sqe13",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            "Deprecated alias for Command Dword 13 (now decoded as nvme.cmd.*)",
-            HFILL },
-        },
-        { &hf_nvme_mi_admin_sqe14,
-          { "SQE dword 14", "nvme-mi.admin.sqe14",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            "Deprecated alias for Command Dword 14 (now decoded as nvme.cmd.*)",
-            HFILL },
-        },
-        { &hf_nvme_mi_admin_sqe15,
-          { "SQE dword 15", "nvme-mi.admin.sqe15",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            "Deprecated alias for Command Dword 15 (now decoded as nvme.cmd.*)",
-            HFILL },
-        },
     };
     /* *INDENT-ON* */
 
@@ -516,6 +521,7 @@ proto_register_nvme_mi_admin(void)
         &ett_nvme_mi_admin,
         &ett_nvme_mi_admin_flags,
         &ett_nvme_mi_admin_sqe,
+        &ett_nvme_mi_admin_data,
     };
 
     static ei_register_info ei[] = {
@@ -538,6 +544,12 @@ proto_register_nvme_mi_admin(void)
             "Admin opcode is Prohibited over the Management Interface "
             "(NVMe-MI 2.1 Figure 134)", EXPFILL }
         },
+        { &ei_nvme_mi_admin_obsolete_flag,
+          { "nvme-mi.admin.obsolete_flag", PI_PROTOCOL, PI_COMMENT,
+            "DOFSTV/DLENV Command Flags bits are obsolete and shall be ignored "
+            "by Management Endpoints compliant with NVMe-MI later than 1.1 "
+            "(Figure 136)", EXPFILL },
+        },
     };
 
     expert_module_t *expert_nvme_mi_admin;
@@ -549,14 +561,17 @@ proto_register_nvme_mi_admin(void)
 
     expert_nvme_mi_admin = expert_register_protocol(proto_nvme_mi_admin);
     expert_register_field_array(expert_nvme_mi_admin, ei, array_length(ei));
+
+    nvme_mi_admin_handle = register_dissector_with_description(
+            "nvme-mi.admin", "NVMe-MI Admin Command",
+            dissect_nvme_mi_admin, proto_nvme_mi_admin);
 }
 
 void
 proto_reg_handoff_nvme_mi_admin(void)
 {
     dissector_add_uint("nvme-mi.type", NVME_MI_TYPE_ADMIN,
-                       create_dissector_handle(dissect_nvme_mi_admin,
-                                               proto_nvme_mi_admin));
+                       nvme_mi_admin_handle);
 }
 
 /*
