@@ -3051,6 +3051,18 @@ Relative to reference: n/a (outside reference range)</source>
         <source>Dissector Tables</source>
         <translation>ダイセクタテーブル</translation>
     </message>
+    <message>
+        <source>Everywhere</source>
+        <translation type="unfinished">すべて</translation>
+    </message>
+    <message>
+        <source>Only Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only Description</source>
+        <translation type="unfinished">記述のみ</translation>
+    </message>
 </context>
 <context>
     <name>DissectorTablesProxyModel</name>
@@ -3149,8 +3161,9 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>すべて</translation>
     </message>
     <message>
-        <source>Only Protocols</source>
-        <translation>プロトコルのみ</translation>
+        <source>Only Protocol</source>
+        <oldsource>Only Protocols</oldsource>
+        <translation type="unfinished">プロトコルのみ</translation>
     </message>
     <message>
         <source>Only Description</source>
@@ -5907,6 +5920,57 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Import Text File</source>
         <translation>テキストファイルをインポート</translation>
+    </message>
+</context>
+<context>
+    <name>ImsiListDialog</name>
+    <message>
+        <source>IMSI List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;Select one or more IMSIs to view flow sequence or prepare a display filter.&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only show IMSIs matching the current display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Limit to display filter</source>
+        <translation type="unfinished">表示フィルタに制限</translation>
+    </message>
+    <message>
+        <source>IMSI</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>First Frame</source>
+        <translation type="unfinished">最初のフレーム</translation>
+    </message>
+    <message>
+        <source>Last Frame</source>
+        <translation type="unfinished">最後のフレーム</translation>
+    </message>
+    <message>
+        <source>Protocols</source>
+        <translation type="unfinished">プロトコル</translation>
+    </message>
+    <message>
+        <source>Prepare Filter</source>
+        <translation type="unfinished">フィルタを準備</translation>
+    </message>
+    <message>
+        <source>Prepare a display filter matching selected IMSIs.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;%1 IMSIs found. Double-click to filter.&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9065,6 +9129,49 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     </message>
 </context>
 <context>
+    <name>PacketFormatCSVGroupBox</name>
+    <message>
+        <source>GroupBox</source>
+        <translation type="unfinished">グループボックス</translation>
+    </message>
+    <message>
+        <source>Packet Format</source>
+        <translation type="unfinished">パケット形式</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Escape non-ASCII and whitespace characters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ASCII</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export as a UTF-8 CSV&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>UTF-8</source>
+        <translation type="unfinished">UTF-8形式</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include a Byte Order Mark at the beginning of the file, for Windows&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Include Byte Order Mark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Replace whitespace characters (tabs, newlines, etc.) with C-style escapes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Escape whitespace</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PacketFormatJSONGroupBox</name>
     <message>
         <source>GroupBox</source>
@@ -9248,8 +9355,9 @@ Shift+クリック: 空行では無効なブレークポイントを追加
         <translation>文字列として表示</translation>
     </message>
     <message>
-        <source>Display as packet Details</source>
-        <translation>パケット詳細として表示</translation>
+        <source>Display as Packet Details</source>
+        <oldsource>Display as packet Details</oldsource>
+        <translation type="unfinished">パケット詳細として表示</translation>
     </message>
     <message>
         <source>Column Preferences…</source>
@@ -18408,6 +18516,14 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
     <message>
         <source>Show and analyze DIS radio streams</source>
         <translation>DIS無線ストリームを表示・分析します</translation>
+    </message>
+    <message>
+        <source>IMSI List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show all IMSIs in the capture</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Lua Debugger</source>

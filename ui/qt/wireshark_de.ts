@@ -3065,6 +3065,18 @@ Relativ zur Referenz: n. v. (außerhalb des Referenzbereichs)</translation>
         <source>Dissector Tables</source>
         <translation>Dissector Tabelle</translation>
     </message>
+    <message>
+        <source>Everywhere</source>
+        <translation type="unfinished">Überall</translation>
+    </message>
+    <message>
+        <source>Only Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only Description</source>
+        <translation type="unfinished">Nur Beschreibungen</translation>
+    </message>
 </context>
 <context>
     <name>DissectorTablesProxyModel</name>
@@ -3163,8 +3175,9 @@ Relativ zur Referenz: n. v. (außerhalb des Referenzbereichs)</translation>
         <translation>Überall</translation>
     </message>
     <message>
-        <source>Only Protocols</source>
-        <translation>Nur Protokolle</translation>
+        <source>Only Protocol</source>
+        <oldsource>Only Protocols</oldsource>
+        <translation type="unfinished">Nur Protokolle</translation>
     </message>
     <message>
         <source>Only Description</source>
@@ -5896,6 +5909,57 @@ Relativ zur Referenz: n. v. (außerhalb des Referenzbereichs)</translation>
     <message>
         <source>Import Text File</source>
         <translation>Aus einer Textdatei importieren</translation>
+    </message>
+</context>
+<context>
+    <name>ImsiListDialog</name>
+    <message>
+        <source>IMSI List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;Select one or more IMSIs to view flow sequence or prepare a display filter.&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only show IMSIs matching the current display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Limit to display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IMSI</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packets</source>
+        <translation type="unfinished">Pakete</translation>
+    </message>
+    <message>
+        <source>First Frame</source>
+        <translation type="unfinished">Erster Frame</translation>
+    </message>
+    <message>
+        <source>Last Frame</source>
+        <translation type="unfinished">Letzer Frame</translation>
+    </message>
+    <message>
+        <source>Protocols</source>
+        <translation type="unfinished">Protokolle</translation>
+    </message>
+    <message>
+        <source>Prepare Filter</source>
+        <translation type="unfinished">Als Filter vorbereiten</translation>
+    </message>
+    <message>
+        <source>Prepare a display filter matching selected IMSIs.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;%1 IMSIs found. Double-click to filter.&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9067,6 +9131,49 @@ on an existing breakpoint, toggle its active state</source>
     </message>
 </context>
 <context>
+    <name>PacketFormatCSVGroupBox</name>
+    <message>
+        <source>GroupBox</source>
+        <translation type="unfinished">Gruppierungsbox</translation>
+    </message>
+    <message>
+        <source>Packet Format</source>
+        <translation type="unfinished">Paketformat</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Escape non-ASCII and whitespace characters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ASCII</source>
+        <translation type="unfinished">ASCII</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export as a UTF-8 CSV&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>UTF-8</source>
+        <translation type="unfinished">UTF-8</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include a Byte Order Mark at the beginning of the file, for Windows&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Include Byte Order Mark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Replace whitespace characters (tabs, newlines, etc.) with C-style escapes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Escape whitespace</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PacketFormatJSONGroupBox</name>
     <message>
         <source>GroupBox</source>
@@ -9250,8 +9357,9 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Als Zeichenketten anzeigen</translation>
     </message>
     <message>
-        <source>Display as packet Details</source>
-        <translation>Anzeigen als Paketdetails</translation>
+        <source>Display as Packet Details</source>
+        <oldsource>Display as packet Details</oldsource>
+        <translation type="unfinished">Anzeigen als Paketdetails</translation>
     </message>
     <message>
         <source>Column Preferences…</source>
@@ -18352,6 +18460,14 @@ Preferences → Protocols → TCP to use this table.</source>
     <message>
         <source>Show and analyze DIS radio streams</source>
         <translation>DIS-Radio-Streams analysieren und anzeigen</translation>
+    </message>
+    <message>
+        <source>IMSI List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show all IMSIs in the capture</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Lua Debugger</source>

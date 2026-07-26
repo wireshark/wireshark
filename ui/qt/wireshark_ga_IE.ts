@@ -3078,6 +3078,18 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
         <source>Dissector Tables</source>
         <translation>Táblaí Dissector</translation>
     </message>
+    <message>
+        <source>Everywhere</source>
+        <translation type="unfinished">I ngach áit</translation>
+    </message>
+    <message>
+        <source>Only Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only Description</source>
+        <translation type="unfinished">Cur Síos Amháin</translation>
+    </message>
 </context>
 <context>
     <name>DissectorTablesProxyModel</name>
@@ -3176,8 +3188,9 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
         <translation>I ngach áit</translation>
     </message>
     <message>
-        <source>Only Protocols</source>
-        <translation>Prótacail Amháin</translation>
+        <source>Only Protocol</source>
+        <oldsource>Only Protocols</oldsource>
+        <translation type="unfinished">Prótacail Amháin</translation>
     </message>
     <message>
         <source>Only Description</source>
@@ -5950,6 +5963,57 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     <message>
         <source>Import Text File</source>
         <translation>Iompórtáil Téacschomhad</translation>
+    </message>
+</context>
+<context>
+    <name>ImsiListDialog</name>
+    <message>
+        <source>IMSI List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;Select one or more IMSIs to view flow sequence or prepare a display filter.&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only show IMSIs matching the current display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Limit to display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IMSI</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>First Frame</source>
+        <translation type="unfinished">An Chéad Fhráma</translation>
+    </message>
+    <message>
+        <source>Last Frame</source>
+        <translation type="unfinished">Fráma Deiridh</translation>
+    </message>
+    <message>
+        <source>Protocols</source>
+        <translation type="unfinished">Prótacail</translation>
+    </message>
+    <message>
+        <source>Prepare Filter</source>
+        <translation type="unfinished">Ullmhaigh Scagaire</translation>
+    </message>
+    <message>
+        <source>Prepare a display filter matching selected IMSIs.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;%1 IMSIs found. Double-click to filter.&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9139,6 +9203,49 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     </message>
 </context>
 <context>
+    <name>PacketFormatCSVGroupBox</name>
+    <message>
+        <source>GroupBox</source>
+        <translation type="unfinished">Bosca Grúpa</translation>
+    </message>
+    <message>
+        <source>Packet Format</source>
+        <translation type="unfinished">Formáid Paicéad</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Escape non-ASCII and whitespace characters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ASCII</source>
+        <translation type="unfinished">ASCII</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export as a UTF-8 CSV&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>UTF-8</source>
+        <translation type="unfinished">UTF-8</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include a Byte Order Mark at the beginning of the file, for Windows&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Include Byte Order Mark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Replace whitespace characters (tabs, newlines, etc.) with C-style escapes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Escape whitespace</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PacketFormatJSONGroupBox</name>
     <message>
         <source>GroupBox</source>
@@ -9322,8 +9429,9 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
         <translation>Taispeáin mar Teaghráin</translation>
     </message>
     <message>
-        <source>Display as packet Details</source>
-        <translation>Taispeáin mar Shonraí paicéad</translation>
+        <source>Display as Packet Details</source>
+        <oldsource>Display as packet Details</oldsource>
+        <translation type="unfinished">Taispeáin mar Shonraí paicéad</translation>
     </message>
     <message>
         <source>Column Preferences…</source>
@@ -18519,6 +18627,14 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
     <message>
         <source>Show and analyze DIS radio streams</source>
         <translation>Taispeáin agus anailísigh sruthanna raidió DIS</translation>
+    </message>
+    <message>
+        <source>IMSI List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show all IMSIs in the capture</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Lua Debugger</source>

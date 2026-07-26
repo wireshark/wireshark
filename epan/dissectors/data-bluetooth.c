@@ -892,6 +892,7 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2C39,   "HID SCI Mode" },
     { 0x2C3A,   "HID SCI Information" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xFC2C,   "Verkada Inc." },
     { 0xFC30,   "Arashi Vision Inc." },
     { 0xFC31,   "Ford Motor Company" },
     { 0xFC32,   "InPlay, Inc." },
@@ -5607,6 +5608,11 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x10ED,   "BRITA SE" },
     { 0x10EE,   "Shanghai XYLink Limited Corporation" },
     { 0x10EF,   "Keto-Check Inc." },
+    { 0x10F0,   "RFID N PRINT PTY LTD" },
+    { 0x10F1,   "Ralston Instruments, LLC" },
+    { 0x10F2,   "CHIGEE TECHNOLOGY CO., LTD." },
+    { 0x10F3,   "EURODIMA GmbH & CoKG" },
+    { 0x10F4,   "SUPERARK LTD" },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
@@ -6378,6 +6384,7 @@ const btatt_handle_strings_t btatt_handle_strings[] = {
     { 0x2c39,   "Bluetooth GATT Attribute HID SCI Mode (UUID 0x2c39)", "BT GATT HID SCI Mode (UUID 0x2c39)", "btgatt.uuid0x2c39" },
     { 0x2c3a,   "Bluetooth GATT Attribute HID SCI Information (UUID 0x2c3a)", "BT GATT HID SCI Information (UUID 0x2c3a)", "btgatt.uuid0x2c3a" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xfc2c,   "Bluetooth GATT Attribute Verkada Inc. (UUID 0xfc2c)", "BT GATT Verkada Inc. (UUID 0xfc2c)", "btgatt.uuid0xfc2c" },
     { 0xfc30,   "Bluetooth GATT Attribute Arashi Vision Inc. (UUID 0xfc30)", "BT GATT Arashi Vision Inc. (UUID 0xfc30)", "btgatt.uuid0xfc30" },
     { 0xfc31,   "Bluetooth GATT Attribute Ford Motor Company (UUID 0xfc31)", "BT GATT Ford Motor Company (UUID 0xfc31)", "btgatt.uuid0xfc31" },
     { 0xfc32,   "Bluetooth GATT Attribute InPlay, Inc. (UUID 0xfc32)", "BT GATT InPlay, Inc. (UUID 0xfc32)", "btgatt.uuid0xfc32" },

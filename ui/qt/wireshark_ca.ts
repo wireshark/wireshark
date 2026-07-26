@@ -3066,6 +3066,18 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
         <source>Dissector Tables</source>
         <translation>Taules de dissectors</translation>
     </message>
+    <message>
+        <source>Everywhere</source>
+        <translation type="unfinished">Per tot arreu</translation>
+    </message>
+    <message>
+        <source>Only Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only Description</source>
+        <translation type="unfinished">Només a la descripció</translation>
+    </message>
 </context>
 <context>
     <name>DissectorTablesProxyModel</name>
@@ -3164,8 +3176,9 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
         <translation>Per tot arreu</translation>
     </message>
     <message>
-        <source>Only Protocols</source>
-        <translation>Només als protocols</translation>
+        <source>Only Protocol</source>
+        <oldsource>Only Protocols</oldsource>
+        <translation type="unfinished">Només als protocols</translation>
     </message>
     <message>
         <source>Only Description</source>
@@ -5933,6 +5946,57 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
 </context>
 <context>
+    <name>ImsiListDialog</name>
+    <message>
+        <source>IMSI List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;Select one or more IMSIs to view flow sequence or prepare a display filter.&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only show IMSIs matching the current display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Limit to display filter</source>
+        <translation type="unfinished">Limita al filtre de visualització</translation>
+    </message>
+    <message>
+        <source>IMSI</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packets</source>
+        <translation type="unfinished">Paquets</translation>
+    </message>
+    <message>
+        <source>First Frame</source>
+        <translation type="unfinished">Primera trama</translation>
+    </message>
+    <message>
+        <source>Last Frame</source>
+        <translation type="unfinished">Trama final</translation>
+    </message>
+    <message>
+        <source>Protocols</source>
+        <translation type="unfinished">Protocols</translation>
+    </message>
+    <message>
+        <source>Prepare Filter</source>
+        <translation type="unfinished">Prepara un filtre</translation>
+    </message>
+    <message>
+        <source>Prepare a display filter matching selected IMSIs.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;%1 IMSIs found. Double-click to filter.&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>InPacketFindBar</name>
     <message>
         <source>String</source>
@@ -7842,7 +7906,7 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Expression&lt;/b&gt;&lt;br/&gt;Pause only when this Lua expression is truthy in the current frame. Runtime errors count as false and surface a warning icon on the row.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hit Count&lt;/b&gt;&lt;br/&gt;Gate the pause on a hit counter. The dropdown next to &lt;i&gt;N&lt;/i&gt; picks the comparison mode: &lt;code&gt;from&lt;/code&gt; pauses on every hit from &lt;i&gt;N&lt;/i&gt; onwards (default); &lt;code&gt;every&lt;/code&gt; pauses on hits &lt;i&gt;N&lt;/i&gt;, 2&amp;times;&lt;i&gt;N&lt;/i&gt;, 3&amp;times;&lt;i&gt;N&lt;/i&gt;, &amp;hellip;; &lt;code&gt;once&lt;/code&gt; pauses on the &lt;i&gt;N&lt;/i&gt;-th hit and deactivates the breakpoint. The counter is preserved across edits; right-click the row to reset it.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Log Message&lt;/b&gt;&lt;br/&gt;Write a line to the &lt;i&gt;Evaluate&lt;/i&gt; output (and Wireshark&apos;s debug log) each time the breakpoint fires &amp;mdash; after the &lt;i&gt;Hit Count&lt;/i&gt; gate and any &lt;i&gt;Expression&lt;/i&gt; allow it. By default execution continues; click the pause toggle on the editor row to also pause after emitting. Tags: &lt;code&gt;{expr}&lt;/code&gt; (any Lua value); &lt;code&gt;{filename}&lt;/code&gt;, &lt;code&gt;{basename}&lt;/code&gt;, &lt;code&gt;{line}&lt;/code&gt;, &lt;code&gt;{function}&lt;/code&gt;, &lt;code&gt;{what}&lt;/code&gt;; &lt;code&gt;{hits}&lt;/code&gt;, &lt;code&gt;{depth}&lt;/code&gt;, &lt;code&gt;{thread}&lt;/code&gt;; &lt;code&gt;{timestamp}&lt;/code&gt;, &lt;code&gt;{datetime}&lt;/code&gt;, &lt;code&gt;{epoch}&lt;/code&gt;, &lt;code&gt;{epoch_ms}&lt;/code&gt;, &lt;code&gt;{elapsed}&lt;/code&gt;, &lt;code&gt;{delta}&lt;/code&gt;; &lt;code&gt;{{&lt;/code&gt; / &lt;code&gt;}}&lt;/code&gt; for literal braces.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell (double-click, F2, or right-click &amp;rarr; Edit) to attach one of these. A white core inside the breakpoint dot &amp;mdash; in this list and in the gutter &amp;mdash; marks rows that carry extras.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;&lt;b&gt;Expressió&lt;/b&gt;&lt;br/&gt;Posa en pausa només quan aquesta expressió Lua sigui certa a la trama actual. Els errors en temps d&apos;execució compten com a falsos i mostren una icona d&apos;avís a la fila.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Recompte d&apos;execucions&lt;/b&gt;&lt;br/&gt;Posa en pausa segons el recompte d&apos;execucions. El desplegable al costat de la &lt;i&gt;N&lt;/i&gt; determina el mode de comparació: &lt;code&gt;a partir de&lt;/code&gt; posa en pausa cada vegada a partir de la &lt;i&gt;N&lt;/i&gt; execució (per defecte); &lt;code&gt;cada&lt;/code&gt; posa en pausa a les execucions &lt;i&gt;N&lt;/i&gt;, 2&amp;times;&lt;i&gt;N&lt;/i&gt;, 3&amp;times;&lt;i&gt;N&lt;/i&gt;, &amp;hellip;; &lt;code&gt;una vegada&lt;/code&gt; posa en pausa a l&apos;execució &lt;i&gt;N&lt;/i&gt;-èssima i desactiva el punt d&apos;interrupció. El comptador es manté encara que es facin edicions; feu clic amb el botó dret per a restablir-ho.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Missatge de registre&lt;/b&gt;&lt;br/&gt;Escriu una línia a la sortida &lt;i&gt;Avalua&lt;/i&gt; (i al registre de depuració del Wireshark) cada vegada que es passi pel punt d&apos;interrupció &amp;mdash; després que la porta del &lt;i&gt;Recompte d&apos;execucions&lt;/i&gt; i qualsevol altra &lt;i&gt;Expressió&lt;/i&gt; ho permetin. Per defecte, l&apos;execució continua; feu clic el commutador de pausa a la fila de l&apos;editor per a què també es posi en pausa després d&apos;emetre-la. Etiquetes: &lt;code&gt;{expr}&lt;/code&gt; (qualsevol valor Lua); &lt;code&gt;{filename}&lt;/code&gt;, &lt;code&gt;{basename}&lt;/code&gt;, &lt;code&gt;{line}&lt;/code&gt;, &lt;code&gt;{function}&lt;/code&gt;, &lt;code&gt;{what}&lt;/code&gt;; &lt;code&gt;{hits}&lt;/code&gt;, &lt;code&gt;{depth}&lt;/code&gt;, &lt;code&gt;{thread}&lt;/code&gt;; &lt;code&gt;{timestamp}&lt;/code&gt;, &lt;code&gt;{datetime}&lt;/code&gt;, &lt;code&gt;{epoch}&lt;/code&gt;, &lt;code&gt;{epoch_ms}&lt;/code&gt;, &lt;code&gt;{elapsed}&lt;/code&gt;, &lt;code&gt;{delta}&lt;/code&gt;; &lt;code&gt;{{&lt;/code&gt; / &lt;code&gt;}}&lt;/code&gt; per a escriure claus.&lt;/p&gt;&lt;p&gt;Editeu la cel·la d&apos;&lt;i&gt;Ubicació  (feu doble clic, F2, o feu clic amb el botó dret &amp;rarr; Edita) per a afegir-ne alguna. Un nucli blanc a l&apos;interior del punt d&apos;interrupció —tant en aquesta llista com al marge— marca les files que contenen elements addicionals.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Active</source>
@@ -9104,6 +9168,49 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
     </message>
 </context>
 <context>
+    <name>PacketFormatCSVGroupBox</name>
+    <message>
+        <source>GroupBox</source>
+        <translation type="unfinished">GroupBox</translation>
+    </message>
+    <message>
+        <source>Packet Format</source>
+        <translation type="unfinished">Format de paquet</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Escape non-ASCII and whitespace characters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ASCII</source>
+        <translation type="unfinished">ASCII</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export as a UTF-8 CSV&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>UTF-8</source>
+        <translation type="unfinished">UTF-8</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include a Byte Order Mark at the beginning of the file, for Windows&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Include Byte Order Mark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Replace whitespace characters (tabs, newlines, etc.) with C-style escapes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Escape whitespace</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PacketFormatJSONGroupBox</name>
     <message>
         <source>GroupBox</source>
@@ -9287,8 +9394,9 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
         <translation>Mostra com a cadenes</translation>
     </message>
     <message>
-        <source>Display as packet Details</source>
-        <translation>Mostra com a detalls de paquets</translation>
+        <source>Display as Packet Details</source>
+        <oldsource>Display as packet Details</oldsource>
+        <translation type="unfinished">Mostra com a detalls de paquets</translation>
     </message>
     <message>
         <source>Column Preferences…</source>
@@ -18466,6 +18574,14 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     <message>
         <source>Show and analyze DIS radio streams</source>
         <translation>Mostra i analitza fluxos de ràdio DIS</translation>
+    </message>
+    <message>
+        <source>IMSI List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show all IMSIs in the capture</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Lua Debugger</source>

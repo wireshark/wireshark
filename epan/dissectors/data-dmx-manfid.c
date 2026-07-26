@@ -11,7 +11,7 @@
 #include "data-dmx-manfid.h"
 
 /*
- * ESTA codes download date: 2026-07-19
+ * ESTA codes download date: 2026-07-26
  */
 static const value_string dmx_esta_manfid_vals[] = {
   { 0x0000, "ESTA / PLASA" },
@@ -351,6 +351,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x044F, "B2 Co., Ltd." },
   { 0x0455, "Lamp & Pencil" },
   { 0x047C, "LedsGo" },
+  { 0x047E, "TEK-LITE" },
   { 0x0480, "ASUSTeK Computer Inc." },
   { 0x0486, "LANZ (CZ) Lighting Ltd" },
   { 0x048E, "Krisledz Pte. Ltd." },
@@ -374,6 +375,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x04DD, "Topstriving Photoelectricity Technology Co., Ltd." },
   { 0x04E2, "TOKI CORPORATION" },
   { 0x04E6, "Kelvix" },
+  { 0x04EA, "Promin" },
   { 0x04EE, "Tivoli Lighting" },
   { 0x04F0, "SIGMA NET" },
   { 0x04F4, "Zeraus" },
@@ -413,6 +415,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x05B5, "Turkowski GmbH" },
   { 0x05BC, "CantoUSA" },
   { 0x05C0, "Vertigo" },
+  { 0x05C2, "SHADOW LLC" },
   { 0x05CF, "Brighten Technology Development Co., Ltd." },
   { 0x05D0, "DENSOKOGEI" },
   { 0x05D3, "D-LED Illumination Technologies Ltd." },
@@ -530,6 +533,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0707, "Conceptinetics Technologies and Consultancy Ltd." },
   { 0x0708, "AK-LIGHT" },
   { 0x070A, "NXT Lights" },
+  { 0x070B, "F.&M. Vertrieb GmbH" },
   { 0x070C, "Pixout SIA" },
   { 0x070D, "Lumenwerx ULC" },
   { 0x070E, "PragmaLab" },
@@ -587,6 +591,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0793, "IMLTLED Technology Co., Ltd." },
   { 0x0797, "ARCPROLED Limited" },
   { 0x079B, "Pro Church Lights" },
+  { 0x079E, "Lexvision GmbH" },
   { 0x079F, "VPS Group, LLC" },
   { 0x07A1, "Interface-Z" },
   { 0x07A3, "Guangzhou GBR PROLIGHT GROUP CO.,LTD (GBR PROLIGHT)" },
@@ -612,6 +617,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x07C2, "BOOQlight BV" },
   { 0x07C5, "SBS Lighting LLC" },
   { 0x07C6, "BK Lighting" },
+  { 0x07C7, "Logistic Lights GmbH" },
   { 0x07C8, "Sidus Link Ltd." },
   { 0x07CB, "ilLumenate Lighting" },
   { 0x07CC, "Griven S.r.l." },
@@ -1088,6 +1094,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0AAA, "AAA-LUX" },
   { 0x0D0C, "SmartDC Inc." },
   { 0x0D0E, "DMX Engineering LLC" },
+  { 0x0FB4, "U-Tech Technology Co., Ltd." },
   { 0x1001, "GENIO DA LAMPADA DE LED LTDA" },
   { 0x1112, "Zhuhai Bincolor Electronic Technology Co., Ltd." },
   { 0x1113, "SiliconCore Technology, Inc." },
@@ -1109,6 +1116,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x1221, "SAGITTER-SDJ-Proel" },
   { 0x1222, "SM International" },
   { 0x1234, "ESTA" },
+  { 0x1268, "Frontside Technology Services" },
   { 0x12DA, "Newlab S.r.l." },
   { 0x12E0, "Luxlight Skandinavien AB" },
   { 0x12EA, "Kolberg Percussion GmbH" },
