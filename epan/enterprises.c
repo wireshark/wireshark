@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* (last updated 2026-07-17) */
+/* (last updated 2026-07-24) */
 
 #include "config.h"
 
@@ -3886,7 +3886,7 @@ static const char * const table[] =
     "InTalk, Inc.",                                                                       // 3864
     "Thorne, West",                                                                       // 3865
     "Global Net Center",                                                                  // 3866
-    "Presence Technology GmbH+Co.KGMichael",                                              // 3867
+    "Webolution GmbH",                                                                    // 3867
     "Concentrix",                                                                         // 3868
     "IntelliLogic Networks, Inc.",                                                        // 3869
     "Internet Business Emporium",                                                         // 3870
@@ -40148,7 +40148,7 @@ static const char * const table[] =
     "real virtual GmbH",                                                                  // 40126
     "Federos",                                                                            // 40127
     "Beijing Photon-Byte Technology Co., Ltd.",                                           // 40128
-    "MarLukKi Centre",                                                                    // 40129
+    "Axfootar",                                                                           // 40129
     "Tempered Networks",                                                                  // 40130
     "Nuvem Networks Inc",                                                                 // 40131
     "Telemedia Argentina S.A.",                                                           // 40132
@@ -66336,7 +66336,53 @@ static const char * const table[] =
     "Gabriel Gutiérrez Fuentes",                                                          // 66314
     "MinebeaMitsumi Inc.",                                                                // 66315
     "scemtec Transponder Technology GmbH",                                                // 66316
-    "Bitron Electronics LAB srl"                                                          // 66317
+    "Bitron Electronics LAB srl",                                                         // 66317
+    "Havi's Inc.",                                                                        // 66318
+    "Stone Security",                                                                     // 66319
+    "Suzhou RouteFlow Energy Technology Co., Ltd.",                                       // 66320
+    "ODVA, Inc.",                                                                         // 66321
+    "BB Tecnologia e Serviços S.A.",                                                      // 66322
+    "QWSoftware",                                                                         // 66323
+    "Mission Critical Innovation",                                                        // 66324
+    "Private Tier Solutions",                                                             // 66325
+    "Voltie Kft.",                                                                        // 66326
+    "Acentury Inc.",                                                                      // 66327
+    "Perkumpulan Ruang Kemajuan Indonesia (RKI)",                                         // 66328
+    "Anreal Twin Inc.",                                                                   // 66329
+    "Main-Taunus-Kreis, Der Kreisausschuss",                                              // 66330
+    "ORLEN TERMIKA S.A.",                                                                 // 66331
+    "Tinklo",                                                                             // 66332
+    "Zevix B.V.",                                                                         // 66333
+    "Zorggroep H.Hart",                                                                   // 66334
+    "Modeemi Ry",                                                                         // 66335
+    "China Huaxin Post and Telecommunication Technology Co., Ltd.",                       // 66336
+    "Whessoe Engineering Limited",                                                        // 66337
+    "INSA Strasbourg",                                                                    // 66338
+    "CyberSecAI Ltd",                                                                     // 66339
+    "Family Dollar",                                                                      // 66340
+    "KATHREIN Digital Systems GmbH",                                                      // 66341
+    "UseKrypt",                                                                           // 66342
+    "Control Applications ltd.",                                                          // 66343
+    "Innovasis Enerji Elektronik San. ve Tic. Ltd. Sti.",                                 // 66344
+    "Signivault",                                                                         // 66345
+    "Amit Kumar",                                                                         // 66346
+    "Sharx Datacenter LLC",                                                               // 66347
+    "Gemik Software GmbH",                                                                // 66348
+    "Marintel LLC",                                                                       // 66349
+    "Williams & Fudge, Inc.",                                                             // 66350
+    "Maxcom Corporation",                                                                 // 66351
+    "Glenwood, Inc.",                                                                     // 66352
+    "Wiegand-Glas",                                                                       // 66353
+    "Cocoa",                                                                              // 66354
+    "NorcalBarnstormers LLC",                                                             // 66355
+    "Nanaboshi Electric Mfg. Co., Ltd.",                                                  // 66356
+    "DC ASIA Ltd.",                                                                       // 66357
+    "Privoro",                                                                            // 66358
+    "Altas Express LLC",                                                                  // 66359
+    "IaSoC",                                                                              // 66360
+    "AutographOS Corp",                                                                   // 66361
+    "Enchorium",                                                                          // 66362
+    "Sec s.r.o"                                                                           // 66363
 };
 
 const char* global_enterprises_lookup(uint32_t value)
