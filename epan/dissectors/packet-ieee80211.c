@@ -752,6 +752,7 @@ static value_string_ext tag_num_vals_ext = VALUE_STRING_EXT_INIT(ie_tag_num_vals
 #define ETAG_AID_BITMAP                                 134
 #define ETAG_BANDWIDTH_INDICATION                       135
 #define ETAG_NONAP_STA_REGULATORY_CONNECT               137
+#define ETAG_SUPPORTED_GROUPS                           161
 
 
 static const value_string tag_num_vals_eid_ext[] = {
@@ -818,6 +819,7 @@ static const value_string tag_num_vals_eid_ext[] = {
   { ETAG_AID_BITMAP,                          "AID Bitmap" },
   { ETAG_BANDWIDTH_INDICATION,                "Bandwidth Indication" },
   { ETAG_NONAP_STA_REGULATORY_CONNECT,        "Non-AP STA Regulatory Connectivity" },
+  { ETAG_SUPPORTED_GROUPS,                    "Supported Groups" },
   { 0, NULL }
 };
 static value_string_ext tag_num_vals_eid_ext_ext = VALUE_STRING_EXT_INIT(tag_num_vals_eid_ext);
@@ -8237,6 +8239,7 @@ static int hf_ieee80211_non_inheritance_element_id_ext_list_length;
 static int hf_ieee80211_non_inheritance_element_id_ext_list_element_id_ext;
 
 static int hf_ieee80211_rejected_groups_group;
+static int hf_ieee80211_supported_groups_group;
 
 static int hf_ieee80211_twt_bcast_flow;
 static int hf_ieee80211_twt_individual_flow;
@@ -35719,6 +35722,17 @@ dissect_rejected_groups(tvbuff_t *tvb, packet_info *pinfo _U_,
   }
 }
 
+static void
+dissect_supported_groups(tvbuff_t *tvb, packet_info *pinfo _U_,
+                         proto_tree *tree, int offset, int len _U_)
+{
+  while (tvb_reported_length_remaining(tvb, offset)) {
+    proto_tree_add_item(tree, hf_ieee80211_supported_groups_group, tvb, offset,
+                        2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+  }
+}
+
 /*
  * Just a string of bytes
  */
@@ -36471,6 +36485,9 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     case ETAG_NONAP_STA_REGULATORY_CONNECT:
       dissect_nonap_sta_regulatory_connect(tvb, pinfo, tree, offset, ext_tag_len);
       break;
+    case ETAG_SUPPORTED_GROUPS:
+      dissect_supported_groups(tvb, pinfo, tree, offset, ext_tag_len);
+      break;
     default:
       proto_tree_add_item(tree, hf_ieee80211_ext_tag_data, tvb, offset, ext_tag_len, ENC_NA);
       expert_add_info_format(pinfo, field_data->item_tag, &ei_ieee80211_tag_data,
@@ -36902,10 +36919,10 @@ ieee80211_tag_mic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
 
-  if ((tag_len != 16) && (tag_len != 24))
+  if ((tag_len != 16) && (tag_len != 24) && (tag_len != 32))
   {
     expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length,
-                           "MIC Tag Length %u wrong, must be 16 or 24", tag_len);
+                           "MIC Tag Length %u wrong, must be 16 or 24 or 32", tag_len);
     return tvb_captured_length(tvb);
   }
 
@@ -60363,6 +60380,10 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_rejected_groups_group,
      {"Rejected Finite Cyclic Group", "wlan.ext_tag.rejected_groups.group",
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_supported_groups_group,
+     {"Supported Finite Cyclic Group", "wlan.ext_tag.supported_groups.group",
       FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_ff_s1g_action,
