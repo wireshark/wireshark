@@ -6627,6 +6627,122 @@ dissect_nmea0183_sentence_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     return tvb_captured_length(tvb);
 }
 
+/* Signature shared by sentence-specific payload dissectors. */
+typedef int (*nmea0183_sentence_dissector_t)(tvbuff_t *tvb,
+                                               packet_info *pinfo,
+                                               proto_tree *tree);
+/* A normalized 24-bit ASCII sentence ID and its payload dissector. */
+typedef struct {
+    uint32_t id;
+    nmea0183_sentence_dissector_t dissect;
+} nmea0183_sentence_decoder_t;
+
+/* Static dispatch table, sorted by 24-bit ASCII ID for binary search in dissect_nmea0183_msg. */
+static const nmea0183_sentence_decoder_t nmea0183_sentence_decoders[] = {
+    { 0x41414D, dissect_nmea0183_sentence_aam }, /* AAM */
+    { 0x41424B, dissect_nmea0183_sentence_abk }, /* ABK */
+    { 0x414341, dissect_nmea0183_sentence_aca }, /* ACA */
+    { 0x41434B, dissect_nmea0183_sentence_ack }, /* ACK */
+    { 0x414353, dissect_nmea0183_sentence_acs }, /* ACS */
+    { 0x414952, dissect_nmea0183_sentence_air }, /* AIR */
+    { 0x414B44, dissect_nmea0183_sentence_akd }, /* AKD */
+    { 0x414C41, dissect_nmea0183_sentence_ala }, /* ALA */
+    { 0x414C4D, dissect_nmea0183_sentence_alm }, /* ALM */
+    { 0x414C52, dissect_nmea0183_sentence_alr }, /* ALR */
+    { 0x415042, dissect_nmea0183_sentence_apb }, /* APB */
+    { 0x424543, dissect_nmea0183_sentence_bec }, /* BEC */
+    { 0x424F44, dissect_nmea0183_sentence_bod }, /* BOD */
+    { 0x425743, dissect_nmea0183_sentence_bwc }, /* BWC */
+    { 0x425752, dissect_nmea0183_sentence_bwr }, /* BWR */
+    { 0x425757, dissect_nmea0183_sentence_bww }, /* BWW */
+    { 0x434252, dissect_nmea0183_sentence_cbr }, /* CBR */
+    { 0x435552, dissect_nmea0183_sentence_cur }, /* CUR */
+    { 0x444254, dissect_nmea0183_sentence_dbt }, /* DBT */
+    { 0x44434E, dissect_nmea0183_sentence_dcn }, /* DCN */
+    { 0x444443, dissect_nmea0183_sentence_ddc }, /* DDC */
+    { 0x444F52, dissect_nmea0183_sentence_dor }, /* DOR */
+    { 0x445054, dissect_nmea0183_sentence_dpt }, /* DPT */
+    { 0x445343, dissect_nmea0183_sentence_dsc }, /* DSC */
+    { 0x445345, dissect_nmea0183_sentence_dse }, /* DSE */
+    { 0x445349, dissect_nmea0183_sentence_dsi }, /* DSI */
+    { 0x445352, dissect_nmea0183_sentence_dsr }, /* DSR */
+    { 0x44544D, dissect_nmea0183_sentence_dtm }, /* DTM */
+    { 0x45544C, dissect_nmea0183_sentence_etl }, /* ETL */
+    { 0x465349, dissect_nmea0183_sentence_fsi }, /* FSI */
+    { 0x474253, dissect_nmea0183_sentence_gbs }, /* GBS */
+    { 0x474741, dissect_nmea0183_sentence_gga }, /* GGA */
+    { 0x474C43, dissect_nmea0183_sentence_glc }, /* GLC */
+    { 0x474C4C, dissect_nmea0183_sentence_gll }, /* GLL */
+    { 0x474D50, dissect_nmea0183_sentence_gmp }, /* GMP */
+    { 0x474E53, dissect_nmea0183_sentence_gns }, /* GNS */
+    { 0x475253, dissect_nmea0183_sentence_grs }, /* GRS */
+    { 0x475341, dissect_nmea0183_sentence_gsa }, /* GSA */
+    { 0x475354, dissect_nmea0183_sentence_gst }, /* GST */
+    { 0x475356, dissect_nmea0183_sentence_gsv }, /* GSV */
+    { 0x484254, dissect_nmea0183_sentence_hbt }, /* HBT */
+    { 0x484447, dissect_nmea0183_sentence_hdg }, /* HDG */
+    { 0x484454, dissect_nmea0183_sentence_hdt }, /* HDT */
+    { 0x484D52, dissect_nmea0183_sentence_hmr }, /* HMR */
+    { 0x484D53, dissect_nmea0183_sentence_hms }, /* HMS */
+    { 0x485343, dissect_nmea0183_sentence_hsc }, /* HSC */
+    { 0x485443, dissect_nmea0183_sentence_htc }, /* HTC */
+    { 0x485444, dissect_nmea0183_sentence_htd }, /* HTD */
+    { 0x4C4344, dissect_nmea0183_sentence_lcd }, /* LCD */
+    { 0x4C5231, dissect_nmea0183_sentence_lr1 }, /* LR1 */
+    { 0x4C5232, dissect_nmea0183_sentence_lr2 }, /* LR2 */
+    { 0x4C5233, dissect_nmea0183_sentence_lr3 }, /* LR3 */
+    { 0x4C5246, dissect_nmea0183_sentence_lrf }, /* LRF */
+    { 0x4C5249, dissect_nmea0183_sentence_lri }, /* LRI */
+    { 0x4D4C41, dissect_nmea0183_sentence_mla }, /* MLA */
+    { 0x4D534B, dissect_nmea0183_sentence_msk }, /* MSK */
+    { 0x4D5353, dissect_nmea0183_sentence_mss }, /* MSS */
+    { 0x4D5457, dissect_nmea0183_sentence_mtw }, /* MTW */
+    { 0x4D5744, dissect_nmea0183_sentence_mwd }, /* MWD */
+    { 0x4D5756, dissect_nmea0183_sentence_mwv }, /* MWV */
+    { 0x4F5344, dissect_nmea0183_sentence_osd }, /* OSD */
+    { 0x524D41, dissect_nmea0183_sentence_rma }, /* RMA */
+    { 0x524D42, dissect_nmea0183_sentence_rmb }, /* RMB */
+    { 0x524D43, dissect_nmea0183_sentence_rmc }, /* RMC */
+    { 0x524F54, dissect_nmea0183_sentence_rot }, /* ROT */
+    { 0x52504D, dissect_nmea0183_sentence_rpm }, /* RPM */
+    { 0x525341, dissect_nmea0183_sentence_rsa }, /* RSA */
+    { 0x525344, dissect_nmea0183_sentence_rsd }, /* RSD */
+    { 0x525445, dissect_nmea0183_sentence_rte }, /* RTE */
+    { 0x534649, dissect_nmea0183_sentence_sfi }, /* SFI */
+    { 0x535344, dissect_nmea0183_sentence_ssd }, /* SSD */
+    { 0x53544E, dissect_nmea0183_sentence_stn }, /* STN */
+    { 0x544C42, dissect_nmea0183_sentence_tlb }, /* TLB */
+    { 0x544C4C, dissect_nmea0183_sentence_tll }, /* TLL */
+    { 0x54544D, dissect_nmea0183_sentence_ttm }, /* TTM */
+    { 0x545554, dissect_nmea0183_sentence_tut }, /* TUT */
+    { 0x545854, dissect_nmea0183_sentence_txt }, /* TXT */
+    { 0x564257, dissect_nmea0183_sentence_vbw }, /* VBW */
+    { 0x564452, dissect_nmea0183_sentence_vdr }, /* VDR */
+    { 0x564857, dissect_nmea0183_sentence_vhw }, /* VHW */
+    { 0x564C57, dissect_nmea0183_sentence_vlw }, /* VLW */
+    { 0x565057, dissect_nmea0183_sentence_vpw }, /* VPW */
+    { 0x565344, dissect_nmea0183_sentence_vsd }, /* VSD */
+    { 0x565447, dissect_nmea0183_sentence_vtg }, /* VTG */
+    { 0x574356, dissect_nmea0183_sentence_wcv }, /* WCV */
+    { 0x574E43, dissect_nmea0183_sentence_wnc }, /* WNC */
+    { 0x57504C, dissect_nmea0183_sentence_wpl }, /* WPL */
+    { 0x584452, dissect_nmea0183_sentence_xdr }, /* XDR */
+    { 0x585445, dissect_nmea0183_sentence_xte }, /* XTE */
+    { 0x585452, dissect_nmea0183_sentence_xtr }, /* XTR */
+    { 0x5A4441, dissect_nmea0183_sentence_zda }, /* ZDA */
+    { 0x5A444C, dissect_nmea0183_sentence_zdl }, /* ZDL */
+    { 0x5A464F, dissect_nmea0183_sentence_zfo }, /* ZFO */
+    { 0x5A5447, dissect_nmea0183_sentence_ztg }, /* ZTG */
+};
+
+static int
+compare_nmea0183_sentence_decoder(const void *key, const void *element)
+{
+    uint32_t sentence_key = *(const uint32_t *)key;
+    const nmea0183_sentence_decoder_t *decoder = element;
+
+    return (sentence_key > decoder->id) - (sentence_key < decoder->id);
+}
 
 /* <tag block 1>,<tagblock2>, … <tagblock n>*<tagblocks CS> */
 //static void
@@ -6675,6 +6791,7 @@ dissect_nmea0183_msg(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
     const char* talker_id = NULL;
     const char* sentence_id = NULL;
     const char* checksum = NULL;
+    uint32_t sentence_key;
     uint8_t start_delimiter;
 
     /* Start delimiter */
@@ -6701,6 +6818,9 @@ dissect_nmea0183_msg(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
     ti = proto_tree_add_item_ret_string(tree, hf_nmea0183_sentence_id,
                                         tvb, offset, 3, ENC_ASCII,
                                         pinfo->pool, (const uint8_t**)&sentence_id);
+    sentence_key = ((uint32_t)g_ascii_toupper((uint8_t)sentence_id[0]) << 16) |
+                   ((uint32_t)g_ascii_toupper((uint8_t)sentence_id[1]) << 8) |
+                   (uint32_t)g_ascii_toupper((uint8_t)sentence_id[2]);
 
     proto_item_append_text(ti, " (%s)", str_to_str_wmem(pinfo->pool, sentence_id, known_sentence_ids, "Unknown sentence ID"));
 
@@ -6718,386 +6838,10 @@ dissect_nmea0183_msg(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
     /* Data */
     offset += 1;
     tvbuff_t *data_tvb = tvb_new_subset_length(tvb, offset, start_checksum_offset - offset);
-    if (g_ascii_strcasecmp(sentence_id, "AAM") == 0)
-    {
-        offset += dissect_nmea0183_sentence_aam(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "ABK") == 0)
-    {
-        offset += dissect_nmea0183_sentence_abk(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "ACA") == 0)
-    {
-        offset += dissect_nmea0183_sentence_aca(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "ACK") == 0)
-    {
-        offset += dissect_nmea0183_sentence_ack(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "ACS") == 0)
-    {
-        offset += dissect_nmea0183_sentence_acs(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "AIR") == 0)
-    {
-        offset += dissect_nmea0183_sentence_air(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "AKD") == 0)
-    {
-        offset += dissect_nmea0183_sentence_akd(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "ALA") == 0)
-    {
-        offset += dissect_nmea0183_sentence_ala(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "ALM") == 0)
-    {
-        offset += dissect_nmea0183_sentence_alm(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "ALR") == 0)
-    {
-        offset += dissect_nmea0183_sentence_alr(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "APB") == 0)
-    {
-        offset += dissect_nmea0183_sentence_apb(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "BEC") == 0)
-    {
-        offset += dissect_nmea0183_sentence_bec(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "BOD") == 0)
-    {
-        offset += dissect_nmea0183_sentence_bod(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "BWC") == 0)
-    {
-        offset += dissect_nmea0183_sentence_bwc(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "BWR") == 0)
-    {
-        offset += dissect_nmea0183_sentence_bwr(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "BWW") == 0)
-    {
-        offset += dissect_nmea0183_sentence_bww(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "CBR") == 0)
-    {
-        offset += dissect_nmea0183_sentence_cbr(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "CUR") == 0)
-    {
-        offset += dissect_nmea0183_sentence_cur(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "DBT") == 0)
-    {
-        offset += dissect_nmea0183_sentence_dbt(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "DCN") == 0)
-    {
-        offset += dissect_nmea0183_sentence_dcn(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "DDC") == 0)
-    {
-        offset += dissect_nmea0183_sentence_ddc(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "DOR") == 0)
-    {
-        offset += dissect_nmea0183_sentence_dor(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "DPT") == 0)
-    {
-        offset += dissect_nmea0183_sentence_dpt(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "DSC") == 0)
-    {
-        offset += dissect_nmea0183_sentence_dsc(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "DSE") == 0)
-    {
-        offset += dissect_nmea0183_sentence_dse(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "DSI") == 0)
-    {
-        offset += dissect_nmea0183_sentence_dsi(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "DSR") == 0)
-    {
-        offset += dissect_nmea0183_sentence_dsr(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "DTM") == 0)
-    {
-        offset += dissect_nmea0183_sentence_dtm(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "ETL") == 0)
-    {
-        offset += dissect_nmea0183_sentence_etl(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "FSI") == 0)
-    {
-        offset += dissect_nmea0183_sentence_fsi(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "GBS") == 0)
-    {
-        offset += dissect_nmea0183_sentence_gbs(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "GGA") == 0)
-    {
-        offset += dissect_nmea0183_sentence_gga(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "GLC") == 0)
-    {
-        offset += dissect_nmea0183_sentence_glc(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "GLL") == 0)
-    {
-        offset += dissect_nmea0183_sentence_gll(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "GMP") == 0)
-    {
-        offset += dissect_nmea0183_sentence_gmp(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "GNS") == 0)
-    {
-        offset += dissect_nmea0183_sentence_gns(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "GRS") == 0)
-    {
-        offset += dissect_nmea0183_sentence_grs(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "GSA") == 0)
-    {
-        offset += dissect_nmea0183_sentence_gsa(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "GST") == 0)
-    {
-        offset += dissect_nmea0183_sentence_gst(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "GSV") == 0)
-    {
-        offset += dissect_nmea0183_sentence_gsv(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "HBT") == 0)
-    {
-        offset += dissect_nmea0183_sentence_hbt(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "HDG") == 0)
-    {
-        offset += dissect_nmea0183_sentence_hdg(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "HDT") == 0)
-    {
-        offset += dissect_nmea0183_sentence_hdt(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "HMR") == 0)
-    {
-        offset += dissect_nmea0183_sentence_hmr(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "HMS") == 0)
-    {
-        offset += dissect_nmea0183_sentence_hms(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "HSC") == 0)
-    {
-        offset += dissect_nmea0183_sentence_hsc(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "HTC") == 0)
-    {
-        offset += dissect_nmea0183_sentence_htc(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "HTD") == 0)
-    {
-        offset += dissect_nmea0183_sentence_htd(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "LCD") == 0)
-    {
-        offset += dissect_nmea0183_sentence_lcd(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "LR1") == 0)
-    {
-        offset += dissect_nmea0183_sentence_lr1(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "LR2") == 0)
-    {
-        offset += dissect_nmea0183_sentence_lr2(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "LR3") == 0)
-    {
-        offset += dissect_nmea0183_sentence_lr3(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "LRF") == 0)
-    {
-        offset += dissect_nmea0183_sentence_lrf(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "LRI") == 0)
-    {
-        offset += dissect_nmea0183_sentence_lri(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "MLA") == 0)
-    {
-        offset += dissect_nmea0183_sentence_mla(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "MSK") == 0)
-    {
-        offset += dissect_nmea0183_sentence_msk(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "MSS") == 0)
-    {
-        offset += dissect_nmea0183_sentence_mss(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "MTW") == 0)
-    {
-        offset += dissect_nmea0183_sentence_mtw(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "MWD") == 0)
-    {
-        offset += dissect_nmea0183_sentence_mwd(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "MWV") == 0)
-    {
-        offset += dissect_nmea0183_sentence_mwv(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "OSD") == 0)
-    {
-        offset += dissect_nmea0183_sentence_osd(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "RMA") == 0)
-    {
-        offset += dissect_nmea0183_sentence_rma(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "RMB") == 0)
-    {
-        offset += dissect_nmea0183_sentence_rmb(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "RMC") == 0)
-    {
-        offset += dissect_nmea0183_sentence_rmc(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "ROT") == 0)
-    {
-        offset += dissect_nmea0183_sentence_rot(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "RPM") == 0)
-    {
-        offset += dissect_nmea0183_sentence_rpm(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "RSA") == 0)
-    {
-        offset += dissect_nmea0183_sentence_rsa(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "RSD") == 0)
-    {
-        offset += dissect_nmea0183_sentence_rsd(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "RTE") == 0)
-    {
-        offset += dissect_nmea0183_sentence_rte(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "SFI") == 0)
-    {
-        offset += dissect_nmea0183_sentence_sfi(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "SSD") == 0)
-    {
-        offset += dissect_nmea0183_sentence_ssd(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "STN") == 0)
-    {
-        offset += dissect_nmea0183_sentence_stn(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "TLB") == 0)
-    {
-        offset += dissect_nmea0183_sentence_tlb(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "TLL") == 0)
-    {
-        offset += dissect_nmea0183_sentence_tll(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "TTM") == 0)
-    {
-        offset += dissect_nmea0183_sentence_ttm(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "TUT") == 0)
-    {
-        offset += dissect_nmea0183_sentence_tut(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "TXT") == 0)
-    {
-        offset += dissect_nmea0183_sentence_txt(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "VBW") == 0)
-    {
-        offset += dissect_nmea0183_sentence_vbw(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "VDR") == 0)
-    {
-        offset += dissect_nmea0183_sentence_vdr(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "VHW") == 0)
-    {
-        offset += dissect_nmea0183_sentence_vhw(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "VLW") == 0)
-    {
-        offset += dissect_nmea0183_sentence_vlw(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "VPW") == 0)
-    {
-        offset += dissect_nmea0183_sentence_vpw(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "VSD") == 0)
-    {
-        offset += dissect_nmea0183_sentence_vsd(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "VTG") == 0)
-    {
-        offset += dissect_nmea0183_sentence_vtg(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "WCV") == 0)
-    {
-        offset += dissect_nmea0183_sentence_wcv(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "WNC") == 0)
-    {
-        offset += dissect_nmea0183_sentence_wnc(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "WPL") == 0)
-    {
-        offset += dissect_nmea0183_sentence_wpl(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "XDR") == 0)
-    {
-        offset += dissect_nmea0183_sentence_xdr(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "XTE") == 0)
-    {
-        offset += dissect_nmea0183_sentence_xte(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "XTR") == 0)
-    {
-        offset += dissect_nmea0183_sentence_xtr(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "ZDA") == 0)
-    {
-        offset += dissect_nmea0183_sentence_zda(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "ZDL") == 0)
-    {
-        offset += dissect_nmea0183_sentence_zdl(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "ZFO") == 0)
-    {
-        offset += dissect_nmea0183_sentence_zfo(data_tvb, pinfo, tree);
-    }
-    else if (g_ascii_strcasecmp(sentence_id, "ZTG") == 0)
-    {
-        offset += dissect_nmea0183_sentence_ztg(data_tvb, pinfo, tree);
-    }
-    else
-    {
-        offset += dissect_nmea0183_sentence_unknown(data_tvb, pinfo, tree);
-    }
+    const nmea0183_sentence_decoder_t *decoder = bsearch(&sentence_key,
+        nmea0183_sentence_decoders, G_N_ELEMENTS(nmea0183_sentence_decoders),
+        sizeof nmea0183_sentence_decoders[0], compare_nmea0183_sentence_decoder);
+    offset += (decoder ? decoder->dissect : dissect_nmea0183_sentence_unknown)(data_tvb, pinfo, tree);
 
     /* Checksum */
     offset += 1;
