@@ -69,6 +69,11 @@ typedef struct {
     bool escape_wsp;
 } print_args_csv_t;
 
+typedef struct {
+    bool print_index;
+    bool print_secondary_data_sources;
+} print_args_carrays_t;
+
 /*
  * Print user selected list of fields
  */
@@ -341,11 +346,39 @@ WS_DLL_PUBLIC void write_csv_columns_with_args(epan_dissect_t *edt, FILE *fh, pr
 /**
  * @brief Writes hexadecimal data from a list of data sources to a file.
  *
- * @param num Number of data sources to process.
+ * @param fh File handle where the data will be written.
+ * @param index GPtrArray containing information about each data source for the index array
+ * @param args Arguments
+ */
+WS_DLL_PUBLIC void write_carrays_preamble(FILE *fh, GPtrArray *index, print_args_carrays_t args);
+
+/**
+ * @brief Writes hexadecimal data from a list of data sources to a file.
+ *
+ * @param num Frame number of the list of data sources to process.
+ * @param fh File handle where the data will be written.
+ * @param edt Pointer to the epan_dissect_t structure containing the data sources.
+ * @param args Arguments
+ */
+WS_DLL_PUBLIC void write_carrays_hex_data_with_args(uint32_t num, FILE *fh, epan_dissect_t *edt, GPtrArray *index, print_args_carrays_t args);
+
+/**
+ * @brief Writes hexadecimal data from a list of data sources to a file.
+ *
+ * @param num Frame number of the list of data sources to process.
  * @param fh File handle where the data will be written.
  * @param edt Pointer to the epan_dissect_t structure containing the data sources.
  */
 WS_DLL_PUBLIC void write_carrays_hex_data(uint32_t num, FILE *fh, epan_dissect_t *edt);
+
+/**
+ * @brief Writes hexadecimal data from a list of data sources to a file.
+ *
+ * @param fh File handle where the data will be written.
+ * @param index GPtrArray containing information about each data source for the index array
+ * @param args Arguments
+ */
+WS_DLL_PUBLIC void write_carrays_finale(FILE *fh, GPtrArray *index, print_args_carrays_t args);
 
 /**
  * @brief Writes the preamble for fields output.

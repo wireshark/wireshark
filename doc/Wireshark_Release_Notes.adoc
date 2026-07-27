@@ -32,6 +32,9 @@ The following changes have been made since version 4.7.2:
 * The Export Packet Dissections CSV output is UTF-8 CSV (with optional BOM) by
   default; the previous format which escapes non-ASCII characters is still
   available.
+* The Export Packet Dissections C Arrays output gained an option to add an index
+  array for the arrays of data sources. Also, there is an option to omit secondary
+  data sources like reassembled data or decrypted data. wsbuglink:19616[].
 
 The following changes have been made since version 4.7.1:
 

@@ -9,6 +9,7 @@
 
 #include "packet_format_group_box.h"
 #include <ui_packet_format_group_box.h>
+#include <ui_packet_format_carrays_group_box.h>
 #include <ui_packet_format_csv_group_box.h>
 #include <ui_packet_format_json_group_box.h>
 
@@ -327,4 +328,40 @@ void PacketFormatCSVGroupBox::updatePrintArgs(print_args_t& print_args)
     print_args.csv_args.print_utf8 = UTF8Enabled();
     print_args.csv_args.escape_wsp = escapeWSP();
     print_args.csv_args.print_bom = printBOM();
+}
+
+PacketFormatCArraysGroupBox::PacketFormatCArraysGroupBox(QWidget *parent) :
+    PacketFormatGroupBox(parent),
+    pf_ui_(new Ui::PacketFormatCArraysGroupBox)
+{
+    pf_ui_->setupUi(this);
+
+    connect(pf_ui_->includeDataSourcesCheckBox, &QCheckBox::toggled, this, &PacketFormatGroupBox::formatChanged);
+    connect(pf_ui_->includeIndexCheckBox, &QCheckBox::toggled, this, &PacketFormatGroupBox::formatChanged);
+}
+
+PacketFormatCArraysGroupBox::~PacketFormatCArraysGroupBox()
+{
+    delete pf_ui_;
+}
+
+bool PacketFormatCArraysGroupBox::printSecondaryDataSources() const
+{
+    return pf_ui_->includeDataSourcesCheckBox->isChecked();
+}
+
+bool PacketFormatCArraysGroupBox::printIndex() const
+{
+    return pf_ui_->includeIndexCheckBox->isChecked();
+}
+
+bool PacketFormatCArraysGroupBox::isValid() const
+{
+    return true;
+}
+
+void PacketFormatCArraysGroupBox::updatePrintArgs(print_args_t& print_args)
+{
+    print_args.carrays_args.print_secondary_data_sources = printSecondaryDataSources();
+    print_args.carrays_args.print_index = printIndex();
 }

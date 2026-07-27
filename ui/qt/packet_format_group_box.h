@@ -329,4 +329,55 @@ private:
     Ui::PacketFormatCSVGroupBox *pf_ui_; /**< Pointer to the user interface form elements. */
 };
 
+namespace Ui {
+class PacketFormatCArraysGroupBox;
+}
+
+/**
+ * @brief Group box for configuring CSV packet formatting options.
+ */
+class PacketFormatCArraysGroupBox : public PacketFormatGroupBox
+{
+    Q_OBJECT
+
+public:
+    /**
+     * @brief Constructs a PacketFormatCArraysGroupBox.
+     * @param parent The parent widget.
+     */
+    explicit PacketFormatCArraysGroupBox(QWidget *parent = 0);
+
+    /**
+     * @brief Destroys the PacketFormatCArraysGroupBox.
+     */
+    ~PacketFormatCArraysGroupBox();
+
+    /**
+     * @brief Checks if the C Arrays format configuration is valid.
+     * @return True if the configuration is valid, false otherwise.
+     */
+    bool isValid() const override;
+
+    /**
+     * @brief Updates the print arguments with the C Arrays format settings.
+     * @param print_args The print arguments structure to update.
+     */
+    void updatePrintArgs(print_args_t& print_args) override;
+
+private:
+    /**
+     * @brief Checks if secondary data sources like reassemblies should be print.
+     * @return True if included, false otherwise.
+     */
+    bool printSecondaryDataSources() const;
+
+    /**
+     * @brief Checks if an index array for the frame arrays should be included.
+     * @return True if the index is included, false otherwise.
+     */
+    bool printIndex() const;
+
+    Ui::PacketFormatCArraysGroupBox *pf_ui_; /**< Pointer to the user interface form elements. */
+};
+
 #endif // PACKET_FORMAT_GROUP_BOX_H

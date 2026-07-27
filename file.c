@@ -2848,6 +2848,7 @@ typedef struct {
     epan_dissect_t edt;
     print_args_t *print_args;
     json_dumper jdumper;
+    GPtrArray *index;
 } write_packet_callback_args_t;
 
 static bool
@@ -3090,7 +3091,7 @@ carrays_write_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec,
     write_packet_callback_args_t *args = (write_packet_callback_args_t *)argsp;
 
     epan_dissect_run(&args->edt, cf->cd_t, rec, fdata, NULL);
-    write_carrays_hex_data(fdata->num, args->fh, &args->edt);
+    write_carrays_hex_data_with_args(fdata->num, args->fh, &args->edt, args->index, args->print_args->carrays_args);
     epan_dissect_reset(&args->edt);
 
     return !ferror(args->fh);
@@ -3115,6 +3116,8 @@ cf_write_carrays_packets(capture_file *cf, print_args_t *print_args)
 
     callback_args.fh = fh;
     callback_args.print_args = print_args;
+    callback_args.index = g_ptr_array_new_with_free_func(g_free);
+    write_carrays_preamble(fh, callback_args.index, print_args->carrays_args);
     epan_dissect_init(&callback_args.edt, cf->epan, true, true);
 
     /* Iterate through the list of packets, printing the packets we were
@@ -3125,6 +3128,8 @@ cf_write_carrays_packets(capture_file *cf, print_args_t *print_args)
             carrays_write_packet, &callback_args, true);
 
     epan_dissect_cleanup(&callback_args.edt);
+    write_carrays_finale(fh, callback_args.index, print_args->carrays_args);
+    g_ptr_array_unref(callback_args.index);
 
     switch (ret) {
         case PSP_FINISHED:

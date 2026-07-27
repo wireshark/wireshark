@@ -494,6 +494,9 @@ typedef struct {
 
     /* --- CSV output options -- */
     print_args_csv_t csv_args;
+
+    /* --- C Arrays output options --- */
+    print_args_carrays_t carrays_args;
 } print_args_t;
 
 /**

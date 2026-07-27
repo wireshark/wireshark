@@ -1808,18 +1808,41 @@ write_csv_columns_with_args(epan_dissect_t *edt, FILE *fh, print_args_csv_t csv_
 }
 
 void
-write_carrays_hex_data(uint32_t num, FILE *fh, epan_dissect_t *edt)
+write_carrays_preamble(FILE *fh _U_, GPtrArray *index, print_args_carrays_t args)
+{
+    if (args.print_index) {
+        if (args.print_secondary_data_sources) {
+            g_ptr_array_add(index, g_strdup("static struct { \n"
+                "    unsigned frame_num;\n"
+                "    unsigned data_src_num;\n"
+                "    unsigned data_size;\n"
+                "    const unsigned char *data;\n"
+                "    const char *data_src_name;\n"
+                "} data_source_list[] = {\n"));
+        } else {
+            g_ptr_array_add(index, g_strdup("static struct { \n"
+                "    unsigned frame_num;\n"
+                "    unsigned data_size;\n"
+                "    const unsigned char *data;\n"
+                "} frame_list[] = {\n"));
+        }
+    }
+}
+
+void
+write_carrays_hex_data_with_args(uint32_t num, FILE *fh, epan_dissect_t *edt, GPtrArray *index, print_args_carrays_t args)
 {
     uint32_t      i = 0, src_num = 0;
     GSList       *src_le;
     tvbuff_t     *tvb;
     char         *description;
+    char         *pkt_name;
     const unsigned char *cp;
     unsigned      length;
     char          ascii[9];
     struct data_source *src;
 
-    for (src_le = edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
+    for (src_le = edt->pi.data_src; src_le != NULL; src_le = args.print_secondary_data_sources ? src_le->next : NULL) {
         memset(ascii, 0, sizeof(ascii));
         src = (struct data_source *)src_le->data;
         tvb = get_data_source_tvb(src);
@@ -1829,18 +1852,28 @@ write_carrays_hex_data(uint32_t num, FILE *fh, epan_dissect_t *edt)
 
         cp = tvb_get_ptr(tvb, 0, length);
 
+        // This cannot return NULL with non-NULL src
         description = get_data_source_description(src);
-        if (description) {
-            fprintf(fh, "// %s\n", description);
-            wmem_free(NULL, description);
-        }
+        fprintf(fh, "// %s\n", description);
         if (src_num) {
-            fprintf(fh, "static const unsigned char pkt%u_%u[%u] = {\n",
-                    num, src_num, length);
+            pkt_name = ws_strdup_printf("pkt%u_%u", num, src_num);
         } else {
-            fprintf(fh, "static const unsigned char pkt%u[%u] = {\n",
-                    num, length);
+            pkt_name = ws_strdup_printf("pkt%u", num);
         }
+
+        fprintf(fh, "static const unsigned char %s[%u] = {\n", pkt_name, length);
+        if (index && args.print_index) {
+            if (args.print_secondary_data_sources) {
+                g_ptr_array_add(index, ws_strdup_printf("    { %u, %u, %4u, %s, \"%s\" },\n",
+                                                        num, src_num, length, pkt_name,
+                                                        get_data_source_name(src)));
+            } else {
+                g_ptr_array_add(index, ws_strdup_printf("    { %u, %4u, %s },\n",
+                                                        num, length, pkt_name));
+            }
+        }
+        wmem_free(NULL, pkt_name);
+        wmem_free(NULL, description);
         src_num++;
 
         for (i = 0; i < length; i++) {
@@ -1865,6 +1898,30 @@ write_carrays_hex_data(uint32_t num, FILE *fh, epan_dissect_t *edt)
             } else {
                 fprintf(fh, ", ");
             }
+        }
+    }
+}
+
+void
+write_carrays_hex_data(uint32_t num, FILE *fh, epan_dissect_t *edt)
+{
+    print_args_carrays_t args = {.print_secondary_data_sources = true};
+    write_carrays_hex_data_with_args(num, fh, edt, NULL, args);
+}
+
+void
+write_carrays_finale(FILE *fh, GPtrArray *index, print_args_carrays_t args)
+{
+    if (args.print_index) {
+        for (unsigned dsnum = 0; dsnum < index->len; dsnum++) {
+            fprintf(fh, "%s", (char*)g_ptr_array_index(index, dsnum));
+        }
+        /* Using 0L instead of NULL just to avoid any dependency on
+         * standard headers or versions of C/C++, but probably overkill. */
+        if (args.print_secondary_data_sources) {
+            fputs("    { 0, 0, 0, 0L, 0L },\n};\n", fh);
+        } else {
+            fputs("    { 0, 0, 0L },\n};\n", fh);
         }
     }
 }
