@@ -1213,7 +1213,8 @@ WS_DLL_PUBLIC void remove_last_data_source(packet_info *pinfo);
  * @brief Return the display name of a data source.
  *
  * @param src The data source whose name should be returned.
- * @return A newly allocated string of the form @c "Name (N bytes)".
+ * @return The name string associated with @p src. The string is valid
+ *         for the lifetime of the packet dissection pool; do not free it.
  */
 WS_DLL_PUBLIC const char *get_data_source_name(const struct data_source *src);
 
@@ -1221,8 +1222,8 @@ WS_DLL_PUBLIC const char *get_data_source_name(const struct data_source *src);
  * @brief Return the description of a data source.
  *
  * @param src The data source whose description should be returned.
- * @return The description string. The pointer is valid for the lifetime
- *         of the packet dissection pool; do not free it.
+ * @return A newly allocated string of the form "Name (N bytes)".
+ *         This string should be freed with "g_free".
  */
 WS_DLL_PUBLIC char *get_data_source_description(const struct data_source *src);
 
