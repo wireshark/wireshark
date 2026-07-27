@@ -2094,6 +2094,7 @@ static const true_false_string ieee80211_qos_mesh_ps = {
 #define AUTH_ALG_FILS_SK_WITH_PFS       5
 #define AUTH_ALG_FILS_PK                6
 #define AUTH_ALG_PASN                   7
+#define AUTH_ALG_8021X                  8
 #define AUTH_ALG_EPPKE                  9
 #define AUTH_ALG_NETWORK_EAP         0x80
 
@@ -2106,6 +2107,7 @@ static const value_string auth_alg[] = {
   {AUTH_ALG_FILS_SK_WITH_PFS,    "FILS Shared Key authentication with PFS"},
   {AUTH_ALG_FILS_PK,             "FILS Public Key authentication"},
   {AUTH_ALG_PASN,                "Pre-Association Security Negotiation (PASN)"},
+  {AUTH_ALG_8021X,               "IEEE 802.1X authentication"},
   {AUTH_ALG_EPPKE,               "Enhanced Privacy Protection Key Exchange (EPPKE)"},
   {AUTH_ALG_NETWORK_EAP,         "Network EAP"},  /* Cisco proprietary? */
   {0, NULL}
@@ -8324,6 +8326,9 @@ static int hf_ieee80211_tag_rsnx_kek_in_pasn; /* bit 18 */
 /* octet 4 */
 static int hf_ieee80211_tag_rsnx_assoc_encryption; /* bit 27 */
 static int hf_ieee80211_tag_rsnx_pmksa_privacy; /* bit 29 */
+/* octet 5 */
+static int hf_ieee80211_tag_rsnx_sae_passwd_id_change; /* bit 34 */
+static int hf_ieee80211_tag_rsnx_unauth_eppke; /* bit 36 */
 static int hf_ieee80211_tag_rsnx_reserved;
 
 static int hf_ieee80211_wfa_rsn_selection;
@@ -8339,6 +8344,9 @@ static int hf_ieee80211_nonap_sta_regu_conn_reserved;
 static int hf_ieee80211_tag_channel_usage_mode;
 
 static int hf_ieee80211_ff_count;
+
+static int hf_ieee80211_ff_encap_len;
+static int hf_ieee80211_ff_encap_data;
 
 static int hf_ieee80211_tag_dms_id;
 static int hf_ieee80211_tag_dms_length;
@@ -8652,6 +8660,7 @@ static int ett_tag_rsnx_octet1;
 static int ett_tag_rsnx_octet2;
 static int ett_tag_rsnx_octet3;
 static int ett_tag_rsnx_octet4;
+static int ett_tag_rsnx_octet5;
 
 static int ett_tag_multiple_bssid_subelem_tree;
 static int ett_tag_20_40_bc;
@@ -14397,6 +14406,45 @@ add_ff_auth_pasn(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 /*
+ * IEEE 802.1X Authentication Handler
+ *
+ * Structure:
+ * - Seq number at offset 2
+ * - Status_code at offset 4 is valid
+ * - Encapsulation length field (2 octets) follows
+ * - Encapsulation field (variable length)
+ * - Tagged elements follow
+ */
+static unsigned
+add_ff_auth_8021x(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
+                  unsigned offset)
+{
+  uint16_t encap_len;
+  unsigned encap_end;
+
+  /* Read encapsulation length field at current offset */
+  if (tvb_captured_length_remaining(tvb, offset) < 2) {
+    return offset + tvb_captured_length_remaining(tvb, offset);
+  }
+
+  proto_tree_add_item_ret_uint16(tree, hf_ieee80211_ff_encap_len,
+                                 tvb, offset, 2, ENC_LITTLE_ENDIAN, &encap_len);
+  offset += 2;
+
+  /* Parse encapsulation field based on length */
+  encap_end = offset + encap_len;
+  if (encap_end > tvb_captured_length(tvb)) {
+    encap_end = tvb_captured_length(tvb);
+  }
+  if (encap_len > 0) {
+    proto_tree_add_item(tree, hf_ieee80211_ff_encap_data, tvb, offset, encap_len, ENC_NA);
+    offset = encap_end;
+  }
+
+  return offset;
+}
+
+/*
  * Handle an Auth Frame. We need to be able to call this from several places.
  *
  * We should also handle the different auth types more correctly.
@@ -14427,6 +14475,9 @@ dissect_auth_frame(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
   case AUTH_ALG_PASN:
   case AUTH_ALG_EPPKE:
     offset = add_ff_auth_pasn(tree, tvb, pinfo, offset);
+    break;
+  case AUTH_ALG_8021X:
+    offset = add_ff_auth_8021x(tree, tvb, pinfo, offset);
     break;
   }
 
@@ -36173,6 +36224,11 @@ dissect_rsnx_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int tag
     &hf_ieee80211_tag_rsnx_pmksa_privacy,
     NULL
   };
+  static int * const octet5[] = {
+    &hf_ieee80211_tag_rsnx_sae_passwd_id_change,
+    &hf_ieee80211_tag_rsnx_unauth_eppke,
+    NULL
+  };
 
   /* octet 1 */
   octet = proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_rsnx, ett_tag_rsnx_octet1, octet1, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
@@ -36203,6 +36259,15 @@ dissect_rsnx_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int tag
 
   /* octet 4 */
   octet = proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_rsnx, ett_tag_rsnx_octet4, octet4, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  proto_item_append_text(octet, " (octet %d)", offset + 1);
+
+  offset += 1;
+  if (offset >= tag_len) {
+      return offset;
+  }
+
+  /* octet 5 */
+  octet = proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_rsnx, ett_tag_rsnx_octet5, octet5, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   proto_item_append_text(octet, " (octet %d)", offset + 1);
 
   offset += 1;
@@ -60840,6 +60905,14 @@ proto_register_ieee80211(void)
       {"PMKSA Caching Privacy", "wlan.rsnx.pmksa_caching_privacy",
        FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
 
+    {&hf_ieee80211_tag_rsnx_sae_passwd_id_change,
+      {"SAE Password Identifier Change Support", "wlan.rsnx.sae_passwd_id_change",
+       FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_rsnx_unauth_eppke,
+      {"Unauthenticated EPPKE Support", "wlan.rsnx.unauth_eppke",
+       FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
+
     {&hf_ieee80211_tag_rsnx_reserved,
       {"Reserved", "wlan.rsnx.reserved",
        FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }},
@@ -62405,6 +62478,16 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_tag_dms_last_seq_control,
      {"Last Sequence Control", "wlan.dms.last_sequence_control",
       FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_encap_len,
+     {"Encapsulation Length", "wlan.fixed.encapsulation_len",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      "NULL", HFILL }},
+
+    {&hf_ieee80211_ff_encap_data,
+     {"Encapsulation Data", "wlan.fixed.encapsulation_data",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
   };
 
   static hf_register_info aggregate_fields[] = {
@@ -62733,6 +62816,7 @@ proto_register_ieee80211(void)
     &ett_tag_rsnx_octet2,
     &ett_tag_rsnx_octet3,
     &ett_tag_rsnx_octet4,
+    &ett_tag_rsnx_octet5,
 
     &ett_tag_multiple_bssid_subelem_tree,
 
