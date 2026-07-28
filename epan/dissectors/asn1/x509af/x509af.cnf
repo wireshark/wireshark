@@ -82,6 +82,11 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
     tap_queue_packet(x509af_eo_tap, actx->pinfo, eo_info);
   }
 
+#.FN_HDR AlgorithmIdentifier
+  if (algorithm_id) {
+    wmem_free(wmem_file_scope(), (void*)algorithm_id);
+    algorithm_id = NULL;
+  }
 
 #.FN_PARS AlgorithmIdentifier/algorithmId
   FN_VARIANT = _str  HF_INDEX = hf_x509af_algorithm_id  VAL_PTR = &actx->external.direct_reference
@@ -91,18 +96,12 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
 
   %(DEFAULT_BODY)s
 
-  if (algorithm_id) {
-    wmem_free(wmem_file_scope(), (void*)algorithm_id);
-  }
-
   if(actx->external.direct_reference) {
     algorithm_id = (const char *)wmem_strdup(wmem_file_scope(), actx->external.direct_reference);
 
     name = oid_resolved_from_string(actx->pinfo->pool, actx->external.direct_reference);
 
     proto_item_append_text(tree, " (%%s)", name ? name : actx->external.direct_reference);
-  } else {
-    algorithm_id = NULL;
   }
 
 #.FN_BODY AlgorithmIdentifier/parameters
