@@ -2683,7 +2683,7 @@ static uint8_t dissect_secure_wrapper( uint8_t header_length, tvbuff_t* tvb, pac
           }
           else
           {
-            const uint8_t* encrypted = tvb_get_ptr( tvb, offset, size - offset );
+            const uint8_t* encrypted = tvb_get_ptr( tvb, offset, size );
             const int a_length = header_length + 16;  // length of leading non-encrypted data
             const uint8_t* a_data = encrypted - a_length;  // ptr to KIP header
             uint8_t* decrypted = NULL;
