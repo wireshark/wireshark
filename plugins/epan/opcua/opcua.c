@@ -596,7 +596,7 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     if (pfctParse)
     {
         int offset = 0;
-        int iServiceId = -1;
+        int iServiceId;
         bool bParseService = false; /* Only MSG, OPN and CLO have a service payload */
         bool bIsFinalChunk = false;
         unsigned payload_len = 0;

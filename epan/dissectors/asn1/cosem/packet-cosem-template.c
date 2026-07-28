@@ -2399,7 +2399,7 @@ void proto_register_cosem(void) {
     { &hf_dlms_service_class,
     { "Service Class", "dlms.service_class", FT_BOOLEAN, 8, TFS(&tfs_confirmed_unconfirmed), 0x40, NULL, HFILL }},
     { &hf_dlms_priority,
-    { "Priority", "dlms.priority", FT_BOOLEAN, 32, TFS(&tfs_high_normal), 0x80, NULL, HFILL }},
+    { "Priority", "dlms.priority", FT_BOOLEAN, 8, TFS(&tfs_high_normal), 0x80, NULL, HFILL }},
     /* Long-Invoke-Id-And-Priority */
     { &hf_dlms_long_invoke_id,
     { "Long Invoke Id", "dlms.long_invoke_id", FT_UINT32, BASE_DEC, NULL, 0xffffff, NULL, HFILL }},

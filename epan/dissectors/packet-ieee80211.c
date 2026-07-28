@@ -9579,7 +9579,7 @@ eht_ru_allocation_base_custom(char *result, uint32_t ru_allocation)
     ru_str = "RU size: 52";
   } else if (ru_allocation <= 60) {
     ru_str = "RU size: 106";
-  } else if (ru_allocation >= 61 && ru_allocation <= 64) {
+  } else if (ru_allocation <= 64) {
     ru_str = "RU size: 242";
   } else if (ru_allocation == 65 || ru_allocation == 66) {
     ru_str = "RU size: 484";
@@ -11140,7 +11140,7 @@ dissect_hs20_anqp_hs_query_list(proto_tree *tree, tvbuff_t *tvb, int offset, int
 static void
 dissect_hs20_anqp_operator_friendly_name(proto_tree *tree, tvbuff_t *tvb,
                                          packet_info *pinfo, int offset,
-                                         int end, int hf_array[],
+                                         int end, const int hf_array[],
                                          int ett_val)
 {
   int ofn_index = 0;
@@ -11320,7 +11320,7 @@ static int
 dissect_hs20_osu_friendly_names(proto_tree *tree, tvbuff_t *tvb,
   packet_info *pinfo, int offset, int end _U_)
 {
-  int osu_fn_hf_array[3] = {hf_ieee80211_hs20_osu_friendly_name_length,
+  const int osu_fn_hf_array[3] = {hf_ieee80211_hs20_osu_friendly_name_length,
                             hf_ieee80211_hs20_osu_friendly_name_language,
                             hf_ieee80211_hs20_osu_friendly_name_name };
   uint16_t osu_fn_count = tvb_get_letohs(tvb, offset);
@@ -11905,7 +11905,6 @@ dissect_mbo_anqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     proto_tree_add_item(tree, hf_ieee80211_wfa_anqp_mbo_cellular_pref, tvb, offset,
                         1, ENC_NA);
     offset++;
-    len--;
     break;
   default:
     break;
@@ -17876,7 +17875,7 @@ add_ff_action_protected_eht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
       /* OCI element field is optionally present */
       break;
     }
-    if (!invalid && (len >= 1) &&
+    if ((len >= 1) &&
         (add_tagged_field_with_validation(pinfo, tree, tvb, offset, 0, NULL,
          0, false, ext_ids, G_N_ELEMENTS(ext_ids), false, NULL) > 0)) {
       offset += len + 2;
@@ -17910,7 +17909,7 @@ add_ff_action_protected_eht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
       offset += 2;
     }
 
-    if (tvb_captured_length_remaining(tvb, offset) <= 0)
+    if (tvb_captured_length_remaining(tvb, offset) == 0)
       break;
 
     /* Check next is Group Key Data */
@@ -18166,7 +18165,7 @@ add_ff_eht_mu_exclusive_20MHz_rpt(proto_tree *tree, tvbuff_t *tvb, packet_info *
   uint8_t ng = grouping == 0 ? 4 : 16;
   proto_tree *ru_index_tree = NULL;
   proto_item *ruii = NULL;
-  unsigned ss = 0, get_snr = 1;
+  unsigned ss, get_snr = 1;
   int8_t snr = 0, value;
 
   if (ng == 4) {
@@ -18484,7 +18483,7 @@ add_ff_eht_mu_exclusive_320MHz_rpt(proto_tree *tree, tvbuff_t *tvb, packet_info 
 {
   int start_offset = offset;
   int tree_offset = offset;
-  int i = 0, j = 0, k = 0;
+  int i = 0, j, k = 0;
   struct scidx_ctx scidx_ctx;
   unsigned scidx;
   uint8_t ng = grouping == 0 ? 4 : 16;
@@ -18883,7 +18882,7 @@ add_ff_eht_su_320MHz_rpt(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 {
   int start_offset = offset;
   int tree_offset = offset;
-  int i = 0, j = 0, k = 0;
+  int i = 0, j, k = 0;
   struct scidx_ctx scidx_ctx;
   unsigned scidx;
   uint8_t ng = grouping == 0 ? 4 : 16;
@@ -19737,14 +19736,6 @@ static const value_string ieee80211_wfa_ie_wpa_keymgmt_vals[] = {
   { 0, NULL }
 };
 
-static const value_string ieee80211_wfa_ie_wme_acs_vals[] = {
-  { 0, "Best Effort" },
-  { 1, "Background" },
-  { 2, "Video" },
-  { 3, "Voice" },
-  { 0, NULL }
-};
-
 static const value_string ieee80211_wfa_ie_wme_tspec_tsinfo_direction_vals[] = {
   { 0, "Uplink" },
   { 1, "Downlink" },
@@ -20114,7 +20105,7 @@ decode_qos_parameter_set(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
          "The minimum value for the AIFSN subfield is 2 (found %u).", aci_aifsn);
     }
     proto_item_append_text(ac_item, " ACI %u (%s), ACM %s, AIFSN %u",
-      (aci_aifsn & 0x60) >> 5, try_val_to_str((aci_aifsn & 0x60) >> 5, ieee80211_wfa_ie_wme_acs_vals),
+      (aci_aifsn & 0x60) >> 5, try_val_to_str((aci_aifsn & 0x60) >> 5, wme_acs),
       (aci_aifsn & 0x10) ? "yes" : "no", aci_aifsn & 0x0f);
     offset += 1;
 
@@ -24582,7 +24573,7 @@ dissect_ric_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
   proto_tree  *sub_tree;
   uint8_t      desc_cnt = 0;
   uint32_t     next_ie;
-  int          offset_r = 0;
+  int          offset_r;
   const uint8_t ids[] = { TAG_RIC_DESCRIPTOR };
 
   if (tag_len != 4)  {
@@ -24626,7 +24617,6 @@ dissect_ric_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     /* This will ensure that the IE after RIC is processed
      * only once. This gives us a good looking RIC IE :-)
      */
-    tag_len += offset_r;
     desc_cnt--;
   }
 
@@ -29073,7 +29063,7 @@ static const range_string wrapped_data_fmt_rvals[] = {
 static void
 dissect_pasn_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int len)
 {
-  int public_key_len = 0;
+  int public_key_len;
   unsigned pasn_control = tvb_get_uint8(tvb, offset);
 
   if (len < 2) {
@@ -30280,7 +30270,7 @@ dissect_eht_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
     unsigned *p_channel_width_set =
       (unsigned *)p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan,
                                 HE_CHANNEL_WIDTH_KEY);
-    unsigned channel_width_set = 0;
+    unsigned channel_width_set;
     /*
      * If we got it, we can handle the rest, otherwise not. Note,
      * we can determine if it was ever set by checking for non-zero because
@@ -35038,7 +35028,7 @@ dissect_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     uint8_t nss_count = ppe_thresholds_field & 0x07, nss_index = 0;
     uint8_t ru_index_bitmask = (ppe_thresholds_field >> 3) & 0x0F;
     proto_tree *ppe_tree = NULL;
-    int i = 0;
+    int i;
     int bit_offset = 7;  /* How many bits we are into the bytes */
 
     ppe_tree = proto_tree_add_subtree(tree, tvb, offset, len - offset + 1,
@@ -54713,22 +54703,22 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_wfa_ie_wme_acp_aci_be,
      {"ACI", "wlan.wfa.ie.wme.acp.aci_be",
-      FT_UINT8, BASE_DEC, VALS(ieee80211_wfa_ie_wme_acs_vals), 0x60,
+      FT_UINT8, BASE_DEC, VALS(wme_acs), 0x60,
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_wme_acp_aci_bk,
      {"ACI", "wlan.wfa.ie.wme.acp.aci_bk",
-      FT_UINT8, BASE_DEC, VALS(ieee80211_wfa_ie_wme_acs_vals), 0x60,
+      FT_UINT8, BASE_DEC, VALS(wme_acs), 0x60,
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_wme_acp_aci_vi,
      {"ACI", "wlan.wfa.ie.wme.acp.aci_vi",
-      FT_UINT8, BASE_DEC, VALS(ieee80211_wfa_ie_wme_acs_vals), 0x60,
+      FT_UINT8, BASE_DEC, VALS(wme_acs), 0x60,
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_wme_acp_aci_vo,
      {"ACI", "wlan.wfa.ie.wme.acp.aci_vo",
-      FT_UINT8, BASE_DEC, VALS(ieee80211_wfa_ie_wme_acs_vals), 0x60,
+      FT_UINT8, BASE_DEC, VALS(wme_acs), 0x60,
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_wme_acp_acm_be,
@@ -60261,7 +60251,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_muac_aci,
      {"ACI", "wlan.ext_tag.mu_edca_parameter_set.aci",
-      FT_UINT8, BASE_DEC, VALS(ieee80211_wfa_ie_wme_acs_vals), 0x60,
+      FT_UINT8, BASE_DEC, VALS(wme_acs), 0x60,
       NULL, HFILL }},
 
     {&hf_ieee80211_he_muac_reserved,

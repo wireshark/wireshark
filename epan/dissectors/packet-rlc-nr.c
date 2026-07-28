@@ -32,7 +32,6 @@
 /* TODO:
 - add sequence analysis
 - take configuration of reordering timer, and stop reassembly if timeout exceeded?
-- add tap info (for stats / SN graph)
 */
 
 void proto_register_rlc_nr(void);
@@ -716,7 +715,7 @@ static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
         }
         write_pdu_label_and_info(top_ti, um_header_ti, pinfo, "                             ");
     } else {
-        /* Add sequence number */
+        /* Add sequence number (only appears when SDU is incomplete) */
         if (p_rlc_nr_info->sequenceNumberLength == UM_SN_LENGTH_6_BITS) {
             /* SN */
             proto_tree_add_item_ret_uint(um_header_tree, hf_rlc_nr_um_sn6, tvb, offset, 1, ENC_BIG_ENDIAN, &sn);
@@ -1097,7 +1096,7 @@ static void dissect_rlc_nr_am(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item_ret_uint(am_header_tree, hf_rlc_nr_am_si, tvb,
                                  offset, 1, ENC_BIG_ENDIAN, &seg_info);
 
-    /* Sequence Number */
+    /* Sequence Number (always present for AM) */
     if (p_rlc_nr_info->sequenceNumberLength == AM_SN_LENGTH_12_BITS) {
         proto_tree_add_item_ret_uint(am_header_tree, hf_rlc_nr_am_sn12, tvb,
                                      offset, 2, ENC_BIG_ENDIAN, &sn);

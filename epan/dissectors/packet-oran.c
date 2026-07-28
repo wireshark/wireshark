@@ -13,7 +13,7 @@
  /*
   * Dissector for the O-RAN Fronthaul CUS protocol specification.
   * See https://specifications.o-ran.org/specifications, WG4, Fronthaul Interfaces Workgroup
-  * The current implementation is based on the ORAN-WG4.CUS.0-v20.00 specification.
+  * The current implementation is based on the ORAN-WG4.CUS.0-v21.00 specification.
   * Note that other eCPRI message types are handled in packet-ecpri.c
   */
 

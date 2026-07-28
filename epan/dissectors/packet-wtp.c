@@ -652,7 +652,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * (and process) the packet containing the last fragment.
              * This implies that Wireshark needs two passes over the data for
              * correct reassembly. At the first pass, a capture containing
-             * three fragments plus a retransmssion of the last fragment
+             * three fragments plus a retransmission of the last fragment
              * will progressively show:
              *
              *        Packet 1: (Unreassembled fragment 1)

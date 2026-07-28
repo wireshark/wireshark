@@ -3758,9 +3758,8 @@ static unsigned dissect_nvme_get_logpage_lba_status_lba_range(proto_tree *grp, t
         proto_tree_add_item(grp, hf_nvme_get_logpage_lba_status_nel_ne_rd_rslba, cmd_tvb, poff, 8, ENC_LITTLE_ENDIAN);
         if (len >= 12)
             proto_tree_add_item(grp, hf_nvme_get_logpage_lba_status_nel_ne_rd_rnlb, cmd_tvb, poff+8, 4, ENC_LITTLE_ENDIAN);
-        if (len >= 16)
-            proto_tree_add_item(grp, hf_nvme_get_logpage_lba_status_nel_ne_rd_rsvd, cmd_tvb, poff+12, 4, ENC_LITTLE_ENDIAN);
         if (len >= 16) {
+            proto_tree_add_item(grp, hf_nvme_get_logpage_lba_status_nel_ne_rd_rsvd, cmd_tvb, poff+12, 4, ENC_LITTLE_ENDIAN);
             done += 16;
             poff += 16;
         } else {
@@ -3994,8 +3993,7 @@ static void dissect_nvme_get_logpage_cmd_feat_lockdown_resp(proto_item *ti, tvbu
     grp = proto_item_add_subtree(ti, ett_data);
     add_group_mask_entry(cmd_tvb, grp, 0, 1, ASPEC(hf_nvme_get_logpage_cmd_feat_lockdown_cfila));
     proto_tree_add_item(grp, hf_nvme_get_logpage_cmd_feat_lockdown_rsvd, cmd_tvb, 1, 2, ENC_NA);
-    lngth = tvb_get_uint8(cmd_tvb, 3);
-    proto_tree_add_item(grp, hf_nvme_get_logpage_cmd_feat_lockdown_lngth, cmd_tvb, 3, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint8(grp, hf_nvme_get_logpage_cmd_feat_lockdown_lngth, cmd_tvb, 3, 1, ENC_LITTLE_ENDIAN, &lngth);
     for (i = 0; i < lngth && (4 + i) < len; i++)
         proto_tree_add_item(grp, hf_nvme_get_logpage_cmd_feat_lockdown_cfil, cmd_tvb, 4 + i, 1, ENC_LITTLE_ENDIAN);
     list_end = 4 + lngth;

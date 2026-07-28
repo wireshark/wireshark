@@ -1943,6 +1943,7 @@ myobj
 mysql
 méxico
 móviles
+n3gpp
 n3iwf
 n3nan
 n3qai
@@ -2018,6 +2019,7 @@ nitnxlate
 njack
 nlink
 nlpid
+nmimt
 nmtcommand
 nnnnnnnn
 nnsvc
@@ -2520,6 +2522,7 @@ rcrsp
 rcsta
 rctxinfo
 rdata
+rdentity
 rdeth
 rdpdr
 rdpmt
@@ -3695,6 +3698,7 @@ wmdrmpd
 workarounds
 wowlan
 wpcap
+wrentity
 wrepl
 writable
 writecap
@@ -3772,3 +3776,5 @@ zquarter
 zsssr
 zugtyp
 zürich
+schematl
+nvmset

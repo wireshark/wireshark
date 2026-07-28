@@ -1010,7 +1010,7 @@ proto_register_etw(void)
         },
         { &hf_etw_edata_schematl_reserved1,
             { "Unknown", "etw.edata.schematl.reserved1",
-                FT_UINT8, BASE_DEC, NULL, 0,
+                FT_UINT16, BASE_DEC, NULL, 0,
                 NULL, HFILL }
         },
         { &hf_etw_edata_schematl_name,

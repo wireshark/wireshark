@@ -1701,7 +1701,7 @@ dissect_rtcp_rtpfb_transport_cc_fci( tvbuff_t *tvb, unsigned offset, packet_info
             /* Run length chunk, first bit is zero */
             unsigned length = chunk & 0x1FFF;
 
-            if ( length <= 0 || pkt_count - delta_index < length )
+            if ( length == 0 || pkt_count - delta_index < length )
             {
                 /* Malformed packet (zero or too many packets), stop parsing. */
                 proto_tree_add_expert(pkt_chunk_tree, pinfo, &ei_rtcp_rtpfb_transportcc_bad, tvb, offset, 2);
@@ -2653,7 +2653,6 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, unsigned offset, proto_
         proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_conn_add_ind_mao, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
 
         offset += 4;
-        packet_len -= 4;
 
         /* One SDES item for every set flag in contents array */
         for (i = 0; i < array_length(contents); ++i) {
@@ -2670,7 +2669,6 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, unsigned offset, proto_
 
                 /* Move past field */
                 offset += sdes_len2 + 1;
-                packet_len -= (sdes_len2 + 2);
             }
         }
         break;
@@ -4838,7 +4836,7 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_item       *padding_item        = NULL;
     unsigned          offset              = 0;
     unsigned          total_packet_length = 0;
-    unsigned          padding_offset      = 0;
+    unsigned          padding_offset;
     bool              srtcp_encrypted     = false;
     bool              srtcp_now_encrypted = false;
     conversation_t   *p_conv;
