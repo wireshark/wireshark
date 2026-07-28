@@ -1075,6 +1075,7 @@ static int hf_msg_fragment_error;
 static int hf_msg_fragment_count;
 static int hf_msg_reassembled_in;
 static int hf_msg_reassembled_length;
+static int hf_msg_reassembled_data;
 ...
 static int ett_msg_fragment;
 static int ett_msg_fragments;
@@ -1096,6 +1097,8 @@ static const fragment_items msg_frag_items = {
     &hf_msg_reassembled_in,
     /* Reassembled length field */
     &hf_msg_reassembled_length,
+    /* Reassembled data field (can be NULL) */
+    &hf_msg_reassembled_data,
     /* Tag */
     "Message fragments"
 };
@@ -1135,6 +1138,9 @@ static hf_register_info hf[] =
 {&hf_msg_reassembled_length,
     {"Reassembled length", "msg.reassembled.length",
     FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+{&hf_msg_reassembled_data,
+    {"Reassembled data", "msg.reassembled.data",
+    FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL } },
 ...
 static int *ett[] =
 {
