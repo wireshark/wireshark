@@ -70,6 +70,7 @@
 #include <wsutil/str_util.h>
 #include <wsutil/pint.h>
 #include <wsutil/array.h>
+#include <wsutil/utf8_entities.h>
 #include "packet-kerberos.h"
 #include "packet-netbios.h"
 #include "packet-tcp.h"
@@ -758,6 +759,31 @@ read_keytab_file_from_preferences(void)
 
 	keytab_file_read(last_keytab);
 }
+
+/* Like bytes_to_str_maxlen with a fixed maxlen of 4, and writing
+   into a preallocated static buffer. */
+static char*
+key_to_hexstr_maxfour(const uint8_t *keyvalue, unsigned keylength)
+{
+	// UTF8_HORIZONTAL_ELLIPSIS (U+2026) is 3 bytes, so the buffer must
+	// have room for 8 + 3 + 1 = 12 bytes.
+	static char keystr_buf[12];
+	char *keystr_end;
+	bool truncated = false;
+	unsigned len = keylength;
+	if (len > 4U) {
+		len = 4U;
+		truncated = true;
+	}
+	keystr_end = bytes_to_hexstr(keystr_buf, keyvalue, len);
+	if (truncated) {
+		g_stpcpy(keystr_end, UTF8_HORIZONTAL_ELLIPSIS);
+	} else {
+		*keystr_end = '\0';
+	}
+	return keystr_buf;
+}
+
 #endif /* HAVE_KERBEROS */
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
@@ -874,30 +900,27 @@ add_encryption_key(packet_info *pinfo,
 
 	item = proto_tree_add_expert_format(key_tree, pinfo, &ei_kerberos_learnt_keytype,
 			key_tvb, 0, keylength,
-			"%s %s keytype %d (id=%d.%u) (%02x%02x%02x%02x...)",
+			"%s %s keytype %d (id=%d.%u) (%s)",
 			methodu, origin, keytype, pinfo->num, new_key->id,
-			keyvalue[0] & 0xFF, keyvalue[1] & 0xFF,
-			keyvalue[2] & 0xFF, keyvalue[3] & 0xFF);
+			key_to_hexstr_maxfour((const uint8_t*)keyvalue, keylength));
 	if (item != NULL && key_hidden_item != NULL) {
 		proto_tree_move_item(key_tree, key_hidden_item, item);
 	}
 	if (src1 != NULL) {
 		enc_key_t *sek = src1;
 		expert_add_info_format(pinfo, item, &ei_kerberos_learnt_keytype,
-				       "SRC1 %s keytype %d (id=%s same=%u) (%02x%02x%02x%02x...)",
+				       "SRC1 %s keytype %d (id=%s same=%u) (%s)",
 				       sek->key_origin, sek->keytype,
 				       sek->id_str, sek->num_same,
-				       sek->keyvalue[0] & 0xFF, sek->keyvalue[1] & 0xFF,
-				       sek->keyvalue[2] & 0xFF, sek->keyvalue[3] & 0xFF);
+				       key_to_hexstr_maxfour(sek->keyvalue, sek->keylength));
 	}
 	if (src2 != NULL) {
 		enc_key_t *sek = src2;
 		expert_add_info_format(pinfo, item, &ei_kerberos_learnt_keytype,
-				       "SRC2 %s keytype %d (id=%s same=%u) (%02x%02x%02x%02x...)",
+				       "SRC2 %s keytype %d (id=%s same=%u) (%s)",
 				       sek->key_origin, sek->keytype,
 				       sek->id_str, sek->num_same,
-				       sek->keyvalue[0] & 0xFF, sek->keyvalue[1] & 0xFF,
-				       sek->keyvalue[2] & 0xFF, sek->keyvalue[3] & 0xFF);
+				       key_to_hexstr_maxfour(sek->keyvalue, sek->keylength));
 	}
 
 	kerberos_key_list_append(private_data->learnt_keys, new_key);
@@ -1058,10 +1081,9 @@ static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
 	item = proto_tree_add_expert_format(tree, pinfo, &ei_kerberos_decrypted_keytype,
 				     cryptotvb, 0, 0,
 				     "Decrypted keytype %d usage %d "
-				     "using %s (id=%s same=%u) (%02x%02x%02x%02x...)",
+				     "using %s (id=%s same=%u) (%s)",
 				     ek->keytype, usage, ek->key_origin, ek->id_str, ek->num_same,
-				     ek->keyvalue[0] & 0xFF, ek->keyvalue[1] & 0xFF,
-				     ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
+				     key_to_hexstr_maxfour(ek->keyvalue, ek->keylength));
 	expert_add_info_format(pinfo, item, &ei_kerberos_decrypted_keytype,
 			       "Used keymap=%s num_keys=%u num_tries=%u)",
 			       keymap_name,
@@ -1070,29 +1092,26 @@ static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
 	if (ek->src1 != NULL) {
 		sek = ek->src1;
 		expert_add_info_format(pinfo, item, &ei_kerberos_decrypted_keytype,
-				       "SRC1 %s keytype %d (id=%s same=%u) (%02x%02x%02x%02x...)",
+				       "SRC1 %s keytype %d (id=%s same=%u) (%s)",
 				       sek->key_origin, sek->keytype,
 				       sek->id_str, sek->num_same,
-				       sek->keyvalue[0] & 0xFF, sek->keyvalue[1] & 0xFF,
-				       sek->keyvalue[2] & 0xFF, sek->keyvalue[3] & 0xFF);
+				       key_to_hexstr_maxfour(sek->keyvalue, sek->keylength));
 	}
 	if (ek->src2 != NULL) {
 		sek = ek->src2;
 		expert_add_info_format(pinfo, item, &ei_kerberos_decrypted_keytype,
-				       "SRC2 %s keytype %d (id=%s same=%u) (%02x%02x%02x%02x...)",
+				       "SRC2 %s keytype %d (id=%s same=%u) (%s)",
 				       sek->key_origin, sek->keytype,
 				       sek->id_str, sek->num_same,
-				       sek->keyvalue[0] & 0xFF, sek->keyvalue[1] & 0xFF,
-				       sek->keyvalue[2] & 0xFF, sek->keyvalue[3] & 0xFF);
+				       key_to_hexstr_maxfour(sek->keyvalue, sek->keylength));
 	}
 	sek = ek->same_list;
 	while (sek != NULL) {
 		expert_add_info_format(pinfo, item, &ei_kerberos_decrypted_keytype,
 				       "Decrypted keytype %d usage %d "
-				       "using %s (id=%s same=%u) (%02x%02x%02x%02x...)",
+				       "using %s (id=%s same=%u) (%s)",
 				       sek->keytype, usage, sek->key_origin, sek->id_str, sek->num_same,
-				       sek->keyvalue[0] & 0xFF, sek->keyvalue[1] & 0xFF,
-				       sek->keyvalue[2] & 0xFF, sek->keyvalue[3] & 0xFF);
+				       key_to_hexstr_maxfour(sek->keyvalue, sek->keylength));
 		sek = sek->same_list;
 	}
 	kerberos_key_list_append(private_data->decryption_keys, ek);
@@ -1176,11 +1195,10 @@ static void used_signing_key(proto_tree *tree, packet_info *pinfo,
 	item = proto_tree_add_expert_format(tree, pinfo, &ei_kerberos_decrypted_keytype,
 				     tvb, 0, 0,
 				     "%s checksum %d keytype %d "
-				     "using %s (id=%s same=%u) (%02x%02x%02x%02x...)",
+				     "using %s (id=%s same=%u) (%s)",
 				     reason, checksum, ek->keytype, ek->key_origin,
 				     ek->id_str, ek->num_same,
-				     ek->keyvalue[0] & 0xFF, ek->keyvalue[1] & 0xFF,
-				     ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
+				     key_to_hexstr_maxfour(ek->keyvalue, ek->keylength));
 	expert_add_info_format(pinfo, item, &ei_kerberos_decrypted_keytype,
 			       "Used keymap=%s num_keys=%u num_tries=%u)",
 			       keymap_name,
@@ -1190,11 +1208,10 @@ static void used_signing_key(proto_tree *tree, packet_info *pinfo,
 	while (sek != NULL) {
 		expert_add_info_format(pinfo, item, &ei_kerberos_decrypted_keytype,
 				       "%s checksum %d keytype %d "
-				       "using %s (id=%s same=%u) (%02x%02x%02x%02x...)",
+				       "using %s (id=%s same=%u) (%s)",
 				       reason, checksum, sek->keytype, sek->key_origin,
 				       sek->id_str, sek->num_same,
-				       sek->keyvalue[0] & 0xFF, sek->keyvalue[1] & 0xFF,
-				       sek->keyvalue[2] & 0xFF, sek->keyvalue[3] & 0xFF);
+				       key_to_hexstr_maxfour(sek->keyvalue, sek->keylength));
 		sek = sek->same_list;
 	}
 	kerberos_key_list_append(private_data->decryption_keys, ek);
@@ -4643,45 +4660,41 @@ kerberos_display_key(void *data _U_, void *userdata _U_)
 					    state->tvb,
 					    state->start,
 					    state->length,
-					    "%s %s keytype %d (id=%s same=%u) (%02x%02x%02x%02x...)",
+					    "%s %s keytype %d (id=%s same=%u) (%s)",
 					    state->name,
 					    ek->key_origin, ek->keytype,
 					    ek->id_str, ek->num_same,
-					    ek->keyvalue[0] & 0xFF, ek->keyvalue[1] & 0xFF,
-					    ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
+					    key_to_hexstr_maxfour(ek->keyvalue, ek->keylength));
 	if (ek->src1 != NULL) {
 		sek = ek->src1;
 		expert_add_info_format(state->pinfo,
 				       item,
 				       state->expindex,
-				       "SRC1 %s keytype %d (id=%s same=%u) (%02x%02x%02x%02x...)",
+				       "SRC1 %s keytype %d (id=%s same=%u) (%s)",
 				       sek->key_origin, sek->keytype,
 				       sek->id_str, sek->num_same,
-				       sek->keyvalue[0] & 0xFF, sek->keyvalue[1] & 0xFF,
-				       sek->keyvalue[2] & 0xFF, sek->keyvalue[3] & 0xFF);
+				       key_to_hexstr_maxfour(sek->keyvalue, sek->keylength));
 	}
 	if (ek->src2 != NULL) {
 		sek = ek->src2;
 		expert_add_info_format(state->pinfo,
 				       item,
 				       state->expindex,
-				       "SRC2 %s keytype %d (id=%s same=%u) (%02x%02x%02x%02x...)",
+				       "SRC2 %s keytype %d (id=%s same=%u) (%s)",
 				       sek->key_origin, sek->keytype,
 				       sek->id_str, sek->num_same,
-				       sek->keyvalue[0] & 0xFF, sek->keyvalue[1] & 0xFF,
-				       sek->keyvalue[2] & 0xFF, sek->keyvalue[3] & 0xFF);
+				       key_to_hexstr_maxfour(sek->keyvalue, sek->keylength));
 	}
 	sek = ek->same_list;
 	while (sek != NULL) {
 		expert_add_info_format(state->pinfo,
 				       item,
 				       state->expindex,
-				       "%s %s keytype %d (id=%s same=%u) (%02x%02x%02x%02x...)",
+				       "%s %s keytype %d (id=%s same=%u) (%s)",
 				       state->name,
 				       sek->key_origin, sek->keytype,
 				       sek->id_str, sek->num_same,
-				       sek->keyvalue[0] & 0xFF, sek->keyvalue[1] & 0xFF,
-				       sek->keyvalue[2] & 0xFF, sek->keyvalue[3] & 0xFF);
+				       key_to_hexstr_maxfour(sek->keyvalue, sek->keylength));
 		sek = sek->same_list;
 	}
 #endif /* HAVE_KERBEROS */
