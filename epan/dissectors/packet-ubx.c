@@ -2340,7 +2340,7 @@ void proto_register_ubx(void) {
             {"Jamming State", "ubx.mon.rf.jammingstate",
                 FT_UINT8, BASE_DEC, VALS(UBX_JAMMING_STATE), 0x3, NULL, HFILL}},
         {&hf_ubx_mon_rf_antstatus,
-            {"Anttena Status", "ubx.mon.rf.antstatus",
+            {"Antenna Status", "ubx.mon.rf.antstatus",
                 FT_UINT8, BASE_DEC, VALS(UBX_ANTENNA_STATUS), 0x0, NULL, HFILL}},
         {&hf_ubx_mon_rf_antpower,
             {"Antenna Power", "ubx.mon.rf.antpower",
