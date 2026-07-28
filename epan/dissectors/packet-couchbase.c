@@ -1245,6 +1245,12 @@ has_json_value(bool is_request, uint8_t opcode)
     case CLIENT_OPCODE_RANGE_SCAN_CREATE:
     case CLIENT_OPCODE_DOWNLOAD_SNAPSHOT:
     case CLIENT_OPCODE_GET_FILE_FRAGMENT:
+    case CLIENT_OPCODE_GET_FUSION_STORAGE_SNAPSHOT:
+    case CLIENT_OPCODE_RELEASE_FUSION_STORAGE_SNAPSHOT:
+    case CLIENT_OPCODE_MOUNT_FUSION_VB:
+    case CLIENT_OPCODE_START_FUSION_UPLOADER:
+    case CLIENT_OPCODE_DELETE_FUSION_NAMESPACE:
+    case CLIENT_OPCODE_GET_FUSION_NAMESPACES:
       return true;
 
     default:
@@ -1257,6 +1263,8 @@ has_json_value(bool is_request, uint8_t opcode)
     case CLIENT_OPCODE_COLLECTIONS_GET_MANIFEST:
     case CLIENT_OPCODE_COLLECTIONS_SET_MANIFEST:
     case CLIENT_OPCODE_PREPARE_SNAPSHOT:
+    case CLIENT_OPCODE_GET_FUSION_STORAGE_SNAPSHOT:
+    case CLIENT_OPCODE_GET_FUSION_NAMESPACES:
       return true;
 
     default:
@@ -2131,6 +2139,22 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
+  /* Fusion commands never carry extras (request or response) - any
+   * structured data lives in the JSON value instead. */
+  case CLIENT_OPCODE_GET_FUSION_STORAGE_SNAPSHOT:
+  case CLIENT_OPCODE_RELEASE_FUSION_STORAGE_SNAPSHOT:
+  case CLIENT_OPCODE_MOUNT_FUSION_VB:
+  case CLIENT_OPCODE_UNMOUNT_FUSION_VB:
+  case CLIENT_OPCODE_SYNC_FUSION_LOGSTORE:
+  case CLIENT_OPCODE_START_FUSION_UPLOADER:
+  case CLIENT_OPCODE_STOP_FUSION_UPLOADER:
+  case CLIENT_OPCODE_DELETE_FUSION_NAMESPACE:
+  case CLIENT_OPCODE_GET_FUSION_NAMESPACES:
+    if (extlen) {
+      illegal = true;
+    }
+    break;
+
   default:
     if (extlen) {
       /* Decode as unknown extras */
@@ -2357,6 +2381,20 @@ dissect_client_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     case CLIENT_OPCODE_PREPARE_SNAPSHOT:
     case CLIENT_OPCODE_DOWNLOAD_SNAPSHOT:
+      /* Request and Response must not have key - the vbucket (if any) comes
+       * from the header vbucket field or the JSON value instead */
+      illegal = true;
+      break;
+
+    case CLIENT_OPCODE_GET_FUSION_STORAGE_SNAPSHOT:
+    case CLIENT_OPCODE_RELEASE_FUSION_STORAGE_SNAPSHOT:
+    case CLIENT_OPCODE_MOUNT_FUSION_VB:
+    case CLIENT_OPCODE_UNMOUNT_FUSION_VB:
+    case CLIENT_OPCODE_SYNC_FUSION_LOGSTORE:
+    case CLIENT_OPCODE_START_FUSION_UPLOADER:
+    case CLIENT_OPCODE_STOP_FUSION_UPLOADER:
+    case CLIENT_OPCODE_DELETE_FUSION_NAMESPACE:
+    case CLIENT_OPCODE_GET_FUSION_NAMESPACES:
       /* Request and Response must not have key - the vbucket (if any) comes
        * from the header vbucket field or the JSON value instead */
       illegal = true;
@@ -2877,6 +2915,9 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case CLIENT_OPCODE_DELETEQ:
     case CLIENT_OPCODE_QUITQ:
     case CLIENT_OPCODE_FLUSHQ:
+    case CLIENT_OPCODE_UNMOUNT_FUSION_VB:
+    case CLIENT_OPCODE_SYNC_FUSION_LOGSTORE:
+    case CLIENT_OPCODE_STOP_FUSION_UPLOADER:
       /* Request and Response must not have value */
       illegal = true;
       break;
@@ -2907,6 +2948,17 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case CLIENT_OPCODE_DOWNLOAD_SNAPSHOT:
     case CLIENT_OPCODE_GET_FILE_FRAGMENT:
       /* Request must have value (JSON metadata) */
+      if (request) {
+        missing = true;
+      }
+      break;
+    case CLIENT_OPCODE_GET_FUSION_STORAGE_SNAPSHOT:
+    case CLIENT_OPCODE_RELEASE_FUSION_STORAGE_SNAPSHOT:
+    case CLIENT_OPCODE_MOUNT_FUSION_VB:
+    case CLIENT_OPCODE_START_FUSION_UPLOADER:
+    case CLIENT_OPCODE_DELETE_FUSION_NAMESPACE:
+    case CLIENT_OPCODE_GET_FUSION_NAMESPACES:
+      /* Request must have value (JSON arguments) */
       if (request) {
         missing = true;
       }
@@ -3382,6 +3434,10 @@ static bool opcode_use_vbucket(uint8_t magic _U_, uint8_t opcode) {
     case CLIENT_OPCODE_DELETE_BUCKET:
     case CLIENT_OPCODE_SELECT_BUCKET:
     case CLIENT_OPCODE_GET_FILE_FRAGMENT:
+    case CLIENT_OPCODE_GET_FUSION_STORAGE_SNAPSHOT:
+    case CLIENT_OPCODE_RELEASE_FUSION_STORAGE_SNAPSHOT:
+    case CLIENT_OPCODE_DELETE_FUSION_NAMESPACE:
+    case CLIENT_OPCODE_GET_FUSION_NAMESPACES:
       return false;
 
     default:
