@@ -6563,7 +6563,7 @@ dissect_h245_T_subMessageIdentifier(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
 	/* If this is a standard generic message use hf_h245_subMessageIdentifier_standard to get
-	 * the value translated and make it fileterable.
+	 * the value translated and make it filterable.
 	 */
     if (strcmp("GenericMessage/0.0.8.239.2", gefx->key) == 0) {
       hf_index = hf_h245_subMessageIdentifier_standard;
@@ -6577,7 +6577,7 @@ dissect_h245_T_subMessageIdentifier(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1
     gefx->subid = wmem_strdup_printf(actx->pinfo->pool, "%u", subMessageIdentifier);
     gef_ctx_update_key(actx->pinfo->pool, gef_ctx_get(actx->private_data));
   }
-  if (hf_index == hf_h245_subMessageIdentifier_standard)
+  if (h245_pi && hf_index == hf_h245_subMessageIdentifier_standard)
   {
     col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str_const(subMessageIdentifier, h245_h239subMessageIdentifier_vals, "<unknown>") );
     snprintf(h245_pi->frame_label, 50, "%s", val_to_str_const(subMessageIdentifier, h245_h239subMessageIdentifier_vals, "<unknown>"));
