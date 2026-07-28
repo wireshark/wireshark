@@ -375,7 +375,12 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff
   int i, buffer_size = 0;
 
   /* we only support two algorithms at the moment  - if we do add SHA2
-     we should add a registration process to use a registration process */
+     we should add a registration process and use it */
+
+  if (alg == NULL) {
+    proto_item_append_text(pi, " [unable to verify]");
+    return;
+  }
 
   if(strcmp(alg, HASH_SHA1) == 0) {
     gcry_md_hash_buffer(GCRY_MD_SHA1, digest_buf, tvb_get_ptr(content, 0, tvb_captured_length(content)), tvb_captured_length(content));
@@ -393,7 +398,7 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff
        (tvb_memeql(tvb, offset, digest_buf, buffer_size) != 0)) {
       proto_item_append_text(pi, " [incorrect, should be ");
       for(i = 0; i < buffer_size; i++)
-	proto_item_append_text(pi, "%02X", digest_buf[i]);
+        proto_item_append_text(pi, "%02X", digest_buf[i]);
 
       proto_item_append_text(pi, "]");
     }

@@ -2233,6 +2233,10 @@ proto_tree_add_debug_text(tree, "SEQUENCE dissect_ber_sequence(%s) entered\n", n
     if(offset == end_offset){
         proto_item_append_text(item, " [0 length]");
     }
+
+    /* XXX - record the mandatory elements of the sequence so we can check at
+       the end that they were present, as in dissect_ber_set. */
+
     /* loop over all entries until we reach the end of the sequence */
     while (offset < end_offset) {
         int8_t   ber_class;
