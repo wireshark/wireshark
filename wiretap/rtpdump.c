@@ -292,7 +292,11 @@ rtpdump_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     offset = g_ntohl(offset);
 
     /* Set length to remaining length of packet data */
-    length -= hdr_len;
+    if (ckd_sub(&length, length, hdr_len)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup("rtpdump: total length should include 8-byte header");
+        return false;
+    }
 
     ws_buffer_append_buffer(&rec->data, &priv->epdu_headers);
     if (plen == 0) {
@@ -313,8 +317,10 @@ rtpdump_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     ts.nsecs = (offset % 1000) * 1000000;
     nstime_sum(&rec->ts, &priv->start_time, &ts);
     rec->presence_flags |= WTAP_HAS_TS | WTAP_HAS_CAP_LEN;
-    rec->rec_header.packet_header.caplen = epdu_len + plen;
-    rec->rec_header.packet_header.len = epdu_len + length;
+    /* The result lengths cannot overflow as they are 32-bit, the
+     * values in the rtpdump header are 16-bit, and epdu_len is small. */
+    rec->rec_header.packet_header.caplen = epdu_len + length;
+    rec->rec_header.packet_header.len = epdu_len + plen;
 
     return wtap_read_bytes_buffer(fh, &rec->data, length, err, err_info);
 }
