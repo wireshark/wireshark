@@ -108,7 +108,7 @@ x509af_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, con
     entry->pkt_num = pinfo->num;
 
     // There should be a commonName
-    char *name = strstr(eo_info->subjectname, "id-at-commonName=");
+    const char *name = eo_info->subjectname ? strstr(eo_info->subjectname, "id-at-commonName=") : NULL;
     if (name) {
       name += strlen("id-at-commonName=");
       entry->hostname = g_strndup(name, strcspn(name, ","));
