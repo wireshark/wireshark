@@ -8325,6 +8325,7 @@ static int hf_ieee80211_tag_rsnx_urnm_mfpr;
 static int hf_ieee80211_tag_rsnx_kek_in_pasn; /* bit 18 */
 /* octet 4 */
 static int hf_ieee80211_tag_rsnx_assoc_encryption; /* bit 27 */
+static int hf_ieee80211_tag_rsnx_8021x_auth; /* bit 28 */
 static int hf_ieee80211_tag_rsnx_pmksa_privacy; /* bit 29 */
 /* octet 5 */
 static int hf_ieee80211_tag_rsnx_sae_passwd_id_change; /* bit 34 */
@@ -36221,6 +36222,7 @@ dissect_rsnx_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int tag
   };
   static int * const octet4[] = {
     &hf_ieee80211_tag_rsnx_assoc_encryption,
+    &hf_ieee80211_tag_rsnx_8021x_auth,
     &hf_ieee80211_tag_rsnx_pmksa_privacy,
     NULL
   };
@@ -60900,6 +60902,10 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_tag_rsnx_assoc_encryption,
       {"(Re)Association Frame Encryption", "wlan.rsnx.assoc_encryption",
        FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_rsnx_8021x_auth,
+      {"IEEE 802.1X Authentication Utilizing Authentication Frame Support",
+       "wlan.rsnx.8021x_auth_frame", FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
 
     {&hf_ieee80211_tag_rsnx_pmksa_privacy,
       {"PMKSA Caching Privacy", "wlan.rsnx.pmksa_caching_privacy",
