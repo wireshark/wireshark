@@ -26,6 +26,8 @@
 #include <wiretap/wtap.h>
 #include <gcrypt.h>
 
+#include "packet-dect-nr.h"
+
 static int proto_dect_nr;
 
 /* 6.2: Physical Header Field */
@@ -691,17 +693,11 @@ static heur_dissector_list_t heur_subdissector_list;
 static wmem_map_t *rd_id_map;
 
 /* Preference to configure PHY header type */
-typedef enum {
-	PHF_TYPE_TYPE_1,
-	PHF_TYPE_TYPE_2,
-	PHF_TYPE_TYPE_AUTO,
-} phf_type_t;
-
-static int phf_type_pref = PHF_TYPE_TYPE_AUTO;
+static int phf_type_pref = DECT_NR_PHF_TYPE_AUTO;
 static const enum_val_t phf_type_pref_vals[] = {
-	{ "auto", "Automatic", PHF_TYPE_TYPE_AUTO },
-	{ "type1", "Type 1: 40 bits", PHF_TYPE_TYPE_1 },
-	{ "type2", "Type 2: 80 bits", PHF_TYPE_TYPE_2 },
+	{ "auto", "Automatic", DECT_NR_PHF_TYPE_AUTO },
+	{ "type1", "Type 1: 40 bits", DECT_NR_PHF_TYPE_1 },
+	{ "type2", "Type 2: 80 bits", DECT_NR_PHF_TYPE_2 },
 	{ NULL, NULL, -1 }
 };
 
@@ -727,8 +723,8 @@ static bool mac_pdus_decrypted_pref;
 static const char *cipher_key_pref[KEY_MAX];
 
 static const value_string dect_plcf_size_vals[] = {
-	{ 0, "Type 1: 40 bits" },
-	{ 1, "Type 2: 80 bits" },
+	{ DECT_NR_PHF_TYPE_1, "Type 1: 40 bits" },
+	{ DECT_NR_PHF_TYPE_2, "Type 2: 80 bits" },
 	{ 0, NULL }
 };
 
@@ -2179,6 +2175,7 @@ typedef struct dect_nr_conv_info {
 } dect_nr_conv_info_t;
 
 typedef struct {
+	dect_nr_phf_type_t phf_type;
 	uint8_t nw_id;
 	uint16_t tx_id;
 	uint16_t rx_id;
@@ -2548,26 +2545,23 @@ static int dissect_physical_header_field(tvbuff_t *tvb, int offset, packet_info 
 	uint8_t packet_len;
 	int plcf;
 
-	if (phf_type_pref == PHF_TYPE_TYPE_AUTO) {
+	if (ctx->phf_type == DECT_NR_PHF_TYPE_AUTO) {
 		/* Physical Header Field Type is determined from 6th and 7th packet byte.
 		 * For Type 1 they are always zero.
 		 * (Type 1: 40 bits (HF 000), or Type 2: 80 bits, (HF 000 or 001))
 		 */
-		plcf = (tvb_get_ntohs(tvb, offset + 5) == 0) ? PHF_TYPE_TYPE_1 : PHF_TYPE_TYPE_2;
+		plcf = (tvb_get_ntohs(tvb, offset + 5) == 0) ? DECT_NR_PHF_TYPE_1 : DECT_NR_PHF_TYPE_2;
 	} else {
-		plcf = phf_type_pref;
+		plcf = ctx->phf_type;
 	}
 
-	/* In dect_nr, device always reserves 10 bytes for the PHF.
-	 * If 5-byte version used, the remaining 5 bytes is just padding.
-	 */
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_phf, tvb, offset, 10, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_phf);
 	proto_tree *len_item;
 
 	proto_item_append_text(item, " (%s)", val_to_str_const(plcf, dect_plcf_size_vals, "Unknown"));
 
-	if (plcf == PHF_TYPE_TYPE_1) {
+	if (plcf == DECT_NR_PHF_TYPE_1) {
 		proto_tree_add_item(tree, hf_dect_nr_header_format_type1, tvb, offset, 1, ENC_BIG_ENDIAN);
 	} else {
 		proto_tree_add_item_ret_uint8(tree, hf_dect_nr_header_format_type2, tvb, offset, 1, ENC_BIG_ENDIAN, &header_format);
@@ -2589,7 +2583,7 @@ static int dissect_physical_header_field(tvbuff_t *tvb, int offset, packet_info 
 
 	proto_tree_add_item(tree, hf_dect_nr_tx_pwr, tvb, offset, 1, ENC_BIG_ENDIAN);
 	/* DF MCS length is 3 bits in Type 1 header, and 4 bits in Type 2 header */
-	if (plcf == PHF_TYPE_TYPE_2) {
+	if (plcf == DECT_NR_PHF_TYPE_2) {
 		proto_tree_add_item(tree, hf_dect_nr_df_mcs_t2, tvb, offset, 1, ENC_BIG_ENDIAN);
 	} else {
 		dect_tree_add_reserved_item(tree, hf_dect_nr_res1, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
@@ -2598,7 +2592,7 @@ static int dissect_physical_header_field(tvbuff_t *tvb, int offset, packet_info 
 	offset++;
 
 	/* If 80-bit (type 2) PHF is used */
-	if (plcf == PHF_TYPE_TYPE_2) {
+	if (plcf == DECT_NR_PHF_TYPE_2) {
 		uint16_t fb_format;
 
 		proto_tree_add_item_ret_uint16(tree, hf_dect_nr_receiver_id, tvb, offset, 2, ENC_BIG_ENDIAN, &ctx->rx_id);
@@ -2662,7 +2656,10 @@ static int dissect_physical_header_field(tvbuff_t *tvb, int offset, packet_info 
 			break;
 		}
 		offset += 2;
-	} else if (phf_type_pref == PHF_TYPE_TYPE_AUTO) {
+	} else if (ctx->phf_type == DECT_NR_PHF_TYPE_AUTO) {
+		/* Some DECT NR+ trace tools always reserves 10 bytes for the PHF.
+		 * If 5-byte version used, the remaining 5 bytes is just padding.
+		 */
 		ctx->rx_id = 0;
 		proto_tree_add_item(tree, hf_dect_nr_phf_padding, tvb, offset, 5, ENC_NA);
 		offset += 5;
@@ -5218,7 +5215,7 @@ static int dissect_mac_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 	return offset;
 }
 
-static int dissect_dect_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
+static int dissect_dect_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
 	dect_nr_context_t ctx = { 0 };
 	unsigned offset = 0;
@@ -5228,6 +5225,14 @@ static int dissect_dect_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DECT NR+");
 	col_clear(pinfo->cinfo, COL_INFO);
+
+	if (data && phf_type_pref == DECT_NR_PHF_TYPE_AUTO) {
+		dect_nr_info_t *info = (dect_nr_info_t *)data;
+		ctx.phf_type = info->phf_type;
+	} else {
+		/* Use PHF type preference */
+		ctx.phf_type = phf_type_pref;
+	}
 
 	/* 6.2 Physical Header Field */
 	offset = dissect_physical_header_field(tvb, offset, pinfo, tree, &ctx);
