@@ -37,6 +37,7 @@ typedef struct {
 	unsigned block_option;                     /* Indicates Block1 or Block2 option */
 	unsigned block_number;
 	unsigned block_mflag;
+	unsigned block_size;
 	wmem_strbuf_t *uri_host_strbuf;
 	wmem_strbuf_t *uri_path_strbuf;
 	wmem_strbuf_t *uri_query_strbuf;

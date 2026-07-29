@@ -792,7 +792,6 @@ dissect_coap_opt_block(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree
 {
 	uint8_t     val = 0;
 	unsigned    encoded_block_size;
-	unsigned    block_esize;
 
 	if (opt_length == 0) {
 		coinfo->block_number = 0;
@@ -812,13 +811,13 @@ dissect_coap_opt_block(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree
 
 	/* block size */
 	encoded_block_size = val & COAP_BLOCK_SIZE_MASK;
-	block_esize = 1 << (encoded_block_size + 4);
+	coinfo->block_size = 1 << (encoded_block_size + 4);
 	proto_tree_add_uint_format(subtree, dissect_hf->hf.opt_block_size,
-	    tvb, offset + opt_length - 1, 1, encoded_block_size, "Block Size: %u (%u encoded)", block_esize, encoded_block_size);
+	    tvb, offset + opt_length - 1, 1, encoded_block_size, "Block Size: %u (%u encoded)", coinfo->block_size, encoded_block_size);
 
 	/* add info to the head of the packet detail */
 	proto_item_append_text(head_item, ": NUM:%u, M:%u, SZ:%u",
-	    coinfo->block_number, coinfo->block_mflag, block_esize);
+	    coinfo->block_number, coinfo->block_mflag, coinfo->block_size);
 }
 
 static void
@@ -1596,15 +1595,12 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
-	/* add informations to the packet list */
+	/* add information to the packet list */
 	if (coap_token_str != NULL)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", TKN:%s", coap_token_str);
 	if (coinfo->block_number != DEFAULT_COAP_BLOCK_NUMBER) {
-		/* The M bit is used in Block1 Option in a request and in Block2 Option in a response */
-		bool mflag_is_used = (((coinfo->block_option == 1) && (code_class == 0)) ||
-					  ((coinfo->block_option == 2) && (code_class >= 2) && (code_class <= 5)));
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %sBlock #%u",
-				(coinfo->block_mflag || !mflag_is_used) ? "" : "End of ", coinfo->block_number);
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Bock%u: %u/%u/%u",
+				coinfo->block_option, coinfo->block_number, coinfo->block_mflag, coinfo->block_size);
 	}
 	if (wmem_strbuf_get_len(coinfo->uri_host_strbuf) > 0 || wmem_strbuf_get_len(coinfo->uri_path_strbuf) > 0) {
 		char *uri_host_path = wmem_strdup_printf(pinfo->pool, "%s%s", wmem_strbuf_get_str(coinfo->uri_host_strbuf), wmem_strbuf_get_str(coinfo->uri_path_strbuf));
