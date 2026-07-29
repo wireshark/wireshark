@@ -3439,17 +3439,19 @@ static int dissect_lbmr_tmr(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
         &hf_lbmr_tmr_flags_wildcard_regex,
         NULL
     };
+    tvbuff_t* tmr_tvb;
     uint16_t tmr_len;
     uint8_t tmr_type;
     uint8_t tmr_flags;
     const char * info_string = "";
 
     tmr_len = tvb_get_ntohs(tvb, offset + O_LBMR_TMR_T_LEN);
-    tmr_type = tvb_get_uint8(tvb, offset + O_LBMR_TMR_T_TYPE);
-    tmr_flags = tvb_get_uint8(tvb, offset + O_LBMR_TMR_T_FLAGS);
-    name_offset = offset + L_LBMR_TMR_T;
+    tmr_tvb = tvb_new_subset_length(tvb, offset + O_LBMR_TMR_T_LEN, tmr_len);
+    tmr_type = tvb_get_uint8(tmr_tvb, O_LBMR_TMR_T_TYPE);
+    tmr_flags = tvb_get_uint8(tmr_tvb, O_LBMR_TMR_T_FLAGS);
+    name_offset = L_LBMR_TMR_T;
 
-    name = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, name_offset, &namelen, ENC_ASCII);
+    name = (char*)tvb_get_stringz_enc(pinfo->pool, tmr_tvb, name_offset, &namelen, ENC_ASCII);
 
     switch (tmr_type)
     {
@@ -3467,13 +3469,13 @@ static int dissect_lbmr_tmr(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
             }
             break;
     }
-    ti = proto_tree_add_none_format(tree, hf_lbmr_tmr, tvb, offset, tmr_len, "%s: %s%s, Length %" PRIu16,
+    ti = proto_tree_add_none_format(tree, hf_lbmr_tmr, tmr_tvb, 0, tmr_len, "%s: %s%s, Length %" PRIu16,
         name, val_to_str(pinfo->pool, tmr_type, lbmr_tmr_type, "Unknown (0x%02x)"), info_string, tmr_len);
     tinfo_tree = proto_item_add_subtree(ti, ett_lbmr_tmr);
-    proto_tree_add_item(tinfo_tree, hf_lbmr_tmr_len, tvb, offset + O_LBMR_TMR_T_LEN, L_LBMR_TMR_T_LEN, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tinfo_tree, hf_lbmr_tmr_type, tvb, offset + O_LBMR_TMR_T_TYPE, L_LBMR_TMR_T_TYPE, ENC_BIG_ENDIAN);
-    proto_tree_add_bitmask(tinfo_tree, tvb, offset + O_LBMR_TMR_T_FLAGS, hf_lbmr_tmr_flags, ett_lbmr_tmr_flags, flags, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tinfo_tree, hf_lbmr_tmr_name, tvb, name_offset, namelen, ENC_ASCII);
+    proto_tree_add_item(tinfo_tree, hf_lbmr_tmr_len, tmr_tvb, O_LBMR_TMR_T_LEN, L_LBMR_TMR_T_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tinfo_tree, hf_lbmr_tmr_type, tmr_tvb, O_LBMR_TMR_T_TYPE, L_LBMR_TMR_T_TYPE, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(tinfo_tree, tmr_tvb, O_LBMR_TMR_T_FLAGS, hf_lbmr_tmr_flags, ett_lbmr_tmr_flags, flags, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tinfo_tree, hf_lbmr_tmr_name, tmr_tvb, name_offset, namelen, ENC_ASCII);
     return ((int) tmr_len);
 }
 
