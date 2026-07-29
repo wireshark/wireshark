@@ -2524,6 +2524,9 @@ proto_register_btbredr_rf(void)
 
     expert_module = expert_register_protocol(proto_btbredr_rf);
     expert_register_field_array(expert_module, ei, array_length(ei));
+
+    reassembly_table_register(&l2cap_msg_reassembly_table,
+        &addresses_reassembly_table_functions);
 }
 
 void
