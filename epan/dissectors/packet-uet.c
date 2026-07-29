@@ -1775,11 +1775,9 @@ uet_compute_crc(packet_info *pinfo, tvbuff_t *tvb, uint32_t *crc_p, struct ip_hd
     uint32_t crc = crc32c_calculate_no_swap(ip_addrs_ptr, ip_hdrlen, CRC32C_PRELOAD);
     if (ip_info->has_udp)
         crc = crc32c_calculate_no_swap(&zero_csum, sizeof(zero_csum), crc);
-    crc = crc32c_calculate_no_swap(
+    crc = ~crc32c_calculate_no_swap(
         tvb_get_ptr(tvb, 0, tvb_reported_length(tvb) - UET_CRC_LEN),
         tvb_reported_length(tvb) - UET_CRC_LEN, crc);
-    crc = ~CRC32C_SWAP(crc);
-    crc = g_htonl(crc);
 
     *crc_p = crc;
     return true;
