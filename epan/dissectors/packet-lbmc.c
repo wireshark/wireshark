@@ -7031,16 +7031,24 @@ static int dissect_nhdr_ume_ack(tvbuff_t * tvb, unsigned offset, packet_info * p
     return (L_LBMC_CNTL_UME_ACK_HDR_T);
 }
 
-static int dissect_nhdr_ume_rxreq(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree)
+static int dissect_nhdr_ume_rxreq(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree, bool * is_tsni_request)
 {
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
+    uint16_t flags_value;
     static int * const flags[] =
     {
         &hf_lbmc_ume_rxreq_flags_ignore,
         &hf_lbmc_ume_rxreq_flags_tsni_req,
         NULL
     };
+
+    /* Read the flags to check if TSNI request flag is set */
+    flags_value = tvb_get_ntohs(tvb, offset + O_LBMC_CNTL_UME_RXREQ_HDR_T_FLAGS);
+    if (is_tsni_request != NULL)
+    {
+        *is_tsni_request = (flags_value & LBMC_UME_RXREQ_T_FLAG) != 0;
+    }
 
     subtree_item = proto_tree_add_item(tree, hf_lbmc_ume_rxreq, tvb, offset, L_LBMC_CNTL_UME_RXREQ_HDR_T, ENC_NA);
     subtree = proto_item_add_subtree(subtree_item, ett_lbmc_ume_rxreq);
@@ -10420,7 +10428,7 @@ static int dissect_msg_properties(tvbuff_t * tvb, unsigned offset, packet_info *
 /*----------------------------------------------------------------------------*/
 /* Miscellaneous functions.                                                   */
 /*----------------------------------------------------------------------------*/
-static const char * lbmc_determine_msg_type(const uint8_t * header_array)
+static const char * lbmc_determine_msg_type(const uint8_t * header_array, bool rxreq_is_tsni)
 {
     if (header_array[LBMC_NHDR_SSF_INIT] != 0)
     {
@@ -10444,6 +10452,10 @@ static const char * lbmc_determine_msg_type(const uint8_t * header_array)
     }
     else if (header_array[LBMC_NHDR_UME_RXREQ] != 0)
     {
+        if (rxreq_is_tsni)
+        {
+            return ("RXREQ (TSNI Request)");
+        }
         return ("RXREQ");
     }
     else if (header_array[LBMC_NHDR_UME_KEEPALIVE] != 0)
@@ -10944,6 +10956,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, unsigned offset, packet_info * pinf
         reassembly = wmem_new(pinfo->pool, lbmc_extopt_reassembled_data_t);
         lbmc_init_extopt_reassembled_data(reassembly);
         data_is_umq_cmd_resp = false;
+        bool rxreq_is_tsni = false;
         stream_info.set = false;
         ctxinstd_info.set = false;
         ctxinstr_info.set = false;
@@ -11038,7 +11051,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, unsigned offset, packet_info * pinf
                     dissected_hdr_len = dissect_nhdr_ume_ack(hdr_tvb, 0, pinfo, subtree);
                     break;
                 case LBMC_NHDR_UME_RXREQ:
-                    dissected_hdr_len = dissect_nhdr_ume_rxreq(hdr_tvb, 0, pinfo, subtree);
+                    dissected_hdr_len = dissect_nhdr_ume_rxreq(hdr_tvb, 0, pinfo, subtree, &rxreq_is_tsni);
                     break;
                 case LBMC_NHDR_UME_KEEPALIVE:
                     dissected_hdr_len = dissect_nhdr_ume_keepalive(hdr_tvb, 0, pinfo, subtree);
@@ -11700,7 +11713,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, unsigned offset, packet_info * pinf
         }
         else
         {
-            msg_type = lbmc_determine_msg_type(found_header);
+            msg_type = lbmc_determine_msg_type(found_header, rxreq_is_tsni);
 
             if (msg_type != NULL)
             {
