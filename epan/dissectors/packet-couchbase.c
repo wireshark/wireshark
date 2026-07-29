@@ -327,6 +327,8 @@ static bool is_request_magic(uint8_t magic) {
 #define CLIENT_OPCODE_DCP_ABORT                   0x63
 #define CLIENT_OPCODE_DCP_SEQNO_ADVANCED          0x64
 #define CLIENT_OPCODE_DCP_OSO_SNAPSHOT            0x65
+#define CLIENT_OPCODE_DCP_CACHE_TRANSFER          0x66
+#define CLIENT_OPCODE_DCP_CACHE_TRANSFER_END      0x67
 
 #define CLIENT_OPCODE_GET_FUSION_STORAGE_SNAPSHOT 0x70
 #define CLIENT_OPCODE_RELEASE_FUSION_STORAGE_SNAPSHOT 0x71
@@ -549,6 +551,9 @@ static int hf_extras_system_event_id;
 static int hf_extras_system_event_version;
 static int hf_extras_pathlen;
 static int hf_extras_dcp_oso_snapshot_flags;
+static int hf_dcp_cache_transfer;
+static int hf_dcp_cache_transfer_keylen;
+static int hf_dcp_cache_transfer_cachehint;
 static int hf_server_extras_cccp_epoch;
 static int hf_server_extras_cccp_revno;
 static int hf_server_clustermap_value;
@@ -681,6 +686,8 @@ static int ett_xattrs;
 static int ett_xattr_pair;
 static int ett_flex_frame_extras;
 static int ett_collection_key;
+static int ett_dcp_cache_transfer;
+static int ett_dcp_cache_transfer_item;
 
 static const value_string magic_vals[] = {
   { MAGIC_CLIENT_REQUEST, "Request" },
@@ -946,6 +953,8 @@ static const value_string client_opcode_vals[] = {
   { CLIENT_OPCODE_DCP_ABORT,                  "DCP Abort"                },
   { CLIENT_OPCODE_DCP_SEQNO_ADVANCED,         "DCP Seqno Advanced"       },
   { CLIENT_OPCODE_DCP_OSO_SNAPSHOT,           "DCP Out of Sequence Order Snapshot"},
+  { CLIENT_OPCODE_DCP_CACHE_TRANSFER,         "DCP Cache Transfer"       },
+  { CLIENT_OPCODE_DCP_CACHE_TRANSFER_END,     "DCP Cache Transfer End"   },
   { CLIENT_OPCODE_GET_FUSION_STORAGE_SNAPSHOT, "Get Fusion Storage Snapshot"},
   { CLIENT_OPCODE_RELEASE_FUSION_STORAGE_SNAPSHOT, "Release Fusion Storage Snapshot"},
   { CLIENT_OPCODE_MOUNT_FUSION_VB,            "Mount Fusion VBucket"     },
@@ -2161,6 +2170,10 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    * response) - any structured data lives in the JSON value instead. */
   case CLIENT_OPCODE_SET_ACTIVE_ENCRYPTION_KEYS:
   case CLIENT_OPCODE_PRUNE_ENCRYPTION_KEYS:
+  /* DCP Cache Transfer commands never carry extras - request.extlen must be
+   * 0 (currently reserved as a possible future version indicator). */
+  case CLIENT_OPCODE_DCP_CACHE_TRANSFER:
+  case CLIENT_OPCODE_DCP_CACHE_TRANSFER_END:
     if (extlen) {
       illegal = true;
     }
@@ -2225,6 +2238,95 @@ dissect_unsigned_leb128(tvbuff_t *tvb, int start, int end, uint32_t* value) {
         return (byte_idx == end) ? -1 : byte_idx + 1;
     }
     return start + 1;
+}
+
+/*
+  DCP Cache Transfer (opcode 0x66) value is a concatenation of one or more
+  fixed 40-byte DcpCacheTransferPayload headers, each followed by a
+  collection-encoded key and an optional value:
+
+    [DcpCacheTransferPayload][key bytes][value bytes] ... repeats ...
+
+  See docs/dcp/documentation/commands/cache-transfer.md for the full layout.
+*/
+static void
+dissect_dcp_cache_transfer_value(tvbuff_t *tvb, packet_info *pinfo,
+                                 proto_tree *tree, unsigned offset,
+                                 uint32_t value_len)
+{
+  static const unsigned payload_size = 40;
+  unsigned end = offset + value_len;
+  int item_idx = 0;
+
+  while (offset + payload_size <= end) {
+    proto_item *ti, *key_ti;
+    proto_tree *item_tree, *cid_tree;
+    unsigned start_offset = offset;
+    uint32_t item_value_len;
+    uint32_t key_len;
+
+    ti = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                       ett_dcp_cache_transfer_item,
+                                       &item_tree, "Item [ %u ]", item_idx);
+
+    proto_tree_add_item(item_tree, hf_cas, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(item_tree, hf_extras_by_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(item_tree, hf_extras_rev_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    proto_tree_add_item_ret_uint(item_tree, hf_value_length, tvb, offset, 4,
+                                 ENC_BIG_ENDIAN, &item_value_len);
+    offset += 4;
+    /* flags is stored/forwarded as opaque bytes - same as DCP mutation */
+    proto_tree_add_item(item_tree, hf_extras_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(item_tree, hf_extras_expiration, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item_ret_uint(item_tree, hf_dcp_cache_transfer_keylen, tvb,
+                                 offset, 2, ENC_BIG_ENDIAN, &key_len);
+    offset += 2;
+    proto_tree_add_bitmask(item_tree, tvb, offset, hf_datatype, ett_datatype,
+                           datatype_vals, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(item_tree, hf_dcp_cache_transfer_cachehint, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (key_len) {
+      uint32_t cid = 0;
+      int ok = dissect_unsigned_leb128(tvb, offset, offset + key_len, &cid);
+
+      key_ti = proto_tree_add_item(item_tree, hf_key, tvb, offset, key_len, ENC_UTF_8);
+      cid_tree = proto_item_add_subtree(key_ti, ett_collection_key);
+
+      if (ok == -1) {
+        proto_tree_add_string_format(cid_tree, hf_collection_key_logical, tvb,
+                                     offset, key_len, NULL,
+                                     "Collection ID didn't decode, maybe no CID.");
+      } else {
+        proto_tree_add_uint(cid_tree, hf_collection_key_id, tvb, offset,
+                            (ok - offset), cid);
+        proto_tree_add_item(cid_tree, hf_collection_key_logical, tvb, ok,
+                            key_len - (ok - offset), ENC_UTF_8);
+      }
+      offset += key_len;
+    }
+
+    if (item_value_len) {
+      proto_tree_add_item(item_tree, hf_value, tvb, offset, item_value_len, ENC_ASCII);
+      offset += item_value_len;
+    }
+
+    proto_item_set_len(ti, offset - start_offset);
+    item_idx++;
+  }
+
+  if (offset != end) {
+    expert_add_info_format(pinfo, tree, &ei_warn_illegal_value_length,
+                           "DCP Cache Transfer: %u trailing byte(s) did not "
+                           "form a complete item", end - offset);
+  }
 }
 
 static void dissect_server_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int keylen, uint8_t opcode, bool request) {
@@ -2410,6 +2512,14 @@ dissect_client_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case CLIENT_OPCODE_GET_FUSION_NAMESPACES:
       /* Request and Response must not have key - the vbucket (if any) comes
        * from the header vbucket field or the JSON value instead */
+      illegal = true;
+      break;
+
+    case CLIENT_OPCODE_DCP_CACHE_TRANSFER:
+    case CLIENT_OPCODE_DCP_CACHE_TRANSFER_END:
+      /* Request and Response must not have key - the vbucket comes from the
+       * header vbucket field; per-item keys (Cache Transfer only) are
+       * embedded in the value instead */
       illegal = true;
       break;
     }
@@ -2875,6 +2985,11 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        * text), optionally with a 4 byte CRC32C checksum interleaved after
        * every checksum_length bytes requested by the client. */
       ti = proto_tree_add_item(tree, hf_file_fragment_data, tvb, offset, value_len, ENC_NA);
+    } else if (request && opcode == CLIENT_OPCODE_DCP_CACHE_TRANSFER) {
+      proto_tree *cache_transfer_tree;
+      ti = proto_tree_add_item(tree, hf_dcp_cache_transfer, tvb, offset, value_len, ENC_NA);
+      cache_transfer_tree = proto_item_add_subtree(ti, ett_dcp_cache_transfer);
+      dissect_dcp_cache_transfer_value(tvb, pinfo, cache_transfer_tree, offset, value_len);
     } else {
       ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII);
 #ifdef HAVE_SNAPPY
@@ -2933,6 +3048,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case CLIENT_OPCODE_UNMOUNT_FUSION_VB:
     case CLIENT_OPCODE_SYNC_FUSION_LOGSTORE:
     case CLIENT_OPCODE_STOP_FUSION_UPLOADER:
+    case CLIENT_OPCODE_DCP_CACHE_TRANSFER_END:
       /* Request and Response must not have value */
       illegal = true;
       break;
@@ -2981,6 +3097,8 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case CLIENT_OPCODE_SET_ACTIVE_ENCRYPTION_KEYS:
     case CLIENT_OPCODE_PRUNE_ENCRYPTION_KEYS:
       /* Request must have value (JSON arguments) */
+    case CLIENT_OPCODE_DCP_CACHE_TRANSFER:
+      /* Request must have value (one or more serialized cache items) */
       if (request) {
         missing = true;
       }
@@ -4125,7 +4243,11 @@ proto_register_couchbase(void)
     { &hf_range_scan_time_limit, { "Range Scan time limit", "couchbase.range_scan.time_limit", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_range_scan_byte_limit, { "Range Scan byte limit", "couchbase.range_scan.byte_limit", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
-    { &hf_file_fragment_data, { "File Fragment Data", "couchbase.file_fragment.data", FT_BYTES, BASE_NONE, NULL, 0x0, "Raw bytes of the requested file fragment (may contain interleaved CRC32C checksums when checksumming was requested)", HFILL } }
+    { &hf_file_fragment_data, { "File Fragment Data", "couchbase.file_fragment.data", FT_BYTES, BASE_NONE, NULL, 0x0, "Raw bytes of the requested file fragment (may contain interleaved CRC32C checksums when checksumming was requested)", HFILL } },
+
+    { &hf_dcp_cache_transfer, { "DCP Cache Transfer Items", "couchbase.dcp.cache_transfer", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_dcp_cache_transfer_keylen, { "Key Length", "couchbase.dcp.cache_transfer.keylen", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_dcp_cache_transfer_cachehint, { "Cache Hint", "couchbase.dcp.cache_transfer.cachehint", FT_UINT8, BASE_HEX, NULL, 0x0, "Opaque eviction hint (frequency-counter / MFU / NRU) to preserve across the transfer", HFILL } }
   };
 
   static ei_register_info ei[] = {
@@ -4164,7 +4286,9 @@ proto_register_couchbase(void)
     &ett_datatype,
     &ett_xattrs,
     &ett_xattr_pair,
-    &ett_collection_key
+    &ett_collection_key,
+    &ett_dcp_cache_transfer,
+    &ett_dcp_cache_transfer_item
   };
 
   module_t *couchbase_module;
