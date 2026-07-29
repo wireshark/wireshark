@@ -205,6 +205,7 @@ management.
 // without compiling Qt oneself while setting a special flag:
 // https://bugreports.qt.io/browse/QTBUG-134075
 
+* Wireshark 4.6 was the last release branch to officially support Windows 10, version 1809 and Windows Server 2019.
 * Wireshark 4.4 was the last release branch to officially support Windows 10, version 1607 and Windows Server 2016.
 * Wireshark 4.0 was the last release branch to officially support Windows 8.1 and Windows Server 2012.
 * Wireshark 3.6 was the last release branch to officially support 32-bit Windows.

@@ -29,7 +29,8 @@ If you or your organization would like to contribute or become a sponsor, please
 
 The following changes have been made since version 0.10.2:
 
-* Nothing of note.
+* The minimum supported Windows version is Windows 10 21H2 (build 19044) or
+  Windows Server 2022.
 
 The following changes have been made since version 0.10.1:
 

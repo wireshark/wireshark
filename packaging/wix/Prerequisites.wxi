@@ -60,8 +60,12 @@
       <![CDATA[Installed OR (WINDOWSBUILDNUMBER < 14393) OR (WINDOWSBUILDNUMBER >= 17763)]]>
     </Condition>
 
-    <Condition Message="$(var.WiresharkName)$(var.WiresharkVersion) is only supported on Windows 10, version 1809 or Windows Server 2019, or higher.">
-      <![CDATA[Installed OR (WINDOWSBUILDNUMBER >= 17763)]]>
+    <Condition Message="Windows 10 versions before 21H2 and Server 2019 are no longer supported. Please install $(var.WiresharkName) 4.6 instead.">
+      <![CDATA[Installed OR (WINDOWSBUILDNUMBER < 17763) OR (WINDOWSBUILDNUMBER >= 19044)]]>
+    </Condition>
+
+    <Condition Message="$(var.WiresharkName)$(var.WiresharkVersion) is only supported on Windows 10, version 21H2 or Windows Server 2022, or higher.">
+      <![CDATA[Installed OR (WINDOWSBUILDNUMBER >= 19044)]]>
     </Condition>
 
 <!--

@@ -404,6 +404,13 @@ Function PlatformCheck
     Quit
   ${EndIf}
 
+  ${IfNot} ${AtLeastBuild} 19044
+    MessageBox MB_OK \
+      "Windows 10 versions before 21H2 and Windows Server 2019 are no longer supported.$\nPlease install ${PROGRAM_NAME} 4.6 instead." \
+      /SD IDOK
+    Quit
+  ${EndIf}
+
 FunctionEnd
 
 !ifdef QT_DIR

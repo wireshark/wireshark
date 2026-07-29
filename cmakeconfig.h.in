@@ -408,7 +408,7 @@
  * - The VersionNT parts of packaging\wix\Prerequisites.wxi
  */
 #  ifndef NTDDI_VERSION
-#  define NTDDI_VERSION   NTDDI_WIN10_RS5
+#  define NTDDI_VERSION   NTDDI_WIN10_19H1
 #  endif
 
 #  ifndef _WIN32_WINNT
