@@ -1251,6 +1251,8 @@ has_json_value(bool is_request, uint8_t opcode)
     case CLIENT_OPCODE_START_FUSION_UPLOADER:
     case CLIENT_OPCODE_DELETE_FUSION_NAMESPACE:
     case CLIENT_OPCODE_GET_FUSION_NAMESPACES:
+    case CLIENT_OPCODE_SET_ACTIVE_ENCRYPTION_KEYS:
+    case CLIENT_OPCODE_PRUNE_ENCRYPTION_KEYS:
       return true;
 
     default:
@@ -2155,6 +2157,15 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
+  /* Encryption-key management commands never carry extras (request or
+   * response) - any structured data lives in the JSON value instead. */
+  case CLIENT_OPCODE_SET_ACTIVE_ENCRYPTION_KEYS:
+  case CLIENT_OPCODE_PRUNE_ENCRYPTION_KEYS:
+    if (extlen) {
+      illegal = true;
+    }
+    break;
+
   default:
     if (extlen) {
       /* Decode as unknown extras */
@@ -2297,6 +2308,8 @@ dissect_client_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       case CLIENT_OPCODE_IFCONFIG:
       case CLIENT_OPCODE_RELEASE_SNAPSHOT:
       case CLIENT_OPCODE_GET_FILE_FRAGMENT:
+      case CLIENT_OPCODE_SET_ACTIVE_ENCRYPTION_KEYS:
+      case CLIENT_OPCODE_PRUNE_ENCRYPTION_KEYS:
         collection_encoded_key = false;
         break;
       default:
@@ -2426,6 +2439,8 @@ dissect_client_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case CLIENT_OPCODE_DCP_DELETION:
     case CLIENT_OPCODE_DCP_EXPIRATION:
     case CLIENT_OPCODE_DCP_SYSTEM_EVENT:
+    case CLIENT_OPCODE_SET_ACTIVE_ENCRYPTION_KEYS:
+    case CLIENT_OPCODE_PRUNE_ENCRYPTION_KEYS:
       /* Request must have key */
       if (request) {
         missing = true;
@@ -2963,6 +2978,13 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         missing = true;
       }
       break;
+    case CLIENT_OPCODE_SET_ACTIVE_ENCRYPTION_KEYS:
+    case CLIENT_OPCODE_PRUNE_ENCRYPTION_KEYS:
+      /* Request must have value (JSON arguments) */
+      if (request) {
+        missing = true;
+      }
+      break;
     }
   }
 
@@ -3438,6 +3460,8 @@ static bool opcode_use_vbucket(uint8_t magic _U_, uint8_t opcode) {
     case CLIENT_OPCODE_RELEASE_FUSION_STORAGE_SNAPSHOT:
     case CLIENT_OPCODE_DELETE_FUSION_NAMESPACE:
     case CLIENT_OPCODE_GET_FUSION_NAMESPACES:
+    case CLIENT_OPCODE_SET_ACTIVE_ENCRYPTION_KEYS:
+    case CLIENT_OPCODE_PRUNE_ENCRYPTION_KEYS:
       return false;
 
     default:
