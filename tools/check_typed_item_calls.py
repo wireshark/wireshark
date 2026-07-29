@@ -2264,6 +2264,15 @@ def check_double_fetches(filename, contents, items, result):
                         m.group(0))
 
 
+def check_reassembly_registered(filename, contents_no_comments, result):
+    reassembly_tables_re = re.compile(r'static\s*reassembly_table\s*([a-zA-Z0-9_]+)\s*;')
+    for table in reassembly_tables_re.findall(contents_no_comments, re.MULTILINE | re.DOTALL):
+        m = re.search(r'reassembly_table_register\s*\(\s*&\s*' + table, contents_no_comments)
+        if not m:
+            m = re.search(r'reassembly_table_init\s*\(\s*&\s*' + table, contents_no_comments)
+            if not m:
+                result.error(filename, 'reassembly_table  ', table, ' not registered')
+
 
 # Run checks on the given dissector file.
 def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False,
@@ -2381,6 +2390,8 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
         items_defined[hf].check_boolean_length()
         items_defined[hf].check_string_display()
         items_defined[hf].check_ipv4_display()
+
+    check_reassembly_registered(filename, contents_no_comments, result)
 
     result.should_exit = should_exit
     return result
