@@ -303,7 +303,7 @@ bool log3gpp_read(wtap* wth, wtap_rec* rec, Buffer* buf,
               rec->rec_header.packet_header.caplen = data_chars/2 + stub_offset;
               /********************************/
               /* Copy packet data into buffer */
-              for (n=0; n <= data_chars; n+=2)
+              for (n=0; n < (data_chars & ~1); n+=2)
               {
                 frame_buffer[stub_offset + n/2] = (hex_from_char(linebuff[dollar_offset+n]) << 4) |
                                                    hex_from_char(linebuff[dollar_offset+n+1]);
@@ -419,7 +419,7 @@ log3gpp_seek_read(wtap *wth, int64_t seek_off,
         {
           /********************************/
           /* Copy packet data into buffer */
-          for (n=0; n <= data_chars; n+=2)
+          for (n=0; n < (data_chars & ~1); n+=2)
           {
             frame_buffer[stub_offset + n/2] = (hex_from_char(linebuff[dollar_offset+n]) << 4) |
                                                hex_from_char(linebuff[dollar_offset+n+1]);
