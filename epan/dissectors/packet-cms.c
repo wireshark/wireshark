@@ -315,10 +315,9 @@ static unsigned dissect_cms_OCTET_STRING(bool implicit_tag _U_, tvbuff_t *tvb, u
 struct cms_private_data {
   const char *object_identifier_id;
   tvbuff_t *content_tvb;
+  proto_tree *top_tree;
+  proto_tree *cap_tree;
 };
-
-static proto_tree *top_tree;
-static proto_tree *cap_tree;
 
 #define HASH_SHA1 "1.3.14.3.2.26"
 
@@ -458,11 +457,12 @@ static const ber_sequence_t ContentInfo_sequence[] = {
 
 unsigned
 dissect_cms_ContentInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  top_tree = tree;
+  struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
+  cms_data->top_tree = tree;
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ContentInfo_sequence, hf_index, ett_cms_ContentInfo);
 
-  top_tree = NULL;
+  cms_data->top_tree = NULL;
 
 
   return offset;
@@ -521,7 +521,7 @@ dissect_cms_T_eContent(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset
   if(cms_data->content_tvb) {
     proto_item_set_text(actx->created_item, "eContent (%u bytes)", tvb_reported_length(cms_data->content_tvb));
 
-    call_ber_oid_callback(cms_data->object_identifier_id, cms_data->content_tvb, 0, actx->pinfo, top_tree ? top_tree : tree, NULL);
+    call_ber_oid_callback(cms_data->object_identifier_id, cms_data->content_tvb, 0, actx->pinfo, cms_data->top_tree ? cms_data->top_tree : tree, NULL);
   }
 
 
@@ -1688,13 +1688,14 @@ dissect_cms_KeyWrapAlgorithm(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned 
 static unsigned
 dissect_cms_RC2ParameterVersion(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   uint32_t length = 0;
+  struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &length);
 
 
-  if(cap_tree != NULL)
-    proto_item_append_text(cap_tree, " (%d bits)", length);
+  if(cms_data->cap_tree != NULL)
+    proto_item_append_text(cms_data->cap_tree, " (%d bits)", length);
 
 
   return offset;
@@ -1773,7 +1774,7 @@ dissect_cms_T_capability(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offs
   if(cms_data->object_identifier_id) {
     name = oid_resolved_from_string(actx->pinfo->pool, cms_data->object_identifier_id);
     proto_item_append_text(tree, " %s", name ? name : cms_data->object_identifier_id);
-    cap_tree = tree;
+    cms_data->cap_tree = tree;
   }
 
 
@@ -1801,8 +1802,15 @@ static const ber_sequence_t SMIMECapability_sequence[] = {
 
 static unsigned
 dissect_cms_SMIMECapability(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+  struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
+  cms_data->cap_tree = NULL;
+
+    offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SMIMECapability_sequence, hf_index, ett_cms_SMIMECapability);
+
+
+  cms_data->cap_tree = NULL;
+
 
   return offset;
 }
