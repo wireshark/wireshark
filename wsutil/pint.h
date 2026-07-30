@@ -10,8 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef __PINT_H__
-#define __PINT_H__
+#pragma once
 
 #include <inttypes.h>
 
@@ -261,7 +260,18 @@ static inline void phtoleu64(uint8_t *p, uint64_t v)
 }
 
 #else
-/* Portable functions */
+/*
+ * Portable functions.
+ *
+ * Note that newer versions of GCC and Clang may recognize these idioms
+ * and translate them to the code that works best on the platform, e.g.
+ * they may do unaligned loads and stores if the platform supports them
+ * and on which the byte order of the data in memory is the host byte
+ * order.
+ *
+ * Some other compilers might do this as well, but MSVC doesn't appear
+ * to be one of them.
+ */
 
 /**
  * @brief Convert a network byte order 16-bit unsigned integer to host byte order.
@@ -737,8 +747,6 @@ static inline void phtoleu56(uint8_t *p, uint64_t v)
     p[5] = (uint8_t)((v) >> 40);
     p[6] = (uint8_t)((v) >> 48);
 }
-
-#endif /* PINT_H */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
