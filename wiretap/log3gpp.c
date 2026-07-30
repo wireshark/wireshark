@@ -247,7 +247,7 @@ build_packet_record(wtap* wth, wtap_rec *rec, log3gpp_t const *log3gpp,
       /********************************/
       /* Copy packet data into buffer */
       frame_buffer = ws_buffer_end_ptr(&rec->data);
-      for (n=0; n <= data_chars; n+=2)
+      for (n=0; n < (data_chars & ~1); n+=2)
       {
         frame_buffer[n/2] = (hex_from_char(log3gpp->linebuff[data_offset+n]) << 4) |
                              hex_from_char(log3gpp->linebuff[data_offset+n+1]);
