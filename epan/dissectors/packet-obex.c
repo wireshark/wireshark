@@ -2252,7 +2252,7 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         obex_proto_data.interface_id = l2cap_data->interface_id;
         obex_proto_data.adapter_id   = l2cap_data->adapter_id;
         obex_proto_data.chandle      = l2cap_data->chandle;
-        obex_proto_data.channel      = l2cap_data->cid;
+        obex_proto_data.channel      = l2cap_data->local_cid;
     } else if (previous_proto == proto_btrfcomm) {
         btrfcomm_data_t  *rfcomm_data;
 
