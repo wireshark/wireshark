@@ -51,10 +51,9 @@ static int dissect_cms_OCTET_STRING(bool implicit_tag _U_, tvbuff_t *tvb, int of
 struct cms_private_data {
   const char *object_identifier_id;
   tvbuff_t *content_tvb;
+  proto_tree *top_tree;
+  proto_tree *cap_tree;
 };
-
-static proto_tree *top_tree;
-static proto_tree *cap_tree;
 
 #define HASH_SHA1 "1.3.14.3.2.26"
 
