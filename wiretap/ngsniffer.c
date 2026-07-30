@@ -855,7 +855,7 @@ process_header_records(wtap *wth, int *err, char **err_info, int16_t maj_vers,
 
 			case 2:
 				if (process_rec_header2_v2(wth, buffer,
-				    rec_length_remaining, err, err_info) < 0)
+				    bytes_to_read, err, err_info) < 0)
 					return -1;
 				break;
 
@@ -863,7 +863,7 @@ process_header_records(wtap *wth, int *err, char **err_info, int16_t maj_vers,
 			case 4:
 			case 5:
 				if (process_rec_header2_v145(wth, buffer,
-				    rec_length_remaining, maj_vers, err, err_info) < 0)
+				    bytes_to_read, maj_vers, err, err_info) < 0)
 					return -1;
 				break;
 			}
