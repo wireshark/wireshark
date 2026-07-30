@@ -226,7 +226,7 @@ static inline void phtonu64(uint8_t *p, uint64_t v)
  * @param p Destination buffer; must have at least 2 bytes available.
  * @param v Value in host byte order to write.
  */
-static inline void phtoleu16(uint8_t *p, uint32_t v)
+static inline void phtoleu16(uint8_t *p, uint16_t v)
 {
 #if G_BYTE_ORDER == G_BIG_ENDIAN
     v = pint_bswap16(v);
