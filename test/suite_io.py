@@ -10,9 +10,10 @@
 
 import os.path
 import subprocess
-from subprocesstest import cat_dhcp_command, check_packet_count
 import sys
+
 import pytest
+from subprocesstest import cat_dhcp_command, check_packet_count
 
 testout_pcap = 'testout.pcap'
 baseline_file = 'io-rawshark-dhcp-pcap.txt'

@@ -27,11 +27,12 @@ Assume that the tag for the most recent release doesn't exist and use
 today's date for it.
 '''
 
-from datetime import date
 import os.path
 import re
 import subprocess
 import time
+from datetime import date
+
 
 def main():
     this_dir = os.path.dirname(__file__)

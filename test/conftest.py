@@ -8,14 +8,16 @@
 '''pytest configuration'''
 
 
-from contextlib import contextmanager
 import os
 import re
+import shutil
 import subprocess
 import sys
 import types
+from contextlib import contextmanager
+
 import pytest
-import shutil
+
 
 def pytest_addoption(parser):
     parser.addoption('--disable-capture', action='store_true',

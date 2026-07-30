@@ -7,6 +7,7 @@
 '''ASTERIX dissector tests'''
 
 import inspect
+
 import pytest
 
 # Wireshark modules

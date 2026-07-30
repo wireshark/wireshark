@@ -6,8 +6,8 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import sys
 import fnmatch
+import sys
 
 IGNORE_CONF = "pre-commit-ignore.conf"
 

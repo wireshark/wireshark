@@ -8,11 +8,12 @@
 #
 '''Dissection tests'''
 
-import sys
 import os.path
 import subprocess
-from subprocesstest import count_output, grep_output
+import sys
+
 import pytest
+from subprocesstest import count_output, grep_output
 
 
 class TestDissectHttpHeaderSyntax:

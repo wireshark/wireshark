@@ -2,10 +2,11 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import logging
+
+import pytest
 import subprocesstest
 from subprocesstest import count_output
-import pytest
-import logging
 
 
 @pytest.fixture

@@ -9,6 +9,7 @@
 
 import re
 
+
 class MatchAny(object):
     '''Matches any other value.'''
 

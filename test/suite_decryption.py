@@ -8,15 +8,17 @@
 #
 '''Decryption tests'''
 
+import binascii
 import os.path
 import shutil
 import subprocess
-from subprocesstest import grep_output, count_output
 import sys
 import sysconfig
 import types
+
 import pytest
-import binascii
+from subprocesstest import count_output, grep_output
+
 
 class TestDecrypt80211:
     def test_80211_wep(self, cmd_tshark, capture_file, test_env):

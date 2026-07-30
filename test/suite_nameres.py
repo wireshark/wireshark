@@ -11,8 +11,9 @@
 import os.path
 import shutil
 import subprocess
-from subprocesstest import grep_output
+
 import pytest
+from subprocesstest import grep_output
 
 tf_str = { True: 'TRUE', False: 'FALSE' }
 

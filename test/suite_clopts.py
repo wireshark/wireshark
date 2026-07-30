@@ -9,12 +9,13 @@
 '''Command line option tests'''
 
 import json
-import sys
 import os.path
 import subprocess
-import subprocesstest
-from subprocesstest import ExitCodes, grep_output, count_output
+import sys
+
 import pytest
+import subprocesstest
+from subprocesstest import ExitCodes, count_output, grep_output
 
 #glossaries = ('fields', 'protocols', 'values', 'decodes', 'defaultprefs', 'currentprefs')
 

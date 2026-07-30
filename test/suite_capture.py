@@ -13,15 +13,17 @@ import hashlib
 import os
 import socket
 import subprocess
-import subprocesstest
-from subprocesstest import cat_dhcp_command, cat_cap_file_command, grep_output, check_packet_count
-from suite_text2pcap import check_capinfos_info
 import sys
+import sysconfig
 import threading
 import time
 import uuid
-import sysconfig
+
 import pytest
+import subprocesstest
+from subprocesstest import (cat_cap_file_command, cat_dhcp_command,
+                            check_packet_count, grep_output)
+from suite_text2pcap import check_capinfos_info
 
 capture_duration = 5
 

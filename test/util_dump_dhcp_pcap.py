@@ -12,8 +12,9 @@
 import argparse
 import os
 import os.path
-import time
 import sys
+import time
+
 
 def main():
     parser = argparse.ArgumentParser(description='Dump dhcp.pcap')

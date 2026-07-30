@@ -28,11 +28,11 @@ other script-based formats beside VBScript
 
 from __future__ import print_function
 
-import sys
-import re
 import argparse
-import time
+import re
 import struct
+import sys
+import time
 from threading import Thread
 
 ERROR_USAGE          = 0

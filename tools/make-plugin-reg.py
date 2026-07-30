@@ -6,8 +6,8 @@
 #
 
 import os
-import sys
 import re
+import sys
 
 #
 # The first argument is the directory in which the source files live.

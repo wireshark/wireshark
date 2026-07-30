@@ -15,10 +15,10 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import sys
-import os
 import argparse
+import os
 import subprocess
+import sys
 
 parser = argparse.ArgumentParser()
 group = parser.add_mutually_exclusive_group(required=True)

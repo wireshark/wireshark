@@ -10,6 +10,7 @@
 
 import re
 import subprocess
+
 from subprocesstest import grep_output
 
 testout_pcap = 'testout.pcap'

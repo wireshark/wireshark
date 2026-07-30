@@ -21,6 +21,7 @@ import re
 import subprocess
 import sys
 
+
 def main():
     parser = argparse.ArgumentParser(description='Update Wireshark tools help')
     parser.add_argument('-p', '--program-path', nargs=1, default=os.path.curdir, help='Path to Wireshark executables.')

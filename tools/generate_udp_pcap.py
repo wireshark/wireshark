@@ -9,14 +9,15 @@ Copyright 2021-2024 Brian Sipos <brian.sipos@gmail.com>
 SPDX-License-Identifier: LGPL-2.1-or-later
 '''
 
+import sys
 from argparse import ArgumentParser
-from scapy.layers.l2 import Ether
+from subprocess import check_output
+
 from scapy.layers.inet import IP, UDP
+from scapy.layers.l2 import Ether
 from scapy.packet import Raw
 from scapy.utils import wrpcap
 from scapy.volatile import RandNum
-from subprocess import check_output
-import sys
 
 
 def main():

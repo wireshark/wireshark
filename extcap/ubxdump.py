@@ -20,12 +20,13 @@ Tested with UBX protocol version 18.
 """
 
 import argparse
-import serial.tools.list_ports
-import serial
 import struct
 import sys
 import time
 from threading import Thread
+
+import serial
+import serial.tools.list_ports
 
 VERSION  = "0.1"
 

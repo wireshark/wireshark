@@ -32,9 +32,8 @@ import os.path
 import re
 import shlex
 import shutil
-import sys
 import subprocess
-
+import sys
 from enum import Enum
 
 Flavor = Enum('Flavor', ['Wireshark', 'Stratoshark'])

@@ -31,6 +31,7 @@ import os
 import re
 import sys
 
+
 def parse_desc(description):
     '''\
 Break up descriptions based on newlines and keywords. Some processing

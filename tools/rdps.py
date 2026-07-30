@@ -19,8 +19,8 @@ with 2 functions:
 Ported to Python from rdps.c.
 '''
 
-import sys
 import os.path
+import sys
 
 
 def ps_clean_string(raw_str):

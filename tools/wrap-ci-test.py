@@ -32,11 +32,11 @@
 
 import argparse
 import html
-import time
 import pathlib
 import re
 import subprocess
 import sys
+import time
 import xml.etree.ElementTree as ET
 
 

@@ -8,13 +8,14 @@
 #
 '''Wireshark Lua scripting tests'''
 
-import sys
 import filecmp
+import logging
 import os.path
 import shutil
 import subprocess
+import sys
+
 import pytest
-import logging
 
 dhcp_pcap = 'dhcp.pcap'
 dns_port_pcap = 'dns_port.pcap'

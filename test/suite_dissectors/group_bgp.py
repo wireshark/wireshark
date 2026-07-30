@@ -9,14 +9,13 @@
 #
 '''BGP SR Policy dissector tests (Tunnel Encapsulation Attribute, Type 23)'''
 
+import struct
 import subprocess
-
 
 # ---------------------------------------------------------------------------
 # Helper
 # ---------------------------------------------------------------------------
 
-import struct
 
 
 def _bgp_fields(cmd_tshark, cmd_text2pcap, pcap_path, txt_path, msg_bytes, fields, env):

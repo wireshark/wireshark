@@ -32,7 +32,6 @@ from pathlib import Path
 
 import pytest
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCHEMA_PATH = REPO_ROOT / 'resources' / 'themes' / 'theme.schema.json'
 THEME_ROOT = REPO_ROOT / 'resources' / 'themes'

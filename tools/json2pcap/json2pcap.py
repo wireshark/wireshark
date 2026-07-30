@@ -9,21 +9,23 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import sys
-import ijson
-import operator
-import copy
-import binascii
-import array
 import argparse
-import string
-import random
-import math
+import array
+import binascii
+import copy
 import hashlib
+import math
+import operator
+import random
 import re
-import dateutil.parser
+import string
+import sys
 from collections import OrderedDict
+
+import dateutil.parser
+import ijson
 from scapy import all as scapy
+
 
 # Field anonymization class
 class AnonymizedField:

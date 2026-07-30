@@ -10,7 +10,9 @@
 import re
 import subprocess
 import types
+
 import pytest
+
 
 @pytest.fixture
 def wireshark_features(request, cmd_wireshark, make_env):

@@ -10,15 +10,16 @@
 Make-iana-constants creates a file containing Address family numbers.
 '''
 
-import os
-import sys
 import ipaddress
+import os
 import re
-from enum import Enum
-import urllib.request
+import sys
 import urllib.error
 import urllib.parse
+import urllib.request
 import xml.etree.ElementTree as ET
+from enum import Enum
+
 
 def exit_msg(msg=None, status=1):
     if msg is not None:

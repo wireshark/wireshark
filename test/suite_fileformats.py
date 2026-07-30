@@ -9,10 +9,11 @@
 '''File format conversion tests'''
 
 import os.path
-from subprocesstest import count_output
 import subprocess
-import pytest
 from pathlib import PurePath
+
+import pytest
+from subprocesstest import count_output
 
 # XXX Currently unused. It would be nice to be able to use this below.
 time_output_args = ('-Tfields', '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta')

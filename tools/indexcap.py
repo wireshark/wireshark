@@ -13,16 +13,17 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-from optparse import OptionParser
-import multiprocessing
-import sys
-import os
-import subprocess
-import re
-import pickle
-import tempfile
 import filecmp
+import multiprocessing
+import os
+import pickle
 import random
+import re
+import subprocess
+import sys
+import tempfile
+from optparse import OptionParser
+
 
 def extract_protos_from_file_proces(tshark, file):
     try:

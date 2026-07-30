@@ -17,8 +17,8 @@
 # scapy==2.7.0
 # crc32c==2.8
 
-from scapy.all import *
 import crc32c
+from scapy.all import *
 
 a='203.0.113.42'
 b='198.51.100.42'

@@ -8,12 +8,12 @@
 #
 '''Subprocess test case superclass'''
 
+import enum
 import os
 import os.path
 import re
 import subprocess
 import sys
-import enum
 
 # To do:
 # - Add a subprocesstest.SkipUnlessCapture decorator?

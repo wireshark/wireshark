@@ -18,11 +18,10 @@ import argparse
 import difflib
 import json
 import os
+import re
 import subprocess
 import sys
 import urllib.request
-import re
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('commits', nargs='*', default=['HEAD'],

@@ -17,8 +17,8 @@ import os
 import re
 import sys
 import time
-import urllib.request
 import urllib.error
+import urllib.request
 
 have_icu = False
 try:
