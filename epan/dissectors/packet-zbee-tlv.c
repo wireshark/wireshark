@@ -32,6 +32,7 @@
 static int   dissect_zbee_tlv_default(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
 static unsigned dissect_zdp_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, unsigned cmd_id);
 static unsigned dissect_aps_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, void *data, unsigned cmd_id);
+static unsigned dissect_nwk_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, unsigned cmd_id);
 static unsigned dissect_zbd_local_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, void* data _U_, unsigned cmd_id);
 static unsigned dissect_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset);
 
@@ -112,6 +113,9 @@ static int hf_zbee_tlv_local_type_rsp_set_configuration;
 static int hf_zbee_tlv_local_type_lk_features;
 static int hf_zbee_tlv_local_type_lk_features_capabilities;
 static int hf_zbee_tlv_local_type_lk_features_capabilities_aps_fc_sync;
+static int hf_zbee_tlv_local_type_route_req;
+static int hf_zbee_tlv_local_type_route_reply;
+static int hf_zbee_tlv_local_type_network_status;
 
 static int hf_zbee_tlv_length;
 static int hf_zbee_tlv_type;
@@ -223,6 +227,12 @@ static int hf_zbee_tlv_local_active_lk_type;
 static int hf_zbee_tlv_relay_msg_type;
 static int hf_zbee_tlv_relay_msg_length;
 static int hf_zbee_tlv_relay_msg_joiner_ieee;
+
+static int hf_zbee_tlv_routing_sequence_number;
+static int hf_zbee_tlv_initial_radius;
+static int hf_zbee_tlv_concentrator_discovery_time;
+static int hf_zbee_tlv_max_source_route_length;
+static int hf_zbee_tlv_nwk_addr_of_interest;
 
 static int ett_zbee_aps_tlv;
 static int ett_zbee_aps_relay;
@@ -456,6 +466,23 @@ static const value_string zbee_tlv_local_types_rsp_set_configuration[] = {
     { 0, NULL }
 };
 
+static const value_string zbee_tlv_local_types_route_req[] = {
+    { ZBEE_TLV_TYPE_EXTENDED_ROUTE_INFO,       "Extended Route Information TLV" },
+    { ZBEE_TLV_TYPE_CONCENTRATOR_INFO,         "Concentrator Information TLV" },
+    { ZBEE_TLV_TYPE_SOURCE_ROUTE_SOLICIT_INFO, "Source Route Solicitation TLV"},
+    { 0, NULL }
+};
+
+static const value_string zbee_tlv_local_types_route_reply[] = {
+    { ZBEE_TLV_TYPE_EXTENDED_ROUTE_INFO,       "Extended Route Information TLV" },
+    { 0, NULL }
+};
+
+static const value_string zbee_tlv_local_types_network_status[] = {
+    { ZBEE_TLV_TYPE_EXTENDED_ROUTE_INFO,       "Extended Route Information TLV" },
+    { 0, NULL }
+};
+
 static const value_string zbee_tlv_local_types_rsp_beacon_survey[] = {
     { ZBEE_TLV_TYPE_BEACON_SURVEY_CONFIGURATION,       "Beacon Survey Configuration TLV" },
     { ZBEE_TLV_TYPE_BEACON_SURVEY_RESULTS,             "Beacon Survey Results TLV" },
@@ -591,6 +618,209 @@ dissect_aps_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
             offset = dissect_unknown_tlv(tvb, pinfo, tree, offset);
             break;
         }
+    }
+
+    return offset;
+}
+
+/**
+ *Dissector for Route Request Extended Route Information TLV
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param  offset into the tvb to begin dissection.
+ *@return offset after command dissection.
+ */
+static unsigned
+dissect_zbee_tlv_route_req_extended_route_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
+{
+    proto_tree_add_item(tree, hf_zbee_tlv_routing_sequence_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_zbee_tlv_initial_radius, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+/**
+ *Dissector for Route Request Concentrator Information TLV
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param  offset into the tvb to begin dissection.
+ *@return offset after command dissection.
+ */
+static unsigned
+dissect_zbee_tlv_concentrator_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
+{
+    proto_tree_add_item(tree, hf_zbee_tlv_concentrator_discovery_time, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_zbee_tlv_max_source_route_length, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+/**
+ *Dissector for Route Request Source Route Solicitation TLV
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param  offset into the tvb to begin dissection.
+ *@return offset after command dissection.
+ */
+static unsigned
+dissect_zbee_tlv_source_route_solicit(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int length, unsigned offset)
+{
+    uint8_t i;
+    uint8_t addr_count = length / 2U;
+
+    for (i = 0; i < (addr_count); i++)
+    {
+        proto_tree_add_item(tree, hf_zbee_tlv_nwk_addr_of_interest, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+    }
+
+    return offset;
+}
+
+static unsigned
+dissect_nwk_route_req_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
+{
+    uint8_t type;
+    uint8_t length;
+
+    type = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item(tree, hf_zbee_tlv_local_type_route_req, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    length = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    length += 1;
+    switch (type) {
+        case ZBEE_TLV_TYPE_EXTENDED_ROUTE_INFO:
+            offset = dissect_zbee_tlv_route_req_extended_route_info(tvb, pinfo, tree, offset);
+            break;
+
+        case ZBEE_TLV_TYPE_CONCENTRATOR_INFO:
+            offset = dissect_zbee_tlv_concentrator_info(tvb, pinfo, tree, offset);
+            break;
+
+        case ZBEE_TLV_TYPE_SOURCE_ROUTE_SOLICIT_INFO:
+            offset = dissect_zbee_tlv_source_route_solicit(tvb, pinfo, tree, length, offset);
+            break;
+
+        default:
+            proto_tree_add_item(tree, hf_zbee_tlv_value, tvb, offset, length, ENC_NA);
+            offset += length;
+            break;
+    }
+
+    return offset;
+}
+
+/**
+ *Dissector for Extended Route Information TLV
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param  offset into the tvb to begin dissection.
+ *@return offset after command dissection.
+ */
+static unsigned
+dissect_zbee_tlv_extended_route_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
+{
+    proto_tree_add_item(tree, hf_zbee_tlv_routing_sequence_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+static unsigned
+dissect_nwk_route_reply_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
+{
+    uint8_t type;
+    uint8_t length;
+
+    type = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item(tree, hf_zbee_tlv_local_type_route_reply, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    length = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    length += 1;
+    switch (type) {
+        case ZBEE_TLV_TYPE_EXTENDED_ROUTE_INFO:
+            offset = dissect_zbee_tlv_extended_route_info(tvb, pinfo, tree, offset);
+            break;
+
+        default:
+            proto_tree_add_item(tree, hf_zbee_tlv_value, tvb, offset, length, ENC_NA);
+            offset += length;
+            break;
+    }
+
+    return offset;
+}
+
+static unsigned
+dissect_nwk_status_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
+{
+    uint8_t type;
+    uint8_t length;
+
+    type = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item(tree, hf_zbee_tlv_local_type_network_status, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    length = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    length += 1;
+    switch (type) {
+        case ZBEE_TLV_TYPE_EXTENDED_ROUTE_INFO:
+            offset = dissect_zbee_tlv_extended_route_info(tvb, pinfo, tree, offset);
+            break;
+
+        default:
+            proto_tree_add_item(tree, hf_zbee_tlv_value, tvb, offset, length, ENC_NA);
+            offset += length;
+            break;
+    }
+
+    return offset;
+}
+
+static unsigned
+dissect_nwk_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, unsigned cmd_id)
+{
+    switch (cmd_id) {
+        case ZBEE_NWK_CMD_ROUTE_REQ:
+            offset = dissect_nwk_route_req_local_tlv(tvb, pinfo, tree, offset);
+            break;
+
+        case ZBEE_NWK_CMD_ROUTE_REPLY:
+            offset = dissect_nwk_route_reply_local_tlv(tvb, pinfo, tree, offset);
+            break;
+
+        case ZBEE_NWK_CMD_NWK_STATUS:
+            offset = dissect_nwk_status_local_tlv(tvb, pinfo, tree, offset);
+            break;
+
+        default:
+            offset = dissect_unknown_tlv(tvb, pinfo, tree, offset);
+            break;
     }
 
     return offset;
@@ -2800,6 +3030,10 @@ dissect_zbee_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsign
                 offset = dissect_aps_local_tlv(tvb, pinfo, tree, offset, data, cmd_id);
                 break;
 
+            case ZBEE_TLV_SRC_TYPE_ZBEE_NWK:
+                offset = dissect_nwk_local_tlv(tvb, pinfo, tree, offset, cmd_id);
+                break;
+
             case ZBEE_TLV_SRC_TYPE_ZB_DIRECT:
                 offset = dissect_zbd_local_tlv(tvb, pinfo, tree, offset, data, cmd_id);
                 break;
@@ -2947,6 +3181,18 @@ void proto_register_zbee_tlv(void)
         { &hf_zbee_tlv_local_type_rsp_set_configuration,
           { "Type",        "zbee_tlv.type_local", FT_UINT8, BASE_HEX,
             VALS(zbee_tlv_local_types_rsp_set_configuration), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_tlv_local_type_route_req,
+          { "Type",        "zbee_tlv.type_local", FT_UINT8, BASE_HEX,
+            VALS(zbee_tlv_local_types_route_req), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_tlv_local_type_route_reply,
+          { "Type",        "zbee_tlv.type_local", FT_UINT8, BASE_HEX,
+            VALS(zbee_tlv_local_types_route_reply), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_tlv_local_type_network_status,
+          { "Type",        "zbee_tlv.type_local", FT_UINT8, BASE_HEX,
+            VALS(zbee_tlv_local_types_network_status), 0x0, NULL, HFILL }},
 
         { &hf_zbee_tlv_type,
           { "Unknown Type", "zbee_tlv.type", FT_UINT8, BASE_HEX,
@@ -3147,6 +3393,26 @@ void proto_register_zbee_tlv(void)
           { "IEEE Addr", "zbee_tlv.ieee_addr", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_zbee_tlv_routing_sequence_number,
+          { "Routing Sequence Number", "zbee_tlv.route_seq_num", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_tlv_initial_radius,
+          { "Initial Radius", "zbee_tlv.initial_radius", FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_tlv_concentrator_discovery_time,
+          { "Concentrator Discovery Timer", "zbee_tlv.concentrator_discovery_time", FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_tlv_max_source_route_length,
+          { "Max Source Route Length", "zbee_tlv.max_source_route_length", FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_tlv_nwk_addr_of_interest,
+          { "Network Address of Interest", "zbee_tlv.nwk_addr_of_interest", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_zbee_tlv_mic64,
           { "MIC", "zbee_tlv.mic64", FT_UINT64, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
@@ -3168,7 +3434,7 @@ void proto_register_zbee_tlv(void)
               VALS(zbee_tlv_zbd_comm_mj_types), 0x0, NULL, HFILL }},
 
         { &hf_zbee_tlv_zbd_secur_tlv,
-            { "ZBD Manage Joiners TLV Type ID", "zbee_tlv.zbd.comm_mj_tlv_id", FT_UINT8, BASE_HEX,
+            { "ZBD Secure Session TLV Type ID", "zbee_tlv.zbd.secur_tlv_id", FT_UINT8, BASE_HEX,
               VALS(zbee_tlv_zbd_secur_types), 0x0, NULL, HFILL }},
 
         { &hf_zbee_tlv_local_tunneling_npdu,

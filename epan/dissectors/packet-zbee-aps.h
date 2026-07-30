@@ -150,6 +150,9 @@
 #define ZBEE_ZCL_CID_POWER_PROFILE                  0x001a
 #define ZBEE_ZCL_CID_APPLIANCE_CONTROL              0x001b
 
+/* ZCL Cluster IDs - Zigbee Direct (ZBD) Configuration Cluster */
+#define ZBEE_ZCL_ZBD_CONFIGURATION                  0x003d
+
 /* ZCL Cluster IDs - Closures */
 #define ZBEE_ZCL_CID_SHADE_CONFIG                   0x0100
 #define ZBEE_ZCL_CID_DOOR_LOCK                      0X0101

@@ -59,6 +59,11 @@
 /* Security Get_Authentication_Level Response */
 #define ZBEE_TLV_TYPE_GET_AUTH_LEVEL                                 0
 
+/* Route Request */
+#define ZBEE_TLV_TYPE_EXTENDED_ROUTE_INFO                            0
+#define ZBEE_TLV_TYPE_CONCENTRATOR_INFO                              1
+#define ZBEE_TLV_TYPE_SOURCE_ROUTE_SOLICIT_INFO                      2
+
 /* ZigBee Direct Communication Service */
 #define ZBEE_TLV_TYPE_COMM_EXT_PAN_ID       0              /* Extended PAN ID */
 #define ZBEE_TLV_TYPE_COMM_SHORT_PAN_ID     1              /* Short PAN ID */

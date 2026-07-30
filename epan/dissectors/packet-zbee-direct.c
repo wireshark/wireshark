@@ -20,6 +20,10 @@
 #include <epan/expert.h>
 #include <epan/uat.h>
 
+#include "packet-zbee.h"
+#include "packet-zbee-zcl.h"
+#include "packet-zbee-aps.h"
+
 #include "packet-zbee-security.h"
 #include "packet-bluetooth.h"
 #include "packet-ieee802154.h"
@@ -1562,6 +1566,301 @@ static int dissect_zb_direct_tunneling(tvbuff_t    *tvb,
 
     return offset;
 }
+
+/* ############################################################################################### */
+/* #### (0x003d) Zigbee Direct (ZBD) CONFIGURATION CLUSTER ####################################### */
+/* ############################################################################################### */
+
+/*Server commands received*/
+#define ZBEE_ZCL_CMD_ID_CONFIG_ZBD_INTERFACE_STATE          0x00
+#define ZBEE_ZCL_CMD_ID_CONFIG_ZBD_ANONYMOUS_JOIN_TIMEOUT   0x01
+
+/*Server commands generated*/
+#define ZBEE_ZCL_CMD_ID_CONFIG_ZBD_INTERFACE_RESPONSE       0x00
+
+static const value_string zbee_zcl_zbd_configuration_rx_cmd_names[] = {
+    { ZBEE_ZCL_CMD_ID_CONFIG_ZBD_INTERFACE_STATE, "Configure ZBD Interface" },
+    { ZBEE_ZCL_CMD_ID_CONFIG_ZBD_ANONYMOUS_JOIN_TIMEOUT, "Configure ZBD Anonymous Join Timeout" },
+    { 0, NULL }
+};
+static const value_string zbee_zcl_zbd_configuration_tx_cmd_names[] = {
+    { ZBEE_ZCL_CMD_ID_CONFIG_ZBD_INTERFACE_RESPONSE, "Configure ZBD Interface response" },
+    { 0, NULL }
+};
+
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_zbd_configuration;
+
+static int hf_zbee_zcl_zbd_configuration_rx_cmd_id;
+static int hf_zbee_zcl_zbd_configuration_tx_cmd_id;
+
+static int hf_zbee_zcl_zbd_configuration_attr_id;
+static int hf_zbee_zcl_zbd_configuration_interface_state;
+static int hf_zbee_zcl_zbd_configuration_interface_state_status;
+static int hf_zbee_zcl_zbd_configuration_interface_state_mask_enabled;
+static int hf_zbee_zcl_zbd_configuration_interface_state_mask_reserved;
+static int hf_zbee_zcl_zbd_configuration_anonymous_join_timeout;
+
+/* Initialize the subtree pointers */
+static int ett_zbee_zcl_zbd_configuration;
+static int ett_zbee_zcl_zbd_configuration_interface_state;
+static int ett_zbee_zcl_zbd_configuration_anonymous_join_timeout;
+
+/* Attributes */
+#define ZBEE_ZCL_ATTR_ID_ZBD_CONFIGURATION_INTERFACE_STATE       0x0000  /*InterfaceState*/
+#define ZBEE_ZCL_ATTR_ID_ZBD_CONFIGURATION_ANON_JOIN_TIMEOUT     0x0001  /*AnonymousJoinTimeout*/
+
+/*Device Temperature Alarm Mask Value*/
+#define ZBEE_ZCL_ZBD_CONFIGURATION_INTERFACE_STATE_ENABLED       0x01    /*Interface State Enabled*/
+#define ZBEE_ZCL_ZBD_CONFIGURATION_INTERFACE_STATE_RESERVED      0xfe    /*Interface State reserved*/
+
+static const value_string zbee_zcl_zbd_configuration_attr_names[] = {
+    { ZBEE_ZCL_ATTR_ID_ZBD_CONFIGURATION_INTERFACE_STATE,               "Interface State" },
+    { ZBEE_ZCL_ATTR_ID_ZBD_CONFIGURATION_ANON_JOIN_TIMEOUT,             "Anonymous Join Timeout" },
+    { 0, NULL }
+};
+
+static int * const zbee_zcl_zbd_configuration_interface_state_mask[] = {
+    &hf_zbee_zcl_zbd_configuration_interface_state_mask_enabled,
+    &hf_zbee_zcl_zbd_configuration_interface_state_mask_reserved,
+    NULL
+};
+
+void proto_register_zbee_zcl_zbd_configuration(void);
+void proto_reg_handoff_zbee_zcl_zbd_configuration(void);
+
+/* Command Dissector Helpers */
+static void dissect_zcl_zbd_configuration_attr_data      (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zbee_zcl_zbd_configuration
+ *  DESCRIPTION
+ *      ZigBee ZCL ZBD Configuration cluster dissector for wireshark.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *  RETURNS
+ *      int                 - length of parsed data.
+ *---------------------------------------------------------------
+ */
+
+static int
+dissect_zbee_zcl_zbd_configuration(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
+{
+    zbee_zcl_packet   *zcl;
+    unsigned          offset = 0;
+    uint8_t           cmd_id;
+    int               hf_cmd_id;
+    const value_string *vals_cmd_id;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
+
+    if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
+        hf_cmd_id = hf_zbee_zcl_zbd_configuration_rx_cmd_id;
+        vals_cmd_id = zbee_zcl_zbd_configuration_rx_cmd_names;
+    } else {
+        hf_cmd_id = hf_zbee_zcl_zbd_configuration_tx_cmd_id;
+        vals_cmd_id = zbee_zcl_zbd_configuration_tx_cmd_names;
+    }
+
+    /* Append the command name to the info column. */
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+        val_to_str_const(cmd_id, vals_cmd_id, "Unknown Command"),
+        zcl->tran_seqno);
+    /* Add the command ID. */
+    if (tree) {
+        proto_tree_add_item(tree, hf_cmd_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    }
+    offset++;
+
+    /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
+    if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
+        /* Call the appropriate command dissector */
+        switch (cmd_id) {
+            case ZBEE_ZCL_CMD_ID_CONFIG_ZBD_INTERFACE_STATE:
+                proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_zcl_zbd_configuration_interface_state,
+                    ett_zbee_zcl_zbd_configuration_interface_state, zbee_zcl_zbd_configuration_interface_state_mask, ENC_LITTLE_ENDIAN);
+                offset += 1;
+                break;
+
+            case ZBEE_ZCL_CMD_ID_CONFIG_ZBD_ANONYMOUS_JOIN_TIMEOUT:
+                proto_tree_add_item(tree, hf_zbee_zcl_zbd_configuration_anonymous_join_timeout, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+                offset += 3;
+                break;
+
+            default:
+                break;
+        }
+    }
+    else {
+        /* Call the appropriate command dissector */
+        switch (cmd_id) {
+            case ZBEE_ZCL_CMD_ID_CONFIG_ZBD_INTERFACE_RESPONSE:
+                proto_tree_add_item(tree, hf_zbee_zcl_zbd_configuration_interface_state_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset += 1;
+                proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_zcl_zbd_configuration_interface_state,
+                    ett_zbee_zcl_zbd_configuration_interface_state, zbee_zcl_zbd_configuration_interface_state_mask, ENC_LITTLE_ENDIAN);
+                offset += 1;
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    /* Dump leftover data. */
+    if (tvb_captured_length_remaining(tvb, offset) > 0) {
+        tvbuff_t *excess = tvb_new_subset_remaining(tvb, offset);
+        call_data_dissector(excess, pinfo, proto_tree_get_root(tree));
+    }
+    return offset;
+} /*dissect_zbee_zcl_zbd_configuration*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_zbd_configuration_attr_data
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes data.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      unsigned *offset       - pointer to buffer offset
+ *      uint16_t attr_id     - attribute identifier
+ *      unsigned data_type     - attribute data type
+ *      bool client_attr- ZCL client
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+dissect_zcl_zbd_configuration_attr_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
+{
+    /* Dissect attribute data type and data */
+    switch (attr_id) {
+
+        case ZBEE_ZCL_ATTR_ID_ZBD_CONFIGURATION_INTERFACE_STATE:
+            proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_zbd_configuration_interface_state,
+                ett_zbee_zcl_zbd_configuration_interface_state, zbee_zcl_zbd_configuration_interface_state_mask, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_ZBD_CONFIGURATION_ANON_JOIN_TIMEOUT:
+            proto_tree_add_item(tree, hf_zbee_zcl_zbd_configuration_anonymous_join_timeout, tvb, *offset, 3, ENC_LITTLE_ENDIAN);
+            *offset += 3;
+            break;
+
+        default:
+            dissect_zcl_attr_data(tvb, pinfo, tree, offset, data_type, client_attr);
+            break;
+    }
+
+} /*dissect_zcl_zbd_configuration_attr_data*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_register_zbee_zcl_zbd_configuration
+ *  DESCRIPTION
+ *      ZigBee ZCL ZBD Configuration cluster protocol registration routine.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_register_zbee_zcl_zbd_configuration(void)
+{
+    /* Setup list of header fields */
+    static hf_register_info hf[] = {
+        { &hf_zbee_zcl_zbd_configuration_rx_cmd_id,
+            { "Command", "zbd.configuration.rx_cmd_id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_zbd_configuration_rx_cmd_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_zbd_configuration_tx_cmd_id,
+            { "Command", "zbd.configuration.tx_cmd_id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_zbd_configuration_tx_cmd_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_zbd_configuration_attr_id,
+            { "Attribute", "zbd.configuration.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_zbd_configuration_attr_names),
+            0x00, NULL, HFILL } },
+
+        /* interface state */
+        { &hf_zbee_zcl_zbd_configuration_interface_state_status,
+            { "Status", "zbd.configuration.interface_state.status", FT_UINT8, BASE_HEX, VALS(zbee_zcl_status_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_zbd_configuration_interface_state,
+            { "ZBD InterfaceState", "zbd.configuration.attr.interface_state", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_zbd_configuration_interface_state_mask_enabled,
+            { "Enabled", "zbd.configuration.attr.interface_state.enabled", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_ZBD_CONFIGURATION_INTERFACE_STATE_ENABLED, NULL, HFILL } },
+
+        { &hf_zbee_zcl_zbd_configuration_interface_state_mask_reserved,
+            { "Reserved", "zbd.configuration.attr.interface_state.reserved", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_ZBD_CONFIGURATION_INTERFACE_STATE_RESERVED, NULL, HFILL } },
+
+        /* anonymous join timeout */
+        { &hf_zbee_zcl_zbd_configuration_anonymous_join_timeout,
+            { "ZBD AnonymousJoinTimeout", "zbd.configuration.attr.anonymous_join_timeout", FT_UINT24, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+    };
+
+    /* ZCL ZBD Configuration subtrees */
+    static int *ett[] = {
+        &ett_zbee_zcl_zbd_configuration,
+        &ett_zbee_zcl_zbd_configuration_interface_state,
+        &ett_zbee_zcl_zbd_configuration_anonymous_join_timeout,
+    };
+
+    /* Register the ZigBee ZCL ZBD Configuration cluster protocol name and description */
+    proto_zbee_zcl_zbd_configuration = proto_register_protocol("ZigBee ZCL ZBD Configuration", "ZCL ZBD Configuration",
+        ZBEE_PROTOABBREV_ZCL_ZBD_CONFIGURATION);
+    proto_register_field_array(proto_zbee_zcl_zbd_configuration, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Device Temperature Configuration dissector. */
+    register_dissector(ZBEE_PROTOABBREV_ZCL_ZBD_CONFIGURATION, dissect_zbee_zcl_zbd_configuration, proto_zbee_zcl_zbd_configuration);
+} /*proto_register_zbee_zcl_zbd_configuration*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_reg_handoff_zbee_zcl_zbd_configuration
+ *  DESCRIPTION
+ *      Hands off the ZCL ZBD Configuration dissector.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_reg_handoff_zbee_zcl_zbd_configuration(void)
+{
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_ZBD_CONFIGURATION,
+                            proto_zbee_zcl_zbd_configuration,
+                            ett_zbee_zcl_zbd_configuration,
+                            ZBEE_ZCL_ZBD_CONFIGURATION,
+                            ZBEE_MFG_CODE_NONE,
+                            hf_zbee_zcl_zbd_configuration_attr_id,
+                            hf_zbee_zcl_zbd_configuration_attr_id,
+                            -1, -1,
+                            dissect_zcl_zbd_configuration_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_zbd_configuration*/
+
 
 /*****************************************************************************/
 /******************************* Registration ********************************/

@@ -579,6 +579,9 @@ const range_string zbee_aps_cid_names[] = {
     { ZBEE_ZCL_CID_POWER_PROFILE,                    ZBEE_ZCL_CID_POWER_PROFILE,                    "Power Profile"},
     { ZBEE_ZCL_CID_APPLIANCE_CONTROL,                ZBEE_ZCL_CID_APPLIANCE_CONTROL,                "Appliance Control"},
 
+/* Zigbee Direct (ZBD) */
+    { ZBEE_ZCL_ZBD_CONFIGURATION,                   ZBEE_ZCL_ZBD_CONFIGURATION,                   "ZBD Configuration"},
+
 /* Closures */
     { ZBEE_ZCL_CID_SHADE_CONFIG,                    ZBEE_ZCL_CID_SHADE_CONFIG,                    "Shade Configuration"},
     { ZBEE_ZCL_CID_DOOR_LOCK,                       ZBEE_ZCL_CID_DOOR_LOCK,                       "Door Lock"},
