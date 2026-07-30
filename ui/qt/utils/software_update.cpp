@@ -370,9 +370,11 @@ void SoftwareUpdate::softwareUpdateEngaged() {
     if (instance_) {
 
         /* Restarting auto check after update */
-        if (instance_) {
+        /* This can be called from a different thread; QTimer can only be
+         * stopped and started from the owning thread. */
+        QMetaObject::invokeMethod(instance_, [=]() {
             instance_->startAutoCheck();
-        }
+            }, Qt::QueuedConnection);
 
         emit instance_->updateEngaged();
     }
