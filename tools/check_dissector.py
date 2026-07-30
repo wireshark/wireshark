@@ -5,11 +5,13 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import sys
+import argparse
 import os
 import signal
-import argparse
-from check_common import isDissectorFile, getFilesFromOpen, getFilesFromCommits, bcolors
+import sys
+
+from check_common import (bcolors, getFilesFromCommits, getFilesFromOpen,
+                          isDissectorFile)
 
 # Run battery of tests on one or more dissectors.
 
@@ -73,7 +75,7 @@ if __name__ == '__main__':
 
     if not args.file and not args.file_list and not args.open and not args.commits:
         print('Need to specify --file, --file-list or --open or --commits')
-        exit(1)
+        sys.exit(1)
 
 
     # TODO: verify build-folder if set.
@@ -86,7 +88,7 @@ if __name__ == '__main__':
         for f in args.file:
                 if not os.path.isfile(f):
                     print('Chosen file', f, 'does not exist.')
-                    exit(1)
+                    sys.exit(1)
                 else:
                     if isDissectorFile(f):
                         dissectors.append(f)
@@ -95,14 +97,14 @@ if __name__ == '__main__':
     if args.file_list:
         if not os.path.isfile(args.file_list):
             print('Dissector-list file', args.file_list, 'does not exist.')
-            exit(1)
+            sys.exit(1)
         else:
             with open(args.file_list, 'r') as f:
                 contents = f.read().splitlines()
                 for f in contents:
                     if not os.path.isfile(f):
                         print('Chosen file', f, 'does not exist.')
-                        exit(1)
+                        sys.exit(1)
                     else:
                         dissectors.append(f)
     elif args.open:
@@ -137,7 +139,7 @@ if __name__ == '__main__':
     if len(dissectors):
         for tool in tools:
             if should_exit:
-                exit(1)
+                sys.exit(1)
             if ((not sys.platform.startswith('win') or tool[2]) and
                     (not tool[1] or (tool[1] and args.build_folder))):
 

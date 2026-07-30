@@ -33,12 +33,13 @@
 
 
 import argparse
+import concurrent.futures
 import os
 import re
 import sys
-import concurrent.futures
-from check_common import findDissectorFilesInFolder, HFEntriesParser, Result, OutputType, isDissectorFile
 
+from check_common import (HFEntriesParser, OutputType, Result,
+                          findDissectorFilesInFolder, isDissectorFile)
 
 APIs = {
     # API groups.

@@ -7,11 +7,12 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import sys
-import os
 import argparse
-import urllib.request
 import json
+import os
+import sys
+import urllib.request
+
 import generate_dissector
 
 # Path to default upstream repository

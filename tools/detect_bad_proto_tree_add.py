@@ -50,6 +50,7 @@ import argparse
 import os
 import re
 import sys
+
 from check_common import isDissectorFile
 
 

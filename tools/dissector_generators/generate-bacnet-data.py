@@ -15,9 +15,11 @@ based on work by Anish Bhatt <anish@chelsio.com>
 '''
 
 import sys
-import urllib.request
 import urllib.error
+import urllib.request
+
 from bs4 import BeautifulSoup
+
 
 def exit_msg(msg=None, status=1):
     if msg is not None:

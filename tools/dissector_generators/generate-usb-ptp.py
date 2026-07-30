@@ -13,8 +13,8 @@ USB PTP Dissector
 import os
 import re
 import sys
-import requests
 
+import requests
 
 # URL where the latest version can be found
 URL = "https://raw.githubusercontent.com/gphoto/libgphoto2/master/camlibs/ptp2/ptp.h"

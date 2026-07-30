@@ -9,7 +9,9 @@ SPDX-License-Identifier: GPL-2.0-or-later
 import sys
 import xml.sax
 from xml.sax.saxutils import quoteattr
+
 import cStringIO as StringIO
+
 
 class CaptureFile:
     pass

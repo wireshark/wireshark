@@ -88,9 +88,9 @@ prepended to each packet (from wiretap/pcap-common.c struct i2c_linux_file_hdr):
   bytes 1-4: flags, big-endian 32-bit
 """
 
+import os
 import struct
 import sys
-import os
 
 # ---------------------------------------------------------------------------
 # pcapng block helpers

@@ -10,14 +10,13 @@
 
 
 import argparse
+import itertools
 import re
 import sys
 import xml.etree.ElementTree as ET
 
-
 # inlined from upstream's etimodel.py
 
-import itertools
 
 def get_max_sizes(st, dt):
     h = {}

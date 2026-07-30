@@ -5,13 +5,13 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import os
-import sys
-import subprocess
-import signal
 import argparse
-import pathlib
 import datetime
+import os
+import pathlib
+import signal
+import subprocess
+import sys
 import time
 
 # Search for capture files that match a given filter (or filters)

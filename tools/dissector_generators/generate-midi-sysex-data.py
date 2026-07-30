@@ -10,13 +10,14 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-from html.parser import HTMLParser
 import os
 import re
 import string
 import sys
 import unicodedata
 import urllib.request
+from html.parser import HTMLParser
+
 
 class HTMLTableExtractor(HTMLParser):
     """Parse the contents of HTML tables found in the given content, and

@@ -8,12 +8,15 @@
 # Scan dissectors for calls to col_[set|add|append]_[f]str
 # to check that most appropriate API is being used
 
+import argparse
+import concurrent.futures
 import os
 import re
-import argparse
 import signal
-import concurrent.futures
-from check_common import removeComments, getFilesFromCommits, getFilesFromOpen, findDissectorFilesInFolder, isGeneratedFile, Result
+
+from check_common import (Result, findDissectorFilesInFolder,
+                          getFilesFromCommits, getFilesFromOpen,
+                          isGeneratedFile, removeComments)
 
 # Try to exit soon after Ctrl-C is pressed.
 should_exit = False

@@ -5,12 +5,16 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import argparse
+import concurrent.futures
 import os
 import re
-import argparse
 import signal
-import concurrent.futures
-from check_common import isGeneratedFile, findDissectorFilesInFolder, getFilesFromCommits, getFilesFromOpen, removeComments, Result
+import sys
+
+from check_common import (Result, findDissectorFilesInFolder,
+                          getFilesFromCommits, getFilesFromOpen,
+                          isGeneratedFile, removeComments)
 
 # This utility scans for tfs items, and works out if standard ones
 # could have been used instead (from epan/tfs.c)
@@ -158,13 +162,12 @@ class Item:
         self.set_mask_value(macros)
 
         self.bits_set = 0
-        for n in range(0, self.get_field_width_in_bits()):
+        for n in range(self.get_field_width_in_bits()):
             if self.check_bit(self.mask_value, n):
                 self.bits_set += 1
 
     def __str__(self):
-        return 'Item ({0} "{1}" {2} type={3}:{4} strings={5} mask={6})'.format(self.filename, self.label, self.filter,
-                                                                               self.item_type, self.type_modifier, self.strings, self.mask)
+        return f'Item ({self.filename} "{self.label}" {self.filter} type={self.item_type}:{self.type_modifier} strings={self.strings} mask={self.mask})'
 
     def set_mask_value(self, macros):
         try:
@@ -345,10 +348,9 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
                     else:
                         result.warn(filename, f, "- could have used", c, 'from tfs.c instead: ', common_tfs[c], '  (capitalisation differs)')
                     break
-        if not found:
-            if look_for_common:
-                vals = (file_tfs[f].true_val, file_tfs[f].false_val)
-                result.custom_entries.add(vals)
+        if not found and look_for_common:
+            vals = (file_tfs[f].true_val, file_tfs[f].false_val)
+            result.custom_entries.add(vals)
 
     if check_value_strings:
         # Get macros
@@ -393,15 +395,14 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
                             # - have VALS(v)  AND
                             # - have a mask width of 1 bit (no good if field can have values > 1...)
                             for i in items:
-                                if re.match(r'VALS\(\s*'+v+r'\s*\)', items[i].strings):
-                                    if items[i].bits_set == 1:
-                                        if exact_case:
-                                            result.warn(filename, 'value_string', "'"+v+"'", '- could have used tfs.c entry instead: for', i,
-                                                        ' - "FT_BOOLEAN,', str(items[i].get_field_width_in_bits()) + ', TFS(&' + c + '),"')
-                                        else:
-                                            result.note(filename, 'value_string', "'"+v+"'", '- could have used tfs.c entry instead: for', i,
-                                                        ' - "FT_BOOLEAN,', str(items[i].get_field_width_in_bits()) + ', TFS(&' + c + '),"',
-                                                        '  (capitalisation differs)')
+                                if re.match(r'VALS\(\s*'+v+r'\s*\)', items[i].strings) and items[i].bits_set == 1:
+                                    if exact_case:
+                                        result.warn(filename, 'value_string', "'"+v+"'", '- could have used tfs.c entry instead: for', i,
+                                                    ' - "FT_BOOLEAN,', str(items[i].get_field_width_in_bits()) + ', TFS(&' + c + '),"')
+                                    else:
+                                        result.note(filename, 'value_string', "'"+v+"'", '- could have used tfs.c entry instead: for', i,
+                                                    ' - "FT_BOOLEAN,', str(items[i].get_field_width_in_bits()) + ', TFS(&' + c + '),"',
+                                                    '  (capitalisation differs)')
 
     if count_common_usage:
         # Look for TFS(&<name>) in dissector
@@ -450,7 +451,7 @@ if __name__ == '__main__':
                 f = os.path.join('epan', 'dissectors', f)
             if not os.path.isfile(f):
                 print('Chosen file', f, 'does not exist.')
-                exit(1)
+                sys.exit(1)
             else:
                 files.add(f)
     elif args.commits:
@@ -499,7 +500,7 @@ if __name__ == '__main__':
                 print(output[:-1])
 
             if result.should_exit:
-                exit(1)
+                sys.exit(1)
 
             # Add to issue counts
             warnings_found += result.warnings
@@ -525,11 +526,11 @@ if __name__ == '__main__':
     # Report on commonly-defined values.
     if args.common:
         # Looking for items that could potentially be moved to tfs.c
-        for c in all_custom_entries:
+        for c, e in all_custom_entries.items():
             # Only want to see items that have 3 or more occurrences.
             # Even then, probably only want to consider ones that sound generic.
-            if len(all_custom_entries[c]) > 2:
-                print(c, 'appears', len(all_custom_entries[c]), 'times, in: ', all_custom_entries[c])
+            if len(e) > 2:
+                print(c, 'appears', len(e), 'times, in: ', e)
 
     # Show how often 'common' entries are used
     if args.common_usage:
@@ -551,4 +552,4 @@ if __name__ == '__main__':
     print(warnings_found, 'warnings found')
     if errors_found:
         print(errors_found, 'errors found')
-        exit(1)
+        sys.exit(1)

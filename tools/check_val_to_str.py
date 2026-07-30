@@ -12,13 +12,22 @@
 # - more detailed format specifier checking (check letter, that there is only 1)
 # - scan conformance (.cnf) files for ASN1 dissectors?
 
+import argparse
+import concurrent.futures
 import os
 import re
-import argparse
 import signal
-import concurrent.futures
-from check_common import findDissectorFilesInFolder, getFilesFromCommits, getFilesFromOpen, isDissectorFile, isGeneratedFile, removeComments, Result
+import sys
 
+from check_common import (
+    Result,
+    findDissectorFilesInFolder,
+    getFilesFromCommits,
+    getFilesFromOpen,
+    isDissectorFile,
+    isGeneratedFile,
+    removeComments
+)
 
 # Try to exit soon after Ctrl-C is pressed.
 should_exit = False
@@ -114,7 +123,7 @@ if __name__ == '__main__':
                     files.append(f)
             else:
                 print('Chosen file', f, 'does not exist.')
-                exit(1)
+                sys.exit(1)
     elif args.commits:
         files = getFilesFromCommits(args.commits)
     elif args.open:
@@ -153,11 +162,11 @@ if __name__ == '__main__':
             errors_found += result.errors
 
             if result.should_exit:
-                exit(1)
+                sys.exit(1)
 
 
     # Show summary.
     print(warnings_found, 'warnings found')
     if errors_found:
         print(errors_found, 'errors found')
-        exit(1)
+        sys.exit(1)

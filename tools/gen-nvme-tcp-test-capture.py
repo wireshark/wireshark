@@ -36,9 +36,9 @@ Wire format layers (outer to inner):
   NVMe/TCP CapsuleCmd    (8-byte common header + 64-byte SQE)
 """
 
+import os
 import struct
 import sys
-import os
 
 # ---------------------------------------------------------------------------
 # pcapng helpers (shared shape with tools/gen-nvme-mi-test-capture.py)

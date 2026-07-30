@@ -17,7 +17,6 @@ import os
 import os.path
 import re
 import sys
-
 from enum import Enum
 
 State = Enum('State', ['Normal', 'InAsn1Dissectors', 'InPublicHeaders'])

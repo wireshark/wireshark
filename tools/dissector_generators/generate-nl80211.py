@@ -19,9 +19,10 @@
 
 import argparse
 import re
-import requests
 import sys
 from pathlib import Path
+
+import requests
 
 # Begin of comment, followed by the actual array definition
 HEADER = "/* Definitions from linux/nl80211.h {{{ */\n"

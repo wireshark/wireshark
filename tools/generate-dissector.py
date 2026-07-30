@@ -17,9 +17,8 @@
 #
 
 import argparse
-from datetime import datetime
 import os
-
+from datetime import datetime
 
 parser = argparse.ArgumentParser(description='The Wireshark Dissector Generator')
 parser.add_argument("--name", help="The author of the dissector", required=True)

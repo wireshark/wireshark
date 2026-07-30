@@ -9,16 +9,17 @@ This allows straightforward test and debugging of simple pcap files.
 SPDX-License-Identifier: LGPL-2.1-or-later
 '''
 
-from argparse import ArgumentParser
 import random
-from scapy.layers.l2 import Ether
-from scapy.layers.inet import IP, TCP, UDP
-from scapy.layers.http import HTTP, HTTPRequest, HTTPResponse
+import sys
+from argparse import ArgumentParser
+from subprocess import check_output
+
 from scapy.contrib.coap import CoAP
+from scapy.layers.http import HTTP, HTTPRequest, HTTPResponse
+from scapy.layers.inet import IP, TCP, UDP
+from scapy.layers.l2 import Ether
 from scapy.packet import Raw
 from scapy.utils import wrpcap
-from subprocess import check_output
-import sys
 
 
 def intencode(val: int) -> bytes:

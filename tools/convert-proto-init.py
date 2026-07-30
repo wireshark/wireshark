@@ -17,6 +17,7 @@ import platform
 import re
 import sys
 
+
 def convert_file(file):
     lines = ''
     try:

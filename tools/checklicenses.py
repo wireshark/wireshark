@@ -179,9 +179,9 @@ def check_licenses(options, args):
     PrintUsage()
     return 1
 
-  print("Using base directory: %s" % options.base_directory)
-  print("Checking: %s" % start_dir)
-  print("")
+  print(f"Using base directory: {options.base_directory}")
+  print(f"Checking: {start_dir}")
+  print()
 
   licensecheck_path = os.path.abspath(os.path.join(options.base_directory,
                                                     'tools',
@@ -230,15 +230,15 @@ def check_licenses(options, args):
 
     if not options.ignore_suppressions:
       found_path_specific = False
-      for prefix in PATH_SPECIFIC_ALLOWED_LICENSES:
+      for prefix,allowed in PATH_SPECIFIC_ALLOWED_LICENSES.items():
         if (filename.startswith(prefix) and
-            license in PATH_SPECIFIC_ALLOWED_LICENSES[prefix]):
+            license in allowed):
           found_path_specific = True
           break
       if found_path_specific:
         continue
 
-    reason = "License '%s' for '%s' is not allowed." % (license, filename)
+    reason = f"License '{license}' for '{filename}' is not allowed."
     success = False
     print(reason)
     exit_status = 1

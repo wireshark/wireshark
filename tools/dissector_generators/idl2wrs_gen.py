@@ -44,7 +44,6 @@ import tempfile
 
 from omniidl import idlast, idltype, idlutil, output
 
-
 # Output class, generates "C" src code for the sub-dissector
 #
 # in:

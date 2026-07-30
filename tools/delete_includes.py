@@ -12,14 +12,13 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-import subprocess
-import os
-import sys
-import shutil
 import argparse
+import os
+import shutil
 import signal
+import subprocess
+import sys
 from pathlib import Path
-
 
 # Try to exit soon after Ctrl-C is pressed.
 should_exit = False

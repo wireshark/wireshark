@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-import os.path
-import sys
 import itertools
-import lxml.etree
+import os.path
 import re
+import sys
+
+import lxml.etree
 
 # This utility scrapes the DICOM standard document in DocBook format, finds the appropriate tables,
 # and extracts the data needed to build the lists of DICOM attributes, UIDs and value representations.

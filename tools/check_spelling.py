@@ -5,19 +5,20 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import os
-import sys
-import re
 import argparse
-import signal
+import concurrent.futures
 import glob
-
-from spellchecker import SpellChecker
+import os
+import re
+import signal
+import sys
+import urllib.request
 from collections import Counter
 from html.parser import HTMLParser
-import urllib.request
-import concurrent.futures
-from check_common import bcolors, getFilesFromOpen, getFilesFromCommits, isGeneratedFile, removeComments, Result
+
+from check_common import (Result, bcolors, getFilesFromCommits,
+                          getFilesFromOpen, isGeneratedFile, removeComments)
+from spellchecker import SpellChecker
 
 # Looks for spelling errors among strings found in source or documentation files.
 # N.B.,
@@ -99,7 +100,7 @@ class File:
         self.file = file
         self.values = []
 
-        filename, extension = os.path.splitext(file)
+        _, extension = os.path.splitext(file)
         # TODO: add '.lua'?  Would also need to check string and comment formats...
         self.code_file = extension in {'.c', '.cpp', '.h', '.cnf'}
 
@@ -159,7 +160,7 @@ class File:
         if m:
             if m.group(2).lower() in {"bit", "bits", "gb", "kbps", "gig", "mb", "th", "mhz", "v", "hz", "k",
                                       "mbps", "m", "g", "ms", "nd", "nds", "rd", "kb", "kbit", "ghz",
-                                      "khz", "km", "ms", "usec", "sec", "gbe", "ns", "ksps", "qam", "mm"}:
+                                      "khz", "km", "usec", "sec", "gbe", "ns", "ksps", "qam", "mm"}:
                 return True
         return False
 

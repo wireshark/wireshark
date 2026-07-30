@@ -37,19 +37,18 @@
 #   Information technology - Remote Operations: Concepts, model and notation
 #
 
-import warnings
-
-import re
-import sys
+import getopt
 import os
 import os.path
+import re
+import sys
 import time
-import getopt
+import warnings
+
 #import traceback
 
 try:
-    from ply import lex
-    from ply import yacc
+    from ply import lex, yacc
 except ImportError:
     # Fallback: use lex.py and yacc from the tools directory within the
     # Wireshark source tree if python-ply is not installed.

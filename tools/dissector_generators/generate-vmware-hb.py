@@ -11,8 +11,8 @@ source file.
 
 import argparse
 import re
-import requests
 
+import requests
 
 RELEASES_URL = "https://www.virten.net/repo/esxiReleases.json"
 

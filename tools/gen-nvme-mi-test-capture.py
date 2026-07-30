@@ -68,9 +68,9 @@ Wire format layers (outer to inner):
   NVMe-MI payload                  (variable)
 """
 
+import os
 import struct
 import sys
-import os
 
 # CRC32C (Castagnoli) — required for IC-enabled (MIC-carrying) NVMe-MI frames.
 _CRC32C_POLY = 0x82F63B78

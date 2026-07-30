@@ -10,10 +10,10 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import urllib.request
-import re
 import datetime
+import re
 import sys
+import urllib.request
 from pathlib import Path
 
 BASE_URL = "https://tsp.esta.org/tsp/working_groups/CP/mfctrIDs.php"

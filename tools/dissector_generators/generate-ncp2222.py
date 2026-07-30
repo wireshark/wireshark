@@ -55,9 +55,9 @@ Portions Copyright (c) Novell, Inc. 2000-2003.
 SPDX-License-Identifier: GPL-2.0-or-later
 """
 
+import getopt
 import os
 import sys
-import getopt
 import traceback
 
 errors          = {}

@@ -15,9 +15,9 @@
 
 import string
 import sys
-import urllib.request
 import urllib.error
 import urllib.parse
+import urllib.request
 
 OUTPUT_SOURCE_FILE = "epan/dissectors/data-ncsi.c"
 OUTPUT_HEADER_FILE = "epan/dissectors/data-ncsi.h"

@@ -23,10 +23,12 @@
 
 #from typing import *
 from binascii import hexlify
-#from dataclasses import dataclass
 
 #from asterix.base import *
 import asterix.generated as gen
+
+#from dataclasses import dataclass
+
 
 # Select particular asterix categories and editions
 Cat001 = gen.Cat_001_1_4

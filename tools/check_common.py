@@ -4,10 +4,10 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import io
 import os
 import re
 import subprocess
-import io
 from enum import Enum
 
 
@@ -179,7 +179,7 @@ class HFEntriesParser:
                 # Find first 3 offsets
                 positions = []
                 start = 0
-                for _ in range(0, 2):
+                for _ in range(2):
                     found = name[start:].find('"')
                     positions.append(found + start)
                     start += found + 1
@@ -193,7 +193,7 @@ class HFEntriesParser:
                     # Find first 3 offsets
                     positions = []
                     start = 0
-                    for _ in range(0, 3):
+                    for _ in range(3):
                         found = blurb[start:].find('"')
                         positions.append(found + start)
                         start += found + 1

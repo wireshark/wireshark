@@ -14,10 +14,11 @@ import csv
 import io
 import os
 import sys
-import urllib.request
 import urllib.error
 import urllib.parse
+import urllib.request
 import zipfile
+
 
 def exit_msg(msg=None, status=1):
     if msg is not None:
