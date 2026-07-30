@@ -1779,6 +1779,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-udpcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-uds.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-udt.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-udx.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-uet.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-uftp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-uftp4.c

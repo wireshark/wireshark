@@ -1364,3 +1364,139 @@ class TestDissectUltraEthernet:
                 '-Tfields', '-euet.crc.status',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip().split() == (['1'] * 48)
+
+
+# UDX ships its heuristic disabled, so the tests enable it explicitly.
+UDX_HEUR = ('--enable-heuristic', 'udx_udp')
+
+
+class TestDissectUdx:
+    def test_udx_heuristic_disabled_by_default(self, cmd_tshark, capture_file, test_env):
+        '''The heuristic is off unless the user asks for it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('udx_clean.pcap.gz'),
+                '-Y', 'udx',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_udx_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''Every packet of a UDX capture is recognised by the heuristic.'''
+        stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR,
+                '-r', capture_file('udx_clean.pcap.gz'),
+                '-Y', 'udx',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 130
+
+    def test_udx_header_fields(self, cmd_tshark, capture_file, test_env):
+        '''Header fields decode with the little-endian byte order UDX uses.'''
+        stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR,
+                '-r', capture_file('udx_clean.pcap.gz'),
+                '-c', '1',
+                '-Tfields', '-eudx.id', '-eudx.seq', '-eudx.ack', '-eudx.rwnd',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '101\t0\t0\t4194304'
+
+    def test_udx_sack_blocks(self, cmd_tshark, capture_file, test_env):
+        '''Selective acknowledgement ranges are decoded as pairs.'''
+        stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR,
+                '-r', capture_file('udx_loss.pcap.gz'),
+                '-Y', 'udx.sack.start',
+                '-Tfields', '-eudx.sack.start', '-eudx.sack.end',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, r'^6\t8')
+
+    def test_udx_stream_pairing(self, cmd_tshark, capture_file, test_env):
+        '''Three streams multiplexed over one socket pair are told apart.
+
+        Packets carry only the receiver's stream id, so each flow has to be
+        matched with its reverse by correlating acknowledgements.
+        '''
+        stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR, '-2',
+                '-r', capture_file('udx_multi.pcap.gz'),
+                '-Tfields', '-eudx.stream',
+            ), encoding='utf-8', env=test_env)
+        assert sorted(set(stdout.split())) == ['0', '1', '2']
+
+    def test_udx_fast_retransmission(self, cmd_tshark, capture_file, test_env):
+        '''A packet resent while later ones were selectively acknowledged.'''
+        stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR, '-2',
+                '-r', capture_file('udx_loss.pcap.gz'),
+                '-Y', 'udx.analysis.fast_retransmission',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 2
+
+    def test_udx_keepalive(self, cmd_tshark, capture_file, test_env):
+        '''A bare heartbeat with the window open is a keepalive.'''
+        stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR, '-2',
+                '-r', capture_file('udx_keepalive.pcap.gz'),
+                '-Y', 'udx.analysis.keepalive',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 3
+
+    def test_udx_zero_window_probe(self, cmd_tshark, capture_file, test_env):
+        '''The same heartbeat is a probe once the peer closes its window.
+
+        Keepalives and zero-window probes are identical on the wire; only the
+        window last advertised by the peer separates them.
+        '''
+        stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR, '-2',
+                '-r', capture_file('udx_zerowindow.pcap.gz'),
+                '-Y', 'udx.analysis.zero_window_probe',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 2
+
+        stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR, '-2',
+                '-r', capture_file('udx_zerowindow.pcap.gz'),
+                '-Y', 'udx.analysis.window_update',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 1
+
+    def test_udx_mtu_probe(self, cmd_tshark, capture_file, test_env):
+        '''Padding without SACK blocks marks a path MTU probe.'''
+        stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR, '-2',
+                '-r', capture_file('udx_mtuprobe.pcap.gz'),
+                '-Y', 'udx.analysis.mtu_probe',
+                '-Tfields', '-eframe.number', '-eudx.data_offset',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 3
+        assert grep_output(stdout, r'\t32$')
+
+    def test_udx_sequence_wraparound(self, cmd_tshark, capture_file, test_env):
+        '''Analysis survives sequence numbers crossing 2^32.'''
+        stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR, '-2',
+                '-r', capture_file('udx_seqwrap.pcap.gz'),
+                '-Tfields', '-eudx.stream', '-eudx.analysis.acks_frame',
+            ), encoding='utf-8', env=test_env)
+        assert sorted(set(stdout.split('\n')[0].split('\t'))) == ['', '0']
+        assert grep_output(stdout, r'^0\t1$')
+
+    def test_udx_follow_stream(self, cmd_tshark, capture_file, test_env):
+        '''Following a stream yields the payload in both directions.'''
+        stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR,
+                '-r', capture_file('udx_clean.pcap.gz'),
+                '-q', '-z', 'follow,udx,ascii,0',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, 'Node 0: 10.0.0.1:40000')
+        assert grep_output(stdout, 'Node 1: 10.0.0.2:40001')
+
+    def test_udx_follow_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Loss and retransmission do not change the reassembled payload.
+
+        The same transfer is captured cleanly and with two packets lost; the
+        payload handed to the application must be identical in both.
+        '''
+        def payload(name):
+            stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR,
+                    '-r', capture_file(name),
+                    '-q', '-z', 'follow,udx,ascii,0',
+                ), encoding='utf-8', env=test_env)
+            # Keep the data lines, dropping the header and the byte counts.
+            return [l for l in stdout.splitlines() if l.strip() and not l.strip().isdigit()]
+
+        assert payload('udx_clean.pcap.gz')[-20:] == payload('udx_loss.pcap.gz')[-20:]
