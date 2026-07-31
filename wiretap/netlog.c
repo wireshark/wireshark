@@ -737,19 +737,69 @@ static bool netlog_parse_entirety(wtap *wth, FILE_T fh, int *err, char **err_inf
         return false;
     }
 
-    int num_tokens = json_parse_len((const char*)filebuf, bytes_read, NULL, 0);
-    if (num_tokens <= 0) {
-        /* 0 tokens needed is a degenerate cases, e.g., nothing but whitespace
-         * until the first NUL. Reject that too. */
-        g_free(filebuf);
-        return false;
-    }
-
+    /* A NetLog file is a single JSON object, with members with names
+     * "constants", "events", and possibly "polledData". Chrome writes
+     * the file such that "constants" is always the first. Check the
+     * first two tokens are an object, and a name that is one of the
+     * possible names (it SHOULD be "constants", but something might
+     * read and write the JSON and reorder the members.) */
+    int num_tokens = 2;
     jsmntok_t* json_tokens = g_new0(jsmntok_t, num_tokens);
     if (!json_tokens) {
         g_free(filebuf);
         return false;
     }
+
+    if (json_parse_len((const char*)filebuf, bytes_read, json_tokens, num_tokens) != JSMN_ERROR_NOMEM) {
+        /* We require at least ten known constants, so if we don't get the
+         * insufficient token error, this isn't our file. */
+        g_free(json_tokens);
+        g_free(filebuf);
+        return false;
+    }
+
+    if (json_tokens[0].type != JSMN_OBJECT || json_tokens[1].type != JSMN_STRING) {
+        g_free(json_tokens);
+        g_free(filebuf);
+        return false;
+    }
+    ptrdiff_t len = json_tokens[1].end - json_tokens[1].start;
+    uint8_t *tok_start = &filebuf[json_tokens[1].start];
+    g_free(json_tokens);
+    switch (len) {
+    case 6: // strlen("events")
+        if (memcmp(tok_start, "events", len) != 0) {
+            g_free(filebuf);
+            return false;
+        }
+        break;
+    case 9: // strlen("constants")
+        if (memcmp(tok_start, "constants", len) != 0) {
+            g_free(filebuf);
+            return false;
+        }
+        break;
+    case 12: // strlen("polledEvents")
+        if (memcmp(tok_start, "polledEvents", len) != 0) {
+            g_free(filebuf);
+            return false;
+        }
+        break;
+    default:
+        g_free(filebuf);
+        return false;
+    }
+
+    num_tokens = json_parse_len((const char*)filebuf, bytes_read, NULL, 0);
+    if (num_tokens <= 0) {
+        /* 0 tokens needed is a degenerate case, e.g., nothing but whitespace
+         * until the first NUL. Reject that too. (That shouldn't happen, since
+         * we read 2 tokens above.) */
+        g_free(filebuf);
+        return false;
+    }
+
+    json_tokens = g_new0(jsmntok_t, num_tokens);
 
     if (json_parse_len((const char*)filebuf, bytes_read, json_tokens, num_tokens) < 0){
         g_free(json_tokens);
