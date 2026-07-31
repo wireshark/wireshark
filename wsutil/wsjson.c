@@ -103,13 +103,11 @@ json_parse_len(const char *buf, size_t len, jsmntok_t *tokens, unsigned int max_
 
 jsmntok_t *json_get_next_object(jsmntok_t *cur)
 {
-    int i;
-    jsmntok_t *next = cur+1;
-
-    for (i = 0; i < cur->size; i++) {
-        next = json_get_next_object(next);
+    for (size_t tokens_remaining = 1; tokens_remaining > 0; tokens_remaining--) {
+        tokens_remaining += cur->size;
+        cur++;
     }
-    return next;
+    return cur;
 }
 
 jsmntok_t *json_get_object(const char *buf, jsmntok_t *parent, const char *name)
