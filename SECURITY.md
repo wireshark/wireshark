@@ -41,15 +41,21 @@ Examples of issues that *don't* have a sufficient security impact include:
 
 ## Reporting an Application Security Issue
 
-For Wireshark, Stratoshark, or any of their associated utilities, please open a [confidential issue](https://docs.gitlab.com/user/project/issues/confidential_issues/) at https://gitlab.com/wireshark/wireshark/-/work_items.
+For Wireshark, Stratoshark, or any of their associated utilities, please open a [confidential issue](https://docs.gitlab.com/user/project/issues/confidential_issues/) at https://gitlab.com/wireshark/wireshark/-/work_items. Issues should have the following format:
+
+* The subject line should provide a summary of the issue without any superfluous information such as a "[Security]" prefix.
+
+* The body of the issue should contain a description of the problem, describe the steps needed to reproduce the issue, and any other information suggested in the issue template.
+  A proposed fix or patch would also be appreciated.
+
+* We strongly recommend that you include a capture file that reproduces the issue.
+  This helps us identify issues and verify fixes more quickly.
+  Note that we also use capture files attached to issues for fuzz testing; if your file contains confidential information please make this clear.
+
 Alternatively you can send an email to security[AT]wireshark.org.
 In that case the contents of the email will be pasted into a new confidential GitLab issue by a security team member.
 If you open the confidential issue yourself, then you, along with the core development team, will be able to view the issue while logged in to GitLab.
 If a security team member creates the issue, then you will not be able to view the issue and further participate in the process without your GitLab user being added to the issue, which adds some additional friction.
-
-In either case, we strongly recommend that you include a capture file that reproduces the issue.
-This helps us identify issues and verify fixes more quickly.
-Note that we also use capture files attached to issues for fuzz testing; if your file contains confidential information please make this clear.
 
 We are happy to provide attribution for security issues.
 Please provide your preferred name, and optionally, the organization that you represent in your report.
