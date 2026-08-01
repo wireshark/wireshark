@@ -190,6 +190,9 @@ pcapng_process_nflx_custom_option(wtapng_block_t *wblock,
         break;
     case NFLX_OPT_TYPE_TCPINFO:
         ws_debug("BBLog tcpinfo of length: %u", length);
+        if (length < 2 * sizeof(uint64_t)) {
+            return false;
+        }
         if (wblock->type == BLOCK_TYPE_CB_COPY) {
             /*
              * This is in a BBlog custom block; we append the option's
