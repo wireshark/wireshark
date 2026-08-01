@@ -5228,6 +5228,7 @@ static int hf_ieee80211_tim_bmapctl_mcast;
 static int hf_ieee80211_tim_bmapctl_offset;
 static int hf_ieee80211_tim_partial_virtual_bitmap;
 static int hf_ieee80211_tim_aid;
+static int hf_ieee80211_tim_broadcast_interval;
 static int hf_ieee80211_tag_ibss_atim_window;
 static int hf_ieee80211_tag_country_info_code;
 static int hf_ieee80211_tag_country_info_env;
@@ -31831,6 +31832,25 @@ ieee80211_tag_tim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 }
 
 static int
+ieee80211_tag_tim_broadcast_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+  int tag_len = tvb_reported_length(tvb);
+  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
+  int offset = 0;
+
+  if (tag_len != 1) {
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length,
+                           "Tag length %u wrong, must be = 1", tag_len);
+    return 1;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tim_broadcast_interval, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+
+  return offset;
+}
+
+static int
 ieee80211_tag_ibss_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   int tag_len = tvb_reported_length(tvb);
@@ -49288,6 +49308,11 @@ proto_register_ieee80211(void)
       FT_UINT16, BASE_HEX, NULL, 0x0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_tim_broadcast_interval,
+     {"TIM broadcast interval", "wlan.tim_broadcast_req.interval",
+       FT_UINT8, BASE_DEC, NULL, 0,
+       "Number of beacon periods between TIM frame transmissions", HFILL }},
+
     {&hf_ieee80211_tag_ibss_atim_window,
      {"Atim Windows", "wlan.ibss.atim_windows",
       FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -63730,6 +63755,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_S1G_BEACON_COMPATIBILITY, create_dissector_handle(dissect_s1g_beacon_compatibility, -1));
   dissector_add_uint("wlan.tag.number", TAG_SHORT_BEACON_INTERVAL, create_dissector_handle(dissect_s1g_short_beacon_interval, -1));
   dissector_add_uint("wlan.tag.number", TAG_CHANGE_SEQUENCE, create_dissector_handle(dissect_s1g_change_sequence, -1));
+  dissector_add_uint("wlan.tag.number", TAG_TIM_BROADCAST_REQUEST, create_dissector_handle(ieee80211_tag_tim_broadcast_request, -1));
   /* 7.3.2.26 Vendor Specific information element (221) */
   dissector_add_uint("wlan.tag.number", TAG_VENDOR_SPECIFIC_IE, create_dissector_handle(ieee80211_tag_vendor_specific_ie, -1));
   dissector_add_uint("wlan.tag.number", TAG_AUTHENTICATION_CONTROL, create_dissector_handle(dissect_authentication_control, -1));
