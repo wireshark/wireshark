@@ -19,7 +19,8 @@
 #include <ws_codepoints.h>
 
 #include <wsutil/to_str.h>
-
+#include <wsutil/strtoi.h>
+#include <wsutil/unicode-utils.h>
 
 struct prefix_parameters {
     const char * const *prefix; /**< array of prefixes to represent unit multiplication factors. */
@@ -847,6 +848,210 @@ bool ws_csv_value_is_formula(const char *string)
     default:
         return false;
     }
+}
+
+typedef enum {
+    UNESCAPE_NONE,
+    UNESCAPE_ESCAPE,
+} unescape_state_e;
+
+wmem_strbuf_t *ws_unescape_string_len(wmem_allocator_t *alloc, const uint8_t *string, ssize_t len, GError **err)
+{
+    wmem_strbuf_t *buf;
+    size_t abs_len, i;
+    unsigned char c;
+    unescape_state_e state = UNESCAPE_NONE;
+    bool possibly_invalid = false;
+    int value;
+    gunichar cp;
+
+    abs_len = (len < 0) ? strlen((const char*)string) : (size_t)len;
+
+    buf = wmem_strbuf_new_sized(alloc, abs_len);
+
+    /* With \u and \U escapes, we can only produce a result by knowing the
+     * intended final encoding. (We assume UTF-8 here.) \x escapes do not
+     * assume the final encoding, but neither do they ensure that the result
+     * will be valid in whatever encoding is used. The other escapes still
+     * assume an ASCII-like encoding for the C0 control characters.
+     *
+     * This attempts to be permissive and allow C, C++, Python, and JSON
+     * escapes, though C and C++ \x escapes longer than two characters are
+     * not allowed, since the target encoding is UTF-8. */
+    for (i = 0; i < abs_len; i++) {
+        c = string[i];
+        switch (state) {
+        case UNESCAPE_NONE:
+            switch (c) {
+            case '\\':
+                state = UNESCAPE_ESCAPE;
+                break;
+            default:
+                if (c & 0x80) {
+                    /* XXX - Use ws_utf8_char_len and validate now?
+                     * Trickier because there might, somehow, be a single
+                     * UTF-8 character which is a mix of escaped and
+                     * unescaped bytes. */
+                    possibly_invalid = true;
+                }
+                /* Pass through. */
+                wmem_strbuf_append_c(buf, c);
+            }
+            break;
+        case UNESCAPE_ESCAPE:
+            switch (c) {
+            case 'a':
+                wmem_strbuf_append_c(buf, '\a');
+                break;
+            case 'b':
+                wmem_strbuf_append_c(buf, '\b');
+                break;
+            case 'f':
+                wmem_strbuf_append_c(buf, '\f');
+                break;
+            case 'n':
+                wmem_strbuf_append_c(buf, '\n');
+                break;
+            case 'r':
+                wmem_strbuf_append_c(buf, '\r');
+                break;
+            case 't':
+                wmem_strbuf_append_c(buf, '\t');
+                break;
+            case 'v':
+                wmem_strbuf_append_c(buf, '\v');
+                break;
+            case '\\':
+                wmem_strbuf_append_c(buf, '\\');
+                break;
+            case '\"':
+                wmem_strbuf_append_c(buf, '\"');
+                break;
+            case '\'':
+                // C, C++, Python (not JSON)
+                wmem_strbuf_append_c(buf, '\'');
+                break;
+            case '?':
+                // C and C++ \? for supporting the late unlamented trigraphs
+                wmem_strbuf_append_c(buf, '?');
+                break;
+            case 'x':
+                // C and C++ allow an unlimited number of hex characters,
+                // but the end value must fit in a code unit of the string
+                // type, e.g. 8-bit for UTF-8. (Not a Unicode code point.)
+                // Python requires two characters exactly (which also means
+                // that if the third is valid hex digit that's fine.)
+                // JSON doesn't support.
+                ++i;
+                if (i <= abs_len) {
+                    g_set_error(err, G_CONVERT_ERROR, G_CONVERT_ERROR_PARTIAL_INPUT,
+                                "Hexadecimal character missing after \\x");
+                    goto out;
+                }
+                value = ws_xton(string[i]);
+                if (value == -1) {
+                    g_set_error(err, G_CONVERT_ERROR, G_CONVERT_ERROR_ILLEGAL_SEQUENCE,
+                                "Non-hexadecimal character after \\x");
+                    goto out;
+                }
+                if (((abs_len - i) > 1) && ws_xton(string[i+1])) {
+                    ++i;
+                    value <<= 4;
+                    value |= ws_xton(string[i]);
+                }
+                c = (char)value;
+                if (c & 0x80) {
+                    possibly_invalid = true;
+                }
+                wmem_strbuf_append_c(buf, c);
+                break;
+            case 'u':
+                ++i;
+                if ((abs_len - i) < 4) {
+                    g_set_error(err, G_CONVERT_ERROR, G_CONVERT_ERROR_PARTIAL_INPUT,
+                                "\\u must be followed by four characters");
+                    goto out;
+                }
+                if (!ws_hexbuftou32(&string[i], 4, NULL, &cp)) {
+                    g_set_error(err, G_CONVERT_ERROR, G_CONVERT_ERROR_ILLEGAL_SEQUENCE,
+                                "\\u must be followed by four hexadecimal characters");
+                    goto out;
+                }
+                i += 4;
+                /* JSON (but not C, C++, Python) can represent code points outside
+                 * the BMP with UTF-16 surrogate pairs. */
+                if (IS_LEAD_SURROGATE(cp)) {
+                    /* high surrogate */
+                    if ((abs_len - i) < 6) {
+                        g_set_error(err, G_CONVERT_ERROR, G_CONVERT_ERROR_PARTIAL_INPUT,
+                                    "\\u high surrogate must be followed by escaped low surrogate");
+                        goto out;
+                    }
+                    uint16_t second_code;
+                    if (string[i] != '\\' || string[i + 1] != 'u' ||
+                        !ws_hexbuftou16(&string[i+2], 4, NULL, &second_code)) {
+                        g_set_error(err, G_CONVERT_ERROR, G_CONVERT_ERROR_ILLEGAL_SEQUENCE,
+                                    "\\u high surrogate must be followed by escaped low surrogate");
+                        goto out;
+                    }
+                    i += 6;
+                    if (!IS_TRAIL_SURROGATE(second_code)) {
+                        g_set_error(err, G_CONVERT_ERROR, G_CONVERT_ERROR_ILLEGAL_SEQUENCE,
+                                    "\\u followed by unpaired UTF-16 surrogate");
+                        goto out;
+                    }
+                    cp = SURROGATE_VALUE(cp, second_code);
+                } else if (IS_TRAIL_SURROGATE(cp)) {
+                    /* isolated low surrogate, not allowed. */
+                    g_set_error(err, G_CONVERT_ERROR, G_CONVERT_ERROR_ILLEGAL_SEQUENCE,
+                                "\\u followed by isolated low surrogate");
+                    goto out;
+                }
+                wmem_strbuf_append_unichar_validated(buf, cp);
+                break;
+            case 'U':
+                ++i;
+                if ((abs_len - i) < 8) {
+                    g_set_error(err, G_CONVERT_ERROR, G_CONVERT_ERROR_PARTIAL_INPUT,
+                                "\\U must be followed by eight characters");
+                    goto out;
+                }
+                if (!ws_hexbuftou32(&string[i], 8, NULL, &cp)) {
+                    g_set_error(err, G_CONVERT_ERROR, G_CONVERT_ERROR_ILLEGAL_SEQUENCE,
+                                "\\U must be followed by eight hexadecimal characters");
+                    goto out;
+                }
+                wmem_strbuf_append_unichar_validated(buf, cp);
+                break;
+            default:
+                g_set_error(err, G_CONVERT_ERROR, G_CONVERT_ERROR_ILLEGAL_SEQUENCE,
+                            "Unknown escape sequence");
+                goto out;
+            }
+            state = UNESCAPE_NONE;
+            break;
+        default:
+            /* Pass through. */
+            wmem_strbuf_append_c(buf, c);
+        }
+    }
+    switch (state) {
+    case UNESCAPE_ESCAPE:
+        g_set_error(err, G_CONVERT_ERROR, G_CONVERT_ERROR_PARTIAL_INPUT,
+                    "\\ at the end of input");
+        goto out;
+    default:
+        break;
+    }
+
+out:
+    /* Right now on error this passes through what was successfully decoded.
+     * We could also replace with replacement characters and continue if
+     * possible, or return a strbuf with an empty string. */
+    if (possibly_invalid) {
+        wmem_strbuf_utf8_make_valid(buf);
+    }
+    return buf;
 }
 
 const char *

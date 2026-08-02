@@ -123,7 +123,8 @@ typedef enum {
     SHOW_RAW,           /**< Render payload as raw bytes with no interpretation */
     SHOW_RUSTARRAY,     /**< Render payload as a Rust-style byte array literal */
     SHOW_CODEC,         /**< Render payload decoded with a text codec; maps to UTF-8 in the combo box (other codecs generated at runtime) */
-    SHOW_YAML           /**< Render payload as YAML */
+    SHOW_YAML,          /**< Render payload as YAML */
+    SHOW_UTF8_UNESCAPED /**< Render payload as UTF-8 with C-style escapes decoded; assumes original payload is ASCII or UTF-8 */
 } bytes_show_type;
 
 

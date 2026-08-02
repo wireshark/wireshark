@@ -314,6 +314,24 @@ WS_DLL_PUBLIC
 char *ws_escape_csv(wmem_allocator_t *alloc, const char *string, bool add_quotes, char quote_char, bool double_quote, bool escape_whitespace);
 
 /**
+ * @brief Unescape C-style escape sequences from a mostly ASCII/UTF-8 string
+ *
+ * @param alloc  The wmem scope to use to allocate the returned string
+ * @param string  The input string to unescape
+ * @param len  The length of the input string (-1 for null terminated)
+ * @param err  A GError set in the case of failed conversation; may be NULL.
+ * @return  The unescaped string
+ *
+ * @note The returned string will be valid UTF-8. The input string is expected
+ * to be mostly UTF-8 (or the ASCII subset of UTF-8) with C/C++/JSON/Python
+ * style backslash escape sequences. This does not work for strings where
+ * \xNN style byte sequences are used to represent characters in some other
+ * encoding.
+ */
+WS_DLL_PUBLIC
+wmem_strbuf_t *ws_unescape_string_len(wmem_allocator_t *alloc, const uint8_t *string, ssize_t len, GError **err);
+
+/**
  * @brief Check whether a CSV value would be taken as a spreadsheet formula.
  *
  * Spreadsheet applications evaluate an imported cell as a formula if its

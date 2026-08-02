@@ -213,6 +213,7 @@ static const value_string bytes_show_values[] = {
     { SHOW_CODEC,         "UTF-8" },
     // Other codecs are generated at runtime
     { SHOW_YAML,          "YAML"},
+    { SHOW_UTF8_UNESCAPED, "UTF8_UNESCAPED"},
     { 0, NULL }
 };
 
