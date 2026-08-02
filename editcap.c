@@ -1443,8 +1443,10 @@ process_new_idbs(wtap *wth, wtap_dumper *pdh, GArray *idbs_seen,
              * Add this possibly-modified IDB to the file to which
              * we're currently writing.
              */
-            if (!wtap_dump_add_idb(pdh, if_data_copy, err, err_info))
+            if (!wtap_dump_add_idb(pdh, if_data_copy, err, err_info)) {
+                wtap_block_unref(if_data_copy);
                 return false;
+            }
 
             /*
              * Release the copy - wtap_dump_add_idb() makes its own copy.
