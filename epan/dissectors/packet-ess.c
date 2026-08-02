@@ -571,13 +571,15 @@ dissect_ess_T_restrictiveTagName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_ess_T_restrictiveAttributeFlags(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  tvbuff_t *attributes;
+  tvbuff_t *attributes = NULL;
 
     offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, 0, hf_index, -1,
                                     &attributes);
 
-  ess_dissect_attribute_flags (attributes, actx);
+  if (attributes != NULL) {
+    ess_dissect_attribute_flags (attributes, actx);
+  }
 
 
   return offset;
@@ -663,13 +665,15 @@ dissect_ess_T_permissiveTagName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_ess_T_permissiveAttributeFlags(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  tvbuff_t *attributes;
+  tvbuff_t *attributes = NULL;
 
     offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, 0, hf_index, -1,
                                     &attributes);
 
-  ess_dissect_attribute_flags (attributes, actx);
+  if (attributes != NULL) {
+    ess_dissect_attribute_flags (attributes, actx);
+  }
 
 
   return offset;
@@ -703,13 +707,15 @@ dissect_ess_T_informativeTagName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_ess_T_informativeAttributeFlags(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  tvbuff_t *attributes;
+  tvbuff_t *attributes = NULL;
 
     offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, 0, hf_index, -1,
                                     &attributes);
 
-  ess_dissect_attribute_flags (attributes, actx);
+  if (attributes != NULL) {
+    ess_dissect_attribute_flags (attributes, actx);
+  }
 
 
   return offset;

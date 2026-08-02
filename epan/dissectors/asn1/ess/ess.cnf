@@ -73,28 +73,34 @@ FreeFormField/bitSetAttributes  informativeAttributeFlags
   VAL_PTR = &attributes
 
 #.FN_BODY RestrictiveTag/attributeFlags
-  tvbuff_t *attributes;
+  tvbuff_t *attributes = NULL;
 
   %(DEFAULT_BODY)s
-  ess_dissect_attribute_flags (attributes, actx);
+  if (attributes != NULL) {
+    ess_dissect_attribute_flags (attributes, actx);
+  }
 
 #.FN_PARS PermissiveTag/attributeFlags
   VAL_PTR = &attributes
 
 #.FN_BODY PermissiveTag/attributeFlags
-  tvbuff_t *attributes;
+  tvbuff_t *attributes = NULL;
 
   %(DEFAULT_BODY)s
-  ess_dissect_attribute_flags (attributes, actx);
+  if (attributes != NULL) {
+    ess_dissect_attribute_flags (attributes, actx);
+  }
 
 #.FN_PARS FreeFormField/bitSetAttributes
   VAL_PTR = &attributes
 
 #.FN_BODY FreeFormField/bitSetAttributes
-  tvbuff_t *attributes;
+  tvbuff_t *attributes = NULL;
 
   %(DEFAULT_BODY)s
-  ess_dissect_attribute_flags (attributes, actx);
+  if (attributes != NULL) {
+    ess_dissect_attribute_flags (attributes, actx);
+  }
 
 #.FN_BODY Receipt
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "ESS");
