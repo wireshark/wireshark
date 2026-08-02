@@ -3372,6 +3372,10 @@ ssh_kex_shared_secret(int kex_type, ssh_bignum *pub, ssh_bignum *priv, ssh_bignu
         gcry_mpi_release(e);
         gcry_mpi_release(m);
     }else if(kex_type==SSH_KEX_CURVE25519){
+        if (priv->length != 32 || pub->length != 32) {
+            ws_debug("curve25519: bad key length pub=%u or priv=%u != 32", pub->length, priv->length);
+            return NULL;
+        }
         if (crypto_scalarmult_curve25519(secret->data, priv->data, pub->data)) {
             ws_debug("curve25519: can't compute shared secret");
             return NULL;
