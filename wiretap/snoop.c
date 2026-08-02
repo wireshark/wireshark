@@ -90,7 +90,7 @@ static bool snoop_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, char **err_info);
 static bool snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, char **err_info,
-    int *header_size);
+    uint32_t *header_size);
 static bool snoop_dump(wtap_dumper *wdh, const wtap_rec *rec,
     int *err, char **err_info);
 
@@ -502,9 +502,9 @@ snoop_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 	snoop_t *snoop = (snoop_t *)wth->priv;
 	struct snooprec_hdr hdr;
 	uint32_t rec_size;
-	uint32_t	packet_size;
+	uint32_t packet_size;
 	uint32_t orig_size;
-	int header_size;
+	uint32_t header_size;
 
 	/* Read record header. */
 	if (!wtap_read_bytes_or_eof(fh, &hdr, sizeof hdr, err, err_info))
@@ -604,9 +604,14 @@ snoop_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		/*
 		 * Don't count the pseudo-header as part of the packet.
 		 */
+		if (ckd_sub(&packet_size, packet_size, header_size)) {
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = ws_strdup_printf("snoop: Shomiti wireless file has a packet with a %u-byte wireless pseudo-header, larger than the total packet size", header_size);
+			return -1;
+		}
+		/* This one *can't* overflow, since packet_size <= rec_size */
 		rec_size -= header_size;
 		orig_size -= header_size;
-		packet_size -= header_size;
 		break;
 	}
 
@@ -735,10 +740,10 @@ snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 static bool
 snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, char **err_info,
-    int *header_size)
+    uint32_t *header_size)
 {
 	shomiti_wireless_header whdr;
-	int	rsize;
+	uint32_t rsize;
 
 	if (!wtap_read_bytes(fh, &whdr, sizeof whdr, err, err_info))
 		return false;
@@ -751,14 +756,13 @@ snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
 	 * doesn't include the length field, as we've read
 	 * 12 bytes total.
 	 */
-	if (whdr.pad[3] < 8) {
+	if (ckd_sub(&rsize, whdr.pad[3], 8)) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("snoop: Header length in Surveyor record is %u, less than minimum of 8",
 		    whdr.pad[3]);
 		return false;
 	}
 	/* Skip the header. */
-	rsize = ((int) whdr.pad[3]) - 8;
 	if (!wtap_read_bytes(fh, NULL, rsize, err, err_info))
 		return false;
 
