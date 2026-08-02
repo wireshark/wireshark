@@ -795,9 +795,10 @@ process_header_records(wtap *wth, int *err, char **err_info, int16_t maj_vers,
 	char record_type[2];
 	char record_length[4]; /* only the first 2 bytes are length,
 				  the last 2 are "reserved" and are thrown away */
-	uint16_t rec_type, rec_length_remaining;
-	int bytes_to_read;
-	unsigned char buffer[256];
+	uint16_t rec_type;
+	unsigned rec_length_remaining, bytes_to_read;
+#define HEADER_REC_BUFSIZE	256
+	unsigned char buffer[HEADER_REC_BUFSIZE];
 
 	for (;;) {
 		if (!wtap_read_bytes_or_eof(wth->fh, record_type, 2, err, err_info)) {
@@ -843,13 +844,14 @@ process_header_records(wtap *wth, int *err, char **err_info, int16_t maj_vers,
 		if ((network == NETWORK_SYNCHRO || network == NETWORK_ASYNC) &&
 		    rec_type == REC_HEADER2) {
 			/*
-			 * Yes, get the first up-to-256 bytes of the
-			 * record data.
+			 * Yes, get the first up-to-HEADER_REC_BUFSIZE bytes
+			 * of the record data.
 			 */
-			bytes_to_read = MIN(rec_length_remaining, (int)sizeof buffer);
+			bytes_to_read = MIN(rec_length_remaining, (unsigned)sizeof buffer);
 			if (!wtap_read_bytes(wth->fh, buffer,
 			    bytes_to_read, err, err_info))
 				return -1;
+			rec_length_remaining -= bytes_to_read;
 
 			switch (maj_vers) {
 
@@ -871,8 +873,8 @@ process_header_records(wtap *wth, int *err, char **err_info, int16_t maj_vers,
 			/*
 			 * Skip the rest of the record.
 			 */
-			if (rec_length_remaining > sizeof buffer) {
-				if (file_seek(wth->fh, rec_length_remaining - sizeof buffer,
+			if (rec_length_remaining != 0) {
+				if (file_seek(wth->fh, rec_length_remaining,
 				    SEEK_CUR, err) == -1)
 					return -1;
 			}
@@ -1231,24 +1233,22 @@ process_frame_record(wtap *wth, bool is_random, unsigned *padding,
 		}
 
 		/* Do we have an f_frame2_struct worth of data? */
-		if (rec_length_remaining < sizeof frame2) {
+		if (ckd_sub(&rec_length_remaining, rec_length_remaining, sizeof frame2)) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("ngsniffer: REC_FRAME2 record length is less than record header length");
 			return false;
 		}
-
 		/* Read the f_frame2_struct */
 		if (!ng_read_bytes(wth, &frame2, (unsigned int)sizeof frame2,
 		   is_random, err, err_info))
 			return false;
+
 		time_low = pletohu16(&frame2.time_low);
 		time_med = pletohu16(&frame2.time_med);
 		time_high = frame2.time_high;
 		time_day = frame2.time_day;
 		size = pletohu16(&frame2.size);
 		true_size = pletohu16(&frame2.true_size);
-
-		rec_length_remaining -= (unsigned)sizeof frame2;	/* we already read that much */
 
 		set_metadata_frame2(wth, rec, &frame2);
 		break;
@@ -1275,16 +1275,16 @@ process_frame_record(wtap *wth, bool is_random, unsigned *padding,
 			rec_length_remaining += (unsigned)(sizeof frame4 - sizeof frame2);
 
 		/* Do we have an f_frame4_struct worth of data? */
-		if (rec_length_remaining < sizeof frame4) {
+		if (ckd_sub(&rec_length_remaining, rec_length_remaining, sizeof frame4)) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("ngsniffer: REC_FRAME4 record length is less than record header length");
 			return false;
 		}
-
 		/* Read the f_frame4_struct */
 		if (!ng_read_bytes(wth, &frame4, (unsigned int)sizeof frame4,
 		    is_random, err, err_info))
 			return false;
+
 		time_low = pletohu16(&frame4.time_low);
 		time_med = pletohu16(&frame4.time_med);
 		time_high = frame4.time_high;
@@ -1292,31 +1292,27 @@ process_frame_record(wtap *wth, bool is_random, unsigned *padding,
 		size = pletohu16(&frame4.size);
 		true_size = pletohu16(&frame4.true_size);
 
-		rec_length_remaining -= (unsigned)sizeof frame4;	/* we already read that much */
-
 		set_pseudo_header_frame4(&rec->rec_header.packet_header.pseudo_header, &frame4);
 		break;
 
 	case REC_FRAME6:
 		/* Do we have an f_frame6_struct worth of data? */
-		if (rec_length_remaining < sizeof frame6) {
+		if (ckd_sub(&rec_length_remaining, rec_length_remaining, sizeof frame6)) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("ngsniffer: REC_FRAME6 record length is less than record header length");
 			return false;
 		}
-
 		/* Read the f_frame6_struct */
 		if (!ng_read_bytes(wth, &frame6, (unsigned int)sizeof frame6,
 		    is_random, err, err_info))
 			return false;
+
 		time_low = pletohu16(&frame6.time_low);
 		time_med = pletohu16(&frame6.time_med);
 		time_high = frame6.time_high;
 		time_day = frame6.time_day;
 		size = pletohu16(&frame6.size);
 		true_size = pletohu16(&frame6.true_size);
-
-		rec_length_remaining -= (unsigned)sizeof frame6;	/* we already read that much */
 
 		set_pseudo_header_frame6(wth, &rec->rec_header.packet_header.pseudo_header, &frame6);
 		break;
