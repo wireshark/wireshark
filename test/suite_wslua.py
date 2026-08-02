@@ -352,8 +352,8 @@ class TestWsluaUnicode:
         '''Check handling of unicode paths.'''
         if not features.have_lua:
             pytest.skip('Test requires Lua scripting support.')
-        if sys.platform == 'win32' and not features.have_lua_unicode:
-            pytest.skip('Test requires a patched Lua build with UTF-8 support.')
+#        if sys.platform == 'win32' and not features.have_lua_unicode:
+#            pytest.skip('Test requires a patched Lua build with UTF-8 support.')
 
         # Prepare test environment, put files in the right places.
         uni_script = os.path.join(unicode_env.pluginsdir, 'script-Ф-€-中.lua')
