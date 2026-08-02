@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* (last updated 2026-07-24) */
+/* (last updated 2026-07-31) */
 
 #include "config.h"
 
@@ -43078,7 +43078,7 @@ static const char * const table[] =
     "ENVISTACOM",                                                                         // 43056
     "PrAT CENTRAVIS PRODUCTION UKRAINE",                                                  // 43057
     "Synergy Sky AS",                                                                     // 43058
-    "iteracon GmbH",                                                                      // 43059
+    "RADIUZE GmbH",                                                                       // 43059
     "Leepfrog Technologies, Inc.",                                                        // 43060
     "Global System & Network Services BVBA",                                              // 43061
     "Ingenieure ohne Grenzen e.V.",                                                       // 43062
@@ -66382,7 +66382,49 @@ static const char * const table[] =
     "IaSoC",                                                                              // 66360
     "AutographOS Corp",                                                                   // 66361
     "Enchorium",                                                                          // 66362
-    "Sec s.r.o"                                                                           // 66363
+    "Sec s.r.o",                                                                          // 66363
+    "ABLATIVE PTY LTD",                                                                   // 66364
+    "Zhang He",                                                                           // 66365
+    "Ridgeway Telecommunications LLC",                                                    // 66366
+    "eGloo Incorporated",                                                                 // 66367
+    "SETIC-FP/MINFIN Angola",                                                             // 66368
+    "LXNDigital",                                                                         // 66369
+    "StampCode",                                                                          // 66370
+    "Logiqum Kft.",                                                                       // 66371
+    "Vexola GmbH",                                                                        // 66372
+    "Algonomia",                                                                          // 66373
+    "National Energy PKI Limited",                                                        // 66374
+    "Hyundai Motor Company",                                                              // 66375
+    "Xiamen Bitswaving Technology Co., Ltd.",                                             // 66376
+    "N.V. Nederlandse Spoorwegen",                                                        // 66377
+    "Inexorable, Inc.",                                                                   // 66378
+    "Midwest Orthopaedic Center",                                                         // 66379
+    "Chessmate Limited",                                                                  // 66380
+    "T.E.L.L. Software Hungária Kft.",                                                    // 66381
+    "Coppin State University Community Health Center",                                    // 66382
+    "4future.digital",                                                                    // 66383
+    "Unifiber SA",                                                                        // 66384
+    "Sunjata Conseil",                                                                    // 66385
+    "Reed-Soft Bt.",                                                                      // 66386
+    "SOBE SOFTWARE, Inc.",                                                                // 66387
+    "Spartified",                                                                         // 66388
+    "Verge Inc.",                                                                         // 66389
+    "Engel & Völkers Gewerbe Berlin GmbH & Co KG",                                        // 66390
+    "BLAISSED S.R.L.",                                                                    // 66391
+    "Mariusz Zieliński",                                                                  // 66392
+    "Dan Cross",                                                                          // 66393
+    "Indosat Ooredoo Hutchison (IM3)",                                                    // 66394
+    "Indosat Ooredoo Hutchison (3ID)",                                                    // 66395
+    "Le Vi Qui",                                                                          // 66396
+    "Banco Guayaquil S.A.",                                                               // 66397
+    "Mobile-ID Technologies And Services Joint Stock Company",                            // 66398
+    "Fairland iGarden Co.,Ltd.",                                                          // 66399
+    "knoell Germany GmbH",                                                                // 66400
+    "zdrei.com GmbH",                                                                     // 66401
+    "Aqua Vita International S. A.",                                                      // 66402
+    "Metropolitni univerzita Praha, o.p.s.",                                              // 66403
+    "Common Codes GmbH",                                                                  // 66404
+    "Ambermind"                                                                           // 66405
 };
 
 const char* global_enterprises_lookup(uint32_t value)
