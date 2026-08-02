@@ -11,7 +11,7 @@
 #include "data-dmx-manfid.h"
 
 /*
- * ESTA codes download date: 2026-07-26
+ * ESTA codes download date: 2026-08-02
  */
 static const value_string dmx_esta_manfid_vals[] = {
   { 0x0000, "ESTA / PLASA" },
@@ -1116,7 +1116,10 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x1221, "SAGITTER-SDJ-Proel" },
   { 0x1222, "SM International" },
   { 0x1234, "ESTA" },
+  { 0x1240, "Canary Yellow Applications" },
+  { 0x1254, "Griffin Lighting Solutions Inc." },
   { 0x1268, "Frontside Technology Services" },
+  { 0x127E, "Symphony Interactive Inc" },
   { 0x12DA, "Newlab S.r.l." },
   { 0x12E0, "Luxlight Skandinavien AB" },
   { 0x12EA, "Kolberg Percussion GmbH" },
@@ -1130,6 +1133,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x13AE, "Smartpark Creative Solutions" },
   { 0x1460, "SEIKO Epson Corporation" },
   { 0x1464, "HUMAL Elektroonika OU" },
+  { 0x1489, "ORVIT Entertainment Inc." },
   { 0x1490, "Grid Show Systems Inc." },
   { 0x14A0, "Intense Lighting, LLC" },
   { 0x14AC, "Zaklad Elektroniczny AGAT s.c." },
@@ -1171,6 +1175,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x1901, "Zhongshan Hiline Electronics Co., Ltd." },
   { 0x1938, "Solid State Luminaires" },
   { 0x1998, "PLS Electronics Ltd." },
+  { 0x19A7, "Djip Co Industries" },
   { 0x19B9, "Duralamp S.p.A." },
   { 0x19BA, "Guangzhou Xinzhijie Photoelectric Co., Ltd." },
   { 0x19BB, "Panalux Ltd." },
@@ -1181,6 +1186,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x1A16, "WADAK GmbH" },
   { 0x1A1A, "ValDim Waterfountains Ltd." },
   { 0x1A3D, "Red Lighting s.r.l." },
+  { 0x1A58, "Wuxi Seastar Lighting Co.,Ltd." },
   { 0x1AFA, "TMB" },
   { 0x1BB1, "PH Lightning AB" },
   { 0x1BC0, "ALS Stanislaw Binkiewicz" },

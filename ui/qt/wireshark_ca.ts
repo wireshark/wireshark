@@ -3068,15 +3068,15 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Everywhere</source>
-        <translation type="unfinished">Per tot arreu</translation>
+        <translation>En qualsevol lloc</translation>
     </message>
     <message>
         <source>Only Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Només al nom</translation>
     </message>
     <message>
         <source>Only Description</source>
-        <translation type="unfinished">Només a la descripció</translation>
+        <translation>Només a la descripció</translation>
     </message>
 </context>
 <context>
@@ -3177,8 +3177,7 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Only Protocol</source>
-        <oldsource>Only Protocols</oldsource>
-        <translation type="unfinished">Només als protocols</translation>
+        <translation>Només al protocol</translation>
     </message>
     <message>
         <source>Only Description</source>
@@ -5949,51 +5948,51 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <name>ImsiListDialog</name>
     <message>
         <source>IMSI List</source>
-        <translation type="unfinished"></translation>
+        <translation>Llista IMSI</translation>
     </message>
     <message>
         <source>&lt;small&gt;Select one or more IMSIs to view flow sequence or prepare a display filter.&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;Trieu un o més IMSI per a veure la seqüència del flux o preparar un filtre de visualització.&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Only show IMSIs matching the current display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra només els IMSI que coincideixin amb el filtre de visualització actual.</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished">Limita al filtre de visualització</translation>
+        <translation>Límit per a mostrar el filtre</translation>
     </message>
     <message>
         <source>IMSI</source>
-        <translation type="unfinished"></translation>
+        <translation>IMSI</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished">Paquets</translation>
+        <translation>Paquets</translation>
     </message>
     <message>
         <source>First Frame</source>
-        <translation type="unfinished">Primera trama</translation>
+        <translation>Primera trama</translation>
     </message>
     <message>
         <source>Last Frame</source>
-        <translation type="unfinished">Trama final</translation>
+        <translation>Última trama</translation>
     </message>
     <message>
         <source>Protocols</source>
-        <translation type="unfinished">Protocols</translation>
+        <translation>Protocols</translation>
     </message>
     <message>
         <source>Prepare Filter</source>
-        <translation type="unfinished">Prepara un filtre</translation>
+        <translation>Prepara el filtre</translation>
     </message>
     <message>
         <source>Prepare a display filter matching selected IMSIs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Prepara un filtre de visualització que coincideixi amb els IMSI seleccionats.</translation>
     </message>
     <message>
         <source>&lt;small&gt;%1 IMSIs found. Double-click to filter.&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;S&apos;han trobat %1 IMSI. Feu doble clic per a filtrar.&lt;/small&gt;</translation>
     </message>
 </context>
 <context>
@@ -9168,46 +9167,73 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
     </message>
 </context>
 <context>
-    <name>PacketFormatCSVGroupBox</name>
+    <name>PacketFormatCArraysGroupBox</name>
     <message>
         <source>GroupBox</source>
         <translation type="unfinished">GroupBox</translation>
     </message>
     <message>
         <source>Packet Format</source>
-        <translation type="unfinished">Format de paquet</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Include secondary data sources</source>
+        <translation type="unfinished">Inclou les fonts de dades secundàries</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate arrays for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include an array to index into the list of frames&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Include index</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PacketFormatCSVGroupBox</name>
+    <message>
+        <source>GroupBox</source>
+        <translation>GroupBox</translation>
+    </message>
+    <message>
+        <source>Packet Format</source>
+        <translation>Format del paquet</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Escape non-ASCII and whitespace characters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Escapa els caràcters no-ASCII i d&apos;espai en blanc.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>ASCII</source>
-        <translation type="unfinished">ASCII</translation>
+        <translation>ASCII</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export as a UTF-8 CSV&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Exporta com a CSV UTF-8.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>UTF-8</source>
-        <translation type="unfinished">UTF-8</translation>
+        <translation>UTF-8</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include a Byte Order Mark at the beginning of the file, for Windows&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inclou una marca d&apos;ordre de bytes a l&apos;inici del fitxer per a Windows.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Include Byte Order Mark</source>
-        <translation type="unfinished"></translation>
+        <translation>Inclou una marca d&apos;ordre de bytes</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Replace whitespace characters (tabs, newlines, etc.) with C-style escapes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reemplaça els caràcters d&apos;espais en blanc (tabuladors, línies noves, etc.) amb escapament d&apos;estil en C.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Escape whitespace</source>
-        <translation type="unfinished"></translation>
+        <translation>Espais en blanc d&apos;escapament</translation>
     </message>
 </context>
 <context>
@@ -9394,17 +9420,16 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
         <translation>Mostra com a cadenes</translation>
     </message>
     <message>
-        <source>Display as Packet Details</source>
-        <oldsource>Display as packet Details</oldsource>
-        <translation type="unfinished">Mostra com a detalls de paquets</translation>
-    </message>
-    <message>
         <source>Column Preferences…</source>
         <translation>Preferències de la columna…</translation>
     </message>
     <message>
         <source>Resize Column to Width…</source>
         <translation>Redimensiona l&apos;amplada de la columna…</translation>
+    </message>
+    <message>
+        <source>Display as Packet Details</source>
+        <translation>Mostra com a detalls del paquet</translation>
     </message>
     <message>
         <source>Remove this Column</source>
@@ -18577,11 +18602,11 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     </message>
     <message>
         <source>IMSI List</source>
-        <translation type="unfinished"></translation>
+        <translation>Llista IMSI</translation>
     </message>
     <message>
         <source>Show all IMSIs in the capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra tots els IMSI de la captura</translation>
     </message>
     <message>
         <source>Lua Debugger</source>

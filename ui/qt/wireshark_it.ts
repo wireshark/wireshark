@@ -3068,15 +3068,15 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>Everywhere</source>
-        <translation type="unfinished">Ovunque</translation>
+        <translation>Ovunque</translation>
     </message>
     <message>
         <source>Only Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Solo nome</translation>
     </message>
     <message>
         <source>Only Description</source>
-        <translation type="unfinished">Solo descrizione</translation>
+        <translation>Solo descrizione</translation>
     </message>
 </context>
 <context>
@@ -3177,8 +3177,7 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>Only Protocol</source>
-        <oldsource>Only Protocols</oldsource>
-        <translation type="unfinished">Solo protocolli</translation>
+        <translation>Solo protocollo</translation>
     </message>
     <message>
         <source>Only Description</source>
@@ -5951,51 +5950,51 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     <name>ImsiListDialog</name>
     <message>
         <source>IMSI List</source>
-        <translation type="unfinished"></translation>
+        <translation>Elenco IMSI</translation>
     </message>
     <message>
         <source>&lt;small&gt;Select one or more IMSIs to view flow sequence or prepare a display filter.&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;Seleziona gli IMSI per visualizzare la sequenza del flusso o per preparare un filtro di visualizzazione.&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Only show IMSIs matching the current display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra solo gli IMSI che verificano il filtro di visualizzazione attuale.</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished">Limita al filtro di visualizzazione</translation>
+        <translation>Limita al filtro di visualizzazione</translation>
     </message>
     <message>
         <source>IMSI</source>
-        <translation type="unfinished"></translation>
+        <translation>IMSI</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished">Pacchetti</translation>
+        <translation>Pacchetti</translation>
     </message>
     <message>
         <source>First Frame</source>
-        <translation type="unfinished">Primo frame</translation>
+        <translation>Primo frame</translation>
     </message>
     <message>
         <source>Last Frame</source>
-        <translation type="unfinished">Ultimo frame</translation>
+        <translation>Ultimo frame</translation>
     </message>
     <message>
         <source>Protocols</source>
-        <translation type="unfinished">Protocolli</translation>
+        <translation>Protocolli</translation>
     </message>
     <message>
         <source>Prepare Filter</source>
-        <translation type="unfinished">Prepara filtro</translation>
+        <translation>Prepara filtro</translation>
     </message>
     <message>
         <source>Prepare a display filter matching selected IMSIs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Prepara un filtro di visualizzazione che verifichi gli IMSI selezionati.</translation>
     </message>
     <message>
         <source>&lt;small&gt;%1 IMSIs found. Double-click to filter.&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;%1 IMSI trovati. Doppia clic per filtrare.&lt;/small&gt;</translation>
     </message>
 </context>
 <context>
@@ -9170,7 +9169,7 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     </message>
 </context>
 <context>
-    <name>PacketFormatCSVGroupBox</name>
+    <name>PacketFormatCArraysGroupBox</name>
     <message>
         <source>GroupBox</source>
         <translation type="unfinished">CasellaGruppo</translation>
@@ -9180,36 +9179,63 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
         <translation type="unfinished">Formato del pacchetto</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Escape non-ASCII and whitespace characters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>Include secondary data sources</source>
+        <translation type="unfinished">Includi le fonti di dati secondarie</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate arrays for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include an array to index into the list of frames&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Include index</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PacketFormatCSVGroupBox</name>
+    <message>
+        <source>GroupBox</source>
+        <translation>CasellaGruppo</translation>
+    </message>
+    <message>
+        <source>Packet Format</source>
+        <translation>Formato del pacchetto</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Escape non-ASCII and whitespace characters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Escape dei caratteri non ASCII e di spaziatura&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>ASCII</source>
-        <translation type="unfinished">ASCII</translation>
+        <translation>ASCII</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export as a UTF-8 CSV&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Esporta come un CSV UTF-8&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>UTF-8</source>
-        <translation type="unfinished">UTF-8</translation>
+        <translation>UTF-8</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include a Byte Order Mark at the beginning of the file, for Windows&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Includi un Byte Order Mark all&apos;inizio del file, per Windows&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Include Byte Order Mark</source>
-        <translation type="unfinished"></translation>
+        <translation>Includi Byte Order Mark</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Replace whitespace characters (tabs, newlines, etc.) with C-style escapes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sostituisci i caratteri di spaziatura (tabulazioni, ritorno a capo, ecc.) con escape in stile C&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Escape whitespace</source>
-        <translation type="unfinished"></translation>
+        <translation>Escape dei caratteri di spaziatura</translation>
     </message>
 </context>
 <context>
@@ -9396,17 +9422,16 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
         <translation>Visualizza come stringhe</translation>
     </message>
     <message>
-        <source>Display as Packet Details</source>
-        <oldsource>Display as packet Details</oldsource>
-        <translation type="unfinished">Visualizza come dettagli del pacchetto</translation>
-    </message>
-    <message>
         <source>Column Preferences…</source>
         <translation>Preferenze delle colonne...</translation>
     </message>
     <message>
         <source>Resize Column to Width…</source>
         <translation>Ridimensiona colonna alla larghezza...</translation>
+    </message>
+    <message>
+        <source>Display as Packet Details</source>
+        <translation>Visualizza come dettagli del pacchetto</translation>
     </message>
     <message>
         <source>Remove this Column</source>
@@ -18579,11 +18604,11 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     </message>
     <message>
         <source>IMSI List</source>
-        <translation type="unfinished"></translation>
+        <translation>Elenco IMSI</translation>
     </message>
     <message>
         <source>Show all IMSIs in the capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra tutti gli IMSI nella cattura</translation>
     </message>
     <message>
         <source>Lua Debugger</source>

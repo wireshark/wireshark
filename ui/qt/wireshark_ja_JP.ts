@@ -3053,15 +3053,15 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Everywhere</source>
-        <translation type="unfinished">すべて</translation>
+        <translation>どこでも</translation>
     </message>
     <message>
         <source>Only Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名前のみ</translation>
     </message>
     <message>
         <source>Only Description</source>
-        <translation type="unfinished">記述のみ</translation>
+        <translation>説明のみ</translation>
     </message>
 </context>
 <context>
@@ -3162,8 +3162,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Only Protocol</source>
-        <oldsource>Only Protocols</oldsource>
-        <translation type="unfinished">プロトコルのみ</translation>
+        <translation>プロトコルのみ</translation>
     </message>
     <message>
         <source>Only Description</source>
@@ -5926,51 +5925,51 @@ Relative to reference: n/a (outside reference range)</source>
     <name>ImsiListDialog</name>
     <message>
         <source>IMSI List</source>
-        <translation type="unfinished"></translation>
+        <translation>IMSIリスト</translation>
     </message>
     <message>
         <source>&lt;small&gt;Select one or more IMSIs to view flow sequence or prepare a display filter.&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;一つ以上のIMSIを選択してシーケンスの流れをみたりフィルタを準備します&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Only show IMSIs matching the current display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>現在の表示フィルタにあうIMSIのみ表示します</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished">表示フィルタに制限</translation>
+        <translation>表示フィルタに制限</translation>
     </message>
     <message>
         <source>IMSI</source>
-        <translation type="unfinished"></translation>
+        <translation>IMSI</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <source>First Frame</source>
-        <translation type="unfinished">最初のフレーム</translation>
+        <translation>最初のフレーム</translation>
     </message>
     <message>
         <source>Last Frame</source>
-        <translation type="unfinished">最後のフレーム</translation>
+        <translation>最後のフレーム</translation>
     </message>
     <message>
         <source>Protocols</source>
-        <translation type="unfinished">プロトコル</translation>
+        <translation>プロトコル</translation>
     </message>
     <message>
         <source>Prepare Filter</source>
-        <translation type="unfinished">フィルタを準備</translation>
+        <translation>フィルタを準備</translation>
     </message>
     <message>
         <source>Prepare a display filter matching selected IMSIs.</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したIMSIにあう表示フィルタを準備</translation>
     </message>
     <message>
         <source>&lt;small&gt;%1 IMSIs found. Double-click to filter.&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;%1 IMSIsが見つかりました。ダブルクリックしてフィルタします&lt;/small&gt;</translation>
     </message>
 </context>
 <context>
@@ -9129,7 +9128,7 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     </message>
 </context>
 <context>
-    <name>PacketFormatCSVGroupBox</name>
+    <name>PacketFormatCArraysGroupBox</name>
     <message>
         <source>GroupBox</source>
         <translation type="unfinished">グループボックス</translation>
@@ -9139,36 +9138,63 @@ Shift+クリック: 空行では無効なブレークポイントを追加
         <translation type="unfinished">パケット形式</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Escape non-ASCII and whitespace characters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>Include secondary data sources</source>
+        <translation type="unfinished">第２データソースを含む</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate arrays for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include an array to index into the list of frames&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Include index</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PacketFormatCSVGroupBox</name>
+    <message>
+        <source>GroupBox</source>
+        <translation>グループボックス</translation>
+    </message>
+    <message>
+        <source>Packet Format</source>
+        <translation>パケット形式</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Escape non-ASCII and whitespace characters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ASCII以外と空白文字をエスケープ&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>ASCII</source>
-        <translation type="unfinished"></translation>
+        <translation>アスキー文字形式</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export as a UTF-8 CSV&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;UTF-8のCSV形式としてエクスポート&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>UTF-8</source>
-        <translation type="unfinished">UTF-8形式</translation>
+        <translation>UTF-8形式</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include a Byte Order Mark at the beginning of the file, for Windows&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Windowsのためにバイト順序マークをファイルの先頭に含みます&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Include Byte Order Mark</source>
-        <translation type="unfinished"></translation>
+        <translation>バイト順序マークを含む</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Replace whitespace characters (tabs, newlines, etc.) with C-style escapes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt; 空白文字（タブ、改行など）を C 言語形式のエスケープ表記に置換する&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Escape whitespace</source>
-        <translation type="unfinished"></translation>
+        <translation>空白をエスケープ</translation>
     </message>
 </context>
 <context>
@@ -9355,17 +9381,16 @@ Shift+クリック: 空行では無効なブレークポイントを追加
         <translation>文字列として表示</translation>
     </message>
     <message>
-        <source>Display as Packet Details</source>
-        <oldsource>Display as packet Details</oldsource>
-        <translation type="unfinished">パケット詳細として表示</translation>
-    </message>
-    <message>
         <source>Column Preferences…</source>
         <translation>列の設定…</translation>
     </message>
     <message>
         <source>Resize Column to Width…</source>
         <translation>内容に合わせて列幅を揃える…</translation>
+    </message>
+    <message>
+        <source>Display as Packet Details</source>
+        <translation>パケット詳細として表示</translation>
     </message>
     <message>
         <source>Remove this Column</source>
@@ -18519,11 +18544,11 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
     </message>
     <message>
         <source>IMSI List</source>
-        <translation type="unfinished"></translation>
+        <translation>IMSIリスト</translation>
     </message>
     <message>
         <source>Show all IMSIs in the capture</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャにあるすべてのIMSIを表示</translation>
     </message>
     <message>
         <source>Lua Debugger</source>

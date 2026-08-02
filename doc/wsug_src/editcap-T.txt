@@ -28,6 +28,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     dbus - D-Bus
     dct2000 - Catapult DCT2000
     dect_nr - DECT-2020 New Radio (NR) MAC layer
+    dect_nr_tap - DECT-2020 New Radio (NR) TAP header
     docsis - Data Over Cable Service Interface Specification
     docsis31_xra31 - DOCSIS with Excentis XRA pseudo-header
     dpauxmon - DisplayPort AUX channel with Unigraf pseudo-header

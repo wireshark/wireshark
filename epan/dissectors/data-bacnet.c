@@ -1648,6 +1648,9 @@ BACnetVendorIdentifiers[] = {
     { 1635, "Action Target Inc." },
     { 1636, "Tektelic Communications Inc." },
     { 1637, "Expansion Electronic SRL" },
+    { 1638, "SpecPromDizajn OOO" },
+    { 1639, "FACTS Engineering, LLC" },
+    { 1640, "GAserv GmbH" },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);

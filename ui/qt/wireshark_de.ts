@@ -3176,8 +3176,7 @@ Relativ zur Referenz: n. v. (außerhalb des Referenzbereichs)</translation>
     </message>
     <message>
         <source>Only Protocol</source>
-        <oldsource>Only Protocols</oldsource>
-        <translation type="unfinished">Nur Protokolle</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Only Description</source>
@@ -9131,6 +9130,33 @@ on an existing breakpoint, toggle its active state</source>
     </message>
 </context>
 <context>
+    <name>PacketFormatCArraysGroupBox</name>
+    <message>
+        <source>GroupBox</source>
+        <translation type="unfinished">Gruppierungsbox</translation>
+    </message>
+    <message>
+        <source>Packet Format</source>
+        <translation type="unfinished">Paketformat</translation>
+    </message>
+    <message>
+        <source>Include secondary data sources</source>
+        <translation type="unfinished">Zweite Datenquelle inkludieren</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate arrays for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include an array to index into the list of frames&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Include index</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PacketFormatCSVGroupBox</name>
     <message>
         <source>GroupBox</source>
@@ -9357,17 +9383,16 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Als Zeichenketten anzeigen</translation>
     </message>
     <message>
-        <source>Display as Packet Details</source>
-        <oldsource>Display as packet Details</oldsource>
-        <translation type="unfinished">Anzeigen als Paketdetails</translation>
-    </message>
-    <message>
         <source>Column Preferences…</source>
         <translation>Spalteneigenschaft…</translation>
     </message>
     <message>
         <source>Resize Column to Width…</source>
         <translation>Spaltenbreite an Inhalt anpassen…</translation>
+    </message>
+    <message>
+        <source>Display as Packet Details</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Remove this Column</source>

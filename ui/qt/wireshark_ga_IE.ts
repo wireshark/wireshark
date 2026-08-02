@@ -3080,15 +3080,15 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     </message>
     <message>
         <source>Everywhere</source>
-        <translation type="unfinished">I ngach áit</translation>
+        <translation>I ngach áit</translation>
     </message>
     <message>
         <source>Only Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Ainm Amháin</translation>
     </message>
     <message>
         <source>Only Description</source>
-        <translation type="unfinished">Cur Síos Amháin</translation>
+        <translation>Cur Síos Amháin</translation>
     </message>
 </context>
 <context>
@@ -3189,8 +3189,7 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     </message>
     <message>
         <source>Only Protocol</source>
-        <oldsource>Only Protocols</oldsource>
-        <translation type="unfinished">Prótacail Amháin</translation>
+        <translation>Prótacal Amháin</translation>
     </message>
     <message>
         <source>Only Description</source>
@@ -5969,51 +5968,51 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     <name>ImsiListDialog</name>
     <message>
         <source>IMSI List</source>
-        <translation type="unfinished"></translation>
+        <translation>Liosta IMSI</translation>
     </message>
     <message>
         <source>&lt;small&gt;Select one or more IMSIs to view flow sequence or prepare a display filter.&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;Roghnaigh IMSI amháin nó níos mó chun seicheamh sreafa a fheiceáil nó scagaire taispeána a ullmhú.&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Only show IMSIs matching the current display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Taispeáin IMSIanna amháin a mheaitseálann an scagaire taispeána reatha</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Teorainn leis an scagaire taispeána</translation>
     </message>
     <message>
         <source>IMSI</source>
-        <translation type="unfinished"></translation>
+        <translation>IMSI</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Pacáistí</translation>
     </message>
     <message>
         <source>First Frame</source>
-        <translation type="unfinished">An Chéad Fhráma</translation>
+        <translation>An Chéad Fráma</translation>
     </message>
     <message>
         <source>Last Frame</source>
-        <translation type="unfinished">Fráma Deiridh</translation>
+        <translation>Fráma Deireanach</translation>
     </message>
     <message>
         <source>Protocols</source>
-        <translation type="unfinished">Prótacail</translation>
+        <translation>Prótacail</translation>
     </message>
     <message>
         <source>Prepare Filter</source>
-        <translation type="unfinished">Ullmhaigh Scagaire</translation>
+        <translation>Ullmhaigh Scagaire</translation>
     </message>
     <message>
         <source>Prepare a display filter matching selected IMSIs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ullmhaigh scagaire taispeána a mheaitseálann na IMSIanna roghnaithe.</translation>
     </message>
     <message>
         <source>&lt;small&gt;%1 IMSIs found. Double-click to filter.&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;Fuarthas %1 IMSI. Cliceáil faoi dhó chun scagadh a dhéanamh.&lt;/small&gt;</translation>
     </message>
 </context>
 <context>
@@ -9203,46 +9202,73 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     </message>
 </context>
 <context>
-    <name>PacketFormatCSVGroupBox</name>
+    <name>PacketFormatCArraysGroupBox</name>
     <message>
         <source>GroupBox</source>
         <translation type="unfinished">Bosca Grúpa</translation>
     </message>
     <message>
         <source>Packet Format</source>
-        <translation type="unfinished">Formáid Paicéad</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Include secondary data sources</source>
+        <translation type="unfinished">Cuir foinsí sonraí tánaisteacha san áireamh</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate arrays for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include an array to index into the list of frames&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Include index</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PacketFormatCSVGroupBox</name>
+    <message>
+        <source>GroupBox</source>
+        <translation>Bosca Grúpa</translation>
+    </message>
+    <message>
+        <source>Packet Format</source>
+        <translation>Formáid an Phacáiste</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Escape non-ASCII and whitespace characters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Éalaíonn carachtair neamh-ASCII agus spás bán&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>ASCII</source>
-        <translation type="unfinished">ASCII</translation>
+        <translation>ASCII</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export as a UTF-8 CSV&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Easpórtáil mar UTF-8 CSV&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>UTF-8</source>
-        <translation type="unfinished">UTF-8</translation>
+        <translation>UTF-8</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include a Byte Order Mark at the beginning of the file, for Windows&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cuir Marc Ordú Beart ag tús an chomhaid, i gcás Windows&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Include Byte Order Mark</source>
-        <translation type="unfinished"></translation>
+        <translation>Cuir Marc Ordú Beart san áireamh</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Replace whitespace characters (tabs, newlines, etc.) with C-style escapes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cuir carachtair spáis bhána (tabanna, línte nua, srl.) in ionad carachtair spáis bhána&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Escape whitespace</source>
-        <translation type="unfinished"></translation>
+        <translation>Éalaigh spás bán</translation>
     </message>
 </context>
 <context>
@@ -9429,17 +9455,16 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
         <translation>Taispeáin mar Teaghráin</translation>
     </message>
     <message>
-        <source>Display as Packet Details</source>
-        <oldsource>Display as packet Details</oldsource>
-        <translation type="unfinished">Taispeáin mar Shonraí paicéad</translation>
-    </message>
-    <message>
         <source>Column Preferences…</source>
         <translation>Sainroghanna Colún…</translation>
     </message>
     <message>
         <source>Resize Column to Width…</source>
         <translation>Athraigh an Colún go Leithead…</translation>
+    </message>
+    <message>
+        <source>Display as Packet Details</source>
+        <translation>Taispeáin mar Shonraí Pacáiste</translation>
     </message>
     <message>
         <source>Remove this Column</source>
@@ -18630,11 +18655,11 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
     </message>
     <message>
         <source>IMSI List</source>
-        <translation type="unfinished"></translation>
+        <translation>Liosta IMSI</translation>
     </message>
     <message>
         <source>Show all IMSIs in the capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Taispeáin na IMSIanna uile sa ghabháil</translation>
     </message>
     <message>
         <source>Lua Debugger</source>

@@ -404,7 +404,7 @@ static const struct ws_iana_ip_special_block __ipv6_special_block[] = {
 };
 
 
-/* (last updated 2026-07-24) */
+/* (last updated 2026-07-31) */
 
 
 static const value_string enterprise_val[] = {
@@ -43397,7 +43397,7 @@ static const value_string enterprise_val[] = {
 	{ 43056,    "ENVISTACOM" },
 	{ 43057,    "PrAT CENTRAVIS PRODUCTION UKRAINE" },
 	{ 43058,    "Synergy Sky AS" },
-	{ 43059,    "iteracon GmbH" },
+	{ 43059,    "RADIUZE GmbH" },
 	{ 43060,    "Leepfrog Technologies, Inc." },
 	{ 43061,    "Global System & Network Services BVBA" },
 	{ 43062,    "Ingenieure ohne Grenzen e.V." },
@@ -66657,6 +66657,48 @@ static const value_string enterprise_val[] = {
 	{ 66361,    "AutographOS Corp" },
 	{ 66362,    "Enchorium" },
 	{ 66363,    "Sec s.r.o" },
+	{ 66364,    "ABLATIVE PTY LTD" },
+	{ 66365,    "Zhang He" },
+	{ 66366,    "Ridgeway Telecommunications LLC" },
+	{ 66367,    "eGloo Incorporated" },
+	{ 66368,    "SETIC-FP/MINFIN Angola" },
+	{ 66369,    "LXNDigital" },
+	{ 66370,    "StampCode" },
+	{ 66371,    "Logiqum Kft." },
+	{ 66372,    "Vexola GmbH" },
+	{ 66373,    "Algonomia" },
+	{ 66374,    "National Energy PKI Limited" },
+	{ 66375,    "Hyundai Motor Company" },
+	{ 66376,    "Xiamen Bitswaving Technology Co., Ltd." },
+	{ 66377,    "N.V. Nederlandse Spoorwegen" },
+	{ 66378,    "Inexorable, Inc." },
+	{ 66379,    "Midwest Orthopaedic Center" },
+	{ 66380,    "Chessmate Limited" },
+	{ 66381,    "T.E.L.L. Software Hungária Kft." },
+	{ 66382,    "Coppin State University Community Health Center" },
+	{ 66383,    "4future.digital" },
+	{ 66384,    "Unifiber SA" },
+	{ 66385,    "Sunjata Conseil" },
+	{ 66386,    "Reed-Soft Bt." },
+	{ 66387,    "SOBE SOFTWARE, Inc." },
+	{ 66388,    "Spartified" },
+	{ 66389,    "Verge Inc." },
+	{ 66390,    "Engel & Völkers Gewerbe Berlin GmbH & Co KG" },
+	{ 66391,    "BLAISSED S.R.L." },
+	{ 66392,    "Mariusz Zieliński" },
+	{ 66393,    "Dan Cross" },
+	{ 66394,    "Indosat Ooredoo Hutchison (IM3)" },
+	{ 66395,    "Indosat Ooredoo Hutchison (3ID)" },
+	{ 66396,    "Le Vi Qui" },
+	{ 66397,    "Banco Guayaquil S.A." },
+	{ 66398,    "Mobile-ID Technologies And Services Joint Stock Company" },
+	{ 66399,    "Fairland iGarden Co.,Ltd." },
+	{ 66400,    "knoell Germany GmbH" },
+	{ 66401,    "zdrei.com GmbH" },
+	{ 66402,    "Aqua Vita International S. A." },
+	{ 66403,    "Metropolitni univerzita Praha, o.p.s." },
+	{ 66404,    "Common Codes GmbH" },
+	{ 66405,    "Ambermind" },
 	{ 0, NULL }
 };
 

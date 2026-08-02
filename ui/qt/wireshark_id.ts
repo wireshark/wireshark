@@ -145,23 +145,23 @@
     <name>AnnotationEditDialog</name>
     <message>
         <source>Color:</source>
-        <translation type="unfinished"></translation>
+        <translation>Warna:</translation>
     </message>
     <message>
         <source>Comment (max %1 characters)</source>
-        <translation type="unfinished"></translation>
+        <translation>Komentar (maks %1 karakter)</translation>
     </message>
     <message>
         <source>Comment:</source>
-        <translation type="unfinished">Komentar:</translation>
+        <translation>Komentar:</translation>
     </message>
     <message>
         <source>Select Annotation Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Pilih Warna Anotasi</translation>
     </message>
     <message>
         <source>Annotations are session-only and will be lost when the capture is closed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Anotasi hanya ada dalam sesi dan akan hilang ketika tangkapan ditutup.</translation>
     </message>
 </context>
 <context>
@@ -722,7 +722,7 @@
     <name>BreakpointConditionDelegate</name>
     <message>
         <source>Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekspresi</translation>
     </message>
     <message>
         <source>Lua expression — pause when truthy</source>
@@ -735,11 +735,11 @@ Runtime errors are treated as false (silent) and surface as a warning icon on th
     </message>
     <message>
         <source>Hit Count</source>
-        <translation type="unfinished"></translation>
+        <translation>Cacah Hit</translation>
     </message>
     <message>
         <source>Pause after N hits (0 disables)</source>
-        <translation type="unfinished"></translation>
+        <translation>Jeda setelah N hit (0 dinonaktifkan)</translation>
     </message>
     <message>
         <source>Gate the pause on a hit counter. The dropdown next to N picks the comparison mode: from pauses on every hit from N onwards (default); every pauses on hits N, 2N, 3N, …; once pauses on the N-th hit and deactivates the breakpoint. Use 0 to disable the gate. The counter is preserved across edits to Expression / Hit Count / Log Message; lowering the target below the current count rolls the counter back to 0 so the breakpoint can wait for the next N hits. Right-click the row to reset it explicitly. Combined with an Expression on the same row, the hit-count gate runs first.</source>
@@ -747,7 +747,7 @@ Runtime errors are treated as false (silent) and surface as a warning icon on th
     </message>
     <message>
         <source>Log Message</source>
-        <translation type="unfinished"></translation>
+        <translation>Catat Log Pesan</translation>
     </message>
     <message>
         <source>Log message — supports {expr} and tags such as {filename}, {basename}, {line}, {function}, {hits}, {timestamp}, {delta}…</source>
@@ -759,15 +759,15 @@ Runtime errors are treated as false (silent) and surface as a warning icon on th
     </message>
     <message>
         <source>from</source>
-        <translation type="unfinished"></translation>
+        <translation>dari</translation>
     </message>
     <message>
         <source>every</source>
-        <translation type="unfinished"></translation>
+        <translation>setiap</translation>
     </message>
     <message>
         <source>once</source>
-        <translation type="unfinished"></translation>
+        <translation>sekali</translation>
     </message>
     <message>
         <source>Comparison mode for the hit count:
@@ -778,7 +778,7 @@ once — pause once on the N-th hit and deactivate the breakpoint.</source>
     </message>
     <message>
         <source>Pause</source>
-        <translation type="unfinished"></translation>
+        <translation>Jeda</translation>
     </message>
     <message>
         <source>Pause: format and emit the log message AND pause execution.
@@ -794,23 +794,23 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
     <message>
         <source>Capture</source>
-        <translation type="unfinished">Tangkap</translation>
+        <translation>Tangkap</translation>
     </message>
     <message>
         <source>Start a new capture session</source>
-        <translation type="unfinished"></translation>
+        <translation>Mulai suatu sesi tangkap baru</translation>
     </message>
     <message>
         <source>&lt;h2&gt;Capture&lt;/h2&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h2&gt;Tangkap&lt;/h2&gt;</translation>
     </message>
     <message>
         <source>…using this filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>...memakai filter ini:</translation>
     </message>
     <message>
         <source>Capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filter tangkap</translation>
     </message>
     <message>
         <source>Enter a capture filter expression to limit which data is recorded during live capture.</source>
@@ -838,7 +838,7 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
     <message>
         <source>%1 / %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 / %2</translation>
     </message>
     <message>
         <source>All interfaces shown</source>
@@ -1180,7 +1180,7 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
     <message>
         <source>Interface Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Deskripsi Antar Muka</translation>
     </message>
     <message>
         <source>Dropped packets</source>
@@ -1295,23 +1295,23 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     <name>CaptureFilterEntry</name>
     <message>
         <source>Capture filter entry</source>
-        <translation type="unfinished"></translation>
+        <translation>Entri filter tangkap</translation>
     </message>
     <message>
         <source>Saved Capture Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Simpan Filter Tangkap</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation type="unfinished">Simpan filter ini</translation>
+        <translation>Simpan filter ini</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation type="unfinished">Buang filter ini</translation>
+        <translation>Buang filter ini</translation>
     </message>
     <message>
         <source>Manage Capture Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Kelola Filter Tangkap</translation>
     </message>
     <message>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
@@ -2583,7 +2583,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Stream</source>
-        <translation type="unfinished">Stream</translation>
+        <translation>Stream</translation>
     </message>
     <message>
         <source>Codec</source>
@@ -2591,43 +2591,43 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Duration (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Durasi (s)</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished">Paket</translation>
+        <translation>Paket</translation>
     </message>
     <message>
         <source>Signal Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket Sinyal</translation>
     </message>
     <message>
         <source>Transmitter Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket Pemancar</translation>
     </message>
     <message>
         <source>Estimated Lost</source>
-        <translation type="unfinished"></translation>
+        <translation>Perkiraan Hilang</translation>
     </message>
     <message>
         <source>Jitter (mean/max ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Jitter (rerata/maks ms)</translation>
     </message>
     <message>
         <source>Delta (mean/max ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Delta (rerata/maks ms)</translation>
     </message>
     <message>
         <source>Capture Time (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Waktu Tangkap (s)</translation>
     </message>
     <message>
         <source>Amplitude</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplituda</translation>
     </message>
     <message>
         <source>0.000 / 0.000 s</source>
-        <translation type="unfinished"></translation>
+        <translation>0.000 / 0.000 s</translation>
     </message>
     <message>
         <source>Playback</source>
@@ -2635,7 +2635,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Packet</source>
-        <translation type="unfinished">Paket</translation>
+        <translation>Paket</translation>
     </message>
     <message>
         <source>Time (s)</source>
@@ -2655,7 +2655,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished">Status</translation>
+        <translation>Status</translation>
     </message>
     <message>
         <source>Go To First Packet</source>
@@ -2683,7 +2683,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Waveform</source>
@@ -2703,7 +2703,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Pause</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Jeda</translation>
     </message>
     <message>
         <source>Double click on graph to set start of playback.</source>
@@ -2750,35 +2750,35 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Radio</source>
-        <translation type="unfinished"></translation>
+        <translation>Radio</translation>
     </message>
     <message>
         <source>Entity</source>
-        <translation type="unfinished"></translation>
+        <translation>Entitas</translation>
     </message>
     <message>
         <source>Signal</source>
-        <translation type="unfinished"></translation>
+        <translation>Sinyal</translation>
     </message>
     <message>
         <source>Tx</source>
-        <translation type="unfinished"></translation>
+        <translation>Tx</translation>
     </message>
     <message>
         <source>Lost</source>
-        <translation type="unfinished">Hilang</translation>
+        <translation>Hilang</translation>
     </message>
     <message>
         <source>Max Delta (ms)</source>
-        <translation type="unfinished">Delta Maks (md)</translation>
+        <translation>Delta Maks (md)</translation>
     </message>
     <message>
         <source>Mean Jitter (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Jitter Rerata (md)</translation>
     </message>
     <message>
         <source>Max Jitter (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Jitter Maks (md)</translation>
     </message>
     <message>
         <source>Pb</source>
@@ -3154,8 +3154,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Only Protocol</source>
-        <oldsource>Only Protocols</oldsource>
-        <translation type="unfinished">Hanya Protokol</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Only Description</source>
@@ -3167,15 +3166,15 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>enabled</source>
-        <translation type="unfinished">difungsikan</translation>
+        <translation>difungsikan</translation>
     </message>
     <message>
         <source>disabled</source>
-        <translation type="unfinished">dinonaktifkan</translation>
+        <translation>dinonaktifkan</translation>
     </message>
     <message>
         <source>protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>protokol</translation>
     </message>
     <message>
         <source>non-heuristic protocols</source>
@@ -3450,7 +3449,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Summary: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ringkasan: %1</translation>
     </message>
     <message>
         <source>Summary: Packet comments listed below.</source>
@@ -4433,7 +4432,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema</translation>
     </message>
     <message>
         <source>Theme Author Information</source>
@@ -4454,19 +4453,19 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>System</source>
-        <translation type="unfinished">Sistem</translation>
+        <translation>Sistem</translation>
     </message>
     <message>
         <source>Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Terang</translation>
     </message>
     <message>
         <source>Dark</source>
-        <translation type="unfinished"></translation>
+        <translation>Gelap</translation>
     </message>
     <message>
         <source>Appearance mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode penampakan:</translation>
     </message>
     <message>
         <source>Theme:</source>
@@ -4914,7 +4913,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Alt+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Naik</translation>
     </message>
     <message>
         <source>Move Left 100 Pixels</source>
@@ -4922,7 +4921,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Alt+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Kiri</translation>
     </message>
     <message>
         <source>Move Right 100 Pixels</source>
@@ -4930,7 +4929,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Alt+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Kanan</translation>
     </message>
     <message>
         <source>Move Down 100 Pixels</source>
@@ -4938,7 +4937,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Alt+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Turun</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
@@ -5901,23 +5900,23 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>IMSI</source>
-        <translation type="unfinished"></translation>
+        <translation>IMSI</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished">Paket</translation>
+        <translation>Paket</translation>
     </message>
     <message>
         <source>First Frame</source>
-        <translation type="unfinished">Frame Pertama</translation>
+        <translation>Frame Pertama</translation>
     </message>
     <message>
         <source>Last Frame</source>
-        <translation type="unfinished">Frame Terakhir</translation>
+        <translation>Frame Terakhir</translation>
     </message>
     <message>
         <source>Protocols</source>
-        <translation type="unfinished">Protokol</translation>
+        <translation>Protokol</translation>
     </message>
     <message>
         <source>Prepare Filter</source>
@@ -5936,7 +5935,7 @@ Relative to reference: n/a (outside reference range)</source>
     <name>InPacketFindBar</name>
     <message>
         <source>String</source>
-        <translation type="unfinished">String</translation>
+        <translation>String</translation>
     </message>
     <message>
         <source>Regular Expression</source>
@@ -7177,23 +7176,23 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>75%</source>
-        <translation type="unfinished"></translation>
+        <translation>75%</translation>
     </message>
     <message>
         <source>80%</source>
-        <translation type="unfinished"></translation>
+        <translation>80%</translation>
     </message>
     <message>
         <source>85%</source>
-        <translation type="unfinished"></translation>
+        <translation>85%</translation>
     </message>
     <message>
         <source>90%</source>
-        <translation type="unfinished"></translation>
+        <translation>90%</translation>
     </message>
     <message>
         <source>95%</source>
-        <translation type="unfinished"></translation>
+        <translation>95%</translation>
     </message>
     <message>
         <source>Separator style:</source>
@@ -7771,11 +7770,11 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Location</source>
-        <translation type="unfinished">Lokasi</translation>
+        <translation>Lokasi</translation>
     </message>
     <message>
         <source>Variables</source>
-        <translation type="unfinished"></translation>
+        <translation>Variabel</translation>
     </message>
     <message>
         <source>From: Locals</source>
@@ -7800,15 +7799,15 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Nama</translation>
+        <translation>Nama</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">Nilai</translation>
+        <translation>Nilai</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Tipe</translation>
+        <translation>Tipe</translation>
     </message>
     <message>
         <source>Watch</source>
@@ -7820,7 +7819,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Function</source>
-        <translation type="unfinished"></translation>
+        <translation>Fungsi</translation>
     </message>
     <message>
         <source>Select a row to inspect locals and upvalues for that frame. Double-click a Lua frame to open its source location.</source>
@@ -7836,7 +7835,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Active</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktif</translation>
     </message>
     <message>
         <source>Line</source>
@@ -7856,7 +7855,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Berkas</translation>
     </message>
     <message>
         <source>Evaluate</source>
@@ -7872,7 +7871,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished">Keluaran</translation>
+        <translation>Keluaran</translation>
     </message>
     <message>
         <source>Execute the Lua code (Ctrl+Return)</source>
@@ -7880,15 +7879,15 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished">Bersihkan</translation>
+        <translation>Bersihkan</translation>
     </message>
     <message>
         <source>Clear output</source>
-        <translation type="unfinished"></translation>
+        <translation>Bersihkan keluaran</translation>
     </message>
     <message>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Pengaturan</translation>
     </message>
     <message>
         <source>Auto (follow color scheme)</source>
@@ -7896,11 +7895,11 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Dark</source>
-        <translation type="unfinished"></translation>
+        <translation>Gelap</translation>
     </message>
     <message>
         <source>Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Terang</translation>
     </message>
     <message>
         <source>Color theme for the code editor</source>
@@ -7960,19 +7959,19 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Cut</source>
-        <translation type="unfinished"></translation>
+        <translation>Potong</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Salin</translation>
+        <translation>Salin</translation>
     </message>
     <message>
         <source>Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>Tempel</translation>
     </message>
     <message>
         <source>Select All</source>
-        <translation type="unfinished"></translation>
+        <translation>Pilih Semua</translation>
     </message>
     <message>
         <source>Add Breakpoint</source>
@@ -8012,11 +8011,11 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Dinonaktifkan</translation>
     </message>
     <message>
         <source>Paused</source>
-        <translation type="unfinished"></translation>
+        <translation>Dijeda</translation>
     </message>
     <message>
         <source>(runtime error)</source>
@@ -8036,11 +8035,11 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Continue</source>
-        <translation type="unfinished"></translation>
+        <translation>Lanjutkan</translation>
     </message>
     <message>
         <source>F5</source>
-        <translation type="unfinished"></translation>
+        <translation>F5</translation>
     </message>
     <message>
         <source>Step Over</source>
@@ -8048,7 +8047,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>F10</source>
-        <translation type="unfinished"></translation>
+        <translation>F10</translation>
     </message>
     <message>
         <source>Step Into</source>
@@ -8056,7 +8055,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>F11</source>
-        <translation type="unfinished"></translation>
+        <translation>F11</translation>
     </message>
     <message>
         <source>Step Out</source>
@@ -8064,7 +8063,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Shift+F11</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+F11</translation>
     </message>
     <message>
         <source>Add Watch</source>
@@ -8072,27 +8071,27 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Ctrl+Shift+W</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+W</translation>
     </message>
     <message>
         <source>Open File</source>
-        <translation type="unfinished"></translation>
+        <translation>Buka Berkas</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Simpan</translation>
+        <translation>Simpan</translation>
     </message>
     <message>
         <source>Ctrl+S</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+S</translation>
     </message>
     <message>
         <source>Find…</source>
-        <translation type="unfinished"></translation>
+        <translation>Cari...</translation>
     </message>
     <message>
         <source>Ctrl+F</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+F</translation>
     </message>
     <message>
         <source>Go to Line…</source>
@@ -8100,7 +8099,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Ctrl+G</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+G</translation>
     </message>
     <message>
         <source>Reload Lua Plugins</source>
@@ -8108,7 +8107,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Ctrl+Shift+L</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+L</translation>
     </message>
 </context>
 <context>
@@ -8127,26 +8126,26 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Replace:</source>
-        <translation type="unfinished"></translation>
+        <translation>Gantikan:</translation>
     </message>
     <message>
         <source>Replace</source>
-        <translation type="unfinished"></translation>
+        <translation>Gantikan</translation>
     </message>
     <message>
         <source>Replace All</source>
-        <translation type="unfinished"></translation>
+        <translation>Gantikan Semua</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Tutup</translation>
+        <translation>Tutup</translation>
     </message>
 </context>
 <context>
     <name>LuaDebuggerGoToLineFrame</name>
     <message>
         <source>Line:</source>
-        <translation type="unfinished"></translation>
+        <translation>Baris:</translation>
     </message>
     <message>
         <source>Go to line</source>
@@ -8154,7 +8153,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Batal</translation>
+        <translation>Batal</translation>
     </message>
 </context>
 <context>
@@ -9066,6 +9065,33 @@ on an existing breakpoint, toggle its active state</source>
     </message>
 </context>
 <context>
+    <name>PacketFormatCArraysGroupBox</name>
+    <message>
+        <source>GroupBox</source>
+        <translation type="unfinished">GroupBox</translation>
+    </message>
+    <message>
+        <source>Packet Format</source>
+        <translation type="unfinished">Format Paket</translation>
+    </message>
+    <message>
+        <source>Include secondary data sources</source>
+        <translation type="unfinished">Sertakan sumber data sekunder</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate arrays for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include an array to index into the list of frames&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Include index</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PacketFormatCSVGroupBox</name>
     <message>
         <source>GroupBox</source>
@@ -9292,17 +9318,16 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Tampilkan sebagai String</translation>
     </message>
     <message>
-        <source>Display as Packet Details</source>
-        <oldsource>Display as packet Details</oldsource>
-        <translation type="unfinished">Tampilkan sebagai Rincian paket</translation>
-    </message>
-    <message>
         <source>Column Preferences…</source>
         <translation>Preferensi Kolom...</translation>
     </message>
     <message>
         <source>Resize Column to Width…</source>
         <translation>Ubah Ukuran Kolom ke Lebar...</translation>
+    </message>
+    <message>
+        <source>Display as Packet Details</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Remove this Column</source>
@@ -9616,7 +9641,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Alt+Up</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+Naik</translation>
     </message>
     <message>
         <source>Move Left 100 Pixels</source>
@@ -9624,7 +9649,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Alt+Left</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+Kiri</translation>
     </message>
     <message>
         <source>Move Right 100 Pixels</source>
@@ -9632,7 +9657,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Alt+Right</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+Kanan</translation>
     </message>
     <message>
         <source>Move Down 100 Pixels</source>
@@ -9640,7 +9665,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Alt+Down</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+Turun</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
@@ -15178,7 +15203,7 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Theme</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tema</translation>
     </message>
     <message>
         <source>Geometry:</source>
