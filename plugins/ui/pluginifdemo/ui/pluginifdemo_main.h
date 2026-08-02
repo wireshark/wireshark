@@ -81,7 +81,7 @@ public:
      * @param parent Unused; pass a default QModelIndex for list models.
      * @return Number of PluginIfType entries currently held.
      */
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Returns data for the given index and role.
@@ -89,7 +89,7 @@ public:
      * @param role Qt item data role (e.g. Qt::DisplayRole).
      * @return QVariant containing the requested data, or an invalid QVariant if unavailable.
      */
-    QVariant data(const QModelIndex &idx, int role = Qt::DisplayRole) const;
+    QVariant data(const QModelIndex &idx, int role = Qt::DisplayRole) const override;
 
 private:
     QList<PluginIfType> m_pluginIfTypes; /**< Ordered list of toolbar item type entries. */
@@ -115,7 +115,7 @@ public:
      * @param sourceParent Parent index in the source model (unused for list models).
      * @return @c true if the row's item type matches the active filter; @c false otherwise.
      */
-    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
 
     /**
      * @brief Sets the item type to filter on; only rows matching this type will be shown.
