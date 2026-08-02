@@ -1891,8 +1891,16 @@ static bool erf_dump(
     total_rlen += 8;
 
     padbytes = WS_PADDING_TO_8(total_rlen);  /*calculate how much padding will be required */
-    if(rec->rec_header.packet_header.caplen < rec->rec_header.packet_header.len){ /*if packet has been snapped, we need to round down what we output*/
+    if(rec->rec_header.packet_header.caplen < rec->rec_header.packet_header.len){
+      /* if packet has been snapped, we need to round down what we output;
+       * if we added padding, then the padding would be treated as the missing
+       * captured length. */
       round_down = (8U - padbytes) % 8U;
+      if (rec->rec_header.packet_header.caplen < round_down) {
+        *err = WTAP_ERR_UNWRITABLE_REC_DATA;
+        *err_info = ws_strdup_printf("erf: Truncated record too short to align for output");
+        return false;
+      }
       total_rlen -= round_down;
     }else{
       total_rlen += padbytes;
