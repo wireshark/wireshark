@@ -5613,6 +5613,13 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x10F2,   "CHIGEE TECHNOLOGY CO., LTD." },
     { 0x10F3,   "EURODIMA GmbH & CoKG" },
     { 0x10F4,   "SUPERARK LTD" },
+    { 0x10F5,   "Shenzhen DeepX Technology Co., Ltd." },
+    { 0x10F6,   "Pressure Systems International, Inc." },
+    { 0x10F7,   "HEX INNOVATE (UK) LIMITED" },
+    { 0x10F8,   "IONLINE INTERNET SERVICE PROVIDER" },
+    { 0x10F9,   "Even Realities Ltd." },
+    { 0x10FA,   "QPlay Ltd" },
+    { 0x10FB,   "Hydratune Australia Pty Ltd" },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
