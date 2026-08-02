@@ -21,7 +21,7 @@ local taptests = {
         [ETH]=5*n_frames,
         [IP]=5*3,
         [DHCP]=5*2,
-        [OTHER]=16,
+        [OTHER]=19,
         [PDISS]=n_frames,
 }
 testlib.init(taptests)
@@ -75,6 +75,11 @@ local function makeListener(...)
     local foo = Listener.new(...)
 end
 
+local function makeAndRemoveListener(...)
+    local foo = Listener.new(...)
+    foo:remove()
+end
+
 local function setListener(tap,name,value)
     tap[name] = value
 end
@@ -110,6 +115,9 @@ testlib.test(OTHER,"Listener.remove-14",pcall(tmptap.remove,tmptap))
 
 testlib.test(OTHER,"typeof-15", typeof(tmptap) == "Listener")
 
+testlib.test(OTHER,"Listener.new-limit-display-filter-default-16",pcall(makeAndRemoveListener, "frame", nil, false))
+testlib.test(OTHER,"Listener.new-limit-display-filter-false-17",pcall(makeAndRemoveListener, "frame", nil, false, false))
+testlib.test(OTHER,"Listener.new-limit-display-filter-true-18",pcall(makeAndRemoveListener, "frame", nil, false, true))
 
 -- declare some field extractors
 local f_eth_src     = Field.new("eth.src")

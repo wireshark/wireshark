@@ -244,12 +244,26 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
     Whether to generate all fields.
     The default is `false`.
     Note: This impacts performance. */
+#define WSLUA_OPTARG_Listener_new_LIMIT_TO_DISPLAY_FILTER 4 /*
+    Whether to limit this listener to packets matching the main
+    Wireshark display filter.
+    The default is `false`.
+    When enabled, changing the main display filter causes the tap
+    to use the newly applied display filter and retap the capture.
+    */
 
     const char* tap_type = luaL_optstring(L,WSLUA_OPTARG_Listener_new_TAP,"frame");
     const char* filter = luaL_optstring(L,WSLUA_OPTARG_Listener_new_FILTER,NULL);
     const bool all_fields = wslua_optbool(L, WSLUA_OPTARG_Listener_new_ALLFIELDS, false);
+    const bool limit_to_display_filter = wslua_optbool(L,WSLUA_OPTARG_Listener_new_LIMIT_TO_DISPLAY_FILTER,false);
+
     Listener tap;
     GString* error;
+    tap_flags_t tap_flags = TL_REQUIRES_PROTO_TREE;
+
+    if (limit_to_display_filter) {
+        tap_flags |= TL_LIMIT_TO_DISPLAY_FILTER;
+    }
 
     tap = (Listener)g_malloc(sizeof(struct _wslua_tap));
 
@@ -269,7 +283,7 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
      * XXX - do any Lua taps require the columns?  If so, we either need
      * to request them for this tap, or do so if any Lua taps require them.
      */
-    error = register_tap_listener(tap_type, tap, tap->filter, TL_REQUIRES_PROTO_TREE, lua_tap_reset, lua_tap_packet, lua_tap_draw, NULL);
+    error = register_tap_listener(tap_type, tap, tap->filter, tap_flags, lua_tap_reset, lua_tap_packet, lua_tap_draw, NULL);
 
     if (error) {
         g_free(tap->filter);
