@@ -916,20 +916,22 @@ dissect_x509if_RelativeDistinguishedName(bool implicit_tag _U_, tvbuff_t *tvb _U
                                              1, NO_BOUND, RelativeDistinguishedName_set_of, hf_index, ett_x509if_RelativeDistinguishedName);
 
 
-  /* we've finished - close the bracket */
-  proto_item_append_text(top_of_rdn, " (%s)", wmem_strbuf_get_str(last_rdn_buf));
+  if (last_rdn_buf) {
+    /* we've finished - close the bracket */
+    proto_item_append_text(top_of_rdn, " (%s)", wmem_strbuf_get_str(last_rdn_buf));
 
-  /* now append this to the DN */
-  if (last_dn_buf) {
-    if(wmem_strbuf_get_len(last_dn_buf) > 0) {
-      wmem_strbuf_t *temp_dn_buf = wmem_strbuf_new_sized(actx->pinfo->pool, wmem_strbuf_get_len(last_rdn_buf) + wmem_strbuf_get_len(last_dn_buf) + 1);
-      wmem_strbuf_append(temp_dn_buf, wmem_strbuf_get_str(last_rdn_buf));
-      wmem_strbuf_append_c(temp_dn_buf, ',');
-      wmem_strbuf_append(temp_dn_buf, wmem_strbuf_get_str(last_dn_buf));
-      wmem_strbuf_destroy(last_dn_buf);
-      last_dn_buf = temp_dn_buf;
-    } else {
-      wmem_strbuf_append(last_dn_buf, wmem_strbuf_get_str(last_rdn_buf));
+    /* now append this to the DN */
+    if (last_dn_buf) {
+      if(wmem_strbuf_get_len(last_dn_buf) > 0) {
+        wmem_strbuf_t *temp_dn_buf = wmem_strbuf_new_sized(actx->pinfo->pool, wmem_strbuf_get_len(last_rdn_buf) + wmem_strbuf_get_len(last_dn_buf) + 1);
+        wmem_strbuf_append(temp_dn_buf, wmem_strbuf_get_str(last_rdn_buf));
+        wmem_strbuf_append_c(temp_dn_buf, ',');
+        wmem_strbuf_append(temp_dn_buf, wmem_strbuf_get_str(last_dn_buf));
+        wmem_strbuf_destroy(last_dn_buf);
+        last_dn_buf = temp_dn_buf;
+      } else {
+        wmem_strbuf_append(last_dn_buf, wmem_strbuf_get_str(last_rdn_buf));
+      }
     }
   }
 
