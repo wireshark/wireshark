@@ -590,7 +590,7 @@ WSLUA_META Int64_meta[] = {
     { NULL, NULL }
 };
 
-LUALIB_API int Int64_register(lua_State* L) {
+extern int Int64_register(lua_State* L) {
     WSLUA_REGISTER_CLASS(Int64);
     return 0;
 }
@@ -1063,7 +1063,7 @@ WSLUA_META UInt64_meta[] = {
     { NULL, NULL }
 };
 
-LUALIB_API int UInt64_register(lua_State* L) {
+extern int UInt64_register(lua_State* L) {
     WSLUA_REGISTER_CLASS(UInt64);
     return 0;
 }

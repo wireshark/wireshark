@@ -678,7 +678,7 @@ WSLUA_META Struct_meta[] = {
     { NULL, NULL }
 };
 
-LUALIB_API int Struct_register(lua_State* L) {
+extern int Struct_register(lua_State* L) {
   WSLUA_REGISTER_CLASS(Struct);
   return 0;
 }

@@ -19,6 +19,8 @@ target_include_directories(lrexlib SYSTEM PRIVATE
 	${PCRE2_INCLUDE_DIRS}
 )
 
+target_compile_definitions(lrexlib PUBLIC REX_API=extern)
+
 add_dependencies(lrexlib register_wslua)
 
 if(FETCH_lua)

@@ -135,7 +135,7 @@ static const struct luaL_Reg bit_funcs[] = {
 */
 #define BAD_SAR		(bsar(-8, 2) != (SBits)-2)
 
-LUALIB_API int luaopen_bit(lua_State *L)
+extern int luaopen_bit(lua_State *L)
 {
   UBits b;
 #if LUA_VERSION_NUM < 503
