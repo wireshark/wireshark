@@ -124,6 +124,52 @@ static void extcap_log(int priority, const char *function, const char *buffer, v
 	ws_log_write_always_full("libssh", level, NULL, 0, function, "%s", buffer);
 }
 
+void ssh_base_list_config(unsigned *count)
+{
+	unsigned inc = *count;
+
+        // Server tab
+	printf("arg {number=%u}{call=--remote-host}{display=Remote SSH server address}"
+		"{type=string}{tooltip=The remote SSH host. It can be both "
+		"an IP address or a hostname}{required=true}{group=Server}\n", inc++);
+	printf("arg {number=%u}{call=--remote-port}{display=Remote SSH server port}"
+		"{type=unsigned}{default=22}{tooltip=The remote SSH host port (1-65535)}"
+		"{range=1,65535}{group=Server}\n", inc++);
+
+	// Authentication tab
+	printf("arg {number=%u}{call=--remote-username}{display=Remote SSH server username}"
+		"{type=string}{tooltip=The remote SSH username. If not provided, "
+		"the current user will be used}{group=Authentication}\n", inc++);
+	printf("arg {number=%u}{call=--remote-password}{display=Remote SSH server password}"
+		"{type=password}{tooltip=The SSH password, used when other methods (SSH agent "
+		"or key files) are unavailable.}{group=Authentication}\n", inc++);
+	printf("arg {number=%u}{call=--sshkey}{display=Path to SSH private key}"
+		"{type=fileselect}{tooltip=The path on the local filesystem of the private SSH key (OpenSSH format)}"
+		"{mustexist=true}{group=Authentication}\n", inc++);
+	printf("arg {number=%u}{call=--sshkey-passphrase}{display=SSH key passphrase}"
+		"{type=password}{tooltip=Passphrase to unlock the SSH private key}{group=Authentication}\n",
+		inc++);
+	printf("arg {number=%u}{call=--proxycommand}{display=ProxyCommand}"
+		"{type=string}{tooltip=The command to use as proxy for the SSH connection}"
+		"{group=Authentication}\n", inc++);
+	printf("arg {number=%u}{call=--ssh-sha1}{display=Support SHA-1 keys (deprecated)}"
+		"{type=boolflag}{tooltip=Support keys and key exchange algorithms using SHA-1 (deprecated)}{group=Authentication}"
+		"\n", inc++);
+	*count = inc;
+}
+
+void ssh_base_add_help_options(extcap_parameters *extcap_conf)
+{
+	extcap_help_add_option(extcap_conf, "--remote-host <host>", "the remote SSH host");
+	extcap_help_add_option(extcap_conf, "--remote-port <port>", "the remote SSH port");
+	extcap_help_add_option(extcap_conf, "--remote-username <username>", "the remote SSH username");
+	extcap_help_add_option(extcap_conf, "--remote-password <password>", "the remote SSH password. If not specified, ssh-agent and ssh-key are used");
+	extcap_help_add_option(extcap_conf, "--sshkey <private key path>", "the path of the SSH key (OpenSSH format)");
+	extcap_help_add_option(extcap_conf, "--sshkey-passphrase <private key passphrase>", "the passphrase to unlock private SSH key");
+	extcap_help_add_option(extcap_conf, "--proxycommand <proxy command>", "the command to use as proxy for the SSH connection");
+	extcap_help_add_option(extcap_conf, "--ssh-sha1", "support keys and key exchange using SHA-1 (deprecated)");
+}
+
 void add_libssh_info(extcap_parameters * extcap_conf)
 {
 	extcap_base_set_compiled_with(extcap_conf, "libssh version %s", SSH_STRINGIFY(LIBSSH_VERSION));

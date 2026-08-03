@@ -96,16 +96,7 @@ enum {
 	EXTCAP_BASE_OPTIONS_ENUM,
 	OPT_HELP,
 	OPT_VERSION,
-	OPT_REMOTE_HOST,
-	OPT_REMOTE_PORT,
-	OPT_REMOTE_USERNAME,
-	OPT_REMOTE_PASSWORD,
-	OPT_REMOTE_INTERFACE,
-	OPT_REMOTE_FILTER,
-	OPT_SSHKEY,
-	OPT_SSHKEY_PASSPHRASE,
-	OPT_PROXYCOMMAND,
-	OPT_SSH_SHA1,
+	SSH_BASE_PACKET_OPTIONS_ENUM,
 	OPT_REMOTE_COUNT
 };
 
@@ -2268,30 +2259,8 @@ static int list_config(char *interface, unsigned int remote_port)
 
 	ipfilter = local_interfaces_to_filter(remote_port);
 
-	printf("arg {number=%u}{call=--remote-host}{display=Remote SSH server address}"
-		"{type=string}{tooltip=The remote SSH host. It can be both "
-		"an IP address or a hostname}{required=true}{group=Server}\n", inc++);
-	printf("arg {number=%u}{call=--remote-port}{display=Remote SSH server port}"
-		"{type=unsigned}{default=22}{tooltip=The remote SSH host port (1-65535)}"
-		"{range=1,65535}{group=Server}\n", inc++);
-	printf("arg {number=%u}{call=--remote-username}{display=Remote SSH server username}"
-		"{type=string}{default=%s}{tooltip=The remote SSH username. If not provided, "
-		"the current user will be used}{group=Authentication}\n", inc++, g_get_user_name());
-	printf("arg {number=%u}{call=--remote-password}{display=Remote SSH server password}"
-		"{type=password}{tooltip=The SSH password, used when other methods (SSH agent "
-		"or key files) are unavailable.}{group=Authentication}\n", inc++);
-	printf("arg {number=%u}{call=--sshkey}{display=Path to SSH private key}"
-		"{type=fileselect}{tooltip=The path on the local filesystem of the private ssh key}"
-		"{group=Authentication}\n", inc++);
-	printf("arg {number=%u}{call=--proxycommand}{display=ProxyCommand}"
-		"{type=string}{tooltip=The command to use as proxy for the SSH connection}"
-		"{group=Authentication}\n", inc++);
-	printf("arg {number=%u}{call--sshkey-passphrase}{display=SSH key passphrase}"
-		"{type=password}{tooltip=Passphrase to unlock the SSH private key}"
-		"{group=Authentication\n", inc++);
-	printf("arg {number=%u}{call=--ssh-sha1}{display=Support SHA-1 keys (deprecated)}"
-	       "{type=boolflag}{tooltip=Support keys and key exchange algorithms using SHA-1 (deprecated)}{group=Authentication}"
-	       "\n", inc++);
+	ssh_base_list_config(&inc);
+
 	printf("arg {number=%u}{call=--remote-interface}{display=Remote interface}"
 		"{type=string}{required=true}{tooltip=The remote network interface used for capture"
 		"}{group=Capture}\n", inc++);
@@ -2371,15 +2340,7 @@ int main(int argc, char *argv[])
 
 	extcap_help_add_option(extcap_conf, "--help", "print this help");
 	extcap_help_add_option(extcap_conf, "--version", "print the version");
-	extcap_help_add_option(extcap_conf, "--remote-host <host>", "the remote SSH host");
-	extcap_help_add_option(extcap_conf, "--remote-port <port>", "the remote SSH port (default: 22)");
-	extcap_help_add_option(extcap_conf, "--remote-username <username>", "the remote SSH username (default: the current user)");
-	extcap_help_add_option(extcap_conf, "--remote-password <password>", "the remote SSH password. "
-		"If not specified, ssh-agent and ssh-key are used");
-	extcap_help_add_option(extcap_conf, "--sshkey <public key path>", "the path of the ssh key");
-	extcap_help_add_option(extcap_conf, "--sshkey-passphrase <public key passphrase>", "the passphrase to unlock public ssh");
-	extcap_help_add_option(extcap_conf, "--proxycommand <proxy command>", "the command to use as proxy for the ssh connection");
-	extcap_help_add_option(extcap_conf, "--ssh-sha1", "support keys and key exchange using SHA-1 (deprecated)");
+	ssh_base_add_help_options(extcap_conf);
 	extcap_help_add_option(extcap_conf, "--remote-interface <iface>", "the remote capture interface");
 	extcap_help_add_option(extcap_conf, "--remote-filter <filter>", "a filter for remote capture "
 		"(default: don't capture data for all interfaces IPs)");
