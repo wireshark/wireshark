@@ -1893,14 +1893,14 @@ dissect_radiotap_he_mu_info(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static const range_string zero_length_psdu_rsvals[] = {
 	{ 0, 0, "sounding PPDU" },
-	{ 1, 1, "reserved" },
+	{ 1, 1, "data not captured" },
 	{ 2, 254, "reserved" },
 	{ 255, 255, "vendor-specific" },
 	{ 0, 0, NULL }
 };
 
 static void
-dissect_radiotap_0_length_psdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_radiotap_0_length_psdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int offset, struct ieee_802_11_phdr *phdr)
 {
 	proto_tree *zero_len_tree = NULL;
@@ -1911,6 +1911,9 @@ dissect_radiotap_0_length_psdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 	proto_tree_add_item_ret_uint(zero_len_tree, hf_radiotap_0_length_psdu_type,
 		tvb, offset, 1, ENC_NA, &psdu_type);
+
+	col_add_fstr(pinfo->cinfo, COL_INFO, "0-length PSDU (%s)",
+		     rval_to_str_const(psdu_type, zero_length_psdu_rsvals, ""));
 
 	switch (psdu_type) {
 
@@ -3252,7 +3255,7 @@ dissect_radiotap_db_antnoise(tvbuff_t *tvb, packet_info *pinfo _U_,
 static void
 dissect_radiotap_rx_flags(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree, int offset, proto_item **hdr_fcs_ti,
-	int *hdr_fcs_offset, uint32_t *sent_fcs)
+	int *hdr_fcs_offset, uint32_t *sent_fcs, bool *bad_plcp)
 {
 	if (radiotap_bit14_fcs) {
 		if (tree) {
@@ -3267,10 +3270,12 @@ dissect_radiotap_rx_flags(tvbuff_t *tvb, packet_info *pinfo _U_,
 			&hf_radiotap_rxflags_badplcp,
 			NULL
 		};
+		uint64_t flags;
 
-		proto_tree_add_bitmask(tree, tvb, offset,
+		proto_tree_add_bitmask_ret_uint64(tree, tvb, offset,
 				hf_radiotap_rxflags, ett_radiotap_rxflags,
-				rxflags, ENC_LITTLE_ENDIAN);
+				rxflags, ENC_LITTLE_ENDIAN, &flags);
+		*bad_plcp = flags & IEEE80211_RADIOTAP_F_RX_BADPLCP;
 	}
 }
 
@@ -3456,6 +3461,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 	proto_item *hdr_fcs_ti        = NULL;
 	int         hdr_fcs_offset    = 0;
 	uint32_t    sent_fcs          = 0;
+	bool        bad_plcp          = false;
 	uint32_t    calc_fcs;
 	int         err               = -ENOENT;
 	void       *data;
@@ -3837,7 +3843,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 		case IEEE80211_RADIOTAP_RX_FLAGS:
 			dissect_radiotap_rx_flags(tvb, pinfo, item_tree,
 						offset, &hdr_fcs_ti,
-						&hdr_fcs_offset, &sent_fcs);
+						&hdr_fcs_offset, &sent_fcs,
+						&bad_plcp);
 			break;
 
 		case IEEE80211_RADIOTAP_TX_FLAGS:
@@ -4361,6 +4368,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 	 * Is there any more there?
 	 */
 	if (zero_length_psdu) {
+		if (bad_plcp)
+			col_append_str(pinfo->cinfo, COL_INFO, ", bad PLCP");
 		return tvb_captured_length(tvb);
 	}
 
