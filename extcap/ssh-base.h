@@ -38,7 +38,8 @@
 	{ "sshkey", ws_required_argument, NULL, OPT_SSHKEY}, \
 	{ "sshkey-passphrase", ws_required_argument, NULL, OPT_SSHKEY_PASSPHRASE}, \
 	{ "proxycommand", ws_required_argument, NULL, OPT_PROXYCOMMAND}, \
-	{ "ssh-sha1", ws_no_argument, NULL, OPT_SSH_SHA1}
+	{ "ssh-sha1", ws_no_argument, NULL, OPT_SSH_SHA1}, \
+	{ "update-known-hosts", ws_no_argument, NULL, OPT_UPDATE_KNOWN_HOSTS}
 
 #define SSH_BASE_OPTIONS_ENUM \
 	OPT_REMOTE_HOST, \
@@ -48,7 +49,8 @@
 	OPT_SSHKEY, \
 	OPT_SSHKEY_PASSPHRASE, \
 	OPT_PROXYCOMMAND, \
-	OPT_SSH_SHA1
+	OPT_SSH_SHA1, \
+	OPT_UPDATE_KNOWN_HOSTS
 
 #define SSH_BASE_PACKET_OPTIONS \
 	SSH_BASE_OPTIONS, \
@@ -72,6 +74,7 @@ typedef struct _ssh_params {
     char*    sshkey_passphrase;  /**< Passphrase used to decrypt the private key at sshkey_path; NULL if the key is unencrypted. */
     char*    proxycommand;       /**< Shell command used to establish the SSH connection via a proxy or jump host; NULL for a direct connection. */
     bool     ssh_sha1;           /**< True to permit SHA-1 based host key algorithms, which may be required for older SSH servers. */
+    bool     update_known_hosts;
     int      debug;              /**< Debug verbosity level for SSH session diagnostics; 0 disables debug output. */
 } ssh_params_t;
 

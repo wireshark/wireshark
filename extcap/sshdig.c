@@ -426,6 +426,10 @@ int main(int argc, char *argv[])
                 ssh_params->ssh_sha1 = true;
                 break;
 
+            case OPT_UPDATE_KNOWN_HOSTS:
+                ssh_params->update_known_hosts = true;
+                break;
+
             case OPT_REMOTE_CAPTURE_COMMAND_SELECT:
                 g_free(remote_capture_command_select);
                 remote_capture_command_select = g_strdup(ws_optarg);
