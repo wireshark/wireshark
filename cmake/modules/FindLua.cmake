@@ -362,10 +362,30 @@ IF(Lua_FOUND)
   cmake_pop_check_state()
 
   if (WIN32)
-    set ( LUA_DLL_DIR "${LUA_HINTS}" CACHE PATH "Path to Lua DLL")
-    file( GLOB _lua_dll RELATIVE "${LUA_DLL_DIR}" "${LUA_DLL_DIR}/lua*.dll")
-    set ( LUA_DLL ${_lua_dll} CACHE FILEPATH "Lua DLL file name")
-    mark_as_advanced( LUA_DLL_DIR LUA_DLL )
+    # Support the non-vcpkg directory structure
+    if (EXISTS "${LUA_HINTS}/bin" AND IS_DIRECTORY "${LUA_HINTS}/bin")
+      set (LUA_DLL_DIR "${LUA_HINTS}/bin"
+        CACHE PATH "Path to Lua DLL"
+     )
+    else()
+      set (LUA_DLL_DIR "${LUA_HINTS}"
+        CACHE PATH "Path to Lua DLL"
+      )
+    endif()
+    file( GLOB _lua_dll RELATIVE "${LUA_DLL_DIR}"
+      "${LUA_DLL_DIR}/lua*.dll"
+    )
+    set ( LUA_DLL ${_lua_dll}
+      # We're storing filenames only. Should we use STRING instead?
+      CACHE FILEPATH "Lua DLL file name"
+    )
+    file( GLOB _lua_pdb RELATIVE "${LUA_DLL_DIR}"
+      "${LUA_DLL_DIR}/lua*.pdb"
+    )
+    set ( LUA_PDB ${_lua_pdb}
+      CACHE FILEPATH "LUA PDB file name"
+    )
+    mark_as_advanced( LUA_DLL_DIR LUA_DLL LUA_PDB )
   endif()
   if(LUA_DLL_DIR MATCHES ".*/lua-.*-unicode-.*")
     # Do we have Lua with Unicode for Windows patches?
