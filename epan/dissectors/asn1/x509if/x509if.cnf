@@ -335,20 +335,22 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
 
   %(DEFAULT_BODY)s
 
-  /* we've finished - close the bracket */
-  proto_item_append_text(top_of_rdn, " (%%s)", wmem_strbuf_get_str(last_rdn_buf));
+  if (last_rdn_buf) {
+    /* we've finished - close the bracket */
+    proto_item_append_text(top_of_rdn, " (%%s)", wmem_strbuf_get_str(last_rdn_buf));
 
-  /* now append this to the DN */
-  if (last_dn_buf) {
-    if(wmem_strbuf_get_len(last_dn_buf) > 0) {
-      wmem_strbuf_t *temp_dn_buf = wmem_strbuf_new_sized(actx->pinfo->pool, wmem_strbuf_get_len(last_rdn_buf) + wmem_strbuf_get_len(last_dn_buf) + 1);
-      wmem_strbuf_append(temp_dn_buf, wmem_strbuf_get_str(last_rdn_buf));
-      wmem_strbuf_append_c(temp_dn_buf, ',');
-      wmem_strbuf_append(temp_dn_buf, wmem_strbuf_get_str(last_dn_buf));
-      wmem_strbuf_destroy(last_dn_buf);
-      last_dn_buf = temp_dn_buf;
-    } else {
-      wmem_strbuf_append(last_dn_buf, wmem_strbuf_get_str(last_rdn_buf));
+    /* now append this to the DN */
+    if (last_dn_buf) {
+      if(wmem_strbuf_get_len(last_dn_buf) > 0) {
+        wmem_strbuf_t *temp_dn_buf = wmem_strbuf_new_sized(actx->pinfo->pool, wmem_strbuf_get_len(last_rdn_buf) + wmem_strbuf_get_len(last_dn_buf) + 1);
+        wmem_strbuf_append(temp_dn_buf, wmem_strbuf_get_str(last_rdn_buf));
+        wmem_strbuf_append_c(temp_dn_buf, ',');
+        wmem_strbuf_append(temp_dn_buf, wmem_strbuf_get_str(last_dn_buf));
+        wmem_strbuf_destroy(last_dn_buf);
+        last_dn_buf = temp_dn_buf;
+      } else {
+        wmem_strbuf_append(last_dn_buf, wmem_strbuf_get_str(last_rdn_buf));
+      }
     }
   }
 
