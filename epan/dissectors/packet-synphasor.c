@@ -1856,16 +1856,29 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	 * struct is saved in the conversation and is copied to the
 	 * per-packet information if a DATA frame is dissected.
 	 */
-	if (!pinfo->fd->visited) {
-		if (CFG2 == frame_type &&
-		    check_crc(tvb, &crc)) {
-			conversation_t *conversation;
+	if (!PINFO_FD_VISITED(pinfo)) {
+		conversation_t *conversation;
+		config_frame *frame = NULL;
 
+		if (CFG2 == frame_type && check_crc(tvb, &crc)) {
 			/* fill the config_frame */
-			config_frame *frame = config_frame_fast(tvb);
+			frame = config_frame_fast(tvb);
 			frame->fnum = pinfo->num;
 
 			/* find a conversation, create a new one if none exists */
+			conversation_element_t *conv_el = wmem_alloc_array(pinfo->pool, conversation_element_t, 4);
+			conv_el[0].type=CE_ADDRESS;
+			copy_address_shallow(&(conv_el[0].addr_val), &pinfo->src);
+			conv_el[1].type=CE_ADDRESS;
+			copy_address_shallow(&(conv_el[1].addr_val), &pinfo->dst);
+			conv_el[2].type=CE_UINT;
+			conv_el[2].uint_val=frame->id;
+			conv_el[3].type=CE_CONVERSATION_TYPE;
+			conv_el[3].conversation_type_val=CONVERSATION_SYNCHROPHASOR;
+
+			pinfo->use_conv_addr_port_endpoints = false;
+			pinfo->conv_addr_port_endpoints = NULL;
+			pinfo->conv_elements = conv_el;
 			conversation = find_or_create_conversation(pinfo);
 
 			/* remove data from a previous CFG-2 frame, only
@@ -1876,14 +1889,24 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 			conversation_add_proto_data(conversation, proto_synphasor, frame);
 		}
 		else if ((CFG3 == frame_type) && check_crc(tvb, &crc)) {
-			conversation_t *conversation;
-			config_frame *frame;
-
 			/* fill the config_frame */
 			frame = config_3_frame_fast(tvb);
 			frame->fnum = pinfo->num;
 
 			/* find a conversation, create a new one if none exists */
+			conversation_element_t *conv_el = wmem_alloc_array(pinfo->pool, conversation_element_t, 4);
+			conv_el[0].type=CE_ADDRESS;
+			copy_address_shallow(&(conv_el[0].addr_val), &pinfo->src);
+			conv_el[1].type=CE_ADDRESS;
+			copy_address_shallow(&(conv_el[1].addr_val), &pinfo->dst);
+			conv_el[2].type=CE_UINT;
+			conv_el[2].uint_val=frame->id;
+			conv_el[3].type=CE_CONVERSATION_TYPE;
+			conv_el[3].conversation_type_val=CONVERSATION_SYNCHROPHASOR;
+
+			pinfo->use_conv_addr_port_endpoints = false;
+			pinfo->conv_addr_port_endpoints = NULL;
+			pinfo->conv_elements = conv_el;
 			conversation = find_or_create_conversation(pinfo);
 
 			/* remove data from a previous CFG-3 frame, only
@@ -1894,13 +1917,26 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
 			conversation_add_proto_data(conversation, proto_synphasor, frame);
 		}
-		// Add conf to any frame for dissection fracsec
-		conversation_t *conversation = find_conversation_pinfo(pinfo, 0);
-		if (conversation) {
-			config_frame *conf = (config_frame *)conversation_get_proto_data(conversation, proto_synphasor);
-			/* no problem if 'conf' is NULL, the frame dissector checks this again */
-			p_add_proto_data(wmem_file_scope(), pinfo, proto_synphasor, 0, conf);
+		else {
+			conversation_element_t *conv_el = wmem_alloc_array(pinfo->pool, conversation_element_t, 4);
+			conv_el[0].type=CE_ADDRESS;
+			copy_address_shallow(&(conv_el[0].addr_val), &pinfo->src);
+			conv_el[1].type=CE_ADDRESS;
+			copy_address_shallow(&(conv_el[1].addr_val), &pinfo->dst);
+			conv_el[2].type=CE_UINT;
+			conv_el[2].uint_val=tvb_get_uint16(tvb, 4, ENC_BIG_ENDIAN);	// ID
+			conv_el[3].type=CE_CONVERSATION_TYPE;
+			conv_el[3].conversation_type_val=CONVERSATION_SYNCHROPHASOR;
+
+			conversation = find_conversation_full(pinfo->num, conv_el);
 		}
+
+		// Add config_frame to any frame for dissection fracsec
+		if ((frame == NULL) && (conversation != NULL)) {
+			frame = (config_frame *)conversation_get_proto_data(conversation, proto_synphasor);
+		}
+		/* no problem if 'frame' is NULL, the frame dissector checks this again */
+		p_add_proto_data(wmem_file_scope(), pinfo, proto_synphasor, 0, frame);
 	} /* if (!visited) */
 
 	{

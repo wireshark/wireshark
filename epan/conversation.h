@@ -165,6 +165,7 @@ typedef enum {
     CONVERSATION_GNSS,           /**< Global Navigation Satellite System (GNSS) conversation */
     CONVERSATION_DNP3,           /**< DNP3 (Distributed Network Protocol 3) conversation */
     CONVERSATION_ILNP,           /**< Identifier-Locator Network Protocol (ILNP) conversation */
+    CONVERSATION_SYNCHROPHASOR,  /**< Synchrophasor conversation */
 } conversation_type;
 
 /*
