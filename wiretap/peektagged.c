@@ -720,7 +720,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
             if (rec->rec_header.packet_header.len < 4 || rec->rec_header.packet_header.caplen < 4) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = ws_strdup_printf("peektagged: 802.11 packet has length < 4");
-                return false;
+                return -1;
             }
             rec->rec_header.packet_header.pseudo_header.ieee_802_11.fcs_len = 0;
             rec->rec_header.packet_header.len -= 4;
@@ -739,7 +739,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
         if (rec->rec_header.packet_header.len < 4 || rec->rec_header.packet_header.caplen < 4) {
             *err = WTAP_ERR_BAD_FILE;
             *err_info = ws_strdup_printf("peektagged: Ethernet packet has length < 4");
-            return false;
+            return -1;
         }
         rec->rec_header.packet_header.pseudo_header.eth.fcs_len = 0;
         rec->rec_header.packet_header.len -= 4;
