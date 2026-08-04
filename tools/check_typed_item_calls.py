@@ -991,15 +991,15 @@ class RangeString:
         # Now parse out each entry in the value_string
         matches = re.finditer(r'\{\s*([0-9_A-Za-z]*)\s*,\s*([0-9_A-Za-z]*)\s*,\s*(".*?")\s*\}\s*,', self.raw_vals)
         for m in matches:
-            mini, max, label = m.group(1), m.group(2), m.group(3)
+            mini, maxi, label = m.group(1), m.group(2), m.group(3)
             if mini in macros:
                 mini = macros[mini]
             elif any(c not in '0123456789abcdefABCDEFxX' for c in mini):
                 self.valid = False
                 return
-            if max in macros:
-                max = macros[max]
-            elif any(c not in '0123456789abcdefABCDEFxX' for c in max):
+            if maxi in macros:
+                maxi = macros[maxi]
+            elif any(c not in '0123456789abcdefABCDEFxX' for c in maxi):
                 self.valid = False
                 return
 
@@ -1007,21 +1007,21 @@ class RangeString:
                 # Read according to the appropriate base.
                 if mini.lower().startswith('0x'):
                     mini = int(mini, 16)
-                elif min.startswith('0b'):
+                elif mini.startswith('0b'):
                     mini = int(mini, 2)
-                elif min.startswith('0'):
+                elif mini.startswith('0'):
                     mini = int(mini, 8)
                 else:
                     mini = int(mini, 10)
 
-                if max.lower().startswith('0x'):
-                    max = int(max, 16)
-                elif max.startswith('0b'):
-                    max = int(max, 2)
-                elif max.startswith('0'):
-                    max = int(max, 8)
+                if maxi.lower().startswith('0x'):
+                    maxi = int(maxi, 16)
+                elif maxi.startswith('0b'):
+                    maxi = int(maxi, 2)
+                elif maxi.startswith('0'):
+                    maxi = int(maxi, 8)
                 else:
-                    max = int(max, 10)
+                    maxi = int(maxi, 10)
             except Exception:
                 return
 
@@ -1036,19 +1036,19 @@ class RangeString:
 
             # This value should not be entirely hidden by earlier entries
             for prev in self.parsed_vals:
-                if prev.hides(mini, max):
+                if prev.hides(mini, maxi):
                     result.warn(self.file, ': range_string label', label, 'hidden by', prev)
 
             # Min should not be > max
-            if mini > max:
-                result.warn(self.file, ': range_string', self.name, 'entry', label, 'min', mini, '>', max)
+            if mini > maxi:
+                result.warn(self.file, ': range_string', self.name, 'entry', label, 'min', mini, '>', maxi)
 
             # Check label.
             if label[1:-1].startswith(' ') or label[1:-1].endswith(' '):
                 result.warn(self.file, ': range_string', self.name, 'entry', label, 'starts or ends with space')
 
             # OK, add this entry
-            self.parsed_vals.append(RangeStringEntry(mini, max, label))
+            self.parsed_vals.append(RangeStringEntry(mini, maxi, label))
 
         # TODO: mark as not valid if not all pairs were successfully parsed?
 
