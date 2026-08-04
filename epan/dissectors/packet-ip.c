@@ -2557,8 +2557,9 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 static bool
 dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  int length, tot_length;
+  unsigned length, tot_length;
   uint8_t oct, version, ihl;
+  bool ipv4_good = false;
 
   /*
    * IPv4 Header Format
@@ -2581,24 +2582,29 @@ dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
   version = oct >> 4;
 
   if (version == 6) {
-      return dissect_ipv6_heur(tvb, pinfo, tree, data);
+    return dissect_ipv6_heur(tvb, pinfo, tree, data);
   }
 
   /* version == IPv4, the minimum value for a correct header is 5 */
   if ((version != 4) || (ihl < 5)) {
-      return false;
+    return false;
   }
 
   /* Total Length is the length of the datagram, measured in octets,
    *  including internet header and data.
    */
   tot_length = tvb_get_ntohs(tvb, 2);
-  if (tot_length != (int)tvb_reported_length(tvb)) {
-      return false;
+  if (tot_length == tvb_reported_length(tvb)) {
+    ipv4_good = true;
+  } else if (ip_check_checksum && tvb_bytes_exist(tvb, 0, ihl * 4)) {
+    if (ip_checksum_tvb(tvb, 0, ihl * 4) == 0) {
+      ipv4_good = true;
+    }
   }
 
-  dissect_ip_v4(tvb, pinfo, tree, data);
-  return true;
+  if (ipv4_good)
+    dissect_ip_v4(tvb, pinfo, tree, data);
+  return ipv4_good;
 }
 
 static void
