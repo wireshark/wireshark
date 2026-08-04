@@ -824,7 +824,7 @@ class EthCtx:
     #--- eth_exports ------------------------------------------------------------
     def eth_exports(self, exports):
         self.exports_all = False
-        if (len(exports) == 1) and (exports[0] == 'ALL'):
+        if len(exports) == 1 and exports[0] == 'ALL':
             self.exports_all = True
             return
         for e in (exports):
@@ -5986,7 +5986,7 @@ class BitStringType (Type):
                                         par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
                                              ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s','%(TABLE)s', '%s' %  len(bits), '%(VAL_PTR)s', '%(LEN_PTR)s'),))
         else:
-            body = '#error Can not decode %s' % (tname)
+            body = f'#error Can not decode {tname}'
         return body
 
 #--- BStringValue ------------------------------------------------------------
@@ -6195,7 +6195,6 @@ def p_Imports_1 (t):
 def p_importsbegin (t):
     'importsbegin : '
     global lcase_ident_assigned
-    global g_conform
     lcase_ident_assigned = {}
     lcase_ident_assigned.update(g_conform.use_item('ASSIGNED_ID', 'OBJECT_IDENTIFIER'))
 
@@ -6239,7 +6238,7 @@ def import_symbols_from_module(module, symbol_list):
         return
     for i in range(len(symbol_list)):
         s = symbol_list[i]
-        if isinstance(s, Type_Ref) and is_class_ident("$%s$%s" % (module.val, s.val)):
+        if isinstance(s, Type_Ref) and is_class_ident(f"${module.val}${s.val}"):
             import_class_from_module(module.val, s.val)
         if isinstance(s, Type_Ref) and is_class_ident(s.val):
             symbol_list[i] = Class_Ref (val = s.val)
@@ -7578,8 +7577,6 @@ def p_lbraceobject(t):
 
 def p_braceobjectbegin(t):
     'braceobjectbegin : '
-    global lexer
-    global obj_class
     if set_class_syntax(obj_class):
         state = 'INITIAL'
     else:
@@ -7593,7 +7590,6 @@ def p_rbraceobject(t):
 
 def p_braceobjectend(t):
     'braceobjectend : '
-    global lexer
     lexer.pop_state()
     set_class_syntax(None)
 
@@ -7880,7 +7876,7 @@ def set_type_to_class(cls, fld, pars):
 
 def import_class_from_module(mod, cls):
     add_class_ident(cls)
-    mcls = "$%s$%s" % (mod, cls)
+    mcls = f"${mod}${cls}"
     for k in list(object_class_classrefs.keys()):
         kk = k.split('.', 1)
         if kk[0] == mcls:

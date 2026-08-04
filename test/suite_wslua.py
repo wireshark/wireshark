@@ -55,10 +55,10 @@ def check_lua_script_verify(check_lua_script, result_file):
         optargs = []
 
         if heur_regmode is not None:
-            optargs += ['-X', 'lua_script1:heur_regmode={}'.format(heur_regmode)]
+            optargs += ['-X', f'lua_script1:heur_regmode={heur_regmode}']
 
         if conv_regmode is not None:
-            optargs += ['-X', 'lua_script1:conv_regmode={}'.format(conv_regmode)]
+            optargs += ['-X', f'lua_script1:conv_regmode={conv_regmode}']
 
         tshark_proc = check_lua_script(lua_script, cap_file, check_stage_1, '-V', *optargs)
 

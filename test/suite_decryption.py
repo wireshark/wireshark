@@ -506,7 +506,7 @@ class TestDecryptTLS:
         key_file = os.path.join(dirs.key_dir, 'dhe1_keylog.dat')
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('dhe1.pcapng.gz'),
-                '-o', 'ssl.keylog_file: {}'.format(key_file),
+                '-o', f'ssl.keylog_file: {key_file}',
                 '-o', 'tls.desegment_ssl_application_data: FALSE',
                 '-o', 'http.tls.port: 443',
                 '-Tfields',
@@ -571,19 +571,19 @@ class TestDecryptTLS:
         for cipher in ciphers:
             stdout = subprocess.check_output((cmd_tshark,
                     '-r', capture_file('tls12-chacha20poly1305.pcap'),
-                    '-o', 'tls.keylog_file: {}'.format(key_file),
+                    '-o', f'tls.keylog_file: {key_file}',
                     '-q',
-                    '-z', 'follow,tls,ascii,{}'.format(stream),
+                    '-z', f'follow,tls,ascii,{stream}',
                 ), encoding='utf-8', env=test_env)
             stream += 1
-            assert grep_output(stdout, 'Cipher is {}'.format(cipher))
+            assert grep_output(stdout, f'Cipher is {cipher}')
 
     def test_tls13_chacha20poly1305(self, cmd_tshark, dirs, features, capture_file, test_env):
         '''TLS 1.3 with ChaCha20-Poly1305'''
         key_file = os.path.join(dirs.key_dir, 'tls13-20-chacha20poly1305.keys')
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('tls13-20-chacha20poly1305.pcap'),
-                '-o', 'tls.keylog_file: {}'.format(key_file),
+                '-o', f'tls.keylog_file: {key_file}',
                 '-q',
                 '-z', 'follow,tls,ascii,0',
             ), encoding='utf-8', env=test_env)
@@ -594,7 +594,7 @@ class TestDecryptTLS:
         key_file = os.path.join(dirs.key_dir, 'tls13-rfc8446.keys')
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('tls13-rfc8446.pcap'),
-                '-otls.keylog_file:{}'.format(key_file),
+                f'-otls.keylog_file:{key_file}',
                 '-Y', 'http',
                 '-Tfields',
                 '-e', 'frame.number',
@@ -628,7 +628,7 @@ class TestDecryptTLS:
         key_file = os.path.join(dirs.key_dir, 'tls13-rfc8446-noearly.keys')
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('tls13-rfc8446.pcap'),
-                '-otls.keylog_file:{}'.format(key_file),
+                f'-otls.keylog_file:{key_file}',
                 '-Y', 'http',
                 '-Tfields',
                 '-e', 'frame.number',
@@ -866,7 +866,7 @@ class TestDecryptKerberos:
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('krb-816.pcap.gz'),
                 '-o', 'kerberos.decrypt: TRUE',
-                '-o', 'kerberos.file: {}'.format(keytab_file),
+                '-o', f'kerberos.file: {keytab_file}',
                 '-Tfields',
                 '-e', 'kerberos.keyvalue',
             ), encoding='utf-8', env=test_env)
@@ -1331,7 +1331,7 @@ class TestDecryptPkcs11:
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('rsa-p-lt-q.pcap'),
                 '-o', 'uat:pkcs11_libs:"{}"'.format(softhsm.provider.replace('\\', '\\x5c')),
-                '-o', 'uat:rsa_keys:"{}","{}"'.format(key_uri, softhsm.pin),
+                '-o', f'uat:rsa_keys:"{key_uri}","{softhsm.pin}"',
                 '-Tfields',
                 '-e', 'http.request.uri',
                 '-Y', 'http',
@@ -1345,7 +1345,7 @@ class TestDecryptSmb2:
     def check_bad_key(cmd_tshark, cap, disp_filter, sesid, seskey, s2ckey, c2skey, env=None):
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', cap,
-                '-o', 'uat:smb2_seskey_list:{},{},{},{}'.format(sesid, seskey, s2ckey, c2skey),
+                '-o', f'uat:smb2_seskey_list:{sesid},{seskey},{s2ckey},{c2skey}',
                 '-Y', disp_filter,
         ), encoding='utf-8', env=env)
         assert 'Encrypted SMB' in stdout
@@ -1413,7 +1413,7 @@ class TestDecryptSmb2:
     def check_tree(cmd_tshark, cap, tree, sesid, seskey, s2ckey, c2skey, env=None):
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', cap,
-                '-o', 'uat:smb2_seskey_list:{},{},{},{}'.format(sesid, seskey, s2ckey, c2skey),
+                '-o', f'uat:smb2_seskey_list:{sesid},{seskey},{s2ckey},{c2skey}',
                 '-Tfields',
                 '-e', 'smb2.tree',
                 '-Y', 'smb2.tree == "{}"'.format(tree.replace('\\', '\\\\')),

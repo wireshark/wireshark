@@ -21,8 +21,12 @@ import uuid
 
 import pytest
 import subprocesstest
-from subprocesstest import (cat_cap_file_command, cat_dhcp_command,
-                            check_packet_count, grep_output)
+from subprocesstest import (
+    cat_cap_file_command,
+    cat_dhcp_command,
+    check_packet_count,
+    grep_output,
+)
 from suite_text2pcap import check_capinfos_info
 
 capture_duration = 5
@@ -95,12 +99,12 @@ def check_capture_10_packets(capture_interface, cmd_capinfos, traffic_generator,
         stop_traffic = start_traffic()
         if to_stdout:
             subprocesstest.check_run(capture_command(cmd,
-                '-i', '"{}"'.format(capture_interface),
+                '-i', f'"{capture_interface}"',
                 '-p',
                 '-w', '-',
                 '-c', '10',
-                '-a', 'duration:{}'.format(capture_duration),
-                '-f', '"{}"'.format(cfilter),
+                '-a', f'duration:{capture_duration}',
+                '-f', f'"{cfilter}"',
                 '>', testout_file,
                 shell=True
             ),
@@ -111,7 +115,7 @@ def check_capture_10_packets(capture_interface, cmd_capinfos, traffic_generator,
                 '-p',
                 '-w', testout_file,
                 '-c', '10',
-                '-a', 'duration:{}'.format(capture_duration),
+                '-a', f'duration:{capture_duration}',
                 '-f', cfilter,
             ), env=env)
         stop_traffic()
@@ -136,13 +140,13 @@ def check_capture_fifo(cmd_capinfos, result_file):
         os.mkfifo(fifo_file)
         slow_dhcp_cmd = cat_dhcp_command('slow')
         fifo_proc = subprocess.Popen(
-            ('{0} > {1}'.format(slow_dhcp_cmd, fifo_file)),
+            (f'{slow_dhcp_cmd} > {fifo_file}'),
             shell=True)
         subprocesstest.check_run(capture_command(cmd,
             '-i', fifo_file,
             '-p',
             '-w', testout_file,
-            '-a', 'duration:{}'.format(capture_duration),
+            '-a', f'duration:{capture_duration}',
         ), env=env)
         fifo_proc.kill()
         assert os.path.isfile(testout_file)
@@ -161,7 +165,7 @@ def check_capture_stdin(cmd_capinfos, result_file):
         capture_cmd = capture_command(cmd,
             '-i', '-',
             '-w', f'"{testout_file}"',
-            '-a', 'duration:{}'.format(capture_duration),
+            '-a', f'duration:{capture_duration}',
             shell=True
         )
         is_gui = type(cmd) is not str and '-k' in cmd[1:]
@@ -194,7 +198,7 @@ def check_capture_read_filter(capture_interface, traffic_generator, cmd_capinfos
             '-2',
             '-R', 'dcerpc.cn_call_id==123456', # Something unlikely.
             '-c', '10',
-            '-a', 'duration:{}'.format(capture_duration),
+            '-a', f'duration:{capture_duration}',
             '-f', cfilter,
         ), env=env)
         stop_traffic()
@@ -213,7 +217,7 @@ def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator,
             '-p',
             '-w', testout_file,
             '-s', str(snapshot_len),
-            '-a', 'duration:{}'.format(capture_duration),
+            '-a', f'duration:{capture_duration}',
             '-f', cfilter,
         ), env=env)
         stop_traffic()
@@ -225,7 +229,7 @@ def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator,
         subprocesstest.check_run((cmd_tshark,
             '-r', testout_file,
             '-w', testout2_file,
-            '-Y', 'frame.cap_len>{}'.format(snapshot_len),
+            '-Y', f'frame.cap_len>{snapshot_len}',
         ), env=env)
         check_packet_count(cmd_capinfos, 0, testout2_file)
     return check_capture_snapshot_len_real
@@ -240,13 +244,13 @@ def check_dumpcap_autostop_stdin(cmd_dumpcap, cmd_capinfos, result_file):
         condition='oops:invalid'
 
         if packets is not None:
-            condition = 'packets:{}'.format(packets)
+            condition = f'packets:{packets}'
         elif filesize is not None:
-            condition = 'filesize:{}'.format(filesize)
+            condition = f'filesize:{filesize}'
         else:
             raise AssertionError('Need one of packets or filesize')
 
-        cmd_ = '"{}"'.format(cmd_dumpcap)
+        cmd_ = f'"{cmd_dumpcap}"'
         capture_cmd = ' '.join((cmd_,
             '-i', '-',
             '-w', testout_file,
@@ -270,19 +274,19 @@ def check_dumpcap_ringbuffer_stdin(cmd_dumpcap, cmd_capinfos, result_file):
     def check_dumpcap_ringbuffer_stdin_real(self, packets=None, filesize=None, env=None):
         # Similar to check_capture_stdin.
         rb_unique = 'dhcp_rb_' + uuid.uuid4().hex[:6] # Random ID
-        testout_file = result_file('testout.{}.pcapng'.format(rb_unique))
-        testout_glob = result_file('testout.{}_*.pcapng'.format(rb_unique))
+        testout_file = result_file(f'testout.{rb_unique}.pcapng')
+        testout_glob = result_file(f'testout.{rb_unique}_*.pcapng')
         cat100_dhcp_cmd = cat_dhcp_command('cat100')
         condition='oops:invalid'
 
         if packets is not None:
-            condition = 'packets:{}'.format(packets)
+            condition = f'packets:{packets}'
         elif filesize is not None:
-            condition = 'filesize:{}'.format(filesize)
+            condition = f'filesize:{filesize}'
         else:
             raise AssertionError('Need one of packets or filesize')
 
-        cmd_ = '"{}"'.format(cmd_dumpcap)
+        cmd_ = f'"{cmd_dumpcap}"'
         capture_cmd = ' '.join((cmd_,
             '-i', '-',
             '-w', testout_file,
@@ -356,7 +360,7 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, cmd_capinfos, capture
         autostop_packets = 40
 
         for in_files in in_files_l:
-            fifo_file = result_file('dumpcap_pcapng_sections_{}.fifo'.format(len(fifo_files) + 1))
+            fifo_file = result_file(f'dumpcap_pcapng_sections_{len(fifo_files) + 1}.fifo')
             fifo_files.append(fifo_file)
             # If a previous test left its fifo laying around, e.g. from a failure, remove it.
             try:
@@ -365,7 +369,7 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, cmd_capinfos, capture
                 pass
             os.mkfifo(fifo_file)
             cat_cmd = cat_cap_file_command(in_files)
-            fifo_procs.append(subprocess.Popen(('{0} > {1}'.format(cat_cmd, fifo_file)), shell=True))
+            fifo_procs.append(subprocess.Popen((f'{cat_cmd} > {fifo_file}'), shell=True))
 
             for in_file in in_files:
                 cap_info = check_capinfos_info(cmd_capinfos, in_file)
@@ -392,8 +396,8 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, cmd_capinfos, capture
 
         if multi_output:
             rb_unique = 'sections_rb_' + uuid.uuid4().hex[:6] # Random ID
-            testout_file = result_file('testout.{}.pcapng'.format(rb_unique))
-            testout_glob = result_file('testout.{}_*.pcapng'.format(rb_unique))
+            testout_file = result_file(f'testout.{rb_unique}.pcapng')
+            testout_glob = result_file(f'testout.{rb_unique}_*.pcapng')
             # check_vals[]['filename'] will be filled in below
         else:
             testout_file = result_file(testout_pcapng)

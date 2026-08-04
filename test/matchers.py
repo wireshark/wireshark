@@ -10,7 +10,7 @@
 import re
 
 
-class MatchAny(object):
+class MatchAny:
     '''Matches any other value.'''
 
     def __init__(self, type=None):
@@ -23,7 +23,7 @@ class MatchAny(object):
         return '<MatchAny type=%s>' % (self.type.__name__,)
 
 
-class MatchObject(object):
+class MatchObject:
     '''Matches all expected fields of an object, ignoring excess others.'''
 
     def __init__(self, fields):
@@ -36,7 +36,7 @@ class MatchObject(object):
         return '<MatchObject fields=%r>' % (self.fields,)
 
 
-class MatchList(object):
+class MatchList:
     '''Matches elements of a list. Optionally checks list length.'''
 
     def __init__(self, item, n=None, match_element=all):
@@ -54,7 +54,7 @@ class MatchList(object):
                 (self.item, self.n, self.match_element.__name__)
 
 
-class MatchRegExp(object):
+class MatchRegExp:
     '''Matches a string against a regular expression.'''
 
     def __init__(self, pattern):

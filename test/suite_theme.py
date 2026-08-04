@@ -144,11 +144,7 @@ def _hex_to_rgb(hex_str):
 
 
 def _rgb_to_hex(r, g, b):
-    return '#{0:02x}{1:02x}{2:02x}'.format(
-        max(0, min(255, round(r))),
-        max(0, min(255, round(g))),
-        max(0, min(255, round(b))),
-    )
+    return f'#{max(0, min(255, round(r))):02x}{max(0, min(255, round(g))):02x}{max(0, min(255, round(b))):02x}'
 
 
 def _srgb_to_linear(v):

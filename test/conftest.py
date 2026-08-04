@@ -466,7 +466,7 @@ def tshark_fields(cmd_tshark, capture_file, test_env):
             cmd += ['-Y', dfilter]
         cmd.append('-Tfields')
         if separator is not None:
-            cmd += ['-E', 'separator={}'.format(separator)]
+            cmd += ['-E', f'separator={separator}']
         for field in fields:
             cmd += ['-e', field]
         return subprocess.check_output(cmd, encoding='utf-8', env=test_env)
@@ -478,9 +478,9 @@ def assert_frame_matches(tshark_fields):
     '''Asserts that a display filter expression matches exactly the given
     frame of a capture.'''
     def check(filename, frame, expr):
-        stdout = tshark_fields(filename, 'frame.number == {} && {}'.format(frame, expr))
+        stdout = tshark_fields(filename, f'frame.number == {frame} && {expr}')
         assert stdout.strip() == str(frame), \
-            'Frame {}: filter did not match: {}'.format(frame, expr)
+            f'Frame {frame}: filter did not match: {expr}'
     return check
 
 
@@ -498,10 +498,10 @@ def assert_frames_match(tshark_fields):
     field that needs the second dissection pass.
     '''
     def check(filename, cases, two_pass=False):
-        terms = ['(frame.number == {} && ({}))'.format(f, e) for f, e in cases]
+        terms = [f'(frame.number == {f} && ({e}))' for f, e in cases]
         stdout = tshark_fields(filename, ' || '.join(terms), two_pass=two_pass)
         got = sorted(int(x) for x in stdout.split())
         expected = sorted({f for f, _ in cases})
         assert got == expected, \
-            'matched frames {}, expected {}; cases={}'.format(got, expected, cases)
+            f'matched frames {got}, expected {expected}; cases={cases}'
     return check

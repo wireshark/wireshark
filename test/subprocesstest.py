@@ -61,7 +61,7 @@ def cat_dhcp_command(mode):
     # XXX Do this in Python in a thread?
     sd_cmd = ''
     if sys.executable:
-        sd_cmd = '"{}" '.format(sys.executable)
+        sd_cmd = f'"{sys.executable}" '
     this_dir = os.path.dirname(__file__)
     sd_cmd += '"{}" {}'.format(os.path.join(this_dir, 'util_dump_dhcp_pcap.py'), mode)
     return sd_cmd
@@ -71,13 +71,13 @@ def cat_cap_file_command(cap_files):
     # XXX Do this in Python in a thread?
     if isinstance(cap_files, str):
         cap_files = [ cap_files ]
-    quoted_paths = ' '.join('"{}"'.format(cap_file) for cap_file in cap_files)
+    quoted_paths = ' '.join(f'"{cap_file}"' for cap_file in cap_files)
     if sys.platform.startswith('win32'):
         # https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-xp/bb491026(v=technet.10)
         # says that the `type` command "displays the contents of a text
         # file." Copy to the console instead.
-        return 'copy {} CON'.format(quoted_paths)
-    return 'cat {}'.format(quoted_paths)
+        return f'copy {quoted_paths} CON'
+    return f'cat {quoted_paths}'
 
 def count_output(text, search_pat=None):
     '''Returns the number of output lines (search_pat=None), otherwise returns a match count.'''
@@ -106,10 +106,10 @@ def check_packet_count(cmd_capinfos, num_packets, cap_file):
     capinfos_testout = subprocess.run([cmd_capinfos, cap_file], capture_output=True, check=True, encoding='utf-8')
     assert capinfos_testout.returncode == 0
     assert capinfos_testout.stdout
-    count_pat = r'Number of packets:\s+{}'.format(num_packets)
+    count_pat = rf'Number of packets:\s+{num_packets}'
     if re.search(count_pat, capinfos_testout.stdout):
         got_num_packets = True
-    assert got_num_packets, 'Failed to capture exactly {} packets'.format(num_packets)
+    assert got_num_packets, f'Failed to capture exactly {num_packets} packets'
 
 def get_capture_info(cmd_capinfos, capinfos_args, cap_file):
     '''Run capinfos on a capture file and log its output.

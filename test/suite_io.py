@@ -38,7 +38,7 @@ def check_io_4_packets(capture_file, result_file, cmd_tshark, cmd_capinfos, from
     elif from_stdin:
         # cat -B "${CAPTURE_DIR}dhcp.pcap" | $DUT -r - -w ./testout.pcap 2>./testout.txt
         cat_dhcp_cmd = cat_dhcp_command('cat')
-        stdin_cmd = '{0} | "{1}" -r - -w "{2}"'.format(cat_dhcp_cmd, cmd_tshark, testout_file)
+        stdin_cmd = f'{cat_dhcp_cmd} | "{cmd_tshark}" -r - -w "{testout_file}"'
         subprocess.check_call(stdin_cmd, shell=True, env=env)
     elif to_stdout:
         # $DUT -r "${CAPTURE_DIR}dhcp.pcap" -w - > ./testout.pcap 2>./testout.txt
@@ -77,6 +77,6 @@ class TestRawsharkIO:
         capture_file = capture_file('dhcp.pcap')
         result_file(testout_pcap)
         raw_dhcp_cmd = cat_dhcp_command('raw')
-        rawshark_cmd = '{0} | "{1}" --log-fatal=warning -r - -n -dencap:1 -R "udp.port==68"'.format(raw_dhcp_cmd, cmd_rawshark)
+        rawshark_cmd = f'{raw_dhcp_cmd} | "{cmd_rawshark}" --log-fatal=warning -r - -n -dencap:1 -R "udp.port==68"'
         rawshark_stdout = subprocess.check_output(rawshark_cmd, shell=True, encoding='utf-8', env=test_env)
         assert rawshark_stdout == io_baseline_str

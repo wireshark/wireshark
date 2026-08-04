@@ -64,7 +64,7 @@ def verify_name(name):
     # Warn about names without spaces. Sometimes it is a mistake where the
     # developer accidentally committed using the system username.
     if ' ' not in name:
-        print("WARNING: name '%s' does not contain a space." % (name,))
+        print(f"WARNING: name '{name}' does not contain a space.")
         print_git_user_instructions()
     return True
 
@@ -72,7 +72,7 @@ def verify_name(name):
 def verify_email(email):
     email = email.lower().strip()
     try:
-        user, host = email.split('@')
+        _, host = email.split('@')
     except ValueError:
         # Lacks a '@' (e.g. a plain domain or "foo[AT]example.com")
         return False
@@ -96,10 +96,7 @@ def verify_email(email):
         return False
 
     # 'peter-ubuntu32.(none)'
-    if '(none)' in host:
-        return False
-
-    return True
+    return '(none)' not in host
 
 
 def tools_dir():
@@ -140,11 +137,11 @@ def verify_body(body):
     cleaned_subject = extract_subject(old_lines[0])
     if len(cleaned_subject) > 80:
         # Note that this check is also invoked by the commit-msg hook.
-        print("Warning: the subject line '%s' is longer than 80 characters." % (cleaned_subject,))
+        print(f"Warning: the subject line '{cleaned_subject}' is longer than 80 characters.")
         is_good = False
     if not is_good:
         print_standards()
-    if any(line.startswith('Bug:') or line.startswith('Ping-Bug:') for line in old_lines):
+    if any(line.startswith(('Bug:', 'Ping-Bug:')) for line in old_lines):
         sys.stderr.write('''
 To close an issue, use "Closes #1234" or "Fixes #1234" instead of "Bug: 1234".
 To reference an issue, use "related to #1234" instead of "Ping-Bug: 1234". See
@@ -169,7 +166,7 @@ for details.
         cmd = ['git', 'stripspace']
         newbody = subprocess.check_output(cmd, input=body, universal_newlines=True)
     except OSError as ex:
-        print('Warning: unable to invoke git stripspace: %s' % (ex,))
+        print(f'Warning: unable to invoke git stripspace: {ex}')
         return is_good
     if newbody and newbody != body:
         new_lines = newbody.splitlines(True)
@@ -178,7 +175,7 @@ for details.
                                     tofile='NEW/.git/COMMIT_EDITMSG')
         # Clearly mark trailing whitespace (GNU patch supports such comments).
         diff = [
-            '# NOTE: trailing space on the next line\n%s' % (line,)
+            f'# NOTE: trailing space on the next line\n{line}'
             if len(line) > 2 and line[-2].isspace() else line
             for line in diff
         ]
@@ -250,7 +247,7 @@ def main():
             try:
                 with open(args.commitmsg) as f:
                     return 0 if verify_body(f.read()) else 1
-            except Exception:
+            except RuntimeError:
                 print("Couldn't verify body of message from file '" + args.commitmsg + "'")
                 return 1
 
@@ -272,7 +269,7 @@ def main():
         # being validated. If called from a git hook (without .py extension), try to
         # remain silent unless there are issues.
         if __file__.endswith('.py'):
-            print('Checking commit: %s %s' % (abbrev, subject))
+            print(f'Checking commit: {abbrev} {subject}')
 
         if not verify_name(author_name):
             print(f'Disallowed author name: {author_name}')
@@ -300,7 +297,7 @@ if __name__ == '__main__':
     try:
         sys.exit(main())
     except subprocess.CalledProcessError as ex:
-        print('\n%s' % ex)
+        print(f'\n{ex}')
         sys.exit(ex.returncode)
     except KeyboardInterrupt:
         sys.exit(130)

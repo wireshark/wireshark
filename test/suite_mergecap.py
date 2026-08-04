@@ -37,25 +37,25 @@ def check_mergecap(mergecap_proc, file_type, encapsulation, tot_packets, generat
     capinfos_stdout = subprocess.check_output([cmd_capinfos, '-t', '-E', '-I', '-c', testout_file], encoding='utf-8', env=env)
 
     file_descr = file_type_to_descr[file_type]
-    type_pat = r'File type:\s+{}'.format(file_descr)
+    type_pat = rf'File type:\s+{file_descr}'
     assert re.search(type_pat, capinfos_stdout), \
-        'Failed to generate a {} file'.format(file_type)
+        f'Failed to generate a {file_type} file'
 
-    encap_pat = r'File encapsulation:\s+{}'.format(encapsulation)
+    encap_pat = rf'File encapsulation:\s+{encapsulation}'
     assert re.search(encap_pat, capinfos_stdout), \
-        'Failed to generate an {} encapsulation'.format(encapsulation)
+        f'Failed to generate an {encapsulation} encapsulation'
 
-    pkt_pat = r'Number of packets:\s+{}'.format(tot_packets)
+    pkt_pat = rf'Number of packets:\s+{tot_packets}'
     assert re.search(pkt_pat, capinfos_stdout), \
-        'Failed to generate {} packets'.format(tot_packets)
+        f'Failed to generate {tot_packets} packets'
 
-    gidb_pat = r'Number of interfaces in file:\s+{}'.format(generated_idbs)
+    gidb_pat = rf'Number of interfaces in file:\s+{generated_idbs}'
     assert re.search(gidb_pat, capinfos_stdout), \
-        'Failed to generate {} IDBs'.format(generated_idbs)
+        f'Failed to generate {generated_idbs} IDBs'
 
-    midb_pat = r'\s+Number of packets\s+=\s+{}'.format(idb_packets)
+    midb_pat = rf'\s+Number of packets\s+=\s+{idb_packets}'
     assert re.search(midb_pat, capinfos_stdout), \
-        'Failed to merge {} IDB packets'.format(idb_packets)
+        f'Failed to merge {idb_packets} IDB packets'
 
 
 class TestMergecapPcap:

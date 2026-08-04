@@ -72,19 +72,19 @@ def check_capinfos_info(cmd_capinfos, cap_file):
 
     for ci_line in capinfos_out.splitlines():
         for sp_key in str_pats:
-            str_pat = r'{}:\s+([\S ]+)'.format(str_pats[sp_key])
+            str_pat = rf'{str_pats[sp_key]}:\s+([\S ]+)'
             str_res = re.search(str_pat, ci_line)
             if str_res is not None:
                 cap_info[sp_key] = str_res.group(1)
 
         for ip_key in int_pats:
-            int_pat = r'{}:\s+(\d+)'.format(int_pats[ip_key])
+            int_pat = rf'{int_pats[ip_key]}:\s+(\d+)'
             int_res = re.search(int_pat, ci_line)
             if int_res is not None:
                 cap_info[ip_key] = int(int_res.group(1))
 
         for sp_key, sp_value in str_list_pats.items():
-            str_pat = r'{}:\s+([\S ]+)'.format(sp_value)
+            str_pat = rf'{sp_value}:\s+([\S ]+)'
             str_res = re.search(str_pat, ci_line)
             if str_res is not None:
                 cap_info[sp_key].append(str_res.group(1))
@@ -127,11 +127,7 @@ def check_text2pcap(cmd_tshark, cmd_text2pcap, cmd_capinfos, capture_file, resul
         assert file_type in file_type_to_testout, 'Invalid file type'
 
         testin_file = result_file(testin_txt)
-        tshark_cmd = '"{cmd}" -r "{cf}" -t ad --hexdump frames --hexdump time > "{of}"'.format(
-            cmd = cmd_tshark,
-            cf = cap_file,
-            of = testin_file,
-        )
+        tshark_cmd = f'"{cmd_tshark}" -r "{cap_file}" -t ad --hexdump frames --hexdump time > "{testin_file}"'
         subprocess.check_call(tshark_cmd, shell=True, env=base_env)
 
         testout_fname = file_type_to_testout[file_type]
