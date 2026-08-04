@@ -153,7 +153,7 @@ daintree_sna_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
     int *err, char **err_info)
 {
 	uint64_t seconds;
-	int useconds;
+	char useconds[10];
 	char readLine[DAINTREE_MAX_LINE_SIZE];
 	char readData[READDATA_BUF_SIZE];
 	unsigned char *str = (unsigned char *)readData;
@@ -173,11 +173,16 @@ daintree_sna_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
-	if (sscanf(readLine, "%*s %18" SCNu64 ".%9d %9u %" READDATA_MAX_FIELD_SIZE "s",
-	    &seconds, &useconds, &rec->rec_header.packet_header.len, readData) != 4) {
+	memset(useconds, 0, sizeof(useconds));
+	if (sscanf(readLine, "%*s %18" SCNu64 ".%9[0-9] %9u %" READDATA_MAX_FIELD_SIZE "s",
+	    &seconds, useconds, &rec->rec_header.packet_header.len, readData) != 4) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("daintree_sna: invalid read record");
 		return false;
+	}
+
+	while (strlen(useconds) < 9) {
+		useconds[strlen(useconds)] = '0';
 	}
 
 	/* Daintree doesn't store the FCS, but pads end of packet with 0xffff, which we toss */
@@ -190,7 +195,7 @@ daintree_sna_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 	rec->rec_header.packet_header.len -= FCS_LENGTH;
 
 	rec->ts.secs = (time_t) seconds;
-	rec->ts.nsecs = useconds * 1000; /* convert mS to nS */
+	sscanf(useconds, "%9u", &rec->ts.nsecs);
 
 	/*
 	 * READDATA_BUF_SIZE is < WTAP_MAX_PACKET_SIZE_STANDARD, and is the maximum
