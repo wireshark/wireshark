@@ -4179,8 +4179,7 @@ de_nas_5gs_mm_sor_transp_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     };
 
     proto_tree *sub_tree;
-
-    uint8_t oct, data_type, list_type, ap;
+    uint8_t oct, data_type, list_type, ap, list_ind;
     uint32_t curr_offset = offset;
     int i = 1;
 
@@ -4190,6 +4189,7 @@ de_nas_5gs_mm_sor_transp_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
         /* SOR header    octet 4*/
         proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags_dt0, ENC_BIG_ENDIAN);
         curr_offset++;
+        list_ind = (oct & 0x2) >> 1;
         list_type = (oct & 0x4) >> 2;
         ap = (oct & 0x10) >> 4;
         /* SOR-MAC-IAUSF    octet 5-20 */
@@ -4214,17 +4214,19 @@ de_nas_5gs_mm_sor_transp_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
                 NULL
             };
 
-            proto_tree_add_item_ret_uint(tree, hf_nas_5gs_sor_plmn_id_act_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &plmn_id_act_len);
-            curr_offset++;
-            while ((curr_offset - offset) < plmn_id_act_len) {
-                sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, 5, ett_nas_5gs_mm_sor, NULL, "List item %u", i);
-                curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, sub_tree, curr_offset, E212_NONE, true);
-                curr_offset += 3;
-                proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags_access_tech_1, ENC_BIG_ENDIAN);
+            if (list_ind) {
+                proto_tree_add_item_ret_uint(tree, hf_nas_5gs_sor_plmn_id_act_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &plmn_id_act_len);
                 curr_offset++;
-                proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags_access_tech_2, ENC_BIG_ENDIAN);
-                curr_offset++;
-                i++;
+                while ((curr_offset - offset) < plmn_id_act_len) {
+                    sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, 5, ett_nas_5gs_mm_sor, NULL, "List item %u", i);
+                    curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, sub_tree, curr_offset, E212_NONE, true);
+                    curr_offset += 3;
+                    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags_access_tech_1, ENC_BIG_ENDIAN);
+                    curr_offset++;
+                    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags_access_tech_2, ENC_BIG_ENDIAN);
+                    curr_offset++;
+                    i++;
+                }
             }
             proto_tree_add_bitmask_list_ret_uint64(tree, tvb, curr_offset, 1, flags_oct_o, ENC_BIG_ENDIAN, &oct_o_flags);
             curr_offset++;
