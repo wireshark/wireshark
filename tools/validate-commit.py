@@ -12,7 +12,6 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-from __future__ import print_function
 
 import argparse
 import difflib
@@ -31,14 +30,14 @@ parser.add_argument('--commitmsg', help='commit-msg check', action='store')
 
 def print_git_user_instructions():
     print('To configure your name and email for git, run:')
-    print('')
+    print()
     print('  git config --global user.name "Your Name"')
     print('  git config --global user.email "you@example.com"')
-    print('')
+    print()
     print('After that update the author of your latest commit with:')
-    print('')
+    print()
     print('  git commit --amend --reset-author --no-edit')
-    print('')
+    print()
 
 def print_standards():
     print('''
@@ -190,7 +189,7 @@ for details.
         print('After git stripspace:')
         print(newbody.splitlines(True))
         print('Please rewrite it (there are likely whitespace issues):')
-        print('')
+        print()
         print(''.join(diff))
         return False
     return is_good
@@ -209,7 +208,7 @@ def verify_merge_request():
     }
     m_r_iid = os.getenv('CI_MERGE_REQUEST_IID')
     if project_id is None or m_r_iid is None:
-        print("This doesn't appear to be a merge request. CI_MERGE_REQUEST_PROJECT_ID={}, CI_MERGE_REQUEST_IID={}".format(project_id, m_r_iid))
+        print(f"This doesn't appear to be a merge request. CI_MERGE_REQUEST_PROJECT_ID={project_id}, CI_MERGE_REQUEST_IID={m_r_iid}")
         return True
 
     m_r_sb_protected = os.getenv('CI_MERGE_REQUEST_SOURCE_BRANCH_PROTECTED')
@@ -220,7 +219,7 @@ have to close this merge request and push from a different branch.\n
 ''')
         # Assume that the "Allow commits" test is about to fail.
 
-    m_r_url = '{}/projects/{}/merge_requests/{}'.format(gitlab_api_pfx, project_id, m_r_iid)
+    m_r_url = f'{gitlab_api_pfx}/projects/{project_id}/merge_requests/{m_r_iid}'
     req = urllib.request.Request(m_r_url)
     # print('req', repr(req), m_r_url)
     with urllib.request.urlopen(req) as resp:
@@ -276,12 +275,12 @@ def main():
             print('Checking commit: %s %s' % (abbrev, subject))
 
         if not verify_name(author_name):
-            print('Disallowed author name: {}'.format(author_name))
+            print(f'Disallowed author name: {author_name}')
             exit_code = 1
             bad_git_author = True
 
         if not verify_email(author_email):
-            print('Disallowed author email address: {}'.format(author_email))
+            print(f'Disallowed author email address: {author_email}')
             exit_code = 1
             bad_git_author = True
 

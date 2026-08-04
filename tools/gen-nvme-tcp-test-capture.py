@@ -76,8 +76,8 @@ def epb(packet_bytes, ts_us):
 
 HOST_MAC = bytes.fromhex('020000000001')
 CTRL_MAC = bytes.fromhex('020000000002')
-HOST_IP  = bytes(map(int, '10.0.0.1'.split('.')))
-CTRL_IP  = bytes(map(int, '10.0.0.2'.split('.')))
+HOST_IP  = bytes(map(int, ['10', '0', '0', '1']))
+CTRL_IP  = bytes(map(int, ['10', '0', '0', '2']))
 HOST_PORT = 55000
 CTRL_PORT = 4420   # IANA NVMe/TCP
 

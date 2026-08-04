@@ -23,8 +23,8 @@ from pyclibrary import CParser
 
 def parse_files(infiles, outfile):
 
-    print("Input: {}".format(infiles))
-    print("Output: '{}'".format(outfile))
+    print(f"Input: {infiles}")
+    print(f"Output: '{outfile}'")
     pre_line_count = 0
     with open(outfile, 'r') as out_f:
         pre_line_count = len(out_f.read().splitlines())
@@ -50,7 +50,7 @@ def parse_files(infiles, outfile):
 """ % (os.path.basename(sys.argv[0]))
 
     for f in infiles:
-        source += '#include <{}>\n'.format(f)
+        source += f'#include <{f}>\n'
 
     source += """
 #define ENUM(arg) { #arg, arg }
@@ -64,7 +64,7 @@ static ws_enum_t const all_enums[] = {
 
     for s in symbols:
         if isinstance(definitions[s], int):
-            source += '    ENUM({}),\n'.format(s)
+            source += f'    ENUM({s}),\n'
 
     source += """\
     { NULL, 0 },

@@ -89,7 +89,7 @@ class IPv4SpecialBlock(ipaddress.IPv4Network):
     def __str__(self):
         addr = self.network_address
         mask = self.prefixlen
-        line = '{{ .ipv4 = {{ {:#x}, {:#010x} }} }}'.format(addr, self.ip_get_subnet_mask(mask))
+        line = f'{{ .ipv4 = {{ {addr:#x}, {self.ip_get_subnet_mask(mask):#010x} }} }}'
         return line
 
 class IPv6SpecialBlock(ipaddress.IPv6Network):
@@ -103,7 +103,7 @@ class IPv6SpecialBlock(ipaddress.IPv6Network):
     def __str__(self):
         addr = self.network_address.packed
         mask = self.prefixlen
-        line = '{{ .ipv6 = {{ {{ {} }}, {} }} }}'.format(self.addr_c_array(addr), mask)
+        line = f'{{ .ipv6 = {{ {{ {self.addr_c_array(addr)} }}, {mask} }} }}'
         return line
 
 class IPRegistry(list):
@@ -194,7 +194,7 @@ service_names_port_numbers_url = "https://www.iana.org/assignments/service-names
 
 
 def get_afnum_data():
-    print('Loading Address Family Numbers data from {}'.format(afnum_url))
+    print(f'Loading Address Family Numbers data from {afnum_url}')
 
     try:
         req = urllib.request.Request(afnum_url)
@@ -265,7 +265,7 @@ const value_string afn_vals[] = {
 
 
 def get_ipproto_data():
-    print('Loading IP Protocol Numbers data from {}'.format(ipproto_url))
+    print(f'Loading IP Protocol Numbers data from {ipproto_url}')
 
     try:
             req = urllib.request.Request(ipproto_url)
@@ -363,7 +363,7 @@ value_string_ext ipproto_val_ext = VALUE_STRING_EXT_INIT(ipproto_val);
     file.write(iana_c_tail)
 
 def get_ip_special_data(name, url, reg, min_entries):
-    print('Loading {} special data from {}'.format(name, url))
+    print(f'Loading {name} special data from {url}')
 
     try:
         req = urllib.request.Request(url)
@@ -381,17 +381,17 @@ def get_ip_special_data(name, url, reg, min_entries):
          reg.append(record)
 
     if len(reg) < min_entries:
-        exit_msg("Too few {} entries. Got {}, wanted {}".format(name, len(reg), min_entries))
+        exit_msg(f"Too few {name} entries. Got {len(reg)}, wanted {min_entries}")
 
     return reg.fill()
 
 def get_enterprise_entries():
-    print('Loading Enterprise data from {}'.format(enterprise_numbers_url))
+    print(f'Loading Enterprise data from {enterprise_numbers_url}')
 
     with urllib.request.urlopen(enterprise_numbers_url) as f:
         if f.status != 200:
             raise Exception("request for " + enterprise_numbers_url + " failed with result code " + f.status)
-        data = f.read().decode('utf-8').replace(u'\u200e', '')
+        data = f.read().decode('utf-8').replace('\u200e', '')
 
     records = []
     # We only care about the "Decimal" and "Organization",
@@ -462,7 +462,7 @@ value_string_ext enterprise_val_ext = VALUE_STRING_EXT_INIT(enterprise_val);
 
 def get_service_data():
 
-    print('Loading service port/name data from {}'.format(service_names_port_numbers_url))
+    print(f'Loading service port/name data from {service_names_port_numbers_url}')
 
     try:
             req = urllib.request.Request(service_names_port_numbers_url)
@@ -567,7 +567,7 @@ def generate_service_source_data(file, data):
             max_port = write_entry(file, e, max_port)
         file.write("};\n\n")
 
-        file.write("static const uint16_t _services_max_port = {};\n".format(max_port))
+        file.write(f"static const uint16_t _services_max_port = {max_port};\n")
     except Exception as e:
         print(e)
 
@@ -636,7 +636,7 @@ def main():
                 iana_f.write(end)
 
         except Exception:
-            exit_msg("Couldn't open \"{}\" file for writing".format(iana_h_path))
+            exit_msg(f"Couldn't open \"{iana_h_path}\" file for writing")
 
         #Pull out the existing source file parts
         start, block, end = parse_source(iana_c_path)
@@ -654,7 +654,7 @@ def main():
                 generate_service_source_data(iana_f, service_data)
                 iana_f.write(end)
         except Exception:
-            exit_msg("Couldn't open \"{}\" file for writing".format(iana_c_path))
+            exit_msg(f"Couldn't open \"{iana_c_path}\" file for writing")
 
 
 if __name__ == '__main__':

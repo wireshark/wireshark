@@ -12,9 +12,14 @@ import re
 import signal
 import sys
 
-from check_common import (Result, findDissectorFilesInFolder,
-                          getFilesFromCommits, getFilesFromOpen,
-                          isGeneratedFile, removeComments)
+from check_common import (
+    Result,
+    findDissectorFilesInFolder,
+    getFilesFromCommits,
+    getFilesFromOpen,
+    isGeneratedFile,
+    removeComments,
+)
 
 # This utility scans for tfs items, and works out if standard ones
 # could have been used instead (from epan/tfs.c)
@@ -188,7 +193,7 @@ class Item:
                 self.mask_value = int(self.mask, 8)
             else:
                 self.mask_value = int(self.mask, 10)
-        except Exception:
+        except ValueError:
             self.mask_read = False
             self.mask_value = 0
 
@@ -208,7 +213,7 @@ class Item:
                 try:
                     # For FT_BOOLEAN, modifier is just numerical number of bits. Round up to next nibble.
                     return int((int(self.type_modifier) + 3)/4)*4
-                except Exception:
+                except ValueError:
                     return 0
         else:
             if self.item_type in field_widths:

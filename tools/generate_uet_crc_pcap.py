@@ -11,7 +11,6 @@
 # Generate various contrived IPv4, IPv6 and UDP encapsulations
 # for UltraEthernet Transport packets with CRC.
 #
-# ruff: noqa: F403, F405
 #
 # Requires:
 # scapy==2.7.0

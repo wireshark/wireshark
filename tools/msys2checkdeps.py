@@ -8,7 +8,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-from __future__ import print_function
 
 import argparse
 import os
@@ -38,7 +37,7 @@ def call_ntldd(filename):
         output = subprocess.check_output(['ntldd', '-R', filename], stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
         error("'ntldd' failed with '" + str(e) + "'")
-    except WindowsError as e:
+    except OSError as e:
         error("Calling 'ntldd' failed with '" + str(e) + "' (have you installed 'mingw-w64-ntldd-git'?)")
     except Exception as e:
         error("Calling 'ntldd' failed with '" + str(e) + "'")

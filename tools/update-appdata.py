@@ -72,7 +72,7 @@ def main():
     for micro in range(int(next_micro) - 1, -1, -1):
         try:
             tag_date = subprocess.run(
-                ['git', 'log', '-1', '--format=%cd', '--date=format:%F', 'v{}.{}'.format(maj_min, micro)],
+                ['git', 'log', '-1', '--format=%cd', '--date=format:%F', f'v{maj_min}.{micro}'],
                 check=True,
                 encoding='UTF-8',
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.strip()

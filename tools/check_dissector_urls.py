@@ -101,7 +101,6 @@ class Link:
         return s
 
     def validate(self):
-        global should_exit
         if should_exit:
             return
         self.tested = True
@@ -158,7 +157,7 @@ def find_links_in_folder(folder):
             if should_exit:
                 return
             file = os.path.join(root, f)
-            if file.endswith('.c') or file.endswith('.adoc'):
+            if file.endswith(('.c', '.adoc')):
                 files_to_check.append(file)
 
     # Deal with files in sorted order.
@@ -176,7 +175,12 @@ async def populate_cache(sem, session, url):
                 if args.verbose:
                     print('checking ', url, ': success', sep='')
 
-        except (asyncio.CancelledError, ValueError, ConnectionError, Exception):
+        # N.B., no longer catching Exception to placate 'ruff check', but difficult to know if catching all possible exceptions..
+        except (asyncio.CancelledError, ValueError, ConnectionError, asyncio.TimeoutError,
+                aiohttp.client_exceptions.ClientConnectorDNSError,
+                aiohttp.client_exceptions.ClientConnectorError,
+                aiohttp.client_exceptions.ClientResponseError,
+                aiohttp.client_exceptions.ServerDisconnectedError):
             cached_lookups[url] = FailedLookup()
             if args.verbose:
                 print('checking ', url, ': failed', sep='')

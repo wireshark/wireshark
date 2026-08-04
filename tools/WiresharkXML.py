@@ -18,7 +18,6 @@ class CaptureFile:
 
 class FoundItException(Exception):
     """Used internally for exiting a tree search"""
-    pass
 
 class PacketList:
     """Holds Packet objects, and has methods for finding

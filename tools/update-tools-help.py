@@ -37,7 +37,7 @@ def main():
     # If tshark is present, assume that our other executables are as well.
     program_path = args.program_path[0]
     if not os.path.isfile(os.path.join(program_path, 'tshark')):
-        print('tshark not found at {}\n'.format(program_path))
+        print(f'tshark not found at {program_path}\n')
         parser.print_usage()
         sys.exit(1)
 
@@ -50,7 +50,7 @@ def main():
         thf_flag = m.group(2)
 
         if not os.path.isfile(thf_command):
-            print('{} not found. Skipping.'.format(thf_command))
+            print(f'{thf_command} not found. Skipping.')
             continue
 
         with open(thf, 'r', encoding='UTF-8') as fd:
@@ -72,11 +72,11 @@ def main():
         diff = list(difflib.unified_diff(cur_lines, new_lines))
 
         if (len(diff) > 0):
-            print('Updating {} {}'.format(thf_command, thf_flag))
+            print(f'Updating {thf_command} {thf_flag}')
             with open(thf, 'w', encoding='UTF-8') as fd:
                 fd.write(new_help)
         else:
-            print('{} {} output unchanged.'.format(thf_command, thf_flag))
+            print(f'{thf_command} {thf_flag} output unchanged.')
 
 if __name__ == '__main__':
     main()

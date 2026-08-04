@@ -15,9 +15,13 @@ import signal
 import subprocess
 import sys
 
-from check_common import (Result, findDissectorFilesInFolder,
-                          getFilesFromCommits, getFilesFromOpen,
-                          isGeneratedFile)
+from check_common import (
+    Result,
+    findDissectorFilesInFolder,
+    getFilesFromCommits,
+    getFilesFromOpen,
+    isGeneratedFile,
+)
 
 # Look for dissector symbols that could/should be static.
 
@@ -91,7 +95,7 @@ class CalledSymbols:
                         m = re.search(r'\|\s+([^\s]+)$', line)
                         if m:
                             referred.add(m.group(1))
-            except Exception as e:
+            except RuntimeError as e:
                 print(object_file, e)
         else:
             command = ['nm', object_file]
@@ -112,7 +116,7 @@ class CalledSymbols:
                         # Only interested in undefined/external references to symbols.
                         if letter == 'U':
                             referred.add(function_name)
-            except Exception:  # Wanted to capture SIGINT ideally..
+            except ValueError:  # Wanted to capture SIGINT ideally..
                 pass
         return referred
 
@@ -169,11 +173,10 @@ class DefinedSymbols:
 
         # Get header file contents if available
         header_file = file.replace('.c', '.h')
-        try:
-            f = open(header_file, 'r')
-            self.header_file_contents = f.read()
-        except OSError:
-            pass
+
+        if os.path.exists(header_file):
+            with open(header_file, 'r') as f:
+                self.header_file_contents = f.read()
 
         # Run command to see which symbols are defined
         if platform.system() == 'Windows':
@@ -187,7 +190,7 @@ class DefinedSymbols:
                             fun = m.group(1)
                             # Dumpcap output is quite long..
                             self.addDefinedSymbol(fun, line)
-            except Exception as e:
+            except RuntimeError as e:
                 print('exception while checking symbols:', e)
         else:
             command = ['nm', object_file]
@@ -203,7 +206,7 @@ class DefinedSymbols:
                         # Globally-defined symbols. Would be 't' or 'd' if already static..
                         if letter in 'TD':
                             self.addDefinedSymbol(function_name, line)
-            except Exception:  # Wanted to capture SIGINT ideally..
+            except RuntimeError:  # Wanted to capture SIGINT ideally..
                 pass
 
     def addDefinedSymbol(self, symbol, line):

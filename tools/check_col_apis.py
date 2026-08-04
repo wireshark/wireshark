@@ -13,10 +13,16 @@ import concurrent.futures
 import os
 import re
 import signal
+import sys
 
-from check_common import (Result, findDissectorFilesInFolder,
-                          getFilesFromCommits, getFilesFromOpen,
-                          isGeneratedFile, removeComments)
+from check_common import (
+    Result,
+    findDissectorFilesInFolder,
+    getFilesFromCommits,
+    getFilesFromOpen,
+    isGeneratedFile,
+    removeComments,
+)
 
 # Try to exit soon after Ctrl-C is pressed.
 should_exit = False
@@ -72,15 +78,7 @@ class ColCall:
         # TODO: how persistent does it need to be.  Which memory scope is appropriate?
         if self.name == 'col_set_str':
             # Literal strings are safe, as well as some other patterns..
-            if self.last_args.startswith('"'):
-                return
-            elif self.last_args.startswith('val_to_str_const') or self.last_args.startswith('val_to_str_ext_const'):
-                return
-            # TODO: substitute macros to avoid some special cases..
-            elif self.last_args.upper() == self.last_args:
-                return
-            # Ternary test with both outcomes being literal strings?
-            elif ternary_re.match(self.last_args):
+            if self.last_args.startswith('"') or self.last_args.startswith('val_to_str_const') or self.last_args.startswith('val_to_str_ext_const') or self.last_args.upper() == self.last_args or ternary_re.match(self.last_args):
                 return
             else:
                 if self.verbose:
@@ -93,9 +91,7 @@ class ColCall:
             self.last_args = self.last_args.strip()
             if self.last_args.startswith('"'):
                 result.warn(self.issue_prefix(), '- could call col_set_str() instead')
-            elif self.last_args.startswith('val_to_str_const'):
-                result.warn(self.issue_prefix(), '- const so could use col_set_str() instead')
-            elif self.last_args.startswith('val_to_str_ext_const'):
+            elif self.last_args.startswith('val_to_str_const') or self.last_args.startswith('val_to_str_ext_const'):
                 result.warn(self.issue_prefix(), '- const so could use col_set_str() instead')
 
         if self.name == 'col_append_str':
@@ -192,7 +188,7 @@ if __name__ == '__main__':
                 f = os.path.join('epan', 'dissectors', f)
             if not os.path.isfile(f):
                 print('Chosen file', f, 'does not exist.')
-                exit(1)
+                sys.exit(1)
             else:
                 files.append(f)
     elif args.commits:
@@ -233,11 +229,11 @@ if __name__ == '__main__':
             errors_found += result.errors
 
             if result.should_exit:
-                exit(1)
+                sys.exit(1)
 
 
     # Show summary.
     print(warnings_found, 'warnings found')
     if errors_found:
         print(errors_found, 'errors found')
-        exit(1)
+        sys.exit(1)

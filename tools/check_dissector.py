@@ -10,8 +10,7 @@ import os
 import signal
 import sys
 
-from check_common import (bcolors, getFilesFromCommits, getFilesFromOpen,
-                          isDissectorFile)
+from check_common import bcolors, getFilesFromCommits, getFilesFromOpen, isDissectorFile
 
 # Run battery of tests on one or more dissectors.
 

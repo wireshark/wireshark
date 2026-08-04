@@ -38,8 +38,13 @@ import os
 import re
 import sys
 
-from check_common import (HFEntriesParser, OutputType, Result,
-                          findDissectorFilesInFolder, isDissectorFile)
+from check_common import (
+    HFEntriesParser,
+    OutputType,
+    Result,
+    findDissectorFilesInFolder,
+    isDissectorFile,
+)
 
 APIs = {
     # API groups.
@@ -51,7 +56,7 @@ APIs = {
     # }
     #
     # APIs that MUST NOT be used in Wireshark
-    'prohibited': {'count_errors': True, 'functions': set((
+    'prohibited': {'count_errors': True, 'functions': {
         # Memory-unsafe APIs
         # Use something that won't overwrite the end of your buffer instead
         # of these.
@@ -166,16 +171,16 @@ APIs = {
         'tmpnam',    # use mkstemp
         '_snwprintf',  # use StringCchPrintf
         'system',
-    ))},
+    }},
 
     ### Soft-Deprecated functions that should not be used in new code but
     # have not been entirely removed from old code. These will become errors
     # once they've been removed from all existing code.
-    'soft-deprecated': {'count_errors': False, 'functions': set((
-    ))},
+    'soft-deprecated': {'count_errors': False, 'functions': set()
+    },
 
     # APIs that SHOULD NOT be used in Wireshark (any more)
-    'deprecated': {'count_errors': True, 'functions': set((
+    'deprecated': {'count_errors': True, 'functions': {
         'perror',                                         # Use g_strerror() and report messages in whatever
                                                           #  fashion is appropriate for the code in question.
         'ctime',                                          # Use abs_time_secs_to_str()
@@ -266,14 +271,14 @@ APIs = {
         'g_slist_pop_allocator',                          # "does nothing since 2.10"
         'g_slist_push_allocator',                         # "does nothing since 2.10"
         'g_source_get_current_time',                      # since 2.28: use g_source_get_time()
-        'g_strcasecmp',                                   #
-        'g_strdown',                                      #
-        'g_string_down',                                  #
+        'g_strcasecmp',
+        'g_strdown',
+        'g_string_down',
         'g_string_sprintf',                               # use g_string_printf() instead
         'g_string_sprintfa',                              # use g_string_append_printf instead
-        'g_string_up',                                    #
-        'g_strncasecmp',                                  #
-        'g_strup',                                        #
+        'g_string_up',
+        'g_strncasecmp',
+        'g_strup',
         'g_tree_traverse',
         'g_tuples_destroy',                               # since 2.26
         'g_tuples_index',                                 # since 2.26
@@ -287,9 +292,9 @@ APIs = {
         'g_win32_get_package_installation_directory',
         'g_win32_get_package_installation_subdirectory',
         'qVariantFromValue',
-    ))},
+    }},
 
-    'dissectors-prohibited': {'count_errors': True, 'functions': set((
+    'dissectors-prohibited': {'count_errors': True, 'functions': {
         # APIs that make the program exit. Dissectors shouldn't call these.
         'abort',
         'assert',
@@ -297,14 +302,14 @@ APIs = {
         'exit',
         'g_assert',
         'g_error',
-    ))},
+    }},
 
-    'dissectors-restricted': {'count_errors': False, 'functions': set((
+    'dissectors-restricted': {'count_errors': False, 'functions': {
         # APIs that print to the terminal. Dissectors shouldn't call these.
         # FIXME: Explain what to use instead.
         'printf',
         'g_warning',
-    ))},
+    }},
 }
 
 # Default API groups to check
@@ -326,12 +331,12 @@ TvbPtrAPIs = [
 ]
 
 # List of possible shadow variables (Majority coming from macOS)
-ShadowVariables = set((
+ShadowVariables = {
     'index',
     'time',
     'strlen',
-    'system',
-))
+    'system'
+}
 
 # Defines pairs function/variable which are excluded
 # from prefs_register_*_preference checks
@@ -351,7 +356,7 @@ def find_api_in_file(group_hash, file_words, file_contents, found_apis, function
     found_set = group_hash['functions'] & file_words
     if found_set:
         for api in found_set:
-            pattern = pattern = re.compile(r'\W(?<!::)(?<!->)(?<!\w )(?<!\.)' + re.escape(api) + r'\W*\(')
+            pattern = re.compile(r'\W(?<!::)(?<!->)(?<!\w )(?<!\.)' + re.escape(api) + r'\W*\(')
             count = len(pattern.findall(file_contents))
             if count > 0:
                 found_apis.append(api)
@@ -525,8 +530,9 @@ def check_proto_tree_add_XXX(file_contents, filename, result):
     for func, args in items:
         # Check to make sure tvb_get* isn't used to pass into a
         # proto_tree_add_<datatype>, when proto_tree_add_item could be used
-        if re.search(r',\s*tvb_get_', args, re.DOTALL):
-            if re.match(r'^proto_tree_add_(time|bytes|ipxnet|ipv4|ipv6|ether|guid|oid|string|boolean|float|double|uint|uint64|int|int64|eui64|bitmask_list_value)$', func):
+        if (re.search(r',\s*tvb_get_', args, re.DOTALL) and
+            re.match(r'^proto_tree_add_(time|bytes|ipxnet|ipv4|ipv6|ether|guid|oid|string|boolean|float|double|uint|uint64|int|int64|eui64|bitmask_list_value)$', func)):
+
                 result.error(": {filename} uses {func} with tvb_get_*. Use proto_tree_add_item instead")
                 # Print out the function args to make it easier
                 # to find the offending code.  But first make
@@ -541,14 +547,15 @@ def check_proto_tree_add_XXX(file_contents, filename, result):
         args_no_parens = re.sub(r'\(.*\)', '', args, flags=re.DOTALL)
 
         # Check for accidental usage of ENC_ parameter
-        if re.search(r',\s*ENC_', args_no_parens, re.DOTALL):
-            if not re.search(r'proto_tree_add_(time|item|bitmask|[a-z0-9]+_bits_format_value|bits_item|bits_ret_val|item_ret_int|item_ret_uint|bytes_item|checksum)', func):
-                result.error(": {filename} uses {func} with ENC_*.")
-                # Print out the function args to make it easier
-                # to find the offending code.  But first make
-                # it readable by eliminating extra white space.
-                clean_args = re.sub(r'\s+', ' ', args)
-                result.note(f"\tArgs: {clean_args}")
+        if (re.search(r',\s*ENC_', args_no_parens, re.DOTALL) and
+            not re.search(r'proto_tree_add_(time|item|bitmask|[a-z0-9]+_bits_format_value|bits_item|bits_ret_val|item_ret_int|item_ret_uint|bytes_item|checksum)', func)):
+
+            result.error(": {filename} uses {func} with ENC_*.")
+            # Print out the function args to make it easier
+            # to find the offending code.  But first make
+            # it readable by eliminating extra white space.
+            clean_args = re.sub(r'\s+', ' ', args)
+            result.note(f"\tArgs: {clean_args}")
 
 
 def check_ett_registration(file_contents, filename, result):
@@ -747,7 +754,7 @@ def check_pref_var_dupes(file_contents, filename, result):
 
 def check_try_catch(file_words, file_contents, filename, result):
     """Check for forbidden control flow changes in TRY/CATCH blocks."""
-    if not set(('TRY', 'ENDTRY')) & file_words:
+    if not {'TRY', 'ENDTRY'} & file_words:
         return 0
 
     # Match TRY { ... } ENDTRY (with an optional '\' in case of a macro).
@@ -986,10 +993,11 @@ def checkFile(filename, source_dir, check_hf, check_value_string_array, debug_fl
         # If we have a max function count and we've exceeded it, treat it
         # as an error.
         if 'max_function_count' in APIs[group]:
-            if not APIs[group]['count_errors'] and APIs[group]['max_function_count'] >= 0:
-                if cur_func_count > APIs[group]['max_function_count']:
-                    result.output(pfx, f"{group} exceeds maximum function count: {APIs[group]['max_function_count']}")
-                    APIs[group]['count_errors'] = True
+            if (not APIs[group]['count_errors'] and APIs[group]['max_function_count'] >= 0 and
+                cur_func_count > APIs[group]['max_function_count']):
+
+                result.output(pfx, f"{group} exceeds maximum function count: {APIs[group]['max_function_count']}")
+                APIs[group]['count_errors'] = True
 
             if cur_func_count <= APIs[group]['max_function_count']:
                 continue
@@ -1058,13 +1066,13 @@ def main():
             api_groups.append('termoutput')
 
     # Add function_counts to each API group
-    for api_group in APIs:
-        functions = APIs[api_group]['functions']
-        APIs[api_group]['function_counts'] = {f: 0 for f in functions}
-        APIs[api_group]['max_function_count'] = -1
-        if APIs[api_group]['count_errors']:
-            APIs[api_group]['max_function_count'] = 0
-        APIs[api_group]['cur_function_count'] = 0
+    for apis in APIs.values():
+        functions = apis['functions']
+        apis['function_counts'] = {f: 0 for f in functions}
+        apis['max_function_count'] = -1
+        if apis['count_errors']:
+            apis['max_function_count'] = 0
+        apis['cur_function_count'] = 0
 
     # Build file list
     filelist = list(args.files)
@@ -1078,7 +1086,7 @@ def main():
         folder = args.folder
         if not os.path.isdir(folder):
             print('Folder', folder, 'not found!')
-            exit(1)
+            sys.exit(1)
         # Find files from folder.
         print('Looking for files in', folder)
         filelist = findDissectorFilesInFolder(folder, recursive=True)
@@ -1112,7 +1120,7 @@ def main():
                     APIs[api_group]['function_counts'][fun] += num
 
             if result.should_exit:
-                exit(1)
+                sys.exit(1)
 
         # Show summary
         print()

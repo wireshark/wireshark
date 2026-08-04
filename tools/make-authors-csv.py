@@ -56,7 +56,7 @@ def main():
         if match:
             name = match.group(1).strip()
             mail = match.group(2).strip().replace("[AT]", "@")
-            stdoutu8.write("{},{}\n".format(name, mail))
+            stdoutu8.write(f"{name},{mail}\n")
 
 
 if __name__ == '__main__':

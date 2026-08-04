@@ -26,7 +26,7 @@ from check_common import (
     getFilesFromOpen,
     isDissectorFile,
     isGeneratedFile,
-    removeComments
+    removeComments,
 )
 
 # Try to exit soon after Ctrl-C is pressed.

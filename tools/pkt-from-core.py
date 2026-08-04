@@ -183,7 +183,7 @@ def run_gdb(*commands):
     fname = tempfile.mktemp()
     try:
         fh = open(fname, "w")
-    except IOError as err:
+    except OSError as err:
         sys.exit("Cannot open %s for writing: %s" % (fname, err))
 
     # Put the commands in it
@@ -194,7 +194,7 @@ def run_gdb(*commands):
     fh.write("quit\n")
     try:
         fh.close()
-    except IOError as err:
+    except OSError as err:
         try:
             os.unlink(fname)
         except Exception:
@@ -320,7 +320,7 @@ def make_cap_file(pkt_data, lnk_t):
     fname = tempfile.mktemp()
     try:
         fh = open(fname, "w")
-    except IOError as err:
+    except OSError as err:
         sys.exit("Cannot open %s for writing: %s" % (fname, err))
 
     print("Packet Data:")
@@ -330,11 +330,11 @@ def make_cap_file(pkt_data, lnk_t):
     BYTES_IN_ROW = 16
     for byte in pkt_data:
         if (offset % BYTES_IN_ROW) == 0:
-            print("\n{:08x}".format(offset), file=fh)
-            print("\n{:08x}".format(offset))
+            print(f"\n{offset:08x}", file=fh)
+            print(f"\n{offset:08x}")
 
-        print("{:02x}".format(byte), file=fh)
-        print("{:02x}".format(byte))
+        print(f"{byte:02x}", file=fh)
+        print(f"{byte:02x}")
         offset += 1
 
     print("\n", file=fh)
@@ -342,7 +342,7 @@ def make_cap_file(pkt_data, lnk_t):
 
     try:
         fh.close()
-    except IOError as err:
+    except OSError as err:
         try:
             os.unlink(fname)
         except Exception:
@@ -408,9 +408,7 @@ def try_frame(func_text, cap_len_text, lnk_t_text, data_text):
 
 def run():
     if try_frame("epan_dissect_run",
-            "fd->cap_len", "fd->lnk_t", "data"):
-        return
-    elif try_frame("add_packet_to_packet_list",
+            "fd->cap_len", "fd->lnk_t", "data") or try_frame("add_packet_to_packet_list",
             "fdata->cap_len", "fdata->lnk_t", "buf"):
         return
     else:
@@ -419,12 +417,12 @@ def run():
 
 def usage():
     print("pkt-from-core.py [-v] -w capture_file executable-file (core-file or process-id)")
-    print("")
+    print()
     print("\tGiven an executable file and a core file, this tool")
     print("\tuses gdb to retrieve the packet that was being dissected")
     print("\tat the time wireshark/tshark stopped running. The packet")
     print("\tis saved in the capture_file specified by the -w option.")
-    print("")
+    print()
     print("\t-v : verbose")
     sys.exit(1)
 

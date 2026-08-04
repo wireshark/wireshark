@@ -140,8 +140,7 @@ def test_file_is_built(filename):
     # Write the file with nonsense at start.
     f_write.write('NO WAY THIS FILE BUILDS!!!!!')
     # Copy remaining lines as-is.
-    for line in f_read:
-        f_write.write(line)
+    f_write.writelines(f_read)
     f_read.close()
     f_write.close()
     # Backup file, and do this build with the one we wrote.

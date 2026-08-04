@@ -18,7 +18,7 @@ import time
 
 
 def show_progress(filenum, num_files, filename, num_matching):
-    print('')
+    print()
     print('=== Progress: checking', filename, '-', filenum, 'of', num_files, 'files -', num_matching, 'matching so far ===')
     print('=== Press Ctrl-C again within 5 seconds to really exit ===')
     time.sleep(1.5)

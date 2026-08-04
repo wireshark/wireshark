@@ -220,7 +220,7 @@ def main():
         cap_hash = pickle.load(index_file)
         index_file.close()
         print("%d files" % len(cap_hash))
-    except IOError:
+    except OSError:
         print("index file: %s [NEW]" % index_file_name)
 
     if options.list_all_proto:

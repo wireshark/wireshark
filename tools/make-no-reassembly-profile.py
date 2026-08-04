@@ -26,7 +26,7 @@ def main():
 
     tshark_path = os.path.join(args.program_path, 'tshark')
     if not os.path.isfile(tshark_path):
-        print('tshark not found at {}\n'.format(tshark_path))
+        print(f'tshark not found at {tshark_path}\n')
         parser.print_usage()
         sys.exit(1)
 
@@ -35,7 +35,7 @@ def main():
     plugin_lines = cp.stdout.splitlines()
     dissector_count = len(tuple(filter(lambda p: re.search(r'\sdissector\s', p), plugin_lines)))
     if dissector_count < MIN_PLUGINS:
-        print('Found {} plugins but require {}.'.format(dissector_count, MIN_PLUGINS))
+        print(f'Found {dissector_count} plugins but require {MIN_PLUGINS}.')
         sys.exit(1)
 
     rd_pref_re = re.compile(r'^#\s*(.*(reassembl|desegment)\S*):\s*TRUE')
