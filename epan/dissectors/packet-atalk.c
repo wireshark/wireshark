@@ -1768,10 +1768,10 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
   if (tree) {
     hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_src, tvb,
-                                        4, 3, address_to_str(pinfo->pool, &pinfo->src));
+                                        3, 1, address_to_str(pinfo->pool, &pinfo->src));
     proto_item_set_hidden(hidden_item);
     hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_dst, tvb,
-                                        6, 3, address_to_str(pinfo->pool, &pinfo->dst));
+                                        2, 1, address_to_str(pinfo->pool, &pinfo->dst));
     proto_item_set_hidden(hidden_item);
 
     proto_tree_add_uint(ddp_tree, hf_ddp_type, tvb, 4, 1, type);
