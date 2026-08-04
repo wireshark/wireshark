@@ -947,7 +947,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool i
     unsigned    captured_length;
     uint16_t    msg_type;
     unsigned    msg_length;
-    proto_item *ti;
+    proto_item *ti, *ti_length;
     proto_tree *stun_tree;
     proto_tree *stun_type_tree;
     proto_tree *att_all_tree;
@@ -1273,7 +1273,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool i
     proto_tree_add_uint(stun_type_tree, hf_stun_type_method_assignment, tvb, offset, 2, msg_type);
     offset += 2;
 
-    proto_tree_add_item(stun_tree, hf_stun_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    ti_length = proto_tree_add_item(stun_tree, hf_stun_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     proto_tree_add_item(stun_tree, hf_stun_cookie, tvb, offset, 4, ENC_NA);
     offset += 4;
@@ -1283,25 +1283,30 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool i
     /* Remember this (in host order) so we can show clear xor'd addresses */
     magic_cookie_first_word = tvb_get_ntohl(tvb, tcp_framing_offset + 4);
 
-    network_version = stun_network_version != NET_VER_AUTO ? stun_network_version : NET_VER_5389;
-
     if (msg_length != 0) {
         const char        *attribute_name_str;
 
-        /* According to [MS-TURN] section 2.2.2.8: "This attribute MUST be the
-           first attribute following the TURN message header in all TURN messages" */
-        if (stun_network_version == NET_VER_AUTO &&
-            offset < (STUN_HDR_LEN + msg_length) &&
-            tvb_get_ntohs(tvb, offset) == MAGIC_COOKIE) {
-          network_version = NET_VER_MS_TURN;
+        if (stun_network_version == NET_VER_AUTO) {
+            /* According to [MS-TURN] section 2.2.2.8: "This attribute MUST be the
+               first attribute following the TURN message header in all TURN messages" */
+            if (offset < (STUN_HDR_LEN + msg_length) &&
+                tvb_get_ntohs(tvb, offset) == MAGIC_COOKIE) {
+              network_version = NET_VER_MS_TURN;
+            } else if (msg_length & 3) {
+              /* Starting with RFC 5389 msg_length MUST be a multiple of 4 bytes */
+              network_version = NET_VER_3489;
+            } else {
+              network_version = NET_VER_5389;
+            }
+        } else {
+            network_version = stun_network_version;
+            /* Starting with RFC 5389 msg_length MUST be multiple of 4 bytes */
+            if ((network_version >= NET_VER_5389 && msg_length & 3) != 0)
+                expert_add_info(pinfo, ti_length, &ei_stun_wrong_msglen);
         }
 
         ti = proto_tree_add_uint(stun_tree, hf_stun_network_version, tvb, offset, 0, network_version);
         proto_item_set_generated(ti);
-
-        /* Starting with RFC 5389 msg_length MUST be multiple of 4 bytes */
-        if ((network_version >= NET_VER_5389 && msg_length & 3) != 0)
-            stun_tree = proto_tree_add_expert(stun_tree, pinfo, &ei_stun_wrong_msglen, tvb, offset-18, 2);
 
         ti = proto_tree_add_item(stun_tree, hf_stun_attributes, tvb, offset, msg_length, ENC_NA);
         att_all_tree = proto_item_add_subtree(ti, ett_stun_att_all);
