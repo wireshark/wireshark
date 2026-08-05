@@ -239,7 +239,6 @@ set(WIRESHARK_QT_HEADERS
 	imsi_list_dialog.h
 	import_text_dialog.h
 	interface_frame.h
-	interface_toolbar_reader.h
 	interface_toolbar.h
 	keyboard_shortcuts_dialog.h
 	io_console_dialog.h
@@ -574,7 +573,6 @@ set(WIRESHARK_QT_SRC
 	in_packet_find_bar.cpp
 	in_packet_search.cpp
 	interface_frame.cpp
-	interface_toolbar_reader.cpp
 	interface_toolbar.cpp
 	keyboard_shortcuts_dialog.cpp
 	io_console_dialog.cpp

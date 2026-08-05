@@ -217,6 +217,7 @@ typedef struct interface_options_tag {
 #endif
     char             *extcap_control_in;    /**< Path to the extcap control input FIFO. */
     char             *extcap_control_out;   /**< Path to the extcap control output FIFO. */
+    unsigned          extcap_control_in_watch;  /**< GLib I/O watch ID for the extcap control input FIFO. */
     int               buffer_size;          /**< Capture buffer size in megabytes requested from the kernel. */
     bool              monitor_mode;         /**< Whether monitor mode (rfmon) is requested for this interface. */
 #ifdef HAVE_PCAP_REMOTE

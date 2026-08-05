@@ -21,6 +21,7 @@
 #include <windows.h>
 #include <process.h>
 #include <time.h>
+#include <wsutil/win32-utils.h>
 #else
 /* Include for unlink */
 #include <unistd.h>
@@ -44,8 +45,10 @@
 #include <wsutil/version_info.h>
 #include <app/application_flavor.h>
 #include <wsutil/path_config.h>
+#include <wsutil/strtoi.h>
 
 #include "capture/capture_session.h"
+#include "capture/sync_pipe.h"
 #include "ui/capture_opts.h"
 
 #include "extcap.h"
@@ -1350,6 +1353,12 @@ static gboolean extcap_terminate_cb(void *user_data)
             interface_opts->extcap_stderr_watch = 0;
         }
 
+        if (interface_opts->extcap_control_in_watch > 0)
+        {
+            g_source_remove(interface_opts->extcap_control_in_watch);
+            interface_opts->extcap_control_in_watch = 0;
+        }
+
         /* Process was killed, call extcap in postkill cleanup mode. */
         extcap_cleanup_postkill(interface_opts->name);
     }
@@ -1450,12 +1459,18 @@ bool extcap_session_stop(capture_session *cap_session)
 
         if ((interface_opts->extcap_pid != WS_INVALID_PID) ||
             (interface_opts->extcap_stdout_watch > 0) ||
-            (interface_opts->extcap_stderr_watch > 0))
+            (interface_opts->extcap_stderr_watch > 0) ||
+            (interface_opts->extcap_control_in_watch > 0))
+
         {
             /* Capture session is not finished, wait for remaining watches */
             return false;
         }
 
+        ws_pipe_t *pipedata = (ws_pipe_t *)interface_opts->extcap_pipedata;
+        if (pipedata) {
+            g_slist_free(pipedata->other_sources);
+        }
         g_free(interface_opts->extcap_pipedata);
         interface_opts->extcap_pipedata = NULL;
 
@@ -1534,7 +1549,8 @@ extcap_watch_removed(capture_session *cap_session, interface_options *interface_
 {
     if ((interface_opts->extcap_pid == WS_INVALID_PID) &&
         (interface_opts->extcap_stdout_watch == 0) &&
-        (interface_opts->extcap_stderr_watch == 0))
+        (interface_opts->extcap_stderr_watch == 0) &&
+        (interface_opts->extcap_control_in_watch == 0))
     {
         /* Close session if this was the last remaining process */
         capture_process_finished(cap_session);
@@ -1542,7 +1558,7 @@ extcap_watch_removed(capture_session *cap_session, interface_options *interface_
 }
 
 static interface_options *
-extcap_find_channel_interface(capture_session *cap_session, GIOChannel *source)
+extcap_find_channel_interface(capture_session *cap_session, void *source)
 {
     capture_options *capture_opts = cap_session->capture_opts;
     interface_options *interface_opts;
@@ -1554,13 +1570,66 @@ extcap_find_channel_interface(capture_session *cap_session, GIOChannel *source)
         interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
         pipedata = (ws_pipe_t *)interface_opts->extcap_pipedata;
         if (pipedata &&
-            ((pipedata->stdout_io == source) || (pipedata->stderr_io == source)))
+            ((pipedata->stdout_io == source) || (pipedata->stderr_io == source) || g_slist_find(pipedata->other_sources, source)))
         {
             return interface_opts;
         }
     }
 
     ws_assert_not_reached();
+}
+
+static void
+extcap_sync_pipe_handle_msg(char indicator, uint8_t *buf, size_t block_len, capture_session *cap_session, interface_options *interface_opts)
+{
+    uint32_t level = LOG_LEVEL_ECHO;
+    char *primary_msg;
+
+    switch (indicator) {
+    case SP_LOG_MSG:
+        if (ws_strtou32((char*)buf, (const char**)&primary_msg, &level) && primary_msg[0] == ':') {
+            primary_msg += 1;
+        } else {
+            primary_msg = (char*)buf;
+        }
+        /* We have traditionally shown MESSAGE and higher levels in the GUI.
+         * Trust that the cap_session callbacks do the right thing. */
+        switch (level) {
+        case LOG_LEVEL_MESSAGE:
+        case LOG_LEVEL_WARNING:
+            cap_session->warning(cap_session, primary_msg, NULL);
+            break;
+        case LOG_LEVEL_CRITICAL:
+        case LOG_LEVEL_ERROR:
+            cap_session->error(cap_session, primary_msg, NULL);
+            break;
+        default:
+            /* Pass to our log. This won't be displayed at default log level;
+             * the user had to request it in the extcap configuration to get
+             * here, but also has to configure the log level for the main
+             * application to output now.
+             * XXX - Use ws_log_write_always_full? */
+            ws_log(LOG_DOMAIN_CAPCHILD, level, "%s", primary_msg);
+            break;
+        }
+        break;
+    case SP_TOOLBAR_CTRL:
+        if (block_len >= 2) {
+            if (cap_session->toolbar) {
+                iface_toolbar_message_t *toolbar_msg = g_new(iface_toolbar_message_t, 1);
+                toolbar_msg->ifname = interface_opts->name;
+                toolbar_msg->ifnum = buf[0];
+                toolbar_msg->command = buf[1];
+                toolbar_msg->payload = g_bytes_new(&buf[2], block_len - 2);
+                g_mutex_lock(&cap_session->toolbar_mutex);
+                g_queue_push_tail(&cap_session->toolbar_queue, toolbar_msg);
+                g_mutex_unlock(&cap_session->toolbar_mutex);
+                cap_session->toolbar(cap_session, interface_opts->name);
+            }
+        }
+    default:
+        break;
+    }
 }
 
 static gboolean
@@ -1628,6 +1697,159 @@ extcap_stderr_cb(GIOChannel *source, GIOCondition condition, void *data)
     }
     return G_SOURCE_CONTINUE;
 }
+
+#ifdef _WIN32
+
+#define PIPE_BUF_SIZE (SP_MAX_MSG_LEN + 4)
+typedef struct {
+    GSource source;
+    HANDLE pipe_handle;
+    OVERLAPPED overlapped;
+    uint8_t buffer[PIPE_BUF_SIZE];
+    GPollFD poll_fd;
+    unsigned pos;
+} PipeSourceData;
+
+typedef gboolean (*PipeSourceFunc)(PipeSourceData*, capture_session*);
+
+static gboolean pipe_io_check(GSource *source) {
+    PipeSourceData *data = (PipeSourceData*)source;
+    if (data->poll_fd.revents & (G_IO_IN | G_IO_HUP | G_IO_ERR)) {
+        return TRUE;
+    }
+    return FALSE;
+}
+
+static gboolean
+extcap_control_in_cb(PipeSourceData *data, capture_session *cap_session)
+{
+    char indicator;
+    unsigned block_len;
+    unsigned cur = 0;
+
+    interface_options *interface_opts = extcap_find_channel_interface(cap_session, data);
+
+    /* Read all messages; there could be more than one. */
+    while (data->pos - cur >= 4) {
+        sync_pipe_convert_header(&data->buffer[cur], &indicator, &block_len);
+        ws_debug("indicator %c block_len %u", indicator, block_len);
+        if (data->pos - cur >= (4 + block_len)) {
+            cur += 4;
+            ws_debug("got the entire block");
+            extcap_sync_pipe_handle_msg(indicator, &data->buffer[cur], block_len, cap_session, interface_opts);
+            cur += block_len;
+        } else {
+            break;
+        }
+    }
+
+    ws_assert(data->pos >= cur);
+    data->pos -= cur;
+    memmove(data->buffer, &data->buffer[cur], data->pos);
+
+    return G_SOURCE_CONTINUE;
+}
+
+static bool
+issue_next_read(PipeSourceData *data, PipeSourceFunc pipe_cb, capture_session *cap_session)
+{
+    DWORD bytes_transferred;
+    while (true) {
+        ResetEvent(data->overlapped.hEvent);
+        // Check for synchronous transfers
+        if (ReadFile(data->pipe_handle, &data->buffer[data->pos], PIPE_BUF_SIZE - data->pos, &bytes_transferred, &data->overlapped)) {
+            ws_debug("ReadFile success: bytes %u", bytes_transferred);
+            if (bytes_transferred) {
+                data->pos += bytes_transferred;
+                pipe_cb(data, cap_session);
+            }
+            continue;
+        }
+        DWORD error = GetLastError();
+        switch (error) {
+        case ERROR_IO_PENDING:
+            ws_debug("Pending Overlapped read");
+            return true;
+        default:
+            ws_warning("ReadFile on extcap control in pipe failed: %s", win32strerror(error));
+            return false;
+        }
+    }
+}
+
+static gboolean pipe_io_dispatch(GSource *source, GSourceFunc callback, void *user_data) {
+    PipeSourceData *data = (PipeSourceData*)source;
+    capture_session *cap_session = (capture_session*)user_data;
+    PipeSourceFunc pipe_cb = (PipeSourceFunc)callback;
+    DWORD bytes_transferred;
+
+    if (GetOverlappedResult(data->pipe_handle, &data->overlapped, &bytes_transferred, FALSE)) {
+        data->pos += bytes_transferred;
+        pipe_cb(data, cap_session);
+        if (!issue_next_read(data, pipe_cb, cap_session)) {
+            interface_options *interface_opts = extcap_find_channel_interface(cap_session, source);
+            interface_opts->extcap_control_in_watch = 0;
+            extcap_watch_removed(cap_session, interface_opts);
+            return G_SOURCE_REMOVE;
+        }
+    }
+
+    return G_SOURCE_CONTINUE;
+}
+
+static void pipe_io_finalize(GSource *source) {
+    PipeSourceData *data = (PipeSourceData*)source;
+
+    if (data->overlapped.hEvent != NULL && data->overlapped.hEvent != INVALID_HANDLE_VALUE) {
+        CloseHandle(data->overlapped.hEvent);
+        data->overlapped.hEvent = INVALID_HANDLE_VALUE;
+    }
+
+    // We could also close the pipe handle, though that's done elsewhere now.
+}
+
+static GSourceFuncs pipe_source_funcs = {
+    .prepare = NULL,
+    .check = pipe_io_check,
+    .dispatch = pipe_io_dispatch,
+    .finalize = pipe_io_finalize
+};
+
+#else
+static gboolean
+extcap_control_in_cb(GIOChannel *source, GIOCondition condition, void *data)
+{
+    capture_session *cap_session = (capture_session *)data;
+    interface_options *interface_opts = extcap_find_channel_interface(cap_session, source);
+    char indicator;
+    uint8_t *buf = g_malloc(SP_MAX_MSG_LEN + 4);
+    char *msg = NULL;
+    ssize_t bytes_read = 0;
+
+    /* Read sync pipe messages from extcap */
+    if (condition & G_IO_IN)
+    {
+        bytes_read = sync_pipe_read_block(source, &indicator, SP_MAX_MSG_LEN, (char*)buf, &msg);
+    }
+
+    if (bytes_read < 4) // on success, always includes the 4-byte header
+    {
+        if (msg) {
+            /* Read and free msg */
+            ws_warning("msg: %s", msg);
+            g_free(msg);
+        }
+        interface_opts->extcap_control_in_watch = 0;
+        extcap_watch_removed(cap_session, interface_opts);
+        g_free(buf);
+        return G_SOURCE_REMOVE;
+    }
+
+    extcap_sync_pipe_handle_msg(indicator, buf, bytes_read - 4, cap_session, interface_opts);
+    g_free(buf);
+    return G_SOURCE_CONTINUE;
+}
+#endif
 
 static void extcap_child_watch_cb(GPid pid, int status _U_, void *user_data)
 {
@@ -1835,6 +2057,68 @@ static bool extcap_create_pipe(const char *ifname, char **fifo, const char *temp
 }
 #endif
 
+void
+extcap_setup_control_in(capture_session *cap_session, interface_options *interface_opts)
+{
+    interface_opts->extcap_control_in_watch = 0;
+    if (!interface_opts->extcap_control_in) {
+        return;
+    }
+
+    ws_pipe_t *pipedata = (ws_pipe_t *)interface_opts->extcap_pipedata;
+
+#ifdef _WIN32
+    // With a pipe with OVERLAPPED I/O, we can't use a GIOChannel to read.
+    GSource *source = g_source_new(&pipe_source_funcs, sizeof(PipeSourceData));
+    PipeSourceData *control_in_data = (PipeSourceData*)source;
+    control_in_data->pos = 0;
+    control_in_data->pipe_handle = interface_opts->extcap_control_in_h;
+
+    memset(&control_in_data->overlapped, 0, sizeof(OVERLAPPED));
+    /* Manual-reset event for the OVERLAPPED struct. */
+    control_in_data->overlapped.hEvent = CreateEvent(NULL, true, false, NULL);
+    if (!control_in_data->overlapped.hEvent) {
+        ws_warning("Could not create control in manual reset Event");
+        g_source_unref(source);
+    }
+
+    // Do this before we poll
+    pipedata->other_sources = g_slist_append(pipedata->other_sources, source);
+
+    control_in_data->poll_fd.fd = (intptr_t)control_in_data->overlapped.hEvent;
+    control_in_data->poll_fd.events = G_IO_IN | G_IO_HUP | G_IO_ERR;
+    control_in_data->poll_fd.revents = 0;
+
+    g_source_set_callback(source, G_SOURCE_FUNC(extcap_control_in_cb), cap_session, NULL);
+    g_source_add_poll(source, &control_in_data->poll_fd);
+
+    GMainContext *context = g_main_context_default();
+    interface_opts->extcap_control_in_watch = g_source_attach(source, context);
+    // We watch on the OVERLAPPED Event being ready. Read all the data available
+    // synchronously, if any, and until we get to a PENDING state to prime it.
+    if (!issue_next_read(control_in_data, extcap_control_in_cb, cap_session)) {
+        g_source_remove(interface_opts->extcap_stdout_watch);
+        interface_opts->extcap_control_in_watch = 0;
+    }
+    // g_source_attach refs the source
+    g_source_unref(source);
+#else
+    int control_in_fd = ws_open(interface_opts->extcap_control_in, O_RDONLY | O_NONBLOCK);
+    GIOChannel *control_in_io = g_io_channel_unix_new(control_in_fd);
+    g_io_channel_set_encoding(control_in_io, NULL, NULL);
+    g_io_channel_set_buffered(control_in_io, false);
+    g_io_channel_set_close_on_unref(control_in_io, true);
+
+    // Do this before we poll
+    pipedata->other_sources = g_slist_append(pipedata->other_sources, control_in_io);
+
+    interface_opts->extcap_control_in_watch =
+        g_io_add_watch(control_in_io, G_IO_IN | G_IO_HUP, extcap_control_in_cb, (void *)cap_session);
+    // g_io_add_watch refs the GIOChannel
+    g_io_channel_unref(control_in_io);
+#endif
+}
+
 /* call mkfifo for each extcap,
  * returns false if there's an error creating a FIFO */
 bool
@@ -1884,7 +2168,7 @@ extcap_init_interfaces(capture_session *cap_session)
 #ifdef _WIN32
                                 &interface_opts->extcap_pipe_h,
 #else
-                               capture_opts->temp_dir,
+                                capture_opts->temp_dir,
 #endif
                                 EXTCAP_PIPE_PREFIX))
         {
@@ -1907,6 +2191,8 @@ extcap_init_interfaces(capture_session *cap_session)
             g_free(pipedata);
             continue;
         }
+
+        interface_opts->extcap_pipedata = (void *) pipedata;
 
         g_io_channel_unref(pipedata->stdin_io);
         pipedata->stdin_io = NULL;
@@ -1948,11 +2234,12 @@ extcap_init_interfaces(capture_session *cap_session)
                 num_pipe_handles += 2;
              }
 
+            // XXX - Handle failure?
             ws_pipe_wait_for_pipe(pipe_handles, num_pipe_handles, pid);
         }
 #endif
 
-        interface_opts->extcap_pipedata = (void *) pipedata;
+        extcap_setup_control_in(cap_session, interface_opts);
     }
 
     return true;

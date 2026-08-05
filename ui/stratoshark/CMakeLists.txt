@@ -224,7 +224,6 @@ set(WIRESHARK_QT_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/graph.h
 	${CMAKE_SOURCE_DIR}/ui/qt/import_text_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/interface_frame.h
-	${CMAKE_SOURCE_DIR}/ui/qt/interface_toolbar_reader.h
 	${CMAKE_SOURCE_DIR}/ui/qt/interface_toolbar.h
 	${CMAKE_SOURCE_DIR}/ui/qt/in_packet_find_bar.h
 	${CMAKE_SOURCE_DIR}/ui/qt/in_packet_search.h
@@ -534,7 +533,6 @@ set(WIRESHARK_QT_SRC
 	${CMAKE_SOURCE_DIR}/ui/qt/glib_mainloop_on_qeventloop.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/import_text_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/interface_frame.cpp
-	${CMAKE_SOURCE_DIR}/ui/qt/interface_toolbar_reader.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/interface_toolbar.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/in_packet_find_bar.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/in_packet_search.cpp

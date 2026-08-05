@@ -39,7 +39,8 @@ typedef enum {
     capture_cb_capture_fixed_continue,  /**< A fixed capture session is continuing; progress update without display refresh */
     capture_cb_capture_fixed_finished,  /**< A fixed capture session has ended normally */
     capture_cb_capture_stopping,        /**< The capture is in the process of stopping (user-initiated or limit reached) */
-    capture_cb_capture_failed           /**< The capture session failed to start or was terminated due to an error */
+    capture_cb_capture_failed,          /**< The capture session failed to start or was terminated due to an error */
+    capture_cb_capture_toolbar          /**< The capture child sent a toolbar control update message */
 } capture_cbs;
 
 typedef void (*capture_callback_t) (int event, capture_session *cap_session,

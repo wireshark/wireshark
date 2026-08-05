@@ -78,6 +78,12 @@ typedef void (*cfilter_error_fn)(capture_session *cap_session, unsigned i,
                                  const char *error_message);
 
 /**
+ * Capture child sent a toolbar control message.
+ */
+typedef void (*toolbar_control_fn)(capture_session *cap_session,
+                                   const char *interface_name);
+
+/**
  * Capture child closed its side of the pipe, report any error and
  * do the required cleanup.
  */
@@ -111,6 +117,10 @@ struct _capture_session {
     fifo_string_cache_t frame_dup_cache;
     GChecksum           *frame_cksum;
 
+    // For storing pending toolbar control messages
+    GQueue toolbar_queue;
+    GMutex toolbar_mutex;
+
     /*
      * Routines supplied by our caller; we call them back to notify them
      * of various events.
@@ -121,6 +131,7 @@ struct _capture_session {
     message_fn error;
     cfilter_error_fn cfilter_error;
     message_fn warning;
+    toolbar_control_fn toolbar;
     closed_fn closed;
 };
 
@@ -129,7 +140,8 @@ capture_session_init(capture_session *cap_session, capture_file *cf,
                      new_file_fn new_file, new_packets_fn new_packets,
                      drops_fn drops, message_fn error,
                      cfilter_error_fn cfilter_error,
-                     message_fn warning, closed_fn closed);
+                     message_fn warning, toolbar_control_fn toolbar,
+                     closed_fn closed);
 
 void capture_process_finished(capture_session *cap_session);
 #else

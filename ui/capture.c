@@ -732,6 +732,15 @@ capture_input_warning(capture_session *cap_session _U_, char *warning_msg,
     /* It's just a warning, so nothing more to do */
 }
 
+/* Capture child sent a toolbar control message.
+ */
+static void
+capture_input_toolbar_control(capture_session *cap_session,
+                              const char *ifname _U_)
+{
+    capture_callback_invoke(capture_cb_capture_toolbar, cap_session);
+}
+
 /* capture child closed its side of the pipe, do the required cleanup */
 static void
 capture_input_closed(capture_session *cap_session, char *msg)
@@ -916,6 +925,7 @@ capture_input_init(capture_session *cap_session, capture_file *cf)
                          capture_input_new_file, capture_input_new_packets,
                          capture_input_drops, capture_input_error,
                          capture_input_cfilter_error,
-                         capture_input_warning, capture_input_closed);
+                         capture_input_warning, capture_input_toolbar_control,
+                         capture_input_closed);
 }
 #endif /* HAVE_LIBPCAP */

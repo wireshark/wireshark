@@ -37,6 +37,7 @@ typedef struct _ws_pipe_t {
     GIOChannel *stdin_io;   /**< GLib I/O channel connected to the child process's standard input stream. */
     GIOChannel *stdout_io;  /**< GLib I/O channel connected to the child process's standard output stream. */
     GIOChannel *stderr_io;  /**< GLib I/O channel connected to the child process's standard error stream. */
+    GSList     *other_sources;
 } ws_pipe_t;
 
 /**

@@ -86,6 +86,7 @@ capture_opts_init(capture_options *capture_opts, GList *(*get_iface_list)(int *,
 #endif
     capture_opts->default_options.extcap_control_in  = NULL;
     capture_opts->default_options.extcap_control_out = NULL;
+    capture_opts->default_options.extcap_control_in_watch = 0;
     capture_opts->default_options.buffer_size     = DEFAULT_CAPTURE_BUFFER_SIZE;
     capture_opts->default_options.monitor_mode    = false;
 #ifdef HAVE_PCAP_REMOTE
@@ -664,6 +665,7 @@ fill_in_interface_opts_defaults(interface_options *interface_opts, const interfa
 #endif
     interface_opts->extcap_control_in = g_strdup(if_from_capture_opts->extcap_control_in);
     interface_opts->extcap_control_out = g_strdup(if_from_capture_opts->extcap_control_out);
+    interface_opts->extcap_control_in_watch = 0;
     interface_opts->buffer_size = if_from_capture_opts->buffer_size;
     interface_opts->monitor_mode = if_from_capture_opts->monitor_mode;
 #ifdef HAVE_PCAP_REMOTE

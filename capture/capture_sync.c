@@ -77,6 +77,7 @@
 #include "file.h"
 
 #include "ui/capture.h"
+#include <ui/iface_toolbar.h>
 #include <capture/capture_sync.h>
 #include <capture/sync_pipe.h>
 
@@ -121,7 +122,8 @@ capture_session_init(capture_session *cap_session, capture_file *cf,
                      new_file_fn new_file, new_packets_fn new_packets,
                      drops_fn drops, message_fn error,
                      cfilter_error_fn cfilter_error,
-                     message_fn warning, closed_fn closed)
+                     message_fn warning, toolbar_control_fn toolbar,
+                     closed_fn closed)
 {
     cap_session->cf                              = cf;
     cap_session->fork_child                      = WS_INVALID_PID;   /* invalid process handle */
@@ -144,8 +146,18 @@ capture_session_init(capture_session *cap_session, capture_file *cf,
     cap_session->error                           = error;
     cap_session->cfilter_error                   = cfilter_error;
     cap_session->warning                         = warning;
+    cap_session->toolbar                         = toolbar;
     cap_session->closed                          = closed;
     cap_session->frame_cksum                     = NULL;
+
+    g_queue_init(&cap_session->toolbar_queue);
+    g_mutex_init(&cap_session->toolbar_mutex);
+}
+
+static void iface_toolbar_message_free_wrapper(void *a)
+{
+    iface_toolbar_message_t *msg = (iface_toolbar_message_t*)a;
+    iface_toolbar_message_free(msg);
 }
 
 void capture_process_finished(capture_session *cap_session)
@@ -193,6 +205,8 @@ void capture_process_finished(capture_session *cap_session)
     g_free(capture_opts->closed_msg);
     capture_opts->closed_msg = NULL;
     capture_opts->stop_after_extcaps = false;
+    g_queue_clear_full(&cap_session->toolbar_queue, iface_toolbar_message_free_wrapper);
+    g_mutex_clear(&cap_session->toolbar_mutex);
 }
 
 /* Append an arg (realloc) to an argc/argv array */

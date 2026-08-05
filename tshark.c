@@ -1347,7 +1347,8 @@ main(int argc, char *argv[])
             capture_input_new_file, capture_input_new_packets,
             capture_input_drops, capture_input_error,
             capture_input_cfilter_error,
-            capture_input_warning, capture_input_closed);
+            capture_input_warning, NULL,
+            capture_input_closed);
 #endif
 
     timestamp_set_type(TS_RELATIVE);

@@ -32,10 +32,12 @@ DIAG_ON(restrict)
 #include <ui/qt/main_window.h>
 #include <ui/qt/manager/interface_list_manager.h>
 #include <ui_interface_toolbar.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 
 #include "ui/capture_opts.h"
 #include "ui/capture_globals.h"
 #include <capture/sync_pipe.h>
+#include <capture/capture_session.h>
 #include "wsutil/file_util.h"
 
 #ifdef _WIN32
@@ -68,7 +70,8 @@ enum InterfaceControlCommand {
 };
 
 // To do:
-// - Move control pipe handling to extcap
+// - Move control pipe out handling to extcap? (So the control pipe out could
+// also be used to send other messages, like a QUIT message - #17131.)
 
 InterfaceToolbar::InterfaceToolbar(QWidget *parent, const iface_toolbar *toolbar) :
     QFrame(parent),
@@ -78,7 +81,7 @@ InterfaceToolbar::InterfaceToolbar(QWidget *parent, const iface_toolbar *toolbar
 {
     ui->setupUi(this);
 
-    // Fill inn interfaces list and initialize default interface values
+    // Fill in interfaces list and initialize default interface values
     for (GList *walker = toolbar->ifnames; walker; walker = walker->next)
     {
         QString ifname((char *)walker->data);
@@ -112,9 +115,10 @@ InterfaceToolbar::InterfaceToolbar(QWidget *parent, const iface_toolbar *toolbar
 void InterfaceToolbar::connectInterfaceListManager()
 {
     MainWindow *mainWindow = mainApp->mainWindow();
-    if (mainWindow && mainWindow->interfaceListManager())
+    if (mainWindow && mainWindow->interfaceListManager()) {
         connect(mainWindow->interfaceListManager(), &InterfaceListManager::interfaceListChanged,
                 this, &InterfaceToolbar::interfaceListChanged, Qt::UniqueConnection);
+    }
 }
 
 InterfaceToolbar::~InterfaceToolbar()
@@ -752,21 +756,37 @@ void InterfaceToolbar::closeLog()
 }
 
 
-void InterfaceToolbar::startReaderThread(QString ifname, void *control_in)
+void InterfaceToolbar::captureEventHandler(CaptureEvent ev)
 {
-    QThread *thread = new QThread;
-    InterfaceToolbarReader *reader = new InterfaceToolbarReader(ifname, control_in);
-    reader->moveToThread(thread);
+#ifdef HAVE_LIBPCAP
+    if (ev.captureContext() != CaptureEvent::Capture)
+        return;
 
-    connect(thread, &QThread::started, reader, &InterfaceToolbarReader::loop);
-    connect(reader, &InterfaceToolbarReader::finished, thread, &QThread::quit);
-    connect(reader, &InterfaceToolbarReader::finished, reader, &InterfaceToolbarReader::deleteLater);
-    connect(thread, &QThread::finished, reader, &InterfaceToolbarReader::deleteLater);
-    connect(reader, &InterfaceToolbarReader::received, this, &InterfaceToolbar::controlReceived);
-
-    interface_[ifname].reader_thread = thread;
-
-    thread->start();
+    capture_session *cap_session = ev.capSession();
+    GList *iter, *next;
+    iface_toolbar_message_t *msg;
+    switch (ev.eventType()) {
+    case CaptureEvent::Toolbar:
+        g_mutex_lock(&cap_session->toolbar_mutex);
+        iter = g_queue_peek_head_link(&cap_session->toolbar_queue);
+        while (iter != nullptr) {
+            next = gxx_list_next(iter);
+            msg = gxx_list_data(iface_toolbar_message_t*, iter);
+            if (hasInterface(msg->ifname)) {
+                g_queue_delete_link(&cap_session->toolbar_queue, iter);
+                // The payload can never be more than SSIZE_MAX
+                controlReceived(msg->ifname, msg->ifnum, msg->command, gbytes_free_to_qbytearray(msg->payload));
+                g_free(msg);
+            }
+            iter = next;
+        }
+        g_mutex_unlock(&cap_session->toolbar_mutex);
+    default:
+        break;
+    }
+#else
+    Q_UNUSED(ev);
+#endif
 }
 
 void InterfaceToolbar::startCapture(GArray *ifaces)
@@ -774,6 +794,10 @@ void InterfaceToolbar::startCapture(GArray *ifaces)
     if (!ifaces || ifaces->len == 0)
         return;
 
+    MainWindow *mainWindow = mainApp->mainWindow();
+    if (mainWindow && mainWindow->captureFile()) {
+        connect(mainWindow->captureFile(), &CaptureFile::captureEvent, this, &InterfaceToolbar::captureEventHandler);
+    }
     const QString &selected_ifname = ui->interfacesComboBox->currentText();
     QString first_capturing_ifname;
     bool selected_found = false;
@@ -799,7 +823,6 @@ void InterfaceToolbar::startCapture(GArray *ifaces)
 
         // Open control out channel
 #ifdef _WIN32
-        startReaderThread(ifname, interface_opts->extcap_control_in_h);
         // Duplicate control out handle and pass the duplicate handle to _open_osfhandle().
         // This allows the C run-time file descriptor (out_fd) and the extcap_control_out_h to be closed independently.
         // The duplicated handle will get closed at the same time the file descriptor is closed.
@@ -817,7 +840,6 @@ void InterfaceToolbar::startCapture(GArray *ifaces)
             interface_[ifname].out_fd = _open_osfhandle((intptr_t)duplicate_out_handle, O_APPEND | O_BINARY);
         }
 #else
-        startReaderThread(ifname, interface_opts->extcap_control_in);
         interface_[ifname].out_fd = ws_open(interface_opts->extcap_control_out, O_WRONLY | O_BINARY, 0);
 #endif
         sendChangedValues(ifname);
@@ -935,7 +957,7 @@ void InterfaceToolbar::onRestoreButtonClicked()
     }
 }
 
-bool InterfaceToolbar::hasInterface(QString ifname)
+bool InterfaceToolbar::hasInterface(QString ifname) const
 {
     return interface_.contains(ifname);
 }

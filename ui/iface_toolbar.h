@@ -79,6 +79,13 @@ typedef struct _iface_toolbar {
     GList *controls;   /**< Ordered list of ::iface_toolbar_control widgets in this toolbar */
 } iface_toolbar;
 
+typedef struct _iface_toolbar_message_t {
+    const char* ifname;
+    int ifnum;
+    int command;
+    GBytes *payload;
+} iface_toolbar_message_t;
+
 typedef void (*iface_toolbar_add_cb_t)(const iface_toolbar *);
 typedef void (*iface_toolbar_remove_cb_t)(const char *);
 
@@ -110,6 +117,8 @@ bool iface_toolbar_use(void);
  * @param remove_cb Callback function to be called when an item is removed from the toolbar.
  */
 void iface_toolbar_register_cb(iface_toolbar_add_cb_t add_cb, iface_toolbar_remove_cb_t remove_cb);
+
+void iface_toolbar_message_free(iface_toolbar_message_t *message);
 
 #ifdef __cplusplus
 }

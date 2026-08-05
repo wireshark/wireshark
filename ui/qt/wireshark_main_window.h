@@ -143,12 +143,6 @@ public:
     QMenu *createPopupMenu() override;
 
     /**
-     * @brief Returns a pointer to the current capture file object.
-     * @return Pointer to the internal CaptureFile instance.
-     */
-    CaptureFile *captureFile() { return &capture_file_; }
-
-    /**
      * @brief Rebuilds the Lua funnel statistics menus from registered funnel entries.
      */
     void setFunnelMenus(void);

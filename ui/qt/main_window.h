@@ -121,6 +121,12 @@ public:
     MainStatusBar *statusBar();
 
     /**
+     * @brief Returns a pointer to the current capture file object.
+     * @return Pointer to the internal CaptureFile instance.
+     */
+    CaptureFile *captureFile() { return &capture_file_; }
+
+    /**
      * @brief Returns the local interface enumeration/statistics coordinator.
      *
      * The manager owns the live InterfaceStatistics; reach it via

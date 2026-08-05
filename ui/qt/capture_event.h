@@ -54,7 +54,8 @@ public:
         Flushed     = 0x0080,        /**< The data was flushed. */
         Prepared    = 0x0100,        /**< The operation was prepared. */
         Continued   = 0x0200,        /**< The operation has continued. */
-        Stopping    = 0x0400         /**< The operation is currently stopping. */
+        Stopping    = 0x0400,        /**< The operation is currently stopping. */
+        Toolbar     = 0x0800         /**< The operation is a toolbar control update. */
     };
 
     /**

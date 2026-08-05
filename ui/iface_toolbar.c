@@ -41,3 +41,9 @@ void iface_toolbar_register_cb(iface_toolbar_add_cb_t add_cb, iface_toolbar_remo
     iface_toolbar_add_cb = add_cb;
     iface_toolbar_remove_cb = remove_cb;
 }
+
+void iface_toolbar_message_free(iface_toolbar_message_t *message)
+{
+    g_bytes_unref(message->payload);
+    g_free(message);
+}

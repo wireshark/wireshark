@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ws_posix_compat.h> // SSIZE_MAX
 
 #ifndef _WIN32
 #include <unistd.h>
@@ -82,6 +83,16 @@ QByteArray gbytearray_free_to_qbytearray(GByteArray *glib_array)
 {
     QByteArray qt_ba(reinterpret_cast<char *>(glib_array->data), glib_array->len);
     g_byte_array_free(glib_array, true);
+    return qt_ba;
+}
+
+QByteArray gbytes_free_to_qbytearray(GBytes *glib_bytes)
+{
+    size_t size;
+    const char* bytes = reinterpret_cast<const char *>(g_bytes_get_data(glib_bytes, &size));
+    Q_ASSERT(size <= SSIZE_MAX);
+    QByteArray qt_ba(bytes, size);
+    g_bytes_unref(glib_bytes);
     return qt_ba;
 }
 

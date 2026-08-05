@@ -379,6 +379,9 @@ void CaptureFile::captureSessionEvent(int event, capture_session *cap_session)
     case(capture_cb_capture_failed):
         emit captureEvent(CaptureEvent(CaptureEvent::Capture, CaptureEvent::Failed, cap_session));
         break;
+    case(capture_cb_capture_toolbar):
+        emit captureEvent(CaptureEvent(CaptureEvent::Capture, CaptureEvent::Toolbar, cap_session));
+        break;
     default:
         qWarning() << "main_capture_callback: event " << event << " unknown";
     }
