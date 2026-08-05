@@ -233,7 +233,7 @@ public slots:
      */
     void rtpAnalysisRemove() override;
 
-#endif
+#endif // QT_MULTIMEDIA_LIB
 protected:
     /**
      * @brief Constructs an RtpPlayerDialog. Protected to enforce singleton pattern.

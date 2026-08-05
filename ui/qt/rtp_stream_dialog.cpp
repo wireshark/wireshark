@@ -1012,6 +1012,7 @@ void RtpStreamDialog::rtpPlayerRemove()
     emit rtpPlayerDialogRemoveRtpStreams(getSelectedRtpIds());
 }
 
+#ifdef QT_MULTIMEDIA_LIB
 void RtpStreamDialog::rtpAnalysisReplace()
 {
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
@@ -1032,6 +1033,7 @@ void RtpStreamDialog::rtpAnalysisRemove()
 
     emit rtpAnalysisDialogRemoveRtpStreams(getSelectedRtpIds());
 }
+#endif // QT_MULTIMEDIA_LIB
 
 void RtpStreamDialog::invertSelection()
 {

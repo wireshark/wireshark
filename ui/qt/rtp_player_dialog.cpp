@@ -2700,6 +2700,7 @@ void RtpPlayerDialog::on_actionPrepareFilter_triggered()
     }
 }
 
+#ifdef QT_MULTIMEDIA_LIB
 void RtpPlayerDialog::rtpAnalysisReplace()
 {
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
@@ -2720,6 +2721,7 @@ void RtpPlayerDialog::rtpAnalysisRemove()
 
     emit rtpAnalysisDialogRemoveRtpStreams(getSelectedRtpStreamIDs());
 }
+#endif // QT_MULTIMEDIA_LIB
 
 void RtpPlayerDialog::on_actionReadCapture_triggered()
 {

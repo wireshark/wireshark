@@ -140,6 +140,7 @@ public slots:
      */
     void rtpPlayerRemove();
 
+#ifdef QT_MULTIMEDIA_LIB
     /**
      * @brief Slot to trigger replacing streams in analysis.
      */
@@ -154,6 +155,7 @@ public slots:
      * @brief Slot to trigger removing streams from analysis.
      */
     void rtpAnalysisRemove() override;
+#endif // QT_MULTIMEDIA_LIB
 
 protected:
     /**
