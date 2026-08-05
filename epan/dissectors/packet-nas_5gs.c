@@ -4233,20 +4233,20 @@ de_nas_5gs_mm_sor_transp_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
             if (oct_o_flags & 0x01) {
                 proto_tree_add_item_ret_uint(tree, hf_nas_5gs_sor_cmci_len, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &cont_len);
                 curr_offset += 2;
-                proto_tree_add_item(tree, hf_nas_5gs_sor_cmci_payload, tvb, curr_offset, len, ENC_NA);
-                curr_offset += len;
+                proto_tree_add_item(tree, hf_nas_5gs_sor_cmci_payload, tvb, curr_offset, cont_len, ENC_NA);
+                curr_offset += cont_len;
             }
             if (oct_o_flags & 0x04) {
                 proto_tree_add_item_ret_uint(tree, hf_nas_5gs_sor_snpn_si_len, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &cont_len);
                 curr_offset += 2;
-                proto_tree_add_item(tree, hf_nas_5gs_sor_snpn_si_payload, tvb, curr_offset, len, ENC_NA);
-                curr_offset += len;
+                proto_tree_add_item(tree, hf_nas_5gs_sor_snpn_si_payload, tvb, curr_offset, cont_len, ENC_NA);
+                curr_offset += cont_len;
             }
             if (oct_o_flags & 0x08) {
                 proto_tree_add_item_ret_uint(tree, hf_nas_5gs_sor_snpn_si_ls_len, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &cont_len);
                 curr_offset += 2;
-                proto_tree_add_item(tree, hf_nas_5gs_sor_snpn_si_ls_payload, tvb, curr_offset, len, ENC_NA);
-                curr_offset += len;
+                proto_tree_add_item(tree, hf_nas_5gs_sor_snpn_si_ls_payload, tvb, curr_offset, cont_len, ENC_NA);
+                curr_offset += cont_len;
             }
         } else {
             /* PLMN ID and access technology list    octet 23*-102* */
