@@ -58,6 +58,7 @@ endif()
 set(CAPCHILD_SRC
 	capture_ifinfo.c
 	capture_sync.c
+	sync_pipe_read.c
 	sync_pipe_write.c
 )
 

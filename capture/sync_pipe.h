@@ -19,6 +19,11 @@
 #define __SYNC_PIPE_H__
 
 #include <ws_posix_compat.h>
+#include <glib.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /*
  * Maximum length of sync pipe message data.  Must be < 2^24, as the
@@ -55,6 +60,12 @@
  * (UNIX-like sends signals for this)
  */
 #define SP_QUIT         'Q'     /* "gracefully" capture quit message (SIGUSR1) */
+
+extern void
+sync_pipe_convert_header(const unsigned char *header, char *indicator, unsigned *block_len);
+extern ssize_t
+sync_pipe_read_block(GIOChannel *pipe_io, char *indicator, unsigned len, char *msg,
+                     char **err_msg);
 
 /**
  * @brief Writes a string message to the recipient pipe.
@@ -126,6 +137,10 @@ sync_pipe_write_warnmsgs_to_parent(int pipe_fd, const char *warning_msg,
 #ifdef _WIN32
 #define SIGNAL_PIPE_FORMAT "\\\\.\\pipe\\wireshark.%s.signal"
 #endif
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* sync_pipe.h */
 

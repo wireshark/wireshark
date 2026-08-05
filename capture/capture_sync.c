@@ -113,9 +113,6 @@ static const char *sync_pipe_signame(int);
 
 static bool sync_pipe_input_cb(GIOChannel *pipe_io, capture_session *cap_session);
 static int sync_pipe_wait_for_child(ws_process_id fork_child, char **msgp);
-static void pipe_convert_header(const unsigned char *header, char *indicator, unsigned *block_len);
-static ssize_t pipe_read_block(GIOChannel *pipe_io, char *indicator, unsigned len, char *msg,
-                           char **err_msg);
 
 static void (*fetch_dumpcap_pid)(ws_process_id);
 
@@ -1078,7 +1075,7 @@ sync_pipe_run_command_actual(char **argv, char **data, char **primary_msg,
      * First, wait for an SP_ERROR_MSG message or an SP_SUCCESS message.
      */
     do {
-        nread = pipe_read_block(sync_pipe_read_io, &indicator, SP_MAX_MSG_LEN,
+        nread = sync_pipe_read_block(sync_pipe_read_io, &indicator, SP_MAX_MSG_LEN,
                                 buffer, primary_msg);
         if(nread <= 0) {
             /* We got a read error from the sync pipe, or we got no data at
@@ -1162,10 +1159,10 @@ sync_pipe_run_command_actual(char **argv, char **data, char **primary_msg,
              */
 
             /* convert primary message */
-            pipe_convert_header((unsigned char*)buffer, &indicator, &primary_msg_len);
+            sync_pipe_convert_header((unsigned char*)buffer, &indicator, &primary_msg_len);
             primary_msg_text = buffer+4;
             /* convert secondary message */
-            pipe_convert_header((unsigned char*)primary_msg_text + primary_msg_len, &indicator,
+            sync_pipe_convert_header((unsigned char*)primary_msg_text + primary_msg_len, &indicator,
                                 &secondary_msg_len);
             secondary_msg_text = primary_msg_text + primary_msg_len + 4;
             /* the capture child will close the sync_pipe, nothing to do */
@@ -1641,7 +1638,7 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **d
      * First, wait for an SP_ERROR_MSG message or an SP_SUCCESS message.
      */
     do {
-        nread = pipe_read_block(message_read_io, &indicator, SP_MAX_MSG_LEN,
+        nread = sync_pipe_read_block(message_read_io, &indicator, SP_MAX_MSG_LEN,
                                 buffer, msg);
         if(nread <= 0) {
             /* We got a read error from the sync pipe, or we got no data at
@@ -1714,10 +1711,10 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **d
              */
 
             /* convert primary message */
-            pipe_convert_header((unsigned char*)buffer, &indicator, &primary_msg_len);
+            sync_pipe_convert_header((unsigned char*)buffer, &indicator, &primary_msg_len);
             primary_msg_text = buffer+4;
             /* convert secondary message */
-            pipe_convert_header((unsigned char*)primary_msg_text + primary_msg_len, &indicator,
+            sync_pipe_convert_header((unsigned char*)primary_msg_text + primary_msg_len, &indicator,
                                 &secondary_msg_len);
             /*secondary_msg_text = primary_msg_text + primary_msg_len + 4;*/
             /* the capture child will close the sync_pipe, nothing to do */
@@ -1826,63 +1823,6 @@ sync_interface_stats_close(int *read_fd, ws_process_id *fork_child, char **msg)
     return sync_pipe_close_command(read_fd, NULL, fork_child, msg);
 }
 
-/* read a number of bytes from a pipe */
-/* (blocks until enough bytes read or an error occurs) */
-static ssize_t
-pipe_read_bytes(GIOChannel *pipe_io, char *bytes, size_t required, char **msg)
-{
-    GError *err = NULL;
-    size_t newly;
-    size_t offset = 0;
-
-    /*
-     * This should never happen, as "required" should be no greater than 2^24.
-     *
-     * XXX - 64-bit Haiku defines ssize_t as an signed long int but defines
-     * SSIZE_MAX as a signed long long int; they're the same width, but
-     * gcc warns of a type mismatch between %zd and signed long long int.
-     * We cast SSIZE_MAX to (ssize_t) to squelch the warning.
-     */
-    if (required > SSIZE_MAX) {
-        ws_debug("read from pipe %p: bytes to read %zu > %zd", pipe_io, required, (ssize_t)SSIZE_MAX);
-        *msg = ws_strdup_printf("Error reading from sync pipe: bytes to read %zu > %zd", required, (ssize_t)SSIZE_MAX);
-        return -1;
-    }
-    while(required) {
-        if (g_io_channel_read_chars(pipe_io, &bytes[offset], required, &newly, &err) == G_IO_STATUS_ERROR) {
-            if (err != NULL) {
-                ws_debug("read from pipe %p: error(%u): %s", pipe_io, err->code, err->message);
-                *msg = ws_strdup_printf("Error reading from sync pipe: %s", err->message);
-                g_clear_error(&err);
-            } else {
-                ws_debug("read from pipe %p: unknown error", pipe_io);
-                *msg = ws_strdup_printf("Error reading from sync pipe: unknown error");
-            }
-            return -1;
-        }
-        if (newly == 0) {
-            /* EOF */
-            ws_debug("read from pipe %p: EOF (capture closed?)", pipe_io);
-            *msg = NULL;
-            /*
-             * offset is, at this point, known to be less than the value of
-             * required passed to us, which is guaranteed to fit in an ssize_t.
-             */
-            return (ssize_t)offset;
-        }
-
-        required -= newly;
-        offset += newly;
-    }
-
-    /*
-     * offset is, at this point, known to be equal to the value of
-     * required passed to us, which is guaranteed to fit in an ssize_t.
-     */
-    *msg = NULL;
-    return (ssize_t)offset;
-}
-
 /*
  * Read a line from a pipe; similar to fgets, but doesn't block.
  *
@@ -1917,115 +1857,6 @@ sync_pipe_gets_nonblock(int pipe_fd, char *bytes, int max) {
     return offset;
 }
 
-
-/* convert header values (indicator and 3-byte length) */
-static void
-pipe_convert_header(const unsigned char *header, char *indicator, unsigned *block_len) {
-
-    /* convert header values */
-    *indicator = pntohu8(&header[0]);
-    *block_len = pntohu24(&header[1]);
-}
-
-/* read a message from the sending pipe in the standard format
-   (1-byte message indicator, 3-byte message length (excluding length
-   and indicator field), and the rest is the message) */
-static ssize_t
-pipe_read_block(GIOChannel *pipe_io, char *indicator, unsigned len, char *msg,
-                char **err_msg)
-{
-    unsigned required;
-    ssize_t newly;
-    char header[4];
-
-    /* read header (indicator and 3-byte length) */
-    newly = pipe_read_bytes(pipe_io, header, 4, err_msg);
-    if(newly != 4) {
-        if(newly == -1) {
-            /*
-             * Error; *err_msg has been set.
-             */
-            ws_debug("read %p got an error reading header: %s", pipe_io, *err_msg);
-            return -1;
-        }
-        if(newly == 0) {
-            /*
-             * Immediate EOF; if the capture child exits normally, this
-             * is an "I'm done" indication, so don't report it as an
-             * error.
-             */
-            ws_debug("read %p got an EOF reading header", pipe_io);
-            return 0;
-        }
-        /*
-         * Short read, but not an immediate EOF.
-         */
-        ws_debug("read %p got premature EOF reading header: %zd", pipe_io, newly);
-        *err_msg = ws_strdup_printf("Premature EOF reading from sync pipe: got only %zd bytes",
-                                    newly);
-        return -1;
-    }
-
-    /* convert header values */
-    pipe_convert_header((unsigned char*)header, indicator, &required);
-
-    /* only indicator with no value? */
-    if(required == 0) {
-        ws_debug("read %p indicator: %c empty value", pipe_io, *indicator);
-        return 4;
-    }
-
-    /* does the data fit into the given buffer? */
-    if(required > len) {
-        size_t bytes_read;
-        GError *err = NULL;
-        ws_debug("read %p length error, required %d > len %d, header: 0x%02x 0x%02x 0x%02x 0x%02x",
-              pipe_io, required, len,
-              header[0], header[1], header[2], header[3]);
-
-        /* we have a problem here, try to read some more bytes from the pipe to debug where the problem really is */
-        if (g_io_channel_read_chars(pipe_io, msg, len, &bytes_read, &err) == G_IO_STATUS_ERROR) {
-            if (err != NULL) { /* error */
-                ws_debug("read from pipe %p: error(%u): %s", pipe_io, err->code, err->message);
-                g_clear_error(&err);
-            } else {
-                ws_debug("read from pipe %p: unknown error", pipe_io);
-            }
-        }
-        *err_msg = ws_strdup_printf("Message %c from dumpcap with length %d > buffer size %d! Partial message: %s",
-                                    *indicator, required, len, msg);
-        return -1;
-    }
-    len = required;
-
-    /* read the actual block data */
-    newly = pipe_read_bytes(pipe_io, msg, required, err_msg);
-    if(newly == -1) {
-        /*
-         * Error; *err_msg has been set.
-         */
-        ws_debug("read %p got an error reading block data: %s", pipe_io, *err_msg);
-        return -1;
-    }
-
-    /*
-     * newly is guaranteed to be >= 0 at this point, as pipe_read_bytes()
-     * either returns -1 on an error, a positive value <= required on
-     * a short read, or required on a non-short read.
-     */
-    if((size_t)newly != required) {
-        *err_msg = ws_strdup_printf("Unknown message from dumpcap reading data, try to show it as a string: %s",
-                                    msg);
-        return -1;
-    }
-
-    /* XXX If message is "2part", the msg probably won't be sent to debug log correctly */
-    ws_debug("read %p ok indicator: %c len: %u msg: %s", pipe_io, *indicator, len, msg);
-    *err_msg = NULL;
-    return newly + 4;
-}
-
-
 /* There's stuff to read from the sync pipe, meaning the child has sent
    us a message, or the sync pipe has closed, meaning the child has
    closed it (perhaps because it exited). */
@@ -2044,7 +1875,7 @@ sync_pipe_input_cb(GIOChannel *pipe_io, capture_session *cap_session)
     char *wait_msg, *combined_msg;
     uint32_t npackets = 0;
 
-    nread = pipe_read_block(pipe_io, &indicator, SP_MAX_MSG_LEN, buffer,
+    nread = sync_pipe_read_block(pipe_io, &indicator, SP_MAX_MSG_LEN, buffer,
                             &primary_msg);
     if(nread <= 0) {
         /* We got a read error, or a bad message, or an EOF, from the sync pipe.
@@ -2147,10 +1978,10 @@ sync_pipe_input_cb(GIOChannel *pipe_io, capture_session *cap_session)
     case SP_ERROR_MSG:
     case SP_WARNING_MSG:
         /* convert primary message */
-        pipe_convert_header((unsigned char*)buffer, &indicator, &primary_len);
+        sync_pipe_convert_header((unsigned char*)buffer, &indicator, &primary_len);
         primary_msg = buffer+4;
         /* convert secondary message */
-        pipe_convert_header((unsigned char*)primary_msg + primary_len, &indicator, &secondary_len);
+        sync_pipe_convert_header((unsigned char*)primary_msg + primary_len, &indicator, &secondary_len);
         secondary_msg = primary_msg + primary_len + 4;
         /* message output */
         if (indicator == SP_WARNING_MSG)
