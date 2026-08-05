@@ -79,7 +79,7 @@ const char** application_columns(void)
     static const char* col_fmt_logs[] = {
         "No.",              "%m",
         "Time",             "%t",
-        "Event name",       "%Cus:sysdig.event_name:0:R",
+        "Event name",       "%Cus:evt.type:0:R",
         "Proc Name",        "%Cus:proc.name:0:R",
         "PID",              "%Cus:proc.pid:0:R",
         "TID",              "%Cus:thread.tid:0:R",
