@@ -18792,6 +18792,11 @@ dissect_rrc_RB_ActivationTimeInfo(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_c
   rbid = private_data_get_rbid(actx);
   rlc_ciphering_sqn = private_data_get_rlc_ciphering_sqn(actx);
   direction = fpinf->is_uplink ? P2P_DIR_UL : P2P_DIR_DL;
+  if (rbid >= G_N_ELEMENTS(ciphering_info->seq_no) ||
+      direction >= G_N_ELEMENTS(ciphering_info->seq_no[0])) {
+    return offset;
+  }
+
   /*Set the ciphering activation frame information*/
   ciphering_info->seq_no[rbid][direction] = rlc_ciphering_sqn;
 
