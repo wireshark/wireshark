@@ -271,6 +271,7 @@ void extcap_free_arg(extcap_arg *a) {
     g_free(a->fileextension);
     g_free(a->regexp);
     g_free(a->group);
+    g_free(a->prefix);
     g_free(a->device_name);
 
     if (a->range_start != NULL)
