@@ -1635,9 +1635,9 @@ class Item:
             return
 
         # Do see legitimate non-contiguous bits often for these..
-        if name_has_one_of(self.hf, ['reserved', 'unknown', 'unused', 'spare']):
+        if name_has_one_of(self.hf, ['reserved', 'unknown', 'unused', 'spare', 'unassigned']):
             return
-        if name_has_one_of(self.label, ['reserved', 'unknown', 'unused', 'spare']):
+        if name_has_one_of(self.label, ['reserved', 'unknown', 'unused', 'spare', 'unassigned']):
             return
 
         # Walk past any l.s. 0 bits

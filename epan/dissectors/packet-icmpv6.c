@@ -4488,7 +4488,7 @@ dissect_mpl_control(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
     const int length_of_fixed_part = 2;
     int body_offset = offset;
     uint8_t min_seqno, bm_len, s;
-    int remaining, id_len = 0;
+    int remaining, id_len;
     uint16_t seed_info_index = 0;
     char *seed_id = NULL;
     int i, j;

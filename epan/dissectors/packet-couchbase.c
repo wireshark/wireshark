@@ -2446,10 +2446,8 @@ dissect_client_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       }
     }
     offset += keylen;
-  }
 
-  /* inSanity check */
-  if (keylen) {
+    /* inSanity check */
     switch (opcode) {
     case CLIENT_OPCODE_QUIT:
     case CLIENT_OPCODE_QUITQ:

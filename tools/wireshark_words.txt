@@ -1142,6 +1142,7 @@ fournier
 fpath
 fpiur
 fprintf
+fracsec
 fraghdr
 fragmenter
 frags
@@ -2032,6 +2033,7 @@ nodiscriminant
 noemit
 noexpandtab
 nofcs
+nokey
 nokia
 nolintnextline
 nominals
@@ -2095,6 +2097,7 @@ numerus
 numitems
 nvgre
 nvmeof
+nvmset
 nvram
 nxtpdu
 nytro
@@ -2809,6 +2812,7 @@ scell
 sched
 schema
 schemas
+schematl
 schweiz
 scoped
 scpsflags
@@ -3041,6 +3045,7 @@ stringified
 stringz
 stringzpad
 strix
+strlcpy
 strlen
 strptr
 strtod
@@ -3193,6 +3198,7 @@ telfonica
 telia
 telkom
 telnet
+telos
 telostech
 telstra
 teléfonos
@@ -3776,5 +3782,3 @@ zquarter
 zsssr
 zugtyp
 zürich
-schematl
-nvmset

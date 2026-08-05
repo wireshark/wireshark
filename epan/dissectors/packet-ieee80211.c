@@ -9590,7 +9590,7 @@ eht_ru_allocation_base_custom(char *result, uint32_t ru_allocation)
     ru_str = "RU size: 2x996";
   } else if (ru_allocation == 69) {
     ru_str = "RU size: 4x996";
-  } else if (ru_allocation >= 70 && ru_allocation <= 81) {
+  } else if (ru_allocation <= 81) {
     ru_str = "MRU size: 52+26";
   } else if (ru_allocation >= 82 && ru_allocation <= 89) {
     ru_str = "MRU size: 106+26";

@@ -114,7 +114,7 @@ typedef struct {
 	uint16_t total_size;
 	uint8_t channel_id;
 	uint8_t chunk_type;
-	uint8_t stagefeed_command;
+	/* uint8_t stagefeed_command; */
 	float audio_freq;
 	uint16_t max_samples;
 } message_info;

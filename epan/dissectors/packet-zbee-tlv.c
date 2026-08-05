@@ -33,7 +33,7 @@ static int   dissect_zbee_tlv_default(tvbuff_t *tvb, packet_info *pinfo, proto_t
 static unsigned dissect_zdp_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, unsigned cmd_id);
 static unsigned dissect_aps_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, void *data, unsigned cmd_id);
 static unsigned dissect_nwk_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, unsigned cmd_id);
-static unsigned dissect_zbd_local_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, void* data _U_, unsigned cmd_id);
+static unsigned dissect_zbd_local_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, void* data _U_, unsigned cmd_id);
 static unsigned dissect_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset);
 
 //Global TLV Dissector Routines

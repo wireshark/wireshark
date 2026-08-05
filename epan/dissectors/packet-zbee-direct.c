@@ -1036,7 +1036,7 @@ static int dissect_zb_direct_dump_info(tvbuff_t    *tvb,
             if (zbee_pc_keyring == NULL || keyrec(zbee_pc_keyring)->frame_num < pinfo->num)
             {
                 key_record.frame_num = pinfo->num;
-                key_record.label = g_strdup_printf("Key reported over air in packet #%d", pinfo->num);
+                key_record.label = g_strdup_printf("Key reported over air in packet #%u", pinfo->num);
 
                 /* store the keys in order: latest <- ... <- first <- (UAT: top <- ... <- bottom) */
                 zbee_pc_keyring = g_slist_prepend(zbee_pc_keyring,

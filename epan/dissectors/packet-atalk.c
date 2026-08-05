@@ -1680,7 +1680,7 @@ dissect_atp_macip(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
     offset += 4;
     proto_tree_add_item(macip_tree, hf_macip_other, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    /* Some MacIP servers (ex: macipgw) don't ouput the full list of IPs, so handle that here */
+    /* Some MacIP servers (ex: macipgw) don't output the full list of IPs, so handle that here */
     if (offset < captured) {
       proto_tree_add_item(macip_tree, hf_macip_other, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;

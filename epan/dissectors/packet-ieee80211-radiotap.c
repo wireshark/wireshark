@@ -1626,7 +1626,7 @@ not_captured_custom(char *result, uint32_t value _U_)
 static void
 he_sig_b_symbols_custom(char *result, uint32_t value)
 {
-	snprintf(result, ITEM_LABEL_LENGTH, "%d", value+1);
+	snprintf(result, ITEM_LABEL_LENGTH, "%u", value+1);
 }
 
 static void
@@ -1918,13 +1918,13 @@ dissect_radiotap_0_length_psdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	case 0:
 		phdr->has_zero_length_psdu_type = true;
 		phdr->zero_length_psdu_type = PHDR_802_11_SOUNDING_PSDU;
-		col_add_str(pinfo->cinfo, COL_INFO, "sounding PPDU");
+		col_set_str(pinfo->cinfo, COL_INFO, "sounding PPDU");
 		break;
 
 	case 1:
 		phdr->has_zero_length_psdu_type = true;
 		phdr->zero_length_psdu_type = PHDR_802_11_DATA_NOT_CAPTURED;
-		col_add_str(pinfo->cinfo, COL_INFO, "PSDU not captured");
+		col_set_str(pinfo->cinfo, COL_INFO, "PSDU not captured");
 		break;
 
 	case 0xff:
@@ -4087,8 +4087,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			uint8_t	    vht_flags, bw, mcs_nss;
 			unsigned	    bandwidth	 = 0;
 			unsigned	    gi_length	 = 0;
-			unsigned	    nss		 = 0;
-			unsigned	    mcs		 = 0;
+			unsigned	    nss;
+			unsigned	    mcs;
 			bool        can_calculate_rate;
 			unsigned	    user;
 

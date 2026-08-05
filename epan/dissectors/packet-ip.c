@@ -920,7 +920,7 @@ dissect_ipopt_security(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                          ENC_BIG_ENDIAN);
   curr_offset++;
   while (val & 0x01) {
-    if ((val & 0x01) && (curr_offset == optlen)) {
+    if (curr_offset == optlen) {
       expert_add_info(pinfo, tf, &ei_ip_opt_sec_prot_auth_fti);
       break;
     }
@@ -1025,7 +1025,7 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
       offset += 1;
 
       if (taglen > 4) {
-        unsigned bit_spot = 0;
+        unsigned bit_spot;
         unsigned byte_spot = 0;
         unsigned char bitmask;
         wmem_strbuf_t* cat_str_buf = wmem_strbuf_new(pinfo->pool, "");

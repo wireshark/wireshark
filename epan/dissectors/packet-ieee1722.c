@@ -1885,7 +1885,7 @@ static int dissect_1722_crf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_tree *timestamp_tree;
     int         offset = 1;
     unsigned    datalen = 0;
-    unsigned    j = 0;
+    unsigned    j;
     static int * const fields[] = {
         &hf_1722_crf_mrfield,
         &hf_1722_crf_fsfield,

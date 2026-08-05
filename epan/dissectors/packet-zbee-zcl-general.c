@@ -571,7 +571,7 @@ dissect_zbee_zcl_power_config(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 static void
 decode_power_conf_voltage(char *s, uint32_t value)
 {
-    snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [V]", value/10, value%10);
+    snprintf(s, ITEM_LABEL_LENGTH, "%u.%u [V]", value/10, value%10);
     return;
 } /*decode_power_conf_voltage*/
 
@@ -616,7 +616,7 @@ decode_power_conf_frequency(char *s, uint32_t value)
     else if (value == 0xff)
         snprintf(s, ITEM_LABEL_LENGTH, "Frequency could not be measured");
     else
-        snprintf(s, ITEM_LABEL_LENGTH, "%d [Hz]", value*2);
+        snprintf(s, ITEM_LABEL_LENGTH, "%u [Hz]", value*2);
     return;
 } /*decode_power_conf_frequency*/
 
@@ -635,7 +635,7 @@ decode_power_conf_frequency(char *s, uint32_t value)
 static void
 decode_power_conf_batt_AHr(char *s, uint32_t value)
 {
-    snprintf(s, ITEM_LABEL_LENGTH, "%d [mAHr]", value*10);
+    snprintf(s, ITEM_LABEL_LENGTH, "%u [mAHr]", value*10);
     return;
 } /*decode_power_conf_batt_AHr*/
 
@@ -9941,7 +9941,7 @@ decode_zcl_ota_upgr_time(char *s, uint32_t value)
 static void
 decode_zcl_ota_size_in_bytes(char *s, uint32_t value)
 {
-    snprintf(s, ITEM_LABEL_LENGTH, "%d [Bytes]", value);
+    snprintf(s, ITEM_LABEL_LENGTH, "%u [Bytes]", value);
 } /*decode_zcl_ota_size_in_bytes*/
 
 /*FUNCTION:------------------------------------------------------
@@ -11734,10 +11734,10 @@ static void
 decode_power_profile_id(char *s, uint8_t id)
 {
     if (id == 0) {
-        snprintf(s, ITEM_LABEL_LENGTH, "%d (All)", id);
+        snprintf(s, ITEM_LABEL_LENGTH, "%u (All)", id);
     }
     else {
-        snprintf(s, ITEM_LABEL_LENGTH, "%d", id);
+        snprintf(s, ITEM_LABEL_LENGTH, "%u", id);
     }
 } /*decode_power_profile_id*/
 
@@ -11757,7 +11757,7 @@ decode_power_profile_id(char *s, uint8_t id)
 static void
 decode_price_in_cents(char *s, uint32_t value)
 {
-    snprintf(s, ITEM_LABEL_LENGTH, "%d cents", value);
+    snprintf(s, ITEM_LABEL_LENGTH, "%u cents", value);
 } /* decode_price_in_cents */
 
 

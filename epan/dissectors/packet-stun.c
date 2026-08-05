@@ -1418,8 +1418,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool i
                 proto_tree_add_item(att_tree, hf_stun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 if (att_length < 4)
                     break;
-                proto_tree_add_item(att_tree, hf_stun_att_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-                att_port = tvb_get_ntohs(tvb, offset + 2);
+                proto_tree_add_item_ret_uint16(att_tree, hf_stun_att_port, tvb, offset+2, 2, ENC_BIG_ENDIAN, &att_port);
 
                 switch (tvb_get_uint8(tvb, offset+1)) {
                 case 1:

@@ -1476,7 +1476,7 @@ static const value_string adf_usim_efs[] = {
 	{ 0x6f01, "EF.5GS3GPPAccessNASSecCtxt" },
 	{ 0x6f02, "EF.5GSnon3GPPAccessNASSecCtxt" },
 	{ 0x6f03, "EF.SCICI" },
-	{ 0x6f04, "EF.UACAcessIdConfig" },
+	{ 0x6f04, "EF.UACAccessIdConfig" },
 	{ 0x6f06, "EF.ARR" },
 	{ 0x6f07, "EF.IMSI" },
 	{ 0x6f08, "EF.Keys" },
