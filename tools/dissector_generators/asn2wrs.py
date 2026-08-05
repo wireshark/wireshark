@@ -512,7 +512,7 @@ class Ctx:
                 for ident in list(self.assignments.keys ()):
                     if ident not in already_output:
                         depend_list = [d for d in self.dependencies[ident] if d in assign_keys]
-                        cycle_list.append (f"{ident}({",".join (depend_list)})")
+                        cycle_list.append (f"{ident}({','.join (depend_list)})")
 
                 text_list.append ("# Cycle XXX " + ",".join (cycle_list))
                 for (ident, val) in list(self.assignments.items ()):
