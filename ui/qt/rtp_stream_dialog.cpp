@@ -1048,6 +1048,8 @@ void RtpStreamDialog::invertSelection()
 
 void RtpStreamDialog::on_actionAnalyze_triggered()
 {
+#ifdef QT_MULTIMEDIA_LIB
     RtpStreamDialog::rtpAnalysisAdd();
+#endif // QT_MULTIMEDIA_LIB
 }
 
