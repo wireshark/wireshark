@@ -194,18 +194,49 @@ convert_to_command_line(char **argv)
 {
     GString *command_line = g_string_sized_new(200);
 #ifdef _WIN32
-    // The first argument must always be quoted even if it does not contain
-    // special characters or else CreateProcess might consider arguments as part
-    // of the executable.
-    char *quoted_arg = protect_arg(argv[0]);
-    if (quoted_arg[0] != '"') {
-        g_string_append_c(command_line, '"');
-        g_string_append(command_line, quoted_arg);
-        g_string_append_c(command_line, '"');
-    } else {
-        g_string_append(command_line, quoted_arg);
+    const char *basename = get_basename(argv[0]);
+    const char *dot = strrchr(basename, '.');
+    char *quoted_arg;
+    if (dot && dot != basename) {
+        char *interpreter = win32_command_for_ext(dot);
+        if (interpreter) {
+            ws_debug("interpreter command for extension: %s", interpreter);
+            // Already quoted, we just need to substitute argv[0] for %1.
+            g_string_append(command_line, interpreter);
+            if (g_str_has_suffix(interpreter, "%*")) {
+                // I am not sure why this has to be removed in some situations
+                // but not others.
+                g_string_truncate(command_line, command_line->len - 2);
+            }
+            g_free(interpreter);
+        }
     }
-    g_free(quoted_arg);
+    // g_string_replace is available since GLib 2.68.
+    // We've been using newer than that on official Windows releases since
+    // at least 4.0. We might just want to bump the minimum GLib in general.
+    if (!g_string_replace(command_line, "%1", argv[0], 1)) {
+        // This is expected to fail if we didn't find an interpreter.
+        // What if we did and it still failed?
+        if (command_line->len) {
+            // We returned a interpreter command, but it didn't have "%1".
+            // That's unexpected. As a fallback, add a space and then append
+            // the original command at the end.
+            ws_info("Interpreter command didn't have \"%1\", fallback to append.");
+            g_string_append_c(command_line, ' ');
+        }
+        // The first argument must always be quoted even if it does not contain
+        // special characters or else CreateProcess might consider arguments as part
+        // of the executable.
+        quoted_arg = protect_arg(argv[0]);
+        if (quoted_arg[0] != '"') {
+            g_string_append_c(command_line, '"');
+            g_string_append(command_line, quoted_arg);
+            g_string_append_c(command_line, '"');
+        } else {
+            g_string_append(command_line, quoted_arg);
+        }
+        g_free(quoted_arg);
+    }
 
     for (int i = 1; argv[i]; i++) {
         quoted_arg = protect_arg(argv[i]);

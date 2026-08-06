@@ -60,11 +60,16 @@ The extcap subsystem is made of multiple extcap binaries that are automatically
 called by the GUI in a row. In the following chapters we will refer to them as
 “the extcaps”.
 
-Extcaps may be any binary or script within the extcap directory. Please note, that
-scripts need to be executable without prefacing a script interpreter before the call.
+Extcaps may be any binary or script within the extcap directory, so long as it
+will execute directly. On UN*X systems, please note that this means the scripts
+need to be executable (`chmod +x some.py`) and start with an appropriate "shebang"
+line (for example, `#!/usr/bin/env python3`).
 
-IMPORTANT: *Windows Users* Because of restrictions directly calling the script may not always work.
-In such a case, a batch file may be provided, which then in turn executes the script.
+On Windows systems, the file extension must be present in the `PATHEXT` environment
+variable, and the default file association must be set properly so that the
+executable or script will be run or interpreted, rather than being opened in an editor.
+You may also create a batch file that is executable by default and which in turn
+executes a script via its interpreter.
 Please refer to <<ChCaptureExtcapWindowsShell>> for more information.
 
 When Wireshark launches an extcap, it automatically adds its installation path
@@ -214,15 +219,45 @@ The extcap interface is used like all other interfaces (meaning that capture on 
 
 ====== Execute A Script-based Extcap On Windows
 
-Although Windows will run batch and PowerShell scripts directly, other scripting languages require extra effort.
-In most cases this involves creating a wrapper script which runs the appropriate interpreter.
-For example, in order to run a Python-based extcap, you can create _scriptname.bat_ inside your extcap folder with the following content:
+Windows will run batch scripts directly, but other scripting languages require
+extra effort. Even PowerShell scripts (".ps1")
+There are two options: allowing Windows to run files with that script's extension
+directly, or creating a wrapper script in a supported language which calls the
+script via its appropriate interpreter.
+
+====== Running Other Language Scripts Directly
+
+Running a script directly has the advantage of faster startup and only having
+to distribute one script file cross-plaform.
+It requires that the script extension both be associated with the interpreter and
+be in the `PATHEXT` environment variable.  These Windows settings must be set for
+any host machine running the extcap, which may make it more difficult to distribute
+the script in a multiuser environment. Even PowerShell scripts (`.ps1`), while in
+`PATHEXT` by default, are by default associated with Notepad by Windows as a defense
+against accidentally double-clicking on malicious scripts.
+Taking Python as an another example, the official Python Windows installer
+link:https://docs.python.org/3/using/windows.html#installing-without-ui[by default]
+associates the `.py` and `.pyw` extensions with the Python interpreter (though other
+programs, like IDEs or other code editors, may associate themselves and replace the
+interpreter), but does not add the extensions to `PATHEXT`.
+These can be changed via the normal Windows settings mechanisms.
+
+===== Creating a Wrapper script
+
+A Batch wrapper script has the advance of working out of the box on Windows installs,
+but has the disadvantage of slower startup and requiring distributing an extra file
+for Windows users.
+For example, in order to run a Python-based extcap, you can create _scriptname.bat_
+inside your extcap folder with the following content:
 
 [source,batch]
 ----
 @echo off
-C:\Windows\py.exe C:\Path\to\my\extcap.py %*
+C:\Windows\py.exe %~dpn0.py %*
 ----
+
+`%~dpn0` expands to the concatenation of the drive letter, the path, and the
+file name (without extension) of the invoked batch file.
 
 ==== Extcap Arguments
 

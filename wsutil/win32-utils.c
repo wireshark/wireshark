@@ -15,6 +15,7 @@
 
 #include <tchar.h>
 #include <versionhelpers.h>
+#include <shlwapi.h>
 
 /* Quote the argument element if necessary, so that it will get
  * reconstructed correctly in the C runtime startup code.  Note that
@@ -352,6 +353,43 @@ BOOL win32_create_process(const char *application_name, const char *command_line
     g_free(wcommandline);
     g_free(wcurrentdirectory);
     return cp_res;
+}
+
+char*
+win32_command_for_ext(const char* fileExtension)
+{
+    char *associatedExe = NULL;
+    DWORD bufferSize = 0;
+
+    HRESULT hr = AssocQueryStringA(
+        ASSOCF_INIT_IGNOREUNKNOWN,
+        ASSOCSTR_COMMAND,
+        fileExtension,
+        "open",
+        associatedExe,
+        &bufferSize
+    );
+
+    if (!bufferSize) {
+        return NULL;
+    }
+
+    associatedExe = (char*)g_malloc(bufferSize);
+    hr = AssocQueryStringA(
+        ASSOCF_INIT_IGNOREUNKNOWN,
+        ASSOCSTR_COMMAND, // ASSOCSTR_EXECUTABLE might miss arguments
+        fileExtension,
+        "open",
+        associatedExe,
+        &bufferSize
+    );
+
+    if (!SUCCEEDED(hr)) {
+        g_free(associatedExe);
+        return NULL;
+    }
+
+    return associatedExe;
 }
 
 /*

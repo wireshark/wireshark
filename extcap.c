@@ -233,6 +233,51 @@ extcap_dump_all(void)
     extcap_get_descriptions(print_extcap_description, NULL);
 }
 
+static bool
+is_valid_extcap_binary(const char *extcap_path)
+{
+    bool ok = true;
+    if (!g_file_test(extcap_path, G_FILE_TEST_IS_REGULAR) ||
+        !g_file_test(extcap_path, G_FILE_TEST_IS_EXECUTABLE)) {
+        /* Not executable, so not an extcap binary.
+         * Note on Windows this just tests if the extension is
+         * in PATHEXT. We could try to special case some extensions,
+         * like .py, even if they're not in PATHEXT. */
+        return false;
+    }
+#ifdef _WIN32
+    /*
+     * If both foo.bat and foo.py exists, then assume that foo.bat is a wrapper
+     * script that ends up calling foo.py. Do not execute foo.py in that case.
+     */
+#define MAX_EXT_LEN 3
+    static const char exe_exts[][MAX_EXT_LEN + 1] = { "exe", "bat", "cmd" };
+    const char *dotpos = strrchr(extcap_path, '.');
+    if (!dotpos) {
+        return false;
+    }
+    // If this is already an executable, just accept it.
+    for (unsigned i = 0; i < G_N_ELEMENTS(exe_exts); i++) {
+        if (g_ascii_strcasecmp(dotpos + 1, exe_exts[i]) == 0) {
+            return true;
+        }
+    }
+    // Otherwise assume it to be a script and check that no wrapper exists.
+    const size_t noext_len = (size_t) (dotpos + 1 - extcap_path);
+    char *filename = g_new0(gchar, noext_len + MAX_EXT_LEN + 1);
+    memcpy(filename, extcap_path, noext_len);
+    for (unsigned i = 0; i < G_N_ELEMENTS(exe_exts); i++) {
+        memcpy(filename + noext_len, exe_exts[i], MAX_EXT_LEN + 1);
+        if (g_file_test(filename, G_FILE_TEST_IS_REGULAR)) {
+            ok = false;
+            break;
+        }
+    }
+    g_free(filename);
+#endif
+    return ok;
+}
+
 static GSList *
 extcap_get_extcap_paths_from_dir(GSList * list, const char * dirname)
 {
@@ -246,8 +291,7 @@ extcap_get_extcap_paths_from_dir(GSList * list, const char * dirname)
             /* full path to extcap binary */
             char *extcap_path = ws_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", dirname, file);
             /* treat anything executable as an extcap binary */
-            if (g_file_test(extcap_path, G_FILE_TEST_IS_REGULAR) &&
-                g_file_test(extcap_path, G_FILE_TEST_IS_EXECUTABLE)) {
+            if (is_valid_extcap_binary(extcap_path)) {
                 paths = g_slist_append(paths, extcap_path);
             } else {
                 g_free(extcap_path);

@@ -220,6 +220,12 @@ def features(cmd_tshark, make_env):
         tshark_v = ''
     #gcry_m = re.search(r'\+Gcrypt +([0-9]+)\.([0-9]+)', tshark_v)
     #gcry_ver = (int(gcry_m.group(1)),int(gcry_m.group(2)))
+    tshark_v_parts = re.split(r'(?:Compile-|Run)time info:', tshark_v)
+    try:
+        tshark_runtime = tshark_v_parts[2]
+    except IndexError:
+        print(f'Failed to detect tshark runtime features: {tshark_v_parts}', file=sys.stderr)
+        tshark_runtime = ''
     return types.SimpleNamespace(
         have_x64='Compiler info: 64-bit' in tshark_v,
         have_lua='+Lua' in tshark_v,
@@ -232,6 +238,7 @@ def features(cmd_tshark, make_env):
         have_brotli='+brotli' in tshark_v,
         have_zstd='+Zstandard' in tshark_v,
         have_plugins='Plugins: supported' in tshark_v,
+        have_pcap='libpcap' in tshark_runtime,
     )
 
 

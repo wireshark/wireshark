@@ -500,6 +500,12 @@ target_include_directories(wsutil_static SYSTEM
 		${PCRE2_INCLUDE_DIRS}
 )
 
+if(WIN32)
+	# For AssocQueryString in win32-utils.c
+	target_link_libraries(wsutil PRIVATE shlwapi)
+	target_link_libraries(wsutil_static PRIVATE shlwapi)
+endif()
+
 if(NOT VCSVERSION_OVERRIDE)
 	add_dependencies(wsutil_static vcs_version)
 endif()

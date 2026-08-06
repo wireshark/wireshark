@@ -106,6 +106,25 @@ BOOL win32_create_process(const char *application_name, const char *command_line
     const char *current_directory, LPSTARTUPINFO startup_info, LPPROCESS_INFORMATION process_information
 );
 
+/**
+ * @brief Returns the command string associated with a file extension.
+ *
+ * Calls AssocQueryString in order to search the registry and find the
+ * ASSOCSTR_COMMAND, if any, associated with an extension. This is a
+ * string like looks like "\"C:\Program Files\Python\python.exe\" \"%1\" %*",
+ * where the original command should be substituted for "%1". Note everything
+ * is pre-quoted. The "%*" means the rest of the argument line, and does
+ * not need to be deleted; Windows will automatically ignore it. including
+ * if other custom parameters are appended to the command string (do append a
+ * space, though, if adding more parameters.)
+ *
+ * @param fileExtension Null-terminated string including the dot, e.g. ".py"
+ * @return Command string (free with g_free), or NULL on failure.
+ */
+extern
+char*
+win32_command_for_ext(const char* fileExtension);
+
 #ifdef	__cplusplus
 }
 #endif
