@@ -710,6 +710,7 @@ static expert_field ei_oran_se30_unknown_ueid;
 static expert_field ei_oran_beamid_bfws_not_found;
 static expert_field ei_oran_syminc_set_for_uplane;
 static expert_field ei_oran_cplane_entry_not_found;
+static expert_field ei_oran_se12_rb_set;
 
 
 /* These are the message types handled by this dissector.  Others have handling in packet-ecpri.c */
@@ -2789,6 +2790,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
     proto_item *numprbc_ti = NULL;
 
+    proto_item *rb_ti = NULL;
+    uint32_t rb;
+
     /* Config affecting ext11 bundles (initially unset) */
     ext11_settings_t ext11_settings;
     memset(&ext11_settings, 0, sizeof(ext11_settings));
@@ -2824,8 +2828,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         }
 
         /* rb */
-        uint32_t rb;
-        proto_tree_add_item_ret_uint(c_section_tree, hf_oran_rb, tvb, offset, 1, ENC_NA, &rb);
+        rb_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_rb, tvb, offset, 1, ENC_NA, &rb);
+
         /* symInc (1 bit) */
         /* TODO: mark as ignored if SE6, SE12 or SE19 present */
         if (sectionType != SEC_C_RRM_MEAS_REPORTS &&     /* Section Type 10 */
@@ -3022,7 +3026,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 for (unsigned prb=startPrbu; prb < startPrbu+numPrbu; prb++) {
                     /* Create a subtree for each PRB */
                     proto_item *prb_ti = proto_tree_add_string_format(c_section_tree, hf_oran_sinr_prb,
-                                                                tvb, offset, 0, "", "PRB %3u (", prb);
+                                                                      tvb, offset, 0, "", "PRB %3u (", prb);
                     proto_tree *prb_tree = proto_item_add_subtree(prb_ti, ett_oran_sinr_prb);
 
                     /* Each prb starts byte-aligned */
@@ -3096,8 +3100,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         /* reserved (4 bits) */
         add_reserved_field(c_section_tree, hf_oran_reserved_4bits, tvb, offset, 1);
         /* rb ("Value=0 shall be set") */
-        uint32_t rb;
-        proto_item *rb_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_rb, tvb, offset, 1, ENC_NA, &rb);
+        rb_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_rb, tvb, offset, 1, ENC_NA, &rb);
         if (rb != 0) {
             proto_item_append_text(rb_ti, " (should be set to 0)");
             expert_add_info(pinfo, rb_ti, &ei_oran_st6_rb_shall_be_0);
@@ -4022,6 +4025,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     }
 
                     /* Work out bundles! */
+                    /* TODO: assuming that these modifying SEs appear before SE 11, but not sure that this is guaranteed?! */
                     ext11_work_out_bundles(startPrbc, numPrbc, numBundPrb, &ext11_settings);
                     num_bundles = ext11_settings.num_bundles;
 
@@ -4155,6 +4159,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 if (numsymbol_ti && !numsymbol_ignored) {
                     proto_item_append_text(numsymbol_ti, " (ignored)");
                     numsymbol_ignored = true;
+                }
+
+                /* rb must be zero if this SE is present */
+                if (rb != 0) {
+                    expert_add_info(NULL, rb_ti, &ei_oran_se12_rb_set);
                 }
 
                 ext11_settings.ext12_set = true;
@@ -4541,7 +4550,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     proto_tree_add_item(pattern_tree, hf_oran_puncReMask, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 1;
                     /* rb (1 bit) */
-                    proto_item *rb_ti = proto_tree_add_item(pattern_tree, hf_oran_rb, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_item *se20_rb_ti = proto_tree_add_item(pattern_tree, hf_oran_rb, tvb, offset, 1, ENC_BIG_ENDIAN);
                     /* reserved (1 bit) */
                     add_reserved_field(pattern_tree, hf_oran_reserved_bit5, tvb, offset, 1);
                     /* multiSDScope (1 bit) */
@@ -4560,7 +4569,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         proto_tree_add_item(pattern_tree, hf_oran_rbgMask, tvb, offset, 4, ENC_BIG_ENDIAN);
                         offset += 4;
 
-                        proto_item_append_text(rb_ti, " (ignored)");
+                        proto_item_append_text(se20_rb_ti, " (ignored)");
                     }
 
                     proto_item_set_len(pattern_ti, offset-pattern_start_offset);
@@ -10964,6 +10973,7 @@ proto_register_oran(void)
         { &ei_oran_beamid_bfws_not_found, { "oran_fh_cus.beamid_bfws_not_found", PI_SEQUENCE, PI_WARN, "Have bundle with disableBFWs but no definition found", EXPFILL }},
         { &ei_oran_syminc_set_for_uplane, { "oran_fh_cus.syminc_set_for_uplane", PI_MALFORMED, PI_ERROR, "symcInc is prohibited in the U-Plane", EXPFILL }},
         { &ei_oran_cplane_entry_not_found, { "oran_fh_cus.cplane_entry_not_found", PI_SEQUENCE, PI_WARN, "C-plane for this U-plane section not found", EXPFILL }},
+        { &ei_oran_se12_rb_set, { "oran_fh_cus.se12_rb_set", PI_MALFORMED, PI_WARN, "rb should not be set when SE12 is present", EXPFILL }}
     };
 
 
