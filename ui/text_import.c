@@ -93,6 +93,7 @@
 #include <assert.h>
 
 #include <epan/tvbuff.h>
+#include <epan/iana-info.h>
 #include <wsutil/crc32.h>
 #include <epan/in_cksum.h>
 
@@ -307,6 +308,15 @@ static struct {                 /* pseudo header ipv6 for checksum calculation *
     uint8_t next_header;
 } pseudoh6;
 
+#define ICMP6_ND_ROUTER_SOLICIT   133
+#define ICMP6_ND_ROUTER_ADVERT    134
+#define ICMP6_ND_NEIGHBOR_SOLICIT 135
+#define ICMP6_ND_NEIGHBOR_ADVERT  136
+#define ICMP6_ND_REDIRECT         137
+#define ICMP6_IND_SOLICIT         141
+#define ICMP6_IND_ADVERT          142
+#define ICMP6_CERT_PATH_SOL       148
+#define ICMP6_CERT_PATH_AD        149
 
 typedef struct {
     uint16_t source_port;
@@ -452,6 +462,35 @@ write_bytes(const char *str)
     return IMPORT_SUCCESS;
 }
 
+/* RFC 4861 Neighbor Discovery, RFC 3122 Inverse Neighbor Discovery,
+ * and RFC 3971 SEND Certification Path messages require IPv6 Hop
+ * Limit 255. Generate RFC-compliant dummy IPv6 headers for these
+ * ICMPv6 message types without changing the default Hop Limit for
+ * unrelated IPv6 traffic.
+ */
+static bool
+icmpv6_dummy_hlim_must_be_255(const uint8_t *payload, uint32_t payload_len)
+{
+    if (hdr_ip_proto != IP_PROTO_IPV6_ICMP || payload_len == 0) {
+        return false;
+    }
+
+    switch (payload[0]) {
+        case ICMP6_ND_ROUTER_SOLICIT:
+        case ICMP6_ND_ROUTER_ADVERT:
+        case ICMP6_ND_NEIGHBOR_SOLICIT:
+        case ICMP6_ND_NEIGHBOR_ADVERT:
+        case ICMP6_ND_REDIRECT:
+        case ICMP6_IND_SOLICIT:
+        case ICMP6_IND_ADVERT:
+        case ICMP6_CERT_PATH_SOL:
+        case ICMP6_CERT_PATH_AD:
+            return true;
+        default:
+            return false;
+    }
+}
+
 /*----------------------------------------------------------------------
  * Remove bytes from the current packet
  */
@@ -588,7 +627,8 @@ write_current_packet(bool cont)
             HDR_IPv6.ip6_ctlun.ip6_un2_vfc |= (6<< 4);
             HDR_IPv6.ip6_ctlun.ip6_un1.ip6_un1_plen = g_htons(ip_length);
             HDR_IPv6.ip6_ctlun.ip6_un1.ip6_un1_nxt  = (uint8_t) hdr_ip_proto;
-            HDR_IPv6.ip6_ctlun.ip6_un1.ip6_un1_hlim = 32;
+            HDR_IPv6.ip6_ctlun.ip6_un1.ip6_un1_hlim =
+                icmpv6_dummy_hlim_must_be_255(packet_buf, curr_offset) ? 255 : 32;
 
             ws_buffer_append(&prefix_buf, (uint8_t*)&HDR_IPv6, sizeof(HDR_IPv6));
 

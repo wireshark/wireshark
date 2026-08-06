@@ -40,6 +40,54 @@ class TestDissectHttpHeaderSyntax:
         assert stdout == '1\n'
 
 
+class TestDissectIcmpv6NeighborDiscovery:
+    def test_nd_hop_limit_validation(self, cmd_text2pcap, cmd_tshark, result_file, base_env, test_env):
+        valid_in = result_file('icmpv6-nd-hlim-valid.txt')
+        invalid_in = result_file('icmpv6-nd-hlim-invalid.txt')
+        valid_pcap = result_file('icmpv6-nd-hlim-valid.pcap')
+        invalid_pcap = result_file('icmpv6-nd-hlim-invalid.pcap')
+
+        valid_payload = '''\
+00000000  60 00 00 00 00 08 3a ff fe 80 00 00 00 00 00 00
+00000010  00 00 00 00 00 00 00 01 ff 02 00 00 00 00 00 00
+00000020  00 00 00 00 00 00 00 02 85 00 7d 36 00 00 00 00
+'''
+        invalid_payload = '''\
+00000000  60 00 00 00 00 08 3a 40 fe 80 00 00 00 00 00 00
+00000010  00 00 00 00 00 00 00 01 ff 02 00 00 00 00 00 00
+00000020  00 00 00 00 00 00 00 02 85 00 7d 36 00 00 00 00
+'''
+
+        for path, payload, output in (
+            (valid_in, valid_payload, valid_pcap),
+            (invalid_in, invalid_payload, invalid_pcap),
+        ):
+            with open(path, 'w') as f:
+                f.write(payload)
+            subprocess.check_call((cmd_text2pcap, '-e', '0x86dd', path, output), env=base_env)
+
+        stdout = subprocess.check_output((cmd_tshark, '-G', 'fields'),
+                                         encoding='utf-8', env=test_env)
+        assert 'icmpv6.nd.hlim.invalid' in stdout
+
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', valid_pcap,
+                '-Tfields',
+                '-eframe.number',
+                '-Y', 'icmpv6.nd.hlim.invalid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == ''
+
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', invalid_pcap,
+                '-Tfields',
+                '-eframe.number',
+                '-e_ws.expert.message',
+                '-Y', 'icmpv6.nd.hlim.invalid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '1\tIPv6 Hop Limit must be 255 for this ICMPv6 message (found 64)\n'
+
+
 class TestDissectDtnTcpcl:
     def test_tcpclv3_xfer(self, cmd_tshark, capture_file, test_env):
         stdout = subprocess.check_output((cmd_tshark,

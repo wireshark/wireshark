@@ -712,6 +712,7 @@ static expert_field ei_icmpv6_rpl_p2p_hop_by_hop;
 static expert_field ei_icmpv6_rpl_p2p_num_of_routes;
 static expert_field ei_icmpv6_rpl_p2p_dro_rdo_zero;
 static expert_field ei_icmpv6_rpl_p2p_dro_zero;
+static expert_field ei_icmpv6_nd_hlim_invalid;
 
 static dissector_handle_t icmpv6_handle;
 
@@ -4592,11 +4593,30 @@ capture_icmpv6(const unsigned char *pd _U_, int offset _U_, int len _U_, capture
     return true;
 }
 
+static bool
+icmpv6_hlim_must_be_255(uint8_t icmp6_type)
+{
+    switch (icmp6_type) {
+        case ICMP6_ND_ROUTER_SOLICIT:
+        case ICMP6_ND_ROUTER_ADVERT:
+        case ICMP6_ND_NEIGHBOR_SOLICIT:
+        case ICMP6_ND_NEIGHBOR_ADVERT:
+        case ICMP6_ND_REDIRECT:
+        case ICMP6_IND_SOLICIT:
+        case ICMP6_IND_ADVERT:
+        case ICMP6_CERT_PATH_SOL:
+        case ICMP6_CERT_PATH_AD:
+            return true;
+        default:
+            return false;
+    }
+}
+
 static int
 dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_tree         *icmp6_tree = NULL;
-    proto_item         *ti         = NULL, *checksum_item = NULL, *code_item = NULL;
+    proto_item         *ti         = NULL, *type_ti = NULL, *checksum_item = NULL, *code_item = NULL;
     const char         *code_name  = NULL;
     unsigned            length     = 0, reported_length;
     vec_t               cksum_vec[4];
@@ -4619,6 +4639,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         /* Type */
         ti = proto_tree_add_item(icmp6_tree, hf_icmpv6_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        type_ti = ti;
     }
     icmp6_type = tvb_get_uint8(tvb, offset);
     if (!(icmp6_type & 0x80)) {
@@ -4818,8 +4839,10 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     if (1) { /* There are expert infos buried in here so always execute */
         /* decode... */
-        /* FIXME: The following messages MUST have a TTL^WHop-Limit of 255:
-                133-137, 141-142, 148-149. Detect this and add expert items. */
+        if (iph != NULL && icmpv6_hlim_must_be_255(icmp6_type) && iph->ip6_hop != 255) {
+            expert_add_info_format(pinfo, type_ti != NULL ? type_ti : ti, &ei_icmpv6_nd_hlim_invalid,
+                                   "IPv6 Hop Limit must be 255 for this ICMPv6 message (found %u)", iph->ip6_hop);
+        }
         switch (icmp6_type) {
             case ICMP6_DST_UNREACH: /* Destination Unreachable (1) */
             case ICMP6_TIME_EXCEEDED: /* Time Exceeded (3) */
@@ -7035,6 +7058,7 @@ proto_register_icmpv6(void)
         { &ei_icmpv6_rpl_p2p_num_of_routes, { "icmpv6.rpl.p2p.num_of_routes", PI_PROTOCOL, PI_WARN, "This field MUST be set to zero when Hop-by-Hop Routes are being discovered", EXPFILL }},
         { &ei_icmpv6_rpl_p2p_dro_rdo_zero, { "icmpv6.rpl.p2p.dro.rdo.zero", PI_PROTOCOL, PI_WARN, "This field MUST be set to zero when the P2P-RDO is included in a P2P-DRO", EXPFILL }},
         { &ei_icmpv6_rpl_p2p_dro_zero, { "icmpv6.rpl.p2p.dro.zero", PI_PROTOCOL, PI_WARN, "This field MUST be set to zero", EXPFILL }},
+        { &ei_icmpv6_nd_hlim_invalid, { "icmpv6.nd.hlim.invalid", PI_PROTOCOL, PI_WARN, "IPv6 Hop Limit must be 255", EXPFILL }},
     };
 
     expert_module_t* expert_icmpv6;
