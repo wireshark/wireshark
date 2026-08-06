@@ -6970,14 +6970,12 @@ de_nas_5gs_cmn_service_level_aa_cont(tvbuff_t *tvb, proto_tree *tree, packet_inf
         uint32_t type, param_len, param_offset = curr_offset;
 
         subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_cmn_service_level_aa_cont_param, &item, "Service-level-AA parameter %d", i + 1);
-        type = tvb_get_uint8(tvb, curr_offset);
+        proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_cmn_service_level_aa_param_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &type);
+        curr_offset++;
         if ((type & NAS_5GS_TV_IE_MASK) == NAS_5GS_TV_IE_VAL) {
             param_len = 0;
             type &= 0xf0;
-        }
-        proto_tree_add_uint(subtree, hf_nas_5gs_cmn_service_level_aa_param_type, tvb, curr_offset, 1, type);
-        curr_offset++;
-        if ((type & NAS_5GS_TLV_E_IE_MASK) == NAS_5GS_TLV_E_IE_VAL) {
+        } else if ((type & NAS_5GS_TLV_E_IE_MASK) == NAS_5GS_TLV_E_IE_VAL) {
             proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_cmn_service_level_aa_param_len, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &param_len);
             curr_offset += 2;
         } else {
