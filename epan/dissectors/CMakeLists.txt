@@ -309,6 +309,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-ieee80211-radiotap-defs.h
 	packet-ieee80211-radiotap-iter.h
 	packet-ieee80211.h
+	packet-ieee802154.h
 	packet-ieee802a.h
 	packet-ip.h
 	packet-ipsec.h

@@ -969,7 +969,7 @@ static const value_string ieee802154_cmd_names[] = {
     { 0, NULL }
 };
 
-static const value_string ieee802154_sec_level_names[] = {
+const value_string ieee802154_sec_level_names[] = {
     { SECURITY_LEVEL_NONE,        "No Security" },
     { SECURITY_LEVEL_MIC_32,      "32-bit Message Integrity Code" },
     { SECURITY_LEVEL_MIC_64,      "64-bit Message Integrity Code" },
@@ -981,7 +981,7 @@ static const value_string ieee802154_sec_level_names[] = {
     { 0, NULL }
 };
 
-static const value_string ieee802154_key_id_mode_names[] = {
+const value_string ieee802154_key_id_mode_names[] = {
     { KEY_ID_MODE_IMPLICIT,       "Implicit Key" },
     { KEY_ID_MODE_KEY_INDEX,      "Indexed Key using the Default Key Source" },
     { KEY_ID_MODE_KEY_EXPLICIT_4, "Explicit Key with 4-octet Key Source" },
@@ -1886,18 +1886,33 @@ void register_ieee802154_mac_key_hash_handler(unsigned hash_identifier, ieee8021
     wmem_tree_insert32(mac_key_hash_handlers, hash_identifier, (void*)key_func);
 }
 
-void dissect_ieee802154_aux_sec_header_and_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, ieee802154_packet *packet, unsigned *offset)
+void dissect_ieee802154_aux_sec_header_and_key_with_hf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, ieee802154_packet *packet, unsigned *offset, const ieee802154_aux_sec_hf_t *aux_sec_hf)
 {
     proto_tree *field_tree, *header_tree;
     proto_item *ti, *hidden_item;
     uint8_t    security_control;
     unsigned   aux_length = 1; /* Minimum length of the auxiliary header. */
-    static int * const security_fields[] = {
-            &hf_ieee802154_aux_sec_security_level,
-            &hf_ieee802154_aux_sec_key_id_mode,
-            &hf_ieee802154_aux_sec_frame_counter_suppression,
-            &hf_ieee802154_aux_sec_asn_in_nonce,
-            &hf_ieee802154_aux_sec_reserved,
+    int hf_hdr = aux_sec_hf ? aux_sec_hf->hf_aux_security_header : hf_ieee802154_aux_security_header;
+    int hf_sec_ctrl = aux_sec_hf ? aux_sec_hf->hf_aux_sec_security_control : hf_ieee802154_aux_sec_security_control;
+    int hf_sec_level = aux_sec_hf ? aux_sec_hf->hf_aux_sec_security_level : hf_ieee802154_aux_sec_security_level;
+    int hf_key_id_mode = aux_sec_hf ? aux_sec_hf->hf_aux_sec_key_id_mode : hf_ieee802154_aux_sec_key_id_mode;
+    int hf_fc_suppress = aux_sec_hf ? aux_sec_hf->hf_aux_sec_frame_counter_suppression : hf_ieee802154_aux_sec_frame_counter_suppression;
+    int hf_asn = aux_sec_hf ? aux_sec_hf->hf_aux_sec_asn_in_nonce : hf_ieee802154_aux_sec_asn_in_nonce;
+    int hf_res = aux_sec_hf ? aux_sec_hf->hf_aux_sec_reserved : hf_ieee802154_aux_sec_reserved;
+    int hf_fc = aux_sec_hf ? aux_sec_hf->hf_aux_sec_frame_counter : hf_ieee802154_aux_sec_frame_counter;
+    int hf_ks = aux_sec_hf ? aux_sec_hf->hf_aux_sec_key_source : hf_ieee802154_aux_sec_key_source;
+    int hf_ks_bytes = aux_sec_hf ? aux_sec_hf->hf_aux_sec_key_source_bytes : hf_ieee802154_aux_sec_key_source_bytes;
+    int hf_ki = aux_sec_hf ? aux_sec_hf->hf_aux_sec_key_index : hf_ieee802154_aux_sec_key_index;
+    int ett_aux = aux_sec_hf ? aux_sec_hf->ett_auxiliary_security : ett_ieee802154_auxiliary_security;
+    int ett_ctrl = aux_sec_hf ? aux_sec_hf->ett_aux_sec_control : ett_ieee802154_aux_sec_control;
+    int ett_kid = aux_sec_hf ? aux_sec_hf->ett_aux_sec_key_id : ett_ieee802154_aux_sec_key_id;
+
+    int * const security_fields[] = {
+            &hf_sec_level,
+            &hf_key_id_mode,
+            &hf_fc_suppress,
+            &hf_asn,
+            &hf_res,
             NULL
     };
 
@@ -1915,16 +1930,16 @@ void dissect_ieee802154_aux_sec_header_and_key(tvbuff_t *tvb, packet_info *pinfo
     if (packet->key_id_mode == KEY_ID_MODE_KEY_EXPLICIT_4) aux_length += 4;
     if (packet->key_id_mode == KEY_ID_MODE_KEY_EXPLICIT_8) aux_length += 8;
 
-    ti = proto_tree_add_item(tree, hf_ieee802154_aux_security_header, tvb, *offset, aux_length, ENC_NA);
-    header_tree = proto_item_add_subtree(ti, ett_ieee802154_auxiliary_security);
+    ti = proto_tree_add_item(tree, hf_hdr, tvb, *offset, aux_length, ENC_NA);
+    header_tree = proto_item_add_subtree(ti, ett_aux);
 
     /* Security Control Field */
-    proto_tree_add_bitmask(header_tree, tvb, *offset, hf_ieee802154_aux_sec_security_control, ett_ieee802154_aux_sec_control, security_fields, ENC_NA);
+    proto_tree_add_bitmask(header_tree, tvb, *offset, hf_sec_ctrl, ett_ctrl, security_fields, ENC_NA);
     (*offset)++;
 
     /* Frame Counter Field */
     if (!packet->frame_counter_suppression) {
-        proto_tree_add_item_ret_uint(header_tree, hf_ieee802154_aux_sec_frame_counter, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &packet->frame_counter);
+        proto_tree_add_item_ret_uint(header_tree, hf_fc, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &packet->frame_counter);
         (*offset) += 4;
     }
     else {
@@ -1935,29 +1950,34 @@ void dissect_ieee802154_aux_sec_header_and_key(tvbuff_t *tvb, packet_info *pinfo
     if (packet->key_id_mode != KEY_ID_MODE_IMPLICIT) {
         /* Create a subtree. */
         field_tree = proto_tree_add_subtree(header_tree, tvb, *offset, 1,
-                ett_ieee802154_aux_sec_key_id, &ti, "Key Identifier Field"); /* Will fix length later. */
+                ett_kid, &ti, "Key Identifier Field"); /* Will fix length later. */
         /* Add key source, if it exists. */
         if (packet->key_id_mode == KEY_ID_MODE_KEY_EXPLICIT_4) {
             packet->key_source.addr32 = tvb_get_ntohl(tvb, *offset);
-            proto_tree_add_uint64(field_tree, hf_ieee802154_aux_sec_key_source, tvb, *offset, 4, packet->key_source.addr32);
-            hidden_item = proto_tree_add_item(field_tree, hf_ieee802154_aux_sec_key_source_bytes, tvb, *offset, 4, ENC_NA);
+            proto_tree_add_uint64(field_tree, hf_ks, tvb, *offset, 4, packet->key_source.addr32);
+            hidden_item = proto_tree_add_item(field_tree, hf_ks_bytes, tvb, *offset, 4, ENC_NA);
             proto_item_set_hidden(hidden_item);
             proto_item_set_len(ti, 1 + 4);
             (*offset) += 4;
         }
         if (packet->key_id_mode == KEY_ID_MODE_KEY_EXPLICIT_8) {
             packet->key_source.addr64 = tvb_get_ntoh64(tvb, *offset);
-            proto_tree_add_uint64(field_tree, hf_ieee802154_aux_sec_key_source, tvb, *offset, 8, packet->key_source.addr64);
-            hidden_item = proto_tree_add_item(field_tree, hf_ieee802154_aux_sec_key_source_bytes, tvb, *offset, 8, ENC_NA);
+            proto_tree_add_uint64(field_tree, hf_ks, tvb, *offset, 8, packet->key_source.addr64);
+            hidden_item = proto_tree_add_item(field_tree, hf_ks_bytes, tvb, *offset, 8, ENC_NA);
             proto_item_set_hidden(hidden_item);
             proto_item_set_len(ti, 1 + 8);
             (*offset) += 8;
         }
         /* Add key identifier. */
         packet->key_index = tvb_get_uint8(tvb, *offset);
-        proto_tree_add_uint(field_tree, hf_ieee802154_aux_sec_key_index, tvb, *offset, 1, packet->key_index);
+        proto_tree_add_uint(field_tree, hf_ki, tvb, *offset, 1, packet->key_index);
         (*offset)++;
     }
+}
+
+void dissect_ieee802154_aux_sec_header_and_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, ieee802154_packet *packet, unsigned *offset)
+{
+    dissect_ieee802154_aux_sec_header_and_key_with_hf(tvb, pinfo, tree, packet, offset, NULL);
 }
 
 tvbuff_t *decrypt_ieee802154_payload(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree* key_tree,

@@ -173,6 +173,20 @@ static int ett_mle_auxiliary_security;
 static int ett_mle_aux_sec_control;
 static int ett_mle_aux_sec_key_id;
 
+static int hf_mle_aux_security_header;
+static int hf_mle_aux_sec_security_control;
+static int hf_mle_aux_sec_security_level;
+static int hf_mle_aux_sec_key_id_mode;
+static int hf_mle_aux_sec_frame_counter_suppression;
+static int hf_mle_aux_sec_asn_in_nonce;
+static int hf_mle_aux_sec_reserved;
+static int hf_mle_aux_sec_frame_counter;
+static int hf_mle_aux_sec_key_source;
+static int hf_mle_aux_sec_key_source_bytes;
+static int hf_mle_aux_sec_key_index;
+
+static ieee802154_aux_sec_hf_t mle_aux_sec_hf;
+
 static expert_field ei_mle_cbc_mac_failed;
 static expert_field ei_mle_packet_too_small;
 static expert_field ei_mle_no_key;
@@ -731,7 +745,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     /* Security material present if security suite = 0 */
     if (security_suite == 0) {
-        dissect_ieee802154_aux_sec_header_and_key(tvb, pinfo, mle_tree, packet, &offset);
+        dissect_ieee802154_aux_sec_header_and_key_with_hf(tvb, pinfo, mle_tree, packet, &offset, &mle_aux_sec_hf);
         aux_length = offset-aux_header_offset;
     } else {
         packet->security_level = SECURITY_LEVEL_NONE;
@@ -2401,6 +2415,53 @@ proto_register_mle(void)
         "Thread Query ID",
         HFILL
       }
+    },
+    { &hf_mle_aux_security_header,
+      { "Auxiliary Security Header", "mle.aux_sec.hdr", FT_NONE, BASE_NONE, NULL,
+        0x0, "The Auxiliary Security Header of the message", HFILL }
+    },
+    { &hf_mle_aux_sec_security_level,
+      { "Security Level", "mle.aux_sec.sec_level", FT_UINT8, BASE_HEX, VALS(ieee802154_sec_level_names),
+        IEEE802154_AUX_SEC_LEVEL_MASK, "The Security Level of the message", HFILL }
+    },
+    { &hf_mle_aux_sec_security_control,
+      { "Security Control Field", "mle.aux_sec.security_control_field", FT_UINT8, BASE_HEX, NULL,
+        0x0, NULL, HFILL }
+    },
+    { &hf_mle_aux_sec_key_id_mode,
+      { "Key Identifier Mode", "mle.aux_sec.key_id_mode", FT_UINT8, BASE_HEX, VALS(ieee802154_key_id_mode_names),
+        IEEE802154_AUX_KEY_ID_MODE_MASK,
+        "The scheme to use by the recipient to lookup the key in its key table", HFILL }
+    },
+    { &hf_mle_aux_sec_frame_counter_suppression,
+      { "Frame Counter Suppression", "mle.aux_sec.frame_counter_suppression", FT_BOOLEAN, 8, NULL,
+        IEEE802154_AUX_FRAME_COUNTER_SUPPRESSION_MASK,
+        "Whether the frame counter is omitted from the Auxiliary Security Header", HFILL }
+    },
+    { &hf_mle_aux_sec_asn_in_nonce,
+      { "ASN in Nonce", "mle.aux_sec.asn_in_nonce", FT_BOOLEAN, 8, NULL,
+        IEEE802154_AUX_ASN_IN_NONCE_MASK,
+        "Whether the ASN is used to generate the nonce instead of the frame counter", HFILL }
+    },
+    { &hf_mle_aux_sec_reserved,
+      { "Reserved", "mle.aux_sec.reserved", FT_UINT8, BASE_HEX, NULL, IEEE802154_AUX_CTRL_RESERVED_MASK,
+        NULL, HFILL }
+    },
+    { &hf_mle_aux_sec_frame_counter,
+      { "Frame Counter", "mle.aux_sec.frame_counter", FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Frame counter of the originator of the protected message", HFILL }
+    },
+    { &hf_mle_aux_sec_key_source,
+      { "Key Source", "mle.aux_sec.key_source", FT_UINT64, BASE_HEX, NULL, 0x0,
+        "Key Source for processing of the protected message", HFILL }
+    },
+    { &hf_mle_aux_sec_key_source_bytes,
+      { "Key Source", "mle.aux_sec.key_source.bytes", FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Key Source for processing of the protected message", HFILL }
+    },
+    { &hf_mle_aux_sec_key_index,
+      { "Key Index", "mle.aux_sec.key_index", FT_UINT8, BASE_HEX, NULL, 0x0,
+        "Key Index for processing of the protected message", HFILL }
     }
 
   };
@@ -2436,6 +2497,21 @@ proto_register_mle(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_mle = expert_register_protocol(proto_mle);
   expert_register_field_array(expert_mle, ei, array_length(ei));
+
+  mle_aux_sec_hf.hf_aux_security_header = hf_mle_aux_security_header;
+  mle_aux_sec_hf.hf_aux_sec_security_control = hf_mle_aux_sec_security_control;
+  mle_aux_sec_hf.hf_aux_sec_security_level = hf_mle_aux_sec_security_level;
+  mle_aux_sec_hf.hf_aux_sec_key_id_mode = hf_mle_aux_sec_key_id_mode;
+  mle_aux_sec_hf.hf_aux_sec_frame_counter_suppression = hf_mle_aux_sec_frame_counter_suppression;
+  mle_aux_sec_hf.hf_aux_sec_asn_in_nonce = hf_mle_aux_sec_asn_in_nonce;
+  mle_aux_sec_hf.hf_aux_sec_reserved = hf_mle_aux_sec_reserved;
+  mle_aux_sec_hf.hf_aux_sec_frame_counter = hf_mle_aux_sec_frame_counter;
+  mle_aux_sec_hf.hf_aux_sec_key_source = hf_mle_aux_sec_key_source;
+  mle_aux_sec_hf.hf_aux_sec_key_source_bytes = hf_mle_aux_sec_key_source_bytes;
+  mle_aux_sec_hf.hf_aux_sec_key_index = hf_mle_aux_sec_key_index;
+  mle_aux_sec_hf.ett_auxiliary_security = ett_mle_auxiliary_security;
+  mle_aux_sec_hf.ett_aux_sec_control = ett_mle_aux_sec_control;
+  mle_aux_sec_hf.ett_aux_sec_key_id = ett_mle_aux_sec_key_id;
 
   mle_handle = register_dissector("mle", dissect_mle, proto_mle);
 
