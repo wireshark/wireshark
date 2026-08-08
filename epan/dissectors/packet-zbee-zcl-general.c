@@ -16627,6 +16627,17 @@ dissect_zbee_zcl_touchlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     return offset;
 } /*dissect_zbee_zcl_touchlink*/
 
+static void
+zbee_zcl_touchlink_init(void)
+{
+    /* Empty the commissioning map, as a new dissection pass is
+       going to be done, so all of the entries in that map,
+       which were allocated with file scope, have been freed. */
+    if (zcl_touchlink_commissioning_map != NULL) {
+        g_hash_table_remove_all(zcl_touchlink_commissioning_map);
+    }
+}
+
 /**
  *ZigBee ZCL Touchlink Commissioning cluster protocol registration routine.
  *
@@ -16868,6 +16879,8 @@ proto_register_zbee_zcl_touchlink(void)
 
     /* Register the ZigBee ZCL Touchlink Commissioning dissector. */
     register_dissector(ZBEE_PROTOABBREV_ZCL_TOUCHLINK, dissect_zbee_zcl_touchlink, proto_zbee_zcl_touchlink);
+
+    register_init_routine(zbee_zcl_touchlink_init);
 } /*proto_register_zbee_zcl_touchlink*/
 
 /**
