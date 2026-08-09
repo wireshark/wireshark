@@ -1408,20 +1408,25 @@ static void etw_dump_write_ldap_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp
     DataDescriptor.ArrayIndex = ULONG_MAX;
     status = TdhGetPropertySize(ev, 0, NULL, 1, &DataDescriptor, &Length);
     if (status != NO_ERROR) goto end;
+    if (Length == 0) goto end;
     Message = g_malloc(Length);
     status = TdhGetProperty(ev, 0, NULL, 1, &DataDescriptor, Length, Message);
     if (status != NO_ERROR) goto end;
 
     // "Message" contains text and a hexdump of the data. We need to parse it
     // and reassemble it. Let's use the ThreadId as the identifying key.
+    // NOTE: a malformed event can make TDH return a "Message" that is shorter
+    // than the prefixes below and that isn't NUL-terminated, so every access
+    // must be bounded by 'Length'.
 
-    if (strncmp(Message, "Data", 4) == 0 || strncmp(Message, "Unencrypted", 11) == 0)
+    if ((Length >= 4 && memcmp(Message, "Data", 4) == 0) ||
+        (Length >= 11 && memcmp(Message, "Unencrypted", 11) == 0))
     {
         // Beginning of the buffer
 
         frag = etw_frag_get(ev, true);
     }
-    else if (strncmp(Message, "End", 3) == 0)
+    else if (Length >= 3 && memcmp(Message, "End", 3) == 0)
     {
         // End of the buffer
 
@@ -1444,18 +1449,29 @@ static void etw_dump_write_ldap_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp
         frag = etw_frag_get(ev, false);
         if (frag == NULL) goto end;
 
-        // Replace "Message" in place
-        int i = 0;
-        while (i < 16)
+        // Decode the hexdump ("XX XX ... XX") into a bounded local buffer
+        BYTE decoded[16];
+        int i;
+
+        for (i = 0; i < 16; i++)
         {
-            if (Message[i * 3] == 0x20)
+            DWORD off = (DWORD)i * 3;
+            int hi, lo;
+
+            if (off >= Length || Message[off] == 0x20)
                 break;
-            if (sscanf(&Message[i * 3], "%2hhx", &Message[i]) != 1)
+            if (off + 1 >= Length)
                 goto end;
-            i++;
+
+            hi = g_ascii_xdigit_value((char)Message[off]);
+            lo = g_ascii_xdigit_value((char)Message[off + 1]);
+            if (hi < 0 || lo < 0)
+                goto end;
+
+            decoded[i] = (BYTE)((hi << 4) | lo);
         }
 
-        g_byte_array_append(frag->buf, Message, i);
+        g_byte_array_append(frag->buf, decoded, i);
     }
 
 end:
