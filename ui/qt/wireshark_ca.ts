@@ -9170,27 +9170,27 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
     <name>PacketFormatCArraysGroupBox</name>
     <message>
         <source>GroupBox</source>
-        <translation type="unfinished">GroupBox</translation>
+        <translation>GroupBox</translation>
     </message>
     <message>
         <source>Packet Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Format del paquet</translation>
     </message>
     <message>
         <source>Include secondary data sources</source>
-        <translation type="unfinished">Inclou les fonts de dades secundàries</translation>
+        <translation>Inclou les fonts de dades secundàries</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate arrays for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Genera taules per als orígens de dades secundaris com ara memòries intermèdies tornades a unir o desencriptades, a més a més de la trama.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include an array to index into the list of frames&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inclou una taula per a indexar la llista de trames.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Include index</source>
-        <translation type="unfinished"></translation>
+        <translation>Inclou l&apos;índex</translation>
     </message>
 </context>
 <context>

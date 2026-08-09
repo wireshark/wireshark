@@ -5620,6 +5620,9 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x10F9,   "Even Realities Ltd." },
     { 0x10FA,   "QPlay Ltd" },
     { 0x10FB,   "Hydratune Australia Pty Ltd" },
+    { 0x10FC,   "CITECH CO.,LTD." },
+    { 0x10FD,   "Neurabody Inc." },
+    { 0x10FE,   "Daisen Electronic Industrial Co., Ltd." },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };

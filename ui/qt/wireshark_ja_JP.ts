@@ -9131,27 +9131,27 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     <name>PacketFormatCArraysGroupBox</name>
     <message>
         <source>GroupBox</source>
-        <translation type="unfinished">グループボックス</translation>
+        <translation>グループボックス</translation>
     </message>
     <message>
         <source>Packet Format</source>
-        <translation type="unfinished">パケット形式</translation>
+        <translation>パケット形式</translation>
     </message>
     <message>
         <source>Include secondary data sources</source>
-        <translation type="unfinished">第２データソースを含む</translation>
+        <translation>第２データソースを含む</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate arrays for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;フレームに加えて再組立てや復号化したバッファなどの第二データソースの配列を作成します。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include an array to index into the list of frames&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt; フレーム一覧を参照するためのインデックス配列を含めます。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Include index</source>
-        <translation type="unfinished"></translation>
+        <translation>インデックスを含む</translation>
     </message>
 </context>
 <context>

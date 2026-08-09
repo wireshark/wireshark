@@ -9172,27 +9172,27 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     <name>PacketFormatCArraysGroupBox</name>
     <message>
         <source>GroupBox</source>
-        <translation type="unfinished">CasellaGruppo</translation>
+        <translation>CasellaGruppo</translation>
     </message>
     <message>
         <source>Packet Format</source>
-        <translation type="unfinished">Formato del pacchetto</translation>
+        <translation>Formato del pacchetto</translation>
     </message>
     <message>
         <source>Include secondary data sources</source>
-        <translation type="unfinished">Includi le fonti di dati secondarie</translation>
+        <translation>Includi le fonti di dati secondarie</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate arrays for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Genera array per fonti dati secondarie come buffer riassemblati o decifrati, in aggiunta al frame.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include an array to index into the list of frames&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Includi un array per indicizzare l&apos;elenco dei frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Include index</source>
-        <translation type="unfinished"></translation>
+        <translation>Includi indice</translation>
     </message>
 </context>
 <context>
