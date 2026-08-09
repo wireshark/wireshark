@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* (last updated 2026-07-31) */
+/* (last updated 2026-08-07) */
 
 #include "config.h"
 
@@ -34604,7 +34604,7 @@ static const char * const table[] =
     "Tuenti Technologies",                                                                // 34582
     "V-Private AG",                                                                       // 34583
     "unterberg-electronic Gmbh",                                                          // 34584
-    "REWE-Informations-Systeme GmbH",                                                     // 34585
+    "REWE digital GmbH",                                                                  // 34585
     "Ontario Teachers Pension Plan Board",                                                // 34586
     "Hiive Systems",                                                                      // 34587
     "Beijing office of International Air Transport Association",                          // 34588
@@ -66424,7 +66424,80 @@ static const char * const table[] =
     "Aqua Vita International S. A.",                                                      // 66402
     "Metropolitni univerzita Praha, o.p.s.",                                              // 66403
     "Common Codes GmbH",                                                                  // 66404
-    "Ambermind"                                                                           // 66405
+    "Ambermind",                                                                          // 66405
+    "Usepov Oleg Surenovich",                                                             // 66406
+    "Silver Cross Hospital and Medical Centers",                                          // 66407
+    "Johnson Controls",                                                                   // 66408
+    "PT NUSAGLOBAL KARYA TEKNO",                                                          // 66409
+    "Aristotelian Network Solutions, INC.",                                               // 66410
+    "Resnics Technology (Shanghai), Inc.",                                                // 66411
+    "Deutsche Apotheker- und Ärztebank eG",                                               // 66412
+    "VERTICAL TECNOLOGIA INTERNET SERVICOS PAGAMENTOS E INTERMEDIACOES LTDA",             // 66413
+    "Delaval International AB",                                                           // 66414
+    "Kiran Vaidya",                                                                       // 66415
+    "Guggenheim Securities, LLC",                                                         // 66416
+    "ARIS",                                                                               // 66417
+    "Netavo Global Data Services Ltd",                                                    // 66418
+    "ROTE Solutions",                                                                     // 66419
+    "NEONEX Tecnologia Eletronica Ltda",                                                  // 66420
+    "Necessary Innovations AB",                                                           // 66421
+    "DistroGlobe Solutions Private Limited",                                              // 66422
+    "Betreiberverein ZAM e.V.",                                                           // 66423
+    "Rostro Foundation",                                                                  // 66424
+    "PLT networks GmbH",                                                                  // 66425
+    "IC Solutions sp. z o. o.",                                                           // 66426
+    "DreamCoder",                                                                         // 66427
+    "Verity AI Technologies, Inc.",                                                       // 66428
+    "Isla Cloud Solutions, S.L.",                                                         // 66429
+    "Stansell Electric Company",                                                          // 66430
+    "Paul Stanley Shulins",                                                               // 66431
+    "MysticMoments Soap",                                                                 // 66432
+    "Alex Terrats Ciberseguretat SLU",                                                    // 66433
+    "Resonance Development",                                                              // 66434
+    "360biolabs",                                                                         // 66435
+    "CORYS",                                                                              // 66436
+    "Knitli",                                                                             // 66437
+    "Firjen Cloud & Datacenters",                                                         // 66438
+    "Integrated Control Technology Limited",                                              // 66439
+    "TEPSYS (TDH / Z1D8)",                                                                // 66440
+    "Districratic SpA",                                                                   // 66441
+    "Hitachi Rail, Ltd",                                                                  // 66442
+    "PPS Data LLC",                                                                       // 66443
+    "Bureau of Motor Vehicles Indiana",                                                   // 66444
+    "Moss Point School District",                                                         // 66445
+    "Noon Technology Co., Ltd.",                                                          // 66446
+    "ROBERT ENAHOLO ASIBOR",                                                              // 66447
+    "Beijing Millennium Software Co., Ltd.",                                              // 66448
+    "Vayu",                                                                               // 66449
+    "LEMIER LLC",                                                                         // 66450
+    "CE-LINK",                                                                            // 66451
+    "WardenRTU",                                                                          // 66452
+    "Reduxi GmbH",                                                                        // 66453
+    "Tilitoimisto Ikonen Ky",                                                             // 66454
+    "NewRedo Ltd",                                                                        // 66455
+    "bezDodavatele a.s.",                                                                 // 66456
+    "Mahmut Erdem Özgen",                                                                 // 66457
+    "cyclohexane",                                                                        // 66458
+    "Isaiah Williams",                                                                    // 66459
+    "Tiet AI",                                                                            // 66460
+    "Bitsmart TI",                                                                        // 66461
+    "Ministry of Commerce, Cambodia",                                                     // 66462
+    "Monoma Ltd",                                                                         // 66463
+    "Devops & Platforms",                                                                 // 66464
+    "KCEP LLP",                                                                           // 66465
+    "Shenzhen HugeMed Medical Technical Development Co., Ltd.",                           // 66466
+    "GoodWe Technologies Co., Ltd",                                                       // 66467
+    "Nova Goose Global Publishing Group Inc.",                                            // 66468
+    "南京浩铭电子科技有限公司 (Nanjing Haoming Electronic Technology Co., Ltd.)",                     // 66469
+    "Opn Communication Inc.",                                                             // 66470
+    "veesix ::networks",                                                                  // 66471
+    "Coppin State University Community Health Center",                                    // 66472
+    "Tiszamenti Regionális Vízművek Zrt.",                                                // 66473
+    "manji0",                                                                             // 66474
+    "Percivix",                                                                           // 66475
+    "Psyray International B.V.",                                                          // 66476
+    "GrowVolution e.V.",                                                                  // 66477
+    "NextITX"                                                                             // 66478
 };
 
 const char* global_enterprises_lookup(uint32_t value)
