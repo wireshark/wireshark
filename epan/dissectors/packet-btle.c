@@ -6489,7 +6489,7 @@ proto_register_btle(void)
         },
         { &hf_control_peripheral_session_initialization_vector,
             { "Peripheral Session Initialization Vector",       "btle.control.peripheral_session_initialization_vector",
-            FT_UINT64, BASE_DEC_HEX, NULL, 0x0,
+            FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_control_max_rx_octets,
