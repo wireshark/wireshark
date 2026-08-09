@@ -113,7 +113,7 @@ hex2bin(uint8_t *out, uint8_t *out_end, char *in)
 			in++;
 			continue;
 		}
-		if (out == out_end)
+		if (out >= out_end)
 		{
 			/* Too much data */
 			return -1;
@@ -318,7 +318,8 @@ dct3trace_get_packet(wtap* wth, wtap_rec* rec, const char* text, size_t len, int
 						{
 							*err = WTAP_ERR_BAD_FILE;
 							*err_info = ws_strdup_printf("dct3trace: record length %d too long", rec->rec_header.packet_header.caplen);
-							return false;
+							status = false;
+							goto end;
 						}
 						local_len += data_len;
 
@@ -326,6 +327,10 @@ dct3trace_get_packet(wtap* wth, wtap_rec* rec, const char* text, size_t len, int
 						*(bufp - 1) = data_len << 2 | 0x1;
 					}
 				}
+				/* There should be only a single "l2" child element
+				 * within a "l1" element, so break. (This keeps us
+				 * from writing to bufp a seconds time.) */
+				break;
 			}
 		}
 	}
