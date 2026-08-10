@@ -105,6 +105,11 @@ The following features are either new or have been significantly updated since v
   with packet counts, first/last frame numbers, and protocols.
   A new "imsi" tap is registered by the E.212 dissector.
 
+* New compact JSON output option omits indentation and whitespace,
+  significantly reducing output size and improving performance.
+  Available as `tshark --json-compact` (with `-T json` or `-T jsonraw`)
+  and as a "Compact (no indentation)" checkbox in the GUI JSON export dialog.
+
 * The Windows installers now ship with Npcap 1.88.
   They previously shipped with Npcap 1.83.
 

@@ -3182,7 +3182,7 @@ cf_write_json_packets(capture_file *cf, print_args_t *print_args)
     if (fh == NULL)
         return CF_PRINT_OPEN_ERROR; /* attempt to open destination failed */
 
-    callback_args.jdumper = write_json_preamble(fh);
+    callback_args.jdumper = write_json_preamble(fh, print_args->json_compact);
     if (ferror(fh)) {
         fclose(fh);
         return CF_PRINT_WRITE_ERROR;

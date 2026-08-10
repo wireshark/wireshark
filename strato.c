@@ -3357,7 +3357,7 @@ write_preamble(capture_file *cf)
 
         case WRITE_JSON:
         case WRITE_JSON_RAW:
-            jdumper = write_json_preamble(stdout);
+            jdumper = write_json_preamble(stdout, false);
             return !ferror(stdout);
 
         case WRITE_EK:

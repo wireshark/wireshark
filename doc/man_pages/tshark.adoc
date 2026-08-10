@@ -2350,6 +2350,11 @@ If a key appears multiple times in an object, only write it a single time with
 as value a json array containing all the separate values. (Only works with
 *-T json*)
 
+--json-compact::
+Output compact JSON without indentation or extra whitespace. This significantly
+reduces output size and improves performance. (Only works with *-T json* and
+*-T jsonraw*)
+
 --elastic-mapping-filter <protocol>,<protocol>,...::
 +
 --

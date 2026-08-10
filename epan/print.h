@@ -239,7 +239,7 @@ WS_DLL_PUBLIC GSList *proto_node_group_children_by_json_key(proto_node *node);
  * @param fh File handle where the JSON output will be written.
  * @return json_dumper A json_dumper structure initialized with the provided file handle and pretty print flag.
  */
-WS_DLL_PUBLIC json_dumper write_json_preamble(FILE *fh);
+WS_DLL_PUBLIC json_dumper write_json_preamble(FILE *fh, bool compact);
 
 /**
  * @brief Writes a protocol tree to JSON format.

@@ -253,6 +253,12 @@ public:
      */
     bool noDuplicateKeys();
 
+    /**
+     * @brief Checks if compact JSON output is enabled.
+     * @return True if compact output is enabled, false otherwise.
+     */
+    bool jsonCompact();
+
 private:
     /**
      * @brief Checks if JSON values output is enabled.

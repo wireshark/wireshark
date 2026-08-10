@@ -721,11 +721,11 @@ proto_tree_write_node_pdml(proto_node *node, void *data)
 }
 
 json_dumper
-write_json_preamble(FILE *fh)
+write_json_preamble(FILE *fh, bool compact)
 {
     json_dumper dumper = {
         .output_file = fh,
-        .flags = JSON_DUMPER_FLAGS_PRETTY_PRINT
+        .flags = compact ? 0 : JSON_DUMPER_FLAGS_PRETTY_PRINT
     };
     json_dumper_begin_array(&dumper);
     return dumper;

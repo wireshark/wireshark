@@ -144,6 +144,7 @@
 #define LONGOPT_PRINT_TIMERS            LONGOPT_BASE_APPLICATION+9
 #define LONGOPT_GLOBAL_PROFILE          LONGOPT_BASE_APPLICATION+10
 #define LONGOPT_COMPRESS                LONGOPT_BASE_APPLICATION+11
+#define LONGOPT_JSON_COMPACT            LONGOPT_BASE_APPLICATION+12
 
 capture_file cfile;
 
@@ -195,6 +196,7 @@ static char *output_file_name;
 static output_fields_t* output_fields;
 
 static bool no_duplicate_keys;
+static bool json_compact;
 static proto_node_children_grouper_func node_children_grouper = proto_node_group_children_by_unique;
 
 static json_dumper jdumper;
@@ -593,6 +595,8 @@ print_usage(FILE *output)
     fprintf(output, "  --no-duplicate-keys      If -T json is specified, merge duplicate keys in an object\n");
     fprintf(output, "                           into a single key with as value a json array containing all\n");
     fprintf(output, "                           values\n");
+    fprintf(output, "  --json-compact           If -T json is specified, output compact one-line JSON\n");
+    fprintf(output, "                           without indentation (significantly faster)\n");
     fprintf(output, "  --elastic-mapping-filter <protocols> If -G elastic-mapping is specified, put only the\n");
     fprintf(output, "                           specified protocols within the mapping file\n");
     fprintf(output, "  --temp-dir <directory>   write temporary files to this directory\n");
@@ -1083,6 +1087,7 @@ main(int argc, char *argv[])
         {"print-timers", ws_no_argument, NULL, LONGOPT_PRINT_TIMERS},
         {"global-profile", ws_no_argument, NULL, LONGOPT_GLOBAL_PROFILE},
         {"compress", ws_required_argument, NULL, LONGOPT_COMPRESS},
+        {"json-compact", ws_no_argument, NULL, LONGOPT_JSON_COMPACT},
         {0, 0, 0, 0}
     };
     bool                 arg_error = false;
@@ -1948,6 +1953,9 @@ main(int argc, char *argv[])
                     goto clean_exit;
                 }
                 break;
+            case LONGOPT_JSON_COMPACT:
+                json_compact = true;
+                break;
             case '?':        /* Bad flag - print usage message */
             default:
                 /* wslog arguments are okay */
@@ -1993,6 +2001,12 @@ main(int argc, char *argv[])
 
     if (no_duplicate_keys && output_action != WRITE_JSON && output_action != WRITE_JSON_RAW) {
         cmdarg_err("--no-duplicate-keys can only be used with \"-T json\" and \"-T jsonraw\"");
+        exit_status = WS_EXIT_INVALID_OPTION;
+        goto clean_exit;
+    }
+
+    if (json_compact && output_action != WRITE_JSON && output_action != WRITE_JSON_RAW) {
+        cmdarg_err("--json-compact can only be used with \"-T json\" and \"-T jsonraw\"");
         exit_status = WS_EXIT_INVALID_OPTION;
         goto clean_exit;
     }
@@ -4627,7 +4641,7 @@ write_preamble(capture_file *cf)
 
         case WRITE_JSON:
         case WRITE_JSON_RAW:
-            jdumper = write_json_preamble(stdout);
+            jdumper = write_json_preamble(stdout, json_compact);
             return !ferror(stdout);
 
         case WRITE_EK:
