@@ -478,6 +478,24 @@ dissect_roughtime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     offset = 0;
 
+    if (tvb_captured_length(tvb) < 8) {
+        return 0;
+    }
+
+    /*
+     * The protocol type
+     * If we have no IETF header, assume Google's protocol version.
+     */
+    if(tvb_get_uint64(tvb, 0, ENC_LITTLE_ENDIAN) == HDR_IETF) {
+        proto_type = PROTO_TYPE_IETF;
+    } else if (tvb_get_uint32(tvb, 0, ENC_LITTLE_ENDIAN) < 16) {
+        /* The Google version starts with the number of outer tags, which
+         * should never be more than 7. Allow twice as many. */
+        proto_type = PROTO_TYPE_GOOGLE;
+    } else {
+        return 0;
+    }
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Roughtime");
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -496,12 +514,8 @@ dissect_roughtime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         conversation_add_proto_data(conv, proto_roughtime, conv_data);
     }
 
-    /*
-     * The protocol type
-     * If we have no IETF header, assume Google's protocol version
-     */
-    if(tvb_get_uint64(tvb, 0, ENC_LITTLE_ENDIAN) == HDR_IETF) {
-        proto_type = PROTO_TYPE_IETF;
+    switch (proto_type) {
+    case PROTO_TYPE_IETF:
         pi = proto_tree_add_string(roughtime_tree, hf_roughtime_proto, tvb, 0, 0, PROTO_TEXT_IETF);
         proto_item_set_generated(pi);
         proto_item_append_text(ti, ", Proto: %s", PROTO_TEXT_IETF);
@@ -517,9 +531,8 @@ dissect_roughtime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         offset += dissect_roughtime_msg(
             tvb_new_subset_length(tvb, offset, msg_len),
             pinfo, roughtime_tree, proto_type);
-
-    } else {
-        proto_type = PROTO_TYPE_GOOGLE;
+        break;
+    case PROTO_TYPE_GOOGLE:
         pi = proto_tree_add_string(roughtime_tree, hf_roughtime_proto, tvb, 0, 0, PROTO_TEXT_GOOGLE);
         proto_item_set_generated(pi);
         proto_item_append_text(ti, ", Proto: %s", PROTO_TEXT_GOOGLE);
@@ -529,6 +542,9 @@ dissect_roughtime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         offset += dissect_roughtime_msg(
             tvb_new_subset_remaining(tvb, offset),
             pinfo, roughtime_tree, proto_type);
+        break;
+    default:
+        DISSECTOR_ASSERT_NOT_REACHED();
     }
 
     /*
