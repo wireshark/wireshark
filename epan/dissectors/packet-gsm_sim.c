@@ -88,6 +88,7 @@ static int hf_chan_op;
 static int hf_chan_nr;
 
 static int hf_select_type;
+static int hf_select_rfu;
 static int hf_select_session_control;
 static int hf_select_unused_p2;
 static int hf_select_return_data;
@@ -1707,8 +1708,10 @@ static const value_string select_type_vals[] = {
 };
 
 static const value_string select_session_control_vals[] = {
-	{ 0x00, "Activation/Reset" },
-	{ 0x01, "Termination" },
+	{ 0x00, "Activation / Reset" },
+	{ 0x01, "Reserved / Force Reset" },
+	{ 0x02, "Termination" },
+	{ 0x03, "RFU" },
 	{ 0, NULL }
 };
 
@@ -2455,6 +2458,7 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended
 	switch (ins) {
 	case 0xA4: /* SELECT */
 		proto_tree_add_item(sim_tree, hf_select_type, tvb, offset+P1_OFFS, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sim_tree, hf_select_rfu, tvb, offset+P2_OFFS, 1, ENC_BIG_ENDIAN);
 		if (p1 == 0x04) { /* Selection by DF name (selection by AID) */
 			proto_tree_add_item(sim_tree, hf_select_session_control, tvb, offset+P2_OFFS, 1, ENC_BIG_ENDIAN);
 		} else {
@@ -3452,6 +3456,11 @@ proto_register_gsm_sim(void)
 			  FT_UINT8, BASE_HEX, VALS(select_type_vals), 0x00,
 			  NULL, HFILL }
 		},
+		{ &hf_select_rfu,
+			{ "RFU", "gsm_sim.select.rfu",
+			  FT_UINT8, BASE_HEX, NULL, 0x80,
+			  NULL, HFILL }
+		},
 		{ &hf_select_session_control,
 			{ "Session Control", "gsm_sim.select.session_control",
 			  FT_UINT8, BASE_HEX, VALS(select_session_control_vals), 0x60,
@@ -3463,11 +3472,8 @@ proto_register_gsm_sim(void)
 			  NULL, HFILL }
 		},
 		{ &hf_select_return_data,
-			/* Note: The mask 0x9C is correct according to
-			 * ETSI TS 102 221 Table 11.2: Coding of P2
-			 */
 			{ "Return Data", "gsm_sim.select.return_data",
-			  FT_UINT8, BASE_HEX, VALS(select_return_data_vals), 0x9C,
+			  FT_UINT8, BASE_HEX, VALS(select_return_data_vals), 0x1C,
 			  NULL, HFILL }
 		},
 		{ &hf_select_selection,
