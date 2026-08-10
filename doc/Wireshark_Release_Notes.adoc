@@ -28,7 +28,7 @@ https://www.wireshark.org/certifications[the Wireshark Foundation].
 
 === Bug Fixes
 
-// The following vulnerabilities have been fixed:
+The following vulnerabilities have been fixed:
 
 // * wssalink:2026-64[] {notable}
 // Foo protocol dissector {crash,infinite loop,memory leak}.
@@ -48,6 +48,23 @@ The following bugs have been fixed:
 // Bugs with the {notable} attribute show up in the "What's Changed" box on the download page.
 //* Wireshark contains traces of nuts. What kind of nuts? The kind you're allergic to. wsbuglink:5000[] {notable}
 
+* Wireshark Version 4.6.6 - File Capture Properties is excessively slow and hangs Wireshark on Windows. wsbuglink:21337[].
+* TCP Preference 'Analyze TCP sequence numbers' SEGFAULTs when toggled. wsbuglink:21380[].
+* Wireshark misdecodes S-NSSAI location validity information IE (5G NAS) wsbuglink:21411[].
+* Wireshark misdecodes NSAG information IE (5G NAS) wsbuglink:21412[].
+* Fuzz job UTF-8 encoding issue: fuzz-2026-07-17-15393056954.pcap. wsbuglink:21419[].
+* Wireshark misdecodes UE security capability IE (5G NAS) wsbuglink:21431[].
+* Wireshark misdecodes Registration wait range IE (5G NAS) wsbuglink:21432[].
+* Wireshark misdecodes Extended CAG information IE (5G NAS) wsbuglink:21433[].
+* Stack buffer overflow in K12/RF5 writer. wsbuglink:21436[].
+* BLF writer out-of-bounds read on truncated VLAN-tagged Ethernet frames. wsbuglink:21441[].
+* DLMS/COSEM compact-array TypeDescription recursion bypass can exhaust the stack. wsbuglink:21442[].
+* Deep NetLog JSON nesting exhausts the native stack. wsbuglink:21462[].
+* androiddump signed btsnoop length causes global out-of-bounds read. wsbuglink:21464[].
+* Wireshark misdecodes SOR transparent container IE (5G NAS) wsbuglink:21472[].
+* Unbounded Daintree timestamp fraction causes signed integer overflow. wsbuglink:21473[].
+* Wireshark misdecodes SOR-CMCI of SOR transparent container IE (5G NAS) wsbuglink:21477[].
+* Wireshark misdecodes Service level AA container (5GSM NAS) wsbuglink:21479[].
 
 // == Known Bugs
 
@@ -70,9 +87,36 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.6.6.. | rg packet- | sort -u)
+// rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.6.8.. | rg packet- | sort -u)
 [commaize]
 --
+ANSI_TCAP
+ASTERIX
+ASN.1 BER
+BT ATT
+BT AVRCP
+BT BR/EDR RF
+BT HFP
+C12.22
+CIGI
+CMS
+COSEM
+EBHSCR
+ESS
+FP
+GSM SIM
+GTPv2
+H.245
+Kerberos
+KNX/IP
+LBMSRS
+NAS-5GS
+RELOAD
+Rlogin
+RRC
+SSH
+X.509AF
+X.509IF
 --
 
 === New and Updated Capture File Support
@@ -81,6 +125,18 @@ There are no new protocols in this release.
 // Add one file type per line between the -- delimiters.
 [commaize]
 --
+3gpp phone log
+BLF
+Busmaster
+Catapult DCT2000
+Endace ERF
+Daintree SNA
+Gammu DCT3
+pcapng
+RTPDump
+Sniffer
+Tektronix K12xx
+TTTech Computertechnik TTL
 --
 
 === New and Updated File Format Decoding Support
