@@ -2453,7 +2453,8 @@ if(USE_REPOSITORY)
 	# https://github.com/maxmind/libmaxminddb/commit/3998f42bdb6678cbaa1a543057e5c81ba1668ac2
 	# percolates up to vcpkg.
 	# if (MAXMINDDB_FOUND)
-	# 	list (APPEND THIRD_PARTY_DLLS "${MAXMINDDB_DLL_DIR}/${MAXMINDDB_DLL}")
+	#	list(APPEND THIRD_PARTY_DLLS "$<$<CONFIG:Debug>:${MAXMINDDB_DLL_DIR_DEBUG}/${MAXMINDDB_DLL_DEBUG}")
+	#	list(APPEND THIRD_PARTY_DLLS "$<$<NOT:$<CONFIG:Debug>>:${MAXMINDDB_DLL_DIR_RELEASE}/${MAXMINDDB_DLL_RELEASE}>")
 	# endif(MAXMINDDB_FOUND)
 	if (LIBSSH_FOUND)
 		foreach( _dll ${LIBSSH_DLLS} )
@@ -4039,7 +4040,7 @@ endif()
 if (MAXMINDDB_FOUND)
 	set(mmdbresolve_LIBS
 		# Note: libmaxminddb is not GPL-2 compatible.
-		${MAXMINDDB_LIBRARY}
+		MaxMindDB::MaxMindDB
 		# Needed for CMake-built libmaxminddb.lib <= 1.43.
 		${SOCKET_LIBRARY}
 	)
@@ -4053,8 +4054,6 @@ if(NOT VCSVERSION_OVERRIDE)
 	add_dependencies(mmdbresolve vcs_version)
 endif()
 	target_link_libraries(mmdbresolve ${mmdbresolve_LIBS})
-	target_include_directories(mmdbresolve PUBLIC ${MAXMINDDB_INCLUDE_DIRS})
-	target_compile_definitions(mmdbresolve PUBLIC ${MAXMINDDB_DEFINITIONS})
 	install(TARGETS mmdbresolve RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 	if(BUILD_stratoshark AND ENABLE_APPLICATION_BUNDLE)
 		add_custom_command(TARGET mmdbresolve POST_BUILD
