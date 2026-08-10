@@ -98,6 +98,10 @@ add_custom_target(extcaps)
 # XXX - Should this be a shared library, and the headers installed as public
 # headers, for development of extcaps outside the source tree?
 add_library(extcap-base OBJECT extcap-base.c)
+target_link_libraries(extcap-base
+	PRIVATE
+		capchild
+)
 if(LIBSSH_FOUND)
 	add_library(ssh-base OBJECT ssh-base.c)
 	target_include_directories(ssh-base SYSTEM

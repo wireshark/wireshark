@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
 	cmdarg_err_init(extcap_log_cmdarg_err, extcap_log_cmdarg_err);
 
 	/* Initialize log handler early so we can have proper logging during startup. */
-	extcap_log_init();
+	extcap_log_init(extcap_conf);
 
 	/*
 	 * Get credential information for later use.

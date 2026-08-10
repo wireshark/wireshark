@@ -122,10 +122,8 @@ static void extcap_log(int priority, const char *function, const char *buffer, v
 #endif
 		break;
 	}
-	/* We set the libssh log level to specifically ask for this, so don't
-	 * both checking the log level a second time.
-	 */
-	ws_log_write_always_full("libssh", level, NULL, 0, function, "%s", buffer);
+	/* We might have altered the level above, so we have to check the level. */
+	ws_log_full("libssh", level, NULL, 0, function, "%s", buffer);
 }
 
 void ssh_base_list_config(unsigned *count)

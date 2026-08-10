@@ -305,7 +305,7 @@ int main(int argc, char *argv[])
     g_set_prgname("sshdig");
 
     /* Initialize log handler early so we can have proper logging during startup. */
-    extcap_log_init();
+    extcap_log_init(extcap_conf);
 
     sshdig_extcap_interface = g_path_get_basename(argv[0]);
     if (g_str_has_suffix(sshdig_extcap_interface, ".exe")) {

@@ -19,9 +19,17 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
-#include <wsutil/wslog.h>
 
+#include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/file_util.h>
+
+#ifdef _WIN32
+#include <wsutil/unicode-utils.h>
+#include <wsutil/win32-utils.h>
+#endif
+
+#include <capture/sync_pipe.h>
 
 #include "ws_attributes.h"
 
@@ -50,6 +58,8 @@ static FILE *custom_log;
 bool extcap_end_application;
 /* graceful shutdown callback, can be null */
 static void (*extcap_graceful_shutdown_cb)(void);
+/* toolbar control callback, can be null */
+static extcap_toolbar_control_cb_t extcap_toolbar_control_cb;
 
 static void extcap_init_log_file(const char *filename);
 
@@ -133,9 +143,15 @@ bool extcap_base_register_graceful_shutdown_cb(extcap_parameters * extcap _U_, v
     return true;
 }
 
-bool extcap_base_register_cleanup_postkill_cb(extcap_parameters* extcap _U_, void (*callback)(void))
+bool extcap_base_register_cleanup_postkill_cb(extcap_parameters* extcap, void (*callback)(void))
 {
     extcap->cleanup_postkill_cb = callback;
+    return true;
+}
+
+bool extcap_base_register_toolbar_control_cb(extcap_parameters * extcap _U_, extcap_toolbar_control_cb_t callback)
+{
+    extcap_toolbar_control_cb = callback;
     return true;
 }
 
@@ -175,12 +191,146 @@ void extcap_base_set_running_with(extcap_parameters * extcap, const char *fmt, .
     va_end(ap);
 }
 
-void extcap_log_init(void)
+static void
+extcap_log_writer(const char *domain, enum ws_log_level level,
+    const char *file, long line, const char *func,
+    const char *fatal_msg _U_, ws_log_manifest_t *mft,
+    const char *user_format, va_list user_ap,
+    void *user_data)
+{
+    extcap_parameters *extcap_conf = (extcap_parameters*)user_data;
+
+    if (extcap_conf && extcap_conf->control_out && extcap_conf->control_out_fd != -1) {
+        /* Format the log message as what the sync pipe expects:
+         * The numeric level, followed by a colon, and then the
+         * string matching the standard log string. */
+        GString *msg = g_string_new(NULL);
+        g_string_append_printf(msg, "%u:", level);
+        if (file != NULL) {
+            g_string_append_printf(msg, "%s", file);
+            if (line >= 0) {
+                g_string_append_printf(msg, ":%ld", line);
+            }
+            g_string_append(msg, " -- ");
+        }
+        if (func != NULL) {
+            g_string_append_printf(msg, "%s(): ", func);
+        }
+        g_string_append_vprintf(msg, user_format, user_ap);
+
+        /* If it's possible to write more than PIPE_BUF, we should acquire
+         * a mutex just in case here. */
+        sync_pipe_write_string_msg(extcap_conf->control_out_fd, SP_LOG_MSG, msg->str);
+        g_string_free(msg, TRUE);
+    } else {
+        ws_log_console_writer(domain, level, file, line, func, mft, user_format, user_ap);
+    }
+}
+
+void extcap_log_init(extcap_parameters *extcap_conf)
 {
     ws_log_init(NULL, "Extcap Debug Console");
-    /* extcaps cannot write debug information to parent on stderr. */
-    ws_log_console_writer_set_use_stdout(true);
+    ws_log_set_writer_with_data(extcap_log_writer, extcap_conf, NULL);
     ws_noisy("Extcap log initialization finished");
+}
+
+static int
+open_control_in(const char *pipename)
+{
+    int fd = -1;
+#ifndef _WIN32
+    fd = ws_open(pipename, O_RDONLY, 0000 /* no creation so don't matter */);
+    if (fd == -1) {
+        ws_warning("couldn't open %s (%i)", g_strerror(errno), errno);
+    }
+#else
+    if (!win32_is_pipe_name(pipename)) {
+        return -1;
+    }
+    /* Wait for the pipe to appear */
+    HANDLE hPipe;
+    while (1) {
+        hPipe = CreateFile(utf_8to16(pipename), GENERIC_READ, 0, NULL,
+                OPEN_EXISTING, 0, NULL);
+
+        if (hPipe != INVALID_HANDLE_VALUE) {
+            fd = _open_osfhandle((intptr_t)hPipe, O_RDONLY | O_BINARY);
+            break;
+        }
+
+        if (GetLastError() != ERROR_PIPE_BUSY) {
+            ws_warning("Error on control in pipe open: %s",
+                win32strerror(GetLastError()));
+            break;
+        }
+
+        if (!WaitNamedPipe(utf_8to16(pipename), 30 * 1000)) {
+            ws_warning("Control in pipe open timed out: %s",
+                win32strerror(GetLastError()));
+            break;
+        }
+    }
+#endif
+    return fd;
+}
+
+void *
+control_in_reader_thread(void *user_data) {
+    char *pipename = (char*)user_data;
+    ssize_t bytes_read;
+    char indicator;
+    char *buffer = g_malloc(SP_MAX_MSG_LEN);
+    char *primary_msg;
+    GIOChannel *control_io;
+
+    int fd = open_control_in(pipename);
+    if (fd == -1) {
+        ws_warning("Couldn't open control in pipe/FIFO %s", pipename);
+        g_free(pipename);
+        return NULL;
+    }
+    g_free(pipename);
+#ifdef _WIN32
+    control_io = g_io_channel_win32_new_fd(fd);
+#else
+    control_io = g_io_channel_unix_new(fd);
+#endif
+    g_io_channel_set_encoding(control_io, NULL, NULL);
+    g_io_channel_set_buffered(control_io, false);
+    g_io_channel_set_close_on_unref(control_io, true);
+
+    while ((bytes_read = sync_pipe_read_block(control_io, &indicator, SP_MAX_MSG_LEN,
+        buffer, &primary_msg)) >= 4) {
+        // bytes_read includes the header and should always be at least 4 on
+        // synchronous reads
+
+        ws_debug("Got a %c message with length %zu", indicator, (size_t)bytes_read);
+        switch (indicator) {
+        // Add other callbacks?
+        case SP_QUIT:
+            extcap_end_application = true;
+            if (extcap_graceful_shutdown_cb) {
+                extcap_graceful_shutdown_cb();
+            } else {
+                // XXX - Are there extcaps that gracefully shutdown when
+                // extcap_end_application is set to true but do not register
+                // a graceful shutdown callback?
+                //_Exit(0);
+            }
+            break;
+        case SP_TOOLBAR_CTRL:
+            if (extcap_toolbar_control_cb && bytes_read >= 6) {
+                extcap_toolbar_control_cb(buffer[0], buffer[1], g_bytes_new(&buffer[2], bytes_read - 6));
+            }
+        default:
+            continue;
+        }
+    }
+
+    ws_debug("control in thread exiting");
+    g_io_channel_unref(control_io);
+    g_free(buffer);
+    return NULL;
 }
 
 uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char * optargument)
@@ -235,6 +385,17 @@ uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char *
             break;
         case EXTCAP_OPT_FIFO:
             extcap->fifo = g_strdup(optargument);
+            break;
+        case EXTCAP_OPT_CONTROL_OUT:
+            extcap->control_out_fd = ws_open(optargument, O_WRONLY, 0000 /* no creation so don't matter */);
+            if (extcap->control_out_fd != -1) {
+                extcap->control_out = g_strdup(optargument);
+            }
+            break;
+        case EXTCAP_OPT_CONTROL_IN:
+            if (extcap->control_in_tid == NULL) {
+                extcap->control_in_tid = g_thread_new("Control in reader", control_in_reader_thread, g_strdup(optargument));
+            }
             break;
         default:
             ret = 0;
@@ -340,6 +501,8 @@ void extcap_base_cleanup(extcap_parameters ** extcap)
     g_list_free_full((*extcap)->interfaces, extcap_iface_free);
     g_free((*extcap)->exename);
     g_free((*extcap)->fifo);
+    g_free((*extcap)->control_in);
+    g_free((*extcap)->control_out);
     g_free((*extcap)->interface);
     g_free((*extcap)->capture_filter);
     g_free((*extcap)->version);
@@ -398,6 +561,8 @@ void extcap_help_add_header(extcap_parameters * extcap, char * help_header)
     extcap_help_add_option(extcap, "--capture", "run the capture");
     extcap_help_add_option(extcap, "--extcap-capture-filter <filter>", "the capture filter");
     extcap_help_add_option(extcap, "--fifo <file>", "dump data to file or fifo");
+    extcap_help_add_option(extcap, "--extcap-control-in <file>", "FIFO used to receive control messages");
+    extcap_help_add_option(extcap, "--extcap-control-out <file>", "FIFO used to send control messages");
     extcap_help_add_option(extcap, "--extcap-version", "print tool version");
     extcap_help_add_option(extcap, "--log-level", "Set the log level");
     extcap_help_add_option(extcap, "--log-file", "Set a log file to log messages in addition to the console");
