@@ -183,10 +183,10 @@ def extcap_config_option(interface, option_name, option_value):
         print("arg {number=%d}{call=%s}{display=%s}{tooltip=%s}{type=%s}%s" % arg)
 
 def extcap_version():
-    print("extcap {version=1.0}{help=https://www.wireshark.org}{display=Example extcap interface}")
+    print("extcap {version=1.0}{help=https://www.wireshark.org}{display=Example extcap interface}{control=2}")
 
 def extcap_interfaces():
-    print("extcap {version=1.0}{help=https://www.wireshark.org}{display=Example extcap interface}")
+    extcap_version();
     print("interface {value=example1}{display=Example interface 1 for extcap}")
     print("interface {value=example2}{display=Example interface 2 for extcap}")
     print("control {number=%d}{type=string}{display=Message}{tooltip=Package message content. Must start with a capital letter.}{placeholder=Enter package message content here ...}{validation=^[A-Z]+}" % CTRL_ARG_MESSAGE)

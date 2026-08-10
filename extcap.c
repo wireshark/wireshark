@@ -1306,6 +1306,19 @@ extcap_cleanup_postkill(const char* ifname)
 }
 
 #ifdef HAVE_LIBPCAP
+static unsigned
+extcap_get_control_for_ifname(const char *ifname)
+{
+    extcap_ensure_all_interfaces_loaded();
+
+    extcap_interface* interface = extcap_find_interface_for_ifname(ifname);
+    if (interface->control == 1 && !iface_toolbar_use()) {
+        return 0;
+    }
+
+    return interface->control;
+}
+
 static gboolean extcap_terminate_cb(void *user_data)
 {
     capture_session *cap_session = (capture_session *)user_data;
@@ -1426,7 +1439,7 @@ void extcap_request_stop(capture_session *cap_session)
             }
 #endif
         }
-        if (interface_opts->extcap_control_out && interface_opts->extcap_control_out_fd != -1 && g_mutex_trylock(&interface_opts->extcap_control_out_mtx))
+        if (extcap_get_control_for_ifname(interface_opts->name) > 1 && interface_opts->extcap_control_out && interface_opts->extcap_control_out_fd != -1 && g_mutex_trylock(&interface_opts->extcap_control_out_mtx))
         {
             sync_pipe_write_string_msg(interface_opts->extcap_control_out_fd, SP_QUIT, "");
             g_mutex_unlock(&interface_opts->extcap_control_out_mtx);
@@ -1942,11 +1955,13 @@ GPtrArray *extcap_prepare_arguments(interface_options *interface_opts)
         add_arg(interface_opts->extcap_fifo);
         if (interface_opts->extcap_control_in)
         {
+            /* Control In from our perspective is Out in the extcap's view */
             add_arg(EXTCAP_ARGUMENT_CONTROL_OUT);
             add_arg(interface_opts->extcap_control_in);
         }
         if (interface_opts->extcap_control_out)
         {
+            /* Control Out from our perspective is In in the extcap's view */
             add_arg(EXTCAP_ARGUMENT_CONTROL_IN);
             add_arg(interface_opts->extcap_control_out);
         }
@@ -2186,8 +2201,9 @@ extcap_init_interfaces(capture_session *cap_session)
             continue;
         }
 
-        /* create control pipes if having toolbar */
-        if (extcap_has_toolbar(interface_opts->name))
+        /* create control pipes if necessary */
+        unsigned control_needed = extcap_get_control_for_ifname(interface_opts->name);
+        if (control_needed)
         {
             extcap_create_pipe(interface_opts->name, &interface_opts->extcap_control_in,
 #ifdef _WIN32
@@ -2269,7 +2285,7 @@ extcap_init_interfaces(capture_session *cap_session)
             int num_pipe_handles = 1;
             pipe_handles[0] = interface_opts->extcap_pipe_h;
 
-            if (extcap_has_toolbar(interface_opts->name))
+            if (control_needed)
             {
                 pipe_handles[1] = interface_opts->extcap_control_in_h;
                 pipe_handles[2] = interface_opts->extcap_control_out_h;
@@ -2390,7 +2406,7 @@ process_new_extcap(const char *extcap, char *output)
 
     ws_info("Loading interface list for %s ", extcap);
 
-    /* Seems, that there where no interfaces to be loaded */
+    /* Seems that there were no interfaces to be loaded */
     if ( ! interfaces || g_list_length(interfaces) == 0 )
     {
         ws_info("Cannot load interfaces for %s", extcap );
@@ -2427,7 +2443,7 @@ process_new_extcap(const char *extcap, char *output)
             ws_info("Interface found %s\n", int_iter->call);
 
         /* Help is not necessarily stored with the interface, but rather with the version string.
-         * As the version string always comes in front of the interfaces, this ensures, that it gets
+         * As the version string always comes in front of the interfaces, this ensures that it gets
          * properly stored with the interface */
         if (int_iter->if_type == EXTCAP_SENTENCE_EXTCAP)
         {
@@ -2441,6 +2457,7 @@ process_new_extcap(const char *extcap, char *output)
                 element->basename = g_strdup(toolname);
                 element->full_path = g_strdup(extcap);
                 element->help = g_strdup(int_iter->help);
+                element->control = int_iter->control;
             }
 
             help = int_iter->help;
@@ -2472,15 +2489,29 @@ process_new_extcap(const char *extcap, char *output)
 
             int_iter->extcap_path = g_strdup(extcap);
 
-            /* Only set the help, if it exists and no parsed help information is present */
+            /* Only set the help if it exists and no parsed help information is present */
             if ( ! int_iter->help && help )
                 int_iter->help = g_strdup(help);
 
+            /* If the version string provided a default, use that for the
+             * interface unless the interface had its own (positive) value. */
+            if (!int_iter->control && element->control) {
+                int_iter->control = element->control;
+            }
             element->interfaces = g_list_append(element->interfaces, int_iter);
             g_hash_table_insert(_tool_for_ifname, g_strdup(int_iter->call), g_strdup(toolname));
 
             if (toolbar_entry)
             {
+                if (!int_iter->control) {
+                    /* XXX - Are we assured that iface_toolbar_use() already
+                     * returns true at this point, or can the interfaces be
+                     * loaded before that callback is set? If the former, we
+                     * could check it here, instead of setting the control
+                     * protocol version to 1 and verifying iface_toolbar_use()
+                     * later. */
+                    int_iter->control = 1;
+                }
                 if (!toolbar_entry->menu_title)
                 {
                     toolbar_entry->menu_title = g_strdup(int_iter->display);

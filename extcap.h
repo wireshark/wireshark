@@ -59,6 +59,7 @@ typedef struct _extcap_info {
     char  *full_path;   /**< Absolute path to the extcap executable */
     char  *version;     /**< Version string reported by the extcap via --extcap-version */
     char  *help;        /**< URL or text string pointing to the extcap's help resource */
+    unsigned control;   /**< Level of control pipe support (0 == None, 1 == Toolbar only, 2 == Quit) */
     GList *interfaces;  /**< List of extcap_interface entries exposed by this extcap binary */
 } extcap_info;
 

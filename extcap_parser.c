@@ -730,6 +730,14 @@ static extcap_interface *extcap_parse_interface_sentence(extcap_token_sentence *
         ri->help = g_strdup(param_value);
     }
 
+    if ((param_value = (char *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_CONTROL)))
+            != NULL) {
+        if (!ws_basestrtou(param_value, NULL, &ri->control, 0)) {
+            // Unrecognized; treat as 0
+            ri->control = 0;
+        }
+    }
+
     return ri;
 }
 

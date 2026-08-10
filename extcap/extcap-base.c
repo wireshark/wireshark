@@ -41,6 +41,7 @@ typedef struct _extcap_interface
 {
     char * interface;
     char * description;
+    unsigned control;
 
     uint16_t dlt;
     char * dltname;
@@ -83,12 +84,13 @@ static void extcap_exit_from_loop(int signo _U_)
 
 void extcap_base_register_interface(extcap_parameters * extcap, const char * interface, const char * ifdescription, uint16_t dlt, const char * dltdescription )
 {
-    extcap_base_register_interface_ext(extcap, interface, ifdescription, dlt, NULL, dltdescription );
+    extcap_base_register_interface_ext(extcap, interface, ifdescription, dlt, NULL, dltdescription, 0);
 }
 
 void extcap_base_register_interface_ext(extcap_parameters * extcap,
         const char * interface, const char * ifdescription,
-        uint16_t dlt, const char * dltname, const char * dltdescription )
+        uint16_t dlt, const char * dltname, const char * dltdescription,
+        unsigned control)
 {
     extcap_interface * iface;
 
@@ -99,6 +101,7 @@ void extcap_base_register_interface_ext(extcap_parameters * extcap,
 
     iface->interface = g_strdup(interface);
     iface->description = g_strdup(ifdescription);
+    iface->control = control;
     iface->dlt = dlt;
     iface->dltname = g_strdup(dltname);
     iface->dltdescription = g_strdup(dltdescription);
@@ -410,6 +413,8 @@ static void extcap_iface_print(void * data, void * userdata _U_)
     extcap_interface * iface = (extcap_interface *)data;
 
     printf("interface {value=%s}", iface->interface);
+    if (iface->control)
+        printf("{control=%u}", iface->control);
     if (iface->description != NULL)
         printf ("{display=%s}\n", iface->description);
     else

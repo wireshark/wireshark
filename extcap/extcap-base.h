@@ -141,8 +141,9 @@ void extcap_base_register_interface(extcap_parameters * extcap, const char * int
  * @param dlt Data Link Type (DLT) for the interface.
  * @param dltname Name of the DLT.
  * @param dltdescription Description of the DLT.
+ * @param control Level of control pipe support. 0 == None, 1 == SP_TOOLBAR_MSG only, 2 == Also SP_QUIT
  */
-void extcap_base_register_interface_ext(extcap_parameters * extcap, const char * interface, const char * ifdescription, uint16_t dlt, const char * dltname, const char * dltdescription );
+void extcap_base_register_interface_ext(extcap_parameters * extcap, const char * interface, const char * ifdescription, uint16_t dlt, const char * dltname, const char * dltdescription, unsigned control);
 
 /**
  * @brief Registers a callback function for graceful shutdown in the extcap framework.

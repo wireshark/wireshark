@@ -153,6 +153,7 @@ typedef struct _extcap_interface {
     char *version;     /**< Version string reported by the extcap for this interface */
     char *help;        /**< URL or text pointing to help documentation for this interface */
     char *extcap_path; /**< Absolute path to the extcap binary that provides this interface */
+    unsigned control;   /**< Level of control pipe support (0 == None, 1 == Toolbar only, 2 == Quit) */
 
     extcap_sentence_type if_type; /**< Sentence type discriminator (EXTCAP_SENTENCE_INTERFACE or EXTCAP_SENTENCE_DLT) */
 } extcap_interface;

@@ -380,7 +380,7 @@ int main(int argc, char *argv[])
 		interface_description = ws_strdup_printf("%s, custom version", interface_description);
 		g_free(temp);
 	}
-	extcap_base_register_interface(extcap_conf, sshdump_extcap_interface, interface_description, 147, "Remote capture dependent DLT");
+	extcap_base_register_interface_ext(extcap_conf, sshdump_extcap_interface, interface_description, 147, NULL, "Remote capture dependent DLT", 2);
 	g_free(interface_description);
 
 	help_header = ws_strdup_printf(
