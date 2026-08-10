@@ -39,13 +39,27 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark took a bite out of each of your freshly baked muffins until it found the perfect one. {notable}
 
+* Wireshark Version 4.6.6 - File Capture Properties is excessively slow and hangs Wireshark on Windows. wsbuglink:21337[].
+* Wireshark misdecodes S-NSSAI location validity information IE (5G NAS) wsbuglink:21411[].
+* Wireshark misdecodes NSAG information IE (5G NAS) wsbuglink:21412[].
+* Fuzz job UTF-8 encoding issue: fuzz-2026-07-17-15393056954.pcap. wsbuglink:21419[].
+* Wireshark misdecodes UE security capability IE (5G NAS) wsbuglink:21431[].
+* Wireshark misdecodes Registration wait range IE (5G NAS) wsbuglink:21432[].
+* Wireshark misdecodes Extended CAG information IE (5G NAS) wsbuglink:21433[].
+* Stack buffer overflow in K12/RF5 writer. wsbuglink:21436[].
+* Deep NetLog JSON nesting exhausts the native stack. wsbuglink:21462[].
+* androiddump signed btsnoop length causes global out-of-bounds read. wsbuglink:21464[].
+* Wireshark misdecodes SOR transparent container IE (5G NAS) wsbuglink:21472[].
+* Unbounded Daintree timestamp fraction causes signed integer overflow. wsbuglink:21473[].
+* Wireshark misdecodes SOR-CMCI of SOR transparent container IE (5G NAS) wsbuglink:21477[].
+* Wireshark misdecodes Service level AA container (5GSM NAS) wsbuglink:21479[].
 
 // == Known Bugs
 
 === New and Updated Features
 
-* The Windows installers now ship with Qt 6.7.3.
-  They previously shipped with Qt 6.5.3.
+// * The Windows installers now ship with Qt 6.7.3.
+//   They previously shipped with Qt 6.5.3.
 
 // === Removed Features and Support
 
@@ -58,9 +72,23 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.16.. | rg packet- | sort -u)
+// rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.18.. | rg packet- | sort -u)
 [commaize]
 --
+BT ATT
+BT AVRCP
+BT BR/EDR RF
+BT HFP
+C12.22
+CMS
+ESS
+FP
+H.245
+Kerberos
+Rlogin
+SSH
+X.509AF
+X.509IF
 --
 
 === New and Updated Capture File Support
@@ -69,6 +97,15 @@ There are no new protocols in this release.
 // Add one file type per line between the -- delimiters.
 [commaize]
 --
+3gpp phone log
+Busmaster
+Catapult DCT2000
+Daintree SNA
+Endace ERF
+pcapng
+RTPDump
+Sniffer
+Tektronix K12xx
 --
 
 === New and Updated File Format Decoding Support
