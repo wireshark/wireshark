@@ -57,12 +57,7 @@
 /* Number of seconds to wait for extcap process to exit after cleanup.
  * If extcap does not exit before the timeout, it is forcefully terminated.
  */
-#ifdef _WIN32
-/* Extcap interface does not specify SIGTERM replacement on Windows yet */
-#define EXTCAP_CLEANUP_TIMEOUT 0
-#else
 #define EXTCAP_CLEANUP_TIMEOUT 30
-#endif
 
 /* internal container, for all the extcap executables that have been found.
  * Will be reset if extcap_clear_interfaces() is being explicitly called
@@ -1378,6 +1373,7 @@ void extcap_request_stop(capture_session *cap_session)
     capture_options *capture_opts = cap_session->capture_opts;
     interface_options *interface_opts;
     unsigned icnt = 0;
+    unsigned terminate_interval = EXTCAP_CLEANUP_TIMEOUT;
 
     if (capture_opts->extcap_terminate_id > 0)
     {
@@ -1411,16 +1407,42 @@ void extcap_request_stop(capture_session *cap_session)
         ws_info("Extcap [%s] - Requesting stop PID: %"PRIdMAX, interface_opts->name,
               (intmax_t)interface_opts->extcap_pid);
 
-#ifndef _WIN32
-        if (interface_opts->extcap_pid != WS_INVALID_PID)
+        if (interface_opts->extcap_control_out)
         {
-            kill(interface_opts->extcap_pid, SIGTERM);
-        }
+#ifdef _WIN32
+            interface_opts->extcap_control_out_fd = _open_osfhandle((intptr_t)interface_opts->extcap_control_out_h, O_WRONLY | O_BINARY);
+#else
+            /* This is the only time this opens the control out pipe (the
+             * Qt InterfaceToolbar opens it separately), so just try to open
+             * it now O_NONBLOCK. If it fails, we're quitting anyway; just fall
+             * back to sending the signal. */
+            interface_opts->extcap_control_out_fd = ws_open(interface_opts->extcap_control_out, O_WRONLY | O_NONBLOCK, 0000);
+            if (interface_opts->extcap_control_out_fd != -1)
+            {
+                int flags = fcntl(interface_opts->extcap_control_out_fd, F_GETFL);
+                if (-1 == fcntl(interface_opts->extcap_control_out_fd, F_SETFL, flags & ~O_NONBLOCK)) {
+                    ws_debug("Failure setting control out to blocking: %s", g_strerror(errno));
+                }
+            }
 #endif
+        }
+        if (interface_opts->extcap_control_out && interface_opts->extcap_control_out_fd != -1 && g_mutex_trylock(&interface_opts->extcap_control_out_mtx))
+        {
+            sync_pipe_write_string_msg(interface_opts->extcap_control_out_fd, SP_QUIT, "");
+            g_mutex_unlock(&interface_opts->extcap_control_out_mtx);
+        }
+        else if (interface_opts->extcap_pid != WS_INVALID_PID)
+        {
+#ifdef _WIN32
+            terminate_interval = 0;
+#else
+            kill(interface_opts->extcap_pid, SIGTERM);
+#endif
+        }
     }
 
     capture_opts->extcap_terminate_id =
-        g_timeout_add_seconds(EXTCAP_CLEANUP_TIMEOUT, extcap_terminate_cb, cap_session);
+        g_timeout_add_seconds(terminate_interval, extcap_terminate_cb, cap_session);
 }
 
 static gboolean
@@ -1496,7 +1518,12 @@ bool extcap_session_stop(capture_session *cap_session)
             ws_info("Extcap [%s] - Closing control_out pipe", interface_opts->name);
             FlushFileBuffers(interface_opts->extcap_control_out_h);
             DisconnectNamedPipe(interface_opts->extcap_control_out_h);
-            CloseHandle(interface_opts->extcap_control_out_h);
+            if (interface_opts->extcap_control_out_fd != -1) {
+                ws_close(interface_opts->extcap_control_out_fd);
+                interface_opts->extcap_control_out_fd = -1;
+            } else {
+                CloseHandle(interface_opts->extcap_control_out_h);
+            }
             interface_opts->extcap_control_out_h = INVALID_HANDLE_VALUE;
         }
 #else
@@ -1532,6 +1559,10 @@ bool extcap_session_stop(capture_session *cap_session)
             rmdir(interface_opts->extcap_control_out);
             g_free(interface_opts->extcap_control_out);
             interface_opts->extcap_control_out = NULL;
+            if (interface_opts->extcap_control_out_fd != -1) {
+                ws_close(interface_opts->extcap_control_out_fd);
+                interface_opts->extcap_control_out_fd = -1;
+            }
         }
 #endif
     }
@@ -2251,6 +2282,12 @@ extcap_init_interfaces(capture_session *cap_session)
 #endif
 
         extcap_setup_control_in(cap_session, interface_opts);
+
+        /* Opening the control out pipe blocking here can run into a Dining
+         * Philosophers problem, depending on how and in what order the
+         * extcap opens the main FIFO and the control pipes. For now, we
+         * only write SP_QUIT to the control out FIFO from this thread, so
+         * we don't need to open it yet. */
     }
 
     return true;

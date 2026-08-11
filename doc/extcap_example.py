@@ -33,7 +33,7 @@ import re
 import struct
 import sys
 import time
-from threading import Thread
+from threading import Thread, Event
 
 ERROR_USAGE          = 0
 ERROR_ARG            = 1
@@ -67,6 +67,7 @@ delay = 0.0
 verify = False
 button = False
 button_disabled = False
+stop_event = Event()
 
 """
 This code has been taken from http://stackoverflow.com/questions/5943249/python-argparse-and-controlling-overriding-the-exit-status-code - originally developed by Rob Cowie http://stackoverflow.com/users/46690/rob-cowie
@@ -296,13 +297,21 @@ def pcap_fake_package(message, fake_ip):
 
 def control_read(fn):
     try:
-        header = fn.read(6)
-        sp, _, length, arg, typ = struct.unpack('>sBHBB', header)
-        if length > 2:
-            payload = fn.read(length - 2).decode('utf-8', 'replace')
-        else:
-            payload = ''
-        return arg, typ, payload
+        header = fn.read(4)
+        # length really is 24-bit but this dissector doesn't expect
+        # any messages that long
+        sp, _, length = struct.unpack('>sBH', header)
+        if length > 0:
+            payload = fn.read(length)
+        if sp == b'Q': # SP_QUIT
+            stop_event.set()
+            sys.exit() # Exit this thread
+        elif sp == b'T': # SP_TOOLBAR_CTRL
+            # Will throw struct.error (inherits from exception) if length < 2,
+            # and will correctly return an empty string if length == 2
+            arg, typ, payload = struct.unpack(f'>BB{length-2}s', payload)
+            payload = payload.decode('utf-8', 'replace')
+            return arg, typ, payload
     except Exception:
         return None, None, None
 
@@ -401,7 +410,7 @@ def extcap_capture(interface, fifo, control_in, control_out, in_delay, in_verify
         dataPackage = int(0)
         dataTotal = int(len(data) / 20) + 1
 
-        while True:
+        while not stop_event.is_set():
             if fn_out is not None:
                 log = "Received packet #" + str(counter) + "\n"
                 control_write(fn_out, CTRL_ARG_LOGGER, CTRL_CMD_ADD, log)
@@ -419,7 +428,7 @@ def extcap_capture(interface, fifo, control_in, control_out, in_delay, in_verify
 
             out = ("%c%s%c%c%c%s%c%s%c" % (len(remote), remote.strip(), dataPackage, dataTotal, len(dataSub), dataSub.strip(), len(message), message.strip(), verify)).encode("utf8")
             fh.write(pcap_fake_package(out, fake_ip))
-            time.sleep(delay)
+            stop_event.wait(delay)
 
     thread.join()
     if fn_out is not None:

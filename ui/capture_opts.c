@@ -666,6 +666,8 @@ fill_in_interface_opts_defaults(interface_options *interface_opts, const interfa
     interface_opts->extcap_control_in = g_strdup(if_from_capture_opts->extcap_control_in);
     interface_opts->extcap_control_out = g_strdup(if_from_capture_opts->extcap_control_out);
     interface_opts->extcap_control_in_watch = 0;
+    interface_opts->extcap_control_out_fd = -1;
+    g_mutex_init(&interface_opts->extcap_control_out_mtx);
     interface_opts->buffer_size = if_from_capture_opts->buffer_size;
     interface_opts->monitor_mode = if_from_capture_opts->monitor_mode;
 #ifdef HAVE_PCAP_REMOTE
@@ -1482,6 +1484,7 @@ interface_opts_free(interface_options *interface_opts)
         g_string_free(interface_opts->extcap_stderr, TRUE);
     g_free(interface_opts->extcap_control_in);
     g_free(interface_opts->extcap_control_out);
+    g_mutex_clear(&interface_opts->extcap_control_out_mtx);
 #ifdef HAVE_PCAP_REMOTE
     if (interface_opts->src_type == CAPTURE_IFREMOTE) {
         g_free(interface_opts->remote_host);
@@ -1563,6 +1566,9 @@ collect_ifaces(capture_options *capture_opts)
 #endif
             interface_opts.extcap_control_in = NULL;
             interface_opts.extcap_control_out = NULL;
+            interface_opts.extcap_control_in_watch = 0;
+            interface_opts.extcap_control_out_fd = -1;
+            g_mutex_init(&interface_opts.extcap_control_out_mtx);
             interface_opts.buffer_size =  device->buffer;
             interface_opts.monitor_mode = device->monitor_mode_enabled;
 #ifdef HAVE_PCAP_REMOTE

@@ -654,12 +654,17 @@ void InterfaceToolbar::controlSend(QString ifname, int num, int command, const Q
     ba.append(command);
     ba.append(payload);
 
+    /* In practice, these messages should be under PIPE_BUF or similar but
+     * the mutex is for extra safety. It really should all be written from
+     * the same thread. */
+    g_mutex_lock(&(interface_[ifname].interface_opts->extcap_control_out_mtx));
     if (ws_write(interface_[ifname].out_fd, ba.data(), ba.length()) != ba.length())
     {
         simple_dialog_async(ESD_TYPE_ERROR, ESD_BTN_OK,
                             "Unable to send control message:\n%s.",
                             g_strerror(errno));
     }
+    g_mutex_unlock(&(interface_[ifname].interface_opts->extcap_control_out_mtx));
 }
 
 void InterfaceToolbar::onControlButtonClicked()
@@ -841,6 +846,7 @@ void InterfaceToolbar::startCapture(GArray *ifaces)
 #else
         interface_[ifname].out_fd = ws_open(interface_opts->extcap_control_out, O_WRONLY | O_BINARY, 0);
 #endif
+        interface_[ifname].interface_opts = interface_opts;
         sendChangedValues(ifname);
         controlSend(ifname, 0, commandControlInitialized);
     }

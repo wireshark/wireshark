@@ -679,6 +679,11 @@ int ws_close_if_possible(int fd) {
     FD_ZERO(&rfds);
     FD_SET(fd, &rfds);
 
+    /* XXX - select() doesn't work on named pipes and other file descriptors
+     * in Windows, only sockets. Does this ever work? Double-closing should
+     * be prevented in other ways (e.g., checking that fd is not -1.)
+     * https://learn.microsoft.com/en-us/windows/win32/api/winsock2/nf-winsock2-select
+     */
     retval = select(1, &rfds, NULL, NULL, &tv);
     if (retval > -1)
         return _close(fd);

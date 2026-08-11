@@ -11,6 +11,7 @@
 #define INTERFACE_TOOLBAR_H
 
 #include "ui/iface_toolbar.h"
+#include "ui/capture_opts.h"
 #include "funnel_text_dialog.h"
 #include "capture_event.h"
 
@@ -31,6 +32,12 @@ struct interface_values
 {
     /** File descriptor for writing control messages to the interface. */
     int out_fd;
+
+    /** Pointer to the interface options. This should not go away while
+     * capture is going.
+     * XXX - Have something else (e.g. InterfaceListManager?) store a map
+     * between names and options? */
+    interface_options *interface_opts;
 
     /** Map of control numbers to their current byte array values. */
     QMap<int, QByteArray> value;
