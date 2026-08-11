@@ -1758,7 +1758,7 @@ issue_next_read(PipeSourceData *data, PipeSourceFunc pipe_cb, capture_session *c
         ResetEvent(data->overlapped.hEvent);
         // Check for synchronous transfers
         if (ReadFile(data->pipe_handle, &data->buffer[data->pos], PIPE_BUF_SIZE - data->pos, &bytes_transferred, &data->overlapped)) {
-            ws_debug("ReadFile success: bytes %u", bytes_transferred);
+            ws_debug("ReadFile success: bytes %lu", bytes_transferred);
             if (bytes_transferred) {
                 data->pos += bytes_transferred;
                 pipe_cb(data, cap_session);
@@ -1770,6 +1770,9 @@ issue_next_read(PipeSourceData *data, PipeSourceFunc pipe_cb, capture_session *c
         case ERROR_IO_PENDING:
             ws_debug("Pending Overlapped read");
             return true;
+        case ERROR_BROKEN_PIPE:
+            ws_debug("Extcap control in pipe has been closed");
+            return false;
         default:
             ws_warning("ReadFile on extcap control in pipe failed: %s", win32strerror(error));
             return false;
@@ -1780,7 +1783,11 @@ issue_next_read(PipeSourceData *data, PipeSourceFunc pipe_cb, capture_session *c
 static gboolean pipe_io_dispatch(GSource *source, GSourceFunc callback, void *user_data) {
     PipeSourceData *data = (PipeSourceData*)source;
     capture_session *cap_session = (capture_session*)user_data;
-    PipeSourceFunc pipe_cb = (PipeSourceFunc)callback;
+
+    // Silence -Wcast-function-type (this is what GLib does internally)
+    void (*generic_func)(void) = (void (*)(void))callback;
+
+    PipeSourceFunc pipe_cb = (PipeSourceFunc)generic_func;
     DWORD bytes_transferred;
 
     if (GetOverlappedResult(data->pipe_handle, &data->overlapped, &bytes_transferred, FALSE)) {
@@ -1834,9 +1841,9 @@ extcap_control_in_cb(GIOChannel *source, GIOCondition condition, void *data)
 
     if (bytes_read < 4) // on success, always includes the 4-byte header
     {
-        if (msg) {
-            /* Read and free msg */
-            ws_warning("msg: %s", msg);
+        if (bytes_read < 0 && msg) {
+            /* Some kind of error with a message. Read and free message. */
+            cap_session->error(cap_session, msg, NULL);
             g_free(msg);
         }
         interface_opts->extcap_control_in_watch = 0;
