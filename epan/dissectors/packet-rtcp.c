@@ -1162,8 +1162,9 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     unsigned int offset = 0;
     unsigned int first_byte;
     unsigned int packet_type;
+    unsigned word_length;
 
-    if (tvb_captured_length(tvb) < 2)
+    if (tvb_captured_length(tvb) < 4)
         return false;
 
     /* Look at first byte */
@@ -1198,6 +1199,14 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     /* Overall length must be a multiple of 4 bytes */
     if (tvb_reported_length(tvb) % 4)
     {
+        return false;
+    }
+
+    /* Overall length must be at least as big as indicated in the header.
+     * (It could be a compound packet, and in SRTCP all packet headers
+     * past the first are in the Encrypted Portion.) */
+    word_length = tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN) + 1;
+    if (tvb_reported_length(tvb) < word_length * 4) {
         return false;
     }
 
