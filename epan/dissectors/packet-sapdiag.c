@@ -14,6 +14,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <wsutil/wmem/wmem.h>
+#include <wsutil/saplzclzh.h>
 
 #include "packet-sapsnc.h"
 
@@ -23,6 +24,7 @@
  * is associated to SAP Router.
  */
 #define SAPDIAG_PORT_RANGE "3200"
+#define SAPDIAG_DEFAULT_MAX_UNCOMPRESSED_SIZE (16U * 1024U * 1024U)
 
 /* SAP Diag Header Communication Flag values */
 #define SAPDIAG_COM_FLAG_TERM_EOS   0x01
@@ -893,6 +895,7 @@ static int hf_sapdiag_uncomplength;
 static int hf_sapdiag_algorithm;
 static int hf_sapdiag_magic;
 static int hf_sapdiag_special;
+static int hf_sapdiag_decompress_return_code;
 
 /* Message Data */
 static int hf_sapdiag_item;
@@ -1219,6 +1222,12 @@ static expert_field ei_sapdiag_atom_item_partial;
 static expert_field ei_sapdiag_atom_item_malformed;
 static expert_field ei_sapdiag_dynt_focus_more_cont_ids;
 static expert_field ei_sapdiag_password_field;
+static expert_field ei_sapdiag_invalid_decompression;
+static expert_field ei_sapdiag_invalid_decompress_length;
+
+/* Global decompress preference */
+static bool global_sapdiag_decompress = true;
+static unsigned global_sapdiag_max_uncompressed_size = SAPDIAG_DEFAULT_MAX_UNCOMPRESSED_SIZE;
 
 /* Global RFC dissection preference */
 static bool global_sapdiag_rfc_dissection = true;
@@ -1579,10 +1588,8 @@ dissect_sapdiag_rfc_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
 	tvbuff_t *next_tvb = NULL;
 	dissector_handle_t rfc_handle;
 
-	/* Call the RFC internal dissector.
-	 * TODO: This should be enabled when the RFC dissector is merged as they depend on each other.
-	 */
-	if (global_sapdiag_rfc_dissection && false){
+	/* Call the RFC internal dissector */
+	if (global_sapdiag_rfc_dissection){
 		rfc_handle = find_dissector("saprfcinternal");
 		if (rfc_handle){
 			/* Set the column to not writable so the RFC dissector doesn't override the Diag info */
@@ -2922,17 +2929,30 @@ check_sapdiag_compression(tvbuff_t *tvb, uint32_t offset)
 static void
 dissect_sapdiag_compressed_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *sapdiag, uint32_t offset)
 {
+	int rt = 0;
+	int compressed_length;
+	tvbuff_t *next_tvb = NULL;
+	const uint8_t *compressed_buffer = NULL;
+	uint8_t *decompressed_buffer = NULL;
 	uint32_t reported_length = 0;
+	uint32_t uncompress_length = 0;
+	uint32_t payload_offset = 0;
 	proto_item *compression_header = NULL;
+	proto_item *decompress_return_code = NULL;
+	proto_item *rl = NULL;
+	proto_item *payload = NULL;
 	proto_tree *compression_header_tree = NULL;
+	proto_tree *payload_tree = NULL;
 
 	/* Add the compression header subtree */
 	compression_header = proto_tree_add_item(tree, hf_sapdiag_compress_header, tvb, offset, 8, ENC_NA);
 	compression_header_tree = proto_item_add_subtree(compression_header, ett_sapdiag);
 
+	payload_offset = offset;
+
 	/* Add the uncompressed length */
 	reported_length = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(compression_header_tree, hf_sapdiag_uncomplength, tvb, offset, 4, reported_length);
+	rl = proto_tree_add_uint(compression_header_tree, hf_sapdiag_uncomplength, tvb, offset, 4, reported_length);
 	offset+=4;
 	proto_item_append_text(sapdiag, ", Uncompressed Len: %u", reported_length);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " Uncompressed Length=%u ", reported_length);
@@ -2947,9 +2967,49 @@ dissect_sapdiag_compressed_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	proto_tree_add_item(compression_header_tree, hf_sapdiag_special, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	/* TODO: Decompression is not yet enabled until the LZC/LZH library is added
-	 * Here we just add the payload subtree
-	 */
+	if (global_sapdiag_decompress) {
+		if (reported_length == 0 || reported_length > global_sapdiag_max_uncompressed_size) {
+			expert_add_info_format(pinfo, rl, &ei_sapdiag_invalid_decompress_length,
+					"Reported uncompressed payload length %u is invalid or exceeds the configured maximum of %u bytes",
+					reported_length, global_sapdiag_max_uncompressed_size);
+		} else {
+			compressed_length = tvb_captured_length_remaining(tvb, payload_offset);
+			compressed_buffer = tvb_get_ptr(tvb, payload_offset, compressed_length);
+			decompressed_buffer = (uint8_t *)wmem_alloc0(pinfo->pool, reported_length);
+			uncompress_length = reported_length;
+
+			rt = sap_lzclzh_decompress(pinfo->pool, compressed_buffer,
+					compressed_length, decompressed_buffer, &uncompress_length);
+
+			decompress_return_code = proto_tree_add_int_format_value(compression_header_tree,
+					hf_sapdiag_decompress_return_code, tvb, payload_offset, 0, rt,
+					"%d (%s)", rt, sap_lzclzh_decompress_error_string(rt));
+			proto_item_set_generated(decompress_return_code);
+
+			if (rt != CS_END_OF_STREAM) {
+				expert_add_info_format(pinfo, compression_header, &ei_sapdiag_invalid_decompression,
+						"Decompression of payload failed with return code %d (%s)",
+						rt, sap_lzclzh_decompress_error_string(rt));
+			} else {
+				if (uncompress_length != reported_length) {
+					expert_add_info_format(pinfo, rl, &ei_sapdiag_invalid_decompress_length,
+							"The uncompressed payload length (%u) differs from the reported length (%u)",
+							uncompress_length, reported_length);
+				}
+
+				next_tvb = tvb_new_child_real_data(tvb, decompressed_buffer,
+						uncompress_length, uncompress_length);
+				add_new_data_source(pinfo, next_tvb, "Uncompressed Data");
+
+				payload = proto_tree_add_item(tree, hf_sapdiag_payload, next_tvb, 0, -1, ENC_NA);
+				payload_tree = proto_item_add_subtree(payload, ett_sapdiag);
+				dissect_sapdiag_payload(next_tvb, pinfo, payload_tree, tree, 0);
+				return;
+			}
+		}
+	}
+
+	/* Preserve the original compressed payload if decompression is disabled or fails. */
 	proto_tree_add_item(tree, hf_sapdiag_payload, tvb, offset, -1, ENC_NA);
 }
 
@@ -3010,10 +3070,10 @@ dissect_sapdiag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 	/* Check for fixed error messages */
 	if (tvb_strneql(tvb, 0, "**DPTMMSG**\x00", 12) == 0){
 		proto_tree_add_item(sapdiag_tree, hf_sapdiag_payload, tvb, offset, -1, ENC_NA);
-		return offset;
+		return tvb_captured_length(tvb);
 	} else if (tvb_strneql(tvb, 0, "**DPTMOPC**\x00", 12) == 0){
 		proto_tree_add_item(sapdiag_tree, hf_sapdiag_payload, tvb, offset, -1, ENC_NA);
-		return offset;
+		return tvb_captured_length(tvb);
 	}
 
 	/* Add the header subtree */
@@ -3085,7 +3145,7 @@ dissect_sapdiag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 		}
 	}
 
-	return offset;
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -3147,6 +3207,8 @@ proto_register_sapdiag(void)
 			{ "Magic Bytes", "sapdiag.header.compression.magic", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sapdiag_special,
 			{ "Special", "sapdiag.header.compression.special", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_decompress_return_code,
+			{ "Decompress Return Code", "sapdiag.header.compression.returncode", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		/* SAPDiag Messages */
 		{ &hf_sapdiag_item,
@@ -3804,6 +3866,8 @@ proto_register_sapdiag(void)
 		{ &ei_sapdiag_atom_item_malformed, { "sapdiag.item.value.dyntatom.invalid", PI_MALFORMED, PI_WARN, "The Diag Atom is malformed", EXPFILL }},
 		{ &ei_sapdiag_dynt_focus_more_cont_ids, { "sapdiag.item.value.uievent.containernrs.invalid", PI_MALFORMED, PI_WARN, "Number of Container IDs is invalid", EXPFILL }},
 		{ &ei_sapdiag_password_field, { "sapdiag.item.value.dyntatom.item.password", PI_SECURITY, PI_WARN, "Password field?", EXPFILL }},
+		{ &ei_sapdiag_invalid_decompression, { "sapdiag.header.compression.invalid", PI_MALFORMED, PI_WARN, "Decompression of payload failed", EXPFILL }},
+		{ &ei_sapdiag_invalid_decompress_length, { "sapdiag.header.compression.uncomplength.invalid", PI_MALFORMED, PI_WARN, "The uncompressed payload length differs from the reported length", EXPFILL }},
 	};
 
 	module_t *sapdiag_module;
@@ -3824,13 +3888,28 @@ proto_register_sapdiag(void)
 	sapdiag_module = prefs_register_protocol(proto_sapdiag, proto_reg_handoff_sapdiag);
 
 	range_convert_str(wmem_epan_scope(), &global_sapdiag_port_range, SAPDIAG_PORT_RANGE, MAX_TCP_PORT);
-	prefs_register_range_preference(sapdiag_module, "tcp_ports", "SAP Diag Protocol TCP port numbers", "Port numbers used for SAP Diag Protocol (default " SAPDIAG_PORT_RANGE ")", &global_sapdiag_port_range, MAX_TCP_PORT);
+	prefs_register_range_preference(sapdiag_module, "tcp_ports", "SAP Diag Protocol TCP port numbers",
+		"Port numbers used for SAP Diag Protocol (default " SAPDIAG_PORT_RANGE ")",
+		&global_sapdiag_port_range, MAX_TCP_PORT);
 
-	prefs_register_bool_preference(sapdiag_module, "rfc_dissection", "Dissect embedded SAP RFC calls", "Whether the SAP Diag Protocol dissector should call the SAP RFC dissector for embedded RFC calls", &global_sapdiag_rfc_dissection);
+	prefs_register_bool_preference(sapdiag_module, "decompress", "Decompress SAP Diag Protocol message payloads",
+		"Whether the SAP Diag Protocol dissector should decompress message payloads.",
+		&global_sapdiag_decompress);
+	prefs_register_uint_preference(sapdiag_module, "max_uncompressed_size", "Maximum uncompressed message size",
+			"Maximum number of bytes to allocate for an uncompressed SAP Diag message.",
+			10, &global_sapdiag_max_uncompressed_size);
 
-	prefs_register_bool_preference(sapdiag_module, "snc_dissection", "Dissect SAP SNC frames", "Whether the SAP Diag Protocol dissector should call the SAP SNC dissector for SNC frames", &global_sapdiag_snc_dissection);
+	prefs_register_bool_preference(sapdiag_module, "rfc_dissection", "Dissect embedded SAP RFC calls",
+		"Whether the SAP Diag Protocol dissector should call the SAP RFC dissector for embedded RFC calls",
+		&global_sapdiag_rfc_dissection);
 
-	prefs_register_bool_preference(sapdiag_module, "highlight_unknown_items", "Highlight unknown SAP Diag Items", "Whether the SAP Diag Protocol dissector should highlight unknown SAP Diag item (might be noise and generate a lot of expert warnings)", &global_sapdiag_highlight_items);
+	prefs_register_bool_preference(sapdiag_module, "snc_dissection", "Dissect SAP SNC frames",
+		"Whether the SAP Diag Protocol dissector should call the SAP SNC dissector for SNC frames",
+		&global_sapdiag_snc_dissection);
+
+	prefs_register_bool_preference(sapdiag_module, "highlight_unknown_items", "Highlight unknown SAP Diag Items",
+		"Whether the SAP Diag Protocol dissector should highlight unknown SAP Diag item (might be noise and generate a lot of expert warnings)",
+		&global_sapdiag_highlight_items);
 
 }
 

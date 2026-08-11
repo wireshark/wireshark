@@ -56,9 +56,36 @@ extern "C" {
 /* Return code for memory errors */
 #define SAP_LZC_LZH_CS_E_MEMORY_ERROR -99
 
+
+/**
+ * @brief Returns a human-readable error string for a given return code.
+ *
+ * This function takes an integer return code from the SAP LZC/LZH decompression routines
+ * and returns a corresponding human-readable error string. It helps in understanding the nature
+ * of the error encountered during decompression.
+ *
+ * @param return_code The integer return code from the decompression routine.
+ * @return A constant character pointer to the error string corresponding to the return code.
+ */
 WS_DLL_PUBLIC const char *sap_lzclzh_decompress_error_string(int return_code);
 
-/* SAP LZC/LZH Decompression routine */
+
+/**
+ * @brief Decompresses data compressed with SAP LZC/LZH algorithms.
+ *
+ * This function decompresses data that has been compressed using the SAP LZC or LZH algorithms.
+ * It takes an input buffer containing the compressed data, its length, and an output buffer to
+ * store the decompressed data. The function also requires a memory allocator for managing memory
+ * during decompression.
+ *
+ * @param wmem_scope A pointer to a memory allocator for managing memory during decompression.
+ * @param in A pointer to the input buffer containing the compressed data.
+ * @param in_length The length of the input buffer.
+ * @param out A pointer to the output buffer where the decompressed data will be stored.
+ * @param out_length A pointer to a variable that holds the size of the output buffer.
+ *                  On return, it will contain the actual length of the decompressed data.
+ * @return An integer return code indicating the result of the decompression operation.
+ */
 WS_DLL_PUBLIC int sap_lzclzh_decompress(wmem_allocator_t *wmem_scope, const guint8 *in, gint in_length, guint8 *out, guint *out_length);
 
 #ifdef __cplusplus

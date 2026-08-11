@@ -24,7 +24,8 @@
 
 
 /* Returns an error strings for compression library return codes */
-const char *sap_lzclzh_decompress_error_string(int return_code){
+const char *sap_lzclzh_decompress_error_string(int return_code)
+{
 	switch (return_code){
 		case CS_IEND_OF_STREAM: return ("CS_IEND_OF_STREAM: end of data (internal)");
 		case CS_IEND_OUTBUFFER: return ("CS_IEND_OUTBUFFER: end of output buffer");
