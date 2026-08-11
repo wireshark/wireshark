@@ -2099,12 +2099,12 @@ extcap_setup_control_in(capture_session *cap_session, interface_options *interfa
     g_source_set_callback(source, G_SOURCE_FUNC(extcap_control_in_cb), cap_session, NULL);
     g_source_add_poll(source, &control_in_data->poll_fd);
 
-    GMainContext *context = g_main_context_default();
-    interface_opts->extcap_control_in_watch = g_source_attach(source, context);
     // We watch on the OVERLAPPED Event being ready. Read all the data available
     // synchronously, if any, and until we get to a PENDING state to prime it.
-    if (!issue_next_read(control_in_data, extcap_control_in_cb, cap_session)) {
-        g_source_remove(interface_opts->extcap_stdout_watch);
+    if (issue_next_read(control_in_data, extcap_control_in_cb, cap_session)) {
+        GMainContext *context = g_main_context_default();
+        interface_opts->extcap_control_in_watch = g_source_attach(source, context);
+    } else {
         interface_opts->extcap_control_in_watch = 0;
     }
     // g_source_attach refs the source
