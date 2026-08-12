@@ -121,6 +121,39 @@ ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_inf
  */
 int ssh_channel_printf(ssh_channel channel, const char* fmt, ...);
 
+/**
+ * @brief Sets up ssh_async_loop_read to allow graceful shutdown
+ *
+ * Creates a self-pipe (eventually, on Windows, a SOCKET, but not
+ * implemented yet) that allows ssh_async_loop_read to be interrupted
+ * when a graceful shutdown is signaled for by the main application.
+ * This is useful for, among other things, when SSH has EXEC'd a command
+ * like dumpcap and tcpdump that might sit without attempting to read
+ * from stdin or write to stdout or stderr indefinitely if, e.g., a
+ * capture filter was given that excludes all packets, and thus will
+ * not exit unless a SIGHUP is manually issued, such as by ssh_cleanup.
+ *
+ * @param extcap_conf Pointer to the extcap parameters structure.
+ */
+bool ssh_base_setup_graceful_shutdown(extcap_parameters *extcap_conf);
+
+/**
+ * @brief Asynchronously reads the output of a single SSH command
+ *
+ * Loops to read the output of a single SSH command and write it to an open
+ * FILE pointer. Calls ssh_select to wait on the channel and optionally the
+ * graceful shutdown indication, if ssh_base_setup_graceful_shutdown was
+ * called (non-Windows only). If the SSH channel's stdout reaches EOF, the
+ * function then reads the channel's stderr and writes that to the current
+ * process's stderr.
+ *
+ * @param sshs The SSH session
+ * @param channel The SSH channel to read
+ * @param fp The FILE to write the channel's stdout to
+ * @return EXIT_SUCCESS if successful, EXIT_FAILURE otherwise.
+ */
+int ssh_async_loop_read(ssh_session sshs, ssh_channel channel, FILE* fp);
+
 /* Clean the current ssh session and channel. */
 
 /**

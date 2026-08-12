@@ -22,8 +22,10 @@
 
 #include <extcap/extcap-base.h>
 #include <string.h>
+#include <fcntl.h>
 #include <libssh/callbacks.h>
 #include <ws_attributes.h>
+#include <wsutil/file_util.h>
 #include <wsutil/wslog.h>
 
 /*
@@ -64,6 +66,8 @@
 	"hmac-sha2-256,hmac-sha2-512," \
 	"hmac-sha1-etm@openssh.com,hmac-sha1"
 #endif
+
+#define SSH_READ_BLOCK_SIZE 256
 
 static void extcap_log(int priority, const char *function, const char *buffer, void *userdata _U_)
 {
@@ -476,9 +480,132 @@ int ssh_channel_printf(ssh_channel channel, const char* fmt, ...)
 	return ret;
 }
 
+#ifndef _WIN32
+static int pipe_fds[2];
+
+static void graceful_shutdown_cb(void)
+{
+        if (ws_write(pipe_fds[1], "q", 1) == -1) {
+                ws_warning("failed to write to pipe");
+        }
+}
+
+bool ssh_base_setup_graceful_shutdown(extcap_parameters *extcap_conf)
+{
+        if (pipe(pipe_fds) < 0) {
+                ws_warning("pipe failed");
+		pipe_fds[0] = -1;
+                return false;
+        }
+        fcntl(pipe_fds[0], F_SETFL, O_NONBLOCK);
+
+        return extcap_base_register_graceful_shutdown_cb(extcap_conf, graceful_shutdown_cb);
+}
+#else
+bool ssh_base_setup_graceful_shutdown(extcap_parameters *extcap_conf _U_)
+{
+        return true;
+}
+#endif
+
+int ssh_async_loop_read(ssh_session sshs, ssh_channel channel, FILE* fp)
+{
+	int nbytes;
+	int ret = EXIT_SUCCESS;
+	char buffer[SSH_READ_BLOCK_SIZE];
+
+	/* read from stdin until data are available */
+	while (ssh_channel_is_open(channel) && !ssh_channel_is_eof(channel)) {
+		struct timeval timeout;
+		ssh_channel in_channels[2], out_channels[2];
+		fd_set fds;
+		socket_t maxfd;
+
+		timeout.tv_sec = 30;
+		timeout.tv_usec = 0;
+		in_channels[0] = channel;
+		in_channels[1] = NULL;
+		FD_ZERO(&fds);
+		FD_SET(ssh_get_fd(sshs), &fds);
+		maxfd = ssh_get_fd(sshs) + 1;
+
+#ifndef _WIN32
+		if (pipe_fds[0] >= 0) {
+			FD_SET(pipe_fds[0], &fds);
+			maxfd = MAX(maxfd, pipe_fds[0] + 1);
+		}
+#endif
+
+		switch (ssh_select(in_channels, out_channels, maxfd, &fds, &timeout)) {
+		case SSH_EINTR:
+			ws_debug("got a signal, try again");
+			continue;
+		case SSH_ERROR:
+			ws_warning("Error from select");
+			goto end;
+		case SSH_OK:
+		default:
+			break;
+		}
+
+		if (out_channels[0] != NULL) {
+			nbytes = ssh_channel_read_nonblocking(channel, buffer, SSH_READ_BLOCK_SIZE, 0);
+			switch(nbytes) {
+			case SSH_AGAIN:
+				break;
+			case SSH_EOF:
+				goto read_stderr;
+			case SSH_ERROR:
+				ws_warning("Error reading from channel");
+				goto end;
+			default:
+				if (fwrite(buffer, 1, nbytes, fp) != (unsigned)nbytes) {
+					ws_warning("Error writing to fifo");
+					ret = EXIT_FAILURE;
+					goto end;
+				}
+				fflush(fp);
+			}
+		}
+
+#ifndef _WIN32
+		if (pipe_fds[0] >= 0 && FD_ISSET(pipe_fds[0], &fds)) {
+			char buf[1];
+			if (ws_read(pipe_fds[0], buf, 1) == -1) {
+				/* We don't really care if cleaning the pipe
+				 * fails because we're quitting anyway. */
+			}
+			goto end;
+		}
+#endif
+	}
+
+read_stderr:
+	/* read loop finished... maybe something wrong happened. Read from stderr */
+	while (ssh_channel_is_open(channel) && !ssh_channel_is_eof(channel)) {
+		nbytes = ssh_channel_read(channel, buffer, SSH_READ_BLOCK_SIZE, 1);
+		if (nbytes < 0) {
+			ws_warning("Error reading from channel");
+			goto end;
+		}
+		if (fwrite(buffer, 1, nbytes, stderr) != (unsigned)nbytes) {
+			ws_warning("Error writing to stderr");
+			break;
+		}
+	}
+
+end:
+	if (ssh_channel_send_eof(channel) != SSH_OK) {
+		ws_warning("Error sending EOF in ssh channel");
+		ret = EXIT_FAILURE;
+	}
+	return ret;
+}
+
 void ssh_cleanup(ssh_session* sshs, ssh_channel* channel)
 {
 	if (*channel) {
+		ssh_channel_request_send_signal(*channel, "HUP");
 		ssh_channel_send_eof(*channel);
 		ssh_channel_close(*channel);
 		ssh_channel_free(*channel);
