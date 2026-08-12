@@ -7405,7 +7405,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     unsigned number_of_sections = 0;
     unsigned nBytesPerPrb =0;
 
-    if (link_planes_together && !PINFO_FD_VISITED(pinfo) && cplane_state) {
+    if (link_planes_together && !PINFO_FD_VISITED(pinfo) && cplane_state && result) {
         /* Take a deep-copy of this state on first pass */
         wmem_tree_foreach(cplane_state->expected_sections[direction], copy_section_entry, result->expected_sections);
     }
@@ -7437,7 +7437,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* Lookup corresponding C-plane frame/info */
         if (link_planes_together) {
-            if (cplane_state != NULL) {
+            if (cplane_state != NULL && result) {
 
                 expected_section_data_t *section_data = NULL;
                 section_data = wmem_tree_lookup32(result->expected_sections, sectionId);
