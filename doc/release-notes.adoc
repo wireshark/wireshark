@@ -146,7 +146,7 @@ CMS protocol dissector crash.
 wsbuglink:21446[].
 
 * wssalink:2026-77[]
-H.245 protocol dissector {crash,infinite loop,memory leak}.
+H.245 protocol dissector crash.
 wsbuglink:21447[].
 
 * wssalink:2026-78[]
@@ -688,7 +688,7 @@ https://www.wireshark.org/docs/relnotes/wireshark-4.4.4.html[release notes]
 for details:
 
 * wssalink:2025-01[]
-Bundle Protocol and CBOR dissector {crash,infinite loop,memory leak}.
+Bundle Protocol and CBOR dissector crash.
 wsbuglink:20373[].
 
 * Crash when sorting columns during capture with display filter active. wsbuglink:20263[].
