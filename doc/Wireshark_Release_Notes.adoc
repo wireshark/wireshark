@@ -30,315 +30,6 @@ https://www.wireshark.org/certifications[the Wireshark Foundation].
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2026-64[]
-sharkd crash.
-wsbuglink:21395[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 178939f126
-// Fixed in release-4.6: 51d0eea79f
-// Fixed in release-4.4: 5b56712fb9
-// CVSS AV:N/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:L
-// CWE-825
-// Credit: Claude and Ada Logics
-
-* wssalink:2026-65[]
-sharkd crash.
-wsbuglink:21399[].
-// cveidlink:2026-xxx[].
-// Fixed in master: d43d89d201
-// Fixed in release-4.6: c40bdd55da
-// Fixed in release-4.4: 560ec98247
-// CVSS AV:N/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:L
-// CWE-825
-// Credit: Claude and Ada Logics
-
-* wssalink:2026-66[] {notable}
-UMTS FP protocol dissector crash.
-wsbuglink:21413[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 5c5d3d5381
-// Fixed in release-4.6: 67b2d8b865
-// Fixed in release-4.4: f95f229f4e
-// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-122
-// Credit: Jaime Cavero
-
-* wssalink:2026-67[] {notable}
-RDP protocol dissector crash.
-wsbuglink:21396[].
-// cveidlink:2026-xxx[].
-// Fixed in master: d50d557d84
-// Fixed in release-4.6: 26edba6065
-// Fixed in release-4.4: d28eaacbad
-// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-122
-// Credit: Claude and Ada Logics
-
-* wssalink:2026-68[] {notable}
-TTX Logger file parser crash.
-wsbuglink:21389[].
-// cveidlink:2026-xxx[].
-// Fixed in master: f9fdd24295
-// Fixed in release-4.6: ea96071839
-// Fixed in release-4.4: n/a
-// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-122
-// Credit: Claude and Ada Logics
-
-* wssalink:2026-69[] {notable}
-Dissection engine reassembly crash.
-wsbuglink:21423[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 9f68da57d3
-// Fixed in release-4.6: 1df97a20fb
-// Fixed in release-4.4: c1378c3314
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-122
-// Credit: Daniel Birtwhistle
-
-* wssalink:2026-70[] {notable}
-BUSMASTER file parser abnormal exit.
-wsbuglink:21435[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 8e984f1f83
-// Fixed in release-4.6: 6aba0a890f
-// Fixed in release-4.4: 32c63e1b62
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-703
-// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
-
-* wssalink:2026-71[] {notable}
-Tektronix K12xx file parser crash.
-wsbuglink:21414[].
-// cveidlink:2026-xxx[].
-// Fixed in master: c517aedc99
-// Fixed in release-4.6: 349750c199a
-// Fixed in release-4.4: 6f812cbb50
-// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-126
-// Credit: Jaime Cavero
-
-* wssalink:2026-72[] {notable}
-ERF file parser crash.
-wsbuglink:21415[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 4e030d2b17
-// Fixed in release-4.6: b8a7c24b534
-// Fixed in release-4.4: 82c0b871be
-// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-126
-// Credit: Jaime Cavero
-
-* wssalink:2026-73[] {notable}
-Bluetooth Attribute Protocol dissector crash.
-wsbuglink:21424[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 6e2dfd4f0b
-// Fixed in release-4.6: dec594457c7
-// Fixed in release-4.4: 40ab60fce7
-// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-125
-// Credit: Yazan Balawneh - CyStack Security Team
-
-* wssalink:2026-74[] {notable}
-Catapult DCT2000 file parser crash.
-wsbuglink:21427[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 46c813e7ad
-// Fixed in release-4.6: c91e5e16339
-// Fixed in release-4.4: f8edcd3db2
-// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-122
-// Credit: Yazan Balawneh - CyStack Security Team
-
-* wssalink:2026-75[] {notable}
-C12.22 protocol dissector crash.
-wsbuglink:21439[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 360bdc60fe
-// Fixed in release-4.6: 2a7ea46648f
-// Fixed in release-4.4: d53b33eabd
-// CVSS AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H
-// CWE-122
-// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
-
-* wssalink:2026-76[] {notable}
-CMS protocol dissector crash.
-wsbuglink:21446[].
-// cveidlink:2026-xxx[].
-// Fixed in master: ​​02dd1e7af0
-// Fixed in release-4.6: ​​fdcae73419f
-// Fixed in release-4.4: 920cb47359
-// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-476
-// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
-
-* wssalink:2026-77[] {notable}
-H.245 protocol dissector {crash,infinite loop,memory leak}.
-wsbuglink:21447[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 86df5f3b40
-// Fixed in release-4.6: 73467571b0e
-// Fixed in release-4.4: de13f9ff4c
-// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-476
-// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
-
-* wssalink:2026-78[] {notable}
-Kerberos protocol dissector crash.
-wsbuglink:21449[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 78d67418e8
-// Fixed in release-4.6: 848f415af2b
-// Fixed in release-4.4: a1d6efed38
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-125
-// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
-
-* wssalink:2026-79[] {notable}
-Bluetooth HFP Profile protocol dissector crash.
-wsbuglink:21451[].
-// cveidlink:2026-xxx[].
-// Fixed in master: fc4171f4dd
-// Fixed in release-4.6: 068d179d5f6
-// Fixed in release-4.4: a1cc189664
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-125
-// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
-
-* wssalink:2026-80[] {notable}
-Bluetooth BR/EDR FHS protocol dissector crash.
-wsbuglink:21452[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 0e191266dd
-// Fixed in release-4.6: 907c6ab2200
-// Fixed in release-4.4: 5520cc92a8
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-476
-// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
-
-* wssalink:2026-81[] {notable}
-3gpp phone log file parser crash.
-wsbuglink:21454[].
-// cveidlink:2026-xxx[].
-// Fixed in master: c5f900e922
-// Fixed in release-4.6: f41e4d1ecfa
-// Fixed in release-4.4: 5119ed263f
-// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-787
-// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
-
-* wssalink:2026-82[] {notable}
-Ixia IxVeriWave and Vector Informatik BLF file parser crashes on Windows.
-wsbuglink:21455[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 86336b8332
-// Fixed in release-4.6: 663e527ddcc
-// Fixed in release-4.4: n/a
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:H
-// CWE-787
-// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
-
-* wssalink:2026-83[] {notable}
-CMS protocol dissector crash.
-wsbuglink:21457[], wsbuglink:21458[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 70b341567a
-// Fixed in release-4.6: e6320512dc3
-// Fixed in release-4.4: da9204174b
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-416
-// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
-
-* wssalink:2026-84[] {notable}
-Pcapng file parser crash.
-wsbuglink:21460[].
-// cveidlink:2026-xxx[].
-// Fixed in master: c72babdb03
-// Fixed in release-4.6: 8a3cbd7b91f
-// Fixed in release-4.4: 930f2f39c4
-// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-125
-// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
-
-* wssalink:2026-85[] {notable}
-SSH protocol dissector crash.
-wsbuglink:21465[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 3f38ce6c37
-// Fixed in release-4.6: ccd12dd4920
-// Fixed in release-4.4: 04dc6b2af4
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-122
-// Credit: BreachX Zero Day Labs
-
-* wssalink:2026-86[] {notable}
-ESS protocol dissector crash.
-wsbuglink:21467[].
-// cveidlink:2026-xxx[].
-// Fixed in master: affa11c625
-// Fixed in release-4.6: d77dcfd071a
-// Fixed in release-4.4: ed1294055c
-// CVSS AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L
-// CWE-457
-// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
-
-* wssalink:2026-87[] {notable}
-X.509IF protocol dissector crash.
-wsbuglink:21469[].
-cveidlink:2026-xxx[].
-// Fixed in master: 340b45bcb2
-// Fixed in release-4.6: 179c1d24c03
-// Fixed in release-4.4: ff9f1bc138
-// CVSS AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
-// CWE-476
-// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
-
-* wssalink:2026-88[] {notable}
-RRC protocol dissector crash.
-wsbuglink:21478[].
-// cveidlink:2026-xxx[].
-// Fixed in master: a44c8dc01c
-// Fixed in release-4.6: a29767a9e89
-// Fixed in release-4.4: 32ecb4ce4e
-// CVSS AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
-// CWE-787
-// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
-
-* wssalink:2026-89[] {notable}
-C12.22 protocol dissector crash.
-wsbuglink:21480[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 94a0319ec2
-// Fixed in release-4.6: 71528302b11
-// Fixed in release-4.4: a7c97b297d
-// CVSS AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
-// CWE-121
-// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
-
-* wssalink:2026-90[] {notable}
-Gammu DCT3 trace file parser crash.
-wsbuglink:21475[].
-// cveidlink:2026-xxx[].
-// Fixed in master: c3e931321e
-// Fixed in release-4.6: 7a868d2c7a6
-// Fixed in release-4.4: n/a
-// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-121
-// Credit: Pedro Pinho
-
-* wssalink:2026-91[] {notable}
-Bluetooth AVRCP Profile protocol dissector crash.
-wsbuglink:21488[].
-// cveidlink:2026-xxx[].
-// Fixed in master: 1b59980832
-// Fixed in release-4.6: b302764efd2
-// Fixed in release-4.4: 539e5ba4c6
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-122
-// Credit: Feng Xue
-
-
 // * wssalink:2026-92[] {notable}
 // Foo protocol dissector {crash,infinite loop,memory leak}.
 // wsbuglink:xxx[].
@@ -357,31 +48,6 @@ The following bugs have been fixed:
 // Bugs with the {notable} attribute show up in the "What's Changed" box on the download page.
 //* Wireshark contains traces of nuts. What kind of nuts? The kind you're allergic to. wsbuglink:5000[] {notable}
 
-* Fuzz job crash: randpkt-2026-05-22-14496207576.pcap. wsbuglink:21266[].
-* Wireshark Version 4.6.6 - File Capture Properties is excessively slow and hangs Wireshark on Windows. wsbuglink:21337[].
-* TCP Preference 'Analyze TCP sequence numbers' SEGFAULTs when toggled. wsbuglink:21380[].
-* Wireshark misdecodes S-NSSAI location validity information IE (5G NAS) wsbuglink:21411[].
-* Wireshark misdecodes NSAG information IE (5G NAS) wsbuglink:21412[].
-* Fuzz job UTF-8 encoding issue: fuzz-2026-07-17-15393056954.pcap. wsbuglink:21419[].
-* Wireshark misdecodes UE security capability IE (5G NAS) wsbuglink:21431[].
-* Wireshark misdecodes Registration wait range IE (5G NAS) wsbuglink:21432[].
-* Wireshark misdecodes Extended CAG information IE (5G NAS) wsbuglink:21433[].
-* Stack buffer overflow in K12/RF5 writer. wsbuglink:21436[].
-* Security issues fixed in 4.6.8 and 4.4.18 Tracker. wsbuglink:21437[].
-* BLF writer out-of-bounds read on truncated VLAN-tagged Ethernet frames. wsbuglink:21441[].
-* DLMS/COSEM compact-array TypeDescription recursion bypass can exhaust the stack. wsbuglink:21442[].
-* packet-knxip: Secure Wrapper size-offset causes NULL deref / SEGV when decrypting. wsbuglink:21444[].
-* wiretap/rtpdump: swapped caplen/len on truncated samples. wsbuglink:21445[].
-* H.245 returnedFunction nested GenericMessage dereferences NULL packet state. wsbuglink:21447[].
-* X.509 export-object tap dereferences missing certificate subject. wsbuglink:21448[].
-* Sniffer REC_HEADER2 error path over-reads stack buffer. wsbuglink:21461[].
-* Deep NetLog JSON nesting exhausts the native stack. wsbuglink:21462[].
-* androiddump signed btsnoop length causes global out-of-bounds read. wsbuglink:21464[].
-* ERF writer underflows payload length for tiny truncated packets. wsbuglink:21466[].
-* Wireshark misdecodes SOR transparent container IE (5G NAS) wsbuglink:21472[].
-* Unbounded Daintree timestamp fraction causes signed integer overflow. wsbuglink:21473[].
-* Wireshark misdecodes SOR-CMCI of SOR transparent container IE (5G NAS) wsbuglink:21477[].
-* Wireshark misdecodes Service level AA container (5GSM NAS) wsbuglink:21479[].
 
 // == Known Bugs
 
@@ -407,33 +73,6 @@ There are no new protocols in this release.
 // rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.6.8.. | rg packet- | sort -u)
 [commaize]
 --
-ANSI_TCAP
-ASTERIX
-ASN.1 BER
-BT ATT
-BT AVRCP
-BT BR/EDR RF
-BT HFP
-C12.22
-CIGI
-CMS
-COSEM
-EBHSCR
-ESS
-FP
-GSM SIM
-GTPv2
-H.245
-Kerberos
-KNX/IP
-LBMSRS
-NAS-5GS
-RELOAD
-Rlogin
-RRC
-SSH
-X.509AF
-X.509IF
 --
 
 === New and Updated Capture File Support
@@ -442,18 +81,6 @@ X.509IF
 // Add one file type per line between the -- delimiters.
 [commaize]
 --
-3gpp phone log
-BLF
-Busmaster
-Catapult DCT2000
-Endace ERF
-Daintree SNA
-Gammu DCT3
-pcapng
-RTPDump
-Sniffer
-Tektronix K12xx
-TTTech Computertechnik TTL
 --
 
 === New and Updated File Format Decoding Support
@@ -494,56 +121,201 @@ location as before.
 
 == Prior Versions
 
+=== Wireshark 4.6.8 included the following changes.
+
+* wssalink:2026-64[]
+sharkd crash.
+wsbuglink:21395[].
+
+* wssalink:2026-65[]
+sharkd crash.
+wsbuglink:21399[].
+
+* wssalink:2026-66[]
+UMTS FP protocol dissector crash.
+wsbuglink:21413[].
+
+* wssalink:2026-67[]
+RDP protocol dissector crash.
+wsbuglink:21396[].
+
+* wssalink:2026-68[]
+TTX Logger file parser crash.
+wsbuglink:21389[].
+
+* wssalink:2026-69[]
+Dissection engine reassembly crash.
+wsbuglink:21423[].
+
+* wssalink:2026-70[]
+BUSMASTER file parser abnormal exit.
+wsbuglink:21435[].
+
+* wssalink:2026-71[]
+Tektronix K12xx file parser crash.
+wsbuglink:21414[].
+
+* wssalink:2026-72[]
+ERF file parser crash.
+wsbuglink:21415[].
+
+* wssalink:2026-73[]
+Bluetooth Attribute Protocol dissector crash.
+wsbuglink:21424[].
+
+* wssalink:2026-74[]
+Catapult DCT2000 file parser crash.
+wsbuglink:21427[].
+
+* wssalink:2026-75[]
+C12.22 protocol dissector crash.
+wsbuglink:21439[].
+
+* wssalink:2026-76[]
+CMS protocol dissector crash.
+wsbuglink:21446[].
+
+* wssalink:2026-77[]
+H.245 protocol dissector {crash,infinite loop,memory leak}.
+wsbuglink:21447[].
+
+* wssalink:2026-78[]
+Kerberos protocol dissector crash.
+wsbuglink:21449[].
+
+* wssalink:2026-79[]
+Bluetooth HFP Profile protocol dissector crash.
+wsbuglink:21451[].
+
+* wssalink:2026-80[]
+Bluetooth BR/EDR FHS protocol dissector crash.
+wsbuglink:21452[].
+
+* wssalink:2026-81[]
+3gpp phone log file parser crash.
+wsbuglink:21454[].
+
+* wssalink:2026-82[]
+Ixia IxVeriWave and Vector Informatik BLF file parser crashes on Windows.
+wsbuglink:21455[].
+
+* wssalink:2026-83[]
+CMS protocol dissector crash.
+wsbuglink:21457[], wsbuglink:21458[].
+
+* wssalink:2026-84[]
+Pcapng file parser crash.
+wsbuglink:21460[].
+
+* wssalink:2026-85[]
+SSH protocol dissector crash.
+wsbuglink:21465[].
+
+* wssalink:2026-86[]
+ESS protocol dissector crash.
+wsbuglink:21467[].
+
+* wssalink:2026-87[]
+X.509IF protocol dissector crash.
+wsbuglink:21469[].
+cveidlink:2026-xxx[].
+
+* wssalink:2026-88[]
+RRC protocol dissector crash.
+wsbuglink:21478[].
+
+* wssalink:2026-89[]
+C12.22 protocol dissector crash.
+wsbuglink:21480[].
+
+* wssalink:2026-90[]
+Gammu DCT3 trace file parser crash.
+wsbuglink:21475[].
+
+* wssalink:2026-91[]
+Bluetooth AVRCP Profile protocol dissector crash.
+wsbuglink:21488[].
+
+* Fuzz job crash: randpkt-2026-05-22-14496207576.pcap. wsbuglink:21266[].
+* Wireshark Version 4.6.6 - File Capture Properties is excessively slow and hangs Wireshark on Windows. wsbuglink:21337[].
+* TCP Preference 'Analyze TCP sequence numbers' SEGFAULTs when toggled. wsbuglink:21380[].
+* Wireshark misdecodes S-NSSAI location validity information IE (5G NAS) wsbuglink:21411[].
+* Wireshark misdecodes NSAG information IE (5G NAS) wsbuglink:21412[].
+* Fuzz job UTF-8 encoding issue: fuzz-2026-07-17-15393056954.pcap. wsbuglink:21419[].
+* Wireshark misdecodes UE security capability IE (5G NAS) wsbuglink:21431[].
+* Wireshark misdecodes Registration wait range IE (5G NAS) wsbuglink:21432[].
+* Wireshark misdecodes Extended CAG information IE (5G NAS) wsbuglink:21433[].
+* Stack buffer overflow in K12/RF5 writer. wsbuglink:21436[].
+* Security issues fixed in 4.6.8 and 4.4.18 Tracker. wsbuglink:21437[].
+* BLF writer out-of-bounds read on truncated VLAN-tagged Ethernet frames. wsbuglink:21441[].
+* DLMS/COSEM compact-array TypeDescription recursion bypass can exhaust the stack. wsbuglink:21442[].
+* packet-knxip: Secure Wrapper size-offset causes NULL deref / SEGV when decrypting. wsbuglink:21444[].
+* wiretap/rtpdump: swapped caplen/len on truncated samples. wsbuglink:21445[].
+* H.245 returnedFunction nested GenericMessage dereferences NULL packet state. wsbuglink:21447[].
+* X.509 export-object tap dereferences missing certificate subject. wsbuglink:21448[].
+* Sniffer REC_HEADER2 error path over-reads stack buffer. wsbuglink:21461[].
+* Deep NetLog JSON nesting exhausts the native stack. wsbuglink:21462[].
+* androiddump signed btsnoop length causes global out-of-bounds read. wsbuglink:21464[].
+* ERF writer underflows payload length for tiny truncated packets. wsbuglink:21466[].
+* Wireshark misdecodes SOR transparent container IE (5G NAS) wsbuglink:21472[].
+* Unbounded Daintree timestamp fraction causes signed integer overflow. wsbuglink:21473[].
+* Wireshark misdecodes SOR-CMCI of SOR transparent container IE (5G NAS) wsbuglink:21477[].
+* Wireshark misdecodes Service level AA container (5GSM NAS) wsbuglink:21479[].
+
 === Wireshark 4.6.7 included the following changes.
 
-* wssalink:2026-52[] {notable}
+See the
+https://www.wireshark.org/docs/relnotes/wireshark-4.6.7.html[release notes]
+for details:
+
+* wssalink:2026-52[]
 Catapult DCT2000 protocol dissector crash.
 wsbuglink:21270[].
 
-* wssalink:2026-53[] {notable}
+* wssalink:2026-53[]
 pcapng file parser crash.
 wsbuglink:21285[].
 
-* wssalink:2026-54[] {notable}
+* wssalink:2026-54[]
 FMP/NOTIFY protocol dissector large loop.
 wsbuglink:21347[].
 
-* wssalink:2026-55[] {notable}
+* wssalink:2026-55[]
 SSH protocol dissector crash.
 wsbuglink:21378[].
 
-* wssalink:2026-56[] {notable}
+* wssalink:2026-56[]
 TLS ECH decryption crash.
 wsbuglink:21390[].
 
-* wssalink:2026-57[] {notable}
+* wssalink:2026-57[]
 IEEE 802.11 protocol dissector crash.
 wsbuglink:21391[].
 
-* wssalink:2026-58[] {notable}
+* wssalink:2026-58[]
 Z39.50 protocol dissector crash.
 wsbuglink:21397[].
 
-* wssalink:2026-59[] {notable}
+* wssalink:2026-59[]
 UMTS FP protocol dissector crash.
 wsbuglink:21398[].
 
-* wssalink:2026-60[] {notable}
+* wssalink:2026-60[]
 BLF file parser information disclosure.
 wsbuglink:21361[].
 
-* wssalink:2026-61[] {notable}
+* wssalink:2026-61[]
 Multiple protocol dissector infinite loops.
 wsbuglink:21275[],
 wsbuglink:21277[],
 wsbuglink:21330[],
 wsbuglink:21383[].
 
-* wssalink:2026-62[] {notable}
+* wssalink:2026-62[]
 DBS Etherwatch file parser crash.
 wsbuglink:21352[].
 
-* wssalink:2026-63[] {notable}
+* wssalink:2026-63[]
 Ciscodump extcap crash.
 wsbuglink:21375[].
 
@@ -567,7 +339,7 @@ wsbuglink:21375[].
 === Wireshark 4.6.6 included the following changes.
 
 See the
-https://www.wireshark.org/docs/relnotes/wireshark-4.6.5.html[release notes]
+https://www.wireshark.org/docs/relnotes/wireshark-4.6.6.html[release notes]
 for details:
 
 * wssalink:2026-51[]
