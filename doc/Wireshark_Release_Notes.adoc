@@ -176,7 +176,7 @@ CMS protocol dissector crash.
 wsbuglink:21446[].
 
 * wssalink:2026-77[]
-H.245 protocol dissector {crash,infinite loop,memory leak}.
+H.245 protocol dissector crash.
 wsbuglink:21447[].
 
 * wssalink:2026-78[]
