@@ -16,13 +16,294 @@ Wireshark is hosted by the Wireshark Foundation, a nonprofit which promotes prot
 Wireshark and the foundation depend on your contributions in order to do their work!
 If you or your organization would like to contribute or become a sponsor, please visit https://wiresharkfoundation.org[wiresharkfoundation.org].
 
+If you use Wireshark professionally or you just want to learn more about protocol analysis, you should join us at https://sharkfest.wireshark.org/[SharkFest], the Wireshark developer and user conference.
+
+You can also become a Wireshark Certified Analyst! Official Wireshark training and certification are available from
+https://www.wireshark.org/certifications[the Wireshark Foundation].
+
 == What’s New
 
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
 
-// * wssalink:2026-64[] {notable}
+* wssalink:2026-64[]
+sharkd crash.
+wsbuglink:21395[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 178939f126
+// Fixed in release-4.6: 51d0eea79f
+// Fixed in release-4.4: 5b56712fb9
+// CVSS AV:N/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:L
+// CWE-825
+// Credit: Claude and Ada Logics
+
+* wssalink:2026-65[]
+sharkd crash.
+wsbuglink:21399[].
+// cveidlink:2026-xxx[].
+// Fixed in master: d43d89d201
+// Fixed in release-4.6: c40bdd55da
+// Fixed in release-4.4: 560ec98247
+// CVSS AV:N/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:L
+// CWE-825
+// Credit: Claude and Ada Logics
+
+* wssalink:2026-66[] {notable}
+UMTS FP protocol dissector crash.
+wsbuglink:21413[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 5c5d3d5381
+// Fixed in release-4.6: 67b2d8b865
+// Fixed in release-4.4: f95f229f4e
+// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-122
+// Credit: Jaime Cavero
+
+* wssalink:2026-67[] {notable}
+RDP protocol dissector crash.
+wsbuglink:21396[].
+// cveidlink:2026-xxx[].
+// Fixed in master: d50d557d84
+// Fixed in release-4.6: 26edba6065
+// Fixed in release-4.4: d28eaacbad
+// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-122
+// Credit: Claude and Ada Logics
+
+* wssalink:2026-69[] {notable}
+Dissection engine reassembly crash.
+wsbuglink:21423[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 9f68da57d3
+// Fixed in release-4.6: 1df97a20fb
+// Fixed in release-4.4: c1378c3314
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-122
+// Credit: Daniel Birtwhistle
+
+* wssalink:2026-70[] {notable}
+BUSMASTER file parser abnormal exit.
+wsbuglink:21435[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 8e984f1f83
+// Fixed in release-4.6: 6aba0a890f
+// Fixed in release-4.4: 32c63e1b62
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-703
+// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
+
+* wssalink:2026-71[] {notable}
+Tektronix K12xx file parser crash.
+wsbuglink:21414[].
+// cveidlink:2026-xxx[].
+// Fixed in master: c517aedc99
+// Fixed in release-4.6: 349750c199a
+// Fixed in release-4.4: 6f812cbb50
+// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-126
+// Credit: Jaime Cavero
+
+* wssalink:2026-72[] {notable}
+ERF file parser crash.
+wsbuglink:21415[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 4e030d2b17
+// Fixed in release-4.6: b8a7c24b534
+// Fixed in release-4.4: 82c0b871be
+// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-126
+// Credit: Jaime Cavero
+
+* wssalink:2026-73[] {notable}
+Bluetooth Attribute Protocol dissector crash.
+wsbuglink:21424[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 6e2dfd4f0b
+// Fixed in release-4.6: dec594457c7
+// Fixed in release-4.4: 40ab60fce7
+// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-125
+// Credit: Yazan Balawneh - CyStack Security Team
+
+* wssalink:2026-74[] {notable}
+Catapult DCT2000 file parser crash.
+wsbuglink:21427[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 46c813e7ad
+// Fixed in release-4.6: c91e5e16339
+// Fixed in release-4.4: f8edcd3db2
+// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-122
+// Credit: Yazan Balawneh - CyStack Security Team
+
+* wssalink:2026-75[] {notable}
+C12.22 protocol dissector crash.
+wsbuglink:21439[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 360bdc60fe
+// Fixed in release-4.6: 2a7ea46648f
+// Fixed in release-4.4: d53b33eabd
+// CVSS AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H
+// CWE-122
+// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
+
+* wssalink:2026-76[] {notable}
+CMS protocol dissector crash.
+wsbuglink:21446[].
+// cveidlink:2026-xxx[].
+// Fixed in master: ​​02dd1e7af0
+// Fixed in release-4.6: ​​fdcae73419f
+// Fixed in release-4.4: 920cb47359
+// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-476
+// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
+
+* wssalink:2026-77[] {notable}
+H.245 protocol dissector {crash,infinite loop,memory leak}.
+wsbuglink:21447[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 86df5f3b40
+// Fixed in release-4.6: 73467571b0e
+// Fixed in release-4.4: de13f9ff4c
+// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-476
+// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
+
+* wssalink:2026-78[] {notable}
+Kerberos protocol dissector crash.
+wsbuglink:21449[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 78d67418e8
+// Fixed in release-4.6: 848f415af2b
+// Fixed in release-4.4: a1d6efed38
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-125
+// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
+
+* wssalink:2026-79[] {notable}
+Bluetooth HFP Profile protocol dissector crash.
+wsbuglink:21451[].
+// cveidlink:2026-xxx[].
+// Fixed in master: fc4171f4dd
+// Fixed in release-4.6: 068d179d5f6
+// Fixed in release-4.4: a1cc189664
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-125
+// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
+
+* wssalink:2026-80[] {notable}
+Bluetooth BR/EDR FHS protocol dissector crash.
+wsbuglink:21452[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 0e191266dd
+// Fixed in release-4.6: 907c6ab2200
+// Fixed in release-4.4: 5520cc92a8
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-476
+// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
+
+* wssalink:2026-81[] {notable}
+3gpp phone log file parser crash.
+wsbuglink:21454[].
+// cveidlink:2026-xxx[].
+// Fixed in master: c5f900e922
+// Fixed in release-4.6: f41e4d1ecfa
+// Fixed in release-4.4: 5119ed263f
+// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-787
+// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
+
+* wssalink:2026-83[] {notable}
+CMS protocol dissector crash.
+wsbuglink:21457[], wsbuglink:21458[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 70b341567a
+// Fixed in release-4.6: e6320512dc3
+// Fixed in release-4.4: da9204174b
+// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-416
+// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
+
+* wssalink:2026-84[] {notable}
+Pcapng file parser crash.
+wsbuglink:21460[].
+// cveidlink:2026-xxx[].
+// Fixed in master: c72babdb03
+// Fixed in release-4.6: 8a3cbd7b91f
+// Fixed in release-4.4: 930f2f39c4
+// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-125
+// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
+
+* wssalink:2026-85[] {notable}
+SSH protocol dissector crash.
+wsbuglink:21465[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 3f38ce6c37
+// Fixed in release-4.6: ccd12dd4920
+// Fixed in release-4.4: 04dc6b2af4
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-122
+// Credit: BreachX Zero Day Labs
+
+* wssalink:2026-86[] {notable}
+ESS protocol dissector crash.
+wsbuglink:21467[].
+// cveidlink:2026-xxx[].
+// Fixed in master: affa11c625
+// Fixed in release-4.6: d77dcfd071a
+// Fixed in release-4.4: ed1294055c
+// CVSS AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L
+// CWE-457
+// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
+
+* wssalink:2026-87[] {notable}
+X.509IF protocol dissector crash.
+wsbuglink:21469[].
+cveidlink:2026-xxx[].
+// Fixed in master: 340b45bcb2
+// Fixed in release-4.6: 179c1d24c03
+// Fixed in release-4.4: ff9f1bc138
+// CVSS AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+// CWE-476
+// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
+
+* wssalink:2026-88[] {notable}
+RRC protocol dissector crash.
+wsbuglink:21478[].
+// cveidlink:2026-xxx[].
+// Fixed in master: a44c8dc01c
+// Fixed in release-4.6: a29767a9e89
+// Fixed in release-4.4: 32ecb4ce4e
+// CVSS AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+// CWE-787
+// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
+
+* wssalink:2026-89[] {notable}
+C12.22 protocol dissector crash.
+wsbuglink:21480[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 94a0319ec2
+// Fixed in release-4.6: 71528302b11
+// Fixed in release-4.4: a7c97b297d
+// CVSS AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+// CWE-121
+// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
+
+* wssalink:2026-91[] {notable}
+Bluetooth AVRCP Profile protocol dissector crash.
+wsbuglink:21488[].
+// cveidlink:2026-xxx[].
+// Fixed in master: 1b59980832
+// Fixed in release-4.6: b302764efd2
+// Fixed in release-4.4: 539e5ba4c6
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-122
+// Credit: Feng Xue
+
+
+// * wssalink:2026-92[] {notable}
 // Foo dissector {crash,infinite loop,memory leak}.
 // wsbuglink:xxx[].
 // cveidlink:2026-xxx[].
@@ -47,6 +328,9 @@ The following bugs have been fixed:
 * Wireshark misdecodes Registration wait range IE (5G NAS) wsbuglink:21432[].
 * Wireshark misdecodes Extended CAG information IE (5G NAS) wsbuglink:21433[].
 * Stack buffer overflow in K12/RF5 writer. wsbuglink:21436[].
+* packet-knxip: Secure Wrapper size-offset causes NULL deref / SEGV when decrypting. wsbuglink:21444[].
+* wiretap/rtpdump: swapped caplen/len on truncated samples. wsbuglink:21445[].
+* Sniffer REC_HEADER2 error path over-reads stack buffer. wsbuglink:21461[].
 * Deep NetLog JSON nesting exhausts the native stack. wsbuglink:21462[].
 * androiddump signed btsnoop length causes global out-of-bounds read. wsbuglink:21464[].
 * Wireshark misdecodes SOR transparent container IE (5G NAS) wsbuglink:21472[].

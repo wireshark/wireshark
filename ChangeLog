@@ -1,0 +1,853 @@
+commit 732223d4cf
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Aug 11 13:17:08 2026 -0700
+
+    tools: Update libssh to 0.12.2
+
+    (cherry picked from commit ff6b064137c56625813f7eb7bae9497fc79d4ed2)
+
+    Conflicts:
+            cmake/modules/FetchArtifacts.cmake
+
+commit 0391cde810
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Aug 10 16:08:53 2026 -0700
+
+    Prep for 4.4.18
+
+commit 539e5ba4c6
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Aug 9 16:20:18 2026 -0400
+
+    BT AVRCP: Do not overflow on too large reassemblies
+
+    If the total reassembled size of a PDU would overflow, truncate at a value.
+    Similar to #21423 / 9f68da57d360629eb7cee8d97d2f894b4858ce8f, stop at
+    INT32_MAX for now until unsigned lengths can be handled for tvbuffers
+    everywhere. This prevents allocating a buffer that is in reality too short.
+    Add a warning field (use a field instead of a expert info to make this
+    similar to the standard reassembly API, which perhaps should be used in
+    the future.)
+
+    Thanks to both AISLE Research and Feng Xue for independently reporting
+    this issue and providing PoCs and proposed fixes.
+
+    Fix #21488.
+
+    (backported from commit 1b599808322109ddbac92dd4d81c41ef09bea488)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 32ecb4ce4e
+Author: Ronnie Sahlberg <ronniesahlberg@gmail.com>
+Date:   Wed Aug 5 23:29:51 2026 +1000
+
+    Fix potential heap corruption in UMTS RRC
+
+    Fixes #21478
+
+    Signed-off-by: Ronnie Sahlberg <ronniesahlberg@gmail.com>
+    (cherry picked from commit a44c8dc01cac93fca23debab465298fc08b06658)
+
+commit 0e1d75a037
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Aug 9 16:23:20 2026 -0400
+
+    btavrcp: Fix Coverity Dereference null return value
+
+    Fix Coverity Dereference null return value warning
+
+    Add a condition to check that data_fragment is not NULL.
+
+    Coverity CID 1405201
+
+    AI-Assisted: no
+
+    (cherry picked from commit 8841ffbe83d2055ed83b9b91329d5b2bf0b01347)
+
+    Co-authored-by: infostam GitHub <github@infostam.com>
+
+commit a24d913593
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 9 10:12:40 2026 +0000
+
+    [Automatic update for 2026-08-09]
+
+    Update manuf, services, enterprise numbers, translations, and other items.
+
+commit e15834c812
+Author: Chuck Craft <bubbasnmp@gmail.com>
+Date:   Tue Aug 4 15:10:40 2026 -0500
+
+    daintree: validate timestamp fraction
+
+    Fixes #21473
+
+    (cherry picked from commit a78713609bee82268b95c441aa4bf1ea6719dfbd)
+
+commit f2429bb23a
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Thu Aug 6 16:16:52 2026 +0200
+
+    NAS 5GS: fix dissection of type 1 service-level-AA parameter
+
+    Fixes #21479
+
+    (cherry picked from commit 077d999dff577ba4c60dff981e5e448cac8a7fc3)
+
+    (cherry picked from commit 61469331d74488b63be76dd114b32eb408510250)
+
+    Co-authored-by: Pascal Quantin <pascal@wireshark.org>
+
+commit f3eba66172
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Wed Aug 5 12:17:02 2026 +0200
+
+    NAS 5GS: fix a copy/paste error in SOR transparent container dissection
+
+    Fixes #21477
+
+    (cherry picked from commit 35a0df6e8e889433d5f7db99f16f9b627864182a)
+
+    Co-authored-by: Pascal Quantin <pascal@wireshark.org>
+
+commit 71d0f537fe
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Tue Aug 4 20:01:23 2026 +0200
+
+    NAS 5GS: fix SOR transparent container dissection
+
+    Fixes #21472
+
+    (cherry picked from commit 1dbdfdc340809da28afcf7b448b61a1d21f9d0ba)
+
+commit ed1294055c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Aug 2 19:43:53 2026 -0400
+
+    ESS: Avoid DISSECTOR_ASSERTing on a zero length BIT STRING
+
+    The VAL_PTR from dissecting a BIT STRING can be uninitialized without
+    throwing an exception, notably in the zero length case. That likely
+    will call a DISSECTOR_ASSERT later with most compilers (but because
+    the parameter tvb was not initialized to NULL, it may not, particularly
+    under testing.)
+
+    Fix #21467
+
+    Thanks to AISLE Research for the report and suggested fix
+
+    (backported from commit affa11c6256fd697bc451e8c0139ff6230e7858a)
+
+commit ff9f1bc138
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Tue Aug 4 01:31:56 2026 +0200
+
+    x509if: fix null-pointer dereference on invalid nested RDN
+
+    A RDN nested within a RDN is malformed and creates a nested call to
+    `dissect_x509if_RelativeDistinguishedName`. The inner dissection resets
+    `last_rdn_buf` to NULL, causing a NULL-pointer deref in the outer call.
+
+    Fix this by gracefully handling the outcome. `last_dn_buf` seems
+    similar, but is unaffected as it doesn't reset to NULL after dissection.
+
+    Fixes #21469
+
+    Fixes: v4.1.0rc0-821-g59ee5247dc ("X509IF: Fix string truncation")
+    (cherry picked from commit 340b45bcb2a9cabe7b33562ebefbe7a6d7bea0ee)
+
+commit 930f2f39c4
+Author: Chuck Craft <bubbasnmp@gmail.com>
+Date:   Sun Aug 2 12:27:18 2026 -0500
+
+    bblog: check for truncated option block
+
+    Fixes: #21460
+
+commit 04dc6b2af4
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Aug 2 14:25:33 2026 -0400
+
+    SSH: Check Curve25519 key lengths
+
+    crypto_scalarmult_curve25519 requires that the key lengths be the
+    correct size (32 bytes), so check that before calling in case the
+    Decryption Secrets Block has a bogus length.
+
+    Fix #21465
+
+    Thanks to Vivek Parikh of BreachX Zero Day Labs, using Typhon AI Mil v2,
+    for the report.
+
+    (cherry picked from commit 3f38ce6c3740d3553ef682c19da5e413af6b61ce)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 34fdc00602
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 2 10:21:48 2026 +0000
+
+    [Automatic update for 2026-08-02]
+
+    Update manuf, services, enterprise numbers, translations, and other items.
+
+commit 0d14b9e49e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Aug 1 21:24:12 2026 -0400
+
+    androiddump: Avoid overflow in btsnoop reported or captured lengths
+
+    The btsnoop file format, derived, from the Sun snoop format, features
+    32-bit unsigned values for reported and captured lengths. It is
+    extremely unlikely that real values will be in the top half of the
+    range, and thus convert to negative numbers if cast to signed 32-bit
+    integers, but a hostile or buggy Android Debug Bridge service could
+    do so. Guard against that.
+
+    Decode record lengths as unsigned values, reject impossible records before
+    length arithmetic, and use the validated values for dumping and buffering.
+
+    Assisted-by: AISLE:Snapshot
+
+    Fix #21464
+
+    Thanks to Aisle Security for the report, PoC, and proposed fix.
+
+    (cherry picked from commit 3c221601fd471c457dd23c414cd5090980d3d99d)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit b201d45928
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Jul 31 11:34:23 2026 -0400
+
+    wsjon: Make json_get_next_object iterative
+
+    The current implementation is recursive, albeit probably optimized
+    considerably in most build types. Replace it with an iterative
+    implementation to reduce stack use, especially in an ASan Debug build.
+
+    Fix #21462
+
+    Thanks to Aisle Security for the report, PoC, and proposed fix.
+
+    (cherry picked from commit 35d9347975451d5a57af8cc1514af7657f7ef02f)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit b73bf93aa8
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jul 30 20:10:48 2026 -0400
+
+    ngsniffer: Don't read past the actual buffer read
+
+    Pass in the number of bytes we read (which was limited to 256),
+    not the total remaining length, to the header processing function.
+    Fix it in both paths, even though it doesn't matter in one.
+
+    Fix #21461
+
+    Thanks to AISLE Security for the report, PoC, and proposed fix.
+
+    (cherry picked from commit 5b624b9c3a4c0b14ffe25300842e741cf3cf37d4)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit da9204174b
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jul 30 12:21:07 2026 -0400
+
+    CMS: Move globals into packet private data
+
+    This prevents reusing the proto_trees in a later frame, or having
+    to add a frame end routine, in the case of unusual non-spec
+    compliant captures.
+
+    Thanks to AISLE Security for the reports, PoCs, and proposed fixes.
+
+    Fix #21457, #21458
+
+    (backported from commit 70b341567adb8b7bae0268b7a6fe61f1374073d6)
+
+commit 5119ed263f
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jul 30 15:57:17 2026 -0400
+
+    wiretap: log3gpp: Use proper bounds for writing
+
+    Fix the loop bound when procesing hexstring data. Exploiting this
+    requires very specific packet lengths in the data due to how
+    the wiretap buffers are allocated.
+
+    Thanks to AISLE Security for the report, PoC, and proposed fix.
+
+    Fix #21454
+
+    (backported from c5f900e92227495ff944356f25523c530a277900)
+
+commit 5520cc92a8
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jul 29 18:21:02 2026 -0400
+
+    BT BR/EDR: Register reassembly table
+
+    Thanks to Aisle Security for the report, PoC, and proposed fix.
+
+    Fix #21452
+
+    (cherry picked from commit 0e191266dd14ff099f91d051cdf34ff4ae1e0571)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit a1cc189664
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jul 29 10:29:17 2026 -0400
+
+    BT HFP: Check the length of the +XAPL first parameter
+
+    Check the length of the first parameter of the HFP Command AT+XAPL
+    before trying to parse hex strings out of the raw array.
+
+    https://developer.apple.com/accessories/Accessory-Design-Guidelines.pdf
+
+    Thanks to AISLE Security for the report, PoC, and suggested patch.
+
+    Fix #21451
+
+    (backported from commit fc4171f4ddf75b4f243f392f0ea093e8962fcb73)
+
+commit a1d6efed38
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jul 29 07:11:20 2026 -0400
+
+    kerberos: Add a function to print up to the first 4 bytes of a key
+
+    Add a static function to print up to the first 4 bytes of a key
+    (with an ellipsis if there are more than 4 bytes, as is likely)
+    and use it in the various expert items formats. This avoids having
+    to worry if the key is for some reason shorter than 4 bytes.
+
+    Fix #21449
+
+    Thanks to AISLE Security for the report, PoC, and proposed fix.
+
+    (cherry picked from commit 78d67418e8cfec6eb30a80bd399d8485f01efdd3)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit de13f9ff4c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jul 28 15:19:39 2026 -0400
+
+    H.245: Do not update state for a returnedFunction GenericMessage
+
+    In H.245, a returnedFunction is much like an encapsulated original
+    datagram in a ICMP error packet. The h245_pi is cleared before
+    processing one. In the case that the returnedFunction is a
+    GenericMessage it h245_pi should be checked against NULL, and the
+    info column and frame label should not be updated. It is checked
+    in all the other cases in H.245
+
+    Thanks to AISLE Security for the report, PoC, and suggested patch.
+
+    Fix #21447
+
+    (cherry picked from commit 86df5f3b401f77dbbaf02d7dc1af39b820b2b489)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 920cb47359
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jul 28 09:02:28 2026 -0400
+
+    CMS: Check if Digest Algorithm is NULL
+
+    Check for the Digest Algorithm being NULL. (g_strcmp0 could
+    also be used instead.)
+
+    Also, clear the old digest algorithm at the start of dissecting
+    an AlgorithmIdentifier instead of after dissecting the OID, in
+    case there is an exception, etc. to avoid stale data. Do this before
+    the sequence processing, in case of an empty sequence. (The BER
+    dissector probably should check for missing mandatory elements
+    for SEQUENCE as it appears to do for SET.)
+
+    Thanks to AISLE Research for the report, PoC, and proposed mitigation.
+
+    Fix #21446
+
+    (backported from commit 02dd1e7af093163feae29ef1937caef24da54d17)
+
+commit cfc38a9f04
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jul 28 10:18:06 2026 -0400
+
+    wiretap: RTPDump: Fix swapped caplen / len
+
+    Also check to make sure that the total packet length, which
+    includes the mandatory 8-byte header, is at least 8.
+
+    Fix #21445
+
+    Thanks to Be33eD for the report and PoC.
+
+    (backported from commit 613fdd1682bd307f82d2ed5d2efc2866b88f2085)
+
+commit 5b73ba672f
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jul 28 10:20:29 2026 -0400
+
+    KNX/IP: Prevent NULL dereference by using tvb_get_ptr call correctly
+
+    The size variable is already the length of the encrypted data, so
+    the offset does not need to be subtracted a second time. The size
+    was verified by tvb_get_captured_length_remaining and checked before
+    each subtraction, so size bytes (which must be at least 16) are
+    always present.
+
+    tvb_get_ptr() returns a raw pointer into the data, so the length
+    value at the end being shorter than the desired size only matters
+    for the verification step (not needed here because the size has
+    already been verified) not the length of the returned pointer,
+    except in the case where the value after subtraction becomes 0 and
+    the returned pointer is NULL.
+
+    Thanks to Be33eD for the report and PoC.
+
+    Fix #21444
+
+    (cherry picked from commit b42ae78d867ba6acaf1fc8479344ab939f30b834)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 7f7f869d32
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 26 10:12:34 2026 +0000
+
+    [Automatic update for 2026-07-26]
+
+    Update manuf, services, enterprise numbers, translations, and other items.
+
+commit d53b33eabd
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jul 25 08:12:58 2026 -0400
+
+    EAX: Don't truncate lengths
+
+    C12.22 can send 32-bit lengths to the EAX handling to be decrypted.
+    The buffer to decrypt is all copied from packet data via tvb_memcpy
+    before decryption, so this isn't just a 32-bit length read from packet
+    data that doesn't correspond to actual data.
+
+    Don't truncate the lengths. Do checked arithemtic to check for overflow.
+
+    It is unlikely to be larger than a 16-bit value without some kind of
+    reassembly, but reassembly is possible since this is over TCP. Return
+    false in a few failure cases.
+
+    Fix #21439
+
+    Thanks to AISLE Security for the report, PoC, and suggsted fix (though
+    this fix goes in a slightly different direction.)
+
+    (cherry picked from commit 360bdc60fe1084061d4cc98fcdfbe55d9e2cb375)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 6d895fe9f3
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jul 25 07:28:58 2026 -0400
+
+    EAX: Move a static struct onto the stack.
+
+    There's no need to use static storage for the decryption working space; No
+    state need be maintained across calls to Eax_Decrypt.  Moving it to the stack
+    frees up a tiny amount of .bss but most importantly eliminates the risk of
+    concurrency issues.
+
+    Tested using the capture attached to issue #5531.
+
+    (cherry picked from commit bb9bb86070f0e72456e19753ff94863921f94a90)
+
+    Co-authored-by: Darius Davis <darius-wireshark@free-range.com.au>
+
+commit 7028cf20df
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Jul 24 09:46:16 2026 -0400
+
+    k12: Don't try to write records larger than supported for writing
+
+    The Tektronix K12xx (.rf5) wiretap dumper can only write the k12
+    encapsulation, but the reader can read files with records larger
+    than the dumper can write. Prevent writing past an allocated buffer
+    by refusing to write a too long record.
+
+    Also replace a few numeric literals with the appropriate #defines.
+
+    Fix #21436
+
+    Thanks to AISLE Security for the report, PoC, and suggested fix.
+
+    (backport from commit 08dde3f0ed385261d56270fe5289e029a666c6bf)
+
+commit 02e8e31cb0
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Jul 24 12:08:37 2026 -0400
+
+    Windows: Update to libgcrypt-1.12.2-3 package
+
+    For some reason the previous package doesn't seem to remember that
+    the library is already initialized, and ends up calling LoadLibraryEx
+    and FreeLibrary every single time a libgcrypt function is called.
+
+    Fix #21337
+
+    (backported from e699ab947839ac6fa5e6d1740dee4502557f5b6e)
+
+commit 32c63e1b62
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Jul 24 09:57:55 2026 -0400
+
+    wiretap: busmaster: Do not exit the program on a malformed file
+
+    Report a malformed header as a bad file and have that handled through
+    the normal wiretap error routines, instead of rudely exiting the
+    process.
+
+    Fix #21435
+
+    Thanks to AISLE Security and AISLE:Snapshot for the report, PoC and suggested
+    patch.
+
+    (cherry picked from commit 8e984f1f8360d90c5250c1a77b8754f3ce64890b)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit f95f229f4e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Jul 24 11:04:16 2026 -0400
+
+    UMTS-FP: More bounds checking against subframes[]
+
+    (cherry picked from commit 5c5d3d53818a78db8f14ebc46c67b052b6542894)
+
+    16010858 UMTS-FP: More bounds checking against subframes[]
+
+    Co-authored-by: Martin Mathieson <martin.r.mathieson@googlemail.com>
+
+commit dbefcd3101
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Thu Jul 23 17:47:35 2026 +0200
+
+    NAS 5GS: add extraneous data check to UE security capability IE
+
+    Fixes #21431
+
+    (cherry picked from commit f2d3d9f070750d1a23b30b5ec231cedf62802a83)
+
+    Co-authored-by: Pascal Quantin <pascal@wireshark.org>
+
+commit e839c9e603
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Thu Jul 23 17:07:01 2026 +0200
+
+    NAS 5GS: fix dissection of extended CAG information list IE
+
+    Fixes #21433
+
+    (cherry picked from commit ba4e7dfb1020673cca0bb497b68765caf9db0789)
+
+    Co-authored-by: Pascal Quantin <pascal@wireshark.org>
+
+commit 9427a5b378
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Thu Jul 23 16:27:08 2026 +0200
+
+    NAS 5GS: fix dissection of registration wait range IE
+
+    Fixes #21432
+
+    (cherry picked from commit 1ada3fc602388e1b8d37cfb008b0ac1278267c58)
+
+    Co-authored-by: Pascal Quantin <pascal@wireshark.org>
+
+commit 3eaf9083d3
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jul 22 09:09:09 2026 -0400
+
+    Qt: QCustomPlot: Fix overflow in QCPItemTracer
+
+    Converting a QRectF to a QRect can cause integer overflow, particularly
+    when the QRectF in question has just been radically shifted by a conversion
+    from relative times to absolute times. Qt 6.10 added a check for integer
+    overflow in QRect and other geometry classes:
+
+    https://github.com/qt/qtbase/commit/1145e1709d1072f7dd45683e9c25a14615603854
+
+    This causes non-UB wraparound Qt is not compiled in Debug mode, but
+    causes an Error which leads to Wireshark being aborted when compiled in
+    Debug mode. (The wraparound is still incorrect, but also the QRect
+    produced by wrapping around is unlikely to intersect, although it
+    could.)
+
+    Convert the clipRect to a QRectF before checking the intersection with
+    various QRectF, instead of converting the QRectFs to QRects in order to
+    avoid overflow.
+
+    Ping #21426
+
+    (cherry picked from commit 2f022fab2cc9523e1407ef7403eec61a873109a7)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit e32702d6be
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jul 21 20:10:39 2026 -0400
+
+    Qt: Trim off extra attributes from Qt >= 6.11 QFont::toString
+
+    Qt 6.11 added two new attributes to the comma separated list produced
+    by QFont::toString(). Older versions have 17 attributes; now there are
+    19. (Qt 5 also uses 17 attributes, although the weights numbers are
+    different.)
+
+    https://doc.qt.io/qt-6/qfont.html#toString
+    https://doc.qt.io/qt-6.10/qfont.html#toString
+
+    Strip extra attributes when running on Qt < 6.11, to avoid console
+    warnings like:
+
+    [GUI WARNING] -- QFont::fromString: Invalid description
+    'Consolas,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1,Regular,0,0'`
+
+    This can happen when using the same preferences on multiple versions of
+    Wireshark or on multiple computers, only some of which have Qt 6.11.
+
+    Fonts are managed in a different place in 4.6 and earlier, so this
+    commit is made directly to 4.6
+
+    (cherry picked from commit 1360624cc4b33603afee5b665c469791fd13e6aa)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit f8edcd3db2
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Tue Jul 21 23:37:26 2026 +0200
+
+    DCT2000: fix buffer overflow when copying packet data
+
+    Fixes #21427
+
+    Thanks to Yazan Balawneh from CyStack Security Team for the report
+
+    (cherry picked from commit 46c813e7ad05316afdbb06c1ecb0cf82b7c1c000)
+
+    Co-authored-by: Pascal Quantin <pascal@wireshark.org>
+
+commit 40ab60fce7
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Tue Jul 21 00:02:06 2026 +0200
+
+    BT ATT: check handle count when decoding Read Multiple Variable Response
+
+    Fixes #21424
+
+    Thanks to Yazan Balawneh from CyStack Security Team for the report
+
+    (cherry picked from commit 6e2dfd4f0bfc62a35b0d520e57165aee5b441d99)
+
+    Co-authored-by: Pascal Quantin <pascal@wireshark.org>
+
+commit c1378c3314
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Jul 19 21:50:17 2026 -0500
+
+    reassemble: Put a max limit on add_seq() reassembly lengths
+
+    The add_seq family of reassembly functions uses sequence ids within
+    the reassembly (instead of offsets, the way the TCP-like fragment_add
+    functions do). The total length is computed at the end. If that length
+    overflows, or otherwise goes beyond a maximum supported size
+    (INT32_MAX until #20103 is fully solved), stop copying. This prevents
+    allocating too short a buffer if the total length would overflow.
+
+    Fix #21423
+
+    Thanks to Daniel Birtwhistle for the report and POC.
+
+    (backported from commit 9f68da57d360629eb7cee8d97d2f894b4858ce8f)
+
+commit a7c97b297d
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Sun Jul 19 23:14:17 2026 +0200
+
+    C12.22: fix bound check in canonify_unencrypted_header()
+
+    Thanks to Aisle Security for reporting and PoC.
+
+    (cherry picked from commit 94a0319ec2d26b4d724dcafdacf6a7abc2ba2d57)
+
+    Co-authored-by: Pascal Quantin <pascal@wireshark.org>
+
+commit d28eaacbad
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Sat Jul 18 13:27:31 2026 -0500
+
+    RDP: fix bound checks
+
+    Fixes #21396
+
+    Thanks to Anthropic's Claude and Ada Logics for reporting and PoC.
+
+    (cherry picked from commit d50d557d84ddb546ca4a43f51034780e2493c409)
+
+    Conflicts:
+            epan/tvbuff_rdp.c
+
+commit 68dfb30566
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 19 10:17:24 2026 +0000
+
+    [Automatic update for 2026-07-19]
+
+    Update manuf, services, enterprise numbers, translations, and other items.
+
+commit 4ef42a732c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jul 18 10:14:32 2026 -0400
+
+    rlogin: Don't add invalid UTF-8 to a column
+
+    Instead of a fixed array buffer, allocate the string; since we bound
+    the length we're willing to read, this shouldn't cause any problems.
+    This also means we do sanitization and replacement of invalid characters
+    right away.
+
+    Fix #21419
+
+    (cherry picked from commit 7def9acc2c7f9db36662df1cd17b6d73ec91bae9)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 82c0b871be
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Wed Jul 15 07:26:55 2026 +0200
+
+    erf: Check that a time tag is long enough before copying
+
+    This is a similar test used for other sorts of tags elsewhere
+    in the wiretap module for ERF.
+
+    Fix #21415
+
+    Thanks to Jaime Cavero for the report and PoC.
+
+    (cherry picked from commit 4e030d2b1791de6bc84a60278ea730d3660fe6f5)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 6f812cbb50
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jul 14 00:47:45 2026 -0400
+
+    K12: Fix a possible buffer overrun
+
+    The k12 wiretap module's get_record() has always returned the length
+    read in the file, i.e., the offset advanced, not the length of the
+    record. These are distinct values because every 8192 bytes there are
+    16 byte blobs that are thrown away.
+
+    Starting at least with commit 74322911219429bc6e5a6b17a4bee2fa87e7df65
+    19.5 years ago, that return value was incorrectly treated as the record
+    length. This meant that the length of extra bytes in the record after
+    the frame length was calculated too large whenever the portion of the
+    file including the record included the blob.
+
+    Since the buffer is allocated with 8192 bytes originally, this generally
+    means copying uninitialized data, but with certain record lengths can
+    mean a buffer overrun. The buffer size was increased as necessary to
+    accommodate the actual payload, but this did not take into account the
+    16 byte blob, and so any value within 16 bytes of 8192 or a power of 2
+    multiplied by 8192 could produce this.
+
+    To reduce the confusion, use a Buffer instead of a raw uint8_t array
+    with length, and use ws_buffer_length() to retrieve the length written
+    to the buffer, as separate from the offset advance.
+
+    Thanks to Jaime Cavero for the report and PoC.
+
+    Fix #21414
+
+    (backported from commit c517aedc993f6f12f6768c9d6115efb0b956e5e3)
+
+commit 5b56712fb9
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Jul 12 14:56:47 2026 -0400
+
+    sharkd: Make sure to deregister and free taps on failure
+
+    Move registering a single tap to a separate static function,
+    and on failure, make sure that all the registered taps are
+    removed and freed appropriately.
+
+    Fix #21395
+
+    Thanks to Anthropic's Claude and Ada Logics for reporting and PoC.
+
+    (backported from commit 178939f126d5eeb442d96e10b0ea4c1cfc6920e9)
+
+commit a03f38a12d
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Mon Jul 13 16:16:37 2026 +0200
+
+    NAS 5GS: fix dissection of NSAG information
+
+    Fixes #21412
+
+    (cherry picked from commit 8ef8e0fa782cea54570dda01ee25a36b24f03ae7)
+
+commit e298ec78a0
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Mon Jul 13 11:54:54 2026 +0200
+
+    NAS 5GS: fix S-NSSAI location validity information dissection
+
+    Fixes #21411
+
+    (cherry picked from commit c92cf203e28054944c55ad83f28557fa342ed955)
+
+    Co-authored-by: Pascal Quantin <pascal@wireshark.org>
+
+commit 560ec98247
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Jul 12 17:22:32 2026 -0400
+
+    sharkd: Make sure to deregister and already added IO Graphs on error
+
+    Commit 647205177179a6e9ef6c08f08c33a2b405efffbc (pre-3.6.0)
+    made it so that bad I/O Graphs lines returned an error immediately
+    instead of being silently ignored. This meant that they were no
+    longer freed and deregistered.
+
+    Fix #21399
+
+    Thanks to Anthropic's Claude and Ada Logics for reporting.
+
+    (cherry picked from commit d43d89d201b18f1c6d77460e52b4e6b5a4ec68f8)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 6716c765ef
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 12 10:16:19 2026 +0000
+
+    [Automatic update for 2026-07-12]
+
+    Update manuf, services, enterprise numbers, translations, and other items.
+
+commit a15f6d0b5f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jul 8 15:19:06 2026 -0700
+
+    Version: 4.4.17 → 4.4.18 [skip ci]
