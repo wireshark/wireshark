@@ -202,11 +202,12 @@ endif()
 
   # This is terrible, but libsinsp/libscap doesn't support dynamic linking on Windows (yet).
   find_path(_zlib_include_dir NO_CACHE
-    NAMES zlib/zlib.h
+    NAMES zlib.h
     HINTS "${SINSP_INCLUDEDIR}" "${SINSP_HINTS}/include"
     PATHS
     /usr/include
     /usr/local/include
+    PATH_SUFFIXES falcosecurity/zlib
   )
   if (_zlib_include_dir)
     list(APPEND _sinsp_include_dirs ${_zlib_include_dir})
@@ -227,14 +228,13 @@ endif()
 
   if(_sinsp_include_dirs AND _sinsp_link_libs)
     list(REMOVE_DUPLICATES _sinsp_include_dirs)
-    set(SINSP_INCLUDE_DIRS ${_sinsp_include_dirs} CACHE PATH "Paths to libsinsp and libscap headers")
+    set(SINSP_INCLUDE_DIRS ${_sinsp_include_dirs} CACHE PATH "Paths to libsinsp and libscap headers" FORCE)
     # The Debug libraries link to MSVCRTD.lib on Windows, and so we need to
     # track them separately there. We don't need to do that elsewhere.
     if(WIN32)
-      set(SINSP_LINK_LIBRARIES $<IF:$<CONFIG:Debug>,${_sinsp_debug_link_libs},${_sinsp_link_libs}> CACHE PATH "Paths to libsinsp, libscap, etc.")
-    else()
-      set(SINSP_LINK_LIBRARIES ${_sinsp_link_libs} CACHE PATH "Paths to libsinsp, libscap, etc.")
+      set(SINSP_DEBUG_LINK_LIBRARIES ${_sinsp_debug_link_libs} CACHE PATH "Paths to libsinsp, libscap, etc. debug libs")
     endif()
+    set(SINSP_LINK_LIBRARIES ${_sinsp_link_libs} CACHE PATH "Paths to libsinsp, libscap, etc.")
     set(SINSP_FOUND 1)
     unset(_sinsp_include_dirs)
     unset(_sinsp_link_libs)
@@ -280,6 +280,26 @@ if(SINSP_FOUND)
 #     )
 #     mark_as_advanced( SINSP_DLL_DIR SINSP_DLL )
 #   endif()
+  if (NOT TARGET sinsp::sinsp)
+    add_library(sinsp::sinsp INTERFACE IMPORTED)
+    set_target_properties(sinsp::sinsp PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${SINSP_INCLUDE_DIRS}"
+    )
+    if (USE_REPOSITORY)
+      target_link_libraries(sinsp::sinsp INTERFACE
+        debug "${SINSP_DEBUG_LINK_LIBRARIES}"
+        optimized "${SINSP_LINK_LIBRARIES}"
+      )
+      # We don't have the PDBs
+      target_link_options(sinsp::sinsp INTERFACE
+        "$<$<BOOL:${MSVC}>:/IGNORE:4099>"
+      )
+    else()
+      target_link_libraries(sinsp::sinsp INTERFACE
+        "${SINSP_LINK_LIBRARIES}"
+      )
+    endif()
+  endif()
 else()
   set(SINSP_INCLUDE_DIRS)
   set(SINSP_LINK_LIBRARIES)
@@ -290,7 +310,7 @@ else()
   set(SINSP_VERSION_MICRO)
 endif()
 
-mark_as_advanced(SINSP_INCLUDE_DIRS SINSP_LINK_LIBRARIES)
+mark_as_advanced(SINSP_INCLUDE_DIRS SINSP_LINK_LIBRARIES SINSP_DEBUG_LINK_LIBRARIES)
 
 # Windows plugins
 
