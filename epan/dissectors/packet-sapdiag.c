@@ -17,7 +17,7 @@
 
 #include "packet-sapsnc.h"
 
-/* Define default ports. It right range shold be 32NN, but as prot numbers are
+/* Define default ports. The right range should be 32NN, but as port numbers are
  * proprietary and not IANA assigned, we leave only the one corresponding to the
  * instance 00. In addition, 3298 it's generally used for the niping tool and 3299
  * is associated to SAP Router.
@@ -850,6 +850,8 @@ static const value_string sapdiag_item_control_properties_id_vals[] = {
 #define SAPDIAG_ATOM_ATTR_DIAG_BSD_PROPFONT		0x20
 #define SAPDIAG_ATOM_ATTR_DIAG_BSD_YES3D		0x40
 #define SAPDIAG_ATOM_ATTR_DIAG_BSD_COMBOSTYLE	0x80
+#define SAPDIAG_DYNT_ATOM_HEADER_LEN			13
+#define SAPDIAG_MENU_ENTRY_HEADER_LEN			20
 
 /* SAP Diag UI Event Source flags */
 #define SAPDIAG_UI_EVENT_VALID_FLAG_MENU_POS			0x01
@@ -1602,6 +1604,14 @@ check_length(packet_info *pinfo, proto_tree *tree, uint32_t expected, uint32_t r
 	} else return true;
 }
 
+static bool
+check_min_length(packet_info *pinfo, proto_tree *tree, uint32_t minimum, uint32_t real, const char *name_string){
+	if (real < minimum){
+		expert_add_info_format(pinfo, tree, &ei_sapdiag_item_length_invalid, "Item %s length is invalid", name_string);
+		return false;
+	} else return true;
+}
+
 
 static uint8_t
 add_item_value_uint8(tvbuff_t *tvb, proto_item *item, proto_tree *tree, int hf, uint32_t offset, const char *text){
@@ -1637,11 +1647,56 @@ add_item_value_string(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto
 
 static uint32_t
 add_item_value_stringz(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, int hf, uint32_t offset, const char *text, int show_in_tree){
-	uint32_t length = tvb_strsize(tvb, offset);
-	uint8_t *string = tvb_get_string_enc(pinfo->pool, tvb, offset, length - 1, ENC_ASCII);
-	proto_tree_add_none_format(tree, hf, tvb, offset, length, "%s: %s", text, string);
+	unsigned int max_length = tvb_reported_length_remaining(tvb, offset);
+	int string_length;
+	uint32_t field_length;
+	uint8_t *string;
+
+	if (max_length == 0) {
+		expert_add_info(pinfo, item, &ei_sapdiag_item_length_invalid);
+		return 0;
+	}
+
+	string_length = tvb_strnlen(tvb, offset, max_length);
+	if (string_length < 0) {
+		string_length = field_length = max_length;
+		expert_add_info(pinfo, item, &ei_sapdiag_item_length_invalid);
+	} else {
+		field_length = (uint32_t)string_length + 1;
+	}
+
+	string = tvb_get_string_enc(pinfo->pool, tvb, offset, string_length, ENC_ASCII);
+	proto_tree_add_none_format(tree, hf, tvb, offset, field_length, "%s: %s", text, string);
 	if (show_in_tree) proto_item_append_text(item, ", %s=%s", text, string);
-	return (length);
+	return field_length;
+}
+
+
+static uint32_t
+add_item_value_stringz_bounded(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, int hf, uint32_t offset, uint32_t max_length, const char *text, int show_in_tree, bool *terminated){
+	int string_length;
+	uint32_t field_length;
+	uint8_t *string;
+
+	if (max_length == 0) {
+		*terminated = false;
+		return 0;
+	}
+
+	string_length = tvb_strnlen(tvb, offset, max_length);
+	if (string_length < 0) {
+		string_length = (int)max_length;
+		field_length = max_length;
+		*terminated = false;
+	} else {
+		field_length = (uint32_t)string_length + 1;
+		*terminated = true;
+	}
+
+	string = tvb_get_string_enc(pinfo->pool, tvb, offset, string_length, ENC_ASCII);
+	proto_tree_add_none_format(tree, hf, tvb, offset, field_length, "%s: %s", text, string);
+	if (show_in_tree) proto_item_append_text(item, ", %s=%s", text, string);
+	return field_length;
 }
 
 
@@ -1655,13 +1710,25 @@ add_item_value_hexstring(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, pr
 static void
 dissect_sapdiag_dyntatom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, uint32_t length){
 	uint32_t final = offset + length;
-	uint16_t atom_length = 0, atom_item_length = 0;
+	uint32_t atom_length = 0, atom_item_length = 0, atom_item_end = 0;
 	uint8_t etype = 0, attr = 0;
+	bool terminated;
 
 	proto_item *atom = NULL, *atom_item = NULL, *atom_item_attr = NULL;
 	proto_tree *atom_tree = NULL, *atom_item_tree = NULL, *atom_item_attr_tree = NULL;
 
 	while (offset < final){
+		if (final - offset < SAPDIAG_DYNT_ATOM_HEADER_LEN) {
+			expert_add_info(pinfo, tree, &ei_sapdiag_atom_item_malformed);
+			break;
+		}
+
+		atom_item_length = tvb_get_ntohs(tvb, offset);
+		if (atom_item_length < SAPDIAG_DYNT_ATOM_HEADER_LEN || atom_item_length > final - offset) {
+			expert_add_info(pinfo, tree, &ei_sapdiag_atom_item_malformed);
+			break;
+		}
+		atom_item_end = offset + atom_item_length;
 
 		etype = tvb_get_uint8(tvb, offset+4);
 		if ((etype != 114) && (etype != 120)) {
@@ -1680,46 +1747,37 @@ dissect_sapdiag_dyntatom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
 		}
 
 		/* Add the item atom subtree */
-		atom_item = proto_tree_add_item(atom_tree, hf_sapdiag_item_dynt_atom_item, tvb, offset, tvb_get_ntohs(tvb, offset), ENC_NA);
+		atom_item = proto_tree_add_item(atom_tree, hf_sapdiag_item_dynt_atom_item, tvb, offset, atom_item_length, ENC_NA);
 		atom_item_tree = proto_item_add_subtree(atom_item, ett_sapdiag);
 
 		/* Get the atom item length */
-		atom_item_length = add_item_value_uint16(tvb, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "Atom Length");
+		add_item_value_uint16(tvb, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "Atom Length");
 
-		/* Adjust the length of the atom tree, adding the new item's length and the length field */
+		/* Adjust the length of the atom tree, adding the new item's length. */
 		atom_length+= atom_item_length;
-		proto_item_set_len(atom_tree, atom_length);
+		proto_item_set_len(atom, atom_length);
 
 		/* Continue with the dissection */
 		offset+=2;
-		atom_item_length-=2;
 		add_item_value_uint8(tvb, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "Dlg Flag 1");
 		offset+=1;
-		atom_item_length-=1;
 		add_item_value_uint8(tvb, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "Dlg Flag 2");
 		offset+=1;
-		atom_item_length-=1;
 
 		proto_tree_add_item(atom_item_tree, hf_sapdiag_item_dynt_atom_item_etype, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_item_append_text(atom_item, ", EType=%d", tvb_get_uint8(tvb, offset));
 		offset+=1;
-		atom_item_length-=1;
 
 		add_item_value_uint8(tvb, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "Area");
 		offset+=1;
-		atom_item_length-=1;
 		add_item_value_uint8(tvb, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "Block");
 		offset+=1;
-		atom_item_length-=1;
 		add_item_value_uint8(tvb, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "Group");
 		offset+=1;
-		atom_item_length-=1;
 		add_item_value_uint16(tvb, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "Row");
 		offset+=2;
-		atom_item_length-=2;
 		add_item_value_uint16(tvb, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "Col");
 		offset+=2;
-		atom_item_length-=2;
 
 		atom_item_attr = proto_tree_add_item(atom_item_tree, hf_sapdiag_item_dynt_atom_item_attr, tvb, offset, 1, ENC_BIG_ENDIAN);
 		atom_item_attr_tree = proto_item_add_subtree(atom_item_attr, ett_sapdiag);
@@ -1735,7 +1793,7 @@ dissect_sapdiag_dyntatom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
 		proto_tree_add_item(atom_item_attr_tree, hf_sapdiag_item_dynt_atom_item_attr_DIAG_BSD_YES3D, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(atom_item_attr_tree, hf_sapdiag_item_dynt_atom_item_attr_DIAG_BSD_COMBOSTYLE, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset+=1;
-		atom_item_length-=1;
+		atom_item_length = atom_item_end - offset;
 
 		/* If the attribute is set to invisible we're dealing probably with a password field */
 		if (attr & SAPDIAG_ATOM_ATTR_DIAG_BSD_INVISIBLE){
@@ -1749,6 +1807,10 @@ dissect_sapdiag_dyntatom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
 				break;
 
 			} case 115:{ /* DIAG_DGOTYP_PUSHBUTTON_2 */
+				if (atom_item_length < 6) {
+					expert_add_info(pinfo, atom_item, &ei_sapdiag_atom_item_malformed);
+					break;
+				}
 				add_item_value_uint8(tvb, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "V Length");
 				offset+=1;
 				add_item_value_uint8(tvb, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "V Height");
@@ -1757,11 +1819,20 @@ dissect_sapdiag_dyntatom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
 				offset+=2;
 				add_item_value_uint16(tvb, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "Text Offset");
 				offset+=2;
-				offset+=add_item_value_stringz(tvb, pinfo, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "Text", 1);
-				add_item_value_stringz(tvb, pinfo, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "Function Code", 1);
+				offset+=add_item_value_stringz_bounded(tvb, pinfo, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, atom_item_end - offset, "Text", 1, &terminated);
+				if (!terminated || offset == atom_item_end) {
+					expert_add_info(pinfo, atom_item, &ei_sapdiag_atom_item_malformed);
+					break;
+				}
+				add_item_value_stringz_bounded(tvb, pinfo, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, atom_item_end - offset, "Function Code", 1, &terminated);
+				if (!terminated) expert_add_info(pinfo, atom_item, &ei_sapdiag_atom_item_malformed);
 				break;
 
 			} case 116:{ /* DIAG_DGOTYP_TABSTRIP_BUTTON */
+				if (atom_item_length < 9) {
+					expert_add_info(pinfo, atom_item, &ei_sapdiag_atom_item_malformed);
+					break;
+				}
 				add_item_value_uint8(tvb, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "V Length");
 				offset+=1;
 				add_item_value_uint8(tvb, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "V Height");
@@ -1774,9 +1845,18 @@ dissect_sapdiag_dyntatom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
 				offset+=2;
 				add_item_value_uint16(tvb, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "Id Offset");
 				offset+=2;
-				offset+=add_item_value_stringz(tvb, pinfo, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "Text", 1);
-				offset+=add_item_value_stringz(tvb, pinfo, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "Function Code", 1);
-				add_item_value_stringz(tvb, pinfo, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "ID", 1);
+				offset+=add_item_value_stringz_bounded(tvb, pinfo, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, atom_item_end - offset, "Text", 1, &terminated);
+				if (!terminated || offset == atom_item_end) {
+					expert_add_info(pinfo, atom_item, &ei_sapdiag_atom_item_malformed);
+					break;
+				}
+				offset+=add_item_value_stringz_bounded(tvb, pinfo, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, atom_item_end - offset, "Function Code", 1, &terminated);
+				if (!terminated || offset == atom_item_end) {
+					expert_add_info(pinfo, atom_item, &ei_sapdiag_atom_item_malformed);
+					break;
+				}
+				add_item_value_stringz_bounded(tvb, pinfo, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, atom_item_end - offset, "ID", 1, &terminated);
+				if (!terminated) expert_add_info(pinfo, atom_item, &ei_sapdiag_atom_item_malformed);
 				break;
 
 			} case 118:  /* DIAG_DGOTYP_CHECKBUTTON_1" */
@@ -1795,6 +1875,10 @@ dissect_sapdiag_dyntatom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
 			} case 121:  /* DIAG_DGOTYP_EFIELD_1 */
 			  case 122:  /* DIAG_DGOTYP_OFIELD_1 */
 			  case 123:{ /* DIAG_DGOTYP_KEYWORD_1_1 */
+				if (atom_item_length < 5) {
+					expert_add_info(pinfo, atom_item, &ei_sapdiag_atom_item_malformed);
+					break;
+				}
 				/* Found in NW 7.00 and 7.01 versions */
 				add_item_value_uint8(tvb, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "Flag1");
 				offset+=1;
@@ -1813,6 +1897,10 @@ dissect_sapdiag_dyntatom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
 				break;
 
 			  } case 127:{ /* DIAG_DGOTYP_FRAME_1 */
+				if (atom_item_length < 4) {
+					expert_add_info(pinfo, atom_item, &ei_sapdiag_atom_item_malformed);
+					break;
+				}
 				add_item_value_uint16(tvb, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "DRows");
 				offset+=2;
 				atom_item_length-=2;
@@ -1823,6 +1911,10 @@ dissect_sapdiag_dyntatom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
 				break;
 
 			} case 129:{ /* DIAG_DGOTYP_RADIOBUTTON_3 */
+				if (atom_item_length < 10) {
+					expert_add_info(pinfo, atom_item, &ei_sapdiag_atom_item_malformed);
+					break;
+				}
 				add_item_value_uint8(tvb, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "Button");
 				offset+=1;
 				atom_item_length-=1;
@@ -1847,6 +1939,10 @@ dissect_sapdiag_dyntatom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
 			} case 130:  /* DIAG_DGOTYP_EFIELD_2 */
 			  case 131:  /* DIAG_DGOTYP_OFIELD_2 */
 			  case 132:{ /* DIAG_DGOTYP_KEYWORD_2 */
+				if (atom_item_length < 6) {
+					expert_add_info(pinfo, atom_item, &ei_sapdiag_atom_item_malformed);
+					break;
+				}
 				add_item_value_uint16(tvb, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "Flag1");
 				offset+=2;
 				atom_item_length-=2;
@@ -1869,6 +1965,8 @@ dissect_sapdiag_dyntatom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
 				}
 				break;
 		}
+
+		offset = atom_item_end;
 	}
 
 }
@@ -1877,14 +1975,27 @@ static void
 dissect_sapdiag_menu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, uint32_t length){
 
 	uint32_t final = offset + length;
+	uint32_t menu_length, menu_end;
+	bool terminated;
 
 	proto_item *menu = NULL;
 	proto_tree *menu_tree = NULL;
 
 	while (offset < final){
+		if (final - offset < 2) {
+			expert_add_info(pinfo, tree, &ei_sapdiag_item_length_invalid);
+			break;
+		}
+
+		menu_length = tvb_get_ntohs(tvb, offset);
+		if (menu_length < SAPDIAG_MENU_ENTRY_HEADER_LEN || menu_length > final - offset) {
+			expert_add_info(pinfo, tree, &ei_sapdiag_item_length_invalid);
+			break;
+		}
+		menu_end = offset + menu_length;
 
 		/* Add the menu entry subtree */
-		menu = proto_tree_add_item(tree, hf_sapdiag_item_menu_entry, tvb, offset, tvb_get_ntohs(tvb, offset), ENC_NA);
+		menu = proto_tree_add_item(tree, hf_sapdiag_item_menu_entry, tvb, offset, menu_length, ENC_NA);
 		menu_tree = proto_item_add_subtree(menu, ett_sapdiag);
 
 		add_item_value_uint16(tvb, menu, menu_tree, hf_sapdiag_item_value, offset, "Length");
@@ -1930,9 +2041,23 @@ dissect_sapdiag_menu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 		add_item_value_uint8(tvb, menu, menu_tree, hf_sapdiag_item_value, offset, "Function Code 6");
 		offset+=1;
 
-		offset+=add_item_value_stringz(tvb, pinfo, menu, menu_tree, hf_sapdiag_item_value, offset, "Text", 1);
-		offset+=add_item_value_stringz(tvb, pinfo, menu, menu_tree, hf_sapdiag_item_value, offset, "Accelerator", 1);
-		add_item_value_stringz(tvb, pinfo, menu, menu_tree, hf_sapdiag_item_value, offset, "Info", 1);
+		offset+=add_item_value_stringz_bounded(tvb, pinfo, menu, menu_tree, hf_sapdiag_item_value, offset, menu_end - offset, "Text", 1, &terminated);
+		if (!terminated || offset == menu_end) {
+			expert_add_info(pinfo, menu, &ei_sapdiag_item_length_invalid);
+			offset = menu_end;
+			continue;
+		}
+
+		offset+=add_item_value_stringz_bounded(tvb, pinfo, menu, menu_tree, hf_sapdiag_item_value, offset, menu_end - offset, "Accelerator", 1, &terminated);
+		if (!terminated || offset == menu_end) {
+			expert_add_info(pinfo, menu, &ei_sapdiag_item_length_invalid);
+			offset = menu_end;
+			continue;
+		}
+
+		add_item_value_stringz_bounded(tvb, pinfo, menu, menu_tree, hf_sapdiag_item_value, offset, menu_end - offset, "Info", 1, &terminated);
+		if (!terminated) expert_add_info(pinfo, menu, &ei_sapdiag_item_length_invalid);
+		offset = menu_end;
 	}
 
 }
@@ -1945,7 +2070,17 @@ dissect_sapdiag_uievent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uin
 	uint8_t event_valid = 0;
 	uint16_t container_nrs = 0, i = 0;
 
+	if (length < 1) {
+		expert_add_info(pinfo, tree, &ei_sapdiag_item_length_invalid);
+		return;
+	}
+
 	event_valid = tvb_get_uint8(tvb, offset);
+	if (length < ((event_valid & SAPDIAG_UI_EVENT_VALID_FLAG_NAVIGATION_DATA) ? 12U : 15U)) {
+		expert_add_info(pinfo, tree, &ei_sapdiag_item_length_invalid);
+		return;
+	}
+
 	event_valid_item = proto_tree_add_item(tree, hf_sapdiag_item_ui_event_valid, tvb, offset, 1, ENC_BIG_ENDIAN);
 	event_valid_tree = proto_item_add_subtree(event_valid_item, ett_sapdiag);
 
@@ -2013,7 +2148,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 	/* SES item */
 	if (item_type==0x01){
 		uint8_t event_array = 0;
-		check_length(pinfo, item_value_tree, 16, item_length, "SES");
+		if (!check_length(pinfo, item_value_tree, 16, item_length, "SES")) return;
 
 		event_array = tvb_get_uint8(tvb, offset);
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Event Array");
@@ -2051,7 +2186,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		}
 
 	} else if (item_type==0x0a) { /* SFE */
-		check_length(pinfo, item_value_tree, 3, item_length, "SFE");
+		if (!check_length(pinfo, item_value_tree, 3, item_length, "SFE")) return;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Control format");
 		offset+=1;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Control color");
@@ -2059,17 +2194,17 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Control extended");
 
 	} else if (item_type==0x0b) { /* SBA */
-		check_length(pinfo, item_value_tree, 2, item_length, "SBA");
+		if (!check_length(pinfo, item_value_tree, 2, item_length, "SBA")) return;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Control y-position");
 		offset+=1;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Control x-position");
 
 	} else if (item_type==0x10 && item_id==0x04 && item_sid==0x26){		/* Dialog Step Number */
-		check_length(pinfo, item_value_tree, 4, item_length, "Dialog Step Number");
+		if (!check_length(pinfo, item_value_tree, 4, item_length, "Dialog Step Number")) return;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Dialog Step Number");
 
 	} else if (item_type==0x10 && item_id==0x04 && item_sid==0x02){		/* Connect */
-		check_length(pinfo, item_value_tree, 12, item_length, "Connect");
+		if (!check_length(pinfo, item_value_tree, 12, item_length, "Connect")) return;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Protocol Version");
 		offset+=4;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Code Page");
@@ -2077,7 +2212,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "WS Type");
 
 	} else if (item_type==0x10 && item_id==0x04 && item_sid==0x04){		/* Font Metric */
-		check_length(pinfo, item_value_tree, 8, item_length, "Font Metric");
+		if (!check_length(pinfo, item_value_tree, 8, item_length, "Font Metric")) return;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Variable font size (y)");
 		offset+=2;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Variable font size (x)");
@@ -2088,11 +2223,11 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 
 	} else if ((item_type==0x10 && item_id==0x04 && item_sid==0x0b) ||		/* Support Data */
 		   (item_type==0x10 && item_id==0x06 && item_sid==0x11)){
-		check_length(pinfo, item_value_tree, 32, item_length, "Support Data");
+		if (!check_length(pinfo, item_value_tree, 32, item_length, "Support Data")) return;
 		dissect_sapdiag_support_bits(tvb, item_value_tree, offset);
 
 	} else if (item_type==0x10 && item_id==0x04 && item_sid==0x0d){		/* Window Size */
-		check_length(pinfo, item_value_tree, 16, item_length, "Window Size");
+		if (!check_length(pinfo, item_value_tree, 16, item_length, "Window Size")) return;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Window Height");
 		offset+=4;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Window Width");
@@ -2102,19 +2237,19 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Area Width");
 
 	} else if (item_type==0x10 && item_id==0x04 && item_sid==0x0f){		/* Turn Time 2 (Response time) */
-		check_length(pinfo, item_value_tree, 4, item_length, "Response time");
+		if (!check_length(pinfo, item_value_tree, 4, item_length, "Response time")) return;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Response time");
 
 	} else if (item_type==0x10 && item_id==0x04 && item_sid==0x16){		/* Scrollbar Width */
-		check_length(pinfo, item_value_tree, 2, item_length, "Scrollbar Width");
+		if (!check_length(pinfo, item_value_tree, 2, item_length, "Scrollbar Width")) return;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Scrolllbar Width");
 
 	} else if (item_type==0x10 && item_id==0x04 && item_sid==0x17){		/* Scrollbar Height */
-		check_length(pinfo, item_value_tree, 2, item_length, "Scrollbar Height");
+		if (!check_length(pinfo, item_value_tree, 2, item_length, "Scrollbar Height")) return;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Scrollbar Height");
 
 	} else if (item_type==0x10 && item_id==0x04 && item_sid==0x19){		/* Gui State */
-		check_length(pinfo, item_value_tree, 2, item_length, "Gui State");
+		if (!check_length(pinfo, item_value_tree, 2, item_length, "Gui State")) return;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Flag 1");
 		offset+=1;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Flag 2");
@@ -2125,34 +2260,35 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		if (item_length == 2){
 			add_item_value_string(tvb, pinfo, item, item_value_tree, hf_sapdiag_item_value, offset, 2, "GUI patch level", 1);
 		} else {
-			check_length(pinfo, item_value_tree, 1, item_length, "GUI patch level");
+			if (!check_length(pinfo, item_value_tree, 1, item_length, "GUI patch level")) return;
 			add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "GUI patch level");
 		}
 
 	} else if (item_type==0x10 && item_id==0x04 && item_sid==0x24){		/* Display Size */
-		check_length(pinfo, item_value_tree, 8, item_length, "Display Size");
+		if (!check_length(pinfo, item_value_tree, 8, item_length, "Display Size")) return;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Height");
 		offset+=4;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Height");
 
 	} else if (item_type==0x10 && item_id==0x04 && item_sid==0x25){		/* GUI Type */
-		check_length(pinfo, item_value_tree, 2, item_length, "GUI Type");
+		if (!check_length(pinfo, item_value_tree, 2, item_length, "GUI Type")) return;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "GUI Type");
 
 	} else if (item_type==0x10 && item_id==0x06 && item_sid==0x01){		/* Mode Number */
-		check_length(pinfo, item_value_tree, 2, item_length, "Mode Number");
+		if (!check_length(pinfo, item_value_tree, 2, item_length, "Mode Number")) return;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Mode Number");
 
 	} else if (item_type==0x10 && item_id==0x06 && item_sid==0x06){		/* Diag version */
-		check_length(pinfo, item_value_tree, 2, item_length, "Diag version");
+		if (!check_length(pinfo, item_value_tree, 2, item_length, "Diag version")) return;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Diag version");
 
 	} else if (item_type==0x10 && item_id==0x06 && item_sid==0x0a){		/* Internal Mode Number */
-		check_length(pinfo, item_value_tree, 2, item_length, "Internal Mode Number");
+		if (!check_length(pinfo, item_value_tree, 2, item_length, "Internal Mode Number")) return;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Internal Mode Number");
 
 	} else if (item_type==0x10 && item_id==0x06 && item_sid==0x13){		/* GUI_FKEY */
 		uint32_t length = offset+item_length;
+		if (!check_min_length(pinfo, item_value_tree, 2, item_length, "GUI_FKEY")) return;
 		offset++;  /* TODO: Skip one byte here */
 		offset+=add_item_value_stringz(tvb, pinfo, item, item_value_tree, hf_sapdiag_item_value, offset, "Virtual key number", 1);
 		while ((offset < length) && tvb_offset_exists(tvb, offset)){
@@ -2164,6 +2300,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		}
 
 	} else if (item_type==0x10 && item_id==0x06 && item_sid==0x14){		/* GUI_FKEYT */
+		if (!check_min_length(pinfo, item_value_tree, 4, item_length, "GUI_FKEYT")) return;
 		offset++;  /* TODO: Skip one byte here */
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Virtual key number");
 		offset+=2;  /* TODO: Skip one byte here */
@@ -2174,11 +2311,11 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		}
 
 	} else if (item_type==0x10 && item_id==0x06 && item_sid==0x16){		/* RFC Diag Block Size */
-		check_length(pinfo, item_value_tree, 4, item_length, "RFC Diag Block Size");
+		if (!check_length(pinfo, item_value_tree, 4, item_length, "RFC Diag Block Size")) return;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "RFC Diag Block Size");
 
 	} else if (item_type==0x10 && item_id==0x06 && item_sid==0x18){		/* Info flags */
-		check_length(pinfo, item_value_tree, 2, item_length, "Info flags");
+		if (!check_length(pinfo, item_value_tree, 2, item_length, "Info flags")) return;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Info flags");
 		/* If the preference is set, report the item as partially dissected in the expert info */
 		if (global_sapdiag_highlight_items){
@@ -2186,11 +2323,13 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		}
 
 	} else if (item_type==0x10 && item_id==0x06 && item_sid==0x19){		/* User ID */
-		check_length(pinfo, item_value_tree, 2, item_length, "User ID");
+		if (!check_length(pinfo, item_value_tree, 2, item_length, "User ID")) return;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "User ID");
 
 	} else if (item_type==0x10 && item_id==0x06 && item_sid==0x1f){		/* IMode uuids 2 */
-		uint8_t uuids = tvb_get_uint8(tvb, offset);
+		uint8_t uuids;
+		if (!check_min_length(pinfo, item_value_tree, 1, item_length, "IMode uuids")) return;
+		uuids = tvb_get_uint8(tvb, offset);
 		if (!check_length(pinfo, item_value_tree, 1 + 17 * uuids, item_length, "IMode uuids") ) return;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Number of uuids");
 		offset+=1;
@@ -2203,10 +2342,11 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		}
 
 	} else if (item_type==0x10 && item_id==0x06 && item_sid==0x22){		/* Auto logout time */
-		check_length(pinfo, item_value_tree, 4, item_length, "Auto logout time");
+		if (!check_length(pinfo, item_value_tree, 4, item_length, "Auto logout time")) return;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Auto logout time");
 
 	} else if (item_type==0x10 && item_id==0x06 && item_sid==0x23){		/* Codepage Diag GUI */
+		if (!check_min_length(pinfo, item_value_tree, 6, item_length, "Codepage Diag GUI")) return;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Codepage number (numeric representation)");
 		offset+=4;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Minimum number of bytes per character");
@@ -2215,6 +2355,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		add_item_value_stringz(tvb, pinfo, item, item_value_tree, hf_sapdiag_item_value, offset, "Codepage description", 1);
 
 	} else if (item_type==0x10 && item_id==0x06 && item_sid==0x27){		/* Codepage App Server */
+		if (!check_min_length(pinfo, item_value_tree, 6, item_length, "Codepage App Server")) return;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Codepage number (numeric representation)");
 		offset+=4;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Minimum number of bytes per character");
@@ -2229,6 +2370,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 
 	} else if (item_type==0x10 && item_id==0x09 && item_sid==0x0b){		/* Dynt Focus */
 		uint32_t length = offset + item_length;
+		if (!check_min_length(pinfo, item_value_tree, 9, item_length, "Dynt Focus")) return;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Focus Num of Area ID");
 		offset+=1;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Focus Row");
@@ -2250,7 +2392,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		}
 
 	} else if (item_type==0x10 && item_id==0x0a && item_sid==0x01){		/* Container Reset */
-		check_length(pinfo, item_value_tree, 9, item_length, "Container Reset");
+		if (!check_length(pinfo, item_value_tree, 9, item_length, "Container Reset")) return;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Container Id");
 		offset+=1;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Container Row");
@@ -2262,7 +2404,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Container Height");
 
 	} else if (item_type==0x10 && item_id==0x0a && item_sid==0x04){		/* Container Loop */
-		check_length(pinfo, item_value_tree, 9, item_length, "Container Loop");
+		if (!check_length(pinfo, item_value_tree, 9, item_length, "Container Loop")) return;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Container Id");
 		offset+=1;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Container Row");
@@ -2274,7 +2416,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Container Height");
 
 	} else if (item_type==0x10 && item_id==0x0a && item_sid==0x05){		/* Container Table */
-		check_length(pinfo, item_value_tree, 9, item_length, "Container Table");
+		if (!check_length(pinfo, item_value_tree, 9, item_length, "Container Table")) return;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Container Id");
 		offset+=1;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Container Row");
@@ -2291,7 +2433,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		add_item_value_stringz(tvb, pinfo, item, item_value_tree, hf_sapdiag_item_value, offset, "Subdynpro name", 1);
 
 	} else if (item_type==0x10 && item_id==0x0a && item_sid==0x08){		/* Container TabStrip */
-		check_length(pinfo, item_value_tree, 9, item_length, "Container TabStrip");
+		if (!check_length(pinfo, item_value_tree, 9, item_length, "Container TabStrip")) return;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Container Id");
 		offset+=1;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Container Row");
@@ -2303,7 +2445,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Container Height");
 
 	} else if (item_type==0x10 && item_id==0x0a && item_sid==0x09){		/* Container TabStrip Page */
-		check_length(pinfo, item_value_tree, 9, item_length, "Container TabStrip Page");
+		if (!check_length(pinfo, item_value_tree, 9, item_length, "Container TabStrip Page")) return;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Container Id");
 		offset+=1;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Container Row");
@@ -2315,7 +2457,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Container Height");
 
 	} else if (item_type==0x10 && item_id==0x0a && item_sid==0x0a){		/* Container Control */
-		check_length(pinfo, item_value_tree, 9, item_length, "Container Control");
+		if (!check_length(pinfo, item_value_tree, 9, item_length, "Container Control")) return;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Container Id");
 		offset+=1;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Container Row");
@@ -2333,7 +2475,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		add_item_value_stringz(tvb, pinfo, item, item_value_tree, hf_sapdiag_item_value, offset, "T", 1);
 
 	} else if (item_type==0x10 && item_id==0x0c && item_sid==0x02){		/* Scroll Infos */
-		check_length(pinfo, item_value_tree, 24, item_length, "Scroll Infos");
+		if (!check_length(pinfo, item_value_tree, 24, item_length, "Scroll Infos")) return;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Total Height");
 		offset+=4;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Total Width");
@@ -2347,7 +2489,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Width Offset");
 
 	} else if (item_type==0x10 && item_id==0x0c && item_sid==0x06){		/* Scroll Infos 2 */
-		check_length(pinfo, item_value_tree, 33, item_length, "Scroll Infos 2");
+		if (!check_length(pinfo, item_value_tree, 33, item_length, "Scroll Infos 2")) return;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Total Height");
 		offset+=4;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Total Width");
@@ -2367,7 +2509,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Scroll Flag");
 
 	} else if (item_type==0x10 && item_id==0x0c && item_sid==0x07){		/* Area Size */
-		check_length(pinfo, item_value_tree, 16, item_length, "Area Size");
+		if (!check_length(pinfo, item_value_tree, 16, item_length, "Area Size")) return;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Window Height");
 		offset+=4;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Window Width");
@@ -2377,7 +2519,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Area Width");
 
 	} else if (item_type==0x10 && item_id==0x0c && item_sid==0x08){		/* Pixel Size */
-		check_length(pinfo, item_value_tree, 16, item_length, "Pixel Size");
+		if (!check_length(pinfo, item_value_tree, 16, item_length, "Pixel Size")) return;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Window Height");
 		offset+=4;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Window Width");
@@ -2387,11 +2529,11 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Area Width");
 
 	} else if (item_type==0x10 && item_id==0x0c && item_sid==0x0c){		/* Container Loop */
-		check_length(pinfo, item_value_tree, 2, item_length, "Container Loop");
+		if (!check_length(pinfo, item_value_tree, 2, item_length, "Container Loop")) return;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Lines Per Loop Row");
 
 	} else if (item_type==0x10 && item_id==0x0c && item_sid==0x0d){		/* List focus */
-		check_length(pinfo, item_value_tree, 5, item_length, "List focus");
+		if (!check_length(pinfo, item_value_tree, 5, item_length, "List focus")) return;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "List focus version");
 		offset+=1;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "List focus Row");
@@ -2399,7 +2541,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "List focus Column");
 
 	} else if (item_type==0x10 && item_id==0x0c && item_sid==0x0e){		/* Main Area Pixel Size */
-		check_length(pinfo, item_value_tree, 16, item_length, "Main Area Pixel Size");
+		if (!check_length(pinfo, item_value_tree, 16, item_length, "Main Area Pixel Size")) return;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Window Height");
 		offset+=4;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Window Width");
@@ -2407,6 +2549,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 	/* Dynn items */
 	} else if ((item_type==0x09) ||						/* CHL */
 		   (item_type==0x10 && item_id==0x05 && item_sid==0x01)){	/* Dynn Chln */
+		if (!check_min_length(pinfo, item_value_tree, 18, item_length, "CHL")) return;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "scrflg");
 		offset+=2;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "chlflag");
@@ -2444,12 +2587,13 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 	} else if (item_type==0x10 && item_id==0x0e && item_sid==0x01){ /* Control Properties */
 		uint32_t length = offset + item_length;
 
-		while((offset < length) && (tvb_offset_exists(tvb, offset + 3))){  /* Check against at least three bytes (2 for ID, 1 for null-terminated value) */
+		while (length - offset >= 3){  /* Two bytes for ID and at least a null value. */
 			proto_tree_add_item(item_value_tree, hf_sapdiag_item_control_properties_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 			proto_item_append_text(item, ", Control Property ID=%d", tvb_get_ntohs(tvb, offset));
 			offset+=2;
 			offset+=add_item_value_stringz(tvb, pinfo, item, item_value_tree, hf_sapdiag_item_control_properties_value, offset, "Control Property Value", 1);
 		}
+		if (offset < length) expert_add_info(pinfo, item, &ei_sapdiag_item_length_invalid);
 
 	/* UI event source */
 	} else if (item_type==0x10 && item_id==0x0f && item_sid==0x01){ /* UI Event Source */
@@ -2457,6 +2601,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 
 	/* GUI Packet state */
 	} else if (item_type==0x10 && item_id==0x14 && item_sid==0x01){ /* GUI Packet state */
+		if (!check_length(pinfo, item_value_tree, 13, item_length, "GUI Packet state")) return;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Flags"); /* TODO: Add flag values */
 		offset+=1;
 		add_item_value_uint32(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Bytes Total");
@@ -2515,7 +2660,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		dissect_sapdiag_menu(tvb, pinfo, item_value_tree, offset, item_length);
 
 	} else if (item_type==0x13) { /* SLC */
-		check_length(pinfo, item_value_tree, 2, item_length, "SLC");
+		if (!check_length(pinfo, item_value_tree, 2, item_length, "SLC")) return;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Field length in characters");
 
 	/* Another unknown item */
@@ -2594,6 +2739,7 @@ dissect_sapdiag_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 	uint8_t item_type, item_long, item_id, item_sid;
 	uint32_t item_length, item_value_length;
 	const char *item_name_string = NULL;
+	tvbuff_t *item_value_tvb;
 
 	proto_item *item = NULL, *il = NULL, *item_value = NULL;
 	proto_tree *item_tree, *item_value_tree;
@@ -2606,8 +2752,7 @@ dissect_sapdiag_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 		item_tree = proto_item_add_subtree(item, ett_sapdiag);
 
 		/* Get the item type */
-		item_type = tvb_get_uint8(tvb, offset);
-		proto_tree_add_item(item_tree, hf_sapdiag_item_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint8(item_tree, hf_sapdiag_item_type, tvb, offset, 1, ENC_BIG_ENDIAN, &item_type);
 		offset++;
 		item_length++;
 		proto_item_append_text(item, ": %s", val_to_str_const(item_type, sapdiag_item_type_vals, "Unknown"));
@@ -2665,8 +2810,13 @@ dissect_sapdiag_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 			}
 			case 0x10:  /* APPL */
 			case 0x12:{ /* APPL4 */
+				if (tvb_reported_length_remaining(tvb, offset) < 2) {
+					expert_add_info(pinfo, item, &ei_sapdiag_item_offset_invalid);
+					return;
+				}
+
 				/* Get the APPL(4) ID */
-				item_id = tvb_get_uint8(tvb, offset);
+				proto_tree_add_item_ret_uint8(item_tree, hf_sapdiag_item_id, tvb, offset, 1, ENC_BIG_ENDIAN, &item_id);
 				proto_item_append_text(item, ", %s", val_to_str_const(item_id, sapdiag_item_id_vals, "Unknown"));
 				proto_tree_add_item(item_tree, hf_sapdiag_item_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
@@ -2692,6 +2842,11 @@ dissect_sapdiag_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 		}
 
 		/* Get the item length (word o dword) */
+		if (item_long != 0 && tvb_reported_length_remaining(tvb, offset) < item_long) {
+			expert_add_info(pinfo, item, &ei_sapdiag_item_offset_invalid);
+			return;
+		}
+
 		if (item_long == 2){
 			item_value_length = tvb_get_ntohs(tvb, offset);
 			il = proto_tree_add_item(item_tree, hf_sapdiag_item_length_short, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2707,25 +2862,35 @@ dissect_sapdiag_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 		/* Add the item length */
 		proto_item_append_text(item, ", Len=%d", item_value_length);
 
-		/* Now we have the real length of the item, set the proper size */
+		/* Validate the value length before sizing or dissecting the item. */
+		if (item_value_length > 0){
+			item_value_remaining_length = tvb_reported_length_remaining(tvb, offset);
+			if (item_value_remaining_length < 0){
+				expert_add_info(pinfo, il != NULL ? il : item, &ei_sapdiag_item_offset_invalid);
+				return;
+			}
+			if ((uint32_t)item_value_remaining_length < item_value_length){
+				expert_add_info(pinfo, il != NULL ? il : item, &ei_sapdiag_item_length_invalid);
+				item_value_length = (uint32_t)item_value_remaining_length;
+				item_length += item_value_length;
+				proto_item_set_len(item, item_length);
+				if (item_value_length > 0) {
+					proto_tree_add_item(item_tree, hf_sapdiag_item_value, tvb, offset, item_value_length, ENC_NA);
+				}
+				return;
+			}
+		}
+
+		/* Now we have the validated length of the item, set the proper size. */
 		item_length += item_value_length;
 		proto_item_set_len(item, item_length);
 
 		/* Add the item value */
 		if (item_value_length > 0){
-			/* Check if the item length is valid */
-			item_value_remaining_length = tvb_reported_length_remaining(tvb, offset);
-			if (item_value_remaining_length < 0){
-				expert_add_info(pinfo, il, &ei_sapdiag_item_offset_invalid);
-				return;
-			}
-			if ((uint32_t)item_value_remaining_length < item_value_length){
-				expert_add_info(pinfo, il, &ei_sapdiag_item_length_invalid);
-				item_value_length = (uint32_t)item_value_remaining_length;
-			}
 			item_value = proto_tree_add_item(item_tree, hf_sapdiag_item_value, tvb, offset, item_value_length, ENC_NA);
 			item_value_tree = proto_item_add_subtree(item_value, ett_sapdiag);
-			dissect_sapdiag_item(tvb, pinfo, item, item_value_tree, parent_tree, offset, item_type, item_id, item_sid, item_value_length);
+			item_value_tvb = tvb_new_subset_length(tvb, offset, item_value_length);
+			dissect_sapdiag_item(item_value_tvb, pinfo, item, item_value_tree, parent_tree, 0, item_type, item_id, item_sid, item_value_length);
 			offset+= item_value_length;
 		}
 	}
@@ -2874,8 +3039,7 @@ dissect_sapdiag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 	proto_tree_add_item(header_tree, hf_sapdiag_mode_stat, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	error_no = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(header_tree, hf_sapdiag_err_no, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint8(header_tree, hf_sapdiag_err_no, tvb, offset, 1, ENC_BIG_ENDIAN, &error_no);
 	offset++;
 	proto_tree_add_item(header_tree, hf_sapdiag_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
@@ -2884,8 +3048,7 @@ dissect_sapdiag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 	proto_tree_add_item(header_tree, hf_sapdiag_msg_rc, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	compress = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(header_tree, hf_sapdiag_compress, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint8(header_tree, hf_sapdiag_compress, tvb, offset, 1, ENC_BIG_ENDIAN, &compress);
 	offset++;
 
 	/* Check for error messages */
