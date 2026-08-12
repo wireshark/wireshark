@@ -4917,7 +4917,7 @@ static bool blf_dump_flexray(wtap_dumper *wdh, const wtap_rec *rec, int *err, ch
         bool null_frame = (pd[2] & FLEXRAY_NFI_MASK) != FLEXRAY_NFI_MASK;
 
         if (null_frame) {
-            frmsg.frameFlags &= BLF_FLEXRAYRCVMSG_FRAME_FLAG_NULL_FRAME;
+            frmsg.frameFlags |= BLF_FLEXRAYRCVMSG_FRAME_FLAG_NULL_FRAME;
             /* LINKTYPE_FLEXRAY has no payload for Null Frames present */
             payload_length = 0;
         }
@@ -4925,34 +4925,34 @@ static bool blf_dump_flexray(wtap_dumper *wdh, const wtap_rec *rec, int *err, ch
         /* TODO: check truncated data */
         if (payload_length > 0) {
             /* Data Valid*/
-            frmsg.frameFlags &= BLF_FLEXRAYRCVMSG_FRAME_FLAG_VALID_DATA;
+            frmsg.frameFlags |= BLF_FLEXRAYRCVMSG_FRAME_FLAG_VALID_DATA;
         }
 
         if ((pd[2] & FLEXRAY_SFI_MASK) == FLEXRAY_SFI_MASK) {
-            frmsg.frameFlags &= BLF_FLEXRAYRCVMSG_FRAME_FLAG_SYNC;
+            frmsg.frameFlags |= BLF_FLEXRAYRCVMSG_FRAME_FLAG_SYNC;
         }
 
         if ((pd[2] & FLEXRAY_STFI_MASK) == FLEXRAY_STFI_MASK) {
-            frmsg.frameFlags &= BLF_FLEXRAYRCVMSG_FRAME_FLAG_STARTUP;
+            frmsg.frameFlags |= BLF_FLEXRAYRCVMSG_FRAME_FLAG_STARTUP;
         }
 
         if ((pd[2] & FLEXRAY_PPI_MASK) == FLEXRAY_PPI_MASK) {
-            frmsg.frameFlags &= BLF_FLEXRAYRCVMSG_FRAME_FLAG_PAYLOAD_PREAM;
+            frmsg.frameFlags |= BLF_FLEXRAYRCVMSG_FRAME_FLAG_PAYLOAD_PREAM;
         }
 
         if ((pd[2] & FLEXRAY_RES_MASK) == FLEXRAY_RES_MASK) {
-            frmsg.frameFlags &= BLF_FLEXRAYRCVMSG_FRAME_FLAG_RES_20;
+            frmsg.frameFlags |= BLF_FLEXRAYRCVMSG_FRAME_FLAG_RES_20;
         }
 
         /* if any error flag is set */
         if ((pd[1] & FLEXRAY_ERRORS_DEFINED) != 0x00) {
-            frmsg.frameFlags &= BLF_FLEXRAYRCVMSG_FRAME_FLAG_ERROR;
+            frmsg.frameFlags |= BLF_FLEXRAYRCVMSG_FRAME_FLAG_ERROR;
         }
 
         /* Not sure how to determine this as we do not know the low level parameters */
         //if ( ) {
         //    /* DYNAMIC SEG =1 (Bit 20)*/
-        //    frmsg.frameFlags &= 0x100000;
+        //    frmsg.frameFlags |= 0x100000;
         //}
 
         frmsg.appParameter = 0;
