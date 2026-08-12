@@ -335,7 +335,7 @@ endif()
 if(BUILD_falcodump AND SINSP_FOUND)
 	set(falcodump_LIBS
 		wsutil
-		${SINSP_LINK_LIBRARIES}
+		sinsp::sinsp
 		${CMAKE_DL_LIBS}
 		${GCRYPT_LIBRARIES}
 	)
@@ -348,12 +348,6 @@ if(BUILD_falcodump AND SINSP_FOUND)
 	add_executable(falcodump ${falcodump_FILES})
 	set_extlog_executable_properties(falcodump)
 	target_link_libraries(falcodump ${falcodump_LIBS})
-	target_include_directories(falcodump SYSTEM PRIVATE ${SINSP_INCLUDE_DIRS})
-	if(WIN32)
-		# libsinsp/dumper.h includes libscap/scap_savefile_api.h, which includes
-		# libscap/scap_zlib.h.
-		target_include_directories(falcodump SYSTEM PRIVATE ${ZLIB_INCLUDE_DIR})
-	endif()
 	install(TARGETS falcodump RUNTIME DESTINATION ${STRATOSHARK_EXTCAP_INSTALL_LIBDIR})
 	add_dependencies(extcaps falcodump)
 endif()

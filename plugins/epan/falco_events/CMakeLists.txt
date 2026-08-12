@@ -39,19 +39,9 @@ register_plugin_files(plugin.c
 
 add_stratoshark_plugin_library(falco-events epan)
 
-target_include_directories(falco-events SYSTEM PRIVATE
-	${SINSP_INCLUDE_DIRS}
-)
-
-if(WIN32)
-	# libsinsp/dumper.h includes libscap/scap_savefile_api.h, which includes
-	# libscap/scap_zlib.h.
-	target_include_directories(falco-events SYSTEM PRIVATE ${ZLIB_INCLUDE_DIR})
-endif()
-
 target_link_libraries(falco-events
 	epan
-	${SINSP_LINK_LIBRARIES}
+	sinsp::sinsp
 )
 
 install_plugin(falco-events epan)
