@@ -2689,7 +2689,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
 
         uint16_t at_grp;
         uint16_t at_elm;
-        char *at_value = "";
+        wmem_strbuf_t *at_value = wmem_strbuf_create(pinfo->pool);
 
         /* In on capture the reported length for this tag was 2 bytes. And since vl_max is unsigned long, -3 caused it to be 2^32-1
            So make it at least one loop so set it to at least 4.
@@ -2706,11 +2706,11 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
             proto_tree_add_uint_format_value(tree, hf_dcm_tag_value_32u, tvb, offset + i*vm_item_len, vm_item_len,
                 ((unsigned)at_grp << 16) | at_elm, "%04x,%04x", at_grp, at_elm);
 
-            at_value = wmem_strdup_printf(pinfo->pool,"%s(%04x,%04x)", at_value, at_grp, at_elm);
+            wmem_strbuf_append_printf(at_value, "(%04x,%04x)", at_grp, at_elm);
 
             i++;
         }
-        *tag_value = at_value;
+        *tag_value = wmem_strbuf_finalize(at_value);
     }
     else if (strncmp(vr, "FL", 2) == 0)  {      /* Single Float. Can be VM > 1, but not yet supported */
 
@@ -3678,10 +3678,8 @@ dissect_dcm_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *pdv_ptree;      /* Tree for item details */
     proto_item *pdv_pitem, *pdvlen_item;
 
-    char   *buf_desc = NULL;            /* PDU description */
+    wmem_strbuf_t *buf_desc = NULL;    /* PDU description */
     char   *pdv_description = NULL;
-
-    bool first_pdv = true;
 
     uint32_t endpos = 0;
     uint32_t pdv_len = 0;
@@ -3715,20 +3713,19 @@ dissect_dcm_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* The following doesn't seem to work anymore */
         if (pdv_description) {
-            if (first_pdv) {
-                buf_desc = wmem_strdup(pinfo->pool, pdv_description);
+            if (buf_desc == NULL) {
+                buf_desc = wmem_strbuf_new(pinfo->pool, pdv_description);
             }
             else {
-                buf_desc = wmem_strdup_printf(pinfo->pool, "%s, %s", buf_desc, pdv_description);
+                wmem_strbuf_append_printf(buf_desc, ", %s", pdv_description);
             }
+            proto_item_append_text(pdv_pitem, ", %s", pdv_description);
         }
-
-        proto_item_append_text(pdv_pitem, ", %s", pdv_description);
-        first_pdv=false;
 
     }
 
-    *pdu_data_description = buf_desc;
+    /* wmem_strbuf_finalize returns NULL on NULL input. */
+    *pdu_data_description = wmem_strbuf_finalize(buf_desc);
 
     return offset;
 }
