@@ -27,6 +27,7 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_obex;
+static int proto_btavrcp;
 static int hf_opcode;
 static int hf_response_code;
 static int hf_final_flag;
@@ -475,6 +476,7 @@ typedef struct _obex_last_opcode_data_t {
 #define PROFILE_SYNC     8
 #define PROFILE_CTN      9
 #define PROFILE_GPP     10
+#define PROFILE_AVRCP   11
 
 #define PROTO_DATA_MEDIA_TYPE       0x00
 #define PROTO_DATA_OBEX_PROFILE     0x01
@@ -491,6 +493,7 @@ static const value_string profile_vals[] = {
     { PROFILE_SYNC,    "SYNC" },
     { PROFILE_CTN,     "CTN" },
     { PROFILE_GPP,     "GPP" },
+    { PROFILE_AVRCP,   "AVRCP" },
     { 0,               NULL }
 };
 static value_string_ext(profile_vals_ext) = VALUE_STRING_EXT_INIT(profile_vals);
@@ -508,6 +511,7 @@ static const ext_value_string target_vals[] = {
     {   { 0x94, 0xC7, 0xCD, 0x20, 0x46, 0x08, 0x11, 0xD5, 0x84, 0x1A, 0x00, 0x02, 0xA5, 0x32, 0x5B, 0x4E }, 16, "Basic Imaging Profile - Remote Display" },
     {   { 0x8E, 0x61, 0xF9, 0x5D, 0x1A, 0x79, 0x11, 0xD4, 0x8E, 0xA4, 0x00, 0x80, 0x5F, 0x9B, 0x98, 0x34 }, 16, "Basic Imaging Profile- Referenced Objects" },
     {   { 0x8E, 0x61, 0xF9, 0x5D, 0x1A, 0x79, 0x11, 0xD4, 0x8E, 0xA4, 0x00, 0x80, 0x5F, 0x9B, 0x98, 0x34 }, 16, "Basic Imaging Profile - Archived Objects" },
+    {   { 0x71, 0x63, 0xDD, 0x54, 0x4A, 0x7E, 0x11, 0xE2, 0xB4, 0x7C, 0x00, 0x50, 0xC2, 0x49, 0x00, 0x48 }, 16, "Audio/Video Remote Control Profile - Cover Art" },
     {   { 0xbb, 0x58, 0x2b, 0x40, 0x42, 0x0c, 0x11, 0xdb, 0xb0, 0xde, 0x08, 0x00, 0x20, 0x0c, 0x9a, 0x66 }, 16, "Message Access Profile - Message Access Service" },
     {   { 0xbb, 0x58, 0x2b, 0x41, 0x42, 0x0c, 0x11, 0xdb, 0xb0, 0xde, 0x08, 0x00, 0x20, 0x0c, 0x9a, 0x66 }, 16, "Message Access Profile - Message Notification Service" },
     {   { 0x00, 0x00, 0x11, 0x18, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }, 16, "Basic Printing Profile - Direct Printing Service" },
@@ -533,6 +537,7 @@ static const int target_to_profile[] = {
     PROFILE_BIP,
     PROFILE_BIP,
     PROFILE_BIP,
+    PROFILE_AVRCP,
     PROFILE_MAP,
     PROFILE_MAP,
     PROFILE_BPP,
@@ -703,11 +708,43 @@ static const value_string header_id_vals[] = {
     { 0x50, "WAN UUID" },
     { 0x51, "Object Class" },
     { 0x52, "Session Parameter" },
+    { 0x70, "User Defined" },
+    { 0x71, "User Defined" },
+    { 0x72, "User Defined" },
+    { 0x73, "User Defined" },
+    { 0x74, "User Defined" },
+    { 0x75, "User Defined" },
+    { 0x76, "User Defined" },
+    { 0x77, "User Defined" },
+    { 0x78, "User Defined" },
+    { 0x79, "User Defined" },
+    { 0x7a, "User Defined" },
+    { 0x7b, "User Defined" },
+    { 0x7c, "User Defined" },
+    { 0x7d, "User Defined" },
+    { 0x7e, "User Defined" },
+    { 0x7f, "User Defined" },
 /* 0x80 - 0xBF - 1 byte quantity */
     { 0x93, "Session Sequence Number" },
     { 0x94, "Action" },
     { 0x97, "Single Response Mode" },
     { 0x98, "Single Response Mode Parameter" },
+    { 0xb0, "User Defined" },
+    { 0xb1, "User Defined" },
+    { 0xb2, "User Defined" },
+    { 0xb3, "User Defined" },
+    { 0xb4, "User Defined" },
+    { 0xb5, "User Defined" },
+    { 0xb6, "User Defined" },
+    { 0xb7, "User Defined" },
+    { 0xb8, "User Defined" },
+    { 0xb9, "User Defined" },
+    { 0xba, "User Defined" },
+    { 0xbb, "User Defined" },
+    { 0xbc, "User Defined" },
+    { 0xbd, "User Defined" },
+    { 0xbe, "User Defined" },
+    { 0xbf, "User Defined" },
 /* 0xC0 - 0xFF - 4 byte quantity (network order) */
     { 0xc0, "Count" },
     { 0xc3, "Length" },
@@ -715,6 +752,22 @@ static const value_string header_id_vals[] = {
     { 0xcb, "Connection Id" },
     { 0xcf, "Creator" },
     { 0xd6, "Permissions" },
+    { 0xf0, "User Defined" },
+    { 0xf1, "User Defined" },
+    { 0xf2, "User Defined" },
+    { 0xf3, "User Defined" },
+    { 0xf4, "User Defined" },
+    { 0xf5, "User Defined" },
+    { 0xf6, "User Defined" },
+    { 0xf7, "User Defined" },
+    { 0xf8, "User Defined" },
+    { 0xf9, "User Defined" },
+    { 0xfa, "User Defined" },
+    { 0xfb, "User Defined" },
+    { 0xfc, "User Defined" },
+    { 0xfd, "User Defined" },
+    { 0xfe, "User Defined" },
+    { 0xff, "User Defined" },
     { 0,      NULL }
 };
 static value_string_ext header_id_vals_ext = VALUE_STRING_EXT_INIT(header_id_vals);
@@ -2244,7 +2297,7 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     obex_proto_data_t         obex_proto_data;
 
     previous_proto = (GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_frame_prev(wmem_list_tail(pinfo->layers)))));
-    if (previous_proto == proto_btl2cap) {
+    if (previous_proto == proto_btl2cap || previous_proto == proto_btavrcp) {
         btl2cap_data_t  *l2cap_data;
 
         l2cap_data = (btl2cap_data_t *) data;
@@ -3836,7 +3889,7 @@ proto_register_obex(void)
 
     module = prefs_register_protocol(proto_obex, NULL);
     prefs_register_static_text_preference(module, "supported_bluetooth_profiles",
-            "Protocol OBEX support Bluetooth profiles: BIP 1.2, BPP 1.2, CTN 1.0, FTP 1.3, GOEP 1.3, GPP 1.0, MAP 1.2, OPP 1.2, PBAP 1.2, SYNCH 1.2",
+            "Protocol OBEX support Bluetooth profiles: AVRCP 1.6, BIP 1.2, BPP 1.2, CTN 1.0, FTP 1.3, GOEP 1.3, GPP 1.0, MAP 1.2, OPP 1.2, PBAP 1.2, SYNCH 1.2",
             "Versions of Bluetooth profiles supported by this dissector.");
 }
 
@@ -3868,6 +3921,8 @@ proto_reg_handoff_obex(void)
     xml_handle  = find_dissector_add_dependency("xml", proto_obex);
     data_handle = find_dissector("data");
     data_text_lines_handle = find_dissector("data-text-lines");
+
+    proto_btavrcp = proto_get_id_by_filter_name("btavrcp");
 
     dissector_add_uint("obex.profile", PROFILE_UNKNOWN,  raw_application_parameters_handle);
     dissector_add_uint("obex.profile", PROFILE_BPP,      bt_bpp_application_parameters_handle);
