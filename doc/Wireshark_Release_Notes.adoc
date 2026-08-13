@@ -24,7 +24,9 @@ https://www.wireshark.org/certifications[the Wireshark Foundation].
 == What’s New
 
 // Uncomment for the last release(s) of this branch.
-// This is the last release with official support for Windows 10 and Windows Server 2016.
+// This is the last release with official support for Windows 10, version 1809 and Windows Server 2019.
+
+// This might be the last supported "old stable" branch.
 
 === Bug Fixes
 
