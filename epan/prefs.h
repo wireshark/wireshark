@@ -305,7 +305,6 @@ typedef struct _e_prefs {
     bool          capture_no_interface_load;    /**< If true, skip loading the interface list at startup */
     bool          capture_no_extcap;            /**< If true, disable extcap interface discovery */
     bool          capture_show_info;            /**< If true, show the capture information dialog during live capture */
-    GList        *capture_columns;              /**< Ordered list of columns shown in the capture interfaces dialog */
 
     /* Update intervals */
     unsigned      tap_update_interval;          /**< Interval in milliseconds between tap/statistics view updates */
@@ -1313,14 +1312,6 @@ WS_DLL_PUBLIC bool prefs_is_capture_device_hidden(const char *name);
  * @return true if the specified capture device should capture in monitor mode by default, otherwise false
  */
 WS_DLL_PUBLIC bool prefs_capture_device_monitor_mode(const char *name);
-
-/**
- * @brief Returns true if the user has marked this column as visible
- *
- * @param column the name of the column
- * @return true if this column as visible, otherwise false
- */
-WS_DLL_PUBLIC bool prefs_capture_options_dialog_column_is_visible(const char *column);
 
 /**
  * @brief Returns true if the layout pane content is enabled

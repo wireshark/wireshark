@@ -175,19 +175,6 @@ static const enum_val_t abs_time_format_options[] = {
     {NULL, NULL, -1}
 };
 
-static int num_capture_cols = 7;
-static const char *capture_cols[7] = {
-    "INTERFACE",
-    "LINK",
-    "PMODE",
-    "SNAPLEN",
-    "MONITOR",
-    "BUFFER",
-    "FILTER"
-};
-#define CAPTURE_COL_TYPE_DESCRIPTION \
-    "Possible values: INTERFACE, LINK, PMODE, SNAPLEN, MONITOR, BUFFER, FILTER\n"
-
 static const enum_val_t gui_packet_list_elide_mode[] = {
     {"LEFT", "LEFT", ELIDE_LEFT},
     {"RIGHT", "RIGHT", ELIDE_RIGHT},
@@ -3084,182 +3071,6 @@ column_format_to_str_cb(pref_t* pref, bool default_val)
     return column_format_str;
 }
 
-
-/******  Capture column custom preference functions  ******/
-
-/* This routine is only called when Wireshark is started, NOT when another profile is selected.
-   Copy the pref->capture_columns list (just loaded with the capture_cols[] struct values)
-   to prefs->default_val.list.
-*/
-static void
-capture_column_init_cb(pref_t* pref, GList** capture_cols_values)
-{
-    GList   *ccv_list = *capture_cols_values,
-            *dlist = NULL;
-
-    /*  */
-    while (ccv_list) {
-        dlist = g_list_append(dlist, g_strdup((char *)ccv_list->data));
-        ccv_list = ccv_list->next;
-    }
-
-    pref->default_val.list = dlist;
-    pref->varp.list = &prefs.capture_columns;
-    pref->stashed_val.boolval = false;
-}
-
-/* Free the prefs->capture_columns list strings and remove the list entries.
-   Note that since pref->varp.list points to &prefs.capture_columns, it is
-   also freed.
-*/
-static void
-capture_column_free_cb(pref_t* pref)
-{
-    prefs_clear_string_list(prefs.capture_columns);
-    prefs.capture_columns = NULL;
-
-    if (pref->stashed_val.boolval == true) {
-      prefs_clear_string_list(pref->default_val.list);
-      pref->default_val.list = NULL;
-    }
-}
-
-/* Copy pref->default_val.list to *pref->varp.list.
-*/
-static void
-capture_column_reset_cb(pref_t* pref)
-{
-    GList *vlist = NULL, *dlist;
-
-    /* Free the column name strings and remove the links from *pref->varp.list */
-    prefs_clear_string_list(*pref->varp.list);
-
-    for (dlist = pref->default_val.list; dlist != NULL; dlist = g_list_next(dlist)) {
-      vlist = g_list_append(vlist, g_strdup((char *)dlist->data));
-    }
-    *pref->varp.list = vlist;
-}
-
-static prefs_set_pref_e
-capture_column_set_cb(pref_t* pref, const char* value, unsigned int* changed_flags _U_)
-{
-    GList *col_l  = prefs_get_string_list(value);
-    GList *col_l_elt;
-    char *col_name;
-    int i;
-
-    if (col_l == NULL)
-      return PREFS_SET_SYNTAX_ERR;
-
-    capture_column_free_cb(pref);
-
-    /* If value (the list of capture.columns read from preferences) is empty, set capture.columns
-       to the full list of valid capture column names. */
-    col_l_elt = g_list_first(col_l);
-    if (!(*(char *)col_l_elt->data)) {
-        for (i = 0; i < num_capture_cols; i++) {
-          col_name = g_strdup(capture_cols[i]);
-          prefs.capture_columns = g_list_append(prefs.capture_columns, col_name);
-        }
-    }
-
-    /* Verify that all the column names are valid. If not, use the entire list of valid columns.
-     */
-    while (col_l_elt) {
-      bool found_match = false;
-      col_name = (char *)col_l_elt->data;
-
-      for (i = 0; i < num_capture_cols; i++) {
-        if (strcmp(col_name, capture_cols[i])==0) {
-          found_match = true;
-          break;
-        }
-      }
-      if (!found_match) {
-        /* One or more cols are invalid so use the entire list of valid cols. */
-        for (i = 0; i < num_capture_cols; i++) {
-          col_name = g_strdup(capture_cols[i]);
-          prefs.capture_columns = g_list_append(prefs.capture_columns, col_name);
-        }
-        pref->varp.list = &prefs.capture_columns;
-        prefs_clear_string_list(col_l);
-        return PREFS_SET_SYNTAX_ERR;
-      }
-      col_l_elt = col_l_elt->next;
-    }
-
-    col_l_elt = g_list_first(col_l);
-    while (col_l_elt) {
-      col_name = (char *)col_l_elt->data;
-      prefs.capture_columns = g_list_append(prefs.capture_columns, col_name);
-      col_l_elt = col_l_elt->next;
-    }
-    pref->varp.list = &prefs.capture_columns;
-    g_list_free(col_l);
-    return PREFS_SET_OK;
-}
-
-
-static const char *
-capture_column_type_name_cb(void)
-{
-    return "Column list";
-}
-
-static char *
-capture_column_type_description_cb(void)
-{
-    return g_strdup(
-        "List of columns to be displayed in the capture options dialog.\n"
-        CAPTURE_COL_TYPE_DESCRIPTION);
-}
-
-static bool
-capture_column_is_default_cb(pref_t* pref)
-{
-    GList   *pref_col = g_list_first(prefs.capture_columns),
-            *def_col = g_list_first(pref->default_val.list);
-    bool is_default = true;
-
-    /* See if the column data has changed from the default */
-    while (pref_col && def_col) {
-        if (strcmp((char *)pref_col->data, (char *)def_col->data) != 0) {
-            is_default = false;
-            break;
-        }
-        pref_col = pref_col->next;
-        def_col = def_col->next;
-    }
-
-    /* Ensure the same column count */
-    if (((pref_col == NULL) && (def_col != NULL)) ||
-        ((pref_col != NULL) && (def_col == NULL)))
-        is_default = false;
-
-    return is_default;
-}
-
-static char *
-capture_column_to_str_cb(pref_t* pref, bool default_val)
-{
-
-    GList       *pref_l = default_val ? pref->default_val.list : prefs.capture_columns;
-    GList       *clp = g_list_first(pref_l);
-    GList       *col_l = NULL;
-    char        *col;
-    char        *capture_column_str;
-
-    while (clp) {
-        col = (char *) clp->data;
-        col_l = g_list_append(col_l, g_strdup(col));
-        clp = clp->next;
-    }
-
-    capture_column_str = join_string_list(col_l);
-    prefs_clear_string_list(col_l);
-    return capture_column_str;
-}
-
 static prefs_set_pref_e
 colorized_frame_set_cb(pref_t* pref, const char* value, unsigned int* changed_flags)
 {
@@ -3976,15 +3787,8 @@ prefs_register_modules(void)
 
     prefs_register_obsolete_preference(capture_module, "syntax_check_filter");
 
-    custom_cbs.free_cb = capture_column_free_cb;
-    custom_cbs.reset_cb = capture_column_reset_cb;
-    custom_cbs.set_cb = capture_column_set_cb;
-    custom_cbs.type_name_cb = capture_column_type_name_cb;
-    custom_cbs.type_description_cb = capture_column_type_description_cb;
-    custom_cbs.is_default_cb = capture_column_is_default_cb;
-    custom_cbs.to_str_cb = capture_column_to_str_cb;
-    prefs_register_list_custom_preference(capture_module, "columns", "Capture options dialog column list",
-        "List of columns to be displayed", &custom_cbs, capture_column_init_cb, &prefs.capture_columns);
+    prefs_register_obsolete_preference(capture_module, "columns");
+
     aggregation_field_register_uat(capture_module);
 
     /* Name Resolution */
@@ -4378,7 +4182,6 @@ static void
 prefs_set_global_defaults(wmem_allocator_t* pref_scope, const char** col_fmt, int num_cols)
 {
     int         i;
-    char        *col_name;
     fmt_data    *cfmt;
 
     prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
@@ -4469,14 +4272,6 @@ prefs_set_global_defaults(wmem_allocator_t* pref_scope, const char** col_fmt, in
     prefs.capture_update_interval       = DEFAULT_UPDATE_INTERVAL;
     prefs.capture_no_extcap             = false;
     prefs.capture_show_info             = false;
-
-    if (!prefs.capture_columns) {
-        /* First time through */
-        for (i = 0; i < num_capture_cols; i++) {
-            col_name = g_strdup(capture_cols[i]);
-            prefs.capture_columns = g_list_append(prefs.capture_columns, col_name);
-        }
-    }
 
 /* set the default values for the tap/statistics dialog box */
     prefs.tap_update_interval    = TAP_UPDATE_DEFAULT_INTERVAL;
@@ -5470,24 +5265,6 @@ prefs_capture_device_monitor_mode(const char *name)
         g_free (devices);
     }
 
-    return false;
-}
-
-/*
- * Returns true if the user has marked this column as visible
- */
-bool
-prefs_capture_options_dialog_column_is_visible(const char *column)
-{
-    GList *curr;
-    char *col;
-
-    for (curr = g_list_first(prefs.capture_columns); curr; curr = g_list_next(curr)) {
-        col = (char *)curr->data;
-        if (col && (g_ascii_strcasecmp(col, column) == 0)) {
-            return true;
-        }
-    }
     return false;
 }
 
