@@ -1795,6 +1795,7 @@ RequestedFeatureSetEntryIndex                     N f1ap.extension id-RequestedF
 RequestedP-MaxFR2                                 N f1ap.extension id-RequestedP-MaxFR2
 DRX-Config                                        N f1ap.extension id-DRX-Config
 UEAssistanceInformation                           N f1ap.extension id-UEAssistanceInformation
+NotificationInformation                           N f1ap.extension id-NotificationInformation
 BPLMN-ID-Info-List                                N f1ap.extension id-BPLMN-ID-Info-List
 CP-TransportLayerAddress                          N f1ap.extension id-TNLAssociationTransportLayerAddressgNBDU
 PortNumber                                        N f1ap.extension id-portNumber
