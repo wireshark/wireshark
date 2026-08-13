@@ -233,7 +233,7 @@ management.
 * Wireshark 1.12 was the last release branch to support Windows Server 2003.
 * Wireshark 1.10 was the last release branch to officially support Windows XP.
 
-See the <<ChIntroReleaseLifeCycle,Wireshark release lifecycle> section for more details.
+See the <<ChIntroReleaseLifeCycle,Wireshark release lifecycle>> section for more details.
 
 ==== macOS
 
@@ -257,7 +257,7 @@ Similar to Windows, supported macOS versions depend on third party libraries and
 * Wireshark 2.0 was the last release branch to support OS X on 32-bit Intel.
 * Wireshark 1.8 was the last release branch to support Mac OS X on PowerPC.
 
-See the <<ChIntroReleaseLifeCycle,Wireshark release lifecycle> section for more details.
+See the <<ChIntroReleaseLifeCycle,Wireshark release lifecycle>> section for more details.
 
 The system requirements should be comparable to the specifications listed above for Windows.
 
