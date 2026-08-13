@@ -658,7 +658,7 @@ static config_frame *config_frame_fast(tvbuff_t *tvb)
  *
  * use 'config_frame_free()' to free the config_frame again
  */
-static config_frame * config_3_frame_fast(tvbuff_t *tvb)
+static config_frame * config_3_frame_fast(packet_info *pinfo, tvbuff_t *tvb)
 {
 	uint16_t	      num_pmu;
 	int	      offset;
@@ -691,8 +691,8 @@ static config_frame * config_3_frame_fast(tvbuff_t *tvb)
 	/* start of repeating blocks */
 	offset += 2;
 	while ((num_pmu) && (frame_not_fragmented)) {
-		uint16_t	     format_flags;
-		uint16_t	     i, num_ph, num_an, num_dg;
+		uint16_t     format_flags;
+		uint16_t     i, num_ph, num_an, num_dg;
 		uint8_t	     name_length;
 		config_block block;
 
@@ -739,7 +739,9 @@ static config_frame * config_3_frame_fast(tvbuff_t *tvb)
 		/* grab phasor names */
 		if (num_ph > 0)
 		{
-			pi = (phasor_info *)wmem_alloc(wmem_file_scope(), sizeof(phasor_info)*num_ph);
+			/* The values are copied into the block.phasors array and
+			 * so this can be pinfo->pool scope. */
+			pi = (phasor_info *)wmem_alloc(pinfo->pool, sizeof(phasor_info)*num_ph);
 
 			for (i = 0; i != num_ph; i++) {
 				/* copy the phasor name from the tvb, and add NULL byte */
@@ -756,7 +758,9 @@ static config_frame * config_3_frame_fast(tvbuff_t *tvb)
 		/* grab analog names */
 		if (num_an > 0)
 		{
-			ai = (analog_info *)wmem_alloc(wmem_file_scope(), sizeof(analog_info)*num_an);
+			/* The values are copied into the block.analog array and
+			 * so these can be pinfo->pool scope. */
+			ai = (analog_info *)wmem_alloc(pinfo->pool, sizeof(analog_info)*num_an);
 
 			for (i = 0; i != num_an; i++) {
 				/* copy the phasor name from the tvb, and add NULL byte */
@@ -792,10 +796,9 @@ static config_frame * config_3_frame_fast(tvbuff_t *tvb)
 				pi[i].conv_cfg3 = tvb_get_ntohieee_float(tvb, offset + 4);
 				pi[i].angle_offset_cfg3 = tvb_get_ntohieee_float(tvb, offset + 8);
 
-				wmem_array_append_one(block.phasors, pi[i]);
-
 				offset += 12;
 			}
+			wmem_array_append(block.phasors, pi, num_ph);
 		}
 
 		/* get analog conversion factors */
@@ -806,10 +809,9 @@ static config_frame * config_3_frame_fast(tvbuff_t *tvb)
 				ai[i].conv_cfg3 = tvb_get_ntohieee_float(tvb, offset);
 				ai[i].offset_cfg3 = tvb_get_ntohieee_float(tvb, offset + 4);
 
-				wmem_array_append_one(block.analogs, ai[i]);
-
 				offset += 8;
 			}
+			wmem_array_append(block.analogs, ai, num_an);
 		}
 
 		/* skip digital masks */
@@ -830,6 +832,16 @@ static config_frame * config_3_frame_fast(tvbuff_t *tvb)
 		/* skip CFGCNT - offset ready for next PMU */
 		offset += 2;
 
+		/* appending the block at the end here, and adding the
+		 * conversation data *after* this function is called in
+		 * the outer function, means that this block is orphaned
+		 * if there's an exception (it's file scope memory, so
+		 * it will be cleaned eventually.) That has a benefit -
+		 * we avoid the conversation data having a block where
+		 * num_ph is greater than the actual size of the phasors
+		 * array, which could lead to NULL pointer dereferences if
+		 * not careful - but also means that we can't do partial
+		 * dissection if the caplen is short. */
 		wmem_array_append_one(frame->config_blocks, block);
 		num_pmu--;
 	}
@@ -1883,6 +1895,11 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
 			/* remove data from a previous CFG-2 frame, only
 			 * the most recent configuration frame is relevant */
+			/* XXX - That is not true for dissecting in random order;
+			 * something like a wmem_tree should be used. Also, note
+			 * that this is basically a no-op, and doesn't actually
+			 * free the stored conversation data, only removes it
+			 * from the conversation. */
 			if (conversation_get_proto_data(conversation, proto_synphasor))
 				conversation_delete_proto_data(conversation, proto_synphasor);
 
@@ -1890,7 +1907,7 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 		}
 		else if ((CFG3 == frame_type) && check_crc(tvb, &crc)) {
 			/* fill the config_frame */
-			frame = config_3_frame_fast(tvb);
+			frame = config_3_frame_fast(pinfo, tvb);
 			frame->fnum = pinfo->num;
 
 			/* find a conversation, create a new one if none exists */
@@ -1911,6 +1928,8 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
 			/* remove data from a previous CFG-3 frame, only
 			 * the most recent configuration frame is relevant */
+			/* XXX - That is not true for dissecting in random order;
+			 * something like a wmem_tree should be used. */
 			if (conversation_get_proto_data(conversation, proto_synphasor)) {
 				conversation_delete_proto_data(conversation, proto_synphasor);
 			}
