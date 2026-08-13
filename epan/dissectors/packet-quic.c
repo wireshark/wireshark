@@ -3353,7 +3353,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             }
             proto_tree_add_item(ft_tree, hf_quic_dg, tvb, offset, (uint32_t)length, ENC_NA);
             if (quic_info->app_datagram_handle) {
-                tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset);
+                tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, (uint32_t)length);
                 proto_tree *top_tree = proto_tree_get_parent_tree(quic_tree);
                 quic_datagram_info datagram_info = {
                     .quic_info = quic_info,
