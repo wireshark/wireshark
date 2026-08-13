@@ -126,6 +126,25 @@ Here are some things Wireshark does not provide:
   things from it. Wireshark doesn’t send packets on the network or do other
   active things (except domain name resolution, but that can be disabled).
 
+[#ChIntroDownload]
+
+=== Where To Get Wireshark
+
+You can get the latest copy of the program from the Wireshark website at {wireshark-download-url}.
+The download page should automatically highlight the appropriate download for your platform and direct you to the nearest mirror.
+Official Windows and macOS installers are signed by *Wireshark Foundation* using trusted certificates on those platforms.
+macOS installers are additionally notarized.
+
+A new Wireshark version typically becomes available every six weeks.
+
+If you want to be notified about new Wireshark releases you should subscribe to the wireshark-announce mailing list.
+You will find more details in <<ChIntroMailingLists>>.
+
+Each release includes a list of file hashes which are sent to the wireshark-announce mailing list and placed in a file named SIGNATURES-_x_._y_._z_.txt.
+Announcement messages are archived at https://lists.wireshark.org/archives/wireshark-announce/ and SIGNATURES files can be found at https://www.wireshark.org/download/src/all-versions/.
+Both are GPG-signed and include verification instructions for Windows, Linux, and macOS.
+As noted above, you can also verify downloads on Windows and macOS using the code signature validation features on those systems.
+
 [#ChIntroPlatforms]
 
 === System Requirements
@@ -214,7 +233,7 @@ management.
 * Wireshark 1.12 was the last release branch to support Windows Server 2003.
 * Wireshark 1.10 was the last release branch to officially support Windows XP.
 
-See the link:{wireshark-wiki-url}Development/LifeCycle[Wireshark release lifecycle] page for more details.
+See the <<ChIntroReleaseLifeCycle,Wireshark release lifecycle> section for more details.
 
 ==== macOS
 
@@ -238,7 +257,7 @@ Similar to Windows, supported macOS versions depend on third party libraries and
 * Wireshark 2.0 was the last release branch to support OS X on 32-bit Intel.
 * Wireshark 1.8 was the last release branch to support Mac OS X on PowerPC.
 
-See the link:{wireshark-wiki-url}Development/LifeCycle[Wireshark release lifecycle] page for more details.
+See the <<ChIntroReleaseLifeCycle,Wireshark release lifecycle> section for more details.
 
 The system requirements should be comparable to the specifications listed above for Windows.
 
@@ -276,24 +295,155 @@ If a binary package is not available for your platform you can download
 the source and try to build it. Please report your experiences to
 mailto:{wireshark-dev-list-email}[].
 
-[#ChIntroDownload]
+[#ChIntroReleaseLifeCycle]
 
-=== Where To Get Wireshark
+=== Release Life Cycle
 
-You can get the latest copy of the program from the Wireshark website at {wireshark-download-url}.
-The download page should automatically highlight the appropriate download for your platform and direct you to the nearest mirror.
-Official Windows and macOS installers are signed by *Wireshark Foundation* using trusted certificates on those platforms.
-macOS installers are additionally notarized.
+The https://www.wireshark.org/download.html[Wireshark download page] lists three types of releases: _Stable_, _Old Stable_, and _Development_.
 
-A new Wireshark version typically becomes available every six weeks.
+* The Stable release is the latest official version of Wireshark. In most cases this is the version you should use.
+* The Old Stable release is an older official version of Wireshark which is still supported. You may be required to use one of these, for example if your organization has strict software approval policies.
+* The Development version is used for testing new features. Use this if you need one of those features.
 
-If you want to be notified about new Wireshark releases you should subscribe to the wireshark-announce mailing list.
-You will find more details in <<ChIntroMailingLists>>.
+The Stable and Old Stable release lifetimes conform to the following guidelines:
 
-Each release includes a list of file hashes which are sent to the wireshark-announce mailing list and placed in a file named SIGNATURES-_x_._y_._z_.txt.
-Announcement messages are archived at https://lists.wireshark.org/archives/wireshark-announce/ and SIGNATURES files can be found at https://www.wireshark.org/download/src/all-versions/.
-Both are GPG-signed and include verification instructions for Windows, Linux, and macOS.
-As noted above, you can also verify downloads on Windows and macOS using the code signature validation features on those systems.
+* At least two (and preferably exactly two) branches will be supported at any given time.
+* Each release shall be supported for a minimum of 18 months. Support might be extended to 24 or 30 months, e.g. for releases preceding a major change.
+* Support for release X.Y ends when it reaches the end of its minimum lifetime or when version X.Y{plus}4 is released, whichever comes *later*.
+
+Depending on the pacing of major releases and their lifetimes we might have an "`Old Old Stable`" branch in addition to the Stable and Old Stable ones.
+
+See <<ChIntroEndOfSupportPlanning,End of Support planning>> for support life cycle information specific to each release.
+
+A more detailed description can be found in the link:{wireshark-wiki-url}Development/ReleasePolicy[Release Policy].
+
+==== Staying Current
+
+Wireshark releases are announced on the link:{wireshark-mailing-lists-url}wireshark-announce[wireshark-announce] mailing list.
+Automated checks for new releases can be done using one of our
+https://www.wireshark.org/update/0/Wireshark/0.0.0/Windows/x86-64/en-US/stable.xml[Windows
+or macOS Appcast files].
+
+==== Release Numbers
+
+To understand the numbering of the releases, see the explanation of
+link:/Development/ReleaseNumbers[release numbers].
+
+==== Release Planning
+
+For the planning of the upcoming releases and their proposed contents
+see the link:/Development/Roadmap[roadmap].
+
+==== Past Releases
+
+Release Notes for each release are available on the
+https://www.wireshark.org/docs/relnotes/[main site]. +
+link:/Development/Version-Info[Version Info] (build components) for past
+Windows releases.
+
+The git change log provides good information about changes in each
+release:
+
+* https://gitlab.com/wireshark/wireshark/commits/release-4.6[release-4.6]
+* https://gitlab.com/wireshark/wireshark/commits/release-4.4[release-4.4]
+* https://gitlab.com/wireshark/wireshark/commits/release-4.2[release-4.2]
+* https://gitlab.com/wireshark/wireshark/commits/release-4.0[release-4.0]
+* https://gitlab.com/wireshark/wireshark/commits/release-3.6[release-3.6]
+* https://gitlab.com/wireshark/wireshark/commits/release-3.4[release-3.4]
+* https://gitlab.com/wireshark/wireshark/commits/master-3.2[master-3.2]
+* https://gitlab.com/wireshark/wireshark/commits/master-3.0[master-3.0]
+* https://gitlab.com/wireshark/wireshark/commits/master-2.6[master-2.6]
+* https://gitlab.com/wireshark/wireshark/commits/master-2.4[master-2.4]
+* https://gitlab.com/wireshark/wireshark/commits/master-2.2[master-2.2]
+* https://gitlab.com/wireshark/wireshark/commits/master-2.0[master-2.0]
+* https://gitlab.com/wireshark/wireshark/commits/master-1.12[master-1.12]
+
+Changes for older releases are listed in wiki pages:
+
+* link:/Development/Trunk-1.10[Development/Trunk-1.10]
+* link:/Development/Trunk-1.8[Development/Trunk-1.8]
+* link:/Development/Trunk-1.6[Development/Trunk-1.6]
+* link:/Development/Trunk-1.4[Development/Trunk-1.4]
+* link:/Development/Trunk-1.2[Development/Trunk-1.2]
+* link:/Development/Trunk-1.0[Development/Trunk-1.0]
+* link:/Development/BetaReleases[Development/BetaReleases]
+
+[#ChIntroEndOfSupportPlanning]
+
+==== End of Support planning
+
+Each major release is supported for a minimum of 18 months. Specific
+notes for each release can be found below.
+
+[width="100%",cols="10%,15%,15%,55%",options="header",]
+|===
+|Version |Stable Release Date |End of Support |Notes
+|4.6 |October 8, 2025 |Release {plus} 18 or more months |Last release to officially support Windows 10. Last release to support Red Hat EL 8.
+Last release to support Qt 5. Last release to use odd-development/even-stable release numbering. Support ends when 5.1.0 is released.
+
+|4.4 |August 28, 2024 |Release {plus} 18 or more months |Support ends when 5.0.0 is released.
+Last release to support Windows 10 version 1607 and Windows Server 2016. Last release to support macOS 11.
+
+|4.2 |November 15, 2023 |October 8, 2025 |Support ends when 4.6.0 is released.
+Last release to support macOS 10.14 and 10.15.
+
+|4.0 |October 4, 2022 |August 28, 2024 |Last release to support Windows 8.1 and Windows Server 2012.
+
+|3.6 |November 22, 2021 |May 22, 2024 |Long term support (LTS). Last release to support 32-bit Windows.
+Last release to support macOS 10.13.
+Last release to support Red Hat EL 7. Last release to support SUSE Linux ES 12.
+Last release to support Ubuntu Bionic (18.04LTS)
+
+|3.4 |October 29, 2020 |September 7, 2022 |Last release to support macOS 10.12.
+
+|3.2 |December 18, 2019 |November 22, 2021 |Last release to support Windows 7 and Windows Server 2008 R2.
+
+|3.0 |February 28, 2019 |October 29, 2020 |
+
+|2.6 |April 18, 2018 |October 18, 2020 |Long term support (LTS).
+Last release to support GTK{plus} and Qt4.
+Last release to support Red Hat EL6.
+Last release to support Mac OS X 10.6 and 10.7 and OS X 10.8, 10.9, 10.10, and 10.11.
+
+|2.4 |July 19, 2017 |July 19, 2019 |GTK{plus} UI disabled by default.
+
+|2.2 |September 7, 2016 |September 7, 2018 |Last release to support Windows Vista and (the non-R2) Windows Server 2008.
+
+|2.0 |November 18, 2015 |November 18, 2017 |Last release to support OS X on 32-bit x86.
+
+|1.12 |July 31, 2014 |July 31, 2016 |Last release using the GTK{plus} GUI by default. Last release to support Windows Server 2003.
+
+|1.10 |June 5, 2013 |June 5, 2015 |Last release to support Windows XP and U3 packages.
+
+|1.8 |June 21, 2012 |June 21, 2014 |Last release to support Mac OS X on PPC.
+
+|1.6 |June 7, 2011 |June 7, 2013 |Last release that compiles on Red Hat EL 5.
+
+|1.4 |August 30, 2010 |August 30, 2012 |
+
+|1.2 |June 15, 2009 |June 30, 2011 |Last release to support Windows 2000.
+
+|1.0 |March 31, 2008 |September 30, 2010 |Last release to support GTK{plus} 1.0.
+|===
+
+==== Discussion
+
+Support for 32-bit Windows ended on May 22, 2024. Wireshark 3.6 is the last release that supports it.
+
+https://learn.microsoft.com/en-us/lifecycle/products/windows-81[Support for Windows 8.1 ended on January 10&#44; 2023].
+Wireshark 4.0 is the last release that supports it.
+
+https://support.microsoft.com/en-us/help/13853/windows-lifecycle-fact-sheet[Support for Windows 7 ended on January 14&#44; 2020].
+Wireshark 3.2 is the last release that supports it.
+
+https://support.microsoft.com/en-us/help/22882/windows-vista-end-of-support[Support for Windows Vista ended on April 11&#44; 2017].
+Wireshark 2.2 is the last release that supports it.
+
+https://support.microsoft.com/en-us/help/14223/windows-xp-end-of-support[Support for Windows XP ended] on April 8, 2014.
+Wireshark 1.10 is the last release that supports it.
+
+// U3 http://kb.sandisk.com/app/answers/detail/a_id/5358/~/u3-launchpad-end-of-life-notice[reached end of life] in 2009.
+// We stopped producing U3 packages when 1.10 reached end of life.
 
 [#ChIntroHistory]
 
