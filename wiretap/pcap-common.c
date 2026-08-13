@@ -376,6 +376,8 @@ static const struct {
 	{ 214,		WTAP_ENCAP_X2E_XORAYA },
 	/* IEEE 802.15.4 Wireless PAN non-ASK PHY */
 	{ 215,		WTAP_ENCAP_IEEE802_15_4_NONASK_PHY },
+	/* "gsmtap" header followed by GSM Um interface packets */
+	{ 217,		WTAP_ENCAP_GSMTAP_UM },
 	/* USB packets with padded Linux-specified header */
 	{ 220,		WTAP_ENCAP_USB_LINUX_MMAPPED },
 	/* Fibre Channel FC-2 frame */

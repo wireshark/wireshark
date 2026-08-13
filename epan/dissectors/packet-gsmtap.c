@@ -121,6 +121,7 @@ enum {
 	/* LTE*/
 	GSMTAP_SUB_LTE_RRC,
 	GSMTAP_SUB_LTE_NAS,
+	GSMTAP_SUB_LTE_MAC,
 	GSMTAP_SUB_LAPD,
 	GSMTAP_SUB_FR,
 	GSMTAP_SUB_V5EF,
@@ -988,6 +989,9 @@ dissect_gsmtap_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 			sub_handle = GSMTAP_SUB_DATA;
 		}
 		break;
+	case GSMTAP_TYPE_LTE_MAC_FRAMED:
+		sub_handle = GSMTAP_SUB_LTE_MAC;
+		break;
 
 	case GSMTAP_TYPE_UM:
 		if (l1h_tvb)
@@ -1339,6 +1343,7 @@ proto_reg_handoff_gsmtap(void)
 	sub_handles[GSMTAP_SUB_GMR1_LAPSAT] = find_dissector_add_dependency("lapsat", proto_gsmtap);
 	sub_handles[GSMTAP_SUB_GMR1_RACH] = find_dissector_add_dependency("gmr1_rach", proto_gsmtap);
 	sub_handles[GSMTAP_SUB_UMTS_RRC] = find_dissector_add_dependency("rrc", proto_gsmtap);
+	sub_handles[GSMTAP_SUB_LTE_MAC] = find_dissector_add_dependency("mac-lte-framed", proto_gsmtap);
 	sub_handles[GSMTAP_SUB_LAPD] = find_dissector_add_dependency("lapd-phdr", proto_gsmtap);
 	sub_handles[GSMTAP_SUB_FR] = find_dissector_add_dependency("fr", proto_gsmtap);
 	sub_handles[GSMTAP_SUB_V5EF] = find_dissector_add_dependency("v5ef", proto_gsmtap);
@@ -1441,6 +1446,7 @@ proto_reg_handoff_gsmtap(void)
 	lte_nas_sub_handles[GSMTAP_LTE_NAS_SEC_HEADER] = find_dissector_add_dependency("nas-eps", proto_gsmtap);
 
 	dissector_add_uint_with_preference("udp.port", GSMTAP_UDP_PORT, gsmtap_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_GSMTAP_UM, gsmtap_handle);
 }
 
 /*
