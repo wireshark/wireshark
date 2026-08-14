@@ -928,6 +928,7 @@ egroup
 ehtsig
 eigrp
 einval
+elcid
 elektronik
 elided
 elink
@@ -1577,6 +1578,7 @@ keyset
 keysyms
 keytab
 knxip
+koffset
 koi8r
 koi8u
 kolkata

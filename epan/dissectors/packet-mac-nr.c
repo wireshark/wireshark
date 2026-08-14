@@ -676,9 +676,29 @@ static value_string_ext dlsch_lcid_vals_ext = VALUE_STRING_EXT_INIT(dlsch_lcid_v
 #define PROVIDED_GUARD_SYMBOLS_ELCD                                                                 254
 #define TIMING_DELTA_ELCD                                                                           255
 
+/* Table 6.2.1-1b */
 static const value_string dlsch_elcid_vals[] =
 {
-//0 to 226	64 to 290	Reserved
+// 0 to 207	     64 to 271                          Reserved
+    { 208,                                          "On-demand SSB Activation/Deactivation (one octet Ci field)"},
+    { 209,                                          "On-demand SSB Activation/Deactivation (four octet Ci field)"},
+    { 210,                                          "SP CLI Measurement Resource Set Activation/Deactivation"},
+    { 211,                                          "UL Rate Control"},
+    { 212,                                          "Pathloss Offset Update"},
+    { 213,                                          "SP CSI-RS/CSI-IM Resource Set Activation/Deactivation for Candidate Cell"},
+    { 214,                                          "Enhanced LTM Cell Switch Command"},
+    { 215,                                          "LTM Candidate Timing Advance Command"},
+    { 216,                                          "Aggregated SP Positioning SRS Activation/Deactivation"},
+    { 217,                                          "Enhanced SP CSI reporting on PUCCH Activation/Deactivation"},
+    { 218,                                          "Cross-RRH TCI State Indication for UE-specific PDCCH"},
+    { 219,                                          "LTM Cell Switch Command"},
+    { 220,                                          "Candidate Cell TCI States Activation/Deactivation"},
+    { 221,                                          "PSI-Based SDU Discard Activation/Deactivation"},
+    { 222,                                          "Enhanced Unified TCI states Activation/Deactivation MAC CE for Joint TCI States"},
+    { 223,                                          "Enhanced Unified TCI states Activation/Deactivation MAC CE for Separate TCI States"},
+    { 224,                                          "NCR Access Link Beam Indication"},
+    { 225,                                          "NCR Downlink Backhaul Link Beam Indication"},
+    { 226,                                          "NCR Uplink Backhaul Link Beam Indication"},
     { 227,                                          "Serving Cell Set based SRS TCI State Indication"},
     { 228,                                          "SP/AP SRS TCI State Indication"},
     { 229,                                          "BFD-RS Indication"},
@@ -816,7 +836,7 @@ static const value_string ulsch_elcid_vals[] =
 {
 //Table 6.2.1-2b Values of one-octet eLCID for UL-SCH
 //Codepoint	Index	LCID values
-//0 to 228	64 to 292	Reserved
+// 0 to 214	        64 to 278                Reserved
     { 215,                                   "Multiple Entry Delay Status Report"},
     { 216,                                   "UL Rate Control"},
     { 217,                                   "Event Triggered L1 Measurement Report"},
