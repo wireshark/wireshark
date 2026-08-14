@@ -157,7 +157,12 @@ void register_procmon(void);
 static void file_info_cleanup(procmon_file_info_t* file_info)
 {
     g_free(file_info->event_offsets);
-    g_free(file_info->string_array);
+    if (file_info->string_array) {
+        for (size_t idx = 0; idx < file_info->string_array_size; idx++) {
+            g_free((char *)file_info->string_array[idx]);
+        }
+        g_free(file_info->string_array);
+    }
     g_free(file_info->process_index_map);
     if (file_info->process_array) {
         for (size_t idx = 0; idx < file_info->process_array_size; idx++) {
@@ -280,6 +285,14 @@ static void procmon_read_hosts(wtap *wth, int64_t host_port_array_offset, int *e
     }
     g_regex_unref(numeric_re);
     g_free(str_buf);
+}
+
+static void procmon_close(wtap* wth) {
+    if (wth && wth->priv) {
+        procmon_file_info_t* file_info = (procmon_file_info_t*)wth->priv;
+        file_info_cleanup(file_info);
+        wth->priv = NULL;
+    }
 }
 
 static bool procmon_read_event(FILE_T fh, wtap_rec* rec, procmon_file_info_t* file_info, int* err, char** err_info)
@@ -608,6 +621,7 @@ wtap_open_return_val procmon_open(wtap *wth, int *err, char **err_info)
 
     if (file_seek(wth->fh, header->process_array_offset, SEEK_SET, err) == -1)
     {
+        file_info_cleanup(file_info);
         ws_debug("Failed to locate procmon process data");
         return WTAP_OPEN_NOT_MINE;
     }
@@ -833,6 +847,8 @@ wtap_open_return_val procmon_open(wtap *wth, int *err, char **err_info)
 
     wth->subtype_read = procmon_read;
     wth->subtype_seek_read = procmon_seek_read;
+
+    wth->subtype_close = procmon_close;
 
     return WTAP_OPEN_MINE;
 }
