@@ -97,8 +97,9 @@ menu.
 
 ==== Folders on Windows
 
-_%APPDATA%_ is the personal application data folder, e.g.:
-_C:\Users{backslash}**username**\AppData\Roaming\Wireshark_ (details can be
+_%APPDATA%_ is the personal application data folder.
+This is usually _C:\Users{backslash}**username**\AppData\Roaming_ .
+Wireshark stores its data in _%APPDATA%\Wireshark_. (more details can be
 found at: <<ChWindowsProfiles>>).
 
 _WIRESHARK_ is the Wireshark program folder, e.g.: _C:\Program
