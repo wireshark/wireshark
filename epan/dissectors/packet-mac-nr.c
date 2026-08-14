@@ -712,6 +712,7 @@ static const value_string dlsch_elcid_vals[] =
 };
 static value_string_ext dlsch_elcid_vals_ext = VALUE_STRING_EXT_INIT(dlsch_elcid_vals);
 
+/* Tan;e 6.2.1-2 */
 static const value_string ulsch_lcid_vals[] =
 {
     { CCCH_LCID,                            "CCCH (64 bits)"},
@@ -782,6 +783,7 @@ static const value_string ulsch_lcid_vals[] =
 };
 static value_string_ext ulsch_lcid_vals_ext = VALUE_STRING_EXT_INIT(ulsch_lcid_vals);
 
+/* TODO: add entries for 215-228 */
 #define ENHANCED_MULTIPLE_ENTRY_PHR_FOR_MULTIPLE_TRP_FOUR_OCTETS_CI      229
 #define ENHANCED_MULTIPLE_ENTRY_PHR_FOR_MULTIPLE_TRP_ONE_OCTETS_CI       230
 #define ENHANCED_SINGLE_ENTRY_PHR_FOR_MULTIPLE_TRP                       231
@@ -815,6 +817,20 @@ static const value_string ulsch_elcid_vals[] =
 //Table 6.2.1-2b Values of one-octet eLCID for UL-SCH
 //Codepoint	Index	LCID values
 //0 to 228	64 to 292	Reserved
+    { 215,                                   "Multiple Entry Delay Status Report"},
+    { 216,                                   "UL Rate Control"},
+    { 217,                                   "Event Triggered L1 Measurement Report"},
+    { 218,                                   "Truncated Event Triggered L1 Measurement Report"},
+    { 219,                                   "Enhanced Multiple Entry PHR for multiple TRP STx2P (four octets Ci)"},
+    { 220,                                   "Enhanced Multiple Entry PHR for multiple TRP STx2P (one octets Ci)"},
+    { 221,                                   "Enhanced Single Entry PHR for multiple TRP STx2P"},
+    { 222,                                   "SL LBT Failure"},
+    { 223,                                   "Multiple Entry PHR with assumed PUSCH (four octets Ci)"},
+    { 224,                                   "Multiple Entry PHR with assumed PUSCH (one octets Ci)"},
+    { 225,                                   "Single Entry PHR with assumed PUSCH"},
+    { 226,                                   "SL-PRS Resource Request"},
+    { 227,                                   "Refined Long BSR"},
+    { 228,                                   "Single Entry Delay Status Report"},
     { 229,                                   "Enhanced Multiple Entry PHR for multiple TRP(four octets Ci)"},
     { 230,                                   "Enhanced Multiple Entry PHR for multiple TRP(one octets Ci)"},
     { 231,                                   "Enhanced Single Entry PHR for multiple TRP"},
@@ -858,6 +874,7 @@ static const true_false_string rar_type_vals =
     "Backoff Indicator present"
 };
 
+/* Table 7.2-1 */
 static const value_string rar_bi_vals[] =
 {
     { 0,  "5ms"},
@@ -879,6 +896,7 @@ static const value_string rar_bi_vals[] =
     { 0, NULL }
 };
 
+/* Table 6.1.3.1-5 */
 static const value_string buffer_size_5bits_vals[] =
 {
     { 0,  "BS = 0"},
@@ -918,6 +936,7 @@ static const value_string buffer_size_5bits_vals[] =
 static value_string_ext buffer_size_5bits_vals_ext = VALUE_STRING_EXT_INIT(buffer_size_5bits_vals);
 
 
+/* Table 6.1.3.1-2 */
 static const value_string buffer_size_8bits_vals[] =
 {
     { 0,   "BS = 0"},
@@ -929,7 +948,7 @@ static const value_string buffer_size_8bits_vals[] =
     { 6,   "14 < BS <= 15"},
     { 7,   "15 < BS <= 16"},
     { 8,   "16 < BS <= 17"},
-    { 9,  "17 < BS <= 18"},
+    { 9,   "17 < BS <= 18"},
     { 10,  "18 < BS <= 19"},
     { 11,  "19 < BS <= 20"},
     { 12,  "20 < BS <= 22"},
@@ -1237,6 +1256,7 @@ static const true_false_string aper_csi_trigger_state_t_vals =
     "Not mapped to the codepoint of the DCI CSI request field"
 };
 
+/* Table 6.1.3.20-1 */
 static const value_string bit_rate_vals[] =
 {
     { 0, "no bit rate recommendation"},
@@ -2402,14 +2422,11 @@ static unsigned dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_
                 case TIMING_ADVANCE_REPORT_LCID:
                 {
                     /* Reserved (2 bits) */
-                    proto_tree_add_item(subheader_tree, hf_mac_nr_control_timing_advance_report_reserved,
-                        tvb, offset, 1, ENC_BIG_ENDIAN);
-                    /* Timing  Advance */
+                    proto_tree_add_item(subheader_tree, hf_mac_nr_control_timing_advance_report_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    /* Timing  Advance (14 bits) */
                     uint32_t ta;
-                    proto_tree_add_item_ret_uint(subheader_tree, hf_mac_nr_control_timing_advance_report_ta,
-                        tvb, offset, 2, ENC_BIG_ENDIAN, &ta);
+                    proto_tree_add_item_ret_uint(subheader_tree, hf_mac_nr_control_timing_advance_report_ta, tvb, offset, 2, ENC_BIG_ENDIAN, &ta);
                     write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo, "(Timing Advance Report TA=%u) ", ta);
-
                     offset += 2;
                     break;
                 }
@@ -2760,10 +2777,10 @@ static unsigned dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_
                         case DIFFERENTIAL_KOFFSET_ELCD:
                         {
                             uint32_t koffset;
-                            proto_tree_add_item(subheader_tree, hf_mac_nr_differential_koffset_reserved,
-                                tvb, offset, 1, ENC_BIG_ENDIAN);
-                            proto_tree_add_item_ret_uint(subheader_tree, hf_mac_nr_differential_koffset,
-                                tvb, offset, 1, ENC_BIG_ENDIAN, &koffset);
+                            /* Reserved (2 bits) */
+                            proto_tree_add_item(subheader_tree, hf_mac_nr_differential_koffset_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            /* Differential Koffset (6 bits) */
+                            proto_tree_add_item_ret_uint(subheader_tree, hf_mac_nr_differential_koffset, tvb, offset, 1, ENC_BIG_ENDIAN, &koffset);
                             offset += 1;
                             write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
                                 "(Differential Koffset %u) ", koffset);
@@ -5451,19 +5468,19 @@ void proto_register_mac_nr(void)
         },
         { &hf_mac_nr_control_timing_advance_report_ta,
             { "Timing Advance",
-              "mac-nr.control.ta-command.ta", FT_UINT16, BASE_DEC, NULL, 0x3f,
-              NULL, HFILL
+              "mac-nr.control.ta-command.ta", FT_UINT16, BASE_DEC, NULL, 0x3fff,
+              "Least number of slots, or possibly symbols", HFILL
             }
         },
         { &hf_mac_nr_differential_koffset,
             { "Differential Koffset",
-              "mac-nr.differential_koffset", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              "mac-nr.differential-koffset", FT_UINT8, BASE_DEC, NULL, 0x3f,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_differential_koffset_reserved,
             { "Reserved",
-              "mac-nr.differential_koffset.reserved", FT_UINT8, BASE_DEC, NULL, 0xc0,
+              "mac-nr.differential-koffset.reserved", FT_UINT8, BASE_DEC, NULL, 0xc0,
               NULL, HFILL
             }
         }, };
