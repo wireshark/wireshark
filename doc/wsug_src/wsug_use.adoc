@@ -32,7 +32,7 @@ command line. See <<ChCustCommandLine>> for details.
 
 The following chapters contain many screenshots of Wireshark. As
 Wireshark runs on many different platforms with many different window managers,
-different styles applied and there are different versions of the underlying GUI
+different styles are applied and there are different versions of the underlying GUI
 toolkit used, your screen might look different from the provided screenshots.
 But as there are no real differences in functionality these screenshots should
 still be well understandable.
@@ -139,7 +139,7 @@ capture files in whole or in part, and to quit the Wireshark application. See
 <<ChUseFileMenuSection>>.
 
 menu:Edit[]::
-This menu contains items to find a packet, time reference or mark one or more
+This menu contains items to find a packet, set a time reference, or mark one or more
 packets, handle configuration profiles, and set your preferences; (cut, copy,
 and paste are not presently implemented). See <<ChUseEditMenuSection>>.
 
@@ -347,7 +347,7 @@ This menu item marks all displayed packets as ignored.
 This menu item unmarks all ignored packets.
 
 |menu:Set/Unset Time Reference[]              |kbd:[Ctrl+T]      |
-This menu item set a time reference on the currently selected packet. See
+This menu item sets a time reference on the currently selected packet. See
 <<ChWorkTimeReferencePacketSection>> for more information about the time
 referenced packets.
 
@@ -460,7 +460,7 @@ The fields “Automatic”, “Seconds” and “...seconds” are mutually excl
 Enabling colorization will slow down the display of new packets while
 capturing or loading capture files.
 
-|menu:Colorize Conversation[]                       |                   |This menu item brings up a submenu that allows you to color packets in the packet list pane based on the addresses of the currently selected packet. This makes it easy to distinguish packets belonging to different conversations. <<ChCustColorizationSection>>.
+|menu:Colorize Conversation[]                       |                   |This menu item brings up a submenu that allows you to color packets in the packet list pane based on the addresses of the currently selected packet. This makes it easy to distinguish packets belonging to different conversations. See <<ChCustColorizationSection>>.
 |menu:Colorize Conversation[Color 1-10]             |                   |These menu items enable one of the ten temporary color filters based on the currently selected conversation.
 |menu:Colorize Conversation[Reset coloring]         |                   |This menu item clears all temporary coloring rules.
 |menu:Colorize Conversation[New Coloring Rule...]   |                   |This menu item opens a dialog window in which a new permanent coloring rule can be created based on the currently selected conversation.
@@ -649,7 +649,7 @@ behavior, such as invalid checksums or retransmissions.
 Those items are shown here.
 See <<ChAdvExpert>> for more information.
 
-The amount of information will vary depend on the protocol
+The amount of information will vary depending on the protocol.
 |===
 
 [#ChUseStatisticsMenuSection]
@@ -849,7 +849,7 @@ be hidden using the View menu if the space on the screen is needed to
 show more packet data.
 
 Items in the toolbar will be enabled or disabled (greyed out) similar to
-their corresponding menu items. For example, in the image below shows
+their corresponding menu items. For example, the image below shows
 the main window toolbar after a file has been opened. Various
 file-related buttons are enabled, but the stop capture button is
 disabled because a capture is not in progress.
@@ -872,7 +872,7 @@ image::images/ws-main-toolbar.png[{screenshot-attrs}]
 |image:images/toolbar/x-capture-options.png[{toolbar-icon-attrs}]   |btn:[Options...]|menu:Capture[Options...]| Opens the “Capture Options” dialog box. See <<ChCapCapturingSection>> for details.
 // --
 |image:images/toolbar/document-open.png[{toolbar-icon-attrs}]         |btn:[Open...]|menu:File[Open...]| Opens the file open dialog box, which allows you to load a capture file for viewing. It is discussed in more detail in <<ChIOOpen>>.
-|image:images/toolbar/x-capture-file-save.png[{toolbar-icon-attrs}]   |btn:[Save As...]|menu:File[Save As...]| Save the current capture file to whatever file you would like. See <<ChIOSaveAs>> for details. If you currently have a temporary capture file open the “Save” icon  will be shown instead.
+|image:images/toolbar/x-capture-file-save.png[{toolbar-icon-attrs}]   |btn:[Save As...]|menu:File[Save As...]| Save the current capture file to whatever file you would like. See <<ChIOSaveAs>> for details. If you currently have a temporary capture file open, the “Save” icon  will be shown instead.
 |image:images/toolbar/x-capture-file-close.png[{toolbar-icon-attrs}]  |btn:[Close]|menu:File[Close]|Closes the current capture. If you have not saved the capture, you will be asked to save it first.
 |image:images/toolbar/x-capture-file-reload.png[{toolbar-icon-attrs}] |btn:[Reload]|menu:View[Reload]| Reloads the current capture file.
 // --
@@ -883,7 +883,7 @@ image::images/ws-main-toolbar.png[{screenshot-attrs}]
 |image:images/toolbar/go-first.png[{toolbar-icon-attrs}]    |btn:[Go To First Packet]|menu:Go[First Packet]| Jump to the first packet of the capture file.
 |image:images/toolbar/go-last.png[{toolbar-icon-attrs}]     |btn:[Go To Last Packet]|menu:Go[Last Packet]| Jump to the last packet of the capture file.
 |image:images/toolbar/x-stay-last.png[{toolbar-icon-attrs}] |btn:[Auto Scroll in Live Capture]|menu:Go[Auto Scroll in Live Capture]| Auto scroll packet list while doing a live capture (or not).
-|image:images/toolbar/aggregation.png[{toolbar-icon-attrs}] |btn:[Aggregation in Live Capture]|menu:Go[Aggregation in Live Capture]| Activates the Aggregation View, which displays frames aggregated by selected field values, showing only the most recently received ones for each combination. This feature is disabled by default and can be enabled by adding the aggregation fields *Preferences → Capture → Aggregation fields*. The aggregation fields used for grouping can be configured in the same preferences section (see <<ChCustPreferencesSection>>).
+|image:images/toolbar/aggregation.png[{toolbar-icon-attrs}] |btn:[Aggregation in Live Capture]|menu:Go[Aggregation in Live Capture]| Activates the Aggregation View, which displays frames aggregated by selected field values, showing only the most recently received ones for each combination. This feature is disabled by default and can be enabled by adding the aggregation fields in *Preferences → Capture → Aggregation fields*. The aggregation fields used for grouping can be configured in the same preferences section (see <<ChCustPreferencesSection>>).
 // --
 |image:images/toolbar/x-colorize-packets.png[{toolbar-icon-attrs}] |btn:[Colorize]|menu:View[Colorize Packet List]| Colorize the packet list (or not).
 // --
@@ -1070,7 +1070,7 @@ Some protocol fields have special meanings.
 
 * *Links.* If Wireshark detects a relationship to another packet in the capture
   file it will generate a link to that packet. Links are underlined and
-  displayed in blue. If you double-clicked on a link  Wireshark will jump to the
+  displayed in blue. If you double-click on a link, Wireshark will jump to the
   corresponding packet.
 
 [#ChUsePacketBytesPaneSection]
@@ -1101,7 +1101,7 @@ as it moves. If this highlighting is not required or wanted, there are two
 methods for deactivating the functionality:
 
 * *Temporary* By holding down the Ctrl button while moving the mouse, the
-  highlighted field will not change
+  highlighted field will not change.
 
 * *Permanently* Using the context menu (right mouse click) the hover highlighting
   may be activated/deactivated. This setting is stored in the selected profile
@@ -1170,9 +1170,9 @@ Displayed::: The number of packets currently being displayed.
 
 Marked::: The number of marked packets. Only displayed if you marked any packets.
 
-Dropped::: The number of dropped packets Only displayed if Wireshark was unable to capture all packets.
+Dropped::: The number of dropped packets. Only displayed if Wireshark was unable to capture all packets.
 
-Ignored::: The number of ignored packets Only displayed if you ignored any packets.
+Ignored::: The number of ignored packets. Only displayed if you ignored any packets.
 
 //Load time::: The time it took to load the capture (wall clock time).
 

@@ -47,7 +47,7 @@ wrong.
 ==== [Packet size limited during capture]
 
 The packet size was limited during capture, see “Limit each packet to n bytes”
-at the <<ChCapCaptureOptions>>. While dissecting, the current protocol dissector
+in <<ChCapCaptureOptions>>. While dissecting, the current protocol dissector
 was simply running out of packet bytes and had to give up. There’s nothing else
 you can do now, except to repeat the whole capture process again with a higher
 (or no) packet size limitation.

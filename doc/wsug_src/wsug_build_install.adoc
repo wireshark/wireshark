@@ -198,7 +198,7 @@ Npcap you won’t be able to capture anything with Wireshark.
 
 === Building from source under Windows
 
-We strongly recommended using the binary installer for Windows unless you
+We strongly recommend using the binary installer for Windows unless you
 want to start developing Wireshark on the Windows platform.
 
 For further information how to obtain sources and build Wireshark for Windows
@@ -229,7 +229,7 @@ macOS packages automatically update.
 See <<ChBuildInstallUpdatingWireshark>> for details.
 
 In order to capture packets, you must install the “ChmodBPF” launch daemon.
-You can do so by opening the _Install ChmodBPF.pkg_ file in the Wireshark .dmg or from Wireshark itself by opening menu:Wireshark[About Wireshark] selecting the “Folders” tab, and double-clicking “macOS Extras”.
+You can do so by opening the _Install ChmodBPF.pkg_ file in the Wireshark .dmg or from Wireshark itself by opening menu:Wireshark[About Wireshark], selecting the “Folders” tab, and double-clicking “macOS Extras”.
 
 The installer package includes Wireshark along with ChmodBPF and system path packages.
 See the included _Read me first.html_ file for more details.
@@ -314,7 +314,7 @@ pkg_add should take care of all of the dependency issues for you.
 
 === Building from source under UNIX or Linux
 
-We recommended using the binary installer for your platform unless you
+We recommend using the binary installer for your platform unless you
 want to start developing Wireshark.
 
 Building Wireshark requires the proper build environment including a

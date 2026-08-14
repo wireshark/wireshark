@@ -401,7 +401,7 @@ actual dates and times be displayed for all packets.
 d:: Delta, which specifies that timestamps
 are relative to the previous packet.
 
-dd: Delta,  which specifies that timestamps
+dd:: Delta,  which specifies that timestamps
 are relative to the previous displayed packet.
 
 e:: Epoch, which specifies that timestamps
@@ -1034,7 +1034,7 @@ Selecting _Resolve transport names_ causes the UDP and TCP port numbers to be tr
 
 Selecting _Resolve network (IP) addresses_ causes IPv4, IPv6 and IPX addresses to be translated into their corresponding host name.
 To do this Wireshark reaches out to DNS servers to request names for addresses it finds in packets.
-There are several way to do this, which can be controlled through the following preferences.
+There are several ways to do this, which can be controlled through the following preferences.
 
 Selecting _Use captured DNS packet data for name resolution_ causes DNS response packets in the capture file to fill the network address resolution table.
 These can then be used to resolve addresses found in the packets.
@@ -1398,7 +1398,7 @@ The textual representation for the value.
 
 === MaxMind Database Paths
 
-If your copy of Wireshark supports https://www.maxmind.com/[MaxMind’s] MaxMindDB library, you can use their databases to match IP addresses to countries, cites, autonomous system numbers, and other bits of information.
+If your copy of Wireshark supports https://www.maxmind.com/[MaxMind’s] MaxMindDB library, you can use their databases to match IP addresses to countries, cities, autonomous system numbers, and other bits of information.
 Some databases are https://dev.maxmind.com/geoip/geoip2/geolite2/[available at no cost for registered users], while others require a licensing fee.
 See https://www.maxmind.com/[the MaxMind web site] for more information.
 
@@ -1551,9 +1551,8 @@ WPA and WPA2 use keys derived from an EAPOL handshake, which occurs when a machi
 
 In order to capture the handshake for a machine, you will need to force the machine to (re-)join the network while the capture is in progress. One way to do this is to put the machine to sleep (for smartphones and tablets, "turning off" the machine puts it to sleep) before you start the capture, start the capture, and then wake the machine up. You will need to do this for all machines whose traffic you want to see.
 
-If a TK is provided as a key, then the EAPOL 4-way handshake is not necessary,
-as the TK is what the handshake derives. However, all available TKs will be
-tried agi
+Note that if a TK is provided as a key, then the EAPOL 4-way handshake is not necessary,
+as the entire reason the 4-way handshake is needed is to derive the TK.
 
 ===== Too Many Associations
 

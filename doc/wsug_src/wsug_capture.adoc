@@ -28,7 +28,7 @@ The Wireshark capture engine provides the following features:
   rotating through a fixed number of files (a “ringbuffer”). See
   <<ChCapCaptureFiles>>.
 
-The capture engine still lacks the following features:
+The capture engine still lacks the following feature(s):
 
 * Stop capturing (or perform some other action) depending on the captured data.
 
@@ -108,7 +108,7 @@ Note also that an interface might be hidden if it’s inaccessible to Wireshark 
 When you select menu:Capture[Options...] (or use the corresponding item in the
 main toolbar), Wireshark pops up the “Capture Options” dialog box as shown in
 <<ChCapCaptureOptionsDialog>>.
-If you are unsure which options to choose in this dialog box, leaving the defaults settings as they are should work well in many cases.
+If you are unsure which options to choose in this dialog box, leaving the default settings as they are should work well in many cases.
 
 [#ChCapCaptureOptionsDialog]
 .The “Capture Options” input tab
@@ -208,7 +208,7 @@ pcapng might be required, e.g., if more than one interface is chosen for capturi
 See {wireshark-wiki-url}Development/PcapNg for more details on pcapng.
 
 Create a new file automatically...::
-Sets the conditions for switching a new capture file.
+Sets the conditions for switching to a new capture file.
 A new capture file can be created based on the following conditions:
   * The number of packets in the capture file.
   * The size of the capture file.
@@ -237,7 +237,7 @@ Automatically scroll during live capture:::
 Scroll the packet list pane as new packets come in, so you are always looking at the most recent packet.
 Automatic scrolling is temporarily disabled when manually scrolling upwards or performing a <<ChUseTabGo,"Go" action>> so that the selected packet can be examined.
 It will resume upon manually scrolling to the end of the packet list.
-If you do not specify this Wireshark adds new packets to the packet list but does not scroll the packet list pane.
+If you do not specify this Wireshark adds new packets to the packet list, but does not scroll the packet list pane.
 This option has no effect if “Update list of packets in real-time” is disabled.
 
 Show capture information during capture:::
@@ -484,7 +484,7 @@ problems (like a stream error) and keeps information about context related
 protocols (e.g., where data is exchanged at the establishing phase and only
 referred to in later packets). As it keeps this information only for the loaded
 file, using one of the multiple file modes may cut these contexts. If the
-establishing phase is saved in one file and the things you would like to see is
+establishing phase is saved in one file and the things you would like to see are
 in another, you might not see some of the valuable context related information.
 
 Information about the folders used for capture files can be found in

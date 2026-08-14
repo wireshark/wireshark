@@ -69,7 +69,7 @@ Wireshark project from who sections of this document borrow heavily:
 === About this document
 
 This book was originally developed by mailto:{wsug-author-email2}[Richard
-Sharpe] with funds provided from the Wireshark Fund. It was updated by
+Sharpe] with funds provided by the Wireshark Fund. It was updated by
 mailto:{wsug-author-email3}[Ed Warnicke] and more recently redesigned and
 updated by mailto:{wsug-author-email}[Ulf Lamping].
 

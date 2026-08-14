@@ -6,7 +6,7 @@
 == How Wireshark Works
 
 When using such a complex program like Wireshark, it’s sometimes useful to
-understand the mechanisms and concepts behind the surface. This is an approach
+understand the mechanisms and concepts behind the surface. This appendix aims
 to shed some light on the inner workings of Wireshark.
 
 === Program start
@@ -54,14 +54,15 @@ When Wireshark starts each dissector registers itself in one of two ways:
 * _Heuristic_. If no such well-known way exists, the dissector
   can register itself for the heuristic mechanism. If a lower-layer dissector
   has to handle some packet data where no well-known way exists, it can
-  handover the packet to Wireshark’s heuristic mechanism. This will ask all
+  hand over the packet to Wireshark’s heuristic mechanism. This will ask all
   registered upper layer dissectors, if they “like” that data. These
   dissectors typically look at the first few bytes of the packet, to see if they
   contain some characteristic data of that protocol and then
   decide whether or not to dissect that packet.
 
-Let’s look at an example. We’ll assume, Wireshark loads a TCP/IP/Ethernet
-packet. Wireshark will call the Ethernet dissector, which will dissect the
+Let’s look at an example. Let's assume Wireshark loads a packet capture
+containing TCP/IP/Ethernet traffic.
+Wireshark will call the Ethernet dissector, which will dissect the
 Ethernet related data (usually the first 6 + 6 + 2 bytes). The Ethernet
 dissector then passes the rest of the data back to Wireshark.
 Wireshark in turn will call the next related dissector, in our case the IP

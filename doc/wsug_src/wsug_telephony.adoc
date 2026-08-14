@@ -25,7 +25,7 @@ Some of these statistics are described at the
 
 === Playing VoIP Calls
 
-The tool for playing VoIP calls is called <<ChTelRtpPlayer,RTP Player>>. It shows RTP streams and its waveforms, allows play stream and export it as audio or payload to file. Its capabilities depend on supported codecs.
+The tool for playing VoIP calls is called <<ChTelRtpPlayer,RTP Player>>. It shows RTP streams and their waveforms, allows playing streams, and exporting them as audio or payload to file. Its capabilities depend on supported codecs.
 
 ==== Supported codecs
 
@@ -42,7 +42,7 @@ image::images/ws-about-codecs.png[{screenshot-attrs}]
 
 Wireshark can be used for RTP stream analysis. User can select one or more streams which can be played later. RTP Player window maintains playlist (list of RTP streams) for this purpose.
 
-Playlist is created empty when RTP Player window is opened and destroyed when window is closed. RTP Player window can be opened on background when not needed and put to front later. During its live, playlist is maintained.
+Playlist is created empty when RTP Player window is opened and destroyed when window is closed. RTP Player window can be opened on background when not needed and put to front later. During its life, the playlist is maintained.
 
 When RTP Player window is opened, playlist can be modified from other tools (Wireshark windows) in three ways:
 
@@ -116,10 +116,10 @@ Take into account that heuristics is just a simple "test" of whether a packet ca
 When you enable menu:udp[Try heuristic sub-dissectors first], it increases the possibility of false positives. If you capture all traffic in network, false positives rate can be quite high.
 ====
 
-RTP Player must store decoded data somewhere to be able to play it. When data are decoded, there are audio samples and dictionary for fast navigation. Both types of data are stored in memory for default, but you can configure Wireshark to store it on disk. There are two settings (which you may access from menu:Edit[Preferences] Advanced from the main menu).
+RTP Player must store decoded data somewhere to be able to play it. When data are decoded, there are audio samples and dictionary for fast navigation. Both types of data are stored in memory by default, but you can configure Wireshark to store it on disk. There are two settings (which you may access from menu:Edit[Preferences] Advanced from the main menu).
 
-* ui.rtp_player_use_disk1 - When set to FALSE (default), audio samples are kept in memory. When set to TRUE, audio samples are stored on temporary file.
-* ui.rtp_player_use_disk2 - When set to FALSE (default), dictionary is kept in memory. When set to TRUE, dictionary is stored on temporary file.
+* ui.rtp_player_use_disk1 - When set to FALSE (default), audio samples are kept in memory. When set to TRUE, audio samples are stored in a temporary file.
+* ui.rtp_player_use_disk2 - When set to FALSE (default), dictionary is kept in memory. When set to TRUE, dictionary is stored in a temporary file.
 
 When any data are configured to be stored on disk, one file is created for each stream. Therefore, there might be up to two files for one RTP stream (audio samples and dictionary). If your OS or user has OS enforced limit for count of opened files (most of Unix/Linux systems), you may see fewer streams than were added to playlist. Warnings are printed on console - in this case and you will see fewer streams in the playlist than you send to it from other tools.
 
@@ -189,11 +189,11 @@ This menu shows groups of statistic data for mobile communication protocols acco
 
 ==== A-I/F BSMAP Statistics Window
 
-The A-Interface Base Station Management Application Part (BSMAP) Statistics window shows the messages list and the number of the captured messages. There is a possibility to filter the messages, copy or save the date into a file.
+The A-Interface Base Station Management Application Part (BSMAP) Statistics window shows the messages list and the number of the captured messages. There is a possibility to filter the messages, copy or save the data into a file.
 
 ==== A-I/F DTAP Statistics Window
 
-The A-Interface Direct Transfer Application Part (DTAP) Statistics widow shows the messages list and the number of the captured messages. There is a possibility to filter the messages, copy or save the date into a file.
+The A-Interface Direct Transfer Application Part (DTAP) Statistics window shows the messages list and the number of the captured messages. There is a possibility to filter the messages, copy or save the data into a file.
 
 [#ChTelGSM]
 
@@ -281,7 +281,7 @@ This menu shows MTP3 Statistics and MTP3 Summary windows.
 
 === Osmux Windows
 
-OSmux is a multiplex protocol designed to reduce bandwidth usage of satellite-based GSM systems's voice (RTP-AMR) and signaling traffic. The OSmux menu opens the packet counter window with the related statistic data. The user can filter, copy or save the data into a file.
+OSmux is a multiplex protocol designed to reduce bandwidth usage of satellite-based GSM system's voice (RTP-AMR) and signaling traffic. The OSmux menu opens the packet counter window with the related statistic data. The user can filter, copy or save the data into a file.
 
 [#ChTelRTP]
 
@@ -457,7 +457,7 @@ Playlist shows information about every stream:
 ====
 When rtp_udp is active, most of streams shows just RTP <number> even there is setup frame in capture.
 
-When RTP stream contains multiple codecs, SR and PR is based on first observed coded. Later codecs in stream are resampled to first one.
+When RTP stream contains multiple codecs, SR and PR are based on first observed coded. Later codecs in stream are resampled to first one.
 ====
 
 Controls allow a user to:
@@ -469,7 +469,7 @@ Controls allow a user to:
 * Select btn:[Playback Timing]
 ** Jitter Buffer - Packets outside btn:[Jitter Buffer] size are discarded during decoding
 ** RTP Timestamp - Packets are ordered and played by its Timestamp, no Jitter Buffer is used
-** Uninterrupted Mode - All gaps (e. g. Comfort Noise, lost packets) are discarded therefore audio is shorted than timespan
+** Uninterrupted Mode - All gaps (e. g. Comfort Noise, lost packets) are discarded therefore audio is shorter than timespan
 * btn:[Time of Day] selects whether waveform timescale is shown in seconds from start of capture or in absolute time of received packets
 * btn:[Refresh streams] refreshes streams during live capture (see <<ChTelPlayingCallsLive>>). Button is disabled when no live capture is running.
 * Inaudible streams
@@ -497,7 +497,7 @@ User can control to where audio of a stream is routed to:
 
 * L - Left channel
 * L+R - Left and Right (Middle) channel
-* R - Left channel
+* R - Right channel
 * P - Play (when mono soundcard is available only)
 * M - Muted
 
@@ -559,13 +559,13 @@ In this case user must manually select one of rates in btn:[Output Audio Rate], 
 
 === RTSP Window
 
-In the Real Time Streaming Protocol (RTSP) menu the user can check the Packet Counter window. It shows Total RTCP Packets and divided into RTSP Response Packets, RTSP Request Packets and Other RTSP packets. The user can filter, copy or save the data into a file.
+In the Real Time Streaming Protocol (RTSP) menu the user can check the Packet Counter window. It shows Total RTSP Packets and divided into RTSP Response Packets, RTSP Request Packets and Other RTSP packets. The user can filter, copy or save the data into a file.
 
 [#ChTelSCTP]
 
 === SCTP Windows
 
-Stream Control Transmission Protocol (SCTP) is a computer network protocol which provides a message transfer in telecommunication in the transport layer. It overcomes some lacks of User Datagram Protocol (UDP) and Transmission Control Protocol (TCP). The SCTP packets consist of the _common header_ and the _data chunks_.
+Stream Control Transmission Protocol (SCTP) is a computer network protocol which provides a message transfer in telecommunication in the transport layer. It overcomes some limitations of User Datagram Protocol (UDP) and Transmission Control Protocol (TCP). The SCTP packets consist of the _common header_ and the _data chunks_.
 
 The SCTP Analyze Association window shows the statistics of the captured packets between two Endpoints. You can check the different chunk types by pressing btn:[Chunk Statistics] button in the `Statistics` tab. In the `Endpoint` tabs you can see various statistics, such as IP addresses, ports and others. You can also check different graphs here.
 
@@ -587,7 +587,7 @@ Short Message Peer-to-Peer (SMPP) protocol uses TCP protocol as its transfer for
 
 === UCP Messages Window
 
-The Universal Computer Protocol (UCP) plays role in transferring Short Messages between a Short Message Service Centre (SMSC) and an application, which is using transport protocol, such as TCP or X.25. The UCP Messages window displays the related statistical data. The user can filter, copy or save the data into a file.
+The Universal Computer Protocol (UCP) plays a role in transferring Short Messages between a Short Message Service Centre (SMSC) and an application, which is using transport protocol, such as TCP or X.25. The UCP Messages window displays the related statistical data. The user can filter, copy or save the data into a file.
 
 [#ChTelF1APMessages]
 
@@ -611,7 +611,7 @@ E2AP is used to configure and query nodes in an O-RAN network.  This window coun
 
 === H.225 Window
 
-H.225 telecommunication protocol which is responsible for messages in call signaling and media stream packetization for packet-based multimedia communication systems. The H.225 window shows the counted messages by types and reasons. The user can filter, copy or save the data into a file.
+H.225 is a telecommunication protocol which is responsible for messages in call signaling and media stream packetization for packet-based multimedia communication systems. The H.225 window shows the counted messages by types and reasons. The user can filter, copy or save the data into a file.
 
 [#ChTelSIPFlows]
 

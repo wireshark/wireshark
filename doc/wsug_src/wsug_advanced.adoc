@@ -273,7 +273,7 @@ menu:EBCDIC[]:: For the big-iron freaks out there.
 menu:Hex Dump[]:: This allows you to see all the data. This will require a lot of
   screen space and is best used with binary protocols.
 
-menu:HTML[]:: This allows you to see all the data formatted as a HTML document.
+menu:HTML[]:: This allows you to see all the data formatted as an HTML document.
   The HTML supported is what’s supported by the Qt QTextEdit class.
 
 menu:Image[]:: This will try to convert the bytes into an image.
@@ -518,7 +518,7 @@ image::images/ws-tcp-analysis.png[{screenshot-attrs}]
 TCP Analysis flags are added to the TCP protocol tree under “SEQ/ACK
 analysis”. Each flag is described below. Terms such as “next expected
 sequence number” and “next expected acknowledgment number” refer to
-the following”:
+the following:
 
 // tcp_analyze_seq_info->nextseq
 Next expected sequence number:: The last-seen sequence number plus
@@ -658,7 +658,7 @@ reverse direction.
 [discrete]
 ==== TCP Window Update
 
-Set when the all of the following are true:
+Set when all of the following are true:
 
 * The segment size is zero.
 * The window size is non-zero and not equal to the last-seen window size, and there is no valid SACK data.
@@ -755,7 +755,7 @@ The fields "tcp.stream.client.contiguity_count" and
 of a conversation.
 Any number other than 1 says that either there is no TCP segment at all (0), or that
 some data is missing (2+). We are only counting the 100 first discontinuities as in
-most of cases it's enough to conclude the capture cannot be used for data extraction
+most cases it's enough to conclude the capture cannot be used for data extraction
 or there was a serious capture issue.
 
 [#ChAdvTimestamps]
@@ -875,7 +875,7 @@ used as it is slightly incorrect (up to 0.9 seconds difference to UTC). The UTC
 base time equals to 0 (based at Greenwich, England) and all time zones have an
 offset to UTC between -12 to +14 hours!
 
-For example: If you live in Berlin, you are in a time zone one hour earlier than
+For example: If you live in Berlin, you are in a time zone one hour later than
 UTC, so you are in time zone “+1” (time difference in hours compared to UTC).
 If it’s 3 o’clock in Berlin it’s 2 o’clock in UTC “at the same moment”.
 
@@ -1047,7 +1047,7 @@ multiple tabs in the “Packet Bytes” pane appear.
 You will find the reassembled data in the last packet of the chunk.
 ====
 
-For example, in a _HTTP_ GET response, the requested data (e.g., an HTML page) is
+For example, in an _HTTP_ GET response, the requested data (e.g., an HTML page) is
 returned. Wireshark will show the hex dump of the data in a new tab
 “Uncompressed entity body” in the “Packet Bytes” pane.
 
@@ -1084,7 +1084,7 @@ HTTP messages could be shown as “Continuation” and TLS records could be show
 capturing while a TCP connection was already started or when TCP segments
 are lost or delivered out-of-order.
 
-To reassemble of out-of-order TCP segments, the TCP protocol preference
+To reassemble out-of-order TCP segments, the TCP protocol preference
 “Reassemble out-of-order segments” (currently disabled by default) must be
 enabled in addition to the previous preference.
 If all packets are received in-order, this preference will not have any effect.
@@ -1106,7 +1106,7 @@ same PDU. Caveats:
 // See test/suite_dissection.py (case_dissect_tcp.check_tcp_out_of_order)
 * If the new and missing segments are in fact part of different PDUs,
   then processing is currently delayed until no more segments are missing, even
-  if the begin of the missing segments completed a PDU. For example, assume six
+  if the beginning of the missing segments completed a PDU. For example, assume six
   segments forming two PDUs `ABC` and `DEF`. When received as `ABECDF`, an
   application can start processing the first PDU after receiving `ABEC`.
   Wireshark however requires the missing segment `D` to be received as well.

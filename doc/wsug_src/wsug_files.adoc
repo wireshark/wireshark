@@ -27,7 +27,7 @@ really helpful (e.g., being able to add a comment to a packet such as “the
 problems start here” would be really nice).
 
 In addition to the libpcap format, Wireshark supports several different capture
-file formats. However, the problems described above also applies for these
+file formats. However, the problems described above also apply for these
 formats.
 
 [#ChIOFileContentSection]

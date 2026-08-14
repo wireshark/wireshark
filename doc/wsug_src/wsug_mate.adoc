@@ -1293,7 +1293,7 @@ Pre-started GOPs would avoid this.
 ==== using RADIUS to filter SMTP traffic of a specific user
 
 Spying on people, in addition to being immoral, is illegal in many countries.
-This is an example meant to explain how to do it not an invitation to do so.
+This is an example meant to explain how to do it, not an invitation to do so.
 It's up to the police to do this kind of job when there is a good reason to do
 so.
 
@@ -1471,7 +1471,7 @@ The MATE library (will) contains GOP definitions for several protocols. Library
 protocols are included in your MATE config using: +_Action=Include;
 Lib=proto_name;_+.
 
-For Every protocol with a library entry, we'll find defined what from the PDU is
+For every protocol with a library entry, we'll find defined what from the PDU is
 needed to create a GOP for that protocol, eventually any criteria and the very
 essential GOP definition (i.e., __Gop__, _Start_ and _Stop_).
 

@@ -108,7 +108,7 @@ include::captype-h.txt[]
 
 [#AppToolsrawshark]
 
-=== __rawshark__: Dump and analyze network traffic.
+=== __rawshark__: Dump and analyze network traffic
 
 Rawshark reads a stream of packets from a file or pipe, and prints a
 line describing its output, followed by a set of matching fields for
@@ -170,7 +170,7 @@ file; the “.gz” extension is not required for this purpose.
 
 By default, Mergecap writes all of the packets in the input capture files to a
 pcapng file. The `-F` flag can be used
-to specify the capture file's output format ; it can write the file
+to specify the capture file's output format; it can write the file
 in libpcap format (standard libpcap format, a modified format used by some
 patched versions of libpcap, the format used by Red Hat Linux 6.1, or the format
 used by SuSE Linux 6.3), snoop format, uncompressed Sniffer format, Microsoft
@@ -277,7 +277,7 @@ non-whitespace character is “#” will be ignored as a comment. Any line begin
 with #TEXT2PCAP is a directive and options can be inserted after this command to
 be processed by `text2pcap`. Currently there are no directives implemented; in the
 future, these may be used to give more fine-grained control on the dump and the
-way it should be processed e.g., timestamps, encapsulation type etc.
+way it should be processed, e.g., timestamps, encapsulation type etc.
 
 `text2pcap` also allows the user to read in dumps of application-level data, by
 inserting dummy L2, L3 and L4 headers before each packet. Possibilities include

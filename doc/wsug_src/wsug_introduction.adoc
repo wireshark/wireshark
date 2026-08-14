@@ -465,7 +465,7 @@ started applying patches and contributing dissectors to Ethereal.
 
 In late 1998 Richard Sharpe, who was giving TCP/IP courses, saw its potential
 on such courses and started looking at it to see if it supported the protocols
-he needed. While it didn’t at that point new protocols could be easily added.
+he needed. While it didn’t support the protocols he needed, new protocols could be easily added.
 So he started contributing dissectors and contributing patches.
 
 The list of people who have contributed to the project has become very long
