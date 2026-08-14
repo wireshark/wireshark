@@ -51,6 +51,7 @@
 #define SAPROUTER_TYPE_ROUTE_ACCEPT	"NI_PONG"
 #define SAPROUTER_TYPE_ERR_STRING	"NI_RTERR"
 #define SAPROUTER_TYPE_ADMIN_STRING	"ROUTER_ADM"
+#define SAPROUTER_ERR_FIXED_LEN		12U
 
 /* SAP Router Talk Modes */
 static const value_string saprouter_talk_mode_vals[] = {
@@ -213,6 +214,7 @@ static expert_field ei_saprouter_route_password_found;
 static expert_field ei_saprouter_route_invalid_length;
 static expert_field ei_saprouter_info_password_found;
 static expert_field ei_saprouter_invalid_client_ids;
+static expert_field ei_saprouter_control_invalid_length;
 
 /* Global port preference */
 static range_t *global_saprouter_port_range;
@@ -262,6 +264,38 @@ dissect_serviceport(char *port){
 	return (portnumber);
 }
 
+static bool
+saprouter_tvb_strsize_bounded(tvbuff_t *tvb, uint32_t offset, uint32_t *len)
+{
+	unsigned nul_offset;
+	int remaining;
+
+	remaining = tvb_captured_length_remaining(tvb, offset);
+	if (remaining <= 0) {
+		return false;
+	}
+
+	if (!tvb_find_uint8_length(tvb, offset, (unsigned)remaining, '\0', &nul_offset)) {
+		return false;
+	}
+
+	*len = nul_offset - offset + 1;
+	return true;
+}
+
+static bool
+saprouter_type_matches(tvbuff_t *tvb, uint32_t offset, uint32_t eyecatcher_length, const char *type)
+{
+	uint32_t type_length = (uint32_t)strlen(type);
+
+	if (eyecatcher_length != type_length + 1) {
+		return false;
+	}
+
+	return tvb_strneql(tvb, offset, type, type_length) == 0 &&
+	    tvb_get_uint8(tvb, offset + type_length) == '\0';
+}
+
 static void
 dissect_routestring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, saprouter_session_state *session_state){
 	int hop = 1;
@@ -279,19 +313,25 @@ dissect_routestring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_
 		proto_item_append_text(route_hop, ", nro %d", hop);
 
 		/* Dissect the hostname string */
-		len = tvb_strsize(tvb, offset);
+		if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) {
+			break;
+		}
 		hostname = (char *)tvb_get_string_enc(wmem_file_scope(), tvb, offset, len - 1, ENC_ASCII);
 		proto_tree_add_item(route_hop_tree, hf_saprouter_route_string_hostname, tvb, offset, len, ENC_ASCII);
 		offset += len;
 
 		/* Dissect the port string */
-		len = tvb_strsize(tvb, offset);
+		if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) {
+			break;
+		}
 		port = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, len - 1, ENC_ASCII);
 		proto_tree_add_item(route_hop_tree, hf_saprouter_route_string_service, tvb, offset, len, ENC_ASCII);
 		offset += len;
 
 		/* Dissect the password string */
-		len = tvb_strsize(tvb, offset);
+		if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) {
+			break;
+		}
 		password = (char *)tvb_get_string_enc(wmem_file_scope(), tvb, offset, len - 1, ENC_ASCII);
 		route_password = proto_tree_add_item(route_hop_tree, hf_saprouter_route_string_password, tvb, offset, len, ENC_ASCII);
 
@@ -343,69 +383,69 @@ dissect_errorstring(tvbuff_t *tvb, proto_tree *tree, uint32_t offset)
 {
 	uint32_t len;
 
-	len = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) return;
 	proto_tree_add_item(tree, hf_saprouter_error_eyecatcher, tvb, offset, len, ENC_ASCII);
 	offset += len;
-	len = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) return;
 	proto_tree_add_item(tree, hf_saprouter_error_counter, tvb, offset, len, ENC_ASCII);
 	offset += len;
-	len = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) return;
 	proto_tree_add_item(tree, hf_saprouter_error_error, tvb, offset, len, ENC_ASCII);
 	offset += len;
-	len = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) return;
 	proto_tree_add_item(tree, hf_saprouter_error_return_code, tvb, offset, len, ENC_ASCII);
 	offset += len;
-	len = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) return;
 	proto_tree_add_item(tree, hf_saprouter_error_component, tvb, offset, len, ENC_ASCII);
 	offset += len;
-	len = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) return;
 	proto_tree_add_item(tree, hf_saprouter_error_release, tvb, offset, len, ENC_ASCII);
 	offset += len;
-	len = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) return;
 	proto_tree_add_item(tree, hf_saprouter_error_version, tvb, offset, len, ENC_ASCII);
 	offset += len;
-	len = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) return;
 	proto_tree_add_item(tree, hf_saprouter_error_module, tvb, offset, len, ENC_ASCII);
 	offset += len;
-	len = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) return;
 	proto_tree_add_item(tree, hf_saprouter_error_line, tvb, offset, len, ENC_ASCII);
 	offset += len;
-	len = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) return;
 	proto_tree_add_item(tree, hf_saprouter_error_detail, tvb, offset, len, ENC_ASCII);
 	offset += len;
-	len = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) return;
 	proto_tree_add_item(tree, hf_saprouter_error_time, tvb, offset, len, ENC_ASCII);
 	offset += len;
-	len = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) return;
 	proto_tree_add_item(tree, hf_saprouter_error_system_call, tvb, offset, len, ENC_ASCII);
 	offset += len;
-	len = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) return;
 	proto_tree_add_item(tree, hf_saprouter_error_errorno, tvb, offset, len, ENC_ASCII);
 	offset += len;
-	len = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) return;
 	proto_tree_add_item(tree, hf_saprouter_error_errorno_text, tvb, offset, len, ENC_ASCII);
 	offset += len;
-	len = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) return;
 	proto_tree_add_item(tree, hf_saprouter_error_error_count, tvb, offset, len, ENC_ASCII);
 	offset += len;
-	len = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) return;
 	proto_tree_add_item(tree, hf_saprouter_error_location, tvb, offset, len, ENC_ASCII);
 	offset += len;
 
-	len = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) return;
 	proto_tree_add_item(tree, hf_saprouter_error_unknown, tvb, offset, len, ENC_ASCII);
 	offset += len;
-	len = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) return;
 	proto_tree_add_item(tree, hf_saprouter_error_unknown, tvb, offset, len, ENC_ASCII);
 	offset += len;
-	len = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) return;
 	proto_tree_add_item(tree, hf_saprouter_error_unknown, tvb, offset, len, ENC_ASCII);
 	offset += len;
-	len = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) return;
 	proto_tree_add_item(tree, hf_saprouter_error_unknown, tvb, offset, len, ENC_ASCII);
 	offset += len;
 
-	len = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &len)) return;
 	proto_tree_add_item(tree, hf_saprouter_error_eyecatcher, tvb, offset, len, ENC_ASCII);
 }
 
@@ -428,6 +468,7 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	tvbuff_t *next_tvb = NULL;
 	uint8_t opcode;
 	uint32_t offset = 0, eyecatcher_length = 0;
+	int remaining;
 	conversation_t *conversation = NULL;
 	saprouter_session_state *session_state = NULL;
 	proto_item *ti = NULL, *ri = NULL, *ei = NULL, *ci = NULL, *gi = NULL, *admin_password = NULL;
@@ -465,7 +506,10 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	saprouter_tree = proto_item_add_subtree(ti, ett_saprouter);
 
 	/* Get the 'eye catcher' length */
-	eyecatcher_length = tvb_strsize(tvb, offset);
+	if (!saprouter_tvb_strsize_bounded(tvb, offset, &eyecatcher_length)) {
+		remaining = tvb_reported_length_remaining(tvb, offset);
+		eyecatcher_length = remaining > 0 ? (uint32_t)remaining : 0;
+	}
 
 	/* Niping message */
 	if (tvb_reported_length_remaining(tvb, offset) >= 10 && tvb_strneql(tvb, offset, SAPROUTER_TYPE_NIPING_STRING, 10) == 0) {
@@ -481,13 +525,17 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 	}
 	/* Admin Message Type */
-	else if (tvb_strneql(tvb, offset, SAPROUTER_TYPE_ADMIN_STRING, eyecatcher_length) == 0) {
+	else if (saprouter_type_matches(tvb, offset, eyecatcher_length, SAPROUTER_TYPE_ADMIN_STRING)) {
 		col_set_str(pinfo->cinfo, COL_INFO, "Admin message");
 
 		proto_tree_add_item(saprouter_tree, hf_saprouter_type, tvb, offset, eyecatcher_length, ENC_ASCII);
 		offset += eyecatcher_length;
 		proto_item_append_text(ti, ", Admin message");
 
+		if (tvb_reported_length_remaining(tvb, offset) < 2) {
+			expert_add_info_format(pinfo, saprouter_tree, &ei_saprouter_control_invalid_length, "SAP Router admin message is shorter than 2 fixed bytes");
+			return tvb_reported_length(tvb);
+		}
 		proto_tree_add_item(saprouter_tree, hf_saprouter_ni_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
@@ -497,10 +545,16 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 		switch (opcode){
 			case 2:{  /* Info request */
+				uint32_t password_len;
+
+				if (tvb_reported_length_remaining(tvb, offset) < 2) {
+					expert_add_info_format(pinfo, saprouter_tree, &ei_saprouter_control_invalid_length, "SAP Router admin info request is shorter than 2 fixed bytes");
+					return tvb_reported_length(tvb);
+				}
 				offset+=2; /* Skip 2 bytes */
 				/* Check if a password was supplied */
-				if (tvb_offset_exists(tvb, offset) && (tvb_strsize(tvb, offset) > 0)){
-					admin_password = proto_tree_add_item(saprouter_tree, hf_saprouter_admin_password, tvb, offset, tvb_strsize(tvb, offset), ENC_ASCII);
+				if (saprouter_tvb_strsize_bounded(tvb, offset, &password_len) && password_len > 1){
+					admin_password = proto_tree_add_item(saprouter_tree, hf_saprouter_admin_password, tvb, offset, password_len, ENC_ASCII);
 					expert_add_info(pinfo, admin_password, &ei_saprouter_info_password_found);
 
 					/* Add the password to the credential tap */
@@ -522,22 +576,31 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 			case 12: /* Trace Connection */
 			case 13: /* Trace Connection */
 			{
-				uint16_t client_count = 0, client_count_actual = 0;
+				uint32_t client_count = 0, client_count_actual = 0;
 
 				/* Retrieve the client count first */
 				if (opcode == 6){
+					if (tvb_reported_length_remaining(tvb, offset) < 4) {
+						expert_add_info_format(pinfo, saprouter_tree, &ei_saprouter_control_invalid_length, "SAP Router cancel route request is shorter than 4 fixed bytes");
+						return tvb_reported_length(tvb);
+					}
 					offset+=2; /* Skip 2 bytes for Cancel Route request*/
 					client_count = tvb_get_ntohs(tvb, offset);
 					proto_tree_add_item(saprouter_tree, hf_saprouter_admin_client_count_short, tvb, offset, 2, ENC_BIG_ENDIAN);
 					offset+=2;
 				} else {
+					if (tvb_reported_length_remaining(tvb, offset) < 4) {
+						expert_add_info_format(pinfo, saprouter_tree, &ei_saprouter_control_invalid_length, "SAP Router trace connection request is shorter than 4 fixed bytes");
+						return tvb_reported_length(tvb);
+					}
 					client_count = tvb_get_ntohl(tvb, offset);
 					proto_tree_add_item(saprouter_tree, hf_saprouter_admin_client_count_int, tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset+=4;
 				}
 
 				/* Parse the list of client IDs */
-				ci = proto_tree_add_item(saprouter_tree, hf_saprouter_admin_client_ids, tvb, offset, 4*client_count, ENC_NA);
+				remaining = tvb_reported_length_remaining(tvb, offset);
+				ci = proto_tree_add_item(saprouter_tree, hf_saprouter_admin_client_ids, tvb, offset, remaining > 0 ? remaining : 0, ENC_NA);
 				clients_tree = proto_item_add_subtree(ci, ett_saprouter);
 				while (tvb_offset_exists(tvb, offset) && tvb_reported_length_remaining(tvb, offset)>=4){
 					proto_tree_add_item(clients_tree, hf_saprouter_admin_client_id, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -559,10 +622,16 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		}
 
 	/* Route Message Type */
-	} else if (tvb_strneql(tvb, offset, SAPROUTER_TYPE_ROUTE_STRING, eyecatcher_length) == 0){
+	} else if (saprouter_type_matches(tvb, offset, eyecatcher_length, SAPROUTER_TYPE_ROUTE_STRING)){
 		uint32_t route_length = 0, route_offset = 0;
+		tvbuff_t *route_tvb = NULL;
 
 		col_set_str(pinfo->cinfo, COL_INFO, "Route message");
+
+		if (tvb_reported_length_remaining(tvb, offset) < SAPROUTER_ROUTE_OFFSET_OFFSET + 4) {
+			expert_add_info_format(pinfo, saprouter_tree, &ei_saprouter_route_invalid_length, "Route message is shorter than %u bytes", SAPROUTER_ROUTE_OFFSET_OFFSET + 4);
+			return tvb_reported_length(tvb);
+		}
 
 		/* Get the route length/offset */
 		route_length = tvb_get_ntohl(tvb, offset + SAPROUTER_ROUTE_LENGTH_OFFSET);
@@ -587,15 +656,22 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		proto_tree_add_item(saprouter_tree, hf_saprouter_route_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
 		/* Add the route tree */
-		if ((uint32_t)tvb_reported_length_remaining(tvb, offset) != route_length){
-			expert_add_info_format(pinfo, saprouter_tree, &ei_saprouter_route_invalid_length, "Route string length is invalid (remaining=%d, route_length=%d)", tvb_reported_length_remaining(tvb, offset), route_length);
-			route_length = (uint32_t)tvb_reported_length_remaining(tvb, offset);
+		remaining = tvb_reported_length_remaining(tvb, route_offset);
+		if (route_offset < offset || remaining < 0) {
+			expert_add_info_format(pinfo, saprouter_tree, &ei_saprouter_route_invalid_length, "Route string offset is invalid (route_offset=%u)", route_offset);
+			route_length = 0;
+		} else if ((uint32_t)remaining != route_length){
+			expert_add_info_format(pinfo, saprouter_tree, &ei_saprouter_route_invalid_length, "Route string length is invalid (remaining=%d, route_length=%d)", remaining, route_length);
+			route_length = (uint32_t)remaining;
 		}
-		ri = proto_tree_add_item(saprouter_tree, hf_saprouter_route, tvb, offset, route_length, ENC_NA);
+		ri = proto_tree_add_item(saprouter_tree, hf_saprouter_route, tvb, route_offset, route_length, ENC_NA);
 		route_tree = proto_item_add_subtree(ri, ett_saprouter);
 
 		/* Dissect the route string */
-		dissect_routestring(tvb, pinfo, route_tree, route_offset, session_state);
+		if (route_length > 0) {
+			route_tvb = tvb_new_subset_length(tvb, route_offset, route_length);
+			dissect_routestring(route_tvb, pinfo, route_tree, 0, session_state);
+		}
 
 		/* If this is the first time we're seeing this packet, mark it as the one where the route was requested */
 		if (!pinfo->fd->visited) {
@@ -605,12 +681,12 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		/* Add the route to the colinfo*/
 		if (session_state->src_hostname){
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Source: Hostname=%s Service Port=%d", session_state->src_hostname, session_state->src_port);
-			if (strlen(session_state->src_password)>0)
+			if (session_state->src_password && strlen(session_state->src_password)>0)
 				col_append_fstr(pinfo->cinfo, COL_INFO, " Password=%s", session_state->src_password);
 		}
 		if (session_state->dest_hostname){
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Destination: Hostname=%s Service Port=%d", session_state->dest_hostname, session_state->dest_port);
-			if (strlen(session_state->dest_password)>0)
+			if (session_state->dest_password && strlen(session_state->dest_password)>0)
 				col_append_fstr(pinfo->cinfo, COL_INFO, " Password=%s", session_state->dest_password);
 		}
 
@@ -620,7 +696,7 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		}
 
 	/* Error Information/Control Message Type */
-	} else if (tvb_strneql(tvb, offset, SAPROUTER_TYPE_ERR_STRING, eyecatcher_length) == 0){
+	} else if (saprouter_type_matches(tvb, offset, eyecatcher_length, SAPROUTER_TYPE_ERR_STRING)){
 
 		/* Extract the opcode if possible to determine the type of message */
 		if (tvb_offset_exists(tvb, offset + 10)) {
@@ -634,6 +710,12 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		uint32_t text_length = 0;
 
 		proto_item_append_text(ti, (opcode==0)? ", Error information" : ", Control message");
+		remaining = tvb_reported_length_remaining(tvb, offset);
+		if (remaining < (int)(eyecatcher_length + SAPROUTER_ERR_FIXED_LEN)) {
+			expert_add_info_format(pinfo, saprouter_tree, &ei_saprouter_control_invalid_length, "SAP Router error/control message is shorter than %u fixed bytes", eyecatcher_length + SAPROUTER_ERR_FIXED_LEN);
+			proto_tree_add_item(saprouter_tree, hf_saprouter_type, tvb, offset, eyecatcher_length, ENC_ASCII);
+			return tvb_reported_length(tvb);
+		}
 		/* Add the fields */
 		proto_tree_add_item(saprouter_tree, hf_saprouter_type, tvb, offset, eyecatcher_length, ENC_ASCII);
 		offset += eyecatcher_length;
@@ -649,26 +731,38 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		if (opcode == 0){
 			proto_tree_add_item(saprouter_tree, hf_saprouter_error_length, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset+=4;
-			if ((text_length > 0) && tvb_offset_exists(tvb, offset+text_length)){
+			remaining = tvb_reported_length_remaining(tvb, offset);
+			if ((text_length > 0) && remaining > 0){
+				if ((uint32_t)remaining < text_length) {
+					expert_add_info_format(pinfo, saprouter_tree, &ei_saprouter_control_invalid_length, "SAP Router error text is shorter than its reported length (remaining=%d, text_length=%u)", remaining, text_length);
+					text_length = (uint32_t)remaining;
+				}
 				/* Add the error string tree */
 				ei = proto_tree_add_item(saprouter_tree, hf_saprouter_error_string, tvb, offset, text_length, ENC_NA);
 				text_tree = proto_item_add_subtree(ei, ett_saprouter);
-				dissect_errorstring(tvb, text_tree, offset);
+				dissect_errorstring(tvb_new_subset_length(tvb, offset, text_length), text_tree, 0);
 				offset += text_length;
 			}
 
 			/* Add an unknown int field */
-			proto_tree_add_item(saprouter_tree, hf_saprouter_unknown, tvb, offset, 4, ENC_BIG_ENDIAN);
+			if (tvb_reported_length_remaining(tvb, offset) >= 4) {
+				proto_tree_add_item(saprouter_tree, hf_saprouter_unknown, tvb, offset, 4, ENC_BIG_ENDIAN);
+			}
 
-		/* Control Message */
+			/* Control Message */
 		} else {
 			/* Add the opcode name */
-		        proto_item_append_text(ti, ", opcode=%s", val_to_str_const(opcode, saprouter_opcode_vals, "Unknown"));
+			proto_item_append_text(ti, ", opcode=%s", val_to_str_const(opcode, saprouter_opcode_vals, "Unknown"));
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", opcode=%s", val_to_str_const(opcode, saprouter_opcode_vals, "Unknown"));
 
 			proto_tree_add_item(saprouter_tree, hf_saprouter_control_length, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset+=4;
-			if ((text_length >0) && tvb_offset_exists(tvb, offset+text_length)){
+			remaining = tvb_reported_length_remaining(tvb, offset);
+			if ((text_length > 0) && remaining > 0){
+				if ((uint32_t)remaining < text_length) {
+					expert_add_info_format(pinfo, saprouter_tree, &ei_saprouter_control_invalid_length, "SAP Router control text is shorter than its reported length (remaining=%d, text_length=%u)", remaining, text_length);
+					text_length = (uint32_t)remaining;
+				}
 				/* Add the control string tree */
 				proto_tree_add_item(saprouter_tree, hf_saprouter_control_string, tvb, offset, text_length, ENC_ASCII);
 				offset += text_length;
@@ -677,11 +771,15 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 			/* SNC request, mark the conversation as SNC protected and dissect the SNC frame */
 			if (opcode == 70 || opcode == 71){
 				session_state->route_snc_protected = true;
-				dissect_saprouter_snc_frame(tvb, pinfo, tree, offset);
+				if (tvb_reported_length_remaining(tvb, offset) > 0) {
+					dissect_saprouter_snc_frame(tvb, pinfo, tree, offset);
+				}
 
 			/* Other opcodes */
 			} else {
-				proto_tree_add_item(saprouter_tree, hf_saprouter_control_unknown, tvb, offset, 4, ENC_ASCII);
+				if (tvb_reported_length_remaining(tvb, offset) >= 4) {
+					proto_tree_add_item(saprouter_tree, hf_saprouter_control_unknown, tvb, offset, 4, ENC_ASCII);
+				}
 			}
 
 		}
@@ -890,6 +988,7 @@ proto_register_saprouter(void)
 		{ &ei_saprouter_info_password_found, { "saprouter.password.found", PI_SECURITY, PI_WARN, "Info password found", EXPFILL }},
 		{ &ei_saprouter_route_invalid_length, { "saprouter.routestring.routelength.invalid", PI_MALFORMED, PI_WARN, "The route string length is invalid", EXPFILL }},
 		{ &ei_saprouter_invalid_client_ids, { "saprouter.client_ids.invalid", PI_MALFORMED, PI_WARN, "Client IDs list is malformed", EXPFILL }},
+		{ &ei_saprouter_control_invalid_length, { "saprouter.control.length.invalid", PI_MALFORMED, PI_WARN, "The error/control message length is invalid", EXPFILL }},
 	};
 
 	module_t *saprouter_module;

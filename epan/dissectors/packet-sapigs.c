@@ -32,6 +32,8 @@
  * IANA assigned, we leave only the ones corresponding to the instance 00.
  */
 #define SAPIGS_PORT_RANGE "40000"
+#define SAPIGS_HEADER_LEN 192U
+#define SAPIGS_TABLE_DEF_LEN 336U
 
 /* IGS Functions values */
 static const value_string sapigs_function_lst[] = {
@@ -123,6 +125,13 @@ static dissector_handle_t sapigs_handle;
 void proto_reg_handoff_sapigs(void);
 void proto_register_sapigs(void);
 
+static bool
+sapigs_tvb_has_remaining(tvbuff_t *tvb, uint32_t offset, unsigned length)
+{
+	unsigned remaining = tvb_reported_length_remaining(tvb, offset);
+	return remaining >= length;
+}
+
 
 static int
 dissect_sapigs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -137,14 +146,25 @@ dissect_sapigs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	/* Add the protocol to the column */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SAPIGS");
 	/* Add function name in the info column */
-	col_add_fstr(pinfo->cinfo, COL_INFO, " function: %s", tvb_get_string_enc(pinfo->pool, tvb, 0, 32, ENC_ASCII));
+	if (sapigs_tvb_has_remaining(tvb, offset, 32)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO, " function: %s", tvb_get_string_enc(pinfo->pool, tvb, 0, 32, ENC_ASCII));
+	}
 
 	/* Add the main sapigs subtree */
 	ti = proto_tree_add_item(tree, proto_sapigs, tvb, 0, -1, ENC_NA);
 	sapigs_tree = proto_item_add_subtree(ti, ett_sapigs);
 
+	if (!sapigs_tvb_has_remaining(tvb, offset, 32)) {
+		return tvb_reported_length(tvb);
+	}
+
 	/* Retrieve function name */
 	sapigs_info_function = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, 32, ENC_ASCII);
+
+	if (!sapigs_tvb_has_remaining(tvb, offset, SAPIGS_HEADER_LEN)) {
+		proto_tree_add_item(sapigs_tree, hf_sapigs_function, tvb, offset, 32, ENC_ASCII);
+		return tvb_reported_length(tvb);
+	}
 
 	/* Headers */
 	proto_tree_add_item(sapigs_tree, hf_sapigs_function, tvb, offset, 32, ENC_ASCII);
@@ -169,30 +189,51 @@ dissect_sapigs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	/* switch over function name value */
 	switch (str_to_val(sapigs_info_function, sapigs_function_lst, err_val)){
 		case 8:{	/* ADM:PING */
-			proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher, tvb, offset, 5, ENC_ASCII);
+			if (sapigs_tvb_has_remaining(tvb, offset, 5)) {
+				proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher, tvb, offset, 5, ENC_ASCII);
+			}
 			break;
 		}
 		case 9:{	/* ADM:PONG */
 			break;
 		}
 		case 1:{	/* ADM:REGPW */
-			proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher, tvb, offset, 5, ENC_ASCII);
+			if (sapigs_tvb_has_remaining(tvb, offset, 5)) {
+				proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher, tvb, offset, 5, ENC_ASCII);
+			}
 			offset += 32;
-			proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher_version, tvb, offset, 16, ENC_ASCII);
+			if (sapigs_tvb_has_remaining(tvb, offset, 16)) {
+				proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher_version, tvb, offset, 16, ENC_ASCII);
+			}
 			break;
 		}
 		case 3:		/* ADM:REGIP */
 		case 5:{	/* ADM:FREEIP */
-			proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher, tvb, offset, 5, ENC_ASCII);
+			if (sapigs_tvb_has_remaining(tvb, offset, 5)) {
+				proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher, tvb, offset, 5, ENC_ASCII);
+			}
 			offset += 32;
-			proto_tree_add_item(sapigs_tree, hf_sapigs_interpreter, tvb, offset, 16, ENC_ASCII);
+			if (sapigs_tvb_has_remaining(tvb, offset, 16)) {
+				proto_tree_add_item(sapigs_tree, hf_sapigs_interpreter, tvb, offset, 16, ENC_ASCII);
+			}
 			offset += 32;
-			proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher_version, tvb, offset, 16, ENC_ASCII);
+			if (sapigs_tvb_has_remaining(tvb, offset, 16)) {
+				proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher_version, tvb, offset, 16, ENC_ASCII);
+			}
 			offset += 32;
-			proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher_info, tvb, offset, 16, ENC_ASCII);
+			if (sapigs_tvb_has_remaining(tvb, offset, 16)) {
+				proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher_info, tvb, offset, 16, ENC_ASCII);
+			}
 			break;
 		}
 		case 6:{	/* ADM:ILLBEBACK */
+			if (!sapigs_tvb_has_remaining(tvb, offset, 5)) {
+				break;
+			}
+			if (!sapigs_tvb_has_remaining(tvb, offset, 10)) {
+				proto_tree_add_item_ret_string(sapigs_tree, hf_sapigs_data_size, tvb, offset, 5, ENC_ASCII, pinfo->pool, (const uint8_t**)&data_length_str);
+				break;
+			}
 			illbeback_type = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, 10, ENC_ASCII|ENC_NA);
 			if (strncmp("TransMagic", illbeback_type, 10) == 0){
 				/* data is raw after eye_catcher */
@@ -215,6 +256,9 @@ dissect_sapigs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		case 31:	/* IMGCONV */
 		case 33:	/* XMLCHART */
 		case 16:{	/* ADM:GETDUMP */
+			if (!sapigs_tvb_has_remaining(tvb, offset, 48)) {
+				break;
+			}
 			proto_tree_add_item(sapigs_tree, hf_sapigs_eye_catcher, tvb, offset, 10, ENC_ASCII);
 			offset += 10;
 			proto_tree_add_item(sapigs_tree, hf_sapigs_padd4, tvb, offset, 2, ENC_ASCII);
@@ -231,9 +275,11 @@ dissect_sapigs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			offset += 16;
 			data_offset += offset;
 			/* Definition tables */
-			is_table = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
+			if (sapigs_tvb_has_remaining(tvb, offset, 4)) {
+				is_table = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
+			}
 			/* if the 4 next char is VERS, we are at the beginning of one definition table */
-			while(strncmp("VERS", is_table, 4) == 0){
+			while(is_table && strncmp("VERS", is_table, 4) == 0 && sapigs_tvb_has_remaining(tvb, offset, SAPIGS_TABLE_DEF_LEN)){
 				/* Build a tree for Tables */
 				sapigs_tables = proto_tree_add_item(sapigs_tree, hf_sapigs_tables, tvb, offset, 336, ENC_NA);
 				sapigs_tables_tree = proto_item_add_subtree(sapigs_tables, ett_sapigs);
@@ -251,18 +297,25 @@ dissect_sapigs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				offset += 48;
 				proto_tree_add_item(sapigs_tables_tree, hf_sapigs_table_column_width, tvb, offset+8, 40, ENC_ASCII);
 				offset += 48;
-				is_table = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
+				is_table = NULL;
+				if (sapigs_tvb_has_remaining(tvb, offset, 4)) {
+					is_table = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
+				}
 			}
 			/* Data */
-			if ((data_length > 0) && (tvb_reported_length_remaining(tvb, offset) >= data_length)) {
+			if ((data_length > 0) && (tvb_reported_length_remaining(tvb, data_offset) >= data_length)) {
 				proto_tree_add_item(sapigs_tree, hf_sapigs_data, tvb, data_offset, data_length, ENC_NA);
 			}
 			break;
 		}
 		case 34:{	/* CHART */
-			proto_tree_add_item(sapigs_tree, hf_sapigs_chart_config, tvb, offset, 32, ENC_ASCII);
-			offset += 32;
-			proto_tree_add_item(sapigs_tree, hf_sapigs_data, tvb, offset, -1, ENC_NA);
+			if (sapigs_tvb_has_remaining(tvb, offset, 32)) {
+				proto_tree_add_item(sapigs_tree, hf_sapigs_chart_config, tvb, offset, 32, ENC_ASCII);
+				offset += 32;
+				if (tvb_reported_length_remaining(tvb, offset) > 0) {
+					proto_tree_add_item(sapigs_tree, hf_sapigs_data, tvb, offset, -1, ENC_NA);
+				}
+			}
 			break;
 		}
 	}

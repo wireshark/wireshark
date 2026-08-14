@@ -25,6 +25,7 @@
 
 #include "packet-sapsnc.h"
 
+#define SAPSNC_FIXED_HEADER_LEN 24U
 
 /* SAP SNC Frame Type */
 static const value_string sapsnc_frame_type_vals[] = {
@@ -87,6 +88,7 @@ static int hf_sapsnc_token_length;
 static int hf_sapsnc_data_length;
 static int hf_sapsnc_mech_id;
 static int hf_sapsnc_flags;
+static int hf_sapsnc_qop_flags;
 static int hf_sapsnc_qop_min;
 static int hf_sapsnc_qop_max;
 static int hf_sapsnc_qop_use;
@@ -97,6 +99,13 @@ static int hf_sapsnc_token;
 static int hf_sapsnc_data;
 
 static int ett_sapsnc;
+
+static int * const sapsnc_qop_fields[] = {
+	&hf_sapsnc_qop_use,
+	&hf_sapsnc_qop_max,
+	&hf_sapsnc_qop_min,
+	NULL
+};
 
 /* Expert info */
 static expert_field ei_sapsnc_invalid_header_length;
@@ -117,12 +126,19 @@ dissect_sapsnc_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 	tvbuff_t *next_tvb = NULL;
 	uint8_t frame_type;
 	uint32_t header_length, ext_field_length, token_length = 0, data_length = 0;
-	proto_item *sapsnc_frame = NULL, *sapsnc_flags = NULL, *sapsnc_header_length = NULL;
-	proto_tree *sapsnc_frame_tree = NULL, *sapsnc_flags_tree = NULL;
+	int remaining;
+	proto_item *sapsnc_frame = NULL, *sapsnc_header_length = NULL;
+	proto_tree *sapsnc_frame_tree = NULL;
 
 	/* Add the SNC Frame subtree */
 	sapsnc_frame = proto_tree_add_item(tree, hf_sapsnc_frame, tvb, offset, -1, ENC_NA);
 	sapsnc_frame_tree = proto_item_add_subtree(sapsnc_frame, ett_sapsnc);
+
+	remaining = tvb_reported_length_remaining(tvb, offset);
+	if (remaining < (int)SAPSNC_FIXED_HEADER_LEN) {
+		expert_add_info_format(pinfo, sapsnc_frame, &ei_sapsnc_invalid_header_length, "SNC frame is shorter than %u bytes", SAPSNC_FIXED_HEADER_LEN);
+		return NULL;
+	}
 
 	/* Eye catcher */
 	proto_tree_add_item(sapsnc_frame_tree, hf_sapsnc_eye_catcher, tvb, offset, 8, ENC_ASCII);
@@ -138,6 +154,10 @@ dissect_sapsnc_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 
 	/* Header length */
 	sapsnc_header_length = proto_tree_add_item_ret_uint(sapsnc_frame_tree, hf_sapsnc_header_length, tvb, offset, 2, ENC_BIG_ENDIAN, &header_length);
+	if (header_length < 10) {
+		expert_add_info_format(pinfo, sapsnc_header_length, &ei_sapsnc_invalid_header_length, "Invalid header length %u", header_length);
+		return NULL;
+	}
 	/* We subtracts the 10 bytes of the header already processed */
 	header_length -= 10;
 
@@ -145,9 +165,12 @@ dissect_sapsnc_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 	if (header_length < 14){
 		expert_add_info_format(pinfo, sapsnc_header_length, &ei_sapsnc_invalid_header_length, "Invalid header length %u", header_length);
 		header_length = 14;
-	} else if ((uint32_t)tvb_reported_length_remaining(tvb, offset) < header_length) {
-		expert_add_info_format(pinfo, sapsnc_header_length, &ei_sapsnc_invalid_header_length, "Invalid captured length %d (reported %u)", tvb_reported_length_remaining(tvb, offset), header_length);
-		header_length = tvb_reported_length_remaining(tvb, offset);
+	} else {
+		remaining = tvb_reported_length_remaining(tvb, offset);
+		if (remaining < (int)header_length) {
+			expert_add_info_format(pinfo, sapsnc_header_length, &ei_sapsnc_invalid_header_length, "Invalid captured length %d (reported %u)", remaining, header_length);
+			header_length = remaining > 0 ? (uint32_t)remaining : 0;
+		}
 	}
 	offset+=2;
 	header_length-=2;
@@ -167,17 +190,11 @@ dissect_sapsnc_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 	offset+=2;
 	header_length-=2;
 
-	/* Build a tree for the flags */
-	sapsnc_flags = proto_tree_add_item(sapsnc_frame_tree, hf_sapsnc_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
-	sapsnc_flags_tree = proto_item_add_subtree(sapsnc_flags, ett_sapsnc);
-
+	proto_tree_add_item(sapsnc_frame_tree, hf_sapsnc_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=1;
 	header_length-=1; /* Unknown flags (1 byte) */
-	/* Unknown flag (1 bit) */
-	proto_tree_add_bits_item(sapsnc_flags_tree, hf_sapsnc_qop_use, tvb, offset*8 + 1, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_bits_item(sapsnc_flags_tree, hf_sapsnc_qop_max, tvb, offset*8 + 3, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_bits_item(sapsnc_flags_tree, hf_sapsnc_qop_min, tvb, offset*8 + 5, 2, ENC_BIG_ENDIAN);
-	/* Unknown flag (1 bit) */
+	proto_tree_add_bitmask(sapsnc_frame_tree, tvb, offset, hf_sapsnc_qop_flags, ett_sapsnc,
+			sapsnc_qop_fields, ENC_BIG_ENDIAN);
 
 	offset+=1;
 	header_length-=1;
@@ -200,13 +217,23 @@ dissect_sapsnc_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 	}
 
 	/* Token */
-	if (token_length > 0 && tvb_offset_exists(tvb, offset + token_length)) {
+	remaining = tvb_reported_length_remaining(tvb, offset);
+	if (token_length > 0 && remaining > 0) {
+		if ((uint32_t)remaining < token_length) {
+			expert_add_info_format(pinfo, sapsnc_frame, &ei_sapsnc_invalid_header_length, "SNC token length is invalid (remaining=%d, token_length=%u)", remaining, token_length);
+			token_length = (uint32_t)remaining;
+		}
 		proto_tree_add_item(sapsnc_frame_tree, hf_sapsnc_token, tvb, offset, token_length, ENC_NA);
 		offset+=token_length;
 	}
 
 	/* Data */
-	if (data_length > 0 && tvb_offset_exists(tvb, offset + data_length)) {
+	remaining = tvb_reported_length_remaining(tvb, offset);
+	if (data_length > 0 && remaining > 0) {
+		if ((uint32_t)remaining < data_length) {
+			expert_add_info_format(pinfo, sapsnc_frame, &ei_sapsnc_invalid_header_length, "SNC data length is invalid (remaining=%d, data_length=%u)", remaining, data_length);
+			data_length = (uint32_t)remaining;
+		}
 		proto_tree_add_item(sapsnc_frame_tree, hf_sapsnc_data, tvb, offset, data_length, ENC_NA);
 
 		/* If the frame contain data being wrapped or sealed, put it into a new tvb for
@@ -257,12 +284,14 @@ proto_register_sapsnc(void)
 			{ "SNC Mech ID", "sapsnc.frame.mech_id", FT_UINT16, BASE_HEX, VALS(sapsnc_mech_id_vals), 0x0, NULL, HFILL }},
 		{ &hf_sapsnc_flags,
 			{ "SNC Flags", "sapsnc.frame.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapsnc_qop_flags,
+			{ "SNC QOP Flags", "sapsnc.frame.qop_flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sapsnc_qop_min,
-			{ "SNC QOP Min", "sapsnc.frame.qop_min", FT_UINT8, BASE_HEX, VALS(sapsnc_qop_vals), 0x0, NULL, HFILL }},
+			{ "SNC QOP Min", "sapsnc.frame.qop_min", FT_UINT8, BASE_HEX, VALS(sapsnc_qop_vals), 0x06, NULL, HFILL }},
 		{ &hf_sapsnc_qop_max,
-			{ "SNC QOP Max", "sapsnc.frame.qop_max", FT_UINT8, BASE_HEX, VALS(sapsnc_qop_vals), 0x0, NULL, HFILL }},
+			{ "SNC QOP Max", "sapsnc.frame.qop_max", FT_UINT8, BASE_HEX, VALS(sapsnc_qop_vals), 0x18, NULL, HFILL }},
 		{ &hf_sapsnc_qop_use,
-			{ "SNC QOP Use", "sapsnc.frame.qop_use", FT_UINT8, BASE_HEX, VALS(sapsnc_qop_vals), 0x0, NULL, HFILL }},
+			{ "SNC QOP Use", "sapsnc.frame.qop_use", FT_UINT8, BASE_HEX, VALS(sapsnc_qop_vals), 0x60, NULL, HFILL }},
 		{ &hf_sapsnc_ext_flags,
 			{ "SNC Extensions Flags", "sapsnc.frame.ext_flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sapsnc_ext_field_length,

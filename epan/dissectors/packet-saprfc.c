@@ -25,6 +25,9 @@
 #define SAPRFC_DEFAULT_MAX_UNCOMPRESSED_SIZE (16U * 1024U * 1024U)
 #define SAPRFC_DEFAULT_MAX_REASSEMBLED_SIZE (16U * 1024U * 1024U)
 #define SAPRFC_TABLE_PREFIX_LENGTH 8U
+#define SAPRFC_APPC_HEADER_LEN 96U
+#define SAPRFC_NORMAL_CLIENT_HEADER_LEN_V1 64U
+#define SAPRFC_NORMAL_CLIENT_HEADER_LEN_V3 80U
 
 
 /* SAP RFC Request Types field values */
@@ -418,6 +421,7 @@ static expert_field ei_saprfc_invalid_decompress_length;
 static expert_field ei_saprfc_invalid_table_length;
 static expert_field ei_saprfc_item_length_invalid;
 static expert_field ei_saprfc_unknown_item;
+static expert_field ei_saprfc_short_appc_header;
 
 
 /* Global decompress preference */
@@ -1082,6 +1086,11 @@ dissect_saprfc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Get version and request type values */
+	if (tvb_reported_length_remaining(tvb, offset) < 2) {
+		saprfc = proto_tree_add_item(tree, proto_saprfc, tvb, 0, -1, ENC_NA);
+		expert_add_info_format(pinfo, saprfc, &ei_saprfc_item_length_invalid, "SAP RFC header is shorter than 2 bytes");
+		return tvb_reported_length(tvb);
+	}
 	version = tvb_get_uint8(tvb, offset);
 	req_type = tvb_get_uint8(tvb, offset + 1);
 
@@ -1093,6 +1102,11 @@ dissect_saprfc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		/* Add the main saprfc subtree */
 		saprfc = proto_tree_add_item(tree, proto_saprfc, tvb, 0, -1, ENC_NA);
 		saprfc_tree = proto_item_add_subtree(saprfc, ett_saprfc);
+		if (tvb_reported_length_remaining(tvb, offset) < (int)SAPRFC_APPC_HEADER_LEN) {
+			proto_tree_add_item(saprfc_tree, hf_saprfc_header, tvb, offset, -1, ENC_NA);
+			expert_add_info_format(pinfo, saprfc, &ei_saprfc_short_appc_header, "SAP RFC APPC header is shorter than %u bytes", SAPRFC_APPC_HEADER_LEN);
+			return tvb_reported_length(tvb);
+		}
 		dissect_saprfc_header(tvb, pinfo, saprfc_tree, offset);
 		return tvb_reported_length(tvb);
 	}
@@ -1109,12 +1123,18 @@ dissect_saprfc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	proto_item_append_text(saprfc_tree, ", Version=%u, Request Type=%s", version, val_to_str_const(req_type, saprfc_reqtype_values, "Unknown"));
 
 	/* Dissect the remaining based on the version and request type */
-	switch (req_type){
+		switch (req_type){
 
-		case 0x03:		/* GW_NORMAL_CLIENT */
-		case 0x0b:{		/* GW_REGISTER_TP */
-			proto_tree_add_item(saprfc_tree, hf_saprfc_address, tvb, offset, 4, ENC_BIG_ENDIAN);
-			offset += 4;
+			case 0x03:		/* GW_NORMAL_CLIENT */
+			case 0x0b:{		/* GW_REGISTER_TP */
+				unsigned header_len = (version == 0x03) ? SAPRFC_NORMAL_CLIENT_HEADER_LEN_V3 : SAPRFC_NORMAL_CLIENT_HEADER_LEN_V1;
+				int remaining = tvb_reported_length_remaining(tvb, 0);
+				if (remaining < (int)header_len) {
+					expert_add_info_format(pinfo, saprfc, &ei_saprfc_item_length_invalid, "SAP RFC normal client/register TP header is shorter than %u bytes", header_len);
+					return tvb_reported_length(tvb);
+				}
+				proto_tree_add_item(saprfc_tree, hf_saprfc_address, tvb, offset, 4, ENC_BIG_ENDIAN);
+				offset += 4;
 			offset += 4;  /* Skip 4 bytes here */
 			proto_tree_add_item(saprfc_tree, hf_saprfc_service, tvb, offset, 10, ENC_ASCII);
 			offset += 10;
@@ -1414,6 +1434,7 @@ proto_register_saprfc(void)
 		{ &ei_saprfc_invalid_table_length, { "saprfc.table.length.invalid", PI_MALFORMED, PI_WARN, "The table length is invalid", EXPFILL }},
 		{ &ei_saprfc_item_length_invalid, { "saprfc.item.value.invalid_length", PI_MALFORMED, PI_WARN, "The item length is invalid", EXPFILL }},
 		{ &ei_saprfc_unknown_item, { "saprfc.item.unknown", PI_UNDECODED, PI_WARN, "The RFC item has a unknown type that is not dissected", EXPFILL }},
+		{ &ei_saprfc_short_appc_header, { "saprfc.appcheader.short", PI_MALFORMED, PI_WARN, "SAP RFC APPC header is too short", EXPFILL }},
 	};
 
 	module_t *saprfc_module;

@@ -172,6 +172,7 @@ static int ett_sapenqueue;
 static expert_field ei_sapenqueue_pattern_invalid_length;
 static expert_field ei_sapenqueue_support_invalid_offset;
 static expert_field ei_sapenqueue_support_invalid_length;
+static expert_field ei_sapenqueue_invalid_length;
 
 /* Protocol handle */
 static dissector_handle_t sapenqueue_handle;
@@ -184,6 +185,19 @@ void proto_reg_handoff_sapenqueue(void);
 void proto_register_sapenqueue(void);
 
 
+static bool
+sapenqueue_check_length(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, uint32_t offset, int needed, const char *field_name)
+{
+	int remaining = tvb_reported_length_remaining(tvb, offset);
+
+	if (remaining < needed) {
+		expert_add_info_format(pinfo, item, &ei_sapenqueue_invalid_length, "%s is truncated (expected=%d, actual=%d)", field_name, needed, remaining > 0 ? remaining : 0);
+		return false;
+	}
+	return true;
+}
+
+
 static void
 dissect_sapenqueue_server_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset){
 	uint8_t opcode = 0;
@@ -192,6 +206,10 @@ dissect_sapenqueue_server_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	server_admin = proto_tree_add_item(tree, hf_sapenqueue_server_admin, tvb, offset, -1, ENC_NA);
 	server_admin_tree = proto_item_add_subtree(server_admin, ett_sapenqueue);
+
+	if (!sapenqueue_check_length(tvb, pinfo, server_admin, offset, 27, "Server admin header")) {
+		return;
+	}
 
 	proto_tree_add_item(server_admin_tree, hf_sapenqueue_server_admin_eyecatcher, tvb, offset, 4, ENC_ASCII);
 	offset += 4;
@@ -222,6 +240,10 @@ dissect_sapenqueue_server_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 				trace_request = proto_tree_add_item(server_admin_tree, hf_sapenqueue_server_admin_trace_request, tvb, offset, -1, ENC_NA);
 				trace_request_tree = proto_item_add_subtree(trace_request, ett_sapenqueue);
+
+				if (!sapenqueue_check_length(tvb, pinfo, trace_request, offset, 37, "Server admin trace request")) {
+					break;
+				}
 
 				proto_tree_add_item(trace_request_tree, hf_sapenqueue_server_admin_trace_protocol_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset += 1;
@@ -263,8 +285,9 @@ dissect_sapenqueue_server_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 					offset += 1;
 
 					/* Set the max length to the remaining of the packet, just in case a malformed packet arrives */
-					if (!tvb_offset_exists(tvb, offset + pattern_length)) {
-						pattern_length = (uint8_t)tvb_reported_length_remaining(tvb, offset);
+					if (tvb_reported_length_remaining(tvb, offset) < pattern_length) {
+						int remaining = tvb_reported_length_remaining(tvb, offset);
+						pattern_length = remaining > 0 ? (uint8_t)remaining : 0;
 						expert_add_info(pinfo, trace_request_pattern, &ei_sapenqueue_pattern_invalid_length);
 					}
 					proto_tree_add_item(trace_request_pattern_tree, hf_sapenqueue_server_admin_trace_pattern_value, tvb, offset, pattern_length, ENC_ASCII);
@@ -279,6 +302,9 @@ dissect_sapenqueue_server_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 				}
 				proto_item_set_len(trace_request_patterns, total_length);
 
+				if (!sapenqueue_check_length(tvb, pinfo, trace_request, offset, 4, "Server admin trace eyecatcher")) {
+					break;
+				}
 				proto_tree_add_item(trace_request_tree, hf_sapenqueue_server_admin_trace_eyecatcher, tvb, offset, 4, ENC_ASCII);
 				break;
 			}
@@ -309,6 +335,9 @@ dissect_sapenqueue_conn_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 			proto_item *params = NULL, *param = NULL;
 			proto_tree *params_tree = NULL, *param_tree = NULL;
 
+			if (!sapenqueue_check_length(tvb, pinfo, conn_admin, offset, 4, "Connection admin parameter count")) {
+				break;
+			}
 			proto_tree_add_item_ret_uint(conn_admin_tree, hf_sapenqueue_conn_admin_params_count, tvb, offset, 4, ENC_BIG_ENDIAN, &count);
 			offset += 4;
 
@@ -320,6 +349,9 @@ dissect_sapenqueue_conn_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 				param = proto_tree_add_item(params_tree, hf_sapenqueue_conn_admin_param, tvb, offset, 1, ENC_NA);
 				param_tree = proto_item_add_subtree(param, ett_sapenqueue);
 
+				if (!sapenqueue_check_length(tvb, pinfo, param, offset, 4, "Connection admin parameter id")) {
+					break;
+				}
 				proto_tree_add_item_ret_uint(param_tree, hf_sapenqueue_conn_admin_param_id, tvb, offset, 4, ENC_BIG_ENDIAN, &id);
 				offset += 4;
 				length = 4;
@@ -337,6 +369,9 @@ dissect_sapenqueue_conn_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 					} case 0x04:{  /* No support parameter */
 						/* This parameter appears to have more fields only for responses */
 						if (opcode == 0x02) {
+							if (!sapenqueue_check_length(tvb, pinfo, param, offset, 4, "Connection admin parameter value")) {
+								break;
+							}
 							proto_tree_add_item(param_tree, hf_sapenqueue_conn_admin_param_value, tvb, offset, 4, ENC_BIG_ENDIAN);
 							offset += 4;
 							length += 4;
@@ -344,6 +379,9 @@ dissect_sapenqueue_conn_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 						break;
 
 					} case 0x06:{  /* Set Unicode Support Parameter */
+						if (!sapenqueue_check_length(tvb, pinfo, param, offset, 4, "Connection admin parameter length")) {
+							break;
+						}
 						name_length = tvb_get_ntohl(tvb, offset);
 						proto_tree_add_item(param_tree, hf_sapenqueue_conn_admin_param_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 						offset += 4;
@@ -366,6 +404,9 @@ dissect_sapenqueue_conn_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 					} default: {
 						/* The rest of the parameters have an integer value field */
+						if (!sapenqueue_check_length(tvb, pinfo, param, offset, 4, "Connection admin parameter value")) {
+							break;
+						}
 						proto_tree_add_item(param_tree, hf_sapenqueue_conn_admin_param_value, tvb, offset, 4, ENC_BIG_ENDIAN);
 						offset += 4;
 						length += 4;
@@ -395,10 +436,10 @@ dissect_sapenqueue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 	proto_item *ti = NULL;
 	proto_tree *sapenqueue_tree = NULL;
 
-	/* If the packet has less than 20 bytes we can be sure that is not an
+	/* If the packet has less than 24 bytes we can be sure that is not an
 	 * Enqueue server packet.
 	 */
-	if (tvb_reported_length(tvb) < 20){
+	if (tvb_reported_length(tvb) < 24){
 		return 0;
 	}
 
@@ -463,6 +504,9 @@ dissect_sapenqueue_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	/* If the first 4 bytes are the magic bytes, we can guess that the
 	 * packet is a Enqueue server packet.
 	 */
+	if (tvb_reported_length(tvb) < 4) {
+		return false;
+	}
 	if (tvb_get_ntohl(tvb, 0) != 0xabcde123){
 		return false;
 	}
@@ -584,6 +628,7 @@ proto_register_sapenqueue(void)
 		{ &ei_sapenqueue_pattern_invalid_length, { "sapenqueue.server_admin.trace.pattern.length.invalid", PI_MALFORMED, PI_WARN, "The reported length is incorrect", EXPFILL }},
 		{ &ei_sapenqueue_support_invalid_offset, { "sapenqueue.conn_admin.params.param.offset.invalid", PI_MALFORMED, PI_ERROR, "Invalid offset", EXPFILL }},
 		{ &ei_sapenqueue_support_invalid_length, { "sapenqueue.conn_admin.params.param.length.invalid", PI_MALFORMED, PI_WARN, "The reported length is incorrect", EXPFILL }},
+		{ &ei_sapenqueue_invalid_length, { "sapenqueue.length.invalid", PI_MALFORMED, PI_WARN, "Invalid packet length", EXPFILL }},
 	};
 
 	expert_module_t* sapenqueue_expert;

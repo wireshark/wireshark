@@ -912,6 +912,7 @@ static int hf_sapdiag_dp_retcode;
 static int hf_sapdiag_dp_sender_id;
 static int hf_sapdiag_dp_action_type;
 static int hf_sapdiag_dp_req_info;
+static int hf_sapdiag_dp_req_info_byte;
 
 static int hf_sapdiag_dp_req_info_LOGIN;
 static int hf_sapdiag_dp_req_info_LOGOFF;
@@ -993,6 +994,7 @@ static int hf_sapdiag_item_ui_event_container;
 static int hf_sapdiag_item_menu_entry;
 
 /* Diag Support Bits */
+static int hf_sapdiag_support_bits;
 static int hf_SAPDIAG_SUPPORT_BIT_PROGRESS_INDICATOR;
 static int hf_SAPDIAG_SUPPORT_BIT_SAPGUI_LABELS;
 static int hf_SAPDIAG_SUPPORT_BIT_SAPGUI_DIAGVERSION;
@@ -1247,6 +1249,409 @@ static dissector_handle_t sapdiag_handle;
 void proto_register_sapdiag(void);
 void proto_reg_handoff_sapdiag(void);
 
+static int * const sapdiag_dp_req_info_0x08_flags[] = {
+	&hf_sapdiag_dp_req_info_LOGIN,
+	&hf_sapdiag_dp_req_info_LOGOFF,
+	&hf_sapdiag_dp_req_info_SHUTDOWN,
+	&hf_sapdiag_dp_req_info_GRAPHIC_TM,
+	&hf_sapdiag_dp_req_info_ALPHA_TM,
+	&hf_sapdiag_dp_req_info_ERROR_FROM_APPC,
+	&hf_sapdiag_dp_req_info_CANCELMODE,
+	&hf_sapdiag_dp_req_info_MSG_WITH_REQ_BUF,
+	NULL
+};
+
+static int * const sapdiag_dp_req_info_0x09_flags[] = {
+	&hf_sapdiag_dp_req_info_MSG_WITH_OH,
+	&hf_sapdiag_dp_req_info_BUFFER_REFRESH,
+	&hf_sapdiag_dp_req_info_BTC_SCHEDULER,
+	&hf_sapdiag_dp_req_info_APPC_SERVER_DOWN,
+	&hf_sapdiag_dp_req_info_MS_ERROR,
+	&hf_sapdiag_dp_req_info_SET_SYSTEM_USER,
+	&hf_sapdiag_dp_req_info_DP_CANT_HANDLE_REQ,
+	&hf_sapdiag_dp_req_info_DP_AUTO_ABAP,
+	NULL
+};
+
+static int * const sapdiag_dp_req_info_0x0a_flags[] = {
+	&hf_sapdiag_dp_req_info_DP_APPL_SERV_INFO,
+	&hf_sapdiag_dp_req_info_DP_ADMIN,
+	&hf_sapdiag_dp_req_info_DP_SPOOL_ALRM,
+	&hf_sapdiag_dp_req_info_DP_HAND_SHAKE,
+	&hf_sapdiag_dp_req_info_DP_CANCEL_PRIV,
+	&hf_sapdiag_dp_req_info_DP_RAISE_TIMEOUT,
+	&hf_sapdiag_dp_req_info_DP_NEW_MODE,
+	&hf_sapdiag_dp_req_info_DP_SOFT_CANCEL,
+	NULL
+};
+
+static int * const sapdiag_dp_req_info_0x0b_flags[] = {
+	&hf_sapdiag_dp_req_info_DP_TM_INPUT,
+	&hf_sapdiag_dp_req_info_DP_TM_OUTPUT,
+	&hf_sapdiag_dp_req_info_DP_ASYNC_RFC,
+	&hf_sapdiag_dp_req_info_DP_ICM_EVENT,
+	&hf_sapdiag_dp_req_info_DP_AUTO_TH,
+	&hf_sapdiag_dp_req_info_DP_RFC_CANCEL,
+	&hf_sapdiag_dp_req_info_DP_MS_ADM,
+	NULL
+};
+
+static int * const sapdiag_support_bits_0_7_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_PROGRESS_INDICATOR,
+	&hf_SAPDIAG_SUPPORT_BIT_SAPGUI_LABELS,
+	&hf_SAPDIAG_SUPPORT_BIT_SAPGUI_DIAGVERSION,
+	&hf_SAPDIAG_SUPPORT_BIT_SAPGUI_SELECT_RECT,
+	&hf_SAPDIAG_SUPPORT_BIT_SAPGUI_SYMBOL_RIGHT,
+	&hf_SAPDIAG_SUPPORT_BIT_SAPGUI_FONT_METRIC,
+	&hf_SAPDIAG_SUPPORT_BIT_SAPGUI_COMPR_ENHANCED,
+	&hf_SAPDIAG_SUPPORT_BIT_SAPGUI_IMODE,
+	NULL
+};
+
+static int * const sapdiag_support_bits_8_15_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_SAPGUI_LONG_MESSAGE,
+	&hf_SAPDIAG_SUPPORT_BIT_SAPGUI_TABLE,
+	&hf_SAPDIAG_SUPPORT_BIT_SAPGUI_FOCUS_1,
+	&hf_SAPDIAG_SUPPORT_BIT_SAPGUI_PUSHBUTTON_1,
+	&hf_SAPDIAG_SUPPORT_BIT_UPPERCASE,
+	&hf_SAPDIAG_SUPPORT_BIT_SAPGUI_TABPROPERTY,
+	&hf_SAPDIAG_SUPPORT_BIT_INPUT_UPPERCASE,
+	&hf_SAPDIAG_SUPPORT_BIT_RFC_DIALOG,
+	NULL
+};
+
+static int * const sapdiag_support_bits_16_23_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_LIST_HOTSPOT,
+	&hf_SAPDIAG_SUPPORT_BIT_FKEY_TABLE,
+	&hf_SAPDIAG_SUPPORT_BIT_MENU_SHORTCUT,
+	&hf_SAPDIAG_SUPPORT_BIT_STOP_TRANS,
+	&hf_SAPDIAG_SUPPORT_BIT_FULL_MENU,
+	&hf_SAPDIAG_SUPPORT_BIT_OBJECT_NAMES,
+	&hf_SAPDIAG_SUPPORT_BIT_CONTAINER_TYPE,
+	&hf_SAPDIAG_SUPPORT_BIT_DLGH_FLAGS,
+	NULL
+};
+
+static int * const sapdiag_support_bits_24_31_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_APPL_MNU,
+	&hf_SAPDIAG_SUPPORT_BIT_MESSAGE_INFO,
+	&hf_SAPDIAG_SUPPORT_BIT_MESDUM_FLAG1,
+	&hf_SAPDIAG_SUPPORT_BIT_TABSEL_ATTRIB,
+	&hf_SAPDIAG_SUPPORT_BIT_GUIAPI,
+	&hf_SAPDIAG_SUPPORT_BIT_NOGRAPH,
+	&hf_SAPDIAG_SUPPORT_BIT_NOMESSAGES,
+	&hf_SAPDIAG_SUPPORT_BIT_NORABAX,
+	NULL
+};
+
+static int * const sapdiag_support_bits_32_39_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_NOSYSMSG,
+	&hf_SAPDIAG_SUPPORT_BIT_NOSAPSCRIPT,
+	&hf_SAPDIAG_SUPPORT_BIT_NORFC,
+	&hf_SAPDIAG_SUPPORT_BIT_NEW_BSD_JUSTRIGHT,
+	&hf_SAPDIAG_SUPPORT_BIT_MESSAGE_VARS,
+	&hf_SAPDIAG_SUPPORT_BIT_OCX_SUPPORT,
+	&hf_SAPDIAG_SUPPORT_BIT_SCROLL_INFOS,
+	&hf_SAPDIAG_SUPPORT_BIT_TABLE_SIZE_OK,
+	NULL
+};
+
+static int * const sapdiag_support_bits_40_47_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_MESSAGE_INFO2,
+	&hf_SAPDIAG_SUPPORT_BIT_VARINFO_OKCODE,
+	&hf_SAPDIAG_SUPPORT_BIT_CURR_TCODE,
+	&hf_SAPDIAG_SUPPORT_BIT_CONN_WSIZE,
+	&hf_SAPDIAG_SUPPORT_BIT_PUSHBUTTON_2,
+	&hf_SAPDIAG_SUPPORT_BIT_TABSTRIP,
+	&hf_SAPDIAG_SUPPORT_BIT_UNKNOWN_1,
+	&hf_SAPDIAG_SUPPORT_BIT_TABSCROLL_INFOS,
+	NULL
+};
+
+static int * const sapdiag_support_bits_48_55_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_TABLE_FIELD_NAMES,
+	&hf_SAPDIAG_SUPPORT_BIT_NEW_MODE_REQUEST,
+	&hf_SAPDIAG_SUPPORT_BIT_RFCBLOB_DIAG_PARSER,
+	&hf_SAPDIAG_SUPPORT_BIT_MULTI_LOGIN_USER,
+	&hf_SAPDIAG_SUPPORT_BIT_CONTROL_CONTAINER,
+	&hf_SAPDIAG_SUPPORT_BIT_APPTOOLBAR_FIXED,
+	&hf_SAPDIAG_SUPPORT_BIT_R3INFO_USER_CHECKED,
+	&hf_SAPDIAG_SUPPORT_BIT_NEED_STDDYNPRO,
+	NULL
+};
+
+static int * const sapdiag_support_bits_56_63_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_TYPE_SERVER,
+	&hf_SAPDIAG_SUPPORT_BIT_COMBOBOX,
+	&hf_SAPDIAG_SUPPORT_BIT_INPUT_REQUIRED,
+	&hf_SAPDIAG_SUPPORT_BIT_ISO_LANGUAGE,
+	&hf_SAPDIAG_SUPPORT_BIT_COMBOBOX_TABLE,
+	&hf_SAPDIAG_SUPPORT_BIT_R3INFO_FLAGS,
+	&hf_SAPDIAG_SUPPORT_BIT_CHECKRADIO_EVENTS,
+	&hf_SAPDIAG_SUPPORT_BIT_R3INFO_USERID,
+	NULL
+};
+
+static int * const sapdiag_support_bits_64_71_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_R3INFO_ROLLCOUNT,
+	&hf_SAPDIAG_SUPPORT_BIT_USER_TURNTIME2,
+	&hf_SAPDIAG_SUPPORT_BIT_NUM_FIELD,
+	&hf_SAPDIAG_SUPPORT_BIT_WIN16,
+	&hf_SAPDIAG_SUPPORT_BIT_CONTEXT_MENU,
+	&hf_SAPDIAG_SUPPORT_BIT_SCROLLABLE_TABSTRIP_PAGE,
+	&hf_SAPDIAG_SUPPORT_BIT_EVENT_DESCRIPTION,
+	&hf_SAPDIAG_SUPPORT_BIT_LABEL_OWNER,
+	NULL
+};
+
+static int * const sapdiag_support_bits_72_79_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_CLICKABLE_FIELD,
+	&hf_SAPDIAG_SUPPORT_BIT_PROPERTY_BAG,
+	&hf_SAPDIAG_SUPPORT_BIT_UNUSED_1,
+	&hf_SAPDIAG_SUPPORT_BIT_TABLE_ROW_REFERENCES_2,
+	&hf_SAPDIAG_SUPPORT_BIT_PROPFONT_VALID,
+	&hf_SAPDIAG_SUPPORT_BIT_VARINFO_CONTAINER,
+	&hf_SAPDIAG_SUPPORT_BIT_R3INFO_IMODEUUID,
+	&hf_SAPDIAG_SUPPORT_BIT_NOTGUI,
+	NULL
+};
+
+static int * const sapdiag_support_bits_80_87_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_WAN,
+	&hf_SAPDIAG_SUPPORT_BIT_XML_BLOBS,
+	&hf_SAPDIAG_SUPPORT_BIT_RFC_QUEUE,
+	&hf_SAPDIAG_SUPPORT_BIT_RFC_COMPRESS,
+	&hf_SAPDIAG_SUPPORT_BIT_JAVA_BEANS,
+	&hf_SAPDIAG_SUPPORT_BIT_DPLOADONDEMAND,
+	&hf_SAPDIAG_SUPPORT_BIT_CTL_PROPCACHE,
+	&hf_SAPDIAG_SUPPORT_BIT_ENJOY_IMODEUUID,
+	NULL
+};
+
+static int * const sapdiag_support_bits_88_95_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_RFC_ASYNC_BLOB,
+	&hf_SAPDIAG_SUPPORT_BIT_KEEP_SCROLLPOS,
+	&hf_SAPDIAG_SUPPORT_BIT_UNUSED_2,
+	&hf_SAPDIAG_SUPPORT_BIT_UNUSED_3,
+	&hf_SAPDIAG_SUPPORT_BIT_XML_PROPERTIES,
+	&hf_SAPDIAG_SUPPORT_BIT_UNUSED_4,
+	&hf_SAPDIAG_SUPPORT_BIT_HEX_FIELD,
+	&hf_SAPDIAG_SUPPORT_BIT_HAS_CACHE,
+	NULL
+};
+
+static int * const sapdiag_support_bits_96_103_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_XML_PROP_TABLE,
+	&hf_SAPDIAG_SUPPORT_BIT_UNUSED_5,
+	&hf_SAPDIAG_SUPPORT_BIT_ENJOY_IMODEUUID2,
+	&hf_SAPDIAG_SUPPORT_BIT_ITS,
+	&hf_SAPDIAG_SUPPORT_BIT_NO_EASYACCESS,
+	&hf_SAPDIAG_SUPPORT_BIT_PROPERTYPUMP,
+	&hf_SAPDIAG_SUPPORT_BIT_COOKIE,
+	&hf_SAPDIAG_SUPPORT_BIT_UNUSED_6,
+	NULL
+};
+
+static int * const sapdiag_support_bits_104_111_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_SUPPBIT_AREA_SIZE,
+	&hf_SAPDIAG_SUPPORT_BIT_DPLOADONDEMAND_WRITE,
+	&hf_SAPDIAG_SUPPORT_BIT_CONTROL_FOCUS,
+	&hf_SAPDIAG_SUPPORT_BIT_ENTRY_HISTORY,
+	&hf_SAPDIAG_SUPPORT_BIT_AUTO_CODEPAGE,
+	&hf_SAPDIAG_SUPPORT_BIT_CACHED_VSETS,
+	&hf_SAPDIAG_SUPPORT_BIT_EMERGENCY_REPAIR,
+	&hf_SAPDIAG_SUPPORT_BIT_AREA2FRONT,
+	NULL
+};
+
+static int * const sapdiag_support_bits_112_119_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_SCROLLBAR_WIDTH,
+	&hf_SAPDIAG_SUPPORT_BIT_AUTORESIZE,
+	&hf_SAPDIAG_SUPPORT_BIT_EDIT_VARLEN,
+	&hf_SAPDIAG_SUPPORT_BIT_WORKPLACE,
+	&hf_SAPDIAG_SUPPORT_BIT_PRINTDATA,
+	&hf_SAPDIAG_SUPPORT_BIT_UNKNOWN_2,
+	&hf_SAPDIAG_SUPPORT_BIT_SINGLE_SESSION,
+	&hf_SAPDIAG_SUPPORT_BIT_NOTIFY_NEWMODE,
+	NULL
+};
+
+static int * const sapdiag_support_bits_120_127_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_TOOLBAR_HEIGHT,
+	&hf_SAPDIAG_SUPPORT_BIT_XMLPROP_CONTAINER,
+	&hf_SAPDIAG_SUPPORT_BIT_XMLPROP_DYNPRO,
+	&hf_SAPDIAG_SUPPORT_BIT_DP_HTTP_PUT,
+	&hf_SAPDIAG_SUPPORT_BIT_DYNAMIC_PASSPORT,
+	&hf_SAPDIAG_SUPPORT_BIT_WEBGUI,
+	&hf_SAPDIAG_SUPPORT_BIT_WEBGUI_HELPMODE,
+	&hf_SAPDIAG_SUPPORT_BIT_CONTROL_FOCUS_ON_LIST,
+	NULL
+};
+
+static int * const sapdiag_support_bits_128_135_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_CBU_RBUDUMMY_2,
+	&hf_SAPDIAG_SUPPORT_BIT_EOKDUMMY_1,
+	&hf_SAPDIAG_SUPPORT_BIT_GUI_USER_SCRIPTING,
+	&hf_SAPDIAG_SUPPORT_BIT_SLC,
+	&hf_SAPDIAG_SUPPORT_BIT_ACCESSIBILITY,
+	&hf_SAPDIAG_SUPPORT_BIT_ECATT,
+	&hf_SAPDIAG_SUPPORT_BIT_ENJOY_IMODEUUID3,
+	&hf_SAPDIAG_SUPPORT_BIT_ENABLE_UTF8,
+	NULL
+};
+
+static int * const sapdiag_support_bits_136_143_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_R3INFO_AUTOLOGOUT_TIME,
+	&hf_SAPDIAG_SUPPORT_BIT_VARINFO_ICON_TITLE_LIST,
+	&hf_SAPDIAG_SUPPORT_BIT_ENABLE_UTF16BE,
+	&hf_SAPDIAG_SUPPORT_BIT_ENABLE_UTF16LE,
+	&hf_SAPDIAG_SUPPORT_BIT_R3INFO_CODEPAGE_APP,
+	&hf_SAPDIAG_SUPPORT_BIT_ENABLE_APPL4,
+	&hf_SAPDIAG_SUPPORT_BIT_GUIPATCHLEVEL,
+	&hf_SAPDIAG_SUPPORT_BIT_CBURBU_NEW_STATE,
+	NULL
+};
+
+static int * const sapdiag_support_bits_144_151_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_BINARY_EVENTID,
+	&hf_SAPDIAG_SUPPORT_BIT_GUI_THEME,
+	&hf_SAPDIAG_SUPPORT_BIT_TOP_WINDOW,
+	&hf_SAPDIAG_SUPPORT_BIT_EVENT_DESCRIPTION_1,
+	&hf_SAPDIAG_SUPPORT_BIT_SPLITTER,
+	&hf_SAPDIAG_SUPPORT_BIT_VALUE_4_HISTORY,
+	&hf_SAPDIAG_SUPPORT_BIT_ACC_LIST,
+	&hf_SAPDIAG_SUPPORT_BIT_GUI_USER_SCRIPTING_INFO,
+	NULL
+};
+
+static int * const sapdiag_support_bits_152_159_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_TEXTEDIT_STREAM,
+	&hf_SAPDIAG_SUPPORT_BIT_DYNT_NOFOCUS,
+	&hf_SAPDIAG_SUPPORT_BIT_R3INFO_CODEPAGE_APP_1,
+	&hf_SAPDIAG_SUPPORT_BIT_FRAME_1,
+	&hf_SAPDIAG_SUPPORT_BIT_TICKET4GUI,
+	&hf_SAPDIAG_SUPPORT_BIT_ACC_LIST_PROPS,
+	&hf_SAPDIAG_SUPPORT_BIT_TABSEL_ATTRIB_INPUT,
+	&hf_SAPDIAG_SUPPORT_BIT_DEFAULT_TOOLTIP,
+	NULL
+};
+
+static int * const sapdiag_support_bits_160_167_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_XML_PROP_TABLE_2,
+	&hf_SAPDIAG_SUPPORT_BIT_CBU_RBUDUMMY_3,
+	&hf_SAPDIAG_SUPPORT_BIT_CELLINFO,
+	&hf_SAPDIAG_SUPPORT_BIT_CONTROL_FOCUS_ON_LIST_2,
+	&hf_SAPDIAG_SUPPORT_BIT_TABLE_COLUMNWIDTH_INPUT,
+	&hf_SAPDIAG_SUPPORT_BIT_ITS_PLUGIN,
+	&hf_SAPDIAG_SUPPORT_BIT_OBJECT_NAMES_4_LOGIN_PROCESS,
+	&hf_SAPDIAG_SUPPORT_BIT_RFC_SERVER_4_GUI,
+	NULL
+};
+
+static int * const sapdiag_support_bits_168_175_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_R3INFO_FLAGS_2,
+	&hf_SAPDIAG_SUPPORT_BIT_RCUI,
+	&hf_SAPDIAG_SUPPORT_BIT_MENUENTRY_WITH_FCODE,
+	&hf_SAPDIAG_SUPPORT_BIT_WEBSAPCONSOLE,
+	&hf_SAPDIAG_SUPPORT_BIT_R3INFO_KERNEL_VERSION,
+	&hf_SAPDIAG_SUPPORT_BIT_VARINFO_CONTAINER_LOOP,
+	&hf_SAPDIAG_SUPPORT_BIT_EOKDUMMY_2,
+	&hf_SAPDIAG_SUPPORT_BIT_MESSAGE_INFO3,
+	NULL
+};
+
+static int * const sapdiag_support_bits_176_183_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_SBA2,
+	&hf_SAPDIAG_SUPPORT_BIT_MAINAREA_SIZE,
+	&hf_SAPDIAG_SUPPORT_BIT_GUIPATCHLEVEL_2,
+	&hf_SAPDIAG_SUPPORT_BIT_DISPLAY_SIZE,
+	&hf_SAPDIAG_SUPPORT_BIT_GUI_PACKET,
+	&hf_SAPDIAG_SUPPORT_BIT_DIALOG_STEP_NUMBER,
+	&hf_SAPDIAG_SUPPORT_BIT_TC_KEEP_SCROLL_POSITION,
+	&hf_SAPDIAG_SUPPORT_BIT_MESSAGE_SERVICE_REQUEST,
+	NULL
+};
+
+static int * const sapdiag_support_bits_184_191_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_DYNT_FOCUS_FRAME,
+	&hf_SAPDIAG_SUPPORT_BIT_MAX_STRING_LEN,
+	&hf_SAPDIAG_SUPPORT_BIT_VARINFO_CONTAINER_1,
+	&hf_SAPDIAG_SUPPORT_BIT_STD_TOOLBAR_ITEMS,
+	&hf_SAPDIAG_SUPPORT_BIT_XMLPROP_LIST_DYNPRO,
+	&hf_SAPDIAG_SUPPORT_BIT_TRACE_GUI_CONNECT,
+	&hf_SAPDIAG_SUPPORT_BIT_LIST_FULLWIDTH,
+	&hf_SAPDIAG_SUPPORT_BIT_ALLWAYS_SEND_CLIENT,
+	NULL
+};
+
+static int * const sapdiag_support_bits_192_199_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_UNKNOWN_3,
+	&hf_SAPDIAG_SUPPORT_BIT_GUI_SIGNATURE_COLOR,
+	&hf_SAPDIAG_SUPPORT_BIT_MAX_WSIZE,
+	&hf_SAPDIAG_SUPPORT_BIT_SAP_PERSONAS,
+	&hf_SAPDIAG_SUPPORT_BIT_IDA_ALV,
+	&hf_SAPDIAG_SUPPORT_BIT_IDA_ALV_FRAGMENTS,
+	&hf_SAPDIAG_SUPPORT_BIT_AMC,
+	&hf_SAPDIAG_SUPPORT_BIT_EXTMODE_FONT_METRIC,
+	NULL
+};
+
+static int * const sapdiag_support_bits_200_207_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_GROUPBOX,
+	&hf_SAPDIAG_SUPPORT_BIT_AGI_ID_TS_BUTTON,
+	&hf_SAPDIAG_SUPPORT_BIT_NO_FOCUS_ON_LIST,
+	&hf_SAPDIAG_SUPPORT_BIT_FIORI_MODE,
+	&hf_SAPDIAG_SUPPORT_BIT_CONNECT_CHECK_DONE,
+	&hf_SAPDIAG_SUPPORT_BIT_MSGINFO_WITH_CODEPAGE,
+	&hf_SAPDIAG_SUPPORT_BIT_AGI_ID,
+	&hf_SAPDIAG_SUPPORT_BIT_AGI_ID_TC,
+	NULL
+};
+
+static int * const sapdiag_support_bits_208_214_fields[] = {
+	&hf_SAPDIAG_SUPPORT_BIT_FIORI_TOOLBARS,
+	&hf_SAPDIAG_SUPPORT_BIT_OBJECT_NAMES_ENFORCE,
+	&hf_SAPDIAG_SUPPORT_BIT_MESDUMMY_FLAGS_2_3,
+	&hf_SAPDIAG_SUPPORT_BIT_NWBC,
+	&hf_SAPDIAG_SUPPORT_BIT_CONTAINER_LIST,
+	&hf_SAPDIAG_SUPPORT_BIT_GUI_SYSTEM_COLOR,
+	&hf_SAPDIAG_SUPPORT_BIT_GROUPBOX_WITHOUT_BOTTOMLINE,
+	NULL
+};
+
+static int * const sapdiag_dynt_atom_item_attr_fields[] = {
+	&hf_sapdiag_item_dynt_atom_item_attr_DIAG_BSD_PROTECTED,
+	&hf_sapdiag_item_dynt_atom_item_attr_DIAG_BSD_INVISIBLE,
+	&hf_sapdiag_item_dynt_atom_item_attr_DIAG_BSD_INTENSIFY,
+	&hf_sapdiag_item_dynt_atom_item_attr_DIAG_BSD_JUSTRIGHT,
+	&hf_sapdiag_item_dynt_atom_item_attr_DIAG_BSD_MATCHCODE,
+	&hf_sapdiag_item_dynt_atom_item_attr_DIAG_BSD_PROPFONT,
+	&hf_sapdiag_item_dynt_atom_item_attr_DIAG_BSD_YES3D,
+	&hf_sapdiag_item_dynt_atom_item_attr_DIAG_BSD_COMBOSTYLE,
+	NULL
+};
+
+static int * const sapdiag_ui_event_valid_fields[] = {
+	&hf_sapdiag_item_ui_event_valid_MENU_POS,
+	&hf_sapdiag_item_ui_event_valid_CONTROL_POS,
+	&hf_sapdiag_item_ui_event_valid_NAVIGATION_DATA,
+	&hf_sapdiag_item_ui_event_valid_FUNCTIONKEY_DATA,
+	NULL
+};
+
+static int * const sapdiag_com_flag_fields[] = {
+	&hf_sapdiag_com_flag_TERM_EOS,
+	&hf_sapdiag_com_flag_TERM_EOC,
+	&hf_sapdiag_com_flag_TERM_NOP,
+	&hf_sapdiag_com_flag_TERM_EOP,
+	&hf_sapdiag_com_flag_TERM_INI,
+	&hf_sapdiag_com_flag_TERM_CAS,
+	&hf_sapdiag_com_flag_TERM_NNM,
+	&hf_sapdiag_com_flag_TERM_GRA,
+	NULL
+};
+
+
 
 static void
 dissect_sapdiag_dp_req_info(tvbuff_t *tvb, proto_tree *tree, uint32_t offset){
@@ -1255,44 +1660,20 @@ dissect_sapdiag_dp_req_info(tvbuff_t *tvb, proto_tree *tree, uint32_t offset){
 
 	ri = proto_tree_add_item(tree, hf_sapdiag_dp_req_info, tvb, offset, 4, ENC_BIG_ENDIAN);
 	req_info_tree = proto_item_add_subtree(ri, ett_sapdiag);
-
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_LOGIN, tvb, offset, 1, ENC_BIG_ENDIAN);		/* 0x08 */
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_LOGOFF, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_SHUTDOWN, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_GRAPHIC_TM, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_ALPHA_TM, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_ERROR_FROM_APPC, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_CANCELMODE, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_MSG_WITH_REQ_BUF, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask(req_info_tree, tvb, offset,
+			hf_sapdiag_dp_req_info_byte, ett_sapdiag, sapdiag_dp_req_info_0x08_flags, ENC_BIG_ENDIAN);		/* 0x08 */
 	offset++;
 
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_MSG_WITH_OH, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 0x09 */
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_BUFFER_REFRESH, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_BTC_SCHEDULER, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_APPC_SERVER_DOWN, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_MS_ERROR, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_SET_SYSTEM_USER, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_DP_CANT_HANDLE_REQ, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_DP_AUTO_ABAP, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask(req_info_tree, tvb, offset,
+			hf_sapdiag_dp_req_info_byte, ett_sapdiag, sapdiag_dp_req_info_0x09_flags, ENC_BIG_ENDIAN);  /* 0x09 */
 	offset++;
 
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_DP_APPL_SERV_INFO, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 0x0a */
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_DP_ADMIN, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_DP_SPOOL_ALRM, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_DP_HAND_SHAKE, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_DP_CANCEL_PRIV, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_DP_RAISE_TIMEOUT, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_DP_NEW_MODE, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_DP_SOFT_CANCEL, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask(req_info_tree, tvb, offset,
+			hf_sapdiag_dp_req_info_byte, ett_sapdiag, sapdiag_dp_req_info_0x0a_flags, ENC_BIG_ENDIAN);  /* 0x0a */
 	offset++;
 
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_DP_TM_INPUT, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 0x0b */
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_DP_TM_OUTPUT, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_DP_ASYNC_RFC, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_DP_ICM_EVENT, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_DP_AUTO_TH, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_DP_RFC_CANCEL, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(req_info_tree, hf_sapdiag_dp_req_info_DP_MS_ADM, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask(req_info_tree, tvb, offset,
+			hf_sapdiag_dp_req_info_byte, ett_sapdiag, sapdiag_dp_req_info_0x0b_flags, ENC_BIG_ENDIAN);  /* 0x0b */
 }
 
 static void
@@ -1339,247 +1720,86 @@ dissect_sapdiag_dp(tvbuff_t *tvb, proto_tree *tree, uint32_t offset){
 static void
 dissect_sapdiag_support_bits(tvbuff_t *tvb, proto_tree *tree, uint32_t offset){
 
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_PROGRESS_INDICATOR, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 0 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SAPGUI_LABELS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 1 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SAPGUI_DIAGVERSION, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 2 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SAPGUI_SELECT_RECT, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 3 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SAPGUI_SYMBOL_RIGHT, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 4 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SAPGUI_FONT_METRIC, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 5 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SAPGUI_COMPR_ENHANCED, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 6 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SAPGUI_IMODE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 7 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_0_7_fields, ENC_BIG_ENDIAN);  /* 0-7 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SAPGUI_LONG_MESSAGE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 8 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SAPGUI_TABLE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 9 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SAPGUI_FOCUS_1, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 10 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SAPGUI_PUSHBUTTON_1, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 11 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_UPPERCASE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 12 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SAPGUI_TABPROPERTY, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 13 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_INPUT_UPPERCASE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 14 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_RFC_DIALOG, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 15 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_8_15_fields, ENC_BIG_ENDIAN);  /* 8-15 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_LIST_HOTSPOT, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 16 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_FKEY_TABLE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 17 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_MENU_SHORTCUT, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 18 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_STOP_TRANS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 19 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_FULL_MENU, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 20 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_OBJECT_NAMES, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 21 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_CONTAINER_TYPE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 22 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_DLGH_FLAGS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 23 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_16_23_fields, ENC_BIG_ENDIAN);  /* 16-23 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_APPL_MNU, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 24 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_MESSAGE_INFO, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 25 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_MESDUM_FLAG1, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 26 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_TABSEL_ATTRIB, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 27 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_GUIAPI, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 28 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_NOGRAPH, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 29 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_NOMESSAGES, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 30 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_NORABAX, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 31 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_24_31_fields, ENC_BIG_ENDIAN);  /* 24-31 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_NOSYSMSG, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 32 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_NOSAPSCRIPT, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 33 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_NORFC, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 34 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_NEW_BSD_JUSTRIGHT, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 35 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_MESSAGE_VARS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 36 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_OCX_SUPPORT, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 37 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SCROLL_INFOS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 38 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_TABLE_SIZE_OK, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 39 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_32_39_fields, ENC_BIG_ENDIAN);  /* 32-39 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_MESSAGE_INFO2, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 40 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_VARINFO_OKCODE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 41 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_CURR_TCODE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 42 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_CONN_WSIZE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 43 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_PUSHBUTTON_2, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 44 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_TABSTRIP, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 45 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_UNKNOWN_1, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 46 (Unknown support bit) */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_TABSCROLL_INFOS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 47 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_40_47_fields, ENC_BIG_ENDIAN);  /* 40-47 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_TABLE_FIELD_NAMES, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 48 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_NEW_MODE_REQUEST, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 49 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_RFCBLOB_DIAG_PARSER, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 50 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_MULTI_LOGIN_USER, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 51 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_CONTROL_CONTAINER, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 52 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_APPTOOLBAR_FIXED, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 53 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_R3INFO_USER_CHECKED, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 54 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_NEED_STDDYNPRO, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 55 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_48_55_fields, ENC_BIG_ENDIAN);  /* 48-55 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_TYPE_SERVER, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 56 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_COMBOBOX, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 57 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_INPUT_REQUIRED, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 58 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_ISO_LANGUAGE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 59 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_COMBOBOX_TABLE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 60 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_R3INFO_FLAGS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 61 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_CHECKRADIO_EVENTS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 62 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_R3INFO_USERID, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 63 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_56_63_fields, ENC_BIG_ENDIAN);  /* 56-63 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_R3INFO_ROLLCOUNT, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 64 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_USER_TURNTIME2, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 65 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_NUM_FIELD, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 66 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_WIN16, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 67 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_CONTEXT_MENU, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 68 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SCROLLABLE_TABSTRIP_PAGE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 69 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_EVENT_DESCRIPTION, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 70 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_LABEL_OWNER, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 71 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_64_71_fields, ENC_BIG_ENDIAN);  /* 64-71 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_CLICKABLE_FIELD, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 72 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_PROPERTY_BAG, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 73 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_UNUSED_1, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 74 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_TABLE_ROW_REFERENCES_2, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 75 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_PROPFONT_VALID, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 76 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_VARINFO_CONTAINER, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 77 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_R3INFO_IMODEUUID, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 78 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_NOTGUI, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 79 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_72_79_fields, ENC_BIG_ENDIAN);  /* 72-79 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_WAN, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 80 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_XML_BLOBS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 81 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_RFC_QUEUE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 82 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_RFC_COMPRESS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 83 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_JAVA_BEANS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 84 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_DPLOADONDEMAND, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 85 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_CTL_PROPCACHE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 86 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_ENJOY_IMODEUUID, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 87 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_80_87_fields, ENC_BIG_ENDIAN);  /* 80-87 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_RFC_ASYNC_BLOB, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 88 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_KEEP_SCROLLPOS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 89 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_UNUSED_2, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 90 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_UNUSED_3, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 91 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_XML_PROPERTIES, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 92 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_UNUSED_4, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 93 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_HEX_FIELD, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 94 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_HAS_CACHE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 95 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_88_95_fields, ENC_BIG_ENDIAN);  /* 88-95 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_XML_PROP_TABLE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 96 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_UNUSED_5, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 97 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_ENJOY_IMODEUUID2, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 98 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_ITS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 99 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_NO_EASYACCESS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 100 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_PROPERTYPUMP, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 101 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_COOKIE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 102 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_UNUSED_6, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 103 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_96_103_fields, ENC_BIG_ENDIAN);  /* 96-103 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SUPPBIT_AREA_SIZE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 104 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_DPLOADONDEMAND_WRITE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 105 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_CONTROL_FOCUS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 106 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_ENTRY_HISTORY, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 107 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_AUTO_CODEPAGE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 108 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_CACHED_VSETS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 109 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_EMERGENCY_REPAIR, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 110 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_AREA2FRONT, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 111 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_104_111_fields, ENC_BIG_ENDIAN);  /* 104-111 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SCROLLBAR_WIDTH, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 112 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_AUTORESIZE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 113 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_EDIT_VARLEN, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 114 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_WORKPLACE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 115 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_PRINTDATA, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 116 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_UNKNOWN_2, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 117 (Unknown support bit) */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SINGLE_SESSION, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 118 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_NOTIFY_NEWMODE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 119 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_112_119_fields, ENC_BIG_ENDIAN);  /* 112-119 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_TOOLBAR_HEIGHT, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 120 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_XMLPROP_CONTAINER, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 121 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_XMLPROP_DYNPRO, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 122 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_DP_HTTP_PUT, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 123 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_DYNAMIC_PASSPORT, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 124 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_WEBGUI, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 125 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_WEBGUI_HELPMODE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 126 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_CONTROL_FOCUS_ON_LIST, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 127 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_120_127_fields, ENC_BIG_ENDIAN);  /* 120-127 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_CBU_RBUDUMMY_2, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 128 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_EOKDUMMY_1, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 129 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_GUI_USER_SCRIPTING, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 130 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SLC, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 131 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_ACCESSIBILITY, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 132 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_ECATT, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 133 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_ENJOY_IMODEUUID3, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 134 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_ENABLE_UTF8, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 135 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_128_135_fields, ENC_BIG_ENDIAN);  /* 128-135 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_R3INFO_AUTOLOGOUT_TIME, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 136 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_VARINFO_ICON_TITLE_LIST, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 137 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_ENABLE_UTF16BE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 138 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_ENABLE_UTF16LE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 139 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_R3INFO_CODEPAGE_APP, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 140 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_ENABLE_APPL4, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 141 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_GUIPATCHLEVEL, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 142 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_CBURBU_NEW_STATE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 143 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_136_143_fields, ENC_BIG_ENDIAN);  /* 136-143 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_BINARY_EVENTID, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 144 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_GUI_THEME, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 145 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_TOP_WINDOW, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 146 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_EVENT_DESCRIPTION_1, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 147 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SPLITTER, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 148 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_VALUE_4_HISTORY, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 149 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_ACC_LIST, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 150 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_GUI_USER_SCRIPTING_INFO, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 151 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_144_151_fields, ENC_BIG_ENDIAN);  /* 144-151 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_TEXTEDIT_STREAM, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 152 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_DYNT_NOFOCUS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 153 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_R3INFO_CODEPAGE_APP_1, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 154 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_FRAME_1, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 155 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_TICKET4GUI, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 156 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_ACC_LIST_PROPS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 157 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_TABSEL_ATTRIB_INPUT, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 158 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_DEFAULT_TOOLTIP, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 159 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_152_159_fields, ENC_BIG_ENDIAN);  /* 152-159 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_XML_PROP_TABLE_2, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 160 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_CBU_RBUDUMMY_3, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 161 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_CELLINFO, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 162 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_CONTROL_FOCUS_ON_LIST_2, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 163 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_TABLE_COLUMNWIDTH_INPUT, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 164 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_ITS_PLUGIN, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 165 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_OBJECT_NAMES_4_LOGIN_PROCESS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 166 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_RFC_SERVER_4_GUI, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 167 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_160_167_fields, ENC_BIG_ENDIAN);  /* 160-167 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_R3INFO_FLAGS_2, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 168 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_RCUI, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 169 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_MENUENTRY_WITH_FCODE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 170 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_WEBSAPCONSOLE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 171 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_R3INFO_KERNEL_VERSION, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 172 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_VARINFO_CONTAINER_LOOP, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 173 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_EOKDUMMY_2, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 174 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_MESSAGE_INFO3, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 175 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_168_175_fields, ENC_BIG_ENDIAN);  /* 168-175 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SBA2, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 176 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_MAINAREA_SIZE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 177 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_GUIPATCHLEVEL_2, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 178 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_DISPLAY_SIZE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 179 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_GUI_PACKET, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 180 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_DIALOG_STEP_NUMBER, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 181 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_TC_KEEP_SCROLL_POSITION, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 182 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_MESSAGE_SERVICE_REQUEST, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 183 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_176_183_fields, ENC_BIG_ENDIAN);  /* 176-183 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_DYNT_FOCUS_FRAME, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 184 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_MAX_STRING_LEN, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 185 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_VARINFO_CONTAINER_1, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 186 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_STD_TOOLBAR_ITEMS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 187 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_XMLPROP_LIST_DYNPRO, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 188 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_TRACE_GUI_CONNECT, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 189 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_LIST_FULLWIDTH, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 190 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_ALLWAYS_SEND_CLIENT, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 191 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_184_191_fields, ENC_BIG_ENDIAN);  /* 184-191 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_UNKNOWN_3, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 192 (Unknown support bit) */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_GUI_SIGNATURE_COLOR, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 193 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_MAX_WSIZE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 194 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SAP_PERSONAS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 195 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_IDA_ALV, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 196 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_IDA_ALV_FRAGMENTS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 197 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_AMC, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 198 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_EXTMODE_FONT_METRIC, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 199 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_192_199_fields, ENC_BIG_ENDIAN);  /* 192-199 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_GROUPBOX, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 200 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_AGI_ID_TS_BUTTON, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 201 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_NO_FOCUS_ON_LIST, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 202 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_FIORI_MODE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 203 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_CONNECT_CHECK_DONE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 204 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_MSGINFO_WITH_CODEPAGE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 205 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_AGI_ID, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 206 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_AGI_ID_TC, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 207 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_200_207_fields, ENC_BIG_ENDIAN);  /* 200-207 */
 	offset+=1;
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_FIORI_TOOLBARS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 208 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_OBJECT_NAMES_ENFORCE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 209 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_MESDUMMY_FLAGS_2_3, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 210 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_NWBC, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 211 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_CONTAINER_LIST, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 212 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_GUI_SYSTEM_COLOR, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 213 */
-	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_GROUPBOX_WITHOUT_BOTTOMLINE, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 214 */
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_support_bits, ett_sapdiag, sapdiag_support_bits_208_214_fields, ENC_BIG_ENDIAN);  /* 208-214 */
 }
 
 static void
@@ -1721,8 +1941,8 @@ dissect_sapdiag_dyntatom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
 	uint8_t etype = 0, attr = 0;
 	bool terminated;
 
-	proto_item *atom = NULL, *atom_item = NULL, *atom_item_attr = NULL;
-	proto_tree *atom_tree = NULL, *atom_item_tree = NULL, *atom_item_attr_tree = NULL;
+	proto_item *atom = NULL, *atom_item = NULL;
+	proto_tree *atom_tree = NULL, *atom_item_tree = NULL;
 
 	while (offset < final){
 		if (final - offset < SAPDIAG_DYNT_ATOM_HEADER_LEN) {
@@ -1786,19 +2006,11 @@ dissect_sapdiag_dyntatom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
 		add_item_value_uint16(tvb, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "Col");
 		offset+=2;
 
-		atom_item_attr = proto_tree_add_item(atom_item_tree, hf_sapdiag_item_dynt_atom_item_attr, tvb, offset, 1, ENC_BIG_ENDIAN);
-		atom_item_attr_tree = proto_item_add_subtree(atom_item_attr, ett_sapdiag);
-
 		attr = tvb_get_uint8(tvb, offset);
 		proto_item_append_text(atom_item, ", Attr=%d", attr);
-		proto_tree_add_item(atom_item_attr_tree, hf_sapdiag_item_dynt_atom_item_attr_DIAG_BSD_PROTECTED, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(atom_item_attr_tree, hf_sapdiag_item_dynt_atom_item_attr_DIAG_BSD_INVISIBLE, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(atom_item_attr_tree, hf_sapdiag_item_dynt_atom_item_attr_DIAG_BSD_INTENSIFY, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(atom_item_attr_tree, hf_sapdiag_item_dynt_atom_item_attr_DIAG_BSD_JUSTRIGHT, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(atom_item_attr_tree, hf_sapdiag_item_dynt_atom_item_attr_DIAG_BSD_MATCHCODE, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(atom_item_attr_tree, hf_sapdiag_item_dynt_atom_item_attr_DIAG_BSD_PROPFONT, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(atom_item_attr_tree, hf_sapdiag_item_dynt_atom_item_attr_DIAG_BSD_YES3D, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(atom_item_attr_tree, hf_sapdiag_item_dynt_atom_item_attr_DIAG_BSD_COMBOSTYLE, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_bitmask(atom_item_tree, tvb, offset,
+				hf_sapdiag_item_dynt_atom_item_attr, ett_sapdiag,
+				sapdiag_dynt_atom_item_attr_fields, ENC_BIG_ENDIAN);
 		offset+=1;
 		atom_item_length = atom_item_end - offset;
 
@@ -2072,8 +2284,6 @@ dissect_sapdiag_menu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 static void
 dissect_sapdiag_uievent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, uint32_t length){
 
-	proto_item *event_valid_item = NULL;
-	proto_tree *event_valid_tree = NULL;
 	uint8_t event_valid = 0;
 	uint16_t container_nrs = 0, i = 0;
 
@@ -2088,13 +2298,9 @@ dissect_sapdiag_uievent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uin
 		return;
 	}
 
-	event_valid_item = proto_tree_add_item(tree, hf_sapdiag_item_ui_event_valid, tvb, offset, 1, ENC_BIG_ENDIAN);
-	event_valid_tree = proto_item_add_subtree(event_valid_item, ett_sapdiag);
-
-	proto_tree_add_item(event_valid_tree, hf_sapdiag_item_ui_event_valid_MENU_POS, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(event_valid_tree, hf_sapdiag_item_ui_event_valid_CONTROL_POS, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(event_valid_tree, hf_sapdiag_item_ui_event_valid_NAVIGATION_DATA, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(event_valid_tree, hf_sapdiag_item_ui_event_valid_FUNCTIONKEY_DATA, tvb, offset, 1, ENC_BIG_ENDIAN); offset+=1;length-=1;
+	proto_tree_add_bitmask(tree, tvb, offset,
+			hf_sapdiag_item_ui_event_valid, ett_sapdiag, sapdiag_ui_event_valid_fields, ENC_BIG_ENDIAN);
+	offset+=1;length-=1;
 
 	proto_tree_add_item(tree, hf_sapdiag_item_ui_event_event_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_item_append_text(tree, ", Event Type=%s", val_to_str_const(tvb_get_ntohs(tvb, offset), sapdiag_item_ui_event_event_type_vals, "Unknown")); offset+=2;length-=2;
@@ -3050,8 +3256,8 @@ dissect_sapdiag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 {
 	uint8_t compress = 0, error_no = 0;
 	uint32_t offset = 0;
-	proto_item *sapdiag = NULL, *header = NULL, *com_flag = NULL, *payload = NULL;
-	proto_tree *sapdiag_tree = NULL, *header_tree = NULL, *com_flag_tree = NULL, *payload_tree = NULL;
+	proto_item *sapdiag = NULL, *header = NULL, *payload = NULL;
+	proto_tree *sapdiag_tree = NULL, *header_tree = NULL, *payload_tree = NULL;
 
 	/* Add the protocol to the column */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SAPDIAG");
@@ -3076,6 +3282,10 @@ dissect_sapdiag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 		return tvb_captured_length(tvb);
 	}
 
+	if (tvb_reported_length_remaining(tvb, offset) < 8) {
+		return tvb_captured_length(tvb);
+	}
+
 	/* Add the header subtree */
 	header = proto_tree_add_item(sapdiag_tree, hf_sapdiag_header, tvb, offset, 8, ENC_NA);
 	header_tree = proto_item_add_subtree(header, ett_sapdiag);
@@ -3084,16 +3294,8 @@ dissect_sapdiag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 	proto_tree_add_item(header_tree, hf_sapdiag_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	com_flag = proto_tree_add_item(header_tree, hf_sapdiag_com_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-	com_flag_tree = proto_item_add_subtree(com_flag, ett_sapdiag);
-	proto_tree_add_item(com_flag_tree, hf_sapdiag_com_flag_TERM_EOS, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(com_flag_tree, hf_sapdiag_com_flag_TERM_EOC, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(com_flag_tree, hf_sapdiag_com_flag_TERM_NOP, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(com_flag_tree, hf_sapdiag_com_flag_TERM_EOP, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(com_flag_tree, hf_sapdiag_com_flag_TERM_INI, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(com_flag_tree, hf_sapdiag_com_flag_TERM_CAS, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(com_flag_tree, hf_sapdiag_com_flag_TERM_NNM, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(com_flag_tree, hf_sapdiag_com_flag_TERM_GRA, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask(header_tree, tvb, offset,
+			hf_sapdiag_com_flag, ett_sapdiag, sapdiag_com_flag_fields, ENC_BIG_ENDIAN);
 	offset++;
 
 	proto_tree_add_item(header_tree, hf_sapdiag_mode_stat, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3236,6 +3438,8 @@ proto_register_sapdiag(void)
 			{ "Action type", "sapdiag.dp.actiontype", FT_UINT8, BASE_HEX, VALS(sapdiag_dp_action_type_vals), 0x0, NULL, HFILL }},
 		{ &hf_sapdiag_dp_req_info,
 			{ "Request Info", "sapdiag.dp.reqinfo", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_dp_req_info_byte,
+			{ "Request Info Flags", "sapdiag.dp.reqinfo.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		/* Request Info Flag */
 		{ &hf_sapdiag_dp_req_info_LOGIN,
 			{ "Login Flag", "sapdiag.dp.reqinfo.login", FT_BOOLEAN, 8, NULL, SAPDIAG_DP_REQ_INFO_LOGIN, NULL, HFILL }},
@@ -3321,6 +3525,8 @@ proto_register_sapdiag(void)
 			{ "Terminal", "sapdiag.dp.terminal", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		/* SAP Diag Support Bits */
+		{ &hf_sapdiag_support_bits,
+			{ "Support Bits", "sapdiag.diag.supportbits", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_SAPDIAG_SUPPORT_BIT_PROGRESS_INDICATOR,
 			{ "Support Bit PROGRESS_INDICATOR", "sapdiag.diag.supportbits.PROGRESS_INDICATOR", FT_BOOLEAN, 8, NULL, SAPDIAG_SUPPORT_BIT_PROGRESS_INDICATOR, NULL, HFILL }},
 		{ &hf_SAPDIAG_SUPPORT_BIT_SAPGUI_LABELS,

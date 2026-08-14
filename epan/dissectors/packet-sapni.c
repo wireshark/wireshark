@@ -79,9 +79,9 @@ void proto_register_sap_protocol(void);
  * Get the SAPNI pdu length
  */
 static unsigned
-get_sap_protocol_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *dissector_data _U_)
+get_sap_protocol_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *dissector_data _U_)
 {
-	return ((unsigned)tvb_get_ntohl(tvb, 0) + 4);
+	return ((unsigned)tvb_get_ntohl(tvb, offset) + SAP_PROTOCOL_HEADER_LEN);
 }
 
 
@@ -136,6 +136,7 @@ static int
 dissect_sap_protocol_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	uint32_t length = 0;
+	uint32_t captured_payload_length = 0;
 	proto_item *ti = NULL, *sap_protocol_length = NULL;
 	proto_tree *sap_protocol_tree = NULL;
 	conversation_t *conversation = NULL;
@@ -148,6 +149,7 @@ dissect_sap_protocol_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	/* Get the length field */
 	length = tvb_get_ntohl(tvb, 0);
+	captured_payload_length = tvb_captured_length_remaining(tvb, SAP_PROTOCOL_HEADER_LEN);
 
 	/* Add the payload length to the info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Length=%d ", length);
@@ -163,6 +165,7 @@ dissect_sap_protocol_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* Add expert info in case of no match between the given length and the actual one */
 	if (tvb_reported_length(tvb) != length + 4) {
 		expert_add_info(pinfo, sap_protocol_length, &ei_sap_invalid_length);
+		length = MIN(length, captured_payload_length);
 	}
 
 	/* Add the payload subtree */
@@ -208,8 +211,7 @@ dissect_sap_protocol_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		dissect_sap_protocol_payload(tvb, 4, pinfo, tree, pinfo->srcport, pinfo->destport);
 	}
 
-	/* TODO: We need to return the *actual* length processed */
-	return (length);
+	return SAP_PROTOCOL_HEADER_LEN + length;
 }
 
 /*

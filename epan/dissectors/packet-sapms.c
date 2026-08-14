@@ -28,6 +28,10 @@
  * IANA assigned, we leave only the ones corresponding to the instance 00.
  */
 #define SAPMS_PORT_RANGE "3600,3900"
+#define SAPMS_EYECATCHER_LEN 12U
+#define SAPMS_MIN_HEADER_LEN 110U
+#define SAPMS_OPCODE_HEADER_LEN 4U
+#define SAPMS_ADM_HEADER_LEN 36U
 
 /* MS Domain values */
 static const value_string sapms_domain_vals[] = {
@@ -501,6 +505,18 @@ static int hf_sapms_iflag;
 static int hf_sapms_fromname;
 static int hf_sapms_diagport;
 
+static int * const sapms_msgtypes_fields[] = {
+	&hf_sapms_msgtypes_dia,
+	&hf_sapms_msgtypes_upd,
+	&hf_sapms_msgtypes_enq,
+	&hf_sapms_msgtypes_btc,
+	&hf_sapms_msgtypes_spo,
+	&hf_sapms_msgtypes_up2,
+	&hf_sapms_msgtypes_atp,
+	&hf_sapms_msgtypes_icm,
+	NULL
+};
+
 static int hf_sapms_dp_adm_dp_version;
 
 static int hf_sapms_adm_eyecatcher;
@@ -626,6 +642,18 @@ static int hf_sapms_server_lst_msgtypes_spo;
 static int hf_sapms_server_lst_msgtypes_up2;
 static int hf_sapms_server_lst_msgtypes_atp;
 static int hf_sapms_server_lst_msgtypes_icm;
+
+static int * const sapms_server_lst_msgtypes_fields[] = {
+	&hf_sapms_server_lst_msgtypes_dia,
+	&hf_sapms_server_lst_msgtypes_upd,
+	&hf_sapms_server_lst_msgtypes_enq,
+	&hf_sapms_server_lst_msgtypes_btc,
+	&hf_sapms_server_lst_msgtypes_spo,
+	&hf_sapms_server_lst_msgtypes_up2,
+	&hf_sapms_server_lst_msgtypes_atp,
+	&hf_sapms_server_lst_msgtypes_icm,
+	NULL
+};
 static int hf_sapms_server_lst_hostaddr;
 static int hf_sapms_server_lst_hostaddrv4;
 static int hf_sapms_server_lst_servno;
@@ -639,10 +667,12 @@ static int ett_sapms;
 static expert_field ei_sapms_adm_opcode_partial;
 static expert_field ei_sapms_opcode_partial;
 static expert_field ei_sapms_unknown_version;
+static expert_field ei_sapms_opcode_invalid_length;
 static expert_field ei_sapms_client_invalid_offset;
 static expert_field ei_sapms_client_invalid_length;
 static expert_field ei_sapms_text_invalid_length;
 static expert_field ei_sapms_ip_invalid_length;
+static expert_field ei_sapms_short_header;
 
 /* Global port preference */
 static range_t *global_sapms_port_range;
@@ -774,8 +804,8 @@ dissect_sapms_adm_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
 
 static int
 dissect_sapms_client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, uint8_t opcode_version){
-	proto_item *client = NULL, *msg_types = NULL;
-	proto_tree *client_tree = NULL, *msg_types_tree = NULL;
+	proto_item *client = NULL;
+	proto_tree *client_tree = NULL;
 	struct e_in6_addr address_ipv6;
 	uint32_t address_ipv4 = 0;
 	int client_length = 0, client_length_remaining = 0;
@@ -835,16 +865,8 @@ dissect_sapms_client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 	offset+=20;
 
 	/* Message type flags */
-	msg_types = proto_tree_add_item(client_tree, hf_sapms_server_lst_msgtypes, tvb, offset, 1, ENC_BIG_ENDIAN);
-	msg_types_tree = proto_item_add_subtree(msg_types, ett_sapms);
-	proto_tree_add_item(msg_types_tree, hf_sapms_server_lst_msgtypes_dia, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(msg_types_tree, hf_sapms_server_lst_msgtypes_upd, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(msg_types_tree, hf_sapms_server_lst_msgtypes_enq, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(msg_types_tree, hf_sapms_server_lst_msgtypes_btc, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(msg_types_tree, hf_sapms_server_lst_msgtypes_spo, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(msg_types_tree, hf_sapms_server_lst_msgtypes_up2, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(msg_types_tree, hf_sapms_server_lst_msgtypes_atp, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(msg_types_tree, hf_sapms_server_lst_msgtypes_icm, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask(client_tree, tvb, offset, hf_sapms_server_lst_msgtypes, ett_sapms,
+			sapms_server_lst_msgtypes_fields, ENC_BIG_ENDIAN);
 	offset+=1;
 
 	/* Add the IPv6 address (only for version 3/4) */
@@ -1084,6 +1106,10 @@ dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 		case 0x23:{			/* MS_GET_TXT */
 			uint32_t text_length = 0;
 
+			if (length < 44) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_text_invalid_length, "Text opcode body is shorter than 44 bytes (actual=%u)", length);
+				break;
+			}
 			proto_tree_add_item(tree, hf_sapms_text_name, tvb, offset, 40, ENC_ASCII);
 			offset+=40;
 			length-=40;
@@ -1122,6 +1148,10 @@ dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 			uint32_t address_ipv4;
 			struct e_in6_addr address_ipv6;
 
+			if (length < 10) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length, "Logon opcode body is shorter than 10 bytes (actual=%u)", length);
+				break;
+			}
 			proto_tree_add_item(tree, hf_sapms_logon_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset+=2;
 			length-=2;
@@ -1137,39 +1167,71 @@ dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 			proto_tree_add_item_ret_uint16(tree, hf_sapms_logon_name_length, tvb, offset, 2, ENC_BIG_ENDIAN, &name_length);
 			offset+=2;
 			length-=2;
-			if (name_length > 0 && length >= name_length){
+			if (name_length > length) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length, "Invalid logon name length (expected=%u, actual=%u)", name_length, length);
+				break;
+			}
+			if (name_length > 0){
 				proto_tree_add_item(tree, hf_sapms_logon_name, tvb, offset, name_length, ENC_ASCII);
 				offset+=name_length;
 				length-=name_length;
 			}
 
+			if (length < 2) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length, "Logon protocol length field is truncated (actual=%u)", length);
+				break;
+			}
 			proto_tree_add_item_ret_uint16(tree, hf_sapms_logon_prot_length, tvb, offset, 2, ENC_BIG_ENDIAN, &prot_length);
 			offset+=2;
 			length-=2;
-			if (prot_length > 0 && length >= prot_length){
+			if (prot_length > length) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length, "Invalid logon protocol length (expected=%u, actual=%u)", prot_length, length);
+				break;
+			}
+			if (prot_length > 0){
 				proto_tree_add_item(tree, hf_sapms_logon_prot, tvb, offset, prot_length, ENC_ASCII);
 				offset+=prot_length;
 				length-=prot_length;
 			}
 
+			if (length < 2) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length, "Logon host length field is truncated (actual=%u)", length);
+				break;
+			}
 			proto_tree_add_item_ret_uint16(tree, hf_sapms_logon_host_length, tvb, offset, 2, ENC_BIG_ENDIAN, &host_length);
 			offset+=2;
 			length-=2;
-			if (host_length > 0 && length >= host_length){
+			if (host_length > length) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length, "Invalid logon host length (expected=%u, actual=%u)", host_length, length);
+				break;
+			}
+			if (host_length > 0){
 				proto_tree_add_item(tree, hf_sapms_logon_host, tvb, offset, host_length, ENC_ASCII);
 				offset+=host_length;
 				length-=host_length;
 			}
 
+			if (length < 2) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length, "Logon misc length field is truncated (actual=%u)", length);
+				break;
+			}
 			proto_tree_add_item_ret_uint16(tree, hf_sapms_logon_misc_length, tvb, offset, 2, ENC_BIG_ENDIAN, &misc_length);
 			offset+=2;
 			length-=2;
-			if (misc_length > 0 && length >= misc_length){
+			if (misc_length > length) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length, "Invalid logon misc length (expected=%u, actual=%u)", misc_length, length);
+				break;
+			}
+			if (misc_length > 0){
 				proto_tree_add_item(tree, hf_sapms_logon_misc, tvb, offset, misc_length, ENC_ASCII);
 				offset+=misc_length;
 				length-=misc_length;
 			}
 
+			if (length < 2) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length, "Logon IPv6 length field is truncated (actual=%u)", length);
+				break;
+			}
 			proto_tree_add_item_ret_uint16(tree, hf_sapms_logon_address6_length, tvb, offset, 2, ENC_BIG_ENDIAN, &address6_length);
 			offset+=2;
 			length-=2;
@@ -1192,6 +1254,9 @@ dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 			uint16_t reason_length = 0;
 
 			client_length = dissect_sapms_client(tvb, pinfo, tree, offset, opcode_version);
+			if (length < (uint32_t)client_length + 2) {
+				break;
+			}
 			offset += client_length;
 			length -= client_length;
 			proto_tree_add_item_ret_uint16(tree, hf_sapms_shutdown_reason_length, tvb, offset, 2, ENC_BIG_ENDIAN, &reason_length);
@@ -1212,20 +1277,33 @@ dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 		}
 		case 0x46:{			/* MS_IP_PORT_TO_NAME */
 			uint32_t name_length = 0;
+			uint32_t address_ipv4;
+			struct e_in6_addr address_ipv6;
 
 			if (opcode_version == 0x01){
-				uint32_t address_ipv4 = tvb_get_ipv4(tvb, offset);
+				if (length < 4) {
+					expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length, "IP to name IPv4 body is shorter than 4 bytes (actual=%u)", length);
+					break;
+				}
+				address_ipv4 = tvb_get_ipv4(tvb, offset);
 				proto_tree_add_ipv4(tree, hf_sapms_ip_to_name_address4, tvb, offset, 4, address_ipv4);
 				offset+=4;
 				length-=4;
 			} else if (opcode_version == 0x02){
-				struct e_in6_addr address_ipv6;
+				if (length < 16) {
+					expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length, "IP to name IPv6 body is shorter than 16 bytes (actual=%u)", length);
+					break;
+				}
 				tvb_get_ipv6(tvb, offset, &address_ipv6);
 				proto_tree_add_ipv6(tree, hf_sapms_ip_to_name_address6, tvb, offset, 16, &address_ipv6);
 				offset+=16;
 				length-=16;
 			}
 
+			if (length < 6) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length, "IP to name opcode body is shorter than 6 bytes (actual=%u)", length);
+				break;
+			}
 			proto_tree_add_item(tree, hf_sapms_ip_to_name_port, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset+=2;
 			length-=2;
@@ -1233,7 +1311,11 @@ dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 			proto_tree_add_item_ret_uint(tree, hf_sapms_ip_to_name_length, tvb, offset, 4, ENC_BIG_ENDIAN, &name_length);
 			offset+=4;
 			length-=4;
-			if (name_length > 0 && length >= name_length){
+			if (name_length > length) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length, "Invalid IP to name length (expected=%u, actual=%u)", name_length, length);
+				break;
+			}
+			if (name_length > 0){
 				proto_tree_add_item(tree, hf_sapms_ip_to_name, tvb, offset, name_length, ENC_ASCII);
 			}
 
@@ -1241,14 +1323,33 @@ dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 		}
 		case 0x47:{			/* MS_CHECK_ACL */
 			uint32_t string_length = 0;
+			if (length < 2) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length, "Check ACL opcode body is shorter than 2 bytes (actual=%u)", length);
+				break;
+			}
 			proto_tree_add_item(tree, hf_sapms_check_acl_error_code, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset+=2;
 			length-=2;
-			string_length = tvb_strnlen(tvb, offset, length) + 1;
+			string_length = tvb_strnlen(tvb, offset, length);
+			if (string_length == length) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length, "Check ACL entry is not null terminated");
+				proto_tree_add_item(tree, hf_sapms_check_acl_acl, tvb, offset, length, ENC_ASCII);
+				break;
+			}
+			string_length += 1;
 			proto_tree_add_item(tree, hf_sapms_check_acl_acl, tvb, offset, string_length, ENC_ASCII);
 			offset+=string_length;
 			length-=string_length;
-			string_length = tvb_strnlen(tvb, offset, length) + 1;
+			if (length == 0) {
+				break;
+			}
+			string_length = tvb_strnlen(tvb, offset, length);
+			if (string_length == length) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length, "Check ACL entry is not null terminated");
+				proto_tree_add_item(tree, hf_sapms_check_acl_acl, tvb, offset, length, ENC_ASCII);
+				break;
+			}
+			string_length += 1;
 			proto_tree_add_item(tree, hf_sapms_check_acl_acl, tvb, offset, string_length, ENC_ASCII);
 			break;
 		}
@@ -1268,8 +1369,8 @@ static int
 dissect_sapms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	uint32_t offset = 0;
-	proto_item *ti = NULL, *oi = NULL, *msg_types = NULL;
-	proto_tree *sapms_tree = NULL, *sapms_opcode_tree = NULL, *msg_types_tree = NULL;
+	proto_item *ti = NULL, *oi = NULL;
+	proto_tree *sapms_tree = NULL, *sapms_opcode_tree = NULL;
 
 	/* Add the protocol to the column */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SAPMS");
@@ -1285,24 +1386,24 @@ dissect_sapms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 		int remaining_length = 0;
 		uint8_t flag=0, iflag = 0, opcode = 0, opcode_version = 0;
 
-		proto_tree_add_item(sapms_tree, hf_sapms_eyecatcher, tvb, offset, 12, ENC_ASCII);
-		offset+=12;
+		proto_tree_add_item(sapms_tree, hf_sapms_eyecatcher, tvb, offset, SAPMS_EYECATCHER_LEN, ENC_ASCII);
+		offset+=SAPMS_EYECATCHER_LEN;
+		if (tvb_reported_length_remaining(tvb, offset) < 2) {
+			expert_add_info_format(pinfo, sapms_tree, &ei_sapms_short_header, "SAP MS header is shorter than %u bytes", SAPMS_EYECATCHER_LEN + 2);
+			return tvb_reported_length(tvb);
+		}
 		proto_tree_add_item(sapms_tree, hf_sapms_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset+=1;
 		proto_tree_add_item(sapms_tree, hf_sapms_errorno, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset+=1;
+		if (tvb_reported_length(tvb) < SAPMS_MIN_HEADER_LEN) {
+			expert_add_info_format(pinfo, sapms_tree, &ei_sapms_short_header, "SAP MS header is shorter than %u bytes", SAPMS_MIN_HEADER_LEN);
+			return tvb_reported_length(tvb);
+		}
 		proto_tree_add_item(sapms_tree, hf_sapms_toname, tvb, offset, 40, ENC_ASCII);
 		offset+=40;
-		msg_types = proto_tree_add_item(sapms_tree, hf_sapms_msgtypes, tvb, offset, 1, ENC_BIG_ENDIAN);
-		msg_types_tree = proto_item_add_subtree(msg_types, ett_sapms);
-		proto_tree_add_item(msg_types_tree, hf_sapms_msgtypes_dia, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(msg_types_tree, hf_sapms_msgtypes_upd, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(msg_types_tree, hf_sapms_msgtypes_enq, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(msg_types_tree, hf_sapms_msgtypes_btc, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(msg_types_tree, hf_sapms_msgtypes_spo, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(msg_types_tree, hf_sapms_msgtypes_up2, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(msg_types_tree, hf_sapms_msgtypes_atp, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(msg_types_tree, hf_sapms_msgtypes_icm, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_bitmask(sapms_tree, tvb, offset, hf_sapms_msgtypes, ett_sapms,
+				sapms_msgtypes_fields, ENC_BIG_ENDIAN);
 		offset+=1;
 		proto_tree_add_item(sapms_tree, hf_sapms_reserved, tvb, offset, 1, ENC_NA);
 		offset+=1;
@@ -1345,6 +1446,10 @@ dissect_sapms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 			case 0x01:	    /* MS_SEND_NAME */
 			case 0x02:	 	/* MS_SEND_TYPE */
 			case 0x07:{     /* MS_SEND_TYPE_ONCE */
+				if (tvb_reported_length_remaining(tvb, offset) < SAPMS_OPCODE_HEADER_LEN) {
+					expert_add_info_format(pinfo, sapms_tree, &ei_sapms_short_header, "SAP MS opcode header is shorter than %u bytes", SAPMS_OPCODE_HEADER_LEN);
+					return tvb_reported_length(tvb);
+				}
 				proto_tree_add_item_ret_uint8(sapms_tree, hf_sapms_opcode, tvb, offset, 1, ENC_BIG_ENDIAN, &opcode);
 				offset+=1;
 				proto_tree_add_item(sapms_tree, hf_sapms_opcode_error, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1367,6 +1472,10 @@ dissect_sapms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 				break;
 
 			} case 0x05:{   /* MS_ADM_OPCODES */
+				if (tvb_reported_length_remaining(tvb, offset) < SAPMS_ADM_HEADER_LEN) {
+					expert_add_info_format(pinfo, sapms_tree, &ei_sapms_short_header, "SAP MS ADM header is shorter than %u bytes", SAPMS_ADM_HEADER_LEN);
+					return tvb_reported_length(tvb);
+				}
 				proto_tree_add_item(sapms_tree, hf_sapms_adm_eyecatcher, tvb, offset, 12, ENC_ASCII);
 				offset+=12;
 				proto_tree_add_item(sapms_tree, hf_sapms_adm_version, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1702,10 +1811,12 @@ proto_register_sapms(void)
 		{ &ei_sapms_adm_opcode_partial, { "sapms.adm.record.opcode.unknown", PI_UNDECODED, PI_WARN, "The ADM opcode is dissected partially", EXPFILL }},
 		{ &ei_sapms_opcode_partial, { "sapms.opcode.unknown", PI_UNDECODED, PI_WARN, "The opcode is dissected partially", EXPFILL }},
 		{ &ei_sapms_unknown_version, { "sapms.serverlst.unknown", PI_UNDECODED, PI_WARN, "This version has not been seen, dissection of this packet could be wrong for this version", EXPFILL }},
+		{ &ei_sapms_opcode_invalid_length, { "sapms.opcode.length.invalid", PI_MALFORMED, PI_WARN, "Invalid opcode body length", EXPFILL }},
 		{ &ei_sapms_client_invalid_offset, { "sapms.serverlst.offset.invalid", PI_MALFORMED, PI_WARN, "Invalid offset", EXPFILL }},
 		{ &ei_sapms_client_invalid_length, { "sapms.serverlst.length.invalid", PI_MALFORMED, PI_WARN, "Invalid client length", EXPFILL }},
 		{ &ei_sapms_text_invalid_length, { "sapms.text.length.invalid", PI_MALFORMED, PI_WARN, "Invalid text length", EXPFILL }},
 		{ &ei_sapms_ip_invalid_length, { "sapms.logon.address6.invalid", PI_MALFORMED, PI_WARN, "Invalid IPv6 address length or data", EXPFILL }},
+		{ &ei_sapms_short_header, { "sapms.header.short", PI_MALFORMED, PI_WARN, "SAP MS header is too short", EXPFILL }},
 	};
 
 	module_t *sapms_module;
