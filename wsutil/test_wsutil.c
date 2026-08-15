@@ -180,6 +180,25 @@ static void test_escape_string(void)
     wmem_free(NULL, buf);
 }
 
+static void test_csv_value_is_formula(void)
+{
+    g_assert_true(ws_csv_value_is_formula("=HYPERLINK(\"http://example.com\")"));
+    g_assert_true(ws_csv_value_is_formula("+1+1"));
+    g_assert_true(ws_csv_value_is_formula("-1+1"));
+    g_assert_true(ws_csv_value_is_formula("@SUM(A1)"));
+    /* Leading blanks may be stripped on import */
+    g_assert_true(ws_csv_value_is_formula("   =1+1"));
+    g_assert_true(ws_csv_value_is_formula("\t=1+1"));
+    g_assert_true(ws_csv_value_is_formula("\r=1+1"));
+
+    g_assert_false(ws_csv_value_is_formula(NULL));
+    g_assert_false(ws_csv_value_is_formula(""));
+    g_assert_false(ws_csv_value_is_formula("   "));
+    g_assert_false(ws_csv_value_is_formula("GET / HTTP/1.1"));
+    g_assert_false(ws_csv_value_is_formula("192.0.2.1"));
+    g_assert_false(ws_csv_value_is_formula("1+1"));
+}
+
 static void test_strconcat(void)
 {
     wmem_allocator_t   *allocator;
@@ -1284,6 +1303,7 @@ int main(int argc, char **argv)
     g_test_add_func("/str_util/format_size", test_format_size);
     g_test_add_func("/str_util/format_units", test_format_units);
     g_test_add_func("/str_util/escape_string", test_escape_string);
+    g_test_add_func("/str_util/csv_value_is_formula", test_csv_value_is_formula);
     g_test_add_func("/str_util/strconcat", test_strconcat);
     g_test_add_func("/str_util/strsplit", test_strsplit);
     g_test_add_func("/str_util/str_ascii", test_str_ascii);

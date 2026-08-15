@@ -314,6 +314,25 @@ WS_DLL_PUBLIC
 char *ws_escape_csv(wmem_allocator_t *alloc, const char *string, bool add_quotes, char quote_char, bool double_quote, bool escape_whitespace);
 
 /**
+ * @brief Check whether a CSV value would be taken as a spreadsheet formula.
+ *
+ * Spreadsheet applications evaluate an imported cell as a formula if its
+ * first character is one of '=', '+', '-' or '@', and they do so whether or
+ * not the CSV field was quoted. CSV syntax escaping therefore does not make
+ * a value inert; the only reliable neutralization is to change the value,
+ * for example by prefixing it with an apostrophe.
+ *
+ * @param string  The value that would be written to the CSV cell
+ * @return  true if the value needs to be neutralized before being exported
+ *
+ * @note Leading spaces are skipped, and a leading tab or carriage return is
+ * reported as a formula as well, since applications may strip those on
+ * import and evaluate whatever follows.
+ */
+WS_DLL_PUBLIC
+bool ws_csv_value_is_formula(const char *string);
+
+/**
  * @brief Convert a hexadecimal character to its numeric value.
  *
  * Converts a single ASCII character representing a hexadecimal digit

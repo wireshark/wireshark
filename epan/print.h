@@ -67,6 +67,7 @@ typedef struct {
     bool print_utf8;
     bool print_bom;
     bool escape_wsp;
+    bool escape_formulas;   /**< Neutralize values a spreadsheet would evaluate as a formula */
 } print_args_csv_t;
 
 typedef struct {

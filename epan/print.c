@@ -87,6 +87,7 @@ struct _output_fields {
     wmem_map_t   *protocolfilter;
     char          quote;
     bool          escape;
+    bool          escape_formulas;
     bool          includes_col_fields;
     char         *split_by;       /* protocol abbreviation to split rows on */
 };
@@ -110,7 +111,7 @@ static void write_specified_fields(fields_format format,
                                    FILE *fh,
                                    json_dumper *dumper);
 static void print_escaped_xml(FILE *fh, const char *unescaped_string);
-static void print_escaped_csv(FILE *fh, const char *unescaped_string, char delimiter, char quote_char, bool escape_wsp);
+static void print_escaped_csv(FILE *fh, const char *unescaped_string, char delimiter, char quote_char, bool escape_wsp, bool escape_formulas);
 
 typedef void (*proto_node_value_writer)(proto_node *, write_json_data *);
 static void write_json_index(json_dumper *dumper, epan_dissect_t *edt);
@@ -1700,6 +1701,25 @@ write_psml_finale(FILE *fh)
     fputs("</psml>\n", fh);
 }
 
+/*
+ * Field and column values come from the capture file, so a crafted packet can
+ * put a spreadsheet formula such as "=HYPERLINK(...)" into an exported CSV
+ * cell. CSV syntax escaping does not help, because spreadsheets evaluate
+ * quoted cells as formulas too; the value itself has to change. Prefix it
+ * with an apostrophe, which spreadsheets read as "treat this cell as text"
+ * and strip on display.
+ *
+ * Returns a newly allocated string that the caller must g_free(), or NULL if
+ * the value needs no neutralization.
+ */
+static char *csv_escape_formula(const char *str)
+{
+    if (!ws_csv_value_is_formula(str))
+        return NULL;
+
+    return ws_strdup_printf("'%s", str);
+}
+
 static char *csv_massage_str(const char *source, const char *exceptions)
 {
     char *csv_str;
@@ -1722,9 +1742,14 @@ static char *csv_massage_str(const char *source, const char *exceptions)
     return csv_str;
 }
 
-static void csv_write_str(const char *str, char sep, FILE *fh, bool print_separator)
+static void csv_write_str(const char *str, char sep, FILE *fh, bool print_separator, bool escape_formulas)
 {
     char *csv_str;
+    char *formula_str = NULL;
+
+    if (escape_formulas && (formula_str = csv_escape_formula(str)) != NULL) {
+        str = formula_str;
+    }
 
     /* Do not escape the UTF-8 right arrow character */
     csv_str = csv_massage_str(str, UTF8_RIGHTWARDS_ARROW);
@@ -1734,13 +1759,20 @@ static void csv_write_str(const char *str, char sep, FILE *fh, bool print_separa
         fprintf(fh, "\"%s\"", csv_str);
     }
     g_free(csv_str);
+    g_free(formula_str);
 }
 
-static void csv_write_str_utf8(const char *str, char sep, FILE *fh, bool print_separator, bool escape_wsp)
+static void csv_write_str_utf8(const char *str, char sep, FILE *fh, bool print_separator, bool escape_wsp, bool escape_formulas)
 {
     char *csv_str;
+    char *formula_str = NULL;
+
+    if (escape_formulas && (formula_str = csv_escape_formula(str)) != NULL) {
+        str = formula_str;
+    }
 
     csv_str = ws_escape_csv(NULL, str, true, '\"', true, escape_wsp);
+    g_free(formula_str);
     if (print_separator) {
         fprintf(fh, "%c%s", sep, csv_str);
     } else {
@@ -1773,10 +1805,12 @@ write_csv_column_titles_with_args(column_info *cinfo, FILE *fh, print_args_csv_t
     for (i = 0; i < cinfo->num_cols; i++) {
         if (!get_column_visible(i))
             continue;
+        /* Column titles are configured by the user rather than taken from the
+         * capture file, so they don't need formula neutralization. */
         if (csv_args.print_utf8) {
-            csv_write_str_utf8(cinfo->columns[i].col_title, ',', fh, print_separator, csv_args.escape_wsp);
+            csv_write_str_utf8(cinfo->columns[i].col_title, ',', fh, print_separator, csv_args.escape_wsp, false);
         } else {
-            csv_write_str(cinfo->columns[i].col_title, ',', fh, print_separator);
+            csv_write_str(cinfo->columns[i].col_title, ',', fh, print_separator, false);
         }
         print_separator = true;
     }
@@ -1796,9 +1830,9 @@ write_csv_columns_with_args(epan_dissect_t *edt, FILE *fh, print_args_csv_t csv_
         if (!get_column_visible(i))
             continue;
         if (csv_args.print_utf8) {
-            csv_write_str_utf8(get_column_text(edt->pi.cinfo, i), ',', fh, print_separator, csv_args.escape_wsp);
+            csv_write_str_utf8(get_column_text(edt->pi.cinfo, i), ',', fh, print_separator, csv_args.escape_wsp, csv_args.escape_formulas);
         } else {
-            csv_write_str(get_column_text(edt->pi.cinfo, i), ',', fh, print_separator);
+            csv_write_str(get_column_text(edt->pi.cinfo, i), ',', fh, print_separator, csv_args.escape_formulas);
         }
         print_separator = true;
     }
@@ -2067,10 +2101,16 @@ print_escaped_xml(FILE *fh, const char *unescaped_string)
 }
 
 static void
-print_escaped_csv(FILE *fh, const char *unescaped_string, char delimiter, char quote_char, bool escape_wsp)
+print_escaped_csv(FILE *fh, const char *unescaped_string, char delimiter, char quote_char, bool escape_wsp, bool escape_formulas)
 {
+    char *formula_string = NULL;
+
     if (fh == NULL || unescaped_string == NULL) {
         return;
+    }
+
+    if (escape_formulas && (formula_string = csv_escape_formula(unescaped_string)) != NULL) {
+        unescaped_string = formula_string;
     }
 
     /* XXX: What about the field aggregator? Should that be escaped?
@@ -2088,6 +2128,7 @@ print_escaped_csv(FILE *fh, const char *unescaped_string, char delimiter, char q
     }
     fputs(escaped_string, fh);
     wmem_free(NULL, escaped_string);
+    g_free(formula_string);
 }
 
 static void
@@ -2531,6 +2572,19 @@ bool output_fields_set_option(output_fields_t *info, char *option)
         }
         return true;
     }
+    else if (0 == strcmp(option_name, "escape_formulas")) {
+        switch (*option_value) {
+        case 'n':
+            info->escape_formulas = false;
+            break;
+        case 'y':
+            info->escape_formulas = true;
+            break;
+        default:
+            return false;
+        }
+        return true;
+    }
     else if (0 == strcmp(option_name, "split")) {
         g_free(info->split_by);
         info->split_by = g_strdup(option_value);
@@ -2549,6 +2603,7 @@ void output_fields_list_options(FILE *fh)
     fputs("occurrence=f|l|a  Select the occurrence of a field to use;\n     \"f\" = first, \"l\" = last, \"a\" = all (def: a: all)\n", fh);
     fputs("aggregator=,|/s|<character>   Set the aggregator to use;\n     \",\" = comma, \"/s\" = space (def: ,: comma)\n", fh);
     fputs("quote=d|s|n   Print either d: double-quotes, s: single quotes or \n     n: no quotes around field values (def: n: none)\n", fh);
+    fputs("escape_formulas=y|n   Prefix values that a spreadsheet would evaluate as a\n     formula ('=', '+', '-', '@') with an apostrophe (def: N: no)\n", fh);
     fputs("split=<proto>   Split output into one row per message instance of <proto>\n     (e.g., split=diameter)\n", fh);
 }
 
@@ -2835,7 +2890,7 @@ static void output_csv_row(output_fields_t *fields, GPtrArray **bucket,
                 wmem_strbuf_append_c(buf, fields->aggregator);
                 wmem_strbuf_append(buf, (char *)g_ptr_array_index(fv_p, j));
             }
-            print_escaped_csv(fh, wmem_strbuf_get_str(buf), fields->separator, fields->quote, fields->escape);
+            print_escaped_csv(fh, wmem_strbuf_get_str(buf), fields->separator, fields->quote, fields->escape, fields->escape_formulas);
             wmem_strbuf_destroy(buf);
         }
     }
@@ -2999,7 +3054,7 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
                         wmem_strbuf_append_c(buf, fields->aggregator);
                         wmem_strbuf_append(buf, (char *)g_ptr_array_index(fv_p, j));
                     }
-                    print_escaped_csv(fh, wmem_strbuf_get_str(buf), fields->separator, fields->quote, fields->escape);
+                    print_escaped_csv(fh, wmem_strbuf_get_str(buf), fields->separator, fields->quote, fields->escape, fields->escape_formulas);
                     wmem_strbuf_destroy(buf);
                 }
                 g_ptr_array_free(fv_p, true);  /* get ready for the next packet */
@@ -3237,6 +3292,7 @@ output_fields_t* output_fields_new(void)
     fields->protocolfilter      = NULL;
     fields->quote               ='\0';
     fields->escape              = true;
+    fields->escape_formulas     = false;
     fields->includes_col_fields = false;
     fields->split_by            = NULL;
     return fields;

@@ -332,6 +332,13 @@ private:
      */
     bool printBOM() const;
 
+    /**
+     * @brief Checks if values that a spreadsheet would evaluate as a formula
+     * should be neutralized with a leading apostrophe.
+     * @return True if formulas should be escaped, false otherwise.
+     */
+    bool escapeFormulas() const;
+
     Ui::PacketFormatCSVGroupBox *pf_ui_; /**< Pointer to the user interface form elements. */
 };
 

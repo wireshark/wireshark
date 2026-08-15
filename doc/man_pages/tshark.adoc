@@ -394,6 +394,15 @@ backslash will be replaced in field values by C-style escapes, e.g.
 "\n" for line feed.  If *n*, field value strings will be printed as-is.
 Defaults to *y*.
 
+*escape_formulas=y|n* If *y*, prefix any field value that a spreadsheet
+application would evaluate as a formula with an apostrophe, so that packet
+data cannot inject a formula into a CSV file that is later opened in a
+spreadsheet.  Values that begin with *=*, *+*, *-* or *@* (optionally
+preceded by blanks) are affected.  Note that this changes the exported
+values, and in particular that it also applies to legitimately negative
+numbers, so it is off by default; enable it when the output is destined for
+a spreadsheet rather than for further machine processing.  Defaults to *n*.
+
 *split=*<proto> Split the output into one row per message instance of
 the protocol <proto> within a packet.  This is useful when a single
 packet contains multiple protocol messages (e.g., several Diameter

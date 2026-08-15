@@ -287,6 +287,7 @@ PacketFormatCSVGroupBox::PacketFormatCSVGroupBox(QWidget *parent) :
     QVBoxLayout *options_layout = new QVBoxLayout();
     indent_layout->addLayout(options_layout);
     options_layout->addWidget(pf_ui_->BOMCheckBox);
+    options_layout->addWidget(pf_ui_->FormulaCheckBox);
     // Whitespace is always escaped in the columns; there's no way to unescape
     // it. To really solve #14260 we would need to store the unescaped column
     // string for longer (perhaps escaping it when using it, perhaps storing
@@ -297,6 +298,7 @@ PacketFormatCSVGroupBox::PacketFormatCSVGroupBox(QWidget *parent) :
     connect(pf_ui_->asUTF8Button, &QRadioButton::toggled, this, &PacketFormatCSVGroupBox::utf8Toggled);
     connect(pf_ui_->WSPCheckBox, &QCheckBox::toggled, this, &PacketFormatGroupBox::formatChanged);
     connect(pf_ui_->BOMCheckBox, &QCheckBox::toggled, this, &PacketFormatGroupBox::formatChanged);
+    connect(pf_ui_->FormulaCheckBox, &QCheckBox::toggled, this, &PacketFormatGroupBox::formatChanged);
 }
 
 PacketFormatCSVGroupBox::~PacketFormatCSVGroupBox()
@@ -325,6 +327,11 @@ bool PacketFormatCSVGroupBox::printBOM() const
     return pf_ui_->BOMCheckBox->isChecked();
 }
 
+bool PacketFormatCSVGroupBox::escapeFormulas() const
+{
+    return pf_ui_->FormulaCheckBox->isChecked();
+}
+
 bool PacketFormatCSVGroupBox::isValid() const
 {
     return true;
@@ -335,6 +342,7 @@ void PacketFormatCSVGroupBox::updatePrintArgs(print_args_t& print_args)
     print_args.csv_args.print_utf8 = UTF8Enabled();
     print_args.csv_args.escape_wsp = escapeWSP();
     print_args.csv_args.print_bom = printBOM();
+    print_args.csv_args.escape_formulas = escapeFormulas();
 }
 
 PacketFormatCArraysGroupBox::PacketFormatCArraysGroupBox(QWidget *parent) :

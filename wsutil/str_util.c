@@ -826,6 +826,29 @@ char *ws_escape_csv(wmem_allocator_t *alloc, const char *string, bool add_quotes
         return escape_string_len(alloc, string, -1, escape_null, add_quotes, quote_char, double_quote);
 }
 
+bool ws_csv_value_is_formula(const char *string)
+{
+    if (string == NULL)
+        return false;
+
+    /* Some spreadsheet applications strip leading spaces on import and then
+     * evaluate what follows, so look past them. */
+    while (*string == ' ')
+        string++;
+
+    switch (*string) {
+    case '=':  /* Formula */
+    case '+':  /* Formula */
+    case '-':  /* Formula */
+    case '@':  /* Lotus-style function, still honored for compatibility */
+    case '\t': /* Stripped on import, so it can precede any of the above */
+    case '\r':
+        return true;
+    default:
+        return false;
+    }
+}
+
 const char *
 ws_strerrorname_r(int errnum, char *buf, size_t buf_size)
 {
