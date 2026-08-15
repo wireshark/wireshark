@@ -525,7 +525,7 @@ void ExtArgTable::extcap_options_finished(QStandardItem* item)
     for (unsigned if_idx = 0; if_idx < global_capture_opts.all_ifaces->len; if_idx++)
     {
         device = &g_array_index(global_capture_opts.all_ifaces, interface_t, if_idx);
-        if (g_strcmp0(_argument->device_name, device->name) == 0 && device->if_info.type == IF_EXTCAP)
+        if (device->if_info.type == IF_EXTCAP && g_strcmp0(_argument->device_name, device->name) == 0)
         {
             dev_found = true;
             break;
