@@ -31,8 +31,13 @@
 #include <wsutil/inet_addr.h>
 
 #ifdef _WIN32
+#include <objbase.h>
+#include <wsutil/unicode-utils.h>
 #include <wsutil/win32-utils.h>
 #define in_port_t   uint16_t
+# ifdef HAVE_AF_UNIX
+# include <afunix.h>
+# endif
 #endif
 
 char *
@@ -225,3 +230,68 @@ bool ws_verify_peercred(socket_handle_t sock _U_) {
     return false;
 }
 #endif /* _WIN32 */
+
+int ws_socketpair(int type, socket_handle_t sv[2])
+{
+#ifdef HAVE_AF_UNIX
+# ifdef _WIN32
+    // Win32 now has AF_UNIX, but doesn't have socketpair
+    int e;
+    SOCKET listen_sock = INVALID_SOCKET;
+    SOCKET pair[2] = { INVALID_SOCKET, INVALID_SOCKET };
+
+    listen_sock = socket(AF_UNIX, type, 0);
+    if (listen_sock == INVALID_SOCKET) return -1;
+
+    /* Create a random temporary filename. */
+    GString *tempname = g_string_new(g_get_tmp_dir());
+    GUID guid;
+    CoCreateGuid(&guid);
+    wchar_t wideGuid[40];
+    StringFromGUID2(&guid, wideGuid, 40);
+
+    g_string_append_printf(tempname, "\\sock_%s", utf_16to8(wideGuid));
+
+    struct sockaddr_un sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sun_family = AF_UNIX;
+    (void)g_strlcpy(sa.sun_path, tempname->str, sizeof(sa.sun_path));
+    if (bind(listen_sock, (struct sockaddr*)&sa, sizeof(sa)) == SOCKET_ERROR) goto fail;
+    if (listen(listen_sock, 1) == SOCKET_ERROR) goto fail;
+
+    pair[0] = socket(AF_UNIX, type, 0);
+    if (pair[0] == INVALID_SOCKET) goto fail;
+    if (connect(pair[0], (struct sockaddr*)&sa, sizeof(sa)) == SOCKET_ERROR) goto fail;
+
+    pair[1] = accept(listen_sock, NULL, NULL);
+    if (pair[1] == INVALID_SOCKET) goto fail;
+
+    closesocket(listen_sock);
+    DeleteFileA(tempname->str);
+    g_string_free(tempname, true);
+
+    /* Make it POSIX-like and not modify the contents of sv on failure. */
+    sv[0] = pair[0];
+    sv[1] = pair[1];
+    return 0;
+fail:
+    e = WSAGetLastError();
+    if (listen_sock != INVALID_SOCKET) {
+        closesocket(listen_sock);
+        DeleteFileA(tempname->str);
+    }
+    g_string_free(tempname, true);
+    if (pair[0] != INVALID_SOCKET) closesocket(listen_sock);
+    if (pair[1] != INVALID_SOCKET) closesocket(listen_sock);
+    WSASetLastError(e);
+    return -1;
+# else /* _WIN32 */
+    return socketpair(AF_UNIX, type, 0, sv);
+# endif
+#else /* HAVE_AF_UNIX */
+    /* Even all supported Windows has AF_UNIX now. We could try to
+     * fake something with loopback sockets. */
+    errno = EAFNOSUPPORT;
+    return -1;
+#endif
+}
