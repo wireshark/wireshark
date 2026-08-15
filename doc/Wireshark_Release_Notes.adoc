@@ -250,6 +250,14 @@ an alias for the protocol and all its fields.
 
 === New and Updated Capture Interface support
 
+* `etwdump` now supports new capture providers, among which:
+  * un-encrypted LDAP messages
+  * un-encrypted SMB client/server messages
+  * un-encrypted HTTPS messages (from both WinInet and WinHTTP)
+
+* `etwdump` now supports capture options and has a much better support of
+  undecipherable messages.
+
 // [commaize]
 // --
 // --
