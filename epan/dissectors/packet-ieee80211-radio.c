@@ -1321,7 +1321,7 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
   }
 
   /* make sure frame_length includes the FCS for accurate duration calculation */
-  if (pinfo->pseudo_header->ieee_802_11.fcs_len == 0) {
+  if (phdr->fcs_len == 0) {
     frame_length += 4;
   }
 
