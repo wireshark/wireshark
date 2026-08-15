@@ -3170,6 +3170,20 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t tsn,
   return fragment;
 }
 
+static void
+fragment_checked_memcpy(sctp_complete_msg *message, sctp_fragment *frag_i, uint32_t *offset)
+{
+  uint32_t copy_len = frag_i->len;
+  uint32_t old_offset = *offset;
+  if (ckd_add(offset, old_offset, copy_len) || *offset > message->len) {
+    copy_len = message->len - old_offset;
+    *offset = message->len;
+  }
+  if (copy_len && frag_i->data) {
+    memcpy(message->data + old_offset, frag_i->data, copy_len);
+  }
+}
+
 static tvbuff_t*
 fragment_reassembly(tvbuff_t *tvb, sctp_fragment *fragment,
                     packet_info *pinfo, proto_tree *tree, uint16_t stream_id,
@@ -3179,7 +3193,8 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment *fragment,
   sctp_complete_msg *message, *last_message;
   sctp_fragment *frag_i, *last_frag, *first_frag;
   sctp_frag_be *begin, *end, *beginend;
-  uint32_t len, offset = 0;
+  uint32_t offset = 0;
+  uint64_t len;
   tvbuff_t *new_tvb = NULL;
   proto_item *item;
   proto_tree *ptree;
@@ -3357,24 +3372,32 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment *fragment,
    */
   len += frag_i->len;
 
+  /* Cap the length (unsigned lengths are not fully suppported everywhere
+   * including some Qt display issues. See #20103.) In the unusual case len
+   * has already overflowed the uint64_t we won't reassemble it properly, but
+   * the checks below will still prevent bad memory accesses. */
+  if (len > INT32_MAX) {
+    len = INT32_MAX;
+  }
+
   message = wmem_new(wmem_file_scope(), sctp_complete_msg);
   message->begin = begin->fragment->tsn;
   message->end = end->fragment->tsn;
   message->reassembled_in = fragment;
-  message->len = len;
-  message->data = (unsigned char *)wmem_alloc(wmem_file_scope(), len);
+  message->len = (uint32_t)len;
+  message->data = (unsigned char *)wmem_alloc(wmem_file_scope(), message->len);
   message->next = NULL;
 
   /* now copy all fragments */
+  /* XXX - Use the reassembly API. fragment_add_out_of_order() should allow
+   * adding fragment data that comes from other frames. */
   if (begin->fragment->tsn > end->fragment->tsn) {
     /* a tsn restart has occurred */
     for (frag_i = first_frag;
          frag_i;
          frag_i = frag_i->next) {
 
-      if (frag_i->len && frag_i->data)
-        memcpy(message->data + offset, frag_i->data, frag_i->len);
-      offset += frag_i->len;
+      fragment_checked_memcpy(message, frag_i, &offset);
 
       /* release fragment data */
       g_free(frag_i->data);
@@ -3385,9 +3408,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment *fragment,
          frag_i && frag_i->tsn <= end->fragment->tsn;
          frag_i = frag_i->next) {
 
-      if (frag_i->len && frag_i->data)
-        memcpy(message->data + offset, frag_i->data, frag_i->len);
-      offset += frag_i->len;
+      fragment_checked_memcpy(message, frag_i, &offset);
 
       /* release fragment data */
       g_free(frag_i->data);
@@ -3399,9 +3420,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment *fragment,
          frag_i && frag_i->tsn <= end->fragment->tsn;
          frag_i = frag_i->next) {
 
-      if (frag_i->len && frag_i->data)
-        memcpy(message->data + offset, frag_i->data, frag_i->len);
-      offset += frag_i->len;
+      fragment_checked_memcpy(message, frag_i, &offset);
 
       /* release fragment data */
       g_free(frag_i->data);
@@ -3443,7 +3462,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment *fragment,
    g_free(end);
 
   /* create data source */
-  new_tvb = tvb_new_child_real_data(tvb, message->data, len, len);
+  new_tvb = tvb_new_child_real_data(tvb, message->data, message->len, message->len);
   add_new_data_source(pinfo, new_tvb, "Reassembled SCTP Message");
 
   /* display reassembly info */
