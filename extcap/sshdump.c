@@ -28,8 +28,6 @@
 #include <string.h>
 #include <fcntl.h>
 
-#include <cli_main.h>
-
 static char* sshdump_extcap_interface;
 #define DEFAULT_SSHDUMP_EXTCAP_INTERFACE "sshdump"
 

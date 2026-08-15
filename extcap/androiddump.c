@@ -83,8 +83,6 @@
     #include "ui/failure_message.h"
 #endif
 
-#include <cli_main.h>
-
 #ifdef ANDROIDDUMP_USE_LIBPCAP
     #define EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR DLT_BLUETOOTH_H4_WITH_PHDR
     #define EXTCAP_ENCAP_WIRESHARK_UPPER_PDU    DLT_WIRESHARK_UPPER_PDU

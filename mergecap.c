@@ -35,7 +35,6 @@
 #include <wsutil/wslog.h>
 #include <ws_exit_codes.h>
 
-#include <cli_main.h>
 #include <wsutil/version_info.h>
 
 #ifdef HAVE_PLUGINS

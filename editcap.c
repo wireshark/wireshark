@@ -58,7 +58,6 @@
 #include <wsutil/privileges.h>
 #include <wsutil/strnatcmp.h>
 #include <wsutil/str_util.h>
-#include <cli_main.h>
 #include <wsutil/version_info.h>
 #include <wsutil/pint.h>
 #include <wsutil/strtoi.h>

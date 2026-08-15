@@ -47,10 +47,6 @@ def dfilter_cmd(cmd_tshark, capture_file, request):
         return cmd
     return wrapped
 
-@pytest.fixture(scope='session')
-def cmd_dftest(program):
-    return program('dftest')
-
 @pytest.fixture
 def dftest_cmd(cmd_dftest):
     def wrapped(dfilter):

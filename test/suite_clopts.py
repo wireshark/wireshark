@@ -402,3 +402,10 @@ class TestStratoOptions:
     #     assert obj.get('eth.type', 'NOT FOUND') == ['0x0800']
     #     assert obj.get('ip.proto', 'NOT FOUND') == ['6']
     #     assert obj.get('http.host', 'NOT FOUND') == 'NOT FOUND'
+
+class TestDftestUnicodeClopts:
+    def test_dftest_unicode_display_filter(self, cmd_dftest, test_env):
+        '''Dftest Unicode (UTF-8) display filter'''
+        process = subprocesstest.run((cmd_dftest, 'tcp.payload contains "é" and _ws.string contains "\U0001F988"'), capture_output=True, env=test_env)
+        assert grep_output(process.stdout, 'contains c3:a9')
+        assert grep_output(process.stdout, 'contains f0:9f:a6:88') # Unicode Shark

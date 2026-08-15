@@ -28,8 +28,6 @@
 #include <string.h>
 #include <fcntl.h>
 
-#include <cli_main.h>
-
 static char* sshdig_extcap_interface;
 #define DEFAULT_SSHDIG_EXTCAP_INTERFACE "sshdig"
 

@@ -130,6 +130,11 @@ def cmd_capinfos(program):
 
 
 @pytest.fixture(scope='session')
+def cmd_dftest(program):
+    return program('dftest')
+
+
+@pytest.fixture(scope='session')
 def cmd_dumpcap(program):
     return program('dumpcap')
 

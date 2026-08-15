@@ -30,8 +30,6 @@
 #include <string.h>
 #include <fcntl.h>
 
-#include <cli_main.h>
-
 static char* wifidump_extcap_interface;
 #define DEFAULT_WIFIDUMP_EXTCAP_INTERFACE "wifidump"
 

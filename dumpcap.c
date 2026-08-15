@@ -34,7 +34,6 @@
 #include <wsutil/report_message.h>
 #include <wsutil/failure_message_simple.h>
 #include <wsutil/strtoi.h>
-#include <cli_main.h>
 #include <wsutil/version_info.h>
 
 #include <wsutil/socket.h>

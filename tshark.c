@@ -52,7 +52,6 @@
 #include <wsutil/report_message.h>
 #include <app/application_flavor.h>
 #include <wsutil/path_config.h>
-#include <cli_main.h>
 #include <wsutil/version_info.h>
 #include <wiretap/wtap_opttypes.h>
 

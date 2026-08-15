@@ -37,7 +37,6 @@
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 #include <app/application_flavor.h>
-#include <cli_main.h>
 #include <wsutil/version_info.h>
 
 #include "globals.h"

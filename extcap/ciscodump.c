@@ -32,8 +32,6 @@
 #include <wsutil/time_util.h>
 #include <wsutil/ws_strptime.h>
 
-#include <cli_main.h>
-
 #define CISCODUMP_VERSION_MAJOR "1"
 #define CISCODUMP_VERSION_MINOR "0"
 #define CISCODUMP_VERSION_RELEASE "0"

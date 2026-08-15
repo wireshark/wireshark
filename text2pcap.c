@@ -71,7 +71,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wsutil/file_util.h>
-#include <cli_main.h>
 #include <wsutil/cmdarg_err.h>
 #include <ui/text_import.h>
 #include <wsutil/version_info.h>

@@ -25,7 +25,6 @@
 #include <wsutil/filesystem.h>
 #include <app/application_flavor.h>
 #include <wsutil/privileges.h>
-#include <cli_main.h>
 
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>

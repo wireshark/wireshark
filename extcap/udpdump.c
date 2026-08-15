@@ -48,8 +48,6 @@
 #include <wsutil/nstime.h>
 #include <app/application_flavor.h>
 
-#include <cli_main.h>
-
 #define PCAP_SNAPLEN 0xffff
 
 #define UDPDUMP_DEFAULT_PORT 5555

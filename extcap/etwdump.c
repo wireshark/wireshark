@@ -23,7 +23,6 @@
 #include <wsutil/wslog.h>
 #include <app/application_flavor.h>
 
-#include <cli_main.h>
 #include <wsutil/cmdarg_err.h>
 #include "etl.h"
 

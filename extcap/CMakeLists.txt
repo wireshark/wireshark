@@ -118,7 +118,6 @@ if(BUILD_androiddump)
 	if(EXTCAP_ANDROIDDUMP_LIBPCAP)
 		if(HAVE_LIBPCAP)
 			set(androiddump_LIBS
-				cli_main
 				extcap-base
 				wsutil
 				${SOCKET_LIBRARY}
@@ -129,7 +128,6 @@ if(BUILD_androiddump)
 		endif()
 	else()
 		set(androiddump_LIBS
-			cli_main
 			extcap-base
 			ui
 			wiretap
@@ -153,7 +151,6 @@ endif()
 
 if(BUILD_sshdump AND LIBSSH_FOUND)
 	set(sshdump_LIBS
-		cli_main
 		extcap-base
 		ssh-base
 		wsutil
@@ -177,7 +174,6 @@ endif()
 
 if(BUILD_ciscodump AND LIBSSH_FOUND)
 	set(ciscodump_LIBS
-		cli_main
 		extcap-base
 		ssh-base
 		writecap
@@ -202,7 +198,6 @@ endif()
 
 if(BUILD_wifidump AND LIBSSH_FOUND)
 	set(wifidump_LIBS
-		cli_main
 		extcap-base
 		ssh-base
 		writecap
@@ -251,7 +246,6 @@ endif()
 
 if(BUILD_udpdump)
 	set(udpdump_LIBS
-		cli_main
 		extcap-base
 		wsutil
 		${CMAKE_DL_LIBS}
@@ -273,7 +267,6 @@ endif()
 
 if(BUILD_randpktdump)
 	set(randpktdump_LIBS
-		cli_main
 		extcap-base
 		randpkt_core
 		wiretap
@@ -297,7 +290,6 @@ endif()
 
 if(BUILD_etwdump AND WIN32)
 	set(etwdump_LIBS
-		cli_main
 		extcap-base
 		wiretap
 		wsutil
@@ -389,7 +381,6 @@ endif()
 
 if(BUILD_sshdig AND LIBSSH_FOUND)
 	set(sshdig_LIBS
-		cli_main
 		extcap-base
 		ssh-base
 		wsutil

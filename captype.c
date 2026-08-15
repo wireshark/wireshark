@@ -31,7 +31,6 @@
 #include <wsutil/filesystem.h>
 #include <app/application_flavor.h>
 #include <wsutil/privileges.h>
-#include <cli_main.h>
 #include <wsutil/version_info.h>
 
 #ifdef HAVE_PLUGINS
