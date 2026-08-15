@@ -16731,7 +16731,12 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo,
       proto_tree *si_tree;
       int offset_begin_sampleinfo = offset;
 
-      if (rtps_max_batch_samples_dissected > 0 && (unsigned)sample_info_count >= rtps_max_batch_samples_dissected) {
+      /* Never write past the sample_info_flags/sample_info_length arrays,
+       * which are allocated with sample_info_max entries. When the
+       * preference is 0, sample_info_max is 1024 (see above); otherwise it
+       * equals the preference. Guarding on sample_info_max here (rather than
+       * on the preference) keeps the 0 case bounded too. */
+      if ((unsigned)sample_info_count >= (unsigned)sample_info_max) {
         expert_add_info(pinfo, list_item, &ei_rtps_more_samples_available);
         offset = sampleListOffset;
         break;
