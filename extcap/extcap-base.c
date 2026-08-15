@@ -504,6 +504,9 @@ void extcap_base_cleanup(extcap_parameters ** extcap)
     g_free((*extcap)->fifo);
     g_free((*extcap)->control_in);
     g_free((*extcap)->control_out);
+    if ((*extcap)->control_out_fd != -1) {
+        ws_close((*extcap)->control_out_fd);
+    }
     g_free((*extcap)->interface);
     g_free((*extcap)->capture_filter);
     g_free((*extcap)->version);

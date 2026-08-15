@@ -28,6 +28,12 @@
 #include <wsutil/file_util.h>
 #include <wsutil/wslog.h>
 
+#include <wsutil/socket.h>
+
+#ifdef _WIN32
+#include <wsutil/win32-utils.h>
+#endif
+
 /*
  * The unreleased 0.11.0 version of libssh has the ability to
  * add algorithms to the default supported list by prepending
@@ -478,33 +484,34 @@ int ssh_channel_printf(ssh_channel channel, const char* fmt, ...)
 	return ret;
 }
 
-#ifndef _WIN32
-static int pipe_fds[2];
+static socket_handle_t pipe_fds[2] = {INVALID_SOCKET, INVALID_SOCKET};
 
 static void graceful_shutdown_cb(void)
 {
-        if (ws_write(pipe_fds[1], "q", 1) == -1) {
-                ws_warning("failed to write to pipe");
-        }
+	if (send(pipe_fds[1], "q", 1, 0) == SOCKET_ERROR) {
+		ws_warning("failed to write to socket");
+	}
 }
 
-bool ssh_base_setup_graceful_shutdown(extcap_parameters *extcap_conf)
-{
-        if (pipe(pipe_fds) < 0) {
-                ws_warning("pipe failed");
-		pipe_fds[0] = -1;
-                return false;
-        }
-        fcntl(pipe_fds[0], F_SETFL, O_NONBLOCK);
-
-        return extcap_base_register_graceful_shutdown_cb(extcap_conf, graceful_shutdown_cb);
-}
-#else
 bool ssh_base_setup_graceful_shutdown(extcap_parameters *extcap_conf _U_)
 {
-        return true;
-}
+	if (ws_socketpair(SOCK_STREAM, pipe_fds) < 0) {
+		ws_warning("socketpair failed");
+		pipe_fds[0] = INVALID_SOCKET;
+		return false;
+	}
+#ifdef _WIN32
+	unsigned long non_blocking = 1;
+	if (SOCKET_ERROR == ioctlsocket(pipe_fds[0], FIONBIO, &non_blocking)) {
+		ws_info("Failure setting socket to non-blocking: %s", win32strerror(WSAGetLastError()));
+	}
+#else
+	if (-1 == fcntl(pipe_fds[0], F_SETFL, O_NONBLOCK)) {
+		ws_info("Failure setting socket to non-blocking: %s", g_strerror(errno));
+	}
 #endif
+	return extcap_base_register_graceful_shutdown_cb(extcap_conf, graceful_shutdown_cb);
+}
 
 int ssh_async_loop_read(ssh_session sshs, ssh_channel channel, FILE* fp)
 {
@@ -527,12 +534,10 @@ int ssh_async_loop_read(ssh_session sshs, ssh_channel channel, FILE* fp)
 		FD_SET(ssh_get_fd(sshs), &fds);
 		maxfd = ssh_get_fd(sshs) + 1;
 
-#ifndef _WIN32
-		if (pipe_fds[0] >= 0) {
+		if (pipe_fds[0] != INVALID_SOCKET) {
 			FD_SET(pipe_fds[0], &fds);
 			maxfd = MAX(maxfd, pipe_fds[0] + 1);
 		}
-#endif
 
 		switch (ssh_select(in_channels, out_channels, maxfd, &fds, &timeout)) {
 		case SSH_EINTR:
@@ -566,16 +571,14 @@ int ssh_async_loop_read(ssh_session sshs, ssh_channel channel, FILE* fp)
 			}
 		}
 
-#ifndef _WIN32
-		if (pipe_fds[0] >= 0 && FD_ISSET(pipe_fds[0], &fds)) {
+		if (pipe_fds[0] != INVALID_SOCKET && FD_ISSET(pipe_fds[0], &fds)) {
 			char buf[1];
-			if (ws_read(pipe_fds[0], buf, 1) == -1) {
+			if (recv(pipe_fds[0], buf, 1, 0) == SOCKET_ERROR) {
 				/* We don't really care if cleaning the pipe
 				 * fails because we're quitting anyway. */
 			}
 			goto end;
 		}
-#endif
 	}
 
 read_stderr:
@@ -602,6 +605,12 @@ end:
 
 void ssh_cleanup(ssh_session* sshs, ssh_channel* channel)
 {
+	if (INVALID_SOCKET != pipe_fds[0]) {
+		closesocket(pipe_fds[0]);
+	}
+	if (INVALID_SOCKET != pipe_fds[1]) {
+		closesocket(pipe_fds[1]);
+	}
 	if (*channel) {
 		ssh_channel_request_send_signal(*channel, "HUP");
 		ssh_channel_send_eof(*channel);
