@@ -632,6 +632,10 @@ static int hf_gsm_a_bssmap_trace_reference;
 static int hf_gsm_a_bssmap_trace_omc_id;
 static int hf_gsm_a_bssmap_be_rnc_id;
 static int hf_gsm_a_bssmap_apdu_protocol_id;
+static int hf_gsm_a_bssmap_segmentation_spare_bits;
+static int hf_gsm_a_bssmap_segment_number;
+static int hf_gsm_a_bssmap_msg_id;
+static int hf_gsm_a_bssmap_segmentation_info;
 static int hf_gsm_a_bssmap_periodicity;
 static int hf_gsm_a_bssmap_sm;
 static int hf_gsm_a_bssmap_tarr;
@@ -3247,14 +3251,32 @@ be_ret_err_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t o
  * 3.2.2.74 Segmentation
  * Segmentation element of 3GPP TS 49.031 BSSAP-LE.
  */
+
+static const true_false_string tfs_gsm_a_bssmap_segmented = { "non-final segment of a segmented message", "final segment of a segmented message" };
+
 static uint16_t
-be_seg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
+be_seg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_)
 {
     uint32_t curr_offset;
 
     curr_offset = offset;
-
-    proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len);
+    /* There are two options for the coding of the Segmentation and Message Information portion;
+     * 1 octet containing segmentation information only and 3 octets containing segmentation and message information.
+     */
+    /* Octet 3	Spare	S	Segment Number */
+    static int* const oct3_flags[] = {
+        &hf_gsm_a_bssmap_segmentation_spare_bits,
+        &hf_gsm_a_bssmap_segmentation_info,
+        &hf_gsm_a_bssmap_segment_number,
+        NULL
+    };
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct3_flags, ENC_NA);
+    curr_offset++;
+    if (len >= 3) {
+        /* Octet 4-5	Message ID */
+        proto_tree_add_item(tree, hf_gsm_a_bssmap_msg_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+        curr_offset += 2;
+    }
 
     return len;
 }
@@ -6886,7 +6908,14 @@ bssmap_conn_oriented(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32
     ELEM_MAND_TLV_E(BE_APDU, GSM_A_PDU_TYPE_BSSMAP, BE_APDU, NULL, ei_gsm_a_bssmap_missing_mandatory_element);
 
     ELEM_OPT_TLV(BE_SEG, GSM_A_PDU_TYPE_BSSMAP, BE_SEG, NULL);
-
+    /* Multilateration Positioning Method	Multilateration Positioning Method	C (Note 2)	TLV	2
+     * Cell Identifier 	Cell Identifier	C (Note 3)	TLV	7
+     * Multilateration Timing Advance	Multilateration Timing Advance	C (Note 3)	TV	3
+     * MS Sync Accuracy	MS Sync Accuracy	C (Note 4)	TV	2
+     * BTS Reception Accuracy Level	BTS Reception Accuracy Level	C (Note 3)	TV	2
+     * Short ID	Short ID	C (Note 5)	TV	2
+     * Random ID	Random ID	C (Note 4)	TV	3
+     */
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
 
@@ -7845,6 +7874,26 @@ proto_register_gsm_a_bssmap(void)
         { "Protocol ID", "gsm_a.bssmap.apdu_protocol_id",
         FT_UINT8, BASE_DEC, VALS(gsm_a_apdu_protocol_id_strings), 0x0,
         "APDU embedded protocol id", HFILL }
+    },
+    { &hf_gsm_a_bssmap_segmentation_spare_bits ,
+        { "Spare bits", "gsm_a.bssmap.segmentation_spare_bits",
+        FT_UINT8, BASE_HEX, NULL, 0xe0,
+        NULL, HFILL }
+    },
+    { &hf_gsm_a_bssmap_segmentation_info,
+        { "Segmentation indicator", "gsm_a.bssmap.segmentation_indicator",
+        FT_BOOLEAN, 8, TFS(&tfs_gsm_a_bssmap_segmented), 0x10,
+        NULL, HFILL }
+    },
+    { &hf_gsm_a_bssmap_segment_number,
+        { "Segment Number", "gsm_a.bssmap.segment_number",
+        FT_UINT8, BASE_DEC, NULL, 0x0f,
+        NULL, HFILL }
+    },
+    { &hf_gsm_a_bssmap_msg_id,
+        { "Message ID", "gsm_a.bssmap.msg_id",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_periodicity,
         { "Periodicity", "gsm_a.bssmap.periodicity",
