@@ -25,12 +25,15 @@ find_path(CPUINFO_INCLUDE_DIR
   /usr/local/include
 )
 
-find_library(CPUINFO_LIBRARY
+include(FindWSLibrary)
+FindWSLibrary(CPUINFO_LIBRARY
   NAMES cpuinfo
-  HINTS "${CPUINFO_LIBDIR}" "${CPUINFO_HINTS}/lib"
+  HINTS "${CPUINFO_LIBDIR}"
   PATHS
   /usr/lib
   /usr/local/lib
+  WIN32_HINTS
+    "${CPUINFO_HINTS}"
 )
 
 include(FindPackageHandleStandardArgs)
@@ -41,8 +44,17 @@ if( CpuInfo_FOUND AND NOT TARGET CpuInfo::CpuInfo)
   # CpuInfo is static only on Windows - vcpkg says:
   # "On Windows, we can get a cpuinfo.dll, but it exports no symbols."
   add_library(CpuInfo::CpuInfo UNKNOWN IMPORTED)
-  set_target_properties(CpuInfo::CpuInfo PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${CPUINFO_INCLUDE_DIR}"
-    IMPORTED_LOCATION "${CPUINFO_LIBRARY}"
-  )
+  if (USE_REPOSITORY)
+    set_target_properties(CpuInfo::CpuInfo PROPERTIES
+        IMPORTED_CONFIGURATIONS "RELEASE;DEBUG"
+        IMPORTED_LOCATION "${CPUINFO_LIBRARY_RELEASE}"
+        IMPORTED_LOCATION_DEBUG "${CPUINFO_LIBRARY_DEBUG}"
+        INTERFACE_INCLUDE_DIRECTORIES "${CPUINFO_INCLUDE_DIR}"
+    )
+  else()
+    set_target_properties(CpuInfo::CpuInfo PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES "${CPUINFO_INCLUDE_DIR}"
+      IMPORTED_LOCATION "${CPUINFO_LIBRARY}"
+    )
+  endif()
 endif()

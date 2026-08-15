@@ -62,9 +62,29 @@ function(AddWSWinDLL _PKG_NAME _PKG_HINTS _DLL_GLOB)
       CACHE STRING "${_PKG_NAME} PDB file name"
     )
     mark_as_advanced( ${_PKG_VAR}_DLL_DIR ${_PKG_VAR}_DLL ${_PKG_VAR}_PDB )
+    set ( ${_PKG_VAR}_DLL_DIR_DEBUG "${${_PKG_HINTS}}/debug/bin"
+      CACHE PATH "Path to ${_PKG_NAME} Debug DLL"
+    )
+    file( GLOB _pkg_dll RELATIVE "${${_PKG_VAR}_DLL_DIR_DEBUG}"
+      "${${_PKG_VAR}_DLL_DIR_DEBUG}/${_DLL_GLOB}.dll"
+    )
+    set ( ${_PKG_VAR}_DLL_DEBUG ${_pkg_dll}
+      CACHE STRING "${_PKG_NAME} Debug DLL file name"
+    )
+    file( GLOB _pkg_pdb RELATIVE "${${_PKG_VAR}_DLL_DIR_DEBUG}"
+      "${${_PKG_VAR}_DLL_DIR_DEBUG}/${_DLL_GLOB}.pdb"
+    )
+    set ( ${_PKG_VAR}_PDB_DEBUG ${_pkg_pdb}
+      CACHE STRING "${_PKG_NAME} Debug PDB file name"
+    )
+    mark_as_advanced( ${_PKG_VAR}_DLL_DIR_DEBUG ${_PKG_VAR}_DLL_DEBUG ${_PKG_VAR}_PDB_DEBUG )
   else()
     set( ${_PKG_VAR}_DLL_DIR )
     set( ${_PKG_VAR}_DLL )
+    set( ${_PKG_VAR}_PDB )
+    set( ${_PKG_VAR}_DLL_DIR_DEBUG )
+    set( ${_PKG_VAR}_DLL_DEBUG )
+    set( ${_PKG_VAR}_PDB_DEBUG )
   endif()
 endfunction()
 

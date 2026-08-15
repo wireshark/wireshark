@@ -205,7 +205,7 @@ target_link_libraries(wiretap
 		${ZLIB_LIBRARIES}
 		${ZLIBNG_LIBRARIES}
 		${ZSTD_LIBRARIES}
-		${LZ4_LIBRARIES}
+		$<TARGET_NAME_IF_EXISTS:LZ4::LZ4>
 )
 
 target_include_directories(wiretap SYSTEM
@@ -213,7 +213,6 @@ target_include_directories(wiretap SYSTEM
 		${ZLIB_INCLUDE_DIRS}
 		${ZLIBNG_INCLUDE_DIRS}
 		${ZSTD_INCLUDE_DIRS}
-		${LZ4_INCLUDE_DIRS}
 )
 
 target_include_directories(wiretap PUBLIC

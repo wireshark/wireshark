@@ -2,8 +2,10 @@
 # Once done, this will define
 #
 #  XXHASH_FOUND - system has XXHASH
-#  XXHASH_INCLUDE_DIRSS - the XXHASH include directories
+#  XXHASH_INCLUDE_DIRS - the XXHASH include directories
 #  XXHASH_LIBRARIES - the XXHASH library
+#
+# and create an IMPORTED target XXHASH::XXHASH if found.
 
 include( FindWSWinLibs )
 FindWSWinLibs( "xxhash" "XXHASH_HINTS" )
@@ -32,16 +34,17 @@ if(XXHASH_INCLUDE_DIR AND EXISTS "${XXHASH_INCLUDE_DIR}/xxhash.h")
   set(XXHASH_VERSION_STRING "${XXHASH_VERSION_MAJOR}.${XXHASH_VERSION_MINOR}.${XXHASH_VERSION_PATCH}")
 endif()
 
-find_library(XXHASH_LIBRARY
+include(FindWSLibrary)
+FindWSLibrary(XXHASH_LIBRARY
     NAMES xxhash
     HINTS
         ${XXHASH_LIBDIR}
-        ${XXHASH_HINTS}/lib
     PATHS
         ${XXHASH_PKGCONF_LIBRARY_DIRS}
         /usr/lib
         /usr/local/lib
-
+    WIN32_HINTS
+        "${XXHASH_HINTS}"
 )
 
 include(FindPackageHandleStandardArgs)
@@ -57,6 +60,22 @@ if(XXHASH_FOUND)
     AddWSWinDLL(XXHASH XXHASH_HINTS "xxhash")
     SET(XXHASH_INCLUDE_DIRS ${XXHASH_INCLUDE_DIR})
     SET(XXHASH_LIBRARIES ${XXHASH_LIBRARY})
+    if (NOT TARGET XXHASH::XXHASH)
+        add_library(XXHASH::XXHASH UNKNOWN IMPORTED)
+        if (USE_REPOSITORY)
+            set_target_properties(XXHASH::XXHASH PROPERTIES
+                IMPORTED_CONFIGURATIONS "RELEASE;DEBUG"
+                IMPORTED_LOCATION "${XXHASH_LIBRARY_RELEASE}"
+                IMPORTED_LOCATION_DEBUG "${XXHASH_LIBRARY_DEBUG}"
+                INTERFACE_INCLUDE_DIRECTORIES "${XXHASH_INCLUDE_DIR}"
+        )
+        else()
+            set_target_properties(XXHASH::XXHASH PROPERTIES
+                IMPORTED_LOCATION "${XXHASH_LIBRARY}"
+                INTERFACE_INCLUDE_DIRECTORIES "${XXHASH_INCLUDE_DIR}"
+            )
+        endif()
+    endif()
 else()
     SET(XXHASH_LIBRARIES )
     SET(XXHASH_INCLUDE_DIRS )
