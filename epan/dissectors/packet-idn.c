@@ -1303,8 +1303,8 @@ static void add_audio_sample_description(proto_item *audio_samples_tree, configu
 			}break;
 		case 0x8:
 			proto_item_append_text(audio_samples_tree, "Channel:");
-			for(uint8_t i = 1; i <= channels; i++){
-				proto_item_append_text(audio_samples_tree, "  %u", i);
+			for(int i = 0; i < (int)channels; i++){
+				proto_item_append_text(audio_samples_tree, "  %u", (i + 1));
 			}
 			break;
 		default:
