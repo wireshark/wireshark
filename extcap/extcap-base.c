@@ -287,6 +287,7 @@ control_in_reader_thread(void *user_data) {
     if (fd == -1) {
         ws_warning("Couldn't open control in pipe/FIFO %s", pipename);
         g_free(pipename);
+        g_free(buffer);
         return NULL;
     }
     g_free(pipename);
