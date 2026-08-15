@@ -151,7 +151,6 @@ capture_session_init(capture_session *cap_session, capture_file *cf,
     cap_session->frame_cksum                     = NULL;
 
     g_queue_init(&cap_session->toolbar_queue);
-    g_mutex_init(&cap_session->toolbar_mutex);
 }
 
 static void iface_toolbar_message_free_wrapper(void *a)
@@ -710,6 +709,7 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
 
     cap_session->fork_child = WS_INVALID_PID;
     cap_session->capture_opts = capture_opts;
+    g_mutex_init(&cap_session->toolbar_mutex);
 
     if (!extcap_init_interfaces(cap_session)) {
         report_failure("Unable to init extcaps. (tmp fifo already exists?)");
