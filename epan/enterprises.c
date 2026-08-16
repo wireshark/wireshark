@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* (last updated 2026-08-07) */
+/* (last updated 2026-08-14) */
 
 #include "config.h"
 
@@ -12060,7 +12060,7 @@ static const char * const table[] =
     "everyhost.com",                                                                      // 12038
     "Exalead S.A.",                                                                       // 12039
     "gull house",                                                                         // 12040
-    "HTL Braunau",                                                                        // 12041
+    "emicrotec",                                                                          // 12041
     "Infosys Corporation",                                                                // 12042
     "Jasmap Inc.",                                                                        // 12043
     "Lakesoft Consulting & ISP",                                                          // 12044
@@ -27040,7 +27040,7 @@ static const char * const table[] =
     "TDC Switzerland AG",                                                                 // 27018
     "Envision Network Technologies Pvt. Ltd.",                                            // 27019
     "Pan Asian Certificate Policy Authority Limited",                                     // 27020
-    "Pactiv  Corp.",                                                                      // 27021
+    "Novolex Holdings, LLC",                                                              // 27021
     "Instrumentation Technology Systems Corporation",                                     // 27022
     "Nexant, Inc.",                                                                       // 27023
     "I-Connect Inc",                                                                      // 27024
@@ -56190,7 +56190,7 @@ static const char * const table[] =
     "dotup IT solutions",                                                                 // 56168
     "Open Products, Networks & Software (OPNS)",                                          // 56169
     "Secure Nordic Payments",                                                             // 56170
-    "Samm Technology Communications Industry and Trade Inc.",                             // 56171
+    "SAMM Teknoloji Iletisim San. ve Ticaret A.S.",                                       // 56171
     NULL,                                                                                 // 56172
     "A.J. Steenkist",                                                                     // 56173
     "Geminare Inc.",                                                                      // 56174
@@ -66497,7 +66497,67 @@ static const char * const table[] =
     "Percivix",                                                                           // 66475
     "Psyray International B.V.",                                                          // 66476
     "GrowVolution e.V.",                                                                  // 66477
-    "NextITX"                                                                             // 66478
+    "NextITX",                                                                            // 66478
+    "CompleteMSP",                                                                        // 66479
+    "aethercert",                                                                         // 66480
+    "Speedit",                                                                            // 66481
+    "Securepeak LLC",                                                                     // 66482
+    "GoFirmex",                                                                           // 66483
+    "Fexsign",                                                                            // 66484
+    "Ternstack",                                                                          // 66485
+    "Saturn Pathology",                                                                   // 66486
+    "Maven Logix Private Limited",                                                        // 66487
+    "SE Service GmbH",                                                                    // 66488
+    "NtangledState Inc.",                                                                 // 66489
+    "Lyon Systems",                                                                       // 66490
+    "Wild Turtles",                                                                       // 66491
+    "VusionGroup GmbH",                                                                   // 66492
+    "East Lothian Council",                                                               // 66493
+    "MetTel",                                                                             // 66494
+    "ISOLEDIN s.r.o.",                                                                    // 66495
+    "CXL Consortium",                                                                     // 66496
+    "SHIVANSHU JHA",                                                                      // 66497
+    "Mariusz Drozdowski",                                                                 // 66498
+    "Estado de Goias - Tecnologia da Informacao",                                         // 66499
+    "Kodiak AI",                                                                          // 66500
+    "Simple Designs Software LLC",                                                        // 66501
+    "NetInTech",                                                                          // 66502
+    "Guilin Guangyi Intelligent Technology Co., Ltd.",                                    // 66503
+    "Moon Biotech Co., Ltd.",                                                             // 66504
+    "Callray Communications Co., Ltd.",                                                   // 66505
+    "PILA GROUP JOINT STOCK COMPANY",                                                     // 66506
+    "Xiaomi EV Technology Co., Ltd.",                                                     // 66507
+    "Creotech Quantum S.A.",                                                              // 66508
+    "Maru Ná ~ Verein für Bewußtseinsentwicklung",                                        // 66509
+    "OpenWrt",                                                                            // 66510
+    "Micos",                                                                              // 66511
+    "Washington State Dept of Transportation",                                            // 66512
+    "W&H Dentalwerk Bürmoos GmbH",                                                        // 66513
+    "ABBRobotics",                                                                        // 66514
+    "Navisys Technology Corp.",                                                           // 66515
+    "Coastal Energy Solutions",                                                           // 66516
+    "Bizit Global",                                                                       // 66517
+    "CyberDD - Cybersecurity Consulting",                                                 // 66518
+    "BXB Electronics Co., Ltd.",                                                          // 66519
+    "HUB IT Co., Ltd.",                                                                   // 66520
+    "TimeServerZero",                                                                     // 66521
+    "XIAMEN HANIN CO., LTD.",                                                             // 66522
+    "Zhamp Limited",                                                                      // 66523
+    "Kynetix",                                                                            // 66524
+    "Cabarrus County Government",                                                         // 66525
+    "VNPT-CA",                                                                            // 66526
+    "HyperDigital Technology Co., Ltd.",                                                  // 66527
+    "Senfio Soluções Tecnológicas Ltda",                                                  // 66528
+    "VINOC, S.A.P.I. de C.V.",                                                            // 66529
+    "Tactical Signals Intel",                                                             // 66530
+    "SPON Communications",                                                                // 66531
+    "Aaron Forsythe",                                                                     // 66532
+    "Sergio Alejandro Murillo Olaya",                                                     // 66533
+    "Shenzhen Tringo Control Co., Ltd",                                                   // 66534
+    "MobileTek communication",                                                            // 66535
+    "1SINQ GmbH",                                                                         // 66536
+    "New Wave Design and Verification, LLC, dba New Wave Design",                         // 66537
+    "ZDN Enterprises, LLC"                                                                // 66538
 };
 
 const char* global_enterprises_lookup(uint32_t value)
