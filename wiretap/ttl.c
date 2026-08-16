@@ -39,6 +39,7 @@ static int ttl_file_type_subtype = -1;
 
 #define TTL_ADDRESS_NAME_PREFS      "file_format_ttl_names"
 #define TTL_ADDRESS_MASTER_PREFS    "file_format_ttl_masters"
+#define TTL_MAX_CORRUPTED_BLOCKS    1024
 
 void register_ttl(void);
 static bool ttl_read(wtap* wth, wtap_rec* rec, int* err, char** err_info, int64_t* data_offset);
@@ -2251,6 +2252,9 @@ static ttl_result_t ttl_read_entry(wtap* wth, wtap_rec* rec, int* err, char** er
         /*
          * We probably have a corrupted file, try to recover our alignment
          * by skipping to the next block.
+         *
+         * Note this doesn't read bytes, so wth->fh->eof might not get set
+         * even offset is past the end of the file.
          */
         return TTL_CORRUPTED;
     }
@@ -2723,9 +2727,9 @@ ttl_open(wtap* wth, int* err, char** err_info) {
     /* This seems to be a TLL! */
 
     /* Check for valid block size */
-    if (header.block_size == 0) {
+    if (header.block_size < sizeof(ttl_entryheader_t)) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = ws_strdup("ttl: block size cannot be 0");
+        *err_info = ws_strdup("ttl: entry block size cannot be smaller than an entry header");
         return WTAP_OPEN_ERROR;
     }
     /* Check for a valid header length */
@@ -2810,6 +2814,8 @@ ttl_next_block(const ttl_t* ttl, int64_t pos) {
         return pos;
     }
 
+    // ttl_open should assure this
+    ws_assert(ttl->block_size >= sizeof(ttl_entryheader_t));
     return pos + ttl->block_size - ((pos - ttl->header_size) % ttl->block_size);
 }
 
@@ -2817,6 +2823,7 @@ static bool ttl_read(wtap* wth, wtap_rec* rec, int* err, char** err_info, int64_
     ttl_read_t      input;
     int64_t         pos, end;
     ttl_result_t    res;
+    unsigned        corrupted_blocks = 0;
 
     input.fh = wth->fh;
     input.validity = VALIDITY_FH;
@@ -2827,6 +2834,11 @@ static bool ttl_read(wtap* wth, wtap_rec* rec, int* err, char** err_info, int64_
 
         res = ttl_read_entry(wth, rec, err, err_info, &input, pos, end);
         if (G_UNLIKELY(res == TTL_CORRUPTED)) {
+            if (++corrupted_blocks > TTL_MAX_CORRUPTED_BLOCKS) {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = ws_strdup("ttl: too many consecutive corrupted blocks");
+                return false;
+            }
             ws_warning("ttl_read(): Unaligned block found, skipping to next block offset: 0x%" PRIx64, end);
             report_warning("Found unaligned TTL block. Skipping to the next one.");
             if (file_seek(wth->fh, end, SEEK_SET, err) < 0) {
