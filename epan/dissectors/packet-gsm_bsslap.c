@@ -301,10 +301,16 @@ de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t of
                 consumed+= be_cell_id_aux(tvb, subtree, pinfo, curr_offset, len, NULL, 0, 1);
                 break;
             case 2:
-                /* 3G Cell identification container 1 */
+                /* 3G Cell identification container 1
+                 * Coding of the Target ID for Cell identification discriminator = 0010.
+                 * Octets (x+1) to (x+9) shall be ignored by the receiver.
+                 */
                 /* fall trough */
             case 3:
-                /* 3G Cell identification container 2 */
+                /* 3G Cell identification container 2
+                 * Coding of the Target ID for Cell identification discriminator = 0011.
+                 * Octets (x+1) to (x+6) shall be ignored by the receiver.
+                 */
                 /* fall trough */
             default:
                 proto_tree_add_expert(subtree, pinfo, &ei_gsm_bsslap_not_decoded_yet, tvb, curr_offset, len);
@@ -332,6 +338,8 @@ de_enh_meas_rep(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t of
     uint32_t curr_offset;
 
     curr_offset = offset;
+    //tvbuff_t* msg_tvb = tvb_new_subset_length(tvb, curr_offset, len);
+    //sacch_rr_enh_meas_report(msg_tvb, tree, pinfo, 0, len);
     proto_tree_add_expert(tree, pinfo, &ei_gsm_bsslap_not_decoded_yet, tvb, curr_offset, len);
 
 

@@ -1856,7 +1856,10 @@ be_cell_id_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t of
                     g_free(str);
                 }
             }
-            break;
+            if (disc != 0x0c) {
+                break;
+            }
+            /* FALLTHRU */
         }
 
         if ((disc == 0x04) || (disc == 0x05) || (disc == 0x08)) break;
