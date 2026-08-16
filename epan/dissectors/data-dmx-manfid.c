@@ -11,7 +11,7 @@
 #include "data-dmx-manfid.h"
 
 /*
- * ESTA codes download date: 2026-08-09
+ * ESTA codes download date: 2026-08-16
  */
 static const value_string dmx_esta_manfid_vals[] = {
   { 0x0000, "ESTA / PLASA" },
@@ -335,6 +335,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x03E8, "Acson" },
   { 0x03F0, "jpbaye.de" },
   { 0x03FA, "ART-DMX" },
+  { 0x03FD, "Guangzhou DWM Lighting Co.,Ltd" },
   { 0x0402, "Exato" },
   { 0x0404, "Luminxa" },
   { 0x040E, "Optoma Corporation" },
@@ -624,6 +625,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x07CF, "MH-Sound" },
   { 0x07D1, "Made By Mouse LTD" },
   { 0x07D2, "Guangdong The One Studio Co., Limited" },
+  { 0x07D4, "Sense Solutions" },
   { 0x07D5, "PHIDA Stage Equipment Co., Ltd" },
   { 0x07D6, "Lite Puter Enterprise Co., Ltd." },
   { 0x07DA, "Flytech s.r.l." },
@@ -1180,6 +1182,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x19BA, "Guangzhou Xinzhijie Photoelectric Co., Ltd." },
   { 0x19BB, "Panalux Ltd." },
   { 0x19BC, "Newtone AS" },
+  { 0x19D7, "TPK Optoelectronic Tech Co., Ltd." },
   { 0x19F8, "CEZOS Spolka z ograniczona odpowiedzialnoscia, sp.k." },
   { 0x1A00, "LIGEO GmbH" },
   { 0x1A0D, "Cineo Lighting" },
@@ -1188,6 +1191,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x1A3D, "Red Lighting s.r.l." },
   { 0x1A58, "Wuxi Seastar Lighting Co.,Ltd." },
   { 0x1AFA, "TMB" },
+  { 0x1AFD, "Shenzhen ZMO Information Technology Co., Ltd." },
   { 0x1BB1, "PH Lightning AB" },
   { 0x1BC0, "ALS Stanislaw Binkiewicz" },
   { 0x1BC6, "Studio S Music City" },
@@ -1775,6 +1779,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x7FFD, "RESERVED FOR PROTOTYPING/EXPERIMENTAL USE ONLY" },
   { 0x7FFE, "RESERVED FOR PROTOTYPING/EXPERIMENTAL USE ONLY" },
   { 0x7FFF, "RESERVED FOR PROTOTYPING/EXPERIMENTAL USE ONLY" },
+  { 0x890D, "Guangzhou Shengyuan Electronic Technology Co., Ltd" },
   { 0xFFFC, "RDMNet RPT All Controllers" },
   { 0xFFFD, "RDMNet RPT All Devices" },
   { 0xFFFF, "ESTA" },

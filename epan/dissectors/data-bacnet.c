@@ -1651,6 +1651,12 @@ BACnetVendorIdentifiers[] = {
     { 1638, "SpecPromDizajn OOO" },
     { 1639, "FACTS Engineering, LLC" },
     { 1640, "GAserv GmbH" },
+    { 1641, "Leeds Electronics Engineering Limited" },
+    { 1642, "MITO Contracting Group Inc." },
+    { 1643, "Calectro AB" },
+    { 1644, "bmsOS Technology Inc." },
+    { 1645, "Vossloh-Schwabe Deutschand GmbH" },
+    { 1646, "Iviva Pte Ltd" },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);

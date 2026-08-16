@@ -59,6 +59,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     gfp-t - ITU-T G.7041/Y.1303 Generic Framing Procedure Transparent mode
     gprs-llc - GPRS LLC
     gsm_um - GSM Um Interface
+    gsmtap_um - GSMTAP Um
     hhdlc - HiPath HDLC
     i2c-linux - I2C with Linux-specific pseudo-header
     ieee-802-11 - IEEE 802.11 Wireless LAN
