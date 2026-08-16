@@ -254,6 +254,7 @@ an alias for the protocol and all its fields.
   * un-encrypted LDAP messages
   * un-encrypted SMB client/server messages
   * un-encrypted HTTPS messages (from both WinInet and WinHTTP)
+  * raw HCI events (similar to Microsoft's btvs.exe)
 
 * `etwdump` now supports capture options and has a much better support of
   undecipherable messages.

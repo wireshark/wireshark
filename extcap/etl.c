@@ -50,7 +50,7 @@ extern BOOL g_event_enable_silos;
 extern BOOL g_event_property_source_container_tracking;
 extern BOOL g_debug_parsers;
 
-//Microsoft-Windows-Wmbclass-Opn
+// Microsoft-Windows-Wmbclass-Opn
 const GUID mbb_provider = { 0xA42FE227, 0xA7BF, 0x4483, {0xA5, 0x02, 0x6B, 0xCD, 0xA4, 0x28, 0xCD, 0x96} };
 // Microsoft-Windows-NDIS-PacketCapture
 const GUID ndis_capture_provider = { 0x2ed6006e, 0x4729, 0x4609, {0xb4, 0x23, 0x3e, 0xe7, 0xbc, 0xd6, 0x78, 0xef} };
@@ -66,6 +66,8 @@ const GUID wininet_capture_provider = { 0xa70ff94f, 0x570b, 0x4979, { 0xba, 0x5c
 const GUID webio_provider = { 0x50B3E73C, 0x9370, 0x461D, { 0xBB, 0x9F, 0x26, 0xF3, 0x2D, 0x68, 0x88, 0x7D} };
 // Microsoft-Windows-LDAP-Client
 const GUID ldap_client_provider = { 0x099614A5, 0x5DD7, 0x4788, { 0x8B, 0xC9, 0xE2, 0x9F, 0x43, 0xDB, 0x28, 0xFC } };
+// Microsoft-Windows-BTH-BTHPORT
+const GUID bth_bthport_provider = { 0x8A1F9517, 0x3A8C, 0x4A9E, { 0xA0, 0x18, 0x4F, 0x17, 0xA2, 0x00, 0xF2, 0x77 } };
 
 
 EXTERN_C const GUID DECLSPEC_SELECTANY EventTraceGuid = { 0x68fdd900, 0x4a3e, 0x11d1, {0x84, 0xf4, 0x00, 0x00, 0xf8, 0x04, 0x64, 0xe3} };
@@ -182,6 +184,7 @@ const struct _SCENARIO g_scenarios[] = {
     { SCENARIO_KEY L"SASL-LDAP-Capture", { { 0x099614a5, 0x5dd7, 0x4788, { 0x8b, 0xc9, 0xe2, 0x9f, 0x43, 0xdb, 0x28, 0xfc } }, 0x0000000002010800, 5 } },
     { SCENARIO_KEY L"SMBClient-Capture", { { 0x988c59c5, 0x0a1c, 0x45b6, { 0xa5, 0x55, 0x0c, 0x62, 0x27, 0x6e, 0x32, 0x7d } }, 0x0800C40300000000, 5 } },
     { SCENARIO_KEY L"SMBServer-Capture", { { 0xd48ce617, 0x33a2, 0x4bc3, { 0xa5, 0xc7, 0x11, 0xaa, 0x4f, 0x29, 0x61, 0x9e } }, 0x0800040300000000, 5 } },
+    { SCENARIO_KEY L"BTH-BTHPORT", { { 0x8A1F9517, 0x3A8C, 0x4A9E, { 0xA0, 0x18, 0x4F, 0x17, 0xA2, 0x00, 0xF2, 0x77 } }, 0x8000000000000000, 5 } },
     { 0, 0 }
 };
 
@@ -210,6 +213,7 @@ static void etw_dump_write_general_event(PEVENT_RECORD ev, ULARGE_INTEGER timest
 static void etw_dump_write_wininet_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
 static void etw_dump_write_webio_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
 static void etw_dump_write_ldap_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
+static void etw_dump_write_bthport_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
 static wtap_dumper* etw_dump_open(const char* pcapng_filename, int* err, char** err_info);
 
 static DWORD GetPropertyValue(WCHAR* ProviderId, EVT_PUBLISHER_METADATA_PROPERTY_ID PropertyId, PEVT_VARIANT* Value)
@@ -696,6 +700,11 @@ static void WINAPI event_callback(PEVENT_RECORD ev)
         ev->EventHeader.EventDescriptor.Id == 17))
     {
         etw_dump_write_ldap_event(ev, timestamp);
+    }
+    else if (IsEqualGUID(&ev->EventHeader.ProviderId, &bth_bthport_provider) && (
+        (ev->EventHeader.EventDescriptor.Keyword & 0x8000000000000000L) != 0))
+    {
+        etw_dump_write_bthport_event(ev, timestamp);
     }
     /* Write any event form other providers other than above */
     else
@@ -1477,6 +1486,53 @@ static void etw_dump_write_ldap_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp
 end:
     if (Message)
         g_free(Message);
+}
+
+static void etw_dump_write_bthport_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
+{
+    WTAP_ETL_RECORD* etl_record = NULL;
+    ULONG total_packet_length = 0;
+    PROPERTY_DATA_DESCRIPTOR DataDescriptor = { 0 };
+    DWORD DataLen = 0;
+    DWORD Type = 0;
+    ULONG status;
+    BYTE* Buffer = NULL;
+    PWTAP_ETL_RECORD_CONTEXT ctx = ctx_init();
+
+    // Get "BIP_DataLen" property
+    DataDescriptor.PropertyName = (ULONGLONG)&L"BIP_DataLen";
+    DataDescriptor.ArrayIndex = ULONG_MAX;
+    status = TdhGetProperty(ev, 0, NULL, 1, &DataDescriptor, sizeof(DWORD), (PBYTE)&DataLen);
+    if (status != NO_ERROR) goto end;
+    Buffer = g_malloc(DataLen + 1);
+    if (DataLen == 0) goto end;
+
+    // Get "BIP_Data" property
+    DataDescriptor.PropertyName = (ULONGLONG)&L"BIP_Data";
+    DataDescriptor.ArrayIndex = ULONG_MAX;
+    status = TdhGetProperty(ev, 0, NULL, 1, &DataDescriptor, DataLen, Buffer + 1);
+    if (status != NO_ERROR) goto end;
+
+    // Get "BIP_Type" property
+    DataDescriptor.PropertyName = (ULONGLONG)&L"BIP_Type";
+    DataDescriptor.ArrayIndex = ULONG_MAX;
+    status = TdhGetProperty(ev, 0, NULL, 1, &DataDescriptor, sizeof(DWORD), (PBYTE)&Type);
+    if (status != NO_ERROR) goto end;
+
+    Buffer[0] = (Type & 0xFF);  // We create a HCI H4 packet by adding the type here
+    ctx_add_tlv_user_data(ctx, Buffer, DataLen + 1);
+
+    // Dump
+    total_packet_length = wtap_etl_rec_build(&etl_record, ev, ctx);
+    wtap_etl_rec_dump((char*)etl_record, total_packet_length, total_packet_length, 0, true, timestamp, WTAP_ENCAP_ETW, NULL, 0);
+
+    g_free(etl_record);
+
+end:
+    ctx_free(ctx);
+
+    if (Buffer)
+        g_free(Buffer);
 }
 
 static void etw_dump_write_general_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)

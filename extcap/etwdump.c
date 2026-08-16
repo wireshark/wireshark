@@ -164,8 +164,7 @@ static DWORD list_providers(unsigned inc)
         printf("value {arg=%u}{value=Scenario-SMBClient-Capture}{display=SMB Client Payloads (Microsoft-Windows-SMBClient)}{parent=SCENARIO}\n", inc);
         printf("value {arg=%u}{value=Scenario-SMBServer-Capture}{display=SMB Server Payloads (Microsoft-Windows-SMBServer)}{parent=SCENARIO}\n", inc);
         printf("value {arg=%u}{value=Microsoft-Windows-RPC}{display=RPC (Microsoft-Windows-RPC)}{parent=SCENARIO}\n", inc);
-        // printf("value {arg=%u}{value=BLUETOOTH}{display=Bluetooth}{parent=SCENARIO}{enabled=false}\n", inc);
-        // printf("value {arg=%u}{value=Microsoft-Windows-BTH-BTHPORT}{display=Bluetooth Host Radio (Microsoft-Windows-BTH-BTHPORT)}{parent=BLUETOOTH}\n", inc);
+        printf("value {arg=%u}{value=Scenario-BTH-BTHPORT}{display=Bluetooth Host Radio (Microsoft-Windows-BTH-BTHPORT)}{parent=SCENARIO}\n", inc);
         // printf("value {arg=%u}{value=Microsoft-Windows-BTH-BTHUSB}{display=Bluetooth USB (Microsoft-Windows-BTH-BTHUSB)}{parent=BLUETOOTH}\n", inc);
         // printf("value {arg=%u}{value=Microsoft-Windows-Bluetooth-Bthmini}{display=Bluetooth HCI (Microsoft-Windows-Bluetooth-Bthmini)}{parent=BLUETOOTH}\n", inc);
 
