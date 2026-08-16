@@ -948,7 +948,7 @@ Clang + Code Checks:
     - mkdir cppcheck
     - ./tools/cppcheck/cppcheck.sh -l $NUM_COMMITS | tee cppcheck/cppcheck_report.txt
     - if [[ -s "cppcheck/cppcheck_report.txt" ]]; then ./tools/cppcheck/cppcheck.sh -l $NUM_COMMITS -x > cppcheck/cppcheck_report.xml ; fi
-    - if [[ -s "cppcheck/cppcheck_report.txt" ]]; then cppcheck-htmlreport --file cppcheck/cppcheck_report.xml  --report-dir cppcheck ; fi
+    - if [[ -s "cppcheck/cppcheck_report.xml" ]]; then cppcheck-htmlreport --file cppcheck/cppcheck_report.xml  --report-dir cppcheck ; fi
     - cd build
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     # We don't have an "All options" job, so build fuzzshark and tfshark here.
