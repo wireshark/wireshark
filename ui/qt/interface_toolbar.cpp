@@ -85,7 +85,6 @@ InterfaceToolbar::InterfaceToolbar(QWidget *parent, const iface_toolbar *toolbar
     for (GList *walker = toolbar->ifnames; walker; walker = walker->next)
     {
         QString ifname((char *)walker->data);
-        interface_[ifname].reader_thread = NULL;
         interface_[ifname].out_fd = -1;
     }
 
@@ -860,15 +859,6 @@ void InterfaceToolbar::stopCapture()
 {
     foreach (QString ifname, interface_.keys())
     {
-        if (interface_[ifname].reader_thread)
-        {
-            if (!interface_[ifname].reader_thread->isFinished())
-            {
-                interface_[ifname].reader_thread->requestInterruption();
-            }
-            interface_[ifname].reader_thread = NULL;
-        }
-
         if (interface_[ifname].out_fd != -1)
         {
             ws_close_if_possible (interface_[ifname].out_fd);

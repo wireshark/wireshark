@@ -29,9 +29,6 @@ class InterfaceToolbar;
  */
 struct interface_values
 {
-    /** The thread reading from the interface control pipe. */
-    QThread *reader_thread;
-
     /** File descriptor for writing control messages to the interface. */
     int out_fd;
 
