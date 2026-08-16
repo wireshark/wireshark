@@ -2568,7 +2568,7 @@ Where:
         this conversation
     conversation_element_t *elements = An array of data types and
         values which identify this conversation. The array MUST be
-        terminated with a CE_ENDPOINT element.
+        terminated with a CE_CONVERSATION_TYPE element.
 
 2.2.1.4 The find_conversation function.
 
@@ -2634,7 +2634,7 @@ Where:
         this conversation
     conversation_element_t *elements = An array of data types and
         values which identify this conversation. The array MUST be
-        terminated with a CE_ENDPOINT element.
+        terminated with a CE_CONVERSATION_TYPE element.
 
 2.2.1.6 The find_conversation_pinfo function.
 
@@ -2659,7 +2659,7 @@ or pinfo->conv_elements if it is set.
 
 This convenience function will find an existing conversation (by calling
 find_conversation()) and, if a conversation does not already exist, create a
-new conversation by calling conversation_new().
+new conversation by calling conversation_new() or conversation_new_full().
 
 The find_or_create_conversation prototype:
 
@@ -2668,14 +2668,15 @@ The find_or_create_conversation prototype:
 Where:
     packet_info *pinfo = the packet_info structure
 
-The frame number and the addresses necessary for find_conversation() and
-conversation_new() are taken from the pinfo structure (as is commonly done)
-and no 'options' are used.
+The frame number and the addresses or conversation elements necessary for
+find_conversation() and conversation_new()/conversation_new_full()  are
+taken from the pinfo structure (as is commonly done) and no 'options' are
+used.
 
 2.2.1.8 The conversation_add_proto_data function.
 
-Once you have created a conversation with conversation_new, you can
-associate data with it using this function.
+Once you have created a conversation with conversation_new() or
+conversation_new_full(), you can associate data with it using this function.
 
 The conversation_add_proto_data prototype:
 

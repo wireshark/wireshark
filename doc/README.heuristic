@@ -103,10 +103,10 @@ Heuristic Code Example
 ----------------------
 You can find a lot of code examples in the Wireshark sources, e.g.:
 grep -l heur_dissector_add epan/dissectors/*.c
-returns 236 files (December 2021).
+returns 267 files (December 2025).
 
 For the above example criteria, the following code example might do the work
-(combine this with the dissector skeleton in README.developer):
+(combine this with the dissector skeleton in packet-PROTOABBREV.c):
 
 XXX - please note: The following code examples were not tried in reality,
 please report problems to the dev-list!
