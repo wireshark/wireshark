@@ -426,7 +426,7 @@ typedef struct _dicom_eo_t {
     const char    *hostname;
     const char    *filename;
     const char    *content_type;
-    uint32_t payload_len;
+    size_t payload_len;
     const uint8_t *payload_data;
 } dicom_eo_t;
 
@@ -1282,7 +1282,7 @@ Supports both modes:
   and process_reassembled_data(). In this case all data will be in the last
   PDV, and all its predecessors will have zero data.
 
-- DICOM PDVs are keep separate. Every PDV contains data.
+- DICOM PDVs are kept separate. Every PDV contains data.
 */
 static void
 dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state_pdv_t *pdv)
@@ -1297,7 +1297,7 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
     uint8_t    *pdv_combined = NULL;
     uint8_t    *pdv_combined_curr = NULL;
     uint8_t    *dcm_header = NULL;
-    uint32_t    pdv_combined_len = 0;
+    ssize_t     pdv_combined_len = 0;
     uint32_t    dcm_header_len = 0;
     uint16_t    cnt_same_pkt = 1;
     char       *filename;
@@ -1313,7 +1313,9 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
 
     while (pdv_curr->prev && !pdv_curr->prev->is_last_fragment) {
         pdv_curr = pdv_curr->prev;
-        pdv_combined_len += pdv_curr->data_len;
+        if (ckd_add(&pdv_combined_len, pdv_combined_len, pdv_curr->data_len)) {
+            pdv_combined_len = SSIZE_MAX;
+        }
     }
 
     /* Count number of PDVs with the same Packet Number */
@@ -1372,23 +1374,37 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
         }
     }
 
+    if (ckd_add(&pdv_combined_len, pdv_combined_len, dcm_header_len)) {
+        pdv_combined_len = SSIZE_MAX;
+    }
 
-    if (dcm_header_len + pdv_combined_len >= global_dcm_export_minsize) {
+    if (pdv_combined_len >= global_dcm_export_minsize) {
         /* Allocate the final size */
 
-        pdv_combined = (uint8_t *)wmem_alloc0(pinfo->pool, dcm_header_len + pdv_combined_len);
+        pdv_combined = (uint8_t *)wmem_alloc0(pinfo->pool, pdv_combined_len);
 
         pdv_combined_curr = pdv_combined;
+        ssize_t curr_len = 0, next_len;
 
         if (dcm_header_len != 0) {  /* Will be 0 when global_dcm_export_header is false */
             memmove(pdv_combined, dcm_header, dcm_header_len);
             pdv_combined_curr += dcm_header_len;
+            curr_len += dcm_header_len;
         }
 
         /* Copy PDV per PDV to target buffer */
-        while (!pdv_curr->is_last_fragment) {
-            memmove(pdv_combined_curr, pdv_curr->data, pdv_curr->data_len);         /* this is a copy not move */
-            pdv_combined_curr += pdv_curr->data_len;
+        while (curr_len < pdv_combined_len && !pdv_curr->is_last_fragment) {
+            if (pdv_curr->data) {
+                // In C2y memmove(..., NULL, 0) will no longer be UB
+                ssize_t to_copy = pdv_curr->data_len;
+                if (ckd_add(&next_len, curr_len, to_copy)) {
+                    to_copy = pdv_combined_len - curr_len;
+                    next_len = pdv_combined_len;
+                }
+                memmove(pdv_combined_curr, pdv_curr->data, to_copy);
+                pdv_combined_curr += to_copy;
+                curr_len = next_len;
+            }
             pdv_curr = pdv_curr->next;
         }
 
@@ -1403,7 +1419,7 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
         eo_info->filename = filename;
         eo_info->content_type = pdv->desc;
 
-        eo_info->payload_len  = dcm_header_len + pdv_combined_len;
+        eo_info->payload_len  = pdv_combined_len;
         eo_info->payload_data = pdv_combined;
 
         tap_queue_packet(dicom_eo_tap, pinfo, eo_info);
