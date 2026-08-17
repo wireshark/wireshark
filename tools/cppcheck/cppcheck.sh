@@ -135,13 +135,17 @@ if [ "$QUIET" = " " ]; then
     echo
 fi
 
+# cppcheck puts the report in stderr and its parsing errors (e.g.,
+# all files were excluded) in stdout, but we want to pipe stderr
+# to tee, etc. So swap them.
+
 # shellcheck disable=SC2086
 $CPPCHECK --force --enable=style $QUIET    \
     $SUPPRESSIONS $INCLUDES $LIBRARIES \
     -i doc/ \
     -i epan/dissectors/asn1/ \
     --std=c11 --template=$TEMPLATE   \
-    -j $THREADS $TARGET $XML_ARG 2>&1 | colorize
+    -j $THREADS $TARGET $XML_ARG 3>&1 1>&2 2>&3 3>&- | colorize
 
 exit_cleanup
 
