@@ -548,7 +548,7 @@ proto_register_nvme_mi_admin(void)
           { "nvme-mi.admin.obsolete_flag", PI_PROTOCOL, PI_COMMENT,
             "DOFSTV/DLENV Command Flags bits are obsolete and shall be ignored "
             "by Management Endpoints compliant with NVMe-MI later than 1.1 "
-            "(Figure 136)", EXPFILL },
+            "(Figure 136)", EXPFILL }
         },
     };
 

@@ -819,8 +819,7 @@ dissect_dwell(tvbuff_t *tvb, proto_tree *seg_tree, int offset)
 	offset += 1;
 
 	/* count of target reports */
-	count = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(seg_tree, hf_4607_dwell_count, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(seg_tree, hf_4607_dwell_count, tvb, offset, 2, ENC_BIG_ENDIAN, &count);
 	offset += 2;
 
 	proto_tree_add_item(seg_tree, hf_4607_dwell_time, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1100,8 +1099,7 @@ dissect_stanag4607(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	proto_tree_add_item(hdr_tree, hf_4607_exercise_indicator, tvb, 13, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(hdr_tree, hf_4607_platform_id, tvb, 14, 10, ENC_ASCII);
 	proto_tree_add_item(hdr_tree, hf_4607_mission_id, tvb, 24, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(hdr_tree, hf_4607_job_id, tvb, 28, 4, ENC_BIG_ENDIAN);
-	job_id = tvb_get_uint32(tvb, 28, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(hdr_tree, hf_4607_job_id, tvb, 28, 4, ENC_BIG_ENDIAN, &job_id);
 	offset = 32;
 
 	pkt_size = tvb_get_ntohl(tvb, 2);

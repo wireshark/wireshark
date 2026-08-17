@@ -1034,8 +1034,7 @@ static int dissect_mac_fdd_edch_type2(tvbuff_t *tvb, packet_info *pinfo, proto_t
     macis_pdu_tree = proto_item_add_subtree(pi, ett_mac_edch_type2);
 
     /* SS */
-    ss = (tvb_get_uint8(tvb, offset) & 0xc0) >> 6;
-    proto_tree_add_item(macis_pdu_tree, hf_mac_edch_type2_ss, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(macis_pdu_tree, hf_mac_edch_type2_ss, tvb, offset, 1, ENC_BIG_ENDIAN, &ss);
 
     ss_interpretation(tvb, macis_pdu_tree, ss, mac_is_info->number_of_mac_is_sdus, offset);
 

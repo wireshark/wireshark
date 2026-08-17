@@ -665,8 +665,7 @@ static void dissect_extrememesh_ps_bann(tvbuff_t *tvb, packet_info *pinfo, proto
 		proto_tree_add_item_ret_uint(tree, hf_extrememesh_ps_bann_option, tvb, offset, 1, ENC_BIG_ENDIAN, &option);
 		offset++;
 		if(option == 0) continue; // Option 0 is a single padding byte, no length byte
-		option_len = tvb_get_uint8(tvb, offset);
-		proto_tree_add_item(tree, hf_extrememesh_ps_bann_option_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint8(tree, hf_extrememesh_ps_bann_option_len, tvb, offset, 1, ENC_BIG_ENDIAN, &option_len);
 		offset++;
 		switch(option)
 		{
@@ -927,8 +926,7 @@ static void dissect_extrememesh_ps_preq(tvbuff_t *tvb, packet_info *pinfo, proto
 		proto_tree_add_item_ret_uint(tree, hf_extrememesh_ps_preq_option, tvb, offset, 2, ENC_BIG_ENDIAN, &option);
 		offset+=2;
 		if(option == 0) continue; // Option 0 is a single padding byte, no length byte
-		option_len = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(tree, hf_extrememesh_ps_preq_option_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint16(tree, hf_extrememesh_ps_preq_option_len, tvb, offset, 2, ENC_BIG_ENDIAN, &option_len);
 		offset+=2;
 		switch(option)
 		{
@@ -1019,8 +1017,7 @@ static void dissect_extrememesh_ps_prep(tvbuff_t *tvb, packet_info *pinfo, proto
 		proto_tree_add_item_ret_uint(tree, hf_extrememesh_ps_prep_option, tvb, offset, 2, ENC_BIG_ENDIAN, &option);
 		offset+=2;
 		if(option == 0) continue; // Option 0 is a single padding byte, no length byte
-		option_len = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(tree, hf_extrememesh_ps_prep_option_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint16(tree, hf_extrememesh_ps_prep_option_len, tvb, offset, 2, ENC_BIG_ENDIAN, &option_len);
 		offset+=2;
 		switch(option)
 		{

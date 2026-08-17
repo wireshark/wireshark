@@ -674,8 +674,8 @@ proto_register_mctp_control(void)
           { "mctpc.get_ver.entry.invalid_bcd", PI_PROTOCOL, PI_WARN,
             "Invalid BCD version encoding: each nibble must be 0-9 (an upper"
             " nibble of Fh marks a single digit), and 0xff is only defined for"
-            " the update byte (DSP0236 section 12.7.2)", EXPFILL },
-        },
+            " the update byte (DSP0236 section 12.7.2)", EXPFILL }
+        }
     };
 
     expert_module_t *expert_mctp_ctrl;

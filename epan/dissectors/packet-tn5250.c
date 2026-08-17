@@ -3043,12 +3043,11 @@ static uint32_t
 dissect_erase_to_address(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
   int start = offset;
-  int i, length = 0;
+  uint8_t i, length = 0;
 
   dissect_row_column(tn5250_tree, tvb, offset);
 
-  length = tvb_get_uint8(tvb, offset);
-  proto_tree_add_item(tn5250_tree, hf_tn5250_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint8(tn5250_tree, hf_tn5250_length, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
   offset++;
 
   for (i=1; i < length; i++) {

@@ -1011,13 +1011,12 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 {
     uint16_t addr_len = 0;
     bool north, east;
-    uint16_t deg;
+    uint16_t deg, hemisphere;
     uint8_t min, sec;
     uint32_t alt;
     uint16_t afi;
     int str_len;
     const char *ip_address;
-    const uint16_t mask = 0x7FFF;   /* prepare mask for N or E bit */
     proto_item *ti_lat, *ti_lon, *ti_alt;
     proto_tree *lat_tree, *lon_tree;
 
@@ -1027,11 +1026,9 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
     lat_tree = proto_item_add_subtree(ti_lat, ett_lisp_lcaf_geo_lat);
 
     /* Hemisphere and degrees (2 bytes) */
-    proto_tree_add_item(lat_tree, hf_lisp_lcaf_geo_lat_hemisphere, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lat_tree, hf_lisp_lcaf_geo_lat_deg, tvb, offset, 2, ENC_BIG_ENDIAN);
-    deg = tvb_get_ntohs(tvb, offset);
-    north = deg >> 15;
-    deg &= mask;
+    proto_tree_add_item_ret_uint16(lat_tree, hf_lisp_lcaf_geo_lat_hemisphere, tvb, offset, 2, ENC_BIG_ENDIAN, &hemisphere);
+    proto_tree_add_item_ret_uint16(lat_tree, hf_lisp_lcaf_geo_lat_deg, tvb, offset, 2, ENC_BIG_ENDIAN, &deg);
+    north = (bool)hemisphere;
     if (deg > 90)
         expert_add_info_format(pinfo, tree, &ei_lisp_invalid_field,
                 "Invalid latitude degrees value (%d)", deg);
@@ -1062,11 +1059,9 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
     lon_tree = proto_item_add_subtree(ti_lon, ett_lisp_lcaf_geo_lon);
 
     /* Hemisphere and degrees (2 bytes) */
-    proto_tree_add_item(lon_tree, hf_lisp_lcaf_geo_lon_hemisphere, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lon_tree, hf_lisp_lcaf_geo_lon_deg, tvb, offset, 2, ENC_BIG_ENDIAN);
-    deg = tvb_get_ntohs(tvb, offset);
-    east = deg >> 15;
-    deg &= mask;
+    proto_tree_add_item_ret_uint16(lon_tree, hf_lisp_lcaf_geo_lon_hemisphere, tvb, offset, 2, ENC_BIG_ENDIAN, &hemisphere);
+    proto_tree_add_item_ret_uint16(lon_tree, hf_lisp_lcaf_geo_lon_deg, tvb, offset, 2, ENC_BIG_ENDIAN, &deg);
+    east = (bool)hemisphere;
     if (deg > 180)
         expert_add_info_format(pinfo, tree, &ei_lisp_invalid_field,
                 "Invalid longitude degrees value (%d)", deg);

@@ -5689,14 +5689,14 @@ static int rtps_util_add_locator_list(proto_tree *tree, packet_info *pinfo, tvbu
   num_locators = tvb_get_uint32(tvb, offset, encoding);
 
   locator_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
-                        ett_rtps_locator_udp_v4, NULL, "%s: %d Locators", label, num_locators);
+                        ett_rtps_locator_udp_v4, NULL, "%s: %u Locators", label, num_locators);
   offset += 4;
   if (num_locators > 0) {
     uint32_t i;
     char temp_buff[20];
 
     for (i = 0; i < num_locators; ++i) {
-      snprintf(temp_buff, 20, "Locator[%d]", i);
+      snprintf(temp_buff, 20, "Locator[%u]", i);
       rtps_util_add_locator_t(locator_tree, pinfo, tvb, offset,
                         encoding, temp_buff);
       offset += 24;
@@ -16460,10 +16460,10 @@ static void dissect_RTPS_DATA_FRAG_kind(tvbuff_t *tvb, packet_info *pinfo, uint8
 
   /* SerializedData */
   if (frag_size > 0) {
-    char label[20];
-    snprintf(label, 9, "fragment");
+    char label[32];
+    snprintf(label, 32, "fragment");
     if ((flags & FLAG_RTPS_DATA_FRAG_K) != 0) {
-        snprintf(label, 14, "serializedKey");
+        snprintf(label, 32, "serializedKey");
     }
     from_builtin_writer = (((wid & ENTITYKIND_BUILTIN_WRITER_WITH_KEY) == ENTITYKIND_BUILTIN_WRITER_WITH_KEY)
       || ((wid & ENTITYKIND_BUILTIN_WRITER_NO_KEY) == ENTITYKIND_BUILTIN_WRITER_NO_KEY)
@@ -16505,12 +16505,12 @@ static void dissect_RTPS_DATA_FRAG_kind(tvbuff_t *tvb, packet_info *pinfo, uint8
         }
 
         if (new_tvb) {
-            snprintf(label, 19, "reassembled sample");
+            snprintf(label, 32, "reassembled sample");
             dissect_serialized_data(tree, pinfo, new_tvb, 0,
                 sample_size, label, vendor_id, from_builtin_writer, guid, NOT_A_FRAGMENT);
             break;
         } else {
-            snprintf(label, 15, "fragment [%d]", frag_index_in_submessage);
+            snprintf(label, 32, "fragment [%u]", frag_index_in_submessage);
             dissect_serialized_data(tree, pinfo, tvb, offset + (frag_index_in_submessage * frag_size),
                 this_frag_size, label, vendor_id, from_builtin_writer, NULL, this_frag_number);
         }
@@ -16522,7 +16522,7 @@ static void dissect_RTPS_DATA_FRAG_kind(tvbuff_t *tvb, packet_info *pinfo, uint8
         more_fragments = (this_frag_number * frag_size < sample_size);
         this_frag_size = more_fragments ? frag_size : (sample_size - ((this_frag_number - 1) * frag_size));
         fragment_offset = frag_index_in_submessage * frag_size;
-        snprintf(label, 20, "fragment [%d]", frag_index_in_submessage);
+        snprintf(label, 32, "fragment [%u]", frag_index_in_submessage);
         dissect_serialized_data(tree, pinfo, tvb, offset + fragment_offset,
             this_frag_size, label, vendor_id, from_builtin_writer, NULL, this_frag_number);
         frag_index_in_submessage++;

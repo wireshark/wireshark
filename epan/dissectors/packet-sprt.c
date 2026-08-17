@@ -1078,8 +1078,7 @@ dissect_sprt_data(tvbuff_t *tvb,
             /* No additional content */
             break;
         case SPRT_MODEM_RELAY_MSG_ID_MR_EVENT:
-            mr_event_id = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_msg_mr_event_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8(sprt_payload_tree, hf_sprt_payload_msg_mr_event_id, tvb, offset, 1, ENC_BIG_ENDIAN, &mr_event_id);
             offset++;
             proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_msg_mr_evt_reason_code, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;

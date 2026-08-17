@@ -6456,6 +6456,7 @@ dissect_le_cmd(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *t
             offset += 2;
             proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_cs_sync_phys_supported, ett_cs_capability, hfx_bthci_cmd_cs_sync_phys_supported, ENC_NA);
             offset++;
+            /* TODO: cs_subfeatures_supported is 2 bytes?? */
             proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_cs_subfeatures_supported, ett_cs_capability, hfx_bthci_cmd_cs_subfeatures, ENC_NA);
             offset++;
             proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_tip1_times_supported, ett_cs_times, hfx_bthci_cmd_tip_times_supported, ENC_LITTLE_ENDIAN);

@@ -2135,7 +2135,7 @@ proto_register_nvme_mi_mi(void)
         { &ei_nvme_mi_mi_reserved_dtyp,
           { "nvme-mi.mi.reserved_dtyp", PI_PROTOCOL, PI_NOTE,
             "Data Structure Type is in the Reserved range (06h-FFh)",
-            EXPFILL },
+            EXPFILL }
         },
         { &ei_nvme_mi_mi_reserved_configid,
           { "nvme-mi.mi.reserved_configid", PI_PROTOCOL, PI_NOTE,

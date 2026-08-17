@@ -176,8 +176,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 		return 0;	/* tells our caller to give up */
 	}
 
-	sv_id = tvb_get_uint8(tvb, svoff+1);
-	proto_tree_add_item(sv_tree, hf_trmac_sv_id, tvb, svoff+1, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(sv_tree, hf_trmac_sv_id, tvb, svoff+1, 1, ENC_BIG_ENDIAN, &sv_id);
 	proto_item_append_text(sv_item, " (%s)", val_to_str_ext(pinfo->pool, sv_id, &subvector_vs_ext, "Unknown subvector ID 0x%02X"));
 
 	switch(sv_id) {

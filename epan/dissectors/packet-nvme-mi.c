@@ -754,7 +754,7 @@ proto_register_nvme_mi(void)
           { "nvme-mi.reserved_type", PI_PROTOCOL, PI_WARN,
             "NVMe-MI Message Type is Reserved (NVMe-MI 2.1 Figure 12); the "
             "message body cannot be decoded and the message takes no part in "
-            "command slot tracking", EXPFILL },
+            "command slot tracking", EXPFILL }
         },
     };
 

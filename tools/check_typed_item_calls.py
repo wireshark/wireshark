@@ -1194,8 +1194,11 @@ def findExpertItems(filename, contents, macros, result):
     for d in definition_matches:
         entries = d.group(2)
 
+        # Merge multiple description strings together
+        entries = re.sub(re.compile(r'\"\s*\"'), "", entries)
+
         # Now separate out each entry
-        matches = re.finditer(r'\{\s*&([a-zA-Z0-9_]*)\s*\,\s*\{\s*\"(.*?)\"\s*\,\s*([A-Z_]*)\,\s*([A-Z_]*)\,\s*\"(.*?)\".*?\,\s*EXPFILL\s*\}\s*\}',
+        matches = re.finditer(r'\{\s*&([a-zA-Z0-9_]*)\s*\,\s*\{\s*\"(.*?)\"\s*\,\s*([A-Z_]*)\,\s*([A-Z_]*)\s*\,\s*\"(.*?)\"\s*,\s*EXPFILL\s*\}\s*\}',
                               entries, re.MULTILINE | re.DOTALL)
         for match in matches:
             expertEntry = ExpertEntry(filename, name=match.group(1), filter=match.group(2), group=match.group(3),

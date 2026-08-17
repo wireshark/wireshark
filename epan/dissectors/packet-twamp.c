@@ -437,8 +437,7 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         proto_tree_add_time(twamp_tree, hf_twamp_control_timeout, tvb, offset, 8, &ts);
         offset += 8;
 
-        type_p = tvb_get_ntohl(tvb, offset);
-        item = proto_tree_add_item(twamp_tree, hf_twamp_control_type_p, tvb, offset, 4, ENC_BIG_ENDIAN);
+        item = proto_tree_add_item_ret_uint(twamp_tree, hf_twamp_control_type_p, tvb, offset, 4, ENC_BIG_ENDIAN, &type_p);
         proto_item_append_text(item, " (DSCP: %d)", type_p);
         /* offset += 4; */
         break;
