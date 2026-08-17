@@ -76,6 +76,7 @@ static int hf_pdcp_nr_large_cid_present;
 
 /* PDCP header fields */
 static int hf_pdcp_nr_control_plane_reserved;
+static int hf_pdcp_nr_reserved1;
 static int hf_pdcp_nr_reserved3;
 static int hf_pdcp_nr_seq_num_12;
 static int hf_pdcp_nr_reserved5;
@@ -87,8 +88,11 @@ static int hf_pdcp_nr_user_plane_data;
 static int hf_pdcp_nr_control_pdu_type;
 static int hf_pdcp_nr_fmc;
 static int hf_pdcp_nr_reserved4;
+static int hf_pdcp_nr_reserved3_2nd_nibble;
 static int hf_pdcp_nr_bitmap;
 static int hf_pdcp_nr_bitmap_byte;
+static int hf_pdcp_nr_fdc;
+static int hf_pdcp_nr_fe;
 
 /* Sequence Analysis */
 static int hf_pdcp_nr_sequence_analysis;
@@ -494,9 +498,13 @@ static const value_string rohc_profile_vals[] = {
     { 0,   NULL }
 };
 
+/* Table 6.3.8-1: PDU type */
 static const value_string control_pdu_type_vals[] = {
     { 0,   "PDCP status report" },
     { 1,   "Interspersed ROHC feedback packet" },
+    { 2,   "EHC feedback" },
+    { 3,   "UDC feedback" },
+    { 4,   "PDCP SN gap report" },
     { 0,   NULL }
 };
 
@@ -514,6 +522,12 @@ static const value_string ciphering_algorithm_vals[] = {
     { nea2,         "NEA2 (AES)" },
     { nea3,         "NEA3 (ZUC)" },
     { nea_disabled, "Ciphering disabled" },
+    { 0,   NULL }
+};
+
+static const value_string fe_vals[] = {
+    { 0,   "No Error" },
+    { 1,   "Checksum Error Notification" },
     { 0,   NULL }
 };
 
@@ -590,6 +604,16 @@ void set_pdcp_nr_proto_data(packet_info *pinfo, pdcp_nr_info *p_pdcp_nr_info)
     p_add_proto_data(wmem_file_scope(), pinfo, proto_pdcp_nr, 0, p_pdcp_nr_info);
 }
 
+
+static void add_reserved_field(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int len)
+{
+    uint32_t reserved;
+    proto_item *res_ti = proto_tree_add_item_ret_uint(tree, hf, tvb, offset, len, ENC_BIG_ENDIAN, &reserved);
+    if (reserved != 0) {
+        expert_add_info_format(NULL, res_ti, &ei_pdcp_nr_reserved_bits_not_zero,
+                               "reserved field saw value of 0x%x", reserved);
+    }
+}
 
 
 /**************************************************/
@@ -2230,7 +2254,6 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     uint32_t seqnum = 0;
     bool seqnum_set = false;
 
-    uint8_t first_byte = tvb_get_uint8(tvb, offset);
 
     /*****************************/
     /* Signalling plane messages */
@@ -2238,13 +2261,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         if (p_pdcp_info->seqnum_length != 0) {
             /* Always 12 bits SN */
             /* Verify 4 reserved bits are 0 */
-            uint8_t reserved = (first_byte & 0xf0) >> 4;
-            ti = proto_tree_add_item(pdcp_tree, hf_pdcp_nr_control_plane_reserved,
-                                     tvb, offset, 1, ENC_BIG_ENDIAN);
-            if (reserved != 0) {
-                expert_add_info_format(pinfo, ti, &ei_pdcp_nr_reserved_bits_not_zero,
-                                       "PDCP signalling header reserved bits not zero");
-            }
+            add_reserved_field(pdcp_tree, hf_pdcp_nr_control_plane_reserved, tvb, offset, 1);
 
             /* 12-bit sequence number */
             proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_nr_seq_num_12, tvb, offset, 2, ENC_BIG_ENDIAN, &seqnum);
@@ -2270,20 +2287,12 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         if (is_user_plane) {
             /*****************************/
             /* User-plane Data           */
-            uint32_t reserved_value;
 
             /* Number of sequence number bits depends upon config */
             switch (p_pdcp_info->seqnum_length) {
             case PDCP_NR_SN_LENGTH_12_BITS:
                 /* 3 reserved bits */
-                ti = proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_nr_reserved3, tvb, offset, 1, ENC_BIG_ENDIAN, &reserved_value);
-
-                /* Complain if not 0 */
-                if (reserved_value != 0) {
-                    expert_add_info_format(pinfo, ti, &ei_pdcp_nr_reserved_bits_not_zero,
-                                           "Reserved bits have value 0x%x - should be 0x0",
-                                           reserved_value);
-                }
+                add_reserved_field(pdcp_tree, hf_pdcp_nr_reserved3, tvb, offset, 1);
 
                 /* 12-bit sequence number */
                 proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_nr_seq_num_12, tvb, offset, 2, ENC_BIG_ENDIAN, &seqnum);
@@ -2292,14 +2301,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 break;
             case PDCP_NR_SN_LENGTH_18_BITS:
                 /* 5 reserved bits */
-                ti = proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_nr_reserved5, tvb, offset, 1, ENC_BIG_ENDIAN, &reserved_value);
-
-                /* Complain if not 0 */
-                if (reserved_value != 0) {
-                    expert_add_info_format(pinfo, ti, &ei_pdcp_nr_reserved_bits_not_zero,
-                                           "Reserved bits have value 0x%x - should be 0x0",
-                                           reserved_value);
-                }
+                add_reserved_field(pdcp_tree, hf_pdcp_nr_reserved5, tvb, offset, 1);
 
                 /* 18-bit sequence number */
                 proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_nr_seq_num_18, tvb, offset, 3, ENC_BIG_ENDIAN, &seqnum);
@@ -2319,18 +2321,19 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             uint32_t control_pdu_type;
             proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_nr_control_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN, &control_pdu_type);
 
+            uint32_t reserved_value;
+            unsigned   i, j, l;
+            uint32_t len, bit_offset;
+            proto_tree *bitmap_tree;
+            proto_item *bitmap_ti = NULL;
+            char   *buff = NULL;
+#define BUFF_SIZE 89
+
             switch (control_pdu_type) {
             case 0:    /* PDCP status report */
             {
                 uint32_t fmc;
                 unsigned   not_received = 0;
-                unsigned   i, j, l;
-                uint32_t len, bit_offset;
-                proto_tree *bitmap_tree;
-                proto_item *bitmap_ti = NULL;
-                char   *buff = NULL;
-#define BUFF_SIZE 89
-                uint32_t reserved_value;
 
                 /* 4 bits reserved */
                 ti = proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_nr_reserved4, tvb, offset, 1, ENC_BIG_ENDIAN, &reserved_value);
@@ -2347,13 +2350,13 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_nr_fmc, tvb, offset, 4, ENC_BIG_ENDIAN, &fmc);
                 offset += 4;
 
-
                 /* Bitmap tree */
                 if (tvb_reported_length_remaining(tvb, offset) > 0) {
                     bitmap_ti = proto_tree_add_item(pdcp_tree, hf_pdcp_nr_bitmap, tvb,
                                                     offset, -1, ENC_NA);
                     bitmap_tree = proto_item_add_subtree(bitmap_ti, ett_pdcp_report_bitmap);
 
+                    /* Allocate buffer */
                     buff = (char *)wmem_alloc(pinfo->pool, BUFF_SIZE);
                     len = tvb_reported_length_remaining(tvb, offset);
                     bit_offset = offset<<3;
@@ -2361,13 +2364,16 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                     /* For each byte... */
                     for (i=0; i<len; i++) {
                         uint8_t bits = tvb_get_bits8(tvb, bit_offset, 8);
+                        /* For each bit in this byte */
                         for (l=0, j=0; l<8; l++) {
                             if ((bits << l) & 0x80) {
+                                /* Set, so write COUNT into buffer */
                                 if (bitmap_tree) {
                                     /* TODO: better to do mod and show as SN instead? */
                                     j += snprintf(&buff[j], BUFF_SIZE-j, "%10u,", (unsigned)(fmc+(8*i)+l+1));
                                 }
                             } else {
+                                /* Not set, so write spaces instead */
                                 if (bitmap_tree) {
                                     j += (unsigned)g_strlcpy(&buff[j], "          ,", BUFF_SIZE-j);
                                 }
@@ -2375,6 +2381,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                             }
                         }
                         if (bitmap_tree) {
+                            /* Add this byte of data decorated with corresponding buffer */
                             proto_tree_add_uint_format(bitmap_tree, hf_pdcp_nr_bitmap_byte, tvb, bit_offset/8, 1, bits, "%s", buff);
                         }
                         bit_offset += 8;
@@ -2389,9 +2396,94 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             }
                 return 1;
 
-            case 1:     /* ROHC Feedback */
+            case 1:     /* Interspersed ROHC Feedback */
+                /* 4 bits reserved */
+                add_reserved_field(pdcp_tree, hf_pdcp_nr_reserved4, tvb, offset, 1);
                 offset++;
-                break;  /* Drop-through to dissect feedback */
+
+                /* TODO: Interspersed ROHC feedback (variable length).  Could call dissect_rohc_feedback_data() using p_pdcp_info->rohc? */
+                break;
+
+            case 2:     /* EHC feedback */
+                /* 4 bits reserved */
+                add_reserved_field(pdcp_tree, hf_pdcp_nr_reserved4, tvb, offset, 1);
+                offset++;
+
+                /* EHC feedback */
+                /* Reserved (1 bit) */
+                add_reserved_field(pdcp_tree, hf_pdcp_nr_reserved1, tvb, offset, 1);
+                /* CID (7 or 15 bits, depending upon configuration - p_pdcp_info->rohc.cid_inclusion_info, p_pdcp_info->rohc.large_cid_present) */
+                return 1;
+
+            case 3:     /* UDC feedback */
+                /* FE (1 bit) */
+                proto_tree_add_item(pdcp_tree, hf_pdcp_nr_fe, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+                /* 3 bits reserved */
+                add_reserved_field(pdcp_tree, hf_pdcp_nr_reserved3_2nd_nibble, tvb, offset, 1);
+                offset++;
+                return 1;
+
+            case 4:     /* PDCP SN gap report */
+            {
+                /* 4 bits reserved */
+                add_reserved_field(pdcp_tree, hf_pdcp_nr_reserved4, tvb, offset, 1);
+                offset++;
+
+                /* FDC (First Discarded COUNT) */
+                uint32_t fdc;
+                proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_nr_fdc, tvb, offset, 4, ENC_BIG_ENDIAN, &fdc);
+                offset += 4;
+
+                uint32_t discarded = 0;
+
+                /* Discard Bitmap (optional, variable sized) */
+                /* Bitmap tree */
+                if (tvb_reported_length_remaining(tvb, offset) > 0) {
+                    bitmap_ti = proto_tree_add_item(pdcp_tree, hf_pdcp_nr_bitmap, tvb,
+                                                    offset, -1, ENC_NA);
+                    bitmap_tree = proto_item_add_subtree(bitmap_ti, ett_pdcp_report_bitmap);
+
+                    /* Allocate buffer */
+                    buff = (char *)wmem_alloc(pinfo->pool, BUFF_SIZE);
+                    len = tvb_reported_length_remaining(tvb, offset);
+                    bit_offset = offset<<3;
+
+                    /* For each byte... */
+                    for (i=0; i<len; i++) {
+                        uint8_t bits = tvb_get_bits8(tvb, bit_offset, 8);
+                        /* For each bit in this byte */
+                        for (l=0, j=0; l<8; l++) {
+                            if ((bits << l) & 0x80) {
+                                /* Set, so write COUNT into buffer */
+                                if (bitmap_tree) {
+                                    /* TODO: better to do mod and show as SN instead? */
+                                    j += snprintf(&buff[j], BUFF_SIZE-j, "%10u,", (unsigned)(fdc+(8*i)+l+1));
+                                }
+                            } else {
+                                /* Not set, so write spaces instead */
+                                if (bitmap_tree) {
+                                    j += (unsigned)g_strlcpy(&buff[j], "          ,", BUFF_SIZE-j);
+                                }
+                                discarded++;
+                            }
+                        }
+                        if (bitmap_tree) {
+                            /* Add this byte of data decorated with corresponding buffer */
+                            proto_tree_add_uint_format(bitmap_tree, hf_pdcp_nr_bitmap_byte, tvb, bit_offset/8, 1, bits, "%s", buff);
+                        }
+                        bit_offset += 8;
+                    }
+                }
+
+                if (bitmap_ti != NULL) {
+                    proto_item_append_text(bitmap_ti, " (%u SNs discarded)", discarded);
+                }
+                write_pdu_label_and_info(root_ti, pinfo, " Discard Bitmap (fdc=%u) discarded=%u",
+                                         fdc, discarded);
+
+                return 1;
+            }
             }
         }
     }
@@ -2789,6 +2881,12 @@ void proto_register_pdcp_nr(void)
               NULL, HFILL
             }
         },
+        { &hf_pdcp_nr_reserved1,
+            { "Reserved",
+              "pdcp-nr.reserved1", FT_UINT8, BASE_HEX, NULL, 0x80,
+              "1 reserved bit", HFILL
+            }
+        },
         { &hf_pdcp_nr_reserved3,
             { "Reserved",
               "pdcp-nr.reserved3", FT_UINT8, BASE_HEX, NULL, 0x70,
@@ -2855,6 +2953,12 @@ void proto_register_pdcp_nr(void)
               "4 reserved bits", HFILL
             }
         },
+        { &hf_pdcp_nr_reserved3_2nd_nibble,
+            { "Reserved",
+              "pdcp-nr.reserved3", FT_UINT8, BASE_HEX, NULL, 0x07,
+              "3 reserved bits", HFILL
+            }
+        },
         { &hf_pdcp_nr_bitmap,
             { "Bitmap",
               "pdcp-nr.bitmap", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -2865,6 +2969,18 @@ void proto_register_pdcp_nr(void)
             { "Bitmap byte",
               "pdcp-nr.bitmap.byte", FT_UINT8, BASE_HEX, NULL, 0x0,
               NULL, HFILL
+            }
+        },
+        { &hf_pdcp_nr_fdc,
+            { "FDC",
+              "pdcp-nr.fdc", FT_UINT32, BASE_DEC, NULL, 0x0,
+              "First discarded Count", HFILL
+            }
+        },
+        { &hf_pdcp_nr_fe,
+            { "FE",
+              "pdcp-nr.fe", FT_UINT8, BASE_DEC, VALS(fe_vals), 0x08,
+              "Whether checksum error detected", HFILL
             }
         },
 
