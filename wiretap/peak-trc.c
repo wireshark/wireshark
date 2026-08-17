@@ -511,8 +511,11 @@ static bool peak_trc_read_packet_v1(wtap* wth, peak_trc_state_t* state, wtap_can
     }
 
 #ifdef WS_DEBUG
-    for (int i = 0; i < column_count; i++)
-        ws_debug("%d: %s\n", i, g_match_info_fetch(match_info, i));
+    for (int i = 0; i < column_count; i++) {
+        char *match_text = g_match_info_fetch(match_info, i);
+        ws_debug("%d: %s\n", i, match_text);
+        g_free(match_text);
+    }
 #endif
 
     g_match_info_free(match_info);
@@ -619,6 +622,7 @@ static bool peak_trc_read_packet_v2(wtap* wth, peak_trc_state_t* state, wtap_can
                     {
                         // TODO: Hardware Status change.
                         // Currently not supported in Wireshark
+                        g_free(column_text);
                         return false;
                     }
                     else if (strcmp(column_text, "ER") == 0)
@@ -629,12 +633,14 @@ static bool peak_trc_read_packet_v2(wtap* wth, peak_trc_state_t* state, wtap_can
                     {
                         // TODO: Error Counter change
                         // Currently not supported in Wireshark
+                        g_free(column_text);
                         return false;
                     }
                     else if (strcmp(column_text, "EV") == 0)
                     {
                         // Event. User-defined text, begins directly after bus specifier
                         // TODO add support for this event type
+                        g_free(column_text);
                         return false;
                     }
                     break;
