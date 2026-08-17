@@ -830,6 +830,23 @@ ws_label_strcpy(char *label_str, size_t buf_size, size_t pos,
     ssize_t idx, src_len;
     ssize_t free_len;
 
+    /* Ensure the label is NULL terminated (even if str is NULL or empty or
+     * begins with invalid UTF-8). label_str SHOULD already be NULL terminated
+     * if this has been called before, but if newly-allocated might not be.
+     * (pos < buf_size SHOULD hold for a newly-allocated string unless the
+     * caller is very buggy.)
+     *
+     * We always add a NULL immediately after writing a character (or long run
+     * of printable ASCII in the fast path), so the string is always null
+     * terminated. That might be slower than writing a NUL immediately before
+     * returning in every path.
+     *
+     * However, to switch to an implementation that null terminates before
+     * return, we would need to check that pos < buf_size, and if not, rather
+     * than simply setting label_str[buf_size - 1] to '\0', scan for the end
+     * of the previous UTF-8 character to avoid truncating a multibyte
+     * character in the middle. Cf. ws_utf8_truncate in wsutil/strutil.c
+     */
     label_str[pos] = '\0';
 
     ws_return_val_if(str == NULL, pos);
@@ -873,7 +890,6 @@ ws_label_strcpy(char *label_str, size_t buf_size, size_t pos,
                  * XXX If we are going to return here instead of trying to recover maybe the log level should
                  * be higher than DEBUG.
                  */
-                label_str[pos] = '\0';
                 return pos;
             }
 
@@ -955,10 +971,6 @@ ws_label_strcpy(char *label_str, size_t buf_size, size_t pos,
             free_len -= chlen;
         }
 
-        if (pos < buf_size)
-            label_str[pos] = '\0';
-        else
-            label_str[buf_size - 1] = '\0';
         return pos;
     }
 
@@ -972,7 +984,6 @@ ws_label_strcpy(char *label_str, size_t buf_size, size_t pos,
              * XXX If we are going to return here instead of trying to recover maybe the log level should
              * be higher than DEBUG.
              */
-            label_str[pos] = '\0';
             return pos;
         }
 
@@ -1076,10 +1087,6 @@ ws_label_strcpy(char *label_str, size_t buf_size, size_t pos,
         free_len -= chlen;
     }
 
-    if (pos < buf_size)
-        label_str[pos] = '\0';
-    else
-        label_str[buf_size - 1] = '\0';
     return pos;
 }
 
