@@ -319,7 +319,7 @@ peak_trc_parse(wtap* wth, peak_trc_state_t* state, int64_t* offset, int* err, ch
         {
             /* The rest of the "keywords" are separated by whitespace after the initial ';' */
             char* keyword = &line_buffer[1];
-            while (iswspace(*keyword))
+            while (g_ascii_isspace(*keyword))
                 keyword++;
 
             if (g_str_has_prefix(keyword, "Start time:"))
@@ -551,7 +551,7 @@ static bool peak_trc_read_packet_v2(wtap* wth, peak_trc_state_t* state, wtap_can
     peak_trc_column_type_t current_column = Col_Invalid;
     while (line_buffer[i] != 0)
     {
-        bool is_whitespace = iswspace(line_buffer[i]);
+        bool is_whitespace = g_ascii_isspace(line_buffer[i]);
         if (current_column == Col_Data)
         {
             // data always the last and could contain spaces
@@ -563,9 +563,9 @@ static bool peak_trc_read_packet_v2(wtap* wth, peak_trc_state_t* state, wtap_can
             if (!last_char_is_ws)
             {
                 // column closed -> process data
-                char* column_text = g_utf8_substring(line_buffer, column_start, i);
+                char* column_text = g_utf8_make_valid(&line_buffer[column_start], i - column_start);
 
-                ws_debug("Column %d: %s\n", current_column, column_text);
+                ws_debug("Column %d: %s", current_column, column_text);
 
                 switch (current_column) {
                 case Col_BusNumber:
