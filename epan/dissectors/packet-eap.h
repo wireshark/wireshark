@@ -27,6 +27,7 @@ WS_DLL_PUBLIC const value_string eap_code_vals[];
 #define EAP_TYPE_NOTIFY      2
 #define EAP_TYPE_NAK         3
 #define EAP_TYPE_MD5         4
+#define EAP_TYPE_GTC         6
 #define EAP_TYPE_TLS        13
 #define EAP_TYPE_LEAP       17
 #define EAP_TYPE_SIM        18

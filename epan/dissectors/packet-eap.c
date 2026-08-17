@@ -52,6 +52,9 @@ static int hf_eap_md5_value_size;
 static int hf_eap_md5_value;
 static int hf_eap_md5_extra_data;
 
+static int hf_eap_gtc_challenge;
+static int hf_eap_gtc_response;
+
 static int hf_eap_sim_subtype;
 static int hf_eap_sim_reserved;
 static int hf_eap_sim_subtype_attribute;
@@ -2023,6 +2026,12 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
       }
       break;
 
+      case EAP_TYPE_GTC:
+        /* Warn that this is an insecure EAP type. */
+        expert_add_info(pinfo, eap_type_item, &ei_eap_mitm_attacks);
+        proto_tree_add_item(eap_type_item, eap_code == EAP_REQUEST ? hf_eap_gtc_challenge : hf_eap_gtc_response, tvb, offset, size, ENC_BIG_ENDIAN);
+        break;
+
       /*********************************************************************
                                 EAP-TLS
       **********************************************************************/
@@ -2672,6 +2681,16 @@ proto_register_eap(void)
     { &hf_eap_md5_extra_data, {
       "EAP-MD5 Extra Data", "eap.md5.extra_data",
       FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_gtc_challenge, {
+      "Challenge", "eap.gtc.challenge",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_gtc_response, {
+      "Response", "eap.gtc.response",
+      FT_STRING, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
     { &hf_eap_tls_flags, {
