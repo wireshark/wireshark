@@ -12,7 +12,7 @@
 #ifndef __CAPTURE_IFINFO_H__
 #define __CAPTURE_IFINFO_H__
 
-#include <glib.h>
+#include <wireshark.h>
 
 #ifdef __cplusplus
 extern "C" {
