@@ -20,6 +20,7 @@
 #include <wiretap/wtap.h>
 #include <wsutil/pint.h>
 
+#include <epan/tfs.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 
@@ -51,12 +52,18 @@ static int hf_dect_nr_tap_tlv_element_pdc_rssi2;
 static int hf_dect_nr_tap_tlv_element_pdc_snr;
 static int hf_dect_nr_tap_tlv_element_transaction_id;
 static int hf_dect_nr_tap_tlv_element_channel;
-static int hf_dect_nr_tap_tlv_element_simul_trace_string_number;
+static int hf_dect_nr_tap_tlv_element_trace_line;
+static int hf_dect_nr_tap_tlv_element_modem_time_hi;
+static int hf_dect_nr_tap_tlv_element_modem_time_lo;
+static int hf_dect_nr_tap_tlv_element_modem_time;
+static int hf_dect_nr_tap_tlv_element_is_tx;
 static int hf_dect_nr_tap_tlv_element_padding;
 
 static int ett_dect_nr_tap;
 static int ett_dect_nr_tap_header;
 static int ett_dect_nr_tap_header_tlv;
+
+static const true_false_string tfs_tx_rx = { "TX", "RX" };
 
 #define CUSTOM_HEADER_SIZE (8)
 #define TLV_LENGTH (8)
@@ -77,7 +84,10 @@ static int ett_dect_nr_tap_header_tlv;
 #define TLV_TYPE_PDC_SNR                   (6)
 #define TLV_TYPE_TRANSACTION_ID            (7)
 #define TLV_TYPE_CHANNEL                   (8)
-#define TLV_TYPE_SIMUL_TRACE_STRING_NUMBER (9)
+#define TLV_TYPE_TRACE_LINE                (9)
+#define TLV_TYPE_MODEM_TIME_HI             (10)
+#define TLV_TYPE_MODEM_TIME_LO             (11)
+#define TLV_TYPE_MODEM_IS_TX               (12)
 
 static const value_string dect_nr_tap_tlv_type_val[] = {
     {TLV_TYPE_DATA_TYPE,                 "Data type"},
@@ -88,7 +98,10 @@ static const value_string dect_nr_tap_tlv_type_val[] = {
     {TLV_TYPE_PDC_SNR,                   "PDC SNR"},
     {TLV_TYPE_TRANSACTION_ID,            "Transaction ID"},
     {TLV_TYPE_CHANNEL,                   "Channel"},
-    {TLV_TYPE_SIMUL_TRACE_STRING_NUMBER, "Simul trace string number"},
+    {TLV_TYPE_TRACE_LINE,                "Trace line number"},
+    {TLV_TYPE_MODEM_TIME_HI,             "Modem time high bits"},
+    {TLV_TYPE_MODEM_TIME_LO,             "Modem time low bits"},
+    {TLV_TYPE_MODEM_IS_TX,               "Direction"},
     { 0, NULL }
 };
 
@@ -151,6 +164,34 @@ snr_hex2dbm(char *buf, int16_t value)
 
 
 /*
+ * Common handling for combining the high and low 32-bit modem time values.
+ *
+ * @param parent_tree parrent tree pointer
+ * @param tvb pointer to buffer containing raw packet.
+ * @param modem_time calculated 64-bit modem time value.
+ * @param offset offset in the tvb buffer used when adding the combined modem time.
+ * @param[out] have_prev indicates whether a previous 32-bit modem time value is stored.
+ * @param[out] prev stores the previously received 32-bit modem time value.
+ */
+static void
+add_modem_time(proto_tree *parent_tree, tvbuff_t *tvb, uint64_t modem_time, bool *have_prev, uint64_t *prev)
+{
+    if (!*have_prev)
+    {
+        *have_prev = true;
+        *prev = modem_time;
+        return;
+    }
+
+    proto_item *pi = proto_tree_add_uint64(parent_tree, hf_dect_nr_tap_tlv_element_modem_time, tvb, 0, 0, modem_time);
+    proto_item_set_generated(pi);
+
+    *have_prev = false;
+    *prev = 0;
+}
+
+
+/*
  * TLV parser.
  *
  *@param parent_tree parrent tree pointer
@@ -159,7 +200,7 @@ snr_hex2dbm(char *buf, int16_t value)
  *@param[out] data_type Indicates the length of PCC bytes and presence of PDC data
  *@return tlv length.
 */
-static int process_tlv(proto_tree *parent_tree, tvbuff_t *tvb, packet_info *pinfo, uint32_t offset, uint32_t *data_type)
+static int process_tlv(proto_tree *parent_tree, tvbuff_t *tvb, packet_info *pinfo, uint32_t offset, uint32_t *data_type, bool* have_prev_modem_time, uint64_t* prev_modem_time)
 {
     uint16_t padding_length = 4; /* TLV value size = 4 */
     proto_item *ti;
@@ -267,12 +308,47 @@ static int process_tlv(proto_tree *parent_tree, tvbuff_t *tvb, packet_info *pinf
             break;
         }
 
-        case TLV_TYPE_SIMUL_TRACE_STRING_NUMBER: {
+        case TLV_TYPE_TRACE_LINE: {
             uint32_t num;
 
-            proto_tree_add_item_ret_uint(tree, hf_dect_nr_tap_tlv_element_simul_trace_string_number, tvb, offset, 2, ENC_LITTLE_ENDIAN, &num);
+            proto_tree_add_item_ret_uint(tree, hf_dect_nr_tap_tlv_element_trace_line, tvb, offset, 2, ENC_LITTLE_ENDIAN, &num);
             proto_item_append_text(ti, ": %u", num);
             offset += 4;
+            break;
+        }
+
+        case TLV_TYPE_MODEM_TIME_HI: {
+            uint32_t num;
+            uint64_t modem_time;
+
+            proto_tree_add_item_ret_uint(tree, hf_dect_nr_tap_tlv_element_modem_time_hi, tvb, offset, 4, ENC_LITTLE_ENDIAN, &num);
+            proto_item_append_text(ti, ": %u", num);
+            offset += 4;
+            modem_time = ((uint64_t)num << 32) | *prev_modem_time;
+            add_modem_time(parent_tree, tvb, modem_time, have_prev_modem_time, prev_modem_time);
+
+            break;
+        }
+
+        case TLV_TYPE_MODEM_TIME_LO: {
+            uint32_t num;
+            uint64_t modem_time;
+
+            proto_tree_add_item_ret_uint(tree, hf_dect_nr_tap_tlv_element_modem_time_lo, tvb, offset, 4, ENC_LITTLE_ENDIAN, &num);
+            proto_item_append_text(ti, ": %u", num);
+            offset += 4;
+            modem_time = ((uint64_t)*prev_modem_time << 32) | num;
+            add_modem_time(parent_tree, tvb, modem_time, have_prev_modem_time, prev_modem_time);
+
+            break;
+        }
+
+        case TLV_TYPE_MODEM_IS_TX: {
+	    bool is_tx;
+
+            proto_tree_add_item_ret_boolean(tree, hf_dect_nr_tap_tlv_element_is_tx, tvb, offset, 2, ENC_LITTLE_ENDIAN, &is_tx);
+            proto_item_append_text(ti, ": %s", tfs_get_string(is_tx, &tfs_tx_rx));
+            offset += 2;
             break;
         }
 
@@ -352,8 +428,11 @@ dissect_dect_nr_tap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     uint32_t tlvs_end = offset + tlvs_length;
     uint32_t data_type = PHY_LAYER_CONTROL_FIELD_40BIT;
 
+    bool have_prev_modem_time = false;
+    uint64_t prev_modem_time = 0;
+
     while (offset < tlvs_end) {
-        offset = process_tlv(dect_nr_tap_tree, tvb, pinfo, offset, &data_type);
+        offset = process_tlv(dect_nr_tap_tree, tvb, pinfo, offset, &data_type, &have_prev_modem_time, &prev_modem_time);
     }
 
     if (data_type != PHY_LAYER_CONTROL_FIELD_NO_PCC_PDC)
@@ -400,8 +479,13 @@ proto_register_dect_nr_tap(void)
         { &hf_dect_nr_tap_tlv_element_pdc_snr,                   {"PDC SNR",                   "dect_nr_tap.tlv_element.pdc_snr",                   FT_INT16, BASE_CUSTOM, CF_FUNC(snr_hex2dbm), 0x00, "Physical Data Channel SNR", HFILL }},
         { &hf_dect_nr_tap_tlv_element_transaction_id,            {"Transaction ID",            "dect_nr_tap.tlv_element.transaction_id",            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
         { &hf_dect_nr_tap_tlv_element_channel,                   {"Channel",                   "dect_nr_tap.tlv_element.channel",                   FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
-        { &hf_dect_nr_tap_tlv_element_simul_trace_string_number, {"Simul trace string number", "dect_nr_tap.tlv_element.simul_trace_string_number", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }},
-        { &hf_dect_nr_tap_tlv_element_padding,                   {"Padding", "dect_nr_tap.tlv_element.padding", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+        { &hf_dect_nr_tap_tlv_element_trace_line,                {"Trace line number",         "dect_nr_tap.tlv_element.trace_line",                FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+
+        { &hf_dect_nr_tap_tlv_element_modem_time_hi,             {"Modem Time High",           "dect_nr_tap.tlv_element.modem_time_hi",             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+        { &hf_dect_nr_tap_tlv_element_modem_time_lo,             {"Modem Time Low",            "dect_nr_tap.tlv_element.modem_time_lo",             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+        { &hf_dect_nr_tap_tlv_element_is_tx,                     {"Direction",                     "dect_nr_tap.tlv_element.is_tx",                 FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+        { &hf_dect_nr_tap_tlv_element_padding,                   {"Padding", "dect_nr_tap.tlv_element.padding",                                     FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+        { &hf_dect_nr_tap_tlv_element_modem_time,                {"Modem Time", "dect_nr_tap.tlv_element.modem_time",                               FT_UINT64, BASE_DEC, NULL, 0x00, NULL, HFILL }},
     };
 
     static int *ett[] = {
