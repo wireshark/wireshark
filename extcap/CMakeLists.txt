@@ -74,12 +74,6 @@ macro(set_common_executable_properties _executable _application)
 		endif()
 	endif()
 
-	if (MINGW)
-		set_target_properties(${_executable} PROPERTIES
-			LINK_OPTIONS -municode
-		)
-	endif()
-
 	unset(_application_lower)
 endmacro()
 
