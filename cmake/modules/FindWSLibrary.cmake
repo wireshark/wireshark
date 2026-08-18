@@ -12,7 +12,7 @@ function(FindWSLibrary OUTPUT_LIBRARY)
         ${ARGN}
     )
 
-    if (WIN32)
+    if (USE_REPOSITORY)
         find_library(${OUTPUT_LIBRARY}_DEBUG
             NAMES ${WS_LIB_NAMES}
             HINTS "${WS_LIB_WIN32_HINTS}/debug/lib"
