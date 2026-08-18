@@ -948,6 +948,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gtp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gtpv2.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gquic.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-gue.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gvcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gvrp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gvsp.c

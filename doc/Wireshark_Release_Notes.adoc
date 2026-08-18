@@ -205,6 +205,7 @@ Controller Interface Transport Protocol (CITP)
 DCERPC SCARD_PACK
 DECT NR+
 ESUN
+Generic UDP Encapsulation (GUE)
 JSON Dictionary
 Linux mac80211_hwsim Netlink
 Linux Open vSwitch Netlink (OVS)
