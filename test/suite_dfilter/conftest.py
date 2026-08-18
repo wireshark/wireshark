@@ -21,7 +21,7 @@ def dfilter_cmd(cmd_tshark, capture_file, request):
         if frame_number:
             cmd.extend([
                 "-2",       # two-pass mode
-                "--selected-frame={}".format(frame_number)
+                f"--selected-frame={frame_number}"
             ])
         if read_filter:
             cmd.extend([

@@ -16,6 +16,8 @@ import urllib.request
 from collections import Counter
 from html.parser import HTMLParser
 
+from spellchecker import SpellChecker
+
 from check_common import (
     Result,
     bcolors,
@@ -24,7 +26,6 @@ from check_common import (
     isGeneratedFile,
     removeComments,
 )
-from spellchecker import SpellChecker
 
 # Looks for spelling errors among strings found in source or documentation files.
 # N.B.,

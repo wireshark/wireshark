@@ -12,6 +12,7 @@ import json
 import subprocess
 
 import pytest
+
 from matchers import MatchAny, MatchList, MatchObject, MatchRegExp
 
 
@@ -38,7 +39,7 @@ def run_sharkd_session(cmd_sharkd, base_env):
             try:
                 jdata = json.loads(line)
             except json.JSONDecodeError:
-                pytest.fail('Invalid JSON: %r' % line)
+                pytest.fail(f'Invalid JSON: {line!r}')
             outputs.append(jdata)
         return tuple(outputs)
     return run_sharkd_session_real

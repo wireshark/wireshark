@@ -13,6 +13,7 @@ import subprocess
 import sys
 
 import pytest
+
 from subprocesstest import count_output, grep_output
 
 

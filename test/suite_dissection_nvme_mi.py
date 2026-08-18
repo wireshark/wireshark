@@ -765,7 +765,7 @@ class TestNvmeMiMiCommands:
             (2,  'nvme-mi.mi.rds.dtyp == 0x01 && nvme-mi.mi.rds.portid == 0'),
             (73, 'nvme-mi.mi.rds.dtyp == 0x00'),
             (75, 'nvme-mi.mi.rds.dtyp == 0x02 && nvme-mi.mi.rds.ctrlid == 0'),
-            (77, 'nvme-mi.mi.rds.dtyp == 0x04 && nvme-mi.mi.rds.ctrlid == 1'
+            (77, 'nvme-mi.mi.rds.dtyp == 0x04 && nvme-mi.mi.rds.ctrlid == 1' +
                  ' && nvme-mi.mi.rds.iocsi == 0'),
             (79, 'nvme-mi.mi.rds.dtyp == 0x01 && nvme-mi.mi.rds.portid == 1'),
             (89, 'nvme-mi.mi.rds.dtyp == 0x03 && nvme-mi.mi.rds.ctrlid == 1')])
@@ -1255,7 +1255,7 @@ class TestNvmeMiAdminCommands:
         """The common SQE header now decodes with DW-referenced names
         (Controller ID + NSID/MPTR) instead of the old opaque sqe1-5 dwords."""
         assert_frames_match(self.FILE, [
-            (1, 'nvme-mi.admin.ctrl-id == 0x0001 && nvme-mi.admin.nsid == 0 && '
+            (1, 'nvme-mi.admin.ctrl-id == 0x0001 && nvme-mi.admin.nsid == 0 && ' +
                 'nvme-mi.admin.mptr == 0'),
             (4, 'nvme-mi.admin.ctrl-id == 0x0004'),
         ])
@@ -1268,7 +1268,7 @@ class TestNvmeMiAdminCommands:
         rows = [line.split('\t', 1) for line in stdout.splitlines()]
         assert rows == [
             ['1', 'NVMe-MI NVMe Admin command Request (Identify) Controller'],
-            ['2', 'NVMe-MI NVMe Admin command Request (Get Log Page) '
+            ['2', 'NVMe-MI NVMe Admin command Request (Get Log Page) ' +
                   'SMART/Health Information'],
         ]
 
@@ -1339,9 +1339,9 @@ class TestNvmeMiAdminResponse:
         the right offset and the phase mask distinctly from SCT/SC -- an all-
         zero success word alone cannot tell a correct offset from a wrong one."""
         assert_frames_match(self.FILE, [
-            (2, 'nvme.cqe.status.sct == 0 && nvme.cqe.status.sc == 0 && '
+            (2, 'nvme.cqe.status.sct == 0 && nvme.cqe.status.sc == 0 && ' +
                 'nvme.cqe.status.p == 1'),
-            (4, 'nvme.cqe.status.sct == 0 && nvme.cqe.status.sc == 0 && '
+            (4, 'nvme.cqe.status.sct == 0 && nvme.cqe.status.sc == 0 && ' +
                 'nvme.cqe.status.p == 0'),
         ])
 
@@ -1980,9 +1980,9 @@ class TestNvmeMiMctpBridge:
         sent to *its own* endpoint.  Under the old key F3 reported opcode 0x02
         (ME-B's Get Log Page) although it is ME-A's Identify response."""
         assert_frames_match(self.FILE, [
-            (3, 'nvme-mi.admin.opcode == 0x06 && '
+            (3, 'nvme-mi.admin.opcode == 0x06 && ' +
                 'nvme-mi.admin.cqe_dw0 == 0xAAAA000A'),
-            (4, 'nvme-mi.admin.opcode == 0x02 && '
+            (4, 'nvme-mi.admin.opcode == 0x02 && ' +
                 'nvme-mi.admin.cqe_dw0 == 0xBBBB000B'),
         ])
 

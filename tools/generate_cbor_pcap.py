@@ -12,7 +12,6 @@ SPDX-License-Identifier: LGPL-2.1-or-later
 import random
 import sys
 from argparse import ArgumentParser
-from subprocess import check_output
 
 import cbor_diag
 from scapy.contrib.coap import CoAP

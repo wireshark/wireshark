@@ -233,10 +233,9 @@ def build_capture(path):
     with open(path, 'wb') as f:
         f.write(shb())
         f.write(idb())
-        for i, pkt in enumerate(frames):
-            f.write(epb(pkt, 1000000 + i * 1000))
+        f.writelines(epb(pkt, 1000000 + i * 1000) for i, pkt in enumerate(frames))
 
-    print('wrote {} ({} frames)'.format(path, len(frames)))
+    print(f'wrote {path} ({len(frames)} frames)')
 
 def main():
     captures_dir = os.path.join(os.path.dirname(__file__), '..',

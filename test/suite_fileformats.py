@@ -13,6 +13,7 @@ import subprocess
 from pathlib import PurePath
 
 import pytest
+
 from subprocesstest import count_output
 
 # XXX Currently unused. It would be nice to be able to use this below.
@@ -70,7 +71,7 @@ class TestFileFormatsPcapng:
         capture_stdout = subprocess.check_output(' '.join((f'"{cmd_tshark}"',
                 '-r', '-',
                 '-Tfields',
-                '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta'
+                '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta',
                 '<', capture_file('dhcp.pcapng')
                 )),
             shell=True, encoding='utf-8', env=test_env)
@@ -91,7 +92,7 @@ class TestFileFormatsPcapng:
         capture_stdout = subprocess.check_output(' '.join((f'"{cmd_tshark}"',
                 '-r', '-',
                 '-Tfields',
-                '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta'
+                '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta',
                 '<', capture_file('dhcp-nanosecond.pcapng')
                 )),
             shell=True, encoding='utf-8', env=test_env)
@@ -125,8 +126,8 @@ def check_pcapng_dsb_fields(request, cmd_tshark):
         actual = list(zip(*[x.split(",") for x in output.split('\t')]))
         def format_field(field):
             t, length, v = field
-            v_hex = ''.join('%02x' % c for c in v)
-            return ('0x%08x' % t, str(length), v_hex)
+            v_hex = ''.join(f'{c:02x}' for c in v)
+            return (f'0x{t:08x}', str(length), v_hex)
         fields = [format_field(field) for field in fields]
         assert fields == actual
     return check_dsb_fields_real
@@ -156,7 +157,7 @@ class TestFileFormatsPcapngDsb:
         key_file = os.path.join(dirs.key_dir, 'dhe1_keylog.dat')
         outfile = result_file('dhe1-dsb.pcapng')
         subprocess.run((cmd_editcap,
-            '--inject-secrets', 'tls,%s' % key_file,
+            '--inject-secrets', f'tls,{key_file}',
             capture_file('dhe1.pcapng.gz'), outfile
         ), check=True, env=base_env)
         with open(key_file, 'rb') as f:
@@ -171,8 +172,8 @@ class TestFileFormatsPcapngDsb:
         key_file2 = os.path.join(dirs.key_dir, 'http2-data-reassembly.keys')
         outfile = result_file('dhe1-dsb.pcapng')
         subprocess.run((cmd_editcap,
-            '--inject-secrets', 'tls,%s' % key_file1,
-            '--inject-secrets', 'tls,%s' % key_file2,
+            '--inject-secrets', f'tls,{key_file1}',
+            '--inject-secrets', f'tls,{key_file2}',
             capture_file('dhe1.pcapng.gz'), outfile
         ), check=True, env=base_env)
         with open(key_file1, 'rb') as f:
@@ -191,7 +192,7 @@ class TestFileFormatsPcapngDsb:
         key_file = os.path.join(dirs.key_dir, 'dhe1_keylog.dat')
         outfile = result_file('tls12-dsb-extra.pcapng')
         subprocess.run((cmd_editcap,
-            '--inject-secrets', 'tls,%s' % key_file,
+            '--inject-secrets', f'tls,{key_file}',
             capture_file('tls12-dsb.pcapng'), outfile
         ), check=True, env=base_env)
         with open(dsb_keys1, 'r') as f:
@@ -216,8 +217,8 @@ class TestFileFormatsPcapngDsb:
         outfile = result_file('rsasnakeoil2-dsb.pcapng')
         proc = subprocess.run((cmd_editcap,
             '--log-fatal', 'warning',
-            '--inject-secrets', 'tls,%s' % rsa_keyfile,
-            '--inject-secrets', 'tls,%s' % p12_keyfile,
+            '--inject-secrets', f'tls,{rsa_keyfile}',
+            '--inject-secrets', f'tls,{p12_keyfile}',
             capture_file('rsasnakeoil2.pcap'), outfile
         ), capture_output=True, encoding='utf-8', check=True, env=base_env)
         assert count_output(proc.stderr, 'unsupported private key file') == 2

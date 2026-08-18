@@ -13,6 +13,7 @@ import shutil
 import subprocess
 
 import pytest
+
 from subprocesstest import grep_output
 
 tf_str = { True: 'TRUE', False: 'FALSE' }

@@ -13,6 +13,7 @@ import re
 import subprocess
 
 import pytest
+
 from subprocesstest import get_capture_info, grep_output
 
 testin_txt = 'testin.txt'
@@ -71,14 +72,14 @@ def check_capinfos_info(cmd_capinfos, cap_file):
     capinfos_out = get_capture_info(cmd_capinfos, ('-MtEcdeIF',), cap_file)
 
     for ci_line in capinfos_out.splitlines():
-        for sp_key in str_pats:
-            str_pat = rf'{str_pats[sp_key]}:\s+([\S ]+)'
+        for sp_key, sp_value in str_pats.items():
+            str_pat = rf'{sp_value}:\s+([\S ]+)'
             str_res = re.search(str_pat, ci_line)
             if str_res is not None:
                 cap_info[sp_key] = str_res.group(1)
 
-        for ip_key in int_pats:
-            int_pat = rf'{int_pats[ip_key]}:\s+(\d+)'
+        for ip_key, ip_value in int_pats.items():
+            int_pat = rf'{ip_value}:\s+(\d+)'
             int_res = re.search(int_pat, ci_line)
             if int_res is not None:
                 cap_info[ip_key] = int(int_res.group(1))

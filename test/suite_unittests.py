@@ -64,7 +64,7 @@ class Proto:
     """Data for a protocol."""
     def __init__(self, line):
         data = line.split("\t")
-        assert len(data) == 3, "expected 3 columns in %s" % data
+        assert len(data) == 3, f"expected 3 columns in {data}"
         assert data[0] == "P"
         self.name = data[1]
         self.abbrev = data[2]
@@ -73,7 +73,7 @@ class Field:
     """Data for a field."""
     def __init__(self, line):
         data = line.split("\t")
-        assert len(data) == 8, "expected 8 columns in %s" % data
+        assert len(data) == 8, f"expected 8 columns in {data}"
         assert data[0] == "F"
         self.name = data[1]
         self.abbrev = data[2]
@@ -97,12 +97,12 @@ class TestUnitFtSanity:
 
         err_list = []
         for field in fields:
-            if field.bitmask != 0:
-                if field.ftype.find("FT_UINT") != 0 and \
-                        field.ftype.find("FT_INT") != 0 and \
-                        field.ftype != "FT_BOOLEAN" and \
-                        field.ftype != "FT_CHAR":
-                    err_list.append("%s has a bitmask 0x%x but is type %s" % \
-                            (field.abbrev, field.bitmask, field.ftype))
+            if (field.bitmask != 0 and
+                field.ftype.find("FT_UINT") != 0 and
+                field.ftype.find("FT_INT") != 0 and
+                field.ftype != "FT_BOOLEAN" and
+                field.ftype != "FT_CHAR"):
+
+                err_list.append(f"{field.abbrev} has a bitmask 0x{field.bitmask} but is type {field.ftype}")
 
         assert len(err_list) == 0, 'Found field type errors: \n' + '\n'.join(err_list)

@@ -14,6 +14,7 @@ import signal
 import sys
 
 import aiohttp
+
 from check_common import getFilesFromCommits, getFilesFromOpen
 
 # This utility scans the dissector code for URLs, then attempts to

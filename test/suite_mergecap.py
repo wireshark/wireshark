@@ -69,7 +69,7 @@ class TestMergecapPcap:
             '--log-fatal', 'warning',
             '-w', testout_file,
             capture_file('dhcp.pcap'),
-        ), capture_output=True, encoding='utf-8', env=test_env)
+        ), capture_output=True, encoding='utf-8', env=test_env, check=False)
         check_mergecap(mergecap_proc, 'pcap', 'Ethernet', 4, 1, 4, cmd_capinfos, testout_file, test_env)
 
     def test_mergecap_basic_2_pcap_pcap(self, cmd_mergecap, capture_file, result_file, cmd_capinfos, test_env):
@@ -81,7 +81,7 @@ class TestMergecapPcap:
             '-F', 'pcap',
             '-w', testout_file,
             capture_file('dhcp.pcap'), capture_file('dhcp.pcap'),
-        ), capture_output=True, encoding='utf-8', env=test_env)
+        ), capture_output=True, encoding='utf-8', env=test_env, check=False)
         check_mergecap(mergecap_proc, 'pcap', 'Ethernet', 8, 1, 8, cmd_capinfos, testout_file, test_env)
 
     def test_mergecap_basic_3_empty_pcap_pcap(self, cmd_mergecap, capture_file, result_file, cmd_capinfos, test_env):
@@ -93,7 +93,7 @@ class TestMergecapPcap:
             '-F', 'pcap',
             '-w', testout_file,
             capture_file('empty.pcap'), capture_file('dhcp.pcap'), capture_file('empty.pcap'),
-        ), capture_output=True, encoding='utf-8', env=test_env)
+        ), capture_output=True, encoding='utf-8', env=test_env, check=False)
         check_mergecap(mergecap_proc, 'pcap', 'Ethernet', 4, 1, 4, cmd_capinfos, testout_file, test_env)
 
     def test_mergecap_basic_2_nano_pcap_pcap(self, cmd_mergecap, capture_file, result_file, cmd_capinfos, test_env):
@@ -105,7 +105,7 @@ class TestMergecapPcap:
             '-F', 'pcap',
             '-w', testout_file,
             capture_file('dhcp-nanosecond.pcap'), capture_file('rsasnakeoil2.pcap'),
-        ), capture_output=True, encoding='utf-8', env=test_env)
+        ), capture_output=True, encoding='utf-8', env=test_env, check=False)
         check_mergecap(mergecap_proc, 'pcap', 'Ethernet', 62, 1, 62, cmd_capinfos, testout_file, test_env)
 
 
@@ -118,7 +118,7 @@ class TestMergecapPcapng:
             '-V',
             '-w', testout_file,
             capture_file('dhcp.pcap'),
-        ), capture_output=True, encoding='utf-8', env=test_env)
+        ), capture_output=True, encoding='utf-8', env=test_env, check=False)
         check_mergecap(mergecap_proc, 'pcapng', 'Ethernet', 4, 1, 4, cmd_capinfos, testout_file, test_env)
 
     def test_mergecap_basic_2_pcap_pcapng(self, cmd_mergecap, capture_file, result_file, cmd_capinfos, test_env):
@@ -129,7 +129,7 @@ class TestMergecapPcapng:
             '-V',
             '-w', testout_file,
             capture_file('dhcp.pcap'), capture_file('dhcp.pcap'),
-        ), capture_output=True, encoding='utf-8', env=test_env)
+        ), capture_output=True, encoding='utf-8', env=test_env, check=False)
         check_mergecap(mergecap_proc, 'pcapng', 'Ethernet', 8, 1, 8, cmd_capinfos, testout_file, test_env)
 
     def test_mergecap_basic_2_pcap_none_pcapng(self, cmd_mergecap, capture_file, result_file, cmd_capinfos, test_env):
@@ -141,7 +141,7 @@ class TestMergecapPcapng:
             '-I', 'none',
             '-w', testout_file,
             capture_file('dhcp.pcap'), capture_file('dhcp.pcap'),
-        ), capture_output=True, encoding='utf-8', env=test_env)
+        ), capture_output=True, encoding='utf-8', env=test_env, check=False)
         check_mergecap(mergecap_proc, 'pcapng', 'Ethernet', 8, 2, 4, cmd_capinfos, testout_file, test_env)
 
     def test_mergecap_basic_2_pcap_all_pcapng(self, cmd_mergecap, capture_file, result_file, cmd_capinfos, test_env):
@@ -153,7 +153,7 @@ class TestMergecapPcapng:
             '-I', 'all',
             '-w', testout_file,
             capture_file('dhcp.pcap'), capture_file('dhcp.pcap'),
-        ), capture_output=True, encoding='utf-8', env=test_env)
+        ), capture_output=True, encoding='utf-8', env=test_env, check=False)
         check_mergecap(mergecap_proc, 'pcapng', 'Ethernet', 8, 1, 8, cmd_capinfos, testout_file, test_env)
 
     def test_mergecap_basic_2_pcap_any_pcapng(self, cmd_mergecap, capture_file, result_file, cmd_capinfos, test_env):
@@ -165,7 +165,7 @@ class TestMergecapPcapng:
             '-I', 'any',
             '-w', testout_file,
             capture_file('dhcp.pcap'), capture_file('dhcp.pcap'),
-        ), capture_output=True, encoding='utf-8', env=test_env)
+        ), capture_output=True, encoding='utf-8', env=test_env, check=False)
         check_mergecap(mergecap_proc, 'pcapng', 'Ethernet', 8, 1, 8, cmd_capinfos, testout_file, test_env)
 
     def test_mergecap_basic_1_pcapng_pcapng(self, cmd_mergecap, capture_file, result_file, cmd_capinfos, test_env):
@@ -176,7 +176,7 @@ class TestMergecapPcapng:
             '-V',
             '-w', testout_file,
             capture_file('dhcp.pcapng'),
-        ), capture_output=True, encoding='utf-8', env=test_env)
+        ), capture_output=True, encoding='utf-8', env=test_env, check=False)
         check_mergecap(mergecap_proc, 'pcapng', 'Ethernet', 4, 1, 4, cmd_capinfos, testout_file, test_env)
 
     def test_mergecap_1_pcapng_many_pcapng(self, cmd_mergecap, capture_file, result_file, cmd_capinfos, test_env):
@@ -187,7 +187,7 @@ class TestMergecapPcapng:
             '-V',
             '-w', testout_file,
             capture_file('many_interfaces.pcapng.1'),
-        ), capture_output=True, encoding='utf-8', env=test_env)
+        ), capture_output=True, encoding='utf-8', env=test_env, check=False)
         check_mergecap(mergecap_proc, 'pcapng', 'Per packet', 64, 11, 62, cmd_capinfos, testout_file, test_env)
 
     def test_mergecap_3_pcapng_pcapng(self, cmd_mergecap, capture_file, result_file, cmd_capinfos, test_env):
@@ -200,7 +200,7 @@ class TestMergecapPcapng:
             capture_file('many_interfaces.pcapng.1'),
             capture_file('many_interfaces.pcapng.2'),
             capture_file('many_interfaces.pcapng.3'),
-        ), capture_output=True, encoding='utf-8', env=test_env)
+        ), capture_output=True, encoding='utf-8', env=test_env, check=False)
         check_mergecap( mergecap_proc, 'pcapng', 'Per packet', 88, 11, 86, cmd_capinfos, testout_file, test_env)
 
     def test_mergecap_3_pcapng_none_pcapng(self, cmd_mergecap, capture_file, result_file, cmd_capinfos, test_env):
@@ -214,7 +214,7 @@ class TestMergecapPcapng:
             capture_file('many_interfaces.pcapng.1'),
             capture_file('many_interfaces.pcapng.2'),
             capture_file('many_interfaces.pcapng.3'),
-        ), capture_output=True, encoding='utf-8', env=test_env)
+        ), capture_output=True, encoding='utf-8', env=test_env, check=False)
         check_mergecap(mergecap_proc, 'pcapng', 'Per packet', 88, 33, 62, cmd_capinfos, testout_file, test_env)
 
     def test_mergecap_3_pcapng_all_pcapng(self, cmd_mergecap, capture_file, result_file, cmd_capinfos, test_env):
@@ -240,7 +240,7 @@ class TestMergecapPcapng:
             '-I', 'all',
             '-w', testout_file,
             testin_file, testin_file, testin_file,
-        ), capture_output=True, encoding='utf-8', env=test_env)
+        ), capture_output=True, encoding='utf-8', env=test_env, check=False)
         # check for 33 IDBs, 88*3=264 total pkts, 62*3=186 in first IDB
         check_mergecap(mergecap_proc, 'pcapng', 'Per packet', 264, 33, 186, cmd_capinfos, testout_file, test_env)
 
@@ -267,6 +267,6 @@ class TestMergecapPcapng:
             '-I', 'any',
             '-w', testout_file,
             testin_file, testin_file, testin_file,
-        ), capture_output=True, encoding='utf-8', env=test_env)
+        ), capture_output=True, encoding='utf-8', env=test_env, check=False)
         # check for 11 IDBs, 88*3=264 total pkts, 86*3=258 in first IDB
         check_mergecap(mergecap_proc, 'pcapng', 'Per packet', 264, 11, 258, cmd_capinfos, testout_file, test_env)

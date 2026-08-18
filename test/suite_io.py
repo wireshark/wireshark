@@ -13,6 +13,7 @@ import subprocess
 import sys
 
 import pytest
+
 from subprocesstest import cat_dhcp_command, check_packet_count
 
 testout_pcap = 'testout.pcap'

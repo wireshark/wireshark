@@ -44,7 +44,7 @@ def pdml_shownames(cmd_tshark, capture_file, test_env):
     def run(frame, name):
         stdout = subprocess.check_output(
             [cmd_tshark, '-r', capture_file(CAPTURE),
-             '-Y', 'frame.number == {}'.format(frame), '-Tpdml'],
+             '-Y', f'frame.number == {frame}', '-Tpdml'],
             encoding='utf-8', env=test_env)
         return [f.get('showname') for f in ET.fromstring(stdout).iter('field')
                 if f.get('name') == name]
@@ -57,23 +57,23 @@ class TestMctpControlPayloads:
     def test_set_endpoint_id(self, assert_frames_match):
         assert_frames_match(CAPTURE, [
             # Frame 1: Set op request for EID 0x42 (Table 14)
-            (1, 'mctpc.set_eid.op == 0 && mctpc.set_eid.eid == 0x42'
+            (1, 'mctpc.set_eid.op == 0 && mctpc.set_eid.eid == 0x42' +
                 ' && mctpc.rq == 1'),
             # Frame 2: accepted, endpoint requires EID pool allocation
-            (2, 'mctpc.set_eid.status == 0 && mctpc.set_eid.alloc_status == 1'
-                ' && mctpc.set_eid.eid_setting == 0x42'
+            (2, 'mctpc.set_eid.status == 0 && mctpc.set_eid.alloc_status == 1' +
+                ' && mctpc.set_eid.eid_setting == 0x42' +
                 ' && mctpc.set_eid.pool_size == 4 && mctpc.rq == 0'),
             # Frame 3: Force EID op
             (3, 'mctpc.set_eid.op == 1 && mctpc.set_eid.eid == 0x43'),
             # Frame 4: accepted, no pool
-            (4, 'mctpc.set_eid.status == 0 && mctpc.set_eid.alloc_status == 0'
-                ' && mctpc.set_eid.eid_setting == 0x43'
+            (4, 'mctpc.set_eid.status == 0 && mctpc.set_eid.alloc_status == 0' +
+                ' && mctpc.set_eid.eid_setting == 0x43' +
                 ' && mctpc.set_eid.pool_size == 0'),
             # Frame 6: assignment REJECTED ([5:4]=01b), already-received
             # allocation ([1:0]=10b); reserved sub-bits [7:6]/[3:2] itemized
-            (6, 'mctpc.set_eid.status == 1 && mctpc.set_eid.alloc_status == 2'
-                ' && mctpc.set_eid.rsvd_hi == 0 && mctpc.set_eid.rsvd_lo == 0'
-                ' && mctpc.set_eid.eid_setting == 0x42'
+            (6, 'mctpc.set_eid.status == 1 && mctpc.set_eid.alloc_status == 2' +
+                ' && mctpc.set_eid.rsvd_hi == 0 && mctpc.set_eid.rsvd_lo == 0' +
+                ' && mctpc.set_eid.eid_setting == 0x42' +
                 ' && mctpc.set_eid.pool_size == 2'),
         ])
 
@@ -84,18 +84,18 @@ class TestMctpControlPayloads:
     def test_get_endpoint_id(self, assert_frames_match):
         assert_frames_match(CAPTURE, [
             # Frame 7: empty request — no payload fields, no leftover data
-            (7, 'mctpc.command == 2 && mctpc.rq == 1'
+            (7, 'mctpc.command == 2 && mctpc.rq == 1' +
                 ' && !mctpc.get_eid.eid && !mctpc.data'),
             # Frame 8: EID 0x42, bus owner/bridge, static EID matches.
             # DSP0236 byte 3 is [7:6] reserved, [5:4] Endpoint Type,
             # [3:2] reserved, [1:0] Endpoint ID Type -- all four are rendered,
             # so the byte is fully accounted for and matches how Set Endpoint
             # ID reports its own two reserved runs.
-            (8, 'mctpc.get_eid.eid == 0x42'
-                ' && mctpc.get_eid.rsvd_hi == 0'
-                ' && mctpc.get_eid.endpoint_type == 1'
-                ' && mctpc.get_eid.rsvd_lo == 0'
-                ' && mctpc.get_eid.eid_type == 2'
+            (8, 'mctpc.get_eid.eid == 0x42' +
+                ' && mctpc.get_eid.rsvd_hi == 0' +
+                ' && mctpc.get_eid.endpoint_type == 1' +
+                ' && mctpc.get_eid.rsvd_lo == 0' +
+                ' && mctpc.get_eid.eid_type == 2' +
                 ' && mctpc.get_eid.medium_info == 0'),
         ])
 
@@ -113,9 +113,9 @@ class TestMctpControlPayloads:
             (11, 'mctpc.get_ver.msg_type == 0xff'),
             # Frame 12: 4 entries, raw values intact
             (12, 'mctpc.get_ver.count == 4'
-                 ' && mctpc.get_ver.entry == 0xf1f0ff00'
-                 ' && mctpc.get_ver.entry == 0xf1f3f300'
-                 ' && mctpc.get_ver.entry == 0xf3f71061'
+                 ' && mctpc.get_ver.entry == 0xf1f0ff00' +
+                 ' && mctpc.get_ver.entry == 0xf1f3f300' +
+                 ' && mctpc.get_ver.entry == 0xf3f71061' +
                  ' && mctpc.get_ver.entry == 0x1011f700'),
         ])
 
@@ -132,12 +132,12 @@ class TestMctpControlPayloads:
 
     def test_get_message_type_support(self, assert_frames_match):
         assert_frames_match(CAPTURE, [
-            (13, 'mctpc.command == 5 && !mctpc.get_msg_types.count'
+            (13, 'mctpc.command == 5 && !mctpc.get_msg_types.count' +
                  ' && !mctpc.data'),
-            (14, 'mctpc.get_msg_types.count == 4'
-                 ' && mctpc.get_msg_types.type == 0x00'
-                 ' && mctpc.get_msg_types.type == 0x04'
-                 ' && mctpc.get_msg_types.type == 0x05'
+            (14, 'mctpc.get_msg_types.count == 4' +
+                 ' && mctpc.get_msg_types.type == 0x00' +
+                 ' && mctpc.get_msg_types.type == 0x04' +
+                 ' && mctpc.get_msg_types.type == 0x05' +
                  ' && mctpc.get_msg_types.type == 0x7e'),
         ])
 
@@ -154,15 +154,15 @@ class TestMctpControlPayloads:
     def test_allocate_endpoint_ids(self, assert_frames_match):
         assert_frames_match(CAPTURE, [
             # Frames 15/16: Allocate EIDs op, 4 EIDs from 0x50, accepted
-            (15, 'mctpc.alloc_eids.op == 0 && mctpc.alloc_eids.count == 4'
+            (15, 'mctpc.alloc_eids.op == 0 && mctpc.alloc_eids.count == 4' +
                  ' && mctpc.alloc_eids.start == 0x50'),
-            (16, 'mctpc.alloc_eids.status == 0'
-                 ' && mctpc.alloc_eids.pool_size == 4'
+            (16, 'mctpc.alloc_eids.status == 0' +
+                 ' && mctpc.alloc_eids.pool_size == 4' +
                  ' && mctpc.alloc_eids.first == 0x50'),
             # Frames 17/18: Get allocation information op
             (17, 'mctpc.alloc_eids.op == 2'),
-            (18, 'mctpc.alloc_eids.status == 0'
-                 ' && mctpc.alloc_eids.pool_size == 4'
+            (18, 'mctpc.alloc_eids.status == 0' +
+                 ' && mctpc.alloc_eids.pool_size == 4' +
                  ' && mctpc.alloc_eids.first == 0x50'),
         ])
 
@@ -185,7 +185,7 @@ class TestMctpControlAdversarial:
         parametric data; stale bytes must fall to mctpc.data, never be
         decoded as command fields."""
         assert_frames_match(CAPTURE, [
-            (23, 'mctpc.cc == 0x05 && mctpc.data == 42:12:00'
+            (23, 'mctpc.cc == 0x05 && mctpc.data == 42:12:00' +
                  ' && !mctpc.get_eid.eid'),
         ])
 
@@ -200,7 +200,7 @@ class TestMctpControlAdversarial:
         """Frame 24 still decodes the header, CC, and the one payload byte
         present before the exception."""
         assert_frames_match(CAPTURE, [
-            (24, 'mctpc.command == 1 && mctpc.cc == 0'
+            (24, 'mctpc.command == 1 && mctpc.cc == 0' +
                  ' && mctpc.set_eid.status == 1'),
         ])
 
@@ -208,7 +208,7 @@ class TestMctpControlAdversarial:
         """Frame 25 claims 10 version entries with only one present: the
         single complete entry decodes, then the loop must terminate."""
         assert_frames_match(CAPTURE, [
-            (25, 'mctpc.get_ver.count == 10'
+            (25, 'mctpc.get_ver.count == 10' +
                  ' && mctpc.get_ver.entry == 0xf1f0ff00'),
         ])
 
