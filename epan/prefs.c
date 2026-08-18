@@ -3117,13 +3117,13 @@ colorized_frame_to_str_cb(pref_t* pref _U_, bool default_val _U_)
 static module_t *gui_module;
 static module_t *gui_color_module;
 static module_t *nameres_module;
+static module_t *extcap_module;
 
 static void
 prefs_register_modules(void)
 {
     module_t *printing, *capture_module, *console_module,
         *gui_layout_module, *gui_font_module;
-    module_t *extcap_module;
     unsigned int layout_gui_flags;
     struct pref_custom_cbs custom_cbs;
 
@@ -6060,6 +6060,7 @@ set_pref(char *pref_name, const char *value, void *private_data,
 typedef struct {
     FILE     *pf;
     bool is_gui_module;
+    bool is_extcap_module;
 } write_gui_pref_arg_t;
 
 const char *
@@ -6686,6 +6687,9 @@ write_module_prefs(module_t *module, void *user_data)
     if ((module == gui_module) && (gui_pref_arg->is_gui_module != true))
         return 0;
 
+    if ((module == extcap_module) && (gui_pref_arg->is_extcap_module != true))
+        return 0;
+
     /* Write a header for the main modules and GUI sub-modules */
     if (((module->parent == NULL) || (module->parent == gui_module)) &&
         ((prefs_module_has_submodules(module)) ||
@@ -6787,7 +6791,6 @@ write_prefs(const char* app_env_var_prefix, char **pf_path_return)
             }
         }
 
-        module_t *extcap_module = prefs_find_module("extcap");
         if (extcap_module && !prefs.capture_no_extcap) {
             char *ext_path = get_persconffile_path("extcap.cfg", true, app_env_var_prefix);
             FILE *extf;
@@ -6809,6 +6812,7 @@ write_prefs(const char* app_env_var_prefix, char **pf_path_return)
 
                 write_gui_pref_info.pf = extf;
                 write_gui_pref_info.is_gui_module = false;
+                write_gui_pref_info.is_extcap_module = true;
 
                 write_module_prefs(extcap_module, &write_gui_pref_info);
 
@@ -6832,10 +6836,15 @@ write_prefs(const char* app_env_var_prefix, char **pf_path_return)
      */
     write_gui_pref_info.pf = pf;
     write_gui_pref_info.is_gui_module = true;
+    write_gui_pref_info.is_extcap_module = false;
 
     write_module_prefs(gui_module, &write_gui_pref_info);
 
     write_gui_pref_info.is_gui_module = false;
+    if (pf_path_return == NULL) {
+        /* If we're writing the prefs to stdout, write the extcap prefs. */
+        write_gui_pref_info.is_extcap_module = true;
+    }
     prefs_module_list_foreach(prefs_top_level_modules, write_module_prefs, &write_gui_pref_info, true);
 
     fclose(pf);
