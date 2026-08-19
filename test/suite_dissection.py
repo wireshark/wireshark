@@ -67938,13 +67938,17 @@ class TestDissectGue:
 
     def test_gue_expert_infos(self, cmd_tshark, capture_file, test_env):
         '''No frame is malformed; the only expert infos are the warnings of the
-        invalid IP versions (19, 20) and unknown variants (21, 22), in one and
-        two passes.'''
+        flags a decapsulator drops (section 5.4) because they are not decoded
+        (8, 10) or not assigned (9), invalid IP versions (19, 20) and unknown
+        variants (21, 22), in one and two passes.'''
         for passes in ((), ('-2',)):
             stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
                                   '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number',
                                   '-e_ws.expert.message')
             assert stdout.splitlines() == [
+                '8\tGUE extension flag not decoded; extension fields left undecoded',
+                '9\tUnassigned GUE flag set; extension fields left undecoded',
+                '10\tGUE extension flag not decoded; extension fields left undecoded',
                 '19\tInvalid IP version 5 for GUE variant 1',
                 '20\tInvalid IP version 7 for GUE variant 1',
                 '21\tUnknown GUE variant 2',
@@ -67961,24 +67965,25 @@ class TestDissectGue:
         assert stdout.splitlines() == ['23\tUDP', '24\tUDP']
 
     def test_gue_variant0_header(self, cmd_tshark, capture_file, test_env):
-        '''Data and control messages of variant 0 with extension fields.'''
+        '''Data and control messages of variant 0 with extension fields (8)
+        or surplus space (7, 13).'''
         stdout = self._tshark(cmd_tshark, capture_file, test_env,
                               '-Y', 'gue.variant == 0 && frame.number != 18 && frame.number != 9',
                               '-Tfields', '-eframe.number', '-egue.c', '-egue.hlen', '-egue.proto',
-                              '-egue.ctype', '-egue.flags', '-egue.ext_data')
+                              '-egue.ctype', '-egue.flags', '-egue.ext_data', '-egue.surplus')
         assert stdout.splitlines() == [
-            '1\tFalse\t0\t4\t\t0x0000\t',
-            '2\tFalse\t0\t41\t\t0x0000\t',
-            '3\tFalse\t0\t17\t\t0x0000\t',
-            '4\tFalse\t0\t1\t\t0x0000\t',
-            '5\tFalse\t0\t253\t\t0x0000\t',
-            '6\tFalse\t0\t59\t\t0x0000\t',
-            '7\tFalse\t1\t4\t\t0x0000\t01020304',
-            '8\tFalse\t3\t4\t\t0x8001\t0102030405060708090a0b0c',
-            '10\tFalse\t0\t4\t\t0x0100\t',
-            '11\tTrue\t0\t\t0\t0x0000\t',
-            '12\tTrue\t0\t\t255\t0x0000\t',
-            '13\tTrue\t2\t\t7\t0x0000\t0102030405060708',
+            '1\tFalse\t0\t4\t\t0x0000\t\t',
+            '2\tFalse\t0\t41\t\t0x0000\t\t',
+            '3\tFalse\t0\t17\t\t0x0000\t\t',
+            '4\tFalse\t0\t1\t\t0x0000\t\t',
+            '5\tFalse\t0\t253\t\t0x0000\t\t',
+            '6\tFalse\t0\t59\t\t0x0000\t\t',
+            '7\tFalse\t1\t4\t\t0x0000\t\t01020304',
+            '8\tFalse\t3\t4\t\t0x8001\t0102030405060708090a0b0c\t',
+            '10\tFalse\t0\t4\t\t0x0100\t\t',
+            '11\tTrue\t0\t\t0\t0x0000\t\t',
+            '12\tTrue\t0\t\t255\t0x0000\t\t',
+            '13\tTrue\t2\t\t7\t0x0000\t\t0102030405060708',
         ]
         stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 9',
                               '-Tfields', '-egue.hlen', '-egue.flags')
