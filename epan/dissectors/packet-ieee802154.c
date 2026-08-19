@@ -894,6 +894,7 @@ static dissector_handle_t  zigbee_ie_handle;
 static dissector_handle_t  zigbee_nwk_handle;
 static dissector_handle_t  ieee802154_handle;
 static dissector_handle_t  ieee802154_nonask_phy_handle;
+static dissector_handle_t  ieee802154_fcs_handle;
 static dissector_handle_t  ieee802154_nofcs_handle;
 static dissector_handle_t  ieee802154_tap_handle;
 
@@ -2112,22 +2113,23 @@ ieee802154_fcs_type_len(unsigned i)
 
 /**
  * Dissector for IEEE 802.15.4 packet with an FCS containing a 16/32-bit
- * CRC value, or TI CC24xx metadata, at the end.
+ * CRC value, or TI CC24xx metadata, at the end, as specified by the
+ * user preference.
  *
  * @param tvb pointer to buffer containing raw packet.
  * @param pinfo pointer to packet information fields.
  * @param tree pointer to data tree wireshark uses to display packet.
- * @param data optional int pointer to fcs type to override user config.
+ * @param data unused
  */
 static int
-dissect_ieee802154(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_ieee802154(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     tvbuff_t *new_tvb = dissect_zboss_specific(tvb, pinfo, tree);
     unsigned options = 0;
     unsigned fcs_len;
     int fcs_type;
 
-    fcs_type = data ? *(int *)data : ieee802154_fcs_type;
+    fcs_type = ieee802154_fcs_type;
 
     /* Set the default FCS length based on the FCS type in the configuration */
     fcs_len = ieee802154_fcs_type_len(fcs_type);
@@ -2146,6 +2148,45 @@ dissect_ieee802154(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     dissect_ieee802154_common(new_tvb, pinfo, tree, fcs_len, options);
     return tvb_captured_length(tvb);
 } /* dissect_ieee802154 */
+
+/**
+ * Dissector for IEEE 802.15.4 packet with an FCS containing a 16/32-bit
+ * CRC value, or TI CC24xx metadata, at the end, as specified by the
+ * data parameter.
+ *
+ * @param tvb pointer to buffer containing raw packet.
+ * @param pinfo pointer to packet information fields.
+ * @param tree pointer to data tree wireshark uses to display packet.
+ * @param data int pointer to fcs type to override user config.
+ */
+static int
+dissect_ieee802154_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    tvbuff_t *new_tvb = dissect_zboss_specific(tvb, pinfo, tree);
+    unsigned options = 0;
+    unsigned fcs_len;
+    int fcs_type;
+
+    DISSECTOR_ASSERT(data != NULL);
+    fcs_type = *(int *)data;
+
+    /* Set the default FCS length based on the FCS type in the configuration */
+    fcs_len = ieee802154_fcs_type_len(fcs_type);
+
+    if (fcs_type == IEEE802154_CC24XX_METADATA) {
+        options = DISSECT_IEEE802154_OPTION_CC24xx;
+    }
+
+    if (new_tvb != tvb) {
+        /* ZBOSS traffic dump: always TI metadata trailer, always ZigBee */
+        options = DISSECT_IEEE802154_OPTION_CC24xx|DISSECT_IEEE802154_OPTION_ZBOSS;
+        fcs_len = 2;
+    }
+
+    /* Call the common dissector. */
+    dissect_ieee802154_common(new_tvb, pinfo, tree, fcs_len, options);
+    return tvb_captured_length(tvb);
+} /* dissect_ieee802154_fcs */
 
 /**
  * Dissector for IEEE 802.15.4 packet with no FCS present.
@@ -7497,7 +7538,8 @@ void proto_register_ieee802154(void)
     cmd_vendor_dissector_table = register_dissector_table(IEEE802154_CMD_VENDOR_DTABLE, "IEEE 802.15.4 Vendor Specific Commands", proto_ieee802154, FT_UINT24, BASE_HEX );
 
     /* Register dissectors with Wireshark */
-    ieee802154_handle = register_dissector(IEEE802154_PROTOABBREV_WPAN, dissect_ieee802154, proto_ieee802154);
+    ieee802154_handle = register_dissector("wpan", dissect_ieee802154, proto_ieee802154);
+    ieee802154_fcs_handle = register_dissector("wpan_fcs", dissect_ieee802154_fcs, proto_ieee802154);
     ieee802154_nofcs_handle = register_dissector("wpan_nofcs", dissect_ieee802154_nofcs, proto_ieee802154);
     register_dissector("wpan_cc24xx", dissect_ieee802154_cc24xx, proto_ieee802154);
     ieee802154_nonask_phy_handle = register_dissector("wpan-nonask-phy", dissect_ieee802154_nonask_phy, proto_ieee802154_nonask_phy);

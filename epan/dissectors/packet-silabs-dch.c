@@ -203,7 +203,7 @@ typedef enum
 static dissector_handle_t silabs_dch_handle;
 
 /* Handoff dissector handles */
-static dissector_handle_t ieee802154_handle;
+static dissector_handle_t ieee802154fcs_handle;
 static dissector_handle_t ieee802154nofcs_handle;
 static dissector_handle_t btle_handle;
 
@@ -720,7 +720,7 @@ dissect_silabs_ieee802154_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if (crc_len > 0)
     {
       int fcs_type = crc_len == 2 ? IEEE802154_FCS_16_BIT : IEEE802154_FCS_32_BIT;
-      call_dissector_with_data(ieee802154_handle, next_tvb, pinfo, tree, &fcs_type);
+      call_dissector_with_data(ieee802154fcs_handle, next_tvb, pinfo, tree, &fcs_type);
     }
     else
     {
@@ -1523,7 +1523,8 @@ void proto_register_silabs_dch(void)
  */
 void proto_reg_handoff_silabs_dch(void)
 {
-  ieee802154_handle = find_dissector("wpan");
+  /* FCS is the IEEE 802.15.4 CRC, with a length determined by the protocol ID. */
+  ieee802154fcs_handle = find_dissector("wpan_fcs");
   ieee802154nofcs_handle = find_dissector("wpan_nofcs");
   btle_handle = find_dissector("btle");
   // Register top-level handoff, so that the toplevel WTAP will be

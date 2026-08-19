@@ -167,6 +167,7 @@ proto_register_nxp_802154_sniffer(void)
 void
 proto_reg_handoff_nxp_802154_sniffer(void)
 {
+    /* FCS type is user-specified */
     ieee802154_handle = find_dissector_add_dependency("wpan", proto_nxp_802154_sniffer);
 
     dissector_add_uint_with_preference("udp.port", NXP_802154_SNIFFER_UDP_PORT, nxp_802154_sniffer_handle);
