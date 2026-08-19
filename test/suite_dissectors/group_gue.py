@@ -21,7 +21,7 @@ class TestGue:
                                 '-Y', 'gue',
                                 '-T', 'fields',
                                 '-e', 'frame.number',
-                                '-e', 'gue.version',
+                                '-e', 'gue.variant',
                                 '-e', 'gue.c',
                                 '-e', 'gue.hlen',
                                 '-e', 'gue.proto',
@@ -65,7 +65,7 @@ class TestGue:
 
         stdout = subprocess.check_output((cmd_tshark,
                                 '-r', capture_file('gue.pcapng.gz'),
-                                '-Y', 'gue.version == 1',
+                                '-Y', 'gue.variant == 1',
                                 '-T', 'fields',
                                 '-e', 'frame.number',
                                 '-e', 'ip.src',

@@ -67738,7 +67738,7 @@ class TestDissectGue:
     def test_gue_variant0_header(self, cmd_tshark, capture_file, test_env):
         '''Data and control messages of variant 0 with extension fields.'''
         stdout = self._tshark(cmd_tshark, capture_file, test_env,
-                              '-Y', 'gue.version == 0 && frame.number != 18 && frame.number != 9',
+                              '-Y', 'gue.variant == 0 && frame.number != 18 && frame.number != 9',
                               '-Tfields', '-eframe.number', '-egue.c', '-egue.hlen', '-egue.proto',
                               '-egue.ctype', '-egue.flags', '-egue.ext_data')
         assert stdout.splitlines() == [
