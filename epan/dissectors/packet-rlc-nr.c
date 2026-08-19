@@ -70,14 +70,6 @@ static bool global_rlc_nr_reassemble_am_pdus = true;
 /* Tree storing UE related parameters (ueid, drbid) -> pdcp_bearer_parameters */
 static wmem_tree_t *ue_parameters_tree;
 
-/* Table storing starting frame for reassembly session during first pass */
-/* Key is (ueId, direction, bearertype, bearerid, sn) */
-static wmem_tree_t *reassembly_start_table;
-
-/* Table storing starting frame for reassembly session during subsequent passes */
-/* Key is (ueId, direction, bearertype, bearerid, sn, frame) */
-static wmem_tree_t *reassembly_start_table_stored;
-
 /**************************************************/
 /* Initialize the protocol and registered fields. */
 static int proto_rlc_nr;
@@ -584,93 +576,15 @@ static void dissect_rlc_nr_tm(tvbuff_t *tvb, packet_info *pinfo,
     }
 }
 
-/* Look up / set the frame thought to be the start segment of this RLC PDU. */
-/* N.B. this algorithm will not be correct in all cases, but is good enough to be useful.. */
-static uint32_t get_reassembly_start_frame(packet_info *pinfo, uint32_t seg_info,
-                                          rlc_nr_info *p_rlc_nr_info, uint32_t sn)
+/* Return a value to represent this PDU we are trying to re-assemble */
+static uint32_t get_reassembly_id(packet_info *pinfo _U_, uint32_t seg_info _U_,
+                                  rlc_nr_info *p_rlc_nr_info, uint32_t sn)
 {
-    uint32_t frame_id = 0;
-
-    uint32_t key_values[] = { p_rlc_nr_info->ueid,
-                             p_rlc_nr_info->direction,
-                             p_rlc_nr_info->bearerType,
-                             p_rlc_nr_info->bearerId,
-                             sn,
-                             pinfo->num
-                           };
-
-    /* Is this the first segment of SN? */
-    bool first_segment = (seg_info & 0x2) == 0;
-
-    /* Set Key. */
-    wmem_tree_key_t key[2];
-    key[0].length = 5;       /* Ignoring this frame num */
-    key[0].key = key_values;
-    key[1].length = 0;
-    key[1].key = NULL;
-
-    uint32_t *p_frame_id = NULL;
-
-    if (!PINFO_FD_VISITED(pinfo)) {
-        /* On first pass, maintain reassembly_start_table. */
-
-        /* Look for existing entry. */
-        p_frame_id = (uint32_t*)wmem_tree_lookup32_array(reassembly_start_table, key);
-
-
-        if (first_segment) {
-            /* Let it start from here */
-            wmem_tree_insert32_array(reassembly_start_table, key, GUINT_TO_POINTER(pinfo->num));
-            frame_id = pinfo->num;
-        }
-        else {
-            if (p_frame_id) {
-                /* Use existing entry (or zero) if not found */
-                frame_id = GPOINTER_TO_UINT(p_frame_id);
-            }
-        }
-
-        /* Store this result for subsequent passes. Don't store 0 though. */
-        if (frame_id) {
-            key[0].length = 6;
-            wmem_tree_insert32_array(reassembly_start_table_stored, key, GUINT_TO_POINTER(frame_id));
-        }
-    }
-    else {
-        /* For subsequent passes, use stored value */
-        key[0].length = 6;  /* i.e. include this framenum in key */
-        p_frame_id = (uint32_t*)wmem_tree_lookup32_array(reassembly_start_table_stored, key);
-        if (p_frame_id) {
-            /* Use found value */
-            frame_id = GPOINTER_TO_UINT(p_frame_id);
-        }
-    }
-
-    return frame_id;
-}
-
-/* On first pass - if this SN is complete, don't try to add any more fragments to it */
-static void reassembly_frame_complete(packet_info *pinfo,
-                                      rlc_nr_info *p_rlc_nr_info, uint32_t sn)
-{
-    if (!PINFO_FD_VISITED(pinfo)) {
-        uint32_t key_values[] = { p_rlc_nr_info->ueid,
-                                 p_rlc_nr_info->direction,
-                                 p_rlc_nr_info->bearerType,
-                                 p_rlc_nr_info->bearerId,
-                                 sn
-                               };
-
-        /* Set Key. */
-        wmem_tree_key_t key[2];
-        key[0].length = 5;
-        key[0].key = key_values;
-        key[1].length = 0;
-        key[1].key = NULL;
-
-        /* Clear entry out */
-        wmem_tree_insert32_array(reassembly_start_table, key, GUINT_TO_POINTER(0));
-    }
+    return p_rlc_nr_info->ueid |                  /* not enough bits? */
+           (p_rlc_nr_info->direction << 12) |
+            p_rlc_nr_info->bearerType << 13 |
+            p_rlc_nr_info->bearerId << 16 |
+            sn << 20;                              /* not enough bits.. */
 }
 
 
@@ -779,7 +693,7 @@ static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
         pinfo->fragmented = true;
         fragment_head *fh;
         bool more_frags = seg_info & 0x01;
-        uint32_t id = get_reassembly_start_frame(pinfo, seg_info, p_rlc_nr_info, sn);                        /* Leave 19 bits for SN - overlaps with other fields but room to overflow into msb */
+        uint32_t id = get_reassembly_id(pinfo, seg_info, p_rlc_nr_info, sn);
         if (id != 0) {
             fh = fragment_add(&pdu_reassembly_table, tvb, offset, pinfo,
                               id,                                         /* id */
@@ -807,9 +721,6 @@ static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
             add_new_data_source(pinfo, next_tvb, "Reassembled RLC-NR PDU");
             show_PDU_in_tree(pinfo, tree, next_tvb, 0, tvb_captured_length(next_tvb),
                              p_rlc_nr_info, seg_info, true);
-
-            /* Note that PDU is now completed (so won't try to add to it) */
-            reassembly_frame_complete(pinfo, p_rlc_nr_info, sn);
         }
     } else if (!global_rlc_nr_headers_expected) {
         /* Report that expected data was missing (unless we know it might happen) */
@@ -1159,7 +1070,7 @@ static void dissect_rlc_nr_am(tvbuff_t *tvb, packet_info *pinfo,
         pinfo->fragmented = true;
         fragment_head *fh;
         bool more_frags = seg_info & 0x01;
-        uint32_t id = get_reassembly_start_frame(pinfo, seg_info, p_rlc_nr_info, sn);
+        uint32_t id = get_reassembly_id(pinfo, seg_info, p_rlc_nr_info, sn);
         if (id != 0) {
             fh = fragment_add(&pdu_reassembly_table, tvb, offset, pinfo,
                               id,                                         /* id */
@@ -1908,8 +1819,6 @@ void proto_register_rlc_nr(void)
         &global_rlc_nr_reassemble_um_pdus);
 
     ue_parameters_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
-    reassembly_start_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
-    reassembly_start_table_stored = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     /* Register reassembly table. */
     reassembly_table_register(&pdu_reassembly_table, &pdu_reassembly_table_functions);
