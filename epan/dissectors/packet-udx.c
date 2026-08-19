@@ -127,6 +127,7 @@ typedef struct udx_flow {
     nstime_t     first_ts;
     wmem_tree_t *segs;          /* seq -> udx_seg_t */
     uint32_t     base_seq;      /* first sequence number seen on this flow */
+    uint32_t     low_seq;       /* lowest sequence number seen on this flow */
     uint32_t     max_seq;       /* highest sequence number sent */
     bool         have_seq;
     uint32_t     outstanding_bytes;
@@ -137,6 +138,8 @@ typedef struct udx_flow {
     bool         have_sacked;
     uint32_t     last_rwnd;
     bool         rwnd_zero;
+    nstime_t     last_tx_ts;    /* when this flow last sent stream data */
+    bool         have_tx;
     double       srtt;
     double       rttvar;
     bool         have_rtt;
@@ -445,12 +448,35 @@ udx_rto(const udx_flow_t *flow)
 }
 
 /*
+ * Retire one segment. A packet stops being in flight the moment it is
+ * acknowledged, whether cumulatively or selectively, so both paths come
+ * through here. Returns true only for the frame that first acknowledged it,
+ * which keeps a later cumulative acknowledgement of an already selectively
+ * acknowledged packet from counting it twice.
+ */
+static bool
+udx_retire_seg(packet_info *pinfo, udx_flow_t *flow, udx_seg_t *seg)
+{
+    if (seg->acked_in_frame != 0)
+        return false;
+
+    seg->acked_in_frame = pinfo->num;
+    seg->ack_ts = pinfo->abs_ts;
+
+    if (flow->outstanding_pkts > 0) {
+        flow->outstanding_pkts--;
+        flow->outstanding_bytes -= seg->len;
+    }
+    return true;
+}
+
+/*
  * Retire every segment of the acknowledged flow below "ack", link the last
  * of them to the acknowledging packet, and take an RTT sample from it.
  */
 static void
-udx_process_ack(packet_info *pinfo, udx_flow_t *acked_flow, udx_flow_t *acking_flow,
-                uint32_t ack, udx_ppd_t *ppd)
+udx_process_ack(packet_info *pinfo, udx_flow_t *acked_flow,
+                uint32_t ack, uint32_t prev_ack, bool have_prev, udx_ppd_t *ppd)
 {
     udx_seg_t *newest = NULL;
     uint32_t   seq = ack - 1;
@@ -459,23 +485,27 @@ udx_process_ack(packet_info *pinfo, udx_flow_t *acked_flow, udx_flow_t *acking_f
     if (!acked_flow->have_seq)
         return;
 
-    /* Walk back from the acknowledgement over the segments it covers. The
-     * walk stops at the first segment already retired by an earlier
-     * acknowledgement; the counter only bounds pathological captures. */
-    for (guard = 0; guard < 1024; guard++, seq--) {
-        udx_seg_t *seg = (udx_seg_t *) wmem_tree_lookup32(acked_flow->segs, seq);
+    /*
+     * Walk back over the range this acknowledgement newly covers, which
+     * starts just above the previous cumulative acknowledgement. A segment
+     * already retired, by an earlier acknowledgement or by a selective one,
+     * is skipped rather than counted again, and the walk carries on past it
+     * so that anything older still outstanding is retired too. The counter
+     * only bounds pathological captures.
+     */
+    for (guard = 0; guard < 4096; guard++, seq--) {
+        udx_seg_t *seg;
 
-        if (seg == NULL || seg->acked_in_frame != 0)
+        if (have_prev && UDX_SEQ_LT(seq, prev_ack))
+            break;
+        if (UDX_SEQ_LT(seq, acked_flow->low_seq))
             break;
 
-        seg->acked_in_frame = pinfo->num;
-        seg->ack_ts = pinfo->abs_ts;
+        seg = (udx_seg_t *) wmem_tree_lookup32(acked_flow->segs, seq);
+        if (seg == NULL)
+            continue;
 
-        if (acked_flow->outstanding_pkts > 0) {
-            acked_flow->outstanding_pkts--;
-            acked_flow->outstanding_bytes -= seg->len;
-        }
-        if (newest == NULL)
+        if (udx_retire_seg(pinfo, acked_flow, seg) && newest == NULL)
             newest = seg;
     }
 
@@ -487,9 +517,17 @@ udx_process_ack(packet_info *pinfo, udx_flow_t *acked_flow, udx_flow_t *acking_f
         ppd->ack_rtt = rtt;
         ppd->have_ack_rtt = true;
 
-        /* Karn's algorithm: a retransmitted segment yields no usable sample. */
+        /*
+         * Karn's algorithm: a retransmitted segment yields no usable sample.
+         * The sample times a packet this flow sent, so it belongs to the flow
+         * that sent it and not to the one reporting the acknowledgement. The
+         * two are only ever the same on a stream carrying data both ways; on
+         * a one-way transfer the sending flow would otherwise never obtain a
+         * round trip time at all, and every timeout test would fall back on
+         * the floor.
+         */
         if (newest->retrans == 0)
-            udx_update_rtt(acking_flow, nstime_to_sec(&rtt));
+            udx_update_rtt(acked_flow, nstime_to_sec(&rtt));
     }
 }
 
@@ -526,6 +564,23 @@ udx_analyze(packet_info *pinfo, udx_conv_t *conv, uint8_t flags, uint8_t data_of
         seg = (udx_seg_t *) wmem_tree_lookup32(flow->segs, seq);
 
         if (seg == NULL) {
+            /*
+             * A tail loss probe does not have to repeat the tail: libudx can
+             * send the next new packet as the probe instead. Seen from here
+             * that is a fresh sequence number extending the flow after a
+             * probe-sized pause, while earlier data is still unacknowledged,
+             * which is the sender prodding for an acknowledgement rather than
+             * an application with more to say.
+             */
+            if (payload_len > 0 && flow->have_tx && flow->have_seq &&
+                flow->outstanding_pkts > 0 && seq == flow->max_seq + 1) {
+                double idle = nstime_to_sec(&pinfo->abs_ts) -
+                              nstime_to_sec(&flow->last_tx_ts);
+
+                if (idle >= (flow->have_rtt ? 2 * flow->srtt : UDX_MIN_PROBE_DELAY))
+                    ppd->flags |= UDX_A_TLP;
+            }
+
             if (flow->have_seq && UDX_SEQ_GT(seq, flow->max_seq + 1))
                 ppd->flags |= UDX_A_LOST_SEGMENT;
             else if (flow->have_seq && UDX_SEQ_LT(seq, flow->max_seq))
@@ -539,10 +594,17 @@ udx_analyze(packet_info *pinfo, udx_conv_t *conv, uint8_t flags, uint8_t data_of
 
             if (!flow->have_seq) {
                 flow->base_seq = seq;
+                flow->low_seq = seq;
                 flow->max_seq = seq;
                 flow->have_seq = true;
-            } else if (UDX_SEQ_GT(seq, flow->max_seq)) {
-                flow->max_seq = seq;
+            } else {
+                if (UDX_SEQ_GT(seq, flow->max_seq))
+                    flow->max_seq = seq;
+                /* The first packet on the wire need not be the oldest: if it
+                 * was lost and resent, a lower sequence number turns up later
+                 * and still has to be accounted for. */
+                if (UDX_SEQ_LT(seq, flow->low_seq))
+                    flow->low_seq = seq;
             }
             flow->outstanding_pkts++;
             flow->outstanding_bytes += payload_len;
@@ -554,17 +616,20 @@ udx_analyze(packet_info *pinfo, udx_conv_t *conv, uint8_t flags, uint8_t data_of
 
             if (seg->acked_in_frame != 0) {
                 ppd->flags |= UDX_A_SPURIOUS;
+            } else if (dt < UDX_DUP_WINDOW) {
+                /* Too soon to be any sender timer: the datagram was
+                 * delivered, or captured, twice. */
+                ppd->flags |= UDX_A_DUPLICATE;
+            } else if (dt >= udx_rto(flow)) {
+                /* A whole retransmission timeout has passed. That is a timer
+                 * firing, whatever the peer has selectively acknowledged in
+                 * the meantime, so this test comes before the SACK one. */
+                ppd->flags |= UDX_A_RTO_RETRANS;
             } else if (flow->have_sacked && UDX_SEQ_GT(flow->max_sacked, seq)) {
                 /* The peer has selectively acknowledged later packets, so
                  * this one was resent because it was reported missing rather
                  * than because a timer expired. */
                 ppd->flags |= UDX_A_FAST_RETRANS;
-            } else if (dt >= udx_rto(flow)) {
-                ppd->flags |= UDX_A_RTO_RETRANS;
-            } else if (dt < UDX_DUP_WINDOW) {
-                /* Too soon to be any sender timer: the datagram was
-                 * delivered, or captured, twice. */
-                ppd->flags |= UDX_A_DUPLICATE;
             } else if (seq == flow->max_seq &&
                        dt >= (flow->have_rtt ? 2 * flow->srtt : UDX_MIN_PROBE_DELAY)) {
                 /* A repeat of the tail after a probe-sized pause, with
@@ -572,6 +637,10 @@ udx_analyze(packet_info *pinfo, udx_conv_t *conv, uint8_t flags, uint8_t data_of
                 ppd->flags |= UDX_A_TLP;
             }
         }
+
+        /* Used to spot the pause before a tail loss probe. */
+        flow->last_tx_ts = pinfo->abs_ts;
+        flow->have_tx = true;
 
         ppd->tracked = true;
         ppd->bytes_in_flight = flow->outstanding_bytes;
@@ -601,8 +670,12 @@ udx_analyze(packet_info *pinfo, udx_conv_t *conv, uint8_t flags, uint8_t data_of
     /* Acknowledgement side: retire the peer's segments, then record the
      * selective ranges so a later repeat can be recognised as recovery. */
     if (rflow != NULL) {
+        udx_seg_t *newest_sack = NULL;
+        uint32_t   newest_sack_seq = 0;
+
         if (!flow->have_ack || UDX_SEQ_GT(ack, flow->max_ack))
-            udx_process_ack(pinfo, rflow, flow, ack, ppd);
+            udx_process_ack(pinfo, rflow, ack, flow->max_ack,
+                            flow->have_ack, ppd);
 
         for (unsigned i = 0; i < n_sacks; i++) {
             uint32_t s;
@@ -612,8 +685,19 @@ udx_analyze(packet_info *pinfo, udx_conv_t *conv, uint8_t flags, uint8_t data_of
                  s++, guard++) {
                 udx_seg_t *ss = (udx_seg_t *) wmem_tree_lookup32(rflow->segs, s);
 
-                if (ss != NULL)
-                    ss->sacked = true;
+                if (ss == NULL)
+                    continue;
+
+                ss->sacked = true;
+
+                /* A selective acknowledgement acknowledges the packet as
+                 * surely as a cumulative one: it leaves the flight, and this
+                 * is the frame that acknowledged it. */
+                if (udx_retire_seg(pinfo, rflow, ss) &&
+                    (newest_sack == NULL || UDX_SEQ_GT(s, newest_sack_seq))) {
+                    newest_sack = ss;
+                    newest_sack_seq = s;
+                }
             }
 
             /* Remember how far the selective acknowledgements reach: a
@@ -622,6 +706,23 @@ udx_analyze(packet_info *pinfo, udx_conv_t *conv, uint8_t flags, uint8_t data_of
                 rflow->max_sacked = sack_end[i] - 1;
                 rflow->have_sacked = true;
             }
+        }
+
+        /* Nothing was newly acknowledged cumulatively, but a selective range
+         * retired a packet, so report the link and the round trip from that. */
+        if (newest_sack != NULL && !ppd->have_ack_rtt) {
+            nstime_t rtt;
+
+            nstime_delta(&rtt, &pinfo->abs_ts, &newest_sack->ts);
+            ppd->acks_frame = newest_sack->frame;
+            ppd->ack_rtt = rtt;
+            ppd->have_ack_rtt = true;
+
+            /* Karn's algorithm again: never sample a retransmitted packet.
+             * The round trip measured belongs to the flow that sent the data,
+             * which is where the retransmission timeout is later judged. */
+            if (newest_sack->retrans == 0)
+                udx_update_rtt(rflow, nstime_to_sec(&rtt));
         }
     }
 
@@ -836,6 +937,22 @@ udx_follow_drain(follow_info_t *follow_info, int dir)
 {
     while (follow_info->fragments[dir] != NULL) {
         follow_record_t *held = (follow_record_t *) follow_info->fragments[dir]->data;
+
+        /*
+         * A copy of this packet reached the delivery point ahead of the one
+         * held here, which happens whenever a retransmission arrives while an
+         * earlier gap is still open. The held copy has nothing left to give,
+         * and leaving it at the head of the list would stop every packet
+         * behind it from ever being released.
+         */
+        if (held->seq < follow_info->seq[dir]) {
+            follow_info->fragments[dir] =
+                g_list_delete_link(follow_info->fragments[dir],
+                                   follow_info->fragments[dir]);
+            g_byte_array_free(held->data, true);
+            g_free(held);
+            continue;
+        }
 
         if (held->seq != follow_info->seq[dir])
             break;
@@ -1287,8 +1404,8 @@ proto_register_udx(void)
         },
         { &ei_udx_tlp,
           { "udx.analysis.tail_loss_probe", PI_SEQUENCE, PI_NOTE,
-            "Tail loss probe: the last packet of a burst was resent to elicit an"
-            " acknowledgement", EXPFILL }
+            "Tail loss probe: sent after a pause to draw an acknowledgement"
+            " out of the peer", EXPFILL }
         },
         { &ei_udx_spurious_retrans,
           { "udx.analysis.spurious_retransmission", PI_SEQUENCE, PI_NOTE,

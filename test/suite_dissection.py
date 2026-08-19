@@ -1477,6 +1477,40 @@ class TestDissectUdx:
         assert sorted(set(stdout.split('\n')[0].split('\t'))) == ['', '0']
         assert grep_output(stdout, r'^0\t1$')
 
+    def test_udx_rto_beats_sack(self, cmd_tshark, capture_file, test_env):
+        '''A full timeout decides a retransmission, even with later SACKs.
+
+        Sequence 0 is lost while 1 and 2 arrive and are selectively
+        acknowledged, so the highest selectively acknowledged sequence sits
+        above the resent one. The resend still comes a second and a half
+        later, which makes it a timer retransmission rather than a fast one.
+        '''
+        stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR, '-2',
+                '-r', capture_file('udx_rto.pcap.gz'),
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, 'Retransmission timeout')
+        assert not grep_output(stdout, 'Fast retransmission')
+
+    def test_udx_sack_acknowledges(self, cmd_tshark, capture_file, test_env):
+        '''A selective acknowledgement acknowledges the packet it names.'''
+        stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR, '-2',
+                '-r', capture_file('udx_rto.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eudx.analysis.acked_in',
+            ), encoding='utf-8', env=test_env)
+        # Sequences 1 and 2 are acknowledged by the first SACK, in frame 4,
+        # not by the cumulative acknowledgement that arrives in frame 7.
+        assert grep_output(stdout, r'^2\t4$')
+        assert grep_output(stdout, r'^3\t4$')
+
+    def test_udx_tail_loss_probe_with_new_data(self, cmd_tshark, capture_file, test_env):
+        '''A probe that carries new data is still a probe.'''
+        stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR, '-2',
+                '-r', capture_file('udx_tlpnew.pcap.gz'),
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, 'Tail loss probe')
+
     def test_udx_follow_stream(self, cmd_tshark, capture_file, test_env):
         '''Following a stream yields the payload in both directions.'''
         stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR,
@@ -1501,6 +1535,49 @@ class TestDissectUdx:
             return [l for l in stdout.splitlines() if l.strip() and not l.strip().isdigit()]
 
         assert payload('udx_clean.pcap.gz')[-20:] == payload('udx_loss.pcap.gz')[-20:]
+
+    def test_udx_follow_superseded_fragment(self, cmd_tshark, capture_file, test_env):
+        '''A held packet that is delivered by another copy stops holding up
+        the ones behind it.
+
+        Sequence 2 is held while the gap at 1 is open and arrives a second
+        time before that gap closes. Filling the gap delivers one copy; the
+        other has to be discarded rather than left at the head of the pending
+        list, where it would block every packet after it.
+        '''
+        stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR,
+                '-r', capture_file('udx_followstall.pcap.gz'),
+                '-q', '-z', 'follow,udx,ascii,0',
+            ), encoding='utf-8', env=test_env)
+        # All six packets, in sequence order, including the one sent last.
+        payload = [l for l in stdout.splitlines() if l and set(l) <= set('abcdef')]
+        assert ''.join(payload) == ''.join(c * 16 for c in 'abcdef')
+
+    def test_udx_acknowledges_below_first_seen(self, cmd_tshark, capture_file, test_env):
+        '''The first packet on the wire need not hold the lowest sequence.
+
+        Sequence 0 was lost and resent, so it appears after 1 and 2. The
+        cumulative acknowledgement covers all three and has to retire it.
+        '''
+        stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR, '-2',
+                '-r', capture_file('udx_lateseq.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eudx.analysis.acked_in',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, r'^3\t4$')
+
+    def test_udx_rtt_measured_on_sending_flow(self, cmd_tshark, capture_file, test_env):
+        '''The round trip time belongs to the flow whose packet was timed.
+
+        Only one side sends data here, so if the sample were credited to the
+        flow carrying the acknowledgements the sending flow would never have
+        one, and this six millisecond pause would fall under the floor that
+        applies when no round trip time is known.
+        '''
+        stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR, '-2',
+                '-r', capture_file('udx_rtttlp.pcap.gz'),
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, 'Tail loss probe')
 
 
 class TestDissectGsmtapUm:
