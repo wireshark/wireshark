@@ -51,6 +51,14 @@
 
 static bool capture_opts_output_to_pipe(const char *save_file, bool *is_pipe);
 
+static void message_queue_free_cb(void *data)
+{
+    /* We could make the messages on the queue more structured, for example
+     * separate the indicator from the payload and calculate the length for
+     * the caller. */
+    GBytes *msg = (GBytes*)data;
+    g_bytes_unref(msg);
+}
 
 void
 capture_opts_init(capture_options *capture_opts, GList *(*get_iface_list)(int *, char **))
@@ -87,6 +95,7 @@ capture_opts_init(capture_options *capture_opts, GList *(*get_iface_list)(int *,
     capture_opts->default_options.extcap_control_in  = NULL;
     capture_opts->default_options.extcap_control_out = NULL;
     capture_opts->default_options.extcap_control_in_watch = 0;
+    capture_opts->default_options.extcap_control_out_watch = 0;
     capture_opts->default_options.buffer_size     = DEFAULT_CAPTURE_BUFFER_SIZE;
     capture_opts->default_options.monitor_mode    = false;
 #ifdef HAVE_PCAP_REMOTE
@@ -666,8 +675,8 @@ fill_in_interface_opts_defaults(interface_options *interface_opts, const interfa
     interface_opts->extcap_control_in = g_strdup(if_from_capture_opts->extcap_control_in);
     interface_opts->extcap_control_out = g_strdup(if_from_capture_opts->extcap_control_out);
     interface_opts->extcap_control_in_watch = 0;
-    interface_opts->extcap_control_out_fd = -1;
-    g_mutex_init(&interface_opts->extcap_control_out_mtx);
+    interface_opts->extcap_control_out_watch = 0;
+    interface_opts->extcap_control_out_q = g_async_queue_new_full(message_queue_free_cb);
     interface_opts->buffer_size = if_from_capture_opts->buffer_size;
     interface_opts->monitor_mode = if_from_capture_opts->monitor_mode;
 #ifdef HAVE_PCAP_REMOTE
@@ -1484,7 +1493,7 @@ interface_opts_free(interface_options *interface_opts)
         g_string_free(interface_opts->extcap_stderr, TRUE);
     g_free(interface_opts->extcap_control_in);
     g_free(interface_opts->extcap_control_out);
-    g_mutex_clear(&interface_opts->extcap_control_out_mtx);
+    g_async_queue_unref(interface_opts->extcap_control_out_q);
 #ifdef HAVE_PCAP_REMOTE
     if (interface_opts->src_type == CAPTURE_IFREMOTE) {
         g_free(interface_opts->remote_host);
@@ -1567,8 +1576,8 @@ collect_ifaces(capture_options *capture_opts)
             interface_opts.extcap_control_in = NULL;
             interface_opts.extcap_control_out = NULL;
             interface_opts.extcap_control_in_watch = 0;
-            interface_opts.extcap_control_out_fd = -1;
-            g_mutex_init(&interface_opts.extcap_control_out_mtx);
+            interface_opts.extcap_control_out_watch = 0;
+            interface_opts.extcap_control_out_q = g_async_queue_new_full(message_queue_free_cb);
             interface_opts.buffer_size =  device->buffer;
             interface_opts.monitor_mode = device->monitor_mode_enabled;
 #ifdef HAVE_PCAP_REMOTE

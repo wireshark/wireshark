@@ -1367,6 +1367,12 @@ static gboolean extcap_terminate_cb(void *user_data)
             interface_opts->extcap_control_in_watch = 0;
         }
 
+        if (interface_opts->extcap_control_out_watch > 0)
+        {
+            g_source_remove(interface_opts->extcap_control_out_watch);
+            interface_opts->extcap_control_out_watch = 0;
+        }
+
         /* Process was killed, call extcap in postkill cleanup mode. */
         extcap_cleanup_postkill(interface_opts->name);
     }
@@ -1420,29 +1426,10 @@ void extcap_request_stop(capture_session *cap_session)
         ws_info("Extcap [%s] - Requesting stop PID: %"PRIdMAX, interface_opts->name,
               (intmax_t)interface_opts->extcap_pid);
 
-        if (interface_opts->extcap_control_out)
+        if (interface_opts->extcap_control_out_watch > 0)
         {
-#ifdef _WIN32
-            interface_opts->extcap_control_out_fd = _open_osfhandle((intptr_t)interface_opts->extcap_control_out_h, O_WRONLY | O_BINARY);
-#else
-            /* This is the only time this opens the control out pipe (the
-             * Qt InterfaceToolbar opens it separately), so just try to open
-             * it now O_NONBLOCK. If it fails, we're quitting anyway; just fall
-             * back to sending the signal. */
-            interface_opts->extcap_control_out_fd = ws_open(interface_opts->extcap_control_out, O_WRONLY | O_NONBLOCK, 0000);
-            if (interface_opts->extcap_control_out_fd != -1)
-            {
-                int flags = fcntl(interface_opts->extcap_control_out_fd, F_GETFL);
-                if (-1 == fcntl(interface_opts->extcap_control_out_fd, F_SETFL, flags & ~O_NONBLOCK)) {
-                    ws_debug("Failure setting control out to blocking: %s", g_strerror(errno));
-                }
-            }
-#endif
-        }
-        if (extcap_get_control_for_ifname(interface_opts->name) > 1 && interface_opts->extcap_control_out && interface_opts->extcap_control_out_fd != -1 && g_mutex_trylock(&interface_opts->extcap_control_out_mtx))
-        {
-            sync_pipe_write_string_msg(interface_opts->extcap_control_out_fd, SP_QUIT, "");
-            g_mutex_unlock(&interface_opts->extcap_control_out_mtx);
+            static uint8_t quit_msg[4] = { SP_QUIT, 0, 0, 0};
+            g_async_queue_push_front(interface_opts->extcap_control_out_q, g_bytes_new_static(quit_msg, sizeof(quit_msg)));
         }
         else if (interface_opts->extcap_pid != WS_INVALID_PID)
         {
@@ -1531,12 +1518,7 @@ bool extcap_session_stop(capture_session *cap_session)
             ws_info("Extcap [%s] - Closing control_out pipe", interface_opts->name);
             FlushFileBuffers(interface_opts->extcap_control_out_h);
             DisconnectNamedPipe(interface_opts->extcap_control_out_h);
-            if (interface_opts->extcap_control_out_fd != -1) {
-                ws_close(interface_opts->extcap_control_out_fd);
-                interface_opts->extcap_control_out_fd = -1;
-            } else {
-                CloseHandle(interface_opts->extcap_control_out_h);
-            }
+            CloseHandle(interface_opts->extcap_control_out_h);
             interface_opts->extcap_control_out_h = INVALID_HANDLE_VALUE;
         }
 #else
@@ -1572,10 +1554,6 @@ bool extcap_session_stop(capture_session *cap_session)
             rmdir(interface_opts->extcap_control_out);
             g_free(interface_opts->extcap_control_out);
             interface_opts->extcap_control_out = NULL;
-            if (interface_opts->extcap_control_out_fd != -1) {
-                ws_close(interface_opts->extcap_control_out_fd);
-                interface_opts->extcap_control_out_fd = -1;
-            }
         }
 #endif
     }
@@ -1744,6 +1722,146 @@ extcap_stderr_cb(GIOChannel *source, GIOCondition condition, void *data)
         return G_SOURCE_REMOVE;
     }
     return G_SOURCE_CONTINUE;
+}
+
+typedef struct {
+    GSource source;
+    GAsyncQueue *queue;
+    char *fifo;
+    int64_t start_time;
+    int64_t check_time;
+    int out_fd;
+} MessageQueueSource;
+
+typedef gboolean (*MessageQueueSourceFunc)(MessageQueueSource*, capture_session*, GBytes*);
+
+static gboolean
+msg_queue_prepare(GSource *source, int* timeout_ _U_)
+{
+    MessageQueueSource *msg_source = (MessageQueueSource*)source;
+    return g_async_queue_length(msg_source->queue) > 0;
+}
+
+static gboolean
+msg_queue_dispatch(GSource *source, GSourceFunc callback, void *user_data _U_) {
+    MessageQueueSource *msg_source = (MessageQueueSource*)source;
+    capture_session *cap_session = (capture_session*)user_data;
+
+    // Silence -Wcast-function-type (this is what GLib does internally)
+    void (*generic_func)(void) = (void (*)(void))callback;
+    MessageQueueSourceFunc msg_queue_cb = (MessageQueueSourceFunc)generic_func;
+
+    interface_options *interface_opts = extcap_find_channel_interface(cap_session, msg_source);
+
+    if (msg_source->out_fd == -1) {
+#ifdef _WIN32
+        // Duplicate the control out handle and pass the duplicate to _open_osfhandle().
+        // This allows the C run-time file descriptor (out_fd) and extcap_control_out_h
+        // to be closed independently. The duplicate handle is closed when out_fd is.
+        HANDLE duplicate_out_handle = INVALID_HANDLE_VALUE;
+        if (!DuplicateHandle(GetCurrentProcess(), interface_opts->extcap_control_out_h,
+                             GetCurrentProcess(), &duplicate_out_handle, 0, true, DUPLICATE_SAME_ACCESS))
+        {
+            /* This should not happen. */
+            ws_warning("Failed to duplicate extcap control out handle: %s",
+                win32strerror(GetLastError()));
+            goto quit;
+        } else {
+            /* This should never fail. */
+            msg_source->out_fd = _open_osfhandle((intptr_t)duplicate_out_handle, O_WRONLY | O_BINARY);
+        }
+#else
+        int64_t cur_time = g_source_get_time(source);
+        if (cur_time > msg_source->start_time + 30000000) {
+            ws_warning("30 s passed without opening control out pipe, giving up.");
+            goto quit;
+        }
+        if (cur_time < msg_source->check_time)
+            return G_SOURCE_CONTINUE;
+        msg_source->out_fd = ws_open(msg_source->fifo, O_WRONLY | O_NONBLOCK, 0);
+#endif
+        if (msg_source->out_fd == -1) {
+            switch (errno) {
+            case ENXIO:
+            case EAGAIN:
+                ws_debug("try again later");
+                msg_source->check_time = g_source_get_time(source) + 500000; // .5s
+                return G_SOURCE_CONTINUE;
+            default:
+                ws_warning("failed to open control out pipe: %s", g_strerror(errno));
+                goto quit;
+            }
+        } else {
+            ws_debug("opened extcap control out");
+        }
+
+    }
+
+    GBytes *message = g_async_queue_try_pop(msg_source->queue);
+
+    if (message == NULL) {
+        return G_SOURCE_CONTINUE;
+    }
+
+    return msg_queue_cb(msg_source, cap_session, message);
+
+quit:
+    interface_opts->extcap_control_out_watch = 0;
+    extcap_watch_removed(cap_session, interface_opts);
+    return G_SOURCE_REMOVE;
+}
+
+static void
+msg_queue_finalize(GSource *source) {
+    MessageQueueSource *msg_source = (MessageQueueSource*)source;
+
+    ws_debug("finalizing");
+    g_async_queue_unref(msg_source->queue);
+    g_free(msg_source->fifo);
+    if (msg_source->out_fd != -1)
+        ws_close(msg_source->out_fd);
+}
+
+static GSourceFuncs msg_queue_source_funcs = {
+    .prepare = msg_queue_prepare,
+    .check = NULL,
+    .dispatch = msg_queue_dispatch,
+    .finalize = msg_queue_finalize
+};
+
+static gboolean
+extcap_control_out_cb(MessageQueueSource *msg_source, capture_session *cap_session, GBytes *msg)
+{
+    size_t msg_size;
+    const uint8_t *msg_data = g_bytes_get_data(msg, &msg_size);
+    char indicator = '\0';
+    interface_options *interface_opts = extcap_find_channel_interface(cap_session, msg_source);
+
+    if (msg_size > 0) {
+        indicator = msg_data[0];
+        ws_debug("got a %c message of length: %zu", indicator, msg_size);
+        if (msg_size < SP_MAX_MSG_LEN) {
+            if (ws_write(msg_source->out_fd, msg_data, (unsigned)msg_size) != (ssize_t)(msg_size)) {
+                ws_warning("unable to write %s", g_strerror(errno));
+                goto quit;
+            }
+        } else {
+            ws_warning("message size too large: (%zu > %u)", msg_size, SP_MAX_MSG_LEN);
+            goto quit;
+        }
+        if (indicator == SP_QUIT) {
+            ws_debug("exiting");
+            goto quit;
+        }
+    }
+    g_bytes_unref(msg);
+    return G_SOURCE_CONTINUE;
+
+quit:
+    g_bytes_unref(msg);
+    interface_opts->extcap_control_out_watch = 0;
+    extcap_watch_removed(cap_session, interface_opts);
+    return G_SOURCE_REMOVE;
 }
 
 #ifdef _WIN32
@@ -2321,11 +2439,25 @@ extcap_init_interfaces(capture_session *cap_session)
 
         extcap_setup_control_in(cap_session, interface_opts);
 
-        /* Opening the control out pipe blocking here can run into a Dining
-         * Philosophers problem, depending on how and in what order the
-         * extcap opens the main FIFO and the control pipes. For now, we
-         * only write SP_QUIT to the control out FIFO from this thread, so
-         * we don't need to open it yet. */
+        GSource *source = g_source_new(&msg_queue_source_funcs, sizeof(MessageQueueSource));
+        MessageQueueSource *control_out_source = (MessageQueueSource*)source;
+        control_out_source->queue = g_async_queue_ref(interface_opts->extcap_control_out_q);
+        control_out_source->fifo = g_strdup(interface_opts->extcap_control_out);
+        /* Opening the control out pipe blocking can hang the program waiting
+         * for a connection or even run into a Dining Philosophers deadlock,
+         * depending on how and in what order the extcap opens the main FIFO
+         * and the control pipes. On non-Windows we try to open it non-blocking
+         * in the source, saving pending messages in the queue. */
+        control_out_source->out_fd = -1;
+        control_out_source->start_time = g_get_monotonic_time();
+        control_out_source->check_time = 0;
+        // Do this before we watch
+        pipedata->other_sources = g_slist_append(pipedata->other_sources, source);
+
+        g_source_set_callback(source, G_SOURCE_FUNC(extcap_control_out_cb), cap_session, NULL);
+        GMainContext *context = g_main_context_default();
+        interface_opts->extcap_control_out_watch = g_source_attach(source, context);
+        g_source_unref(source);
     }
 
     return true;

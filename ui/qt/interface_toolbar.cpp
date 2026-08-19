@@ -85,7 +85,7 @@ InterfaceToolbar::InterfaceToolbar(QWidget *parent, const iface_toolbar *toolbar
     for (GList *walker = toolbar->ifnames; walker; walker = walker->next)
     {
         QString ifname((char *)walker->data);
-        interface_[ifname].out_fd = -1;
+        interface_[ifname].control_out_queue = nullptr;
     }
 
     initializeControls(toolbar);
@@ -633,7 +633,7 @@ void InterfaceToolbar::controlSend(QString ifname, int num, int command, const Q
         return;
     }
 
-    if (ifname.isEmpty() || interface_[ifname].out_fd == -1)
+    if (ifname.isEmpty() || interface_[ifname].control_out_queue == nullptr)
     {
         // Does not have a control out channel
         return;
@@ -654,17 +654,8 @@ void InterfaceToolbar::controlSend(QString ifname, int num, int command, const Q
     ba.append(command);
     ba.append(payload);
 
-    /* In practice, these messages should be under PIPE_BUF or similar but
-     * the mutex is for extra safety. It really should all be written from
-     * the same thread. */
-    g_mutex_lock(&(interface_[ifname].interface_opts->extcap_control_out_mtx));
-    if (ws_write(interface_[ifname].out_fd, ba.data(), ba.length()) != ba.length())
-    {
-        simple_dialog_async(ESD_TYPE_ERROR, ESD_BTN_OK,
-                            "Unable to send control message:\n%s.",
-                            g_strerror(errno));
-    }
-    g_mutex_unlock(&(interface_[ifname].interface_opts->extcap_control_out_mtx));
+    g_async_queue_push(interface_[ifname].control_out_queue, g_bytes_new(ba.data(), ba.length()));
+    g_main_context_wakeup(NULL); // Necessary, at least on Windows
 }
 
 void InterfaceToolbar::onControlButtonClicked()
@@ -821,32 +812,11 @@ void InterfaceToolbar::startCapture(GArray *ifaces)
         if (ifname.compare(selected_ifname) == 0)
             selected_found = true;
 
-        if (interface_[ifname].out_fd != -1)
+        if (interface_[ifname].control_out_queue != nullptr)
             // Already have control channels for this interface
             continue;
 
-        // Open control out channel
-#ifdef _WIN32
-        // Duplicate control out handle and pass the duplicate handle to _open_osfhandle().
-        // This allows the C run-time file descriptor (out_fd) and the extcap_control_out_h to be closed independently.
-        // The duplicated handle will get closed at the same time the file descriptor is closed.
-        // The control out pipe will close when both out_fd and extcap_control_out_h are closed.
-        HANDLE duplicate_out_handle = INVALID_HANDLE_VALUE;
-        if (!DuplicateHandle(GetCurrentProcess(), interface_opts->extcap_control_out_h,
-                             GetCurrentProcess(), &duplicate_out_handle, 0, true, DUPLICATE_SAME_ACCESS))
-        {
-            simple_dialog_async(ESD_TYPE_ERROR, ESD_BTN_OK,
-                                "Failed to duplicate extcap control out handle: %s\n.",
-                                win32strerror(GetLastError()));
-        }
-        else
-        {
-            interface_[ifname].out_fd = _open_osfhandle((intptr_t)duplicate_out_handle, O_APPEND | O_BINARY);
-        }
-#else
-        interface_[ifname].out_fd = ws_open(interface_opts->extcap_control_out, O_WRONLY | O_BINARY, 0);
-#endif
-        interface_[ifname].interface_opts = interface_opts;
+        interface_[ifname].control_out_queue = g_async_queue_ref(interface_opts->extcap_control_out_q);
         sendChangedValues(ifname);
         controlSend(ifname, 0, commandControlInitialized);
     }
@@ -865,11 +835,10 @@ void InterfaceToolbar::stopCapture()
 {
     foreach (QString ifname, interface_.keys())
     {
-        if (interface_[ifname].out_fd != -1)
+        if (interface_[ifname].control_out_queue != nullptr)
         {
-            ws_close_if_possible (interface_[ifname].out_fd);
-
-            interface_[ifname].out_fd = -1;
+            g_async_queue_unref(interface_[ifname].control_out_queue);
+            interface_[ifname].control_out_queue = nullptr;
         }
 
         foreach (int num, control_widget_.keys())
@@ -961,7 +930,7 @@ bool InterfaceToolbar::hasInterface(QString ifname) const
 void InterfaceToolbar::updateWidgets()
 {
     const QString &ifname = ui->interfacesComboBox->currentText();
-    bool is_capturing = (interface_[ifname].out_fd == -1 ? false : true);
+    bool is_capturing = (interface_[ifname].control_out_queue == nullptr ? false : true);
 
     foreach (int num, control_widget_.keys())
     {
