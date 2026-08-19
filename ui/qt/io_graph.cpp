@@ -628,7 +628,7 @@ tap_packet_status IOGraph::tapPacket(void* iog_ptr, packet_info* pinfo, epan_dis
         }
         catch (std::bad_alloc&) {
             // std::vector.resize() has strong exception safety
-            ws_warning("Failed memory allocation!");
+            ws_warning("Failed memory allocation.");
             return TAP_PACKET_DONT_REDRAW;
         }
         // resize zero-initializes new items, which is what we want

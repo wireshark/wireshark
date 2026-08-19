@@ -825,7 +825,7 @@ static void switchTranslator(QTranslator& myTranslator, const QLocale &locale, c
          * locale.uiLanguages(); the first language in that list is not
          * necessarily locale.language(), especially on Windows (See #17221.)
          */
-        qWarning() << "Couldn't load" << filename << "translations!" << "Searched:" << searchPath;
+        qWarning() << "Couldn't load" << filename << "translations." << "Searched:" << searchPath;
     }
 }
 

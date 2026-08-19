@@ -678,7 +678,7 @@ namedzone:
 						tm_gmtoff = 'M' - (int)*bp;
 					else {
 						/* Not reached. */
-						ws_critical("Not reached!");
+						ws_critical("Not reached.");
 						goto out;
 					}
 					tm_gmtoff *= SECSPERHOUR;

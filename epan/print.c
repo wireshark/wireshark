@@ -2100,7 +2100,7 @@ pdml_write_field_hex_value(write_pdml_data *pdata, field_info *fi)
         return;
 
     if (fi->length > (unsigned)tvb_captured_length_remaining(fi->ds_tvb, fi->start)) {
-        fprintf(pdata->fh, "field length invalid!");
+        fprintf(pdata->fh, "field length invalid.");
         return;
     }
 
@@ -2177,7 +2177,7 @@ json_write_field_hex_value(write_json_data *pdata, field_info *fi)
     }
 
     if (fi->length > (unsigned)tvb_captured_length_remaining(fi->ds_tvb, fi->start)) {
-        json_dumper_value_string_noesc(pdata->dumper, "field length invalid!", 21);
+        json_dumper_value_string_noesc(pdata->dumper, "field length invalid.", 21);
         return;
     }
 
@@ -3194,7 +3194,7 @@ get_field_hex_value(GSList *src_list, field_info *fi)
         return NULL;
 
     if (fi->length > (unsigned)tvb_captured_length_remaining(fi->ds_tvb, fi->start)) {
-        return g_strdup("field length invalid!");
+        return g_strdup("field length invalid.");
     }
 
     /* Find the data for this field. */

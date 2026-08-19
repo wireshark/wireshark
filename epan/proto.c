@@ -464,8 +464,8 @@ static GHashTable* prefixes;
 #define PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo)						\
 	if((hfindex == 0 || (unsigned)hfindex > gpa_hfinfo.len) && wireshark_abort_on_dissector_bug)	\
 		ws_error("Unregistered hf! index=%d", hfindex);					\
-	DISSECTOR_ASSERT_HINT(hfindex > 0 && (unsigned)hfindex < gpa_hfinfo.len, "Unregistered hf!");	\
-	DISSECTOR_ASSERT_HINT(gpa_hfinfo.hfi[hfindex] != NULL, "Unregistered hf!");	\
+	DISSECTOR_ASSERT_HINT(hfindex > 0 && (unsigned)hfindex < gpa_hfinfo.len, "Unregistered hf.");	\
+	DISSECTOR_ASSERT_HINT(gpa_hfinfo.hfi[hfindex] != NULL, "Unregistered hf.");	\
 	hfinfo = gpa_hfinfo.hfi[hfindex];
 
 #define PROTO_PRE_ALLOC_HF_FIELDS_MEM (300000+PRE_ALLOC_EXPERT_FIELDS_MEM)
@@ -4062,7 +4062,7 @@ proto_tree_add_item_ret_float(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	field_info	  *new_fi;
 	float		   value;
 
-	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi.");
 
 	if (hfinfo->type != FT_FLOAT) {
 		REPORT_DISSECTOR_BUG("field %s is not of type FT_FLOAT", hfinfo->abbrev);
@@ -4101,7 +4101,7 @@ proto_tree_add_item_ret_double(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	field_info	  *new_fi;
 	double		   value;
 
-	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi.");
 
 	if (hfinfo->type != FT_DOUBLE) {
 		REPORT_DISSECTOR_BUG("field %s is not of type FT_DOUBLE", hfinfo->abbrev);
@@ -4192,7 +4192,7 @@ proto_tree_add_item_ret_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
 	field_info	  *new_fi;
 
-	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi.");
 
 	switch (hfinfo->type) {
 	case FT_IPv6:
@@ -4230,7 +4230,7 @@ proto_tree_add_item_ret_ether(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
 	field_info	  *new_fi;
 
-	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi.");
 
 	switch (hfinfo->type) {
 	case FT_ETHER:
@@ -4563,7 +4563,7 @@ proto_tree_add_item_new(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *t
 	field_info        *new_fi;
 	int		  item_length;
 
-	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi.");
 
 	get_hfi_length(hfinfo, tvb, start, &length, &item_length, encoding);
 	test_length(hfinfo, tvb, start, item_length, encoding);
@@ -4601,7 +4601,7 @@ proto_tree_add_item_new_ret_length(proto_tree *tree, header_field_info *hfinfo,
 	int		  item_length;
 	proto_item	 *item;
 
-	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi.");
 
 	get_hfi_length(hfinfo, tvb, start, &length, &item_length, encoding);
 	test_length(hfinfo, tvb, start, item_length, encoding);
@@ -4675,7 +4675,7 @@ proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
-	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi.");
 
 	DISSECTOR_ASSERT_HINT(validate_proto_tree_add_bytes_ftype(hfinfo->type),
 		"Called proto_tree_add_bytes_item but not a bytes-based FT_XXX type");
@@ -4814,7 +4814,7 @@ proto_tree_add_time_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
-	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi.");
 
 	if (length == 0) {
 		if(retval) {
@@ -8636,15 +8636,15 @@ proto_register_protocol(const char *name, const char *short_name,
 	 */
 	if (!g_hash_table_insert(proto_names, (void *)name, protocol)) {
 		/* ws_error will terminate the program */
-		REPORT_DISSECTOR_BUG("Duplicate protocol name \"%s\"!"
+		REPORT_DISSECTOR_BUG("Duplicate protocol name \"%s\"."
 			" This might be caused by an inappropriate plugin or a development error.", name);
 	}
 	if (!g_hash_table_insert(proto_filter_names, (void *)filter_name, protocol)) {
-		REPORT_DISSECTOR_BUG("Duplicate protocol filter_name \"%s\"!"
+		REPORT_DISSECTOR_BUG("Duplicate protocol filter_name \"%s\"."
 			" This might be caused by an inappropriate plugin or a development error.", filter_name);
 	}
 	if (!g_hash_table_insert(proto_short_names, (void *)short_name, protocol)) {
-		REPORT_DISSECTOR_BUG("Duplicate protocol short_name \"%s\"!"
+		REPORT_DISSECTOR_BUG("Duplicate protocol short_name \"%s\"."
 			" This might be caused by an inappropriate plugin or a development error.", short_name);
 	}
 
@@ -8679,7 +8679,7 @@ proto_register_protocol_in_name_only(const char *name, const char *short_name, c
 	}
 
 	if (parent_proto <= 0) {
-		REPORT_DISSECTOR_BUG("Must have a valid parent protocol for helper protocol \"%s\"!"
+		REPORT_DISSECTOR_BUG("Must have a valid parent protocol for helper protocol \"%s\"."
 			" This might be caused by an inappropriate plugin or a development error.", name);
 	}
 
@@ -10315,7 +10315,7 @@ proto_register_subtree_array(int * const *indices, const int num_indices)
 	 */
 	for (i = 0; i < num_indices; i++, ptr++, num_tree_types++) {
 		if (**ptr != -1 && **ptr != 0) {
-			REPORT_DISSECTOR_BUG("register_subtree_array: subtree item type (ett_...) not -1 or 0 !"
+			REPORT_DISSECTOR_BUG("register_subtree_array: subtree item type (ett_...) not -1 or 0 ."
 				" This is a development error:"
 				" Either the subtree item type has already been assigned or"
 				" was not initialized to -1 or 0.");

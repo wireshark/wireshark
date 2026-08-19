@@ -340,7 +340,7 @@ fuzz_init(int argc, char **argv)
 #endif
 
 #ifdef FUZZ_EPAN
-	g_assert(fuzz_handle != NULL && "Requested dissector is not found!");
+	g_assert(fuzz_handle != NULL && "Requested dissector is not found.");
 	register_postdissector(fuzz_handle);
 #endif
 

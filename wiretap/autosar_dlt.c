@@ -128,7 +128,7 @@ autosar_dlt_read_block(autosar_dlt_params_t *params, int64_t start_pos, int *err
         if (*err == WTAP_ERR_SHORT_READ) {
             *err = WTAP_ERR_BAD_FILE;
             g_free(*err_info);
-            *err_info = ws_strdup_printf("AUTOSAR DLT: Capture file cut short! Cannot find storage header at pos 0x%" PRIx64 "!", start_pos);
+            *err_info = ws_strdup_printf("AUTOSAR DLT: Capture file cut short. Cannot find storage header at pos 0x%" PRIx64 ".", start_pos);
         }
         return false;
     }
@@ -137,7 +137,7 @@ autosar_dlt_read_block(autosar_dlt_params_t *params, int64_t start_pos, int *err
 
     if (memcmp(header.magic, dlt_magic, sizeof(dlt_magic))) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = ws_strdup_printf("AUTOSAR DLT: Bad capture file! Object magic is not DLT\\x01 at pos 0x%" PRIx64 "!", start_pos);
+        *err_info = ws_strdup_printf("AUTOSAR DLT: Bad capture file. Object magic is not DLT\\x01 at pos 0x%" PRIx64 ".", start_pos);
         return false;
     }
 
@@ -147,7 +147,7 @@ autosar_dlt_read_block(autosar_dlt_params_t *params, int64_t start_pos, int *err
     if (!wtap_read_bytes_or_eof(params->fh, &item_header, sizeof item_header, err, err_info)) {
         *err = WTAP_ERR_BAD_FILE;
         g_free(*err_info);
-        *err_info = ws_strdup_printf("AUTOSAR DLT: Capture file cut short! Not enough bytes for item header at pos 0x%" PRIx64 "!", start_pos);
+        *err_info = ws_strdup_printf("AUTOSAR DLT: Capture file cut short. Not enough bytes for item header at pos 0x%" PRIx64 ".", start_pos);
         return false;
     }
 
@@ -172,7 +172,7 @@ autosar_dlt_read_block(autosar_dlt_params_t *params, int64_t start_pos, int *err
         g_free(tmpbuf);
         *err = WTAP_ERR_BAD_FILE;
         g_free(*err_info);
-        *err_info = ws_strdup_printf("AUTOSAR DLT: Internal Error! Not enough bytes for storage header at pos 0x%" PRIx64 "!", start_pos);
+        *err_info = ws_strdup_printf("AUTOSAR DLT: Internal Error. Not enough bytes for storage header at pos 0x%" PRIx64 ".", start_pos);
         return false;
     }
     ws_buffer_append(&params->rec->data, tmpbuf, (size_t)(sizeof header));
@@ -188,7 +188,7 @@ autosar_dlt_read_block(autosar_dlt_params_t *params, int64_t start_pos, int *err
         g_free(tmpbuf);
         *err = WTAP_ERR_BAD_FILE;
         g_free(*err_info);
-        *err_info = ws_strdup_printf("AUTOSAR DLT: Capture file cut short! Not enough bytes for item at pos 0x%" PRIx64 "!", start_pos);
+        *err_info = ws_strdup_printf("AUTOSAR DLT: Capture file cut short. Not enough bytes for item at pos 0x%" PRIx64 ".", start_pos);
         return false;
     }
     ws_buffer_append(&params->rec->data, tmpbuf, (size_t)(item_header.length));

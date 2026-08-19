@@ -1287,13 +1287,13 @@ void RtpPlayerDialog::playFinished(RtpAudioStream *stream, QAudio::Error error)
     if (error != QAudio::NoError) {
 #if (QT_VERSION < QT_VERSION_CHECK(6, 11, 0))
         if (error != QAudio::UnderrunError) {
-            setPlaybackError(tr("Playback of stream %1 failed!")
+            setPlaybackError(tr("Playback of stream %1 failed.")
                 .arg(stream->getIDAsQString())
             );
         }
 #else
         if (stream->outputState() != QAudio::IdleState) {
-            setPlaybackError(tr("Playback of stream %1 failed!")
+            setPlaybackError(tr("Playback of stream %1 failed.")
                 .arg(stream->getIDAsQString())
             );
         }
@@ -1359,7 +1359,7 @@ void RtpPlayerDialog::addPacket(packet_info *pinfo, const _rtp_info *rtpinfo)
         }
     }
 
-//    qDebug() << "=ap no match!" << address_to_qstring(&pinfo->src) << address_to_qstring(&pinfo->dst);
+//    qDebug() << "=ap no match." << address_to_qstring(&pinfo->src) << address_to_qstring(&pinfo->dst);
 }
 
 void RtpPlayerDialog::zoomXAxis(bool in)
@@ -2573,7 +2573,7 @@ void RtpPlayerDialog::saveAudio(save_mode_t save_mode)
     QFile file(path);
 
     if (!file.open(QIODevice::WriteOnly) || (file.error() != QFile::NoError)) {
-        QMessageBox::warning(this, tr("Warning"), tr("Save failed!"));
+        QMessageBox::warning(this, tr("Warning"), tr("Save failed."));
     } else {
         switch (format) {
             case save_audio_au:
@@ -2583,11 +2583,11 @@ void RtpPlayerDialog::saveAudio(save_mode_t save_mode)
                 }
                 if (lead_silence_samples > 0) {
                     if (!writeAudioSilenceSamples(&file, lead_silence_samples, static_cast<int>(streams.count()))) {
-                        QMessageBox::warning(this, tr("Warning"), tr("Save failed!"));
+                        QMessageBox::warning(this, tr("Warning"), tr("Save failed."));
                     }
                 }
                 if (!writeAudioStreamsSamples(&file, streams, true)) {
-                    QMessageBox::warning(this, tr("Warning"), tr("Save failed!"));
+                    QMessageBox::warning(this, tr("Warning"), tr("Save failed."));
                 }
                 break;
             case save_audio_wav:
@@ -2597,11 +2597,11 @@ void RtpPlayerDialog::saveAudio(save_mode_t save_mode)
                 }
                 if (lead_silence_samples > 0) {
                     if (!writeAudioSilenceSamples(&file, lead_silence_samples, static_cast<int>(streams.count()))) {
-                        QMessageBox::warning(this, tr("Warning"), tr("Save failed!"));
+                        QMessageBox::warning(this, tr("Warning"), tr("Save failed."));
                     }
                 }
                 if (!writeAudioStreamsSamples(&file, streams, false)) {
-                    QMessageBox::warning(this, tr("Warning"), tr("Save failed!"));
+                    QMessageBox::warning(this, tr("Warning"), tr("Save failed."));
                 }
                 break;
             case save_audio_none:
@@ -2635,9 +2635,9 @@ void RtpPlayerDialog::savePayload()
     QFile file(path);
 
     if (!file.open(QIODevice::WriteOnly) || (file.error() != QFile::NoError)) {
-        QMessageBox::warning(this, tr("Warning"), tr("Save failed!"));
+        QMessageBox::warning(this, tr("Warning"), tr("Save failed."));
     } else if (!audio_stream->savePayload(&file)) {
-        QMessageBox::warning(this, tr("Warning"), tr("Save failed!"));
+        QMessageBox::warning(this, tr("Warning"), tr("Save failed."));
     }
 
     file.close();

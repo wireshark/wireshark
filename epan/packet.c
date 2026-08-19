@@ -3024,7 +3024,7 @@ heur_dissector_add(const char *name, heur_dissector_t dissector, const char *dis
 	/* do the table insertion */
 	/* Ensure short_name is unique */
 	if (!g_hash_table_insert(heuristic_short_names, (void *)hdtbl_entry->short_name, hdtbl_entry)) {
-		ws_error("Duplicate heuristic short_name \"%s\"!"
+		ws_error("Duplicate heuristic short_name \"%s\"."
 			" This might be caused by an inappropriate plugin or a development error.", internal_name);
 	}
 
@@ -4289,7 +4289,7 @@ prime_epan_dissect_with_postdissector_wanted_hfids(epan_dissect_t *edt)
 void
 increment_dissection_depth_by_n(packet_info *pinfo, unsigned n) {
 	DISSECTOR_ASSERT_HINT(!ckd_add(&pinfo->dissection_depth, pinfo->dissection_depth, n),
-		"pinfo->dissection_depth overflowed!");
+		"pinfo->dissection_depth overflowed.");
 	DISSECTOR_ASSERT(pinfo->dissection_depth < prefs.gui_max_tree_depth);
 }
 
@@ -4301,7 +4301,7 @@ increment_dissection_depth(packet_info *pinfo) {
 void
 decrement_dissection_depth_by_n(packet_info *pinfo, unsigned n) {
 	DISSECTOR_ASSERT_HINT(!ckd_sub(&pinfo->dissection_depth, pinfo->dissection_depth, n),
-		"pinfo->dissection_depth underflowed!");
+		"pinfo->dissection_depth underflowed.");
 }
 
 void

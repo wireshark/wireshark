@@ -112,7 +112,7 @@ void Plot::setFilterField(const QString& filter, const QString& field)
     }
 
     if (field_.isEmpty()) { /* We must have a field */
-        config_err_ = tr("Field cannot be empty!");
+        config_err_ = tr("Field cannot be empty.");
         return;
     }
 

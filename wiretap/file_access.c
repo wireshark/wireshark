@@ -526,7 +526,7 @@ wtap_has_open_info(const char *name)
 	unsigned i;
 
 	if (!name) {
-		ws_error("No name given to wtap_has_open_info!");
+		ws_error("No name given to wtap_has_open_info.");
 		return false;
 	}
 

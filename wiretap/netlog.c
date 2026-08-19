@@ -218,9 +218,9 @@ static bool parse_log_event_constants(char *filebuf, jsmntok_t *root_json_token,
 
 
     if (ok) {
-        ws_debug("Successfully parsed all values");
+        ws_debug("Successfully parsed all values.");
     } else {
-        ws_debug("Failed to parse all values!");
+        ws_debug("Failed to parse all values.");
     }
     return ok;
 }

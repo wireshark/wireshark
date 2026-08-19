@@ -446,7 +446,7 @@ _try_val_to_str_ext_init(const uint32_t val, value_string_ext *vse)
 
     for (i = 0; i < vs_num_entries; i++) {
         if (vs_p[i].strptr == NULL)
-            ws_warning("vse[%u].strptr cannot be NULL!", i);
+            ws_warning("vse[%u].strptr cannot be NULL.", i);
         if ((type == VS_INDEX) && (vs_p[i].value != (i + first_value))) {
             type = VS_BIN_SEARCH;
         }
@@ -717,7 +717,7 @@ _try_val64_to_str_ext_init(const uint64_t val, val64_string_ext *vse)
 
     for (i = 0; i < vs_num_entries; i++) {
         if (vs_p[i].strptr == NULL)
-            ws_warning("vse[%u].strptr cannot be NULL!", i);
+            ws_warning("vse[%u].strptr cannot be NULL.", i);
         if ((type == VS_INDEX) && (vs_p[i].value != (i + first_value))) {
             type = VS_BIN_SEARCH;
         }

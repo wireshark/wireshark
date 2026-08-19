@@ -2133,7 +2133,7 @@ static bool run_capture(ssh_channel channel, const char* iface, const char* cfil
 		case CISCO_ASA:
 			return run_capture_asa(channel, iface, cfilter);
 		case CISCO_UNKNOWN:
-			ws_warning("Unsupported cisco software. It will not collect any data most probably!");
+			ws_warning("Unsupported cisco software. It will not collect any data most probably.");
 			return false;
 	}
 

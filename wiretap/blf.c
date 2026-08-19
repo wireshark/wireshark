@@ -1820,7 +1820,7 @@ blf_read_canmessage(blf_params_t *params, int *err, char **err_info, int64_t blo
 
     payload_length = canheader.dlc;
     if (payload_length > 8) {
-        ws_debug("regular CAN tries more than 8 bytes? Cutting to 8!");
+        ws_debug("regular CAN tries more than 8 bytes? Cutting to 8.");
         payload_length = 8;
     }
 
@@ -1893,7 +1893,7 @@ blf_read_canfdmessage(blf_params_t *params, int *err, char **err_info, int64_t b
     }
 
     if (payload_length > canheader.validDataBytes) {
-        ws_debug("shortening canfd payload because valid data bytes shorter!");
+        ws_debug("shortening canfd payload because valid data bytes shorter.");
         payload_length = canheader.validDataBytes;
     }
 
@@ -1907,7 +1907,7 @@ blf_read_canfdmessage(blf_params_t *params, int *err, char **err_info, int64_t b
     payload_length_valid = payload_length;
 
     if (payload_length_valid > object_length - (data_start - block_start) + sizeof(canheader)) {
-        ws_debug("shortening can payload because buffer is too short!");
+        ws_debug("shortening can payload because buffer is too short.");
         payload_length_valid = (uint8_t)(object_length - (data_start - block_start));
     }
 
@@ -1958,7 +1958,7 @@ blf_read_canfdmessage64(blf_params_t *params, int *err, char **err_info, int64_t
     }
 
     if (payload_length > canheader.validDataBytes) {
-        ws_debug("shortening canfd payload because valid data bytes shorter!");
+        ws_debug("shortening canfd payload because valid data bytes shorter.");
         payload_length = canheader.validDataBytes;
     }
 
@@ -1972,7 +1972,7 @@ blf_read_canfdmessage64(blf_params_t *params, int *err, char **err_info, int64_t
     payload_length_valid = payload_length;
 
     if (payload_length_valid > object_length - (data_start - block_start)) {
-        ws_debug("shortening can payload because buffer is too short!");
+        ws_debug("shortening can payload because buffer is too short.");
         payload_length_valid = (uint8_t)(object_length - (data_start - block_start));
     }
 
@@ -2269,7 +2269,7 @@ blf_read_canxlchannelframe(blf_params_t *params, int *err, char **err_info, int6
             }
         } else {
             if (canxlheader.dlc > 8) {
-                ws_debug("Regular CAN should not have DLC > 8!");
+                ws_debug("Regular CAN should not have DLC > 8.");
             }
 
             canfd_flags = 0;
@@ -2327,7 +2327,7 @@ blf_read_flexraydata(blf_params_t *params, int *err, char **err_info, int64_t bl
     }
 
     if (payload_length_valid > object_length - (data_start - block_start) - sizeof(frheader)) {
-        ws_debug("shortening FlexRay payload because buffer is too short!");
+        ws_debug("shortening FlexRay payload because buffer is too short.");
         payload_length_valid = (uint8_t)(object_length - (data_start - block_start) - sizeof(frheader));
     }
 
@@ -2399,7 +2399,7 @@ blf_read_flexraymessage(blf_params_t *params, int *err, char **err_info, int64_t
     }
 
     if (payload_length_valid > object_length - (data_start - block_start) - sizeof(frheader)) {
-        ws_debug("shortening FlexRay payload because buffer is too short!");
+        ws_debug("shortening FlexRay payload because buffer is too short.");
         payload_length_valid = (uint8_t)(object_length - (data_start - block_start) - sizeof(frheader));
     }
 
@@ -2499,7 +2499,7 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, char **err_info, in
     }
 
     if (payload_length_valid > object_length - (data_start - block_start) - frheadersize) {
-        ws_debug("shortening FlexRay payload because buffer is too short!");
+        ws_debug("shortening FlexRay payload because buffer is too short.");
         payload_length_valid = (uint8_t)(object_length - (data_start - block_start) - frheadersize);
     }
 
@@ -4099,7 +4099,7 @@ blf_dump_expand_interface_mapping(wtap_dumper *wdh, unsigned new_size) {
 static bool
 blf_dump_set_interface_mapping(wtap_dumper *wdh, uint32_t interface_id, int pkt_encap, uint16_t channel, uint16_t hw_channel) {
     if (channel == 0) {
-        ws_warning("Trying to set channel to 0! That will probably lead to an unreadable file! Replacing by 1 to limit problem!");
+        ws_warning("Trying to set channel to 0. That will probably lead to an unreadable file. Replacing by 1 to limit problem.");
         channel = 1;
     }
 
@@ -4136,7 +4136,7 @@ blf_dump_get_interface_mapping(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
 
     *err = WTAP_ERR_INTERNAL;
     *err_info = ws_strdup_printf("blf: cannot find interface mapping for %u", interface_id);
-    ws_critical("BLF Interface Mapping cannot be found!");
+    ws_critical("BLF Interface Mapping cannot be found.");
 
     return NULL;
 }
@@ -4145,7 +4145,7 @@ static bool
 blf_init_file_header(wtap_dumper *wdh, int *err) {
     if (wdh == NULL || wdh->priv == NULL) {
         *err = WTAP_ERR_INTERNAL;
-        ws_debug("internal error: blf private data not found!");
+        ws_debug("internal error: blf private data not found.");
         return false;
     }
 
@@ -4563,7 +4563,7 @@ static bool blf_dump_socketcanxl(wtap_dumper *wdh, const wtap_rec *rec, int *err
 
     if ((socketcan_flags & CANXL_XLF) != CANXL_XLF) {
         *err = WTAP_ERR_INTERNAL;
-        *err_info = ws_strdup_printf("blf: Socket CAN XL message does not have XL Flag set!");
+        *err_info = ws_strdup_printf("blf: Socket CAN XL message does not have XL Flag set.");
         ws_error("LINKTYPE_CAN_SOCKETCAN CAN XL flag not set for CAN XL?");
         return false;
     }
@@ -4571,7 +4571,7 @@ static bool blf_dump_socketcanxl(wtap_dumper *wdh, const wtap_rec *rec, int *err
     if (length < (size_t)socketcan_payload_length + 12) {
         *err = WTAP_ERR_INTERNAL;
         *err_info = ws_strdup_printf("blf: Socket CAN message (length %u) does not contain full payload (%u) (CAN XL)", (uint32_t)length, socketcan_payload_length);
-        ws_error("LINKTYPE_CAN_SOCKETCAN header is too short (CAN XL)!");
+        ws_error("LINKTYPE_CAN_SOCKETCAN header is too short (CAN XL).");
         return false;
     }
     uint32_t socketcan_acceptance_field = pletohu32(pd + 8);
@@ -4634,7 +4634,7 @@ static bool blf_dump_socketcan(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
     if (length < 8) {
         *err = WTAP_ERR_INTERNAL;
         *err_info = ws_strdup_printf("blf: record length %u for Socket CAN message header is lower than minimum of 8", (uint32_t)length);
-        ws_warning("LINKTYPE_CAN_SOCKETCAN header is too short!");
+        ws_warning("LINKTYPE_CAN_SOCKETCAN header is too short.");
         return false;
     }
 
@@ -4654,7 +4654,7 @@ static bool blf_dump_socketcan(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
     if (length < (size_t)payload_length + 8) {
         *err = WTAP_ERR_INTERNAL;
         *err_info = ws_strdup_printf("blf: Socket CAN message (length %u) does not contain full payload (%u)", (uint32_t)length, payload_length);
-        ws_warning("LINKTYPE_CAN_SOCKETCAN header is too short!");
+        ws_warning("LINKTYPE_CAN_SOCKETCAN header is too short.");
         return false;
     }
 
@@ -4807,7 +4807,7 @@ static bool blf_dump_sll(wtap_dumper *wdh, const wtap_rec *rec, int *err, char *
     if (length < 16) {
         *err = WTAP_ERR_INTERNAL;
         *err_info = ws_strdup_printf("blf: record length %u for CAN message header (LINKTYPE_LINUX_SLL) is lower than minimum of 16", (uint32_t)length);
-        ws_warning("LINKTYPE_LINUX_SLL header is too short!");
+        ws_warning("LINKTYPE_LINUX_SLL header is too short.");
         return false;
     }
 
@@ -4852,7 +4852,7 @@ static bool blf_dump_flexray(wtap_dumper *wdh, const wtap_rec *rec, int *err, ch
     if (length < 1) {
         *err = WTAP_ERR_INTERNAL;
         *err_info = ws_strdup_printf("blf: record length %u for FlexRay header (LINKTYPE_FLEXRAY) is lower than minimum of 1", (uint32_t)length);
-        ws_warning("LINKTYPE_FLEXRAY header is too short (< 1 Byte)!");
+        ws_warning("LINKTYPE_FLEXRAY header is too short (< 1 Byte).");
         return false;
     }
 
@@ -4863,7 +4863,7 @@ static bool blf_dump_flexray(wtap_dumper *wdh, const wtap_rec *rec, int *err, ch
         if (length < 2) {
             *err = WTAP_ERR_INTERNAL;
             *err_info = ws_strdup_printf("blf: record length %u for FlexRay Symbol (LINKTYPE_FLEXRAY) is lower than minimum of 2", (uint32_t)length);
-            ws_warning("LINKTYPE_FLEXRAY Symbol is too short (< 2 Byte)!");
+            ws_warning("LINKTYPE_FLEXRAY Symbol is too short (< 2 Byte).");
             return false;
         }
 
@@ -4878,7 +4878,7 @@ static bool blf_dump_flexray(wtap_dumper *wdh, const wtap_rec *rec, int *err, ch
         if (length < 2 + FLEXRAY_HEADER_LENGTH) {
             *err = WTAP_ERR_INTERNAL;
             *err_info = ws_strdup_printf("blf: record length %u for FlexRay Frame header (LINKTYPE_FLEXRAY) is lower than minimum of 7", (uint32_t)length);
-            ws_warning("LINKTYPE_FLEXRAY Frame Header is too short (< 7 Byte)!");
+            ws_warning("LINKTYPE_FLEXRAY Frame Header is too short (< 7 Byte).");
             return false;
         }
 
@@ -4970,7 +4970,7 @@ static bool blf_dump_flexray(wtap_dumper *wdh, const wtap_rec *rec, int *err, ch
         if (length < (size_t)payload_length + 2 + FLEXRAY_HEADER_LENGTH) {
             *err = WTAP_ERR_INTERNAL;
             *err_info = ws_strdup_printf("blf: record length %u for FlexRay Frame (LINKTYPE_FLEXRAY) is truncated", (uint32_t)length);
-            ws_warning("LINKTYPE_FLEXRAY Frame truncated!");
+            ws_warning("LINKTYPE_FLEXRAY Frame truncated.");
             return false;
         }
 
@@ -5012,7 +5012,7 @@ static bool blf_dump_lin(wtap_dumper *wdh, const wtap_rec *rec, int *err, char *
     if (length < 8) {
         *err = WTAP_ERR_INTERNAL;
         *err_info = ws_strdup_printf("blf: record length %u for LIN message/symbol/error is lower than minimum of 8", (uint32_t)length);
-        ws_warning("LIN Data is too short (less than 8 bytes)!");
+        ws_warning("LIN Data is too short (less than 8 bytes).");
         return false;
     }
 
@@ -5035,7 +5035,7 @@ static bool blf_dump_lin(wtap_dumper *wdh, const wtap_rec *rec, int *err, char *
     if (length < (size_t)dlc + 8) {
         *err = WTAP_ERR_INTERNAL;
         *err_info = ws_strdup_printf("blf: record length %u for LIN message is too low for data. DLC: %u.", (uint32_t)length, dlc);
-        ws_error("LIN Data is too short (less than needed)!");
+        ws_error("LIN Data is too short (less than needed).");
         return false;
     }
 
@@ -5101,7 +5101,7 @@ static bool blf_dump_upper_pdu(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
         if (length - pos < 4) {
             *err = WTAP_ERR_INTERNAL;
             *err_info = ws_strdup_printf("blf: Upper PDU has no or truncated tags (pos: %u, length: %u)", (uint32_t)pos, (uint32_t)length);
-            ws_warning("Upper PDU has truncated tags!");
+            ws_warning("Upper PDU has truncated tags.");
             return false;
         }
 
@@ -5111,7 +5111,7 @@ static bool blf_dump_upper_pdu(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
         if ((length - pos) < (size_t)tag_len + 4) {
             *err = WTAP_ERR_INTERNAL;
             *err_info = ws_strdup_printf("blf: Upper PDU has truncated tags (pos: %u, tag_type: %u, tag_len: %u)", (uint32_t)pos, tag_type, tag_len);
-            ws_warning("Upper PDU has truncated tags!");
+            ws_warning("Upper PDU has truncated tags.");
             return false;
         }
 
@@ -5193,7 +5193,7 @@ static bool blf_dump_upper_pdu(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
             }
 
             if (payload_len > 2048 && (apptext_header.source != BLF_APPTEXT_METADATA)) {
-                ws_warning("Only Meta Data can be broken into smaller chunks!");
+                ws_warning("Only Meta Data can be broken into smaller chunks.");
             }
 
             uint32_t chunk_size;
@@ -5524,7 +5524,7 @@ blf_dump_open(wtap_dumper *wdh, int *err, char **err_info) {
 
     if (wdh == NULL || wdh->priv != NULL) {
         *err = WTAP_ERR_INTERNAL;
-        ws_debug("internal error: blf wdh is NULL or private data already set!");
+        ws_debug("internal error: blf wdh is NULL or private data already set.");
         return false;
     }
 

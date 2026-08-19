@@ -886,7 +886,7 @@ static void log_write_do_work(FILE *fp, bool use_color,
 
 #ifdef WS_DEBUG
     if (!init_complete)
-        fputs(" no init!", fp);
+        fputs(" no init.", fp);
 #endif
 
     /* Process */
