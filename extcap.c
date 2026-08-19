@@ -1841,15 +1841,37 @@ static gboolean pipe_io_dispatch(GSource *source, GSourceFunc callback, void *us
     if (GetOverlappedResult(data->pipe_handle, &data->overlapped, &bytes_transferred, FALSE)) {
         data->pos += bytes_transferred;
         pipe_cb(data, cap_session);
-        if (!issue_next_read(data, pipe_cb, cap_session)) {
-            interface_options *interface_opts = extcap_find_channel_interface(cap_session, source);
-            interface_opts->extcap_control_in_watch = 0;
-            extcap_watch_removed(cap_session, interface_opts);
-            return G_SOURCE_REMOVE;
+        if (issue_next_read(data, pipe_cb, cap_session)) {
+            return G_SOURCE_CONTINUE;
+        }
+    } else {
+        DWORD error = GetLastError();
+        switch (error) {
+        case ERROR_OPERATION_ABORTED:
+        case ERROR_IO_INCOMPLETE:
+        case ERROR_IO_PENDING:
+            ws_debug("Pending Overlapped read");
+            if (issue_next_read(data, pipe_cb, cap_session)) {
+                return G_SOURCE_CONTINUE;
+            }
+            break;
+        case ERROR_PIPE_NOT_CONNECTED:
+            // We waited for a connection at the start
+            ws_debug("Extcap control in pipe not connected");
+            break;
+        case ERROR_BROKEN_PIPE:
+            ws_debug("Extcap control in pipe has been closed");
+            break;
+        default:
+            ws_warning("GetOverlappedResult on extcap control in pipe failed: %s", win32strerror(error));
+            break;
         }
     }
 
-    return G_SOURCE_CONTINUE;
+    interface_options *interface_opts = extcap_find_channel_interface(cap_session, source);
+    interface_opts->extcap_control_in_watch = 0;
+    extcap_watch_removed(cap_session, interface_opts);
+    return G_SOURCE_REMOVE;
 }
 
 static void pipe_io_finalize(GSource *source) {
