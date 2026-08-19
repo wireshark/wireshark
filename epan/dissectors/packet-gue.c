@@ -35,12 +35,14 @@ static int hf_gue_proto;
 static int hf_gue_ctype;
 static int hf_gue_flags;
 static int hf_gue_ext_data;
+static int hf_gue_exid;
 
 static int ett_gue;
 
 static expert_field ei_gue_variant_unknown;
 static expert_field ei_gue_ip_version_invalid;
 static expert_field ei_gue_hlen_invalid;
+static expert_field ei_gue_exid_missing;
 
 static dissector_handle_t gue_handle;
 static dissector_handle_t ipv4_handle;
@@ -52,6 +54,9 @@ static dissector_handle_t ipv6_handle;
 #define GUE_CONTROL_MASK 0x20
 #define GUE_HLEN_MASK    0x1F
 
+#define GUE_CTYPE_EXPERIMENT 255
+#define GUE_EXID_LEN         4
+
 static const value_string gue_ctype_vals[] = {
     { 0,   "Control payload needs more context" },
     { 255, "Experimental" },
@@ -61,7 +66,7 @@ static const value_string gue_ctype_vals[] = {
 static int
 dissect_gue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_item *ti, *variant_ti, *hlen_ti;
+    proto_item *ti, *variant_ti, *hlen_ti, *ctype_ti;
     proto_tree *gue_tree;
     uint8_t     first_byte, variant;
     uint32_t    hlen, proto_or_ctype;
@@ -139,8 +144,8 @@ dissect_gue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_tree_add_item(gue_tree, hf_gue_control, tvb, 0, 1, ENC_BIG_ENDIAN);
     hlen_ti = proto_tree_add_item_ret_uint(gue_tree, hf_gue_hlen, tvb, 0, 1,
                                            ENC_BIG_ENDIAN, &hlen);
-    proto_tree_add_item_ret_uint(gue_tree, is_control ? hf_gue_ctype : hf_gue_proto,
-                                 tvb, 1, 1, ENC_BIG_ENDIAN, &proto_or_ctype);
+    ctype_ti = proto_tree_add_item_ret_uint(gue_tree, is_control ? hf_gue_ctype : hf_gue_proto,
+                                            tvb, 1, 1, ENC_BIG_ENDIAN, &proto_or_ctype);
     proto_tree_add_item(gue_tree, hf_gue_flags, tvb, 2, 2, ENC_BIG_ENDIAN);
 
     offset = 4;
@@ -165,10 +170,28 @@ dissect_gue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
     if (is_control) {
+        unsigned control_offset = 0;
+
         proto_item_append_text(ti, ", Control message (type %u)", proto_or_ctype);
         col_add_fstr(pinfo->cinfo, COL_INFO, "Control message (type %u)", proto_or_ctype);
         col_set_fence(pinfo->cinfo, COL_INFO);
-        call_data_dissector(next_tvb, pinfo, tree);
+
+        if (proto_or_ctype == GUE_CTYPE_EXPERIMENT) {
+            /* The ExID lives in the payload, not the header, so Hlen
+             * does not account for it (section 3.2.2). */
+            if (tvb_reported_length(next_tvb) < GUE_EXID_LEN) {
+                expert_add_info(pinfo, ctype_ti, &ei_gue_exid_missing);
+            } else {
+                proto_tree_add_item(gue_tree, hf_gue_exid, next_tvb, 0,
+                                    GUE_EXID_LEN, ENC_BIG_ENDIAN);
+                control_offset = GUE_EXID_LEN;
+            }
+        }
+
+        /* An experimental control message may consist of nothing but the
+         * ExID. */
+        if (tvb_reported_length_remaining(next_tvb, control_offset) > 0)
+            call_data_dissector(tvb_new_subset_remaining(next_tvb, control_offset), pinfo, tree);
     } else {
         /* Overwritten by the payload dissector; kept when nothing claims
          * the payload. */
@@ -225,6 +248,11 @@ proto_register_gue(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_gue_exid,
+          { "Experimental ID", "gue.exid",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            "Identifies the experiment carried in a Type 255 control message; not counted by the Header Length", HFILL }
+        },
     };
 
     static int *ett[] = {
@@ -243,6 +271,10 @@ proto_register_gue(void)
         { &ei_gue_hlen_invalid,
           { "gue.hlen.invalid", PI_MALFORMED, PI_ERROR,
             "GUE header length exceeds packet length", EXPFILL }
+        },
+        { &ei_gue_exid_missing,
+          { "gue.exid.missing", PI_MALFORMED, PI_ERROR,
+            "Experimental control message payload is too short to hold an ExID", EXPFILL }
         },
     };
 
