@@ -272,6 +272,11 @@ void proto_reg_handoff_dcm(void);
 static bool global_dcm_export_header = true;
 static unsigned global_dcm_export_minsize = 4096;           /* Filter small objects in export */
 
+/* The maximum size for a file in Export Objects can be larger than what
+ * we'll put in a tvbuffer, but still put some kind of limit on it. The
+ * limit has to be smaller for 32-bit platforms. */
+#define DICOM_EO_MAXSIZE (MIN((uint64_t)SSIZE_MAX,UINT64_C(0x2000000000)))
+
 static bool global_dcm_seq_subtree = true;
 static bool global_dcm_tag_subtree;             /* Only useful for debugging */
 static bool global_dcm_cmd_details = true;              /* Show details in header and info column */
@@ -1297,7 +1302,7 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
     uint8_t    *pdv_combined = NULL;
     uint8_t    *pdv_combined_curr = NULL;
     uint8_t    *dcm_header = NULL;
-    ssize_t     pdv_combined_len = 0;
+    size_t      pdv_combined_len = 0;
     uint32_t    dcm_header_len = 0;
     uint16_t    cnt_same_pkt = 1;
     char       *filename;
@@ -1313,8 +1318,10 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
 
     while (pdv_curr->prev && !pdv_curr->prev->is_last_fragment) {
         pdv_curr = pdv_curr->prev;
-        if (ckd_add(&pdv_combined_len, pdv_combined_len, pdv_curr->data_len)) {
-            pdv_combined_len = SSIZE_MAX;
+        if (ckd_add(&pdv_combined_len, pdv_combined_len, pdv_curr->data_len) ||
+                pdv_combined_len > DICOM_EO_MAXSIZE) {
+            pdv_combined_len = DICOM_EO_MAXSIZE;
+            // We can't break here because we want to rewind to the beginning
         }
     }
 
@@ -1374,8 +1381,9 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
         }
     }
 
-    if (ckd_add(&pdv_combined_len, pdv_combined_len, dcm_header_len)) {
-        pdv_combined_len = SSIZE_MAX;
+    if (ckd_add(&pdv_combined_len, pdv_combined_len, dcm_header_len) ||
+            pdv_combined_len > DICOM_EO_MAXSIZE) {
+        pdv_combined_len = DICOM_EO_MAXSIZE;
     }
 
     if (pdv_combined_len >= global_dcm_export_minsize) {
@@ -1384,7 +1392,7 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
         pdv_combined = (uint8_t *)wmem_alloc0(pinfo->pool, pdv_combined_len);
 
         pdv_combined_curr = pdv_combined;
-        ssize_t curr_len = 0, next_len;
+        size_t curr_len = 0, next_len;
 
         if (dcm_header_len != 0) {  /* Will be 0 when global_dcm_export_header is false */
             memmove(pdv_combined, dcm_header, dcm_header_len);
@@ -1396,8 +1404,9 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
         while (curr_len < pdv_combined_len && !pdv_curr->is_last_fragment) {
             if (pdv_curr->data) {
                 // In C2y memmove(..., NULL, 0) will no longer be UB
-                ssize_t to_copy = pdv_curr->data_len;
-                if (ckd_add(&next_len, curr_len, to_copy)) {
+                size_t to_copy = pdv_curr->data_len;
+                if (ckd_add(&next_len, curr_len, to_copy) ||
+                        next_len > pdv_combined_len) {
                     to_copy = pdv_combined_len - curr_len;
                     next_len = pdv_combined_len;
                 }
