@@ -166,6 +166,7 @@ typedef enum {
     CONVERSATION_DNP3,           /**< DNP3 (Distributed Network Protocol 3) conversation */
     CONVERSATION_ILNP,           /**< Identifier-Locator Network Protocol (ILNP) conversation */
     CONVERSATION_SYNCHROPHASOR,  /**< Synchrophasor conversation */
+    CONVERSATION_UDX,            /**< UDX stream */
 } conversation_type;
 
 /*
@@ -217,6 +218,7 @@ typedef enum {
 #define ENDPOINT_IPv6		CONVERSATION_IPv6
 #define ENDPOINT_ETH		CONVERSATION_ETH
 #define ENDPOINT_ILNP		CONVERSATION_ILNP
+#define ENDPOINT_UDX		CONVERSATION_UDX
 
 typedef conversation_type endpoint_type;
 

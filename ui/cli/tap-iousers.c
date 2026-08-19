@@ -249,8 +249,11 @@ static void iousers_finish(void *arg)
 		return;
 	conv_hash_t *hash = (conv_hash_t*)arg;
 	io_users_t *iu = (io_users_t *)hash->user_data;
-	if (iu)
+	reset_conversation_table_data(hash);
+	if (iu) {
+		g_free((char *)iu->filter);
 		g_free(iu);
+	}
 }
 
 void init_iousers(struct register_ct *ct, const char *filter)

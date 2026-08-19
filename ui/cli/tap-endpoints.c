@@ -112,6 +112,20 @@ endpoints_draw(void *arg)
 	printf("================================================================================\n");
 }
 
+static void
+endpoints_finish(void *arg)
+{
+	if (!arg)
+		return;
+	conv_hash_t *hash = (conv_hash_t*)arg;
+	endpoints_t *iu = (endpoints_t *)hash->user_data;
+	reset_endpoint_table_data(hash);
+	if (iu) {
+		g_free((char *)iu->filter);
+		g_free(iu);
+	}
+}
+
 void init_endpoints(struct register_ct *ct, const char *filter)
 {
 	endpoints_t *iu;
@@ -122,7 +136,7 @@ void init_endpoints(struct register_ct *ct, const char *filter)
 	iu->filter = g_strdup(filter);
 	iu->hash.user_data = iu;
 
-	error_string = register_tap_listener(proto_get_protocol_filter_name(get_conversation_proto_id(ct)), &iu->hash, filter, 0, NULL, get_endpoint_packet_func(ct), endpoints_draw, NULL);
+	error_string = register_tap_listener(proto_get_protocol_filter_name(get_conversation_proto_id(ct)), &iu->hash, filter, 0, NULL, get_endpoint_packet_func(ct), endpoints_draw, endpoints_finish);
 	if (error_string) {
 		g_free(iu);
 		cmdarg_err("Couldn't register endpoint tap: %s",

@@ -107,6 +107,13 @@ The following features are either new or have been significantly updated since v
   with packet counts, first/last frame numbers, and protocols.
   A new "imsi" tap is registered by the E.212 dissector.
 
+* UDX conversations and endpoints are now listed per stream, in
+  menu:Statistics[Conversations] and menu:Statistics[Endpoints] as well as
+  `tshark -z conv,udx` and `tshark -z endpoints,udx`.
+  Several UDX streams can share one UDP socket pair, which the UDP tables count
+  as a single conversation.
+  A new "udx" tap is registered by the UDX dissector.
+
 * New compact JSON output option omits indentation and whitespace,
   significantly reducing output size and improving performance.
   Available as `tshark --json-compact` (with `-T json` or `-T jsonraw`)

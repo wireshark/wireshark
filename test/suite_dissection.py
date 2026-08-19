@@ -1579,6 +1579,70 @@ class TestDissectUdx:
             ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, 'Tail loss probe')
 
+    def test_udx_conversations_split_multiplexed_streams(self, cmd_tshark, capture_file, test_env):
+        '''Three streams on one socket pair are three UDX conversations.
+
+        The enclosing UDP flow counts them together, so the UDP table shows a
+        single conversation for the same capture.
+        '''
+        def rows(table):
+            stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR,
+                    '-r', capture_file('udx_multi.pcap.gz'),
+                    '-q', '-z', table,
+                ), encoding='utf-8', env=test_env)
+            return [l for l in stdout.splitlines() if '<->' in l]
+
+        assert len(rows('conv,udp')) == 1
+        assert len(rows('conv,udx')) == 3
+
+    def test_udx_conversation_totals(self, cmd_tshark, capture_file, test_env):
+        '''The streams account for exactly what the UDP conversation carried.
+
+        Each of the three streams reports 127 frames and 75728 bytes, which adds
+        up to the 381 frames and 227184 bytes the UDP table reports for the whole
+        capture. Byte counts are asked for machine readable so the columns are
+        plain integers rather than SI prefixed.
+        '''
+        def total(table):
+            stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR,
+                    '-r', capture_file('udx_multi.pcap.gz'),
+                    '-o', 'conv.machine_readable:TRUE',
+                    '-q', '-z', table,
+                ), encoding='utf-8', env=test_env)
+            rows = [l.split() for l in stdout.splitlines() if '<->' in l]
+            return [(int(r[7]), int(r[8])) for r in rows]
+
+        assert total('conv,udx') == [(127, 75728)] * 3
+        assert total('conv,udp') == [(381, 227184)]
+
+    def test_udx_endpoints(self, cmd_tshark, capture_file, test_env):
+        '''Both ends appear once, with the traffic split by direction.'''
+        stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR,
+                '-r', capture_file('udx_multi.pcap.gz'),
+                '-o', 'conv.machine_readable:TRUE',
+                '-q', '-z', 'endpoints,udx',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split() for l in stdout.splitlines() if l.startswith('10.0.0.')]
+        assert [(r[0], int(r[1]), int(r[2])) for r in rows] == [
+            ('10.0.0.1', 381, 227184),
+            ('10.0.0.2', 381, 227184),
+        ]
+        # Sent one way is received the other.
+        assert (int(rows[0][3]), int(rows[0][4])) == (int(rows[1][5]), int(rows[1][6]))
+
+    def test_udx_conversations_follow_analysis_preference(self, cmd_tshark, capture_file, test_env):
+        '''The tables carry the stream index, so they need sequence analysis.
+
+        With the preference off the dissector assigns no stream number, the same
+        condition under which udx.stream is absent from the tree.
+        '''
+        stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR,
+                '-r', capture_file('udx_multi.pcap.gz'),
+                '-oudx.analyze_sequence_numbers:FALSE',
+                '-q', '-z', 'conv,udx',
+            ), encoding='utf-8', env=test_env)
+        assert len([l for l in stdout.splitlines() if '<->' in l]) == 0
+
 
 class TestDissectGsmtapUm:
     def test_gsmtap_um_encap(self, cmd_tshark, capture_file, test_env):

@@ -19,6 +19,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/conversation_table.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
@@ -26,6 +27,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/tap.h>
 #include "packet-udp.h"
+#include "packet-udx.h"
 #include <wsutil/wmem/wmem_map.h>
 #include <wsutil/wmem/wmem_tree.h>
 
@@ -66,10 +68,6 @@
 #define UDX_SEQ_GT(a, b)  ((int32_t)((a) - (b)) > 0)
 #define UDX_SEQ_GEQ(a, b) ((int32_t)((a) - (b)) >= 0)
 
-/* Bounds the SACK blocks examined per packet; data_offset caps the area at
- * 255 bytes, i.e. 31 blocks. */
-#define UDX_MAX_SACK_BLOCKS 32
-
 /* Floor for the derived retransmission timeout, in seconds. Below this a
  * repeat is attributed to loss recovery rather than to a timer firing. */
 #define UDX_MIN_RTO 0.2
@@ -92,6 +90,7 @@ static int proto_udx;
 static bool udx_analyze_sequence_numbers = true;
 
 static int udx_follow_tap;
+static int udx_tap;
 
 /* Stream numbers are handed out across the whole capture so that a filter
  * such as "udx.stream eq 3" identifies exactly one stream. */
@@ -869,6 +868,140 @@ udx_show_analysis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, udx_ppd_t
 
 
 /*
+ * Conversations and endpoints.
+ *
+ * A UDX conversation is one stream, not one socket pair. Several streams can
+ * be multiplexed over a single UDP flow, so the enclosing UDP conversation
+ * counts them together and cannot say how much traffic any one of them
+ * carried. Keying on the stream index the dissector already assigns splits
+ * them apart.
+ */
+
+static const char *
+udx_conv_get_filter_type(conv_item_t *conv, conv_filter_type_e filter)
+{
+    if (filter == CONV_FT_SRC_PORT)
+        return "udp.srcport";
+
+    if (filter == CONV_FT_DST_PORT)
+        return "udp.dstport";
+
+    if (filter == CONV_FT_ANY_PORT)
+        return "udp.port";
+
+    if (conv == NULL)
+        return CONV_FILTER_INVALID;
+
+    if (filter == CONV_FT_SRC_ADDRESS) {
+        if (conv->src_address.type == AT_IPv4)
+            return "ip.src";
+        if (conv->src_address.type == AT_IPv6)
+            return "ipv6.src";
+    }
+
+    if (filter == CONV_FT_DST_ADDRESS) {
+        if (conv->dst_address.type == AT_IPv4)
+            return "ip.dst";
+        if (conv->dst_address.type == AT_IPv6)
+            return "ipv6.dst";
+    }
+
+    if (filter == CONV_FT_ANY_ADDRESS) {
+        if (conv->src_address.type == AT_IPv4)
+            return "ip.addr";
+        if (conv->src_address.type == AT_IPv6)
+            return "ipv6.addr";
+    }
+
+    return CONV_FILTER_INVALID;
+}
+
+static ct_dissector_info_t udx_ct_dissector_info = { &udx_conv_get_filter_type };
+
+static tap_packet_status
+udx_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
+                        const void *vip, tap_flags_t flags)
+{
+    conv_hash_t          *hash = (conv_hash_t *) pct;
+    const udx_info_t     *udxh = (const udx_info_t *) vip;
+
+    hash->flags = flags;
+
+    add_conversation_table_data_with_conv_id(hash, &udxh->ip_src, &udxh->ip_dst,
+                                             udxh->sport, udxh->dport,
+                                             (conv_id_t) udxh->stream, 1,
+                                             pinfo->fd->pkt_len,
+                                             &pinfo->rel_ts, &pinfo->abs_ts,
+                                             &udx_ct_dissector_info,
+                                             CONVERSATION_UDX);
+
+    return TAP_PACKET_REDRAW;
+}
+
+static const char *
+udx_endpoint_get_filter_type(endpoint_item_t *endpoint, conv_filter_type_e filter)
+{
+    if (filter == CONV_FT_SRC_PORT)
+        return "udp.srcport";
+
+    if (filter == CONV_FT_DST_PORT)
+        return "udp.dstport";
+
+    if (filter == CONV_FT_ANY_PORT)
+        return "udp.port";
+
+    if (endpoint == NULL)
+        return CONV_FILTER_INVALID;
+
+    if (filter == CONV_FT_SRC_ADDRESS) {
+        if (endpoint->myaddress.type == AT_IPv4)
+            return "ip.src";
+        if (endpoint->myaddress.type == AT_IPv6)
+            return "ipv6.src";
+    }
+
+    if (filter == CONV_FT_DST_ADDRESS) {
+        if (endpoint->myaddress.type == AT_IPv4)
+            return "ip.dst";
+        if (endpoint->myaddress.type == AT_IPv6)
+            return "ipv6.dst";
+    }
+
+    if (filter == CONV_FT_ANY_ADDRESS) {
+        if (endpoint->myaddress.type == AT_IPv4)
+            return "ip.addr";
+        if (endpoint->myaddress.type == AT_IPv6)
+            return "ipv6.addr";
+    }
+
+    return CONV_FILTER_INVALID;
+}
+
+static et_dissector_info_t udx_endpoint_dissector_info = { &udx_endpoint_get_filter_type };
+
+static tap_packet_status
+udx_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_,
+                    const void *vip, tap_flags_t flags)
+{
+    conv_hash_t      *hash = (conv_hash_t *) pit;
+    const udx_info_t *udxh = (const udx_info_t *) vip;
+
+    hash->flags = flags;
+
+    /* One pass per direction, so a datagram addressed to its own sender is
+     * still counted for both endpoints. */
+    add_endpoint_table_data(hash, &udxh->ip_src, udxh->sport, true, 1,
+                            pinfo->fd->pkt_len, &udx_endpoint_dissector_info,
+                            ENDPOINT_UDX);
+    add_endpoint_table_data(hash, &udxh->ip_dst, udxh->dport, false, 1,
+                            pinfo->fd->pkt_len, &udx_endpoint_dissector_info,
+                            ENDPOINT_UDX);
+
+    return TAP_PACKET_REDRAW;
+}
+
+
+/*
  * Follow stream.
  *
  * Payload is delivered in sequence order per direction. A packet that
@@ -1169,6 +1302,31 @@ dissect_udx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     if (ppd != NULL) {
         udx_show_analysis(tvb, pinfo, udx_tree, ppd);
+
+        if (have_tap_listener(udx_tap)) {
+            udx_info_t *udxh = wmem_new0(pinfo->pool, udx_info_t);
+
+            udxh->id          = id;
+            udxh->seq         = seq;
+            udxh->ack         = ack;
+            udxh->window      = window;
+            udxh->payload_len = payload_len;
+            udxh->stream      = ppd->stream;
+            udxh->sport       = pinfo->srcport;
+            udxh->dport       = pinfo->destport;
+            udxh->flags       = flags;
+            udxh->data_offset = data_offset;
+            copy_address_shallow(&udxh->ip_src, &pinfo->src);
+            copy_address_shallow(&udxh->ip_dst, &pinfo->dst);
+
+            udxh->num_sack_blocks = n_sacks;
+            for (unsigned i = 0; i < n_sacks; i++) {
+                udxh->sack_start[i] = sack_start[i];
+                udxh->sack_end[i]   = sack_end[i];
+            }
+
+            tap_queue_packet(udx_tap, pinfo, udxh);
+        }
 
         /* MESSAGE payloads travel outside the ordered stream, so they are
          * shown per packet but left out of the reassembled conversation. */
@@ -1474,6 +1632,13 @@ proto_register_udx(void)
                            udx_follow_conv_filter, udx_follow_index_filter,
                            udp_follow_address_filter, udp_port_to_display,
                            udx_follow_tap_listener, udx_get_stream_count, NULL);
+
+    /* The conversation and endpoint tables read this tap. It carries the
+     * stream index, which only exists while sequence analysis is on, so the
+     * tables follow the "analyze_sequence_numbers" preference. */
+    udx_tap = register_tap("udx");
+    register_conversation_table(proto_udx, false,
+                                udx_conversation_packet, udx_endpoint_packet);
 
     udx_module = prefs_register_protocol(proto_udx, NULL);
     prefs_register_bool_preference(udx_module, "analyze_sequence_numbers",
