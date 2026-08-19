@@ -258,7 +258,7 @@ workflow:
     - printf "\e[0Ksection_end:%s:brew_section\r\e[0K" "$( date +%s)"
     - python3 -m venv $CI_PROJECT_DIR/.venv
     - source $CI_PROJECT_DIR/.venv/bin/activate
-    - pip3 install pytest pytest-xdist
+    - pip3 install --quiet jsonschema pytest pytest-xdist
     - export PYTEST_ADDOPTS="--skip-missing-programs=dumpcap,rawshark --enable-stratoshark"
     - mkdir -p ccache
     - ccache --show-stats
@@ -690,7 +690,7 @@ macOS Universal Package:
     - export PATH="/opt/homebrew/bin:$PATH:$HOME/bin"
     - python3 -m venv --clear $CI_PROJECT_DIR/.venv
     - source $CI_PROJECT_DIR/.venv/bin/activate
-    - pip3 install dmgbuild pyobjc-framework-Quartz pytest pytest-xdist
+    - pip3 install --quiet dmgbuild jsonschema pyobjc-framework-Quartz pytest pytest-xdist
   script:
     - if [[ $MACOS_REINSTALL_THIRD_PARTY == true ]] ; then rm -rf "$WIRESHARK_BASE_DIR" ; fi
     - if [ ! -d "$WIRESHARK_BASE_DIR/Qt" ] ; then mkdir -p "$WIRESHARK_BASE_DIR/Qt" ; fi
@@ -1063,7 +1063,6 @@ Windows Build:
       ..
     - msbuild /verbosity:minimal /maxcpucount /property:Configuration=Debug Wireshark.slnx
     - msbuild /verbosity:minimal /maxcpucount /property:Configuration=Debug test-programs.vcxproj
-    # jsonschema gates the theme.jsonc schema tests in suite_theme; the runner image doesn't ship it.
     - C:\Windows\py.exe -m pip install --quiet jsonschema
     - C:\Windows\py.exe -m pytest --build-type=Debug --disable-gui --enable-stratoshark --junitxml=../windows_tests.xml
   artifacts:
