@@ -45,11 +45,12 @@ For Wireshark, Stratoshark, or any of their associated utilities, please open a 
 
 * The subject line should provide a summary of the issue without any superfluous information such as a "[Security]" prefix.
 
-* The body of the issue should contain a description of the problem, describe the steps needed to reproduce the issue, and any other information suggested in the issue template.
+* The body of the issue should contain a concise description of the problem, describe the steps needed to reproduce the issue, and any other information suggested in the issue template.
   A proposed fix or patch would also be appreciated.
 
 * We strongly recommend that you include a capture file that reproduces the issue.
   This helps us identify issues and verify fixes more quickly.
+  It is also helpful if any files that you provide have unique, descriptive names, such as *http-reassembly-overflow.pcap*.
   Note that we also use capture files attached to issues for fuzz testing; if your file contains confidential information please make this clear.
 
 Alternatively you can send an email to security[AT]wireshark.org.
