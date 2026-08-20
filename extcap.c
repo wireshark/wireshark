@@ -1312,7 +1312,7 @@ extcap_get_control_for_ifname(const char *ifname)
     extcap_ensure_all_interfaces_loaded();
 
     extcap_interface* interface = extcap_find_interface_for_ifname(ifname);
-    if (interface->control == 1 && !iface_toolbar_use()) {
+    if (!interface || (interface->control == 1 && !iface_toolbar_use())) {
         return 0;
     }
 
