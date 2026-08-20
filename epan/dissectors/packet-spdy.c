@@ -156,24 +156,11 @@ typedef struct _spdy_header_info_t {
 
 static wmem_list_t *header_info_list;
 
-/*
- * This structures keeps track of all the data frames
- * associated with a stream, so that they can be
- * reassembled into a single chunk.
- */
-typedef struct _spdy_data_frame_t {
-  uint8_t *data;
-  uint32_t length;
-  uint32_t framenum;
-} spdy_data_frame_t;
-
 typedef struct _spdy_stream_info_t {
   media_container_type_t container_type;
   char *content_type;
   char *content_type_parameters;
   char *content_encoding;
-  wmem_list_t *data_frames;
-  tvbuff_t *assembled_data;
   unsigned num_data_frames;
 } spdy_stream_info_t;
 
@@ -228,12 +215,15 @@ static expert_field ei_spdy_mal_setting_frame;
 static expert_field ei_spdy_invalid_rst_stream;
 static expert_field ei_spdy_invalid_go_away;
 static expert_field ei_spdy_invalid_frame_type;
-static expert_field ei_spdy_reassembly_info;
 
 static dissector_handle_t media_handle;
 static dissector_handle_t spdy_handle;
 static dissector_table_t media_type_subdissector_table;
 static dissector_table_t port_subdissector_table;
+
+static reassembly_table spdy_reassembly_table;
+
+REASSEMBLE_ITEMS_DEFINE(spdy, "SPDY Body");
 
 static bool spdy_assemble_entity_bodies = true;
 
@@ -519,9 +509,7 @@ static void spdy_save_stream_info(spdy_conv_t *conv_data,
   si->content_type = content_type;
   si->content_type_parameters = content_type_params;
   si->content_encoding = content_encoding;
-  si->data_frames = wmem_list_new(wmem_file_scope());
   si->num_data_frames = 0;
-  si->assembled_data = NULL;
   wmem_tree_insert32(conv_data->streams, stream_id, si);
 }
 
@@ -535,27 +523,6 @@ static spdy_stream_info_t* spdy_get_stream_info(spdy_conv_t *conv_data,
     return NULL;
 
   return (spdy_stream_info_t*)wmem_tree_lookup32(conv_data->streams, stream_id);
-}
-
-/*
- * Adds a data chunk to a given SPDY conversation/stream.
- */
-static void spdy_add_data_chunk(spdy_conv_t *conv_data,
-                                uint32_t stream_id,
-                                uint32_t frame,
-                                uint8_t *data,
-                                uint32_t length)
-{
-  spdy_stream_info_t *si = spdy_get_stream_info(conv_data, stream_id);
-
-  if (si != NULL) {
-    spdy_data_frame_t *df = (spdy_data_frame_t *)wmem_new(wmem_file_scope(), spdy_data_frame_t);
-    df->data = data;
-    df->length = length;
-    df->framenum = frame;
-    wmem_list_append(si->data_frames, df);
-    ++si->num_data_frames;
-  }
 }
 
 /*
@@ -577,75 +544,6 @@ static unsigned spdy_get_num_data_frames(spdy_conv_t *conv_data,
   spdy_stream_info_t *si = spdy_get_stream_info(conv_data, stream_id);
 
   return si == NULL ? 0 : si->num_data_frames;
-}
-
-/*
- * Reassembles DATA frames for a given stream into one tvb.
- */
-static spdy_stream_info_t* spdy_assemble_data_frames(spdy_conv_t *conv_data,
-                                                     uint32_t stream_id) {
-  spdy_stream_info_t *si = spdy_get_stream_info(conv_data, stream_id);
-  tvbuff_t *tvb;
-
-  if (si == NULL) {
-    return NULL;
-  }
-
-  /*
-   * Compute the total amount of data and concatenate the
-   * data chunks, if it hasn't already been done.
-   */
-  if (si->assembled_data == NULL) {
-    spdy_data_frame_t *df;
-    uint8_t *data;
-    uint32_t datalen;
-    uint32_t offset, old_offset;
-    wmem_list_t *dflist = si->data_frames;
-    wmem_list_frame_t *frame;
-    if (wmem_list_count(dflist) == 0) {
-      return si;
-    }
-    datalen = 0;
-    /*
-     * It'd be nice to use a composite tvbuff here, but since
-     * only a real-data tvbuff can be the child of another
-     * tvb, we can't. It would be nice if this limitation
-     * could be fixed.
-     */
-    frame = wmem_list_frame_next(wmem_list_head(dflist));
-    while (frame != NULL) {
-      df = (spdy_data_frame_t *)wmem_list_frame_data(frame);
-      if (ckd_add(&datalen, datalen, df->length) || datalen > INT32_MAX) {
-        datalen = INT32_MAX;
-      }
-      frame = wmem_list_frame_next(frame);
-    }
-    if (datalen != 0) {
-      data = (uint8_t *)wmem_alloc(wmem_file_scope(), datalen);
-      dflist = si->data_frames;
-      offset = 0;
-      frame = wmem_list_frame_next(wmem_list_head(dflist));
-      while (frame != NULL) {
-        df = (spdy_data_frame_t *)wmem_list_frame_data(frame);
-        old_offset = offset;
-        if (ckd_add(&offset, old_offset, df->length) || offset > datalen) {
-          offset = datalen;
-          memcpy(data+old_offset, df->data, datalen - old_offset);
-          break;
-        }
-        memcpy(data+old_offset, df->data, df->length);
-        frame = wmem_list_frame_next(frame);
-      }
-      /* This leaks the 64-bytes of tvb wrapper (not the data itself, which
-       * is wmem_file_scope() allocated.) We could call wmem_register_callback
-       * appropriately, or store the data and the length and make a tvbuffer
-       * on demand. But in the long run we probably just want to use the
-       * ordinary reassembly API. */
-      tvb = tvb_new_real_data(data, datalen, datalen);
-      si->assembled_data = tvb;
-    }
-  }
-  return si;
 }
 
 /*
@@ -747,10 +645,10 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
     tvbuff_t *next_tvb = NULL;
     tvbuff_t    *data_tvb = NULL;
     spdy_stream_info_t *si = NULL;
-    uint8_t *copied_data;
     bool is_single_chunk = false;
     bool have_entire_body;
     char *media_str = NULL;
+    fragment_head *head = NULL;
 
     /*
      * Create a tvbuff for the payload.
@@ -759,18 +657,24 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
       next_tvb = tvb_new_subset_length(tvb, offset, frame->length);
       is_single_chunk = num_data_frames == 0 &&
           (frame->flags & SPDY_FLAG_FIN) != 0;
-      if (!pinfo->fd->visited) {
-        if (!is_single_chunk) {
-          if (spdy_assemble_entity_bodies) {
-            copied_data = (uint8_t *)tvb_memdup(wmem_file_scope(),next_tvb, 0, frame->length);
-            spdy_add_data_chunk(conv_data, stream_id, pinfo->num, copied_data, frame->length);
-          } else {
-            spdy_increment_data_chunk_count(conv_data, stream_id);
-          }
+      if (!is_single_chunk) {
+        if (!pinfo->fd->visited) {
+          spdy_increment_data_chunk_count(conv_data, stream_id);
+        }
+        if (spdy_assemble_entity_bodies) {
+          head = fragment_add_seq_next(&spdy_reassembly_table, next_tvb, 0, pinfo, stream_id,
+                                       NULL, frame->length, !(frame->flags & SPDY_FLAG_FIN));
+          data_tvb = process_reassembled_data(next_tvb, 0, pinfo, "SPDY body", head,
+                                              &spdy_fragment_items, NULL, spdy_tree);
         }
       }
     } else {
       is_single_chunk = (num_data_frames == 1);
+      if (!is_single_chunk && spdy_assemble_entity_bodies) {
+          head = fragment_end_seq_next(&spdy_reassembly_table, pinfo, stream_id, NULL);
+          data_tvb = process_reassembled_data(tvb, offset, pinfo, "SPDY body", head,
+                                              &spdy_fragment_items, NULL, spdy_tree);
+      }
     }
 
     if (!(frame->flags & SPDY_FLAG_FIN)) {
@@ -781,20 +685,9 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
       goto body_dissected;
     }
     have_entire_body = is_single_chunk;
-    /*
-     * On seeing the last data frame in a stream, we can
-     * reassemble the frames into one data block.
-     */
-    si = spdy_assemble_data_frames(conv_data, stream_id);
-    if (si == NULL) {
-      goto body_dissected;
-    }
-    data_tvb = si->assembled_data;
-    if (spdy_assemble_entity_bodies) {
-      have_entire_body = true;
-    }
 
-    if (!have_entire_body) {
+    si = spdy_get_stream_info(conv_data, stream_id);
+    if (si == NULL) {
       goto body_dissected;
     }
 
@@ -802,8 +695,6 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
       if (next_tvb == NULL)
         goto body_dissected;
       data_tvb = next_tvb;
-    } else {
-      add_new_data_source(pinfo, data_tvb, "Assembled entity body");
     }
 
     if (have_entire_body && si->content_encoding != NULL &&
@@ -835,28 +726,6 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
                                  "Content-encoded entity body (%s): %u bytes",
                                  si->content_encoding,
                                  tvb_reported_length(data_tvb));
-      if (si->num_data_frames > 1) {
-        wmem_list_t *dflist = si->data_frames;
-        wmem_list_frame_t *frame_item;
-        spdy_data_frame_t *df;
-        uint32_t framenum = 0;
-        wmem_strbuf_t *str_frames = wmem_strbuf_new(pinfo->pool, "");
-
-        frame_item = wmem_list_frame_next(wmem_list_head(dflist));
-        while (frame_item != NULL) {
-          df = (spdy_data_frame_t *)wmem_list_frame_data(frame_item);
-          if (framenum != df->framenum) {
-            wmem_strbuf_append_printf(str_frames, " #%u", df->framenum);
-            framenum = df->framenum;
-          }
-          frame_item = wmem_list_frame_next(frame_item);
-        }
-
-        proto_tree_add_expert_format(e_tree, pinfo, &ei_spdy_reassembly_info, data_tvb, 0,
-                                    tvb_reported_length(data_tvb),
-                                    "Assembled from %d frames in packet(s)%s",
-                                    si->num_data_frames, wmem_strbuf_get_str(str_frames));
-      }
 
       if (uncomp_tvb != NULL) {
         /*
@@ -1885,7 +1754,9 @@ void proto_register_spdy(void)
           NULL, HFILL
       }
     },
+    REASSEMBLE_INIT_HF_ITEMS(spdy, "SPDY Body", "spdy.body"),
   };
+
   static int *ett[] = {
     &ett_spdy,
     &ett_spdy_flags,
@@ -1893,6 +1764,7 @@ void proto_register_spdy(void)
     &ett_spdy_header,
     &ett_spdy_setting,
     &ett_spdy_encoded_entity,
+    REASSEMBLE_INIT_ETT_ITEMS(spdy)
   };
 
   static ei_register_info ei[] = {
@@ -1902,7 +1774,6 @@ void proto_register_spdy(void)
     { &ei_spdy_invalid_rst_stream, { "spdy.rst_stream.invalid", PI_PROTOCOL, PI_WARN, "Invalid status code for RST_STREAM", EXPFILL }},
     { &ei_spdy_invalid_go_away, { "spdy.goaway.invalid", PI_PROTOCOL, PI_WARN, "Invalid status code for GOAWAY", EXPFILL }},
     { &ei_spdy_invalid_frame_type, { "spdy.type.invalid", PI_PROTOCOL, PI_WARN, "Invalid SPDY frame type", EXPFILL }},
-    { &ei_spdy_reassembly_info, { "spdy.reassembly_info", PI_REASSEMBLE, PI_CHAT, "Assembled from frames in packet(s)", EXPFILL }},
   };
 
   module_t *spdy_module;
@@ -1915,6 +1786,9 @@ void proto_register_spdy(void)
   expert_register_field_array(expert_spdy, ei, array_length(ei));
 
   spdy_handle = register_dissector("spdy", dissect_spdy, proto_spdy);
+
+  reassembly_table_register(&spdy_reassembly_table,
+                            &addresses_ports_reassembly_table_functions);
 
   spdy_module = prefs_register_protocol(proto_spdy, NULL);
   prefs_register_bool_preference(spdy_module, "assemble_data_frames",
