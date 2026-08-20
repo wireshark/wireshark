@@ -832,6 +832,8 @@ iostat_get_item_value(const io_stat_t *iot, io_stat_item_t *item, const char *fm
             break;
 
         case CALC_TYPE_LOAD:
+            if (interval == 0)
+                break;
             ftype = proto_registrar_get_ftype(iot->hf_indexes[j]);
             switch (ftype) {
             case FT_RELATIVE_TIME:
@@ -1281,7 +1283,7 @@ iostat_draw(void *arg)
     t = 0;
 
     if (interval == 0 || duration == 0) {
-        num_rows = 0;
+        num_rows = 1;
     } else {
         num_rows = (unsigned int)(duration/interval) + ((unsigned int)(duration%interval) > 0 ? 1 : 0);
     }
