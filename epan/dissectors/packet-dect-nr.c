@@ -679,7 +679,6 @@ static int ett_dect_nr_cvg_arq_poll_ie;
 static int ett_dect_nr_cvg_flow_status_ie;
 
 static dissector_handle_t dect_nr_handle;
-static dissector_handle_t ipv6_handle;
 
 static dissector_table_t mac_hdr_dissector_table;
 static dissector_table_t ie_dissector_table;
@@ -687,8 +686,6 @@ static dissector_table_t ie_short_dissector_table;
 static dissector_table_t ie_extension_dissector_table;
 static dissector_table_t ie_cvg_dissector_table;
 static dissector_table_t ep_mux_dissector_table;
-
-static heur_dissector_list_t heur_subdissector_list;
 
 static wmem_map_t *rd_id_map;
 
@@ -698,23 +695,6 @@ static const enum_val_t phf_type_pref_vals[] = {
 	{ "auto", "Automatic", DECT_NR_PHF_TYPE_AUTO },
 	{ "type1", "Type 1: 40 bits", DECT_NR_PHF_TYPE_1 },
 	{ "type2", "Type 2: 80 bits", DECT_NR_PHF_TYPE_2 },
-	{ NULL, NULL, -1 }
-};
-
-/* Preference to configure DLC data type */
-typedef enum {
-	DLC_DATA_TYPE_AUTO,
-	DLC_DATA_TYPE_BINARY,
-	DLC_DATA_TYPE_CVG,
-	DLC_DATA_TYPE_IPv6,
-} dlc_data_type_t;
-
-static int dlc_data_type_pref = DLC_DATA_TYPE_AUTO;
-static const enum_val_t dlc_data_type_pref_vals[] = {
-	{ "auto", "Automatic", DLC_DATA_TYPE_AUTO },
-	{ "binary", "Binary (data)", DLC_DATA_TYPE_BINARY },
-	{ "cvg", "CVG layer", DLC_DATA_TYPE_CVG },
-	{ "ipv6", "IPv6", DLC_DATA_TYPE_IPv6 },
 	{ NULL, NULL, -1 }
 };
 
@@ -3300,110 +3280,6 @@ static void dissect_cvg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *paren
 	}
 }
 
-
-static bool dissect_cvg_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
-{
-	uint8_t hdr, cvg_ext, mt, ie_type, f2c;
-	uint16_t len;
-
-	/*
-	 * CVG Header Format 1
-	 *
-	 *  0      1      2      3      4      5      6      7
-	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	 * |  CVG Ext   | MT |           CVG IE Type         |
-	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	 *
-	 * CVG Header Format 2
-	 *  0      1      2      3      4      5      6      7
-	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	 * |  CVG Ext   | MT |     F2C     |     Mux Tag     |
-	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	 *
-	 */
-
-	if (tvb_captured_length(tvb) < 1) {
-		return false;
-	}
-
-	hdr = tvb_get_uint8(tvb, 0);
-	cvg_ext = (hdr & 0xC0) >> 6;
-
-	if (cvg_ext == 0) {
-		len = 1; /* At least 1 byte */
-	} else if (cvg_ext == 1) {
-		len = tvb_get_uint8(tvb, 1);
-	} else if (cvg_ext == 2) {
-		len = tvb_get_uint16(tvb, 1, ENC_BIG_ENDIAN);
-	} else {
-		return false;
-	}
-
-	/* Check that len is valid for an IE and that the data exists */
-	if (len == 0 || tvb_reported_length_remaining(tvb, 1 + cvg_ext) < len) {
-		return false;
-	}
-
-	/* indicates the header format */
-	mt = (hdr & 0x20);
-
-	if (mt == 0) { /* header format 1 */
-		ie_type = (hdr & 0x1F);
-		if ((ie_type >= 9 && ie_type <= 29) || ie_type == 31) {
-			return false;
-		}
-	} else { /* header format 2 */
-		f2c = (hdr & 0x18) >> 3;
-		if (f2c == 3) {
-			return false;
-		}
-	}
-
-	dissect_cvg_pdu(tvb, pinfo, tree);
-
-	return true;
-}
-
-static void dissect_dlc_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-	heur_dtbl_entry_t *hdtbl_entry;
-
-	switch (dlc_data_type_pref) {
-	case DLC_DATA_TYPE_AUTO:
-		/* No COL_INFO updates from the dect_nr dissector after heuristic */
-		col_set_writable(pinfo->cinfo, COL_INFO, true);
-		if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, parent_tree, &hdtbl_entry, NULL)) {
-			const char *dect_nr_text = col_get_text(pinfo->cinfo, COL_PROTOCOL);
-			if (dect_nr_text && strstr(dect_nr_text, "DECT NR+") == NULL) {
-				col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "DECT NR+/");
-			}
-			col_set_writable(pinfo->cinfo, COL_INFO, false);
-			break;
-		}
-		/* FALLTHRU */
-
-	case DLC_DATA_TYPE_BINARY:
-		/* No COL_INFO updates from the data dissector */
-		col_set_writable(pinfo->cinfo, COL_INFO, false);
-		call_data_dissector(tvb, pinfo, parent_tree);
-		col_set_writable(pinfo->cinfo, COL_INFO, true);
-		break;
-
-	case DLC_DATA_TYPE_CVG:
-		/* Standard CVG parsing */
-		dissect_cvg_pdu(tvb, pinfo, parent_tree);
-		break;
-
-	case DLC_DATA_TYPE_IPv6:
-		/* No COL_INFO updates from the dect_nr dissector after IPv6 */
-		col_set_writable(pinfo->cinfo, COL_INFO, true);
-		call_dissector(ipv6_handle, tvb, pinfo, parent_tree);
-		col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "DECT NR+/");
-		col_set_writable(pinfo->cinfo, COL_INFO, false);
-		break;
-	}
-}
-
 /* DLC Extension Header */
 static int dissect_dlc_extension_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree)
 {
@@ -3449,7 +3325,7 @@ static int dissect_dlc_extension_header(tvbuff_t *tvb, int offset, packet_info *
 	case 1: /* CVG PDU */
 		proto_tree_add_item(tree, hf_dect_nr_hls_bin, tvb, offset, ext_length, ENC_NA);
 		subtvb = tvb_new_subset_length(tvb, offset, ext_length);
-		dissect_dlc_data(subtvb, pinfo, proto_tree_get_root(tree));
+		dissect_cvg_pdu(subtvb, pinfo, proto_tree_get_root(tree));
 		offset += ext_length;
 		break;
 
@@ -3650,7 +3526,7 @@ static int dissect_dlc_service_type(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 				offset = dissect_dlc_extension_header(tvb, offset, pinfo, tree);
 			}
 		} else {
-			dissect_dlc_data(subtvb, pinfo, proto_tree_get_root(tree));
+			dissect_cvg_pdu(subtvb, pinfo, proto_tree_get_root(tree));
 			offset += data_len;
 		}
 	} else {
@@ -7398,9 +7274,7 @@ void proto_register_dect_nr(void)
 	prefs_register_enum_preference(module, "phf_type", "Physical Header Field Type",
 				       "Automatic will determine type from 6th and 7th packet byte.",
 				       &phf_type_pref, phf_type_pref_vals, false);
-	prefs_register_enum_preference(module, "dlc_data_type", "DLC PDU data type",
-				       "Automatic will use heuristics to determine payload.",
-				       &dlc_data_type_pref, dlc_data_type_pref_vals, false);
+	prefs_register_obsolete_preference(module, "dlc_data_type");
 	prefs_register_bool_preference(module, "mac_pdus_decrypted", "Handle MAC PDUs as decrypted",
 				       "Always handle MAC PDUs as decrypted",
 				       &mac_pdus_decrypted_pref);
@@ -7417,15 +7291,11 @@ void proto_register_dect_nr(void)
 					 "Cipher Key 3 as HEX string.",
 					 &cipher_key_pref[3]);
 
-	heur_subdissector_list = register_heur_dissector_list("dect_nr.dlc", proto_dect_nr);
-
 	rd_id_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
 
 void proto_reg_handoff_dect_nr(void)
 {
-	ipv6_handle = find_dissector("ipv6");
-
 	/* Table 6.3.2-2: MAC header type field */
 	dissector_add_uint("dect_nr.mac_hdr", 0, create_dissector_handle(dissect_mac_data_header, proto_dect_nr));
 	dissector_add_uint("dect_nr.mac_hdr", 1, create_dissector_handle(dissect_mac_beacon_header, proto_dect_nr));
@@ -7491,10 +7361,8 @@ void proto_reg_handoff_dect_nr(void)
 	dissector_add_uint("dect_nr.cvg_ie", 30, create_dissector_handle(dissect_cvg_escape_ie, proto_dect_nr));
 
 	/* DECT-2020 NR Endpoint Multiplexing Address Allocation */
-	dissector_add_uint("dect_nr.ep_mux", 0x8002, ipv6_handle);
+	dissector_add_uint("dect_nr.ep_mux", 0x8002, find_dissector("ipv6"));
 	dissector_add_uint("dect_nr.ep_mux", 0x8003, find_dissector("6lowpan"));
-
-	heur_dissector_add("dect_nr.dlc", dissect_cvg_heur, "CVG layer over DLC DECT NR+", "cvg_dect_nr", proto_dect_nr, HEURISTIC_ENABLE);
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_DECT_NR, dect_nr_handle);
 	dissector_add_for_decode_as_with_preference("udp.port", dect_nr_handle);
