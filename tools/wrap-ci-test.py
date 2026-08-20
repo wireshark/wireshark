@@ -87,7 +87,7 @@ def main():
         in_shell = False
 
     start_time = time.perf_counter()
-    proc = subprocess.run(proc_args, shell=in_shell, encoding='UTF-8', errors='replace', capture_output=True)
+    proc = subprocess.run(proc_args, shell=in_shell, encoding='UTF-8', errors='replace', capture_output=True, check=False)
     case_time = time.perf_counter() - start_time
 
     testcase_el.set('time', f'{case_time}')

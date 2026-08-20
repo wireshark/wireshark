@@ -41,7 +41,7 @@ def start_code(fd, name):
 
 def write_code(fd, raw_str):
     ps_str = ps_clean_string(raw_str)
-    fd.write("\t\"%s\"\n" % ps_str)
+    fd.write(f"\t\"{ps_str}\"\n")
 
 
 def end_code(fd, name):

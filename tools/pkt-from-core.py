@@ -48,8 +48,7 @@ class BackTrace:
                 # what we expect it should be.
                 frame_num = int(m.group("num"))
                 if frame_num != frame_will_be:
-                    sys.exit("Found frame %d instead of %d" %
-                            (frame_num, frame_will_be))
+                    sys.exit(f"Found frame {frame_num} instead of {frame_will_be}")
 
                 # Find the function name. XXX - need to handle '???'
                 n = self.re_func1.search(line)
@@ -59,7 +58,7 @@ class BackTrace:
                 if n:
                     func = n.group("func")
                 else:
-                    sys.exit("Function name not found in %s" % (line,))
+                    sys.exit(f"Function name not found in {line}")
 
                 # Save the info
                 self.frames.append(func)
@@ -169,8 +168,7 @@ wtap_name = {
 
 def wtap_to_pcap(wtap):
     if not wtap_to_pcap_map.has_key(wtap):
-        sys.exit("Don't know how to convert wiretap encoding %d to libpcap." % \
-                (wtap))
+        sys.exit(f"Don't know how to convert wiretap encoding {wtap} to libpcap.")
 
     return wtap_to_pcap_map[wtap]
 
@@ -184,7 +182,7 @@ def run_gdb(*commands):
     try:
         fh = open(fname, "w")
     except OSError as err:
-        sys.exit("Cannot open %s for writing: %s" % (fname, err))
+        sys.exit(f"Cannot open {fname} for writing: {err}")
 
     # Put the commands in it
     for cmd in commands:
@@ -197,13 +195,13 @@ def run_gdb(*commands):
     except OSError as err:
         try:
             os.unlink(fname)
-        except Exception:
+        except FileNotFoundError:
             pass
-        sys.exit("Cannot close %s: %s" % (fname, err))
+        sys.exit(f"Cannot close {fname}: {err}")
 
 
     # Run gdb
-    cmd = "gdb --nw --quiet --command=%s %s %s" % (fname, exec_file, core_file)
+    cmd = f"gdb --nw --quiet --command={fname} {exec_file} {core_file}"
     if verbose:
         print(f"Invoking {cmd}")
     try:
@@ -211,9 +209,9 @@ def run_gdb(*commands):
     except OSError as err:
         try:
             os.unlink(fname)
-        except Exception:
+        except FileNotFoundError:
             pass
-        sys.exit("Cannot run gdb: %s" % (err,))
+        sys.exit(f"Cannot run gdb: {err}")
 
     # Get gdb's output
     result = pipe.readlines()
@@ -221,24 +219,24 @@ def run_gdb(*commands):
     if error is not None:
         try:
             os.unlink(fname)
-        except Exception:
+        except FileNotFoundError:
             pass
-        sys.exit("gdb returned an exit value of %s" % (error,))
+        sys.exit(f"gdb returned an exit value of {error}")
 
 
     # Remove the temp file and return the results
     try:
         os.unlink(fname)
-    except Exception:
+    except FileNotFoundError:
         pass
     return result
 
 def get_value_from_frame(frame_num, variable, fmt=""):
     cmds = []
     if frame_num > 0:
-        cmds.append("up %d" % (frame_num,))
+        cmds.append(f"up {frame_num}")
 
-    cmds.append("print %s %s" % (fmt, variable))
+    cmds.append(f"print {fmt} {variable}")
     lines = run_gdb(cmds)
 
     LOOKING_FOR_START = 0
@@ -269,17 +267,17 @@ def get_int_from_frame(frame_num, variable):
     try:
         integer = int(text)
     except ValueError:
-        sys.exit("Could not convert '%s' to integer." % (text,))
+        sys.exit(f"Could not convert '{text}' to integer.")
     return integer
 
 
 def get_byte_array_from_frame(frame_num, variable, length):
     cmds = []
     if frame_num > 0:
-        cmds.append("up %d" % (frame_num,))
+        cmds.append(f"up {frame_num}")
 
-    cmds.append("print %s" % (variable,))
-    cmds.append("x/%dxb %s" % (length, variable))
+    cmds.append(f"print {variable}")
+    cmds.append(f"x/{length}xb {variable}")
     lines = run_gdb(cmds)
     if debug:
         print(lines)
@@ -321,21 +319,20 @@ def make_cap_file(pkt_data, lnk_t):
     try:
         fh = open(fname, "w")
     except OSError as err:
-        sys.exit("Cannot open %s for writing: %s" % (fname, err))
+        sys.exit(f"Cannot open {fname} for writing: {err}")
 
     print("Packet Data:")
 
     # Put the hex dump in it
     offset = 0
     BYTES_IN_ROW = 16
-    for byte in pkt_data:
+    for offset, byte in enumerate(pkt_data):
         if (offset % BYTES_IN_ROW) == 0:
             print(f"\n{offset:08x}", file=fh)
             print(f"\n{offset:08x}")
 
         print(f"{byte:02x}", file=fh)
         print(f"{byte:02x}")
-        offset += 1
 
     print("\n", file=fh)
     print("\n")
@@ -345,27 +342,27 @@ def make_cap_file(pkt_data, lnk_t):
     except OSError as err:
         try:
             os.unlink(fname)
-        except Exception:
+        except FileNotFoundError:
             pass
-        sys.exit("Cannot close %s: %s" % (fname, err))
+        sys.exit(f"Cannot close {fname}: {err}")
 
 
     # Run text2pcap
-    cmd = "text2pcap -q -l %s %s %s" % (pcap_lnk_t, fname, output_file)
-#       print "Command is %s" % (cmd,)
+    cmd = f"text2pcap -q -l {pcap_lnk_t} {fname} {output_file}"
+#       print f"Command is {cmd}"
     try:
         retval = os.system(cmd)
     except OSError as err:
         try:
             os.unlink(fname)
-        except Exception:
+        except FileNotFoundError:
             pass
-        sys.exit("Cannot run text2pcap: %s" % (err,))
+        sys.exit(f"Cannot run text2pcap: {err}")
 
     # Remove the temp file
     try:
         os.unlink(fname)
-    except Exception:
+    except FileNotFoundError:
         pass
 
     if retval == 0:

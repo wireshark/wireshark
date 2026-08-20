@@ -185,7 +185,7 @@ def main():
             except KeyError:
                 pass
             print(f"Running {tool['path']}.\n")
-            res = subprocess.run([sys.executable, tool["path"]] + tool.get("args", []), capture_output=True, encoding="UTF-8")
+            res = subprocess.run([sys.executable, tool["path"]] + tool.get("args", []), capture_output=True, encoding="UTF-8", check=False)
             print(res.stdout, end="")
             print(res.stderr, end="")
             if res.returncode == 0:

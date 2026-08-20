@@ -30,14 +30,13 @@ default.)
 
 """
 
-from __future__ import print_function
 
 import argparse
 import re
 import struct
 import sys
 import time
-from threading import Thread, Event
+from threading import Event, Thread
 
 ERROR_USAGE          = 0
 ERROR_ARG            = 1
@@ -86,11 +85,7 @@ class ArgumentParser(argparse.ArgumentParser):
         if name is None:
             return None
         for action in container:
-            if '/'.join(action.option_strings) == name:
-                return action
-            elif action.metavar == name:
-                return action
-            elif action.dest == name:
+            if '/'.join(action.option_strings) == name or action.metavar == name or action.dest == name:
                 return action
 
     def error(self, message):
@@ -98,7 +93,7 @@ class ArgumentParser(argparse.ArgumentParser):
         if exc:
             exc.argument = self._get_action_from_name(exc.argument_name)
             raise exc
-        super(ArgumentParser, self).error(message)
+        super().error(message)
 
 #### EXTCAP FUNCTIONALITY
 
@@ -169,7 +164,7 @@ def extcap_config(interface, option):
     for (value, parent) in multi_values:
         sentence = "value {arg=%d}{value=%s}{display=%s}{default=%s}{enabled=%s}" % value
         extra = "{parent=%s}" % parent if parent else ""
-        print("".join((sentence, extra)))
+        print(f"{sentence}{extra}")
 
 def extcap_config_option(interface, option_name, option_value):
     args = []
@@ -242,8 +237,8 @@ def pcap_fake_header():
     header += struct.pack('<L', int('a1b2c3d4', 16))
     header += struct.pack('<H', unsigned(2))  # Pcap Major Version
     header += struct.pack('<H', unsigned(4))  # Pcap Minor Version
-    header += struct.pack('<I', int(0))  # Timezone
-    header += struct.pack('<I', int(0))  # Accuracy of timestamps
+    header += struct.pack('<I', 0)  # Timezone
+    header += struct.pack('<I', 0)  # Accuracy of timestamps
     header += struct.pack('<L', int('0000ffff', 16))  # Max Length of capture frame
     header += struct.pack('<L', unsigned(1))  # Ethernet
     return header
@@ -282,7 +277,7 @@ def pcap_fake_package(message, fake_ip):
 
 # IP
     pcap += struct.pack('b', int('45', 16))  # IP version
-    pcap += struct.pack('b', int('0', 16))  #
+    pcap += struct.pack('b', int('0', 16))
     pcap += struct.pack('>H', unsigned(len(message)+20))  # length of data + payload
     pcap += struct.pack('<H', int('0', 16))  # Identification
     pcap += struct.pack('b', int('40', 16))  # Don't fragment
@@ -366,8 +361,6 @@ def control_write(fn, arg, typ, payload):
     fn.write(packet)
 
 def control_write_defaults(fn_out):
-    global initialized, message, delay, verify
-
     while not initialized:
         time.sleep(.1)  # Wait for initial control values
 
@@ -412,7 +405,7 @@ def extcap_capture(interface, fifo, control_in, control_out, in_delay, in_verify
         if fn_out is not None:
             control_write_defaults(fn_out)
 
-        dataPackage = int(0)
+        dataPackage = 0
         dataTotal = int(len(data) / 20) + 1
 
         while not stop_event.is_set():
@@ -448,7 +441,7 @@ def extcap_close_fifo(fifo):
 ####
 
 def usage():
-    print("Usage: %s <--extcap-interfaces | --extcap-dlts | --extcap-interface | --extcap-config | --capture | --extcap-capture-filter | --fifo>" % sys.argv[0] )
+    print(f"Usage: {sys.argv[0]} <--extcap-interfaces | --extcap-dlts | --extcap-interface | --extcap-config | --capture | --extcap-capture-filter | --fifo>")
 
 if __name__ == '__main__':
     interface = ""
@@ -491,7 +484,7 @@ if __name__ == '__main__':
     try:
         args, unknown = parser.parse_known_args()
     except argparse.ArgumentError as exc:
-        print("%s: %s" % (exc.argument.dest, exc.message), file=sys.stderr)
+        print(f"{exc.argument.dest}: {exc.message}", file=sys.stderr)
         fifo_found = 0
         fifo = ""
         for arg in sys.argv:
@@ -521,7 +514,7 @@ if __name__ == '__main__':
         sys.exit(0)
 
     if len(unknown) > 1:
-        print("Extcap Example %d unknown arguments given" % len(unknown))
+        print(f"Extcap Example {len(unknown)} unknown arguments given")
 
     m = re.match(r'example(\d+)', args.extcap_interface)
     if not m:
@@ -552,7 +545,7 @@ if __name__ == '__main__':
             sys.exit(ERROR_FIFO)
         # The following code demonstrates error management with extcap
         if args.delay > 5:
-            print("Value for delay [%d] too high" % args.delay, file=sys.stderr)
+            print(f"Value for delay {args.delay} too high", file=sys.stderr)
             extcap_close_fifo(args.fifo)
             sys.exit(ERROR_DELAY)
 

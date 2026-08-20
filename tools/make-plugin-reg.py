@@ -24,7 +24,7 @@ registertype = sys.argv[2]
 files = sys.argv[3:]
 
 final_filename = "plugin.c"
-preamble = """\
+preamble = f"""\
 /*
  * Do not modify this file. Changes will be overwritten.
  *
@@ -143,17 +143,17 @@ if registertype == "plugin_ui":
     reg_code += "#include \"epan/proto.h\"\n\n"
 
 for symbol in regs['proto_reg']:
-    reg_code += "void proto_register_%s(void);\n" % (symbol)
+    reg_code += f"void proto_register_{symbol}(void);\n"
 for symbol in regs['handoff_reg']:
-    reg_code += "void proto_reg_handoff_%s(void);\n" % (symbol)
+    reg_code += f"void proto_reg_handoff_{symbol}(void);\n"
 for symbol in regs['wtap_register']:
-    reg_code += "void wtap_register_%s(void);\n" % (symbol)
+    reg_code += f"void wtap_register_{symbol}(void);\n"
 for symbol in regs['codec_register']:
-    reg_code += "void codec_register_%s(void);\n" % (symbol)
+    reg_code += f"void codec_register_{symbol}(void);\n"
 for symbol in regs['register_tap_listener']:
-    reg_code += "void register_tap_listener_%s(void);\n" % (symbol)
+    reg_code += f"void register_tap_listener_{symbol}(void);\n"
 for symbol in regs['uiqt_register']:
-    reg_code += "void uiqt_register_%s(void);\n" % (symbol)
+    reg_code += f"void uiqt_register_{symbol}(void);\n"
 
 DESCRIPTION_FLAG = {
     'plugin': 'WS_PLUGIN_DESC_DISSECTOR',
@@ -181,42 +181,40 @@ void plugin_register(void)
 
 if registertype == "plugin":
     for symbol in regs['proto_reg']:
-        reg_code +="    static proto_plugin plug_%s;\n\n" % (symbol)
-        reg_code +="    plug_%s.register_protoinfo = proto_register_%s;\n" % (symbol, symbol)
+        reg_code += f"    static proto_plugin plug_{symbol};\n\n"
+        reg_code += f"    plug_{symbol}.register_protoinfo = proto_register_{symbol};\n"
         if symbol in regs['handoff_reg']:
-            reg_code +="    plug_%s.register_handoff = proto_reg_handoff_%s;\n" % (symbol, symbol)
+            reg_code += f"    plug_{symbol}.register_handoff = proto_reg_handoff_{symbol};\n"
         else:
-            reg_code +="    plug_%s.register_handoff = NULL;\n" % (symbol)
-        reg_code += "    proto_register_plugin(&plug_%s);\n" % (symbol)
+            reg_code += f"    plug_{symbol}.register_handoff = NULL;\n"
+        reg_code += f"    proto_register_plugin(&plug_{symbol});\n"
 if registertype == "plugin_wtap":
     for symbol in regs['wtap_register']:
-        reg_code += "    static wtap_plugin plug_%s;\n\n" % (symbol)
-        reg_code += "    plug_%s.register_wtap_module = wtap_register_%s;\n" % (symbol, symbol)
-        reg_code += "    wtap_register_plugin(&plug_%s);\n" % (symbol)
+        reg_code += f"    static wtap_plugin plug_{symbol};\n\n"
+        reg_code += f"    plug_{symbol}.register_wtap_module = wtap_register_{symbol};\n"
+        reg_code += f"    wtap_register_plugin(&plug_{symbol});\n"
 if registertype == "plugin_codec":
     for symbol in regs['codec_register']:
-        reg_code += "    static codecs_plugin plug_%s;\n\n" % (symbol)
-        reg_code += "    plug_%s.register_codec_module = codec_register_%s;\n" % (symbol, symbol)
-        reg_code += "    codecs_register_plugin(&plug_%s);\n" % (symbol)
+        reg_code += f"    static codecs_plugin plug_{symbol};\n\n"
+        reg_code += f"    plug_{symbol}.register_codec_module = codec_register_{symbol};\n"
+        reg_code += f"    codecs_register_plugin(&plug_{symbol});\n"
 if registertype == "plugin_tap":
     for symbol in regs['register_tap_listener']:
-        reg_code += "    static tap_plugin plug_%s;\n\n" % (symbol)
-        reg_code += "    plug_%s.register_tap_listener = register_tap_listener_%s;\n" % (symbol, symbol)
-        reg_code += "    tap_register_plugin(&plug_%s);\n" % (symbol)
+        reg_code += f"    static tap_plugin plug_{symbol};\n\n"
+        reg_code += f"    plug_{symbol}.register_tap_listener = register_tap_listener_{symbol};\n"
+        reg_code += f"    tap_register_plugin(&plug_{symbol});\n"
 if registertype == "plugin_ui":
     for symbol in regs['uiqt_register']:
-        reg_code += "    static qtui_plugin plug_%s;\n\n" % (symbol)
-        reg_code += "    plug_%s.register_qtui_module = uiqt_register_%s;\n" % (symbol, symbol)
-        reg_code += "    uiqt_register_plugin(&plug_%s);\n" % (symbol)
+        reg_code += f"    static qtui_plugin plug_{symbol};\n\n"
+        reg_code += f"    plug_{symbol}.register_qtui_module = uiqt_register_{symbol};\n"
+        reg_code += f"    uiqt_register_plugin(&plug_{symbol});\n"
 
 reg_code += "}\n"
 
-try:
-    fh = open(final_filename, 'w')
+
+with open(final_filename, 'w') as fh:
     fh.write(reg_code)
-    fh.close()
-except OSError:
-    sys.exit('Unable to write ' + final_filename + '.\n')
+
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html

@@ -526,8 +526,8 @@ class TestDissectGrpcWeb:
                 '-o', 'protobuf.pbf_as_hf: TRUE',
                 '-d', 'tcp.port==57228,http2',
                 '-2',
-                '-Y', '(tcp.stream eq 6) && (pbf.greet.HelloRequest.name == "88888888"'
-                        '|| pbf.greet.HelloRequest.name == "99999999"'
+                '-Y', '(tcp.stream eq 6) && (pbf.greet.HelloRequest.name == "88888888"' +
+                        '|| pbf.greet.HelloRequest.name == "99999999"' +
                         '|| pbf.greet.HelloReply.message == "Hello 99999999")',
             ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, 'GRPC-Web-Text')
@@ -1155,7 +1155,7 @@ class TestDecompressSmb2:
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('smb311-lz77-lz77huff-lznt1.pcap.gz'),
                 '-Tfields', '-edata.data',
-                '-Y', 'frame.number == %d'%frame_num,
+                '-Y', f'frame.number == {frame_num}'
         ), encoding='utf-8', env=test_env)
         assert b'a'*4096 == bytes.fromhex(stdout.strip())
 
@@ -1174,7 +1174,7 @@ class TestDecompressSmb2:
         stdout = subprocess.check_output((cmd_tshark,
             '-r', capture_file('smb311-chained-patternv1-lznt1.pcapng.gz'),
             '-Tfields', '-edata.data',
-            '-Y', 'frame.number == %d'%frame_num,
+            '-Y', f'frame.number == {frame_num}'
         ), encoding='utf-8', env=test_env)
         assert b'\xaa'*256 == bytes.fromhex(stdout.strip())
 

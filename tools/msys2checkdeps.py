@@ -29,7 +29,7 @@ def warning(msg):
 
 def error(msg):
     print("Error: " + msg, file=sys.stderr)
-    exit(1)
+    sys.exit(1)
 
 
 def call_ntldd(filename):
@@ -171,4 +171,4 @@ if __name__ == '__main__':
         for top_level_lib in top_level_libs:
             warning("Unused dependency " + top_level_lib)
 
-    exit(exit_code)
+    sys.exit(exit_code)

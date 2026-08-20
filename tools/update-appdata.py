@@ -71,6 +71,7 @@ def main():
 
     for micro in range(int(next_micro) - 1, -1, -1):
         try:
+            # TODO: use subprocess.checkoutput() ?
             tag_date = subprocess.run(
                 ['git', 'log', '-1', '--format=%cd', '--date=format:%F', f'v{maj_min}.{micro}'],
                 check=True,

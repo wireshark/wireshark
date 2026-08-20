@@ -16,6 +16,8 @@ import subprocess
 
 import pytest
 
+logger = logging.getLogger('make-wsluarm')
+
 dhcp_pcap = 'dhcp.pcap'
 dns_port_pcap = 'dns_port.pcap'
 empty_pcap = 'empty.pcap'
@@ -38,8 +40,8 @@ def check_lua_script(cmd_tshark, features, dirs, capture_file, test_env):
         tshark_proc = subprocess.run(tshark_cmd, check=True, capture_output=True, encoding='utf-8', env=test_env)
 
         if check_passed:
-            logging.info(tshark_proc.stdout)
-            logging.info(tshark_proc.stderr)
+            logger.info(tshark_proc.stdout)
+            logger.info(tshark_proc.stderr)
             if 'All tests passed!' not in tshark_proc.stdout:
                 pytest.fail("Some test failed, check the logs (eg: pytest --lf --log-cli-level=info)")
 
@@ -99,8 +101,8 @@ def check_lua_script_locale(cmd_tshark, features, dirs, capture_file, test_env):
         tshark_proc = subprocess.run(tshark_cmd, check=True, capture_output=True, encoding='utf-8', env=test_env)
 
         if check_passed:
-            logging.info(tshark_proc.stdout)
-            logging.info(tshark_proc.stderr)
+            logger.info(tshark_proc.stdout)
+            logger.info(tshark_proc.stderr)
             if 'All tests passed!' not in tshark_proc.stdout:
                 pytest.fail("Some test failed, check the logs (eg: pytest --lf --log-cli-level=info)")
 

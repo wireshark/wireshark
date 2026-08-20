@@ -83,7 +83,7 @@ class IPv4SpecialBlock(ipaddress.IPv4Network):
             0xffffff80, 0xffffffc0, 0xffffffe0, 0xfffffff0,
             0xfffffff8, 0xfffffffc, 0xfffffffe, 0xffffffff)
         if bits > 32:
-            ValueError("Expected bit mask less or equal to 32")
+            raise ValueError("Expected bit mask less or equal to 32")
         return masks[bits]
 
     def __str__(self):
@@ -602,7 +602,7 @@ def parse_source(source_path):
                 end += line
 
     if stage != SourceStage.END:
-        raise RuntimeError("Could not parse file (in stage %s)" % stage.name)
+        raise RuntimeError(f"Could not parse file (in stage {stage.name})")
     return begin, block, end
 
 def main():
@@ -626,7 +626,7 @@ def main():
        service_data is not None:
 
         #Pull out the existing header file parts
-        start, block, end = parse_source(iana_h_path)
+        start, _, end = parse_source(iana_h_path)
         try:
             with open(iana_h_path, 'w', encoding='UTF-8') as iana_f:
                 iana_f.write(start)
@@ -639,7 +639,7 @@ def main():
             exit_msg(f"Couldn't open \"{iana_h_path}\" file for writing")
 
         #Pull out the existing source file parts
-        start, block, end = parse_source(iana_c_path)
+        start, _, end = parse_source(iana_c_path)
         try:
             with open(iana_c_path, 'w', encoding='UTF-8') as iana_f:
                 iana_f.write(start)
