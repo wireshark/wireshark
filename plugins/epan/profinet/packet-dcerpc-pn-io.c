@@ -211,12 +211,8 @@ static int hf_pn_io_lt;
 static int hf_pn_io_iocr_properties;
 static int hf_pn_io_iocr_properties_rtclass;
 static int hf_pn_io_iocr_properties_reserved_1;
-static int hf_pn_io_iocr_properties_media_redundancy;
 static int hf_pn_io_iocr_properties_reserved_2;
 static int hf_pn_io_iocr_properties_reserved_3;
-static int hf_pn_io_iocr_properties_fast_forwarding_mac_adr;
-static int hf_pn_io_iocr_properties_distributed_subframe_watchdog;
-static int hf_pn_io_iocr_properties_full_subframe_structure;
 
 
 static int hf_pn_io_data_length;
@@ -403,6 +399,14 @@ static int hf_pn_io_channel_properties;
 static int hf_pn_io_channel_properties_type;
 static int hf_pn_io_channel_properties_accumulative;
 static int hf_pn_io_channel_properties_maintenance;
+static int hf_pn_io_pral_channel_properties;
+static int hf_pn_io_pral_channel_properties_reserved_1;
+static int hf_pn_io_pral_channel_properties_accumulative;
+static int hf_pn_io_pral_channel_properties_reserved_2;
+static int hf_pn_io_pral_channel_properties_direction;
+static int hf_pn_io_pral_reason;
+static int hf_pn_io_pral_ext_reason;
+static int hf_pn_io_pral_reason_add_value;
 
 
 static int hf_pn_io_NumberOfSubframeBlocks;
@@ -623,15 +627,21 @@ static int hf_pn_io_security_information;
 static int hf_pn_io_security_information_protection_mode;
 static int hf_pn_io_security_information_reserved;
 static int hf_pn_io_security_operation;
+static int hf_pn_io_sam_operation;
+static int hf_pn_io_scm_operation;
+static int hf_pn_io_devid_domain;
 static int hf_pn_io_security_features;
 static int hf_pn_io_security_features_key_pair_generation;
 static int hf_pn_io_security_features_reserved;
+static int hf_pn_io_scm_security_features_validity_period_checking;
+static int hf_pn_io_scm_security_features_reserved;
 static int hf_pn_io_rtc_algorithm;
 static int hf_pn_io_rta_algorithm;
 static int hf_pn_io_rpc_algorithm;
 static int hf_pn_io_derivation_algorithm;
 static int hf_pn_io_agreement_algorithm;
 static int hf_pn_io_signature_algorithm;
+static int hf_pn_io_ar_algorithm_info_reserved;
 static int hf_pn_io_security_capability;
 static int hf_pn_io_security_capability_usage;
 static int hf_pn_io_security_capability_algorithm_symmetric_ao;
@@ -645,13 +655,35 @@ static int hf_pn_io_security_mode;
 static int hf_pn_io_certificate_validity_period_check;
 static int hf_pn_io_security_configuration_parameters_reserved1;
 static int hf_pn_io_security_configuration_parameters_reserved2;
+static int hf_pn_io_scm_security_configuration_parameters_reserved;
+static int hf_pn_io_scm_credential_validity_period_check;
+static int hf_pn_io_scm_security_configuration_parameters_reserved1;
+static int hf_pn_io_scm_sack_degradation_threshold_factor;
+static int hf_pn_io_scm_security_configuration_parameters_reserved2;
 static int hf_pn_io_security_data;
 static int hf_pn_io_sack_degradation_threshold;
 static int hf_pn_io_credential_id;
 static int hf_pn_io_credential_id_credential_type;
 static int hf_pn_io_credential_id_reserved;
 static int hf_pn_io_expected_credential_type;
+static int hf_pn_io_expected_credential_type_reserved;
 static int hf_pn_io_number_of_entries;
+static int hf_pn_io_record_policy_set_data;
+static int hf_pn_io_ra_condition;
+static int hf_pn_io_ra_condition_ar_type;
+static int hf_pn_io_ra_condition_reserved;
+static int hf_pn_io_ra_access;
+static int hf_pn_io_ra_access_type;
+static int hf_pn_io_ra_access_reserved;
+static int hf_pn_io_ra_resource_slot;
+static int hf_pn_io_ra_resource_slot_start;
+static int hf_pn_io_ra_resource_slot_end;
+static int hf_pn_io_ra_resource_subslot;
+static int hf_pn_io_ra_resource_subslot_start;
+static int hf_pn_io_ra_resource_subslot_end;
+static int hf_pn_io_ra_resource_index;
+static int hf_pn_io_ra_resource_index_start;
+static int hf_pn_io_ra_resource_index_end;
 static int hf_pn_io_certificate_length;
 static int hf_pn_io_certificate;
 static int hf_pn_io_certification_request_length;
@@ -1228,6 +1260,7 @@ static int ett_pn_io_time_sync_properties;
 static int ett_pn_io_cim_station_element_id;
 static int ett_pn_io_cim_capability_entry;
 static int ett_pn_io_cim_capability_id;
+static int ett_pn_io_record_policy_set_data;
 
 static int ett_pn_io_snmp_command_name;
 static int ett_pn_io_managing_roles;
@@ -1459,6 +1492,8 @@ static const value_string pn_io_block_type[] = {
     { 0x0310, "CIMCallingHomeAdjust"},
     { 0x0311, "CIMCallingHomeReal"},
     { 0x0312, "CIM_Capabilities" },
+    { 0x0313, "ARRecordAccessPolicyAdjust" },
+    { 0x0314, "ARRecordAccessPolicyReal" },
     { 0x0400, "MultipleBlockHeader"},
     { 0x0401, "COContainerContent"},
     { 0x0500, "RecordDataReadQuery"},
@@ -1922,14 +1957,30 @@ static const value_string pn_io_RedundancyInfo[] = {
 };
 
 static const value_string pn_io_iocr_properties_rtclass[] = {
-    { 0x00000000, "reserved" },
-    { 0x00000001, "RT_CLASS_1" },
-    { 0x00000002, "RT_CLASS_2" },
+    { 0x00000000, "Reserved" },
+    { 0x00000001, "Reserved (legacy)" },
+    { 0x00000002, "RT_CLASS_1 / RT_CLASS_STREAM with Stream, class RT" },
     { 0x00000003, "RT_CLASS_3" },
     { 0x00000004, "RT_CLASS_UDP" },
-    { 0x00000005, "RT_CLASS_STREAM with 'Time-Aware stream'"},
-    { 0x00000006, "reserved" },
-    { 0x00000007, "reserved" },
+    { 0x00000005, "RT_CLASS_STREAM with Time-aware stream, class HIGH or LOW" },
+    { 0x00000006, "RT_CLASS_SXP" },
+    { 0x00000007, "Reserved" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_ra_condition_ar_type[] = {
+    { 0x00, "All ARs" },
+    { 0x01, "IO xAR" },
+    { 0x02, "IOSAR with device access" },
+    { 0x03, "Reserved" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_ra_access_type[] = {
+    { 0x00, "Read/write permitted" },
+    { 0x01, "Read permitted" },
+    { 0x02, "No access" },
+    { 0x03, "Reserved" },
     { 0, NULL }
 };
 
@@ -1978,13 +2029,6 @@ static const true_false_string tfs_pn_io_dcp_identify_control =
 
 static const true_false_string tfs_pn_io_dcp_hello_control =
     { "Enable DCPhello indication", "Disable DCPhello indication" };
-
-static const value_string pn_io_iocr_properties_media_redundancy[] = {
-    { 0x00000000, "No media redundant frame transfer" },
-    { 0x00000001, "Media redundant frame transfer" },
-    { 0, NULL }
-};
-
 
 static const value_string pn_io_submodule_properties_type[] = {
     { 0x0000, "no input and no output data" },
@@ -2202,6 +2246,7 @@ static const value_string pn_io_index[] = {
     { 0x80CF, "RS_AdjustObserver" },
     { 0x80D0, "Profiles covering condition monitoring - Record_0" },
     /*0x80D1 - 0x80DF reserved */
+    { 0x80E0, "Functional safety - Record BaseID" },
     { 0x80F0, "CIMNetConfDataReal" },
     { 0x80F1, "CIMNetConfStreamPathData" },
     { 0x80F2, "CIMNetConfSyncTreeData" },
@@ -2343,6 +2388,8 @@ static const value_string pn_io_index[] = {
     /*0xE051 - 0xE05F reserved */
     { 0xE060, "RS_GetEvent (using RecordDataRead service)" },
     { 0xE061, "RS_AckEvent (using RecordDataWrite service)" },
+    { 0xE070, "ARRecordAccessPolicyAdjust" },
+    { 0xE071, "ARRecordAccessPolicyReal" },
     /*0xEC00 - 0xEFFF reserved */
 
     /* API specific */
@@ -3167,6 +3214,52 @@ static const value_string pn_io_channel_properties_direction[] = {
     { 0, NULL }
 };
 
+static const value_string pn_io_pral_channel_properties_accumulative[] = {
+    { 0x0000, "Single" },
+    { 0x0001, "Accumulative" },
+    { 0, NULL }
+};
+
+static const range_string pn_io_pral_reason[] = {
+    { 0x0000, 0x0000, "Unknown reason" },
+    { 0x0001, 0x0001, "Internal gate opening (Gate start)" },
+    { 0x0002, 0x0002, "Internal gate closing (Gate stop)" },
+    { 0x0003, 0x0003, "Overflow (High counting limit violated)" },
+    { 0x0004, 0x0004, "Underflow (Low counting limit violated)" },
+    { 0x0005, 0x0005, "Compare event for DQ0 has occurred" },
+    { 0x0006, 0x0006, "Compare event for DQ1 has occurred" },
+    { 0x0007, 0x0007, "Zero pass" },
+    { 0x0008, 0x0008, "New capture value available" },
+    { 0x0009, 0x0009, "Synchronization of the counter by an external signal" },
+    { 0x000A, 0x000A, "Direction reversal" },
+    { 0x000B, 0x000F, "Unknown reason" },
+    { 0x0010, 0x0010, "Rising edge" },
+    { 0x0012, 0x0012, "Falling edge" },
+    { 0x0013, 0x0013, "Upper user limit 1 exceeded" },
+    { 0x0014, 0x0014, "Lower user limit 1 undershot" },
+    { 0x0015, 0x0015, "Upper user limit 2 exceeded" },
+    { 0x0016, 0x0016, "Lower user limit 2 undershot" },
+    { 0x0017, 0x0017, "Upper user limit 3 exceeded" },
+    { 0x0018, 0x0018, "Lower user limit 3 undershot" },
+    { 0x0019, 0x0019, "Upper user limit 4 exceeded" },
+    { 0x001A, 0x001A, "Lower user limit 4 undershot" },
+    { 0x001B, 0x00FF, "Unknown reason" },
+    { 0x0100, 0x7FFF, "Manufacturer specific reason" },
+    { 0x8000, 0x8FFF, "Reserved" },
+    { 0x9000, 0x9FFF, "Profile specific reason" },
+    { 0xA000, 0xFFFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_pral_ext_reason[] = {
+    { 0x0000, 0x0000, "Unspecified" },
+    { 0x0001, 0x7FFF, "Manufacturer specific reason detail" },
+    { 0x8000, 0x8FFF, "Reserved" },
+    { 0x9000, 0x9FFF, "Profile specific reason detail" },
+    { 0xA000, 0xFFFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
 static const value_string pn_io_alarmcr_type[] = {
     { 0x0000, "reserved" },
     { 0x0001, "Alarm CR" },
@@ -3967,6 +4060,29 @@ static const value_string pn_io_security_features_key_pair_generation[] = {
     { 0, NULL }
 };
 
+static const value_string pn_io_scm_validity_period_checking[] = {
+    { 0x0, "Not supported" },
+    { 0x1, "Supported" },
+    { 0, NULL }
+};
+
+static const val64_string pn_io_scm_credential_validity_period_check[] = {
+    { 0x00, "Preserve stored value" },
+    { 0x01, "DISABLE" },
+    { 0x02, "ENABLE" },
+    { 0x03, "Reserved" },
+    { 0, NULL }
+};
+
+static const range_string pn_io_devid_domain[] = {
+    { 0x00000000, 0x00000000, "Reserved" },
+    { 0x00000001, 0x00000001, "IDevID" },
+    { 0x00000002, 0x00000002, "LDevID-Generic" },
+    { 0x00000003, 0x00000003, "LDevID-PN" },
+    { 0x00000004, 0xFFFFFFFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
 static const range_string pn_io_security_capability_usage[] = {
     { 0x00, 0x00, "Not applicable for the desired communication protocol" },
     { 0x01, 0x01, "Symmetric, authentication only" },
@@ -4033,6 +4149,32 @@ static const range_string pn_io_security_operation[] = {
     { 0x000D, 0x00FF, "Reserved" },
     { 0x0100, 0x0100, "Process EAP Message" },
     { 0x0100, 0xFFFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_sam_operation[] = {
+    { 0x0000, 0x00FF, "Reserved" },
+    { 0x0100, 0x0100, "Process EAP Message" },
+    { 0x0101, 0xFFFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_scm_operation[] = {
+    { 0x0000, 0x0000, "Reserved" },
+    { 0x0001, 0x0001, "Get Security Capabilities" },
+    { 0x0002, 0x0002, "Reserved" },
+    { 0x0003, 0x0003, "Get Security Configuration Parameters" },
+    { 0x0004, 0x0004, "Get EE Certification Path" },
+    { 0x0005, 0x0005, "Get Trusted CA Certificate" },
+    { 0x0006, 0x0006, "Generate Key Pair And CSR" },
+    { 0x0007, 0x0007, "Reserved" },
+    { 0x0008, 0x0008, "Imprint EE Certification Path" },
+    { 0x0009, 0x0009, "Remove EE Certification Path and Private Key" },
+    { 0x000A, 0x000A, "Imprint Trusted CA Certificate" },
+    { 0x000B, 0x000B, "Remove Trusted CA Certificate" },
+    { 0x000C, 0x000C, "Set Security Configuration Parameters" },
+    { 0x000D, 0x000D, "Reset Security Data" },
+    { 0x000E, 0xFFFF, "Reserved" },
     { 0, 0, NULL }
 };
 
@@ -7036,6 +7178,51 @@ dissect_Diagnosis(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 static int
+dissect_PRAL_AlarmItem(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, uint8_t *drep, uint16_t *body_length)
+{
+    proto_item *properties_item;
+    proto_tree *properties_tree;
+    uint16_t value;
+    unsigned reason_add_length;
+
+    /* The item has four fixed uint16 fields and at least four additional octets. */
+    if (*body_length < 12) {
+        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, *body_length);
+        *body_length = 0;
+        return offset;
+    }
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_channel_number, &value);
+
+    properties_item = proto_tree_add_item(tree, hf_pn_io_pral_channel_properties,
+        tvb, offset, 2, DREP_ENC_INTEGER(drep));
+    properties_tree = proto_item_add_subtree(properties_item, ett_pn_io_channel_properties);
+    dissect_dcerpc_uint16(tvb, offset, pinfo, properties_tree, drep,
+        hf_pn_io_pral_channel_properties_reserved_1, &value);
+    dissect_dcerpc_uint16(tvb, offset, pinfo, properties_tree, drep,
+        hf_pn_io_pral_channel_properties_accumulative, &value);
+    dissect_dcerpc_uint16(tvb, offset, pinfo, properties_tree, drep,
+        hf_pn_io_pral_channel_properties_reserved_2, &value);
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, properties_tree, drep,
+        hf_pn_io_pral_channel_properties_direction, &value);
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_pral_reason, &value);
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_pral_ext_reason, &value);
+
+    reason_add_length = *body_length - 8;
+    proto_tree_add_item(tree, hf_pn_io_pral_reason_add_value, tvb, offset,
+        reason_add_length, ENC_NA);
+    offset += reason_add_length;
+    *body_length = 0;
+
+    return offset;
+}
+
+static int
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_AlarmUserStructure(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item, uint8_t *drep,
@@ -7078,6 +7265,9 @@ dissect_AlarmUserStructure(tvbuff_t *tvb, int offset,
     case(0x8310): /* PE_EnergySavingStatus */
         offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
         *body_length = 0;
+        break;
+    case(0x8320): /* PRAL_AlarmItem */
+        offset = dissect_PRAL_AlarmItem(tvb, offset, pinfo, tree, drep, body_length);
         break;
     /* XXX - dissect remaining user structures of [AlarmItem] */
     case(0x8001):   /* DiagnosisData */
@@ -9137,6 +9327,509 @@ dissect_SecurityResponse_block(tvbuff_t* tvb, int offset,
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     return offset;
+}
+
+static int dissect_SCMRequest_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item, uint8_t* drep,
+    uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow,
+    uint16_t u16BodyLength);
+static int dissect_SCMResponse_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item, uint8_t* drep,
+    uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow,
+    uint16_t u16BodyLength);
+
+static bool
+is_scm_operation(uint16_t operation)
+{
+    return operation == 0x0001 ||
+        (operation >= 0x0003 && operation <= 0x0006) ||
+        (operation >= 0x0008 && operation <= 0x000D);
+}
+
+static int
+dissect_SAM_block(tvbuff_t* tvb, int offset, packet_info* pinfo,
+    proto_tree* tree, proto_item* item, uint8_t* drep,
+    uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow,
+    uint16_t u16BodyLength, bool is_response)
+{
+    int body_end = offset + u16BodyLength;
+    int remaining;
+    uint16_t u16SecurityOperation;
+    uint16_t eap_length;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    /* Some transitional encodings used SAM BlockTypes for SCM operations. */
+    if (u16BodyLength >= 2 && is_scm_operation(
+        tvb_get_uint16(tvb, offset, DREP_ENC_INTEGER(drep)))) {
+        if (is_response) {
+            return dissect_SCMResponse_block(tvb, offset, pinfo, tree, item,
+                drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
+        }
+        return dissect_SCMRequest_block(tvb, offset, pinfo, tree, item, drep,
+            u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
+    }
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_sam_operation, &u16SecurityOperation);
+    remaining = body_end - offset;
+    if (u16SecurityOperation != 0x0100) {
+        if (remaining > 0) {
+            dissect_pn_undecoded(tvb, offset, pinfo, tree, remaining);
+        }
+        return body_end;
+    }
+    if (is_response && remaining == 0) {
+        return body_end;
+    }
+    if (remaining < 4) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_length,
+            "SAM EAP data is shorter than the EAP header");
+        if (remaining > 0) {
+            dissect_pn_undecoded(tvb, offset, pinfo, tree, remaining);
+        }
+        return body_end;
+    }
+
+    eap_length = tvb_get_ntohs(tvb, offset + 2);
+    if (eap_length < 4 || eap_length > remaining) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_length,
+            "SAM EAP length %u exceeds the available block data (%u)",
+            eap_length, remaining);
+        dissect_pn_undecoded(tvb, offset, pinfo, tree, remaining);
+        return body_end;
+    }
+
+    {
+        tvbuff_t *eap_tvb = tvb_new_subset_length(tvb, offset, eap_length);
+
+        if (eap_handle != NULL) {
+            const char *parent_info = wmem_strdup(pinfo->pool,
+                col_get_text(pinfo->cinfo, COL_INFO));
+            const char *parent_protocol = wmem_strdup(pinfo->pool,
+                col_get_text(pinfo->cinfo, COL_PROTOCOL));
+
+            call_dissector(eap_handle, eap_tvb, pinfo, tree);
+            col_set_str(pinfo->cinfo, COL_PROTOCOL, parent_protocol);
+
+            {
+                const char *eap_info = wmem_strdup(pinfo->pool,
+                    col_get_text(pinfo->cinfo, COL_INFO));
+
+                if (parent_info[0] != '\0' && eap_info[0] != '\0' &&
+                    strcmp(parent_info, eap_info) != 0 &&
+                    strncmp(eap_info, parent_info, strlen(parent_info)) != 0) {
+                    col_clear_fence(pinfo->cinfo, COL_INFO);
+                    col_add_fstr(pinfo->cinfo, COL_INFO, "%s, %s",
+                        parent_info, eap_info);
+                }
+            }
+        } else {
+            proto_tree_add_item(tree, hf_pn_io_eap_data, tvb, offset,
+                eap_length, ENC_NA);
+        }
+    }
+    offset += eap_length;
+
+    remaining = body_end - offset;
+    if (remaining > 0 && remaining <= 3) {
+        return dissect_pn_padding(tvb, offset, pinfo, tree, remaining);
+    }
+    if (remaining > 0) {
+        dissect_pn_undecoded(tvb, offset, pinfo, tree, remaining);
+    }
+
+    return body_end;
+}
+
+static int
+dissect_SAMRequest_block(tvbuff_t* tvb, int offset, packet_info* pinfo,
+    proto_tree* tree, proto_item* item, uint8_t* drep,
+    uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow, uint16_t u16BodyLength)
+{
+    return dissect_SAM_block(tvb, offset, pinfo, tree, item, drep,
+        u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength, false);
+}
+
+static int
+dissect_SAMResponse_block(tvbuff_t* tvb, int offset, packet_info* pinfo,
+    proto_tree* tree, proto_item* item, uint8_t* drep,
+    uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow, uint16_t u16BodyLength)
+{
+    return dissect_SAM_block(tvb, offset, pinfo, tree, item, drep,
+        u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength, true);
+}
+
+static int
+dissect_SCM_undecoded(tvbuff_t* tvb, int offset, int body_end,
+    packet_info* pinfo, proto_tree* tree)
+{
+    if (offset < body_end) {
+        dissect_pn_undecoded(tvb, offset, pinfo, tree, body_end - offset);
+    }
+    return body_end;
+}
+
+static int
+dissect_SCM_padding(tvbuff_t* tvb, int offset, int body_end,
+    packet_info* pinfo, proto_tree* tree)
+{
+    int padding_length = body_end - offset;
+
+    if (padding_length > 0 && padding_length <= 3) {
+        return dissect_pn_padding(tvb, offset, pinfo, tree, padding_length);
+    }
+    return dissect_SCM_undecoded(tvb, offset, body_end, pinfo, tree);
+}
+
+static int
+dissect_SCM_devid_domain(tvbuff_t* tvb, int offset, int body_end,
+    packet_info* pinfo, proto_tree* tree, uint8_t* drep)
+{
+    if (body_end - offset < 4) {
+        return dissect_SCM_undecoded(tvb, offset, body_end, pinfo, tree);
+    }
+    return dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_devid_domain, NULL);
+}
+
+static int
+dissect_SCM_certificate(tvbuff_t* tvb, int offset, int body_end,
+    packet_info* pinfo, proto_tree* tree)
+{
+    uint16_t certificate_length;
+
+    if (body_end - offset < 2) {
+        return dissect_SCM_undecoded(tvb, offset, body_end, pinfo, tree);
+    }
+
+    proto_tree_add_item_ret_uint16(tree, hf_pn_io_certificate_length, tvb,
+        offset, 2, ENC_BIG_ENDIAN, &certificate_length);
+    offset += 2;
+    if (certificate_length > body_end - offset) {
+        return dissect_SCM_undecoded(tvb, offset, body_end, pinfo, tree);
+    }
+
+    if (certificate_length > 0) {
+        asn1_ctx_t asn1_ctx;
+        tvbuff_t* certificate_tvb = tvb_new_subset_length(tvb, offset,
+            certificate_length);
+
+        asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+        dissect_x509af_Certificate(false, certificate_tvb, 0, &asn1_ctx,
+            tree, hf_pn_io_certificate);
+    }
+    return offset + certificate_length;
+}
+
+static int
+dissect_SCM_ee_certification_path(tvbuff_t* tvb, int offset, int body_end,
+    packet_info* pinfo, proto_tree* tree, uint8_t* drep)
+{
+    uint16_t number_of_entries;
+
+    if (body_end - offset < 4) {
+        return dissect_SCM_undecoded(tvb, offset, body_end, pinfo, tree);
+    }
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_number_of_entries, &number_of_entries);
+
+    while (number_of_entries > 0) {
+        int next_offset;
+        int aligned_offset;
+
+        if (body_end - offset < 2) {
+            return dissect_SCM_undecoded(tvb, offset, body_end, pinfo, tree);
+        }
+        next_offset = dissect_SCM_certificate(tvb, offset, body_end, pinfo,
+            tree);
+        if (next_offset <= offset || next_offset == body_end) {
+            return next_offset;
+        }
+        number_of_entries--;
+        offset = next_offset;
+        aligned_offset = (offset + 3) & ~3;
+        if (aligned_offset > body_end) {
+            return dissect_SCM_undecoded(tvb, offset, body_end, pinfo, tree);
+        }
+        if (aligned_offset > offset) {
+            offset = dissect_pn_padding(tvb, offset, pinfo, tree,
+                aligned_offset - offset);
+        }
+    }
+    return offset;
+}
+
+static int
+dissect_SCM_security_configuration_parameters(tvbuff_t* tvb, int offset,
+    int body_end, packet_info* pinfo, proto_tree* tree)
+{
+    proto_item* configuration_item;
+    proto_tree* configuration_tree;
+
+    if (body_end - offset < 8) {
+        return dissect_SCM_undecoded(tvb, offset, body_end, pinfo, tree);
+    }
+
+    configuration_item = proto_tree_add_item(tree,
+        hf_pn_io_security_configuration_parameters, tvb, offset, 8,
+        ENC_BIG_ENDIAN);
+    configuration_tree = proto_item_add_subtree(configuration_item,
+        ett_pn_io_security_configuration_parameters);
+    proto_tree_add_item(configuration_tree,
+        hf_pn_io_scm_security_configuration_parameters_reserved, tvb,
+        offset, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(configuration_tree,
+        hf_pn_io_scm_credential_validity_period_check, tvb, offset, 8,
+        ENC_BIG_ENDIAN);
+    proto_tree_add_item(configuration_tree,
+        hf_pn_io_scm_security_configuration_parameters_reserved1, tvb,
+        offset, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(configuration_tree,
+        hf_pn_io_scm_sack_degradation_threshold_factor, tvb, offset, 8,
+        ENC_BIG_ENDIAN);
+    proto_tree_add_item(configuration_tree,
+        hf_pn_io_scm_security_configuration_parameters_reserved2, tvb,
+        offset, 8, ENC_BIG_ENDIAN);
+    return offset + 8;
+}
+
+static int
+dissect_SCM_security_capabilities(tvbuff_t* tvb, int offset, int body_end,
+    packet_info* pinfo, proto_tree* tree, uint8_t* drep)
+{
+    proto_item* features_item;
+    proto_tree* features_tree;
+    uint16_t number_of_entries;
+
+    if (body_end - offset < 4) {
+        return dissect_SCM_undecoded(tvb, offset, body_end, pinfo, tree);
+    }
+
+    features_item = proto_tree_add_item(tree, hf_pn_io_security_features,
+        tvb, offset, 2, ENC_BIG_ENDIAN);
+    features_tree = proto_item_add_subtree(features_item,
+        ett_pn_io_security_features);
+    proto_tree_add_item(features_tree,
+        hf_pn_io_scm_security_features_validity_period_checking, tvb,
+        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(features_tree, hf_pn_io_scm_security_features_reserved,
+        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_number_of_entries, &number_of_entries);
+
+    while (number_of_entries > 0) {
+        proto_item* capability_item;
+        proto_tree* capability_tree;
+        uint16_t usage;
+        int algorithm_hf;
+
+        if (body_end - offset < 2) {
+            return dissect_SCM_undecoded(tvb, offset, body_end, pinfo, tree);
+        }
+        usage = tvb_get_ntohs(tvb, offset) & 0x00FF;
+        capability_item = proto_tree_add_item(tree, hf_pn_io_security_capability,
+            tvb, offset, 2, ENC_BIG_ENDIAN);
+        capability_tree = proto_item_add_subtree(capability_item,
+            ett_pn_io_security_capability);
+        proto_tree_add_item(capability_tree, hf_pn_io_security_capability_usage,
+            tvb, offset, 2, ENC_BIG_ENDIAN);
+        switch (usage) {
+        case 0x01:
+            algorithm_hf = hf_pn_io_security_capability_algorithm_symmetric_ao;
+            break;
+        case 0x02:
+            algorithm_hf = hf_pn_io_security_capability_algorithm_symmetric_ae;
+            break;
+        case 0x03:
+            algorithm_hf = hf_pn_io_security_capability_algorithm_key_derivation_function;
+            break;
+        case 0x04:
+            algorithm_hf = hf_pn_io_security_capability_algorithm_key_agreement_function;
+            break;
+        case 0x05:
+            algorithm_hf = hf_pn_io_security_capability_algorithm_digital_signature_function;
+            break;
+        default:
+            algorithm_hf = hf_pn_io_security_capability_algorithm_reserved;
+            break;
+        }
+        proto_tree_add_item(capability_tree, algorithm_hf, tvb, offset, 2,
+            ENC_BIG_ENDIAN);
+        offset += 2;
+        number_of_entries--;
+    }
+    return offset;
+}
+
+static int
+dissect_SCM_certification_request(tvbuff_t* tvb, int offset, int body_end,
+    packet_info* pinfo, proto_tree* tree)
+{
+    uint16_t request_length;
+
+    if (body_end - offset < 2) {
+        return dissect_SCM_undecoded(tvb, offset, body_end, pinfo, tree);
+    }
+    proto_tree_add_item_ret_uint16(tree, hf_pn_io_certification_request_length,
+        tvb, offset, 2, ENC_BIG_ENDIAN, &request_length);
+    offset += 2;
+    if (request_length > body_end - offset) {
+        return dissect_SCM_undecoded(tvb, offset, body_end, pinfo, tree);
+    }
+
+    {
+        proto_item* request_item = proto_tree_add_item(tree,
+            hf_pn_io_certification_request, tvb, offset, request_length,
+            ENC_NA);
+        if (request_length > 0 && pkcs10_handle != NULL) {
+            proto_tree* request_tree = proto_item_add_subtree(request_item,
+                ett_pn_io_certification_request);
+            tvbuff_t* request_tvb = tvb_new_subset_length(tvb, offset,
+                request_length);
+
+            call_dissector(pkcs10_handle, request_tvb, pinfo, request_tree);
+        }
+    }
+    return offset + request_length;
+}
+
+static int
+dissect_SCMRequest_block(tvbuff_t* tvb, int offset, packet_info* pinfo,
+    proto_tree* tree, proto_item* item, uint8_t* drep,
+    uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow, uint16_t u16BodyLength)
+{
+    int body_end = offset + u16BodyLength;
+    uint16_t operation;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh,
+            u8BlockVersionLow);
+        return offset;
+    }
+    if (body_end - offset < 2) {
+        return dissect_SCM_undecoded(tvb, offset, body_end, pinfo, tree);
+    }
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_scm_operation, &operation);
+    switch (operation) {
+    case 0x0001:
+    case 0x0003:
+    case 0x000D:
+        break;
+    case 0x0004:
+    case 0x0005:
+    case 0x0009:
+    case 0x000B:
+        offset = dissect_SCM_devid_domain(tvb, offset, body_end, pinfo, tree,
+            drep);
+        break;
+    case 0x0006:
+        offset = dissect_SCM_devid_domain(tvb, offset, body_end, pinfo, tree,
+            drep);
+        if (offset < body_end) {
+            int request_info_length = body_end - offset;
+            proto_item* request_info_item = proto_tree_add_item(tree,
+                hf_pn_io_certification_request_information, tvb, offset,
+                request_info_length, ENC_NA);
+
+            if (pkcs10_cri_handle != NULL) {
+                proto_tree* request_info_tree = proto_item_add_subtree(
+                    request_info_item, ett_pn_io_certification_request_information);
+                tvbuff_t* request_info_tvb = tvb_new_subset_length(tvb, offset,
+                    request_info_length);
+
+                call_dissector(pkcs10_cri_handle, request_info_tvb, pinfo,
+                    request_info_tree);
+            }
+            offset = body_end;
+        }
+        break;
+    case 0x0008:
+        offset = dissect_SCM_devid_domain(tvb, offset, body_end, pinfo, tree,
+            drep);
+        if (offset < body_end) {
+            offset = dissect_SCM_ee_certification_path(tvb, offset, body_end,
+                pinfo, tree, drep);
+        }
+        break;
+    case 0x000A:
+        offset = dissect_SCM_devid_domain(tvb, offset, body_end, pinfo, tree,
+            drep);
+        if (offset < body_end) {
+            offset = dissect_SCM_certificate(tvb, offset, body_end, pinfo,
+                tree);
+        }
+        break;
+    case 0x000C:
+        offset = dissect_SCM_security_configuration_parameters(tvb, offset,
+            body_end, pinfo, tree);
+        break;
+    default:
+        return dissect_SCM_undecoded(tvb, offset, body_end, pinfo, tree);
+    }
+    return dissect_SCM_padding(tvb, offset, body_end, pinfo, tree);
+}
+
+static int
+dissect_SCMResponse_block(tvbuff_t* tvb, int offset, packet_info* pinfo,
+    proto_tree* tree, proto_item* item, uint8_t* drep,
+    uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow, uint16_t u16BodyLength)
+{
+    int body_end = offset + u16BodyLength;
+    uint16_t operation;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh,
+            u8BlockVersionLow);
+        return offset;
+    }
+    if (body_end - offset < 2) {
+        return dissect_SCM_undecoded(tvb, offset, body_end, pinfo, tree);
+    }
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_scm_operation, &operation);
+    switch (operation) {
+    case 0x0001:
+        offset = dissect_SCM_security_capabilities(tvb, offset, body_end,
+            pinfo, tree, drep);
+        break;
+    case 0x0003:
+        offset = dissect_SCM_security_configuration_parameters(tvb, offset,
+            body_end, pinfo, tree);
+        break;
+    case 0x0004:
+        offset = dissect_SCM_ee_certification_path(tvb, offset, body_end,
+            pinfo, tree, drep);
+        break;
+    case 0x0005:
+        offset = dissect_SCM_certificate(tvb, offset, body_end, pinfo, tree);
+        break;
+    case 0x0006:
+        offset = dissect_SCM_certification_request(tvb, offset, body_end,
+            pinfo, tree);
+        break;
+    case 0x0008:
+    case 0x0009:
+    case 0x000A:
+    case 0x000B:
+    case 0x000C:
+    case 0x000D:
+        break;
+    default:
+        return dissect_SCM_undecoded(tvb, offset, body_end, pinfo, tree);
+    }
+    return dissect_SCM_padding(tvb, offset, body_end, pinfo, tree);
 }
 
 /* dissect the ReadAuditableEventsRsp block */
@@ -12695,21 +13388,13 @@ dissect_IOCRProperties(tvbuff_t *tvb, int offset,
     sub_item = proto_tree_add_item(tree, hf_pn_io_iocr_properties, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_iocr_properties);
     dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
-                    hf_pn_io_iocr_properties_full_subframe_structure, &u32IOCRProperties);
+        hf_pn_io_iocr_properties_reserved_3, &u32IOCRProperties);
     dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
-                    hf_pn_io_iocr_properties_distributed_subframe_watchdog, &u32IOCRProperties);
+        hf_pn_io_iocr_properties_reserved_2, &u32IOCRProperties);
     dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
-                    hf_pn_io_iocr_properties_fast_forwarding_mac_adr, &u32IOCRProperties);
-    dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
-                    hf_pn_io_iocr_properties_reserved_3, &u32IOCRProperties);
-    dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
-                    hf_pn_io_iocr_properties_reserved_2, &u32IOCRProperties);
-    dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
-                    hf_pn_io_iocr_properties_media_redundancy, &u32IOCRProperties);
-    dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
-                    hf_pn_io_iocr_properties_reserved_1, &u32IOCRProperties);
+        hf_pn_io_iocr_properties_reserved_1, &u32IOCRProperties);
     offset = dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
-                    hf_pn_io_iocr_properties_rtclass, &u32IOCRProperties);
+        hf_pn_io_iocr_properties_rtclass, &u32IOCRProperties);
 
     return offset;
 }
@@ -15045,14 +15730,15 @@ dissect_RSInfoBlock_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-/* dissect ARAlgorithmInfoBlock */
 static int
 dissect_ARAlgorithmInfoBlock_block(tvbuff_t* tvb, int offset,
     packet_info* pinfo, proto_tree* tree, proto_item* item, uint8_t* drep,
-    uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow, uint16_t u16BodyLength _U_)
+    uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow, uint16_t u16BodyLength)
 {
+    int          body_end = offset + u16BodyLength;
     uint16_t     u16SecurityCapabilityUsage;
     uint16_t     u16SecurityCapabilityAlgorithm;
+    int          algorithm_hf;
 
     proto_item*     rtc_item;
     proto_tree*     rtc_tree;
@@ -15069,116 +15755,117 @@ dissect_ARAlgorithmInfoBlock_block(tvbuff_t* tvb, int offset,
     proto_item*     agreement_item;
     proto_tree*     agreement_tree;
 
-    proto_item*     signature_item;
-    proto_tree*     signature_tree;
-
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
             "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
     }
+    if (u16BodyLength < 14) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_length,
+            "ARAlgorithmInfoBlock body length %u is shorter than 14",
+            u16BodyLength);
+        return dissect_SCM_undecoded(tvb, offset, body_end, pinfo, tree);
+    }
 
-    /* Padding */
-    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
-
-    /* Padding */
-    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
+    proto_tree_add_item(tree, hf_pn_io_ar_algorithm_info_reserved, tvb,
+        offset, 2, ENC_NA);
+    offset += 2;
 
     /* RTCAlgorithm */
     rtc_item = proto_tree_add_item(tree, hf_pn_io_rtc_algorithm, tvb, offset, 2, ENC_BIG_ENDIAN);
     rtc_tree = proto_item_add_subtree(rtc_item, ett_pn_io_rtc_algorithm);
 
     dissect_dcerpc_uint16(tvb, offset, pinfo, rtc_tree, drep, hf_pn_io_security_capability_usage, &u16SecurityCapabilityUsage);
-    u16SecurityCapabilityUsage &= 0xF;
+    u16SecurityCapabilityUsage &= 0xFF;
+    algorithm_hf = u16SecurityCapabilityUsage == 0x01
+        ? hf_pn_io_security_capability_algorithm_symmetric_ao
+        : u16SecurityCapabilityUsage == 0x02
+            ? hf_pn_io_security_capability_algorithm_symmetric_ae
+            : hf_pn_io_security_capability_algorithm_reserved;
 
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rtc_tree, drep, hf_pn_io_security_capability_algorithm_symmetric_ao, &u16SecurityCapabilityAlgorithm);
-    u16SecurityCapabilityAlgorithm >>= 8;
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rtc_tree, drep, algorithm_hf, &u16SecurityCapabilityAlgorithm);
 
     /* RTAAlgorithm */
     rta_item = proto_tree_add_item(tree, hf_pn_io_rta_algorithm, tvb, offset, 2, ENC_BIG_ENDIAN);
     rta_tree = proto_item_add_subtree(rta_item, ett_pn_io_rta_algorithm);
 
     dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep, hf_pn_io_security_capability_usage, &u16SecurityCapabilityUsage);
-    u16SecurityCapabilityUsage &= 0xF;
+    u16SecurityCapabilityUsage &= 0xFF;
+    algorithm_hf = u16SecurityCapabilityUsage == 0x01
+        ? hf_pn_io_security_capability_algorithm_symmetric_ao
+        : u16SecurityCapabilityUsage == 0x02
+            ? hf_pn_io_security_capability_algorithm_symmetric_ae
+            : hf_pn_io_security_capability_algorithm_reserved;
 
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep, hf_pn_io_security_capability_algorithm_symmetric_ao, &u16SecurityCapabilityAlgorithm);
-    u16SecurityCapabilityAlgorithm >>= 8;
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep, algorithm_hf, &u16SecurityCapabilityAlgorithm);
 
     /* RPCAlgorithm */
     rpc_item = proto_tree_add_item(tree, hf_pn_io_rpc_algorithm, tvb, offset, 2, ENC_BIG_ENDIAN);
     rpc_tree = proto_item_add_subtree(rpc_item, ett_pn_io_rpc_algorithm);
 
     dissect_dcerpc_uint16(tvb, offset, pinfo, rpc_tree, drep, hf_pn_io_security_capability_usage, &u16SecurityCapabilityUsage);
-    u16SecurityCapabilityUsage &= 0xF;
+    u16SecurityCapabilityUsage &= 0xFF;
+    algorithm_hf = u16SecurityCapabilityUsage == 0x01
+        ? hf_pn_io_security_capability_algorithm_symmetric_ao
+        : u16SecurityCapabilityUsage == 0x02
+            ? hf_pn_io_security_capability_algorithm_symmetric_ae
+            : hf_pn_io_security_capability_algorithm_reserved;
 
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rpc_tree, drep, hf_pn_io_security_capability_algorithm_symmetric_ao, &u16SecurityCapabilityAlgorithm);
-    u16SecurityCapabilityAlgorithm >>= 8;
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rpc_tree, drep, algorithm_hf, &u16SecurityCapabilityAlgorithm);
 
     /* DerivationAlgorithm */
     derivation_item = proto_tree_add_item(tree, hf_pn_io_derivation_algorithm, tvb, offset, 2, ENC_BIG_ENDIAN);
     derivation_tree = proto_item_add_subtree(derivation_item, ett_pn_io_derivation_algorithm);
 
     dissect_dcerpc_uint16(tvb, offset, pinfo, derivation_tree, drep, hf_pn_io_security_capability_usage, &u16SecurityCapabilityUsage);
-    u16SecurityCapabilityUsage &= 0xF;
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, derivation_tree, drep, hf_pn_io_security_capability_algorithm_key_derivation_function, &u16SecurityCapabilityAlgorithm);
-    u16SecurityCapabilityAlgorithm >>= 8;
 
     /* AgreementAlgorithm */
     agreement_item = proto_tree_add_item(tree, hf_pn_io_agreement_algorithm, tvb, offset, 2, ENC_BIG_ENDIAN);
     agreement_tree = proto_item_add_subtree(agreement_item, ett_pn_io_agreement_algorithm);
 
     dissect_dcerpc_uint16(tvb, offset, pinfo, agreement_tree, drep, hf_pn_io_security_capability_usage, &u16SecurityCapabilityUsage);
-    u16SecurityCapabilityUsage &= 0xF;
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, agreement_tree, drep, hf_pn_io_security_capability_algorithm_key_agreement_function, &u16SecurityCapabilityAlgorithm);
-    u16SecurityCapabilityAlgorithm >>= 8;
 
-    /* SignatureAlgorithm */
-    signature_item = proto_tree_add_item(tree, hf_pn_io_signature_algorithm, tvb, offset, 2, ENC_BIG_ENDIAN);
-    signature_tree = proto_item_add_subtree(signature_item, ett_pn_io_signature_algorithm);
+    proto_tree_add_item(tree, hf_pn_io_ar_algorithm_info_reserved, tvb,
+        offset, 2, ENC_NA);
+    offset += 2;
 
-    dissect_dcerpc_uint16(tvb, offset, pinfo, signature_tree, drep, hf_pn_io_security_capability_usage, &u16SecurityCapabilityUsage);
-    u16SecurityCapabilityUsage &= 0xF;
-
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, signature_tree, drep, hf_pn_io_security_capability_algorithm_digital_signature_function, &u16SecurityCapabilityAlgorithm);
-    u16SecurityCapabilityAlgorithm >>= 8;
-
-    return offset;
+    return dissect_SCM_padding(tvb, offset, body_end, pinfo, tree);
 
 }
 
-/* dissect ExpectedCredentialTypeBlock (0x06E3) */
 static int
 dissect_ExpectedCredentialTypeBlock_block(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, proto_item *item, uint8_t *drep _U_,
+    packet_info *pinfo, proto_tree *tree, proto_item *item, uint8_t *drep,
     uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow, uint16_t u16BodyLength)
 {
-    uint8_t u8ExpectedCredentialType;
-    int     body_end = offset + u16BodyLength;
+    int body_end = offset + u16BodyLength;
+    uint32_t u32ExpectedCredentialType;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
             "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
     }
-
-    /* Reserved */
-    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
-
-    /* Reserved */
-    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
-
-    /* ExpectedCredentialType */
-    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
-        hf_pn_io_expected_credential_type, &u8ExpectedCredentialType);
-
-    /* Trailing padding (if any) */
-    if (offset < body_end) {
-        offset = dissect_pn_padding(tvb, offset, pinfo, tree, body_end - offset);
+    if (u16BodyLength < 6) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_length,
+            "ExpectedCredentialTypeBlock body length %u is shorter than 6",
+            u16BodyLength);
+        return dissect_SCM_undecoded(tvb, offset, body_end, pinfo, tree);
     }
 
-    return offset;
+    proto_tree_add_item(tree, hf_pn_io_expected_credential_type_reserved, tvb,
+        offset, 2, ENC_NA);
+    offset += 2;
+
+    /* ExpectedCredentialType */
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_expected_credential_type, &u32ExpectedCredentialType);
+
+    return dissect_SCM_padding(tvb, offset, body_end, pinfo, tree);
 }
 
 /* dissect ARMetadataBlock (0x06E4) */
@@ -15196,6 +15883,12 @@ dissect_ARMetadataBlock_block(tvbuff_t *tvb, int offset,
             "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
     }
+    if (u16BodyLength < 22) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_length,
+            "ARMetadataBlock body length %u is shorter than 22",
+            u16BodyLength);
+        return dissect_SCM_undecoded(tvb, offset, body_end, pinfo, tree);
+    }
 
     /* ARType */
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
@@ -15208,12 +15901,7 @@ dissect_ARMetadataBlock_block(tvbuff_t *tvb, int offset,
     /* ARProperties */
     offset = dissect_ARProperties(tvb, offset, pinfo, tree, item, drep);
 
-    /* Trailing padding (if any) */
-    if (offset < body_end) {
-        offset = dissect_pn_padding(tvb, offset, pinfo, tree, body_end - offset);
-    }
-
-    return offset;
+    return dissect_SCM_padding(tvb, offset, body_end, pinfo, tree);
 }
 
 /* dissect the PDIRSubframeData block  0x022a */
@@ -17100,6 +17788,75 @@ dissect_CIMCapabilities_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+static int
+dissect_ARRecordAccessPolicy_block(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, proto_item *item, uint8_t *drep,
+    uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow, uint16_t u16BodyLength)
+{
+    uint16_t number_of_entries;
+    uint16_t entry_index;
+    uint16_t value16;
+    uint32_t value32;
+    int body_end = offset + u16BodyLength;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    if (u16BodyLength < 2)
+        return dissect_pn_undecoded(tvb, offset, pinfo, tree, u16BodyLength);
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_number_of_entries, &number_of_entries);
+
+    for (entry_index = 0; entry_index < number_of_entries && body_end - offset >= 16; entry_index++) {
+        proto_item *entry_item;
+        proto_tree *entry_tree;
+
+        entry_item = proto_tree_add_item(tree, hf_pn_io_record_policy_set_data,
+            tvb, offset, 16, ENC_NA);
+        entry_tree = proto_item_add_subtree(entry_item, ett_pn_io_record_policy_set_data);
+        proto_item_append_text(entry_item, " %u", entry_index + 1);
+
+        proto_tree_add_item(entry_tree, hf_pn_io_ra_condition, tvb, offset, 2, ENC_BIG_ENDIAN);
+        dissect_dcerpc_uint16(tvb, offset, pinfo, entry_tree, drep,
+            hf_pn_io_ra_condition_reserved, &value16);
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, entry_tree, drep,
+            hf_pn_io_ra_condition_ar_type, &value16);
+
+        proto_tree_add_item(entry_tree, hf_pn_io_ra_access, tvb, offset, 2, ENC_BIG_ENDIAN);
+        dissect_dcerpc_uint16(tvb, offset, pinfo, entry_tree, drep,
+            hf_pn_io_ra_access_reserved, &value16);
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, entry_tree, drep,
+            hf_pn_io_ra_access_type, &value16);
+
+        proto_tree_add_item(entry_tree, hf_pn_io_ra_resource_slot, tvb, offset, 4, ENC_BIG_ENDIAN);
+        dissect_dcerpc_uint32(tvb, offset, pinfo, entry_tree, drep,
+            hf_pn_io_ra_resource_slot_end, &value32);
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, entry_tree, drep,
+            hf_pn_io_ra_resource_slot_start, &value32);
+
+        proto_tree_add_item(entry_tree, hf_pn_io_ra_resource_subslot, tvb, offset, 4, ENC_BIG_ENDIAN);
+        dissect_dcerpc_uint32(tvb, offset, pinfo, entry_tree, drep,
+            hf_pn_io_ra_resource_subslot_end, &value32);
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, entry_tree, drep,
+            hf_pn_io_ra_resource_subslot_start, &value32);
+
+        proto_tree_add_item(entry_tree, hf_pn_io_ra_resource_index, tvb, offset, 4, ENC_BIG_ENDIAN);
+        dissect_dcerpc_uint32(tvb, offset, pinfo, entry_tree, drep,
+            hf_pn_io_ra_resource_index_end, &value32);
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, entry_tree, drep,
+            hf_pn_io_ra_resource_index_start, &value32);
+    }
+
+    if (offset < body_end)
+        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, body_end - offset);
+
+    return offset;
+}
+
 /* dissect one PN-IO block (depending on the block type) */
 static unsigned
 // NOLINTNEXTLINE(misc-no-recursion)
@@ -17562,6 +18319,10 @@ dissect_block(tvbuff_t *tvb, unsigned offset,
     case(0x0312):
         dissect_CIMCapabilities_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
+    case(0x0313):
+    case(0x0314):
+        dissect_ARRecordAccessPolicy_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
+        break;
     case(0x0400):
         dissect_MultipleBlockHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
@@ -17585,7 +18346,7 @@ dissect_block(tvbuff_t *tvb, unsigned offset,
         dissect_ARFSUDataAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
     case(0x06E0):
-        dissect_SecurityRequest_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
+        dissect_SAMRequest_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
     case(0x06E1):
         dissect_ARUUID_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
@@ -17600,7 +18361,7 @@ dissect_block(tvbuff_t *tvb, unsigned offset,
         dissect_ARMetadataBlock_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
     case(0x06F0):
-        dissect_SecurityRequest_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
+        dissect_SCMRequest_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
     case(0x0800):
         dissect_PE_ServiceRequest_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
@@ -17679,10 +18440,10 @@ dissect_block(tvbuff_t *tvb, unsigned offset,
         dissect_ReadAuditableEventsRsp_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x86E0):
-        dissect_SecurityResponse_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
+        dissect_SAMResponse_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
     case(0x86F0):
-        dissect_SecurityResponse_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
+        dissect_SCMResponse_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
     case(0xB050):
     case(0xB051):
@@ -19896,37 +20657,17 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_iocr_properties_reserved_1,
       { "Reserved1", "pn_io.iocr_properties.reserved1",
-        FT_UINT32, BASE_HEX, NULL, 0x00000FF0,
-        NULL, HFILL }
-    },
-    { &hf_pn_io_iocr_properties_media_redundancy,
-      { "MediaRedundancy", "pn_io.iocr_properties.media_redundancy",
-        FT_UINT32, BASE_HEX, VALS(pn_io_iocr_properties_media_redundancy), 0x00000800,
+        FT_UINT32, BASE_HEX, NULL, 0x00001FF0,
         NULL, HFILL }
     },
     { &hf_pn_io_iocr_properties_reserved_2,
       { "Reserved2", "pn_io.iocr_properties.reserved2",
-        FT_UINT32, BASE_HEX, NULL, 0x00FFF000,
+        FT_UINT32, BASE_HEX, NULL, 0x00FFE000,
         NULL, HFILL }
     },
     { &hf_pn_io_iocr_properties_reserved_3,
       { "Reserved3", "pn_io.iocr_properties.reserved3",
-        FT_UINT32, BASE_HEX, NULL, 0x0F000000,
-        NULL, HFILL }
-    },
-    { &hf_pn_io_iocr_properties_fast_forwarding_mac_adr,
-      { "FastForwardingMACAdr", "pn_io.iocr_properties.fast_forwarding_mac_adr",
-        FT_UINT32, BASE_HEX, NULL, 0x20000000,
-        NULL, HFILL }
-    },
-    { &hf_pn_io_iocr_properties_distributed_subframe_watchdog,
-      { "DistributedSubFrameWatchDog", "pn_io.iocr_properties.distributed_subframe_watchdog",
-        FT_UINT32, BASE_HEX, NULL, 0x40000000,
-        NULL, HFILL }
-    },
-    { &hf_pn_io_iocr_properties_full_subframe_structure,
-      { "FullSubFrameStructure", "pn_io.iocr_properties.full_subframe_structure",
-        FT_UINT32, BASE_HEX, NULL, 0x80000000,
+        FT_UINT32, BASE_HEX, NULL, 0xFF000000,
         NULL, HFILL }
     },
     { &hf_pn_io_SFIOCRProperties,
@@ -20756,14 +21497,54 @@ proto_register_pn_io (void)
         FT_UINT16, BASE_HEX, VALS(pn_io_channel_properties_maintenance), 0x0600,
         NULL, HFILL }
     },
-      { &hf_pn_io_channel_properties_specifier,
-        { "Specifier", "pn_io.channel_properties.specifier",
-          FT_UINT16, BASE_HEX, VALS(pn_io_channel_properties_specifier), 0x1800,
-          NULL, HFILL }
-      },
+    { &hf_pn_io_channel_properties_specifier,
+      { "Specifier", "pn_io.channel_properties.specifier",
+        FT_UINT16, BASE_HEX, VALS(pn_io_channel_properties_specifier), 0x1800,
+        NULL, HFILL }
+    },
     { &hf_pn_io_channel_properties_direction,
       { "Direction", "pn_io.channel_properties.direction",
         FT_UINT16, BASE_HEX, VALS(pn_io_channel_properties_direction), 0xE000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pral_channel_properties,
+      { "PRAL_ChannelProperties", "pn_io.pral.channel_properties",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pral_channel_properties_reserved_1,
+      { "Reserved_1", "pn_io.pral.channel_properties.reserved_1",
+        FT_UINT16, BASE_HEX, NULL, 0x00FF,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pral_channel_properties_accumulative,
+      { "Accumulative", "pn_io.pral.channel_properties.accumulative",
+        FT_UINT16, BASE_HEX, VALS(pn_io_pral_channel_properties_accumulative), 0x0100,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pral_channel_properties_reserved_2,
+      { "Reserved_2", "pn_io.pral.channel_properties.reserved_2",
+        FT_UINT16, BASE_HEX, NULL, 0x1E00,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pral_channel_properties_direction,
+      { "Direction", "pn_io.pral.channel_properties.direction",
+        FT_UINT16, BASE_HEX, VALS(pn_io_channel_properties_direction), 0xE000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pral_reason,
+      { "PRAL_Reason", "pn_io.pral.reason",
+        FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_pral_reason), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pral_ext_reason,
+      { "PRAL_ExtReason", "pn_io.pral.ext_reason",
+        FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_pral_ext_reason), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_pral_reason_add_value,
+      { "PRAL_ReasonAddValue", "pn_io.pral.reason_add_value",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
 
@@ -23365,6 +24146,21 @@ proto_register_pn_io (void)
         FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_security_operation), 0xFFFF,
         NULL, HFILL }
     },
+    { &hf_pn_io_sam_operation,
+    { "SAMOperation", "pn_io.sam_operation",
+        FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_sam_operation), 0xFFFF,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_scm_operation,
+    { "SCMOperation", "pn_io.scm_operation",
+        FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_scm_operation), 0xFFFF,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_devid_domain,
+    { "DevIDDomain", "pn_io.devid_domain",
+        FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_devid_domain), 0xFFFFFFFF,
+        NULL, HFILL }
+    },
     { &hf_pn_io_security_features,
     { "SecurityFeatures", "pn_io.security_features",
         FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -23380,34 +24176,49 @@ proto_register_pn_io (void)
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_pn_io_scm_security_features_validity_period_checking,
+    { "SecurityFeatures.ValidityPeriodChecking", "pn_io.security_features.validity_period_checking",
+        FT_UINT16, BASE_HEX, VALS(pn_io_scm_validity_period_checking), 0x0001,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_scm_security_features_reserved,
+    { "SecurityFeatures.Reserved", "pn_io.scm.security_features.reserved",
+        FT_UINT16, BASE_HEX, NULL, 0xFFFE,
+        NULL, HFILL }
+    },
     { &hf_pn_io_rtc_algorithm,
-    { "RTCAlgorithm", "pn_io.rtc_algorithm",
+    { "InputOutputProtectionAlgorithm", "pn_io.rtc_algorithm",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_rta_algorithm,
-    { "RTAAlgorithm", "pn_io.rta_algorithm",
+    { "AlarmProtectionAlgorithm", "pn_io.rta_algorithm",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_rpc_algorithm,
-    { "RPCAlgorithm", "pn_io.rpc_algorithm",
+    { "SXPProtectionAlgorithm", "pn_io.rpc_algorithm",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_derivation_algorithm,
-    { "DerivationAlgorithm", "pn_io.derivation_algorithm",
+    { "KeyDerivationAlgorithm", "pn_io.derivation_algorithm",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_agreement_algorithm,
-    { "AgreementAlgorithm", "pn_io.agreement_algorithm",
+    { "KeyAgreementAlgorithm", "pn_io.agreement_algorithm",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_signature_algorithm,
     { "SignatureAlgorithm", "pn_io.signature_algorithm",
         FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ar_algorithm_info_reserved,
+    { "Reserved", "pn_io.ar_algorithm_info.reserved",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_security_capability,
@@ -23480,6 +24291,31 @@ proto_register_pn_io (void)
         FT_UINT64, BASE_HEX, NULL, 0xFFFFFFFFFFFF0000,
         NULL, HFILL }
     },
+    { &hf_pn_io_scm_security_configuration_parameters_reserved,
+    { "SecurityConfigurationParameters.Reserved", "pn_io.scm.security_configuration_parameters.reserved",
+        FT_UINT64, BASE_HEX, NULL, 0x0000000000000003,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_scm_credential_validity_period_check,
+    { "SecurityConfigurationParameters.CredentialValidityPeriodCheck", "pn_io.security_configuration_parameters.credential_validity_period_check",
+        FT_UINT64, BASE_HEX | BASE_VAL64_STRING, VALS64(pn_io_scm_credential_validity_period_check), 0x000000000000000C,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_scm_security_configuration_parameters_reserved1,
+    { "SecurityConfigurationParameters.Reserved1", "pn_io.scm.security_configuration_parameters.reserved1",
+        FT_UINT64, BASE_HEX, NULL, 0x000000000000FFF0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_scm_sack_degradation_threshold_factor,
+    { "SecurityConfigurationParameters.SACKDegradationThresholdFactor", "pn_io.security_configuration_parameters.sack_degradation_threshold_factor",
+        FT_UINT64, BASE_HEX, NULL, 0x00000000FFFF0000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_scm_security_configuration_parameters_reserved2,
+    { "SecurityConfigurationParameters.Reserved2", "pn_io.scm.security_configuration_parameters.reserved2",
+        FT_UINT64, BASE_HEX, NULL, 0xFFFFFFFF00000000,
+        NULL, HFILL }
+    },
     { &hf_pn_io_security_data,
     {   "SecurityData", "pn_io.security_data",
         FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -23503,7 +24339,12 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_expected_credential_type,
     { "ExpectedCredentialType", "pn_io.expected_credential_type",
-        FT_UINT8, BASE_HEX, VALS(pn_io_credential_id_credential_type), 0x0,
+        FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_devid_domain), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_expected_credential_type_reserved,
+    { "Reserved", "pn_io.expected_credential_type.reserved",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_certificate_length,
@@ -23519,6 +24360,86 @@ proto_register_pn_io (void)
     { &hf_pn_io_number_of_entries,
     { "NumberOfEntries", "pn_io.number_of_entries",
         FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_number_of_entries), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_record_policy_set_data,
+    { "RecordPolicySetData", "pn_io.record_policy_set_data",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ra_condition,
+    { "RACondition", "pn_io.ra_condition",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ra_condition_ar_type,
+    { "ARType", "pn_io.ra_condition.ar_type",
+        FT_UINT16, BASE_HEX, VALS(pn_io_ra_condition_ar_type), 0x0003,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ra_condition_reserved,
+    { "Reserved", "pn_io.ra_condition.reserved",
+        FT_UINT16, BASE_HEX, NULL, 0xFFFC,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ra_access,
+    { "RAAccess", "pn_io.ra_access",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ra_access_type,
+    { "Type", "pn_io.ra_access.type",
+        FT_UINT16, BASE_HEX, VALS(pn_io_ra_access_type), 0x0003,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ra_access_reserved,
+    { "Reserved", "pn_io.ra_access.reserved",
+        FT_UINT16, BASE_HEX, NULL, 0xFFFC,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ra_resource_slot,
+    { "RAResourceSlot", "pn_io.ra_resource_slot",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ra_resource_slot_start,
+    { "Start", "pn_io.ra_resource_slot.start",
+        FT_UINT32, BASE_HEX, NULL, 0x0000FFFF,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ra_resource_slot_end,
+    { "End", "pn_io.ra_resource_slot.end",
+        FT_UINT32, BASE_HEX, NULL, 0xFFFF0000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ra_resource_subslot,
+    { "RAResourceSubslot", "pn_io.ra_resource_subslot",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ra_resource_subslot_start,
+    { "Start", "pn_io.ra_resource_subslot.start",
+        FT_UINT32, BASE_HEX, NULL, 0x0000FFFF,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ra_resource_subslot_end,
+    { "End", "pn_io.ra_resource_subslot.end",
+        FT_UINT32, BASE_HEX, NULL, 0xFFFF0000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ra_resource_index,
+    { "RAResourceIndex", "pn_io.ra_resource_index",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ra_resource_index_start,
+    { "Start", "pn_io.ra_resource_index.start",
+        FT_UINT32, BASE_HEX, NULL, 0x0000FFFF,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ra_resource_index_end,
+    { "End", "pn_io.ra_resource_index.end",
+        FT_UINT32, BASE_HEX, NULL, 0xFFFF0000,
         NULL, HFILL }
     },
     { &hf_pn_io_snmp_control,
@@ -23976,6 +24897,7 @@ proto_register_pn_io (void)
         &ett_pn_io_cim_station_element_id,
         &ett_pn_io_cim_capability_entry,
         &ett_pn_io_cim_capability_id,
+        &ett_pn_io_record_policy_set_data,
         &ett_pn_io_snmp_command_name,
         &ett_pn_io_managing_roles,
         &ett_pn_io_usage_roles,

@@ -210,26 +210,17 @@ static const value_string pn_dcp_block_qualifier[] = {
 };
 
 static const value_string pn_dcp_BlockQualifier[] = {
-    { 0x0002, "Reset application data" },
-    { 0x0003, "Reset application data" },
-    { 0x0004, "Reset communication parameter" },
-    { 0x0005, "Reset communication parameter" },
-    { 0x0006, "Reset engineering parameter" },
-    { 0x0007, "Reset engineering parameter" },
-    { 0x0008, "Resets all stored data" },
-    { 0x0009, "Resets all stored data" },
-    { 0x000A, "Reset engineering parameter" },
-    { 0x000B, "Reset engineering parameter" },
-    { 0x000C, "Reserved" },
-    { 0x000D, "Reserved" },
-    { 0x000E, "Reserved" },
-    { 0x0010, "Resets all stored data in the IOD or IOC to its factory values" },
-    { 0x0011, "Resets all stored data in the IOD or IOC to its factory values" },
-    { 0x0012, "Reset and restore data" },
-    { 0x0013, "Reset and restore data" },
-    { 0x0014, "Reserved" },
-    { 0x0015, "Reserved" },
-    { 0x0016, "Reserved" },
+    /* The mode is encoded in bits 1-15. */
+    { 0x0000, "Reserved" },
+    { 0x0001, "Reset application data" },
+    { 0x0002, "Reset communication parameter" },
+    { 0x0003, "Reset engineering parameter" },
+    { 0x0004, "Reset all stored data except the security configuration" },
+    { 0x0005, "Reserved" },
+    { 0x0006, "Reserved" },
+    { 0x0007, "Reserved" },
+    { 0x0008, "Reset all stored data to factory values" },
+    { 0x0009, "Reset and restore data" },
     { 0, NULL }
 };
 
@@ -1482,7 +1473,7 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
             offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_blockqualifier_r2f, &BlockQualifier);
             proto_item_append_text(block_item, ", BlockQualifier: %s",
-                val_to_str_const(BlockQualifier, pn_dcp_BlockQualifier, "reserved"));
+                val_to_str_const(BlockQualifier >> 1, pn_dcp_BlockQualifier, "reserved"));
             block_length -= 2;
 
             break;
@@ -1897,7 +1888,7 @@ proto_register_pn_dcp (void)
 
         { &hf_pn_dcp_blockqualifier_r2f,
           { "BlockQualifier: ResettoFactory", "pn_dcp.block_qualifier_reset",
-            FT_UINT16, BASE_DEC, VALS(pn_dcp_BlockQualifier), 0x0,
+            FT_UINT16, BASE_DEC, VALS(pn_dcp_BlockQualifier), 0xFFFE,
             NULL, HFILL }},
 
         { &hf_pn_dcp_blockqualifier,

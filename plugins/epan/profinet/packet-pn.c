@@ -99,6 +99,17 @@ static int hf_pn_io_error_code2_pnio_109;
 static int hf_pn_io_error_code2_pnio_110;
 static int hf_pn_io_error_code2_pnio_112;
 static int hf_pn_io_error_code2_pnio_114;
+static int hf_pn_io_error_code2_pnio_200;
+static int hf_pn_io_error_code2_pnio_202;
+static int hf_pn_io_error_code2_pnio_204;
+static int hf_pn_io_error_code2_pnio_205;
+static int hf_pn_io_error_code2_pnio_206;
+static int hf_pn_io_error_code2_pnio_208;
+static int hf_pn_io_error_code2_pnio_209;
+static int hf_pn_io_error_code2_pnio_210;
+static int hf_pn_io_error_code2_pnio_211;
+static int hf_pn_io_error_code2_pnio_224;
+static int hf_pn_io_error_code2_pnio_225;
 static int hf_pn_io_error_code2_pnio_253;
 static int hf_pn_io_error_code2_pnio_255;
 
@@ -120,6 +131,7 @@ static const value_string pn_io_error_code[] = {
     { 0xDF, "IODWriteRsp" },
     { 0xE0, "SXP-SAMConnect-RSP, SXP-SAMService-RSP" },
     { 0xE1, "SCMServiceReq response" },
+    { 0xE2, "SXP error" },
     { 0, NULL }
 };
 
@@ -177,9 +189,9 @@ static const value_string pn_io_error_code1_pniorw[] = {
     { 0xbc, "access: User specific 8" },
     { 0xbd, "access: User specific 9" },
     { 0xbe, "access: User specific 10" },
-    { 0xbf, "access: User specific 11" },
-    { 0xc0, "resource: read constrain conflict" },
-    { 0xc1, "resource: write constrain conflict" },
+    { 0xbf, "access: unauthorized access denied" },
+    { 0xc0, "resource: read constraint conflict" },
+    { 0xc1, "resource: write constraint conflict" },
     { 0xc2, "resource: resource busy" },
     { 0xc3, "resource: resource unavailable" },
     { 0xc4, "resource: not specified" },
@@ -282,18 +294,18 @@ static const value_string pn_io_error_code2_pniosec_f0[] = {
 
 static const value_string pn_io_error_code1_pnio[] = {
     { 0x00 /*  0*/, "Reserved" },
-    { 0x01 /*  1*/, "Obsoleted" },
+    { 0x01 /*  1*/, "(Obsoleted) Connect: Faulty ARBlockReq" },
     { 0x02 /*  2*/, "Connect: Faulty IOCRBlockReq" },
     { 0x03 /*  3*/, "Connect: Faulty ExpectedSubmoduleBlockReq" },
     { 0x04 /*  4*/, "Connect: Faulty AlarmCRBlockReq" },
     { 0x05 /*  5*/, "Connect: Faulty PrmServerBlockReq" },
     { 0x06 /*  6*/, "Connect: Faulty MCRBlockReq" },
-    { 0x07 /*  7*/, "Obsoleted" },
+    { 0x07 /*  7*/, "(Obsoleted) Connect: Faulty ARRPCBlockReq" },
     { 0x08 /*  8*/, "Read/Write Record: Faulty Record" },
     { 0x09 /*  9*/, "Connect: Faulty IRInfoBlock" },
     { 0x0A /* 10*/, "Connect: Faulty SRInfoBlock" },
     { 0x0B /* 11*/, "Connect: Faulty ARFSUBlock" },
-    { 0x0C /* 12*/, "Obsoleted" },
+    { 0x0C /* 12*/, "(Obsoleted) Connect: Faulty ARVendorBlockReq" },
     { 0x0D /* 13*/, "Connect: Faulty RSInfoBlock" },
     { 0x0E /* 14*/, "Connect: Faulty ARSXPBlockReq"},
     { 0x0F /* 15*/, "Reserved" },
@@ -321,7 +333,7 @@ static const value_string pn_io_error_code1_pnio[] = {
     { 0x25 /* 37*/, "Reserved" },
     { 0x26 /* 38*/, "Reserved" },
     { 0x27 /* 39*/, "Reserved" },
-    { 0x28 /* 40*/, "Obsoleted" },
+    { 0x28 /* 40*/, "(Obsoleted) Release: Faulty ReleaseBlock" },
     { 0x29 /* 41*/, "Reserved" },
     { 0x2A /* 42*/, "Reserved" },
     { 0x2B /* 43*/, "Reserved" },
@@ -331,13 +343,13 @@ static const value_string pn_io_error_code1_pnio[] = {
     { 0x2F /* 47*/, "Reserved" },
     { 0x30 /* 48*/, "Reserved" },
     { 0x31 /* 49*/, "Reserved" },
-    { 0x32 /* 50*/, "Obsoleted" },
+    { 0x32 /* 50*/, "(Obsoleted) Response: Faulty ARBlockRes" },
     { 0x33 /* 51*/, "Response: Faulty IOCRBlockRes" },
     { 0x34 /* 52*/, "Response: Faulty AlarmCRBlockRes" },
     { 0x35 /* 53*/, "Response: Faulty ModuleDifflock" },
-    { 0x36 /* 54*/, "Obsoleted" },
-    { 0x37 /* 55*/, "Obsoleted" },
-    { 0x38 /* 56*/, "Obsoleted" },
+    { 0x36 /* 54*/, "(Obsoleted) Response: Faulty ARRPCBlockRes" },
+    { 0x37 /* 55*/, "(Obsoleted) Response: Faulty ARServerBlockRes" },
+    { 0x38 /* 56*/, "(Obsoleted) Response: Faulty ARVendorBlockRes" },
     { 0x39 /* 57*/, "Response: Faulty ARSXPBlockRes" },
     { 0x3B /* 59*/, "Reserved" },
     { 0x3c /* 60*/, "AlarmAck Error Codes" },
@@ -898,6 +910,7 @@ static const value_string pn_io_error_code2_pnio_63[] = {
     { 4, "DCP No_StationName" },
     { 5, "No_IP_Addr" },
     { 6, "DCP_Set_Error" },
+    { 7, "ARP multiple IP-Addresses" },
     { 0, NULL }
 };
 
@@ -916,6 +929,8 @@ static const value_string pn_io_error_code2_pnio_64[] = {
     { 10, "ARset State conflict during connection establishment" },
     { 11, "ARset Parameter conflict during connection establishment" },
     { 12, "Pdev, port(s) without interface" },
+    { 13, "Discrepancy between Pdev and ARType" },
+    { 14, "Pdev discrepancy between Pdev ownership and ARProperties" },
     { 0, NULL }
 };
 
@@ -967,13 +982,13 @@ static const value_string pn_io_error_code2_pnio_71[] = {
 
 static const value_string pn_io_error_code2_pnio_72[] = {
     /* CPM */
-    { 1, "Invalid State" },
+    { 0, "Invalid State" },
     { 0, NULL }
 };
 
 static const value_string pn_io_error_code2_pnio_73[] = {
     /* PPM */
-    { 1, "Invalid State" },
+    { 0, "Invalid State" },
     { 0, NULL }
 };
 
@@ -1071,8 +1086,9 @@ static const value_string pn_io_error_code2_pnio_106[] = {
     { 0, "Invalid state" },
     { 1, "AR add provider or consumer failed" },
     { 2, "AR alarm-open failed" },
-    { 3, "AR alarm-ack-send" },
-    { 4, "AR alarm-ind" },
+    { 3, "AR alarm-send" },
+    { 4, "AR alarm-ack-send" },
+    { 5, "AR alarm-ind" },
     { 0, NULL }
 };
 
@@ -1119,6 +1135,122 @@ static const value_string pn_io_error_code2_pnio_114[] = {
     { 0, NULL }
 };
 
+/* IO device protocol machines. */
+static const value_string pn_io_error_code2_pnio_200[] = {
+    { 0, "Invalid state" },
+    { 1, "CMSM signaled an error" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_202[] = {
+    { 0, "Invalid state" },
+    { 1, "CMRDR signaled an error" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_204[] = {
+    { 0, "Invalid state" },
+    { 1, "AR is not in state Primary" },
+    { 2, "CMWRR signaled an error" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_205[] = {
+    { 0, "Invalid state" },
+    { 1, "CMIO signaled an error" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_206[] = {
+    { 0, "Invalid state" },
+    { 1, "AR add provider or consumer failed" },
+    { 2, "AR alarm-open failed" },
+    { 3, "AR alarm-send" },
+    { 4, "AR alarm-ack-send" },
+    { 5, "AR alarm-ind" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_208[] = {
+    { 0, "Invalid state" },
+    { 1, "CMINA signaled an error" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_209[] = {
+    { 0, "Invalid state" },
+    { 1, "CMPBE signaled an error" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_210[] = {
+    { 0, "Invalid state" },
+    { 1, "CMSRL signaled an error" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_211[] = {
+    { 0, "Invalid state" },
+    { 1, "CMDMC signaled an error" },
+    { 0, NULL }
+};
+
+/* SXP-specific errors are followed by the RTA abort reasons. */
+static const value_string pn_io_error_code2_pnio_224[] = {
+    { 0, "SXP header decoding error" },
+    { 1, "SXP instance not found" },
+    { 2, "Instance closed" },
+    { 3, "AR out of memory" },
+    { 4, "AR add provider or consumer failed" },
+    { 5, "AR consumer DHT/WDT expired" },
+    { 6, "AR cmi timeout" },
+    { 7, "AR alarm-open failed" },
+    { 8, "AR alarm-send.cnf(-)" },
+    { 9, "AR alarm-ack-send.cnf(-)" },
+    { 10, "AR alarm data too long" },
+    { 11, "AR alarm.ind(err)" },
+    { 12, "AR rpc-client call.cnf(-)" },
+    { 13, "AR abort.req" },
+    { 14, "AR re-run aborts existing" },
+    { 15, "AR release.ind received" },
+    { 16, "AR device deactivated" },
+    { 17, "AR removed" },
+    { 18, "AR protocol violation" },
+    { 19, "AR name resolution error" },
+    { 20, "AR RPC-Bind error" },
+    { 21, "AR RPC-Connect error" },
+    { 22, "AR RPC-Read error" },
+    { 23, "AR RPC-Write error" },
+    { 24, "AR RPC-Control error" },
+    { 25, "AR forbidden pull or plug after check.rsp and before in-data.ind" },
+    { 26, "AR AP removed" },
+    { 27, "AR link down" },
+    { 28, "AR could not register multicast-mac address" },
+    { 29, "not synchronized (cannot start companion-ar)" },
+    { 30, "wrong topology (cannot start companion-ar)" },
+    { 31, "dcp, station-name changed" },
+    { 32, "dcp, reset to factory-settings" },
+    { 33, "cannot start companion-AR because a 0x8ipp submodule in the first AR..." },
+    { 34, "no irdata record yet" },
+    { 35, "PDEV" },
+    { 36, "PDEV, no port offers required speed/duplexity" },
+    { 37, "IP-Suite [of the IOC] changed by means of DCP_Set(IPParameter) or local engineering" },
+    { 38, "IOCARSR, RDHT expired" },
+    { 39, "IOCARSR, Pdev, parameterization impossible" },
+    { 40, "Remote application ready timeout expired" },
+    { 41, "IOCARSR, Redundant interface lost or access to the peripherals impossible" },
+    { 42, "IOCARSR, MTOT expired" },
+    { 43, "IOCARSR, AR protocol violation" },
+    { 44, "PDEV, plug port without CombinedObjectContainer" },
+    { 45, "Obsoleted" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_225[] = {
+    { 0, "Connection Closed" },
+    { 0, NULL }
+};
+
 static const value_string pn_io_error_code2_pnio_253[] = {
     { 0, "reserved" },
     { 1, "Error within the coordination of sequence numbers (RTA_ERR_CODE_SEQ) error" },
@@ -1161,11 +1293,11 @@ static const value_string pn_io_error_code2_pnio_253[] = {
     { 38, "IOCARSR, RDHT expired" },
     { 39, "IOCARSR, Pdev, parameterization impossible" },
     { 40, "Remote application ready timeout expired" },
-    { 41, "IOCARSR, Redundant interface list or access to the peripherals impossible" },
+    { 41, "IOCARSR, Redundant interface lost or access to the peripherals impossible" },
     { 42, "IOCARSR, MTOT expired" },
     { 43, "IOCARSR, AR protocol violation" },
     { 44, "PDEV, plug port without CombinedObjectContainer" },
-    { 45, "NME, no or wrong configuration" },
+    { 45, "(Obsoleted) NME, no or wrong configuration" },
     { 0, NULL }
 };
 
@@ -1434,6 +1566,14 @@ dissect_PNIO_status(tvbuff_t *tvb, unsigned offset,
         error_code2_vals = pn_io_error_code2_pniorw;
 
         break;
+    case(0x82): /* Manufacturer specific */
+        dissect_dcerpc_uint8(tvb, offset + (2 ^ bytemask), pinfo, sub_tree, drep,
+            hf_pn_io_error_code1, &u8ErrorCode1);
+        error_code1_vals = pn_io_error_code1;
+
+        dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+            hf_pn_io_error_code2, &u8ErrorCode2);
+        break;
     case(0x81): /* PNIO */
         dissect_dcerpc_uint8(tvb, offset + (2 ^ bytemask), pinfo, sub_tree, drep,
             hf_pn_io_error_code1_pnio, &u8ErrorCode1);
@@ -1555,6 +1695,18 @@ dissect_PNIO_status(tvbuff_t *tvb, unsigned offset,
                 hf_pn_io_error_code2_pnio_40, &u8ErrorCode2);
             error_code2_vals = pn_io_error_code2_pnio_40;
             break;
+        case(50):
+        case(51):
+        case(52):
+        case(53):
+        case(54):
+        case(55):
+        case(56):
+        case(57):
+            /* Preserve raw ErrorCode2 for assigned response codes. */
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2, &u8ErrorCode2);
+            break;
         case(60):
             dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
                 hf_pn_io_error_code2_pnio_60, &u8ErrorCode2);
@@ -1589,6 +1741,12 @@ dissect_PNIO_status(tvbuff_t *tvb, unsigned offset,
             dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
                 hf_pn_io_error_code2_pnio_66, &u8ErrorCode2);
             error_code2_vals = pn_io_error_code2_pnio_66;
+            break;
+        case(67):
+        case(68):
+            /* LMPM and MAC define ErrorCode2 in their protocol machines. */
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2, &u8ErrorCode2);
             break;
         case(69):
             dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
@@ -1634,6 +1792,11 @@ dissect_PNIO_status(tvbuff_t *tvb, unsigned offset,
             dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
                 hf_pn_io_error_code2_pnio_77, &u8ErrorCode2);
             error_code2_vals = pn_io_error_code2_pnio_77;
+            break;
+        case(78):
+            /* FSPM defines ErrorCode2 in its protocol machine. */
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2, &u8ErrorCode2);
             break;
         case(79):
             dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
@@ -1700,6 +1863,13 @@ dissect_PNIO_status(tvbuff_t *tvb, unsigned offset,
                 hf_pn_io_error_code2_pnio_110, &u8ErrorCode2);
             error_code2_vals = pn_io_error_code2_pnio_110;
             break;
+        case(111):
+        case(113):
+        case(115):
+            /* Obsolete codes remain readable for legacy captures. */
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2, &u8ErrorCode2);
+            break;
         case(112):
             dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
                 hf_pn_io_error_code2_pnio_112, &u8ErrorCode2);
@@ -1709,6 +1879,61 @@ dissect_PNIO_status(tvbuff_t *tvb, unsigned offset,
             dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
                 hf_pn_io_error_code2_pnio_114, &u8ErrorCode2);
             error_code2_vals = pn_io_error_code2_pnio_114;
+            break;
+        case(200):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_200, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_200;
+            break;
+        case(202):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_202, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_202;
+            break;
+        case(204):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_204, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_204;
+            break;
+        case(205):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_205, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_205;
+            break;
+        case(206):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_206, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_206;
+            break;
+        case(208):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_208, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_208;
+            break;
+        case(209):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_209, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_209;
+            break;
+        case(210):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_210, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_210;
+            break;
+        case(211):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_211, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_211;
+            break;
+        case(224):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_224, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_224;
+            break;
+        case(225):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_225, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_225;
             break;
         case(253):
             dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
@@ -1721,10 +1946,10 @@ dissect_PNIO_status(tvbuff_t *tvb, unsigned offset,
             error_code2_vals = pn_io_error_code2_pnio_255;
             break;
         default:
-            /* don't know this u8ErrorCode1 for PNIO, use defaults */
+            /* Reserved ErrorCode1: retain the raw ErrorCode2. */
             dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
                 hf_pn_io_error_code2, &u8ErrorCode2);
-            expert_add_info_format(pinfo, sub_item, &ei_pn_io_error_code1, "Unknown ErrorCode1 0x%x (for ErrorDecode==PNIO)", u8ErrorCode1);
+            expert_add_info_format(pinfo, sub_item, &ei_pn_io_error_code1, "Reserved ErrorCode1 0x%x (for ErrorDecode==PNIO)", u8ErrorCode1);
             break;
         }
         break;
@@ -1767,7 +1992,7 @@ dissect_PNIO_status(tvbuff_t *tvb, unsigned offset,
         default:
             dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
                 hf_pn_io_error_code2, &u8ErrorCode2);
-            expert_add_info_format(pinfo, sub_item, &ei_pn_io_error_code1, "Unknown ErrorCode1 0x%x (for ErrorDecode==PNIOSEC)", u8ErrorCode1);
+            expert_add_info_format(pinfo, sub_item, &ei_pn_io_error_code1, "Reserved ErrorCode1 0x%x (for ErrorDecode==PNIOSEC)", u8ErrorCode1);
             break;
         }
         break;
@@ -2254,6 +2479,61 @@ init_pn (int proto)
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_114), 0x0,
         NULL, HFILL }
     },
+        { &hf_pn_io_error_code2_pnio_200,
+            { "ErrorCode2", "pn_io.error_code2_pnio_200",
+                FT_UINT8, BASE_HEX, VALS(pn_io_error_code2_pnio_200), 0x0,
+                NULL, HFILL }
+        },
+        { &hf_pn_io_error_code2_pnio_202,
+            { "ErrorCode2", "pn_io.error_code2_pnio_202",
+                FT_UINT8, BASE_HEX, VALS(pn_io_error_code2_pnio_202), 0x0,
+                NULL, HFILL }
+        },
+        { &hf_pn_io_error_code2_pnio_204,
+            { "ErrorCode2", "pn_io.error_code2_pnio_204",
+                FT_UINT8, BASE_HEX, VALS(pn_io_error_code2_pnio_204), 0x0,
+                NULL, HFILL }
+        },
+        { &hf_pn_io_error_code2_pnio_205,
+            { "ErrorCode2", "pn_io.error_code2_pnio_205",
+                FT_UINT8, BASE_HEX, VALS(pn_io_error_code2_pnio_205), 0x0,
+                NULL, HFILL }
+        },
+        { &hf_pn_io_error_code2_pnio_206,
+            { "ErrorCode2", "pn_io.error_code2_pnio_206",
+                FT_UINT8, BASE_HEX, VALS(pn_io_error_code2_pnio_206), 0x0,
+                NULL, HFILL }
+        },
+        { &hf_pn_io_error_code2_pnio_208,
+            { "ErrorCode2", "pn_io.error_code2_pnio_208",
+                FT_UINT8, BASE_HEX, VALS(pn_io_error_code2_pnio_208), 0x0,
+                NULL, HFILL }
+        },
+        { &hf_pn_io_error_code2_pnio_209,
+            { "ErrorCode2", "pn_io.error_code2_pnio_209",
+                FT_UINT8, BASE_HEX, VALS(pn_io_error_code2_pnio_209), 0x0,
+                NULL, HFILL }
+        },
+        { &hf_pn_io_error_code2_pnio_210,
+            { "ErrorCode2", "pn_io.error_code2_pnio_210",
+                FT_UINT8, BASE_HEX, VALS(pn_io_error_code2_pnio_210), 0x0,
+                NULL, HFILL }
+        },
+        { &hf_pn_io_error_code2_pnio_211,
+            { "ErrorCode2", "pn_io.error_code2_pnio_211",
+                FT_UINT8, BASE_HEX, VALS(pn_io_error_code2_pnio_211), 0x0,
+                NULL, HFILL }
+        },
+        { &hf_pn_io_error_code2_pnio_224,
+            { "ErrorCode2", "pn_io.error_code2_pnio_224",
+                FT_UINT8, BASE_HEX, VALS(pn_io_error_code2_pnio_224), 0x0,
+                NULL, HFILL }
+        },
+        { &hf_pn_io_error_code2_pnio_225,
+            { "ErrorCode2", "pn_io.error_code2_pnio_225",
+                FT_UINT8, BASE_HEX, VALS(pn_io_error_code2_pnio_225), 0x0,
+                NULL, HFILL }
+        },
     { &hf_pn_io_error_code2_pnio_253,
       { "ErrorCode2", "pn_io.error_code2_pnio_253",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_253), 0x0,

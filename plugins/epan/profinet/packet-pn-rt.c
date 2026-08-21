@@ -951,25 +951,25 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             pszProtShort    = "PN-RTA";
             pszProtAddInfo  = "";
             pszProtSummary  = "acyclic Real-Time";
-            pszProtComment  = "Real-Time: DCP (Dynamic Configuration Protocol) hello";
+            pszProtComment  = "Real-Time: DCP (Discovery and basic Configuration Protocol) hello";
         }
         if (u16FrameID == FRAME_ID_DCP_GETORSET) {
             pszProtShort    = "PN-RTA";
             pszProtAddInfo  = "";
             pszProtSummary  = "acyclic Real-Time";
-            pszProtComment  = "Real-Time: DCP (Dynamic Configuration Protocol) get/set";
+            pszProtComment  = "Real-Time: DCP (Discovery and basic Configuration Protocol) get/set";
         }
         if (u16FrameID == FRAME_ID_DCP_IDENT_REQ) {
             pszProtShort    = "PN-RTA";
             pszProtAddInfo  = "";
             pszProtSummary  = "acyclic Real-Time";
-            pszProtComment  = "Real-Time: DCP (Dynamic Configuration Protocol) identify multicast request";
+            pszProtComment  = "Real-Time: DCP (Discovery and basic Configuration Protocol) identify multicast request";
         }
         if (u16FrameID == FRAME_ID_DCP_IDENT_RES) {
             pszProtShort    = "PN-RTA";
             pszProtAddInfo  = "";
             pszProtSummary  = "acyclic Real-Time";
-            pszProtComment  = "Real-Time: DCP (Dynamic Configuration Protocol) identify response";
+            pszProtComment  = "Real-Time: DCP (Discovery and basic Configuration Protocol) identify response";
         }
     } else if (u16FrameID <= 0xFF01) {
         pszProtShort    = "PN-PTCP";
