@@ -35,6 +35,10 @@
 #define EXTCAP_CONTROL_IN_PREFIX  "wireshark_control_ext_to_ws"
 #define EXTCAP_CONTROL_OUT_PREFIX "wireshark_control_ws_to_ext"
 
+#define EXTCAP_CONTROL_NONE 0
+#define EXTCAP_CONTROL_TOOLBAR 1
+#define EXTCAP_CONTROL_QUIT 2
+
 #define EXTCAP_ARGUMENT_CONFIG                  "--extcap-config"
 #define EXTCAP_ARGUMENT_CONFIG_OPTION_NAME      "--extcap-config-option-name"
 #define EXTCAP_ARGUMENT_CONFIG_OPTION_VALUE     "--extcap-config-option-value"

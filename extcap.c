@@ -1357,7 +1357,7 @@ extcap_get_control_for_ifname(const char *ifname)
 
     extcap_interface* interface = extcap_find_interface_for_ifname(ifname);
     if (!interface || (interface->control == 1 && !iface_toolbar_use())) {
-        return 0;
+        return EXTCAP_CONTROL_NONE;
     }
 
     return interface->control;
@@ -1470,7 +1470,7 @@ void extcap_request_stop(capture_session *cap_session)
         ws_info("Extcap [%s] - Requesting stop PID: %"PRIdMAX, interface_opts->name,
               (intmax_t)interface_opts->extcap_pid);
 
-        if (interface_opts->extcap_control_out_watch > 0)
+        if (interface_opts->extcap_control_out_watch > 0 && (extcap_get_control_for_ifname(interface_opts->name) & EXTCAP_CONTROL_QUIT))
         {
             static uint8_t quit_msg[4] = { SP_QUIT, 0, 0, 0};
             g_async_queue_push_front(interface_opts->extcap_control_out_q, g_bytes_new_static(quit_msg, sizeof(quit_msg)));
@@ -2360,6 +2360,39 @@ extcap_setup_control_in(capture_session *cap_session, interface_options *interfa
 #endif
 }
 
+void
+extcap_setup_control_out(capture_session *cap_session, interface_options *interface_opts)
+{
+    interface_opts->extcap_control_out_watch = 0;
+    if (!interface_opts->extcap_control_out) {
+        return;
+    }
+
+    GSource *source = g_source_new(&msg_queue_source_funcs, sizeof(MessageQueueSource));
+    MessageQueueSource *control_out_source = (MessageQueueSource*)source;
+    control_out_source->queue = g_async_queue_ref(interface_opts->extcap_control_out_q);
+    control_out_source->fifo = g_strdup(interface_opts->extcap_control_out);
+    /* Opening the control out pipe blocking can hang the program waiting
+     * for a connection or even run into a Dining Philosophers deadlock,
+     * depending on how and in what order the extcap opens the main FIFO
+     * and the control pipes. On non-Windows we try to open it non-blocking
+     * in the source, saving pending messages in the queue. */
+    control_out_source->out_fd = -1;
+    control_out_source->start_time = g_get_monotonic_time();
+    control_out_source->check_time = 0;
+
+    // Do this before we watch
+    ws_pipe_t *pipedata = (ws_pipe_t *)interface_opts->extcap_pipedata;
+    pipedata->other_sources = g_slist_append(pipedata->other_sources, source);
+
+    if (interface_opts->extcap_control_out) {
+        g_source_set_callback(source, G_SOURCE_FUNC(extcap_control_out_cb), cap_session, NULL);
+    }
+    GMainContext *context = g_main_context_default();
+    interface_opts->extcap_control_out_watch = g_source_attach(source, context);
+    g_source_unref(source);
+}
+
 /* call mkfifo for each extcap,
  * returns false if there's an error creating a FIFO */
 bool
@@ -2386,8 +2419,8 @@ extcap_init_interfaces(capture_session *cap_session)
         }
 
         /* create control pipes if necessary */
-        unsigned control_needed = extcap_get_control_for_ifname(interface_opts->name);
-        if (control_needed)
+        unsigned control_supported = extcap_get_control_for_ifname(interface_opts->name);
+        if (control_supported & (EXTCAP_CONTROL_QUIT | EXTCAP_CONTROL_TOOLBAR))
         {
             extcap_create_pipe(interface_opts->name, &interface_opts->extcap_control_in,
 #ifdef _WIN32
@@ -2396,6 +2429,9 @@ extcap_init_interfaces(capture_session *cap_session)
                                capture_opts->temp_dir,
 #endif
                                EXTCAP_CONTROL_IN_PREFIX);
+        }
+        if (control_supported & EXTCAP_CONTROL_TOOLBAR)
+        {
             extcap_create_pipe(interface_opts->name, &interface_opts->extcap_control_out,
 #ifdef _WIN32
                                &interface_opts->extcap_control_out_h,
@@ -2469,12 +2505,14 @@ extcap_init_interfaces(capture_session *cap_session)
             int num_pipe_handles = 1;
             pipe_handles[0] = interface_opts->extcap_pipe_h;
 
-            if (control_needed)
+            if (interface_opts->extcap_control_in)
             {
-                pipe_handles[1] = interface_opts->extcap_control_in_h;
-                pipe_handles[2] = interface_opts->extcap_control_out_h;
-                num_pipe_handles += 2;
-             }
+                pipe_handles[num_pipe_handles++] = interface_opts->extcap_control_in_h;
+            }
+            if (interface_opts->extcap_control_out)
+            {
+                pipe_handles[num_pipe_handles++] = interface_opts->extcap_control_out_h;
+            }
 
             // XXX - Handle failure?
             ws_pipe_wait_for_pipe(pipe_handles, num_pipe_handles, pid);
@@ -2482,26 +2520,7 @@ extcap_init_interfaces(capture_session *cap_session)
 #endif
 
         extcap_setup_control_in(cap_session, interface_opts);
-
-        GSource *source = g_source_new(&msg_queue_source_funcs, sizeof(MessageQueueSource));
-        MessageQueueSource *control_out_source = (MessageQueueSource*)source;
-        control_out_source->queue = g_async_queue_ref(interface_opts->extcap_control_out_q);
-        control_out_source->fifo = g_strdup(interface_opts->extcap_control_out);
-        /* Opening the control out pipe blocking can hang the program waiting
-         * for a connection or even run into a Dining Philosophers deadlock,
-         * depending on how and in what order the extcap opens the main FIFO
-         * and the control pipes. On non-Windows we try to open it non-blocking
-         * in the source, saving pending messages in the queue. */
-        control_out_source->out_fd = -1;
-        control_out_source->start_time = g_get_monotonic_time();
-        control_out_source->check_time = 0;
-        // Do this before we watch
-        pipedata->other_sources = g_slist_append(pipedata->other_sources, source);
-
-        g_source_set_callback(source, G_SOURCE_FUNC(extcap_control_out_cb), cap_session, NULL);
-        GMainContext *context = g_main_context_default();
-        interface_opts->extcap_control_out_watch = g_source_attach(source, context);
-        g_source_unref(source);
+        extcap_setup_control_out(cap_session, interface_opts);
     }
 
     return true;
@@ -2701,15 +2720,7 @@ process_new_extcap(const char *extcap, char *output)
 
             if (toolbar_entry)
             {
-                if (!int_iter->control) {
-                    /* XXX - Are we assured that iface_toolbar_use() already
-                     * returns true at this point, or can the interfaces be
-                     * loaded before that callback is set? If the former, we
-                     * could check it here, instead of setting the control
-                     * protocol version to 1 and verifying iface_toolbar_use()
-                     * later. */
-                    int_iter->control = 1;
-                }
+                int_iter->control |= EXTCAP_CONTROL_TOOLBAR;
                 if (!toolbar_entry->menu_title)
                 {
                     toolbar_entry->menu_title = g_strdup(int_iter->display);

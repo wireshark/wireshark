@@ -64,51 +64,6 @@ static struct ws_option longopts[] = {
     {"remote-io-snaplen", ws_required_argument, NULL, OPT_REMOTE_IO_SNAPLEN},
     {0, 0, 0, 0}};
 
-static int ssh_loop_read(ssh_channel channel, FILE* fp)
-{
-    int nbytes;
-    int ret = EXIT_SUCCESS;
-    char buffer[SSH_READ_BLOCK_SIZE];
-
-    /* read from stdin until data are available */
-    while (ssh_channel_is_open(channel) && !ssh_channel_is_eof(channel)) {
-        nbytes = ssh_channel_read(channel, buffer, SSH_READ_BLOCK_SIZE, 0);
-        if (nbytes < 0) {
-            ws_warning("Error reading from channel");
-            goto end;
-        }
-        if (nbytes == 0) {
-            break;
-        }
-        if (fwrite(buffer, 1, nbytes, fp) != (unsigned)nbytes) {
-            ws_warning("Error writing to fifo");
-            ret = EXIT_FAILURE;
-            goto end;
-        }
-        fflush(fp);
-    }
-
-    /* read loop finished... maybe something wrong happened. Read from stderr */
-    while (ssh_channel_is_open(channel) && !ssh_channel_is_eof(channel)) {
-        nbytes = ssh_channel_read(channel, buffer, SSH_READ_BLOCK_SIZE, 1);
-        if (nbytes < 0) {
-            ws_warning("Error reading from channel");
-            goto end;
-        }
-        if (fwrite(buffer, 1, nbytes, stderr) != (unsigned)nbytes) {
-            ws_warning("Error writing to stderr");
-            break;
-        }
-    }
-
-end:
-    if (ssh_channel_send_eof(channel) != SSH_OK) {
-        ws_warning("Error sending EOF in ssh channel");
-        ret = EXIT_FAILURE;
-    }
-    return ret;
-}
-
 static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command_select,
         const char* capture_command, const char* privilege,
         const char* cfilter, const uint32_t count, bool modern_bpf, const uint32_t io_snaplen)
@@ -213,7 +168,7 @@ static int ssh_open_remote_connection(const ssh_params_t* params, const char* cf
     }
 
     /* read from channel and write into fp */
-    if (ssh_loop_read(channel, fp) != EXIT_SUCCESS) {
+    if (ssh_async_loop_read(sshs, channel, fp) != EXIT_SUCCESS) {
         ws_warning("Error in read loop.");
         ret = EXIT_FAILURE;
         goto cleanup;
@@ -336,7 +291,7 @@ int main(int argc, char *argv[])
         interface_description = ws_strdup_printf("%s, custom version", interface_description);
         g_free(temp);
     }
-    extcap_base_register_interface(extcap_conf, sshdig_extcap_interface, interface_description, 147, "Remote capture dependent DLT");
+    extcap_base_register_interface_ext(extcap_conf, sshdig_extcap_interface, interface_description, 147, NULL, "Remote capture dependent DLT", EXTCAP_CONTROL_QUIT);
     g_free(interface_description);
 
     help_header = ws_strdup_printf(
@@ -364,6 +319,12 @@ int main(int argc, char *argv[])
 
     if (argc == 1) {
         extcap_help_print(extcap_conf);
+        goto end;
+    }
+
+    // Do this before reading the options, which sets up the control pipe
+    if (!ssh_base_setup_graceful_shutdown(extcap_conf)) {
+        ret = EXIT_FAILURE;
         goto end;
     }
 

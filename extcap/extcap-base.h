@@ -68,6 +68,14 @@ extern "C" {
     { "log-level", ws_required_argument, NULL, EXTCAP_OPT_LOG_LEVEL}, \
     { "log-file", ws_required_argument, NULL, EXTCAP_OPT_LOG_FILE}
 
+/* Extcap control pipe messages supported.
+ * TOOLBAR messages are bidirectional,
+ * QUIT messages are unidirectional (from the main application).
+ */
+#define EXTCAP_CONTROL_NONE 0
+#define EXTCAP_CONTROL_TOOLBAR 1
+#define EXTCAP_CONTROL_QUIT 2
+
 typedef void (*extcap_toolbar_control_cb_t)(int, int, GBytes*);
 
 /**
@@ -101,7 +109,6 @@ typedef struct _extcap_parameters
     uint8_t  do_list_interfaces;   /**< Non-zero if the extcap was invoked with --extcap-interfaces to enumerate available interfaces. */
     uint8_t  do_cleanup_postkill;  /**< Non-zero if the extcap should invoke cleanup_postkill_cb after the capture process is terminated. */
 
-    GThread *control_in_tid;
     int      control_in_fd;        /**< If control_in is non-NULL, the file descriptor of the control in pipe */
     int      control_out_fd;       /**< If control_out is non-NULL, the file descriptor of the control out pipe */
 
@@ -141,7 +148,9 @@ void extcap_base_register_interface(extcap_parameters * extcap, const char * int
  * @param dlt Data Link Type (DLT) for the interface.
  * @param dltname Name of the DLT.
  * @param dltdescription Description of the DLT.
- * @param control Level of control pipe support. 0 == None, 1 == SP_TOOLBAR_MSG only, 2 == Also SP_QUIT
+ * @param control Bitmask indicating control pipe messages types supported.
+ * Possible options: EXTCAP_CONTROL_NONE, EXTCAP_CONTROL_TOOLBAR, EXTCAP_CONTROL_QUIT
+ *
  */
 void extcap_base_register_interface_ext(extcap_parameters * extcap, const char * interface, const char * ifdescription, uint16_t dlt, const char * dltname, const char * dltdescription, unsigned control);
 

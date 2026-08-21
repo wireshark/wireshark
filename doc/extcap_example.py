@@ -187,7 +187,8 @@ def extcap_config_option(interface, option_name, option_value):
         print("arg {number=%d}{call=%s}{display=%s}{tooltip=%s}{type=%s}%s" % arg)
 
 def extcap_version():
-    print("extcap {version=1.0}{help=https://www.wireshark.org}{display=Example extcap interface}{control=2}")
+    # control=3 == EXTCAP_CONTROL_TOOLBAR | EXTCAP_CONTROL_QUIT
+    print("extcap {version=1.0}{help=https://www.wireshark.org}{display=Example extcap interface}{control=3}")
 
 def extcap_interfaces():
     extcap_version();

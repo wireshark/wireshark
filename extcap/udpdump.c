@@ -377,7 +377,7 @@ int main(int argc, char *argv[])
 	extcap_base_set_util_info(extcap_conf, argv[0], UDPDUMP_VERSION_MAJOR, UDPDUMP_VERSION_MINOR, UDPDUMP_VERSION_RELEASE,
 		help_url);
 	g_free(help_url);
-	extcap_base_register_interface(extcap_conf, UDPDUMP_EXTCAP_INTERFACE, "UDP Listener remote capture", 252, "Exported PDUs");
+	extcap_base_register_interface_ext(extcap_conf, UDPDUMP_EXTCAP_INTERFACE, "UDP Listener remote capture", 252, NULL, "Exported PDUs", EXTCAP_CONTROL_QUIT);
 
 	help_header = ws_strdup_printf(
 		" %s --extcap-interfaces\n"

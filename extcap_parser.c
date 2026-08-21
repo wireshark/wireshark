@@ -734,7 +734,7 @@ static extcap_interface *extcap_parse_interface_sentence(extcap_token_sentence *
             != NULL) {
         if (!ws_basestrtou(param_value, NULL, &ri->control, 0)) {
             // Unrecognized; treat as 0
-            ri->control = 0;
+            ri->control = EXTCAP_CONTROL_NONE;
         }
     }
 

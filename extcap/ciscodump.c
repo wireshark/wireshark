@@ -2319,7 +2319,7 @@ int main(int argc, char *argv[])
 		CISCODUMP_VERSION_RELEASE, help_url);
 	add_libssh_info(extcap_conf);
 	g_free(help_url);
-	extcap_base_register_interface(extcap_conf, CISCODUMP_EXTCAP_INTERFACE, "Cisco remote capture", 147, "Remote capture dependent DLT");
+	extcap_base_register_interface_ext(extcap_conf, CISCODUMP_EXTCAP_INTERFACE, "Cisco remote capture", 147, NULL, "Remote capture dependent DLT", EXTCAP_CONTROL_QUIT);
 	if (!extcap_base_register_graceful_shutdown_cb(extcap_conf, graceful_shutdown_cb)) {
 		ret = EXIT_FAILURE;
 		goto end;

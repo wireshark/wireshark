@@ -144,6 +144,10 @@ typedef struct _extcap_arg {
     GList *values;       /**< List of extcap_value entries for selector, radio, and multicheck arguments */
 } extcap_arg;
 
+#define EXTCAP_CONTROL_NONE 0
+#define EXTCAP_CONTROL_TOOLBAR 1
+#define EXTCAP_CONTROL_QUIT 2
+
 /**
  * @brief Describes a single capture interface advertised by an extcap binary.
  */
@@ -153,7 +157,7 @@ typedef struct _extcap_interface {
     char *version;     /**< Version string reported by the extcap for this interface */
     char *help;        /**< URL or text pointing to help documentation for this interface */
     char *extcap_path; /**< Absolute path to the extcap binary that provides this interface */
-    unsigned control;   /**< Level of control pipe support (0 == None, 1 == Toolbar only, 2 == Quit) */
+    unsigned control;  /**< Bitmask of control pipe messages supported (0 == None, 1 == TOOLBAR, 2 == QUIT) */
 
     extcap_sentence_type if_type; /**< Sentence type discriminator (EXTCAP_SENTENCE_INTERFACE or EXTCAP_SENTENCE_DLT) */
 } extcap_interface;

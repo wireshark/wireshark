@@ -936,7 +936,7 @@ static void new_interface(extcap_parameters * extcap_conf, const char *interface
             is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER) ||
             is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET)) {
 
-        extcap_base_register_interface_ext(extcap_conf, interface, ifdisplay, 99, "BluetoothH4", "Bluetooth HCI UART transport layer plus pseudo-header", 0);
+        extcap_base_register_interface_ext(extcap_conf, interface, ifdisplay, 99, "BluetoothH4", "Bluetooth HCI UART transport layer plus pseudo-header", EXTCAP_CONTROL_NONE);
     } else if (is_logcat_interface(interface) || is_logcat_text_interface(interface)) {
         extcap_base_register_interface(extcap_conf, interface, ifdisplay, 252, "Upper PDU" );
     } else if (is_specified_interface(interface, INTERFACE_ANDROID_TCPDUMP)) {
@@ -953,7 +953,7 @@ static void new_fake_interface_for_list_dlts(extcap_parameters * extcap_conf,
     if (is_specified_interface(ifname, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP) ||
             is_specified_interface(ifname, INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER) ||
             is_specified_interface(ifname, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET)) {
-        extcap_base_register_interface_ext(extcap_conf, ifname, ifname, 99, "BluetoothH4", "Bluetooth HCI UART transport layer plus pseudo-header", 0);
+        extcap_base_register_interface_ext(extcap_conf, ifname, ifname, 99, "BluetoothH4", "Bluetooth HCI UART transport layer plus pseudo-header", EXTCAP_CONTROL_NONE);
     } else if (is_logcat_interface(ifname) || is_logcat_text_interface(ifname)) {
         extcap_base_register_interface(extcap_conf, ifname, ifname, 252, "Upper PDU" );
     } else if (is_specified_interface(ifname, INTERFACE_ANDROID_TCPDUMP)) {

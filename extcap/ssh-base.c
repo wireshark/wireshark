@@ -520,7 +520,7 @@ int ssh_async_loop_read(ssh_session sshs, ssh_channel channel, FILE* fp)
 	char buffer[SSH_READ_BLOCK_SIZE];
 
 	/* read from stdin until data are available */
-	while (ssh_channel_is_open(channel) && !ssh_channel_is_eof(channel)) {
+	while (!extcap_end_application && ssh_channel_is_open(channel) && !ssh_channel_is_eof(channel)) {
 		struct timeval timeout;
 		ssh_channel in_channels[2], out_channels[2];
 		fd_set fds;
@@ -577,13 +577,14 @@ int ssh_async_loop_read(ssh_session sshs, ssh_channel channel, FILE* fp)
 				/* We don't really care if cleaning the pipe
 				 * fails because we're quitting anyway. */
 			}
+			extcap_end_application = true;
 			goto end;
 		}
 	}
 
 read_stderr:
 	/* read loop finished... maybe something wrong happened. Read from stderr */
-	while (ssh_channel_is_open(channel) && !ssh_channel_is_eof(channel)) {
+	while (!extcap_end_application && ssh_channel_is_open(channel) && !ssh_channel_is_eof(channel)) {
 		nbytes = ssh_channel_read(channel, buffer, SSH_READ_BLOCK_SIZE, 1);
 		if (nbytes < 0) {
 			ws_warning("Error reading from channel");

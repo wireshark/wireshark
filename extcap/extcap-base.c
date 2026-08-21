@@ -397,10 +397,11 @@ uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char *
             }
             break;
         case EXTCAP_OPT_CONTROL_IN:
-            if (extcap->control_in_tid == NULL) {
-                extcap->control_in_tid = g_thread_new("Control in reader", control_in_reader_thread, g_strdup(optargument));
-            }
+        {
+            GThread *control_in_tid = g_thread_new("Control in reader", control_in_reader_thread, g_strdup(optargument));
+            g_thread_unref(control_in_tid);
             break;
+        }
         default:
             ret = 0;
     }

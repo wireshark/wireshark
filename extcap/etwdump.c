@@ -445,17 +445,9 @@ int main(int argc, char* argv[])
     extcap_base_set_util_info(extcap_conf, argv[0], ETWDUMP_VERSION_MAJOR, ETWDUMP_VERSION_MINOR,
         ETWDUMP_VERSION_RELEASE, help_url);
     g_free(help_url);
-    extcap_base_register_interface(extcap_conf, ETW_EXTCAP_INTERFACE, "Event Tracing for Windows (ETW) reader", 290, "DLT_ETW");
+    extcap_base_register_interface_ext(extcap_conf, ETW_EXTCAP_INTERFACE, "Event Tracing for Windows (ETW) reader", 290, NULL, "DLT_ETW", EXTCAP_CONTROL_QUIT);
 
     if (!extcap_base_register_graceful_shutdown_cb(extcap_conf, graceful_shutdown_cb))
-    {
-        ret = EXIT_FAILURE;
-        goto end;
-    }
-
-    /* etwdump will be killed and the capture won't be properly closed. We need to add a postkill
-     * cleanup hook. */
-    if (!extcap_base_register_cleanup_postkill_cb(extcap_conf, graceful_shutdown_cb))
     {
         ret = EXIT_FAILURE;
         goto end;
