@@ -902,6 +902,8 @@ static dissector_table_t rtps_type_name_table;
 #define RTPS_VENDOR_ZRDDS_STRING         "Nanjing Zhenrong Software Technology Co. - ZRDDS"
 #define RTPS_VENDOR_DUST                 (0x0114)
 #define RTPS_VENDOR_DUST_STRING          "S2E Software Systems B.V. - Dust DDS"
+#define RTPS_VENDOR_SMARTDDS             (0x011C)
+#define RTPS_VENDOR_SMARTDDS_STRING      "Hanwha Systems Co., Ltd. - SmartDDS"
 
 
 /* Data encapsulation */
@@ -1946,6 +1948,7 @@ static const value_string vendor_vals[] = {
   { RTPS_VENDOR_RUST,          RTPS_VENDOR_RUST_STRING},
   { RTPS_VENDOR_ZRDDS,         RTPS_VENDOR_ZRDDS_STRING},
   { RTPS_VENDOR_DUST,          RTPS_VENDOR_DUST_STRING},
+  { RTPS_VENDOR_SMARTDDS,      RTPS_VENDOR_SMARTDDS_STRING},
   { 0, NULL }
 };
 
