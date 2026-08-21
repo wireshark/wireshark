@@ -580,9 +580,13 @@ session_keys_free_cb(void *r)
 
 	g_free(rec->dev_addr_string);
 	g_free(rec->nwkskey_string);
-	g_byte_array_free(rec->nwkskey, true);
+	if (rec->nwkskey) {
+		g_byte_array_free(rec->nwkskey, true);
+	}
 	g_free(rec->appskey_string);
-	g_byte_array_free(rec->appskey, true);
+	if (rec->appskey) {
+		g_byte_array_free(rec->appskey, true);
+	}
 }
 
 UAT_CSTRING_CB_DEF(root_keys, deveui_string, root_key_t)
@@ -698,10 +702,22 @@ aes128_lorawan_encrypt(const uint8_t *key, const uint8_t *data_in, uint8_t *data
 
 /* length should be a multiple of 16, in should be padded to get to a multiple of 16 */
 static bool
-decrypt_lorawan_frame_payload(const uint8_t *in, int length, uint8_t *out, const uint8_t * key, uint8_t dir, uint32_t dev_addr, uint32_t fcnt)
+decrypt_lorawan_frame_payload(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset, uint32_t frmpayload_length, uint8_t **out, const uint8_t * key, uint8_t dir, uint32_t dev_addr, uint32_t fcnt)
 {
+	DISSECTOR_ASSERT(scope != NULL && out != NULL);
+
+	uint32_t padded_length = LORAWAN_AES_PADDEDSIZE(frmpayload_length);
+	uint8_t *in = (uint8_t *)wmem_alloc0(scope, padded_length);
+	*out = (uint8_t *)wmem_alloc0(scope, padded_length);
+	if (in == NULL || *out == NULL) {
+		// Padding something close to UINT32_MAX yields 0
+		return false;
+	}
+	tvb_memcpy(tvb, in, offset, frmpayload_length);
+
 	gcry_cipher_hd_t cipher;
 	uint8_t iv[LORAWAN_AES_BLOCK_LENGTH] = {0x01, 0x00, 0x00, 0x00, 0x00, dir, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01};
+	/* XXX - This probably doesn't work on Big Endian. */
 	memcpy(iv + 6, &dev_addr, 4);
 	memcpy(iv + 10, &fcnt, 4);
 	if (gcry_cipher_open(&cipher, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0)) {
@@ -715,7 +731,7 @@ decrypt_lorawan_frame_payload(const uint8_t *in, int length, uint8_t *out, const
 		gcry_cipher_close(cipher);
 		return false;
 	}
-	if (gcry_cipher_encrypt(cipher, out, length, in, length)) {
+	if (gcry_cipher_encrypt(cipher, *out, padded_length, in, padded_length)) {
 		gcry_cipher_close(cipher);
 		return false;
 	}
@@ -1095,11 +1111,8 @@ dissect_lorawan_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_
 
 	session_key_t *session_key = get_session_key(dev_address);
 	if (session_key && frmpayload_length > 0) {
-		uint8_t padded_length = LORAWAN_AES_PADDEDSIZE(frmpayload_length);
-		uint8_t *decrypted_buffer = (uint8_t *)wmem_alloc0(pinfo->pool, padded_length);
-		uint8_t *encrypted_buffer = (uint8_t *)wmem_alloc0(pinfo->pool, padded_length);
-		tvb_memcpy(tvb, encrypted_buffer, current_offset, frmpayload_length);
-		if (decrypt_lorawan_frame_payload(encrypted_buffer, padded_length, decrypted_buffer, (fport == 0) ? session_key->nwkskey->data : session_key->appskey->data, !uplink, dev_address, fcnt)) {
+		uint8_t *decrypted_buffer;
+		if ((!decrypt_lorawan_frame_payload(pinfo->pool, tvb, current_offset, frmpayload_length, &decrypted_buffer, (fport == 0) ? session_key->nwkskey->data : session_key->appskey->data, !uplink, dev_address, fcnt))) {
 			tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, decrypted_buffer, frmpayload_length, frmpayload_length);
 			add_new_data_source(pinfo, next_tvb, "Decrypted payload");
 			proto_tree *frame_payload_decrypted_tree = proto_item_add_subtree(ti, ett_lorawan_frame_payload_decrypted);
