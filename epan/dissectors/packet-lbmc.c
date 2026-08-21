@@ -6338,21 +6338,32 @@ static lbmc_message_entry_t * lbmc_message_create(uint64_t channel, const addres
     return (entry);
 }
 
-static void lbmc_message_add_fragment(lbmc_message_entry_t * message, tvbuff_t * tvb, int data_offset, lbmc_fragment_info_t * info, uint32_t frame)
+static bool lbmc_message_add_fragment(lbmc_message_entry_t * message, tvbuff_t * tvb, int data_offset, lbmc_fragment_info_t * info, uint32_t frame)
 {
     lbmc_fragment_entry_t * frag = NULL;
     lbmc_fragment_entry_t * cur = NULL;
 
-    if ((tvb == NULL) || (info == NULL) || (message == NULL))
-    {
-        return;
+    DISSECTOR_ASSERT(!((tvb == NULL) || (info == NULL) || (message == NULL)));
+
+    /* This innocent function does not seem to consider the possibility of
+     * overlapping or bogus fragments, and the total accumulated length not
+     * equaling the expected length at any point. It would be nice to use
+     * the reassembly API. */
+    unsigned frag_len = tvb_reported_length_remaining(tvb, data_offset);
+    uint32_t total_len, accumulated_len;
+    if (ckd_add(&total_len, info->offset, frag_len) || total_len > message->total_len) {
+        return false;
     }
+    if (ckd_add(&accumulated_len, message->accumulated_len, frag_len) || accumulated_len > message->total_len) {
+        return false;
+    }
+
     if (message->entry == NULL)
     {
         frag = wmem_new(wmem_file_scope(), lbmc_fragment_entry_t);
         if (frag == NULL)
         {
-            return;
+            return false;
         }
         frag->prev = NULL;
         frag->next = NULL;
@@ -6366,7 +6377,7 @@ static void lbmc_message_add_fragment(lbmc_message_entry_t * message, tvbuff_t *
             if (info->offset == cur->fragment_start)
             {
                 /* Already have this fragment */
-                return;
+                return true;
             }
             if (info->offset < cur->fragment_start)
             {
@@ -6384,7 +6395,7 @@ static void lbmc_message_add_fragment(lbmc_message_entry_t * message, tvbuff_t *
         frag = wmem_new(wmem_file_scope(), lbmc_fragment_entry_t);
         if (frag == NULL)
         {
-            return;
+            return false;
         }
         if (cur == NULL)
         {
@@ -6405,12 +6416,13 @@ static void lbmc_message_add_fragment(lbmc_message_entry_t * message, tvbuff_t *
         }
     }
     frag->fragment_start = info->offset;
-    frag->fragment_len = tvb_reported_length_remaining(tvb, data_offset);
+    frag->fragment_len = frag_len;
     frag->data = (char *) tvb_memdup(wmem_file_scope(), tvb, data_offset, frag->fragment_len);
     frag->frame = frame;
     frag->frame_offset = data_offset;
     message->accumulated_len += frag->fragment_len;
     message->fragment_count++;
+    return true;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -6427,7 +6439,7 @@ static void lbmc_init_extopt_reassembled_data(lbmc_extopt_reassembled_data_t * r
 /*----------------------------------------------------------------------------*/
 /* Dissection functions.                                                      */
 /*----------------------------------------------------------------------------*/
-static int dissect_nhdr_frag(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree, lbmc_fragment_info_t * frag_info)
+static int dissect_nhdr_frag(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree, lbmc_fragment_info_t * frag_info, proto_item **frag_item)
 {
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
@@ -6451,6 +6463,10 @@ static int dissect_nhdr_frag(tvbuff_t * tvb, unsigned offset, packet_info * pinf
         frag_info->first_sqn = tvb_get_ntohl(tvb, offset + O_LBMC_FRAG_HDR_T_FIRST_SQN);
         frag_info->offset = tvb_get_ntohl(tvb, offset + O_LBMC_FRAG_HDR_T_OFFSET);
         frag_info->len = tvb_get_ntohl(tvb, offset + O_LBMC_FRAG_HDR_T_LEN);
+    }
+    if (frag_item != NULL)
+    {
+        *frag_item = subtree_item;
     }
     return (L_LBMC_FRAG_HDR_T);
 }
@@ -10952,6 +10968,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, unsigned offset, packet_info * pinf
         frag_info.first_sqn = 0;
         frag_info.offset = 0;
         frag_info.len = 0;
+        proto_item *hdr_frag_item = NULL;
         msgprop_len = 0;
         reassembly = wmem_new(pinfo->pool, lbmc_extopt_reassembled_data_t);
         lbmc_init_extopt_reassembled_data(reassembly);
@@ -10989,7 +11006,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, unsigned offset, packet_info * pinf
             switch (next_hdr)
             {
                 case LBMC_NHDR_FRAG:
-                    dissected_hdr_len = dissect_nhdr_frag(hdr_tvb, 0, pinfo, subtree, &frag_info);
+                    dissected_hdr_len = dissect_nhdr_frag(hdr_tvb, 0, pinfo, subtree, &frag_info, &hdr_frag_item);
                     break;
                 case LBMC_NHDR_BATCH:
                     dissected_hdr_len = dissect_nhdr_batch(hdr_tvb, 0, pinfo, subtree);
@@ -11504,16 +11521,15 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, unsigned offset, packet_info * pinf
                     {
                         /* Check fragment against message */
                         int frag_len = tvb_reported_length_remaining(lbmc_tvb, pkt_offset);
-                        if ((frag_info.offset + (uint32_t) frag_len) > msg->total_len)
+                        if (!lbmc_message_add_fragment(msg, lbmc_tvb, pkt_offset, &frag_info, pinfo->num))
                         {
                             /* Indicate a malformed packet */
-                            expert_add_info_format(pinfo, NULL, &ei_lbmc_analysis_invalid_fragment,
+                            expert_add_info_format(pinfo, hdr_frag_item, &ei_lbmc_analysis_invalid_fragment,
                                 "Invalid fragment for message (msglen=%" PRIu32 ", frag offset=%" PRIu32 ", frag len=%d",
                                 msg->total_len, frag_info.offset, frag_len);
                         }
                         else
                         {
-                            (void)lbmc_message_add_fragment(msg, lbmc_tvb, pkt_offset, &frag_info, pinfo->num);
                             if (data_is_umq_cmd_resp)
                             {
                                 msg->data_is_umq_cmd_resp = true;
@@ -11525,7 +11541,6 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, unsigned offset, packet_info * pinf
                                     /* Store the frame number in which the message will be reassembled */
                                     msg->reassembled_frame = pinfo->num;
                                 }
-                                data_tvb = tvb_new_subset_remaining(lbmc_tvb, pkt_offset);
                                 msgprop_tvb = NULL;
                                 msg_reassembled = true;
                                 msg_complete = true;
@@ -11538,13 +11553,13 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, unsigned offset, packet_info * pinf
                             else
                             {
                                 /* This is not the last fragment of the message. */
-                                data_tvb = tvb_new_subset_remaining(lbmc_tvb, pkt_offset);
                                 msgprop_tvb = NULL;
                                 msg_reassembled = true;
                                 msg_complete = false;
                             }
                         }
                     }
+                    data_tvb = tvb_new_subset_remaining(lbmc_tvb, pkt_offset);
                 }
             }
 
