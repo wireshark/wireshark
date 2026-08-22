@@ -43,6 +43,8 @@ static int hf_gsm_bsslap_encryption_key;
 /* Initialize the subtree pointers */
 static int ett_gsm_bsslap;
 static int ett_bsslap_cell_list;
+static int ett_bsslap_cell_list_disc2;
+static int ett_bsslap_cell_list_disc3;
 
 static expert_field ei_gsm_bsslap_missing_mandatory_element;
 static expert_field ei_gsm_bsslap_not_decoded_yet;
@@ -272,13 +274,12 @@ de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t of
 {
     uint32_t curr_offset;
     uint8_t consumed;
-    uint8_t cell_id_disc;
+    uint32_t cell_id_disc;
     uint8_t num_cells;
-    proto_item  *item = NULL;
+    proto_item  *item = NULL, *subitem = NULL;
     proto_tree  *subtree = NULL;
 
     curr_offset = offset;
-    cell_id_disc = tvb_get_uint8(tvb,curr_offset);
     num_cells = 0;
 
     while(len>0){
@@ -288,7 +289,8 @@ de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t of
 
         if (add_string)
             add_string[0] = '\0';
-        proto_tree_add_item(subtree, hf_gsm_bsslap_cell_id_disc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(subtree, hf_gsm_bsslap_cell_id_disc, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &cell_id_disc);
+        proto_item_append_text(item, " (%s)", val_to_str_const(cell_id_disc, gsm_a_bsslap_cell_id_disc_vals, "Unknown"));
         curr_offset++;
         len--;
         switch(cell_id_disc){
@@ -305,13 +307,17 @@ de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t of
                  * Coding of the Target ID for Cell identification discriminator = 0010.
                  * Octets (x+1) to (x+9) shall be ignored by the receiver.
                  */
-                /* fall trough */
+                proto_tree_add_subtree(subtree, tvb, curr_offset, 9, ett_bsslap_cell_list_disc2, &subitem, "Octets (x+1) to (x+9) shall be ignored by the receiver");
+                consumed += 9;
+                break;
             case 3:
                 /* 3G Cell identification container 2
                  * Coding of the Target ID for Cell identification discriminator = 0011.
                  * Octets (x+1) to (x+6) shall be ignored by the receiver.
                  */
-                /* fall trough */
+                proto_tree_add_subtree(subtree, tvb, curr_offset, 6, ett_bsslap_cell_list_disc3, &subitem, "Octets (x+1) to (x+6) shall be ignored by the receiver");
+                consumed += 6;
+                break;
             default:
                 proto_tree_add_expert(subtree, pinfo, &ei_gsm_bsslap_not_decoded_yet, tvb, curr_offset, len);
                 consumed = len;
@@ -934,12 +940,14 @@ proto_register_gsm_bsslap(void)
     expert_module_t* expert_gsm_bsslap;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    2
+#define NUM_INDIVIDUAL_ELEMS    4
     int *ett[NUM_INDIVIDUAL_ELEMS + NUM_GSM_BSSLAP_MSG +
           NUM_GSM_BSSLAP_ELEM];
 
     ett[0] = &ett_gsm_bsslap;
     ett[1] = &ett_bsslap_cell_list;
+    ett[2] = &ett_bsslap_cell_list_disc2;
+    ett[3] = &ett_bsslap_cell_list_disc3;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
