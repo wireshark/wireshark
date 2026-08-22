@@ -14,6 +14,8 @@
 #ifndef __WSUTIL_FILE_COMPRESSED_H__
 #define __WSUTIL_FILE_COMPRESSED_H__
 
+#include <wireshark.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

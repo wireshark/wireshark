@@ -13,8 +13,6 @@
 
 #include <config.h>
 
-#include <wireshark.h>
-
 #include <errno.h>
 
 #include <wsutil/file_util.h>
