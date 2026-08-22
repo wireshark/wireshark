@@ -66,6 +66,7 @@ static const uint8_t tiff_le_magic[]    = { 'I', 'I', 42, 0 };
 static const uint8_t tiff_be_magic[]    = { 'M', 'M', 0, 42 };
 static const uint8_t riff_magic[]    = { 'R', 'I', 'F', 'F' };
 static const uint8_t btsnoop_magic[]    = { 'b', 't', 's', 'n', 'o', 'o', 'p', 0};
+static const uint8_t ogg_magic[]                 = { 'O', 'g', 'g', 'S' };
 static const uint8_t pcap_magic[]           = { 0xA1, 0xB2, 0xC3, 0xD4 };
 static const uint8_t pcap_swapped_magic[]   = { 0xD4, 0xC3, 0xB2, 0xA1 };
 static const uint8_t pcap_nsec_magic[]           = { 0xA1, 0xB2, 0x3C, 0x4D };
@@ -92,6 +93,7 @@ static const mime_files_t magic_files[] = {
 	{ tiff_be_magic, sizeof(tiff_be_magic) },
 	{ riff_magic, sizeof(riff_magic) },
 	{ btsnoop_magic, sizeof(btsnoop_magic) },
+	{ ogg_magic, sizeof(ogg_magic) },
 	{ pcap_magic, sizeof(pcap_magic) },
 	{ pcap_swapped_magic, sizeof(pcap_swapped_magic) },
 	{ pcap_nsec_magic, sizeof(pcap_nsec_magic) },
