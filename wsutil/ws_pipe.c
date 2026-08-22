@@ -221,7 +221,7 @@ convert_to_command_line(char **argv)
             // We returned a interpreter command, but it didn't have "%1".
             // That's unexpected. As a fallback, add a space and then append
             // the original command at the end.
-            ws_info("Interpreter command didn't have \"%1\", fallback to append.");
+            ws_info("Interpreter command didn't have \"%%1\", fallback to append.");
             g_string_append_c(command_line, ' ');
         }
         // The first argument must always be quoted even if it does not contain
