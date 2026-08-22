@@ -250,6 +250,8 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     connect(ui->captureFilterComboBox, &QLineEdit::textEdited, this, &CaptureOptionsDialog::captureFilterTextEdited);
     connect(&interface_item_delegate_, &InterfaceTreeDelegate::filterChanged, ui->captureFilterComboBox, &QLineEdit::setText);
     connect(&interface_item_delegate_, &InterfaceTreeDelegate::filterChanged, this, &CaptureOptionsDialog::captureFilterTextEdited);
+    connect(mainApp, &MainApplication::interfaceListChanged, this, &CaptureOptionsDialog::refreshInterfaceList);
+
     mainApp->whenInitialized(this, [this]() { connectInterfaceListManager(); });
     connect(ui->browseButton, &QPushButton::clicked, this, &CaptureOptionsDialog::browseButtonClicked);
     connect(ui->interfaceTree, &QTreeWidget::itemClicked, this, &CaptureOptionsDialog::itemClicked);
@@ -971,9 +973,6 @@ void CaptureOptionsDialog::connectInterfaceListManager()
         return;
 
     InterfaceListManager *manager = mainWindow->interfaceListManager();
-    connect(manager, &InterfaceListManager::interfaceListChanged,
-            this, &CaptureOptionsDialog::refreshInterfaceList, Qt::UniqueConnection);
-
     // The facade owns the dumpcap -S stream; the dialog only renders. Repaint
     // the sparklines whenever it samples or an interface's activity flips.
     if (InterfaceStatistics *stats = manager->statistics()) {

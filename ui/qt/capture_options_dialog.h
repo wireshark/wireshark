@@ -67,7 +67,7 @@ protected:
     virtual void showEvent(QShowEvent *) override;
 
 private slots:
-    /** @brief Subscribes to the window's InterfaceListManager::interfaceListChanged. */
+    /** @brief Subscribes to the window's InterfaceListManager's statistics updates. */
     void connectInterfaceListManager();
     void on_capturePromModeCheckBox_toggled(bool checked);
     void on_captureMonitorModeCheckBox_toggled(bool checked);

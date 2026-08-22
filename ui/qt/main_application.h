@@ -342,6 +342,17 @@ public:
     /**
      * @brief Retrieves the main window instance.
      * @return Pointer to the MainWindow.
+     *
+     * @note This returns nullptr if the MainWindow is not visible, which is
+     * useful for (not) parenting SimpleDialogs that might appear very early,
+     * because a QDialog with a hidden parent can have odd geometry or taskbar
+     * behavior. OTOH, that's not very useful for connecting signals and slots
+     * of the (Wireshark|Stratoshark)MainWindow and its children, grandchildren,
+     * etc. with one another. (Particularly during the constructors, when the
+     * MainWindow is not visible yet, but is when it makes sense to connect
+     * signals.) We end up going through the MainApplication for some signals,
+     * but it could make sense to have an option to return the main window even
+     * if it's visible.
      */
     MainWindow *mainWindow();
 
@@ -456,6 +467,12 @@ protected:
 signals:
     /** @brief Signal emitted when application is fully initialized. */
     void appInitialized();
+    /** @brief Signal emitted when interface list changes (forwarded from
+     * the MainWindow's InterfaceListManager, which is the one true source
+     * of interface list changes, but mainWindow() returns nullptr during
+     * the constructors where siblings and relatives want to connect to
+     * the InterfaceListManager. */
+    void interfaceListChanged();
     /** @brief Signal emitted for local interface events (add/remove/up/down). */
     void localInterfaceEvent(const char *ifname, int added, int up);
     /** @brief Signal emitted to open a specific capture file. */

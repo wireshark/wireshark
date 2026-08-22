@@ -102,22 +102,9 @@ InterfaceToolbar::InterfaceToolbar(QWidget *parent, const iface_toolbar *toolbar
         ui->horizontalSpacer->changeSize(0,0, QSizePolicy::Fixed, QSizePolicy::Fixed);
     }
 
-    // Refresh on app-init and on every interface-list change from the window's
-    // InterfaceListManager. The toolbar may be built before that manager exists,
-    // so defer the manager connection to appInitialized when needed.
-    connect(mainApp, &MainApplication::appInitialized, this, &InterfaceToolbar::interfaceListChanged);
-    mainApp->whenInitialized(this, [this]() { connectInterfaceListManager(); });
+    connect(mainApp, &MainApplication::interfaceListChanged, this, &InterfaceToolbar::interfaceListChanged);
 
     updateWidgets();
-}
-
-void InterfaceToolbar::connectInterfaceListManager()
-{
-    MainWindow *mainWindow = mainApp->mainWindow();
-    if (mainWindow && mainWindow->interfaceListManager()) {
-        connect(mainWindow->interfaceListManager(), &InterfaceListManager::interfaceListChanged,
-                this, &InterfaceToolbar::interfaceListChanged, Qt::UniqueConnection);
-    }
 }
 
 InterfaceToolbar::~InterfaceToolbar()

@@ -126,12 +126,6 @@ private:
 
 private slots:
     /**
-     * @brief Subscribes to the window's InterfaceListManager::interfaceListChanged
-     *        (deferred to appInitialized when built before the window exists).
-     */
-    void connectInterfaceListManager();
-
-    /**
      * @brief Slot triggered when the application has been fully initialized.
      */
     void appInitialized();

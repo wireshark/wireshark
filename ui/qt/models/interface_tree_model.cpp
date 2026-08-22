@@ -47,25 +47,11 @@ InterfaceTreeModel::InterfaceTreeModel(QObject *parent) :
     QAbstractTableModel(parent),
     interface_stats_(nullptr)
 {
-    connect(mainApp, &MainApplication::appInitialized, this, &InterfaceTreeModel::interfaceListChanged);
-
-    // Interface-list change notifications come from the window's
-    // InterfaceListManager. Runs now if the window is already up (dialog cache
-    // model), otherwise once the app finishes initializing (welcome source
-    // model) -- whenInitialized() picks the right timing for us.
-    mainApp->whenInitialized(this, [this]() { connectInterfaceListManager(); });
+    connect(mainApp, &MainApplication::interfaceListChanged, this, &InterfaceTreeModel::interfaceListChanged);
 }
 
 InterfaceTreeModel::~InterfaceTreeModel(void)
 {
-}
-
-void InterfaceTreeModel::connectInterfaceListManager()
-{
-    MainWindow *mainWindow = mainApp->mainWindow();
-    if (mainWindow && mainWindow->interfaceListManager())
-        connect(mainWindow->interfaceListManager(), &InterfaceListManager::interfaceListChanged,
-                this, &InterfaceTreeModel::interfaceListChanged, Qt::UniqueConnection);
 }
 
 QString InterfaceTreeModel::interfaceError()

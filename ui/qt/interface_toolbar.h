@@ -119,9 +119,6 @@ signals:
     void closeReader();
 
 private slots:
-    /** @brief Subscribes to the window's InterfaceListManager::interfaceListChanged. */
-    void connectInterfaceListManager();
-
     /**
      * @brief Updates the states of the toolbar widgets based on current values.
      */

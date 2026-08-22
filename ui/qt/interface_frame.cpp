@@ -142,13 +142,16 @@ InterfaceFrame::InterfaceFrame(QWidget * parent)
     ui->interfaceTree->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->interfaceTree, &QTreeView::customContextMenuRequested, this, &InterfaceFrame::showContextMenu);
 
-    connect(mainApp, &MainApplication::appInitialized, this, &InterfaceFrame::interfaceListChanged);
+    // This is a temporary hack to ensure that the warning message is displayed
+    // if the interface list is never loaded at the beginning. Note the weird
+    // timing - WiresharkMainWindow::openCaptureFile calls showRunOnFile() when
+    // opening a capture file, and that has to happen after this in order for
+    // the warning message to be correct for that case. It might make more
+    // sense for main.cpp to explicitly set the appropriate warning and display
+    // it when not loading the interfaces synchronously.
+    connect(mainApp, &MainApplication::appInitialized, this, &InterfaceFrame::resetInterfaceTreeDisplay);
 
-    // Interface-list change notifications come from the window's
-    // InterfaceListManager. It may not exist yet when the welcome frame is
-    // built; whenInitialized() connects now if the app is up, or defers to
-    // appInitialized otherwise.
-    mainApp->whenInitialized(this, [this]() { connectInterfaceListManager(); });
+    connect(mainApp, &MainApplication::interfaceListChanged, this, &InterfaceFrame::interfaceListChanged);
 
     connect(ui->interfaceTree->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &InterfaceFrame::interfaceTreeSelectionChanged);
@@ -157,14 +160,6 @@ InterfaceFrame::InterfaceFrame(QWidget * parent)
 InterfaceFrame::~InterfaceFrame()
 {
     delete ui;
-}
-
-void InterfaceFrame::connectInterfaceListManager()
-{
-    MainWindow *mainWindow = mainApp->mainWindow();
-    if (mainWindow && mainWindow->interfaceListManager())
-        connect(mainWindow->interfaceListManager(), &InterfaceListManager::interfaceListChanged,
-                this, &InterfaceFrame::interfaceListChanged, Qt::UniqueConnection);
 }
 
 void InterfaceFrame::saveHiddenInterfaces()

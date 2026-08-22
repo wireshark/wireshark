@@ -169,15 +169,6 @@ public slots:
     void interfaceListChanged();
 
 private slots:
-    /**
-     * @brief Subscribes to the window's InterfaceListManager::interfaceListChanged.
-     *
-     * The model has no window reference and may be built either before the window
-     * (welcome frame's source model) or after (dialog cache model), so wiring is
-     * deferred to appInitialized only when the app is not yet initialized.
-     */
-    void connectInterfaceListManager();
-
     /** @brief Repaints the statistics column when a new sample arrives. */
     void onStatisticsUpdated();
 

@@ -191,14 +191,6 @@ private:
 
 private slots:
     /**
-     * @brief Subscribes to the window's InterfaceListManager::interfaceListChanged.
-     *
-     * Deferred until appInitialized when the frame is built before the window's
-     * manager exists; the manager is reached via mainApp->mainWindow().
-     */
-    void connectInterfaceListManager();
-
-    /**
      * @brief Slot triggered when the selection in the interface tree changes.
      * @param selected The newly selected items.
      * @param deselected The previously selected items.

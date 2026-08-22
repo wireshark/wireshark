@@ -48,6 +48,8 @@ InterfaceListManager::InterfaceListManager(QObject *parent) :
     prevCaptureNoInterfaceLoad_(prefs.capture_no_interface_load),
     prevCaptureNoExtcap_(prefs.capture_no_extcap)
 {
+    connect(this, &InterfaceListManager::interfaceListChanged,
+            mainApp, &MainApplication::interfaceListChanged);
     // Own the "capture prefs changed -> reload interfaces" reaction that used to
     // live in MainApplication::setConfigurationProfile.
     connect(mainApp, &MainApplication::preferencesChanged,
