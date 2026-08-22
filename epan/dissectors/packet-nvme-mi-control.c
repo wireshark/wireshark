@@ -64,7 +64,7 @@ static expert_field ei_nvme_mi_ctl_reserved_opcode;
 static expert_field ei_nvme_mi_ctl_orphan_response;
 static expert_field ei_nvme_mi_ctl_tag_mismatch;
 
-/* Control Primitive opcodes (NVMe-MI 2.1 Figure 38, §4.2.1).
+/* Control Primitive opcodes (NVMe-MI 2.1 "Control Primitive Opcodes", §4.2.1).
  * 05h..EFh are reserved; F0h..FFh are vendor specific. */
 enum nvme_mi_cp_opc {
     NVME_MI_CP_OPC_PAUSE     = 0x00,
@@ -76,13 +76,14 @@ enum nvme_mi_cp_opc {
     NVME_MI_CP_OPC_RESERVED_LAST   = 0xEF,
 };
 
-static const value_string cp_opcode_vals[] = {
-    { NVME_MI_CP_OPC_PAUSE,     "Pause" },
-    { NVME_MI_CP_OPC_RESUME,    "Resume" },
-    { NVME_MI_CP_OPC_ABORT,     "Abort" },
-    { NVME_MI_CP_OPC_GET_STATE, "Get State" },
-    { NVME_MI_CP_OPC_REPLAY,    "Replay" },
-    { 0, NULL },
+static const range_string cp_opcode_vals[] = {
+    { NVME_MI_CP_OPC_PAUSE,     NVME_MI_CP_OPC_PAUSE,     "Pause" },
+    { NVME_MI_CP_OPC_RESUME,    NVME_MI_CP_OPC_RESUME,    "Resume" },
+    { NVME_MI_CP_OPC_ABORT,     NVME_MI_CP_OPC_ABORT,     "Abort" },
+    { NVME_MI_CP_OPC_GET_STATE, NVME_MI_CP_OPC_GET_STATE, "Get State" },
+    { NVME_MI_CP_OPC_REPLAY,    NVME_MI_CP_OPC_REPLAY,    "Replay" },
+    { 0xF0, 0xFF,               "Vendor Specific" },
+    { 0, 0, NULL },
 };
 
 /* CPAS — Command Processing Abort Status (Abort CPSR, NVMe-MI 2.1 §4.2.1.3) */
@@ -172,7 +173,7 @@ dissect_nvme_mi_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Best-effort COL_INFO for a truncated response whose request we saw. */
         if (resp && trans && trans->req_parsed)
             col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                            val_to_str_const(trans->opcode, cp_opcode_vals,
+                            rval_to_str_const(trans->opcode, cp_opcode_vals,
                                              "Unknown"));
         expert_add_info(pinfo, it, &ei_nvme_mi_ctl_truncated);
         return tvb_captured_length(tvb);
@@ -192,11 +193,25 @@ dissect_nvme_mi_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (it2) {
             opcode = (uint8_t)rec_opcode;
             col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                            val_to_str_const(opcode, cp_opcode_vals,
+                            rval_to_str_const(opcode, cp_opcode_vals,
                                              "Unknown"));
         }
 
-        proto_tree_add_item(ctl_tree, hf_nvme_mi_ctl_status, tvb, 0, 1, ENC_NA);
+        uint8_t status;
+        proto_tree_add_item_ret_uint8(ctl_tree, hf_nvme_mi_ctl_status,
+                                      tvb, 0, 1, ENC_NA, &status);
+
+        /* The Response Body format depends on the Status field (NVMe-MI 2.1
+         * Figures 27 and 28).  Figures 39 and 40 are the Control Primitive
+         * *Success* Response layout, so only a Success status carries a Tag at
+         * byte 5 and a CPSR at bytes 7:6.  Anything else is a Generic Error
+         * Response (Figure 30, bytes 7:5 reserved) or an Invalid Parameter
+         * Error Response (Figures 31 and 32, bytes 7:5 the Parameter Error
+         * Location); the shared helper owns those, exactly as the MI and Admin
+         * response paths do. */
+        if (!nvme_mi_dissect_resp_status_bytes(tvb, ctl_tree, status))
+            return tvb_captured_length(tvb);
+
         proto_tree_add_item_ret_uint8(ctl_tree, hf_nvme_mi_ctl_tag, tvb, 1, 1, ENC_NA, &tag);
 
         /* The response tag must echo the request tag (NVMe-MI 2.1 §4.2.1). */
@@ -227,7 +242,7 @@ dissect_nvme_mi_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         opc_it = proto_tree_add_item_ret_uint8(ctl_tree, hf_nvme_mi_ctl_opcode,
                                      tvb, 0, 1, ENC_NA, &opcode);
         col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                        val_to_str_const(opcode, cp_opcode_vals, "Unknown"));
+                        rval_to_str_const(opcode, cp_opcode_vals, "Unknown"));
 
         if (opcode >= NVME_MI_CP_OPC_RESERVED_FIRST &&
             opcode <= NVME_MI_CP_OPC_RESERVED_LAST)
@@ -276,13 +291,14 @@ proto_register_nvme_mi_control(void)
     static hf_register_info hf[] = {
         { &hf_nvme_mi_ctl_opcode,
           { "Control Primitive Opcode (CPO)", "nvme-mi.control.opcode",
-            FT_UINT8, BASE_HEX, VALS(cp_opcode_vals), 0,
+            FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(cp_opcode_vals), 0,
             "Control Primitive being requested (NVMe-MI 2.1 §4.2.1)", HFILL },
         },
         { &hf_nvme_mi_ctl_status,
           { "Status", "nvme-mi.control.status",
-            FT_UINT8, BASE_HEX, VALS(nvme_mi_status_vals), 0,
-            "Response Message Status (NVMe-MI 2.1 Figure 29)", HFILL },
+            FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(nvme_mi_status_vals), 0,
+            "Response Message Status (NVMe-MI 2.1 'Response Message"
+            " Status Values')", HFILL },
         },
         { &hf_nvme_mi_ctl_tag,
           { "Tag", "nvme-mi.control.tag",
@@ -310,7 +326,8 @@ proto_register_nvme_mi_control(void)
             FT_UINT16, BASE_HEX, VALS(cpas_vals), 0x0003,
             "Outcome of an Abort primitive (§4.2.1.3)", HFILL },
         },
-        /* MES — Management Endpoint State (CPSR for Get State, Figure 43) */
+        /* MES — Management Endpoint State (CPSR for Get State, the
+         * "Management Endpoint State Data Structure" figure) */
         { &hf_nvme_mi_ctl_mes_pflg,
           { "Pause Flag (PFLG)", "nvme-mi.control.mes.pflg",
             FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x8000,
@@ -402,9 +419,9 @@ proto_register_nvme_mi_control(void)
         },
         { &ei_nvme_mi_ctl_orphan_response,
           { "nvme-mi.control.orphan_response", PI_SEQUENCE, PI_NOTE,
-            "Control Primitive response without a usable matching request "
-            "(missing or truncated); opcode and CPSR layout could not be "
-            "recovered", EXPFILL }
+            "Control Primitive response without a usable matching request"
+            " (missing or truncated); opcode and CPSR layout could not be"
+            " recovered", EXPFILL }
         },
         { &ei_nvme_mi_ctl_tag_mismatch,
           { "nvme-mi.control.tag_mismatch", PI_PROTOCOL, PI_WARN,

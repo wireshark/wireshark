@@ -5,7 +5,7 @@ Generate pcapng test capture for the MCTP over SMBus/I2C dissector.
 
 One capture is produced:
 
-mctp-smbus.pcapng  (10 frames)
+mctp-smbus.pcapng  (16 frames)
 
   --- Heuristic detection & transport-field coverage ---
 
@@ -15,8 +15,10 @@ mctp-smbus.pcapng  (10 frames)
     dst_EID=0x20, src_EID=0x40, inner payload = MCTP Control Get EID request.
     Total = 11 bytes; byte_count+3=11 so no PEC is present.
 
-  Frame 2: Valid MCTP-SMBus frame, with PEC=0xAB
+  Frame 2: Valid MCTP-SMBus frame, with a correct PEC
     Identical to Frame 1 + one PEC byte; total length == byte_count+4.
+    The PEC is the real CRC-8 over bytes 0..byte_count+2, so the dissector
+    must report it as Good.
 
   Frame 3: Invalid — command code 0x0E (not the required 0x0F)
     Rejected by mctp_smbus_heuristic_check().
@@ -39,7 +41,7 @@ mctp-smbus.pcapng  (10 frames)
     Carries the 12-byte NVMe-MI MI command payload (opcode=0x01 NVM
     Subsystem Health Status Poll, CDW0=0, CDW1=0).  MCTP reassembly
     completes here; the full 16-byte NVMe-MI message is decoded.
-    byte_count=17, len=21 (byte_count+4), PEC=0xCD.
+    byte_count=17, len=21 (byte_count+4), correct PEC.
 
   Frame 8: NVMe-MI Health Status Poll response (SOM+EOM, single packet)
     Drive (src_EID=0x20, slave=0x41) replies to BMC (dst_EID=0x40,
@@ -48,8 +50,10 @@ mctp-smbus.pcapng  (10 frames)
 
   --- Malformed frame ---
 
-  Frame 9: Extra bytes beyond byte count indicated length with PEC (malformed)
-    byte_count=8, len=14 (byte_count+4=12, so 2 extra bytes then PEC).
+  Frame 9: Extra bytes beyond the byte-count-indicated length (malformed)
+    byte_count=8, len=14: the correct PEC at byte_count+3=11, then two pad
+    bytes (0xDE 0xAD).  DSP0237 §6.3 Figure 1 fixes the PEC immediately
+    after the last data byte, so trailing bytes must not shift it to len-1.
     Triggers ei_mctp_smbus_length_mismatch warning; MCTP inner frame is
     still decoded.  Exercises the fixed off-by-one in the extra-bytes
     count reported in the expert info message.
@@ -60,6 +64,42 @@ mctp-smbus.pcapng  (10 frames)
     The heuristic must return false without throwing a BoundsError.
     Regression guard for the tvb_captured_length fix in mctp_smbus_frame_is_valid.
     Not decoded as mctp.smbus; shown as raw I2C data.
+
+  --- Two concurrent MCTP messages sharing a tag but differing in TO ---
+
+  Frames 11-14: drive (EID 0x20) -> BMC (EID 0x40), both messages tag=2.
+
+    Frame 11  message R fragment 1  SOM, seq 0, TO=0, tag 2
+    Frame 12  message A fragment 1  SOM, seq 0, TO=1, tag 2
+    Frame 13  message R fragment 2  EOM, seq 1, TO=0, tag 2
+    Frame 14  message A fragment 2  EOM, seq 1, TO=1, tag 2
+
+    DSP0236 1.3.3 Table 1 defines a message at the MCTP transport level by
+    (Source EID, Tag Owner, Msg tag), and states that the Message Tag field
+    "is generated and tracked independently for each value of the Tag Owner
+    bit" - so R and A are two distinct messages even though both carry tag 2
+    over the same EID pair.  This is the ordinary request/response case: a
+    responder returns the requester's tag with TO cleared, while anything the
+    device originates itself owns its own tag.
+
+    R reassembles to 8 bytes, A to 12 bytes, with disjoint payload bytes, so a
+    reassembly key that omits TO merges them and the two lengths swap.
+
+  --- MCTP control command beyond 0x05 ---
+
+  Frame 15: MCTP Control Get Routing Table Entries request (command 0x0A)
+    Same framing as Frame 1 with the control command byte changed.  DSP0236
+    Table 12 defines control commands through 0x14; anything above 0x05 used
+    to fall back to the generic "Control" string in the Info column.
+
+  --- Corrupted PEC ---
+
+  Frame 16: Frame 2 with the PEC byte inverted
+    DSP0237 §6.3 Figure 1: "All MCTP transactions shall include a PEC byte.
+    The PEC byte shall be transmitted by the source and checked by the
+    destination."  A corrupt bus transaction must be distinguishable from a
+    good one, so the PEC status field must read Bad here and Good on
+    Frame 2.
 
 Wire format (DSP0237 §6.3) as seen by the i2c.message subdissector:
   tvb[0]           Destination Slave Address  [7:1]=addr, [0]=R/W#=0
@@ -145,6 +185,21 @@ DLT_LINUX_I2C = 209
 I2C_PHDR_LEN  = 5  # bus byte + 4-byte flags
 
 
+def smbus_pec(data):
+    """SMBus Packet Error Code over data.
+
+    SMBus 3.3 §5.4/§6.4.10: CRC-8 with C(x) = x^8 + x^2 + x^1 + 1 (0x07),
+    computed MSB-first over every message byte including the address and
+    read/write bits, with a zero initial value.
+    """
+    crc = 0
+    for byte in data:
+        crc ^= byte
+        for _ in range(8):
+            crc = ((crc << 1) ^ 0x07) & 0xFF if crc & 0x80 else (crc << 1) & 0xFF
+    return crc
+
+
 def i2c_phdr(bus=0, is_event=False, flags=0):
     bus_byte = (bus & 0x7F) | (0x80 if is_event else 0x00)
     return bytes([bus_byte]) + struct.pack('>I', flags)
@@ -191,7 +246,9 @@ _VALID = [
     0x02,   # MCTP Control command: Get Endpoint ID
 ]
 
-_PEC = 0xAB
+# DSP0237 §6.3 Figure 1: the PEC covers the whole transaction, from the
+# destination slave address byte through the last data byte at byte_count+2.
+_PEC = smbus_pec(_VALID)
 
 
 def _mutate(idx, val):
@@ -233,10 +290,10 @@ _NVME_MI_REQ_SOM = [
     0x00,        # NVMe-MI byte 3: reserved
 ]
 
-# Frame 7 — fragment 2 (EOM only), with PEC=0xCD
+# Frame 7 — fragment 2 (EOM only), with a correct PEC
 # byte_count = 1(src) + 4(MCTP hdr) + 12(MI cmd payload) = 17
 # len = 17 + 4 = 21, byte_count+4=21 → PEC present
-_NVME_MI_REQ_EOM = [
+_NVME_MI_REQ_EOM_BODY = [
     0x40,        # dst slave addr: 7-bit 0x20, R/W#=0
     0x0F,        # command code
     0x11,        # byte_count = 17 = 0x11
@@ -249,8 +306,8 @@ _NVME_MI_REQ_EOM = [
     0x00, 0x00, 0x00,              # reserved
     0x00, 0x00, 0x00, 0x00,        # CDW0
     0x00, 0x00, 0x00, 0x00,        # CDW1
-    0xCD,        # PEC
 ]
+_NVME_MI_REQ_EOM = _NVME_MI_REQ_EOM_BODY + [smbus_pec(_NVME_MI_REQ_EOM_BODY)]
 
 # ---------------------------------------------------------------------------
 # Frame 8: NVMe-MI Health Status Poll response (SOM+EOM, single packet)
@@ -277,13 +334,71 @@ _NVME_MI_RESP = [
 ]
 
 # ---------------------------------------------------------------------------
-#   Frame 9: Extra bytes beyond byte count indicated length with PEC (malformed)
-#   byte_count=8, len=14 (byte_count+4=12, so 2 extra bytes then PEC).
+#   Frame 9: Extra bytes beyond the byte-count-indicated length (malformed)
+#   byte_count=8, len=14: the correct PEC sits at byte_count+3=11 (DSP0237
+#   §6.3 Figure 1 fixes it immediately after the last data byte) and two pad
+#   bytes follow it.  Placing the PEC at len-1 instead reads 0xAD, which is
+#   both the wrong byte and a failing CRC.
 #   Triggers ei_mctp_smbus_length_mismatch warning; MCTP inner frame is
 #   still decoded.  Exercises the fixed off-by-one in the extra-bytes
 #   count reported in the expert info message.
 # ---------------------------------------------------------------------------
-_EXTRA_TRAILING = _VALID + [0xDE, 0xAD, _PEC]
+_EXTRA_TRAILING = _VALID + [_PEC, 0xDE, 0xAD]
+
+# ---------------------------------------------------------------------------
+#   Frame 16: Frame 2 with a corrupted PEC — the CRC-8 must be checked, not
+#   merely displayed (DSP0237 §6.3 Figure 1: "checked by the destination").
+# ---------------------------------------------------------------------------
+_BAD_PEC = _VALID + [_PEC ^ 0xFF]
+
+# ---------------------------------------------------------------------------
+# Frames 11-14: two concurrent drive->BMC messages that share message tag 2 but
+# differ in the Tag Owner bit, fragmented and interleaved on the wire.
+#
+#   message R (TO=0)  a response, whose tag was owned by the BMC
+#     8 bytes:  04 88 00 00 | 00 a1 a2 a3
+#   message A (TO=1)  device-originated, so the drive owns the tag
+#     12 bytes: 04 88 00 00 | 00 b1 b2 b3 b4 b5 b6 b7
+#
+# Transmit order R1, A1, R2, A2.  A reassembly key of (src EID, dst EID, msg
+# tag) alone puts all four fragments in one set: R2's EOM then completes
+# R1+A1+R2 (12 bytes) and A2 completes alone (8 bytes), i.e. the two messages
+# swap lengths and R is handed a copy of A's header in the middle of its body.
+#
+# byte_count = 1(src) + 4(MCTP hdr) + payload; total len = byte_count + 3 (no PEC).
+# ---------------------------------------------------------------------------
+
+def _drive_to_bmc(flags, payload):
+    """MCTP-SMBus frame from the drive (slave 0x20, EID 0x20) to the BMC."""
+    return [
+        0x80,                     # dst slave addr: 7-bit 0x40 (BMC), R/W#=0
+        0x0F,                     # command code
+        1 + 4 + len(payload),     # byte_count
+        0x41,                     # src slave addr: 7-bit 0x20 (drive), MCTP flag=1
+        0x01,                     # MCTP header version
+        0x40,                     # destination EID (BMC)
+        0x20,                     # source EID (drive)
+        flags,                    # MCTP flags byte
+    ] + list(payload)
+
+
+# NVMe-MI header: MCTP type 4, IC=0 / ROR=1 (response), type=MI (1<<3), CSI=0
+_MI_HDR = [0x04, 0x88, 0x00, 0x00]
+
+# Frame 11 - R fragment 1: SOM=1 EOM=0 seq=0 TO=0 tag=2 -> 0x82
+_TAG_R_SOM = _drive_to_bmc(0x82, _MI_HDR)
+# Frame 12 - A fragment 1: SOM=1 EOM=0 seq=0 TO=1 tag=2 -> 0x8A
+_TAG_A_SOM = _drive_to_bmc(0x8A, _MI_HDR)
+# Frame 13 - R fragment 2: SOM=0 EOM=1 seq=1 TO=0 tag=2 -> 0x52
+_TAG_R_EOM = _drive_to_bmc(0x52, [0x00, 0xA1, 0xA2, 0xA3])
+# Frame 14 - A fragment 2: SOM=0 EOM=1 seq=1 TO=1 tag=2 -> 0x5A
+_TAG_A_EOM = _drive_to_bmc(0x5A, [0x00, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7])
+
+# ---------------------------------------------------------------------------
+# Frame 15: MCTP Control Get Routing Table Entries request (command 0x0A).
+# DSP0236 Table 12 defines command codes through 0x14.
+# ---------------------------------------------------------------------------
+_CTRL_GET_ROUTING_TABLE = _mutate(10, 0x0A)
 
 
 def main():
@@ -317,10 +432,24 @@ def main():
     # reported-length check alone would have proceeded to byte reads.
     data += i2c_packet_trunc(_VALID, caplen_data=2, ts_us=10 * 1_000_000)
 
+    # Frames 11-15: same-tag/different-TO interleave, then a control command
+    # above 0x05.  Appended after the truncated frame so the frame numbers the
+    # existing tests assert on do not move.
+    tail = [
+        _TAG_R_SOM,               # F11: message R fragment 1 (SOM, TO=0, tag 2)
+        _TAG_A_SOM,               # F12: message A fragment 1 (SOM, TO=1, tag 2)
+        _TAG_R_EOM,               # F13: message R fragment 2 (EOM, TO=0, tag 2)
+        _TAG_A_EOM,               # F14: message A fragment 2 (EOM, TO=1, tag 2)
+        _CTRL_GET_ROUTING_TABLE,  # F15: MCTP Control command 0x0A
+        _BAD_PEC,                 # F16: valid frame, corrupted PEC
+    ]
+    for i, payload in enumerate(tail):
+        data += i2c_packet(payload, ts_us=(11 + i) * 1_000_000)
+
     with open(out_path, 'wb') as f:
         f.write(data)
 
-    print(f'Wrote {len(frames) + 1} frames to {out_path}')
+    print(f'Wrote {len(frames) + 1 + len(tail)} frames to {out_path}')
 
 
 if __name__ == '__main__':

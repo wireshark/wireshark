@@ -26,8 +26,9 @@
 /*
  * NVMe Admin command opcodes.  Promoted here from packet-nvme.c so transports
  * that reuse the admin-command decode (e.g. NVMe-MI over MCTP) can share both
- * the opcode constants and the dissector below.  The 0x14-0x8c entries are the
- * Admin opcodes that NVMe-MI 2.1 Figure 134 permits over the Management
+ * the opcode constants and the dissector below.  The 0x14-0x8c entries (plus
+ * the Prohibited-only ones below, e.g. 0x19/0x1a) are the Admin opcodes that
+ * NVMe-MI 2.1 Figure 134 permits, respectively prohibits, over the Management
  * Interface.
  */
 #define NVME_AQ_OPC_DELETE_SQ              0x00
@@ -46,20 +47,38 @@
 #define NVME_AQ_OPC_SELF_TEST              0x14
 #define NVME_AQ_OPC_NS_ATTACH              0x15
 #define NVME_AQ_OPC_KEEP_ALIVE             0x18
+#define NVME_AQ_OPC_DIRECTIVE_SEND         0x19
+#define NVME_AQ_OPC_DIRECTIVE_RECV         0x1a
 #define NVME_AQ_OPC_VIRT_MGMT              0x1c
+#define NVME_AQ_OPC_MI_SEND                0x1d
+#define NVME_AQ_OPC_MI_RECV                0x1e
 #define NVME_AQ_OPC_CAP_MGMT               0x20
+#define NVME_AQ_OPC_DISC_INFO_MGMT         0x21
+#define NVME_AQ_OPC_FABRIC_ZONING_RECV     0x22
 #define NVME_AQ_OPC_LOCKDOWN               0x24
+#define NVME_AQ_OPC_FABRIC_ZONING_LOOKUP   0x25
 #define NVME_AQ_OPC_CLEAR_EXP_NVM_CFG      0x28
+#define NVME_AQ_OPC_FABRIC_ZONING_SEND     0x29
 #define NVME_AQ_OPC_CREATE_EXP_NVM_SUBSYS  0x2a
 #define NVME_AQ_OPC_MANAGE_EXP_NVM_SUBSYS  0x2d
 #define NVME_AQ_OPC_MANAGE_EXP_NS          0x31
 #define NVME_AQ_OPC_MANAGE_EXP_PORT        0x35
+#define NVME_AQ_OPC_CROSS_CTRL_RESET       0x38
+#define NVME_AQ_OPC_SEND_DISC_LOG_PAGE     0x39
+#define NVME_AQ_OPC_TRACK_SEND             0x3d
+#define NVME_AQ_OPC_TRACK_RECV             0x3e
+#define NVME_AQ_OPC_MIGRATION_SEND         0x41
+#define NVME_AQ_OPC_MIGRATION_RECV         0x42
+#define NVME_AQ_OPC_CTRL_DATA_QUEUE        0x45
 #define NVME_AQ_OPC_DBBUF_CONFIG           0x7c
 #define NVME_AQ_OPC_FORMAT_NVM             0x80
 #define NVME_AQ_OPC_SECURITY_SEND          0x81
 #define NVME_AQ_OPC_SECURITY_RECV          0x82
 #define NVME_AQ_OPC_SANITIZE               0x84
+#define NVME_AQ_OPC_LOAD_PROGRAM           0x85
 #define NVME_AQ_OPC_GET_LBA_STATUS         0x86
+#define NVME_AQ_OPC_PROG_ACTIVATION_MGMT   0x88
+#define NVME_AQ_OPC_MEM_RANGE_SET_MGMT     0x89
 #define NVME_AQ_OPC_SANITIZE_NS            0x8c
 
 #define NVME_IDENTIFY_CNS_IDENTIFY_NS      0x0
@@ -67,6 +86,7 @@
 #define NVME_IDENTIFY_CNS_IDENTIFY_NSLIST  0x2
 #define NVME_IDENTIFY_CNS_NSID_DESC_LIST   0x3
 #define NVME_IDENTIFY_CNS_NVM_SET_LIST     0x4
+#define NVME_IDENTIFY_CNS_CS_IND_NS        0x8
 #define NVME_IDENTIFY_CNS_NS_ALLOC_LIST    0x10
 #define NVME_IDENTIFY_CNS_NS_ALLOC         0x11
 #define NVME_IDENTIFY_CNS_CTRL_LIST_NS     0x12
@@ -111,15 +131,39 @@ struct nvme_cmd_ctx {
             unsigned tr_rcrd_id;
             unsigned tr_off;
             unsigned tr_sub_entries;
+            /* Number of Dwords (NUMDL in Command Dword 10 31:16 and NUMDU in
+             * Command Dword 11 15:0, one 0's based value across the dword
+             * boundary).  Kept so a response decoder can tell "this window
+             * holds the whole transfer the host asked for" from "the rest is
+             * in a later window" -- without it a short descriptor list is
+             * indistinguishable from a partial NVMe-MI window. */
+            uint32_t numd;
+            /* Log Specific Identifier (Command Dword 11 31:16).  The
+             * Endurance Group Information and Predictable Latency Per NVM Set
+             * log pages identify their subject only here -- neither response
+             * echoes it back (NVMe Base 2.3 Figures 221/222 and 223/224) -- so
+             * the response cannot be labelled without carrying it over from
+             * the request. */
             uint16_t lsi;
             uint8_t lid;
-            uint8_t lsp;
-            uint8_t uid_idx;
             uint8_t tr_type;
         } get_logpage;
         struct {
             uint8_t fid;
         } set_features;
+        struct {
+            /* Dword 11: Security Send Transfer Length (the exact payload
+             * byte count) or Security Receive Allocation Length (an upper
+             * bound on it).  Used to tell a partial transfer window apart
+             * from a complete payload.  0 when the request was not seen. */
+            uint32_t xfer_len;
+            /* Security Send/Receive Dword 10 selectors, saved on the
+             * request so the data payload (request data for Send, response
+             * data for Receive) can be dispatched to the right security-
+             * protocol dissector. */
+            uint16_t spsp;   /* SP Specific (SPSP1:SPSP0); the ComID for TCG */
+            uint8_t  secp;   /* Security Protocol */
+        } security;
         struct {
             union {
                 struct {
@@ -273,7 +317,26 @@ nvme_dissect_admin_cqe_dw0(tvbuff_t *nvme_tvb, int dw0_off, proto_tree *cqe_tree
  * carry the status word but omit the rest of the completion layout.
  */
 void
-nvme_dissect_cqe_status(tvbuff_t *nvme_tvb, int status_off, proto_tree *cqe_tree);
+nvme_dissect_cqe_status(tvbuff_t *nvme_tvb, packet_info *pinfo, int status_off,
+                        proto_tree *cqe_tree);
+
+/*
+ * Passed as the 'data' void-pointer through the "nvme.security.secp"
+ * dissector table to security-protocol payload dissectors (e.g. TCG
+ * Storage).  The payload tvb starts at logical offset 0 of the security
+ * protocol transfer; a later window (offset > 0) is never dispatched, and
+ * neither is a first window already known to be short (a Security Send
+ * whose length is below its Dword 11 Transfer Length).  A Security Receive
+ * is always dispatched: its Dword 11 Allocation Length is only an upper
+ * bound, so a short payload there may well be a complete response.
+ * Sub-dissectors must reject a NULL data pointer (external callers such as
+ * Lua may drive the table directly).
+ */
+struct nvme_security_info {
+    bool     send;   /* true = Security Send payload (host to controller) */
+    uint8_t  secp;   /* Security Protocol */
+    uint16_t spsp;   /* SP Specific (SPSP1:SPSP0); the ComID for TCG */
+};
 
 /**
  * Decode the data payload returned by a data-returning Admin command (Identify,
@@ -281,13 +344,14 @@ nvme_dissect_cqe_status(tvbuff_t *nvme_tvb, int status_off, proto_tree *cqe_tree
  * into the logical structure (the transfer offset for the NVMe transports, or
  * the NVMe-MI Admin request Data Offset/DOFST) and a present-byte count 'len'.
  * cmd_ctx supplies the opcode and the saved per-opcode request parameters
- * (Identify CNS, Get Log Page LID, Set Features FID).  Returns true if the
- * opcode was one that carries a decodable data payload; false otherwise so the
- * caller can fall back to a raw-bytes rendering.
+ * (Identify CNS, Get Log Page LID, Set Features FID, Security SECP/SPSP).
+ * Returns true if the opcode was one that carries a decodable data payload;
+ * false otherwise so the caller can fall back to a raw-bytes rendering.
  */
 bool
-nvme_dissect_admin_data_resp(tvbuff_t *nvme_tvb, proto_tree *cmd_tree,
-                             struct nvme_cmd_ctx *cmd_ctx, unsigned off, unsigned len);
+nvme_dissect_admin_data_resp(tvbuff_t *nvme_tvb, packet_info *pinfo,
+                             proto_tree *cmd_tree, struct nvme_cmd_ctx *cmd_ctx,
+                             unsigned off, unsigned len);
 
 /*
  * Tells if opcode can be an opcode of io queue.

@@ -29,7 +29,7 @@ enum nvme_mi_msg_type {
  * common to every response message type, so the table is shared by all the
  * per-type body dissectors.  Defined in packet-nvme-mi.c.
  */
-extern const value_string nvme_mi_status_vals[];
+extern const range_string nvme_mi_status_vals[];
 
 /*
  * NVMe-MI Message Type (NMIMT) names (NVMe-MI 2.1 Figure 12).  Defined in

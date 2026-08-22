@@ -50,11 +50,13 @@ static int hf_mctp_smbus_byte_count;
 static int hf_mctp_smbus_src_addr;
 static int hf_mctp_smbus_src_mctp_flag;
 static int hf_mctp_smbus_pec;
+static int hf_mctp_smbus_pec_status;
 
 static int ett_mctp_smbus;
 
 static expert_field ei_mctp_smbus_malformed;
 static expert_field ei_mctp_smbus_length_mismatch;
+static expert_field ei_mctp_smbus_pec_bad;
 
 static dissector_handle_t mctp_smbus_handle;
 static dissector_handle_t mctp_handle;
@@ -71,6 +73,35 @@ static dissector_handle_t mctp_handle;
 
 /* R/W# bit: 1 = Read, 0 = Write (MCTP always uses Write) */
 static const true_false_string tfs_smbus_rw = { "Read", "Write" };
+
+/*
+ * SMBus Packet Error Code.
+ *
+ * SMBus 3.3 §5.4: "The PEC is a CRC-8 error-checking byte, calculated on all
+ * the message bytes (including addresses and read/write bits)", and §6.4.10:
+ * the CRC-8 is "represented by the polynomial, C(x) = x^8 + x^2 + x^1 + 1"
+ * and "must be calculated in the order of the bits as received" -- i.e.
+ * MSB-first over the transaction from the destination slave address byte
+ * onward, with a zero initial value.
+ *
+ * Neither of the in-tree CRC-8 helpers implements that variant:
+ * wsutil/crc8.h offers polynomials 0x2F/0x37/0x3B, and epan/crc8-tvb.c is
+ * built on a *reflected* 0x07 table (LSB-first).  So compute it here.
+ */
+static uint8_t
+mctp_smbus_pec(tvbuff_t *tvb, unsigned offset, unsigned len)
+{
+    uint8_t crc = 0;
+
+    while (len--) {
+        crc ^= tvb_get_uint8(tvb, offset++);
+        for (int bit = 0; bit < 8; bit++)
+            crc = (crc & 0x80) ? (uint8_t)((crc << 1) ^ 0x07)
+                               : (uint8_t)(crc << 1);
+    }
+
+    return crc;
+}
 
 /* Returns true only if tvb passes all structural checks for an MCTP SMBus frame.
    Dual maintenance with dissect_mctp_smbus() since this is just for heuristic validation.*/
@@ -165,7 +196,7 @@ dissect_mctp_smbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     frame_min = byte_count + 3U;   /* excl. PEC */
     if (len < frame_min) {
         expert_add_info_format(pinfo, bc_ti, &ei_mctp_smbus_length_mismatch,
-                "Byte count %u implies frame length >= %u, but captured length is %u (frame truncated)",
+                "Byte count %u implies frame length >= %u, but frame length is %u (frame truncated)",
                 byte_count, frame_min, len);
         return tvb_captured_length(tvb);
     }
@@ -183,16 +214,33 @@ dissect_mctp_smbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      *   len  > byte_count + 4  -> unexpected trailing bytes; warn the user
      */
     frame_pec = byte_count + 4U;
-    if (len >= frame_pec) {
-        /* PEC is always the last byte of the SMBus transaction if it is present */
-        proto_tree_add_item(smbus_tree, hf_mctp_smbus_pec, tvb, len - 1, 1, ENC_NA);
+    if (len >= frame_pec && tvb_bytes_exist(tvb, frame_min, 1)) {
+        /*
+         * DSP0237 §6.3 Figure 1 fixes the PEC immediately after the last data
+         * byte, at byte_count+3 -- not at the end of the frame, which is a
+         * different byte once trailing bytes follow.  Verify it: Figure 1
+         * states "All MCTP transactions shall include a PEC byte.  The PEC
+         * byte shall be transmitted by the source and checked by the
+         * destination."  The PEC covers the whole transaction from the
+         * destination slave address byte through the last data byte
+         * (SMBus 3.3 §5.4), i.e. tvb[0 .. frame_min-1].
+         */
+        proto_tree_add_checksum(smbus_tree, tvb, frame_min,
+                                hf_mctp_smbus_pec, hf_mctp_smbus_pec_status,
+                                &ei_mctp_smbus_pec_bad, pinfo,
+                                mctp_smbus_pec(tvb, 0, frame_min),
+                                ENC_NA, PROTO_CHECKSUM_VERIFY);
     }
     if (len > frame_pec) {
-        /* Extra bytes between MCTP payload and PEC */
-        tvbuff_t *extra_tvb = tvb_new_subset_length(tvb, frame_min, len - frame_pec);
-        call_data_dissector(extra_tvb, pinfo, smbus_tree);
+        /* Extra bytes after the PEC; only dissect them if the snaplen
+           actually captured that far, otherwise skip so dissection can still
+           reach the MCTP subdissector below. */
+        if (tvb_bytes_exist(tvb, frame_pec, len - frame_pec)) {
+            tvbuff_t *extra_tvb = tvb_new_subset_length(tvb, frame_pec, len - frame_pec);
+            call_data_dissector(extra_tvb, pinfo, smbus_tree);
+        }
         expert_add_info_format(pinfo, bc_ti, &ei_mctp_smbus_length_mismatch,
-                "Byte count %u implies frame length %u (or %u with PEC), but captured length is %u (%u extra trailing bytes)",
+                "Byte count %u implies frame length %u (or %u with PEC), but frame length is %u (%u extra trailing bytes)",
                 byte_count, frame_min, frame_pec, len,
                 len - frame_pec);
 
@@ -287,6 +335,10 @@ proto_register_mctp_smbus(void)
           { "PEC", "mctp.smbus.pec",
             FT_UINT8, BASE_HEX, NULL, 0x00,
             "SMBus Packet Error Code (CRC-8)", HFILL }},
+        { &hf_mctp_smbus_pec_status,
+          { "PEC Status", "mctp.smbus.pec.status",
+            FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x00,
+            NULL, HFILL }},
     };
 
     static int *ett[] = {
@@ -300,6 +352,9 @@ proto_register_mctp_smbus(void)
         { &ei_mctp_smbus_length_mismatch,
           { "mctp.smbus.length_mismatch", PI_PROTOCOL, PI_WARN,
             "Byte count does not match captured frame length", EXPFILL }},
+        { &ei_mctp_smbus_pec_bad,
+          { "mctp.smbus.pec_bad", PI_CHECKSUM, PI_WARN,
+            "Packet Error Code does not match the computed CRC-8", EXPFILL }},
     };
 
     expert_module_t *expert_mctp_smbus;

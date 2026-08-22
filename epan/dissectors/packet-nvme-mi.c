@@ -32,6 +32,7 @@
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
+#include <wsutil/crc32.h>
 #include "packet-mctp.h"
 #include "packet-nvme-mi.h"
 
@@ -54,6 +55,7 @@ static int hf_nvme_mi_mctp_ic;
 static int hf_nvme_mi_csi;
 static int hf_nvme_mi_type;
 static int hf_nvme_mi_ror;
+static int hf_nvme_mi_ciap;
 static int hf_nvme_mi_meb;
 static int hf_nvme_mi_mic;
 static int hf_nvme_mi_mic_status;
@@ -79,11 +81,13 @@ static int ett_nvme_mi_hdr;
 
 static expert_field ei_nvme_mi_mic_truncated;
 static expert_field ei_nvme_mi_mic_bad;
+static expert_field ei_nvme_mi_mic_unverified;
 static expert_field ei_nvme_mi_req_superseded;
 static expert_field ei_nvme_mi_reserved_type;
 
 /*
- * NMIMT values NVMe-MI 2.1 Figure 20 defines; 3h and 6h-Fh are Reserved.  A
+ * NMIMT values the NVMe-MI 2.1 "NVMe-MI Message Fields" figure defines; 3h
+ * and 6h-Fh are Reserved.  A
  * Reserved type carries no known message format, so the framing layer must not
  * read an opcode or a status byte out of it.
  */
@@ -106,11 +110,11 @@ nvme_mi_type_is_known(unsigned type)
  * Whether a message takes part in the Command Slot lifecycle.  Only Command
  * Messages and Control Primitives do.  An Asynchronous Event Message is not a
  * Request or a Response at all -- the ROR bit does not apply to it and its CSI
- * bit "is not applicable and shall be cleared to '0'" (Figure 20) -- so it must
- * be kept out, exactly as a Reserved type is: an AEM carries ROR=0 and CSI=0,
- * so treating it as a request would open a transaction on Command Slot 0,
- * supersede whatever command is outstanding there, and orphan that command's
- * real response.
+ * bit "is not applicable and shall be cleared to '0'" (the "NVMe-MI Message
+ * Fields" figure) -- so it must be kept out, exactly as a Reserved type is: an
+ * AEM carries ROR=0 and CSI=0, so treating it as a request would open a
+ * transaction on Command Slot 0, supersede whatever command is outstanding there,
+ * and orphan that command's real response.
  */
 static bool
 nvme_mi_type_tracks_slot(unsigned type)
@@ -129,30 +133,31 @@ nvme_mi_type_tracks_slot(unsigned type)
 /* Dissector table keyed by the NMIMT field; sub-dissectors register here. */
 static dissector_table_t nvme_mi_type_dissector_table;
 
-/* Response Message Status (NVMe-MI 2.1 Figure 29); shared with the per-type
- * body dissectors via packet-nvme-mi.h. */
-const value_string nvme_mi_status_vals[] = {
-    { NVME_MI_STATUS_SUCCESS, "Success" },
-    { NVME_MI_STATUS_MORE_PROCESSING_REQUIRED, "More Processing Required" },
-    { 0x02, "Internal Error" },
-    { 0x03, "Invalid Command Opcode" },
-    { NVME_MI_STATUS_INVALID_PARAMETER, "Invalid Parameter" },
-    { 0x05, "Invalid Command Size" },
-    { 0x06, "Invalid Command Input Data Size" },
-    { 0x07, "Access Denied" },
-    { 0x08, "Unable to Abort" },
-    { 0x20, "VPD Updates Exceeded" },
-    { 0x21, "PCIe Inaccessible" },
-    { 0x22, "Management Endpoint Buffer Cleared Due to Sanitize" },
-    { 0x23, "Enclosure Services Failure" },
-    { 0x24, "Enclosure Services Transfer Failure" },
-    { 0x25, "Enclosure Failure" },
-    { 0x26, "Enclosure Services Transfer Refused" },
-    { 0x27, "Unsupported Enclosure Function" },
-    { 0x28, "Enclosure Services Unavailable" },
-    { 0x29, "Enclosure Degraded" },
-    { 0x2a, "Sanitize In Progress" },
-    { 0, NULL },
+/* Response Message Status (NVMe-MI 2.1 "Response Message Status Values");
+ * shared with the per-type body dissectors via packet-nvme-mi.h. */
+const range_string nvme_mi_status_vals[] = {
+    { NVME_MI_STATUS_SUCCESS, NVME_MI_STATUS_SUCCESS, "Success" },
+    { NVME_MI_STATUS_MORE_PROCESSING_REQUIRED, NVME_MI_STATUS_MORE_PROCESSING_REQUIRED, "More Processing Required" },
+    { 0x02, 0x02, "Internal Error" },
+    { 0x03, 0x03, "Invalid Command Opcode" },
+    { NVME_MI_STATUS_INVALID_PARAMETER, NVME_MI_STATUS_INVALID_PARAMETER, "Invalid Parameter" },
+    { 0x05, 0x05, "Invalid Command Size" },
+    { 0x06, 0x06, "Invalid Command Input Data Size" },
+    { 0x07, 0x07, "Access Denied" },
+    { 0x08, 0x08, "Unable to Abort" },
+    { 0x20, 0x20, "VPD Updates Exceeded" },
+    { 0x21, 0x21, "PCIe Inaccessible" },
+    { 0x22, 0x22, "Management Endpoint Buffer Cleared Due to Sanitize" },
+    { 0x23, 0x23, "Enclosure Services Failure" },
+    { 0x24, 0x24, "Enclosure Services Transfer Failure" },
+    { 0x25, 0x25, "Enclosure Failure" },
+    { 0x26, 0x26, "Enclosure Services Transfer Refused" },
+    { 0x27, 0x27, "Unsupported Enclosure Function" },
+    { 0x28, 0x28, "Enclosure Services Unavailable" },
+    { 0x29, 0x29, "Enclosure Degraded" },
+    { 0x2a, 0x2a, "Sanitize In Progress" },
+    { 0xE0, 0xFF, "Vendor Specific" },
+    { 0, 0, NULL },
 };
 
 static const value_string mi_mctp_type_vals[] = {
@@ -171,11 +176,12 @@ const value_string mi_type_vals[] = {
 
 static const true_false_string tfs_meb = { "data in MEB", "data in message" };
 
-/* CSI is a one-bit Command Slot selector (NVMe-MI 2.1 Figure 12). */
+/* CSI is a one-bit Command Slot selector (NVMe-MI 2.1 "NVMe-MI Message
+ * Fields"). */
 static const true_false_string tfs_csi = { "Command Slot 1", "Command Slot 0" };
 
 /* MPRT is a worst-case time in 100 ms units; FFFFh means >= 6,553.5 s
- * (NVMe-MI 2.1 Figure 34). */
+ * (NVMe-MI 2.1 "More Processing Required Response Fields"). */
 static void
 nvme_mi_fmt_mprt(char *buf, uint32_t value)
 {
@@ -194,18 +200,21 @@ nvme_mi_dissect_resp_status_bytes(tvbuff_t *tvb, proto_tree *tree,
     case NVME_MI_STATUS_SUCCESS:
         return true;
     case NVME_MI_STATUS_INVALID_PARAMETER:
-        /* Parameter Error Location (NVMe-MI 2.1 Figure 32). */
+        /* Parameter Error Location (NVMe-MI 2.1 "Invalid Parameter Error
+         * Response Fields"). */
         proto_tree_add_item(tree, hf_nvme_mi_pel_bit, tvb, 1, 1, ENC_NA);
         proto_tree_add_item(tree, hf_nvme_mi_pel_byte, tvb, 2, 2,
                             ENC_LITTLE_ENDIAN);
         break;
     case NVME_MI_STATUS_MORE_PROCESSING_REQUIRED:
-        /* Byte 1 is reserved; MPRT occupies bytes 3:2 (Figure 34). */
+        /* Byte 1 is reserved; MPRT occupies bytes 3:2 (the "More Processing
+         * Required Response Fields" figure). */
         proto_tree_add_item(tree, hf_nvme_mi_mprt, tvb, 2, 2,
                             ENC_LITTLE_ENDIAN);
         break;
     default:
-        /* Every other Error Response leaves bytes 3:1 Reserved (Figure 30). */
+        /* Every other Error Response leaves bytes 3:1 Reserved (the "Generic
+         * Error Response" figure). */
         proto_tree_add_item(tree, hf_nvme_mi_resp_rsvd, tvb, 1, 3,
                             ENC_LITTLE_ENDIAN);
         break;
@@ -243,6 +252,16 @@ nvme_mi_recover_resp_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return gi;
 }
 
+/*
+ * Allocate (once) the body dissector's per-transaction context.  "size" is
+ * honoured only on the first call; later calls return the existing block
+ * whatever size they ask for.  That is safe because a transaction has exactly
+ * one NVMe-MI Message Type, and every body dissector reaches its context only
+ * after nvme_mi_recover_resp_opcode() has confirmed trans->nmimt matches its
+ * own -- so only one struct type is ever stored here.  If that check is ever
+ * relaxed, a smaller first allocation would be reinterpreted as a larger
+ * struct; add a size check here before doing so.
+ */
 void *
 nvme_mi_trans_body_ctx(struct nvme_mi_transaction *trans, size_t size)
 {
@@ -302,6 +321,7 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     conversation_t *conv;
     tvbuff_t *sub_tvb;
     uint32_t mic = 0;
+    bool mic_computed = false;
     bool csi;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NVMe-MI");
@@ -335,6 +355,8 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                      tvb, 0, 4, ENC_LITTLE_ENDIAN, &type);
     proto_tree_add_item_ret_boolean(nvme_mi_hdr_tree, hf_nvme_mi_ror,
                                     tvb, 0, 4, ENC_LITTLE_ENDIAN, &resp);
+    proto_tree_add_item(nvme_mi_hdr_tree, hf_nvme_mi_ciap,
+                        tvb, 0, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(nvme_mi_hdr_tree, hf_nvme_mi_meb,
                         tvb, 0, 4, ENC_LITTLE_ENDIAN);
 
@@ -351,15 +373,38 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             expert_add_info(pinfo, ic_it, &ei_nvme_mi_mic_truncated);
             mic_enabled = false;
         } else {
-            if (nvme_mi_check_mic)
-                mic = ~crc32c_tvb_offset_calculate(tvb, 0, payload_len,
-                                                   0xffffffff);
+            /*
+             * crc32c_calculate() byte-swaps both its seed and its result, so
+             * undo that swap to get the CRC-32C value as the MIC field
+             * actually carries it (little-endian on the wire, NVMe
+             * convention).  Computing the true value rather than its
+             * byte-reverse keeps the displayed and filterable
+             * "nvme-mi.mic" matching what the endpoint computed.
+             */
+            /*
+             * The MIC covers the whole message ahead of it, and that span
+             * comes from the *reported* length, so on a snaplen-sliced frame
+             * the bytes to hash are not all present.  Guard the read: an
+             * exception here would be thrown before the command slot
+             * lifecycle below has run, leaving pinfo->fd->visited set for a
+             * frame that never touched slot state -- a later response then
+             * links to the wrong request, with a wrong Response Time and no
+             * expert info anywhere.  When the CRC cannot be computed, claim
+             * no verdict (see the PROTO_CHECKSUM_NO_FLAGS path below).
+             */
+            if (nvme_mi_check_mic &&
+                tvb_bytes_exist(tvb, 0, payload_len)) {
+                mic = CRC32C_SWAP(~crc32c_tvb_offset_calculate(tvb, 0,
+                                        payload_len, 0xffffffff));
+                mic_computed = true;
+            }
             payload_len -= 4;
         }
     }
 
     /* The ROR bit does not apply to an Asynchronous Event Message, so it is
-     * neither a request nor a response (NVMe-MI 2.1 Figure 20). */
+     * neither a request nor a response (NVMe-MI 2.1 "NVMe-MI Message
+     * Fields"). */
     if (type == NVME_MI_TYPE_AEM)
         col_add_fstr(pinfo->cinfo, COL_INFO, "NVMe-MI %s",
                      val_to_str_const(type, mi_type_vals, "Reserved type"));
@@ -384,13 +429,13 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (!pinfo->fd->visited && nvme_mi_type_tracks_slot(type)) {
         /*
          * The Response Message Status byte sits at payload offset 0 for
-         * every command-message response type (NVMe-MI 2.1 Figure 29;
-         * Control Primitives have their own out-of-band lifecycle and no
-         * MPR concept).  Peek it here in the framing layer so the slot
-         * lifecycle below never depends on a body dissector running to
-         * completion: a disabled body protocol or an exception thrown on a
-         * truncated payload must not leak a pending slot and mislink later
-         * responses.
+         * every command-message response type (NVMe-MI 2.1 "Response
+         * Message Status Values"; Control Primitives have their own
+         * out-of-band lifecycle and no MPR concept).  Peek it here in the
+         * framing layer so the slot lifecycle below never depends on a body
+         * dissector running to completion: a disabled body protocol or an
+         * exception thrown on a truncated payload must not leak a pending
+         * slot and mislink later responses.
          *
          * On a sliced capture the status byte may be missing even though
          * the reported payload carries one; the response is then treated
@@ -609,18 +654,28 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                       &ctx) && payload_len > 0)
         call_data_dissector(sub_tvb, pinfo, nvme_mi_tree);
 
-    /*
-     * The MIC is little-endian on the wire (NVMe convention); reading it
-     * big-endian matches the byte-swapped value crc32c_tvb_offset_calculate
-     * returns, so the two swaps cancel out.
-     */
-    if (mic_enabled)
+    /* The MIC is little-endian on the wire (NVMe convention).  A sliced
+     * capture may cut off the MIC itself, or only the bytes it covers; report
+     * the first as "missing" and the second as unverified rather than
+     * asserting a verdict the capture cannot support. */
+    if (mic_enabled) {
+        unsigned mic_flags;
+
+        if (!tvb_bytes_exist(tvb, payload_len + 4, 4))
+            mic_flags = PROTO_CHECKSUM_NOT_PRESENT;
+        else if (mic_computed)
+            mic_flags = PROTO_CHECKSUM_VERIFY;
+        else
+            mic_flags = PROTO_CHECKSUM_NO_FLAGS;
+
         proto_tree_add_checksum(nvme_mi_tree, tvb, payload_len + 4,
                                 hf_nvme_mi_mic, hf_nvme_mi_mic_status,
                                 &ei_nvme_mi_mic_bad, pinfo, mic,
-                                ENC_BIG_ENDIAN,
-                                nvme_mi_check_mic ? PROTO_CHECKSUM_VERIFY
-                                                  : PROTO_CHECKSUM_NO_FLAGS);
+                                ENC_LITTLE_ENDIAN, mic_flags);
+
+        if (nvme_mi_check_mic && mic_flags != PROTO_CHECKSUM_VERIFY)
+            expert_add_info(pinfo, ic_it, &ei_nvme_mi_mic_unverified);
+    }
 
     return tvb_captured_length(tvb);
 }
@@ -630,7 +685,8 @@ proto_register_nvme_mi(void)
 {
     /* *INDENT-OFF* */
     static hf_register_info hf[] = {
-        /* Common NVMe-MI header (4 bytes, NVMe-MI 2.1 Figure 12) */
+        /* Common NVMe-MI header (4 bytes, NVMe-MI 2.1 "NVMe-MI Message
+         * Fields") */
         { &hf_nvme_mi_mctp_mt,
           { "MCTP message type", "nvme-mi.mctp-mt",
             FT_UINT32, BASE_HEX, VALS(mi_mctp_type_vals), 0x7f,
@@ -655,6 +711,12 @@ proto_register_nvme_mi(void)
           { "ROR", "nvme-mi.ror",
             FT_BOOLEAN, 32, TFS(&tfs_response_request), 0x00008000,
             NULL, HFILL },
+        },
+        { &hf_nvme_mi_ciap,
+          { "CIAP", "nvme-mi.ciap",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00020000,
+            "Command Initiated Auto Pause: pause the Management Endpoint when"
+            " this Command Message enters the Process state", HFILL },
         },
         { &hf_nvme_mi_meb,
           { "MEB", "nvme-mi.meb",
@@ -683,8 +745,8 @@ proto_register_nvme_mi(void)
         { &hf_nvme_mi_pel_byte,
           { "Parameter Error Byte (PEL)", "nvme-mi.pel.byte",
             FT_UINT16, BASE_DEC, NULL, 0,
-            "Offset of the least-significant byte of the parameter in "
-            "error, relative to the start of the message", HFILL },
+            "Offset of the least-significant byte of the parameter in"
+            " error, relative to the start of the message", HFILL },
         },
 
         /* More Processing Required Response — MPRT over payload bytes 3:2;
@@ -693,15 +755,16 @@ proto_register_nvme_mi(void)
         { &hf_nvme_mi_mprt,
           { "More Processing Required Time (MPRT)", "nvme-mi.mprt",
             FT_UINT16, BASE_CUSTOM, CF_FUNC(nvme_mi_fmt_mprt), 0,
-            "Worst-case additional processing time before the final "
-            "Response Message (NVMe-MI 2.1 Figure 34)", HFILL },
+            "Worst-case additional processing time before the final"
+            " Response Message (NVMe-MI 2.1 'More Processing Required"
+            " Response Fields')", HFILL },
         },
         { &hf_nvme_mi_resp_rsvd,
           { "Reserved", "nvme-mi.resp_reserved",
             FT_UINT24, BASE_HEX, NULL, 0,
-            "Reserved in an Error Response that carries no Parameter Error "
-            "Location or More Processing Required Time (NVMe-MI 2.1 "
-            "Figure 30)", HFILL },
+            "Reserved in an Error Response that carries no Parameter Error"
+            " Location or More Processing Required Time (NVMe-MI 2.1"
+            " 'Generic Error Response')", HFILL },
         },
 
         /* Request/response cross-reference (generated fields) */
@@ -723,8 +786,8 @@ proto_register_nvme_mi(void)
         { &hf_nvme_mi_response_is_mpr,
           { "More Processing Required", "nvme-mi.response_is_mpr",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            "This is an interim response; the endpoint will send a final "
-            "response when processing is complete", HFILL }
+            "This is an interim response; the endpoint will send a final"
+            " response when processing is complete", HFILL }
         },
     };
     /* *INDENT-ON* */
@@ -737,24 +800,31 @@ proto_register_nvme_mi(void)
     static ei_register_info ei[] = {
         { &ei_nvme_mi_mic_truncated,
           { "nvme-mi.mic_truncated", PI_MALFORMED, PI_WARN,
-            "IC bit is set but the message is too short to contain a MIC; "
-            "trailing bytes treated as payload", EXPFILL }
+            "IC bit is set but the message is too short to contain a MIC;"
+            " trailing bytes treated as payload", EXPFILL }
         },
         { &ei_nvme_mi_mic_bad,
           { "nvme-mi.mic_bad", PI_CHECKSUM, PI_WARN,
             "Message Integrity Check does not match the computed CRC-32C",
             EXPFILL }
         },
+        { &ei_nvme_mi_mic_unverified,
+          { "nvme-mi.mic_unverified", PI_CHECKSUM, PI_NOTE,
+            "Message Integrity Check not verified: the frame is sliced, so"
+            " the bytes the MIC covers are not all present in the capture",
+            EXPFILL }
+        },
         { &ei_nvme_mi_req_superseded,
           { "nvme-mi.req_superseded", PI_SEQUENCE, PI_NOTE,
-            "The previous request on this command slot was still unanswered; "
-            "its transaction is superseded by this request", EXPFILL }
+            "The previous request on this command slot was still unanswered;"
+            " its transaction is superseded by this request", EXPFILL }
         },
         { &ei_nvme_mi_reserved_type,
           { "nvme-mi.reserved_type", PI_PROTOCOL, PI_WARN,
-            "NVMe-MI Message Type is Reserved (NVMe-MI 2.1 Figure 12); the "
-            "message body cannot be decoded and the message takes no part in "
-            "command slot tracking", EXPFILL }
+            "NVMe-MI Message Type is Reserved (NVMe-MI 2.1 'NVMe-MI"
+            " Message Fields'); the"
+            " message body cannot be decoded and the message takes no part in"
+            " command slot tracking", EXPFILL },
         },
     };
 
@@ -773,8 +843,8 @@ proto_register_nvme_mi(void)
     module_t *nvme_mi_module = prefs_register_protocol(proto_nvme_mi, NULL);
     prefs_register_bool_preference(nvme_mi_module, "check_mic",
             "Validate the Message Integrity Check",
-            "Whether to compute the CRC-32C over each NVMe-MI message and "
-            "verify it against the Message Integrity Check (MIC)",
+            "Whether to compute the CRC-32C over each NVMe-MI message and"
+            " verify it against the Message Integrity Check (MIC)",
             &nvme_mi_check_mic);
 
     nvme_mi_handle = register_dissector_with_description("nvme-mi",

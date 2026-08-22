@@ -185,12 +185,13 @@ NVME_MI_TYPE_PCIE    = 0x4
 NVME_MI_TYPE_AEM      = 0x5   # Asynchronous Event Message (Figure 20)
 NVME_MI_TYPE_RESERVED = 0x3   # 3h and 6h-Fh are Reserved (Figure 20)
 
-def nvme_mi_header(msg_type, csi, is_response, ic=False, meb=False):
+def nvme_mi_header(msg_type, csi, is_response, ic=False, meb=False, ciap=False):
     b0 = 0x04 | (0x80 if ic else 0x00)  # bit 7 = IC (Integrity Check enabled)
     b1 = (msg_type << 3) | (csi & 0x01)
     if is_response:
         b1 |= 0x80
-    b2 = 0x01 if meb else 0x00           # bit 16 in 32-bit LE header = MEB
+    # Byte 2 bit 0 = MEB, bit 1 = CIAP (bits 16 and 17 of the 32-bit LE header)
+    b2 = (0x01 if meb else 0x00) | (0x02 if ciap else 0x00)
     return bytes([b0, b1, b2, 0x00])
 
 # ---------------------------------------------------------------------------
@@ -294,7 +295,7 @@ def cp_response_payload(status, tag=0, cpsr=0):
 # ---------------------------------------------------------------------------
 
 def admin_request_payload(opcode, ctrl_id=0x0000, cns=0x00, flags=0x01, doff=0, dlen=0x1000,
-                          cdw11=0, cdw14=0, lpo=0):
+                          cdw11=0, cdw14=0, lpo=0, cdw12=None):
     """Admin request SQE (64 bytes).
 
     flags byte:
@@ -309,6 +310,10 @@ def admin_request_payload(opcode, ctrl_id=0x0000, cns=0x00, flags=0x01, doff=0, 
     controller *before* DOFST/DLEN slice the NVMe-MI response (NVMe-MI 2.1
     Figure 139/140); combined with a nonzero doff to test that both layers
     are added together by dissect_nvme_get_logpage_resp().
+
+    cdw12, when given, fills CDW12 (and clears CDW13) instead of lpo -- the
+    same dword pair, but Set Features reads CDW12 as a per-FID field rather
+    than a Log Page Offset (e.g. Window Select for FID 14h).
     """
     payload  = bytes([opcode, flags]) + struct.pack('<H', ctrl_id)
     payload += b'\x00' * 20          # SQE1-SQE5
@@ -317,7 +322,10 @@ def admin_request_payload(opcode, ctrl_id=0x0000, cns=0x00, flags=0x01, doff=0, 
     payload += b'\x00' * 8           # reserved
     payload += struct.pack('<I', cns)    # CDW10 (CNS / identify selector)
     payload += struct.pack('<I', cdw11)  # CDW11
-    payload += struct.pack('<Q', lpo)    # CDW12-CDW13 (Log Page Offset)
+    if cdw12 is None:
+        payload += struct.pack('<Q', lpo)      # CDW12-CDW13 (Log Page Offset)
+    else:
+        payload += struct.pack('<II', cdw12, 0)  # CDW12, CDW13
     payload += struct.pack('<I', cdw14)  # CDW14
     payload += b'\x00' * 4           # CDW15
     assert len(payload) == 64, f"Admin request payload must be 64 bytes, got {len(payload)}"
@@ -356,11 +364,13 @@ def admin_resp_with_data(data, status=STATUS_SUCCESS):
     return admin_response_payload(status, cqe1=0, cqe3=cqe3) + data
 
 def make_packet(is_request, msg_type, csi, payload,
-                host_eid=HOST_EID, bmc_eid=BMC_EID, tag=0, ic=False, meb=False):
+                host_eid=HOST_EID, bmc_eid=BMC_EID, tag=0, ic=False, meb=False,
+                ciap=False):
     src_eid  = host_eid if is_request else bmc_eid
     sll      = sll_header(src_eid, outgoing=is_request)
     mctp     = mctp_header(is_request, host_eid=host_eid, bmc_eid=bmc_eid, tag=tag)
-    nvme_hdr = nvme_mi_header(msg_type, csi, is_response=not is_request, ic=ic, meb=meb)
+    nvme_hdr = nvme_mi_header(msg_type, csi, is_response=not is_request, ic=ic,
+                              meb=meb, ciap=ciap)
     if ic:
         protected = nvme_hdr + payload
         # The MIC is little-endian on the wire, like every NVMe-MI field
@@ -933,18 +943,36 @@ def _packets_comprehensive():
                          mi_response_payload(STATUS_SUCCESS)))
 
     # F104-F105: Configuration Set of the Asynchronous Event configuration
-    # (CONFIGID=04h in NMD0 bits 7:0).  The request carries an AE Enable List
-    # (Figures 92/93) as Request Data: two AE Enable entries — Composite
-    # Temperature (ID 06h) enabled, SMART Warnings (ID 09h) disabled.
+    # (CONFIGID=04h in NMD0 bits 7:0).  NMD0 also carries the Set-only fields
+    # of Figure 91: ENCFA (bit 24), AEM Delay (bits 23:16) and AEM Retry Delay
+    # (bits 15:08).  The request carries an AE Enable List (Figures 92/93) as
+    # Request Data: two AE Enable entries — Composite Temperature (ID 06h)
+    # enabled, SMART Warnings (ID 09h) disabled.
     ae_list = (bytes([2, 0]) + struct.pack('<H', 11) + bytes([5])  # NUMAEE=2, ver=0, AEETL=11, AEELHL=5
                + bytes([3]) + struct.pack('<H', 0x8006)            # AEE=1, ID=06h
                + bytes([3]) + struct.pack('<H', 0x0009))           # AEE=0, ID=09h
     p.append(make_packet(True,  NVME_MI_TYPE_MI, 0,
-                         mi_request_payload(0x03, cdw0=0x00000004) + ae_list))
+                         mi_request_payload(0x03, cdw0=0x01050A04) + ae_list,
+                         ciap=True))
     p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
                          mi_response_payload(STATUS_SUCCESS)))
 
-    assert len(p) == 105, f"Expected 105 frames, got {len(p)}"
+    # F106-F107: Configuration Get of the Asynchronous Event configuration.
+    # NMD0 carries only the CONFIGID (the Set-only fields of Figure 91 are
+    # reserved here, Figure 80); the Success Response returns AEELVER in the
+    # NVMe Management Response and an AE Supported List (Figures 82/83) as
+    # Response Data — Composite Temperature (ID 06h) currently enabled,
+    # PCIe Link Active (ID 0Bh) supported but disabled.
+    aes_list = (bytes([2, 1]) + struct.pack('<H', 11) + bytes([5])  # NUMAES=2, ver=1, AESTL=11, AESLHL=5
+                + bytes([3]) + struct.pack('<H', 0x8006)            # AESE=1, ID=06h
+                + bytes([3]) + struct.pack('<H', 0x000B))           # AESE=0, ID=0Bh
+    p.append(make_packet(True,  NVME_MI_TYPE_MI, 0,
+                         mi_request_payload(0x04, cdw0=0x00000004)))
+    p.append(make_packet(False, NVME_MI_TYPE_MI, 0,
+                         mi_response_payload_with_data(STATUS_SUCCESS,
+                                                       aes_list, nmresp=1)))
+
+    assert len(p) == 107, f"Expected 107 frames, got {len(p)}"
     return p
 
 packets_comprehensive = _packets_comprehensive()
@@ -1071,6 +1099,10 @@ def build_comprehensive_pcapng(output_path):
         "F101: MI Req   CSI=0  opcode=0x01 (Health Status Poll)",
         "F102: MI Resp  CSI=0  SLICED MPR (caplen 24/28, status byte missing) -> F101",
         "F103: MI Resp  CSI=0  status=0x00 (final) -> F101 [slot survived the sliced MPR]",
+        "F104: MI Req   CSI=0  Config Set CID=04h (Async Event) + AE Enable List, CIAP=1",
+        "F105: MI Resp  CSI=0  status=0x00 -> F104",
+        "F106: MI Req   CSI=0  Config Get CID=04h (Async Event)",
+        "F107: MI Resp  CSI=0  status=0x00 + AE Supported List -> F106",
     ]
     for d in descs:
         print(f"  {d}")
@@ -1120,6 +1152,12 @@ def build_comprehensive_pcapng(output_path):
 #   F9   Lockdown (24h)        CDW10=0x950 SCP=0 PRHBT=1 IFC=2 OFI=09h; CDW14 UIDX=1
 #   F10  Sanitize (84h)        CDW10=0x20a SANACT=2 AUSE=1 NDAS=1; CDW11 OVRPAT
 #   F11  Abort (08h)           Prohibited over MI -> prohibited-opcode expert
+#   F12  Directive Send (19h)  Prohibited over MI (Figure 134) -> prohibited-opcode
+#                              expert; regression case for the opcodes added to
+#                              nvme_mi_admin_opcode_prohibited() alongside F11's
+#                              original coverage.
+#   F13  Virt Mgmt (1Ch)       Permitted over MI, adjacent to F12 in the opcode
+#                              enum -> must NOT raise the prohibited-opcode expert
 
 packets_admin_decode = [
     make_packet(True, NVME_MI_TYPE_ADMIN, 0,
@@ -1144,6 +1182,10 @@ packets_admin_decode = [
                 admin_request_payload(0x84, ctrl_id=0x000a, cns=0x20a, cdw11=0xDEADBEEF), tag=9),
     make_packet(True, NVME_MI_TYPE_ADMIN, 0,
                 admin_request_payload(0x08, ctrl_id=0x000b), tag=10),
+    make_packet(True, NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(0x19, ctrl_id=0x000c), tag=11),
+    make_packet(True, NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(0x1c, ctrl_id=0x000d), tag=12),
 ]
 
 # Timestamps: 1-second intervals starting at 2024-03-01 10:00:00 UTC
@@ -1175,6 +1217,11 @@ def build_admin_decode_pcapng(output_path):
 #   F5/F6  Set Features (09h) FID=02h Power Management (failed command)
 #          -> DW0 Set-Features error code; status SCT=1 SC=0Eh DNR=1
 #   F7/F8  Identify (06h) (success) -> generic DW0; status More + DNR bits
+#   F9/F10 Identify (06h) rejected by Command and Feature Lockdown
+#          -> status SCT=0 (Generic) SC=23h Command Prohibited by Command
+#          and Feature Lockdown (Base 2.3 Figure 102), DNR=1 -- the status
+#          NVMe-MI 2.1 Figure 29's own Access Denied ties to Command and
+#          Feature Lockdown; this is the tunneled-Admin-command side of it.
 
 packets_admin_resp = [
     make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
@@ -1198,6 +1245,12 @@ packets_admin_resp = [
     make_packet(False, NVME_MI_TYPE_ADMIN, 0,
                 admin_response_payload(STATUS_SUCCESS, cqe1=0xCAFEBABE,
                                        cqe3=admin_cqe3(cqe_status_word(m=1, dnr=1))), tag=3),
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(0x06, ctrl_id=0x0005, cns=0x01), tag=4),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_response_payload(STATUS_SUCCESS, cqe1=0,
+                                       cqe3=admin_cqe3(cqe_status_word(sct=0, sc=0x23, dnr=1))),
+                tag=4),
 ]
 
 BASE_TS_ADMIN_RESP_US = 1709288400 * 1_000_000
@@ -1424,7 +1477,7 @@ def build_reserved_type_pcapng(output_path):
 # direction).
 #
 #   F1/F2   Identify Controller (CNS 01h)        -> VID/SSVID/SN/MN/CNTLID
-#   F3/F4   Identify Namespace (CNS 00h)         -> NSZE/NCAP
+#   F3/F4   Identify Namespace (CNS 00h)         -> NSZE/NCAP + bytes 103:31
 #   F5/F6   Active Namespace ID List (CNS 02h)   -> nsid[0..2]
 #   F7/F8   NS Identification Descriptor (CNS 03h) -> EUI64 + NGUID descriptors
 #   F9/F10  Controller List (CNS 13h)            -> NUMCIDS + controller IDs
@@ -1432,21 +1485,138 @@ def build_reserved_type_pcapng(output_path):
 
 def identify_ctrl_data(vid=0x144d, ssvid=0x1014, sn="SERIAL01234567890123",
                        mn="WIRESHARK MODEL NUMBER", cntlid=0x0007, total=4096):
-    """Partial Identify Controller data structure (NVMe Base 2.3 Fig 328)."""
+    """Partial Identify Controller data structure (NVMe Base 2.3 Fig 328).
+
+    Every field below carries a distinct non-zero value so that a decoder
+    reading at the wrong offset reports a visibly wrong number rather than a
+    plausible zero.  The genuinely-Reserved runs are deliberately left as
+    zeroes, so a Reserved item that is one byte too long picks up a neighbour's
+    non-zero value and the length assertions in suite_dissection_nvme_mi.py
+    catch it.
+    """
     buf = bytearray(total)
     struct.pack_into('<H', buf, 0, vid)
     struct.pack_into('<H', buf, 2, ssvid)
     buf[4:24]  = sn.encode('ascii')[:20].ljust(20, b' ')
     buf[24:64] = mn.encode('ascii')[:40].ljust(40, b' ')
     struct.pack_into('<H', buf, 78, cntlid)
+
+    # 110:102 -- BPCAP / Reserved / NSSL / Reserved / PLSI  (Fig 328)
+    buf[102] = 0x06                     # BPCAP: SFBPWPS=1, RPMBBPWPS=10b
+    struct.pack_into('<I', buf, 104, 0x00112233)   # NSSL, microseconds
+    buf[110] = 0x03                     # PLSI: PLSFQ=1, PLSEPF=1
+
+    # 143:134 -- CRCAP / CIU / CIRN
+    buf[134] = 0x03                     # CRCAP: RGIDC=1, RRSUP=1
+    buf[135] = 0x5a                     # CIU
+    struct.pack_into('<Q', buf, 136, 0x0123456789abcdef)   # CIRN
+
+    # 395:356 -- DID .. MSMT
+    struct.pack_into('<H', buf, 356, 0xbeef)       # DID
+    buf[358] = 0x03                     # KPIOC: KPIOSC=1, KPIOS=1
+    struct.pack_into('<H', buf, 360, 0x0037)       # MPTFAWR, 100 ms units
+    struct.pack_into('<Q', buf, 368, 0x0000000100000000)   # MEGCAP lo (4 GiB)
+    buf[384] = 0x05                     # TMPTHHA: TMPTHMH=5
+    buf[385] = 0x02                     # MUPA: MUPS=10b (0.01 W)
+    struct.pack_into('<H', buf, 386, 0x0271)       # CQT (mandatory), ms
+    struct.pack_into('<H', buf, 388, 0x0001)       # CDPA: HS3=1
+    struct.pack_into('<H', buf, 390, 0x04d2)       # MUP
+    struct.pack_into('<H', buf, 392, 0x0464)       # IPMSR: SRS=4h, SRV=100
+    struct.pack_into('<H', buf, 394, 0x162e)       # MSMT
+
+    # 587:544 -- MAXDNA .. MCDQPC
+    struct.pack_into('<Q', buf, 544, 0x0000000000015b3f)   # MAXDNA lo (88895)
+    struct.pack_into('<I', buf, 560, 0x00000401)   # MAXCNA
+    struct.pack_into('<I', buf, 564, 0x00000c80)   # OAQD
+    buf[568] = 0x5a                     # RHIRI, days
+    buf[569] = 0x1e                     # HIRT, minutes
+    struct.pack_into('<H', buf, 570, 0x0101)       # CMMRTD
+    struct.pack_into('<H', buf, 572, 0x0202)       # NMMRTD
+    buf[574] = 0x0c                     # MINMRTG
+    buf[575] = 0x2a                     # MAXMRTG
+    buf[576] = 0x07                     # TRATTR: MRTLL=1, TUDCS=1, THMCS=1
+    struct.pack_into('<H', buf, 578, 0x0303)       # MCUDMQ
+    struct.pack_into('<H', buf, 580, 0x0404)       # MNSUDMQ
+    struct.pack_into('<H', buf, 582, 0x0505)       # MCMR
+    struct.pack_into('<H', buf, 584, 0x0606)       # NMCMR
+    struct.pack_into('<H', buf, 586, 0x0707)       # MCDQPC
+
+    # 1807:1792 -- NVMe over Fabrics section
+    struct.pack_into('<I', buf, 1792, 0x00000104)  # IOCCSZ
+    struct.pack_into('<I', buf, 1796, 0x00000011)  # IORCSZ
+    struct.pack_into('<H', buf, 1800, 0x0002)      # ICDOFF
+    buf[1802] = 0x03                    # FCATT: NZNSETIDS=1, DCMS=1
+    buf[1803] = 0x10                    # MSDBD
+    struct.pack_into('<H', buf, 1804, 0x0001)      # OFCS: DCS=1
+    buf[1806] = 0x02                    # DCTYPE: CDC
+    buf[1807] = 0x09                    # CCRL
+
     return bytes(buf)
 
-def identify_ns_data(nsze=0x100000, ncap=0x80000, total=4096):
-    """Partial Identify Namespace data structure (NVM Command Set Fig)."""
-    buf = bytearray(total)
+def identify_ns_data(nsze=0x100000, ncap=0x80000, nlbaf=2, nulbaf=47,
+                     total=4096):
+    """Partial Identify Namespace data structure (NVM Command Set 1.2 Fig 114).
+
+    Bytes 103:31 used to produce no tree item at all.  Every field below now
+    carries a distinct non-zero value so a decoder reading at the wrong offset
+    reports a visibly wrong number rather than a plausible zero; the three
+    genuinely-Reserved runs (83, 91:88 and 98:96) stay zero-filled, so their
+    lengths are pinned separately in suite_dissection_nvme_mi.py.
+
+    The buffer is filled to byte 383 -- the end of the LBA Format region -- and
+    then truncated to `total`, so a caller modelling a DLEN-truncated transfer
+    (total < 384) still gets the real structure's leading bytes.
+    """
+    buf = bytearray(max(total, 384))
     struct.pack_into('<Q', buf, 0, nsze)
     struct.pack_into('<Q', buf, 8, ncap)
-    return bytes(buf)
+    buf[25] = nlbaf                                # NLBAF, 0's based
+
+    # 103:31 -- the formerly undecoded gap
+    buf[31] = 0x1f                                 # RESCAP
+    buf[32] = 0x87                                 # FPI: FPSUPP=1, 7% remaining
+    buf[33] = 0x19                                 # DLFEAT: GDS=1, WZDS=1, DRB=1
+    struct.pack_into('<H', buf, 34, 257)           # NAWUN
+    struct.pack_into('<H', buf, 36, 514)           # NAWUPF
+    struct.pack_into('<H', buf, 38, 771)           # NACWU
+    struct.pack_into('<H', buf, 40, 1028)          # NABSN
+    struct.pack_into('<H', buf, 42, 1285)          # NABO
+    struct.pack_into('<H', buf, 44, 1542)          # NABSPF
+    struct.pack_into('<H', buf, 46, 1799)          # NOIOB
+    struct.pack_into('<Q', buf, 48, 549755813888)  # NVMCAP low 8 of 16 (512 GiB)
+    struct.pack_into('<H', buf, 64, 2056)          # NPWG
+    struct.pack_into('<H', buf, 66, 2313)          # NPWA
+    struct.pack_into('<H', buf, 68, 2570)          # NPDG
+    struct.pack_into('<H', buf, 70, 2827)          # NPDA
+    struct.pack_into('<H', buf, 72, 3084)          # NOWS
+    struct.pack_into('<H', buf, 74, 3341)          # MSSRL
+    struct.pack_into('<I', buf, 76, 0x00112233)    # MCL
+    buf[80] = 43                                   # MSRC
+    buf[81] = 0x03                                 # KPIOS: KPIOSNS=1, KPIOENS=1
+    buf[82] = nulbaf                               # NULBAF (Mandatory)
+    # 83 Reserved
+    struct.pack_into('<I', buf, 84, 0x00445566)    # KPIODAAG
+    # 91:88 Reserved
+    struct.pack_into('<I', buf, 92, 0x0000abcd)    # ANAGRPID
+    # 98:96 Reserved
+    buf[99] = 0x01                                 # NSATTR: write protected
+    struct.pack_into('<H', buf, 100, 0x1357)       # NVMSETID
+    struct.pack_into('<H', buf, 102, 0x2468)       # ENDGID
+
+    # 383:128 LBA Formats: sixty-four 4-byte LBAFn entries (Fig 114), each
+    # laid out per Fig 116 -- RP 25:24, LBADS 23:16, MS 15:00.  Entries 15:00
+    # used to be the whole decoded region and 383:192 (LBAF63..LBAF16) was
+    # rendered as one "Reserved" run, so every index carries a distinct value
+    # and the supported count deliberately runs past 15: NLBAF is 0's based,
+    # NULBAF is not, and section 5.5 packs the unique-attribute formats
+    # directly after the shared-attribute ones, so (2+1)+47 = 50 are supported.
+    for i in range(nlbaf + 1 + nulbaf):
+        struct.pack_into('<I', buf, 128 + i * 4,
+                         ((i & 0x3) << 24)           # RP
+                         | ((9 + i % 4) << 16)       # LBADS
+                         | i)                        # MS -- unique per index
+
+    return bytes(buf[:total])
 
 def identify_nslist_data(nsids, total=4096):
     """Namespace ID list: packed LE uint32 NSIDs, zero-terminated/zero-filled."""
@@ -1474,6 +1644,42 @@ def identify_ctrl_list_data(cids, total=4096):
 
 # DOFF-window MN chunk: structure offset 24 (the Model Number field), 40 bytes.
 _ID_MN = "WIRESHARK MODEL NUMBER".encode('ascii')[:40].ljust(40, b' ')
+
+def _identify_ctrl_latency_data():
+    """identify_ctrl_data() with the four BASE_CUSTOM latency/atomicity fields
+    filled in (see F15/F16 below).  Patched into a private copy rather than set
+    in identify_ctrl_data() itself: that helper's byte offsets are shared by
+    every Identify Controller frame in the corpus, so a new frame with its own
+    values cannot disturb an existing assertion."""
+    buf = bytearray(identify_ctrl_data())
+    struct.pack_into('<I', buf, 84, 1500000)   # RTD3R  87:84, microseconds
+    struct.pack_into('<I', buf, 88, 2500000)   # RTD3E  91:88, microseconds
+    struct.pack_into('<H', buf, 526, 1)        # AWUN  527:526, 0's based
+    struct.pack_into('<H', buf, 528, 3)        # AWUPF 529:528, 0's based
+    return bytes(buf)
+
+_ID_CTRL_LATENCIES = _identify_ctrl_latency_data()
+
+def identify_cs_ind_ns_data(total=4096):
+    """I/O Command Set Independent Identify Namespace, CNS 08h (NVMe Base 2.3
+    Figure 335).  Every field carries a distinct, asymmetric, non-zero value so
+    a decoder reading at the wrong offset, with the wrong mask, or with the
+    wrong endianness renders a visibly wrong number rather than a plausible
+    zero.  The Reserved runs stay zero."""
+    buf = bytearray(total)
+    buf[0]  = 0x38                               # 00    NSFEAT: VWCNP|RMEDIA|UIDREUSE
+    buf[1]  = 0x03                               # 01    NMIC: DISNS|SHRNS
+    buf[2]  = 0xa5                               # 02    RESCAP: IEKS|WEARS|EAS|PTPLS
+    buf[3]  = 0x99                               # 03    FPI: FPIS=1, RFNVM=25
+    struct.pack_into('<I', buf, 4, 0x12345678)   # 07:04 ANAGRPID
+    buf[8]  = 0x01                               # 08    NSATTR: CWP
+    struct.pack_into('<H', buf, 10, 0xabcd)      # 11:10 NVMSETID
+    struct.pack_into('<H', buf, 12, 0x1234)      # 13:12 ENDGID
+    buf[14] = 0x07                               # 14    NSTAT: IOI=11b, NRDY=1
+    buf[15] = 0x03                               # 15    KPIOS: KPIOSNS|KPIOENS
+    struct.pack_into('<H', buf, 16, 0x0042)      # 17:16 MAXKT
+    struct.pack_into('<I', buf, 20, 0xcafebabe)  # 23:20 RGRPID
+    return bytes(buf)
 
 packets_admin_identify = [
     # F1/F2 Identify Controller (CNS 01h)
@@ -1517,6 +1723,53 @@ packets_admin_identify = [
                 admin_request_payload(0x06, ctrl_id=0x0007, cns=0x00, dlen=64), tag=6),
     make_packet(False, NVME_MI_TYPE_ADMIN, 0,
                 admin_resp_with_data(identify_ns_data(total=64)), tag=6),
+    # F15/F16 Identify Controller (CNS 01h) with the four BASE_CUSTOM-formatted
+    # latency/atomicity fields non-zero.  identify_ctrl_data() leaves all four
+    # at 0, and every other in-tree capture does too, so add_ctrl_rtd3() and
+    # add_ctrl_lblocks() only ever ran down their zero/singular branches --
+    # their plural branches yielded the literal two-character string "%s",
+    # which the format's own %s then consumed ("1500000 microsecond%s",
+    # "2 logical block%s").  Distinct values so a formatter reading the wrong
+    # field is visible:
+    #   RTD3R 87:84 = 1500000, RTD3E 91:88 = 2500000 (Base 2.3 Figure 328,
+    #   microseconds), AWUN 527:526 = 1, AWUPF 529:528 = 3 (0's based, so they
+    #   render as 2 and 4 logical blocks).
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(0x06, ctrl_id=0x0007, cns=0x01), tag=7),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(_ID_CTRL_LATENCIES), tag=7),
+    # F17/F18 Identify I/O Command Set specific Identify Controller data
+    # structure (CNS 06h) with CDW11 CSI = 02h (Zoned Namespace Command Set).
+    # CNS 06h is Mandatory in NVMe 2.x and is meaningless without CSI, but the
+    # CDW11 Reserved run used to cover 31:16 and hide the field entirely
+    # (NVMe Base 2.3 Figure 324: Reserved 23:16, CSI 31:24).  The response is a
+    # plain success, so this pair pins the command-side decode alone.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(0x06, ctrl_id=0x0007, cns=0x06,
+                                      cdw11=0x02000000), tag=8),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_response_payload(STATUS_SUCCESS,
+                                       cqe3=admin_cqe3(cqe_status_word(phase=1))),
+                tag=8),
+    # Identify Namespace (CNS 00h) claiming more LBA Formats than exist.
+    # NLBAF is 0's based, so nlbaf=63 means 64 shared-attribute formats, and
+    # nulbaf=10 adds ten more: 74 in total, where NVM Command Set 1.2 section
+    # 5.5 caps the 383:128 region at 64 entries.  The count is impossible on
+    # its own terms rather than merely unseen -- no transfer window can make it
+    # legitimate -- so it is reported rather than silently clamped, while the
+    # 64 formats that do fit still decode.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(0x06, ctrl_id=0x0007, cns=0x00), tag=9),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(identify_ns_data(nlbaf=63, nulbaf=10)),
+                tag=9),
+    # F21/F22 I/O Command Set Independent Identify Namespace (CNS 08h): the
+    # fixed 24-byte header (NVMe Base 2.3 Figure 335) with every field distinct
+    # so a wrong offset/mask/endianness is visible.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(0x06, ctrl_id=0x0007, cns=0x08), tag=10),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(identify_cs_ind_ns_data()), tag=10),
 ]
 
 BASE_TS_ADMIN_IDENTIFY_US = 1709289600 * 1_000_000
@@ -1556,10 +1809,10 @@ NVME_AQ_OPC_GET_LOG_PAGE = 0x02
 # test recomputes the expected value from these same bytes.
 FW_SLOT1_REV = b"FWREV100"
 
-def smart_data(ct=320, asc=100, ast=10, pu=5, poh=12345, total=512):
+def smart_data(ct=320, asc=100, ast=10, pu=5, poh=12345, total=512, cw=0x00):
     """Partial SMART / Health Information log page (NVMe Base 2.3 Fig 207)."""
     buf = bytearray(total)
-    buf[0] = 0x00                          # Critical Warning: none
+    buf[0] = cw                            # 00 Critical Warning (Fig 210)
     struct.pack_into('<H', buf, 1, ct)     # Composite Temperature (Kelvin)
     buf[3] = asc                           # Available Spare (%)
     buf[4] = ast                           # Available Spare Threshold (%)
@@ -1575,15 +1828,133 @@ def fw_slot_data(afi=0x01, rev1=FW_SLOT1_REV, total=512):
     buf[8:16] = rev1[:8].ljust(8, b'\x00')
     return bytes(buf)
 
-def error_info_data(errcnt=42, sqid=3, cid=0x00ab, total=128):
+# Error Information Log Entry Reserved field, NVMe Base 2.3 Figure 209 bytes
+# 62:42 -- exactly 21 bytes.  A distinctive run so an oversized Reserved item
+# (the pre-fix 24 bytes, which ran past LPVER at 63 and two bytes into the next
+# entry) fails the equality assertion on length as well as on content.
+ERRINF_RSVD1 = bytes(range(0xA0, 0xB5))
+assert len(ERRINF_RSVD1) == 21
+
+def error_info_data(errcnt=42, sqid=3, cid=0x00ab, vsia=0x81, trtype=0x03,
+                    csi=0x02, opc=0x09, csinfo=0x1122334455667788, ttsi=0x1234,
+                    lpver=0x01, total=128, pel=0x0000):
     """Error Information log: the decoded first 64-byte entry (NVMe Base 2.3
-    Fig 204) plus room for a second (the page is an array of entries; the
-    decoder reads the first entry's trailing reserved field past byte 64)."""
-    buf = bytearray(total)
-    struct.pack_into('<Q', buf, 0, errcnt)  # Error Count
-    struct.pack_into('<H', buf, 8, sqid)    # Submission Queue ID
-    struct.pack_into('<H', buf, 10, cid)    # Command ID
+    Fig 209) plus a second entry, so an entry-1 field that overruns byte 63 is
+    visible.  Every field carries a distinct non-zero value, and the second
+    entry is filled with 0xEE, so an off-by-one offset shows up as a wrong
+    number rather than a plausible zero.
+
+    Parameters use the spec's abbreviations, which do NOT line up with the
+    display filter names: byte 30 CSI (Command Set Indicator) is filter
+    .cmdset, and byte 32 CSINFO (Command Specific Information) is filter .csi
+    -- the latter was registered upstream in 2021 and cannot be reassigned."""
+    buf = bytearray(b'\xee' * total)
+    buf[0:64] = bytes(64)
+    struct.pack_into('<Q', buf, 0, errcnt)   # 07:00 Error Count
+    struct.pack_into('<H', buf, 8, sqid)     # 09:08 Submission Queue ID
+    struct.pack_into('<H', buf, 10, cid)     # 11:10 Command ID
+    struct.pack_into('<H', buf, 14, pel)     # 15:14 Parameter Error Location
+    buf[28] = vsia                           # 28    Vendor Specific Info Available
+    buf[29] = trtype                         # 29    Transport Type
+    buf[30] = csi                            # 30    Command Set Indicator -> .cmdset
+    buf[31] = opc                            # 31    Opcode
+    struct.pack_into('<Q', buf, 32, csinfo)  # 39:32 Command Specific Info -> .csi
+    struct.pack_into('<H', buf, 40, ttsi)    # 41:40 Transport Type Specific Info
+    buf[42:63] = ERRINF_RSVD1                # 62:42 Reserved
+    buf[63] = lpver                          # 63    Log Page Version
     return bytes(buf)
+
+# Endurance Group Information Reserved field, NVMe Base 2.3 Figure 222 bytes
+# 31:08 -- exactly 24 bytes.  Distinctive for the same reason as ERRINF_RSVD1:
+# the pre-fix item was 26 bytes starting at byte 6, swallowing the Domain
+# Identifier.
+EGROUP_RSVD1 = bytes(range(0xC0, 0xD8))
+assert len(EGROUP_RSVD1) == 24
+
+def egroup_data(cw=0x0c, egfeat=0x01, avsp=100, avspt=10, pused=7, did=0x1234,
+                tegcap=0x1122334455667788, uegcap=0x99aabbccddeeff11,
+                total=512):
+    """Endurance Group Information log page (NVMe Base 2.3 Fig 222).
+
+    Critical Warning deliberately clears bit 0 (EGASB) while Endurance Group
+    Features sets bit 0 (EGRMEDIA), so reading EGRMEDIA one byte early would
+    report '0' instead of '1'.
+
+    TEGCAP (175:160) and UEGCAP (191:176) are 16-byte byte-counts; only the
+    low 8 bytes are set.  Their values are distinct byte patterns with no
+    repeated or zero bytes, so a swapped or shifted offset renders a visibly
+    different hex string rather than another plausible capacity."""
+    buf = bytearray(total)
+    buf[0] = cw                              # 00    Endurance Group Critical Warning
+    buf[1] = egfeat                          # 01    Endurance Group Features
+    buf[3] = avsp                            # 03    Available Spare
+    buf[4] = avspt                           # 04    Available Spare Threshold
+    buf[5] = pused                           # 05    Percentage Used
+    struct.pack_into('<H', buf, 6, did)      # 07:06 Domain Identifier
+    buf[8:32] = EGROUP_RSVD1                 # 31:08 Reserved
+    struct.pack_into('<Q', buf, 160, tegcap) # 175:160 TEGCAP (low 8 of 16)
+    struct.pack_into('<Q', buf, 176, uegcap) # 191:176 UEGCAP (low 8 of 16)
+    return bytes(buf)
+
+def cmd_feat_lockdown_data(ss, cs=0, cfil=(0x02, 0x04, 0x06)):
+    """Command and Feature Lockdown log page (NVMe Base 2.3 Fig 271).
+
+    CFILA byte 0 carries Scope Selected in bits 3:0 and Contents Selected in
+    bits 5:4, byte 3 is the list length, and the Command and Feature Identifier
+    List follows.  Figure 271 makes the list's contents depend on Scope, so the
+    same byte names an Admin opcode under Scope 0h and a Set Features Feature
+    Identifier under Scope 2h.
+
+    The default list is chosen so every byte resolves to a *different* name in
+    the two tables -- 02h is Get Log Page or Power Management, 04h is Delete CQ
+    or Temperature Threshold, 06h is Identify or Volatile Write Cache -- so a
+    decoder that ignores Scope, or reads it from the wrong place, cannot
+    produce the expected strings by coincidence."""
+    return bytes([(cs & 0x3) << 4 | (ss & 0xf), 0x00, 0x00, len(cfil)]) + bytes(cfil)
+
+
+def pred_lat_data(status=0x01, etype=0xC000, total=512):
+    """Predictable Latency Per NVM Set log page (NVMe Base 2.3 Fig 224).
+
+    Figure 224 has no NVM Set Identifier field: the set this page describes is
+    named only by the Log Specific Identifier of the request (Fig 223), so this
+    fixture exists to pin that the label comes from the request.
+
+    status = 01h -> PLMW 001b (Deterministic Window).  etype = C000h sets both
+    DEAT (bit 15) and MVEAT (bit 14), the two highest bits, so an Event Type
+    mask that is one bit short drops a set bit rather than silently agreeing.
+    The five 8-byte estimates use distinct byte patterns with no repeated or
+    zero bytes, so a shifted offset renders a visibly different value."""
+    d = bytearray(total)
+    d[0] = status
+    struct.pack_into('<H', d, 2, etype)
+    struct.pack_into('<Q', d,  32, 0x1122334455667788)  # DTWIN Reads Typical
+    struct.pack_into('<Q', d,  40, 0x99aabbccddeeff11)  # DTWIN Writes Typical
+    struct.pack_into('<Q', d,  48, 0x2233445566778899)  # DTWIN Time Maximum
+    struct.pack_into('<Q', d,  56, 0x33445566778899aa)  # NDWIN Time Min High
+    struct.pack_into('<Q', d,  64, 0x445566778899aabb)  # NDWIN Time Min Low
+    struct.pack_into('<Q', d, 128, 0x5566778899aabbcc)  # DTWIN Reads Estimate
+    struct.pack_into('<Q', d, 136, 0x66778899aabbccdd)  # DTWIN Writes Estimate
+    struct.pack_into('<Q', d, 144, 0x778899aabbccddee)  # DTWIN Time Estimate
+    return bytes(d)
+
+
+def ana_data(chgc=7, agid=3, nnv=1, grp_chgc=9, anasa=0x31, nsid=0x0000002a):
+    """Asymmetric Namespace Access log page (NVMe Base 2.3 Figures 227/228):
+    a 16-byte header then one ANA Group Descriptor plus its NSID list.
+
+    ANASA (descriptor byte 16) defaults to 31h -- ANAS = 1h (Optimized) in
+    bits 03:00 and a non-zero Reserved nibble in bits 07:04, so the group's
+    container item is distinguishable from the ANA state it contains."""
+    buf = bytearray(16)
+    struct.pack_into('<Q', buf, 0, chgc)     # 07:00 Change Count
+    struct.pack_into('<H', buf, 8, 1)        # 09:08 Number of ANA Group Descriptors
+    desc = bytearray(32)
+    struct.pack_into('<I', desc, 0, agid)    # 03:00 ANA Group ID
+    struct.pack_into('<I', desc, 4, nnv)     # 07:04 Number of NSID Values
+    struct.pack_into('<Q', desc, 8, grp_chgc)  # 15:08 Change Count
+    desc[16] = anasa                         # 16    ANA State Attributes
+    return bytes(buf + desc + struct.pack('<I', nsid))
 
 def supported_log_pages_data(total=1024):
     """Supported Log Pages (LID 00h): 256 four-byte LID Supported and Effects
@@ -1626,6 +1997,101 @@ packets_admin_logpage = [
                                       ctrl_id=0x0001, cns=0x00), tag=3),
     make_packet(False, NVME_MI_TYPE_ADMIN, 0,
                 admin_resp_with_data(supported_log_pages_data()), tag=3),
+    # F9/F10 Endurance Group Information (LID 09h)
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_LOG_PAGE,
+                                      ctrl_id=0x0001, cns=0x09), tag=4),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(egroup_data()), tag=4),
+    # F11/F12 SMART (LID 02h) again, but exercising two mask boundaries that
+    # three upstream packet-nvme.c defects straddled:
+    #   request  CDW10 = FF02h -> LID 02h, LSP 7Fh, RAE 1 (NVMe Base 2.3
+    #            Figure 201: 14:08 LSP).  Bits 14:13 are set, so an LSP mask
+    #            of only 12:08 reports 1Fh and spills the rest into "Reserved",
+    #            and RAE must stay 1.
+    #   response Critical Warning = E1h -> bit 7 Reserved, bit 6 IPS, bit 5
+    #            PMRRO, bit 0 ASCBT (NVMe Base 2.3 Figure 210).  Bits on both
+    #            sides of the Reserved boundary, so a Reserved mask of E0h
+    #            reports 7 and leaves IPS with no field at all.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_LOG_PAGE,
+                                      ctrl_id=0x0001, cns=0xFF02), tag=5),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(smart_data(cw=0xE1)), tag=5),
+    # F13/F14 Error Information (LID 01h) with a non-zero Parameter Error
+    # Location: bytes 15:14 = 852Ah -> BYTLOC 2Ah (07:00), BITLOC 5h (10:08),
+    # Reserved bit 15 (NVMe Base 2.3 Figure 209).  All three sub-fields carry
+    # bits, so a BITLOC mask that reaches down into BYTLOC, or a Reserved mask
+    # that does, reports a contaminated number.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_LOG_PAGE,
+                                      ctrl_id=0x0001, cns=0x01), tag=6),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(error_info_data(pel=0x852A)), tag=6),
+    # F15/F16 Asymmetric Namespace Access (LID 0Ch): header + one full ANA
+    # Group Descriptor.  ANASA = 31h exercises the group's container item,
+    # which spans the whole byte and so must carry no mask of its own.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_LOG_PAGE,
+                                      ctrl_id=0x0001, cns=0x0c), tag=7),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(ana_data()), tag=7),
+    # F17/F18 SMART (LID 02h) with all three CDW14 sub-fields set at once:
+    # CDW14 = 0280_0045h -> UUID Index 45h (06:00), Offset Type 1 (bit 23),
+    # CSI 02h (31:24), Reserved 22:07 zero (NVMe Base 2.3 Figure 205).
+    # UIDX was masked 0x3f, one bit too narrow, so 45h reported as 05h, and the
+    # Reserved run covered 31:07 -- swallowing both OT and CSI.  Bit 6 of UIDX
+    # and bits on both sides of Reserved, so any of the three masks being wrong
+    # shows up as a different number rather than a missing field.  The response
+    # is a plain success, so this pair pins the command-side decode alone.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_LOG_PAGE,
+                                      ctrl_id=0x0001, cns=0x02,
+                                      cdw14=0x02800045), tag=8),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_response_payload(STATUS_SUCCESS,
+                                       cqe3=admin_cqe3(cqe_status_word(phase=1))),
+                tag=8),
+    # F19/F20 Endurance Group Information (LID 09h) for a *nonzero* Endurance
+    # Group, and F21/F22 Predictable Latency Per NVM Set (LID 0Ah) for a
+    # nonzero NVM Set.  Neither Figure 222 nor Figure 224 contains the
+    # identifier the host asked for -- it appears only in the request's Log
+    # Specific Identifier (CDW11 31:16, Figures 221/223) -- so without carrying
+    # it across, two responses for different groups/sets are byte-identical in
+    # the tree.  The F9/F10 pair above already covers LID 09h but with LSI 0,
+    # which cannot tell "read the LSI" apart from "print a zero"; these use
+    # 0007h and 0003h so the rendered label has to match the request.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_LOG_PAGE,
+                                      ctrl_id=0x0001, cns=0x09,
+                                      cdw11=0x00070000), tag=9),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(egroup_data()), tag=9),
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_LOG_PAGE,
+                                      ctrl_id=0x0001, cns=0x0a,
+                                      cdw11=0x00030000), tag=10),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(pred_lat_data()), tag=10),
+    # F23/F24 and F25/F26 Command and Feature Lockdown (LID 14h): two responses
+    # carrying a *byte-identical* Command and Feature Identifier List and
+    # differing only in CFILA's Scope Selected field -- 0h (Admin Command Set
+    # opcodes) then 2h (Set Features Feature Identifiers).
+    #
+    # Figure 271 defines the list's contents in terms of Scope, so those same
+    # three bytes name six different things across the pair.  Any difference
+    # between the two dissections is therefore caused solely by Scope, which is
+    # what makes this a test of the lookup and not of the list walk.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_LOG_PAGE,
+                                      ctrl_id=0x0001, cns=0x14), tag=11),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(cmd_feat_lockdown_data(ss=0)), tag=11),
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_LOG_PAGE,
+                                      ctrl_id=0x0001, cns=0x14), tag=12),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(cmd_feat_lockdown_data(ss=2)), tag=12),
 ]
 
 BASE_TS_ADMIN_LOGPAGE_US = 1709376000 * 1_000_000
@@ -1662,6 +2128,11 @@ F_ENH_CTRL_METADATA      = 0x7d
 F_CTRL_METADATA          = 0x7e
 F_NS_METADATA            = 0x7f
 F_TEMP_THRESHOLD         = 0x04
+F_HOST_CNTL_THERM_MGMT   = 0x10
+F_LBA_RANGE_TYPE         = 0x03
+F_PRED_LAT_MODE_WIND     = 0x14
+F_NS_WRITE_CONF          = 0x84
+F_IRQ_VECTOR_CONF        = 0x09
 NVME_AQ_OPC_SET_FEATURES = 0x09
 NVME_AQ_OPC_GET_FEATURES = 0x0a
 
@@ -1725,6 +2196,97 @@ packets_admin_features = [
     make_packet(False, NVME_MI_TYPE_ADMIN, 0,
                 admin_response_payload(STATUS_SUCCESS, cqe1=0x0012014B,
                                        cqe3=admin_cqe3(cqe_status_word(phase=1))), tag=3),
+    # F9/F10 Set Features Host Controlled Thermal Management (FID 10h).
+    # CDW11 = 0154_015Eh -> TMT1 = 0154h (340 K) in bits 31:16, TMT2 = 015Eh
+    # (350 K) in bits 15:00 (NVMe Base 2.3 Figure 417).  The two halves differ,
+    # so a sub-field registered without a bitmask (which renders the whole
+    # dword) is distinguishable from either temperature.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_SET_FEATURES, ctrl_id=0x0005,
+                                      cns=F_HOST_CNTL_THERM_MGMT,
+                                      cdw11=0x0154015E), tag=4),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_response_payload(STATUS_SUCCESS,
+                                       cqe3=admin_cqe3(cqe_status_word(phase=1))), tag=4),
+    # F11/F12 Get Features HCTM (FID 10h): the same Figure 417 layout is
+    # returned in CQE DW0, decoded by a separate hf array with the same defect.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_FEATURES, ctrl_id=0x0005,
+                                      cns=F_HOST_CNTL_THERM_MGMT), tag=5),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_response_payload(STATUS_SUCCESS, cqe1=0x0154015E,
+                                       cqe3=admin_cqe3(cqe_status_word(phase=1))), tag=5),
+    # F13..F22: the five Set/Get Features group members whose display name was
+    # a copy of the container's -- "DWORD11", "DWORD12" or "DWORD0" -- so each
+    # subtree showed identically-named rows and none of the fields could be
+    # identified by label.  Every value below is non-zero and distinct from its
+    # neighbours, so a member reading the wrong bits is visible in the value as
+    # well as the name.
+    #
+    # F13..F16 Set/Get Features LBA Range Type (FID 03h): NUM 05:00 of CDW11
+    # (Set, NVM Command Set 1.2 Figure 93) and of CQE DWORD0 (Get, Figure 94).
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_SET_FEATURES, ctrl_id=0x0006,
+                                      cns=F_LBA_RANGE_TYPE, cdw11=0x00000005),
+                tag=6),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_response_payload(STATUS_SUCCESS,
+                                       cqe3=admin_cqe3(cqe_status_word(phase=1))), tag=6),
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_FEATURES, ctrl_id=0x0006,
+                                      cns=F_LBA_RANGE_TYPE), tag=7),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_response_payload(STATUS_SUCCESS, cqe1=0x00000007,
+                                       cqe3=admin_cqe3(cqe_status_word(phase=1))), tag=7),
+    # F17..F20 Set/Get Features Namespace Write Protection Config (FID 84h):
+    # WPS 02:00 -- NVMe Base 2.3 Figure 470.  02h = Write Protect Until Power
+    # Cycle on the Set side, 03h = Permanent Write Protect on the Get side, so
+    # the two frames cannot be confused.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_SET_FEATURES, ctrl_id=0x0007,
+                                      cns=F_NS_WRITE_CONF, cdw11=0x00000002),
+                tag=8),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_response_payload(STATUS_SUCCESS,
+                                       cqe3=admin_cqe3(cqe_status_word(phase=1))), tag=8),
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_FEATURES, ctrl_id=0x0007,
+                                      cns=F_NS_WRITE_CONF), tag=9),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_response_payload(STATUS_SUCCESS, cqe1=0x00000003,
+                                       cqe3=admin_cqe3(cqe_status_word(phase=1))), tag=9),
+    # F21/F22 Set Features Predictable Latency Mode Window (FID 14h): WSEL
+    # 02:00 of CDW12 -- NVMe Base 2.3 Figure 425.  01h = Deterministic Window.
+    # CDW11 carries the NVM Set Identifier, left 0 so the two dwords differ.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_SET_FEATURES, ctrl_id=0x0008,
+                                      cns=F_PRED_LAT_MODE_WIND, cdw12=0x00000001),
+                tag=10),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_response_payload(STATUS_SUCCESS,
+                                       cqe3=admin_cqe3(cqe_status_word(phase=1))), tag=10),
+    # F23/F24 Set Features Interrupt Vector Configuration (FID 09h): IV 15:00,
+    # CD bit 16, Reserved 31:17 of CDW11 (NVMe Base 2.3 Figure 475).  IV=1234h,
+    # CD=0, plus a synthetic Reserved bit (20) set -- upstream registered IV
+    # with mask 0 (so it rendered the whole dword, picking up the Reserved
+    # bit) and CD with a 17-bit mask covering IV as well (so it read "set"
+    # whenever IV was nonzero, wrongly true here since IV != 0 but CD is
+    # really clear). Both defects are visible as wrong values with this CDW11.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_SET_FEATURES, ctrl_id=0x0009,
+                                      cns=F_IRQ_VECTOR_CONF, cdw11=0x00101234),
+                tag=11),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_response_payload(STATUS_SUCCESS,
+                                       cqe3=admin_cqe3(cqe_status_word(phase=1))), tag=11),
+    # F25/F26 Get Features IRQV (FID 09h): the same Figure 475 layout is
+    # returned in CQE DW0, decoded by a separate hf array with the same defect.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_FEATURES, ctrl_id=0x0009,
+                                      cns=F_IRQ_VECTOR_CONF), tag=12),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_response_payload(STATUS_SUCCESS, cqe1=0x00101234,
+                                       cqe3=admin_cqe3(cqe_status_word(phase=1))), tag=12),
 ]
 
 BASE_TS_ADMIN_FEATURES_US = 1709376000 * 1_000_000
@@ -1816,14 +2378,26 @@ _reserv_notif_lpt_data = bytes([0x07])
 
 # F23/F24: Sanitize Status (LID 81h), off=0, dlen=64 -- ordinary (non-windowed)
 # response with plenty of data.  Before the fix, the trailing "rsvd" field
-# (struct offset 32 onward) NEVER rendered here regardless of off, because
+# (struct offset 48 onward) NEVER rendered here regardless of off, because
 # the bail-out condition was inverted ("if (poff <= len) return;" instead of
 # "if (len <= poff) return;") -- it incorrectly bailed out exactly when there
-# WAS enough data.  32 bytes of fixed fields (0:32) + 32 distinctive
+# WAS enough data.  48 bytes of defined fields (0:48) + 16 distinctive
 # trailing bytes.
-_sanitize_fixed_fields = bytes(32)  # sprog/sstat/scdw10/eto/etbe/etce/etond/etbend/etcend, all zero is fine
-_sanitize_trailing_data = bytes(range(0x80, 0xA0))  # struct offset 32:64
-_sanitize_data = _sanitize_fixed_fields + _sanitize_trailing_data
+#
+# SSTAT carries Sanitize Operation Status = 010b (Sanitizing) with both the
+# Media Verification Canceled and Namespace Data Erased bits set, so the two
+# bits NVMe Base 2.3 Figure 302 defines above Global Data Erased are covered.
+_sanitize_fixed_fields = (struct.pack('<HH', 0, 0x0602)  # sprog, sstat
+                          + bytes(28))                   # scdw10..etcend, zero
+_sanitize_state_fields = (struct.pack('<I', 90)          # etpvds
+                          + bytes([0x25])                # ssi: FAILS=2, SANS=5
+                          + bytes(3)                     # reserved
+                          + struct.pack('<I', 4)         # mnsoip
+                          + struct.pack('<I', 0x0000002A))  # stnsid
+_sanitize_trailing_data = bytes(range(0x90, 0xA0))       # struct offset 48:64
+_sanitize_data = (_sanitize_fixed_fields + _sanitize_state_fields
+                  + _sanitize_trailing_data)
+assert len(_sanitize_data) == 64
 
 # F27/F28: Feature ID Sup&Eff (LID 12h), entry index 1 (struct offset 4:7)
 _feat_sup_and_eff_entry1 = struct.pack('<I', 0x00000001)
@@ -2016,6 +2590,104 @@ _changed_nslist_misaligned_data = bytes([0x11, 0x22, 0x33, 0x44, 0x55, 0x66])
 # used a strict ">" instead of ">=", so a transfer of exactly 1 byte (all of
 # AFI, none of the following Reserved) silently skipped AFI entirely.
 _fw_slot_afi_exact_data = bytes([0x02])
+
+# ---------------------------------------------------------------------------
+# F69..F74: three pre-existing UPSTREAM packet-nvme.c defects (present in
+# Wireshark since 2021/2022, not introduced by this project).
+# ---------------------------------------------------------------------------
+
+# F69/F70: ANA (LID 0Ch) windowed to LPO=16, DLEN=4 -- a window that starts
+# exactly at ANA Group Descriptor 0 and carries only its 4-byte ANA Group ID.
+# dissect_nvme_get_logpage_ana_resp_grp()'s entry guard is "len < 4", but the
+# fresh-descriptor path then read Number of NSID Values (NVMe Base 2.3
+# Figure 228, bytes 07:04) unconditionally, which needs len >= 8: a 4..7-byte
+# window threw BoundsError and rendered the frame "[Malformed Packet]"
+# instead of decoding the Group ID it did carry.  A distinctive AGID proves
+# the guarded path still decodes the field rather than merely not throwing.
+_ana_grp_id_only = struct.pack('<I', 0x0000002A)
+
+# F71/F72: Commands Supported and Effects (LID 05h) windowed to LPO=1020,
+# DLEN=16 -- straddling the ACS/IOCS boundary (NVMe Base 2.3 Figure 213:
+# ACS0..255 at bytes [0:1024), IOCS0..255 at [1024:2048)).  That yields
+# exactly one ACS record (ACS255, struct 1020) followed by three IOCS records
+# (IOCS0..2, struct 1024/1028/1032), which is the smallest window that covers
+# both of dissect_nvme_get_logpage_cmd_sup_and_eff_grp()'s defects at once:
+#   - the parenthetical index was a constant ("fidx+1" where "fidx+i" is
+#     meant), so every record was labelled (ACS1)/(IOCS1) regardless of index
+#     -- here ACS255 was labelled (ACS256) and all three IOCS records (IOCS1);
+#   - `grp` was reassigned to each record's own subtree inside the loop, so
+#     record N+1 nested inside record N instead of being its sibling.
+# (The same lines also spelled "I/0 Command Supported" for "I/O".)
+# Each record carries a distinct non-zero CSEDS dword so a wrong offset shows
+# up as a wrong number rather than as another zero.
+_cmd_sup_and_eff_boundary = (struct.pack('<I', 0x1111FF01)   # ACS255  (struct 1020)
+                             + struct.pack('<I', 0x22220001)  # IOCS0   (struct 1024)
+                             + struct.pack('<I', 0x33330002)  # IOCS1   (struct 1028)
+                             + struct.pack('<I', 0x44440003))  # IOCS2  (struct 1032)
+assert len(_cmd_sup_and_eff_boundary) == 16
+
+# F73/F74: LBA Status Information (LID 0Eh), DOFST=0, DLEN=64 -- one LBA
+# Status Log Namespace Element carrying TWO LBA Range Descriptors.  Layout
+# per NVM Command Set 1.2 Figure 109 (log page header, bytes 15:0),
+# Figure 110 (namespace element: NEID 03:00, NLRD 07:04, RATYPE 08,
+# Reserved 15:09) and Figure 111 (range descriptor: RSLBA 07:00, RNLB 11:08,
+# Reserved 15:12).
+#
+# dissect_nvme_get_logpage_lba_status_lba_range()'s descriptor loop is
+# "while (len >= 8)" but never decremented `len` on the len >= 16 path, so it
+# could only exit by walking `poff` off the end of the tvb and throwing --
+# emitting one ever-deeper-nested bogus Range Descriptor per iteration on the
+# way, and returning a `done` far larger than the element, which then
+# underflowed the caller's own unsigned `len`.  ANY element with more than one
+# descriptor triggers it, which is what this fixture is: two descriptors is
+# the minimum that makes the loop iterate twice.  Both descriptors carry
+# distinct non-zero RSLBA/RNLB values.
+_lba_status_page = (
+    struct.pack('<I', 64)          # LSLPLEN (03:00)
+    + struct.pack('<I', 1)         # NLSLNE  (07:04): one namespace element
+    + struct.pack('<I', 0x1234)    # ESTULB  (11:08)
+    + struct.pack('<H', 0)         # Reserved (13:12)
+    + struct.pack('<H', 7)         # LSGC    (15:14)
+    # LBA Status Log Namespace Element (Figure 110)
+    + struct.pack('<I', 0x0000002A)  # NEID   (03:00)
+    + struct.pack('<I', 2)           # NLRD   (07:04): two range descriptors
+    + bytes([0x10])                  # RATYPE (08)
+    + bytes(7)                       # Reserved (15:09)
+    # LBA Range Descriptor 0 (Figure 111)
+    + struct.pack('<Q', 0x1111222233334444)  # RSLBA
+    + struct.pack('<I', 0x55556666)          # RNLB
+    + bytes(4)                               # Reserved
+    # LBA Range Descriptor 1
+    + struct.pack('<Q', 0x0123456789ABCDEF)  # RSLBA
+    + struct.pack('<I', 0x0000BEEF)          # RNLB
+    + bytes(4))                              # Reserved
+assert len(_lba_status_page) == 64
+
+# F75/F76: ANA (LID 0Ch) fetched at DOFST=16 with LPO=0 -- the transport window
+# starts exactly at ANA Group Descriptor 0, so the 16-byte header carrying
+# Number of ANA Group Descriptors (NVMe Base 2.3 Figure 227, bytes 09:08) is not
+# in this message at all.  dissect_nvme_get_logpage_ana_resp() took its group
+# count from cmd_ctx->cmd_ctx.get_logpage.records on that path, but NVMe-MI
+# builds a freshly zeroed command context per transaction, so the count was 0
+# and "while (len >= 4 && groups)" never ran: every descriptor present went
+# unrendered.  NVMe-MI 2.1 Figure 136 caps DLEN at 4,096, so an ANA log page
+# larger than that can only be fetched with successive nonzero DOFST -- this is
+# the ordinary Management Controller path, not a corner case.
+#
+# Two descriptors with distinct ANA Group IDs and NSIDs, so the test can tell
+# "both rendered" from "the walk stopped after one".
+_ana_dofst_descs = (ana_data(agid=0x11, grp_chgc=0x21, nsid=0x00000101)[16:]
+                    + ana_data(agid=0x22, grp_chgc=0x22, nsid=0x00000202)[16:])
+assert len(_ana_dofst_descs) == 72
+
+# F77/F78: the same 72 bytes at the same logical offset, but expressed with
+# LPO=16 and DOFST=0 instead of DOFST=16 and LPO=0.  The controller applies
+# LPO before NVMe-MI slices the response, so both requests ask for exactly
+# "the log page from byte 16 on" and both responses carry byte-identical
+# payloads -- they must decode identically.  They did not:
+# dissect_nvme_get_logpage_ana_resp()'s leading "if" has an off<16 branch and
+# a tr_off branch and nothing else, so with off>=16 and tr_off==0 neither ran
+# and "groups" kept its initializer of 1 -- exactly one descriptor rendered.
 
 packets_admin_logpage_windowed = [
     # F1/F2 SMART / Health Information (LID 02h), window 1: DOFST=0, DLEN=32
@@ -2287,6 +2959,50 @@ packets_admin_logpage_windowed = [
                                       doff=0, dlen=1), tag=33),
     make_packet(False, NVME_MI_TYPE_ADMIN, 0,
                 admin_resp_with_data(_fw_slot_afi_exact_data), tag=33),
+    # F69/F70 ANA (LID 0Ch), LPO=16, DLEN=4: 4-byte fresh-descriptor window
+    # (see block comment above).
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_LOG_PAGE,
+                                      ctrl_id=0x0001, flags=0x03, cns=0x0C,
+                                      doff=0, dlen=4, lpo=16), tag=34),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(_ana_grp_id_only), tag=34),
+    # F71/F72 Commands Supported and Effects (LID 05h), LPO=1020, DLEN=16:
+    # ACS/IOCS boundary window (see block comment above).
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_LOG_PAGE,
+                                      ctrl_id=0x0001, flags=0x03, cns=0x05,
+                                      doff=0, dlen=16, lpo=1020), tag=35),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(_cmd_sup_and_eff_boundary), tag=35),
+    # F73/F74 LBA Status Information (LID 0Eh), DOFST=0, DLEN=64: one
+    # namespace element with two range descriptors (see block comment above).
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_LOG_PAGE,
+                                      ctrl_id=0x0001, flags=0x03, cns=0x0E,
+                                      doff=0, dlen=64), tag=36),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(_lba_status_page), tag=36),
+    # F75/F76 ANA (LID 0Ch), DOFST=16, LPO=0: the transport window starts at
+    # ANA Group Descriptor 0 (see block comment above).
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_LOG_PAGE,
+                                      ctrl_id=0x0001, flags=0x03, cns=0x0C,
+                                      doff=16, dlen=len(_ana_dofst_descs)),
+                tag=37),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(_ana_dofst_descs), tag=37),
+    # F77/F78 ANA (LID 0Ch), LPO=16, DOFST=0: the same window as F75/F76
+    # expressed through the command's Log Page Offset (see block comment
+    # above).
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_LOG_PAGE,
+                                      ctrl_id=0x0001, flags=0x03, cns=0x0C,
+                                      doff=0, dlen=len(_ana_dofst_descs),
+                                      lpo=16),
+                tag=38),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(_ana_dofst_descs), tag=38),
 ]
 
 BASE_TS_ADMIN_LOGPAGE_WINDOWED_US = 1709377000 * 1_000_000
@@ -2341,8 +3057,8 @@ _hbs_short_data = bytes([0x01])               # just ACRE, no trailing rsvd
 # window as rsvd1.
 _plmc_past_boundary_data = bytes.fromhex('1122334455667788')
 
-# F11/F12 HBS (FID 16h), DOFST=5 (>1, entirely inside the trailing "rsvd"
-# region): same fallback gap as PLMC above, for HBS's 1-byte-fixed-field
+# F11/F12 HBS (FID 16h), DOFST=8 (>6, entirely inside the trailing "rsvd"
+# region): same fallback gap as PLMC above, for HBS's 6-byte-fixed-field
 # boundary.
 _hbs_past_boundary_data = bytes.fromhex('aabbcc')
 
@@ -2362,6 +3078,36 @@ assert len(_plmc_oversized_data) == 50
 # same regression and same 32-byte correct cap as F13/F14 (HBS is also a
 # 512-byte structure), different decoder.
 _hbs_oversized_data = _plmc_oversized_data
+
+# F17/F18 HBS (FID 16h), DOFST=0, DLEN=6: the full defined part of the Host
+# Behavior Support structure -- ACRE, ETDAS, LBAFEE, HDISNS and the Copy
+# Descriptor Formats Enable word (Figure 426).
+_hbs_full_data = (bytes([0x01,   # ACRE
+                         0x01,   # ETDAS
+                         0x01,   # LBAFEE
+                         0x00])  # HDISNS
+                  + struct.pack('<H', 0x000C))  # CDFE: CDF2E | CDF3E
+
+# F19/F20: LBA Range Type (FID 03h), DOFST=0, DLEN=128 -- TWO 64-byte LBA
+# Range Type data structure entries (NVM Command Set 1.2 Figure 95: Type 00,
+# Attributes 01, Reserved 15:02, SLBA 23:16, NLB 31:24, GUID 47:32,
+# Reserved 63:48).  This is an UPSTREAM packet-nvme.c defect, present since
+# 2021: dissect_nvme_set_features_transfer_lbart() anchors every "LBA Range
+# Structure N" container item at tvb offset 0 rather than at the entry's own
+# offset, so selecting structure 1 highlights structure 0's bytes.  Only the
+# container's extent is wrong -- the child fields all use the entry offset --
+# so the regression has to be asserted on the item's PDML pos/size, and it
+# takes two entries to see it at all.  Each entry's Type/SLBA/NLB are
+# distinct and non-zero so a wrong offset shows as a wrong number.
+def _lbart_entry(type_, attr, slba, nlb, guid):
+    return (bytes([type_, attr]) + bytes(14)
+            + struct.pack('<Q', slba) + struct.pack('<Q', nlb)
+            + guid + bytes(16))
+
+_lbart_two_entries = (
+    _lbart_entry(0x02, 0x03, 0x1000, 0x00FF, bytes(range(0xC0, 0xD0)))
+    + _lbart_entry(0x03, 0x01, 0x2000, 0x01FF, bytes(range(0xE0, 0xF0))))
+assert len(_lbart_two_entries) == 128
 
 packets_features_windowed = [
     # F1/F2 Auto Power State Transition (FID 0Ch), DOFST=8, DLEN=8
@@ -2400,12 +3146,12 @@ packets_features_windowed = [
                                       doff=60, dlen=8), tag=4),
     make_packet(False, NVME_MI_TYPE_ADMIN, 0,
                 admin_resp_with_data(_plmc_past_boundary_data), tag=4),
-    # F11/F12 HBS (FID 16h), DOFST=5 (>1): trailing-field fallback
+    # F11/F12 HBS (FID 16h), DOFST=8 (>6): trailing-field fallback
     # regression (see block comment above).
     make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
                 admin_request_payload(NVME_AQ_OPC_GET_FEATURES,
                                       ctrl_id=0x0001, flags=0x03, cns=0x16,
-                                      doff=5, dlen=3), tag=5),
+                                      doff=8, dlen=3), tag=5),
     make_packet(False, NVME_MI_TYPE_ADMIN, 0,
                 admin_resp_with_data(_hbs_past_boundary_data), tag=5),
     # F13/F14 PLMC (FID 13h), DOFST=480, DLEN=50 (oversized): trailing-field
@@ -2424,6 +3170,23 @@ packets_features_windowed = [
                                       doff=480, dlen=50), tag=7),
     make_packet(False, NVME_MI_TYPE_ADMIN, 0,
                 admin_resp_with_data(_hbs_oversized_data), tag=7),
+    # F17/F18 HBS (FID 16h), DOFST=0, DLEN=6: the whole defined part of the
+    # Host Behavior Support structure (NVMe Base 2.3 Figure 426), so every
+    # field above ACRE is covered.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_FEATURES,
+                                      ctrl_id=0x0001, flags=0x03, cns=0x16,
+                                      doff=0, dlen=6), tag=8),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(_hbs_full_data), tag=8),
+    # F19/F20 LBA Range Type (FID 03h), DOFST=0, DLEN=128: two 64-byte
+    # entries, for the container-item offset defect (see block comment above).
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_FEATURES,
+                                      ctrl_id=0x0001, flags=0x03, cns=0x03,
+                                      doff=0, dlen=128), tag=9),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(_lbart_two_entries), tag=9),
 ]
 
 BASE_TS_FEATURES_WINDOWED_US = 1709378000 * 1_000_000
@@ -2435,6 +3198,1054 @@ def build_features_windowed_pcapng(output_path):
     with open(output_path, 'wb') as f:
         f.write(data)
     print(f"Written {len(packets_features_windowed)} packets to {output_path}")
+
+
+# ---------------------------------------------------------------------------
+# nvme-mi-admin-security.pcapng — Security Send/Receive payload decode
+# ---------------------------------------------------------------------------
+#
+# Paired Security Send (81h) / Security Receive (82h) exchanges exercising the
+# security-protocol payload dispatch shared with packet-nvme.c
+# (dissect_nvme_security_data): the SECP saved from Command Dword 10 on the
+# request pass selects the payload decoder for the Send request data (inline,
+# SQE offset 64 onward) and the Receive response data (offset 16 onward).
+# SECP 00h response data decodes natively in packet-nvme.c
+# (nvme.security.info.*); SECP 01h/02h dispatch through the
+# "nvme.security.secp" dissector table to the TCG Storage dissector
+# (packet-tcg-storage.c).
+#
+# Command Dword 10 layout (NVMe Base 2.3 Figures 397/399):
+#   SECP  = bits 31:24, SPSP1 = bits 23:16 (SPSP high byte),
+#   SPSP0 = bits 15:8  (SPSP low byte).
+# admin_request_payload()'s cns argument is CDW10, so cns carries the packed
+# selector.  DOFST = 0 on every request (dissect_nvme_security_data only
+# decodes transfers that start at the beginning of the protocol structure);
+# DLEN = the response data length; CDW11 = TL (Send) / AL (Receive).
+#
+# Per TCG SIIS, an IF-SEND (Security Send) completion never carries data:
+# the host retrieves any result with a follow-up IF-RECV (Security Receive).
+# Every Send here therefore completes with a bare 16-byte status+CQE block
+# (DLEN = 0) and is paired with a Receive on the same SECP/SPSP.
+#
+#   F1/F2   Security Receive SECP=00h SPSP=0000h
+#           -> supported security protocol list [00h, 01h, 02h]
+#   F3/F4   Security Receive SECP=01h SPSP=0001h (Level 0 Discovery ComID)
+#           -> discovery header + TPer, Locking, Opal SSC 2.x and Supported
+#              Data Removal Mechanism features
+#   F5/F6   Security Send    SECP=01h SPSP=1000h (Opal base ComID)
+#           -> request data: ComPacket / Packet / Data subpacket carrying
+#              the Session Manager StartSession method call
+#           -> response: no data
+#   F7/F8   Security Receive SECP=01h SPSP=1000h
+#           -> response data: ComPacket carrying the SyncSession result
+#   F9/F10  Security Send    SECP=02h SPSP=1000h (ComID management)
+#           -> request data: PROTOCOL STACK RESET request block
+#           -> response: no data
+#   F11/F12 Security Receive SECP=02h SPSP=1000h
+#           -> response data: ComID-mgmt response block (request echo +
+#              Available Data Length 4 + 4-byte success status)
+#   F13/F14 Security Send    SECP=02h SPSP=0004h (TPer Reset ComID)
+#   F15/F16 Security Receive SECP=02h SPSP=0000h (GET COMID)
+#   F17/F18 Security Receive SECP=01h SPSP=0001h (Level 0 Discovery, Ruby SSC)
+#           -> request data: ignored by the TPer, not a ComID-mgmt request
+#           -> response: no data
+#   F19/F20 Security Receive SECP=01h SPSP=1000h
+#           -> response data: the same SyncSession result with legal Empty
+#              atoms interleaved (Core Spec §3.2.2.3.1.5)
+#   F21/F22 Security Receive SECP=01h SPSP=0001h
+#           -> response data: Level 0 Discovery carrying the SIIS feature
+#              descriptor (0x0005) and a Namespace Geometry Reporting
+#              descriptor (0x0405)
+
+NVME_AQ_OPC_SECURITY_SEND = 0x81
+NVME_AQ_OPC_SECURITY_RECV = 0x82
+
+def security_cdw10(secp, spsp):
+    """Pack Security Send/Receive Command Dword 10 (NSSF unused)."""
+    return ((secp & 0xff) << 24) | ((spsp & 0xffff) << 8)
+
+# --- SECP 00h: Supported Security Protocols List (SPC-5 7.7.1, BE) --------
+
+def secp0_supported_list(protocols):
+    """6 reserved bytes, 2-byte BE list length, then 1-byte protocol IDs."""
+    return b'\x00' * 6 + struct.pack('>H', len(protocols)) + bytes(protocols)
+
+# --- SECP 01h: Level 0 Discovery (Core Spec §3.3.6, BE) --------------------
+
+def tcg_l0_feature(code, version, data, minor=0):
+    """Feature descriptor: Code(2) + Version(bits 7:4 of byte 2) + Length(1).
+
+    Byte 2's low nibble is Reserved for every feature except Opal SSC V2
+    (0x0203), where it carries the SSC Minor Version Number."""
+    return (struct.pack('>HBB', code,
+                        ((version & 0x0f) << 4) | (minor & 0x0f), len(data))
+            + data)
+
+def tcg_l0_data_removal_feature():
+    """0x0404 Supported Data Removal Mechanism, 32-byte body (Opal SSC 2.02
+    Table 9): Crypto Erase and Vendor Specific Erase supported, both timed in
+    seconds, with the Bit 5 (Vendor Specific) time after four Reserved bytes."""
+    body = (bytes([0x00,        # Reserved
+                   0x02,        # Interrupted set, Processing clear
+                   0x24,        # mechanisms: Crypto Erase (2) | Vendor (5)
+                   0x00])       # time formats: all seconds
+            + struct.pack('>HHH', 0, 0, 30)  # times for bits 0, 1, 2
+            + b'\x00' * 4                    # Reserved (no bit 3/4 mechanism)
+            + struct.pack('>H', 600)         # time for bit 5 (Vendor Specific)
+            + b'\x00' * 16)                  # reserved to length 32
+    return tcg_l0_feature(0x0404, 2, body)
+
+def tcg_level0_discovery_data():
+    """48-byte discovery header (Data Structure Revision 1) + four feature
+    descriptors: TPer (0x0001, Sync + ComID Mgmt), Locking (0x0002, Supported
+    + Enabled), Opal SSC 2.x (0x0203, Base ComID 0x1000, 1 ComID, 4 admins,
+    8 users, SSC Minor Version 2 = Opal 2.02), and Supported Data Removal
+    Mechanism (0x0404)."""
+    feats = (
+        tcg_l0_feature(0x0001, 1, bytes([0x41]) + b'\x00' * 11)   # Sync|ComID Mgmt
+        + tcg_l0_feature(0x0002, 1, bytes([0x03]) + b'\x00' * 11) # Supported|Enabled
+        + tcg_l0_feature(0x0203, 2,
+                         struct.pack('>HHBHHBB',
+                                     0x1000,  # Base ComID
+                                     1,       # Number of ComIDs
+                                     0x00,    # flags (no range crossing)
+                                     4,       # Locking SP Admin authorities
+                                     8,       # Locking SP User authorities
+                                     0x00,    # Initial C_PIN_SID indicator
+                                     0x00)    # C_PIN_SID on Revert
+                         + b'\x00' * 5,       # reserved to length 16
+                         minor=2)             # Opal SSC 2.02
+        + tcg_l0_data_removal_feature())
+    # Length of Parameter Data counts everything after the 4-byte field itself
+    hdr = (struct.pack('>II', 44 + len(feats), 1)  # length, revision
+           + b'\x00' * 8                           # reserved
+           + b'\x00' * 32)                         # vendor specific
+    return hdr + feats
+
+def tcg_level0_discovery_ruby_data():
+    """48-byte discovery header + a single Ruby SSC (0x0304) feature.
+
+    Ruby SSC v1.00 Table 7 is byte-for-byte the Opal 2.x descriptor: Range
+    Crossing Behavior at data byte 4 and the authority counts at data bytes
+    5:6 and 7:8.  It is NOT the Opalite/Pyrite "lite" layout, which leaves
+    those five bytes Reserved (Pyrite SSC 2.01 Table 6)."""
+    feats = tcg_l0_feature(0x0304, 1,
+                           struct.pack('>HHBHHBB',
+                                       0x2000,  # Base ComID
+                                       1,       # Number of ComIDs
+                                       0x01,    # Range Crossing Behavior set
+                                       4,       # Locking SP Admin authorities
+                                       9,       # Locking SP User authorities
+                                       0x00,    # Initial C_PIN_SID indicator
+                                       0xFF)    # C_PIN_SID on Revert = VU
+                           + b'\x00' * 5)       # reserved to length 16
+    hdr = (struct.pack('>II', 44 + len(feats), 1)  # length, major 0 / minor 1
+           + b'\x00' * 8                           # reserved
+           + b'\x00' * 32)                         # vendor specific
+    return hdr + feats
+
+def tcg_level0_discovery_siis_data():
+    """48-byte discovery header + the SIIS feature descriptor (0x0005) and a
+    Namespace Geometry Reporting descriptor (0x0405).
+
+    SIIS v1.20 §3.6 Table 2 makes 0x0005 Mandatory ("An SD that supports this
+    standard SHALL return the SIIS feature descriptor") with Length 0x0C: data
+    byte 0 is the SIIS Revision Number (Table 3: 0x20 = SIIS v1.20), data byte
+    1 carries Identifier Usage Scope in bits 2:1 (Table 4) and Key Change Zone
+    Behavior in bit 0, and data bytes 2:11 are Reserved.
+
+    0x0405 is named by SIIS §4.7.7 / §5.7.3 but its descriptor layout is
+    defined by a feature-set specification not available here, so its body is
+    deliberately opaque -- only the descriptor name may be decoded."""
+    feats = (
+        tcg_l0_feature(0x0005, 1,
+                       bytes([0x20,   # SIIS Revision Number = v1.20
+                              0x05])  # Id Usage Scope = 10b, Key Change Zone = 1
+                       + b'\x00' * 10)   # Reserved, total Length = 0x0C
+        + tcg_l0_feature(0x0405, 1, b'\xA5' * 12))
+    hdr = (struct.pack('>II', 44 + len(feats), 1)  # length, major 0 / minor 1
+           + b'\x00' * 8                           # reserved
+           + b'\x00' * 32)                         # vendor specific
+    return hdr + feats
+
+def tcg_level0_discovery_badlen_data():
+    """48-byte discovery header + three descriptors, the middle one declaring
+    a Length of 13 while carrying the ordinary 12 data bytes.
+
+    Core Spec §3.3.6.3.1.3: "This field SHALL be an integral multiple of 4."
+    13 is not, so a reader that trusts it starts the next descriptor one byte
+    late and every descriptor after that parses as garbage -- here the third
+    descriptor's Feature Code reads 0x0310 instead of 0x0003.  All the bytes a
+    reader needs are present, so nothing overruns and no length clamp fires:
+    the misalignment is the entire visible symptom, which is why it needs an
+    expert info of its own to be attributable."""
+    bad = (struct.pack('>HBB', 0x0002, 0x10, 13)   # Locking, version 1, Len 13
+           + bytes([0x03]) + b'\x00' * 11)         # 12 data bytes, not 13
+    assert len(bad) == 4 + 12, len(bad)
+    feats = (
+        tcg_l0_feature(0x0001, 1, bytes([0x41]) + b'\x00' * 11)  # good, Len 12
+        + bad
+        + tcg_l0_feature(0x0003, 1, b'\x11' * 12))  # misparsed as a side effect
+    hdr = (struct.pack('>II', 44 + len(feats), 1)
+           + b'\x00' * 8
+           + b'\x00' * 32)
+    return hdr + feats
+
+# --- SECP 02h: GET COMID (Core Spec §3.3.4.3.1 Tables 27/28, BE) ----------
+# An IF-RECV on ComID 0000h whose entire payload is the 4-byte Extended ComID
+# (ComID in the first two bytes, TPer-assigned extension in the last two),
+# zero-padded out to the transfer length.  It is NOT a ComID management
+# response, so it carries no Request Code or Available Data Length.
+tcg_get_comid_resp = struct.pack('>HH', 0x1000, 0x0001) + b'\x00' * 4
+
+# --- SECP 01h: ComPacket framing + token stream (Core Spec §3.2, BE) ------
+
+TCG_SMUID        = bytes.fromhex('00000000000000FF')  # Session Manager UID
+TCG_STARTSESSION = bytes.fromhex('000000000000FF02')
+TCG_SYNCSESSION  = bytes.fromhex('000000000000FF03')
+TCG_ADMIN_SP     = bytes.fromhex('0000020500000001')
+
+def tcg_bytes_atom(data):
+    """Short atom, byte sequence: 0b10 1 0 llll (0xA8 for an 8-byte UID)."""
+    assert len(data) <= 15
+    return bytes([0xA0 | len(data)]) + data
+
+def tcg_tiny_uint(v):
+    """Tiny atom, unsigned: the 6-bit value itself."""
+    assert 0 <= v <= 0x3F
+    return bytes([v])
+
+def tcg_short_uint(v, width):
+    """Short atom, unsigned integer: 0b10 0 0 llll + BE value bytes."""
+    return bytes([0x80 | width]) + v.to_bytes(width, 'big')
+
+def _tcg_atom_header_selfcheck(header, want_byte_flag, want_sign_flag, want_data_len,
+                               want_hdr_len):
+    """Independently re-derive (hdr_len, byte_flag, sign_flag, data_len) from
+    `header` using the exact bit formulas in packet-tcg-storage.c's
+    dissect_tcg_token_stream() Short/Medium/Long Atom branches, and assert
+    they match what the caller intended.
+
+    This exists because the atom classes below (Medium, Long, wide Short
+    integer) are hand-derived from the dissector's bit-packing and never
+    exercised by the existing StartSession/SyncSession fixture -- there is no
+    prior encoder in this file to copy, so a transcription mistake here would
+    silently produce a fixture that parses "successfully" without ever
+    reaching the branch it claims to test.  Fail at generation time instead
+    of only discovering it later via tshark -V.
+    """
+    b = header[0]
+    if b <= 0xBF:
+        hdr_len, byte_flag, sign_flag = 1, bool(b & 0x20), bool(b & 0x10)
+        data_len = b & 0x0F
+    elif b <= 0xDF:
+        hdr_len, byte_flag, sign_flag = 2, bool(b & 0x10), bool(b & 0x08)
+        data_len = ((b & 0x07) << 8) | header[1]
+    else:
+        hdr_len, byte_flag, sign_flag = 4, bool(b & 0x02), bool(b & 0x01)
+        data_len = (header[1] << 16) | (header[2] << 8) | header[3]
+    got = (hdr_len, byte_flag, sign_flag, data_len)
+    want = (want_hdr_len, want_byte_flag, want_sign_flag, want_data_len)
+    assert got == want, f"TCG atom header self-check failed: got {got}, want {want}"
+
+def tcg_medium_bytes_atom(data):
+    """Medium atom, byte sequence: 0b1101_0lll + 1 length byte (11-bit
+    length, up to 0x7FF).  Reaches the Medium Atom class (0xC0-0xDF), which
+    only exists for byte-sequence data too long for a Short Atom's 4-bit
+    length field (>15 bytes) -- never emitted by the existing fixtures."""
+    n = len(data)
+    header = bytes([0xD0 | ((n >> 8) & 0x07), n & 0xFF])
+    _tcg_atom_header_selfcheck(header, True, False, n, 2)
+    return header + data
+
+def tcg_short_int(v, width):
+    """Short atom, signed integer: 0b1001_llll + BE two's-complement value
+    bytes.  Reaches the signed-atom branch, never emitted by the existing
+    fixtures (which only use unsigned Short Atoms)."""
+    data = v.to_bytes(width, 'big', signed=True)
+    header = bytes([0x90 | width])
+    _tcg_atom_header_selfcheck(header, False, True, width, 1)
+    return header + data
+
+def tcg_short_int_wide(v, width):
+    """Short atom, unsigned integer wider than 64 bits (data_len 9-15): the
+    dissector's "> 8 bytes" raw-render fallback, distinct from the normal
+    <=8-byte integer path exercised by the existing StartSession/SyncSession
+    fixtures (which only use Short atoms)."""
+    data = v.to_bytes(width, 'big')
+    header = bytes([0x80 | width])
+    _tcg_atom_header_selfcheck(header, False, False, width, 1)
+    return header + data
+
+def tcg_long_int(v, width, signed=False):
+    """Long atom, integer: 0b1110_000s + 3 length bytes + BE value bytes.
+    Reaches the Long Atom class (0xE0-0xEF), never emitted by the existing
+    fixtures (which only use Short atoms)."""
+    data = v.to_bytes(width, 'big', signed=signed)
+    header = bytes([0xE0 | (0x01 if signed else 0x00)]) + struct.pack('>I', len(data))[1:]
+    _tcg_atom_header_selfcheck(header, False, signed, len(data), 4)
+    return header + data
+
+# End of Data followed by the method status list [status, 0, 0]
+TCG_EOD_STATUS_SUCCESS = bytes([0xF9, 0xF0, 0x00, 0x00, 0x00, 0xF1])
+
+def tcg_subpacket(tokens, kind=0x0000):
+    """Subpacket: 6 reserved + Kind(2) + Length(4, token bytes only) +
+    tokens + pad to 4-byte alignment (pad excluded from Length)."""
+    pad = (-len(tokens)) % 4
+    return (b'\x00' * 6 + struct.pack('>HI', kind, len(tokens))
+            + tokens + b'\x00' * pad)
+
+def tcg_packet(payload, tsn=0, hsn=0, seq=1):
+    """Packet: TSN(4) + HSN(4) + Seq(4) + rsvd(2) + AckType(2) + Ack(4) +
+    Length(4, bytes after this 24-byte header)."""
+    return struct.pack('>IIIHHII', tsn, hsn, seq, 0, 0, 0,
+                       len(payload)) + payload
+
+def tcg_compacket(payload, comid, ext=0):
+    """ComPacket: rsvd(4) + ComID(2) + Ext(2) + Outstanding(4) +
+    MinTransfer(4) + Length(4, bytes after this 20-byte header)."""
+    return struct.pack('>IHHIII', 0, comid, ext, 0, 0,
+                       len(payload)) + payload
+
+# StartSession: SMUID.StartSession[HostSessionID=1, SPID=Admin SP, Write=1]
+tcg_startsession_tokens = (
+    bytes([0xF8])                        # Call
+    + tcg_bytes_atom(TCG_SMUID)          # Invoking UID
+    + tcg_bytes_atom(TCG_STARTSESSION)   # Method UID
+    + bytes([0xF0])                      # Start List
+    + tcg_tiny_uint(1)                   # HostSessionID
+    + tcg_bytes_atom(TCG_ADMIN_SP)       # SPID
+    + tcg_tiny_uint(1)                   # Write = TRUE
+    + bytes([0xF1])                      # End List
+    + TCG_EOD_STATUS_SUCCESS)
+
+# SyncSession: SMUID.SyncSession[HostSessionID=1, SPSessionID=0x1001]
+tcg_syncsession_tokens = (
+    bytes([0xF8])
+    + tcg_bytes_atom(TCG_SMUID)
+    + tcg_bytes_atom(TCG_SYNCSESSION)
+    + bytes([0xF0])
+    + tcg_tiny_uint(1)                   # HostSessionID
+    + tcg_short_uint(0x1001, 2)          # SPSessionID
+    + bytes([0xF1])
+    + TCG_EOD_STATUS_SUCCESS)
+
+# The Empty atom (0xFF).  Core Spec §3.2.2.3.1.5: it "MAY appear at any point
+# in the stream encoding where any other atom is able to appear ... and it
+# SHALL be ignored", its purpose being value alignment inside a Data
+# subpacket, so devices really do emit it.  §3.2.2.4.2 describes the payload
+# structure "(discounting empty atoms)".
+TCG_TOK_EMPTY = bytes([0xFF])
+
+# The same SyncSession result, with Empty atoms at three spec-permitted spots:
+# after Call, between the two UIDs, and between End of Data and the status
+# StartList.  Every one of those sits astride a token-adjacency latch in
+# dissect_tcg_token_stream(), so an implementation that lets an Empty atom
+# consume the latch loses the method annotation and the Method Status while
+# still parsing the stream "successfully".
+tcg_syncsession_empty_atoms_tokens = (
+    bytes([0xF8])                        # Call
+    + TCG_TOK_EMPTY
+    + tcg_bytes_atom(TCG_SMUID)          # Invoking UID
+    + TCG_TOK_EMPTY
+    + tcg_bytes_atom(TCG_SYNCSESSION)    # Method UID
+    + bytes([0xF0])
+    + tcg_tiny_uint(1)                   # HostSessionID
+    + tcg_short_uint(0x1001, 2)          # SPSessionID
+    + bytes([0xF1])
+    + bytes([0xF9])                      # End of Data
+    + TCG_TOK_EMPTY
+    + bytes([0xF0, 0x00, 0x00, 0x00, 0xF1]))  # status list [SUCCESS, 0, 0]
+
+# A status list whose first element is 0x1234.  Core Spec §3.2.2.4.2 item 5
+# makes the Method Status a value in 00h-FFh (Table 166), so this element is
+# malformed input.  The tiny atom that follows it is an ordinary list element
+# and must NOT be promoted to a Method Status of 0x05 (SP_DISABLED).
+tcg_status_out_of_range_tokens = (
+    bytes([0xF8])
+    + tcg_bytes_atom(TCG_SMUID)
+    + tcg_bytes_atom(TCG_SYNCSESSION)
+    + bytes([0xF0])
+    + tcg_tiny_uint(1)
+    + bytes([0xF1])
+    + bytes([0xF9])                      # End of Data
+    + bytes([0xF0])                      # Start List (method status list)
+    + tcg_short_uint(0x1234, 2)          # out-of-range status element
+    + tcg_tiny_uint(0x05)                # would be fabricated as SP_DISABLED
+    + tcg_tiny_uint(0x00)
+    + bytes([0xF1]))
+
+tcg_startsession_cp = tcg_compacket(
+    tcg_packet(tcg_subpacket(tcg_startsession_tokens)), 0x1000)
+tcg_syncsession_cp = tcg_compacket(
+    tcg_packet(tcg_subpacket(tcg_syncsession_tokens)), 0x1000)
+tcg_syncsession_empty_atoms_cp = tcg_compacket(
+    tcg_packet(tcg_subpacket(tcg_syncsession_empty_atoms_tokens)), 0x1000)
+tcg_status_out_of_range_cp = tcg_compacket(
+    tcg_packet(tcg_subpacket(tcg_status_out_of_range_tokens)), 0x1000)
+
+# --- SECP 02h: ComID management (Core Spec §3.3.10, BE) --------------------
+
+# PROTOCOL STACK RESET request: ComID + Ext + Request Code
+tcg_stack_reset_req = struct.pack('>HHI', 0x1000, 0, 0x00000002)
+# Response: request echo + Reserved(2) + Available Data Length + 4-byte
+# success status (Core Spec §3.3.10.3 STACK_RESET response format)
+tcg_stack_reset_resp = (struct.pack('>HHIHH', 0x1000, 0, 0x00000002, 0, 4)
+                        + b'\x00' * 4)
+
+# TPer Reset (SECP 02h, ComID 0004h): the transfer length must be non-zero and
+# the TPer ignores the content (Opal SSC 2.02 Table 14).
+tcg_tper_reset_req = b'\x00' * 16
+
+_l0_data = tcg_level0_discovery_data()
+_l0_ruby_data = tcg_level0_discovery_ruby_data()
+_l0_siis_data = tcg_level0_discovery_siis_data()
+_l0_badlen_data = tcg_level0_discovery_badlen_data()
+_secp0_list = secp0_supported_list([0x00, 0x01, 0x02])
+
+packets_admin_security = [
+    # F1/F2 Security Receive SECP=00h SPSP=0000h: supported protocol list
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_SECURITY_RECV,
+                                      ctrl_id=0x0001, flags=0x00,
+                                      cns=security_cdw10(0x00, 0x0000),
+                                      dlen=len(_secp0_list),
+                                      cdw11=len(_secp0_list)), tag=0),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(_secp0_list), tag=0),
+    # F3/F4 Security Receive SECP=01h SPSP=0001h: Level 0 Discovery
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_SECURITY_RECV,
+                                      ctrl_id=0x0001, flags=0x00,
+                                      cns=security_cdw10(0x01, 0x0001),
+                                      dlen=len(_l0_data),
+                                      cdw11=len(_l0_data)), tag=1),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(_l0_data), tag=1),
+    # F5/F6 Security Send SECP=01h SPSP=1000h: StartSession (no response data)
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_SECURITY_SEND,
+                                      ctrl_id=0x0001, flags=0x00,
+                                      cns=security_cdw10(0x01, 0x1000),
+                                      dlen=0,
+                                      cdw11=len(tcg_startsession_cp))
+                + tcg_startsession_cp, tag=2),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(b''), tag=2),
+    # F7/F8 Security Receive SECP=01h SPSP=1000h: SyncSession result
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_SECURITY_RECV,
+                                      ctrl_id=0x0001, flags=0x00,
+                                      cns=security_cdw10(0x01, 0x1000),
+                                      dlen=len(tcg_syncsession_cp),
+                                      cdw11=len(tcg_syncsession_cp)), tag=3),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(tcg_syncsession_cp), tag=3),
+    # F9/F10 Security Send SECP=02h SPSP=1000h: PROTOCOL STACK RESET request
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_SECURITY_SEND,
+                                      ctrl_id=0x0001, flags=0x00,
+                                      cns=security_cdw10(0x02, 0x1000),
+                                      dlen=0,
+                                      cdw11=len(tcg_stack_reset_req))
+                + tcg_stack_reset_req, tag=4),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(b''), tag=4),
+    # F11/F12 Security Receive SECP=02h SPSP=1000h: stack-reset result
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_SECURITY_RECV,
+                                      ctrl_id=0x0001, flags=0x00,
+                                      cns=security_cdw10(0x02, 0x1000),
+                                      dlen=len(tcg_stack_reset_resp),
+                                      cdw11=len(tcg_stack_reset_resp)), tag=5),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(tcg_stack_reset_resp), tag=5),
+    # F13/F14 Security Send SECP=02h SPSP=0004h: TPer Reset.  Non-zero
+    # transfer length whose payload the TPer ignores, and no IF-RECV response.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_SECURITY_SEND,
+                                      ctrl_id=0x0001, flags=0x00,
+                                      cns=security_cdw10(0x02, 0x0004),
+                                      dlen=0,
+                                      cdw11=len(tcg_tper_reset_req))
+                + tcg_tper_reset_req, tag=6),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(b''), tag=6),
+    # F15/F16 Security Receive SECP=02h SPSP=0000h: GET COMID.  The response
+    # payload is only the 4-byte Extended ComID, so it must not be decoded
+    # with the 12-byte ComID management response header.  Tags are 3 bits
+    # (MCTP), so this reuses tag 7 / tag 0 from transactions that already
+    # completed above rather than overflowing the field.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_SECURITY_RECV,
+                                      ctrl_id=0x0001, flags=0x00,
+                                      cns=security_cdw10(0x02, 0x0000),
+                                      dlen=len(tcg_get_comid_resp),
+                                      cdw11=len(tcg_get_comid_resp)), tag=7),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(tcg_get_comid_resp), tag=7),
+    # F17/F18 Security Receive SECP=01h SPSP=0001h: a Level 0 Discovery whose
+    # only feature is Ruby SSC (0x0304).  Ruby follows the Opal 2.x descriptor
+    # layout, so its authority counts must decode rather than disappearing
+    # into the Opalite/Pyrite Reserved block.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_SECURITY_RECV,
+                                      ctrl_id=0x0001, flags=0x00,
+                                      cns=security_cdw10(0x01, 0x0001),
+                                      dlen=len(_l0_ruby_data),
+                                      cdw11=len(_l0_ruby_data)), tag=0),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(_l0_ruby_data), tag=0),
+    # F19/F20 Security Receive SECP=01h SPSP=1000h: the SyncSession result
+    # again, with legal Empty atoms interleaved.  Core Spec §3.2.2.3.1.5 says
+    # an Empty atom SHALL be ignored, so this frame must decode exactly like
+    # F8 -- same method annotation, same Method Status.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_SECURITY_RECV,
+                                      ctrl_id=0x0001, flags=0x00,
+                                      cns=security_cdw10(0x01, 0x1000),
+                                      dlen=len(tcg_syncsession_empty_atoms_cp),
+                                      cdw11=len(tcg_syncsession_empty_atoms_cp)),
+                tag=1),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(tcg_syncsession_empty_atoms_cp), tag=1),
+    # F21/F22 Security Receive SECP=01h SPSP=0001h: a Level 0 Discovery whose
+    # features are the Mandatory SIIS descriptor (0x0005, SIIS v1.20 Table 2)
+    # and a Namespace Geometry Reporting descriptor (0x0405, named by SIIS
+    # §4.7.7 / §5.7.3 but with no layout in any spec available here).
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_SECURITY_RECV,
+                                      ctrl_id=0x0001, flags=0x00,
+                                      cns=security_cdw10(0x01, 0x0001),
+                                      dlen=len(_l0_siis_data),
+                                      cdw11=len(_l0_siis_data)), tag=2),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(_l0_siis_data), tag=2),
+]
+
+BASE_TS_ADMIN_SECURITY_US = 1709380800 * 1_000_000
+
+def build_admin_security_pcapng(output_path):
+    data = shb() + idb()
+    for i, pkt in enumerate(packets_admin_security):
+        data += epb(pkt, BASE_TS_ADMIN_SECURITY_US + i * 1_000_000)
+    with open(output_path, 'wb') as f:
+        f.write(data)
+    print(f"Written {len(packets_admin_security)} packets to {output_path}")
+
+
+# ---------------------------------------------------------------------------
+# nvme-mi-admin-eom.pcapng - Physical Interface Receiver Eye Opening
+# Measurement log page (LID 19h)
+# ---------------------------------------------------------------------------
+#
+# LID 19h is defined by the NVMe over PCIe Transport Specification (Revision
+# 1.3, section 3.9.1.1, Figures 68-73), not by NVMe Base -- Base's Get Log Page
+# LID table just says "refer to the applicable NVM Express Transport
+# specification".  Reachable out-of-band: libnvme exposes
+# nvme_mi_admin_get_log_phy_rx_eom().
+#
+# Layout: a fixed 64-byte EOM Header (Figure 72) followed by ND EOM Lane
+# Descriptors (Figure 73) of DS bytes each.  Both ND and DS live in the header,
+# so the descriptor list can only be walked from a full offset-0 view.
+#
+# The descriptor stride is DS, NOT 32 + NROWS*NCOLS + EDLEN -- Figure 73's
+# trailing Padding field absorbs the difference.  The fixture below carries 10
+# bytes of PAD per descriptor so that behaviour is pinned down rather than
+# accidentally satisfied.
+#
+#   F1/F2  EOMIP=2 (completed), 2 lane descriptors, Printable Eye + Eye Data
+#   F3/F4  EOMIP=0 (no measurement started), header only, ND=0
+#   F5/F6  same log page windowed at DOFST=64, so ND/DS are out of view and
+#          the descriptor walk must be skipped
+#   F7/F8  one internally inconsistent descriptor whose Printable Eye does not
+#          fit in DS, so neither PE nor Eye Data may be rendered
+#
+# Every field carries a distinct value so a shifted offset shows up as a wrong
+# number rather than a plausible one.
+
+EOM_NROWS = 4
+EOM_NCOLS = 8
+EOM_EDLEN = 6
+EOM_DS = 80          # 32 + (4*8) + 6 = 70, padded to 80 -> 10 PAD bytes
+EOM_ND = 2
+
+NVME_LID_PHY_RX_EOM = 0x19
+
+def eom_lane_desc(lane, eye):
+    """One EOM Lane Descriptor (NVMe over PCIe Transport 1.3 Figure 73)."""
+    d = struct.pack('<BBBB', 0x00, 0x01, lane, eye)  # rsvd, MSTAT(MSCS=1), LN, EYE
+    d += struct.pack('<HHHH', 14, 16, 11, 9)         # TOP, BTM, LFT, RGT
+    d += struct.pack('<HH', EOM_NROWS, EOM_NCOLS)    # NROWS, NCOLS
+    d += struct.pack('<I', EOM_EDLEN)                # EDLEN is 4 bytes (19:16)
+    d += bytes(12)                                   # Reserved 31:20
+    assert len(d) == 32, len(d)
+    # Printable Eye: ASCII '1' outside the eye, '0' on or inside it.  Row 0 is
+    # all '1' and later rows vary by lane, so a wrong offset is visible as text.
+    for r in range(EOM_NROWS):
+        d += bytes((0x31 if (r == 0 or c < lane) else 0x30)
+                   for c in range(EOM_NCOLS))
+    d += bytes([0xA0 + lane]) * EOM_EDLEN            # Eye Data (vendor specific)
+    d += bytes(EOM_DS - len(d))                      # Padding
+    assert len(d) == EOM_DS, len(d)
+    return d
+
+def eom_data(eomip=2, nd=EOM_ND, ndesc=None):
+    """EOM log page: a 64-byte header (Figure 72) plus lane descriptors.
+
+    nd is what the header's ND field (and RSZ) claim; ndesc is how many
+    descriptors actually follow, defaulting to the claimed count.  They differ
+    only for the adversarial frame, which claims more descriptors than it
+    sends."""
+    h = struct.pack('<BB', NVME_LID_PHY_RX_EOM, eomip)  # LID, EOMIP
+    h += struct.pack('<H', 64)                 # HSIZE (spec: shall be 64)
+    h += struct.pack('<I', 64 + EOM_DS * nd)   # RSZ
+    h += struct.pack('<BB', 0x07, 0x03)        # EDGN, LREV (spec: shall be 3h)
+    h += struct.pack('<B', 0x03)               # ODP: PEFP and EDFP both set
+    h += struct.pack('<BB', 0x04, 0x01)        # LNS = 4 lanes, EPL = 1 (NRZ)
+    h += struct.pack('<B', 0x41)               # LSPFC: rsvd=0, LSPFV=41h
+    h += struct.pack('<B', 0x05)               # LINFO: MLS = 5
+    h += bytes(3)                              # Reserved 17:15
+    h += struct.pack('<H', 0xBEEF)             # LSIC 19:18
+    h += struct.pack('<I', EOM_DS)             # DS 23:20
+    h += struct.pack('<H', nd)                 # ND 25:24
+    h += struct.pack('<HH', 16, 11)            # MAXTB, MAXLR
+    h += struct.pack('<HHH', 11, 22, 33)       # ETGOOD, ETBETTER, ETBEST
+    h += bytes(28)                             # Reserved 63:36
+    assert len(h) == 64, len(h)
+    if ndesc is None:
+        ndesc = nd
+    return h + b''.join(eom_lane_desc(lane=i, eye=i) for i in range(ndesc))
+
+_eom_full = eom_data()
+
+# An internally inconsistent lane descriptor: NROWS*NCOLS declares a 64-byte
+# Printable Eye at descriptor offset 32, which needs 96 bytes, but DS is only
+# 80.  PE therefore cannot be rendered, and because the Eye Data field is
+# specified to start at (NROWS*NCOLS+32) its offset is undefined too, so ED
+# must be suppressed as well rather than drawn at the PE offset.
+EOM_BAD_NROWS = 8
+EOM_BAD_NCOLS = 8
+
+def eom_lane_desc_pe_over_ds(lane, eye):
+    """A lane descriptor whose Printable Eye overflows DS (Figure 73)."""
+    d = struct.pack('<BBBB', 0x00, 0x01, lane, eye)  # rsvd, MSTAT(MSCS=1), LN, EYE
+    d += struct.pack('<HHHH', 14, 16, 11, 9)         # TOP, BTM, LFT, RGT
+    d += struct.pack('<HH', EOM_BAD_NROWS, EOM_BAD_NCOLS)
+    d += struct.pack('<I', EOM_EDLEN)                # EDLEN is 4 bytes (19:16)
+    d += bytes(12)                                   # Reserved 31:20
+    assert len(d) == 32, len(d)
+    # As much of the eye diagram as DS leaves room for, all ASCII '0' (on or
+    # inside the eye).  If Eye Data is wrongly drawn at the PE offset it reads
+    # back as six ASCII '0' bytes instead of the 0xA-series vendor pattern the
+    # consistent descriptors carry.
+    d += b'\x30' * (EOM_DS - len(d))
+    assert len(d) == EOM_DS, len(d)
+    return d
+
+def eom_data_pe_over_ds():
+    """EOM log page carrying one internally inconsistent lane descriptor."""
+    return eom_data(nd=1)[:64] + eom_lane_desc_pe_over_ds(lane=0, eye=0)
+
+packets_admin_eom = [
+    # F1/F2 completed measurement, 2 lane descriptors
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_LOG_PAGE,
+                                      ctrl_id=0x0001,
+                                      cns=NVME_LID_PHY_RX_EOM), tag=0),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(_eom_full), tag=0),
+    # F3/F4 no measurement started: EOMIP 0h means the log page is just HSIZE
+    # bytes (Figure 68) and ND is 0, so no descriptor may be rendered
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_LOG_PAGE,
+                                      ctrl_id=0x0001,
+                                      cns=NVME_LID_PHY_RX_EOM), tag=1),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(eom_data(eomip=0, nd=0)), tag=1),
+    # F5/F6 windowed view starting at the first descriptor (DOFST=64): ND and
+    # DS are not in view, so the descriptor list must NOT be walked
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_LOG_PAGE,
+                                      ctrl_id=0x0001,
+                                      cns=NVME_LID_PHY_RX_EOM,
+                                      flags=0x03, doff=64,
+                                      dlen=EOM_DS), tag=2),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(_eom_full[64:64 + EOM_DS]), tag=2),
+    # F7/F8 a descriptor whose Printable Eye overflows DS: PE needs
+    # 32 + (8*8) = 96 bytes but DS is 80, so PE is unrenderable and the Eye
+    # Data offset that follows it is undefined
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_LOG_PAGE,
+                                      ctrl_id=0x0001,
+                                      cns=NVME_LID_PHY_RX_EOM), tag=3),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(eom_data_pe_over_ds()), tag=3),
+    # F9/F10 a *partial* first window of a complete log page: DOFST=0 but DLEN
+    # covers only the 64-byte header plus one of the ND descriptors, while
+    # NUMD asks for the whole page.  The descriptor walk therefore runs out of
+    # data with descriptors still to come -- which is exactly what a device
+    # lying about ND looks like locally, and must NOT be reported, because
+    # here the rest is simply in the next window.
+    #
+    # This is the fixture that distinguishes the two: the walk stopping early
+    # is only a contradiction once the window holds everything NUMD asked for,
+    # so it is the NUMD comparison rather than the walk that is under test.
+    # NUMDL is CDW10 31:16 and NUMD is 0's based in dwords, so a full page of
+    # 64 + EOM_DS * EOM_ND bytes is ((64 + EOM_DS * EOM_ND) // 4) - 1.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_LOG_PAGE,
+                                      ctrl_id=0x0001,
+                                      cns=(NVME_LID_PHY_RX_EOM |
+                                           ((((64 + EOM_DS * EOM_ND) // 4) - 1) << 16)),
+                                      flags=0x03, doff=0,
+                                      dlen=64 + EOM_DS), tag=4),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(_eom_full[:64 + EOM_DS]), tag=4),
+    # F11/F12 the complement of F9/F10: a *complete* transfer whose header
+    # over-declares ND.  The response carries the 64-byte header plus EOM_ND
+    # descriptors and NUMD asks for exactly those bytes, so nothing is
+    # outstanding -- but ND claims EOM_ND + 1.  Unlike F10 there is no later
+    # window the missing descriptor could arrive in, so this is a genuine
+    # self-contradiction and is reported.
+    #
+    # F10 and F12 differ only in NUMD and in the claimed ND; both stop the
+    # descriptor walk early.  That is the point: the walk running out of data
+    # is identical in the two, so only the NUMD comparison separates the
+    # partial window from the lying header.
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_GET_LOG_PAGE,
+                                      ctrl_id=0x0001,
+                                      cns=(NVME_LID_PHY_RX_EOM |
+                                           ((((64 + EOM_DS * EOM_ND) // 4) - 1) << 16)),
+                                      dlen=64 + EOM_DS * EOM_ND), tag=5),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(eom_data(nd=EOM_ND + 1, ndesc=EOM_ND)),
+                tag=5),
+]
+
+BASE_TS_ADMIN_EOM_US = 1709462400 * 1_000_000
+
+def build_admin_eom_pcapng(output_path):
+    data = shb() + idb()
+    for i, pkt in enumerate(packets_admin_eom):
+        data += epb(pkt, BASE_TS_ADMIN_EOM_US + i * 1_000_000)
+    with open(output_path, 'wb') as f:
+        f.write(data)
+    print(f"Written {len(packets_admin_eom)} packets to {output_path}")
+
+
+# ---------------------------------------------------------------------------
+# nvme-mi-tcg-atom-classes.pcapng — TCG token-stream atom-class coverage
+# ---------------------------------------------------------------------------
+#
+# packets_admin_security above (StartSession/SyncSession) only ever emits
+# Short Atoms carrying unsigned values <=8 bytes — every UID is exactly 8
+# bytes, every integer is small.  dissect_tcg_token_stream() in
+# packet-tcg-storage.c branches on several atom classes that shape never
+# reaches: Medium/Long Atoms (0xC0-0xEF, needed once a byte-sequence exceeds
+# a Short Atom's 4-bit length field or an integer needs a wider header),
+# signed atoms (never emitted), and the "integer atom wider than 64 bits"
+# raw-render fallback (data_len 9-15, distinct from the normal <=8-byte
+# integer path).  This structural variety is exactly what mutation fuzzing
+# on the existing seed cannot manufacture — editcap perturbs bytes already
+# present, it does not insert a longer atom class the seed never used.
+#
+# NOTE — spec-verification limitation: no TCG Storage Architecture Core
+# Specification text was available in this repo's spec bundle (checked
+# C:\Users\Brandon\code\specs\{okf,md,pdf} — nothing TCG-related exists
+# there) to independently verify a *specific real* method name/UID for this
+# shape of call.  The Invoking UID reuses the existing, already-reviewed
+# TCG_SMUID constant; the Method UID below is a clearly-synthetic
+# placeholder (renders as an unrecognized 0x... UID on the wire, same as any
+# unknown method in real traffic).  The atom *encoding* itself is verified —
+# every helper below re-derives its own header bits with the exact formula
+# read out of dissect_tcg_token_stream() (see _tcg_atom_header_selfcheck)
+# and this file's generated output is diffed against the running ASan tshark
+# build (-V) before being treated as correct — but the higher-level claim
+# "this is what a real TCG method call looks like" is unverified pending
+# access to the actual spec.  Re-derive against it if/when available.
+TCG_SYNTHETIC_METHOD = bytes.fromhex('0000000000EEEEEE')
+
+tcg_atom_classes_tokens = (
+    bytes([0xF8])                            # Call
+    + tcg_bytes_atom(TCG_SMUID)              # Invoking UID
+    + tcg_bytes_atom(TCG_SYNTHETIC_METHOD)   # Method UID (synthetic, see above)
+    + bytes([0xF0])                          # Start List (outer parameter list)
+    +   bytes([0xF0])                        #   nested Start List (depth 2 —
+    +     tcg_tiny_uint(1)                   #   never exercised before: the
+    +     tcg_short_int(-5, 2)               #   existing fixtures nest one
+    +   bytes([0xF1])                        #   level only)
+    +   tcg_medium_bytes_atom(b'\x42' * 20)  #   Medium Atom: 20-byte blob
+    +   tcg_long_int(-70000, 4, signed=True) #   Long Atom: signed integer
+    +   tcg_short_int_wide(0x0102030405060708090A, 10)  # Short Atom,
+                                              #   data_len=10 -> "wider than
+                                              #   64 bits" fallback
+    + bytes([0xF1])                          # End List
+    + TCG_EOD_STATUS_SUCCESS)
+
+tcg_atom_classes_cp = tcg_compacket(
+    tcg_packet(tcg_subpacket(tcg_atom_classes_tokens)), 0x1000)
+
+packets_tcg_atom_classes = [
+    # F1/F2 Security Send SECP=01h SPSP=1000h: synthetic method call
+    # exercising Medium/Long atoms, signed atoms, a nested list and the
+    # wide-integer fallback (see block comment above)
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(NVME_AQ_OPC_SECURITY_SEND,
+                                      ctrl_id=0x0001, flags=0x00,
+                                      cns=security_cdw10(0x01, 0x1000),
+                                      dlen=0,
+                                      cdw11=len(tcg_atom_classes_cp))
+                + tcg_atom_classes_cp, tag=0),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(b''), tag=0),
+]
+
+BASE_TS_TCG_ATOM_CLASSES_US = 1709381800 * 1_000_000
+
+def build_tcg_atom_classes_pcapng(output_path):
+    data = shb() + idb()
+    for i, pkt in enumerate(packets_tcg_atom_classes):
+        data += epb(pkt, BASE_TS_TCG_ATOM_CLASSES_US + i * 1_000_000)
+    with open(output_path, 'wb') as f:
+        f.write(data)
+    print(f"Written {len(packets_tcg_atom_classes)} packets to {output_path}")
+
+
+# ---------------------------------------------------------------------------
+# nvme-mi-tcg-malformed.pcapng — TCG token-stream error-path coverage
+# ---------------------------------------------------------------------------
+#
+# Deliberately hits three distinct error branches in
+# dissect_tcg_token_stream() that a well-formed seed cannot reach on its own.
+# Mutation fuzzing *can* eventually stumble into these by corrupting a length
+# byte, but a dedicated fixture proves the expert-info code itself fires
+# correctly right now, rather than relying on chance to rediscover it later:
+#   F1/F2  a reserved control token (0xF4, one of 0xF4-0xF7/0xFD-0xFE) mid-
+#          stream -> ei_tcg_tok_reserved, then parsing continues
+#   F3/F4  a Short Atom header claiming more data (10 bytes) than remains in
+#          the subpacket (3 bytes) -> clamped, ei_tcg_length_overrun, break
+#   F5/F6  a Long Atom lead byte with only 1 more byte following (needs a
+#          4-byte header) -> ei_tcg_truncated, break
+#   F7/F8  a method status list whose first element is 0x1234, wider than the
+#          00h-FFh the Method Status occupies (Core Spec §3.2.2.4.2 item 5,
+#          Table 166) -> ei_tcg_tok_status_range, and the ordinary list
+#          element that follows must not be promoted to a Method Status
+#   F9/F10 a Level 0 Discovery feature descriptor whose Length is 13, which
+#          Core Spec §3.3.6.3.1.3 forbids ("SHALL be an integral multiple of
+#          4") -> ei_tcg_feat_length_align.  The misalignment then cascades
+#          into the descriptor that follows, which is the point: the cascade
+#          has to be attributable to a named cause.
+# Each was hand-traced against dissect_tcg_token_stream()'s actual control
+# flow (offset/end bookkeeping, clamp condition, break points) before being
+# treated as correct, and independently confirmed via the real ASan tshark
+# build below.
+
+tcg_reserved_token_tokens = (
+    bytes([0xF8])
+    + tcg_bytes_atom(TCG_SMUID)
+    + tcg_bytes_atom(TCG_SYNTHETIC_METHOD)
+    + bytes([0xF0])
+    +   tcg_tiny_uint(1)
+    +   bytes([0xF4])           # Reserved control token (0xF4-0xF7)
+    +   tcg_tiny_uint(2)        # parsing must continue after it
+    + bytes([0xF1])
+    + TCG_EOD_STATUS_SUCCESS)
+
+tcg_overrun_atom_tokens = (
+    bytes([0xF8])
+    + tcg_bytes_atom(TCG_SMUID)
+    + tcg_bytes_atom(TCG_SYNTHETIC_METHOD)
+    # Short unsigned-int atom header claims data_len=10, only 3 bytes follow
+    + bytes([0x8A]) + bytes([0x01, 0x02, 0x03]))
+
+tcg_truncated_header_tokens = (
+    bytes([0xF8])
+    + tcg_bytes_atom(TCG_SMUID)
+    + tcg_bytes_atom(TCG_SYNTHETIC_METHOD)
+    # Long Atom lead byte + 1 byte; a Long Atom header needs 4
+    + bytes([0xE0, 0x00]))
+
+tcg_reserved_token_cp = tcg_compacket(
+    tcg_packet(tcg_subpacket(tcg_reserved_token_tokens)), 0x1000)
+tcg_overrun_atom_cp = tcg_compacket(
+    tcg_packet(tcg_subpacket(tcg_overrun_atom_tokens)), 0x1000)
+tcg_truncated_header_cp = tcg_compacket(
+    tcg_packet(tcg_subpacket(tcg_truncated_header_tokens)), 0x1000)
+
+def _tcg_malformed_receive(cp, tag):
+    """Security Receive request/response pair carrying `cp` as the response
+    payload — the realistic direction for a device-originated malformed or
+    buggy TCG response, matching F3/F4/F7/F8/F11/F12 in packets_admin_security
+    above."""
+    return [
+        make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                    admin_request_payload(NVME_AQ_OPC_SECURITY_RECV,
+                                          ctrl_id=0x0001, flags=0x00,
+                                          cns=security_cdw10(0x01, 0x1000),
+                                          dlen=len(cp),
+                                          cdw11=len(cp)), tag=tag),
+        make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                    admin_resp_with_data(cp), tag=tag),
+    ]
+
+def _tcg_malformed_l0_receive(l0, tag):
+    """Security Receive request/response pair carrying `l0` as a Level 0
+    Discovery response payload (SECP 01h, ComID 0001h)."""
+    return [
+        make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                    admin_request_payload(NVME_AQ_OPC_SECURITY_RECV,
+                                          ctrl_id=0x0001, flags=0x00,
+                                          cns=security_cdw10(0x01, 0x0001),
+                                          dlen=len(l0),
+                                          cdw11=len(l0)), tag=tag),
+        make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                    admin_resp_with_data(l0), tag=tag),
+    ]
+
+packets_tcg_malformed = (
+    _tcg_malformed_receive(tcg_reserved_token_cp, tag=0) +      # F1/F2
+    _tcg_malformed_receive(tcg_overrun_atom_cp, tag=1) +        # F3/F4
+    _tcg_malformed_receive(tcg_truncated_header_cp, tag=2) +    # F5/F6
+    _tcg_malformed_receive(tcg_status_out_of_range_cp, tag=3) + # F7/F8
+    _tcg_malformed_l0_receive(_l0_badlen_data, tag=4)           # F9/F10
+)
+
+BASE_TS_TCG_MALFORMED_US = 1709382800 * 1_000_000
+
+def build_tcg_malformed_pcapng(output_path):
+    data = shb() + idb()
+    for i, pkt in enumerate(packets_tcg_malformed):
+        data += epb(pkt, BASE_TS_TCG_MALFORMED_US + i * 1_000_000)
+    with open(output_path, 'wb') as f:
+        f.write(data)
+    print(f"Written {len(packets_tcg_malformed)} packets to {output_path}")
+
+
+# ---------------------------------------------------------------------------
+# nvme-mi-error-paths.pcapng — response paths whose format depends on
+# something other than the opcode: a sliced MIC, a non-Success Control
+# Primitive status, and an Admin data window no structured decoder renders.
+# ---------------------------------------------------------------------------
+#
+#   --- Sliced MIC vs. the command-slot lifecycle (MCTP tag 0, CSI 0) ---
+#
+#   F1  MI  Req   opcode 01h (Health Status Poll), IC=1, complete
+#   F2  MI  Req   opcode 04h (Configuration Get),  IC=1, SLICED 6 bytes short,
+#                 so the span the MIC covers is not fully captured.
+#   F3  MI  Resp  status 00h, IC=1, complete
+#
+#   The MIC spans the reported message length, so computing it over a sliced
+#   frame throws a bounds exception -- and it is thrown before the command
+#   slot lifecycle runs, with pinfo->fd->visited already set.  F2 then never
+#   takes the slot and F3 links back to F1 instead of F2: a wrong Request In,
+#   a wrong Response Time, and no expert info anywhere.  F3 must link to F2,
+#   and F2 must raise the superseded-request note against F1.
+#
+#   --- MIC field itself cut off (MCTP tag 6, CSI 0) ---
+#
+#   F4  MI  Req   opcode 01h, IC=1, complete
+#   F5  MI  Resp  status 00h, IC=1, SLICED by exactly the 4 MIC bytes.  Here
+#                 the covered span *is* complete, so this is the second half
+#                 of the same defect: adding the checksum item over bytes that
+#                 were never captured throws as well.  The MIC must be
+#                 reported as not present rather than claimed either way.
+#
+#   --- Control Primitive error responses (Figures 27/28: the Response Body
+#       format depends on the Status field, not just on the opcode) ---
+#
+#   F6  CP  Req   Abort (02h), TAG=5Ah                       [MCTP tag 1]
+#   F7  CP  Resp  status 08h (Unable to Abort).  Figure 30 makes bytes 7:5
+#                 Reserved; they are deliberately non-zero here (00 EF BE) so
+#                 that decoding them as the Figure 40 Success layout is
+#                 visible: byte 5 reads as TAG=00h (a false mismatch against
+#                 the request's 5Ah) and bytes 7:6 as CPSR=BEEFh, out of which
+#                 the Abort CPSR decode fabricates a CPAS value.
+#   F8  CP  Req   Get State (03h), TAG=77h                   [MCTP tag 2]
+#   F9  CP  Resp  status 04h (Invalid Parameter).  Figure 32 puts the
+#                 Parameter Error Location in bytes 7:5: BITLOC=2, BYTLOC=16.
+#                 Decoded as a Success response this is TAG=02h + CPSR=0010h
+#                 and the whole diagnostic payload disappears.
+#   F10 CP  Req   Get State (03h), TAG=33h                   [MCTP tag 3]
+#   F11 CP  Resp  status 00h (Success), TAG=33h, CPSR=4001h -- the control:
+#                 a Success response still decodes Tag and CPSR.
+#
+#   --- Admin Data window that no structured decoder renders (Figure 114
+#       allows a 2-Wire MTU of 64 bytes, so a BMC walking the 4096-byte
+#       Identify structure sends many such windows) ---
+#
+#   F12 ADM Req   Identify CNS=1Ch, DOFST=64, DLEN=64        [MCTP tag 4]
+#   F13 ADM Resp  status 00h + 64 data bytes.  CNS 1Ch has no case in
+#                 dissect_nvme_identify_resp(), so the "Data" subtree stays
+#                 empty -- but nvme_dissect_admin_data_resp() still returns
+#                 true (Identify *is* in the structured set), which used to
+#                 hide the raw bytes item as well.  The payload must remain
+#                 visible in the detail tree.
+#   F14 ADM Req   Identify CNS=01h, DOFST=0, DLEN=64         [MCTP tag 5]
+#   F15 ADM Resp  status 00h + the first 64 bytes of an Identify Controller
+#                 structure -- the control: the structured decode does render
+#                 fields here, so the raw bytes item stays hidden.
+
+_ERR_MI_REQ_1 = make_packet(True,  NVME_MI_TYPE_MI, 0,
+                            mi_request_payload(0x01), tag=0, ic=True)
+_ERR_MI_REQ_2 = make_packet(True,  NVME_MI_TYPE_MI, 0,
+                            mi_request_payload(0x04), tag=0, ic=True)
+_ERR_MI_RESP  = make_packet(False, NVME_MI_TYPE_MI, 0,
+                            mi_response_payload(STATUS_SUCCESS), tag=0, ic=True)
+_ERR_MI_REQ_3 = make_packet(True,  NVME_MI_TYPE_MI, 0,
+                            mi_request_payload(0x01), tag=6, ic=True)
+_ERR_MI_RESP_NOMIC = make_packet(False, NVME_MI_TYPE_MI, 0,
+                                 mi_response_payload(STATUS_SUCCESS), tag=6,
+                                 ic=True)
+
+packets_error_paths = [
+    _ERR_MI_REQ_1,
+    (_ERR_MI_REQ_2[:-6], len(_ERR_MI_REQ_2)),
+    _ERR_MI_RESP,
+    _ERR_MI_REQ_3,
+    (_ERR_MI_RESP_NOMIC[:-4], len(_ERR_MI_RESP_NOMIC)),
+
+    make_packet(True,  NVME_MI_TYPE_CONTROL, 0,
+                cp_request_payload(CP_OPC_ABORT, tag=0x5A), tag=1),
+    make_packet(False, NVME_MI_TYPE_CONTROL, 0,
+                bytes([0x08, 0x00, 0xEF, 0xBE]), tag=1),
+    make_packet(True,  NVME_MI_TYPE_CONTROL, 0,
+                cp_request_payload(CP_OPC_GET_STATE, tag=0x77), tag=2),
+    make_packet(False, NVME_MI_TYPE_CONTROL, 0,
+                bytes([0x04, 0x02]) + struct.pack('<H', 16), tag=2),
+    make_packet(True,  NVME_MI_TYPE_CONTROL, 0,
+                cp_request_payload(CP_OPC_GET_STATE, tag=0x33), tag=3),
+    make_packet(False, NVME_MI_TYPE_CONTROL, 0,
+                cp_response_payload(STATUS_SUCCESS, tag=0x33, cpsr=0x4001), tag=3),
+
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(0x06, cns=0x1C, flags=0x03,
+                                      doff=64, dlen=64), tag=4),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(bytes(range(64))), tag=4),
+    make_packet(True,  NVME_MI_TYPE_ADMIN, 0,
+                admin_request_payload(0x06, cns=0x01, flags=0x01,
+                                      doff=0, dlen=64), tag=5),
+    make_packet(False, NVME_MI_TYPE_ADMIN, 0,
+                admin_resp_with_data(identify_ctrl_data()[:64]), tag=5),
+]
+
+BASE_TS_ERROR_PATHS_US = 1709548800 * 1_000_000
+
+def build_error_paths_pcapng(output_path):
+    data = shb() + idb()
+    for i, pkt in enumerate(packets_error_paths):
+        ts = BASE_TS_ERROR_PATHS_US + i * 1_000_000
+        if isinstance(pkt, tuple):       # (sliced bytes, original length)
+            data += epb(pkt[0], ts, origlen=pkt[1])
+        else:
+            data += epb(pkt, ts)
+    with open(output_path, 'wb') as f:
+        f.write(data)
+    print(f"Written {len(packets_error_paths)} packets to {output_path}")
 
 
 if __name__ == '__main__':
@@ -2504,15 +4315,49 @@ if __name__ == '__main__':
     build_admin_features_pcapng(out8)
     print()
 
+    # nvme-mi-admin-security.pcapng — Security Send/Receive payload decode
+    out11 = sys.argv[11] if len(sys.argv) > 11 else os.path.join(
+        captures_dir, 'nvme-mi-admin-security.pcapng')
+    build_admin_security_pcapng(out11)
+    print()
+
     # nvme-mi-admin-logpage-windowed.pcapng — multi-window Get Log Page
     # (DOFST!=0), cross-checked against NVMe Base 2.3 Figure 210
-    out9 = sys.argv[11] if len(sys.argv) > 11 else os.path.join(
+    out12 = sys.argv[12] if len(sys.argv) > 12 else os.path.join(
         captures_dir, 'nvme-mi-admin-logpage-windowed.pcapng')
-    build_admin_logpage_windowed_pcapng(out9)
+    build_admin_logpage_windowed_pcapng(out12)
     print()
 
     # nvme-mi-features-windowed.pcapng — Set/Get Features windowed-transfer
     # fixes (APST, Timestamp, PLMC, HBS off-dropping + PLMC/HBS underflow)
-    out10 = sys.argv[12] if len(sys.argv) > 12 else os.path.join(
+    out13 = sys.argv[13] if len(sys.argv) > 13 else os.path.join(
         captures_dir, 'nvme-mi-features-windowed.pcapng')
-    build_features_windowed_pcapng(out10)
+    build_features_windowed_pcapng(out13)
+    print()
+
+    # nvme-mi-tcg-atom-classes.pcapng — TCG token-stream atom-class coverage
+    # (Medium/Long atoms, signed atoms, nested lists, wide-integer fallback)
+    out14 = sys.argv[14] if len(sys.argv) > 14 else os.path.join(
+        captures_dir, 'nvme-mi-tcg-atom-classes.pcapng')
+    build_tcg_atom_classes_pcapng(out14)
+    print()
+
+    # nvme-mi-tcg-malformed.pcapng — TCG token-stream error-path coverage
+    # (reserved control token, length-overrun atom, truncated atom header)
+    out15 = sys.argv[15] if len(sys.argv) > 15 else os.path.join(
+        captures_dir, 'nvme-mi-tcg-malformed.pcapng')
+    build_tcg_malformed_pcapng(out15)
+    print()
+
+    # nvme-mi-admin-eom.pcapng - Physical Interface Receiver Eye Opening
+    # Measurement log page (LID 19h), NVMe over PCIe Transport 1.3 Figs 72/73
+    out16 = sys.argv[16] if len(sys.argv) > 16 else os.path.join(
+        captures_dir, 'nvme-mi-admin-eom.pcapng')
+    build_admin_eom_pcapng(out16)
+    print()
+
+    # nvme-mi-error-paths.pcapng - sliced-MIC slot lifecycle, Control
+    # Primitive error responses, and an Admin data window nothing decodes
+    out17 = sys.argv[17] if len(sys.argv) > 17 else os.path.join(
+        captures_dir, 'nvme-mi-error-paths.pcapng')
+    build_error_paths_pcapng(out17)
