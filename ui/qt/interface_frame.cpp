@@ -110,6 +110,17 @@ InterfaceFrame::InterfaceFrame(QWidget * parent)
     proxy_model_.setSortByActivity(true);
     proxy_model_.setSourceModel(&source_model_);
 
+    connect(&source_model_, &QAbstractItemModel::modelReset, this, [this]() {
+        // InterfaceListManager signals interfaceListChanged when these prefs
+        // change, so we don't need to watch preferencesChanged separately.
+        info_model_.clearInfos();
+        if (prefs.capture_no_extcap)
+            info_model_.appendInfo(tr("External capture interfaces disabled."));
+        resetInterfaceTreeDisplay();
+        // Ensure that device selection is consistent with the displayed selection.
+        updateSelectedInterfaces();
+    });
+
     info_model_.setSourceModel(&proxy_model_);
     info_model_.setColumn(static_cast<int>(columns.indexOf(IFTREE_COL_STATS)));
 
@@ -266,14 +277,6 @@ void InterfaceFrame::triggeredIfTypeButton()
 
 void InterfaceFrame::interfaceListChanged()
 {
-    info_model_.clearInfos();
-    if (prefs.capture_no_extcap)
-        info_model_.appendInfo(tr("External capture interfaces disabled."));
-
-    resetInterfaceTreeDisplay();
-    // Ensure that device selection is consistent with the displayed selection.
-    updateSelectedInterfaces();
-
 #ifdef HAVE_LIBPCAP
     // Read live sparkline/activity data from the window's InterfaceStatistics
     // (owned by its InterfaceListManager) and ensure sampling is running. Both
