@@ -54,7 +54,8 @@ wtap_setup_syscall_rec(wtap_rec* rec)
  // Event header (libs:driver/ppm_events_public.h:ppm_evt_hdr):
  //   uint64_t Timestamp
  //   uint64_t Thread ID
- //   uint32_t Event length. Includes this header.
+ //   uint32_t Event length. Includes this header and possibly the number
+ //            of params; see in_memory_nparams_len.
  //   uint16_t Event type
  //   uint32_t Number of params (optional, sysdig_has_nparams)
 
@@ -76,6 +77,13 @@ pcapng_read_sysdig_event_block(wtap* wth, FILE_T fh, uint32_t block_type,
     bool has_nparams = sysdig_has_nparams(block_type);
     unsigned preamble_len = MIN_SYSDIG_PREAMBLE_SIZE + (has_flags ? 4 : 0);
     unsigned event_header_len = MIN_SYSDIG_EVENT_SIZE + (has_nparams ? 4 : 0);
+    // libscap always has a number-of-params field in its in-memory representation
+    // of an event, including its size in the event length, and it inserts one when
+    // reading a block type that has none, adding 4 to the length as it does so.
+    // Some writers of those block types emit that in-memory event length rather
+    // than backing the 4 bytes out again, so their events are 4 bytes shorter in
+    // the block than the length says.
+    unsigned in_memory_nparams_len = sysdig_has_nparams(block_type) ? 0 : 4;
 
     // Preamble
     if (ckd_sub(&block_remaining, block_remaining, preamble_len)) {
@@ -158,18 +166,28 @@ pcapng_read_sysdig_event_block(wtap* wth, FILE_T fh, uint32_t block_type,
         return false;
     }
 
-    if (event_len > block_remaining + event_header_len) {
-        ws_debug("Truncating event length %u to %u", event_len, block_remaining + event_header_len);
-        // ...or should we just return false here?
-        event_len = block_remaining + event_header_len;
+    //
+    // Some writers of the block types that have no number-of-params field
+    // nevertheless count that field in the event length, so their events are
+    // 4 bytes shorter in the block than the length says. Only assume that's
+    // what happened if it's the only way the event fits in the block; the
+    // original sysdig writers don't do it.
+    //
+    if (event_data_len > block_remaining && in_memory_nparams_len <= event_data_len
+        && event_data_len - in_memory_nparams_len <= block_remaining) {
+        ws_debug("Event length %u appears to count an absent number-of-params field", event_len);
+        event_data_len -= in_memory_nparams_len;
     }
 
-    if (ckd_sub(&block_remaining, block_remaining, event_data_len)) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = ws_strdup_printf("pcapng: block content length %u of a Sysdig event block is too small for %u bytes of event data",
-            block_content_length, event_data_len);
-        return false;
+    if (event_data_len > block_remaining) {
+        ws_debug("Truncating event data length %u to %u", event_data_len, block_remaining);
+        // ...or should we just return false here?
+        event_data_len = block_remaining;
     }
+
+    block_remaining -= event_data_len;
+
+    event_len = event_data_len + event_header_len;
 
     // XXX Should we include the event header here? It would ensure that
     // we always have data and avoid the "consumed = 1" workaround in the
@@ -192,13 +210,13 @@ pcapng_read_sysdig_event_block(wtap* wth, FILE_T fh, uint32_t block_type,
     }
 
     /* Options */
+    wblock->block = wtap_block_create(WTAP_BLOCK_SYSDIG_EVENT);
+
     unsigned opt_cont_buf_len = block_remaining;
     if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
         NULL,
         OPT_LITTLE_ENDIAN, err, err_info))
         return false;
-
-    wblock->block = wtap_block_create(WTAP_BLOCK_SYSDIG_EVENT);
 
     wtap_setup_syscall_rec(wblock->rec);
     wblock->rec->rec_header.syscall_header.record_type = block_type;

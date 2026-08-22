@@ -266,6 +266,52 @@ class TestFileFormatMime:
             ), encoding='utf-8', env=test_env)
         assert proc_stdout.strip() == '480\t128,88,132,132\t128,88,132,132'
 
+@pytest.fixture
+def check_scap_event_block_options(request, cmd_strato, capture_file, test_env):
+    '''Dump the comments in curl_google_comments.scap.gz. Requires the
+    falco-events plugin and a non-Debug build.
+    '''
+    if request.config.getoption('--build-type').lower() == 'debug':
+        pytest.skip('libsinsp debug builds have strict assertion checks')
+
+    plugins = subprocess.check_output((cmd_strato, '-G', 'plugins'),
+        encoding='utf-8', env=test_env)
+    if 'falco-events' not in plugins:
+        pytest.skip('The Falco Events plugin is not available')
+
+    def dump_comments_real(show_internal):
+        return subprocess.check_output((cmd_strato,
+                '-r', capture_file('curl_google_comments.scap.gz'),
+                '-o', f'falcoevents.show_internal_events:{show_internal}',
+                '-Y', 'frame.comment',
+                '-Tfields',
+                '-e', 'frame.number',
+                '-e', 'sysdig.event_len',
+                '-e', 'sysdig.event_data_len',
+                '-e', 'frame.comment',
+            ), encoding='utf-8', env=test_env)
+    return dump_comments_real
+
+
+class TestFileFormatScap:
+    def test_scap_event_block_options_internal(self, check_scap_event_block_options):
+        '''Check Falco/Sysdig event block options, including an internal event's.'''
+        proc_stdout = check_scap_event_block_options('TRUE')
+        assert proc_stdout.strip().splitlines() == [
+            '1\t42\t20\tInternal block comment',
+            '211\t2360\t2338\tVisible block comment, no padding',
+            '213\t50\t28\tVisible block comment, padding',
+        ]
+
+    def test_scap_event_block_options_no_internal(self, check_scap_event_block_options):
+        '''Check that hiding internal events hides their options too.'''
+        proc_stdout = check_scap_event_block_options('FALSE')
+        assert 'Internal block comment' not in proc_stdout
+        assert proc_stdout.strip().splitlines() == [
+            '211\t2360\t2338\tVisible block comment, no padding',
+            '213\t50\t28\tVisible block comment, padding',
+        ]
+
 class TestFileFormatCllog:
     def test_cllog_cl2000(self, cmd_tshark, capture_file, test_env):
         '''Basic test of CAN Logger file format reader.'''
