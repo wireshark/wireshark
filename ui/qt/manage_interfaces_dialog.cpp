@@ -240,7 +240,6 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
 #endif
 
     connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateWidgets()));
-    connect(this, SIGNAL(ifsChanged()), parent, SIGNAL(ifsChanged()));
 
 #ifdef HAVE_PCAP_REMOTE
     connect(this, SIGNAL(remoteAdded(GList*, remote_options*)), this, SLOT(addRemoteInterfaces(GList*, remote_options*)));
@@ -266,7 +265,6 @@ ManageInterfacesDialog::~ManageInterfacesDialog()
         MainWindow *mainWindow = mainApp->mainWindow();
         if (mainWindow && mainWindow->interfaceListManager())
             mainWindow->interfaceListManager()->requestRefresh();
-        emit ifsChanged();
     }
 
     delete ui;

@@ -3117,8 +3117,6 @@ void WiresharkMainWindow::showCaptureOptionsDialog()
                 this->welcome_page_, &WelcomePage::interfaceSelected);
         connect(capture_options_dialog_, &CaptureOptionsDialog::interfacesChanged,
                 this->welcome_page_->getInterfaceFrame(), &InterfaceFrame::updateSelectedInterfaces);
-        connect(capture_options_dialog_, &CaptureOptionsDialog::interfaceListChanged,
-                this->welcome_page_->getInterfaceFrame(), &InterfaceFrame::interfaceListChanged);
         connect(capture_options_dialog_, &CaptureOptionsDialog::captureFilterTextEdited,
                 this->welcome_page_, &WelcomePage::setCaptureFilterText);
         // Propagate selection changes from main UI to dialog.

@@ -89,7 +89,6 @@ private slots:
     /** @brief Repaints the traffic sparklines when InterfaceStatistics samples. */
     void redrawStatistics();
     void refreshInterfaceList();
-    void updateLocalInterfaces();
     void browseButtonClicked();
     void interfaceItemChanged(QTreeWidgetItem *item, int column);
     void itemClicked(QTreeWidgetItem *item, int column);
@@ -105,8 +104,6 @@ signals:
     void setSelectedInterfaces();
     void setFilterValid(bool valid, const QString capture_filter);
     void interfacesChanged();
-    void ifsChanged();
-    void interfaceListChanged();
     void captureFilterTextEdited(const QString & text);
     void showExtcapOptions(QString &device_name, bool startCaptureOnClose);
 

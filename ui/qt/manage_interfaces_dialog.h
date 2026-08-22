@@ -82,11 +82,6 @@ private:
 #endif
 
 signals:
-    /**
-     * @brief Signal emitted when the list of interfaces has changed.
-     */
-    void ifsChanged();
-
 #ifdef HAVE_PCAP_REMOTE
     /**
      * @brief Signal emitted when remote interfaces are added.
