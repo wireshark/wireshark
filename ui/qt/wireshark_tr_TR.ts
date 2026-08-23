@@ -9461,7 +9461,8 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>Plot</name>
     <message>
-        <source>Field cannot be empty!</source>
+        <source>Field cannot be empty.</source>
+        <oldsource>Field cannot be empty!</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -12690,8 +12691,9 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>, başlangıç: %1, imleç: %2. %3 paketine gitmek için &quot;G&quot;ye basın. Oynatmanın başlangıcını ayarlamak için grafiğe çift tıklayın.</translation>
     </message>
     <message>
-        <source>Playback of stream %1 failed!</source>
-        <translation>%1 akışının oynatılması başarısız oldu!</translation>
+        <source>Playback of stream %1 failed.</source>
+        <oldsource>Playback of stream %1 failed!</oldsource>
+        <translation type="unfinished">%1 akışının oynatılması başarısız oldu!</translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -12743,8 +12745,12 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>Hiçbir akış kaydetmeye uygun değil</translation>
     </message>
     <message>
+        <source>Save failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save failed!</source>
-        <translation>Kayıt başarısız!</translation>
+        <translation type="vanished">Kayıt başarısız!</translation>
     </message>
     <message>
         <source>Can&apos;t write header of AU file</source>

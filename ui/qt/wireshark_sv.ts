@@ -9492,8 +9492,9 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>Plot</name>
     <message>
-        <source>Field cannot be empty!</source>
-        <translation>Fältet får inte vara tomt!</translation>
+        <source>Field cannot be empty.</source>
+        <oldsource>Field cannot be empty!</oldsource>
+        <translation type="unfinished">Fältet får inte vara tomt!</translation>
     </message>
 </context>
 <context>
@@ -12734,8 +12735,9 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>, start: %1, markör: %2. Tryck ”G” för att gå till paket %3. Dubbelklicka på grafen för att ange start av uppspelning.</translation>
     </message>
     <message>
-        <source>Playback of stream %1 failed!</source>
-        <translation>Uppspelningen av sträm %1 misslyckades!</translation>
+        <source>Playback of stream %1 failed.</source>
+        <oldsource>Playback of stream %1 failed!</oldsource>
+        <translation type="unfinished">Uppspelningen av sträm %1 misslyckades!</translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -12787,8 +12789,12 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>Inga strömmar passar för att spara</translation>
     </message>
     <message>
+        <source>Save failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save failed!</source>
-        <translation>Att spara misslyckades!</translation>
+        <translation type="vanished">Att spara misslyckades!</translation>
     </message>
     <message>
         <source>Can&apos;t write header of AU file</source>

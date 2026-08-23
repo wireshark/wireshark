@@ -900,6 +900,7 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2C40,   "TPMS Position" },
     { 0x2C41,   "TPMS Signing Key" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xFC29,   "Google LLC" },
     { 0xFC2A,   "Troo Corporation" },
     { 0xFC2B,   "Elder Technologies, Inc" },
     { 0xFC2C,   "Verkada Inc." },
@@ -4707,7 +4708,7 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x0CE3,   "Taiwan Fuhsing" },
     { 0x0CE4,   "Off-Highway Powertrain Services Germany GmbH" },
     { 0x0CE5,   "Amina Distribution AS" },
-    { 0x0CE6,   "McWong International, Inc." },
+    { 0x0CE6,   "mwConnect" },
     { 0x0CE7,   "TAG HEUER SA" },
     { 0x0CE8,   "Dongguan Yougo Electronics Co.,Ltd." },
     { 0x0CE9,   "PEAG, LLC dba JLab Audio" },
@@ -5640,6 +5641,14 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x1103,   "BRISANT SECURE LTD" },
     { 0x1104,   "Daiichi Elektronik Sanayi ve Ticaret. A.S." },
     { 0x1105,   "Cirrus Design Corporation" },
+    { 0x1106,   "Flicfit inc." },
+    { 0x1107,   "Optrel AG" },
+    { 0x1108,   "BEMER Int. AG" },
+    { 0x1109,   "Hamodaz Corporation" },
+    { 0x110A,   "OnRace Motorsports" },
+    { 0x110B,   "SIGMA CORPORATION" },
+    { 0x110C,   "rescuetrack GmbH" },
+    { 0x110D,   "ARETA AI INC." },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
@@ -6419,6 +6428,7 @@ const btatt_handle_strings_t btatt_handle_strings[] = {
     { 0x2c40,   "Bluetooth GATT Attribute TPMS Position (UUID 0x2c40)", "BT GATT TPMS Position (UUID 0x2c40)", "btgatt.uuid0x2c40" },
     { 0x2c41,   "Bluetooth GATT Attribute TPMS Signing Key (UUID 0x2c41)", "BT GATT TPMS Signing Key (UUID 0x2c41)", "btgatt.uuid0x2c41" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xfc29,   "Bluetooth GATT Attribute Google LLC (UUID 0xfc29)", "BT GATT Google LLC (UUID 0xfc29)", "btgatt.uuid0xfc29" },
     { 0xfc2a,   "Bluetooth GATT Attribute Troo Corporation (UUID 0xfc2a)", "BT GATT Troo Corporation (UUID 0xfc2a)", "btgatt.uuid0xfc2a" },
     { 0xfc2b,   "Bluetooth GATT Attribute Elder Technologies, Inc (UUID 0xfc2b)", "BT GATT Elder Technologies, Inc (UUID 0xfc2b)", "btgatt.uuid0xfc2b" },
     { 0xfc2c,   "Bluetooth GATT Attribute Verkada Inc. (UUID 0xfc2c)", "BT GATT Verkada Inc. (UUID 0xfc2c)", "btgatt.uuid0xfc2c" },

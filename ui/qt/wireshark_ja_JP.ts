@@ -9217,11 +9217,11 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Output compact JSON without indentation (significantly faster and smaller)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;インデントなしのコンパクトJSON形式で出力 ( 大幅に高速化されサイズも削減)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Compact (no indentation)</source>
-        <translation type="unfinished"></translation>
+        <translation>コンパクト(インデントなし)</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a name/value pair for each field with the field value&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -9524,8 +9524,9 @@ Shift+クリック: 空行では無効なブレークポイントを追加
 <context>
     <name>Plot</name>
     <message>
-        <source>Field cannot be empty!</source>
-        <translation>フィールドを空にはできません!</translation>
+        <source>Field cannot be empty.</source>
+        <oldsource>Field cannot be empty!</oldsource>
+        <translation type="unfinished">フィールドを空にはできません!</translation>
     </message>
 </context>
 <context>
@@ -12791,8 +12792,9 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>, 開始: %1, カーソル: %2. &quot;G&quot; を押してパケット %3 へ移動します。ダブルクリックして再生開始を設定します。</translation>
     </message>
     <message>
-        <source>Playback of stream %1 failed!</source>
-        <translation>ストリーム %1 の再生に失敗しました!!</translation>
+        <source>Playback of stream %1 failed.</source>
+        <oldsource>Playback of stream %1 failed!</oldsource>
+        <translation type="unfinished">ストリーム %1 の再生に失敗しました!!</translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -12844,8 +12846,12 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>保存にて適したストリームはありません</translation>
     </message>
     <message>
+        <source>Save failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save failed!</source>
-        <translation>保存失敗!!</translation>
+        <translation type="vanished">保存失敗!!</translation>
     </message>
     <message>
         <source>Can&apos;t write header of AU file</source>

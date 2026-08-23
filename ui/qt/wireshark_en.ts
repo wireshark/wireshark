@@ -9481,7 +9481,7 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>Plot</name>
     <message>
-        <source>Field cannot be empty!</source>
+        <source>Field cannot be empty.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -12716,7 +12716,11 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Playback of stream %1 failed!</source>
+        <source>Playback of stream %1 failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -12766,10 +12770,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>No streams are suitable for save</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save failed!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

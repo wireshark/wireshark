@@ -11,7 +11,7 @@
 #include "data-dmx-manfid.h"
 
 /*
- * ESTA codes download date: 2026-08-16
+ * ESTA codes download date: 2026-08-23
  */
 static const value_string dmx_esta_manfid_vals[] = {
   { 0x0000, "ESTA / PLASA" },
@@ -449,6 +449,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0628, "ERP Power" },
   { 0x062A, "LEDstructures" },
   { 0x062B, "CKC Lighting Co., Ltd." },
+  { 0x0631, "AK PRO LIGHTING CO.,LTD." },
   { 0x0638, "ROLITECH LIMITED" },
   { 0x063A, "AVM Belgium BVBA" },
   { 0x063C, "LaserNet" },
@@ -1090,6 +1091,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x09E9, "Starway" },
   { 0x09EE, "Suzhou Pinzong Electronic Technology, CO.,Ltd" },
   { 0x09EF, "Andrea Croce" },
+  { 0x09F6, "Veranstaltungstechnik Löwe" },
   { 0x09F8, "UberDisplays" },
   { 0x09FC, "deskontrol electronics" },
   { 0x0A01, "Star-Reach Corporation" },
@@ -1118,9 +1120,12 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x1221, "SAGITTER-SDJ-Proel" },
   { 0x1222, "SM International" },
   { 0x1234, "ESTA" },
+  { 0x1238, "Tirso Lighting" },
   { 0x1240, "Canary Yellow Applications" },
   { 0x1254, "Griffin Lighting Solutions Inc." },
+  { 0x125A, "Dongguan Xuancaixin Optoelectronic Technology Co., Ltd." },
   { 0x1268, "Frontside Technology Services" },
+  { 0x126C, "Pravdin Vitalii Fedotovych FOP" },
   { 0x127E, "Symphony Interactive Inc" },
   { 0x12DA, "Newlab S.r.l." },
   { 0x12E0, "Luxlight Skandinavien AB" },

@@ -9523,7 +9523,8 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>Plot</name>
     <message>
-        <source>Field cannot be empty!</source>
+        <source>Field cannot be empty.</source>
+        <oldsource>Field cannot be empty!</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -12777,8 +12778,9 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>, начало: %1, курсор: %2. Нажмите «G» для перехода к пакету %3. Двойной щелчок по графику позволяет задать начало воспроизведения.</translation>
     </message>
     <message>
-        <source>Playback of stream %1 failed!</source>
-        <translation>Сбой воспроизведения потока %1!</translation>
+        <source>Playback of stream %1 failed.</source>
+        <oldsource>Playback of stream %1 failed!</oldsource>
+        <translation type="unfinished">Сбой воспроизведения потока %1!</translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -12830,8 +12832,12 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>Отсутствуют потоки пригодные для сохранения</translation>
     </message>
     <message>
+        <source>Save failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save failed!</source>
-        <translation>Ошибка сохранения!</translation>
+        <translation type="vanished">Ошибка сохранения!</translation>
     </message>
     <message>
         <source>Can&apos;t write header of AU file</source>

@@ -9489,7 +9489,8 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>Plot</name>
     <message>
-        <source>Field cannot be empty!</source>
+        <source>Field cannot be empty.</source>
+        <oldsource>Field cannot be empty!</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -12730,8 +12731,9 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>, début : %1, curseur : %2. Appuyer sur &quot;G&quot; pour aller au paquet %3. Double-cliquer sur le graphique pour définir le début de la lecture.</translation>
     </message>
     <message>
-        <source>Playback of stream %1 failed!</source>
-        <translation>La lecture du flux %1 a échoué !</translation>
+        <source>Playback of stream %1 failed.</source>
+        <oldsource>Playback of stream %1 failed!</oldsource>
+        <translation type="unfinished">La lecture du flux %1 a échoué !</translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -12783,8 +12785,12 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>Aucun flux ne convient à l&apos;enregistrement</translation>
     </message>
     <message>
+        <source>Save failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save failed!</source>
-        <translation>Échec de la sauvegarde !</translation>
+        <translation type="vanished">Échec de la sauvegarde !</translation>
     </message>
     <message>
         <source>Can&apos;t write header of AU file</source>

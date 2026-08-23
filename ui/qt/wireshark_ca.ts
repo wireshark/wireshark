@@ -9256,11 +9256,11 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Output compact JSON without indentation (significantly faster and smaller)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;JSON de sortida compacta sense sagnat (bastant més ràpid i petit)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Compact (no indentation)</source>
-        <translation type="unfinished"></translation>
+        <translation>Compacte (sense sagnat)</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a name/value pair for each field with the field value&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -9563,8 +9563,9 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
 <context>
     <name>Plot</name>
     <message>
-        <source>Field cannot be empty!</source>
-        <translation>El camp no es pot deixar buit!</translation>
+        <source>Field cannot be empty.</source>
+        <oldsource>Field cannot be empty!</oldsource>
+        <translation type="unfinished">El camp no es pot deixar buit!</translation>
     </message>
 </context>
 <context>
@@ -12843,8 +12844,9 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
         <translation>, inici: %1, cursor: %2. Premeu «G» per a anar al paquet %3. Doble clic al gràfic per a establir l&apos;inici de la reproducció.</translation>
     </message>
     <message>
-        <source>Playback of stream %1 failed!</source>
-        <translation>La reproducció del flux %1 ha fallat!</translation>
+        <source>Playback of stream %1 failed.</source>
+        <oldsource>Playback of stream %1 failed!</oldsource>
+        <translation type="unfinished">La reproducció del flux %1 ha fallat!</translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -12896,8 +12898,12 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
         <translation>No hi ha fluxos que es puguin desar.</translation>
     </message>
     <message>
+        <source>Save failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save failed!</source>
-        <translation>S&apos;ha produït un error a la desada!</translation>
+        <translation type="vanished">S&apos;ha produït un error a la desada!</translation>
     </message>
     <message>
         <source>Can&apos;t write header of AU file</source>

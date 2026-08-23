@@ -1657,6 +1657,13 @@ BACnetVendorIdentifiers[] = {
     { 1644, "bmsOS Technology Inc." },
     { 1645, "Vossloh-Schwabe Deutschand GmbH" },
     { 1646, "Iviva Pte Ltd" },
+    { 1647, "Witcon AB" },
+    { 1648, "Pivotal Technologies Pty Ltd" },
+    { 1649, "OTC Industrial Technologies" },
+    { 1650, "Laplace Software LLC" },
+    { 1651, "Logically Us Ltd" },
+    { 1652, "Solaborate, Inc. d/b/a hellocare.ai" },
+    { 1653, "Lumen Radio AB" },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);

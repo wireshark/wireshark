@@ -9258,11 +9258,11 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Output compact JSON without indentation (significantly faster and smaller)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Genera JSON compatto senza indentazione (significativamente più veloce e più piccolo)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Compact (no indentation)</source>
-        <translation type="unfinished"></translation>
+        <translation>Compatto (senza indentazione)</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a name/value pair for each field with the field value&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -9565,8 +9565,9 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
 <context>
     <name>Plot</name>
     <message>
-        <source>Field cannot be empty!</source>
-        <translation>Il campo non può essere vuoto!</translation>
+        <source>Field cannot be empty.</source>
+        <oldsource>Field cannot be empty!</oldsource>
+        <translation type="unfinished">Il campo non può essere vuoto!</translation>
     </message>
 </context>
 <context>
@@ -12846,8 +12847,9 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
         <translation>, avvio: %1, cursore: %2. Premi &quot;G&quot; per portarti sul pacchetto %3. Doppio clic sul grafico per impostare l&apos;avvio della riproduzione.</translation>
     </message>
     <message>
-        <source>Playback of stream %1 failed!</source>
-        <translation>Riproduzione del flusso %1 non riuscita!</translation>
+        <source>Playback of stream %1 failed.</source>
+        <oldsource>Playback of stream %1 failed!</oldsource>
+        <translation type="unfinished">Riproduzione del flusso %1 non riuscita!</translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -12899,8 +12901,12 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
         <translation>Non ci sono flussi pronti per il salvataggio</translation>
     </message>
     <message>
+        <source>Save failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save failed!</source>
-        <translation>Salvataggio non riuscito</translation>
+        <translation type="vanished">Salvataggio non riuscito</translation>
     </message>
     <message>
         <source>Can&apos;t write header of AU file</source>

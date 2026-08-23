@@ -9520,7 +9520,8 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>Plot</name>
     <message>
-        <source>Field cannot be empty!</source>
+        <source>Field cannot be empty.</source>
+        <oldsource>Field cannot be empty!</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -12773,7 +12774,8 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Playback of stream %1 failed!</source>
+        <source>Playback of stream %1 failed.</source>
+        <oldsource>Playback of stream %1 failed!</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -12826,8 +12828,12 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>Żadne strumienie nie nadają się do zapisania</translation>
     </message>
     <message>
+        <source>Save failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save failed!</source>
-        <translation>Zapisywanie nie powiodło się!</translation>
+        <translation type="vanished">Zapisywanie nie powiodło się!</translation>
     </message>
     <message>
         <source>Can&apos;t write header of AU file</source>

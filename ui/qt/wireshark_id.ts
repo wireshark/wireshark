@@ -9461,8 +9461,9 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>Plot</name>
     <message>
-        <source>Field cannot be empty!</source>
-        <translation>Ruas tidak boleh kosong!</translation>
+        <source>Field cannot be empty.</source>
+        <oldsource>Field cannot be empty!</oldsource>
+        <translation type="unfinished">Ruas tidak boleh kosong!</translation>
     </message>
 </context>
 <context>
@@ -12687,8 +12688,9 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>, mulai: %1, kursor: %2. Tekan &quot;G&quot; untuk pergi ke paket %3. Klik ganda pada grafik untuk menata awal putar.</translation>
     </message>
     <message>
-        <source>Playback of stream %1 failed!</source>
-        <translation>Pemutaran stream %1 gagal!</translation>
+        <source>Playback of stream %1 failed.</source>
+        <oldsource>Playback of stream %1 failed!</oldsource>
+        <translation type="unfinished">Pemutaran stream %1 gagal!</translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -12740,8 +12742,12 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>Tidak ada stream yang cocok untuk penyimpanan</translation>
     </message>
     <message>
+        <source>Save failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save failed!</source>
-        <translation>Penyimpanan gagal!</translation>
+        <translation type="vanished">Penyimpanan gagal!</translation>
     </message>
     <message>
         <source>Can&apos;t write header of AU file</source>

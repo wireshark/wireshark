@@ -9461,7 +9461,8 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>Plot</name>
     <message>
-        <source>Field cannot be empty!</source>
+        <source>Field cannot be empty.</source>
+        <oldsource>Field cannot be empty!</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -12690,8 +12691,9 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>, 시작: %1, 커서: %2, &quot;G&quot; 키를 누르면 패킷 %3(으)로 이동합니다. 그래프에서 두 번 클릭하면 재생 시작점을 설정합니다.</translation>
     </message>
     <message>
-        <source>Playback of stream %1 failed!</source>
-        <translation>스트림 %1 재생이 실패했습니다!</translation>
+        <source>Playback of stream %1 failed.</source>
+        <oldsource>Playback of stream %1 failed!</oldsource>
+        <translation type="unfinished">스트림 %1 재생이 실패했습니다!</translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -12743,8 +12745,12 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>저장하기에 적합한 스트림 없음</translation>
     </message>
     <message>
+        <source>Save failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save failed!</source>
-        <translation>저장이 실패했습니다!</translation>
+        <translation type="vanished">저장이 실패했습니다!</translation>
     </message>
     <message>
         <source>Can&apos;t write header of AU file</source>
