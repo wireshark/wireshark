@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* (last updated 2026-08-14) */
+/* (last updated 2026-08-21) */
 
 #include "config.h"
 
@@ -30591,7 +30591,7 @@ static const char * const table[] =
     "Globitel",                                                                           // 30569
     "Radiator Software Oy",                                                               // 30570
     "Mesto Domazlice",                                                                    // 30571
-    "TDC-NetDesign A/S",                                                                  // 30572
+    "TDC Erhverv",                                                                        // 30572
     "Photon Meissener Technologies GmbH",                                                 // 30573
     "Fixma S.L.",                                                                         // 30574
     "castLabs GmbH",                                                                      // 30575
@@ -50662,7 +50662,7 @@ static const char * const table[] =
     "R2 Dermatology",                                                                     // 50640
     "Orthopädie-Schuhtechnik Frisch GmbH & Co. KG",                                       // 50641
     "Andreas Schufft SW Entwicklung & EDV Beratung",                                      // 50642
-    "ИП Kostakov Dmitry",                                                                 // 50643
+    "ИП Kostakov Dmitrii",                                                                // 50643
     "Elumbus GmbH",                                                                       // 50644
     "Salvage Management & Disposals (Pty) Ltd.",                                          // 50645
     "Signaturit Solutions, S.L.",                                                         // 50646
@@ -66557,7 +66557,73 @@ static const char * const table[] =
     "MobileTek communication",                                                            // 66535
     "1SINQ GmbH",                                                                         // 66536
     "New Wave Design and Verification, LLC, dba New Wave Design",                         // 66537
-    "ZDN Enterprises, LLC"                                                                // 66538
+    "ZDN Enterprises, LLC",                                                               // 66538
+    "Ahmed Atef Hamdy Ibrahim",                                                           // 66539
+    "Tellus Power",                                                                       // 66540
+    "ESL Advanced Information Technology GmbH",                                           // 66541
+    "Options for Southern Oregon",                                                        // 66542
+    "Rantec Power Systems, Inc.",                                                         // 66543
+    "Neptune Technology Group Inc",                                                       // 66544
+    "Noidon",                                                                             // 66545
+    "Astreaprtcl",                                                                        // 66546
+    "Network Engineering Europe S.L.",                                                    // 66547
+    "Cloud and Virtual Infrastructure Systems",                                           // 66548
+    "Identix Inc",                                                                        // 66549
+    "Twin Cities Open Systems - Operations LLC",                                          // 66550
+    "Terabyte GmbH",                                                                      // 66551
+    "BoundarySevenLLC",                                                                   // 66552
+    "Wyatt Anderson",                                                                     // 66553
+    "Tremolo Security, Inc.",                                                             // 66554
+    "Section 5 Labs",                                                                     // 66555
+    "DD Skog & Virkeshandel AB",                                                          // 66556
+    "Nymbis Cloud Solutions (Pty) Ltd.",                                                  // 66557
+    "3R Swiss Imaging Network SA",                                                        // 66558
+    "Government Digital Service",                                                         // 66559
+    "Xcobean Systems Limited",                                                            // 66560
+    "FleetOS (Fleet Orchestration System)",                                               // 66561
+    "Casper Medical Imaging",                                                             // 66562
+    "TOKEN2",                                                                             // 66563
+    "New Products Group",                                                                 // 66564
+    "Geeks for Business, LLC",                                                            // 66565
+    "Texas Institute for Electronics",                                                    // 66566
+    "ExactNet",                                                                           // 66567
+    "nyanet",                                                                             // 66568
+    "RØDL",                                                                               // 66569
+    "VeilNet",                                                                            // 66570
+    "LeoLabs",                                                                            // 66571
+    "Ellenby Technologies Inc.",                                                          // 66572
+    "Finger Lakes Community College",                                                     // 66573
+    "Alveon",                                                                             // 66574
+    "MTX Connect",                                                                        // 66575
+    "EdgeDX",                                                                             // 66576
+    "ViaNet",                                                                             // 66577
+    "Nyx Telecom",                                                                        // 66578
+    "河北万华电子科技有限公司 (Hebei Wanhua Electronic Technology Co., Ltd.)",                        // 66579
+    "We Build Networks",                                                                  // 66580
+    "Edgar Désert",                                                                       // 66581
+    "Human Execution Engine",                                                             // 66582
+    "BITWATT PTY LTD",                                                                    // 66583
+    "RDNet Rafal Domeracki",                                                              // 66584
+    "BODA LIU",                                                                           // 66585
+    "ElaraGrid Ltd",                                                                      // 66586
+    "Geekdojo",                                                                           // 66587
+    "JIACUNTECH",                                                                         // 66588
+    "+STOR",                                                                              // 66589
+    "EntryPoint Communications, LLC",                                                     // 66590
+    "Mobile Digital Imaging",                                                             // 66591
+    "TrueLime B.V.",                                                                      // 66592
+    "CiuP",                                                                               // 66593
+    "Solinteg Australia",                                                                 // 66594
+    "Richard Taylor",                                                                     // 66595
+    "VEZA LLC",                                                                           // 66596
+    "广州明美新能源股份有限公司 (TWS Technology (Guangzhou) Limited)",                                 // 66597
+    "BeezX",                                                                              // 66598
+    "Latch.ai",                                                                           // 66599
+    "Bao Linh Connect Technology",                                                        // 66600
+    "OrionM2M",                                                                           // 66601
+    "ACentauri Technology Limited",                                                       // 66602
+    "highQ solutions GmbH",                                                               // 66603
+    "FACTS Engineering, LLC"                                                              // 66604
 };
 
 const char* global_enterprises_lookup(uint32_t value)
