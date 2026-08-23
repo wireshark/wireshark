@@ -16,6 +16,7 @@
  * Further Information:
  * https://codingrange.com/blog/steam-in-home-streaming-discovery-protocol
  * https://codingrange.com/blog/steam-in-home-streaming-control-protocol
+ * https://github.com/SteamTracking/Protobufs/blob/master/steam/steammessages_remoteclient_discovery.proto
  */
 
 #include <config.h>
@@ -53,8 +54,26 @@ static int hf_steam_ihs_discovery_body_status_timestamp;
 static int hf_steam_ihs_discovery_body_status_screenlocked;
 static int hf_steam_ihs_discovery_body_status_gamesrunning;
 static int hf_steam_ihs_discovery_body_status_macaddresses;
+static int hf_steam_ihs_discovery_body_status_ip_addresses;
+static int hf_steam_ihs_discovery_body_status_public_ip_address;
+static int hf_steam_ihs_discovery_body_status_supported_services;
+static int hf_steam_ihs_discovery_body_status_steam_version;
+static int hf_steam_ihs_discovery_body_status_steam_version_time;
+static int hf_steam_ihs_discovery_body_status_vr_link_caps;
+static int hf_steam_ihs_discovery_body_status_vr_link_invite_client_id;
+static int hf_steam_ihs_discovery_body_status_wifi_dongle_present;
+static int hf_steam_ihs_discovery_body_status_is_low_spec_hardware;
+static int hf_steam_ihs_discovery_body_status_gaming_device_type;
+
+static int hf_steam_ihs_discovery_body_status_service_remote_control;
+static int hf_steam_ihs_discovery_body_status_service_game_streaming;
+static int hf_steam_ihs_discovery_body_status_service_site_license;
+static int hf_steam_ihs_discovery_body_status_service_content_cache;
+static int hf_steam_ihs_discovery_body_status_service_content_server;
+static int hf_steam_ihs_discovery_body_status_service_manage_downloads;
 static int hf_steam_ihs_discovery_body_status_user_steamid;
 static int hf_steam_ihs_discovery_body_status_user_authkeyid;
+
 static int hf_steam_ihs_discovery_body_authrequest_devicetoken;
 static int hf_steam_ihs_discovery_body_authrequest_devicename;
 static int hf_steam_ihs_discovery_body_authrequest_encryptedrequest;
@@ -94,6 +113,14 @@ static const val64_string hf_steam_ihs_discovery_header_msgtype_strings[] = {
     {  9, "Device Authorization Cancel Request" },
     { 10, "Device Streaming Cancel Request" },
     {  0, NULL }
+};
+
+static const value_string hf_steam_ihs_discovery_body_status_vr_link_caps_strings[] = {
+    { 0, "Unknown" },
+    { 1, "Available" },
+    { 2, "Unimplemented" },
+    { 3, "Missing Hardware Encoding" },
+    { 0, NULL }
 };
 
 static const val64_string hf_steam_ihs_discovery_body_authresponse_authresult_strings[] = {
@@ -136,6 +163,7 @@ static expert_field ei_steam_ihs_discovery_invalid_length;
 /* Initialize the subtree pointers */
 static int ett_steam_ihs_discovery;
 static int ett_steam_ihs_discovery_body_status_user;
+static int ett_steam_ihs_discovery_body_status_services;
 
 #define STEAM_IHS_DISCOVERY_MIN_LENGTH 12
 #define STEAM_IHS_DISCOVERY_SIGNATURE_LENGTH 8
@@ -222,7 +250,7 @@ protobuf_dissect_unknown_field(protobuf_desc_t *pb, protobuf_tag_t *tag, packet_
             break;
         case PROTOBUF_WIRETYPE_64BIT:
             len = 8;
-            ti = proto_tree_add_item(tree, hf_steam_ihs_discovery_unknown_number, pb->tvb, pb->offset+len, len, ENC_LITTLE_ENDIAN);
+            ti = proto_tree_add_item(tree, hf_steam_ihs_discovery_unknown_number, pb->tvb, pb->offset, len, ENC_LITTLE_ENDIAN);
             expert_add_info_format(pinfo, ti, &ei_steam_ihs_discovery_unknown_number, "Unknown numeric protobuf field (wire type %d = %s)", tag->wire_type, protobuf_get_wiretype_name(tag->wire_type));
             break;
         case PROTOBUF_WIRETYPE_LENGTHDELIMITED:
@@ -239,7 +267,7 @@ protobuf_dissect_unknown_field(protobuf_desc_t *pb, protobuf_tag_t *tag, packet_
             break;
         case PROTOBUF_WIRETYPE_32BIT:
             len = 4;
-            ti = proto_tree_add_item(tree, hf_steam_ihs_discovery_unknown_number, pb->tvb, pb->offset+len, len, ENC_LITTLE_ENDIAN);
+            ti = proto_tree_add_item(tree, hf_steam_ihs_discovery_unknown_number, pb->tvb, pb->offset, len, ENC_LITTLE_ENDIAN);
             expert_add_info_format(pinfo, ti, &ei_steam_ihs_discovery_unknown_number, "Unknown numeric protobuf field (wire type %d = %s)", tag->wire_type, protobuf_get_wiretype_name(tag->wire_type));
             break;
         default:
@@ -305,6 +333,15 @@ protobuf_verify_wiretype(protobuf_desc_t *pb, protobuf_tag_t *tag, packet_info *
 #define STEAMDISCOVER_FN_STATUS_SCREENLOCKED                   13
 #define STEAMDISCOVER_FN_STATUS_GAMESRUNNING                   14
 #define STEAMDISCOVER_FN_STATUS_MACADDRESSES                   15
+#define STEAMDISCOVER_FN_STATUS_IP_ADDRESSES                   20
+#define STEAMDISCOVER_FN_STATUS_PUBLIC_IP_ADDRESS              21
+#define STEAMDISCOVER_FN_STATUS_SUPPORTED_SERVICES             23
+#define STEAMDISCOVER_FN_STATUS_STEAM_VERSION                  25
+#define STEAMDISCOVER_FN_STATUS_VR_LINK_CAPS                   26
+#define STEAMDISCOVER_FN_STATUS_VR_LINK_INVITE_CLIENT_ID       27
+#define STEAMDISCOVER_FN_STATUS_WIFI_DONGLE_PRESENT            29
+#define STEAMDISCOVER_FN_STATUS_IS_LOW_SPEC_HARDWARE           30
+#define STEAMDISCOVER_FN_STATUS_GAMING_DEVICE_TYPE             31
 #define STEAMDISCOVER_FN_STATUS_USER_STEAMID                    1
 #define STEAMDISCOVER_FN_STATUS_USER_AUTHKEYID                  2
 
@@ -475,12 +512,32 @@ steamdiscover_dissect_body_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tr
  *         optional uint32 download_lan_peer_group = 16;
  *         optional bool broadcasting_active = 17;
  *         optional bool vr_active = 18;
+ *         optional uint32 content_cache_port = 19;
+ *         repeated string ip_addresses = 20;
+ *         optional string public_ip_address = 21;
+ *         optional bool remoteplay_active = 22;
+ *         optional uint32 supported_services = 23;
+ *         optional bool steam_deck = 24;
+ *         optional uint64 steam_version = 25;
+ *         optional .EVRLinkCaps vr_link_caps = 26 [default = k_EVRLinkCapsUnknown];
+ *         optional fixed64 vr_link_invite_client_id = 27;
+ *         optional fixed64 connected_paired_network_hash = 28;
+ *         optional bool wifi_dongle_present = 29;
  *     }
  */
 static void
 steamdiscover_dissect_body_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                      int offset, int bytes_left)
 {
+    static int * const client_services[] = {
+        &hf_steam_ihs_discovery_body_status_service_remote_control,
+        &hf_steam_ihs_discovery_body_status_service_game_streaming,
+        &hf_steam_ihs_discovery_body_status_service_site_license,
+        &hf_steam_ihs_discovery_body_status_service_content_cache,
+        &hf_steam_ihs_discovery_body_status_service_content_server,
+        &hf_steam_ihs_discovery_body_status_service_manage_downloads,
+        NULL
+    };
     int64_t value;
     int len;
     int len2;
@@ -525,8 +582,11 @@ steamdiscover_dissect_body_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             case STEAMDISCOVER_FN_STATUS_ENABLEDSERVICES:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
-                proto_tree_add_uint(tree, hf_steam_ihs_discovery_body_status_enabledservices, pb.tvb,
+                /* proto_tree_add_bitmask_len does not support ENC_VARINT_* */
+                user_it = proto_tree_add_uint(tree, hf_steam_ihs_discovery_body_status_enabledservices, pb.tvb,
                         pb.offset, len, (uint32_t)value);
+                user_tree = proto_item_add_subtree(user_it, ett_steam_ihs_discovery_body_status_services);
+                proto_tree_add_bitmask_list_value(user_tree, pb.tvb, pb.offset, len, client_services, value);
                 break;
             case STEAMDISCOVER_FN_STATUS_OSTYPE:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
@@ -603,7 +663,71 @@ steamdiscover_dissect_body_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                         pb.offset+len, (int)value, ENC_UTF_8);
                 len += (int)value;
                 break;
+            case STEAMDISCOVER_FN_STATUS_IP_ADDRESSES:
+                STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_LENGTHDELIMITED);
+                value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
+                proto_tree_add_item(tree, hf_steam_ihs_discovery_body_status_ip_addresses, pb.tvb,
+                        pb.offset+len, (int)value, ENC_UTF_8);
+                len += (int)value;
+                break;
+            case STEAMDISCOVER_FN_STATUS_PUBLIC_IP_ADDRESS:
+                STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_LENGTHDELIMITED);
+                value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
+                proto_tree_add_item(tree, hf_steam_ihs_discovery_body_status_public_ip_address, pb.tvb,
+                        pb.offset+len, (int)value, ENC_UTF_8);
+                len += (int)value;
+                break;
+            case STEAMDISCOVER_FN_STATUS_SUPPORTED_SERVICES:
+                STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
+                value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
+                /* proto_tree_add_bitmask_len does not support ENC_VARINT_* */
+                user_it = proto_tree_add_uint(tree, hf_steam_ihs_discovery_body_status_supported_services, pb.tvb,
+                        pb.offset, len, (uint32_t)value);
+                user_tree = proto_item_add_subtree(user_it, ett_steam_ihs_discovery_body_status_services);
+                proto_tree_add_bitmask_list_value(user_tree, pb.tvb, pb.offset, len, client_services, value);
+                break;
+            case STEAMDISCOVER_FN_STATUS_STEAM_VERSION:
+                STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
+                value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
+                proto_tree_add_uint64(tree, hf_steam_ihs_discovery_body_status_steam_version, pb.tvb,
+                        pb.offset, len, value);
+                timestamp.secs = (time_t)value;
+                timestamp.nsecs = 0;
+                proto_item_set_generated(proto_tree_add_time(tree, hf_steam_ihs_discovery_body_status_steam_version_time, pb.tvb,
+                        pb.offset, len, &timestamp));
+                break;
+            case STEAMDISCOVER_FN_STATUS_VR_LINK_CAPS:
+                STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
+                value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
+                proto_tree_add_uint(tree, hf_steam_ihs_discovery_body_status_vr_link_caps, pb.tvb,
+                        pb.offset, len, (uint32_t)value);
+                break;
+            case STEAMDISCOVER_FN_STATUS_VR_LINK_INVITE_CLIENT_ID:
+                STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_64BIT);
+                len = 8;
+                proto_tree_add_item(tree, hf_steam_ihs_discovery_body_status_vr_link_invite_client_id, pb.tvb,
+                        pb.offset, len, ENC_LITTLE_ENDIAN);
+                break;
+            case STEAMDISCOVER_FN_STATUS_WIFI_DONGLE_PRESENT:
+                STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
+                value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
+                proto_tree_add_boolean(tree, hf_steam_ihs_discovery_body_status_wifi_dongle_present, pb.tvb,
+                        pb.offset, len, value);
+                break;
+            case STEAMDISCOVER_FN_STATUS_IS_LOW_SPEC_HARDWARE:
+                STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
+                value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
+                proto_tree_add_boolean(tree, hf_steam_ihs_discovery_body_status_is_low_spec_hardware, pb.tvb,
+                        pb.offset, len, value);
+                break;
+            case STEAMDISCOVER_FN_STATUS_GAMING_DEVICE_TYPE:
+                STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
+                value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
+                proto_tree_add_uint(tree, hf_steam_ihs_discovery_body_status_gaming_device_type, pb.tvb,
+                        pb.offset, len, (uint32_t)value);
+                break;
             default:
+                ws_message("%u: unknown tag: %" PRIu64, pinfo->num, tag.field_number);
                 len = protobuf_dissect_unknown_field(&pb, &tag, pinfo, tree, NULL);
                 break;
         }
@@ -1232,6 +1356,87 @@ proto_register_steam_ihs_discovery(void)
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
+        { &hf_steam_ihs_discovery_body_status_ip_addresses,
+          { "IP Addresses", "steam_ihs_discovery.body_status_address.ipv4.local",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_steam_ihs_discovery_body_status_public_ip_address,
+          { "Public IP Address", "steam_ihs_discovery.body_status_public_ip_address",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_steam_ihs_discovery_body_status_supported_services,
+          { "Supported Services", "steam_ihs_discovery.body_status_supported_services",
+            FT_UINT32, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_steam_ihs_discovery_body_status_steam_version,
+          { "Steam Version", "steam_ihs_discovery.body_status_steam_version",
+            FT_UINT64, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_steam_ihs_discovery_body_status_steam_version_time,
+          { "Steam Version", "steam_ihs_discovery.body_status_steam_version.time",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_steam_ihs_discovery_body_status_vr_link_caps,
+          { "VR Link Caps", "steam_ihs_discovery.body_status_vr_link_caps",
+            FT_UINT8, BASE_DEC, VALS(hf_steam_ihs_discovery_body_status_vr_link_caps_strings), 0,
+            NULL, HFILL }
+        },
+        { &hf_steam_ihs_discovery_body_status_vr_link_invite_client_id,
+          { "VR Link Invite Client ID", "steam_ihs_discovery.body_status_vr_link_invite_client_id",
+            FT_UINT64, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_steam_ihs_discovery_body_status_wifi_dongle_present,
+          { "Wi-Fi Dongle Present", "steam_ihs_discovery.body_status_wifi_dongle_present",
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_steam_ihs_discovery_body_status_is_low_spec_hardware,
+          { "Is Low Spec Hardware", "steam_ihs_discovery.body_status_is_low_spec_hardware",
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_steam_ihs_discovery_body_status_gaming_device_type,
+          { "Gaming Device Type", "steam_ihs_discovery.body_status_gaming_device_type",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        /* ERemoteClientService is used as a bitmask */
+        { &hf_steam_ihs_discovery_body_status_service_remote_control,
+          { "Remote Control", "steam_ihs_discovery.body_status_service.remote_control",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_steam_ihs_discovery_body_status_service_game_streaming,
+          { "Game Streaming", "steam_ihs_discovery.body_status_service.game_streaming",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_steam_ihs_discovery_body_status_service_site_license,
+          { "Site License", "steam_ihs_discovery.body_status_service.site_license",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_steam_ihs_discovery_body_status_service_content_cache,
+          { "Content Cache", "steam_ihs_discovery.body_status_service.content_cache",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_steam_ihs_discovery_body_status_service_content_server,
+          { "Content Server", "steam_ihs_discovery.body_status_service.content_server",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_steam_ihs_discovery_body_status_service_manage_downloads,
+          { "Manage Downloads", "steam_ihs_discovery.body_status_service.manage_downloads",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
         /* CMsgRemoteClientBroadcastStatus.User */
         { &hf_steam_ihs_discovery_body_status_user_steamid,
           { "Steam ID", "steam_ihs_discovery.body_status_user_steamid",
@@ -1370,7 +1575,8 @@ proto_register_steam_ihs_discovery(void)
     /* Setup protocol subtree array */
     static int *ett[] = {
         &ett_steam_ihs_discovery,
-        &ett_steam_ihs_discovery_body_status_user
+        &ett_steam_ihs_discovery_body_status_user,
+        &ett_steam_ihs_discovery_body_status_services
     };
 
     /* Setup protocol expert items */
