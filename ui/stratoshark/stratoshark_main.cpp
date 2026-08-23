@@ -722,7 +722,8 @@ int main(int argc, char *qt_argv[])
 
     /* Register the extcap preferences. We do this after seeing if the
      * capture_no_extcap preference is set in the configuration file
-     * or command line. This will re-read the extcap specific preferences.
+     * or command line. This will load the extcap interface list and read
+     * the extcap specific preferences if the preference is not set.
      */
 #ifdef DEBUG_STARTUP_TIME
     ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling extcap_register_preferences, elapsed time %" PRIu64 " us \n", g_get_monotonic_time() - start_time);
@@ -829,6 +830,9 @@ int main(int argc, char *qt_argv[])
     splash_update(RA_INTERFACES, NULL, NULL);
 
     if (cf_name.isEmpty() && !prefs.capture_no_interface_load) {
+        // If we're not loading a capture file, then schedule loading the
+        // interfaces unless the "don't load the interfaces at startup"
+        // preference is set.
         // Enumerate synchronously before the event loop (see Wireshark main()).
         InterfaceListManager *if_mgr = main_w->interfaceListManager();
         ws_assert(if_mgr);
@@ -847,22 +851,6 @@ int main(int argc, char *qt_argv[])
 #endif
     prefs_apply_all();
     ssApp->emitAppSignal(StratosharkApplication::PreferencesChanged);
-
-#ifdef HAVE_LIBPCAP
-    if ((global_capture_opts.num_selected == 0) &&
-            (prefs.capture_device != NULL)) {
-        unsigned i;
-        interface_t *device;
-        for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-            if (!device->hidden && strcmp(device->display_name, prefs.capture_device) == 0) {
-                device->selected = true;
-                global_capture_opts.num_selected++;
-                break;
-            }
-        }
-    }
-#endif
 
     /*
      * Enabled and disabled protocols and heuristic dissectors as per

@@ -183,6 +183,10 @@ private:
     /** @brief Posts a single performScan() if one is warranted and not pending. */
     void maybeSchedule();
 
+    /** @brief Actions to take when the app is initialized, e.g. connecting to
+     * preference changes. */
+    void appInitialized();
+
     InterfaceStatistics *interface_stats_; /**< Owned; created in the ctor. */
     QStringList currentNames_;     /**< Names from the last completed scan. */
     bool scanning_;                /**< True while performScan() runs. */

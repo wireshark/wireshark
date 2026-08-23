@@ -855,6 +855,7 @@ void commandline_options_drop(const char *module_name, const char *pref_name) {
 /* Reapply any options the user specified on the command line with `-o`
  * Called in the Qt UI when reloading Lua plugins
  * For https://gitlab.com/wireshark/wireshark/-/issues/12331
+ * Also called after switching configuration profiles.
  */
 void commandline_options_reapply(void) {
     char *errmsg = NULL;
@@ -867,6 +868,10 @@ void commandline_options_reapply(void) {
          * specified for a lua plugin which has been edited after Wireshark
          * started and has had that pref removed; not worth exiting over.
          * See #12331
+         *
+         * Another error case we'll ignore is if a pref was specified for
+         * an extcap and either it was removed or all the extcaps were disabled
+         * because prefs.capture_no_extcap is now true.
          */
         prefs_set_pref((char *)entry->data, &errmsg);
         if (errmsg != NULL) {

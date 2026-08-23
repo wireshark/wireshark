@@ -806,7 +806,16 @@ int main(int argc, char *qt_argv[])
 
     /* Register the extcap preferences. We do this after seeing if the
      * capture_no_extcap preference is set in the configuration file
-     * or command line. This will re-read the extcap specific preferences.
+     * or command line. Unless that preference is set, this will load
+     * the extcap interface list and read the extcap specific preferences
+     * from "extcap.cfg".
+     *
+     * XXX - Note that even if prefs.capture_no_interface_load is set the
+     * extcaps are still loaded here, so long as capture_no_extcap isn't set.
+     * Maybe they shouldn't be? (Although we'd want to at least make sure
+     * that the configuration file is registered, so that it is properly
+     * copied if the profile is copied, at least so long as the extcap
+     * configuration file is per-profile.)
      */
 #ifdef DEBUG_STARTUP_TIME
     ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling extcap_register_preferences, elapsed time %" PRIu64 " us \n", g_get_monotonic_time() - start_time);
@@ -815,7 +824,8 @@ int main(int argc, char *qt_argv[])
     extcap_register_preferences(splash_update, NULL);
 
     /* Apply the extcap command line options now that the extcap preferences
-     * are loaded.
+     * are loaded. (If they weren't loaded, there would be an error about
+     * unknown preferences.)
      */
     commandline_options_apply_extcap();
 
@@ -830,7 +840,7 @@ int main(int argc, char *qt_argv[])
     /* Now get our remaining args */
 
     /* XXX: Processing interface options on the command line might retrieve
-     * interface list. We don't yet know if we will need to retrieve the
+     * the interface list. We don't yet know if we will need to retrieve the
      * interface capabilities as well (e.g. are we printing capabilities,
      * or loading the interface list?) until we parse other options, like
      * whether we have a capture file.
@@ -933,10 +943,14 @@ int main(int argc, char *qt_argv[])
     splash_update(RA_INTERFACES, NULL, NULL);
 
     if (cf_name.isEmpty() && !prefs.capture_no_interface_load) {
-        // Enumerate synchronously: the capture_device auto-select below reads
-        // global_capture_opts.all_ifaces immediately, before the event loop runs.
-        // The manager is created unconditionally in the MainWindow ctor, so its
-        // absence here is a broken invariant, not a runtime condition.
+        // If we're not loading a capture file, then schedule loading the
+        // interfaces unless the "don't load the interfaces at startup"
+        // preference is set.
+        // Enumerate synchronously; even if we put it on the event loop,
+        // it would still execute right away at the next splash_update
+        // below (but with the wrong splash message).
+        // The manager is created unconditionally in the MainWindow ctor, so
+        // its absence here is a broken invariant, not a runtime condition.
         InterfaceListManager *if_mgr = main_w->interfaceListManager();
         ws_assert(if_mgr);
         if_mgr->refreshNow();
@@ -955,22 +969,6 @@ int main(int argc, char *qt_argv[])
     splash_update(RA_PREFERENCES_APPLY, NULL, NULL);
     prefs_apply_all();
     wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
-
-#ifdef HAVE_LIBPCAP
-    if ((global_capture_opts.num_selected == 0) &&
-            (prefs.capture_device != NULL)) {
-        unsigned i;
-        interface_t *device;
-        for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-            if (!device->hidden && strcmp(device->display_name, prefs.capture_device) == 0) {
-                device->selected = true;
-                global_capture_opts.num_selected++;
-                break;
-            }
-        }
-    }
-#endif
 
     /*
      * Enabled and disabled protocols and heuristic dissectors as per
