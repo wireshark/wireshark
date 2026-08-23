@@ -1112,6 +1112,9 @@ initialize_prefix(void *k, void *v, void *u _U_) {
 /** Initialize every remaining uninitialized prefix. */
 void
 proto_initialize_all_prefixes(void) {
+	if (!prefixes) {
+		return;
+	}
 	g_hash_table_foreach_remove(prefixes, initialize_prefix, NULL);
 }
 
