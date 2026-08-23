@@ -1038,7 +1038,7 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 		struct netmonrec_2_x_hdr hdr_2_x;
 	}	hdr;
 	int64_t	 delta = 0;	/* signed - frame times can be before the nominal start */
-	int64_t	 t;
+	int64_t	 t, q, r;
 	time_t	 secs;
 	int	 nsecs;
 	uint32_t packet_size = 0;
@@ -1158,43 +1158,40 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 		 * positive number-of-microseconds into a small
 		 * negative number-of-100-nanosecond-increments.
 		 */
-		delta = pletohu64(&hdr.hdr_2_x.ts_delta)*10;
+		if (ckd_mul(&delta, pletohu64(&hdr.hdr_2_x.ts_delta), 10)) {
+			// Allow wrap without UB
+		}
 
 		/*
 		 * OK, it's now a signed value in 100-nanosecond
 		 * units.  Now convert it to nanosecond units.
 		 */
-		delta *= 100;
+		if (ckd_mul(&delta, delta, 100)) {
+			/* More than 580 years */
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = ws_strdup_printf("netmon: timestamp outside supported range");
+			return FAILURE;
+		}
 		break;
 	}
-	secs = 0;
 	t = netmon->start_nsecs + delta;
-	while (t < 0) {
-		/*
-		 * Propagate a borrow into the seconds.
-		 * The seconds is a time_t, and can be < 0
-		 * (unlikely, as Windows didn't exist before
-		 * January 1, 1970, 00:00:00 UTC), while the
-		 * nanoseconds should be positive, as in
-		 * "nanoseconds since the instant of time
-		 * represented by the seconds".
-		 *
-		 * We do not want t to be negative, as, according
-		 * to the C90 standard, "if either operand [of /
-		 * or %] is negative, whether the result of the
-		 * / operator is the largest integer less than or
-		 * equal to the algebraic quotient or the smallest
-		 * greater than or equal to the algebraic quotient
-		 * is implementation-defined, as is the sign of
-		 * the result of the % operator", and we want
-		 * the result of the division and remainder
-		 * operations to be the same on all platforms.
-		 */
-		t += 1000000000;
-		secs--;
+	/*
+	 * C99 and C++11 guarantee that integer division rounds to zero,
+	 * so this is the same on all platforms.
+	 */
+	q = t / 1000000000;
+	r = t % 1000000000;
+	if (r < 0) {
+		r += 1000000000;
+		q--;
 	}
-	secs += (time_t)(t/1000000000);
-	nsecs = (int)(t%1000000000);
+	if (ckd_add(&secs, q, 0)) {
+		// 32-bit time_t?
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = ws_strdup_printf("netmon: timestamp outside supported range");
+		return FAILURE;
+	}
+	nsecs = (int)(r);
 	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 	rec->ts.secs = netmon->start_secs + secs;
 	rec->ts.nsecs = nsecs;
