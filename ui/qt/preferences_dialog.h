@@ -84,7 +84,6 @@ private:
     AdvancedPrefsModel advancedPrefsModel_; /**< The model for advanced preferences. */
     AdvancedPrefDelegate advancedPrefsDelegate_; /**< The delegate for advanced preferences. */
     ModulePrefsModel modulePrefsModel_; /**< The model for module preferences. */
-    bool saved_capture_no_extcap_; /**< Flag storing the saved state of the no-extcap capture preference. */
 
     QTimer *searchLineEditTimer; /**< Timer used to debounce search input. */
     QString searchLineEditText; /**< The current text in the search line edit. */

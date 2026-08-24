@@ -130,7 +130,6 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
 {
     advancedPrefsModel_.setSourceModel(&model_);
     modulePrefsModel_.setSourceModel(&model_);
-    saved_capture_no_extcap_ = prefs.capture_no_extcap;
 
     // Some classes depend on pref_ptr_to_pref_ so this MUST be called after
     // model_.populate().
@@ -417,6 +416,15 @@ void PreferencesDialog::apply()
     }
     prefs_modules_for_all_modules(module_prefs_unstash, NULL);
 
+    // If prefs.capture_no_extcap is false we'll write out extcap.cfg
+    // below in prefs_main_write. We need to make sure that the extcap
+    // preferences are registered so that we'll write out any existing
+    // values and not overwrite with a nearly empty file.
+    // XXX - It would be better to just neither read nor write extcap.cfg
+    // here, and let InterfaceListManager read it if necessary. Note that
+    // newly registered preferences don't get a stashed value in the model,
+    // which causes some warnings/unexpected behavior if the "Apply"
+    // button was selected instead of "Ok."
     extcap_register_preferences(NULL, NULL);
 
     if (redissect_flags & PREF_EFFECT_GUI_LAYOUT) {
@@ -482,12 +490,6 @@ void PreferencesDialog::apply()
 
     if (redissect_flags & PREF_EFFECT_GUI_LAYOUT) {
         mainApp->emitAppSignal(MainApplication::RecentPreferencesRead);
-    }
-
-    if (prefs.capture_no_extcap != saved_capture_no_extcap_) {
-        MainWindow *mainWindow = mainApp->mainWindow();
-        if (mainWindow && mainWindow->interfaceListManager())
-            mainWindow->interfaceListManager()->requestRefresh();
     }
 }
 
