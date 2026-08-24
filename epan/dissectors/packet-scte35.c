@@ -585,8 +585,7 @@ dissect_scte35_splice_insert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             if (tvb_len < min_length)
                 return offset;
 
-            component_count = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(si_tree, hf_component_count, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8(si_tree, hf_component_count, tvb, offset, 1, ENC_BIG_ENDIAN, &component_count);
             offset++;
 
             min_length += component_count * (sif ? 1 : 2);
@@ -815,8 +814,7 @@ dissect_scte35_splice_schedule(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                     offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
             } else {
-                component_count = tvb_get_uint8(tvb, offset);
-                proto_tree_add_item(ss_tree, hf_splice_component_count, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item_ret_uint8(ss_tree, hf_splice_component_count, tvb, offset, 1, ENC_NA, &component_count);
                 offset++;
 
                 min_length += 5 * component_count;

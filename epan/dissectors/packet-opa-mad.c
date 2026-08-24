@@ -6561,8 +6561,7 @@ static int parse_ErrorPortInfo(proto_tree *parentTree, packet_info* pinfo, tvbuf
 
         proto_tree_add_item(PortRcvErrorInfo_tree, hf_opa_ErrorPortInfo_PortRcvErrorInfo_Status, tvb, local_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(PortRcvErrorInfo_tree, hf_opa_ErrorPortInfo_PortRcvErrorInfo_reserved, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(PortRcvErrorInfo_tree, hf_opa_ErrorPortInfo_PortRcvErrorInfo_ErrorCode, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-        ErrorCode = tvb_get_uint8(tvb, local_offset) & 0x0F;
+        proto_tree_add_item_ret_uint(PortRcvErrorInfo_tree, hf_opa_ErrorPortInfo_PortRcvErrorInfo_ErrorCode, tvb, local_offset, 1, ENC_BIG_ENDIAN, &ErrorCode);
         local_offset += 1;
         if (ErrorCode >= 1 && ErrorCode <= 12) {
             proto_tree_add_item(PortRcvErrorInfo_tree, hf_opa_ErrorPortInfo_PortRcvErrorInfo_PacketFlit1, tvb, local_offset, 8, ENC_BIG_ENDIAN);
@@ -6637,8 +6636,7 @@ static int parse_ErrorPortInfo(proto_tree *parentTree, packet_info* pinfo, tvbuf
 
         proto_tree_add_item(PortRcvSwitchRelayErrorInfo_tree, hf_opa_ErrorPortInfo_PortRcvSwitchRelayErrorInfo_Status, tvb, local_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(PortRcvSwitchRelayErrorInfo_tree, hf_opa_ErrorPortInfo_PortRcvSwitchRelayErrorInfo_reserved, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(PortRcvSwitchRelayErrorInfo_tree, hf_opa_ErrorPortInfo_PortRcvSwitchRelayErrorInfo_ErrorCode, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-        ErrorCode = tvb_get_uint8(tvb, local_offset) & 0x0F;
+        proto_tree_add_item_ret_uint(PortRcvSwitchRelayErrorInfo_tree, hf_opa_ErrorPortInfo_PortRcvSwitchRelayErrorInfo_ErrorCode, tvb, local_offset, 1, ENC_BIG_ENDIAN, &ErrorCode);
         local_offset += 1;
         proto_tree_add_item(PortRcvSwitchRelayErrorInfo_tree, hf_opa_reserved24, tvb, local_offset, 3, ENC_BIG_ENDIAN);
         local_offset += 3;
@@ -6684,8 +6682,7 @@ static int parse_ErrorPortInfo(proto_tree *parentTree, packet_info* pinfo, tvbuf
 
         proto_tree_add_item(FMConfigErrorInfo_tree, hf_opa_ErrorPortInfo_FMConfigErrorInfo_Status, tvb, local_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(FMConfigErrorInfo_tree, hf_opa_ErrorPortInfo_FMConfigErrorInfo_reserved, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(FMConfigErrorInfo_tree, hf_opa_ErrorPortInfo_FMConfigErrorInfo_ErrorCode, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-        ErrorCode = tvb_get_uint8(tvb, local_offset) & 0x0F;
+        proto_tree_add_item_ret_uint(FMConfigErrorInfo_tree, hf_opa_ErrorPortInfo_FMConfigErrorInfo_ErrorCode, tvb, local_offset, 1, ENC_BIG_ENDIAN, &ErrorCode);
         local_offset += 1;
         switch (ErrorCode) {
         case 0:

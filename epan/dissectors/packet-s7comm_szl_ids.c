@@ -6495,8 +6495,7 @@ s7comm_decode_szl_id_xy78_idx_xxxx(tvbuff_t *tvb,
             offset += 4;
 
             /*evaluate channel error type (CHET)*/
-            chet = tvb_get_letohs(tvb, offset);
-            proto_tree_add_item(cdiag_entry_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_chet, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint16(cdiag_entry_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_chet, tvb, offset, 2, ENC_LITTLE_ENDIAN, &chet);
             offset += 2;
             text_list = tvb_get_letohs(tvb, offset);
             proto_tree_add_item(cdiag_entry_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_text_list_chet, tvb, offset, 2, ENC_LITTLE_ENDIAN);

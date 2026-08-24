@@ -369,8 +369,7 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     offset += 4;
 
     /*Message Type*/
-    msg_type = tvb_get_ntohs(tvb, offset);
-    mti = proto_tree_add_item(msg_tree, hf_msg_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    mti = proto_tree_add_item_ret_uint16(msg_tree, hf_msg_type, tvb, offset, 2, ENC_BIG_ENDIAN, &msg_type);
     pay_load = proto_item_add_subtree(ti, ett_sasp_payload);
     offset += 2;
 
@@ -478,10 +477,8 @@ static void dissect_reg_req(tvbuff_t *tvb, packet_info* pinfo, proto_tree *pay_l
     proto_tree_add_item(reg_req_data, hf_reg_req_lbflag, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    gmd_cnt = tvb_get_ntohs(tvb, offset);
-
     /* Group MEM Data Count */
-    proto_tree_add_item(reg_req_data, hf_sasp_gmd_cnt, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(reg_req_data, hf_sasp_gmd_cnt, tvb, offset, 2, ENC_BIG_ENDIAN, &gmd_cnt);
     offset += 2;
 
     for (i=0; i<gmd_cnt; i++)
@@ -544,10 +541,8 @@ static void dissect_dereg_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pay
 #endif
     offset += 1;
 
-    gmd_cnt = tvb_get_ntohs(tvb, offset);
-
     /* Group Mem Data Count */
-    proto_tree_add_item(dereg_req_data, hf_sasp_gmd_cnt, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(dereg_req_data, hf_sasp_gmd_cnt, tvb, offset, 2, ENC_BIG_ENDIAN, &gmd_cnt);
     offset += 2;
 
     /*Group Mem Data */
@@ -771,10 +766,8 @@ static void dissect_wt_req(tvbuff_t *tvb, proto_tree *pay_load, uint32_t offset)
     proto_tree_add_item(get_wt_tree, hf_sasp_wt_req_sz, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    gd_cnt = tvb_get_ntohs(tvb, offset);
-
     /* Group Data Count */
-    proto_tree_add_item(get_wt_tree, hf_sasp_wt_req_gd_cnt, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(get_wt_tree, hf_sasp_wt_req_gd_cnt, tvb, offset, 2, ENC_BIG_ENDIAN, &gd_cnt);
     offset += 2;
 
     for (i=0; i<gd_cnt; i++)

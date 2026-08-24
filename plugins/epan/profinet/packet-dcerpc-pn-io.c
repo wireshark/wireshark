@@ -2044,13 +2044,7 @@ static const value_string pn_io_submodule_properties_shared_input[] = {
     { 0, NULL }
 };
 
-static const value_string pn_io_submodule_properties_reduce_input_submodule_data_length[] = {
-    { 0x0000, "Expected" },
-    { 0x0001, "Zero" },
-    { 0, NULL }
-};
-
-static const value_string pn_io_submodule_properties_reduce_output_submodule_data_length[] = {
+static const value_string pn_io_submodule_properties_reduce_submodule_data_length[] = {
     { 0x0000, "Expected" },
     { 0x0001, "Zero" },
     { 0, NULL }
@@ -16260,7 +16254,6 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
         pn_find_dcp_station_info(station_info, conversation);
 
         station_info->gsdFound = false;
-        station_info->gsdPathLength = false;
 
         const gsd_dev_key_t search_key = {.vendor_id = station_info->u16Vendor_id,
                                           .device_id = station_info->u16Device_id};
@@ -21274,12 +21267,12 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_submodule_properties_reduce_input_submodule_data_length,
       { "ReduceInputSubmoduleDataLength", "pn_io.submodule_properties.reduce_input_submodule_data_length",
-        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_properties_reduce_input_submodule_data_length), 0x0008,
+        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_properties_reduce_submodule_data_length), 0x0008,
         NULL, HFILL }
     },
     { &hf_pn_io_submodule_properties_reduce_output_submodule_data_length,
       { "ReduceOutputSubmoduleDataLength", "pn_io.submodule_properties.reduce_output_submodule_data_length",
-        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_properties_reduce_output_submodule_data_length), 0x0010,
+        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_properties_reduce_submodule_data_length), 0x0010,
         NULL, HFILL }
     },
     { &hf_pn_io_submodule_properties_discard_ioxs,

@@ -777,10 +777,9 @@ dissect_ecmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		simulcrypt_super_cas_id_tree = proto_item_add_subtree(simulcrypt_item, ett_simulcrypt_super_cas_id);
 
 		/* Simulcrypt_super_cas_id_tree */
-		simulcrypt_item = proto_tree_add_item(simulcrypt_super_cas_id_tree, hf_simulcrypt_ca_system_id, tvb, offset, 2, ENC_BIG_ENDIAN );
+		simulcrypt_item = proto_tree_add_item_ret_uint(simulcrypt_super_cas_id_tree, hf_simulcrypt_ca_system_id, tvb, offset, 2, ENC_BIG_ENDIAN, &ca_system_id );
 
 		/* Test for known CA_System_ID */
-		ca_system_id = tvb_get_ntohs(tvb,offset);
 		for(i=0;i<ECM_INTERPRETATION_SIZE;i++)
 		{
 			if(tab_ecm_inter[i].ca_system_id==ca_system_id)
@@ -992,10 +991,9 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 		simulcrypt_super_cas_id_tree = proto_item_add_subtree(simulcrypt_item, ett_simulcrypt_super_cas_id);
 
 		/* Simulcrypt_super_cas_id_tree */
-		simulcrypt_item = proto_tree_add_item(simulcrypt_super_cas_id_tree, hf_simulcrypt_ca_system_id, tvb, offset, 2, ENC_BIG_ENDIAN );
+		simulcrypt_item = proto_tree_add_item_ret_uint(simulcrypt_super_cas_id_tree, hf_simulcrypt_ca_system_id, tvb, offset, 2, ENC_BIG_ENDIAN, &ca_system_id );
 
 		/* Test for known CA_System_ID */
-		ca_system_id = tvb_get_ntohs(tvb,offset);
 		for(i=0;i<ECM_INTERPRETATION_SIZE;i++)
 		{
 			if(tab_ecm_inter[i].ca_system_id==ca_system_id)

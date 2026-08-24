@@ -138,8 +138,7 @@ dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree_add_item(sbc_tree, hf_sbc_starting_packet,  tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbc_tree, hf_sbc_last_packet,      tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(sbc_tree, hf_sbc_rfa,              tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sbc_tree, hf_sbc_number_of_frames, tvb, offset, 1, ENC_BIG_ENDIAN);
-    number_of_frames = tvb_get_uint8(tvb, offset) & 0x0F;
+    proto_tree_add_item_ret_uint8(sbc_tree, hf_sbc_number_of_frames, tvb, offset, 1, ENC_BIG_ENDIAN, &number_of_frames);
     offset += 1;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {

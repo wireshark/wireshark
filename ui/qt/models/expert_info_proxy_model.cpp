@@ -248,7 +248,7 @@ bool ExpertInfoProxyModel::hasChildren(const QModelIndex &parent) const
     // The base QSortFilterProxyModel::hasChildren creates a full mapping here,
     // which can be reused by other functions, but does an expensive sort that
     // isn't necessary just to see if there's children. When new expert infos
-    // get added to the model during tappping it invalidates that mapping, and
+    // get added to the model during tapping it invalidates that mapping, and
     // don't want to keep calculating it.
     // XXX - It might be ok to use the base function if we're not currently
     // tapping.

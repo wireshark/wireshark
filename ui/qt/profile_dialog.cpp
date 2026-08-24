@@ -393,7 +393,7 @@ void ProfileDialog::buttonBoxAccepted()
         }
         else if (newProfile->isDefault() && currentProfile->isDefault())
         {
-            // The default profile is reseting, ensure if reloads
+            // The default profile is resetting, ensure if reloads
             mainApp->setConfigurationProfile(Q_NULLPTR, false);
         }
     }

@@ -22198,7 +22198,7 @@ void proto_register_rtps(void) {
     },
     { &hf_rtps_param_checksum_require_crc, {
         "Require CRC", "rtps.checksum_property.require_crc",
-        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x01, NULL, HFILL }
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001, NULL, HFILL }
     },
     { &hf_rtps_secure_dataheader_transformation_kind, {
         "Transformation Kind", "rtps.secure.data_header.transformation_kind",

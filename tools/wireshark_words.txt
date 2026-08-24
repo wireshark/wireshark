@@ -614,6 +614,7 @@ csapi
 cseds
 ctime
 ctratt
+ctrlinfo
 ctrls
 ctrlstat
 ctxinfo
@@ -858,6 +859,7 @@ dnssrv
 docomo
 docsis
 dodag
+dofst
 doneconf
 doppler
 dot11Qos
@@ -1264,6 +1266,7 @@ gtalk
 guang
 guangzhou
 guatemala
+guids
 guint
 gzipped
 handoff
@@ -2076,6 +2079,7 @@ nrppa
 nrtcws
 nsapi
 nsdbg
+nshds
 nssai
 nssrg
 nssvc
@@ -2197,6 +2201,7 @@ organisation
 orpcthat
 orthogonal
 osaka
+osapi
 oscillatory
 oscore
 osdinfo
@@ -2687,6 +2692,7 @@ reserved5
 resid
 resize
 resized
+resizes
 resolvable
 resolver
 resolvers
@@ -2936,6 +2942,7 @@ slovak
 slovenian
 slovensko
 slsch
+smbus
 smime
 sminfo
 smpdirected
@@ -3720,6 +3727,7 @@ wslua
 wsluarm
 wsrepodir
 wsrepofile
+wstheme
 wstring
 wsutil
 wusps
