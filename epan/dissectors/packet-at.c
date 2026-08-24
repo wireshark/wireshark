@@ -2504,16 +2504,16 @@ static int dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, "/", "AT");
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
-            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Sent ");
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Sent");
             break;
         case P2P_DIR_RECV:
-            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Rcvd ");
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Rcvd");
             break;
         default:
-            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "UnknownDirection ");
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Unknown");
             break;
     }
-    col_append_fstr(pinfo->cinfo, COL_INFO, "AT Command: %s", string);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", string);
 
     /* Check if user forces roles using preferences */
     if ((at_role == ROLE_DCE && pinfo->p2p_dir == P2P_DIR_SENT) ||
