@@ -3144,14 +3144,15 @@ prefs_register_modules(void)
         return;
     }
 
-    /* GUI
-     * These are "simple" GUI preferences that can be read/written using the
-     * preference module API.  These preferences still use their own
-     * configuration screens for access, but this cuts down on the
-     * preference "string compare list" in set_pref()
+    /* Extcap
+     * The extcap preferences used to be in the main preference file, but are
+     * now (since 4.4.0) written separately to "extcap.cfg". It occasionally
+     * seems to cause issues that this is registered as a top level module.
      */
     extcap_module = prefs_register_module(prefs_top_level_modules, prefs_modules, "extcap", "Extcap Utilities",
         "Extcap Utilities", NULL, NULL, false);
+    /* Extcap preferences don't affect dissection */
+    prefs_set_module_effect_flags(extcap_module, PREF_EFFECT_CAPTURE);
 
     /* Setting default value to true */
     prefs.extcap_save_on_start = true;
@@ -6804,6 +6805,9 @@ write_prefs(const char* app_env_var_prefix, char **pf_path_return)
         }
 
         if (extcap_module && !prefs.capture_no_extcap) {
+            /* We check prefs.capture_no_extcap so that we don't overwrite
+             * any existing extcap.cfg with a nearly empty entry if the extcaps
+             * aren't loaded and their preferences not registered and read. */
             char *ext_path = get_persconffile_path("extcap.cfg", true, app_env_var_prefix);
             FILE *extf;
             if ((extf = ws_fopen(ext_path, "w")) == NULL) {

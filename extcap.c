@@ -2928,7 +2928,8 @@ extcap_load_interface_list(void)
                     .output = iface_info->output,
                     .data = NULL,
                 };
-                prefs_registered = cb_preference(cb_info);
+                if (cb_preference(cb_info))
+                    prefs_registered = true;
             }
         }
         extcap_free_extcaps_info_array(infos, count);
