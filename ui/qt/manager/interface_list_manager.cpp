@@ -43,10 +43,11 @@ InterfaceListManager::InterfaceListManager(QObject *parent) :
     scanning_(false),
     refreshPending_(false),
     pendingUserInitiated_(false),
+    pendingClearExtcaps_(false),
     captureActive_(false),
     scanScheduled_(false),
-    prevCaptureNoInterfaceLoad_(prefs.capture_no_interface_load),
-    prevCaptureNoExtcap_(prefs.capture_no_extcap)
+    prevCaptureNoExtcap_(prefs.capture_no_extcap),
+    initialScanDone_(false)
 {
     connect(this, &InterfaceListManager::interfaceListChanged,
             mainApp, &MainApplication::interfaceListChanged);
@@ -55,15 +56,24 @@ InterfaceListManager::InterfaceListManager(QObject *parent) :
 
 void InterfaceListManager::onPreferencesChanged()
 {
-    const bool changed =
-        prefs.capture_no_interface_load != prevCaptureNoInterfaceLoad_ ||
+    // If we've never scanned, and prefs.capture_no_interface_load is false,
+    // we need to scan.
+    const bool performInitialScan = !initialScanDone_ &&
+        !prefs.capture_no_interface_load;
+    // Querying the extcaps can be time-consuming, particular on Windows due to
+    // spawning new processes, so we'd like to avoid it if possible.
+    // If capture_no_extcap is set, then either we need to clear them
+    // or they should already be clear, but either way it's cheap because
+    // we won't re-query them.
+    // If it's not set, we only need to clear them and re-query them when
+    // performing a scan for some other reason.
+    const bool clearExtcaps = performInitialScan || prefs.capture_no_extcap;
+    const bool changed = performInitialScan ||
         prefs.capture_no_extcap != prevCaptureNoExtcap_;
-    prevCaptureNoInterfaceLoad_ = prefs.capture_no_interface_load;
     prevCaptureNoExtcap_ = prefs.capture_no_extcap;
 
-    // Mirror the old guard: only (re)load when interface loading is enabled.
-    if (changed && !prefs.capture_no_interface_load)
-        requestRefresh();
+    if (changed)
+        requestRefresh(false, clearExtcaps);
 }
 
 QStringList InterfaceListManager::currentInterfaceNames() const
@@ -671,18 +681,25 @@ update_local_interfaces(capture_options& capture_opts)
 }
 #endif // HAVE_LIBPCAP
 
-void InterfaceListManager::requestRefresh(bool userInitiated)
+void InterfaceListManager::requestRefresh(bool userInitiated, bool clearExtcaps)
 {
-    refreshPending_ = true;
     pendingUserInitiated_ = pendingUserInitiated_ || userInitiated;
+    pendingClearExtcaps_ = pendingClearExtcaps_ || clearExtcaps;
+    if (prefs.capture_no_interface_load && !(initialScanDone_ || pendingUserInitiated_)) {
+        // "Don't load interfaces on startup," is the pref description.
+        // If the pref is set, don't scan until the user initiates a scan.
+        return;
+    }
+    refreshPending_ = true;
     maybeSchedule();
 }
 
-void InterfaceListManager::refreshNow()
+void InterfaceListManager::refreshNow(bool clearExtcaps)
 {
     // Synchronous counterpart to requestRefresh(): run the scan inline instead of
     // posting it. performScan() still guards re-entrancy and capture-in-progress,
     // so this is a no-op while a scan is running or a capture is active.
+    pendingClearExtcaps_ = pendingClearExtcaps_ || clearExtcaps;
     refreshPending_ = true;
     performScan();
 }
@@ -730,6 +747,7 @@ void InterfaceListManager::performScan()
     refreshPending_ = false;
     const bool userInitiated = pendingUserInitiated_;
     pendingUserInitiated_ = false;
+    initialScanDone_ = true;
 
     QStringList removed;
 
@@ -744,7 +762,10 @@ void InterfaceListManager::performScan()
     //
     // Force extcap re-discovery so added/removed extcap interfaces are picked up
     // (previously done by MainApplication::refreshLocalInterfaces).
-    extcap_clear_interfaces();
+    if (pendingClearExtcaps_) {
+        pendingClearExtcaps_ = false;
+        extcap_clear_interfaces();
+    }
 
     // Drop the get_iface_list cache first so the scan observes hardware changes:
     // scan_local_interfaces_filtered() pulls the list through cachedInterfaceList(),
@@ -807,7 +828,6 @@ void InterfaceListManager::appInitialized()
     // We don't want to do this until the app is initialized, because the
     // prefs.capture_no_extcap changing to true shouldn't trigger another
     // refresh.
-    prevCaptureNoInterfaceLoad_ = prefs.capture_no_interface_load;
     prevCaptureNoExtcap_ = prefs.capture_no_extcap;
 
     connect(mainApp, &MainApplication::preferencesChanged,

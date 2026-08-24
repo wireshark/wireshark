@@ -953,7 +953,10 @@ int main(int argc, char *qt_argv[])
         // its absence here is a broken invariant, not a runtime condition.
         InterfaceListManager *if_mgr = main_w->interfaceListManager();
         ws_assert(if_mgr);
-        if_mgr->refreshNow();
+        // We just scanned the extcaps above when registering their prefs or
+        // if an interface option was on the command line; don't clear them
+        // and re-scan them, that's time-consuming, especially on Windows.
+        if_mgr->refreshNow(false);
     }
 
     capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);

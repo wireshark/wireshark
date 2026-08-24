@@ -120,7 +120,7 @@ public slots:
      *        additionally resets the statistics' activity so a now-quiet
      *        interface can be re-evaluated.
      */
-    void requestRefresh(bool userInitiated = false);
+    void requestRefresh(bool userInitiated = false, bool clearExtcaps = true);
 
     /**
      * @brief Performs an interface rescan synchronously, before returning.
@@ -131,7 +131,7 @@ public slots:
      * event loop starts. Honors the capture-active guard (no scan while
      * capturing). Prefer requestRefresh() everywhere else.
      */
-    void refreshNow();
+    void refreshNow(bool clearExtcaps = true);
 
     /**
      * @brief Announces that the interface list changed without re-enumerating.
@@ -192,10 +192,11 @@ private:
     bool scanning_;                /**< True while performScan() runs. */
     bool refreshPending_;          /**< A refresh has been requested, unserviced. */
     bool pendingUserInitiated_;    /**< Any pending request was user-initiated. */
+    bool pendingClearExtcaps_;     /**< Any pending request need to clear the extcaps. */
     bool captureActive_;           /**< Scans deferred while true. */
     bool scanScheduled_;           /**< A performScan() is already posted. */
-    bool prevCaptureNoInterfaceLoad_; /**< Last-seen prefs.capture_no_interface_load. */
-    bool prevCaptureNoExtcap_;        /**< Last-seen prefs.capture_no_extcap. */
+    bool prevCaptureNoExtcap_;     /**< Last-seen prefs.capture_no_extcap. */
+    bool initialScanDone_;         /**< Ever scanned? (relevant to prefs.capture_no_interface_load). */
 };
 
 #endif // INTERFACE_LIST_MANAGER_H

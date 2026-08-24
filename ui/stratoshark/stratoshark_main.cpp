@@ -836,7 +836,7 @@ int main(int argc, char *qt_argv[])
         // Enumerate synchronously before the event loop (see Wireshark main()).
         InterfaceListManager *if_mgr = main_w->interfaceListManager();
         ws_assert(if_mgr);
-        if_mgr->refreshNow();
+        if_mgr->refreshNow(false);
     }
 
     capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);
