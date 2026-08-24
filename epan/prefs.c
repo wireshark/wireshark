@@ -2171,6 +2171,12 @@ unsigned pref_get_changed_flags(pref_t *pref, void *unstash_data_p)
     case PREF_DIRNAME:
     case PREF_PASSWORD:
     case PREF_DISSECTOR:
+        if (pref->stashed_val.string == NULL) {
+            /* XXX - This shouldn't happen, but there's an issue with how the
+             * Preferences Dialog handles newly registered extcap prefs. */
+            ws_debug("stashed pref %s is NULL", prefs_get_name(pref));
+            break;
+        }
         if (strcmp(*pref->varp.string, pref->stashed_val.string) != 0) {
             unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
         }
@@ -2255,6 +2261,12 @@ pref_unstash(pref_t *pref, void *unstash_data_p)
     case PREF_DIRNAME:
     case PREF_PASSWORD:
     case PREF_DISSECTOR:
+        if (pref->stashed_val.string == NULL) {
+            /* XXX - This shouldn't happen, but there's an issue with how the
+             * Preferences Dialog handles newly registered extcap prefs. */
+            ws_debug("stashed pref %s is NULL", prefs_get_name(pref));
+            break;
+        }
         if (strcmp(*pref->varp.string, pref->stashed_val.string) != 0) {
             g_free(*pref->varp.string);
             *pref->varp.string = g_strdup(pref->stashed_val.string);
