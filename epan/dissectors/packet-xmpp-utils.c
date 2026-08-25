@@ -881,6 +881,9 @@ xmpp_display_attrs_ext(proto_tree *tree, xmpp_element_t *element, packet_info *p
     ns_abbrevs_head = ns_abbrevs;
     ns_fullnames_head = ns_fullnames;
 
+    CLEANUP_PUSH_PFX(k, cleanup_glist_cb, ns_abbrevs_head);
+    CLEANUP_PUSH_PFX(v, cleanup_glist_cb, ns_fullnames_head);
+
     if(element->default_ns_abbrev)
         proto_item_append_text(item, "(%s)",element->default_ns_abbrev);
 
@@ -933,8 +936,8 @@ xmpp_display_attrs_ext(proto_tree *tree, xmpp_element_t *element, packet_info *p
     /*displays attributes that weren't recognized*/
     xmpp_unknown_attrs(tree, tvb, pinfo, element, false);
 
-    g_list_free(ns_abbrevs_head);
-    g_list_free(ns_fullnames_head);
+    CLEANUP_CALL_AND_POP_PFX(v);
+    CLEANUP_CALL_AND_POP_PFX(k);
 }
 
 typedef struct _name_attr_t
