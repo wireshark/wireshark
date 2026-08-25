@@ -1408,6 +1408,38 @@ class TestDissectUdx:
             ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, r'^6\t8')
 
+    def test_udx_many_sack_blocks(self, cmd_tshark, capture_file, test_env):
+        '''A selective acknowledgement is not limited to what data_offset can
+        delimit.
+
+        A packet carrying no payload leaves data_offset zero and its blocks run
+        to the end of the datagram, which is how libudx reports a badly
+        fragmented receive window. It sends up to fifty of them, well past the
+        thirty-one that would fit in a delimited area.
+        '''
+        stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR,
+                '-r', capture_file('udx_sackblocks.pcap.gz'),
+                '-Y', 'udx.type.sack == 1',
+                '-Tfields', '-eudx.sack.start',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.strip().split(',')) == 40
+
+    def test_udx_repeat_below_the_timers(self, cmd_tshark, capture_file, test_env):
+        '''A repeat too soon to be either of libudx's timers is just a repeat.
+
+        Nothing on this flow has been acknowledged, so there is no round trip
+        time and both the retransmission timeout and the probe timer sit at
+        their floor of one second. A repeat half a second in cannot be either,
+        and saying which timer fired would be inventing one.
+        '''
+        stdout = subprocess.check_output((cmd_tshark, *UDX_HEUR, '-2',
+                '-r', capture_file('udx_norto.pcap.gz'),
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, 'This packet was retransmitted')
+        assert not grep_output(stdout, 'Retransmission timeout')
+        assert not grep_output(stdout, 'Tail loss probe')
+
     def test_udx_stream_pairing(self, cmd_tshark, capture_file, test_env):
         '''Three streams multiplexed over one socket pair are told apart.
 

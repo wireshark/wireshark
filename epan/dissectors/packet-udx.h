@@ -20,9 +20,11 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/* Bounds the SACK blocks carried per packet; data_offset caps the area at
- * 255 bytes, i.e. 31 blocks. */
-#define UDX_MAX_SACK_BLOCKS 32
+/* Bounds the SACK blocks carried per packet. A packet carrying data is
+ * limited by data_offset to 255 bytes of them, but one carrying none leaves
+ * that byte zero and lets the blocks run to the end of the datagram, where
+ * libudx sends up to UDX_MAX_SACKS of them. */
+#define UDX_MAX_SACK_BLOCKS 50
 
 /*
  * Queued on the "udx" tap: one decoded UDX header, with the stream it belongs

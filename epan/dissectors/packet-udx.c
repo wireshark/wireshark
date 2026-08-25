@@ -68,17 +68,14 @@
 #define UDX_SEQ_GT(a, b)  ((int32_t)((a) - (b)) > 0)
 #define UDX_SEQ_GEQ(a, b) ((int32_t)((a) - (b)) >= 0)
 
-/* Floor for the derived retransmission timeout, in seconds. Below this a
- * repeat is attributed to loss recovery rather than to a timer firing. */
-#define UDX_MIN_RTO 0.2
+/* Floor for the derived retransmission timeout, in seconds, matching the
+ * floor libudx applies to its own. Below this a repeat is attributed to loss
+ * recovery rather than to a timer firing. */
+#define UDX_MIN_RTO 1.0
 
 /* A repeat arriving within this window of the original is a duplicate
  * datagram rather than anything the sender chose to send again. */
 #define UDX_DUP_WINDOW 0.0005
-
-/* Shortest pause credited to a tail loss probe timer when no round-trip
- * time has been measured yet. */
-#define UDX_MIN_PROBE_DELAY 0.010
 
 void proto_register_udx(void);
 void proto_reg_handoff_udx(void);
@@ -576,7 +573,7 @@ udx_analyze(packet_info *pinfo, udx_conv_t *conv, uint8_t flags, uint8_t data_of
                 double idle = nstime_to_sec(&pinfo->abs_ts) -
                               nstime_to_sec(&flow->last_tx_ts);
 
-                if (idle >= (flow->have_rtt ? 2 * flow->srtt : UDX_MIN_PROBE_DELAY))
+                if (idle >= (flow->have_rtt ? 2 * flow->srtt : UDX_MIN_RTO))
                     ppd->flags |= UDX_A_TLP;
             }
 
@@ -630,7 +627,7 @@ udx_analyze(packet_info *pinfo, udx_conv_t *conv, uint8_t flags, uint8_t data_of
                  * than because a timer expired. */
                 ppd->flags |= UDX_A_FAST_RETRANS;
             } else if (seq == flow->max_seq &&
-                       dt >= (flow->have_rtt ? 2 * flow->srtt : UDX_MIN_PROBE_DELAY)) {
+                       dt >= (flow->have_rtt ? 2 * flow->srtt : UDX_MIN_RTO)) {
                 /* A repeat of the tail after a probe-sized pause, with
                  * nothing newer sent, is how a tail loss probe looks here. */
                 ppd->flags |= UDX_A_TLP;
