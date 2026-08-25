@@ -1383,7 +1383,7 @@ mk_binary_internal(DFVMBinaryFunc func, GPtrArray *fv1, GPtrArray *fv2, df_cell_
 		for (size_t j = 0; j < fv2->len; j++) {
 			result = func(fv1->pdata[i], fv2->pdata[j], &err_msg);
 			if (result == NULL) {
-				debug_op_error(fv1->pdata[i], fv2->pdata[i], "&", err_msg);
+				debug_op_error(fv1->pdata[i], fv2->pdata[j], "&", err_msg);
 				g_free(err_msg);
 				err_msg = NULL;
 			}

@@ -369,6 +369,17 @@ class TestDfilterArithmetic:
         dfilter = 'udp.dstport * { udp.srcport / {5 - 4} } == udp.srcport * { 2 * udp.dstport - 68 }'
         checkDFilterCount(dfilter, 2)
 
+    def test_div_by_zero(self, checkDFilterCount):
+        # This is a runtime divide by zero, which makes the left side be
+        # "not equal",  and also "not gt" and "not lt", any value on the right.
+        # udp.port has two values, 68 and 67, and dhcp.hops only one, 0, which
+        # exercised a bug.
+        # We possibly should optimize and print an error at compile time if
+        # dividing by a constant zero, but even if we did, there would be
+        # runtime cases like this.
+        dfilter = "udp.port / dhcp.hops == dhcp.secs"
+        checkDFilterCount(dfilter, 0)
+
 class TestDfilterFieldReference:
     trace_file = "ipoipoip.pcap"
 
