@@ -116,6 +116,16 @@ if_capabilities_t *
 extcap_get_if_dlts(const char * ifname, char ** err_str);
 
 /**
+ * Fetches the interface capabilities for a list of interfaces.
+ * Initializes the extcap interface list if that hasn't already been done.
+ * @param queries A GList of if_cap_query_t
+ * @param caps_hash A GHashTable to insert the if_capabilities_t into for each name.
+ * @return A GList of all queries that were not extcap interfaces (presumably local).
+ */
+GList *
+extcap_get_if_list_dlts(GList *queries, GHashTable *caps_hash);
+
+/**
  * Append a list of all extcap capture interfaces to the specified list.
  * Initializes the extcap interface list if that hasn't already been done.
  * @param list An existing GList of if_info_t.

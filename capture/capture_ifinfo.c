@@ -482,7 +482,6 @@ capture_get_if_list_capabilities(GList *if_cap_queries,
                             char **err_primary_msg, char **err_secondary_msg,
                             void (*update_cb)(void))
 {
-    if_cap_query_t    *query;
     if_capabilities_t *caps;
     GHashTable        *caps_hash;
     GList             *local_queries = NULL;
@@ -491,23 +490,10 @@ capture_get_if_list_capabilities(GList *if_cap_queries,
     jsmntok_t         *tokens, *inf_tok;
 
     caps_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, free_if_capabilities_cb);
-    for (GList *li = if_cap_queries; li != NULL; li = g_list_next(li)) {
-
-        query = (if_cap_query_t *)li->data;
-        /* see if the interface is from extcap */
-        caps = extcap_get_if_dlts(query->name, NULL);
-        /* if the extcap interface generated an error, it was from extcap */
-        if (caps != NULL) {
-            g_hash_table_replace(caps_hash, g_strdup(query->name), caps);
-        } else {
-            local_queries = g_list_prepend(local_queries, query);
-        }
-    }
+    local_queries = extcap_get_if_list_dlts(if_cap_queries, caps_hash);
 
     if (local_queries == NULL)
         return caps_hash;
-
-    local_queries = g_list_reverse(local_queries);
 
     /* Try to get our interface list */
     iface_mon_enable(false);

@@ -47,6 +47,7 @@
 #include <wsutil/path_config.h>
 #include <wsutil/strtoi.h>
 
+#include "capture/capture_ifinfo.h"
 #include "capture/capture_session.h"
 #include "capture/sync_pipe.h"
 #include "ui/capture_opts.h"
@@ -696,6 +697,98 @@ extcap_get_if_dlts(const char *ifname, char **err_str)
     return caps;
 }
 
+typedef struct extcap_dlt_info {
+    const char *ifname;        /**< Interface name. */
+    GHashTable *caps_hash;     /**< Hash table to insert the if_capabilities_t into. */
+} extcap_dlt_info_t;
+
+static void
+extcap_if_list_dlts_cb(thread_pool_t *pool, void *data, char *output)
+{
+    extcap_dlt_info_t *dlt_info = (extcap_dlt_info_t*)data;
+    if_capabilities_t *caps = NULL;
+    extcap_callback_info_t cb_info = {
+        .ifname = dlt_info->ifname,
+        .option_name = NULL,
+        .option_value = NULL,
+        .output = output,
+        .data = &caps,
+    };
+    cb_dlt(cb_info);
+    g_mutex_lock(&pool->data_mutex);
+    g_hash_table_replace(dlt_info->caps_hash, g_strdup(dlt_info->ifname), caps);
+    g_mutex_unlock(&pool->data_mutex);
+    g_free(output);
+}
+
+GList*
+extcap_get_if_list_dlts(GList *queries, GHashTable *caps_hash)
+{
+    int max_threads = (int)g_get_num_processors();
+    GList *local_queries = NULL;
+
+    /* Update the extcap interfaces and get a list of their if_infos */
+    extcap_ensure_all_interfaces_loaded();
+
+    thread_pool_t pool;
+    pool.pool = g_thread_pool_new(extcap_thread_callback, &pool, max_threads, false, NULL);
+    pool.count = 0;
+    g_cond_init(&pool.cond);
+    g_mutex_init(&pool.data_mutex);
+    g_queue_init(&pool.completed);
+
+    GPtrArray *infos = g_ptr_array_new_with_free_func(g_free);
+
+    for (GList *iter = queries; iter; iter = g_list_next(iter)) {
+        if_cap_query_t *query = (if_cap_query_t*)(iter->data);
+        extcap_interface *interface = extcap_find_interface_for_ifname(query->name);
+        if (!interface) {
+            local_queries = g_list_prepend(local_queries, query);
+            continue;
+        }
+        const char *argv[] = {
+            EXTCAP_ARGUMENT_LIST_DLTS,
+            EXTCAP_ARGUMENT_INTERFACE,
+            query->name,
+            NULL
+        };
+        extcap_run_task_t *task = g_new0(extcap_run_task_t, 1);
+
+        extcap_dlt_info_t *dlt_info = g_new0(extcap_dlt_info_t, 1);
+        dlt_info->caps_hash = caps_hash;
+        dlt_info->ifname = query->name;
+        g_ptr_array_add(infos, dlt_info);
+        task->extcap_path = interface->extcap_path;
+        task->argv = g_strdupv((char **)argv);
+        task->output_cb = extcap_if_list_dlts_cb;
+        task->data = dlt_info;
+
+        thread_pool_push(&pool, task, NULL);
+    }
+
+    /* Wait for all (sub)tasks to complete, reporting progress as each finishes. */
+    g_mutex_lock(&pool.data_mutex);
+    while (pool.count != 0) {
+        g_cond_wait(&pool.cond, &pool.data_mutex);
+        if (_extcap_progress_cb) {
+            const char *name;
+            while ((name = (const char *)g_queue_pop_head(&pool.completed)) != NULL) {
+                g_mutex_unlock(&pool.data_mutex);
+                _extcap_progress_cb(RA_EXTCAP, name, _extcap_progress_data);
+                g_mutex_lock(&pool.data_mutex);
+            }
+        }
+    }
+    g_mutex_unlock(&pool.data_mutex);
+
+    g_queue_clear(&pool.completed);
+    g_mutex_clear(&pool.data_mutex);
+    g_cond_clear(&pool.cond);
+    g_thread_pool_free(pool.pool, false, true);
+    g_ptr_array_unref(infos);
+
+    return g_list_reverse(local_queries);
+}
 static void extcap_free_interface(void *i)
 {
 
