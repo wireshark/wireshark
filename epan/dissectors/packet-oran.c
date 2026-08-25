@@ -4009,7 +4009,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                 if (!disableBFWs) {
                     /********************************************/
-                    /* Table 7.7.1.1-1 */
+                    /* Table 7.7.11.1-1 */
+                    /* Weights are present */
                     /********************************************/
 
                     uint32_t bfwcomphdr_iq_width, bfwcomphdr_comp_meth;
@@ -4056,7 +4057,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 }
                 else {
                     /********************************************/
-                    /* Table 7.7.1.1-2 */
+                    /* Table 7.7.11.1-2 */
                     /* No weights in this case */
                     /********************************************/
 
@@ -4069,14 +4070,27 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     num_bundles = ext11_settings.num_bundles;
 
                     for (unsigned n=0; n < num_bundles; n++) {
+                        uint32_t first_prb = ext11_settings.bundles[n].start;
+                        uint32_t last_prb = ext11_settings.bundles[n].end;
+
+                        /* Still create a bundle subtree */
+                        proto_item *bundle_ti = proto_tree_add_string_format(extension_tree, hf_oran_bfw_bundle,
+                                                                 tvb, offset, 2, "",
+                                                                 "Bundle: (PRBs %3u-%3u)",
+                                                                 first_prb, last_prb);
+                        proto_tree *bundle_tree = proto_item_add_subtree(bundle_ti, ett_oran_bfw_bundle);
+
                         /* contInd */
-                        proto_tree_add_item(extension_tree, hf_oran_cont_ind,
+                        proto_tree_add_item(bundle_tree, hf_oran_cont_ind,
                                             tvb, offset, 1, ENC_BIG_ENDIAN);
                         /* beamId */
                         /* N.B., only added to tap_info if not 0 or ignored (after SEs seen) */
                         uint32_t beam_id;
-                        proto_item *beamid_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_beam_id,
+                        proto_item *beamid_ti = proto_tree_add_item_ret_uint(bundle_tree, hf_oran_beam_id,
                                                                              tvb, offset, 2, ENC_BIG_ENDIAN, &beam_id);
+                        proto_item_append_text(bundle_ti, " (beamId:%u)", beam_id);
+
+
                         if (!ext11_settings.bundles[n].is_orphan) {
                             proto_item_append_text(beamid_ti, "    (PRBs %3u-%3u)  (Bundle %2u)",
                                                    ext11_settings.bundles[n].start,
@@ -4088,6 +4102,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             proto_item_append_text(beamid_ti, "    (PRBs %3u-%3u)  (Orphaned PRBs)",
                                                    ext11_settings.bundles[n].start,
                                                    ext11_settings.bundles[n].end);
+                            proto_item_append_text(bundle_ti, "  (Orphaned PRBs)");
                         }
                         offset += 2;
 
@@ -4128,9 +4143,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                         /* Show link back to frame where/when beamId was defined */
                         if (definition && definition->frame_defined != 0 && definition->frame_defined != pinfo->num) {
-                            proto_item *defined_ti = proto_tree_add_uint(extension_tree, hf_oran_bfws_frame_defined, tvb, offset, 0, definition->frame_defined);
+                            proto_item *defined_ti = proto_tree_add_uint(bundle_tree, hf_oran_bfws_frame_defined, tvb, offset, 0, definition->frame_defined);
                             proto_item_set_generated(defined_ti);
-                            proto_item *since_ti = proto_tree_add_uint(extension_tree, hf_oran_bfws_symbols_since_defined, tvb, offset, 0,
+                            proto_item *since_ti = proto_tree_add_uint(bundle_tree, hf_oran_bfws_symbols_since_defined, tvb, offset, 0,
                                                                        symbol_count - definition->symbol_when_defined);
                             proto_item_set_generated(since_ti);
                         }
