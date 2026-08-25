@@ -159,6 +159,9 @@ generate_key_or_iv(packet_info *pinfo, unsigned int id, tvbuff_t *salt_tvb, unsi
   cur_keylen = 0;
 
   salt_size = tvb_captured_length(salt_tvb);
+  if (salt_size == 0) {
+    return false;
+  }
   salt_p = (uint8_t *)tvb_memdup(pinfo->pool, salt_tvb, 0, salt_size);
 
   if (pw == NULL)
@@ -284,6 +287,10 @@ int PBE_decrypt_data(dissector_t dissector, const char *description, tvbuff_t *e
 	}
 
 	encryption_algorithm = x509af_get_last_algorithm_id();
+	if (encryption_algorithm == NULL) {
+		proto_item_append_text(item, " [Unknown encryption algorithm]");
+		return false;
+	}
 
 	/* these are the only encryption schemes we understand for now */
 	if(!strcmp(encryption_algorithm, PKCS12_PBE_3DES_SHA1_OID)) {
@@ -339,6 +346,12 @@ int PBE_decrypt_data(dissector_t dissector, const char *description, tvbuff_t *e
 		return false;
         }
 
+	datalen = tvb_captured_length(encrypted_tvb);
+	if (!datalen) {
+		proto_item_append_text(item, " [Zero-length input buffer]");
+		return false;
+	}
+
 	/* allocate buffers */
 	key = (char *)wmem_alloc(pinfo->pool, keylen);
 
@@ -372,7 +385,6 @@ int PBE_decrypt_data(dissector_t dissector, const char *description, tvbuff_t *e
 		  }
 	}
 
-	datalen = tvb_captured_length(encrypted_tvb);
 	clear_data = (char *)wmem_alloc(pinfo->pool, datalen);
 
 	err = gcry_cipher_decrypt (cipher, clear_data, datalen, (char *)tvb_memdup(pinfo->pool, encrypted_tvb, 0, datalen), datalen);
