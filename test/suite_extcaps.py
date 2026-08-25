@@ -16,7 +16,6 @@ import sys
 
 import pytest
 
-
 # The following must match extcap.c.
 
 def bookmark_ifname(ifname, bookmark_name):

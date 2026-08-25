@@ -8,6 +8,7 @@ import pytest
 import subprocesstest
 from subprocesstest import count_output
 
+logger = logging.getLogger('make-wsluarm')
 
 @pytest.fixture
 def dfilter_cmd(cmd_tshark, capture_file, request):
@@ -79,7 +80,7 @@ def checkDFLog(dftest_cmd_log, dfilter_env):
                                 universal_newlines=True,
                                 env=dfilter_env)
         if proc.stderr:
-            logging.debug(proc.stderr)
+            logger.debug(proc.stderr)
     return checkDFLog_real
 
 @pytest.fixture
@@ -91,7 +92,7 @@ def checkDFilterCount(dfilter_cmd, dfilter_env):
                                          universal_newlines=True,
                                          env=dfilter_env)
         if proc.stderr:
-            logging.debug(proc.stderr)
+            logger.debug(proc.stderr)
         assert count_output(proc.stdout) == expected_count
     return checkDFilterCount_real
 
@@ -104,7 +105,7 @@ def checkDFilterCountWithSelectedFrame(dfilter_cmd, dfilter_env):
                                          universal_newlines=True,
                                          env=dfilter_env)
         if proc.stderr:
-            logging.debug(proc.stderr)
+            logger.debug(proc.stderr)
         assert count_output(proc.stdout) == expected_count
     return checkDFilterCount_real
 
@@ -117,7 +118,7 @@ def checkDFilterCountReadFilter(dfilter_cmd, dfilter_env):
                                          universal_newlines=True,
                                          env=dfilter_env)
         if proc.stderr:
-            logging.debug(proc.stderr)
+            logger.debug(proc.stderr)
         assert count_output(proc.stdout) == expected_count
     return checkDFilterCount_real
 
@@ -130,7 +131,7 @@ def checkDFilterFail(dftest_cmd, dfilter_env):
                                 universal_newlines=True,
                                 env=dfilter_env)
         if proc.stderr:
-            logging.debug(proc.stderr)
+            logger.debug(proc.stderr)
         assert proc.returncode == 4
         assert error_message in proc.stderr
     return checkDFilterFail_real
@@ -144,7 +145,7 @@ def checkDFilterSucceed(dftest_cmd, dfilter_env):
                                 universal_newlines=True,
                                 env=dfilter_env)
         if proc.stderr:
-            logging.debug(proc.stderr)
+            logger.debug(proc.stderr)
         assert proc.returncode == 0
         if expect_stdout:
             assert expect_stdout in proc.stdout

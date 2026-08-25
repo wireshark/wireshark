@@ -61,9 +61,6 @@ tools/gen-nvme-mi-test-capture.py:
 
 import subprocess
 
-import pytest
-
-
 # The tshark_fields / assert_frame_matches / assert_frames_match fixtures this
 # suite drives are the standard dissector-test invocations and live in
 # test/conftest.py.

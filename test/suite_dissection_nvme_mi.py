@@ -56,7 +56,7 @@ def pdml_field_attrs(cmd_tshark, capture_file, test_env):
     def run(filename, frame):
         stdout = subprocess.check_output(
             [cmd_tshark, '-r', capture_file(filename),
-             '-Y', 'frame.number == {}'.format(frame), '-Tpdml'],
+             '-Y', f'frame.number == {frame}', '-Tpdml'],
             encoding='utf-8', env=test_env)
         attrs = {}
         for field in ET.fromstring(stdout).iter('field'):
@@ -81,7 +81,7 @@ def pdml_repeated_field(cmd_tshark, capture_file, test_env):
     def run(filename, frame, name):
         stdout = subprocess.check_output(
             [cmd_tshark, '-r', capture_file(filename),
-             '-Y', 'frame.number == {}'.format(frame), '-Tpdml'],
+             '-Y', f'frame.number == {frame}', '-Tpdml'],
             encoding='utf-8', env=test_env)
         out = []
 

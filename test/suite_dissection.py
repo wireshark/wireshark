@@ -372,7 +372,7 @@ class TestDissectGprpc:
                 '-d', 'tcp.port==50051,http2',
                 '-2',
                 '-Y', 'protobuf.message.name == "tutorial.PersonSearchRequest"'
-                      ' || (grpc.message_length == 66 && protobuf.field.value.string == "Jason"'
+                      ' || (grpc.message_length == 66 && protobuf.field.value.string == "Jason"' +
                       '     && protobuf.field.value.int64 == 1602601886)',
             ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, 'tutorial.PersonSearchService/Search') # grpc request
@@ -388,21 +388,21 @@ class TestDissectGprpc:
                 '-d', 'tcp.port==44363,http2',
                 '-2', # make http2.body.reassembled.in available
                 '-Y', # Case1: In frame28, one http DATA contains 4 completed grpc messages (json data seq=1,2,3,4).
-                      '(frame.number == 28 && grpc && json.value.number == 1 && json.value.number == 2'
-                      ' && json.value.number == 3 && json.value.number == 4 && http2.body.reassembled.in == 45) ||'
+                      '(frame.number == 28 && grpc && json.value.number == 1 && json.value.number == 2' +
+                      ' && json.value.number == 3 && json.value.number == 4 && http2.body.reassembled.in == 45) ||' +
                       # Case2: In frame28, last grpc message (the 5th) only has 4 bytes, which need one more byte
                       # to be a message head. a completed message is reassembled in frame45. (json data seq=5)
-                      '(frame.number == 45 && grpc && http2.body.fragment == 28 && json.value.number == 5'
-                      ' && http2.body.reassembled.in == 61) ||'
+                      '(frame.number == 45 && grpc && http2.body.fragment == 28 && json.value.number == 5' +
+                      ' && http2.body.reassembled.in == 61) ||' +
                       # Case3: In frame45, one http DATA frame contains two partial fragment, one is part of grpc
                       # message of previous http DATA (frame28), another is first part of grpc message of next http
                       # DATA (which will be reassembled in next http DATA frame61). (json data seq=6)
-                      '(frame.number == 61 && grpc && http2.body.fragment == 45 && json.value.number == 6) ||'
+                      '(frame.number == 61 && grpc && http2.body.fragment == 45 && json.value.number == 6) ||' +
                       # Case4: A big grpc message across frame100, frame113, frame126 and finally reassembled in frame139.
-                      '(frame.number == 100 && grpc && http2.body.reassembled.in == 139) ||'
-                      '(frame.number == 113 && !grpc && http2.body.reassembled.in == 139) ||'
-                      '(frame.number == 126 && !grpc && http2.body.reassembled.in == 139) ||'
-                      '(frame.number == 139 && grpc && json.value.number == 9) ||'
+                      '(frame.number == 100 && grpc && http2.body.reassembled.in == 139) ||' +
+                      '(frame.number == 113 && !grpc && http2.body.reassembled.in == 139) ||' +
+                      '(frame.number == 126 && !grpc && http2.body.reassembled.in == 139) ||' +
+                      '(frame.number == 139 && grpc && json.value.number == 9) ||' +
                       # Case5: An large grpc message of 200004 bytes.
                       '(frame.number == 164 && grpc && grpc.message_length == 200004)',
             ), encoding='utf-8', env=test_env)
@@ -444,8 +444,8 @@ class TestDissectGrpcWeb:
                 '-o', 'protobuf.pbf_as_hf: TRUE',
                 '-d', 'tcp.port==57226,http',
                 '-2',
-                '-Y', '(tcp.stream eq 0) && (pbf.greet.HelloRequest.name == "88888888"'
-                        '|| pbf.greet.HelloRequest.name == "99999999"'
+                '-Y', '(tcp.stream eq 0) && (pbf.greet.HelloRequest.name == "88888888"' +
+                        '|| pbf.greet.HelloRequest.name == "99999999"' +
                         '|| pbf.greet.HelloReply.message == "Hello 99999999")',
             ), encoding='utf-8', env=test_env)
         assert count_output(stdout, 'greet.HelloRequest') == 2
@@ -465,8 +465,8 @@ class TestDissectGrpcWeb:
                 '-o', 'protobuf.pbf_as_hf: TRUE',
                 '-d', 'tcp.port==57228,http2',
                 '-2',
-                '-Y', '(tcp.stream eq 1) && (pbf.greet.HelloRequest.name == "88888888"'
-                        '|| pbf.greet.HelloRequest.name == "99999999"'
+                '-Y', '(tcp.stream eq 1) && (pbf.greet.HelloRequest.name == "88888888"' +
+                        '|| pbf.greet.HelloRequest.name == "99999999"' +
                         '|| pbf.greet.HelloReply.message == "Hello 99999999")',
             ), encoding='utf-8', env=test_env)
         assert count_output(stdout, 'greet.HelloRequest') == 2
@@ -486,7 +486,7 @@ class TestDissectGrpcWeb:
                 '-o', 'protobuf.pbf_as_hf: TRUE',
                 '-d', 'tcp.port==57228,http2',
                 '-2',
-                '-Y', '(tcp.stream eq 2) && ((pbf.greet.HelloRequest.name && grpc.message_length == 80004)'
+                '-Y', '(tcp.stream eq 2) && ((pbf.greet.HelloRequest.name && grpc.message_length == 80004)' +
                        '|| (pbf.greet.HelloReply.message && (grpc.message_length == 23 || grpc.message_length == 80012)))',
             ), encoding='utf-8', env=test_env)
         assert count_output(stdout, 'greet.HelloRequest') == 2
@@ -504,8 +504,8 @@ class TestDissectGrpcWeb:
                 '-o', 'protobuf.pbf_as_hf: TRUE',
                 '-d', 'tcp.port==57226,http',
                 '-2',
-                '-Y', '(tcp.stream eq 5) && (pbf.greet.HelloRequest.name == "88888888"'
-                        '|| pbf.greet.HelloRequest.name == "99999999"'
+                '-Y', '(tcp.stream eq 5) && (pbf.greet.HelloRequest.name == "88888888"' +
+                        '|| pbf.greet.HelloRequest.name == "99999999"' +
                         '|| pbf.greet.HelloReply.message == "Hello 99999999")',
             ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, 'GRPC-Web-Text')
@@ -548,7 +548,7 @@ class TestDissectGrpcWeb:
                 '-o', 'protobuf.pbf_as_hf: TRUE',
                 '-d', 'tcp.port==57228,http2',
                 '-2',
-                '-Y', '(tcp.stream eq 8) && ((pbf.greet.HelloRequest.name && grpc.message_length == 80004)'
+                '-Y', '(tcp.stream eq 8) && ((pbf.greet.HelloRequest.name && grpc.message_length == 80004)' +
                        '|| (pbf.greet.HelloReply.message && (grpc.message_length == 23 || grpc.message_length == 80012)))',
             ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, 'GRPC-Web-Text')
@@ -585,7 +585,7 @@ class TestDissectGrpcWeb:
                 '-o', 'protobuf.pbf_as_hf: TRUE',
                 '-d', 'tcp.port==57226,http',
                 '-2',
-                '-Y', '(tcp.stream eq 9) && ((pbf.greet.HelloRequest.name && grpc.message_length == 10)'
+                '-Y', '(tcp.stream eq 9) && ((pbf.greet.HelloRequest.name && grpc.message_length == 10)' +
                        '|| (pbf.greet.HelloReply.message && grpc.message_length == 18))',
             ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, 'GRPC-Web')
@@ -604,7 +604,7 @@ class TestDissectGrpcWeb:
                 '-o', 'protobuf.pbf_as_hf: TRUE',
                 '-d', 'tcp.port==57226,http',
                 '-2',
-                '-Y', '(tcp.stream eq 10) && ((pbf.greet.HelloRequest.name && grpc.message_length == 80004)'
+                '-Y', '(tcp.stream eq 10) && ((pbf.greet.HelloRequest.name && grpc.message_length == 80004)' +
                        '|| (pbf.greet.HelloReply.message && (grpc.message_length == 23 || grpc.message_length == 80012)))',
             ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, 'GRPC-Web')
@@ -745,7 +745,7 @@ class TestDissectProtobuf:
                 '-o', 'protobuf.preload_protos: TRUE',
                 '-o', 'protobuf.pbf_as_hf: TRUE',
                 '-Y', 'pbf.tutorial.Person.name == "Jason"'
-                      ' && pbf.tutorial.Person.last_updated > "2020-10-15"'
+                      ' && pbf.tutorial.Person.last_updated > "2020-10-15"' +
                       ' && pbf.tutorial.Person.last_updated < "2020-10-19"',
             ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, 'tutorial.AddressBook')
@@ -776,8 +776,8 @@ class TestDissectProtobuf:
                 '-o', 'uat:protobuf_udp_message_types: "8124","test.map.MapMaster"',
                 '-o', 'protobuf.preload_protos: TRUE',
                 '-o', 'protobuf.pbf_as_hf: TRUE',
-                '-Y', 'pbf.test.map.MapMaster.param3 == "I\'m param3 for oneof test."'  # test oneof type
-                      ' && pbf.test.map.MapMaster.param4MapEntry.value == 1234'        # test map type
+                '-Y', 'pbf.test.map.MapMaster.param3 == "I\'m param3 for oneof test."' +  # test oneof type
+                      ' && pbf.test.map.MapMaster.param4MapEntry.value == 1234' +         # test map type
                       ' && pbf.test.map.Foo.param1 == 88 && pbf.test.map.MapMaster.param5MapEntry.key == 88'
             ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, 'PB[(]test.map.MapMaster[)]')
@@ -795,16 +795,16 @@ class TestDissectProtobuf:
                 '-o', 'protobuf.pbf_as_hf: TRUE',
                 '-o', 'protobuf.add_default_value: all',
                 '-O', 'protobuf',
-                '-Y', 'pbf.wireshark.protobuf.test.TestDefaultValueMessage.enumFooWithDefaultValue_Fouth == -4'
-                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.boolWithDefaultValue_False == false'
-                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.int32WithDefaultValue_0 == 0'
-                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.doubleWithDefaultValue_Negative0point12345678 == -0.12345678'
-                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.stringWithDefaultValue_SymbolPi contains "Pi."'
-                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.bytesWithDefaultValue_1F2F890D0A00004B == 1f:2f:89:0d:0a:00:00:4b'
-                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.optional' # test taking keyword 'optional' as identification
-                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.message' # test taking keyword 'message' as identification
-                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.stringWithNoValue == ""' # test default value is empty for strings
-                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.bytesWithNoValue == ""' # test default value is empty for bytes
+                '-Y', 'pbf.wireshark.protobuf.test.TestDefaultValueMessage.enumFooWithDefaultValue_Fouth == -4' +
+                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.boolWithDefaultValue_False == false' +
+                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.int32WithDefaultValue_0 == 0' +
+                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.doubleWithDefaultValue_Negative0point12345678 == -0.12345678' +
+                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.stringWithDefaultValue_SymbolPi contains "Pi."' +
+                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.bytesWithDefaultValue_1F2F890D0A00004B == 1f:2f:89:0d:0a:00:00:4b' +
+                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.optional' +  # test taking keyword 'optional' as identification
+                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.message' +  # test taking keyword 'message' as identification
+                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.stringWithNoValue == ""' +  # test default value is empty for strings
+                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.bytesWithNoValue == ""'  # test default value is empty for bytes
             ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, 'floatWithDefaultValue_0point23: 0.23') # another default value will be displayed
         assert grep_output(stdout, 'missing required field \'missingRequiredField\'') # check the missing required field export warn
@@ -857,7 +857,7 @@ class TestDissectProtobuf:
                 '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(complex_proto_files_dir, 'TRUE'),
                 '-o', 'protobuf.preload_protos: TRUE',
                 '-o', 'protobuf.pbf_as_hf: TRUE',
-                '-Y', 'pbf.wireshark.protobuf.test.complex.syntax.TestFileParsed.last_field_for_wireshark_test'
+                '-Y', 'pbf.wireshark.protobuf.test.complex.syntax.TestFileParsed.last_field_for_wireshark_test' +
                       ' && pbf.protobuf_unittest.TestFileParsed.last_field_for_wireshark_test',
             ), encoding='utf-8', env=test_env)
         # the output must be empty and not contain something like:

@@ -41,5 +41,5 @@ class TestDissectDis:
         proc = subprocess.run((cmd_tshark,) + DIS_DECODE_AS_ARGS + (
                 '-r', capture_file('dis_voice_sample.pcap'),
                 '-q',
-            ), capture_output=True, text=True, env=test_env)
+            ), capture_output=True, text=True, env=test_env, check=False)
         assert proc.returncode == 0, f"tshark failed: {proc.stderr}"

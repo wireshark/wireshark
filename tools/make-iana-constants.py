@@ -200,7 +200,7 @@ def get_afnum_data():
         req = urllib.request.Request(afnum_url)
         response = urllib.request.urlopen(req)
         body = response.read().decode('UTF-8', 'replace')
-    except Exception:
+    except urllib.error.HTTPError:
         exit_msg('Error opening ' + afnum_url)
 
 
@@ -271,7 +271,7 @@ def get_ipproto_data():
             req = urllib.request.Request(ipproto_url)
             response = urllib.request.urlopen(req)
             body = response.read().decode('UTF-8', 'replace')
-    except Exception:
+    except urllib.error.HTTPError:
             exit_msg('Error opening ' + ipproto_url)
 
 
@@ -369,7 +369,7 @@ def get_ip_special_data(name, url, reg, min_entries):
         req = urllib.request.Request(url)
         response = urllib.request.urlopen(req)
         body = response.read().decode('UTF-8', 'replace')
-    except Exception:
+    except urllib.error.HTTPError:
         exit_msg('Error opening ' + url)
 
 
@@ -388,10 +388,14 @@ def get_ip_special_data(name, url, reg, min_entries):
 def get_enterprise_entries():
     print(f'Loading Enterprise data from {enterprise_numbers_url}')
 
-    with urllib.request.urlopen(enterprise_numbers_url) as f:
-        if f.status != 200:
-            raise Exception("request for " + enterprise_numbers_url + " failed with result code " + f.status)
-        data = f.read().decode('utf-8').replace('\u200e', '')
+    try:
+        response = urllib.request.urlopen(enterprise_numbers_url)
+    except urllib.error.HTTPError:
+        exit_msg('Error opening ' + enterprise_numbers_url)
+
+    if response.status != 200:
+        raise RuntimeError("request for " + enterprise_numbers_url + " failed with result code " + response.status)
+    data = response.read().decode('utf-8').replace('\u200e', '')
 
     records = []
     # We only care about the "Decimal" and "Organization",
@@ -419,7 +423,8 @@ def get_enterprise_entries():
             end_seen = True
 
     if not end_seen:
-        raise Exception('"End of Document" not found. Truncated source file?')
+        # N.B., not caught..
+        raise ValueError('"End of Document" not found. Truncated source file?')
 
     return (records, last_updated)
 
@@ -465,11 +470,11 @@ def get_service_data():
     print(f'Loading service port/name data from {service_names_port_numbers_url}')
 
     try:
-            req = urllib.request.Request(service_names_port_numbers_url)
-            response = urllib.request.urlopen(req)
-            body = response.read().decode('UTF-8', 'replace')
-    except Exception:
-            exit_msg('Error opening ' + service_names_port_numbers_url)
+        req = urllib.request.Request(service_names_port_numbers_url)
+        response = urllib.request.urlopen(req)
+        body = response.read().decode('UTF-8', 'replace')
+    except urllib.error.HTTPError:
+        exit_msg('Error opening ' + service_names_port_numbers_url)
 
     ns = {'iana': iana_ns}
 
@@ -568,7 +573,7 @@ def generate_service_source_data(file, data):
         file.write("};\n\n")
 
         file.write(f"static const uint16_t _services_max_port = {max_port};\n")
-    except Exception as e:
+    except RuntimeError as e:
         print(e)
 
 class SourceStage(Enum):
@@ -635,7 +640,7 @@ def main():
                 generate_enterprise_header_data(iana_f)
                 iana_f.write(end)
 
-        except Exception:
+        except RuntimeError:
             exit_msg(f"Couldn't open \"{iana_h_path}\" file for writing")
 
         #Pull out the existing source file parts
@@ -653,7 +658,7 @@ def main():
                 generate_enterprise_source_data(iana_f, enterprise_data, enterprise_last_updated)
                 generate_service_source_data(iana_f, service_data)
                 iana_f.write(end)
-        except Exception:
+        except RuntimeError:
             exit_msg(f"Couldn't open \"{iana_c_path}\" file for writing")
 
 

@@ -250,7 +250,7 @@ class SharkdShell:
             try:
                 if self.pretty == 'jq':
                     subprocess.run(['jq', '.'], input=resp,
-                                   text=True)
+                                   text=True, check=False)
                 elif self.pretty == 'indent':
                     r = json.loads(resp)
                     json.dump(r, sys.stdout, indent='  ')

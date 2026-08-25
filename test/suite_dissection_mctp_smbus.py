@@ -286,7 +286,7 @@ class TestMctpSmbusNvmeMi:
         """Frame 7 (len == byte_count+4): PEC=0xfe is decoded and verified."""
         stdout = subprocess.check_output((cmd_tshark,
             '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 7 && mctp.smbus.pec == 0xfe '
+            '-Y', 'frame.number == 7 && mctp.smbus.pec == 0xfe ' +
                   '&& mctp.smbus.pec.status == 1',
             '-Tfields', '-e', 'frame.number',
         ), encoding='utf-8', env=test_env)
@@ -383,7 +383,7 @@ class TestMctpSmbusLengthMismatch:
         """
         stdout = subprocess.check_output((cmd_tshark,
             '-r', capture_file(self.FILE),
-            '-Y', 'frame.number == 9 && mctp.smbus.pec == 0x60 '
+            '-Y', 'frame.number == 9 && mctp.smbus.pec == 0x60 ' +
                   '&& mctp.smbus.pec.status == 1',
             '-Tfields', '-e', 'frame.number',
         ), encoding='utf-8', env=test_env)

@@ -28,9 +28,9 @@ preamble = f"""\
 /*
  * Do not modify this file. Changes will be overwritten.
  *
- * Generated automatically from %s.
+ * Generated automatically from {os.path.basename(sys.argv[0])}.
  */
-""" % (os.path.basename(sys.argv[0]))
+"""
 
 # Create the proper list of filenames
 filenames = []

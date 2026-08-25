@@ -101,11 +101,11 @@ def main():
         for idx, data in enumerate(cbordata):
             if idx % 2 == 0:
                 mid = random.randint(1, 0xFFFF)
-                coapopts = dict(
-                    type="CON",
-                    code=2,
-                    msg_id=mid,
-                    options=(
+                coapopts = {
+                    'type' : "CON",
+                    'code' : 2,
+                    'msg_id' : mid,
+                    'options' : (
                         [
                             ("Uri-Host", "example.com"),
                         ]
@@ -114,23 +114,23 @@ def main():
                             ("Content-Format", cformat.pop(0)),
                         ]
                     ),
-                    paymark=b'\xFF',
-                )
+                    'paymark'  : b'\xFF',
+                }
                 pyld = CoAP(**coapopts)/data
-                udpopts = dict(sport=cport, dport=5683)
+                udpopts = { 'sport' : cport, 'dport' : 5683 }
                 out_pkts.append(Ether()/IP()/UDP(**udpopts)/pyld)
             else:
-                coapopts = dict(
-                    type="ACK",
-                    code=68,
-                    msg_id=mid,
-                    options=[
+                coapopts = {
+                    'type' : "ACK",
+                    'code' : 68,
+                    'msg_id' : mid,
+                    'options' : [
                         ("Content-Format", cformat.pop(0)),
                     ],
-                    paymark=b'\xFF',
-                )
+                    'paymark' : b'\xFF'
+                }
                 pyld = CoAP(**coapopts)/data
-                udpopts = dict(sport=5683, dport=cport)
+                udpopts = { 'sport' : 5683, 'dport' : cport }
                 out_pkts.append(Ether()/IP()/UDP(**udpopts)/pyld)
 
     elif args.transport == 'http':
@@ -161,7 +161,7 @@ def main():
                 else:
                     flags = ""
                     seqadd = 0
-                udpopts = dict(sport=cport, seq=seq[0], flags=flags)
+                udpopts = { 'sport' : cport, 'seq' : seq[0], 'flags' : flags }
                 out_pkts.append(Ether()/IP()/TCP(**udpopts)/pyld)
                 seq[0] += len(bytes(pyld)) + seqadd
             else:
@@ -179,7 +179,7 @@ def main():
                 else:
                     flags = ""
                     seqadd = 0
-                udpopts = dict(dport=cport, seq=seq[1], flags=flags)
+                udpopts = { 'dport' : cport, 'seq' : seq[1], 'flags' : flags }
                 out_pkts.append(Ether()/IP()/TCP(**udpopts)/pyld)
                 seq[1] += len(bytes(pyld)) + seqadd
 
