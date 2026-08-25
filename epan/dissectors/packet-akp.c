@@ -169,13 +169,15 @@ dissect_akp_EncryptionAlgorithmIdentifier(bool implicit_tag _U_, tvbuff_t *tvb _
 
 static unsigned
 dissect_akp_EncryptedData(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  tvbuff_t *encrypted_tvb;
+  tvbuff_t *encrypted_tvb = NULL;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &encrypted_tvb);
 
-  PBE_decrypt_data(dissect_PrivateKeyInfo_PDU, "PrivateKeyInfo",
-    encrypted_tvb, actx->pinfo, actx, actx->created_item);
+  if (encrypted_tvb) {
+    PBE_decrypt_data(dissect_PrivateKeyInfo_PDU, "PrivateKeyInfo",
+      encrypted_tvb, actx->pinfo, actx, actx->created_item);
+  }
 
   return offset;
 }

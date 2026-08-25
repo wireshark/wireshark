@@ -25,14 +25,16 @@ EncryptedPrivateKeyInfo B "1.2.840.113549.1.9.16.1.53" "id-ct-encrPrivateKeyInfo
 PrivateKeyInfo
 
 #.FN_HDR EncryptedData
-  tvbuff_t *encrypted_tvb;
+  tvbuff_t *encrypted_tvb = NULL;
 
 #.END
 
 #.FN_PARS EncryptedData VAL_PTR = &encrypted_tvb
 
 #.FN_FTR EncryptedData
-  PBE_decrypt_data(dissect_PrivateKeyInfo_PDU, "PrivateKeyInfo",
-    encrypted_tvb, actx->pinfo, actx, actx->created_item);
+  if (encrypted_tvb) {
+    PBE_decrypt_data(dissect_PrivateKeyInfo_PDU, "PrivateKeyInfo",
+      encrypted_tvb, actx->pinfo, actx, actx->created_item);
+  }
 
 #.END

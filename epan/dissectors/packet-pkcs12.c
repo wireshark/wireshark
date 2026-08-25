@@ -346,6 +346,10 @@ int PBE_decrypt_data(dissector_t dissector, const char *description, tvbuff_t *e
 		return false;
         }
 
+        if (encrypted_tvb == NULL) {
+		proto_item_append_text(item, " [Null input buffer]");
+		return false;
+        }
 	datalen = tvb_captured_length(encrypted_tvb);
 	if (!datalen) {
 		proto_item_append_text(item, " [Zero-length input buffer]");
