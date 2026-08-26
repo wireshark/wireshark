@@ -421,7 +421,7 @@ int16_t csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* p
  *****************************************************************************/
 /* XXX - need 2 hf support */
 #define M_REC_ARRAY(_STRUCT, _MEMBER, _ElementCountField, _BITS, _HF_PTR, _HF_PTR_EXIST)\
-        {CSN_RECURSIVE_ARRAY, _BITS, {(const void*)offsetof(_STRUCT, _ElementCountField)}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, 0, _HF_PTR, _HF_PTR_EXIST, NULL}
+        {CSN_RECURSIVE_ARRAY, _BITS, {(const void*)offsetof(_STRUCT, _ElementCountField)}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, 0, _HF_PTR, _HF_PTR_EXIST, (void_fn_t)array_length(((_STRUCT*)0)->_MEMBER)}
 
 /******************************************************************************
  * M_VAR_TYPE_ARRAY(Par1, Par2, Par3, Par4)
