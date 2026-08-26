@@ -646,6 +646,13 @@ netxray_open(wtap *wth, int *err, char **err_info)
 				*/
 				if (hdr.timeunit == 2) {
 					ticks_per_sec = pletohu32(hdr.realtick);
+					if (ticks_per_sec == 0.0) {
+						*err = WTAP_ERR_BAD_FILE;
+						*err_info = ws_strdup_printf(
+						    "netxray: Timeunit %u with invalid realtick 0 for Ethernet/ETH_CAPTYPE_NDIS version %.8s capture",
+						    hdr.timeunit, hdr.version);
+						return WTAP_OPEN_ERROR;
+					}
 				}
 				else {
 					ticks_per_sec = TpS[hdr.timeunit];
@@ -777,6 +784,14 @@ netxray_open(wtap *wth, int *err, char **err_info)
 		*err = WTAP_ERR_INTERNAL;
 		*err_info = ws_strdup_printf("netxray: version %d.%d somehow didn't get rejected",
 		                            version_major, version_minor);
+		return WTAP_OPEN_ERROR;
+	}
+	if (ticks_per_sec == 0.0) {
+		/* "Can't happen" - we should have rejected this in all the
+		 * cases above, but double-check. */
+		*err = WTAP_ERR_INTERNAL;
+		*err_info = ws_strdup_printf(
+		    "netxray: ticks_per_sec cannot be 0");
 		return WTAP_OPEN_ERROR;
 	}
 	start_timestamp = start_timestamp/ticks_per_sec;
