@@ -155,7 +155,9 @@ dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo,
 	/* Keep track of which registers
 	 * were used for which hfinfo's so that we
 	 * can re-use registers. */
-	/* Re-use only if we are not using a range (layer filter). */
+	/* Re-use only if we are not using a range (layer filter).
+	 * We could try to key on the range value as well in the hash table;
+	 * it's not clear if that optimization is worth the trouble. */
 	loaded_key = g_hash_table_lookup(loaded_fields, hfinfo);
 	if (loaded_key != NULL) {
 		if (range == NULL) {
@@ -173,9 +175,14 @@ dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo,
 	}
 	else {
 		reg = dfw->next_register++;
-		g_hash_table_insert(loaded_fields,
-			hfinfo, GINT_TO_POINTER(reg + 1));
+		if (range == NULL) {
+			g_hash_table_insert(loaded_fields,
+				hfinfo, GINT_TO_POINTER(reg + 1));
+		}
 
+		/* It might not truly be a new hfinfo - we might have added it
+		 * as a different raw/vs/range variant, but it's no harm to
+		 * re-add it to the hashtable below. */
 		added_new_hfinfo = true;
 	}
 
