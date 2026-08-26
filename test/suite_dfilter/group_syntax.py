@@ -458,6 +458,21 @@ class TestDfilterLayer:
         dfilter = r"ip.dst#ip"
         checkDFilterFail(dfilter, "Expected digit or \"[\"")
 
+    def test_layer_register_reuse(self, checkDFilterCount):
+        # A later field should not use the same register as a range limited one
+        dfilter = 'ip.dst#[3-4] == 8.8.8.8 and ip.dst == 4.4.4.4'
+        checkDFilterCount(dfilter, 1)
+
+    def test_layer_register_reuse2(self, checkDFilterCount):
+        # A later range-limited field should not use the same register as an unlimited one
+        dfilter = 'ip.dst == 8.8.8.8 and ip.dst#[1-2] == 8.8.8.8'
+        checkDFilterCount(dfilter, 0)
+
+    def test_layer_register_reuse3(self, checkDFilterCount):
+        # The same field with different ranges should use different registers
+        dfilter = 'ip.dst#1 == 2.2.2.2 and ip.dst#2 == 4.4.4.4'
+        checkDFilterCount(dfilter, 1)
+
 class TestDfilterQuantifiers:
     trace_file = "ipoipoip.pcap"
 
@@ -483,6 +498,11 @@ class TestDfilterRawModifier:
     def test_raw2(self, checkDFilterCount):
         dfilter = '@s7comm.blockinfo.blocktype == 30:fe'
         checkDFilterCount(dfilter, 1)
+
+    def test_raw3(self, checkDFilterCount):
+        # ordinary and raw field values should go in different registers
+        dfilter = 's7comm.blockinfo.blocktype == "0\uFFFD" and @s7comm.blockinfo.blocktype == 30:aa'
+        checkDFilterCount(dfilter, 2)
 
     def test_raw_ref(self, checkDFilterCountWithSelectedFrame):
         dfilter = '@s7comm.blockinfo.blocktype == ${@s7comm.blockinfo.blocktype}'
