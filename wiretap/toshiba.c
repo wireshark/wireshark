@@ -302,10 +302,12 @@ parse_toshiba_packet(FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 		}
 
 		/* Check for "OFFSET 0001-0203" at beginning of line */
-		line[16] = '\0';
-
-	} while (strcmp(line, "OFFSET 0001-0203") != 0);
-
+	} while (strncmp(line, "OFFSET 0001-0203", 16) != 0);
+	if (strlen(line) < 68) {
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup("toshiba: OFFSET line doesn't have valid LEN item");
+		return false;
+	}
 	num_items_scanned = sscanf(line+64, "LEN=%9d", &pkt_len);
 	if (num_items_scanned != 1) {
 		*err = WTAP_ERR_BAD_FILE;
