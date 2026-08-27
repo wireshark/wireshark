@@ -131,6 +131,7 @@ dfilter_cleanup(void)
 	/* Free the Lemon Parser object */
 	if (ParserObj) {
 		DfilterFree(ParserObj, g_free);
+		ParserObj = NULL;
 	}
 
 	/* Clean up the syntax-tree sub-sub-system */

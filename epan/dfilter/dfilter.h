@@ -106,7 +106,7 @@ dfilter_init(const char* app_env_var_prefix);
  * plugins, macros, and syntax trees.
  */
 void
- dfilter_cleanup(void);
+dfilter_cleanup(void);
 
 /* Perform macro expansion. */
 /**
