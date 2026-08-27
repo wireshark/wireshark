@@ -34,25 +34,23 @@ void dump_dfilter_macro_t(const dfilter_macro_t *m, const char *function, const 
 #define DUMP_MACRO(m)
 #endif
 
-static char* dfilter_macro_resolve(char* name, char** args, df_error_t** error) {
-	GString* text;
+static bool dfilter_macro_resolve(char* name, char** args, GString *out, df_error_t** error) {
 	int argc = 0;
 	dfilter_macro_t* m = NULL;
 	int* arg_pos_p;
 	char** parts;
-	char* ret;
 
 	m = g_hash_table_lookup(macros_table, name);
 	if (!m) {
 		if (error != NULL)
 			*error = df_error_new_printf(DF_ERROR_GENERIC, NULL, "macro '%s' does not exist", name);
-		return NULL;
+		return false;
 	}
 
 	if (!m->usable) {
 		if (error != NULL)
 			*error = df_error_new_printf(DF_ERROR_GENERIC, NULL, "macro '%s' is invalid", name);
-		return NULL;
+		return false;
 	}
 
 	DUMP_MACRO(m);
@@ -67,27 +65,23 @@ static char* dfilter_macro_resolve(char* name, char** args, df_error_t** error) 
 							"wrong number of arguments for macro '%s', expecting %d instead of %d",
 							name, m->argc, argc);
 		}
-		return NULL;
+		return false;
 	}
 
 	arg_pos_p = m->args_pos;
 	parts = m->parts;
 
-	text = g_string_new(*(parts++));
+	g_string_append(out, *(parts++));
 
 	if (args) {
 		while (*parts) {
-			g_string_append_printf(text,"%s%s",
+			g_string_append_printf(out,"%s%s",
 					       args[*(arg_pos_p++)],
 					       *(parts++));
 		}
 	}
 
-	ret = wmem_strdup(NULL, text->str);
-
-	g_string_free(text,TRUE);
-
-	return ret;
+	return true;
 }
 
 /* Start points to the first character after "${" */
@@ -255,14 +249,10 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 				} else if ( c == '}') {
 					g_ptr_array_add(args,NULL);
 
-					resolved = dfilter_macro_resolve(name->str, (char**)args->pdata, error);
-					if (resolved == NULL)
+					if (!dfilter_macro_resolve(name->str, (char**)args->pdata, out, error))
 						goto on_error;
 
 					changed = true;
-
-					g_string_append(out,resolved);
-					wmem_free(NULL, resolved);
 
 					FREE_ALL();
 
@@ -357,14 +347,10 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 							arg = NULL;
 						}
 
-						resolved = dfilter_macro_resolve(name->str, (char**)args->pdata, error);
-						if (resolved == NULL)
+						if (!dfilter_macro_resolve(name->str, (char**)args->pdata, out, error))
 							goto on_error;
 
 						changed = true;
-
-						g_string_append(out,resolved);
-						wmem_free(NULL, resolved);
 
 						FREE_ALL();
 
@@ -392,9 +378,7 @@ finish:
 			g_string_free(out,TRUE);
 			return resolved;
 		} else {
-			char* out_str = wmem_strdup(NULL, out->str);
-			g_string_free(out,TRUE);
-			return out_str;
+			return g_string_free(out, FALSE);
 		}
 	}
 on_error:
