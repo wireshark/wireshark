@@ -266,13 +266,14 @@ QWidget *FilterTreeDelegate::createEditor(QWidget *parent, const QStyleOptionVie
         w = QStyledItemDelegate::createEditor(parent, option, index);
     }
 
-    if (qobject_cast<QLineEdit *>(w)) {
+    QLineEdit *le = qobject_cast<QLineEdit *>(w);
+    if (le != nullptr) {
         if (index.column() == FilterListModel::ColumnName) {
             if (filter_type_ == FilterDialog::DisplayMacro) {
-                qobject_cast<QLineEdit *>(w)->setValidator(new MacroNameValidator());
+                le->setValidator(new MacroNameValidator(le));
             }
             else {
-                qobject_cast<QLineEdit *>(w)->setValidator(new DialogFilterValidator());
+                le->setValidator(new DialogFilterValidator(le));
             }
         }
     }

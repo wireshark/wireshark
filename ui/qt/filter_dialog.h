@@ -160,6 +160,7 @@ private:
 class DialogFilterValidator : public QValidator
 {
 public:
+    explicit DialogFilterValidator(QObject *parent = NULL) : QValidator(parent) {}
     /**
      * @brief Validates the input filter string.
      * @param input The filter string to validate.
@@ -175,6 +176,7 @@ public:
 class MacroNameValidator : public QValidator
 {
 public:
+    explicit MacroNameValidator(QObject *parent = NULL) : QValidator(parent) {}
     /**
      * @brief Validates the input macro name.
      * @param input The macro name string to validate.
