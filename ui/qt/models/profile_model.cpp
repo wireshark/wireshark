@@ -73,18 +73,14 @@ bool ProfileItem::isDefault() const
 
 QString ProfileItem::getProfilePath(QString profileName) const
 {
-    QString profile_path;
-    if (isGlobal()) {
-        profile_path = gchar_free_to_qstring(get_global_profiles_dir(application_configuration_environment_prefix()));
-    }
-    else {
-        profile_path = gchar_free_to_qstring(get_profiles_dir(application_configuration_environment_prefix()));
-    }
-    if (profileName.isEmpty())
-        profileName = getName();
+    QString profile_path = gchar_free_to_qstring(get_profile_dir(application_configuration_environment_prefix(), profileName.toUtf8().constData(), isGlobal()));
 
-    profile_path.append("/").append(profileName);
     return QDir::toNativeSeparators(profile_path);
+}
+
+QString ProfileItem::getProfilePath() const
+{
+    return getProfilePath(getName());
 }
 
 void ProfileItem::setName(QString value)

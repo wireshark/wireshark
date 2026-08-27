@@ -126,12 +126,17 @@ public:
     const QString &getReference() const { return reference_; }
 
     /**
-     * @brief Returns the filesystem path for this profile.
+     * @brief Returns the filesystem path for a profile, possibly with a new name.
      * @param profileName Name to append to the base profile directory path.
-     *                    If empty, the current profile name (@c name_) is used.
      * @return Absolute path string for the profile directory.
      */
-    QString getProfilePath(QString profileName = "") const;
+    QString getProfilePath(QString profileName) const;
+
+    /**
+     * @brief Returns the current filesystem path for this profile.
+     * @return Absolute path string for the profile directory.
+     */
+    QString getProfilePath() const;
 
     /**
      * @brief Sets a new display name for the profile and marks it as changed if applicable.
