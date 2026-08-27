@@ -79,13 +79,13 @@ typedef enum {
     DFVM_IF_TRUE_GOTO,      /**< Branch to target instruction if the top of stack is true */
     DFVM_IF_FALSE_GOTO,     /**< Branch to target instruction if the top of stack is false */
     DFVM_CHECK_EXISTS,      /**< Push true if a given field exists in the packet tree */
-    DFVM_CHECK_EXISTS_R,    /**< Push true if a given field exists, using a raw field reference */
+    DFVM_CHECK_EXISTS_R,    /**< Push true if a given field exists, using a layer range */
     DFVM_NOT,               /**< Logically negate the boolean at the top of the stack */
     DFVM_RETURN,            /**< Halt execution and return the top-of-stack value as the filter result */
     DFVM_READ_TREE,         /**< Read all values of a field from the protocol tree into a register */
-    DFVM_READ_TREE_R,       /**< Read all raw values of a field from the protocol tree into a register */
+    DFVM_READ_TREE_R,       /**< Read values of a field from the protocol tree at a layer range into a register */
     DFVM_READ_REFERENCE,    /**< Read a named field reference value into a register */
-    DFVM_READ_REFERENCE_R,  /**< Read a named raw field reference value into a register */
+    DFVM_READ_REFERENCE_R,  /**< Read a named field reference value at a layer range into a register */
     DFVM_PUT_FVALUE,        /**< Load a constant fvalue literal into a register */
     DFVM_ALL_EQ,            /**< True if all values in register A equal any value in register B */
     DFVM_ANY_EQ,            /**< True if any value in register A equals any value in register B */
