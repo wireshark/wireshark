@@ -43,9 +43,15 @@ static char* dfilter_macro_resolve(char* name, char** args, df_error_t** error) 
 	char* ret;
 
 	m = g_hash_table_lookup(macros_table, name);
-	if (!m || !m->usable) {
+	if (!m) {
 		if (error != NULL)
 			*error = df_error_new_printf(DF_ERROR_GENERIC, NULL, "macro '%s' does not exist", name);
+		return NULL;
+	}
+
+	if (!m->usable) {
+		if (error != NULL)
+			*error = df_error_new_printf(DF_ERROR_GENERIC, NULL, "macro '%s' is invalid", name);
 		return NULL;
 	}
 
@@ -450,14 +456,24 @@ void macro_parse(dfilter_macro_t* m) {
 						cnt++;
 						r++;
 						*(w++) = '\0';
-						arg_pos *= 10;
-						arg_pos += c - '0';
+						if (ckd_mul(&arg_pos, arg_pos, 10)) {
+							ws_warning("Invalid macro '%s': argument number overflow", m->name);
+							goto fail;
+						}
+						if (ckd_add(&arg_pos, arg_pos, c - '0')) {
+							ws_warning("Invalid macro '%s': argument number overflow", m->name);
+							goto fail;
+						}
 					} else {
 						break;
 					}
 				} while(*r);
 
 				if (cnt) {
+					if (arg_pos == 0) {
+						ws_warning("Invalid macro '%s': argument number cannot be zero (arguments are 1-indexed)", m->name);
+						goto fail;
+					}
 					*(w++) = '\0';
 					r++;
 					argc = argc < arg_pos ? arg_pos : argc;
@@ -479,12 +495,28 @@ done:
 	g_free(m->parts);
 	m->parts = (char **)g_ptr_array_free(parts, false);
 
+	/* It's weird, but apparently legal (read: annoying to check), if some
+	 * arguments must be present but are unused. */
 	g_free(m->args_pos);
 	m->args_pos = (int*)(void *)g_array_free(args_pos, false);
 
 	m->argc = argc;
 
 	m->usable = true;
+
+	DUMP_MACRO(m);
+	return;
+
+fail:
+	g_free(m->parts);
+	m->parts = (char **)g_ptr_array_free(parts, true);
+
+	g_free(m->args_pos);
+	m->args_pos = (int*)(void *)g_array_free(args_pos, true);
+
+	m->argc = 0;
+
+	m->usable = false;
 
 	DUMP_MACRO(m);
 }
@@ -551,7 +583,7 @@ void dfilter_macro_reload(const char* app_env_var_prefix) {
 	for (GList *l = list->list; l != NULL; l = l->next) {
 		filter_def *def = l->data;
 		if (!check_macro(def->name, def->strval, &err)) {
-			ws_warning("Invalid macro '%s': %s",def->name, err);
+			ws_warning("Invalid macro '%s': %s", def->name ? def->name : "", err);
 			continue;
 		}
 		dfilter_macro_t *m = macro_new(def->name, def->strval);
