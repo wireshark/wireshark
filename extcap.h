@@ -129,6 +129,32 @@ void
 extcap_write_preferences(void);
 
 /**
+ * Returns the bookmark name for an extcap interface.
+ *
+ * @param ifname The extcap interface name.
+ * @return The bookmark name, or NULL if the interface isn't a bookmark. Must
+ * be freed with g_free().
+ */
+char *
+extcap_get_bookmark_name(const char *ifname);
+
+/**
+ * Bookmark an extcap interface, and save our interface information.
+ *
+ * If the interface we're given is itself a bookmark, its bookmark is renamed.
+ * Otherwise a new bookmark is added for the interface. Renaming the bookmark
+ * of an interface that we're currently using doesn't remove it until we next
+ * load our interfaces.
+ *
+ * @param ifname The extcap interface name, which may be a bookmark.
+ * @param bookmark_name The bookmark name.
+ * @return The bookmark's interface name, e.g. "randpkt/Random test", or NULL if
+ * we couldn't bookmark the interface. Must be freed with g_free().
+ */
+char *
+extcap_set_bookmark(const char *ifname, const char *bookmark_name);
+
+/**
  * Fetches the interface capabilities for the named extcap interface.
  * Initializes the extcap interface list if that hasn't already been done.
  * @param ifname The interface name.

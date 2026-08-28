@@ -8,6 +8,7 @@
 #
 '''extcap tests'''
 
+import json
 import os
 import re
 import subprocess
@@ -120,7 +121,30 @@ def bookmark_conf_path(conf_path):
     return conf_path
 
 
+@pytest.fixture
+def written_bookmark_conf_path(conf_path):
+    '''A configuration directory with bookmarks in the form that we write.'''
+    info = [{'randpktdump': {'extcap-interfaces': [
+                {'randpkt': {'bookmarks': ['Random test', 'Wire🦈 "quoted" / slashed']}}]}},
+            {'sshdump': {'extcap-interfaces': [
+                {'sshdump': {'bookmarks': ['My server']}}]}}]
+    with open(os.path.join(conf_path, 'interfaces.json'), 'w') as f:
+        json.dump(info, f, indent=2)
+    return conf_path
+
+
 class TestExtcapBookmarks:
+    def test_extcap_bookmark_written_info(self, cmd_tshark, program_path,
+            written_bookmark_conf_path, base_env):
+        '''We can read the interface information that we write'''
+        if sys.platform == 'win32':
+            pytest.skip('Test requires Npcap.')
+        iface_list = subprocess.check_output((cmd_tshark, '-D'),
+                cwd=program_path, encoding='utf-8', env=base_env)
+        assert 'randpkt/Random test (Random test)' in iface_list
+        assert 'randpkt/Wire🦈 "quoted" / slashed (Wire🦈 "quoted" / slashed)' in iface_list
+        assert 'sshdump/My server (My server)' in iface_list
+
     def test_extcap_bookmark_list(self, cmd_tshark, program_path, bookmark_conf_path, base_env):
         '''A bookmark is listed alongside its extcap interface'''
         if sys.platform == 'win32':

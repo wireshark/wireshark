@@ -43,6 +43,8 @@
 #include <ui/preference_utils.h>
 
 #include <ui/qt/main_application.h>
+#include <ui/qt/main_window.h>
+#include <ui/qt/manager/interface_list_manager.h>
 #include <ui/qt/utils/stock_icon.h>
 #include <ui/qt/utils/variant_pointer.h>
 
@@ -99,6 +101,12 @@ ExtcapOptionsDialog * ExtcapOptionsDialog::createForDevice(QString &dev_name, bo
     resultDialog->device_name = QString(dev_name);
     resultDialog->device_idx = if_idx;
 
+    char *bookmark_name = extcap_get_bookmark_name(qUtf8Printable(dev_name));
+    if (bookmark_name != NULL)
+    {
+        resultDialog->ui->bookmarkLineEdit->setText(gchar_free_to_qstring(bookmark_name));
+    }
+
     if (option_name != NULL && option_value != NULL)
     {
         // Sub argument is specified: this is an extcap popup created from a parent extcap popup,
@@ -112,6 +120,8 @@ ExtcapOptionsDialog * ExtcapOptionsDialog::createForDevice(QString &dev_name, bo
         resultDialog->ui->buttonBox->button(QDialogButtonBox::RestoreDefaults)->hide();
         resultDialog->ui->checkSaveOnStart->setCheckState(Qt::Checked);
         resultDialog->ui->checkSaveOnStart->hide();
+        resultDialog->ui->bookmarkLabel->hide();
+        resultDialog->ui->bookmarkLineEdit->hide();
     }
     else
     {
@@ -205,12 +215,12 @@ void ExtcapOptionsDialog::loadArguments()
 
     if (!option_name.isEmpty())
     {
-        arguments = g_list_first(extcap_get_if_configuration_option(device_name.toUtf8().constData(),
-            option_name.toUtf8().constData(), option_value.toUtf8().constData()));
+        arguments = g_list_first(extcap_get_if_configuration_option(qUtf8Printable(device_name),
+            qUtf8Printable(option_name), qUtf8Printable(option_value)));
     }
     else
     {
-        arguments = g_list_first(extcap_get_if_configuration(device_name.toUtf8().constData()));
+        arguments = g_list_first(extcap_get_if_configuration(qUtf8Printable(device_name)));
     }
     ExtcapArgumentList required;
     ExtcapArgumentList optional;
@@ -516,7 +526,16 @@ void ExtcapOptionsDialog::on_buttonBox_clicked(QAbstractButton *button)
              * out a new preference file with its new value, but don't.
              */
             if (ui->buttonBox->standardButton(button) == QDialogButtonBox::Save) {
-                storeValues();
+                if (storeValues()) {
+                    /* A bookmark is an interface of its own, so make sure that
+                     * we show it. We don't do this when starting a capture,
+                     * since reloading our interfaces would remove the one that
+                     * we're about to capture on. */
+                    MainWindow *mw = mainApp->mainWindow();
+                    if (mw && mw->interfaceListManager()) {
+                        mw->interfaceListManager()->requestRefresh();
+                    }
+                }
                 /* Reject the dialog, because we don't want to start a capture. */
                 reject();
             } else {
@@ -662,8 +681,32 @@ GHashTable *ExtcapOptionsDialog::getArgumentSettings(bool useCallsAsKey, bool in
     return entries;
 }
 
-void ExtcapOptionsDialog::storeValues()
+// The options dialog should have the following behavior with respect to bookmarks:
+// - If the extcap interface is not a bookmark and the bookmarkLineEdit is not empty, create a new bookmark interface.
+// - If the extcap interface is a bookmark, fill in bookmarkLineEdit with the bookmark name. Furthermore:
+//   - If the user saves extcap options and bookmarkLineEdit has been changed, update its corresponding interface information.
+//   - If the user saves extcap options and bookmarkLineEdit is empty, do not update its corresponding interface information.
+
+bool ExtcapOptionsDialog::storeValues()
 {
+    /* A new bookmark name means that we store our values in a bookmark of
+     * their own, creating or renaming it as needed. An empty name leaves our
+     * interface information alone. */
+    bool bookmarked = false;
+    QString bookmark_name = ui->bookmarkLineEdit->text().trimmed();
+    QString cur_bookmark = gchar_free_to_qstring(extcap_get_bookmark_name(qUtf8Printable(device_name)));
+
+    if (!bookmark_name.isEmpty() && bookmark_name != cur_bookmark)
+    {
+        char *bookmark_ifname = extcap_set_bookmark(qUtf8Printable(device_name), qUtf8Printable(bookmark_name));
+        if (bookmark_ifname != NULL)
+        {
+            /* Our values belong to the bookmark from here on. */
+            device_name = gchar_free_to_qstring(bookmark_ifname);
+            bookmarked = true;
+        }
+    }
+
     GHashTable * entries = getArgumentSettings();
 
     if (g_hash_table_size(entries) > 0)
@@ -674,6 +717,8 @@ void ExtcapOptionsDialog::storeValues()
     }
 
     g_hash_table_unref(entries);
+
+    return bookmarked;
 }
 
 ExtcapValueList ExtcapOptionsDialog::loadValuesFor(int argNum, QString argumentName, QString parent)

@@ -135,8 +135,9 @@ private:
 
     /**
      * @brief Stores the current argument values persistently.
+     * @return True if we bookmarked our interface, false otherwise.
      */
-    void storeValues();
+    bool storeValues();
 
     /**
      * @brief Resets all arguments to their default values.

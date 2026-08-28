@@ -44,6 +44,7 @@
 #include <wsutil/ws_assert.h>
 #include <wsutil/version_info.h>
 #include <wsutil/wsjson.h>
+#include <wsutil/json_dumper.h>
 #include <app/application_flavor.h>
 #include <wsutil/path_config.h>
 #include <wsutil/strtoi.h>
@@ -3095,77 +3096,370 @@ extcap_add_bookmark(const extcap_interface *parent_iface, const char *toolname,
 }
 
 /**
- * Add the info for one element of an extcap's "extcap-interfaces" array.
+ * The information that we've saved for one extcap interface.
+ */
+typedef struct extcap_saved_info {
+    char *toolname;        /**< Extcap name, as it appears on disk. */
+    char *ifname;          /**< Extcap interface name, as returned by `--extcap-interfaces`. */
+    GPtrArray *bookmarks;  /**< Bookmark names. */
+} extcap_saved_info_t;
+
+static void
+extcap_free_saved_info(void *data)
+{
+    if (!data) {
+        return;
+    }
+
+    extcap_saved_info_t *info = (extcap_saved_info_t *)data;
+
+    g_free(info->toolname);
+    g_free(info->ifname);
+    g_ptr_array_unref(info->bookmarks);
+    g_free(info);
+}
+
+static extcap_saved_info_t *
+extcap_find_saved_info(GList *info_list, const char *toolname, const char *ifname)
+{
+    for (GList *walker = info_list; walker; walker = walker->next) {
+        extcap_saved_info_t *info = (extcap_saved_info_t *)walker->data;
+        if (g_strcmp0(info->toolname, toolname) == 0
+                && g_strcmp0(info->ifname, ifname) == 0) {
+            return info;
+        }
+    }
+
+    return NULL;
+}
+
+/* Find a bookmark name in a saved interface's bookmarks, or -1. */
+static int
+extcap_find_saved_bookmark(GPtrArray *bookmarks, const char *bookmark_name)
+{
+    for (unsigned i = 0; i < bookmarks->len; i++) {
+        if (g_strcmp0((const char *)g_ptr_array_index(bookmarks, i), bookmark_name) == 0) {
+            return (int)i;
+        }
+    }
+
+    return -1;
+}
+
+/**
+ * Parse our interface information.
  *
- * The element is an object with a single key, which is the interface name.
- * Its value is an object with a key named "bookmarks", whose value is an
- * array of bookmark names.
+ * @param contents The contents of our info file. Modified in place.
+ * @return A list of extcap_saved_info_t, or NULL if we couldn't parse it.
+ */
+static GList *
+extcap_parse_info(char *contents)
+{
+    GList *info_list = NULL;
+
+    /* First pass: determine number of tokens needed. */
+    int ret = json_parse(contents, NULL, 0);
+    if (ret <= 0) {
+        ws_warning("Failed to parse %s", INTERFACES_JSON_FILE);
+        return NULL;
+    }
+
+    jsmntok_t *tokens = g_new0(jsmntok_t, ret);
+    ret = json_parse(contents, tokens, ret);
+    if (ret <= 0 || tokens[0].type != JSMN_ARRAY) {
+        ws_warning("%s: expected a JSON array at top level", INTERFACES_JSON_FILE);
+        g_free(tokens);
+        return NULL;
+    }
+
+    int array_len = json_get_array_len(&tokens[0]);
+    jsmntok_t *element = json_get_array_index(&tokens[0], 0);
+
+    for (int i = 0; i < array_len; i++, element = json_get_next_object(element)) {
+        if (element->type != JSMN_OBJECT || element->size < 1) {
+            continue;
+        }
+
+        /* The first (and only expected) key is the extcap name, value is an
+         * object with an "extcap-interfaces" key. */
+        jsmntok_t *extcap_tok = element + 1;
+        jsmntok_t *extcap_val_tok = element + 2;
+
+        if (extcap_tok->type != JSMN_STRING || extcap_val_tok->type != JSMN_OBJECT) {
+            continue;
+        }
+
+        contents[extcap_tok->end] = '\0';
+        char *toolname = &contents[extcap_tok->start];
+        if (!json_decode_string_inplace(toolname)) {
+            continue;
+        }
+
+        jsmntok_t *interfaces_tok = json_get_array(contents, extcap_val_tok, "extcap-interfaces");
+        if (!interfaces_tok) {
+            ws_debug("Extcap \"%s\": missing \"extcap-interfaces\" array, skipping", toolname);
+            continue;
+        }
+
+        int interfaces_len = json_get_array_len(interfaces_tok);
+        jsmntok_t *iface_element = json_get_array_index(interfaces_tok, 0);
+
+        for (int j = 0; j < interfaces_len; j++, iface_element = json_get_next_object(iface_element)) {
+            if (iface_element->type != JSMN_OBJECT || iface_element->size < 1) {
+                continue;
+            }
+
+            /* The first (and only expected) key is the interface name, value
+             * is an object with a "bookmarks" key. */
+            jsmntok_t *iface_tok = iface_element + 1;
+            jsmntok_t *iface_val_tok = iface_element + 2;
+
+            if (iface_tok->type != JSMN_STRING || iface_val_tok->type != JSMN_OBJECT) {
+                continue;
+            }
+
+            contents[iface_tok->end] = '\0';
+            char *ifname = &contents[iface_tok->start];
+            if (!json_decode_string_inplace(ifname)) {
+                continue;
+            }
+
+            extcap_saved_info_t *info = g_new0(extcap_saved_info_t, 1);
+            info->toolname = g_strdup(toolname);
+            info->ifname = g_strdup(ifname);
+            info->bookmarks = g_ptr_array_new_with_free_func(g_free);
+            info_list = g_list_append(info_list, info);
+
+            jsmntok_t *bookmarks_tok = json_get_array(contents, iface_val_tok, "bookmarks");
+            if (!bookmarks_tok) {
+                ws_debug("Extcap interface \"%s\": missing \"bookmarks\" array, skipping", ifname);
+                continue;
+            }
+
+            int bookmarks_len = json_get_array_len(bookmarks_tok);
+            jsmntok_t *bookmark_tok = json_get_array_index(bookmarks_tok, 0);
+
+            for (int k = 0; k < bookmarks_len; k++, bookmark_tok = json_get_next_object(bookmark_tok)) {
+                if (bookmark_tok->type != JSMN_STRING) {
+                    continue;
+                }
+
+                contents[bookmark_tok->end] = '\0';
+                char *bookmark_name = &contents[bookmark_tok->start];
+                if (!json_decode_string_inplace(bookmark_name)) {
+                    continue;
+                }
+
+                g_ptr_array_add(info->bookmarks, g_strdup(bookmark_name));
+            }
+        }
+    }
+
+    g_free(tokens);
+
+    return info_list;
+}
+
+/**
+ * Read our interface information.
  *
- * @param contents The contents of the bookmarks file. Modified in place.
- * @param element The "extcap-interfaces" array element.
- * @param extcap_name The name of the extcap that we expect to provide the
- * interface.
- * @param dirname The extcap directory.
- * @return true if we registered new preferences, false otherwise.
+ * @return A list of extcap_saved_info_t, which the caller must free with
+ * extcap_free_saved_info(), or NULL if we have nothing saved.
+ */
+static GList *
+extcap_read_info(void)
+{
+    char *interfaces_path = get_persconffile_path(INTERFACES_JSON_FILE, false,
+                                                  application_configuration_environment_prefix());
+    char *contents = NULL;
+
+    if (!g_file_get_contents(interfaces_path, &contents, NULL, NULL)) {
+        /* File doesn't exist or can't be read – nothing to do. */
+        g_free(interfaces_path);
+        return NULL;
+    }
+    g_free(interfaces_path);
+
+    GList *info_list = extcap_parse_info(contents);
+    g_free(contents);
+
+    return info_list;
+}
+
+/* Does an extcap have anything worth saving? */
+static bool
+extcap_toolname_has_info(GList *info_list, const char *toolname)
+{
+    for (GList *walker = info_list; walker; walker = walker->next) {
+        extcap_saved_info_t *info = (extcap_saved_info_t *)walker->data;
+        if (g_strcmp0(info->toolname, toolname) == 0 && info->bookmarks->len > 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Write our interface information.
+ *
+ * @param info_list A list of extcap_saved_info_t.
+ * @return true on success, false on failure.
  */
 static bool
-extcap_add_interface_info(char *contents, jsmntok_t *element,
-                          const char *extcap_name, const char *dirname)
+extcap_write_info(GList *info_list)
 {
-    bool new_prefs = false;
-
-    if (element->type != JSMN_OBJECT || element->size < 1) {
+    char *interfaces_path = get_persconffile_path(INTERFACES_JSON_FILE, false,
+                                                  application_configuration_environment_prefix());
+    FILE *fp = ws_fopen(interfaces_path, "w");
+    if (fp == NULL) {
+        ws_warning("Unable to save extcap information \"%s\": %s",
+            interfaces_path, g_strerror(errno));
+        g_free(interfaces_path);
         return false;
     }
+    g_free(interfaces_path);
 
-    jsmntok_t *iface_tok = element + 1;
-    jsmntok_t *iface_val_tok = element + 2;
+    json_dumper dumper = {
+        .output_file = fp,
+        .flags = JSON_DUMPER_FLAGS_PRETTY_PRINT,
+    };
 
-    if (iface_tok->type != JSMN_STRING || iface_val_tok->type != JSMN_OBJECT) {
-        return false;
-    }
+    /* Keep each extcap's interfaces together. */
+    GHashTable *written = g_hash_table_new(g_str_hash, g_str_equal);
 
-    contents[iface_tok->end] = '\0';
-    char *ifname = &contents[iface_tok->start];
-    if (!json_decode_string_inplace(ifname)) {
-        return false;
-    }
+    json_dumper_begin_array(&dumper);
+    for (GList *walker = info_list; walker; walker = walker->next) {
+        extcap_saved_info_t *tool_info = (extcap_saved_info_t *)walker->data;
 
-    /* Make sure this extcap provides this interface. */
-    const char *toolname = (const char *)g_hash_table_lookup(_tool_for_ifname, ifname);
-    extcap_interface *parent_iface = extcap_find_interface_for_ifname(ifname);
-    if (!parent_iface || g_strcmp0(extcap_name, toolname) != 0) {
-        ws_debug("Extcap \"%s\" doesn't provide interface \"%s\", skipping its bookmarks",
-                extcap_name, ifname);
-        return false;
-    }
-
-    jsmntok_t *bookmarks_tok = json_get_array(contents, iface_val_tok, "bookmarks");
-    if (!bookmarks_tok) {
-        ws_debug("Extcap interface \"%s\": missing \"bookmarks\" array, skipping", ifname);
-        return false;
-    }
-
-    int bookmarks_len = json_get_array_len(bookmarks_tok);
-    jsmntok_t *bookmark_tok = json_get_array_index(bookmarks_tok, 0);
-
-    for (int i = 0; i < bookmarks_len; i++, bookmark_tok = json_get_next_object(bookmark_tok)) {
-        if (bookmark_tok->type != JSMN_STRING) {
+        if (g_hash_table_contains(written, tool_info->toolname)
+                || !extcap_toolname_has_info(info_list, tool_info->toolname)) {
             continue;
         }
+        g_hash_table_add(written, tool_info->toolname);
 
-        contents[bookmark_tok->end] = '\0';
-        char *bookmark_name = &contents[bookmark_tok->start];
-        if (!json_decode_string_inplace(bookmark_name)) {
-            continue;
+        json_dumper_begin_object(&dumper);
+        json_dumper_set_member_name(&dumper, tool_info->toolname);
+        json_dumper_begin_object(&dumper);
+        json_dumper_set_member_name(&dumper, "extcap-interfaces");
+        json_dumper_begin_array(&dumper);
+
+        for (GList *iface_walker = walker; iface_walker; iface_walker = iface_walker->next) {
+            extcap_saved_info_t *info = (extcap_saved_info_t *)iface_walker->data;
+
+            if (g_strcmp0(info->toolname, tool_info->toolname) != 0
+                    || info->bookmarks->len == 0) {
+                continue;
+            }
+
+            json_dumper_begin_object(&dumper);
+            json_dumper_set_member_name(&dumper, info->ifname);
+            json_dumper_begin_object(&dumper);
+            json_dumper_set_member_name(&dumper, "bookmarks");
+            json_dumper_begin_array(&dumper);
+            for (unsigned i = 0; i < info->bookmarks->len; i++) {
+                json_dumper_value_string(&dumper,
+                    (const char *)g_ptr_array_index(info->bookmarks, i));
+            }
+            json_dumper_end_array(&dumper);
+            json_dumper_end_object(&dumper);
+            json_dumper_end_object(&dumper);
         }
 
-        if (extcap_add_bookmark(parent_iface, toolname, bookmark_name, dirname)) {
-            new_prefs = true;
+        json_dumper_end_array(&dumper);
+        json_dumper_end_object(&dumper);
+        json_dumper_end_object(&dumper);
+    }
+    json_dumper_end_array(&dumper);
+
+    bool status = json_dumper_finish(&dumper);
+    fputs("\n", fp);
+    fclose(fp);
+    g_hash_table_destroy(written);
+
+    return status;
+}
+
+char *
+extcap_get_bookmark_name(const char *ifname)
+{
+    if (!ifname) {
+        return NULL;
+    }
+
+    const char *slash = strchr(ifname, '/');
+
+    return slash ? g_strdup(slash + 1) : NULL;
+}
+
+char *
+extcap_set_bookmark(const char *ifname, const char *bookmark_name)
+{
+    if (!ifname || !bookmark_name || strlen(bookmark_name) == 0) {
+        return NULL;
+    }
+
+    extcap_ensure_all_interfaces_loaded();
+
+    char *plain_ifname = get_plain_ifname(ifname);
+    char *old_bookmark_name = extcap_get_bookmark_name(ifname);
+    char *bookmark_call = NULL;
+
+    /* Make sure we know the interface that the bookmark is for. */
+    const char *toolname = (const char *)g_hash_table_lookup(_tool_for_ifname, plain_ifname);
+    extcap_interface *parent_iface = extcap_find_interface_for_ifname(plain_ifname);
+    if (!toolname || !parent_iface) {
+        ws_warning("Can't bookmark unknown extcap interface \"%s\"", plain_ifname);
+        goto done;
+    }
+
+    bookmark_call = ws_strdup_printf("%s/%s", plain_ifname, bookmark_name);
+
+    /* Add the bookmark if it's new, which registers its preferences. */
+    if (!extcap_find_interface_for_ifname(bookmark_call)) {
+        const char *extcap_dir = application_extcap_dir();
+        const char *dirname = get_extcap_dir(application_configuration_environment_prefix(),
+                                             extcap_dir);
+        extcap_add_bookmark(parent_iface, toolname, bookmark_name, dirname);
+    }
+
+    /* Save it, renaming the bookmark we were given if that's what it is. */
+    GList *info_list = extcap_read_info();
+    extcap_saved_info_t *info = extcap_find_saved_info(info_list, toolname, plain_ifname);
+    if (!info) {
+        info = g_new0(extcap_saved_info_t, 1);
+        info->toolname = g_strdup(toolname);
+        info->ifname = g_strdup(plain_ifname);
+        info->bookmarks = g_ptr_array_new_with_free_func(g_free);
+        info_list = g_list_append(info_list, info);
+    }
+
+    int old_idx = -1;
+    if (old_bookmark_name) {
+        old_idx = extcap_find_saved_bookmark(info->bookmarks, old_bookmark_name);
+        if (old_idx >= 0) {
+            g_ptr_array_remove_index(info->bookmarks, (unsigned)old_idx);
+        }
+    }
+    if (extcap_find_saved_bookmark(info->bookmarks, bookmark_name) < 0) {
+        if (old_idx >= 0) {
+            /* Keep the bookmark's place in our list. */
+            g_ptr_array_insert(info->bookmarks, old_idx, g_strdup(bookmark_name));
+        } else {
+            g_ptr_array_add(info->bookmarks, g_strdup(bookmark_name));
         }
     }
 
-    return new_prefs;
+    extcap_write_info(info_list);
+    g_list_free_full(info_list, extcap_free_saved_info);
+
+    ws_debug("Bookmarked extcap interface \"%s\" as \"%s\"", plain_ifname, bookmark_name);
+
+done:
+    g_free(plain_ifname);
+    g_free(old_bookmark_name);
+
+    return bookmark_call;
 }
 
 /**
@@ -3199,80 +3493,38 @@ extcap_add_interface_info(char *contents, jsmntok_t *element,
 static bool
 extcap_load_info(void)
 {
-    char *interfaces_path = get_persconffile_path(INTERFACES_JSON_FILE, false,
-                                                  application_configuration_environment_prefix());
-    char *contents = NULL;
-    gsize length = 0;
-
-    if (!g_file_get_contents(interfaces_path, &contents, &length, NULL)) {
-        /* File doesn't exist or can't be read – nothing to do. */
-        g_free(interfaces_path);
-        return false;
-    }
-    g_free(interfaces_path);
-
-    /* First pass: determine number of tokens needed. */
-    int ret = json_parse(contents, NULL, 0);
-    if (ret <= 0) {
-        ws_warning("Failed to parse %s", INTERFACES_JSON_FILE);
-        g_free(contents);
-        return false;
-    }
-
-    jsmntok_t *tokens = g_new0(jsmntok_t, ret);
-    ret = json_parse(contents, tokens, ret);
-    if (ret <= 0 || tokens[0].type != JSMN_ARRAY) {
-        ws_warning("%s: expected a JSON array at top level", INTERFACES_JSON_FILE);
-        g_free(tokens);
-        g_free(contents);
-        return false;
-    }
-
     bool new_prefs = false;
+
+    GList *info_list = extcap_read_info();
+    if (!info_list) {
+        return false;
+    }
+
     const char *extcap_dir = application_extcap_dir();
     const char *dirname = get_extcap_dir(application_configuration_environment_prefix(), extcap_dir);
-    int array_len = json_get_array_len(&tokens[0]);
-    jsmntok_t *element = json_get_array_index(&tokens[0], 0);
 
-    for (int i = 0; i < array_len; i++, element = json_get_next_object(element)) {
-        if (element->type != JSMN_OBJECT || element->size < 1) {
+    for (GList *walker = info_list; walker; walker = walker->next) {
+        extcap_saved_info_t *info = (extcap_saved_info_t *)walker->data;
+
+        /* Make sure this extcap provides this interface. */
+        const char *toolname = (const char *)g_hash_table_lookup(_tool_for_ifname, info->ifname);
+        extcap_interface *parent_iface = extcap_find_interface_for_ifname(info->ifname);
+        if (!parent_iface || g_strcmp0(info->toolname, toolname) != 0) {
+            ws_debug("Extcap \"%s\" doesn't provide interface \"%s\", skipping its bookmarks",
+                    info->toolname, info->ifname);
             continue;
         }
 
-        /* The first (and only expected) key is the extcap name, value is an
-         * object with an "extcap-interfaces" key. */
-        jsmntok_t *extcap_tok = element + 1;
-        jsmntok_t *extcap_val_tok = element + 2;
-
-        if (extcap_tok->type != JSMN_STRING || extcap_val_tok->type != JSMN_OBJECT) {
-            continue;
-        }
-
-        contents[extcap_tok->end] = '\0';
-        char *extcap_name = &contents[extcap_tok->start];
-        if (!json_decode_string_inplace(extcap_name)) {
-            continue;
-        }
-
-        jsmntok_t *interfaces_tok = json_get_array(contents, extcap_val_tok, "extcap-interfaces");
-        if (!interfaces_tok) {
-            ws_debug("Extcap \"%s\": missing \"extcap-interfaces\" array, skipping", extcap_name);
-            continue;
-        }
-
-        /* Add the info for each of the extcap's interfaces. */
-        int interfaces_len = json_get_array_len(interfaces_tok);
-        jsmntok_t *iface_element = json_get_array_index(interfaces_tok, 0);
-
-        for (int j = 0; j < interfaces_len; j++, iface_element = json_get_next_object(iface_element)) {
-            if (extcap_add_interface_info(contents, iface_element, extcap_name, dirname)) {
+        for (unsigned i = 0; i < info->bookmarks->len; i++) {
+            const char *bookmark_name = (const char *)g_ptr_array_index(info->bookmarks, i);
+            if (extcap_add_bookmark(parent_iface, toolname, bookmark_name, dirname)) {
                 new_prefs = true;
             }
         }
     }
 
-    g_free(tokens);
-    g_free(contents);
+    g_list_free_full(info_list, extcap_free_saved_info);
+
     return new_prefs;
 }
 

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>92</height>
+    <height>171</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -23,9 +23,27 @@
    <item>
     <widget class="Line" name="line">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="bookmarkHorizontalLayout">
+     <item>
+      <widget class="QLabel" name="bookmarkLabel">
+       <property name="text">
+        <string>Bookmark</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="bookmarkLineEdit">
+       <property name="placeholderText">
+        <string>Type a name to create a bookmark</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QCheckBox" name="checkSaveOnStart">
@@ -40,7 +58,7 @@
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="standardButtons">
-      <set>QDialogButtonBox::Discard|QDialogButtonBox::Help|QDialogButtonBox::Ok|QDialogButtonBox::Save|QDialogButtonBox::RestoreDefaults</set>
+      <set>QDialogButtonBox::StandardButton::Discard|QDialogButtonBox::StandardButton::Help|QDialogButtonBox::StandardButton::Ok|QDialogButtonBox::StandardButton::RestoreDefaults|QDialogButtonBox::StandardButton::Save</set>
      </property>
     </widget>
    </item>
