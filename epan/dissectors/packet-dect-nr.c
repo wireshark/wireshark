@@ -3515,13 +3515,16 @@ static int dissect_dlc_service_type(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	dect_nr_context_t *ctx = (dect_nr_context_t *)data;
 
 	proto_tree_add_item(parent_tree, hf_dect_nr_mux_mac_sdu, tvb, offset, -1, ENC_NA);
+	length = tvb_captured_length_remaining(tvb, offset);
+
+	if (!ctx) { /* No context */
+		return offset + length;
+	}
 
 	proto_item *item = proto_tree_add_item(ctx->proto_tree, hf_dect_nr_dlc_pdu, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_dlc_pdu);
 
-	length = tvb_captured_length_remaining(tvb, offset);
-
-	if (!ctx || !ctx->ie_length_present) {
+	if (!ctx->ie_length_present) {
 		expert_add_info(pinfo, tree, &ei_dect_nr_ie_length_not_set);
 		return offset + length;
 	}
