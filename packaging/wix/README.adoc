@@ -27,10 +27,9 @@ modifying a file (custom_mibs.txt, etc) for inclusion
 These currently come as NSIS-generated .exe installers.
 We might be able to bundle them as https://wixtoolset.org/documentation/manual/v3/xsd/wix/exepackage.html[ExePackage elements].
 
-// This appears to be fixed in the MERGE_MODULE_DIR code in CMakeLists.txt?
-// . Needs more flexible handling of VC CRT Merge module (need build script to provide appropriate macros).
-// Something like (or modifying existing) FindMSVC_REDIST.cmake.
-// Currently only VS2013 / CRT120 and VS 2015 / CRT140 are supported.
+. The .msi installer does not bundle the Microsoft Visual C++ Redistributable.
+Instead, the installer checks the registry for a matching installed version and aborts with an explanatory message if it isn't found.
+See Prerequisites.wxi for details.
 
 . Transitioning, upgrading, downgrading, and reinstalling is more tricky.
 The NSIS-based installer handles previously-installed versions by running any existing uninstaller prior to installation, which empties the installation directory and removes registry entries.

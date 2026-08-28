@@ -116,8 +116,5 @@
         <ComponentGroupRef Id="CG.Documentation" />
       </Feature>
     <?endif?>
-    <Feature Id="VCRedist" Title="Visual C++ Runtime" AllowAdvertise="no" Display="hidden" Level="1">
-      <MergeRef Id="VCRedist"/>
-    </Feature>
   </Fragment>
 </Include>

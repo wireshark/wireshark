@@ -128,5 +128,46 @@
       <![CDATA[Installed OR NOT NSIS_INSTALL_LOCATION_64]]>
     </Condition>
 
+<!--
+  Starting with Visual Studio 2019 the Visual C++ Redistributable merge
+  modules are deprecated and aren't available for Arm64:
+  https://docs.microsoft.com/en-us/visualstudio/releases/2019/release-notes#-deprecations
+
+  Additionally, https://learn.microsoft.com/en-us/cpp/porting/binary-compat-2015-2017
+  says
+
+  "The Redistributable your app uses has a similar binary-compatibility
+  restriction. When you mix binaries built by different supported
+  versions of the build tools, the Redistributable version must be at
+  least as new as the latest build tools used by any app component."
+
+  Instead of bundling the runtime, check whether a minimum version of
+  the redistributable is already installed and abort with a helpful
+  message if it isn't.
+-->
+
+    <?if $(var.Platform) = x64 ?>
+    <?define VCRedistUpgradeCode = "{36F68A90-239C-34DF-B58C-64B30153CE35}" ?>
+    <?else?>
+    <?define VCRedistUpgradeCode = "{DC9BAE42-810B-423A-9E25-E4073F1C7B00}" ?>
+    <?endif?>
+
+    <Upgrade Id="$(var.VCRedistUpgradeCode)">
+      <UpgradeVersion OnlyDetect="yes" Property="VCREDIST_INSTALLED" Minimum="0.0.0" IncludeMinimum="yes" />
+      <?ifdef VCRedistMinVersion?>
+      <UpgradeVersion OnlyDetect="yes" Property="VCREDIST_MIN_VERSION_INSTALLED" Minimum="$(var.VCRedistMinVersion)" IncludeMinimum="yes" />
+      <?endif?>
+    </Upgrade>
+
+    <Condition Message="The Microsoft Visual C++ Redistributable is required but wasn't found. Please download and install it from https://aka.ms/vs/17/release/vc_redist.$(var.Platform).exe before continuing.">
+      <![CDATA[Installed OR VCREDIST_INSTALLED]]>
+    </Condition>
+
+    <?ifdef VCRedistMinVersion?>
+    <Condition Message="The installed Microsoft Visual C++ Redistributable is older than the version $(var.WiresharkName) was built with ($(var.VCRedistMinVersion)). Please update it from https://aka.ms/vs/17/release/vc_redist.$(var.Platform).exe before continuing.">
+      <![CDATA[Installed OR VCREDIST_MIN_VERSION_INSTALLED]]>
+    </Condition>
+    <?endif?>
+
   </Fragment>
 </Include>

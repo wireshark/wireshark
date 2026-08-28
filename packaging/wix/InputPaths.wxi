@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Include>
 
-  <?if $(var.Platform) = x64 ?>
+  <?if $(var.Platform) = x64 OR $(var.Platform) = arm64 ?>
   <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
   <?else?>
-  <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
+  <?error "Unsupported platform '$(var.Platform)'. Only x64 and arm64 are supported." ?>
   <?endif?>
 
   <?define Staging.Dir ="$(var.BuildOutputDir)" ?>

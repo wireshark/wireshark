@@ -71,28 +71,6 @@ file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/doc" DOC_DIR)
 set (VERSION "${PROJECT_VERSION}")
 set(PRODUCT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}.${PROJECT_BUILD_VERSION})
 
-# Starting with Visual Studio 2019 merge modules are deprecated but
-# are available as an individual component.
-# https://docs.microsoft.com/en-us/visualstudio/releases/2019/release-notes#-deprecations
-set(MERGE_MODULE "Microsoft_VC${MSVC_TOOLSET_VERSION}_CRT_${WIRESHARK_TARGET_PLATFORM}.msm")
-set (PF86_ENV "ProgramFiles(x86)")
-
-set(VC_TOOLS_MERGE_MODULES_DIR)
-if (DEFINED ENV{VCToolsRedistDir})
-	set(VC_TOOLS_MERGE_MODULES_DIR "$ENV{VCToolsRedistDir}/MergeModules")
-endif()
-
-find_path(MERGE_MODULE_DIR ${MERGE_MODULE}
-	PATHS
-		#"$ENV{VCINSTALLDIR}/VC/Redist/MSVC/how-do-we-get-this-version/Merge Modules"
-		${VC_TOOLS_MERGE_MODULES_DIR}
-		"$ENV{${PF86_ENV}}/Common Files/Merge Modules"
-		"$ENV{PROGRAMFILES}/Common Files/Merge Modules"
-	NO_DEFAULT_PATH
-)
-file(TO_NATIVE_PATH "${MERGE_MODULE_DIR}/${MERGE_MODULE}" MSM_NATIVE_PATH)
-message(STATUS "Using ${MSM_NATIVE_PATH} for the WiX installer")
-
 # DependentComponents.wxi. Can be created at configure time.
 set(_all_manifest_wix "${CMAKE_CURRENT_BINARY_DIR}/DependentComponents.wxs")
 file(WRITE "${_all_manifest_wix}" "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
@@ -172,6 +150,15 @@ if (MAXMINDDB_FOUND)
 	set(d_mmdbresolve_exe "-dMMDBRESOLVE_EXE")
 endif()
 
+# The Visual C++ Redistributable installed on the target machine must be at
+# least as new as the one that shipped with the toolset used to build
+# Wireshark. VCToolsVersion is set by the Visual Studio developer
+# environment, e.g. "14.38.33135".
+set(d_vcredist_min_version)
+if(DEFINED ENV{VCToolsVersion} AND "$ENV{VCToolsVersion}" MATCHES "^[0-9]+\\.[0-9]+\\.[0-9]+$")
+	set(d_vcredist_min_version "-dVCRedistMinVersion=$ENV{VCToolsVersion}")
+endif()
+
 set(WIX_CANDLE_DEFINES
 	-v
 	-sw1076
@@ -189,10 +176,9 @@ set(WIX_CANDLE_DEFINES
 	-dRadiusDictDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/radius
 	-dSnmpMibDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/snmp/mibs
 	-dUsersGuideDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/doc/wsug_html_chunked
-	-dVCRedistVersion=VC${MSVC_TOOLSET_VERSION}
-	-dVCRedistDir=${MERGE_MODULE_DIR}
 	${d_smi_dir}
 	${d_mmdbresolve_exe}
+	${d_vcredist_min_version}
 	-arch ${WIRESHARK_TARGET_PLATFORM}
 	-ext WixUIExtension
 	-I${CMAKE_SOURCE_DIR}/packaging/wix

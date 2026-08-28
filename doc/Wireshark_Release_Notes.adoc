@@ -44,6 +44,8 @@ The following changes have been made since version 4.7.2:
   other platforms) via using the control pipe. Third-party extcap interfaces should
   be updated to take advantage of this capability; see below under Plugin Development
   Changes. wsbuglink:17131[].
+* MSI packages no longer include Visual C++ Redistributable assets.
+  You must now install them separately.
 
 The following changes have been made since version 4.7.1:
 

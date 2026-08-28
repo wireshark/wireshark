@@ -1022,9 +1022,10 @@ You can download it from the link:https://wixtoolset.org/[WiX web site] or insta
 PS$> choco install wixtoolset
 ----
 
-This also requires the Visual C++ redistributable merge modules, which can be installed by selecting “Individual Components -> {cpp} 2026 Redistributable MSMs” or “...2022 Redistributable MSMs” as appropriate for your compiler in the Visual Studio installer.
-
 Wireshark’s .msi packaging is currently experimental and the generated packages may be incomplete.
+Packages reqire a compatible version of the Visual {cpp} Redistributable.
+If one is not present the installer will exit.
+See <<msvc-runtime-redistributable>> for more details.
 
 [#ChToolsPortableApps]
 === Windows: PortableApps (Optional)

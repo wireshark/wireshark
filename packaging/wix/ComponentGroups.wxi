@@ -956,11 +956,4 @@
     </ComponentGroup>
   </Fragment>
 
-  <!-- C-runtime redistributable -->
-  <Fragment>
-    <DirectoryRef Id="TARGETDIR">
-      <Merge Id="VCRedist" SourceFile="$(var.VCRedistDir)\Microsoft_$(var.VCRedistVersion)_CRT_$(var.Platform).msm" DiskId="1" Language="0"/>
-    </DirectoryRef>
-  </Fragment>
-
 </Include>
