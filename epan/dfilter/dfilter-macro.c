@@ -34,7 +34,7 @@ void dump_dfilter_macro_t(const dfilter_macro_t *m, const char *function, const 
 #define DUMP_MACRO(m)
 #endif
 
-static bool dfilter_macro_resolve(char* name, char** args, GString *out, df_error_t** error) {
+static bool dfilter_macro_resolve(char* name, char** args, GHashTable *used_macros, unsigned depth, GString *out, df_error_t** error) {
 	int argc = 0;
 	dfilter_macro_t* m = NULL;
 	int* arg_pos_p;
@@ -54,6 +54,17 @@ static bool dfilter_macro_resolve(char* name, char** args, GString *out, df_erro
 	}
 
 	DUMP_MACRO(m);
+
+	void *value;
+	if (g_hash_table_lookup_extended(used_macros, name, NULL, &value)) {
+		if (GPOINTER_TO_UINT(value) < depth) {
+			if (error != NULL)
+				*error = df_error_new_printf(DF_ERROR_GENERIC, NULL, "macro '%s' was expanded at an earlier depth (i.e., a cycle exists)", name);
+			return false;
+		}
+	} else {
+		g_hash_table_insert(used_macros, g_strdup(name), GUINT_TO_POINTER(depth));
+	}
 
 	if (args) {
 		while(args[argc]) argc++;
@@ -136,7 +147,7 @@ close_char(int c)
 	ws_assert_not_reached();
 }
 
-static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_error_t** error) {
+static char* dfilter_macro_apply_recurse(const char* text, GHashTable *used_macros, unsigned depth, df_error_t** error) {
 	enum { OUTSIDE, STARTING, NAME, NAME_PARENS, ARGS } state = OUTSIDE;
 	GString* out;
 	GString* name = NULL;
@@ -249,7 +260,7 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 				} else if ( c == '}') {
 					g_ptr_array_add(args,NULL);
 
-					if (!dfilter_macro_resolve(name->str, (char**)args->pdata, out, error))
+					if (!dfilter_macro_resolve(name->str, (char**)args->pdata, used_macros, depth, out, error))
 						goto on_error;
 
 					changed = true;
@@ -347,7 +358,7 @@ static char* dfilter_macro_apply_recurse(const char* text, unsigned depth, df_er
 							arg = NULL;
 						}
 
-						if (!dfilter_macro_resolve(name->str, (char**)args->pdata, out, error))
+						if (!dfilter_macro_resolve(name->str, (char**)args->pdata, used_macros, depth, out, error))
 							goto on_error;
 
 						changed = true;
@@ -374,7 +385,7 @@ finish:
 		FREE_ALL();
 
 		if (changed) {
-			resolved = dfilter_macro_apply_recurse(out->str, depth + 1, error);
+			resolved = dfilter_macro_apply_recurse(out->str, used_macros, depth + 1, error);
 			g_string_free(out,TRUE);
 			return resolved;
 		} else {
@@ -394,7 +405,10 @@ on_error:
 }
 
 char* dfilter_macro_apply(const char* text, df_error_t** error) {
-	return dfilter_macro_apply_recurse(text, 0, error);
+	GHashTable *used_macros = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+	char *expanded_text = dfilter_macro_apply_recurse(text, used_macros, 0, error);
+	g_hash_table_unref(used_macros);
+	return expanded_text;
 }
 
 /* Parses the text into its parts and arguments. Needs to
