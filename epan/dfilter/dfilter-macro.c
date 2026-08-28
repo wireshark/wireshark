@@ -159,7 +159,9 @@ static char* dfilter_macro_apply_recurse(const char* text, GHashTable *used_macr
 	bool changed = false;
 	char* resolved;
 
-	if ( depth > 31) {
+	if ( depth > 23) {
+		/* Note that the macro string increases in size exponentially
+		 * with depth. */
 		if (error != NULL)
 			*error = df_error_new_msg("too much nesting in macros");
 		return NULL;
