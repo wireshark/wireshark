@@ -4,9 +4,7 @@
 
 == Packet Capture
 
-****
-This chapter needs to be reviewed and extended.
-****
+//This chapter needs to be reviewed and extended.
 
 [#ChCaptureAddLibpcap]
 
@@ -106,20 +104,30 @@ This can be used to change behavior depending on the Wireshark version in questi
 .Example call for interface query
 [source,bash]
 ----
-$ extcap_example.py --extcap-interfaces --extcap-version=4.0
+$ extcap_example.py --extcap-interfaces --extcap-version=5.0
 extcap {version=1.0}{help=Some help url}
 interface {value=example1}{display=Example interface 1 for extcap}
-interface {value=example2}{display=Example interface 2 for extcap}
+interface {value=example2}{control=3}{display=Example interface 2 for extcap}
 ----
 
 The *version* for the extcap sentence (which may exist as many times as is needed, but only
 the last one will be used) will be used for displaying the version information of
 the extcap interface in the about dialog of Wireshark.
 
-The value for each interface will be used in subsequent calls as the interface name <iface>.
-
-Using the help argument, an interface may provide a generic help URL for the extcap
+Using the *help* argument, an interface may provide a generic help URL for the extcap
 utility.
+
+The *value* for each interface will be used in subsequent calls as the interface name <iface>.
+
+The *control* argument is used to indicate support for the <<ChCaptureExtcapControlPipes,control pipes>>.
+The value is an integer treated as a bitfield where `1` indicates support for
+<<ChCaptureExtcapToolbarControls,toolbar control>> messages, `2` indicates support
+for quit messages, and `3` indicates support for both. The control argument can
+appear in the line for an individual interface, or it can appear in the extcap
+sentence; in the latter case it is used as the default value for all interfaces.
+
+The *display* argument is displayed to the user as an interface description in places
+such as the interface list in Wireshark.
 
 ===== Ask For DLTs For Each Interface
 
@@ -132,6 +140,9 @@ $ extcap_example.py --extcap-dlts --extcap-interface <iface>
 
 This call must print the valid DLTs for the interface specified. This call is
 made for all the interfaces and must return 0.
+
+// Why can't this be combined with the --extcap-config command?
+// That would be particularly useful on Windows.
 
 .Example for the DLT query
 [source,bash]
@@ -359,6 +370,7 @@ such a check is the same as for Qt RegExp classes. This feature is only active i
 Qt version of Wireshark.
 
 
+[#ChCaptureExtcapToolbarControls]
 ==== Toolbar Controls
 
 An extcap utility can provide configuration for controls to use in an interface toolbar.
@@ -375,7 +387,7 @@ current capture.
 $ extcap_example.py --extcap-interfaces
 extcap {version=1.0}{display=Example extcap interface}
 interface {value=example1}{display=Example interface 1 for extcap}
-interface {value=example2}{display=Example interface 2 for extcap}
+interface {value=example2}{control=3}{display=Example interface 2 for extcap}
 control {number=0}{type=string}{display=Message}{tooltip=Package message content. Must start with a capital letter.}{validation=[A-Z]+}{required=true}
 control {number=1}{type=selector}{display=Time delay}{tooltip=Time delay between packages}
 control {number=2}{type=boolean}{display=Verify}{default=true}{tooltip=Verify package content}
@@ -387,8 +399,11 @@ value {control=1}{value=2}{display=2 sec}{default=true}
 
 All controls will be presented as GUI elements in a toolbar specific to the extcap
 utility.  The extcap must not rely on using those controls (they are optional) because
-of other capturing tools not using GUI (e.g. tshark, tfshark).
+of other capturing tools not using a GUI (e.g. tshark, tfshark).
 
+An interface that supports controls should include a `{control=1}` or `{control=3}`
+entry in the interface line, but for backwards compatibility, support for the control
+pipe and "T" messages is assumed if controls are listed.
 
 ===== Controls
 
@@ -477,17 +492,34 @@ Valid Commands for control: Set value, Enable, Disable.
 +
 The element VALIDATION allows to provide a regular expression string, which is used to check the user input for validity beyond normal data type or range checks. Back-slashes must be escaped (as in \\b for \b).
 
-===== Messages
+===== User Messages
 
 In addition to the controls it’s possible to send a single message from the extcap
 utility to the user.  This message can be put in the status bar or displayed in a
 information, warning or error dialog which must be accepted by the user.  This message
 does not use the NUMBER argument so this can have any value.
 
-====== Control Protocol
+[#ChCaptureExtcapControlPipes]
+==== Control Pipes
 
-The protocol used to communicate over the control pipes has a fixed size header of
-6 bytes and a payload with 0 - 65535 bytes.
+If support for control pipes is provided in the `--extcap-interfaces` output, then
+the main application will create the control pipes (FIFOs or named pipes, depending
+upon the OS) and pass the names as part of the capture start command via the
+options `--extcap-control-in <in-fifo>` and `--extcap-control-out <out-fifo>`.
+These are from the perspective of the extcap binary; `--extcap-control-in` is where
+the extcap binary will receive QUIT or TOOLBAR_CONTROL messages, and `--extcap-control-out`
+is where it is expected to send TOOLBAR_CONTROL messages.
+
+The QUIT messages only require unidirectional information, so if the extcap
+indicates support for QUIT messages only (`{control=2}`), then only the
+control in pipe argument will be included in the command line.
+
+===== Control Protocol
+
+The protocol used to communicate over the control pipes is the same as that used
+for communicating between the main application and dumpcap, with only two message
+types used. It has a fixed size header of 4 bytes, and an optional payload which
+is limited to 65537 bytes when communicating with the extcaps.
 
 .Control packet:
 [cols="^m", width="50%"]
@@ -495,20 +527,46 @@ The protocol used to communicate over the control pipes has a fixed size header 
 |Sync Pipe Indication (1 byte)
 |Message Length +
  (3 bytes network order)
+|Message Payload +
+ (0 - 65537 bytes)
+|===
+
+.Sync Pipe Indication
+The common sync pipe indication. For communicating with the extcaps, the
+values "T" for toolbar control messages and "Q" for quit messages are
+supported.
+
+.Message Length
+Message Payload length
+
+.Message Payload
+The payload. Note that while there are 3 bytes reserved for the Message Length
+field, 512000 is the largest value supported by the main application, and
+messages used to communicate with the extcaps specifically are limited to
+65537 bytes (two bytes for fixed toolbar control header plus up to 65535
+bytes of payload).
+
+QUIT messages ("Q" indicator) have an optional payload that may be ignored;
+if received, the extcap should gracefully shutdown.
+
+TOOLBAR_CONTROL messages ("T" indicator) have a fixed size header of
+2 bytes and a payload with 0 - 65535 bytes. Note that the message length
+in the common header will include the 2 bytes for the toolbar control
+header and thus be 2 - 65537.
+
+.Toolbar Control message payload:
+[cols="^m", width="50%"]
+|===
 |Control Number (1 byte)
 |Command (1 byte)
 |Payload +
  (0 - 65535 bytes)
 |===
 
-.Sync Pipe Indication
-The common sync pipe indication. This protocol uses the value “T”.
-
-.Message Length
-Payload length + 2 bytes for control number and command.
-
 .Control Number
 Unique number to identify the control. This number also gives the order of the controls in the interface toolbar.
+For commands that do not address a specific control and apply to the entire
+application (0 and 6-9 below) this is ignored.
 
 .Commands and application for controls
 [cols="1,2,3"]
@@ -534,7 +592,8 @@ that the GUI is ready to receive control values.
 The GUI will only send `Initialized` and `Set` commands. The extcap utility shall not
 send the `Initialized` command.
 
-Messages with unknown control number or command will be silently ignored.
+Messages with an unknown command or with commands that require a control number
+but an unknown control number will be silently ignored.
 
 
 // End of WSDG Chapter Capture

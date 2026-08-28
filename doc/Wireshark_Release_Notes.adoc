@@ -40,6 +40,10 @@ The following changes have been made since version 4.7.2:
 * Extcap interfaces now support "bookmarks," which let you have multiple configurations
   for the same interfaces. Extcap configurations are now shared across profiles, and
   existing per-profile configurations will be migrated to bookmarks. wsbuglink:14224[].
+* Extcap interfaces support graceful shutdown on Windows (already supported on
+  other platforms) via using the control pipe. Third-party extcap interfaces should
+  be updated to take advantage of this capability; see below under Plugin Development
+  Changes. wsbuglink:17131[].
 
 The following changes have been made since version 4.7.1:
 
@@ -180,7 +184,10 @@ The following features are either new or have been significantly updated since v
 
 === Removed Features and Support
 
-Dumpcap's TCP@host:port interface has been removed.
+Dumpcap's TCP@host:port interface has been removed. Tools like `socat`, `ncat`,
+`netcat`, `nc`, and others can be used to redirect network interfaces to
+FIFOs and named pipes on UN*X and Windows to achieve the same interface. Many
+of those tools have additional security features like enabling TLS encryption.
 
 Sharkd only supports binding to a loopback IPv4 or IPv6 address when listening
 on a TCP socket. (TCP sockets are only available by default on Windows systems,
@@ -319,6 +326,19 @@ explicitly noted in the release notes previously. Note that some distributions
 do not use a libexec directory, such as Alpine Linux, which does not have
 multilib support. On such systems extcap binaries should be in the same
 location as before.
+
+QUIT messages can now be sent over the optional control pipe to extcaps,
+which can be used to gracefully shutdown on all operating systems, not just
+those that support SIGTERM. This uses the existing optional control pipe
+interface, with the message type "Q" (as also supported by dumpcap.)
+Previously extcaps only used this pipe for "T" control messages. Extcaps
+signal support for the control pipe via adding a `{control=N}` entry to the
+interface description returned from `--extcap-interfaces`; `N` is a bitfield
+where `1` indicates support for the "T" toolbar messages and `2` indicates
+support for the "Q" quit message (and `3` indicates support for both.)
+For backwards compatibility, if an extcap describe toolbar controls in
+its interface configuration it will be assumed to have "T" support.
+More information is available in the Developer's Guide.
 
 == Getting Wireshark
 
