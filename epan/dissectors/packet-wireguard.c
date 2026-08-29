@@ -342,6 +342,13 @@ decode_base64_key(wg_qqword *out, const char *str)
 }
 /* Key conversion routines. }}} */
 
+static uint32_t
+wg_pubkey_hash(const void *v)
+{
+    const wg_qqword *pubkey = (const wg_qqword *)v;
+    return wmem_strong_hash(pubkey->data, WG_KEY_LEN);
+}
+
 static gboolean
 wg_pubkey_equal(const void *v1, const void *v2)
 {
@@ -809,9 +816,7 @@ wg_key_uat_apply(void)
     }
 
     if (!wg_static_keys) {
-        // The first field of "wg_skey_t" is the pubkey (and the table key),
-        // its initial four bytes should be good enough as key hash.
-        wg_static_keys = g_hash_table_new_full(g_int_hash, wg_pubkey_equal, NULL, g_free);
+        wg_static_keys = g_hash_table_new_full(wg_pubkey_hash, wg_pubkey_equal, NULL, g_free);
     } else {
         g_hash_table_remove_all(wg_static_keys);
     }
@@ -1933,7 +1938,7 @@ proto_register_wg(void)
         secrets_register_type(SECRETS_TYPE_WIREGUARD, wg_keylog_process_lines);
     }
 
-    wg_ephemeral_keys = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_int_hash, wg_pubkey_equal);
+    wg_ephemeral_keys = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), wg_pubkey_hash, wg_pubkey_equal);
 
     register_init_routine(wg_init);
     register_cleanup_routine(wg_keylog_reset);
