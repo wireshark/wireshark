@@ -62,10 +62,12 @@
  */
 #define EXTCAP_CLEANUP_TIMEOUT 30
 
-/* internal container, for all the extcap executables that have been found.
+/* internal container for all the extcap executables that have been found.
  * Will be reset if extcap_clear_interfaces() is being explicitly called
  * and is being used for printing information about all extcap interfaces found,
  * as well as storing all sub-interfaces
+ * Note: This is a misnomer, this is a table of tools/executables, each of
+ * which may have multiple interfaces
  */
 static GHashTable * _loaded_interfaces;
 
@@ -196,20 +198,22 @@ extcap_get_descriptions(extcap_plugin_description_callback callback, void *callb
 {
     extcap_ensure_all_interfaces_loaded();
 
-    GHashTable * tools = extcap_loaded_interfaces();
-    GPtrArray *tools_array = g_ptr_array_new();
+    GHashTable *tools = extcap_loaded_interfaces();
+    if (tools == NULL)
+        return;
 
-    if (tools && g_hash_table_size(tools) > 0) {
-        GList * keys = g_hash_table_get_keys(tools);
-        GList * walker = g_list_first(keys);
-        while (walker && walker->data) {
-            extcap_info * tool = (extcap_info *)g_hash_table_lookup(tools, walker->data);
-            if (tool) {
-                g_ptr_array_add(tools_array, tool);
-            }
-            walker = g_list_next(walker);
+    // entries in the table can be NULL so we can't do the following
+    // without changing compare_tools:
+    // GPtrArray *tools_array = g_hash_table_get_keys_as_ptr_array(tools);
+    GPtrArray *tools_array = g_ptr_array_new();
+    GHashTableIter iter;
+    void *value;
+    g_hash_table_iter_init(&iter, tools);
+    while (g_hash_table_iter_next(&iter, NULL, &value)) {
+        extcap_info * tool = (extcap_info *)value;
+        if (tool) {
+            g_ptr_array_add(tools_array, tool);
         }
-        g_list_free(keys);
     }
 
     g_ptr_array_sort(tools_array, compare_tools);
@@ -219,7 +223,7 @@ extcap_get_descriptions(extcap_plugin_description_callback callback, void *callb
         callback(tool->basename, tool->version, "External Capture", tool->full_path, callback_data);
     }
 
-    g_ptr_array_free(tools_array, true);
+    g_ptr_array_unref(tools_array);
 }
 
 static void
@@ -864,7 +868,6 @@ append_extcap_interface_list(GList *list)
 {
     GList *interface_list = NULL;
     extcap_interface *data = NULL;
-    GList *ifutilkeys_head = NULL, *ifutilkeys = NULL;
 
     if (prefs.capture_no_extcap)
         return list;
@@ -872,22 +875,19 @@ append_extcap_interface_list(GList *list)
     /* Update the extcap interfaces and get a list of their if_infos */
     extcap_ensure_all_interfaces_loaded();
 
-    ifutilkeys_head = g_hash_table_get_keys(_loaded_interfaces);
-    ifutilkeys = ifutilkeys_head;
-    while ( ifutilkeys && ifutilkeys->data )
+    GHashTableIter iter;
+    void *value;
+    g_hash_table_iter_init(&iter, _loaded_interfaces);
+    while (g_hash_table_iter_next(&iter, NULL, &value))
     {
-        extcap_info * extinfo =
-                (extcap_info *) g_hash_table_lookup(_loaded_interfaces, (char *)ifutilkeys->data);
+        extcap_info * extinfo = (extcap_info*)value;
         GList * walker = extinfo->interfaces;
         while ( walker && walker->data )
         {
             interface_list = g_list_append(interface_list, walker->data);
             walker = g_list_next(walker);
         }
-
-        ifutilkeys = g_list_next(ifutilkeys);
     }
-    g_list_free(ifutilkeys_head);
 
     /* Sort that list */
     interface_list = g_list_sort(interface_list, if_info_compare);
@@ -1277,16 +1277,14 @@ extcap_get_if_configuration_values(const char * ifname, const char * argname, GH
 
         if ( arguments )
         {
-            GList * keys = g_hash_table_get_keys(arguments);
-            GList * walker = g_list_first(keys);
-            while ( walker )
+            GHashTableIter iter;
+            void *key, *value;
+            g_hash_table_iter_init(&iter, arguments);
+            while (g_hash_table_iter_next(&iter, &key, &value))
             {
-                const char * key_data = (const char *)walker->data;
-                args = g_list_append(args, g_strdup(key_data));
-                args = g_list_append(args, g_strdup((const char *)g_hash_table_lookup(arguments, key_data)));
-                walker = g_list_next(walker);
+                args = g_list_append(args, g_strdup((const char *)key));
+                args = g_list_append(args, g_strdup((const char *)value));
             }
-            g_list_free(keys);
         }
 
         extcap_run_one(interface, args, cb_reload_preference, &ret, NULL, NULL, NULL);
@@ -1452,18 +1450,17 @@ extcap_has_toolbar(const char *ifname)
 
     extcap_ensure_all_interfaces_loaded();
 
-    GList *toolbar_list = g_hash_table_get_values (_toolbars);
-    for (GList *walker = toolbar_list; walker; walker = walker->next)
+    GHashTableIter iter;
+    void *value;
+    g_hash_table_iter_init(&iter, _toolbars);
+    while (g_hash_table_iter_next(&iter, NULL, &value))
     {
-        iface_toolbar *toolbar = (iface_toolbar *) walker->data;
+        iface_toolbar *toolbar = (iface_toolbar *)value;
         if (g_list_find_custom(toolbar->ifnames, ifname, (GCompareFunc) g_strcmp0))
         {
-            g_list_free(toolbar_list);
             return true;
         }
     }
-
-    g_list_free(toolbar_list);
     return false;
 }
 
