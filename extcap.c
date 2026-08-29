@@ -806,6 +806,7 @@ extcap_get_if_list_dlts(GList *queries, GHashTable *caps_hash)
 
     return g_list_reverse(local_queries);
 }
+
 static void extcap_free_interface(void *i)
 {
 
@@ -2752,24 +2753,15 @@ extcap_get_tool_info(const char * toolname)
     return extcap_ensure_interface(toolname, false);
 }
 
-static void remove_extcap_entry(void *entry, void *data _U_)
-{
-    extcap_interface *int_iter = (extcap_interface*)entry;
-
-    if (int_iter->if_type == EXTCAP_SENTENCE_EXTCAP)
-        extcap_free_interface(entry);
-}
-
 static void
 process_new_extcap(const char *extcap, char *output)
 {
     GList * interfaces = NULL, * control_items = NULL, * walker = NULL;
     extcap_interface * int_iter = NULL;
+    char *if_executable;
     extcap_info * element = NULL;
     iface_toolbar * toolbar_entry = NULL;
     char * toolname = g_path_get_basename(extcap);
-
-    GList * interface_keys = g_hash_table_get_keys(_loaded_interfaces);
 
     /* Load interfaces from utility */
     interfaces = extcap_parse_interfaces(output, &control_items);
@@ -2780,7 +2772,6 @@ process_new_extcap(const char *extcap, char *output)
     if ( ! interfaces || g_list_length(interfaces) == 0 )
     {
         ws_info("Cannot load interfaces for %s", extcap );
-        g_list_free(interface_keys);
         g_free(toolname);
         return;
     }
@@ -2790,9 +2781,7 @@ process_new_extcap(const char *extcap, char *output)
     if ( element == NULL )
     {
         ws_warning("Cannot store interface %s, already loaded as personal plugin", extcap );
-        g_list_foreach(interfaces, remove_extcap_entry, NULL);
-        g_list_free(interfaces);
-        g_list_free(interface_keys);
+        g_list_free_full(interfaces, extcap_free_interface);
         g_free(toolname);
         return;
     }
@@ -2846,10 +2835,11 @@ process_new_extcap(const char *extcap, char *output)
          * the case by design, but could be changed by separating the information in extcap-base. */
         if ( int_iter->if_type == EXTCAP_SENTENCE_INTERFACE )
         {
-            if ( g_list_find(interface_keys, int_iter->call) )
+            if_executable = extcap_if_executable(int_iter->call);
+            if (if_executable)
             {
-                ws_warning("Extcap interface \"%s\" is already provided by \"%s\" ",
-                      int_iter->call, extcap_if_executable(int_iter->call));
+                ws_warning("Extcap interface \"%s\" is already provided by \"%s\"",
+                      int_iter->call, if_executable);
                 walker = g_list_next(walker);
                 continue;
             }
@@ -2868,6 +2858,8 @@ process_new_extcap(const char *extcap, char *output)
             if (!int_iter->control && element->control) {
                 int_iter->control = element->control;
             }
+            /* Steal the extcap_interface instead of copying. */
+            walker->data = NULL;
             element->interfaces = g_list_append(element->interfaces, int_iter);
             g_hash_table_insert(_tool_for_ifname, g_strdup(int_iter->call), g_strdup(toolname));
 
@@ -2896,9 +2888,7 @@ process_new_extcap(const char *extcap, char *output)
     }
 
     extcap_free_toolbar(toolbar_entry);
-    g_list_foreach(interfaces, remove_extcap_entry, NULL);
-    g_list_free(interfaces);
-    g_list_free(interface_keys);
+    g_list_free_full(interfaces, extcap_free_interface);
     g_free(toolname);
 }
 
