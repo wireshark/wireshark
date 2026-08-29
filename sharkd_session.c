@@ -5858,7 +5858,7 @@ sharkd_rtp_download_decode(struct sharkd_download_rtp *req)
                 }
             }
             in_len = (spx_uint32_t)rtp_packet->info->info_payload_len;
-            out_len = (audio_out_rate_ * (spx_uint32_t)rtp_packet->info->info_payload_len / sample_rate) + (audio_out_rate_ % sample_rate != 0);
+            out_len = (spx_uint32_t)((audio_out_rate_ * (uint64_t)rtp_packet->info->info_payload_len / sample_rate) + (audio_out_rate_ % sample_rate != 0));
             if (out_len * sample_bytes_ > resample_buff_len)
             {
                 while ((out_len * sample_bytes_ > resample_buff_len))
