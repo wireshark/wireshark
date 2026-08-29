@@ -16756,9 +16756,9 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo,
       offset += 2;
 
       min_length = 4;
-      if ((flags2 & FLAG_SAMPLE_INFO_T) != 0) min_len += 8;
-      if ((flags2 & FLAG_SAMPLE_INFO_Q) != 0) min_len += 4;
-      if ((flags2 & FLAG_SAMPLE_INFO_O) != 0) min_len += 4;
+      if ((flags2 & FLAG_SAMPLE_INFO_T) != 0) min_length += 8;
+      if ((flags2 & FLAG_SAMPLE_INFO_Q) != 0) min_length += 4;
+      if ((flags2 & FLAG_SAMPLE_INFO_O) != 0) min_length += 4;
 
       /* Ensure there are enough bytes to decode */
       if (sampleListOffset - offset < min_length) {
