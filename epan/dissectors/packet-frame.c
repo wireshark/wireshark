@@ -595,14 +595,57 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, pinfo->rec->rec_type_name);
 
 	if (wtap_block_count_option(fr_data->pkt_block, OPT_COMMENT) > 0) {
-		item = proto_tree_add_item(tree, proto_pkt_comment, tvb, 0, 0, ENC_NA);
-		comments_tree = proto_item_add_subtree(item, ett_comments);
-		fr_user_data.item = item;
-		fr_user_data.tree = comments_tree;
-		fr_user_data.pinfo = pinfo;
-		fr_user_data.tvb = tvb;
-		fr_user_data.n_changes = 0;
-		wtap_block_foreach_option(fr_data->pkt_block, frame_add_comment, (void *)&fr_user_data);
+		TRY {
+#ifdef _MSC_VER
+			/* Win32: Visual-C Structured Exception Handling (SEH)
+			   to trap hardware exceptions like memory access violations */
+			/* (a running debugger will be called before the except part below) */
+			/* Note: A Windows "exceptional exception" may leave the kazlib's (Portable Exception Handling)
+			   stack in an inconsistent state thus causing a crash at some point in the
+			   handling of the exception.
+			   See: https://lists.wireshark.org/archives/wireshark-dev/200704/msg00243.html
+			*/
+			__try {
+#endif
+				item = proto_tree_add_item(tree, proto_pkt_comment, tvb, 0, 0, ENC_NA);
+				comments_tree = proto_item_add_subtree(item, ett_comments);
+				fr_user_data.item = item;
+				fr_user_data.tree = comments_tree;
+				fr_user_data.pinfo = pinfo;
+				fr_user_data.tvb = tvb;
+				fr_user_data.n_changes = 0;
+				wtap_block_foreach_option(fr_data->pkt_block, frame_add_comment, (void *)&fr_user_data);
+#ifdef _MSC_VER
+			} __except(EXCEPTION_EXECUTE_HANDLER /* handle all exceptions */) {
+				ensure_tree_item(parent_tree, EXCEPTION_TREE_ITEMS);
+				switch (GetExceptionCode()) {
+				case(STATUS_ACCESS_VIOLATION):
+					show_exception(tvb, pinfo, parent_tree, DissectorError,
+						       "STATUS_ACCESS_VIOLATION: dissector accessed an invalid memory address");
+					break;
+				case(STATUS_INTEGER_DIVIDE_BY_ZERO):
+					show_exception(tvb, pinfo, parent_tree, DissectorError,
+						       "STATUS_INTEGER_DIVIDE_BY_ZERO: dissector tried an integer division by zero");
+					break;
+				case(STATUS_STACK_OVERFLOW):
+					show_exception(tvb, pinfo, parent_tree, DissectorError,
+						       "STATUS_STACK_OVERFLOW: dissector overflowed the stack (e.g. endless loop)");
+					/* XXX - this will have probably corrupted the stack,
+					   which makes problems later in the exception code */
+					break;
+					/* XXX - add other hardware exception codes as required */
+				default:
+					show_exception(tvb, pinfo, parent_tree, DissectorError,
+						       ws_strdup_printf("dissector caused an unknown exception: 0x%x", GetExceptionCode()));
+				}
+			}
+#endif
+		}
+		CATCH_BOUNDS_AND_DISSECTOR_ERRORS {
+			ensure_tree_item(parent_tree, EXCEPTION_TREE_ITEMS);
+			show_exception(tvb, pinfo, parent_tree, EXCEPT_CODE, GET_MESSAGE);
+		}
+		ENDTRY;
 	}
 
 	cap_len = tvb_captured_length(tvb);
