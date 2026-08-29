@@ -3649,7 +3649,20 @@ tvb_get_ts_23_038_7bits_string_packed(wmem_allocator_t *scope, tvbuff_t *tvb,
 	const unsigned bit_offset, unsigned no_of_chars)
 {
 	unsigned       in_offset = bit_offset >> 3; /* Current pointer to the input buffer */
-	unsigned       length = ((no_of_chars + 1) * 7 + (bit_offset & 0x07)) >> 3;
+	/* Calculate the number of bytes this will occupy without overflow.
+	 * The end result never overflow (although some compilers don't know
+	 * that and will warn about shortening absent an explicit cast), but
+	 * we must store the intermediate result in a wider type. */
+	unsigned length = (unsigned)((((uint64_t)no_of_chars + 1) * 7 + (bit_offset & 0x07)) >> 3);
+#if 0
+	/* Alternatively, on 32-bit architectures (or if we were doing the
+	 * same operation on 64-bit integers), we could divide by 8 first,
+	 * splitting no_of_chars into its quotient and remainder: */
+	unsigned       length = (no_of_chars >> 3) * 7;
+	/* Then calculate the number of bytes occupied by the remainder and bit
+	 * offset, rounded up. */
+	length += ((no_of_chars & 0x7 + 1) * 7 + (bit_offset & 0x7)) >> 3;
+#endif
 	const uint8_t *ptr;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
@@ -3687,7 +3700,20 @@ tvb_get_ascii_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
 	const unsigned bit_offset, unsigned no_of_chars)
 {
 	unsigned       in_offset = bit_offset >> 3; /* Current pointer to the input buffer */
-	unsigned       length = ((no_of_chars + 1) * 7 + (bit_offset & 0x07)) >> 3;
+	/* Calculate the number of bytes this will occupy without overflow.
+	 * The end result never overflow (although some compilers don't know
+	 * that and will warn about shortening absent an explicit cast), but
+	 * we must store the intermediate result in a wider type. */
+	unsigned length = (unsigned)((((uint64_t)no_of_chars + 1) * 7 + (bit_offset & 0x07)) >> 3);
+#if 0
+	/* Alternatively, on 32-bit architectures (or if we were doing the
+	 * same operation on 64-bit integers), we could divide by 8 first,
+	 * splitting no_of_chars into its quotient and remainder: */
+	unsigned       length = (no_of_chars >> 3) * 7;
+	/* Then calculate the number of bytes occupied by the remainder and bit
+	 * offset, rounded up. */
+	length += ((no_of_chars & 0x7 + 1) * 7 + (bit_offset & 0x7)) >> 3;
+#endif
 	const uint8_t *ptr;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);

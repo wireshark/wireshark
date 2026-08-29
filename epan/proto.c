@@ -14359,7 +14359,7 @@ proto_tree_add_ts_23_038_7bits_packed_item(proto_tree *tree, const int hfindex, 
 
 	DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, FT_STRING);
 
-	byte_length = (((no_of_chars + 1) * 7) + (bit_offset & 0x07)) >> 3;
+	byte_length = (int)(((((int64_t)no_of_chars + 1) * 7) + (bit_offset & 0x07)) >> 3);
 	byte_offset = bit_offset >> 3;
 
 	string = tvb_get_ts_23_038_7bits_string_packed(PNODE_POOL(tree), tvb, bit_offset, no_of_chars);
@@ -14387,7 +14387,7 @@ proto_tree_add_ascii_7bits_item(proto_tree *tree, const int hfindex, tvbuff_t *t
 
 	DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, FT_STRING);
 
-	byte_length = (((no_of_chars + 1) * 7) + (bit_offset & 0x07)) >> 3;
+	byte_length = (int)(((((int64_t)no_of_chars + 1) * 7) + (bit_offset & 0x07)) >> 3);
 	byte_offset = bit_offset >> 3;
 
 	string = tvb_get_ascii_7bits_string(PNODE_POOL(tree), tvb, bit_offset, no_of_chars);
