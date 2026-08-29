@@ -1012,24 +1012,14 @@ static char **extcap_prefs_dynamic_valptr(const char *name, char **pref_name)
 
 void extcap_free_if_configuration(GList *list, bool free_args)
 {
-    GList *elem, *sl;
-
-    for (elem = g_list_first(list); elem; elem = elem->next)
+    if (free_args)
     {
-        if (elem->data != NULL)
-        {
-            sl = g_list_first((GList *)elem->data);
-            if (free_args)
-            {
-                extcap_free_arg_list(sl);
-            }
-            else
-            {
-                g_list_free(sl);
-            }
-        }
+        extcap_free_arg_list(list);
     }
-    g_list_free(list);
+    else
+    {
+        g_list_free(list);
+    }
 }
 
 /*
@@ -1176,7 +1166,7 @@ static bool cb_preference(extcap_callback_info_t cb_info)
     }
 
     if (il) {
-        *il = g_list_append(*il, arguments);
+        *il = arguments;
     } else {
         extcap_free_arg_list(arguments);
     }
@@ -1299,7 +1289,7 @@ bool
 _extcap_requires_configuration_int(const char *ifname, bool check_required)
 {
     GList *arguments = 0;
-    GList *walker = 0, * item = 0;
+    GList *walker = 0;
     bool found = false, isset = false;
     extcap_argument_sufficient sufficient = EXTCAP_ARGUMENT_SUFFICIENT_NOTSET;
 
@@ -1310,64 +1300,58 @@ _extcap_requires_configuration_int(const char *ifname, bool check_required)
 
     while (walker != NULL && !found)
     {
-        item = g_list_first((GList *)(walker->data));
-        while (item != NULL && !found)
+        extcap_arg *arg = (extcap_arg *)(walker->data);
+        if (arg != NULL)
         {
-            if ((extcap_arg *)(item->data) != NULL)
+            /* Should required options be present, or any kind of options */
+            if (!check_required)
             {
-                extcap_arg *arg = (extcap_arg *)(item->data);
-                /* Should required options be present, or any kind of options */
-                if (!check_required)
+                found = true;
+            }
+            /* Following branch is executed when check of required items is requested */
+            else if (arg->is_required || arg->is_sufficient)
+            {
+                const char *stored = NULL;
+                const char *defval = NULL;
+
+                if (arg->pref_valptr != NULL)
                 {
-                    found = true;
+                    stored = *arg->pref_valptr;
                 }
-                /* Following branch is executed when check of required items is requested */
-                else if (arg->is_required || arg->is_sufficient)
+
+                if (arg->default_complex != NULL && arg->default_complex->_val != NULL)
                 {
-                    const char *stored = NULL;
-                    const char *defval = NULL;
+                    defval = arg->default_complex->_val;
+                }
 
-                    if (arg->pref_valptr != NULL)
+                if (arg->arg_type == EXTCAP_ARG_FILESELECT)
+                {
+                    isset = (arg->fileexists ? (file_exists(defval) || file_exists(stored)) : (defval || (stored && *stored)));
+                }
+                else
+                {
+                    isset = (defval || (stored && *stored));
+                }
+
+                if (arg->is_required)
+                {
+                    if (!isset)
                     {
-                        stored = *arg->pref_valptr;
+                        found = true;
                     }
+                }
 
-                    if (arg->default_complex != NULL && arg->default_complex->_val != NULL)
-                    {
-                        defval = arg->default_complex->_val;
-                    }
+                if (arg->is_sufficient && sufficient != EXTCAP_ARGUMENT_SUFFICIENT_OK)
+                {
+                    sufficient = EXTCAP_ARGUMENT_SUFFICIENT_REQUIRED;
 
-                    if (arg->arg_type == EXTCAP_ARG_FILESELECT)
+                    /* If required=sufficient is used, we just need to have one of the required="sufficient" attributes set. */
+                    if (isset)
                     {
-                        isset = (arg->fileexists ? (file_exists(defval) || file_exists(stored)) : (defval || (stored && *stored)));
-                    }
-                    else
-                    {
-                        isset = (defval || (stored && *stored));
-                    }
-
-                    if (arg->is_required)
-                    {
-                        if (!isset)
-                        {
-                            found = true;
-                        }
-                    }
-
-                    if (arg->is_sufficient && sufficient != EXTCAP_ARGUMENT_SUFFICIENT_OK)
-                    {
-                        sufficient = EXTCAP_ARGUMENT_SUFFICIENT_REQUIRED;
-
-                        /* If required=sufficient is used, we just need to have one of the required="sufficient" attributes set. */
-                        if (isset)
-                        {
-                            sufficient = EXTCAP_ARGUMENT_SUFFICIENT_OK;
-                        }
+                        sufficient = EXTCAP_ARGUMENT_SUFFICIENT_OK;
                     }
                 }
             }
-
-            item = item->next;
         }
         walker = walker->next;
     }
@@ -2307,7 +2291,6 @@ GPtrArray *extcap_prepare_arguments(interface_options *interface_opts)
             arglist = extcap_get_if_configuration(interface_opts->name);
             for (elem = g_list_first(arglist); elem; elem = elem->next)
             {
-                GList *arg_list;
                 extcap_arg *arg_iter;
 
                 if (elem->data == NULL)
@@ -2315,37 +2298,31 @@ GPtrArray *extcap_prepare_arguments(interface_options *interface_opts)
                     continue;
                 }
 
-                arg_list = g_list_first((GList *)elem->data);
-                while (arg_list != NULL)
+                const char *stored = NULL;
+                arg_iter = (extcap_arg *)(elem->data);
+                /* In case of boolflags only first element is relevant. */
+                if (arg_iter->pref_valptr != NULL)
                 {
-                    const char *stored = NULL;
-                    /* In case of boolflags only first element in arg_list is relevant. */
-                    arg_iter = (extcap_arg *)(arg_list->data);
-                    if (arg_iter->pref_valptr != NULL)
-                    {
-                        stored = *arg_iter->pref_valptr;
-                    }
+                    stored = *arg_iter->pref_valptr;
+                }
 
-                    if (arg_iter->arg_type == EXTCAP_ARG_BOOLFLAG)
+                if (arg_iter->arg_type == EXTCAP_ARG_BOOLFLAG)
+                {
+                    if (!stored && extcap_complex_get_bool(arg_iter->default_complex))
                     {
-                        if (!stored && extcap_complex_get_bool(arg_iter->default_complex))
-                        {
-                            add_arg(arg_iter->call);
-                        }
-                        else if (g_strcmp0(stored, "true") == 0)
-                        {
-                            add_arg(arg_iter->call);
-                        }
+                        add_arg(arg_iter->call);
                     }
-                    else
+                    else if (g_strcmp0(stored, "true") == 0)
                     {
-                        if (stored && strlen(stored) > 0) {
-                            add_arg(arg_iter->call);
-                            add_arg(stored);
-                        }
+                        add_arg(arg_iter->call);
                     }
-
-                    arg_list = arg_list->next;
+                }
+                else
+                {
+                    if (stored && strlen(stored) > 0) {
+                        add_arg(arg_iter->call);
+                        add_arg(stored);
+                    }
                 }
             }
 
