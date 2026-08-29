@@ -3059,7 +3059,7 @@ tvb_get_ts_23_038_7bits_string_packed(wmem_allocator_t *scope, tvbuff_t *tvb,
 	const int bit_offset, int no_of_chars)
 {
 	int            in_offset = bit_offset >> 3; /* Current pointer to the input buffer */
-	int            length = ((no_of_chars + 1) * 7 + (bit_offset & 0x07)) >> 3;
+	int            length = (int)((((int64_t)no_of_chars + 1) * 7 + (bit_offset & 0x07)) >> 3);
 	const uint8_t *ptr;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
@@ -3097,7 +3097,7 @@ tvb_get_ascii_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
 	const int bit_offset, int no_of_chars)
 {
 	int            in_offset = bit_offset >> 3; /* Current pointer to the input buffer */
-	int            length = ((no_of_chars + 1) * 7 + (bit_offset & 0x07)) >> 3;
+	int            length = (int)((((int64_t)no_of_chars + 1) * 7 + (bit_offset & 0x07)) >> 3);
 	const uint8_t *ptr;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
