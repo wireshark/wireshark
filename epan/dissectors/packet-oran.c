@@ -469,6 +469,7 @@ static int hf_oran_ue_layer_power;
 static int hf_oran_num_elements;
 static int hf_oran_ant_dmrs_snr_val;
 static int hf_oran_ue_freq_offset;
+static int hf_oran_curr_ue_freq_offset;
 
 static int hf_oran_measurement_command;
 
@@ -3321,7 +3322,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 bf_ti = proto_tree_add_item(tree, hf_oran_bf, tvb, 0, 0, ENC_NA);
                 PROTO_ITEM_SET_HIDDEN(bf_ti);
 
-                /* bfwCompHdr (2 subheaders - bfwIqWidth and bfwCompMeth)*/
+                /* bfwCompHdr (2 subheaders - bfwIqWidth and bfwCompMeth) */
                 offset = dissect_bfwCompHdr(tvb, extension_tree, offset,
                                             &bfwcomphdr_iq_width, &bfwcomphdr_comp_meth, &comp_meth_ti);
 
@@ -3535,7 +3536,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 bool csf;
                 dissect_csf(extension_tree, tvb, offset*8, ci_iq_width, &csf);
 
-                /* modCompScaler */
+                /* modCompScaler (16 bits) */
                 uint32_t modCompScaler;
                 proto_item *ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_modcompscaler,
                                                               tvb, offset, 2, ENC_BIG_ENDIAN, &modCompScaler);
@@ -3820,13 +3821,20 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 break;
 
             case 8: /* SE 8: Regularization factor */
-                proto_tree_add_item(extension_tree, hf_oran_regularizationFactor, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
+            {
+                for (unsigned ueid_index=0; ueid_index < number_of_ueids; ueid_index++) {
+                    /* regularizationFactor (2 bytes) */
+                    proto_item *rf_ti = proto_tree_add_item(extension_tree, hf_oran_regularizationFactor, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_item_append_text(rf_ti, " (UeId=%u)", ueids[ueid_index]);
+                    offset += 2;
+                }
                 break;
-
+            }
             case 9: /* SE 9: Dynamic Spectrum Sharing parameters */
+                /* Technology (1 byte) */
                 proto_tree_add_item(extension_tree, hf_oran_technology, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
+                /* Reserved (1 byte) */
                 add_reserved_field(extension_tree, hf_oran_reserved_8bits, tvb, offset, 1);
                 offset += 1;
                 break;
@@ -3888,7 +3896,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             uint32_t id;
                             proto_item *beamid_or_ueid_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_beamId,
                                                                                          tvb, offset, 2, ENC_BIG_ENDIAN, &id);
-                            proto_item_append_text(beamid_or_ueid_ti, " port #%u beam ID (or UEId) %u", n, id);
+                            proto_item_append_text(beamid_or_ueid_ti, " (or UEId) port #%u", n);
                             offset += 2;
 
                             if (id != 0x7fff) {
@@ -5397,8 +5405,14 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     }
                     offset += 2;
 
-                    /* Reserved (16 bits) */
-                    add_reserved_field(mr_tree, hf_oran_reserved_16bits, tvb, offset, 2);
+                    /* currUeFreqOffset (16 bits) */
+                    unsigned curr_ue_freq_offset;
+                    proto_item *curr_ue_freq_offset_ti;
+                    curr_ue_freq_offset_ti = proto_tree_add_item_ret_uint(mr_tree, hf_oran_curr_ue_freq_offset, tvb, offset, 2, ENC_BIG_ENDIAN, &curr_ue_freq_offset);
+                    /* Show if maps onto a -ve number */
+                    if ((curr_ue_freq_offset >= 0x8ad0) && (curr_ue_freq_offset <= 0xffff)) {
+                        proto_item_append_text(curr_ue_freq_offset_ti, "(value %d)", -1 - (0xffff-curr_ue_freq_offset));
+                    }
                     offset += 2;
                     break;
                 }
@@ -10529,6 +10543,13 @@ proto_register_oran(void)
           NULL, 0x0,
           "measurement command size in words",
           HFILL}
+        },
+        /* 7.5.3.73 */
+        { &hf_oran_curr_ue_freq_offset,
+          { "currUeFreqOffset", "oran_fh_cus.currUeFreqOffset",
+            FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(freq_offset_fb_values), 0x0,
+            "Estimated UE frequency offset in current slot (Hz)", HFILL}
         },
 
         { &hf_oran_symbol_reordering_layer,
