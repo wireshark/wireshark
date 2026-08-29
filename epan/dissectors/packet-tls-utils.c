@@ -1535,6 +1535,22 @@ const value_string tls13_signature_algorithm[] = {
     { 0x091a, "slhdsa_shake_192f" }, /* draft-reddy-tls-slhdsa-01 */
     { 0x091b, "slhdsa_shake_256s" }, /* draft-reddy-tls-slhdsa-01 */
     { 0x091c, "slhdsa_shake_256f" }, /* draft-reddy-tls-slhdsa-01 */
+    { 0x0a0a, "GREASE" },
+    { 0x1a1a, "GREASE" },
+    { 0x2a2a, "GREASE" },
+    { 0x3a3a, "GREASE" },
+    { 0x4a4a, "GREASE" },
+    { 0x5a5a, "GREASE" },
+    { 0x6a6a, "GREASE" },
+    { 0x7a7a, "GREASE" },
+    { 0x8a8a, "GREASE" },
+    { 0x9a9a, "GREASE" },
+    { 0xaaaa, "GREASE" },
+    { 0xbaba, "GREASE" },
+    { 0xcaca, "GREASE" },
+    { 0xdada, "GREASE" },
+    { 0xeaea, "GREASE" },
+    { 0xfafa, "GREASE" },
     /* PQC digital signature algorithms from OQS-OpenSSL,
         see https://github.com/open-quantum-safe/oqs-provider/blob/main/oqs-template/oqs-sig-info.md */
     { 0xfea0, "dilithium2" },
@@ -6864,7 +6880,7 @@ tls_dissect_signature_algorithm(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_t
 
     ti_sigalg = proto_tree_add_item_ret_uint(tree, hf->hf.hs_sig_hash_alg, tvb,
                                              offset, 2, ENC_BIG_ENDIAN, &sighash);
-    if (ja4_data) {
+    if (ja4_data && !IS_GREASE_TLS(sighash)) {
         wmem_list_append(ja4_data->sighash_list, GUINT_TO_POINTER(sighash));
     }
 
