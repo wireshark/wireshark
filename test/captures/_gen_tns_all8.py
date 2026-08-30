@@ -12,16 +12,24 @@ request frames:
                 "SELECT ID, NAME FROM USERS"
     Frame 2 — DML with autocommit (options 0x8121):
                 "DELETE FROM USERS WHERE ID = 5"
+    Frame 3 — DML with two binds (options 0x8029):
+                "UPDATE USERS SET NAME=:1 WHERE ID=:2"
+                bind 1 VARCHAR "hi", bind 2 NUMBER 10 — a bare OAC per bind
+                then a TTI_RXD row of DALC values.
 
-Neither carries binds. Bytes are constructed by hand in the Oracle 11g
-wire shape.
+Bytes are constructed by hand in the Oracle 11g wire shape.
 """
 import os
 import struct
 
 # TTC tokens / OCI function ids.
 TTI_FUN = 3
+TTI_RXD = 7
 TTI_ALL8 = 94
+
+# Oracle native data-type ids.
+TYPE_VARCHAR = 1
+TYPE_NUMBER = 2
 
 
 def ub4(val: int) -> bytes:
@@ -37,8 +45,30 @@ def ub4(val: int) -> bytes:
     return bytes([4]) + struct.pack(">I", val)
 
 
+def dalc(s: bytes) -> bytes:
+    return bytes([len(s)]) + s
+
+
+def oac(data_type: int, charset: int, csform: int, max_size: int) -> bytes:
+    return (
+        bytes([data_type])       # type (ub1)
+        + b"\x00"                # flag (ub1)
+        + b"\x00"                # precision (sb1)
+        + ub4(0)                 # scale (ub4)
+        + ub4(max_size)          # max data length / buffer size (ub4)
+        + ub4(0)                 # max array elements (ub4)
+        + ub4(0)                 # cont flags (ub4)
+        + ub4(0)                 # type OID (empty)
+        + ub4(0)                 # version (ub4)
+        + ub4(charset)           # charset id (ub4)
+        + bytes([csform])        # charset form (ub1)
+        + ub4(max_size)          # max size (ub4)
+    )
+
+
 def build_all8(seq: int, sql: bytes, options: int, fetch: int,
-               stmt_type: int) -> bytes:
+               stmt_type: int, binds: list | None = None) -> bytes:
+    binds = binds or []
     al8 = [options, fetch, 0, 0, 0, 0, 0, stmt_type, 0, 0, 0, 0, 0]
     b = bytes([TTI_FUN, TTI_ALL8, seq])
     b += ub4(options)            # options
@@ -51,8 +81,8 @@ def build_all8(seq: int, sql: bytes, options: int, fetch: int,
     b += ub4(0)                  # long max value
     b += ub4(fetch)              # fetch rows
     b += ub4(0)                  # max value
-    b += bytes([0])              # bind indicator (0 = no binds)
-    b += ub4(0)                  # bind count
+    b += bytes([1 if binds else 0])  # bind indicator
+    b += ub4(len(binds))         # bind count
     b += bytes([0, 0, 0, 0, 0])  # five reserved bytes
     b += bytes([0])              # define-columns present flag
     b += ub4(0)                  # define-columns count
@@ -61,12 +91,22 @@ def build_all8(seq: int, sql: bytes, options: int, fetch: int,
     b += sql                     # SQL text (flat on 11g)
     for elem in al8:             # al8i4 option array
         b += ub4(elem)
+    if binds:
+        for data_type, charset, csform, max_size, _value in binds:
+            b += oac(data_type, charset, csform, max_size)
+        b += bytes([TTI_RXD])    # one value row
+        for _dt, _cs, _cf, _ms, value in binds:
+            b += dalc(value)
     return b
 
 
 frames = [
     build_all8(1, b"SELECT ID, NAME FROM USERS", 0x8021, 15, 1),
     build_all8(2, b"DELETE FROM USERS WHERE ID = 5", 0x8121, 0, 0),
+    build_all8(3, b"UPDATE USERS SET NAME=:1 WHERE ID=:2", 0x8029, 0, 0, binds=[
+        (TYPE_VARCHAR, 873, 1, 32, b"hi"),
+        (TYPE_NUMBER, 0, 0, 22, b"\xc1\x0b"),
+    ]),
 ]
 
 

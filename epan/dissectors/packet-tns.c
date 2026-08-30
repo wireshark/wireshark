@@ -256,6 +256,7 @@ static int hf_tns_data_all8_opt_fetch;
 static int hf_tns_data_all8_fetch_rows;
 static int hf_tns_data_all8_bind_count;
 static int hf_tns_data_all8_sql;
+static int hf_tns_data_bind_value;
 
 static int hf_tns_data_descriptor_row_count;
 static int hf_tns_data_descriptor_row_size;
@@ -285,6 +286,9 @@ static int ett_tns_oer;
 static int ett_tns_iov;
 static int ett_tns_dcb_col;
 static int ett_tns_all8_options;
+static int ett_tns_binds;
+static int ett_tns_bind;
+static int ett_tns_bind_row;
 static int ett_sql;
 
 static expert_field ei_tns_connect_data_next_packet;
@@ -1475,6 +1479,16 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 				start = offset;
 				offset += get_sb4_custom(tvb, offset, &bind_count);
 				proto_tree_add_uint(data_tree, hf_tns_data_all8_bind_count, tvb, start, offset - start, bind_count);
+				/* The count comes off the wire and sizes an allocation
+				 * further down, so a count larger than the data left
+				 * cannot be real - report it and decode no binds. */
+				if ( bind_count < 0 ||
+				     (unsigned)bind_count > tvb_reported_length_remaining(tvb, offset) )
+				{
+					proto_tree_add_expert(data_tree, pinfo, &ei_tns_data_count_too_large,
+						tvb, start, offset - start);
+					bind_count = 0;
+				}
 				/* five reserved bytes */
 				offset += 5;
 				/* define-columns present flag (ub1) */
@@ -1495,6 +1509,71 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 				/* al8i4 option array: all8_len ub4 elements (skip) */
 				for ( int i = 0; i < all8_len && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
 					offset += get_sb4_custom(tvb, offset, &v);
+
+				/* Bind section: on a fresh parse with binds, one bare OAC
+				 * descriptor per bind column, then one TTI_RXD row of values
+				 * per iteration. A cached re-execute (no query text) omits
+				 * the OACs — detecting that needs connection state, so we
+				 * only decode binds when the query was present. */
+				if ( bind_count > 0 && query_flag )
+				{
+					proto_tree *binds_tree, *bind_tree, *row_tree;
+					proto_item *binds_item, *bind_item, *row_item;
+					int binds_start = offset, has_lob = 0, rownum = 0;
+					uint8_t *btypes;
+
+					btypes = (uint8_t *)wmem_alloc_array(pinfo->pool, uint8_t, bind_count);
+					binds_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1,
+						ett_tns_binds, &binds_item, "Binds");
+
+					for ( int i = 0; i < bind_count && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+					{
+						int b_start = offset;
+						uint8_t btype = tvb_get_uint8(tvb, offset);
+						btypes[i] = btype;
+						/* CLOB (112) / BLOB (113) binds use a temp-LOB
+						 * locator value form we do not unpack. */
+						if ( btype == 112 || btype == 113 )
+							has_lob = 1;
+						bind_tree = proto_tree_add_subtree_format(binds_tree, tvb, offset, -1,
+							ett_tns_bind, &bind_item, "Bind %d: %s", i + 1,
+							val_to_str_const(btype, tns_data_types, "unknown"));
+						offset = dissect_tns_oac(tvb, pinfo, bind_tree, offset);
+						/* A CLOB/BLOB bind OAC carries a trailing oaccolid byte. */
+						if ( btype == 112 || btype == 113 )
+							offset += 1;
+						proto_item_set_len(bind_item, offset - b_start);
+					}
+
+					/* Value rows: a TTI_RXD token then one DALC value per bind
+					 * column (an ordinary execute sends one row, executemany
+					 * sends N). Values are type-encoded and shown raw. */
+					while ( !has_lob && tvb_reported_length_remaining(tvb, offset) > 0
+						&& tvb_get_uint8(tvb, offset) == SQLNET_ROW_TRANSF_DATA )
+					{
+						int r_start = offset;
+						offset += 1; /* TTI_RXD token */
+						row_tree = proto_tree_add_subtree_format(binds_tree, tvb, offset, -1,
+							ett_tns_bind_row, &row_item, "Row %d", ++rownum);
+						for ( int i = 0; i < bind_count && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+						{
+							uint8_t first = tvb_get_uint8(tvb, offset);
+							int val_start = offset;
+							offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+							if ( first == 0 )
+								proto_tree_add_bytes_format_value(row_tree, hf_tns_data_bind_value,
+									tvb, val_start, offset - val_start, NULL, "NULL");
+							else if ( first == 254 )
+								proto_tree_add_item(row_tree, hf_tns_data_bind_value,
+									tvb, val_start, offset - val_start, ENC_NA);
+							else
+								proto_tree_add_item(row_tree, hf_tns_data_bind_value,
+									tvb, val_start + 1, first, ENC_NA);
+						}
+						proto_item_set_len(row_item, offset - r_start);
+					}
+					proto_item_set_len(binds_item, offset - binds_start);
+				}
 			}
 			break;
 		}
@@ -2722,6 +2801,9 @@ void proto_register_tns(void)
 		{ &hf_tns_data_all8_sql, {
 			"SQL Text", "tns.data_all8.sql", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_bind_value, {
+			"Bind Value", "tns.data_bind.value", FT_BYTES, BASE_NONE,
+			NULL, 0x0, "Raw type-encoded bind value", HFILL }},
 
 		{ &hf_tns_data_descriptor_row_count, {
 			"Row Count", "tns.data_descriptor.row_count", FT_UINT32, BASE_DEC,
@@ -2765,6 +2847,9 @@ void proto_register_tns(void)
 		&ett_tns_iov,
 		&ett_tns_dcb_col,
 		&ett_tns_all8_options,
+		&ett_tns_binds,
+		&ett_tns_bind,
+		&ett_tns_bind_row,
 		&ett_sql
 	};
 
