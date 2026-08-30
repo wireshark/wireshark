@@ -224,6 +224,9 @@ static int hf_tns_data_oer_n_batch_offsets;
 static int hf_tns_data_oer_n_batch_messages;
 static int hf_tns_data_oer_message;
 
+static int hf_tns_data_iov_num_binds;
+static int hf_tns_data_iov_bind_dir;
+
 static int hf_tns_data_descriptor_row_count;
 static int hf_tns_data_descriptor_row_size;
 
@@ -249,6 +252,7 @@ static int ett_tns_setdt_caphdr;
 static int ett_tns_setdt_overrides;
 static int ett_tns_setdt_override;
 static int ett_tns_oer;
+static int ett_tns_iov;
 static int ett_sql;
 
 static expert_field ei_tns_connect_data_next_packet;
@@ -377,6 +381,15 @@ static const value_string tns_charsets[] = {
 	{871,  "US7ASCII"},
 	{873,  "AL32UTF8"},
 	{2000, "AL16UTF16"},
+	{0, NULL}
+};
+
+/* Bind directions reported per bind in a TTI_IOV vector (TNS_BIND_DIR_*),
+ * cross-referenced with python-oracledb's constants. */
+static const value_string tns_iov_bind_dirs[] = {
+	{16, "OUT"},
+	{32, "IN"},
+	{48, "IN OUT"},
 	{0, NULL}
 };
 
@@ -1099,6 +1112,61 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 				}
 			}
 			proto_item_set_len(oer_item, offset - oer_start);
+			break;
+		}
+
+		case SQLNET_IOVEC_4FAST_UPI:
+		{
+			/* TTI_IOV: the server's I/O vector for an executed anonymous
+			 * PL/SQL block that carried bind variables. It lists each
+			 * bind's direction (IN / OUT / IN OUT); when any bind is
+			 * OUT / IN OUT the returned values follow as a TTI_RXD row.
+			 * Layout cross-referenced with python-oracledb's
+			 * _process_io_vector, and
+			 * verified against XE 11g.
+			 *
+			 * All the leading counters are stored in the ub4 variable-
+			 * length form (see get_sb4_custom). The per-bind directions
+			 * are one raw byte each. The trailing RXD values need each
+			 * bind's declared type to decode, so we stop after the
+			 * direction vector and leave the rest to the data dissector. */
+			int num_requests = 0, num_iters = 0, v = 0, bv_len = 0, rid_len = 0;
+
+			if ( !is_request )
+			{
+				/* flag (ub1, skip) */
+				offset += 1;
+				offset += get_sb4_custom(tvb, offset, &num_requests);
+				offset += get_sb4_custom(tvb, offset, &num_iters);
+				int num_binds = num_iters * 256 + num_requests;
+				proto_tree_add_uint(data_tree, hf_tns_data_iov_num_binds, tvb, offset, 0, num_binds);
+				/* num iters this time (skip) */
+				offset += get_sb4_custom(tvb, offset, &v);
+				/* uac buffer length (skip) */
+				offset += get_sb4_custom(tvb, offset, &v);
+				/* fast-fetch bit-vector: length + bytes (skip) */
+				offset += get_sb4_custom(tvb, offset, &bv_len);
+				if ( bv_len > 0 )
+					offset += bv_len;
+				/* rowid: length + bytes (skip) */
+				offset += get_sb4_custom(tvb, offset, &rid_len);
+				if ( rid_len > 0 )
+					offset += rid_len;
+
+				/* Per-bind direction bytes, in bind order. Bound by both
+				 * the reported count and the bytes actually present so a
+				 * malformed vector cannot run away. */
+				proto_tree *iov_tree;
+				proto_item *iov_item;
+				int iov_start = offset;
+				iov_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1, ett_tns_iov, &iov_item, "Bind Directions");
+				for ( int i = 0; i < num_binds && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+				{
+					proto_tree_add_item(iov_tree, hf_tns_data_iov_bind_dir, tvb, offset, 1, ENC_BIG_ENDIAN);
+					offset += 1;
+				}
+				proto_item_set_len(iov_item, offset - iov_start);
+			}
 			break;
 		}
 
@@ -2260,6 +2328,13 @@ void proto_register_tns(void)
 			"Value", "tns.data_opi.param_value", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
 
+		{ &hf_tns_data_iov_num_binds, {
+			"Number of Binds", "tns.data_iov.num_binds", FT_UINT32, BASE_DEC,
+			NULL, 0x0, "num_iters * 256 + num_requests", HFILL }},
+		{ &hf_tns_data_iov_bind_dir, {
+			"Bind Direction", "tns.data_iov.bind_dir", FT_UINT8, BASE_DEC,
+			VALS(tns_iov_bind_dirs), 0x0, NULL, HFILL }},
+
 		{ &hf_tns_data_descriptor_row_count, {
 			"Row Count", "tns.data_descriptor.row_count", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
@@ -2299,6 +2374,7 @@ void proto_register_tns(void)
 		&ett_tns_setdt_overrides,
 		&ett_tns_setdt_override,
 		&ett_tns_oer,
+		&ett_tns_iov,
 		&ett_sql
 	};
 

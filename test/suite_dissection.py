@@ -1421,6 +1421,27 @@ class TestDissectTns:
         ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '', stdout
 
+    def test_tns_iov(self, cmd_tshark, capture_file, test_env):
+        '''TTI_IOV (I/O vector) decodes the bind count and the per-bind
+        direction vector. Two frames: a PL/SQL block with IN/OUT/IN OUT
+        binds (followed by a TTI_RXD row of returned values, left raw), and
+        a block with two pure-IN binds (no values follow).'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_iov.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_id',
+            '-e', 'tns.data_iov.num_binds',
+            '-e', 'tns.data_iov.bind_dir',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert len(rows) == 2, rows
+        # data_id = 11 (Sending I/O Vec only for fast UPI).
+        assert rows[0][0] == '0x0000000b', rows[0]
+        # 16 = OUT, 32 = IN, 48 = IN OUT.
+        assert rows[0][1] == '3' and rows[0][2] == '32,16,48', rows[0]
+        assert rows[1][1] == '2' and rows[1][2] == '32,32', rows[1]
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
