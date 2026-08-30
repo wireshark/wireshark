@@ -1612,6 +1612,17 @@ class TestDissectTns:
         assert lines, stdout
         assert all('Fetch a Row' in line for line in lines), lines
 
+    def test_tns_number_render(self, cmd_tshark, capture_file, test_env):
+        '''A NUMBER row value is rendered as its decimal string in the tree
+        (raw bytes stay filterable). The tns_rxd fixture carries 10 and 20.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_rxd.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert '(NUMBER): 10' in stdout, stdout
+        assert '(NUMBER): 20' in stdout, stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

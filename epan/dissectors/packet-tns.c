@@ -867,6 +867,75 @@ static int get_field_with_length(tvbuff_t *tvb, packet_info *pinfo, int offset, 
 	return used;
 }
 
+/* Render an Oracle NUMBER value as a decimal string.
+ * Base-100 float: byte 0 is the biased exponent (top bit = sign, inverted
+ * for negatives); the rest are base-100 mantissa groups, with a trailing
+ * 0x66 terminator on negatives.
+ * Returns a pinfo->pool string, or NULL if the value is not renderable. */
+static const char *tns_format_number(packet_info *pinfo, const uint8_t *data, int len)
+{
+	if ( len <= 0 )
+		return NULL;
+	if ( len == 1 )
+		return (data[0] == 0x80) ? "0" : NULL; /* 0x80 = zero; sentinels skipped */
+
+	uint8_t exp_byte = data[0];
+	bool is_pos = (exp_byte & 0x80) != 0;
+	int exponent = is_pos ? (exp_byte & 0x7f) - 65 : ((~exp_byte) & 0x7f) - 65;
+
+	int mant_len = len - 1;
+	if ( !is_pos && mant_len > 0 && data[len - 1] == 0x66 )
+		mant_len--; /* drop the negative terminator */
+
+	/* Build the base-100 digit string (two decimal digits per group). */
+	wmem_strbuf_t *digits = wmem_strbuf_new(pinfo->pool, "");
+	for ( int i = 0; i < mant_len; i++ )
+	{
+		int pair = is_pos ? (data[1 + i] - 1) : (101 - data[1 + i]);
+		if ( pair < 0 || pair > 99 )
+			return NULL; /* malformed */
+		wmem_strbuf_append_printf(digits, "%02d", pair);
+	}
+	const char *ds = wmem_strbuf_get_str(digits);
+	int dlen = (int)wmem_strbuf_get_len(digits);
+	int int_digits = (exponent + 1) * 2;
+
+	wmem_strbuf_t *ip = wmem_strbuf_new(pinfo->pool, "");
+	wmem_strbuf_t *fp = wmem_strbuf_new(pinfo->pool, "");
+	if ( int_digits >= dlen )
+	{
+		wmem_strbuf_append(ip, ds);
+		for ( int i = 0; i < int_digits - dlen; i++ )
+			wmem_strbuf_append_c(ip, '0');
+	}
+	else if ( int_digits <= 0 )
+	{
+		wmem_strbuf_append_c(ip, '0');
+		for ( int i = 0; i < -int_digits; i++ )
+			wmem_strbuf_append_c(fp, '0');
+		wmem_strbuf_append(fp, ds);
+	}
+	else
+	{
+		wmem_strbuf_append(ip, wmem_strndup(pinfo->pool, ds, int_digits));
+		wmem_strbuf_append(fp, ds + int_digits);
+	}
+
+	/* Trim leading zeros on the integer part, trailing zeros on the fraction. */
+	const char *ips = wmem_strbuf_get_str(ip);
+	while ( ips[0] == '0' && ips[1] != '\0' )
+		ips++;
+	char *fps = wmem_strdup(pinfo->pool, wmem_strbuf_get_str(fp));
+	int flen = (int)strlen(fps);
+	while ( flen > 0 && fps[flen - 1] == '0' )
+		fps[--flen] = '\0';
+
+	const char *sign = is_pos ? "" : "-";
+	if ( flen > 0 )
+		return wmem_strdup_printf(pinfo->pool, "%s%s.%s", sign, ips, fps);
+	return wmem_strdup_printf(pinfo->pool, "%s%s", sign, ips);
+}
+
 static void vsnum_to_vstext_basecustom(char *result, uint32_t vsnum)
 {
 	/*
@@ -980,6 +1049,7 @@ static int dissect_tns_rxd_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	int v_start = offset, disp_start = offset, v = 0;
 	int is_null = 0;
 	uint8_t first;
+	const char *rendered = NULL;
 
 	switch ( dtype )
 	{
@@ -1055,7 +1125,13 @@ static int dissect_tns_rxd_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			if ( first == 0 )
 				is_null = 1;
 			else
+			{
 				disp_start = v_start + 1; /* show the value bytes, not the length */
+				/* Render an Oracle NUMBER (never chunked) as decimal. */
+				if ( dtype == 2 && first != 254 && offset > disp_start )
+					rendered = tns_format_number(pinfo,
+						tvb_get_ptr(tvb, disp_start, offset - disp_start), offset - disp_start);
+			}
 			break;
 	}
 
@@ -1063,6 +1139,10 @@ static int dissect_tns_rxd_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		proto_tree_add_bytes_format(tree, hf_tns_data_col_value, tvb,
 			v_start, offset - v_start, NULL, "Column %d (%s): NULL", idx,
 			val_to_str_const(dtype, tns_data_types, "unknown"));
+	else if ( rendered )
+		proto_tree_add_bytes_format(tree, hf_tns_data_col_value, tvb,
+			disp_start, offset - disp_start, NULL, "Column %d (%s): %s", idx,
+			val_to_str_const(dtype, tns_data_types, "unknown"), rendered);
 	else
 		proto_tree_add_bytes_format(tree, hf_tns_data_col_value, tvb,
 			disp_start, offset - disp_start, NULL, "Column %d (%s)", idx,
