@@ -1199,6 +1199,11 @@ static int dissect_tns_rxd_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 						rendered = tns_format_date(pinfo, vb, vlen);
 					else if ( dtype == 100 || dtype == 101 )
 						rendered = tns_format_binary_float(pinfo, vb, vlen);
+					else if ( dtype == 1 || dtype == 5 || dtype == 96 )
+						/* VARCHAR / STRING / CHAR: character data (session
+						 * charset, ordinarily UTF-8). */
+						rendered = (const char *)tvb_get_string_enc(pinfo->pool,
+							tvb, disp_start, vlen, ENC_UTF_8|ENC_NA);
 				}
 			}
 			break;

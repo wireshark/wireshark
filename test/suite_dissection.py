@@ -1635,6 +1635,8 @@ class TestDissectTns:
         ), encoding='utf-8', env=test_env)
         assert '(NUMBER): 10' in stdout, stdout
         assert '(NUMBER): 20' in stdout, stdout
+        # The VARCHAR value "hi" is rendered as text, not raw bytes.
+        assert '(VARCHAR): hi' in stdout, stdout
 
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
