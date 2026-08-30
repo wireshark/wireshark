@@ -800,6 +800,26 @@
         <source>Automatically detect file type</source>
         <translation>Secara otomatis deteksi tipe berkas</translation>
     </message>
+    <message numerus="yes">
+        <source>%1, error after %Ln packet(s)</source>
+        <oldsource>%1, error after %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%1, galat setelah %Ln paket</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, timed out at %Ln packet(s)</source>
+        <oldsource>%1, timed out at %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%1, habis waktu pada %Ln paket</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, %Ln packet(s)</source>
+        <translation type="vanished">
+            <numerusform>%1, %Ln paket</numerusform>
+        </translation>
+    </message>
     <message>
         <source>Prepend packets</source>
         <translation>Sisip ke depan paket</translation>
@@ -1018,7 +1038,7 @@
     </message>
     <message>
         <source>Interface Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Deskripsi Antar Muka</translation>
     </message>
     <message>
         <source>Dropped packets</source>
@@ -1208,11 +1228,11 @@
     <name>CaptureFilterSyntaxWorker</name>
     <message>
         <source>Unable to check capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak bisa memeriksa filter tangkap</translation>
     </message>
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak bisa memeriksa filter tangkap (ekstensi BPF memerlukan live handle)</translation>
     </message>
 </context>
 <context>
@@ -1931,11 +1951,11 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Capture filters cannot be compiled for standard input.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filter tangkapan tidak bisa dikompilasi bagi masukan standar.</translation>
     </message>
     <message>
         <source>Capture filters cannot be compiled for pipes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filter tangkapan tidak bisa dikompilasi bagi pipa.</translation>
     </message>
 </context>
 <context>
@@ -3546,6 +3566,18 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <source>Print</source>
         <translation>Cetak</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln client pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln pkt klien, </numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln server pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln pkt server, </numerusform>
+        </translation>
+    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -5076,7 +5108,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ekspresi reguler kompatibel Perl yang menangkap suatu paket tunggal dalam berkas dengan data pengidentifikasi grup yang dinamai yang akan diimpor. Jangkar ^ dan $ juga cocok sebelum/setelah baris baru &lt;/p&gt;&lt;p&gt;Satu-satunya grup yang diperlukan adalah data, tapi waktu, arah, dan seqno juga didukung.&lt;/p&gt;&lt;p&gt;Flag regex: DUPNAMES, MULTILINE, dan NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;recommended regex:&lt;/small&gt;&lt;/i&gt;</source>
@@ -5084,11 +5116,11 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format untuk mengurai stempel waktu dalam berkas teks (mis. %H:%M:%S.). Penentu format didasarkan pada strptime(3)</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The format in which to parse timestamps in the text file (e.g. %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Format specifiers are based on strptime(3) with the addition of %f for second fractions. The precision of %f is determined from its length.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Format untuk mengurai stempel waktu dalam berkas teks (mis. %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Penentu format didasarkan pada strptime(3) dengan tambahan %f untuk pecahan detik. Presisi %f ditentukan dari panjangnya.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>%H:%M:%S.%f</source>
@@ -5249,7 +5281,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <message>
         <source>Missing capturing group data (use (?&lt;data&gt;(…)) )</source>
         <oldsource>Missing capturing group data (use (?&lt;data&gt;(...)) )</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Kehilangan data grup penangkapan (gunakan (?&lt;data&gt;(...)) )</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -5268,15 +5300,15 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <name>InfoBannerWidget</name>
     <message>
         <source>Tips and announcements</source>
-        <translation type="unfinished"></translation>
+        <translation>Tips dan pengumuman</translation>
     </message>
     <message>
         <source>%1: %2 (%3 of %4)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: %2 (%3 dari %4)</translation>
     </message>
     <message>
         <source>Action: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Aksi: %1</translation>
     </message>
 </context>
 <context>
@@ -6393,15 +6425,15 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <name>LearnCardWidget</name>
     <message>
         <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h2&gt;Belajar&lt;/h2&gt;</translation>
     </message>
     <message>
         <source>Learn</source>
-        <translation type="unfinished"></translation>
+        <translation>Belajar</translation>
     </message>
     <message>
         <source>Opens the Wireshark documentation website</source>
-        <translation type="unfinished"></translation>
+        <translation>Membuka situs web dokumentasi Wireshark</translation>
     </message>
 </context>
 <context>
@@ -7461,11 +7493,11 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Max Burst</source>
-        <translation type="unfinished"></translation>
+        <translation>Burst Maks</translation>
     </message>
     <message>
         <source>Burst Alarms</source>
-        <translation type="unfinished"></translation>
+        <translation>Alarm Burst</translation>
     </message>
     <message>
         <source>Max Buffers (B)</source>
@@ -7477,11 +7509,11 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Burst measurement interval (ms):</source>
-        <translation type="unfinished"></translation>
+        <translation>Interval pengukuran burst (ms):</translation>
     </message>
     <message>
         <source>Burst alarm threshold (packets):</source>
-        <translation type="unfinished"></translation>
+        <translation>Ambang alarm burst (paket):</translation>
     </message>
     <message>
         <source>Buffer alarm threshold (B):</source>
@@ -7499,11 +7531,11 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>The burst interval must be between 1 and 1000. </source>
-        <translation type="unfinished"></translation>
+        <translation>Interval burst mesti di antara 1 dan 1000.</translation>
     </message>
     <message>
         <source>The burst alarm threshold isn&apos;t valid. </source>
-        <translation type="unfinished"></translation>
+        <translation>Ambang alarm burst tidak valid.</translation>
     </message>
     <message>
         <source>The buffer alarm threshold isn&apos;t valid. </source>
@@ -7519,7 +7551,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>%1 streams, avg bw: %2bps, max bw: %3bps, max burst: %4 / %5ms, max buffer: %6B</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 stream, rerata bw: %2bps, maks bw: %3bps, maks burst: %4 / %5ms, maks penyangga: %6B</translation>
     </message>
 </context>
 <context>
@@ -8237,11 +8269,11 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Show Markers DataPoints</source>
-        <translation type="unfinished"></translation>
+        <translation>Tunjukkan Titik Data Penanda</translation>
     </message>
     <message>
         <source>Auto Scroll</source>
-        <translation type="unfinished"></translation>
+        <translation>Gulir Otomatis</translation>
     </message>
     <message>
         <source>Plots</source>
@@ -8522,7 +8554,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Welcome Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Laman Selamat Datang</translation>
     </message>
     <message>
         <source>Capture</source>
@@ -8628,7 +8660,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Auto switch event limit</source>
-        <translation type="unfinished"></translation>
+        <translation>Beralih otomatis batas kejadian</translation>
     </message>
     <message>
         <source>Import</source>
@@ -8681,6 +8713,18 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <message>
         <source>Select zip file for export</source>
         <translation>Pilih berkas zip untuk diekspor</translation>
+    </message>
+    <message numerus="yes">
+        <source>… %Ln selected personal profile(s)</source>
+        <translation type="vanished">
+            <numerusform>... %Ln profil pribadi yang dipilih</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln selected personal profile(s)</source>
+        <translation type="vanished">
+            <numerusform>%Ln profil pribadi yang dipilih</numerusform>
+        </translation>
     </message>
     <message>
         <source>An import of profiles is not allowed, while changes are pending</source>
@@ -8799,7 +8843,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Auto Switch Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filter Beralih Otomatis</translation>
     </message>
     <message>
         <source>copy</source>
@@ -9092,7 +9136,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Revert changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Batalkan perubahan</translation>
     </message>
     <message>
         <source>No display filter.</source>
@@ -10427,23 +10471,23 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Start playback of all unmuted streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Mulai memutar ulang semua stream yang tidak dibisukan</translation>
     </message>
     <message>
         <source>Pause/unpause playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Jeda/lanjutkan memutar ulang</translation>
     </message>
     <message>
         <source>Stop playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Berhenti memutar ulang</translation>
     </message>
     <message>
         <source>Enable/disable skipping of silence during playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Fungsikan/nonaktifkan melewati hening saat memutar ulang</translation>
     </message>
     <message>
         <source>Min silence:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hening min:</translation>
     </message>
     <message>
         <source>Minimum silence duration to skip in seconds</source>
@@ -10492,7 +10536,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Uninterrupted Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode Tak Terputus</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;View the timestamps as time of day (checked) or seconds since beginning of capture (unchecked).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -10652,15 +10696,15 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>I&amp;naudible streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Stream tak terde&amp;ngar</translation>
     </message>
     <message>
         <source>Select/Deselect inaudible streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Pilih/lepas pilihan stream yang tak terdengar</translation>
     </message>
     <message>
         <source>Inaudible streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Stream tak terdengar</translation>
     </message>
     <message>
         <source>&amp;Select</source>
@@ -10668,7 +10712,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Select inaudible streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Pilih stream yang tak terdengar</translation>
     </message>
     <message>
         <source>&amp;Deselect</source>
@@ -10676,7 +10720,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Deselect inaudible streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Lepas pilihan stream yang tak terdengar</translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
@@ -10813,7 +10857,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <message>
         <source>Decoding streams…</source>
         <oldsource>Decoding streams...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Mendekode stream...</translation>
     </message>
     <message>
         <source>Out of Sequence</source>
@@ -10866,7 +10910,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <message>
         <source>Resampling waveform…</source>
         <oldsource>Resampling waveform...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Mencuplik ulang bentuk gelombang...</translation>
     </message>
     <message>
         <source>WAV (*.wav)</source>
@@ -11751,7 +11795,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mencari kolom Info dari daftar paket (panel ringkasan), label tampilan paket terdekode (panel tampilan pohon), atau data paket terkonversi ASCII (panel tampilan heksa).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>
@@ -11802,7 +11846,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <name>SequenceDialog</name>
     <message>
         <source>Call Flow</source>
-        <translation type="unfinished"></translation>
+        <translation>Flow Pemanggilan</translation>
     </message>
     <message>
         <source>Time</source>
@@ -12234,7 +12278,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Percent-Encoding</source>
-        <translation type="unfinished"></translation>
+        <translation>Persen-Pengodean</translation>
     </message>
     <message>
         <source>Quoted-Printable</source>
@@ -13670,11 +13714,11 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation>Buka </translation>
     </message>
     <message>
         <source>List of recently opened files. Files that can no longer be found on disk are shown in italics.</source>
-        <translation type="unfinished"></translation>
+        <translation>Daftar dari berkas yang baru-baru ini dibuka. Berkas yang tidak dapat ditemukan lagi pada disk ditampilkan dengan huruf miring.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open a file on your file system&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -13694,11 +13738,11 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Capture</source>
-        <translation type="unfinished">Tangkap</translation>
+        <translation>Tangkap</translation>
     </message>
     <message>
         <source>Start a new capture session</source>
-        <translation type="unfinished"></translation>
+        <translation>Mulai suatu sesi tangkap baru</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -13722,19 +13766,19 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Tips and announcements</source>
-        <translation type="unfinished"></translation>
+        <translation>Tips dan pengumuman</translation>
     </message>
     <message>
         <source>Rotating tips, sponsor acknowledgements, and announcements for Wireshark and Stratoshark conferences.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tips bergantian, pengakuan sponsor, dan pengumuman untuk konferensi Wireshark dan Stratoshark.</translation>
     </message>
     <message>
         <source>Learn</source>
-        <translation type="unfinished"></translation>
+        <translation>Belajar</translation>
     </message>
     <message>
         <source>Links to documentation, wiki, and community resources.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tautan ke dokumentasi, wiki, dan sumber daya komunitas.</translation>
     </message>
     <message>
         <source>Show in Finder</source>
@@ -13746,11 +13790,11 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Welcome page</source>
-        <translation type="unfinished"></translation>
+        <translation>Laman selamat datang</translation>
     </message>
     <message>
         <source>The %1 welcome page provides access to recent files, capture interfaces, and learning resources.</source>
-        <translation type="unfinished"></translation>
+        <translation>Laman selaman datang %1 menyediakan akses ke berkas terkini, antar muka tangkap, dan sumber daya belajar.</translation>
     </message>
     <message>
         <source>Welcome to %1</source>
@@ -13791,51 +13835,51 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <name>WelcomePagePreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Frame</translation>
+        <translation>Frame</translation>
     </message>
     <message>
         <source>Tips Section</source>
-        <translation type="unfinished"></translation>
+        <translation>Bagian Tips</translation>
     </message>
     <message>
         <source>Show Tips section in sidebar</source>
-        <translation type="unfinished"></translation>
+        <translation>Tampilkan bagian Tips dalam bilah sisi</translation>
     </message>
     <message>
         <source>Show slides</source>
-        <translation type="unfinished"></translation>
+        <translation>Tampilkan salindia</translation>
     </message>
     <message>
         <source>Event Notifications (e.g. SharkFest)</source>
-        <translation type="unfinished"></translation>
+        <translation>Pemberitahuan Acara (mis. SharkFest)</translation>
     </message>
     <message>
         <source>Sponsorship and Donor information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informasi Sponsor dan Donor</translation>
     </message>
     <message>
         <source>Tip of the Day</source>
-        <translation type="unfinished"></translation>
+        <translation>Tip Hari Ini</translation>
     </message>
     <message>
         <source>Auto advance slides</source>
-        <translation type="unfinished"></translation>
+        <translation>Salindia maju otomatis</translation>
     </message>
     <message>
         <source>Slide display interval</source>
-        <translation type="unfinished"></translation>
+        <translation>Interval menampilkan salindia</translation>
     </message>
     <message>
         <source> s</source>
-        <translation type="unfinished"></translation>
+        <translation>d</translation>
     </message>
     <message>
         <source>Learn Section</source>
-        <translation type="unfinished"></translation>
+        <translation>Bagian Belajar</translation>
     </message>
     <message>
         <source>Show Learn section in sidebar</source>
-        <translation type="unfinished"></translation>
+        <translation>Tampilkan bagian Belajar di bilah sisi</translation>
     </message>
 </context>
 <context>
@@ -14876,19 +14920,19 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Queries by Topic</source>
-        <translation type="unfinished"></translation>
+        <translation>Query menurut Topik</translation>
     </message>
     <message>
         <source>Queries by Receiver</source>
-        <translation type="unfinished"></translation>
+        <translation>Query menurut Penerima</translation>
     </message>
     <message>
         <source>Wildcard Queries by Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Query Wildcard menurut Pola</translation>
     </message>
     <message>
         <source>Wildcard Queries by Receiver</source>
-        <translation type="unfinished"></translation>
+        <translation>Query Wildcard menurut Penerima</translation>
     </message>
     <message>
         <source>Advertisements by Queue</source>
@@ -14896,7 +14940,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Queries by Queue</source>
-        <translation type="unfinished"></translation>
+        <translation>Query menurut Antrean</translation>
     </message>
     <message>
         <source>Streams</source>
@@ -14936,7 +14980,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Shrink the main window text</source>
-        <translation type="unfinished"></translation>
+        <translation>Perkecil teks jendela utama</translation>
     </message>
     <message>
         <source>Return the main window text to its normal size</source>
@@ -15260,11 +15304,11 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Query-Response</source>
-        <translation type="unfinished"></translation>
+        <translation>Query-Respon</translation>
     </message>
     <message>
         <source>DNS Query-Response Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statistik Query-Respon DNS</translation>
     </message>
     <message>
         <source>Request Sequences</source>

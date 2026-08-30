@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* (last updated 2026-08-21) */
+/* (last updated 2026-08-28) */
 
 #include "config.h"
 
@@ -14287,7 +14287,7 @@ static const char * const table[] =
     "itouch",                                                                             // 14265
     "Bulletproff Networks",                                                               // 14266
     "WrjTec",                                                                             // 14267
-    "Projekt Avalon",                                                                     // 14268
+    "JRVFONPU",                                                                           // 14268
     "Beijing Vanlink Communication Co. P.R.China Yu",                                     // 14269
     "Technology Hackworks, Inc.",                                                         // 14270
     "Iliad",                                                                              // 14271
@@ -60280,7 +60280,7 @@ static const char * const table[] =
     "STATE ENTERPRISE “AIR TRAFFIC SERVICES AUTHORITY” (BULATSA)",                        // 60258
     "AUTMES s.r.o.",                                                                      // 60259
     "Maker Systems",                                                                      // 60260
-    "Methinks software SL",                                                               // 60261
+    "Methinks Software SL",                                                               // 60261
     "Stella Freyju",                                                                      // 60262
     "Raiys GmbH",                                                                         // 60263
     "Fuzzylabs private limited",                                                          // 60264
@@ -64474,7 +64474,7 @@ static const char * const table[] =
     "Chris Rose",                                                                         // 64452
     "Strand Psychiatric Associates",                                                      // 64453
     "Stephon X. Jones",                                                                   // 64454
-    "D’Andilly Group",                                                                    // 64455
+    "Cooper D'Andilly",                                                                   // 64455
     "Jenn Tribble",                                                                       // 64456
     "Goose",                                                                              // 64457
     "OTO GK",                                                                             // 64458
@@ -64682,7 +64682,7 @@ static const char * const table[] =
     "Polish Linux Users Group - PLUG",                                                    // 64660
     "Puddingify, Inc",                                                                    // 64661
     "Relativity Space",                                                                   // 64662
-    "Guangzhou Felicity Solar Technology Co., Ltd.",                                      // 64663
+    "Guangdong Felicity New Energy Co Ltd",                                               // 64663
     "Finspångs Tekniska Verk AB",                                                         // 64664
     "Camkeeper, LLC",                                                                     // 64665
     "Skogsbränsle Småland AB",                                                            // 64666
@@ -66623,7 +66623,80 @@ static const char * const table[] =
     "OrionM2M",                                                                           // 66601
     "ACentauri Technology Limited",                                                       // 66602
     "highQ solutions GmbH",                                                               // 66603
-    "FACTS Engineering, LLC"                                                              // 66604
+    "FACTS Engineering, LLC",                                                             // 66604
+    "StarTech.com Ltd.",                                                                  // 66605
+    "Kam Shing Ernest Lee (iFire)",                                                       // 66606
+    "深圳妙月科技有限公司 (Shenzhen Miaoyue Technology Co., Ltd.)",                                 // 66607
+    "Hermann Sewerin GmbH",                                                               // 66608
+    "ADRIAN CAPEL",                                                                       // 66609
+    "Kaltech Lighting Systems",                                                           // 66610
+    "Safe Center Sp. z o. o.",                                                            // 66611
+    "Iapethus",                                                                           // 66612
+    "Universidade Federal da Paraiba",                                                    // 66613
+    "ALPHA Electronics",                                                                  // 66614
+    "CD IT Consult SRL",                                                                  // 66615
+    "Northwatch Technologies LLC.",                                                       // 66616
+    "JP Capital GmbH",                                                                    // 66617
+    "Smartmation SA",                                                                     // 66618
+    "Dédicace Software",                                                                  // 66619
+    "CanTops Co., LTD.",                                                                  // 66620
+    "Beijing Rainstelecom Ltd.",                                                          // 66621
+    "Stellicon Technology Co., Ltd.",                                                     // 66622
+    "Excellent Pharma Consulting Inc",                                                    // 66623
+    "Tre Innovatörer AB",                                                                 // 66624
+    "BCIX Management GmbH",                                                               // 66625
+    "BEATQUANTUM LIMITED",                                                                // 66626
+    "Sidam Srl",                                                                          // 66627
+    "People Serving People Foundation",                                                   // 66628
+    "Litemax inc.",                                                                       // 66629
+    "ONVIF, Inc.",                                                                        // 66630
+    "Ternoxa",                                                                            // 66631
+    "ArmorPoint",                                                                         // 66632
+    "BOBi",                                                                               // 66633
+    "Symcon GmbH",                                                                        // 66634
+    "Kianpardaz",                                                                         // 66635
+    "Edward Laverick",                                                                    // 66636
+    "Holiday Robotics",                                                                   // 66637
+    "Christoph Rust",                                                                     // 66638
+    "OTPme Project",                                                                      // 66639
+    "AUSIGHT",                                                                            // 66640
+    "John Portzer",                                                                       // 66641
+    "Oliver Keutel",                                                                      // 66642
+    "Rongta R&D Center",                                                                  // 66643
+    "Electro-Voice Dynacord, LLC",                                                        // 66644
+    "Urban Baby Beginnings",                                                              // 66645
+    "J1-LED Intelligent Transport Systems Pty Ltd",                                       // 66646
+    "Sudeep D Ghate",                                                                     // 66647
+    "Abberior Instruments GmbH",                                                          // 66648
+    "Akino Medical Pte Ltd",                                                              // 66649
+    "Kenton Groombridge",                                                                 // 66650
+    "Zhong'an Zhixin Standard Technical Service (Shanghai) Co., Ltd.",                    // 66651
+    "Robin Weiligmann",                                                                   // 66652
+    "Anapaya Systems",                                                                    // 66653
+    "Global Timestamp Authority",                                                         // 66654
+    "Bynn Intelligence, Inc.",                                                            // 66655
+    "The X ORB AB",                                                                       // 66656
+    "Crystal",                                                                            // 66657
+    "PT. Sydeco",                                                                         // 66658
+    "ENERGY IN THE CLOUD SL",                                                             // 66659
+    "Titus d.o.o. Dekani",                                                                // 66660
+    "OPENWAY TECHNOLOGIES LTD",                                                           // 66661
+    "JSC INTER GROUP",                                                                    // 66662
+    "Hexegic Limited",                                                                    // 66663
+    "EU-Zahlstelle Sachsen-Anhalt",                                                       // 66664
+    "RaruseReiji",                                                                        // 66665
+    "Packet Pilot LLC",                                                                   // 66666
+    "Cooler Master Co., Ltd.",                                                            // 66667
+    "KS2 Corp Inc",                                                                       // 66668
+    "EnergyNet Task Force",                                                               // 66669
+    "SunState Medical Specialists",                                                       // 66670
+    "Intradel",                                                                           // 66671
+    "Cogniflow",                                                                          // 66672
+    "Maicon Pereira da Silva",                                                            // 66673
+    "HopeTrek Innovations Co.,Ltd.",                                                      // 66674
+    "Leasing České spořitelny, a.s.",                                                     // 66675
+    "Corbotics",                                                                          // 66676
+    "Caneline Limited"                                                                    // 66677
 };
 
 const char* global_enterprises_lookup(uint32_t value)

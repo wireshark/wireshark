@@ -1047,7 +1047,7 @@
     </message>
     <message>
         <source>Interface Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Gränssnittsbeskrivning</translation>
     </message>
     <message>
         <source>Dropped packets</source>
@@ -5319,7 +5319,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>InfoBannerWidget</name>
     <message>
         <source>Tips and announcements</source>
-        <translation type="unfinished"></translation>
+        <translation>Tips och meddelanden</translation>
     </message>
     <message>
         <source>%1: %2 (%3 of %4)</source>
@@ -6446,15 +6446,15 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>LearnCardWidget</name>
     <message>
         <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h2&gt;Lär dig&lt;/h2&gt;</translation>
     </message>
     <message>
         <source>Learn</source>
-        <translation type="unfinished"></translation>
+        <translation>Lär dig</translation>
     </message>
     <message>
         <source>Opens the Wireshark documentation website</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppnar Wiresharks dokumentationswebbplats</translation>
     </message>
 </context>
 <context>
@@ -8610,7 +8610,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Welcome Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Välkomstsida</translation>
     </message>
     <message>
         <source>Capture</source>
@@ -13828,7 +13828,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>List of recently opened files. Files that can no longer be found on disk are shown in italics.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista över nyligen öppnade filer. Filer som inte längre kan hittas på disken visas i kursiv stil.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open a file on your file system&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -13852,7 +13852,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Start a new capture session</source>
-        <translation type="unfinished"></translation>
+        <translation>Starta en ny fångstsession</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -13876,19 +13876,19 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Tips and announcements</source>
-        <translation type="unfinished"></translation>
+        <translation>Tips och meddelanden</translation>
     </message>
     <message>
         <source>Rotating tips, sponsor acknowledgements, and announcements for Wireshark and Stratoshark conferences.</source>
-        <translation type="unfinished"></translation>
+        <translation>Roterande tips, tack till sponsorer och meddelanden om Wireshark- och Stratoshark-konferenser.</translation>
     </message>
     <message>
         <source>Learn</source>
-        <translation type="unfinished"></translation>
+        <translation>Lär dig</translation>
     </message>
     <message>
         <source>Links to documentation, wiki, and community resources.</source>
-        <translation type="unfinished"></translation>
+        <translation>Länkar till dokumentation, wiki och gemenskapsresurser.</translation>
     </message>
     <message>
         <source>Show in Finder</source>
@@ -13904,7 +13904,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>The %1 welcome page provides access to recent files, capture interfaces, and learning resources.</source>
-        <translation type="unfinished"></translation>
+        <translation>Välkomstsidan i %1 ger åtkomst till de senaste filerna, fångstgränssnitt och utbildningsresurser.</translation>
     </message>
     <message>
         <source>Welcome to %1</source>
@@ -13946,27 +13946,27 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>WelcomePagePreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Ram</translation>
+        <translation>Ram</translation>
     </message>
     <message>
         <source>Tips Section</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipsavsnitt</translation>
     </message>
     <message>
         <source>Show Tips section in sidebar</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa avsnittet Tips i sidofältet</translation>
     </message>
     <message>
         <source>Show slides</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa bildspel</translation>
     </message>
     <message>
         <source>Event Notifications (e.g. SharkFest)</source>
-        <translation type="unfinished"></translation>
+        <translation>Händelseaviseringar (t.ex. SharkFest)</translation>
     </message>
     <message>
         <source>Sponsorship and Donor information</source>
-        <translation type="unfinished"></translation>
+        <translation>Information om sponsring och bidragsgivare</translation>
     </message>
     <message>
         <source>Tip of the Day</source>
@@ -13974,11 +13974,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Auto advance slides</source>
-        <translation type="unfinished"></translation>
+        <translation>Bläddra automatiskt i bildspelet</translation>
     </message>
     <message>
         <source>Slide display interval</source>
-        <translation type="unfinished"></translation>
+        <translation>Visningsintervall för bilder</translation>
     </message>
     <message>
         <source> s</source>
@@ -13986,11 +13986,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Learn Section</source>
-        <translation type="unfinished"></translation>
+        <translation>Avsnittet Lär dig</translation>
     </message>
     <message>
         <source>Show Learn section in sidebar</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa avsnittet Lär dig i sidofältet</translation>
     </message>
 </context>
 <context>
