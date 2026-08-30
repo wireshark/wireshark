@@ -969,40 +969,104 @@ static int dissect_tns_dcb_column(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	return offset;
 }
 
-/* Decode one TTI_RXD column value by its describe data type. An ordinary
- * value is a DALC blob shown raw. The special types (LONG, ROWID, UROWID,
- * LOB/BFILE, object, JSON, VECTOR) have value framings not handled here, so
- * on those the caller stops (sets *bail) and leaves the rest to the data
- * dissector. Returns the new offset. */
+/* Decode one TTI_RXD column value by its describe data type, and add it as a
+ * "Column N (TYPE)" item showing the raw value bytes. Ordinary values are a
+ * DALC blob; ROWID / UROWID / LONG / LOB carry their own framings.
+ * Object / JSON / VECTOR values have richer image
+ * framings not handled here, so on those the caller stops (sets *bail) and
+ * leaves the remainder to the data dissector. Returns the new offset. */
 static int dissect_tns_rxd_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t dtype, int idx, int *bail)
 {
-	int v_start = offset;
+	int v_start = offset, disp_start = offset, v = 0;
+	int is_null = 0;
 	uint8_t first;
 
 	switch ( dtype )
 	{
-		case 8:   /* LONG */
-		case 11:  /* ROWID */
-		case 24:  /* LONG RAW */
 		case 109: /* ADT / object */
-		case 112: /* CLOB */
-		case 113: /* BLOB */
-		case 114: /* BFILE */
-		case 119: /* JSON */
+		case 119: /* JSON (OSON) */
 		case 127: /* VECTOR */
-		case 208: /* UROWID */
 			*bail = 1;
 			return offset;
+
+		case 11:  /* ROWID: indicator, then obj/file/unused/block/slot (ub4) */
+			first = tvb_get_uint8(tvb, offset);
+			offset += 1;
+			if ( first == 0 || first == 0xff )
+				is_null = 1;
+			else
+				for ( int k = 0; k < 5; k++ )
+					offset += get_sb4_custom(tvb, offset, &v);
+			break;
+
+		case 208: /* UROWID: ub4 num_bytes, a length echo byte, then the bytes */
+			offset += get_sb4_custom(tvb, offset, &v);
+			if ( v > 0 )
+				offset += 1 + v;
+			else
+				is_null = 1;
+			break;
+
+		case 8:   /* LONG */
+		case 24:  /* LONG RAW: value then two trailing ub4 length indicators */
+			first = tvb_get_uint8(tvb, offset);
+			if ( first == 0 )
+			{
+				offset += 1;
+				is_null = 1;
+			}
+			else if ( first == 0xfe ) /* chunked: ub1 len chunks until 0 (11g) */
+			{
+				offset += 1;
+				while ( tvb_reported_length_remaining(tvb, offset) > 0 )
+				{
+					uint8_t chunk_len = tvb_get_uint8(tvb, offset);
+					offset += 1;
+					if ( chunk_len == 0 )
+						break;
+					offset += chunk_len;
+				}
+			}
+			else
+				offset += 1 + first;
+			offset += get_sb4_custom(tvb, offset, &v);
+			offset += get_sb4_custom(tvb, offset, &v);
+			break;
+
+		case 112: /* CLOB */
+		case 113: /* BLOB */
+		case 114: /* BFILE: 0x00 NULL, else ub4 num_bytes + DALC locator block */
+			first = tvb_get_uint8(tvb, offset);
+			if ( first == 0 )
+			{
+				offset += 1;
+				is_null = 1;
+			}
+			else
+			{
+				offset += get_sb4_custom(tvb, offset, &v);
+				offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+			}
+			break;
+
+		default: /* ordinary: a single DALC value */
+			first = tvb_get_uint8(tvb, offset);
+			offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+			if ( first == 0 )
+				is_null = 1;
+			else
+				disp_start = v_start + 1; /* show the value bytes, not the length */
+			break;
 	}
 
-	first = tvb_get_uint8(tvb, offset);
-	offset += get_dalc_custom(tvb, pinfo, offset, NULL);
-	if ( first == 0 )
+	if ( is_null )
 		proto_tree_add_bytes_format(tree, hf_tns_data_col_value, tvb,
-			v_start, offset - v_start, NULL, "Column %d: NULL", idx);
+			v_start, offset - v_start, NULL, "Column %d (%s): NULL", idx,
+			val_to_str_const(dtype, tns_data_types, "unknown"));
 	else
 		proto_tree_add_bytes_format(tree, hf_tns_data_col_value, tvb,
-			v_start + 1, offset - v_start - 1, NULL, "Column %d", idx);
+			disp_start, offset - disp_start, NULL, "Column %d (%s)", idx,
+			val_to_str_const(dtype, tns_data_types, "unknown"));
 	return offset;
 }
 

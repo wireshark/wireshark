@@ -1578,6 +1578,27 @@ class TestDissectTns:
         # NUMBER 10 (c10b), VARCHAR "hi" (6869), NUMBER 20 (c115), NULL (00).
         assert rows[1][2] == 'c10b,6869,c115,00', rows[1]
 
+    def test_tns_rxd_types(self, cmd_tshark, capture_file, test_env):
+        '''TTI_RXD splits a row with mixed column kinds using their per-type
+        value framings: an ordinary NUMBER, a structured ROWID, and a LONG.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_rxd_types.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'frame.number',
+            '-e', 'tns.data_col.value',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert len(rows) == 2, rows
+        # NUMBER 10 shown data-only (c10b); ROWID and LONG shown whole:
+        #   ROWID: 0a | 0164 | 0104 | 00 | 0132 | 00
+        #   LONG "abc": 03 616263 | 00 | 00
+        vals = rows[1][1].split(',')
+        assert len(vals) == 3, vals
+        assert vals[0] == 'c10b', vals
+        assert vals[1] == '0a0164010400013200', vals
+        assert vals[2] == '036162630000', vals
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
