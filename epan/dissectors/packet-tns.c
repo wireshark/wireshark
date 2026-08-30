@@ -962,6 +962,40 @@ static const char *tns_format_date(packet_info *pinfo, const uint8_t *data, int 
 		year, month, day, hour, minute, second);
 }
 
+/* Render an Oracle BINARY_FLOAT (4 bytes) / BINARY_DOUBLE (8 bytes) value
+ * Stored in an order-preserving IEEE-754 form: if the
+ * high bit is set the value was positive (clear it), else it was negative
+ * (invert all bits); then read as big-endian IEEE-754. Returns a
+ * pinfo->pool string, or NULL. */
+static const char *tns_format_binary_float(packet_info *pinfo, const uint8_t *data, int len)
+{
+	char buf[G_ASCII_DTOSTR_BUF_SIZE];
+
+	if ( len == 4 )
+	{
+		uint32_t u = ((uint32_t)data[0] << 24) | ((uint32_t)data[1] << 16) |
+			     ((uint32_t)data[2] << 8) | data[3];
+		u = (u & 0x80000000u) ? (u & 0x7fffffffu) : ~u;
+		float f;
+		memcpy(&f, &u, 4);
+		/* Locale-independent '.' decimal separator. */
+		g_ascii_formatd(buf, sizeof(buf), "%g", (double)f);
+		return wmem_strdup(pinfo->pool, buf);
+	}
+	if ( len == 8 )
+	{
+		uint64_t u = 0;
+		for ( int i = 0; i < 8; i++ )
+			u = (u << 8) | data[i];
+		u = (u & UINT64_C(0x8000000000000000)) ? (u & UINT64_C(0x7fffffffffffffff)) : ~u;
+		double d;
+		memcpy(&d, &u, 8);
+		g_ascii_formatd(buf, sizeof(buf), "%g", d);
+		return wmem_strdup(pinfo->pool, buf);
+	}
+	return NULL;
+}
+
 static void vsnum_to_vstext_basecustom(char *result, uint32_t vsnum)
 {
 	/*
@@ -1163,6 +1197,8 @@ static int dissect_tns_rxd_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 						rendered = tns_format_number(pinfo, vb, vlen);
 					else if ( dtype == 12 || dtype == 180 || dtype == 231 )
 						rendered = tns_format_date(pinfo, vb, vlen);
+					else if ( dtype == 100 || dtype == 101 )
+						rendered = tns_format_binary_float(pinfo, vb, vlen);
 				}
 			}
 			break;

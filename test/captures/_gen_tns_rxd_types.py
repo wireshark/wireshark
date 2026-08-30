@@ -27,6 +27,8 @@ TYPE_NUMBER = 2
 TYPE_ROWID = 11
 TYPE_LONG = 8
 TYPE_DATE = 12
+TYPE_BINARY_FLOAT = 100
+TYPE_BINARY_DOUBLE = 101
 
 
 def ub4(val: int) -> bytes:
@@ -84,6 +86,8 @@ def build_dcb() -> bytes:
         dcb_column(TYPE_ROWID, 0, 0, 16, b"R"),
         dcb_column(TYPE_LONG, 873, 1, 0, b"L"),
         dcb_column(TYPE_DATE, 0, 0, 7, b"D"),
+        dcb_column(TYPE_BINARY_FLOAT, 0, 0, 4, b"BF"),
+        dcb_column(TYPE_BINARY_DOUBLE, 0, 0, 8, b"BD"),
     ]
     b = bytes([TTI_DCB])
     b += dalc(b"\x00" * 16)
@@ -121,7 +125,13 @@ def date_value() -> bytes:
 
 
 def build_rxd() -> bytes:
-    row = dalc(b"\xc1\x0b") + rowid_value() + long_value(b"abc") + date_value()
+    # BINARY_FLOAT 1.5: IEEE 3fc00000, positive -> set high bit -> bfc00000.
+    # BINARY_DOUBLE 2.25: IEEE 4002.., positive -> set high bit -> c002...
+    row = (
+        dalc(b"\xc1\x0b") + rowid_value() + long_value(b"abc") + date_value()
+        + dalc(b"\xbf\xc0\x00\x00")
+        + dalc(b"\xc0\x02\x00\x00\x00\x00\x00\x00")
+    )
     return bytes([TTI_RXD]) + row
 
 

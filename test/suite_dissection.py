@@ -1596,17 +1596,21 @@ class TestDissectTns:
         #   LONG "abc": 03 616263 | 00 | 00
         #   DATE: 787c010f0b1f01
         vals = rows[1][1].split(',')
-        assert len(vals) == 4, vals
+        assert len(vals) == 6, vals
         assert vals[0] == 'c10b', vals
         assert vals[1] == '0a0164010400013200', vals
         assert vals[2] == '036162630000', vals
         assert vals[3] == '787c010f0b1f01', vals
-        # The DATE column is rendered as a datetime in the tree label.
+        assert vals[4] == 'bfc00000', vals
+        assert vals[5] == 'c002000000000000', vals
+        # DATE and the binary floats are rendered in the tree label.
         verbose = subprocess.check_output((cmd_tshark,
             '-r', capture_file('tns_rxd_types.pcap'),
             '-d', 'tcp.port==1521,tns', '-O', 'tns',
         ), encoding='utf-8', env=test_env)
         assert '2024-01-15 10:30:00' in verbose, verbose
+        assert '(BINARY_FLOAT): 1.5' in verbose, verbose
+        assert '(BINARY_DOUBLE): 2.25' in verbose, verbose
 
     def test_tns_oci_call_info(self, cmd_tshark, capture_file, test_env):
         '''The specific OCI call name is added to the Info column, not just
