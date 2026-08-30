@@ -1599,6 +1599,19 @@ class TestDissectTns:
         assert vals[1] == '0a0164010400013200', vals
         assert vals[2] == '036162630000', vals
 
+    def test_tns_oci_call_info(self, cmd_tshark, capture_file, test_env):
+        '''The specific OCI call name is added to the Info column, not just
+        the generic "User OCI Functions". A TTI_FETCH names "Fetch a Row".'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_fetch.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', '_ws.col.info',
+        ), encoding='utf-8', env=test_env)
+        lines = stdout.strip().splitlines()
+        assert lines, stdout
+        assert all('Fetch a Row' in line for line in lines), lines
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

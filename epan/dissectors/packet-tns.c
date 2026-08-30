@@ -1649,6 +1649,10 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 			guint32 oci_id = 0;
 			proto_tree_add_item_ret_uint(data_tree, hf_tns_data_oci_id, tvb, offset, 1, ENC_BIG_ENDIAN, &oci_id);
 			offset += 1;
+			/* Name the specific OCI call in the Info column — otherwise every
+			 * function call reads only as the generic "User OCI Functions". */
+			col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
+				val_to_str_ext_const(oci_id, &tns_data_oci_subfuncs_ext, "unknown"));
 			proto_tree_add_item(data_tree, hf_tns_data_tseq, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			if((oci_id == 115) || (oci_id == 118)){
