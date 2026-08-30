@@ -13,6 +13,7 @@ import os.path
 import shutil
 import subprocess
 import sys
+import sysconfig
 import types
 
 import pytest
@@ -229,6 +230,18 @@ class TestTsharkDumpGlossaries:
         proc = subprocesstest.run((cmd_tshark, '-G', 'folders'), capture_output=True, env=unicode_env.env)
         out = proc.stdout
         pluginsdir = [x.split('\t', 1)[1] for x in out.splitlines() if x.startswith('Personal Lua Plugins:')]
+        if sys.platform == 'win32' and sysconfig.get_platform().startswith('mingw') and os.altsep:
+            # https://www.msys2.org/docs/python
+            # TShark (wsutil/filesystem) always uses the Windows path separator
+            # ('\') on MSYS2, but MSYS2's CPython swaps the path separators and
+            # prefers '/' when running inside an active MSYS2 environment
+            # (e.g., when compiling and running tests.) unicode.env.pluginsdir,
+            # unicode_env.path, unicode_env.env['APPDATA'] all use '/' from
+            # os.sep in such case. wsutil/filesystem.c probably should use
+            # g_build_filename and g_path_get_basename in order to try to
+            # handle both directory separator options, but normalize around
+            # that for now.
+            pluginsdir = [path.replace(os.altsep, os.sep) for path in pluginsdir]
         assert [unicode_env.pluginsdir] == pluginsdir
 
 
