@@ -62,6 +62,12 @@
  */
 #define EXTCAP_CLEANUP_TIMEOUT 30
 
+/* Separator used to specify a bookmark for a particlar extcap
+ * interface. It should be easy to type, not too ugly in `tshark -D`
+ * output, and unlikely to be used in an interface name.
+ */
+#define EXTCAP_BOOKMARK_SEPARATOR ":"
+
 /* internal container for all the extcap executables that have been found.
  * Will be reset if extcap_clear_interfaces() is being explicitly called
  * and is being used for printing information about all extcap interfaces found,
@@ -675,13 +681,16 @@ static bool cb_dlt(extcap_callback_info_t cb_info)
 }
 
 /*
- * Given an interface name which might contain an appended bookmark
- * name, return the name without the bookmark.
+ * Given an interface name which might be one of our bookmarks, return the name
+ * of the interface that the extcap gave us. We look the name up instead of
+ * taking it apart, since an interface name can contain our separator. Assumes
+ * that our interfaces have been loaded; if they haven't, all we can do is hand
+ * the name back.
  */
 static char *get_plain_ifname(const char *ifname) {
-    const char *slash = strchr(ifname, '/');
-    if (slash) {
-        return g_strndup(ifname, slash - ifname);
+    extcap_interface *interface = extcap_find_interface_for_ifname(ifname);
+    if (interface && interface->parent_call) {
+        return g_strdup(interface->parent_call);
     }
     return g_strdup(ifname);
 }
@@ -826,6 +835,8 @@ static void extcap_free_interface(void *i)
     g_free(interface->version);
     g_free(interface->help);
     g_free(interface->extcap_path);
+    g_free(interface->bookmark_name);
+    g_free(interface->parent_call);
     g_free(interface);
 }
 
@@ -1024,7 +1035,7 @@ void extcap_free_if_configuration(GList *list, bool free_args)
 
 /*
  * Given an interface name, return the name that we use for its preferences,
- * e.g. "randpkt/Random test" becomes "randpkt_random_test".
+ * e.g. "randpkt:Random test" becomes "randpkt_random_test".
  */
 static char *
 extcap_pref_ifname(const char *ifname)
@@ -2977,9 +2988,11 @@ extcap_list_interfaces_cb(thread_pool_t *pool, void *data, char *output)
  * Add a bookmark for an extcap interface.
  *
  * Create a new extcap interface from a parent interface, with the
- provided bookmark name and a generated call name of the form
- * "<ifname>/<bookmark_name>". Preferences are registered under the call
- * name, which gives each bookmark its own configuration.
+ * provided bookmark name and a generated call name of the form
+ * "<ifname>EXTCAP_BOOKMARK_SEPARATOR<bookmark_name>". Preferences are
+ * registered under the call name, which gives each bookmark its own
+ * configuration. The bookmark's friendly name is that of its parent interface
+ * along with the bookmark name, e.g. "SSH remote capture, My server bookmark".
  *
  * @param parent_iface The interface that the bookmark is an alias for.
  * @param toolname The name of the extcap that provides the parent interface.
@@ -2999,8 +3012,8 @@ extcap_add_bookmark(const extcap_interface *parent_iface, const char *toolname,
         return false;
     }
 
-    /* <extcap interface>/<bookmark name> */
-    char *bookmark_call = ws_strdup_printf("%s/%s", ifname, bookmark_name);
+    char *bookmark_call = ws_strdup_printf("%s" EXTCAP_BOOKMARK_SEPARATOR "%s",
+                                          ifname, bookmark_name);
 
     /* Check that this bookmark interface hasn't already been registered. */
     if (extcap_find_interface_for_ifname(bookmark_call)) {
@@ -3012,11 +3025,14 @@ extcap_add_bookmark(const extcap_interface *parent_iface, const char *toolname,
     /* Create a new interface entry for the bookmark. */
     extcap_interface *bookmark_iface = g_new0(extcap_interface, 1);
     bookmark_iface->call = bookmark_call;
-    bookmark_iface->display = g_strdup(bookmark_name);
+    bookmark_iface->display = ws_strdup_printf("%s, %s bookmark",
+                                              parent_iface->display, bookmark_name);
     bookmark_iface->version = g_strdup(parent_iface->version);
     bookmark_iface->help = g_strdup(parent_iface->help);
     bookmark_iface->extcap_path = g_strdup(parent_iface->extcap_path);
     bookmark_iface->control = parent_iface->control;
+    bookmark_iface->bookmark_name = g_strdup(bookmark_name);
+    bookmark_iface->parent_call = g_strdup(ifname);
     bookmark_iface->if_type = EXTCAP_SENTENCE_INTERFACE;
 
     tool_element->interfaces = g_list_append(tool_element->interfaces, bookmark_iface);
@@ -3351,9 +3367,12 @@ extcap_get_bookmark_name(const char *ifname)
         return NULL;
     }
 
-    const char *slash = strchr(ifname, '/');
+    // XXX Should we just bail here instead if our interfaces aren't loaded?
+    extcap_ensure_all_interfaces_loaded();
 
-    return slash ? g_strdup(slash + 1) : NULL;
+    extcap_interface *interface = extcap_find_interface_for_ifname(ifname);
+
+    return (interface && interface->bookmark_name) ? g_strdup(interface->bookmark_name) : NULL;
 }
 
 char *
@@ -3377,7 +3396,8 @@ extcap_set_bookmark(const char *ifname, const char *bookmark_name)
         goto done;
     }
 
-    bookmark_call = ws_strdup_printf("%s/%s", plain_ifname, bookmark_name);
+    bookmark_call = ws_strdup_printf("%s" EXTCAP_BOOKMARK_SEPARATOR "%s",
+                                     plain_ifname, bookmark_name);
 
     /* Add the bookmark if it's new, which registers its preferences. */
     if (!extcap_find_interface_for_ifname(bookmark_call)) {
@@ -3609,7 +3629,7 @@ extcap_migrate_profile_config(void)
         extcap_info *tool_element = (extcap_info *)tool->data;
         for (GList *walker = tool_element->interfaces; walker; walker = walker->next) {
             extcap_interface *iface = (extcap_interface *)walker->data;
-            if (strchr(iface->call, '/')) {
+            if (iface->bookmark_name) {
                 /* A bookmark. */
                 continue;
             }
@@ -3632,7 +3652,8 @@ extcap_migrate_profile_config(void)
     while (g_hash_table_iter_next(&iter, &iface_p, &args_p)) {
         extcap_interface *iface = (extcap_interface *)iface_p;
         GList *args = (GList *)args_p;
-        char *bookmark_call = ws_strdup_printf("%s/%s", iface->call, profile_name);
+        char *bookmark_call = ws_strdup_printf("%s" EXTCAP_BOOKMARK_SEPARATOR "%s",
+                                               iface->call, profile_name);
         const char *toolname = (const char *)g_hash_table_lookup(_tool_for_ifname, iface->call);
 
         if (extcap_find_interface_for_ifname(bookmark_call) || !toolname) {

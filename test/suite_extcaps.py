@@ -17,6 +17,24 @@ import sys
 import pytest
 
 
+# The following must match extcap.c.
+
+def bookmark_ifname(ifname, bookmark_name):
+    '''The interface name that we give a bookmark.'''
+    return f'{ifname}:{bookmark_name}'
+
+
+def bookmark_listing(ifname, description, bookmark_name):
+    '''How "tshark -D" lists a bookmark.'''
+    return (f'{bookmark_ifname(ifname, bookmark_name)}'
+            f' ({description}, {bookmark_name} bookmark)')
+
+
+def pref_ifname(ifname):
+    '''The preference name that we give an interface.'''
+    return re.sub(r'[^a-zA-Z0-9_]', '_', ifname).lower()
+
+
 @pytest.fixture
 def check_extcap_execution(cmd_extcap, program_path, base_env):
     def check_extcap_interface_execution(extcap_name, interface, stratoshark_extcap):
@@ -112,12 +130,14 @@ def bookmark_conf_path(conf_path):
         f.write('[ {"randpktdump": {"extcap-interfaces": ['
                 '{"randpkt": {"bookmarks": ["Random test"]}}'
                 ']}} ]\n')
+    # Our bookmark's preferences are named after its interface.
+    random_test = pref_ifname(bookmark_ifname('randpkt', 'Random test'))
     # The parent interface and the bookmark have different configurations.
     with open(os.path.join(conf_path, 'extcap.cfg'), 'w') as f:
         f.write('extcap.randpkt.type: arp\n')
         f.write('extcap.randpkt.count: 2\n')
-        f.write('extcap.randpkt_random_test.type: dns\n')
-        f.write('extcap.randpkt_random_test.count: 5\n')
+        f.write(f'extcap.{random_test}.type: dns\n')
+        f.write(f'extcap.{random_test}.count: 5\n')
     return conf_path
 
 
@@ -141,9 +161,10 @@ class TestExtcapBookmarks:
             pytest.skip('Test requires Npcap.')
         iface_list = subprocess.check_output((cmd_tshark, '-D'),
                 cwd=program_path, encoding='utf-8', env=base_env)
-        assert 'randpkt/Random test (Random test)' in iface_list
-        assert 'randpkt/Wire🦈 "quoted" / slashed (Wire🦈 "quoted" / slashed)' in iface_list
-        assert 'sshdump/My server (My server)' in iface_list
+        quoted = 'Wire🦈 "quoted" / slashed'
+        assert bookmark_listing('randpkt', 'Random packet generator', 'Random test') in iface_list
+        assert bookmark_listing('randpkt', 'Random packet generator', quoted) in iface_list
+        assert bookmark_listing('sshdump', 'SSH remote capture', 'My server') in iface_list
 
     def test_extcap_bookmark_list(self, cmd_tshark, program_path, bookmark_conf_path, base_env):
         '''A bookmark is listed alongside its extcap interface'''
@@ -152,7 +173,7 @@ class TestExtcapBookmarks:
         iface_list = subprocess.check_output((cmd_tshark, '-D'),
                 cwd=program_path, encoding='utf-8', env=base_env)
         assert re.search(r'^\d+\. randpkt \(Random packet generator\)$', iface_list, re.MULTILINE)
-        assert re.search(r'^\d+\. randpkt/Random test \(Random test\)$', iface_list, re.MULTILINE)
+        assert bookmark_listing('randpkt', 'Random packet generator', 'Random test') in iface_list
 
     def test_extcap_bookmark_dlts(self, cmd_tshark, program_path, bookmark_conf_path, base_env):
         '''A bookmark reports the same link-layer types as its extcap interface'''
@@ -161,7 +182,7 @@ class TestExtcapBookmarks:
         # Fetching capabilities for more than one interface uses a different
         # code path than fetching them for a single interface.
         dlt_list = subprocess.check_output((cmd_tshark, '-i', 'randpkt',
-                '-i', 'randpkt/Random test', '-L'),
+                '-i', bookmark_ifname('randpkt', 'Random test'), '-L'),
                 cwd=program_path, encoding='utf-8', env=base_env)
         assert dlt_list.count('randpkt (Generator dependent DLT)') == 2
 
@@ -171,7 +192,7 @@ class TestExtcapBookmarks:
         if sys.platform == 'win32':
             pytest.skip("Test doesn't work on Windows.")
         testout_file = result_file('testout.pcapng')
-        subprocess.check_call((cmd_tshark, '-i', 'randpkt/Random test',
+        subprocess.check_call((cmd_tshark, '-i', bookmark_ifname('randpkt', 'Random test'),
                 '-a', 'packets:5', '-w', testout_file),
                 cwd=program_path, env=base_env)
         tshark_stdout = subprocess.check_output((cmd_tshark, '-r', testout_file),
@@ -187,7 +208,8 @@ class TestExtcapBookmarks:
         testout_file = result_file('testout.pcapng')
         # Our shared extcap.cfg gives the bookmark five DNS packets.
         subprocess.check_call((cmd_tshark, '-C', 'Other',
-                '-i', 'randpkt/Random test', '-a', 'duration:30', '-w', testout_file),
+                '-i', bookmark_ifname('randpkt', 'Random test'),
+                '-a', 'duration:30', '-w', testout_file),
                 cwd=program_path, env=base_env)
         protocols = subprocess.check_output((cmd_tshark, '-r', testout_file,
                 '-T', 'fields', '-e', 'frame.protocols'),
@@ -217,7 +239,8 @@ class TestExtcapBookmarks:
         with open(os.path.join(bookmark_conf_path, 'extcap.cfg')) as f:
             shared_cfg = f.read()
         assert 'extcap.randpkt.count: 2' in shared_cfg
-        assert 'extcap.randpkt_random_test.count: 5' in shared_cfg
+        # Our bookmark's values are still there too.
+        assert '.count: 5' in shared_cfg
         assert not os.path.exists(os.path.join(bookmark_conf_path,
                 'profiles', 'Other', 'extcap.cfg'))
 
@@ -243,11 +266,11 @@ class TestExtcapProfileConfig:
             pytest.skip('Test requires Npcap.')
         iface_list = subprocess.check_output((cmd_tshark, '-C', 'Test lab', '-D'),
                 cwd=program_path, encoding='utf-8', env=base_env)
-        assert re.search(r'^\d+\. randpkt/Test lab \(Test lab\)$', iface_list, re.MULTILINE)
+        assert bookmark_listing('randpkt', 'Random packet generator', 'Test lab') in iface_list
         # The default profile's extcap.cfg is the shared one.
         iface_list = subprocess.check_output((cmd_tshark, '-D'),
                 cwd=program_path, encoding='utf-8', env=base_env)
-        assert 'randpkt/Test lab' not in iface_list
+        assert bookmark_ifname('randpkt', 'Test lab') not in iface_list
 
     def test_extcap_profile_config_capture(self, cmd_tshark, program_path,
             profile_conf_path, base_env, result_file):
@@ -257,7 +280,8 @@ class TestExtcapProfileConfig:
         testout_file = result_file('testout.pcapng')
         # The packet count and type come from the profile, not the command line.
         subprocess.check_call((cmd_tshark, '-C', 'Test lab',
-                '-i', 'randpkt/Test lab', '-a', 'duration:30', '-w', testout_file),
+                '-i', bookmark_ifname('randpkt', 'Test lab'),
+                '-a', 'duration:30', '-w', testout_file),
                 cwd=program_path, env=base_env)
         protocols = subprocess.check_output((cmd_tshark, '-r', testout_file,
                 '-T', 'fields', '-e', 'frame.protocols'),

@@ -158,6 +158,8 @@ typedef struct _extcap_interface {
     char *help;        /**< URL or text pointing to help documentation for this interface */
     char *extcap_path; /**< Absolute path to the extcap binary that provides this interface */
     unsigned control;  /**< Bitmask of control pipe messages supported (0 == None, 1 == TOOLBAR, 2 == QUIT) */
+    char *bookmark_name; /**< Bookmark name, or NULL if this interface isn't one of our bookmarks */
+    char *parent_call; /**< Interface identifier that a bookmark belongs to, NULL if not a bookmark */
 
     extcap_sentence_type if_type; /**< Sentence type discriminator (EXTCAP_SENTENCE_INTERFACE or EXTCAP_SENTENCE_DLT) */
 } extcap_interface;

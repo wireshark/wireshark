@@ -131,6 +131,8 @@ extcap_write_preferences(void);
 /**
  * Returns the bookmark name for an extcap interface.
  *
+ * Use this instead of trying to split out the bookmark name yoursef.
+ *
  * @param ifname The extcap interface name.
  * @return The bookmark name, or NULL if the interface isn't a bookmark. Must
  * be freed with g_free().
@@ -148,8 +150,9 @@ extcap_get_bookmark_name(const char *ifname);
  *
  * @param ifname The extcap interface name, which may be a bookmark.
  * @param bookmark_name The bookmark name.
- * @return The bookmark's interface name, e.g. "randpkt/Random test", or NULL if
- * we couldn't bookmark the interface. Must be freed with g_free().
+ * @return The bookmark's interface name, e.g. "sshdump:My server" or
+ * NULL if we couldn't bookmark the interface. Must be freed with
+ * g_free().
  */
 char *
 extcap_set_bookmark(const char *ifname, const char *bookmark_name);
