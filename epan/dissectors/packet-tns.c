@@ -227,6 +227,21 @@ static int hf_tns_data_oer_message;
 static int hf_tns_data_iov_num_binds;
 static int hf_tns_data_iov_bind_dir;
 
+static int hf_tns_data_dcb_num_columns;
+static int hf_tns_data_col_type;
+static int hf_tns_data_col_precision;
+static int hf_tns_data_col_scale;
+static int hf_tns_data_col_max_length;
+static int hf_tns_data_col_charset;
+static int hf_tns_data_col_csform;
+static int hf_tns_data_col_max_size;
+static int hf_tns_data_col_nulls_ok;
+static int hf_tns_data_col_name;
+
+static int hf_tns_data_rxh_num_requests;
+static int hf_tns_data_rxh_iter_num;
+static int hf_tns_data_rxh_num_iters;
+
 static int hf_tns_data_descriptor_row_count;
 static int hf_tns_data_descriptor_row_size;
 
@@ -253,11 +268,13 @@ static int ett_tns_setdt_overrides;
 static int ett_tns_setdt_override;
 static int ett_tns_oer;
 static int ett_tns_iov;
+static int ett_tns_dcb_col;
 static int ett_sql;
 
 static expert_field ei_tns_connect_data_next_packet;
 static expert_field ei_tns_data_descriptor_size_mismatch;
 static expert_field ei_tns_data_piggyback_cursors;
+static expert_field ei_tns_data_count_too_large;
 
 #define TCP_PORT_TNS			1521 /* Not IANA registered */
 
@@ -381,6 +398,14 @@ static const value_string tns_charsets[] = {
 	{871,  "US7ASCII"},
 	{873,  "AL32UTF8"},
 	{2000, "AL16UTF16"},
+	{0, NULL}
+};
+
+/* Column character-set form (csfrm) in an OAC descriptor: whether char data
+ * is in the database charset or the national (AL16UTF16) charset. */
+static const value_string tns_csform_vals[] = {
+	{1, "Database charset"},
+	{2, "National (AL16UTF16)"},
 	{0, NULL}
 };
 
@@ -642,36 +667,55 @@ static int get_strtype_custom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	return ret;
 }
 
+/* Decode an Oracle variable-length integer (ub4 / sb4):
+ * a length byte, then that many big-endian magnitude bytes. The low 7 bits
+ * of the length byte are the magnitude width (0..4); the high bit flags a
+ * negative value in sign-magnitude form (not two's complement) — so -1 is
+ * 0x81 0x01 and NUMBER scale -127 is 0x81 0x7f.
+ * Returns the number of bytes consumed. */
 static int get_sb4_custom(tvbuff_t *tvb, int offset, int *result)
 {
 	uint8_t first_byte = tvb_get_uint8(tvb, offset); // Contains length of a value
-	switch(first_byte)
+	bool negative = (first_byte & 0x80) != 0;
+	uint8_t width = first_byte & 0x7f;
+	int magnitude = 0;
+
+	switch(width)
 	{
 		case 0:
-			*result = 0;
+			magnitude = 0;
 			break;
 		case 1:
-			*result = tvb_get_uint8(tvb, offset+1);
+			magnitude = tvb_get_uint8(tvb, offset+1);
 			break;
 		case 2:
-			*result = tvb_get_ntohs(tvb, offset+1);
+			magnitude = tvb_get_ntohs(tvb, offset+1);
 			break;
 		case 3:
-			*result = tvb_get_ntoh24(tvb, offset+1);
+			magnitude = tvb_get_ntoh24(tvb, offset+1);
 			break;
 		case 4:
-			*result = tvb_get_ntohl(tvb, offset+1);
+			magnitude = tvb_get_ntohl(tvb, offset+1);
 			break;
 		default:
-			/* The width byte comes straight off the wire, so a value
-			 * outside 0..4 is malformed input rather than a bug in the
-			 * dissector - asserting here would blame Wireshark for a
-			 * packet somebody else wrote. Yield zero and step over just
-			 * the width byte. */
-			*result = 0;
-			return 1;
+			/* Width 5..0x7f is not a valid 1..4-byte integer. In practice
+			 * only a raw ub2 counter read through this helper reaches here;
+			 * the historic client behaviour is to consume two bytes and
+			 * return the negated second byte, which keeps the stream
+			 * aligned. The value is discarded by such callers. */
+			if ( tvb_reported_length_remaining(tvb, offset) < 2 )
+			{
+				/* Not even that second byte is present. The width came
+				 * off the wire, so this is malformed input rather than
+				 * a bug in the dissector - step over the width alone. */
+				*result = 0;
+				return 1;
+			}
+			*result = -(int)tvb_get_uint8(tvb, offset+1);
+			return 2;
 	}
-	return first_byte + 1;
+	*result = negative ? -magnitude : magnitude;
+	return width + 1;
 }
 
 /* Decode a DALC (Data-Length-And-Content) blob. The leading byte is a
@@ -756,6 +800,94 @@ static void vsnum_to_vstext_basecustom(char *result, uint32_t vsnum)
 		(vsnum >> 12) & 0xf,
 		(vsnum >>  8) & 0xf,
 		 vsnum & 0xff);
+}
+
+/* Decode an OAC (Oracle Access Column) descriptor — the type/format core
+ * shared by describe columns and bind descriptors. Fields
+ * use the Oracle variable-length form (get_sb4_custom).
+ * Returns the new offset. */
+static int dissect_tns_oac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	int v = 0, start;
+
+	/* type (ub1) */
+	proto_tree_add_item(tree, hf_tns_data_col_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+	/* flag (ub1, skip) */
+	offset += 1;
+	/* precision (sb1) */
+	proto_tree_add_item(tree, hf_tns_data_col_precision, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+	/* scale (ub4, may be negative — NUMBER default is -127) */
+	start = offset;
+	offset += get_sb4_custom(tvb, offset, &v);
+	proto_tree_add_int(tree, hf_tns_data_col_scale, tvb, start, offset - start, v);
+	/* max data length / buffer size (ub4) */
+	start = offset;
+	offset += get_sb4_custom(tvb, offset, &v);
+	proto_tree_add_uint(tree, hf_tns_data_col_max_length, tvb, start, offset - start, v);
+	/* max array elements (ub4, skip) */
+	offset += get_sb4_custom(tvb, offset, &v);
+	/* cont flags (ub4, skip) */
+	offset += get_sb4_custom(tvb, offset, &v);
+	/* type OID (bytes_with_length, skip) */
+	offset += get_field_with_length(tvb, pinfo, offset, NULL);
+	/* version (ub4, skip) */
+	offset += get_sb4_custom(tvb, offset, &v);
+	/* charset id (ub4) */
+	start = offset;
+	offset += get_sb4_custom(tvb, offset, &v);
+	proto_tree_add_uint(tree, hf_tns_data_col_charset, tvb, start, offset - start, v);
+	/* charset form (ub1) */
+	proto_tree_add_item(tree, hf_tns_data_col_csform, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+	/* max size (ub4) */
+	start = offset;
+	offset += get_sb4_custom(tvb, offset, &v);
+	proto_tree_add_uint(tree, hf_tns_data_col_max_size, tvb, start, offset - start, v);
+
+	return offset;
+}
+
+/* Decode one per-column metadata block of a TTI_DCB describe (11g
+ * shape): an OAC descriptor plus the nullability and naming fields.
+ * Returns the new offset. */
+static int dissect_tns_dcb_column(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int idx)
+{
+	proto_tree *col_tree;
+	proto_item *col_item;
+	int col_start = offset, v = 0;
+	uint8_t col_type = tvb_get_uint8(tvb, offset);
+	const char *name = NULL;
+
+	col_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+		ett_tns_dcb_col, &col_item, "Column %d", idx);
+
+	offset = dissect_tns_oac(tvb, pinfo, col_tree, offset);
+
+	/* nulls allowed (ub1) */
+	proto_tree_add_item(col_tree, hf_tns_data_col_nulls_ok, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+	/* v7 name length (ub1, skip) */
+	offset += 1;
+	/* column name (str_with_length) */
+	int name_start = offset;
+	offset += get_field_with_length(tvb, pinfo, offset, &name);
+	if ( name )
+		proto_tree_add_string(col_tree, hf_tns_data_col_name, tvb, name_start, offset - name_start, name);
+	/* schema name, type name (str_with_length, skip) */
+	offset += get_field_with_length(tvb, pinfo, offset, NULL);
+	offset += get_field_with_length(tvb, pinfo, offset, NULL);
+	/* column position (ub4, skip) */
+	offset += get_sb4_custom(tvb, offset, &v);
+	/* uds flags (ub4, skip) — 11g addition */
+	offset += get_sb4_custom(tvb, offset, &v);
+
+	if ( name )
+		proto_item_append_text(col_item, ": %s (%s)", name,
+			val_to_str_const(col_type, tns_data_types, "unknown"));
+	proto_item_set_len(col_item, offset - col_start);
+	return offset;
 }
 
 static void dissect_tns_data_descriptor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tns_tree, uint32_t length)
@@ -1167,6 +1299,89 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 				}
 				proto_item_set_len(iov_item, offset - iov_start);
 			}
+			break;
+		}
+
+		case SQLNET_DESCRIBE_INFO:
+		{
+			/* TTI_DCB: describe (column metadata) for a SELECT result set.
+			 * Layout is the Oracle 11g shape. All
+			 * counts use the ub4 variable-length form. Only the leading
+			 * describe token is decoded here; any RXH/RXD/OER that follow
+			 * in the same packet are left to the data dissector. */
+			int v = 0, num_cols = 0;
+
+			if ( is_request )
+				break;
+
+			/* describe-info preamble (chunked bytes: cursor uuid + date) */
+			offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+			/* max row size (ub4, skip) */
+			offset += get_sb4_custom(tvb, offset, &v);
+			/* number of columns */
+			int nc_start = offset;
+			offset += get_sb4_custom(tvb, offset, &num_cols);
+			proto_tree_add_uint(data_tree, hf_tns_data_dcb_num_columns, tvb, nc_start, offset - nc_start, num_cols);
+			/* The count comes off the wire and sizes the allocation
+			 * below, so a count larger than the data left cannot be
+			 * real - report it and decode no columns. */
+			if ( num_cols < 0 ||
+			     (unsigned)num_cols > tvb_reported_length_remaining(tvb, offset) )
+			{
+				proto_tree_add_expert(data_tree, pinfo, &ei_tns_data_count_too_large,
+					tvb, nc_start, offset - nc_start);
+				num_cols = 0;
+			}
+			if ( num_cols > 0 )
+				offset += 1; /* reserved byte */
+			for ( int i = 0; i < num_cols && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+				offset = dissect_tns_dcb_column(tvb, pinfo, data_tree, offset, i + 1);
+
+			/* Trailer: current date (bytes_with_length), four ub4 flags,
+			 * and the query-cache key (bytes_with_length) — all skipped. */
+			offset += get_field_with_length(tvb, pinfo, offset, NULL);
+			for ( int i = 0; i < 4; i++ )
+				offset += get_sb4_custom(tvb, offset, &v);
+			offset += get_field_with_length(tvb, pinfo, offset, NULL);
+			break;
+		}
+
+		case SQLNET_ROW_TRANSF_HDR:
+		{
+			/* TTI_RXH: row transfer header, precedes the row data in a
+			 * SELECT response. All numeric fields use the ub4 variable-
+			 * length form. Layout cross-referenced with
+			 * python-oracledb's _process_row_header. */
+			int v = 0, bv_len = 0, start;
+
+			if ( is_request )
+				break;
+
+			/* flag (ub1, skip) */
+			offset += 1;
+			/* number of requests */
+			start = offset;
+			offset += get_sb4_custom(tvb, offset, &v);
+			proto_tree_add_uint(data_tree, hf_tns_data_rxh_num_requests, tvb, start, offset - start, v);
+			/* iteration number */
+			start = offset;
+			offset += get_sb4_custom(tvb, offset, &v);
+			proto_tree_add_uint(data_tree, hf_tns_data_rxh_iter_num, tvb, start, offset - start, v);
+			/* number of iterations */
+			start = offset;
+			offset += get_sb4_custom(tvb, offset, &v);
+			proto_tree_add_uint(data_tree, hf_tns_data_rxh_num_iters, tvb, start, offset - start, v);
+			/* buffer length (ub4, skip) */
+			offset += get_sb4_custom(tvb, offset, &v);
+			/* bit vector: length + [repeated length byte + vector bytes] */
+			offset += get_sb4_custom(tvb, offset, &bv_len);
+			if ( bv_len > 0 )
+			{
+				offset += 1;       /* repeated length byte */
+				offset += bv_len;  /* bit vector */
+			}
+			/* rxhrid (bytes_with_length, skip) */
+			offset += get_field_with_length(tvb, pinfo, offset, NULL);
 			break;
 		}
 
@@ -2335,6 +2550,47 @@ void proto_register_tns(void)
 			"Bind Direction", "tns.data_iov.bind_dir", FT_UINT8, BASE_DEC,
 			VALS(tns_iov_bind_dirs), 0x0, NULL, HFILL }},
 
+		{ &hf_tns_data_dcb_num_columns, {
+			"Number of Columns", "tns.data_dcb.num_columns", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_col_type, {
+			"Data Type", "tns.data_col.type", FT_UINT8, BASE_DEC,
+			VALS(tns_data_types), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_col_precision, {
+			"Precision", "tns.data_col.precision", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_col_scale, {
+			"Scale", "tns.data_col.scale", FT_INT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_col_max_length, {
+			"Max Data Length", "tns.data_col.max_length", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_col_charset, {
+			"Charset", "tns.data_col.charset", FT_UINT32, BASE_DEC,
+			VALS(tns_charsets), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_col_csform, {
+			"Charset Form", "tns.data_col.csform", FT_UINT8, BASE_DEC,
+			VALS(tns_csform_vals), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_col_max_size, {
+			"Max Size", "tns.data_col.max_size", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_col_nulls_ok, {
+			"Nulls Allowed", "tns.data_col.nulls_ok", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_col_name, {
+			"Column Name", "tns.data_col.name", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_tns_data_rxh_num_requests, {
+			"Number of Requests", "tns.data_rxh.num_requests", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_rxh_iter_num, {
+			"Iteration Number", "tns.data_rxh.iter_num", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_rxh_num_iters, {
+			"Number of Iterations", "tns.data_rxh.num_iters", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+
 		{ &hf_tns_data_descriptor_row_count, {
 			"Row Count", "tns.data_descriptor.row_count", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
@@ -2375,6 +2631,7 @@ void proto_register_tns(void)
 		&ett_tns_setdt_override,
 		&ett_tns_oer,
 		&ett_tns_iov,
+		&ett_tns_dcb_col,
 		&ett_sql
 	};
 
@@ -2382,6 +2639,7 @@ void proto_register_tns(void)
 		{ &ei_tns_connect_data_next_packet, { "tns.connect_data.next_packet", PI_REQUEST_CODE, PI_CHAT, "Long Connect Data (> 221 bytes) carried in subsequent Data packet", EXPFILL }},
 		{ &ei_tns_data_descriptor_size_mismatch, { "tns.data_descriptor.size_mismatch", PI_PROTOCOL, PI_WARN, "Data size from summing row sizes differs from size in descriptor", EXPFILL }},
 		{ &ei_tns_data_piggyback_cursors, { "tns.data.piggyback.cursors.invalid", PI_MALFORMED, PI_ERROR, "Cursor count is larger than the data left in the packet", EXPFILL }},
+		{ &ei_tns_data_count_too_large, { "tns.data.count.invalid", PI_MALFORMED, PI_ERROR, "Count is larger than the data left in the packet", EXPFILL }},
 	};
 
 	module_t *tns_module;

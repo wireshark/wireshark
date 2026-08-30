@@ -1442,6 +1442,34 @@ class TestDissectTns:
         assert rows[0][1] == '3' and rows[0][2] == '32,16,48', rows[0]
         assert rows[1][1] == '2' and rows[1][2] == '32,32', rows[1]
 
+    def test_tns_dcb(self, cmd_tshark, capture_file, test_env):
+        '''TTI_DCB (Describe) decodes the column count and per-column
+        metadata (type, scale, charset, name), and TTI_RXH (Row Header)
+        decodes the iteration counts. Two frames: a 2-column describe
+        (NUMBER "ID" / VARCHAR2 "NAME") and a row header.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_dcb.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_dcb.num_columns',
+            '-e', 'tns.data_col.type',
+            '-e', 'tns.data_col.scale',
+            '-e', 'tns.data_col.charset',
+            '-e', 'tns.data_col.name',
+            '-e', 'tns.data_rxh.num_iters',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert len(rows) == 2, rows
+        # DCB: 2 columns; types 2 (NUMBER) and 1 (VARCHAR); NUMBER scale
+        # -127; VARCHAR charset 873 (AL32UTF8); names ID and NAME.
+        assert rows[0][0] == '2', rows[0]
+        assert rows[0][1] == '2,1', rows[0]
+        assert '-127' in rows[0][2].split(','), rows[0]
+        assert '873' in rows[0][3].split(','), rows[0]
+        assert rows[0][4] == 'ID,NAME', rows[0]
+        # RXH: num_iters = 2.
+        assert rows[1][5] == '2', rows[1]
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
