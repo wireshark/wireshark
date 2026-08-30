@@ -263,6 +263,7 @@ static int hf_tns_data_bind_value;
 static int hf_tns_data_fetch_rows;
 static int hf_tns_data_lob_op;
 static int hf_tns_data_lob_offset;
+static int hf_tns_data_col_value;
 
 static int hf_tns_data_descriptor_row_count;
 static int hf_tns_data_descriptor_row_size;
@@ -295,6 +296,7 @@ static int ett_tns_all8_options;
 static int ett_tns_binds;
 static int ett_tns_bind;
 static int ett_tns_bind_row;
+static int ett_tns_rxd_row;
 static int ett_sql;
 
 static expert_field ei_tns_connect_data_next_packet;
@@ -662,9 +664,20 @@ static const value_string tns_control_cmds[] = {
 	{0, NULL}
 };
 
+/* Column types from the most recent describe (TTI_DCB), threaded to a later
+ * TTI_RXD response so its row values can be split per column. */
+typedef struct _tns_describe_t {
+	uint32_t num_cols;
+	uint8_t *types;
+} tns_describe_t;
+
 typedef struct _tns_conv_info_t {
 	uint32_t pending_connect_data;
+	tns_describe_t *last_describe;
 } tns_conv_info_t;
+
+/* p_add_proto_data key for the describe a TTI_RXD response packet uses. */
+#define TNS_PROTO_DATA_DESCRIBE 1
 
 void proto_reg_handoff_tns(void);
 static int dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
@@ -953,6 +966,43 @@ static int dissect_tns_dcb_column(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		proto_item_append_text(col_item, ": %s (%s)", name,
 			val_to_str_const(col_type, tns_data_types, "unknown"));
 	proto_item_set_len(col_item, offset - col_start);
+	return offset;
+}
+
+/* Decode one TTI_RXD column value by its describe data type. An ordinary
+ * value is a DALC blob shown raw. The special types (LONG, ROWID, UROWID,
+ * LOB/BFILE, object, JSON, VECTOR) have value framings not handled here, so
+ * on those the caller stops (sets *bail) and leaves the rest to the data
+ * dissector. Returns the new offset. */
+static int dissect_tns_rxd_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t dtype, int idx, int *bail)
+{
+	int v_start = offset;
+	uint8_t first;
+
+	switch ( dtype )
+	{
+		case 8:   /* LONG */
+		case 11:  /* ROWID */
+		case 24:  /* LONG RAW */
+		case 109: /* ADT / object */
+		case 112: /* CLOB */
+		case 113: /* BLOB */
+		case 114: /* BFILE */
+		case 119: /* JSON */
+		case 127: /* VECTOR */
+		case 208: /* UROWID */
+			*bail = 1;
+			return offset;
+	}
+
+	first = tvb_get_uint8(tvb, offset);
+	offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+	if ( first == 0 )
+		proto_tree_add_bytes_format(tree, hf_tns_data_col_value, tvb,
+			v_start, offset - v_start, NULL, "Column %d: NULL", idx);
+	else
+		proto_tree_add_bytes_format(tree, hf_tns_data_col_value, tvb,
+			v_start + 1, offset - v_start - 1, NULL, "Column %d", idx);
 	return offset;
 }
 
@@ -1400,8 +1450,26 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 			}
 			if ( num_cols > 0 )
 				offset += 1; /* reserved byte */
+
+			/* Remember each column's type so a later TTI_RXD response can
+			 * split its row values. Recorded once, on the first pass. */
+			uint8_t *col_types = NULL;
+			if ( !PINFO_FD_VISITED(pinfo) && num_cols > 0 )
+				col_types = (uint8_t *)wmem_alloc_array(wmem_file_scope(), uint8_t, num_cols);
 			for ( int i = 0; i < num_cols && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+			{
+				if ( col_types )
+					col_types[i] = tvb_get_uint8(tvb, offset);
 				offset = dissect_tns_dcb_column(tvb, pinfo, data_tree, offset, i + 1);
+			}
+			if ( col_types )
+			{
+				tns_conv_info_t *tns_info = tns_get_conv_info(pinfo);
+				tns_describe_t *desc = wmem_new0(wmem_file_scope(), tns_describe_t);
+				desc->num_cols = num_cols;
+				desc->types = col_types;
+				tns_info->last_describe = desc;
+			}
 
 			/* Trailer: current date (bytes_with_length), four ub4 flags,
 			 * and the query-cache key (bytes_with_length) — all skipped. */
@@ -1448,6 +1516,67 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 			}
 			/* rxhrid (bytes_with_length, skip) */
 			offset += get_field_with_length(tvb, pinfo, offset, NULL);
+			break;
+		}
+
+		case SQLNET_ROW_TRANSF_DATA:
+		{
+			/* TTI_RXD: row data for a SELECT result set — typically a
+			 * TTI_FETCH continuation, where the describe (TTI_DCB) arrived
+			 * in an earlier packet. Split each row into columns using the
+			 * types remembered from that describe (threaded through
+			 * conversation state); ordinary values are shown raw.
+			 *
+			 * The leading RXD token was already consumed above, so offset
+			 * sits on the first row's first value. Differential (bit-vector)
+			 * row encoding is not handled — a row that reuses a prior value
+			 * would desync, so we only decode when no BVC context applies. */
+			tns_describe_t *desc = NULL;
+
+			if ( is_request )
+				break;
+
+			if ( !PINFO_FD_VISITED(pinfo) )
+			{
+				tns_conv_info_t *tns_info = tns_get_conv_info(pinfo);
+				desc = tns_info->last_describe;
+				if ( desc )
+					p_add_proto_data(wmem_file_scope(), pinfo, proto_tns,
+						TNS_PROTO_DATA_DESCRIBE, desc);
+			}
+			else
+			{
+				desc = (tns_describe_t *)p_get_proto_data(wmem_file_scope(), pinfo,
+					proto_tns, TNS_PROTO_DATA_DESCRIBE);
+			}
+
+			if ( desc && desc->num_cols > 0 )
+			{
+				int rownum = 0, first_row = 1, bail = 0;
+				while ( tvb_reported_length_remaining(tvb, offset) > 0 && !bail )
+				{
+					proto_tree *row_tree;
+					proto_item *row_item;
+					int r_start;
+
+					if ( !first_row )
+					{
+						if ( tvb_get_uint8(tvb, offset) != SQLNET_ROW_TRANSF_DATA )
+							break;
+						offset += 1; /* RXD token for subsequent rows */
+					}
+					first_row = 0;
+
+					r_start = offset;
+					row_tree = proto_tree_add_subtree_format(data_tree, tvb, offset, -1,
+						ett_tns_rxd_row, &row_item, "Row %d", ++rownum);
+					for ( uint32_t c = 0; c < desc->num_cols
+						&& tvb_reported_length_remaining(tvb, offset) > 0 && !bail; c++ )
+						offset = dissect_tns_rxd_value(tvb, pinfo, row_tree, offset,
+							desc->types[c], c + 1, &bail);
+					proto_item_set_len(row_item, offset - r_start);
+				}
+			}
 			break;
 		}
 
@@ -2906,6 +3035,9 @@ void proto_register_tns(void)
 		{ &hf_tns_data_lob_offset, {
 			"Source Offset", "tns.data_lob.offset", FT_UINT32, BASE_DEC,
 			NULL, 0x0, "1-based offset into the LOB", HFILL }},
+		{ &hf_tns_data_col_value, {
+			"Column Value", "tns.data_col.value", FT_BYTES, BASE_NONE,
+			NULL, 0x0, "Raw type-encoded row column value", HFILL }},
 
 		{ &hf_tns_data_descriptor_row_count, {
 			"Row Count", "tns.data_descriptor.row_count", FT_UINT32, BASE_DEC,
@@ -2952,6 +3084,7 @@ void proto_register_tns(void)
 		&ett_tns_binds,
 		&ett_tns_bind,
 		&ett_tns_bind_row,
+		&ett_tns_rxd_row,
 		&ett_sql
 	};
 
