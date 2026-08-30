@@ -1664,6 +1664,9 @@ BACnetVendorIdentifiers[] = {
     { 1651, "Logically Us Ltd" },
     { 1652, "Solaborate, Inc. d/b/a hellocare.ai" },
     { 1653, "Lumen Radio AB" },
+    { 1654, "CoreControlsAi, LLC" },
+    { 1655, "Modutrol Pty Ltd" },
+    { 1656, "Kaeser Kompressoren SE" },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);

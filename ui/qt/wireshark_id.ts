@@ -2431,39 +2431,43 @@ Distance (signed, bytes): %4</source>
     </message>
     <message>
         <source>selected protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>protokol yang dipilih</translation>
     </message>
     <message>
         <source>selected field</source>
-        <translation type="unfinished"></translation>
+        <translation>ruas yang dipilih</translation>
     </message>
     <message>
         <source>parent protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>protokol induk</translation>
     </message>
     <message>
         <source>
 Reference range (%1): start %2, length %3</source>
-        <translation type="unfinished"></translation>
+        <translation>
+Rentang acuan (%1): awal %2, panjang %3</translation>
     </message>
     <message>
         <source>
 Start byte (relative to reference): %1
 End byte (relative to reference): %2</source>
-        <translation type="unfinished"></translation>
+        <translation>
+Byte awal (relatif ke acuan): %1
+Byte akhir (relatif ke acuan): %2</translation>
     </message>
     <message>
         <source>
 Relative to reference: n/a (outside reference range)</source>
-        <translation type="unfinished"></translation>
+        <translation>
+Relatif ke acuan: t/t (di luar rentang acuan)</translation>
     </message>
     <message>
         <source>Compute Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Hitung Ofset</translation>
     </message>
     <message>
         <source>Offset markers cleared.</source>
-        <translation type="unfinished"></translation>
+        <translation>Penanda ofset dibersihkan.</translation>
     </message>
 </context>
 <context>
@@ -2579,7 +2583,7 @@ Relative to reference: n/a (outside reference range)</source>
     <name>DisStreamAnalysisDialog</name>
     <message>
         <source>DIS Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Analisis Stream DIS</translation>
     </message>
     <message>
         <source>Stream</source>
@@ -2587,7 +2591,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Codec</source>
-        <translation type="unfinished">Codec</translation>
+        <translation>Kodek</translation>
     </message>
     <message>
         <source>Duration (s)</source>
@@ -2631,7 +2635,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Putar ulang</translation>
     </message>
     <message>
         <source>Packet</source>
@@ -2639,19 +2643,19 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Time (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Waktu (s)</translation>
     </message>
     <message>
         <source>Delta (ms)</source>
-        <translation type="unfinished">Delta (ms)</translation>
+        <translation>Delta (ms)</translation>
     </message>
     <message>
         <source>Jitter (ms)</source>
-        <translation type="unfinished">Jitter (ms)</translation>
+        <translation>Jitter (ms)</translation>
     </message>
     <message>
         <source>Lost</source>
-        <translation type="unfinished">Hilang</translation>
+        <translation>Hilang</translation>
     </message>
     <message>
         <source>Status</source>
@@ -2659,27 +2663,27 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Go To First Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Ke Paket Pertama</translation>
     </message>
     <message>
         <source>Play</source>
-        <translation type="unfinished">Putar</translation>
+        <translation>Putar</translation>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Berhenti</translation>
+        <translation>Berhenti</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished">-</translation>
+        <translation>-</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Tak Dikenal</translation>
     </message>
     <message>
         <source>Problem</source>
-        <translation type="unfinished"></translation>
+        <translation>Masalah</translation>
     </message>
     <message>
         <source>OK</source>
@@ -2687,7 +2691,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Waveform</source>
-        <translation type="unfinished"></translation>
+        <translation>Bentuk gelombang</translation>
     </message>
     <message>
         <source>Jitter Spikes</source>
@@ -2695,58 +2699,58 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Estimated Loss</source>
-        <translation type="unfinished"></translation>
+        <translation>Perkiraan Hilang</translation>
     </message>
     <message>
         <source>Problem Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket Bermasalah</translation>
     </message>
     <message>
         <source>Pause</source>
-        <translation type="unfinished">Jeda</translation>
+        <translation>Jeda</translation>
     </message>
     <message>
         <source>Double click on graph to set start of playback.</source>
-        <translation type="unfinished"></translation>
+        <translation>Klik ganda pada grafik untuk menata awal putar.</translation>
     </message>
     <message>
         <source>Start: %1 s. Double click on graph to set start of playback.</source>
-        <translation type="unfinished"></translation>
+        <translation>Awal %1 s. Klik ganda pada grafik untuk menata awal putar.</translation>
     </message>
     <message>
         <source>DIS Playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Putar Ulang DIS</translation>
     </message>
 </context>
 <context>
     <name>DisStreamDialog</name>
     <message>
         <source>DIS Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Stream DIS</translation>
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Awal</translation>
     </message>
     <message>
         <source>End</source>
-        <translation type="unfinished">Akhir</translation>
+        <translation>Akhir</translation>
     </message>
     <message>
         <source>Src Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Alamat Sumber</translation>
     </message>
     <message>
         <source>Src Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port Sumber</translation>
     </message>
     <message>
         <source>Dst Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Alamat Tujuan</translation>
     </message>
     <message>
         <source>Dst Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port Tujuan</translation>
     </message>
     <message>
         <source>Radio</source>
@@ -2786,27 +2790,27 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Prepare Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Siapkan Filter</translation>
     </message>
     <message>
         <source>Play</source>
-        <translation type="unfinished">Putar</translation>
+        <translation>Putar</translation>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Berhenti</translation>
+        <translation>Berhenti</translation>
     </message>
     <message>
         <source>Analyze</source>
-        <translation type="unfinished">Analisis</translation>
+        <translation>Analisis</translation>
     </message>
     <message>
         <source>X</source>
-        <translation type="unfinished">X</translation>
+        <translation>X</translation>
     </message>
     <message>
         <source>DIS Playback</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Putar Ulang DIS</translation>
     </message>
 </context>
 <context>
@@ -3103,15 +3107,15 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Occurrences</source>
-        <translation type="unfinished"></translation>
+        <translation>Kemunculan</translation>
     </message>
     <message>
         <source>Percent</source>
-        <translation type="unfinished"></translation>
+        <translation>Persen</translation>
     </message>
     <message>
         <source>Distribution:</source>
-        <translation type="unfinished"></translation>
+        <translation>Distribusi:</translation>
     </message>
 </context>
 <context>
@@ -3154,7 +3158,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Only Protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>Hanya Protokol</translation>
     </message>
     <message>
         <source>Only Description</source>
@@ -3162,7 +3166,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>all</source>
-        <translation type="unfinished"></translation>
+        <translation>semua</translation>
     </message>
     <message>
         <source>enabled</source>
@@ -3445,7 +3449,7 @@ Relative to reference: n/a (outside reference range)</source>
     <name>ExpertInfoModel</name>
     <message>
         <source>Severity: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Keparahan: %1</translation>
     </message>
     <message>
         <source>Summary: %1</source>
@@ -3457,30 +3461,30 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Group: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Grup: %1</translation>
     </message>
     <message>
         <source>Protocol: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokol: %1</translation>
     </message>
     <message>
         <source>Count: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Cacah: %1</translation>
     </message>
     <message>
         <source>Packet: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket: %1</translation>
     </message>
     <message>
         <source>Header Field: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ruas Header: %1</translation>
     </message>
 </context>
 <context>
     <name>ExpertInfoProxyModel</name>
     <message>
         <source>Count: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Cacah: %1</translation>
     </message>
     <message>
         <source>Packet</source>
@@ -3556,7 +3560,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Unique</source>
-        <translation type="unfinished"></translation>
+        <translation>Unik</translation>
     </message>
     <message>
         <source>Only display the first of identical entries</source>
@@ -3576,11 +3580,11 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Save All</source>
-        <translation type="unfinished"></translation>
+        <translation>Simpan Semua</translation>
     </message>
     <message>
         <source>Save Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>Simpan Yang Ditampilkan</translation>
     </message>
     <message>
         <source>Preview</source>
@@ -3604,7 +3608,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Save Objects In…</source>
-        <translation type="unfinished"></translation>
+        <translation>Simpan Objek Dalam...</translation>
     </message>
     <message>
         <source>Save All Objects In…</source>
@@ -3720,6 +3724,14 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>The help for the extcap interface %1 cannot be found. Given file: %2</source>
         <translation>Bantuan bagi antar muka extcap %1 tidak bisa ditemukan. Berkas yang diberikan: %2</translation>
+    </message>
+    <message>
+        <source>Bookmark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type a name to create a bookmark</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save parameters on capture start</source>
@@ -3872,39 +3884,39 @@ Relative to reference: n/a (outside reference range)</source>
     <name>FilterExpressionEdit</name>
     <message>
         <source>Saved Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Filter Tersimpan</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation type="unfinished">Simpan filter ini</translation>
+        <translation>Simpan filter ini</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation type="unfinished">Buang filter ini</translation>
+        <translation>Buang filter ini</translation>
     </message>
     <message>
         <source>Manage Saved Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Kelola Filter Tersimpan</translation>
     </message>
     <message>
         <source>Filter Button Preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferensi Tombol Filter...</translation>
     </message>
     <message>
         <source>Manage saved filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Kelola filter tersimpan</translation>
     </message>
     <message>
         <source>Clear the filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Bersihkan filter</translation>
     </message>
     <message>
         <source>Apply this filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Terapkan filter ini</translation>
     </message>
     <message>
         <source>Recent filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Filter terkini</translation>
     </message>
 </context>
 <context>
@@ -3997,7 +4009,7 @@ Relative to reference: n/a (outside reference range)</source>
     <name>FilterValidator</name>
     <message>
         <source>Invalid filter: %1</source>
-        <translation type="unfinished">Filter tidak valid: %1</translation>
+        <translation>Filter tidak valid: %1</translation>
     </message>
 </context>
 <context>
@@ -4166,11 +4178,11 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Personal Themes</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema Pribadi</translation>
     </message>
     <message>
         <source>User-installed theme files (*.jsonc)</source>
-        <translation type="unfinished"></translation>
+        <translation>Berkas tema yang dipasang pengguna (*.jsonc)</translation>
     </message>
     <message>
         <source>MaxMind DB path</source>
@@ -4264,11 +4276,11 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <translation type="unfinished">Siapkan sebagai Filter</translation>
+        <translation>Siapkan sebagai Filter</translation>
     </message>
     <message>
         <source>Apply as Filter</source>
-        <translation type="unfinished">Terapkan sebagai Filter</translation>
+        <translation>Terapkan sebagai Filter</translation>
     </message>
     <message>
         <source>Save as…</source>
@@ -4436,11 +4448,11 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Theme Author Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informasi Pengarang Tema</translation>
     </message>
     <message>
         <source>Theme Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Deskripsi Tema</translation>
     </message>
     <message>
         <source>Example GIF query packets have jumbo window sizes</source>
@@ -4469,11 +4481,11 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Theme:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema:</translation>
     </message>
     <message>
         <source>Theme by %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema menurut %1</translation>
     </message>
     <message>
         <source>Font</source>
@@ -4621,27 +4633,27 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Add annotation…</source>
-        <translation type="unfinished"></translation>
+        <translation>Tambahkan anotasi...</translation>
     </message>
     <message>
         <source>Edit annotation…</source>
-        <translation type="unfinished"></translation>
+        <translation>Sunting anotasi...</translation>
     </message>
     <message>
         <source>Remove annotation</source>
-        <translation type="unfinished"></translation>
+        <translation>Buang anotasi</translation>
     </message>
     <message>
         <source>Start byte for offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Byte awal untuk ofset</translation>
     </message>
     <message>
         <source>End byte for offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Byte akhir untuk ofset</translation>
     </message>
     <message>
         <source>Clear offset markers</source>
-        <translation type="unfinished"></translation>
+        <translation>Bersihkan penanda ofset</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
@@ -4677,7 +4689,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Comment: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Komentar: %1</translation>
     </message>
 </context>
 <context>
@@ -4909,7 +4921,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Move Up 100 Pixels</source>
-        <translation type="unfinished">Naikkan 100 Piksel</translation>
+        <translation>Naikkan 100 Piksel</translation>
     </message>
     <message>
         <source>Alt+Up</source>
@@ -4917,7 +4929,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Move Left 100 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Pindah Ke Kiri 100 Piksel</translation>
     </message>
     <message>
         <source>Alt+Left</source>
@@ -4925,7 +4937,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Move Right 100 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Pindah Ke Kanan 100 Piksel</translation>
     </message>
     <message>
         <source>Alt+Right</source>
@@ -4933,7 +4945,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Move Down 100 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Turunkan 100 Piksel</translation>
     </message>
     <message>
         <source>Alt+Down</source>
@@ -5884,7 +5896,7 @@ Relative to reference: n/a (outside reference range)</source>
     <name>ImsiListDialog</name>
     <message>
         <source>IMSI List</source>
-        <translation type="unfinished"></translation>
+        <translation>Daftar IMSI</translation>
     </message>
     <message>
         <source>&lt;small&gt;Select one or more IMSIs to view flow sequence or prepare a display filter.&lt;/small&gt;</source>
@@ -5892,11 +5904,11 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Only show IMSIs matching the current display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Hanya tampilkan IMSI yang cocok dengan filter tampilan kini</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished">Batasi ke filter tampilan</translation>
+        <translation>Batasi ke filter tampilan</translation>
     </message>
     <message>
         <source>IMSI</source>
@@ -5920,15 +5932,15 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Prepare Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Siapkan Filter</translation>
     </message>
     <message>
         <source>Prepare a display filter matching selected IMSIs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Siapkan suatu filter tampilan yang cocok dengan IMSI yang dipilih.</translation>
     </message>
     <message>
         <source>&lt;small&gt;%1 IMSIs found. Double-click to filter.&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;%1 IMSI ditemukan. Klik ganda untuk memfilter.&lt;/small&gt;</translation>
     </message>
 </context>
 <context>
@@ -5939,46 +5951,46 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Regular Expression</source>
-        <translation type="unfinished">Ekspresi Reguler</translation>
+        <translation>Ekspresi Reguler</translation>
     </message>
     <message>
         <source>Case sensitive</source>
-        <translation type="unfinished">Peka huruf besar kecil</translation>
+        <translation>Peka huruf besar kecil</translation>
     </message>
     <message>
         <source>Find</source>
-        <translation type="unfinished">Cari</translation>
+        <translation>Cari</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Batal</translation>
+        <translation>Batal</translation>
     </message>
     <message>
         <source>invalid pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Pola tidak valid</translation>
     </message>
     <message>
         <source>no matches</source>
-        <translation type="unfinished"></translation>
+        <translation>tidak ada yang cocok</translation>
     </message>
     <message>
         <source>%1 of %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 dari %2</translation>
     </message>
 </context>
 <context>
     <name>InfoBannerWidget</name>
     <message>
         <source>Tips and announcements</source>
-        <translation type="unfinished"></translation>
+        <translation>Tips dan pengumuman</translation>
     </message>
     <message>
         <source>%1: %2 (%3 of %4)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: %2 (%3 dari %4)</translation>
     </message>
     <message>
         <source>Action: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Aksi: %1</translation>
     </message>
 </context>
 <context>
@@ -6029,11 +6041,11 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Tunnel Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Antar Muka Tunnel</translation>
     </message>
     <message>
         <source>Loopback Devices</source>
-        <translation type="unfinished"></translation>
+        <translation>Perangkat Loopback</translation>
     </message>
     <message>
         <source>Remote interfaces</source>
@@ -6085,11 +6097,11 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Tak Dikenal</translation>
     </message>
     <message>
         <source>Hide all &apos;%1&apos; interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Sembunyikan semua antar muka &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
@@ -6103,15 +6115,15 @@ Relative to reference: n/a (outside reference range)</source>
     <name>InterfaceStatsWorker</name>
     <message>
         <source>The interface statistics stream stopped unexpectedly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stream statistik antar muka berhenti tanpa diharapkan.</translation>
     </message>
     <message>
         <source>Unable to start the interface statistics stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak bisa memulai stream statistik antar muka.</translation>
     </message>
     <message>
         <source>This build has no packet capture support.</source>
-        <translation type="unfinished"></translation>
+        <translation>Build ini tidak punya dukungan penangkapan paket.</translation>
     </message>
 </context>
 <context>
@@ -7156,23 +7168,23 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Packet list multi-color display mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode tampilan multi warna daftar paket:</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="unfinished">Mati</translation>
+        <translation>Mati</translation>
     </message>
     <message>
         <source>Scrollbar only</source>
-        <translation type="unfinished"></translation>
+        <translation>Hanya bilah gulir</translation>
     </message>
     <message>
         <source>Equal stripes</source>
-        <translation type="unfinished"></translation>
+        <translation>Strip setara</translation>
     </message>
     <message>
         <source>Shift right</source>
-        <translation type="unfinished"></translation>
+        <translation>Geser kanan</translation>
     </message>
     <message>
         <source>75%</source>
@@ -7196,38 +7208,38 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Separator style:</source>
-        <translation type="unfinished"></translation>
+        <translation>Gaya pemisah:</translation>
     </message>
     <message>
         <source>Vertical</source>
-        <translation type="unfinished"></translation>
+        <translation>Vertikal</translation>
     </message>
     <message>
         <source>Diagonal</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagonal</translation>
     </message>
     <message>
         <source>Bubble</source>
-        <translation type="unfinished"></translation>
+        <translation>Gelembung</translation>
     </message>
     <message>
         <source>Display multiple colors in packet details</source>
-        <translation type="unfinished"></translation>
+        <translation>Tampilkan beberapa warna dalam rincian paket</translation>
     </message>
 </context>
 <context>
     <name>LearnCardWidget</name>
     <message>
         <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h2&gt;Belajar&lt;/h2&gt;</translation>
     </message>
     <message>
         <source>Learn</source>
-        <translation type="unfinished"></translation>
+        <translation>Belajar</translation>
     </message>
     <message>
         <source>Opens the Wireshark documentation website</source>
-        <translation type="unfinished"></translation>
+        <translation>Membuka situs web dokumentasi Wireshark</translation>
     </message>
 </context>
 <context>
@@ -7694,26 +7706,27 @@ Relative to reference: n/a (outside reference range)</source>
     <name>LuaDebuggerCodeTabsController</name>
     <message numerus="yes">
         <source>There are unsaved changes in %Ln open file(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Ada perubahan belum tersimpan dalam %Ln berkas yang terbuka.</numerusform>
         </translation>
     </message>
     <message>
         <source>Save Lua Script</source>
-        <translation type="unfinished"></translation>
+        <translation>Simpan Skrip Lua</translation>
     </message>
     <message>
         <source>Could not write to %1:
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak bisa menulis ke %1:
+%2</translation>
     </message>
     <message>
         <source>Lua Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>Debugger Lua</translation>
     </message>
     <message>
         <source>Save changes to %1 before closing?</source>
-        <translation type="unfinished"></translation>
+        <translation>Simpan perubahan ke %1 sebelum menutup?</translation>
     </message>
 </context>
 <context>
@@ -7730,15 +7743,15 @@ on an existing breakpoint, toggle its active state</source>
     <name>LuaDebuggerDialog</name>
     <message>
         <source>Open Lua Script</source>
-        <translation type="unfinished"></translation>
+        <translation>Buka Skrip Lua</translation>
     </message>
     <message>
         <source>Save (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Simpan (%1)</translation>
     </message>
     <message>
         <source>Continue execution (F5)</source>
-        <translation type="unfinished"></translation>
+        <translation>Lanjutkan eksekusi (F5)</translation>
     </message>
     <message>
         <source>Step over (F10)</source>
@@ -7754,19 +7767,19 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Run to line (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Jalankan sampai ke baris (%1)</translation>
     </message>
     <message>
         <source>Reload Lua Plugins (Ctrl+Shift+L)</source>
-        <translation type="unfinished"></translation>
+        <translation>Muat Ulang Plugin Lua (Ctrl+Shift+L)</translation>
     </message>
     <message>
         <source>Find in script (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Cari dalam skrip (%1)</translation>
     </message>
     <message>
         <source>Go to line (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ke baris (%1)</translation>
     </message>
     <message>
         <source>Location</source>
@@ -7778,20 +7791,21 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>From: Locals</source>
-        <translation type="unfinished"></translation>
+        <translation>Dari: Lokal</translation>
     </message>
     <message>
         <source>From: Upvalues</source>
-        <translation type="unfinished"></translation>
+        <translation>Dari: Upvalues</translation>
     </message>
     <message>
         <source>From: Globals</source>
-        <translation type="unfinished"></translation>
+        <translation>Dari: Global</translation>
     </message>
     <message>
         <source>
 … (truncated)</source>
-        <translation type="unfinished"></translation>
+        <translation>
+... (terpotong)</translation>
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Locals&lt;/b&gt;&lt;br/&gt;Parameters and local variables for the selected stack frame.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Upvalues&lt;/b&gt;&lt;br/&gt;Outer variables that this function actually uses from surrounding code. Anything the function does not reference does not appear here.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Globals&lt;/b&gt;&lt;br/&gt;Names from the global environment table.&lt;/p&gt;&lt;p&gt;Values that differ from the previous pause are drawn in a &lt;b&gt;bold accent color&lt;/b&gt;, and briefly flash on the pause that introduced the change.&lt;/p&gt;</source>
@@ -7815,7 +7829,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Stack Trace</source>
-        <translation type="unfinished"></translation>
+        <translation>Jejak Stack</translation>
     </message>
     <message>
         <source>Function</source>
@@ -7839,7 +7853,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Line</source>
-        <translation type="unfinished"></translation>
+        <translation>Baris</translation>
     </message>
     <message>
         <source>Hits</source>
@@ -7859,7 +7873,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Evaluate</source>
-        <translation type="unfinished">Evaluasi</translation>
+        <translation>Evaluasi</translation>
     </message>
     <message>
         <source>&lt;b&gt;Lua Expression Evaluation&lt;/b&gt;&lt;br&gt;&lt;br&gt;Code runs in a protected environment: runtime errors are caught and shown in the output instead of propagating.&lt;br&gt;&lt;br&gt;&lt;b&gt;What works:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Read/modify global variables (&lt;code&gt;_G.x = 42&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Modify table contents (&lt;code&gt;my_table.field = 99&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Call functions and inspect return values&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Limitations:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Local variables cannot be modified directly (use &lt;code&gt;debug.setlocal()&lt;/code&gt;) unless there is an associated &lt;i&gt;assign&lt;/i&gt; method (&lt;code&gt;pinfo.src_port&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Long-running expressions are automatically aborted&lt;/li&gt;&lt;li&gt;&lt;b&gt;Warning:&lt;/b&gt; Changes to globals persist and can affect ongoing dissection&lt;/li&gt;&lt;/ul&gt;</source>
@@ -7867,7 +7881,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Enter Lua expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Masukkan ekspresi Lua</translation>
     </message>
     <message>
         <source>Output</source>
@@ -7875,7 +7889,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Execute the Lua code (Ctrl+Return)</source>
-        <translation type="unfinished"></translation>
+        <translation>Jalankan kode Lua (Ctrl+Return)</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -7891,7 +7905,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Auto (follow color scheme)</source>
-        <translation type="unfinished"></translation>
+        <translation>Otomatis (ikuti skema warna)</translation>
     </message>
     <message>
         <source>Dark</source>
@@ -7903,15 +7917,21 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Color theme for the code editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema warna untuk editor kode</translation>
     </message>
     <message>
         <source>Code View Theme:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema Tampilan Kode:</translation>
     </message>
     <message>
         <source>Type: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipe: %1</translation>
+    </message>
+    <message numerus="yes">
+        <source>There are unsaved changes in %Ln open file(s).</source>
+        <translation type="vanished">
+            <numerusform>Ada perubahan belum tersimpan dalam %Ln berkas yang terbuka.</numerusform>
+        </translation>
     </message>
     <message>
         <source>Remove All Breakpoints</source>
@@ -7951,11 +7971,11 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Undo</source>
-        <translation type="unfinished"></translation>
+        <translation>Tak jadi</translation>
     </message>
     <message>
         <source>Redo</source>
-        <translation type="unfinished"></translation>
+        <translation>Jadi lagi</translation>
     </message>
     <message>
         <source>Cut</source>
@@ -7983,7 +8003,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Run to this line</source>
-        <translation type="unfinished"></translation>
+        <translation>Jalankan sampai baris ini</translation>
     </message>
     <message>
         <source>Add Watch: &quot;%1&quot;</source>
@@ -8007,7 +8027,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Disabled (live capture)</source>
-        <translation type="unfinished"></translation>
+        <translation>Dinonaktifkan (penangkapan live)</translation>
     </message>
     <message>
         <source>Disabled</source>
@@ -8023,15 +8043,15 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Running</source>
-        <translation type="unfinished"></translation>
+        <translation>Sedang berjalan</translation>
     </message>
     <message>
         <source>Lua Scripts (*.lua);;All Files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Skrip Lua (*.lua);;Semua Berkas (*)</translation>
     </message>
     <message>
         <source>Lua Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>Debugger Lua</translation>
     </message>
     <message>
         <source>Continue</source>
@@ -8095,7 +8115,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Go to Line…</source>
-        <translation type="unfinished"></translation>
+        <translation>Ke Baris...</translation>
     </message>
     <message>
         <source>Ctrl+G</source>
@@ -8103,7 +8123,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Reload Lua Plugins</source>
-        <translation type="unfinished">Muat Ulang Plugin Lua</translation>
+        <translation>Muat Ulang Plugin Lua</translation>
     </message>
     <message>
         <source>Ctrl+Shift+L</source>
@@ -8114,15 +8134,15 @@ on an existing breakpoint, toggle its active state</source>
     <name>LuaDebuggerFindFrame</name>
     <message>
         <source>Find:</source>
-        <translation type="unfinished">Cari:</translation>
+        <translation>Cari:</translation>
     </message>
     <message>
         <source>Find Next</source>
-        <translation type="unfinished"></translation>
+        <translation>Cari Selanjutnya</translation>
     </message>
     <message>
         <source>Find Previous</source>
-        <translation type="unfinished"></translation>
+        <translation>Cari Sebelumnya</translation>
     </message>
     <message>
         <source>Replace:</source>
@@ -8149,7 +8169,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Go to line</source>
-        <translation type="unfinished"></translation>
+        <translation>Ke baris</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -8177,7 +8197,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Lua Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Debugger Lua</translation>
     </message>
     <message numerus="yes">
         <source>Watch expression is too long (maximum %Ln characters).</source>
@@ -8202,7 +8222,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Type: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipe: %1</translation>
     </message>
     <message>
         <source>error</source>
@@ -9126,6 +9146,14 @@ on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Prefix values that a spreadsheet would evaluate as a formula (those starting with &quot;=&quot;, &quot;+&quot;, &quot;-&quot; or &quot;@&quot;) with an apostrophe, so that packet data cannot inject a formula into the exported file&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Escape spreadsheet formulas</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Replace whitespace characters (tabs, newlines, etc.) with C-style escapes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9462,8 +9490,7 @@ on an existing breakpoint, toggle its active state</source>
     <name>Plot</name>
     <message>
         <source>Field cannot be empty.</source>
-        <oldsource>Field cannot be empty!</oldsource>
-        <translation type="unfinished">Ruas tidak boleh kosong!</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9654,7 +9681,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Move Left 100 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pindah Ke Kiri 100 Piksel</translation>
     </message>
     <message>
         <source>Alt+Left</source>
@@ -9662,7 +9689,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Move Right 100 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pindah Ke Kanan 100 Piksel</translation>
     </message>
     <message>
         <source>Alt+Right</source>
@@ -9670,7 +9697,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Move Down 100 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Turunkan 100 Piksel</translation>
     </message>
     <message>
         <source>Alt+Down</source>
@@ -11280,7 +11307,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Type: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipe: %1</translation>
     </message>
     <message>
         <source>%1 = %2</source>
@@ -11322,7 +11349,7 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Enter Lua expression</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Masukkan ekspresi Lua</translation>
     </message>
     <message>
         <source>Error: %1</source>
@@ -12689,8 +12716,11 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Playback of stream %1 failed.</source>
-        <oldsource>Playback of stream %1 failed!</oldsource>
-        <translation type="unfinished">Pemutaran stream %1 gagal!</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save failed.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -12740,14 +12770,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>No streams are suitable for save</source>
         <translation>Tidak ada stream yang cocok untuk penyimpanan</translation>
-    </message>
-    <message>
-        <source>Save failed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save failed!</source>
-        <translation type="vanished">Penyimpanan gagal!</translation>
     </message>
     <message>
         <source>Can&apos;t write header of AU file</source>
@@ -16065,7 +16087,7 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Tips and announcements</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tips dan pengumuman</translation>
     </message>
     <message>
         <source>Rotating tips, sponsor acknowledgements, and announcements for Wireshark and Stratoshark conferences.</source>
@@ -16073,7 +16095,7 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Learn</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Belajar</translation>
     </message>
     <message>
         <source>Links to documentation, wiki, and community resources.</source>
@@ -18443,7 +18465,7 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>DIS Streams</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Stream DIS</translation>
     </message>
     <message>
         <source>Show and analyze DIS radio streams</source>
@@ -18451,7 +18473,7 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>IMSI List</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Daftar IMSI</translation>
     </message>
     <message>
         <source>Show all IMSIs in the capture</source>
@@ -18459,7 +18481,7 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Lua Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Debugger Lua</translation>
     </message>
     <message>
         <source>Software update checking is not available on this platform.</source>

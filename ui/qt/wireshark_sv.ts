@@ -150,7 +150,7 @@
     </message>
     <message>
         <source>Comment (max %1 characters)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommentar (högst %1 tecken)</translation>
     </message>
     <message>
         <source>Comment:</source>
@@ -158,11 +158,11 @@
     </message>
     <message>
         <source>Select Annotation Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Välj färg för anteckning</translation>
     </message>
     <message>
         <source>Annotations are session-only and will be lost when the capture is closed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Anteckningar finns bara under sessionen och förloras när fångsten stängs.</translation>
     </message>
 </context>
 <context>
@@ -723,75 +723,80 @@
     <name>BreakpointConditionDelegate</name>
     <message>
         <source>Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Uttryck</translation>
     </message>
     <message>
         <source>Lua expression — pause when truthy</source>
-        <translation type="unfinished"></translation>
+        <translation>Lua-uttryck — pausa när resultatet är sant</translation>
     </message>
     <message>
         <source>Evaluated each time control reaches this line; locals, upvalues, and globals are visible like Watch / Evaluate.
 Runtime errors are treated as false (silent) and surface as a warning icon on the row.</source>
-        <translation type="unfinished"></translation>
+        <translation>Utvärderas varje gång körningen når denna rad; lokala variabler, upvalues och globala variabler är synliga som i Övervaka/Utvärdera.
+Körningsfel behandlas som falska (tyst) och visas som en varningsikon på raden.</translation>
     </message>
     <message>
         <source>Hit Count</source>
-        <translation type="unfinished"></translation>
+        <translation>Träffantal</translation>
     </message>
     <message>
         <source>Pause after N hits (0 disables)</source>
-        <translation type="unfinished"></translation>
+        <translation>Pausa efter N träffar (0 inaktiverar)</translation>
     </message>
     <message>
         <source>Gate the pause on a hit counter. The dropdown next to N picks the comparison mode: from pauses on every hit from N onwards (default); every pauses on hits N, 2N, 3N, …; once pauses on the N-th hit and deactivates the breakpoint. Use 0 to disable the gate. The counter is preserved across edits to Expression / Hit Count / Log Message; lowering the target below the current count rolls the counter back to 0 so the breakpoint can wait for the next N hits. Right-click the row to reset it explicitly. Combined with an Expression on the same row, the hit-count gate runs first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Styr pausen med en träffräknare. Listan bredvid N väljer jämförelseläge: från pausar vid varje träff från N och framåt (standard); varje pausar vid träffarna N, 2N, 3N, …; en gång pausar vid den N:e träffen och inaktiverar brytpunkten. Använd 0 för att inaktivera spärren. Räknaren bevaras när Uttryck/Träffantal/Loggmeddelande redigeras; om målet sänks under det aktuella antalet återställs räknaren till 0 så att brytpunkten kan vänta på nästa N träffar. Högerklicka på raden för att uttryckligen återställa den. Tillsammans med ett uttryck på samma rad körs träffantalsspärren först.</translation>
     </message>
     <message>
         <source>Log Message</source>
-        <translation type="unfinished"></translation>
+        <translation>Loggmeddelande</translation>
     </message>
     <message>
         <source>Log message — supports {expr} and tags such as {filename}, {basename}, {line}, {function}, {hits}, {timestamp}, {delta}…</source>
-        <translation type="unfinished"></translation>
+        <translation>Loggmeddelande — stöder {expr} och taggar som {filename}, {basename}, {line}, {function}, {hits}, {timestamp}, {delta}…</translation>
     </message>
     <message>
         <source>Logpoints write a message to the Evaluate output (and Wireshark&apos;s info log) each time the line is reached. By default execution continues without pausing; tick the Pause box on this editor to also pause after emitting (useful for log-then-inspect without duplicating the breakpoint). The line is emitted verbatim — there is no automatic file:line prefix. Inside {} the text is evaluated as a Lua expression in this frame and converted to text the same way tostring() does; reserved tags below shadow any same-named Lua local / upvalue / global. Origin: {filename}, {basename}, {line}, {function}, {what}. Counters and scope: {hits}, {depth}, {thread}. Time: {timestamp}, {datetime}, {epoch}, {epoch_ms}, {elapsed}, {delta}. Use {{ and }} for literal { and }. Per-placeholder errors substitute &apos;&lt;error: ...&gt;&apos; without aborting the line.</source>
-        <translation type="unfinished"></translation>
+        <translation>Loggpunkter skriver ett meddelande till utdata för Utvärdera (och Wiresharks informationslogg) varje gång raden nås. Som standard fortsätter körningen utan paus; markera rutan Pausa i denna redigerare för att också pausa efter utskrift (användbart för att logga och sedan inspektera utan att duplicera brytpunkten). Raden skrivs ut ordagrant — det finns inget automatiskt fil:rad-prefix. Inuti {} utvärderas texten som ett Lua-uttryck i denna ram och konverteras till text på samma sätt som tostring() gör; reserverade taggar nedan skuggar en lokal/upvalue/global Lua-variabel med samma namn. Ursprung: {filename}, {basename}, {line}, {function}, {what}. Räknare och omfång: {hits}, {depth}, {thread}. Tid: {timestamp}, {datetime}, {epoch}, {epoch_ms}, {elapsed}, {delta}. Använd {{ och }} för bokstavliga { och }. Fel per platshållare ersätts med &apos;&lt;error: ...&gt;&apos; utan att raden avbryts.</translation>
     </message>
     <message>
         <source>from</source>
-        <translation type="unfinished"></translation>
+        <translation>från</translation>
     </message>
     <message>
         <source>every</source>
-        <translation type="unfinished"></translation>
+        <translation>varje</translation>
     </message>
     <message>
         <source>once</source>
-        <translation type="unfinished"></translation>
+        <translation>en gång</translation>
     </message>
     <message>
         <source>Comparison mode for the hit count:
 from — pause on every hit from N onwards.
 every — pause on hits N, 2N, 3N…
 once — pause once on the N-th hit and deactivate the breakpoint.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jämförelseläge för träffantalet:
+från — pausa vid varje träff från N och framåt.
+varje — pausa vid träffarna N, 2N, 3N…
+en gång — pausa en gång vid den N:e träffen och inaktivera brytpunkten.</translation>
     </message>
     <message>
         <source>Pause</source>
-        <translation type="unfinished">Pausa</translation>
+        <translation>Pausa</translation>
     </message>
     <message>
         <source>Pause: format and emit the log message AND pause execution.
 Off = logpoint only (matches the historical &quot;logpoints never pause&quot; convention).</source>
-        <translation type="unfinished"></translation>
+        <translation>Pausa: formatera och skriv ut loggmeddelandet OCH pausa körningen.
+Av = endast loggpunkt (följer den historiska konventionen ”loggpunkter pausar aldrig”).</translation>
     </message>
 </context>
 <context>
     <name>CaptureCardWidget</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fånga paket från ditt nätverk i realtid.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture</source>
@@ -799,7 +804,7 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
     <message>
         <source>Start a new capture session</source>
-        <translation type="unfinished"></translation>
+        <translation>Starta en ny fångstsession</translation>
     </message>
     <message>
         <source>&lt;h2&gt;Capture&lt;/h2&gt;</source>
@@ -807,23 +812,23 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
     <message>
         <source>…using this filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>…med detta filter:</translation>
     </message>
     <message>
         <source>Capture filter</source>
-        <translation type="unfinished">Fångstfilter</translation>
+        <translation>Fångstfilter</translation>
     </message>
     <message>
         <source>Enter a capture filter expression to limit which data is recorded during live capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ange ett fångstfilteruttryck för att begränsa vilka data som registreras under fångst i realtid.</translation>
     </message>
     <message>
         <source>Interface type filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filter för gränssnittstyp</translation>
     </message>
     <message>
         <source>Filters the capture source list by type. Shows how many sources are currently visible and how many are hidden by the active filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtrerar listan över fångstkällor efter typ. Visar hur många källor som är synliga och hur många som döljs av det aktiva filtret.</translation>
     </message>
     <message>
         <source>Capture sources</source>
@@ -831,15 +836,15 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
     <message>
         <source>Lists available capture sources. Select one or more to capture from.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visar tillgängliga fångstkällor. Välj en eller flera att fånga från.</translation>
     </message>
     <message>
         <source>%1 / %2 interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 / %2 gränssnitt</translation>
     </message>
     <message>
         <source>%1 / %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 / %2</translation>
     </message>
     <message>
         <source>All interfaces shown</source>
@@ -847,16 +852,16 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
     <message numerus="yes">
         <source>%n interface(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n gränssnitt</numerusform>
+            <numerusform>%n gränssnitt</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n interface(s) shown, %1 hidden</source>
-        <translation type="unfinished">
-            <numerusform>%n interface shown, %1 hidden</numerusform>
-            <numerusform>%n interfaces shown, %1 hidden</numerusform>
+        <translation>
+            <numerusform>%n gränssnitt visas, %1 dolt</numerusform>
+            <numerusform>%n gränssnitt visas, %1 dolda</numerusform>
         </translation>
     </message>
 </context>
@@ -1306,36 +1311,36 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     <name>CaptureFilterEntry</name>
     <message>
         <source>Capture filter entry</source>
-        <translation type="unfinished"></translation>
+        <translation>Fält för fångstfilter</translation>
     </message>
     <message>
         <source>Saved Capture Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Sparade fångstfilter</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation type="unfinished">Spara detta filter</translation>
+        <translation>Spara detta filter</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation type="unfinished">Ta bort detta filter</translation>
+        <translation>Ta bort detta filter</translation>
     </message>
     <message>
         <source>Manage Capture Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Hantera fångstfilter</translation>
     </message>
     <message>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
         <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Flera filter har valts. Åsidosätt dem här eller lämna detta tomt för att behålla dem.</translation>
     </message>
     <message>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;De valda gränssnitten har olika fångstfilter. Om du skriver ett filter här åsidosätts de. Om du inte gör något behålls de.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Enter a capture filter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ange ett fångstfilter %1</translation>
     </message>
 </context>
 <context>
@@ -1353,19 +1358,19 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     <name>CaptureFilterValidator</name>
     <message>
         <source>No interfaces selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga gränssnitt valda</translation>
     </message>
     <message>
         <source>Unable to check capture filter</source>
-        <translation type="unfinished">Kan inte kontrollera fångstfiltret</translation>
+        <translation>Det går inte att kontrollera fångstfiltret</translation>
     </message>
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
-        <translation type="unfinished">Kan inte kontrollera fångstfiltret (BPF-utökningar kräver ett aktivt handtag)</translation>
+        <translation>Det går inte att kontrollera fångstfiltret (BPF-tillägg kräver ett aktivt handtag)</translation>
     </message>
     <message>
         <source>Syntax checking unavailable</source>
-        <translation type="unfinished"></translation>
+        <translation>Syntaxkontroll är inte tillgänglig</translation>
     </message>
 </context>
 <context>
@@ -2399,82 +2404,89 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Displays the raw data of the selected event.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visar rådata för den valda händelsen.</translation>
     </message>
     <message>
         <source>Packet annotations are not saved and will be lost when the capture is closed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketanteckningar sparas inte och förloras när fångsten stängs.</translation>
     </message>
     <message>
         <source>Packet Annotations</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketanteckningar</translation>
     </message>
     <message>
         <source>Select one or more bytes first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Välj först en eller flera byte.</translation>
     </message>
     <message>
         <source>Add Annotation</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till anteckning</translation>
     </message>
     <message>
         <source>No annotation found at the selection.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen anteckning hittades vid markeringen.</translation>
     </message>
     <message>
         <source>Edit Annotation</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigera anteckning</translation>
     </message>
     <message>
         <source>Start byte set: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Startbyte angivet: %1</translation>
     </message>
     <message>
         <source>Set start byte first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ange först startbyte.</translation>
     </message>
     <message>
         <source>Start byte (absolute): %1
 End byte (absolute): %2
 Distance (absolute, bytes): %3
 Distance (signed, bytes): %4</source>
-        <translation type="unfinished"></translation>
+        <translation>Startbyte (absolut): %1
+Slutbyte (absolut): %2
+Avstånd (absolut, byte): %3
+Avstånd (signerat, byte): %4</translation>
     </message>
     <message>
         <source>selected protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>valt protokoll</translation>
     </message>
     <message>
         <source>selected field</source>
-        <translation type="unfinished"></translation>
+        <translation>valt fält</translation>
     </message>
     <message>
         <source>parent protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>överordnat protokoll</translation>
     </message>
     <message>
         <source>
 Reference range (%1): start %2, length %3</source>
-        <translation type="unfinished"></translation>
+        <translation>
+Referensintervall (%1): start %2, längd %3</translation>
     </message>
     <message>
         <source>
 Start byte (relative to reference): %1
 End byte (relative to reference): %2</source>
-        <translation type="unfinished"></translation>
+        <translation>
+Startbyte (relativt referensen): %1
+Slutbyte (relativt referensen): %2</translation>
     </message>
     <message>
         <source>
 Relative to reference: n/a (outside reference range)</source>
-        <translation type="unfinished"></translation>
+        <translation>
+Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation>
     </message>
     <message>
         <source>Compute Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Beräkna förskjutning</translation>
     </message>
     <message>
         <source>Offset markers cleared.</source>
-        <translation type="unfinished"></translation>
+        <translation>Förskjutningsmarkörer rensade.</translation>
     </message>
 </context>
 <context>
@@ -2571,30 +2583,30 @@ Relative to reference: n/a (outside reference range)</source>
     <name>DisAudioStream</name>
     <message>
         <source>No DIS signal payload is available for playback.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen DIS-signalnyttolast är tillgänglig för uppspelning.</translation>
     </message>
     <message>
         <source>Unable to decode DIS audio payload for this stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Det går inte att avkoda DIS-ljudnyttolasten för denna ström.</translation>
     </message>
     <message>
         <source>Audio format is not supported by the current output device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ljudformatet stöds inte av den aktuella utmatningsenheten.</translation>
     </message>
     <message>
         <source>Unable to open playback buffer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Det går inte att öppna uppspelningsbufferten.</translation>
     </message>
 </context>
 <context>
     <name>DisStreamAnalysisDialog</name>
     <message>
         <source>DIS Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>DIS-strömanalys</translation>
     </message>
     <message>
         <source>Stream</source>
-        <translation type="unfinished">Ström</translation>
+        <translation>Ström</translation>
     </message>
     <message>
         <source>Codec</source>
@@ -2602,7 +2614,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Duration (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Varaktighet (s)</translation>
     </message>
     <message>
         <source>Packets</source>
@@ -2610,31 +2622,31 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Signal Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Signalpaket</translation>
     </message>
     <message>
         <source>Transmitter Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Sändarpaket</translation>
     </message>
     <message>
         <source>Estimated Lost</source>
-        <translation type="unfinished"></translation>
+        <translation>Beräknad förlust</translation>
     </message>
     <message>
         <source>Jitter (mean/max ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Jitter (medel/max ms)</translation>
     </message>
     <message>
         <source>Delta (mean/max ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Delta (medel/max ms)</translation>
     </message>
     <message>
         <source>Capture Time (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fångsttid (s)</translation>
     </message>
     <message>
         <source>Amplitude</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplitud</translation>
     </message>
     <message>
         <source>0.000 / 0.000 s</source>
@@ -2642,7 +2654,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Uppspelning</translation>
     </message>
     <message>
         <source>Packet</source>
@@ -2658,11 +2670,11 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Jitter (ms)</source>
-        <translation type="unfinished">Spridning (ms)</translation>
+        <translation>Jitter (ms)</translation>
     </message>
     <message>
         <source>Lost</source>
-        <translation type="unfinished">Förlorade</translation>
+        <translation>Förlorade</translation>
     </message>
     <message>
         <source>Status</source>
@@ -2670,7 +2682,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Go To First Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Gå till första paketet</translation>
     </message>
     <message>
         <source>Play</source>
@@ -2702,15 +2714,15 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Jitter Spikes</source>
-        <translation type="unfinished"></translation>
+        <translation>Jittertoppar</translation>
     </message>
     <message>
         <source>Estimated Loss</source>
-        <translation type="unfinished"></translation>
+        <translation>Beräknad förlust</translation>
     </message>
     <message>
         <source>Problem Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Problempaket</translation>
     </message>
     <message>
         <source>Pause</source>
@@ -2718,22 +2730,22 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Double click on graph to set start of playback.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dubbelklicka på grafen för att ange uppspelningens start.</translation>
     </message>
     <message>
         <source>Start: %1 s. Double click on graph to set start of playback.</source>
-        <translation type="unfinished"></translation>
+        <translation>Start: %1 s. Dubbelklicka på grafen för att ange uppspelningens start.</translation>
     </message>
     <message>
         <source>DIS Playback</source>
-        <translation type="unfinished"></translation>
+        <translation>DIS-uppspelning</translation>
     </message>
 </context>
 <context>
     <name>DisStreamDialog</name>
     <message>
         <source>DIS Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>DIS-strömmar</translation>
     </message>
     <message>
         <source>Start</source>
@@ -2745,19 +2757,19 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Src Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Källadress</translation>
     </message>
     <message>
         <source>Src Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Källport</translation>
     </message>
     <message>
         <source>Dst Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Måladress</translation>
     </message>
     <message>
         <source>Dst Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Målport</translation>
     </message>
     <message>
         <source>Radio</source>
@@ -2777,27 +2789,27 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Lost</source>
-        <translation type="unfinished">Förlorade</translation>
+        <translation>Förlorade</translation>
     </message>
     <message>
         <source>Max Delta (ms)</source>
-        <translation type="unfinished">Maxdelta (ms)</translation>
+        <translation>Max. delta (ms)</translation>
     </message>
     <message>
         <source>Mean Jitter (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Medeljitter (ms)</translation>
     </message>
     <message>
         <source>Max Jitter (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. jitter (ms)</translation>
     </message>
     <message>
         <source>Pb</source>
-        <translation type="unfinished"></translation>
+        <translation>Pb</translation>
     </message>
     <message>
         <source>Prepare Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Förbered filter</translation>
     </message>
     <message>
         <source>Play</source>
@@ -2817,7 +2829,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>DIS Playback</source>
-        <translation type="unfinished"></translation>
+        <translation>DIS-uppspelning</translation>
     </message>
 </context>
 <context>
@@ -2892,39 +2904,39 @@ Relative to reference: n/a (outside reference range)</source>
     <name>DisplayFilterEntry</name>
     <message>
         <source>Display filter entry</source>
-        <translation type="unfinished">Visningsfilterpost</translation>
+        <translation>Fält för visningsfilter</translation>
     </message>
     <message>
         <source>Saved Display Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Sparade visningsfilter</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation type="unfinished">Spara detta filter</translation>
+        <translation>Spara detta filter</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation type="unfinished">Ta bort detta filter</translation>
+        <translation>Ta bort detta filter</translation>
     </message>
     <message>
         <source>Manage Display Filters</source>
-        <translation type="unfinished">Hantera visningsfilter</translation>
+        <translation>Hantera visningsfilter</translation>
     </message>
     <message>
         <source>Filter Button Preferences…</source>
-        <translation type="unfinished"></translation>
+        <translation>Inställningar för filterknappar…</translation>
     </message>
     <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
-        <translation type="unfinished">Använd ett visningsfilter %1 &lt;%2/&gt;</translation>
+        <translation>Tillämpa ett visningsfilter %1 &lt;%2/&gt;</translation>
     </message>
     <message>
         <source>Display Filter Expression…</source>
-        <translation type="unfinished"></translation>
+        <translation>Visningsfilteruttryck…</translation>
     </message>
     <message>
         <source>Left align buttons</source>
-        <translation type="unfinished">Vänsterjustera knappar</translation>
+        <translation>Vänsterjustera knappar</translation>
     </message>
 </context>
 <context>
@@ -3026,7 +3038,7 @@ Relative to reference: n/a (outside reference range)</source>
     <name>DisplayFilterValidator</name>
     <message>
         <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>
-        <translation type="unfinished">”%1” bör undvikas till förmån för ”%2”.  Se hjälpen avsnitt 6.4.8 för detaljer.</translation>
+        <translation>”%1” är föråldrad till förmån för ”%2”. Se hjälpavsnitt 6.4.8 för detaljer.</translation>
     </message>
 </context>
 <context>
@@ -3056,15 +3068,15 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Everywhere</source>
-        <translation type="unfinished">Överallt</translation>
+        <translation>Överallt</translation>
     </message>
     <message>
         <source>Only Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Endast namn</translation>
     </message>
     <message>
         <source>Only Description</source>
-        <translation type="unfinished">Endast beskrivning</translation>
+        <translation>Endast beskrivning</translation>
     </message>
 </context>
 <context>
@@ -3106,23 +3118,23 @@ Relative to reference: n/a (outside reference range)</source>
     <name>DistributionDialog</name>
     <message>
         <source>Field Values Distribution</source>
-        <translation type="unfinished"></translation>
+        <translation>Fördelning av fältvärden</translation>
     </message>
     <message>
         <source>Field Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Fältvärde</translation>
     </message>
     <message>
         <source>Occurrences</source>
-        <translation type="unfinished"></translation>
+        <translation>Förekomster</translation>
     </message>
     <message>
         <source>Percent</source>
-        <translation type="unfinished"></translation>
+        <translation>Procent</translation>
     </message>
     <message>
         <source>Distribution:</source>
-        <translation type="unfinished"></translation>
+        <translation>Fördelning:</translation>
     </message>
 </context>
 <context>
@@ -3165,7 +3177,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Only Protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>Endast protokoll</translation>
     </message>
     <message>
         <source>Only Description</source>
@@ -3173,19 +3185,19 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>all</source>
-        <translation type="unfinished"></translation>
+        <translation>alla</translation>
     </message>
     <message>
         <source>enabled</source>
-        <translation type="unfinished">aktiverad</translation>
+        <translation>aktiverade</translation>
     </message>
     <message>
         <source>disabled</source>
-        <translation type="unfinished">avaktiverad</translation>
+        <translation>inaktiverade</translation>
     </message>
     <message>
         <source>protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>protokoll</translation>
     </message>
     <message>
         <source>non-heuristic protocols</source>
@@ -3460,15 +3472,15 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Summary: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Sammanfattning: %1</translation>
     </message>
     <message>
         <source>Summary: Packet comments listed below.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sammanfattning: Paketkommentarer listas nedan.</translation>
     </message>
     <message>
         <source>Group: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Grupp: %1</translation>
     </message>
     <message>
         <source>Protocol: %1</source>
@@ -3484,7 +3496,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Header Field: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Rubrikfält: %1</translation>
     </message>
 </context>
 <context>
@@ -3567,11 +3579,11 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Unique</source>
-        <translation type="unfinished"></translation>
+        <translation>Unik</translation>
     </message>
     <message>
         <source>Only display the first of identical entries</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa endast den första av identiska poster</translation>
     </message>
     <message>
         <source>Searching for objects</source>
@@ -3587,11 +3599,11 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Save All</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara alla</translation>
     </message>
     <message>
         <source>Save Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara visade</translation>
     </message>
     <message>
         <source>Preview</source>
@@ -3615,7 +3627,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Save Objects In…</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara objekt i…</translation>
     </message>
     <message>
         <source>Save All Objects In…</source>
@@ -3731,6 +3743,14 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>The help for the extcap interface %1 cannot be found. Given file: %2</source>
         <translation>Hjälpen för extcap-gränssnittet %1 kan inte hittas.  Angiven fil: %2</translation>
+    </message>
+    <message>
+        <source>Bookmark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type a name to create a bookmark</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save parameters on capture start</source>
@@ -3884,39 +3904,39 @@ Relative to reference: n/a (outside reference range)</source>
     <name>FilterExpressionEdit</name>
     <message>
         <source>Saved Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Sparade filter</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation type="unfinished">Spara detta filter</translation>
+        <translation>Spara detta filter</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation type="unfinished">Ta bort detta filter</translation>
+        <translation>Ta bort detta filter</translation>
     </message>
     <message>
         <source>Manage Saved Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Hantera sparade filter</translation>
     </message>
     <message>
         <source>Filter Button Preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>Inställningar för filterknappar…</translation>
     </message>
     <message>
         <source>Manage saved filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Hantera sparade filter</translation>
     </message>
     <message>
         <source>Clear the filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Rensa filtret</translation>
     </message>
     <message>
         <source>Apply this filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Tillämpa detta filter</translation>
     </message>
     <message>
         <source>Recent filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Senaste filter</translation>
     </message>
 </context>
 <context>
@@ -4009,7 +4029,7 @@ Relative to reference: n/a (outside reference range)</source>
     <name>FilterValidator</name>
     <message>
         <source>Invalid filter: %1</source>
-        <translation type="unfinished">Felaktigt filter: %1</translation>
+        <translation>Ogiltigt filter: %1</translation>
     </message>
 </context>
 <context>
@@ -4178,11 +4198,11 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Personal Themes</source>
-        <translation type="unfinished"></translation>
+        <translation>Personliga teman</translation>
     </message>
     <message>
         <source>User-installed theme files (*.jsonc)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema-filer installerade av användaren (*.jsonc)</translation>
     </message>
     <message>
         <source>MaxMind DB path</source>
@@ -4278,11 +4298,11 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <translation type="unfinished">Förbered som filter</translation>
+        <translation>Förbered som filter</translation>
     </message>
     <message>
         <source>Apply as Filter</source>
-        <translation type="unfinished">Använd som ett filter</translation>
+        <translation>Tillämpa som filter</translation>
     </message>
     <message>
         <source>Save as…</source>
@@ -4451,15 +4471,15 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema</translation>
     </message>
     <message>
         <source>Theme Author Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Information om temats skapare</translation>
     </message>
     <message>
         <source>Theme Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Temabeskrivning</translation>
     </message>
     <message>
         <source>Example GIF query packets have jumbo window sizes</source>
@@ -4472,27 +4492,27 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>System</source>
-        <translation type="unfinished">System</translation>
+        <translation>System</translation>
     </message>
     <message>
         <source>Light</source>
-        <translation type="unfinished">Ljust</translation>
+        <translation>Ljust</translation>
     </message>
     <message>
         <source>Dark</source>
-        <translation type="unfinished">Mörkt</translation>
+        <translation>Mörkt</translation>
     </message>
     <message>
         <source>Appearance mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>Utseendeläge:</translation>
     </message>
     <message>
         <source>Theme:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema:</translation>
     </message>
     <message>
         <source>Theme by %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema av %1</translation>
     </message>
     <message>
         <source>Font</source>
@@ -4640,27 +4660,27 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Add annotation…</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till anteckning…</translation>
     </message>
     <message>
         <source>Edit annotation…</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigera anteckning…</translation>
     </message>
     <message>
         <source>Remove annotation</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort anteckning</translation>
     </message>
     <message>
         <source>Start byte for offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Startbyte för förskjutning</translation>
     </message>
     <message>
         <source>End byte for offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Slutbyte för förskjutning</translation>
     </message>
     <message>
         <source>Clear offset markers</source>
-        <translation type="unfinished"></translation>
+        <translation>Rensa förskjutningsmarkörer</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
@@ -4827,7 +4847,40 @@ Relative to reference: n/a (outside reference range)</source>
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Värdefulla och fantastiska kortkommandon som sparar tid&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Zooma in&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Zooma ut&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;Zooma in X-axeln&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;Zooma ut X-axeln&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Zooma in Y-axeln&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Zooma ut Y-axeln&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Återställ grafen till ursprungsläget&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Flytta höger 10 pixlar&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Flytta vänster 10 pixlar&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Flytta upp 10 pixlar&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Flytta ned 10 pixlar&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Flytta höger 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Flytta vänster 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Flytta upp 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Flytta ned 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Alt+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Flytta höger 100 pixlar&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Alt+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Flytta vänster 100 pixlar&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Alt+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Flytta upp 100 pixlar&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Alt+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Flytta ned 100 pixlar&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Gå till paketet under markören&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Växla musdragning/zoom&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Växla tidsursprung för fångst/session&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;Växla hårkors&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Reset Graph</source>
@@ -4928,35 +4981,35 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Move Up 100 Pixels</source>
-        <translation type="unfinished">Flytta upp 100 bildpunkter</translation>
+        <translation>Flytta upp 100 pixlar</translation>
     </message>
     <message>
         <source>Alt+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Upp</translation>
     </message>
     <message>
         <source>Move Left 100 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Flytta vänster 100 pixlar</translation>
     </message>
     <message>
         <source>Alt+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Vänster</translation>
     </message>
     <message>
         <source>Move Right 100 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Flytta höger 100 pixlar</translation>
     </message>
     <message>
         <source>Alt+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Höger</translation>
     </message>
     <message>
         <source>Move Down 100 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Flytta ned 100 pixlar</translation>
     </message>
     <message>
         <source>Alt+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Ned</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
@@ -5180,7 +5233,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>%1 I/O Graphs: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 I/O-diagram: %2</translation>
     </message>
     <message>
         <source>Filtered packets</source>
@@ -5903,93 +5956,93 @@ Relative to reference: n/a (outside reference range)</source>
     <name>ImsiListDialog</name>
     <message>
         <source>IMSI List</source>
-        <translation type="unfinished"></translation>
+        <translation>IMSI-lista</translation>
     </message>
     <message>
         <source>&lt;small&gt;Select one or more IMSIs to view flow sequence or prepare a display filter.&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;Välj en eller flera IMSI:er för att visa flödessekvens eller förbereda ett visningsfilter.&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Only show IMSIs matching the current display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa bara IMSI:er som matchar det aktuella visningsfiltret</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished">Begränsa till visningsfilter</translation>
+        <translation>Begränsa till visningsfilter</translation>
     </message>
     <message>
         <source>IMSI</source>
-        <translation type="unfinished"></translation>
+        <translation>IMSI</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished">Paket</translation>
+        <translation>Paket</translation>
     </message>
     <message>
         <source>First Frame</source>
-        <translation type="unfinished">Första ram</translation>
+        <translation>Första ram</translation>
     </message>
     <message>
         <source>Last Frame</source>
-        <translation type="unfinished">Sista ram</translation>
+        <translation>Sista ram</translation>
     </message>
     <message>
         <source>Protocols</source>
-        <translation type="unfinished">Protokoll</translation>
+        <translation>Protokoll</translation>
     </message>
     <message>
         <source>Prepare Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Förbered filter</translation>
     </message>
     <message>
         <source>Prepare a display filter matching selected IMSIs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Förbered ett visningsfilter som matchar valda IMSI:er.</translation>
     </message>
     <message>
         <source>&lt;small&gt;%1 IMSIs found. Double-click to filter.&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;%1 IMSI:er hittades. Dubbelklicka för att filtrera.&lt;/small&gt;</translation>
     </message>
 </context>
 <context>
     <name>InPacketFindBar</name>
     <message>
         <source>String</source>
-        <translation type="unfinished">Sträng</translation>
+        <translation>Sträng</translation>
     </message>
     <message>
         <source>Regular Expression</source>
-        <translation type="unfinished">Reguljärt uttryck</translation>
+        <translation>Reguljärt uttryck</translation>
     </message>
     <message>
         <source>Case sensitive</source>
-        <translation type="unfinished">Skiftlägeskänsligt</translation>
+        <translation>Skiftlägeskänslig</translation>
     </message>
     <message>
         <source>Find</source>
-        <translation type="unfinished">Sök</translation>
+        <translation>Sök</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Avbryt</translation>
+        <translation>Avbryt</translation>
     </message>
     <message>
         <source>invalid pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>ogiltigt mönster</translation>
     </message>
     <message>
         <source>no matches</source>
-        <translation type="unfinished"></translation>
+        <translation>inga träffar</translation>
     </message>
     <message>
         <source>%1 of %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 av %2</translation>
     </message>
 </context>
 <context>
     <name>InfoBannerWidget</name>
     <message>
         <source>Tips and announcements</source>
-        <translation type="unfinished"></translation>
+        <translation>Tips och meddelanden</translation>
     </message>
     <message>
         <source>%1: %2 (%3 of %4)</source>
@@ -6048,11 +6101,11 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Tunnel Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Tunnelgränssnitt</translation>
     </message>
     <message>
         <source>Loopback Devices</source>
-        <translation type="unfinished"></translation>
+        <translation>Loopback-enheter</translation>
     </message>
     <message>
         <source>Remote interfaces</source>
@@ -6104,11 +6157,11 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Okänd</translation>
+        <translation>Okänd</translation>
     </message>
     <message>
         <source>Hide all &apos;%1&apos; interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Dölj alla gränssnitt av typen ”%1”</translation>
     </message>
 </context>
 <context>
@@ -6122,15 +6175,15 @@ Relative to reference: n/a (outside reference range)</source>
     <name>InterfaceStatsWorker</name>
     <message>
         <source>The interface statistics stream stopped unexpectedly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Strömmen med gränssnittsstatistik stoppades oväntat.</translation>
     </message>
     <message>
         <source>Unable to start the interface statistics stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Det gick inte att starta strömmen med gränssnittsstatistik.</translation>
     </message>
     <message>
         <source>This build has no packet capture support.</source>
-        <translation type="unfinished"></translation>
+        <translation>Den här versionen saknar stöd för paketfångst.</translation>
     </message>
 </context>
 <context>
@@ -7178,7 +7231,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Packet list multi-color display mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>Flerfärgsläge för paketlistan:</translation>
     </message>
     <message>
         <source>Off</source>
@@ -7186,15 +7239,15 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Scrollbar only</source>
-        <translation type="unfinished"></translation>
+        <translation>Endast rullningslist</translation>
     </message>
     <message>
         <source>Equal stripes</source>
-        <translation type="unfinished"></translation>
+        <translation>Jämna ränder</translation>
     </message>
     <message>
         <source>Shift right</source>
-        <translation type="unfinished"></translation>
+        <translation>Förskjut åt höger</translation>
     </message>
     <message>
         <source>75%</source>
@@ -7218,7 +7271,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Separator style:</source>
-        <translation type="unfinished"></translation>
+        <translation>Avgränsarstil:</translation>
     </message>
     <message>
         <source>Vertical</source>
@@ -7230,26 +7283,26 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Bubble</source>
-        <translation type="unfinished"></translation>
+        <translation>Bubbla</translation>
     </message>
     <message>
         <source>Display multiple colors in packet details</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa flera färger i paketdetaljer</translation>
     </message>
 </context>
 <context>
     <name>LearnCardWidget</name>
     <message>
         <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h2&gt;Lär dig&lt;/h2&gt;</translation>
     </message>
     <message>
         <source>Learn</source>
-        <translation type="unfinished"></translation>
+        <translation>Lär dig</translation>
     </message>
     <message>
         <source>Opens the Wireshark documentation website</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppnar Wiresharks dokumentationswebbplats</translation>
     </message>
 </context>
 <context>
@@ -7717,27 +7770,28 @@ Relative to reference: n/a (outside reference range)</source>
     <name>LuaDebuggerCodeTabsController</name>
     <message numerus="yes">
         <source>There are unsaved changes in %Ln open file(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Det finns osparade ändringar i %Ln öppen fil.</numerusform>
+            <numerusform>Det finns osparade ändringar i %Ln öppna filer.</numerusform>
         </translation>
     </message>
     <message>
         <source>Save Lua Script</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara Lua-skript</translation>
     </message>
     <message>
         <source>Could not write to %1:
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Det gick inte att skriva till %1:
+%2</translation>
     </message>
     <message>
         <source>Lua Debugger</source>
-        <translation type="unfinished">Lua-felsökare</translation>
+        <translation>Lua-felsökare</translation>
     </message>
     <message>
         <source>Save changes to %1 before closing?</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara ändringar i %1 före stängning?</translation>
     </message>
 </context>
 <context>
@@ -7747,79 +7801,83 @@ Relative to reference: n/a (outside reference range)</source>
 Drag existing breakpoint: move to nearest free visible line
 Shift+click: on an empty line, add a disabled breakpoint;
 on an existing breakpoint, toggle its active state</source>
-        <translation type="unfinished"></translation>
+        <translation>Klicka: lägg till eller ta bort brytpunkt
+Dra befintlig brytpunkt: flytta till närmaste lediga synliga rad
+Skift+klicka: lägg till en inaktiverad brytpunkt på en tom rad;
+växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
 </context>
 <context>
     <name>LuaDebuggerDialog</name>
     <message>
         <source>Open Lua Script</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppna Lua-skript</translation>
     </message>
     <message>
         <source>Save (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara (%1)</translation>
     </message>
     <message>
         <source>Continue execution (F5)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fortsätt körningen (F5)</translation>
     </message>
     <message>
         <source>Step over (F10)</source>
-        <translation type="unfinished"></translation>
+        <translation>Stega över (F10)</translation>
     </message>
     <message>
         <source>Step into (F11)</source>
-        <translation type="unfinished"></translation>
+        <translation>Stega in i (F11)</translation>
     </message>
     <message>
         <source>Step out (Shift+F11)</source>
-        <translation type="unfinished"></translation>
+        <translation>Stega ut ur (Skift+F11)</translation>
     </message>
     <message>
         <source>Run to line (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kör till rad (%1)</translation>
     </message>
     <message>
         <source>Reload Lua Plugins (Ctrl+Shift+L)</source>
-        <translation type="unfinished"></translation>
+        <translation>Läs in Lua-insticksprogram igen (Ctrl+Skift+L)</translation>
     </message>
     <message>
         <source>Find in script (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sök i skript (%1)</translation>
     </message>
     <message>
         <source>Go to line (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gå till rad (%1)</translation>
     </message>
     <message>
         <source>Location</source>
-        <translation type="unfinished">Plats</translation>
+        <translation>Plats</translation>
     </message>
     <message>
         <source>Variables</source>
-        <translation type="unfinished"></translation>
+        <translation>Variabler</translation>
     </message>
     <message>
         <source>From: Locals</source>
-        <translation type="unfinished"></translation>
+        <translation>Från: lokala variabler</translation>
     </message>
     <message>
         <source>From: Upvalues</source>
-        <translation type="unfinished"></translation>
+        <translation>Från: upvalues</translation>
     </message>
     <message>
         <source>From: Globals</source>
-        <translation type="unfinished"></translation>
+        <translation>Från: globala variabler</translation>
     </message>
     <message>
         <source>
 … (truncated)</source>
-        <translation type="unfinished"></translation>
+        <translation>
+… (avkortat)</translation>
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Locals&lt;/b&gt;&lt;br/&gt;Parameters and local variables for the selected stack frame.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Upvalues&lt;/b&gt;&lt;br/&gt;Outer variables that this function actually uses from surrounding code. Anything the function does not reference does not appear here.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Globals&lt;/b&gt;&lt;br/&gt;Names from the global environment table.&lt;/p&gt;&lt;p&gt;Values that differ from the previous pause are drawn in a &lt;b&gt;bold accent color&lt;/b&gt;, and briefly flash on the pause that introduced the change.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;&lt;b&gt;Lokala variabler&lt;/b&gt;&lt;br/&gt;Parametrar och lokala variabler för den valda stackramen.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Upvalues&lt;/b&gt;&lt;br/&gt;Yttre variabler som funktionen faktiskt använder från omgivande kod. Allt som funktionen inte refererar till visas inte här.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Globala variabler&lt;/b&gt;&lt;br/&gt;Namn från tabellen för den globala miljön.&lt;/p&gt;&lt;p&gt;Värden som skiljer sig från föregående paus ritas i en &lt;b&gt;fet accentfärg&lt;/b&gt; och blinkar kort vid den paus som introducerade ändringen.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Name</source>
@@ -7835,19 +7893,19 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Watch</source>
-        <translation type="unfinished"></translation>
+        <translation>Bevakning</translation>
     </message>
     <message>
         <source>Stack Trace</source>
-        <translation type="unfinished"></translation>
+        <translation>Stackspårning</translation>
     </message>
     <message>
         <source>Function</source>
-        <translation type="unfinished"></translation>
+        <translation>Funktion</translation>
     </message>
     <message>
         <source>Select a row to inspect locals and upvalues for that frame. Double-click a Lua frame to open its source location.</source>
-        <translation type="unfinished"></translation>
+        <translation>Välj en rad för att granska lokala variabler och upvalues för den ramen. Dubbelklicka på en Lua-ram för att öppna dess källplats.</translation>
     </message>
     <message>
         <source>Breakpoints</source>
@@ -7855,7 +7913,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Expression&lt;/b&gt;&lt;br/&gt;Pause only when this Lua expression is truthy in the current frame. Runtime errors count as false and surface a warning icon on the row.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hit Count&lt;/b&gt;&lt;br/&gt;Gate the pause on a hit counter. The dropdown next to &lt;i&gt;N&lt;/i&gt; picks the comparison mode: &lt;code&gt;from&lt;/code&gt; pauses on every hit from &lt;i&gt;N&lt;/i&gt; onwards (default); &lt;code&gt;every&lt;/code&gt; pauses on hits &lt;i&gt;N&lt;/i&gt;, 2&amp;times;&lt;i&gt;N&lt;/i&gt;, 3&amp;times;&lt;i&gt;N&lt;/i&gt;, &amp;hellip;; &lt;code&gt;once&lt;/code&gt; pauses on the &lt;i&gt;N&lt;/i&gt;-th hit and deactivates the breakpoint. The counter is preserved across edits; right-click the row to reset it.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Log Message&lt;/b&gt;&lt;br/&gt;Write a line to the &lt;i&gt;Evaluate&lt;/i&gt; output (and Wireshark&apos;s debug log) each time the breakpoint fires &amp;mdash; after the &lt;i&gt;Hit Count&lt;/i&gt; gate and any &lt;i&gt;Expression&lt;/i&gt; allow it. By default execution continues; click the pause toggle on the editor row to also pause after emitting. Tags: &lt;code&gt;{expr}&lt;/code&gt; (any Lua value); &lt;code&gt;{filename}&lt;/code&gt;, &lt;code&gt;{basename}&lt;/code&gt;, &lt;code&gt;{line}&lt;/code&gt;, &lt;code&gt;{function}&lt;/code&gt;, &lt;code&gt;{what}&lt;/code&gt;; &lt;code&gt;{hits}&lt;/code&gt;, &lt;code&gt;{depth}&lt;/code&gt;, &lt;code&gt;{thread}&lt;/code&gt;; &lt;code&gt;{timestamp}&lt;/code&gt;, &lt;code&gt;{datetime}&lt;/code&gt;, &lt;code&gt;{epoch}&lt;/code&gt;, &lt;code&gt;{epoch_ms}&lt;/code&gt;, &lt;code&gt;{elapsed}&lt;/code&gt;, &lt;code&gt;{delta}&lt;/code&gt;; &lt;code&gt;{{&lt;/code&gt; / &lt;code&gt;}}&lt;/code&gt; for literal braces.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell (double-click, F2, or right-click &amp;rarr; Edit) to attach one of these. A white core inside the breakpoint dot &amp;mdash; in this list and in the gutter &amp;mdash; marks rows that carry extras.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;&lt;b&gt;Uttryck&lt;/b&gt;&lt;br/&gt;Pausa endast när detta Lua-uttryck är sant i den aktuella ramen. Körningsfel räknas som falska och visas som en varningsikon på raden.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Träffantal&lt;/b&gt;&lt;br/&gt;Styr pausen med en träffräknare. Listan bredvid &lt;i&gt;N&lt;/i&gt; väljer jämförelseläge: &lt;code&gt;from&lt;/code&gt; pausar vid varje träff från &lt;i&gt;N&lt;/i&gt; och framåt (standard); &lt;code&gt;every&lt;/code&gt; pausar vid träffarna &lt;i&gt;N&lt;/i&gt;, 2&amp;times;&lt;i&gt;N&lt;/i&gt;, 3&amp;times;&lt;i&gt;N&lt;/i&gt;, &amp;hellip;; &lt;code&gt;once&lt;/code&gt; pausar vid den &lt;i&gt;N&lt;/i&gt;:e träffen och inaktiverar brytpunkten. Räknaren bevaras vid redigering; högerklicka på raden för att återställa den.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Loggmeddelande&lt;/b&gt;&lt;br/&gt;Skriv en rad till utdata för &lt;i&gt;Evaluate&lt;/i&gt; (och Wiresharks felsökningslogg) varje gång brytpunkten träffas &amp;mdash; efter att spärren &lt;i&gt;Hit Count&lt;/i&gt; och eventuella &lt;i&gt;Expression&lt;/i&gt; har tillåtit det. Som standard fortsätter körningen; klicka på pausväxlingen på redigerarraden för att också pausa efter utskrift. Taggar: &lt;code&gt;{expr}&lt;/code&gt; (valfritt Lua-värde); &lt;code&gt;{filename}&lt;/code&gt;, &lt;code&gt;{basename}&lt;/code&gt;, &lt;code&gt;{line}&lt;/code&gt;, &lt;code&gt;{function}&lt;/code&gt;, &lt;code&gt;{what}&lt;/code&gt;; &lt;code&gt;{hits}&lt;/code&gt;, &lt;code&gt;{depth}&lt;/code&gt;, &lt;code&gt;{thread}&lt;/code&gt;; &lt;code&gt;{timestamp}&lt;/code&gt;, &lt;code&gt;{datetime}&lt;/code&gt;, &lt;code&gt;{epoch}&lt;/code&gt;, &lt;code&gt;{epoch_ms}&lt;/code&gt;, &lt;code&gt;{elapsed}&lt;/code&gt;, &lt;code&gt;{delta}&lt;/code&gt;; &lt;code&gt;{{&lt;/code&gt; / &lt;code&gt;}}&lt;/code&gt; för bokstavliga klammerparenteser.&lt;/p&gt;&lt;p&gt;Redigera cellen &lt;i&gt;Location&lt;/i&gt; (dubbelklicka, F2 eller högerklicka &amp;rarr; Edit) för att lägga till en av dessa. En vit kärna inuti brytpunktspricken &amp;mdash; i listan och i marginalen &amp;mdash; markerar rader som har tillägg.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Active</source>
@@ -7867,15 +7925,15 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Hits</source>
-        <translation type="unfinished"></translation>
+        <translation>Träffar</translation>
     </message>
     <message>
         <source>ON — Break on Lua errors</source>
-        <translation type="unfinished"></translation>
+        <translation>PÅ — bryt vid Lua-fel</translation>
     </message>
     <message>
         <source>OFF — Break on Lua errors</source>
-        <translation type="unfinished"></translation>
+        <translation>AV — bryt vid Lua-fel</translation>
     </message>
     <message>
         <source>Files</source>
@@ -7887,19 +7945,19 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>&lt;b&gt;Lua Expression Evaluation&lt;/b&gt;&lt;br&gt;&lt;br&gt;Code runs in a protected environment: runtime errors are caught and shown in the output instead of propagating.&lt;br&gt;&lt;br&gt;&lt;b&gt;What works:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Read/modify global variables (&lt;code&gt;_G.x = 42&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Modify table contents (&lt;code&gt;my_table.field = 99&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Call functions and inspect return values&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Limitations:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Local variables cannot be modified directly (use &lt;code&gt;debug.setlocal()&lt;/code&gt;) unless there is an associated &lt;i&gt;assign&lt;/i&gt; method (&lt;code&gt;pinfo.src_port&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Long-running expressions are automatically aborted&lt;/li&gt;&lt;li&gt;&lt;b&gt;Warning:&lt;/b&gt; Changes to globals persist and can affect ongoing dissection&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Utvärdering av Lua-uttryck&lt;/b&gt;&lt;br&gt;&lt;br&gt;Koden körs i en skyddad miljö: körningsfel fångas upp och visas i utdata i stället för att spridas vidare.&lt;br&gt;&lt;br&gt;&lt;b&gt;Det som fungerar:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Läs/ändra globala variabler (&lt;code&gt;_G.x = 42&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Ändra tabellinnehåll (&lt;code&gt;my_table.field = 99&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Anropa funktioner och granska returvärden&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Begränsningar:&lt;/b&gt;&lt;ul&gt;&lt;li&gt;Lokala variabler kan inte ändras direkt (använd &lt;code&gt;debug.setlocal()&lt;/code&gt;) om det inte finns en associerad &lt;i&gt;assign&lt;/i&gt;-metod (&lt;code&gt;pinfo.src_port&lt;/code&gt;)&lt;/li&gt;&lt;li&gt;Långvariga uttryck avbryts automatiskt&lt;/li&gt;&lt;li&gt;&lt;b&gt;Varning:&lt;/b&gt; Ändringar av globala variabler bevaras och kan påverka pågående dissekering&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <source>Enter Lua expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Ange Lua-uttryck</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished">Utdata</translation>
+        <translation>Utdata</translation>
     </message>
     <message>
         <source>Execute the Lua code (Ctrl+Return)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kör Lua-koden (Ctrl+Retur)</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -7907,7 +7965,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Clear output</source>
-        <translation type="unfinished"></translation>
+        <translation>Rensa utdata</translation>
     </message>
     <message>
         <source>Settings</source>
@@ -7915,7 +7973,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Auto (follow color scheme)</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatiskt (följ färgschemat)</translation>
     </message>
     <message>
         <source>Dark</source>
@@ -7927,15 +7985,36 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Color theme for the code editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Färgtema för kodredigeraren</translation>
     </message>
     <message>
         <source>Code View Theme:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema för kodvy:</translation>
+    </message>
+    <message numerus="yes">
+        <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
+        <translation type="vanished">
+            <numerusform>Är du säker på att du vill ta bort %Ln brytpunkt?</numerusform>
+            <numerusform>Är du säker på att du vill ta bort %Ln brytpunkter?</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Are you sure you want to remove %Ln watch(es)?</source>
+        <translation type="vanished">
+            <numerusform>Är du säker på att du vill ta bort %Ln bevakning?</numerusform>
+            <numerusform>Är du säker på att du vill ta bort %Ln bevakningar?</numerusform>
+        </translation>
     </message>
     <message>
         <source>Type: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ: %1</translation>
+    </message>
+    <message numerus="yes">
+        <source>There are unsaved changes in %Ln open file(s).</source>
+        <translation type="vanished">
+            <numerusform>Det finns osparade ändringar i %Ln öppen fil.</numerusform>
+            <numerusform>Det finns osparade ändringar i %Ln öppna filer.</numerusform>
+        </translation>
     </message>
     <message>
         <source>Remove All Breakpoints</source>
@@ -7943,35 +8022,35 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Add Watch (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till bevakning (%1)</translation>
     </message>
     <message>
         <source>&lt;p&gt;Each row is either a &lt;b&gt;Variables-tree path&lt;/b&gt; or a &lt;b&gt;Lua expression&lt;/b&gt;; the panel auto-detects which based on the syntax you type.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Path watches&lt;/b&gt; &amp;mdash; resolved against the paused frame&apos;s locals, upvalues, and globals:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Section-qualified: &lt;code&gt;Locals.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;, &lt;code&gt;Upvalues.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;, &lt;code&gt;Globals.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;.&lt;/li&gt;&lt;li&gt;Section root alone: &lt;code&gt;Locals&lt;/code&gt;, &lt;code&gt;Upvalues&lt;/code&gt;, &lt;code&gt;Globals&lt;/code&gt; (&lt;code&gt;_G&lt;/code&gt; is an alias for &lt;code&gt;Globals&lt;/code&gt;).&lt;/li&gt;&lt;li&gt;Unqualified name: resolved in &lt;b&gt;Locals &amp;rarr; Upvalues &amp;rarr; Globals&lt;/b&gt; order; the row tooltip shows which section matched.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;After the first segment, chain &lt;code&gt;.field&lt;/code&gt; or bracket keys &amp;mdash; integer (&lt;code&gt;[1]&lt;/code&gt;, &lt;code&gt;[-1]&lt;/code&gt;, &lt;code&gt;[0x1F]&lt;/code&gt;), boolean (&lt;code&gt;[true]&lt;/code&gt;), or short-literal string (&lt;code&gt;[&quot;key&quot;]&lt;/code&gt;, &lt;code&gt;[&apos;k&apos;]&lt;/code&gt;). Depth is capped at 32 segments.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Expression watches&lt;/b&gt; &amp;mdash; anything that is not a plain path (operators, function/method calls, table constructors, length &lt;code&gt;#&lt;/code&gt;, comparisons, &amp;hellip;) is evaluated as Lua against the same locals/upvalues/globals. &lt;b&gt;You do not need a leading &lt;code&gt;=&lt;/code&gt; or &lt;code&gt;return&lt;/code&gt;&lt;/b&gt;; value-returning expressions auto-return their value. Examples: &lt;code&gt;#packets&lt;/code&gt;, &lt;code&gt;tbl[i + 1]&lt;/code&gt;, &lt;code&gt;obj:method()&lt;/code&gt;, &lt;code&gt;a == b&lt;/code&gt;, &lt;code&gt;{x, y}&lt;/code&gt;. Tables produced by an expression are expandable, and children re-resolve on every pause.&lt;/p&gt;&lt;p&gt;Values are only read while the debugger is &lt;b&gt;paused&lt;/b&gt;; otherwise the Value column shows a muted em dash. Values that differ from the previous pause are drawn in a &lt;b&gt;bold accent color&lt;/b&gt;, and briefly flash on the pause that introduced the change.&lt;/p&gt;&lt;p&gt;Double-click or press &lt;b&gt;F2&lt;/b&gt; to edit a row; &lt;b&gt;Delete&lt;/b&gt; removes it; drag rows to reorder. Use the &lt;b&gt;Evaluate&lt;/b&gt; panel below to run statements with side effects (assignments, blocks, loops).&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Varje rad är antingen en &lt;b&gt;sökväg i variabelträdet&lt;/b&gt; eller ett &lt;b&gt;Lua-uttryck&lt;/b&gt;; panelen identifierar automatiskt vilket utifrån syntaxen du skriver.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Sökvägsbevakningar&lt;/b&gt; &amp;mdash; löses mot den pausade ramens lokala variabler, upvalues och globala variabler:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Sektionskvalificerad: &lt;code&gt;Locals.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;, &lt;code&gt;Upvalues.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;, &lt;code&gt;Globals.&lt;i&gt;name&lt;/i&gt;&lt;/code&gt;.&lt;/li&gt;&lt;li&gt;Enbart sektionsrot: &lt;code&gt;Locals&lt;/code&gt;, &lt;code&gt;Upvalues&lt;/code&gt;, &lt;code&gt;Globals&lt;/code&gt; (&lt;code&gt;_G&lt;/code&gt; är ett alias för &lt;code&gt;Globals&lt;/code&gt;).&lt;/li&gt;&lt;li&gt;Okvalificerat namn: löses i ordningen &lt;b&gt;Locals &amp;rarr; Upvalues &amp;rarr; Globals&lt;/b&gt;; radens verktygstips visar vilken sektion som matchade.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Efter det första segmentet kan du kedja &lt;code&gt;.field&lt;/code&gt; eller haknycklar &amp;mdash; heltal (&lt;code&gt;[1]&lt;/code&gt;, &lt;code&gt;[-1]&lt;/code&gt;, &lt;code&gt;[0x1F]&lt;/code&gt;), booleska värden (&lt;code&gt;[true]&lt;/code&gt;) eller korta bokstavliga strängar (&lt;code&gt;[&quot;key&quot;]&lt;/code&gt;, &lt;code&gt;[&apos;k&apos;]&lt;/code&gt;). Djupet är begränsat till 32 segment.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Uttrycksbevakningar&lt;/b&gt; &amp;mdash; allt som inte är en vanlig sökväg (operatorer, funktions-/metodanrop, tabellkonstruktorer, längd &lt;code&gt;#&lt;/code&gt;, jämförelser, &amp;hellip;) utvärderas som Lua mot samma lokala/upvalues/globala variabler. &lt;b&gt;Du behöver inte inleda med &lt;code&gt;=&lt;/code&gt; eller &lt;code&gt;return&lt;/code&gt;&lt;/b&gt;; uttryck som ger ett värde returnerar automatiskt sitt värde. Exempel: &lt;code&gt;#packets&lt;/code&gt;, &lt;code&gt;tbl[i + 1]&lt;/code&gt;, &lt;code&gt;obj:method()&lt;/code&gt;, &lt;code&gt;a == b&lt;/code&gt;, &lt;code&gt;{x, y}&lt;/code&gt;. Tabeller som skapas av ett uttryck kan expanderas och underobjekt löses på nytt vid varje paus.&lt;/p&gt;&lt;p&gt;Värden läses endast medan felsökaren är &lt;b&gt;pausad&lt;/b&gt;; annars visar kolumnen Värde ett dämpat långt tankstreck. Värden som skiljer sig från föregående paus ritas i en &lt;b&gt;fet accentfärg&lt;/b&gt; och blinkar kort vid den paus som introducerade ändringen.&lt;/p&gt;&lt;p&gt;Dubbelklicka eller tryck på &lt;b&gt;F2&lt;/b&gt; för att redigera en rad; &lt;b&gt;Delete&lt;/b&gt; tar bort den; dra rader för att ändra ordning. Använd panelen &lt;b&gt;Evaluate&lt;/b&gt; nedan för att köra satser med sidoeffekter (tilldelningar, block, slingor).&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Remove Watch (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort bevakning (%1)</translation>
     </message>
     <message>
         <source>Remove All Watches (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort alla bevakningar (%1)</translation>
     </message>
     <message>
         <source>No breakpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga brytpunkter</translation>
     </message>
     <message>
         <source>Edit Breakpoint</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigera brytpunkt</translation>
     </message>
     <message>
         <source>Remove Breakpoint (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort brytpunkt (%1)</translation>
     </message>
     <message>
         <source>Remove All Breakpoints (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort alla brytpunkter (%1)</translation>
     </message>
     <message>
         <source>Undo</source>
@@ -8011,27 +8090,27 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Add Watch: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till bevakning: ”%1”</translation>
     </message>
     <message>
         <source>Debugger is paused. Uncheck to disable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Felsökaren är pausad. Avmarkera för att inaktivera.</translation>
     </message>
     <message>
         <source>Debugger is enabled. Uncheck to disable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Felsökaren är aktiverad. Avmarkera för att inaktivera.</translation>
     </message>
     <message>
         <source>Debugger is disabled while a live capture is running. Stop the capture to re-enable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Felsökaren är inaktiverad medan en fångst i realtid pågår. Stoppa fångsten för att åter aktivera den.</translation>
     </message>
     <message>
         <source>Debugger is disabled. Check to enable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Felsökaren är inaktiverad. Markera för att aktivera.</translation>
     </message>
     <message>
         <source>Disabled (live capture)</source>
-        <translation type="unfinished"></translation>
+        <translation>Inaktiverad (fångst i realtid)</translation>
     </message>
     <message>
         <source>Disabled</source>
@@ -8043,7 +8122,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>(runtime error)</source>
-        <translation type="unfinished"></translation>
+        <translation>(körningsfel)</translation>
     </message>
     <message>
         <source>Running</source>
@@ -8091,11 +8170,11 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Add Watch</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till bevakning</translation>
     </message>
     <message>
         <source>Ctrl+Shift+W</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Skift+W</translation>
     </message>
     <message>
         <source>Open File</source>
@@ -8127,26 +8206,26 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Reload Lua Plugins</source>
-        <translation type="unfinished">Läs om Lua-insticksmoduler</translation>
+        <translation>Läs in Lua-insticksprogram igen</translation>
     </message>
     <message>
         <source>Ctrl+Shift+L</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Skift+L</translation>
     </message>
 </context>
 <context>
     <name>LuaDebuggerFindFrame</name>
     <message>
         <source>Find:</source>
-        <translation type="unfinished">Sök:</translation>
+        <translation>Sök:</translation>
     </message>
     <message>
         <source>Find Next</source>
-        <translation type="unfinished"></translation>
+        <translation>Sök nästa</translation>
     </message>
     <message>
         <source>Find Previous</source>
-        <translation type="unfinished"></translation>
+        <translation>Sök föregående</translation>
     </message>
     <message>
         <source>Replace:</source>
@@ -8184,11 +8263,11 @@ on an existing breakpoint, toggle its active state</source>
     <name>LuaDebuggerPauseOverlay</name>
     <message>
         <source>Lua debugger paused</source>
-        <translation type="unfinished"></translation>
+        <translation>Lua-felsökaren är pausad</translation>
     </message>
     <message>
         <source>Use the Lua Debugger window to step, continue, or evaluate. The main window resumes when execution is released.</source>
-        <translation type="unfinished"></translation>
+        <translation>Använd fönstret Lua-felsökare för att stega, fortsätta eller utvärdera. Huvudfönstret fortsätter när körningen släpps.</translation>
     </message>
 </context>
 <context>
@@ -8202,13 +8281,13 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Lua Debugger</source>
-        <translation type="unfinished">Lua-felsökare</translation>
+        <translation>Lua-felsökare</translation>
     </message>
     <message numerus="yes">
         <source>Watch expression is too long (maximum %Ln characters).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Bevakningsuttrycket är för långt (högst %Ln tecken).</numerusform>
+            <numerusform>Bevakningsuttrycket är för långt (högst %Ln tecken).</numerusform>
         </translation>
     </message>
 </context>
@@ -8216,31 +8295,31 @@ on an existing breakpoint, toggle its active state</source>
     <name>LuaDebuggerWatchRowPresenter</name>
     <message>
         <source>Enter a variable path (e.g. Locals.x, Globals.t.k) or a Lua expression in the Watch column to see a value here.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ange en variabelsökväg (t.ex. Locals.x, Globals.t.k) eller ett Lua-uttryck i kolumnen Bevakning för att se ett värde här.</translation>
     </message>
     <message>
         <source>Value shown only while the debugger is paused.</source>
-        <translation type="unfinished"></translation>
+        <translation>Värdet visas bara medan felsökaren är pausad.</translation>
     </message>
     <message>
         <source>Value shown only while the debugger is paused. The debugger is currently disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Värdet visas bara medan felsökaren är pausad. Felsökaren är för närvarande inaktiverad.</translation>
     </message>
     <message>
         <source>Type: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ: %1</translation>
     </message>
     <message>
         <source>error</source>
-        <translation type="unfinished"></translation>
+        <translation>fel</translation>
     </message>
     <message>
         <source>Could not evaluate watch.</source>
-        <translation type="unfinished"></translation>
+        <translation>Det gick inte att utvärdera bevakningen.</translation>
     </message>
     <message>
         <source>Expression — re-evaluated on every pause.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uttryck — utvärderas på nytt vid varje paus.</translation>
     </message>
 </context>
 <context>
@@ -8304,15 +8383,15 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Opens the expert information dialog, showing errors, warnings, and other relevant information about the capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppnar dialogrutan expertinformation som visar fel, varningar och annan relevant information om fångsten.</translation>
     </message>
     <message>
         <source>Capture comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Fångstkommentar</translation>
     </message>
     <message>
         <source>Opens the Capture File Properties dialog to view or edit capture-level comments.</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppnar dialogrutan Egenskaper för fångstfil för att visa eller redigera kommentarer på fångstnivå.</translation>
     </message>
     <message>
         <source>Information</source>
@@ -8320,7 +8399,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Displays general information, status messages, and expert severity details.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visar allmän information, statusmeddelanden och detaljer om expertsvårighetsgrad.</translation>
     </message>
     <message>
         <source>Packet statistics</source>
@@ -8328,7 +8407,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Shows the number of captured, displayed, and selected packets.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visar antalet fångade, visade och markerade paket.</translation>
     </message>
     <message>
         <source>Configuration profile</source>
@@ -8336,7 +8415,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Displays the current configuration profile and allows switching between profiles.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visar den aktuella konfigurationsprofilen och låter dig växla mellan profiler.</translation>
     </message>
     <message>
         <source>ERROR</source>
@@ -8388,7 +8467,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source> %1 Aggregated: %2</source>
-        <translation type="unfinished"></translation>
+        <translation> %1 aggregerat: %2</translation>
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
@@ -8459,11 +8538,11 @@ on an existing breakpoint, toggle its active state</source>
     <name>MainWindow</name>
     <message>
         <source> before updating</source>
-        <translation type="unfinished"></translation>
+        <translation> före uppdateringen</translation>
     </message>
     <message>
         <source>Please close the current file before updating.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stäng den aktuella filen före uppdateringen.</translation>
     </message>
     <message>
         <source>Display filter as %1</source>
@@ -8976,7 +9055,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Displays a visual diagram of the selected packet&apos;s fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visar ett visuellt diagram över det valda paketets fält.</translation>
     </message>
     <message>
         <source>Show Field Values</source>
@@ -9027,7 +9106,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>&amp;Edit</source>
-        <translation type="unfinished">&amp;Redigera</translation>
+        <translation>&amp;Redigera</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</source>
@@ -9035,11 +9114,11 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Find in Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Sök i paket</translation>
     </message>
     <message>
         <source>Find in the packet details tree (Ctrl+Alt+F)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sök i trädet med paketdetaljer (Ctrl+Alt+F)</translation>
     </message>
     <message>
         <source>Show packet bytes</source>
@@ -9051,11 +9130,11 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Find in &amp;Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Sök i &amp;paket</translation>
     </message>
     <message>
         <source>Find in the packet details tree (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sök i trädet med paketdetaljer (%1)</translation>
     </message>
     <message>
         <source>Packet %1</source>
@@ -9099,70 +9178,78 @@ on an existing breakpoint, toggle its active state</source>
     <name>PacketFormatCArraysGroupBox</name>
     <message>
         <source>GroupBox</source>
-        <translation type="unfinished"></translation>
+        <translation>Gruppbox</translation>
     </message>
     <message>
         <source>Packet Format</source>
-        <translation type="unfinished">Paketformat</translation>
+        <translation>Paketformat</translation>
     </message>
     <message>
         <source>Include secondary data sources</source>
-        <translation type="unfinished">Inkludera sekundära datakällor</translation>
+        <translation>Inkludera sekundära datakällor</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate arrays for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Skapa arrayer för sekundära datakällor, till exempel återassemblerade eller dekrypterade buffertar, utöver ramen&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include an array to index into the list of frames&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inkludera en array för att indexera i listan över ramar&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Include index</source>
-        <translation type="unfinished"></translation>
+        <translation>Inkludera index</translation>
     </message>
 </context>
 <context>
     <name>PacketFormatCSVGroupBox</name>
     <message>
         <source>GroupBox</source>
-        <translation type="unfinished"></translation>
+        <translation>Gruppbox</translation>
     </message>
     <message>
         <source>Packet Format</source>
-        <translation type="unfinished">Paketformat</translation>
+        <translation>Paketformat</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Escape non-ASCII and whitespace characters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Escapa tecken som inte är ASCII och blankstegstecken&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>ASCII</source>
-        <translation type="unfinished">ASCII</translation>
+        <translation>ASCII</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export as a UTF-8 CSV&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Exportera som en CSV i UTF-8&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>UTF-8</source>
-        <translation type="unfinished">UTF-8</translation>
+        <translation>UTF-8</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include a Byte Order Mark at the beginning of the file, for Windows&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inkludera ett byteordningsmärke i början av filen, för Windows&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Include Byte Order Mark</source>
+        <translation>Inkludera byteordningsmärke</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Prefix values that a spreadsheet would evaluate as a formula (those starting with &quot;=&quot;, &quot;+&quot;, &quot;-&quot; or &quot;@&quot;) with an apostrophe, so that packet data cannot inject a formula into the exported file&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Escape spreadsheet formulas</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Replace whitespace characters (tabs, newlines, etc.) with C-style escapes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ersätt blankstegstecken (tabbar, nyrader osv.) med C-liknande escape-sekvenser&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Escape whitespace</source>
-        <translation type="unfinished"></translation>
+        <translation>Escapa blanksteg</translation>
     </message>
 </context>
 <context>
@@ -9185,11 +9272,11 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Output compact JSON without indentation (significantly faster and smaller)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Skapa kompakt JSON utan indrag (betydligt snabbare och mindre)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Compact (no indentation)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompakt (utan indrag)</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a name/value pair for each field with the field value&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -9366,7 +9453,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Display as Packet Details</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa som paketdetaljer</translation>
     </message>
     <message>
         <source>Remove this Column</source>
@@ -9401,15 +9488,15 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Marked</source>
-        <translation type="unfinished">Markerat</translation>
+        <translation>Markerad</translation>
     </message>
     <message>
         <source>Ignored</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignorerad</translation>
     </message>
     <message>
         <source>Reference Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Referenstid</translation>
     </message>
     <message>
         <source>Modified</source>
@@ -9493,8 +9580,7 @@ on an existing breakpoint, toggle its active state</source>
     <name>Plot</name>
     <message>
         <source>Field cannot be empty.</source>
-        <oldsource>Field cannot be empty!</oldsource>
-        <translation type="unfinished">Fältet får inte vara tomt!</translation>
+        <translation>Fältet får inte vara tomt.</translation>
     </message>
 </context>
 <context>
@@ -9549,7 +9635,40 @@ on an existing breakpoint, toggle its active state</source>
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Värdefulla och fantastiska kortkommandon som sparar tid&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Zooma in&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Zooma ut&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;Zooma in X-axeln&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;Zooma ut X-axeln&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Zooma in Y-axeln&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Zooma ut Y-axeln&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Återställ diagrammet till ursprungsläget&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Flytta höger 10 pixlar&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Flytta vänster 10 pixlar&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Flytta upp 10 pixlar&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Flytta ned 10 pixlar&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Flytta höger 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Flytta vänster 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Flytta upp 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Flytta ned 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Alt+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Flytta höger 100 pixlar&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Alt+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Flytta vänster 100 pixlar&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Alt+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Flytta upp 100 pixlar&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Alt+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Flytta ned 100 pixlar&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Gå till paketet under markören&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Växla tidsursprung&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;Växla hårkors&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;a&lt;/th&gt;&lt;td&gt;Växla övre axel&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Add a new plot.</source>
@@ -9677,35 +9796,35 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Move Up 100 Pixels</source>
-        <translation type="unfinished">Flytta upp 100 bildpunkter</translation>
+        <translation>Flytta upp 100 pixlar</translation>
     </message>
     <message>
         <source>Alt+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Upp</translation>
     </message>
     <message>
         <source>Move Left 100 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Flytta vänster 100 pixlar</translation>
     </message>
     <message>
         <source>Alt+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Vänster</translation>
     </message>
     <message>
         <source>Move Right 100 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Flytta höger 100 pixlar</translation>
     </message>
     <message>
         <source>Alt+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Höger</translation>
     </message>
     <message>
         <source>Move Down 100 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Flytta ned 100 pixlar</translation>
     </message>
     <message>
         <source>Alt+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Ned</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
@@ -9893,7 +10012,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>%1 Plots: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 diagram: %2</translation>
     </message>
     <message>
         <source>Packet</source>
@@ -10091,7 +10210,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Theme and Font</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema och teckensnitt</translation>
     </message>
     <message>
         <source>Welcome Page</source>
@@ -10115,7 +10234,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Aggregation</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggregering</translation>
     </message>
 </context>
 <context>
@@ -10343,19 +10462,19 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Duplicate profile name (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Dubblett av profilnamn (%1)</translation>
     </message>
     <message>
         <source>A profile change for this name is pending (See: %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>En profiländring för detta namn väntar (se: %1)</translation>
     </message>
     <message>
         <source>%1 (originally %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (ursprungligen %2)</translation>
     </message>
     <message>
         <source>The %1 profile is being deleted</source>
-        <translation type="unfinished"></translation>
+        <translation>Profilen %1 håller på att tas bort</translation>
     </message>
     <message>
         <source>Created from default settings</source>
@@ -10442,11 +10561,11 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Task progress</source>
-        <translation type="unfinished"></translation>
+        <translation>Åtgärdsförlopp</translation>
     </message>
     <message>
         <source>Shows the progress of the current background task.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visar förloppet för den aktuella bakgrundsåtgärden.</translation>
     </message>
     <message>
         <source>Progress bar</source>
@@ -10454,7 +10573,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Shows the percentage of the task that has been completed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visar hur stor procentandel av åtgärden som har slutförts.</translation>
     </message>
     <message>
         <source>Stop</source>
@@ -10462,7 +10581,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Stops the current background task.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stoppar den aktuella bakgrundsåtgärden.</translation>
     </message>
 </context>
 <context>
@@ -10493,7 +10612,7 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Distribution</source>
-        <translation type="unfinished"></translation>
+        <translation>Fördelning</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -10533,23 +10652,23 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Coloring Rule Preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>Inställningar för färgregler…</translation>
     </message>
     <message>
         <source>Coloring Rules...</source>
-        <translation type="unfinished"></translation>
+        <translation>Färgregler…</translation>
     </message>
     <message>
         <source>Resume Coloring Rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Återuppta färgregel</translation>
     </message>
     <message>
         <source>Pause Coloring Rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Pausa färgregel</translation>
     </message>
     <message>
         <source>Resume All Coloring Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Återuppta alla färgregler</translation>
     </message>
     <message>
         <source>Copied %1</source>
@@ -10572,15 +10691,15 @@ on an existing breakpoint, toggle its active state</source>
     <name>ProtoTreeModel</name>
     <message>
         <source>Comment</source>
-        <translation type="unfinished">Kommentar</translation>
+        <translation>Kommentar</translation>
     </message>
     <message>
         <source>Chat</source>
-        <translation type="unfinished">Tjatt</translation>
+        <translation>Chatt</translation>
     </message>
     <message>
         <source>Note</source>
-        <translation type="unfinished">Notering</translation>
+        <translation>Anteckning</translation>
     </message>
     <message>
         <source>Warning</source>
@@ -11311,245 +11430,250 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Global</source>
-        <translation type="unfinished"></translation>
+        <translation>Global</translation>
     </message>
     <message>
         <source>Personal</source>
-        <translation type="unfinished"></translation>
+        <translation>Personlig</translation>
     </message>
     <message>
         <source>Type: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ: %1</translation>
     </message>
     <message>
         <source>%1 = %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 = %2</translation>
     </message>
     <message>
         <source>Copy Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera namn</translation>
     </message>
     <message>
         <source>Copy Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera värde</translation>
     </message>
     <message>
         <source>Copy Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera sökväg</translation>
     </message>
     <message>
         <source>Copy Name &amp;&amp; Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera namn &amp;&amp; värde</translation>
     </message>
     <message>
         <source>Add Watch: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till bevakning: ”%1”</translation>
     </message>
     <message>
         <source>Reload Lua Plugins</source>
-        <translation type="unfinished">Läs om Lua-insticksmoduler</translation>
+        <translation>Läs in Lua-insticksprogram igen</translation>
     </message>
     <message>
         <source>Are you sure you want to reload all Lua plugins?
 
 This will restart all Lua scripts and may affect capture analysis.</source>
-        <translation type="unfinished"></translation>
+        <translation>Är du säker på att du vill läsa in alla Lua-insticksprogram igen?
+
+Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source>Evaluation available when debugger is paused</source>
-        <translation type="unfinished"></translation>
+        <translation>Utvärdering är tillgänglig när felsökaren är pausad</translation>
     </message>
     <message>
         <source>Enter Lua expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Ange Lua-uttryck</translation>
     </message>
     <message>
         <source>Error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fel: %1</translation>
     </message>
     <message>
         <source>Error: Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Fel: okänt fel</translation>
     </message>
     <message>
         <source>Open Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppna källkod</translation>
     </message>
     <message>
         <source>Copy Location</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera plats</translation>
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished">Visa i sökaren</translation>
+        <translation>Visa i Finder</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished">Visa i mappen</translation>
+        <translation>Visa i mapp</translation>
     </message>
     <message>
         <source>Add Watch</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till bevakning</translation>
     </message>
     <message>
         <source>Remove All Watches</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort alla bevakningar</translation>
     </message>
     <message>
         <source>Duplicate Watch</source>
-        <translation type="unfinished"></translation>
+        <translation>Duplicera bevakning</translation>
     </message>
     <message>
         <source>Edit Watch</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigera bevakning</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished">Ta bort</translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
         <source>Clear All Watches</source>
-        <translation type="unfinished"></translation>
+        <translation>Rensa alla bevakningar</translation>
     </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln watch(es)?</source>
-        <translation type="unfinished">
-            <numerusform>Are you sure you want to remove %Ln watch?</numerusform>
-            <numerusform>Are you sure you want to remove %Ln watches?</numerusform>
+        <translation>
+            <numerusform>Är du säker på att du vill ta bort %Ln bevakning?</numerusform>
+            <numerusform>Är du säker på att du vill ta bort %Ln bevakningar?</numerusform>
         </translation>
     </message>
     <message>
         <source>Maximum watch depth reached</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximalt bevakningsdjup har nåtts</translation>
     </message>
     <message>
         <source>Maximum watch depth reached.</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximalt bevakningsdjup har nåtts.</translation>
     </message>
     <message>
         <source>Location</source>
-        <translation type="unfinished">Plats</translation>
+        <translation>Plats</translation>
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Hit-count summary&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;code&gt;≥N&lt;/code&gt; &amp;mdash; &lt;i&gt;from&lt;/i&gt; mode: pause from hit &lt;i&gt;N&lt;/i&gt; onwards.&lt;br/&gt;&lt;code&gt;×N&lt;/code&gt; &amp;mdash; &lt;i&gt;every&lt;/i&gt; mode: pause on hits &lt;i&gt;N&lt;/i&gt;, &lt;i&gt;2N&lt;/i&gt;, &lt;i&gt;3N&lt;/i&gt;, &amp;hellip;&lt;br/&gt;&lt;code&gt;@N&lt;/code&gt; &amp;mdash; &lt;i&gt;once&lt;/i&gt; mode: pause once on the &lt;i&gt;N&lt;/i&gt;th hit, then deactivate.&lt;/p&gt;&lt;p&gt;The cell starts with the running hit counter; if a gate is set it follows in parentheses, e.g. &lt;code&gt;3 (≥10)&lt;/code&gt;. With no hit gate the cell is just the counter.&lt;/p&gt;&lt;p&gt;Edit the &lt;i&gt;Location&lt;/i&gt; cell to set or change the gate (see the breakpoint-extras section).&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;&lt;b&gt;Sammanfattning av träffantal&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;code&gt;≥N&lt;/code&gt; &amp;mdash; läget &lt;i&gt;från&lt;/i&gt;: pausa från träff &lt;i&gt;N&lt;/i&gt; och framåt.&lt;br/&gt;&lt;code&gt;×N&lt;/code&gt; &amp;mdash; läget &lt;i&gt;varje&lt;/i&gt;: pausa vid träffarna &lt;i&gt;N&lt;/i&gt;, &lt;i&gt;2N&lt;/i&gt;, &lt;i&gt;3N&lt;/i&gt;, &amp;hellip;&lt;br/&gt;&lt;code&gt;@N&lt;/code&gt; &amp;mdash; läget &lt;i&gt;en gång&lt;/i&gt;: pausa en gång vid den &lt;i&gt;N&lt;/i&gt;:e träffen och inaktivera sedan.&lt;/p&gt;&lt;p&gt;Cellen börjar med den löpande träffräknaren; om en spärr är inställd följer den inom parentes, t.ex. &lt;code&gt;3 (≥10)&lt;/code&gt;. Utan träffspärr innehåller cellen bara räknaren.&lt;/p&gt;&lt;p&gt;Redigera cellen &lt;i&gt;Plats&lt;/i&gt; för att ange eller ändra spärren (se avsnittet om brytpunktstillägg).&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Edit...</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigera…</translation>
     </message>
     <message>
         <source>Reset Hit Count</source>
-        <translation type="unfinished"></translation>
+        <translation>Återställ träffantal</translation>
     </message>
     <message>
         <source>Reset All Hit Counts</source>
-        <translation type="unfinished"></translation>
+        <translation>Återställ alla träffantal</translation>
     </message>
     <message>
         <source>Remove All Breakpoints</source>
-        <translation type="unfinished">Ta bort alla brytpunkter</translation>
+        <translation>Ta bort alla brytpunkter</translation>
     </message>
     <message>
         <source>Clear All Breakpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>Rensa alla brytpunkter</translation>
     </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
-        <translation type="unfinished">
-            <numerusform>Are you sure you want to remove %Ln breakpoint?</numerusform>
-            <numerusform>Are you sure you want to remove %Ln breakpoints?</numerusform>
+        <translation>
+            <numerusform>Är du säker på att du vill ta bort %Ln brytpunkt?</numerusform>
+            <numerusform>Är du säker på att du vill ta bort %Ln brytpunkter?</numerusform>
         </translation>
     </message>
     <message>
         <source>Location: %1:%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Plats: %1:%2</translation>
     </message>
     <message>
         <source>Condition: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Villkor: %1</translation>
     </message>
     <message>
         <source>pauses on hits %1, 2×%1, 3×%1, …</source>
-        <translation type="unfinished"></translation>
+        <translation>pausar vid träffarna %1, 2×%1, 3×%1, …</translation>
     </message>
     <message>
         <source>pauses once on hit %1, then deactivates the breakpoint</source>
-        <translation type="unfinished"></translation>
+        <translation>pausar en gång vid träff %1 och inaktiverar sedan brytpunkten</translation>
     </message>
     <message>
         <source>pauses on every hit from %1 onwards</source>
-        <translation type="unfinished"></translation>
+        <translation>pausar vid varje träff från %1 och framåt</translation>
     </message>
     <message>
         <source>Hit Count: %1 / %2 (%3)</source>
-        <translation type="unfinished"></translation>
+        <translation>Träffantal: %1 / %2 (%3)</translation>
     </message>
     <message>
         <source>Hits: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Träffar: %1</translation>
     </message>
     <message>
         <source>Log: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Logg: %1</translation>
     </message>
     <message>
         <source>(logpoint — also pauses)</source>
-        <translation type="unfinished"></translation>
+        <translation>(loggpunkt — pausar också)</translation>
     </message>
     <message>
         <source>(logpoint — does not pause)</source>
-        <translation type="unfinished"></translation>
+        <translation>(loggpunkt — pausar inte)</translation>
     </message>
     <message>
         <source>Condition error on last evaluation — treated as false (silent). Edit or reset the breakpoint to clear.</source>
-        <translation type="unfinished"></translation>
+        <translation>Villkorsfel vid senaste utvärderingen — behandlas som falskt (tyst). Redigera eller återställ brytpunkten för att rensa.</translation>
     </message>
     <message>
         <source>Condition error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Villkorsfel: %1</translation>
     </message>
     <message>
         <source>File not found: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Filen hittades inte: %1</translation>
     </message>
     <message>
         <source>&amp;Edit...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Redigera…</translation>
     </message>
     <message>
         <source>&amp;Disable</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Inaktivera</translation>
     </message>
     <message>
         <source>&amp;Enable</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Aktivera</translation>
     </message>
     <message>
         <source>&amp;Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bo&amp;rt</translation>
     </message>
     <message>
         <source>No breakpoints
 %1: add or remove breakpoint on the current line in the editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga brytpunkter
+%1: lägg till eller ta bort en brytpunkt på den aktuella raden i redigeraren</translation>
     </message>
     <message>
         <source>All breakpoints are inactive — click to activate all
 %1: add or remove on the current line in the editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Alla brytpunkter är inaktiva — klicka för att aktivera alla
+%1: lägg till eller ta bort på den aktuella raden i redigeraren</translation>
     </message>
     <message>
         <source>Click to deactivate all breakpoints
 %1: add or remove on the current line in the editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Klicka för att inaktivera alla brytpunkter
+%1: lägg till eller ta bort på den aktuella raden i redigeraren</translation>
     </message>
 </context>
 <context>
     <name>RecentCaptureFilesListModel</name>
     <message>
         <source>%1 (file no longer found at path)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (filen hittas inte längre på sökvägen)</translation>
     </message>
 </context>
 <context>
@@ -12736,8 +12860,11 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Playback of stream %1 failed.</source>
-        <oldsource>Playback of stream %1 failed!</oldsource>
-        <translation type="unfinished">Uppspelningen av sträm %1 misslyckades!</translation>
+        <translation>Uppspelning av ström %1 misslyckades.</translation>
+    </message>
+    <message>
+        <source>Save failed.</source>
+        <translation>Det gick inte att spara.</translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -12787,14 +12914,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>No streams are suitable for save</source>
         <translation>Inga strömmar passar för att spara</translation>
-    </message>
-    <message>
-        <source>Save failed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save failed!</source>
-        <translation type="vanished">Att spara misslyckades!</translation>
     </message>
     <message>
         <source>Can&apos;t write header of AU file</source>
@@ -13592,11 +13711,11 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Search the selected packet details tree</source>
-        <translation type="unfinished"></translation>
+        <translation>Sök i det valda trädet med paketdetaljer</translation>
     </message>
     <message>
         <source>Find in selected Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Sök i valt paket</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5), a plain string (e.g. My String) or a regular expression (e.g. colou?r).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -13637,11 +13756,11 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Search for a plain text string in the current packet details tree (e.g. My String).</source>
-        <translation type="unfinished"></translation>
+        <translation>Sök efter en vanlig textsträng i det aktuella trädet med paketdetaljer (t.ex. Min sträng).</translation>
     </message>
     <message>
         <source>Search using a regular expression in the current packet details tree (e.g. colou?r).</source>
-        <translation type="unfinished"></translation>
+        <translation>Sök med ett reguljärt uttryck i det aktuella trädet med paketdetaljer (t.ex. colou?r).</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>
@@ -13689,27 +13808,27 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Find in Packet supports string and regular expression search only.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sök i paket har endast stöd för sträng- och reguljäruttryckssökning.</translation>
     </message>
     <message>
         <source>[no matches] %1</source>
-        <translation type="unfinished"></translation>
+        <translation>[inga träffar] %1</translation>
     </message>
     <message>
         <source>No %1 found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen %1 hittades.</translation>
     </message>
     <message>
         <source>[%1 of %2]</source>
-        <translation type="unfinished"></translation>
+        <translation>[%1 av %2]</translation>
     </message>
     <message>
         <source>Search for a plain text string/char in the current packet details tree (e.g. &apos;flag&apos; or &apos;f&apos;).</source>
-        <translation type="unfinished"></translation>
+        <translation>Sök efter en vanlig textsträng/ett tecken i det aktuella trädet med paketdetaljer (t.ex. ”flag” eller ”f”).</translation>
     </message>
     <message>
         <source>Search using a regular expression in the current packet details tree (e.g. &apos;d&apos;).</source>
-        <translation type="unfinished"></translation>
+        <translation>Sök med ett reguljärt uttryck i det aktuella trädet med paketdetaljer (t.ex. ”d”).</translation>
     </message>
 </context>
 <context>
@@ -14249,7 +14368,7 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <name>ShowPacketBytesTextEdit</name>
     <message>
         <source>&lt;html&gt;Mouse byte selection is enabled when&lt;p&gt;&quot;Decode as&quot; = None&lt;p&gt;AND&lt;p&gt;&quot;Show as&quot; = ASCII, ASCII &amp; Control, EBCDIC or Raw&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;Musval av byte är aktiverat när&lt;p&gt;”Avkoda som” = Ingen&lt;p&gt;OCH&lt;p&gt;”Visa som” = ASCII, ASCII &amp; Control, EBCDIC eller Rå&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Show Selected</source>
@@ -14712,7 +14831,7 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>U</source>
-        <translation type="unfinished"></translation>
+        <translation>U</translation>
     </message>
     <message>
         <source>Crosshairs</source>
@@ -14943,7 +15062,7 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Dup ACKs</source>
-        <translation type="unfinished"></translation>
+        <translation>Dubblett-ACK:ar</translation>
     </message>
     <message>
         <source>SACK</source>
@@ -14951,7 +15070,7 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Most recent SACK</source>
-        <translation type="unfinished"></translation>
+        <translation>Senaste SACK</translation>
     </message>
     <message>
         <source>SACK 2</source>
@@ -14959,7 +15078,7 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Subsequent SACKs</source>
-        <translation type="unfinished"></translation>
+        <translation>Efterföljande SACK:ar</translation>
     </message>
     <message>
         <source>Receive Window</source>
@@ -14967,7 +15086,7 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Zero Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Nollfönster</translation>
     </message>
     <message>
         <source>Save As…</source>
@@ -15197,306 +15316,307 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <name>TcpDedupDialog</name>
     <message>
         <source>TCP Duplication Table</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP-tabell för dubbletter</translation>
     </message>
     <message>
         <source>The &quot;Detect duplication (capture-level) packets&quot; preference must be enabled in
 Preferences → Protocols → TCP to use this table.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inställningen ”Identifiera dubblettpaket (på fångstnivå)” måste vara aktiverad i
+Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished">Tid</translation>
+        <translation>Tid</translation>
     </message>
     <message>
         <source>Delta</source>
-        <translation type="unfinished"></translation>
+        <translation>Delta</translation>
     </message>
     <message>
         <source>Frame Number</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramnummer</translation>
     </message>
     <message>
         <source>Duplication Total</source>
-        <translation type="unfinished"></translation>
+        <translation>Dubbletter, totalt</translation>
     </message>
     <message>
         <source>Frame List</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramlista</translation>
     </message>
     <message>
         <source>Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Information</translation>
     </message>
     <message>
         <source>Stream:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ström:</translation>
     </message>
 </context>
 <context>
     <name>ThemeDebugDialog</name>
     <message>
         <source>Theme Debug</source>
-        <translation type="unfinished"></translation>
+        <translation>Temafelsökning</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">Namn:</translation>
+        <translation>Namn:</translation>
     </message>
     <message>
         <source>Internal:</source>
-        <translation type="unfinished"></translation>
+        <translation>Intern:</translation>
     </message>
     <message>
         <source>Version:</source>
-        <translation type="unfinished">Version:</translation>
+        <translation>Version:</translation>
     </message>
     <message>
         <source>Author:</source>
-        <translation type="unfinished"></translation>
+        <translation>Upphovsperson:</translation>
     </message>
     <message>
         <source>Description:</source>
-        <translation type="unfinished"></translation>
+        <translation>Beskrivning:</translation>
     </message>
     <message>
         <source>Mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>Läge:</translation>
     </message>
     <message>
         <source>Dark mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mörkt läge:</translation>
     </message>
     <message>
         <source>Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema</translation>
     </message>
     <message>
         <source>Geometry:</source>
-        <translation type="unfinished"></translation>
+        <translation>Geometri:</translation>
     </message>
     <message>
         <source>Frame geometry:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ramgeometri:</translation>
     </message>
     <message>
         <source>Screen:</source>
-        <translation type="unfinished"></translation>
+        <translation>Skärm:</translation>
     </message>
     <message>
         <source>DPI / DPR:</source>
-        <translation type="unfinished"></translation>
+        <translation>DPI / DPR:</translation>
     </message>
     <message>
         <source>Window state:</source>
-        <translation type="unfinished"></translation>
+        <translation>Fönsterstatus:</translation>
     </message>
     <message>
         <source>These values refresh live while the dialog is open.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dessa värden uppdateras kontinuerligt medan dialogrutan är öppen.</translation>
     </message>
     <message>
         <source>Main Window</source>
-        <translation type="unfinished">Huvudfönster</translation>
+        <translation>Huvudfönster</translation>
     </message>
     <message>
         <source>Track widget under mouse</source>
-        <translation type="unfinished"></translation>
+        <translation>Följ komponenten under musen</translation>
     </message>
     <message>
         <source>The inspector reports any widget in this application under the cursor — including child dialogs. Widgets that belong to this debug window are skipped so the last hovered target stays pinned. Hold Alt+Shift and click any widget to pin it: this turns off tracking and locks the readout onto that widget (re-check the box above to resume). Note: on macOS, tool windows are hidden whenever another application has focus, so tracking pauses until Wireshark is frontmost again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inspektören rapporterar varje komponent i programmet under markören — även underordnade dialogrutor. Komponenter som hör till det här felsökningsfönstret hoppas över, så att det senast hovrade målet förblir fäst. Håll ned Alt+Skift och klicka på en komponent för att fästa den: detta stänger av följningen och låser utdata till komponenten (markera rutan ovan igen för att återuppta). Observera: på macOS döljs verktygsfönster när ett annat program har fokus, så följningen pausas tills Wireshark åter är längst fram.</translation>
     </message>
     <message>
         <source>Cursor (global):</source>
-        <translation type="unfinished"></translation>
+        <translation>Markör (global):</translation>
     </message>
     <message>
         <source>Class:</source>
-        <translation type="unfinished"></translation>
+        <translation>Klass:</translation>
     </message>
     <message>
         <source>Object name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Objektnamn:</translation>
     </message>
     <message>
         <source>Font:</source>
-        <translation type="unfinished"></translation>
+        <translation>Teckensnitt:</translation>
     </message>
     <message>
         <source>Global rect:</source>
-        <translation type="unfinished"></translation>
+        <translation>Global rektangel:</translation>
     </message>
     <message>
         <source>Parent chain:</source>
-        <translation type="unfinished"></translation>
+        <translation>Överordnad kedja:</translation>
     </message>
     <message>
         <source>Palette (Active group):</source>
-        <translation type="unfinished"></translation>
+        <translation>Palett (aktiv grupp):</translation>
     </message>
     <message>
         <source>Role</source>
-        <translation type="unfinished"></translation>
+        <translation>Roll</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Färg</translation>
     </message>
     <message>
         <source>ThemeManager token</source>
-        <translation type="unfinished"></translation>
+        <translation>ThemeManager-token</translation>
     </message>
     <message>
         <source>Swatch</source>
-        <translation type="unfinished"></translation>
+        <translation>Färgprov</translation>
     </message>
     <message>
         <source>Stylesheet:</source>
-        <translation type="unfinished"></translation>
+        <translation>Stilmall:</translation>
     </message>
     <message>
         <source>(no stylesheet)</source>
-        <translation type="unfinished"></translation>
+        <translation>(ingen stilmall)</translation>
     </message>
     <message>
         <source>Widget Inspector</source>
-        <translation type="unfinished"></translation>
+        <translation>Komponentinspektör</translation>
     </message>
     <message>
         <source>Token</source>
-        <translation type="unfinished"></translation>
+        <translation>Token</translation>
     </message>
     <message>
         <source>Hex</source>
-        <translation type="unfinished"></translation>
+        <translation>Hex</translation>
     </message>
     <message>
         <source>Tokens</source>
-        <translation type="unfinished"></translation>
+        <translation>Token</translation>
     </message>
     <message>
         <source>Refresh</source>
-        <translation type="unfinished">Uppdatera</translation>
+        <translation>Uppdatera</translation>
     </message>
     <message>
         <source>yes</source>
-        <translation type="unfinished"></translation>
+        <translation>ja</translation>
     </message>
     <message>
         <source>no</source>
-        <translation type="unfinished"></translation>
+        <translation>nej</translation>
     </message>
     <message>
         <source>(no main window)</source>
-        <translation type="unfinished"></translation>
+        <translation>(inget huvudfönster)</translation>
     </message>
     <message>
         <source>(unknown)</source>
-        <translation type="unfinished"></translation>
+        <translation>(okänd)</translation>
     </message>
     <message>
         <source>maximized</source>
-        <translation type="unfinished"></translation>
+        <translation>maximerat</translation>
     </message>
     <message>
         <source>minimized</source>
-        <translation type="unfinished"></translation>
+        <translation>minimerat</translation>
     </message>
     <message>
         <source>fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>helskärm</translation>
     </message>
     <message>
         <source>active</source>
-        <translation type="unfinished"></translation>
+        <translation>aktiv</translation>
     </message>
     <message>
         <source>normal</source>
-        <translation type="unfinished"></translation>
+        <translation>normal</translation>
     </message>
     <message>
         <source>(unset)</source>
-        <translation type="unfinished"></translation>
+        <translation>(inte angivet)</translation>
     </message>
     <message>
         <source>(none)</source>
-        <translation type="unfinished"></translation>
+        <translation>(ingen)</translation>
     </message>
     <message>
         <source>(unnamed)</source>
-        <translation type="unfinished"></translation>
+        <translation>(namnlös)</translation>
     </message>
 </context>
 <context>
     <name>ThemePreviewWidget</name>
     <message>
         <source>No.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nr.</translation>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished">Tid</translation>
+        <translation>Tid</translation>
     </message>
     <message>
         <source>Delta</source>
-        <translation type="unfinished"></translation>
+        <translation>Delta</translation>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Källa</translation>
     </message>
     <message>
         <source>Destination</source>
-        <translation type="unfinished"></translation>
+        <translation>Mål</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished">Protokoll</translation>
+        <translation>Protokoll</translation>
     </message>
     <message>
         <source>Length</source>
-        <translation type="unfinished">Längd</translation>
+        <translation>Längd</translation>
     </message>
     <message>
         <source>Show Coloring Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa färgregler</translation>
     </message>
     <message>
         <source>Save Image As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara bild som…</translation>
     </message>
     <message>
         <source>Save Theme Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara förhandsgranskning av tema</translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
-        <translation type="unfinished">PNG-bild (*.png)</translation>
+        <translation>PNG-bild (*.png)</translation>
     </message>
     <message>
         <source>Could not write the image to &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Det gick inte att skriva bilden till ”%1”.</translation>
     </message>
     <message>
         <source>Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Information</translation>
     </message>
     <message>
         <source>Ready</source>
-        <translation type="unfinished"></translation>
+        <translation>Klar</translation>
     </message>
     <message>
         <source>Profile: Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil: standard</translation>
     </message>
     <message>
         <source>Packets: %1</source>
-        <translation type="unfinished">Paket: %1</translation>
+        <translation>Paket: %1</translation>
     </message>
     <message>
         <source>Displayed: %1 (100.0%)</source>
-        <translation type="unfinished"></translation>
+        <translation>Visade: %1 (100,0 %)</translation>
     </message>
 </context>
 <context>
@@ -15974,15 +16094,15 @@ Preferences → Protocols → TCP to use this table.</source>
     <name>WelcomeHeaderWidget</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished">Formulär</translation>
+        <translation>Formulär</translation>
     </message>
     <message>
         <source>Application Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Programnamn</translation>
     </message>
     <message>
         <source>Application name</source>
-        <translation type="unfinished"></translation>
+        <translation>Programnamn</translation>
     </message>
     <message>
         <source>Wireshark</source>
@@ -15994,7 +16114,7 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Version of the application currently running</source>
-        <translation type="unfinished"></translation>
+        <translation>Version av programmet som körs just nu</translation>
     </message>
     <message>
         <source>4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</source>
@@ -16002,15 +16122,15 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Variant of the application running</source>
-        <translation type="unfinished"></translation>
+        <translation>Variant av programmet som körs</translation>
     </message>
     <message>
         <source>Build variant of the application currently running</source>
-        <translation type="unfinished"></translation>
+        <translation>Byggvariant för programmet som körs just nu</translation>
     </message>
     <message>
         <source>Development Build</source>
-        <translation type="unfinished"></translation>
+        <translation>Utvecklingsbygge</translation>
     </message>
     <message>
         <source>Update Available</source>
@@ -16018,11 +16138,11 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Graphical indicator that an update is available</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafisk indikator för att en uppdatering är tillgänglig</translation>
     </message>
     <message>
         <source>.</source>
-        <translation type="unfinished"></translation>
+        <translation>.</translation>
     </message>
     <message>
         <source>Update available</source>
@@ -16038,11 +16158,11 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Release Notes</source>
-        <translation type="unfinished">Utgåvenoteringar</translation>
+        <translation>Versionsinformation</translation>
     </message>
     <message>
         <source>Opens a browser to show the release notes for the available update</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppnar en webbläsare för att visa versionsinformationen för den tillgängliga uppdateringen</translation>
     </message>
     <message>
         <source>Download Update</source>
@@ -16050,15 +16170,15 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Starts the download process for the currently available update</source>
-        <translation type="unfinished"></translation>
+        <translation>Startar nedladdningen av den uppdatering som är tillgänglig just nu</translation>
     </message>
     <message>
         <source>Dismiss update notification</source>
-        <translation type="unfinished"></translation>
+        <translation>Avfärda uppdateringsnotis</translation>
     </message>
     <message>
         <source>Dismiss the update notification and show the information about an update again on either next application start or when a new update is available</source>
-        <translation type="unfinished"></translation>
+        <translation>Avfärda uppdateringsnotisen och visa informationen om en uppdatering igen vid nästa programstart eller när en ny uppdatering är tillgänglig</translation>
     </message>
     <message>
         <source>Update %1 is available</source>
@@ -16066,23 +16186,23 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>A new update for version %1 is available (current version is %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>En ny uppdatering för version %1 är tillgänglig (aktuell version är %2)</translation>
     </message>
     <message>
         <source>Release Notes for update %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Versionsinformation för uppdatering %1</translation>
     </message>
     <message>
         <source>Opens a browser to show the release notes for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppnar en webbläsare för att visa versionsinformationen för %1</translation>
     </message>
     <message>
         <source>Download update %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Hämta uppdatering %1</translation>
     </message>
     <message>
         <source>Starts the download process for update %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Startar nedladdningen av uppdatering %1</translation>
     </message>
 </context>
 <context>
@@ -16097,7 +16217,7 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>List of recently opened files. Files that can no longer be found on disk are shown in italics.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista över nyligen öppnade filer. Filer som inte längre kan hittas på disken visas i kursiv stil.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open a file on your file system&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -16117,19 +16237,19 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Tips and announcements</source>
-        <translation type="unfinished"></translation>
+        <translation>Tips och meddelanden</translation>
     </message>
     <message>
         <source>Rotating tips, sponsor acknowledgements, and announcements for Wireshark and Stratoshark conferences.</source>
-        <translation type="unfinished"></translation>
+        <translation>Växlande tips, tack till sponsorer och meddelanden om Wireshark- och Stratoshark-konferenser.</translation>
     </message>
     <message>
         <source>Learn</source>
-        <translation type="unfinished"></translation>
+        <translation>Lär dig</translation>
     </message>
     <message>
         <source>Links to documentation, wiki, and community resources.</source>
-        <translation type="unfinished"></translation>
+        <translation>Länkar till dokumentation, wiki och gemenskapsresurser.</translation>
     </message>
     <message>
         <source>Show in Finder</source>
@@ -16145,11 +16265,11 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>The %1 welcome page provides access to recent files, capture interfaces, and learning resources.</source>
-        <translation type="unfinished"></translation>
+        <translation>Välkomstsidan i %1 ger åtkomst till de senaste filerna, fångstgränssnitt och utbildningsresurser.</translation>
     </message>
     <message>
         <source>List of recently opened capture files. Double-click or press Enter to open.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista över nyligen öppnade fångstfiler. Dubbelklicka eller tryck på Retur för att öppna.</translation>
     </message>
     <message numerus="yes">
         <source>%n interface(s) shown, %1 hidden</source>
@@ -16171,27 +16291,27 @@ Preferences → Protocols → TCP to use this table.</source>
     <name>WelcomePagePreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Ram</translation>
+        <translation>Ram</translation>
     </message>
     <message>
         <source>Tips Section</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipsavsnitt</translation>
     </message>
     <message>
         <source>Show Tips section in sidebar</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa tipsavsnittet i sidofältet</translation>
     </message>
     <message>
         <source>Show slides</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa bildspel</translation>
     </message>
     <message>
         <source>Event Notifications (e.g. SharkFest)</source>
-        <translation type="unfinished"></translation>
+        <translation>Händelseaviseringar (t.ex. SharkFest)</translation>
     </message>
     <message>
         <source>Sponsorship and Donor information</source>
-        <translation type="unfinished"></translation>
+        <translation>Information om sponsring och bidragsgivare</translation>
     </message>
     <message>
         <source>Tip of the Day</source>
@@ -16199,23 +16319,23 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Auto advance slides</source>
-        <translation type="unfinished"></translation>
+        <translation>Bläddra automatiskt i bildspelet</translation>
     </message>
     <message>
         <source>Slide display interval</source>
-        <translation type="unfinished"></translation>
+        <translation>Visningsintervall för bilder</translation>
     </message>
     <message>
         <source> s</source>
-        <translation type="unfinished"></translation>
+        <translation> s</translation>
     </message>
     <message>
         <source>Learn Section</source>
-        <translation type="unfinished"></translation>
+        <translation>Avsnittet Lär dig</translation>
     </message>
     <message>
         <source>Show Learn section in sidebar</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa avsnittet Lär dig i sidofältet</translation>
     </message>
 </context>
 <context>
@@ -17496,15 +17616,15 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Allows jumping to a specific packet by its number.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gör det möjligt att hoppa till ett visst paket med hjälp av dess nummer.</translation>
     </message>
     <message>
         <source>Search packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Sök paket</translation>
     </message>
     <message>
         <source>Allows searching for packets based on different criteria like display filters or text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gör det möjligt att söka efter paket utifrån olika kriterier, exempelvis visningsfilter eller text.</translation>
     </message>
     <message>
         <source>Edit Address</source>
@@ -17512,7 +17632,7 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Allows editing address resolution information for the current capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gör det möjligt att redigera adressupplösningsinformation för den aktuella fångsten.</translation>
     </message>
     <message>
         <source>Edit Column</source>
@@ -17520,27 +17640,27 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Allows adding, removing, or modifying columns in the packet list.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gör det möjligt att lägga till, ta bort eller ändra kolumner i paketlistan.</translation>
     </message>
     <message>
         <source>Edit Preference</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigera inställning</translation>
     </message>
     <message>
         <source>Allows changing protocol or application preferences.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gör det möjligt att ändra protokoll- eller programinställningar.</translation>
     </message>
     <message>
         <source>Edit Filter Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigera filteruttryck</translation>
     </message>
     <message>
         <source>Allows creating or editing display filter buttons.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gör det möjligt att skapa eller redigera visningsfilterknappar.</translation>
     </message>
     <message>
         <source>Main View</source>
-        <translation type="unfinished"></translation>
+        <translation>Huvudvy</translation>
     </message>
     <message>
         <source>Main Menu</source>
@@ -17556,19 +17676,19 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Contains buttons for common actions like starting a capture or opening a file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Innehåller knappar för vanliga åtgärder, som att starta en fångst eller öppna en fil.</translation>
     </message>
     <message>
         <source>Status Bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Statusfält</translation>
     </message>
     <message>
         <source>Shows information about the current capture file and application state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visar information om den aktuella fångstfilen och programmets tillstånd.</translation>
     </message>
     <message>
         <source>Contains the display filter edit box and expression buttons.</source>
-        <translation type="unfinished"></translation>
+        <translation>Innehåller redigeringsrutan för visningsfilter och uttrycksknappar.</translation>
     </message>
     <message>
         <source>&amp;User&apos;s Guide</source>
@@ -17696,7 +17816,7 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Embed used ESP secrets in the capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Bädda in använda ESP-hemligheter i fångstfilen</translation>
     </message>
     <message>
         <source>Discard All Secrets</source>
@@ -17716,19 +17836,19 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Duplication Table</source>
-        <translation type="unfinished"></translation>
+        <translation>Dubblettabell</translation>
     </message>
     <message>
         <source>TCP capture-level duplicate packet table</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP-tabell för dubblettpaket på fångstnivå</translation>
     </message>
     <message>
         <source>Distribution</source>
-        <translation type="unfinished"></translation>
+        <translation>Fördelning</translation>
     </message>
     <message>
         <source>Distribution statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Fördelningsstatistik</translation>
     </message>
     <message>
         <source>General</source>
@@ -17756,7 +17876,7 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>BPv7 PDU and block statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>BPv7-PDU- och blockstatistik</translation>
     </message>
     <message>
         <source>E2AP</source>
@@ -18036,11 +18156,11 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>&amp;Theme Debug</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Temafelsökning</translation>
     </message>
     <message>
         <source>Show the active theme, main window geometry, and live widget info</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa det aktiva temat, huvudfönstrets geometri och aktuell komponentinformation</translation>
     </message>
     <message>
         <source>MAP Summary</source>
@@ -18400,19 +18520,19 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Main View Splitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Delare för huvudvy</translation>
     </message>
     <message>
         <source>Contains the packet list, protocol tree, and packet bytes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Innehåller paketlistan, protokollträdet och paketbyte.</translation>
     </message>
     <message>
         <source>Extra View Splitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Delare för extravy</translation>
     </message>
     <message>
         <source>Contains packet extras and bytes views.</source>
-        <translation type="unfinished"></translation>
+        <translation>Innehåller vyer med paketextra och byte.</translation>
     </message>
     <message>
         <source>Unable to drop files during capture.</source>
@@ -18438,11 +18558,11 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Aggregation View — displays frames grouped by your configured aggregation fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggregeringsvy — visar ramar grupperade efter dina konfigurerade aggregeringsfält.</translation>
     </message>
     <message>
         <source>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggregeringsvy — visar ramar grupperade efter dina konfigurerade aggregeringsfält. Aktivera den via Inställningar → Aggregering.</translation>
     </message>
     <message>
         <source>Unsaved packets…</source>
@@ -18496,27 +18616,27 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>DIS Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>DIS-strömmar</translation>
     </message>
     <message>
         <source>Show and analyze DIS radio streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa och analysera DIS-radioströmmar</translation>
     </message>
     <message>
         <source>IMSI List</source>
-        <translation type="unfinished"></translation>
+        <translation>IMSI-lista</translation>
     </message>
     <message>
         <source>Show all IMSIs in the capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa alla IMSI:er i fångsten</translation>
     </message>
     <message>
         <source>Lua Debugger</source>
-        <translation type="unfinished">Lua-felsökare</translation>
+        <translation>Lua-felsökare</translation>
     </message>
     <message>
         <source>Software update checking is not available on this platform.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontroll av programuppdateringar är inte tillgänglig på denna plattform.</translation>
     </message>
     <message>
         <source>Continue &amp;without Saving</source>
@@ -18656,11 +18776,11 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source> before exporting PDUs</source>
-        <translation type="unfinished"></translation>
+        <translation> före export av PDU:er</translation>
     </message>
     <message>
         <source> before stripping headers</source>
-        <translation type="unfinished"></translation>
+        <translation> före borttagning av huvuden</translation>
     </message>
     <message>
         <source>There are no TLS Session Keys to save.</source>

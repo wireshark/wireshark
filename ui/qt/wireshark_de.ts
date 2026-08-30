@@ -3744,6 +3744,14 @@ Relativ zur Referenz: n. v. (außerhalb des Referenzbereichs)</translation>
         <translation>Die Hifle für Extcap-Schnittstelle %1 kann nicht gefunden werden. Angegebene Datei: %2</translation>
     </message>
     <message>
+        <source>Bookmark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type a name to create a bookmark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save parameters on capture start</source>
         <translation>Parameter beim Starten des Mitschnitts speichern</translation>
     </message>
@@ -9191,6 +9199,14 @@ on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Prefix values that a spreadsheet would evaluate as a formula (those starting with &quot;=&quot;, &quot;+&quot;, &quot;-&quot; or &quot;@&quot;) with an apostrophe, so that packet data cannot inject a formula into the exported file&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Escape spreadsheet formulas</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Replace whitespace characters (tabs, newlines, etc.) with C-style escapes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9527,8 +9543,7 @@ on an existing breakpoint, toggle its active state</source>
     <name>Plot</name>
     <message>
         <source>Field cannot be empty.</source>
-        <oldsource>Field cannot be empty!</oldsource>
-        <translation type="unfinished">Feld kann nicht leer sein!</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12773,8 +12788,11 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Playback of stream %1 failed.</source>
-        <oldsource>Playback of stream %1 failed!</oldsource>
-        <translation type="unfinished">Wiedergabe von Stream %1 fehlgeschlagen!</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save failed.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -12824,14 +12842,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>No streams are suitable for save</source>
         <translation>Keine Streams können gespeichert werden</translation>
-    </message>
-    <message>
-        <source>Save failed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save failed!</source>
-        <translation type="vanished">Speichern fehlgeschlagen!</translation>
     </message>
     <message>
         <source>Can&apos;t write header of AU file</source>

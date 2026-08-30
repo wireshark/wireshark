@@ -3745,6 +3745,14 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
         <translation>L&apos;ajuda per a la interfície de l&apos;extcap %1 no s&apos;ha pogut trobar. Fitxer donat: %2</translation>
     </message>
     <message>
+        <source>Bookmark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type a name to create a bookmark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save parameters on capture start</source>
         <translation>Desa els paràmetres quan comenci la captura</translation>
     </message>
@@ -9228,6 +9236,14 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
         <translation>Inclou una marca d&apos;ordre de bytes</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Prefix values that a spreadsheet would evaluate as a formula (those starting with &quot;=&quot;, &quot;+&quot;, &quot;-&quot; or &quot;@&quot;) with an apostrophe, so that packet data cannot inject a formula into the exported file&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Escape spreadsheet formulas</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Replace whitespace characters (tabs, newlines, etc.) with C-style escapes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reemplaça els caràcters d&apos;espais en blanc (tabuladors, línies noves, etc.) amb escapament d&apos;estil en C.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -9564,8 +9580,7 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
     <name>Plot</name>
     <message>
         <source>Field cannot be empty.</source>
-        <oldsource>Field cannot be empty!</oldsource>
-        <translation type="unfinished">El camp no es pot deixar buit!</translation>
+        <translation>El camp no pot ser buit.</translation>
     </message>
 </context>
 <context>
@@ -12845,8 +12860,11 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     </message>
     <message>
         <source>Playback of stream %1 failed.</source>
-        <oldsource>Playback of stream %1 failed!</oldsource>
-        <translation type="unfinished">La reproducció del flux %1 ha fallat!</translation>
+        <translation>La reproducció del flux %1 ha fallat.</translation>
+    </message>
+    <message>
+        <source>Save failed.</source>
+        <translation>La desada ha fallat.</translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -12896,14 +12914,6 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     <message>
         <source>No streams are suitable for save</source>
         <translation>No hi ha fluxos que es puguin desar.</translation>
-    </message>
-    <message>
-        <source>Save failed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save failed!</source>
-        <translation type="vanished">S&apos;ha produït un error a la desada!</translation>
     </message>
     <message>
         <source>Can&apos;t write header of AU file</source>

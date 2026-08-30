@@ -3730,6 +3730,14 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>extcap インターフェース %1 のヘルプを見つけることができません。与えられたファイル: %2</translation>
     </message>
     <message>
+        <source>Bookmark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type a name to create a bookmark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save parameters on capture start</source>
         <translation>キャプチャ開始時にパラメタを保存します</translation>
     </message>
@@ -9189,6 +9197,14 @@ Shift+クリック: 空行では無効なブレークポイントを追加
         <translation>バイト順序マークを含む</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Prefix values that a spreadsheet would evaluate as a formula (those starting with &quot;=&quot;, &quot;+&quot;, &quot;-&quot; or &quot;@&quot;) with an apostrophe, so that packet data cannot inject a formula into the exported file&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Escape spreadsheet formulas</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Replace whitespace characters (tabs, newlines, etc.) with C-style escapes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt; 空白文字（タブ、改行など）を C 言語形式のエスケープ表記に置換する&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -9525,8 +9541,7 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     <name>Plot</name>
     <message>
         <source>Field cannot be empty.</source>
-        <oldsource>Field cannot be empty!</oldsource>
-        <translation type="unfinished">フィールドを空にはできません!</translation>
+        <translation>フィールドを空にはできません</translation>
     </message>
 </context>
 <context>
@@ -12793,8 +12808,11 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>Playback of stream %1 failed.</source>
-        <oldsource>Playback of stream %1 failed!</oldsource>
-        <translation type="unfinished">ストリーム %1 の再生に失敗しました!!</translation>
+        <translation>ストリーム %1 の再生に失敗しました</translation>
+    </message>
+    <message>
+        <source>Save failed.</source>
+        <translation>保存に失敗しました</translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -12844,14 +12862,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>No streams are suitable for save</source>
         <translation>保存にて適したストリームはありません</translation>
-    </message>
-    <message>
-        <source>Save failed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save failed!</source>
-        <translation type="vanished">保存失敗!!</translation>
     </message>
     <message>
         <source>Can&apos;t write header of AU file</source>
