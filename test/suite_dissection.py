@@ -1470,6 +1470,34 @@ class TestDissectTns:
         # RXH: num_iters = 2.
         assert rows[1][5] == '2', rows[1]
 
+    def test_tns_all8(self, cmd_tshark, capture_file, test_env):
+        '''TTI_ALL8 (SQL execute) decodes the options bitmask, fetch rows,
+        bind count and the SQL text. Two frames: a SELECT (options 0x8021,
+        fetch 15) and an autocommit DELETE (options 0x8121).'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_all8.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_oci.id',
+            '-e', 'tns.data_all8.options',
+            '-e', 'tns.data_all8.options.commit',
+            '-e', 'tns.data_all8.fetch_rows',
+            '-e', 'tns.data_all8.bind_count',
+            '-e', 'tns.data_all8.sql',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert len(rows) == 2, rows
+        # oci id 0x5e = 94 (TTI_ALL8) on both.
+        assert rows[0][0] == '0x5e' and rows[1][0] == '0x5e', rows
+        # SELECT: options 0x8021, autocommit off, fetch 15, no binds.
+        assert rows[0][1] == '0x00008021', rows[0]
+        assert rows[0][2] == 'False' and rows[0][3] == '15' and rows[0][4] == '0', rows[0]
+        assert rows[0][5] == 'SELECT ID, NAME FROM USERS', rows[0]
+        # DELETE: options 0x8121, autocommit on, fetch 0.
+        assert rows[1][1] == '0x00008121', rows[1]
+        assert rows[1][2] == 'True' and rows[1][3] == '0', rows[1]
+        assert rows[1][5] == 'DELETE FROM USERS WHERE ID = 5', rows[1]
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

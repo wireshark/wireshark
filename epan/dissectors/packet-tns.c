@@ -72,6 +72,9 @@ void proto_register_tns(void);
 #define OPI_OSESSKEY            2
 #define OPI_OAUTH               3
 
+/* OCI function id (TTI_FUN sub-function) for the generic SQL execute call. */
+#define TTI_ALL8                94
+
 /* desegmentation of TNS over TCP */
 static bool tns_desegment = true;
 
@@ -242,6 +245,18 @@ static int hf_tns_data_rxh_num_requests;
 static int hf_tns_data_rxh_iter_num;
 static int hf_tns_data_rxh_num_iters;
 
+static int hf_tns_data_all8_options;
+static int hf_tns_data_all8_opt_parse;
+static int hf_tns_data_all8_opt_bind;
+static int hf_tns_data_all8_opt_define;
+static int hf_tns_data_all8_opt_execute;
+static int hf_tns_data_all8_opt_commit;
+static int hf_tns_data_all8_opt_plsql;
+static int hf_tns_data_all8_opt_fetch;
+static int hf_tns_data_all8_fetch_rows;
+static int hf_tns_data_all8_bind_count;
+static int hf_tns_data_all8_sql;
+
 static int hf_tns_data_descriptor_row_count;
 static int hf_tns_data_descriptor_row_size;
 
@@ -269,6 +284,7 @@ static int ett_tns_setdt_override;
 static int ett_tns_oer;
 static int ett_tns_iov;
 static int ett_tns_dcb_col;
+static int ett_tns_all8_options;
 static int ett_sql;
 
 static expert_field ei_tns_connect_data_next_packet;
@@ -299,6 +315,18 @@ static int * const tns_service_options[] = {
 	&hf_tns_sopt_flag_ap,
 	&hf_tns_sopt_flag_ra,
 	&hf_tns_sopt_flag_sa,
+	NULL
+};
+
+/* TTI_ALL8 (SQL execute) options bitmask. */
+static int * const tns_all8_options[] = {
+	&hf_tns_data_all8_opt_parse,
+	&hf_tns_data_all8_opt_bind,
+	&hf_tns_data_all8_opt_define,
+	&hf_tns_data_all8_opt_execute,
+	&hf_tns_data_all8_opt_commit,
+	&hf_tns_data_all8_opt_plsql,
+	&hf_tns_data_all8_opt_fetch,
 	NULL
 };
 
@@ -1397,6 +1425,76 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 				offset += 1;
 				int user_len = 0;
 				offset += get_sb4_custom(tvb, offset, &user_len);
+			}
+			else if ( oci_id == TTI_ALL8 )
+			{
+				/* TTI_ALL8: the generic SQL execute — SELECT, DML and
+				 * PL/SQL all ride this call. Layout is the Oracle 11g
+				 * shape. All multi-byte integers use the ub4
+				 * variable-length form.
+				 *
+				 * The bind descriptors (OAC) and bind values (RXD) that can
+				 * trail the al8 array need per-bind type context to decode
+				 * safely, so we stop after the al8 array and leave them to
+				 * the data dissector. */
+				int v = 0, options = 0, cursor = 0, query_len = 0, all8_len = 0;
+				int fetch = 0, bind_count = 0, start;
+				uint8_t query_flag;
+
+				/* options (ub4) + flag breakdown */
+				start = offset;
+				offset += get_sb4_custom(tvb, offset, &options);
+				proto_tree_add_bitmask_value(data_tree, tvb, start, hf_tns_data_all8_options,
+					ett_tns_all8_options, tns_all8_options, (uint64_t)(uint32_t)options);
+				/* cursor id (ub4) */
+				start = offset;
+				offset += get_sb4_custom(tvb, offset, &cursor);
+				proto_tree_add_uint(data_tree, hf_tns_cursor, tvb, start, offset - start, cursor);
+				/* query present flag (ub1) */
+				query_flag = tvb_get_uint8(tvb, offset);
+				offset += 1;
+				/* query length (ub4) */
+				offset += get_sb4_custom(tvb, offset, &query_len);
+				/* all8 present flag (ub1) */
+				offset += 1;
+				/* all8 length (ub4) */
+				offset += get_sb4_custom(tvb, offset, &all8_len);
+				/* two reserved bytes */
+				offset += 2;
+				/* long max value (ub4, skip) */
+				offset += get_sb4_custom(tvb, offset, &v);
+				/* fetch rows (ub4) */
+				start = offset;
+				offset += get_sb4_custom(tvb, offset, &fetch);
+				proto_tree_add_uint(data_tree, hf_tns_data_all8_fetch_rows, tvb, start, offset - start, fetch);
+				/* max value (ub4, skip) */
+				offset += get_sb4_custom(tvb, offset, &v);
+				/* bind indicator (ub1) */
+				offset += 1;
+				/* bind count (ub4) */
+				start = offset;
+				offset += get_sb4_custom(tvb, offset, &bind_count);
+				proto_tree_add_uint(data_tree, hf_tns_data_all8_bind_count, tvb, start, offset - start, bind_count);
+				/* five reserved bytes */
+				offset += 5;
+				/* define-columns present flag (ub1) */
+				offset += 1;
+				/* define-columns count (ub4, skip) */
+				offset += get_sb4_custom(tvb, offset, &v);
+				/* [0,0,1] marker (3 bytes) + server version slot (5 bytes) */
+				offset += 8;
+				/* SQL text — a flat run of query_len bytes on 11g */
+				if ( query_flag && query_len > 0 )
+				{
+					const uint8_t *sql;
+					proto_tree_add_item_ret_string(data_tree, hf_tns_data_all8_sql, tvb,
+						offset, query_len, ENC_UTF_8|ENC_NA, pinfo->pool, &sql);
+					col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", sql);
+					offset += query_len;
+				}
+				/* al8i4 option array: all8_len ub4 elements (skip) */
+				for ( int i = 0; i < all8_len && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+					offset += get_sb4_custom(tvb, offset, &v);
 			}
 			break;
 		}
@@ -2591,6 +2689,40 @@ void proto_register_tns(void)
 			"Number of Iterations", "tns.data_rxh.num_iters", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
 
+		{ &hf_tns_data_all8_options, {
+			"Options", "tns.data_all8.options", FT_UINT32, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_all8_opt_parse, {
+			"Parse", "tns.data_all8.options.parse", FT_BOOLEAN, 32,
+			NULL, 0x0001, NULL, HFILL }},
+		{ &hf_tns_data_all8_opt_bind, {
+			"Bind Values Present", "tns.data_all8.options.bind", FT_BOOLEAN, 32,
+			NULL, 0x0008, NULL, HFILL }},
+		{ &hf_tns_data_all8_opt_define, {
+			"Define Columns Present", "tns.data_all8.options.define", FT_BOOLEAN, 32,
+			NULL, 0x0010, NULL, HFILL }},
+		{ &hf_tns_data_all8_opt_execute, {
+			"Execute", "tns.data_all8.options.execute", FT_BOOLEAN, 32,
+			NULL, 0x0020, NULL, HFILL }},
+		{ &hf_tns_data_all8_opt_commit, {
+			"Autocommit", "tns.data_all8.options.commit", FT_BOOLEAN, 32,
+			NULL, 0x0100, NULL, HFILL }},
+		{ &hf_tns_data_all8_opt_plsql, {
+			"PL/SQL Block", "tns.data_all8.options.plsql", FT_BOOLEAN, 32,
+			NULL, 0x0400, NULL, HFILL }},
+		{ &hf_tns_data_all8_opt_fetch, {
+			"Fetch", "tns.data_all8.options.fetch", FT_BOOLEAN, 32,
+			NULL, 0x8000, NULL, HFILL }},
+		{ &hf_tns_data_all8_fetch_rows, {
+			"Fetch Rows", "tns.data_all8.fetch_rows", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_all8_bind_count, {
+			"Bind Count", "tns.data_all8.bind_count", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_all8_sql, {
+			"SQL Text", "tns.data_all8.sql", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+
 		{ &hf_tns_data_descriptor_row_count, {
 			"Row Count", "tns.data_descriptor.row_count", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
@@ -2632,6 +2764,7 @@ void proto_register_tns(void)
 		&ett_tns_oer,
 		&ett_tns_iov,
 		&ett_tns_dcb_col,
+		&ett_tns_all8_options,
 		&ett_sql
 	};
 
