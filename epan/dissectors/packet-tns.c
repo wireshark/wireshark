@@ -1098,13 +1098,13 @@ static int dissect_tns_dcb_column(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	return offset;
 }
 
-/* Decode one TTI_RXD column value by its describe data type, and add it as a
- * "Column N (TYPE)" item showing the raw value bytes. Ordinary values are a
+/* Decode one row/bind value by its data type, and add it as a
+ * "<prefix> N (TYPE)" item under `hf`. Ordinary values are a
  * DALC blob; ROWID / UROWID / LONG / LOB carry their own framings.
  * Object / JSON / VECTOR values have richer image
  * framings not handled here, so on those the caller stops (sets *bail) and
  * leaves the remainder to the data dissector. Returns the new offset. */
-static int dissect_tns_rxd_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t dtype, int idx, int *bail)
+static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t dtype, int idx, int *bail, int hf, const char *prefix)
 {
 	int v_start = offset, disp_start = offset, v = 0;
 	int is_null = 0;
@@ -1210,16 +1210,16 @@ static int dissect_tns_rxd_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	}
 
 	if ( is_null )
-		proto_tree_add_bytes_format(tree, hf_tns_data_col_value, tvb,
-			v_start, offset - v_start, NULL, "Column %d (%s): NULL", idx,
+		proto_tree_add_bytes_format(tree, hf, tvb,
+			v_start, offset - v_start, NULL, "%s %d (%s): NULL", prefix, idx,
 			val_to_str_const(dtype, tns_data_types, "unknown"));
 	else if ( rendered )
-		proto_tree_add_bytes_format(tree, hf_tns_data_col_value, tvb,
-			disp_start, offset - disp_start, NULL, "Column %d (%s): %s", idx,
+		proto_tree_add_bytes_format(tree, hf, tvb,
+			disp_start, offset - disp_start, NULL, "%s %d (%s): %s", prefix, idx,
 			val_to_str_const(dtype, tns_data_types, "unknown"), rendered);
 	else
-		proto_tree_add_bytes_format(tree, hf_tns_data_col_value, tvb,
-			disp_start, offset - disp_start, NULL, "Column %d (%s)", idx,
+		proto_tree_add_bytes_format(tree, hf, tvb,
+			disp_start, offset - disp_start, NULL, "%s %d (%s)", prefix, idx,
 			val_to_str_const(dtype, tns_data_types, "unknown"));
 	return offset;
 }
@@ -1790,8 +1790,8 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 						ett_tns_rxd_row, &row_item, "Row %d", ++rownum);
 					for ( uint32_t c = 0; c < desc->num_cols
 						&& tvb_reported_length_remaining(tvb, offset) > 0 && !bail; c++ )
-						offset = dissect_tns_rxd_value(tvb, pinfo, row_tree, offset,
-							desc->types[c], c + 1, &bail);
+						offset = dissect_tns_value(tvb, pinfo, row_tree, offset,
+							desc->types[c], c + 1, &bail, hf_tns_data_col_value, "Column");
 					proto_item_set_len(row_item, offset - r_start);
 				}
 			}
@@ -1946,7 +1946,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 					/* Value rows: a TTI_RXD token then one DALC value per bind
 					 * column (an ordinary execute sends one row, executemany
-					 * sends N). Values are type-encoded and shown raw. */
+					 * sends N), decoded and rendered by the bind's type. */
 					while ( !has_lob && tvb_reported_length_remaining(tvb, offset) > 0
 						&& tvb_get_uint8(tvb, offset) == SQLNET_ROW_TRANSF_DATA )
 					{
@@ -1954,22 +1954,14 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 						offset += 1; /* TTI_RXD token */
 						row_tree = proto_tree_add_subtree_format(binds_tree, tvb, offset, -1,
 							ett_tns_bind_row, &row_item, "Row %d", ++rownum);
-						for ( int i = 0; i < bind_count && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
-						{
-							uint8_t first = tvb_get_uint8(tvb, offset);
-							int val_start = offset;
-							offset += get_dalc_custom(tvb, pinfo, offset, NULL);
-							if ( first == 0 )
-								proto_tree_add_bytes_format_value(row_tree, hf_tns_data_bind_value,
-									tvb, val_start, offset - val_start, NULL, "NULL");
-							else if ( first == 254 )
-								proto_tree_add_item(row_tree, hf_tns_data_bind_value,
-									tvb, val_start, offset - val_start, ENC_NA);
-							else
-								proto_tree_add_item(row_tree, hf_tns_data_bind_value,
-									tvb, val_start + 1, first, ENC_NA);
-						}
+						int row_bail = 0;
+						for ( int i = 0; i < bind_count
+							&& tvb_reported_length_remaining(tvb, offset) > 0 && !row_bail; i++ )
+							offset = dissect_tns_value(tvb, pinfo, row_tree, offset,
+								btypes[i], i + 1, &row_bail, hf_tns_data_bind_value, "Bind");
 						proto_item_set_len(row_item, offset - r_start);
+						if ( row_bail )
+							break;
 					}
 					proto_item_set_len(binds_item, offset - binds_start);
 				}
