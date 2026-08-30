@@ -72,7 +72,8 @@ void proto_register_tns(void);
 #define OPI_OSESSKEY            2
 #define OPI_OAUTH               3
 
-/* OCI function id (TTI_FUN sub-function) for the generic SQL execute call. */
+/* OCI function ids (TTI_FUN sub-functions). */
+#define TTI_FETCH               5
 #define TTI_ALL8                94
 
 /* desegmentation of TNS over TCP */
@@ -257,6 +258,7 @@ static int hf_tns_data_all8_fetch_rows;
 static int hf_tns_data_all8_bind_count;
 static int hf_tns_data_all8_sql;
 static int hf_tns_data_bind_value;
+static int hf_tns_data_fetch_rows;
 
 static int hf_tns_data_descriptor_row_count;
 static int hf_tns_data_descriptor_row_size;
@@ -1429,6 +1431,20 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 				offset += 1;
 				int user_len = 0;
 				offset += get_sb4_custom(tvb, offset, &user_len);
+			}
+			else if ( oci_id == TTI_FETCH )
+			{
+				/* TTI_FETCH: fetch more rows from an open cursor.
+				 * [TTI_FUN, TTI_FETCH, seq] then cursor id and the row
+				 * count, both ub4. */
+				int v = 0, start;
+
+				start = offset;
+				offset += get_sb4_custom(tvb, offset, &v);
+				proto_tree_add_uint(data_tree, hf_tns_cursor, tvb, start, offset - start, v);
+				start = offset;
+				offset += get_sb4_custom(tvb, offset, &v);
+				proto_tree_add_uint(data_tree, hf_tns_data_fetch_rows, tvb, start, offset - start, v);
 			}
 			else if ( oci_id == TTI_ALL8 )
 			{
@@ -2804,6 +2820,9 @@ void proto_register_tns(void)
 		{ &hf_tns_data_bind_value, {
 			"Bind Value", "tns.data_bind.value", FT_BYTES, BASE_NONE,
 			NULL, 0x0, "Raw type-encoded bind value", HFILL }},
+		{ &hf_tns_data_fetch_rows, {
+			"Rows to Fetch", "tns.data_fetch.rows", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_tns_data_descriptor_row_count, {
 			"Row Count", "tns.data_descriptor.row_count", FT_UINT32, BASE_DEC,

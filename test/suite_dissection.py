@@ -1507,6 +1507,23 @@ class TestDissectTns:
         assert rows[2][6] == '1,2', rows[2]
         assert rows[2][7] == '6869,c10b', rows[2]
 
+    def test_tns_fetch(self, cmd_tshark, capture_file, test_env):
+        '''TTI_FETCH decodes the cursor id and row count. Two frames:
+        fetch 15 rows from cursor 3, and 100 rows from cursor 7.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_fetch.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_oci.id',
+            '-e', 'tns.data.cursor',
+            '-e', 'tns.data_fetch.rows',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert len(rows) == 2, rows
+        # oci id 0x05 = 5 (TTI_FETCH / "Fetch a Row").
+        assert rows[0] == ['0x05', '3', '15'], rows[0]
+        assert rows[1] == ['0x05', '7', '100'], rows[1]
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
