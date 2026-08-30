@@ -53,8 +53,6 @@
 #define PLUGINS_DIR_NAME    "plugins"
 #define EXTCAP_DIR_NAME     "extcap"
 
-#define _S G_DIR_SEPARATOR_S
-
 static char *persconffile_dir;
 static char *datafile_dir;
 static char *persdatafile_dir;
@@ -639,7 +637,7 @@ configuration_init_w32(const char* app_flavor, const char* arg0 _U_)
      * If the program_dir ends with "bin" then assume we are running with a
      * UN*X-like directory layout, and vice versa.
      */
-    if (g_str_has_suffix(progfile_dir, _S"bin")) {
+    if (strcmp(get_basename(progfile_dir), "bin") == 0) {
         running_in_posix_directory_flag = true;
         install_prefix = trim_last_dir_from_path(progfile_dir);
     }
@@ -909,7 +907,7 @@ configuration_init_posix(const char* app_flavor, const char* arg0)
      * the program_dir.
      */
     g_free(install_prefix);
-    if (g_str_has_suffix(progfile_dir, _S"bin")) {
+    if (strcmp(get_basename(progfile_dir), "bin") == 0) {
         install_prefix = trim_last_dir_from_path(progfile_dir);
     }
     else {
