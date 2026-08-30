@@ -75,6 +75,7 @@ void proto_register_tns(void);
 /* OCI function ids (TTI_FUN sub-functions). */
 #define TTI_FETCH               5
 #define TTI_ALL8                94
+#define TTI_LOBOPS              96
 
 /* desegmentation of TNS over TCP */
 static bool tns_desegment = true;
@@ -259,6 +260,8 @@ static int hf_tns_data_all8_bind_count;
 static int hf_tns_data_all8_sql;
 static int hf_tns_data_bind_value;
 static int hf_tns_data_fetch_rows;
+static int hf_tns_data_lob_op;
+static int hf_tns_data_lob_offset;
 
 static int hf_tns_data_descriptor_row_count;
 static int hf_tns_data_descriptor_row_size;
@@ -432,6 +435,26 @@ static const value_string tns_charsets[] = {
 	{871,  "US7ASCII"},
 	{873,  "AL32UTF8"},
 	{2000, "AL16UTF16"},
+	{0, NULL}
+};
+
+/* TTI_LOBOPS operation opcodes. */
+static const value_string tns_lob_ops[] = {
+	{0x00001, "GET_LENGTH"},
+	{0x00002, "READ"},
+	{0x00020, "TRIM"},
+	{0x00040, "WRITE"},
+	{0x00100, "FILE_OPEN"},
+	{0x00110, "CREATE_TEMP"},
+	{0x00111, "FREE_TEMP"},
+	{0x00200, "FILE_CLOSE"},
+	{0x00400, "FILE_ISOPEN"},
+	{0x00800, "FILE_EXISTS"},
+	{0x04000, "GET_CHUNK_SIZE"},
+	{0x08000, "OPEN"},
+	{0x10000, "CLOSE"},
+	{0x11000, "IS_OPEN"},
+	{0x80000, "ARRAY"},
 	{0, NULL}
 };
 
@@ -1589,6 +1612,50 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 						proto_item_set_len(row_item, offset - r_start);
 					}
 					proto_item_set_len(binds_item, offset - binds_start);
+				}
+			}
+			else if ( oci_id == TTI_LOBOPS )
+			{
+				/* TTI_LOBOPS: the LOB operation family (read, write, get
+				 * length, create/free temp, open/close, BFILE ops). One
+				 * common request layout selects behaviour by the operation
+				 * opcode. All multi-byte integers use
+				 * the ub4 variable-length form.
+				 *
+				 * We decode the common header through the source offset and
+				 * show the opcode; the locator framing and trailing amount /
+				 * write payload vary by opcode and locator variant, so they
+				 * are left to the data dissector. */
+				int v = 0, op = 0, start;
+
+				/* CREATE_TEMP carries a fixed field block (01 01 28 ...) with
+				 * no source locator instead of the common header. */
+				if ( tvb_bytes_exist(tvb, offset, 3)
+					&& tvb_get_uint24(tvb, offset, ENC_BIG_ENDIAN) == 0x010128 )
+				{
+					proto_tree_add_uint(data_tree, hf_tns_data_lob_op, tvb, offset, 3, 0x00110);
+				}
+				else
+				{
+					offset += 1;                              /* source pointer flag */
+					offset += get_sb4_custom(tvb, offset, &v); /* source locator length */
+					offset += 1;                              /* dest pointer flag */
+					offset += get_sb4_custom(tvb, offset, &v); /* dest length */
+					offset += get_sb4_custom(tvb, offset, &v); /* short source offset */
+					offset += get_sb4_custom(tvb, offset, &v); /* short dest offset */
+					offset += 3;                              /* charset / amount / null-lob flags */
+					/* operation opcode */
+					start = offset;
+					offset += get_sb4_custom(tvb, offset, &op);
+					proto_tree_add_uint(data_tree, hf_tns_data_lob_op, tvb, start, offset - start, op);
+					col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]",
+						val_to_str_const(op, tns_lob_ops, "unknown"));
+					/* scn-array pointer flag + length */
+					offset += 2;
+					/* source offset (ub8, 1-based into the LOB) */
+					start = offset;
+					offset += get_sb4_custom(tvb, offset, &v);
+					proto_tree_add_uint(data_tree, hf_tns_data_lob_offset, tvb, start, offset - start, v);
 				}
 			}
 			break;
@@ -2823,6 +2890,12 @@ void proto_register_tns(void)
 		{ &hf_tns_data_fetch_rows, {
 			"Rows to Fetch", "tns.data_fetch.rows", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_lob_op, {
+			"LOB Operation", "tns.data_lob.op", FT_UINT32, BASE_HEX,
+			VALS(tns_lob_ops), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_lob_offset, {
+			"Source Offset", "tns.data_lob.offset", FT_UINT32, BASE_DEC,
+			NULL, 0x0, "1-based offset into the LOB", HFILL }},
 
 		{ &hf_tns_data_descriptor_row_count, {
 			"Row Count", "tns.data_descriptor.row_count", FT_UINT32, BASE_DEC,

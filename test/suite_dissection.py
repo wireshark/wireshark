@@ -1524,6 +1524,24 @@ class TestDissectTns:
         assert rows[0] == ['0x05', '3', '15'], rows[0]
         assert rows[1] == ['0x05', '7', '100'], rows[1]
 
+    def test_tns_lobops(self, cmd_tshark, capture_file, test_env):
+        '''TTI_LOBOPS decodes the operation opcode and source offset. Two
+        frames: a READ (op 0x0002) and a GET_LENGTH (op 0x0001), both from
+        source offset 1.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_lobops.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_oci.id',
+            '-e', 'tns.data_lob.op',
+            '-e', 'tns.data_lob.offset',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert len(rows) == 2, rows
+        # oci id 0x60 = 96 (TTI_LOBOPS / "LOB and FILE related calls").
+        assert rows[0] == ['0x60', '0x00000002', '1'], rows[0]
+        assert rows[1] == ['0x60', '0x00000001', '1'], rows[1]
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
