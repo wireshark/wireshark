@@ -161,6 +161,7 @@ static int hf_tns_abort_data;
 
 static int hf_tns_marker_type;
 static int hf_tns_marker_data_byte;
+static int hf_tns_marker_function;
 /* static int hf_tns_marker_data; */
 
 static int hf_tns_redirect_data_length;
@@ -640,6 +641,14 @@ static const value_string tns_data_oci_subfuncs[] = {
 	{0, NULL}
 };
 static value_string_ext tns_data_oci_subfuncs_ext = VALUE_STRING_EXT_INIT(tns_data_oci_subfuncs);
+
+/* The final byte of a TNS_MARKER body selects break vs reset:
+ * 01 00 01 = break, 01 00 02 = reset. */
+static const value_string tns_marker_functions[] = {
+	{1, "Break (interrupt call)"},
+	{2, "Reset (clear line)"},
+	{0, NULL}
+};
 
 static const value_string tns_marker_types[] = {
 	{0, "Data Marker - 0 Data Bytes"},
@@ -2134,20 +2143,12 @@ static void dissect_tns_abort(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 
-static void dissect_tns_marker(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tns_tree, int is_attention)
+static void dissect_tns_marker(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tns_tree, int is_attention)
 {
 	proto_tree *marker_tree;
 
-	if ( is_attention )
-	{
-		marker_tree = proto_tree_add_subtree(tns_tree, tvb, offset, -1,
-			    ett_tns_marker, NULL, "Marker");
-	}
-	else
-	{
-		marker_tree = proto_tree_add_subtree(tns_tree, tvb, offset, -1,
-			    ett_tns_marker, NULL, "Attention");
-	}
+	marker_tree = proto_tree_add_subtree(tns_tree, tvb, offset, -1,
+		    ett_tns_marker, NULL, is_attention ? "Attention" : "Marker");
 
 	proto_tree_add_item(marker_tree, hf_tns_marker_type, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
@@ -2157,9 +2158,15 @@ static void dissect_tns_marker(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 			offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_item(marker_tree, hf_tns_marker_data_byte, tvb,
-			offset, 1, ENC_BIG_ENDIAN);
-	/*offset += 1;*/
+	/* The last byte selects break vs reset for a data marker. */
+	if ( tvb_reported_length_remaining(tvb, offset) > 0 )
+	{
+		uint32_t func = tvb_get_uint8(tvb, offset);
+		proto_tree_add_item(marker_tree, hf_tns_marker_function, tvb,
+				offset, 1, ENC_BIG_ENDIAN);
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+				val_to_str_const(func, tns_marker_functions, "Unknown"));
+	}
 }
 
 static void dissect_tns_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tns_tree)
@@ -2614,6 +2621,9 @@ void proto_register_tns(void)
 		{ &hf_tns_marker_data_byte, {
 			"Marker Data Byte", "tns.marker.databyte", FT_UINT8, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_marker_function, {
+			"Marker Function", "tns.marker.function", FT_UINT8, BASE_DEC,
+			VALS(tns_marker_functions), 0x0, NULL, HFILL }},
 #if 0
 		{ &hf_tns_marker_data, {
 			"Marker Data", "tns.marker.data", FT_UINT16, BASE_HEX,
