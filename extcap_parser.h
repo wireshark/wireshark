@@ -206,13 +206,6 @@ void extcap_free_complex(extcap_complex *comp);
 /* Print a complex value out for debug */
 
 /**
- * @brief Prints a complex type using its string representation.
- *
- * @param comp Pointer to the extcap_complex structure to be printed.
- */
-void extcap_printf_complex(extcap_complex *comp);
-
-/**
  * @brief Get a string representation of a complex type.
  * @return a string representation of a complex type
  * @note Caller is responsible for calling g_free on the returned string
