@@ -34,7 +34,9 @@ def _get_zabbix_capture_files() -> List[Path]:
     # capture file location ourselves.
     # This needs to be modified if the test or capture files are reorganized.
     zabbix_capture_dir = Path(__file__).parent.parent / "captures" / "zabbix"
-    return zabbix_capture_dir.glob("*.pcap*")
+    # pathlib.Path.glob produces a lazy generator; convert it to a list:
+    # https://docs.pytest.org/en/stable/deprecations.html#parametrize-iterators
+    return list(zabbix_capture_dir.glob("*.pcap*"))
 
 
 def _get_zabbix_capture_files_names_only() -> List[str]:
