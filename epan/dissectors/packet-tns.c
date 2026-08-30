@@ -936,6 +936,32 @@ static const char *tns_format_number(packet_info *pinfo, const uint8_t *data, in
 	return wmem_strdup_printf(pinfo->pool, "%s%s", sign, ips);
 }
 
+/* Render an Oracle DATE / TIMESTAMP value as an
+ * ISO-ish string. 7 bytes: century+100, year+100, month, day, hour+1,
+ * minute+1, second+1; 11 bytes add 4-byte big-endian nanoseconds.
+ * Returns a pinfo->pool string, or NULL. */
+static const char *tns_format_date(packet_info *pinfo, const uint8_t *data, int len)
+{
+	if ( len < 7 )
+		return NULL;
+	int year = (data[0] - 100) * 100 + (data[1] - 100);
+	int month = data[2], day = data[3];
+	int hour = data[4] - 1, minute = data[5] - 1, second = data[6] - 1;
+	if ( month < 1 || month > 12 || day < 1 || day > 31 ||
+	     hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59 )
+		return NULL;
+	if ( len >= 11 )
+	{
+		uint32_t nsec = ((uint32_t)data[7] << 24) | ((uint32_t)data[8] << 16) |
+				((uint32_t)data[9] << 8) | data[10];
+		if ( nsec > 0 )
+			return wmem_strdup_printf(pinfo->pool, "%04d-%02d-%02d %02d:%02d:%02d.%09u",
+				year, month, day, hour, minute, second, nsec);
+	}
+	return wmem_strdup_printf(pinfo->pool, "%04d-%02d-%02d %02d:%02d:%02d",
+		year, month, day, hour, minute, second);
+}
+
 static void vsnum_to_vstext_basecustom(char *result, uint32_t vsnum)
 {
 	/*
@@ -1127,10 +1153,17 @@ static int dissect_tns_rxd_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			else
 			{
 				disp_start = v_start + 1; /* show the value bytes, not the length */
-				/* Render an Oracle NUMBER (never chunked) as decimal. */
-				if ( dtype == 2 && first != 254 && offset > disp_start )
-					rendered = tns_format_number(pinfo,
-						tvb_get_ptr(tvb, disp_start, offset - disp_start), offset - disp_start);
+				/* Render common scalar types (never chunked): NUMBER as
+				 * decimal, DATE / TIMESTAMP / TIMESTAMP LTZ as a datetime. */
+				if ( first != 254 && offset > disp_start )
+				{
+					const uint8_t *vb = tvb_get_ptr(tvb, disp_start, offset - disp_start);
+					int vlen = offset - disp_start;
+					if ( dtype == 2 )
+						rendered = tns_format_number(pinfo, vb, vlen);
+					else if ( dtype == 12 || dtype == 180 || dtype == 231 )
+						rendered = tns_format_date(pinfo, vb, vlen);
+				}
 			}
 			break;
 	}
