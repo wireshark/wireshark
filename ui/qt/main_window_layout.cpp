@@ -28,6 +28,7 @@
 
 #include <ui/qt/data_source_tab.h>
 #include <ui/qt/packet_list.h>
+#include <ui/qt/widgets/packet_list_pane.h>
 #include <ui/qt/packet_diagram.h>
 #include <ui/qt/proto_tree.h>
 #include <ui/qt/widgets/display_filter_entry.h>
@@ -54,7 +55,7 @@ QWidget* MainWindow::getLayoutWidget(layout_pane_content_e type) {
         case layout_pane_content_none:
             return &empty_pane_;
         case layout_pane_content_plist:
-            return packet_list_;
+            return packet_list_pane_;
         case layout_pane_content_pdetails:
             return proto_tree_;
         case layout_pane_content_pbytes:
@@ -122,7 +123,7 @@ void MainWindow::layoutPanes()
     // Reparent all widgets and add them back in the proper order below.
     // This hides each widget as well.
     bool frozen = packet_list_->freeze(); // Clears tree, byte view tabs, and diagram.
-    packet_list_->setParent(main_stack_);
+    packet_list_pane_->setParent(main_stack_);
     proto_tree_->setParent(main_stack_);
     data_source_tab_->setParent(main_stack_);
     if (packet_diagram_) {
@@ -193,13 +194,13 @@ void MainWindow::layoutPanes()
     if (frozen) {
         // Show the packet list here to prevent pending resize events changing columns
         // when the packet list is set as current widget for the first time.
-        packet_list_->show();
+        packet_list_pane_->show();
     }
 
     const QList<QWidget *> ms_children = master_split_.findChildren<QWidget *>();
 
     extra_split_.setVisible(ms_children.contains(&extra_split_));
-    packet_list_->setVisible(ms_children.contains(packet_list_) && recent.packet_list_show);
+    packet_list_pane_->setVisible(ms_children.contains(packet_list_pane_) && recent.packet_list_show);
     proto_tree_->setVisible(ms_children.contains(proto_tree_) && recent.tree_view_show);
     data_source_tab_->setVisible(ms_children.contains(data_source_tab_) && recent.byte_view_show);
     if (packet_diagram_) {

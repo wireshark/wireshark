@@ -66,6 +66,7 @@
 #include <QPainter>
 #include <QScreen>
 #include <QScrollBar>
+#include <QWheelEvent>
 #include <QTabWidget>
 #include <QTextEdit>
 #include <QTimerEvent>
@@ -213,6 +214,7 @@ PacketList::PacketList(QWidget *parent) :
     proto_tree_(nullptr),
     cap_file_(nullptr),
     ctx_column_(-1),
+    ctx_from_pinned_row_strip_(false),
     overlay_timer_id_(0),
     create_near_overlay_(true),
     create_far_overlay_(true),
@@ -224,6 +226,12 @@ PacketList::PacketList(QWidget *parent) :
     set_style_sheet_(false),
     frozen_current_row_(QModelIndex()),
     frozen_selected_rows_(QModelIndexList()),
+    pinned_rows_model_(nullptr),
+    pinned_column_boundary_(0),
+    pinned_column_view_(nullptr),
+    pinned_row_view_(nullptr),
+    pinned_row_corner_view_(nullptr),
+    hovered_frame_num_(-1),
     cur_history_(-1),
     in_history_(false),
     finfo_array(nullptr),
@@ -234,6 +242,9 @@ PacketList::PacketList(QWidget *parent) :
     setSortingEnabled(prefs.gui_packet_list_sortable);
     setUniformRowHeights(true);
     setFocusPolicy(Qt::StrongFocus);
+    // Needed so mouseMoveEvent() fires on a plain hover (no button held),
+    // to track hovered_frame_num_ for the cross-pane hover highlight.
+    setMouseTracking(true);
 
 #ifdef Q_OS_MAC
     setAttribute(Qt::WA_MacShowFocusRect, true);
@@ -286,14 +297,94 @@ PacketList::PacketList(QWidget *parent) :
 
     connect(header(), &QHeaderView::sectionResized, this, &PacketList::sectionResized);
     connect(header(), &QHeaderView::sectionMoved, this, &PacketList::sectionMoved);
+    // The frozen column view's own header is a separate QHeaderView and
+    // doesn't automatically follow this one's sort indicator (the arrow
+    // icon), so keep it mirrored whenever a click on the real header (not
+    // just sortByColumnFromOverlay()) changes it.
+    connect(header(), &QHeaderView::sortIndicatorChanged, this, [this](int column, Qt::SortOrder order) {
+        if (pinned_column_view_) {
+            pinned_column_view_->mirrorSortIndicator(column, order);
+        }
+    });
 
     connect(verticalScrollBar(), &QScrollBar::actionTriggered, this, &PacketList::vScrollBarActionTriggered);
+
+    connect(packet_list_header_, &PacketListHeader::freezeColumnsToHere, this, &PacketList::setPinnedColumnBoundary);
+    connect(packet_list_header_, &PacketListHeader::unfreezeColumns, this, [this]() { setPinnedColumnBoundary(0); });
+
+    pinned_rows_model_ = new PinnedRowsModel(this);
+    pinned_rows_model_->setSourceModel(packet_list_model_);
+    // Filtering (modelReset) and sorting (layoutChanged) on the source
+    // model both need the pinned set re-resolved/re-ordered to match.
+    connect(packet_list_model_, &QAbstractItemModel::modelReset, this, &PacketList::updatePinnedRowVisibility);
+    connect(packet_list_model_, &QAbstractItemModel::layoutChanged, this, &PacketList::updatePinnedRowVisibility);
+
+    pinned_column_view_ = new PinnedColumnView(this, this);
+    pinned_column_view_->setModel(packet_list_model_);
+    pinned_column_view_->setSelectionModel(selectionModel());
+
+    connect(verticalScrollBar(), &QScrollBar::valueChanged, pinned_column_view_, &PinnedColumnView::setVerticalScrollValue);
 
     // Own the font: seed it now and follow the FontManager for later changes.
     connect(FontManager::instance(), &FontManager::monospaceFontChanged, this, &PacketList::setMonospaceFont);
     connect(FontManager::instance(), &FontManager::applicationFontChanged, this, &PacketList::setRegularFont);
     setMonospaceFont(FontManager::zoomedMonospaceFont());
     setRegularFont(FontManager::zoomedFont());
+
+    // isActiveWindow()/QEvent::ActivationChange can lag behind the actual
+    // activation state on some platforms until the next event loop
+    // iteration, so also track focus moving to/from the application
+    // entirely to keep the pinned overlay views' selection color synced.
+    connect(qApp, &QApplication::focusChanged, this, &PacketList::applicationFocusChanged);
+}
+
+void PacketList::setPinnedRowViews(PinnedRowView *row_view, PinnedRowView *corner_view)
+{
+    pinned_row_view_ = row_view;
+    pinned_row_corner_view_ = corner_view;
+
+    if (pinned_row_view_) {
+        pinned_row_view_->setModel(pinned_rows_model_);
+        connect(horizontalScrollBar(), &QScrollBar::valueChanged, pinned_row_view_, &PinnedRowView::setHorizontalScrollValue);
+    }
+    if (pinned_row_corner_view_) {
+        pinned_row_corner_view_->setModel(pinned_rows_model_);
+    }
+}
+
+QList<QTreeView *> PacketList::pinnedOverlayViews() const
+{
+    QList<QTreeView *> views;
+    if (pinned_column_view_) {
+        views << pinned_column_view_;
+    }
+    if (pinned_row_view_) {
+        views << pinned_row_view_;
+    }
+    if (pinned_row_corner_view_) {
+        views << pinned_row_corner_view_;
+    }
+    return views;
+}
+
+void PacketList::repaintPinnedOverlays()
+{
+    for (QTreeView *view : pinnedOverlayViews()) {
+        view->viewport()->update();
+    }
+}
+
+void PacketList::mirrorSectionWidthToOverlays(int column, int width)
+{
+    if (pinned_column_view_) {
+        pinned_column_view_->mirrorSectionWidth(column, width);
+    }
+    if (pinned_row_view_) {
+        pinned_row_view_->mirrorSectionWidth(column, width);
+    }
+    if (pinned_row_corner_view_) {
+        pinned_row_corner_view_->mirrorSectionWidth(column, width);
+    }
 }
 
 PacketList::~PacketList()
@@ -328,21 +419,13 @@ void PacketList::colorsChanged()
         "  background-color: %3;"
         "}";
 
-    QString hover_style = QStringLiteral(
-        "QTreeView:item:hover {"
-        "  background-color: %1;"
-        "  color: palette(text);"
-        "}").arg(ColorUtils::hoverBackground().name(QColor::HexArgb));
-
-    // A selected row also matches the :selected rules below, which out-rank
-    // the plain hover rule by CSS specificity. Add an equal-specificity
-    // :selected:hover rule, emitted last, so hover wins on a selected row
-    // (matching the proto tree and the pre-ThemeManager behavior).
-    QString selected_hover_style = QStringLiteral(
-        "QTreeView::item:selected:hover {"
-        "  background-color: %1;"
-        "  color: palette(text);"
-        "}").arg(ColorUtils::hoverBackground().name(QColor::HexArgb));
+    // Same as flat_style_format but with no :active/:!active selector at
+    // all, for the overlay panes (see applyOverlayActiveState()).
+    const QString plain_style_format =
+        "QTreeView::item:selected {"
+        "  color: %1;"
+        "  background-color: %2;"
+        "}";
 
     ThemeManager *tm = ThemeManager::instance();
     QColor active_bg   = tm->color(ThemeManager::PacketsSelection);
@@ -359,13 +442,24 @@ void PacketList::colorsChanged()
                                  inactive_fg.name(),
                                  inactive_bg.name());
 
+    // Hover highlighting is painted manually in drawRow() (driven by
+    // hovered_frame_num_) rather than through a :hover stylesheet
+    // selector, since the mouse hovering a pinned overlay view needs to
+    // highlight the corresponding row in every pane, not just the one
+    // widget Qt considers "hovered".
+    QString full_style = active_style + inactive_style;
+
+    // Cache the plain flat colors (no :active/:!active selector -- see
+    // applyOverlayActiveState()) so window-activation changes can pick the
+    // right one without recomputing from ThemeManager every time.
+    overlay_active_flat_style_ = plain_style_format.arg(active_fg.name(), active_bg.name());
+    overlay_inactive_flat_style_ = plain_style_format.arg(inactive_fg.name(), inactive_bg.name());
+
     set_style_sheet_ = true;
-    if (prefs.gui_packet_list_hover_style) {
-        setStyleSheet(active_style + inactive_style + hover_style + selected_hover_style);
-    } else {
-        setStyleSheet(active_style + inactive_style);
-    }
+    setStyleSheet(full_style);
     set_style_sheet_ = false;
+
+    applyOverlayActiveState();
 #if \
     ( \
     (QT_VERSION >= QT_VERSION_CHECK(6, 5, 4) && QT_VERSION < QT_VERSION_CHECK(6, 6, 0)) \
@@ -380,6 +474,41 @@ void PacketList::colorsChanged()
     applyRecentColumnWidths();
     setColumnVisibility();
 #endif
+}
+
+void PacketList::applyOverlayActiveState()
+{
+    // Match the plain flat_style_format(":active"/:!active") selectors
+    // applied to this view itself, which are keyed to whether THIS widget
+    // has focus (not just whether the window is active) -- Qt's
+    // :active/:!active tracks the same thing per-widget. Clicking into the
+    // packet details/bytes pane keeps the window active but moves focus
+    // away from PacketList, and the overlay panes should dim along with
+    // it, not stay "focused" on their own.
+    const QString &style = (hasFocus() && isActiveWindow()) ? overlay_active_flat_style_ : overlay_inactive_flat_style_;
+    if (pinned_column_view_) {
+        pinned_column_view_->setStyleSheet(style);
+    }
+    if (pinned_row_view_) {
+        pinned_row_view_->setStyleSheet(style);
+    }
+    if (pinned_row_corner_view_) {
+        pinned_row_corner_view_->setStyleSheet(style);
+    }
+}
+
+void PacketList::changeEvent(QEvent *event)
+{
+    QTreeView::changeEvent(event);
+
+    if (event->type() == QEvent::ActivationChange) {
+        applyOverlayActiveState();
+    }
+}
+
+void PacketList::applicationFocusChanged(QWidget *, QWidget *)
+{
+    applyOverlayActiveState();
 }
 
 QString PacketList::joinSummaryRow(QStringList col_parts, int row, SummaryCopyType type)
@@ -409,6 +538,24 @@ QString PacketList::joinSummaryRow(QStringList col_parts, int row, SummaryCopyTy
 void PacketList::drawRow (QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QTreeView::drawRow(painter, option, index);
+
+    // The hover highlight is driven by hovered_frame_num_ rather than Qt's
+    // native per-widget hover state, since the mouse hovering a pinned
+    // overlay view needs to highlight this row here too -- native :hover
+    // styling only ever reacts to the mouse being over this specific
+    // widget. Painted last with a translucent color (rather than before
+    // the base drawRow(), like a normal CSS background) since delegates
+    // paint an opaque item background themselves, which would otherwise
+    // hide a highlight painted underneath it. Painted even on a selected
+    // row so hover wins over selection, matching the pre-ThemeManager
+    // behavior (see the :selected:hover stylesheet rule elsewhere).
+    if (prefs.gui_packet_list_hover_style && index.isValid()) {
+        frame_data *fdata = getFDataForRow(index.row());
+        if (fdata && (int)fdata->num == hovered_frame_num_) {
+            QRect row_rect(0, visualRect(index).y(), viewport()->width(), visualRect(index).height());
+            ColorUtils::paintHoverOverlay(painter, row_rect);
+        }
+    }
 
     if (prefs.gui_packet_list_separator) {
         QRect rect = visualRect(index);
@@ -475,9 +622,24 @@ QList<int> PacketList::selectedRows(bool useFrameNum)
     return rows;
 }
 
+int PacketList::currentFrameNum() const
+{
+    if (!cap_file_ || !cap_file_->current_frame) {
+        return -1;
+    }
+    return (int)cap_file_->current_frame->num;
+}
+
 void PacketList::selectionChanged (const QItemSelection & selected, const QItemSelection & deselected)
 {
     QTreeView::selectionChanged(selected, deselected);
+
+    // The pinned overlay views share this view's selection model, but each
+    // is a separate QAbstractItemView with its own viewport; force a
+    // repaint there too so the highlight always shows on both sides of a
+    // freeze boundary, regardless of which view the selection change
+    // originated from.
+    repaintPinnedOverlays();
 
     if (!cap_file_) return;
 
@@ -620,9 +782,19 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     if (selectionModel() && selectionModel()->selectedRows(0).count() > 1)
         selectionModel()->select(ctxIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 
+    // ctxIndex is invalid when this is called via showContextMenuForFrame()
+    // for a pinned packet that's been filtered out of this view entirely
+    // (no row here to resolve via indexAt()/getRowFdata()) -- fall back to
+    // whatever frame was actually selected (by selectFrameFromOverlay(),
+    // just before this runs), which for that case is exactly the pinned
+    // packet's own frame, resolved independently of any row here.
+    frame_data *ctx_row_fdata = ctxIndex.isValid() ?
+        packet_list_model_->getRowFdata(ctxIndex.row()) :
+        (cap_file_ ? cap_file_->current_frame : nullptr);
+
     // frameData will be owned by one of the submenus, see below.
     FrameInformation * frameData =
-            new FrameInformation(new CaptureFile(this, cap_file_), packet_list_model_->getRowFdata(ctxIndex.row()));
+            new FrameInformation(new CaptureFile(this, cap_file_), ctx_row_fdata);
 
     QMenu * ctx_menu = new QMenu(this);
     ctx_menu->setAttribute(Qt::WA_DeleteOnClose);
@@ -650,6 +822,51 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     }
 
     ctx_menu->addAction(window()->findChild<QAction *>("actionViewEditResolvedName"));
+
+    frame_data *ctx_fdata = ctx_row_fdata;
+    if (ctx_fdata) {
+        bool rowPinned = pinned_rows_model_->isPinned((int)ctx_fdata->num);
+        bool maxReached = !rowPinned && pinned_rows_model_->pinnedCount() >= PinnedRowsModel::kMaxPinnedRows;
+        QString pin_label = rowPinned ? tr("Unpin Row")
+                           : maxReached ? tr("Pin Row to Top (max %1 reached)").arg(PinnedRowsModel::kMaxPinnedRows)
+                           : tr("Pin Row to Top");
+        QAction *pin_action = ctx_menu->addAction(pin_label);
+        pin_action->setEnabled(!maxReached);
+        int ctx_frame_num = ctx_fdata->num;
+        connect(pin_action, &QAction::triggered, this, [this, rowPinned, ctx_frame_num]() {
+            if (rowPinned) {
+                unpinRow(ctx_frame_num);
+            } else {
+                pinRow(ctx_frame_num);
+            }
+        });
+    }
+
+    // Shown only for a context menu request that actually originated from
+    // the pinned-row strip (PinnedRowView) itself -- not the frozen-column
+    // overlay or a direct right-click on the primary view -- since
+    // scrolling the main view to a packet already visible there (or
+    // clearing every pinned row) doesn't make sense as an action offered
+    // from either of those.
+    if (ctx_from_pinned_row_strip_ && ctx_fdata) {
+        int ctx_frame_num = ctx_fdata->num;
+        QAction *goto_action = ctx_menu->addAction(tr("Go to Packet"));
+        connect(goto_action, &QAction::triggered, this, [this, ctx_frame_num]() {
+            goToPacket(ctx_frame_num);
+        });
+    }
+    if (ctx_from_pinned_row_strip_ && pinned_rows_model_->pinnedCount() > 0) {
+        QAction *unpin_all_action = ctx_menu->addAction(tr("Unpin All Rows"));
+        connect(unpin_all_action, &QAction::triggered, this, &PacketList::unpinAllRows);
+    }
+    // Reset for the next context menu request: showContextMenuForRow()/
+    // showContextMenuForFrame() set this immediately before calling here,
+    // but a direct right-click on the primary view calls this override
+    // straight from Qt's own event dispatch, bypassing both wrappers
+    // entirely -- so it can't be reset at entry the way ctx_column_ is,
+    // only after this one use.
+    ctx_from_pinned_row_strip_ = false;
+
     ctx_menu->addSeparator();
 
     QString selectedfilter = getFilterFromRowAndColumn(currentIndex());
@@ -843,9 +1060,271 @@ void PacketList::mouseReleaseEvent(QMouseEvent *event) {
     mouse_pressed_at_ = QModelIndex();
 }
 
+// The pinned overlay views (PinnedColumnView/PinnedRowView) are separate
+// QTreeViews that only ever show a slice of the real content, laid out
+// independently of the primary view. Translating pixel coordinates from an
+// overlay's click into this view's coordinate space is unreliable -- their
+// row geometry can drift by a row even when the two appear visually
+// aligned (e.g. differing sub-pixel scroll remainders). Instead, the
+// overlay resolves the row itself via its own (always-correct, since it's
+// local) indexAt(), and these entry points act on that row/index directly
+// within this view, exactly as a real click here would.
+void PacketList::selectRowFromOverlay(int row, int column, Qt::MouseButtons buttons)
+{
+    QModelIndex index = model()->index(row, column);
+    if (!index.isValid()) {
+        return;
+    }
+
+    // Selecting a pinned packet (the whole point of pinning it) shouldn't
+    // yank the primary view's scroll position to wherever that packet
+    // happens to be -- setCurrentIndex() below scrolls to make the new
+    // current index visible (QAbstractItemView's normal behavior for
+    // e.g. arrow-key navigation), which is exactly what a click in the
+    // pinned strip should NOT do. Save and restore the vertical scroll
+    // position around it, the same way scrollTo() already does for the
+    // horizontal one.
+    int vert_scroll_value = verticalScrollBar()->value();
+
+    mouse_pressed_at_ = index;
+    setCurrentIndex(index);
+    verticalScrollBar()->setValue(vert_scroll_value);
+    selectionModel()->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    // Keep keyboard focus on the primary view so the selection highlight
+    // always renders in its "active" color, regardless of which pane the
+    // click that produced this selection landed in.
+    setFocus();
+
+    // The pinned-row views draw their own selection highlight by reading
+    // currentFrameNum()/selectedRows() directly (see PinnedRowView::drawRow()),
+    // rather than sharing this view's QItemSelectionModel, so updating that
+    // state above doesn't itself trigger a repaint there -- request one
+    // explicitly, the same way setHoveredFrameNum() already does for hover.
+    repaintPinnedOverlays();
+
+    if (buttons & Qt::MiddleButton) {
+        packet_list_model_->toggleFrameMark(QModelIndexList() << index);
+        redrawVisiblePackets();
+        create_far_overlay_ = true;
+        packets_bar_update();
+    }
+}
+
+void PacketList::selectFrameFromOverlay(int frame_num)
+{
+    if (!cap_file_ || !packet_list_model_) {
+        return;
+    }
+
+    PacketListRecord *record = packet_list_model_->physicalRecordForFrameNum(frame_num);
+    frame_data *fdata = record ? record->frameData() : nullptr;
+    if (!fdata) {
+        return;
+    }
+
+    // Clear any real selection in this view's own model: the frame being
+    // selected may not even have a row here (it can be filtered out), so
+    // there's no index to select instead. Mirrors the "nothing selected"
+    // path selectionChanged() takes for row < 0.
+    selectionModel()->clearSelection();
+    setCurrentIndex(QModelIndex());
+    mouse_pressed_at_ = QModelIndex();
+    setFocus();
+
+    // The pinned-row views draw their own selection highlight by reading
+    // currentFrameNum()/selectedRows() directly (see PinnedRowView::drawRow()),
+    // rather than sharing this view's QItemSelectionModel, so updating that
+    // state above doesn't itself trigger a repaint there -- request one
+    // explicitly, the same way setHoveredFrameNum() already does for hover.
+    repaintPinnedOverlays();
+
+    // cf_select_packet() works directly against the capture file's own
+    // frame array and is independent of the display filter/QModelIndex
+    // entirely -- unlike selectionChanged()'s row-based path, which can
+    // only ever resolve a frame that currently has a row in this view.
+    cf_select_packet(cap_file_, fdata);
+
+    if (!in_history_ && cap_file_->current_frame) {
+        cur_history_++;
+        selection_history_.resize(cur_history_);
+        selection_history_.append(cap_file_->current_frame->num);
+    }
+
+    related_packet_delegate_.clear();
+
+    // The previous dissection state has been invalidated by
+    // cf_select_packet() above; receivers must clear the previous state
+    // and apply the updated one. The emitted value is a frame number
+    // here, not a row -- consistent with contextMenuEvent()'s own
+    // framesSelected() emit further down, and safe because every
+    // receiver (DataSourceTab, ProtoTree, MainStatusBar, etc.) only
+    // checks the list's count and then reads cap_file_->edt/current_frame
+    // directly, never the integer values themselves.
+    emit framesSelected(QList<int>() << frame_num);
+
+    if (!cap_file_->edt) {
+        viewport()->update();
+        emit fieldSelected(0);
+        return;
+    }
+
+    if (cap_file_->edt->tree) {
+        packet_info *pi = &cap_file_->edt->pi;
+        related_packet_delegate_.setCurrentFrame(pi->num);
+        conversation_t *conv = find_conversation_pinfo_ro(pi, 0);
+        if (conv) {
+            related_packet_delegate_.setConversation(conv);
+        }
+        viewport()->update();
+    }
+
+    if (proto_tree_) {
+        proto_tree_->restoreSelectedField();
+    } else {
+        emit fieldSelected(0);
+    }
+}
+
+void PacketList::showContextMenuForRow(int row, const QPoint &global_pos, bool from_pinned_row_strip)
+{
+    QModelIndex index = model()->index(row, 0);
+    if (!index.isValid()) {
+        return;
+    }
+
+    ctx_from_pinned_row_strip_ = from_pinned_row_strip;
+
+    // visualRect() is this view's own geometry query, so it can't drift
+    // the way a translated cross-view pixel position could; it guarantees
+    // contextMenuEvent()'s own indexAt() resolves back to this exact row.
+    QPoint local_pos = visualRect(index).center();
+    QContextMenuEvent translated(QContextMenuEvent::Mouse, local_pos, global_pos);
+    contextMenuEvent(&translated);
+}
+
+void PacketList::showContextMenuForFrame(int frame_num, const QPoint &global_pos, bool from_pinned_row_strip)
+{
+    ctx_from_pinned_row_strip_ = from_pinned_row_strip;
+
+    // Select the frame first so cap_file_->current_frame/edt reflect it --
+    // contextMenuEvent() falls back to cap_file_->current_frame whenever
+    // indexAt() resolves to an invalid index (see below), which is
+    // exactly what happens for a pinned packet with no row in this view
+    // at all (i.e. filtered out).
+    selectFrameFromOverlay(frame_num);
+
+    // A position guaranteed to resolve to an invalid index via
+    // indexAt(), same idea as showContextMenuForRow() using a real row's
+    // visualRect() to guarantee the opposite. contextMenuEvent() then
+    // uses the ctx_row_fdata fallback to cap_file_->current_frame set by
+    // selectFrameFromOverlay() above instead of a row-based lookup.
+    QPoint local_pos(-1, -1);
+    QContextMenuEvent translated(QContextMenuEvent::Mouse, local_pos, global_pos);
+    contextMenuEvent(&translated);
+}
+
+// header_pos must already be in packet_list_header_'s (the real, primary
+// header's) own coordinate space by the time it reaches each forwarder
+// below -- every caller (PinnedColumnHeader, and PacketListPane's
+// duplicate_header_corner_/duplicate_header_main_ event filter) is
+// responsible for translating its own local position into that space
+// first, since each has a different relationship to it (PinnedColumnHeader
+// and duplicate_header_corner_ both start at the frozen boundary the same
+// way packet_list_header_'s own unscrolled columns [0, boundary) do;
+// duplicate_header_main_ instead starts at the boundary itself and must
+// add its own width). See PacketList::frozenHeaderPosToReal() for the
+// shared translation helper used by PinnedColumnHeader.
+QPoint PacketList::frozenHeaderPosToReal(const QPoint &frozen_pos) const
+{
+    int logical_index = pinned_column_view_->header()->logicalIndexAt(frozen_pos);
+    if (logical_index < 0) {
+        return frozen_pos;
+    }
+    int real_x = packet_list_header_->sectionViewportPosition(logical_index)
+        + (frozen_pos.x() - pinned_column_view_->header()->sectionViewportPosition(logical_index));
+    return QPoint(real_x, frozen_pos.y());
+}
+
+void PacketList::forwardHeaderContextMenu(QContextMenuEvent *event, const QPoint &header_pos)
+{
+    // event->globalPos() (from the original click, wherever it actually
+    // happened on screen) rather than packet_list_header_->mapToGlobal(
+    // header_pos): the latter assumes the real header is on-screen at its
+    // usual position, which isn't true when this request originated from
+    // duplicate_header_ (PacketListPane's stand-in header shown above the
+    // pinned-rows strip while the real one is hidden) -- that would pop
+    // the menu up at the real header's location instead of where the user
+    // actually right-clicked.
+    QContextMenuEvent translated(event->reason(), header_pos, event->globalPos(), event->modifiers());
+    packet_list_header_->showContextMenuAt(&translated);
+}
+
+void PacketList::forwardHeaderMousePress(QMouseEvent *event, const QPoint &header_pos)
+{
+    // Temporarily disable click-to-sort on the real header: forwarding
+    // press/release here is only meant to drive its resize-drag state
+    // machine (needed so a frozen column's resize actually changes the
+    // shared column width). QHeaderView's mouseReleaseEvent does its own
+    // native click-to-sort detection as a side effect of the same event,
+    // which would otherwise double up with the explicit
+    // sortByColumnFromOverlay() call and cancel it out.
+    packet_list_header_->setSectionsClickable(false);
+    QMouseEvent translated(event->type(), header_pos, packet_list_header_->mapToGlobal(header_pos),
+                            event->button(), event->buttons(), event->modifiers());
+    packet_list_header_->forwardMousePressEvent(&translated);
+}
+
+void PacketList::forwardHeaderMouseMove(QMouseEvent *event, const QPoint &header_pos)
+{
+    QMouseEvent translated(event->type(), header_pos, packet_list_header_->mapToGlobal(header_pos),
+                            event->button(), event->buttons(), event->modifiers());
+    packet_list_header_->forwardMouseMoveEvent(&translated);
+}
+
+void PacketList::forwardHeaderMouseRelease(QMouseEvent *event, const QPoint &header_pos)
+{
+    QMouseEvent translated(event->type(), header_pos, packet_list_header_->mapToGlobal(header_pos),
+                            event->button(), event->buttons(), event->modifiers());
+    packet_list_header_->forwardMouseReleaseEvent(&translated);
+    packet_list_header_->setSectionsClickable(true);
+}
+
+void PacketList::forwardWheelEvent(QWheelEvent *event)
+{
+    QTreeView::wheelEvent(event);
+}
+
+void PacketList::sortByColumnFromOverlay(int column)
+{
+    if (!isSortingEnabled()) {
+        return;
+    }
+
+    Qt::SortOrder order = Qt::AscendingOrder;
+    if (header()->sortIndicatorSection() == column) {
+        order = (header()->sortIndicatorOrder() == Qt::AscendingOrder) ? Qt::DescendingOrder : Qt::AscendingOrder;
+    }
+    header()->setSortIndicator(column, order);
+
+    // The frozen column view's own header is a separate QHeaderView, so it
+    // needs its sort indicator (the arrow icon) set explicitly to match --
+    // it doesn't automatically follow the primary header's indicator.
+    if (pinned_column_view_) {
+        pinned_column_view_->mirrorSortIndicator(column, order);
+    }
+}
+
 void PacketList::mouseMoveEvent (QMouseEvent *event)
 {
     QModelIndex curIndex = indexAt(event->pos());
+    frame_data *hovered_fdata = curIndex.isValid() ? getFDataForRow(curIndex.row()) : nullptr;
+    int new_hovered_frame_num = hovered_fdata ? (int)hovered_fdata->num : -1;
+    if (new_hovered_frame_num != hovered_frame_num_) {
+        hovered_frame_num_ = new_hovered_frame_num;
+        viewport()->update();
+        repaintPinnedOverlays();
+    }
+
     if (event->buttons() & Qt::LeftButton && curIndex.isValid() && curIndex == mouse_pressed_at_)
     {
         ctx_column_ = curIndex.column();
@@ -923,6 +1402,34 @@ void PacketList::mouseMoveEvent (QMouseEvent *event)
             delete mimeData;
         }
     }
+}
+
+void PacketList::leaveEvent(QEvent *event)
+{
+    QTreeView::leaveEvent(event);
+
+    if (hovered_frame_num_ != -1) {
+        hovered_frame_num_ = -1;
+        viewport()->update();
+        repaintPinnedOverlays();
+    }
+}
+
+void PacketList::setHoveredRowFromOverlay(int row)
+{
+    frame_data *fdata = (row >= 0) ? getFDataForRow(row) : nullptr;
+    setHoveredFrameNum(fdata ? (int)fdata->num : -1);
+}
+
+void PacketList::setHoveredFrameNum(int frame_num)
+{
+    if (frame_num == hovered_frame_num_) {
+        return;
+    }
+
+    hovered_frame_num_ = frame_num;
+    viewport()->update();
+    repaintPinnedOverlays();
 }
 
 void PacketList::keyPressEvent(QKeyEvent *event)
@@ -1038,13 +1545,26 @@ void PacketList::resizeEvent(QResizeEvent *event)
     create_near_overlay_ = true;
     create_far_overlay_ = true;
     QTreeView::resizeEvent(event);
+    layoutPinnedOverlays();
 }
 
 void PacketList::setColumnVisibility()
 {
     set_column_visibility_ = true;
     for (unsigned i = 0; i < prefs.num_cols; i++) {
-        setColumnHidden(i, get_column_visible(i) ? false : true);
+        bool hidden = get_column_visible(i) ? false : true;
+        bool frozen = isColumnFrozen((int)i, pinned_column_boundary_);
+        setColumnHidden(i, hidden);
+        if (pinned_column_view_) {
+            pinned_column_view_->setColumnHidden(i, hidden || !frozen);
+        }
+        if (pinned_row_view_) {
+            pinned_row_view_->setColumnHidden(i, hidden || frozen);
+        }
+        if (pinned_row_corner_view_) {
+            pinned_row_corner_view_->setColumnHidden(i, hidden || !frozen);
+        }
+        emit columnHiddenChanged(i, hidden);
     }
     setColumnDelegate();
     set_column_visibility_ = false;
@@ -1071,6 +1591,16 @@ void PacketList::setColumnDelegate()
                 setItemDelegateForColumn(i, &related_packet_delegate_);
                 break;  // Set the delegate only on the first visible column
             }
+        }
+    }
+
+    for (unsigned i = 0; i < prefs.num_cols; i++) {
+        QAbstractItemDelegate *col_delegate = itemDelegateForColumn(i);
+        if (!col_delegate) {
+            continue;
+        }
+        for (QTreeView *view : pinnedOverlayViews()) {
+            view->setItemDelegateForColumn(i, col_delegate);
         }
     }
 }
@@ -1206,6 +1736,19 @@ void PacketList::columnsChanged()
     resetColumns();
     applyRecentColumnWidths();
     setColumnVisibility();
+    // Freezing is defined purely positionally ("the first N columns"), and
+    // this signal doesn't say which column(s) actually changed -- a
+    // removal, addition, or reorder can each change which logical columns
+    // now sit at positions [0, pinned_column_boundary_), so there's no way
+    // to tell from here whether the frozen set still means what the user
+    // last chose. Unfreezing unconditionally is conservative (it also
+    // clears a freeze that a change elsewhere in the column list didn't
+    // actually affect), but guarantees the frozen set is never silently
+    // wrong. setPinnedColumnBoundary() also re-syncs the pinned overlays
+    // and duplicate header pair to match.
+    if (pinned_column_boundary_ > 0) {
+        setPinnedColumnBoundary(0);
+    }
     columns_changed_ = false;
 }
 
@@ -1369,6 +1912,16 @@ bool PacketList::thaw(bool restore_selection)
     // that to happen if we're in the middle of reading the file).
     setModel(packet_list_model_);
 
+    // setModel() always creates a brand-new default selection model, even
+    // when passed the same model pointer, discarding the one we'd shared
+    // with pinned_column_view_ back in the constructor. Re-share it so its
+    // selection highlighting doesn't silently go stale. (The pinned-row
+    // overlays use a separate proxy model -- PinnedRowsModel -- and so
+    // never shared this selection model to begin with.)
+    if (pinned_column_view_) {
+        pinned_column_view_->setSelectionModel(selectionModel());
+    }
+
     if (changing_profile_) {
         // When changing profile the new recent settings must be applied to the columns.
         applyRecentColumnWidths();
@@ -1399,6 +1952,18 @@ bool PacketList::thaw(bool restore_selection)
 }
 
 void PacketList::clear() {
+    // Cleared before packet_list_model_ below: that call emits modelReset,
+    // which updatePinnedRowVisibility() (connected to it) reacts to by
+    // calling pinned_rows_model_->refresh() -- resolving pinned frame
+    // numbers against packet_list_model_ while it's already been cleared,
+    // if pinned_rows_model_ itself hadn't been cleared first. Every
+    // consumer of that resolution currently null-checks defensively, so
+    // this ordering wasn't otherwise observably wrong, but doing the
+    // pinned-state clear first removes the transient window entirely
+    // rather than relying on those checks to mask it.
+    pinned_rows_model_->clear();
+    setPinnedColumnBoundary(0);
+
     related_packet_delegate_.clear();
     selectionModel()->clear();
     packet_list_model_->clear();
@@ -1412,6 +1977,8 @@ void PacketList::clear() {
     overlay_sb_->setMarkedPacketImage(overlay);
     create_near_overlay_ = true;
     create_far_overlay_ = true;
+
+    updatePinnedRowVisibility();
 }
 
 void PacketList::writeRecent(FILE *rf) {
@@ -1658,12 +2225,26 @@ void PacketList::setCaptureFile(capture_file *cf)
 void PacketList::setMonospaceFont(const QFont &mono_font)
 {
     setFont(mono_font);
+    for (QTreeView *view : pinnedOverlayViews()) {
+        view->setFont(mono_font);
+    }
+    layoutPinnedOverlays();
 }
 
 void PacketList::setRegularFont(const QFont &regular_font)
 {
     header()->setFont(regular_font);
     header()->viewport()->setFont(regular_font);
+    // pinned_column_view_'s own header isn't covered by setMonospaceFont()
+    // looping over pinnedOverlayViews() (that sets the *view's* font, for
+    // cell content -- QHeaderView doesn't automatically inherit a
+    // different font set on its own separately-headed QTreeView the way
+    // the primary view's header is explicitly given the regular font
+    // above), so without this it silently kept whatever font QHeaderView
+    // fell back to, differing from the primary header's.
+    if (pinned_column_view_) {
+        pinned_column_view_->header()->setFont(regular_font);
+    }
 }
 
 void PacketList::goNextPacket(void)
@@ -1894,6 +2475,9 @@ void PacketList::sectionResized(int col, int, int new_width)
 
         recent_set_column_width(col, new_width);
     }
+
+    mirrorSectionWidthToOverlays(col, new_width);
+    layoutPinnedOverlays();
 }
 
 // The user moved a column. Make sure prefs.col_list, the column format
@@ -1971,6 +2555,151 @@ void PacketList::sectionMoved(int logicalIndex, int oldVisualIndex, int newVisua
     int right_col = MAX(oldVisualIndex, newVisualIndex);
     if (left_col <= sort_idx && sort_idx <= right_col) {
         header()->setSortIndicator(sort_idx, header()->sortIndicatorOrder());
+    }
+
+    layoutPinnedOverlays();
+}
+
+void PacketList::pinRow(int frame_num)
+{
+    pinned_rows_model_->pinFrame(frame_num);
+    updatePinnedRowVisibility();
+}
+
+void PacketList::unpinRow(int frame_num)
+{
+    pinned_rows_model_->unpinFrame(frame_num);
+    updatePinnedRowVisibility();
+}
+
+void PacketList::unpinAllRows()
+{
+    pinned_rows_model_->clear();
+    updatePinnedRowVisibility();
+}
+
+int PacketList::pinnedRowHeight() const
+{
+    int row_height = sizeHintForRow(0);
+    if (row_height > 0) {
+        return row_height;
+    }
+    // No rows laid out yet (e.g. empty capture); fall back to font-based
+    // spacing so the strip still sizes sensibly rather than to 0.
+    return fontMetrics().height() + 2;
+}
+
+void PacketList::setPinnedColumnBoundary(int column_count)
+{
+    pinned_column_boundary_ = column_count;
+    emit pinnedColumnBoundaryChanged(pinned_column_boundary_);
+
+    // Seed widths for the newly-pinned range; afterward sectionResized()
+    // keeps these in sync as the user resizes columns.
+    for (int i = 0; i < pinned_column_boundary_; i++) {
+        int width = header()->sectionSize(i);
+        if (pinned_column_view_) {
+            pinned_column_view_->mirrorSectionWidth(i, width);
+        }
+        if (pinned_row_corner_view_) {
+            pinned_row_corner_view_->mirrorSectionWidth(i, width);
+        }
+    }
+
+    if (pinned_column_view_) {
+        pinned_column_view_->setFrozenColumnCount(pinned_column_boundary_);
+    }
+    if (packet_list_header_) {
+        packet_list_header_->setFrozenColumnCount(pinned_column_boundary_);
+    }
+
+    updatePinnedRowVisibility();
+    layoutPinnedOverlays();
+}
+
+void PacketList::updatePinnedRowVisibility()
+{
+    pinned_rows_model_->refresh();
+
+    bool have_pinned_rows = pinned_rows_model_->pinnedCount() > 0;
+
+    for (unsigned i = 0; i < prefs.num_cols; i++) {
+        int width = header()->sectionSize(i);
+        if (pinned_row_view_) {
+            pinned_row_view_->mirrorSectionWidth(i, width);
+        }
+        if (pinned_row_corner_view_) {
+            pinned_row_corner_view_->mirrorSectionWidth(i, width);
+        }
+    }
+
+    if (pinned_row_view_) {
+        pinned_row_view_->setColumnRange(pinned_column_boundary_, -1);
+        pinned_row_view_->setVisible(have_pinned_rows);
+        pinned_row_view_->updateGeometry();
+    }
+    if (pinned_row_corner_view_) {
+        bool show_corner = have_pinned_rows && pinned_column_boundary_ > 0;
+        if (show_corner) {
+            pinned_row_corner_view_->setColumnRange(0, pinned_column_boundary_ - 1);
+        }
+        pinned_row_corner_view_->setVisible(show_corner);
+        pinned_row_corner_view_->updateGeometry();
+    }
+
+    layoutPinnedOverlays();
+}
+
+void PacketList::layoutPinnedOverlays()
+{
+    // Width of the frozen-column portion, shared between the column-freeze
+    // overlay below and the pinned-row strip's "corner" widget (whose
+    // sizing PacketListPane keeps in sync via pinnedRowsCornerWidthChanged()).
+    int corner_width = 0;
+    for (int i = 0; i < pinned_column_boundary_; i++) {
+        corner_width += header()->sectionSize(i);
+    }
+    bool have_pinned_rows = pinned_rows_model_ && pinned_rows_model_->pinnedCount() > 0;
+    emit pinnedRowsCornerWidthChanged(corner_width, have_pinned_rows);
+
+    if (!pinned_column_view_) {
+        return;
+    }
+
+    // Derive the real on-screen offsets from the primary view's own child
+    // widgets rather than assuming (0, 0): QTreeView's default frame
+    // border/margin means header()/viewport() do not actually start flush
+    // with PacketList's own top-left corner.
+    int left_offset = header()->pos().x();
+    int top_offset = header()->pos().y();
+    int header_height = header()->height();
+
+    if (pinned_column_boundary_ > 0) {
+        pinned_column_view_->mirrorHeaderHeight(header_height);
+        // Span from the header's own top offset (not the viewport's) so
+        // this view's own header covers the primary header's frozen-column
+        // titles, which would otherwise scroll horizontally with the rest
+        // of the header.
+        QSize new_size(corner_width, header_height + viewport()->height());
+        pinned_column_view_->setGeometry(left_offset, top_offset,
+                                          new_size.width(), new_size.height());
+        pinned_column_view_->setVisible(true);
+        pinned_column_view_->raise();
+        // refreshLayout() forces a full row-geometry recompute
+        // (doItemsLayout()), which must run after setGeometry() since
+        // QTreeView computes its vertical scroll range from the current
+        // viewport size -- but only the height actually affects that
+        // range, so skip the recompute when only corner_width (the
+        // column-resize-driven part of new_size) changed. Without this,
+        // dragging a column resize handle while frozen columns are active
+        // re-runs a full O(rows) layout on every mouse-move tick.
+        if (new_size.height() != pinned_column_view_size_.height()) {
+            pinned_column_view_->refreshLayout();
+        }
+        pinned_column_view_size_ = new_size;
+        pinned_column_view_->setVerticalScrollValue(verticalScrollBar()->value());
+    } else {
+        pinned_column_view_->setVisible(false);
     }
 }
 

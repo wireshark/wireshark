@@ -17,6 +17,9 @@
 #include <ui/qt/models/related_packet_delegate.h>
 #include <ui/qt/models/multi_color_packet_delegate.h>
 #include <ui/qt/utils/field_information.h>
+#include <ui/qt/widgets/pinned_column_view.h>
+#include <ui/qt/widgets/pinned_row_view.h>
+#include <ui/qt/models/pinned_rows_model.h>
 
 #include <QMenu>
 #include <QTime>
@@ -206,6 +209,15 @@ public:
     void setColumnDelegate();
 
     /**
+     * @brief Updates the visibility of columns, including propagating
+     * global column-hidden state to the pinned-column/pinned-row overlay
+     * views (which PacketListHeader::columnVisibilityTriggered() needs to
+     * do explicitly, since toggling a column's checkbox there only ever
+     * hides that section on the real header itself).
+     */
+    void setColumnVisibility();
+
+    /**
      * @brief Resets the columns to their default state.
      */
     void resetColumns();
@@ -347,7 +359,246 @@ public:
      */
     void resizeAllColumns(bool onlyTimeFormatted = false);
 
+    /**
+     * @brief Pins a packet's row so that it stays visible (stacked with
+     * any other pinned rows, ordered to match the active sort) while the
+     * view is scrolled vertically. Up to PinnedRowsModel::kMaxPinnedRows
+     * packets may be pinned at once; additional pins beyond that are
+     * ignored.
+     * @param frame_num The frame number of the packet to pin.
+     */
+    void pinRow(int frame_num);
+
+    /**
+     * @brief Unpins a single packet's row, if pinned.
+     * @param frame_num The frame number of the packet to unpin.
+     */
+    void unpinRow(int frame_num);
+
+    // Unpins every currently pinned packet's row.
+    void unpinAllRows();
+
+    /**
+     * @brief The height of a single row in this view, for sizing the
+     * pinned-row strip to exactly N rows (see PinnedRowView::sizeHint()).
+     *
+     * Deliberately queried from this view rather than from the
+     * (separately laid-out) PinnedRowView itself: sizeHintForRow() only
+     * returns a real answer once a view has actually laid out that row,
+     * and the pinned-row views start hidden and may still have an empty
+     * model the first time a row is pinned, whereas this primary view is
+     * already showing real rows by the time there's anything to pin at
+     * all.
+     * @return The row height in pixels, or a small fallback if no rows
+     * have been laid out yet.
+     */
+    int pinnedRowHeight() const;
+
+    /**
+     * @brief Freezes the leftmost columns so they stay visible while the
+     * view is scrolled horizontally.
+     * @param column_count Number of leftmost columns to freeze; 0 clears it.
+     */
+    void setPinnedColumnBoundary(int column_count);
+
+    /**
+     * @brief The current frozen-column boundary (see
+     * setPinnedColumnBoundary()), for callers that need the current value
+     * rather than reacting to pinnedColumnBoundaryChanged() -- e.g.
+     * PacketListPane resyncing its duplicate header pair's frozen/
+     * non-frozen column split right before showing it, which may need to
+     * reflect a boundary set well before anything was ever pinned.
+     * @return Number of leftmost columns currently frozen, or 0.
+     */
+    int pinnedColumnBoundary() const { return pinned_column_boundary_; }
+
+    /**
+     * @brief The single shared definition of "column i is frozen" given a
+     * frozen-column boundary, used everywhere that rule needs to be
+     * applied (this class and PacketListPane, which splits its duplicate
+     * header pair the same way) so the rule itself only has one place to
+     * change.
+     */
+    static bool isColumnFrozen(int column, int boundary) { return column < boundary; }
+
+    /**
+     * @brief Supplies the pinned-row-strip overlay views for this view to
+     * manage the content/properties of (model, column widths, styles,
+     * fonts, delegates, column visibility). The views themselves are
+     * owned and positioned by the owning PacketListPane, which
+     * constructs them as siblings of this view in a normal layout above
+     * it -- QTreeView reserves viewport space for its own header
+     * internally and reasserts that reservation on every geometry pass,
+     * so this content couldn't be reserved space as overlay children of
+     * PacketList itself via setViewportMargins()/setGeometry().
+     * @param row_view The overlay view showing pinned rows' non-frozen columns.
+     * @param corner_view The overlay view showing pinned rows' frozen columns.
+     */
+    void setPinnedRowViews(PinnedRowView *row_view, PinnedRowView *corner_view);
+
+    /**
+     * @brief Selects/marks a row as if the user had clicked it directly in
+     * this view, given a row already resolved by the overlay view's own
+     * (always-correct, since it's local) indexAt(). Avoids translating
+     * pixel coordinates between two independently laid-out QTreeViews,
+     * whose row geometry can drift by a row even when visually aligned.
+     * @param row The row index (in this view's current row numbering).
+     * @param column The column that was clicked, for consistency with a
+     * direct click (used e.g. for context/copy actions).
+     * @param buttons The mouse buttons held during the press.
+     */
+    void selectRowFromOverlay(int row, int column, Qt::MouseButtons buttons);
+
+    /**
+     * @brief Same as selectRowFromOverlay(), but given a frame/packet
+     * number directly rather than a row in this view's own model.
+     *
+     * Used by PinnedRowView for a pinned packet that's been filtered out
+     * of the primary view entirely: such a packet has no row here at
+     * all, so model()->index(row, column) (what selectRowFromOverlay()
+     * uses) can never resolve to it. Selection itself is not actually a
+     * QModelIndex-level concept underneath -- cf_select_packet() takes a
+     * frame_data* directly and works purely against the capture file's
+     * own frame array, independent of the display filter -- so this
+     * bypasses the model entirely and drives that directly, then emits
+     * framesSelected() the same way selectionChanged() normally would.
+     * @param frame_num The frame/packet number to select.
+     */
+    void selectFrameFromOverlay(int frame_num);
+
+    /**
+     * @brief Shows this view's context menu for a row already resolved by
+     * an overlay view's own indexAt(), rather than translating pixel
+     * coordinates across views (see selectRowFromOverlay()).
+     * @param row The row index (in this view's current row numbering).
+     * @param global_pos Where to actually pop up the menu on screen.
+     * @param from_pinned_row_strip Whether this request originated from
+     * the pinned-row strip (PinnedRowView) specifically, rather than the
+     * frozen-column overlay (PinnedColumnView) or the primary view --
+     * used to show "Unpin All Rows" only there.
+     */
+    void showContextMenuForRow(int row, const QPoint &global_pos, bool from_pinned_row_strip = false);
+
+    /**
+     * @brief Same as showContextMenuForRow(), but given a frame/packet
+     * number directly for a pinned packet that's been filtered out of
+     * the primary view (see selectFrameFromOverlay() for why a row-based
+     * lookup can't reach it).
+     * @param frame_num The frame/packet number to show the menu for.
+     * @param global_pos Where to actually pop up the menu on screen.
+     * @param from_pinned_row_strip See showContextMenuForRow(); always
+     * true in practice for this overload, since only PinnedRowView (never
+     * PinnedColumnView) ever needs the frame-number-based path (see its
+     * own comment for why).
+     */
+    void showContextMenuForFrame(int frame_num, const QPoint &global_pos, bool from_pinned_row_strip = true);
+
+    /**
+     * @brief Translates a position local to the pinned column view's own
+     * header (PinnedColumnHeader, which never scrolls and always shows
+     * frozen columns at their unscrolled logical positions) into the
+     * equivalent position in this view's real header's own coordinate
+     * space, which does scroll horizontally. Used by PinnedColumnHeader
+     * before calling any of the forwardHeader*() methods below, all of
+     * which require header_pos already in the real header's space.
+     */
+    QPoint frozenHeaderPosToReal(const QPoint &frozen_pos) const;
+
+    /**
+     * @brief Forwards a header context menu request from the pinned
+     * column view's own header.
+     * @param event The original context menu event.
+     * @param header_pos The equivalent position in this view's header.
+     */
+    void forwardHeaderContextMenu(QContextMenuEvent *event, const QPoint &header_pos);
+
+    /**
+     * @brief Forwards a header mouse press (used for resize dragging) from
+     * the pinned column view's own header to this view's real header.
+     */
+    void forwardHeaderMousePress(QMouseEvent *event, const QPoint &header_pos);
+
+    // Forwards a header mouse move (used for resize dragging).
+    void forwardHeaderMouseMove(QMouseEvent *event, const QPoint &header_pos);
+
+    // Forwards a header mouse release (used for resize dragging).
+    void forwardHeaderMouseRelease(QMouseEvent *event, const QPoint &header_pos);
+
+    /**
+     * @brief Sorts by the given column as if its header section had been
+     * clicked directly, toggling order if it's already the sorted column.
+     * Used because a plain click on the pinned column view's own header
+     * doesn't reliably trigger QHeaderView's built-in click-to-sort
+     * machinery once its press/release events are being forwarded here
+     * for resize-drag support.
+     * @param column The logical column index that was clicked.
+     */
+    void sortByColumnFromOverlay(int column);
+
+    /**
+     * @brief Forwards a wheel scroll event from a pinned overlay view so
+     * scrolling stays perfectly in sync with the primary view.
+     */
+    void forwardWheelEvent(QWheelEvent *event);
+
+    /**
+     * @brief Updates which row is considered "hovered" from a pinned
+     * overlay view's own mouse-move event, so the hover highlight shows
+     * across the whole logical row (both frozen and non-frozen panes)
+     * rather than only in whichever pane the mouse happens to be over.
+     * @param row The row index (in this view's current row numbering)
+     * under the mouse in the overlay view, or -1 if the mouse left it.
+     */
+    void setHoveredRowFromOverlay(int row);
+
+    /**
+     * @brief Same as setHoveredRowFromOverlay(), but given the frame
+     * number directly rather than a row to resolve via getFDataForRow().
+     *
+     * Used by PinnedRowView, whose rows can represent a pinned packet
+     * that's been filtered out of the primary view entirely -- such a
+     * packet has no row there at all, so a row-based lookup can never
+     * resolve to it (getFDataForRow() only searches visible rows), even
+     * though the frame number to highlight is already known directly
+     * from PinnedRowView's own model index.
+     * @param frame_num The frame number to mark as hovered, or -1 for none.
+     */
+    void setHoveredFrameNum(int frame_num);
+
+    /**
+     * @brief The frame number of the row currently tracked as hovered
+     * across all panes, or -1 if none. Used by the pinned overlay views'
+     * drawRow() overrides to manually paint the hover highlight, since
+     * Qt's native per-widget hover state doesn't span separate widgets.
+     */
+    int hoveredFrameNum() const { return hovered_frame_num_; }
+
+    /**
+     * @brief The frame number of the currently selected packet, or -1 if
+     * none. Reflects cap_file_->current_frame, which cf_select_packet()
+     * keeps correct regardless of whether the selection was made through
+     * a normal click (a row in this view's own model) or through
+     * selectFrameFromOverlay() (a pinned packet with no row here at all,
+     * e.g. filtered out) -- unlike selectedRows(), which can only ever
+     * list rows that exist in this view's own model, and so comes back
+     * empty for the latter case even though a packet really is selected.
+     * Used by PinnedRowView::drawRow() so the pinned strip's own
+     * selection highlight tracks the real selection in both cases.
+     */
+    int currentFrameNum() const;
+
 protected:
+    /**
+     * @brief Handles window-activation changes.
+     *
+     * Qt's :active/:!active stylesheet pseudo-states resolve per-widget
+     * based on which widget currently has focus, which doesn't track
+     * cleanly across the pinned overlay views (separate QTreeView
+     * instances). Instead, this view's own window-active state is applied
+     * to all of them directly whenever it changes.
+     */
+    virtual void changeEvent(QEvent *event) override;
+
     /**
      * @brief Handles selection change events.
      * @param selected The newly selected items.
@@ -390,6 +641,12 @@ protected:
      * @param event The mouse event.
      */
     virtual void mouseMoveEvent (QMouseEvent *event) override;
+
+    /**
+     * @brief Clears the tracked hover row when the mouse leaves this view
+     * (and, by extension, all pinned overlay views showing the same row).
+     */
+    virtual void leaveEvent(QEvent *event) override;
 
     /**
      * @brief Handles resize events.
@@ -449,6 +706,17 @@ private:
     /** @brief Current context column index. */
     int ctx_column_;
 
+    /** @brief Whether the context menu currently being built was
+     * requested from the pinned-row strip specifically (see
+     * showContextMenuForRow()'s own comment), so contextMenuEvent() can
+     * show "Unpin All Rows" only there. Set just before contextMenuEvent()
+     * runs by showContextMenuForRow()/showContextMenuForFrame(); a direct
+     * right-click on the primary view bypasses both and goes straight to
+     * contextMenuEvent(), so this is reset to false at the top of that
+     * function to avoid leaking a stale true from a previous overlay
+     * invocation. */
+    bool ctx_from_pinned_row_strip_;
+
     /** @brief Saved column state. */
     QByteArray column_state_;
 
@@ -506,6 +774,43 @@ private:
     /** @brief The list of selected rows when the list is frozen. */
     QModelIndexList frozen_selected_rows_;
 
+    /** @brief Proxy model exposing only the pinned packets, in pin order,
+     * for the pinned-row overlay views. */
+    PinnedRowsModel *pinned_rows_model_;
+
+    // Number of leftmost columns currently frozen/pinned, or 0.
+    int pinned_column_boundary_;
+
+    // Overlay view showing the frozen leftmost columns for all rows.
+    PinnedColumnView *pinned_column_view_;
+
+    /** @brief pinned_column_view_'s viewport size as of the last
+     * layoutPinnedOverlays() call that actually resized it, so a plain
+     * column-width change (which alone doesn't change its vertical scroll
+     * range) can skip the relayout that setGeometry() alone doesn't need --
+     * see layoutPinnedOverlays()'s own comment. */
+    QSize pinned_column_view_size_;
+
+    // Overlay view showing the pinned row's non-frozen columns.
+    PinnedRowView *pinned_row_view_;
+
+    // Overlay view showing the pinned row's frozen columns (the "corner").
+    PinnedRowView *pinned_row_corner_view_;
+
+    // Cached selection stylesheet for the overlay views when this window is active.
+    QString overlay_active_flat_style_;
+
+    // Cached selection stylesheet for the overlay views when this window is inactive.
+    QString overlay_inactive_flat_style_;
+
+    /**
+     * @brief Frame number of the row currently under the mouse, tracked
+     * centrally (rather than relying on each view's own native hover
+     * detection) so the hover highlight can be forced to show across all
+     * pinned overlay panes as well as the primary view. -1 = none.
+     */
+    int hovered_frame_num_;
+
     /** @brief Array of previously selected row numbers for history navigation. */
     QVector<int> selection_history_;
 
@@ -529,11 +834,6 @@ private:
     void setFrameReftime(bool set, frame_data *fdata);
 
     /**
-     * @brief Updates the visibility of columns.
-     */
-    void setColumnVisibility();
-
-    /**
      * @brief Applies the recently used width to a specific column.
      * @param column The column index.
      */
@@ -548,6 +848,46 @@ private:
      * @brief Applies recent widths across all columns.
      */
     void applyRecentColumnWidths();
+
+    /**
+     * @brief The currently-live pinned overlay views (pinned_column_view_,
+     * pinned_row_view_, pinned_row_corner_view_), skipping any that are
+     * still null (pinned_row_view_/pinned_row_corner_view_ aren't set until
+     * setPinnedRowViews() is called by the owning PacketListPane).
+     * @return The live overlay views, as their common QTreeView base.
+     */
+    QList<QTreeView *> pinnedOverlayViews() const;
+
+    /**
+     * @brief Requests a repaint of every live pinned overlay view's
+     * viewport. Used wherever this view's own selection or hover state
+     * changes: the overlay views draw those highlights themselves (see
+     * PinnedRowView::drawRow()/PinnedColumnView::drawRow()) rather than
+     * picking up the change automatically, since each is a separate
+     * QAbstractItemView with its own viewport.
+     */
+    void repaintPinnedOverlays();
+
+    /**
+     * @brief Mirrors a single header section's width onto every live
+     * pinned overlay view.
+     * @param column The column (logical index) to mirror.
+     * @param width The new width.
+     */
+    void mirrorSectionWidthToOverlays(int column, int width);
+
+    /**
+     * @brief Sets the pinned overlay views' selection stylesheet to match
+     * whether this view's window is currently active.
+     */
+    void applyOverlayActiveState();
+
+    /**
+     * @brief Slot connected to QApplication::focusChanged, since
+     * isActiveWindow() can lag behind the actual activation state on some
+     * platforms until the next event loop iteration.
+     */
+    void applicationFocusChanged(QWidget *old, QWidget *now);
 
     /**
      * @brief Handles updates when the scroll view changes.
@@ -569,6 +909,49 @@ signals:
      * @brief Signal emitted when packet dissection data changes.
      */
     void packetDissectionChanged();
+
+    /**
+     * @brief Emitted whenever the width needed for the pinned-row strip's
+     * "corner" (the frozen-column portion, matching the pinned column
+     * boundary) changes, so the owning PacketListPane can resize the
+     * corner widget in its layout to match, and whenever whether any rows
+     * are pinned at all may have changed, so the pane can show/hide the
+     * whole strip. Emitted from layoutPinnedOverlays(), which already
+     * runs whenever column widths, the pinned column boundary, or the
+     * pinned row set change.
+     *
+     * have_pinned_rows is passed explicitly rather than left for
+     * PacketListPane to infer from the row views' own isVisible(): those
+     * views are nested inside the very strip widget this signal controls
+     * the visibility of, and QWidget::isVisible() reflects actual
+     * on-screen visibility (requiring every ancestor to also be visible),
+     * not just a widget's own explicit show/hide flag -- so deriving the
+     * strip's visibility from its own (still-hidden) children's
+     * isVisible() can never become true.
+     * @param corner_width The width, in pixels, of the frozen-column portion.
+     * @param have_pinned_rows Whether at least one row is currently pinned.
+     */
+    void pinnedRowsCornerWidthChanged(int corner_width, bool have_pinned_rows);
+
+    /**
+     * @brief Emitted from setColumnVisibility() for every column whenever
+     * any column's visibility changes, so PacketListPane can mirror it
+     * onto duplicate_header_ (a bare QHeaderView with no setColumnHidden()
+     * of its own the way a full QTreeView-based overlay has).
+     * @param column The column (logical index) whose visibility changed.
+     * @param hidden The column's new hidden state.
+     */
+    void columnHiddenChanged(int column, bool hidden);
+
+    /**
+     * @brief Emitted from setPinnedColumnBoundary() whenever the frozen-
+     * column boundary changes, so PacketListPane can split
+     * duplicate_header_ into frozen/non-frozen halves the same way
+     * pinned_column_view_/pinned_row_view_/pinned_row_corner_view_ already
+     * split their own column visibility around pinned_column_boundary_.
+     * @param column_count Number of leftmost columns now frozen, or 0.
+     */
+    void pinnedColumnBoundaryChanged(int column_count);
 
     /**
      * @brief Signal emitted to show preferences for a specific pane.
@@ -799,6 +1182,26 @@ private slots:
      * @brief Slot triggered to show the "Decode As" dialog for the context.
      */
     void ctxDecodeAsDialog();
+
+    /**
+     * @brief Re-resolves the pinned row's frame number to its current
+     * visible row and updates overlay visibility/position accordingly.
+     * Connected to the model's modelReset signal.
+     */
+    void updatePinnedRowVisibility();
+
+    /**
+     * @brief Recomputes the geometry of the pinned column overlay
+     * (pinned_column_view_) against the current viewport, and emits
+     * pinnedRowsCornerWidthChanged() so the owning PacketListPane can keep
+     * the pinned-row strip's corner width in sync. The pinned-row strip
+     * itself is a sibling widget positioned by PacketListPane's own
+     * layout, not by this view, since QTreeView reserves viewport space
+     * for its own header internally and reasserts that reservation on
+     * every geometry pass -- reserving additional space above the
+     * viewport via setViewportMargins() can't coexist with that.
+     */
+    void layoutPinnedOverlays();
 };
 
 #endif // PACKET_LIST_H

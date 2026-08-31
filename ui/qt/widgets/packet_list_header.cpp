@@ -9,6 +9,7 @@
 
 #include <QDropEvent>
 #include <QMimeData>
+#include <QMouseEvent>
 #include <QToolTip>
 #include <QAction>
 #include <QInputDialog>
@@ -32,7 +33,8 @@
 
 PacketListHeader::PacketListHeader(Qt::Orientation orientation, QWidget *parent) :
     AdaptiveHeaderView(orientation, parent),
-    sectionIdx(-1)
+    sectionIdx(-1),
+    frozen_column_count_(0)
 {
     setAcceptDrops(true);
     setSectionsMovable(true);
@@ -150,6 +152,26 @@ void PacketListHeader::mouseMoveEvent(QMouseEvent *e)
     QHeaderView::mouseMoveEvent(e);
 }
 
+void PacketListHeader::showContextMenuAt(QContextMenuEvent *event)
+{
+    contextMenuEvent(event);
+}
+
+void PacketListHeader::forwardMousePressEvent(QMouseEvent *event)
+{
+    mousePressEvent(event);
+}
+
+void PacketListHeader::forwardMouseMoveEvent(QMouseEvent *event)
+{
+    mouseMoveEvent(event);
+}
+
+void PacketListHeader::forwardMouseReleaseEvent(QMouseEvent *event)
+{
+    QHeaderView::mouseReleaseEvent(event);
+}
+
 void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
 {
     int sectionIdx = logicalIndexAt(event->pos());
@@ -171,6 +193,10 @@ void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
     connect(action, &QAction::triggered, this, &PacketListHeader::resizeToContent);
     action = contextMenu->addAction(tr("Resize Column to Width…"));
     connect(action, &QAction::triggered, this, &PacketListHeader::resizeToWidth);
+
+    bool columnFrozen = sectionIdx < frozen_column_count_;
+    action = contextMenu->addAction(columnFrozen ? tr("Unfreeze Columns") : tr("Freeze Column"));
+    connect(action, &QAction::triggered, this, columnFrozen ? &PacketListHeader::doUnfreezeColumns : &PacketListHeader::doFreezeColumnsToHere);
 
     contextMenu->addSeparator();
 
@@ -268,7 +294,15 @@ void PacketListHeader::columnVisibilityTriggered()
 
     PacketList* packetList = qobject_cast<PacketList*>(parent());
     if (packetList) {
-        packetList->setColumnDelegate();
+        // setColumnVisibility() (rather than setColumnDelegate() alone)
+        // since this checkbox only hides the column on this header itself
+        // above -- the pinned-column/pinned-row overlay views (and the
+        // primary view's own QTreeView column-hidden state, which this
+        // header's setSectionHidden() doesn't by itself guarantee stays in
+        // sync with) still need PacketList::setColumnVisibility() to apply
+        // the same hidden state to them, or they silently keep showing the
+        // column's stale last-visible content indefinitely.
+        packetList->setColumnVisibility();
     }
 
     prefs_main_write();
@@ -381,4 +415,28 @@ void PacketListHeader::resizeToWidth()
                                  sectionSize(section), 0, 1000, 1, &ok);
     if (ok)
         resizeSection(section, width);
+}
+
+void PacketListHeader::doFreezeColumnsToHere()
+{
+    QAction * action = qobject_cast<QAction *>(sender());
+    if (!action)
+        return;
+
+    QMenu * menu = qobject_cast<QMenu *>(action->parent());
+    if (!menu)
+        return;
+
+    int section = menu->property("column").toInt();
+    emit freezeColumnsToHere(section + 1);
+}
+
+void PacketListHeader::doUnfreezeColumns()
+{
+    emit unfreezeColumns();
+}
+
+void PacketListHeader::setFrozenColumnCount(int frozen_column_count)
+{
+    frozen_column_count_ = frozen_column_count;
 }

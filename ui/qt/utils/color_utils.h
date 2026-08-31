@@ -17,6 +17,9 @@
 #include <QBrush>
 #include <QColor>
 #include <QObject>
+#include <QRect>
+
+class QPainter;
 
 /**
  * @brief Utility class providing color conversion, blending, and theme-aware UI color definitions.
@@ -88,6 +91,19 @@ public:
      * @return The background color.
      */
     static const QColor hoverBackground();
+
+    /**
+     * @brief Paints the translucent hover-highlight overlay used by
+     * PacketList and its pinned overlay panes (PinnedColumnView,
+     * PinnedRowView) over a row's rect. Painted on top of (rather than
+     * under) the row's normal delegate-drawn content, since delegates
+     * paint an opaque item background themselves that would otherwise
+     * hide a highlight painted underneath it.
+     * @param painter The active painter (mid-paintEvent).
+     * @param row_rect The row's rect to fill, in the same coordinate space
+     * the painter is currently set up for.
+     */
+    static void paintHoverOverlay(QPainter *painter, const QRect &row_rect);
 
     /**
      * @brief Returns an appropriate warning background color for the current mode.

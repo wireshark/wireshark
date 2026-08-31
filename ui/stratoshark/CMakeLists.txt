@@ -48,7 +48,12 @@ set(WIRESHARK_WIDGET_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/overlay_scroll_bar.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/adaptive_header_view.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/packet_list_header.h
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/packet_list_pane.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/path_selection_edit.h
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/pinned_column_header.h
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/pinned_column_view.h
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/pinned_overlay_view.h
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/pinned_row_view.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/pref_module_view.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/profile_tree_view.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/qcp_axis_ticker_elided.h
@@ -155,6 +160,7 @@ set(WIRESHARK_MODEL_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/models/numeric_value_chooser_delegate.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/packet_list_model.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/packet_list_record.h
+	${CMAKE_SOURCE_DIR}/ui/qt/models/pinned_rows_model.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/path_selection_delegate.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/percent_bar_delegate.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/pref_delegate.h
@@ -354,6 +360,10 @@ set(WIRESHARK_WIDGET_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/overlay_scroll_bar.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/adaptive_header_view.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/packet_list_header.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/packet_list_pane.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/pinned_column_header.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/pinned_column_view.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/pinned_row_view.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/path_selection_edit.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/pref_module_view.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/profile_tree_view.cpp
@@ -469,6 +479,7 @@ set(WIRESHARK_MODEL_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/models/numeric_value_chooser_delegate.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/packet_list_model.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/packet_list_record.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/models/pinned_rows_model.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/path_selection_delegate.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/percent_bar_delegate.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/pref_delegate.cpp

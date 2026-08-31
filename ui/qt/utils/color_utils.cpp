@@ -12,6 +12,7 @@
 #include <ui/qt/utils/theme_manager.h>
 
 #include <QApplication>
+#include <QPainter>
 #include <QPalette>
 
 ColorUtils::ColorUtils(QObject *parent) :
@@ -99,6 +100,13 @@ const QColor ColorUtils::hoverBackground()
 #else
     return ColorUtils::alphaBlend(hover_palette.window(), hover_palette.highlight(), 0.5);
 #endif
+}
+
+void ColorUtils::paintHoverOverlay(QPainter *painter, const QRect &row_rect)
+{
+    QColor overlay = ColorUtils::hoverBackground();
+    overlay.setAlpha(96);
+    painter->fillRect(row_rect, overlay);
 }
 
 const QColor ColorUtils::warningBackground()

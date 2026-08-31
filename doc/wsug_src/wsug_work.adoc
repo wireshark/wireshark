@@ -94,6 +94,11 @@ Open the column editor toolbar for this column.
 |menu:Resize To Contents[] |
 Resize the column to fit its values.
 
+|menu:Freeze Column[] |
+Freeze this column and all columns to its left so they remain visible
+while scrolling horizontally. When one or more columns are frozen, this
+item changes to menu:Unfreeze Columns[], which clears the frozen columns.
+
 |menu:Display as Values[] |
 Display the raw values for fields.
 
@@ -135,6 +140,19 @@ and a short description of each item.
 |menu:Mark Packet (toggle)[]|menu:Edit[]| Mark or unmark a packet.
 |menu:Ignore Packet (toggle)[]|menu:Edit[]| Ignore or inspect this packet while dissecting the capture file.
 |menu:Set Time Reference (toggle)[]|menu:Edit[]| Set or reset a time reference.
+
+|menu:Pin Row to Top (toggle)[]||
+Pin or unpin this packet's row so it stays visible in a separate strip
+above the packet list, regardless of scroll position or display filter.
+Up to a fixed maximum number of rows can be pinned at once.
+
+|menu:Go to Packet[]||
+Scroll the main packet list to this pinned packet's current position.
+Only shown when right-clicking a row in the pinned-row strip.
+
+|menu:Unpin All Rows[]||
+Unpin every currently pinned row at once.
+Only shown when right-clicking a row in the pinned-row strip.
 
 |menu:Time Shift[] |menu:Edit[] |
 Opens the “Time Shift” dialog, which allows you to adjust the timestamps

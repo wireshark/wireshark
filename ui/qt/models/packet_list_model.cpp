@@ -142,6 +142,26 @@ int PacketListModel::packetNumberToRow(int packet_num) const
     return number_to_row_.value(packet_num) - 1;
 }
 
+PacketListRecord *PacketListModel::physicalRecordForFrameNum(int frame_num) const
+{
+    // Frame numbers are assigned sequentially starting at 1, in the same
+    // order records are appended to physical_rows_ (see appendPacket()),
+    // and are never reused within a capture, so frame_num - 1 is always
+    // that frame's position there -- regardless of the display filter,
+    // which only ever affects visible_rows_.
+    int physical_row = frame_num - 1;
+    if (physical_row < 0 || physical_row >= physical_rows_.count()) {
+        return nullptr;
+    }
+    PacketListRecord *record = physical_rows_[physical_row];
+    if (record && record->frameData() && (int)record->frameData()->num != frame_num) {
+        // Should never happen given the invariant above; fail safe rather
+        // than handing back the wrong packet's data.
+        return nullptr;
+    }
+    return record;
+}
+
 unsigned PacketListModel::recreateVisibleRows()
 {
     beginResetModel();
@@ -175,6 +195,12 @@ void PacketListModel::clear() {
     idle_dissection_timer_->invalidate();
     idle_dissection_row_ = 0;
     need_recreate_visible_rows_ = false;
+
+    // sort_cap_file_ et al. are static and otherwise persist across a
+    // capture file close/reopen, so pinnedRecordLessThan()'s "no sort
+    // requested this session" check (sort_cap_file_ == nullptr) would
+    // otherwise stay false and use stale sort state from a previous file.
+    sort_cap_file_ = nullptr;
 }
 
 void PacketListModel::invalidateAllColumnStrings()
@@ -786,12 +812,7 @@ bool PacketListModel::updateVisibleAggregationViewRows(PacketListRecord* record)
 
 bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
 {
-    int cmp_val = 0;
     comps_++;
-
-    // Wherein we try to cram the logic of packet_list_compare_records,
-    // _packet_list_compare_records, and packet_list_compare_custom from
-    // gtk/packet_list_store.c into one function
 
     if (busy_timer_.elapsed() > busy_timeout_) {
         if (progress_frame_) {
@@ -805,6 +826,18 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
         }
         busy_timer_.restart();
     }
+
+    return compareRecords(r1, r2);
+}
+
+bool PacketListModel::compareRecords(PacketListRecord *r1, PacketListRecord *r2)
+{
+    int cmp_val;
+
+    // Wherein we try to cram the logic of packet_list_compare_records,
+    // _packet_list_compare_records, and packet_list_compare_custom from
+    // gtk/packet_list_store.c into one function
+
     if (sort_column_ < 0) {
         // No column.
         cmp_val = frame_data_compare(sort_cap_file_->epan, r1->frameData(), r2->frameData(), COL_NUMBER);
@@ -893,6 +926,36 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
         return QVariant();
 
     PacketListRecord *record = static_cast<PacketListRecord*>(d_index.internalPointer());
+    return dataForRecord(record, d_index.column(), role);
+}
+
+QVariant PacketListModel::dataForFrameNum(int frame_num, int column, int role) const
+{
+    return dataForRecord(physicalRecordForFrameNum(frame_num), column, role);
+}
+
+bool PacketListModel::pinnedRecordLessThan(int frame_num_a, int frame_num_b) const
+{
+    PacketListRecord *r1 = physicalRecordForFrameNum(frame_num_a);
+    PacketListRecord *r2 = physicalRecordForFrameNum(frame_num_b);
+    if (!r1 || !r2 || !r1->frameData() || !r2->frameData()) {
+        // Fail safe to numeric order rather than crash on a lookup miss.
+        return frame_num_a < frame_num_b;
+    }
+
+    // No sort has ever been explicitly requested this session (sort()
+    // returns early for column < 0 without touching sort_cap_file_, so
+    // it stays at its zero-initialized nullptr) -- fall back to plain
+    // frame-number order, matching the model's own natural order.
+    if (!sort_cap_file_) {
+        return frame_num_a < frame_num_b;
+    }
+
+    return compareRecords(r1, r2);
+}
+
+QVariant PacketListModel::dataForRecord(PacketListRecord *record, int column, int role) const
+{
     if (!record)
         return QVariant();
     const frame_data *fdata = record->frameData();
@@ -901,7 +964,7 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
 
     switch (role) {
     case Qt::TextAlignmentRole:
-        switch(recent_get_column_xalign(d_index.column())) {
+        switch(recent_get_column_xalign(column)) {
         case COLUMN_XALIGN_RIGHT:
             return Qt::AlignRight;
         case COLUMN_XALIGN_CENTER:
@@ -910,7 +973,7 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
             return Qt::AlignLeft;
         case COLUMN_XALIGN_DEFAULT:
         default:
-            if (right_justify_column(d_index.column(), cap_file_)) {
+            if (right_justify_column(column, cap_file_)) {
                 return Qt::AlignRight;
             }
             break;
@@ -939,11 +1002,11 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
         return QVariant();
     case Qt::AccessibleTextRole:
     {
-        return record->columnString(cap_file_, d_index.column(), true);
+        return record->columnString(cap_file_, column, true);
     }
     case Qt::AccessibleDescriptionRole:
     {
-        if (d_index.column() > 0) {
+        if (column > 0) {
             return QVariant();
         }
 
@@ -969,7 +1032,7 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
     }
     case Qt::DisplayRole:
     {
-        return record->columnString(cap_file_, d_index.column(), true);
+        return record->columnString(cap_file_, column, true);
     }
     default:
         return QVariant();

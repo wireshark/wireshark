@@ -59,6 +59,7 @@ DIAG_ON(frame-larger-than=)
 #include "import_text_dialog.h"
 #include "interface_toolbar.h"
 #include "packet_list.h"
+#include <ui/qt/widgets/packet_list_pane.h>
 #include "proto_tree.h"
 #include "simple_dialog.h"
 #include "tap_parameter_dialog.h"
@@ -511,7 +512,8 @@ StratosharkMainWindow::StratosharkMainWindow(QWidget *parent) :
     empty_pane_.setObjectName("emptyPane");
     empty_pane_.setVisible(false);
 
-    packet_list_ = new PacketList(&master_split_);
+    packet_list_pane_ = new PacketListPane(&master_split_);
+    packet_list_ = packet_list_pane_->packetList();
     connect(packet_list_, &PacketList::framesSelected, this, &StratosharkMainWindow::setMenusForSelectedPacket);
     connect(packet_list_, &PacketList::framesSelected, this, &StratosharkMainWindow::framesSelected);
 

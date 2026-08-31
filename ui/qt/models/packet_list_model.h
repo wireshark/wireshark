@@ -89,6 +89,21 @@ public:
     int packetNumberToRow(int packet_num) const;
 
     /**
+     * @brief Retrieves the PacketListRecord for a given frame/packet
+     * number regardless of whether it currently passes the display
+     * filter. Unlike packetNumberToRow()/index(), which only ever
+     * resolve to a row among visible_rows_ (i.e. filtered-in packets),
+     * this looks the record up directly among physical_rows_ -- every
+     * packet ever appended, retained permanently in frame-number order
+     * -- so callers that need a packet's data independent of the current
+     * display filter (e.g. rendering a pinned row that's been filtered
+     * out) can still get at it.
+     * @param frame_num The frame/packet number.
+     * @return The record, or nullptr if out of range.
+     */
+    PacketListRecord *physicalRecordForFrameNum(int frame_num) const;
+
+    /**
      * @brief Recreates the list of visible rows based on filters and state.
      * @return The number of visible rows.
      */
@@ -131,6 +146,47 @@ public:
      * @return The requested data as a QVariant.
      */
     QVariant data(const QModelIndex &d_index, int role) const override;
+
+    /**
+     * @brief Returns the same data data() would for a real, currently
+     * visible row, but for any frame/packet number that was ever
+     * appended, regardless of the current display filter -- see
+     * physicalRecordForFrameNum(). Used by PinnedRowsModel so pinned
+     * packets keep showing their data even after being filtered out.
+     * @param frame_num The frame/packet number.
+     * @param column The column index.
+     * @param role The display role.
+     * @return The requested data as a QVariant, or an invalid QVariant if
+     * frame_num is unknown.
+     */
+    QVariant dataForFrameNum(int frame_num, int column, int role) const;
+
+    /**
+     * @brief Orders two frame/packet numbers the same way the primary
+     * view's current sort would, regardless of whether either currently
+     * passes the display filter.
+     *
+     * Used by PinnedRowsModel::refresh() so pinned packets that have been
+     * filtered out still sort into their natural position relative to
+     * the visible ones (by frame number if unsorted, or by whatever
+     * column/order the user last sorted by) instead of always landing
+     * after every visible pinned packet -- packetNumberToRow() (the
+     * previous approach) returns -1 for a filtered-out packet, which
+     * can't express a real ordering relative to visible ones.
+     *
+     * Deliberately does not reuse the private, static recordLessThan()
+     * used by sort(): that comparator's side effects (progress bar
+     * updates, a busy-timeout check, throwing SortAbort) only make sense
+     * for a full bulk sort, not a handful of comparisons here. It also
+     * assumes an active sort has already set sort_cap_file_ etc., which
+     * isn't true until the user has explicitly sorted at least once, so
+     * this falls back to plain frame-number order in that case (which
+     * happens to match the model's own natural, unsorted order anyway).
+     * @param frame_num_a First frame/packet number.
+     * @param frame_num_b Second frame/packet number.
+     * @return True if frame_num_a sorts before frame_num_b.
+     */
+    bool pinnedRecordLessThan(int frame_num_a, int frame_num_b) const;
 
     /**
      * @brief Returns the data for the given role and section in the header.
@@ -319,6 +375,17 @@ private:
      */
     void refreshThemeColors();
 
+    /**
+     * @brief Shared implementation behind data() and dataForFrameNum():
+     * everything data() computes depends only on the record and column,
+     * never on the index's row number, so both can delegate here.
+     * @param record The record to read from, or nullptr (returns an
+     * invalid QVariant).
+     * @param column The column index.
+     * @param role The display role.
+     */
+    QVariant dataForRecord(PacketListRecord *record, int column, int role) const;
+
     /** Pointer to the associated capture file. */
     capture_file *cap_file_;
 
@@ -365,6 +432,21 @@ private:
      * @return True if r1 should appear before r2, false otherwise.
      */
     static bool recordLessThan(PacketListRecord *r1, PacketListRecord *r2);
+
+    /**
+     * @brief The core column-comparison logic shared by recordLessThan()
+     * and pinnedRecordLessThan(): given the current sort_column_/
+     * text_sort_column_/sort_column_is_numeric_/sort_order_ state, decide
+     * whether r1 sorts before r2. Factored out so a change to sort
+     * semantics only needs to be made once; the two callers differ only in
+     * side effects and preconditions layered around this (see
+     * pinnedRecordLessThan()'s own comment for why it doesn't just call
+     * recordLessThan() directly).
+     * @param r1 The first record.
+     * @param r2 The second record.
+     * @return True if r1 should appear before r2, false otherwise.
+     */
+    static bool compareRecords(PacketListRecord *r1, PacketListRecord *r2);
 
     /**
      * @brief Parses a string value from a column as a numeric double.

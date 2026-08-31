@@ -53,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
     welcome_page_(nullptr),
     cur_layout_(QVector<unsigned>()),
     packet_list_(nullptr),
+    packet_list_pane_(nullptr),
     proto_tree_(nullptr),
     data_source_tab_(nullptr),
     packet_diagram_(nullptr),

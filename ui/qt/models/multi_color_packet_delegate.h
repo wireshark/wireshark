@@ -17,6 +17,21 @@
 #include <QStyledItemDelegate>
 
 class QPainter;
+class PinnedColumnView;
+class PinnedRowView;
+
+/**
+ * @brief The option.widget passed to paint(), resolved to its concrete
+ * overlay type (if any) once per paint() call and threaded through to the
+ * background-drawing helpers below, rather than each helper independently
+ * re-running its own qobject_cast chain against option.widget.
+ */
+struct OverlayWidget {
+    const PinnedColumnView *column_view = nullptr;
+    const PinnedRowView *row_view = nullptr;
+
+    static OverlayWidget resolve(const QWidget *widget);
+};
 
 /**
  * @brief A delegate for rendering multi-colored packet items in a view.
@@ -56,7 +71,7 @@ private:
      * @param colors The list of colors to use for the stripes.
      */
     void drawStripedBackground(QPainter *painter, const QStyleOptionViewItem &option,
-                               const QList<QColor> &colors) const;
+                               const QList<QColor> &colors, const OverlayWidget &overlay) const;
 
     /**
      * @brief Draw shift-right background (primary 85%, stripes 15%).
@@ -65,7 +80,7 @@ private:
      * @param colors The list of colors to use for the background and stripes.
      */
     void drawShiftRightBackground(QPainter *painter, const QStyleOptionViewItem &option,
-                                  const QList<QColor> &colors) const;
+                                  const QList<QColor> &colors, const OverlayWidget &overlay) const;
 };
 
 #endif // MULTI_COLOR_PACKET_DELEGATE_H

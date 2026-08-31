@@ -38,6 +38,7 @@ class InterfaceListManager;
 class MainStatusBar;
 class PacketDiagram;
 class PacketList;
+class PacketListPane;
 class ProfileSwitcher;
 class ProtoTree;
 class WelcomePage;
@@ -324,6 +325,14 @@ protected:
 
     /** Pointer to the packet list widget. */
     PacketList *packet_list_;
+
+    /** Pointer to the pane that contains the packet list widget along
+     * with its pinned-rows strip. This is the widget actually inserted
+     * into the splitter hierarchy by getLayoutWidget()/layoutPanes(); it
+     * owns and constructs packet_list_ itself, so every other reference
+     * to packet_list_ elsewhere keeps operating on the real PacketList,
+     * only its container in the splitter changes. */
+    PacketListPane *packet_list_pane_;
 
     /** Pointer to the protocol tree widget. */
     ProtoTree *proto_tree_;
