@@ -4345,13 +4345,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 16:  /* SE 16: Antenna mapping in UE channel information based UL beamforming */
             {
-                /* Just filling available bytes with antMask entries.
-                   N.B., if SE 10 also used, could associate each antMask with (beamId or UEId) RX eAxC */
-                uint32_t extlen_remaining_bytes = (extlen*4) - 2;
-                unsigned num_ant_masks = extlen_remaining_bytes / 8;
-                for (unsigned n=0; n < num_ant_masks; n++) {
+                /* One entry for each UEId */
+                for (unsigned n=0; n < number_of_ueids; n++) {
+                    /* TODO: want to skip if ueId is 0x7fff and beamGroupType = 10b and 'non-scheduled-ueId-enabled'=TRUE */
+                    /* antMask */
                     proto_item *ti = proto_tree_add_item(extension_tree, hf_oran_antMask, tvb, offset, 8, ENC_BIG_ENDIAN);
-                    proto_item_append_text(ti, " (RX eAxC #%u)", n+1);
+                    proto_item_append_text(ti, " (RX eAxC #%u, UEId=%u)", n+1, ueids[n]);
                     offset += 8;
                 }
                 break;
@@ -5378,16 +5377,16 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     break;
                 }
                 case 2:
-                    /* ueLayerPower entries (how many? for now just use up meas_data_size..) */
-                    /* TODO: add number of distinct dmrsPortNumber entries seen in SE24 and save in state? */
-                    /* Or would it make sense to use the preference 'pref_num_bf_antennas' ? */
-                    for (unsigned n=0; n < (meas_data_size-4)/2; n++) {
+                    /* ueLayerPower entries, one for each UEId */
+                    /* i.e., should loop over 0-number_of_ues? */
+                    for (unsigned ueid_index=0; ueid_index < number_of_ueids; ueid_index++) {
                         unsigned ue_layer_power;
                         proto_item *ue_layer_power_ti;
+                        /* ueLayerPower */
                         ue_layer_power_ti = proto_tree_add_item_ret_uint(mr_tree, hf_oran_ue_layer_power, tvb, offset, 2, ENC_BIG_ENDIAN, &ue_layer_power);
                         /* Show if maps onto a -ve number */
                         if ((ue_layer_power >= 0x8ad0) && (ue_layer_power <= 0xffff)) {
-                            proto_item_append_text(ue_layer_power_ti, "(value %d)", -1 - (0xffff-ue_layer_power));
+                            proto_item_append_text(ue_layer_power_ti, "(value %d) (ueId=%u)", -1 - (0xffff-ue_layer_power), ueids[ueid_index]);
                         }
                         offset += 2;
                     }
