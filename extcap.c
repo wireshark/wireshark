@@ -2548,7 +2548,7 @@ extcap_init_interfaces(capture_session *cap_session)
 
         /* create control pipes if necessary */
         unsigned control_supported = extcap_get_control_for_ifname(interface_opts->name);
-        if (control_supported & (EXTCAP_CONTROL_QUIT | EXTCAP_CONTROL_TOOLBAR))
+        if (control_supported & EXTCAP_CONTROL_TOOLBAR)
         {
             extcap_create_pipe(interface_opts->name, &interface_opts->extcap_control_in,
 #ifdef _WIN32
@@ -2558,7 +2558,7 @@ extcap_init_interfaces(capture_session *cap_session)
 #endif
                                EXTCAP_CONTROL_IN_PREFIX);
         }
-        if (control_supported & EXTCAP_CONTROL_TOOLBAR)
+        if (control_supported & (EXTCAP_CONTROL_QUIT | EXTCAP_CONTROL_TOOLBAR))
         {
             extcap_create_pipe(interface_opts->name, &interface_opts->extcap_control_out,
 #ifdef _WIN32
