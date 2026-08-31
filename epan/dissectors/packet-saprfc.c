@@ -807,7 +807,6 @@ dissect_saprfc_payload(tvbuff_t *tvb, packet_info *info, proto_tree *tree, proto
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
 		item_length = 0;
-		item_value_length = 0;
 		item_id2 = 0;
 
 		/* Add the item subtree. We start with a item's length of 1, as we don't have yet the real size of the item */
@@ -825,25 +824,26 @@ dissect_saprfc_payload(tvbuff_t *tvb, packet_info *info, proto_tree *tree, proto
 			break; /* ? */
 
 		/* Otherwise follow dissection */
-		} else {
-			/* ID2 and the two-byte value length must be present. */
-			if (tvb_reported_length_remaining(tvb, offset) < 3 ||
-			    tvb_captured_length_remaining(tvb, offset) < 3){
-				expert_add_info(info, item, &ei_saprfc_item_length_invalid);
-				return;
-			}
-
-			proto_tree_add_item_ret_uint8(item_tree, hf_saprfc_item_id2, tvb, offset, 1, ENC_BIG_ENDIAN, &item_id2);
-			offset += 1;
-			item_length += 1;
-			proto_item_append_text(item, ", (0x%.2x)", item_id2);
-
-			item_value_length = tvb_get_ntohs(tvb, offset);
-			proto_tree_add_item(item_tree, hf_saprfc_item_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-			offset += 2;
-			item_length += 2;
-			proto_item_append_text(item, ", Length=%d", item_value_length);
 		}
+
+		/* ID2 and the two-byte value length must be present. */
+		if (tvb_reported_length_remaining(tvb, offset) < 3 ||
+		    tvb_captured_length_remaining(tvb, offset) < 3){
+			expert_add_info(info, item, &ei_saprfc_item_length_invalid);
+			return;
+		}
+
+		proto_tree_add_item_ret_uint8(item_tree, hf_saprfc_item_id2, tvb, offset, 1, ENC_BIG_ENDIAN, &item_id2);
+		offset += 1;
+		item_length += 1;
+		proto_item_append_text(item, ", (0x%.2x)", item_id2);
+
+		item_value_length = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_item(item_tree, hf_saprfc_item_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		item_length += 2;
+		proto_item_append_text(item, ", Length=%d", item_value_length);
+
 
 		/* Every regular item includes its value followed by repeated ID markers. */
 		remaining_length = tvb_captured_length_remaining(tvb, offset);

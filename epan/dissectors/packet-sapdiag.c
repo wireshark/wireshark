@@ -2126,7 +2126,8 @@ dissect_sapdiag_dyntatom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
 				add_item_value_uint16(tvb, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, "DCols");
 				offset+=2;
 				atom_item_length-=2;
-				add_item_value_string(tvb, pinfo, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, atom_item_length, "Text", 1); offset+=atom_item_length;
+				add_item_value_string(tvb, pinfo, atom_item, atom_item_tree, hf_sapdiag_item_value, offset, atom_item_length, "Text", 1);
+				/* offset+=atom_item_length; */
 				break;
 
 			} case 129:{ /* DIAG_DGOTYP_RADIOBUTTON_3 */

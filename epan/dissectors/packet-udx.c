@@ -1287,7 +1287,7 @@ dissect_udx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
          * mtu_probeify_packet() in libudx - this datagram is an MTU probe.
          */
         proto_tree_add_item(udx_tree, hf_udx_padding, tvb, offset, data_offset, ENC_NA);
-        offset += data_offset;
+        /* offset += data_offset; */
     }
 
     if (payload_len > 0) {
