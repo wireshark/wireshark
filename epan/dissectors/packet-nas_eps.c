@@ -7560,7 +7560,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
            (security header type equal to 12 or greater) are not plain NAS messages,
            treat separately */
         if (security_header_type == 11) {
-            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Service request");
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "EMM transport");
             /* Message authentication code */
             proto_tree_add_item(nas_eps_tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset+=4;
