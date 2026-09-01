@@ -5412,6 +5412,14 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(icmp6_tree, hf_icmpv6_ext_echo_rsp_ipv6, tvb, offset, 1,
                                     ENC_BIG_ENDIAN);
                 offset += 1;
+
+                /* RFC 8335: an Extended Echo Reply longer than the fixed
+                 * header carries an ICMP extension structure (Interface
+                 * Identification Object), same as the Extended Echo Request. */
+                if (tvb_reported_length_remaining(tvb, offset) > 0) {
+                    tvbuff_t * extension_tvb = tvb_new_subset_remaining(tvb, offset);
+                    offset += call_dissector(icmp_extension_handle, extension_tvb, pinfo, icmp6_tree);
+                }
                 break;
             }
 
