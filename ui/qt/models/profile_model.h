@@ -142,7 +142,19 @@ private:
     int findAsReference(QString reference) const;
 
 #if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
-    static bool acceptFile(QString fileName, int fileSize);
+    /**
+     * @brief Decides whether a file from a ZIP archive should be included in the import.
+     * @param fileName Name of the file entry within the archive.
+     * @param fileSize Uncompressed size of the file in bytes.
+     * @return @c true if the file should be extracted and imported.
+     */
+    static bool acceptFile(QString fileName, uint64_t fileSize);
+
+    /**
+     * @brief Sanitises a filename extracted from a ZIP archive for use as a profile name.
+     * @param fileName Raw filename from the archive.
+     * @return Sanitised name safe for use as a profile directory name.
+     */
     static QString cleanName(QString fileName);
 #endif
 
