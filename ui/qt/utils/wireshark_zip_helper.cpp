@@ -65,7 +65,7 @@
 #define _MZDOSDATE dosDate
 #endif
 
-bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCheck)(QString, int), QString (*cleanName)(QString))
+bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCheck)(QString, uint64_t), QString (*cleanName)(QString))
 {
     unzFile uf = Q_NULLPTR;
     QFileInfo fi(zipFile);
@@ -86,7 +86,14 @@ bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
         return false;
 
     QMap<QString, QString> cleanPaths;
-    QString canonicalDir = QFileInfo(di.path()).canonicalFilePath();
+    QString canonicalDir = di.canonicalPath();
+    if (canonicalDir.isEmpty()) {
+        // Effectively re-checks !di.exists()
+        return false;
+    }
+    if (!canonicalDir.endsWith('/')) {
+        canonicalDir += '/';
+    }
 
     for (unsigned int cnt = 0; cnt < nmbr; cnt++)
     {
@@ -97,7 +104,7 @@ bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
         if (err == UNZ_OK)
         {
             QString fileInZip(filename_inzip);
-            int fileSize = static_cast<int>(file_info.uncompressed_size);
+            uint64_t fileSize = file_info.uncompressed_size;
 
             /* Sanity check for the file */
             if (fileInZip.length() == 0 || (fileCheck && ! fileCheck(fileInZip, fileSize)) )
@@ -113,30 +120,50 @@ bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
                 continue;
             }
 
-#ifndef _WIN32
-            /* Reject paths outside the extraction root, to prevent directory traversal attacks on Posix systems */
-            if (!QFileInfo(fileInZip).absoluteFilePath().startsWith(canonicalDir + "/")) {
-                continue;
-            }
-#endif
-
-            if (di.exists())
-            {
+            /* ZIP archives created by Wireshark *should* have paths relative
+             * to the profiles directory. This was not the case prior to 3.2.5
+             * (issue #16608) on Windows, probably due to directory separators
+             * or case-insensitivity or similar.
+             */
+            if (QDir::isAbsolutePath(fileInZip)) {
 #ifdef _WIN32
-                /* This is an additional fix for bug 16608, in which exports did contain the full path they
-                 * where exported from, leading to imports not possible if the path does not exist on that
-                 * machine */
-
-                if (fileInZip.contains(":/") || fileInZip.contains(":\\"))
-                {
-                    QFileInfo fileName(fileInZip);
-                    QFileInfo path(fileName.dir(), "");
-                    QString newFile = QStringLiteral("%1/%2").arg(path.baseName(), fileName.baseName());
-                    fileInZip = newFile;
+                /* We use the last directory as the profile name (there should
+                 * not be multiple levels) to workaround the issue and allow
+                 * importing the profile even if the higher level directory
+                 * structure doesn't match.
+                 * XXX - Remove this, since bad profile ZIP files haven't been
+                 * produced since 3.2.4? */
+                QFileInfo fileName(fileInZip);
+                if (fileName.fileName().isEmpty()) {
+                    // ZIP file entries that are just directories must end in
+                    // a directory separator. ("All slashes MUST be forward
+                    // slashes" according to APPNOTE.TXT but sometimes there
+                    // are broken archives.) Those have empty fileName(); skip.
+                    continue;
                 }
+                QString fileNameDir = fileName.dir().dirName();
+                // Note that QDir::dirName never includes a drive letter
+                // but is empty at a drive root. We should always have a
+                // profile name here in an archive created by Wireshark.
+                if (fileNameDir.isEmpty()) {
+                    continue;
+                }
+                fileInZip = QStringLiteral("%1/%2").arg(fileNameDir, fileName.fileName());
+#else
+                continue;
 #endif
-
-                QString fullPath = QStringLiteral("%1/%2").arg(di.path(), fileInZip);
+            }
+            if (di.exists()) // XXX - Do we need to test this yet again?
+            {
+                // Reject paths outside the extraction root, to prevent directory
+                // traversal attacks. The full path shouldn't exist yet, so no
+                // using canonical* functions, and the absolute* functions don't
+                // guarantee removing "..", etc., so use QDir::cleanPath.
+                // Note we ensured canonicalDir ends with '/'.
+                QString fullPath = QDir::cleanPath(QStringLiteral("%1%2").arg(canonicalDir, fileInZip));
+                if (!fullPath.startsWith(canonicalDir)) {
+                    continue;
+                }
                 QFileInfo fi(fullPath);
                 QString dirPath = fi.absolutePath();
 
@@ -298,8 +325,11 @@ bool WiresharkZipHelper::zip(QString fileName, QStringList files, QString relati
         QFileInfo sf(files.at(cnt));
         QString fileInZip = sf.absoluteFilePath();
         QFileInfo relat(relativeTo);
+        // XXX - Do some additional tests to verify that this actually rmeoves
+        // a path. It should work correctly now and there are only internal
+        // callers so warn if it fails.
         fileInZip.replace(relat.absoluteFilePath(), "");
-        /* Windows cannot open zip files, if the filenames starts with a separator */
+        /* Windows cannot open zip files if the filenames starts with a separator */
         while (fileInZip.length() > 0 && fileInZip.startsWith("/"))
             fileInZip = fileInZip.right(fileInZip.length() - 1);
 

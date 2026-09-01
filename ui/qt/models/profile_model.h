@@ -526,7 +526,7 @@ private:
      * @param fileSize Uncompressed size of the file in bytes.
      * @return @c true if the file should be extracted and imported.
      */
-    static bool acceptFile(QString fileName, int fileSize);
+    static bool acceptFile(QString fileName, uint64_t fileSize);
 
     /**
      * @brief Sanitises a filename extracted from a ZIP archive for use as a profile name.
