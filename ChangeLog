@@ -1,3 +1,415 @@
+954b48cf59 BGP: Handle Path Identifiers in BGP-MUP NLRI
+683ee3bade Qt: Guard better on profile ZIP archives
+9b9114c060 RSL: Implement SACCH Information IE
+dfa2e82916 docs: Update the Stratoshark release notes
+1edafbf688 extcap: Use ":" as a bookmark separator
+6a5382d133 BT AVCTP: Check for overflow when reassembling
+00965b35ac extcap: fix flags detection
+96ba197718 extcap: Don't return the configuration in a GList with one GList member
+34288b3f7c ORAN FH CUS: SE16: add as many entries as UEIds (SE10)
+9741572512 WiX: Don't include the Visual C++ Redistributable merge modules
+ccdfbf0829 NAS EPS: fix EMM transport info column
+1a3de167f8 fix Dead Store found by Clang Analyzer
+8fed95f84f extcap_parser: Do not call printf
+4a1f9cd7b7 test: Quiet pytest warning about an iterator that cannot be reused
+c917710549 wsutil: filesystem: Check either path separator for bin
+37e31be43c test: Convert to the same path separators on MSYS2
+67a3f77342 [Automatic update for 2026-08-30]
+7cd3f07525 frame: Catch exception if there are too many comments
+56f54239f1 TLS: Add Grease for Signature Algorithms list (#21548)
+1c57199b77 extcap: Use GHashTableIter to iterate more tables
+43e6da9fa4 ORAN FH CUS: small updates
+a3d7492c3d RTPS: Use correct minimum length in RTPS_DATA_BATCH
+e999e30092 sharkd: Use a wider int for intermediate value when resampling
+49273f4645 extcap: Prevent some leaks in error cases
+6a2b72e43d epan: Avoid overflow calculating number of bytes required 7 bit encoding
+350bcd984a UI: Add bookmark support to ExtcapOptionsDialog
+2f6e106e2c IEEE1722: CF: Updated parts of the protocol to the newer 2025 version.
+eccbf1382c twamp: Use a wmem_list_t instead of a GSList
+59733d999b Wireguard: Don't use an int hash on possibly unaligned data
+9a2fe96cfd docs: Add some documentation on the recent extcap changes
+bef49a7ec3 Remove stray capture file
+3ecd8853ce dect_nr: Add check for valid context
+48a707753d Qt: Fix saving filters and macros to the Default profile
+bf50e88e7f extcap: Make our interface name conversions more consistent
+93dd480f64 dfilter: Limit the macro expansion depth
+1262275a91 dfilter: Don't allow a replaced macro to be replaced at greater depth
+186495f4e7 dfilter: Eliminate some string copies when applying a macro
+a7e863a78e at: Remove "AT Command" from info string
+f82afe63c4 CMake+macOS: Update GLib to 2.88.3
+e7fe305889 Qt: Don't leak the validators in FilterDialog
+e1162d0c81 dfilter: Fix more inaccurate AI generated Doxygen comments
+4a1ae0b63c dfilter: Set the Lemon parser object to NULL after freeing it
+722d0f8767 extcap: Add extcap information and bookmark support
+63c5596d28 Extcap: Make a couple of names more consistent
+cb72ee52df dfilter: Check for macro syntax errors in argument numbers
+1710565908 dissectors: address a few more warnings
+a8c96d44a3 dfilter: Don't re-use range-limited field values
+e879a604aa GitLab CI: Check for the Assisted-by trailer, not AI-Assisted
+3ce5bc7b07 netxray: Don't allow ticks_per_sec to be 0.0
+71f2fab5eb Qt: InterfaceListManager: Do not unnecessarily clear extcaps
+193cd27424 Bluetooth: Correct LE channel map labels
+7379ffcb0f CSN.1: Check the length of RECURSIVE_ARRAYs
+9f54bc5a6b toshiba: Make sure the OFFSET line is long enough
+373504f7c9 dfvm: Fix an error message to avoid an out-of-bounds read
+09bd9bd20a XMPP: Make sure more lists are freed upon exceptions
+b42708ca1d AKP: Check for OCTET STRING not dissecting
+227cb5c0e6 UDX: match libudx's own timing and SACK limits
+5101428645 Qt: InterfaceListManager: watch preferences after start
+fa481f3eb2 CIP: Prevent leaks on exceptions via tvb_new_child_real_data
+9e4c8c935c ORAN FH CUS: Ext11: when disableBFWs=true, still show bundle in subtree
+6b535616b5 pkcs12: Add some checks in PBE_decrypt data
+2b14f0f806 extcap: Get DLTs in parallel for extcap interfaces
+7e6593279c extcaps: Correct preference effect type
+4819369b8b dect_nr: Add CVG reassembly
+172525b420 Qt: PreferencesDialog doesn't need to signal InterfaceListManager twice
+d6899dfed7 epan: prefs: Workaround a bug in extcap prefs and Preferences Dialog
+4301c8b335 python scripts: address more ruff warnings
+35cb5f3417 print: Add an option to escape spreadsheet formulas in CSV output
+f390551fe5 Steam IHS Discovery: Add a few unknown types
+ab4565fb79 pcapng-sysdig: Fixup some length calculations
+f6a3c9893e pcapng-sysdig: EVF blocks aren't internal
+5cc3a15d3d netmon: Normalize bad nanoseconds more quickly
+310e3e6f48 epan: Make sure we have dissector prefixes before trying to remove them
+d0f8156f7b [Automatic update for 2026-08-23]
+c53a2fc4ad extcaps: Use control pipe with more extcaps
+8037ab132f Qt: Have the main application forward the InterfaceListChanged signal
+fed8857fc3 macOS: Update our .dmg compression algorithms
+f8178de4ed wsutil: Fix format string by doubling %%
+49f62cb879 Win32: pipe: Retrieve extension associations when spawning commands
+49878bcc09 Qt: Remove redundant ManageInterfacesDialog signal
+d943a1a88e dissectors: Add simple Ogg dissector (`file-ogg`)
+33196a3e3d nvme: Expand NVMe/NVMe-MI decode and dissect Security payloads
+66ebf80a51 Qt: InterfaceFrame: Order-independent connections to InterfaceListManager
+11a266ed9f packet-gsm_bsslap.c: Enhance the cell id list IE dissection
+ba8281c4d0 wsutil: Include wireshark.h in the file_compressed header
+8a3f0cd090 PROFINET: Add secure SXP SAM and SCM dissection
+ff0078e3a0 EAP: use wmem_map to partition conversation tracking by p_{get,set}_proto_depth
+1ac5b3911d TLS: use use_conv_addr_port_endpoints where set
+48463347d7 LoRaWAN: Don't store a padded length in a uint8_t
+5df5ba64ef MLE: Use dedicated mle.aux_sec fields for Auxiliary Security Header
+c1fafaadde tap-iostat: Print 1 row with a zero duration or interval
+7d2e9ae68d RTPS: Add Hanwha Systems to the vendor ID list
+76b8b81417 SECURITY.md: Reports should be concise
+a4f7ea97c4 SAP dissectors: Harden dissectors against malformed packet lengths
+d6e8f0b280 LBMC: Test for integer overflow
+3805c49d41 extcap: Add a null check
+d27eecd2fa SPDY: Use the standard reassembly API
+62d201d703 PDCP-NR: Start to add new control type formats
+e278e2358b dect_nr: Remove preference for DLC data type
+eecf92ebc8 SPDY: Fix potential reassembly overflow
+1affbb4aff Don't yell at the user
+605c2da865 802.15.4: have separate dissectors for "FCS type specified" and not.
+5ab3006408 extcap: Have the interface toolbar send messages to a queue
+2a30ec6aa1 RLC-NR: Fix reassembly error
+64c7c7eab5 extcap: Win32: Remove the control in source on some pipe errors
+abf2da4d21 UDX: add conversation and endpoint tables
+2a6fbc7f8e UDX: correct sequence analysis and reassembly
+8a7bb59cbd GUE: Add dissector for Generic UDP Encapsulation
+e7316257de GitLab CI: Install the jsonschema Python package on macOS
+47c017ea13 CMake: MinGW: Also remove -municode from extcaps
+64f22e4197 CMake: MSYS2: Don't link with -municode anymore
+1ee38228b2 extcap: Parse parameter indicating that we support control pipe
+d87b527e7f python scripts:  address more ruff errors
+c54418c1f0 prefs: Don't write the extcap prefs to the main preferences
+0d40a2c7d7 DICOM: Make Export Objects fix 32-bit happy
+7e08b2f8df CMake: Fix MSYS2, cross-compiling Windows build
+a97516e9f1 capture: Include wireshark.h in capture_ifinfo.h
+a77ba475d4 dissectors: fix a few more warnings
+2a99fbbb0e epan: Fix unnecessary, possibly bogus or dangerous, NULL termination
+a9e1523605 extcap: send SP_QUIT on control pipe
+e0127775dc json: Fix --no-duplicate-keys field grouping for text-only nodes
+72984e6210 docs: Update some of our doc files
+0e92d6ebf2 ieee80211: use updated fcs_len when computing frame duration
+e53fdfbe92 MCTP: Dissect control command payloads
+5791eed3f6 etwdump: add bluetooth HCI events (BTH-BTHPORT)
+1a3c805932 PEAK TRC: Fix some leaks
+ade0e2e134 packet-gsm_a_bssmap.c: be_cell_id_type disc 0xc contains CI as well.
+f72fe50b2f PEAK TRC: Check if bytes are present in v1 ERROR frames
+c600bf14a5 tools: cppcheck: Swap stdout and stderr
+0c61302a22 GitLab CI: Don't run cppcheck report if there's no XML file
+8779518719 extcap: ssh-base: Use ws_socketpair for multiplatform support
+04b2aae93d TTL: Reject files with entry block sizes smaller than entry header
+5ce865a376 python scripts: some more ruff check fixes
+6b55ed3e7b Qt: Remove InterfaceToolbar reader thread member
+83b6c52b4d CMake: Windows: Find Debug libraries for LZ4, CpuIinfo, XXHash
+e4975d675a WSUG: Fix grammatical and formatting issues
+08ff3a70b7 [Automatic update for 2026-08-16]
+911cf153a3 wsutil: Add ws_socketpair
+716a200295 RTPS: Fix OOB write in DATA_BATCH sample info list
+008a0dacdb nettrace: Don't preallocate an INT_MAX-sized buffer
+003c80a26d packet-gsm_a_bssmap.c: Dissect Segmentation IE
+8dead8c89a GSMTAP: Support LINKTYPE_GSMTAP_UM (217) capture files
+97fa4e31cc extcap: fix comparaison order
+e701fdb83e etwdump: add release notes
+1c72f4438d remove cli_main
+fe9b9fe55a SCTP: Prevent overflow in reassembly
+122f5c306f extcap: Fix a leak introduced in a recent commit
+be49306aa5 IDN: Fixed potential endless loop
+1f9fb43b4e btavrcp/obex: Add support for AVRCP cover art
+525b538db3 capture: init toolbar mutex each capture
+2041817f07 extcap: Support logging via control pipe in extcap-base
+17689584d7 DICOM: Avoid overflow in Export Objects
+6ff05d4601 Procmon: Make sure we clean up properly
+46575d6a60 MAC-NR: Also add some missing DL LCIDs/codepoints
+7ce0e0dcc5 WSUG: Clarify %APPDATA%
+c78f76f64d MAC NR: Check CEs that may be important for NTN
+40f27879ee ieee80211: Add EHT PPE Thresholds dissection
+5ddf1555cd SAP DIAG/RFC: enable compressed payload dissection
+a826e67434 QUIC: Fix length of payload buffer passed to DATAGRAM dissector
+5cf89ed0ca extcap: Remove the control pipe temp FIFO directories on non Windows
+a6abaa2b29 epan: Make the capture.columns preference obsolete
+8c764a127e WSUG: Fix some markup
+8759979633 F1AP: NotificationInformation is both a normal IE and an extension
+9126072c92 DICOM: Use a wmem_strbuf_t for appending
+0f4e380787 WSUG: Move the LifeCycle wiki page to the User's Guide
+e81faadd2d LUA: Use a VCPKG package for LUA and update to 5.5.0
+04dbbce5b4 Increase minimum Windows version to one where UTF-8 can be forced
+26c5dc9179 extcap: Handle priming of Windows OVERLAPPED I/O correctly
+27a642453b UDX: add dissector for the UDX transport protocol
+b48a8c21e1 CBOR: Add options to display diagnostic notation
+9fb1bac2f6 BLF: Bugfix Flexray writing didn't set frame flags
+95fa6f552a ieee802.11: Dissect the ordinary tag number for extended tags
+8219ef82e0 extcap: sshdump: Terminate remote command if no packets captured
+42011d80e5 Synchrophasor: Don't allocate file scope memory for a transient array
+f2d2df870d O-RAN: add some null poitner checks.
+05dfe61502 CMake: Sinsp: Silence a hundred LNK4099 warnings on MSVC
+f29bcaf658 Adding SAP LZC/LZH decompression library
+25706812e8 SAP DIAG: harden variable-length item parsing
+59945ddb19 gpg: Signature made Wed Aug 12 04:05:08 2026 PDT
+gpg:                using RSA key FDC8309C16E1AACB048944539F2B309A9E5F8D37
+gpg: Can't check signature: No public key
+json: Add Compact option for faster JSON output
+66982bc07f Roughtime: Add some heuristics
+ff6b064137 CMake: Update libssh to 0.12.2
+642b4cc199 CMake: Use debug maxminddb lib on MSVC DEBUG builds
+6a41592d97 Dissectors: address some more warnings from checking scripts
+e56da6db1a RTCP: Strengthen heuristic
+28e08c9cf3 extcap: Fix MSYS2 build
+c90353cdeb IEEE 1722: ACF-CAN: Fixed parsing of padding bytes
+224b77957f CMake: Get rid of some libmaxminddb no-op checks
+d53e69e9ce gsm_sim: Fix SELECT P2 parsing
+82b1cb5927 Zigbee: Add R23 and Zigbee Direct dissector support
+c3e931321e Wiretap: DCT3 Trace: Avoid overflow with extra <l2> elements
+1b59980832 BT AVRCP: Do not overflow on too large reassemblies
+d596d0d6e5 extcap: handle control in pipe in extcap, not qt
+91f0d5d955 radiotap: further improve 0-len PSDU display
+813d5933f6 [Automatic update for 2026-08-09]
+7535a27663 BTLE: minor field length correction (peripheral IV)
+3ec4233a85 IDN: Improved Audio Dissection, added dissection of StageFeed Commands
+f87066a043 bittorrent: decode extension bits in handshake
+be813ede9d etwdump: Fix out-of-bounds access parsing LDAP ETW messages
+030bf6ad01 ZigBee ZCL Touchlink: empty the commissioning map on a redissect.
+6a3e6d996c capture: Move sync pipe reading to header
+481d70b23c docs: Update path in extcap_example wrapper script
+a44c8dc01c Fix potential heap corruption in UMTS RRC
+e0e0863663 Stratoshark: Update Default Event name column
+077d999dff NAS 5GS: fix dissection of type 1 service-level-AA parameter
+34a24be6c8 ORAN FH CUS: Expert info if rb set but SE12 present
+bb758b2d18 ieee80211: Decode TIM Broadcast Request element
+59ffb66b1e ICMPv6: add Expert Info for invalid ND-family Hop Limit
+dc39ff806f daintree: validate timestamp fraction
+d4904f44fe IPv4: Also allow frames with a good header checksum to pass heuristics
+bba9bee173 extcap_parser: Fix leak of prefix argument
+47a6ba88b8 CMake: extcap: Add Object Libraries in target_link_libraries
+35a0df6e8e NAS 5GS: fix a copy/paste error in SOR transparent container dissection
+b646d4967e asn2wrs.py: avoid embedding same quote type inside f-string
+5898b7d2f5 Qt: Followup for building without Qt Multimedia
+e935c81db2 Qt: Hide RTP analysis functions without Qt Multimedia
+fae244a5a1 atalk: wrong offset and length for short DDP (src/dst)
+1dbdfdc340 NAS 5GS: fix SOR transparent container dissection
+953913ad62 Synchrophasor: allow configuration sharing between streams
+7d1bcfe9e0 CBOR: Avoid leaking a composite TVB
+7be61b1f22 peektaged:  return -1 for error in peektagged_read_packet
+ac3e247292 AgentX: Take a subset TVB to reduce the chance of overflow
+23488c6997 python scripts: more ruff issues
+1ad597acad radiotap: improve display of 0-length PSDU frames
+f82c9c2e76 extcap: known host checking
+0d59b24908 STUN: Use message length in version heuristics
+3ec4d60a79 tools: Don't use max as the name of a variable
+d1b2808ceb extcap: Consolidate common SSH base code
+340b45bcb2 x509if: fix null-pointer dereference on invalid nested RDN
+fcc0131d70 cell_broadcast: Decode the CBS language indication
+d2183ccfdb extcap: Update version for ssh missing config file quieting
+c03d459e4f pint: don't define inline functions twice.
+76459b8134 snoop: Error before allocation if a pseudo-header size is too large
+affa11c625 ESS: Avoid DISSECTOR_ASSERTing on a zero length BIT STRING
+985f5f1b1e ngsniffer: some length check cleanups.
+1e07b34bc5 Lua: Don't export symbols for DLLs on Win32
+ec463b6073 CMake: Win32: Find Lua in the vcpkg or our old directory structure
+0cdaf090c0 netmon: Free allocated memory on open failure
+3f38ce6c37 SSH: Check Curve25519 key lengths
+6393b5bd63 ERF: Don't further truncate truncated packets below 0
+1872d090db editcap: Fix a leak of a IDB copy
+930b9d5773 Qt: Plugin IF Demo: mark routines as override
+c2fb0ac2a3 [Automatic update for 2026-08-02]
+7f582982f7 Added decoder for Vector ASC CAN trace file format
+dad4504402 wiretap: NetLog: Reject files with bogus junk
+53752cc5fc SECURITY.md: Provide details on issue formatting
+3c221601fd androiddump: Avoid overflow in btsnoop reported or captured lengths
+c72babdb03 bblog: check for truncated option block
+b1f51ff4fa Couchbase: Dissect DCP Cache Transfer opcodes
+4befeddae5 dect_nr_tap: Add DECT NR+ TAP header dissector
+35d9347975 wsjon: Make json_get_next_object iterative
+fc5b4c6606 lbmc: add UME ranged retransmission request dissection for UM 6.17
+da15b498e6 obex: Use consistent L2CAP CID for packet look up
+5b624b9c3a ngsniffer: Don't read past the actual buffer read
+b0649671b8 wsutil: note an optimization done by newer GCC and Clang.
+70b341567a CMS: Move globals into packet private data
+070d58c9f9 Export Packet Dissections: C Arrays: Add optional index array
+160900918e Qt: Software Update: Windows: Respect thread affinity of QTimer
+86336b8332 wsutil: pint: Fix width of phtoleu16 value in one path
+bb993cb45e python scripts: address more 'ruff check' warnings
+c5f900e922 wiretap: log3gpp: Use proper bounds for writing
+20190f250e python scripts: run isort for imports section
+3587ee87f9 uet: fix CRC on big-endian hosts
+3f1daf1cfe check_typed_item_calls.py: check for unregistered reassembly tables
+0e191266dd BT BR/EDR: Register reassembly table
+efa5d35f5b LBMR: Check TMR length
+fc4171f4dd BT HFP: Check the length of the +XAPL first parameter
+6c4d5d15b7 dissectors: address a few more warnings
+44f4053b43 wslua python scripts:  Attempt to fix warnings from updated 'ruff check'
+64d1d1c90c Couchbase: Dissect encryption key management opcodes
+78d67418e8 kerberos: Add a function to print up to the first 4 bytes of a key
+f96e70c930 WSDG: The reassembled data field is missing
+f08b78f390 X.509AF: Don't call strstr on NULL
+86df5f3b40 H.245: Do not update state for a returnedFunction GenericMessage
+f2f177ccba ORAN FH CUS: Fix uncompressed decompression for when iq_width != 16
+613fdd1682 wiretap: RTPDump: Fix swapped caplen / len
+02dd1e7af0 CMS: Check if Digest Algorithm is NULL
+b42ae78d86 KNX/IP: Prevent NULL dereference by using tvb_get_ptr call correctly
+2667fa5472 dect_nr: Add public dect_nr_info_t
+99582d5336 NMEA0183: Message Consolidation
+4dc2d659be Couchbase: Dissect Fusion opcodes
+57f868324b ieee80211: Add bit 28 802.1x Authentication in RSNXE
+b80c8acfbc ieee80211: Add 802.1x auth algorithm and two bits in rsnx element
+7d080b2d06 ieee80211: Add Supported Group EXT element
+a1e231767f Correct spelling of antenna in UBX dissector
+683f964c60 epan: Fix another incorrect Doxygen comment
+2f8021b1cf Couchbase: Dissect FBR snapshot and file fragment opcodes
+4a80f48387 [Automatic update for 2026-07-26]
+5893808369 nvme/nvme-mi: decode Identify/log pages/HMB and NVMe-MI Admin responses
+8c50fce8ad resources: UTF-8 even harder
+a4dd9ce019 uet: Fix SES_RESP_DATA_SMALL incomplete field dissection
+46e23e0a08 wiretap: expand some format names.
+3a1011a2cb COSEM: Decrement dissection depth after recursion
+2c06e970f7 EAX: Minor spelling fix
+be522544d0 BLF: Don't read past too short (truncated) VLAN-tagged Ethernet frames
+d0dcf9b0be ANSI TCAP: Fix some copy and paste issues
+360bdc60fe EAX: Don't truncate lengths
+63d3e0503f GTPv2: Use a for loop
+ec7c5d95fa Fix various dissector warnings
+4edecd2679 tools/pkt-from-core.py: try to address ruff errors
+08dde3f0ed k12: Don't try to write records larger than supported for writing
+5e82b913d8 WiresharkXML.py:  suppress ruff errors by using modern print calls
+8e984f1f83 wiretap: busmaster: Do not exit the program on a malformed file
+d2446e1581 GitLab CI: Temporarily have ruff always exit with 0
+a9ff255c52 Qt: Internals: Dissector Tables: Allow searching name or description
+c93d3f00fc RTCP: Strip padding if known before dissecting payload
+a1d6a009b4 GTP: Move all extension header dissection into the table
+af3ad7dff7 NMEA0183: Adding parametric messages
+c233e1cae7 AUTHORS: remove my duplicate name entry
+94d2ba2462 E212: Add "imsi" tap and IMSI List dialog
+f2d3d9f070 NAS 5GS: add extraneous data check to UE security capability IE
+02dcd36ef3 DTLS1.3: Fix the end offset to calls to tls_scan_server_hello().
+ba4e7dfb10 NAS 5GS: fix dissection of extended CAG information list IE
+1ada3fc602 NAS 5GS: fix dissection of registration wait range IE
+2dc74f9509 recent: Fall back to default column width on mismatched formats
+21a8af8ec6 Export Packet Dissections: Add UTF-8 CSV with optional BOM
+625b221024 uet: Fix offset increment for SES_REQ_MEDIUM
+403c9a36ea Qt: Be consistent on capitaliztion of "Display as Packet Details"
+331f74dbd9 gpg: Signature made Wed Jul 22 14:49:50 2026 PDT
+gpg:                using RSA key FDC8309C16E1AACB048944539F2B309A9E5F8D37
+gpg: Can't check signature: No public key
+Qt: Fix Follow Stream charset conversion for illegal byte sequences
+2b9742bd57 CMake: Install c-ares 1.34.8
+cfdbadf44f Qt: Enabled Protocols: Be consistent about singular and plural
+5539f78d49 DCT2000: improve comments, clean up indenting.
+6a2482f30e nvme-mi: decode Admin request SQE via shared NVMe helpers
+3e81811e2f uet: Fix missing SES TSEND_ATOMIC dissection
+2f022fab2c Qt: QCustomPlot: Fix overflow in QCPItemTracer
+d660235e79 wsutil: Fix nstime_delta when the result and a are the same pointer
+8656a4d182 DCT2000: convert the file character count to a record byte count.
+ab5118bd93 catapult_dct2000: make size, offset, and time stamp variables unsigned.
+e7e458572b Qt: Trim off extra attributes from Qt >= 6.11 QFont::toString
+6a395fdc7f catapult_dct2000: consistently do "is this a comment?" tests.
+ebf9cba66f capture: Don't report a console warning for a normal condition
+46c813e7ad DCT2000: fix buffer overflow when copying packet data
+11f4ee482b TTL: follow-up of 85715e66
+597617bc5b Qt: Stratoshark: Use "events" in the tryClosingCaptureFile dialog
+0b69e38548 Qt: follow-up of c17e8ddd
+740c3148da Qt: Workspace State: canonicalize recent files
+256bdfd7da prefs.c: factorize duplicate code in pref_get_changed_flags()
+451e5a1c1f nvme-mi: decode MI command bodies (opcodes 00h-07h, 0Ch)
+e4723c011d TLS: Update some functions for getting session information
+e54610c0e1 uet: Fix PSN calculated fields display
+c17e8ddddf Qt: split stashed preferences treatment in two steps
+7db2c16576 uet: Fix SES Rendez-vous extended header
+99beb493f3 test: add UET CRC dissection tests
+09e6dc8732 dfilter: Support directional double quotation marks
+6e2dfd4f0b BT ATT: check handle count when decoding Read Multiple Variable Response
+1716637698 nvme-mi: split by type and add Control Primitive dissector
+a47f398a04 dfilter: Allow case insensitive operators
+9f68da57d3 reassemble: Put a max limit on add_seq() reassembly lengths
+4140de5856 nettrace_3gpp_32_423: Fix stale session context on seek_read
+ff9e2b5689 dfilter: Align with the C++11 and later definition of UCNs
+5500e3679b Mandate use of override for overridden methods.
+94a0319ec2 C12.22: fix bound check in canonify_unencrypted_header()
+0bc397254e Add override to overridden C++ methods.
+df2773d6be reassemble: Don't memcmp past the allocated buffer (datalen)
+06be0cac1f resources: Compress the WCA banner PNG
+be96e4019b dfilter: Prevent flex from printing backslash to console
+e0b6a96778 GitLab CI: Update to Qt 6.11.1
+57de13f726 tshark: Add -E split=<proto> option for per-message-instance field output
+191277ff41 dfilter: fix NULL deref with FT_SCALAR in compatible_ftypes
+85715e66d1 TTL: update some error messages
+36743503ab GitLab CI: Install a version of aqt that supports Qt 6.11
+0324b2a184 nettrace_3gpp_32_423: Minor cleanups and file_open refactoring
+315b47f55c doc: Move the operator sections of wireshark-filter together
+9d89498151 UET: dissect and verify CRC
+e3097ccabd ieee80211: Look for mesh control field in the decrypted frame.
+c8c3f9da3b [Automatic update for 2026-07-19]
+31d0fc1bc6 uet: PDS SACK PSN display
+d24613c461 opcua: Fix heap-use-after-free and missing padding validation in verify_padding
+ab068bb065 ncp2222: do not declare nds_data_handle in the .inc file
+bb51eefb23 HTTP2: close-delimiter with CRLF or not
+f9fdd24295 TTL: add some bound checks when parsing segmented messages
+5e40580c60 nettrace_3gpp_32_423: Deduplicate session tag lookup in read functions
+d50d557d84 RDP: fix bound checks
+d8f2918bd0 gpg: Signature made Sat Jul 18 14:23:31 2026 PDT
+gpg:                using RSA key FDC8309C16E1AACB048944539F2B309A9E5F8D37
+gpg: Can't check signature: No public key
+nettrace_3gpp_32_423: Replace strstr-based session tag parsing with XML
+1dbe074013 gpg: Signature made Sat Jul 18 13:40:09 2026 PDT
+gpg:                using RSA key FDC8309C16E1AACB048944539F2B309A9E5F8D37
+gpg: Can't check signature: No public key
+nettrace_3gpp_32_423: Fix memory leaks and changeTime overflow bug
+b8551ac888 gpg: Signature made Sat Jul 18 12:56:56 2026 PDT
+gpg:                using RSA key FDC8309C16E1AACB048944539F2B309A9E5F8D37
+gpg: Can't check signature: No public key
+nettrace_3gpp_32_423: Split nettrace_msg_to_packet into sub-functions
+ff483df18f gpg: Signature made Sat Jul 18 11:53:24 2026 PDT
+gpg:                using RSA key FDC8309C16E1AACB048944539F2B309A9E5F8D37
+gpg: Can't check signature: No public key
+nettrace_3gpp_32_423: Replace hardcoded protocol dispatch with table lookup
+1036f0c53e wiretap: Add missing WTAP_ENCAP definition for ZWAVE_TAP DLT
+7def9acc2c rlogin: Don't add invalid UTF-8 to a column
+fcc650b39f LBM SRS: Don't throw exceptions in heuristics, again
+51bc41a595 Qt: Use C++14 init-capture to move capture modelGuard when possible
+74f1a4f10b Couchbase: Dissect GET_EX/GET_EX_REPLICA like other GET opcodes
+e2789f16ba DVB-S2-BB: Fix CNI field encoding in Mode Adaptation Header
+e699ab9478 CMake: Update to libgcrypt-1.12.2-3 package
+b942ec011a CMake: Simplify our shared library versions
+ea661117bc portableapps: preserve plugins directory across upgrades
+315ba62240 BGP: Update MUP SAFI to draft-ietf-bess-mup-safi-01
+bbbe6b775e Geneve: Add new GCP timestamp option.
+2e69f352df uet: fix TSS with entropy header
+f1af73573f mctp-smbus: propagate the SMBus physical addresses to subdissectors
+5a6c58ea18 HTTP: add expert warning for whitespace in request-target
+8062c5fe79 Megaco: Fix typo
+66584fb938 Update the release notes for 4.7.3 and 0.10.3
+6a91b076e4 Version: Wireshark 4.7.2 → 4.7.3, Stratoshark 0.10.2 → 0.10.3 [skip ci]
+e33c5ca6e8 Build: Wireshark 4.7.2 and Stratoshark 0.10.2 [skip ci]
 4308c957f9 opcua: Fix heap-buffer-overflow in opcua_secrets_block_callback
 4e030d2b17 erf: Check that a time tag is long enough before copying
 08827034f7 tcpcl: fix Dead Store (Assignment) found by Clang Analyzer
