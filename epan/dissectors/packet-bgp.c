@@ -3761,6 +3761,59 @@ static int
 detect_add_path_prefix6(tvbuff_t *tvb, unsigned offset, int end) {
     return detect_add_path_prefix46(tvb, offset, end, 128);
 }
+
+/*
+ * Walk a list of BGP-MUP NLRI, each one optionally preceded by a Path
+ * Identifier, and tell whether the list is consistent with that assumption:
+ * every NLRI header is plausible and the last one ends exactly at the end of
+ * the NLRI field.
+ *
+ * Route types are only rejected when unassigned, not when merely unknown to
+ * this dissector: draft-ietf-bess-mup-safi has receivers ignore route types
+ * they do not implement, so rejecting them here would turn the detection off
+ * for every NLRI of an update carrying a single one of them.
+ */
+static bool
+check_bgp_mup_nlri_list(tvbuff_t *tvb, unsigned offset, int end, bool add_path) {
+    uint8_t  architecture_type;
+    uint16_t route_type;
+    int o;
+
+    for (o = offset; o < end; ) {
+        if (add_path) {
+            o += 4;
+        }
+        if (o + 4 > end) {
+            return false;
+        }
+        if (!tvb_bytes_exist(tvb, o, 4)) {
+            /* Truncated capture: nothing seen so far contradicts the walk */
+            return true;
+        }
+        architecture_type = tvb_get_uint8(tvb, o);
+        route_type = tvb_get_ntohs(tvb, o + 1);
+        if (architecture_type != BGP_MUP_AT_3GPP_5G || route_type == 0) {
+            return false;
+        }
+        o += 4 + tvb_get_uint8(tvb, o + 3);
+    }
+    return o == end;
+}
+
+/*
+ * Detect if BGP-MUP NLRI are using Path Identifiers
+ *
+ * The MUP NLRI has no prefix length to key off, so detect_add_path_prefix46()
+ * does not apply. The NLRI is self delimiting instead, which allows the list to
+ * be walked both ways: only assume Additional Path when the walk holds with a
+ * Path Identifier and not without one.
+ */
+static int
+detect_add_path_bgp_mup(tvbuff_t *tvb, unsigned offset, int end) {
+    return !check_bgp_mup_nlri_list(tvb, offset, end, false) &&
+        check_bgp_mup_nlri_list(tvb, offset, end, true);
+}
+
 /*
  * Decode an IPv4 prefix with Path Identifier
  * Code inspired from the decode_prefix4 function
@@ -8314,7 +8367,18 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
              total_length++;
            break;
             case SAFNUM_BGP_MUP:
-                total_length = decode_bgp_mup_nlri(tree, tvb, offset, pinfo, afi);
+                end = offset + tlen;
+                /* Heuristic to detect if BGP-MUP NLRI are using Path Identifiers */
+                if (detect_add_path_bgp_mup(tvb, offset, end)) {
+                    /* snarf path identifier */
+                    proto_tree_add_item(tree, hf_path_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    offset += 4;
+                    total_length += 4;
+                }
+                length = decode_bgp_mup_nlri(tree, tvb, offset, pinfo, afi);
+                if (length < 0)
+                    return -1;
+                total_length += length;
                 break;
            default:
                 proto_tree_add_expert_format(tree, pinfo, &ei_bgp_unknown_safi, tvb, start_offset, 0,
@@ -8458,7 +8522,18 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 break;
 
             case SAFNUM_BGP_MUP:
-                total_length = decode_bgp_mup_nlri(tree, tvb, offset, pinfo, afi);
+                end = offset + tlen;
+                /* Heuristic to detect if BGP-MUP NLRI are using Path Identifiers */
+                if (detect_add_path_bgp_mup(tvb, offset, end)) {
+                    /* snarf path identifier */
+                    proto_tree_add_item(tree, hf_path_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    offset += 4;
+                    total_length += 4;
+                }
+                length = decode_bgp_mup_nlri(tree, tvb, offset, pinfo, afi);
+                if (length < 0)
+                    return -1;
+                total_length += length;
                 break;
             case SAFNUM_LAB_VPNUNICAST:
             case SAFNUM_LAB_VPNMULCAST:
