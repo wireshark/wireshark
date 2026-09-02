@@ -23,6 +23,10 @@ If you or your organization would like to contribute or become a sponsor, please
 // Add a summary of **major** changes here.
 // Add other changes to "New and Updated Features" below.
 
+The following changes have been made since version 4.7.3:
+
+* Nothing of note.
+
 The following changes have been made since version 4.7.2:
 
 * The minimum supported Windows version is Windows 10 21H2 (build 19044) or
