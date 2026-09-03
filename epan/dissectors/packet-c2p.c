@@ -1205,6 +1205,10 @@ typedef enum sti_type_t {
 static int proto_desc;
 static int ett_c2p;
 static dissector_handle_t ieee80211_handle;
+static dissector_handle_t its_handle;
+static dissector_handle_t j2735_handle;
+static dissector_handle_t wsa_handle;
+static dissector_handle_t cn_msg_frame_handle;
 
 static int hf_c2p_version_desc;
 static int hf_c2p_type_desc;
@@ -1283,6 +1287,23 @@ static int hf_c2p_sti_value_lightbar_desc;
 static int hf_c2p_sti_value_lane_position_desc;
 static int hf_c2p_sti_value_state_desc;
 static int hf_c2p_sti_value_tristate_desc;
+static int hf_c2p_fac_msg_type_desc;
+static int hf_c2p_fac_timestamp_desc;
+static int hf_c2p_fac_interface_id_desc;
+static int hf_c2p_fac_source_address_desc;
+static int hf_c2p_fac_dest_address_desc;
+static int hf_c2p_fac_datarate_desc;
+static int hf_c2p_fac_user_prio_desc;
+static int hf_c2p_fac_rssi_desc;
+static int hf_c2p_fac_fingerprint_desc;
+static int hf_c2p_fac_verify_result_desc;
+static int hf_c2p_fac_psid_desc;
+static int hf_c2p_fac_ssp_type_desc;
+static int hf_c2p_fac_ssp_field_desc;
+static int hf_c2p_fac_ssp_length_desc;
+static int hf_c2p_fac_signer_id_desc;
+static int hf_c2p_fac_generation_time_desc;
+static int hf_c2p_fac_payload_length_desc;
 
 
 #define C2P_TYPE_DSRC_RX        1UL
@@ -1293,8 +1314,9 @@ static int hf_c2p_sti_value_tristate_desc;
 #define C2P_TYPE_POTI           6UL
 #define C2P_TYPE_CV2X_RX        7UL
 #define C2P_TYPE_CV2X_TX        8UL
+#define C2P_TYPE_FAC_INJECT     12UL
 
-enum { C2P_TYPES_NUM = 9UL };
+enum { C2P_TYPES_NUM = 10UL };
 
 static const value_string c2p_types[C2P_TYPES_NUM] = {
     { C2P_TYPE_DSRC_RX, "Received DSRC Packet" },
@@ -1305,6 +1327,106 @@ static const value_string c2p_types[C2P_TYPES_NUM] = {
     { C2P_TYPE_POTI, "Position & Timing" },
     { C2P_TYPE_CV2X_RX, "Received CV2X Packet" },
     { C2P_TYPE_CV2X_TX, "Transmitted CV2X Packet" },
+    { C2P_TYPE_FAC_INJECT, "Injected Facility Packet" },
+    { 0, NULL }
+};
+
+/**
+Facility message types of an injected facility packet
+*/
+static const value_string fac_msg_types[] = {
+    { 1, "EU CAM (Cooperative Awareness Message)" },
+    { 2, "EU DENM (Decentralized Environmental Notification Message)" },
+    { 3, "EU MAP" },
+    { 4, "EU SPAT (Signal Phase & Timing)" },
+    { 5, "EU IVI (In-Vehicle Information)" },
+    { 6, "EU RTCM (Real Time Correction Message)" },
+    { 7, "EU SRM (Signal Request Message)" },
+    { 8, "EU SSM (Signal Status Message)" },
+    { 9, "EU CPM (Collective Perception Message)" },
+    { 10, "EU VAM (Vulnerable Road User Awareness Message)" },
+    { 100, "US BSM (Basic Safety Message)" },
+    { 101, "US TIM (Traveler Information Message)" },
+    { 102, "US RSA (Road Side Alert)" },
+    { 103, "US MAP" },
+    { 104, "US SPAT (Signal Phase & Timing)" },
+    { 105, "US SRM (Signal Request Message)" },
+    { 106, "US SSM (Signal Status Message)" },
+    { 107, "US PSM (Personal Safety Message)" },
+    { 108, "US PVD (Probe Vehicle Data)" },
+    { 109, "US PDM (Probe Data Management)" },
+    { 110, "US RTCM (Real Time Correction Message)" },
+    { 111, "US WSA (WAVE Service Advertisement)" },
+    { 112, "US SDSM (Sensor Data Sharing Message)" },
+    { 113, "US CSR (Common Safety Request)" },
+    { 114, "US ICA (Intersection Collision Avoidance)" },
+    { 115, "US NMEA (NMEA Corrections)" },
+    { 116, "US RSM (Road Safety Message)" },
+    { 117, "US RWM (Road Weather Message)" },
+    { 118, "US PDC (Probe Data Config Message)" },
+    { 119, "US PDR (Probe Data Report Message)" },
+    { 120, "US TAM (Toll Advertisement Message)" },
+    { 121, "US TUM (Toll Usage Message)" },
+    { 122, "US TUM_ACK (Toll Usage Ack Message)" },
+    { 123, "US CCM (Cooperative Control Message)" },
+    { 124, "US MSCM (Maneuver Sharing and Coordinating Message)" },
+    { 125, "US RGA (Road Geometry and Attributes)" },
+    { 126, "US PSM2 (Personal Safety Message 2)" },
+    { 127, "US TSPAT (Traffic Signal Phase and Timing)" },
+    { 128, "US SCPR (Signal Control and Prioritization Request)" },
+    { 129, "US SCPS (Signal Control and Prioritization Status)" },
+    { 130, "US RUCCM (Road User Charging Config Message)" },
+    { 131, "US RUCRM (Road User Charging Report Message)" },
+    { 132, "US TLSM (Traffic Light Status Message)" },
+    { 200, "China BSM (Basic Safety Message)" },
+    { 201, "China MAP" },
+    { 202, "China SPAT (Signal Phase & Timing)" },
+    { 203, "China RSI (Road Side Information)" },
+    { 204, "China RSM (Road Side Message)" },
+    { 0, NULL }
+};
+
+/**
+Security verification result of a facility packet
+*/
+static const value_string fac_verify_results[] = {
+    { 0, "Unsecured" },
+    { 1, "Success" },
+    { 2, "Signed (Disabled security)" },
+    { 3, "Timeout" },
+    { 4, "Invalid signature" },
+    { 5, "Invalid signer ID" },
+    { 6, "Invalid certificate" },
+    { 7, "Invalid PSID" },
+    { 8, "Invalid generation time" },
+    { 9, "Invalid generation location" },
+    { 10, "Internal error" },
+    { 11, "Invalid hash algorithm" },
+    { 12, "Malformed message" },
+    { 13, "Invalid protocol version" },
+    { 14, "Invalid security profile" },
+    { 15, "Replayed message" },
+    { 16, "Generation time is not consistent with certificate" },
+    { 17, "Generation time is missing" },
+    { 18, "Invalid critical information fields" },
+    { 19, "Missing expiry time" },
+    { 20, "Expiry time is in the past" },
+    { 21, "Expiry time is not consistent with certificate" },
+    { 22, "Expiry time is before generation time" },
+    { 23, "Security header's PSID is inconsistent with certificate" },
+    { 24, "Generation location is missing" },
+    { 25, "Generation location is inconsistent with certificate" },
+    { 26, "Network layer location is inconsistent with certificate" },
+    { 0, NULL }
+};
+
+/**
+Service Specific Permissions (SSP) field types
+*/
+static const value_string fac_ssp_types[] = {
+    { 0, "Opaque" },
+    { 1, "Bitmap" },
+    { 2, "Invalid" },
     { 0, NULL }
 };
 
@@ -2093,7 +2215,7 @@ static void power_format(char* string, uint32_t value)
     }
 }
 
-static void cv2x_tx_power_format(char* string, int32_t value)
+static void power_dbm_format(char* string, int32_t value)
 {
     static const int32_t POWER_NA = INT16_MAX;
 
@@ -2329,6 +2451,157 @@ static void sti_value_integer_format(char* string, int64_t value)
     }
 }
 
+static void fac_timestamp_format(char* string, uint64_t value)
+{
+    static const uint64_t TIMESTAMP_NA = UINT64_MAX;
+
+    if(TIMESTAMP_NA == value) {
+        snprintf(string, ITEM_LABEL_LENGTH, "Unavailable (%" PRIu64 ")", value);
+    } else {
+        static const uint64_t MSEC_PER_SEC = 1000ULL;
+
+        time_t timestamp = (time_t)(value / MSEC_PER_SEC);
+        uint32_t tst_msec = (uint32_t)(value % MSEC_PER_SEC);
+        struct tm* utc_time = gmtime(&timestamp);
+
+        enum { TIMESTAMP_STR_MAX_LEN = 128UL };
+        char timestamp_str[TIMESTAMP_STR_MAX_LEN] = {0};
+        strftime(timestamp_str, sizeof(timestamp_str), "%Y-%m-%d %H:%M:%S", utc_time);
+
+        snprintf(string,
+                 ITEM_LABEL_LENGTH,
+                 "%s.%03lu GMT (%" PRIu64 ")",
+                 timestamp_str,
+                 (unsigned long)tst_msec,
+                 value);
+    }
+}
+
+static void fac_generation_time_format(char* string, uint64_t value)
+{
+    static const uint64_t GENERATION_TIME_NA = 0ULL;
+
+    if(GENERATION_TIME_NA == value) {
+        snprintf(string, ITEM_LABEL_LENGTH, "Unavailable (%" PRIu64 ")", value);
+    } else {
+        static const time_t TIME_2004_IN_ABSTIME = 1072915200ULL;
+        /*
+         * The generation time is TAI based, subtract the leap seconds inserted
+         * since the 2004 epoch to display it as UTC.
+         */
+        static const time_t TAI_UTC_OFFSET_SINCE_2004 = 5;
+        static const uint64_t USEC_PER_SEC = 1000000ULL;
+
+        time_t timestamp = ((time_t)(value / USEC_PER_SEC) + TIME_2004_IN_ABSTIME) -
+                           TAI_UTC_OFFSET_SINCE_2004;
+        uint32_t tst_usec = (uint32_t)(value % USEC_PER_SEC);
+        struct tm* utc_time = gmtime(&timestamp);
+
+        enum { TIMESTAMP_STR_MAX_LEN = 128UL };
+        char timestamp_str[TIMESTAMP_STR_MAX_LEN] = {0};
+        strftime(timestamp_str, sizeof(timestamp_str), "%Y-%m-%d %H:%M:%S", utc_time);
+
+        snprintf(string,
+                 ITEM_LABEL_LENGTH,
+                 "%s.%06lu (%" PRIu64 " usec)",
+                 timestamp_str,
+                 (unsigned long)tst_usec,
+                 value);
+    }
+}
+
+static void fac_fingerprint_format(char* string, uint64_t value)
+{
+    static const uint64_t FINGERPRINT_NA = 0ULL;
+
+    if(FINGERPRINT_NA == value) {
+        snprintf(string, ITEM_LABEL_LENGTH, "Unavailable (0x%" PRIx64 ")", value);
+    } else {
+        snprintf(string, ITEM_LABEL_LENGTH, "0x%" PRIx64, value);
+    }
+}
+
+static uint32_t psid_non_p_enc_to_p_enc(uint32_t psid)
+{
+    /* Minimal p-encoded PSID values that occupy 2, 3 and 4 bytes */
+    static const uint32_t ENC_PSID_MIN_2B = 0x00008000UL;
+    static const uint32_t ENC_PSID_MIN_3B = 0x00C00000UL;
+    static const uint32_t ENC_PSID_MIN_4B = 0xE0000000UL;
+
+    /* Maximal non p-encoded PSID values that fit into 1, 2, 3 and 4 bytes */
+    static const uint32_t PSID_MAX_1B = 0x0000007FUL;
+    static const uint32_t PSID_MAX_2B = 0x0000407FUL;
+    static const uint32_t PSID_MAX_3B = 0x0020407FUL;
+    static const uint32_t PSID_MAX_4B = 0x1020407FUL;
+
+    uint32_t result = 0UL;
+
+    if(psid > PSID_MAX_4B) {
+        result = UINT32_MAX;
+    } else if(psid > PSID_MAX_3B) {
+        result = (psid - (PSID_MAX_3B + 1UL)) | ENC_PSID_MIN_4B;
+    } else if(psid > PSID_MAX_2B) {
+        result = (psid - (PSID_MAX_2B + 1UL)) | ENC_PSID_MIN_3B;
+    } else if(psid > PSID_MAX_1B) {
+        result = (psid - (PSID_MAX_1B + 1UL)) | ENC_PSID_MIN_2B;
+    } else {
+        result = psid;
+    }
+
+    return result;
+}
+
+static void psid_format(char* string, uint32_t value)
+{
+    static const uint32_t PSID_NA = UINT32_MAX;
+    /* The PSID is only valid if the message was signed */
+    static const uint32_t PSID_UNSIGNED = 0UL;
+
+    if((PSID_NA == value) || (PSID_UNSIGNED == value)) {
+        snprintf(string, ITEM_LABEL_LENGTH, "Unavailable (%lu)", (unsigned long)value);
+    } else {
+        snprintf(string,
+                 ITEM_LABEL_LENGTH,
+                 "0x%lX (0p%lX) (%lu)",
+                 (unsigned long)value,
+                 (unsigned long)psid_non_p_enc_to_p_enc(value),
+                 (unsigned long)value);
+    }
+}
+
+static void fac_interface_id_format(char* string, uint32_t value)
+{
+    static const uint32_t INTERFACE_ID_NA = UINT32_MAX;
+
+    if(INTERFACE_ID_NA == value) {
+        snprintf(string, ITEM_LABEL_LENGTH, "Unavailable (%lu)", (unsigned long)value);
+    } else {
+        snprintf(string, ITEM_LABEL_LENGTH, "%lu", (unsigned long)value);
+    }
+}
+
+static void fac_datarate_format(char* string, uint32_t value)
+{
+    static const uint16_t DATARATE_NA = UINT16_MAX;
+
+    if(DATARATE_NA == value) {
+        snprintf(string, ITEM_LABEL_LENGTH, "Unavailable (%lu)", (unsigned long)value);
+    } else {
+        snprintf(string, ITEM_LABEL_LENGTH, "%lu Kbps", (unsigned long)value);
+    }
+}
+
+static void fac_user_prio_format(char* string, uint32_t value)
+{
+    static const uint8_t USER_PRIO_NA = UINT8_MAX;
+
+    if(USER_PRIO_NA == value) {
+        snprintf(string, ITEM_LABEL_LENGTH, "Unavailable (%lu)", (unsigned long)value);
+    } else {
+        snprintf(string, ITEM_LABEL_LENGTH, "%lu", (unsigned long)value);
+    }
+}
+
 static int dissect_dsrc_rx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
 {
     unsigned offset = 0;
@@ -2546,6 +2819,146 @@ static int dissect_sti(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
     return offset;
 }
 
+/*
+ * The payload of an injected facility packet is the facility layer message
+ * itself, its message set is determined by the facility message type. Return
+ * the dissector of that message set, or NULL if it is not available.
+ */
+static dissector_handle_t fac_payload_dissector(uint32_t msg_type)
+{
+    /* Facility message type ranges of the known message sets */
+    static const uint32_t FAC_MSG_EU_FIRST = 1UL;
+    static const uint32_t FAC_MSG_EU_LAST = 10UL;
+    static const uint32_t FAC_MSG_US_FIRST = 100UL;
+    static const uint32_t FAC_MSG_US_LAST = 132UL;
+    static const uint32_t FAC_MSG_US_WSA = 111UL;
+    static const uint32_t FAC_MSG_CN_FIRST = 200UL;
+    static const uint32_t FAC_MSG_CN_LAST = 204UL;
+
+    dissector_handle_t handle = NULL;
+
+    if((msg_type >= FAC_MSG_EU_FIRST) && (msg_type <= FAC_MSG_EU_LAST)) {
+        handle = its_handle;
+    } else if(FAC_MSG_US_WSA == msg_type) {
+        /* The WSA is an IEEE 1609.3 message, not an SAE J2735 MessageFrame */
+        handle = wsa_handle;
+    } else if((msg_type >= FAC_MSG_US_FIRST) && (msg_type <= FAC_MSG_US_LAST)) {
+        handle = j2735_handle;
+    } else if((msg_type >= FAC_MSG_CN_FIRST) && (msg_type <= FAC_MSG_CN_LAST)) {
+        handle = cn_msg_frame_handle;
+    }
+
+    return handle;
+}
+
+static int dissect_fac_inject(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
+{
+    /*
+     * Sizes of the facility notification metadata that precedes the injected
+     * payload. Every multi-byte field of it is in network byte order.
+     */
+    enum {
+        RADIO_PARAMS_LEN = 37,
+        SECURITY_INFO_LEN = 63,
+        SSP_LEN = 39,
+        SSP_FIELD_LEN = 31
+    };
+
+    unsigned offset = 0;
+    uint32_t msg_type = 0;
+    uint32_t payload_length = 0;
+
+    proto_tree_add_item_ret_uint(c2p_tree,
+                                 hf_c2p_fac_msg_type_desc,
+                                 tvb,
+                                 offset,
+                                 4,
+                                 ENC_BIG_ENDIAN,
+                                 &msg_type);
+    offset += 4;
+
+    proto_tree* radio_tree = proto_tree_add_subtree(c2p_tree,
+                                                    tvb,
+                                                    offset,
+                                                    RADIO_PARAMS_LEN,
+                                                    ett_c2p,
+                                                    NULL,
+                                                    "Radio parameters");
+
+    proto_tree_add_item(radio_tree, hf_c2p_fac_timestamp_desc, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(radio_tree, hf_c2p_fac_interface_id_desc, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(radio_tree, hf_c2p_fac_source_address_desc, tvb, offset, 6, ENC_NA);
+    offset += 6;
+    proto_tree_add_item(radio_tree, hf_c2p_fac_dest_address_desc, tvb, offset, 6, ENC_NA);
+    offset += 6;
+    proto_tree_add_item(radio_tree, hf_c2p_fac_datarate_desc, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(radio_tree, hf_c2p_fac_user_prio_desc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(radio_tree, hf_c2p_fac_rssi_desc, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(radio_tree, hf_c2p_fac_fingerprint_desc, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    proto_tree* security_tree = proto_tree_add_subtree(c2p_tree,
+                                                       tvb,
+                                                       offset,
+                                                       SECURITY_INFO_LEN,
+                                                       ett_c2p,
+                                                       NULL,
+                                                       "Security");
+
+    proto_tree_add_item(security_tree, hf_c2p_fac_verify_result_desc, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(security_tree, hf_c2p_fac_psid_desc, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree* ssp_tree = proto_tree_add_subtree(security_tree,
+                                                  tvb,
+                                                  offset,
+                                                  SSP_LEN,
+                                                  ett_c2p,
+                                                  NULL,
+                                                  "Service Specific Permissions");
+
+    proto_tree_add_item(ssp_tree, hf_c2p_fac_ssp_type_desc, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(ssp_tree, hf_c2p_fac_ssp_field_desc, tvb, offset, SSP_FIELD_LEN, ENC_NA);
+    offset += SSP_FIELD_LEN;
+    proto_tree_add_item(ssp_tree, hf_c2p_fac_ssp_length_desc, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(security_tree, hf_c2p_fac_signer_id_desc, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(security_tree, hf_c2p_fac_generation_time_desc, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    proto_tree_add_item_ret_uint(c2p_tree,
+                                 hf_c2p_fac_payload_length_desc,
+                                 tvb,
+                                 offset,
+                                 2,
+                                 ENC_BIG_ENDIAN,
+                                 &payload_length);
+    offset += 2;
+
+    dissector_handle_t payload_handle = fac_payload_dissector(msg_type);
+    proto_tree* root_tree = proto_tree_get_root(c2p_tree);
+    tvbuff_t* next_tvb = tvb_new_subset_length(tvb, offset, payload_length);
+
+    if(NULL != payload_handle) {
+        call_dissector(payload_handle, next_tvb, pinfo, root_tree);
+    } else {
+        call_data_dissector(next_tvb, pinfo, root_tree);
+    }
+
+    offset += tvb_reported_length(next_tvb);
+
+    return offset;
+}
+
 static int dissect_c2p(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
     unsigned offset = 0;
@@ -2620,6 +3033,9 @@ static int dissect_c2p(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
         switch(type) {
         case C2P_TYPE_STI:
             offset += dissect_sti(next_tvb, c2p_tree, pinfo);
+            break;
+        case C2P_TYPE_FAC_INJECT:
+            offset += dissect_fac_inject(next_tvb, c2p_tree, pinfo);
             break;
         default:
             break;
@@ -3058,7 +3474,7 @@ void proto_register_c2p(void)
                 "c2p.tx_power",
                 FT_INT32,
                 BASE_CUSTOM,
-                CF_FUNC(cv2x_tx_power_format),
+                CF_FUNC(power_dbm_format),
                 0x00,
                 NULL,
                 HFILL
@@ -3636,6 +4052,227 @@ void proto_register_c2p(void)
                 HFILL
             }
         },
+        {
+            &hf_c2p_fac_msg_type_desc,
+            {
+                "Facility message type",
+                "c2p.fac.msg_type",
+                FT_UINT32,
+                BASE_DEC,
+                VALS(fac_msg_types),
+                0x00,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_c2p_fac_timestamp_desc,
+            {
+                "Timestamp",
+                "c2p.fac.timestamp",
+                FT_UINT64,
+                BASE_CUSTOM,
+                CF_FUNC(fac_timestamp_format),
+                0x00,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_c2p_fac_interface_id_desc,
+            {
+                "Interface ID",
+                "c2p.fac.interface_id",
+                FT_UINT32,
+                BASE_CUSTOM,
+                CF_FUNC(fac_interface_id_format),
+                0x00,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_c2p_fac_source_address_desc,
+            {
+                "Source address",
+                "c2p.fac.source_address",
+                FT_ETHER,
+                BASE_NONE,
+                NULL,
+                0x00,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_c2p_fac_dest_address_desc,
+            {
+                "Destination address",
+                "c2p.fac.dest_address",
+                FT_ETHER,
+                BASE_NONE,
+                NULL,
+                0x00,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_c2p_fac_datarate_desc,
+            {
+                "Datarate",
+                "c2p.fac.datarate",
+                FT_UINT16,
+                BASE_CUSTOM,
+                CF_FUNC(fac_datarate_format),
+                0x00,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_c2p_fac_user_prio_desc,
+            {
+                "User priority",
+                "c2p.fac.user_prio",
+                FT_UINT8,
+                BASE_CUSTOM,
+                CF_FUNC(fac_user_prio_format),
+                0x00,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_c2p_fac_rssi_desc,
+            {
+                "RSSI",
+                "c2p.fac.rssi",
+                FT_INT16,
+                BASE_CUSTOM,
+                CF_FUNC(power_dbm_format),
+                0x00,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_c2p_fac_fingerprint_desc,
+            {
+                "Fingerprint",
+                "c2p.fac.fingerprint",
+                FT_UINT64,
+                BASE_CUSTOM,
+                CF_FUNC(fac_fingerprint_format),
+                0x00,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_c2p_fac_verify_result_desc,
+            {
+                "Verification result",
+                "c2p.fac.verify_result",
+                FT_UINT32,
+                BASE_DEC,
+                VALS(fac_verify_results),
+                0x00,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_c2p_fac_psid_desc,
+            {
+                "PSID",
+                "c2p.fac.psid",
+                FT_UINT32,
+                BASE_CUSTOM,
+                CF_FUNC(psid_format),
+                0x00,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_c2p_fac_ssp_type_desc,
+            {
+                "Type",
+                "c2p.fac.ssp.type",
+                FT_UINT32,
+                BASE_DEC,
+                VALS(fac_ssp_types),
+                0x00,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_c2p_fac_ssp_field_desc,
+            {
+                "Field",
+                "c2p.fac.ssp.field",
+                FT_BYTES,
+                BASE_NONE,
+                NULL,
+                0x00,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_c2p_fac_ssp_length_desc,
+            {
+                "Length",
+                "c2p.fac.ssp.length",
+                FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0x00,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_c2p_fac_signer_id_desc,
+            {
+                "Signer ID",
+                "c2p.fac.signer_id",
+                FT_UINT64,
+                BASE_HEX,
+                NULL,
+                0x00,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_c2p_fac_generation_time_desc,
+            {
+                "Generation time",
+                "c2p.fac.generation_time",
+                FT_UINT64,
+                BASE_CUSTOM,
+                CF_FUNC(fac_generation_time_format),
+                0x00,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_c2p_fac_payload_length_desc,
+            {
+                "Payload length",
+                "c2p.fac.payload_length",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x00,
+                NULL,
+                HFILL
+            }
+        },
     };
 
     int* ett[] = {
@@ -3655,6 +4292,10 @@ void proto_reg_handoff_c2p(void)
     c2p_handle = create_dissector_handle(dissect_c2p, proto_desc);
 
     ieee80211_handle = find_dissector_add_dependency("wlan", proto_desc);
+    its_handle = find_dissector_add_dependency("its", proto_desc);
+    j2735_handle = find_dissector_add_dependency("j2735", proto_desc);
+    wsa_handle = find_dissector_add_dependency("wsa", proto_desc);
+    cn_msg_frame_handle = find_dissector_add_dependency("cn-msg-frame", proto_desc);
 
     static const uint32_t C2P_PORT = 7943UL;
     static const char* const UDP_PORT_NAME = "udp.port";
