@@ -2026,6 +2026,39 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
       proto_item_set_len(ti, fragment_length + 12);
 
       fragmented = false;
+
+      /* In DTLS 1.2, the message_seq is reset and the epoch incremented
+       * at each rehandshake (i.e., renegotiation), so concatenate them
+       * for a fragment sequence number. However, in DTLS 1.3 the
+       * message_seq is not reset in a post-handshake message exchange
+       * (so having passed in 0 as the epoch here instead of the real
+       * 64-bit DTLS 1.3 epoch should work unless message_seq has
+       * wrapped around, which is unlikely as it is only incremented
+       * in handshake messages).
+       * https://www.rfc-editor.org/rfc/rfc9147.html#section-5.2-6
+       * https://datatracker.ietf.org/doc/html/rfc6347#section-4.1
+       */
+      uint32_t frag_seq = ((uint32_t)epoch << 16) | message_seq;
+      if (ssl) { // first pass
+        uint32_t *next_receive_p;
+        if (is_from_server) {
+          next_receive_p = &ssl->server_next_receive_seq;
+        } else {
+          next_receive_p = &ssl->client_next_receive_seq;
+        }
+        if (frag_seq < *next_receive_p) {
+          ssl = NULL; // Retransmission; don't update decoder state
+        } else if (frag_seq == *next_receive_p || (message_seq == 0)) {
+          // message_seq == 0 and frag_seq > *next_receive_p can only
+          // occur if the epoch has increased and the message seq is 0,
+          // which is DTLS 1.2 only, and it is safe to increment
+          // next_receive_p in such a case (assume at renegotiation we
+          // no longer care about handshake messages from the previous
+          // handshake.)
+          *next_receive_p = frag_seq + 1;
+        }
+      }
+
       if (fragment_length + fragment_offset > length)
         {
           if (fragment_offset == 0)
@@ -2059,18 +2092,6 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
               /* Don't pass the reassembly code data that doesn't exist */
               tvb_ensure_bytes_exist(tvb, offset, fragment_length);
 
-              /* In DTLS 1.2, the message_seq is reset and the epoch incremented
-               * at each rehandshake (i.e., renegotiation), so concatenate them
-               * for a fragment sequence number. However, in DTLS 1.3 the
-               * message_seq is not reset in a post-handshake message exchange
-               * (so having passed in 0 as the epoch here instead of the real
-               * 64-bit DTLS 1.3 epoch should work unless message_seq has
-               * wrapped around, which is unlikely as it is only incremented
-               * in handshake messages).
-               * https://www.rfc-editor.org/rfc/rfc9147.html#section-5.2-6
-               * https://datatracker.ietf.org/doc/html/rfc6347#section-4.1
-               */
-              uint32_t frag_seq = (epoch << 16) | message_seq;
               frag_msg = fragment_add(&dtls_reassembly_table,
                                       tvb, offset, pinfo, frag_seq, NULL,
                                       fragment_offset, fragment_length, true);

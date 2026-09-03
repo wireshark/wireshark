@@ -568,6 +568,10 @@ typedef struct _SslDecryptSession {
     bool       has_key_share;
     StringInfo ech_transcript;
 
+    /* DTLS counters for handshake retransmission detection. */
+    uint32_t server_next_receive_seq;
+    uint32_t client_next_receive_seq;
+
 } SslDecryptSession;
 
 /* RecordNumber - RFC 9147 section 4 */
