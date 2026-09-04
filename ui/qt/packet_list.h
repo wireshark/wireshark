@@ -21,6 +21,7 @@
 #include <ui/qt/widgets/pinned_row_view.h>
 #include <ui/qt/models/pinned_rows_model.h>
 
+#include <QElapsedTimer>
 #include <QMenu>
 #include <QTime>
 #include <QTreeView>
@@ -661,10 +662,23 @@ protected:
     virtual void keyPressEvent(QKeyEvent *event) override;
 
     /**
+     * @brief Handles key release events.
+     * @param event The key event.
+     */
+    virtual void keyReleaseEvent(QKeyEvent *event) override;
+
+    /**
      * @brief Handles focus in events.
      * @param event The focus event.
      */
     virtual void focusInEvent(QFocusEvent *event) override;
+
+    /**
+     * @brief Handles focus out events. Needed to stops turbo mode
+     * navigation if we lose focus.
+     * @param event The focus event.
+     */
+    virtual void focusOutEvent(QFocusEvent *event) override;
 
 protected slots:
     /**
@@ -725,6 +739,18 @@ private:
 
     /** @brief The timer ID used for overlay operations. */
     int overlay_timer_id_;
+
+    /** @brief The timer ID used for turbo mode autorepeat. */
+    int turbo_timer_id_;
+
+    /** @brief The key that turbo mode is repeating (Qt::Key_Down or Qt::Key_Up). */
+    Qt::Key turbo_key_;
+
+    /** @brief The Down/Up key currently being held down (via a non-autorepeat press with no release yet), or 0 if neither is held. */
+    Qt::Key held_key_;
+
+    /** @brief Time elapsed since held_key_ was first pressed. Used to activate turbo mode. */
+    QElapsedTimer key_hold_elapsed_;
 
     /** @brief Flag for creating near overlays. */
     bool create_near_overlay_;

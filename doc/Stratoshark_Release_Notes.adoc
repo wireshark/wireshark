@@ -29,7 +29,7 @@ If you or your organization would like to contribute or become a sponsor, please
 
 The following changes have been made since version 0.10.3:
 
-* Nothing of note.
+* Holding down kbd:[↓] and kbd:[↑] will move rapidly through the event list.
 
 The following changes have been made since version 0.10.2:
 

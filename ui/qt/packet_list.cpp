@@ -62,6 +62,7 @@
 #include <QElapsedTimer>
 #include <QFontMetrics>
 #include <QHeaderView>
+#include <QKeyEvent>
 #include <QMessageBox>
 #include <QPainter>
 #include <QScreen>
@@ -93,6 +94,17 @@ static PacketList *gbl_cur_packet_list;
 
 const int max_comments_to_fetch_ = 20000000; // Arbitrary
 const int overlay_update_interval_ = 100; // 250; // Milliseconds.
+// Turbo mode: If the user holds down the down or up key longer than the
+// activation delay, switch from the operating system's autorepeat rate to
+// our own, faster rate.
+const int turbo_activation_delay_ = 1500; // Milliseconds, somewhat arbitrary.
+// Our goal is to move to the next or previous packet as fast as possible
+// while still allowing the user to recognize changes in the hex view.
+// According to this paper on Rapid Serial Visual Presentation (RSVP), humans
+// can recognize images presented as fast as 13ms.
+// https://web.archive.org/web/20250216195443/https://mollylab-1.mit.edu/sites/default/files/documents/FastDetect2014withFigures.pdf
+// Hopefully 15ms is plenty.
+const int turbo_nav_interval_ = 15; // Milliseconds
 
 
 /*
@@ -216,6 +228,9 @@ PacketList::PacketList(QWidget *parent) :
     ctx_column_(-1),
     ctx_from_pinned_row_strip_(false),
     overlay_timer_id_(0),
+    turbo_timer_id_(0),
+    turbo_key_(Qt::Key(0)),
+    held_key_(Qt::Key(0)),
     create_near_overlay_(true),
     create_far_overlay_(true),
     mouse_pressed_at_(QModelIndex()),
@@ -1020,6 +1035,9 @@ void PacketList::timerEvent(QTimerEvent *event)
             if (create_near_overlay_) drawNearOverlay();
             if (create_far_overlay_) drawFarOverlay();
         }
+    } else if (event->timerId() == turbo_timer_id_) {
+        QKeyEvent turbo_step(QEvent::KeyPress, turbo_key_, Qt::NoModifier, QString(), true);
+        QTreeView::keyPressEvent(&turbo_step);
     } else {
         QTreeView::timerEvent(event);
     }
@@ -1434,7 +1452,33 @@ void PacketList::setHoveredFrameNum(int frame_num)
 
 void PacketList::keyPressEvent(QKeyEvent *event)
 {
+    // XXX Add support for Qt::Key_F7 and Qt::Key_F8
+    bool nav_key = (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down);
+
+    if (nav_key && event->isAutoRepeat()) {
+        Qt::Key key = static_cast<Qt::Key>(event->key());
+
+        if (turbo_timer_id_ != 0 && key == turbo_key_) {
+            // We're handling autorepeat ourselves.
+            event->accept();
+            return;
+        }
+
+        if (turbo_timer_id_ == 0 && key == held_key_ && key_hold_elapsed_.isValid() &&
+            key_hold_elapsed_.hasExpired(turbo_activation_delay_)) {
+            turbo_key_ = key;
+            turbo_timer_id_ = startTimer(turbo_nav_interval_);
+            event->accept();
+            return;
+        }
+    }
+
     QTreeView::keyPressEvent(event);
+
+    if (nav_key && !event->isAutoRepeat()) {
+        held_key_ = static_cast<Qt::Key>(event->key());
+        key_hold_elapsed_.start();
+    }
 
     if (event->matches(QKeySequence::Copy))
     {
@@ -1518,6 +1562,20 @@ void PacketList::keyPressEvent(QKeyEvent *event)
     }
 }
 
+void PacketList::keyReleaseEvent(QKeyEvent *event)
+{
+    if (!event->isAutoRepeat() && event->key() == held_key_) {
+        if (turbo_timer_id_ != 0 && event->key() == turbo_key_) {
+            killTimer(turbo_timer_id_);
+            turbo_timer_id_ = 0;
+        }
+        held_key_ = Qt::Key(0);
+        key_hold_elapsed_.invalidate();
+    }
+
+    QTreeView::keyReleaseEvent(event);
+}
+
 void PacketList::focusInEvent(QFocusEvent *event)
 {
     QTreeView::focusInEvent(event);
@@ -1538,6 +1596,18 @@ void PacketList::focusInEvent(QFocusEvent *event)
             }
         }
     }
+}
+
+void PacketList::focusOutEvent(QFocusEvent *event)
+{
+    if (turbo_timer_id_ != 0) {
+        killTimer(turbo_timer_id_);
+        turbo_timer_id_ = 0;
+    }
+    held_key_ = Qt::Key(0);
+    key_hold_elapsed_.invalidate();
+
+    QTreeView::focusOutEvent(event);
 }
 
 void PacketList::resizeEvent(QResizeEvent *event)

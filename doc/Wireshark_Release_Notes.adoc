@@ -25,7 +25,7 @@ If you or your organization would like to contribute or become a sponsor, please
 
 The following changes have been made since version 4.7.3:
 
-* Nothing of note.
+* Holding down kbd:[↓] and kbd:[↑] will move rapidly through the packet list.
 
 The following changes have been made since version 4.7.2:
 

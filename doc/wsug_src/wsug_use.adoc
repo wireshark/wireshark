@@ -91,8 +91,8 @@ a capture file. See <<ChUseTabGo>> for additional navigation keystrokes.
 |===
 |Accelerator               |Description
 |kbd:[Tab] or kbd:[Shift+Tab]|Move between screen elements, e.g., from the toolbars to the packet list to the packet detail.
-|kbd:[↓]                   |Move to the next packet or detail item.
-|kbd:[↑]                   |Move to the previous packet or detail item.
+|kbd:[↓]                   |Move to the next packet or detail item. Holding the key down will move more quickly.
+|kbd:[↑]                   |Move to the previous packet or detail item. Holding the key down will move more quickly.
 |kbd:[Ctrl+↓] or kbd:[F8]  |Move to the next packet, even if the packet list isn’t focused.
 |kbd:[Ctrl+↑] or kbd:[F7]  |Move to the previous packet, even if the packet list isn’t focused.
 |kbd:[Ctrl+.]              |Move to the next packet of the conversation (TCP, UDP or IP).
@@ -951,9 +951,11 @@ The packet list pane displays all the packets in the current capture file.
 .The “Packet List” pane
 image::images/ws-list-pane.png[{screenshot-attrs}]
 
-Each line in the packet list corresponds to one packet in the capture file. If
-you select a line in this pane, more details will be displayed in the “Packet
-Details” and “Packet Bytes” panes.
+Each line in the packet list corresponds to one packet in the capture file.
+If you select a line in this pane, more details will be displayed in the “Packet Details” and “Packet Bytes” panes.
+You can move to the next or previous packet using the kbd:[↓] and kbd:[↑] keys respectively when the packet list is in focus.
+You can also use the kbd:[Ctrl+↓] or kbd:[F8] and kbd:[Ctrl+↑] or kbd:[F7] keys to move to the next or previous packet even if the packet list is not in focus.
+Holding down kbd:[↓] and kbd:[↑] will move rapidly through the packet list.
 
 While dissecting a packet, Wireshark will place information from the protocol
 dissectors into the columns. As higher-level protocols might overwrite
