@@ -6890,10 +6890,10 @@ dissect_bss_configuration_report(tvbuff_t *tvb, packet_info *pinfo _U_,
                                     tvb, offset, 6, ENC_NA);
                 offset += 6;
 
-                proto_tree_add_bitmask(bss_tree, tvb, offset,
-                                       hf_ieee1905_bss_config_report_flags,
-                                       ett_bss_config_report_flags,
-                                       bss_config_report_flags, ENC_NA);
+                proto_tree_add_bitmask_with_flags(bss_tree, tvb, offset,
+                                                  hf_ieee1905_bss_config_report_flags,
+                                                  ett_bss_config_report_flags,
+                                                  bss_config_report_flags, ENC_NA, BMT_NO_APPEND);
                 offset += 1;
 
                 proto_tree_add_item(bss_tree, hf_ieee1905_bss_config_report_res,
