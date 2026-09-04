@@ -452,7 +452,11 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             mfp = (multi_fragment_pdu_t *)wmem_tree_lookup32_le(chandle_data->start_fragments, pinfo->num);
             if (!pinfo->fd->visited) {
                 len = tvb_captured_length_remaining(tvb, offset);
-                if (mfp != NULL && !mfp->last_frame && (mfp->tot_len >= mfp->cur_off + len)) {
+                if (mfp != NULL && !mfp->last_frame && mfp->tot_len > mfp->cur_off) {
+                    int avail = mfp->tot_len - mfp->cur_off;
+                    if (len > avail) {
+                        len = avail;
+                    }
                     tvb_memcpy(tvb, (uint8_t *) mfp->reassembled + mfp->cur_off, offset, len);
                     mfp->cur_off += len;
                     if (mfp->cur_off == mfp->tot_len) {
