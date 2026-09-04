@@ -35,6 +35,7 @@ static int ett_sgp32_rPLMN;
 static int ett_sgp32_tagList;
 #include "packet-sgp32-ett.c"
 
+static dissector_handle_t sgp22_handle;
 static dissector_handle_t sgp32_handle;
 
 /* Dissector tables */
@@ -171,12 +172,19 @@ static int dissect_sgp32(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   media_content_info_t *content_info = (media_content_info_t *)data;
   proto_item *sgp32_ti;
   proto_tree *sgp32_tree;
+  uint32_t tag;
   int offset;
 
   if (!content_info ||
       ((content_info->type != MEDIA_CONTAINER_HTTP_REQUEST) &&
        (content_info->type != MEDIA_CONTAINER_HTTP_RESPONSE))) {
     return 0;
+  }
+
+  /* Check for SGP.22 RemoteProfileProvisioning -- Tag 'A2' */
+  get_sgp32_tag(tvb, &tag);
+  if (tag == 0xA2) {
+    return call_dissector_only(sgp22_handle, tvb, pinfo, tree, data);
   }
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "SGP.32");
@@ -232,6 +240,7 @@ void proto_register_sgp32(void)
 
 void proto_reg_handoff_sgp32(void)
 {
+  sgp22_handle = find_dissector("sgp22");
   sgp22_request_dissector_table = find_dissector_table("sgp22.request");
   sgp22_response_dissector_table = find_dissector_table("sgp22.response");
 
