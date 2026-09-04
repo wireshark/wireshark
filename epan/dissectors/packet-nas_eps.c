@@ -6301,6 +6301,8 @@ nas_emm_transport(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t 
     curr_len    = len;
 
     ELEM_OPT_TV(0x79, NAS_PDU_TYPE_EMM, DE_EMM_DATA_CONT, NULL);
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
 
 /*
@@ -7562,11 +7564,29 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
         if (security_header_type == 11) {
             col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "EMM transport");
             /* Message authentication code */
-            proto_tree_add_item(nas_eps_tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(nas_eps_tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN, &msg_auth_code);
             offset+=4;
             /* Sequence number */
             proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
+            if (msg_auth_code != 0 && len > 6) {
+                proto_tree_add_item(nas_eps_tree, hf_nas_eps_ciphered_msg, tvb, offset, len - 6, ENC_NA);
+                if (!g_nas_eps_null_decipher)  {
+                    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Ciphered message");
+                    return tvb_captured_length(tvb);
+                }
+                if (g_nas_eps_decipher_key != NULL) {
+                    tvbuff_t *tvb_deciphered = deciphering_eea2_msg(pinfo, tvb, offset - 1, len - 6);
+
+                    if (!tvb_deciphered) {
+                        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Ciphered message");
+                        return tvb_captured_length(tvb);
+                    }
+                    tvb = tvb_deciphered;
+                    offset = 0;
+                    proto_tree_add_item(nas_eps_tree, hf_nas_eps_deciphered_msg, tvb, offset, tvb_reported_length(tvb_deciphered), ENC_NA);
+                }
+            }
             nas_emm_transport(tvb, nas_eps_tree, pinfo, offset, tvb_reported_length(tvb)-offset);
             return tvb_captured_length(tvb);
         }
