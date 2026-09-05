@@ -61,6 +61,7 @@ static int hf_rtpproxy_callid;
 static int hf_rtpproxy_copy_target;
 static int hf_rtpproxy_playback_filename;
 static int hf_rtpproxy_playback_codec;
+static int hf_rtpproxy_stat_name;
 static int hf_rtpproxy_notify;
 static int hf_rtpproxy_notify_ipv4;
 static int hf_rtpproxy_notify_ipv6;
@@ -141,6 +142,8 @@ static const value_string commandtypenames[] = {
     { 'c', "Copy stream"},
     { 'Q', "Query info about a session"},
     { 'q', "Query info about a session"},
+    { 'G', "Get statistics"},
+    { 'g', "Get statistics"},
     { 0, NULL }
 };
 
@@ -639,6 +642,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         case 'r':
         case 'c':
         case 'q':
+        case 'g':
             rtpproxy_info = rtpproxy_add_tid(true, tvb, pinfo, rtpproxy_tree, rtpproxy_conv, cookie);
             col_add_fstr(pinfo->cinfo, COL_INFO, "Request: %s", val_to_str_const(tvb_get_uint8(tvb, offset), commandtypenames, "Unknown command code"));
             ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_request, tvb, offset, -1, ENC_NA);
@@ -678,6 +682,10 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 } else {
                     new_offset = offset + (int)strlen("I");
                 }
+            } else if (tmp == 'g') {
+                /* Unlike the other commands the Get statistics one may carry
+                 * no arguments at all, so don't run past the end of it */
+                tvb_find_uint8_length(tvb, offset, realsize - offset, ' ', &new_offset);
             } else {
                 tvb_find_uint8_remaining(tvb, offset, ' ', &new_offset);
             }
@@ -692,6 +700,22 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* A specific case - query information */
             if (tmp == 'i')
                 break; /* No more parameters */
+
+            /* A specific case - get statistics. There is no Call-ID, just an
+             * optional list of the requested counters:
+             * https://github.com/sippy/rtpproxy/wiki/RTPP-%28RTPproxy-protocol%29-technical-specification#get-statistics
+             */
+            if (tmp == 'g'){
+                while (new_offset < realsize){
+                    /* Skip whitespace */
+                    offset = tvb_skip_wsp(tvb, new_offset, realsize - new_offset);
+                    if (offset == realsize)
+                        break; /* Trailing whitespace only */
+                    tvb_find_uint8_length(tvb, offset, realsize - offset, ' ', &new_offset);
+                    proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_stat_name, tvb, offset, new_offset - offset, ENC_ASCII);
+                }
+                break; /* No more parameters */
+            }
 
             /* Skip whitespace */
             offset = tvb_skip_wsp(tvb, new_offset+1,tvb_captured_length(tvb));
@@ -1236,6 +1260,19 @@ proto_register_rtpproxy(void)
                 "rtpproxy.playback_codec",
                 FT_UINT8, /* 0 - 127 */
                 BASE_DEC,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_stat_name,
+            {
+                "Statistics name",
+                "rtpproxy.stat_name",
+                FT_STRING,
+                BASE_NONE,
                 NULL,
                 0x0,
                 NULL,
