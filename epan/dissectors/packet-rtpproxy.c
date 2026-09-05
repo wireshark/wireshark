@@ -70,6 +70,7 @@ static int hf_rtpproxy_notify_ipv4;
 static int hf_rtpproxy_notify_ipv6;
 static int hf_rtpproxy_notify_port;
 static int hf_rtpproxy_notify_path;
+static int hf_rtpproxy_notify_wildcard;
 static int hf_rtpproxy_notify_tag;
 static int hf_rtpproxy_tag;
 static int hf_rtpproxy_mediaid;
@@ -122,6 +123,7 @@ static const string_string versiontypenames[] = {
     { "20140617", "Support for anchoring session connect time" },
     { "20141004", "Support for extendable performance counters" },
     { "20150330", "Support for allocating a new port (\"Un\"/\"Ln\" commands)" },
+    { "20150617", "Support for the wildcard %%CC_SELF%% as a disconnect notify target" },
     { "20191015", "Support for the && sub-command specifier" },
     { "20200226", "Support for the N command to stop recording" },
     { "20260306", "Support for address labels in the \"Ul\"/\"Ll\" commands" },
@@ -292,6 +294,12 @@ static int ett_rtpproxy_reply;
 static int ett_rtpproxy_ng_bencode;
 
 static int ett_rtpproxy_subcommands;
+
+/* The wildcard standing for the address of the control connection. Spelled
+ * with the doubled percent signs on the wire - see CC_SELF_STR in the RTPproxy
+ * sources.
+ */
+#define RTPPROXY_CC_SELF "%%CC_SELF%%"
 
 /* Default values */
 #define RTPPROXY_PORT "22222"  /* Not IANA registered */
@@ -653,6 +661,27 @@ rtpproxy_add_tid(bool is_request, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     return rtpproxy_info;
 }
 
+/* Take the notification address from ip.src/ipv6.src - either because only a
+ * port was supplied or because the wildcard asked for the address of the
+ * control connection.
+ */
+static void
+rtpproxy_add_notify_src_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_tree, unsigned begin)
+{
+    proto_item *ti = NULL;
+
+    if (pinfo->src.type == AT_IPv4) {
+        uint32_t addr;
+        memcpy(&addr, pinfo->src.data, 4);
+        ti = proto_tree_add_ipv4(rtpproxy_tree, hf_rtpproxy_notify_ipv4, tvb, begin, 0, addr);
+    } else if (pinfo->src.type == AT_IPv6) {
+        ti = proto_tree_add_ipv6(rtpproxy_tree, hf_rtpproxy_notify_ipv6, tvb, begin, 0, (const ws_in6_addr *)(pinfo->src.data));
+    }
+    if (ti) {
+        proto_item_set_generated(ti);
+    }
+}
+
 static void
 rtpproxy_add_notify_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_tree, unsigned begin, unsigned end)
 {
@@ -702,7 +731,13 @@ rtpproxy_add_notify_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy
             hend -= (unsigned)strlen("]");
             ipv6 = true;
         }
-        if(ipv6){
+        /* The "%%CC_SELF%%" wildcard stands for the address the command has
+         * arrived from - since the 20150617 protocol version */
+        if (strcmp((const char*)tvb_get_string_enc(pinfo->pool, tvb, hbegin, hend - hbegin, ENC_ASCII), RTPPROXY_CC_SELF) == 0){
+            proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_wildcard, tvb, hbegin, hend - hbegin, ENC_ASCII);
+            rtpproxy_add_notify_src_addr(tvb, pinfo, rtpproxy_tree, hbegin);
+        }
+        else if(ipv6){
             if(str_to_ip6((char*)tvb_get_string_enc(pinfo->pool, tvb, hbegin, hend - hbegin, ENC_ASCII), ipaddr))
                 proto_tree_add_ipv6(rtpproxy_tree, hf_rtpproxy_notify_ipv6, tvb, hbegin, hend - hbegin, (const ws_in6_addr*)ipaddr);
             else
@@ -718,8 +753,6 @@ rtpproxy_add_notify_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy
         proto_tree_add_uint(rtpproxy_tree, hf_rtpproxy_notify_port, tvb, offset+1, end_offset - (offset + 1), port);
     }
     else{
-        proto_item *ti = NULL;
-
         /* No colon at all - a local socket path unless it's a bare port */
         if (strspn(rawstr, "0123456789") != strlen(rawstr)) {
             proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_path, tvb, begin, end - begin, ENC_ASCII);
@@ -728,16 +761,7 @@ rtpproxy_add_notify_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy
 
         /* Only port is supplied - take IPv4/IPv6 from  ip.src/ipv6.src respectively */
         expert_add_info(pinfo, rtpproxy_tree, &ei_rtpproxy_notify_no_ip);
-        if (pinfo->src.type == AT_IPv4) {
-            uint32_t addr;
-            memcpy(&addr, pinfo->src.data, 4);
-            ti = proto_tree_add_ipv4(rtpproxy_tree, hf_rtpproxy_notify_ipv4, tvb, begin, 0, addr);
-        } else if (pinfo->src.type == AT_IPv6) {
-            ti = proto_tree_add_ipv6(rtpproxy_tree, hf_rtpproxy_notify_ipv6, tvb, begin, 0, (const ws_in6_addr *)(pinfo->src.data));
-        }
-        if (ti) {
-            proto_item_set_generated(ti);
-        }
+        rtpproxy_add_notify_src_addr(tvb, pinfo, rtpproxy_tree, begin);
         tvb_get_string_uint16(tvb, begin, end - begin, ENC_STR_DEC, &port, &end_offset);
         proto_tree_add_uint(rtpproxy_tree, hf_rtpproxy_notify_port, tvb, begin, end_offset - begin, port);
     }
@@ -1667,6 +1691,19 @@ proto_register_rtpproxy(void)
             {
                 "Notification socket path",
                 "rtpproxy.notify_path",
+                FT_STRING,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_notify_wildcard,
+            {
+                "Notification address wildcard",
+                "rtpproxy.notify_wildcard",
                 FT_STRING,
                 BASE_NONE,
                 NULL,
