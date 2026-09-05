@@ -50,7 +50,9 @@ static int hf_rtpproxy_command_parameters;
 static int hf_rtpproxy_command_parameter;
 static int hf_rtpproxy_command_parameter_codec;
 static int hf_rtpproxy_command_parameter_local_ipv4;
+static int hf_rtpproxy_command_parameter_local_ipv6;
 static int hf_rtpproxy_command_parameter_remote_ipv4;
+static int hf_rtpproxy_command_parameter_remote_ipv6;
 static int hf_rtpproxy_command_parameter_repacketize;
 static int hf_rtpproxy_command_parameter_dtmf;
 /* static int hf_rtpproxy_command_parameter_cmap; TODO */
@@ -432,6 +434,47 @@ rtpproxy_add_tag(tvbuff_t *tvb, packet_info* pinfo, proto_tree* rtpproxy_tree, u
     }
 }
 
+/* Dissect the address of the "L"/"R" command modifiers. RTPproxy takes either
+ * a plain IPv4 address or an IPv6 one enclosed in square brackets. Returns
+ * false if there is no address at all - "L" doubles as the "load average"
+ * modifier of the "I" command.
+ */
+static bool
+rtpproxy_add_parameter_addr(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, int ett,
+    const char* rawstr, unsigned *offset, int hf_ipv4, int hf_ipv6)
+{
+    proto_tree *another_tree;
+    unsigned begin;
+    unsigned len;
+    uint32_t ipaddr[4]; /* Enough room for IPv4 or IPv6 */
+
+    if (rawstr[*offset] == '['){
+        begin = *offset + (unsigned)strlen("[");
+        len = (unsigned)strspn(rawstr + begin, "0123456789abcdefABCDEF:");
+        if ((len == 0) || (rawstr[begin + len] != ']'))
+            return false; /* Unterminated */
+        another_tree = proto_item_add_subtree(ti, ett);
+        if(str_to_ip6((char*)tvb_get_string_enc(pinfo->pool, tvb, begin, len, ENC_ASCII), ipaddr))
+            proto_tree_add_ipv6(another_tree, hf_ipv6, tvb, begin, len, (const ws_in6_addr*)ipaddr);
+        else
+            proto_tree_add_expert(another_tree, pinfo, &ei_rtpproxy_bad_ipv6, tvb, begin, len);
+        *offset = begin + len + (unsigned)strlen("]");
+        return true;
+    }
+
+    begin = *offset;
+    len = (unsigned)strspn(rawstr + begin, "0123456789.");
+    if (len == 0)
+        return false;
+    another_tree = proto_item_add_subtree(ti, ett);
+    if(str_to_ip((char*)tvb_get_string_enc(pinfo->pool, tvb, begin, len, ENC_ASCII), ipaddr))
+        proto_tree_add_ipv4(another_tree, hf_ipv4, tvb, begin, len, ipaddr[0]);
+    else
+        proto_tree_add_expert(another_tree, pinfo, &ei_rtpproxy_bad_ipv4, tvb, begin, len);
+    *offset = begin + len;
+    return true;
+}
+
 static void
 rtpproxy_add_parameter(tvbuff_t *parent_tvb, packet_info *pinfo, proto_tree *rtpproxy_tree, unsigned begin, unsigned realsize)
 {
@@ -443,7 +486,6 @@ rtpproxy_add_parameter(tvbuff_t *parent_tvb, packet_info *pinfo, proto_tree *rtp
     uint8_t parameter_type;
     uint16_t parameter_value;
     const char* rawstr = NULL;
-    uint32_t ipaddr[4]; /* Enough room for IPv4 or IPv6 */
 
     /* Extract the entire parameters line. */
     /* Something like "t4p1iic8,0,2,4,18,96,97,98,100,101" */
@@ -472,24 +514,14 @@ rtpproxy_add_parameter(tvbuff_t *parent_tvb, packet_info *pinfo, proto_tree *rtp
                 /* That's another one protocol shortcoming - the same parameter used twice. */
                 /* https://github.com/sippy/rtpproxy/wiki/RTPP-%28RTPproxy-protocol%29-technical-specification#createupdatelookup-session */
                 /* https://github.com/sippy/rtpproxy/wiki/RTPP-%28RTPproxy-protocol%29-technical-specification#get-information */
-                new_offset = (int)strspn(rawstr+offset, "0123456789.");
-                if(new_offset){
-                    another_tree = proto_item_add_subtree(ti, ett_rtpproxy_command_parameters_local);
-                    if(str_to_ip((char*)tvb_get_string_enc(pinfo->pool, tvb, offset, new_offset, ENC_ASCII), ipaddr))
-                        proto_tree_add_ipv4(another_tree, hf_rtpproxy_command_parameter_local_ipv4, tvb, offset, new_offset, ipaddr[0]);
-                    else
-                        proto_tree_add_expert(another_tree, pinfo, &ei_rtpproxy_bad_ipv4, tvb, offset, new_offset);
-                    offset += new_offset;
-                }
+                rtpproxy_add_parameter_addr(tvb, pinfo, ti, ett_rtpproxy_command_parameters_local,
+                    rawstr, &offset, hf_rtpproxy_command_parameter_local_ipv4,
+                    hf_rtpproxy_command_parameter_local_ipv6);
                 break;
             case 'r':
-                new_offset = (int)strspn(rawstr+offset, "0123456789.");
-                another_tree = proto_item_add_subtree(ti, ett_rtpproxy_command_parameters_remote);
-                if(str_to_ip((char*)tvb_get_string_enc(pinfo->pool, tvb, offset, new_offset, ENC_ASCII), ipaddr))
-                    proto_tree_add_ipv4(another_tree, hf_rtpproxy_command_parameter_remote_ipv4, tvb, offset, new_offset, ipaddr[0]);
-                else
-                    proto_tree_add_expert(another_tree, pinfo, &ei_rtpproxy_bad_ipv4, tvb, offset, new_offset);
-                offset += new_offset;
+                rtpproxy_add_parameter_addr(tvb, pinfo, ti, ett_rtpproxy_command_parameters_remote,
+                    rawstr, &offset, hf_rtpproxy_command_parameter_remote_ipv4,
+                    hf_rtpproxy_command_parameter_remote_ipv6);
                 break;
             case 'z':
                 another_tree = proto_item_add_subtree(ti, ett_rtpproxy_command_parameters_repacketize);
@@ -1273,7 +1305,20 @@ proto_register_rtpproxy(void)
             {
                 "Local IPv4 address",
                 "rtpproxy.command_parameter_local_ipv4",
-                FT_IPv4, /* FIXME - is it ever possible to see IPv6 here? */
+                FT_IPv4,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_command_parameter_local_ipv6,
+            {
+                "Local IPv6 address",
+                "rtpproxy.command_parameter_local_ipv6",
+                FT_IPv6,
                 BASE_NONE,
                 NULL,
                 0x0,
@@ -1286,7 +1331,20 @@ proto_register_rtpproxy(void)
             {
                 "Remote IPv4 address",
                 "rtpproxy.command_parameter_remote_ipv4",
-                FT_IPv4, /* FIXME - is it ever possible to see IPv6 here? */
+                FT_IPv4,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_command_parameter_remote_ipv6,
+            {
+                "Remote IPv6 address",
+                "rtpproxy.command_parameter_remote_ipv6",
+                FT_IPv6,
                 BASE_NONE,
                 NULL,
                 0x0,
