@@ -116,6 +116,7 @@ static const string_string versiontypenames[] = {
     { "20140617", "Support for anchoring session connect time" },
     { "20141004", "Support for extendable performance counters" },
     { "20150330", "Support for allocating a new port (\"Un\"/\"Ln\" commands)" },
+    { "20200226", "Support for the N command to stop recording" },
     { NULL, NULL }
 };
 
@@ -138,6 +139,8 @@ static const value_string commandtypenames[] = {
     { 's', "Stop playback (music-on-hold)"},
     { 'R', "Start recording"},
     { 'r', "Start recording"},
+    { 'N', "Stop recording"},
+    { 'n', "Stop recording"},
     { 'C', "Copy stream"},
     { 'c', "Copy stream"},
     { 'Q', "Query info about a session"},
@@ -151,8 +154,8 @@ static const value_string paramtypenames[] = {
     /* Official command parameters */
     {'4', "Remote address is IPv4"},
     {'6', "Remote address is IPv6"},
-    {'a', "Asymmetric stream"},
-    {'A', "Asymmetric stream"},
+    {'a', "Asymmetric stream / All the recordings"},
+    {'A', "Asymmetric stream / All the recordings"},
     {'b', "Brief stats"},
     {'B', "Brief stats"},
     {'c', "Codecs"},
@@ -643,6 +646,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         case 'c':
         case 'q':
         case 'g':
+        case 'n':
             rtpproxy_info = rtpproxy_add_tid(true, tvb, pinfo, rtpproxy_tree, rtpproxy_conv, cookie);
             col_add_fstr(pinfo->cinfo, COL_INFO, "Request: %s", val_to_str_const(tvb_get_uint8(tvb, offset), commandtypenames, "Unknown command code"));
             ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_request, tvb, offset, -1, ENC_NA);
