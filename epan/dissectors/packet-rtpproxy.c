@@ -311,7 +311,7 @@ rtpproxy_add_tag(tvbuff_t *tvb, packet_info* pinfo, proto_tree* rtpproxy_tree, u
     /* SER/OpenSER/OpenSIPS/Kamailio adds Media-ID right after the Tag
      * separated by a semicolon
      */
-    if(!tvb_find_uint8_length(tvb, begin, end, ';', &new_offset)){
+    if(!tvb_find_uint8_length(tvb, begin, end - begin, ';', &new_offset)){
         ti = proto_tree_add_item_ret_string(rtpproxy_tree, hf_rtpproxy_tag, tvb, begin, end - begin, ENC_ASCII | ENC_NA, pinfo->pool, &tmpstr);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Tag: %s", tmpstr);
         another_tree = proto_item_add_subtree(ti, ett_rtpproxy_tag);
@@ -490,9 +490,9 @@ rtpproxy_add_notify_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy
     uint16_t port;
 
     /* Check for at least one colon */
-    if (tvb_find_uint8_length(tvb, begin, end, ':', &offset)) {
+    if (tvb_find_uint8_length(tvb, begin, end - begin, ':', &offset)) {
         /* Find if it's the latest colon (not in case of a IPv6) */
-        while ((tvb_find_uint8_length(tvb, offset+1, end, ':', &tmp))) {
+        while ((tvb_find_uint8_length(tvb, offset+1, end - (offset+1), ':', &tmp))) {
             ipv6 = true;
             offset = tmp;
         }
