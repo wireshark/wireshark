@@ -237,6 +237,7 @@ static const string_string errortypenames[] = {
     { "E34", "Syntax error: invalid local address (INVLARG_4)" },
     { "E35", "Syntax error: no codecs (INVLARG_5)" },
     { "E36", "Syntax error: cannot match local address for the session (INVLARG_6)" },
+    { "E37", "Syntax error: can't resolve remote address (INVLARG_7)" },
     { "E50", "Software error: session not found (SESUNKN)" },
     { "E60", "PLRFAIL" },
     { "E62", "Software error: unsupported/invalid counter name (QRYFAIL)" },
