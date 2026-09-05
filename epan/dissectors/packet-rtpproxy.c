@@ -794,14 +794,14 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 break; /* No more parameters */
             }
             /* Skip whitespace */
-            offset = tvb_skip_wsp(tvb, new_offset+1, tvb_captured_length(tvb));
+            offset = tvb_skip_wsp(tvb, offset, realsize - offset);
 
             /* Extract second tag */
-            rtpproxy_add_tag(tvb, pinfo, rtpproxy_tree, &offset, realsize);
-            if(offset == tvb_captured_length(tvb))
+            if (!rtpproxy_add_tag(tvb, pinfo, rtpproxy_tree, &offset, realsize)) {
                 break; /* No more parameters */
+            }
             /* Skip whitespace */
-            offset = tvb_skip_wsp(tvb, new_offset+1, tvb_captured_length(tvb));
+            offset = tvb_skip_wsp(tvb, offset, realsize - offset);
 
             /* Extract Notification address */
             if (tmp == 'u'){
