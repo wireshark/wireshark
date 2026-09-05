@@ -69,6 +69,7 @@ static int hf_rtpproxy_notify;
 static int hf_rtpproxy_notify_ipv4;
 static int hf_rtpproxy_notify_ipv6;
 static int hf_rtpproxy_notify_port;
+static int hf_rtpproxy_notify_path;
 static int hf_rtpproxy_notify_tag;
 static int hf_rtpproxy_tag;
 static int hf_rtpproxy_mediaid;
@@ -657,9 +658,33 @@ rtpproxy_add_notify_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy
 {
     unsigned offset = 0, end_offset;
     unsigned tmp;
+    unsigned hbegin, hend;
     bool ipv6 = false;
     uint32_t ipaddr[4]; /* Enough room for IPv4 or IPv6 */
     uint16_t port;
+    const char* rawstr;
+
+    if (begin >= end)
+        return;
+
+    rawstr = (const char*)tvb_get_string_enc(pinfo->pool, tvb, begin, end - begin, ENC_ASCII);
+
+    /* RTPproxy takes either a local (unix domain) socket - "unix:<path>", or
+     * just a path for compatibility with the 1.0-2.0 releases - or an INET
+     * one, "tcp:<host>:<port>". See parse_timeout_sock() in its sources.
+     */
+    if (g_str_has_prefix(rawstr, "unix:"))
+        begin += (unsigned)strlen("unix:");
+    else if (g_str_has_prefix(rawstr, "tcp:"))
+        begin += (unsigned)strlen("tcp:");
+
+    if (begin >= end)
+        return; /* A prefix and nothing else */
+
+    if (g_str_has_prefix(rawstr, "unix:")) {
+        proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_path, tvb, begin, end - begin, ENC_ASCII);
+        return;
+    }
 
     /* Check for at least one colon */
     if (tvb_find_uint8_length(tvb, begin, end - begin, ':', &offset)) {
@@ -668,24 +693,39 @@ rtpproxy_add_notify_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy
             ipv6 = true;
             offset = tmp;
         }
-        /* We have ip:port */
+        /* We have ip:port, with the address possibly enclosed in brackets */
+        hbegin = begin;
+        hend = offset;
+        if ((tvb_get_uint8(tvb, hbegin) == '[') && (hend > hbegin + 1) &&
+            (tvb_get_uint8(tvb, hend - 1) == ']')) {
+            hbegin += (unsigned)strlen("[");
+            hend -= (unsigned)strlen("]");
+            ipv6 = true;
+        }
         if(ipv6){
-            if(str_to_ip6((char*)tvb_get_string_enc(pinfo->pool, tvb, begin, offset - begin, ENC_ASCII), ipaddr))
-                proto_tree_add_ipv6(rtpproxy_tree, hf_rtpproxy_notify_ipv6, tvb, begin, offset - begin, (const ws_in6_addr*)ipaddr);
+            if(str_to_ip6((char*)tvb_get_string_enc(pinfo->pool, tvb, hbegin, hend - hbegin, ENC_ASCII), ipaddr))
+                proto_tree_add_ipv6(rtpproxy_tree, hf_rtpproxy_notify_ipv6, tvb, hbegin, hend - hbegin, (const ws_in6_addr*)ipaddr);
             else
-                proto_tree_add_expert(rtpproxy_tree, pinfo, &ei_rtpproxy_bad_ipv6, tvb, begin, offset - begin);
+                proto_tree_add_expert(rtpproxy_tree, pinfo, &ei_rtpproxy_bad_ipv6, tvb, hbegin, hend - hbegin);
         }
         else{
-            if(str_to_ip((char*)tvb_get_string_enc(pinfo->pool, tvb, begin, offset - begin, ENC_ASCII), ipaddr))
-                proto_tree_add_ipv4(rtpproxy_tree, hf_rtpproxy_notify_ipv4, tvb, begin, offset - begin, ipaddr[0]);
+            if(str_to_ip((char*)tvb_get_string_enc(pinfo->pool, tvb, hbegin, hend - hbegin, ENC_ASCII), ipaddr))
+                proto_tree_add_ipv4(rtpproxy_tree, hf_rtpproxy_notify_ipv4, tvb, hbegin, hend - hbegin, ipaddr[0]);
             else
-                proto_tree_add_expert(rtpproxy_tree, pinfo, &ei_rtpproxy_bad_ipv4, tvb, begin, offset - begin);
+                proto_tree_add_expert(rtpproxy_tree, pinfo, &ei_rtpproxy_bad_ipv4, tvb, hbegin, hend - hbegin);
         }
         tvb_get_string_uint16(tvb, offset+1, end - (offset+1), ENC_STR_DEC, &port, &end_offset);
         proto_tree_add_uint(rtpproxy_tree, hf_rtpproxy_notify_port, tvb, offset+1, end_offset - (offset + 1), port);
     }
     else{
         proto_item *ti = NULL;
+
+        /* No colon at all - a local socket path unless it's a bare port */
+        if (strspn(rawstr, "0123456789") != strlen(rawstr)) {
+            proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify_path, tvb, begin, end - begin, ENC_ASCII);
+            return;
+        }
+
         /* Only port is supplied - take IPv4/IPv6 from  ip.src/ipv6.src respectively */
         expert_add_info(pinfo, rtpproxy_tree, &ei_rtpproxy_notify_no_ip);
         if (pinfo->src.type == AT_IPv4) {
@@ -1616,6 +1656,19 @@ proto_register_rtpproxy(void)
                 "rtpproxy.notify_port",
                 FT_UINT16,
                 BASE_DEC,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_notify_path,
+            {
+                "Notification socket path",
+                "rtpproxy.notify_path",
+                FT_STRING,
+                BASE_NONE,
                 NULL,
                 0x0,
                 NULL,
