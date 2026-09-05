@@ -51,6 +51,7 @@ static int hf_rtpproxy_command_parameter;
 static int hf_rtpproxy_command_parameter_codec;
 static int hf_rtpproxy_command_parameter_local_ipv4;
 static int hf_rtpproxy_command_parameter_local_ipv6;
+static int hf_rtpproxy_command_parameter_local_label;
 static int hf_rtpproxy_command_parameter_remote_ipv4;
 static int hf_rtpproxy_command_parameter_remote_ipv6;
 static int hf_rtpproxy_command_parameter_repacketize;
@@ -122,6 +123,7 @@ static const string_string versiontypenames[] = {
     { "20150330", "Support for allocating a new port (\"Un\"/\"Ln\" commands)" },
     { "20191015", "Support for the && sub-command specifier" },
     { "20200226", "Support for the N command to stop recording" },
+    { "20260306", "Support for address labels in the \"Ul\"/\"Ll\" commands" },
     { NULL, NULL }
 };
 
@@ -514,6 +516,17 @@ rtpproxy_add_parameter(tvbuff_t *parent_tvb, packet_info *pinfo, proto_tree *rtp
                 /* That's another one protocol shortcoming - the same parameter used twice. */
                 /* https://github.com/sippy/rtpproxy/wiki/RTPP-%28RTPproxy-protocol%29-technical-specification#createupdatelookup-session */
                 /* https://github.com/sippy/rtpproxy/wiki/RTPP-%28RTPproxy-protocol%29-technical-specification#get-information */
+                if (rawstr[offset] == '{'){
+                    /* A bind address label instead of an address - since the
+                     * 20260306 protocol version */
+                    new_offset = (unsigned)strcspn(rawstr + offset + (unsigned)strlen("{"), "}");
+                    if ((new_offset == 0) || (rawstr[offset + (unsigned)strlen("{") + new_offset] != '}'))
+                        break; /* Empty or unterminated */
+                    another_tree = proto_item_add_subtree(ti, ett_rtpproxy_command_parameters_local);
+                    proto_tree_add_item(another_tree, hf_rtpproxy_command_parameter_local_label, tvb, offset + (unsigned)strlen("{"), new_offset, ENC_ASCII);
+                    offset += new_offset + (unsigned)strlen("{}");
+                    break;
+                }
                 rtpproxy_add_parameter_addr(tvb, pinfo, ti, ett_rtpproxy_command_parameters_local,
                     rawstr, &offset, hf_rtpproxy_command_parameter_local_ipv4,
                     hf_rtpproxy_command_parameter_local_ipv6);
@@ -1319,6 +1332,19 @@ proto_register_rtpproxy(void)
                 "Local IPv6 address",
                 "rtpproxy.command_parameter_local_ipv6",
                 FT_IPv6,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_command_parameter_local_label,
+            {
+                "Local address label",
+                "rtpproxy.command_parameter_local_label",
+                FT_STRING,
                 BASE_NONE,
                 NULL,
                 0x0,
