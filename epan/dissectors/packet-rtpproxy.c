@@ -172,6 +172,8 @@ static const value_string paramtypenames[] = {
     {'R', "Remote address"},
     {'s', "Symmetric stream / Single file"},
     {'S', "Symmetric stream / Single file"},
+    {'v', "Verbose"},
+    {'V', "Verbose"},
     {'w', "Weak connection (allows roaming)"},
     {'W', "Weak connection (allows roaming)"},
     {'z', "repacketiZe"},
