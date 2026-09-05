@@ -513,6 +513,8 @@ rtpproxy_add_parameter(tvbuff_t *parent_tvb, packet_info *pinfo, proto_tree *rtp
                 offset += new_offset;
                 break;
             case 'p':
+                if (!tvb_reported_length_remaining(tvb, offset))
+                    break; /* No value supplied */
                 another_tree = proto_item_add_subtree(ti, ett_rtpproxy_command_parameters_proto);
                 proto_tree_add_item(another_tree, hf_rtpproxy_command_parameter_proto, tvb, offset, 1, ENC_ASCII);
                 offset++;
@@ -525,6 +527,8 @@ rtpproxy_add_parameter(tvbuff_t *parent_tvb, packet_info *pinfo, proto_tree *rtp
                 offset = new_offset;
                 break;
             case 'u':
+                if (!tvb_reported_length_remaining(tvb, offset))
+                    break; /* No value supplied */
                 another_tree = proto_item_add_subtree(ti, ett_rtpproxy_command_parameters_acc);
                 proto_tree_add_item(another_tree, hf_rtpproxy_command_parameter_acc, tvb, offset, 1, ENC_ASCII);
                 offset++;
