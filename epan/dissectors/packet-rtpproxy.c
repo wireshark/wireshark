@@ -73,6 +73,8 @@ static int hf_rtpproxy_reply;
 static int hf_rtpproxy_version_request;
 static int hf_rtpproxy_version_supported;
 static int hf_rtpproxy_ng_bencode;
+static int hf_rtpproxy_subcommand;
+static int hf_rtpproxy_subcommand_result;
 
 /* Expert fields */
 static expert_field ei_rtpproxy_timeout;
@@ -116,6 +118,7 @@ static const string_string versiontypenames[] = {
     { "20140617", "Support for anchoring session connect time" },
     { "20141004", "Support for extendable performance counters" },
     { "20150330", "Support for allocating a new port (\"Un\"/\"Ln\" commands)" },
+    { "20191015", "Support for the && sub-command specifier" },
     { "20200226", "Support for the N command to stop recording" },
     { NULL, NULL }
 };
@@ -283,6 +286,8 @@ static int ett_rtpproxy_reply;
 
 static int ett_rtpproxy_ng_bencode;
 
+static int ett_rtpproxy_subcommands;
+
 /* Default values */
 #define RTPPROXY_PORT "22222"  /* Not IANA registered */
 static range_t* rtpproxy_tcp_range;
@@ -295,6 +300,93 @@ static unsigned rtpproxy_timeout = 1000;
 static nstime_t rtpproxy_timeout_ns;
 
 void proto_reg_handoff_rtpproxy(void);
+
+/* RTPproxy-ng (bencode) payloads start with a bencoded dictionary or list,
+ * e.g. "d7:command6:offer" - never with a plain command letter.
+ */
+static bool
+rtpproxy_is_bencode(tvbuff_t *tvb, unsigned offset, unsigned realsize)
+{
+    uint8_t tmp;
+
+    if (offset + 2 >= realsize)
+        return false;
+
+    tmp = tvb_get_uint8(tvb, offset + 1);
+    return (('1' <= tmp) && (tmp <= '9') && (tvb_get_uint8(tvb, offset + 2) == ':'));
+}
+
+/* Find the next "&&" sub-command separator within [offset, realsize).
+ * RTPproxy splits the command on whitespace and treats an argument which is
+ * exactly "&&" as a separator, so a bare "&&" inside a Call-ID or a tag is
+ * not one.
+ */
+static bool
+rtpproxy_find_subcommand(tvbuff_t *tvb, unsigned offset, unsigned realsize, unsigned *sep_offset)
+{
+    unsigned pos = offset;
+
+    while (pos < realsize) {
+        if (!tvb_find_uint8_length(tvb, pos, realsize - pos, '&', &pos))
+            return false;
+        if ((pos > 0) && (tvb_get_uint8(tvb, pos - 1) == ' ') &&
+            (pos + 1 < realsize) && (tvb_get_uint8(tvb, pos + 1) == '&') &&
+            ((pos + 2 == realsize) || (tvb_get_uint8(tvb, pos + 2) == ' '))) {
+            *sep_offset = pos;
+            return true;
+        }
+        pos++;
+    }
+    return false;
+}
+
+/* Dissect the "&& subcommand1 && subcommand2 ..." trailer of a request, or the
+ * matching "&& result1 && result2 ..." trailer of a reply.
+ */
+static void
+rtpproxy_add_subcommands(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_tree,
+    unsigned begin, unsigned realsize, bool is_reply)
+{
+    proto_tree *another_tree;
+    unsigned offset = begin;
+    unsigned end;
+    unsigned next;
+    const uint8_t* tmpstr;
+
+    another_tree = proto_tree_add_subtree(rtpproxy_tree, tvb, begin, realsize - begin,
+        ett_rtpproxy_subcommands, NULL, is_reply ? "Sub-command results" : "Sub-commands");
+
+    while (offset < realsize) {
+        /* Skip the "&&" separator itself along with the whitespace following it.
+         * Note that the offset always points at a separator here, so this is
+         * what makes the loop advance on an empty sub-command as well.
+         */
+        offset += (unsigned)strlen("&&");
+        if (offset >= realsize)
+            break; /* A dangling separator */
+        offset = tvb_skip_wsp(tvb, offset, realsize - offset);
+        if (offset == realsize)
+            break; /* A dangling separator */
+
+        if (!rtpproxy_find_subcommand(tvb, offset, realsize, &next))
+            next = realsize; /* That was the last one */
+        /* Don't count the whitespace preceding the next separator */
+        end = next;
+        while ((end > offset) && (tvb_get_uint8(tvb, end - 1) == ' '))
+            end--;
+
+        if (end > offset) {
+            proto_tree_add_item_ret_string(another_tree,
+                is_reply ? hf_rtpproxy_subcommand_result : hf_rtpproxy_subcommand,
+                tvb, offset, end - offset, ENC_ASCII | ENC_NA, pinfo->pool, &tmpstr);
+            col_append_fstr(pinfo->cinfo, COL_INFO, is_reply ? ", Result: %s" : ", Sub-command: %s", tmpstr);
+        }
+
+        if (next == realsize)
+            break;
+        offset = next;
+    }
+}
 
 static bool
 rtpproxy_add_tag(tvbuff_t *tvb, packet_info* pinfo, proto_tree* rtpproxy_tree, unsigned *offset, unsigned realsize)
@@ -541,8 +633,11 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     unsigned offset = 0;
     unsigned new_offset = 0;
     unsigned tmp;
-    unsigned tmp2;
     unsigned realsize = 0;
+    unsigned fullsize;
+    unsigned subc_offset = 0;
+    bool is_reply;
+    proto_tree *rtpproxy_main_tree;
     const char* rawstr;
     const char* tmpstr;
     proto_item *ti;
@@ -576,6 +671,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     ti = proto_tree_add_item(tree, proto_rtpproxy, tvb, 0, -1, ENC_NA);
     rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy);
+    rtpproxy_main_tree = rtpproxy_tree;
 
     proto_tree_add_item_ret_string(rtpproxy_tree, hf_rtpproxy_cookie, tvb, 0, offset, ENC_ASCII | ENC_NA, pinfo->pool, (const uint8_t**)&cookie);
 
@@ -606,11 +702,29 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         conversation_add_proto_data(conversation, proto_rtpproxy, rtpproxy_conv);
     }
 
-    /* Get payload string */
-    rawstr = (char*)tvb_format_text_wsp(pinfo->pool, tvb, offset, realsize - offset);
-
     /* Extract command */
     tmp = g_ascii_tolower(tvb_get_uint8(tvb, offset));
+
+    /* Only the "U", "L" and "Q" commands accept sub-commands, and their replies
+     * carry one result per sub-command. Cut them off so that the command itself
+     * isn't parsed as if the sub-commands were its own arguments - the "&&"
+     * would otherwise be reported as a tag.
+     *
+     * https://github.com/sippy/rtpproxy/wiki/RTPP-%28RTPproxy-protocol%29-technical-specification#sub-commands
+     */
+    fullsize = realsize;
+    is_reply = (g_ascii_isdigit(tmp) != 0);
+    if ((is_reply || (tmp == 'u') || (tmp == 'l') || (tmp == 'q')) &&
+        (!rtpproxy_is_bencode(tvb, offset, realsize)) &&
+        rtpproxy_find_subcommand(tvb, offset, realsize, &subc_offset)) {
+        realsize = subc_offset;
+        /* Don't count the whitespace preceding the first separator */
+        while ((realsize > offset) && (tvb_get_uint8(tvb, realsize - 1) == ' '))
+            realsize--;
+    }
+
+    /* Get payload string */
+    rawstr = (char*)tvb_format_text_wsp(pinfo->pool, tvb, offset, realsize - offset);
     switch (tmp)
     {
         case 's':
@@ -632,8 +746,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         case 'u':
         case 'l':
         case 'd':
-            tmp2 = tvb_get_uint8(tvb, offset+1);
-            if(('1' <= tmp2) && (tmp2 <= '9') && (tvb_get_uint8(tvb, offset+2) == ':')){
+            if(rtpproxy_is_bencode(tvb, offset, realsize)){
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPproxy-ng");
                 col_add_fstr(pinfo->cinfo, COL_INFO, "RTPproxy-ng: %s", rawstr);
                 ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_ng_bencode, tvb, offset, -1, ENC_ASCII);
@@ -891,6 +1004,11 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Extract IP */
             memset(&addr, 0, sizeof(address));
 
+            /* Nothing but a port could have been replied - in which case
+             * whatever follows is a sub-command result, not an address */
+            if (offset >= realsize)
+                break; /* No more parameters */
+
             /* Try rtpengine bogus extension first. It appends 4 or
              * 6 depending on type of the IP. See
              * https://github.com/sipwise/rtpengine/blob/eea3256/daemon/call_interfaces.c#L74
@@ -939,9 +1057,12 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         default:
             break;
     }
+    if (subc_offset)
+        rtpproxy_add_subcommands(tvb, pinfo, rtpproxy_main_tree, subc_offset, fullsize, is_reply);
+
     /* TODO add an expert warning about packets w/o LF sent over TCP */
     if (has_lf)
-        proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_lf, tvb, realsize, 1, ENC_NA);
+        proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_lf, tvb, fullsize, 1, ENC_NA);
 
     return tvb_captured_length(tvb);
 }
@@ -1457,6 +1578,32 @@ proto_register_rtpproxy(void)
              }
         },
         {
+            &hf_rtpproxy_subcommand,
+            {
+                "Sub-command",
+                "rtpproxy.subcommand",
+                FT_STRING,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_subcommand_result,
+            {
+                "Sub-command result",
+                "rtpproxy.subcommand_result",
+                FT_STRING,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
             &hf_rtpproxy_ng_bencode,
             {
                 "RTPproxy-ng bencode packet",
@@ -1504,7 +1651,8 @@ proto_register_rtpproxy(void)
         &ett_rtpproxy_tag,
         &ett_rtpproxy_notify,
         &ett_rtpproxy_reply,
-        &ett_rtpproxy_ng_bencode
+        &ett_rtpproxy_ng_bencode,
+        &ett_rtpproxy_subcommands
     };
 
     proto_rtpproxy = proto_register_protocol ("Sippy RTPproxy Protocol", "RTPproxy", "rtpproxy");
