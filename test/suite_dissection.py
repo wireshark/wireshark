@@ -884,6 +884,22 @@ class TestDissectRtpproxy:
             ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, 'RTPproxy-ng')
 
+    def test_rtpengine_bencode_error_reply(self, cmd_tshark, capture_file, test_env):
+        '''An "offer" refused with an error, and a "delete" answered with a warning'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtpengine_error_reply.pcap'),
+                '-d', 'udp.port==12222,rtpproxy',
+                '-Y', 'bencode.str == "Unknown call-id"',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, 'RTPproxy-ng')
+
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtpengine_error_reply.pcap'),
+                '-d', 'udp.port==12222,rtpproxy',
+                '-Y', 'bencode.str contains "Call-ID not found or tags"',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, 'RTPproxy-ng')
+
 class TestDissectTcp:
     @staticmethod
     def check_tcp_out_of_order(cmd_tshark, dirs, test_env, extraArgs=[]):
