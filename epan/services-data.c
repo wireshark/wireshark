@@ -5537,7 +5537,7 @@ static const ws_services_entry_t global_tcp_services_table[] = {
     { 5473, "apsolab-tags",     "The Apsolab company's secure dynamic tag protocol" },
     { 5475, "apsolab-data",     "The Apsolab company's data retrieval protocol" },
     { 5507, "psl-management",   "PowerSysLab Electrical Management" },
-    { 5543, "qftest-licserve",  "QF-Test License Server" },
+    { 5543, "qftest-lic-mcp",   "QF-Test License Server / QF-Test MCP Server" },
     { 5550, "cbus",             "Model Railway control using the CBUS message protocol" },
     { 5557, "farenet",          "Sandlab FARENET" },
     { 5565, "dp-bura",          "Data Protector BURA" },
