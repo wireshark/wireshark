@@ -223,7 +223,9 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo,
          }
 
          op2len = -1;
-         if ((length - op1len) > 2) {
+         /* The shortest values there are - "0:", "le" and "de" - are two
+          * bytes long, so anything from two bytes on is worth a try */
+         if ((length - op1len) >= 2) {
             increment_dissection_depth(pinfo);
             op2len = dissect_bencoding_rec(tvb, pinfo, offset + used + op1len, length - op1len, NULL, level + 1, NULL, 0);
             decrement_dissection_depth(pinfo);
@@ -283,7 +285,8 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo,
       return dissect_bencoding_int(tvb, pinfo, offset, length, tree, treei, treeadd);
 
    default:
-      if ((op >= '1') && (op <= '9')) {
+      /* "0:" - the empty string - is as valid as any other one */
+      if ((op >= '0') && (op <= '9')) {
          return dissect_bencoding_str(tvb, pinfo, offset, length, tree, treei, treeadd);
       }
 
