@@ -125,6 +125,7 @@ static const string_string versiontypenames[] = {
     { "20150617", "Support for the wildcard %%CC_SELF%% as a disconnect notify target" },
     { "20191015", "Support for the && sub-command specifier" },
     { "20200226", "Support for the N command to stop recording" },
+    { "20250523", "Support for the \"P\" modifier in the C command" },
     { "20260306", "Support for address labels in the \"Ul\"/\"Ll\" commands" },
     { NULL, NULL }
 };
@@ -177,6 +178,8 @@ static const value_string paramtypenames[] = {
     {'L', "Local address / Load average"},
     {'n', "request New port"},
     {'N', "request New port"},
+    {'p', "reply with the recording Port"},
+    {'P', "reply with the recording Port"},
     {'r', "Remote address"},
     {'R', "Remote address"},
     {'s', "Symmetric stream / Single file"},
