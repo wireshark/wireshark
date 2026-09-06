@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* (last updated 2026-08-28) */
+/* (last updated 2026-09-04) */
 
 #include "config.h"
 
@@ -26532,7 +26532,7 @@ static const char * const table[] =
     "Like Minded People Ltd",                                                             // 26510
     "TAC Bilgisayar Hizmetleri Ic ve Dis Ticaret A.S.",                                   // 26511
     "GEEK Bilgisayar Muhendislik ve Sanayi LTD STI",                                      // 26512
-    "Hellenic Academic and Research Institutions CertificationAuthority",                 // 26513
+    "HARICA",                                                                             // 26513
     "Suntel Communications",                                                              // 26514
     "Tepe Teknoloji",                                                                     // 26515
     "Innovation Designs Ltd.",                                                            // 26516
@@ -34120,7 +34120,7 @@ static const char * const table[] =
     "farbwahl GbR",                                                                       // 34098
     "Palestine Polytechnic University",                                                   // 34099
     "Tompkins Cortland Community College",                                                // 34100
-    "Aimetis Corp",                                                                       // 34101
+    "Senstar Corporation",                                                                // 34101
     "inMeta.Networks",                                                                    // 34102
     "BV-Tech S.p.A.",                                                                     // 34103
     "Ceton Corp",                                                                         // 34104
@@ -65490,7 +65490,7 @@ static const char * const table[] =
     "SRNE Solar Co.,Ltd",                                                                 // 65468
     "ArtSanEnerji",                                                                       // 65469
     "TriCore Engineering UG (haftungsbeschränkt)",                                        // 65470
-    "Mobi Acquisition LLC",                                                               // 65471
+    "Minute Wireless LLC",                                                                // 65471
     "BYD Finland Oy",                                                                     // 65472
     "DS Soft Olomouc, spol. s r.o.",                                                      // 65473
     "CedarDB GmbH",                                                                       // 65474
@@ -66686,7 +66686,7 @@ static const char * const table[] =
     "EU-Zahlstelle Sachsen-Anhalt",                                                       // 66664
     "RaruseReiji",                                                                        // 66665
     "Packet Pilot LLC",                                                                   // 66666
-    "Cooler Master Co., Ltd.",                                                            // 66667
+    NULL,                                                                                 // 66667
     "KS2 Corp Inc",                                                                       // 66668
     "EnergyNet Task Force",                                                               // 66669
     "SunState Medical Specialists",                                                       // 66670
@@ -66696,7 +66696,67 @@ static const char * const table[] =
     "HopeTrek Innovations Co.,Ltd.",                                                      // 66674
     "Leasing České spořitelny, a.s.",                                                     // 66675
     "Corbotics",                                                                          // 66676
-    "Caneline Limited"                                                                    // 66677
+    "Caneline Limited",                                                                   // 66677
+    "Wang Hailong",                                                                       // 66678
+    "成都智联兴明科技有限公司 (Chengdu Zhilian Xingming Technology Co., Ltd.)",                       // 66679
+    "Jagornet Technologies",                                                              // 66680
+    "SIGNIADIGITAL S.A.",                                                                 // 66681
+    "Woxel Sp. z o.o.",                                                                   // 66682
+    "DNP Users Group",                                                                    // 66683
+    "Anamul Haque",                                                                       // 66684
+    "AI Forward Inc.",                                                                    // 66685
+    "ChengDu Gala Digital Intelligence Technology Co.,Ltd.",                              // 66686
+    "LaptopChips",                                                                        // 66687
+    "Distribute Media LTD",                                                               // 66688
+    "Guangdong InnoLead Technology Co., Ltd",                                             // 66689
+    "NEUTRON AUTOMATION PRIVATE LIMITED",                                                 // 66690
+    "PRICEWIN NETWORKS SL",                                                               // 66691
+    "NetSage LLC",                                                                        // 66692
+    "Efsystem",                                                                           // 66693
+    "Immunovant",                                                                         // 66694
+    "Linkware GmbH",                                                                      // 66695
+    "Chukyo Univ. Terminal",                                                              // 66696
+    "Vitalcore Technology Co., Ltd.",                                                     // 66697
+    "Zhu Xiaolong",                                                                       // 66698
+    "Abbottics AI LLC",                                                                   // 66699
+    "M&H Technology Solutions LLC",                                                       // 66700
+    "Genedum Belgium BV",                                                                 // 66701
+    "Stone Ridge Technology, Inc.",                                                       // 66702
+    "SHENZHEN IP-COM Networks Co., Ltd.",                                                 // 66703
+    "Security Solutions Institute Ltd.",                                                  // 66704
+    "Xiamen Yuanchou Intelligent Computing Technology Co., Ltd.",                         // 66705
+    "Blackmagic Design",                                                                  // 66706
+    "Työllisyysrahasto",                                                                  // 66707
+    "MEDSENDX ITALIA SRL",                                                                // 66708
+    "on-geo GmbH",                                                                        // 66709
+    "Telentra Networks",                                                                  // 66710
+    "IDS Vida GmbH & Co. KG",                                                             // 66711
+    "SEGNETICS",                                                                          // 66712
+    "Veriskop Bilişim ve Danışmanlık Hiz. A.Ş.",                                          // 66713
+    "Vogl Meredith Burke & Streza, LLP",                                                  // 66714
+    "The Office of Charles F. Bloszies, Ltd.",                                            // 66715
+    "STUDIOS Architecture",                                                               // 66716
+    "GUNIQ",                                                                              // 66717
+    "Scott Horn",                                                                         // 66718
+    "Novaled GmbH",                                                                       // 66719
+    "BKS GmbH",                                                                           // 66720
+    "DAC Limited",                                                                        // 66721
+    "Badger Media Ltd",                                                                   // 66722
+    "Scandinavian Wood Supply AB",                                                        // 66723
+    "SiQcure Inc.",                                                                       // 66724
+    "Dusk Energy Pty Ltd",                                                                // 66725
+    "IBC Labs LLC",                                                                       // 66726
+    "Mammoth Freighters, LLC",                                                            // 66727
+    "Mixlayer Labs Inc",                                                                  // 66728
+    "Shandong Jereh Agile Power Energy Co., Ltd.",                                        // 66729
+    "Gottfried Schultz Automobilhandels SE",                                              // 66730
+    "Topgrip Instruments Company",                                                        // 66731
+    "MG Industrieelektronik GmbH",                                                        // 66732
+    "elken.tech Sp. z o.o.",                                                              // 66733
+    "CHU de Bordeaux",                                                                    // 66734
+    "Kiruna kommun",                                                                      // 66735
+    "LegalTechsolution S.A.",                                                             // 66736
+    "Tessellation Software LLC"                                                           // 66737
 };
 
 const char* global_enterprises_lookup(uint32_t value)
