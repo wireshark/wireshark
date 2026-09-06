@@ -1058,6 +1058,19 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             if (!rtpproxy_next_field(tvb, &offset, offset, realsize))
                 break; /* No more parameters */
 
+            /* Extract the counters a query asks for. Without them RTPproxy
+             * replies with a fixed set - see rtpproxy_add_query_reply().
+             */
+            if (tmp == 'q'){
+                while (offset < realsize){
+                    new_offset = rtpproxy_field_end(tvb, offset, realsize);
+                    proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_stat_name, tvb, offset, new_offset - offset, ENC_ASCII);
+                    if (!rtpproxy_next_field(tvb, &offset, new_offset, realsize))
+                        break; /* No more parameters */
+                }
+                break;
+            }
+
             /* Extract Notification address */
             if (tmp == 'u'){
                 ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_notify, tvb, offset, realsize - offset, ENC_ASCII);
