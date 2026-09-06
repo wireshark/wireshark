@@ -900,6 +900,15 @@ class TestDissectRtpproxy:
             ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, 'RTPproxy-ng')
 
+    def test_rtpengine_bencode_reassembled(self, cmd_tshark, capture_file, test_env):
+        '''A reply long enough to be split over two IP fragments'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtpengine_query_reassembled.pcap'),
+                '-d', 'udp.port==12222,rtpproxy',
+                '-Y', 'bencode.str == "last signal" && ip.reassembled.length == 1704',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, 'RTPproxy-ng')
+
 class TestDissectTcp:
     @staticmethod
     def check_tcp_out_of_order(cmd_tshark, dirs, test_env, extraArgs=[]):
