@@ -57,7 +57,6 @@ static int hf_rtpproxy_command_parameter_remote_ipv6;
 static int hf_rtpproxy_command_parameter_repacketize;
 static int hf_rtpproxy_command_parameter_dtmf;
 /* static int hf_rtpproxy_command_parameter_cmap; TODO */
-static int hf_rtpproxy_command_parameter_proto;
 static int hf_rtpproxy_command_parameter_transcode;
 static int hf_rtpproxy_command_parameter_acc;
 static int hf_rtpproxy_callid;
@@ -193,8 +192,6 @@ static const value_string paramtypenames[] = {
     {'D', "DTMF payload ID (unofficial extension)"},
     {'m', "codec Mapping (unofficial extension)"},
     {'M', "codec Mapping (unofficial extension)"},
-    {'p', "Protocol type (unofficial extension)"},
-    {'P', "Protocol type (unofficial extension)"},
     {'t', "Transcode to (unofficial extension)"},
     {'T', "Transcode to (unofficial extension)"},
     {'u', "accoUnting (unofficial extension)"},
@@ -202,12 +199,6 @@ static const value_string paramtypenames[] = {
     {0, NULL}
 };
 
-static const value_string prototypenames[] = {
-    { '0', "UDP (default)"},
-    { '1', "TCP"},
-    { '2', "SCTP"},
-    { 0, NULL }
-};
 static const value_string acctypenames[] = {
     { '0', "Start"},
     { '1', "Interim update"},
@@ -283,7 +274,6 @@ static int ett_rtpproxy_command_parameters_remote;
 static int ett_rtpproxy_command_parameters_repacketize;
 static int ett_rtpproxy_command_parameters_dtmf;
 static int ett_rtpproxy_command_parameters_cmap;
-static int ett_rtpproxy_command_parameters_proto;
 static int ett_rtpproxy_command_parameters_transcode;
 static int ett_rtpproxy_command_parameters_acc;
 static int ett_rtpproxy_tag;
@@ -593,13 +583,6 @@ rtpproxy_add_parameter(tvbuff_t *parent_tvb, packet_info *pinfo, proto_tree *rtp
                 new_offset = (int)strspn(rawstr+offset, "0123456789=,");
                 /* TODO */
                 offset += new_offset;
-                break;
-            case 'p':
-                if (!tvb_reported_length_remaining(tvb, offset))
-                    break; /* No value supplied */
-                another_tree = proto_item_add_subtree(ti, ett_rtpproxy_command_parameters_proto);
-                proto_tree_add_item(another_tree, hf_rtpproxy_command_parameter_proto, tvb, offset, 1, ENC_ASCII);
-                offset++;
                 break;
             case 't':
                 another_tree = proto_item_add_subtree(ti, ett_rtpproxy_command_parameters_transcode);
@@ -1505,19 +1488,6 @@ proto_register_rtpproxy(void)
             }
         },
         {
-            &hf_rtpproxy_command_parameter_proto,
-            {
-                "RTP transmission protocol",
-                "rtpproxy.command_parameter_proto",
-                FT_CHAR,
-                BASE_HEX,
-                VALS(prototypenames),
-                0x0,
-                NULL,
-                HFILL
-            }
-        },
-        {
             &hf_rtpproxy_command_parameter_transcode,
             {
                 "Transcode to",
@@ -1859,7 +1829,6 @@ proto_register_rtpproxy(void)
         &ett_rtpproxy_command_parameters_repacketize,
         &ett_rtpproxy_command_parameters_dtmf,
         &ett_rtpproxy_command_parameters_cmap,
-        &ett_rtpproxy_command_parameters_proto,
         &ett_rtpproxy_command_parameters_transcode,
         &ett_rtpproxy_command_parameters_acc,
         &ett_rtpproxy_tag,
