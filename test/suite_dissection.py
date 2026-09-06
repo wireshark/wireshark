@@ -900,6 +900,24 @@ class TestDissectRtpproxy:
             ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, 'RTPproxy-ng')
 
+    def test_rtpengine_ng_command_tracking(self, cmd_tshark, capture_file, test_env):
+        '''The ng messages name themselves, and requests are matched to replies'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtpengine_error_reply.pcap'),
+                '-d', 'udp.port==12222,rtpproxy',
+                '-Y', 'rtpproxy.ng.command == "delete"',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, 'Request: delete')
+
+        # The reply to it carries no Call-ID of its own
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtpengine_error_reply.pcap'),
+                '-d', 'udp.port==12222,rtpproxy',
+                '-2',
+                '-Y', 'rtpproxy.ng.result == "error" && rtpproxy.request_in',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, 'Reply: error')
+
     def test_rtpengine_bencode_reassembled(self, cmd_tshark, capture_file, test_env):
         '''A reply long enough to be split over two IP fragments'''
         stdout = subprocess.check_output((cmd_tshark,

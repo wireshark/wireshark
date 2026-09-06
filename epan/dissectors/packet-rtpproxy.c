@@ -1173,16 +1173,22 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             if(rtpproxy_is_bencode(tvb, offset, realsize)){
                 unsigned val_offset;
                 unsigned val_len;
+                bool is_ng_request;
 
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPproxy-ng");
+
+                /* Every message says what it is: a request carries a "command",
+                 * a reply carries a "result". Which is also what tells us
+                 * whether this is one half of a transaction or the other.
+                 * https://github.com/sipwise/rtpengine/blob/master/docs/ng_control_protocol.md
+                 */
+                is_ng_request = rtpproxy_ng_lookup(tvb, offset, realsize, "command", &val_offset, &val_len);
+                rtpproxy_info = rtpproxy_add_tid(is_ng_request, tvb, pinfo, rtpproxy_tree, rtpproxy_conv, cookie);
+
                 ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_ng_bencode, tvb, offset, -1, ENC_ASCII);
                 rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy_ng_bencode);
 
-                /* Every message says what it is: a request carries a "command",
-                 * a reply carries a "result".
-                 * https://github.com/sipwise/rtpengine/blob/master/docs/ng_control_protocol.md
-                 */
-                if (rtpproxy_ng_lookup(tvb, offset, realsize, "command", &val_offset, &val_len)){
+                if (is_ng_request){
                     proto_tree_add_item_ret_string(rtpproxy_tree, hf_rtpproxy_ng_command, tvb, val_offset, val_len, ENC_ASCII | ENC_NA, pinfo->pool, (const uint8_t**)&tmpstr);
                     col_add_fstr(pinfo->cinfo, COL_INFO, "Request: %s", tmpstr);
                 }
@@ -1197,6 +1203,14 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 if (rtpproxy_ng_lookup(tvb, offset, realsize, "call-id", &val_offset, &val_len)){
                     proto_tree_add_item_ret_string(rtpproxy_tree, hf_rtpproxy_callid, tvb, val_offset, val_len, ENC_ASCII | ENC_NA, pinfo->pool, (const uint8_t**)&tmpstr);
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", Call-ID: %s", tmpstr);
+                    if(rtpproxy_info && !rtpproxy_info->callid)
+                        rtpproxy_info->callid = (char*)tvb_get_string_enc(wmem_file_scope(), tvb, val_offset, val_len, ENC_ASCII);
+                }
+                else if(rtpproxy_info && rtpproxy_info->callid){
+                    /* A reply carries no Call-ID of its own */
+                    ti2 = proto_tree_add_string(rtpproxy_tree, hf_rtpproxy_callid, tvb, offset, 0, rtpproxy_info->callid);
+                    proto_item_set_generated(ti2);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, ", Call-ID: %s", rtpproxy_info->callid);
                 }
                 subtvb = tvb_new_subset_remaining(tvb, offset);
                 call_dissector(bencode_handle, subtvb, pinfo, rtpproxy_tree);
