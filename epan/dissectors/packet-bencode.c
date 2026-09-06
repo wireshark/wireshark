@@ -106,7 +106,8 @@ static int dissect_bencoding_str(tvbuff_t *tvb, packet_info *pinfo,
 static int dissect_bencoding_int(tvbuff_t *tvb, packet_info *pinfo,
                                  unsigned offset, int length, proto_tree *tree, proto_item *ti, int treeadd)
 {
-   int32_t ival  = 0;
+   uint64_t uval = 0;
+   int64_t ival;
    int    neg   = 0;
    int    izero = 0;
    int    used;
@@ -127,11 +128,20 @@ static int dissect_bencoding_int(tvbuff_t *tvb, packet_info *pinfo,
 
       switch (ch) {
       case 'e':
+         /* A negative value may reach one further from zero than a positive one */
+         if (uval > (uint64_t)INT64_MAX + (neg ? 1 : 0)) {
+            proto_tree_add_expert(tree, pinfo, &ei_bencode_int, tvb, offset, used);
+            return -1;
+         }
+         if (neg) {
+            ival = (uval == (uint64_t)INT64_MAX + 1) ? INT64_MIN : -(int64_t)uval;
+         } else {
+            ival = (int64_t)uval;
+         }
          if (tree) {
-            if (neg) ival = -ival;
-            proto_tree_add_int(tree, hf_bencode_int, tvb, offset, used, ival);
+            proto_tree_add_int64(tree, hf_bencode_int, tvb, offset, used, ival);
             if (treeadd == 2) {
-               proto_item_append_text(ti, "  Value: %d", ival);
+               proto_item_append_text(ti, "  Value: %" PRId64, ival);
             }
          }
          return used;
@@ -150,7 +160,11 @@ static int dissect_bencoding_int(tvbuff_t *tvb, packet_info *pinfo,
                break;
             }
             if (!izero && (ch >= '0') && (ch <= '9')) {
-               ival = (ival * 10) + (ch - '0');
+               if (uval > (UINT64_MAX - (uint64_t)(ch - '0')) / 10) {
+                  proto_tree_add_expert(tree, pinfo, &ei_bencode_int, tvb, offset, used);
+                  return -1;
+               }
+               uval = (uval * 10) + (uint64_t)(ch - '0');
                break;
             }
          }
@@ -296,7 +310,7 @@ proto_register_bencode(void)
         { "String", "bencode.str", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
       { &hf_bencode_int,
-        { "Integer", "bencode.int", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+        { "Integer", "bencode.int", FT_INT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_bencode_dict,
         { "Dictionary", "bencode.dict", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
