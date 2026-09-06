@@ -24,6 +24,8 @@
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
+#include <wsutil/str_util.h>
+#include <wsutil/strtoi.h>
 
 /* For setting up RTP/RTCP dissectors based on the RTPproxy's answers */
 #include "packet-rtp.h"
@@ -64,6 +66,21 @@ static int hf_rtpproxy_copy_target;
 static int hf_rtpproxy_playback_filename;
 static int hf_rtpproxy_playback_codec;
 static int hf_rtpproxy_stat_name;
+static int hf_rtpproxy_counter_value;
+static int hf_rtpproxy_counter_ttl;
+static int hf_rtpproxy_counter_npkts_ina;
+static int hf_rtpproxy_counter_npkts_ino;
+static int hf_rtpproxy_counter_nrelayed;
+static int hf_rtpproxy_counter_ndropped;
+static int hf_rtpproxy_counter_longest_ipi;
+static int hf_rtpproxy_counter_rtpa_nsent;
+static int hf_rtpproxy_counter_rtpa_nrcvd;
+static int hf_rtpproxy_counter_rtpa_ndups;
+static int hf_rtpproxy_counter_rtpa_nlost;
+static int hf_rtpproxy_counter_rtpa_perrs;
+static int hf_rtpproxy_counter_rtpa_jlast;
+static int hf_rtpproxy_counter_rtpa_jmax;
+static int hf_rtpproxy_counter_rtpa_javg;
 static int hf_rtpproxy_notify;
 static int hf_rtpproxy_notify_ipv4;
 static int hf_rtpproxy_notify_ipv6;
@@ -96,6 +113,8 @@ typedef struct _rtpproxy_info {
     uint32_t resp_frame;
     nstime_t req_time;
     char* callid;
+    uint8_t command;  /* Lowercased, to tell what a reply is a reply to */
+    char* counters;   /* The counters a "Q" command asked for, if any */
 } rtpproxy_info_t;
 
 static dissector_handle_t rtcp_handle;
@@ -293,6 +312,35 @@ static int ett_rtpproxy_subcommands;
  * sources.
  */
 #define RTPPROXY_CC_SELF "%%CC_SELF%%"
+
+/* The counters a "Q" command may ask for. RTPproxy replies with the first five
+ * of them, in this very order, when asked for none - see handle_query() and
+ * handle_query_simple() in its sources.
+ */
+typedef struct _rtpproxy_counter {
+    const char *name;
+    int *hfindexp;
+} rtpproxy_counter_t;
+
+static const rtpproxy_counter_t rtpproxy_counters[] = {
+    { "ttl",         &hf_rtpproxy_counter_ttl },
+    { "npkts_ina",   &hf_rtpproxy_counter_npkts_ina },
+    { "npkts_ino",   &hf_rtpproxy_counter_npkts_ino },
+    { "nrelayed",    &hf_rtpproxy_counter_nrelayed },
+    { "ndropped",    &hf_rtpproxy_counter_ndropped },
+    { "longest_ipi", &hf_rtpproxy_counter_longest_ipi },
+    { "rtpa_nsent",  &hf_rtpproxy_counter_rtpa_nsent },
+    { "rtpa_nrcvd",  &hf_rtpproxy_counter_rtpa_nrcvd },
+    { "rtpa_ndups",  &hf_rtpproxy_counter_rtpa_ndups },
+    { "rtpa_nlost",  &hf_rtpproxy_counter_rtpa_nlost },
+    { "rtpa_perrs",  &hf_rtpproxy_counter_rtpa_perrs },
+    { "rtpa_jlast",  &hf_rtpproxy_counter_rtpa_jlast },
+    { "rtpa_jmax",   &hf_rtpproxy_counter_rtpa_jmax },
+    { "rtpa_javg",   &hf_rtpproxy_counter_rtpa_javg },
+    { NULL, NULL }
+};
+
+#define RTPPROXY_DEFAULT_COUNTERS "ttl npkts_ina npkts_ino nrelayed ndropped"
 
 /* Default values */
 #define RTPPROXY_PORT "22222"  /* Not IANA registered */
@@ -753,6 +801,128 @@ rtpproxy_add_notify_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy
     }
 }
 
+/* Add one counter of a query reply, converting the value according to the type
+ * the matching header field was registered with. Anything we don't know stays
+ * a string, so that the bytes are at least visible.
+ */
+static void
+rtpproxy_add_counter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_tree,
+    const char* name, unsigned offset, unsigned len)
+{
+    proto_item *ti;
+    unsigned i;
+    int hfindex = hf_rtpproxy_counter_value;
+    const char* valstr;
+
+    if (name != NULL) {
+        for (i = 0; rtpproxy_counters[i].name != NULL; i++) {
+            if (strcmp(rtpproxy_counters[i].name, name) == 0) {
+                hfindex = *(rtpproxy_counters[i].hfindexp);
+                break;
+            }
+        }
+    }
+
+    valstr = (const char*)tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII);
+
+    switch (proto_registrar_get_ftype(hfindex)) {
+    case FT_INT32: {
+        int32_t sval;
+
+        if (ws_strtoi32(valstr, NULL, &sval)) {
+            proto_tree_add_int(rtpproxy_tree, hfindex, tvb, offset, len, sval);
+            return;
+        }
+        break;
+    }
+    case FT_UINT64: {
+        uint64_t uval;
+
+        if (ws_strtou64(valstr, NULL, &uval)) {
+            proto_tree_add_uint64(rtpproxy_tree, hfindex, tvb, offset, len, uval);
+            return;
+        }
+        break;
+    }
+    case FT_DOUBLE: {
+        const char *ep;
+        double dval = g_ascii_strtod(valstr, (char **)&ep);
+
+        if ((valstr[0] != '\0') && (*ep == '\0')) {
+            proto_tree_add_double(rtpproxy_tree, hfindex, tvb, offset, len, dval);
+            return;
+        }
+        break;
+    }
+    default:
+        break;
+    }
+
+    /* An unknown counter, or one whose value we could not make sense of */
+    ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_counter_value, tvb, offset, len, ENC_ASCII);
+    if (name != NULL)
+        proto_item_set_text(ti, "%s: %s", name, valstr);
+}
+
+/* Dissect the reply to a "Q" command: either a bare list of values, in the
+ * order the counters were asked for, or "name=value" pairs when the query
+ * carried the "v" modifier.
+ */
+static void
+rtpproxy_add_query_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_tree,
+    unsigned offset, unsigned realsize, const char* counters)
+{
+    unsigned end;
+    unsigned sep;
+    unsigned i = 0;
+    unsigned nnames = 0;
+    char** names;
+    const char* name;
+
+    names = wmem_strsplit(pinfo->pool, (counters != NULL) ? counters : RTPPROXY_DEFAULT_COUNTERS, " ", -1);
+    /* A reply may well carry more values than the query asked for */
+    while ((names != NULL) && (names[nnames] != NULL))
+        nnames++;
+
+    while (offset < realsize) {
+        end = rtpproxy_field_end(tvb, offset, realsize);
+
+        if (tvb_find_uint8_length(tvb, offset, end - offset, '=', &sep)) {
+            /* A verbose reply names its counters itself */
+            name = (const char*)tvb_get_string_enc(pinfo->pool, tvb, offset, sep - offset, ENC_ASCII);
+            if (name[0] == '\0')
+                name = NULL;
+            rtpproxy_add_counter(tvb, pinfo, rtpproxy_tree, name, sep + 1, end - (sep + 1));
+        }
+        else {
+            /* A plain one has to be matched against what was asked for */
+            name = ((i < nnames) && (names[i][0] != '\0')) ? names[i] : NULL;
+            rtpproxy_add_counter(tvb, pinfo, rtpproxy_tree, name, offset, end - offset);
+            i++;
+        }
+
+        if (!rtpproxy_next_field(tvb, &offset, end, realsize))
+            break; /* No more counters */
+    }
+}
+
+/* A reply to a query is a bare list of counters which may well start with
+ * something that looks like a command ("ndropped=0"), so the only way to
+ * recognize one is to look the request up by its cookie.
+ */
+static rtpproxy_info_t *
+rtpproxy_lookup_query(rtpproxy_conv_info_t *rtpproxy_conv, const char* cookie, packet_info *pinfo)
+{
+    rtpproxy_info_t *rtpproxy_info;
+
+    rtpproxy_info = (rtpproxy_info_t *)wmem_tree_lookup_string(rtpproxy_conv->trans, cookie, 0);
+    if ((rtpproxy_info == NULL) || (rtpproxy_info->command != 'q'))
+        return NULL;
+    if (rtpproxy_info->req_frame == pinfo->num)
+        return NULL; /* That's the query itself */
+    return rtpproxy_info;
+}
+
 static int
 dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -778,6 +948,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     uint16_t port, codec;
     uint32_t ipaddr[4]; /* Enough room for IPv4 or IPv6 */
     rtpproxy_info_t *rtpproxy_info = NULL;
+    rtpproxy_info_t *rtpproxy_query = NULL;
     tvbuff_t *subtvb;
 
     /* If it does not start with a printable character it's not RTPProxy */
@@ -844,7 +1015,8 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
      * https://github.com/sippy/rtpproxy/wiki/RTPP-%28RTPproxy-protocol%29-technical-specification#sub-commands
      */
     fullsize = realsize;
-    is_reply = (g_ascii_isdigit(tmp) != 0);
+    rtpproxy_query = rtpproxy_lookup_query(rtpproxy_conv, cookie, pinfo);
+    is_reply = (rtpproxy_query != NULL) || (g_ascii_isdigit(tmp) != 0);
     if ((is_reply || (tmp == 'u') || (tmp == 'l') || (tmp == 'q')) &&
         (!rtpproxy_is_bencode(tvb, offset, realsize)) &&
         rtpproxy_find_subcommand(tvb, offset, realsize, &subc_offset)) {
@@ -856,7 +1028,21 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     /* Get payload string */
     rawstr = (char*)tvb_format_text_wsp(pinfo->pool, tvb, offset, realsize - offset);
-    switch (tmp)
+    if ((rtpproxy_query != NULL) && (tmp != 'e')) {
+        /* A reply to a query. An error reply is left to the common code */
+        rtpproxy_info = rtpproxy_add_tid(false, tvb, pinfo, rtpproxy_tree, rtpproxy_conv, cookie);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Reply: %s", rawstr);
+
+        ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_reply, tvb, offset, -1, ENC_NA);
+        rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy_reply);
+
+        if(rtpproxy_info && rtpproxy_info->callid){
+            ti = proto_tree_add_string(rtpproxy_tree, hf_rtpproxy_callid, tvb, offset, 0, rtpproxy_info->callid);
+            proto_item_set_generated(ti);
+        }
+        rtpproxy_add_query_reply(tvb, pinfo, rtpproxy_tree, offset, realsize, rtpproxy_query->counters);
+    }
+    else switch (tmp)
     {
         case 's':
             /* A specific case - long info answer */
@@ -895,6 +1081,8 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         case 'g':
         case 'n':
             rtpproxy_info = rtpproxy_add_tid(true, tvb, pinfo, rtpproxy_tree, rtpproxy_conv, cookie);
+            if (rtpproxy_info)
+                rtpproxy_info->command = (uint8_t)tmp;
             col_add_fstr(pinfo->cinfo, COL_INFO, "Request: %s", val_to_str_const(tvb_get_uint8(tvb, offset), commandtypenames, "Unknown command code"));
             ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_request, tvb, offset, -1, ENC_NA);
             rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy_request);
@@ -1062,6 +1250,8 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
              * replies with a fixed set - see rtpproxy_add_query_reply().
              */
             if (tmp == 'q'){
+                if (rtpproxy_info && !rtpproxy_info->counters)
+                    rtpproxy_info->counters = (char*)tvb_get_string_enc(wmem_file_scope(), tvb, offset, realsize - offset, ENC_ASCII);
                 while (offset < realsize){
                     new_offset = rtpproxy_field_end(tvb, offset, realsize);
                     proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_stat_name, tvb, offset, new_offset - offset, ENC_ASCII);
@@ -1574,6 +1764,201 @@ proto_register_rtpproxy(void)
                 "Statistics name",
                 "rtpproxy.stat_name",
                 FT_STRING,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_counter_value,
+            {
+                "Counter value",
+                "rtpproxy.counter_value",
+                FT_STRING,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_counter_ttl,
+            {
+                "ttl",
+                "rtpproxy.counter.ttl",
+                FT_INT32,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_counter_npkts_ina,
+            {
+                "npkts_ina",
+                "rtpproxy.counter.npkts_ina",
+                FT_UINT64,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_counter_npkts_ino,
+            {
+                "npkts_ino",
+                "rtpproxy.counter.npkts_ino",
+                FT_UINT64,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_counter_nrelayed,
+            {
+                "nrelayed",
+                "rtpproxy.counter.nrelayed",
+                FT_UINT64,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_counter_ndropped,
+            {
+                "ndropped",
+                "rtpproxy.counter.ndropped",
+                FT_UINT64,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_counter_rtpa_nsent,
+            {
+                "rtpa_nsent",
+                "rtpproxy.counter.rtpa_nsent",
+                FT_UINT64,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_counter_rtpa_nrcvd,
+            {
+                "rtpa_nrcvd",
+                "rtpproxy.counter.rtpa_nrcvd",
+                FT_UINT64,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_counter_rtpa_ndups,
+            {
+                "rtpa_ndups",
+                "rtpproxy.counter.rtpa_ndups",
+                FT_UINT64,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_counter_rtpa_nlost,
+            {
+                "rtpa_nlost",
+                "rtpproxy.counter.rtpa_nlost",
+                FT_UINT64,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_counter_rtpa_perrs,
+            {
+                "rtpa_perrs",
+                "rtpproxy.counter.rtpa_perrs",
+                FT_UINT64,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_counter_longest_ipi,
+            {
+                "longest_ipi",
+                "rtpproxy.counter.longest_ipi",
+                FT_DOUBLE,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_counter_rtpa_jlast,
+            {
+                "rtpa_jlast",
+                "rtpproxy.counter.rtpa_jlast",
+                FT_DOUBLE,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_counter_rtpa_jmax,
+            {
+                "rtpa_jmax",
+                "rtpproxy.counter.rtpa_jmax",
+                FT_DOUBLE,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_counter_rtpa_javg,
+            {
+                "rtpa_javg",
+                "rtpproxy.counter.rtpa_javg",
+                FT_DOUBLE,
                 BASE_NONE,
                 NULL,
                 0x0,
