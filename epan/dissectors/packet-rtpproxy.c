@@ -94,6 +94,8 @@ static int hf_rtpproxy_reply;
 static int hf_rtpproxy_version_request;
 static int hf_rtpproxy_version_supported;
 static int hf_rtpproxy_ng_bencode;
+static int hf_rtpproxy_ng_command;
+static int hf_rtpproxy_ng_result;
 static int hf_rtpproxy_subcommand;
 static int hf_rtpproxy_subcommand_result;
 
@@ -396,6 +398,111 @@ rtpproxy_is_bencode(tvbuff_t *tvb, unsigned offset, unsigned realsize)
 
     tmp = tvb_get_uint8(tvb, offset + 1);
     return (('1' <= tmp) && (tmp <= '9') && (tvb_get_uint8(tvb, offset + 2) == ':'));
+}
+
+/* Step over one bencoded element and return the offset just past it, or 0 if
+ * it doesn't parse. A string hands back its bounds; anything else leaves
+ * str_offset at 0, which is never a valid offset here.
+ *
+ * Nested containers are walked with an explicit depth counter rather than by
+ * recursing, so a deeply nested payload costs no stack.
+ */
+static unsigned
+rtpproxy_ng_skip(tvbuff_t *tvb, unsigned offset, unsigned end, unsigned *str_offset,
+    unsigned *str_len)
+{
+    uint8_t tmp;
+    unsigned len;
+    unsigned depth = 0;
+    bool outermost = true;
+
+    while (offset < end) {
+        tmp = tvb_get_uint8(tvb, offset);
+
+        if (tmp == 'e'){
+            if (depth == 0)
+                return 0; /* A terminator where an element should be */
+            depth--;
+            offset++;
+        }
+        else if ((tmp == 'l') || (tmp == 'd')){
+            depth++;
+            if (depth > 10)
+                return 0; /* Nested deeper than anything sensible */
+            offset++;
+        }
+        else if (tmp == 'i'){
+            if (!tvb_find_uint8_length(tvb, offset, end - offset, 'e', &offset))
+                return 0;
+            offset++;
+        }
+        else if (g_ascii_isdigit(tmp)){
+            len = 0;
+            while ((offset < end) && g_ascii_isdigit(tvb_get_uint8(tvb, offset))){
+                len = (len * 10) + (tvb_get_uint8(tvb, offset) - '0');
+                if (len > end)
+                    return 0; /* Longer than anything this packet could hold */
+                offset++;
+            }
+            if ((offset >= end) || (tvb_get_uint8(tvb, offset) != ':'))
+                return 0;
+            offset++;
+            if (offset + len > end)
+                return 0;
+            /* Only the element we were asked to step over hands back bounds,
+             * never a string nested inside it */
+            if (outermost && (str_offset != NULL)){
+                *str_offset = offset;
+                *str_len = len;
+            }
+            offset += len;
+        }
+        else {
+            return 0;
+        }
+
+        outermost = false;
+        if (depth == 0)
+            return offset;
+    }
+    return 0;
+}
+
+/* Look a key up in the top level dictionary of an RTPproxy-ng message and hand
+ * back the bounds of its value, which has to be a string. Nested containers are
+ * stepped over rather than searched, so a key which happens to occur inside one
+ * is never mistaken for the one naming the message.
+ */
+static bool
+rtpproxy_ng_lookup(tvbuff_t *tvb, unsigned offset, unsigned end, const char* key,
+    unsigned *val_offset, unsigned *val_len)
+{
+    unsigned key_offset;
+    unsigned key_len;
+    unsigned next;
+    unsigned keylen = (unsigned)strlen(key);
+
+    if ((offset >= end) || (tvb_get_uint8(tvb, offset) != 'd'))
+        return false;
+    offset++;
+
+    while ((offset < end) && (tvb_get_uint8(tvb, offset) != 'e')){
+        key_offset = 0;
+        key_len = 0;
+        next = rtpproxy_ng_skip(tvb, offset, end, &key_offset, &key_len);
+        if ((next == 0) || (key_offset == 0))
+            return false; /* A key is always a string */
+
+        *val_offset = 0;
+        *val_len = 0;
+        offset = rtpproxy_ng_skip(tvb, next, end, val_offset, val_len);
+        if (offset == 0)
+            return false;
+
+        if ((key_len == keylen) && (tvb_strneql(tvb, key_offset, key, keylen) == 0))
+            return (*val_offset != 0);
+    }
+    return false;
 }
 
 /* Find the next "&&" sub-command separator within [offset, realsize).
@@ -1064,10 +1171,33 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         case 'l':
         case 'd':
             if(rtpproxy_is_bencode(tvb, offset, realsize)){
+                unsigned val_offset;
+                unsigned val_len;
+
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPproxy-ng");
-                col_add_fstr(pinfo->cinfo, COL_INFO, "RTPproxy-ng: %s", rawstr);
                 ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_ng_bencode, tvb, offset, -1, ENC_ASCII);
                 rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy_ng_bencode);
+
+                /* Every message says what it is: a request carries a "command",
+                 * a reply carries a "result".
+                 * https://github.com/sipwise/rtpengine/blob/master/docs/ng_control_protocol.md
+                 */
+                if (rtpproxy_ng_lookup(tvb, offset, realsize, "command", &val_offset, &val_len)){
+                    proto_tree_add_item_ret_string(rtpproxy_tree, hf_rtpproxy_ng_command, tvb, val_offset, val_len, ENC_ASCII | ENC_NA, pinfo->pool, (const uint8_t**)&tmpstr);
+                    col_add_fstr(pinfo->cinfo, COL_INFO, "Request: %s", tmpstr);
+                }
+                else if (rtpproxy_ng_lookup(tvb, offset, realsize, "result", &val_offset, &val_len)){
+                    proto_tree_add_item_ret_string(rtpproxy_tree, hf_rtpproxy_ng_result, tvb, val_offset, val_len, ENC_ASCII | ENC_NA, pinfo->pool, (const uint8_t**)&tmpstr);
+                    col_add_fstr(pinfo->cinfo, COL_INFO, "Reply: %s", tmpstr);
+                }
+                else {
+                    col_add_fstr(pinfo->cinfo, COL_INFO, "RTPproxy-ng: %s", rawstr);
+                }
+
+                if (rtpproxy_ng_lookup(tvb, offset, realsize, "call-id", &val_offset, &val_len)){
+                    proto_tree_add_item_ret_string(rtpproxy_tree, hf_rtpproxy_callid, tvb, val_offset, val_len, ENC_ASCII | ENC_NA, pinfo->pool, (const uint8_t**)&tmpstr);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, ", Call-ID: %s", tmpstr);
+                }
                 subtvb = tvb_new_subset_remaining(tvb, offset);
                 call_dissector(bencode_handle, subtvb, pinfo, rtpproxy_tree);
                 break;
@@ -2180,6 +2310,32 @@ proto_register_rtpproxy(void)
             {
                 "Sub-command result",
                 "rtpproxy.subcommand_result",
+                FT_STRING,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_ng_command,
+            {
+                "Command",
+                "rtpproxy.ng.command",
+                FT_STRING,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_rtpproxy_ng_result,
+            {
+                "Result",
+                "rtpproxy.ng.result",
                 FT_STRING,
                 BASE_NONE,
                 NULL,
