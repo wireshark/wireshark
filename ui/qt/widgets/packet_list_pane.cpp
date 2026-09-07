@@ -134,6 +134,19 @@ PacketListPane::PacketListPane(QWidget *parent) :
         bool frozen = PacketList::isColumnFrozen(column, packet_list_->pinnedColumnBoundary());
         duplicate_header_corner_->setSectionHidden(column, hidden || !frozen);
         duplicate_header_main_->setSectionHidden(column, hidden || frozen);
+        /* A section transitioning hidden to visible resets to
+         * QHeaderView's own default section size (see
+         * pinnedColumnBoundaryChanged's own comment below). Re-apply the
+         * real header's current width so a profile switch (which
+         * hides/shows every column via setColumnVisibility(), e.g. to
+         * apply the new profile's saved widths via
+         * applyRecentColumnWidths() beforehand) doesn't have those
+         * widths immediately clobbered back to the default by
+         * forwardResize() below reacting to this reset.
+         */
+        int width = packet_list_->header()->sectionSize(column);
+        duplicate_header_corner_->resizeSection(column, width);
+        duplicate_header_main_->resizeSection(column, width);
     });
     // Splits which columns each half actually shows, mirroring exactly
     // how PacketList::setColumnVisibility()/setPinnedColumnBoundary()
@@ -197,6 +210,29 @@ PacketListPane::PacketListPane(QWidget *parent) :
     // duplicate_header_corner_/duplicate_header_main_ specifically, which
     // is sufficient on its own to prevent this from looping back here.
     auto forwardResize = [this](int column, int, int new_width) {
+        /* A resize to width 0 (or any width below the smallest width a
+         * user drag can actually produce) never comes from a real user
+         * resize drag. It comes from Qt's own QHeaderView internals
+         * resetting every section on this header to a default width, on
+         * a later event loop pass, in reaction to layoutChanged() or
+         * headerDataChanged() on the model shared with the real packet
+         * list (emitted by PacketListModel::resetColumns(), called on
+         * every profile switch among other things), observed to happen
+         * regardless of this header's resize mode. Forwarding that reset
+         * onto the real header would clobber whatever width
+         * applyRecentColumnWidths() had just correctly set there.
+         * Ignoring it here and instead re asserting the real header's
+         * own current width back onto both duplicate headers recovers
+         * from the reset without ever letting it reach the real header.
+         */
+        if (new_width < 1) {
+            int real_width = packet_list_->header()->sectionSize(column);
+            QSignalBlocker corner_blocker(duplicate_header_corner_);
+            QSignalBlocker main_blocker(duplicate_header_main_);
+            duplicate_header_corner_->resizeSection(column, real_width);
+            duplicate_header_main_->resizeSection(column, real_width);
+            return;
+        }
         packet_list_->header()->resizeSection(column, new_width);
     };
     connect(duplicate_header_corner_, &QHeaderView::sectionResized, this, forwardResize);
