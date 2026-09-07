@@ -2371,7 +2371,7 @@ dissect_rsl_ie_sacch_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Length */
-    proto_tree_add_item_ret_uint16(ie_tree, hf_rsl_ie_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
+    proto_tree_add_item_ret_uint16(ie_tree, hf_rsl_ie_length, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
     proto_item_set_len(ti, length+2);
     offset++;
     proto_tree_add_item_ret_uint8(ie_tree, hf_rsl_sacch_inf_no_of_msgs, tvb, offset, 1, ENC_BIG_ENDIAN, &no_of_msgs);
@@ -2386,7 +2386,7 @@ dissect_rsl_ie_sacch_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
         offset += msg_len;
     }
 
-    return offset+length;
+    return offset;
 }
 
 /*
