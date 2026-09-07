@@ -123,6 +123,7 @@ static dissector_handle_t rtcp_handle;
 static dissector_handle_t rtp_events_handle;
 static dissector_handle_t rtp_handle;
 static dissector_handle_t bencode_handle;
+static dissector_handle_t sdp_handle;
 
 typedef struct _rtpproxy_conv_info {
     wmem_tree_t *trans;
@@ -1214,6 +1215,16 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 }
                 subtvb = tvb_new_subset_remaining(tvb, offset);
                 call_dissector(bencode_handle, subtvb, pinfo, rtpproxy_tree);
+
+                /* The session description is just another string as far as
+                 * bencode is concerned, so hand it to the dissector which
+                 * makes sense of it - and which sets up the media streams it
+                 * describes along the way.
+                 */
+                if (rtpproxy_ng_lookup(tvb, offset, realsize, "sdp", &val_offset, &val_len) && val_len){
+                    subtvb = tvb_new_subset_length(tvb, val_offset, val_len);
+                    call_dissector(sdp_handle, subtvb, pinfo, rtpproxy_tree);
+                }
                 break;
             }
         /* FALL THROUGH */
@@ -2450,6 +2461,7 @@ proto_reg_handoff_rtpproxy(void)
     rtp_events_handle    = find_dissector_add_dependency("rtpevent", proto_rtpproxy);
     rtp_handle    = find_dissector_add_dependency("rtp", proto_rtpproxy);
     bencode_handle = find_dissector_add_dependency("bencode", proto_rtpproxy);
+    sdp_handle    = find_dissector_add_dependency("sdp", proto_rtpproxy);
 
     /* Calculate nstime_t struct for the timeout from the rtpproxy_timeout value in milliseconds */
     rtpproxy_timeout_ns.secs = (rtpproxy_timeout - rtpproxy_timeout % 1000) / 1000;

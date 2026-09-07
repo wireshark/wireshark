@@ -918,6 +918,15 @@ class TestDissectRtpproxy:
             ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, 'Reply: error')
 
+    def test_rtpengine_ng_sdp(self, cmd_tshark, capture_file, test_env):
+        '''The session description carried by an ng message reaches the SDP dissector'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtpengine_query_reassembled.pcap'),
+                '-d', 'udp.port==12222,rtpproxy',
+                '-Y', 'rtpproxy.ng.command == "offer" && sdp.media.port == 8000',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, 'RTPproxy-ng/SDP')
+
     def test_rtpengine_bencode_reassembled(self, cmd_tshark, capture_file, test_env):
         '''A reply long enough to be split over two IP fragments'''
         stdout = subprocess.check_output((cmd_tshark,
