@@ -1770,9 +1770,7 @@ elem_chan_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t off
 
     curr_offset = offset;
 
-    proto_tree_add_item(tree, hf_ansi_a_speech_or_data_indicator, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    oct = tvb_get_uint8(tvb, curr_offset);
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_speech_or_data_indicator, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &oct);
 
     proto_item_append_text(data_p->elem_item, " - (%s)",
         val_to_str_const(oct, ansi_a_speech_or_data_indicator_vals, "Unknown"));
@@ -1891,17 +1889,15 @@ elem_rf_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uint32_
 static uint8_t
 elem_sr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, unsigned len, ansi_a_shared_data_t *data_p)
 {
-    uint8_t     oct;
+    uint8_t     id;
     uint32_t    curr_offset;
 
     curr_offset = offset;
 
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_f8, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_ansi_a_sr_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_sr_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &id);
 
-    oct = tvb_get_uint8(tvb, curr_offset);
-
-    proto_item_append_text(data_p->elem_item, " - (%u)", oct);
+    proto_item_append_text(data_p->elem_item, " - (%u)", id);
 
     curr_offset++;
 
@@ -2402,9 +2398,7 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, u
 
         curr_offset++;
 
-        proto_tree_add_item(tree, hf_ansi_a_mid_broadcast_zone_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-        oct = tvb_get_uint8(tvb, curr_offset);
+        proto_tree_add_item_ret_uint8(tree, hf_ansi_a_mid_broadcast_zone_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &oct);
 
         proto_item_append_text(data_p->elem_item, " - Broadcast (Zone ID: %u)", oct);
 
@@ -3843,17 +3837,15 @@ elem_auth_resp_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 static uint8_t
 elem_auth_param_count(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uint32_t offset, unsigned len _U_, ansi_a_shared_data_t *data_p)
 {
-    uint8_t     oct;
+    uint8_t     count;
     uint32_t    curr_offset;
 
     curr_offset = offset;
 
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_c0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_ansi_a_auth_param_count_count, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_auth_param_count_count, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &count);
 
-    oct = tvb_get_uint8(tvb, curr_offset);
-
-    proto_item_append_text(data_p->elem_item, " - (%u)", oct & 0x3f);
+    proto_item_append_text(data_p->elem_item, " - (%u)", count);
 
     curr_offset++;
 
@@ -4047,17 +4039,15 @@ elem_cld_party_bcd_num(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint
 static uint8_t
 elem_qos_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, unsigned len, ansi_a_shared_data_t *data_p)
 {
-    uint8_t     oct;
+    uint8_t     priority;
     uint32_t    curr_offset;
 
     curr_offset = offset;
 
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_f0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_ansi_a_qos_params_packet_priority, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_qos_params_packet_priority, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &priority);
 
-    oct = tvb_get_uint8(tvb, curr_offset);
-
-    proto_item_append_text(data_p->elem_item, " - (%u)", oct & 0x0f);
+    proto_item_append_text(data_p->elem_item, " - (%u)", priority);
 
     curr_offset++;
 
@@ -4501,9 +4491,7 @@ elem_so_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offse
 
     curr_offset = offset;
 
-    proto_tree_add_item(tree, hf_ansi_a_so_list_num, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    num_so = tvb_get_uint8(tvb, curr_offset);
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_so_list_num, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &num_so);
 
     proto_item_append_text(data_p->elem_item, " - %u service options", num_so);
 
@@ -5009,10 +4997,7 @@ elem_is2000_mob_cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_
 
     curr_offset++;
 
-    proto_tree_add_item(tree, hf_ansi_a_is2000_mob_cap_fch_info_octet_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    oct_len = tvb_get_uint8(tvb, curr_offset);
-
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_is2000_mob_cap_fch_info_octet_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &oct_len);
     curr_offset++;
 
     /*
@@ -5044,10 +5029,7 @@ elem_is2000_mob_cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_
     /*
      * DCCH
      */
-    proto_tree_add_item(tree, hf_ansi_a_is2000_mob_cap_dcch_info_octet_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    oct_len = tvb_get_uint8(tvb, curr_offset);
-
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_is2000_mob_cap_dcch_info_octet_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &oct_len);
     curr_offset++;
 
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_f8, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -5073,10 +5055,7 @@ elem_is2000_mob_cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_
     /*
      * FOR_PDCH
      */
-    proto_tree_add_item(tree, hf_ansi_a_is2000_mob_cap_for_pdch_info_octet_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    oct_len = tvb_get_uint8(tvb, curr_offset);
-
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_is2000_mob_cap_for_pdch_info_octet_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &oct_len);
     curr_offset++;
 
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_f8, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -5102,10 +5081,7 @@ elem_is2000_mob_cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_
     /*
      * REV_PDCH
      */
-    proto_tree_add_item(tree, hf_ansi_a_is2000_mob_cap_rev_pdch_info_octet_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    oct_len = tvb_get_uint8(tvb, curr_offset);
-
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_is2000_mob_cap_rev_pdch_info_octet_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &oct_len);
     curr_offset++;
 
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_f8, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -5457,21 +5433,21 @@ elem_fwd_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
 
             case ANSI_FWD_MS_INFO_REC_SIGNAL:
                 proto_tree_add_item(subtree, hf_ansi_a_ms_info_rec_signal_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(subtree, hf_ansi_a_ms_info_rec_signal_alert_pitch, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint8(subtree, hf_ansi_a_ms_info_rec_signal_alert_pitch, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &oct);
 
                 oct = tvb_get_uint8(tvb, curr_offset);
 
-                switch (oct & 0xc0)
+                switch (oct)
                 {
                 case 0x00:
                     proto_tree_add_item(subtree, hf_ansi_a_ms_info_rec_signal_tone, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
                     break;
 
-                case 0x40:
+                case 0x01:
                     proto_tree_add_item(subtree, hf_ansi_a_ms_info_rec_signal_isdn_alert, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
                     break;
 
-                case 0x80:
+                case 0x02:
                     proto_tree_add_item(subtree, hf_ansi_a_ms_info_rec_signal_is54b_alert, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
                     break;
 
@@ -6462,18 +6438,16 @@ static const value_string ansi_a_paca_order_action_reqd_vals[] = {
 static uint8_t
 elem_paca_order(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, unsigned len, ansi_a_shared_data_t *data_p)
 {
-    uint8_t     oct;
+    uint8_t     action_reqd;
     uint32_t    curr_offset;
 
     curr_offset = offset;
 
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_8_f8, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_ansi_a_paca_order_action_reqd, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
-    oct = tvb_get_uint8(tvb, curr_offset);
+    proto_tree_add_item_ret_uint8(tree, hf_ansi_a_paca_order_action_reqd, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &action_reqd);
 
     proto_item_append_text(data_p->elem_item, " - (%s)",
-        val_to_str_const(oct & 0x07, ansi_a_paca_order_action_reqd_vals, "Reserved"));
+        val_to_str_const(action_reqd, ansi_a_paca_order_action_reqd_vals, "Reserved"));
 
     curr_offset++;
 

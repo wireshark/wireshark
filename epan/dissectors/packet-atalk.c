@@ -1115,12 +1115,10 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     pap_tree = proto_item_add_subtree(ti, ett_pap);
   }
 
-  connID = tvb_get_uint8(tvb, offset);
-  proto_tree_add_item(pap_tree, hf_pap_connid, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint8(pap_tree, hf_pap_connid, tvb, offset, 1, ENC_BIG_ENDIAN, &connID);
   offset++;
 
-  fn = tvb_get_uint8(tvb, offset);
-  proto_tree_add_item(pap_tree, hf_pap_function, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint8(pap_tree, hf_pap_function, tvb, offset, 1, ENC_BIG_ENDIAN, &fn);
   offset++;
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "%s  ID: %d",
@@ -1484,7 +1482,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
       sub_tree = proto_item_add_subtree(ti, ett_zip_zones_list);
       for (i = 0; i < count; i++) {
         len = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(sub_tree, hf_zip_zone_name, tvb, offset, 1,ENC_ASCII|ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_zip_zone_name, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
         offset += len +1;
       }
       break;
@@ -1550,11 +1548,10 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     offset += 4;
 
     len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,ENC_ASCII|ENC_BIG_ENDIAN);
+    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
     offset += len +1;
 
-    len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(zip_tree, hf_zip_multicast_length,tvb, offset, 1,ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(zip_tree, hf_zip_multicast_length,tvb, offset, 1, ENC_BIG_ENDIAN, &len);
     offset++;
     proto_tree_add_item(zip_tree, hf_zip_multicast_address,tvb, offset, len,ENC_NA);
     offset += len;
@@ -1573,7 +1570,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
       proto_tree_add_item(net_tree, hf_zip_network, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       len = tvb_get_uint8(tvb, offset);
-      proto_tree_add_item(net_tree, hf_zip_zone_name, tvb, offset, 1,ENC_ASCII|ENC_BIG_ENDIAN);
+      proto_tree_add_item(net_tree, hf_zip_zone_name, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
       offset += len +1;
       proto_item_set_len(ti, len+3);
     }
@@ -1584,7 +1581,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     offset++;
     proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 4, ENC_NA);
     offset += 4;
-    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,ENC_ASCII|ENC_BIG_ENDIAN);
+    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
     break;
 
   case 6 :  /* GetNetInfo reply */
@@ -1599,16 +1596,15 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     offset += 2;
 
     len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,ENC_ASCII|ENC_BIG_ENDIAN);
+    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
     offset += len +1;
 
-    len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(zip_tree, hf_zip_multicast_length,tvb, offset, 1,ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(zip_tree, hf_zip_multicast_length, tvb, offset, 1, ENC_BIG_ENDIAN, &len);
     offset++;
-    proto_tree_add_item(zip_tree, hf_zip_multicast_address,tvb, offset, len,ENC_NA);
+    proto_tree_add_item(zip_tree, hf_zip_multicast_address, tvb, offset, len,ENC_NA);
     offset += len;
     if ((flag & 0x80) != 0)
-      proto_tree_add_item(zip_tree, hf_zip_default_zone, tvb, offset, 1,ENC_ASCII|ENC_BIG_ENDIAN);
+      proto_tree_add_item(zip_tree, hf_zip_default_zone, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
     break;
 
   default:

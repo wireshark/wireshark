@@ -3187,11 +3187,9 @@ static int dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* UL Grant */
     if (p_mac_lte_info->ceMode == ce_mode_b) {
-        ul_grant = tvb_get_ntohs(tvb, offset) & 0x0fff;
-        ul_grant_ti = proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_ul_grant_ce_mode_b, tvb, offset, 2, ENC_BIG_ENDIAN);
+        ul_grant_ti = proto_tree_add_item_ret_uint(rar_body_tree, hf_mac_lte_rar_ul_grant_ce_mode_b, tvb, offset, 2, ENC_BIG_ENDIAN, &ul_grant);
     } else {
-        ul_grant = (tvb_get_ntohl(tvb, offset) & 0x0fffff00) >> 8;
-        ul_grant_ti = proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_ul_grant, tvb, offset, 3, ENC_BIG_ENDIAN);
+        ul_grant_ti = proto_tree_add_item_ret_uint(rar_body_tree, hf_mac_lte_rar_ul_grant, tvb, offset, 3, ENC_BIG_ENDIAN, &ul_grant);
     }
 
     /* Break these 12/20 bits down as described in 36.213, section 6.2 */

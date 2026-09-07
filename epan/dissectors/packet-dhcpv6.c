@@ -2125,8 +2125,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             break;
         }
         proto_tree_add_item(subtree, hf_duid_bytes, tvb, off, optlen, ENC_NA);
-        duidtype = tvb_get_ntohs(tvb, off);
-        proto_tree_add_item(subtree, hf_duid_type, tvb, off, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint16(subtree, hf_duid_type, tvb, off, 2, ENC_BIG_ENDIAN, &duidtype);
 
         switch (duidtype) {
         case DUID_LLT:
@@ -3494,8 +3493,7 @@ dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     next_tvb = tvb_new_subset_length(tvb, offset, size + 2);
     offset += 2;
 
-    msg_type = tvb_get_uint8( tvb, offset );
-    ti = proto_tree_add_item(bulk_tree, hf_dhcpv6_bulk_leasequery_msgtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item_ret_uint8(bulk_tree, hf_dhcpv6_bulk_leasequery_msgtype, tvb, offset, 1, ENC_BIG_ENDIAN, &msg_type);
     if ((msg_type != LEASEQUERY)       &&
         (msg_type != LEASEQUERY_REPLY) &&
         (msg_type != LEASEQUERY_DONE)  &&

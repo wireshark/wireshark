@@ -2747,8 +2747,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         uint16_t kl; /* keylength */
         proto_tree_add_item(observe_tree, hf_observe_vbucket, tvb, oo, 2, ENC_BIG_ENDIAN);
         oo += 2;
-        kl = tvb_get_ntohs(tvb, oo);
-        proto_tree_add_item(observe_tree, hf_observe_keylength, tvb, oo, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint16(observe_tree, hf_observe_keylength, tvb, oo, 2, ENC_BIG_ENDIAN, &kl);
         oo += 2;
         proto_tree_add_item(observe_tree, hf_observe_key, tvb, oo, kl, ENC_ASCII);
         oo += kl;

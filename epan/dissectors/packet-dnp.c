@@ -2178,26 +2178,23 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
   switch (al_objq_range)
   {
     case AL_OBJQL_RANGE_SSI8:           /* 8-bit Start and Stop Indices in Range Field */
-      num_items = ( tvb_get_uint8(tvb, offset+1) - tvb_get_uint8(tvb, offset) + 1);
+      num_items = tvb_get_uint8(tvb, offset+1) - tvb_get_uint8(tvb, offset) + 1;
       proto_item_set_generated(range_item);
-      al_ptaddr = tvb_get_uint8(tvb, offset);
-      proto_tree_add_item(range_tree, hf_dnp3_al_range_start8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item_ret_uint(range_tree, hf_dnp3_al_range_start8, tvb, offset, 1, ENC_LITTLE_ENDIAN, &al_ptaddr);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_stop8, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
       rangebytes = 2;
       break;
     case AL_OBJQL_RANGE_SSI16:          /* 16-bit Start and Stop Indices in Range Field */
-      num_items = ( tvb_get_letohs(tvb, offset+2) - tvb_get_letohs(tvb, (offset)) + 1);
+      num_items = tvb_get_letohs(tvb, offset+2) - tvb_get_letohs(tvb, (offset)) + 1;
       proto_item_set_generated(range_item);
-      al_ptaddr = tvb_get_letohs(tvb, offset);
-      proto_tree_add_item(range_tree, hf_dnp3_al_range_start16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item_ret_uint(range_tree, hf_dnp3_al_range_start16, tvb, offset, 2, ENC_LITTLE_ENDIAN, &al_ptaddr);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_stop16, tvb, offset + 2, 2, ENC_LITTLE_ENDIAN);
       rangebytes = 4;
       break;
     case AL_OBJQL_RANGE_SSI32:          /* 32-bit Start and Stop Indices in Range Field */
-      num_items = ( tvb_get_letohl(tvb, offset+4) - tvb_get_letohl(tvb, offset) + 1);
+      num_items = tvb_get_letohl(tvb, offset+4) - tvb_get_letohl(tvb, offset) + 1;
       proto_item_set_generated(range_item);
-      al_ptaddr = tvb_get_letohl(tvb, offset);
-      proto_tree_add_item(range_tree, hf_dnp3_al_range_start32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item_ret_uint(range_tree, hf_dnp3_al_range_start32, tvb, offset, 4, ENC_LITTLE_ENDIAN, &al_ptaddr);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_stop32, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
       rangebytes = 8;
       break;
@@ -2330,8 +2327,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               case AL_DATA_TYPE_NONE:
                 break;
               case AL_DATA_TYPE_VSTR:
-                da_len = tvb_get_uint8(tvb, data_pos);
-                proto_tree_add_item(point_tree, hf_dnp3_al_da_length, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item_ret_uint8(point_tree, hf_dnp3_al_da_length, tvb, data_pos, 1, ENC_LITTLE_ENDIAN, &da_len);
                 data_pos++;
                 const uint8_t* da_value;
                 proto_tree_add_item_ret_string(point_tree, hf_dnp3_al_da_value, tvb, data_pos, da_len, ENC_ASCII|ENC_NA, pinfo->pool, &da_value);
@@ -2339,8 +2335,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 data_pos += da_len;
                 break;
               case AL_DATA_TYPE_UINT:
-                da_len = tvb_get_uint8(tvb, data_pos);
-                proto_tree_add_item(point_tree, hf_dnp3_al_da_length, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item_ret_uint8(point_tree, hf_dnp3_al_da_length, tvb, data_pos, 1, ENC_LITTLE_ENDIAN, &da_len);
                 data_pos++;
                 if (da_len == 1) {
                   proto_tree_add_item(point_tree, hf_dnp3_al_da_uint8, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
@@ -2359,8 +2354,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 }
                 break;
               case AL_DATA_TYPE_INT:
-                da_len = tvb_get_uint8(tvb, data_pos);
-                proto_tree_add_item(point_tree, hf_dnp3_al_da_length, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item_ret_uint8(point_tree, hf_dnp3_al_da_length, tvb, data_pos, 1, ENC_LITTLE_ENDIAN, &da_len);
                 data_pos++;
                 if (da_len == 1) {
                   proto_tree_add_item(point_tree, hf_dnp3_al_da_int8, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
@@ -2379,8 +2373,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 }
                 break;
               case AL_DATA_TYPE_FLT:
-                da_len = tvb_get_uint8(tvb, data_pos);
-                proto_tree_add_item(point_tree, hf_dnp3_al_da_length, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item_ret_uint8(point_tree, hf_dnp3_al_da_length, tvb, data_pos, 1, ENC_LITTLE_ENDIAN, &da_len);
                 data_pos++;
                 if (da_len == 4) {
                   proto_tree_add_item(point_tree, hf_dnp3_al_da_flt, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);

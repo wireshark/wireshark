@@ -8603,8 +8603,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
             case SAFNUM_LAB_VPNMULCAST:
             case SAFNUM_LAB_VPNUNIMULC:
             case SAFNUM_VPLS:
-                plen =  tvb_get_ntohs(tvb,offset);
-                proto_tree_add_item(tree, hf_bgp_vplsad_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(tree, hf_bgp_vplsad_length, tvb, offset, 2, ENC_BIG_ENDIAN, &plen);
 
                 proto_tree_add_string(tree, hf_bgp_vplsad_rd, tvb, offset+2, 8, decode_bgp_rd(pinfo->pool, tvb, offset+2));
                 /* RFC6074 Section 7 BGP-AD and VPLS-BGP Interoperability
@@ -8898,13 +8897,11 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     ti = proto_tree_add_item(tree, hf_bgp_cap, tvb, offset, -1, ENC_NA);
     cap_tree = proto_item_add_subtree(ti, ett_bgp_cap);
 
-    proto_tree_add_item(cap_tree, hf_bgp_cap_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    ctype = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(cap_tree, hf_bgp_cap_type, tvb, offset, 1, ENC_BIG_ENDIAN, &ctype);
     proto_item_append_text(ti, ": %s", val_to_str(pinfo->pool, ctype, capability_vals, "Unknown capability %d"));
     offset += 1;
 
-    ti_len = proto_tree_add_item(cap_tree, hf_bgp_cap_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-    clen = tvb_get_uint8(tvb, offset);
+    ti_len = proto_tree_add_item_ret_uint8(cap_tree, hf_bgp_cap_length, tvb, offset, 1, ENC_BIG_ENDIAN, &clen);
     proto_item_set_len(ti, clen+2);
     offset += 1;
 
@@ -9122,8 +9119,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                 offset += 1;
 
                 /* Number of ORFs */
-                orfnum = tvb_get_uint8(tvb, offset);
-                proto_tree_add_item(cap_tree, hf_bgp_cap_orf_number, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint8(cap_tree, hf_bgp_cap_orf_number, tvb, offset, 1, ENC_BIG_ENDIAN, &orfnum);
                 offset += 1;
                 for (i=0; i<orfnum; i++) {
                     /* ORF Type */
@@ -9238,8 +9234,7 @@ dissect_bgp_open(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
     proto_tree_add_item(tree, hf_bgp_open_identifier, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_bgp_open_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-    optlen = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint16(tree, hf_bgp_open_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN, &optlen);
     offset += 1;
 
     /* optional parameters */
@@ -10276,8 +10271,7 @@ dissect_bgp_update_pmsi_attr(packet_info *pinfo, proto_tree *parent_tree, tvbuff
         case PMSI_TUNNEL_MLDP_MP2MP:
             proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_type, tvb, offset+5, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_afi, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_adr_len, tvb, offset+8, 1, ENC_BIG_ENDIAN);
-            rn_addr_length = tvb_get_uint8(tvb, offset+8);
+            proto_tree_add_item_ret_uint8(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_adr_len, tvb, offset+8, 1, ENC_BIG_ENDIAN, &rn_addr_length);
             if(rn_addr_length == 4)
                 proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_root_nodev4, tvb, offset+9, 4, ENC_BIG_ENDIAN);
             else
@@ -12095,8 +12089,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 
 
     /* check for withdrawals */
-    len = tvb_get_ntohs(tvb, o);
-    proto_tree_add_item(tree, hf_bgp_update_withdrawn_routes_length, tvb, o, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_bgp_update_withdrawn_routes_length, tvb, o, 2, ENC_BIG_ENDIAN, &len);
     o += 2;
 
     /* parse unfeasible prefixes */
@@ -12129,8 +12122,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
     }
 
     /* check for advertisements */
-    len = tvb_get_ntohs(tvb, o);
-    proto_tree_add_item(tree, hf_bgp_update_total_path_attribute_length, tvb, o, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_bgp_update_total_path_attribute_length, tvb, o, 2, ENC_BIG_ENDIAN, &len);
 
     /* path attributes */
     if (len > 0) {
@@ -12338,8 +12330,7 @@ example 2
         orftype = tvb_get_uint8(tvb, p);
         p += 1;
 
-        proto_tree_add_item(subtree, hf_bgp_route_refresh_orf_length, tvb, p, 2, ENC_BIG_ENDIAN);
-        orflen = tvb_get_ntohs(tvb, p);
+        proto_tree_add_item_ret_uint16(subtree, hf_bgp_route_refresh_orf_length, tvb, p, 2, ENC_BIG_ENDIAN, &orflen);
         proto_item_set_len(ti, orflen + 4);
         p += 2;
 
