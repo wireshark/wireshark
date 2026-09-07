@@ -40,17 +40,18 @@ typedef enum {
     Col_BusNumber_v1, // 1
     Col_Direction, // 2
     Col_CanId, // 3
-    Col_DLC, // 4
-    Col_MessageNumber, // 5
-    Col_TimeOffset_v1_0, // 6
-    Col_TimeOffset, // 7
-    Col_Reserved, // 8
-    Col_MessageType, // 9
-    Col_ErrorOrRtr_v1p0, // 10
+    Col_DLC_l, // 4 l (lowercase ‘L’) Data Length(0 - 64)
+    Col_DLC_L, // 5 L Data Length Code (CAN: 0..8; CAN FD: 0..15)
+    Col_MessageNumber, // 6
+    Col_TimeOffset_v1_0, // 7
+    Col_TimeOffset, // 8
+    Col_Reserved, // 9
+    Col_MessageType, // 10
+    Col_ErrorOrRtr_v1p0, // 11
     // keep it to the last one to get the
-    Col_Data_v1_0, // 11
-    Col_Data, // 12
-    Col_Invalid // 13
+    Col_Data_v1_0, // 12
+    Col_Data, // 13
+    Col_Invalid // 14
 } peak_trc_column_type_t;
 
 typedef struct {
@@ -80,8 +81,8 @@ static const peak_trc_column_map_t colmap[] = {
     {Col_Data_v1_0, 2, "\\s?(((--|[0-9A-F]{2})\\s?)*)"},
     {Col_Data, 'D', "\\s?((((--|[0-9A-F]{2})\\s?))*)"},
     {Col_CanId, 'I', "\\s*([0-9A-F]*)"},
-    {Col_DLC, 'l', "\\s*([0-9]*)"},
-    {Col_DLC, 'L', "\\s*([0-9]*)"},
+    {Col_DLC_l, 'l', "\\s*([0-9]*)"},
+    {Col_DLC_L, 'L', "\\s*([0-9]*)"}, /* https://www.peak-system.com/documentation/API/PCAN-Basic.Net/html/3ac7b0e3-f9df-c30e-d4fe-bcb63e5295bb.htm */
     {Col_MessageNumber, 'N', "\\s*([0-9]*)\\)"},
     {Col_TimeOffset, 'O', "\\s*([0-9]*\\.[0-9]*)"},
     /* This isn't a real column type, so give it a "type" that shouldn't be used */
@@ -177,7 +178,7 @@ peak_trc_parse(wtap* wth, peak_trc_state_t* state, int64_t* offset, int* err, ch
                 case 0:
                     state->column_positions[Col_TimeOffset_v1_0] = 2;
                     state->column_positions[Col_CanId] = 3;
-                    state->column_positions[Col_DLC] = 4;
+                    state->column_positions[Col_DLC_l] = 4;
                     state->column_positions[Col_ErrorOrRtr_v1p0] = 5;
                     state->column_positions[Col_Data_v1_0] = 6;
                     break;
@@ -185,7 +186,7 @@ peak_trc_parse(wtap* wth, peak_trc_state_t* state, int64_t* offset, int* err, ch
                     state->column_positions[Col_TimeOffset] = 2;
                     state->column_positions[Col_Direction] = 3;
                     state->column_positions[Col_CanId] = 4;
-                    state->column_positions[Col_DLC] = 5;
+                    state->column_positions[Col_DLC_l] = 5;
                     state->column_positions[Col_ErrorOrRtr_v1p0] = 6;
                     state->column_positions[Col_Data] = 7;
                     break;
@@ -194,7 +195,7 @@ peak_trc_parse(wtap* wth, peak_trc_state_t* state, int64_t* offset, int* err, ch
                     state->column_positions[Col_BusNumber_v1] = 3;
                     state->column_positions[Col_Direction] = 4;
                     state->column_positions[Col_CanId] = 5;
-                    state->column_positions[Col_DLC] = 6;
+                    state->column_positions[Col_DLC_l] = 6;
                     state->column_positions[Col_ErrorOrRtr_v1p0] = 7;
                     state->column_positions[Col_Data] = 8;
                     break;
@@ -204,7 +205,7 @@ peak_trc_parse(wtap* wth, peak_trc_state_t* state, int64_t* offset, int* err, ch
                     state->column_positions[Col_Direction] = 4;
                     state->column_positions[Col_CanId] = 5;
                     state->column_positions[Col_Reserved] = 6;
-                    state->column_positions[Col_DLC] = 7;
+                    state->column_positions[Col_DLC_l] = 7;
                     state->column_positions[Col_ErrorOrRtr_v1p0] = 8;
                     state->column_positions[Col_Data] = 9;
                     break;
@@ -414,7 +415,7 @@ static bool peak_trc_read_packet_v1(wtap* wth, peak_trc_state_t* state, wtap_can
             peak_msg->ts.nsecs = (int)((tsd - (uint64_t)tsd) * 1000000000);
         }
         break;
-        case Col_DLC:
+        case Col_DLC_l:
             peak_msg->data.length = (uint8_t)g_ascii_strtoull(column_text, NULL, 10);
             break;
         case Col_BusNumber_v1:
@@ -522,6 +523,25 @@ static bool peak_trc_read_packet_v1(wtap* wth, peak_trc_state_t* state, wtap_can
     return true;
 }
 
+uint8_t
+dlc_to_data_length(uint8_t dlc)
+{
+    if (dlc <= 8)
+        return dlc;
+
+    switch (dlc)
+    {
+    case 9:  return 12;
+    case 10: return 16;
+    case 11: return 20;
+    case 12: return 24;
+    case 13: return 32;
+    case 14: return 48;
+    case 15: return 64;
+    default: return 0;
+    }
+}
+
 static bool peak_trc_read_packet_v2(wtap* wth, peak_trc_state_t* state, wtap_can_msg_t* peak_msg, char* line_buffer)
 {
     int i = 0;
@@ -579,8 +599,11 @@ static bool peak_trc_read_packet_v2(wtap* wth, peak_trc_state_t* state, wtap_can
                 case Col_CanId:
                     peak_msg->id = (unsigned)g_ascii_strtoull(column_text, NULL, 16);
                     break;
-                case Col_DLC:
+                case Col_DLC_l:
                     peak_msg->data.length = (unsigned)g_ascii_strtoull(column_text, NULL, 10);
+                    break;
+                case Col_DLC_L:
+                    peak_msg->data.length = dlc_to_data_length((unsigned)g_ascii_strtoull(column_text, NULL, 10));
                     break;
                 case Col_TimeOffset:
                 {
