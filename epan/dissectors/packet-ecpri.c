@@ -352,24 +352,11 @@ static const range_string event_indication_element_id_coding[] = {
     { 0,         0,         NULL                                             }
 };
 
-static const value_string event_indication_raise_ceased_coding[] = {
-    { 0x00,    "Raise a fault" },
-    { 0x01,    "Cease a fault" },
-    { 0x02,    "Reserved"     },
-    { 0x03,    "Reserved"     },
-    { 0x04,    "Reserved"     },
-    { 0x05,    "Reserved"     },
-    { 0x06,    "Reserved"     },
-    { 0x07,    "Reserved"     },
-    { 0x08,    "Reserved"     },
-    { 0x09,    "Reserved"     },
-    { 0x0A,    "Reserved"     },
-    { 0x0B,    "Reserved"     },
-    { 0x0C,    "Reserved"     },
-    { 0x0D,    "Reserved"     },
-    { 0x0E,    "Reserved"     },
-    { 0x0F,    "Reserved"     },
-    { 0,       NULL           }
+static const range_string event_indication_raise_ceased_coding[] = {
+    { 0x00, 0x00,   "Raise a fault" },
+    { 0x01, 0x01,   "Cease a fault" },
+    { 0x02, 0x0F,   "Reserved"     },
+    { 0,    0,      NULL           }
 };
 
 static const range_string event_indication_fault_notif_coding[] = {
@@ -605,6 +592,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         /* Call the FH CUS dissector (for all message types) if preference set */
         if (pref_message_type_decoding)
         {
+            bool oran_fh_handled = false;
             tvbuff_t *fh_tvb = tvb_new_subset_length(tvb, offset, payload_size);
             /***********************************************************************************************/
             /* See whether O-RAN fronthaul sub-dissector handles this, otherwise decode as vanilla eCPRI   */
@@ -614,14 +602,12 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             /***********************************************************************************************/
             if (call_dissector_only(oran_fh_handle, fh_tvb, pinfo, tree, &msg_type))
             {
-                /* Assume that it has claimed the entire paylength offered to it */
-                offset += payload_size;
+                oran_fh_handled = true;
             }
-            else
+
+            /* ORAN FH-CUS dissector may have handled the PDU, in which case still add opaque filters, but hidden  */
+            switch (msg_type)
             {
-                /* ORAN FH-CUS dissector didn't handle it */
-                switch (msg_type)
-                {
                 case ECPRI_MESSAGE_TYPE_IQ_DATA: /* Message Type 0: 3.2.4.1. IQ Data */
                     /* N.B. if ORAN dissector is enabled, it will handle this type instead! */
                     if (payload_size < ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH)
@@ -635,17 +621,29 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                         break;
                     }
 
+
                     if (remaining_length >= ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH)
                     {
-                        proto_tree_add_item(ecpri_tree, hf_pc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        /* Add these as opaque fields */
+                        proto_item *pcid_ti = proto_tree_add_item(ecpri_tree, hf_pc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
-                        proto_tree_add_item(ecpri_tree, hf_iq_data_seq_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        proto_item *seqid_ti = proto_tree_add_item(ecpri_tree, hf_iq_data_seq_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
-                        remaining_length -= ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH;
-                        if (remaining_length >= payload_size - ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH)
-                        {
-                            proto_tree_add_item(ecpri_tree, hf_iq_data_iq_samples_of_user_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH, ENC_NA);
-                            offset += payload_size - ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH;
+
+                        if (oran_fh_handled) {
+                            /* Assume that it has claimed the entire paylength offered to it */
+                            offset += payload_size;
+                            /* Don't show these fields, but let them remain filterable */
+                            proto_item_set_hidden(pcid_ti);
+                            proto_item_set_hidden(seqid_ti);
+                        }
+                        else {
+                            remaining_length -= ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH;
+                            if (remaining_length >= payload_size - ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH)
+                            {
+                                proto_tree_add_item(ecpri_tree, hf_iq_data_iq_samples_of_user_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH, ENC_NA);
+                                offset += payload_size - ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH;
+                            }
                         }
                     }
                     break;
@@ -670,6 +668,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                         remaining_length -= ECPRI_MSG_TYPE_1_PAYLOAD_MIN_LENGTH;
                         if (remaining_length >= payload_size - ECPRI_MSG_TYPE_1_PAYLOAD_MIN_LENGTH)
                         {
+                            /* Rest of message is opaque */
                             proto_tree_add_item(ecpri_tree, hf_bit_sequence_bit_sequence_of_user_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_1_PAYLOAD_MIN_LENGTH, ENC_NA);
                             offset += payload_size - ECPRI_MSG_TYPE_1_PAYLOAD_MIN_LENGTH;
                         }
@@ -689,17 +688,29 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                         break;
                     }
 
-                    if (remaining_length >= ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH)
-                    {
-                        proto_tree_add_item(ecpri_tree, hf_real_time_control_data_rtc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    if (remaining_length >= ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH) {
+
+                        /* Add these as opaque fields */
+                        proto_item *pcid_ti = proto_tree_add_item(ecpri_tree, hf_pc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
-                        proto_tree_add_item(ecpri_tree, hf_real_time_control_data_seq_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        proto_item *seqid_ti = proto_tree_add_item(ecpri_tree, hf_iq_data_seq_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
-                        remaining_length -= ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH;
-                        if (remaining_length >= payload_size - ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH)
-                        {
-                            proto_tree_add_item(ecpri_tree, hf_real_time_control_data_rtc_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH, ENC_NA);
-                            offset += payload_size - ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH;
+
+                        if (oran_fh_handled) {
+                            /* Assume that it has claimed the entire paylength offered to it */
+                            offset += payload_size;
+                            /* Don't show these fields, but let them remain filterable */
+                            proto_item_set_hidden(pcid_ti);
+                            proto_item_set_hidden(seqid_ti);
+                        }
+                        else {
+                            remaining_length -= ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH;
+                            if (remaining_length >= payload_size - ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH)
+                            {
+                                /* Rest of message is opaque */
+                                proto_tree_add_item(ecpri_tree, hf_real_time_control_data_rtc_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH, ENC_NA);
+                                offset += payload_size - ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH;
+                            }
                         }
                     }
                     break;
@@ -1235,8 +1246,8 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     offset += payload_size;
                     break;
                 }
-            }
         }
+
         /* If Preference not chosen,  Payload will be not decoded */
         else
         {
@@ -1322,7 +1333,7 @@ void proto_register_ecpri(void)
         { &hf_event_indication_number_of_faults_notifications, { "Number of Faults/Notifications", "ecpri.ei.numberfaultnotif", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_event_indication_element, { "Element", "ecpri.ei.element", FT_BYTES, SEP_COLON, NULL, 0x0, NULL, HFILL } },
         { &hf_event_indication_element_id, { "Element ID", "ecpri.ei.elementid", FT_UINT16, BASE_HEX|BASE_RANGE_STRING, RVALS(event_indication_element_id_coding),  0x0, NULL, HFILL } },
-        { &hf_event_indication_raise_cease, { "Raise/Cease", "ecpri.ei.raisecease", FT_UINT8, BASE_HEX, VALS(event_indication_raise_ceased_coding), 0xF0, NULL, HFILL } },
+        { &hf_event_indication_raise_cease, { "Raise/Cease", "ecpri.ei.raisecease", FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(event_indication_raise_ceased_coding), 0xF0, NULL, HFILL } },
         { &hf_event_indication_fault_notification, { "Fault/Notification", "ecpri.ei.faultnotif", FT_UINT16, BASE_HEX|BASE_RANGE_STRING, RVALS(event_indication_fault_notif_coding), 0x0FFF, NULL, HFILL } },
         { &hf_event_indication_additional_information, { "Additional Information", "ecpri.ei.addinfo", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     /* Message Type 8: IWF Start-Up */
