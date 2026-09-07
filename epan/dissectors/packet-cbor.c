@@ -1439,7 +1439,7 @@ proto_register_cbor(void)
 		{ &hf_cbor_diag_text,
 		  { "Diagnostic Notation", "cbor.diagnostic",
 		    FT_STRINGZ, BASE_NONE, NULL, 0x00,
-		    "CBOR extended diagnostic notation of preceeding data", HFILL }
+		    "CBOR extended diagnostic notation of preceding data", HFILL }
 		},
 	};
 

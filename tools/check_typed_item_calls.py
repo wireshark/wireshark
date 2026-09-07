@@ -2161,6 +2161,21 @@ def line_has_fetch_function(line):
     return False
 
 
+def hf_matches_variable(hf, variable):
+    if ',' in variable or '(' in variable or '[' in variable:
+        return False
+
+    # Complete match.
+    if hf.endswith(variable):
+        return True
+
+    # Does every char in variable appear in hf?
+    if any(c not in hf for c in variable):
+        return False
+    else:
+        return True
+
+
 def check_double_fetches(filename, contents, items, result):
     lines = contents.splitlines()
     contents = '\n'.join(line for line in lines if line.strip())
@@ -2243,12 +2258,12 @@ def check_double_fetches(filename, contents, items, result):
                 suggest = 'proto_tree_add_item_ret_uint64'
 
         # TODO: allow match if underscores are removed?
-        if line_has_fetch_function(prev_line) and hf_name.endswith(first_prev_token) and '=' in prev_line_tokens:
+        if line_has_fetch_function(prev_line) and hf_matches_variable(hf_name, first_prev_token) and '=' in prev_line_tokens:
             result.warn(filename, 'PREV: val=', first_prev_token, 'hfname=', hf_name,
                         'mask=', hex(mask_value), 'type=', item_type,
                         '- use', suggest + '() ?\n',
                         m.group(0))
-        elif line_has_fetch_function(next_line) and hf_name.endswith(first_next_token) and '=' in next_line_tokens:
+        elif line_has_fetch_function(next_line) and hf_matches_variable(hf_name, first_next_token) and '=' in next_line_tokens:
             result.warn(filename, 'NEXT: val=', first_next_token, 'hfname=', hf_name,
                         'mask=', hex(mask_value), 'type=', item_type,
                         '- use', suggest + '() ?\n',

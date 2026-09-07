@@ -225,7 +225,7 @@ static void dissect_beep_status(tvbuff_t *tvb, int offset,
 
 /*
  * We check for a terminator. This can be CRLF, which will be recorded
- * as a terminator, or CR or LF by itself, which will be redorded as
+ * as a terminator, or CR or LF by itself, which will be recorded as
  * an incorrect terminator ... We build the tree at this point
  * However, we depend on the variable beep_strict_term
  */
@@ -811,7 +811,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     pl_left = MIN(pl_left, MAX(0, (int)tvb_reported_length_remaining(tvb, offset)));
 
     /* Add the payload bit, only if we have a tree */
-    if (tree && (pl_left > 0)) {
+    if (tree) {
       proto_tree_add_item(tree, hf_beep_payload, tvb, offset, pl_left, ENC_ASCII);
     }
     offset += pl_left;

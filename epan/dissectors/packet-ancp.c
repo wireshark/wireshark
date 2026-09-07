@@ -456,7 +456,7 @@ static void
 dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *ancp_tree, int offset, uint8_t mtype)
 {
     uint8_t tech_type;
-    int16_t num_tlvs;
+    uint16_t num_tlvs;
     proto_item *sti;
 
     if (mtype == ANCP_MTYPE_PORT_MGMT) {
@@ -494,8 +494,7 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *ancp
         offset += 1;
     }
 
-    proto_tree_add_item(ancp_tree, hf_ancp_num_ext_tlvs, tvb, offset, 2, ENC_BIG_ENDIAN);
-    num_tlvs = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item_ret_uint16(ancp_tree, hf_ancp_num_ext_tlvs, tvb, offset, 2, ENC_BIG_ENDIAN, &num_tlvs);
     offset += 2;
 
     sti = proto_tree_add_item(ancp_tree, hf_ancp_blk_len,       tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -571,8 +570,7 @@ dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree,
     proto_tree_add_item(ancp_tree, hf_ancp_reserved, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    sti = proto_tree_add_item(ancp_tree, hf_ancp_num_tlvs, tvb, offset, 1, ENC_BIG_ENDIAN);
-    numcaps = tvb_get_uint8(tvb, offset);
+    sti = proto_tree_add_item_ret_uint8(ancp_tree, hf_ancp_num_tlvs, tvb, offset, 1, ENC_BIG_ENDIAN, &numcaps);
     offset += 1;
 
     /* Start the capability subtree */

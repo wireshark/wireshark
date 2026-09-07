@@ -356,8 +356,7 @@ static int dissect_mac_mgmt_msg_arq_feedback_decoder(tvbuff_t *tvb, packet_info 
 					if (arq_ack_type != 3) {
 						proto_tree_add_item(arq_fb_tree, hf_arq_selective_map, tvb, offset, 2, ENC_BIG_ENDIAN);
 					} else {
-						proto_tree_add_item(arq_fb_tree, hf_arq_seq_format, tvb, offset, 1, ENC_BIG_ENDIAN);
-						seq_format = (tvb_get_uint8(tvb, offset) & 0x80) >> 7;
+						proto_tree_add_item_ret_uint(arq_fb_tree, hf_arq_seq_format, tvb, offset, 1, ENC_BIG_ENDIAN, &seq_format);
 						if (seq_format == 0) {
 							proto_tree_add_item(arq_fb_tree, hf_arq_0seq_ack_map, tvb, offset, 1, ENC_BIG_ENDIAN);
 							proto_tree_add_item(arq_fb_tree, hf_arq_0seq1_len, tvb, offset, 2, ENC_BIG_ENDIAN);

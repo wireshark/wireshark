@@ -1019,8 +1019,7 @@ dissect_fwd_qosinfo(tvbuff_t *tvb, unsigned offset, proto_tree *ext_tree)
 
 
         /* Requested QoS Length */
-        requested_qos_len = tvb_get_uint8(tvb, offset+clen);
-        proto_tree_add_item(flow_tree, hf_a11_fqi_requested_qoslen, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(flow_tree, hf_a11_fqi_requested_qoslen, tvb, offset+clen, 1, ENC_BIG_ENDIAN, &requested_qos_len);
         clen++;
 
         /* Requested QoS Blob */
@@ -1058,8 +1057,7 @@ dissect_fwd_qosinfo(tvbuff_t *tvb, unsigned offset, proto_tree *ext_tree)
         }
 
         /* Granted QoS Length */
-        granted_qos_len = tvb_get_uint8(tvb, offset+clen);
-        proto_tree_add_item(flow_tree, hf_a11_fqi_granted_qoslen, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(flow_tree, hf_a11_fqi_granted_qoslen, tvb, offset+clen, 1, ENC_BIG_ENDIAN, &granted_qos_len);
         clen++;
 
         /* Granted QoS Blob */
@@ -1118,8 +1116,7 @@ dissect_rev_qosinfo(tvbuff_t *tvb, unsigned offset, proto_tree *ext_tree)
         clen++;
 
         /* Requested QoS Length */
-        requested_qos_len = tvb_get_uint8(tvb, offset+clen);
-        proto_tree_add_item(flow_tree, hf_a11_rqi_requested_qoslen, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(flow_tree, hf_a11_rqi_requested_qoslen, tvb, offset+clen, 1, ENC_BIG_ENDIAN, &requested_qos_len);
         clen++;
 
         /* Requested QoS Blob */
@@ -1156,8 +1153,7 @@ dissect_rev_qosinfo(tvbuff_t *tvb, unsigned offset, proto_tree *ext_tree)
         }
 
         /* Granted QoS Length */
-        granted_qos_len = tvb_get_uint8(tvb, offset+clen);
-        proto_tree_add_item(flow_tree, hf_a11_rqi_granted_qoslen, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(flow_tree, hf_a11_rqi_granted_qoslen, tvb, offset+clen, 1, ENC_BIG_ENDIAN, &granted_qos_len);
         clen++;
 
         /* Granted QoS Blob */
@@ -1207,8 +1203,7 @@ dissect_fwd_qosupdate_info(tvbuff_t *tvb, unsigned offset, proto_tree *ext_tree)
     uint8_t flow_index;
 
     /* Flow Count */
-    flow_count = tvb_get_uint8(tvb, offset+clen);
-    proto_tree_add_item(ext_tree, hf_a11_fqui_flowcount, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(ext_tree, hf_a11_fqui_flowcount, tvb, offset+clen, 1, ENC_BIG_ENDIAN, &flow_count);
     clen++;
 
     for (flow_index=0; flow_index<flow_count; flow_index++) {
@@ -1249,8 +1244,7 @@ dissect_rev_qosupdate_info(tvbuff_t *tvb, unsigned offset, proto_tree *ext_tree)
     uint8_t flow_index;
 
     /* Flow Count */
-    flow_count = tvb_get_uint8(tvb, offset+clen);
-    proto_tree_add_item(ext_tree, hf_a11_rqui_flowcount, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(ext_tree, hf_a11_rqui_flowcount, tvb, offset+clen, 1, ENC_BIG_ENDIAN, &flow_count);
     clen++;
 
     for (flow_index=0; flow_index<flow_count; flow_index++) {

@@ -185,8 +185,7 @@ dissect_a21_mobile_identity(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (tree == NULL)
 		return;
 
-	identity_type = tvb_get_uint8(tvb, offset) & 0x07;
-	proto_tree_add_item(tree, hf_a21_mn_id_type_of_identity, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_a21_mn_id_type_of_identity, tvb, offset, 1, ENC_BIG_ENDIAN, &identity_type);
 
 	switch (identity_type) {
 	case 0:

@@ -1083,10 +1083,8 @@ parse_arg(tvbuff_t      *tvb,
         offset = round_to_4byte(offset, field_starting_offset);
         add_padding_item(padding_start, offset, tvb, field_tree);
 
-        proto_tree_add_item(field_tree, hf_alljoyn_string_size_32bit, tvb, offset, 4, encoding);
-
         /* Get the length so we can display the string. */
-        length = tvb_get_uint32(tvb, offset, encoding);
+        proto_tree_add_item_ret_uint(field_tree, hf_alljoyn_string_size_32bit, tvb, offset, 4, encoding, &length);
 
         if(length > tvb_reported_length_remaining(tvb, offset)) {
             col_add_fstr(pinfo->cinfo, COL_INFO, "BAD DATA: String length is %d. Remaining packet length is %d.",
