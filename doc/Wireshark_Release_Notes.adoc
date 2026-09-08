@@ -249,6 +249,7 @@ TrueConf Protocol (TrueConf)
 RDP Conctrl virtual channel Protocol (CONCTRL)
 RDP Video Capture Virtual Channel Extension (RDPECAM)
 Real-Time Tracking Protocol (RTTrP)
+RTP over QUIC (RoQ)
 TrueConf
 UDX
 Ultra Ethernet Transport (UET)

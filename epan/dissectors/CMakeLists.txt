@@ -1557,6 +1557,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-romon.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-roofnet.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-roon_discovery.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-roq.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-roughtime.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rpc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rpcap.c

@@ -1172,6 +1172,33 @@ class TestDissectTls:
         self.check_tls_out_of_order(cmd_tshark, capture_file,
             test_env, extraArgs=['-2'])
 
+class TestDissectRoq:
+    def test_roq_recognized(self, cmd_tshark, capture_file, test_env):
+        '''Verify that RTP over QUIC packets are recognized as RoQ.'''
+        stdout = subprocess.check_output((
+            cmd_tshark,
+            '-2',
+            '-d', 'udp.port==4433,quic',
+            '-r', capture_file('roq-with-keys.pcapng.gz'),
+            '-Y', 'roq',
+            '-Tfields', '-e', 'frame.number',
+        ), encoding='utf-8', env=test_env)
+
+        assert stdout.splitlines() == ['9', '88', '165', '243']
+
+    def test_roq_payload_is_rtp(self, cmd_tshark, capture_file, test_env):
+        '''Verify that RoQ media payload is handed to the RTP dissector.'''
+        stdout = subprocess.check_output((
+            cmd_tshark,
+            '-2',
+            '-d', 'udp.port==4433,quic',
+            '-r', capture_file('roq-with-keys.pcapng.gz'),
+            '-Y', 'roq && rtp',
+            '-Tfields', '-e', 'frame.number',
+        ), encoding='utf-8', env=test_env)
+
+        assert stdout.splitlines() == ['88', '165', '243']
+
 class TestDissectQuic:
     @staticmethod
     def check_quic_tls_handshake_reassembly(cmd_tshark, capture_file, test_env,

@@ -4027,7 +4027,9 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, bool fr
                     quic_info->app_datagram_handle = dissector_get_string_handle(quic_datagram_proto_dissector_table, "h3");
                 } else if (g_str_has_prefix(proto_name, "doq-")) {
                     quic_info->app_handle = dissector_get_string_handle(quic_proto_dissector_table, "doq");
-                }
+                } else if (g_str_has_prefix(proto_name, "roq-")) {
+                    quic_info->app_handle = dissector_get_string_handle(quic_proto_dissector_table, "roq");
+		}
             }
         }
     }
