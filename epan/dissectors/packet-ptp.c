@@ -4703,7 +4703,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
 
             dissect_ptp_v2_tlvs(tvb, offset, pinfo, ti_root, tree, ptp_tree, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
-            if (ptp_analyze_messages) {
+            if (PINFO_FD_VISITED(pinfo) && ptp_analyze_messages) {
                 if (PTP_FRAME_INFO_SYNC_COMPLETE(frame_info)) {
                     if (frame_info->sync.syncInterval_valid) {
                         ti = proto_tree_add_double(ptp_tree, hf_ptp_v2_analysis_sync_period, tvb, 0, 0, frame_info->sync.syncInterval);
@@ -4767,7 +4767,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
 
             dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
-            if (ptp_analyze_messages) {
+            if (PINFO_FD_VISITED(pinfo) && ptp_analyze_messages) {
                 if (frame_info != NULL) {
                     if (PTP_FRAME_INFO_SYNC_COMPLETE(frame_info) && frame_info->sync.sync_two_step) {
                         if (frame_info->sync.calculated_timestamp_valid) {
@@ -4834,7 +4834,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
 
             dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
-            if (ptp_analyze_messages) {
+            if (PINFO_FD_VISITED(pinfo) && ptp_analyze_messages) {
                 if (frame_info != NULL) {
                     if PTP_FRAME_INFO_PDELAY_REQ_SEEN(frame_info) {
                         if (frame_info->pdelay.pdelayInterval_valid) {
@@ -4871,7 +4871,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
 
             dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
-            if (ptp_analyze_messages) {
+            if (PINFO_FD_VISITED(pinfo) && ptp_analyze_messages) {
                 if (frame_info != NULL) {
                     if (frame_info->pdelay.pdelay_req_frame_num != 0) {
                         ti = proto_tree_add_uint(ptp_tree, hf_ptp_v2_analysis_pdelayres_to_pdelayreq, tvb, 0, 0, frame_info->pdelay.pdelay_req_frame_num);
@@ -4880,13 +4880,17 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                         /* No Request found! */
                         expert_add_info(pinfo, ti_root, &ei_ptp_v2_pdresp_no_pdreq);
                     }
-                    if (frame_info->pdelay.pdelay_fup_frame_num != 0) {
-                        ti = proto_tree_add_uint(ptp_tree, hf_ptp_v2_analysis_pdelayres_to_pdelayfup, tvb, 0, 0, frame_info->pdelay.pdelay_fup_frame_num);
-                        proto_item_set_generated(ti);
-                    } else {
-                        /* No Follow Up found! */
-                        expert_add_info(pinfo, ti_root, &ei_ptp_v2_pdresp_no_pdfup);
+
+                    if ((ptp_v2_flags & PTP_V2_FLAGS_TWO_STEP_BITMASK) == PTP_V2_FLAGS_TWO_STEP_BITMASK) {
+                        if (frame_info->pdelay.pdelay_fup_frame_num != 0) {
+                            ti = proto_tree_add_uint(ptp_tree, hf_ptp_v2_analysis_pdelayres_to_pdelayfup, tvb, 0, 0, frame_info->pdelay.pdelay_fup_frame_num);
+                            proto_item_set_generated(ti);
+                        } else {
+                            /* No Follow Up found! */
+                            expert_add_info(pinfo, ti_root, &ei_ptp_v2_pdresp_no_pdfup);
+                        }
                     }
+
                     if (PTP_FRAME_INFO_PDELAY_COMPLETE(frame_info) && frame_info->pdelay.pdelay_res_two_step == false) {
                         /* Two step false but follow up received! */
                         /* According to 802.1AS-2011/2022 2-step must be true on pDelay Req */
@@ -4912,7 +4916,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
 
             dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
-            if (ptp_analyze_messages) {
+            if (PINFO_FD_VISITED(pinfo) && ptp_analyze_messages) {
                 if (frame_info != NULL) {
                     if PTP_FRAME_INFO_PDELAY_COMPLETE(frame_info) {
                         ti = proto_tree_add_double(ptp_tree, hf_ptp_v2_analysis_pdelay_mpd_unscaled, tvb, 0, 0, nstime_to_sec(&frame_info->pdelay.mean_propagation_delay_unscaled));
