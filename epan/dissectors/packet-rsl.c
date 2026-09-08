@@ -5650,7 +5650,7 @@ proto_reg_handoff_rsl(void)
     gsm_cbs_handle = find_dissector_add_dependency("gsm_cbs", proto_rsl);
     gsm_a_ccch_handle = find_dissector_add_dependency("gsm_a_ccch", proto_rsl);
     gsm_a_dtap_handle = find_dissector_add_dependency("gsm_a_dtap", proto_rsl);
-    gsm_a_sacch_handle = find_dissector_add_dependency("gsm_a_sacch", proto_rsl);
+    gsm_a_sacch_handle = find_dissector_add_dependency("gsm_a_sacch_ui", proto_rsl);
 }
 
 /*

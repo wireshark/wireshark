@@ -12065,7 +12065,7 @@ void get_rr_msg_params(uint8_t oct, const char **msg_str, int *ett_tree, int *hf
  * The name CCCH might not be correct!
  */
 static int
-dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_dtap_with_l2_pseudo_len(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_, const char *name)
 {
 
     static gsm_a_tap_rec_t  tap_rec[4];
@@ -12076,7 +12076,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     uint8_t                 oct;
     uint8_t                 pd;
     uint32_t                offset;
-    uint32_t                len;
+    uint32_t                len = tvb_reported_length(tvb);
     uint32_t                oct_1;
     proto_item             *ccch_item   = NULL;
     proto_tree             *ccch_tree   = NULL;
@@ -12085,23 +12085,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     const char             *msg_str;
     int                     ett_tree;
     int                     hf_idx;
-    uint8_t                *gsmtap_channel_type = (uint8_t *)data;
 
-    len = tvb_reported_length(tvb);
-
-    if ((NULL != gsmtap_channel_type) && ((*gsmtap_channel_type & ~GSMTAP_CHANNEL_ACCH) == GSMTAP_CHANNEL_RACH)) {
-        return dissect_rach(tvb, pinfo, tree, NULL);
-    }
-
-    if (len < 3){
-        /*
-         * too short to be CCCH
-         */
-        call_data_dissector(tvb, pinfo, tree);
-        return tvb_captured_length(tvb);
-    }
-
-    col_append_str(pinfo->cinfo, COL_INFO, "(CCCH) ");
     /*
      * set tap record pointer
      */
@@ -12158,13 +12142,14 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
      */
     if (msg_str == NULL){
         ccch_item = proto_tree_add_protocol_format(tree, proto_a_ccch, tvb, 0, len,
-                                                   "GSM CCCH - Message Type (0x%02x)",
-                                                   oct);
+            "GSM %s - Message Type (0x%02x)",
+            name,
+            oct);
 
         ccch_tree = proto_item_add_subtree(ccch_item, ett_ccch_msg);
     }else{
         ccch_item = proto_tree_add_protocol_format(tree, proto_a_ccch, tvb, 0, -1,
-                                                   "GSM CCCH - %s", msg_str);
+                                                   "GSM %s - %s", name, msg_str);
 
         ccch_tree = proto_item_add_subtree(ccch_item, ett_tree);
 
@@ -12223,6 +12208,51 @@ static void (* const dtap_msg_rr_ec_ccch_fcn[])(tvbuff_t *tvb, proto_tree *tree,
   dtap_rr_ec_dl_ass,                          /* EC-Downlink Assignment */
   dtap_rr_ec_paging_req,                      /* EC-Paging Request */
 };
+
+static int
+dissect_ccch(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
+{
+
+    uint8_t* gsmtap_channel_type = (uint8_t*)data;
+    uint32_t                len = tvb_reported_length(tvb);
+
+    if ((NULL != gsmtap_channel_type) && ((*gsmtap_channel_type & ~GSMTAP_CHANNEL_ACCH) == GSMTAP_CHANNEL_RACH)) {
+        return dissect_rach(tvb, pinfo, tree, NULL);
+    }
+
+    if (len < 3) {
+        /*
+         * too short to be CCCH
+         */
+        call_data_dissector(tvb, pinfo, tree);
+        return tvb_captured_length(tvb);
+    }
+
+    col_append_str(pinfo->cinfo, COL_INFO, "(CCCH) ");
+
+    return dissect_dtap_with_l2_pseudo_len(tvb, pinfo, tree, data, "CCCH");
+
+}
+
+static int
+dissect_sacch_ui(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
+{
+    uint32_t                len = tvb_reported_length(tvb);
+
+    if (len < 3) {
+        /*
+         * too short to be SACCH
+         */
+        call_data_dissector(tvb, pinfo, tree);
+        return tvb_captured_length(tvb);
+    }
+
+    col_append_str(pinfo->cinfo, COL_INFO, "(SACCH) ");
+
+    return dissect_dtap_with_l2_pseudo_len(tvb, pinfo, tree, data, "SACCH");
+
+}
+
 
 static void
 get_rr_ec_ccch_msg_params(uint8_t oct, const char **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p)
@@ -15044,6 +15074,7 @@ proto_register_gsm_a_rr(void)
 
     /* subdissector code */
     register_dissector("gsm_a_sacch", dissect_sacch, proto_a_sacch);
+    register_dissector("gsm_a_sacch_ui", dissect_sacch_ui, proto_a_sacch);
     /* Register the protocol name and description */
 
     proto_a_ec_ccch =
