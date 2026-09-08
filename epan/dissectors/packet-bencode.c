@@ -261,7 +261,9 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo,
       }
       decrement_dissection_depth(pinfo);
 
-      proto_tree_add_item(itree, hf_bencode_truncated_data, tvb, offset + used, -1, ENC_NA);
+      /* Nothing may be left at all, and a -1 length would then reach past the
+       * end of the tvb - the dictionary above gets this right already */
+      proto_tree_add_item(itree, hf_bencode_truncated_data, tvb, offset + used, length ? -1 : 0, ENC_NA);
       return -1;
 
    case 'i':
