@@ -235,6 +235,7 @@ static int hf_scsi_wb_mode;
 static int hf_scsi_wb_bufferid;
 static int hf_scsi_wb_bufoffset;
 static int hf_scsi_paramlen24;
+static int hf_scsi_paramlen32;
 static int hf_scsi_senddiag_st_code;
 static int hf_scsi_senddiag_pf;
 static int hf_scsi_senddiag_st;
@@ -5046,7 +5047,7 @@ dissect_spc_persistentreserveout(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
             proto_tree_add_item(tree, hf_scsi_persresv_scope, tvb, offset+1, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_scsi_persresv_type, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         }
-        proto_tree_add_item(tree, hf_scsi_paramlen16, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_scsi_paramlen32, tvb, offset+4, 4, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
                                ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
         /* We store the service action since we want to interpret the params */
@@ -6862,8 +6863,9 @@ proto_register_scsi(void)
           {"Buffer Offset", "scsi.spc.wb.bufoff", FT_UINT24, BASE_HEX, NULL,
            0x0, NULL, HFILL}},
         { &hf_scsi_paramlen24,
-          {"Parameter List Length", "scsi.cdb.paramlen24", FT_UINT24, BASE_DEC_HEX,
-           NULL, 0x0, NULL, HFILL}},
+          {"Parameter List Length", "scsi.cdb.paramlen24", FT_UINT24, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL}},
+        { &hf_scsi_paramlen32,
+          {"Parameter List Length", "scsi.cdb.paramlen32", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_scsi_senddiag_st_code,
           {"Self-Test Code", "scsi.spc.senddiag.code", FT_UINT8, BASE_HEX,
            VALS(scsi_senddiag_st_code_val), 0xE0, NULL, HFILL}},
