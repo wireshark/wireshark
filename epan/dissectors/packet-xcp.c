@@ -794,6 +794,11 @@ static int hf_xcp_set_cal_page_mode_ecu;
 /* XCP_CMD_GET_CAL_PAGE */
 static int hf_xcp_access_mode;
 
+/* XCP_CMD_SET_SEGMENT_MODE */
+static int hf_xcp_set_segment_mode;
+static int hf_xcp_set_segment_mode_freeze;
+static int hf_xcp_set_segment_mode_segment;
+
 /* XCP_CMD_COPY_CAL_PAGE */
 static int hf_xcp_logical_data_segm_num_src;
 static int hf_xcp_logical_data_page_num_src;
@@ -955,6 +960,7 @@ static int ett_xcp_timestamp_mode;
 static int ett_xcp_daq_list_properties;
 static int ett_xcp_comm_mode_pgm;
 static int ett_xcp_daq_event_properties;
+static int ett_xcp_set_segment_mode_mode;
 static int ett_xcp_set_daq_list_mode_mode;
 static int ett_xcp_clear_program_range_fct;
 static int ett_xcp_set_daq_packed_mode_timestamp_mode;
@@ -2195,9 +2201,23 @@ dissect_xcp_m2s(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
     //    /* TODO */
     //    break;
 
-    //case XCP_CMD_SET_SEGMENT_MODE:
-    //    /* TODO */
-    //    break;
+    case XCP_CMD_SET_SEGMENT_MODE: {
+        static int* const set_segment_mode_mode_flags[] = {
+            &hf_xcp_set_segment_mode_freeze,
+            NULL
+        };
+
+        uint64_t freeze;
+        proto_tree_add_bitmask_ret_uint64(xcp_tree, tvb, offset, hf_xcp_set_segment_mode, ett_xcp_set_segment_mode_mode, set_segment_mode_mode_flags, ENC_NA, &freeze);
+        offset += 1;
+
+        uint32_t segment_number;
+        proto_tree_add_item_ret_uint(xcp_tree, hf_xcp_set_segment_mode_segment, tvb, offset, 1, ENC_NA, &segment_number);
+        offset += 1;
+
+        col_append_fstr(pinfo->cinfo, COL_INFO, ": Freeze %s for SEGMENT:%d", (freeze == 1 ? "Enabled" : "Disabled"), segment_number);
+    }
+        break;
 
     //case XCP_CMD_GET_SEGMENT_MODE:
     //    /* TODO */
@@ -3979,6 +3999,11 @@ proto_register_xcp(void) {
         /* 0xEA XCP_CMD_GET_CAL_PAGE */
         { &hf_xcp_access_mode,                      { "Access Mode", "xcp.packet.access_mode", FT_UINT8, BASE_HEX, VALS(access_mode_type), 0x0, NULL, HFILL } },
 
+        /* 0xE6 XCP_CMD_SET_SEGMENT_MODE */
+        { &hf_xcp_set_segment_mode,                 { "Mode", "xcp.packet.set_segment_mode.mode", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_xcp_set_segment_mode_freeze,          { "Freeze", "xcp.packet.set_segment_mode.freeze", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL } },
+        { &hf_xcp_set_segment_mode_segment,         { "Segment number", "xcp.packet.set_segment_mode.segment", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
         /* 0xE4 XCP_CMD_COPY_CAL_PAGE */
         { &hf_xcp_logical_data_segm_num_src,        { "Local data segment number source", "xcp.packet.copy_cal_page.local_data_segm_num_src", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_xcp_logical_data_page_num_src,        { "Local data page number source", "xcp.packet.copy_cal_page.local_data_page_num_src", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
@@ -4141,6 +4166,7 @@ proto_register_xcp(void) {
         &ett_xcp_daq_list_properties,
         &ett_xcp_daq_event_properties,
         &ett_xcp_comm_mode_pgm,
+        &ett_xcp_set_segment_mode_mode,
         &ett_xcp_set_daq_list_mode_mode,
         &ett_xcp_clear_program_range_fct,
         &ett_xcp_set_daq_packed_mode_timestamp_mode,
