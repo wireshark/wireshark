@@ -1616,7 +1616,7 @@ static int dissect_ubx_nav_relposned(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     proto_tree_add_item(ubx_nav_relposned_tree, hf_ubx_nav_relposned_reserved2,
             tvb, 56, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_bitmask(ubx_nav_relposned_tree, tvb, 60, hf_ubx_nav_relposned_flags,
-            ett_ubx_nav_relposned_flags, ubx_nav_relposned_flags_fields, ENC_NA);
+            ett_ubx_nav_relposned_flags, ubx_nav_relposned_flags_fields, ENC_LITTLE_ENDIAN);
 
     gint64 relposn_full = (gint64)tvb_get_int32(tvb, 8, ENC_LITTLE_ENDIAN) * 100 + tvb_get_int8(tvb, 32);
     gint64 relpose_full = (gint64)tvb_get_int32(tvb, 12, ENC_LITTLE_ENDIAN) * 100 + tvb_get_int8(tvb, 33);
