@@ -588,12 +588,10 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
         payload_tree = proto_item_add_subtree(payload_item, ett_ecpri_payload);
         remaining_length = payload_size;
-        unsigned int oran_offset = 0;
 
         /* Call the FH CUS dissector (for all message types) if preference set */
         if (pref_message_type_decoding)
         {
-            bool oran_fh_handled = false;
             tvbuff_t *fh_tvb = tvb_new_subset_length(tvb, offset, payload_size);
             /***********************************************************************************************/
             /* See whether O-RAN fronthaul sub-dissector handles this, otherwise decode as vanilla eCPRI   */
@@ -601,27 +599,20 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             /* - message type 0 (IQ DATA)                                                                  */
             /* - message type 2 (RT CTRL DATA)                                                             */
             /***********************************************************************************************/
-            if (call_dissector_only(oran_fh_handle, fh_tvb, pinfo, tree, &msg_type))
-            {
-                oran_fh_handled = true;
-            }
+            call_dissector_only(oran_fh_handle, fh_tvb, pinfo, tree, &msg_type);
 
-            /* ORAN FH-CUS dissector may have handled the PDU, in which case still add opaque filters, but hidden  */
             switch (msg_type)
             {
                 case ECPRI_MESSAGE_TYPE_IQ_DATA: /* Message Type 0: 3.2.4.1. IQ Data */
-                    /* N.B. if ORAN dissector is enabled, it will handle this type instead! */
+                    /* N.B. if ORAN dissector is enabled, it will also dissect this message */
                     if (payload_size < ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH)
                     {
                         expert_add_info_format(
                             pinfo, ti_payload_size, &ei_payload_size,
                             "Payload Size %u is too small for encoding Message Type %u. Should be min. %d",
                             payload_size, msg_type, ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH);
-
-                        oran_offset = offset + payload_size;
                         break;
                     }
-
 
                     if (remaining_length >= ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH)
                     {
@@ -631,16 +622,11 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                         proto_tree_add_item(ecpri_tree, hf_iq_data_seq_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
 
-                        if (oran_fh_handled) {
-                            offset = oran_offset;
-                        }
-                        else {
-                            remaining_length -= ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH;
-                            if (remaining_length >= payload_size - ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH)
-                            {
-                                proto_tree_add_item(ecpri_tree, hf_iq_data_iq_samples_of_user_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH, ENC_NA);
-                                offset += payload_size - ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH;
-                            }
+                        remaining_length -= ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH;
+                        if (remaining_length >= payload_size - ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH)
+                        {
+                            proto_tree_add_item(ecpri_tree, hf_iq_data_iq_samples_of_user_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH, ENC_NA);
+                            offset += payload_size - ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH;
                         }
                     }
                     break;
@@ -680,8 +666,6 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                             pinfo, ti_payload_size, &ei_payload_size,
                             "Payload Size %u is too small for encoding Message Type %u. Should be min. %d",
                             payload_size, msg_type, ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH);
-
-                        oran_offset = offset + payload_size;
                         break;
                     }
 
@@ -693,17 +677,12 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                         proto_tree_add_item(ecpri_tree, hf_iq_data_seq_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
 
-                        if (oran_fh_handled) {
-                            offset = oran_offset;
-                        }
-                        else {
-                            remaining_length -= ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH;
-                            if (remaining_length >= payload_size - ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH)
-                            {
-                                /* Rest of message is opaque */
-                                proto_tree_add_item(ecpri_tree, hf_real_time_control_data_rtc_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH, ENC_NA);
-                                offset += payload_size - ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH;
-                            }
+                        remaining_length -= ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH;
+                        if (remaining_length >= payload_size - ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH)
+                        {
+                            /* Rest of message is opaque */
+                            proto_tree_add_item(ecpri_tree, hf_real_time_control_data_rtc_data, tvb, offset, payload_size - ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH, ENC_NA);
+                            offset += payload_size - ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH;
                         }
                     }
                     break;
