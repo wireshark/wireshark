@@ -44,6 +44,7 @@ static int hf_tiff_entry_unknown;
 static expert_field ei_tiff_unknown_tag;
 static expert_field ei_tiff_bad_entry;
 static expert_field ei_tiff_zero_denom;
+static expert_field ei_tiff_bad_ifd;
 
 
 static int ett_tiff;
@@ -799,6 +800,11 @@ dissect_tiff_ifd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uint32
     proto_tree_add_item(ifd_tree, hf_tiff_ifd_next, tvb, offset, 4, encoding);
     uint32_t ifd_next = tvb_get_uint32(tvb, offset, encoding);
 
+    if (ifd_next <= offset) {
+        expert_add_info_format(pinfo, ifd_tree, &ei_tiff_bad_ifd, "Next IFD offset (%u) is less than or equal to current IFD offset (%u)", ifd_next, offset);
+        ifd_next = 0;
+    }
+
     return ifd_next;
 }
 
@@ -1132,7 +1138,10 @@ proto_register_tiff(void)
             { "tiff.zero_denom", PI_PROTOCOL, PI_WARN,
             "Zero denominator", EXPFILL }
         },
-
+        { &ei_tiff_bad_ifd,
+            { "tiff.bad_ifd", PI_PROTOCOL, PI_ERROR,
+            "Invalid IFD offset", EXPFILL }
+        },
     };
 
     proto_tiff = proto_register_protocol("Tagged Image File Format", "TIFF image", "tiff");
