@@ -2833,7 +2833,7 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     else {                            /* no? probably X.25            */
         uint32_t offset = 0;
         while (tvb_reported_length_remaining(tvb, offset) > 0) {
-            uint16_t pdu_len = tvb_get_ntohl(tvb, offset);
+            uint32_t pdu_len = tvb_get_ntohl(tvb, offset);
             int pdu_real_len = tvb_captured_length_remaining(tvb, offset);
             tvbuff_t *pdu_tvb;
 
