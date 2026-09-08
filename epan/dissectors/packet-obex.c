@@ -1033,14 +1033,14 @@ save_path(packet_info *pinfo, const char *current_path, const char *name,
             if (current_path != path_unknown && current_path != path_root) {
                 char *i_path;
 
-                i_path = g_strrstr(current_path, "/");
+                i_path = strrchr(current_path, '/');
                 if (!i_path) {
                     current_path = path_unknown;
                 } else {
                     if (i_path == current_path)
                         path = current_path = path_root;
                     else
-                        path = current_path = wmem_strndup(wmem_epan_scope(), current_path, i_path - current_path - 1);
+                        path = current_path = wmem_strndup(wmem_epan_scope(), current_path, i_path - current_path);
                 }
             }
         }
