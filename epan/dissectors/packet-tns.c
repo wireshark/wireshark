@@ -714,6 +714,23 @@ static int get_dalc_custom(tvbuff_t *tvb, packet_info *pinfo, int offset, const 
 	return o - offset;
 }
 
+/* Decode a bytes_with_length / str_with_length field: a ub4 count, and
+ * a DALC carrying the value only when that count is non-zero. The count
+ * is not simply a byte to step over - an empty field is the count
+ * alone, so reading a DALC anyway consumes whatever follows it.
+ * Returns bytes consumed; *out_str (when non-NULL) gets the string, or
+ * NULL when the field is empty. */
+static int get_field_with_length(tvbuff_t *tvb, packet_info *pinfo, int offset, const char **out_str)
+{
+	int count = 0;
+	int used = get_sb4_custom(tvb, offset, &count);
+	if ( out_str )
+		*out_str = NULL;
+	if ( count > 0 )
+		used += get_dalc_custom(tvb, pinfo, offset + used, out_str);
+	return used;
+}
+
 static void vsnum_to_vstext_basecustom(char *result, uint32_t vsnum)
 {
 	/*
@@ -1035,28 +1052,26 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 			/* padding ub2 + successful iterations ub4 */
 			offset += get_sb4_custom(tvb, offset, &v);
 			offset += get_sb4_custom(tvb, offset, &v);
-			/* oerrdd (logical rowid) DALC — skipped */
-			offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+			/* oerrdd (logical rowid), a bytes_with_length — skipped */
+			offset += get_field_with_length(tvb, pinfo, offset, NULL);
 
+			/* Batch error arrays (array DML). The code and offset arrays
+			 * are each a ub4 count followed by one DALC packing that many
+			 * ub4 values back to back; the message array is a ub4 count,
+			 * an indicator byte, and then that many str_with_length
+			 * entries each with a 2-byte trailer. All three counts are
+			 * zero for an ordinary statement. */
 			int n_codes = 0, n_offs = 0, n_msgs = 0;
 			int nb_start = offset;
 			offset += get_sb4_custom(tvb, offset, &n_codes);
 			proto_tree_add_int(oer_tree, hf_tns_data_oer_n_batch_errcodes, tvb, nb_start, offset - nb_start, n_codes);
 			if ( n_codes > 0 )
-			{
-				offset += 1;
-				for ( int i = 0; i < n_codes; i++ )
-					offset += get_sb4_custom(tvb, offset, &v);
-			}
+				offset += get_dalc_custom(tvb, pinfo, offset, NULL);
 			nb_start = offset;
 			offset += get_sb4_custom(tvb, offset, &n_offs);
 			proto_tree_add_int(oer_tree, hf_tns_data_oer_n_batch_offsets, tvb, nb_start, offset - nb_start, n_offs);
 			if ( n_offs > 0 )
-			{
-				offset += 1;
-				for ( int i = 0; i < n_offs; i++ )
-					offset += get_sb4_custom(tvb, offset, &v);
-			}
+				offset += get_dalc_custom(tvb, pinfo, offset, NULL);
 			nb_start = offset;
 			offset += get_sb4_custom(tvb, offset, &n_msgs);
 			proto_tree_add_int(oer_tree, hf_tns_data_oer_n_batch_messages, tvb, nb_start, offset - nb_start, n_msgs);
@@ -1065,8 +1080,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 				offset += 1;
 				for ( int i = 0; i < n_msgs; i++ )
 				{
-					offset += get_sb4_custom(tvb, offset, &v);
-					offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+					offset += get_field_with_length(tvb, pinfo, offset, NULL);
 					offset += 2;
 				}
 			}

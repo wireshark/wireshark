@@ -12,6 +12,8 @@
                                 violated") with message text
     Frame 3 — failure whose message is the 0xFF null marker, which stands for
                                 itself and carries no data after it
+    Frame 4 — failure with a non-empty oerrdd, so that field is a ub4 count
+                                followed by a DALC rather than a bare DALC
 
 Bytes are constructed by hand in the Oracle 11g wire shape.
 """
@@ -48,8 +50,16 @@ def dalc(s: bytes | None) -> bytes:
     return out
 
 
+def bytes_with_length(s: bytes | None) -> bytes:
+    """A ub4 count, and a DALC carrying the value only when it is non-empty."""
+    if not s:
+        return ub4(0)
+    return ub4(len(s)) + dalc(s)
+
+
 def build_oer(call_status: int, rowcount: int, err_code: int, cursor_id: int,
-              message: bytes | None, message_raw: bytes | None = None) -> bytes:
+              message: bytes | None, message_raw: bytes | None = None,
+              oerrdd: bytes | None = None) -> bytes:
     b = b"\x04"                       # TTI_OER token
     b += ub4(call_status)
     b += ub4(0)                       # end-to-end seq#
@@ -70,7 +80,7 @@ def build_oer(call_status: int, rowcount: int, err_code: int, cursor_id: int,
     b += b"\x00\x00"                  # statement #, call #
     b += ub4(0)                       # padding (ub2 in 11g)
     b += ub4(1)                       # successful iterations
-    b += dalc(None)                   # oerrdd (logical rowid)
+    b += bytes_with_length(oerrdd)    # oerrdd (logical rowid)
     b += ub4(0)                       # num batch errcodes
     b += ub4(0)                       # num batch offsets
     b += ub4(0)                       # num batch messages
@@ -87,6 +97,11 @@ frames = [
     # one walks off the end of the frame.
     build_oer(call_status=0, rowcount=0, err_code=1722, cursor_id=9,
               message=None, message_raw=b"\xff"),
+    # A logical rowid in oerrdd. Read as a bare DALC the count byte is taken
+    # for a length, and every field after it lands one field early.
+    build_oer(call_status=0, rowcount=0, err_code=942, cursor_id=7,
+              message=b"ORA-00942: table or view does not exist\n",
+              oerrdd=b"\x01\x02\x03\x04\x05\x06\x07\x08"),
 ]
 
 
