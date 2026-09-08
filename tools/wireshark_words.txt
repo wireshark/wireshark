@@ -3380,6 +3380,7 @@ unalias
 unaligned
 unallocated
 unallowed
+unannounce
 unary
 unassign
 unassoc

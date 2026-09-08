@@ -229,6 +229,7 @@ DCERPC SCARD_PACK
 DECT NR+
 ESUN
 Generic UDP Encapsulation (GUE)
+HyperDHT / DHT-RPC
 JSON Dictionary
 Linux mac80211_hwsim Netlink
 Linux Open vSwitch Netlink (OVS)

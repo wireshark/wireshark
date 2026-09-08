@@ -1007,6 +1007,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-http2.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-http3.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-http-urlencoded.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-hyperdht.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-hyperscsi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-i2c.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-iana-oui.c
