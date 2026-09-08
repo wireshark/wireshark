@@ -465,7 +465,7 @@ dissect_dlsw_capex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tr
                                  tmp8, "%s",tmp8==1?"On":"Off");
             break;
           case 0x86:
-            while (i<vlen-2)
+             for (i = 0; i < vlen - 2; i++)
             {
               static int * const flags[] = {
                  &hf_dlsw_sap_list_support_x0,
@@ -480,7 +480,6 @@ dissect_dlsw_capex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tr
               };
 
               proto_tree_add_bitmask_with_flags(dlsw_vector_tree, tvb, offset+2+i, hf_dlsw_sap_list_support, ett_dlsw_sap_list_support, flags, ENC_NA, BMT_NO_FALSE);
-              i++;
             }
             break;
           case 0x87:
