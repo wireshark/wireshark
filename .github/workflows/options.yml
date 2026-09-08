@@ -16,7 +16,7 @@ jobs:
           persist-credentials: false
       - name: Install deps
         run: |
-          sudo tools/debian-setup.sh --install-all ninja-build -y
+          sudo tools/os_setup/debian-setup.sh --install-all ninja-build -y
           sudo gem install asciidoctor
       - run: mkdir build
       - name: CMake

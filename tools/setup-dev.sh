@@ -16,14 +16,15 @@ print_completion_summary() {
     echo ""
     echo "Git configuration is complete."
     echo "You can install dependencies later by running the appropriate script:"
-    echo "  - macOS:   tools/macos-setup-brew.sh or tools/macos-setup.sh"
-    echo "  - *BSD:    tools/bsd-setup.sh"
-    echo "  - Debian:  tools/debian-setup.sh"
-    echo "  - Fedora:  tools/rpm-setup.sh"
-    echo "  - Arch:    tools/arch-setup.sh"
-    echo "  - Haiku:   tools/haiku-setup.sh"
-    echo "  - MSYS2 (Windows):   tools/msys2-setup.sh"
-    echo "  - MinGW (Windows):   tools/mingw-rpm-setup.sh"
+    echo "  - macOS:   tools/os_setup/macos-setup-brew.sh or tools/os_setup/macos-setup.sh"
+    echo "  - *BSD:    tools/os_setup/bsd-setup.sh"
+    echo "  - Debian:  tools/os_setup/debian-setup.sh"
+    echo "  - Fedora:  tools/os_setup/rpm-setup.sh"
+    echo "  - Arch:    tools/os_setup/arch-setup.sh"
+    echo "  - Alpine:  tools/os_setup/alpine-setup.sh"
+    echo "  - Haiku:   tools/os_setup/haiku-setup.sh"
+    echo "  - MSYS2 (Windows):   tools/os_setup/msys2-setup.sh"
+    echo "  - MinGW (Windows):   tools/os_setup/mingw-rpm-setup.sh"
     echo ""
 }
 
@@ -103,30 +104,30 @@ case "$os_name" in
         ;;
     MINGW*|MSYS*)
         platform_label="Windows/MSYS2"
-        platform_script="$repo_root/tools/msys2-setup.sh"
+        platform_script="$repo_root/tools/os_setup/msys2-setup.sh"
         ;;
     FreeBSD|NetBSD|OpenBSD|DragonFlu)
         platform_label="BSD"
-        platform_script="$repo_root/tools/bsd-setup.sh"
+        platform_script="$repo_root/tools/os_setup/bsd-setup.sh"
         ;;
     Haiku)
         platform_label="Haiku"
-        platform_script="$repo_root/tools/haiku-setup.sh"
+        platform_script="$repo_root/tools/os_setup/haiku-setup.sh"
         ;;
     *)
         # Assume Linux-ish; try os-release
         if [ -r /etc/os-release ]; then
             . /etc/os-release
             case "$ID" in
-                alpine) platform_label="Linux (Alpine)"; platform_script="$repo_root/tools/alpine-setup.sh" ;;
-                arch) platform_label="Linux (Arch)"; platform_script="$repo_root/tools/arch-setup.sh" ;;
-                debian|ubuntu|linuxmint|pop|elementary|kali|zorin|raspbian) platform_label="Linux (Debian-based)"; platform_script="$repo_root/tools/debian-setup.sh" ;;
-                fedora|rhel|centos|rocky|almalinux|ol|sles|opensuse*) platform_label="Linux (RPM-based)"; platform_script="$repo_root/tools/rpm-setup.sh" ;;
-                *) platform_label="Linux (unknown distro)"; platform_script="$repo_root/tools/debian-setup.sh" ;;
+                alpine) platform_label="Linux (Alpine)"; platform_script="$repo_root/tools/os_setup/alpine-setup.sh" ;;
+                arch) platform_label="Linux (Arch)"; platform_script="$repo_root/tools/os_setup/arch-setup.sh" ;;
+                debian|ubuntu|linuxmint|pop|elementary|kali|zorin|raspbian) platform_label="Linux (Debian-based)"; platform_script="$repo_root/tools/os_setup/debian-setup.sh" ;;
+                fedora|rhel|centos|rocky|almalinux|ol|sles|opensuse*) platform_label="Linux (RPM-based)"; platform_script="$repo_root/tools/os_setup/rpm-setup.sh" ;;
+                *) platform_label="Linux (unknown distro)"; platform_script="$repo_root/tools/os_setup/debian-setup.sh" ;;
             esac
         else
             platform_label="Linux/UNIX"
-            platform_script="$repo_root/tools/debian-setup.sh"
+            platform_script="$repo_root/tools/os_setup/debian-setup.sh"
         fi
         ;;
 esac
@@ -140,20 +141,20 @@ if [ "$platform_label" = "macOS" ]; then
     echo ""
     echo "Choose your preferred package manager:"
     echo ""
-    printf "  Option 1: Homebrew setup (tools/macos-setup-brew.sh)? [y/N]: "
+    printf "  Option 1: Homebrew setup (tools/os_setup/macos-setup-brew.sh)? [y/N]: "
     read -r reply
     if [ "$reply" = "Y" ] || [ "$reply" = "y" ]; then
         echo ""
         echo "Running Homebrew setup..."
-        "$repo_root/tools/macos-setup-brew.sh"
+        "$repo_root/tools/os_setup/macos-setup-brew.sh"
         exit $?
     fi
-    printf "  Option 2: Non-Homebrew setup (tools/macos-setup.sh)? [y/N]: "
+    printf "  Option 2: Non-Homebrew setup (tools/os_setup/macos-setup.sh)? [y/N]: "
     read -r reply
     if [ "$reply" = "y" ] || [ "$reply" = "Y" ]; then
         echo ""
         echo "Running non-Homebrew setup..."
-        "$repo_root/tools/macos-setup.sh"
+        "$repo_root/tools/os_setup/macos-setup.sh"
         exit $?
     fi
     echo ""
@@ -180,7 +181,7 @@ fi
 
 # Windows/MSYS fallback: offer mingw-rpm if msys2 script not selected
 if printf '%s\n' "$os_name" | grep -qE 'MINGW|MSYS'; then
-    if [ -x "$repo_root/tools/mingw-rpm-setup.sh" ]; then
+    if [ -x "$repo_root/tools/os_setup/mingw-rpm-setup.sh" ]; then
         echo ""
         echo "Alternative: MinGW/RPM environment setup available."
         printf "  Run mingw-rpm-setup.sh? [y/N]: "
@@ -188,7 +189,7 @@ if printf '%s\n' "$os_name" | grep -qE 'MINGW|MSYS'; then
         if [ "$reply" = "y" ] || [ "$reply" = "Y" ]; then
             echo ""
             echo "Running MinGW/RPM setup..."
-            "$repo_root/tools/mingw-rpm-setup.sh"
+            "$repo_root/tools/os_setup/mingw-rpm-setup.sh"
             exit $?
         fi
     fi

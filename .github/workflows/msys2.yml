@@ -20,7 +20,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Install dependencies
-        run: tools/msys2-setup.sh --install-all --noconfirm
+        run: tools/os_setup/msys2-setup.sh --install-all --noconfirm
       - name: Build
         run: |
           mkdir build && cd build

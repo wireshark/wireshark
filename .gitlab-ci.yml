@@ -254,7 +254,7 @@ workflow:
     - brew --version
     - printf "\e[0Ksection_start:%s:brew_section[collapsed=true]\r\e[0KInstalling prerequisites" "$( date +%s)"
     - brew install ccache cmake ninja
-    # - ./tools/macos-setup-brew.sh --install-optional --install-test-deps
+    # - ./tools/os_setup/macos-setup-brew.sh --install-optional --install-test-deps
     - printf "\e[0Ksection_end:%s:brew_section\r\e[0K" "$( date +%s)"
     - python3 -m venv $CI_PROJECT_DIR/.venv
     - source $CI_PROJECT_DIR/.venv/bin/activate
@@ -685,7 +685,7 @@ macOS Universal Package:
     - brew --version
     - printf "\e[0Ksection_start:%s:brew_section[collapsed=true]\r\e[0KInstalling prerequisites" "$( date +%s)"
     - brew install awscli ccache cmake ninja python
-    # - ./tools/macos-setup-brew.sh --install-optional --install-test-deps
+    # - ./tools/os_setup/macos-setup-brew.sh --install-optional --install-test-deps
     - printf "\e[0Ksection_end:%s:brew_section\r\e[0K" "$( date +%s)"
     - export PATH="/opt/homebrew/bin:$PATH:$HOME/bin"
     - python3 -m venv --clear $CI_PROJECT_DIR/.venv

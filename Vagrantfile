@@ -25,7 +25,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     deb.vm.box = "ubuntu/jammy64"
 
     deb.vm.provision "shell" do |s|
-      s.path = 'tools/debian-setup.sh'
+      s.path = 'tools/os_setup/debian-setup.sh'
       s.args = ['--install-optional', '--assume-yes', '--install-qt6-deps']
     end
     deb.vm.provision :shell, inline: "apt-get -y install ccache"
@@ -36,7 +36,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     rpm.vm.box = "fedora/28-cloud-base"
 
     rpm.vm.provision "shell" do |s|
-      s.path = 'tools/rpm-setup.sh'
+      s.path = 'tools/os_setup/rpm-setup.sh'
       s.args = ['--install-optional', '--assumeyes']
     end
     rpm.vm.provision :shell, inline: "yum -y install ccache"

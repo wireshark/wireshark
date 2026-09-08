@@ -4953,22 +4953,28 @@ if(SHELLCHECK_EXECUTABLE)
 			packaging/macosx/osx-app.sh.in
 			packaging/macosx/osx-dmg.sh.in
 			packaging/source/git-export-release.sh.in
-			tools/arch-setup.sh
-			tools/bsd-setup.sh
-			tools/debian-setup.sh
+			tools/os_setup/arch-setup.sh
+			tools/os_setup/bsd-setup.sh
+			tools/os_setup/debian-setup.sh
 			tools/fuzz-test.sh
 			tools/gen-bugnote
-			tools/haiku-setup.sh
-			tools/macos-setup-brew.sh
-			tools/mingw-rpm-setup.sh
-			tools/msys2-setup.sh
+			tools/os_setup/haiku-setup.sh
+			tools/os_setup/macos-setup-brew.sh
+			tools/os_setup/mingw-rpm-setup.sh
+			tools/os_setup/msys2-setup.sh
 			tools/pre-commit
 			tools/randpkt-test.sh
 			tools/release-update-debian-soversions.sh
-			tools/rpm-setup.sh
+			tools/os_setup/rpm-setup.sh
 			tools/test-captures.sh
 			tools/update-tx
 			tools/valgrind-wireshark.sh
+		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+	)
+	# Check the setup scripts that require something other than bash.
+	add_custom_command(TARGET shellcheck POST_BUILD
+		COMMAND shellcheck --shell=dash --external-sources
+			tools/os_setup/alpine-setup.sh
 		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
 	)
 endif()

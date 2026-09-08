@@ -110,7 +110,7 @@ add_package() {
 	local list="$1" pkgname="$2"
 
 	# fail if the package is not known
-	apk list "$pkgname" &> /dev/null || return 1
+	apk list "$pkgname" > /dev/null 2>&1 || return 1
 
 	# package is found, append it to list
 	eval "${list}=\"\${${list}} \${pkgname}\""

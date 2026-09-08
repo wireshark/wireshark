@@ -12,7 +12,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Install deps
-        run: sudo tools/debian-setup.sh --install-all python3-pip -y
+        run: sudo tools/os_setup/debian-setup.sh --install-all python3-pip -y
       - name: Mkdir
         run: mkdir build
       - name: Cmake

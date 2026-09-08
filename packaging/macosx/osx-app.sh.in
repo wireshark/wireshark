@@ -43,7 +43,7 @@ install_exclude_prefixes="/System/|/Library/|/usr/lib/|/usr/X11/|/opt/X11/|@exec
 # the Info.plist file which is filled in by the configure script.
 bundle="Wireshark.app"
 
-# Location for libraries (tools/macos-setup.sh defaults to whatever the
+# Location for libraries (tools/os_setup/macos-setup.sh defaults to whatever the
 # various support libraries use as their standard installation location,
 # which is /usr/local)
 if [ -z "$LIBPREFIX" ]; then
@@ -228,7 +228,7 @@ while $endl; do
 	#    replace "\tlibbrotli" with "\t/usr/local/lib/libbrotli" so that
 	#    it isn't excluded from subsequent filtering.
 	#    libbrotli 1.09 and earlier doesn't have a path prefix in its
-	#    "install name" when built by tools/macos-setup.sh:
+	#    "install name" when built by tools/os_setup/macos-setup.sh:
 	#    https://github.com/google/brotli/pull/976;
 	#
 	#    replace "@loader_path/libbrotli" with "/usr/local/lib/libbrotli" so that
