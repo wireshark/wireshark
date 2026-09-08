@@ -2370,33 +2370,60 @@ endif()
 
 if (ASCIIDOCTOR_FOUND)
 	list(APPEND DOC_FILES
-		${CMAKE_BINARY_DIR}/doc/man_pages/androiddump.html
-		${CMAKE_BINARY_DIR}/doc/man_pages/udpdump.html
 		${CMAKE_BINARY_DIR}/doc/man_pages/capinfos.html
 		${CMAKE_BINARY_DIR}/doc/man_pages/captype.html
-		${CMAKE_BINARY_DIR}/doc/man_pages/ciscodump.html
 		${CMAKE_BINARY_DIR}/doc/man_pages/dumpcap.html
 		${CMAKE_BINARY_DIR}/doc/man_pages/editcap.html
 		${CMAKE_BINARY_DIR}/doc/man_pages/extcap.html
 		${CMAKE_BINARY_DIR}/doc/man_pages/mergecap.html
 		${CMAKE_BINARY_DIR}/doc/man_pages/randpkt.html
-		${CMAKE_BINARY_DIR}/doc/man_pages/randpktdump.html
-		${CMAKE_BINARY_DIR}/doc/man_pages/etwdump.html
 		${CMAKE_BINARY_DIR}/doc/man_pages/rawshark.html
 		${CMAKE_BINARY_DIR}/doc/man_pages/reordercap.html
 		${CMAKE_BINARY_DIR}/doc/man_pages/sharkd.html
-		${CMAKE_BINARY_DIR}/doc/man_pages/sshdig.html
-		${CMAKE_BINARY_DIR}/doc/man_pages/sshdump.html
-		${CMAKE_BINARY_DIR}/doc/man_pages/strato.html
-		${CMAKE_BINARY_DIR}/doc/man_pages/stratoshark.html
-		${CMAKE_BINARY_DIR}/doc/man_pages/wifidump.html
 		${CMAKE_BINARY_DIR}/doc/man_pages/text2pcap.html
 		${CMAKE_BINARY_DIR}/doc/man_pages/tshark.html
 		${CMAKE_BINARY_DIR}/doc/man_pages/wireshark.html
 		${CMAKE_BINARY_DIR}/doc/man_pages/wireshark-filter.html
 		"${CMAKE_BINARY_DIR}/doc/Wireshark Release Notes.html"
-		"${CMAKE_BINARY_DIR}/doc/Stratoshark Release Notes.html"
 	)
+
+	#
+	# Install the HTML manual page for a program only when that program is
+	# built (matching doc/CMakeLists.txt); the pages are always generated.
+	#
+	if(BUILD_stratoshark)
+		list(APPEND DOC_FILES
+			${CMAKE_BINARY_DIR}/doc/man_pages/stratoshark.html
+			"${CMAKE_BINARY_DIR}/doc/Stratoshark Release Notes.html"
+		)
+	endif()
+	if(BUILD_strato)
+		list(APPEND DOC_FILES ${CMAKE_BINARY_DIR}/doc/man_pages/strato.html)
+	endif()
+	if(BUILD_androiddump)
+		list(APPEND DOC_FILES ${CMAKE_BINARY_DIR}/doc/man_pages/androiddump.html)
+	endif()
+	if(BUILD_ciscodump AND LIBSSH_FOUND)
+		list(APPEND DOC_FILES ${CMAKE_BINARY_DIR}/doc/man_pages/ciscodump.html)
+	endif()
+	if(BUILD_etwdump AND WIN32)
+		list(APPEND DOC_FILES ${CMAKE_BINARY_DIR}/doc/man_pages/etwdump.html)
+	endif()
+	if(BUILD_randpktdump)
+		list(APPEND DOC_FILES ${CMAKE_BINARY_DIR}/doc/man_pages/randpktdump.html)
+	endif()
+	if(BUILD_sshdig AND LIBSSH_FOUND)
+		list(APPEND DOC_FILES ${CMAKE_BINARY_DIR}/doc/man_pages/sshdig.html)
+	endif()
+	if(BUILD_sshdump AND LIBSSH_FOUND)
+		list(APPEND DOC_FILES ${CMAKE_BINARY_DIR}/doc/man_pages/sshdump.html)
+	endif()
+	if(BUILD_udpdump)
+		list(APPEND DOC_FILES ${CMAKE_BINARY_DIR}/doc/man_pages/udpdump.html)
+	endif()
+	if(BUILD_wifidump AND LIBSSH_FOUND)
+		list(APPEND DOC_FILES ${CMAKE_BINARY_DIR}/doc/man_pages/wifidump.html)
+	endif()
 	if(MAXMINDDB_FOUND)
 		list(APPEND DOC_FILES ${CMAKE_BINARY_DIR}/doc/man_pages/mmdbresolve.html)
 	endif()
@@ -2410,12 +2437,12 @@ if (ASCIIDOCTOR_FOUND)
 			${CMAKE_BINARY_DIR}/doc/man_pages/idl2deb.html
 		)
 	endif()
-	if (BUILD_falcodump)
+	if (BUILD_falcodump AND SINSP_FOUND)
 		list(APPEND DOC_FILES
 			${CMAKE_BINARY_DIR}/doc/man_pages/falcodump.html
 		)
 	endif()
-	if (BUILD_dumpcalls)
+	if (BUILD_dumpcalls AND SINSP_FOUND)
 		list(APPEND DOC_FILES
 			${CMAKE_BINARY_DIR}/doc/man_pages/dumpcalls.html
 		)
