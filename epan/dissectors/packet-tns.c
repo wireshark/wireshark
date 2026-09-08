@@ -661,16 +661,30 @@ static int get_sb4_custom(tvbuff_t *tvb, int offset, int *result)
 	return first_byte + 1;
 }
 
-/* Decode a DALC (Data-Length-And-Content) blob: either a single
- * length-prefixed run, an empty marker (0), or a multi-chunk form
- * (0xFE / 254) where successive (len, bytes) pairs are concatenated
- * and terminated by a 0-length chunk. Returns the number of bytes
- * consumed from the tvb and, when content is non-empty, a UTF-8
- * string allocated from pinfo->pool. */
+/* Decode a DALC (Data-Length-And-Content) blob. The leading byte is a
+ * length only in the middle of its range:
+ *
+ *   0x00        empty
+ *   0x01..0xFD  that many data bytes follow
+ *   0xFE        chunked: (len, bytes) pairs until a 0-length chunk
+ *   0xFF        null - a marker only, no data follows
+ *
+ * The null marker consumes just itself. Reading it as a length would
+ * claim 255 bytes that are not there and misalign every field after
+ * it, so it has to be spelled out rather than left to the default.
+ *
+ * The chunk lengths in the 0xFE form are single bytes here, which is
+ * the 11g shape this dissector decodes throughout; 12.2 and later
+ * prefix each chunk with a variable-length ub4 instead. Telling the
+ * two apart needs the field version negotiated during the handshake,
+ * which is not threaded through yet.
+ *
+ * Returns the number of bytes consumed from the tvb and, when content
+ * is non-empty, a UTF-8 string allocated from pinfo->pool. */
 static int get_dalc_custom(tvbuff_t *tvb, packet_info *pinfo, int offset, const char **out_str)
 {
 	uint8_t first = tvb_get_uint8(tvb, offset);
-	if ( first == 0 )
+	if ( first == 0 || first == 255 )
 	{
 		if ( out_str )
 			*out_str = NULL;

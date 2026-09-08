@@ -1381,8 +1381,9 @@ class TestDissectTns:
     def test_tns_oer(self, cmd_tshark, capture_file, test_env):
         '''TTI_OER (Oracle Error Return) decodes call_status, rowcount,
         err_code, cursor_id, and the trailing ORA-NNNNN message text.
-        Two frames: a successful DML (rowcount=3, err=0) and a failed
-        DML (err=1, with message body).'''
+        Three frames: a successful DML (rowcount=3, err=0), a failed DML
+        (err=1, with message body), and one whose message is the null
+        marker.'''
         stdout = subprocess.check_output((cmd_tshark,
             '-r', capture_file('tns_oer.pcap'),
             '-d', 'tcp.port==1521,tns',
@@ -1393,11 +1394,27 @@ class TestDissectTns:
             '-e', 'tns.data_oer.cursor_id',
             '-e', 'tns.data_oer.message',
         ), encoding='utf-8', env=test_env)
-        rows = [r.split('\t') for r in stdout.strip().splitlines()]
-        assert len(rows) == 2, rows
+        # Not stdout.strip(): the last row ends in an empty field, and
+        # stripping would take the tab that holds it with the newline.
+        rows = [r.split('\t') for r in stdout.splitlines() if r]
+        assert len(rows) == 3, rows
         assert rows[0] == ['0', '3', '0', '42', ''], rows[0]
         assert rows[1][0] == '0' and rows[1][2] == '1' and rows[1][3] == '42', rows[1]
         assert 'ORA-00001' in rows[1][4], rows[1]
+        # 0xFF is the null marker and stands for itself. Read as a length it
+        # claims 255 bytes that are not there.
+        assert rows[2][2] == '1722' and rows[2][3] == '9', rows[2]
+        assert rows[2][4] == '', rows[2]
+
+    def test_tns_oer_no_malformed(self, cmd_tshark, capture_file, test_env):
+        '''No OER frame may be reported as malformed.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oer.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', '_ws.malformed',
+            '-T', 'fields', '-e', 'frame.number',
+        ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '', stdout
 
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):

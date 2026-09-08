@@ -5,11 +5,13 @@
 # Copyright 1998 Gerald Combs
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""Generate test/captures/tns_oer.pcap with two TTI_OER frames:
+"""Generate test/captures/tns_oer.pcap with three TTI_OER frames:
 
     Frame 1 — successful DML: call_status=0, rowcount=3, err_code=0
     Frame 2 — failure        : err_code=1 ("ORA-00001: unique constraint (...)
                                 violated") with message text
+    Frame 3 — failure whose message is the 0xFF null marker, which stands for
+                                itself and carries no data after it
 
 Bytes are constructed by hand in the Oracle 11g wire shape.
 """
@@ -47,7 +49,7 @@ def dalc(s: bytes | None) -> bytes:
 
 
 def build_oer(call_status: int, rowcount: int, err_code: int, cursor_id: int,
-              message: bytes | None) -> bytes:
+              message: bytes | None, message_raw: bytes | None = None) -> bytes:
     b = b"\x04"                       # TTI_OER token
     b += ub4(call_status)
     b += ub4(0)                       # end-to-end seq#
@@ -73,7 +75,7 @@ def build_oer(call_status: int, rowcount: int, err_code: int, cursor_id: int,
     b += ub4(0)                       # num batch offsets
     b += ub4(0)                       # num batch messages
     if err_code != 0:
-        b += dalc(message or b"")
+        b += message_raw if message_raw is not None else dalc(message or b"")
     return b
 
 
@@ -81,6 +83,10 @@ frames = [
     build_oer(call_status=0, rowcount=3, err_code=0, cursor_id=42, message=None),
     build_oer(call_status=0, rowcount=0, err_code=1, cursor_id=42,
               message=b"ORA-00001: unique constraint (TEST.PK) violated\n"),
+    # A null message. 0xFF is a marker, not a length of 255 - reading it as
+    # one walks off the end of the frame.
+    build_oer(call_status=0, rowcount=0, err_code=1722, cursor_id=9,
+              message=None, message_raw=b"\xff"),
 ]
 
 
@@ -102,7 +108,7 @@ def tcp_checksum(src: bytes, dst: bytes, seg: bytes) -> int:
     return (~s) & 0xFFFF
 
 
-def wrap(body: bytes, seq: int) -> bytes:
+def wrap(body: bytes, seq: int, ident: int) -> bytes:
     # TNS DATA framing (10 bytes).
     tns = struct.pack(">HhBBhh", len(body) + 10, 0, 6, 0, 0, 0) + body
 
@@ -120,7 +126,7 @@ def wrap(body: bytes, seq: int) -> bytes:
     seg = tcp + tns
 
     ip_total = 20 + len(seg)
-    ip_no = struct.pack(">BBHHHBBH", 0x45, 0, ip_total, seq, 0x4000, 64, 6, 0) + src_ip + dst_ip
+    ip_no = struct.pack(">BBHHHBBH", 0x45, 0, ip_total, ident, 0x4000, 64, 6, 0) + src_ip + dst_ip
     ip = ip_no[:10] + struct.pack(">H", ipv4_checksum(ip_no)) + ip_no[12:]
     return ip + seg
 
@@ -128,8 +134,12 @@ def wrap(body: bytes, seq: int) -> bytes:
 out = os.path.join(os.path.dirname(__file__), "tns_oer.pcap")
 with open(out, "wb") as f:
     f.write(struct.pack("<IHHIIII", 0xA1B2C3D4, 2, 4, 0, 0, 65535, 101))
+    # Sequence numbers have to advance by the bytes actually sent, or TCP
+    # reads the later frames as retransmissions and never dissects them.
+    seq = 1
     for i, body in enumerate(frames):
-        pkt = wrap(body, seq=i + 1)
+        pkt = wrap(body, seq=seq, ident=i + 1)
         f.write(struct.pack("<IIII", 0, i, len(pkt), len(pkt)))
         f.write(pkt)
+        seq += len(body) + 10  # TNS DATA header
 print(f"wrote {out} ({os.path.getsize(out)} bytes, {len(frames)} frames)")
