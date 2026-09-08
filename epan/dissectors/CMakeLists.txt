@@ -1429,6 +1429,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-p_mul.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pa-hbbackup.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pathport.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-packclient.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-packetbb.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-packetlogger.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pagp.c
