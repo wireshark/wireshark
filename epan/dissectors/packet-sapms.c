@@ -38,6 +38,7 @@ static const value_string sapms_domain_vals[] = {
 	{  0x00, "ABAP" },
 	{  0x01, "J2EE" },
 	{  0x02, "JSTARTUP" },
+	{  0x20, "WAS" },
 	/* NULL */
 	{ 0, NULL }
 };
@@ -83,6 +84,18 @@ static const value_string sapms_errorno_vals[] = {
 	{ 2, "MSENISELREAD" },
 	{ 3, "MSENIQUEUE" },
 	{ 4, "MSENILAYER" },
+	{ 59, "MSEINVGENERATION" },
+	{ 60, "MSERESETSUBSYSTEM" },
+	{ 61, "MSESSLLAYER" },
+	{ 62, "MSENOTATTACHED" },
+	{ 63, "MSEINUSE" },
+	{ 64, "MSERESUME" },
+	{ 65, "MSESUSPEND" },
+	{ 66, "MSERESTART" },
+	{ 67, "MSECLIENTVERSREQUIRED" },
+	{ 68, "MSEREADFAILED" },
+	{ 69, "MSECONNECTFAILED" },
+	{ 70, "MSEINCOMPATIBLEKERNEL" },
 	{ 71, "MSETESTSOFTSHUTDOWN" },
 	{ 72, "MSENOTINIT" },
 	{ 73, "MSEALREADYINIT" },
@@ -92,6 +105,7 @@ static const value_string sapms_errorno_vals[] = {
 	{ 77, "MSESNDTYPEFAILED" },
 	{ 78, "MSEDUPKEY" },
 	{ 79, "MSESOFTSHUTDOWN" },
+	{ 80, "MSEVARBUF" },
 	{ 81, "MSENOMEM" },
 	{ 82, "MSEHEADERINCOMPLETE" },
 	{ 83, "MSETYPESNOTALLOWED" },
@@ -125,6 +139,20 @@ static const value_string sapms_adm_msgtype_vals[] = {
 	{  2, "ADM_REPLY" },
 	/* NULL */
 	{  0, NULL }
+};
+
+/* MS Adm Record Error values. The native signed range -6..1 is encoded as
+ * byte values 250..255, 0, and 1 on the wire. */
+static const value_string sapms_adm_record_error_vals[] = {
+	{   0, "SAP_O_K" },
+	{   1, "ADCALLBACKNOTDEFINED" },
+	{ 250, "ADNOTRACE" },
+	{ 251, "ADACCESSDENIED" },
+	{ 252, "ADEHEAPOVERFLOW" },
+	{ 253, "ADEHEAD_DESTROYED" },
+	{ 254, "ADEBLKTOOLARGE" },
+	{ 255, "ADEINVAL" },
+	{   0, NULL }
 };
 
 /* MS Adm Record Opcode values */
@@ -166,7 +194,7 @@ static const value_string sapms_adm_record_opcode_vals[] = {
 	{ 0x2a, "AD_ENQID_INFO" },
 	{ 0x2b, "AD_DEL_USER" },
 	{ 0x2c, "AD_SPO_ADM" },
-	{ 0x2d, "AD_NTAB_SYNC" },
+	{ 0x2d, "AD_CATALOG_SYNC" },
 	{ 0x2e, "AD_SHARED_PARAMETER" },
 	{ 0x2f, "AD_RESET_TRACE" },
 	{ 0x30, "AD_RESET_USR02" },
@@ -180,21 +208,43 @@ static const value_string sapms_adm_record_opcode_vals[] = {
 	{ 0x3f, "AD_DP_CALL_DELAYED" },
 	{ 0x40, "AD_GW_ADM" },
 	{ 0x41, "AD_DP_WAKEUP_MODE" },
-	{ 0x42, "AD_VMC_SYS_EVENT" },
+	{ 0x42, "AD_FREE_66" },
 	{ 0x43, "AD_SHARED_PARAM_ALL_WPS" },
 	{ 0x44, "AD_SECSESSION_UPDATE" },
 	{ 0x45, "AD_SECSESSION_TERMINATE" },
 	{ 0x46, "AD_ASRF_REQUEST" },
 	{ 0x47, "AD_GET_NILIST" },
-	{ 0x48, "AD_LOAD_INFO" },
+	{ 0x48, "AD_FREE_72" },
 	{ 0x49, "AD_TEST" },
 	{ 0x4a, "AD_HANDLE_ACL" },
-	{ 0x4b, "AD_PROFILE2" },
-	{ 0x4c, "AD_RSCP_ASYNC" },
-	{ 0x4d, "AD_BATCH_INFO" },
-	{ 0x4e, "AD_SOFT_CANCEL" },
+	{ 0x4b, "AD_FREE_75" },
+	{ 0x4c, "AD_OAUTHBUFFRESET" },
+	{ 0x4d, "AD_RESET_BUFFERED_TABLE" },
+	{ 0x4e, "AD_SESSION_REQUEST" },
+	{ 0x4f, "AD_PROFILE2" },
+	{ 0x50, "AD_RSCP_ASYNC" },
+	{ 0x51, "AD_BATCH_INFO" },
+	{ 0x52, "AD_SOFT_CANCEL" },
+	{ 0x53, "AD_CREATE_SNAPSHOT" },
+	{ 0x54, "AD_KERNEL_UPDATE_INFO" },
 	{ 0x55, "AD_SYNC_LOAD_FMT" },
 	{ 0x56, "AD_GET_NILIST_PORT" },
+	{ 0x57, "AD_CHECK_SERVICE" },
+	{ 0x58, "AD_KRB_UPDATE_KEYTAB" },
+	{ 0x59, "AD_RSAU_CHECK_FILE" },
+	{ 0x5a, "AD_ARFC_NOREQ_2" },
+	{ 0x5b, "AD_RESET_BUF_TAB_PARAM" },
+	{ 0x5c, "AD_VIRTUAL_DDIC_MODE" },
+	{ 0x5d, "AD_GENERAL3" },
+	{ 0x5e, "AD_LOAD_INFO" },
+	{ 0x5f, "AD_UNDISP_REQ_INFO" },
+	{ 0x60, "AD_CA_BLK_INFO" },
+	{ 0x61, "AD_SERVER_INFO" },
+	{ 0x62, "AD_AMDP_DEBUGGER_ACTION" },
+	{ 0x63, "AD_VIRTUAL_USER" },
+	{ 0x64, "AD_RESOURCE_INFO" },
+	{ 0x65, "AD_GET_SERVER_STATUS" },
+	{ 0x66, "AD_APG_NOTIFY" },
 	/* NULL */
 	{ 0x00, NULL }
 };
@@ -301,9 +351,18 @@ static const value_string sapms_opcode_vals[] = {
 	{ 70, "MS_IP_PORT_TO_NAME" },
 	{ 71, "MS_CHECK_ACL" },
 	{ 72, "MS_LICENSE_SRV" },
+	{ 73, "MS_SERVER_INC" },
 	{ 74, "MS_SERVER_TEST_SOFT_SHUTDOWN" },
 	{ 75, "MS_J2EE_RECONNECT_P1" },
 	{ 76, "MS_J2EE_RECONNECT_P2" },
+	{ 77, "MS_SERVER_LST_SUBSYSTEM" },
+	{ 78, "MS_GET_SID" },
+	{ 79, "MS_SERVER_LST_SERVERGENERATION" },
+	{ 80, "MS_READ_LG_COUNTER" },
+	{ 81, "MS_RESET_LG_COUNTER" },
+	{ 82, "MS_ASCS_GW_LOGON" },
+	{ 83, "MS_ASCS_GW_STATUS" },
+	{ 84, "MS_ASCS_GW_KEEPALIVE" },
 	/* NULL */
 	{  0, NULL },
 };
@@ -342,6 +401,12 @@ static const value_string sapms_opcode_error_vals[] = {
 	{ 29, "MSOP_KERNEL_INCOMPATIBLE" },
 	{ 30, "MSOP_NIACLCREATE_FAILED" },
 	{ 31, "MSOP_NIACLSYNTAX_ERROR" },
+	{ 32, "MSOP_CLIENT_VER_REQUIRED" },
+	{ 33, "MSOP_RESTART" },
+	{ 34, "MSOP_TOOSMALL" },
+	{ 35, "MSOP_CLONED" },
+	{ 36, "MSOP_INV_GENERATION" },
+	{ 37, "MSOP_INV_ACTIVEGENERATION" },
 	/* NULL */
 	{  0, NULL },
 };
@@ -354,7 +419,11 @@ static const value_string sapms_property_id_vals[] = {
 	{  4, "MS_PROPERTY_PARAM" },
 	{  5, "MS_PROPERTY_SERVICE" },
 	{  6, "MS_PROPERTY_DELALT" },
-	{  7, "Release information" },
+	{  7, "MS_PROPERTY_RELINFO" },
+	{  8, "MS_PROPERTY_INFO" },
+	{  9, "MS_PROPERTY_HOSTNAME" },
+	{ 10, "MS_PROPERTY_FQN" },
+	{ 11, "MS_PROPERTY_SERVERGEN" },
 	/* NULL */
 	{  0, NULL },
 };
@@ -388,6 +457,11 @@ static const value_string sapms_dump_command_vals[] = {
 	{ 25, "MS_DUMP_ACL_FILE_EXTBND" },
 	{ 26, "MS_DUMP_ACL_FILE_HTTP" },
 	{ 27, "MS_DUMP_ACL_FILE_HTTPS" },
+	{ 28, "MS_DUMP_PROCESSINFO" },
+	{ 29, "MS_DUMP_SRVLIST_GUI" },
+	{ 30, "MS_DUMP_SRVLIST_RFC" },
+	{ 31, "MS_DUMP_GRPLIST_GUI" },
+	{ 32, "MS_DUMP_GRPLIST_RFC" },
 	/* NULL */
 	{  0, NULL },
 };
@@ -408,6 +482,7 @@ static const value_string sapms_file_reload_vals[] = {
 	{ 12, "MS_RELOAD_ACL_FILE_EXTBND" },
 	{ 13, "MS_RELOAD_ACL_FILE_HTTP" },
 	{ 14, "MS_RELOAD_ACL_FILE_HTTPS" },
+	{ 15, "MS_RELOAD_CRED_FILE" },
 	/* NULL */
 	{ 0, NULL }
 };
@@ -467,6 +542,7 @@ static const value_string sapms_server_lst_status_vals[] = {
 	{ 4, "MS_STATE_STOP" },
 	{ 5, "MS_STATE_STARTING" },
 	{ 6, "MS_STATE_INIT" },
+	{ 7, "MS_STATE_RECONNECT" },
 	/* NULL */
 	{ 0, NULL }
 };
@@ -608,6 +684,8 @@ static int hf_sapms_logon_misc;
 static int hf_sapms_logon_address6_length;
 static int hf_sapms_logon_address6;
 static int hf_sapms_logon_end;
+static int hf_sapms_logon_response_data;
+static int hf_sapms_logon_response_tail;
 
 static int hf_sapms_shutdown_reason_length;
 static int hf_sapms_shutdown_reason;
@@ -620,6 +698,8 @@ static int hf_sapms_ip_to_name;
 
 static int hf_sapms_check_acl_error_code;
 static int hf_sapms_check_acl_acl;
+
+static int hf_sapms_sid;
 
 static int hf_sapms_codepage;
 
@@ -996,6 +1076,111 @@ dissect_sapms_property(tvbuff_t *tvb, proto_tree *tree, uint32_t offset){
 }
 
 static void
+dissect_sapms_logon_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, uint32_t length){
+	uint16_t field_length = 0;
+
+	if (length < 16) {
+		expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+			"Logon response header is shorter than 16 bytes (actual=%u)", length);
+		return;
+	}
+
+	proto_tree_add_item(tree, hf_sapms_logon_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+	proto_tree_add_item(tree, hf_sapms_logon_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+	proto_tree_add_item(tree, hf_sapms_logon_address, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item_ret_uint16(tree, hf_sapms_logon_name_length, tvb, offset, 2,
+		ENC_BIG_ENDIAN, &field_length);
+	offset += 2;
+	length -= 10;
+	if (field_length > length) {
+		expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+			"Invalid logon response name length (expected=%u, actual=%u)", field_length, length);
+		return;
+	}
+	if (field_length > 0) {
+		proto_tree_add_item(tree, hf_sapms_logon_name, tvb, offset, field_length, ENC_ASCII);
+		offset += field_length;
+		length -= field_length;
+	}
+
+	if (length < 2) {
+		expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+			"Logon response protocol length field is truncated (actual=%u)", length);
+		return;
+	}
+	proto_tree_add_item_ret_uint16(tree, hf_sapms_logon_prot_length, tvb, offset, 2,
+		ENC_BIG_ENDIAN, &field_length);
+	offset += 2;
+	length -= 2;
+	if (field_length > length) {
+		expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+			"Invalid logon response protocol length (expected=%u, actual=%u)", field_length, length);
+		return;
+	}
+	if (field_length > 0) {
+		proto_tree_add_item(tree, hf_sapms_logon_prot, tvb, offset, field_length, ENC_ASCII);
+		offset += field_length;
+		length -= field_length;
+	}
+
+	if (length < 2) {
+		expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+			"Logon response host length field is truncated (actual=%u)", length);
+		return;
+	}
+	proto_tree_add_item_ret_uint16(tree, hf_sapms_logon_host_length, tvb, offset, 2,
+		ENC_BIG_ENDIAN, &field_length);
+	offset += 2;
+	length -= 2;
+	if (field_length > length) {
+		expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+			"Invalid logon response host length (expected=%u, actual=%u)", field_length, length);
+		return;
+	}
+	if (field_length > 0) {
+		proto_tree_add_item(tree, hf_sapms_logon_host, tvb, offset, field_length, ENC_ASCII);
+		offset += field_length;
+		length -= field_length;
+	}
+
+	if (length < 2) {
+		expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+			"Logon response misc length field is truncated (actual=%u)", length);
+		return;
+	}
+	proto_tree_add_item_ret_uint16(tree, hf_sapms_logon_misc_length, tvb, offset, 2,
+		ENC_BIG_ENDIAN, &field_length);
+	offset += 2;
+	length -= 2;
+	if (field_length > length) {
+		expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+			"Invalid logon response misc length (expected=%u, actual=%u)", field_length, length);
+		return;
+	}
+	if (field_length > 0) {
+		proto_tree_add_item(tree, hf_sapms_logon_misc, tvb, offset, field_length, ENC_ASCII);
+		offset += field_length;
+		length -= field_length;
+	}
+
+	if (length < 7) {
+		expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+			"Logon response data is shorter than 7 bytes (actual=%u)", length);
+		return;
+	}
+	proto_tree_add_item(tree, hf_sapms_logon_response_data, tvb, offset, 7, ENC_NA);
+	offset += 7;
+	length -= 7;
+	if (length > 0) {
+		proto_tree_add_item(tree, hf_sapms_logon_response_tail, tvb, offset, length, ENC_NA);
+	}
+}
+
+static void
 dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, uint8_t flag, uint8_t opcode, uint8_t opcode_version, uint32_t length){
 	int client_length = 0;
 
@@ -1011,7 +1196,8 @@ dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 			dissect_sapms_client(tvb, pinfo, tree, offset, opcode_version);
 			break;
 		}
-		case 0x05:{			/* MS_SERVER_LST */
+		case 0x05:			/* MS_SERVER_LST */
+		case 0x4d:{			/* MS_SERVER_LST_SUBSYSTEM */
 			if (flag == 0x03){ /* If it's a reply (flag=MS_REPLY) */
 				while (tvb_reported_length_remaining(tvb, offset) > 0){
 					client_length = dissect_sapms_client(tvb, pinfo, tree, offset, opcode_version);
@@ -1144,6 +1330,10 @@ dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 		case 0x2b:			/* MS_SET_LOGON */
 		case 0x2c:			/* MS_GET_LOGON */
 		case 0x2d:{			/* MS_DEL_LOGON */
+			if (flag == 0x03) { /* SAPMSLogonResponse */
+				dissect_sapms_logon_response(tvb, pinfo, tree, offset, length);
+				break;
+			}
 			uint16_t name_length = 0, prot_length = 0, host_length = 0, misc_length = 0, address6_length = 0;
 			uint32_t address_ipv4;
 			struct e_in6_addr address_ipv6;
@@ -1351,6 +1541,15 @@ dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 			}
 			string_length += 1;
 			proto_tree_add_item(tree, hf_sapms_check_acl_acl, tvb, offset, string_length, ENC_ASCII);
+			break;
+		}
+		case 0x4e:{			/* MS_GET_SID */
+			if (flag == 0x03 && length >= 8) {
+				proto_tree_add_item(tree, hf_sapms_sid, tvb, offset, 8, ENC_ASCII);
+			} else if (flag == 0x03) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+					"SID response is shorter than 8 bytes (actual=%u)", length);
+			}
 			break;
 		}
 		default:{
@@ -1572,7 +1771,7 @@ proto_register_sapms(void)
 		{ &hf_sapms_adm_record_executed,
 			{ "Adm Record Executed", "sapms.adm.record.executed", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sapms_adm_record_errorno,
-			{ "Adm Record Error Number", "sapms.adm.record.errorno", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+			{ "Adm Record Error Number", "sapms.adm.record.errorno", FT_UINT8, BASE_HEX, VALS(sapms_adm_record_error_vals), 0x0, NULL, HFILL }},
 		{ &hf_sapms_adm_record_value,
 			{ "Adm Record Value", "sapms.adm.record.value", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
@@ -1776,6 +1975,10 @@ proto_register_sapms(void)
 			{ "Logon Address IPv6", "sapms.logon.address6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sapms_logon_end,
 			{ "Logon Address End", "sapms.logon.end", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapms_logon_response_data,
+			{ "Logon Response Data", "sapms.logon.response_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapms_logon_response_tail,
+			{ "Logon Response Tail", "sapms.logon.response_tail", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_sapms_shutdown_reason_length,
 			{ "Shutdown Reason Length", "sapms.shutdown.reason_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -1799,6 +2002,8 @@ proto_register_sapms(void)
 			{ "Check ACL Error Code", "sapms.check_acl.error_code", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sapms_check_acl_acl,
 			{ "Check ACL Entry", "sapms.check_acl.acl", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapms_sid,
+			{ "System ID", "sapms.sid", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
 
 	/* Setup protocol subtree array */
