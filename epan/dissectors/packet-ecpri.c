@@ -588,6 +588,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
         payload_tree = proto_item_add_subtree(payload_item, ett_ecpri_payload);
         remaining_length = payload_size;
+        unsigned int oran_offset = 0;
 
         /* Call the FH CUS dissector (for all message types) if preference set */
         if (pref_message_type_decoding)
@@ -617,7 +618,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                             "Payload Size %u is too small for encoding Message Type %u. Should be min. %d",
                             payload_size, msg_type, ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH);
 
-                        offset += payload_size;
+                        oran_offset = offset + payload_size;
                         break;
                     }
 
@@ -625,17 +626,13 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     if (remaining_length >= ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH)
                     {
                         /* Add these as opaque fields */
-                        proto_item *pcid_ti = proto_tree_add_item(ecpri_tree, hf_pc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ecpri_tree, hf_pc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
-                        proto_item *seqid_ti = proto_tree_add_item(ecpri_tree, hf_iq_data_seq_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ecpri_tree, hf_iq_data_seq_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
 
                         if (oran_fh_handled) {
-                            /* Assume that it has claimed the entire paylength offered to it */
-                            offset += payload_size;
-                            /* Don't show these fields, but let them remain filterable */
-                            proto_item_set_hidden(pcid_ti);
-                            proto_item_set_hidden(seqid_ti);
+                            offset = oran_offset;
                         }
                         else {
                             remaining_length -= ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH;
@@ -684,24 +681,20 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                             "Payload Size %u is too small for encoding Message Type %u. Should be min. %d",
                             payload_size, msg_type, ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH);
 
-                        offset += payload_size;
+                        oran_offset = offset + payload_size;
                         break;
                     }
 
                     if (remaining_length >= ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH) {
 
                         /* Add these as opaque fields */
-                        proto_item *pcid_ti = proto_tree_add_item(ecpri_tree, hf_pc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ecpri_tree, hf_pc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
-                        proto_item *seqid_ti = proto_tree_add_item(ecpri_tree, hf_iq_data_seq_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ecpri_tree, hf_iq_data_seq_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
 
                         if (oran_fh_handled) {
-                            /* Assume that it has claimed the entire paylength offered to it */
-                            offset += payload_size;
-                            /* Don't show these fields, but let them remain filterable */
-                            proto_item_set_hidden(pcid_ti);
-                            proto_item_set_hidden(seqid_ti);
+                            offset = oran_offset;
                         }
                         else {
                             remaining_length -= ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH;
