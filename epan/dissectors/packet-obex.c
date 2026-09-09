@@ -397,6 +397,7 @@ static int ett_obex_authentication_parameters;
 static wmem_tree_t *obex_path;
 static wmem_tree_t *obex_profile;
 static wmem_tree_t *obex_last_opcode;
+static wmem_tree_t *obex_fragment;
 
 static dissector_handle_t http_handle;
 static dissector_handle_t xml_handle;
@@ -464,6 +465,14 @@ typedef struct _obex_last_opcode_data_t {
     } data;
 } obex_last_opcode_data_t;
 
+typedef struct _obex_fragment_data_t {
+    uint32_t interface_id;
+    uint32_t adapter_id;
+    uint32_t chandle;
+    uint32_t channel;
+/* TODO: add OBEX ConnectionId */
+    uint32_t fragment_start;
+} obex_fragment_data_t;
 
 #define PROFILE_UNKNOWN  0
 #define PROFILE_OPP      1
@@ -2289,8 +2298,10 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     uint32_t                  frame_number;
     obex_last_opcode_data_t  *obex_last_opcode_data;
     obex_path_data_t         *obex_path_data;
+    obex_fragment_data_t     *obex_fragment_data;
     uint32_t                  length;
     uint8_t                  *profile_data;
+    uint32_t                  fragment_id = 0;
     dissector_handle_t        current_handle;
     dissector_handle_t        default_handle;
     int                       previous_proto;
@@ -2385,7 +2396,16 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     complete = false;
 
     if (tvb_captured_length(tvb) == tvb_reported_length(tvb)) {
-        frag_msg = fragment_get_reassembled_id(&obex_reassembly_table, pinfo, pinfo->p2p_dir);
+        obex_fragment_data = (obex_fragment_data_t *)wmem_tree_lookup32_array_le(obex_fragment, key);
+        if (obex_fragment_data && obex_fragment_data->interface_id == obex_proto_data.interface_id &&
+                obex_fragment_data->adapter_id == obex_proto_data.adapter_id &&
+                obex_fragment_data->chandle == obex_proto_data.chandle &&
+                obex_fragment_data->channel == obex_proto_data.channel &&
+                obex_fragment_data->fragment_start <= frame_number) {
+            fragment_id = obex_fragment_data->fragment_start;
+        }
+
+        frag_msg = fragment_get_reassembled_id(&obex_reassembly_table, pinfo, fragment_id);
         if (frag_msg && pinfo->num != frag_msg->reassembled_in) {
             /* reassembled but not last */
 
@@ -2397,7 +2417,7 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             new_tvb = process_reassembled_data(tvb, 0, pinfo,
                     "Reassembled Obex packet", frag_msg, &obex_frag_items, NULL, main_tree);
         } else {
-            frag_msg = fragment_get(&obex_reassembly_table, pinfo, pinfo->p2p_dir, NULL);
+            frag_msg = fragment_get(&obex_reassembly_table, pinfo, fragment_id, NULL);
 
             if (frag_msg) {
                 /* not the first fragment */
@@ -2407,10 +2427,10 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 for (frag = frag_msg->next; frag->next; frag = frag->next) {}
 
                 frag_msg = fragment_add_check(&obex_reassembly_table,
-                        tvb, 0, pinfo, pinfo->p2p_dir, NULL,
+                        tvb, 0, pinfo, fragment_id, NULL,
                         frag->offset + frag->len, tvb_reported_length(tvb),
                                 ((frag->offset + frag->len + tvb_reported_length(tvb)) <
-                                    fragment_get_tot_len(&obex_reassembly_table, pinfo, pinfo->p2p_dir, NULL)) ? true : false);
+                                    fragment_get_tot_len(&obex_reassembly_table, pinfo, fragment_id, NULL)) ? true : false);
 
                 new_tvb = process_reassembled_data(tvb, 0, pinfo,
                         "Reassembled Obex packet", frag_msg, &obex_frag_items, NULL, main_tree);
@@ -2425,12 +2445,37 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     return tvb_reported_length(tvb);
                 } else if (tvb_reported_length(tvb) >= 3 && tvb_reported_length(tvb) < tvb_get_ntohs(tvb, offset+1)) {
                     /* first fragment in a sequence */
+                    frame_number = pinfo->num;
+
+                    key[0].length = 1;
+                    key[0].key = &obex_proto_data.interface_id;
+                    key[1].length = 1;
+                    key[1].key = &obex_proto_data.adapter_id;
+                    key[2].length = 1;
+                    key[2].key = &obex_proto_data.chandle;
+                    key[3].length = 1;
+                    key[3].key = &obex_proto_data.channel;
+                    key[4].length = 1;
+                    key[4].key = &frame_number;
+                    key[5].length = 0;
+                    key[5].key = NULL;
+
+                    obex_fragment_data = wmem_new(wmem_file_scope(), obex_fragment_data_t);
+                    obex_fragment_data->interface_id   = obex_proto_data.interface_id;
+                    obex_fragment_data->adapter_id     = obex_proto_data.adapter_id;
+                    obex_fragment_data->chandle        = obex_proto_data.chandle;
+                    obex_fragment_data->channel        = obex_proto_data.channel;
+                    obex_fragment_data->fragment_start = frame_number;
+
+                    wmem_tree_insert32_array(obex_fragment, key, obex_fragment_data);
+
+                    fragment_id = obex_fragment_data->fragment_start;
                     frag_msg = fragment_add_check(&obex_reassembly_table,
-                                        tvb, 0, pinfo, pinfo->p2p_dir, NULL,
+                                        tvb, 0, pinfo, fragment_id, NULL,
                                         0, tvb_reported_length(tvb), true);
 
                     fragment_set_tot_len(&obex_reassembly_table,
-                                        pinfo, pinfo->p2p_dir, NULL,
+                                        pinfo, fragment_id, NULL,
                                         tvb_get_ntohs(tvb, offset + 1));
 
                     new_tvb = process_reassembled_data(tvb, 0, pinfo,
@@ -3846,6 +3891,7 @@ proto_register_obex(void)
     obex_path        = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     obex_profile     = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     obex_last_opcode = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    obex_fragment    = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_obex = proto_register_protocol("OBEX Protocol", "OBEX", "obex");
 
