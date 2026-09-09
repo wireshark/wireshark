@@ -1138,8 +1138,6 @@ dissect_ac_if_hdr_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 {
     int      offset_start;
     uint16_t bcdADC;
-    uint8_t  ver_major;
-    double   ver;
     uint8_t  if_in_collection, i;
 
     static int * const bm_controls[] = {
@@ -1151,11 +1149,11 @@ dissect_ac_if_hdr_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     offset_start = offset;
 
     bcdADC = tvb_get_letohs(tvb, offset);
-    ver_major = USB_AUDIO_BCD44_TO_DEC(bcdADC>>8);
-    ver = ver_major + USB_AUDIO_BCD44_TO_DEC(bcdADC&0xFF) / 100.0;
 
-    proto_tree_add_double_format_value(tree, hf_ac_if_hdr_ver,
-            tvb, offset, 2, ver, "%2.2f", ver);
+    proto_tree_add_uint_format_value(tree, hf_ac_if_hdr_ver, tvb, offset, 2,
+            bcdADC, "%d.%02d",
+            USB_AUDIO_BCD44_TO_DEC(bcdADC>>8),
+            USB_AUDIO_BCD44_TO_DEC(bcdADC&0xFF));
     offset += 2;
 
     /* version 1 refers to the Basic Audio Device specification,
@@ -2120,17 +2118,15 @@ dissect_ms_if_hdr_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 {
     int      offset_start;
     uint16_t bcdADC;
-    uint8_t  ver_major;
-    double   ver;
 
     offset_start = offset;
 
     bcdADC = tvb_get_letohs(tvb, offset);
-    ver_major = USB_AUDIO_BCD44_TO_DEC(bcdADC>>8);
-    ver = ver_major + USB_AUDIO_BCD44_TO_DEC(bcdADC&0xFF) / 100.0;
 
-    proto_tree_add_double_format_value(tree, hf_ms_if_hdr_ver,
-            tvb, offset, 2, ver, "%2.2f", ver);
+    proto_tree_add_uint_format_value(tree, hf_ms_if_hdr_ver, tvb, offset, 2,
+            bcdADC, "%d.%02d",
+            USB_AUDIO_BCD44_TO_DEC(bcdADC>>8),
+            USB_AUDIO_BCD44_TO_DEC(bcdADC&0xFF));
     offset += 2;
 
     proto_tree_add_item(tree, hf_ms_if_hdr_total_len,
@@ -2967,7 +2963,7 @@ proto_register_usb_audio(void)
                 &ac_subtype_vals_ext, 0x0, "bDescriptorSubtype", HFILL }},
         { &hf_ac_if_hdr_ver,
             { "Version", "usbaudio.ac_if_hdr.bcdADC",
-                FT_DOUBLE, BASE_NONE, NULL, 0, "bcdADC", HFILL }},
+                FT_UINT16, BASE_HEX, NULL, 0x0, "bcdADC", HFILL }},
         { &hf_ac_if_hdr_total_len,
             { "Total length", "usbaudio.ac_if_hdr.wTotalLength",
               FT_UINT16, BASE_DEC, NULL, 0x0, "wTotalLength", HFILL }},
@@ -3853,7 +3849,7 @@ proto_register_usb_audio(void)
               &ms_if_subtype_vals_ext, 0x0, "bDescriptorSubtype", HFILL }},
         { &hf_ms_if_hdr_ver,
             { "Version", "usbaudio.ms_if_hdr.bcdADC",
-              FT_DOUBLE, BASE_NONE, NULL, 0, "bcdADC", HFILL }},
+              FT_UINT16, BASE_HEX, NULL, 0x0, "bcdADC", HFILL }},
         { &hf_ms_if_hdr_total_len,
             { "Total length", "usbaudio.ms_if_hdr.wTotalLength",
               FT_UINT16, BASE_DEC, NULL, 0x00, "wTotalLength", HFILL }},
