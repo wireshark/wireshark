@@ -633,7 +633,9 @@ static const value_string info_element_values_short [] = {
     { CONTROL_FUNCTION_ELEMENT, "CF element" },
     { CONTROL_FUNCTION_ID,      "CF ID" },
     { ENABLE_METERING,          "EM" },
+    /*{ VARIANT,                "Var" },  XXX - Duplicate value of ENABLE_METERING */
     { METERING_REPORT,          "MR" },
+    /*{ INTERFACE_ID,           "Interface ID" }, XXX - Duplicate value of METERING_REPORT */
     { ATTENUATION,              "ATT" },
     { LINK_CONTROL_FUNCTION,    "LC F" },
     { USER_PORT_ID,             "UP ID" },
