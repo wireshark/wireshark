@@ -193,6 +193,7 @@ static const value_string pn_dcp_block_error[] = {
     { 0x04, "Resource Error" },
     { 0x05, "SET not possible by local reasons" },
     { 0x06, "In operation, SET not possible" },
+    { 0x07, "SET or GET not possible by security reasons" },
     /* all others reserved */
     { 0, NULL }
 };
