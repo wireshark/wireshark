@@ -298,11 +298,12 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
 
   int data_len = msg_length_remaining;
   int wkc_len = -1;
-  if ((openvpn_opcode == P_CONTROL_HARD_RESET_CLIENT_V3 || openvpn_opcode == P_CONTROL_WKC_V1)
-      &&  msg_length_remaining >= 2) {
-
-    wkc_len = tvb_get_ntohs(tvb, tvb_reported_length(tvb) - 2);
-    data_len = msg_length_remaining - wkc_len;
+  if ((openvpn_opcode == P_CONTROL_HARD_RESET_CLIENT_V3 || openvpn_opcode == P_CONTROL_WKC_V1) && msg_length_remaining >= 2) {
+    uint32_t parsed_wkc_len = tvb_get_ntohs(tvb, tvb_reported_length(tvb) - 2);
+    if (parsed_wkc_len >= 2 && parsed_wkc_len <= msg_length_remaining) {
+      wkc_len = (int)parsed_wkc_len;
+      data_len = (int)(msg_length_remaining - parsed_wkc_len);
+    }
   }
 
   if (openvpn_opcode != P_CONTROL_V1) {
